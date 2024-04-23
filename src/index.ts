@@ -4,14 +4,14 @@ import express from "express";
 
 // this require is necessary for server HMR to recover from error
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-let app = require("./server").default;
+let app = require("./server/server").default;
 
 if (module.hot) {
-  module.hot.accept("./server", () => {
+  module.hot.accept("./server/server", () => {
     console.log("🔁  HMR Reloading `./server`...");
     try {
       // eslint-disable-next-line @typescript-eslint/no-var-requires
-      app = require("./server").default;
+      app = require("./server/server").default;
     } catch (error) {
       console.error(error);
     }
