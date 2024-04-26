@@ -1,24 +1,26 @@
-require('dotenv').config() // this is important!
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+require("dotenv").config();
+// this is important!
 module.exports = {
   development: {
     username: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME,
     host: process.env.DB_HOST,
-    dialect: 'mysql'
+    dialect: "mysql",
   },
   test: {
-    username: 'root',
+    username: "root",
     password: null,
-    database: 'database_test',
-    host: '127.0.0.1',
-    dialect: 'mysql'
+    database: "database_test",
+    host: "127.0.0.1",
+    dialect: "mysql",
   },
   production: {
-    username: 'root',
+    username: "root",
     password: null,
-    database: 'database_production',
-    host: '127.0.0.1',
-    dialect: 'mysql'
-  }
-}
+    database: "database_production",
+    host: "127.0.0.1",
+    dialect: "mysql",
+  },
+};

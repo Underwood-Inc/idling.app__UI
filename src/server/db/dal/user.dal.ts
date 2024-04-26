@@ -1,11 +1,13 @@
-import { Model, Op, WhereOptions } from 'sequelize';
-import { AuthUserDTO } from '../../api/dto/user.dto';
+/* eslint-disable class-methods-use-this */
+/* eslint-disable no-return-await */
+import { Model, Op, WhereOptions } from "sequelize";
+import { AuthUserDTO } from "../../api/dto/user.dto";
 import {
   IUserFilters,
   IUserInput,
   IUserOutput,
-} from '../../interfaces/user.interface';
-import User from '../models/user';
+} from "../../interfaces/user.interface";
+import User from "../models/user";
 
 export class UserDal {
   private getAllOptions = <
@@ -31,20 +33,18 @@ export class UserDal {
       try {
         User.findOne({
           where: {
-            ...this.getAllOptions({ userName: userName }),
+            ...this.getAllOptions({ userName }),
           },
         }).then(async (_user) => {
           if (!_user) {
             resolve(false);
+          } else if (
+            !_user.dataValues.password ||
+            !(await _user.isValidPassword(password))
+          ) {
+            resolve(false);
           } else {
-            if (
-              !_user.dataValues.password ||
-              !(await _user.isValidPassword(password))
-            ) {
-              resolve(false);
-            } else {
-              resolve(_user);
-            }
+            resolve(_user);
           }
         });
       } catch (error) {
@@ -52,7 +52,7 @@ export class UserDal {
           status: 500,
           data: {},
           error: {
-            message: 'user match failed',
+            message: "user match failed",
           },
         };
         return reject(response);
@@ -68,7 +68,7 @@ export class UserDal {
     const user = await User.findByPk(id);
 
     if (!user) {
-      throw new Error('not found');
+      throw new Error("not found");
     }
 
     return await (payload as User).update(payload);
@@ -78,7 +78,7 @@ export class UserDal {
     const user = await User.findByPk(id);
 
     if (!user) {
-      throw new Error('not found');
+      throw new Error("not found");
     }
 
     return user;
@@ -92,7 +92,7 @@ export class UserDal {
     });
 
     if (!user) {
-      throw new Error('not found');
+      throw new Error("not found");
     }
 
     return user;

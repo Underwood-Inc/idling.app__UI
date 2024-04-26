@@ -2,7 +2,7 @@ import {
   IUser,
   IUserAttributes,
   IUserOutput,
-} from '../../../interfaces/user.interface';
+} from "../../../interfaces/user.interface";
 
 export const userMapper = {
   toUser: (user: IUserOutput | IUserAttributes): IUser => {

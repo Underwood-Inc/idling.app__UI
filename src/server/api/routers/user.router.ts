@@ -1,8 +1,8 @@
-import { NextFunction, Request, Response, Router } from 'express';
-import { sign } from 'jsonwebtoken';
-import { IUserFilters } from '../../interfaces/user.interface';
-import { UserController } from '../controllers/user';
-import { AuthUserDTO, CreateUserDTO, UpdateUserDTO } from '../dto/user.dto';
+import { NextFunction, Request, Response, Router } from "express";
+import { sign } from "jsonwebtoken";
+import { IUserFilters } from "../../interfaces/user.interface";
+import { UserController } from "../controllers/user";
+import { AuthUserDTO, CreateUserDTO, UpdateUserDTO } from "../dto/user.dto";
 
 const userRouter = Router();
 const controller = new UserController();
@@ -21,16 +21,16 @@ const timeLog = (req: Request, res: Response, next: NextFunction) => {
 userRouter.use(timeLog);
 
 // get user
-userRouter.get('/:id', async (req: Request, res: Response) => {
+userRouter.get("/:id", async (req: Request, res: Response) => {
   const id = Number(req.params.id);
-  console.log('id', id);
+  console.log("id", id);
   const result = await controller.getById(id);
 
   return res.status(200).send(result);
 });
 
 // update user
-userRouter.put('/:id', async (req: Request, res: Response) => {
+userRouter.put("/:id", async (req: Request, res: Response) => {
   const id = Number(req.params.id);
   const payload: UpdateUserDTO = req.body;
 
@@ -39,7 +39,7 @@ userRouter.put('/:id', async (req: Request, res: Response) => {
 });
 
 // delete user
-userRouter.delete('/:id', async (req: Request, res: Response) => {
+userRouter.delete("/:id", async (req: Request, res: Response) => {
   const id = Number(req.params.id);
 
   const result = await controller.deleteById(id);
@@ -48,7 +48,7 @@ userRouter.delete('/:id', async (req: Request, res: Response) => {
 });
 
 // create user
-userRouter.post('/', async (req: Request, res: Response) => {
+userRouter.post("/", async (req: Request, res: Response) => {
   const payload: CreateUserDTO = req.body;
 
   const result = await controller.create(payload);
@@ -56,7 +56,7 @@ userRouter.post('/', async (req: Request, res: Response) => {
 });
 
 // get all users
-userRouter.get('/', async (req: Request, res: Response) => {
+userRouter.get("/", async (req: Request, res: Response) => {
   const filters: IUserFilters = req.query;
 
   const results = await controller.getAll(filters);
@@ -65,7 +65,7 @@ userRouter.get('/', async (req: Request, res: Response) => {
 
 // authenticate user
 // TODO: alias endpoint /login
-userRouter.post('/authenticate', async (req: Request, res: Response) => {
+userRouter.post("/authenticate", async (req: Request, res: Response) => {
   const payload: AuthUserDTO = req.body;
 
   const user = await controller.authenticate({
@@ -80,7 +80,7 @@ userRouter.post('/authenticate', async (req: Request, res: Response) => {
         email: user.email,
         userName: user.userName,
       }),
-      jwtSecret || 'dumb_secret'
+      jwtSecret || "dumb_secret"
     );
 
     return res.status(200).send({
@@ -89,7 +89,7 @@ userRouter.post('/authenticate', async (req: Request, res: Response) => {
     });
   }
 
-  return res.status(403).send('User is not authorized');
+  return res.status(403).send("User is not authorized");
 });
 
 export default userRouter;

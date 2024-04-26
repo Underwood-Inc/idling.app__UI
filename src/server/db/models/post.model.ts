@@ -1,18 +1,22 @@
-import { DataTypes, Model } from 'sequelize';
+import { DataTypes, Model } from "sequelize";
 import {
   IPostInput,
   Post as PostAttributes,
-} from '../../interfaces/post.interface';
-import sequelizeConnection from '../config/db.config';
+} from "../../interfaces/post.interface";
+import sequelizeConnection from "../config/db.config";
 
 class Post extends Model<PostAttributes, IPostInput> implements PostAttributes {
   id!: number;
+
   name!: string;
+
   slug!: string;
 
   // timestamps!
   readonly createdAt!: Date;
+
   readonly updatedAt!: Date;
+
   readonly deletedAt!: Date;
 }
 

@@ -1,8 +1,9 @@
-import { Filters } from '../../../interfaces/filters.interface';
-import { Post } from '../../../interfaces/post.interface';
-import { CreatePostDTO, UpdatePostDTO } from '../../dto/post.dto';
-import { PostService } from '../../services/post.service';
-import { postMapper } from './post.mapper';
+/* eslint-disable class-methods-use-this */
+import { Filters } from "../../../interfaces/filters.interface";
+import { Post } from "../../../interfaces/post.interface";
+import { CreatePostDTO, UpdatePostDTO } from "../../dto/post.dto";
+import { PostService } from "../../services/post.service";
+import { postMapper } from "./post.mapper";
 
 const service = new PostService();
 
@@ -19,7 +20,7 @@ export class PostController {
     return postMapper.toPost(await service.getById(id));
   }
 
-  async deleteById(id: number): Promise<Boolean> {
+  async deleteById(id: number): Promise<boolean> {
     const isDeleted = await service.deleteById(id);
 
     return isDeleted;

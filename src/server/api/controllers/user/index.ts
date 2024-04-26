@@ -1,7 +1,8 @@
-import { IUser, IUserFilters } from '../../../interfaces/user.interface';
-import { AuthUserDTO, CreateUserDTO, UpdateUserDTO } from '../../dto/user.dto';
-import { UserService } from '../../services/user.service';
-import { userMapper } from './user.mapper';
+/* eslint-disable class-methods-use-this */
+import { IUser, IUserFilters } from "../../../interfaces/user.interface";
+import { AuthUserDTO, CreateUserDTO, UpdateUserDTO } from "../../dto/user.dto";
+import { UserService } from "../../services/user.service";
+import { userMapper } from "./user.mapper";
 
 const service = new UserService();
 
@@ -9,7 +10,7 @@ export class UserController {
   async authenticate(authPayload: AuthUserDTO): Promise<IUser | false> {
     const user = await service.authenticate(authPayload);
 
-    if (!!user) {
+    if (user) {
       return userMapper.toUser(user);
     }
 
@@ -32,7 +33,7 @@ export class UserController {
     return userMapper.toUser(await service.getByUserName(userName));
   }
 
-  async deleteById(id: number): Promise<Boolean> {
+  async deleteById(id: number): Promise<boolean> {
     const isDeleted = await service.deleteById(id);
 
     return isDeleted;
