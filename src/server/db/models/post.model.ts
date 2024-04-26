@@ -46,4 +46,3 @@ Post.init(
 );
 
 export default Post;
-export { Post };

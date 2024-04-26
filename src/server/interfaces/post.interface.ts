@@ -1,5 +1,5 @@
-import { Optional } from 'sequelize';
-import { TimeStamps } from './common.interface';
+import { Optional } from "sequelize";
+import { TimeStamps } from "./common.interface";
 
 export interface Post extends TimeStamps {
   id: number;
@@ -7,5 +7,5 @@ export interface Post extends TimeStamps {
   slug: string;
 }
 
-export interface IPostInput extends Optional<Post, 'id' | 'slug'> {}
-export interface IPostOutput extends Required<Post> {}
+export type IPostInput = Optional<Post, "id" | "slug">;
+export type IPostOutput = Required<Post>;

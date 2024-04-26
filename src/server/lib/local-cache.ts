@@ -1,4 +1,5 @@
-import NodeCache from 'node-cache';
+/* eslint-disable no-underscore-dangle */
+import NodeCache from "node-cache";
 
 type CacheKey = string | number;
 
