@@ -19,7 +19,8 @@
     "strictNullChecks": true,
     "strict": false,
     "pretty": true,
-    "target": "esnext"
+    "target": "esnext",
+    "typeRoots": ["node_modules/@types", "src/typings"]
   },
   "exclude": [
     "node_modules",

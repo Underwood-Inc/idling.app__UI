@@ -40,30 +40,12 @@ const jsScriptTagsFromAssets = (
     : "";
 };
 
-export const renderApp = async (
-  req: express.Request,
-  res: express.Response
-): Promise<string | void> => {
-  const context = {};
-  // If we got a redirect response, short circuit and let our Express server
-  // handle that directly
-  // if (context instanceof Response) {
-  //   throw context;
-  // }
-
+export const renderApp = async (req: express.Request): Promise<string | void> => {
   const markup = renderToString(
     <React.StrictMode>
       <StaticRouter location={req.url} />
     </React.StrictMode>
   );
-  // <StaticRouter context={context} location={req.url}>
-  //   <App />
-  // </StaticRouter>
-
-  // TODO: debug if this does anything
-  // if (context.url) {
-  //   return { redirect: context.url };
-  // }
 
   const html =
     // prettier-ignore
@@ -72,7 +54,7 @@ export const renderApp = async (
     <head>
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
         <meta charSet='utf-8' />
-        <title>Welcome to Razzle</title>
+        <title>Idling.app coming soon</title>
         <meta name="viewport" content="width=device-width, initial-scale=1">
         ${cssLinksFromAssets(assets, 'client')}
     </head>

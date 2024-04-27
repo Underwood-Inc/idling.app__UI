@@ -1,0 +1,30 @@
+.fallback-route-loading__loader img {
+  width: 30rem;
+}
+
+.fallback-route-loading__loader {
+  display: contents;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column-reverse;
+  position: relative;
+  height: 100%;
+  text-align: center;
+  background-color: #333036;
+  color: azure;
+}
+
+.fallback-route-loading__container {
+  background-color: #423934;
+  height: 100vh;
+}
+
+.fallback-route-loading__loader-content {
+  margin: 0;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%,-50%);
+  font-family: sans-serif;
+  text-transform: uppercase;
+}
