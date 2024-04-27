@@ -19,7 +19,6 @@
     "strictNullChecks": true,
     "strict": false,
     "pretty": true,
-    "suppressImplicitAnyIndexErrors": true,
     "target": "esnext"
   },
   "exclude": [

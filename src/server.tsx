@@ -3,50 +3,68 @@ import React from "react";
 import { renderToString } from "react-dom/server";
 import { StaticRouter } from "react-router-dom/server";
 
-import App from "./App";
-
-let assets: any;
+let assets: Record<string, { js: string[]; css: string[] }>;
 
 const syncLoadAssets = () => {
-  // eslint-disable-next-line import/no-dynamic-require
+  // eslint-disable-next-line import/no-dynamic-require, @typescript-eslint/no-non-null-assertion, global-require
   assets = require(process.env.RAZZLE_ASSETS_MANIFEST!);
 };
 syncLoadAssets();
 
-const cssLinksFromAssets = (assets, entrypoint) => {
+const cssLinksFromAssets = (
+  _assets: { [x: string]: { css: string[] } },
+  entrypoint: string
+) => {
   // eslint-disable-next-line no-nested-ternary
-  return assets[entrypoint]
-    ? assets[entrypoint].css
+  return _assets[entrypoint]
+    ? _assets[entrypoint].css
       ? assets[entrypoint].css
-          .map((asset) => `<link rel="stylesheet" href="${asset}">`)
+          .map((asset: string) => `<link rel="stylesheet" href="${asset}">`)
           .join("")
       : ""
     : "";
 };
 
-const jsScriptTagsFromAssets = (assets, entrypoint, extra = "") => {
+const jsScriptTagsFromAssets = (
+  _assets: { [x: string]: { js: string[] } },
+  entrypoint: string,
+  extra = ""
+) => {
   // eslint-disable-next-line no-nested-ternary
-  return assets[entrypoint]
-    ? assets[entrypoint].js
+  return _assets[entrypoint]
+    ? _assets[entrypoint].js
       ? assets[entrypoint].js
-          .map((asset) => `<script src="${asset}"${extra}></script>`)
+          .map((asset: string) => `<script src="${asset}"${extra}></script>`)
           .join("")
       : ""
     : "";
 };
 
-export const renderApp = (req: express.Request, res: express.Response) => {
-  const context: any = {};
+export const renderApp = async (
+  req: express.Request,
+  res: express.Response
+): Promise<string | void> => {
+  const context = {};
+  // If we got a redirect response, short circuit and let our Express server
+  // handle that directly
+  // if (context instanceof Response) {
+  //   throw context;
+  // }
 
   const markup = renderToString(
-    <StaticRouter context={context} location={req.url}>
-      <App />
-    </StaticRouter>
+    <React.StrictMode>
+      <StaticRouter location={req.url} />
+    </React.StrictMode>
   );
+  // <StaticRouter context={context} location={req.url}>
+  //   <App />
+  // </StaticRouter>
 
-  if (context.url) {
-    return { redirect: context.url };
-  }
+  // TODO: debug if this does anything
+  // if (context.url) {
+  //   return { redirect: context.url };
+  // }
+
   const html =
     // prettier-ignore
     `<!doctype html>
@@ -64,19 +82,82 @@ export const renderApp = (req: express.Request, res: express.Response) => {
     </body>
   </html>`;
 
-  return { html };
+  return html;
 };
+const jwtToken = process.env.JWT_TOKEN;
+
+// async function authentication(req: Request, res: Response, next: NextFunction) {
+//   try {
+//     if (!req.headers.authorization) throw new Error("Invalid token");
+//     const [type, token] = req.headers.authorization.split(" ");
+
+//     if (type !== "Bearer") throw new Error("Invalid token");
+//     const payload = jwt.verify(token, "secret");
+
+//     if (!payload) throw new Error("Invalid token");
+//     // let user = await User.findByPk(payload.id);
+//     const user = await User.findByPk(req.user.id, {
+//       attributes: { exclude: ["password"] },
+//     });
+//     if (!user) throw new Error("Data not found");
+
+//     // @ts-expect-error undefined type
+//     req.user = {
+//       id: user.id,
+//     };
+
+//     next();
+//   } catch (error) {
+//     next(error);
+//   }
+// }
 
 const server = express()
   .disable("x-powered-by")
   .use(express.static(process.env.RAZZLE_PUBLIC_DIR || "RAZZLE_PUBLIC_DIR"))
-  .get("/*", (req: express.Request, res: express.Response) => {
-    const { html = "", redirect = false } = renderApp(req, res);
-    if (redirect) {
-      res.redirect(redirect);
-    } else {
-      res.send(html);
-    }
+  .use(express.json())
+  .use(express.urlencoded({ extended: true }))
+  // .use("/api/v1/", router)
+  .get("/test", async (req, res) => {
+    return res.status(200).send("Well done! This is the test endpoint.");
+  })
+  // .get("/protected-test", authentication, async (req, res, next) => {
+  //   try {
+  //     // console.log(req);
+  //     // const token = req.headers.authorization?.split(" ")[1] || "";
+
+  //     // // console.log("token", token);
+  //     // if (!token) {
+  //     //   return res.status(403).send("A token is required for authentication");
+  //     // }
+
+  //     // const decodedToken = verify(token, jwtToken || "dumb_secret");
+
+  //     // // @ts-expect-error type sig mismatch on req
+  //     // req.user = decodedToken;
+
+  //     const user = await User.findOne({
+  //       where: {
+  //         // @ts-expect-error type sig mismatch on req
+  //         id: req.user.id,
+  //       },
+  //       attributes: { exclude: ["password"] },
+  //     });
+
+  //     if (user === null) {
+  //       return res.status(404).json({ msg: "User not found" });
+  //     }
+
+  //     return res.status(200).json(user);
+  //   } catch (err) {
+  //     // console.error(err);
+  //     return res.status(401).json({ msg: "Couldn't Authenticate" });
+  //   }
+  // })
+  .get("/*", async (req: express.Request, res: express.Response) => {
+    const html = await renderApp(req, res);
+
+    res.send(html);
   });
 
 export default server;
