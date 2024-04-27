@@ -1,7 +1,11 @@
-import express from "express";
+import express, { NextFunction } from "express";
+import jwt from "jsonwebtoken";
 import React from "react";
 import { renderToString } from "react-dom/server";
 import { StaticRouter } from "react-router-dom/server";
+import { IUser } from "./interfaces/user.interface";
+import { User } from "./server/models/user";
+import router from "./server/routers";
 
 let assets: Record<string, { js: string[]; css: string[] }>;
 
@@ -40,7 +44,9 @@ const jsScriptTagsFromAssets = (
     : "";
 };
 
-export const renderApp = async (req: express.Request): Promise<string | void> => {
+export const renderApp = async (
+  req: express.Request
+): Promise<string | void> => {
   const markup = renderToString(
     <React.StrictMode>
       <StaticRouter location={req.url} />
@@ -66,78 +72,81 @@ export const renderApp = async (req: express.Request): Promise<string | void> =>
 
   return html;
 };
-const jwtToken = process.env.JWT_TOKEN;
+const jwtToken = process.env.JWT_TOKEN || "secret";
 
-// async function authentication(req: Request, res: Response, next: NextFunction) {
-//   try {
-//     if (!req.headers.authorization) throw new Error("Invalid token");
-//     const [type, token] = req.headers.authorization.split(" ");
+async function authentication(
+  req: express.Request,
+  res: express.Response,
+  next: NextFunction
+) {
+  try {
+    if (!req.headers.authorization) throw new Error("Invalid token");
+    const [type, token] = req.headers.authorization.split(" ");
 
-//     if (type !== "Bearer") throw new Error("Invalid token");
-//     const payload = jwt.verify(token, "secret");
+    if (type !== "Bearer") throw new Error("Invalid token");
+    const payload = jwt.verify(token, jwtToken) as IUser | undefined;
 
-//     if (!payload) throw new Error("Invalid token");
-//     // let user = await User.findByPk(payload.id);
-//     const user = await User.findByPk(req.user.id, {
-//       attributes: { exclude: ["password"] },
-//     });
-//     if (!user) throw new Error("Data not found");
+    if (!payload) throw new Error("Invalid token");
+    const user = await User.findByPk(payload.id, {
+      attributes: { exclude: ["password"] },
+    });
+    if (!user) throw new Error("Data not found");
 
-//     // @ts-expect-error undefined type
-//     req.user = {
-//       id: user.id,
-//     };
+    // @ts-expect-error undefined type
+    req.user = {
+      id: payload.id,
+    };
 
-//     next();
-//   } catch (error) {
-//     next(error);
-//   }
-// }
+    return next();
+  } catch (error) {
+    return next(error);
+  }
+}
 
 const server = express()
   .disable("x-powered-by")
   .use(express.static(process.env.RAZZLE_PUBLIC_DIR || "RAZZLE_PUBLIC_DIR"))
   .use(express.json())
   .use(express.urlencoded({ extended: true }))
-  // .use("/api/v1/", router)
+  .use("/api/v1/", router)
   .get("/test", async (req, res) => {
     return res.status(200).send("Well done! This is the test endpoint.");
   })
-  // .get("/protected-test", authentication, async (req, res, next) => {
-  //   try {
-  //     // console.log(req);
-  //     // const token = req.headers.authorization?.split(" ")[1] || "";
+  .get("/protected-test", authentication, async (req, res, next) => {
+    try {
+      // console.log(req);
+      // const token = req.headers.authorization?.split(" ")[1] || "";
 
-  //     // // console.log("token", token);
-  //     // if (!token) {
-  //     //   return res.status(403).send("A token is required for authentication");
-  //     // }
+      // // console.log("token", token);
+      // if (!token) {
+      //   return res.status(403).send("A token is required for authentication");
+      // }
 
-  //     // const decodedToken = verify(token, jwtToken || "dumb_secret");
+      // const decodedToken = verify(token, jwtToken || "dumb_secret");
 
-  //     // // @ts-expect-error type sig mismatch on req
-  //     // req.user = decodedToken;
+      // // @ts-expect-error type sig mismatch on req
+      // req.user = decodedToken;
 
-  //     const user = await User.findOne({
-  //       where: {
-  //         // @ts-expect-error type sig mismatch on req
-  //         id: req.user.id,
-  //       },
-  //       attributes: { exclude: ["password"] },
-  //     });
+      const user = await User.findOne({
+        where: {
+          // @ts-expect-error type sig mismatch on req
+          id: req.user.id,
+        },
+        attributes: { exclude: ["password"] },
+      });
 
-  //     if (user === null) {
-  //       return res.status(404).json({ msg: "User not found" });
-  //     }
+      if (user === null) {
+        return res.status(404).json({ msg: "User not found" });
+      }
 
-  //     return res.status(200).json(user);
-  //   } catch (err) {
-  //     // console.error(err);
-  //     return res.status(401).json({ msg: "Couldn't Authenticate" });
-  //   }
-  // })
+      return res.status(200).json(user);
+    } catch (err) {
+      // console.error(err);
+      return res.status(401).json({ msg: "Couldn't Authenticate" });
+    }
+  })
   .get("/*", async (req: express.Request, res: express.Response) => {
-    const html = await renderApp(req, res);
+    const html = await renderApp(req);
 
     res.send(html);
   });

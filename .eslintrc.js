@@ -39,6 +39,8 @@ module.exports = {
     "no-use-before-define": "off",
     "@typescript-eslint/no-use-before-define": ["error"],
     "@typescript-eslint/explicit-function-return-type": "off",
+    "no-return-await": "off",
+    "class-methods-use-this": "off",
     "@typescript-eslint/no-unused-vars": "off",
     "react/jsx-filename-extension": [
       1,
