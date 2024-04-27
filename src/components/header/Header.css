@@ -1,0 +1,13 @@
+.header {
+  background-color: #222;
+  padding: 2rem;
+  color: azure;
+  margin: auto;
+  display: flex;
+  flex-flow: column;
+  align-items: center;
+}
+
+.header h2 {
+  margin: 0 auto;
+}

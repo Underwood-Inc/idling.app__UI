@@ -1,0 +1,9 @@
+.nav {
+  list-style: none;
+}
+
+.container {
+  display: flex;
+  justify-content: center;
+  padding-bottom: 1rem;
+}

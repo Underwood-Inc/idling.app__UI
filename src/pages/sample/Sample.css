@@ -4,27 +4,13 @@
 
 .Sample-logo {
   animation: Sample-logo-spin infinite 20s linear;
-  height: 80px;
+  height: 8rem;
 }
 
 .Sample-header {
   background-color: #222;
-  height: 150px;
-  padding: 20px;
-  color: white;
-}
-
-.Sample-intro {
-  font-size: large;
-}
-
-.Sample-resources {
-  list-style: none;
-}
-
-.Sample-resources > li {
-  display: inline-block;
-  padding: 1rem;
+  padding: 2rem;
+  color: azure;
 }
 
 @keyframes Sample-logo-spin {

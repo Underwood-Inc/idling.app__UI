@@ -1,0 +1,12 @@
+footer {
+  bottom: 0;
+  left: 0;
+  right: 0;
+  position: absolute;
+  background-color: #222;
+  color:azure;
+}
+
+footer a {
+  color:aquamarine;
+}
