@@ -42,6 +42,7 @@ module.exports = {
     "no-return-await": "off",
     "class-methods-use-this": "off",
     "@typescript-eslint/no-unused-vars": "off",
+    "react/require-default-props": "off",
     "react/jsx-filename-extension": [
       1,
       { extensions: [".js", ".jsx", ".ts", ".tsx"] },

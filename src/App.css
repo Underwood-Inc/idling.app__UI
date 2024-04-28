@@ -31,3 +31,7 @@ body {
   font-family: sans-serif;
   background-color: #423934;
 }
+
+button {
+  cursor: pointer!important;
+}

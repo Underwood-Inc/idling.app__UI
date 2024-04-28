@@ -44,9 +44,7 @@ const jsScriptTagsFromAssets = (
     : "";
 };
 
-export const renderApp = async (
-  req: express.Request
-): Promise<string | void> => {
+export const renderApp = (req: express.Request): Promise<string | void> => {
   const markup = renderToString(
     <React.StrictMode>
       <StaticRouter location={req.url} />
@@ -56,16 +54,15 @@ export const renderApp = async (
   const html =
     // prettier-ignore
     `<!doctype html>
-    <html lang="">
+    <html lang="en">
     <head>
-        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
         <meta charSet='utf-8' />
         <title>Idling.app coming soon</title>
         <meta name="viewport" content="width=device-width, initial-scale=1">
         ${cssLinksFromAssets(assets, 'client')}
     </head>
     <body>
-        <div id="root">${markup}</div>
+        <div id="root">${renderToString(<React.StrictMode><StaticRouter location={req.url} /></React.StrictMode>)}</div>
         ${jsScriptTagsFromAssets(assets, 'client', ' defer crossorigin')}
     </body>
   </html>`;
@@ -145,9 +142,9 @@ const server = express()
       return res.status(401).json({ msg: "Couldn't Authenticate" });
     }
   })
-  .get("/*", async (req: express.Request, res: express.Response) => {
-    const html = await renderApp(req);
-
+  .get("/*", (req: express.Request, res: express.Response) => {
+    const html = renderApp(req);
+    console.log("html", html);
     res.send(html);
   });
 
