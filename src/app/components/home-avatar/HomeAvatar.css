@@ -3,3 +3,12 @@
   padding: 0;
   border: 0 transparent;
 }
+
+.home-avatar__img {
+  height: 7rem;
+  width: 7rem;
+}
+
+.home-avatar__loader {
+  margin: 1.7rem;
+}

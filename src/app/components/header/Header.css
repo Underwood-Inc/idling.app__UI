@@ -6,6 +6,7 @@
   display: flex;
   flex-flow: column;
   align-items: center;
+  justify-content: center;
   max-height: 13.5rem;
   height: 13.5rem;
 }
