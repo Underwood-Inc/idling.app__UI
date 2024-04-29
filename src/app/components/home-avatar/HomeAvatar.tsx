@@ -1,27 +1,30 @@
+"use client";
 import { adventurer } from "@dicebear/collection";
 import { createAvatar } from "@dicebear/core";
-import { Suspense } from "react";
+import { useEffect, useState } from "react";
+import { GridLoader } from "react-spinners";
 import "./HomeAvatar.css";
-import Loading from "./loader";
-
-async function getAvatar() {
-  return await createAvatar(adventurer, {
-    seed: new Date().getTime().toString(),
-  }).toDataUri();
-}
-
-const Avatar = async () => {
-  const avatar = await getAvatar();
-
-  return <img src={avatar} className="create-avatar" alt="avatar" />;
-};
 
 const HomeAvatar = () => {
+  const [img, setImg] = useState("");
+
+  useEffect(() => {
+    setImg(
+      createAvatar(adventurer, {
+        seed: new Date().getTime().toString(),
+      }).toDataUriSync()
+    );
+  }, []);
+
   return (
     <div>
-      <Suspense fallback={<Loading />}>
-        <Avatar />
-      </Suspense>
+      {img ? (
+        <img src={img} className="home-avatar__img" alt="avatar" />
+      ) : (
+        <div className="home-avatar__loader">
+          <GridLoader color="#36d7b7" />
+        </div>
+      )}
     </div>
   );
 };
