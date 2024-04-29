@@ -1,5 +1,9 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import { Suspense } from "react";
+import Footer from "./components/footer/Footer";
+import Header from "./components/header/Header";
+import Loading from "./components/home-avatar/loader";
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -15,8 +19,17 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className={inter.className}>{children}</body>
-    </html>
+    <>
+      <html lang="en">
+
+        <body className={inter.className}>
+          <Header />
+
+          <Suspense fallback={<Loading />}>{children}</Suspense>
+
+          <Footer />
+        </body>
+      </html>
+    </>
   );
 }
