@@ -1,0 +1,15 @@
+.header {
+  background-color: #222;
+  padding: 2rem;
+  color: azure;
+  margin: auto;
+  display: flex;
+  flex-flow: column;
+  align-items: center;
+  max-height: 13.5rem;
+  height: 13.5rem;
+}
+
+.header h2 {
+  margin: 0 auto;
+}
