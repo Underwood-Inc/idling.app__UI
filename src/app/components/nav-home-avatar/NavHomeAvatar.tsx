@@ -5,7 +5,7 @@ const NavHomeAvatar = (): React.JSX.Element => {
   return (
     <>
       <HomeAvatar />
-      <h2>Idling.app</h2>
+      <h3>Idling.app</h3>
     </>
   );
 };
