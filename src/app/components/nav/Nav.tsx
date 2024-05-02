@@ -1,4 +1,5 @@
 import React from "react";
+import { GitHubLink } from "../github-link/GitHubLink";
 import "./Nav.css";
 
 const Nav = (): React.JSX.Element => {
@@ -6,9 +7,7 @@ const Nav = (): React.JSX.Element => {
     <div className="container">
       <ul className="nav">
         <li>
-          <a href="https://github.com/Underwood-Inc/idling-app" target="_blank">
-            GitHub
-          </a>
+          <GitHubLink />
         </li>
       </ul>
     </div>
