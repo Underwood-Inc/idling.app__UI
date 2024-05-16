@@ -1,6 +1,7 @@
 import Link from "next/link";
 import React from "react";
-import { GitHubLink } from "../github-link/GitHubLink";
+import { DiscordLink } from "../discord-link/DiscordLink";
+import { GitLabLink } from "../gitlab-link/GitLabLink";
 
 export const About: React.FC = () => {
   return (
@@ -19,12 +20,12 @@ export const About: React.FC = () => {
       </p>
 
       <p>
-        See the public <GitHubLink /> page for releases.
+        See the <GitLabLink /> page for releases and more information.
       </p>
-      <sup>
-        Development is in private code. The public <GitHubLink /> page is for
-        release management.
-      </sup>
+      <p>
+        Join our <DiscordLink /> to get the latest news and occasionally view
+        development via screen share events
+      </p>
     </div>
   );
 };

@@ -1,5 +1,5 @@
 import React from "react";
-import { GitHubLink } from "../github-link/GitHubLink";
+import { GitLabLink } from "../gitlab-link/GitLabLink";
 import "./Nav.css";
 
 const Nav = (): React.JSX.Element => {
@@ -7,7 +7,7 @@ const Nav = (): React.JSX.Element => {
     <div className="container">
       <ul className="nav">
         <li>
-          <GitHubLink />
+          <GitLabLink />
         </li>
       </ul>
     </div>
