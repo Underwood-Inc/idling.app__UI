@@ -1,6 +1,5 @@
 import { About } from "./components/about/About";
 import { Card } from "./components/card/Card";
-import { DiscordEmbed } from "./components/discord-embed/DiscordEmbed";
 import styles from "./page.module.css";
 
 export default function Home() {
@@ -11,8 +10,6 @@ export default function Home() {
           <h3>About</h3>
           <About />
         </Card>
-
-        <DiscordEmbed />
       </div>
     </main>
   );
