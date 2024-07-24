@@ -78,3 +78,42 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/deploym
 ####
 
 ### appearance of card
+
+# postgres cmds
+
+Create user
+`CREATE ROLE myuser LOGIN PASSWORD 'mypass';`
+
+Update user password
+`ALTER USER myuser WITH PASSWORD 'thepassword';`
+
+login
+`psql -h localhost -d mydatabase -U myuser -p <port>`
+
+create database
+`CREATE DATABASE mydatabase WITH OWNER = myuser;`
+
+create table
+```sql
+CREATE TABLE cars (
+  brand VARCHAR(255),
+  model VARCHAR(255),
+  year INT
+);
+
+CREATE TABLE submissions (
+  submission_id SERIAL NOT NULL PRIMARY KEY,
+  submission_name VARCHAR(255),
+  submission_datetime VARCHAR(255)
+);
+```
+
+list databases
+`\l`
+
+choose database
+`\c database_name`
+
+show tables in selected database
+`\dt` or `SELECT * FROM pg_catalog.pg_tables;`
+
