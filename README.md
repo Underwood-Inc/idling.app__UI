@@ -34,3 +34,47 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+
+
+---
+---
+
+# IDEAS
+
+## word replacer
+
+- user provided text
+- user selected text to replace
+- user provided text that replaces configured replacement text
+- save to local storage
+- shareable (post-mvp)
+
+## random card collector
+
+### MVP
+
+- system generates random cards using a basic RNG mechanism
+- weighted RNG
+
+### post-MVP
+
+- xp gaining
+
+
+### RNG
+
+- basic
+
+### localstorage
+
+- store light game data
+
+#### game data
+
+-
+
+#### profile data
+
+####
+
+### appearance of card
