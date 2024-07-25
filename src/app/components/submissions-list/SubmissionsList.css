@@ -1,19 +1,19 @@
 .submission_list {
-  width: 50%;
+  width: 75%;
+  margin-bottom: 1rem;
 }
 
 .submission_wrapper {
   display: flex;
   justify-content: space-between;
   border: solid 1px transparent;
-  height: 1.2rem;
+  border-radius: .3rem;
   align-items: center;
-  margin: .2rem;
+  padding: .2rem;
 }
 
 .submission_wrapper:hover {
   border: solid 1px gray;
-  border-right: transparent;
 }
 
 .submission_wrapper .submission__delete-btn {

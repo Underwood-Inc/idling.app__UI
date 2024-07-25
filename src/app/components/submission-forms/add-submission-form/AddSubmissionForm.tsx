@@ -11,12 +11,14 @@ const initialState = {
   submission_name: "",
 };
 
+const style = { marginRight: "1rem", padding: ".2rem" };
+
 function SubmitButton() {
   const { pending } = useFormStatus();
 
   return (
-    <button type="submit" aria-disabled={pending}>
-      Submit
+    <button type="submit" aria-disabled={pending} style={style}>
+      Post
     </button>
   );
 }
@@ -29,28 +31,27 @@ export function AddSubmissionForm() {
   const [nameLength, setNameLength] = useState(0);
 
   const handleFormAction = async (formData: FormData) => {
-    // console.log("formData", formData);
     await formAction(formData);
     ref.current?.reset();
   };
 
   return (
     <form ref={ref} action={handleFormAction}>
+      <SubmitButton />
+
       <label htmlFor="submission_name">
-        <span>Name:</span>
         <input
           type="text"
           id="submission_name"
           name="submission_name"
           onChange={(e) => setNameLength(e.target.value.length)}
+          style={style}
           required
         />
         <span>
           {nameLength}/{SUBMISSION_NAME_MAX_LENGTH}
         </span>
       </label>
-
-      <SubmitButton />
 
       <p aria-live="polite" className="sr-only" role="status">
         {state?.message}
