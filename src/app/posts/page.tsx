@@ -5,7 +5,7 @@ import rootStyles from "../page.module.css";
 export default async function Replacer() {
   return (
     <main className={rootStyles.main}>
-      <h3>submissions</h3>
+      <h4>POSTS</h4>
 
       <SubmissionsList />
 
