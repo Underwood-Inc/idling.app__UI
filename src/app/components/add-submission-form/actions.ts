@@ -20,18 +20,19 @@ export async function createSubmission(
   },
   formData: FormData,
 ) {
+  const submissionDatetime = new Date().toISOString();
   const schema = z.object({
     submission_name: z.string().min(1).max(255),
-    submission_datetime: z.date()
+    submission_datetime: z.string().datetime(),
   });
+
   const parse = schema.safeParse({
-    submission_id: formData.get('submission_id'),
-    submission_name: formData.get('submission_name'),
-    submission_datetime: formData.get('submission_datetime')
+    submission_name: formData.get("submission_name"),
+    submission_datetime: submissionDatetime,
   });
 
   if (!parse.success) {
-    return { message: "Failed to create submission!"};
+    return { message: "Failed to create submission, parsing error!" };
   }
 
   const data = parse.data;
@@ -39,13 +40,14 @@ export async function createSubmission(
   try {
     await sql`
       insert into submissions (submission_name, submission_datetime)
-      VALUES (${data.submission_name},${data.submission_datetime})
+      VALUES (${data.submission_name},${submissionDatetime})
     `;
 
-    revalidatePath('/');
-    return { message: `Added submission ${data.submission_name}.`};
+    revalidatePath("/");
+    return { message: `Added submission: ${data.submission_name}.` };
   } catch (e) {
-    return { message: `Failed to create submission.`};
+    console.error(e);
+    return { message: `Failed to create submission.` };
   }
 }
 
