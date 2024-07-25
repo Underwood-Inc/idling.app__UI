@@ -12,7 +12,6 @@ interface Submission {
 
 export default async function Replacer() {
   const submissions: Submission[] = await sql`SELECT * FROM submissions`;
-  console.log("submissions", submissions);
 
   return (
     <main className={rootStyles.main}>

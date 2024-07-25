@@ -24,7 +24,6 @@ export function AddSubmissionForm() {
   // const [state, formAction] = useActionState(createSubmission, initialState)
   const [state, formAction] = useFormState(createSubmission, initialState);
 
-  console.log("state", state);
   return (
     <form action={formAction}>
       <label htmlFor="submission_name">Name</label>

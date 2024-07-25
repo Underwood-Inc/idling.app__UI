@@ -60,8 +60,6 @@ export async function deleteSubmission(
     submission_name: formData.get("submission_name"),
   });
 
-  console.log("parse", parse);
-
   if (!parse.success) {
     return { message: "Failed to delete submission, parsing error!" };
   }
