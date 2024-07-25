@@ -1,12 +1,18 @@
 "use client";
 
+import { useRef, useState } from "react";
 import { useFormState, useFormStatus } from "react-dom";
 import { createSubmission } from "../actions";
+import {
+  SUBMISSION_NAME_MAX_LENGTH,
+  SubmissionCreateFormInitialState,
+} from "../schema";
 
-const initialState = {
+const initialState: SubmissionCreateFormInitialState = {
   message: "",
   submission_datetime: "",
   submission_name: "",
+  submission_id: 0,
 };
 
 function SubmitButton() {
@@ -20,14 +26,32 @@ function SubmitButton() {
 }
 
 export function AddSubmissionForm() {
+  const ref = useRef<HTMLFormElement>(null);
   // TODO: https://github.com/vercel/next.js/issues/65673#issuecomment-2112746191
   // const [state, formAction] = useActionState(createSubmission, initialState)
   const [state, formAction] = useFormState(createSubmission, initialState);
+  const [nameLength, setNameLength] = useState(0);
+
+  const handleFormAction = async (formData: FormData) => {
+    await formAction(formData);
+    ref.current?.reset();
+  };
 
   return (
-    <form action={formAction}>
-      <label htmlFor="submission_name">Name</label>
-      <input type="text" id="submission_name" name="submission_name" required />
+    <form ref={ref} action={handleFormAction}>
+      <label htmlFor="submission_name">
+        <span>Name:</span>
+        <input
+          type="text"
+          id="submission_name"
+          name="submission_name"
+          onChange={(e) => setNameLength(e.target.value.length)}
+          required
+        />
+        <span>
+          {nameLength}/{SUBMISSION_NAME_MAX_LENGTH}
+        </span>
+      </label>
 
       <SubmitButton />
 

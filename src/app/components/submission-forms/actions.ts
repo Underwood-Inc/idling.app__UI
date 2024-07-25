@@ -2,11 +2,46 @@
 
 import { revalidatePath } from "next/cache";
 import postgres from "postgres";
-import { z } from "zod";
+import { deleteSubmissionSchema, Submission, submissionSchema } from "./schema";
 
 let sql = postgres(process.env.PGSQL_HOST!, {
   ssl: "allow",
 });
+
+function parseSubmission({
+  submission_id,
+  submission_datetime,
+  submission_name,
+}: Partial<Submission>) {
+  const parse = submissionSchema.safeParse({
+    submission_id,
+    submission_name: submission_name?.toString().trim(),
+    submission_datetime,
+  });
+
+  if (!parse.success) {
+    return null;
+  }
+
+  return parse.data;
+}
+
+function parseDeleteSubmission({
+  submission_id,
+  submission_name,
+}: Partial<Submission>) {
+  const parse = deleteSubmissionSchema.safeParse({
+    submission_id,
+    submission_name,
+  });
+
+  if (!parse.success) {
+    console.log(parse.error);
+    return null;
+  }
+
+  return parse.data;
+}
 
 export async function createSubmission(
   prevState: {
@@ -16,26 +51,20 @@ export async function createSubmission(
 ) {
   const submissionName = formData.get("submission_name");
   const submissionDatetime = new Date().toISOString();
-  const schema = z.object({
-    submission_name: z.string().min(1).max(255),
-    submission_datetime: z.string().datetime(),
-  });
 
-  const parse = schema.safeParse({
-    submission_name: submissionName?.toString().trim(),
+  const data = parseSubmission({
     submission_datetime: submissionDatetime,
+    submission_name: submissionName?.toString().trim() || "",
   });
 
-  if (!parse.success) {
+  if (!data) {
     return { message: "Failed to create submission, parsing error!" };
   }
-
-  const data = parse.data;
 
   try {
     await sql`
       insert into submissions (submission_name, submission_datetime)
-      VALUES (${data.submission_name},${submissionDatetime})
+      VALUES (${data.submission_name},${data.submission_datetime})
     `;
 
     revalidatePath("/");
@@ -52,25 +81,21 @@ export async function deleteSubmission(
   },
   formData: FormData
 ) {
-  const schema = z.object({
-    submission_id: z.coerce.number().gte(1),
-    submission_name: z.string().min(1),
-  });
-  const parse = schema.safeParse({
-    submission_id: formData.get("submission_id"),
-    submission_name: formData.get("submission_name"),
+  const data = parseDeleteSubmission({
+    submission_id: Number.parseInt(formData.get("submission_id") as string),
+    submission_name: formData.get("submission_name") as string,
   });
 
-  if (!parse.success) {
+  if (!data) {
     return { message: "Failed to delete submission, parsing error!" };
   }
 
-  const data = parse.data;
+  const sqlSubmissionId = data.submission_id!.toString();
 
   try {
     await sql`
       DELETE FROM submissions
-      WHERE submission_id = ${data.submission_id}
+      WHERE submission_id = ${sqlSubmissionId}
     `;
 
     revalidatePath("/");

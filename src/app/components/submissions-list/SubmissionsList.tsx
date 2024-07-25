@@ -3,13 +3,8 @@ import { Suspense } from "react";
 import sql from "../../../lib/db";
 import Loading from "../home-avatar/loader";
 import { DeleteSubmissionForm } from "../submission-forms/delete-submission-form/DeleteSubmissionForm";
+import { Submission } from "../submission-forms/schema";
 import "./SubmissionsList.css";
-
-interface Submission {
-  submission_id: number;
-  submission_name: string;
-  submission_datetime: string;
-}
 
 export default async function SubmissionsList() {
   noStore();
