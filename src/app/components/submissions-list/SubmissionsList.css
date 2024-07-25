@@ -1,0 +1,8 @@
+.submission_list {
+  width: 100%;
+}
+
+.submission_wrapper {
+  display: flex;
+  justify-content: space-between;
+}
