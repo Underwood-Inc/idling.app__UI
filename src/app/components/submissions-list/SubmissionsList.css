@@ -13,6 +13,7 @@
 
 .submission_wrapper:hover {
   border: solid 1px gray;
+  border-right: transparent;
 }
 
 .submission_wrapper .submission__delete-btn {
