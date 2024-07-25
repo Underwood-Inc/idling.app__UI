@@ -1,11 +1,11 @@
 "use client";
 
+import { useRef } from "react";
 import { useFormState, useFormStatus } from "react-dom";
 import { deleteSubmission } from "../actions";
 
 const initialState = {
   message: "",
-  submission_datetime: "",
   submission_name: "",
 };
 
@@ -30,12 +30,18 @@ export function DeleteSubmissionForm({
   id: number;
   name: string;
 }) {
+  const ref = useRef<HTMLFormElement>(null);
   // TODO: https://github.com/vercel/next.js/issues/65673#issuecomment-2112746191
   // const [state, formAction] = useActionState(deleteSubmission, initialState)
   const [state, formAction] = useFormState(deleteSubmission, initialState);
 
+  const handleFormAction = async (formData: FormData) => {
+    await formAction(formData);
+    ref.current?.reset();
+  };
+
   return (
-    <form action={formAction}>
+    <form ref={ref} action={handleFormAction}>
       <input type="hidden" name="submission_id" value={id} />
       <input type="hidden" name="submission_name" value={name} />
       <DeleteButton />
