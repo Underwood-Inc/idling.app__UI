@@ -14,6 +14,7 @@ export async function createSubmission(
   },
   formData: FormData
 ) {
+  const submissionName = formData.get("submission_name");
   const submissionDatetime = new Date().toISOString();
   const schema = z.object({
     submission_name: z.string().min(1).max(255),
@@ -21,7 +22,7 @@ export async function createSubmission(
   });
 
   const parse = schema.safeParse({
-    submission_name: formData.get("submission_name"),
+    submission_name: submissionName?.toString().trim(),
     submission_datetime: submissionDatetime,
   });
 
