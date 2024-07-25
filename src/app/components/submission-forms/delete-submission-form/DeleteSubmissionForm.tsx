@@ -3,12 +3,10 @@
 import { useRef } from "react";
 import { useFormState, useFormStatus } from "react-dom";
 import { deleteSubmission } from "../actions";
-import { SubmissionDeleteFormInitialState } from "../schema";
 
-const initialState: SubmissionDeleteFormInitialState = {
+const initialState = {
   message: "",
   submission_name: "",
-  submission_id: 0,
 };
 
 function DeleteButton() {

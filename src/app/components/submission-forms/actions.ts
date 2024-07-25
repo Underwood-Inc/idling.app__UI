@@ -9,17 +9,17 @@ let sql = postgres(process.env.PGSQL_HOST!, {
 });
 
 function parseSubmission({
-  submission_id,
   submission_datetime,
   submission_name,
 }: Partial<Submission>) {
   const parse = submissionSchema.safeParse({
-    submission_id,
     submission_name: submission_name?.toString().trim(),
     submission_datetime,
   });
 
   if (!parse.success) {
+    console.error(parse.error);
+
     return null;
   }
 
@@ -36,7 +36,8 @@ function parseDeleteSubmission({
   });
 
   if (!parse.success) {
-    console.log(parse.error);
+    console.error(parse.error);
+
     return null;
   }
 
@@ -51,7 +52,6 @@ export async function createSubmission(
 ) {
   const submissionName = formData.get("submission_name");
   const submissionDatetime = new Date().toISOString();
-
   const data = parseSubmission({
     submission_datetime: submissionDatetime,
     submission_name: submissionName?.toString().trim() || "",

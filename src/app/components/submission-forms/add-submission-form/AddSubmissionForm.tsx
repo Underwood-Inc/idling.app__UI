@@ -3,16 +3,12 @@
 import { useRef, useState } from "react";
 import { useFormState, useFormStatus } from "react-dom";
 import { createSubmission } from "../actions";
-import {
-  SUBMISSION_NAME_MAX_LENGTH,
-  SubmissionCreateFormInitialState,
-} from "../schema";
+import { SUBMISSION_NAME_MAX_LENGTH } from "../schema";
 
-const initialState: SubmissionCreateFormInitialState = {
+const initialState = {
   message: "",
   submission_datetime: "",
   submission_name: "",
-  submission_id: 0,
 };
 
 function SubmitButton() {
@@ -33,6 +29,7 @@ export function AddSubmissionForm() {
   const [nameLength, setNameLength] = useState(0);
 
   const handleFormAction = async (formData: FormData) => {
+    // console.log("formData", formData);
     await formAction(formData);
     ref.current?.reset();
   };
