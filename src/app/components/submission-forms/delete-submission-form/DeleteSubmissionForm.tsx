@@ -13,7 +13,11 @@ function DeleteButton() {
   const { pending } = useFormStatus();
 
   return (
-    <button type="submit" aria-disabled={pending}>
+    <button
+      type="submit"
+      aria-disabled={pending}
+      className="submission__delete-btn"
+    >
       Delete
     </button>
   );
