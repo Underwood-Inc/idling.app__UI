@@ -5,4 +5,20 @@
 .submission_wrapper {
   display: flex;
   justify-content: space-between;
+  border: solid 1px transparent;
+  height: 1.2rem;
+  align-items: center;
+  margin: .2rem;
+}
+
+.submission_wrapper:hover {
+  border: solid 1px gray;
+}
+
+.submission_wrapper .submission__delete-btn {
+  display: none;
+}
+
+.submission_wrapper:hover .submission__delete-btn {
+  display: inline-block;
 }
