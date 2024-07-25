@@ -11,6 +11,10 @@ export default function Home() {
           <About />
         </Card>
       </div>
+
+      <Card>
+        <h2>Random Card Name</h2>
+      </Card>
     </main>
   );
 }

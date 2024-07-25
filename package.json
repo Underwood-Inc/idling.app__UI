@@ -6,22 +6,31 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "prepare": "husky"
   },
   "dependencies": {
-    "@dicebear/collection": "^8.0.1",
-    "@dicebear/core": "^8.0.1",
-    "next": "14.2.3",
-    "react": "^18",
-    "react-dom": "^18",
-    "react-spinners": "^0.13.8"
+    "@dicebear/collection": "8.0.1",
+    "@dicebear/core": "8.0.1",
+    "@types/pg": "8.11.6",
+    "@vercel/postgres": "^0.9.0",
+    "next": "14.2.5",
+    "pg": "8.12.0",
+    "postgres": "3.4.4",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "react-spinners": "0.13.8",
+    "zod": "3.23.8"
   },
   "devDependencies": {
-    "@types/node": "^20",
-    "@types/react": "^18",
-    "@types/react-dom": "^18",
-    "eslint": "^8",
+    "@commitlint/cli": "^19.3.0",
+    "@commitlint/config-conventional": "^19.2.2",
+    "@types/node": "20",
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "eslint": "8",
     "eslint-config-next": "14.2.3",
-    "typescript": "^5"
+    "husky": "^9.1.1",
+    "typescript": "5.5.4"
   }
 }

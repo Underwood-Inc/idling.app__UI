@@ -1,0 +1,15 @@
+{
+  "recommendations": [
+    "joshbolduc.commitlint",
+    "wayou.vscode-todo-highlight",
+    "vscode-icons-team.vscode-icons",
+    "ms-vscode-remote.remote-wsl",
+    "dbaeumer.vscode-eslint",
+    "ms-azuretools.vscode-docker",
+    "eamodio.gitlens",
+    "esbenp.prettier-vscode",
+    "waderyan.gitblame",
+    "ms-ossdata.vscode-postgresql",
+    "christian-kohler.npm-intellisense"
+  ]
+}
