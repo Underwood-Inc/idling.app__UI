@@ -35,6 +35,15 @@ The easiest way to deploy your Next.js app is to use the [Vercel Platform](https
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
 
+---
+---
+
+# TODO
+
+# migrations architecture
+
+modifications to postgres (or anything else SQL-like) require migrations architecture support to be added to this repository. migrations allow for rapid spinup of dev environment databases while protecting against unsavory changes to associated databases systems.
+
 
 ---
 ---
