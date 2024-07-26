@@ -13,17 +13,24 @@ const initialState = {
 
 const style = { marginRight: "1rem", padding: ".2rem" };
 
-function SubmitButton() {
+function SubmitButton({ isAuthorized }: { isAuthorized: boolean }) {
   const { pending } = useFormStatus();
+  const isDisabled = pending || isAuthorized;
 
   return (
-    <button type="submit" aria-disabled={pending} style={style}>
+    <button
+      type="submit"
+      aria-disabled={isDisabled}
+      disabled={isDisabled}
+      style={style}
+      title={isDisabled ? "Login to manage posts." : undefined}
+    >
       Post
     </button>
   );
 }
 
-export function AddSubmissionForm() {
+export function AddSubmissionForm({ isAuthorized }: { isAuthorized: boolean }) {
   const ref = useRef<HTMLFormElement>(null);
   // TODO: https://github.com/vercel/next.js/issues/65673#issuecomment-2112746191
   // const [state, formAction] = useActionState(createSubmission, initialState)
@@ -32,12 +39,13 @@ export function AddSubmissionForm() {
 
   const handleFormAction = async (formData: FormData) => {
     await formAction(formData);
+    setNameLength(0);
     ref.current?.reset();
   };
 
   return (
     <form ref={ref} action={handleFormAction}>
-      <SubmitButton />
+      <SubmitButton isAuthorized={!isAuthorized} />
 
       <label htmlFor="submission_name">
         <input
@@ -46,6 +54,8 @@ export function AddSubmissionForm() {
           name="submission_name"
           onChange={(e) => setNameLength(e.target.value.length)}
           style={style}
+          disabled={!isAuthorized}
+          title={!isAuthorized ? "Login to manage posts." : undefined}
           required
         />
         <span>

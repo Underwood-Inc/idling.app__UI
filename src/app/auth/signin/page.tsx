@@ -1,19 +1,13 @@
-import { getServerSession } from "next-auth";
-import { getProviders } from "next-auth/react";
 import { redirect } from "next/navigation";
+import { auth } from "../../../../auth";
 import { SignIn } from "../../components/auth-buttons/AuthButtons";
 
 export default async function Page() {
-  const session = await getServerSession();
-  const providers = await getProviders();
+  const session = await auth();
 
   if (session) {
     redirect("/");
   }
 
-  if (!providers) {
-    return <div>Sign in is not available</div>;
-  }
-
-  return <SignIn providers={providers} />;
+  return <SignIn />;
 }

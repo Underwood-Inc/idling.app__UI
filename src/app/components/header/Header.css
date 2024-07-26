@@ -14,3 +14,8 @@
 .header h2 {
   margin: 0 auto;
 }
+
+.header__auth {
+  display: flex;
+  align-items: center;
+}
