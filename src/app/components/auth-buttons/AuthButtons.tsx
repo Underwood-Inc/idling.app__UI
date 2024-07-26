@@ -8,7 +8,7 @@ export function SignIn() {
         await signIn("twitch");
       }}
     >
-      <button type="submit">Signin with Twitch</button>
+      <button type="submit">Login with Twitch</button>
     </form>
   );
 }

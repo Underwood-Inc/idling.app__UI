@@ -10,7 +10,7 @@ export default async function Posts() {
     <main className={rootStyles.main}>
       <h4>POSTS</h4>
 
-      <SubmissionsList />
+      <SubmissionsList isAuthorized={!!session} />
 
       <AddSubmissionForm isAuthorized={!!session} />
     </main>
