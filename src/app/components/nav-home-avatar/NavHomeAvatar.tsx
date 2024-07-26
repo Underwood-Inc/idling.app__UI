@@ -1,13 +1,19 @@
-import React from "react";
+import { auth } from "../../../../auth";
 import HomeAvatar from "../home-avatar/HomeAvatar";
 
-const NavHomeAvatar = (): React.JSX.Element => {
+export default async function NavHomeAvatar() {
+  const session = await auth();
+  let seed = "";
+
+  if (session) {
+    const { user } = session;
+    seed = user?.name || seed;
+  }
+
   return (
     <>
-      <HomeAvatar />
+      <HomeAvatar seed={seed} />
       <h3>Idling.app</h3>
     </>
   );
-};
-
-export default NavHomeAvatar;
+}

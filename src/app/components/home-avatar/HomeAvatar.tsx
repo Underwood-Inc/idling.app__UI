@@ -5,16 +5,16 @@ import { useEffect, useState } from "react";
 import { GridLoader } from "react-spinners";
 import "./HomeAvatar.css";
 
-const HomeAvatar = () => {
+const HomeAvatar = ({ seed }: { seed: string }) => {
   const [img, setImg] = useState("");
 
   useEffect(() => {
     setImg(
       createAvatar(adventurer, {
-        seed: new Date().getTime().toString(),
+        seed: seed || new Date().getTime().toString(),
       }).toDataUriSync()
     );
-  }, []);
+  }, [seed]);
 
   return (
     <div>
