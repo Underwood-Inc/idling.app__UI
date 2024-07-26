@@ -9,14 +9,17 @@ const initialState = {
   submission_name: "",
 };
 
-function DeleteButton() {
+function DeleteButton({ isAuthorized }: { isAuthorized: boolean }) {
   const { pending } = useFormStatus();
+  const isDisabled = pending || isAuthorized;
 
   return (
     <button
       type="submit"
-      aria-disabled={pending}
+      aria-disabled={isDisabled}
+      disabled={isDisabled}
       className="submission__delete-btn"
+      title={isDisabled ? "Login to manage posts." : undefined}
     >
       Delete
     </button>
@@ -26,9 +29,11 @@ function DeleteButton() {
 export function DeleteSubmissionForm({
   id,
   name,
+  isAuthorized,
 }: {
   id: number;
   name: string;
+  isAuthorized: boolean;
 }) {
   const ref = useRef<HTMLFormElement>(null);
   // TODO: https://github.com/vercel/next.js/issues/65673#issuecomment-2112746191
@@ -44,7 +49,7 @@ export function DeleteSubmissionForm({
     <form ref={ref} action={handleFormAction}>
       <input type="hidden" name="submission_id" value={id} />
       <input type="hidden" name="submission_name" value={name} />
-      <DeleteButton />
+      <DeleteButton isAuthorized={!isAuthorized} />
       <p aria-live="polite" className="sr-only" role="status">
         {state?.message}
       </p>

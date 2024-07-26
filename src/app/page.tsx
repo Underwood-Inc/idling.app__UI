@@ -2,7 +2,7 @@ import { About } from "./components/about/About";
 import { Card } from "./components/card/Card";
 import styles from "./page.module.css";
 
-export default function Home() {
+export default async function Home() {
   return (
     <main className={styles.main}>
       <div className={styles.content}>
@@ -11,10 +11,6 @@ export default function Home() {
           <About />
         </Card>
       </div>
-
-      <Card>
-        <h2>Random Card Name</h2>
-      </Card>
     </main>
   );
 }

@@ -7,10 +7,14 @@
   flex-flow: column;
   align-items: center;
   justify-content: center;
-  max-height: 13.5rem;
-  height: 13.5rem;
 }
 
 .header h2 {
   margin: 0 auto;
+}
+
+.header__auth {
+  margin: 1rem;
+  display: flex;
+  align-items: center;
 }

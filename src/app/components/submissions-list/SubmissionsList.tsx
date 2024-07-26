@@ -6,7 +6,11 @@ import { DeleteSubmissionForm } from "../submission-forms/delete-submission-form
 import { Submission } from "../submission-forms/schema";
 import "./SubmissionsList.css";
 
-export default async function SubmissionsList() {
+export default async function SubmissionsList({
+  isAuthorized,
+}: {
+  isAuthorized: boolean;
+}) {
   noStore();
   const submissions: Submission[] = await sql`SELECT * FROM submissions`;
 
@@ -16,7 +20,11 @@ export default async function SubmissionsList() {
         {submissions.map(({ submission_id, submission_name }) => (
           <li key={submission_id} className="submission_wrapper">
             <span>{submission_name}</span>
-            <DeleteSubmissionForm id={submission_id} name={submission_name} />
+            <DeleteSubmissionForm
+              id={submission_id}
+              name={submission_name}
+              isAuthorized={isAuthorized}
+            />
           </li>
         ))}
       </Suspense>
