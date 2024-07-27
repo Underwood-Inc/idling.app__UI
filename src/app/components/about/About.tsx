@@ -1,7 +1,7 @@
-import Link from "next/link";
-import React from "react";
-import { DiscordLink } from "../discord-link/DiscordLink";
-import { GitLabLink } from "../gitlab-link/GitLabLink";
+import Link from 'next/link';
+import React from 'react';
+import { DiscordLink } from '../discord-link/DiscordLink';
+import { GitLabLink } from '../gitlab-link/GitLabLink';
 
 export const About: React.FC = () => {
   return (

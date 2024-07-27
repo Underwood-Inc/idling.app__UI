@@ -1,5 +1,5 @@
-"use client";
-import React from "react";
+'use client';
+import React from 'react';
 
 export const DiscordEmbed: React.FC = () => {
   return (

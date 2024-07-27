@@ -1,0 +1,75 @@
+.coin,
+.coin__front,
+.coin__back {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  width: 20rem;
+  height: 20rem;
+  border-radius: 50%;
+  color: black;
+}
+
+.coin__front,
+.coin__back {
+  display: flex;
+  flex-direction: column;
+  position: absolute;
+  background-color: coral;
+  /* justify-content: space-between; */
+  padding: 1rem;
+}
+
+.coin__front {
+  z-index: 11;
+}
+
+.coin__back {
+  z-index: 10;
+}
+
+.zoomed {
+  width: 15rem;
+  height: 15rem;
+  bottom: 0;
+  left: 0;
+}
+
+.shrunk {
+  width: 7rem;
+  height: 7rem;
+  top: 0;
+  right: 0;
+}
+
+.coin.full {
+  max-width: 100%;
+}
+.coin.lg {
+  max-width: 80%;
+}
+.coin.md {
+  max-width: 75%;
+}
+.coin.sm {
+  max-width: 70%;
+}
+
+.coin__header {
+  position: absolute;
+  top: 2rem;
+}
+
+.coin__body {
+  position: absolute;
+}
+
+.coin .avatar {
+  display: flex;
+}
+
+.coin__footer {
+  position: absolute;
+  bottom: 2rem;
+}

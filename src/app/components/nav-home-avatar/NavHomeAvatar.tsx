@@ -1,9 +1,9 @@
-import { auth } from "../../../../auth";
-import HomeAvatar from "../home-avatar/HomeAvatar";
+import { auth } from '../../../../auth';
+import Avatar from '../avatar/Avatar';
 
 export default async function NavHomeAvatar() {
   const session = await auth();
-  let seed = "";
+  let seed = '';
 
   if (session) {
     const { user } = session;
@@ -12,7 +12,7 @@ export default async function NavHomeAvatar() {
 
   return (
     <>
-      <HomeAvatar seed={seed} />
+      <Avatar seed={seed} />
       <h3>Idling.app</h3>
     </>
   );

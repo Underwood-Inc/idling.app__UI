@@ -1,13 +1,13 @@
-import { auth } from "../../../../auth";
-import { SignIn, SignOut } from "../auth-buttons/AuthButtons";
-import NavHomeAvatar from "../nav-home-avatar/NavHomeAvatar";
-import "./Header.css";
+import { auth } from '../../../../auth';
+import { SignIn, SignOut } from '../auth-buttons/AuthButtons';
+import NavHomeAvatar from '../nav-home-avatar/NavHomeAvatar';
+import './Header.css';
 
 async function Header() {
   const session = await auth();
 
   return (
-    <div className="header">
+    <header className="header">
       <NavHomeAvatar />
 
       <div className="header__auth">
@@ -15,7 +15,7 @@ async function Header() {
 
         {session ? <SignOut /> : <SignIn />}
       </div>
-    </div>
+    </header>
   );
 }
 

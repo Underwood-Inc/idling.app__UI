@@ -1,20 +1,20 @@
-"use server";
+'use server';
 
-import { revalidatePath } from "next/cache";
-import postgres from "postgres";
-import { deleteSubmissionSchema, Submission, submissionSchema } from "./schema";
+import { revalidatePath } from 'next/cache';
+import postgres from 'postgres';
+import { deleteSubmissionSchema, Submission, submissionSchema } from './schema';
 
 let sql = postgres(process.env.PGSQL_HOST!, {
-  ssl: "allow",
+  ssl: 'allow'
 });
 
 function parseSubmission({
   submission_datetime,
-  submission_name,
+  submission_name
 }: Partial<Submission>) {
   const parse = submissionSchema.safeParse({
     submission_name: submission_name?.toString().trim(),
-    submission_datetime,
+    submission_datetime
   });
 
   if (!parse.success) {
@@ -28,11 +28,11 @@ function parseSubmission({
 
 function parseDeleteSubmission({
   submission_id,
-  submission_name,
+  submission_name
 }: Partial<Submission>) {
   const parse = deleteSubmissionSchema.safeParse({
     submission_id,
-    submission_name,
+    submission_name
   });
 
   if (!parse.success) {
@@ -50,15 +50,15 @@ export async function createSubmission(
   },
   formData: FormData
 ) {
-  const submissionName = formData.get("submission_name");
+  const submissionName = formData.get('submission_name');
   const submissionDatetime = new Date().toISOString();
   const data = parseSubmission({
     submission_datetime: submissionDatetime,
-    submission_name: submissionName?.toString().trim() || "",
+    submission_name: submissionName?.toString().trim() || ''
   });
 
   if (!data) {
-    return { message: "Failed to create submission, parsing error!" };
+    return { message: 'Failed to create submission, parsing error!' };
   }
 
   try {
@@ -67,7 +67,7 @@ export async function createSubmission(
       VALUES (${data.submission_name},${data.submission_datetime})
     `;
 
-    revalidatePath("/");
+    revalidatePath('/');
     return { message: `Added submission: ${data.submission_name}.` };
   } catch (e) {
     console.error(e);
@@ -82,12 +82,12 @@ export async function deleteSubmission(
   formData: FormData
 ) {
   const data = parseDeleteSubmission({
-    submission_id: Number.parseInt(formData.get("submission_id") as string),
-    submission_name: formData.get("submission_name") as string,
+    submission_id: Number.parseInt(formData.get('submission_id') as string),
+    submission_name: formData.get('submission_name') as string
   });
 
   if (!data) {
-    return { message: "Failed to delete submission, parsing error!" };
+    return { message: 'Failed to delete submission, parsing error!' };
   }
 
   const sqlSubmissionId = data.submission_id!.toString();
@@ -98,7 +98,7 @@ export async function deleteSubmission(
       WHERE submission_id = ${sqlSubmissionId}
     `;
 
-    revalidatePath("/");
+    revalidatePath('/');
     return { message: `Deleted submission ${data.submission_name}.` };
   } catch (e) {
     return { message: `Failed to delete submission.` };

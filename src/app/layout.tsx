@@ -1,20 +1,20 @@
-import type { Metadata } from "next";
-import { Inter } from "next/font/google";
-import { Suspense } from "react";
-import Footer from "./components/footer/Footer";
-import Header from "./components/header/Header";
-import Loading from "./components/home-avatar/loader";
-import "./globals.css";
+import type { Metadata } from 'next';
+import { Inter } from 'next/font/google';
+import { Suspense } from 'react';
+import Loading from './components/avatar/loader';
+import Footer from './components/footer/Footer';
+import Header from './components/header/Header';
+import './globals.css';
 
-const inter = Inter({ subsets: ["latin"] });
+const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: "Idling.app",
-  description: "Revisit often to see the latest changes and play!",
+  title: 'Idling.app',
+  description: 'Revisit often to see the latest changes and play!'
 };
 
 export default function RootLayout({
-  children,
+  children
 }: Readonly<{
   children: React.ReactNode;
 }>) {
@@ -55,7 +55,9 @@ export default function RootLayout({
         <body className={inter.className}>
           <Header />
 
-          <Suspense fallback={<Loading />}>{children}</Suspense>
+          <main>
+            <Suspense fallback={<Loading />}>{children}</Suspense>
+          </main>
 
           <Footer />
         </body>

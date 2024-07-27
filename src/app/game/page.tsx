@@ -1,10 +1,10 @@
-import { GameWrapper } from "../components/game/GameWrapper";
-import styles from "../page.module.css";
+import { GameWrapper } from '../components/game/GameWrapper';
+import styles from '../page.module.css';
 
 export default function Game() {
   return (
-    <main className={styles.main}>
+    <article className={styles.main}>
       <GameWrapper />
-    </main>
+    </article>
   );
 }
