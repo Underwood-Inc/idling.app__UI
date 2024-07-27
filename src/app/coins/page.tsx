@@ -1,3 +1,4 @@
+import { redirect } from 'next/navigation';
 import { auth } from '../../../auth';
 import { Card } from '../components/card/Card';
 import Coin from '../components/coin/Coin';
@@ -9,6 +10,8 @@ export default async function Coins() {
   if (session) {
     const { user } = session;
     seed = user?.name || seed;
+  } else {
+    return redirect('/auth/signin');
   }
 
   return (

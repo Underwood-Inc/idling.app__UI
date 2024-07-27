@@ -3,7 +3,7 @@ import { SignIn, SignOut } from '../auth-buttons/AuthButtons';
 import NavHomeAvatar from '../nav-home-avatar/NavHomeAvatar';
 import './Header.css';
 
-async function Header() {
+export default async function Header() {
   const session = await auth();
 
   return (
@@ -18,5 +18,3 @@ async function Header() {
     </header>
   );
 }
-
-export default Header;
