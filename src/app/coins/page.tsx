@@ -16,7 +16,7 @@ export default async function Coins() {
 
   return (
     <article>
-      <Card width="full">
+      <Card width="min">
         <Coin seed={seed} />
       </Card>
     </article>

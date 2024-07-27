@@ -49,6 +49,10 @@
   min-width: 70%;
   max-width: 70%;
 }
+.card.min {
+  min-width: auto;
+  max-width: auto;
+}
 
 .card,
 .card sup {
@@ -56,7 +60,10 @@
 }
 
 .card a {
-  color: rgb(0, 150, 135);
+  color: var(--brand-primary--dark);
+}
+.card a:hover {
+  color: var(--brand-primary);
 }
 
 .card span {
@@ -85,10 +92,10 @@
   }
   .card:hover,
   .card:hover sup {
-    color: rgb(247, 234, 216);
+    color: var(--brand-tertiary);
   }
-  .card:hover a {
-    color: aqua;
+  .card a:hover {
+    color: var(--brand-primary);
   }
 
   .card:hover span {

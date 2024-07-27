@@ -213,12 +213,12 @@ body {
 }
 
 a {
-  color: inherit;
   text-decoration: none;
   color: var(--brand-primary);
 }
 a:hover {
   text-decoration: underline;
+  color: var(--brand-primary--dark);
 }
 
 button:hover {
