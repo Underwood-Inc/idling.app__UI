@@ -1,8 +1,8 @@
 'use client';
-
 import { useRef } from 'react';
 import { useFormState, useFormStatus } from 'react-dom';
 import { deleteSubmission } from '../actions';
+import './DeleteSubmissionForm.css';
 
 const initialState = {
   message: '',

@@ -6,7 +6,7 @@ export default async function Home() {
   return (
     <article className={styles.main}>
       <div className={styles.content}>
-        <Card size="full">
+        <Card width="full">
           <h3>About</h3>
           <About />
         </Card>

@@ -70,7 +70,59 @@
     --callout-border-rgb: 108, 108, 108;
     --card-rgb: 100, 100, 100;
     --card-border-rgb: 200, 200, 200;
+
+    /* palatte 1 */
+    --caput--mortuum: #502419;
+    --black-bean: #3d1c13;
+
+    --asparagus: #7ea172;
+    --fern-green: #5d7c53;
+
+    --sage: #c7cb85;
+    --apple-green: #acb14c;
+
+    --fawn: #e7a977;
+    --caramel: #da7b2e;
+
+    --peach: #ebbe9b;
+    --persian-orange: #db8848;
+
+    /* palatte 2 */
+    --hunyadi-yellow: #edae49ff;
+    --dark-goldenrod: #c68214ff;
+
+    --jasmine: #f9df74ff;
+    --jonquil: #f5c60cff;
+
+    --cornsilk: #f9edccff;
+    --saffron: #ebc253ff;
+
+    --chili-red: #ea2b1fff;
+    --rufous: #aa1a10ff;
+
+    --seal-brown: #61210fff;
+    --black-bean: #44170bff;
+
+    --brand-primary: var(--hunyadi-yellow);
+    --brand-primary--dark: var(--dark-goldenrod);
+
+    --brand-secondary: var(--jasmine);
+    --brand-secondary--dark: var(--jonquil);
+
+    --brand-tertiary: var(--cornsilk);
+    --brand-tertiary--dark: var(--saffron);
+
+    --brand-quaternary: var(--chili-red);
+    --brand-quaternary--dark: var(--rufous);
+
+    --brand-quinary: var(--seal-brown);
+    --brand-quinary--dark: var(--black-bean);
   }
+}
+
+::selection,
+::-moz-selection {
+  background: var(--brand-quinary);
 }
 
 * {
@@ -107,9 +159,39 @@ h6 {
 }
 p,
 a,
-code {
+code,
+input,
+button {
   font-size: 1.4rem;
 }
+
+button,
+input,
+caption {
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  border: transparent;
+}
+
+input {
+  background-color: var(--brand-tertiary);
+  color: var(--brand-quinary--dark);
+}
+
+input:hover {
+  background-color: var(--brand-tertiary--dark);
+}
+
+button {
+  background-color: var(--brand-primary);
+  color: var(--brand-quinary--dark);
+}
+
+button:hover {
+  background-color: var(--brand-primary--dark);
+  color: var(--brand-tertiary);
+}
+
 sup p,
 sup a {
   font-size: 1rem;
@@ -133,7 +215,7 @@ body {
 a {
   color: inherit;
   text-decoration: none;
-  color: aquamarine;
+  color: var(--brand-primary);
 }
 a:hover {
   text-decoration: underline;

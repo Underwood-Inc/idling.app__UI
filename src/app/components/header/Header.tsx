@@ -11,7 +11,9 @@ export default async function Header() {
       <NavHomeAvatar />
 
       <div className="header__auth">
-        {session && session.user && <p> {session.user.name}</p>}
+        {session && session.user && (
+          <p className="header__user-name"> {session.user.name}</p>
+        )}
 
         {session ? <SignOut /> : <SignIn />}
       </div>
