@@ -1,9 +1,9 @@
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import { Suspense } from 'react';
-import Loading from './components/avatar/loader';
 import Footer from './components/footer/Footer';
 import Header from './components/header/Header';
+import Loader from './components/loader/Loader';
 import './globals.css';
 
 const inter = Inter({ subsets: ['latin'] });
@@ -56,7 +56,7 @@ export default function RootLayout({
           <Header />
 
           <main>
-            <Suspense fallback={<Loading />}>{children}</Suspense>
+            <Suspense fallback={<Loader />}>{children}</Suspense>
           </main>
 
           <Footer />

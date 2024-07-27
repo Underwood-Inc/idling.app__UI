@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { auth } from '../../../../auth';
 import Avatar from '../avatar/Avatar';
 
@@ -13,7 +14,9 @@ export default async function NavHomeAvatar() {
   return (
     <>
       <Avatar seed={seed} />
-      <h3>Idling.app</h3>
+      <Link href="/">
+        <h3>Idling.app</h3>
+      </Link>
     </>
   );
 }

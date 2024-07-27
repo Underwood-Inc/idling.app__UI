@@ -1,17 +1,15 @@
 'use client';
-
 import { useRef, useState } from 'react';
 import { useFormState, useFormStatus } from 'react-dom';
 import { createSubmission } from '../actions';
 import { SUBMISSION_NAME_MAX_LENGTH } from '../schema';
+import './AddSubmissionForm.css';
 
 const initialState = {
   message: '',
   submission_datetime: '',
   submission_name: ''
 };
-
-const style = { marginRight: '1rem', padding: '.2rem' };
 
 function SubmitButton({ isAuthorized }: { isAuthorized: boolean }) {
   const { pending } = useFormStatus();
@@ -22,7 +20,6 @@ function SubmitButton({ isAuthorized }: { isAuthorized: boolean }) {
       type="submit"
       aria-disabled={isDisabled}
       disabled={isDisabled}
-      style={style}
       title={isDisabled ? 'Login to manage posts.' : undefined}
     >
       Post
@@ -44,24 +41,24 @@ export function AddSubmissionForm({ isAuthorized }: { isAuthorized: boolean }) {
   };
 
   return (
-    <form ref={ref} action={handleFormAction}>
-      <SubmitButton isAuthorized={!isAuthorized} />
-
-      <label htmlFor="submission_name">
+    <form ref={ref} action={handleFormAction} className="submission__form">
+      <label htmlFor="submission_name" className="submission_name-label">
         <input
           type="text"
           id="submission_name"
           name="submission_name"
+          className="submission__name-input"
           onChange={(e) => setNameLength(e.target.value.length)}
-          style={style}
           disabled={!isAuthorized}
           title={!isAuthorized ? 'Login to manage posts.' : undefined}
           required
         />
-        <span>
-          {nameLength}/{SUBMISSION_NAME_MAX_LENGTH}
-        </span>
+        <SubmitButton isAuthorized={!isAuthorized} />
       </label>
+
+      <p>
+        {nameLength}/{SUBMISSION_NAME_MAX_LENGTH}
+      </p>
 
       <p aria-live="polite" className="sr-only" role="status">
         {state?.message}

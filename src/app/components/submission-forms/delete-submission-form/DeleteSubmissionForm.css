@@ -1,0 +1,10 @@
+.submission__delete-btn {
+  font-size: 1.4rem;
+  line-height: 1.5;
+  background-color: var(--brand-quaternary);
+  color: var(--brand-tertiary);
+}
+
+.submission__delete-btn:hover {
+  background-color: var(--brand-quaternary--dark);
+}
