@@ -1,13 +1,13 @@
-import { unstable_noStore as noStore } from "next/cache";
-import { Suspense } from "react";
-import sql from "../../../lib/db";
-import Loading from "../home-avatar/loader";
-import { DeleteSubmissionForm } from "../submission-forms/delete-submission-form/DeleteSubmissionForm";
-import { Submission } from "../submission-forms/schema";
-import "./SubmissionsList.css";
+import { unstable_noStore as noStore } from 'next/cache';
+import { Suspense } from 'react';
+import sql from '../../../lib/db';
+import Loading from '../avatar/loader';
+import { DeleteSubmissionForm } from '../submission-forms/delete-submission-form/DeleteSubmissionForm';
+import { Submission } from '../submission-forms/schema';
+import './SubmissionsList.css';
 
 export default async function SubmissionsList({
-  isAuthorized,
+  isAuthorized
 }: {
   isAuthorized: boolean;
 }) {

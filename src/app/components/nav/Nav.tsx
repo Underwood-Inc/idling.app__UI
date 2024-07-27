@@ -1,6 +1,6 @@
-import React from "react";
-import { GitLabLink } from "../gitlab-link/GitLabLink";
-import "./Nav.css";
+import React from 'react';
+import { GitLabLink } from '../gitlab-link/GitLabLink';
+import './Nav.css';
 
 const Nav = (): React.JSX.Element => {
   return (

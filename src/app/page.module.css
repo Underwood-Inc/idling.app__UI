@@ -31,7 +31,7 @@
 
 .center::before,
 .center::after {
-  content: "";
+  content: '';
   left: 50%;
   position: absolute;
   filter: blur(45px);
@@ -50,9 +50,8 @@
 .main .content > div {
   margin-right: 1rem;
   margin-bottom: 1rem;
-  height:fit-content;
+  height: fit-content;
 }
-
 
 /* Mobile */
 @media (max-width: 700px) {

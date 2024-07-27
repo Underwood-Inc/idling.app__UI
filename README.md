@@ -36,6 +36,7 @@ The easiest way to deploy your Next.js app is to use the [Vercel Platform](https
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
 
 ---
+
 ---
 
 # TODO
@@ -44,8 +45,16 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/deploym
 
 modifications to postgres (or anything else SQL-like) require migrations architecture support to be added to this repository. migrations allow for rapid spinup of dev environment databases while protecting against unsavory changes to associated databases systems.
 
+# manual cache mechanism
+
+certain things should be cached that are not able to be automatically (i.e. client generated content). as a first implementation, cache the header image and only replace/clear it if the logged in username (image seed) is different.
+
+- cache header image in localstorage
+  - it uses the logged in user as a seed so it changes less frequently
+- cache other generated images in sessionstorage (i.e. coin faces)
 
 ---
+
 ---
 
 # IDEAS
@@ -68,7 +77,6 @@ modifications to postgres (or anything else SQL-like) require migrations archite
 ### post-MVP
 
 - xp gaining
-
 
 ### RNG
 
@@ -103,6 +111,7 @@ create database
 `CREATE DATABASE mydatabase WITH OWNER = myuser;`
 
 create table
+
 ```sql
 CREATE TABLE cars (
   brand VARCHAR(255),
@@ -125,4 +134,3 @@ choose database
 
 show tables in selected database
 `\dt` or `SELECT * FROM pg_catalog.pg_tables;`
-

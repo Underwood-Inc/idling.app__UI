@@ -1,17 +1,17 @@
-"use client";
+'use client';
 
-import { useRef, useState } from "react";
-import { useFormState, useFormStatus } from "react-dom";
-import { createSubmission } from "../actions";
-import { SUBMISSION_NAME_MAX_LENGTH } from "../schema";
+import { useRef, useState } from 'react';
+import { useFormState, useFormStatus } from 'react-dom';
+import { createSubmission } from '../actions';
+import { SUBMISSION_NAME_MAX_LENGTH } from '../schema';
 
 const initialState = {
-  message: "",
-  submission_datetime: "",
-  submission_name: "",
+  message: '',
+  submission_datetime: '',
+  submission_name: ''
 };
 
-const style = { marginRight: "1rem", padding: ".2rem" };
+const style = { marginRight: '1rem', padding: '.2rem' };
 
 function SubmitButton({ isAuthorized }: { isAuthorized: boolean }) {
   const { pending } = useFormStatus();
@@ -23,7 +23,7 @@ function SubmitButton({ isAuthorized }: { isAuthorized: boolean }) {
       aria-disabled={isDisabled}
       disabled={isDisabled}
       style={style}
-      title={isDisabled ? "Login to manage posts." : undefined}
+      title={isDisabled ? 'Login to manage posts.' : undefined}
     >
       Post
     </button>
@@ -55,7 +55,7 @@ export function AddSubmissionForm({ isAuthorized }: { isAuthorized: boolean }) {
           onChange={(e) => setNameLength(e.target.value.length)}
           style={style}
           disabled={!isAuthorized}
-          title={!isAuthorized ? "Login to manage posts." : undefined}
+          title={!isAuthorized ? 'Login to manage posts.' : undefined}
           required
         />
         <span>

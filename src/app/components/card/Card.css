@@ -3,11 +3,27 @@
   border-radius: var(--border-radius);
   background: rgba(var(--card-rgb), 0);
   border: 1px solid rgba(var(--card-border-rgb), 0);
-  transition: background 200ms, border 200ms;
+  transition:
+    background 200ms,
+    border 200ms;
   background-color: rgb(247, 234, 216);
 }
 
-.card, .card sup {
+.card.full {
+  max-width: 100%;
+}
+.card.lg {
+  max-width: 80%;
+}
+.card.md {
+  max-width: 75%;
+}
+.card.sm {
+  max-width: 70%;
+}
+
+.card,
+.card sup {
   color: rgb(2, 2, 2);
 }
 
@@ -39,11 +55,12 @@
     background: rgba(var(--card-rgb), 0.1);
     border: 1px solid rgba(var(--card-border-rgb), 0.15);
   }
-  .card:hover, .card:hover sup {
+  .card:hover,
+  .card:hover sup {
     color: rgb(247, 234, 216);
   }
   .card:hover a {
-    color:aqua;
+    color: aqua;
   }
 
   .card:hover span {

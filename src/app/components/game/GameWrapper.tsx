@@ -1,7 +1,7 @@
-"use client";
-import Script from "next/script";
-import React from "react";
-import "./styles.css";
+'use client';
+import Script from 'next/script';
+import React from 'react';
+import './styles.css';
 
 export const GameWrapper: React.FC = () => {
   return (

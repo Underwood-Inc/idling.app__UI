@@ -37,3 +37,4 @@ next-env.d.ts
 
 # versioning
 package-lock.json
+*storybook.log

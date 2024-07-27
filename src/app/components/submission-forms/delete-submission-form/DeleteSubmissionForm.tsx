@@ -1,12 +1,12 @@
-"use client";
+'use client';
 
-import { useRef } from "react";
-import { useFormState, useFormStatus } from "react-dom";
-import { deleteSubmission } from "../actions";
+import { useRef } from 'react';
+import { useFormState, useFormStatus } from 'react-dom';
+import { deleteSubmission } from '../actions';
 
 const initialState = {
-  message: "",
-  submission_name: "",
+  message: '',
+  submission_name: ''
 };
 
 function DeleteButton({ isAuthorized }: { isAuthorized: boolean }) {
@@ -19,7 +19,7 @@ function DeleteButton({ isAuthorized }: { isAuthorized: boolean }) {
       aria-disabled={isDisabled}
       disabled={isDisabled}
       className="submission__delete-btn"
-      title={isDisabled ? "Login to manage posts." : undefined}
+      title={isDisabled ? 'Login to manage posts.' : undefined}
     >
       Delete
     </button>
@@ -29,7 +29,7 @@ function DeleteButton({ isAuthorized }: { isAuthorized: boolean }) {
 export function DeleteSubmissionForm({
   id,
   name,
-  isAuthorized,
+  isAuthorized
 }: {
   id: number;
   name: string;
