@@ -1,6 +1,7 @@
 'use server';
 import { revalidatePath } from 'next/cache';
 import postgres from 'postgres';
+import { auth } from '../../../../auth';
 import {
   parseDeleteSubmission,
   parseSubmission,
@@ -17,29 +18,36 @@ let sql = postgres(process.env.PGSQL_HOST!, {
 async function validateCreateSubmissionForm(formData: FormData) {
   const submissionName = formData.get('submission_name');
   const submissionDatetime = new Date().toISOString();
+  const session = await auth();
 
-  const { success, data, error } = parseSubmission({
-    submission_datetime: submissionDatetime,
-    submission_name: submissionName?.toString().trim() || ''
-  });
+  if (session && session.user?.name) {
+    const { success, data, error } = parseSubmission({
+      author: session.user.name,
+      submission_datetime: submissionDatetime,
+      submission_name: submissionName?.toString().trim() || ''
+    });
 
-  if (!success) {
-    return { errors: parseZodErrors(error) };
+    if (!success) {
+      return { errors: parseZodErrors(error) };
+    }
+
+    return { data };
   }
 
-  return { data };
+  return { errors: 'Session error. Please login again.' };
 }
 
 export async function validateCreateSubmissionFormAction(
   prevState: {
-    message: string;
+    message?: string;
+    error?: string;
   },
   formData: FormData
-): Promise<{ message: string }> {
+): Promise<{ message?: string; error?: string }> {
   const { data, errors } = await validateCreateSubmissionForm(formData);
 
   if (!data) {
-    return { message: errors };
+    return { error: errors };
   }
 
   return { message: '' };
@@ -51,27 +59,33 @@ export async function validateCreateSubmissionFormAction(
  */
 export async function createSubmissionAction(
   prevState: {
-    message: string;
+    message?: string;
+    error?: string;
   },
   formData: FormData
-): Promise<{ message: string }> {
+): Promise<{ message?: string; error?: string }> {
   const { data, errors } = await validateCreateSubmissionForm(formData);
+  const session = await auth();
 
   if (!data) {
-    return { message: errors };
+    return { error: errors };
+  }
+
+  if (!session || !session?.user?.name) {
+    return { error: 'Authentication error.' };
   }
 
   try {
     await sql`
-      insert into submissions (submission_name, submission_datetime)
-      VALUES (${data.submission_name},${data.submission_datetime})
+      insert into submissions (submission_name, submission_datetime, author)
+      VALUES (${data.submission_name},${data.submission_datetime},${session?.user?.name});
     `;
 
     revalidatePath('/');
     return { message: `Added submission: ${data.submission_name}.` };
   } catch (e) {
     console.error(e);
-    return { message: `Failed to create submission.` };
+    return { error: `Failed to create submission.` };
   }
 }
 
@@ -81,7 +95,8 @@ export async function createSubmissionAction(
  */
 export async function deleteSubmissionAction(
   prevState: {
-    message: string;
+    message?: string;
+    error?: string;
   },
   formData: FormData
 ) {
@@ -91,7 +106,7 @@ export async function deleteSubmissionAction(
   });
 
   if (!success) {
-    return { message: parseZodErrors(error) };
+    return { error: parseZodErrors(error) };
   }
 
   const sqlSubmissionId = data.submission_id!.toString();
@@ -105,6 +120,6 @@ export async function deleteSubmissionAction(
     revalidatePath('/');
     return { message: `Deleted submission ${data.submission_name}.` };
   } catch (e) {
-    return { message: `Failed to delete submission.` };
+    return { error: `Failed to delete submission.` };
   }
 }

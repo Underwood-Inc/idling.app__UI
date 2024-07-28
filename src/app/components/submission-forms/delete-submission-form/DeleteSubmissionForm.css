@@ -3,6 +3,7 @@
   line-height: 1.5;
   background-color: var(--brand-quaternary);
   color: var(--brand-tertiary);
+  position: relative;
 }
 
 .submission__delete-btn:hover:not(:disabled) {

@@ -1,5 +1,5 @@
 'use client';
-import { ChangeEvent, useRef, useState } from 'react';
+import { ChangeEvent, useEffect, useRef, useState } from 'react';
 import { useFormState, useFormStatus } from 'react-dom';
 import {
   createSubmissionAction,
@@ -14,6 +14,7 @@ import './AddSubmissionForm.css';
 
 const initialState = {
   message: '',
+  error: '',
   submission_datetime: '',
   submission_name: ''
 };
@@ -55,6 +56,11 @@ export function AddSubmissionForm({ isAuthorized }: { isAuthorized: boolean }) {
   const [nameLength, setNameLength] = useState(0);
   const [isDisabled, setIsDisabled] = useState(false);
   const [errors, setErrors] = useState('');
+  const [message, setMessage] = useState('');
+
+  useEffect(() => {
+    setIsDisabled(!isAuthorized);
+  }, [isAuthorized]);
 
   const submitButtonTitle = errors
     ? 'Resolve form errors.'
@@ -66,18 +72,20 @@ export function AddSubmissionForm({ isAuthorized }: { isAuthorized: boolean }) {
     await formAction(formData);
     setNameLength(0);
     ref.current?.reset();
-    setErrors('');
   };
 
   const handleFormValidateAction = async (formData: FormData) => {
     await validateFormAction(formData);
     setIsDisabled(!!validateState.message);
-    setErrors(validateState.message);
+    setIsDisabled(!!state.message);
+    setIsDisabled(!isAuthorized);
+    setMessage(validateState.message || '');
+    setErrors(state.error || '');
   };
 
   const handleNameChange = async (event: ChangeEvent<HTMLInputElement>) => {
     event.preventDefault();
-    setNameLength(event.target.value.length);
+    setNameLength(event.target.value.trim().length);
 
     const { error } = parseSubmission({
       submission_name: event.target.value,
@@ -85,6 +93,7 @@ export function AddSubmissionForm({ isAuthorized }: { isAuthorized: boolean }) {
     });
 
     setIsDisabled(!!error);
+    setIsDisabled(!isAuthorized);
 
     if (error) {
       setErrors(parseZodErrors(error));
@@ -97,8 +106,22 @@ export function AddSubmissionForm({ isAuthorized }: { isAuthorized: boolean }) {
     event.preventDefault();
     const formData = new FormData();
     formData.append('submission_name', event.target.value);
-    setNameLength(event.target.value.length);
+    setNameLength(event.target.value.trim().length);
     await handleFormValidateAction(formData);
+  };
+
+  const getNameLengthStatus = () => {
+    const percentOfMax = (nameLength / 255) * 100;
+
+    if (percentOfMax >= 80 && percentOfMax < 100) {
+      return 'warning';
+    }
+
+    if (percentOfMax >= 100) {
+      return 'error';
+    }
+
+    return 'info';
   };
 
   return (
@@ -107,28 +130,35 @@ export function AddSubmissionForm({ isAuthorized }: { isAuthorized: boolean }) {
       action={handleFormSubmitAction}
       className="submission__form"
     >
-      <label htmlFor="submission_name" className="submission_name-label">
-        <input
-          type="text"
-          id="submission_name"
-          name="submission_name"
-          className="submission__name-input"
-          onChange={handleNameChange}
-          onBlur={handleNameBlur}
-          disabled={!isAuthorized}
-          title={!isAuthorized ? 'Login to manage posts.' : undefined}
-          required
-        />
-        <SubmitButton isDisabled={isDisabled} title={submitButtonTitle} />
+      <label htmlFor="submission_name" className="submission__name-label">
+        <div className="row--sm-margin">
+          <input
+            type="text"
+            id="submission_name"
+            name="submission_name"
+            className="submission__name-input"
+            onChange={handleNameChange}
+            onBlur={handleNameBlur}
+            disabled={!isAuthorized}
+            title={!isAuthorized ? 'Login to manage posts.' : undefined}
+            required
+          />
+          <SubmitButton isDisabled={isDisabled} title={submitButtonTitle} />
+        </div>
+        <div className="row">
+          <p className={`column ${getNameLengthStatus()}`}>
+            {nameLength}/{SUBMISSION_NAME_MAX_LENGTH}
+          </p>
+
+          <p
+            aria-live="polite"
+            className={`column ${errors ? 'error' : 'info'}`}
+            role="status"
+          >
+            {errors || state.message}
+          </p>
+        </div>
       </label>
-
-      <p>
-        {nameLength}/{SUBMISSION_NAME_MAX_LENGTH}
-      </p>
-
-      <p aria-live="polite" className="sr-only" role="status">
-        {errors}
-      </p>
     </form>
   );
 }

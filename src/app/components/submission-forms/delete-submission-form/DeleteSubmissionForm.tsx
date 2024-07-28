@@ -11,7 +11,8 @@ const initialState = {
 
 function DeleteButton({ isAuthorized }: { isAuthorized: boolean }) {
   const { pending } = useFormStatus();
-  const isDisabled = pending || isAuthorized;
+  const isDisabled = pending || !isAuthorized;
+  const title = isDisabled ? 'Login to manage posts.' : undefined;
 
   return (
     <button
@@ -19,7 +20,7 @@ function DeleteButton({ isAuthorized }: { isAuthorized: boolean }) {
       aria-disabled={isDisabled}
       disabled={isDisabled}
       className="submission__delete-btn"
-      title={isDisabled ? 'Login to manage posts.' : undefined}
+      title={title}
     >
       Delete
     </button>
@@ -52,8 +53,8 @@ export function DeleteSubmissionForm({
     <form ref={ref} action={handleFormAction}>
       <input type="hidden" name="submission_id" value={id} />
       <input type="hidden" name="submission_name" value={name} />
-      <DeleteButton isAuthorized={!isAuthorized} />
-      <p aria-live="polite" className="sr-only" role="status">
+      <DeleteButton isAuthorized={isAuthorized} />
+      <p aria-live="polite" className="" role="status">
         {state?.message}
       </p>
     </form>

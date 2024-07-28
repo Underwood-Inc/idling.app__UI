@@ -2,8 +2,9 @@
   width: 75%;
 }
 
-.submission_name-label {
+.submission__name-label {
   display: flex;
+  flex-direction: column;
 }
 
 .submission__name-input {
