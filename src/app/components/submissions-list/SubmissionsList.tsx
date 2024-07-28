@@ -57,7 +57,9 @@ export default async function SubmissionsList({
             return (
               <li key={submission_id} className="submission__wrapper">
                 <p>
-                  <span className="submission__author">{author}:&nbsp;</span>
+                  {author && (
+                    <span className="submission__author">{author}:&nbsp;</span>
+                  )}
                   <span>{submission_name}</span>
                 </p>
                 <span className="submission__datetime">{createdDate}</span>
