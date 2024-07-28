@@ -1,5 +1,5 @@
 'use client';
-import { ChangeEvent, useEffect, useRef, useState } from 'react';
+import { ChangeEvent, useRef, useState } from 'react';
 import { useFormState, useFormStatus } from 'react-dom';
 import {
   createSubmissionAction,
@@ -54,13 +54,9 @@ export function AddSubmissionForm({ isAuthorized }: { isAuthorized: boolean }) {
     initialState
   );
   const [nameLength, setNameLength] = useState(0);
-  const [isDisabled, setIsDisabled] = useState(false);
   const [errors, setErrors] = useState('');
-  const [message, setMessage] = useState('');
 
-  useEffect(() => {
-    setIsDisabled(!isAuthorized);
-  }, [isAuthorized]);
+  const isDisabled = !isAuthorized || !!errors;
 
   const submitButtonTitle = errors
     ? 'Resolve form errors.'
@@ -69,18 +65,16 @@ export function AddSubmissionForm({ isAuthorized }: { isAuthorized: boolean }) {
       : undefined;
 
   const handleFormSubmitAction = async (formData: FormData) => {
-    await formAction(formData);
-    setNameLength(0);
-    ref.current?.reset();
+    if (!state.error) {
+      await formAction(formData);
+      setNameLength(0);
+      ref.current?.reset();
+    }
   };
 
   const handleFormValidateAction = async (formData: FormData) => {
     await validateFormAction(formData);
-    setIsDisabled(!!validateState.message);
-    setIsDisabled(!!state.message);
-    setIsDisabled(!isAuthorized);
-    setMessage(validateState.message || '');
-    setErrors(state.error || '');
+    setErrors(validateState.error || '');
   };
 
   const handleNameChange = async (event: ChangeEvent<HTMLInputElement>) => {
@@ -91,9 +85,6 @@ export function AddSubmissionForm({ isAuthorized }: { isAuthorized: boolean }) {
       submission_name: event.target.value,
       submission_datetime: new Date().toISOString()
     });
-
-    setIsDisabled(!!error);
-    setIsDisabled(!isAuthorized);
 
     if (error) {
       setErrors(parseZodErrors(error));

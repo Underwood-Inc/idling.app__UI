@@ -1,5 +1,5 @@
 import { headers } from 'next/headers';
-import { signIn, signOut } from '../../../../auth';
+import { signIn, signOut } from '../../../lib/auth';
 
 export function SignIn() {
   const headersList = headers();
@@ -9,7 +9,7 @@ export function SignIn() {
     <form
       action={async () => {
         'use server';
-        await signIn('twitch', { redirectTo: referer || '/' });
+        const result = await signIn('twitch', { redirectTo: referer || '/' });
       }}
     >
       <button type="submit">Login with Twitch</button>

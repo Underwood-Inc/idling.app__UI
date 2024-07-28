@@ -212,7 +212,11 @@ button:hover:not(:disabled) {
   color: var(--brand-tertiary);
 }
 
-button:hover:disabled {
+button:disabled {
+  background-color: lightgray;
+}
+
+button:disabled:hover {
   cursor: not-allowed;
 }
 

@@ -1,4 +1,4 @@
-import { auth } from '../../../../auth';
+import { auth } from '../../../lib/auth';
 import { SignIn, SignOut } from '../auth-buttons/AuthButtons';
 import NavHomeAvatar from '../nav-home-avatar/NavHomeAvatar';
 import './Header.css';

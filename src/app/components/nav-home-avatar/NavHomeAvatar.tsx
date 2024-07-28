@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { auth } from '../../../../auth';
+import { auth } from '../../../lib/auth';
 import Avatar from '../avatar/Avatar';
 
 export default async function NavHomeAvatar() {
