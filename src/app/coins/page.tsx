@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation';
-import { auth } from '../../../auth';
+import { auth } from '../../lib/auth';
 import { Card } from '../components/card/Card';
 import Coin from '../components/coin/Coin';
 

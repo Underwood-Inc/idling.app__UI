@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation';
-import { auth } from '../../../../auth';
+import { auth } from '../../../lib/auth';
 import { SignIn } from '../../components/auth-buttons/AuthButtons';
 
 export default async function Page() {

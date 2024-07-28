@@ -1,7 +1,7 @@
 'use server';
 import { revalidatePath } from 'next/cache';
 import postgres from 'postgres';
-import { auth } from '../../../../auth';
+import { auth } from '../../../lib/auth';
 import {
   parseDeleteSubmission,
   parseSubmission,

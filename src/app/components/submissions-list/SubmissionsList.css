@@ -2,9 +2,17 @@
   max-height: 300px;
   min-height: 100px;
   width: 100%;
-  margin-bottom: 1rem;
 }
 
+.empty p {
+  text-align: center;
+  vertical-align: middle;
+  padding: 5rem;
+}
+
+.submission__wrapper:not(:last-of-type) {
+  border-bottom: solid gray 2px;
+}
 .submission__wrapper {
   display: flex;
   justify-content: space-between;
@@ -16,7 +24,7 @@
 }
 
 .submission__wrapper:hover {
-  border: solid 1px gray;
+  background-color: var(--brand-tertiary--dark);
 }
 
 .submission__wrapper .submission__delete-btn {
@@ -25,6 +33,10 @@
 
 .submission__wrapper:hover .submission__delete-btn {
   display: inline-block;
+}
+
+.submission__author {
+  font-weight: 600;
 }
 
 .submission__datetime {
