@@ -3,10 +3,11 @@ import { z, ZodError } from 'zod';
 export const SUBMISSION_NAME_MAX_LENGTH = 255;
 
 export const submissionSchema = z.object({
-  submission_id: z.coerce.number().gte(1).optional(),
+  author: z.string().min(3).optional(), // added in action handler
+  submission_id: z.coerce.number().gte(1).optional(), // added in action handler
   submission_name: z
     .string()
-    .min(0)
+    .min(1)
     .max(SUBMISSION_NAME_MAX_LENGTH, {
       message: `Message character count must not exceed ${SUBMISSION_NAME_MAX_LENGTH}`
     }),
@@ -14,7 +15,7 @@ export const submissionSchema = z.object({
 });
 
 export const deleteSubmissionSchema = z.object({
-  submission_id: z.coerce.number().gte(1).optional(),
+  submission_id: z.coerce.number().gte(1),
   submission_name: z.string().min(1).max(SUBMISSION_NAME_MAX_LENGTH)
 });
 

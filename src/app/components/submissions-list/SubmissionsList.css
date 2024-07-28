@@ -1,27 +1,36 @@
-.submission_list {
+.submission__list {
   max-height: 300px;
   min-height: 100px;
   width: 100%;
   margin-bottom: 1rem;
 }
 
-.submission_wrapper {
+.submission__wrapper {
   display: flex;
   justify-content: space-between;
   border: solid 1px transparent;
   border-radius: 0.3rem;
   align-items: flex-start;
   padding: 0.2rem;
+  position: relative;
 }
 
-.submission_wrapper:hover {
+.submission__wrapper:hover {
   border: solid 1px gray;
 }
 
-.submission_wrapper .submission__delete-btn {
+.submission__wrapper .submission__delete-btn {
   display: none;
 }
 
-.submission_wrapper:hover .submission__delete-btn {
+.submission__wrapper:hover .submission__delete-btn {
   display: inline-block;
+}
+
+.submission__datetime {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  opacity: 0.5;
+  margin-right: 1rem;
 }
