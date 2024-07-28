@@ -1,8 +1,15 @@
 'use client';
-import { useRef, useState } from 'react';
+import { ChangeEvent, useRef, useState } from 'react';
 import { useFormState, useFormStatus } from 'react-dom';
-import { createSubmission } from '../actions';
-import { SUBMISSION_NAME_MAX_LENGTH } from '../schema';
+import {
+  createSubmissionAction,
+  validateCreateSubmissionFormAction
+} from '../actions';
+import {
+  parseSubmission,
+  parseZodErrors,
+  SUBMISSION_NAME_MAX_LENGTH
+} from '../schema';
 import './AddSubmissionForm.css';
 
 const initialState = {
@@ -11,16 +18,22 @@ const initialState = {
   submission_name: ''
 };
 
-function SubmitButton({ isAuthorized }: { isAuthorized: boolean }) {
+function SubmitButton({
+  isDisabled,
+  title
+}: {
+  isDisabled: boolean;
+  title?: string;
+}) {
   const { pending } = useFormStatus();
-  const isDisabled = pending || isAuthorized;
+  const canSubmit = !pending && !isDisabled;
 
   return (
     <button
       type="submit"
-      aria-disabled={isDisabled}
-      disabled={isDisabled}
-      title={isDisabled ? 'Login to manage posts.' : undefined}
+      aria-disabled={!canSubmit}
+      disabled={!canSubmit}
+      title={title}
     >
       Post
     </button>
@@ -30,30 +43,83 @@ function SubmitButton({ isAuthorized }: { isAuthorized: boolean }) {
 export function AddSubmissionForm({ isAuthorized }: { isAuthorized: boolean }) {
   const ref = useRef<HTMLFormElement>(null);
   // TODO: https://github.com/vercel/next.js/issues/65673#issuecomment-2112746191
-  // const [state, formAction] = useActionState(createSubmission, initialState)
-  const [state, formAction] = useFormState(createSubmission, initialState);
+  // const [state, formAction] = useActionState(createSubmissionAction, initialState)
+  const [state, formAction] = useFormState(
+    createSubmissionAction,
+    initialState
+  );
+  const [validateState, validateFormAction] = useFormState(
+    validateCreateSubmissionFormAction,
+    initialState
+  );
   const [nameLength, setNameLength] = useState(0);
+  const [isDisabled, setIsDisabled] = useState(false);
+  const [errors, setErrors] = useState('');
 
-  const handleFormAction = async (formData: FormData) => {
+  const submitButtonTitle = errors
+    ? 'Resolve form errors.'
+    : !isAuthorized
+      ? 'Login to manage posts.'
+      : undefined;
+
+  const handleFormSubmitAction = async (formData: FormData) => {
     await formAction(formData);
     setNameLength(0);
     ref.current?.reset();
+    setErrors('');
+  };
+
+  const handleFormValidateAction = async (formData: FormData) => {
+    await validateFormAction(formData);
+    setIsDisabled(!!validateState.message);
+    setErrors(validateState.message);
+  };
+
+  const handleNameChange = async (event: ChangeEvent<HTMLInputElement>) => {
+    event.preventDefault();
+    setNameLength(event.target.value.length);
+
+    const { error } = parseSubmission({
+      submission_name: event.target.value,
+      submission_datetime: new Date().toISOString()
+    });
+
+    setIsDisabled(!!error);
+
+    if (error) {
+      setErrors(parseZodErrors(error));
+    } else {
+      setErrors('');
+    }
+  };
+
+  const handleNameBlur = async (event: ChangeEvent<HTMLInputElement>) => {
+    event.preventDefault();
+    const formData = new FormData();
+    formData.append('submission_name', event.target.value);
+    setNameLength(event.target.value.length);
+    await handleFormValidateAction(formData);
   };
 
   return (
-    <form ref={ref} action={handleFormAction} className="submission__form">
+    <form
+      ref={ref}
+      action={handleFormSubmitAction}
+      className="submission__form"
+    >
       <label htmlFor="submission_name" className="submission_name-label">
         <input
           type="text"
           id="submission_name"
           name="submission_name"
           className="submission__name-input"
-          onChange={(e) => setNameLength(e.target.value.length)}
+          onChange={handleNameChange}
+          onBlur={handleNameBlur}
           disabled={!isAuthorized}
           title={!isAuthorized ? 'Login to manage posts.' : undefined}
           required
         />
-        <SubmitButton isAuthorized={!isAuthorized} />
+        <SubmitButton isDisabled={isDisabled} title={submitButtonTitle} />
       </label>
 
       <p>
@@ -61,7 +127,7 @@ export function AddSubmissionForm({ isAuthorized }: { isAuthorized: boolean }) {
       </p>
 
       <p aria-live="polite" className="sr-only" role="status">
-        {state?.message}
+        {errors}
       </p>
     </form>
   );

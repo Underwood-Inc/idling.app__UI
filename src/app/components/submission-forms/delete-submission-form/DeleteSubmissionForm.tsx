@@ -1,7 +1,7 @@
 'use client';
 import { useRef } from 'react';
 import { useFormState, useFormStatus } from 'react-dom';
-import { deleteSubmission } from '../actions';
+import { deleteSubmissionAction } from '../actions';
 import './DeleteSubmissionForm.css';
 
 const initialState = {
@@ -37,8 +37,11 @@ export function DeleteSubmissionForm({
 }) {
   const ref = useRef<HTMLFormElement>(null);
   // TODO: https://github.com/vercel/next.js/issues/65673#issuecomment-2112746191
-  // const [state, formAction] = useActionState(deleteSubmission, initialState)
-  const [state, formAction] = useFormState(deleteSubmission, initialState);
+  // const [state, formAction] = useActionState(deleteSubmissionAction, initialState)
+  const [state, formAction] = useFormState(
+    deleteSubmissionAction,
+    initialState
+  );
 
   const handleFormAction = async (formData: FormData) => {
     await formAction(formData);

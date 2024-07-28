@@ -5,6 +5,6 @@
   color: var(--brand-tertiary);
 }
 
-.submission__delete-btn:hover {
+.submission__delete-btn:hover:not(:disabled) {
   background-color: var(--brand-quaternary--dark);
 }

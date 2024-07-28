@@ -1,64 +1,64 @@
 'use server';
-
 import { revalidatePath } from 'next/cache';
 import postgres from 'postgres';
-import { deleteSubmissionSchema, Submission, submissionSchema } from './schema';
+import {
+  parseDeleteSubmission,
+  parseSubmission,
+  parseZodErrors
+} from './schema';
 
 let sql = postgres(process.env.PGSQL_HOST!, {
   ssl: 'allow'
 });
 
-function parseSubmission({
-  submission_datetime,
-  submission_name
-}: Partial<Submission>) {
-  const parse = submissionSchema.safeParse({
-    submission_name: submission_name?.toString().trim(),
-    submission_datetime
-  });
-
-  if (!parse.success) {
-    console.error(parse.error);
-
-    return null;
-  }
-
-  return parse.data;
-}
-
-function parseDeleteSubmission({
-  submission_id,
-  submission_name
-}: Partial<Submission>) {
-  const parse = deleteSubmissionSchema.safeParse({
-    submission_id,
-    submission_name
-  });
-
-  if (!parse.success) {
-    console.error(parse.error);
-
-    return null;
-  }
-
-  return parse.data;
-}
-
-export async function createSubmission(
-  prevState: {
-    message: string;
-  },
-  formData: FormData
-) {
+/**
+ * Form validation action for create submission form
+ */
+async function validateCreateSubmissionForm(formData: FormData) {
   const submissionName = formData.get('submission_name');
   const submissionDatetime = new Date().toISOString();
-  const data = parseSubmission({
+
+  const { success, data, error } = parseSubmission({
     submission_datetime: submissionDatetime,
     submission_name: submissionName?.toString().trim() || ''
   });
 
+  if (!success) {
+    return { errors: parseZodErrors(error) };
+  }
+
+  return { data };
+}
+
+export async function validateCreateSubmissionFormAction(
+  prevState: {
+    message: string;
+  },
+  formData: FormData
+): Promise<{ message: string }> {
+  const { data, errors } = await validateCreateSubmissionForm(formData);
+
   if (!data) {
-    return { message: 'Failed to create submission, parsing error!' };
+    return { message: errors };
+  }
+
+  return { message: '' };
+}
+
+/**
+ * CREATE new submission action
+ * performs SQL
+ */
+export async function createSubmissionAction(
+  prevState: {
+    message: string;
+  },
+  formData: FormData
+): Promise<{ message: string }> {
+  const { data, errors } = await validateCreateSubmissionForm(formData);
+
+  if (!data) {
+    return { message: errors };
   }
 
   try {
@@ -75,19 +75,23 @@ export async function createSubmission(
   }
 }
 
-export async function deleteSubmission(
+/**
+ * DELETE submission action
+ * performs SQL
+ */
+export async function deleteSubmissionAction(
   prevState: {
     message: string;
   },
   formData: FormData
 ) {
-  const data = parseDeleteSubmission({
+  const { success, data, error } = parseDeleteSubmission({
     submission_id: Number.parseInt(formData.get('submission_id') as string),
     submission_name: formData.get('submission_name') as string
   });
 
-  if (!data) {
-    return { message: 'Failed to delete submission, parsing error!' };
+  if (!success) {
+    return { message: parseZodErrors(error) };
   }
 
   const sqlSubmissionId = data.submission_id!.toString();

@@ -81,7 +81,9 @@
   font-size: 1.4rem;
   line-height: 1.5;
   max-width: 100ch;
+  width: 100%;
   text-wrap: balance;
+  word-break: break-word;
 }
 
 /* Enable hover only on non-touch devices */
