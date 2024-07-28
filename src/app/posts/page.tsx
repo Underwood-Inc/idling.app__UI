@@ -12,7 +12,7 @@ export default async function Posts() {
 
   return (
     <article className={rootStyles.main}>
-      <h4>POSTS</h4>
+      <h4 className={styles.posts__header}>posts</h4>
 
       <Card className={styles.card} width="md">
         <Suspense fallback={<Loader />}>

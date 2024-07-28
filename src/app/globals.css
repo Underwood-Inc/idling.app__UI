@@ -120,11 +120,6 @@
   }
 }
 
-::selection,
-::-moz-selection {
-  background: var(--brand-quinary);
-}
-
 * {
   box-sizing: border-box;
   padding: 0;
@@ -187,9 +182,14 @@ button {
   color: var(--brand-quinary--dark);
 }
 
-button:hover {
+button:hover:not(:disabled) {
+  cursor: pointer;
   background-color: var(--brand-primary--dark);
   color: var(--brand-tertiary);
+}
+
+button:hover:disabled {
+  cursor: not-allowed;
 }
 
 sup p,
@@ -221,12 +221,19 @@ a:hover {
   color: var(--brand-primary--dark);
 }
 
-button:hover {
-  cursor: pointer;
-}
-
 @media (prefers-color-scheme: dark) {
   html {
     color-scheme: dark;
   }
+}
+
+/* do not combine ::selection and ::-moz-selection, breaks */
+::selection {
+  color: var(--brand-quinary);
+  background-color: var(--brand-primary);
+}
+
+::-moz-selection {
+  color: var(--brand-quinary);
+  background-color: var(--brand-primary);
 }
