@@ -9,7 +9,7 @@ export default {
   providers: [twitch],
   pages: {
     error: '/',
-    signIn: '/auth/signin',
+    signIn: '/',
     signOut: '/'
   },
   callbacks: {
