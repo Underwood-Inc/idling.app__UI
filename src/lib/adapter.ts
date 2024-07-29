@@ -335,23 +335,27 @@ export default function PostgresAdapter(): Adapter {
     providerAccountId: string;
   }): Promise<AdapterUser | null> => {
     console.info('==========getUserByAccount==========');
-    const users = await sql`
-      SELECT u.* 
-      FROM users u join accounts a on u.id = a.userId 
-      WHERE a.provider = ${provider} 
-      AND a.providerAccountId = ${providerAccountId}
-    `;
-    console.info('users', users);
-    const user =
-      users && users[0]
-        ? {
-            email: users[0].email,
-            emailVerified: users[0].emailVerified,
-            id: users[0].id
-          }
-        : null;
+    // const query = await sql`select * from submissions`; // THIS DOES WORK SO WTF IS UP WITH CLOUDFLARE????
+    // console.info('query: ', query);
 
-    return user;
+    // const users = await sql`
+    //   SELECT *
+    //   FROM users u join accounts a on 'u.id' = 'a.userId'
+    //   WHERE 'a.provider' = '${provider}'
+    //   AND 'a.providerAccountId' = '${providerAccountId}'
+    // `;
+    // console.info('users', users);
+    // const user =
+    //   users && users[0]
+    //     ? {
+    //         email: users[0].email,
+    //         emailVerified: users[0].emailVerified,
+    //         id: users[0].id
+    //       }
+    //     : null;
+
+    // return user;
+    return null;
   };
 
   const updateUser = async (
@@ -419,6 +423,8 @@ export default function PostgresAdapter(): Adapter {
       FROM sessions 
       WHERE sessionToken = ${sessionToken}
     `;
+
+    console.info('session', session);
 
     if (session.length) {
       const users = await sql`
