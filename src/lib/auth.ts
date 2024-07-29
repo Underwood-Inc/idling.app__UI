@@ -26,7 +26,7 @@ const pool = new Pool({
 
 export const { auth, handlers, signIn, signOut } = NextAuth({
   providers: [twitch],
-  adapter: PostgresAdapter(pool)
+  adapter: PostgresAdapter()
   // callbacks: {
   //   async signIn({ user, account, profile, email, credentials }) {
   //     // breaks here, try adapter
