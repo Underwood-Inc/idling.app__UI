@@ -1,18 +1,7 @@
 import NextAuth from 'next-auth';
 import { Pool } from 'pg';
-// import { Pool } from '@neondatabase/serverless';
-// import PostgresAdapter from './adapter';
-// const { Client } = require('pg');
-import PostgresAdapter from '@auth/pg-adapter';
 import authConfig from '../auth.config';
-
-interface User {
-  id: string;
-  username: string;
-  email: string;
-  twitch_id: string;
-  created_date: string;
-}
+import CustomPostgresAdapter from './adapter';
 
 export const {
   auth,
@@ -32,7 +21,17 @@ export const {
   });
 
   return {
-    adapter: PostgresAdapter(pool),
-    ...authConfig
+    adapter: CustomPostgresAdapter(pool),
+    // server-side/database session is broken it seems. does not recognize the adapter
+    ...authConfig,
+    // database sessions are not functional
+    // session: {
+    //   strategy: 'database',
+    //   maxAge: 30 * 24 * 60 * 60, // 30 days
+    //   updateAge: 24 * 60 * 60 // 24 hours
+    // },
+    session: {
+      strategy: 'jwt'
+    }
   };
 });

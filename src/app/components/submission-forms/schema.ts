@@ -4,6 +4,7 @@ export const SUBMISSION_NAME_MAX_LENGTH = 255;
 
 export const submissionSchema = z.object({
   author: z.string().min(3).optional(), // added in action handler
+  author_id: z.string().min(3).optional(),
   submission_id: z.coerce.number().gte(1).optional(), // added in action handler
   submission_name: z
     .string()
