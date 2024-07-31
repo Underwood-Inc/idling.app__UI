@@ -131,6 +131,12 @@
   }
 }
 
+/* START TEXT MODIFIERS */
+.capitalize {
+  text-transform: capitalize;
+}
+/* END TEXT MODIFIERS */
+
 /* START STATUS COLORS */
 .info {
   color: var(--info) !important;

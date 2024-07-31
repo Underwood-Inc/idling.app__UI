@@ -10,8 +10,8 @@
   width: auto;
 }
 
-.navbar__item {
-  min-width: 10rem;
+.navbar__item:not(:last-of-type) {
+  min-width: 7rem;
 }
 .navbar__item:not(:last-of-type) {
   margin-right: 1rem;
