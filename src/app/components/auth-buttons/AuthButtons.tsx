@@ -1,4 +1,5 @@
 import { signIn, signOut } from '../../../lib/auth';
+import { NAV_PATHS } from '../../../lib/routes';
 import './AuthButtons.css';
 
 export type SignInProviders = 'twitch' | 'google';
@@ -22,7 +23,7 @@ export function SignOut() {
     <form
       action={async () => {
         'use server';
-        await signOut({ redirectTo: '/' });
+        await signOut({ redirectTo: NAV_PATHS.ROOT });
       }}
     >
       <button type="submit">Sign Out</button>

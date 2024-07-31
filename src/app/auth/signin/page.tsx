@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation';
 import { auth } from '../../../lib/auth';
+import { NAV_PATHS } from '../../../lib/routes';
 import {
   SignIn,
   SignInProviders
@@ -17,7 +18,7 @@ export default async function Page({
   if (session && searchParams.redirect) {
     redirect(searchParams.redirect);
   } else if (session && !searchParams.redirect) {
-    redirect('/');
+    redirect(NAV_PATHS.ROOT);
   }
 
   return (

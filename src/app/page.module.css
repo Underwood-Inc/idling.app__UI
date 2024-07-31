@@ -1,9 +1,17 @@
-.main {
+.content {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   align-items: center;
   padding: 6rem;
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.content > div {
+  margin-right: 1rem;
+  margin-bottom: 1rem;
+  height: fit-content;
 }
 
 .center {
@@ -40,17 +48,6 @@
 
 .logo {
   position: relative;
-}
-
-.main .content {
-  display: flex;
-  flex-wrap: wrap;
-}
-
-.main .content > div {
-  margin-right: 1rem;
-  margin-bottom: 1rem;
-  height: fit-content;
 }
 
 /* Mobile */

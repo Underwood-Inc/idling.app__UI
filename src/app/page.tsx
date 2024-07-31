@@ -6,12 +6,10 @@ import styles from './page.module.css';
 export default async function Home() {
   return (
     <article className={styles.main}>
-      <div className={styles.content}>
-        <Card width="full">
-          <h3>About</h3>
-          <About />
-        </Card>
-      </div>
+      <Card width="lg">
+        <h3>About</h3>
+        <About />
+      </Card>
     </article>
   );
 }

@@ -30,27 +30,23 @@
     background 200ms,
     border 200ms;
   overflow: auto;
+  min-width: 200px;
 }
 
 .card.full {
-  min-width: 100%;
-  max-width: 100%;
+  width: 100%;
 }
 .card.lg {
-  min-width: 80%;
-  max-width: 80%;
+  width: 80%;
 }
 .card.md {
-  min-width: 75%;
-  max-width: 75%;
+  width: 75%;
 }
 .card.sm {
-  min-width: 70%;
-  max-width: 70%;
+  width: 70%;
 }
 .card.min {
-  min-width: auto;
-  max-width: auto;
+  width: auto;
 }
 
 .card,

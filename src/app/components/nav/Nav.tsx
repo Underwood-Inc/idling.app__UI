@@ -13,7 +13,7 @@ export default async function Nav() {
     <Navbar>
       <Navbar.Brand />
 
-      <Link href="/">
+      <Link href={NAV_PATHS.ROOT}>
         <h3>Idling.app</h3>
       </Link>
 
@@ -24,7 +24,7 @@ export default async function Nav() {
 
         <Navbar.Content justify="end">
           <Navbar.Item className="nav__auth">
-            {session && session.user && (
+            {session?.user && (
               <p className="header__user-name"> {session.user.name}</p>
             )}
 

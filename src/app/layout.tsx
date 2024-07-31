@@ -19,49 +19,42 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <>
-      <html lang="en">
-        <link
-          rel="icon"
-          href="/favicon.ico"
-          type="image/x-icon"
-          sizes="16x16"
-        />
-        <link
-          rel="icon-medium"
-          href="/favicon-32x32.png"
-          type="image/x-icon"
-          sizes="32x32"
-        />
-        <link
-          rel="apple-touch-icon"
-          href="/apple-touch-icon.png"
-          type="image/x-icon"
-          sizes="180x180"
-        />
-        <link
-          rel="android-chrome-icon"
-          href="/android-chrome-192x192.png"
-          type="image/x-icon"
-          sizes="192x192"
-        />
-        <link
-          rel="android-chrome-icon"
-          href="/android-chrome-512x512.png"
-          type="image/x-icon"
-          sizes="512x512"
-        />
+    <html lang="en">
+      <link rel="icon" href="/favicon.ico" type="image/x-icon" sizes="16x16" />
+      <link
+        rel="icon-medium"
+        href="/favicon-32x32.png"
+        type="image/x-icon"
+        sizes="32x32"
+      />
+      <link
+        rel="apple-touch-icon"
+        href="/apple-touch-icon.png"
+        type="image/x-icon"
+        sizes="180x180"
+      />
+      <link
+        rel="android-chrome-icon"
+        href="/android-chrome-192x192.png"
+        type="image/x-icon"
+        sizes="192x192"
+      />
+      <link
+        rel="android-chrome-icon"
+        href="/android-chrome-512x512.png"
+        type="image/x-icon"
+        sizes="512x512"
+      />
 
-        <body className={inter.className}>
-          <Header />
+      <body className={inter.className}>
+        <Header />
 
-          <main>
-            <Suspense fallback={<Loader />}>{children}</Suspense>
-          </main>
+        <main>
+          <Suspense fallback={<Loader />}>{children}</Suspense>
+        </main>
 
-          <Footer />
-        </body>
-      </html>
-    </>
+        <Footer />
+      </body>
+    </html>
   );
 }

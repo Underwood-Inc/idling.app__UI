@@ -1,23 +1,14 @@
-import { redirect } from 'next/navigation';
 import { auth } from '../../lib/auth';
 import { Card } from '../components/card/Card';
 import Coin from '../components/coin/Coin';
 
 export default async function Coins() {
   const session = await auth();
-  let seed = '';
-
-  if (session) {
-    const { user } = session;
-    seed = user?.name || seed;
-  } else {
-    return redirect('/auth/signin');
-  }
 
   return (
     <article>
       <Card width="min">
-        <Coin seed={seed} />
+        <Coin seed={session?.user?.name || ''} />
       </Card>
     </article>
   );

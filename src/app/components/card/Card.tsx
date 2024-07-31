@@ -5,7 +5,7 @@ export const Card: React.FC<{
   children: React.ReactNode;
   className?: string;
   width?: 'full' | 'lg' | 'md' | 'sm' | 'min';
-  height?: number;
+  height?: number; // TODO: deprecate with introduction of a maintainable alternative
 }> = ({ children, className, width = 'md', height }) => {
   return (
     <div
