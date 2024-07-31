@@ -1,11 +1,11 @@
 import React from 'react';
-import Nav from '../nav/Nav';
+import FooterNav from '../footer-nav/FooterNav';
 import './Footer.css';
 
 const Footer = (): React.JSX.Element => {
   return (
     <footer className="footer">
-      <Nav />
+      <FooterNav />
     </footer>
   );
 };

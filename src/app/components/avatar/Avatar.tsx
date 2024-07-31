@@ -9,7 +9,7 @@ const Avatar = ({
   seed,
   size = 'md'
 }: {
-  seed: string;
+  seed?: string;
   size?: 'full' | 'lg' | 'md' | 'sm';
 }) => {
   const [img, setImg] = useState('');

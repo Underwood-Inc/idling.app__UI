@@ -1,4 +1,5 @@
 import { unstable_noStore as noStore } from 'next/cache';
+import { CustomSession } from '../../../auth.config';
 import { auth } from '../../../lib/auth';
 import sql from '../../../lib/db';
 import { DeleteSubmissionForm } from '../submission-forms/delete-submission-form/DeleteSubmissionForm';
@@ -11,14 +12,15 @@ export default async function SubmissionsList({
   onlyMine?: boolean;
 }) {
   noStore();
-  const session = await auth();
+  const session = (await auth()) as CustomSession | null;
 
   const getSubmissions = async () => {
     let submissions: Submission[] = [];
+
     // await new Promise((resolve) => setTimeout(resolve, 7000));
-    if (onlyMine && session?.user?.name) {
+    if (onlyMine && session?.user?.providerAccountId) {
       submissions =
-        await sql`SELECT * FROM submissions WHERE author = ${session.user.name} order by submission_datetime desc`;
+        await sql`SELECT * FROM submissions WHERE author_id = ${session.user.providerAccountId} order by submission_datetime desc`;
       return submissions;
     } else if (!onlyMine) {
       submissions =
@@ -29,8 +31,8 @@ export default async function SubmissionsList({
     return submissions;
   };
 
-  const isAuthorized = (author: string) => {
-    return session?.user?.name === author;
+  const isAuthorized = (authorId: string) => {
+    return session?.user?.providerAccountId === authorId;
   };
 
   const submissions = await getSubmissions();
@@ -48,8 +50,14 @@ export default async function SubmissionsList({
       )}
       {!!submissions.length &&
         submissions.map(
-          ({ submission_id, submission_name, author, submission_datetime }) => {
-            const canDelete = isAuthorized(author);
+          ({
+            submission_id,
+            submission_name,
+            author,
+            author_id,
+            submission_datetime
+          }) => {
+            const canDelete = isAuthorized(author_id);
             const createdDate = new Date(
               submission_datetime
             ).toLocaleDateString();

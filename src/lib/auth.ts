@@ -1,52 +1,37 @@
 import NextAuth from 'next-auth';
-import twitch from 'next-auth/providers/twitch';
+import { Pool } from 'pg';
+import authConfig from '../auth.config';
+import CustomPostgresAdapter from './adapter';
 
-interface User {
-  id: string;
-  username: string;
-  email: string;
-  twitch_id: string;
-  created_date: string;
-}
+export const {
+  auth,
+  handlers: { GET, POST },
+  signIn,
+  signOut
+} = NextAuth(() => {
+  const pool = new Pool({
+    host: process.env.PGHOST,
+    user: process.env.PGUSER,
+    password: process.env.PGPASSWORD,
+    database: process.env.PGDATABASE,
+    max: 20,
+    idleTimeoutMillis: 30000,
+    connectionTimeoutMillis: 2000,
+    port: 5432 || 443
+  });
 
-export const { auth, handlers, signIn, signOut } = NextAuth({
-  providers: [twitch],
-  // adapter: {},
-  callbacks: {
-    async signIn({ user, account, profile, email, credentials }) {
-      // breaks here, try adapter
-      // https://www.jakobmaier.at/posts/next-auth-postgres-adapter/
-      // let sql = postgres(process.env.PGSQL_HOST!, {
-      //   ssl: 'allow'
-      // });
-      const isAllowedToSignIn = true;
-
-      if (isAllowedToSignIn) {
-        // const { email, id, image, name } = user;
-
-        // if (!email || !id || !name) {
-        //   return false;
-        // }
-
-        // const users = await sql`select * from user where twitch_id = id`;
-
-        // if (users.length) {
-        //   const user = users[0] as User;
-        //   console.log('user', user);
-        // } else {
-        //   // first time signin, create user in db
-        //   const result =
-        //     await sql`insert into users (username, email, twitch_id) values(${name}, ${email}, ${id})`;
-
-        //   console.log('result', result);
-        // }
-        return true;
-      } else {
-        // Return false to display a default error message
-        return false;
-        // Or you can return a URL to redirect to:
-        // return '/unauthorized'
-      }
+  return {
+    adapter: CustomPostgresAdapter(pool),
+    // server-side/database session is broken it seems. does not recognize the adapter
+    ...authConfig,
+    // database sessions are not functional
+    // session: {
+    //   strategy: 'database',
+    //   maxAge: 30 * 24 * 60 * 60, // 30 days
+    //   updateAge: 24 * 60 * 60 // 24 hours
+    // },
+    session: {
+      strategy: 'jwt'
     }
-  }
+  };
 });

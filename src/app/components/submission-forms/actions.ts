@@ -1,6 +1,7 @@
 'use server';
 import { revalidatePath } from 'next/cache';
 import postgres from 'postgres';
+import { CustomSession } from '../../../auth.config';
 import { auth } from '../../../lib/auth';
 import {
   parseDeleteSubmission,
@@ -65,20 +66,20 @@ export async function createSubmissionAction(
   formData: FormData
 ): Promise<{ message?: string; error?: string }> {
   const { data, errors } = await validateCreateSubmissionForm(formData);
-  const session = await auth();
+  const session = (await auth()) as CustomSession;
 
   if (!data) {
     return { error: errors };
   }
 
-  if (!session || !session?.user?.name) {
+  if (!session || !session?.user?.name || !session.user.providerAccountId) {
     return { error: 'Authentication error.' };
   }
 
   try {
     await sql`
-      insert into submissions (submission_name, submission_datetime, author)
-      VALUES (${data.submission_name},${data.submission_datetime},${session?.user?.name});
+      insert into submissions (submission_name, submission_datetime, author, author_id)
+      VALUES (${data.submission_name},${data.submission_datetime},${session?.user?.name},${session?.user.providerAccountId});
     `;
 
     revalidatePath('/');

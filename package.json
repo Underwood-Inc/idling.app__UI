@@ -18,19 +18,22 @@
     "build-storybook": "storybook build"
   },
   "dependencies": {
+    "@auth/pg-adapter": "^1.4.2",
     "@dicebear/collection": "8.0.1",
     "@dicebear/core": "8.0.1",
-    "@types/pg": "8.11.6",
+    "@neondatabase/serverless": "^0.9.4",
     "@vercel/postgres": "^0.9.0",
+    "buffer": "^6.0.3",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-prettier": "^5.2.1",
     "next": "14.2.5",
     "next-auth": "^5.0.0-beta.19",
-    "pg": "8.12.0",
+    "pg": "8.10.0",
     "postgres": "3.4.4",
     "react": "18.3.1",
     "react-dom": "18.3.1",
     "react-spinners": "0.13.8",
+    "stream-browserify": "^3.0.0",
     "zod": "3.23.8"
   },
   "devDependencies": {
@@ -46,6 +49,7 @@
     "@storybook/react": "^8.2.6",
     "@storybook/test": "^8.2.6",
     "@types/node": "20",
+    "@types/pg": "8.10.0",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
     "eslint": "8",
