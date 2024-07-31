@@ -4,8 +4,8 @@ import './FooterNav.css';
 
 const FooterNav = (): React.JSX.Element => {
   return (
-    <div className="container">
-      <ul className="nav">
+    <div className="footer-nav__container">
+      <ul className="footer-nav__list">
         <li>
           <GitLabLink />
         </li>

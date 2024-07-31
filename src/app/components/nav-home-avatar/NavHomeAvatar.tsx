@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { auth } from '../../../lib/auth';
+import { NAV_PATHS } from '../../../lib/routes';
 import Avatar from '../avatar/Avatar';
 
 export default async function NavHomeAvatar() {
@@ -14,7 +15,7 @@ export default async function NavHomeAvatar() {
   return (
     <>
       <Avatar seed={seed} />
-      <Link href="/">
+      <Link href={NAV_PATHS.ROOT}>
         <h3>Idling.app</h3>
       </Link>
     </>

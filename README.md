@@ -1,5 +1,7 @@
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
+This project currently does not use any CSS assistance (i.e. pre-processors, tailwind, etc.) so, true BEM style CSS is somewhat challenging. When it comes to props that propagate into a `className` value that control visual elements such as width or color (i.e. width = 'md'), do not use BEM modifier notation (i.e. `--modifier`). Instead, create a separate class (i.e. `.md`) and style it accordingly. This is to allow for cleaner CSS due to the absence of many utilities CSS pre-processors generally provide.
+
 ## Getting Started
 
 Ensure you have postgres setup, a `.env.local` file in the root of the project directory, and have node pacakges installed before beginning.
@@ -67,6 +69,41 @@ certain things should be cached that are not able to be automatically (i.e. clie
 - cache header image in localstorage
   - it uses the logged in user as a seed so it changes less frequently
 - cache other generated images in sessionstorage (i.e. coin faces)
+
+### namespaced component expansion for <Card />
+
+expand upon existing card component to contain elements such as:
+
+- <Card.Header />
+- <Card.Body />
+- <Card.Footer />
+
+provide a template that consumes these namespaced components to provide a default layout and then update all references to leverage the new components
+
+### account linking | BLOCKS ACCOUNT OPTIONS
+
+currently, nextauth logins are treated as separate identities. nextauth supports account linking so it may be a simple configuration update or a somewhat involved modification to the postgres adapter in use.
+
+### account options
+
+#### use merged identity | BLOCKED BY ACCOUNT LINKING
+
+toggle option that controls the outward identify and subsequent UX to either use the idling.app platform as the poster or to use any account linked to the idling.app platform account.
+
+### cypress
+
+if possible, set up such that both live and stubbed API testing can be done
+
+### import aliases
+
+```ts
+import { CustomSession } from '../../../auth.config';
+import { auth } from '../../../lib/auth';
+
+// into
+import { CustomSession } from '@auth/auth.config';
+import { auth } from '@auth/auth';
+```
 
 ---
 

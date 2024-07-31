@@ -9,7 +9,18 @@ export default function Coin({
   seed: string;
   size?: 'full' | 'lg' | 'md' | 'sm';
 }) {
-  const initials = `${seed[0]}${seed[seed.length - 1]}`.toUpperCase();
+  const getInitials = () => {
+    const hasSpaces = seed.includes(' ');
+
+    if (hasSpaces) {
+      const [first, second] = seed.split(' ');
+      return first[0] + second[0];
+    }
+
+    return `${seed[0]}${seed[seed.length - 1]}`.toUpperCase();
+  };
+
+  const initials = getInitials();
 
   return (
     <div className="coin">

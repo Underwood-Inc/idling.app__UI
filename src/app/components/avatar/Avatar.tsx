@@ -28,7 +28,8 @@ const Avatar = ({
         <img src={img} className={`avatar__img ${size}`} alt="avatar" />
       ) : (
         <div className="avatar__loader">
-          <GridLoader color="#36d7b7" />
+          {/* loader use brand primary color */}
+          <GridLoader color="#edae49ff" />
         </div>
       )}
     </div>

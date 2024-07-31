@@ -69,6 +69,11 @@
   display: flex;
 }
 
+.coin__header,
+.coin__footer {
+  text-align: center;
+}
+
 .coin__footer {
   position: absolute;
   bottom: 2rem;
