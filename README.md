@@ -2,6 +2,10 @@ This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next
 
 ## Getting Started
 
+Ensure you have postgres setup, a `.env.local` file in the root of the project directory, and have node pacakges installed before beginning.
+
+This project uses `yarn` and `npx` so, package-lock.json has been added to the `.gitigore` list.
+
 First, run the development server:
 
 ```bash
@@ -31,21 +35,32 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 
 ## Deploy on Vercel
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+~~The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.~~
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+~~Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.~~
+
+This project was created from the NextJS quickstart script (bootstrapped) however, it does not have TailwindCSS. Additionally, it uses basic CSS at the moment. This project is deployed manually to an ubuntu environment in the cloud.
+
+This process involves:
+
+- accessing the cloud instance to host the project
+- ensuring the postgres back-end requirements are met
+- setting up the project `.env.local` with environment variables for the host
+- running `yarn && yarn build && yarn start`
+
+Optionally, you may run the built project files with pm2 (if you have it) via `pm2 start "npm start" --name "idling.app"`. Refer to the pm2 documentation for auto-starting on environment startup.
 
 ---
 
 ---
 
-# TODO
+## TODO
 
-# migrations architecture
+### migrations architecture
 
 modifications to postgres (or anything else SQL-like) require migrations architecture support to be added to this repository. migrations allow for rapid spinup of dev environment databases while protecting against unsavory changes to associated databases systems.
 
-# manual cache mechanism
+### manual cache mechanism
 
 certain things should be cached that are not able to be automatically (i.e. client generated content). as a first implementation, cache the header image and only replace/clear it if the logged in username (image seed) is different.
 
@@ -57,9 +72,9 @@ certain things should be cached that are not able to be automatically (i.e. clie
 
 ---
 
-# IDEAS
+## IDEAS
 
-## word replacer
+### word replacer
 
 - user provided text
 - user selected text to replace
@@ -67,36 +82,23 @@ certain things should be cached that are not able to be automatically (i.e. clie
 - save to local storage
 - shareable (post-mvp)
 
-## random card collector
+### random coin collector
 
-### MVP
+- "mint" new coins that the current user then acquires on a "draw" of coins
+- coin faces vary in rarity and appearance
+  - appearance variability limited to:
+    - color/material
+    - filter (i.e. shimmer)
+    - edge (ruffle, flat, bumpy, etc.)
+    - copy
+      - minting date stamp
+      - first and last initial of minter account name
+        - John Snow -> JS
+        - some_zinc -> SC
+    - coin face
+      - chance to render Avatar using minter account name as the Avatar generation seed
 
-- system generates random cards using a basic RNG mechanism
-- weighted RNG
-
-### post-MVP
-
-- xp gaining
-
-### RNG
-
-- basic
-
-### localstorage
-
-- store light game data
-
-#### game data
-
--
-
-#### profile data
-
-####
-
-### appearance of card
-
-# postgres cmds
+## postgres cmds
 
 Create user
 `CREATE ROLE myuser LOGIN PASSWORD 'mypass';`
@@ -109,22 +111,6 @@ login
 
 create database
 `CREATE DATABASE mydatabase WITH OWNER = myuser;`
-
-create table
-
-```sql
-CREATE TABLE cars (
-  brand VARCHAR(255),
-  model VARCHAR(255),
-  year INT
-);
-
-CREATE TABLE submissions (
-  submission_id SERIAL NOT NULL PRIMARY KEY,
-  submission_name VARCHAR(255),
-  submission_datetime VARCHAR(255)
-);
-```
 
 list databases
 `\l`
