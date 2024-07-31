@@ -250,6 +250,12 @@ a:hover {
 }
 
 /* START LAYOUT */
+.flex {
+  display: flex;
+}
+.ai-center {
+  align-items: center;
+}
 .row,
 .row--sm-margin {
   display: flex;
@@ -265,6 +271,64 @@ a:hover {
 .column:not(:last-of-type) {
   margin-right: 1rem;
 }
+
+[class*='--jc-center'] {
+  justify-content: center;
+}
+[class*='--jc-end'] {
+  justify-content: end;
+}
+[class*='--jc-flex-end'] {
+  justify-content: flex-end;
+}
+[class*='--jc-flex-start'] {
+  justify-content: flex-start;
+}
+[class*='--jc-left'] {
+  justify-content: left;
+}
+[class*='--jc-normal'] {
+  justify-content: normal;
+}
+[class*='--jc-right'] {
+  justify-content: right;
+}
+[class*='--jc-space-around'] {
+  justify-content: space-around;
+}
+[class*='--jc-space-between'] {
+  justify-content: space-between;
+}
+[class*='--jc-space-evenly'] {
+  justify-content: space-evenly;
+}
+[class*='--jc-start'] {
+  justify-content: start;
+}
+[class*='--jc-stretch'] {
+  justify-content: stretch;
+}
+[class*='--jc-inherit'] {
+  justify-content: inherit;
+}
+[class*='--jc-initial'] {
+  justify-content: initial;
+}
+[class*='--jc-revert'] {
+  justify-content: revert;
+}
+[class*='--jc-revert-layer'] {
+  justify-content: revert-layer;
+}
+[aria-disabled='true'],
+[aria-disabled='true']:hover,
+[aria-disabled='true']:hover button,
+[aria-disabled='true']:hover a {
+  cursor: not-allowed;
+  pointer-events: none;
+  opacity: 0.5;
+}
+
 /* END LAYOUT */
 
 @media (prefers-color-scheme: dark) {

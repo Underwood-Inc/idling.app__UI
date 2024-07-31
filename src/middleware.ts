@@ -1,17 +1,7 @@
-// import NextAuth from 'next-auth';
-// import authConfig from './lib/auth.config';
-
-// export const { auth: middleware } = NextAuth(authConfig);
-
-// // export { auth as middleware } from './src/lib/auth';
-// // Read more: https://nextjs.org/docs/app/building-your-application/routing/middleware#matcher
-// export const config = {
-//   matcher: ['/((?!api|_next/static|_next/image|favicon.ico).*)']
-// };
-
 import NextAuth from 'next-auth';
+import { NextResponse } from 'next/server';
 import authConfig from './auth.config';
-import { AUTH_ROUTE, PUBLIC_ROUTES } from './lib/routes';
+import { NAV_PATHS, PUBLIC_ROUTES } from './lib/routes';
 
 const { auth } = NextAuth(authConfig);
 
@@ -31,9 +21,9 @@ export default auth((req) => {
   }
 
   if (!isPublicRoute && !isAuthenticated) {
-    const url = new URL(AUTH_ROUTE, nextUrl);
+    const url = new URL(NAV_PATHS.SIGNIN, nextUrl);
     url.searchParams.append('redirect', nextUrl.pathname);
-    return Response.redirect(url);
+    return NextResponse.redirect(url);
   }
 });
 

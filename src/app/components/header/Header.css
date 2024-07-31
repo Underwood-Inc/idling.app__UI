@@ -1,6 +1,7 @@
 .header {
   background-color: #222;
   padding: 2rem;
+  padding-bottom: 0;
   color: azure;
   margin: auto;
   display: flex;
