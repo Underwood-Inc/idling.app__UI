@@ -1,4 +1,5 @@
 import type { NextAuthConfig, Session } from 'next-auth';
+import google from 'next-auth/providers/google';
 import twitch from 'next-auth/providers/twitch';
 
 export type CustomSession = Session & {
@@ -7,7 +8,16 @@ export type CustomSession = Session & {
 
 // Notice this is only an object, not a full Auth.js instance
 export default {
-  providers: [twitch],
+  providers: [
+    twitch({
+      clientId: process.env.AUTH_TWITCH_ID,
+      clientSecret: process.env.AUTH_TWITCH_SECRET
+    }),
+    google({
+      clientId: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET
+    })
+  ],
   pages: {
     error: '/',
     signIn: '/auth/signin',

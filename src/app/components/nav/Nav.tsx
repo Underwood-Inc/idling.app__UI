@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { auth } from '../../../lib/auth';
-import { SignIn, SignOut } from '../auth-buttons/AuthButtons';
+import { NAV_PATHS } from '../../../lib/routes';
+import { SignOut } from '../auth-buttons/AuthButtons';
 import { Navbar } from '../navbar/Navbar';
 import './Nav.css';
 import { NavPaths } from './NavPaths';
@@ -27,7 +28,13 @@ export default async function Nav() {
               <p className="header__user-name"> {session.user.name}</p>
             )}
 
-            {session ? <SignOut /> : <SignIn />}
+            {session ? (
+              <SignOut />
+            ) : (
+              <Link href={NAV_PATHS.SIGNIN}>
+                <button type="button">Sign In</button>
+              </Link>
+            )}
           </Navbar.Item>
         </Navbar.Content>
       </div>
