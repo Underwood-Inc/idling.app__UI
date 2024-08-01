@@ -160,7 +160,8 @@ main {
   margin: 2rem;
 }
 
-article {
+article,
+section {
   width: 100%;
 }
 

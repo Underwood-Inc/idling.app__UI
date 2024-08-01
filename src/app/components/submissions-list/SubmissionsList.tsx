@@ -2,14 +2,17 @@ import { unstable_noStore as noStore } from 'next/cache';
 import { CustomSession } from '../../../auth.config';
 import { auth } from '../../../lib/auth';
 import sql from '../../../lib/db';
+import { Filter } from '../filter-bar/FilterBar';
 import { DeleteSubmissionForm } from '../submission-forms/delete-submission-form/DeleteSubmissionForm';
 import { Submission } from '../submission-forms/schema';
 import './SubmissionsList.css';
 
 export default async function SubmissionsList({
-  onlyMine = false
+  onlyMine = false,
+  filters = []
 }: {
   onlyMine?: boolean;
+  filters: Filter[];
 }) {
   noStore();
   const session = (await auth()) as CustomSession | null;
