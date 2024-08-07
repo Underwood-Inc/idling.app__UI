@@ -15,19 +15,36 @@ export default async function SubmissionsList({
   filters: Filter[];
 }) {
   noStore();
+
   const session = (await auth()) as CustomSession | null;
 
   const getSubmissions = async () => {
     let submissions: Submission[] = [];
 
-    // await new Promise((resolve) => setTimeout(resolve, 7000));
     if (onlyMine && session?.user?.providerAccountId) {
-      submissions =
-        await sql`SELECT * FROM submissions WHERE author_id = ${session.user.providerAccountId} order by submission_datetime desc`;
+      submissions = await sql`
+      SELECT * FROM submissions
+      WHERE author_id = ${session.user.providerAccountId}
+      order by submission_datetime desc
+      `;
+
       return submissions;
     } else if (!onlyMine) {
-      submissions =
-        await sql`SELECT * FROM submissions order by submission_datetime desc`;
+      // TODO: magic string
+      const tags = filters
+        .find((filter) => filter.name === 'tags')
+        ?.value.split(',');
+
+      // fake delay
+      await new Promise((resolve) => setTimeout(resolve, 7000));
+
+      // select * where post contents contains any of the entries in the `tags` string array
+      submissions = await sql`
+        SELECT * FROM submissions
+        ${tags ? sql`where submission_name ~* ANY(${tags})` : sql``}
+          order by submission_datetime desc
+      `;
+
       return submissions;
     }
 

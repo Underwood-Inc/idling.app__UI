@@ -24,10 +24,10 @@ export default async function Posts({
     : [];
 
   return (
-    // <section className={styles.home__container}>
     <>
       <PageHeader>
         <h4 className={styles.posts__header}>posts</h4>
+
         <AddSubmissionForm isAuthorized={!!session} />
       </PageHeader>
 
@@ -38,6 +38,7 @@ export default async function Posts({
           <section className={styles.posts__all}>
             <article>
               <h5 className={styles.posts__header}>all</h5>
+
               <Card className={styles.card} width="md">
                 <Suspense fallback={<Loader />}>
                   <SubmissionsList filters={filters} />
@@ -49,6 +50,7 @@ export default async function Posts({
           <section className={styles.posts__mine}>
             <article>
               <h5 className={styles.posts__header}>mine</h5>
+
               <Card className={styles.card} width="md">
                 <Suspense fallback={<Loader />}>
                   <SubmissionsList onlyMine={true} filters={[]} />
@@ -59,6 +61,5 @@ export default async function Posts({
         </section>
       </PageContent>
     </>
-    // </section>
   );
 }
