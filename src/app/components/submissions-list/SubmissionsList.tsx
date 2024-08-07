@@ -30,18 +30,21 @@ export default async function SubmissionsList({
 
       return submissions;
     } else if (!onlyMine) {
-      // TODO: magic string
+      // TODO: magic string 'tags'
       const tags = filters
         .find((filter) => filter.name === 'tags')
-        ?.value.split(',');
+        ?.value.split(',')
+        .map((value) => `#${value}`);
 
       // fake delay
-      await new Promise((resolve) => setTimeout(resolve, 7000));
+      // await new Promise((resolve) => setTimeout(resolve, 7000));
 
       // select * where post contents contains any of the entries in the `tags` string array
+      // @> is a "has both/all" match
+      // && is a "contains any" match
       submissions = await sql`
         SELECT * FROM submissions
-        ${tags ? sql`where submission_name ~* ANY(${tags})` : sql``}
+        ${tags ? sql`where tags && ${tags}` : sql``}
           order by submission_datetime desc
       `;
 

@@ -12,7 +12,8 @@ export const submissionSchema = z.object({
     .max(SUBMISSION_NAME_MAX_LENGTH, {
       message: `Message character count must not exceed ${SUBMISSION_NAME_MAX_LENGTH}`
     }),
-  submission_datetime: z.string().datetime()
+  submission_datetime: z.string().datetime(),
+  tags: z.array(z.string()).nullable().optional()
 });
 
 export const deleteSubmissionSchema = z.object({
@@ -29,11 +30,13 @@ export type DeleteSubmission = z.infer<typeof deleteSubmissionSchema>;
  */
 export function parseSubmission({
   submission_datetime,
-  submission_name
+  submission_name,
+  tags
 }: Partial<CreateSubmission>) {
   return submissionSchema.safeParse({
     submission_name: submission_name?.toString().trim(),
-    submission_datetime
+    submission_datetime,
+    tags
   });
 }
 
