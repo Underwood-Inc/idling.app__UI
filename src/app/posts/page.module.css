@@ -1,13 +1,4 @@
-.card {
-  margin-bottom: 1rem;
-}
-
 .posts__header {
   text-transform: uppercase;
   margin-bottom: 1rem;
-}
-
-.posts__container {
-  flex-direction: column;
-  align-items: center;
 }

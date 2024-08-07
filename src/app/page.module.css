@@ -94,3 +94,12 @@
     transform: rotate(0deg);
   }
 }
+
+/* 4k Displays */
+@media (min-width: 2160px) {
+  .home__container {
+    flex-direction: row;
+    align-items: flex-start;
+    max-width: 2460px;
+  }
+}

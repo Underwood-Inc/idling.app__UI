@@ -31,6 +31,8 @@
     border 200ms;
   overflow: auto;
   min-width: 200px;
+  display: flex;
+  flex-direction: column;
 }
 
 .card.full {
@@ -114,5 +116,17 @@
 
   .card h2 {
     margin-bottom: 0.5rem;
+  }
+}
+
+/* 4k Displays */
+@media (min-width: 2160px) {
+  .card {
+    max-width: 1600px;
+    margin-bottom: 0;
+    width: 100% !important;
+  }
+  .card:not(:last-of-type) {
+    margin-right: 1rem;
   }
 }

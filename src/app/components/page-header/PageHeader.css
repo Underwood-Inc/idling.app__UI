@@ -1,0 +1,5 @@
+.page-header__section {
+  flex-direction: column;
+  max-width: 1600px;
+  margin-bottom: 1rem;
+}

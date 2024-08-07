@@ -14,7 +14,7 @@ export default async function FilterBar({ filters }: { filters?: Filter[] }) {
   }
 
   return (
-    <div className="filter-bar__container">
+    <article className="filter-bar__container">
       {filters.map(({ name, value }) => {
         const values: string[] = [];
 
@@ -37,6 +37,6 @@ export default async function FilterBar({ filters }: { filters?: Filter[] }) {
           </div>
         );
       })}
-    </div>
+    </article>
   );
 }
