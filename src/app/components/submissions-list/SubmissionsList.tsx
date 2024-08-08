@@ -74,6 +74,7 @@ export default async function SubmissionsList({
           </p>
         </div>
       )}
+
       {!!submissions.length &&
         submissions.map(
           ({
@@ -91,7 +92,11 @@ export default async function SubmissionsList({
             const fancyPost = reactStringReplace(
               submission_name,
               tagRegex,
-              (match) => <Link href={`/posts?tags=${match}`}>#{match}</Link>
+              (match) => (
+                <Link key={match} href={`/posts?tags=${match}`}>
+                  #{match}
+                </Link>
+              )
             );
 
             return (
@@ -101,8 +106,8 @@ export default async function SubmissionsList({
                     <span className="submission__author">{author}:&nbsp;</span>
                   )}
                   <span>{fancyPost}</span>
+                  <span className="submission__datetime">{createdDate}</span>
                 </p>
-                <span className="submission__datetime">{createdDate}</span>
 
                 {canDelete && (
                   <DeleteSubmissionForm

@@ -39,7 +39,7 @@ export default async function FilterBar({ filters }: { filters?: Filter[] }) {
         return (
           <div key={name} className="filter-bar__filter">
             <div className="filter-bar__filter-name">
-              <p>{name}:</p>&nbsp;{renderValues()}
+              <p className="capitalize">{name}:</p>&nbsp;{renderValues()}
             </div>
           </div>
         );

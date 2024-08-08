@@ -29,12 +29,12 @@ export default async function Posts({
         <h4 className={styles.posts__header}>posts</h4>
 
         <AddSubmissionForm isAuthorized={!!session} />
+        <br />
+        <FilterBar filters={filters} />
       </PageHeader>
 
       <PageContent>
         <section>
-          <FilterBar filters={filters} />
-
           <section className={styles.posts__all}>
             <article>
               <h5 className={styles.posts__header}>all</h5>
