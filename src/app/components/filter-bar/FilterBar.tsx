@@ -1,16 +1,20 @@
 import './FilterBar.css';
-export interface Filter {
-  name: string;
+export interface Filter<T extends string = string> {
+  name: T;
   value: string;
 }
 
 type DefaultFilters = Record<string, string>;
+/**
+ * Primary use is to define component props.
+ * @example type PostsFilters = Filters<{ tags?: string; }>;
+ */
 export type Filters<
   F extends Partial<DefaultFilters> = Partial<DefaultFilters>
 > = F;
 
 function FilterLabel({ label }: { label: string }) {
-  return <div className="filter-bar__filter-value">{label}</div>;
+  return <p className="filter-bar__filter-value">{label}</p>;
 }
 
 export default async function FilterBar({ filters }: { filters?: Filter[] }) {
@@ -35,7 +39,7 @@ export default async function FilterBar({ filters }: { filters?: Filter[] }) {
         return (
           <div key={name} className="filter-bar__filter">
             <div className="filter-bar__filter-name">
-              {name}:&nbsp;{renderValues()}
+              <p>{name}:</p>&nbsp;{renderValues()}
             </div>
           </div>
         );

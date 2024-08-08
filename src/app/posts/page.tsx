@@ -10,7 +10,7 @@ import SubmissionsList from '../components/submissions-list/SubmissionsList';
 import styles from './page.module.css';
 
 export type PostsFilters = Filters<{
-  tags?: string; // .../posts?tags=some-tag,another-tag
+  tags?: string; // .../posts?tags=tag,another-tag
 }>;
 
 export default async function Posts({
@@ -19,7 +19,7 @@ export default async function Posts({
   searchParams: PostsFilters;
 }) {
   const session = await auth();
-  const filters: Filter[] = searchParams.tags
+  const filters: Filter<'tags'>[] = searchParams.tags
     ? [{ name: 'tags', value: searchParams.tags }]
     : [];
 

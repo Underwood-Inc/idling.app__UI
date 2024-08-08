@@ -1,7 +1,10 @@
 import { unstable_noStore as noStore } from 'next/cache';
+import Link from 'next/link';
+import reactStringReplace from 'react-string-replace';
 import { CustomSession } from '../../../auth.config';
 import { auth } from '../../../lib/auth';
 import sql from '../../../lib/db';
+import { tagRegex } from '../../../lib/utils/string/tag-regex';
 import { Filter } from '../filter-bar/FilterBar';
 import { DeleteSubmissionForm } from '../submission-forms/delete-submission-form/DeleteSubmissionForm';
 import { Submission } from '../submission-forms/schema';
@@ -12,7 +15,7 @@ export default async function SubmissionsList({
   filters = []
 }: {
   onlyMine?: boolean;
-  filters: Filter[];
+  filters: Filter<'tags'>[];
 }) {
   noStore();
 
@@ -23,9 +26,9 @@ export default async function SubmissionsList({
 
     if (onlyMine && session?.user?.providerAccountId) {
       submissions = await sql`
-      SELECT * FROM submissions
-      WHERE author_id = ${session.user.providerAccountId}
-      order by submission_datetime desc
+        SELECT * FROM submissions
+        WHERE author_id = ${session.user.providerAccountId}
+        order by submission_datetime desc
       `;
 
       return submissions;
@@ -34,7 +37,7 @@ export default async function SubmissionsList({
       const tags = filters
         .find((filter) => filter.name === 'tags')
         ?.value.split(',')
-        .map((value) => `#${value}`);
+        .map((value) => `#${value}`); // prepend a #. values come from URL so they are excluded lest the URL break expected params behavior
 
       // fake delay
       // await new Promise((resolve) => setTimeout(resolve, 7000));
@@ -85,13 +88,19 @@ export default async function SubmissionsList({
               submission_datetime
             ).toLocaleDateString();
 
+            const fancyPost = reactStringReplace(
+              submission_name,
+              tagRegex,
+              (match) => <Link href={`/posts?tags=${match}`}>#{match}</Link>
+            );
+
             return (
               <li key={submission_id} className="submission__wrapper">
                 <p>
                   {author && (
                     <span className="submission__author">{author}:&nbsp;</span>
                   )}
-                  <span>{submission_name}</span>
+                  <span>{fancyPost}</span>
                 </p>
                 <span className="submission__datetime">{createdDate}</span>
 
