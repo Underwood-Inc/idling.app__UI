@@ -21,6 +21,7 @@ export default async function SubmissionsList({
 
   const session = (await auth()) as CustomSession | null;
 
+  // TODO: move to action file
   const getSubmissions = async () => {
     let submissions: Submission[] = [];
 
@@ -33,12 +34,12 @@ export default async function SubmissionsList({
 
       return submissions;
     } else if (!onlyMine) {
-      // TODO: magic string 'tags'
       const tags = filters
         .find((filter) => filter.name === 'tags')
         ?.value.split(',')
         .map((value) => `#${value}`); // prepend a #. values come from URL so they are excluded lest the URL break expected params behavior
 
+      // TODO: move to util
       // fake delay
       // await new Promise((resolve) => setTimeout(resolve, 7000));
 

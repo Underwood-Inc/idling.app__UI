@@ -5,6 +5,7 @@ import FilterBar, { Filter, Filters } from '../components/filter-bar/FilterBar';
 import Loader from '../components/loader/Loader';
 import PageContent from '../components/page-content/PageContent';
 import PageHeader from '../components/page-header/PageHeader';
+import { RecentTags } from '../components/recent-tags/RecentTags';
 import { AddSubmissionForm } from '../components/submission-forms/add-submission-form/AddSubmissionForm';
 import SubmissionsList from '../components/submissions-list/SubmissionsList';
 import styles from './page.module.css';
@@ -60,6 +61,10 @@ export default async function Posts({
           </section>
         </section>
       </PageContent>
+
+      <aside>
+        <RecentTags />
+      </aside>
     </>
   );
 }

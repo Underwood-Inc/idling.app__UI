@@ -157,3 +157,5 @@ choose database
 
 show tables in selected database
 `\dt` or `SELECT * FROM pg_catalog.pg_tables;`
+
+See more in this [postgres cheat sheet](https://learnsql.com/blog/postgresql-cheat-sheet/postgresql-cheat-sheet-a4.pdf)
