@@ -1,6 +1,6 @@
 {
   "name": "idling.app",
-  "version": "0.1.5",
+  "version": "0.2.0",
   "private": true,
   "engines": {
     "node": "20.x"
@@ -33,6 +33,7 @@
     "react": "18.3.1",
     "react-dom": "18.3.1",
     "react-spinners": "0.13.8",
+    "react-string-replace": "^1.1.1",
     "stream-browserify": "^3.0.0",
     "zod": "3.23.8"
   },

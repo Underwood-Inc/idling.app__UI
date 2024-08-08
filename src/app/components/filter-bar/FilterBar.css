@@ -1,0 +1,17 @@
+.filter-bar__filter-name {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.filter-bar__filter-value:not(:last-of-type) {
+  margin-right: 1rem;
+}
+
+.filter-bar__filter-value {
+  font-size: 1.4rem;
+  color: var(--brand-quinary--dark);
+  padding: 0.4rem;
+  background-color: var(--brand-tertiary);
+  border-radius: 0.3rem;
+}

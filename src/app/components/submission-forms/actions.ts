@@ -3,12 +3,14 @@ import { revalidatePath } from 'next/cache';
 import postgres from 'postgres';
 import { CustomSession } from '../../../auth.config';
 import { auth } from '../../../lib/auth';
+import { tagRegex } from '../../../lib/utils/string/tag-regex';
 import {
   parseDeleteSubmission,
   parseSubmission,
   parseZodErrors
 } from './schema';
 
+// TODO: remove? try the exported one
 let sql = postgres(process.env.PGSQL_HOST!, {
   ssl: 'allow'
 });
@@ -17,7 +19,9 @@ let sql = postgres(process.env.PGSQL_HOST!, {
  * Form validation action for create submission form
  */
 async function validateCreateSubmissionForm(formData: FormData) {
-  const submissionName = formData.get('submission_name');
+  const submissionName =
+    formData.get('submission_name')?.toString().trim() || '';
+  const tags = formData.get('tags') as string[] | null;
   const submissionDatetime = new Date().toISOString();
   const session = await auth();
 
@@ -25,7 +29,8 @@ async function validateCreateSubmissionForm(formData: FormData) {
     const { success, data, error } = parseSubmission({
       author: session.user.name,
       submission_datetime: submissionDatetime,
-      submission_name: submissionName?.toString().trim() || ''
+      submission_name: submissionName,
+      tags
     });
 
     if (!success) {
@@ -76,10 +81,18 @@ export async function createSubmissionAction(
     return { error: 'Authentication error.' };
   }
 
+  const tags = data.submission_name.match(tagRegex) || [];
+
   try {
     await sql`
-      insert into submissions (submission_name, submission_datetime, author, author_id)
-      VALUES (${data.submission_name},${data.submission_datetime},${session?.user?.name},${session?.user.providerAccountId});
+      insert into submissions (submission_name, submission_datetime, author, author_id, tags)
+      VALUES (
+        ${data.submission_name},
+        ${data.submission_datetime},
+        ${session?.user?.name},
+        ${session?.user.providerAccountId},
+        ${tags}
+      );
     `;
 
     revalidatePath('/');
