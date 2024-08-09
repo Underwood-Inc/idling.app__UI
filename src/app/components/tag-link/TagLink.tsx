@@ -4,9 +4,9 @@ import reactStringReplace from 'react-string-replace';
 import { tagRegex } from '../../../lib/utils/string/tag-regex';
 
 export function TagLink({ value }: { value: string }) {
-  return reactStringReplace(value, tagRegex, (match) => (
+  return reactStringReplace(value, tagRegex, (match, i) => (
     <Link
-      key={match}
+      key={`${match}_${i}`}
       href={{
         pathname: '/posts',
         query: { tags: match }
