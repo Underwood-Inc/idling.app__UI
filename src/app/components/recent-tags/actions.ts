@@ -11,9 +11,10 @@ export async function getRecentTags(): Promise<{
 }> {
   try {
     const result = await sql`
-      select distinct unnest(tags) as distinct_tags
+      select distinct unnest(tags) as distinct_tags, submission_datetime
       from submissions s
-      where s.submission_datetime >= NOW() - INTERVAL '3 months';
+      where s.submission_datetime >= NOW() - INTERVAL '3 months'
+      order by s.submission_datetime desc
     `;
 
     if (result.length) {
