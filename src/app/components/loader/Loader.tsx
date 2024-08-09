@@ -2,11 +2,17 @@
 import { ScaleLoader } from 'react-spinners';
 import './Loader.css';
 
-export default function Loader() {
+export default function Loader({
+  label = 'Loading Data...',
+  color = 'white'
+}: {
+  label?: string;
+  color?: string;
+}) {
   return (
     <div className="loader">
-      <p>Loading Data...</p>
-      <ScaleLoader color="white" />
+      {label && <p>{label}</p>}
+      <ScaleLoader color={color} />
     </div>
   );
 }

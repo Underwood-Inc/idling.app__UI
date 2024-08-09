@@ -1,0 +1,9 @@
+.recent-tags__list-item {
+  list-style-type: none;
+}
+
+.recent-tags__list {
+  overflow: auto;
+  max-height: 800px;
+  height: auto;
+}

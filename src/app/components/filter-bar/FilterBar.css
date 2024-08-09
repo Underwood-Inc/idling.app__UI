@@ -13,5 +13,5 @@
   color: var(--brand-quinary--dark);
   padding: 0.4rem;
   background-color: var(--brand-tertiary);
-  border-radius: 0.3rem;
+  border-radius: var(--border-radius);
 }

@@ -11,9 +11,9 @@ canvas {
   -webkit-interpolation-mode: nearest-neighbor;
   -ms-touch-action: none;
   touch-action: none;
-  margin: 0px;
-  padding: 0px;
-  border: 0px;
+  margin: 0;
+  padding: 0;
+  border: 0;
 }
 :-webkit-full-screen #canvas {
   width: 100%;
@@ -26,17 +26,17 @@ canvas {
 
 /* Custom Runner Styles */
 div.gm4html5_div_class {
-  margin: 0px;
-  padding: 0px;
-  border: 0px;
+  margin: 0;
+  padding: 0;
+  border: 0;
 }
 div.gm4html5_login {
-  padding: 20px;
+  padding: 2rem;
   position: absolute;
   border: solid 2px #000000;
   background-color: #404040;
   color: #00ff00;
-  border-radius: 15px;
+  border-radius: var(--border-radius);
   box-shadow: #101010 20px 20px 40px;
 }
 div.gm4html5_cancel_button {

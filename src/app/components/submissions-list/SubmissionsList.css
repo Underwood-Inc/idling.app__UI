@@ -4,24 +4,36 @@
   width: 100%;
 }
 
-.empty p {
-  text-align: center;
-  vertical-align: middle;
-  padding: 5rem;
-  margin: auto;
+.submission__wrapper a,
+.submission__wrapper p,
+.submission__wrapper span,
+.submission__wrapper button {
+  z-index: 1;
 }
 
-.submission__wrapper:not(:last-of-type) {
-  border-bottom: solid gray 2px;
+.submission__wrapper a:hover {
+  color: var(--brand-tertiary);
 }
+
+.submission__wrapper:not(:last-of-type)::before {
+  content: '';
+  display: block;
+  position: absolute;
+  inset: -1px;
+  border-bottom: solid gray 2px;
+  height: inherit;
+}
+
 .submission__wrapper {
+  z-index: 1;
   display: flex;
   justify-content: space-between;
-  border: solid 1px transparent;
-  border-radius: 0.3rem;
   align-items: flex-start;
-  padding: 0.2rem;
   position: relative;
+  border: solid 1px transparent;
+  border-radius: var(--border-radius);
+  padding: 0.5rem;
+  min-height: 4rem;
 }
 
 .submission__wrapper:hover {

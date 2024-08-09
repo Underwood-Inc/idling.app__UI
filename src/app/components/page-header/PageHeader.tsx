@@ -6,5 +6,5 @@ export default async function PageHeader({
 }: {
   children: React.ReactNode;
 }) {
-  return <article className="page-header__section">{children}</article>;
+  return <section className="page-header__section">{children}</section>;
 }
