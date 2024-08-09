@@ -1,13 +1,12 @@
 import { unstable_noStore as noStore } from 'next/cache';
-import Link from 'next/link';
-import reactStringReplace from 'react-string-replace';
 import { CustomSession } from '../../../auth.config';
 import { auth } from '../../../lib/auth';
 import sql from '../../../lib/db';
-import { tagRegex } from '../../../lib/utils/string/tag-regex';
+import Empty from '../empty/Empty';
 import { Filter } from '../filter-bar/FilterBar';
 import { DeleteSubmissionForm } from '../submission-forms/delete-submission-form/DeleteSubmissionForm';
 import { Submission } from '../submission-forms/schema';
+import { TagLink } from '../tag-link/TagLink';
 import './SubmissionsList.css';
 
 export default async function SubmissionsList({
@@ -39,10 +38,6 @@ export default async function SubmissionsList({
         ?.value.split(',')
         .map((value) => `#${value}`); // prepend a #. values come from URL so they are excluded lest the URL break expected params behavior
 
-      // TODO: move to util
-      // fake delay
-      // await new Promise((resolve) => setTimeout(resolve, 7000));
-
       // select * where post contents contains any of the entries in the `tags` string array
       // @> is a "has both/all" match
       // && is a "contains any" match
@@ -66,15 +61,7 @@ export default async function SubmissionsList({
 
   return (
     <ol className="submission__list">
-      {!submissions.length && (
-        <div className="empty">
-          <p>
-            No posts to show
-            <br />
-            ＞︿＜
-          </p>
-        </div>
-      )}
+      {!submissions.length && <Empty />}
 
       {!!submissions.length &&
         submissions.map(
@@ -90,23 +77,15 @@ export default async function SubmissionsList({
               submission_datetime
             ).toLocaleDateString();
 
-            const fancyPost = reactStringReplace(
-              submission_name,
-              tagRegex,
-              (match) => (
-                <Link key={match} href={`/posts?tags=${match}`}>
-                  #{match}
-                </Link>
-              )
-            );
-
             return (
               <li key={submission_id} className="submission__wrapper">
                 <p>
                   {author && (
                     <span className="submission__author">{author}:&nbsp;</span>
                   )}
-                  <span>{fancyPost}</span>
+                  <span>
+                    <TagLink value={submission_name} />
+                  </span>
                   <span className="submission__datetime">{createdDate}</span>
                 </p>
 

@@ -1,19 +1,14 @@
 'use server';
 import { revalidatePath } from 'next/cache';
-import postgres from 'postgres';
 import { CustomSession } from '../../../auth.config';
 import { auth } from '../../../lib/auth';
+import sql from '../../../lib/db';
 import { tagRegex } from '../../../lib/utils/string/tag-regex';
 import {
   parseDeleteSubmission,
   parseSubmission,
   parseZodErrors
 } from './schema';
-
-// TODO: remove? try the exported one
-let sql = postgres(process.env.PGSQL_HOST!, {
-  ssl: 'allow'
-});
 
 /**
  * Form validation action for create submission form

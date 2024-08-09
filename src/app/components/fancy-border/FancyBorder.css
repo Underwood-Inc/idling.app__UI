@@ -1,0 +1,41 @@
+/* experimental, no safari support, who cares 😜 */
+@property --gradient-angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+
+@keyframes rotation {
+  0% {
+    --gradient-angle: 0deg;
+  }
+  100% {
+    --gradient-angle: 360deg;
+  }
+}
+
+.fancy-border {
+  border-radius: var(--border-radius);
+}
+
+.fancy-border::before,
+.fancy-border::after {
+  content: '';
+  position: absolute;
+  inset: -0.3rem;
+  background: conic-gradient(
+    from var(--gradient-angle),
+    var(--brand-primary),
+    var(--brand-secondary),
+    var(--brand-tertiary),
+    var(--brand-secondary),
+    var(--brand-primary)
+  );
+  border-radius: inherit;
+  animation: rotation 7s linear infinite;
+  z-index: -1;
+}
+
+.fancy-border::after {
+  filter: blur(0.5rem);
+}
