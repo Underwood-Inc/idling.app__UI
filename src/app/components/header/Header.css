@@ -2,7 +2,7 @@
   background-color: #222;
   padding: 2rem;
   padding-bottom: 0;
-  color: azure;
+  color: var(--brand-primary);
   margin: auto;
   display: flex;
   flex-flow: column;

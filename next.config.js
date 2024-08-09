@@ -1,14 +1,12 @@
+const { version } = require('./package.json');
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // webpack5: true,
+  publicRuntimeConfig: {
+    version
+  },
   reactStrictMode: true,
-  webpack: (config, { isServer, webpack }) => {
-    // if (!isServer) {
-    //   config.node = {
-    //     fs: 'empty'
-    //   };
-    // }
-
+  webpack: (config, { webpack }) => {
     config.plugins.push(
       new webpack.ProvidePlugin({
         Buffer: ['buffer', 'Buffer']
@@ -39,9 +37,6 @@ const nextConfig = {
 
     return config;
   }
-  // experimental: {
-  //   serverComponentsExternalPackages: ['pg']
-  // }
 };
 
 module.exports = nextConfig;
