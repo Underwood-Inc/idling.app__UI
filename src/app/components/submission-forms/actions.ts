@@ -76,7 +76,8 @@ export async function createSubmissionAction(
     return { error: 'Authentication error.' };
   }
 
-  const tags = data.submission_name.match(tagRegex) || [];
+  const tags =
+    data.submission_name.match(tagRegex)?.map((tag) => tag.toLowerCase()) || [];
 
   try {
     await sql`
