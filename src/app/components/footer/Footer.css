@@ -4,11 +4,16 @@
   right: 0;
   position: fixed;
   background-color: #222;
-  color: azure;
 
   display: flex;
   align-items: center;
   justify-content: center;
   max-height: 10rem;
   height: 5rem;
+}
+
+.footer__app-version {
+  position: absolute;
+  right: 1rem;
+  color: var(--brand-primary);
 }

@@ -1,9 +1,15 @@
-.recent-tags__list-item {
-  list-style-type: none;
+.recent-tags__container {
+  width: 100%;
+  overflow: auto;
+  border-radius: var(--border-radius);
 }
 
 .recent-tags__list {
   overflow: auto;
   max-height: 800px;
   height: auto;
+}
+
+.recent-tags__list-item {
+  list-style-type: none;
 }
