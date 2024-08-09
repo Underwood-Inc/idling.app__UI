@@ -43,7 +43,7 @@ export default async function Posts({
             <article>
               <h5 className={styles.posts__header}>all</h5>
 
-              <Card className={styles.card} width="md">
+              <Card className={styles.card} width="full">
                 <Suspense fallback={<Loader />}>
                   <SubmissionsList filters={filters} />
                 </Suspense>
@@ -55,7 +55,7 @@ export default async function Posts({
             <article>
               <h5 className={styles.posts__header}>mine</h5>
 
-              <Card className={styles.card} width="md">
+              <Card className={styles.card} width="full">
                 <Suspense fallback={<Loader />}>
                   <SubmissionsList onlyMine={true} filters={[]} />
                 </Suspense>
