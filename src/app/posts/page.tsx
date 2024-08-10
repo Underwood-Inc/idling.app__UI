@@ -1,4 +1,5 @@
 import { Suspense } from 'react';
+import { CustomSession } from '../../auth.config';
 import { auth } from '../../lib/auth';
 import { Card } from '../components/card/Card';
 import FilterBar, { Filter, Filters } from '../components/filter-bar/FilterBar';
@@ -21,7 +22,7 @@ export default async function Posts({
 }: {
   searchParams: PostSearchParams;
 }) {
-  const session = await auth();
+  const session = (await auth()) as CustomSession | null;
   const filters: Filter<'tags'>[] = searchParams?.tags
     ? [{ name: 'tags', value: searchParams.tags }]
     : [];
@@ -44,7 +45,10 @@ export default async function Posts({
 
               <Card className={styles.card} width="full">
                 <Suspense fallback={<Loader />}>
-                  <SubmissionsList filters={filters} />
+                  <SubmissionsList
+                    filters={filters}
+                    providerAccountId={session?.user?.providerAccountId || ''}
+                  />
                 </Suspense>
               </Card>
             </article>
@@ -56,7 +60,10 @@ export default async function Posts({
 
               <Card className={styles.card} width="full">
                 <Suspense fallback={<Loader />}>
-                  <SubmissionsList onlyMine={true} />
+                  <SubmissionsList
+                    onlyMine={true}
+                    providerAccountId={session?.user?.providerAccountId || ''}
+                  />
                 </Suspense>
               </Card>
             </article>

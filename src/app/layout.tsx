@@ -5,6 +5,7 @@ import Footer from './components/footer/Footer';
 import Header from './components/header/Header';
 import Loader from './components/loader/Loader';
 import './globals.css';
+import { PaginationProvider } from './state/PaginationContext';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -50,7 +51,9 @@ export default function RootLayout({
         <Header />
 
         <main>
-          <Suspense fallback={<Loader />}>{children}</Suspense>
+          <Suspense fallback={<Loader />}>
+            <PaginationProvider>{children}</PaginationProvider>
+          </Suspense>
         </main>
 
         <Footer />
