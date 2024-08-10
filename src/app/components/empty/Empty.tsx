@@ -1,11 +1,15 @@
 import './Empty.css';
 
-export default function Empty() {
+export default function Empty({ label = '' }: { label: string }) {
   return (
     <div className="empty">
       <p>
-        No posts to show
-        <br />
+        {label && (
+          <>
+            {label}
+            <br />
+          </>
+        )}
         ＞︿＜
       </p>
     </div>
