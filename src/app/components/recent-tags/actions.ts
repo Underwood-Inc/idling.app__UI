@@ -4,23 +4,43 @@ import sql from '../../../lib/db';
 import { parseZodErrors } from '../submission-forms/schema';
 import { Tags, tagSchema } from './schema';
 
-export async function getRecentTags(): Promise<{
+export async function getRecentTags(
+  interval: 'months' | 'days' | 'hrs' = 'months'
+): Promise<{
   tags: string[];
   error: string;
   message: string;
 }> {
   try {
-    // this returns duplicates
-    // const result = await sql`
-    //   select distinct unnest(tags) as distinct_tags, submission_datetime
-    //   from submissions s
-    //   where s.submission_datetime >= NOW() - INTERVAL '3 months'
-    //   order by s.submission_datetime desc
-    // `;
+    let subquerySql;
+
+    // cleanup once casting issues figured out for INTERVAL (if possible)
+    switch (interval) {
+      case 'days':
+        subquerySql = sql`
+          select distinct unnest(tags) as distinct_tags, submission_datetime
+          from submissions s
+          where s.submission_datetime >= NOW() - INTERVAL '3 days'
+        `;
+        break;
+      case 'hrs':
+        subquerySql = sql`
+          select distinct unnest(tags) as distinct_tags, submission_datetime
+          from submissions s
+          where s.submission_datetime >= NOW() - INTERVAL '3 hrs'
+        `;
+        break;
+      case 'months':
+        subquerySql = sql`
+          select distinct unnest(tags) as distinct_tags, submission_datetime
+          from submissions s
+          where s.submission_datetime >= NOW() - INTERVAL '3 months'
+        `;
+        break;
+    }
+
     const result = await sql`
-      select distinct unnest(tags) as distinct_tags
-      from submissions s
-      where s.submission_datetime >= NOW() - INTERVAL '3 months'
+      select distinct subquery.distinct_tags from (${subquerySql}) as subquery
     `;
 
     if (result.length) {

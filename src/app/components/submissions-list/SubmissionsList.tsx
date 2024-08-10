@@ -62,7 +62,7 @@ export default async function SubmissionsList({
 
   return (
     <ol className="submission__list">
-      {!submissions.length && <Empty />}
+      {!submissions.length && <Empty label="No posts to show" />}
 
       {!!submissions.length &&
         submissions.map(

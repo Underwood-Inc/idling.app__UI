@@ -15,7 +15,7 @@ export async function RecentTags() {
         <FancyBorder>
           <h4>Recent Tags (3 months)</h4>
 
-          {recentTags.tags && (
+          {recentTags.tags.length > 0 && (
             <ol className="recent-tags__list">
               {recentTags.tags.map((tag) => {
                 return (
@@ -27,7 +27,7 @@ export async function RecentTags() {
             </ol>
           )}
 
-          {!recentTags.tags && <Empty />}
+          {!recentTags.tags.length && <Empty label="No recent tags" />}
         </FancyBorder>
       </Card>
     </article>
