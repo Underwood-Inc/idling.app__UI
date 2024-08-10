@@ -40,7 +40,11 @@ export async function getRecentTags(
     }
 
     const result = await sql`
-      select distinct subquery.distinct_tags from (${subquerySql}) as subquery
+      select *
+      from (
+        select distinct on(subquery.distinct_tags) * from (${subquerySql}) as subquery
+      ) as s
+      order by s.submission_datetime desc
     `;
 
     if (result.length) {
