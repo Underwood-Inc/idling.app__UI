@@ -13,17 +13,16 @@ import { AddSubmissionForm } from '../components/submission-forms/add-submission
 import SubmissionsList from '../components/submissions-list/SubmissionsList';
 import styles from './page.module.css';
 
-export type PostsFilters = Filters<{
-  tags?: string; // .../posts?tags=tag,another-tag
-}>;
+export type PostFilters = 'tags';
+export type PostSearchParams = Filters<Record<PostFilters, string>>;
 
 export default async function Posts({
   searchParams
 }: {
-  searchParams: PostsFilters;
+  searchParams: PostSearchParams;
 }) {
   const session = await auth();
-  const filters: Filter<'tags'>[] = searchParams.tags
+  const filters: Filter<'tags'>[] = searchParams?.tags
     ? [{ name: 'tags', value: searchParams.tags }]
     : [];
 
@@ -57,7 +56,7 @@ export default async function Posts({
 
               <Card className={styles.card} width="full">
                 <Suspense fallback={<Loader />}>
-                  <SubmissionsList onlyMine={true} filters={[]} />
+                  <SubmissionsList onlyMine={true} />
                 </Suspense>
               </Card>
             </article>

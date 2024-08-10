@@ -4,14 +4,15 @@ export interface Filter<T extends string = string> {
   value: string;
 }
 
-type DefaultFilters = Record<string, string>;
+type DefaultSearchParamFilters = Record<string, string>;
 /**
  * Primary use is to define component props.
- * @example type PostsFilters = Filters<{ tags?: string; }>;
+ * @example type PostSearchParams = Filters<{ tags?: string; }>;
  */
 export type Filters<
-  F extends Partial<DefaultFilters> = Partial<DefaultFilters>
-> = F;
+  F extends
+    Partial<DefaultSearchParamFilters> = Partial<DefaultSearchParamFilters>
+> = Partial<F>;
 
 function FilterLabel({ label }: { label: string }) {
   return <p className="filter-bar__filter-value">{label}</p>;

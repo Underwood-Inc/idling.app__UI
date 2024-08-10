@@ -6,9 +6,12 @@
     "eslint:recommended",
     "prettier"
   ],
-  "plugins": ["prettier"],
+  "plugins": ["prettier", "jest"],
   "globals": {
     "React": "readonly"
+  },
+  "env": {
+    "jest/globals": true
   },
   "overrides": [
     {
