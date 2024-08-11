@@ -57,17 +57,19 @@ function Pagination({
 
   return (
     <article className="pagination__container">
-      <button
-        type="button"
-        onClick={handlePrevious}
-        disabled={currentPage === 1}
-        className="pagination__previous-button"
-      >
-        Previous
-      </button>
-      <p>
-        Page {currentPage} of {totalPages}
-      </p>
+      <div className="flex">
+        <button
+          type="button"
+          onClick={handlePrevious}
+          disabled={currentPage === 1}
+          className="pagination__previous-button"
+        >
+          Previous
+        </button>
+        <p>
+          Page {currentPage} of {totalPages}
+        </p>
+      </div>
       <button
         type="button"
         onClick={handleNext}

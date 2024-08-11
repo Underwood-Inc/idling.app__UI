@@ -50,7 +50,8 @@ export async function getSubmissions({
   };
 
   if (onlyMine && providerAccountId) {
-    const submissionsCount = await sql`SELECT COUNT(*) FROM submissions`;
+    const submissionsCount =
+      await sql`SELECT COUNT(*) FROM submissions WHERE author_id = ${providerAccountId}`;
 
     submissions = await sql`
       SELECT * from (
