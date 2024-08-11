@@ -12,6 +12,7 @@ import {
 import { AddSubmissionForm } from '../components/submission-forms/add-submission-form/AddSubmissionForm';
 // import SubmissionsList from '../components/submissions-list/SubmissionsList';
 import dynamic from 'next/dynamic';
+import Loader from '../components/loader/Loader';
 import styles from './page.module.css';
 
 const LazyPostsList = dynamic(
@@ -48,11 +49,13 @@ export default async function Posts({
               <h5 className={styles.posts__header}>all</h5>
 
               <Card className={styles.card} width="full">
-                <LazyPostsList
-                  listId="main"
-                  filters={filters}
-                  providerAccountId={session?.user?.providerAccountId || ''}
-                />
+                <Suspense fallback={<Loader />}>
+                  <LazyPostsList
+                    listId="main"
+                    filters={filters}
+                    providerAccountId={session?.user?.providerAccountId || ''}
+                  />
+                </Suspense>
               </Card>
             </article>
           </section>
@@ -62,11 +65,13 @@ export default async function Posts({
               <h5 className={styles.posts__header}>mine</h5>
 
               <Card className={styles.card} width="full">
-                <LazyPostsList
-                  listId="only-mine"
-                  onlyMine={true}
-                  providerAccountId={session?.user?.providerAccountId || ''}
-                />
+                <Suspense fallback={<Loader />}>
+                  <LazyPostsList
+                    listId="only-mine"
+                    onlyMine={true}
+                    providerAccountId={session?.user?.providerAccountId || ''}
+                  />
+                </Suspense>
               </Card>
             </article>
           </section>
