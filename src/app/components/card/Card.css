@@ -50,6 +50,7 @@
 }
 .card.min {
   width: auto;
+  min-height: 0;
 }
 
 .card,
@@ -125,7 +126,7 @@
   .card {
     max-width: 1600px;
     margin-bottom: 0;
-    width: 100% !important;
+    width: 100%;
   }
   .card:not(:last-of-type) {
     margin-right: 1rem;

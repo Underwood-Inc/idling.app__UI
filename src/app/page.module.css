@@ -1,3 +1,9 @@
+.home__container {
+  justify-content: flex-start;
+  align-items: center;
+  height: 100%;
+}
+
 .content {
   display: flex;
   flex-direction: column;
@@ -92,14 +98,5 @@
   }
   to {
     transform: rotate(0deg);
-  }
-}
-
-/* 4k Displays */
-@media (min-width: 2160px) {
-  .home__container {
-    flex-direction: row;
-    align-items: flex-start;
-    max-width: 2460px;
   }
 }

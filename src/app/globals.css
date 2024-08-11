@@ -260,12 +260,6 @@ body {
   background-color: rgb(21, 21, 21);
 }
 
-main {
-  position: relative;
-  margin: 2rem;
-  flex-direction: column;
-}
-
 article,
 section {
   width: 100%;
@@ -276,6 +270,14 @@ article,
 section {
   display: flex;
   justify-content: center;
+}
+
+main {
+  position: relative;
+  margin: 2rem;
+  flex-direction: column;
+  height: inherit;
+  justify-content: flex-start;
 }
 
 article,
