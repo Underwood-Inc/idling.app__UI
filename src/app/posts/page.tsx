@@ -3,6 +3,7 @@ import { CustomSession } from '../../auth.config';
 import { auth } from '../../lib/auth';
 import { Card } from '../components/card/Card';
 import FilterBar, { Filter, Filters } from '../components/filter-bar/FilterBar';
+import Loader from '../components/loader/Loader';
 import PageContent from '../components/page-content/PageContent';
 import PageHeader from '../components/page-header/PageHeader';
 import {
@@ -43,11 +44,13 @@ export default async function Posts({
               <h5 className={styles.posts__header}>all</h5>
 
               <Card className={styles.card} width="full">
-                <SubmissionsList
-                  listId="main"
-                  filters={filters}
-                  providerAccountId={session?.user?.providerAccountId || ''}
-                />
+                <Suspense fallback={<Loader />}>
+                  <SubmissionsList
+                    listId="main"
+                    filters={filters}
+                    providerAccountId={session?.user?.providerAccountId || ''}
+                  />
+                </Suspense>
               </Card>
             </article>
           </section>
@@ -57,11 +60,13 @@ export default async function Posts({
               <h5 className={styles.posts__header}>mine</h5>
 
               <Card className={styles.card} width="full">
-                <SubmissionsList
-                  listId="only-mine"
-                  onlyMine={true}
-                  providerAccountId={session?.user?.providerAccountId || ''}
-                />
+                <Suspense fallback={<Loader />}>
+                  <SubmissionsList
+                    listId="only-mine"
+                    onlyMine={true}
+                    providerAccountId={session?.user?.providerAccountId || ''}
+                  />
+                </Suspense>
               </Card>
             </article>
           </section>
