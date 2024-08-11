@@ -1,6 +1,5 @@
 'use server';
 import sql from '../../../lib/db';
-import { PostFilters } from '../../posts/page';
 import { Filter } from '../filter-bar/FilterBar';
 import { Submission } from '../submission-forms/schema';
 
@@ -17,12 +16,17 @@ export interface PaginatedResponse<T> {
   pagination: Pagination;
 }
 
-export async function getSubmissions(
+export async function getSubmissions({
   onlyMine = false,
-  providerAccountId: string,
-  filters: Filter<PostFilters>[],
+  providerAccountId = '',
+  filters,
   page = 1
-): Promise<PaginatedResponse<Submission>> {
+}: {
+  onlyMine: boolean;
+  providerAccountId: string;
+  filters: Filter[];
+  page: number;
+}): Promise<PaginatedResponse<Submission>> {
   let fromRow = 0;
   let toRow = 10;
   let submissions: Submission[] = [];
@@ -46,6 +50,8 @@ export async function getSubmissions(
   };
 
   if (onlyMine && providerAccountId) {
+    const submissionsCount = await sql`SELECT COUNT(*) FROM submissions`;
+
     submissions = await sql`
       SELECT * from (
         SELECT *, ROW_NUMBER() OVER (ORDER BY submission_id DESC) as row_num from submissions
@@ -54,17 +60,15 @@ export async function getSubmissions(
       WHERE row_num BETWEEN ${fromRow} AND ${toRow}
     `;
 
-    // old
-    // SELECT * FROM submissions
-    //   WHERE author_id = ${providerAccountId}
-    //   order by submission_datetime desc
-
+    response.pagination.totalRecords = submissionsCount[0].count;
     response.result = submissions;
   } else if (!onlyMine) {
     const tags = filters
       .find((filter) => filter.name === 'tags')
       ?.value.split(',')
       .map((value) => `#${value}`); // prepend a #. values come from URL so they are excluded lest the URL break expected params behavior
+    const submissionsCount =
+      await sql`SELECT COUNT(*) FROM submissions ${tags ? sql`where tags && ${tags}` : sql``}`;
 
     // select * where post contents contains any of the entries in the `tags` string array
     // @> is a "has both/all" match
@@ -72,58 +76,48 @@ export async function getSubmissions(
     submissions = await sql`
       SELECT * from (
         SELECT *, ROW_NUMBER() OVER (ORDER BY submission_id DESC) as row_num from submissions
+        ${tags ? sql`WHERE tags && ${tags}` : sql``}
       ) sub
       WHERE row_num BETWEEN ${fromRow} AND ${toRow}
-      ${tags ? sql`AND WHERE tags && ${tags}` : sql``}
     `;
 
-    // old
-    // SELECT * FROM submissions
-    // ${tags ? sql`where tags && ${tags}` : sql``}
-    //   order by submission_datetime desc
+    response.pagination.totalRecords = submissionsCount[0].count;
 
     response.result = submissions;
   }
 
-  const submissionsCount = await sql`SELECT COUNT(*) FROM submissions`;
-  console.info('submissionsCount', submissionsCount[0].count);
-  response.pagination.totalRecords = submissionsCount[0].count;
-
   return response;
 }
+
+export interface GetSubmissionsActionArguments {
+  currentPage: number;
+  onlyMine: boolean;
+  providerAccountId: string;
+  filters: Filter[];
+}
+
+export type GetSubmissionsActionResponse = {
+  data?: PaginatedResponse<Submission>;
+  message?: string;
+  error?: string;
+};
 
 /**
  * CREATE new submission action
  * performs SQL
  */
-export async function getSubmissionsAction(
-  prevState: {
-    message?: string;
-    error?: string;
-    data?: PaginatedResponse<Submission>;
-  },
-  formData: FormData
-): Promise<{
-  data?: PaginatedResponse<Submission>;
-  message?: string;
-  error?: string;
-}> {
-  console.info('form data', formData);
-  const page = Number.parseInt(formData.get('current_page')?.toString() || '1');
-  const onlyMine = formData.get('only_mine')?.toString() === '1';
-  const providerAccountId =
-    formData.get('provider_account_id')?.toString() ?? '';
-  const filters = JSON.parse(
-    formData.get('filters')?.toString() || '[]'
-  ) as Filter<PostFilters>[];
-  console.info('current page', page);
-  console.info('onlyMine', onlyMine);
-  const pagedSubmissions = await getSubmissions(
+export async function getSubmissionsAction({
+  currentPage = 0,
+  filters,
+  onlyMine = false,
+  providerAccountId = ''
+}: GetSubmissionsActionArguments): Promise<GetSubmissionsActionResponse> {
+  const pagedSubmissions = await getSubmissions({
     onlyMine,
     providerAccountId,
     filters,
-    page
-  );
+    page: currentPage
+  });
 
   return {
     data: pagedSubmissions,

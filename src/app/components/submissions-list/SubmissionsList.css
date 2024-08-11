@@ -1,7 +1,17 @@
+.submissions-list__container {
+  overflow: hidden;
+}
+
+.submissions-list__header {
+  width: inherit;
+  margin-bottom: 1rem;
+}
+
 .submission__list {
   max-height: 300px;
   min-height: 100px;
   width: 100%;
+  overflow: auto;
 }
 
 .submission__wrapper a,

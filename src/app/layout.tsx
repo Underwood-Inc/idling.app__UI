@@ -1,11 +1,11 @@
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import { Suspense } from 'react';
+import { PaginationProvider } from '../lib/state/PaginationContext';
 import Footer from './components/footer/Footer';
 import Header from './components/header/Header';
 import Loader from './components/loader/Loader';
 import './globals.css';
-import { PaginationProvider } from './state/PaginationContext';
 
 const inter = Inter({ subsets: ['latin'] });
 

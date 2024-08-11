@@ -1,18 +1,31 @@
 'use client';
 import React, { createContext, ReactNode, useContext, useReducer } from 'react';
 
-interface PaginationState {
-  currentPage: number;
-  totalPages: number;
-}
+type PaginationState = {
+  [x: string]:
+    | {
+        id: string;
+        currentPage: number;
+        totalPages: number;
+      }
+    | undefined;
+};
+
+type PaginationActionPayload = {
+  id: string;
+  page: number;
+};
 
 type PaginationAction =
-  | { type: 'SET_CURRENT_PAGE'; payload: number }
-  | { type: 'SET_TOTAL_PAGES'; payload: number };
+  | { type: 'SET_CURRENT_PAGE'; payload: PaginationActionPayload }
+  | { type: 'SET_TOTAL_PAGES'; payload: PaginationActionPayload };
 
 const initialState: PaginationState = {
-  currentPage: 1,
-  totalPages: 1
+  default: {
+    id: 'default',
+    currentPage: 1,
+    totalPages: 1
+  }
 };
 
 const PaginationContext = createContext<
@@ -29,9 +42,25 @@ const paginationReducer = (
 ): PaginationState => {
   switch (action.type) {
     case 'SET_CURRENT_PAGE':
-      return { ...state, currentPage: action.payload };
+      return {
+        ...state,
+        [action.payload.id]: {
+          totalPages: 1,
+          ...state[action.payload.id],
+          id: action.payload.id,
+          currentPage: action.payload.page
+        }
+      };
     case 'SET_TOTAL_PAGES':
-      return { ...state, totalPages: action.payload };
+      return {
+        ...state,
+        [action.payload.id]: {
+          currentPage: 1,
+          ...state[action.payload.id],
+          id: action.payload.id,
+          totalPages: action.payload.page
+        }
+      };
     default:
       return state;
   }
