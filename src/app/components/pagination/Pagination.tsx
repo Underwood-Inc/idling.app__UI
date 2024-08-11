@@ -57,7 +57,7 @@ function Pagination({
 
   return (
     <article className="pagination__container">
-      <div className="flex">
+      <div className="flex ai-center">
         <button
           type="button"
           onClick={handlePrevious}
