@@ -1,13 +1,12 @@
 'use client';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import reactStringReplace from 'react-string-replace';
 import { useFilters } from '../../../lib/state/FiltersContext';
 import { tagRegex } from '../../../lib/utils/string/tag-regex';
 
 export function TagLink({ value }: { value: string }) {
   const { dispatch } = useFilters();
-  const router = useRouter();
+
   return reactStringReplace(value, tagRegex, (match, i) => (
     <Link
       key={`${match}_${i}`}
@@ -16,10 +15,9 @@ export function TagLink({ value }: { value: string }) {
           payload: { filters: [{ name: 'tags', value: match }], id: 'default' },
           type: 'SET_CURRENT_FILTERS'
         });
-        router.push(`/posts?tags=${match}`);
       }}
       href={{
-        pathname: 'posts',
+        pathname: '/posts',
         query: { tags: match }
       }}
     >
