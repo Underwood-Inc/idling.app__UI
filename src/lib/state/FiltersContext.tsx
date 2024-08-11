@@ -55,10 +55,11 @@ const filtersReducer = (
   }
 };
 
-export const FiltersProvider: React.FC<{ children: ReactNode }> = ({
-  children
-}) => {
-  const [state, dispatch] = useReducer(filtersReducer, initialState);
+export const FiltersProvider: React.FC<{
+  children: ReactNode;
+  value?: FiltersState;
+}> = ({ children, value = initialState }) => {
+  const [state, dispatch] = useReducer(filtersReducer, value);
 
   return (
     <FiltersContext.Provider value={{ state, dispatch }}>

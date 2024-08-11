@@ -99,12 +99,16 @@ export default function SubmissionsList({
   }, [shouldUpdate]);
 
   useEffect(() => {
+    dispatchPagination({
+      payload: { id: listId, page: 1 },
+      type: 'SET_CURRENT_PAGE'
+    });
     fetchSubmissions({
       ...getArgs(),
+      currentPage: 1,
       filters: filtersState.default?.filters || []
     });
   }, [filtersState]);
-
 
   const onPageChange = (newPage: number) => {
     const args: GetSubmissionsActionArguments = {

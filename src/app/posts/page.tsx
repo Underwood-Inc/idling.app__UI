@@ -12,6 +12,7 @@ import {
 import { AddSubmissionForm } from '../components/submission-forms/add-submission-form/AddSubmissionForm';
 // import SubmissionsList from '../components/submissions-list/SubmissionsList';
 import dynamic from 'next/dynamic';
+import { FiltersProvider } from '../../lib/state/FiltersContext';
 import Loader from '../components/loader/Loader';
 import styles from './page.module.css';
 
@@ -34,7 +35,7 @@ export default async function Posts({
     : [];
 
   return (
-    <>
+    <FiltersProvider value={{ default: { filters, id: 'default' } }}>
       <PageHeader>
         <h4 className={styles.posts__header}>posts</h4>
 
@@ -84,6 +85,6 @@ export default async function Posts({
           <RecentTags />
         </Suspense>
       </aside>
-    </>
+    </FiltersProvider>
   );
 }
