@@ -1,5 +1,6 @@
 'use client';
 import { useCallback, useEffect, useState } from 'react';
+import { useFilters } from '../../../lib/state/FiltersContext';
 import { usePagination } from '../../../lib/state/PaginationContext';
 import { useShouldUpdate } from '../../../lib/state/ShouldUpdateContext';
 import { PostFilters } from '../../posts/page';
@@ -28,9 +29,11 @@ export default function SubmissionsList({
   onlyMine?: boolean;
   filters?: Filter<PostFilters>[];
 }) {
+  const { state: filtersState } = useFilters();
   const { state: shouldUpdate, dispatch: dispatchShouldUpdate } =
     useShouldUpdate();
-  const { state: paginationState, dispatch } = usePagination();
+  const { state: paginationState, dispatch: dispatchPagination } =
+    usePagination();
   const pagination = paginationState[listId];
 
   // TODO: https://github.com/vercel/next.js/issues/65673#issuecomment-2112746191
@@ -74,19 +77,34 @@ export default function SubmissionsList({
     const newTotalPages =
       (response?.data?.pagination.totalRecords || 1) / 10 || 1;
 
-    dispatch({
+    dispatchPagination({
       type: 'SET_TOTAL_PAGES',
       payload: {
         id: listId,
         page: Math.ceil(newTotalPages)
       }
     });
-  }, [dispatch, response?.data?.pagination.totalRecords, listId]);
+  }, [dispatchPagination, response?.data?.pagination.totalRecords, listId]);
 
   useEffect(() => {
     dispatchShouldUpdate({ type: 'SET_SHOULD_UPDATE', payload: false });
-    fetchSubmissions(getArgs());
+    dispatchPagination({
+      payload: {
+        id: listId,
+        page: 1
+      },
+      type: 'SET_CURRENT_PAGE'
+    });
+    fetchSubmissions({ ...getArgs(), currentPage: 1 });
   }, [shouldUpdate]);
+
+  useEffect(() => {
+    fetchSubmissions({
+      ...getArgs(),
+      filters: filtersState.default?.filters || []
+    });
+  }, [filtersState]);
+
 
   const onPageChange = (newPage: number) => {
     const args: GetSubmissionsActionArguments = {
