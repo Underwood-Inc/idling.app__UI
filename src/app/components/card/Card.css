@@ -31,6 +31,7 @@
     border 200ms;
   overflow: auto;
   min-width: 200px;
+  min-height: 300px;
   display: flex;
   flex-direction: column;
 }

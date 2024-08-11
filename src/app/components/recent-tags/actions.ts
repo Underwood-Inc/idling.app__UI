@@ -1,6 +1,7 @@
 'use server';
 
 import sql from '../../../lib/db';
+import fakeDelay from '../../../lib/utils/fake-delay';
 import { parseZodErrors } from '../submission-forms/schema';
 import { Tags, tagSchema } from './schema';
 
@@ -12,6 +13,7 @@ export async function getRecentTags(
   message: string;
 }> {
   try {
+    await fakeDelay();
     let subquerySql;
 
     // cleanup once casting issues figured out for INTERVAL (if possible)

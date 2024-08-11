@@ -1,106 +1,158 @@
-import { unstable_noStore as noStore } from 'next/cache';
-import { CustomSession } from '../../../auth.config';
-import { auth } from '../../../lib/auth';
-import sql from '../../../lib/db';
+'use client';
+import { useCallback, useEffect, useState } from 'react';
+import { usePagination } from '../../../lib/state/PaginationContext';
 import { PostFilters } from '../../posts/page';
 import Empty from '../empty/Empty';
 import { Filter } from '../filter-bar/FilterBar';
+import Loader from '../loader/Loader';
+import Pagination from '../pagination/Pagination';
 import { DeleteSubmissionForm } from '../submission-forms/delete-submission-form/DeleteSubmissionForm';
 import { Submission } from '../submission-forms/schema';
 import { TagLink } from '../tag-link/TagLink';
+import {
+  getSubmissionsAction,
+  GetSubmissionsActionArguments,
+  PaginatedResponse
+} from './actions';
 import './SubmissionsList.css';
 
-export default async function SubmissionsList({
+export default function SubmissionsList({
+  listId = 'default',
+  providerAccountId,
   onlyMine = false,
   filters = []
 }: {
+  listId: string;
+  providerAccountId: string;
   onlyMine?: boolean;
   filters?: Filter<PostFilters>[];
 }) {
-  noStore();
+  const { state: paginationState, dispatch } = usePagination();
+  const pagination = paginationState[listId];
 
-  const session = (await auth()) as CustomSession | null;
+  // TODO: https://github.com/vercel/next.js/issues/65673#issuecomment-2112746191
+  // const [state, formAction] = useActionState(getSubmissionsAction, initialState)
+  const [loading, setLoading] = useState(true);
+  const [response, setResponse] = useState<
+    | {
+        data?: PaginatedResponse<Submission>;
+        message?: string;
+        error?: string;
+      }
+    | undefined
+  >();
 
-  // TODO: move to action file
-  const getSubmissions = async () => {
-    let submissions: Submission[] = [];
+  const getArgs = useCallback(() => {
+    const data: {
+      currentPage: number;
+      onlyMine: boolean;
+      providerAccountId: string;
+      filters: Filter[];
+    } = {
+      currentPage: pagination?.currentPage || 1,
+      filters,
+      onlyMine,
+      providerAccountId
+    };
 
-    if (onlyMine && session?.user?.providerAccountId) {
-      submissions = await sql`
-        SELECT * FROM submissions
-        WHERE author_id = ${session.user.providerAccountId}
-        order by submission_datetime desc
-      `;
+    return data;
+  }, [pagination, filters, onlyMine, providerAccountId]);
 
-      return submissions;
-    } else if (!onlyMine) {
-      const tags = filters
-        .find((filter) => filter.name === 'tags')
-        ?.value.split(',')
-        .map((value) => `#${value}`); // prepend a #. values come from URL so they are excluded lest the URL break expected params behavior
+  const fetchSubmissions = useCallback(
+    async (args: GetSubmissionsActionArguments) => {
+      setLoading(true);
+      setResponse(await getSubmissionsAction(args));
+      setLoading(false);
+    },
+    []
+  );
 
-      // select * where post contents contains any of the entries in the `tags` string array
-      // @> is a "has both/all" match
-      // && is a "contains any" match
-      submissions = await sql`
-        SELECT * FROM submissions
-        ${tags ? sql`where tags && ${tags}` : sql``}
-          order by submission_datetime desc
-      `;
+  useEffect(() => {
+    const newTotalPages = (response?.data?.pagination.totalRecords || 1) / 10;
 
-      return submissions;
-    }
+    dispatch({
+      type: 'SET_TOTAL_PAGES',
+      payload: {
+        id: listId,
+        page: Math.ceil(newTotalPages)
+      }
+    });
+  }, [dispatch, response?.data?.pagination.totalRecords, listId]);
 
-    return submissions;
+  useEffect(() => {
+    fetchSubmissions(getArgs());
+  }, []);
+
+  const onPageChange = (newPage: number) => {
+    const args: GetSubmissionsActionArguments = {
+      ...getArgs(),
+      currentPage: newPage
+    };
+
+    fetchSubmissions(args);
   };
 
   const isAuthorized = (authorId: string) => {
-    return session?.user?.providerAccountId === authorId;
+    return providerAccountId === authorId;
   };
 
-  const submissions = await getSubmissions();
-
   return (
-    <ol className="submission__list">
-      {!submissions.length && <Empty label="No posts to show" />}
+    <article className="submissions-list__container">
+      <div className="submissions-list__header">
+        <Pagination id={listId} onPageChange={onPageChange} />
+      </div>
 
-      {!!submissions.length &&
-        submissions.map(
-          ({
-            submission_id,
-            submission_name,
-            author,
-            author_id,
-            submission_datetime
-          }) => {
-            const canDelete = isAuthorized(author_id);
-            const createdDate = new Date(
-              submission_datetime
-            ).toLocaleDateString();
+      {loading && <Loader color="black" />}
 
-            return (
-              <li key={submission_id} className="submission__wrapper">
-                <p>
-                  {author && (
-                    <span className="submission__author">{author}:&nbsp;</span>
-                  )}
-                  <span>
-                    <TagLink value={submission_name} />
-                  </span>
-                  <span className="submission__datetime">{createdDate}</span>
-                </p>
+      {!loading && (
+        <ol className="submission__list">
+          {response?.data?.result.length === 0 && (
+            <Empty label="No posts to show" />
+          )}
 
-                {canDelete && (
-                  <DeleteSubmissionForm
-                    id={submission_id}
-                    name={submission_name}
-                    isAuthorized={!!session}
-                  />
-                )}
-              </li>
-            );
-          }
-        )}
-    </ol>
+          {!!response?.data?.result.length &&
+            response?.data.result.map(
+              ({
+                submission_id,
+                submission_name,
+                author,
+                author_id,
+                submission_datetime
+              }) => {
+                const canDelete = isAuthorized(author_id);
+                const createdDate = new Date(
+                  submission_datetime
+                ).toLocaleDateString();
+
+                return (
+                  <li key={submission_id} className="submission__wrapper">
+                    <p>
+                      {author && (
+                        <span className="submission__author">
+                          {author}:&nbsp;
+                        </span>
+                      )}
+                      <span>
+                        <TagLink value={submission_name} />
+                      </span>
+                      <span className="submission__datetime">
+                        {createdDate}
+                      </span>
+                    </p>
+
+                    {canDelete && (
+                      <DeleteSubmissionForm
+                        id={submission_id}
+                        name={submission_name}
+                        isAuthorized={!!providerAccountId}
+                      />
+                    )}
+                  </li>
+                );
+              }
+            )}
+        </ol>
+      )}
+    </article>
   );
 }

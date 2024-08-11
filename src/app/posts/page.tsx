@@ -1,8 +1,8 @@
 import { Suspense } from 'react';
+import { CustomSession } from '../../auth.config';
 import { auth } from '../../lib/auth';
 import { Card } from '../components/card/Card';
 import FilterBar, { Filter, Filters } from '../components/filter-bar/FilterBar';
-import Loader from '../components/loader/Loader';
 import PageContent from '../components/page-content/PageContent';
 import PageHeader from '../components/page-header/PageHeader';
 import {
@@ -21,8 +21,8 @@ export default async function Posts({
 }: {
   searchParams: PostSearchParams;
 }) {
-  const session = await auth();
-  const filters: Filter<'tags'>[] = searchParams?.tags
+  const session = (await auth()) as CustomSession | null;
+  const filters: Filter<PostFilters>[] = searchParams?.tags
     ? [{ name: 'tags', value: searchParams.tags }]
     : [];
 
@@ -43,9 +43,11 @@ export default async function Posts({
               <h5 className={styles.posts__header}>all</h5>
 
               <Card className={styles.card} width="full">
-                <Suspense fallback={<Loader />}>
-                  <SubmissionsList filters={filters} />
-                </Suspense>
+                <SubmissionsList
+                  listId="main"
+                  filters={filters}
+                  providerAccountId={session?.user?.providerAccountId || ''}
+                />
               </Card>
             </article>
           </section>
@@ -55,9 +57,11 @@ export default async function Posts({
               <h5 className={styles.posts__header}>mine</h5>
 
               <Card className={styles.card} width="full">
-                <Suspense fallback={<Loader />}>
-                  <SubmissionsList onlyMine={true} />
-                </Suspense>
+                <SubmissionsList
+                  listId="only-mine"
+                  onlyMine={true}
+                  providerAccountId={session?.user?.providerAccountId || ''}
+                />
               </Card>
             </article>
           </section>

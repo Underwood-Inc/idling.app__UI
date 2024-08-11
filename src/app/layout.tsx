@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import { Suspense } from 'react';
+import { PaginationProvider } from '../lib/state/PaginationContext';
 import Footer from './components/footer/Footer';
 import Header from './components/header/Header';
 import Loader from './components/loader/Loader';
@@ -50,7 +51,9 @@ export default function RootLayout({
         <Header />
 
         <main>
-          <Suspense fallback={<Loader />}>{children}</Suspense>
+          <Suspense fallback={<Loader />}>
+            <PaginationProvider>{children}</PaginationProvider>
+          </Suspense>
         </main>
 
         <Footer />

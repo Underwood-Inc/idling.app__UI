@@ -64,6 +64,9 @@ export function AddSubmissionForm({ isAuthorized }: { isAuthorized: boolean }) {
       ? 'Login to manage posts.'
       : undefined;
 
+  // TODO: deprecate this method as it causes unexpected results in HTML
+  // form actions must not call other methods that call the expected action
+  // expected: action={formAction}
   const handleFormSubmitAction = async (formData: FormData) => {
     if (!state.error) {
       await formAction(formData);
