@@ -60,20 +60,21 @@ export async function validateCreateSubmissionFormAction(
  */
 export async function createSubmissionAction(
   prevState: {
+    status: number;
     message?: string;
     error?: string;
   },
   formData: FormData
-): Promise<{ message?: string; error?: string }> {
+): Promise<{ status: number; message?: string; error?: string }> {
   const { data, errors } = await validateCreateSubmissionForm(formData);
   const session = (await auth()) as CustomSession;
 
   if (!data) {
-    return { error: errors };
+    return { status: -1, error: errors };
   }
 
   if (!session || !session?.user?.name || !session.user.providerAccountId) {
-    return { error: 'Authentication error.' };
+    return { status: -1, error: 'Authentication error.' };
   }
 
   const tags =
@@ -92,10 +93,10 @@ export async function createSubmissionAction(
     `;
 
     revalidatePath('/');
-    return { message: `Added submission: ${data.submission_name}.` };
+    return { status: 1, message: `Added submission: ${data.submission_name}.` };
   } catch (e) {
     console.error(e);
-    return { error: `Failed to create submission.` };
+    return { status: -1, error: `Failed to create submission.` };
   }
 }
 
@@ -105,6 +106,7 @@ export async function createSubmissionAction(
  */
 export async function deleteSubmissionAction(
   prevState: {
+    status: number;
     message?: string;
     error?: string;
   },
@@ -116,7 +118,7 @@ export async function deleteSubmissionAction(
   });
 
   if (!success) {
-    return { error: parseZodErrors(error) };
+    return { status: -1, error: parseZodErrors(error) };
   }
 
   const sqlSubmissionId = data.submission_id!.toString();
@@ -128,8 +130,11 @@ export async function deleteSubmissionAction(
     `;
 
     revalidatePath('/');
-    return { message: `Deleted submission ${data.submission_name}.` };
+    return {
+      status: 1,
+      message: `Deleted submission ${data.submission_name}.`
+    };
   } catch (e) {
-    return { error: `Failed to delete submission.` };
+    return { status: -1, error: `Failed to delete submission.` };
   }
 }

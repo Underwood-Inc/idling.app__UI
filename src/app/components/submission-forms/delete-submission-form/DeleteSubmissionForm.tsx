@@ -1,10 +1,12 @@
 'use client';
-import { useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { useFormState, useFormStatus } from 'react-dom';
+import { useShouldUpdate } from '../../../../lib/state/ShouldUpdateContext';
 import { deleteSubmissionAction } from '../actions';
 import './DeleteSubmissionForm.css';
 
 const initialState = {
+  status: 0,
   message: '',
   submission_name: ''
 };
@@ -37,12 +39,24 @@ export function DeleteSubmissionForm({
   isAuthorized: boolean;
 }) {
   const ref = useRef<HTMLFormElement>(null);
+  const { dispatch: dispatchShouldUpdate } = useShouldUpdate();
   // TODO: https://github.com/vercel/next.js/issues/65673#issuecomment-2112746191
   // const [state, formAction] = useActionState(deleteSubmissionAction, initialState)
   const [state, formAction] = useFormState(
     deleteSubmissionAction,
     initialState
   );
+
+  useEffect(() => {
+    dispatchShouldUpdate({
+      type: 'SET_SHOULD_UPDATE',
+      payload: !!state.status
+    });
+
+    if (state.status) {
+      ref.current?.reset();
+    }
+  }, [state.status, state.message, dispatchShouldUpdate]);
 
   const handleFormAction = async (formData: FormData) => {
     await formAction(formData);

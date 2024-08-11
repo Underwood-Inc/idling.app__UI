@@ -1,6 +1,7 @@
 'use client';
-import { ChangeEvent, useRef, useState } from 'react';
+import { ChangeEvent, useEffect, useRef, useState } from 'react';
 import { useFormState, useFormStatus } from 'react-dom';
+import { useShouldUpdate } from '../../../../lib/state/ShouldUpdateContext';
 import {
   createSubmissionAction,
   validateCreateSubmissionFormAction
@@ -13,6 +14,7 @@ import {
 import './AddSubmissionForm.css';
 
 const initialState = {
+  status: 0,
   message: '',
   error: '',
   submission_datetime: '',
@@ -43,6 +45,8 @@ function SubmitButton({
 
 export function AddSubmissionForm({ isAuthorized }: { isAuthorized: boolean }) {
   const ref = useRef<HTMLFormElement>(null);
+  const { state: shouldUpdate, dispatch: dispatchShouldUpdate } =
+    useShouldUpdate();
   // TODO: https://github.com/vercel/next.js/issues/65673#issuecomment-2112746191
   // const [state, formAction] = useActionState(createSubmissionAction, initialState)
   const [state, formAction] = useFormState(
@@ -64,16 +68,17 @@ export function AddSubmissionForm({ isAuthorized }: { isAuthorized: boolean }) {
       ? 'Login to manage posts.'
       : undefined;
 
-  // TODO: deprecate this method as it causes unexpected results in HTML
-  // form actions must not call other methods that call the expected action
-  // expected: action={formAction}
-  const handleFormSubmitAction = async (formData: FormData) => {
-    if (!state.error) {
-      await formAction(formData);
+  useEffect(() => {
+    dispatchShouldUpdate({
+      type: 'SET_SHOULD_UPDATE',
+      payload: !!state.status
+    });
+
+    if (state.status) {
       setNameLength(0);
       ref.current?.reset();
     }
-  };
+  }, [state.status, state.message, dispatchShouldUpdate]);
 
   const handleFormValidateAction = async (formData: FormData) => {
     await validateFormAction(formData);
@@ -119,11 +124,7 @@ export function AddSubmissionForm({ isAuthorized }: { isAuthorized: boolean }) {
   };
 
   return (
-    <form
-      ref={ref}
-      action={handleFormSubmitAction}
-      className="submission__form"
-    >
+    <form ref={ref} action={formAction} className="submission__form">
       <label htmlFor="submission_name" className="submission__name-label">
         <div className="row--sm-margin">
           <input

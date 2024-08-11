@@ -1,6 +1,7 @@
 'use client';
 import { useCallback, useEffect, useState } from 'react';
 import { usePagination } from '../../../lib/state/PaginationContext';
+import { useShouldUpdate } from '../../../lib/state/ShouldUpdateContext';
 import { PostFilters } from '../../posts/page';
 import Empty from '../empty/Empty';
 import { Filter } from '../filter-bar/FilterBar';
@@ -27,6 +28,8 @@ export default function SubmissionsList({
   onlyMine?: boolean;
   filters?: Filter<PostFilters>[];
 }) {
+  const { state: shouldUpdate, dispatch: dispatchShouldUpdate } =
+    useShouldUpdate();
   const { state: paginationState, dispatch } = usePagination();
   const pagination = paginationState[listId];
 
@@ -68,7 +71,8 @@ export default function SubmissionsList({
   );
 
   useEffect(() => {
-    const newTotalPages = (response?.data?.pagination.totalRecords || 1) / 10;
+    const newTotalPages =
+      (response?.data?.pagination.totalRecords || 1) / 10 || 1;
 
     dispatch({
       type: 'SET_TOTAL_PAGES',
@@ -80,8 +84,9 @@ export default function SubmissionsList({
   }, [dispatch, response?.data?.pagination.totalRecords, listId]);
 
   useEffect(() => {
+    dispatchShouldUpdate({ type: 'SET_SHOULD_UPDATE', payload: false });
     fetchSubmissions(getArgs());
-  }, []);
+  }, [shouldUpdate]);
 
   const onPageChange = (newPage: number) => {
     const args: GetSubmissionsActionArguments = {
