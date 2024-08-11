@@ -68,7 +68,8 @@ export default function SubmissionsList({
   );
 
   useEffect(() => {
-    const newTotalPages = (response?.data?.pagination.totalRecords || 1) / 10;
+    const newTotalPages =
+      (response?.data?.pagination.totalRecords || 1) / 10 || 1;
 
     dispatch({
       type: 'SET_TOTAL_PAGES',

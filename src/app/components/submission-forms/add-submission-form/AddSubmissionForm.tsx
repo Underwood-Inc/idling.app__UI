@@ -1,4 +1,5 @@
 'use client';
+import { useRouter } from 'next/navigation';
 import { ChangeEvent, useRef, useState } from 'react';
 import { useFormState, useFormStatus } from 'react-dom';
 import {
@@ -43,6 +44,7 @@ function SubmitButton({
 
 export function AddSubmissionForm({ isAuthorized }: { isAuthorized: boolean }) {
   const ref = useRef<HTMLFormElement>(null);
+  const router = useRouter();
   // TODO: https://github.com/vercel/next.js/issues/65673#issuecomment-2112746191
   // const [state, formAction] = useActionState(createSubmissionAction, initialState)
   const [state, formAction] = useFormState(

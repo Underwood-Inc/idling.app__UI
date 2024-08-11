@@ -20,7 +20,7 @@ export async function getSubmissions({
   onlyMine = false,
   providerAccountId = '',
   filters,
-  page = 1
+  page = 0
 }: {
   onlyMine: boolean;
   providerAccountId: string;
@@ -54,11 +54,7 @@ export async function getSubmissions({
       await sql`SELECT COUNT(*) FROM submissions WHERE author_id = ${providerAccountId}`;
 
     submissions = await sql`
-      SELECT * from (
-        SELECT *, ROW_NUMBER() OVER (ORDER BY submission_id DESC) as row_num from submissions
-        WHERE author_id = ${providerAccountId}
-      ) sub
-      WHERE row_num BETWEEN ${fromRow} AND ${toRow}
+      SELECT * FROM submissions WHERE author_id = ${providerAccountId} ORDER BY submission_datetime DESC LIMIT 10 OFFSET ${(page - 1) * 10}
     `;
 
     response.pagination.totalRecords = submissionsCount[0].count;
@@ -75,11 +71,7 @@ export async function getSubmissions({
     // @> is a "has both/all" match
     // && is a "contains any" match
     submissions = await sql`
-      SELECT * from (
-        SELECT *, ROW_NUMBER() OVER (ORDER BY submission_id DESC) as row_num from submissions
-        ${tags ? sql`WHERE tags && ${tags}` : sql``}
-      ) sub
-      WHERE row_num BETWEEN ${fromRow} AND ${toRow}
+      SELECT * FROM submissions ${tags ? sql`WHERE tags && ${tags}` : sql``}ORDER BY submission_datetime DESC LIMIT 10 OFFSET ${(page - 1) * 10}
     `;
 
     response.pagination.totalRecords = submissionsCount[0].count;
