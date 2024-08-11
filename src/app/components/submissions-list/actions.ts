@@ -96,7 +96,7 @@ export type GetSubmissionsActionResponse = {
 };
 
 /**
- * CREATE new submission action
+ * GET submissions
  * performs SQL
  */
 export async function getSubmissionsAction({
