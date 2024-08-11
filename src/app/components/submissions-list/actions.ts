@@ -71,7 +71,7 @@ export async function getSubmissions({
     // @> is a "has both/all" match
     // && is a "contains any" match
     submissions = await sql`
-      SELECT * FROM submissions ${tags ? sql`WHERE tags && ${tags}` : sql``}ORDER BY submission_datetime DESC LIMIT 10 OFFSET ${(page - 1) * 10}
+      SELECT * FROM submissions ${tags ? sql`WHERE tags && ${tags}` : sql``} ORDER BY submission_datetime DESC LIMIT 10 OFFSET ${(page - 1) * 10}
     `;
 
     response.pagination.totalRecords = submissionsCount[0].count;

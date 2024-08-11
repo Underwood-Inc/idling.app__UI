@@ -12,13 +12,16 @@ export function TagLink({ value }: { value: string }) {
       key={`${match}_${i}`}
       onClick={() => {
         dispatch({
-          payload: { filters: [{ name: 'tags', value: match }], id: 'default' },
+          payload: {
+            filters: [{ name: 'tags', value: match.toLowerCase() }],
+            id: 'default'
+          },
           type: 'SET_CURRENT_FILTERS'
         });
       }}
       href={{
         pathname: '/posts',
-        query: { tags: match }
+        query: { tags: match.toLowerCase() }
       }}
     >
       #{match}
