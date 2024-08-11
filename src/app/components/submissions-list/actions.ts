@@ -64,6 +64,7 @@ export async function getSubmissions({
       .find((filter) => filter.name === 'tags')
       ?.value.split(',')
       .map((value) => `#${value}`); // prepend a #. values come from URL so they are excluded lest the URL break expected params behavior
+    console.info('----tags', tags);
     const submissionsCount =
       await sql`SELECT COUNT(*) FROM submissions ${tags ? sql`where tags && ${tags}` : sql``}`;
 
@@ -71,7 +72,7 @@ export async function getSubmissions({
     // @> is a "has both/all" match
     // && is a "contains any" match
     submissions = await sql`
-      SELECT * FROM submissions ${tags ? sql`WHERE tags && ${tags}` : sql``}ORDER BY submission_datetime DESC LIMIT 10 OFFSET ${(page - 1) * 10}
+      SELECT * FROM submissions ${tags ? sql`WHERE tags && ${tags}` : sql``} ORDER BY submission_datetime DESC LIMIT 10 OFFSET ${(page - 1) * 10}
     `;
 
     response.pagination.totalRecords = submissionsCount[0].count;
