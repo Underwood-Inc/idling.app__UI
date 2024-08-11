@@ -18,7 +18,7 @@ export function TagLink({ value }: { value: string }) {
       }}
       href={{
         pathname: '/posts',
-        query: { tags: match }
+        query: { tags: match.toLowerCase() }
       }}
     >
       #{match}
