@@ -10,13 +10,8 @@ import {
   RecentTagsLoader
 } from '../components/recent-tags/RecentTags';
 import { AddSubmissionForm } from '../components/submission-forms/add-submission-form/AddSubmissionForm';
-// import SubmissionsList from '../components/submissions-list/SubmissionsList';
-import dynamic from 'next/dynamic';
+import SubmissionsList from '../components/submissions-list/SubmissionsList';
 import styles from './page.module.css';
-
-const LazySubmissionsList = dynamic(
-  () => import('../components/submissions-list/SubmissionsList')
-);
 
 export type PostFilters = 'tags';
 export type PostSearchParams = Filters<Record<PostFilters, string>>;
@@ -48,7 +43,7 @@ export default async function Posts({
               <h5 className={styles.posts__header}>all</h5>
 
               <Card className={styles.card} width="full">
-                <LazySubmissionsList
+                <SubmissionsList
                   listId="main"
                   filters={filters}
                   providerAccountId={session?.user?.providerAccountId || ''}
@@ -62,7 +57,7 @@ export default async function Posts({
               <h5 className={styles.posts__header}>mine</h5>
 
               <Card className={styles.card} width="full">
-                <LazySubmissionsList
+                <SubmissionsList
                   listId="only-mine"
                   onlyMine={true}
                   providerAccountId={session?.user?.providerAccountId || ''}
