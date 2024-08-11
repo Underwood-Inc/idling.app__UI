@@ -16,7 +16,8 @@ import Loader from '../components/loader/Loader';
 import styles from './page.module.css';
 
 const LazyPostsList = dynamic(
-  () => import('../components/submissions-list/SubmissionsList')
+  () => import('../components/submissions-list/SubmissionsList'),
+  { ssr: false }
 );
 
 export type PostFilters = 'tags';
