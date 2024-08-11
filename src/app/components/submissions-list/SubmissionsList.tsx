@@ -105,6 +105,7 @@ export default function SubmissionsList({
     });
   }, [filtersState]);
 
+
   const onPageChange = (newPage: number) => {
     const args: GetSubmissionsActionArguments = {
       ...getArgs(),
