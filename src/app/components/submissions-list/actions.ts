@@ -64,7 +64,6 @@ export async function getSubmissions({
       .find((filter) => filter.name === 'tags')
       ?.value.split(',')
       .map((value) => `#${value}`); // prepend a #. values come from URL so they are excluded lest the URL break expected params behavior
-    console.info('----tags', tags);
     const submissionsCount =
       await sql`SELECT COUNT(*) FROM submissions ${tags ? sql`where tags && ${tags}` : sql``}`;
 
