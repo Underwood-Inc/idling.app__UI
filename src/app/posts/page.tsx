@@ -3,7 +3,6 @@ import { CustomSession } from '../../auth.config';
 import { auth } from '../../lib/auth';
 import { Card } from '../components/card/Card';
 import FilterBar, { Filter, Filters } from '../components/filter-bar/FilterBar';
-import Loader from '../components/loader/Loader';
 import PageContent from '../components/page-content/PageContent';
 import PageHeader from '../components/page-header/PageHeader';
 import {
@@ -11,8 +10,13 @@ import {
   RecentTagsLoader
 } from '../components/recent-tags/RecentTags';
 import { AddSubmissionForm } from '../components/submission-forms/add-submission-form/AddSubmissionForm';
-import SubmissionsList from '../components/submissions-list/SubmissionsList';
+// import SubmissionsList from '../components/submissions-list/SubmissionsList';
+import dynamic from 'next/dynamic';
 import styles from './page.module.css';
+
+const LazySubmissionsList = dynamic(
+  () => import('../components/submissions-list/SubmissionsList')
+);
 
 export type PostFilters = 'tags';
 export type PostSearchParams = Filters<Record<PostFilters, string>>;
@@ -44,13 +48,11 @@ export default async function Posts({
               <h5 className={styles.posts__header}>all</h5>
 
               <Card className={styles.card} width="full">
-                <Suspense fallback={<Loader />}>
-                  <SubmissionsList
-                    listId="main"
-                    filters={filters}
-                    providerAccountId={session?.user?.providerAccountId || ''}
-                  />
-                </Suspense>
+                <LazySubmissionsList
+                  listId="main"
+                  filters={filters}
+                  providerAccountId={session?.user?.providerAccountId || ''}
+                />
               </Card>
             </article>
           </section>
@@ -60,13 +62,11 @@ export default async function Posts({
               <h5 className={styles.posts__header}>mine</h5>
 
               <Card className={styles.card} width="full">
-                <Suspense fallback={<Loader />}>
-                  <SubmissionsList
-                    listId="only-mine"
-                    onlyMine={true}
-                    providerAccountId={session?.user?.providerAccountId || ''}
-                  />
-                </Suspense>
+                <LazySubmissionsList
+                  listId="only-mine"
+                  onlyMine={true}
+                  providerAccountId={session?.user?.providerAccountId || ''}
+                />
               </Card>
             </article>
           </section>
