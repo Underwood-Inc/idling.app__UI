@@ -1,5 +1,4 @@
 import { About } from './components/about/About';
-import { AvatarsBackground } from './components/avatars-background/AvatarsBackground';
 import { Card } from './components/card/Card';
 import './globals.css';
 import styles from './page.module.css';
@@ -13,7 +12,6 @@ export default async function Home() {
           <About />
         </Card>
       </article>
-      <AvatarsBackground />
     </>
   );
 }

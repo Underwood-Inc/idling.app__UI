@@ -12,7 +12,7 @@
   position: absolute;
   top: 0;
   height: 100%;
-  transform: translateY(-200px);
+  /* transform: translateY(-200px); */
   max-width: 100%;
   z-index: -1;
 }

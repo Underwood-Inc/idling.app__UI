@@ -3,6 +3,7 @@ import { Inter } from 'next/font/google';
 import { Suspense } from 'react';
 import { PaginationProvider } from '../lib/state/PaginationContext';
 import { ShouldUpdateProvider } from '../lib/state/ShouldUpdateContext';
+import { AvatarsBackground } from './components/avatars-background/AvatarsBackground';
 import Footer from './components/footer/Footer';
 import Header from './components/header/Header';
 import Loader from './components/loader/Loader';
@@ -47,6 +48,8 @@ export default function RootLayout({
         type="image/x-icon"
         sizes="512x512"
       />
+
+      <AvatarsBackground />
 
       <body className={inter.className}>
         <Header />
