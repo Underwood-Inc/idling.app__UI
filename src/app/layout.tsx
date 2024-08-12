@@ -49,7 +49,9 @@ export default function RootLayout({
         sizes="512x512"
       />
 
-      <AvatarsBackground />
+      <Suspense fallback={<Loader />}>
+        <AvatarsBackground />
+      </Suspense>
 
       <body className={inter.className}>
         <Header />
