@@ -7,13 +7,13 @@ import styles from './page.module.css';
 export default async function Home() {
   return (
     <>
-      <AvatarsBackground />
       <article className={styles.home__container}>
         <Card width="min">
           <h3>About</h3>
           <About />
         </Card>
       </article>
+      <AvatarsBackground />
     </>
   );
 }

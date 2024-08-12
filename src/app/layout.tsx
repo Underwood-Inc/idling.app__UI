@@ -50,7 +50,6 @@ export default function RootLayout({
 
       <body className={inter.className}>
         <Header />
-
         <main>
           <Suspense fallback={<Loader />}>
             <PaginationProvider>
@@ -58,7 +57,6 @@ export default function RootLayout({
             </PaginationProvider>
           </Suspense>
         </main>
-
         <Footer />
       </body>
     </html>

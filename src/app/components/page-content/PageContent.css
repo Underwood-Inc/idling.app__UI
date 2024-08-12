@@ -1,4 +1,4 @@
 .page-content__section {
   flex-direction: column;
-  max-width: calc(80vw - 3rem);
+  max-width: calc(80vw - 5rem);
 }
