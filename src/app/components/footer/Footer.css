@@ -8,6 +8,8 @@
   max-height: 10rem;
   height: 5rem;
   z-index: 10;
+  display: flex;
+  justify-content: center;
 }
 
 .footer__app-version {

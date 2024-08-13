@@ -177,8 +177,8 @@ h6 {
 
 aside {
   position: absolute;
-  top: 0;
-  right: 0;
+  top: 20rem;
+  right: 2.3rem;
   width: calc(20vw - 3rem);
   max-height: 80vh;
 }
@@ -272,8 +272,8 @@ section {
 }
 
 main {
-  position: relative;
   margin: 2rem;
+  margin-bottom: 7rem;
   flex-direction: column;
   height: inherit;
   justify-content: flex-start;

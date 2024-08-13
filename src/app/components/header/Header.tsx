@@ -1,4 +1,3 @@
-'use server';
 import Nav from '../nav/Nav';
 import './Header.css';
 

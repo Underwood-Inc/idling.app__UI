@@ -1,3 +1,12 @@
+.avatar__background-container {
+  pointer-events: none;
+  position: fixed;
+  top: 0;
+  height: 100%;
+  max-width: 100%;
+  z-index: -2;
+  overflow: hidden;
+}
 .avatar__background {
   position: absolute;
   width: 100%;
@@ -6,15 +15,6 @@
   overflow: hidden;
   top: 0;
   left: 0;
-}
-.avatar__background-container {
-  pointer-events: none;
-  position: absolute;
-  top: 0;
-  height: 100%;
-  /* transform: translateY(-200px); */
-  max-width: 100%;
-  z-index: -1;
 }
 .avatar__background_avatar {
   z-index: 0;
