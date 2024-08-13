@@ -177,8 +177,8 @@ h6 {
 
 aside {
   position: absolute;
-  top: 0;
-  right: 0;
+  top: 20rem;
+  right: 2.3rem;
   width: calc(20vw - 3rem);
   max-height: 80vh;
 }
@@ -250,14 +250,13 @@ a:hover {
 
 html,
 body {
-  height: 100%;
   max-width: 100vw;
-  overflow: hidden;
 }
 
 body {
   color: rgb(var(--foreground-rgb));
   background-color: rgb(21, 21, 21);
+  overflow: auto;
 }
 
 article,
@@ -273,8 +272,8 @@ section {
 }
 
 main {
-  position: relative;
   margin: 2rem;
+  margin-bottom: 7rem;
   flex-direction: column;
   height: inherit;
   justify-content: flex-start;

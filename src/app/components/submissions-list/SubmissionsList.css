@@ -12,6 +12,7 @@
   min-height: 100px;
   width: 100%;
   overflow: auto;
+  overflow-x: hidden;
 }
 
 .submission__wrapper a,

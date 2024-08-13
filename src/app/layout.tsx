@@ -3,6 +3,7 @@ import { Inter } from 'next/font/google';
 import { Suspense } from 'react';
 import { PaginationProvider } from '../lib/state/PaginationContext';
 import { ShouldUpdateProvider } from '../lib/state/ShouldUpdateContext';
+import { AvatarsBackground } from './components/avatars-background/AvatarsBackground';
 import Footer from './components/footer/Footer';
 import Header from './components/header/Header';
 import Loader from './components/loader/Loader';
@@ -49,8 +50,11 @@ export default function RootLayout({
       />
 
       <body className={inter.className}>
-        <Header />
+        <Suspense fallback={<Loader />}>
+          <AvatarsBackground />
+        </Suspense>
 
+        <Header />
         <main>
           <Suspense fallback={<Loader />}>
             <PaginationProvider>
@@ -58,7 +62,6 @@ export default function RootLayout({
             </PaginationProvider>
           </Suspense>
         </main>
-
         <Footer />
       </body>
     </html>
