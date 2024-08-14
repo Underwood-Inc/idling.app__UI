@@ -1,17 +1,54 @@
-.filter-bar__filter-name {
+.filter-bar__container {
+  width: calc(80vw - 5rem);
+}
+
+.filter-bar__filter {
+  width: 100%;
+}
+
+.filter-bar__filter-name-container {
   display: flex;
   flex-direction: row;
   align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  min-width: 100%;
+  width: 100%;
+  max-height: 20rem;
+  height: auto;
+  overflow-y: auto;
+  padding-top: 1rem;
+  padding-right: 1rem;
 }
 
-.filter-bar__filter-value:not(:last-of-type) {
+.filter-bar__filter-name,
+.filter-bar__filter-value-container {
+  margin-bottom: 1rem;
+}
+
+.filter-bar__filter-value-container:not(:last-of-type) {
   margin-right: 1rem;
 }
 
 .filter-bar__filter-value {
   font-size: 1.4rem;
   color: var(--brand-quinary--dark);
-  padding: 0.2em;
+  padding: 0.4em;
   background-color: var(--brand-tertiary);
   border-radius: var(--border-radius);
+}
+
+@media (max-width: 961px) {
+  /* tablet, landscape iPad, lo-res laptops ands desktops */
+  .filter-bar__container {
+    width: 100%;
+    min-width: 100%;
+  }
+}
+@media (min-width: 1025px) {
+  /* big landscape tablets, laptops, and desktops */
+  .filter-bar__container {
+    width: calc(80vw - 5rem);
+    min-width: calc(80vw - 5rem);
+  }
 }

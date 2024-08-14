@@ -39,7 +39,7 @@ export default function FilterBar() {
         const renderValues = () =>
           values.map((value) => {
             return (
-              <div key={value} className="filter-bar__filter-value">
+              <div key={value} className="filter-bar__filter-value-container">
                 <FilterLabel label={value} />
               </div>
             );
@@ -47,8 +47,9 @@ export default function FilterBar() {
 
         return (
           <div key={name} className="filter-bar__filter">
-            <div className="filter-bar__filter-name">
-              <p className="capitalize">{name}:</p>&nbsp;
+            <div className="filter-bar__filter-name-container">
+              <p className="capitalize filter-bar__filter-name">{name}:</p>
+              &nbsp;
               {renderValues()}
             </div>
           </div>
