@@ -26,6 +26,48 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 
 This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
 
+## Testing
+
+All code that can be tested via jest tests should be. Playwright will expand what is testable when added.
+
+Never select elements in a test by anything other than an accompanying test selector. This means that all elements that are being selected must have a `data-testid` attribute on them that is then used to query i.e. `screen.getByTestId('my-test-id')`.
+
+The NPM package jest-chain has been added to allow chaining expect methods. Only testing related to the about page has been added due to the rewrite of them coming later upon adding Playwright. As this will be a bit of a learning curve, refer to the [Playwright best practices](https://playwright.dev/docs/best-practices#generate-locators) page frequently/
+
+```tsx
+// About.test.tsx
+import { render, screen } from '@testing-library/react';
+import { NAV_PATHS } from '../../../lib/routes';
+import { ABOUT_PAGE_SELECTORS } from '../../../lib/utils/test-selectors/pages/about.selectors';
+import { About } from './About';
+
+describe('Page', () => {
+  it('renders the about page', () => {
+    render(<About />);
+
+    screen.findByRole('heading');
+
+    expect(screen.getByTestId(ABOUT_PAGE_SELECTORS.ROOT_LINK))
+      .toBeVisible()
+      .toBeEnabled()
+      .toHaveAttribute('href', NAV_PATHS.ROOT)
+      .not.toHaveAttribute('target', '_blank');
+
+    expect(screen.getByText('GitLab'))
+      .toBeVisible()
+      .toBeEnabled()
+      .toHaveAttribute('href', 'https://gitlab.com/underwood_inc/idling-app')
+      .toHaveAttribute('target', '_blank');
+
+    expect(screen.getByText('Discord'))
+      .toBeVisible()
+      .toBeEnabled()
+      .toHaveAttribute('href', 'https://discord.gg/mpThbx67J7')
+      .toHaveAttribute('target', '_blank');
+  });
+});
+```
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:
