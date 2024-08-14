@@ -1,5 +1,7 @@
 'use client';
+import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
+import { NAV_PATHS } from '../../../lib/routes';
 import { useFilters } from '../../../lib/state/FiltersContext';
 import { usePagination } from '../../../lib/state/PaginationContext';
 import { useShouldUpdate } from '../../../lib/state/ShouldUpdateContext';
@@ -29,6 +31,7 @@ export default function SubmissionsList({
   onlyMine?: boolean;
   filters?: Filter<PostFilters>[];
 }) {
+  const router = useRouter();
   const { state: filtersState } = useFilters();
   const { state: shouldUpdate, dispatch: dispatchShouldUpdate } =
     useShouldUpdate();
@@ -99,10 +102,17 @@ export default function SubmissionsList({
   }, [shouldUpdate]);
 
   useEffect(() => {
+    const latestFilters = filtersState.default?.filters.find(
+      (filter) => filter.name === 'tags'
+    )?.value;
+    const newRoute = `${NAV_PATHS.POSTS}${latestFilters ? `?tags=${latestFilters}` : ''}`;
+    router.push(newRoute);
+
     dispatchPagination({
       payload: { id: listId, page: 1 },
       type: 'SET_CURRENT_PAGE'
     });
+
     fetchSubmissions({
       ...getArgs(),
       currentPage: 1,

@@ -14,6 +14,7 @@
     "incremental": true,
     "baseUrl": ".",
     "types": ["@testing-library/jest-dom"],
+    "target": "ES6",
     "plugins": [
       {
         "name": "next"

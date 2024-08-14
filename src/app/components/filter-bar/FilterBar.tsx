@@ -1,4 +1,9 @@
+'use client';
+import { useFilters } from '../../../lib/state/FiltersContext';
+import { dedupeStringArray } from '../../../lib/utils/array/dedupe-string-array';
 import './FilterBar.css';
+import { FilterLabel } from './FilterLabel';
+import { getTagsFromSearchParams } from './utils/get-tags';
 export interface Filter<T extends string = string> {
   name: T;
   value: string;
@@ -14,11 +19,10 @@ export type Filters<
     Partial<DefaultSearchParamFilters> = Partial<DefaultSearchParamFilters>
 > = Partial<F>;
 
-function FilterLabel({ label }: { label: string }) {
-  return <p className="filter-bar__filter-value">{label}</p>;
-}
+export default function FilterBar() {
+  const { state } = useFilters();
+  const filters = state.default?.filters || [];
 
-export default async function FilterBar({ filters }: { filters?: Filter[] }) {
   if (!filters?.length) {
     return null;
   }
@@ -26,21 +30,20 @@ export default async function FilterBar({ filters }: { filters?: Filter[] }) {
   return (
     <article className="filter-bar__container">
       {filters.map(({ name, value }) => {
-        const values: string[] = [];
-
-        if (value.includes(',')) {
-          values.push(...value.split(','));
-        } else {
-          values.push(value);
-        }
+        const values = dedupeStringArray(getTagsFromSearchParams(value));
 
         const renderValues = () =>
-          values.map((value) => <FilterLabel key={value} label={value} />);
+          values.map((value) => (
+            <div key={value} className="filter-bar__filter-value">
+              <FilterLabel label={value} />
+            </div>
+          ));
 
         return (
           <div key={name} className="filter-bar__filter">
             <div className="filter-bar__filter-name">
-              <p className="capitalize">{name}:</p>&nbsp;{renderValues()}
+              <p className="capitalize">{name}:</p>&nbsp;
+              {renderValues()}
             </div>
           </div>
         );

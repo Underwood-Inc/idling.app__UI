@@ -1,0 +1,21 @@
+.badge__container {
+  position: relative;
+  display: inline-block;
+}
+
+.badge__content {
+  position: absolute;
+  top: -1em;
+  right: -1em;
+  background-color: var(--info);
+  color: white;
+  border-radius: 50%;
+  padding: 0.5em;
+  font-size: 1em;
+  min-width: 2em;
+  line-height: 0.5em;
+  min-height: 2em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

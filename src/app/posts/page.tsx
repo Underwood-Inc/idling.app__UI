@@ -12,8 +12,8 @@ import {
 import { AddSubmissionForm } from '../components/submission-forms/add-submission-form/AddSubmissionForm';
 // import SubmissionsList from '../components/submissions-list/SubmissionsList';
 import dynamic from 'next/dynamic';
-import { FiltersProvider } from '../../lib/state/FiltersContext';
 import Loader from '../components/loader/Loader';
+import { PageContainer } from '../components/page-container/PageContainer';
 import styles from './page.module.css';
 
 const LazyPostsList = dynamic(
@@ -35,13 +35,13 @@ export default async function Posts({
     : [];
 
   return (
-    <FiltersProvider value={{ default: { filters, id: 'default' } }}>
+    <PageContainer>
       <PageHeader>
         <h4 className={styles.posts__header}>posts</h4>
 
         <AddSubmissionForm isAuthorized={!!session} />
         <br />
-        <FilterBar filters={filters} />
+        <FilterBar />
       </PageHeader>
 
       <PageContent>
@@ -62,7 +62,7 @@ export default async function Posts({
             </article>
           </section>
 
-          <section className={styles.posts__mine}>
+          {/* <section className={styles.posts__mine}>
             <article>
               <h5 className={styles.posts__header}>mine</h5>
 
@@ -76,7 +76,7 @@ export default async function Posts({
                 </Suspense>
               </Card>
             </article>
-          </section>
+          </section> */}
         </section>
       </PageContent>
 
@@ -85,6 +85,6 @@ export default async function Posts({
           <RecentTags />
         </Suspense>
       </aside>
-    </FiltersProvider>
+    </PageContainer>
   );
 }

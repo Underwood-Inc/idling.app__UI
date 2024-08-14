@@ -17,6 +17,7 @@ type PaginationActionPayload = {
 };
 
 type PaginationAction =
+  | { type: 'RESET_STATE' }
   | { type: 'SET_CURRENT_PAGE'; payload: PaginationActionPayload }
   | { type: 'SET_TOTAL_PAGES'; payload: PaginationActionPayload };
 
@@ -61,6 +62,8 @@ const paginationReducer = (
           totalPages: action.payload.page
         }
       };
+    case 'RESET_STATE':
+      return initialState;
     default:
       return state;
   }
