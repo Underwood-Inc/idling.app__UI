@@ -210,28 +210,14 @@ input {
   color: var(--font__color--primary);
 }
 
-input:hover {
-  background-color: var(--brand-tertiary--dark);
-}
-
 button {
   background-color: var(--brand-primary);
   color: var(--font__color--primary);
   border-radius: 0.5rem; /* var(--border-radius) is to much */
 }
 
-button:hover:not(:disabled) {
-  cursor: pointer;
-  background-color: var(--brand-primary--dark);
-  color: var(--brand-tertiary);
-}
-
 button:disabled {
   background-color: lightgray;
-}
-
-button:disabled:hover {
-  cursor: not-allowed;
 }
 
 sup p,
@@ -246,10 +232,6 @@ code {
 a {
   text-decoration: none;
   color: var(--brand-primary);
-}
-a:hover {
-  text-decoration: underline;
-  color: var(--brand-primary--dark);
 }
 
 html,
@@ -367,10 +349,7 @@ section:not(:last-of-type) {
 [class*='--jc-revert-layer'] {
   justify-content: revert-layer;
 }
-[aria-disabled='true'],
-[aria-disabled='true']:hover,
-[aria-disabled='true']:hover button,
-[aria-disabled='true']:hover a {
+[aria-disabled='true'] {
   cursor: not-allowed;
   pointer-events: none;
   opacity: 0.5;
@@ -382,6 +361,35 @@ section:not(:last-of-type) {
 }
 .cursor--default {
   cursor: default;
+}
+
+@media (hover: hover) {
+  input:hover {
+    background-color: var(--brand-tertiary--dark);
+  }
+
+  button:hover:not(:disabled) {
+    cursor: pointer;
+    background-color: var(--brand-primary--dark);
+    color: var(--brand-tertiary);
+  }
+
+  button:disabled:hover {
+    cursor: not-allowed;
+  }
+
+  a:hover {
+    text-decoration: underline;
+    color: var(--brand-primary--dark);
+  }
+
+  [aria-disabled='true']:hover,
+  [aria-disabled='true']:hover button,
+  [aria-disabled='true']:hover a {
+    cursor: not-allowed;
+    pointer-events: none;
+    opacity: 0.5;
+  }
 }
 
 @media (prefers-color-scheme: dark) {

@@ -15,12 +15,6 @@
   border-radius: var(--border-radius);
 }
 
-/* Handle on hover */
-::-webkit-scrollbar-thumb:hover {
-  background: var(--brand-primary--dark);
-  cursor: pointer;
-}
-
 .card {
   padding: 1rem 1.2rem;
   border-radius: var(--border-radius);
@@ -61,9 +55,6 @@
 .card a {
   color: var(--brand-primary--dark);
 }
-.card a:hover {
-  color: var(--brand-primary);
-}
 
 .card span {
   display: inline-block;
@@ -87,21 +78,15 @@
 
 /* Enable hover only on non-touch devices */
 @media (hover: hover) and (pointer: fine) {
-  /* .card:hover {
-    background: rgba(var(--card-rgb), 0.1);
-    border: 1px solid rgba(var(--card-border-rgb), 0.15);
+  /* Handle on hover */
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--brand-primary--dark);
+    cursor: pointer;
   }
-  .card:hover,
-  .card:hover sup {
-    color: var(--brand-tertiary);
-  }
+
   .card a:hover {
     color: var(--brand-primary);
   }
-
-  .card:hover span {
-    transform: translateX(4px);
-  } */
 }
 
 @media (prefers-reduced-motion) {

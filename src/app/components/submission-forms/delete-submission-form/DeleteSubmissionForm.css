@@ -4,6 +4,8 @@
   position: relative;
 }
 
-.submission__delete-btn:hover:not(:disabled) {
-  background-color: var(--brand-quaternary--dark);
+@media (hover: hover) {
+  .submission__delete-btn:hover:not(:disabled) {
+    background-color: var(--brand-quaternary--dark);
+  }
 }
