@@ -30,14 +30,20 @@ export default function FilterBar() {
   return (
     <article className="filter-bar__container">
       {filters.map(({ name, value }) => {
+        if (!value) {
+          return null;
+        }
+
         const values = dedupeStringArray(getTagsFromSearchParams(value));
 
         const renderValues = () =>
-          values.map((value) => (
-            <div key={value} className="filter-bar__filter-value">
-              <FilterLabel label={value} />
-            </div>
-          ));
+          values.map((value) => {
+            return (
+              <div key={value} className="filter-bar__filter-value">
+                <FilterLabel label={value} />
+              </div>
+            );
+          });
 
         return (
           <div key={name} className="filter-bar__filter">
