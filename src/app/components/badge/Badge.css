@@ -1,6 +1,10 @@
-.badge__container {
+.badge__container,
+.badge__container--hover {
   position: relative;
   display: inline-block;
+}
+.badge__container--hover .badge__content {
+  display: none;
 }
 
 .badge__content {
@@ -22,6 +26,11 @@
   justify-content: center;
 }
 
-.badge__content:hover {
-  background-color: var(--brand-tertiary--dark);
+@media (hover: hover) {
+  .badge__container--hover:hover .badge__content {
+    display: flex;
+  }
+  .badge__content:hover {
+    background-color: var(--brand-tertiary--dark);
+  }
 }
