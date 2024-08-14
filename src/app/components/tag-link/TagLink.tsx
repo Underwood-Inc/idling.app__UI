@@ -26,7 +26,7 @@ export function TagLink({
               name: 'tags',
               value: tagSearchParams
                 ? `${tagSearchParams},${tag.toLowerCase()}`
-                : tag
+                : tag.toLowerCase()
             }
           ],
           id: 'default'
