@@ -30,7 +30,7 @@ export function FilterLabel({ label }: { label: string }) {
   };
 
   return (
-    <BadgeWrapper badgeContent="X" onClick={onClick}>
+    <BadgeWrapper badgeContent="&#10005;" onClick={onClick}>
       <p className="filter-bar__filter-value">{label}</p>
     </BadgeWrapper>
   );

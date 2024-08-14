@@ -35,6 +35,8 @@
 
   --seal-brown: #61210fff;
   --black-bean: #44170bff;
+  /* complimentary of --black-bean */
+  --sea-of-stars: #0b3844;
 
   /* status */
   --info: var(--cornflower-blue);
@@ -62,6 +64,8 @@
   --font-mono: ui-monospace, Menlo, Monaco, 'Cascadia Mono', 'Segoe UI Mono',
     'Roboto Mono', 'Oxygen Mono', 'Ubuntu Monospace', 'Source Code Pro',
     'Fira Mono', 'Droid Sans Mono', 'Courier New', monospace;
+  --font__color--primary: var(--black-bean);
+  --font__color--secondary: var(--brand-tertiary);
 
   --foreground-rgb: 0, 0, 0;
   --background-start-rgb: 214, 219, 220;
@@ -203,7 +207,7 @@ caption {
 
 input {
   background-color: var(--brand-tertiary);
-  color: var(--brand-quinary--dark);
+  color: var(--font__color--primary);
 }
 
 input:hover {
@@ -212,7 +216,7 @@ input:hover {
 
 button {
   background-color: var(--brand-primary);
-  color: var(--brand-quinary--dark);
+  color: var(--font__color--primary);
   border-radius: 0.5rem; /* var(--border-radius) is to much */
 }
 
