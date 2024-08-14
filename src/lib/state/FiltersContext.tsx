@@ -1,6 +1,7 @@
 'use client';
 import React, { createContext, ReactNode, useContext, useReducer } from 'react';
 import { Filter } from '../../app/components/filter-bar/FilterBar';
+import { dedupeStringArray } from '../utils/array/dedupe-string-array';
 
 type FiltersState = {
   [x: string]:
@@ -16,10 +17,12 @@ type FiltersActionPayload = {
   filters: Filter[];
 };
 
-type FiltersAction = {
-  type: 'SET_CURRENT_FILTERS';
-  payload: FiltersActionPayload;
-};
+type FiltersAction =
+  | {
+      type: 'SET_CURRENT_FILTERS';
+      payload: FiltersActionPayload;
+    }
+  | { type: 'RESET_STATE' };
 
 const initialState: FiltersState = {
   default: {
@@ -40,6 +43,16 @@ const filtersReducer = (
   state: FiltersState,
   action: FiltersAction
 ): FiltersState => {
+  const dedupedFilters: Filter<string>[] | undefined =
+    action.type === 'SET_CURRENT_FILTERS'
+      ? action.payload.filters.map(({ name, value }) => {
+          return {
+            name,
+            value: dedupeStringArray(value.split(',')).join(',')
+          };
+        })
+      : undefined;
+
   switch (action.type) {
     case 'SET_CURRENT_FILTERS':
       return {
@@ -47,9 +60,11 @@ const filtersReducer = (
         [action.payload.id]: {
           ...state[action.payload.id],
           id: action.payload.id,
-          filters: action.payload.filters
+          filters: dedupedFilters || action.payload.filters
         }
       };
+    case 'RESET_STATE':
+      return initialState;
     default:
       return state;
   }
@@ -68,6 +83,9 @@ export const FiltersProvider: React.FC<{
   );
 };
 
+/**
+ * Upon dispatching a new and different filter payload, `<SubmissionsList />` will refetch
+ */
 export const useFilters = () => {
   const context = useContext(FiltersContext);
   if (!context) {

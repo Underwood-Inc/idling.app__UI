@@ -60,10 +60,11 @@ export async function getSubmissions({
     response.pagination.totalRecords = submissionsCount[0].count;
     response.result = submissions;
   } else if (!onlyMine) {
-    const tags = filters
-      .find((filter) => filter.name === 'tags')
-      ?.value.split(',')
-      .map((value) => `#${value}`); // prepend a #. values come from URL so they are excluded lest the URL break expected params behavior
+    const tagFilters = filters.find((filter) => filter.name === 'tags')?.value;
+
+    const tags = tagFilters
+      ? tagFilters.split(',').map((value) => `#${value}`) || []
+      : null; // prepend a #. values come from URL so they are excluded lest the URL break expected params behavior
     const submissionsCount =
       await sql`SELECT COUNT(*) FROM submissions ${tags ? sql`where tags && ${tags}` : sql``}`;
 

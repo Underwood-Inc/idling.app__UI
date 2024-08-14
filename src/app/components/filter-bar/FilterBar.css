@@ -11,7 +11,7 @@
 .filter-bar__filter-value {
   font-size: 1.4rem;
   color: var(--brand-quinary--dark);
-  padding: 0.4rem;
+  padding: 0.2em;
   background-color: var(--brand-tertiary);
   border-radius: var(--border-radius);
 }

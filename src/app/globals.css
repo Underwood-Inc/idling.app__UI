@@ -373,6 +373,13 @@ section:not(:last-of-type) {
 }
 /* END LAYOUT */
 
+.cursor--pointer {
+  cursor: pointer;
+}
+.cursor--default {
+  cursor: default;
+}
+
 @media (prefers-color-scheme: dark) {
   html {
     color-scheme: dark;
@@ -413,7 +420,7 @@ section:not(:last-of-type) {
     display: none;
   }
 }
-@media (min-width:1025px) {
+@media (min-width: 1025px) {
   /* big landscape tablets, laptops, and desktops */
   aside {
     display: block;

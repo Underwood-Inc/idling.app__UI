@@ -17,7 +17,7 @@ export default async function Nav() {
         <h3>Idling.app</h3>
       </Link>
 
-      <div className="nav__content">
+      <Navbar.Body className="nav__content">
         <Navbar.Content justify="center" className="nav__links">
           <NavPaths />
         </Navbar.Content>
@@ -37,7 +37,7 @@ export default async function Nav() {
             )}
           </Navbar.Item>
         </Navbar.Content>
-      </div>
+      </Navbar.Body>
     </Navbar>
   );
 }

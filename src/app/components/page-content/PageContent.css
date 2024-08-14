@@ -3,7 +3,7 @@
   max-width: calc(80vw - 5rem);
 }
 
-@media (max-width:961px)  {
+@media (max-width: 961px) {
   /* tablet, landscape iPad, lo-res laptops ands desktops */
   .page-content__section {
     max-width: 100%;
