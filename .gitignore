@@ -37,4 +37,5 @@ next-env.d.ts
 
 # versioning
 package-lock.json
+yarn.lock
 *storybook.log
