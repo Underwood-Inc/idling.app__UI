@@ -28,11 +28,11 @@ This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-opti
 
 ## Testing
 
-All code that can be tested via jest tests should be. Cypress/Storybook (which to use is TBD) will expand what is testable when added.
+All code that can be tested via jest tests should be. Playwright will expand what is testable when added.
 
 Never select elements in a test by anything other than an accompanying test selector. This means that all elements that are being selected must have a `data-testid` attribute on them that is then used to query i.e. `screen.getByTestId('my-test-id')`.
 
-The NPM package jest-chain has been added to allow chaining expect methods.
+The NPM package jest-chain has been added to allow chaining expect methods. Only testing related to the about page has been added due to the rewrite of them coming later upon adding Playwright. As this will be a bit of a learning curve, refer to the [Playwright best practices](https://playwright.dev/docs/best-practices#generate-locators) page frequently/
 
 ```tsx
 // About.test.tsx
