@@ -7,7 +7,7 @@ on:
 env:
   AUTH_TRUST_HOST: true
   NEXTAUTH_URL: http://localhost:3000
-  NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
+  AUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
 jobs:
   test:
     timeout-minutes: 60
@@ -23,6 +23,8 @@ jobs:
         run: yarn playwright install --with-deps
       - name: Run Playwright tests
         run: yarn playwright test
+      - name: Run Jest tests
+        run: yarn test
       - uses: actions/upload-artifact@v4
         if: always()
         with:
