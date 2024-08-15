@@ -34,17 +34,17 @@ Never select elements in a test by anything other than an accompanying test sele
 
 The NPM package jest-chain has been added to allow chaining expect methods within jest .test test files (not in playwright .spec test files).
 
-### Jest - when to write
+### Jest
 
 Unit tests for all utility functions must be written via jest.
 
-### React testing library (RTL) - when to write [***.test.tsx]
+### Component & Integration via React testing library (RTL) w/jest assertions [***.test.tsx]
 
-Individual component files (.tsx) within `components/` must have an accompanying `***.test.tsx` files. These tests should cover as many scenarios as possible for the component on it's own.
+Individual component files (.tsx) within `components/` must have an accompanying `***.test.tsx` files. These tests should cover as many scenarios as possible for the standalone component.
 
-Page component files must have an accompanying `***.test.tsx` files. Thes tests are **integration** tests which must test a combination of multiple components in relation to one another. Additionally, these tests should have some user event actions to simulate real-world user events and outcomes that can then have assertions made against (i.e. clicking a button changes it to be in a loading state).
+Page component files must have an accompanying `***.test.tsx` files. These tests are **integration** tests which must test a combination of multiple components in relation to one another. Additionally, these tests should have some user event actions to simulate real-world user events and outcomes that can then have assertions made against (i.e. clicking a button changes it to be in a loading state).
 
-### Playwright - when to write [***.spec.ts]
+### Playwright [***.spec.ts]
 
 Playwright tests are where anything else that can't be tested in unit, component, or integration tests are tested. These are end-to-end (e2e) tests. Playwright tests are scoped at the browser (including type) level. This project is configured to run all playwright tests (`***.spec.ts`) on major browser and mobile devices. Additionally, playwright tests are where accessibility analysis/assertions must be made via the utility method `checkA11y`.
 
