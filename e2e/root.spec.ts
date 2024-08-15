@@ -6,10 +6,14 @@ import { checkA11y } from './utils/check-a11y';
 test.beforeEach(async ({ page }) => {
   await page.goto('http://localhost:3000/');
 
-  await checkA11y(page);
+  // eslint-disable-next-line no-unused-vars
+  const results = await checkA11y(page);
+  // expect(results.violations).toEqual([]);
 });
 test.afterEach(async ({ page }) => {
-  await checkA11y(page);
+  // eslint-disable-next-line no-unused-vars
+  const results = await checkA11y(page);
+  // expect(results.violations).toEqual([]);
 });
 
 test('loads root page', async ({ page }) => {
@@ -23,6 +27,5 @@ test('loads root page', async ({ page }) => {
     page.getByTestId(ABOUT_PAGE_SELECTORS.ROOT_LINK)
   ).not.toHaveAttribute('target', '_blank');
 
-  // expect(accessibilityScanResults.violations).toEqual([]);
   // await expect(page).toHaveTitle(/Playwright/);
 });

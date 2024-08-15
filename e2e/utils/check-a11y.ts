@@ -18,4 +18,6 @@ export async function checkA11y(page: Page) {
       console.warn(`violation #${index} nodes:`, violation.nodes);
     });
   }
+
+  return accessibilityScanResults;
 }
