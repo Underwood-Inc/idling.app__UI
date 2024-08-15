@@ -1,7 +1,12 @@
 .recent-tags__container {
+  height: inherit;
   width: 100%;
   overflow: auto;
   border-radius: var(--border-radius);
+
+  max-height: calc(100vh / 1.5);
+  min-height: 20rem;
+  height: 100%;
 }
 
 .recent-tags__list {

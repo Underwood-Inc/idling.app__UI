@@ -28,6 +28,7 @@
   min-height: 300px;
   display: flex;
   flex-direction: column;
+  height: 100%;
 }
 
 .card.full {
