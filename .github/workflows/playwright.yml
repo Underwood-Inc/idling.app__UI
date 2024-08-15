@@ -7,6 +7,7 @@ on:
 env:
   AUTH_TRUST_HOST: true
   NEXTAUTH_URL: http://localhost:3000
+  NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
 jobs:
   test:
     timeout-minutes: 60
