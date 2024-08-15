@@ -1,10 +1,22 @@
 import { expect, test } from '@playwright/test';
 import { NAV_PATHS } from '../src/lib/routes';
 import { ABOUT_PAGE_SELECTORS } from '../src/lib/utils/test-selectors/pages/about.selectors';
+import { checkA11y } from './utils/check-a11y';
 
-test('loads root page', async ({ page }) => {
+test.beforeEach(async ({ page }) => {
   await page.goto('http://localhost:3000/');
 
+  // eslint-disable-next-line no-unused-vars
+  const results = await checkA11y(page);
+  // expect(results.violations).toEqual([]);
+});
+test.afterEach(async ({ page }) => {
+  // eslint-disable-next-line no-unused-vars
+  const results = await checkA11y(page);
+  // expect(results.violations).toEqual([]);
+});
+
+test('loads root page', async ({ page }) => {
   // Expect a title "to contain" a substring.
   await expect(page.getByTestId(ABOUT_PAGE_SELECTORS.ROOT_LINK)).toBeVisible();
   await expect(page.getByTestId(ABOUT_PAGE_SELECTORS.ROOT_LINK)).toBeEnabled();
@@ -17,15 +29,3 @@ test('loads root page', async ({ page }) => {
 
   // await expect(page).toHaveTitle(/Playwright/);
 });
-
-// test('get started link', async ({ page }) => {
-//   await page.goto('https://playwright.dev/');
-
-//   // Click the get started link.
-//   await page.getByRole('link', { name: 'Get started' }).click();
-
-//   // Expects page to have a heading with the name of Installation.
-//   await expect(
-//     page.getByRole('heading', { name: 'Installation' })
-//   ).toBeVisible();
-// });

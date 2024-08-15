@@ -32,41 +32,25 @@ All code that can be tested via jest tests should be. Playwright will expand wha
 
 Never select elements in a test by anything other than an accompanying test selector. This means that all elements that are being selected must have a `data-testid` attribute on them that is then used to query i.e. `screen.getByTestId('my-test-id')`.
 
-The NPM package jest-chain has been added to allow chaining expect methods. Only testing related to the about page has been added due to the rewrite of them coming later upon adding Playwright. As this will be a bit of a learning curve, refer to the [Playwright best practices](https://playwright.dev/docs/best-practices#generate-locators) page frequently/
+The NPM package jest-chain has been added to allow chaining expect methods within jest .test test files (not in playwright .spec test files).
 
-```tsx
-// About.test.tsx
-import { render, screen } from '@testing-library/react';
-import { NAV_PATHS } from '../../../lib/routes';
-import { ABOUT_PAGE_SELECTORS } from '../../../lib/utils/test-selectors/pages/about.selectors';
-import { About } from './About';
+### Jest
 
-describe('Page', () => {
-  it('renders the about page', () => {
-    render(<About />);
+Unit tests for all utility functions must be written via jest.
 
-    screen.findByRole('heading');
+### Component & Integration via React testing library (RTL) w/jest assertions [***.test.tsx]
 
-    expect(screen.getByTestId(ABOUT_PAGE_SELECTORS.ROOT_LINK))
-      .toBeVisible()
-      .toBeEnabled()
-      .toHaveAttribute('href', NAV_PATHS.ROOT)
-      .not.toHaveAttribute('target', '_blank');
+Individual component files (.tsx) within `components/` must have an accompanying `***.test.tsx` files. These tests should cover as many scenarios as possible for the standalone component.
 
-    expect(screen.getByText('GitLab'))
-      .toBeVisible()
-      .toBeEnabled()
-      .toHaveAttribute('href', 'https://gitlab.com/underwood_inc/idling-app')
-      .toHaveAttribute('target', '_blank');
+Page component files must have an accompanying `***.test.tsx` files. These tests are **integration** tests which must test a combination of multiple components in relation to one another. Additionally, these tests should have some user event actions to simulate real-world user events and outcomes that can then have assertions made against (i.e. clicking a button changes it to be in a loading state).
 
-    expect(screen.getByText('Discord'))
-      .toBeVisible()
-      .toBeEnabled()
-      .toHaveAttribute('href', 'https://discord.gg/mpThbx67J7')
-      .toHaveAttribute('target', '_blank');
-  });
-});
-```
+### Playwright [***.spec.ts]
+
+Playwright tests are where anything else that can't be tested in unit, component, or integration tests are tested. These are end-to-end (e2e) tests. Playwright tests are scoped at the browser (including type) level. This project is configured to run all playwright tests (`***.spec.ts`) on major browser and mobile devices. Additionally, playwright tests are where accessibility analysis/assertions must be made via the utility method `checkA11y`.
+
+> While e2e tests can cover _everything_, you must still write unit, component, & integration tests separately due to the highly variable nature of web browsers.
+
+When it comes to accessibility testing, `@axe-core/playwright` has been added. This package is used to produce a utility method that accepts a page argument to analyze and will output any violations with the offending nodes defined.
 
 ## Learn More
 
