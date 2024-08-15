@@ -72,7 +72,7 @@ export default defineConfig({
   /* Run your local dev server before starting the tests */
   webServer: {
     command:
-      'echo "======================building..."; yarn build; yarn start; echo ""======================testing"',
+      'echo "======================building..."; yarn build; yarn start;',
     stdout: 'pipe',
     url: 'http://127.0.0.1:3000',
     reuseExistingServer: !process.env.CI
