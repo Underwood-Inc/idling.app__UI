@@ -7,6 +7,7 @@ const createJestConfig = nextJest({
 
 // Add any custom config to be passed to Jest
 const customJestConfig = {
+  testPathIgnorePatterns: ['<rootDir>/e2e', '\\.spec\\.ts$'],
   setupFilesAfterEnv: ['jest-chain', '<rootDir>/jest.setup.js'],
   testEnvironment: 'jsdom'
 };
