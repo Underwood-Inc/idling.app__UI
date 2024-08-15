@@ -7,11 +7,12 @@ on:
 env:
   AUTH_TRUST_HOST: true
   NEXTAUTH_URL: http://localhost:3000
-  AUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
+  NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
 jobs:
   test:
     timeout-minutes: 60
     runs-on: ubuntu-latest
+    environment: actions
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
