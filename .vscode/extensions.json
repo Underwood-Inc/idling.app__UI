@@ -10,6 +10,8 @@
     "esbenp.prettier-vscode",
     "waderyan.gitblame",
     "ms-ossdata.vscode-postgresql",
-    "christian-kohler.npm-intellisense"
+    "christian-kohler.npm-intellisense",
+    "github.vscode-github-actions",
+    "ms-playwright.playwright"
   ]
 }
