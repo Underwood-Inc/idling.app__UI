@@ -52,11 +52,13 @@ export default async function Posts({
 
               <Card className={styles.card} width="full">
                 <Suspense fallback={<Loader />}>
-                  <LazyPostsList
-                    listId="main"
-                    filters={filters}
-                    providerAccountId={session?.user?.providerAccountId || ''}
-                  />
+                  {session?.user?.providerAccountId && (
+                    <LazyPostsList
+                      listId="main"
+                      filters={filters}
+                      providerAccountId={session.user.providerAccountId}
+                    />
+                  )}
                 </Suspense>
               </Card>
             </article>
