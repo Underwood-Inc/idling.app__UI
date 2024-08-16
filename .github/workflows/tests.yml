@@ -75,8 +75,7 @@ jobs:
       - name: Run migrations
         run: psql -f ./src/lib/scripts/000-init.sql postgresql://postgres:postgres@localhost:5432/postgres
       - name: Install dependencies
-        run: npm ci
-        working-directory: ./postgres
+        run: npm install -g yarn && yarn
       - name: postgres client
         run: node client.js
         working-directory: ./postgres
