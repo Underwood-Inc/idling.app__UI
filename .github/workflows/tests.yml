@@ -14,6 +14,7 @@ env:
   PGHOST: 127.0.0.1
   PGPORT: 5432
   PGUSER: 'postgres'
+  POSTGRES_INITDB_ARGS: '--auth-host=scram-sha-256'
 jobs:
   test:
     timeout-minutes: 60
@@ -33,6 +34,11 @@ jobs:
           POSTGRES_DB: mydatabase
           PGHOST: 127.0.0.1
           PGPORT: 5432
+          # The hostname used to communicate with the PostgreSQL service container
+          POSTGRES_HOST: localhost
+          # The default PostgreSQL port
+          POSTGRES_PORT: 5432
+          POSTGRES_INITDB_ARGS: '--auth-host=scram-sha-256'
           DATABASE_URL: postgres://postgres:postgres@localhost:5432/mydatabase
         # Set health checks to wait until postgres has started
         options: >-
@@ -62,6 +68,11 @@ jobs:
           POSTGRES_DB: mydatabase
           PGHOST: 127.0.0.1
           PGPORT: 5432
+          # The hostname used to communicate with the PostgreSQL service container
+          POSTGRES_HOST: localhost
+          # The default PostgreSQL port
+          POSTGRES_PORT: 5432
+          POSTGRES_INITDB_ARGS: '--auth-host=scram-sha-256'
           DATABASE_URL: postgres://postgres:postgres@localhost:5432/mydatabase
         run: IS_TEST=1 yarn playwright test
       - name: Run Jest tests
