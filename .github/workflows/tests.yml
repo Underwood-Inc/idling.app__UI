@@ -15,11 +15,8 @@ env:
   PGPORT: 5432
   PGSQL_USER: 'runner'
 jobs:
-  # Label of the runner job
-  runner-job:
+  test:
     timeout-minutes: 60
-
-    # You must use a Linux environment when using service containers or container jobs
     runs-on: ubuntu-latest
     environment: actions
     # Service containers to run with `runner-job`
@@ -40,10 +37,6 @@ jobs:
         ports:
           # Maps tcp port 5432 on service container to the host
           - 5432:5432
-  test:
-    timeout-minutes: 60
-    runs-on: ubuntu-latest
-    environment: actions
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
