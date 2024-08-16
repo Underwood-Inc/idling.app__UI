@@ -5,6 +5,7 @@ import { NAV_PATHS } from '../../../lib/routes';
 import { useFilters } from '../../../lib/state/FiltersContext';
 import { usePagination } from '../../../lib/state/PaginationContext';
 import { useShouldUpdate } from '../../../lib/state/ShouldUpdateContext';
+import { SUBMISSIONS_LIST_SELECTORS } from '../../../lib/utils/test-selectors/components/submissions-list.selectors';
 import { PostFilters } from '../../posts/page';
 import Empty from '../empty/Empty';
 import { Filter } from '../filter-bar/FilterBar';
@@ -134,7 +135,10 @@ export default function SubmissionsList({
   };
 
   return (
-    <article className="submissions-list__container">
+    <article
+      data-testid={SUBMISSIONS_LIST_SELECTORS.CONTAINER}
+      className="submissions-list__container"
+    >
       <div className="submissions-list__header">
         <Pagination id={listId} onPageChange={onPageChange} />
       </div>

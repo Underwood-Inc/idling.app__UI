@@ -1,5 +1,6 @@
 'use client';
 import { usePagination } from '../../../lib/state/PaginationContext';
+import { PAGINATION_SELECTORS } from '../../../lib/utils/test-selectors/components/pagination.selectors';
 import './Pagination.css';
 
 function Pagination({
@@ -63,10 +64,11 @@ function Pagination({
           onClick={handlePrevious}
           disabled={currentPage === 1}
           className="pagination__previous-button"
+          data-testid={PAGINATION_SELECTORS.PREVIOUS}
         >
           Previous
         </button>
-        <p>
+        <p data-testid={PAGINATION_SELECTORS.STATE}>
           Page {currentPage} of {totalPages}
         </p>
       </div>
@@ -75,6 +77,7 @@ function Pagination({
         onClick={handleNext}
         disabled={currentPage === totalPages}
         className="pagination__next-button"
+        data-testid={PAGINATION_SELECTORS.NEXT}
       >
         Next
       </button>
