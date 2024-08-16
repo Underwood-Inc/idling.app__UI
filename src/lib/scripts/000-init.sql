@@ -12,7 +12,7 @@ CREATE TABLE submissions (
   tags text[]
 );
 
-ALTER USER postgres WITH PASSWORD postgres;
+ALTER USER postgres WITH PASSWORD 'postgres';
 
 begin;
 set local timezone='UTC';
