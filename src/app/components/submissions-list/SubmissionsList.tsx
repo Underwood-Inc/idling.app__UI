@@ -146,53 +146,54 @@ export default function SubmissionsList({
       {loading && <Loader color="black" />}
 
       {!loading && (
-        <ol className="submission__list">
+        <>
           {response?.data?.result.length === 0 && (
             <Empty label="No posts to show" />
           )}
-
-          {!!response?.data?.result.length &&
-            response?.data.result.map(
-              ({
-                submission_id,
-                submission_name,
-                author,
-                author_id,
-                submission_datetime
-              }) => {
-                const canDelete = isAuthorized(author_id);
-                const createdDate = new Date(
+          <ol className="submission__list">
+            {!!response?.data?.result.length &&
+              response?.data.result.map(
+                ({
+                  submission_id,
+                  submission_name,
+                  author,
+                  author_id,
                   submission_datetime
-                ).toLocaleDateString();
+                }) => {
+                  const canDelete = isAuthorized(author_id);
+                  const createdDate = new Date(
+                    submission_datetime
+                  ).toLocaleDateString();
 
-                return (
-                  <li key={submission_id} className="submission__wrapper">
-                    <p>
-                      {author && (
-                        <span className="submission__author">
-                          {author}:&nbsp;
+                  return (
+                    <li key={submission_id} className="submission__wrapper">
+                      <p>
+                        {author && (
+                          <span className="submission__author">
+                            {author}:&nbsp;
+                          </span>
+                        )}
+                        <span>
+                          <TagLink value={submission_name} />
                         </span>
-                      )}
-                      <span>
-                        <TagLink value={submission_name} />
-                      </span>
-                      <span className="submission__datetime">
-                        {createdDate}
-                      </span>
-                    </p>
+                        <span className="submission__datetime">
+                          {createdDate}
+                        </span>
+                      </p>
 
-                    {canDelete && (
-                      <DeleteSubmissionForm
-                        id={submission_id}
-                        name={submission_name}
-                        isAuthorized={!!providerAccountId}
-                      />
-                    )}
-                  </li>
-                );
-              }
-            )}
-        </ol>
+                      {canDelete && (
+                        <DeleteSubmissionForm
+                          id={submission_id}
+                          name={submission_name}
+                          isAuthorized={!!providerAccountId}
+                        />
+                      )}
+                    </li>
+                  );
+                }
+              )}
+          </ol>
+        </>
       )}
     </article>
   );

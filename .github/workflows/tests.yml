@@ -11,12 +11,11 @@ env:
   AUTHJS_SESSION_TOKEN: ${{ secrets.AUTHJS_SESSION_TOKEN }}
   AUTHJS_CALLBACK_URL: ${{ secrets.AUTHJS_CALLBACK_URL }}
   AUTHJS_CSRF_TOKEN: ${{ secrets.AUTHJS_CSRF_TOKEN }}
-  PGSQL_HOST: 127.0.0.1
   PGHOST: 127.0.0.1
   PGPORT: 5432
-  PGSQL_USER: 'postgres'
   PGUSER: 'postgres'
-  PGDATABASE: 'testing'
+  POSTGRES_HOST_AUTH_METHOD: md5
+  POSTGRES_INITDB_ARGS: --auth-host=md5
 jobs:
   test:
     timeout-minutes: 60
@@ -30,7 +29,20 @@ jobs:
         image: postgres
         # Provide the password for postgres
         env:
-          POSTGRES_PASSWORD: postgres
+          PGUSER: 'postgres'
+          POSTGRES_USER: 'postgres'
+          POSTGRES_PASSWORD: 'postgres'
+          PGPASSWORD: 'postgres'
+          POSTGRES_DB: mydatabase
+          PGHOST: 127.0.0.1
+          PGPORT: 5432
+          # The hostname used to communicate with the PostgreSQL service container
+          POSTGRES_HOST: localhost
+          # The default PostgreSQL port
+          POSTGRES_PORT: 5432
+          POSTGRES_HOST_AUTH_METHOD: md5
+          POSTGRES_INITDB_ARGS: --auth-host=md5
+          DATABASE_URL: postgres://postgres:postgres@localhost:5432/mydatabase
         # Set health checks to wait until postgres has started
         options: >-
           --health-cmd pg_isready
@@ -53,12 +65,21 @@ jobs:
         run: yarn playwright install --with-deps
       - name: Run Playwright tests
         env:
+          PGUSER: 'postgres'
+          POSTGRES_USER: 'postgres'
+          POSTGRES_PASSWORD: 'postgres'
+          PGPASSWORD: 'postgres'
+          POSTGRES_DB: 'mydatabase'
+          PGHOST: 127.0.0.1
+          PGPORT: 5432
           # The hostname used to communicate with the PostgreSQL service container
           POSTGRES_HOST: localhost
           # The default PostgreSQL port
           POSTGRES_PORT: 5432
-          DATABASE_URL: postgres://postgres:postgres@localhost:5432/testing?sslmode=disable
-        run: IS_TEST=1 yarn playwright test
+          POSTGRES_HOST_AUTH_METHOD: md5
+          POSTGRES_INITDB_ARGS: --auth-host=md5
+          DATABASE_URL: postgres://postgres:postgres@localhost:5432/mydatabase
+        run: IS_CI=1 yarn playwright test
       - name: Run Jest tests
         run: yarn test:ci
       - uses: actions/upload-artifact@v4
