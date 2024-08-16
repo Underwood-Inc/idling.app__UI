@@ -1,6 +1,6 @@
 CREATE ROLE runner WITH LOGIN PASSWORD 'postgres';
 
-create database mydatabase;
+create database mydatabase with owner = postgres;
 
 \c mydatabase;
 
@@ -11,6 +11,8 @@ CREATE TABLE submissions (
   author_id varchar(255),
   tags text[]
 );
+
+ALTER USER postgres WITH PASSWORD password;
 
 begin;
 set local timezone='UTC';
