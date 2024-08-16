@@ -1,6 +1,6 @@
 {
   "name": "idling.app",
-  "version": "0.7.1",
+  "version": "0.7.2",
   "private": true,
   "engines": {
     "node": "20.x"
@@ -20,7 +20,7 @@
     "test:ci": "jest --ci",
     "e2e": "yarn playwright test --ui",
     "e2e:headed": "yarn playwright test --headed",
-    "e2e:headless": "yarn playwright test --config=",
+    "e2e:headless": "yarn playwright test",
     "e2e:reports": "yarn playwright show-report",
     "e2e:gen": "yarn playwright codegen"
   },
@@ -32,6 +32,7 @@
     "@neondatabase/serverless": "^0.9.4",
     "@vercel/postgres": "^0.9.0",
     "buffer": "^6.0.3",
+    "dotenv": "^16.4.5",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-prettier": "^5.2.1",
     "next": "14.2.5",

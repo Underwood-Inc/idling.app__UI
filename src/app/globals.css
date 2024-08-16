@@ -123,17 +123,17 @@
     'Roboto Mono', 'Oxygen Mono', 'Ubuntu Monospace', 'Source Code Pro',
     'Fira Mono', 'Droid Sans Mono', 'Courier New', monospace;
 
-  /* --font-color--primary: var(--black-bean);
-  --font-color--secondary: var(--brand-tertiary); */
+  --font-color--primary: var(--black-bean);
+  --font-color--secondary: var(--brand-tertiary);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --color-primary: #e8d4d7;
+    /* --color-primary: #e8d4d7;
     --color-secondary: #ddb49e;
     --color-tertiary: #d0b476;
     --color-quaternary: #8c9760;
-    --color-quinary: #647a67;
+    --color-quinary: #647a67; */
   }
 }
 
@@ -181,6 +181,15 @@ h6 {
   font-size: 1rem;
 }
 
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  color: white;
+}
+
 aside {
   position: absolute;
   top: 20rem;
@@ -210,13 +219,13 @@ caption {
 
 input {
   background-color: var(--brand-tertiary);
-  color: var(--dark-bg__text-color--primary);
+  color: black;
 }
 
 button {
   background-color: var(--brand-primary);
   color: var(--font-color--primary);
-  border-radius: 0.5rem; /* var(--border-radius) is to much */
+  border-radius: 0.5rem;
 }
 
 button:disabled {
@@ -232,9 +241,14 @@ code {
   font-family: var(--font-mono);
 }
 
+a h1,
+a h2,
+a h3,
+a h4,
+a h5,
+a h6,
 a {
   text-decoration: none;
-  /* color: var(--anchor__dark-bg--tertiary); */
   color: var(--brand-primary);
 }
 

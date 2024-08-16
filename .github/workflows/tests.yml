@@ -8,22 +8,57 @@ env:
   AUTH_TRUST_HOST: true
   NEXTAUTH_URL: http://localhost:3000
   NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
+  AUTHJS_SESSION_TOKEN: ${{ secrets.AUTHJS_SESSION_TOKEN }}
+  AUTHJS_CALLBACK_URL: ${{ secrets.AUTHJS_CALLBACK_URL }}
+  AUTHJS_CSRF_TOKEN: ${{ secrets.AUTHJS_CSRF_TOKEN }}
+  PGSQL_HOST: 127.0.0.1
+  PGHOST: 127.0.0.1
+  PGPORT: 5432
+  PGSQL_USER: 'postgres'
+  PGUSER: 'postgres'
+  PGDATABASE: 'testing'
 jobs:
   test:
     timeout-minutes: 60
     runs-on: ubuntu-latest
     environment: actions
+    # Service containers to run with `runner-job`
+    services:
+      # Label used to access the service container
+      postgres:
+        # Docker Hub image
+        image: postgres
+        # Provide the password for postgres
+        env:
+          POSTGRES_PASSWORD: postgres
+        # Set health checks to wait until postgres has started
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          # Maps tcp port 5432 on service container to the host
+          - 5432:5432
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: lts/*
+      - name: Run migrations
+        run: psql -f ./src/lib/scripts/000-init.sql postgresql://postgres:postgres@localhost:5432/postgres
       - name: Install dependencies
         run: npm install -g yarn && yarn
       - name: Install Playwright Browsers
         run: yarn playwright install --with-deps
       - name: Run Playwright tests
-        run: yarn playwright test
+        env:
+          # The hostname used to communicate with the PostgreSQL service container
+          POSTGRES_HOST: localhost
+          # The default PostgreSQL port
+          POSTGRES_PORT: 5432
+          DATABASE_URL: postgres://postgres:postgres@localhost:5432/testing?sslmode=disable
+        run: IS_TEST=1 yarn playwright test
       - name: Run Jest tests
         run: yarn test:ci
       - uses: actions/upload-artifact@v4
