@@ -40,7 +40,7 @@ jobs:
         with:
           node-version: lts/*
       - name: Run migrations
-        run: psql -f src/app/lib/scripts/000-init.sql postgresql://postgres:postgres@localhost:5432/postgres
+        run: ls; psql -f ./src/app/lib/scripts/000-init.sql postgresql://postgres:postgres@localhost:5432/postgres
       - name: Install dependencies
         run: npm install -g yarn && yarn
       - name: Install Playwright Browsers
