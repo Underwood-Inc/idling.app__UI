@@ -2026,7 +2026,7 @@
   dependencies:
     "@types/mdx" "^2.0.0"
 
-"@neondatabase/serverless@^0.9.3", "@neondatabase/serverless@^0.9.4":
+"@neondatabase/serverless@^0.9.3":
   version "0.9.4"
   resolved "https://registry.npmjs.org/@neondatabase/serverless/-/serverless-0.9.4.tgz"
   integrity sha512-D0AXgJh6xkf+XTlsO7iwE2Q1w8981E1cLCPAALMU2YKtkF/1SF6BiAzYARZFYo175ON+b1RNIy9TdSFHm5nteg==
