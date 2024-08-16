@@ -15,6 +15,8 @@ env:
   PGPORT: 5432
   PGUSER: 'postgres'
   POSTGRES_DB: testing
+  POSTGRES_USER: postgres
+  POSTGRES_PASSWORD: postgres
 jobs:
   test:
     timeout-minutes: 60
@@ -26,11 +28,6 @@ jobs:
       postgres:
         # Docker Hub image
         image: postgres
-        # Provide the password for postgres
-        env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: testing
         # Set health checks to wait until postgres has started
         options: >-
           --health-cmd pg_isready
@@ -53,9 +50,6 @@ jobs:
         run: yarn playwright install --with-deps
       - name: Run Playwright tests
         env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: testing
           DATABASE_URL: postgres://postgres:postgres@localhost:5432/testing
         run: IS_TEST=1 yarn playwright test
       - name: Run Jest tests
