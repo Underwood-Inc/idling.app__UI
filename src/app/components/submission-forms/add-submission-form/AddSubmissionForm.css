@@ -1,5 +1,6 @@
 .submission__form {
-  width: 75%;
+  width: 100%;
+  max-width: 1600px;
 }
 
 .submission__name-label {
