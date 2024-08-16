@@ -32,6 +32,7 @@ jobs:
           PGUSER: 'postgres'
           POSTGRES_USER: 'postgres'
           POSTGRES_PASSWORD: 'postgres'
+          PGPASSWORD: 'postgres'
           POSTGRES_DB: mydatabase
           PGHOST: 127.0.0.1
           PGPORT: 5432
@@ -67,6 +68,7 @@ jobs:
           PGUSER: 'postgres'
           POSTGRES_USER: 'postgres'
           POSTGRES_PASSWORD: 'postgres'
+          PGPASSWORD: 'postgres'
           POSTGRES_DB: 'mydatabase'
           PGHOST: 127.0.0.1
           PGPORT: 5432
