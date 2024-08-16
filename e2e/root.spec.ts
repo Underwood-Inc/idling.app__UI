@@ -6,14 +6,13 @@ import { checkA11y } from './utils/check-a11y';
 test.beforeEach(async ({ page }) => {
   await page.goto('http://localhost:3000/');
 
-  // eslint-disable-next-line no-unused-vars
   const results = await checkA11y(page);
-  // expect(results.violations).toEqual([]);
+  expect(results.violations).toEqual([]);
 });
+
 test.afterEach(async ({ page }) => {
-  // eslint-disable-next-line no-unused-vars
   const results = await checkA11y(page);
-  // expect(results.violations).toEqual([]);
+  expect(results.violations).toEqual([]);
 });
 
 test('loads root page', async ({ page }) => {

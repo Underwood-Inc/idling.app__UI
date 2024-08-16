@@ -1,10 +1,10 @@
 'use client';
-
 import { useSearchParams } from 'next/navigation';
 import React from 'react';
 import { FiltersProvider } from '../../../lib/state/FiltersContext';
 import { PostFilters } from '../../posts/page';
 import { Filter } from '../filter-bar/FilterBar';
+import './PageContainer.css';
 
 export function PageContainer({ children }: { children: React.ReactNode }) {
   const searchParams = useSearchParams();
@@ -16,7 +16,7 @@ export function PageContainer({ children }: { children: React.ReactNode }) {
 
   return (
     <FiltersProvider value={{ default: { filters, id: 'default' } }}>
-      {children}
+      <section className="page__container">{children}</section>
     </FiltersProvider>
   );
 }

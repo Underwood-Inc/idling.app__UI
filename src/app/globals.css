@@ -43,6 +43,7 @@
   --warning: var(--jonquil);
   --error: var(--chili-red);
 
+  /* fails WCAG contrast ratio when on background such as the card component which uses --cornsilk*/
   --brand-primary: var(--hunyadi-yellow);
   --brand-primary--dark: var(--dark-goldenrod);
 
@@ -57,6 +58,63 @@
 
   --brand-quinary: var(--seal-brown);
   --brand-quinary--dark: var(--black-bean);
+
+  /* wcag friendly colors - light to dark */
+  --color-primary: #c7522a;
+  --color-secondary: #e5c185;
+  --color-tertiary: #fbf2c4;
+  --color-quaternary: #74a892;
+  --color-quinary: #008585;
+  --anchor--on-card: #003d3d;
+  --anchor-hover--on-card: #e3ede9;
+
+  --font-color--primary: #2a150d;
+  --font-color--secondary: #e8d4d7;
+
+  --light-background--primary: #fff8e1;
+  --light-background--secondary: #ffe4b5;
+  --light-background--tertiary: #ffdab9;
+  --light-background--quaternary: #ffefd5;
+  --light-background--quinary: #fff5ee;
+
+  --dark-background--primary: #8b4513;
+  --dark-background--secondary: #a0522d;
+  --dark-background--tertiary: #d2691e;
+  --dark-background--quaternary: #cd853f;
+  --dark-background--quinary: #8b0000;
+
+  --light-bg__text-color--primary: #000000;
+  --light-bg__text-color--secondary: #8b4513;
+  --light-bg__text-color--tertiary: #a0522d;
+  --light-bg__text-color--quaternary: #d2691e;
+  --light-bg__text-color--quinary: #8b0000;
+
+  --dark-bg__text-color--primary: #ffffff;
+  --dark-bg__text-color--secondary: #fff8e1;
+  --dark-bg__text-color--tertiary: #ffe4b5;
+  --dark-bg__text-color--quaternary: #ffdab9;
+  --dark-bg__text-color--quinary: #ffefd5;
+
+  --anchor__light-bg--primary: #87581c;
+  --anchor__light-bg--secondary: #a0522d;
+  --anchor__light-bg--tertiary: #d2691e;
+  --anchor__light-bg--quaternary: #8b0000;
+
+  --anchor__light-bg--primary-hover: #a0522d;
+  --anchor__light-bg--secondary-hover: #d2691e;
+  --anchor__light-bg--tertiary-hover: #cd853f;
+  --anchor__light-bg--quaternary-hover: #ff8c00;
+
+  --anchor__dark-bg--primary: #ffe4b5;
+  --anchor__dark-bg--secondary: #ffdab9;
+  --anchor__dark-bg--tertiary: #ffefd5;
+  --anchor__dark-bg--quaternary: #fff5ee;
+
+  --anchor__dark-bg--primary-hover: #ffdab9;
+  --anchor__dark-bg--secondary-hover: #ffefd5;
+  --anchor__dark-bg--tertiary-hover: #fff5ee;
+  --anchor__dark-bg--quaternary-hover: #fafad2;
+
   /* END PALATTES REGION */
 
   --max-width: 1100px;
@@ -64,74 +122,18 @@
   --font-mono: ui-monospace, Menlo, Monaco, 'Cascadia Mono', 'Segoe UI Mono',
     'Roboto Mono', 'Oxygen Mono', 'Ubuntu Monospace', 'Source Code Pro',
     'Fira Mono', 'Droid Sans Mono', 'Courier New', monospace;
-  --font__color--primary: var(--black-bean);
-  --font__color--secondary: var(--brand-tertiary);
 
-  --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 214, 219, 220;
-  --background-end-rgb: 255, 255, 255;
-
-  --primary-glow: conic-gradient(
-    from 180deg at 50% 50%,
-    #16abff33 0deg,
-    #0885ff33 55deg,
-    #54d6ff33 120deg,
-    #0071ff33 160deg,
-    transparent 360deg
-  );
-  --secondary-glow: radial-gradient(
-    rgba(255, 255, 255, 1),
-    rgba(255, 255, 255, 0)
-  );
-
-  --tile-start-rgb: 239, 245, 249;
-  --tile-end-rgb: 228, 232, 233;
-  --tile-border: conic-gradient(
-    #00000080,
-    #00000040,
-    #00000030,
-    #00000020,
-    #00000010,
-    #00000010,
-    #00000080
-  );
-
-  --callout-rgb: 238, 240, 241;
-  --callout-border-rgb: 172, 175, 176;
-  --card-rgb: 180, 185, 188;
-  --card-border-rgb: 131, 134, 135;
+  /* --font-color--primary: var(--black-bean);
+  --font-color--secondary: var(--brand-tertiary); */
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --foreground-rgb: 255, 255, 255;
-    --background-start-rgb: 0, 0, 0;
-    --background-end-rgb: 0, 0, 0;
-
-    --primary-glow: radial-gradient(rgba(1, 65, 255, 0.4), rgba(1, 65, 255, 0));
-    --secondary-glow: linear-gradient(
-      to bottom right,
-      rgba(1, 65, 255, 0),
-      rgba(1, 65, 255, 0),
-      rgba(1, 65, 255, 0.3)
-    );
-
-    --tile-start-rgb: 2, 13, 46;
-    --tile-end-rgb: 2, 5, 19;
-    --tile-border: conic-gradient(
-      #ffffff80,
-      #ffffff40,
-      #ffffff30,
-      #ffffff20,
-      #ffffff10,
-      #ffffff10,
-      #ffffff80
-    );
-
-    --callout-rgb: 20, 20, 20;
-    --callout-border-rgb: 108, 108, 108;
-    --card-rgb: 100, 100, 100;
-    --card-border-rgb: 200, 200, 200;
+    --color-primary: #e8d4d7;
+    --color-secondary: #ddb49e;
+    --color-tertiary: #d0b476;
+    --color-quaternary: #8c9760;
+    --color-quinary: #647a67;
   }
 }
 
@@ -208,12 +210,12 @@ caption {
 
 input {
   background-color: var(--brand-tertiary);
-  color: var(--font__color--primary);
+  color: var(--dark-bg__text-color--primary);
 }
 
 button {
   background-color: var(--brand-primary);
-  color: var(--font__color--primary);
+  color: var(--font-color--primary);
   border-radius: 0.5rem; /* var(--border-radius) is to much */
 }
 
@@ -232,6 +234,7 @@ code {
 
 a {
   text-decoration: none;
+  /* color: var(--anchor__dark-bg--tertiary); */
   color: var(--brand-primary);
 }
 
@@ -241,7 +244,6 @@ body {
 }
 
 body {
-  color: rgb(var(--foreground-rgb));
   background-color: rgb(21, 21, 21);
   overflow: auto;
 }
@@ -259,8 +261,6 @@ section {
 }
 
 main {
-  margin: 2rem;
-  margin-bottom: 7rem;
   flex-direction: column;
   height: inherit;
   justify-content: flex-start;
@@ -381,7 +381,7 @@ section:not(:last-of-type) {
 
   a:hover {
     text-decoration: underline;
-    color: var(--brand-primary--dark);
+    color: var(--anchor__light-bg--quaternary-hover);
   }
 
   [aria-disabled='true']:hover,

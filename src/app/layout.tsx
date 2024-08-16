@@ -50,19 +50,19 @@ export default function RootLayout({
       />
 
       <body className={inter.className}>
-        <Suspense fallback={<Loader />}>
-          <AvatarsBackground />
-        </Suspense>
-
-        <Header />
         <main>
+          <Suspense fallback={<Loader />}>
+            <AvatarsBackground />
+          </Suspense>
+
+          <Header />
           <Suspense fallback={<Loader />}>
             <PaginationProvider>
               <ShouldUpdateProvider>{children}</ShouldUpdateProvider>
             </PaginationProvider>
           </Suspense>
+          <Footer />
         </main>
-        <Footer />
       </body>
     </html>
   );

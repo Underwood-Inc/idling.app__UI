@@ -37,7 +37,7 @@ export default async function Posts({
   return (
     <PageContainer>
       <PageHeader>
-        <h4 className={styles.posts__header}>posts</h4>
+        <h2 className={styles.posts__header}>posts</h2>
 
         <AddSubmissionForm isAuthorized={!!session} />
         <br />

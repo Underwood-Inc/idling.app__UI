@@ -18,7 +18,7 @@
 .card {
   padding: 1rem 1.2rem;
   border-radius: var(--border-radius);
-  background: var(--brand-tertiary);
+  background: var(--light-background--quaternary);
   border: 1px solid rgba(var(--card-border-rgb), 0);
   transition:
     background 200ms,
@@ -29,6 +29,7 @@
   display: flex;
   flex-direction: column;
   height: 100%;
+  color: var(--light-bg__text-color--primary);
 }
 
 .card.full {
@@ -53,10 +54,6 @@
   color: rgb(2, 2, 2);
 }
 
-.card a {
-  color: var(--brand-primary--dark);
-}
-
 .card span {
   display: inline-block;
   transition: transform 200ms;
@@ -77,6 +74,10 @@
   word-break: break-word;
 }
 
+.card a {
+  color: var(--anchor__light-bg--primary);
+}
+
 /* Enable hover only on non-touch devices */
 @media (hover: hover) and (pointer: fine) {
   /* Handle on hover */
@@ -86,7 +87,7 @@
   }
 
   .card a:hover {
-    color: var(--brand-primary);
+    color: var(--anchor__light-bg--quaternary-hover);
   }
 }
 

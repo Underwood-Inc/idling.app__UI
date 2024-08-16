@@ -13,7 +13,7 @@ export async function RecentTags() {
     <article className="recent-tags__container">
       <Card width="full">
         <FancyBorder>
-          <h4>Recent Tags (3 months)</h4>
+          <h3>Recent Tags (3 months)</h3>
 
           {recentTags.tags.length > 0 && (
             <ol className="recent-tags__list">
@@ -39,7 +39,7 @@ export function RecentTagsLoader() {
     <article className="recent-tags__container">
       <Card width="full">
         <FancyBorder>
-          <h4>Recent Tags (3 months)</h4>
+          <h3>Recent Tags (3 months)</h3>
           <Loader label="" color="black" />
         </FancyBorder>
       </Card>
