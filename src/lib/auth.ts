@@ -17,8 +17,8 @@ export const {
     max: 20,
     idleTimeoutMillis: 30000,
     connectionTimeoutMillis: 2000,
-    port: 5432 || 443,
-    ssl: !process.env.IS_TEST
+    port: 5432 || 443
+    // ssl: !process.env.IS_TEST
   });
 
   return {
