@@ -12,8 +12,11 @@ env:
   AUTHJS_CALLBACK_URL: ${{ secrets.AUTHJS_CALLBACK_URL }}
   AUTHJS_CSRF_TOKEN: ${{ secrets.AUTHJS_CSRF_TOKEN }}
   PGSQL_HOST: 127.0.0.1
+  PGHOST: 127.0.0.1
   PGPORT: 5432
-  PGSQL_USER: 'runner'
+  PGSQL_USER: 'postgres'
+  PGUSER: 'postgres'
+  PGDATABASE: 'testing'
 jobs:
   test:
     timeout-minutes: 60
