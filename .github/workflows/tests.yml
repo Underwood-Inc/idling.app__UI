@@ -14,7 +14,7 @@ env:
   PGHOST: 127.0.0.1
   PGPORT: 5432
   PGUSER: 'postgres'
-  PGDATABASE: 'testing'
+  POSTGRES_DB: testing
 jobs:
   test:
     timeout-minutes: 60
@@ -30,6 +30,7 @@ jobs:
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: testing
         # Set health checks to wait until postgres has started
         options: >-
           --health-cmd pg_isready
@@ -54,6 +55,7 @@ jobs:
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: testing
           DATABASE_URL: postgres://postgres:postgres@localhost:5432/testing?sslmode=disable
         run: IS_TEST=1 yarn playwright test
       - name: Run Jest tests
