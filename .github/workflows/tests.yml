@@ -30,9 +30,10 @@ jobs:
           PGUSER: 'postgres'
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: testing
+          POSTGRES_DB: mydatabase
           PGHOST: 127.0.0.1
           PGPORT: 5432
+          DATABASE_URL: postgres://postgres:postgres@localhost:5432/mydatabase
         # Set health checks to wait until postgres has started
         options: >-
           --health-cmd pg_isready
@@ -58,10 +59,10 @@ jobs:
           PGUSER: 'postgres'
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: testing
+          POSTGRES_DB: mydatabase
           PGHOST: 127.0.0.1
           PGPORT: 5432
-          DATABASE_URL: postgres://postgres:postgres@localhost:5432/testing
+          DATABASE_URL: postgres://postgres:postgres@localhost:5432/mydatabase
         run: IS_TEST=1 yarn playwright test
       - name: Run Jest tests
         run: yarn test:ci

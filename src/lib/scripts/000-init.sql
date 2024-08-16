@@ -1,8 +1,8 @@
 CREATE ROLE runner WITH LOGIN PASSWORD 'postgres';
 
-create database testing;
+create database mydatabase;
 
-\c testing;
+\c mydatabase;
 
 CREATE TABLE submissions (
   submission_id SERIAL NOT NULL PRIMARY KEY,
