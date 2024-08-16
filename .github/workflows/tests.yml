@@ -8,6 +8,9 @@ env:
   AUTH_TRUST_HOST: true
   NEXTAUTH_URL: http://localhost:3000
   NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
+  AUTHJS_SESSION_TOKEN: ${{ secrets.AUTHJS_SESSION_TOKEN }}
+  AUTHJS_CALLBACK_URL: ${{ secrets.AUTHJS_CALLBACK_URL }}
+  AUTHJS_CSRF_TOKEN: ${{ secrets.AUTHJS_CSRF_TOKEN }}
 jobs:
   test:
     timeout-minutes: 60
