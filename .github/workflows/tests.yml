@@ -79,7 +79,7 @@ jobs:
           POSTGRES_HOST_AUTH_METHOD: md5
           POSTGRES_INITDB_ARGS: --auth-host=md5
           DATABASE_URL: postgres://postgres:postgres@localhost:5432/mydatabase
-        run: IS_TEST=1 yarn playwright test
+        run: IS_CI=1 yarn playwright test
       - name: Run Jest tests
         run: yarn test:ci
       - uses: actions/upload-artifact@v4
