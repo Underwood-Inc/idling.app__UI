@@ -48,7 +48,7 @@ export default async function Posts({
         <section>
           <section className={styles.posts__all}>
             <article>
-              <h5 className={styles.posts__header}>all</h5>
+              <h3 className={styles.posts__header}>all</h3>
 
               <Card className={styles.card} width="full">
                 <Suspense fallback={<Loader />}>
@@ -66,7 +66,7 @@ export default async function Posts({
 
           {/* <section className={styles.posts__mine}>
             <article>
-              <h5 className={styles.posts__header}>mine</h5>
+              <h3 className={styles.posts__header}>mine</h3>
 
               <Card className={styles.card} width="full">
                 <Suspense fallback={<Loader />}>

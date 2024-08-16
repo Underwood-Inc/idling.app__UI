@@ -46,7 +46,13 @@ Page component files must have an accompanying `***.test.tsx` files. These tests
 
 ### Playwright [***.spec.ts]
 
-Playwright tests are where anything else that can't be tested in unit, component, or integration tests are tested. These are end-to-end (e2e) tests. Playwright tests are scoped at the browser (including type) level. This project is configured to run all playwright tests (`***.spec.ts`) on major browser and mobile devices. Additionally, playwright tests are where accessibility analysis/assertions must be made via the utility method `checkA11y`.
+Playwright tests are where anything else that can't be tested in unit, component, or integration tests are tested. These are end-to-end (e2e) tests.
+
+Playwright tests are scoped at the browser (including type) level. This project is configured to run all playwright tests (`***.spec.ts`) on major browser and mobile devices (chromium, firefox, webkit, mobile chrome, mobile safari, microsoft edge, & google chrome). Refer to the `playwright.config.ts` for more details.
+
+Playwright tests are where accessibility analysis/assertions must be made via the utility method `checkA11y`.
+
+To test a page that requires authentication, ensure you have the correct environment variables (refer to .env.local.example) and are using the testing utility method `testWithFakeAuth`.
 
 > While e2e tests can cover _everything_, you must still write unit, component, & integration tests separately due to the highly variable nature of web browsers.
 

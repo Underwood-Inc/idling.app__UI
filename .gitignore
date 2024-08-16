@@ -44,3 +44,5 @@ package-lock.json
 # pnpm breaks lint-staged
 pnpm-lock.yaml
 *storybook.log
+
+playwright/.auth
