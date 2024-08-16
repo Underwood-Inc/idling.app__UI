@@ -4,7 +4,7 @@ import { ABOUT_PAGE_SELECTORS } from '../src/lib/utils/test-selectors/pages/abou
 import { checkA11y } from './utils/check-a11y';
 
 test.beforeEach(async ({ page }) => {
-  await page.goto('http://localhost:3000/');
+  await page.goto('/');
 
   const results = await checkA11y(page);
   expect(results.violations).toEqual([]);
