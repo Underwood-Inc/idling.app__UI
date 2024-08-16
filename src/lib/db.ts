@@ -6,7 +6,7 @@ console.info(
   process.env.PGUSER,
   process.env.PGPORT,
   process.env.IS_TEST,
-  process.env.PGPASSWORD
+  process.env.PGPASSWORD?.length
 );
 
 const sql = postgres({
