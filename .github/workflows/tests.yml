@@ -46,6 +46,8 @@ jobs:
       - name: Install Playwright Browsers
         run: yarn playwright install --with-deps
       - name: Run Playwright tests
+        env:
+          DATABASE_URL: postgres://postgres:postgres@localhost:5432/testing?sslmode=disable
         run: IS_TEST=1 yarn playwright test
       - name: Run Jest tests
         run: yarn test:ci
