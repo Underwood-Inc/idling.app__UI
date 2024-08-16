@@ -1,3 +1,5 @@
+CREATE ROLE runner WITH LOGIN PASSWORD 'postgres';
+
 create database testing;
 
 \c testing;
