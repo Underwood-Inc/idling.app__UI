@@ -48,10 +48,3 @@
     min-width: 100%;
   }
 }
-@media (min-width: 1025px) {
-  /* big landscape tablets, laptops, and desktops */
-  .filter-bar__container {
-    width: calc(80vw - 5rem);
-    min-width: calc(80vw - 5rem);
-  }
-}
