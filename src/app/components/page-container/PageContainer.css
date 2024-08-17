@@ -1,5 +1,7 @@
 .page__container {
-  padding: 0 2rem 2rem 2rem;
-  margin-bottom: 7rem;
+  padding: 0 2rem 7rem 2rem;
   flex-direction: column;
+  margin-top: 2rem;
+  height: inherit;
+  justify-content: flex-start;
 }

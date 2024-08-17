@@ -1,6 +1,8 @@
 import { About } from './components/about/About';
 import { Card } from './components/card/Card';
 import { DiscordEmbed } from './components/discord-embed/DiscordEmbed';
+import FancyBorder from './components/fancy-border/FancyBorder';
+import { PageAside } from './components/page-aside/PageAside';
 import { PageContainer } from './components/page-container/PageContainer';
 import PageContent from './components/page-content/PageContent';
 import './globals.css';
@@ -18,9 +20,11 @@ export default async function Home() {
         </article>
       </PageContent>
 
-      <aside className={styles.discord_aside}>
-        <DiscordEmbed />
-      </aside>
+      <PageAside className={styles.discord_aside} bottomMargin={10}>
+        <FancyBorder>
+          <DiscordEmbed />
+        </FancyBorder>
+      </PageAside>
     </PageContainer>
   );
 }

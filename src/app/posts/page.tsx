@@ -13,6 +13,7 @@ import { AddSubmissionForm } from '../components/submission-forms/add-submission
 // import SubmissionsList from '../components/submissions-list/SubmissionsList';
 import dynamic from 'next/dynamic';
 import Loader from '../components/loader/Loader';
+import { PageAside } from '../components/page-aside/PageAside';
 import { PageContainer } from '../components/page-container/PageContainer';
 import styles from './page.module.css';
 
@@ -82,11 +83,11 @@ export default async function Posts({
         </section>
       </PageContent>
 
-      <aside className={styles.aside__recentTags}>
+      <PageAside className={styles.aside__recentTags}>
         <Suspense fallback={<RecentTagsLoader />}>
           <RecentTags />
         </Suspense>
-      </aside>
+      </PageAside>
     </PageContainer>
   );
 }
