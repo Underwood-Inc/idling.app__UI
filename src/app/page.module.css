@@ -58,6 +58,11 @@
 .discord_aside {
   min-height: 600px;
 }
+.aside__spacer {
+  content: '';
+  display: block;
+  height: 10rem;
+}
 
 /* Mobile */
 @media (max-width: 700px) {

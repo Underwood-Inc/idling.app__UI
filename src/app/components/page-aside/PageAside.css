@@ -1,0 +1,14 @@
+.page-aside__container {
+  position: absolute;
+  top: 20.7rem;
+  right: 2.3rem;
+  width: calc(20vw - 3rem);
+  max-height: calc(100vh / 1.5);
+  min-height: 20rem;
+}
+
+.page-aside__container aside {
+  position: relative;
+  top: 0;
+  right: 0;
+}
