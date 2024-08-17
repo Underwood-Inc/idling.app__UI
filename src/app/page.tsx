@@ -1,18 +1,26 @@
 import { About } from './components/about/About';
 import { Card } from './components/card/Card';
+import { DiscordEmbed } from './components/discord-embed/DiscordEmbed';
 import { PageContainer } from './components/page-container/PageContainer';
+import PageContent from './components/page-content/PageContent';
 import './globals.css';
 import styles from './page.module.css';
 
 export default async function Home() {
   return (
     <PageContainer>
-      <article className={styles.home__container}>
-        <Card width="min">
-          <h2>About</h2>
-          <About />
-        </Card>
-      </article>
+      <PageContent>
+        <article className={styles.home__container}>
+          <Card width="min">
+            <h2>About</h2>
+            <About />
+          </Card>
+        </article>
+      </PageContent>
+
+      <aside>
+        <DiscordEmbed />
+      </aside>
     </PageContainer>
   );
 }

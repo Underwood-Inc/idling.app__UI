@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import React from 'react';
 import { NAV_PATHS } from '../../../lib/routes';
-import { ABOUT_PAGE_SELECTORS } from '../../../lib/utils/test-selectors/pages/about.selectors';
+import { ABOUT_PAGE_SELECTORS } from '../../../lib/test-selectors/pages/about.selectors';
 import { DiscordLink } from '../discord-link/DiscordLink';
 import { GitLabLink } from '../gitlab-link/GitLabLink';
 

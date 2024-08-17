@@ -1,5 +1,5 @@
 import React from 'react';
-import { DISCORD_LINK_SELECTORS } from '../../../lib/utils/test-selectors/components/discord-link.selectors';
+import { DISCORD_LINK_SELECTORS } from '../../../lib/test-selectors/components/discord-link.selectors';
 
 export const DiscordLink: React.FC = () => {
   return (

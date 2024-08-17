@@ -1,6 +1,6 @@
 import { expect } from '@playwright/test';
-import { PAGINATION_SELECTORS } from '../src/lib/utils/test-selectors/components/pagination.selectors';
-import { SUBMISSIONS_LIST_SELECTORS } from '../src/lib/utils/test-selectors/components/submissions-list.selectors';
+import { PAGINATION_SELECTORS } from '../src/lib/test-selectors/components/pagination.selectors';
+import { SUBMISSIONS_LIST_SELECTORS } from '../src/lib/test-selectors/components/submissions-list.selectors';
 import { checkA11y } from './utils/check-a11y';
 import { testWithFakeAuth } from './utils/with-fake-auth';
 

@@ -82,7 +82,7 @@ export default async function Posts({
         </section>
       </PageContent>
 
-      <aside>
+      <aside className={styles.aside__recentTags}>
         <Suspense fallback={<RecentTagsLoader />}>
           <RecentTags />
         </Suspense>
