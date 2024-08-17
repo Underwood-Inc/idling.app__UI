@@ -1,5 +1,6 @@
 .filter-bar__container {
-  width: calc(80vw - 5rem);
+  width: 100%;
+  max-width: 1600px;
 }
 
 .filter-bar__filter {
@@ -22,7 +23,8 @@
 }
 
 .filter-bar__filter-name,
-.filter-bar__filter-value-container {
+.filter-bar__filter-value-container,
+.filter-bar__clear {
   margin-bottom: 1rem;
 }
 

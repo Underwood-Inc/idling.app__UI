@@ -5,9 +5,9 @@ import BadgeWrapper from '../badge/Badge';
 import './FilterBar.css';
 import { getTagsFromSearchParams } from './utils/get-tags';
 
-export function FilterLabel({ label }: { label: string }) {
+export function FilterLabel({ label, name }: { label: string; name: string }) {
   const searchParams = useSearchParams();
-  const tags = getTagsFromSearchParams(searchParams.get('tags') || '');
+  const tags = getTagsFromSearchParams(searchParams.get(name) || '');
   const { dispatch } = useFilters();
 
   const onClick = (event: React.MouseEvent<HTMLElement>) => {

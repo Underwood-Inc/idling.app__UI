@@ -4,3 +4,11 @@
   margin-bottom: 1rem;
   max-width: calc(80vw - 5rem);
 }
+
+@media (max-width: 961px) {
+  /* tablet, landscape iPad, lo-res laptops ands desktops */
+  .page-header__section {
+    width: 100%;
+    min-width: 100%;
+  }
+}

@@ -141,6 +141,9 @@
 .capitalize {
   text-transform: capitalize;
 }
+.uppercase {
+  text-transform: uppercase;
+}
 /* END TEXT MODIFIERS */
 
 /* START STATUS COLORS */

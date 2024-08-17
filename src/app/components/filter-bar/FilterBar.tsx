@@ -20,12 +20,27 @@ export type Filters<
 > = Partial<F>;
 
 export default function FilterBar() {
-  const { state } = useFilters();
+  const { state, dispatch } = useFilters();
   const filters = state.default?.filters || [];
 
   if (!filters?.length) {
     return null;
   }
+
+  const onClear = (event: React.MouseEvent<HTMLElement>, name: string) => {
+    dispatch({
+      payload: {
+        filters: [
+          {
+            name,
+            value: ''
+          }
+        ],
+        id: 'default'
+      },
+      type: 'SET_CURRENT_FILTERS'
+    });
+  };
 
   return (
     <article className="filter-bar__container">
@@ -40,7 +55,7 @@ export default function FilterBar() {
           values.map((value) => {
             return (
               <div key={value} className="filter-bar__filter-value-container">
-                <FilterLabel label={value} />
+                <FilterLabel name={name} label={value} />
               </div>
             );
           });
@@ -48,7 +63,14 @@ export default function FilterBar() {
         return (
           <div key={name} className="filter-bar__filter">
             <div className="filter-bar__filter-name-container">
-              <p className="capitalize filter-bar__filter-name">{name}:</p>
+              <button
+                className="filter-bar__clear"
+                onClick={(e) => onClear(e, name)}
+              >
+                Clear
+              </button>
+              &nbsp;
+              <p className="uppercase filter-bar__filter-name">{name}:</p>
               &nbsp;
               {renderValues()}
             </div>
