@@ -5,7 +5,7 @@ import { NAV_PATHS } from '../../../lib/routes';
 import { useFilters } from '../../../lib/state/FiltersContext';
 import { usePagination } from '../../../lib/state/PaginationContext';
 import { useShouldUpdate } from '../../../lib/state/ShouldUpdateContext';
-import { SUBMISSIONS_LIST_SELECTORS } from '../../../lib/utils/test-selectors/components/submissions-list.selectors';
+import { SUBMISSIONS_LIST_SELECTORS } from '../../../lib/test-selectors/components/submissions-list.selectors';
 import { PostFilters } from '../../posts/page';
 import Empty from '../empty/Empty';
 import { Filter } from '../filter-bar/FilterBar';

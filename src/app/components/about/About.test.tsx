@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import { NAV_PATHS } from '../../../lib/routes';
-import { ABOUT_PAGE_SELECTORS } from '../../../lib/utils/test-selectors/pages/about.selectors';
+import { ABOUT_PAGE_SELECTORS } from '../../../lib/test-selectors/pages/about.selectors';
 import { About } from './About';
 
 describe('Page', () => {

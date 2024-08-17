@@ -2,3 +2,7 @@
   text-transform: uppercase;
   margin-bottom: 1rem;
 }
+
+.aside__recentTags {
+  top: 21rem;
+}

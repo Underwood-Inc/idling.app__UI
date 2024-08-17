@@ -1,6 +1,6 @@
 'use client';
 import { usePagination } from '../../../lib/state/PaginationContext';
-import { PAGINATION_SELECTORS } from '../../../lib/utils/test-selectors/components/pagination.selectors';
+import { PAGINATION_SELECTORS } from '../../../lib/test-selectors/components/pagination.selectors';
 import './Pagination.css';
 
 function Pagination({

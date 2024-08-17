@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/react';
-import { DISCORD_LINK_SELECTORS } from '../../../lib/utils/test-selectors/components/discord-link.selectors';
+import { DISCORD_LINK_SELECTORS } from '../../../lib/test-selectors/components/discord-link.selectors';
 import { DiscordLink } from './DiscordLink';
 
 describe('Discord Link', () => {

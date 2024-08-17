@@ -1,9 +1,10 @@
 import AxeBuilder from '@axe-core/playwright';
 import { Page } from '@playwright/test';
 
-export async function checkA11y(page: Page) {
+export async function checkA11y(page: Page, excludeSelector: string = '') {
   const accessibilityScanResults = await new AxeBuilder({ page })
-    // .exclude(elementSelector)
+    .exclude(excludeSelector)
+    .exclude('iframe') // never analyze third party content
     .withTags([
       'wcag2a',
       'wcag2aa',
