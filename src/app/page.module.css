@@ -55,6 +55,10 @@
   position: relative;
 }
 
+.discord_aside {
+  min-height: 600px;
+}
+
 /* Mobile */
 @media (max-width: 700px) {
   .content {

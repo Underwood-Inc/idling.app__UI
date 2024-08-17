@@ -18,7 +18,7 @@ export default async function Home() {
         </article>
       </PageContent>
 
-      <aside>
+      <aside className={styles.discord_aside}>
         <DiscordEmbed />
       </aside>
     </PageContainer>
