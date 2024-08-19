@@ -1,5 +1,3 @@
-CREATE ROLE runner WITH LOGIN PASSWORD 'postgres';
-
 create database mydatabase with owner = postgres;
 
 \c mydatabase;

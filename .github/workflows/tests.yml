@@ -11,9 +11,9 @@ env:
   AUTHJS_SESSION_TOKEN: ${{ secrets.AUTHJS_SESSION_TOKEN }}
   AUTHJS_CALLBACK_URL: ${{ secrets.AUTHJS_CALLBACK_URL }}
   AUTHJS_CSRF_TOKEN: ${{ secrets.AUTHJS_CSRF_TOKEN }}
-  PGHOST: 127.0.0.1
-  PGPORT: 5432
-  PGUSER: 'postgres'
+  POSTGRES_HOST: 127.0.0.1
+  POSTGRES_PORT: 5432
+  POSTGRES_USER: 'postgres'
   POSTGRES_HOST_AUTH_METHOD: md5
   POSTGRES_INITDB_ARGS: --auth-host=md5
 jobs:
@@ -29,13 +29,9 @@ jobs:
         image: postgres
         # Provide the password for postgres
         env:
-          PGUSER: 'postgres'
           POSTGRES_USER: 'postgres'
           POSTGRES_PASSWORD: 'postgres'
-          PGPASSWORD: 'postgres'
           POSTGRES_DB: mydatabase
-          PGHOST: 127.0.0.1
-          PGPORT: 5432
           # The hostname used to communicate with the PostgreSQL service container
           POSTGRES_HOST: localhost
           # The default PostgreSQL port
@@ -65,13 +61,9 @@ jobs:
         run: yarn playwright install --with-deps
       - name: Run Playwright tests
         env:
-          PGUSER: 'postgres'
           POSTGRES_USER: 'postgres'
           POSTGRES_PASSWORD: 'postgres'
-          PGPASSWORD: 'postgres'
           POSTGRES_DB: 'mydatabase'
-          PGHOST: 127.0.0.1
-          PGPORT: 5432
           # The hostname used to communicate with the PostgreSQL service container
           POSTGRES_HOST: localhost
           # The default PostgreSQL port
