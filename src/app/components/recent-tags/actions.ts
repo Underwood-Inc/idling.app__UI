@@ -14,7 +14,17 @@ export async function getRecentTags(
   try {
     let subquerySql;
 
-    // cleanup once casting issues figured out for INTERVAL (if possible)
+    // TODO: cleanup once casting issues figured out for INTERVAL (if possible)
+    //
+    // return records where:
+    //   each row contains the following from the submissions table:
+    //     - a new column named 'distinct_tags' which gets all unique tags from the tags string[] column
+    //     - the submission_datetime for the accompanying unique tag found
+    //   and the records matched are from the current datetimestamp up to the last n days/hrs/months (interval)
+    //
+    // NOTE: unnest is used to destructure the string[] tags into something query friendly
+    // NOTE: due to the requirement of sorting based on datetime, the inclusion of submission_datetime will
+    // return duplicate records as the query will be specifically returning distinct on BOTH tags & submission_datetime
     switch (interval) {
       case 'days':
         subquerySql = sql`
@@ -39,6 +49,14 @@ export async function getRecentTags(
         break;
     }
 
+    // using the above constructed query, in a new subquery, remove duplicate tags found by selecting all columns
+    // where tags are unique from the above constructed query results
+    // using a subquery this way, we can then do a final order by the corresponding submission_datetime for the unqieu tags found
+    //
+    // NOTE: further testing required to determine which records get removed during deduping as a result of distinct.
+    //       - is it a FIFO situation?
+    //       - are the records from the above constructed query in an particular order, does this impact results in this final
+    //         awaited query?
     const result = await sql`
       select *
       from (
@@ -47,6 +65,7 @@ export async function getRecentTags(
       order by s.submission_datetime desc
     `;
 
+    // reduce the results from the postgresql query above into a string array
     if (result.length) {
       const tags = result.reduce((accumulator, current) => {
         accumulator.push(current.distinct_tags);
@@ -54,6 +73,7 @@ export async function getRecentTags(
         return accumulator;
       }, [] as Tags);
 
+      // safe parse using zod schema to prevent errors from being thrown so we can handle them in our own manner
       const { success, data, error } = tagSchema.safeParse(tags);
 
       if (success) {

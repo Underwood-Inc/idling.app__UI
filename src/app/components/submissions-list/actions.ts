@@ -27,6 +27,7 @@ export async function getSubmissions({
   filters: Filter[];
   page: number;
 }): Promise<PaginatedResponse<Submission>> {
+  // TODO: confirm fromRow & toRow can be deprecated. if so, remove them from pagination meta data
   let fromRow = 0;
   let toRow = 10;
   let submissions: Submission[] = [];
@@ -53,9 +54,12 @@ export async function getSubmissions({
     const submissionsCount =
       await sql`SELECT COUNT(*) FROM submissions WHERE author_id = ${providerAccountId}`;
 
+    // get all submissions for the currently logged in user
+    // pagination config of 10 records per page with an offset method to paginate
     submissions = await sql`
       SELECT * FROM submissions WHERE author_id = ${providerAccountId} ORDER BY submission_datetime DESC LIMIT 10 OFFSET ${(page - 1) * 10}
     `;
+    // TODO: add zod schema parsing for `submissions`
 
     response.pagination.totalRecords = submissionsCount[0].count;
     response.result = submissions;
@@ -69,11 +73,13 @@ export async function getSubmissions({
       await sql`SELECT COUNT(*) FROM submissions ${tags ? sql`where tags && ${tags}` : sql``}`;
 
     // select * where post contents contains any of the entries in the `tags` string array
+    // submissions are stored with the original contents unchanged and an additional column, tags (string[]), to store all tags
     // @> is a "has both/all" match
     // && is a "contains any" match
     submissions = await sql`
       SELECT * FROM submissions ${tags ? sql`WHERE tags && ${tags}` : sql``} ORDER BY submission_datetime DESC LIMIT 10 OFFSET ${(page - 1) * 10}
     `;
+    // TODO: add zod schema parsing for `submissions`
 
     response.pagination.totalRecords = submissionsCount[0].count;
 
