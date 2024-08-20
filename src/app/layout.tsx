@@ -21,6 +21,21 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const discordWidgetHTML = `<script
+          src="https://cdn.jsdelivr.net/npm/@widgetbot/crate@3"
+          async
+          defer
+        >
+          {
+            // @ts-expect-error
+            // eslint-disable-next-line no-undef
+            new Crate({
+              server: '1234783462335189080', // idling.app
+              channel: '1239616865559379969' // #activity
+            })
+          }
+        </script>`;
+
   return (
     <html lang="en">
       <link rel="icon" href="/favicon.ico" type="image/x-icon" sizes="16x16" />
@@ -63,6 +78,7 @@ export default function RootLayout({
           </Suspense>
           <Footer />
         </main>
+        <div dangerouslySetInnerHTML={{ __html: discordWidgetHTML }} />;
       </body>
     </html>
   );
