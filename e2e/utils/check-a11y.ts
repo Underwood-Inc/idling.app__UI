@@ -5,6 +5,7 @@ export async function checkA11y(page: Page, excludeSelector: string = '') {
   const accessibilityScanResults = await new AxeBuilder({ page })
     .exclude(excludeSelector)
     .exclude('iframe') // never analyze third party content
+    .exclude('crate > div') // never analyze third party content: discord widget
     .withTags([
       'wcag2a',
       'wcag2aa',
