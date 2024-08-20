@@ -43,7 +43,7 @@ export function TagLink({
     }
   };
 
-  // dynamic anchors, huzzah 
+  // dynamic anchors, huzzah
   const getHref = (tag: string) => {
     // ensure we do not construct URLs with duplicate tags
     if (!tagSearchParams?.includes(tag)) {
