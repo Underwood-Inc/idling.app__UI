@@ -63,6 +63,13 @@ export default function RootLayout({
           </Suspense>
           <Footer />
         </main>
+
+        <script src="https://cdn.jsdelivr.net/npm/@widgetbot/crate@3" async defer>
+          new Crate({
+              server: '1234783462335189080', // idling.app
+              channel: '1239616865559379969' // #activity
+          })
+        </script>
       </body>
     </html>
   );
