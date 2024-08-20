@@ -5,10 +5,15 @@ create database idling with owner = postgres;
 CREATE TABLE submissions (
   submission_id SERIAL NOT NULL PRIMARY KEY,
   submission_name VARCHAR(255),
-  submission_datetime timestampz NOT NULL,
+  submission_datetime VARCHAR(255) NOT NULL,
   author_id varchar(255),
   tags text[]
 );
+
+begin;
+set local timezone='UTC';
+alter table submissions alter column submission_datetime type timestamptz USING submission_datetime::timestamp with time zone;
+commit;
 
 CREATE TABLE verification_token
 (
