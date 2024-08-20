@@ -15,7 +15,7 @@ export const About: React.FC = () => {
         >
           idling.app
         </Link>
-        &nbsp;is a a new game being developed in the&nbsp;
+        &nbsp;is a new game being developed in the&nbsp;
         <a href="https://godotengine.org/" target="_blank">
           Godot v4 game engine
         </a>
