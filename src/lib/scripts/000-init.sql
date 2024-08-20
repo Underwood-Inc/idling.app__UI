@@ -5,7 +5,7 @@ create database idling with owner = postgres;
 CREATE TABLE submissions (
   submission_id SERIAL NOT NULL PRIMARY KEY,
   submission_name VARCHAR(255),
-  submission_datetime VARCHAR(255) NOT NULL,
+  submission_datetime VARCHAR(255),
   author_id varchar(255),
   tags text[]
 );
