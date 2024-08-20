@@ -62,8 +62,5 @@ CREATE TABLE users
  
   PRIMARY KEY (id)
 );
- 
-
-ALTER USER postgres WITH PASSWORD 'postgres';
 
 \q
