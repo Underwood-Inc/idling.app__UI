@@ -4,6 +4,26 @@ This project currently does not use any CSS assistance (i.e. pre-processors, tai
 
 ## Getting Started
 
+### With Docker
+
+Install docker on ubuntu: https://docs.docker.com/engine/install/ubuntu/#install-using-the-repository
+
+- for step 2: install latest
+
+If permission issues come up, add docker group to your user then restart machines:
+
+```bash
+sudo usermod -aG docker $USER
+```
+
+With docker installed:
+
+```bash
+docker compose up
+```
+
+### Without Docker
+
 Ensure you have postgres setup, a `.env.local` file in the root of the project directory, and have node pacakges installed before beginning.
 
 This project uses `yarn` and `npx` so, package-lock.json has been added to the `.gitigore` list.
