@@ -15,9 +15,10 @@ create database :dbname with owner = :user;
 \echo 'creating submissions table...'
 CREATE TABLE submissions (
   submission_id SERIAL NOT NULL PRIMARY KEY,
-  submission_name VARCHAR(255),
-  submission_datetime TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
-  author_id VARCHAR(255),
+  submission_name VARCHAR(255) NOT NULL,
+  submission_datetime TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  author_id VARCHAR(255) NOT NULL,
+  author VARCHAR(255) NOT NULL,
   tags TEXT[]
 );
 

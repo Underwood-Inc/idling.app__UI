@@ -56,7 +56,12 @@
 }
 
 .discord_aside {
-  min-height: 600px;
+  min-height: 60rem;
+}
+
+.discord_aside > div::before,
+.discord_aside > div::after {
+  margin-bottom: 0.2rem;
 }
 
 /* Mobile */
