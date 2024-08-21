@@ -1,6 +1,6 @@
 {
   "name": "idling.app",
-  "version": "0.11.2",
+  "version": "0.11.4",
   "private": true,
   "engines": {
     "node": "20.x"
@@ -8,6 +8,8 @@
   "engineStrict": true,
   "scripts": {
     "dev": "next dev",
+    "dev:dock": "docker compose up",
+    "dev:undock": "docker compose down",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
