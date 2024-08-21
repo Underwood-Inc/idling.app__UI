@@ -13,7 +13,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      - name: Write SSH keys
+      - name: prep ssh
         run: sudo apt-get install sshpass
 
       - name: SSH and deploy
