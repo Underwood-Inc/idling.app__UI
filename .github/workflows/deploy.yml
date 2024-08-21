@@ -24,7 +24,7 @@ jobs:
             git pull origin master
           EOF
       - name: Install dependencies
-        run: yarn
+        run: nvm ls && yarn
       - name: Build
         run:  build
       - name: Restart server
