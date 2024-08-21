@@ -2,6 +2,7 @@ import { render, screen } from '@testing-library/react';
 import { NAV_PATHS } from '../../../lib/routes';
 import { ABOUT_PAGE_SELECTORS } from '../../../lib/test-selectors/pages/about.selectors';
 import { About } from './About';
+import { DISCORD_LINK_SELECTORS } from 'src/lib/test-selectors/components/discord-link.selectors';
 
 describe('Page', () => {
   it('renders the about page', () => {
@@ -21,7 +22,9 @@ describe('Page', () => {
       .toHaveAttribute('href', 'https://gitlab.com/underwood_inc/idling-app')
       .toHaveAttribute('target', '_blank');
 
-    expect(screen.getByText('Discord'))
+    expect(screen.getAllByTestId(DISCORD_LINK_SELECTORS.LINK)).toHaveLength(2);
+
+    expect(screen.getAllByTestId(DISCORD_LINK_SELECTORS.LINK)[0])
       .toBeVisible()
       .toBeEnabled()
       .toHaveAttribute('href', 'https://discord.gg/mpThbx67J7')
