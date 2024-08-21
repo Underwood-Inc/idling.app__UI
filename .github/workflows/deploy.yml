@@ -18,7 +18,7 @@ jobs:
 
       - name: SSH and deploy
         run: |
-          sshpass -p ${{ secrets.SSH_PASS }} ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
+          sshpass -p ${{ secrets.SSH_PASS }} ssh -o 'StrictHostKeyChecking=no' ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
             cd repos/idling.app__UI/
             git checkout master
             git pull origin master
