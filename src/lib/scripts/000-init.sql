@@ -1,18 +1,18 @@
-\echo 'running database init...';
+\echo 'running database init...'
 
-\echo 'processing environment variables...';
+\echo 'processing environment variables...'
 \set dbname :POSTGRES_DB
 \set pass :POSTGRES_PASSWORD
 \set user :POSTGRES_USER
 
-\echo 'creating testing database...';
+\echo 'creating testing database...'
 drop database if exists :dbname;
 create database :dbname with owner = :user;
 
-\echo 'connecting to the testing database...';
+\echo 'connecting to the testing database...'
 \c :dbname;
 
-\echo 'creating submissions table...';
+\echo 'creating submissions table...'
 CREATE TABLE submissions (
   submission_id SERIAL NOT NULL PRIMARY KEY,
   submission_name VARCHAR(255),
@@ -21,7 +21,7 @@ CREATE TABLE submissions (
   tags TEXT[]
 );
 
-\echo 'creating nextauth required tables...';
+\echo 'creating nextauth required tables...'
 CREATE TABLE verification_token
 (
   identifier TEXT NOT NULL,
