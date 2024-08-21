@@ -31,7 +31,11 @@ export const About: React.FC = () => {
       </p>
       <p>
         Join our <DiscordLink /> to get the latest news and occasionally view
-        development via screen share events
+        development via screen share events.
+      </p>
+      <p>
+        See a bug? Report it in <DiscordLink /> and refer to the current site
+        version located in the bottom right of the website footer.
       </p>
     </div>
   );
