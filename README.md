@@ -19,6 +19,8 @@ sudo usermod -aG docker $USER
 With docker installed:
 
 ```bash
+yarn dev:docker
+# or
 docker compose up
 ```
 
