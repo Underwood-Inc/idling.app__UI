@@ -31,5 +31,3 @@ jobs:
         run: yarn
       - name: Build
         run: yarn build
-      # - name: Restart server
-      #   run: pm2 restart 0 && exit
