@@ -1,4 +1,4 @@
-\set dbname :POSTGRES_DB
+\set dbname :PGDATABASE
 \set pass :POSTGRES_PASSWORD
 \set user :POSTGRES_USER
 
