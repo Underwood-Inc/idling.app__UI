@@ -16,14 +16,16 @@ jobs:
       - name: prep ssh
         run: sudo apt-get install sshpass
 
-      - name: SSH and deploy
+      - name: SSH and sync master branch
         run: |
           sshpass -p '${{ secrets.SSH_PASS }}' ssh -o 'StrictHostKeyChecking=no' ${{secrets.SSH_USER}}@${{secrets.SSH_HOST}} << 'EOF'
             cd repos/idling.app__UI/
             git checkout master
             git pull origin master
-            npm i
-            npm run build
-            pm2 restart 0
-            exit
           EOF
+      - name: Install dependencies
+        run: yarn
+      - name: Build
+        run:  build
+      - name: Restart server
+        run: pm2 restart 0 && exit
