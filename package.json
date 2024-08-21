@@ -8,7 +8,8 @@
   "engineStrict": true,
   "scripts": {
     "dev": "next dev",
-    "dev:docker": "docker compose up",
+    "dev:dock": "docker compose up",
+    "dev:undock": "docker compose down",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",

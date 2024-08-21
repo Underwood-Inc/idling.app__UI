@@ -4,6 +4,26 @@ This project currently does not use any CSS assistance (i.e. pre-processors, tai
 
 ## Getting Started
 
+If you end up trying both methods you are likely to encounter issues. Common troubleshooting:
+
+**I can't connect to the postgresql server**
+
+If you are using the docker development experience, ensure you do not have a postgres server actively running already causing conflicts.
+
+```bash
+ sudo service postgresql stop
+```
+
+Similarly, if you are **not** using the docker development experience, ensure you **do** have a locally running postgres server.
+
+**relation issue with tables**
+
+If you are running into missing tables errors, you are likely experiencing user error. Drop your tables that have the same names as the ones used in this project and run the 000-init.sql scripts to properly initialize your local database.
+
+**Error: EACCES: permission denied, unlink '\*\*/idling.app/\__UI/.next/server/_\*\*.js'**
+
+NextJS build files are conflicting. Delete the `.next` directory.
+
 ### With Docker
 
 Install docker on ubuntu: https://docs.docker.com/engine/install/ubuntu/#install-using-the-repository
@@ -19,7 +39,7 @@ sudo usermod -aG docker $USER
 With docker installed:
 
 ```bash
-yarn dev:docker
+yarn dev:dock
 # or
 docker compose up
 ```
@@ -27,10 +47,9 @@ docker compose up
 To wipe the postgres database and start fresh:
 
 ```bash
-# for just idling.app volumes
+yarn dev:undock
+# or
 docker compose down
-# for all docker volumes
-docker system prune --volumes
 ```
 
 ### Without Docker
