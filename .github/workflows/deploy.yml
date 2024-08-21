@@ -12,7 +12,7 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        
+
       - uses: actions/setup-node@v4
         with:
           node-version: 20
@@ -30,6 +30,6 @@ jobs:
       - name: Install dependencies
         run: yarn
       - name: Build
-        run:  yarn build
+        run: yarn build
       # - name: Restart server
       #   run: pm2 restart 0 && exit
