@@ -17,4 +17,13 @@ jobs:
         run: sudo apt-get install sshpass
 
       - name: SSH and deploy
-        run: sshpass -p '${{ secrets.SSH_PASS }}' ssh -o 'StrictHostKeyChecking=no' ${{secrets.SSH_USER}}@${{secrets.SSH_HOST}}
+        run: |
+          sshpass -p '${{ secrets.SSH_PASS }}' ssh -o 'StrictHostKeyChecking=no' ${{secrets.SSH_USER}}@${{secrets.SSH_HOST}} << 'EOF'
+            cd repos/idling.app__UI/
+            git checkout master
+            git pull origin master
+            yarn
+            yarn build
+            pm2 restart 0
+            exit
+          EOF
