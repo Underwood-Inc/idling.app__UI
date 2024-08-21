@@ -26,6 +26,8 @@ NextJS build files are conflicting. Delete the `.next` directory.
 
 ### With Docker
 
+⚠️ When using docker and running playwright tests, the postgres data consumed by playwright will use the same data you have populated manually as well as any data pre-populated via migration scripts.
+
 Install docker on ubuntu: https://docs.docker.com/engine/install/ubuntu/#install-using-the-repository
 
 - for step 2: install latest
