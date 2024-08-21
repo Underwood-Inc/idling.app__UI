@@ -62,7 +62,7 @@ jobs:
           POSTGRES_HOST_AUTH_METHOD: md5
           POSTGRES_INITDB_ARGS: --auth-host=md5
           DATABASE_URL: postgres://${{secrets.POSTGRES_USER}}:${{secrets.POSTGRES_PASSWORD}}@${{secrets.POSTGRES_HOST}}:${{secrets.POSTGRES_PORT}}/${{secrets.POSTGRES_DB}}
-        run:  POSTGRES_USER=${{secrets.POSTGRES_USER}} POSTGRES_DB=${{secrets.POSTGRES_DB}} psql -f ./src/lib/scripts/000-init.sql postgresql://${{secrets.POSTGRES_USER}}:${{secrets.POSTGRES_PASSWORD}}@${{secrets.POSTGRES_HOST}}:${{secrets.POSTGRES_PORT}}/${{secrets.POSTGRES_DB}}
+        run:  POSTGRES_USER=$POSTGRES_USER POSTGRES_DB=$POSTGRES_DB psql -f ./src/lib/scripts/000-init.sql postgresql://$POSTGRES_USER:$POSTGRES_PASSWORD@$POSTGRES_HOST:$POSTGRES_PORT/$POSTGRES_DB
       - name: Install dependencies
         run: npm install -g yarn && yarn
       - name: Install Playwright Browsers
