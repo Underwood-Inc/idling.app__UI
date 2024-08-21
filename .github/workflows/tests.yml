@@ -54,7 +54,15 @@ jobs:
         with:
           node-version: lts/*
       - name: Run migrations
-        run: psql -f ./src/lib/scripts/000-init.sql postgresql://postgres:postgres@localhost:5432/postgres
+        env:
+          POSTGRES_HOST: ${{ secrets.POSTGRES_HOST }}
+          POSTGRES_PORT: ${{ secrets.POSTGRES_PORT }}
+          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+          POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
+          POSTGRES_HOST_AUTH_METHOD: md5
+          POSTGRES_INITDB_ARGS: --auth-host=md5
+          DATABASE_URL: postgres://${{secrets.POSTGRES_USER}}:${{secrets.POSTGRES_PASSWORD}}@${{secrets.POSTGRES_HOST}}:${{secrets.POSTGRES_PORT}}/${{secrets.POSTGRES_DB}}
+        run: psql -f ./src/lib/scripts/000-init.sql postgresql://${{secrets.POSTGRES_USER}}:${{secrets.POSTGRES_PASSWORD}}@${{secrets.POSTGRES_HOST}}:${{secrets.POSTGRES_PORT}}/${{secrets.POSTGRES_DB}}
       - name: Install dependencies
         run: npm install -g yarn && yarn
       - name: Install Playwright Browsers
@@ -70,7 +78,7 @@ jobs:
           DATABASE_URL: postgres://${{secrets.POSTGRES_USER}}:${{secrets.POSTGRES_PASSWORD}}@${{secrets.POSTGRES_HOST}}:${{secrets.POSTGRES_PORT}}/${{secrets.POSTGRES_DB}}
         run: IS_CI=1 yarn playwright test
       - name: Run Jest tests
-        run: POSTGRES_USER=${{secrets.POSTGRES_USER}} POSTGRES_DB=${{secrets.POSTGRES_DB}}  yarn test:ci
+        run: POSTGRES_USER=${{secrets.POSTGRES_USER}} POSTGRES_DB=${{secrets.POSTGRES_DB}} yarn test:ci
       - uses: actions/upload-artifact@v4
         if: always()
         with:
