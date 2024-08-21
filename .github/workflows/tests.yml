@@ -15,6 +15,7 @@ env:
   POSTGRES_PORT: ${{ secrets.POSTGRES_PORT }}
   POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
   POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
+  POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
   POSTGRES_HOST_AUTH_METHOD: md5
   POSTGRES_INITDB_ARGS: --auth-host=md5
 jobs:
@@ -34,9 +35,10 @@ jobs:
           POSTGRES_PORT: ${{ secrets.POSTGRES_PORT }}
           POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
           POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
           POSTGRES_HOST_AUTH_METHOD: md5
           POSTGRES_INITDB_ARGS: --auth-host=md5
-          DATABASE_URL: postgres://postgres:postgres@localhost:5432/mydatabase
+          DATABASE_URL: postgres://${{secrets.POSTGRES_USER}}:${{secrets.POSTGRES_PASSWORD}}@${{secrets.POSTGRES_HOST}}:${{secrets.POSTGRES_PORT}}/${{secrets.POSTGRES_DB}}
         # Set health checks to wait until postgres has started
         options: >-
           --health-cmd pg_isready
@@ -65,7 +67,7 @@ jobs:
           POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
           POSTGRES_HOST_AUTH_METHOD: md5
           POSTGRES_INITDB_ARGS: --auth-host=md5
-          DATABASE_URL: postgres://postgres:postgres@localhost:5432/mydatabase
+          DATABASE_URL: postgres://${{secrets.POSTGRES_USER}}:${{secrets.POSTGRES_PASSWORD}}@${{secrets.POSTGRES_HOST}}:${{secrets.POSTGRES_PORT}}/${{secrets.POSTGRES_DB}}
         run: IS_CI=1 yarn playwright test
       - name: Run Jest tests
         run: yarn test:ci
