@@ -11,9 +11,10 @@ env:
   AUTHJS_SESSION_TOKEN: ${{ secrets.AUTHJS_SESSION_TOKEN }}
   AUTHJS_CALLBACK_URL: ${{ secrets.AUTHJS_CALLBACK_URL }}
   AUTHJS_CSRF_TOKEN: ${{ secrets.AUTHJS_CSRF_TOKEN }}
-  POSTGRES_HOST: 127.0.0.1
-  POSTGRES_PORT: 5432
-  POSTGRES_USER: 'postgres'
+  POSTGRES_HOST: ${{ secrets.POSTGRES_HOST }}
+  POSTGRES_PORT: ${{ secrets.POSTGRES_PORT }}
+  POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+  POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
   POSTGRES_HOST_AUTH_METHOD: md5
   POSTGRES_INITDB_ARGS: --auth-host=md5
 jobs:
@@ -29,13 +30,10 @@ jobs:
         image: postgres
         # Provide the password for postgres
         env:
-          POSTGRES_USER: 'postgres'
-          POSTGRES_PASSWORD: 'postgres'
-          POSTGRES_DB: mydatabase
-          # The hostname used to communicate with the PostgreSQL service container
-          POSTGRES_HOST: localhost
-          # The default PostgreSQL port
-          POSTGRES_PORT: 5432
+          POSTGRES_HOST: ${{ secrets.POSTGRES_HOST }}
+          POSTGRES_PORT: ${{ secrets.POSTGRES_PORT }}
+          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+          POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
           POSTGRES_HOST_AUTH_METHOD: md5
           POSTGRES_INITDB_ARGS: --auth-host=md5
           DATABASE_URL: postgres://postgres:postgres@localhost:5432/mydatabase
@@ -61,13 +59,10 @@ jobs:
         run: yarn playwright install --with-deps
       - name: Run Playwright tests
         env:
-          POSTGRES_USER: 'postgres'
-          POSTGRES_PASSWORD: 'postgres'
-          POSTGRES_DB: 'mydatabase'
-          # The hostname used to communicate with the PostgreSQL service container
-          POSTGRES_HOST: localhost
-          # The default PostgreSQL port
-          POSTGRES_PORT: 5432
+          POSTGRES_HOST: ${{ secrets.POSTGRES_HOST }}
+          POSTGRES_PORT: ${{ secrets.POSTGRES_PORT }}
+          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+          POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
           POSTGRES_HOST_AUTH_METHOD: md5
           POSTGRES_INITDB_ARGS: --auth-host=md5
           DATABASE_URL: postgres://postgres:postgres@localhost:5432/mydatabase

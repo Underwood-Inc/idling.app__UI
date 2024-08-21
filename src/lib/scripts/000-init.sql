@@ -1,6 +1,10 @@
-create database idling with owner = postgres;
+\set dbname :POSTGRES_DB
+\set pass :POSTGRES_PASSWORD
+\set user :POSTGRES_USER
 
-\c idling;
+create database :dbname with owner = :user;
+
+\c :dbname;
 
 CREATE TABLE submissions (
   submission_id SERIAL NOT NULL PRIMARY KEY,
