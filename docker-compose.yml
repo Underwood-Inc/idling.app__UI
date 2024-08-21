@@ -9,35 +9,16 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_HOST_AUTH_METHOD: scram-sha-256
-      POSTGRES_INITDB_ARGS: --auth-hostscram-sha-256
     ports:
       - '5432:5432'
     volumes:
-      - postgres_data:/var/lib/postgresql/data
       - ./postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
-      - ./postgres/postgres-docker-entrypoint.sh:/docker-entrypoint-initdb.d/entrypoint.sh
-      - ./postgres/custom-postgresql.conf:/etc/postgresql/postgresql.conf
     user: postgres
-    command: >
-      bash -c "
-      docker-entrypoint.sh postgres -c config_file=/etc/postgresql/postgresql.conf &
-      sleep 10 &&
-      ./docker-entrypoint-initdb.d/entrypoint.sh
-      "
-    # command: ["postgres", "-c", "config_file=/etc/postgresql/postgresql.conf"]
     healthcheck:
       test: ['CMD-SHELL', 'pg_isready -U postgres']
       interval: 10s
       timeout: 5s
       retries: 5
-    # The entrypoint.sh script waits for PostgreSQL to be ready using pg_isready,
-    # runs the init.sql script, and then starts the PostgreSQL server.
-    # entrypoint: "./docker-entrypoint-initdb.d/entrypoint.sh"
-    # Ensure that the container is configured to keep running after the script execution
-    # command: ["sh", "-c", "exec postgres & tail -f /dev/null"]
-    # restart: 'on-failure'
-    # stdin_open: true
-    # tty: true
 
   nextjs:
     image: node:latest
@@ -51,15 +32,14 @@ services:
     env_file:
       - ./.env.local
     environment:
-      POSTGRES_HOST_AUTH_METHOD: scram-sha-256
-      POSTGRES_INITDB_ARGS: --auth-host=scram-sha-256
-      DATABASE_URL: postgres://postgres:postgres@postgres:5432/idling
+      # Ensure Correct Hostname: In Docker Compose, services should communicate using their service names.
+      # For example, if your PostgreSQL service is named postgres, the connection string should use postgres
+      # as the hostname.
+      # By defining this here, we override the value defined in ./.env.local
+      POSTGRES_HOST: postgres
+      POSTGRES_HOST_AUTH_METHOD: md5
+      POSTGRES_INITDB_ARGS: --auth-host=md5
     command: sh -c "npm install && npm run dev"
-    stdin_open: true
-    tty: true
     depends_on:
       postgres:
         condition: service_healthy
-
-volumes:
-  postgres_data:
