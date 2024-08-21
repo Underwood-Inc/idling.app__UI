@@ -10,24 +10,16 @@ jobs:
     runs-on: ubuntu-latest
     environment: actions
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
+      - name: deploy
+        uses: appleboy/ssh-action@v1.0.3
         with:
-          node-version: 20
-
-      - name: prep ssh
-        run: sudo apt-get install sshpass
-
-      - name: SSH and sync master branch
-        run: |
-          sshpass -p '${{ secrets.SSH_PASS }}' ssh -o 'StrictHostKeyChecking=no' ${{secrets.SSH_USER}}@${{secrets.SSH_HOST}} << 'EOF'
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          password: ${{ secrets.SSH_PASS }}
+          script: |
             cd repos/idling.app__UI/
             git checkout master
             git pull origin master
-          EOF
-      - name: Install dependencies
-        run: yarn
-      - name: Build
-        run: yarn build
+            yarn
+            yarn build
+            pm2 restart 0
