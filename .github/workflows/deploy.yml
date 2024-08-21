@@ -11,7 +11,11 @@ jobs:
     environment: actions
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
+        
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
 
       - name: prep ssh
         run: sudo apt-get install sshpass
@@ -24,7 +28,7 @@ jobs:
             git pull origin master
           EOF
       - name: Install dependencies
-        run: ls ../../ && yarn
+        run: yarn
       - name: Build
         run:  build
       - name: Restart server
