@@ -20,5 +20,6 @@ jobs:
             cd repos/idling.app__UI/
             git checkout master
             git pull origin master
-      - name: build and deploy
-        run: yarn && yarn build && pm2 restart 0
+            npm install
+            npm run build
+            pm2 restart 0
