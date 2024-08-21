@@ -20,7 +20,6 @@ jobs:
             cd repos/idling.app__UI/ && ls;
             git checkout master
             git pull origin master
-            whois yarn
-            yarn
-            yarn build
+            npm install
+            npm run build
             pm2 restart 0
