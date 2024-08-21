@@ -14,16 +14,11 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Write SSH keys
-        run: |
-          install -m 600 -D /dev/null ~/.ssh/id_rsa
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
-          host='idling.app'
-          hosts="$(dig +short "$host" | grep -v '\.$' | sed -z 's|\n|,|g')$host"
-          ssh-keyscan -H "$hosts" > ~/.ssh/known_hosts
+        run: sudo apt-get install sshpass
 
       - name: SSH and deploy
         run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
+          sshpass -o StrictHostKeyChecking=no -p ${{ secrets.SSH_PASS }} ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
             cd repos/idling.app__UI/
             git checkout master
             git pull origin master
