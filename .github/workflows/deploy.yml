@@ -17,9 +17,9 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           password: ${{ secrets.SSH_PASS }}
           script: |
-            cd repos/idling.app__UI/ && ls ../../;
+            cd repos/idling.app__UI/
             git checkout master
             git pull origin master
-            npm i
-            npm run build
+            yarn
+            yarn build
             pm2 restart 0
