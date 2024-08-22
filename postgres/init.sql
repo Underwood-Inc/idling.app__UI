@@ -1,3 +1,6 @@
+-- run during first time setup of postgres docker container for development
+-- environment variables are not available here
+-- tried a custom entrypoint to the container that exports them as well to no avail
 \echo 'running database init...'
 -- start a procedural postgres code block
 DO $$
