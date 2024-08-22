@@ -1,3 +1,4 @@
+-- Run during GitHub test pipeline action
 \echo 'running database init...'
 
 \echo 'processing environment variables...'

@@ -21,22 +21,16 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const discordWidgetHTML = `<script
-          src="https://cdn.jsdelivr.net/npm/@widgetbot/crate@3"
-          async
-          defer
-        >
-          {
-            // @ts-expect-error
-            // eslint-disable-next-line no-undef
-            new Crate({
-              server: '1234783462335189080', // idling.app
-              channel: '1239616865559379969', // #activity
-              location: ['bottom', 'left'],
-              notifications: true
-            })
-          }
-        </script>`;
+  const discordWidgetHTML = `
+    <script src='https://cdn.jsdelivr.net/npm/@widgetbot/crate@3' async defer>
+      new Crate({
+        server: '1234783462335189080', // idling.app
+        channel: '1239616865559379969', // #website-dev-activity
+        location: ['bottom', 'left'],
+        notifications: true
+      })
+    </script>
+  `;
 
   return (
     <html lang="en">
