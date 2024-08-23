@@ -1,0 +1,38 @@
+.message-ticker__container {
+  overflow: hidden;
+  white-space: nowrap;
+  background-color: #222;
+  color: var(--dark-bg__text-color--tertiary);
+  width: 100%;
+  min-height: 3rem;
+  max-height: 3rem;
+  display: flex;
+  align-items: center;
+  border-top: groove var(--color-secondary) 0.4rem;
+  border-bottom: groove var(--color-secondary) 0.4rem;
+}
+
+.message-ticker__content {
+  animation: tickerAnimation linear infinite;
+}
+
+.message-ticker__container:hover .message-ticker__content {
+  animation-play-state: paused;
+}
+
+.message-ticker__message {
+  margin-right: 40rem;
+}
+
+.message-ticker__message--offset {
+  transform: translateX(100%);
+}
+
+@keyframes tickerAnimation {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
