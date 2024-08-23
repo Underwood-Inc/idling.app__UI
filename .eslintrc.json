@@ -1,10 +1,9 @@
 {
   "extends": [
-    "plugin:storybook/recommended",
-    "next",
-    "next/core-web-vitals",
+    "prettier",
     "eslint:recommended",
-    "prettier"
+    "next",
+    "next/core-web-vitals"
   ],
   "plugins": ["prettier", "jest"],
   "globals": {
@@ -19,8 +18,8 @@
     }
   ],
   "rules": {
+    "max-len": ["error", { "code": 130 }],
     "no-unused-vars": "warn",
-    "prettier/prettier": "warn",
     "no-console": [
       "error",
       {

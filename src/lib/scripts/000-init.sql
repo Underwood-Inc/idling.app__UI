@@ -1,19 +1,19 @@
 -- Run during GitHub test pipeline action
-\echo 'running database init...'
+\echo '\033[35mrunning database init...\033[0m'
 
-\echo 'processing environment variables...'
+\echo \033[35m'processing environment variables...\033[0m'
 \set dbname :POSTGRES_DB
 \set pass :POSTGRES_PASSWORD
 \set user :POSTGRES_USER
 
-\echo 'creating testing database...'
+\echo '\033[35mcreating testing database...\033[0m'
 drop database if exists :dbname;
 create database :dbname with owner = :user;
 
-\echo 'connecting to the testing database...'
+\echo '\033[35mconnecting to the testing database...\033[0m'
 \c :dbname;
 
-\echo 'creating submissions table...'
+\echo '\033[35mcreating submissions table...\033[0m'
 CREATE TABLE submissions (
   submission_id SERIAL NOT NULL PRIMARY KEY,
   submission_name VARCHAR(255) NOT NULL,
@@ -23,7 +23,7 @@ CREATE TABLE submissions (
   tags TEXT[]
 );
 
-\echo 'creating nextauth required tables...'
+\echo '\033[35mcreating nextauth required tables...\033[0m'
 CREATE TABLE verification_token
 (
   identifier TEXT NOT NULL,
@@ -72,5 +72,5 @@ CREATE TABLE users
   PRIMARY KEY (id)
 );
 
-\echo 'finished initializating the testing database!'
+\echo '\033[33mfinished initializating the testing database!\033[0m'
 \q

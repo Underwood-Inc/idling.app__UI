@@ -45,8 +45,7 @@ function SubmitButton({
 
 export function AddSubmissionForm({ isAuthorized }: { isAuthorized: boolean }) {
   const ref = useRef<HTMLFormElement>(null);
-  const { state: shouldUpdate, dispatch: dispatchShouldUpdate } =
-    useShouldUpdate();
+  const { dispatch: dispatchShouldUpdate } = useShouldUpdate();
   // TODO: https://github.com/vercel/next.js/issues/65673#issuecomment-2112746191
   // const [state, formAction] = useActionState(createSubmissionAction, initialState)
   const [state, formAction] = useFormState(
