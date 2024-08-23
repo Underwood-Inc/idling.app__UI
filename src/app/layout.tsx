@@ -7,6 +7,7 @@ import { AvatarsBackground } from './components/avatars-background/AvatarsBackgr
 import Footer from './components/footer/Footer';
 import Header from './components/header/Header';
 import Loader from './components/loader/Loader';
+import { MessageTickerWithSuspense } from './components/message-ticker/MessageTickerWithSuspense';
 import './globals.css';
 
 const inter = Inter({ subsets: ['latin'] });
@@ -67,6 +68,9 @@ export default function RootLayout({
           </Suspense>
 
           <Header />
+
+          <MessageTickerWithSuspense />
+
           <Suspense fallback={<Loader />}>
             <PaginationProvider>
               <ShouldUpdateProvider>{children}</ShouldUpdateProvider>

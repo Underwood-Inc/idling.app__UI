@@ -43,7 +43,7 @@ export function MessageTicker({ messages = [] }: MessageTickerProps) {
             {message}
           </span>
         ))}
-        {/* render second set with offset to ensure seemless infinite animation */}
+        {/* render a second set with offset to ensure seamless infinite animation */}
         {repeatedMessages.map((message, index) => (
           <span
             className="message-ticker__message message-ticker__message--offset"
