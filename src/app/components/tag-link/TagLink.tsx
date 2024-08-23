@@ -6,7 +6,8 @@ import { useFilters } from '../../../lib/state/FiltersContext';
 import { tagRegex } from '../../../lib/utils/string/tag-regex';
 
 /**
- * A component that will return a nextjs link component instance that navigates to the /posts page with a filter applied that matches the TagLink
+ * A component that will return a nextjs link component instance that navigates to the /posts page with a filter applied that
+ * matches the TagLink
  * @example <TagLink value="bacon" /> => a link that navigates to '/posts?tags=bacon'
  */
 export function TagLink({
@@ -21,9 +22,8 @@ export function TagLink({
   const searchParams = useSearchParams();
   const tagSearchParams = searchParams.get('tags');
 
-  // you normally would not use an onClick with a nextjs Link component however,
-  // we need to ensure filters are updated in the client context so as to ensure
-  // certain UI/X behaviours occur
+  // you normally would not use an onClick with a nextjs Link component however, we need to ensure filters are updated in the
+  // client context so as to ensure certain UI/X behaviours occur
   const onClick = (tag: string) => {
     if (!tagSearchParams?.includes(tag)) {
       dispatch({
@@ -31,9 +31,10 @@ export function TagLink({
           filters: [
             {
               name: 'tags',
-              value: tagSearchParams
-                ? `${tagSearchParams},${tag.toLowerCase()}`
-                : tag.toLowerCase()
+              value:
+                tagSearchParams && appendSearchParam
+                  ? `${tagSearchParams},${tag.toLowerCase()}`
+                  : tag.toLowerCase()
             }
           ],
           id: 'default'

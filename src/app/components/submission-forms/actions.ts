@@ -93,10 +93,10 @@ export async function createSubmissionAction(
     `;
 
     revalidatePath('/');
-    return { status: 1, message: `Added submission: ${data.submission_name}.` };
+    return { status: 1, message: `Added post: ${data.submission_name}.` };
   } catch (e) {
     console.error(e);
-    return { status: -1, error: `Failed to create submission.` };
+    return { status: -1, error: `Failed to create post.` };
   }
 }
 
@@ -132,9 +132,9 @@ export async function deleteSubmissionAction(
     revalidatePath('/');
     return {
       status: 1,
-      message: `Deleted submission ${data.submission_name}.`
+      message: `Deleted post ${data.submission_name}.`
     };
   } catch (e) {
-    return { status: -1, error: `Failed to delete submission.` };
+    return { status: -1, error: `Failed to delete post.` };
   }
 }

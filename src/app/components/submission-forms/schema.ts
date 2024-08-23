@@ -10,7 +10,7 @@ export const submissionSchema = z.object({
     .string()
     .min(1)
     .max(SUBMISSION_NAME_MAX_LENGTH, {
-      message: `Message character count must not exceed ${SUBMISSION_NAME_MAX_LENGTH}`
+      message: `Message length must not exceed ${SUBMISSION_NAME_MAX_LENGTH}`
     }),
   submission_datetime: z.string().datetime(),
   tags: z.array(z.string()).nullable().optional()
@@ -61,8 +61,16 @@ export function parseZodErrors(error: ZodError): string {
   const errors: string[] = [];
   const flat = error.flatten();
 
+  const getLabelByKey = (key: string) => {
+    if (key === 'submission_name') {
+      return 'post message';
+    }
+
+    return key;
+  };
+
   Object.entries(flat.fieldErrors).forEach(([k, v]) => {
-    errors.push(`${k}: ${v?.join('\n')}`);
+    errors.push(`${getLabelByKey(k)}: ${v?.join('\n')}`);
   });
 
   return errors.join('\n');

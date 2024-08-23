@@ -10,21 +10,22 @@ import styles from './page.module.css';
 
 export default async function Home() {
   return (
-    <PageContainer>
-      <PageContent>
-        <article className={styles.home__container}>
-          <Card width="min">
-            <h2>About</h2>
-            <About />
-          </Card>
-        </article>
-      </PageContent>
-
+    <>
+      <PageContainer>
+        <PageContent>
+          <article className={styles.home__container}>
+            <Card width="min">
+              <h2>About</h2>
+              <About />
+            </Card>
+          </article>
+        </PageContent>
+      </PageContainer>
       <PageAside className={styles.discord_aside} bottomMargin={10}>
         <FancyBorder>
           <DiscordEmbed />
         </FancyBorder>
       </PageAside>
-    </PageContainer>
+    </>
   );
 }
