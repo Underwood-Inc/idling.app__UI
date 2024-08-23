@@ -9,10 +9,17 @@
 .nav__links,
 .nav__auth {
   display: flex;
-  align-items: center;
+  align-items: flex-end;
 }
 
 .active {
   color: var(--brand-primary--dark);
   text-decoration: underline;
+}
+
+.nav__brand {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
 }

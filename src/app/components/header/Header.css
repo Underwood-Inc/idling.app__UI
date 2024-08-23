@@ -1,6 +1,6 @@
 .header {
   background-color: #222;
-  padding: 2rem 2rem 0;
+  padding: 0.5rem 2rem 0;
   color: var(--brand-primary);
   display: flex;
   flex-flow: column;
