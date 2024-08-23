@@ -10,7 +10,6 @@ import {
   RecentTagsLoader
 } from '../components/recent-tags/RecentTags';
 import { AddSubmissionForm } from '../components/submission-forms/add-submission-form/AddSubmissionForm';
-// import SubmissionsList from '../components/submissions-list/SubmissionsList';
 import dynamic from 'next/dynamic';
 import Loader from '../components/loader/Loader';
 import { PageAside } from '../components/page-aside/PageAside';
@@ -36,36 +35,37 @@ export default async function Posts({
     : [];
 
   return (
-    <PageContainer>
-      <PageHeader>
-        <h2 className={styles.posts__header}>posts</h2>
+    <>
+      <PageContainer>
+        <PageHeader>
+          <h2 className={styles.posts__header}>posts</h2>
 
-        <AddSubmissionForm isAuthorized={!!session} />
-        <br />
-        <FilterBar />
-      </PageHeader>
+          <AddSubmissionForm isAuthorized={!!session} />
+          <br />
+          <FilterBar />
+        </PageHeader>
 
-      <PageContent>
-        <section>
-          <section className={styles.posts__all}>
-            <article>
-              <h3 className={styles.posts__header}>all</h3>
+        <PageContent>
+          <section>
+            <section className={styles.posts__all}>
+              <article>
+                <h3 className={styles.posts__header}>all</h3>
 
-              <Card className={styles.card} width="full">
-                <Suspense fallback={<Loader />}>
-                  {session?.user?.providerAccountId && (
-                    <LazyPostsList
-                      listId="main"
-                      filters={filters}
-                      providerAccountId={session.user.providerAccountId}
-                    />
-                  )}
-                </Suspense>
-              </Card>
-            </article>
-          </section>
+                <Card className={styles.card} width="full">
+                  <Suspense fallback={<Loader />}>
+                    {session?.user?.providerAccountId && (
+                      <LazyPostsList
+                        listId="main"
+                        filters={filters}
+                        providerAccountId={session.user.providerAccountId}
+                      />
+                    )}
+                  </Suspense>
+                </Card>
+              </article>
+            </section>
 
-          {/* <section className={styles.posts__mine}>
+            {/* <section className={styles.posts__mine}>
             <article>
               <h3 className={styles.posts__header}>mine</h3>
 
@@ -80,14 +80,15 @@ export default async function Posts({
               </Card>
             </article>
           </section> */}
-        </section>
-      </PageContent>
+          </section>
+        </PageContent>
+      </PageContainer>
 
       <PageAside className={styles.aside__recentTags}>
         <Suspense fallback={<RecentTagsLoader />}>
           <RecentTags />
         </Suspense>
       </PageAside>
-    </PageContainer>
+    </>
   );
 }
