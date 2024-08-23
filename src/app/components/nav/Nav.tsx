@@ -11,18 +11,23 @@ export default async function Nav() {
 
   return (
     <Navbar>
-      <Navbar.Brand />
-
-      <Link href={NAV_PATHS.ROOT}>
-        <h1>Idling.app</h1>
-      </Link>
-
       <Navbar.Body className="nav__content">
-        <Navbar.Content justify="center" className="nav__links">
+        <Navbar.Content
+          justify="center"
+          className="nav__links nav__links--as-flex-end"
+        >
           <NavPaths />
         </Navbar.Content>
 
-        <Navbar.Content justify="end">
+        <Navbar.Content justify="center" className="nav__brand">
+          <Navbar.Brand />
+
+          <Link href={NAV_PATHS.ROOT}>
+            <h1>Idling.app</h1>
+          </Link>
+        </Navbar.Content>
+
+        <Navbar.Content justify="end" className="nav--as-flex-end">
           <Navbar.Item className="nav__auth">
             {session?.user && (
               <p className="header__user-name"> {session.user.name}</p>

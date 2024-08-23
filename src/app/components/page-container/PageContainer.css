@@ -5,3 +5,7 @@
   height: inherit;
   justify-content: flex-start;
 }
+
+.page__container .card {
+  min-width: 200px;
+}
