@@ -18,6 +18,9 @@ jobs:
           password: ${{ secrets.SSH_PASS }}
           script: |
             cd repos/idling.app__UI/
+            git checkout -- .
+            git reset --hard
+            git clean -fd
             git checkout master
             git pull origin master
             yarn
