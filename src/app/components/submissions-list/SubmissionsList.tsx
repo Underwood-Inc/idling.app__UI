@@ -100,6 +100,7 @@ export default function SubmissionsList({
       type: 'SET_CURRENT_PAGE'
     });
     fetchSubmissions({ ...getArgs(), currentPage: 1 });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [shouldUpdate]);
 
   useEffect(() => {
@@ -119,6 +120,7 @@ export default function SubmissionsList({
       currentPage: 1,
       filters: filtersState.default?.filters || []
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filtersState]);
 
   const onPageChange = (newPage: number) => {

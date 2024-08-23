@@ -25,6 +25,7 @@ const Avatar = ({
   return (
     <div className="avatar">
       {img ? (
+        // eslint-disable-next-line @next/next/no-img-element
         <img src={img} className={`avatar__img ${size}`} alt="avatar" />
       ) : (
         <div className="avatar__loader">
