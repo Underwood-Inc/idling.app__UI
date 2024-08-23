@@ -24,6 +24,10 @@
   margin-right: 40rem;
 }
 
+.message-ticker__message--offset {
+  transform: translateX(100%);
+}
+
 @keyframes tickerAnimation {
   0% {
     transform: translateX(0);

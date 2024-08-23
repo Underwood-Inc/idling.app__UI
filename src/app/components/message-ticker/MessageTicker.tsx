@@ -14,14 +14,21 @@ export function MessageTicker({ messages = [] }: MessageTickerProps) {
     if (tickerRef.current) {
       const tickerWidth = tickerRef.current.scrollWidth;
       const containerWidth = tickerRef.current.parentElement?.offsetWidth || 0;
-      const duration = (tickerWidth / containerWidth) * 10;
+      const duration = (tickerWidth / containerWidth) * 20;
       setAnimationDuration(`${duration}s`);
     }
   }, [messages]);
 
   const repeatedMessages =
     messages.length === 1
-      ? [...messages, ...messages, ...messages, ...messages] // replicate to ensure maximised use of horizontal empty space
+      ? [
+          ...messages,
+          ...messages,
+          ...messages,
+          ...messages,
+          ...messages,
+          ...messages
+        ] // replicate to ensure maximised use of horizontal empty space
       : messages;
 
   return (
@@ -33,6 +40,15 @@ export function MessageTicker({ messages = [] }: MessageTickerProps) {
       >
         {repeatedMessages.map((message, index) => (
           <span className="message-ticker__message" key={index}>
+            {message}
+          </span>
+        ))}
+        {/* render a second set with offset to ensure seamless infinite animation */}
+        {repeatedMessages.map((message, index) => (
+          <span
+            className="message-ticker__message message-ticker__message--offset"
+            key={index}
+          >
             {message}
           </span>
         ))}
