@@ -21,11 +21,12 @@ export default function BadgeWrapper({
   const className = showOnHover ? '--hover' : '';
 
   return (
-    <div
-      className={`badge__container${className}${onClick && ' cursor--pointer'}`}
-    >
+    <div className={`badge__container${className}`}>
       {children}
-      <span className={`badge__content`} onClick={handleClick}>
+      <span
+        className={`badge__content ${onClick && ' cursor--pointer'}`}
+        onClick={handleClick}
+      >
         {badgeContent}
       </span>
     </div>
