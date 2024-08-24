@@ -22,28 +22,32 @@ export async function RecentTags({
   );
 
   return (
-    <article className="recent-tags__container">
-      <Card width="full">
+    <article className="recent-tags__article">
+      <Card width="full" className="recent-tags__card">
         <FancyBorder>
-          <h3 title="3 months">Recent Tags</h3>
+          <div className="recent-tags__container">
+            <div className="recent-tags__card-header">
+              <h3 title="3 months">Recent Tags</h3>
+            </div>
 
-          {recentTags.tags.length > 0 && (
-            <ol className="recent-tags__list">
-              {recentTags.tags.map((tag) => {
-                return (
-                  <li key={tag} className="recent-tags__list-item">
-                    <TagLink
-                      value={tag}
-                      filterId={filterId}
-                      appendSearchParam
-                    />
-                  </li>
-                );
-              })}
-            </ol>
-          )}
+            {recentTags.tags.length > 0 && (
+              <ol className="recent-tags__list">
+                {recentTags.tags.map((tag) => {
+                  return (
+                    <li key={tag} className="recent-tags__list-item">
+                      <TagLink
+                        value={tag}
+                        filterId={filterId}
+                        appendSearchParam
+                      />
+                    </li>
+                  );
+                })}
+              </ol>
+            )}
 
-          {!recentTags.tags.length && <Empty label="No recent tags" />}
+            {!recentTags.tags.length && <Empty label="No recent tags" />}
+          </div>
         </FancyBorder>
       </Card>
     </article>
