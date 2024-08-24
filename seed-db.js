@@ -98,10 +98,14 @@ const generateRecords = async () => {
       }
 
       const author = name;
+      const submission_datetime = faker.date.between({
+        from: new Date(Date.now() - 5 * 365 * 24 * 60 * 60 * 1000), // 5 years ago
+        to: new Date()
+      });
 
       await sql`
-        INSERT INTO submissions (submission_name, author_id, author, tags)
-        VALUES (${submission_name}, ${userId}, ${author}, ${tags})
+        INSERT INTO submissions (submission_name, author_id, author, tags, submission_datetime)
+        VALUES (${submission_name}, ${userId}, ${author}, ${tags}, ${submission_datetime})
       `;
     }
 
