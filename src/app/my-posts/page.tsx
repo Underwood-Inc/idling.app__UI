@@ -24,7 +24,7 @@ const LazyPostsList = dynamic(
 export type PostFilters = 'tags';
 export type PostSearchParams = Filters<Record<PostFilters, string>>;
 
-export default async function Posts({
+export default async function MyPosts({
   searchParams
 }: {
   searchParams: PostSearchParams;
@@ -46,17 +46,18 @@ export default async function Posts({
         </PageHeader>
 
         <PageContent>
-          <section className={styles.posts__all}>
+          <section className={styles.posts__mine}>
             <article>
-              <h3 className={styles.posts__header}>all</h3>
+              <h3 className={styles.posts__header}>mine</h3>
 
               <Card className={styles.card} width="full">
                 <Suspense fallback={<Loader />}>
                   {session?.user?.providerAccountId && (
                     <LazyPostsList
-                      listId="main"
+                      listId="only-mine"
+                      onlyMine={true}
                       filters={filters}
-                      providerAccountId={session.user.providerAccountId}
+                      providerAccountId={session?.user?.providerAccountId || ''}
                     />
                   )}
                 </Suspense>
@@ -67,7 +68,7 @@ export default async function Posts({
 
         <PageAside className={styles.aside__recentTags}>
           <Suspense fallback={<RecentTagsLoader />}>
-            <RecentTags />
+            <RecentTags onlyMine />
           </Suspense>
         </PageAside>
       </PageContainer>

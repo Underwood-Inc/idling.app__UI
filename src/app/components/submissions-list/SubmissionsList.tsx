@@ -1,7 +1,6 @@
 'use client';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
-import { NAV_PATHS } from '../../../lib/routes';
 import { useFilters } from '../../../lib/state/FiltersContext';
 import { usePagination } from '../../../lib/state/PaginationContext';
 import { useShouldUpdate } from '../../../lib/state/ShouldUpdateContext';
@@ -33,6 +32,7 @@ export default function SubmissionsList({
   filters?: Filter<PostFilters>[];
 }) {
   const router = useRouter();
+  const pathName = usePathname();
   const { state: filtersState } = useFilters();
   const { state: shouldUpdate, dispatch: dispatchShouldUpdate } =
     useShouldUpdate();
@@ -106,7 +106,7 @@ export default function SubmissionsList({
     const latestFilters = filtersState.default?.filters.find(
       (filter) => filter.name === 'tags'
     )?.value;
-    const newRoute = `${NAV_PATHS.POSTS}${latestFilters ? `?tags=${latestFilters}` : ''}`;
+    const newRoute = `${pathName}${latestFilters ? `?tags=${latestFilters}` : ''}`;
     router.push(newRoute);
 
     dispatchPagination({

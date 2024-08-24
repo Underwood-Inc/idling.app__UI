@@ -5,7 +5,8 @@ import { parseZodErrors } from '../submission-forms/schema';
 import { Tags, tagSchema } from './schema';
 
 export async function getRecentTags(
-  interval: 'months' | 'days' | 'hrs' = 'months'
+  interval: 'months' | 'days' | 'hrs' = 'months',
+  providerAccountId?: string
 ): Promise<{
   tags: string[];
   error: string;
@@ -31,6 +32,7 @@ export async function getRecentTags(
           select distinct unnest(tags) as distinct_tags, submission_datetime
           from submissions s
           where s.submission_datetime >= NOW() - INTERVAL '3 days'
+          ${providerAccountId ? sql` and s.author_id = ${providerAccountId}` : sql``}
         `;
         break;
       case 'hrs':
@@ -38,6 +40,7 @@ export async function getRecentTags(
           select distinct unnest(tags) as distinct_tags, submission_datetime
           from submissions s
           where s.submission_datetime >= NOW() - INTERVAL '3 hrs'
+          ${providerAccountId ? sql` and s.author_id = ${providerAccountId}` : sql``}
         `;
         break;
       case 'months':
@@ -45,6 +48,7 @@ export async function getRecentTags(
           select distinct unnest(tags) as distinct_tags, submission_datetime
           from submissions s
           where s.submission_datetime >= NOW() - INTERVAL '3 months'
+          ${providerAccountId ? sql` and s.author_id = ${providerAccountId}` : sql``}
         `;
         break;
     }
