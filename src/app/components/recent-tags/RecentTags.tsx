@@ -20,7 +20,7 @@ export async function RecentTags() {
               {recentTags.tags.map((tag) => {
                 return (
                   <li key={tag} className="recent-tags__list-item">
-                    <TagLink value={tag} />
+                    <TagLink value={tag} appendSearchParam />
                   </li>
                 );
               })}

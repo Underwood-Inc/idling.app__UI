@@ -473,7 +473,7 @@ section:not(:last-of-type) {
 
 /* width */
 ::-webkit-scrollbar {
-  width: 20px;
+  width: 1rem;
 }
 
 /* Track */

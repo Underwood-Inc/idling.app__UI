@@ -1,8 +1,12 @@
+import dynamic from 'next/dynamic';
 import { Suspense } from 'react';
 import { CustomSession } from '../../auth.config';
 import { auth } from '../../lib/auth';
 import { Card } from '../components/card/Card';
 import FilterBar, { Filter, Filters } from '../components/filter-bar/FilterBar';
+import Loader from '../components/loader/Loader';
+import { PageAside } from '../components/page-aside/PageAside';
+import { PageContainer } from '../components/page-container/PageContainer';
 import PageContent from '../components/page-content/PageContent';
 import PageHeader from '../components/page-header/PageHeader';
 import {
@@ -10,10 +14,6 @@ import {
   RecentTagsLoader
 } from '../components/recent-tags/RecentTags';
 import { AddSubmissionForm } from '../components/submission-forms/add-submission-form/AddSubmissionForm';
-import dynamic from 'next/dynamic';
-import Loader from '../components/loader/Loader';
-import { PageAside } from '../components/page-aside/PageAside';
-import { PageContainer } from '../components/page-container/PageContainer';
 import styles from './page.module.css';
 
 const LazyPostsList = dynamic(
@@ -82,13 +82,13 @@ export default async function Posts({
           </section> */}
           </section>
         </PageContent>
-      </PageContainer>
 
-      <PageAside className={styles.aside__recentTags}>
-        <Suspense fallback={<RecentTagsLoader />}>
-          <RecentTags />
-        </Suspense>
-      </PageAside>
+        <PageAside className={styles.aside__recentTags}>
+          <Suspense fallback={<RecentTagsLoader />}>
+            <RecentTags />
+          </Suspense>
+        </PageAside>
+      </PageContainer>
     </>
   );
 }

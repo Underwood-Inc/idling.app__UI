@@ -34,7 +34,12 @@
     "**/*.ts",
     "**/*.tsx",
     "types.d.ts",
-    ".next/types/**/*.ts"
+    ".next/types/**/*.ts",
+    "**/*.mts"
   ],
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules"],
+  "ts-node": {
+    "esm": true,
+    "experimentalSpecifierResolution": "node"
+  }
 }

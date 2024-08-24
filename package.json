@@ -1,15 +1,16 @@
 {
   "name": "idling.app",
-  "version": "0.12.2",
+  "version": "0.12.3",
   "private": true,
   "engines": {
-    "node": "20.x"
+    "node": ">=20.x"
   },
   "engineStrict": true,
   "scripts": {
     "dev": "next dev",
     "dev:dock": "docker compose up",
     "dev:undock": "docker compose down",
+    "dev:seed": "./seed-db.sh",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
@@ -35,6 +36,7 @@
     "dotenv": "^16.4.5",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-prettier": "^5.2.1",
+    "lorem-ipsum": "^2.0.8",
     "next": "14.2.5",
     "next-auth": "5.0.0-beta.20",
     "pg": "8.10.0",
@@ -50,6 +52,7 @@
   "devDependencies": {
     "@commitlint/cli": "^19.4.0",
     "@commitlint/config-conventional": "^19.2.2",
+    "@faker-js/faker": "^8.4.1",
     "@playwright/test": "^1.46.1",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "6.1.5",
@@ -69,6 +72,7 @@
     "lint-staged": "^6.1.1",
     "playwright-core": "^1.46.1",
     "prettier": "^3.3.3",
+    "ts-node": "^10.9.2",
     "typescript": "5.5.4"
   },
   "resolutions": {

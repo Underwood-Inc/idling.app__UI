@@ -17,7 +17,7 @@ export function TagLink({
   value: string;
   appendSearchParam?: boolean;
 }) {
-  const { dispatch } = useFilters();
+  const { dispatch: dispatchFilters } = useFilters();
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const tagSearchParams = searchParams.get('tags');
@@ -26,7 +26,7 @@ export function TagLink({
   // client context so as to ensure certain UI/X behaviours occur
   const onClick = (tag: string) => {
     if (!tagSearchParams?.includes(tag)) {
-      dispatch({
+      dispatchFilters({
         payload: {
           filters: [
             {
