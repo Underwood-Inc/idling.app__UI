@@ -1,6 +1,7 @@
 .page-content__section {
   flex-direction: column;
   max-width: calc(80vw - 5rem);
+  padding-bottom: 5rem;
 }
 
 @media (max-width: 961px) {

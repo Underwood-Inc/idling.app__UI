@@ -4,7 +4,7 @@
   right: 2.3rem;
   width: calc(20vw - 3rem);
   max-height: calc(100vh / 1.5);
-  min-height: 20rem;
+  min-height: 30rem;
 }
 
 .page-aside__container aside {
