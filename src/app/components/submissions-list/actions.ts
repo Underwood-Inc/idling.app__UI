@@ -50,14 +50,30 @@ export async function getSubmissions({
     pagination
   };
 
+  const tagFilters = filters.find((filter) => filter.name === 'tags')?.value;
+
+  const tags = tagFilters
+    ? tagFilters.split(',').map((value) => `#${value}`) || []
+    : null; // prepend a #. values come from URL so they are excluded lest the URL break expected params behavior
+
   if (onlyMine && providerAccountId) {
-    const submissionsCount =
-      await sql`SELECT COUNT(*) FROM submissions WHERE author_id = ${providerAccountId}`;
+    const submissionsCount = await sql`
+        SELECT COUNT(*)
+        FROM submissions ${
+          tags
+            ? sql`WHERE tags && ${tags} AND author_id = ${providerAccountId}`
+            : sql`WHERE author_id = ${providerAccountId}`
+        }
+      `;
 
     // get all submissions for the currently logged in user
     // pagination config of 10 records per page with an offset method to paginate
     submissions = await sql`
-      SELECT * FROM submissions WHERE author_id = ${providerAccountId}
+      SELECT * FROM submissions ${
+        tags
+          ? sql`WHERE tags && ${tags} AND author_id = ${providerAccountId}`
+          : sql`WHERE author_id = ${providerAccountId}`
+      }
       ORDER BY submission_datetime DESC LIMIT 10 OFFSET ${(page - 1) * 10}
     `;
     // TODO: add zod schema parsing for `submissions`
@@ -65,14 +81,8 @@ export async function getSubmissions({
     response.pagination.totalRecords = submissionsCount[0].count;
     response.result = submissions;
   } else if (!onlyMine) {
-    const tagFilters = filters.find((filter) => filter.name === 'tags')?.value;
-
-    const tags = tagFilters
-      ? tagFilters.split(',').map((value) => `#${value}`) || []
-      : null; // prepend a #. values come from URL so they are excluded lest the URL break expected params behavior
     const submissionsCount =
       await sql`SELECT COUNT(*) FROM submissions ${tags ? sql`where tags && ${tags}` : sql``}`;
-
     // select * where post contents contains any of the entries in the `tags` string array
     // submissions are stored with the original contents unchanged and an additional column, tags (string[]), to store all tags
     // @> is a "has both/all" match

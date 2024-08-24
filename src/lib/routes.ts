@@ -1,5 +1,6 @@
 const ROOT = '/';
 const POSTS = '/posts';
+const MY_POSTS = '/my-posts';
 const COINS = '/coins';
 const GAME = '/game';
 const SIGNIN = '/auth/signin';
@@ -7,6 +8,7 @@ const SIGNIN = '/auth/signin';
 export const NAV_PATHS = {
   ROOT,
   POSTS,
+  MY_POSTS,
   COINS,
   GAME,
   SIGNIN
@@ -18,7 +20,8 @@ export const HEADER_NAV_PATHS: Record<
 > = {
   COINS,
   GAME,
-  POSTS
+  POSTS,
+  MY_POSTS
 };
 
 export type ROUTES = keyof typeof NAV_PATHS;
@@ -26,6 +29,7 @@ export type ROUTES = keyof typeof NAV_PATHS;
 export const NAV_PATH_LABELS: Record<ROUTES, string> = {
   ROOT: 'Home',
   POSTS: 'Posts',
+  MY_POSTS: 'My Posts',
   COINS: 'Coins',
   GAME: 'Game',
   SIGNIN: 'Sign In'

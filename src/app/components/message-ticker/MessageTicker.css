@@ -4,6 +4,7 @@
   background-color: #222;
   color: var(--dark-bg__text-color--tertiary);
   width: 100%;
+  min-width: 23rem;
   min-height: 3rem;
   max-height: 3rem;
   display: flex;

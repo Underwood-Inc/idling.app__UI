@@ -19,9 +19,9 @@ export type Filters<
     Partial<DefaultSearchParamFilters> = Partial<DefaultSearchParamFilters>
 > = Partial<F>;
 
-export default function FilterBar() {
+export default function FilterBar({ filterId }: { filterId: string }) {
   const { state, dispatch } = useFilters();
-  const filters = state.default?.filters || [];
+  const filters = state[filterId]?.filters || [];
 
   if (!filters?.length) {
     return null;
@@ -36,7 +36,7 @@ export default function FilterBar() {
             value: ''
           }
         ],
-        id: 'default'
+        id: filterId
       },
       type: 'SET_CURRENT_FILTERS'
     });
@@ -55,7 +55,7 @@ export default function FilterBar() {
           values.map((value) => {
             return (
               <div key={value} className="filter-bar__filter-value-container">
-                <FilterLabel name={name} label={value} />
+                <FilterLabel name={name} label={value} filterId={filterId} />
               </div>
             );
           });

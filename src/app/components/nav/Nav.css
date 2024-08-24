@@ -4,11 +4,13 @@
   justify-content: space-between;
   align-items: center;
   margin: 1rem;
+  flex-wrap: wrap;
 }
 
 .nav__links,
 .nav__auth {
   display: flex;
+  flex-wrap: wrap;
   align-items: flex-end;
 }
 

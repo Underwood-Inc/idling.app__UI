@@ -1,3 +1,5 @@
+import { CustomSession } from 'src/auth.config';
+import { auth } from 'src/lib/auth';
 import { Card } from '../card/Card';
 import Empty from '../empty/Empty';
 import FancyBorder from '../fancy-border/FancyBorder';
@@ -6,8 +8,18 @@ import { TagLink } from '../tag-link/TagLink';
 import { getRecentTags } from './actions';
 import './RecentTags.css';
 
-export async function RecentTags() {
-  const recentTags = await getRecentTags();
+export async function RecentTags({
+  filterId,
+  onlyMine = false
+}: {
+  filterId: string;
+  onlyMine?: boolean;
+}) {
+  const session = (await auth()) as CustomSession | null;
+  const recentTags = await getRecentTags(
+    'months',
+    onlyMine ? session!.user.providerAccountId : undefined
+  );
 
   return (
     <article className="recent-tags__container">
@@ -20,7 +32,11 @@ export async function RecentTags() {
               {recentTags.tags.map((tag) => {
                 return (
                   <li key={tag} className="recent-tags__list-item">
-                    <TagLink value={tag} appendSearchParam />
+                    <TagLink
+                      value={tag}
+                      filterId={filterId}
+                      appendSearchParam
+                    />
                   </li>
                 );
               })}

@@ -471,9 +471,10 @@ section:not(:last-of-type) {
   /* hi-res laptops and desktops */
 }
 
-/* width */
+/* size */
 ::-webkit-scrollbar {
   width: 1rem;
+  height: 1rem;
 }
 
 /* Track */
