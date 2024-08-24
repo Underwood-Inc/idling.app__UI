@@ -8,6 +8,7 @@
   justify-content: center;
   position: sticky;
   top: 0;
+  min-width: 23rem;
   width: 100%;
   z-index: 10;
 }
