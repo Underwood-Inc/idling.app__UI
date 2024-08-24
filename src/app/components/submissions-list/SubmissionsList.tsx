@@ -7,6 +7,7 @@ import { useShouldUpdate } from '../../../lib/state/ShouldUpdateContext';
 import { SUBMISSIONS_LIST_SELECTORS } from '../../../lib/test-selectors/components/submissions-list.selectors';
 import { PostFilters } from '../../posts/page';
 import Empty from '../empty/Empty';
+import FadeIn from '../fade-in/FadeIn';
 import { Filter } from '../filter-bar/FilterBar';
 import Loader from '../loader/Loader';
 import Pagination from '../pagination/Pagination';
@@ -167,31 +168,33 @@ export default function SubmissionsList({
 
                   return (
                     <li key={submission_id} className="submission__wrapper">
-                      <p>
-                        {author && (
-                          <span className="submission__author">
-                            {author}:&nbsp;
+                      <FadeIn>
+                        <p>
+                          {author && (
+                            <span className="submission__author">
+                              {author}:&nbsp;
+                            </span>
+                          )}
+                          <span>
+                            <TagLink
+                              value={submission_name}
+                              filterId={filterId}
+                              appendSearchParam
+                            />
                           </span>
-                        )}
-                        <span>
-                          <TagLink
-                            value={submission_name}
-                            filterId={filterId}
-                            appendSearchParam
-                          />
-                        </span>
-                        <span className="submission__datetime">
-                          {createdDate}
-                        </span>
-                      </p>
+                          <span className="submission__datetime">
+                            {createdDate}
+                          </span>
+                        </p>
 
-                      {canDelete && (
-                        <DeleteSubmissionForm
-                          id={submission_id}
-                          name={submission_name}
-                          isAuthorized={!!providerAccountId}
-                        />
-                      )}
+                        {canDelete && (
+                          <DeleteSubmissionForm
+                            id={submission_id}
+                            name={submission_name}
+                            isAuthorized={!!providerAccountId}
+                          />
+                        )}
+                      </FadeIn>
                     </li>
                   );
                 }

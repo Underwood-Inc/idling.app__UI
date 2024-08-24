@@ -1,5 +1,6 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
+import FadeIn from '../fade-in/FadeIn';
 import './MessageTicker.css';
 
 interface MessageTickerProps {
@@ -8,7 +9,7 @@ interface MessageTickerProps {
 
 export function MessageTicker({ messages = [] }: MessageTickerProps) {
   const tickerRef = useRef<HTMLDivElement>(null);
-  const [animationDuration, setAnimationDuration] = useState('40s');
+  const [animationDuration, setAnimationDuration] = useState('120s');
 
   useEffect(() => {
     if (tickerRef.current) {
@@ -39,17 +40,17 @@ export function MessageTicker({ messages = [] }: MessageTickerProps) {
         style={{ animationDuration }}
       >
         {repeatedMessages.map((message, index) => (
-          <span className="message-ticker__message" key={index}>
-            {message}
+          <span className="message-ticker__message" key={message + index}>
+            <FadeIn display="span">{message}</FadeIn>
           </span>
         ))}
         {/* render a second set with offset to ensure seamless infinite animation */}
         {repeatedMessages.map((message, index) => (
           <span
             className="message-ticker__message message-ticker__message--offset"
-            key={index}
+            key={message + index + 'offset'}
           >
-            {message}
+            <FadeIn display="span">{message}</FadeIn>
           </span>
         ))}
       </div>

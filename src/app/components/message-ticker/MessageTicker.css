@@ -2,7 +2,7 @@
   overflow: hidden;
   white-space: nowrap;
   background-color: #222;
-  color: var(--dark-bg__text-color--tertiary);
+  color: var(--dark-bg__text-color--secondary);
   width: 100%;
   min-width: 23rem;
   min-height: 3rem;

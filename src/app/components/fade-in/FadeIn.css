@@ -1,0 +1,10 @@
+/* FadeIn.css */
+.fade-in {
+  opacity: 0;
+  transition: opacity 1s ease-in;
+  width: inherit;
+}
+
+.fade-in.visible {
+  opacity: 1;
+}

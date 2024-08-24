@@ -4,10 +4,11 @@ import { Suspense } from 'react';
 import { PaginationProvider } from '../lib/state/PaginationContext';
 import { ShouldUpdateProvider } from '../lib/state/ShouldUpdateContext';
 import { AvatarsBackground } from './components/avatars-background/AvatarsBackground';
+import FadeIn from './components/fade-in/FadeIn';
 import Footer from './components/footer/Footer';
 import Header from './components/header/Header';
 import Loader from './components/loader/Loader';
-import { MessageTickerWithSuspense } from './components/message-ticker/MessageTickerWithSuspense';
+import MessageTickerWithInterval from './components/message-ticker/MessageTickerWithInterval';
 import './globals.css';
 
 const inter = Inter({ subsets: ['latin'] });
@@ -69,11 +70,13 @@ export default function RootLayout({
 
           <Header />
 
-          <MessageTickerWithSuspense />
+          <MessageTickerWithInterval />
 
           <Suspense fallback={<Loader />}>
             <PaginationProvider>
-              <ShouldUpdateProvider>{children}</ShouldUpdateProvider>
+              <ShouldUpdateProvider>
+                <FadeIn>{children}</FadeIn>
+              </ShouldUpdateProvider>
             </PaginationProvider>
           </Suspense>
           <Footer />

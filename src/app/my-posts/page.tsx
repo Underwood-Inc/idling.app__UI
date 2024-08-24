@@ -4,6 +4,7 @@ import { FILTER_IDS } from 'src/lib/filter-ids';
 import { CustomSession } from '../../auth.config';
 import { auth } from '../../lib/auth';
 import { Card } from '../components/card/Card';
+import FadeIn from '../components/fade-in/FadeIn';
 import FilterBar, { Filter, Filters } from '../components/filter-bar/FilterBar';
 import Loader from '../components/loader/Loader';
 import { PageAside } from '../components/page-aside/PageAside';
@@ -39,37 +40,45 @@ export default async function MyPosts({
     <>
       <PageContainer>
         <PageHeader>
-          <h2 className={styles.posts__header}>posts</h2>
+          <FadeIn>
+            <h2 className={styles.posts__header}>posts</h2>
 
-          <AddSubmissionForm isAuthorized={!!session} />
-          <br />
-          <FilterBar filterId={FILTER_IDS.MY_POSTS.toString()} />
+            <AddSubmissionForm isAuthorized={!!session} />
+            <br />
+            <FilterBar filterId={FILTER_IDS.MY_POSTS.toString()} />
+          </FadeIn>
         </PageHeader>
 
         <PageContent>
           <section className={styles.posts__mine}>
             <article>
-              <h3 className={styles.posts__header}>mine</h3>
+              <FadeIn>
+                <h3 className={styles.posts__header}>mine</h3>
 
-              <Card className={styles.card} width="full">
-                <Suspense fallback={<Loader />}>
-                  {session?.user?.providerAccountId && (
-                    <LazyPostsList
-                      filterId={FILTER_IDS.MY_POSTS.toString()}
-                      onlyMine={true}
-                      filters={filters}
-                      providerAccountId={session?.user?.providerAccountId || ''}
-                    />
-                  )}
-                </Suspense>
-              </Card>
+                <Card className={styles.card} width="full">
+                  <Suspense fallback={<Loader />}>
+                    {session?.user?.providerAccountId && (
+                      <LazyPostsList
+                        filterId={FILTER_IDS.MY_POSTS.toString()}
+                        onlyMine={true}
+                        filters={filters}
+                        providerAccountId={
+                          session?.user?.providerAccountId || ''
+                        }
+                      />
+                    )}
+                  </Suspense>
+                </Card>
+              </FadeIn>
             </article>
           </section>
         </PageContent>
 
         <PageAside className={styles.aside__recentTags}>
           <Suspense fallback={<RecentTagsLoader />}>
-            <RecentTags filterId={FILTER_IDS.MY_POSTS.toString()} onlyMine />
+            <FadeIn>
+              <RecentTags filterId={FILTER_IDS.MY_POSTS.toString()} onlyMine />
+            </FadeIn>
           </Suspense>
         </PageAside>
       </PageContainer>

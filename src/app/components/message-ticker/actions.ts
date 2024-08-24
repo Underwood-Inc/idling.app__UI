@@ -9,10 +9,9 @@ export interface BuddhaQuoteResponse {
 }
 
 export async function fetchBuddha(): Promise<BuddhaQuoteResponse | null> {
-  const res: Response = await fetch(
-    'https://buddha-api.com/api/random?by=buddha',
-    { next: { revalidate: 3600 } }
-  );
+  const res: Response = await fetch('https://buddha-api.com/api/random', {
+    cache: 'no-cache'
+  });
 
   if (!res.ok) {
     console.error('Failed to fetch messages');
