@@ -9,6 +9,11 @@
   height: 100%;
 }
 
+.recent-tags__card {
+  overflow: hidden;
+  padding-bottom: 0;
+}
+
 .recent-tags__list {
   overflow: auto;
   height: auto;
