@@ -15,11 +15,9 @@ export const NAV_PATHS = {
 };
 
 export const HEADER_NAV_PATHS: Record<
-  Exclude<ROUTES, 'ROOT' | 'SIGNIN'>,
+  Exclude<ROUTES, 'ROOT' | 'SIGNIN' | 'COINS' | 'GAME'>,
   string
 > = {
-  COINS,
-  GAME,
   POSTS,
   MY_POSTS
 };

@@ -1,6 +1,7 @@
 import { About } from './components/about/About';
 import { Card } from './components/card/Card';
 import { DiscordEmbed } from './components/discord-embed/DiscordEmbed';
+import FadeIn from './components/fade-in/FadeIn';
 import FancyBorder from './components/fancy-border/FancyBorder';
 import { PageAside } from './components/page-aside/PageAside';
 import { PageContainer } from './components/page-container/PageContainer';
@@ -14,19 +15,23 @@ export default async function Home() {
       <PageContainer>
         <PageContent>
           <article className={styles.home__container}>
-            <Card width="min">
-              <h2>About</h2>
+            <FadeIn>
+              <Card width="min">
+                <h2>About</h2>
 
-              <About />
-            </Card>
+                <About />
+              </Card>
+            </FadeIn>
           </article>
         </PageContent>
       </PageContainer>
 
       <PageAside className={styles.discord_aside} bottomMargin={10}>
-        <FancyBorder>
-          <DiscordEmbed />
-        </FancyBorder>
+        <FadeIn>
+          <FancyBorder>
+            <DiscordEmbed />
+          </FancyBorder>
+        </FadeIn>
       </PageAside>
     </>
   );
