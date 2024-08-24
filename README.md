@@ -105,6 +105,10 @@ Individual component files (.tsx) within `components/` must have an accompanying
 
 Page component files must have an accompanying `***.test.tsx` files. These tests are **integration** tests which must test a combination of multiple components in relation to one another. Additionally, these tests should have some user event actions to simulate real-world user events and outcomes that can then have assertions made against (i.e. clicking a button changes it to be in a loading state).
 
+If the `<FadeIn />` component is being used on the page being tested via Playwright, add a manual waittime of two seconds to ensure the fade-in animations are all completed. This is necessary because the animation gradually changes the opacity from 0 to 1 and playwright can analyze elements during animations. If the animation is not yet complete, a less than one opacity will result in darker than expected colors resulting in a failed contrast accessibility check.
+
+Additionally, excluding elements from the checkA11y method must be done very sparingly as an excluded element will also exclude all of its descendants. In the use-case of the FadeIn component, it can wrap any valid react node to give it a fade in loading animation that starts on component mount. This means unintentional exclusion of a large portion of a page from the accessibility evalutaion pipeline.
+
 ### E2E via Playwright [***.spec.ts]
 
 Playwright tests are where anything else that can't be tested in unit, component, or integration tests are tested. These are end-to-end (e2e) tests.
