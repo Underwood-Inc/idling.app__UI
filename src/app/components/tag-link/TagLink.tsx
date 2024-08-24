@@ -12,10 +12,12 @@ import { tagRegex } from '../../../lib/utils/string/tag-regex';
  */
 export function TagLink({
   value,
-  appendSearchParam = false
+  appendSearchParam = false,
+  filterId
 }: {
   value: string;
   appendSearchParam?: boolean;
+  filterId: string;
 }) {
   const { dispatch: dispatchFilters } = useFilters();
   const pathname = usePathname();
@@ -37,7 +39,7 @@ export function TagLink({
                   : tag.toLowerCase()
             }
           ],
-          id: 'default'
+          id: filterId
         },
         type: 'SET_CURRENT_FILTERS'
       });

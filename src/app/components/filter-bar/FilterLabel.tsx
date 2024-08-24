@@ -5,7 +5,15 @@ import BadgeWrapper from '../badge/Badge';
 import './FilterBar.css';
 import { getTagsFromSearchParams } from './utils/get-tags';
 
-export function FilterLabel({ label, name }: { label: string; name: string }) {
+export function FilterLabel({
+  label,
+  name,
+  filterId
+}: {
+  label: string;
+  name: string;
+  filterId: string;
+}) {
   const searchParams = useSearchParams();
   const tags = getTagsFromSearchParams(searchParams.get(name) || '');
   const { dispatch } = useFilters();
@@ -23,7 +31,7 @@ export function FilterLabel({ label, name }: { label: string; name: string }) {
             value: newTags.length ? newTagsSearchParams : ''
           }
         ],
-        id: 'default'
+        id: filterId
       },
       type: 'SET_CURRENT_FILTERS'
     });

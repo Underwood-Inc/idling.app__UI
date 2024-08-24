@@ -1,5 +1,6 @@
 import dynamic from 'next/dynamic';
 import { Suspense } from 'react';
+import { FILTER_IDS } from 'src/lib/filter-ids';
 import { CustomSession } from '../../auth.config';
 import { auth } from '../../lib/auth';
 import { Card } from '../components/card/Card';
@@ -42,7 +43,7 @@ export default async function MyPosts({
 
           <AddSubmissionForm isAuthorized={!!session} />
           <br />
-          <FilterBar />
+          <FilterBar filterId={FILTER_IDS.MY_POSTS.toString()} />
         </PageHeader>
 
         <PageContent>
@@ -54,7 +55,7 @@ export default async function MyPosts({
                 <Suspense fallback={<Loader />}>
                   {session?.user?.providerAccountId && (
                     <LazyPostsList
-                      listId="only-mine"
+                      filterId={FILTER_IDS.MY_POSTS.toString()}
                       onlyMine={true}
                       filters={filters}
                       providerAccountId={session?.user?.providerAccountId || ''}
@@ -68,7 +69,7 @@ export default async function MyPosts({
 
         <PageAside className={styles.aside__recentTags}>
           <Suspense fallback={<RecentTagsLoader />}>
-            <RecentTags onlyMine />
+            <RecentTags filterId={FILTER_IDS.MY_POSTS.toString()} onlyMine />
           </Suspense>
         </PageAside>
       </PageContainer>

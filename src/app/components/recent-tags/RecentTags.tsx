@@ -8,7 +8,13 @@ import { TagLink } from '../tag-link/TagLink';
 import { getRecentTags } from './actions';
 import './RecentTags.css';
 
-export async function RecentTags({ onlyMine = false }: { onlyMine?: boolean }) {
+export async function RecentTags({
+  filterId,
+  onlyMine = false
+}: {
+  filterId: string;
+  onlyMine?: boolean;
+}) {
   const session = (await auth()) as CustomSession | null;
   const recentTags = await getRecentTags(
     'months',
@@ -26,7 +32,11 @@ export async function RecentTags({ onlyMine = false }: { onlyMine?: boolean }) {
               {recentTags.tags.map((tag) => {
                 return (
                   <li key={tag} className="recent-tags__list-item">
-                    <TagLink value={tag} appendSearchParam />
+                    <TagLink
+                      value={tag}
+                      filterId={filterId}
+                      appendSearchParam
+                    />
                   </li>
                 );
               })}

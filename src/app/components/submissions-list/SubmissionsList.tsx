@@ -21,12 +21,12 @@ import {
 import './SubmissionsList.css';
 
 export default function SubmissionsList({
-  listId = 'default',
+  filterId = 'default',
   providerAccountId,
   onlyMine = false,
   filters = []
 }: {
-  listId: string;
+  filterId: string;
   providerAccountId: string;
   onlyMine?: boolean;
   filters?: Filter<PostFilters>[];
@@ -38,7 +38,7 @@ export default function SubmissionsList({
     useShouldUpdate();
   const { state: paginationState, dispatch: dispatchPagination } =
     usePagination();
-  const pagination = paginationState[listId];
+  const pagination = paginationState[filterId];
 
   // TODO: https://github.com/vercel/next.js/issues/65673#issuecomment-2112746191
   // const [state, formAction] = useActionState(getSubmissionsAction, initialState)
@@ -84,17 +84,17 @@ export default function SubmissionsList({
     dispatchPagination({
       type: 'SET_TOTAL_PAGES',
       payload: {
-        id: listId,
+        id: filterId,
         page: Math.ceil(newTotalPages)
       }
     });
-  }, [dispatchPagination, response?.data?.pagination.totalRecords, listId]);
+  }, [dispatchPagination, response?.data?.pagination.totalRecords, filterId]);
 
   useEffect(() => {
     dispatchShouldUpdate({ type: 'SET_SHOULD_UPDATE', payload: false });
     dispatchPagination({
       payload: {
-        id: listId,
+        id: filterId,
         page: 1
       },
       type: 'SET_CURRENT_PAGE'
@@ -103,21 +103,21 @@ export default function SubmissionsList({
   }, [shouldUpdate]);
 
   useEffect(() => {
-    const latestFilters = filtersState.default?.filters.find(
+    const latestFilters = filtersState[filterId]?.filters.find(
       (filter) => filter.name === 'tags'
     )?.value;
     const newRoute = `${pathName}${latestFilters ? `?tags=${latestFilters}` : ''}`;
     router.push(newRoute);
 
     dispatchPagination({
-      payload: { id: listId, page: 1 },
+      payload: { id: filterId, page: 1 },
       type: 'SET_CURRENT_PAGE'
     });
 
     fetchSubmissions({
       ...getArgs(),
       currentPage: 1,
-      filters: filtersState.default?.filters || []
+      filters: filtersState[filterId]?.filters || []
     });
   }, [filtersState]);
 
@@ -140,7 +140,7 @@ export default function SubmissionsList({
       className="submissions-list__container"
     >
       <div className="submissions-list__header">
-        <Pagination id={listId} onPageChange={onPageChange} />
+        <Pagination id={filterId} onPageChange={onPageChange} />
       </div>
 
       {loading && <Loader color="black" />}
@@ -174,7 +174,11 @@ export default function SubmissionsList({
                           </span>
                         )}
                         <span>
-                          <TagLink value={submission_name} appendSearchParam />
+                          <TagLink
+                            value={submission_name}
+                            filterId={filterId}
+                            appendSearchParam
+                          />
                         </span>
                         <span className="submission__datetime">
                           {createdDate}
