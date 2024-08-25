@@ -54,7 +54,7 @@
   line-height: 1.5;
   max-width: 100ch;
   width: 100%;
-  text-wrap: balance;
+  text-wrap: wrap;
   word-break: break-word;
 }
 
