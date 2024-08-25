@@ -65,6 +65,7 @@ export function TagLink({
       key={`${match}_${i}`}
       onClick={() => onClick(match)}
       href={getHref(match)}
+      prefetch={false}
     >
       #{match}
     </Link>
