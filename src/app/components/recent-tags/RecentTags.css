@@ -9,9 +9,17 @@
   height: 100%;
 }
 
+.recent-tags__fancy-border {
+  padding-bottom: 1rem;
+}
+
 .recent-tags__card {
-  overflow: hidden;
-  padding-bottom: 0;
+  /* nextjs route change result in inconsistent stylesheet load orders */
+  /* this results in card styles being unable to be overridden */
+  /* style overrides only work on fresh page loads */
+  /* scss, css modules, & clsx do not fix it */
+  overflow: hidden !important;
+  padding-bottom: 0 !important;
 }
 
 .recent-tags__container {

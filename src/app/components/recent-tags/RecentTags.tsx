@@ -24,7 +24,7 @@ export async function RecentTags({
   return (
     <article className="recent-tags__article">
       <Card width="full" className="recent-tags__card">
-        <FancyBorder>
+        <FancyBorder className="recent-tags__fancy-border">
           <div className="recent-tags__container">
             <div className="recent-tags__card-header">
               <h3 title="3 months">Recent Tags</h3>
@@ -58,7 +58,7 @@ export function RecentTagsLoader() {
   return (
     <article className="recent-tags__container">
       <Card width="full">
-        <FancyBorder>
+        <FancyBorder className="recent-tags__fancy-border">
           <h3>Recent Tags (3 months)</h3>
           <Loader label="" color="black" />
         </FancyBorder>

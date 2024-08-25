@@ -4,27 +4,32 @@ import './FadeIn.css';
 
 interface FadeInProps {
   children: React.ReactNode;
+  className?: string;
   display?: 'div' | 'span' | 'p' | 'code';
 }
 
-const FadeIn: React.FC<FadeInProps> = ({ children, display = 'div' }) => {
+const FadeIn: React.FC<FadeInProps> = ({
+  children,
+  className,
+  display = 'div'
+}) => {
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
     setIsVisible(true);
   }, []);
 
-  const className = `fade-in ${isVisible ? 'visible' : ''}`;
+  const cssName = `fade-in${isVisible ? ' visible' : ''}${className ? ` ${className}` : ''}`;
 
   switch (display) {
     case 'code':
-      return <code className={className}>{children}</code>;
+      return <code className={cssName}>{children}</code>;
     case 'p':
-      return <p className={className}>{children}</p>;
+      return <p className={cssName}>{children}</p>;
     case 'span':
-      return <span className={className}>{children}</span>;
+      return <span className={cssName}>{children}</span>;
     default:
-      return <div className={className}>{children}</div>;
+      return <div className={cssName}>{children}</div>;
   }
 };
 
