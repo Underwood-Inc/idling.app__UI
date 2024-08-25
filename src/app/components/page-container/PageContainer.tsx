@@ -30,7 +30,7 @@ export function PageContainer({ children }: { children: React.ReactNode }) {
     : [];
 
   return (
-    <FiltersProvider value={{ default: { filters, id: filterId } }}>
+    <FiltersProvider value={{ [filterId]: { filters, id: filterId } }}>
       <section className="page__container">{children}</section>
     </FiltersProvider>
   );
