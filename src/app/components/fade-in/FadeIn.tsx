@@ -5,7 +5,7 @@ import './FadeIn.css';
 interface FadeInProps {
   children: React.ReactNode;
   className?: string;
-  display?: 'div' | 'span' | 'p' | 'code';
+  display?: 'div' | 'span' | 'p' | 'code' | 'li';
 }
 
 const FadeIn: React.FC<FadeInProps> = ({
@@ -24,6 +24,8 @@ const FadeIn: React.FC<FadeInProps> = ({
   switch (display) {
     case 'code':
       return <code className={cssName}>{children}</code>;
+    case 'li':
+      return <li className={cssName}>{children}</li>;
     case 'p':
       return <p className={cssName}>{children}</p>;
     case 'span':
