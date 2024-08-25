@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation';
+import { PageContainer } from 'src/app/components/page-container/PageContainer';
 import { auth } from '../../../lib/auth';
 import { NAV_PATHS } from '../../../lib/routes';
 import {
@@ -22,10 +23,12 @@ export default async function Page({
   }
 
   return (
-    <article className="signin__container">
-      {providers.map((provider) => (
-        <SignIn key={provider} provider={provider} />
-      ))}
-    </article>
+    <PageContainer>
+      <article className="signin__container">
+        {providers.map((provider) => (
+          <SignIn key={provider} provider={provider} />
+        ))}
+      </article>
+    </PageContainer>
   );
 }
