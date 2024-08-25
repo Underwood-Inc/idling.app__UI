@@ -15,7 +15,7 @@ export default async function Home() {
       <PageContainer>
         <PageContent>
           <article className={styles.home__container}>
-            <FadeIn>
+            <FadeIn className={styles.home__container_fade}>
               <Card width="min">
                 <h2>About</h2>
 
