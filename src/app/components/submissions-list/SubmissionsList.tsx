@@ -167,26 +167,28 @@ export default function SubmissionsList({
                   ).toLocaleDateString();
 
                   return (
-                    <li key={submission_id} className="submission__wrapper">
-                      <FadeIn>
-                        <p>
-                          {author && (
-                            <span className="submission__author">
-                              {author}:&nbsp;
-                            </span>
-                          )}
-                          <span>
-                            <TagLink
-                              value={submission_name}
-                              filterId={filterId}
-                              appendSearchParam
-                            />
+                    <FadeIn
+                      display="li"
+                      key={submission_id}
+                      className="submission__wrapper"
+                    >
+                      <p className="submission__content">
+                        {author && (
+                          <span className="submission__author">
+                            {author}:&nbsp;
                           </span>
-                          <span className="submission__datetime">
-                            {createdDate}
-                          </span>
-                        </p>
+                        )}
+                        <span>
+                          <TagLink
+                            value={submission_name}
+                            filterId={filterId}
+                            appendSearchParam
+                          />
+                        </span>
+                      </p>
 
+                      <div className="submission__meta">
+                        <p className="submission__datetime">{createdDate}</p>
                         {canDelete && (
                           <DeleteSubmissionForm
                             id={submission_id}
@@ -194,8 +196,8 @@ export default function SubmissionsList({
                             isAuthorized={!!providerAccountId}
                           />
                         )}
-                      </FadeIn>
-                    </li>
+                      </div>
+                    </FadeIn>
                   );
                 }
               )}
