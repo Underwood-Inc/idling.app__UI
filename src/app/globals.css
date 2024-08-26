@@ -208,7 +208,8 @@ code,
 input,
 button,
 span,
-li {
+li,
+select {
   font-size: 1.4rem;
 }
 

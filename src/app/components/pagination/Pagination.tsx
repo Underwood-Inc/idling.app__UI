@@ -56,6 +56,20 @@ function Pagination({
     }
   };
 
+  const handlePageSelect = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    const newPage = Number(event.target.value);
+
+    dispatch({
+      type: 'SET_CURRENT_PAGE',
+      payload: {
+        id,
+        page: newPage
+      }
+    });
+
+    onPageChange(newPage);
+  };
+
   return (
     <article className="pagination__container">
       <div className="flex ai-center">
@@ -69,7 +83,21 @@ function Pagination({
           Previous
         </button>
         <p data-testid={PAGINATION_SELECTORS.STATE}>
-          Page {currentPage} of {totalPages}
+          Page&nbsp;
+          <select
+            title="Current page selector"
+            value={currentPage}
+            onChange={handlePageSelect}
+            className="pagination__page-selector"
+            data-testid={PAGINATION_SELECTORS.PAGE_SELECTOR}
+          >
+            {Array.from({ length: totalPages }, (_, index) => (
+              <option key={index + 1} value={index + 1}>
+                {index + 1}
+              </option>
+            ))}
+          </select>
+          &nbsp; of {totalPages}
         </p>
       </div>
       <button
