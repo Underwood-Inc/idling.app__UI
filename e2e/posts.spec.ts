@@ -8,7 +8,7 @@ testWithFakeAuth.beforeEach(async ({ page }) => {
   await page.goto('/posts');
 
   // Wait for a specific duration to ensure all fade-in animations are complete
-  await page.waitForTimeout(2000);
+  await page.waitForTimeout(2500);
 
   // Select all elements with the .fade-in class
   const fadeInElements = await page.$$('.fade-in');
