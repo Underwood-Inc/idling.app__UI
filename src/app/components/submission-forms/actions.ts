@@ -112,6 +112,8 @@ export async function deleteSubmissionAction(
   },
   formData: FormData
 ) {
+  const session = (await auth()) as CustomSession | null;
+
   const { success, data, error } = parseDeleteSubmission({
     submission_id: Number.parseInt(formData.get('submission_id') as string),
     submission_name: formData.get('submission_name') as string
@@ -127,6 +129,7 @@ export async function deleteSubmissionAction(
     await sql`
       DELETE FROM submissions
       WHERE submission_id = ${sqlSubmissionId}
+      AND author_id = ${session?.user?.providerAccountId!}
     `;
 
     revalidatePath('/');
