@@ -85,7 +85,7 @@ function Pagination({
         <p data-testid={PAGINATION_SELECTORS.STATE}>
           Page&nbsp;
           <select
-            title="Current page selector"
+            aria-label="Current page selector"
             value={currentPage}
             onChange={handlePageSelect}
             className="pagination__page-selector"
