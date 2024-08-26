@@ -1,6 +1,6 @@
 import dynamic from 'next/dynamic';
 import { Suspense } from 'react';
-import { FILTER_IDS } from 'src/lib/filter-ids';
+import { CONTEXT_IDS } from 'src/lib/context-ids';
 import { CustomSession } from '../../auth.config';
 import { auth } from '../../lib/auth';
 import { Card } from '../components/card/Card';
@@ -23,7 +23,7 @@ const LazyPostsList = dynamic(
   { ssr: false }
 );
 
-export type PostFilters = 'tags';
+export type PostFilters = 'tags' | 'page';
 export type PostSearchParams = Filters<Record<PostFilters, string>>;
 
 export default async function Posts({
@@ -35,6 +35,7 @@ export default async function Posts({
   const filters: Filter<PostFilters>[] = searchParams?.tags
     ? [{ name: 'tags', value: searchParams.tags }]
     : [];
+  const currentPage = searchParams?.page ? Number(searchParams.page) : 1;
 
   return (
     <>
@@ -45,7 +46,7 @@ export default async function Posts({
 
             <AddSubmissionForm isAuthorized={!!session} />
             <br />
-            <FilterBar filterId={FILTER_IDS.POSTS.toString()} />
+            <FilterBar filterId={CONTEXT_IDS.POSTS.toString()} />
           </FadeIn>
         </PageHeader>
 
@@ -59,8 +60,9 @@ export default async function Posts({
                   <Suspense fallback={<Loader />}>
                     {session?.user?.providerAccountId && (
                       <LazyPostsList
-                        filterId={FILTER_IDS.POSTS.toString()}
+                        contextId={CONTEXT_IDS.POSTS.toString()}
                         filters={filters}
+                        page={currentPage}
                         providerAccountId={session.user.providerAccountId}
                       />
                     )}
@@ -75,7 +77,7 @@ export default async function Posts({
           <PageAside className={styles.aside__recentTags}>
             <Suspense fallback={<RecentTagsLoader />}>
               <FadeIn>
-                <RecentTags filterId={FILTER_IDS.POSTS.toString()} />
+                <RecentTags contextId={CONTEXT_IDS.POSTS.toString()} />
               </FadeIn>
             </Suspense>
           </PageAside>

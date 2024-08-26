@@ -49,6 +49,9 @@ export async function getSubmissions({
     ? tagFilters.split(',').map((value) => `#${value}`) || []
     : null; // prepend a #. values come from URL so they are excluded lest the URL break expected params behavior
 
+  console.log('filters', filters);
+  console.log('tags', tags);
+
   if (onlyMine && providerAccountId) {
     const submissionsCount = await sql`
         SELECT COUNT(*)
@@ -84,6 +87,8 @@ export async function getSubmissions({
     response.pagination.totalRecords = submissionsCount[0].count;
     response.result = submissions;
   }
+
+  // console.log('response', response);
 
   return response;
 }

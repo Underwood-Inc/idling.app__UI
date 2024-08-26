@@ -1,7 +1,6 @@
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import { Suspense } from 'react';
-import { PaginationProvider } from '../lib/state/PaginationContext';
 import { ShouldUpdateProvider } from '../lib/state/ShouldUpdateContext';
 import { AvatarsBackground } from './components/avatars-background/AvatarsBackground';
 import FadeIn from './components/fade-in/FadeIn';
@@ -73,11 +72,9 @@ export default function RootLayout({
           <MessageTickerWithInterval />
 
           <Suspense fallback={<Loader />}>
-            <PaginationProvider>
-              <ShouldUpdateProvider>
-                <FadeIn>{children}</FadeIn>
-              </ShouldUpdateProvider>
-            </PaginationProvider>
+            <ShouldUpdateProvider>
+              <FadeIn>{children}</FadeIn>
+            </ShouldUpdateProvider>
           </Suspense>
           <Footer />
         </main>

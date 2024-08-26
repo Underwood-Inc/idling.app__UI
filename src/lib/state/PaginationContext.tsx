@@ -82,7 +82,6 @@ const paginationReducer = (
         [action.payload.id]: {
           ...state[action.payload.id],
           id: action.payload.id,
-          currentPage: 1,
           pageSize:
             action.payload.pageSize ||
             state[action.payload.id]?.pageSize ||
@@ -96,10 +95,11 @@ const paginationReducer = (
   }
 };
 
-export const PaginationProvider: React.FC<{ children: ReactNode }> = ({
-  children
-}) => {
-  const [state, dispatch] = useReducer(paginationReducer, initialState);
+export const PaginationProvider: React.FC<{
+  children: ReactNode;
+  value?: PaginationState;
+}> = ({ children, value = initialState }) => {
+  const [state, dispatch] = useReducer(paginationReducer, value);
 
   return (
     <PaginationContext.Provider value={{ state, dispatch }}>

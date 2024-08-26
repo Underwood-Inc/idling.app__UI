@@ -1,8 +1,9 @@
 'use client';
 import { usePathname, useSearchParams } from 'next/navigation';
 import React from 'react';
-import { FILTER_IDS } from 'src/lib/filter-ids';
+import { CONTEXT_IDS } from 'src/lib/context-ids';
 import { NAV_PATHS } from 'src/lib/routes';
+import { PaginationProvider } from 'src/lib/state/PaginationContext';
 import { FiltersProvider } from '../../../lib/state/FiltersContext';
 import { PostFilters } from '../../posts/page';
 import { Filter } from '../filter-bar/FilterBar';
@@ -12,26 +13,39 @@ export function PageContainer({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const tagSearchParams = searchParams.get('tags');
+  const pageSearchParams = searchParams.get('page');
   const isPosts = pathname === NAV_PATHS.POSTS;
   const isMyPosts = pathname === NAV_PATHS.MY_POSTS;
 
-  let filterId = FILTER_IDS.DEFAULT.toString();
+  let contextId = CONTEXT_IDS.DEFAULT.toString();
 
   if (isPosts) {
-    filterId = FILTER_IDS.POSTS.toString();
+    contextId = CONTEXT_IDS.POSTS.toString();
   }
 
   if (isMyPosts) {
-    filterId = FILTER_IDS.MY_POSTS.toString();
+    contextId = CONTEXT_IDS.MY_POSTS.toString();
   }
 
   const filters: Filter<PostFilters>[] = tagSearchParams
     ? [{ name: 'tags', value: tagSearchParams }]
     : [];
 
+  const currentPage = Number(pageSearchParams) || 1;
+
+  console.info('currentPage', currentPage);
   return (
-    <FiltersProvider value={{ [filterId]: { filters, id: filterId } }}>
-      <section className="page__container">{children}</section>
-    </FiltersProvider>
+    <PaginationProvider
+      value={{
+        [contextId]: {
+          id: contextId,
+          currentPage
+        }
+      }}
+    >
+      <FiltersProvider value={{ [contextId]: { filters, id: contextId } }}>
+        <section className="page__container">{children}</section>
+      </FiltersProvider>
+    </PaginationProvider>
   );
 }
