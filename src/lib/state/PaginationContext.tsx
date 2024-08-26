@@ -1,31 +1,47 @@
 'use client';
 import React, { createContext, ReactNode, useContext, useReducer } from 'react';
 
+type TPaginationContext = PaginationPageActionPayload &
+  PaginationTotalPagesActionPayload &
+  PaginationPageSizeActionPayload;
+
 type PaginationState = {
-  [x: string]:
-    | {
-        id: string;
-        currentPage: number;
-        totalPages: number;
-      }
-    | undefined;
+  [x: string]: TPaginationContext | undefined;
 };
 
-type PaginationActionPayload = {
+export enum PageSize {
+  TEN = 10,
+  TWENTY = 20,
+  THIRTY = 30,
+  FORTY = 40,
+  FIFTY = 50
+}
+
+type PaginationPageActionPayload = {
   id: string;
-  page: number;
+  currentPage?: number;
+};
+type PaginationTotalPagesActionPayload = {
+  id: string;
+  totalPages?: number;
+};
+type PaginationPageSizeActionPayload = {
+  id: string;
+  pageSize?: PageSize;
 };
 
 type PaginationAction =
   | { type: 'RESET_STATE' }
-  | { type: 'SET_CURRENT_PAGE'; payload: PaginationActionPayload }
-  | { type: 'SET_TOTAL_PAGES'; payload: PaginationActionPayload };
+  | { type: 'SET_CURRENT_PAGE'; payload: PaginationPageActionPayload }
+  | { type: 'SET_TOTAL_PAGES'; payload: PaginationTotalPagesActionPayload }
+  | { type: 'SET_PAGE_SIZE'; payload: PaginationPageSizeActionPayload };
 
 const initialState: PaginationState = {
   default: {
     id: 'default',
     currentPage: 1,
-    totalPages: 1
+    totalPages: 1,
+    pageSize: PageSize.TEN
   }
 };
 
@@ -46,20 +62,30 @@ const paginationReducer = (
       return {
         ...state,
         [action.payload.id]: {
-          totalPages: 1,
           ...state[action.payload.id],
           id: action.payload.id,
-          currentPage: action.payload.page
+          currentPage: action.payload.currentPage
         }
       };
     case 'SET_TOTAL_PAGES':
       return {
         ...state,
         [action.payload.id]: {
-          currentPage: 1,
           ...state[action.payload.id],
           id: action.payload.id,
-          totalPages: action.payload.page
+          totalPages: action.payload.totalPages
+        }
+      };
+    case 'SET_PAGE_SIZE':
+      return {
+        ...state,
+        [action.payload.id]: {
+          ...state[action.payload.id],
+          id: action.payload.id,
+          pageSize:
+            action.payload.pageSize ||
+            state[action.payload.id]?.pageSize ||
+            PageSize.TEN
         }
       };
     case 'RESET_STATE':

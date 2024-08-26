@@ -2,7 +2,7 @@
 import { usePathname, useRouter } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
 import { useFilters } from '../../../lib/state/FiltersContext';
-import { usePagination } from '../../../lib/state/PaginationContext';
+import { PageSize, usePagination } from '../../../lib/state/PaginationContext';
 import { useShouldUpdate } from '../../../lib/state/ShouldUpdateContext';
 import { SUBMISSIONS_LIST_SELECTORS } from '../../../lib/test-selectors/components/submissions-list.selectors';
 import { PostFilters } from '../../posts/page';
@@ -59,11 +59,13 @@ export default function SubmissionsList({
       onlyMine: boolean;
       providerAccountId: string;
       filters: Filter[];
+      pageSize: number;
     } = {
       currentPage: pagination?.currentPage || 1,
       filters,
       onlyMine,
-      providerAccountId
+      providerAccountId,
+      pageSize: paginationState[filterId]?.pageSize || PageSize.TEN
     };
 
     return data;
@@ -78,31 +80,51 @@ export default function SubmissionsList({
     []
   );
 
+  /** listener + handler to manager total pages */
   useEffect(() => {
     const newTotalPages =
-      (response?.data?.pagination.totalRecords || 1) / 10 || 1;
+      (response?.data?.pagination.totalRecords || 1) /
+        (response?.data?.pagination.pageSize || 10) || 1;
 
     dispatchPagination({
       type: 'SET_TOTAL_PAGES',
       payload: {
         id: filterId,
-        page: Math.ceil(newTotalPages)
+        totalPages: Math.ceil(newTotalPages)
       }
     });
-  }, [dispatchPagination, response?.data?.pagination.totalRecords, filterId]);
+  }, [
+    dispatchPagination,
+    response?.data?.pagination.totalRecords,
+    response?.data?.pagination.pageSize,
+    filterId
+  ]);
 
+  /** shouldUpdate listener + handler */
   useEffect(() => {
     dispatchShouldUpdate({ type: 'SET_SHOULD_UPDATE', payload: false });
     dispatchPagination({
       payload: {
         id: filterId,
-        page: 1
+        currentPage: 1
       },
       type: 'SET_CURRENT_PAGE'
     });
-    fetchSubmissions({ ...getArgs(), currentPage: 1 });
+    dispatchPagination({
+      payload: {
+        id: filterId,
+        pageSize: PageSize.TEN
+      },
+      type: 'SET_PAGE_SIZE'
+    });
+    fetchSubmissions({ ...getArgs(), currentPage: 1, pageSize: PageSize.TEN });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [shouldUpdate]);
 
+  /**
+   * filterState listener + handler
+   * always fetch from page 1 on change
+   */
   useEffect(() => {
     const latestFilters = filtersState[filterId]?.filters.find(
       (filter) => filter.name === 'tags'
@@ -111,7 +133,7 @@ export default function SubmissionsList({
     router.push(newRoute);
 
     dispatchPagination({
-      payload: { id: filterId, page: 1 },
+      payload: { id: filterId, currentPage: 1 },
       type: 'SET_CURRENT_PAGE'
     });
 
@@ -120,12 +142,23 @@ export default function SubmissionsList({
       currentPage: 1,
       filters: filtersState[filterId]?.filters || []
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filtersState]);
 
   const onPageChange = (newPage: number) => {
     const args: GetSubmissionsActionArguments = {
       ...getArgs(),
       currentPage: newPage
+    };
+
+    fetchSubmissions(args);
+  };
+
+  const onPageSizeChange = (newPageSize: number) => {
+    const args: GetSubmissionsActionArguments = {
+      ...getArgs(),
+      currentPage: 1,
+      pageSize: newPageSize
     };
 
     fetchSubmissions(args);
@@ -141,7 +174,11 @@ export default function SubmissionsList({
       className="submissions-list__container"
     >
       <div className="submissions-list__header">
-        <Pagination id={filterId} onPageChange={onPageChange} />
+        <Pagination
+          id={filterId}
+          onPageChange={onPageChange}
+          onPageSizeChange={onPageSizeChange}
+        />
       </div>
 
       {loading && <Loader color="black" />}

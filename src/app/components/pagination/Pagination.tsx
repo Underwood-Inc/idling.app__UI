@@ -1,14 +1,18 @@
 'use client';
-import { usePagination } from '../../../lib/state/PaginationContext';
+import { PageSize, usePagination } from '../../../lib/state/PaginationContext';
 import { PAGINATION_SELECTORS } from '../../../lib/test-selectors/components/pagination.selectors';
+import PageSizeSelector from './PageSizeSelector';
 import './Pagination.css';
 
 function Pagination({
   onPageChange,
+  onPageSizeChange,
   id = 'default'
 }: {
   // eslint-disable-next-line no-unused-vars
   onPageChange: (newPage: number) => void;
+  // eslint-disable-next-line no-unused-vars
+  onPageSizeChange: (newPageSize: number) => void;
   id: string;
 }) {
   const { state, dispatch } = usePagination();
@@ -18,19 +22,19 @@ function Pagination({
     return null;
   }
 
-  const { currentPage, totalPages } = pagination;
+  const { currentPage, totalPages, pageSize } = pagination;
 
   const handlePrevious = (event: React.MouseEvent<HTMLElement>) => {
     event.preventDefault();
 
-    if (currentPage > 1) {
+    if (currentPage && currentPage > 1) {
       const newPage = currentPage - 1;
 
       dispatch({
         type: 'SET_CURRENT_PAGE',
         payload: {
           id,
-          page: newPage
+          currentPage: newPage
         }
       });
 
@@ -41,14 +45,14 @@ function Pagination({
   const handleNext = (event: React.MouseEvent<HTMLElement>) => {
     event.preventDefault();
 
-    if (currentPage < totalPages) {
+    if (currentPage && totalPages && currentPage < totalPages) {
       const newPage = currentPage + 1;
 
       dispatch({
         type: 'SET_CURRENT_PAGE',
         payload: {
           id,
-          page: newPage
+          currentPage: newPage
         }
       });
 
@@ -63,11 +67,23 @@ function Pagination({
       type: 'SET_CURRENT_PAGE',
       payload: {
         id,
-        page: newPage
+        currentPage: newPage
       }
     });
 
     onPageChange(newPage);
+  };
+
+  const handlePageSizeSelect = (newPageSize: PageSize) => {
+    dispatch({
+      type: 'SET_PAGE_SIZE',
+      payload: {
+        id,
+        pageSize: newPageSize
+      }
+    });
+
+    onPageSizeChange(newPageSize);
   };
 
   return (
@@ -82,6 +98,7 @@ function Pagination({
         >
           Previous
         </button>
+
         <p data-testid={PAGINATION_SELECTORS.STATE}>
           Page&nbsp;
           <select
@@ -91,24 +108,42 @@ function Pagination({
             className="pagination__page-selector"
             data-testid={PAGINATION_SELECTORS.PAGE_SELECTOR}
           >
-            {Array.from({ length: totalPages }, (_, index) => (
-              <option key={index + 1} value={index + 1}>
-                {index + 1}
-              </option>
-            ))}
+            {totalPages
+              ? Array.from({ length: totalPages }, (_, index) => (
+                  <option key={index + 1} value={index + 1}>
+                    {index + 1}
+                  </option>
+                ))
+              : null}
           </select>
-          &nbsp; of {totalPages}
+          &nbsp;of {totalPages}
         </p>
       </div>
-      <button
-        type="button"
-        onClick={handleNext}
-        disabled={currentPage === totalPages}
-        className="pagination__next-button"
-        data-testid={PAGINATION_SELECTORS.NEXT}
-      >
-        Next
-      </button>
+
+      <div className="flex ai-center">
+        {pageSize && (
+          <p
+            data-testid={PAGINATION_SELECTORS.PAGE_SIZE_STATE}
+            className="pagination__page-size-selector"
+          >
+            Page Size&nbsp;
+            <PageSizeSelector
+              pageSize={pageSize}
+              onPageSizeChange={handlePageSizeSelect}
+            />
+          </p>
+        )}
+
+        <button
+          type="button"
+          onClick={handleNext}
+          disabled={currentPage === totalPages}
+          className="pagination__next-button"
+          data-testid={PAGINATION_SELECTORS.NEXT}
+        >
+          Next
+        </button>
+      </div>
     </article>
   );
 }

@@ -1,12 +1,12 @@
 'use server';
+import { PageSize } from 'src/lib/state/PaginationContext';
 import sql from '../../../lib/db';
 import { Filter } from '../filter-bar/FilterBar';
 import { Submission } from '../submission-forms/schema';
 
 export interface Pagination {
-  from: number;
-  to: number;
   currentPage: number;
+  pageSize: number;
   totalPages: number;
   totalRecords: number;
 }
@@ -20,27 +20,20 @@ export async function getSubmissions({
   onlyMine = false,
   providerAccountId = '',
   filters,
-  page = 0
+  page = 0,
+  pageSize = PageSize.TEN
 }: {
   onlyMine: boolean;
   providerAccountId: string;
   filters: Filter[];
   page: number;
+  pageSize: PageSize;
 }): Promise<PaginatedResponse<Submission>> {
-  // TODO: confirm fromRow & toRow can be deprecated. if so, remove them from pagination meta data
-  let fromRow = 0;
-  let toRow = 10;
   let submissions: Submission[] = [];
 
-  if (page > 1) {
-    fromRow = page + 10;
-    toRow = fromRow + 10;
-  }
-
   const pagination: Pagination = {
-    from: fromRow,
-    to: toRow,
     currentPage: page,
+    pageSize,
     totalPages: 0,
     totalRecords: 0
   };
@@ -66,15 +59,13 @@ export async function getSubmissions({
         }
       `;
 
-    // get all submissions for the currently logged in user
-    // pagination config of 10 records per page with an offset method to paginate
     submissions = await sql`
       SELECT * FROM submissions ${
         tags
           ? sql`WHERE tags && ${tags} AND author_id = ${providerAccountId}`
           : sql`WHERE author_id = ${providerAccountId}`
       }
-      ORDER BY submission_datetime DESC LIMIT 10 OFFSET ${(page - 1) * 10}
+      ORDER BY submission_datetime DESC LIMIT ${pageSize} OFFSET ${(page - 1) * pageSize}
     `;
     // TODO: add zod schema parsing for `submissions`
 
@@ -83,18 +74,14 @@ export async function getSubmissions({
   } else if (!onlyMine) {
     const submissionsCount =
       await sql`SELECT COUNT(*) FROM submissions ${tags ? sql`where tags && ${tags}` : sql``}`;
-    // select * where post contents contains any of the entries in the `tags` string array
-    // submissions are stored with the original contents unchanged and an additional column, tags (string[]), to store all tags
-    // @> is a "has both/all" match
-    // && is a "contains any" match
+
     submissions = await sql`
       SELECT * FROM submissions ${tags ? sql`WHERE tags && ${tags}` : sql``}
-      ORDER BY submission_datetime DESC LIMIT 10 OFFSET ${(page - 1) * 10}
+      ORDER BY submission_datetime DESC LIMIT ${pageSize} OFFSET ${(page - 1) * pageSize}
     `;
     // TODO: add zod schema parsing for `submissions`
 
     response.pagination.totalRecords = submissionsCount[0].count;
-
     response.result = submissions;
   }
 
@@ -103,6 +90,7 @@ export async function getSubmissions({
 
 export interface GetSubmissionsActionArguments {
   currentPage: number;
+  pageSize: number;
   onlyMine: boolean;
   providerAccountId: string;
   filters: Filter[];
@@ -122,13 +110,15 @@ export async function getSubmissionsAction({
   currentPage = 0,
   filters,
   onlyMine = false,
-  providerAccountId = ''
+  providerAccountId = '',
+  pageSize = 10
 }: GetSubmissionsActionArguments): Promise<GetSubmissionsActionResponse> {
   const pagedSubmissions = await getSubmissions({
     onlyMine,
     providerAccountId,
     filters,
-    page: currentPage
+    page: currentPage,
+    pageSize
   });
 
   return {
