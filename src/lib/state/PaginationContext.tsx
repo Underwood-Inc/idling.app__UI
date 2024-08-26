@@ -82,6 +82,7 @@ const paginationReducer = (
         [action.payload.id]: {
           ...state[action.payload.id],
           id: action.payload.id,
+          currentPage: 1,
           pageSize:
             action.payload.pageSize ||
             state[action.payload.id]?.pageSize ||

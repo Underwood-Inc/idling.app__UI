@@ -100,7 +100,13 @@ export default function SubmissionsList({
     filterId
   ]);
 
-  /** shouldUpdate listener + handler */
+  /**
+   * shouldUpdate listener + handler
+   * when "captured", fetch submissions with current state of pagination & filter context
+   * but with current page and page size reset to the defaults
+   * scenario: get latest data that matches current filters when external component update should_update
+   * state to true (i.e. deletion of submission via <DeleteSubmissionForm />)
+   * */
   useEffect(() => {
     dispatchShouldUpdate({ type: 'SET_SHOULD_UPDATE', payload: false });
     dispatchPagination({
@@ -123,7 +129,7 @@ export default function SubmissionsList({
 
   /**
    * filterState listener + handler
-   * always fetch from page 1 on change
+   * always fetch from page 1 on change of filters
    */
   useEffect(() => {
     const latestFilters = filtersState[filterId]?.filters.find(
@@ -132,6 +138,8 @@ export default function SubmissionsList({
     const newRoute = `${pathName}${latestFilters ? `?tags=${latestFilters}` : ''}`;
     router.push(newRoute);
 
+    // filter context does not have knowledge of pagination context
+    // ensure filter changes result in pagination current page reset
     dispatchPagination({
       payload: { id: filterId, currentPage: 1 },
       type: 'SET_CURRENT_PAGE'
