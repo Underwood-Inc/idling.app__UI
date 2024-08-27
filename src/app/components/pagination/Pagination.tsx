@@ -4,17 +4,7 @@ import { PAGINATION_SELECTORS } from '../../../lib/test-selectors/components/pag
 import PageSizeSelector from './PageSizeSelector';
 import './Pagination.css';
 
-function Pagination({
-  onPageChange,
-  onPageSizeChange,
-  id = 'default'
-}: {
-  // eslint-disable-next-line no-unused-vars
-  onPageChange: (newPage: number) => void;
-  // eslint-disable-next-line no-unused-vars
-  onPageSizeChange: (newPageSize: number) => void;
-  id: string;
-}) {
+function Pagination({ id = 'default' }: { id: string }) {
   const { state, dispatch } = usePagination();
   const pagination = state[id];
 
@@ -37,8 +27,6 @@ function Pagination({
           currentPage: newPage
         }
       });
-
-      onPageChange(newPage);
     }
   };
 
@@ -55,8 +43,6 @@ function Pagination({
           currentPage: newPage
         }
       });
-
-      onPageChange(newPage);
     }
   };
 
@@ -70,8 +56,6 @@ function Pagination({
         currentPage: newPage
       }
     });
-
-    onPageChange(newPage);
   };
 
   const handlePageSizeSelect = (newPageSize: PageSize) => {
@@ -89,8 +73,6 @@ function Pagination({
         currentPage: 1
       }
     });
-
-    onPageSizeChange(newPageSize);
   };
 
   return (

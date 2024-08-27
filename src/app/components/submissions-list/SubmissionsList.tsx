@@ -127,15 +127,9 @@ export default function SubmissionsList({
     dispatchPagination,
     response?.data?.pagination.totalRecords,
     response?.data?.pagination.currentPage,
+    response?.data?.pagination.pageSize,
     contextId
   ]);
-
-  useEffect(() => {
-    fetchSubmissions({
-      ...getArgs(),
-      pageSize: Number(paginationState[contextId]?.pageSize)
-    });
-  }, [paginationState[contextId]?.pageSize]);
 
   /**
    * shouldUpdate listener + handler
@@ -193,31 +187,14 @@ export default function SubmissionsList({
       // as filter listener can update pagination and should in this filterable pagination
       // ecosystem, ensure latest filters are being provided on page change event
       filters: filtersState[contextId]?.filters || [],
-      currentPage: paginationState[contextId]?.currentPage || 1
+      currentPage: paginationState[contextId]?.currentPage || 1,
+      pageSize: pagination?.pageSize || PageSize.TEN
     });
   }, [
     paginationState[contextId]?.currentPage,
+    paginationState[contextId]?.pageSize,
     filtersState[contextId]?.filters
   ]); // page/filters change listener
-
-  const onPageChange = (newPage: number) => {
-    const args: GetSubmissionsActionArguments = {
-      ...getArgs(),
-      currentPage: newPage
-    };
-
-    fetchSubmissions(args);
-  };
-
-  const onPageSizeChange = (newPageSize: number) => {
-    const args: GetSubmissionsActionArguments = {
-      ...getArgs(),
-      currentPage: 1,
-      pageSize: newPageSize
-    };
-
-    fetchSubmissions(args);
-  };
 
   const isAuthorized = (authorId: string) => {
     return providerAccountId === authorId;
@@ -229,11 +206,7 @@ export default function SubmissionsList({
       className="submissions-list__container"
     >
       <div className="submissions-list__header">
-        <Pagination
-          id={contextId}
-          onPageChange={onPageChange}
-          onPageSizeChange={onPageSizeChange}
-        />
+        <Pagination id={contextId} />
       </div>
 
       {loading && <Loader color="black" />}
