@@ -3,7 +3,7 @@ import { usePathname, useSearchParams } from 'next/navigation';
 import React from 'react';
 import { CONTEXT_IDS } from 'src/lib/context-ids';
 import { NAV_PATHS } from 'src/lib/routes';
-import { PaginationProvider } from 'src/lib/state/PaginationContext';
+import { PageSize, PaginationProvider } from 'src/lib/state/PaginationContext';
 import { FiltersProvider } from '../../../lib/state/FiltersContext';
 import { PostFilters } from '../../posts/page';
 import { Filter } from '../filter-bar/FilterBar';
@@ -38,7 +38,8 @@ export function PageContainer({ children }: { children: React.ReactNode }) {
       value={{
         [contextId]: {
           id: contextId,
-          currentPage
+          currentPage,
+          pageSize: PageSize.TEN
         }
       }}
     >
