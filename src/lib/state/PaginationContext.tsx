@@ -57,6 +57,11 @@ const paginationReducer = (
   state: PaginationState,
   action: PaginationAction
 ): PaginationState => {
+  // custom getters to ensure requested page and totalPages are never less than 1
+  const getCurrentPage = (currentPage?: number) =>
+    Math.max(currentPage ?? 1, 1);
+  const getTotalPages = (totalPages?: number) => Math.max(totalPages ?? 1, 1);
+
   switch (action.type) {
     case 'SET_CURRENT_PAGE':
       return {
@@ -64,7 +69,7 @@ const paginationReducer = (
         [action.payload.id]: {
           ...state[action.payload.id],
           id: action.payload.id,
-          currentPage: action.payload.currentPage
+          currentPage: getCurrentPage(action.payload.currentPage)
         }
       };
     case 'SET_TOTAL_PAGES':
@@ -73,7 +78,7 @@ const paginationReducer = (
         [action.payload.id]: {
           ...state[action.payload.id],
           id: action.payload.id,
-          totalPages: action.payload.totalPages
+          totalPages: getTotalPages(action.payload.totalPages)
         }
       };
     case 'SET_PAGE_SIZE':

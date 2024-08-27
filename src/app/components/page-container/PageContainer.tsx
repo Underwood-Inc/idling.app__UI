@@ -13,7 +13,7 @@ export function PageContainer({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const tagSearchParams = searchParams.get('tags');
-  const pageSearchParams = searchParams.get('page');
+  const pageSearchParam = searchParams.get('page');
   const isPosts = pathname === NAV_PATHS.POSTS;
   const isMyPosts = pathname === NAV_PATHS.MY_POSTS;
 
@@ -31,9 +31,8 @@ export function PageContainer({ children }: { children: React.ReactNode }) {
     ? [{ name: 'tags', value: tagSearchParams }]
     : [];
 
-  const currentPage = Number(pageSearchParams) || 1;
+  const currentPage = Number(pageSearchParam) || 1;
 
-  console.info('currentPage', currentPage);
   return (
     <PaginationProvider
       value={{

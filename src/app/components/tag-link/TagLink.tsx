@@ -45,13 +45,14 @@ export function TagLink({
         },
         type: 'SET_CURRENT_FILTERS'
       });
-      // dispatchPagination({
-      //   payload: {
-      //     currentPage: 1,
-      //     id: contextId
-      //   },
-      //   type: 'SET_CURRENT_PAGE'
-      // });
+      // ensure we are on page 1
+      dispatchPagination({
+        payload: {
+          currentPage: 1,
+          id: contextId
+        },
+        type: 'SET_CURRENT_PAGE'
+      });
     }
   };
 

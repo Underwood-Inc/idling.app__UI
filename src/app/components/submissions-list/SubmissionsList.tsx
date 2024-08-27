@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 'use client';
 import { usePathname, useRouter } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
@@ -84,25 +85,50 @@ export default function SubmissionsList({
 
   /** listener + handler to manager total pages */
   useEffect(() => {
-    console.info('...set total pages listener');
+    if (response && response.data?.pagination) {
+      const newTotalPages =
+        response.data.pagination.totalRecords /
+        (response.data.pagination.pageSize || 10);
+      const totalPages = Math.ceil(newTotalPages);
+      const requestedPage = response?.data?.pagination.currentPage;
 
-    const newTotalPages =
-      (response?.data?.pagination.totalRecords || 1) /
-        (response?.data?.pagination.pageSize || 10) || 1;
-
-    dispatchPagination({
-      type: 'SET_TOTAL_PAGES',
-      payload: {
-        id: contextId,
-        totalPages: Math.ceil(newTotalPages)
+      if (requestedPage > totalPages) {
+        // replace requested page with last available page
+        dispatchPagination({
+          type: 'SET_CURRENT_PAGE',
+          payload: {
+            id: contextId,
+            currentPage: totalPages
+          }
+        });
       }
-    });
+
+      if (requestedPage < 1) {
+        // replace requested page with first page
+        dispatchPagination({
+          type: 'SET_CURRENT_PAGE',
+          payload: {
+            id: contextId,
+            currentPage: 1
+          }
+        });
+      }
+
+      dispatchPagination({
+        type: 'SET_TOTAL_PAGES',
+        payload: {
+          id: contextId,
+          totalPages
+        }
+      });
+    }
+    // listener - if pagination data changes, ensure latest total pages is consumed
   }, [
     dispatchPagination,
     response?.data?.pagination.totalRecords,
-    response?.data?.pagination.pageSize,
+    response?.data?.pagination.currentPage,
     contextId
-  ]); // listener - if pagination data changes, ensure latest total pages is consumed
+  ]);
 
   /**
    * shouldUpdate listener + handler
@@ -112,33 +138,22 @@ export default function SubmissionsList({
    * state to true (i.e. deletion of submission via <DeleteSubmissionForm />)
    * */
   useEffect(() => {
-    console.info('...should update listener');
+    if (shouldUpdate) {
+      dispatchShouldUpdate({ type: 'SET_SHOULD_UPDATE', payload: false });
 
-    dispatchShouldUpdate({ type: 'SET_SHOULD_UPDATE', payload: false });
-    // dispatchPagination({
-    //   payload: {
-    //     id: contextId,
-    //     currentPage: 1
-    //   },
-    //   type: 'SET_CURRENT_PAGE'
-    // });
-    dispatchPagination({
-      payload: {
-        id: contextId,
-        pageSize: PageSize.TEN
-      },
-      type: 'SET_PAGE_SIZE'
-    });
-    fetchSubmissions({ ...getArgs(), pageSize: PageSize.TEN });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+      dispatchPagination({
+        payload: {
+          id: contextId,
+          pageSize: PageSize.TEN
+        },
+        type: 'SET_PAGE_SIZE'
+      });
+
+      fetchSubmissions({ ...getArgs(), pageSize: PageSize.TEN });
+    }
   }, [shouldUpdate]); // should update listener ("external" trigger)
 
-  /**
-   * filterState listener + handler
-   * always fetch from page 1 on change of filters
-   */
   useEffect(() => {
-    console.info('...filterState listener');
     const latestFilters = filtersState[contextId]?.filters.find(
       (filter) => filter.name === 'tags'
     )?.value;
@@ -148,57 +163,22 @@ export default function SubmissionsList({
       params.set('tags', latestFilters);
     }
 
-    if (page) {
-      params.set('page', page.toString());
+    if (page || page === 0) {
+      const maxPage = Number(paginationState[contextId]?.totalPages);
+      let newPage = paginationState[contextId]?.currentPage?.toString() || '1';
+
+      if (Number(newPage) > maxPage) {
+        newPage = maxPage.toString();
+      }
+      if (Number(newPage) < 1) {
+        newPage = '1';
+      }
+
+      // update url param page to the current pagination state value
+      params.set('page', newPage);
     }
 
     const newRoute = `${pathName}?${params.toString()}`;
-
-    // filter context does not have knowledge of pagination context
-    // ensure filter changes result in pagination current page reset
-    dispatchPagination({
-      payload: { id: contextId, currentPage: 1 },
-      type: 'SET_CURRENT_PAGE'
-    });
-    // router.push(newRoute);
-
-    // because we fired a page change event, delegate refetch to pagination listener block
-    // fetchSubmissions({
-    //   ...getArgs(),
-    //   currentPage: 1,
-    //   filters: filtersState[contextId]?.filters || []
-    // });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filtersState]); // filter state listener
-
-  useEffect(() => {
-    console.info('...paginationState listener');
-    const latestFilters = filtersState[contextId]?.filters.find(
-      (filter) => filter.name === 'tags'
-    )?.value;
-    const currentFilters = filters.find((filter) => filter.name === 'tags');
-    const areFiltersDifferent = latestFilters === currentFilters;
-    console.log(
-      'areFiltersDiff',
-      areFiltersDifferent,
-      latestFilters,
-      currentFilters
-    );
-    const params = new URLSearchParams();
-
-    if (latestFilters) {
-      params.set('tags', latestFilters);
-    }
-
-    if (page) {
-      params.set(
-        'page',
-        paginationState[contextId]?.currentPage?.toString() || '1'
-      );
-    }
-
-    const newRoute = `${pathName}?${params.toString()}`;
-    console.info('paginationstate lsitener new route', newRoute);
     router.push(newRoute);
 
     fetchSubmissions({
@@ -206,13 +186,12 @@ export default function SubmissionsList({
       // as filter listener can update pagination and should in this filterable pagination
       // ecosystem, ensure latest filters are being provided on page change event
       filters: filtersState[contextId]?.filters || [],
-      currentPage: page
+      currentPage: paginationState[contextId]?.currentPage || 1
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     paginationState[contextId]?.currentPage,
     filtersState[contextId]?.filters
-  ]); // page change listener
+  ]); // page/filters change listener
 
   const onPageChange = (newPage: number) => {
     const args: GetSubmissionsActionArguments = {
