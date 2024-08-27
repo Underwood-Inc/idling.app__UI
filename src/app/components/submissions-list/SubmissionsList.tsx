@@ -130,6 +130,13 @@ export default function SubmissionsList({
     contextId
   ]);
 
+  useEffect(() => {
+    fetchSubmissions({
+      ...getArgs(),
+      pageSize: Number(paginationState[contextId]?.pageSize)
+    });
+  }, [paginationState[contextId]?.pageSize]);
+
   /**
    * shouldUpdate listener + handler
    * when "captured", fetch submissions with current state of pagination & filter context
