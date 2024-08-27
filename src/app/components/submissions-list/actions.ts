@@ -30,9 +30,15 @@ export async function getSubmissions({
   pageSize: PageSize;
 }): Promise<PaginatedResponse<Submission>> {
   let submissions: Submission[] = [];
+  let newPage = page;
+
+  if (page < 1) {
+    // ensure lowest page is the first one
+    newPage = 1;
+  }
 
   const pagination: Pagination = {
-    currentPage: page,
+    currentPage: newPage,
     pageSize,
     totalPages: 0,
     totalRecords: 0
@@ -65,7 +71,7 @@ export async function getSubmissions({
           ? sql`WHERE tags && ${tags} AND author_id = ${providerAccountId}`
           : sql`WHERE author_id = ${providerAccountId}`
       }
-      ORDER BY submission_datetime DESC LIMIT ${pageSize} OFFSET ${(page - 1) * pageSize}
+      ORDER BY submission_datetime DESC LIMIT ${pageSize} OFFSET ${(newPage - 1) * pageSize}
     `;
     // TODO: add zod schema parsing for `submissions`
 
@@ -77,7 +83,7 @@ export async function getSubmissions({
 
     submissions = await sql`
       SELECT * FROM submissions ${tags ? sql`WHERE tags && ${tags}` : sql``}
-      ORDER BY submission_datetime DESC LIMIT ${pageSize} OFFSET ${(page - 1) * pageSize}
+      ORDER BY submission_datetime DESC LIMIT ${pageSize} OFFSET ${(newPage - 1) * pageSize}
     `;
     // TODO: add zod schema parsing for `submissions`
 

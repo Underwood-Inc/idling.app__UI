@@ -1,6 +1,6 @@
 import dynamic from 'next/dynamic';
 import { Suspense } from 'react';
-import { FILTER_IDS } from 'src/lib/filter-ids';
+import { CONTEXT_IDS } from 'src/lib/context-ids';
 import { CustomSession } from '../../auth.config';
 import { auth } from '../../lib/auth';
 import { Card } from '../components/card/Card';
@@ -45,7 +45,7 @@ export default async function MyPosts({
 
             <AddSubmissionForm isAuthorized={!!session} />
             <br />
-            <FilterBar filterId={FILTER_IDS.MY_POSTS.toString()} />
+            <FilterBar filterId={CONTEXT_IDS.MY_POSTS.toString()} />
           </FadeIn>
         </PageHeader>
 
@@ -59,7 +59,7 @@ export default async function MyPosts({
                   <Suspense fallback={<Loader />}>
                     {session?.user?.providerAccountId && (
                       <LazyPostsList
-                        filterId={FILTER_IDS.MY_POSTS.toString()}
+                        contextId={CONTEXT_IDS.MY_POSTS.toString()}
                         onlyMine={true}
                         filters={filters}
                         providerAccountId={
@@ -77,7 +77,10 @@ export default async function MyPosts({
         <PageAside className={styles.aside__recentTags}>
           <Suspense fallback={<RecentTagsLoader />}>
             <FadeIn>
-              <RecentTags filterId={FILTER_IDS.MY_POSTS.toString()} onlyMine />
+              <RecentTags
+                contextId={CONTEXT_IDS.MY_POSTS.toString()}
+                onlyMine
+              />
             </FadeIn>
           </Suspense>
         </PageAside>

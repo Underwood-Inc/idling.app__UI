@@ -9,10 +9,10 @@ import { getRecentTags } from './actions';
 import './RecentTags.css';
 
 export async function RecentTags({
-  filterId,
+  contextId,
   onlyMine = false
 }: {
-  filterId: string;
+  contextId: string;
   onlyMine?: boolean;
 }) {
   const session = (await auth()) as CustomSession | null;
@@ -37,7 +37,7 @@ export async function RecentTags({
                     <li key={tag} className="recent-tags__list-item">
                       <TagLink
                         value={tag}
-                        filterId={filterId}
+                        contextId={contextId}
                         appendSearchParam
                       />
                     </li>

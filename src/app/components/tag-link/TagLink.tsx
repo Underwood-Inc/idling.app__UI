@@ -2,6 +2,7 @@
 import Link from 'next/link';
 import { usePathname, useSearchParams } from 'next/navigation';
 import reactStringReplace from 'react-string-replace';
+import { usePagination } from 'src/lib/state/PaginationContext';
 import { useFilters } from '../../../lib/state/FiltersContext';
 import { tagRegex } from '../../../lib/utils/string/tag-regex';
 
@@ -13,13 +14,14 @@ import { tagRegex } from '../../../lib/utils/string/tag-regex';
 export function TagLink({
   value,
   appendSearchParam = false,
-  filterId
+  contextId
 }: {
   value: string;
   appendSearchParam?: boolean;
-  filterId: string;
+  contextId: string;
 }) {
   const { dispatch: dispatchFilters } = useFilters();
+  const { dispatch: dispatchPagination } = usePagination();
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const tagSearchParams = searchParams.get('tags');
@@ -39,9 +41,17 @@ export function TagLink({
                   : tag.toLowerCase()
             }
           ],
-          id: filterId
+          id: contextId
         },
         type: 'SET_CURRENT_FILTERS'
+      });
+      // ensure we are on page 1
+      dispatchPagination({
+        payload: {
+          currentPage: 1,
+          id: contextId
+        },
+        type: 'SET_CURRENT_PAGE'
       });
     }
   };

@@ -82,6 +82,13 @@ function Pagination({
         pageSize: newPageSize
       }
     });
+    dispatch({
+      type: 'SET_CURRENT_PAGE',
+      payload: {
+        id,
+        currentPage: 1
+      }
+    });
 
     onPageSizeChange(newPageSize);
   };
