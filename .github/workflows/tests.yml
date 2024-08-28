@@ -3,7 +3,7 @@ on:
   push:
     branches: [main, master]
   pull_request:
-    branches: [main, master]
+    types: [opened, synchronize, reopened]
 env:
   AUTH_TRUST_HOST: true
   NEXTAUTH_URL: http://localhost:3000
@@ -18,6 +18,8 @@ env:
   POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
   POSTGRES_HOST_AUTH_METHOD: md5
   POSTGRES_INITDB_ARGS: --auth-host=md5
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
+  SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 jobs:
   test:
     timeout-minutes: 60
@@ -49,6 +51,8 @@ jobs:
           - 5432:5432
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
       - uses: actions/setup-node@v4
         with:
           node-version: lts/*
@@ -73,6 +77,12 @@ jobs:
         run: IS_CI=1 yarn playwright test
       - name: Run Jest tests
         run: yarn test:ci
+      - name: Generate Jest coverage report
+        run: yarn jest:coverage
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@master
+        env:
+          SONAR_TOKEN: ${{ secrets. SONAR_TOKEN }}
       - uses: actions/upload-artifact@v4
         if: always()
         with:
