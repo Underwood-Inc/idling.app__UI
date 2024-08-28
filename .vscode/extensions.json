@@ -2,16 +2,17 @@
   "recommendations": [
     "joshbolduc.commitlint",
     "wayou.vscode-todo-highlight",
-    "vscode-icons-team.vscode-icons",
-    "ms-vscode-remote.remote-wsl",
     "dbaeumer.vscode-eslint",
     "ms-azuretools.vscode-docker",
-    "eamodio.gitlens",
     "esbenp.prettier-vscode",
     "waderyan.gitblame",
     "ms-ossdata.vscode-postgresql",
     "christian-kohler.npm-intellisense",
     "github.vscode-github-actions",
-    "ms-playwright.playwright"
+    "ms-playwright.playwright",
+    "equinusocio.vsc-material-theme-icons",
+    "monokai.theme-monokai-pro-vscode",
+    "redhat.vscode-yaml",
+    "streetsidesoftware.code-spell-checker"
   ]
 }
