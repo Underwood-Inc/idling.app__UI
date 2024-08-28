@@ -19,7 +19,7 @@
     "prettier": "prettier --write .",
     "test": "jest --watch",
     "test:ci": "jest --ci",
-    "test:coverage": "jest --coverage",
+    "test:coverage": "jest --ci --coverage",
     "gen:secret": "openssl rand -base64 32",
     "e2e": "yarn playwright test --ui",
     "e2e:headed": "yarn playwright test --headed",

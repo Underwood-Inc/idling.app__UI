@@ -76,8 +76,6 @@ jobs:
           POSTGRES_INITDB_ARGS: --auth-host=md5
         run: IS_CI=1 yarn playwright test
       - name: Run Jest tests
-        run: yarn test:ci
-      - name: Generate Jest coverage report
         run: yarn test:coverage
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master

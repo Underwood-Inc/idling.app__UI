@@ -1,8 +1,8 @@
 import { render, screen } from '@testing-library/react';
+import { DISCORD_LINK_SELECTORS } from 'src/lib/test-selectors/components/discord-link.selectors';
 import { NAV_PATHS } from '../../../lib/routes';
 import { ABOUT_PAGE_SELECTORS } from '../../../lib/test-selectors/pages/about.selectors';
 import { About } from './About';
-import { DISCORD_LINK_SELECTORS } from 'src/lib/test-selectors/components/discord-link.selectors';
 
 describe('Page', () => {
   it('renders the about page', () => {
