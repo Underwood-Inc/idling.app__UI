@@ -18,7 +18,7 @@ env:
   POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
   POSTGRES_HOST_AUTH_METHOD: md5
   POSTGRES_INITDB_ARGS: --auth-host=md5
-  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Needed to get PR information, if any
   SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 jobs:
   test:
@@ -52,7 +52,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+          fetch-depth: 0 # Shallow clones should be disabled for a better relevancy of analysis
       - uses: actions/setup-node@v4
         with:
           node-version: lts/*
@@ -78,7 +78,7 @@ jobs:
       - name: Run Jest tests
         run: yarn test:ci
       - name: Generate Jest coverage report
-        run: yarn jest:coverage
+        run: yarn test:coverage
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master
         env:
