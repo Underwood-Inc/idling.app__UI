@@ -170,12 +170,12 @@
                 {
                   "workerIndex": 0,
                   "status": "passed",
-                  "duration": 11849,
+                  "duration": 12158,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2024-08-28T13:27:10.730Z",
+                  "startTime": "2024-08-28T14:04:23.748Z",
                   "attachments": []
                 }
               ],
@@ -202,12 +202,12 @@
                 {
                   "workerIndex": 2,
                   "status": "passed",
-                  "duration": 14395,
+                  "duration": 14614,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2024-08-28T13:27:10.769Z",
+                  "startTime": "2024-08-28T14:04:23.762Z",
                   "attachments": []
                 }
               ],
@@ -234,12 +234,12 @@
                 {
                   "workerIndex": 4,
                   "status": "passed",
-                  "duration": 14819,
+                  "duration": 13437,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2024-08-28T13:27:10.761Z",
+                  "startTime": "2024-08-28T14:04:23.782Z",
                   "attachments": []
                 }
               ],
@@ -266,12 +266,12 @@
                 {
                   "workerIndex": 6,
                   "status": "passed",
-                  "duration": 10531,
+                  "duration": 9607,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2024-08-28T13:27:19.351Z",
+                  "startTime": "2024-08-28T14:04:33.403Z",
                   "attachments": []
                 }
               ],
@@ -296,14 +296,14 @@
               "projectName": "Mobile Safari",
               "results": [
                 {
-                  "workerIndex": 8,
+                  "workerIndex": 9,
                   "status": "passed",
-                  "duration": 11070,
+                  "duration": 11207,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2024-08-28T13:27:25.072Z",
+                  "startTime": "2024-08-28T14:04:37.955Z",
                   "attachments": []
                 }
               ],
@@ -330,12 +330,12 @@
                 {
                   "workerIndex": 10,
                   "status": "passed",
-                  "duration": 10173,
+                  "duration": 10410,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2024-08-28T13:27:27.203Z",
+                  "startTime": "2024-08-28T14:04:38.576Z",
                   "attachments": []
                 }
               ],
@@ -362,12 +362,12 @@
                 {
                   "workerIndex": 12,
                   "status": "passed",
-                  "duration": 7565,
+                  "duration": 7016,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2024-08-28T13:27:31.020Z",
+                  "startTime": "2024-08-28T14:04:44.350Z",
                   "attachments": []
                 }
               ],
@@ -402,12 +402,12 @@
                 {
                   "workerIndex": 1,
                   "status": "passed",
-                  "duration": 6936,
+                  "duration": 8054,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2024-08-28T13:27:10.747Z",
+                  "startTime": "2024-08-28T14:04:23.788Z",
                   "attachments": []
                 }
               ],
@@ -434,12 +434,12 @@
                 {
                   "workerIndex": 3,
                   "status": "passed",
-                  "duration": 11841,
+                  "duration": 11096,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2024-08-28T13:27:10.738Z",
+                  "startTime": "2024-08-28T14:04:23.781Z",
                   "attachments": []
                 }
               ],
@@ -466,12 +466,12 @@
                 {
                   "workerIndex": 5,
                   "status": "passed",
-                  "duration": 12481,
+                  "duration": 11444,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2024-08-28T13:27:10.762Z",
+                  "startTime": "2024-08-28T14:04:23.753Z",
                   "attachments": []
                 }
               ],
@@ -498,12 +498,12 @@
                 {
                   "workerIndex": 7,
                   "status": "passed",
-                  "duration": 7163,
+                  "duration": 7957,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2024-08-28T13:27:24.385Z",
+                  "startTime": "2024-08-28T14:04:36.763Z",
                   "attachments": []
                 }
               ],
@@ -528,14 +528,14 @@
               "projectName": "Mobile Safari",
               "results": [
                 {
-                  "workerIndex": 9,
+                  "workerIndex": 8,
                   "status": "passed",
-                  "duration": 10454,
+                  "duration": 9489,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2024-08-28T13:27:26.406Z",
+                  "startTime": "2024-08-28T14:04:37.102Z",
                   "attachments": []
                 }
               ],
@@ -562,12 +562,12 @@
                 {
                   "workerIndex": 11,
                   "status": "passed",
-                  "duration": 7618,
+                  "duration": 7372,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2024-08-28T13:27:28.511Z",
+                  "startTime": "2024-08-28T14:04:41.139Z",
                   "attachments": []
                 }
               ],
@@ -594,12 +594,12 @@
                 {
                   "workerIndex": 13,
                   "status": "passed",
-                  "duration": 5557,
+                  "duration": 5325,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2024-08-28T13:27:32.750Z",
+                  "startTime": "2024-08-28T14:04:46.293Z",
                   "attachments": []
                 }
               ],
@@ -616,8 +616,8 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2024-08-28T13:27:10.078Z",
-    "duration": 29084.981,
+    "startTime": "2024-08-28T14:04:22.995Z",
+    "duration": 28880.541,
     "expected": 14,
     "skipped": 0,
     "unexpected": 0,
