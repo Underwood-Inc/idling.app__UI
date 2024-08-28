@@ -91,6 +91,8 @@ export default function SubmissionsList({
     providerAccountId
   ]);
 
+  // TODO: extract fetch submissions and useEffects into custom hook
+
   const fetchSubmissions = useCallback(
     async (args: GetSubmissionsActionArguments) => {
       setLoading(true);
