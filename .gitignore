@@ -7,8 +7,13 @@
 .yarn/install-state.gz
 
 # testing
+/coverage/*
 /blob-report/
+/playwright-report/
 /playwright/.cache/
+# ...except for these specific files
+!/coverage/lcov.info
+!/coverage/playwright-test-results.json
 
 # next.js
 /.next/
