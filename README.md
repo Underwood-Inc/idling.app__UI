@@ -60,6 +60,15 @@ yarn dev:undock
 docker compose down
 ```
 
+To seed the postgres database:
+
+```bash
+# attach to the nextjs container
+docker exec -it nextjs sh
+# run the seed script
+yarn dev:seed
+```
+
 ### Without Docker
 
 Ensure you have postgres setup, a `.env.local` file in the root of the project directory, and have node pacakges installed before beginning.
@@ -76,6 +85,13 @@ yarn dev
 pnpm dev
 # or
 bun dev
+```
+
+To seed the postgres database (make sure it is up and running):
+
+```bash
+# run the seed script
+yarn dev:seed
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
