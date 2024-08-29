@@ -2,5 +2,6 @@
   "sonarlint.connectedMode.project": {
     "connectionId": "underwood-inc",
     "projectKey": "Underwood-Inc_idling.app__UI"
-  }
+  },
+  "cSpell.words": ["nextjs", "SIGNIN", "testid"]
 }

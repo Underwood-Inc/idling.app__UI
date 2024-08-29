@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 'use client';
 import React, { createContext, ReactNode, useContext, useReducer } from 'react';
 

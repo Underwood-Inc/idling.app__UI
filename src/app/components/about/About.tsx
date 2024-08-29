@@ -1,14 +1,14 @@
 import Link from 'next/link';
-import React from 'react';
 import { NAV_PATHS } from '../../../lib/routes';
 import { ABOUT_PAGE_SELECTORS } from '../../../lib/test-selectors/pages/about.selectors';
 import { DiscordLink } from '../discord-link/DiscordLink';
 import { GitLabLink } from '../gitlab-link/GitLabLink';
 
-export const About: React.FC = () => {
+export function About() {
   return (
     <div className="about__container">
       <p>
+        {/* eslint-disable-next-line custom-rules/enforce-link-target-blank */}
         <Link
           data-testid={ABOUT_PAGE_SELECTORS.ROOT_LINK}
           href={NAV_PATHS.ROOT}
@@ -39,4 +39,4 @@ export const About: React.FC = () => {
       </p>
     </div>
   );
-};
+}

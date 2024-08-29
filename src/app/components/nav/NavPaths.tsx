@@ -42,6 +42,7 @@ export function NavPaths() {
 
         return (
           <Navbar.Item key={`path--${key}`} isDisabled={isDisabled}>
+            {/* eslint-disable-next-line custom-rules/enforce-link-target-blank */}
             <Link
               href={path}
               className={isActive ? 'active' : ''}

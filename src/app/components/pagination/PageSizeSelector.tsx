@@ -3,6 +3,7 @@ import { PageSize } from 'src/lib/state/PaginationContext';
 
 type PageSizeSelectorProps = {
   pageSize: PageSize;
+  // eslint-disable-next-line no-unused-vars
   onPageSizeChange: (newPageSize: PageSize) => void;
 };
 

@@ -1,3 +1,4 @@
+/* eslint-disable custom-rules/enforce-link-target-blank */
 import Link from 'next/link';
 import { auth } from '../../../lib/auth';
 import { NAV_PATHS } from '../../../lib/routes';
