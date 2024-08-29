@@ -7,7 +7,11 @@ const createJestConfig = nextJest({
 
 // Add any custom config to be passed to Jest
 const customJestConfig = {
-  testPathIgnorePatterns: ['<rootDir>/e2e', '\\.spec\\.ts$'],
+  testPathIgnorePatterns: [
+    '<rootDir>/e2e',
+    '\\.spec\\.ts$',
+    '<rootDir>/custom-eslint-rules'
+  ],
   setupFilesAfterEnv: ['jest-chain', '<rootDir>/jest.setup.js'],
   testEnvironment: 'jest-environment-jsdom'
 };

@@ -27,7 +27,7 @@ export function TagLink({
   const tagSearchParams = searchParams.get('tags');
 
   // you normally would not use an onClick with a nextjs Link component however, we need to ensure filters are updated in the
-  // client context so as to ensure certain UI/X behaviours occur
+  // client context so as to ensure certain UI/X behaviors occur
   const onClick = (tag: string) => {
     if (!tagSearchParams?.includes(tag)) {
       dispatchFilters({
@@ -71,6 +71,7 @@ export function TagLink({
   // using reactStringReplace we can leverage the power of regex and return React nodes.
   // normally, this would blow up using a vanilla regex replace string match
   return reactStringReplace(value, tagRegex, (match, i) => (
+    // eslint-disable-next-line custom-rules/enforce-link-target-blank
     <Link
       key={`${match}_${i}`}
       onClick={() => onClick(match)}
