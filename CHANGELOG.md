@@ -50,3 +50,7 @@
 
 * doc: restore react version badge (v19beta)
 
+## [v0.17.25] - 2024-09-01
+
+* test: add component tests for badge.tsx
+
