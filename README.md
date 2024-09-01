@@ -1,7 +1,102 @@
 ## Code Analysis
 
-![React](https://img.shields.io/badge/React-19.0.0--alpha-61DAFB?style=flat&logo=react&logoColor=white)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=Underwood-Inc_idling.app__UI&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=Underwood-Inc_idling.app__UI) [![Bugs](https://sonarcloud.io/api/project_badges/measure?project=Underwood-Inc_idling.app__UI&metric=bugs)](https://sonarcloud.io/summary/new_code?id=Underwood-Inc_idling.app__UI) [![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=Underwood-Inc_idling.app__UI&metric=code_smells)](https://sonarcloud.io/summary/new_code?id=Underwood-Inc_idling.app__UI) [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=Underwood-Inc_idling.app__UI&metric=coverage)](https://sonarcloud.io/summary/new_code?id=Underwood-Inc_idling.app__UI) [![Duplicated Lines (%)](https://sonarcloud.io/api/project_badges/measure?project=Underwood-Inc_idling.app__UI&metric=duplicated_lines_density)](https://sonarcloud.io/summary/new_code?id=Underwood-Inc_idling.app__UI) [![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=Underwood-Inc_idling.app__UI&metric=ncloc)](https://sonarcloud.io/summary/new_code?id=Underwood-Inc_idling.app__UI) [![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=Underwood-Inc_idling.app__UI&metric=reliability_rating)](https://sonarcloud.io/summary/new_code?id=Underwood-Inc_idling.app__UI) [![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=Underwood-Inc_idling.app__UI&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=Underwood-Inc_idling.app__UI) [![Technical Debt](https://sonarcloud.io/api/project_badges/measure?project=Underwood-Inc_idling.app__UI&metric=sqale_index)](https://sonarcloud.io/summary/new_code?id=Underwood-Inc_idling.app__UI) [![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=Underwood-Inc_idling.app__UI&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=Underwood-Inc_idling.app__UI) [![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=Underwood-Inc_idling.app__UI&metric=vulnerabilities)](https://sonarcloud.io/summary/new_code?id=Underwood-Inc_idling.app__UI)
+
+## GitHub Workflows (CI/CD)
+
+This repository contains three GitHub Actions workflows: Version Control, Tests, and Deploy. Each workflow serves a specific purpose in our development and deployment process.
+
+### 1. Version Control Workflow
+
+**File:** `.github/workflows/version-control.yml`
+
+This workflow is responsible for automatically bumping the version number and updating the changelog based on commit messages.
+
+**Triggers:**
+
+- Push to the `main` branch
+- Pull request events (opened or synchronized)
+
+**Key Features:**
+
+- Automatically increments version number (minor for features, patch for others)
+- Updates CHANGELOG.md with new version and commit messages
+- Squashes non-unique commits
+- Pushes changes back to the PR or main branch
+- Verifies that changes were successfully pushed
+- Creates a release on GitHub with the new version and changelog
+- Uploads the CHANGELOG.md file as a release asset
+
+**Process:**
+
+1. Checks out the repository
+2. Sets up Node.js
+3. Installs dependencies
+4. Configures Git
+5. Updates version and changelog based on commit messages
+6. Pushes changes to PR or main branch
+7. Verifies pushed changes
+8. Creates a release on GitHub with the new version and changelog
+9. Uploads the CHANGELOG.md file as a release asset
+
+### 2. Tests Workflow
+
+**File:** `.github/workflows/tests.yml`
+
+This workflow runs various tests to ensure code quality and functionality.
+
+**Triggers:**
+
+- Push to `main` or `master` branches
+- Pull request events (opened, synchronized, or reopened)
+
+**Key Features:**
+
+- Sets up a PostgreSQL service container
+- Runs database migrations
+- Executes Playwright and Jest tests
+- Performs SonarCloud analysis
+- Uploads test reports as artifacts
+
+**Process:**
+
+1. Sets up PostgreSQL service
+2. Checks out the repository
+3. Sets up Node.js
+4. Runs database migrations
+5. Installs dependencies and Playwright browsers
+6. Runs Playwright tests
+7. Runs Jest tests with coverage
+8. Performs SonarCloud scan
+9. Uploads Playwright report as an artifact
+
+### 3. Deploy Workflow
+
+**File:** `.github/workflows/deploy.yml`
+
+This workflow handles the deployment of the application to a server.
+
+**Triggers:**
+
+- Push to the `master` branch
+
+**Key Features:**
+
+- Uses SSH to connect to the deployment server
+- Updates the repository on the server
+- Builds and restarts the application
+
+**Process:**
+
+1. Connects to the server via SSH
+2. Navigates to the project directory
+3. Resets the repository to a clean state
+4. Pulls the latest changes from the master branch
+5. Installs dependencies
+6. Builds the application
+7. Restarts the application using PM2
+
+These workflows work together to ensure that code changes are properly versioned, thoroughly tested, and securely deployed to the production environment.
 
 ---
 
