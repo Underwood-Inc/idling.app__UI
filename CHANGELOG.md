@@ -10,3 +10,7 @@
 
 * test: add component tests for avatar
 
+## [v0.17.15] - 2024-09-01
+
+* Bump version and update changelog:
+
