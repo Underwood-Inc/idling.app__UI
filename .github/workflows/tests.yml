@@ -22,6 +22,7 @@ env:
   SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 jobs:
   test:
+    name: Run Tests
     timeout-minutes: 60
     runs-on: ubuntu-latest
     environment: actions
@@ -87,3 +88,11 @@ jobs:
           name: playwright-report
           path: playwright-report/
           retention-days: 30
+
+  # Add a new job that depends on the test job
+  test-completed:
+    name: Tests Completed
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "All tests have passed successfully!"
