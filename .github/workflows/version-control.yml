@@ -8,22 +8,7 @@ on:
     types: [opened, synchronize]
 
 jobs:
-  wait-for-tests:
-    name: Wait for Tests
-    runs-on: ubuntu-latest
-    steps:
-      - name: Wait for tests to succeed
-        uses: lewagon/wait-on-check-action@v1.3.1
-        with:
-          ref: ${{ github.ref }}
-          check-name: 'Tests Completed'
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
-          wait-interval: 10
-
   version-bump:
-    name: Version Bump
-    needs: wait-for-tests
-    if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
     permissions:
       contents: write
