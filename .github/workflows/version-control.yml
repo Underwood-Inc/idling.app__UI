@@ -1,0 +1,113 @@
+name: Version Bump and Changelog
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    types: [opened, synchronize]
+
+jobs:
+  version-bump:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+
+      - name: Install dependencies
+        run: npm install -g yarn && yarn
+
+      - name: Configure Git
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+
+      - name: Update version and changelog
+        run: |
+          if [ "${{ github.event_name }}" == "pull_request" ]; then
+            BASE_SHA=${{ github.event.pull_request.base.sha }}
+            HEAD_SHA=${{ github.event.pull_request.head.sha }}
+            COMMITS=$(git log ${BASE_SHA}..${HEAD_SHA} --pretty=format:"%s" | sort -u)
+          else
+            LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
+            COMMITS=$(git log ${LAST_TAG}..HEAD --pretty=format:"%s" | sort -u)
+          fi
+
+          CHANGELOG_UPDATED=false
+          SQUASH_COMMIT_MSG=""
+          while IFS= read -r commit; do
+            if ! grep -q "$commit" CHANGELOG.md; then
+              NEW_VERSION=""
+              if [[ $commit == feat:* ]]; then
+                NEW_VERSION=$(npm version minor --no-git-tag-version)
+              else
+                NEW_VERSION=$(npm version patch --no-git-tag-version)
+              fi
+
+              echo "## [${NEW_VERSION}] - $(date +'%Y-%m-%d')" >> CHANGELOG.md
+              echo "" >> CHANGELOG.md
+              echo "* ${commit}" >> CHANGELOG.md
+              echo "" >> CHANGELOG.md
+
+              SQUASH_COMMIT_MSG="${SQUASH_COMMIT_MSG}${commit}\n"
+              CHANGELOG_UPDATED=true
+
+              # Commit changes immediately
+              git add package.json CHANGELOG.md
+              git commit -m "Bump version to ${NEW_VERSION} and update changelog"
+            fi
+          done <<< "$COMMITS"
+
+          if [ "$CHANGELOG_UPDATED" = true ]; then
+            # Squash all commits into one
+            git reset --soft HEAD~$(git rev-list --count HEAD ^origin/main)
+            git commit --amend -m "Bump version and update changelog:
+
+            ${SQUASH_COMMIT_MSG}"
+            echo "Changes detected. Proceeding with push."
+          else
+            echo "No new unique commits. Exiting."
+            exit 0
+          fi
+
+      - name: Push changes to PR
+        if: github.event_name == 'pull_request'
+        run: |
+          git push origin HEAD:${{ github.head_ref }}
+          if [ $? -ne 0 ]; then
+            echo "Failed to push changes to PR. Exiting with error."
+            exit 1
+          fi
+          echo "Successfully pushed changes to PR."
+
+      - name: Push changes to main
+        if: github.event_name == 'push'
+        run: |
+          git push --follow-tags
+          if [ $? -ne 0 ]; then
+            echo "Failed to push changes. Exiting with error."
+            exit 1
+          fi
+          echo "Successfully pushed changes."
+
+      - name: Verify pushed changes
+        if: github.event_name == 'push'
+        run: |
+          git fetch origin
+          LOCAL_SHA=$(git rev-parse HEAD)
+          REMOTE_SHA=$(git rev-parse origin/main)
+          if [ "$LOCAL_SHA" != "$REMOTE_SHA" ]; then
+            echo "Local and remote HEADs do not match. Push may have failed."
+            exit 1
+          fi
+          echo "Verified: Local and remote HEADs match."
