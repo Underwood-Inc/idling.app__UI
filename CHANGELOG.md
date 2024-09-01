@@ -58,3 +58,11 @@
 
 * test: add coverage reports
 
+## [v0.17.27] - 2024-09-01
+
+* build: make tests action a dependency of version-control acion
+
+## [v0.17.28] - 2024-09-01
+
+* build: version control action triggered on success off tests action
+
