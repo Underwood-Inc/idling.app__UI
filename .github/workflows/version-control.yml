@@ -37,36 +37,39 @@ jobs:
           if [ "${{ github.event_name }}" == "pull_request" ]; then
             BASE_SHA=${{ github.event.pull_request.base.sha }}
             HEAD_SHA=${{ github.event.pull_request.head.sha }}
-            COMMITS=$(git log ${BASE_SHA}..${HEAD_SHA} --pretty=format:"%s")
+            COMMITS=$(git log ${BASE_SHA}..${HEAD_SHA} --pretty=format:"%s" | sort -u)
           else
             LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
-            COMMITS=$(git log ${LAST_TAG}..HEAD --pretty=format:"%s")
+            COMMITS=$(git log ${LAST_TAG}..HEAD --pretty=format:"%s" | sort -u)
           fi
 
+          CHANGELOG_UPDATED=false
           while IFS= read -r commit; do
-            if [[ $commit == feat:* ]]; then
-              npm version minor -m "Bump version to %s"
-            else
-              npm version patch -m "Bump version to %s"
+            if ! grep -q "$commit" CHANGELOG.md; then
+              if [[ $commit == feat:* ]]; then
+                npm version minor -m "Bump version to %s"
+              else
+                npm version patch -m "Bump version to %s"
+              fi
+
+              NEW_VERSION=$(node -p "require('./package.json').version")
+              echo "## [${NEW_VERSION}] - $(date +'%Y-%m-%d')" >> CHANGELOG.md
+              echo "" >> CHANGELOG.md
+              echo "* ${commit}" >> CHANGELOG.md
+              echo "" >> CHANGELOG.md
+
+              git add package.json CHANGELOG.md
+              git commit --amend --no-edit
+              CHANGELOG_UPDATED=true
             fi
-
-            NEW_VERSION=$(node -p "require('./package.json').version")
-            echo "## [${NEW_VERSION}] - $(date +'%Y-%m-%d')" >> CHANGELOG.md
-            echo "" >> CHANGELOG.md
-            echo "* ${commit}" >> CHANGELOG.md
-            echo "" >> CHANGELOG.md
-
-            git add package.json CHANGELOG.md
-            git commit --amend --no-edit
           done <<< "$COMMITS"
 
-          # Check if there are any changes
-          if [[ -n $(git status -s) ]]; then
-            echo "Changes detected. Proceeding with push."
-          else
-            echo "No changes detected. Exiting."
+          if [ "$CHANGELOG_UPDATED" = false ]; then
+            echo "No new unique commits. Exiting."
             exit 0
           fi
+
+          echo "Changes detected. Proceeding with push."
 
       - name: Push changes to PR
         if: github.event_name == 'pull_request'
