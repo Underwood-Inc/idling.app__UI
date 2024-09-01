@@ -30,3 +30,7 @@
 
 * docs: add documentation pertaining to the various github actions used in this project
 
+## [v0.17.20] - 2024-09-01
+
+* Bump version to v0.17.15 and update changelog
+
