@@ -1,6 +1,6 @@
 {
   "name": "idling.app",
-  "version": "0.17.10",
+  "version": "0.17.11",
   "private": true,
   "engines": {
     "node": ">=20.x"
@@ -38,7 +38,7 @@
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-prettier": "^5.2.1",
     "lorem-ipsum": "^2.0.8",
-    "next": "14.2.5",
+    "next": "^14.2.7",
     "next-auth": "5.0.0-beta.20",
     "pg": "8.10.0",
     "postgres": "3.4.4",
