@@ -9,6 +9,8 @@ on:
 
 jobs:
   version-bump:
+    # Skip this job if the commit is made by the GitHub Actions bot
+    if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
     permissions:
       contents: write
