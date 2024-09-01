@@ -56,9 +56,35 @@ jobs:
             git commit --amend --no-edit
           done <<< "$COMMITS"
 
+          # Check if there are any changes
+          if [[ -n $(git status -s) ]]; then
+            echo "Changes detected. Proceeding with push."
+          else
+            echo "No changes detected. Exiting."
+            exit 0
+          fi
+
       - name: Push changes
         if: github.event_name == 'push'
-        run: git push --follow-tags
+        run: |
+          git push --follow-tags
+          if [ $? -ne 0 ]; then
+            echo "Failed to push changes. Exiting with error."
+            exit 1
+          fi
+          echo "Successfully pushed changes."
+
+      - name: Verify pushed changes
+        if: github.event_name == 'push'
+        run: |
+          git fetch origin
+          LOCAL_SHA=$(git rev-parse HEAD)
+          REMOTE_SHA=$(git rev-parse origin/main)
+          if [ "$LOCAL_SHA" != "$REMOTE_SHA" ]; then
+            echo "Local and remote HEADs do not match. Push may have failed."
+            exit 1
+          fi
+          echo "Verified: Local and remote HEADs match."
 
       - name: Create Pull Request
         if: github.event_name == 'pull_request'
