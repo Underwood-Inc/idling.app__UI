@@ -2,7 +2,7 @@
 
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=Underwood-Inc_idling.app__UI&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=Underwood-Inc_idling.app__UI) [![Bugs](https://sonarcloud.io/api/project_badges/measure?project=Underwood-Inc_idling.app__UI&metric=bugs)](https://sonarcloud.io/summary/new_code?id=Underwood-Inc_idling.app__UI) [![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=Underwood-Inc_idling.app__UI&metric=code_smells)](https://sonarcloud.io/summary/new_code?id=Underwood-Inc_idling.app__UI) [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=Underwood-Inc_idling.app__UI&metric=coverage)](https://sonarcloud.io/summary/new_code?id=Underwood-Inc_idling.app__UI) [![Duplicated Lines (%)](https://sonarcloud.io/api/project_badges/measure?project=Underwood-Inc_idling.app__UI&metric=duplicated_lines_density)](https://sonarcloud.io/summary/new_code?id=Underwood-Inc_idling.app__UI) [![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=Underwood-Inc_idling.app__UI&metric=ncloc)](https://sonarcloud.io/summary/new_code?id=Underwood-Inc_idling.app__UI) [![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=Underwood-Inc_idling.app__UI&metric=reliability_rating)](https://sonarcloud.io/summary/new_code?id=Underwood-Inc_idling.app__UI) [![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=Underwood-Inc_idling.app__UI&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=Underwood-Inc_idling.app__UI) [![Technical Debt](https://sonarcloud.io/api/project_badges/measure?project=Underwood-Inc_idling.app__UI&metric=sqale_index)](https://sonarcloud.io/summary/new_code?id=Underwood-Inc_idling.app__UI) [![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=Underwood-Inc_idling.app__UI&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=Underwood-Inc_idling.app__UI) [![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=Underwood-Inc_idling.app__UI&metric=vulnerabilities)](https://sonarcloud.io/summary/new_code?id=Underwood-Inc_idling.app__UI)
 
-## GitHub Workflows (CI/CD Aids)
+## GitHub Workflows (CI/CD)
 
 This repository contains three GitHub Actions workflows: Version Control, Tests, and Deploy. Each workflow serves a specific purpose in our development and deployment process.
 
@@ -24,6 +24,8 @@ This workflow is responsible for automatically bumping the version number and up
 - Squashes non-unique commits
 - Pushes changes back to the PR or main branch
 - Verifies that changes were successfully pushed
+- Creates a release on GitHub with the new version and changelog
+- Uploads the CHANGELOG.md file as a release asset
 
 **Process:**
 
@@ -34,6 +36,8 @@ This workflow is responsible for automatically bumping the version number and up
 5. Updates version and changelog based on commit messages
 6. Pushes changes to PR or main branch
 7. Verifies pushed changes
+8. Creates a release on GitHub with the new version and changelog
+9. Uploads the CHANGELOG.md file as a release asset
 
 ### 2. Tests Workflow
 

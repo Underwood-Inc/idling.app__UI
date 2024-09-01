@@ -47,13 +47,13 @@ jobs:
           SQUASH_COMMIT_MSG=""
           while IFS= read -r commit; do
             if ! grep -q "$commit" CHANGELOG.md; then
+              NEW_VERSION=""
               if [[ $commit == feat:* ]]; then
-                npm version minor -m "Bump version to %s"
+                NEW_VERSION=$(npm version minor --no-git-tag-version)
               else
-                npm version patch -m "Bump version to %s"
+                NEW_VERSION=$(npm version patch --no-git-tag-version)
               fi
 
-              NEW_VERSION=$(node -p "require('./package.json').version")
               echo "## [${NEW_VERSION}] - $(date +'%Y-%m-%d')" >> CHANGELOG.md
               echo "" >> CHANGELOG.md
               echo "* ${commit}" >> CHANGELOG.md
@@ -61,11 +61,16 @@ jobs:
 
               SQUASH_COMMIT_MSG="${SQUASH_COMMIT_MSG}${commit}\n"
               CHANGELOG_UPDATED=true
+
+              # Commit changes immediately
+              git add package.json CHANGELOG.md
+              git commit -m "Bump version to ${NEW_VERSION} and update changelog"
             fi
           done <<< "$COMMITS"
 
           if [ "$CHANGELOG_UPDATED" = true ]; then
-            git add package.json CHANGELOG.md
+            # Squash all commits into one
+            git reset --soft HEAD~$(git rev-list --count HEAD ^origin/main)
             git commit --amend -m "Bump version and update changelog:
 
             ${SQUASH_COMMIT_MSG}"
