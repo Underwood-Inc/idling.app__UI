@@ -38,3 +38,7 @@
 
 * Bump version to v0.17.16 and update changelog
 
+## [v0.17.22] - 2024-09-01
+
+* Bump version to v0.17.17 and update changelog
+
