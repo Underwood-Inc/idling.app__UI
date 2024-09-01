@@ -64,7 +64,17 @@ jobs:
             exit 0
           fi
 
-      - name: Push changes
+      - name: Push changes to PR
+        if: github.event_name == 'pull_request'
+        run: |
+          git push origin HEAD:${{ github.head_ref }} --force
+          if [ $? -ne 0 ]; then
+            echo "Failed to push changes to PR. Exiting with error."
+            exit 1
+          fi
+          echo "Successfully pushed changes to PR."
+
+      - name: Push changes to main
         if: github.event_name == 'push'
         run: |
           git push --follow-tags
@@ -85,12 +95,3 @@ jobs:
             exit 1
           fi
           echo "Verified: Local and remote HEADs match."
-
-      - name: Create Pull Request
-        if: github.event_name == 'pull_request'
-        uses: peter-evans/create-pull-request@v5
-        with:
-          title: 'Update version and changelog'
-          body: 'This PR updates the version and changelog based on recent commits.'
-          branch: version-bump-${{ github.event.pull_request.number }}
-          base: ${{ github.head_ref }}
