@@ -1,0 +1,70 @@
+name: Version Bump and Changelog
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    types: [opened, synchronize]
+
+jobs:
+  version-bump:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Configure Git
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+
+      - name: Update version and changelog
+        run: |
+          if [ "${{ github.event_name }}" == "pull_request" ]; then
+            BASE_SHA=${{ github.event.pull_request.base.sha }}
+            HEAD_SHA=${{ github.event.pull_request.head.sha }}
+            COMMITS=$(git log ${BASE_SHA}..${HEAD_SHA} --pretty=format:"%s")
+          else
+            LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
+            COMMITS=$(git log ${LAST_TAG}..HEAD --pretty=format:"%s")
+          fi
+
+          while IFS= read -r commit; do
+            if [[ $commit == feat:* ]]; then
+              npm version minor -m "Bump version to %s"
+            else
+              npm version patch -m "Bump version to %s"
+            fi
+
+            NEW_VERSION=$(node -p "require('./package.json').version")
+            echo "## [${NEW_VERSION}] - $(date +'%Y-%m-%d')" >> CHANGELOG.md
+            echo "" >> CHANGELOG.md
+            echo "* ${commit}" >> CHANGELOG.md
+            echo "" >> CHANGELOG.md
+
+            git add package.json CHANGELOG.md
+            git commit --amend --no-edit
+          done <<< "$COMMITS"
+
+      - name: Push changes
+        if: github.event_name == 'push'
+        run: git push --follow-tags
+
+      - name: Create Pull Request
+        if: github.event_name == 'pull_request'
+        uses: peter-evans/create-pull-request@v5
+        with:
+          title: 'Update version and changelog'
+          body: 'This PR updates the version and changelog based on recent commits.'
+          branch: version-bump-${{ github.event.pull_request.number }}
+          base: ${{ github.head_ref }}
