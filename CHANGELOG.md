@@ -18,3 +18,7 @@
 
 * Bump version to 0.17.12
 
+## [v0.17.17] - 2024-09-01
+
+* Bump version to 0.17.13
+
