@@ -10,10 +10,14 @@ on:
 jobs:
   version-bump:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -67,7 +71,7 @@ jobs:
       - name: Push changes to PR
         if: github.event_name == 'pull_request'
         run: |
-          git push origin HEAD:${{ github.head_ref }} --force
+          git push origin HEAD:${{ github.head_ref }}
           if [ $? -ne 0 ]; then
             echo "Failed to push changes to PR. Exiting with error."
             exit 1
