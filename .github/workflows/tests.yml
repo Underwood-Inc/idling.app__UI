@@ -22,6 +22,7 @@ env:
   SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 jobs:
   test:
+    name: Run Tests
     timeout-minutes: 60
     runs-on: ubuntu-latest
     environment: actions
@@ -80,10 +81,25 @@ jobs:
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master
         env:
-          SONAR_TOKEN: ${{ secrets. SONAR_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: playwright-report
           path: playwright-report/
           retention-days: 30
+
+      - name: Trigger Version Control
+        if: success()
+        uses: peter-evans/repository-dispatch@v2
+        with:
+          token: ${{ secrets.REPO_ACCESS_TOKEN }}
+          event-type: trigger-version-control
+
+  # Add a new job that depends on the test job
+  test-completed:
+    name: Tests Completed
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "All tests have passed successfully!"
