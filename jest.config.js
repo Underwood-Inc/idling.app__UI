@@ -13,6 +13,9 @@ const customJestConfig = {
     '<rootDir>/custom-eslint-rules'
   ],
   setupFilesAfterEnv: ['jest-chain', '<rootDir>/jest.setup.js'],
+  moduleNameMapper: {
+    '^next/navigation$': '<rootDir>/__mocks__/next/navigation.ts'
+  },
   testEnvironment: 'jest-environment-jsdom'
 };
 

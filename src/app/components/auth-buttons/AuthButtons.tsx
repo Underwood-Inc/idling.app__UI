@@ -1,17 +1,21 @@
-import { signIn, signOut } from '../../../lib/auth';
-import { NAV_PATHS } from '../../../lib/routes';
+import { AUTH_BUTTON_SELECTORS } from 'src/lib/test-selectors/components/auth-buttons.selectors';
+import { signInAction, signOutAction } from './actions';
 import './AuthButtons.css';
 
 export type SignInProviders = 'twitch' | 'google';
-export function SignIn({ provider }: { provider: SignInProviders }) {
+export function SignIn({ provider }: Readonly<{ provider: SignInProviders }>) {
   return (
     <form
       action={async () => {
         'use server';
-        await signIn(provider);
+        await signInAction(provider);
       }}
     >
-      <button type="submit" className="auth-button">
+      <button
+        type="submit"
+        className="auth-button"
+        data-testid={AUTH_BUTTON_SELECTORS.SIGN_IN}
+      >
         Login with <span className="capitalize">{provider}</span>
       </button>
     </form>
@@ -23,10 +27,12 @@ export function SignOut() {
     <form
       action={async () => {
         'use server';
-        await signOut({ redirectTo: NAV_PATHS.ROOT });
+        await signOutAction();
       }}
     >
-      <button type="submit">Sign Out</button>
+      <button type="submit" data-testid={AUTH_BUTTON_SELECTORS.SIGN_OUT}>
+        Sign Out
+      </button>
     </form>
   );
 }

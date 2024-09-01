@@ -3,12 +3,7 @@ import { Pool } from 'pg';
 import authConfig from '../auth.config';
 import CustomPostgresAdapter from './adapter';
 
-export const {
-  auth,
-  handlers: { GET, POST },
-  signIn,
-  signOut
-} = NextAuth(() => {
+export const nextAuth = NextAuth(() => {
   const pool = new Pool({
     host: process.env.POSTGRES_HOST,
     user: process.env.POSTGRES_USER,
@@ -35,3 +30,10 @@ export const {
     }
   };
 });
+
+export const {
+  auth,
+  handlers: { GET, POST },
+  signIn,
+  signOut
+} = nextAuth;
