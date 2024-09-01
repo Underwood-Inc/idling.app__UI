@@ -22,3 +22,11 @@
 
 * Bump version to 0.17.13
 
+## [v0.17.18] - 2024-09-01
+
+* Merge 7896956801f8c3bfa746225d2b4a36a7e7802b45 into 7343b3fad1a6b8c39a00beaf56b45a0477c28db6
+
+## [v0.17.19] - 2024-09-01
+
+* docs: add documentation pertaining to the various github actions used in this project
+
