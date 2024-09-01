@@ -4,6 +4,12 @@ on:
     branches: [main, master]
   pull_request:
     types: [opened, synchronize, reopened]
+
+# Add this permissions block at the top level of the workflow
+permissions:
+  contents: read
+  actions: write
+
 env:
   AUTH_TRUST_HOST: true
   NEXTAUTH_URL: http://localhost:3000
