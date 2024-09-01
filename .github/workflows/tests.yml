@@ -93,7 +93,7 @@ jobs:
         if: success()
         uses: peter-evans/repository-dispatch@v2
         with:
-          token: ${{ secrets.REPO_ACCESS_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }}
           event-type: trigger-version-control
 
   # Add a new job that depends on the test job
