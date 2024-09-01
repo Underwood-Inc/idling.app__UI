@@ -44,6 +44,7 @@ jobs:
           fi
 
           CHANGELOG_UPDATED=false
+          SQUASH_COMMIT_MSG=""
           while IFS= read -r commit; do
             if ! grep -q "$commit" CHANGELOG.md; then
               if [[ $commit == feat:* ]]; then
@@ -58,18 +59,21 @@ jobs:
               echo "* ${commit}" >> CHANGELOG.md
               echo "" >> CHANGELOG.md
 
-              git add package.json CHANGELOG.md
-              git commit --amend --no-edit
+              SQUASH_COMMIT_MSG="${SQUASH_COMMIT_MSG}${commit}\n"
               CHANGELOG_UPDATED=true
             fi
           done <<< "$COMMITS"
 
-          if [ "$CHANGELOG_UPDATED" = false ]; then
+          if [ "$CHANGELOG_UPDATED" = true ]; then
+            git add package.json CHANGELOG.md
+            git commit --amend -m "Bump version and update changelog:
+
+            ${SQUASH_COMMIT_MSG}"
+            echo "Changes detected. Proceeding with push."
+          else
             echo "No new unique commits. Exiting."
             exit 0
           fi
-
-          echo "Changes detected. Proceeding with push."
 
       - name: Push changes to PR
         if: github.event_name == 'pull_request'
