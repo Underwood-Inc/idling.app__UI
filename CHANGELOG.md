@@ -42,3 +42,11 @@
 
 * Bump version to v0.17.17 and update changelog
 
+## [v0.17.23] - 2024-09-01
+
+* Merge ef83ba9b61bd9e97c1a08a34298a48203ebe6e6d into 7343b3fad1a6b8c39a00beaf56b45a0477c28db6
+
+## [v0.17.24] - 2024-09-01
+
+* doc: restore react version badge (v19beta)
+
