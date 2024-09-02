@@ -25,13 +25,15 @@
     "e2e:headed": "yarn playwright test --headed",
     "e2e:headless": "yarn playwright test",
     "e2e:reports": "yarn playwright show-report",
-    "e2e:gen": "yarn playwright codegen"
+    "e2e:gen": "yarn playwright codegen",
+    "release": "release-it"
   },
   "dependencies": {
     "@auth/pg-adapter": "^1.4.2",
     "@axe-core/playwright": "^4.10.0",
     "@dicebear/collection": "8.0.1",
     "@dicebear/core": "8.0.1",
+    "@release-it/conventional-changelog": "^8.0.1",
     "@vercel/postgres": "^0.9.0",
     "buffer": "^6.0.3",
     "dotenv": "^16.4.5",
@@ -44,7 +46,7 @@
     "postgres": "3.4.4",
     "react": "^19.0.0-rc-e56f4ae3-20240830",
     "react-dom": "^19.0.0-rc-e56f4ae3-20240830",
-    "react-spinners": "0.13.8",
+    "react-spinners": "^0.13.8",
     "react-string-replace": "^1.1.1",
     "stream-browserify": "^3.0.0",
     "utf-8-validate": "^5.0.2",
@@ -74,13 +76,18 @@
     "lint-staged": "^6.1.1",
     "playwright-core": "^1.46.1",
     "prettier": "^3.3.3",
+    "release-it": "^17.6.0",
     "release-please": "^16.12.0",
     "ts-node": "^10.9.2",
     "typescript": "5.5.4"
   },
   "resolutions": {
     "playwright-core": "^1.0.0",
-    "@testing-library/dom": "^10.0.0"
+    "@testing-library/dom": "^10.0.0",
+    "react": "^19.0.0-rc-e56f4ae3-20240830",
+    "react-dom": "^19.0.0-rc-e56f4ae3-20240830",
+    "next": "^14.2.7",
+    "react-spinners": "^0.13.8"
   },
   "pnpm": {
     "overrides": {
