@@ -1,25 +1,24 @@
-name: Release Please
-
 on:
   push:
     branches:
       - master
 
+permissions:
+  contents: write
+  pull-requests: write
+
+name: release-please
+
 jobs:
-  release:
+  release-please:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
+      - uses: googleapis/release-please-action@v4
         with:
-          node-version: '20'
-
-      - name: Install dependencies
-        run: npm install --legacy-peer-deps
-
-      - name: Release Please
-        run: npx release-please release-pr --token=${{ secrets.GITHUB_TOKEN }} --repo-url=https://github.com/${{ github.repository }}
-        # Ensure release-please-config.json is in the root of your repository
+          # this assumes that you have created a personal access token
+          # (PAT) and configured it as a GitHub action secret named
+          # `MY_RELEASE_PLEASE_TOKEN` (this secret name is not important).
+          token: ${{ secrets.GITHUB_TOKEN }}
+          # this is a built-in strategy in release-please, see "Action Inputs"
+          # for more options
+          release-type: simple
