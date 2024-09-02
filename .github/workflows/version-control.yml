@@ -154,3 +154,7 @@ jobs:
           git add .last_processed_commit
           git commit -m "Update last processed commit"
           git push origin HEAD:${{ github.event.inputs.head_ref }}
+
+      - name: Emit job completion
+        if: always()
+        run: echo "Job completed"
