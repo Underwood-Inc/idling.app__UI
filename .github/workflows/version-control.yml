@@ -1,10 +1,7 @@
 name: Version Bump and Changelog
 
 on:
-  workflow_run:
-    workflows: ['Tests']
-    types:
-      - completed
+  workflow_dispatch: # Allow manual dispatch from other workflows
 
 jobs:
   version-bump:
