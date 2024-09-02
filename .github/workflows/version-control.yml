@@ -67,16 +67,21 @@ jobs:
                 NEW_VERSION=$(npm version patch --no-git-tag-version)
               fi
 
-              echo "## [${NEW_VERSION}] - $(date +'%Y-%m-%d')" >> CHANGELOG.md
-              echo "" >> CHANGELOG.md
-              echo "* ${commit}" >> CHANGELOG.md
-              echo "" >> CHANGELOG.md
+              if [[ $commit == feat:* ]]; then
+                echo "## [${NEW_VERSION}] - $(date +'%Y-%m-%d')" >> CHANGELOG.md
+                echo "" >> CHANGELOG.md
+                echo "* ${commit}" >> CHANGELOG.md
+                echo "" >> CHANGELOG.md
 
-              SQUASH_COMMIT_MSG="${SQUASH_COMMIT_MSG}${commit}\n"
-              CHANGELOG_UPDATED=true
+                SQUASH_COMMIT_MSG="${SQUASH_COMMIT_MSG}${commit}\n"
+                CHANGELOG_UPDATED=true
+              fi
 
               # Commit changes immediately
-              git add package.json CHANGELOG.md
+              git add package.json
+              if [ "$CHANGELOG_UPDATED" = true ]; then
+                git add CHANGELOG.md
+              fi
               git commit -m "Bump version to ${NEW_VERSION} and update changelog"
             fi
           done <<< "$COMMITS"

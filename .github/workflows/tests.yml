@@ -29,6 +29,7 @@ env:
 jobs:
   test:
     name: Run Tests
+    needs: version-control # Add this line to wait for version-control job
     timeout-minutes: 60
     runs-on: ubuntu-latest
     environment: actions
@@ -98,7 +99,6 @@ jobs:
   version-control:
     name: Trigger Version Control Workflow
     runs-on: ubuntu-latest
-    needs: test
     steps:
       - name: Trigger Version Control Workflow
         run: |
