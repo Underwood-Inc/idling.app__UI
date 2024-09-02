@@ -70,3 +70,7 @@
 
 * build: more attempts at getting correct context
 
+## [v0.17.30] - 2024-09-02
+
+* build: remove condition for workflow run
+
