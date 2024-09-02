@@ -58,6 +58,7 @@ jobs:
 
           CHANGELOG_UPDATED=false
           SQUASH_COMMIT_MSG=""
+          VERSION_UPDATED=false
           while IFS= read -r commit; do
             if ! grep -q "$commit" CHANGELOG.md; then
               NEW_VERSION=""
@@ -83,10 +84,11 @@ jobs:
                 git add CHANGELOG.md
               fi
               git commit -m "Bump version to ${NEW_VERSION} and update changelog"
+              VERSION_UPDATED=true
             fi
           done <<< "$COMMITS"
 
-          if [ "$CHANGELOG_UPDATED" = true ]; then
+          if [ "$VERSION_UPDATED" = true ]; then
             # Squash all commits into one
             git reset --soft HEAD~$(git rev-list --count HEAD ^origin/main)
             git commit --amend -m "Bump version and update changelog:
