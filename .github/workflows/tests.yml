@@ -95,17 +95,14 @@ jobs:
           path: playwright-report/
           retention-days: 30
 
-      - name: Trigger Version Control
-        if: success()
-        uses: peter-evans/repository-dispatch@v2
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          event-type: trigger-version-control
-
-  # Add a new job that depends on the test job
   test-completed:
     name: Tests Completed
     needs: test
     runs-on: ubuntu-latest
     steps:
       - run: echo "All tests have passed successfully!"
+      - name: Trigger Version Control
+        uses: peter-evans/repository-dispatch@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          event-type: trigger-version-control
