@@ -21,4 +21,4 @@ jobs:
         run: npm install --legacy-peer-deps
 
       - name: Release Please
-        run: npx release-please release-pr --token=${{ secrets.GITHUB_TOKEN }}
+        run: npx release-please release-pr --token=${{ secrets.GITHUB_TOKEN }} --repo-url=https://github.com/${{ github.repository }}
