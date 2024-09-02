@@ -22,6 +22,13 @@ jobs:
       - name: Install dependencies
         run: npm i --legacy-peer-deps
 
+      - name: Clean working directory
+        run: |
+          git config --global user.name 'GitHub Action'
+          git config --global user.email 'action@github.com'
+          git stash
+          git clean -fd
+
       - name: Run release-it
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
