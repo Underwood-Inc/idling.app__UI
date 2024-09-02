@@ -110,6 +110,11 @@ jobs:
             exit 0
           fi
 
+      - name: Pull latest changes
+        if: github.event.inputs.event_name == 'pull_request'
+        run: |
+          git pull origin ${{ github.event.inputs.head_ref }}
+
       - name: Push changes to PR
         if: github.event.inputs.event_name == 'pull_request'
         run: |
