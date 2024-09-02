@@ -94,8 +94,13 @@ jobs:
           name: playwright-report
           path: playwright-report/
           retention-days: 30
+
+  version-control:
+    name: Trigger Version Control Workflow
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
       - name: Trigger Version Control Workflow
-        if: success()
         run: |
           REF=${{ github.event.pull_request.head.ref || github.ref }}
           curl -X POST \

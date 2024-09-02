@@ -44,8 +44,8 @@ jobs:
       - name: Update version and changelog
         run: |
           if [ "${{ github.event.inputs.event_name }}" == "pull_request" ]; then
-            BASE_SHA=${{ github.event.inputs.base_ref }}
-            HEAD_SHA=${{ github.event.inputs.head_ref }}
+            BASE_SHA=$(git merge-base origin/${{ github.event.inputs.base_ref }} HEAD)
+            HEAD_SHA=$(git rev-parse HEAD)
             if [ -z "$BASE_SHA" ] || [ -z "$HEAD_SHA" ]; then
               echo "BASE_SHA or HEAD_SHA is not set. Exiting."
               exit 1
