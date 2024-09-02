@@ -1,5 +1,6 @@
 'use client';
 import { ScaleLoader } from 'react-spinners';
+import { LOADER_SELECTORS } from 'src/lib/test-selectors/components/loader.selectors';
 import './Loader.css';
 
 export default function Loader({
@@ -12,7 +13,7 @@ export default function Loader({
   return (
     <div className="loader">
       {label && <p>{label}</p>}
-      <ScaleLoader color={color} />
+      <ScaleLoader data-testid={LOADER_SELECTORS.LOADER} color={color} />
     </div>
   );
 }
