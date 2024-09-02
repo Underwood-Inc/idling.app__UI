@@ -74,3 +74,11 @@
 
 * build: remove condition for workflow run
 
+## [v0.17.31] - 2024-09-02
+
+* build: update to ensure variables are set for version control workflow
+
+## [v0.17.32] - 2024-09-02
+
+* test: add component tests for coin.tsx
+
