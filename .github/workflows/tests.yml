@@ -101,4 +101,4 @@ jobs:
             -H "Accept: application/vnd.github.v3+json" \
             -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
             https://api.github.com/repos/${{ github.repository }}/actions/workflows/version-control.yml/dispatches \
-            -d '{"ref": "${{ github.ref }}", "inputs": {"head_ref": "${{ github.head_ref }}", "base_ref": "${{ github.base_ref }}", "event_name": "${{ github.event_name }}", "pr_number": "${{ github.event.pull_request.number }}"}}'
+            -d '{"ref": "${{ github.sha }}", "inputs": {"head_ref": "${{ github.head_ref }}", "base_ref": "${{ github.base_ref }}", "event_name": "${{ github.event_name }}", "pr_number": "${{ github.event.pull_request.number }}"}}'
