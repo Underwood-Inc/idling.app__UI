@@ -18,7 +18,7 @@ jobs:
           node-version: '20'
 
       - name: Install dependencies
-        run: npm install
+        run: npm install --legacy-peer-deps
 
       - name: Release Please
         run: npx release-please release-pr --token=${{ secrets.GITHUB_TOKEN }}
