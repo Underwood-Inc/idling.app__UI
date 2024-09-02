@@ -22,3 +22,4 @@ jobs:
 
       - name: Release Please
         run: npx release-please release-pr --token=${{ secrets.GITHUB_TOKEN }} --repo-url=https://github.com/${{ github.repository }}
+        # Ensure release-please-config.json is in the root of your repository
