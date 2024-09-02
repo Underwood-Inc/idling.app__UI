@@ -41,8 +41,19 @@ jobs:
           git config user.name github-actions
           git config user.email github-actions@github.com
 
+      - name: Get last processed commit
+        id: last-commit
+        run: |
+          LAST_PROCESSED_COMMIT=$(cat .last_processed_commit 2>/dev/null || echo "")
+          echo "::set-output name=last_commit::$LAST_PROCESSED_COMMIT"
+
       - name: Update version and changelog
         run: |
+          LAST_PROCESSED_COMMIT=${{ steps.last-commit.outputs.last_commit }}
+          if [ -z "$LAST_PROCESSED_COMMIT" ]; then
+            LAST_PROCESSED_COMMIT=$(git rev-list --max-parents=0 HEAD)
+          fi
+
           if [ "${{ github.event.inputs.event_name }}" == "pull_request" ]; then
             BASE_SHA=$(git merge-base origin/${{ github.event.inputs.base_ref }} HEAD)
             HEAD_SHA=$(git rev-parse HEAD)
@@ -52,8 +63,7 @@ jobs:
             fi
             COMMITS=$(git log ${BASE_SHA}..${HEAD_SHA} --pretty=format:"%s" | sort -u)
           else
-            LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
-            COMMITS=$(git log ${LAST_TAG}..HEAD --pretty=format:"%s" | sort -u)
+            COMMITS=$(git log ${LAST_PROCESSED_COMMIT}..HEAD --pretty=format:"%s" | sort -u)
           fi
 
           CHANGELOG_UPDATED=false
@@ -131,3 +141,11 @@ jobs:
             exit 1
           fi
           echo "Verified: Local and remote HEADs match."
+
+      - name: Save last processed commit
+        if: always()
+        run: |
+          echo $(git rev-parse HEAD) > .last_processed_commit
+          git add .last_processed_commit
+          git commit -m "Update last processed commit"
+          git push origin HEAD:${{ github.event.inputs.head_ref }}
