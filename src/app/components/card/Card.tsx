@@ -1,4 +1,5 @@
 import React from 'react';
+import { CARD_SELECTORS } from 'src/lib/test-selectors/components/card.selectors';
 import './Card.css';
 
 export const Card: React.FC<{
@@ -11,6 +12,7 @@ export const Card: React.FC<{
     <div
       className={`card ${width}${className ? ` ${className}` : ''}`}
       style={height ? { height: `${height}rem` } : undefined}
+      data-testid={CARD_SELECTORS.CONTAINER}
     >
       {children}
     </div>
