@@ -1,2 +1,0 @@
-#!/bin/sh
-npx release-please release-pr --token=${GITHUB_TOKEN}
