@@ -29,6 +29,7 @@ env:
 jobs:
   test:
     name: Run Tests
+    needs: version-control # Add this line to wait for version-control job
     timeout-minutes: 60
     runs-on: ubuntu-latest
     environment: actions
@@ -94,8 +95,12 @@ jobs:
           name: playwright-report
           path: playwright-report/
           retention-days: 30
+
+  version-control:
+    name: Trigger Version Control Workflow
+    runs-on: ubuntu-latest
+    steps:
       - name: Trigger Version Control Workflow
-        if: success()
         run: |
           REF=${{ github.event.pull_request.head.ref || github.ref }}
           curl -X POST \

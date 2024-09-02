@@ -66,3 +66,19 @@
 
 * build: version control action triggered on success off tests action
 
+## [v0.17.29] - 2024-09-02
+
+* build: more attempts at getting correct context
+
+## [v0.17.30] - 2024-09-02
+
+* build: remove condition for workflow run
+
+## [v0.17.31] - 2024-09-02
+
+* build: update to ensure variables are set for version control workflow
+
+## [v0.17.32] - 2024-09-02
+
+* test: add component tests for coin.tsx
+

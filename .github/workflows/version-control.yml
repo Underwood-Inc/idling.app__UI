@@ -18,7 +18,6 @@ on:
 
 jobs:
   version-bump:
-    if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -42,19 +41,34 @@ jobs:
           git config user.name github-actions
           git config user.email github-actions@github.com
 
+      - name: Get last processed commit
+        id: last-commit
+        run: |
+          LAST_PROCESSED_COMMIT=$(cat .last_processed_commit 2>/dev/null || echo "")
+          echo "::set-output name=last_commit::$LAST_PROCESSED_COMMIT"
+
       - name: Update version and changelog
         run: |
+          LAST_PROCESSED_COMMIT=${{ steps.last-commit.outputs.last_commit }}
+          if [ -z "$LAST_PROCESSED_COMMIT" ]; then
+            LAST_PROCESSED_COMMIT=$(git rev-list --max-parents=0 HEAD)
+          fi
+
           if [ "${{ github.event.inputs.event_name }}" == "pull_request" ]; then
-            BASE_SHA=${{ github.event.inputs.base_ref }}
-            HEAD_SHA=${{ github.event.inputs.head_ref }}
+            BASE_SHA=$(git merge-base origin/${{ github.event.inputs.base_ref }} HEAD)
+            HEAD_SHA=$(git rev-parse HEAD)
+            if [ -z "$BASE_SHA" ] || [ -z "$HEAD_SHA" ]; then
+              echo "BASE_SHA or HEAD_SHA is not set. Exiting."
+              exit 1
+            fi
             COMMITS=$(git log ${BASE_SHA}..${HEAD_SHA} --pretty=format:"%s" | sort -u)
           else
-            LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
-            COMMITS=$(git log ${LAST_TAG}..HEAD --pretty=format:"%s" | sort -u)
+            COMMITS=$(git log ${LAST_PROCESSED_COMMIT}..HEAD --pretty=format:"%s" | sort -u)
           fi
 
           CHANGELOG_UPDATED=false
           SQUASH_COMMIT_MSG=""
+          VERSION_UPDATED=false
           while IFS= read -r commit; do
             if ! grep -q "$commit" CHANGELOG.md; then
               NEW_VERSION=""
@@ -64,21 +78,27 @@ jobs:
                 NEW_VERSION=$(npm version patch --no-git-tag-version)
               fi
 
-              echo "## [${NEW_VERSION}] - $(date +'%Y-%m-%d')" >> CHANGELOG.md
-              echo "" >> CHANGELOG.md
-              echo "* ${commit}" >> CHANGELOG.md
-              echo "" >> CHANGELOG.md
+              if [[ $commit == feat:* ]]; then
+                echo "## [${NEW_VERSION}] - $(date +'%Y-%m-%d')" >> CHANGELOG.md
+                echo "" >> CHANGELOG.md
+                echo "* ${commit}" >> CHANGELOG.md
+                echo "" >> CHANGELOG.md
 
-              SQUASH_COMMIT_MSG="${SQUASH_COMMIT_MSG}${commit}\n"
-              CHANGELOG_UPDATED=true
+                SQUASH_COMMIT_MSG="${SQUASH_COMMIT_MSG}${commit}\n"
+                CHANGELOG_UPDATED=true
+              fi
 
               # Commit changes immediately
-              git add package.json CHANGELOG.md
+              git add package.json
+              if [ "$CHANGELOG_UPDATED" = true ]; then
+                git add CHANGELOG.md
+              fi
               git commit -m "Bump version to ${NEW_VERSION} and update changelog"
+              VERSION_UPDATED=true
             fi
           done <<< "$COMMITS"
 
-          if [ "$CHANGELOG_UPDATED" = true ]; then
+          if [ "$VERSION_UPDATED" = true ]; then
             # Squash all commits into one
             git reset --soft HEAD~$(git rev-list --count HEAD ^origin/main)
             git commit --amend -m "Bump version and update changelog:
@@ -121,3 +141,11 @@ jobs:
             exit 1
           fi
           echo "Verified: Local and remote HEADs match."
+
+      - name: Save last processed commit
+        if: always()
+        run: |
+          echo $(git rev-parse HEAD) > .last_processed_commit
+          git add .last_processed_commit
+          git commit -m "Update last processed commit"
+          git push origin HEAD:${{ github.event.inputs.head_ref }}

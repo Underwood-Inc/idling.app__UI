@@ -2,10 +2,12 @@ import React from 'react';
 import { CARD_SELECTORS } from 'src/lib/test-selectors/components/card.selectors';
 import './Card.css';
 
+export type CardPropsWidth = 'full' | 'lg' | 'md' | 'sm' | 'min';
+
 export const Card: React.FC<{
   children: React.ReactNode;
   className?: string;
-  width?: 'full' | 'lg' | 'md' | 'sm' | 'min';
+  width?: CardPropsWidth;
   height?: number; // TODO: deprecate with introduction of a maintainable alternative
 }> = ({ children, className, width = 'md', height }) => {
   return (
