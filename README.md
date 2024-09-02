@@ -7,40 +7,7 @@
 
 This repository contains three GitHub Actions workflows: Version Control, Tests, and Deploy. Each workflow serves a specific purpose in our development and deployment process.
 
-### 1. Version Control Workflow
-
-**File:** `.github/workflows/version-control.yml`
-
-This workflow is responsible for automatically bumping the version number and updating the changelog based on commit messages.
-
-**Triggers:**
-
-- Push to the `main` branch
-- Pull request events (opened or synchronized)
-
-**Key Features:**
-
-- Automatically increments version number (minor for features, patch for others)
-- Updates CHANGELOG.md with new version and commit messages
-- Squashes non-unique commits
-- Pushes changes back to the PR or main branch
-- Verifies that changes were successfully pushed
-- Creates a release on GitHub with the new version and changelog
-- Uploads the CHANGELOG.md file as a release asset
-
-**Process:**
-
-1. Checks out the repository
-2. Sets up Node.js
-3. Installs dependencies
-4. Configures Git
-5. Updates version and changelog based on commit messages
-6. Pushes changes to PR or main branch
-7. Verifies pushed changes
-8. Creates a release on GitHub with the new version and changelog
-9. Uploads the CHANGELOG.md file as a release asset
-
-### 2. Tests Workflow
+### 1. Tests Workflow
 
 **File:** `.github/workflows/tests.yml`
 
@@ -71,7 +38,7 @@ This workflow runs various tests to ensure code quality and functionality.
 8. Performs SonarCloud scan
 9. Uploads Playwright report as an artifact
 
-### 3. Deploy Workflow
+### 2. Deploy Workflow
 
 **File:** `.github/workflows/deploy.yml`
 
