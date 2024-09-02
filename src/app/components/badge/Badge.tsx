@@ -1,3 +1,4 @@
+import { BADGE_SELECTORS } from 'src/lib/test-selectors/components/badge';
 import './Badge.css';
 
 interface BadgeWrapperProps {
@@ -21,11 +22,15 @@ export default function BadgeWrapper({
   const className = showOnHover ? '--hover' : '';
 
   return (
-    <div className={`badge__container${className}`}>
+    <div
+      className={`badge__container${className}`}
+      data-testid={BADGE_SELECTORS.CONTAINER}
+    >
       {children}
       <span
         className={`badge__content ${onClick && ' cursor--pointer'}`}
         onClick={handleClick}
+        data-testid={BADGE_SELECTORS.CONTENT}
       >
         {badgeContent}
       </span>

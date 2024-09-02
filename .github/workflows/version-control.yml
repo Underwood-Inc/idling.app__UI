@@ -1,14 +1,14 @@
 name: Version Bump and Changelog
 
 on:
-  push:
-    branches:
-      - main
-  pull_request:
-    types: [opened, synchronize]
+  workflow_run:
+    workflows: ['Tests']
+    types:
+      - completed
 
 jobs:
   version-bump:
+    if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
     permissions:
       contents: write

@@ -4,6 +4,12 @@ on:
     branches: [main, master]
   pull_request:
     types: [opened, synchronize, reopened]
+
+# Add this permissions block at the top level of the workflow
+permissions:
+  contents: read
+  actions: write
+
 env:
   AUTH_TRUST_HOST: true
   NEXTAUTH_URL: http://localhost:3000
@@ -22,6 +28,7 @@ env:
   SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 jobs:
   test:
+    name: Run Tests
     timeout-minutes: 60
     runs-on: ubuntu-latest
     environment: actions
@@ -80,7 +87,7 @@ jobs:
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master
         env:
-          SONAR_TOKEN: ${{ secrets. SONAR_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       - uses: actions/upload-artifact@v4
         if: always()
         with:

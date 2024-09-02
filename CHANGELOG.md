@@ -50,3 +50,19 @@
 
 * doc: restore react version badge (v19beta)
 
+## [v0.17.25] - 2024-09-01
+
+* test: add component tests for badge.tsx
+
+## [v0.17.26] - 2024-09-01
+
+* test: add coverage reports
+
+## [v0.17.27] - 2024-09-01
+
+* build: make tests action a dependency of version-control acion
+
+## [v0.17.28] - 2024-09-01
+
+* build: version control action triggered on success off tests action
+
