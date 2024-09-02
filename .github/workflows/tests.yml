@@ -29,7 +29,6 @@ env:
 jobs:
   test:
     name: Run Tests
-    # Remove the 'needs: version-control' line
     timeout-minutes: 60
     runs-on: ubuntu-latest
     environment: actions
