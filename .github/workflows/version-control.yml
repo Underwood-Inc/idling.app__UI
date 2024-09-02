@@ -18,7 +18,6 @@ on:
 
 jobs:
   version-bump:
-    if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
     permissions:
       contents: write
