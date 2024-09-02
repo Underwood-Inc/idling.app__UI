@@ -1,6 +1,9 @@
 {
   "release-type": "node",
   "packages": {
-    ".": {}
+    ".": {
+      "package-name": "idling.app",
+      "release-as": "0.17.55"
+    }
   }
 }
