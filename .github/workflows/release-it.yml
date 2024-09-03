@@ -1,12 +1,14 @@
 name: Release
 
 on:
-  push:
+  pull_request:
+    types: [closed]
     branches:
       - master # or 'main' if that's your default branch name
 
 jobs:
   release:
+    if: github.event.pull_request.merged == true
     name: Release
     runs-on: ubuntu-latest
     environment: actions
