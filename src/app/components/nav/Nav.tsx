@@ -1,5 +1,6 @@
 /* eslint-disable custom-rules/enforce-link-target-blank */
 import Link from 'next/link';
+import { NAV_SELECTORS } from 'src/lib/test-selectors/components/nav.selectors';
 import { auth } from '../../../lib/auth';
 import { NAV_PATHS } from '../../../lib/routes';
 import { SignOut } from '../auth-buttons/AuthButtons';
@@ -23,7 +24,7 @@ export default async function Nav() {
         <Navbar.Content justify="center" className="nav__brand">
           <Navbar.Brand />
 
-          <Link href={NAV_PATHS.ROOT}>
+          <Link href={NAV_PATHS.ROOT} data-testid={NAV_SELECTORS.HOME_LINK}>
             <h1>Idling.app</h1>
           </Link>
         </Navbar.Content>
@@ -31,13 +32,22 @@ export default async function Nav() {
         <Navbar.Content justify="end" className="nav--as-flex-end">
           <Navbar.Item className="nav__auth">
             {session?.user && (
-              <p className="header__user-name"> {session.user.name}</p>
+              <p
+                className="header__user-name"
+                data-testid={NAV_SELECTORS.USER_NAME}
+              >
+                &nbsp;
+                {session.user.name}
+              </p>
             )}
 
             {session ? (
-              <SignOut />
+              <SignOut data-testid={NAV_SELECTORS.SIGN_OUT_BUTTON} />
             ) : (
-              <Link href={NAV_PATHS.SIGNIN}>
+              <Link
+                href={NAV_PATHS.SIGNIN}
+                data-testid={NAV_SELECTORS.SIGN_IN_LINK}
+              >
                 <button type="button">Sign In</button>
               </Link>
             )}
