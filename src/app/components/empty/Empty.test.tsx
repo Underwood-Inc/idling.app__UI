@@ -24,4 +24,11 @@ describe('Empty component', () => {
     );
     expect(lineBreak).toBeInTheDocument();
   });
+
+  test('renders with default empty label', () => {
+    // @ts-expect-error
+    render(<Empty />);
+    const labelElement = screen.getByTestId(EMPTY_SELECTORS.LABEL);
+    expect(labelElement).toHaveTextContent('＞︿＜');
+  });
 });

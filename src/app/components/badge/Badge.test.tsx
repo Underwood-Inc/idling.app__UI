@@ -42,6 +42,22 @@ describe('BadgeWrapper', () => {
     );
   });
 
+  it('uses default value for showOnHover when not provided', () => {
+    render(
+      // @ts-expect-error
+      <BadgeWrapper badgeContent="10">
+        <div>Child content</div>
+      </BadgeWrapper>
+    );
+
+    expect(screen.getByTestId(BADGE_SELECTORS.CONTAINER)).toHaveClass(
+      'badge__container'
+    );
+    expect(screen.getByTestId(BADGE_SELECTORS.CONTAINER)).not.toHaveClass(
+      'badge__container--hover'
+    );
+  });
+
   it('applies cursor--pointer class when onClick is provided', () => {
     const onClick = jest.fn();
     render(
