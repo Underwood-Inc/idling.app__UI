@@ -45,4 +45,17 @@ jobs:
       - name: Run release-it
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: npm run release --ci
+        run: |
+          npm run release -- --ci --dry-run
+          git checkout -b release-${GITHUB_SHA::8}
+          git push origin release-${GITHUB_SHA::8}
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: 'chore: release new version'
+          title: 'Release new version'
+          body: "This PR was automatically created by the GitHub Action workflow **${{ github.workflow }}**. \n\nPlease review and merge to release a new version."
+          branch: release-${GITHUB_SHA::8}
+          base: master
