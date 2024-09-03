@@ -35,8 +35,8 @@ jobs:
 
       - name: Clean working directory
         run: |
-          git stash -u
-          git clean -fdx
+          git checkout -- .
+          git clean -fdx -e node_modules
 
       - name: Run release-it
         env:
