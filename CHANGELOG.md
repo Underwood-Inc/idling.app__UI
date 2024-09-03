@@ -1,5 +1,7 @@
 
 
+## [0.21.6](https://github.com/Underwood-Inc/idling.app__UI/compare/0.21.5...0.21.6) (2024-09-03)
+
 ## [0.21.5](https://github.com/Underwood-Inc/idling.app__UI/compare/0.21.4...0.21.5) (2024-09-03)
 
 ## [0.21.4](https://github.com/Underwood-Inc/idling.app__UI/compare/0.21.3...0.21.4) (2024-09-03)
