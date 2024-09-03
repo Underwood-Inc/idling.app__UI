@@ -26,7 +26,7 @@ const Avatar = ({
   }, [seed]);
 
   return (
-    <div className="avatar">
+    <div className={`avatar ${size}`} data-testid={AVATAR_SELECTORS.CONTAINER}>
       {img ? (
         // eslint-disable-next-line @next/next/no-img-element
         <img

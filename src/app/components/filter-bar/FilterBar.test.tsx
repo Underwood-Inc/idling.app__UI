@@ -75,4 +75,24 @@ describe('FilterBar', () => {
       type: 'SET_CURRENT_FILTERS'
     });
   });
+
+  it('should not render filters without values', () => {
+    (useFilters as jest.Mock).mockReturnValue({
+      state: {
+        testFilter: {
+          filters: [
+            { name: 'category', value: undefined },
+            { name: 'color', value: 'red' }
+          ]
+        }
+      },
+      dispatch: dispatchSpy
+    });
+
+    render(<FilterBar filterId="testFilter" />);
+
+    expect(screen.queryByText('color:')).toBeInTheDocument();
+    expect(screen.queryByText('red')).toBeInTheDocument();
+    expect(screen.queryByText('category:')).not.toBeInTheDocument();
+  });
 });
