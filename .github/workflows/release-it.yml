@@ -26,7 +26,7 @@ jobs:
 
       # Add this step to install release-it and its plugin
       - name: Install release-it and plugins
-        run: npm install --save-dev release-it @release-it/conventional-changelog
+        run: npm install --save-dev release-it @release-it/conventional-changelog --legacy-peer-deps
 
       - name: Configure Git
         run: |
