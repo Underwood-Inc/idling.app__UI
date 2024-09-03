@@ -21,12 +21,17 @@ jobs:
           node-version: 'lts/*'
 
       - name: Install dependencies
-        run: npm i --legacy-peer-deps
+        run: npm ci
 
       - name: Configure Git
         run: |
           git config user.name "${GITHUB_ACTOR}"
           git config user.email "${GITHUB_ACTOR}@users.noreply.github.com"
+
+      - name: Clean working directory
+        run: |
+          git stash -u
+          git clean -fdx
 
       - name: Run release-it
         env:
