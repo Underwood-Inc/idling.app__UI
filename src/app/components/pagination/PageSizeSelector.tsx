@@ -1,5 +1,6 @@
 import React, { memo } from 'react';
 import { PageSize } from 'src/lib/state/PaginationContext';
+import { PAGINATION_SELECTORS } from 'src/lib/test-selectors/components/pagination.selectors';
 
 type PageSizeSelectorProps = {
   pageSize: PageSize;
@@ -24,7 +25,7 @@ const PageSizeSelector: React.FC<PageSizeSelectorProps> = ({
       value={pageSize}
       onChange={handlePageSizeSelect}
       className="pagination__page-size-selector"
-      data-testid="page-size-selector"
+      data-testid={PAGINATION_SELECTORS.PAGE_SIZE_SELECTOR}
     >
       {Object.values(PageSize)
         .filter((value) => typeof value === 'number')
