@@ -1,5 +1,6 @@
 import { CustomSession } from 'src/auth.config';
 import { auth } from 'src/lib/auth';
+import { RECENT_TAGS_SELECTORS } from 'src/lib/test-selectors/components/recent-tags.selectors';
 import { Card } from '../card/Card';
 import Empty from '../empty/Empty';
 import FancyBorder from '../fancy-border/FancyBorder';
@@ -26,7 +27,10 @@ export async function RecentTags({
       <Card width="full" className="recent-tags__card">
         <FancyBorder className="recent-tags__fancy-border">
           <div className="recent-tags__container">
-            <div className="recent-tags__card-header">
+            <div
+              data-testid={RECENT_TAGS_SELECTORS.TITLE}
+              className="recent-tags__card-header"
+            >
               <h3 title="3 months">Recent Tags</h3>
             </div>
 
