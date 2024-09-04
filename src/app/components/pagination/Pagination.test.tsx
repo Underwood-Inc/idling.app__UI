@@ -182,4 +182,17 @@ describe('Pagination', () => {
       'Page of'
     );
   });
+
+  it('uses default id when not provided', () => {
+    // @ts-expect-error default prop value test
+    renderWithProvider(<Pagination />);
+
+    expect(screen.getByTestId(PAGINATION_SELECTORS.STATE)).toBeInTheDocument();
+    expect(
+      screen.getByTestId(PAGINATION_SELECTORS.PAGE_SELECTOR)
+    ).toBeInTheDocument();
+    expect(
+      screen.getByTestId(PAGINATION_SELECTORS.PAGE_SIZE_STATE)
+    ).toBeInTheDocument();
+  });
 });
