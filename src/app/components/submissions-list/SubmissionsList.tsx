@@ -15,6 +15,7 @@ import Pagination from '../pagination/Pagination';
 import { DeleteSubmissionForm } from '../submission-forms/delete-submission-form/DeleteSubmissionForm';
 import { Submission } from '../submission-forms/schema';
 import { TagLink } from '../tag-link/TagLink';
+import { ReplyForm } from '../thread/ReplyForm';
 import {
   getSubmissionsAction,
   GetSubmissionsActionArguments,
@@ -62,6 +63,7 @@ export default function SubmissionsList({
       }
     | undefined
   >();
+  const [activeThreadId, setActiveThreadId] = useState<number | null>(null);
 
   const getArgs = useCallback(() => {
     // prioritize url params, context state data, and then defer to prop data
@@ -234,6 +236,10 @@ export default function SubmissionsList({
     return providerAccountId === authorId;
   };
 
+  const toggleReplyForm = (submissionId: number) => {
+    setActiveThreadId(activeThreadId === submissionId ? null : submissionId);
+  };
+
   return (
     <article
       data-testid={SUBMISSIONS_LIST_SELECTORS.CONTAINER}
@@ -295,7 +301,19 @@ export default function SubmissionsList({
                             isAuthorized={!!providerAccountId}
                           />
                         )}
+                        <button
+                          onClick={() => toggleReplyForm(submission_id)}
+                          className="thread-button"
+                        >
+                          {activeThreadId === submission_id
+                            ? 'Close Thread'
+                            : 'Create Thread'}
+                        </button>
                       </div>
+
+                      {activeThreadId === submission_id && (
+                        <ReplyForm parentId={submission_id} />
+                      )}
                     </FadeIn>
                   );
                 }
