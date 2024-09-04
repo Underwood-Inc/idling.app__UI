@@ -114,6 +114,10 @@ export async function deleteSubmissionAction(
 ) {
   const session = (await auth()) as CustomSession | null;
 
+  if (!session || !session.user?.providerAccountId) {
+    return { status: -1, error: 'Authentication error.' };
+  }
+
   const { success, data, error } = parseDeleteSubmission({
     submission_id: Number.parseInt(formData.get('submission_id') as string),
     submission_name: formData.get('submission_name') as string

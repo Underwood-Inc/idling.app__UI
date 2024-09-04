@@ -9,8 +9,9 @@ const createJestConfig = nextJest({
 const customJestConfig = {
   testPathIgnorePatterns: [
     '<rootDir>/e2e',
+    '<rootDir>/custom-eslint-rules',
     '\\.spec\\.ts$',
-    '<rootDir>/custom-eslint-rules'
+    '\\.test\\.ts$'
   ],
   setupFilesAfterEnv: ['jest-chain', '<rootDir>/jest.setup.js'],
   moduleNameMapper: {
