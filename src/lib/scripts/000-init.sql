@@ -20,8 +20,13 @@ CREATE TABLE submissions (
   submission_datetime TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
   author_id VARCHAR(255) NOT NULL,
   author VARCHAR(255) NOT NULL,
-  tags TEXT[]
+  tags TEXT[],
+  thread_parent_id INTEGER,
+  CONSTRAINT fk_thread_parent FOREIGN KEY (thread_parent_id) REFERENCES submissions(submission_id)
 );
+
+-- Create index on thread_parent_id for better performance
+CREATE INDEX idx_thread_parent_id ON submissions(thread_parent_id);
 
 \echo '\033[35mcreating nextauth required tables...\033[0m'
 CREATE TABLE verification_token
