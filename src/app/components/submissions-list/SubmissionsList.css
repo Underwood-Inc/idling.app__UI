@@ -35,12 +35,13 @@
   z-index: 1;
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
+  align-items: stretch;
   position: relative;
   border: solid 1px transparent;
   border-radius: var(--border-radius);
   padding: 0.5rem;
   min-height: 4rem;
+  flex-direction: column;
 }
 
 .submission__wrapper .submission__delete-btn {

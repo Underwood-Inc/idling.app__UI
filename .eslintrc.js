@@ -13,9 +13,14 @@ module.exports = {
     }
   ],
   rules: {
+    'no-unused-vars': [
+      'warn',
+      {
+        varsIgnorePattern: '^[A-Z][A-Za-z]*$'
+      }
+    ],
     'custom-rules/enforce-link-target-blank': 'warn',
     'max-len': ['error', { code: 130 }],
-    'no-unused-vars': 'warn',
     'no-console': [
       'error',
       {

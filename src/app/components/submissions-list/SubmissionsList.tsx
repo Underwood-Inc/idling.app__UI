@@ -1,18 +1,24 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 'use client';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { SUBMISSIONS_LIST_SELECTORS } from '../../../lib/test-selectors/components/submissions-list.selectors';
 import { PostFilters } from '../../posts/page';
 import Empty from '../empty/Empty';
-import FadeIn from '../fade-in/FadeIn';
+import FadeIn, { DisplayType } from '../fade-in/FadeIn';
 import { Filter } from '../filter-bar/FilterBar';
 import Loader from '../loader/Loader';
 import Pagination from '../pagination/Pagination';
 import { DeleteSubmissionForm } from '../submission-forms/delete-submission-form/DeleteSubmissionForm';
+import { Submission } from '../submission-forms/schema';
 import { TagLink } from '../tag-link/TagLink';
 import { ReplyForm } from '../thread/ReplyForm';
 import './SubmissionsList.css';
 import { useSubmissionsList } from './use-submissions-list';
+
+// Add this new interface
+interface SubmissionWithReplies extends Submission {
+  replies?: SubmissionWithReplies[];
+}
 
 export default function SubmissionsList({
   contextId = 'default',
@@ -41,6 +47,108 @@ export default function SubmissionsList({
     filters
   );
 
+  // New function to organize submissions into a tree structure
+  const organizeSubmissions = useCallback(
+    (submissions: Submission[]): SubmissionWithReplies[] => {
+      const submissionMap = new Map<number, SubmissionWithReplies>();
+      const rootSubmissions: SubmissionWithReplies[] = [];
+
+      submissions.forEach((submission) => {
+        submissionMap.set(submission.submission_id, {
+          ...submission,
+          replies: []
+        });
+      });
+
+      submissions.forEach((submission) => {
+        if (submission.thread_parent_id) {
+          const parent = submissionMap.get(submission.thread_parent_id);
+          if (parent) {
+            parent.replies?.push(submissionMap.get(submission.submission_id)!);
+          }
+        } else {
+          rootSubmissions.push(submissionMap.get(submission.submission_id)!);
+        }
+      });
+
+      return rootSubmissions;
+    },
+    []
+  );
+
+  // New component to render a single submission and its replies
+  const SubmissionThread = ({
+    submission,
+    depth = 0
+  }: {
+    submission: SubmissionWithReplies;
+    depth?: number;
+  }) => {
+    const canDelete = isAuthorized(submission.author_id);
+    const createdDate = new Date(
+      submission.submission_datetime
+    ).toLocaleDateString();
+
+    return (
+      <FadeIn
+        display={DisplayType.LI}
+        key={submission.submission_id}
+        className="submission__wrapper"
+        style={{ marginLeft: `${depth * 20}px` }}
+      >
+        <p className="submission__content">
+          {submission.author && (
+            <span className="submission__author">
+              {submission.author}:&nbsp;
+            </span>
+          )}
+          <span>
+            <TagLink
+              value={submission.submission_name}
+              contextId={contextId}
+              appendSearchParam
+            />
+          </span>
+        </p>
+
+        <div className="submission__meta">
+          <p className="submission__datetime">{createdDate}</p>
+          {canDelete && (
+            <DeleteSubmissionForm
+              id={submission.submission_id}
+              name={submission.submission_name}
+              isAuthorized={!!providerAccountId}
+            />
+          )}
+          <button
+            onClick={() => toggleReplyForm(submission.submission_id)}
+            className="thread-button"
+          >
+            {activeThreadId === submission.submission_id
+              ? 'Close Reply'
+              : 'Reply'}
+          </button>
+        </div>
+
+        {activeThreadId === submission.submission_id && (
+          <ReplyForm parentId={submission.submission_id} />
+        )}
+
+        {submission.replies && submission.replies.length > 0 && (
+          <ol className="submission__replies">
+            {submission.replies.map((reply) => (
+              <SubmissionThread
+                key={reply.submission_id}
+                submission={reply}
+                depth={depth + 1}
+              />
+            ))}
+          </ol>
+        )}
+      </FadeIn>
+    );
+  };
+
   return (
     <article
       data-testid={SUBMISSIONS_LIST_SELECTORS.CONTAINER}
@@ -59,66 +167,12 @@ export default function SubmissionsList({
           )}
           <ol className="submission__list">
             {!!response?.data?.result.length &&
-              response?.data.result.map(
-                ({
-                  submission_id,
-                  submission_name,
-                  author,
-                  author_id,
-                  submission_datetime
-                }) => {
-                  const canDelete = isAuthorized(author_id);
-                  const createdDate = new Date(
-                    submission_datetime
-                  ).toLocaleDateString();
-
-                  return (
-                    <FadeIn
-                      display="li"
-                      key={submission_id}
-                      className="submission__wrapper"
-                    >
-                      <p className="submission__content">
-                        {author && (
-                          <span className="submission__author">
-                            {author}:&nbsp;
-                          </span>
-                        )}
-                        <span>
-                          <TagLink
-                            value={submission_name}
-                            contextId={contextId}
-                            appendSearchParam
-                          />
-                        </span>
-                      </p>
-
-                      <div className="submission__meta">
-                        <p className="submission__datetime">{createdDate}</p>
-                        {canDelete && (
-                          <DeleteSubmissionForm
-                            id={submission_id}
-                            name={submission_name}
-                            isAuthorized={!!providerAccountId}
-                          />
-                        )}
-                        <button
-                          onClick={() => toggleReplyForm(submission_id)}
-                          className="thread-button"
-                        >
-                          {activeThreadId === submission_id
-                            ? 'Close Thread'
-                            : 'Create Thread'}
-                        </button>
-                      </div>
-
-                      {activeThreadId === submission_id && (
-                        <ReplyForm parentId={submission_id} />
-                      )}
-                    </FadeIn>
-                  );
-                }
-              )}
+              organizeSubmissions(response.data.result).map((submission) => (
+                <SubmissionThread
+                  key={submission.submission_id}
+                  submission={submission}
+                />
+              ))}
           </ol>
         </>
       )}

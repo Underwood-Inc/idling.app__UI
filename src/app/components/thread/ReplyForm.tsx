@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { createSubmissionAction } from '../submission-forms/actions';
+import './ReplyForm.css';
 
 interface ReplyFormProps {
   parentId: number;
