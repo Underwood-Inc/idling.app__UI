@@ -100,21 +100,6 @@ export default function SubmissionsList({
         style={{ marginLeft: `${depth * 20}px` }}
       >
         <FadeIn display={DisplayType.DIV} key={submission.submission_id}>
-          <p className="submission__content">
-            {submission.author && (
-              <span className="submission__author">
-                {submission.author}:&nbsp;
-              </span>
-            )}
-            <span>
-              <TagLink
-                value={submission.submission_name}
-                contextId={contextId}
-                appendSearchParam
-              />
-            </span>
-          </p>
-
           <div className="submission__meta">
             <p className="submission__datetime">{createdDate}</p>
             {canDelete && (
@@ -133,6 +118,21 @@ export default function SubmissionsList({
                 : 'Reply'}
             </button>
           </div>
+
+          <p className="submission__content">
+            {submission.author && (
+              <span className="submission__author">
+                {submission.author}:&nbsp;
+              </span>
+            )}
+            <span>
+              <TagLink
+                value={submission.submission_name}
+                contextId={contextId}
+                appendSearchParam
+              />
+            </span>
+          </p>
         </FadeIn>
 
         {activeThreadId === submission.submission_id && (
