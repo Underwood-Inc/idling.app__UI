@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 'use client';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { SUBMISSIONS_LIST_SELECTORS } from '../../../lib/test-selectors/components/submissions-list.selectors';
 import { PostFilters } from '../../posts/page';
 import Empty from '../empty/Empty';
@@ -47,6 +47,11 @@ export default function SubmissionsList({
     filters
   );
 
+  useEffect(() => {
+    // when response updates, ensure thread response forms are not open
+    setActiveThreadId(null);
+  }, [response]);
+
   // New function to organize submissions into a tree structure
   const organizeSubmissions = useCallback(
     (submissions: Submission[]): SubmissionWithReplies[] => {
@@ -90,45 +95,45 @@ export default function SubmissionsList({
     ).toLocaleDateString();
 
     return (
-      <FadeIn
-        display={DisplayType.LI}
-        key={submission.submission_id}
+      <li
         className="submission__wrapper"
         style={{ marginLeft: `${depth * 20}px` }}
       >
-        <p className="submission__content">
-          {submission.author && (
-            <span className="submission__author">
-              {submission.author}:&nbsp;
+        <FadeIn display={DisplayType.DIV} key={submission.submission_id}>
+          <p className="submission__content">
+            {submission.author && (
+              <span className="submission__author">
+                {submission.author}:&nbsp;
+              </span>
+            )}
+            <span>
+              <TagLink
+                value={submission.submission_name}
+                contextId={contextId}
+                appendSearchParam
+              />
             </span>
-          )}
-          <span>
-            <TagLink
-              value={submission.submission_name}
-              contextId={contextId}
-              appendSearchParam
-            />
-          </span>
-        </p>
+          </p>
 
-        <div className="submission__meta">
-          <p className="submission__datetime">{createdDate}</p>
-          {canDelete && (
-            <DeleteSubmissionForm
-              id={submission.submission_id}
-              name={submission.submission_name}
-              isAuthorized={!!providerAccountId}
-            />
-          )}
-          <button
-            onClick={() => toggleReplyForm(submission.submission_id)}
-            className="thread-button"
-          >
-            {activeThreadId === submission.submission_id
-              ? 'Close Reply'
-              : 'Reply'}
-          </button>
-        </div>
+          <div className="submission__meta">
+            <p className="submission__datetime">{createdDate}</p>
+            {canDelete && (
+              <DeleteSubmissionForm
+                id={submission.submission_id}
+                name={submission.submission_name}
+                isAuthorized={!!providerAccountId}
+              />
+            )}
+            <button
+              onClick={() => toggleReplyForm(submission.submission_id)}
+              className="thread-button"
+            >
+              {activeThreadId === submission.submission_id
+                ? 'Close Reply'
+                : 'Reply'}
+            </button>
+          </div>
+        </FadeIn>
 
         {activeThreadId === submission.submission_id && (
           <ReplyForm parentId={submission.submission_id} />
@@ -145,7 +150,7 @@ export default function SubmissionsList({
             ))}
           </ol>
         )}
-      </FadeIn>
+      </li>
     );
   };
 

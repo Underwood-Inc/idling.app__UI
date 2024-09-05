@@ -41,7 +41,7 @@
   border-radius: var(--border-radius);
   padding: 0.5rem;
   min-height: 4rem;
-  flex-direction: column;
+  flex-direction: column-reverse; /* Change to column-reverse */
 }
 
 .submission__wrapper .submission__delete-btn {
@@ -49,14 +49,17 @@
 }
 
 p.submission__content {
-  width: 85%;
+  width: 100%; /* Change to 100% */
+  margin-top: 0.5rem; /* Add margin to separate from meta */
 }
 
 .submission__meta {
   display: flex;
   justify-content: flex-end;
-  flex-direction: column;
-  align-items: flex-end;
+  flex-direction: row;
+  align-items: center;
+  width: 100%;
+  font-size: 0.9rem; /* Reduce overall font size */
 }
 
 .submission__author {
@@ -65,8 +68,23 @@ p.submission__content {
 
 p.submission__datetime {
   opacity: 0.75;
-  align-self: center;
-  text-align: end;
+  margin-right: auto; /* Push to the left */
+}
+
+.submission__meta > * {
+  margin-left: 0.5rem; /* Add space between items */
+}
+
+.submission__meta .thread-button {
+  order: 1; /* Move Reply button to the end */
+  font-size: 0.8rem; /* Reduce button font size */
+  padding: 0.25rem 0.5rem; /* Reduce button padding */
+}
+
+/* Add styles for other buttons in the meta section */
+.submission__meta button {
+  font-size: 0.8rem;
+  padding: 0.25rem 0.5rem;
 }
 
 @media (hover: hover) {

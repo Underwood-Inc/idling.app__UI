@@ -139,7 +139,6 @@ export async function deleteSubmissionAction(
       AND author_id = ${session?.user?.providerAccountId!}
     `;
 
-    revalidatePath('/');
     return {
       status: 1,
       message: `Deleted post ${data.submission_name}.`
