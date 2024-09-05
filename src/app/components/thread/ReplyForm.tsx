@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { useShouldUpdate } from '../../../lib/state/ShouldUpdateContext';
 import { createSubmissionAction } from '../submission-forms/actions';
 import './ReplyForm.css';
 
@@ -10,6 +11,7 @@ interface ReplyFormProps {
 }
 
 export function ReplyForm({ parentId }: ReplyFormProps) {
+  const { dispatch: dispatchShouldUpdate } = useShouldUpdate();
   const [replyContent, setReplyContent] = useState('');
   const router = useRouter();
 
@@ -23,6 +25,10 @@ export function ReplyForm({ parentId }: ReplyFormProps) {
 
     if (result.status === 1) {
       setReplyContent('');
+      dispatchShouldUpdate({
+        type: 'SET_SHOULD_UPDATE',
+        payload: true
+      });
       router.refresh();
     } else {
       alert(result.error || 'Failed to submit reply');
