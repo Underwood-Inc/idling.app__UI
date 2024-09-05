@@ -26,8 +26,8 @@
   content: '';
   display: block;
   position: absolute;
-  inset: -1px;
-  border-bottom: solid gray 2px;
+  inset: -3px;
+  border-bottom: solid gray 3px;
   height: inherit;
 }
 
@@ -37,7 +37,7 @@
   justify-content: space-between;
   align-items: stretch;
   position: relative;
-  border: solid 1px transparent;
+  border: solid 3px transparent;
   border-radius: var(--border-radius);
   padding: 0.5rem;
   min-height: 4rem;
@@ -93,7 +93,7 @@ p.submission__datetime {
   }
 
   .submission__wrapper:hover {
-    background-color: var(--brand-tertiary--dark);
+    border: solid 3px var(--brand-tertiary--dark);
   }
 
   .submission__wrapper:hover .submission__delete-btn {
