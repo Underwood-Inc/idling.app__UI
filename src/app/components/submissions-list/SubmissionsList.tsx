@@ -33,10 +33,25 @@ export default function SubmissionsList({
   onlyMine?: boolean;
   filters?: Filter<PostFilters>[];
 }) {
-  const [activeThreadId, setActiveThreadId] = useState<number | null>(null);
+  const [activeReplyId, setActiveReplyId] = useState<number | null>(null);
+  const [expandedThreads, setExpandedThreads] = useState<Set<number>>(
+    new Set()
+  );
 
   const toggleReplyForm = (submissionId: number) => {
-    setActiveThreadId(activeThreadId === submissionId ? null : submissionId);
+    setActiveReplyId(activeReplyId === submissionId ? null : submissionId);
+  };
+
+  const toggleThread = (submissionId: number) => {
+    setExpandedThreads((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(submissionId)) {
+        newSet.delete(submissionId);
+      } else {
+        newSet.add(submissionId);
+      }
+      return newSet;
+    });
   };
 
   const { isAuthorized, loading, response } = useSubmissionsList(
@@ -49,7 +64,7 @@ export default function SubmissionsList({
 
   useEffect(() => {
     // when response updates, ensure thread response forms are not open
-    setActiveThreadId(null);
+    setActiveReplyId(null);
   }, [response]);
 
   // New function to organize submissions into a tree structure
@@ -89,10 +104,16 @@ export default function SubmissionsList({
     submission: SubmissionWithReplies;
     depth?: number;
   }) => {
+    const [isExpanded, setIsExpanded] = useState(false);
     const canDelete = isAuthorized(submission.author_id);
     const createdDate = new Date(
       submission.submission_datetime
     ).toLocaleDateString();
+    const hasReplies = submission.replies && submission.replies.length > 0;
+
+    const toggleExpand = () => {
+      setIsExpanded(!isExpanded);
+    };
 
     return (
       <li
@@ -113,10 +134,15 @@ export default function SubmissionsList({
               onClick={() => toggleReplyForm(submission.submission_id)}
               className="thread-button"
             >
-              {activeThreadId === submission.submission_id
+              {activeReplyId === submission.submission_id
                 ? 'Close Reply'
                 : 'Reply'}
             </button>
+            {hasReplies && (
+              <button onClick={toggleExpand} className="expand-thread-button">
+                {isExpanded ? 'Hide Replies' : 'Show Replies'}
+              </button>
+            )}
           </div>
 
           <p className="submission__content">
@@ -135,13 +161,9 @@ export default function SubmissionsList({
           </p>
         </FadeIn>
 
-        {activeThreadId === submission.submission_id && (
-          <ReplyForm parentId={submission.submission_id} />
-        )}
-
-        {submission.replies && submission.replies.length > 0 && (
+        {hasReplies && isExpanded && (
           <ol className="submission__replies">
-            {submission.replies.map((reply) => (
+            {submission.replies?.map((reply) => (
               <SubmissionThread
                 key={reply.submission_id}
                 submission={reply}
@@ -172,13 +194,16 @@ export default function SubmissionsList({
           )}
           <ol className="submission__list">
             {!!response?.data?.result.length &&
-              organizeSubmissions(response.data.result).map((submission) => (
-                <SubmissionThread
-                  key={submission.submission_id}
-                  submission={submission}
-                />
-              ))}
+              organizeSubmissions(response.data.result)
+                .filter((submission) => !submission.thread_parent_id)
+                .map((submission) => (
+                  <SubmissionThread
+                    key={submission.submission_id}
+                    submission={submission}
+                  />
+                ))}
           </ol>
+          {activeReplyId !== null && <ReplyForm parentId={activeReplyId} />}
         </>
       )}
     </article>
