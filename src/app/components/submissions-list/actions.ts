@@ -127,8 +127,6 @@ export async function getSubmissionsAction({
     pageSize
   });
 
-  console.log('latest submissions', pagedSubmissions);
-
   return {
     data: pagedSubmissions,
     error: '',
