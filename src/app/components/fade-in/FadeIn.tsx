@@ -3,7 +3,6 @@ import React, { CSSProperties, useEffect, useState } from 'react';
 import { FADE_IN_SELECTORS } from 'src/lib/test-selectors/components/fade-in.selectors';
 import './FadeIn.css';
 
-// At the top of the file, add this enum:
 export const enum DisplayType {
   DIV = 'DIV',
   SPAN = 'SPAN',

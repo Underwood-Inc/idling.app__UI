@@ -34,7 +34,7 @@ export async function createPost(data: Omit<CreatePost, 'authorId'>) {
   console.log('*-*-*-result:', result);
   const post = PostSchema.parse(result[0]);
 
-  revalidatePath(`/r/${subthread}`);
+  revalidatePath(`/t/${subthread}`);
   return post;
 }
 
@@ -86,5 +86,5 @@ export async function votePost(postId: string, voteType: 1 | -1) {
     WHERE id = ${postId}
   `;
 
-  revalidatePath(`/r/[subthread]/comments/${postId}`);
+  revalidatePath(`/t/[subthread]/comments/${postId}`);
 }
