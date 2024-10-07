@@ -4,7 +4,9 @@ import { LOADER_SELECTORS } from 'src/lib/test-selectors/components/loader.selec
 import { RECENT_TAGS_SELECTORS } from 'src/lib/test-selectors/components/recent-tags.selectors';
 import { auth } from '../../../lib/auth';
 import { getRecentTags } from './actions';
-import { RecentTags, RecentTagsLoader } from './RecentTags';
+import { RecentTags } from './RecentTags';
+import { RecentTagsLoader } from './RecentTagsClient';
+import { ShouldUpdateProvider } from 'src/lib/state/ShouldUpdateContext';
 
 // Mock the modules
 jest.mock('../../../lib/auth', () => ({
@@ -18,6 +20,11 @@ jest.mock('./actions', () => ({
 // Mock the TagLink component (it has hooks that are not needed to be accurate for this test suite)
 jest.mock('../tag-link/TagLink', () => ({
   TagLink: ({ value }: { value: string }) => <span>#{value}</span>
+}));
+
+jest.mock('../../../lib/state/ShouldUpdateContext', () => ({
+  ShouldUpdateProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+  useShouldUpdate: jest.fn().mockReturnValue({ shouldUpdate: true, setShouldUpdate: jest.fn() }),
 }));
 
 describe('RecentTags', () => {
@@ -36,9 +43,9 @@ describe('RecentTags', () => {
       message: ''
     });
 
-    // Render the component
+    // Render the component wrapped in ShouldUpdateProvider
     const RecentTagsComponent = await RecentTags({ contextId: 'test' });
-    render(RecentTagsComponent);
+    render(<ShouldUpdateProvider>{RecentTagsComponent}</ShouldUpdateProvider>);
 
     // Check if the component renders correctly
     expect(screen.getByTestId(RECENT_TAGS_SELECTORS.TITLE)).toHaveTextContent(
@@ -58,9 +65,9 @@ describe('RecentTags', () => {
       message: ''
     });
 
-    // Render the component
+    // Render the component wrapped in ShouldUpdateProvider
     const RecentTagsComponent = await RecentTags({ contextId: 'test' });
-    render(RecentTagsComponent);
+    render(<ShouldUpdateProvider>{RecentTagsComponent}</ShouldUpdateProvider>);
 
     // Check if the component renders the empty state
     expect(screen.getByTestId(RECENT_TAGS_SELECTORS.TITLE)).toHaveTextContent(
@@ -83,7 +90,7 @@ describe('RecentTags', () => {
       contextId: 'test',
       onlyMine: true
     });
-    render(RecentTagsComponent);
+    render(<ShouldUpdateProvider>{RecentTagsComponent}</ShouldUpdateProvider>);
 
     expect(screen.getByTestId(RECENT_TAGS_SELECTORS.TITLE)).toHaveTextContent(
       'Recent Tags'
@@ -97,7 +104,7 @@ describe('RecentTagsLoader', () => {
   it('renders loader component', () => {
     render(<RecentTagsLoader />);
 
-    expect(screen.getByText('Recent Tags (3 months)')).toBeInTheDocument();
+    expect(screen.getByText('Recent Tags')).toBeInTheDocument();
     expect(screen.getByTestId(LOADER_SELECTORS.LOADER)).toBeInTheDocument();
   });
 });
