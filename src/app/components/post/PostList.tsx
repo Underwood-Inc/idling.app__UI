@@ -25,7 +25,6 @@ export default function PostList({ subthread }: PostListProps) {
       }
     }
 
-    debugger;
     if (subthread) {
       fetchPosts();
     }
