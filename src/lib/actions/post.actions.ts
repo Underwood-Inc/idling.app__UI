@@ -13,7 +13,7 @@ export async function createPost(data: Omit<CreatePost, 'authorId'>) {
   }
 
   const { title, content, subthread } = data;
-  console.log('*-*-*-*-session:', session);
+  console.info('*-*-*-*-session:', session);
   // First, get the user's id from the users table
   const userResult = await sql<{ id: string }[]>`
     SELECT id FROM users WHERE email = ${session.user.email!}
@@ -31,7 +31,7 @@ export async function createPost(data: Omit<CreatePost, 'authorId'>) {
     RETURNING *
   `;
 
-  console.log('*-*-*-result:', result);
+  console.info('*-*-*-result:', result);
   const post = PostSchema.parse(result[0]);
 
   revalidatePath(`/t/${subthread}`);
@@ -39,7 +39,7 @@ export async function createPost(data: Omit<CreatePost, 'authorId'>) {
 }
 
 export async function getPosts(subthread?: string, limit = 20, offset = 0) {
-  console.log('subthread', subthread);
+  console.info('subthread', subthread);
 
   const result = await sql<Post[]>`
     SELECT * FROM posts
