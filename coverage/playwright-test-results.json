@@ -11,7 +11,7 @@
     "grepInvert": null,
     "maxFailures": 0,
     "metadata": {
-      "actualWorkers": 6
+      "actualWorkers": 8
     },
     "preserveOutput": "always",
     "reporter": [
@@ -140,7 +140,7 @@
     "shard": null,
     "updateSnapshots": "missing",
     "version": "1.46.1",
-    "workers": 6,
+    "workers": 8,
     "webServer": {
       "command": "echo \"======================building...\"; yarn build; yarn start;",
       "stdout": "pipe",
@@ -169,17 +169,41 @@
               "results": [
                 {
                   "workerIndex": 0,
-                  "status": "passed",
-                  "duration": 15025,
-                  "errors": [],
+                  "status": "interrupted",
+                  "duration": 10681,
+                  "error": {
+                    "message": "Error: \u001b[31mTimed out 5000ms waiting for \u001b[39m\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m()\u001b[22m\n\nLocator: getByTestId('submissions-list__container')\nExpected: visible\nReceived: <element(s) not found>\nCall log:\n  \u001b[2m- expect.toBeVisible with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByTestId('submissions-list__container')\u001b[22m\n",
+                    "stack": "Error: \u001b[31mTimed out 5000ms waiting for \u001b[39m\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m()\u001b[22m\n\nLocator: getByTestId('submissions-list__container')\nExpected: visible\nReceived: <element(s) not found>\nCall log:\n  \u001b[2m- expect.toBeVisible with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByTestId('submissions-list__container')\u001b[22m\n\n    at /home/underwood/code/idling.app__UI/e2e/posts.spec.ts:37:5",
+                    "location": {
+                      "file": "/home/underwood/code/idling.app__UI/e2e/posts.spec.ts",
+                      "column": 5,
+                      "line": 37
+                    },
+                    "snippet": "\u001b[0m \u001b[90m 35 |\u001b[39m   \u001b[36mawait\u001b[39m expect(\n \u001b[90m 36 |\u001b[39m     page\u001b[33m.\u001b[39mgetByTestId(\u001b[33mSUBMISSIONS_LIST_SELECTORS\u001b[39m\u001b[33m.\u001b[39m\u001b[33mCONTAINER\u001b[39m)\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 37 |\u001b[39m   )\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m     \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 38 |\u001b[39m   \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByTestId(\u001b[33mPAGINATION_SELECTORS\u001b[39m\u001b[33m.\u001b[39m\u001b[33mSTATE\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m 39 |\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 40 |\u001b[39m\u001b[0m"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/home/underwood/code/idling.app__UI/e2e/posts.spec.ts",
+                        "column": 5,
+                        "line": 37
+                      },
+                      "message": "Error: \u001b[31mTimed out 5000ms waiting for \u001b[39m\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m()\u001b[22m\n\nLocator: getByTestId('submissions-list__container')\nExpected: visible\nReceived: <element(s) not found>\nCall log:\n  \u001b[2m- expect.toBeVisible with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByTestId('submissions-list__container')\u001b[22m\n\n\n\u001b[0m \u001b[90m 35 |\u001b[39m   \u001b[36mawait\u001b[39m expect(\n \u001b[90m 36 |\u001b[39m     page\u001b[33m.\u001b[39mgetByTestId(\u001b[33mSUBMISSIONS_LIST_SELECTORS\u001b[39m\u001b[33m.\u001b[39m\u001b[33mCONTAINER\u001b[39m)\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 37 |\u001b[39m   )\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m     \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 38 |\u001b[39m   \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByTestId(\u001b[33mPAGINATION_SELECTORS\u001b[39m\u001b[33m.\u001b[39m\u001b[33mSTATE\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m 39 |\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 40 |\u001b[39m\u001b[0m\n\n\u001b[2m    at /home/underwood/code/idling.app__UI/e2e/posts.spec.ts:37:5\u001b[22m"
+                    }
+                  ],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2024-09-01T22:05:59.328Z",
-                  "attachments": []
+                  "startTime": "2024-10-07T20:01:57.664Z",
+                  "attachments": [],
+                  "errorLocation": {
+                    "file": "/home/underwood/code/idling.app__UI/e2e/posts.spec.ts",
+                    "column": 5,
+                    "line": 37
+                  }
                 }
               ],
-              "status": "expected"
+              "status": "skipped"
             }
           ],
           "id": "b37e12cd73bb054e2a6c-311ef0f2fb477b090b07",
@@ -189,7 +213,7 @@
         },
         {
           "title": "loads posts page",
-          "ok": true,
+          "ok": false,
           "tags": [],
           "tests": [
             {
@@ -201,17 +225,25 @@
               "results": [
                 {
                   "workerIndex": 2,
-                  "status": "passed",
-                  "duration": 17640,
-                  "errors": [],
+                  "status": "failed",
+                  "duration": 9,
+                  "error": {
+                    "message": "Error: browserType.launch: Executable doesn't exist at /home/underwood/.cache/ms-playwright/firefox-1463/firefox/firefox\n╔═════════════════════════════════════════════════════════════════════════╗\n║ Looks like Playwright Test or Playwright was just installed or updated. ║\n║ Please run the following command to download new browsers:              ║\n║                                                                         ║\n║     yarn playwright install                                             ║\n║                                                                         ║\n║ <3 Playwright Team                                                      ║\n╚═════════════════════════════════════════════════════════════════════════╝",
+                    "stack": "Error: browserType.launch: Executable doesn't exist at /home/underwood/.cache/ms-playwright/firefox-1463/firefox/firefox\n╔═════════════════════════════════════════════════════════════════════════╗\n║ Looks like Playwright Test or Playwright was just installed or updated. ║\n║ Please run the following command to download new browsers:              ║\n║                                                                         ║\n║     yarn playwright install                                             ║\n║                                                                         ║\n║ <3 Playwright Team                                                      ║\n╚═════════════════════════════════════════════════════════════════════════╝"
+                  },
+                  "errors": [
+                    {
+                      "message": "Error: browserType.launch: Executable doesn't exist at /home/underwood/.cache/ms-playwright/firefox-1463/firefox/firefox\n╔═════════════════════════════════════════════════════════════════════════╗\n║ Looks like Playwright Test or Playwright was just installed or updated. ║\n║ Please run the following command to download new browsers:              ║\n║                                                                         ║\n║     yarn playwright install                                             ║\n║                                                                         ║\n║ <3 Playwright Team                                                      ║\n╚═════════════════════════════════════════════════════════════════════════╝"
+                    }
+                  ],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2024-09-01T22:05:59.371Z",
+                  "startTime": "2024-10-07T20:01:57.690Z",
                   "attachments": []
                 }
               ],
-              "status": "expected"
+              "status": "unexpected"
             }
           ],
           "id": "b37e12cd73bb054e2a6c-498c840d67165a513055",
@@ -221,7 +253,7 @@
         },
         {
           "title": "loads posts page",
-          "ok": true,
+          "ok": false,
           "tags": [],
           "tests": [
             {
@@ -233,17 +265,25 @@
               "results": [
                 {
                   "workerIndex": 4,
-                  "status": "passed",
-                  "duration": 15315,
-                  "errors": [],
+                  "status": "failed",
+                  "duration": 9,
+                  "error": {
+                    "message": "Error: browserType.launch: Executable doesn't exist at /home/underwood/.cache/ms-playwright/webkit-2070/pw_run.sh\n╔═════════════════════════════════════════════════════════════════════════╗\n║ Looks like Playwright Test or Playwright was just installed or updated. ║\n║ Please run the following command to download new browsers:              ║\n║                                                                         ║\n║     yarn playwright install                                             ║\n║                                                                         ║\n║ <3 Playwright Team                                                      ║\n╚═════════════════════════════════════════════════════════════════════════╝",
+                    "stack": "Error: browserType.launch: Executable doesn't exist at /home/underwood/.cache/ms-playwright/webkit-2070/pw_run.sh\n╔═════════════════════════════════════════════════════════════════════════╗\n║ Looks like Playwright Test or Playwright was just installed or updated. ║\n║ Please run the following command to download new browsers:              ║\n║                                                                         ║\n║     yarn playwright install                                             ║\n║                                                                         ║\n║ <3 Playwright Team                                                      ║\n╚═════════════════════════════════════════════════════════════════════════╝"
+                  },
+                  "errors": [
+                    {
+                      "message": "Error: browserType.launch: Executable doesn't exist at /home/underwood/.cache/ms-playwright/webkit-2070/pw_run.sh\n╔═════════════════════════════════════════════════════════════════════════╗\n║ Looks like Playwright Test or Playwright was just installed or updated. ║\n║ Please run the following command to download new browsers:              ║\n║                                                                         ║\n║     yarn playwright install                                             ║\n║                                                                         ║\n║ <3 Playwright Team                                                      ║\n╚═════════════════════════════════════════════════════════════════════════╝"
+                    }
+                  ],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2024-09-01T22:05:59.351Z",
+                  "startTime": "2024-10-07T20:01:57.687Z",
                   "attachments": []
                 }
               ],
-              "status": "expected"
+              "status": "unexpected"
             }
           ],
           "id": "b37e12cd73bb054e2a6c-b2eb4863a0fb23c4584e",
@@ -253,7 +293,7 @@
         },
         {
           "title": "loads posts page",
-          "ok": true,
+          "ok": false,
           "tags": [],
           "tests": [
             {
@@ -265,17 +305,49 @@
               "results": [
                 {
                   "workerIndex": 6,
-                  "status": "passed",
-                  "duration": 11177,
-                  "errors": [],
+                  "status": "failed",
+                  "duration": 10207,
+                  "error": {
+                    "message": "Error: \u001b[31mTimed out 5000ms waiting for \u001b[39m\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m()\u001b[22m\n\nLocator: getByTestId('submissions-list__container')\nExpected: visible\nReceived: <element(s) not found>\nCall log:\n  \u001b[2m- expect.toBeVisible with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByTestId('submissions-list__container')\u001b[22m\n",
+                    "stack": "Error: \u001b[31mTimed out 5000ms waiting for \u001b[39m\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m()\u001b[22m\n\nLocator: getByTestId('submissions-list__container')\nExpected: visible\nReceived: <element(s) not found>\nCall log:\n  \u001b[2m- expect.toBeVisible with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByTestId('submissions-list__container')\u001b[22m\n\n    at /home/underwood/code/idling.app__UI/e2e/posts.spec.ts:37:5",
+                    "location": {
+                      "file": "/home/underwood/code/idling.app__UI/e2e/posts.spec.ts",
+                      "column": 5,
+                      "line": 37
+                    },
+                    "snippet": "\u001b[0m \u001b[90m 35 |\u001b[39m   \u001b[36mawait\u001b[39m expect(\n \u001b[90m 36 |\u001b[39m     page\u001b[33m.\u001b[39mgetByTestId(\u001b[33mSUBMISSIONS_LIST_SELECTORS\u001b[39m\u001b[33m.\u001b[39m\u001b[33mCONTAINER\u001b[39m)\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 37 |\u001b[39m   )\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m     \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 38 |\u001b[39m   \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByTestId(\u001b[33mPAGINATION_SELECTORS\u001b[39m\u001b[33m.\u001b[39m\u001b[33mSTATE\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m 39 |\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 40 |\u001b[39m\u001b[0m"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/home/underwood/code/idling.app__UI/e2e/posts.spec.ts",
+                        "column": 5,
+                        "line": 37
+                      },
+                      "message": "Error: \u001b[31mTimed out 5000ms waiting for \u001b[39m\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m()\u001b[22m\n\nLocator: getByTestId('submissions-list__container')\nExpected: visible\nReceived: <element(s) not found>\nCall log:\n  \u001b[2m- expect.toBeVisible with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByTestId('submissions-list__container')\u001b[22m\n\n\n\u001b[0m \u001b[90m 35 |\u001b[39m   \u001b[36mawait\u001b[39m expect(\n \u001b[90m 36 |\u001b[39m     page\u001b[33m.\u001b[39mgetByTestId(\u001b[33mSUBMISSIONS_LIST_SELECTORS\u001b[39m\u001b[33m.\u001b[39m\u001b[33mCONTAINER\u001b[39m)\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 37 |\u001b[39m   )\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m     \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 38 |\u001b[39m   \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mgetByTestId(\u001b[33mPAGINATION_SELECTORS\u001b[39m\u001b[33m.\u001b[39m\u001b[33mSTATE\u001b[39m))\u001b[33m.\u001b[39mtoBeVisible()\u001b[33m;\u001b[39m\n \u001b[90m 39 |\u001b[39m })\u001b[33m;\u001b[39m\n \u001b[90m 40 |\u001b[39m\u001b[0m\n\n\u001b[2m    at /home/underwood/code/idling.app__UI/e2e/posts.spec.ts:37:5\u001b[22m"
+                    },
+                    {
+                      "location": {
+                        "file": "/home/underwood/code/idling.app__UI/e2e/utils/check-a11y.ts",
+                        "column": 6,
+                        "line": 23
+                      },
+                      "message": "Error: page.evaluate: Test ended.\n\n\u001b[90m   at \u001b[39mutils/check-a11y.ts:23\n\n\u001b[0m \u001b[90m 21 |\u001b[39m       \u001b[32m'cat.keyboard'\u001b[39m\n \u001b[90m 22 |\u001b[39m     ])\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 23 |\u001b[39m     \u001b[33m.\u001b[39manalyze()\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m      \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 24 |\u001b[39m\n \u001b[90m 25 |\u001b[39m   \u001b[36mif\u001b[39m (accessibilityScanResults\u001b[33m.\u001b[39mviolations) {\n \u001b[90m 26 |\u001b[39m     accessibilityScanResults\u001b[33m.\u001b[39mviolations\u001b[33m.\u001b[39mforEach((violation\u001b[33m,\u001b[39m index) \u001b[33m=>\u001b[39m {\u001b[0m\n\n\u001b[2m    at AxeBuilder.analyze (/home/underwood/code/idling.app__UI/node_modules/@axe-core/playwright/dist/index.js:236:16)\u001b[22m\n\u001b[2m    at checkA11y (/home/underwood/code/idling.app__UI/e2e/utils/check-a11y.ts:23:6)\u001b[22m\n\u001b[2m    at /home/underwood/code/idling.app__UI/e2e/posts.spec.ts:29:34\u001b[22m"
+                    }
+                  ],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2024-09-01T22:06:09.145Z",
-                  "attachments": []
+                  "startTime": "2024-10-07T20:01:57.706Z",
+                  "attachments": [],
+                  "errorLocation": {
+                    "file": "/home/underwood/code/idling.app__UI/e2e/posts.spec.ts",
+                    "column": 5,
+                    "line": 37
+                  }
                 }
               ],
-              "status": "expected"
+              "status": "unexpected"
             }
           ],
           "id": "b37e12cd73bb054e2a6c-92a24f33b170e2f40247",
@@ -285,7 +357,7 @@
         },
         {
           "title": "loads posts page",
-          "ok": true,
+          "ok": false,
           "tags": [],
           "tests": [
             {
@@ -297,17 +369,25 @@
               "results": [
                 {
                   "workerIndex": 8,
-                  "status": "passed",
-                  "duration": 12678,
-                  "errors": [],
+                  "status": "failed",
+                  "duration": 14,
+                  "error": {
+                    "message": "Error: browserType.launch: Executable doesn't exist at /home/underwood/.cache/ms-playwright/webkit-2070/pw_run.sh\n╔═════════════════════════════════════════════════════════════════════════╗\n║ Looks like Playwright Test or Playwright was just installed or updated. ║\n║ Please run the following command to download new browsers:              ║\n║                                                                         ║\n║     yarn playwright install                                             ║\n║                                                                         ║\n║ <3 Playwright Team                                                      ║\n╚═════════════════════════════════════════════════════════════════════════╝",
+                    "stack": "Error: browserType.launch: Executable doesn't exist at /home/underwood/.cache/ms-playwright/webkit-2070/pw_run.sh\n╔═════════════════════════════════════════════════════════════════════════╗\n║ Looks like Playwright Test or Playwright was just installed or updated. ║\n║ Please run the following command to download new browsers:              ║\n║                                                                         ║\n║     yarn playwright install                                             ║\n║                                                                         ║\n║ <3 Playwright Team                                                      ║\n╚═════════════════════════════════════════════════════════════════════════╝"
+                  },
+                  "errors": [
+                    {
+                      "message": "Error: browserType.launch: Executable doesn't exist at /home/underwood/.cache/ms-playwright/webkit-2070/pw_run.sh\n╔═════════════════════════════════════════════════════════════════════════╗\n║ Looks like Playwright Test or Playwright was just installed or updated. ║\n║ Please run the following command to download new browsers:              ║\n║                                                                         ║\n║     yarn playwright install                                             ║\n║                                                                         ║\n║ <3 Playwright Team                                                      ║\n╚═════════════════════════════════════════════════════════════════════════╝"
+                    }
+                  ],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2024-09-01T22:06:15.057Z",
+                  "startTime": "2024-10-07T20:01:58.233Z",
                   "attachments": []
                 }
               ],
-              "status": "expected"
+              "status": "unexpected"
             }
           ],
           "id": "b37e12cd73bb054e2a6c-a98bb724573872e319aa",
@@ -317,7 +397,7 @@
         },
         {
           "title": "loads posts page",
-          "ok": true,
+          "ok": false,
           "tags": [],
           "tests": [
             {
@@ -329,17 +409,25 @@
               "results": [
                 {
                   "workerIndex": 10,
-                  "status": "passed",
-                  "duration": 12065,
-                  "errors": [],
+                  "status": "failed",
+                  "duration": 10,
+                  "error": {
+                    "message": "Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge\nRun \"yarn playwright install msedge\"",
+                    "stack": "Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge\nRun \"yarn playwright install msedge\""
+                  },
+                  "errors": [
+                    {
+                      "message": "Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge\nRun \"yarn playwright install msedge\""
+                    }
+                  ],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2024-09-01T22:06:15.948Z",
+                  "startTime": "2024-10-07T20:01:58.258Z",
                   "attachments": []
                 }
               ],
-              "status": "expected"
+              "status": "unexpected"
             }
           ],
           "id": "b37e12cd73bb054e2a6c-0cebde4beddb832a44be",
@@ -349,7 +437,7 @@
         },
         {
           "title": "loads posts page",
-          "ok": true,
+          "ok": false,
           "tags": [],
           "tests": [
             {
@@ -361,17 +449,25 @@
               "results": [
                 {
                   "workerIndex": 12,
-                  "status": "passed",
-                  "duration": 8668,
-                  "errors": [],
+                  "status": "failed",
+                  "duration": 10,
+                  "error": {
+                    "message": "Error: browserType.launch: Chromium distribution 'chrome' is not found at /opt/google/chrome/chrome\nRun \"yarn playwright install chrome\"",
+                    "stack": "Error: browserType.launch: Chromium distribution 'chrome' is not found at /opt/google/chrome/chrome\nRun \"yarn playwright install chrome\""
+                  },
+                  "errors": [
+                    {
+                      "message": "Error: browserType.launch: Chromium distribution 'chrome' is not found at /opt/google/chrome/chrome\nRun \"yarn playwright install chrome\""
+                    }
+                  ],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2024-09-01T22:06:21.731Z",
+                  "startTime": "2024-10-07T20:01:58.786Z",
                   "attachments": []
                 }
               ],
-              "status": "expected"
+              "status": "unexpected"
             }
           ],
           "id": "b37e12cd73bb054e2a6c-ea973c2e6b8ee8bbeb1d",
@@ -402,12 +498,12 @@
                 {
                   "workerIndex": 1,
                   "status": "passed",
-                  "duration": 8063,
+                  "duration": 5544,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2024-09-01T22:05:59.342Z",
+                  "startTime": "2024-10-07T20:01:57.686Z",
                   "attachments": []
                 }
               ],
@@ -421,7 +517,7 @@
         },
         {
           "title": "loads root page",
-          "ok": true,
+          "ok": false,
           "tags": [],
           "tests": [
             {
@@ -433,17 +529,25 @@
               "results": [
                 {
                   "workerIndex": 3,
-                  "status": "passed",
-                  "duration": 12220,
-                  "errors": [],
+                  "status": "failed",
+                  "duration": 9,
+                  "error": {
+                    "message": "Error: browserType.launch: Executable doesn't exist at /home/underwood/.cache/ms-playwright/firefox-1463/firefox/firefox\n╔═════════════════════════════════════════════════════════════════════════╗\n║ Looks like Playwright Test or Playwright was just installed or updated. ║\n║ Please run the following command to download new browsers:              ║\n║                                                                         ║\n║     yarn playwright install                                             ║\n║                                                                         ║\n║ <3 Playwright Team                                                      ║\n╚═════════════════════════════════════════════════════════════════════════╝",
+                    "stack": "Error: browserType.launch: Executable doesn't exist at /home/underwood/.cache/ms-playwright/firefox-1463/firefox/firefox\n╔═════════════════════════════════════════════════════════════════════════╗\n║ Looks like Playwright Test or Playwright was just installed or updated. ║\n║ Please run the following command to download new browsers:              ║\n║                                                                         ║\n║     yarn playwright install                                             ║\n║                                                                         ║\n║ <3 Playwright Team                                                      ║\n╚═════════════════════════════════════════════════════════════════════════╝"
+                  },
+                  "errors": [
+                    {
+                      "message": "Error: browserType.launch: Executable doesn't exist at /home/underwood/.cache/ms-playwright/firefox-1463/firefox/firefox\n╔═════════════════════════════════════════════════════════════════════════╗\n║ Looks like Playwright Test or Playwright was just installed or updated. ║\n║ Please run the following command to download new browsers:              ║\n║                                                                         ║\n║     yarn playwright install                                             ║\n║                                                                         ║\n║ <3 Playwright Team                                                      ║\n╚═════════════════════════════════════════════════════════════════════════╝"
+                    }
+                  ],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2024-09-01T22:05:59.343Z",
+                  "startTime": "2024-10-07T20:01:57.682Z",
                   "attachments": []
                 }
               ],
-              "status": "expected"
+              "status": "unexpected"
             }
           ],
           "id": "966214b333bb361a5f05-058138dff07ff6abc294",
@@ -453,7 +557,7 @@
         },
         {
           "title": "loads root page",
-          "ok": true,
+          "ok": false,
           "tags": [],
           "tests": [
             {
@@ -465,17 +569,25 @@
               "results": [
                 {
                   "workerIndex": 5,
-                  "status": "passed",
-                  "duration": 12681,
-                  "errors": [],
+                  "status": "failed",
+                  "duration": 10,
+                  "error": {
+                    "message": "Error: browserType.launch: Executable doesn't exist at /home/underwood/.cache/ms-playwright/webkit-2070/pw_run.sh\n╔═════════════════════════════════════════════════════════════════════════╗\n║ Looks like Playwright Test or Playwright was just installed or updated. ║\n║ Please run the following command to download new browsers:              ║\n║                                                                         ║\n║     yarn playwright install                                             ║\n║                                                                         ║\n║ <3 Playwright Team                                                      ║\n╚═════════════════════════════════════════════════════════════════════════╝",
+                    "stack": "Error: browserType.launch: Executable doesn't exist at /home/underwood/.cache/ms-playwright/webkit-2070/pw_run.sh\n╔═════════════════════════════════════════════════════════════════════════╗\n║ Looks like Playwright Test or Playwright was just installed or updated. ║\n║ Please run the following command to download new browsers:              ║\n║                                                                         ║\n║     yarn playwright install                                             ║\n║                                                                         ║\n║ <3 Playwright Team                                                      ║\n╚═════════════════════════════════════════════════════════════════════════╝"
+                  },
+                  "errors": [
+                    {
+                      "message": "Error: browserType.launch: Executable doesn't exist at /home/underwood/.cache/ms-playwright/webkit-2070/pw_run.sh\n╔═════════════════════════════════════════════════════════════════════════╗\n║ Looks like Playwright Test or Playwright was just installed or updated. ║\n║ Please run the following command to download new browsers:              ║\n║                                                                         ║\n║     yarn playwright install                                             ║\n║                                                                         ║\n║ <3 Playwright Team                                                      ║\n╚═════════════════════════════════════════════════════════════════════════╝"
+                    }
+                  ],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2024-09-01T22:05:59.326Z",
+                  "startTime": "2024-10-07T20:01:57.683Z",
                   "attachments": []
                 }
               ],
-              "status": "expected"
+              "status": "unexpected"
             }
           ],
           "id": "966214b333bb361a5f05-a1ee82559089687a471e",
@@ -498,12 +610,12 @@
                 {
                   "workerIndex": 7,
                   "status": "passed",
-                  "duration": 7170,
+                  "duration": 4675,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2024-09-01T22:06:13.983Z",
+                  "startTime": "2024-10-07T20:01:57.685Z",
                   "attachments": []
                 }
               ],
@@ -517,7 +629,7 @@
         },
         {
           "title": "loads root page",
-          "ok": true,
+          "ok": false,
           "tags": [],
           "tests": [
             {
@@ -529,17 +641,25 @@
               "results": [
                 {
                   "workerIndex": 9,
-                  "status": "passed",
-                  "duration": 9909,
-                  "errors": [],
+                  "status": "failed",
+                  "duration": 14,
+                  "error": {
+                    "message": "Error: browserType.launch: Executable doesn't exist at /home/underwood/.cache/ms-playwright/webkit-2070/pw_run.sh\n╔═════════════════════════════════════════════════════════════════════════╗\n║ Looks like Playwright Test or Playwright was just installed or updated. ║\n║ Please run the following command to download new browsers:              ║\n║                                                                         ║\n║     yarn playwright install                                             ║\n║                                                                         ║\n║ <3 Playwright Team                                                      ║\n╚═════════════════════════════════════════════════════════════════════════╝",
+                    "stack": "Error: browserType.launch: Executable doesn't exist at /home/underwood/.cache/ms-playwright/webkit-2070/pw_run.sh\n╔═════════════════════════════════════════════════════════════════════════╗\n║ Looks like Playwright Test or Playwright was just installed or updated. ║\n║ Please run the following command to download new browsers:              ║\n║                                                                         ║\n║     yarn playwright install                                             ║\n║                                                                         ║\n║ <3 Playwright Team                                                      ║\n╚═════════════════════════════════════════════════════════════════════════╝"
+                  },
+                  "errors": [
+                    {
+                      "message": "Error: browserType.launch: Executable doesn't exist at /home/underwood/.cache/ms-playwright/webkit-2070/pw_run.sh\n╔═════════════════════════════════════════════════════════════════════════╗\n║ Looks like Playwright Test or Playwright was just installed or updated. ║\n║ Please run the following command to download new browsers:              ║\n║                                                                         ║\n║     yarn playwright install                                             ║\n║                                                                         ║\n║ <3 Playwright Team                                                      ║\n╚═════════════════════════════════════════════════════════════════════════╝"
+                    }
+                  ],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2024-09-01T22:06:15.541Z",
+                  "startTime": "2024-10-07T20:01:58.220Z",
                   "attachments": []
                 }
               ],
-              "status": "expected"
+              "status": "unexpected"
             }
           ],
           "id": "966214b333bb361a5f05-f13e7caadc460dadd363",
@@ -549,7 +669,7 @@
         },
         {
           "title": "loads root page",
-          "ok": true,
+          "ok": false,
           "tags": [],
           "tests": [
             {
@@ -561,17 +681,25 @@
               "results": [
                 {
                   "workerIndex": 11,
-                  "status": "passed",
-                  "duration": 7101,
-                  "errors": [],
+                  "status": "failed",
+                  "duration": 11,
+                  "error": {
+                    "message": "Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge\nRun \"yarn playwright install msedge\"",
+                    "stack": "Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge\nRun \"yarn playwright install msedge\""
+                  },
+                  "errors": [
+                    {
+                      "message": "Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge\nRun \"yarn playwright install msedge\""
+                    }
+                  ],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2024-09-01T22:06:19.988Z",
+                  "startTime": "2024-10-07T20:01:58.280Z",
                   "attachments": []
                 }
               ],
-              "status": "expected"
+              "status": "unexpected"
             }
           ],
           "id": "966214b333bb361a5f05-d93474e5d13754473d8a",
@@ -581,7 +709,7 @@
         },
         {
           "title": "loads root page",
-          "ok": true,
+          "ok": false,
           "tags": [],
           "tests": [
             {
@@ -593,17 +721,25 @@
               "results": [
                 {
                   "workerIndex": 13,
-                  "status": "passed",
-                  "duration": 6270,
-                  "errors": [],
+                  "status": "failed",
+                  "duration": 8,
+                  "error": {
+                    "message": "Error: browserType.launch: Chromium distribution 'chrome' is not found at /opt/google/chrome/chrome\nRun \"yarn playwright install chrome\"",
+                    "stack": "Error: browserType.launch: Chromium distribution 'chrome' is not found at /opt/google/chrome/chrome\nRun \"yarn playwright install chrome\""
+                  },
+                  "errors": [
+                    {
+                      "message": "Error: browserType.launch: Chromium distribution 'chrome' is not found at /opt/google/chrome/chrome\nRun \"yarn playwright install chrome\""
+                    }
+                  ],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2024-09-01T22:06:22.511Z",
+                  "startTime": "2024-10-07T20:01:58.802Z",
                   "attachments": []
                 }
               ],
-              "status": "expected"
+              "status": "unexpected"
             }
           ],
           "id": "966214b333bb361a5f05-9548886e86446cd401ad",
@@ -616,11 +752,11 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2024-09-01T22:05:58.467Z",
-    "duration": 32278.036,
-    "expected": 14,
-    "skipped": 0,
-    "unexpected": 0,
+    "startTime": "2024-10-07T20:01:57.114Z",
+    "duration": 11480.036,
+    "expected": 2,
+    "skipped": 1,
+    "unexpected": 11,
     "flaky": 0
   }
 }

@@ -21,6 +21,10 @@ jest.mock('../../../lib/state/PaginationContext', () => ({
   PageSize: { TEN: 10 }
 }));
 
+jest.mock('../../../lib/auth', () => ({
+  auth: jest.fn()
+}));
+
 // Mock next-auth
 jest.mock('next-auth', () => ({
   default: () => ({

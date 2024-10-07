@@ -120,7 +120,7 @@ export default function SubmissionsList({
         className="submission__wrapper"
         style={{ marginLeft: `${depth * 20}px` }}
       >
-        <FadeIn display={DisplayType.DIV} key={submission.submission_id}>
+        {/* <FadeIn display={DisplayType.DIV} key={submission.submission_id}> */}
           <div className="submission__meta">
             <p className="submission__datetime">{createdDate}</p>
             {canDelete && (
@@ -159,7 +159,7 @@ export default function SubmissionsList({
               />
             </span>
           </p>
-        </FadeIn>
+        {/* </FadeIn> */}
 
         {hasReplies && isExpanded && (
           <ol className="submission__replies">
