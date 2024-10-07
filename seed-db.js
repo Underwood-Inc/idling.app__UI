@@ -3,12 +3,14 @@ const postgres = require('postgres');
 
 const SEED_RECORD_COUNT = 500;
 
+console.info('is dockerized?', process.env.IS_DOCKERIZED);
+
 const sql = postgres({
   host: process.env.IS_DOCKERIZED ? 'postgres' : process.env.POSTGRES_HOST,
   user: process.env.IS_DOCKERIZED ? 'postgres' : process.env.POSTGRES_USER,
   database: process.env.IS_DOCKERIZED ? 'idling' : process.env.POSTGRES_DB,
-  pass: process.env.IS_DOCKERIZED ? 'postgres' : process.env.POSTGRES_PASSWORD,
-  port: process.env.IS_DOCKERIZED ? 5432 : process.env.PSOTGRES_PORT,
+  password: process.env.IS_DOCKERIZED ? 'postgres' : process.env.POSTGRES_PASSWORD, // Changed 'pass' to 'password'
+  port: process.env.IS_DOCKERIZED ? 5432 : process.env.POSTGRES_PORT,
   ssl: 'prefer'
 });
 
