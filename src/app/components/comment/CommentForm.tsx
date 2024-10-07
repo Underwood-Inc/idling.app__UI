@@ -12,6 +12,7 @@ export default function CommentForm({ postId }: CommentFormProps) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
+      // @ts-ignore alpha feature incomplete
       await createComment({ content, postId });
       setContent('');
     } catch (error) {
