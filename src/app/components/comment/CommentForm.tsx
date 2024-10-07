@@ -14,7 +14,6 @@ export default function CommentForm({ postId }: CommentFormProps) {
     try {
       await createComment({ content, postId });
       setContent('');
-      // You might want to add some state update or refetch logic here
     } catch (error) {
       console.error('Error creating comment:', error);
     }

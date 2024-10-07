@@ -13,12 +13,12 @@ export default function PostItem({ post }: PostItemProps) {
       <div className="ml-4">
         <h2 className="text-xl font-semibold">
           {/* eslint-disable-next-line custom-rules/enforce-link-target-blank */}
-          <Link href={`/r/${post.subthread}/comments/${post.id}`}>
+          <Link href={`/t/${post.subthread}/comments/${post.id}`}>
             {post.title}
           </Link>
         </h2>
         <p className="text-sm text-gray-500">
-          Posted by u/{post.authorId} in r/{post.subthread} •{' '}
+          Posted by u/{post.authorId} in r/{post.subthread} •&nbsp;
           {new Date(post.createdAt).toLocaleString()}
         </p>
         <p className="text-sm text-gray-500 mt-2">

@@ -19,7 +19,7 @@ export default function CreatePostForm({ subthread }: { subthread: string }) {
         content,
         subthread: subthread ?? subThread
       });
-      router.push(`/r/${post.subthread}/comments/${post.id}`);
+      router.push(`/t/${post.subthread}/comments/${post.id}`);
     } catch (error) {
       console.error('Error creating post:', error);
       setError(

@@ -12,7 +12,7 @@ export default function CommentItem({ comment }: CommentItemProps) {
         <VoteButtons score={comment.score} id={comment.id} type="comment" />
         <div className="ml-4">
           <p className="text-sm text-gray-500">
-            Posted by u/{comment.authorId} •{' '}
+            Posted by u/{comment.authorId} •&nbsp;
             {new Date(comment.createdAt).toLocaleString()}
           </p>
           <p className="mt-2">{comment.content}</p>
