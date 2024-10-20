@@ -21,7 +21,7 @@ const Avatar = ({
     setImg(
       createAvatar(adventurer, {
         seed: seed || new Date().getTime().toString()
-      }).toDataUriSync()
+      }).toDataUri ()
     );
   }, [seed]);
 
