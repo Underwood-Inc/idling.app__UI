@@ -10,7 +10,7 @@ export function About() {
   `;
 
   return (
-    <div className="about__container">
+    <div>
       <p>
         {/* eslint-disable-next-line custom-rules/enforce-link-target-blank */}
         <Link
