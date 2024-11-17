@@ -7,6 +7,7 @@ import FancyBorder from './components/fancy-border/FancyBorder';
 import { PageAside } from './components/page-aside/PageAside';
 import { PageContainer } from './components/page-container/PageContainer';
 import PageContent from './components/page-content/PageContent';
+import PageHeader from './components/page-header/PageHeader';
 import './globals.css';
 import styles from './page.module.css';
 
@@ -14,12 +15,15 @@ export default async function Home() {
   return (
     <>
       <PageContainer>
+        <PageHeader>
+          <FadeIn>
+            <h2>About</h2>
+          </FadeIn>
+        </PageHeader>
         <PageContent>
           <article className={styles.home__container}>
             <FadeIn className={styles.home__container_fade}>
               <Card className={styles.home__container_item}>
-                <h2>About</h2>
-
                 <About />
               </Card>
 

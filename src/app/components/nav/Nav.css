@@ -25,3 +25,8 @@
   justify-content: flex-end;
   align-items: center;
 }
+
+.nav__header {
+  margin-bottom: 0;
+  text-transform: none;
+}
