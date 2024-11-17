@@ -1,5 +1,6 @@
 'use client';
 import React from 'react';
+import { PAGE_ASIDE_SELECTORS } from '../../../lib/test-selectors/components/page-aside.selectors';
 import './PageAside.css';
 
 export function PageAside({
@@ -12,8 +13,13 @@ export function PageAside({
   className?: string;
 }) {
   return (
-    <div className="page-aside__container">
-      <aside className={className}>{children}</aside>
+    <div
+      className="page-aside__container"
+      data-testid={PAGE_ASIDE_SELECTORS.CONTAINER}
+    >
+      <aside className={className} data-testid={PAGE_ASIDE_SELECTORS.ASIDE}>
+        {children}
+      </aside>
       {bottomMargin ? (
         <div style={{ height: `${bottomMargin}rem`, display: 'block' }} />
       ) : null}
