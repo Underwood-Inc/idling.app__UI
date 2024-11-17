@@ -41,7 +41,7 @@ export default async function MyPosts({
       <PageContainer>
         <PageHeader>
           <FadeIn>
-            <h2 className={styles.posts__header}>posts</h2>
+            <h2>posts</h2>
 
             <AddSubmissionForm isAuthorized={!!session} />
             <br />
@@ -53,7 +53,7 @@ export default async function MyPosts({
           <section className={styles.posts__mine}>
             <article>
               <FadeIn>
-                <h3 className={styles.posts__header}>mine</h3>
+                <h3>mine</h3>
 
                 <Card className={styles.card} width="full">
                   <Suspense fallback={<Loader />}>

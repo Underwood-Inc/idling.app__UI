@@ -25,7 +25,7 @@ export default async function Nav() {
           <Navbar.Brand />
 
           <Link href={NAV_PATHS.ROOT} data-testid={NAV_SELECTORS.HOME_LINK}>
-            <h1>Idling.app</h1>
+            <h1 className="nav__header">Idling.app</h1>
           </Link>
         </Navbar.Content>
 

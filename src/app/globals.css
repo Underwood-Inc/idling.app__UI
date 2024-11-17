@@ -191,6 +191,8 @@ h4,
 h5,
 h6 {
   color: white;
+  text-transform: uppercase;
+  margin-bottom: 1rem;
 }
 
 aside {
@@ -244,6 +246,7 @@ code {
   font-weight: 700;
   font-family: var(--font-mono);
 }
+
 
 a h1,
 a h2,
