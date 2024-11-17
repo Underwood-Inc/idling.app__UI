@@ -168,7 +168,9 @@ This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-opti
 
 All code that can be tested via jest tests should be. Playwright will expand what is testable when added.
 
-Never select elements in a test by anything other than an accompanying test selector. This means that all elements that are being selected must have a `data-testid` attribute on them that is then used to query i.e. `screen.getByTestId('my-test-id')`.
+Opt for existing selectors for static content testing such as `getBy**` and `queryAllBy**`. For dynamic content, adding a `data-testid` to the markup being tested and then using the appropriate `**byTestId` selector method(s). Refer to the following excerpt from the [React Testing Library documentation regarding test IDs](https://testing-library.com/docs/queries/bytestid/):
+
+> In the spirit of [the guiding principles](https://testing-library.com/docs/guiding-principles), it is recommended to use this only after the other queries don't work for your use case. Using data-testid attributes do not resemble how your software is used and should be avoided if possible. That said, they are way better than querying based on DOM structure or styling css class names. Learn more about data-testids from the blog post "[Making your UI tests resilient to change](https://kentcdodds.com/blog/making-your-ui-tests-resilient-to-change)"
 
 The NPM package jest-chain has been added to allow chaining expect methods within jest .test test files (not in playwright .spec test files).
 
