@@ -111,17 +111,22 @@ sudo usermod -aG docker $USER
 With docker installed:
 
 ```bash
-yarn dev:dock
-# or
-docker compose up
+yarn dev:docker
+# enter 1
+```
+
+To shutdown docker containers:
+
+```bash
+yarn dev:docker
+# enter 2
 ```
 
 To wipe the postgres database and start fresh:
 
 ```bash
-yarn dev:undock
-# or
-docker compose down
+yarn dev:docker
+# enter 3
 ```
 
 To seed the postgres database:
