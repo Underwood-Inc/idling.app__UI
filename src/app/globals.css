@@ -195,6 +195,12 @@ h6 {
   margin-bottom: 1rem;
 }
 
+/* Make elements with title attribute italic */
+[title] {
+  font-style: italic;
+  cursor: help;
+}
+
 aside {
   position: absolute;
   top: 16.2rem;
