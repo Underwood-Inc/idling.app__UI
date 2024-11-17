@@ -17,6 +17,7 @@
 /* Primary column */
 .home__container_item:nth-child(1) {
   flex: 1 1 65%;
+  min-height: min-content;
 }
 /* Secondary column */
 .home__container_item:nth-child(2) {
