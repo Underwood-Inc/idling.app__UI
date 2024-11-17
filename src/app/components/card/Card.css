@@ -27,8 +27,7 @@
   width: 70%;
 }
 .card.min {
-  width: max-content;
-  min-height: 0;
+  width: min-content;
 }
 
 .card,
