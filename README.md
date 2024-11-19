@@ -171,6 +171,56 @@ This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-opti
 
 ## Testing
 
+### Testing Strategy for Modern Web Applications
+
+#### Why We Need Multiple Testing Layers
+
+Modern web applications require a comprehensive testing strategy to ensure reliability, maintainability, and confidence in deployments. Each testing layer serves a specific purpose:
+
+##### 🔍 Unit Tests
+- Test individual functions and utilities in isolation
+- Fastest to run and easiest to maintain
+- Catch logic errors early in development
+- Guide better code design through testability
+- Example: Testing a date formatting utility
+
+##### 🧩 Component Tests
+- Verify individual UI components work correctly
+- Test component props, states, and user interactions
+- Ensure accessibility standards are met
+- Catch UI regressions early
+- Example: Testing a button component's different states
+
+##### 🔄 Integration Tests
+- Test how multiple components work together
+- Verify data flow between components
+- Catch interface mismatches
+- Example: Testing a form submission flow
+
+##### 🌐 End-to-End (E2E) Tests
+- Test complete user journeys
+- Verify application works in real browser environments
+- Catch deployment and environment issues
+- Example: Testing user login through multiple pages
+
+#### Benefits of This Approach
+
+- **Fast Feedback**: Unit and component tests provide immediate feedback during development
+- **Confidence**: Integration and E2E tests ensure the application works as a whole
+- **Maintainability**: Different test types make it easier to identify where issues occur
+- **Agile Ready**: Supports continuous integration and deployment (CI/CD)
+- **Cost Effective**: Catches bugs at the appropriate level where they're cheapest to fix
+
+#### Testing Pyramid
+
+```
+     /----------\
+    / End-to-End \
+   /  Integration  \
+  /    Component    \
+ /       Unit        \
+/---------------------\
+```
 All code that can be tested via jest tests should be. Playwright will expand what is testable when added.
 
 Opt for existing selectors for static content testing such as `getBy**` and `queryAllBy**`. For dynamic content, adding a `data-testid` to the markup being tested and then using the appropriate `**byTestId` selector method(s). Refer to the following excerpt from the [React Testing Library documentation regarding test IDs](https://testing-library.com/docs/queries/bytestid/):
