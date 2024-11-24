@@ -19,7 +19,7 @@ module.exports = {
     'no-console': [
       'error',
       {
-        allow: ['info', 'warn', 'error']
+        allow: ['info', 'warn', 'error', 'table']
       }
     ]
   }

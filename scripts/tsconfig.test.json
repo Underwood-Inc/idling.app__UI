@@ -1,0 +1,19 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "types": ["jest", "node"],
+    "esModuleInterop": true,
+    "strict": true,
+    "module": "commonjs",
+    "target": "es2020",
+    "allowJs": true,
+    "resolveJsonModule": true,
+    "moduleResolution": "node",
+    "baseUrl": "../",
+    "paths": {
+      "*": ["*", "src/*"]
+    }
+  },
+  "include": ["./**/*.ts", "../src/lib/db.ts"],
+  "exclude": ["node_modules"]
+}
