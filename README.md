@@ -169,6 +169,57 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 
 This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
 
+### Postgres
+
+### Database Management
+
+#### Connecting to PostgreSQL in Docker
+
+The project uses PostgreSQL running in a Docker container. Here's how to interact with it:
+
+1. **Connecting to the Database**
+
+     ```bash
+     docker exec -it postgres psql -U postgres -d idling
+     ```
+
+     This connects you to the PostgreSQL interactive terminal where you can run SQL commands directly.
+
+Common PSQL commands:
+- `\l` - List all databases
+- `\dt` - List all tables in current database
+- `\d table_name` - Describe a specific table
+- `\c database_name` - Switch to a different database
+- `\q` - Quit psql
+
+#### Database Initialization
+
+The database is initialized using two key files:
+- `docker-postgres/init.sql`: Runs when the Docker container first starts
+- `src/lib/scripts/000-init.sql`: Used for local development initialization
+
+These files create the base tables required for:
+- NextAuth authentication
+- Database migration tracking
+- Core application functionality
+
+#### Database Migrations
+
+The project uses a numbered migration system to track and apply database changes:
+
+1. **Running Migrations**
+
+     ```bash
+     yarn migrations
+     # select option 1 to run all pending migrations
+     ```
+
+     Migration files follow the pattern: `0000-description.sql` where:
+     - First 4 digits are an incrementing ID (e.g., 0000, 0001, 0002)
+     - Followed by a descriptive name of what the migration does
+
+     Each migration runs in isolation and is tracked in the `migrations` table to prevent duplicate runs.
+
 ## Testing
 
 ### Testing Strategy for Modern Web Applications
