@@ -289,6 +289,8 @@ You can run jest test with a few different scripts:
 
 All test scripts will run against `**.test.tsx` files.
 
+> **Note:** You can append `--silent` to any test command (e.g., `yarn test --silent`) to suppress console output during test execution.
+
 #### Unit
 
 Unit tests for all utility functions must be written via jest.
