@@ -1,3 +1,12 @@
+// Test suite for the database migration system
+// Tests cover:
+// - Directory management (creation, existence checks)
+// - Migration numbering and file creation
+// - Migration execution and error handling
+// - Transaction management
+// See MIGRATIONS.README.md for complete testing strategy
+
+// Mock system dependencies
 /* eslint-disable no-import-assign */
 import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 import type { Mock } from 'jest-mock';
