@@ -250,6 +250,10 @@ The project uses a numbered migration system to track and apply database changes
 
      Each migration runs in isolation and is tracked in the `migrations` table to prevent duplicate runs.
 
+#### Database Management
+
+For detailed information about our migration system and how to use it, please see [MIGRATIONS.README.md](./MIGRATIONS.README.md).
+
 ## Testing
 
 ### Testing Strategy for Modern Web Applications
