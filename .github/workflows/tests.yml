@@ -168,6 +168,13 @@ jobs:
                   return;
                 }
 
+                // Validate section header format
+                const sectionMatch = newSection.match(/## [🎭🃏] (Playwright|Jest) Tests/);
+                if (!sectionMatch) {
+                  throw new Error('Invalid section format: Missing or malformed header');
+                }
+                const sectionType = sectionMatch[1];
+
                 // Find existing comment
                 const { data: comments } = await github.rest.issues.listComments({
                   issue_number: context.issue.number,
@@ -189,7 +196,6 @@ jobs:
                     : '# 🚀 Test Results\n\n';
                   
                   // Replace or add new section
-                  const sectionType = newSection.match(/## [🎭🃏] (Playwright|Jest) Tests/)[1];
                   const sectionIndex = sections.findIndex(s => s.includes(sectionType));
                   
                   if (sectionIndex >= 0) {
@@ -330,6 +336,13 @@ jobs:
                   return;
                 }
 
+                // Validate section header format
+                const sectionMatch = newSection.match(/## [🎭🃏] (Playwright|Jest) Tests/);
+                if (!sectionMatch) {
+                  throw new Error('Invalid section format: Missing or malformed header');
+                }
+                const sectionType = sectionMatch[1];
+
                 // Find existing comment
                 const { data: comments } = await github.rest.issues.listComments({
                   issue_number: context.issue.number,
@@ -351,7 +364,6 @@ jobs:
                     : '# 🚀 Test Results\n\n';
                   
                   // Replace or add new section
-                  const sectionType = newSection.match(/## [🎭🃏] (Playwright|Jest) Tests/)[1];
                   const sectionIndex = sections.findIndex(s => s.includes(sectionType));
                   
                   if (sectionIndex >= 0) {
