@@ -446,6 +446,9 @@ jobs:
 
               const results = JSON.parse(readFileSync(reportPath, 'utf8'));
               
+              // Calculate duration in seconds
+              const formattedDuration = `${Math.round(results.testResults.reduce((acc, result) => acc + result.endTime - result.startTime, 0) / 1000)}s`;
+              
               // Updated header format to match regex
               let section = `## 🃏 Jest Tests\n\n`;
               section += `| Status | Count |\n|--------|-------|\n`;
