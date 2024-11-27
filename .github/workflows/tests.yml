@@ -129,7 +129,7 @@ jobs:
       - name: Run Playwright tests
         run: |
           echo "::group::Running Playwright Tests"
-          IS_CI=1 FORCE_COLOR=1 yarn playwright test --reporter=list,github
+          IS_CI=1 FORCE_COLOR=1 yarn playwright test --reporter=list,json
           echo "::endgroup::"
 
       # Always upload test results
@@ -235,11 +235,29 @@ jobs:
 
             // Generate Playwright section
             if ('${{ github.job }}' === 'playwright') {
-              const reportPath = 'playwright-report/results.json';
+              const reportPath = 'test-results/report.json';
               
               if (!existsSync(reportPath)) {
-                console.log('Playwright results file not found, skipping report');
-                return;
+                console.log(`Playwright results file not found at ${reportPath}, trying alternate locations...`);
+                const possiblePaths = [
+                  'playwright-report/report.json',
+                  'test-results/results.json',
+                  'playwright-report/results.json',
+                  'test-report.json'
+                ];
+                
+                for (const path of possiblePaths) {
+                  if (existsSync(path)) {
+                    console.log(`Found results at ${path}`);
+                    reportPath = path;
+                    break;
+                  }
+                }
+                
+                if (!existsSync(reportPath)) {
+                  console.log('No Playwright results file found in any expected location');
+                  return;
+                }
               }
 
               const report = JSON.parse(readFileSync(reportPath, 'utf8'));
@@ -407,11 +425,29 @@ jobs:
 
             // Generate Playwright section
             if ('${{ github.job }}' === 'playwright') {
-              const reportPath = 'playwright-report/results.json';
+              const reportPath = 'test-results/report.json';
               
               if (!existsSync(reportPath)) {
-                console.log('Playwright results file not found, skipping report');
-                return;
+                console.log(`Playwright results file not found at ${reportPath}, trying alternate locations...`);
+                const possiblePaths = [
+                  'playwright-report/report.json',
+                  'test-results/results.json',
+                  'playwright-report/results.json',
+                  'test-report.json'
+                ];
+                
+                for (const path of possiblePaths) {
+                  if (existsSync(path)) {
+                    console.log(`Found results at ${path}`);
+                    reportPath = path;
+                    break;
+                  }
+                }
+                
+                if (!existsSync(reportPath)) {
+                  console.log('No Playwright results file found in any expected location');
+                  return;
+                }
               }
 
               const report = JSON.parse(readFileSync(reportPath, 'utf8'));
