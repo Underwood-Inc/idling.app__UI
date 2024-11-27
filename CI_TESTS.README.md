@@ -71,17 +71,36 @@ The pipeline uses several environment variables and secrets:
 - **Database**: `POSTGRES_*` configuration
 - **CI/CD**: `GITHUB_TOKEN`, `SONAR_TOKEN`
 
-## Artifacts and Reports
+## Test Results and Reporting
 
-### Test Results
-- Playwright reports: Available for 30 days
-- Playwright failure traces: Available for 7 days
-- Jest coverage reports: Available for 30 days
+### Automated PR Comments
+The CI pipeline automatically generates and updates test result comments on pull requests. These comments include:
 
-### Accessing Reports
-1. Go to the GitHub Actions run
-2. Scroll to the bottom
-3. Look for the "Artifacts" section
+- Combined test results from both Playwright and Jest
+- Test statistics for each test type:
+  - Number of passed tests
+  - Number of failed tests
+  - Number of skipped tests
+  - Test duration
+- Detailed failure messages in collapsible sections
+- Timestamps showing when results were created and last updated
+
+The test results comment is automatically recreated on each test run to ensure it appears at the bottom of the PR activity feed for visibility.
+
+### Test Results Location
+Test results are stored in:
+- Playwright: `playwright-report/` or `test-results/`
+- Jest: `jest-results.json`
+
+### Viewing Results
+1. **In Pull Requests**:
+   - Look for the "🚀 Test Results" comment
+   - Each test type has its own section with detailed results
+   - Failed tests include expandable details with error messages
+
+2. **In GitHub Actions**:
+   - Navigate to the workflow run
+   - Check the "Artifacts" section for detailed reports
 
 ## Troubleshooting
 

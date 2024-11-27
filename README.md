@@ -48,10 +48,9 @@ When running tests through GitHub Actions (on PRs or pushes to main/master), the
   - Each section includes:
     - Pass/Fail/Skip counts
     - Test duration
-    - Detailed failure messages (if any)
-    - Timestamps for creation and updates
-
-The test results comment is automatically created or updated on each test run, making it easy to track test status throughout PR iterations.
+    - Detailed failure messages
+    - Creation and update timestamps
+  - Comments are recreated (rather than updated) to maintain visibility in the PR activity feed
 
 #### Test Artifacts
 
