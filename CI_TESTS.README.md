@@ -74,18 +74,17 @@ The pipeline uses several environment variables and secrets:
 ## Test Results and Reporting
 
 ### Automated PR Comments
-The CI pipeline automatically generates and updates test result comments on pull requests. These comments include:
+The CI pipeline automatically generates test result comments on pull requests. These comments include:
 
-- Combined test results from both Playwright and Jest
-- Test statistics for each test type:
-  - Number of passed tests
-  - Number of failed tests
-  - Number of skipped tests
+- A single, consolidated comment containing:
+  - Playwright E2E test results
+  - Jest unit/integration test results
+- Each test type shows:
+  - Number of passed/failed/skipped tests
   - Test duration
-- Detailed failure messages in collapsible sections
-- Timestamps showing when results were created and last updated
-
-The test results comment is automatically recreated on each test run to ensure it appears at the bottom of the PR activity feed for visibility.
+  - Detailed failure messages in collapsible sections
+- The comment is recreated (not updated) on each test run to stay visible
+- Failed tests show the full test path and detailed error messages
 
 ### Test Results Location
 Test results are stored in:
@@ -94,9 +93,9 @@ Test results are stored in:
 
 ### Viewing Results
 1. **In Pull Requests**:
-   - Look for the "🚀 Test Results" comment
-   - Each test type has its own section with detailed results
-   - Failed tests include expandable details with error messages
+   - Look for the most recent "🚀 Test Results" comment
+   - Each test type has its own section
+   - Failed tests include expandable details
 
 2. **In GitHub Actions**:
    - Navigate to the workflow run

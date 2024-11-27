@@ -40,17 +40,16 @@ This workflow runs various tests to ensure code quality and functionality.
 
 #### Automated Test Reporting
 
-When running tests through GitHub Actions (on PRs or pushes to main/master), the workflow automatically generates detailed test reports as PR comments:
+When running tests through GitHub Actions (on PRs or pushes to main/master), the workflow automatically generates a single, consolidated test report comment:
 
-- **Test Results Summary**: A consolidated view of all test runs
+- **Test Results Summary**: A combined view showing:
   - Playwright E2E test results
   - Jest unit/integration test results
   - Each section includes:
     - Pass/Fail/Skip counts
     - Test duration
-    - Detailed failure messages
-    - Creation and update timestamps
-  - Comments are recreated (rather than updated) to maintain visibility in the PR activity feed
+    - Detailed failure messages in collapsible sections
+  - Comment is recreated on each test run to maintain visibility
 
 #### Test Artifacts
 
