@@ -152,44 +152,132 @@ jobs:
           path: test-results/
           retention-days: 7
 
-      # Add this after the Playwright tests
-      - name: Create Playwright Report Comment
+      # Add this shared function to both Playwright and Jest steps
+      - name: Update Test Report Comment
         if: always()
         uses: actions/github-script@v7
         with:
           script: |
             const { readFileSync } = require('fs');
 
-            try {
+            async function updateTestComment(newSection) {
+              try {
+                // Find existing comment
+                const { data: comments } = await github.rest.issues.listComments({
+                  issue_number: context.issue.number,
+                  owner: context.repo.owner,
+                  repo: context.repo.repo
+                });
+                
+                const existingComment = comments.find(comment => 
+                  comment.body.includes('# 🚀 Test Results')
+                );
+                
+                let commentBody = '';
+                
+                if (existingComment) {
+                  // If comment exists, parse existing sections
+                  const sections = existingComment.body.split(/(?=## [🎭🃏] (?:Playwright|Jest) Tests)/);
+                  const header = sections[0].includes('# 🚀 Test Results') 
+                    ? sections.shift() 
+                    : '# 🚀 Test Results\n\n';
+                  
+                  // Replace or add new section
+                  const sectionType = newSection.match(/## [🎭🃏] (Playwright|Jest) Tests/)[1];
+                  const sectionIndex = sections.findIndex(s => s.includes(sectionType));
+                  
+                  if (sectionIndex >= 0) {
+                    sections[sectionIndex] = newSection;
+                  } else {
+                    sections.push(newSection);
+                  }
+                  
+                  commentBody = header + sections.join('');
+                } else {
+                  // If no comment exists, create new one
+                  commentBody = '# 🚀 Test Results\n\n' + newSection;
+                }
+                
+                if (existingComment) {
+                  await github.rest.issues.updateComment({
+                    comment_id: existingComment.id,
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    body: commentBody
+                  });
+                } else {
+                  await github.rest.issues.createComment({
+                    issue_number: context.issue.number,
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    body: commentBody
+                  });
+                }
+              } catch (error) {
+                console.error('Error updating test report comment:', error);
+                throw error;
+              }
+            }
+
+            // Generate Playwright section
+            if ('${{ github.job }}' === 'playwright') {
               const reportPath = 'playwright-report/results.json';
               const report = JSON.parse(readFileSync(reportPath, 'utf8'));
               
               const stats = report.stats;
               const failed = report.suites.filter(s => s.status === 'failed');
               
-              let comment = `## 🎭 Playwright Test Results\n\n`;
-              comment += `| Status | Count |\n|--------|-------|\n`;
-              comment += `| ✅ Passed | ${stats.passed} |\n`;
-              comment += `| ❌ Failed | ${stats.failed} |\n`;
-              comment += `| ⏭️ Skipped | ${stats.skipped} |\n`;
-              comment += `| ⏱️ Duration | ${Math.round(stats.duration / 1000)}s |\n\n`;
+              let section = `## 🎭 Playwright Tests\n\n`;
+              section += `| Status | Count |\n|--------|-------|\n`;
+              section += `| ✅ Passed | ${stats.passed} |\n`;
+              section += `| ❌ Failed | ${stats.failed} |\n`;
+              section += `| ⏭️ Skipped | ${stats.skipped} |\n`;
+              section += `| ⏱️ Duration | ${Math.round(stats.duration / 1000)}s |\n\n`;
               
               if (failed.length > 0) {
-                comment += `### Failed Tests\n\n`;
+                section += `### Failed Playwright Tests\n\n`;
                 failed.forEach(suite => {
-                  comment += `<details><summary>❌ ${suite.title}</summary>\n\n`;
-                  comment += `\`\`\`ansi\n${suite.error}\n\`\`\`\n\n</details>\n\n`;
+                  section += `<details><summary>❌ ${suite.title}</summary>\n\n`;
+                  section += `\`\`\`ansi\n${suite.error}\n\`\`\`\n\n</details>\n\n`;
                 });
               }
               
-              await github.rest.issues.createComment({
-                issue_number: context.issue.number,
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                body: comment
-              });
-            } catch (error) {
-              console.error('Error creating Playwright report comment:', error);
+              await updateTestComment(section);
+            }
+
+            // Generate Jest section
+            if ('${{ github.job }}' === 'jest') {
+              const results = JSON.parse(readFileSync('jest-results.json', 'utf8'));
+              
+              const totalDuration = results.testResults.reduce((total, suite) => 
+                total + (suite.perfStats?.runtime || 0), 0);
+              
+              const formattedDuration = totalDuration < 1000 
+                ? `${totalDuration}ms` 
+                : `${(totalDuration / 1000).toFixed(2)}s`;
+              
+              let section = `## 🃏 Jest Tests\n\n`;
+              section += `| Status | Count |\n|--------|-------|\n`;
+              section += `| ✅ Passed | ${results.numPassedTests} |\n`;
+              section += `| ❌ Failed | ${results.numFailedTests} |\n`;
+              section += `| ⏭️ Skipped | ${results.numPendingTests} |\n`;
+              section += `| ⏱️ Duration | ${formattedDuration} |\n\n`;
+              
+              if (results.numFailedTests > 0) {
+                section += `### Failed Jest Tests\n\n`;
+                results.testResults.forEach(suite => {
+                  if (suite.numFailingTests > 0) {
+                    suite.testResults
+                      ?.filter(test => test.status === 'failed')
+                      .forEach(test => {
+                        section += `<details><summary>❌ ${test.fullName || test.title}</summary>\n\n`;
+                        section += `\`\`\`ansi\n${(test.failureMessages || []).join('\n')}\n\`\`\`\n\n</details>\n\n`;
+                      });
+                  }
+                });
+              }
+              
+              await updateTestComment(section);
             }
 
   jest:
@@ -249,67 +337,132 @@ jobs:
           path: coverage/
           retention-days: 30
 
-      # Add this after the Jest tests
-      - name: Create Jest Report Comment
+      # Add this shared function to both Playwright and Jest steps
+      - name: Update Test Report Comment
         if: always()
         uses: actions/github-script@v7
         with:
           script: |
             const { readFileSync } = require('fs');
 
-            try {
+            async function updateTestComment(newSection) {
+              try {
+                // Find existing comment
+                const { data: comments } = await github.rest.issues.listComments({
+                  issue_number: context.issue.number,
+                  owner: context.repo.owner,
+                  repo: context.repo.repo
+                });
+                
+                const existingComment = comments.find(comment => 
+                  comment.body.includes('# 🚀 Test Results')
+                );
+                
+                let commentBody = '';
+                
+                if (existingComment) {
+                  // If comment exists, parse existing sections
+                  const sections = existingComment.body.split(/(?=## [🎭🃏] (?:Playwright|Jest) Tests)/);
+                  const header = sections[0].includes('# 🚀 Test Results') 
+                    ? sections.shift() 
+                    : '# 🚀 Test Results\n\n';
+                  
+                  // Replace or add new section
+                  const sectionType = newSection.match(/## [🎭🃏] (Playwright|Jest) Tests/)[1];
+                  const sectionIndex = sections.findIndex(s => s.includes(sectionType));
+                  
+                  if (sectionIndex >= 0) {
+                    sections[sectionIndex] = newSection;
+                  } else {
+                    sections.push(newSection);
+                  }
+                  
+                  commentBody = header + sections.join('');
+                } else {
+                  // If no comment exists, create new one
+                  commentBody = '# 🚀 Test Results\n\n' + newSection;
+                }
+                
+                if (existingComment) {
+                  await github.rest.issues.updateComment({
+                    comment_id: existingComment.id,
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    body: commentBody
+                  });
+                } else {
+                  await github.rest.issues.createComment({
+                    issue_number: context.issue.number,
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    body: commentBody
+                  });
+                }
+              } catch (error) {
+                console.error('Error updating test report comment:', error);
+                throw error;
+              }
+            }
+
+            // Generate Playwright section
+            if ('${{ github.job }}' === 'playwright') {
+              const reportPath = 'playwright-report/results.json';
+              const report = JSON.parse(readFileSync(reportPath, 'utf8'));
+              
+              const stats = report.stats;
+              const failed = report.suites.filter(s => s.status === 'failed');
+              
+              let section = `## 🎭 Playwright Tests\n\n`;
+              section += `| Status | Count |\n|--------|-------|\n`;
+              section += `| ✅ Passed | ${stats.passed} |\n`;
+              section += `| ❌ Failed | ${stats.failed} |\n`;
+              section += `| ⏭️ Skipped | ${stats.skipped} |\n`;
+              section += `| ⏱️ Duration | ${Math.round(stats.duration / 1000)}s |\n\n`;
+              
+              if (failed.length > 0) {
+                section += `### Failed Playwright Tests\n\n`;
+                failed.forEach(suite => {
+                  section += `<details><summary>❌ ${suite.title}</summary>\n\n`;
+                  section += `\`\`\`ansi\n${suite.error}\n\`\`\`\n\n</details>\n\n`;
+                });
+              }
+              
+              await updateTestComment(section);
+            }
+
+            // Generate Jest section
+            if ('${{ github.job }}' === 'jest') {
               const results = JSON.parse(readFileSync('jest-results.json', 'utf8'));
               
-              let comment = `## 🃏 Jest Test Results\n\n`;
-              comment += `| Status | Count |\n|--------|-------|\n`;
-              comment += `| ✅ Passed | ${results.numPassedTests} |\n`;
-              comment += `| ❌ Failed | ${results.numFailedTests} |\n`;
-              comment += `| ⏭️ Skipped | ${results.numPendingTests} |\n`;
-              
-              // Calculate total duration across all test suites
               const totalDuration = results.testResults.reduce((total, suite) => 
                 total + (suite.perfStats?.runtime || 0), 0);
               
-              // Format duration to show milliseconds if under 1 second
               const formattedDuration = totalDuration < 1000 
                 ? `${totalDuration}ms` 
                 : `${(totalDuration / 1000).toFixed(2)}s`;
               
-              comment += `| ⏱️ Duration | ${formattedDuration} |\n\n`;
-              
-              // Log duration details for debugging
-              console.log('Duration details:', {
-                totalDuration,
-                formattedDuration,
-                suites: results.testResults.map(suite => ({
-                  name: suite.testFilePath,
-                  runtime: suite.perfStats?.runtime
-                }))
-              });
+              let section = `## 🃏 Jest Tests\n\n`;
+              section += `| Status | Count |\n|--------|-------|\n`;
+              section += `| ✅ Passed | ${results.numPassedTests} |\n`;
+              section += `| ❌ Failed | ${results.numFailedTests} |\n`;
+              section += `| ⏭️ Skipped | ${results.numPendingTests} |\n`;
+              section += `| ⏱️ Duration | ${formattedDuration} |\n\n`;
               
               if (results.numFailedTests > 0) {
-                comment += `### Failed Tests\n\n`;
+                section += `### Failed Jest Tests\n\n`;
                 results.testResults.forEach(suite => {
                   if (suite.numFailingTests > 0) {
                     suite.testResults
                       ?.filter(test => test.status === 'failed')
                       .forEach(test => {
-                        comment += `<details><summary>❌ ${test.fullName || test.title}</summary>\n\n`;
-                        comment += `\`\`\`ansi\n${(test.failureMessages || []).join('\n')}\n\`\`\`\n\n</details>\n\n`;
+                        section += `<details><summary>❌ ${test.fullName || test.title}</summary>\n\n`;
+                        section += `\`\`\`ansi\n${(test.failureMessages || []).join('\n')}\n\`\`\`\n\n</details>\n\n`;
                       });
                   }
                 });
               }
               
-              await github.rest.issues.createComment({
-                issue_number: context.issue.number,
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                body: comment
-              });
-            } catch (error) {
-              console.error('Error creating Jest report comment:', error);
-              console.error('Error details:', error.message);
+              await updateTestComment(section);
             }
 
   sonar:
