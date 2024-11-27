@@ -168,13 +168,14 @@ jobs:
                   return;
                 }
 
-                // Updated regex to be more flexible with emoji placement
-                const sectionMatch = newSection.match(/## (?:[🎭🃏] )?(Playwright|Jest)(?: Tests)/);
+                // Simplified regex to match exactly what we're generating
+                const sectionMatch = newSection.match(/^## (🎭|🃏) (Playwright|Jest) Tests\n/m);
                 if (!sectionMatch) {
                   console.log('Section content:', newSection); // Debug log
+                  console.log('Regex failed to match header');
                   throw new Error('Invalid section format: Missing or malformed header');
                 }
-                const sectionType = sectionMatch[1];
+                const sectionType = sectionMatch[2]; // Index 2 contains Playwright/Jest
 
                 // Find existing comment
                 const { data: comments } = await github.rest.issues.listComments({
@@ -191,7 +192,7 @@ jobs:
                 
                 if (existingComment) {
                   // If comment exists, parse existing sections
-                  const sections = existingComment.body.split(/(?=## (?:[🎭🃏] )?(Playwright|Jest)(?: Tests))/);
+                  const sections = existingComment.body.split(/(?=## (🎭|🃏) (Playwright|Jest) Tests\n)/);
                   const header = sections[0].includes('# 🚀 Test Results') 
                     ? sections.shift() 
                     : '# 🚀 Test Results\n\n';
@@ -246,9 +247,10 @@ jobs:
               const stats = report.stats;
               const failed = report.suites.filter(s => s.status === 'failed');
               
-              // Updated header format to match regex
-              let section = `## 🎭 Playwright Tests\n\n`;
-              section += `| Status | Count |\n|--------|-------|\n`;
+              // Ensure exact match with regex pattern
+              let section = `## 🎭 Playwright Tests\n`;  // Remove extra newline
+              section += `\n| Status | Count |\n`;  // Add newline here instead
+              section += `|--------|-------|\n`;
               section += `| ✅ Passed | ${stats.passed} |\n`;
               section += `| ❌ Failed | ${stats.failed} |\n`;
               section += `| ⏭️ Skipped | ${stats.skipped} |\n`;
@@ -338,13 +340,14 @@ jobs:
                   return;
                 }
 
-                // Updated regex to be more flexible with emoji placement
-                const sectionMatch = newSection.match(/## (?:[🎭🃏] )?(Playwright|Jest)(?: Tests)/);
+                // Simplified regex to match exactly what we're generating
+                const sectionMatch = newSection.match(/^## (🎭|🃏) (Playwright|Jest) Tests\n/m);
                 if (!sectionMatch) {
                   console.log('Section content:', newSection); // Debug log
+                  console.log('Regex failed to match header');
                   throw new Error('Invalid section format: Missing or malformed header');
                 }
-                const sectionType = sectionMatch[1];
+                const sectionType = sectionMatch[2]; // Index 2 contains Playwright/Jest
 
                 // Find existing comment
                 const { data: comments } = await github.rest.issues.listComments({
@@ -361,7 +364,7 @@ jobs:
                 
                 if (existingComment) {
                   // If comment exists, parse existing sections
-                  const sections = existingComment.body.split(/(?=## (?:[🎭🃏] )?(Playwright|Jest)(?: Tests))/);
+                  const sections = existingComment.body.split(/(?=## (🎭|🃏) (Playwright|Jest) Tests\n)/);
                   const header = sections[0].includes('# 🚀 Test Results') 
                     ? sections.shift() 
                     : '# 🚀 Test Results\n\n';
@@ -416,9 +419,10 @@ jobs:
               const stats = report.stats;
               const failed = report.suites.filter(s => s.status === 'failed');
               
-              // Updated header format to match regex
-              let section = `## 🎭 Playwright Tests\n\n`;
-              section += `| Status | Count |\n|--------|-------|\n`;
+              // Ensure exact match with regex pattern
+              let section = `## 🎭 Playwright Tests\n`;  // Remove extra newline
+              section += `\n| Status | Count |\n`;  // Add newline here instead
+              section += `|--------|-------|\n`;
               section += `| ✅ Passed | ${stats.passed} |\n`;
               section += `| ❌ Failed | ${stats.failed} |\n`;
               section += `| ⏭️ Skipped | ${stats.skipped} |\n`;
@@ -446,12 +450,12 @@ jobs:
 
               const results = JSON.parse(readFileSync(reportPath, 'utf8'));
               
-              // Calculate duration in seconds
               const formattedDuration = `${Math.round(results.testResults.reduce((acc, result) => acc + result.endTime - result.startTime, 0) / 1000)}s`;
               
-              // Updated header format to match regex
-              let section = `## 🃏 Jest Tests\n\n`;
-              section += `| Status | Count |\n|--------|-------|\n`;
+              // Ensure exact match with regex pattern
+              let section = `## 🃏 Jest Tests\n`;  // Remove extra newline
+              section += `\n| Status | Count |\n`;  // Add newline here instead
+              section += `|--------|-------|\n`;
               section += `| ✅ Passed | ${results.numPassedTests} |\n`;
               section += `| ❌ Failed | ${results.numFailedTests} |\n`;
               section += `| ⏭️ Skipped | ${results.numPendingTests} |\n`;
