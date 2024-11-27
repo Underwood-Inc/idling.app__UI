@@ -143,6 +143,46 @@ jobs:
           path: test-results/
           retention-days: 7
 
+      # Add this after the Playwright tests
+      - name: Create Playwright Report Comment
+        if: always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { readFileSync } = require('fs');
+
+            try {
+              const reportPath = 'playwright-report/results.json';
+              const report = JSON.parse(readFileSync(reportPath, 'utf8'));
+              
+              const stats = report.stats;
+              const failed = report.suites.filter(s => s.status === 'failed');
+              
+              let comment = `## 🎭 Playwright Test Results\n\n`;
+              comment += `| Status | Count |\n|--------|-------|\n`;
+              comment += `| ✅ Passed | ${stats.passed} |\n`;
+              comment += `| ❌ Failed | ${stats.failed} |\n`;
+              comment += `| ⏭️ Skipped | ${stats.skipped} |\n`;
+              comment += `| ⏱️ Duration | ${Math.round(stats.duration / 1000)}s |\n\n`;
+              
+              if (failed.length > 0) {
+                comment += `### Failed Tests\n\n`;
+                failed.forEach(suite => {
+                  comment += `<details><summary>❌ ${suite.title}</summary>\n\n`;
+                  comment += `\`\`\`ansi\n${suite.error}\n\`\`\`\n\n</details>\n\n`;
+                });
+              }
+              
+              await github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: comment
+              });
+            } catch (error) {
+              console.error('Error creating Playwright report comment:', error);
+            }
+
   jest:
     name: Jest Tests
     needs: setup # Waits for setup job to complete
@@ -193,6 +233,48 @@ jobs:
           path: coverage/
           retention-days: 30
 
+      # Add this after the Jest tests
+      - name: Create Jest Report Comment
+        if: always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { readFileSync } = require('fs');
+
+            try {
+              const results = JSON.parse(readFileSync('jest-results.json', 'utf8'));
+              
+              let comment = `## 🃏 Jest Test Results\n\n`;
+              comment += `| Status | Count |\n|--------|-------|\n`;
+              comment += `| ✅ Passed | ${results.numPassedTests} |\n`;
+              comment += `| ❌ Failed | ${results.numFailedTests} |\n`;
+              comment += `| ⏭️ Skipped | ${results.numPendingTests} |\n`;
+              comment += `| ⏱️ Duration | ${Math.round(results.testResults[0].perfStats.runtime / 1000)}s |\n\n`;
+              
+              if (results.numFailedTests > 0) {
+                comment += `### Failed Tests\n\n`;
+                results.testResults.forEach(suite => {
+                  if (suite.numFailingTests > 0) {
+                    suite.testResults
+                      .filter(test => test.status === 'failed')
+                      .forEach(test => {
+                        comment += `<details><summary>❌ ${test.fullName}</summary>\n\n`;
+                        comment += `\`\`\`ansi\n${test.failureMessages.join('\n')}\n\`\`\`\n\n</details>\n\n`;
+                      });
+                  }
+                });
+              }
+              
+              await github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: comment
+              });
+            } catch (error) {
+              console.error('Error creating Jest report comment:', error);
+            }
+
   sonar:
     name: SonarCloud Analysis
     needs: [playwright, jest] # Waits for both test jobs
@@ -211,3 +293,39 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+      # Add this after SonarCloud scan
+      - name: Create SonarCloud Report Comment
+        if: always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            try {
+              const sonarResults = process.env.SONAR_RESULTS;
+              
+              let comment = `## 🔍 SonarCloud Analysis Results\n\n`;
+              comment += `| Metric | Value |\n|--------|-------|\n`;
+              comment += `| 🐛 Bugs | ${sonarResults.bugs || 0} |\n`;
+              comment += `| 🔒 Vulnerabilities | ${sonarResults.vulnerabilities || 0} |\n`;
+              comment += `| 🧹 Code Smells | ${sonarResults.code_smells || 0} |\n`;
+              comment += `| 📊 Coverage | ${sonarResults.coverage || '0'}% |\n`;
+              
+              if (sonarResults.issues?.length > 0) {
+                comment += `\n### Issues Found\n\n`;
+                sonarResults.issues.forEach(issue => {
+                  comment += `<details><summary>${issue.severity}: ${issue.message}</summary>\n\n`;
+                  comment += `- File: ${issue.component}\n`;
+                  comment += `- Line: ${issue.line}\n`;
+                  comment += `- Rule: ${issue.rule}\n\n</details>\n\n`;
+                });
+              }
+              
+              await github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: comment
+              });
+            } catch (error) {
+              console.error('Error creating SonarCloud report comment:', error);
+            }
