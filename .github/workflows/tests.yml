@@ -218,21 +218,22 @@ jobs:
                   commentBody = `# 🚀 Test Results\n\n_Created: ${timestamp}_\n\n` + newSection;
                 }
                 
+                // Delete existing comment if it exists
                 if (existingComment) {
-                  await github.rest.issues.updateComment({
+                  await github.rest.issues.deleteComment({
                     comment_id: existingComment.id,
                     owner: context.repo.owner,
-                    repo: context.repo.repo,
-                    body: commentBody
-                  });
-                } else {
-                  await github.rest.issues.createComment({
-                    issue_number: context.issue.number,
-                    owner: context.repo.owner,
-                    repo: context.repo.repo,
-                    body: commentBody
+                    repo: context.repo.repo
                   });
                 }
+
+                // Create new comment
+                await github.rest.issues.createComment({
+                  issue_number: context.issue.number,
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  body: commentBody
+                });
               } catch (error) {
                 console.error('Error updating test report comment:', error);
                 throw error;
@@ -414,21 +415,22 @@ jobs:
                   commentBody = `# 🚀 Test Results\n\n_Created: ${timestamp}_\n\n` + newSection;
                 }
                 
+                // Delete existing comment if it exists
                 if (existingComment) {
-                  await github.rest.issues.updateComment({
+                  await github.rest.issues.deleteComment({
                     comment_id: existingComment.id,
                     owner: context.repo.owner,
-                    repo: context.repo.repo,
-                    body: commentBody
-                  });
-                } else {
-                  await github.rest.issues.createComment({
-                    issue_number: context.issue.number,
-                    owner: context.repo.owner,
-                    repo: context.repo.repo,
-                    body: commentBody
+                    repo: context.repo.repo
                   });
                 }
+
+                // Create new comment
+                await github.rest.issues.createComment({
+                  issue_number: context.issue.number,
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  body: commentBody
+                });
               } catch (error) {
                 console.error('Error updating test report comment:', error);
                 throw error;
@@ -468,7 +470,7 @@ jobs:
               const failed = report.suites.filter(s => s.status === 'failed');
               
               // Ensure exact match with regex pattern
-              let section = `## 🎭 Playwright Tests\n`;  // Remove extra newline
+              let section = `## 🃏 Playwright Tests\n`;  // Remove extra newline
               section += `\n| Status | Count |\n`;  // Add newline here instead
               section += `|--------|-------|\n`;
               section += `| ✅ Passed | ${stats.passed} |\n`;
