@@ -250,21 +250,13 @@ jobs:
               const report = JSON.parse(readFileSync(reportPath, 'utf8'));
               console.log('Raw Playwright report:', report);
 
-              // Extract stats directly from the report
+              // Extract stats from the correct location
               const stats = {
-                passed: report.passed || 0,
-                failed: report.failed || 0,
-                skipped: report.skipped || 0,
-                duration: report.duration || 0
+                passed: report.stats.expected - report.stats.unexpected - report.stats.skipped,
+                failed: report.stats.unexpected,
+                skipped: report.stats.skipped,
+                duration: report.stats.duration
               };
-
-              // If stats are not directly available, try to calculate from results
-              if (!report.passed && report.results) {
-                stats.passed = report.results.filter(r => r.status === 'passed').length;
-                stats.failed = report.results.filter(r => r.status === 'failed').length;
-                stats.skipped = report.results.filter(r => r.status === 'skipped').length;
-                stats.duration = report.results.reduce((acc, r) => acc + (r.duration || 0), 0);
-              }
 
               let section = `## 🎭 Playwright Tests\n`;
               section += `\n| Status | Count |\n`;
@@ -275,13 +267,36 @@ jobs:
               section += `| ⏱️ Duration | ${Math.round(stats.duration / 1000)}s |\n\n`;
 
               // Add failed test details if any
-              const failedTests = report.results?.filter(r => r.status === 'failed') || [];
-              if (failedTests.length > 0) {
-                section += `### Failed Playwright Tests\n\n`;
-                failedTests.forEach(test => {
-                  section += `<details><summary>❌ ${test.title || test.name}</summary>\n\n`;
-                  section += `\`\`\`\n${test.error || test.errorMessage || 'No error message available'}\n\`\`\`\n\n</details>\n\n`;
-                });
+              if (report.suites) {
+                const failedTests = [];
+                
+                // Recursively collect failed tests from suites
+                function collectFailedTests(suite) {
+                  if (suite.specs) {
+                    suite.specs.forEach(spec => {
+                      if (spec.tests) {
+                        spec.tests.forEach(test => {
+                          if (test.results && test.results.some(r => r.status === 'failed')) {
+                            failedTests.push({
+                              title: `${suite.title} › ${test.title}`,
+                              error: test.results.find(r => r.status === 'failed').error?.message || 'No error message available'
+                            });
+                          }
+                        });
+                      }
+                    });
+                  }
+                }
+
+                report.suites.forEach(collectFailedTests);
+
+                if (failedTests.length > 0) {
+                  section += `### Failed Playwright Tests\n\n`;
+                  failedTests.forEach(test => {
+                    section += `<details><summary>❌ ${test.title}</summary>\n\n`;
+                    section += `\`\`\`\n${test.error}\n\`\`\`\n\n</details>\n\n`;
+                  });
+                }
               }
 
               await updateTestComment(section);
@@ -442,21 +457,13 @@ jobs:
               const report = JSON.parse(readFileSync(reportPath, 'utf8'));
               console.log('Raw Playwright report:', report);
 
-              // Extract stats directly from the report
+              // Extract stats from the correct location
               const stats = {
-                passed: report.passed || 0,
-                failed: report.failed || 0,
-                skipped: report.skipped || 0,
-                duration: report.duration || 0
+                passed: report.stats.expected - report.stats.unexpected - report.stats.skipped,
+                failed: report.stats.unexpected,
+                skipped: report.stats.skipped,
+                duration: report.stats.duration
               };
-
-              // If stats are not directly available, try to calculate from results
-              if (!report.passed && report.results) {
-                stats.passed = report.results.filter(r => r.status === 'passed').length;
-                stats.failed = report.results.filter(r => r.status === 'failed').length;
-                stats.skipped = report.results.filter(r => r.status === 'skipped').length;
-                stats.duration = report.results.reduce((acc, r) => acc + (r.duration || 0), 0);
-              }
 
               let section = `## 🃏 Playwright Tests\n`;
               section += `\n| Status | Count |\n`;
@@ -467,13 +474,36 @@ jobs:
               section += `| ⏱️ Duration | ${Math.round(stats.duration / 1000)}s |\n\n`;
 
               // Add failed test details if any
-              const failedTests = report.results?.filter(r => r.status === 'failed') || [];
-              if (failedTests.length > 0) {
-                section += `### Failed Playwright Tests\n\n`;
-                failedTests.forEach(test => {
-                  section += `<details><summary>❌ ${test.title || test.name}</summary>\n\n`;
-                  section += `\`\`\`\n${test.error || test.errorMessage || 'No error message available'}\n\`\`\`\n\n</details>\n\n`;
-                });
+              if (report.suites) {
+                const failedTests = [];
+                
+                // Recursively collect failed tests from suites
+                function collectFailedTests(suite) {
+                  if (suite.specs) {
+                    suite.specs.forEach(spec => {
+                      if (spec.tests) {
+                        spec.tests.forEach(test => {
+                          if (test.results && test.results.some(r => r.status === 'failed')) {
+                            failedTests.push({
+                              title: `${suite.title} › ${test.title}`,
+                              error: test.results.find(r => r.status === 'failed').error?.message || 'No error message available'
+                            });
+                          }
+                        });
+                      }
+                    });
+                  }
+                }
+
+                report.suites.forEach(collectFailedTests);
+
+                if (failedTests.length > 0) {
+                  section += `### Failed Playwright Tests\n\n`;
+                  failedTests.forEach(test => {
+                    section += `<details><summary>❌ ${test.title}</summary>\n\n`;
+                    section += `\`\`\`\n${test.error}\n\`\`\`\n\n</details>\n\n`;
+                  });
+                }
               }
 
               await updateTestComment(section);
