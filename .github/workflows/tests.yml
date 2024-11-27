@@ -108,6 +108,15 @@ jobs:
       - name: Install dependencies
         run: yarn install
 
+      # Save cache after installing dependencies
+      - name: Save cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            node_modules
+            ~/.cache/playwright
+          key: ${{ runner.os }}-deps-${{ hashFiles('**/yarn.lock') }}
+
       # Install browser dependencies
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
@@ -208,6 +217,13 @@ jobs:
       # 3. Ensures consistent state even if cache restore fails
       - name: Install dependencies
         run: yarn install
+
+      # Save cache after installing dependencies
+      - name: Save cache
+        uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-deps-${{ hashFiles('**/yarn.lock') }}
 
       # Run unit tests
       - name: Run Jest tests
