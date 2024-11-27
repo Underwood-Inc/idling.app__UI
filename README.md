@@ -38,6 +38,36 @@ This workflow runs various tests to ensure code quality and functionality.
 8. Performs SonarCloud scan
 9. Uploads Playwright report as an artifact
 
+#### Automated Test Reporting
+
+When running tests through GitHub Actions (on PRs or pushes to main/master), the workflow automatically generates separate test report comments:
+
+- **Unit Test Results**: Shows Jest test outcomes
+  - Pass/Fail/Skip counts
+  - Test duration
+  - Detailed failure messages in collapsible sections
+
+- **E2E Test Results**: Shows Playwright test outcomes
+  - Pass/Fail/Skip counts
+  - Test duration
+  - Detailed failure messages in collapsible sections
+
+Comments are recreated on each test run to maintain visibility in the PR activity feed.
+
+#### Test Artifacts
+
+The following test artifacts are preserved:
+- Playwright reports (30 days retention)
+- Playwright failure traces (7 days retention)
+- Jest coverage reports (30 days retention)
+
+To access these artifacts:
+1. Go to the GitHub Actions run
+2. Scroll to the bottom
+3. Look for the "Artifacts" section
+
+For more detailed information about our CI testing pipeline, please refer to [CI_TESTS.README.md](./CI_TESTS.README.md).
+
 ### 2. Deploy Workflow
 
 **File:** `.github/workflows/deploy.yml`
