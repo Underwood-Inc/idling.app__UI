@@ -168,14 +168,20 @@ jobs:
                   return;
                 }
 
+                // Get current timestamp in ISO format
+                const timestamp = new Date().toISOString();
+                
+                // Add timestamp to section
+                newSection = `${newSection}\n_Last updated: ${timestamp}_\n`;
+
                 // Simplified regex to match exactly what we're generating
                 const sectionMatch = newSection.match(/^## (🎭|🃏) (Playwright|Jest) Tests\n/m);
                 if (!sectionMatch) {
-                  console.log('Section content:', newSection); // Debug log
+                  console.log('Section content:', newSection);
                   console.log('Regex failed to match header');
                   throw new Error('Invalid section format: Missing or malformed header');
                 }
-                const sectionType = sectionMatch[2]; // Index 2 contains Playwright/Jest
+                const sectionType = sectionMatch[2];
 
                 // Find existing comment
                 const { data: comments } = await github.rest.issues.listComments({
@@ -195,7 +201,7 @@ jobs:
                   const sections = existingComment.body.split(/(?=## (🎭|🃏) (Playwright|Jest) Tests\n)/);
                   const header = sections[0].includes('# 🚀 Test Results') 
                     ? sections.shift() 
-                    : '# 🚀 Test Results\n\n';
+                    : `# 🚀 Test Results\n\n_Created: ${timestamp}_\n\n`;
                   
                   // Replace or add new section
                   const sectionIndex = sections.findIndex(s => s.includes(sectionType));
@@ -208,8 +214,8 @@ jobs:
                   
                   commentBody = header + sections.join('');
                 } else {
-                  // If no comment exists, create new one
-                  commentBody = '# 🚀 Test Results\n\n' + newSection;
+                  // If no comment exists, create new one with timestamp
+                  commentBody = `# 🚀 Test Results\n\n_Created: ${timestamp}_\n\n` + newSection;
                 }
                 
                 if (existingComment) {
@@ -358,14 +364,20 @@ jobs:
                   return;
                 }
 
+                // Get current timestamp in ISO format
+                const timestamp = new Date().toISOString();
+                
+                // Add timestamp to section
+                newSection = `${newSection}\n_Last updated: ${timestamp}_\n`;
+
                 // Simplified regex to match exactly what we're generating
                 const sectionMatch = newSection.match(/^## (🎭|🃏) (Playwright|Jest) Tests\n/m);
                 if (!sectionMatch) {
-                  console.log('Section content:', newSection); // Debug log
+                  console.log('Section content:', newSection);
                   console.log('Regex failed to match header');
                   throw new Error('Invalid section format: Missing or malformed header');
                 }
-                const sectionType = sectionMatch[2]; // Index 2 contains Playwright/Jest
+                const sectionType = sectionMatch[2];
 
                 // Find existing comment
                 const { data: comments } = await github.rest.issues.listComments({
@@ -385,7 +397,7 @@ jobs:
                   const sections = existingComment.body.split(/(?=## (🎭|🃏) (Playwright|Jest) Tests\n)/);
                   const header = sections[0].includes('# 🚀 Test Results') 
                     ? sections.shift() 
-                    : '# 🚀 Test Results\n\n';
+                    : `# 🚀 Test Results\n\n_Created: ${timestamp}_\n\n`;
                   
                   // Replace or add new section
                   const sectionIndex = sections.findIndex(s => s.includes(sectionType));
@@ -398,8 +410,8 @@ jobs:
                   
                   commentBody = header + sections.join('');
                 } else {
-                  // If no comment exists, create new one
-                  commentBody = '# 🚀 Test Results\n\n' + newSection;
+                  // If no comment exists, create new one with timestamp
+                  commentBody = `# 🚀 Test Results\n\n_Created: ${timestamp}_\n\n` + newSection;
                 }
                 
                 if (existingComment) {
