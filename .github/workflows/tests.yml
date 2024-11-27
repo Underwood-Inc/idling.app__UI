@@ -175,43 +175,56 @@ jobs:
                   repo: context.repo.repo
                 });
                 
-                const existingComment = comments.find(comment => 
-                  comment.body.includes('# 🚀 Test Results')
-                );
+                // Get all test result comments and sort by creation time
+                const testComments = comments
+                  .filter(comment => comment.body.includes('# 🚀 Test Results'))
+                  .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 
-                // Store sections in memory between runs
-                if (!global.testSections) {
-                  global.testSections = {};
+                // Extract sections from the most recent comment
+                let existingJest = '';
+                let existingPlaywright = '';
+                if (testComments.length > 0) {
+                  const latestComment = testComments[0];
+                  const sections = latestComment.body.split(/(?=## [🎭🃏] (?:Playwright|Jest) Tests\n)/);
+                  
+                  const jestSection = sections.find(s => s.includes('## 🃏 Jest Tests'));
+                  const playwrightSection = sections.find(s => s.includes('## 🎭 Playwright Tests'));
+                  
+                  if (jestSection) existingJest = jestSection;
+                  if (playwrightSection) existingPlaywright = playwrightSection;
                 }
 
-                // Update the section in memory
-                const sectionMatch = newSection.match(/^## (🎭|🃏) (Playwright|Jest) Tests\n/m);
-                if (!sectionMatch) {
-                  throw new Error('Invalid section format: Missing or malformed header');
+                // Determine which type of test result we're adding
+                const isJest = newSection.includes('## 🃏 Jest Tests');
+                const isPlaywright = newSection.includes('## 🎭 Playwright Tests');
+
+                // Combine sections, using the new content for the current test type
+                let commentBody = '# 🚀 Test Results\n\n';
+                if (isJest) {
+                  commentBody += newSection + '\n';
+                  if (existingPlaywright) commentBody += existingPlaywright;
+                } else if (isPlaywright) {
+                  if (existingJest) commentBody += existingJest + '\n';
+                  commentBody += newSection;
                 }
-                const sectionType = sectionMatch[2];
-                global.testSections[sectionType] = newSection;
 
-                // Combine all sections
-                const combinedSections = Object.values(global.testSections).join('\n');
-                const commentBody = `# 🚀 Test Results\n\n${combinedSections}`;
-
-                // Delete existing comment if it exists
-                if (existingComment) {
+                // Delete all existing test result comments
+                for (const comment of testComments) {
                   await github.rest.issues.deleteComment({
-                    comment_id: existingComment.id,
+                    comment_id: comment.id,
                     owner: context.repo.owner,
                     repo: context.repo.repo
                   });
                 }
 
-                // Create new comment with combined sections
+                // Create new comment
                 await github.rest.issues.createComment({
                   issue_number: context.issue.number,
                   owner: context.repo.owner,
                   repo: context.repo.repo,
                   body: commentBody
                 });
+
               } catch (error) {
                 console.error('Error updating test report comment:', error);
                 throw error;
@@ -382,43 +395,56 @@ jobs:
                   repo: context.repo.repo
                 });
                 
-                const existingComment = comments.find(comment => 
-                  comment.body.includes('# 🚀 Test Results')
-                );
+                // Get all test result comments and sort by creation time
+                const testComments = comments
+                  .filter(comment => comment.body.includes('# 🚀 Test Results'))
+                  .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 
-                // Store sections in memory between runs
-                if (!global.testSections) {
-                  global.testSections = {};
+                // Extract sections from the most recent comment
+                let existingJest = '';
+                let existingPlaywright = '';
+                if (testComments.length > 0) {
+                  const latestComment = testComments[0];
+                  const sections = latestComment.body.split(/(?=## [🎭🃏] (?:Playwright|Jest) Tests\n)/);
+                  
+                  const jestSection = sections.find(s => s.includes('## 🃏 Jest Tests'));
+                  const playwrightSection = sections.find(s => s.includes('## 🎭 Playwright Tests'));
+                  
+                  if (jestSection) existingJest = jestSection;
+                  if (playwrightSection) existingPlaywright = playwrightSection;
                 }
 
-                // Update the section in memory
-                const sectionMatch = newSection.match(/^## (🎭|🃏) (Playwright|Jest) Tests\n/m);
-                if (!sectionMatch) {
-                  throw new Error('Invalid section format: Missing or malformed header');
+                // Determine which type of test result we're adding
+                const isJest = newSection.includes('## 🃏 Jest Tests');
+                const isPlaywright = newSection.includes('## 🎭 Playwright Tests');
+
+                // Combine sections, using the new content for the current test type
+                let commentBody = '# 🚀 Test Results\n\n';
+                if (isJest) {
+                  commentBody += newSection + '\n';
+                  if (existingPlaywright) commentBody += existingPlaywright;
+                } else if (isPlaywright) {
+                  if (existingJest) commentBody += existingJest + '\n';
+                  commentBody += newSection;
                 }
-                const sectionType = sectionMatch[2];
-                global.testSections[sectionType] = newSection;
 
-                // Combine all sections
-                const combinedSections = Object.values(global.testSections).join('\n');
-                const commentBody = `# 🚀 Test Results\n\n${combinedSections}`;
-
-                // Delete existing comment if it exists
-                if (existingComment) {
+                // Delete all existing test result comments
+                for (const comment of testComments) {
                   await github.rest.issues.deleteComment({
-                    comment_id: existingComment.id,
+                    comment_id: comment.id,
                     owner: context.repo.owner,
                     repo: context.repo.repo
                   });
                 }
 
-                // Create new comment with combined sections
+                // Create new comment
                 await github.rest.issues.createComment({
                   issue_number: context.issue.number,
                   owner: context.repo.owner,
                   repo: context.repo.repo,
                   body: commentBody
                 });
+
               } catch (error) {
                 console.error('Error updating test report comment:', error);
                 throw error;
