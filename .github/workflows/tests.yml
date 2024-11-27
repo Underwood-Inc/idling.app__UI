@@ -158,10 +158,16 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            const { readFileSync } = require('fs');
+            const { existsSync, readFileSync } = require('fs');
 
             async function updateTestComment(newSection) {
               try {
+                // Only proceed if we're in a PR context
+                if (!context.payload.pull_request) {
+                  console.log('Not a pull request - skipping comment update');
+                  return;
+                }
+
                 // Find existing comment
                 const { data: comments } = await github.rest.issues.listComments({
                   issue_number: context.issue.number,
@@ -222,6 +228,12 @@ jobs:
             // Generate Playwright section
             if ('${{ github.job }}' === 'playwright') {
               const reportPath = 'playwright-report/results.json';
+              
+              if (!existsSync(reportPath)) {
+                console.log('Playwright results file not found, skipping report');
+                return;
+              }
+
               const report = JSON.parse(readFileSync(reportPath, 'utf8'));
               
               const stats = report.stats;
@@ -239,41 +251,6 @@ jobs:
                 failed.forEach(suite => {
                   section += `<details><summary>❌ ${suite.title}</summary>\n\n`;
                   section += `\`\`\`ansi\n${suite.error}\n\`\`\`\n\n</details>\n\n`;
-                });
-              }
-              
-              await updateTestComment(section);
-            }
-
-            // Generate Jest section
-            if ('${{ github.job }}' === 'jest') {
-              const results = JSON.parse(readFileSync('jest-results.json', 'utf8'));
-              
-              const totalDuration = results.testResults.reduce((total, suite) => 
-                total + (suite.perfStats?.runtime || 0), 0);
-              
-              const formattedDuration = totalDuration < 1000 
-                ? `${totalDuration}ms` 
-                : `${(totalDuration / 1000).toFixed(2)}s`;
-              
-              let section = `## 🃏 Jest Tests\n\n`;
-              section += `| Status | Count |\n|--------|-------|\n`;
-              section += `| ✅ Passed | ${results.numPassedTests} |\n`;
-              section += `| ❌ Failed | ${results.numFailedTests} |\n`;
-              section += `| ⏭️ Skipped | ${results.numPendingTests} |\n`;
-              section += `| ⏱️ Duration | ${formattedDuration} |\n\n`;
-              
-              if (results.numFailedTests > 0) {
-                section += `### Failed Jest Tests\n\n`;
-                results.testResults.forEach(suite => {
-                  if (suite.numFailingTests > 0) {
-                    suite.testResults
-                      ?.filter(test => test.status === 'failed')
-                      .forEach(test => {
-                        section += `<details><summary>❌ ${test.fullName || test.title}</summary>\n\n`;
-                        section += `\`\`\`ansi\n${(test.failureMessages || []).join('\n')}\n\`\`\`\n\n</details>\n\n`;
-                      });
-                  }
                 });
               }
               
@@ -343,10 +320,16 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            const { readFileSync } = require('fs');
+            const { existsSync, readFileSync } = require('fs');
 
             async function updateTestComment(newSection) {
               try {
+                // Only proceed if we're in a PR context
+                if (!context.payload.pull_request) {
+                  console.log('Not a pull request - skipping comment update');
+                  return;
+                }
+
                 // Find existing comment
                 const { data: comments } = await github.rest.issues.listComments({
                   issue_number: context.issue.number,
@@ -407,6 +390,12 @@ jobs:
             // Generate Playwright section
             if ('${{ github.job }}' === 'playwright') {
               const reportPath = 'playwright-report/results.json';
+              
+              if (!existsSync(reportPath)) {
+                console.log('Playwright results file not found, skipping report');
+                return;
+              }
+
               const report = JSON.parse(readFileSync(reportPath, 'utf8'));
               
               const stats = report.stats;
@@ -432,7 +421,14 @@ jobs:
 
             // Generate Jest section
             if ('${{ github.job }}' === 'jest') {
-              const results = JSON.parse(readFileSync('jest-results.json', 'utf8'));
+              const reportPath = 'jest-results.json';
+              
+              if (!existsSync(reportPath)) {
+                console.log('Jest results file not found, skipping report');
+                return;
+              }
+
+              const results = JSON.parse(readFileSync(reportPath, 'utf8'));
               
               const totalDuration = results.testResults.reduce((total, suite) => 
                 total + (suite.perfStats?.runtime || 0), 0);
