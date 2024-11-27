@@ -185,7 +185,10 @@ jobs:
                 let existingPlaywright = '';
                 if (testComments.length > 0) {
                   const latestComment = testComments[0];
-                  const sections = latestComment.body.split(/(?=## [🎭🃏] (?:Playwright|Jest) Tests\n)/);
+                  // Split on section headers and filter out empty strings and the initial title
+                  const sections = latestComment.body
+                    .split(/(?=## [🎭🃏] (?:Playwright|Jest) Tests\n)/)
+                    .filter(section => section.trim() && !section.trim().startsWith('# 🚀'));
                   
                   const jestSection = sections.find(s => s.includes('## 🃏 Jest Tests'));
                   const playwrightSection = sections.find(s => s.includes('## 🎭 Playwright Tests'));
@@ -198,14 +201,21 @@ jobs:
                 const isJest = newSection.includes('## 🃏 Jest Tests');
                 const isPlaywright = newSection.includes('## 🎭 Playwright Tests');
 
-                // Combine sections, using the new content for the current test type
+                // Create new comment body with single title
                 let commentBody = '# 🚀 Test Results\n\n';
+                
+                // Add Jest results (either new or existing)
                 if (isJest) {
-                  commentBody += newSection + '\n';
-                  if (existingPlaywright) commentBody += existingPlaywright;
-                } else if (isPlaywright) {
-                  if (existingJest) commentBody += existingJest + '\n';
-                  commentBody += newSection;
+                  commentBody += newSection.trim() + '\n\n';
+                } else if (existingJest) {
+                  commentBody += existingJest.trim() + '\n\n';
+                }
+
+                // Add Playwright results (either new or existing)
+                if (isPlaywright) {
+                  commentBody += newSection.trim();
+                } else if (existingPlaywright) {
+                  commentBody += existingPlaywright.trim();
                 }
 
                 // Delete all existing test result comments
@@ -405,7 +415,10 @@ jobs:
                 let existingPlaywright = '';
                 if (testComments.length > 0) {
                   const latestComment = testComments[0];
-                  const sections = latestComment.body.split(/(?=## [🎭🃏] (?:Playwright|Jest) Tests\n)/);
+                  // Split on section headers and filter out empty strings and the initial title
+                  const sections = latestComment.body
+                    .split(/(?=## [🎭🃏] (?:Playwright|Jest) Tests\n)/)
+                    .filter(section => section.trim() && !section.trim().startsWith('# 🚀'));
                   
                   const jestSection = sections.find(s => s.includes('## 🃏 Jest Tests'));
                   const playwrightSection = sections.find(s => s.includes('## 🎭 Playwright Tests'));
@@ -418,14 +431,21 @@ jobs:
                 const isJest = newSection.includes('## 🃏 Jest Tests');
                 const isPlaywright = newSection.includes('## 🎭 Playwright Tests');
 
-                // Combine sections, using the new content for the current test type
+                // Create new comment body with single title
                 let commentBody = '# 🚀 Test Results\n\n';
+                
+                // Add Jest results (either new or existing)
                 if (isJest) {
-                  commentBody += newSection + '\n';
-                  if (existingPlaywright) commentBody += existingPlaywright;
-                } else if (isPlaywright) {
-                  if (existingJest) commentBody += existingJest + '\n';
-                  commentBody += newSection;
+                  commentBody += newSection.trim() + '\n\n';
+                } else if (existingJest) {
+                  commentBody += existingJest.trim() + '\n\n';
+                }
+
+                // Add Playwright results (either new or existing)
+                if (isPlaywright) {
+                  commentBody += newSection.trim();
+                } else if (existingPlaywright) {
+                  commentBody += existingPlaywright.trim();
                 }
 
                 // Delete all existing test result comments
