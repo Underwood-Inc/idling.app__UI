@@ -5,14 +5,18 @@ on:
   pull_request:
     types: [opened, synchronize, reopened]
 
-# Add this permissions block at the top level of the workflow
+# Required permissions for GitHub Actions
 permissions:
   contents: read
   actions: write
+  checks: write # For test results in PR checks
+  pull-requests: write # For PR comments and summaries
 
+# Environment variables available to all jobs
 env:
   AUTH_TRUST_HOST: true
   NEXTAUTH_URL: http://localhost:3000
+  # Secrets are encrypted environment variables
   NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
   AUTHJS_SESSION_TOKEN: ${{ secrets.AUTHJS_SESSION_TOKEN }}
   AUTHJS_CALLBACK_URL: ${{ secrets.AUTHJS_CALLBACK_URL }}
@@ -24,22 +28,49 @@ env:
   POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
   POSTGRES_HOST_AUTH_METHOD: md5
   POSTGRES_INITDB_ARGS: --auth-host=md5
-  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Needed to get PR information, if any
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
 jobs:
-  test:
-    name: Run Tests
-    timeout-minutes: 60
+  setup:
+    name: Setup Environment
     runs-on: ubuntu-latest
     environment: actions
-    # Service containers to run with `runner-job`
+    steps:
+      # Checkout code with full git history for proper versioning
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # Setup Node.js using LTS version
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+
+      # Install project dependencies
+      - name: Install dependencies
+        run: npm install -g yarn && yarn
+
+      # Cache dependencies to speed up future runs
+      - name: Cache dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            node_modules
+            ~/.cache/playwright
+          key: ${{ runner.os }}-deps-${{ hashFiles('**/yarn.lock') }}
+
+  playwright:
+    name: Playwright Tests
+    needs: setup # Waits for setup job to complete
+    runs-on: ubuntu-latest
+    environment: actions
     services:
-      # Label used to access the service container
+      # PostgreSQL service container for E2E tests
       postgres:
-        # Docker Hub image
         image: postgres
-        # Provide the password for postgres
         env:
+          # Database configuration
           POSTGRES_HOST: ${{ secrets.POSTGRES_HOST }}
           POSTGRES_PORT: ${{ secrets.POSTGRES_PORT }}
           POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
@@ -47,50 +78,136 @@ jobs:
           POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
           POSTGRES_HOST_AUTH_METHOD: md5
           POSTGRES_INITDB_ARGS: --auth-host=md5
-        # Set health checks to wait until postgres has started
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
         ports:
-          # Maps tcp port 5432 on service container to the host
           - 5432:5432
     steps:
+      # Standard checkout and setup steps
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0 # Shallow clones should be disabled for a better relevancy of analysis
       - uses: actions/setup-node@v4
         with:
           node-version: lts/*
-      - name: Run migrations
-        env:
-          POSTGRES_HOST: ${{ secrets.POSTGRES_HOST }}
-          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
-          POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
-        run: psql -v POSTGRES_DB="$POSTGRES_DB" -v POSTGRES_PASSWORD="$POSTGRES_PASSWORD" -v POSTGRES_USER="$POSTGRES_USER" -f ./src/lib/scripts/000-init.sql postgresql://${{secrets.POSTGRES_USER}}:${{secrets.POSTGRES_PASSWORD}}@${{secrets.POSTGRES_HOST}}:${{secrets.POSTGRES_PORT}}
+
+      # Restore cached dependencies
+      - name: Restore cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            node_modules
+            ~/.cache/playwright
+          key: ${{ runner.os }}-deps-${{ hashFiles('**/yarn.lock') }}
+
+      # We reinstall dependencies after cache restoration because:
+      # 1. Cache might be empty or outdated
+      # 2. Some dependencies might need post-install scripts to run
+      # 3. Ensures consistent state even if cache restore fails
       - name: Install dependencies
-        run: npm install -g yarn && yarn
+        run: yarn install
+
+      # Install browser dependencies
       - name: Install Playwright Browsers
-        run: yarn playwright install --with-deps
+        run: npx playwright install --with-deps
+
+      # Setup test database
+      - name: Run migrations
+        run: psql -v POSTGRES_DB="$POSTGRES_DB" -v POSTGRES_PASSWORD="$POSTGRES_PASSWORD" -v POSTGRES_USER="$POSTGRES_USER" -f ./src/lib/scripts/000-init.sql postgresql://${{secrets.POSTGRES_USER}}:${{secrets.POSTGRES_PASSWORD}}@${{secrets.POSTGRES_HOST}}:${{secrets.POSTGRES_PORT}}
+
+      # Run E2E tests
       - name: Run Playwright tests
-        env:
-          POSTGRES_HOST: ${{ secrets.POSTGRES_HOST }}
-          POSTGRES_PORT: ${{ secrets.POSTGRES_PORT }}
-          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
-          POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
-          POSTGRES_HOST_AUTH_METHOD: md5
-          POSTGRES_INITDB_ARGS: --auth-host=md5
-        run: IS_CI=1 yarn playwright test
+        run: |
+          echo "::group::Running Playwright Tests"
+          IS_CI=1 FORCE_COLOR=1 yarn playwright test --reporter=list,github
+          echo "::endgroup::"
+
+      # Always upload test results
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-results
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 30
+
+      # Upload traces only on failure
+      - name: Upload test traces on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-traces
+          path: test-results/
+          retention-days: 7
+
+  jest:
+    name: Jest Tests
+    needs: setup # Waits for setup job to complete
+    runs-on: ubuntu-latest
+    environment: actions
+    steps:
+      # Standard checkout and setup steps
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+
+      # Restore cached dependencies
+      - name: Restore cache
+        uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-deps-${{ hashFiles('**/yarn.lock') }}
+
+      # We reinstall dependencies after cache restoration because:
+      # 1. Cache might be empty or outdated
+      # 2. Some dependencies might need post-install scripts to run
+      # 3. Ensures consistent state even if cache restore fails
+      - name: Install dependencies
+        run: yarn install
+
+      # Run unit tests
       - name: Run Jest tests
-        run: yarn test:coverage
+        run: |
+          echo "::group::Running Jest Tests"
+          FORCE_COLOR=1 yarn test:coverage --ci --colors --json --testLocationInResults --outputFile="$GITHUB_WORKSPACE/jest-results.json"
+          echo "::endgroup::"
+
+      # Process and report test results
+      - name: Process and report Jest results
+        if: always()
+        uses: tanmen/jest-reporter@v1
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          result-file: ${{ github.workspace }}/jest-results.json
+
+      # Upload coverage reports
+      - name: Upload Jest coverage
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: jest-coverage
+          path: coverage/
+          retention-days: 30
+
+  sonar:
+    name: SonarCloud Analysis
+    needs: [playwright, jest] # Waits for both test jobs
+    runs-on: ubuntu-latest
+    environment: actions
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      # Download test results for analysis
+      - name: Download all workflow run artifacts
+        uses: actions/download-artifact@v4
+      # Run SonarCloud analysis
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master
         env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-      - uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: playwright-report
-          path: playwright-report/
-          retention-days: 30
