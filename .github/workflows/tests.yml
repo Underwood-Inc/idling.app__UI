@@ -168,12 +168,6 @@ jobs:
                   return;
                 }
 
-                // Get current timestamp in ISO format
-                const timestamp = new Date().toISOString();
-                
-                // Add timestamp to section
-                newSection = `${newSection}\n_Last updated: ${timestamp}_\n`;
-
                 // Simplified regex to match exactly what we're generating
                 const sectionMatch = newSection.match(/^## (🎭|🃏) (Playwright|Jest) Tests\n/m);
                 if (!sectionMatch) {
@@ -194,30 +188,6 @@ jobs:
                   comment.body.includes('# 🚀 Test Results')
                 );
                 
-                let commentBody = '';
-                
-                if (existingComment) {
-                  // If comment exists, parse existing sections
-                  const sections = existingComment.body.split(/(?=## (🎭|🃏) (Playwright|Jest) Tests\n)/);
-                  const header = sections[0].includes('# 🚀 Test Results') 
-                    ? sections.shift() 
-                    : `# 🚀 Test Results\n\n_Created: ${timestamp}_\n\n`;
-                  
-                  // Replace or add new section
-                  const sectionIndex = sections.findIndex(s => s.includes(sectionType));
-                  
-                  if (sectionIndex >= 0) {
-                    sections[sectionIndex] = newSection;
-                  } else {
-                    sections.push(newSection);
-                  }
-                  
-                  commentBody = header + sections.join('');
-                } else {
-                  // If no comment exists, create new one with timestamp
-                  commentBody = `# 🚀 Test Results\n\n_Created: ${timestamp}_\n\n` + newSection;
-                }
-                
                 // Delete existing comment if it exists
                 if (existingComment) {
                   await github.rest.issues.deleteComment({
@@ -227,7 +197,9 @@ jobs:
                   });
                 }
 
-                // Create new comment
+                // Create new comment with just the current section
+                const commentBody = `# 🚀 Test Results\n\n${newSection}`;
+                
                 await github.rest.issues.createComment({
                   issue_number: context.issue.number,
                   owner: context.repo.owner,
@@ -434,12 +406,6 @@ jobs:
                   return;
                 }
 
-                // Get current timestamp in ISO format
-                const timestamp = new Date().toISOString();
-                
-                // Add timestamp to section
-                newSection = `${newSection}\n_Last updated: ${timestamp}_\n`;
-
                 // Simplified regex to match exactly what we're generating
                 const sectionMatch = newSection.match(/^## (🎭|🃏) (Playwright|Jest) Tests\n/m);
                 if (!sectionMatch) {
@@ -460,30 +426,6 @@ jobs:
                   comment.body.includes('# 🚀 Test Results')
                 );
                 
-                let commentBody = '';
-                
-                if (existingComment) {
-                  // If comment exists, parse existing sections
-                  const sections = existingComment.body.split(/(?=## (🎭|🃏) (Playwright|Jest) Tests\n)/);
-                  const header = sections[0].includes('# 🚀 Test Results') 
-                    ? sections.shift() 
-                    : `# 🚀 Test Results\n\n_Created: ${timestamp}_\n\n`;
-                  
-                  // Replace or add new section
-                  const sectionIndex = sections.findIndex(s => s.includes(sectionType));
-                  
-                  if (sectionIndex >= 0) {
-                    sections[sectionIndex] = newSection;
-                  } else {
-                    sections.push(newSection);
-                  }
-                  
-                  commentBody = header + sections.join('');
-                } else {
-                  // If no comment exists, create new one with timestamp
-                  commentBody = `# 🚀 Test Results\n\n_Created: ${timestamp}_\n\n` + newSection;
-                }
-                
                 // Delete existing comment if it exists
                 if (existingComment) {
                   await github.rest.issues.deleteComment({
@@ -493,7 +435,9 @@ jobs:
                   });
                 }
 
-                // Create new comment
+                // Create new comment with just the current section
+                const commentBody = `# 🚀 Test Results\n\n${newSection}`;
+                
                 await github.rest.issues.createComment({
                   issue_number: context.issue.number,
                   owner: context.repo.owner,
