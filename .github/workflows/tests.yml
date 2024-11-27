@@ -168,9 +168,10 @@ jobs:
                   return;
                 }
 
-                // Validate section header format
-                const sectionMatch = newSection.match(/## [🎭🃏] (Playwright|Jest) Tests/);
+                // Updated regex to be more flexible with emoji placement
+                const sectionMatch = newSection.match(/## (?:[🎭🃏] )?(Playwright|Jest)(?: Tests)/);
                 if (!sectionMatch) {
+                  console.log('Section content:', newSection); // Debug log
                   throw new Error('Invalid section format: Missing or malformed header');
                 }
                 const sectionType = sectionMatch[1];
@@ -190,7 +191,7 @@ jobs:
                 
                 if (existingComment) {
                   // If comment exists, parse existing sections
-                  const sections = existingComment.body.split(/(?=## [🎭🃏] (?:Playwright|Jest) Tests)/);
+                  const sections = existingComment.body.split(/(?=## (?:[🎭🃏] )?(Playwright|Jest)(?: Tests))/);
                   const header = sections[0].includes('# 🚀 Test Results') 
                     ? sections.shift() 
                     : '# 🚀 Test Results\n\n';
@@ -245,6 +246,7 @@ jobs:
               const stats = report.stats;
               const failed = report.suites.filter(s => s.status === 'failed');
               
+              // Updated header format to match regex
               let section = `## 🎭 Playwright Tests\n\n`;
               section += `| Status | Count |\n|--------|-------|\n`;
               section += `| ✅ Passed | ${stats.passed} |\n`;
@@ -336,9 +338,10 @@ jobs:
                   return;
                 }
 
-                // Validate section header format
-                const sectionMatch = newSection.match(/## [🎭🃏] (Playwright|Jest) Tests/);
+                // Updated regex to be more flexible with emoji placement
+                const sectionMatch = newSection.match(/## (?:[🎭🃏] )?(Playwright|Jest)(?: Tests)/);
                 if (!sectionMatch) {
+                  console.log('Section content:', newSection); // Debug log
                   throw new Error('Invalid section format: Missing or malformed header');
                 }
                 const sectionType = sectionMatch[1];
@@ -358,7 +361,7 @@ jobs:
                 
                 if (existingComment) {
                   // If comment exists, parse existing sections
-                  const sections = existingComment.body.split(/(?=## [🎭🃏] (?:Playwright|Jest) Tests)/);
+                  const sections = existingComment.body.split(/(?=## (?:[🎭🃏] )?(Playwright|Jest)(?: Tests))/);
                   const header = sections[0].includes('# 🚀 Test Results') 
                     ? sections.shift() 
                     : '# 🚀 Test Results\n\n';
@@ -413,6 +416,7 @@ jobs:
               const stats = report.stats;
               const failed = report.suites.filter(s => s.status === 'failed');
               
+              // Updated header format to match regex
               let section = `## 🎭 Playwright Tests\n\n`;
               section += `| Status | Count |\n|--------|-------|\n`;
               section += `| ✅ Passed | ${stats.passed} |\n`;
@@ -442,13 +446,7 @@ jobs:
 
               const results = JSON.parse(readFileSync(reportPath, 'utf8'));
               
-              const totalDuration = results.testResults.reduce((total, suite) => 
-                total + (suite.perfStats?.runtime || 0), 0);
-              
-              const formattedDuration = totalDuration < 1000 
-                ? `${totalDuration}ms` 
-                : `${(totalDuration / 1000).toFixed(2)}s`;
-              
+              // Updated header format to match regex
               let section = `## 🃏 Jest Tests\n\n`;
               section += `| Status | Count |\n|--------|-------|\n`;
               section += `| ✅ Passed | ${results.numPassedTests} |\n`;
