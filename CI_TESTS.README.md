@@ -7,7 +7,9 @@ This document provides detailed information about our CI testing pipeline implem
 Our testing pipeline consists of four main jobs that run in parallel where possible:
 1. Setup Environment
 2. Playwright Tests (E2E)
+   - Creates "🎭 E2E Test Results" comment
 3. Jest Tests (Unit/Integration)
+   - Creates "🃏 Unit Test Results" comment
 4. SonarCloud Analysis
 
 ## Job Dependencies
@@ -16,6 +18,7 @@ Our testing pipeline consists of four main jobs that run in parallel where possi
 
 The diagram above shows how our CI jobs depend on each other:
 - Both test jobs (Playwright and Jest) depend on the Setup job
+- Each test job creates its own results comment
 - SonarCloud analysis runs only after both test jobs complete
 - Test jobs run in parallel to optimize pipeline execution time
 

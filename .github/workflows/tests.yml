@@ -168,60 +168,34 @@ jobs:
                   return;
                 }
 
-                // Find existing comment
+                // Determine which type of test result we're adding
+                const isJest = newSection.includes('## 🃏 Jest Tests');
+                const isPlaywright = newSection.includes('## 🎭 Playwright Tests');
+                
+                // Set appropriate title based on test type
+                const title = isJest 
+                  ? '# 🃏 Unit Test Results\n\n'
+                  : '# 🎭 E2E Test Results\n\n';
+
+                // Find existing comments of the same type
                 const { data: comments } = await github.rest.issues.listComments({
                   issue_number: context.issue.number,
                   owner: context.repo.owner,
                   repo: context.repo.repo
                 });
                 
-                // Get all test result comments and sort by creation time
-                const testComments = comments
-                  .filter(comment => comment.body.includes('# 🚀 Test Results'))
-                  .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+                const existingComment = comments.find(comment => 
+                  (isJest && comment.body.includes('Unit Test Results')) ||
+                  (isPlaywright && comment.body.includes('E2E Test Results'))
+                );
 
-                // Extract sections from the most recent comment
-                let existingJest = '';
-                let existingPlaywright = '';
-                if (testComments.length > 0) {
-                  const latestComment = testComments[0];
-                  // Split on section headers and filter out empty strings and the initial title
-                  const sections = latestComment.body
-                    .split(/(?=## [🎭🃏] (?:Playwright|Jest) Tests\n)/)
-                    .filter(section => section.trim() && !section.trim().startsWith('# 🚀'));
-                  
-                  const jestSection = sections.find(s => s.includes('## 🃏 Jest Tests'));
-                  const playwrightSection = sections.find(s => s.includes('## 🎭 Playwright Tests'));
-                  
-                  if (jestSection) existingJest = jestSection;
-                  if (playwrightSection) existingPlaywright = playwrightSection;
-                }
+                // Create comment body with specific title
+                const commentBody = title + newSection.trim();
 
-                // Determine which type of test result we're adding
-                const isJest = newSection.includes('## 🃏 Jest Tests');
-                const isPlaywright = newSection.includes('## 🎭 Playwright Tests');
-
-                // Create new comment body with single title
-                let commentBody = '# 🚀 Test Results\n\n';
-                
-                // Add Jest results (either new or existing)
-                if (isJest) {
-                  commentBody += newSection.trim() + '\n\n';
-                } else if (existingJest) {
-                  commentBody += existingJest.trim() + '\n\n';
-                }
-
-                // Add Playwright results (either new or existing)
-                if (isPlaywright) {
-                  commentBody += newSection.trim();
-                } else if (existingPlaywright) {
-                  commentBody += existingPlaywright.trim();
-                }
-
-                // Delete all existing test result comments
-                for (const comment of testComments) {
+                // Delete existing comment of the same type if it exists
+                if (existingComment) {
                   await github.rest.issues.deleteComment({
-                    comment_id: comment.id,
+                    comment_id: existingComment.id,
                     owner: context.repo.owner,
                     repo: context.repo.repo
                   });
@@ -398,60 +372,34 @@ jobs:
                   return;
                 }
 
-                // Find existing comment
+                // Determine which type of test result we're adding
+                const isJest = newSection.includes('## 🃏 Jest Tests');
+                const isPlaywright = newSection.includes('## 🎭 Playwright Tests');
+                
+                // Set appropriate title based on test type
+                const title = isJest 
+                  ? '# 🃏 Unit Test Results\n\n'
+                  : '# 🎭 E2E Test Results\n\n';
+
+                // Find existing comments of the same type
                 const { data: comments } = await github.rest.issues.listComments({
                   issue_number: context.issue.number,
                   owner: context.repo.owner,
                   repo: context.repo.repo
                 });
                 
-                // Get all test result comments and sort by creation time
-                const testComments = comments
-                  .filter(comment => comment.body.includes('# 🚀 Test Results'))
-                  .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+                const existingComment = comments.find(comment => 
+                  (isJest && comment.body.includes('Unit Test Results')) ||
+                  (isPlaywright && comment.body.includes('E2E Test Results'))
+                );
 
-                // Extract sections from the most recent comment
-                let existingJest = '';
-                let existingPlaywright = '';
-                if (testComments.length > 0) {
-                  const latestComment = testComments[0];
-                  // Split on section headers and filter out empty strings and the initial title
-                  const sections = latestComment.body
-                    .split(/(?=## [🎭🃏] (?:Playwright|Jest) Tests\n)/)
-                    .filter(section => section.trim() && !section.trim().startsWith('# 🚀'));
-                  
-                  const jestSection = sections.find(s => s.includes('## 🃏 Jest Tests'));
-                  const playwrightSection = sections.find(s => s.includes('## 🎭 Playwright Tests'));
-                  
-                  if (jestSection) existingJest = jestSection;
-                  if (playwrightSection) existingPlaywright = playwrightSection;
-                }
+                // Create comment body with specific title
+                const commentBody = title + newSection.trim();
 
-                // Determine which type of test result we're adding
-                const isJest = newSection.includes('## 🃏 Jest Tests');
-                const isPlaywright = newSection.includes('## 🎭 Playwright Tests');
-
-                // Create new comment body with single title
-                let commentBody = '# 🚀 Test Results\n\n';
-                
-                // Add Jest results (either new or existing)
-                if (isJest) {
-                  commentBody += newSection.trim() + '\n\n';
-                } else if (existingJest) {
-                  commentBody += existingJest.trim() + '\n\n';
-                }
-
-                // Add Playwright results (either new or existing)
-                if (isPlaywright) {
-                  commentBody += newSection.trim();
-                } else if (existingPlaywright) {
-                  commentBody += existingPlaywright.trim();
-                }
-
-                // Delete all existing test result comments
-                for (const comment of testComments) {
+                // Delete existing comment of the same type if it exists
+                if (existingComment) {
                   await github.rest.issues.deleteComment({
-                    comment_id: comment.id,
+                    comment_id: existingComment.id,
                     owner: context.repo.owner,
                     repo: context.repo.repo
                   });
