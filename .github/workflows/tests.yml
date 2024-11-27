@@ -242,15 +242,17 @@ jobs:
 
             // Generate Playwright section
             if ('${{ github.job }}' === 'playwright') {
-              const reportPath = 'test-results/report.json';
+              const reportPath = 'coverage/playwright-test-results.json';
               
               if (!existsSync(reportPath)) {
                 console.log(`Playwright results file not found at ${reportPath}, trying alternate locations...`);
                 const possiblePaths = [
                   'playwright-report/report.json',
+                  'test-results/report.json',
                   'test-results/results.json',
                   'playwright-report/results.json',
-                  'test-report.json'
+                  'test-report.json',
+                  'coverage/playwright-test-results.json'
                 ];
                 
                 for (const path of possiblePaths) {
@@ -439,15 +441,17 @@ jobs:
 
             // Generate Playwright section
             if ('${{ github.job }}' === 'playwright') {
-              const reportPath = 'test-results/report.json';
+              const reportPath = 'coverage/playwright-test-results.json';
               
               if (!existsSync(reportPath)) {
                 console.log(`Playwright results file not found at ${reportPath}, trying alternate locations...`);
                 const possiblePaths = [
                   'playwright-report/report.json',
+                  'test-results/report.json',
                   'test-results/results.json',
                   'playwright-report/results.json',
-                  'test-report.json'
+                  'test-report.json',
+                  'coverage/playwright-test-results.json'
                 ];
                 
                 for (const path of possiblePaths) {
