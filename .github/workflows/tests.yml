@@ -249,17 +249,21 @@ jobs:
               comment += `| ✅ Passed | ${results.numPassedTests} |\n`;
               comment += `| ❌ Failed | ${results.numFailedTests} |\n`;
               comment += `| ⏭️ Skipped | ${results.numPendingTests} |\n`;
-              comment += `| ⏱️ Duration | ${Math.round(results.testResults[0].perfStats.runtime / 1000)}s |\n\n`;
+              
+              // Calculate total duration across all test suites
+              const totalDuration = results.testResults.reduce((total, suite) => 
+                total + (suite.perfStats?.runtime || 0), 0);
+              comment += `| ⏱️ Duration | ${Math.round(totalDuration / 1000)}s |\n\n`;
               
               if (results.numFailedTests > 0) {
                 comment += `### Failed Tests\n\n`;
                 results.testResults.forEach(suite => {
                   if (suite.numFailingTests > 0) {
                     suite.testResults
-                      .filter(test => test.status === 'failed')
+                      ?.filter(test => test.status === 'failed')
                       .forEach(test => {
-                        comment += `<details><summary>❌ ${test.fullName}</summary>\n\n`;
-                        comment += `\`\`\`ansi\n${test.failureMessages.join('\n')}\n\`\`\`\n\n</details>\n\n`;
+                        comment += `<details><summary>❌ ${test.fullName || test.title}</summary>\n\n`;
+                        comment += `\`\`\`ansi\n${(test.failureMessages || []).join('\n')}\n\`\`\`\n\n</details>\n\n`;
                       });
                   }
                 });
@@ -273,6 +277,7 @@ jobs:
               });
             } catch (error) {
               console.error('Error creating Jest report comment:', error);
+              console.error('Error details:', error.message);
             }
 
   sonar:
