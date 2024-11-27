@@ -253,7 +253,23 @@ jobs:
               // Calculate total duration across all test suites
               const totalDuration = results.testResults.reduce((total, suite) => 
                 total + (suite.perfStats?.runtime || 0), 0);
-              comment += `| ⏱️ Duration | ${Math.round(totalDuration / 1000)}s |\n\n`;
+              
+              // Format duration to show milliseconds if under 1 second
+              const formattedDuration = totalDuration < 1000 
+                ? `${totalDuration}ms` 
+                : `${(totalDuration / 1000).toFixed(2)}s`;
+              
+              comment += `| ⏱️ Duration | ${formattedDuration} |\n\n`;
+              
+              // Log duration details for debugging
+              console.log('Duration details:', {
+                totalDuration,
+                formattedDuration,
+                suites: results.testResults.map(suite => ({
+                  name: suite.testFilePath,
+                  runtime: suite.perfStats?.runtime
+                }))
+              });
               
               if (results.numFailedTests > 0) {
                 comment += `### Failed Tests\n\n`;
