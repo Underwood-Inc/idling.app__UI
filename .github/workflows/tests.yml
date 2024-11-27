@@ -270,24 +270,91 @@ jobs:
               }
 
               const report = JSON.parse(readFileSync(reportPath, 'utf8'));
-              
-              const stats = report.stats;
-              const failed = report.suites.filter(s => s.status === 'failed');
+              console.log('Playwright report structure:', JSON.stringify(report, null, 2));
+
+              // Calculate totals from the results
+              const stats = {
+                passed: 0,
+                failed: 0,
+                skipped: 0,
+                duration: 0
+              };
+
+              // Process all suites recursively
+              function processSuite(suite) {
+                if (suite.suites) {
+                  suite.suites.forEach(processSuite);
+                }
+                if (suite.specs) {
+                  suite.specs.forEach(spec => {
+                    if (spec.tests) {
+                      spec.tests.forEach(test => {
+                        switch (test.status) {
+                          case 'passed':
+                            stats.passed++;
+                            break;
+                          case 'failed':
+                            stats.failed++;
+                            break;
+                          case 'skipped':
+                            stats.skipped++;
+                            break;
+                        }
+                        // Add up all test durations
+                        if (test.duration) {
+                          stats.duration += test.duration;
+                        }
+                      });
+                    }
+                  });
+                }
+              }
+
+              // Process the entire report
+              if (report.suites) {
+                report.suites.forEach(processSuite);
+              }
               
               // Ensure exact match with regex pattern
-              let section = `## 🎭 Playwright Tests\n`;  // Remove extra newline
-              section += `\n| Status | Count |\n`;  // Add newline here instead
+              let section = `## 🎭 Playwright Tests\n`;
+              section += `\n| Status | Count |\n`;
               section += `|--------|-------|\n`;
               section += `| ✅ Passed | ${stats.passed} |\n`;
               section += `| ❌ Failed | ${stats.failed} |\n`;
               section += `| ⏭️ Skipped | ${stats.skipped} |\n`;
               section += `| ⏱️ Duration | ${Math.round(stats.duration / 1000)}s |\n\n`;
               
-              if (failed.length > 0) {
+              // Add failed test details
+              const failedTests = [];
+              function collectFailedTests(suite) {
+                if (suite.suites) {
+                  suite.suites.forEach(collectFailedTests);
+                }
+                if (suite.specs) {
+                  suite.specs.forEach(spec => {
+                    if (spec.tests) {
+                      spec.tests.forEach(test => {
+                        if (test.status === 'failed') {
+                          failedTests.push({
+                            title: test.title,
+                            error: test.error?.message || 'No error message provided'
+                          });
+                        }
+                      });
+                    }
+                  });
+                }
+              }
+
+              if (report.suites) {
+                report.suites.forEach(collectFailedTests);
+              }
+
+              if (failedTests.length > 0) {
                 section += `### Failed Playwright Tests\n\n`;
-                failed.forEach(suite => {
-                  section += `<details><summary>❌ ${suite.title}</summary>\n\n`;
-                  section += `\`\`\`ansi\n${suite.error}\n\`\`\`\n\n</details>\n\n`;
+                failedTests.forEach(test => {
+                  section += `<details><summary>❌ ${test.title}</summary>\n\n`;
+                  section += `\`\`\`\n${test.error}\n\`\`\`\n\n</details>\n\n`;
                 });
               }
               
@@ -469,24 +536,91 @@ jobs:
               }
 
               const report = JSON.parse(readFileSync(reportPath, 'utf8'));
-              
-              const stats = report.stats;
-              const failed = report.suites.filter(s => s.status === 'failed');
+              console.log('Playwright report structure:', JSON.stringify(report, null, 2));
+
+              // Calculate totals from the results
+              const stats = {
+                passed: 0,
+                failed: 0,
+                skipped: 0,
+                duration: 0
+              };
+
+              // Process all suites recursively
+              function processSuite(suite) {
+                if (suite.suites) {
+                  suite.suites.forEach(processSuite);
+                }
+                if (suite.specs) {
+                  suite.specs.forEach(spec => {
+                    if (spec.tests) {
+                      spec.tests.forEach(test => {
+                        switch (test.status) {
+                          case 'passed':
+                            stats.passed++;
+                            break;
+                          case 'failed':
+                            stats.failed++;
+                            break;
+                          case 'skipped':
+                            stats.skipped++;
+                            break;
+                        }
+                        // Add up all test durations
+                        if (test.duration) {
+                          stats.duration += test.duration;
+                        }
+                      });
+                    }
+                  });
+                }
+              }
+
+              // Process the entire report
+              if (report.suites) {
+                report.suites.forEach(processSuite);
+              }
               
               // Ensure exact match with regex pattern
-              let section = `## 🃏 Playwright Tests\n`;  // Remove extra newline
-              section += `\n| Status | Count |\n`;  // Add newline here instead
+              let section = `## 🃏 Playwright Tests\n`;
+              section += `\n| Status | Count |\n`;
               section += `|--------|-------|\n`;
               section += `| ✅ Passed | ${stats.passed} |\n`;
               section += `| ❌ Failed | ${stats.failed} |\n`;
               section += `| ⏭️ Skipped | ${stats.skipped} |\n`;
               section += `| ⏱️ Duration | ${Math.round(stats.duration / 1000)}s |\n\n`;
               
-              if (failed.length > 0) {
+              // Add failed test details
+              const failedTests = [];
+              function collectFailedTests(suite) {
+                if (suite.suites) {
+                  suite.suites.forEach(collectFailedTests);
+                }
+                if (suite.specs) {
+                  suite.specs.forEach(spec => {
+                    if (spec.tests) {
+                      spec.tests.forEach(test => {
+                        if (test.status === 'failed') {
+                          failedTests.push({
+                            title: test.title,
+                            error: test.error?.message || 'No error message provided'
+                          });
+                        }
+                      });
+                    }
+                  });
+                }
+              }
+
+              if (report.suites) {
+                report.suites.forEach(collectFailedTests);
+              }
+
+              if (failedTests.length > 0) {
                 section += `### Failed Playwright Tests\n\n`;
-                failed.forEach(suite => {
-                  section += `<details><summary>❌ ${suite.title}</summary>\n\n`;
-                  section += `\`\`\`ansi\n${suite.error}\n\`\`\`\n\n</details>\n\n`;
+                failedTests.forEach(test => {
+                  section += `<details><summary>❌ ${test.title}</summary>\n\n`;
+                  section += `\`\`\`\n${test.error}\n\`\`\`\n\n</details>\n\n`;
                 });
               }
               
