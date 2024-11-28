@@ -807,11 +807,11 @@ jobs:
             const badges = [
               // Tests status badge
               `[![Tests](https://github.com/${owner}/${repo}/actions/workflows/tests.yml/badge.svg?branch=${branch})](https://github.com/${owner}/${repo}/actions/workflows/tests.yml)`,
-              // SonarCloud badges - using dynamic project key
-              `[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=${owner}_${repo}&metric=alert_status&branch=${branch})](https://sonarcloud.io/summary/new_code?id=${owner}_${repo}&branch=${branch})`,
-              `[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=${owner}_${repo}&metric=coverage&branch=${branch})](https://sonarcloud.io/summary/new_code?id=${owner}_${repo}&branch=${branch})`,
-              `[![Bugs](https://sonarcloud.io/api/project_badges/measure?project=${owner}_${repo}&metric=bugs&branch=${branch})](https://sonarcloud.io/summary/new_code?id=${owner}_${repo}&branch=${branch})`,
-              `[![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=${owner}_${repo}&metric=code_smells&branch=${branch})](https://sonarcloud.io/summary/new_code?id=${owner}_${repo}&branch=${branch})`
+              // SonarCloud badges - using organization and PR-specific format
+              `[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=Underwood-Inc_${repo}&metric=alert_status&pullRequest=${context.issue.number})](https://sonarcloud.io/summary/new_code?id=Underwood-Inc_${repo}&pullRequest=${context.issue.number})`,
+              `[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=Underwood-Inc_${repo}&metric=coverage&pullRequest=${context.issue.number})](https://sonarcloud.io/summary/new_code?id=Underwood-Inc_${repo}&pullRequest=${context.issue.number})`,
+              `[![Bugs](https://sonarcloud.io/api/project_badges/measure?project=Underwood-Inc_${repo}&metric=bugs&pullRequest=${context.issue.number})](https://sonarcloud.io/summary/new_code?id=Underwood-Inc_${repo}&pullRequest=${context.issue.number})`,
+              `[![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=Underwood-Inc_${repo}&metric=code_smells&pullRequest=${context.issue.number})](https://sonarcloud.io/summary/new_code?id=Underwood-Inc_${repo}&pullRequest=${context.issue.number})`
             ];
 
             try {
