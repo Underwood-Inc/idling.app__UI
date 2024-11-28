@@ -179,10 +179,12 @@ jobs:
         run: |
           echo "::group::Running Playwright Tests (Shard ${{ matrix.shard }}/3)"
           mkdir -p playwright-report test-results
-          # Run tests with JSON reporter only
-          IS_CI=1 FORCE_COLOR=1 yarn playwright test --shard=${{ matrix.shard }}/3 --reporter=json > test-results/report.json
-          # Generate HTML report separately
-          yarn playwright show-report test-results --reporter=html
+          # Run tests with both reporters
+          IS_CI=1 FORCE_COLOR=1 yarn playwright test --shard=${{ matrix.shard }}/3 --reporter=json,html
+          # Ensure JSON report is in the right place
+          if [ -f "playwright-report/report.json" ]; then
+            mv playwright-report/report.json test-results/
+          fi
           echo "::endgroup::"
 
       # Upload test results for this shard
