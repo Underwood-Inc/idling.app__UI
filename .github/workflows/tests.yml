@@ -129,7 +129,8 @@ jobs:
       - name: Run Playwright tests
         run: |
           echo "::group::Running Playwright Tests"
-          IS_CI=1 FORCE_COLOR=1 yarn playwright test --reporter=list,json
+          mkdir -p playwright-report test-results
+          IS_CI=1 FORCE_COLOR=1 yarn playwright test --reporter=html,json
           echo "::endgroup::"
 
       # Always upload test results
@@ -139,8 +140,8 @@ jobs:
         with:
           name: playwright-results
           path: |
-            playwright-report/
-            test-results/
+            playwright-report
+            test-results
           retention-days: 30
 
       # Upload traces only on failure
