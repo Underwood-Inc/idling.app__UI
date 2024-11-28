@@ -638,7 +638,8 @@ jobs:
           echo "Merging coverage reports..."
           # First, find all coverage files and copy them with unique names
           shardNum=1
-          for file in $(find coverage-shards -name 'coverage-final.json'); do
+          for file in $(find coverage-shards -name 'coverage-final.json' -not -path "*/playwright*"); do
+            echo "Processing coverage file: $file"
             cp "$file" "coverage/coverage-final-$shardNum.json"
             shardNum=$((shardNum + 1))
           done
@@ -647,7 +648,11 @@ jobs:
           echo "Found coverage files:"
           ls -la coverage/
 
+          # Remove any Playwright files that might have been copied
+          rm -f coverage/playwright-*.json
+
           # Merge the coverage files
+          echo "Merging coverage files..."
           npx nyc merge coverage/ coverage/.nyc_output/out.json
 
           # Generate the combined report
@@ -687,17 +692,39 @@ jobs:
           name: playwright-results
           path: playwright-results
 
+      # Debug directory contents
+      - name: List downloaded artifacts
+        run: |
+          echo "Contents of workspace:"
+          ls -la
+          echo "\nContents of playwright-results:"
+          ls -la playwright-results
+          echo "\nContents of test-results (if exists):"
+          ls -la test-results || echo "test-results directory not found"
+          echo "\nContents of playwright-report (if exists):"
+          ls -la playwright-report || echo "playwright-report directory not found"
+
       # Merge reports
       - name: Merge Playwright reports
         run: |
           # Create output directory
           mkdir -p playwright-report
 
-          # Merge the reports
-          npx playwright merge-reports ./playwright-results
+          # Move json results to correct location if needed
+          if [ -f "playwright-results/report.json" ]; then
+            echo "Found report.json in playwright-results"
+            npx playwright merge-reports --reporter html playwright-results
+          elif [ -f "playwright-results/results.json" ]; then
+            echo "Found results.json in playwright-results"
+            npx playwright merge-reports --reporter html playwright-results
+          else
+            echo "Searching for json files..."
+            find playwright-results -name "*.json" -type f
+          fi
 
       # Upload merged report
       - name: Upload merged report
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: playwright-merged-report
