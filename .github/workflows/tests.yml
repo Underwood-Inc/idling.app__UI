@@ -184,8 +184,7 @@ jobs:
           # Run tests with both reporters
           IS_CI=1 FORCE_COLOR=1 yarn playwright test \
             --shard=${{ matrix.shard }}/3 \
-            --reporter="json,list" \
-            --output=test-results
+            --reporter="json,list"
 
           # Debug: Show test results
           echo "Test results directory contents:"
@@ -199,8 +198,8 @@ jobs:
         with:
           name: playwright-results-${{ matrix.shard }}
           path: |
-            test-results/
-            playwright-report/
+            test-results/**/*
+            playwright-report/**/*
           retention-days: 30
 
       # Upload traces only on failure
