@@ -2,7 +2,7 @@ name: Tests
 
 # Concurrency group to cancel in-progress runs on PR updates
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 on:
