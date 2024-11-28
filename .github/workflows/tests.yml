@@ -154,8 +154,7 @@ jobs:
 
           # Install WebKit-specific dependencies
           sudo apt-get install -y --no-install-recommends \
-            libwoff2common0 \
-            libwoff2dec1 \
+            libwoff2-1 \
             libharfbuzz0b \
             libgstreamer-plugins-base1.0-0 \
             libgstreamer-gl1.0-0 \
@@ -166,7 +165,8 @@ jobs:
             libenchant-2-2 \
             libsecret-1-0 \
             libhyphen0 \
-            libmanette-0.2-0
+            libmanette-0.2-0 \
+            libharfbuzz-icu0
 
           # Install Playwright browsers with system dependencies
           npx playwright install --with-deps
