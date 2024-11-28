@@ -179,27 +179,11 @@ jobs:
         run: |
           echo "::group::Running Playwright Tests (Shard ${{ matrix.shard }}/3)"
           mkdir -p playwright-report test-results
-          IS_CI=1 FORCE_COLOR=1 yarn playwright test --shard=${{ matrix.shard }}/3 --reporter=html,json
-          # Ensure the JSON report is in a predictable location
-          if [ -f "test-results/report.json" ]; then
-            cp test-results/report.json playwright-report/
-          elif [ -f "playwright-report/report.json" ]; then
-            echo "JSON report already in playwright-report"
-          else
-            echo "Generating JSON report..."
-            IS_CI=1 FORCE_COLOR=1 yarn playwright test --shard=${{ matrix.shard }}/3 --reporter=json > playwright-report/report.json
-          fi
+          # Run tests with JSON reporter only
+          IS_CI=1 FORCE_COLOR=1 yarn playwright test --shard=${{ matrix.shard }}/3 --reporter=json > test-results/report.json
+          # Generate HTML report separately
+          yarn playwright show-report test-results --reporter=html
           echo "::endgroup::"
-
-      # Save cache after installing dependencies
-      - name: Save cache
-        if: ${{ !cancelled() }}
-        uses: actions/cache@v4
-        with:
-          path: |
-            node_modules
-            ~/.cache/playwright
-          key: ${{ runner.os }}-deps-${{ hashFiles('**/yarn.lock', '**/package.json') }}
 
       # Upload test results for this shard
       - name: Upload test results
@@ -207,9 +191,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: playwright-results-${{ matrix.shard }}
-          path: |
-            playwright-report/
-            test-results/
+          path: test-results/report.json
           retention-days: 30
 
       # Upload traces only on failure
@@ -700,41 +682,25 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           pattern: playwright-results-*
-          merge-multiple: true
-          path: playwright-results
+          path: merged-results
 
       # Debug directory contents
       - name: List downloaded artifacts
         run: |
           echo "Contents of workspace:"
           ls -la
-          echo "\nContents of playwright-results:"
-          ls -la playwright-results || echo "playwright-results directory not found"
+          echo "\nContents of merged-results:"
+          ls -la merged-results || echo "merged-results directory not found"
 
       # Merge reports
       - name: Merge Playwright reports
         run: |
-          # Create output directories
-          mkdir -p playwright-report merged-results
-
           # Debug: Show full directory structure
           echo "Full directory structure:"
-          find playwright-results -type f
+          find merged-results -type f
 
-          # Find and copy all json reports to merged-results
-          echo "Copying JSON files to merged-results..."
-          for shard in $(find playwright-results -name "report.json"); do
-            shardNum=$(echo $shard | grep -o '[0-9]' | head -1)
-            echo "Processing shard $shardNum: $shard"
-            cp "$shard" "merged-results/report-$shardNum.json"
-          done
-
-          # Debug: Show found JSON files
-          echo "JSON files in merged-results:"
-          ls -la merged-results/
-
-          # Merge the reports
-          echo "Merging reports..."
+          # Generate HTML report from merged results
+          echo "Generating HTML report..."
           npx playwright merge-reports --reporter html merged-results
 
           # Debug: Show final report contents
