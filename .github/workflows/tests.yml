@@ -133,6 +133,12 @@ jobs:
         if: steps.cache-deps.outputs.cache-hit != 'true'
         run: npx playwright install --with-deps
 
+      # Install additional WebKit dependencies
+      - name: Install WebKit dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwoff2dec1 libwoff2dec1.0.2
+
       # Save cache after installing dependencies
       - name: Save cache
         if: always()
