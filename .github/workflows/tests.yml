@@ -705,30 +705,28 @@ jobs:
       # Merge reports
       - name: Merge Playwright reports
         run: |
-          # Create output directory
-          mkdir -p playwright-report
+          # Create output directories
+          mkdir -p playwright-report merged-results
 
-          # Move json results to correct location if needed
-          if [ -f "playwright-results/report.json" ]; then
-            echo "Found report.json in playwright-results"
-            npx playwright merge-reports --reporter html playwright-results
-          elif [ -f "playwright-results/results.json" ]; then
-            echo "Found results.json in playwright-results"
-            npx playwright merge-reports --reporter html playwright-results
-          else
-            echo "Searching for json files..."
-            find playwright-results -name "*.json" -type f -exec cp {} playwright-results/ \;
-            npx playwright merge-reports --reporter html playwright-results
-          fi
+          # Debug: Show full directory structure
+          echo "Full directory structure:"
+          find playwright-results -type f
 
-          # Verify merged report exists
-          if [ -d "playwright-report" ]; then
-            echo "Contents of playwright-report:"
-            ls -la playwright-report
-          else
-            echo "Error: playwright-report directory not found after merge"
-            exit 1
-          fi
+          # Find and copy all json files to merged-results
+          echo "Copying JSON files to merged-results..."
+          find playwright-results -name "*.json" -type f -exec cp {} merged-results/ \;
+
+          # Debug: Show found JSON files
+          echo "JSON files in merged-results:"
+          ls -la merged-results/
+
+          # Merge the reports
+          echo "Merging reports..."
+          npx playwright merge-reports --reporter html merged-results
+
+          # Debug: Show final report contents
+          echo "Final report contents:"
+          ls -la playwright-report/
 
       # Upload merged report
       - name: Upload merged report
