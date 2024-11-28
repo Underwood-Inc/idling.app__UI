@@ -690,30 +690,30 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           pattern: playwright-results-*
-          path: merged-results
+          merge-multiple: true
+          path: downloaded-results
 
       # Debug directory contents
       - name: List downloaded artifacts
         run: |
           echo "Contents of workspace:"
           ls -la
-          echo "\nContents of merged-results:"
-          ls -la merged-results || echo "merged-results directory not found"
+          echo "\nContents of downloaded-results:"
+          ls -la downloaded-results || echo "downloaded-results directory not found"
 
       # Merge reports
       - name: Merge Playwright reports
         run: |
+          # Create output directory
+          mkdir -p playwright-report
+
           # Debug: Show full directory structure
           echo "Full directory structure:"
-          find merged-results -type f
-
-          # Move all report.json files to a common directory
-          mkdir -p all-reports
-          find merged-results -name 'report.json' -exec cp {} all-reports/ \;
+          find downloaded-results -type f
 
           # Generate HTML report from merged results
           echo "Generating HTML report..."
-          npx playwright merge-reports --reporter html all-reports/
+          npx playwright merge-reports --reporter html downloaded-results
 
           # Debug: Show final report contents
           echo "Final report contents:"
@@ -725,7 +725,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: playwright-report
-          path: playwright-report/
+          path: playwright-report/**/*
           retention-days: 30
 
   sonar:
