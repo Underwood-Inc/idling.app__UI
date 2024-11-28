@@ -4,13 +4,12 @@ This document provides detailed information about our CI testing pipeline implem
 
 ## Overview
 
-Our testing pipeline consists of six main jobs that run in parallel where possible:
+Our testing pipeline consists of five main jobs that run in parallel where possible:
 1. Setup Environment
-2. Playwright Tests (E2E) - 3 parallel shards
+2. Playwright Tests (E2E)
 3. Jest Tests (Unit/Integration) - 3 parallel shards
-4. Combine Playwright Reports
-5. Combine Coverage Reports
-6. SonarCloud Analysis
+4. Combine Coverage Reports
+5. SonarCloud Analysis
 
 ## Job Dependencies
 
@@ -18,7 +17,7 @@ Our testing pipeline consists of six main jobs that run in parallel where possib
 
 The diagram above shows how our CI jobs depend on each other:
 - Both test jobs (Playwright and Jest) depend on the Setup job
-- Test jobs run in parallel shards to optimize execution time
+- Jest tests run in parallel shards to optimize execution time
 - Report combination jobs depend on their respective test jobs
 - SonarCloud analysis runs only after all reports are combined
 
@@ -36,18 +35,19 @@ The diagram above shows how our CI jobs depend on each other:
 ### 2. Playwright Tests (E2E)
 - **Purpose**: Runs end-to-end tests using Playwright
 - **Dependencies**: Setup job
-- **Parallelization**: 3 shards running concurrently
 - **Environment**:
   - PostgreSQL service container
   - Node.js runtime
 - **Key Actions**:
   - Sets up test database
   - Runs migrations
-  - Executes E2E tests in parallel shards
-  - Generates test reports per shard
+  - Executes E2E tests across multiple browsers
+  - Generates test reports
 - **Artifacts**:
-  - Test results in `playwright-report/` (per shard)
-  - Test traces (on failure) in `test-results/` (per shard)
+  - Test results in `playwright-report/`
+  - Test traces (on failure) in `test-results/`
+
+> **Note on Test Sharding**: Unlike Jest tests, Playwright tests are not sharded. This is intentional due to the complexity of managing browser-specific dependencies in CI environments. Sharding Playwright tests can lead to inconsistent behavior and failures, particularly with browsers like WebKit that require specific system libraries. Running tests sequentially ensures more reliable cross-browser testing.
 
 ### 3. Jest Tests
 - **Purpose**: Runs unit and integration tests
@@ -61,15 +61,7 @@ The diagram above shows how our CI jobs depend on each other:
   - Coverage reports in `coverage/` (per shard)
   - Test results in `jest-results-[shard].json`
 
-### 4. Combine Playwright Reports
-- **Purpose**: Merges reports from Playwright shards
-- **Dependencies**: Playwright Tests
-- **Key Actions**:
-  - Downloads all shard reports
-  - Merges HTML and JSON reports
-  - Uploads combined report
-
-### 5. Combine Coverage Reports
+### 4. Combine Coverage Reports
 - **Purpose**: Merges coverage from Jest shards
 - **Dependencies**: Jest Tests
 - **Key Actions**:
@@ -77,20 +69,13 @@ The diagram above shows how our CI jobs depend on each other:
   - Merges using NYC
   - Generates combined coverage report
 
-### 6. SonarCloud Analysis
+### 5. SonarCloud Analysis
 - **Purpose**: Code quality and security analysis
-- **Dependencies**: Both report combination jobs must complete
+- **Dependencies**: Playwright Tests and Coverage Reports
 - **Key Actions**:
   - Analyzes code quality
-  - Processes combined test coverage
+  - Processes test coverage
   - Reports results to SonarCloud dashboard
-
-## Environment Variables
-
-The pipeline uses several environment variables and secrets:
-- **Authentication**: `NEXTAUTH_SECRET`, `AUTHJS_*` tokens
-- **Database**: `POSTGRES_*` configuration
-- **CI/CD**: `GITHUB_TOKEN`, `SONAR_TOKEN`
 
 ## Test Results and Reporting
 
@@ -98,7 +83,7 @@ The pipeline uses several environment variables and secrets:
 The CI pipeline automatically generates test result comments on pull requests:
 
 - "🎭 E2E Test Results" comment for Playwright tests
-  - Shows combined results from all shards
+  - Shows results from all browser tests
   - Includes pass/fail/skip counts
   - Lists any test failures with details
 
@@ -110,8 +95,8 @@ The CI pipeline automatically generates test result comments on pull requests:
 ### Test Results Location
 Test results are stored as artifacts:
 - Playwright: 
-  - Per shard: `playwright-results-[1-3]/`
-  - Combined: `playwright-merged-results/`
+  - `playwright-report/`
+  - `test-results/` (for traces on failure)
 - Jest: 
   - Per shard: `jest-coverage-[1-3]/`
   - Combined: `combined-coverage/`
