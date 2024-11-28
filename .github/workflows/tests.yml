@@ -80,9 +80,9 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     environment: actions
-    # Note: Playwright tests are not sharded to ensure consistent browser dependencies
-    # across CI environments. Sharding can cause issues with browser-specific dependencies
-    # especially for browsers like WebKit that require specific system libraries.
+    # Use official Playwright container with all browser dependencies pre-installed
+    container:
+      image: mcr.microsoft.com/playwright:v1.46.1-jammy
     services:
       # PostgreSQL service container for E2E tests
       postgres:
@@ -131,13 +131,7 @@ jobs:
       # Install browser dependencies if cache miss or partial hit
       - name: Install Playwright Browsers
         if: steps.cache-deps.outputs.cache-hit != 'true'
-        run: npx playwright install --with-deps
-
-      # Install additional WebKit dependencies
-      - name: Install WebKit dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y libwoff2-1
+        run: npx playwright install
 
       # Save cache after installing dependencies
       - name: Save cache
