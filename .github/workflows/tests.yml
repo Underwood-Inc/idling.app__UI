@@ -80,10 +80,9 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     environment: actions
-    strategy:
-      fail-fast: false # Continue running other shards even if one fails
-      matrix:
-        shard: [1, 2, 3] # Run tests in 3 parallel shards
+    # Note: Playwright tests are not sharded to ensure consistent browser dependencies
+    # across CI environments. Sharding can cause issues with browser-specific dependencies
+    # especially for browsers like WebKit that require specific system libraries.
     services:
       # PostgreSQL service container for E2E tests
       postgres:
@@ -149,20 +148,20 @@ jobs:
       - name: Run migrations
         run: psql -v POSTGRES_DB="$POSTGRES_DB" -v POSTGRES_PASSWORD="$POSTGRES_PASSWORD" -v POSTGRES_USER="$POSTGRES_USER" -f ./src/lib/scripts/000-init.sql postgresql://${{secrets.POSTGRES_USER}}:${{secrets.POSTGRES_PASSWORD}}@${{secrets.POSTGRES_HOST}}:${{secrets.POSTGRES_PORT}}
 
-      # Run E2E tests with sharding
+      # Run E2E tests
       - name: Run Playwright tests
         run: |
-          echo "::group::Running Playwright Tests (Shard ${{ matrix.shard }}/3)"
+          echo "::group::Running Playwright Tests"
           mkdir -p playwright-report test-results
-          IS_CI=1 FORCE_COLOR=1 yarn playwright test --shard=${{ matrix.shard }}/3 --reporter=html,json
+          IS_CI=1 FORCE_COLOR=1 yarn playwright test --reporter=html,json
           echo "::endgroup::"
 
-      # Always upload test results for this shard
+      # Always upload test results
       - name: Upload test results
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: playwright-results-${{ matrix.shard }}
+          name: playwright-results
           path: |
             playwright-report
             test-results
@@ -173,7 +172,7 @@ jobs:
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: playwright-traces-${{ matrix.shard }}
+          name: playwright-traces
           path: test-results/
           retention-days: 7
 
