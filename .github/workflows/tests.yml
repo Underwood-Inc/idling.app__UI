@@ -154,19 +154,17 @@ jobs:
 
           # Install WebKit-specific dependencies
           sudo apt-get install -y --no-install-recommends \
-            libwoff2-1 \
-            libharfbuzz0b \
             libgstreamer-plugins-base1.0-0 \
             libgstreamer-gl1.0-0 \
             libgstreamer-plugins-bad1.0-0 \
             libopenjp2-7 \
-            libwebp7 \
-            libwebpdemux2 \
-            libenchant-2-2 \
-            libsecret-1-0 \
-            libhyphen0 \
+            libharfbuzz0b \
             libmanette-0.2-0 \
-            libharfbuzz-icu0
+            libharfbuzz-icu0 \
+            libgstreamer1.0-0 \
+            gstreamer1.0-plugins-base \
+            gstreamer1.0-plugins-good \
+            libwoff1
 
           # Install Playwright browsers with system dependencies
           npx playwright install --with-deps
@@ -747,4 +745,75 @@ jobs:
               });
             } catch (error) {
               console.error('Error creating SonarCloud report comment:', error);
+            }
+
+  # Add status badges to PR description
+  update-pr-badges:
+    name: Update PR Description with Status Badges
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - name: Update PR Description
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const branch = context.payload.pull_request.head.ref;
+            const baseBranch = context.payload.pull_request.base.ref;
+
+            // Define badges
+            const badges = [
+              // Tests status badge
+              `[![Tests](https://github.com/${owner}/${repo}/actions/workflows/tests.yml/badge.svg?branch=${branch})](https://github.com/${owner}/${repo}/actions/workflows/tests.yml)`,
+              // Coverage badge (if you have Codecov or similar set up)
+              `[![Coverage](https://codecov.io/gh/${owner}/${repo}/branch/${branch}/graph/badge.svg)](https://codecov.io/gh/${owner}/${repo})`,
+              // SonarCloud badges
+              `[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=${owner}_${repo}&metric=alert_status&branch=${branch})](https://sonarcloud.io/dashboard?id=${owner}_${repo})`,
+              `[![Bugs](https://sonarcloud.io/api/project_badges/measure?project=${owner}_${repo}&metric=bugs&branch=${branch})](https://sonarcloud.io/dashboard?id=${owner}_${repo})`,
+              `[![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=${owner}_${repo}&metric=code_smells&branch=${branch})](https://sonarcloud.io/dashboard?id=${owner}_${repo})`,
+              `[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=${owner}_${repo}&metric=coverage&branch=${branch})](https://sonarcloud.io/dashboard?id=${owner}_${repo})`
+            ];
+
+            try {
+              // Get current PR description
+              const { data: pr } = await github.rest.pulls.get({
+                owner,
+                repo,
+                pull_number: context.issue.number
+              });
+              
+              let body = pr.body || '';
+              
+              // Check if badges section already exists
+              if (!body.includes('<!-- status-badges-start -->')) {
+                // Create badges section
+                const badgesSection = [
+                  '<!-- status-badges-start -->',
+                  '## Status Badges',
+                  'Status badges for the current branch:',
+                  '',
+                  badges.join('\n'),
+                  '',
+                  '<!-- status-badges-end -->'
+                ].join('\n');
+                
+                // Add badges section at the top of the description
+                body = badgesSection + '\n\n' + body;
+                
+                // Update PR description
+                await github.rest.pulls.update({
+                  owner,
+                  repo,
+                  pull_number: context.issue.number,
+                  body
+                });
+                
+                console.log('Successfully added status badges to PR description');
+              } else {
+                console.log('Status badges section already exists in PR description');
+              }
+            } catch (error) {
+              console.error('Error updating PR description:', error);
+              core.setFailed(error.message);
             }
