@@ -80,9 +80,9 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     environment: actions
-    # Use official Playwright container with all browser dependencies pre-installed
-    container:
-      image: mcr.microsoft.com/playwright:v1.46.1-jammy
+    # Note: Playwright tests are not sharded to ensure consistent browser dependencies
+    # across CI environments. Sharding can cause issues with browser-specific dependencies
+    # especially for browsers like WebKit that require specific system libraries.
     services:
       # PostgreSQL service container for E2E tests
       postgres:
@@ -127,6 +127,50 @@ jobs:
       # Install dependencies with offline preference
       - name: Install dependencies
         run: yarn install --prefer-offline --frozen-lockfile
+
+      # Install browser dependencies using Playwright's official script
+      - name: Install browser dependencies
+        run: |
+          # Update package lists
+          sudo apt-get update
+
+          # Install common dependencies
+          sudo apt-get install -y --no-install-recommends \
+            libwoff1 \
+            libopus0 \
+            libwebp7 \
+            libwebpdemux2 \
+            libenchant-2-2 \
+            libgudev-1.0-0 \
+            libsecret-1-0 \
+            libhyphen0 \
+            libgdk-pixbuf2.0-0 \
+            libegl1 \
+            libnotify4 \
+            libxslt1.1 \
+            libevent-2.1-7 \
+            libgles2 \
+            libvpx7 \
+            libharfbuzz-icu0
+
+          # Install WebKit-specific dependencies
+          sudo apt-get install -y --no-install-recommends \
+            libwoff2common0 \
+            libwoff2dec1 \
+            libharfbuzz0b \
+            libgstreamer-plugins-base1.0-0 \
+            libgstreamer-gl1.0-0 \
+            libgstreamer-plugins-bad1.0-0 \
+            libopenjp2-7 \
+            libwebp7 \
+            libwebpdemux2 \
+            libenchant-2-2 \
+            libsecret-1-0 \
+            libhyphen0 \
+            libmanette-0.2-0
+
+          # Install Playwright browsers with system dependencies
+          npx playwright install --with-deps
 
       # Save cache after installing dependencies
       - name: Save cache
