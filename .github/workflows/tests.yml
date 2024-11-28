@@ -94,32 +94,39 @@ jobs:
 
       # Restore cached dependencies
       - name: Restore cache
+        id: cache-deps
         uses: actions/cache@v4
         with:
           path: |
             node_modules
             ~/.cache/playwright
-          key: ${{ runner.os }}-deps-${{ hashFiles('**/yarn.lock') }}
+            /home/runner/.cache/ms-playwright
+          key: ${{ runner.os }}-deps-${{ hashFiles('**/yarn.lock', '**/package.json') }}
+          restore-keys: |
+            ${{ runner.os }}-deps-
+            ${{ runner.os }}-
 
-      # We reinstall dependencies after cache restoration because:
-      # 1. Cache might be empty or outdated
-      # 2. Some dependencies might need post-install scripts to run
-      # 3. Ensures consistent state even if cache restore fails
+      # Always run yarn install to update dependencies if package.json changed
+      # This ensures we get updated packages even with a partial cache hit
       - name: Install dependencies
-        run: yarn install
+        run: yarn install --prefer-offline --frozen-lockfile
+
+      # Install browser dependencies if cache miss or partial hit
+      - name: Install Playwright Browsers
+        if: steps.cache-deps.outputs.cache-hit != 'true'
+        run: npx playwright install --with-deps
 
       # Save cache after installing dependencies
+      # This step will be skipped if the exact cache key already exists
       - name: Save cache
+        if: always() # Save cache even if later steps fail
         uses: actions/cache@v4
         with:
           path: |
             node_modules
             ~/.cache/playwright
-          key: ${{ runner.os }}-deps-${{ hashFiles('**/yarn.lock') }}
-
-      # Install browser dependencies
-      - name: Install Playwright Browsers
-        run: npx playwright install --with-deps
+            /home/runner/.cache/ms-playwright
+          key: ${{ runner.os }}-deps-${{ hashFiles('**/yarn.lock', '**/package.json') }}
 
       # Setup test database
       - name: Run migrations
@@ -256,7 +263,7 @@ jobs:
                 duration: report.stats.duration
               };
 
-              let section = `## 🎭 Playwright Tests\n`;
+              let section = `## 🃏 Playwright Tests\n`;
               section += `\n| Status | Count |\n`;
               section += `|--------|-------|\n`;
               section += `| ✅ Passed | ${stats.passed} |\n`;
