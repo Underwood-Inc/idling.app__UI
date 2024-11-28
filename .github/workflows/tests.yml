@@ -178,13 +178,11 @@ jobs:
       - name: Run Playwright tests
         run: |
           echo "::group::Running Playwright Tests (Shard ${{ matrix.shard }}/3)"
-          mkdir -p playwright-report test-results
+          mkdir -p test-results
           # Run tests with both reporters
-          IS_CI=1 FORCE_COLOR=1 yarn playwright test --shard=${{ matrix.shard }}/3 --reporter=json,html
+          IS_CI=1 FORCE_COLOR=1 yarn playwright test --shard=${{ matrix.shard }}/3 --reporter=list,json
           # Ensure JSON report is in the right place
-          if [ -f "playwright-report/report.json" ]; then
-            mv playwright-report/report.json test-results/
-          fi
+          mv playwright-report/report.json test-results/ || true
           echo "::endgroup::"
 
       # Upload test results for this shard
@@ -193,7 +191,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: playwright-results-${{ matrix.shard }}
-          path: test-results/report.json
+          path: test-results/
           retention-days: 30
 
       # Upload traces only on failure
@@ -701,9 +699,13 @@ jobs:
           echo "Full directory structure:"
           find merged-results -type f
 
+          # Move all report.json files to a common directory
+          mkdir -p all-reports
+          find merged-results -name 'report.json' -exec cp {} all-reports/ \;
+
           # Generate HTML report from merged results
           echo "Generating HTML report..."
-          npx playwright merge-reports --reporter html merged-results
+          npx playwright merge-reports --reporter html all-reports/
 
           # Debug: Show final report contents
           echo "Final report contents:"
@@ -714,7 +716,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: playwright-merged-report
+          name: playwright-report
           path: playwright-report/
           retention-days: 30
 
