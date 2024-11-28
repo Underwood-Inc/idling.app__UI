@@ -676,28 +676,31 @@ jobs:
           node-version: lts/*
           cache: 'yarn'
 
+      # Install dependencies with offline preference
+      - name: Install dependencies
+        run: yarn install --prefer-offline --frozen-lockfile
+
       # Download all Playwright results
       - name: Download Playwright results
         uses: actions/download-artifact@v4
         with:
-          pattern: playwright-results-*
-          merge-multiple: true
-          path: merged-results
-
-      # Install Playwright for report merging
-      - name: Install Playwright
-        run: yarn add -D @playwright/test
+          name: playwright-results
+          path: playwright-results
 
       # Merge reports
       - name: Merge Playwright reports
         run: |
-          npx playwright merge-reports ./merged-results
+          # Create output directory
+          mkdir -p playwright-report
+
+          # Merge the reports
+          npx playwright merge-reports ./playwright-results
 
       # Upload merged report
       - name: Upload merged report
         uses: actions/upload-artifact@v4
         with:
-          name: playwright-merged-results
+          name: playwright-merged-report
           path: playwright-report/
           retention-days: 30
 
