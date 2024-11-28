@@ -4,13 +4,13 @@ This document provides detailed information about our CI testing pipeline implem
 
 ## Overview
 
-Our testing pipeline consists of four main jobs that run in parallel where possible:
+Our testing pipeline consists of six main jobs that run in parallel where possible:
 1. Setup Environment
-2. Playwright Tests (E2E)
-   - Creates "🎭 E2E Test Results" comment
-3. Jest Tests (Unit/Integration)
-   - Creates "🃏 Unit Test Results" comment
-4. SonarCloud Analysis
+2. Playwright Tests (E2E) - 3 parallel shards
+3. Jest Tests (Unit/Integration) - 3 parallel shards
+4. Combine Playwright Reports
+5. Combine Coverage Reports
+6. SonarCloud Analysis
 
 ## Job Dependencies
 
@@ -18,9 +18,9 @@ Our testing pipeline consists of four main jobs that run in parallel where possi
 
 The diagram above shows how our CI jobs depend on each other:
 - Both test jobs (Playwright and Jest) depend on the Setup job
-- Each test job creates its own results comment
-- SonarCloud analysis runs only after both test jobs complete
-- Test jobs run in parallel to optimize pipeline execution time
+- Test jobs run in parallel shards to optimize execution time
+- Report combination jobs depend on their respective test jobs
+- SonarCloud analysis runs only after all reports are combined
 
 ## Detailed Job Descriptions
 
@@ -28,7 +28,7 @@ The diagram above shows how our CI jobs depend on each other:
 - **Purpose**: Prepares the environment for all subsequent jobs
 - **Key Actions**:
   - Checks out code
-  - Sets up Node.js
+  - Sets up Node.js with yarn caching
   - Installs dependencies
   - Caches dependencies for faster subsequent runs
 - **Outputs**: Cached `node_modules` and Playwright browser binaries
@@ -36,35 +36,53 @@ The diagram above shows how our CI jobs depend on each other:
 ### 2. Playwright Tests (E2E)
 - **Purpose**: Runs end-to-end tests using Playwright
 - **Dependencies**: Setup job
+- **Parallelization**: 3 shards running concurrently
 - **Environment**:
   - PostgreSQL service container
   - Node.js runtime
 - **Key Actions**:
   - Sets up test database
   - Runs migrations
-  - Executes E2E tests
-  - Generates test reports
+  - Executes E2E tests in parallel shards
+  - Generates test reports per shard
 - **Artifacts**:
-  - Test results in `playwright-report/`
-  - Test traces (on failure) in `test-results/`
+  - Test results in `playwright-report/` (per shard)
+  - Test traces (on failure) in `test-results/` (per shard)
 
 ### 3. Jest Tests
 - **Purpose**: Runs unit and integration tests
 - **Dependencies**: Setup job
+- **Parallelization**: 3 shards running concurrently
 - **Key Actions**:
-  - Executes Jest test suite
-  - Generates coverage reports
+  - Executes Jest test suite in parallel
+  - Generates coverage reports per shard
   - Reports results to PR
 - **Artifacts**:
-  - Coverage reports in `coverage/`
-  - Test results in `jest-results.json`
+  - Coverage reports in `coverage/` (per shard)
+  - Test results in `jest-results-[shard].json`
 
-### 4. SonarCloud Analysis
+### 4. Combine Playwright Reports
+- **Purpose**: Merges reports from Playwright shards
+- **Dependencies**: Playwright Tests
+- **Key Actions**:
+  - Downloads all shard reports
+  - Merges HTML and JSON reports
+  - Uploads combined report
+
+### 5. Combine Coverage Reports
+- **Purpose**: Merges coverage from Jest shards
+- **Dependencies**: Jest Tests
+- **Key Actions**:
+  - Downloads all shard coverage reports
+  - Merges using NYC
+  - Generates combined coverage report
+
+### 6. SonarCloud Analysis
 - **Purpose**: Code quality and security analysis
-- **Dependencies**: Both test jobs must complete
+- **Dependencies**: Both report combination jobs must complete
 - **Key Actions**:
   - Analyzes code quality
-  - Processes test coverage
+  - Processes combined test coverage
   - Reports results to SonarCloud dashboard
 
 ## Environment Variables
@@ -77,22 +95,26 @@ The pipeline uses several environment variables and secrets:
 ## Test Results and Reporting
 
 ### Automated PR Comments
-The CI pipeline automatically generates test result comments on pull requests. These comments include:
+The CI pipeline automatically generates test result comments on pull requests:
 
-- Separate comments for each test type:
-  - "🎭 E2E Test Results" for Playwright tests
-  - "🃏 Unit Test Results" for Jest tests
-- Each test comment shows:
-  - Number of passed/failed/skipped tests
-  - Test duration
-  - Detailed failure messages in collapsible sections
-- Comments are recreated (not updated) on each test run to stay visible
-- Failed tests show the full test path and detailed error messages
+- "🎭 E2E Test Results" comment for Playwright tests
+  - Shows combined results from all shards
+  - Includes pass/fail/skip counts
+  - Lists any test failures with details
+
+- "🃏 Unit Test Results" comment for Jest tests
+  - Shows combined results from all shards
+  - Includes pass/fail/skip counts
+  - Lists any test failures with details
 
 ### Test Results Location
-Test results are stored in:
-- Playwright: `playwright-report/` or `test-results/`
-- Jest: `jest-results.json`
+Test results are stored as artifacts:
+- Playwright: 
+  - Per shard: `playwright-results-[1-3]/`
+  - Combined: `playwright-merged-results/`
+- Jest: 
+  - Per shard: `jest-coverage-[1-3]/`
+  - Combined: `combined-coverage/`
 
 ### Viewing Results
 1. **In Pull Requests**:
@@ -103,6 +125,7 @@ Test results are stored in:
 2. **In GitHub Actions**:
    - Navigate to the workflow run
    - Check the "Artifacts" section for detailed reports
+   - Combined reports provide the full test overview
 
 ## Troubleshooting
 
@@ -115,22 +138,26 @@ Test results are stored in:
 2. **Test Timeouts**
    - Review test logs for slow operations
    - Check for resource constraints
+   - Consider adjusting shard count if tests are too slow
 
 3. **Cache Misses**
    - Verify yarn.lock hasn't changed
    - Check cache key construction
+   - Ensure all cache paths are correct
 
 ### Debug Steps
 
 1. **For Playwright Issues**:
-   - Check test traces in artifacts
-   - Review browser console logs
+   - Check individual shard results
+   - Review test traces in artifacts
    - Verify database migrations
+   - Check combined report for full overview
 
 2. **For Jest Issues**:
-   - Review test output JSON
+   - Review individual shard outputs
    - Check coverage reports
    - Verify test environment
+   - Check combined coverage report
 
 ## Best Practices
 
@@ -138,11 +165,13 @@ Test results are stored in:
    - Keep E2E tests focused on critical paths
    - Maintain unit test coverage
    - Use appropriate test selectors
+   - Consider test distribution across shards
 
 2. **Pipeline Maintenance**:
    - Regularly update action versions
    - Monitor test execution times
    - Review and clean up artifacts
+   - Adjust shard count based on test volume
 
 ## Contributing
 
@@ -151,6 +180,7 @@ When modifying the CI pipeline:
 2. Review workflow run times
 3. Verify all artifacts are generated
 4. Update this documentation
+5. Consider impact on test sharding
 
 ## Additional Resources
 
