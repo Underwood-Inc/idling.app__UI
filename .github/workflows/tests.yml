@@ -178,20 +178,29 @@ jobs:
       - name: Run Playwright tests
         run: |
           echo "::group::Running Playwright Tests (Shard ${{ matrix.shard }}/3)"
-          mkdir -p test-results
+          # Create directories
+          mkdir -p test-results playwright-report
+
           # Run tests with both reporters
-          IS_CI=1 FORCE_COLOR=1 yarn playwright test --shard=${{ matrix.shard }}/3 --reporter=list,json
-          # Ensure JSON report is in the right place
-          mv playwright-report/report.json test-results/ || true
+          IS_CI=1 FORCE_COLOR=1 yarn playwright test \
+            --shard=${{ matrix.shard }}/3 \
+            --reporter=json,list \
+            --reporter-json-output=test-results/report.json
+
+          # Debug: Show test results
+          echo "Test results directory contents:"
+          ls -la test-results/
           echo "::endgroup::"
 
       # Upload test results for this shard
       - name: Upload test results
-        if: ${{ !cancelled() }}
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: playwright-results-${{ matrix.shard }}
-          path: test-results/
+          path: |
+            test-results/
+            playwright-report/
           retention-days: 30
 
       # Upload traces only on failure
