@@ -636,8 +636,19 @@ jobs:
 
           # Find and merge all coverage-final.json files from shards
           echo "Merging coverage reports..."
-          find coverage-shards -name 'coverage-final.json' -exec cp {} coverage/ \;
-          npx nyc merge coverage coverage/.nyc_output/out.json
+          # First, find all coverage files and copy them with unique names
+          shardNum=1
+          for file in $(find coverage-shards -name 'coverage-final.json'); do
+            cp "$file" "coverage/coverage-final-$shardNum.json"
+            shardNum=$((shardNum + 1))
+          done
+
+          # List found coverage files for debugging
+          echo "Found coverage files:"
+          ls -la coverage/
+
+          # Merge the coverage files
+          npx nyc merge coverage/ coverage/.nyc_output/out.json
 
           # Generate the combined report
           echo "Generating combined report..."
