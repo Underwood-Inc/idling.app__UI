@@ -1,16 +1,28 @@
 name: Tests
+
+# Concurrency group to cancel in-progress runs on PR updates
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 on:
   push:
     branches: [main, master]
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
   pull_request:
     types: [opened, synchronize, reopened]
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
 
 # Required permissions for GitHub Actions
 permissions:
   contents: read
   actions: write
-  checks: write # For test results in PR checks
-  pull-requests: write # For PR comments and summaries
+  checks: write
+  pull-requests: write
 
 # Environment variables available to all jobs
 env:
@@ -33,6 +45,7 @@ env:
 
 jobs:
   setup:
+    timeout-minutes: 10
     name: Setup Environment
     runs-on: ubuntu-latest
     environment: actions
@@ -46,6 +59,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: lts/*
+          cache: 'yarn' # Enable built-in yarn caching
 
       # Install project dependencies
       - name: Install dependencies
@@ -62,9 +76,14 @@ jobs:
 
   playwright:
     name: Playwright Tests
-    needs: setup # Waits for setup job to complete
+    needs: setup
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     environment: actions
+    strategy:
+      fail-fast: false # Continue running other shards even if one fails
+      matrix:
+        shard: [1, 2, 3] # Run tests in 3 parallel shards
     services:
       # PostgreSQL service container for E2E tests
       postgres:
@@ -86,11 +105,11 @@ jobs:
         ports:
           - 5432:5432
     steps:
-      # Standard checkout and setup steps
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: lts/*
+          cache: 'yarn'
 
       # Restore cached dependencies
       - name: Restore cache
@@ -106,8 +125,7 @@ jobs:
             ${{ runner.os }}-deps-
             ${{ runner.os }}-
 
-      # Always run yarn install to update dependencies if package.json changed
-      # This ensures we get updated packages even with a partial cache hit
+      # Install dependencies with offline preference
       - name: Install dependencies
         run: yarn install --prefer-offline --frozen-lockfile
 
@@ -117,9 +135,8 @@ jobs:
         run: npx playwright install --with-deps
 
       # Save cache after installing dependencies
-      # This step will be skipped if the exact cache key already exists
       - name: Save cache
-        if: always() # Save cache even if later steps fail
+        if: always()
         uses: actions/cache@v4
         with:
           path: |
@@ -132,20 +149,20 @@ jobs:
       - name: Run migrations
         run: psql -v POSTGRES_DB="$POSTGRES_DB" -v POSTGRES_PASSWORD="$POSTGRES_PASSWORD" -v POSTGRES_USER="$POSTGRES_USER" -f ./src/lib/scripts/000-init.sql postgresql://${{secrets.POSTGRES_USER}}:${{secrets.POSTGRES_PASSWORD}}@${{secrets.POSTGRES_HOST}}:${{secrets.POSTGRES_PORT}}
 
-      # Run E2E tests
+      # Run E2E tests with sharding
       - name: Run Playwright tests
         run: |
-          echo "::group::Running Playwright Tests"
+          echo "::group::Running Playwright Tests (Shard ${{ matrix.shard }}/3)"
           mkdir -p playwright-report test-results
-          IS_CI=1 FORCE_COLOR=1 yarn playwright test --reporter=html,json
+          IS_CI=1 FORCE_COLOR=1 yarn playwright test --shard=${{ matrix.shard }}/3 --reporter=html,json
           echo "::endgroup::"
 
-      # Always upload test results
+      # Always upload test results for this shard
       - name: Upload test results
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: playwright-results
+          name: playwright-results-${{ matrix.shard }}
           path: |
             playwright-report
             test-results
@@ -156,7 +173,7 @@ jobs:
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: playwright-traces
+          name: playwright-traces-${{ matrix.shard }}
           path: test-results/
           retention-days: 7
 
@@ -308,59 +325,62 @@ jobs:
             }
 
   jest:
+    timeout-minutes: 15
     name: Jest Tests
-    needs: setup # Waits for setup job to complete
+    needs: setup
     runs-on: ubuntu-latest
     environment: actions
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3] # Run tests in 3 parallel shards
     steps:
-      # Standard checkout and setup steps
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: lts/*
+          cache: 'yarn'
 
       # Restore cached dependencies
       - name: Restore cache
+        id: cache-deps
         uses: actions/cache@v4
         with:
-          path: node_modules
-          key: ${{ runner.os }}-deps-${{ hashFiles('**/yarn.lock') }}
+          path: |
+            node_modules
+            coverage
+          key: ${{ runner.os }}-deps-${{ hashFiles('**/yarn.lock', '**/package.json') }}
+          restore-keys: |
+            ${{ runner.os }}-deps-
+            ${{ runner.os }}-
 
-      # We reinstall dependencies after cache restoration because:
-      # 1. Cache might be empty or outdated
-      # 2. Some dependencies might need post-install scripts to run
-      # 3. Ensures consistent state even if cache restore fails
+      # Install dependencies with offline preference
       - name: Install dependencies
-        run: yarn install
+        run: yarn install --prefer-offline --frozen-lockfile
+
+      # Run unit tests with sharding
+      - name: Run Jest tests
+        run: |
+          echo "::group::Running Jest Tests (Shard ${{ matrix.shard }}/3)"
+          FORCE_COLOR=1 yarn test:coverage --ci --colors --json --shard=${{ matrix.shard }}/3 --testLocationInResults --outputFile="$GITHUB_WORKSPACE/jest-results-${{ matrix.shard }}.json"
+          echo "::endgroup::"
 
       # Save cache after installing dependencies
       - name: Save cache
+        if: always()
         uses: actions/cache@v4
         with:
-          path: node_modules
-          key: ${{ runner.os }}-deps-${{ hashFiles('**/yarn.lock') }}
+          path: |
+            node_modules
+            coverage
+          key: ${{ runner.os }}-deps-${{ hashFiles('**/yarn.lock', '**/package.json') }}
 
-      # Run unit tests
-      - name: Run Jest tests
-        run: |
-          echo "::group::Running Jest Tests"
-          FORCE_COLOR=1 yarn test:coverage --ci --colors --json --testLocationInResults --outputFile="$GITHUB_WORKSPACE/jest-results.json"
-          echo "::endgroup::"
-
-      # Process and report test results
-      - name: Process and report Jest results
-        if: always()
-        uses: tanmen/jest-reporter@v1
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          result-file: ${{ github.workspace }}/jest-results.json
-
-      # Upload coverage reports
+      # Upload coverage reports for each shard
       - name: Upload Jest coverage
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: jest-coverage
+          name: jest-coverage-${{ matrix.shard }}
           path: coverage/
           retention-days: 30
 
@@ -550,9 +570,86 @@ jobs:
               await updateTestComment(section);
             }
 
+  combine-coverage:
+    name: Combine Coverage Reports
+    needs: jest
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: 'yarn'
+
+      # Download all coverage artifacts
+      - name: Download coverage artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: jest-coverage-*
+          merge-multiple: true
+          path: coverage-reports
+
+      # Install coverage tools
+      - name: Install coverage tools
+        run: yarn add -D nyc
+
+      # Merge coverage reports
+      - name: Merge coverage reports
+        run: |
+          npx nyc merge coverage-reports/ .nyc_output/out.json
+          npx nyc report --reporter=lcov --reporter=text --reporter=json
+
+      # Upload combined coverage
+      - name: Upload combined coverage
+        uses: actions/upload-artifact@v4
+        with:
+          name: combined-coverage
+          path: coverage/
+          retention-days: 30
+
+  combine-playwright:
+    name: Combine Playwright Reports
+    needs: playwright
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: 'yarn'
+
+      # Download all Playwright results
+      - name: Download Playwright results
+        uses: actions/download-artifact@v4
+        with:
+          pattern: playwright-results-*
+          merge-multiple: true
+          path: merged-results
+
+      # Install Playwright for report merging
+      - name: Install Playwright
+        run: yarn add -D @playwright/test
+
+      # Merge reports
+      - name: Merge Playwright reports
+        run: |
+          npx playwright merge-reports ./merged-results
+
+      # Upload merged report
+      - name: Upload merged report
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-merged-results
+          path: playwright-report/
+          retention-days: 30
+
   sonar:
+    timeout-minutes: 15
+    if: always() # Run even if tests fail
     name: SonarCloud Analysis
-    needs: [playwright, jest] # Waits for both test jobs
+    needs: [combine-playwright, combine-coverage] # Waits for both test jobs
     runs-on: ubuntu-latest
     environment: actions
     steps:
