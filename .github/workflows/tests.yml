@@ -587,17 +587,27 @@ jobs:
         with:
           pattern: jest-coverage-*
           merge-multiple: true
-          path: coverage-reports
+          path: coverage-shards
 
       # Install coverage tools
       - name: Install coverage tools
-        run: yarn add -D nyc
+        run: yarn add -D nyc istanbul-reports istanbul-lib-coverage
 
       # Merge coverage reports
       - name: Merge coverage reports
         run: |
-          npx nyc merge coverage-reports/ .nyc_output/out.json
-          npx nyc report --reporter=lcov --reporter=text --reporter=json
+          # Create directory for merged reports
+          mkdir -p .nyc_output coverage
+
+          # Find and merge all coverage-final.json files from shards
+          echo "Merging coverage reports..."
+          npx nyc merge coverage-shards/coverage coverage/.nyc_output/out.json
+
+          # Generate the combined report
+          echo "Generating combined report..."
+          npx nyc report --reporter=lcov --reporter=text --reporter=json-summary \
+            --temp-dir coverage/.nyc_output \
+            --report-dir coverage
 
       # Upload combined coverage
       - name: Upload combined coverage
