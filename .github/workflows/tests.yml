@@ -180,6 +180,15 @@ jobs:
           echo "::group::Running Playwright Tests (Shard ${{ matrix.shard }}/3)"
           mkdir -p playwright-report test-results
           IS_CI=1 FORCE_COLOR=1 yarn playwright test --shard=${{ matrix.shard }}/3 --reporter=html,json
+          # Ensure the JSON report is in a predictable location
+          if [ -f "test-results/report.json" ]; then
+            cp test-results/report.json playwright-report/
+          elif [ -f "playwright-report/report.json" ]; then
+            echo "JSON report already in playwright-report"
+          else
+            echo "Generating JSON report..."
+            IS_CI=1 FORCE_COLOR=1 yarn playwright test --shard=${{ matrix.shard }}/3 --reporter=json > playwright-report/report.json
+          fi
           echo "::endgroup::"
 
       # Save cache after installing dependencies
@@ -199,8 +208,8 @@ jobs:
         with:
           name: playwright-results-${{ matrix.shard }}
           path: |
-            playwright-report
-            test-results
+            playwright-report/
+            test-results/
           retention-days: 30
 
       # Upload traces only on failure
@@ -712,9 +721,13 @@ jobs:
           echo "Full directory structure:"
           find playwright-results -type f
 
-          # Find and copy all json files to merged-results
+          # Find and copy all json reports to merged-results
           echo "Copying JSON files to merged-results..."
-          find playwright-results -name "*.json" -type f -exec cp {} merged-results/ \;
+          for shard in $(find playwright-results -name "report.json"); do
+            shardNum=$(echo $shard | grep -o '[0-9]' | head -1)
+            echo "Processing shard $shardNum: $shard"
+            cp "$shard" "merged-results/report-$shardNum.json"
+          done
 
           # Debug: Show found JSON files
           echo "JSON files in merged-results:"
