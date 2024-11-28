@@ -118,7 +118,6 @@ jobs:
           path: |
             node_modules
             ~/.cache/playwright
-            /home/runner/.cache/ms-playwright
           key: ${{ runner.os }}-deps-${{ hashFiles('**/yarn.lock', '**/package.json') }}
           restore-keys: |
             ${{ runner.os }}-deps-
@@ -180,7 +179,6 @@ jobs:
           path: |
             node_modules
             ~/.cache/playwright
-            /home/runner/.cache/ms-playwright
           key: ${{ runner.os }}-deps-${{ hashFiles('**/yarn.lock', '**/package.json') }}
 
       # Setup test database
