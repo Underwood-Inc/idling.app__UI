@@ -22,7 +22,8 @@ This workflow runs various tests to ensure code quality and functionality.
 
 - Sets up a PostgreSQL service container
 - Runs database migrations
-- Executes Playwright and Jest tests
+- Executes Playwright and Jest tests in parallel shards
+- Combines test reports and coverage
 - Performs SonarCloud analysis
 - Uploads test reports as artifacts
 
@@ -30,24 +31,25 @@ This workflow runs various tests to ensure code quality and functionality.
 
 1. Sets up PostgreSQL service
 2. Checks out the repository
-3. Sets up Node.js
+3. Sets up Node.js with yarn caching
 4. Runs database migrations
 5. Installs dependencies and Playwright browsers
-6. Runs Playwright tests
-7. Runs Jest tests with coverage
-8. Performs SonarCloud scan
-9. Uploads Playwright report as an artifact
+6. Runs Playwright tests in 3 parallel shards
+7. Runs Jest tests in 3 parallel shards
+8. Combines test reports and coverage
+9. Performs SonarCloud scan
+10. Uploads test reports as artifacts
 
 #### Automated Test Reporting
 
 When running tests through GitHub Actions (on PRs or pushes to main/master), the workflow automatically generates separate test report comments:
 
-- **Unit Test Results**: Shows Jest test outcomes
+- **Unit Test Results**: Shows combined Jest test outcomes from all shards
   - Pass/Fail/Skip counts
   - Test duration
   - Detailed failure messages in collapsible sections
 
-- **E2E Test Results**: Shows Playwright test outcomes
+- **E2E Test Results**: Shows combined Playwright test outcomes from all shards
   - Pass/Fail/Skip counts
   - Test duration
   - Detailed failure messages in collapsible sections
@@ -57,14 +59,15 @@ Comments are recreated on each test run to maintain visibility in the PR activit
 #### Test Artifacts
 
 The following test artifacts are preserved:
-- Playwright reports (30 days retention)
-- Playwright failure traces (7 days retention)
-- Jest coverage reports (30 days retention)
+- Playwright reports (per shard and combined, 30 days retention)
+- Playwright failure traces (per shard, 7 days retention)
+- Jest coverage reports (per shard and combined, 30 days retention)
 
 To access these artifacts:
 1. Go to the GitHub Actions run
 2. Scroll to the bottom
 3. Look for the "Artifacts" section
+4. Combined reports provide the full test overview
 
 For more detailed information about our CI testing pipeline, please refer to [CI_TESTS.README.md](./CI_TESTS.README.md).
 
