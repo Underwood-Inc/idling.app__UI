@@ -82,6 +82,7 @@ CREATE TABLE users
   PRIMARY KEY (id)
 );
 
+-- TODO - start - move to use migration system
 \echo '\033[35mcreating subthread required tables...\033[0m'
 
 -- Create posts table
@@ -135,4 +136,17 @@ CREATE INDEX idx_votes_post_id ON votes(post_id);
 CREATE INDEX idx_votes_comment_id ON votes(comment_id);
 
 \echo '\033[33mfinished initializing the idling database!\033[0m'
+
+-- TODO -- end -
+
+\echo '\033[35mcreating migrations tracking table...\033[0m'
+CREATE TABLE migrations (
+  id SERIAL PRIMARY KEY,
+  filename VARCHAR(255) NOT NULL UNIQUE,
+  executed_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+  success BOOLEAN NOT NULL,
+  error_message TEXT
+);
+
+\echo '\033[33mfinished initializating the testing database!\033[0m'
 \q

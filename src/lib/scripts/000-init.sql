@@ -77,5 +77,14 @@ CREATE TABLE users
   PRIMARY KEY (id)
 );
 
+\echo '\033[35mcreating migrations tracking table...\033[0m'
+CREATE TABLE migrations (
+  id SERIAL PRIMARY KEY,
+  filename VARCHAR(255) NOT NULL UNIQUE,
+  executed_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+  success BOOLEAN NOT NULL,
+  error_message TEXT
+);
+
 \echo '\033[33mfinished initializating the testing database!\033[0m'
 \q

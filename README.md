@@ -22,7 +22,8 @@ This workflow runs various tests to ensure code quality and functionality.
 
 - Sets up a PostgreSQL service container
 - Runs database migrations
-- Executes Playwright and Jest tests
+- Executes Playwright and Jest tests in parallel shards
+- Combines test reports and coverage
 - Performs SonarCloud analysis
 - Uploads test reports as artifacts
 
@@ -30,13 +31,45 @@ This workflow runs various tests to ensure code quality and functionality.
 
 1. Sets up PostgreSQL service
 2. Checks out the repository
-3. Sets up Node.js
+3. Sets up Node.js with yarn caching
 4. Runs database migrations
 5. Installs dependencies and Playwright browsers
-6. Runs Playwright tests
-7. Runs Jest tests with coverage
-8. Performs SonarCloud scan
-9. Uploads Playwright report as an artifact
+6. Runs Playwright tests in 3 parallel shards
+7. Runs Jest tests in 3 parallel shards
+8. Combines test reports and coverage
+9. Performs SonarCloud scan
+10. Uploads test reports as artifacts
+
+#### Automated Test Reporting
+
+When running tests through GitHub Actions (on PRs or pushes to main/master), the workflow automatically generates separate test report comments:
+
+- **Unit Test Results**: Shows combined Jest test outcomes from all shards
+  - Pass/Fail/Skip counts
+  - Test duration
+  - Detailed failure messages in collapsible sections
+
+- **E2E Test Results**: Shows combined Playwright test outcomes from all shards
+  - Pass/Fail/Skip counts
+  - Test duration
+  - Detailed failure messages in collapsible sections
+
+Comments are recreated on each test run to maintain visibility in the PR activity feed.
+
+#### Test Artifacts
+
+The following test artifacts are preserved:
+- Playwright reports (per shard and combined, 30 days retention)
+- Playwright failure traces (per shard, 7 days retention)
+- Jest coverage reports (per shard and combined, 30 days retention)
+
+To access these artifacts:
+1. Go to the GitHub Actions run
+2. Scroll to the bottom
+3. Look for the "Artifacts" section
+4. Combined reports provide the full test overview
+
+For more detailed information about our CI testing pipeline, please refer to [CI_TESTS.README.md](./CI_TESTS.README.md).
 
 ### 2. Deploy Workflow
 
@@ -169,8 +202,113 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 
 This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
 
+### Postgres
+
+### Database Management
+
+#### Connecting to PostgreSQL in Docker
+
+The project uses PostgreSQL running in a Docker container. Here's how to interact with it:
+
+1. **Connecting to the Database**
+
+     ```bash
+     docker exec -it postgres psql -U postgres -d idling
+     ```
+
+     This connects you to the PostgreSQL interactive terminal where you can run SQL commands directly.
+
+Common PSQL commands:
+- `\l` - List all databases
+- `\dt` - List all tables in current database
+- `\d table_name` - Describe a specific table
+- `\c database_name` - Switch to a different database
+- `\q` - Quit psql
+
+#### Database Initialization
+
+The database is initialized using two key files:
+- `docker-postgres/init.sql`: Runs when the Docker container first starts
+- `src/lib/scripts/000-init.sql`: Used for local development initialization
+
+These files create the base tables required for:
+- NextAuth authentication
+- Database migration tracking
+- Core application functionality
+
+#### Database Migrations
+
+The project uses a numbered migration system to track and apply database changes:
+
+1. **Running Migrations**
+
+     ```bash
+     yarn migrations
+     # select option 1 to run all pending migrations
+     ```
+
+     Migration files follow the pattern: `0000-description.sql` where:
+     - First 4 digits are an incrementing ID (e.g., 0000, 0001, 0002)
+     - Followed by a descriptive name of what the migration does
+
+     Each migration runs in isolation and is tracked in the `migrations` table to prevent duplicate runs.
+
+#### Database Management
+
+For detailed information about our migration system and how to use it, please see [MIGRATIONS.README.md](./MIGRATIONS.README.md).
+
 ## Testing
 
+### Testing Strategy for Modern Web Applications
+
+#### Why We Need Multiple Testing Layers
+
+Modern web applications require a comprehensive testing strategy to ensure reliability, maintainability, and confidence in deployments. Each testing layer serves a specific purpose:
+
+##### 🔍 Unit Tests
+- Test individual functions and utilities in isolation
+- Fastest to run and easiest to maintain
+- Catch logic errors early in development
+- Guide better code design through testability
+- Example: Testing a date formatting utility
+
+##### 🧩 Component Tests
+- Verify individual UI components work correctly
+- Test component props, states, and user interactions
+- Ensure accessibility standards are met
+- Catch UI regressions early
+- Example: Testing a button component's different states
+
+##### 🔄 Integration Tests
+- Test how multiple components work together
+- Verify data flow between components
+- Catch interface mismatches
+- Example: Testing a form submission flow
+
+##### 🌐 End-to-End (E2E) Tests
+- Test complete user journeys
+- Verify application works in real browser environments
+- Catch deployment and environment issues
+- Example: Testing user login through multiple pages
+
+#### Benefits of This Approach
+
+- **Fast Feedback**: Unit and component tests provide immediate feedback during development
+- **Confidence**: Integration and E2E tests ensure the application works as a whole
+- **Maintainability**: Different test types make it easier to identify where issues occur
+- **Agile Ready**: Supports continuous integration and deployment (CI/CD)
+- **Cost Effective**: Catches bugs at the appropriate level where they're cheapest to fix
+
+#### Testing Pyramid
+
+```
+     /----------\
+    / End-to-End \
+   /  Integration  \
+  /    Component    \
+ /       Unit        \
+/---------------------\
+```
 All code that can be tested via jest tests should be. Playwright will expand what is testable when added.
 
 Opt for existing selectors for static content testing such as `getBy**` and `queryAllBy**`. For dynamic content, adding a `data-testid` to the markup being tested and then using the appropriate `**byTestId` selector method(s). Refer to the following excerpt from the [React Testing Library documentation regarding test IDs](https://testing-library.com/docs/queries/bytestid/):
@@ -188,6 +326,8 @@ You can run jest test with a few different scripts:
 
 All test scripts will run against `**.test.tsx` files.
 
+> **Note:** You can append `--silent` to any test command (e.g., `yarn test --silent`) to suppress console output during test execution.
+
 #### Unit
 
 Unit tests for all utility functions must be written via jest.
@@ -198,13 +338,13 @@ Individual component files (.tsx) within `components/` must have an accompanying
 
 Page component files must have an accompanying `***.test.tsx` files. These tests are **integration** tests which must test a combination of multiple components in relation to one another. Additionally, these tests should have some user event actions to simulate real-world user events and outcomes that can then have assertions made against (i.e. clicking a button changes it to be in a loading state).
 
-If the `<FadeIn />` component is being used on the page being tested via Playwright, add a manual waittime of two seconds to ensure the fade-in animations are all completed. This is necessary because the animation gradually changes the opacity from 0 to 1 and playwright can analyze elements during animations. If the animation is not yet complete, a less than one opacity will result in darker than expected colors resulting in a failed contrast accessibility check.
+If the `<FadeIn />` component is being used on the page being tested via Playwright, add a manual wait-time of two seconds to ensure the fade-in animations are all completed. This is necessary because the animation gradually changes the opacity from 0 to 1 and playwright can analyze elements during animations. If the animation is not yet complete, less than one opacity will result in darker than expected colors resulting in a failed contrast accessibility check.
 
-Additionally, excluding elements from the checkA11y method must be done very sparingly as an excluded element will also exclude all of its descendants. In the use-case of the FadeIn component, it can wrap any valid react node to give it a fade in loading animation that starts on component mount. This means unintentional exclusion of a large portion of a page from the accessibility evalutaion pipeline.
+Additionally, excluding elements from the checkA11y method must be done very sparingly as an excluded element will also exclude all of its descendants. In the use-case of the FadeIn component, it can wrap any valid react node to give it a fade in loading animation that starts on component mount. This means unintentional exclusion of a large portion of a page from the accessibility evaluation pipeline.
 
 ### E2E via Playwright [***.spec.ts]
 
-Playwright tests are where anything else that can't be tested in unit, component, or integration tests are tested. These are end-to-end (e2e) tests.
+Playwright tests are where anything else that can't be tested in unit, component, or integration tests is tested. These are tests that make assertions against entire user flows in a simulated browser (ideally) allowing for the most accurate and expensive. Because of their boon and gain, E2E tests tend to be best written for the least amount of testing. This means that you should have most if not all business logic, already being tested via unit, component, and integration tests. The resulting list of things to test within an end-to-end framework should be less than what you think it should be unless you have a very large application with dozens of unique user flows to test. A proper environment should exist to allow testing deployment and environment issues (one of the benefits of E2E simulation). The most common testing to be expected within E2E are: accessibility, user flows that involve multiple pages (routing/navigation actions), browser button behaviour, and live BE and FE integration testing (things that cannot be tested with dummy data).
 
 Playwright tests are scoped at the browser (including type) level. This project is configured to run all playwright tests (`***.spec.ts`) on major browser and mobile devices (chromium, firefox, webkit, mobile chrome, mobile safari, microsoft edge, & google chrome). Refer to the `playwright.config.ts` for more details.
 

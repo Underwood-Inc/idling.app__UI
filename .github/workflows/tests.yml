@@ -1,18 +1,34 @@
 name: Tests
+
+# Concurrency group to cancel in-progress runs on PR updates
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 on:
   push:
     branches: [main, master]
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
   pull_request:
     types: [opened, synchronize, reopened]
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
 
-# Add this permissions block at the top level of the workflow
+# Required permissions for GitHub Actions
 permissions:
   contents: read
   actions: write
+  checks: write
+  pull-requests: write
 
+# Environment variables available to all jobs
 env:
   AUTH_TRUST_HOST: true
   NEXTAUTH_URL: http://localhost:3000
+  # Secrets are encrypted environment variables
   NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
   AUTHJS_SESSION_TOKEN: ${{ secrets.AUTHJS_SESSION_TOKEN }}
   AUTHJS_CALLBACK_URL: ${{ secrets.AUTHJS_CALLBACK_URL }}
@@ -24,22 +40,56 @@ env:
   POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
   POSTGRES_HOST_AUTH_METHOD: md5
   POSTGRES_INITDB_ARGS: --auth-host=md5
-  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Needed to get PR information, if any
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
 jobs:
-  test:
-    name: Run Tests
-    timeout-minutes: 60
+  setup:
+    timeout-minutes: 10
+    name: Setup Environment
     runs-on: ubuntu-latest
     environment: actions
-    # Service containers to run with `runner-job`
+    steps:
+      # Checkout code with full git history for proper versioning
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # Setup Node.js using LTS version
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: 'yarn' # Enable built-in yarn caching
+
+      # Install project dependencies
+      - name: Install dependencies
+        run: npm install -g yarn && yarn
+
+      # Cache dependencies to speed up future runs
+      - name: Cache dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            node_modules
+            ~/.cache/playwright
+          key: ${{ runner.os }}-deps-${{ hashFiles('**/yarn.lock') }}
+
+  playwright:
+    name: Playwright Tests
+    needs: setup
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment: actions
+    strategy:
+      fail-fast: false # Continue with other shards if one fails
+      matrix:
+        shard: [1, 2, 3] # Run tests in 3 parallel shards
     services:
-      # Label used to access the service container
+      # PostgreSQL service container for E2E tests
       postgres:
-        # Docker Hub image
         image: postgres
-        # Provide the password for postgres
         env:
+          # Database configuration
           POSTGRES_HOST: ${{ secrets.POSTGRES_HOST }}
           POSTGRES_PORT: ${{ secrets.POSTGRES_PORT }}
           POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
@@ -47,50 +97,775 @@ jobs:
           POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
           POSTGRES_HOST_AUTH_METHOD: md5
           POSTGRES_INITDB_ARGS: --auth-host=md5
-        # Set health checks to wait until postgres has started
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
         ports:
-          # Maps tcp port 5432 on service container to the host
           - 5432:5432
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0 # Shallow clones should be disabled for a better relevancy of analysis
       - uses: actions/setup-node@v4
         with:
           node-version: lts/*
-      - name: Run migrations
-        env:
-          POSTGRES_HOST: ${{ secrets.POSTGRES_HOST }}
-          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
-          POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
-        run: psql -v POSTGRES_DB="$POSTGRES_DB" -v POSTGRES_PASSWORD="$POSTGRES_PASSWORD" -v POSTGRES_USER="$POSTGRES_USER" -f ./src/lib/scripts/000-init.sql postgresql://${{secrets.POSTGRES_USER}}:${{secrets.POSTGRES_PASSWORD}}@${{secrets.POSTGRES_HOST}}:${{secrets.POSTGRES_PORT}}
+          cache: 'yarn'
+
+      # Restore cached dependencies
+      - name: Restore cache
+        id: cache-deps
+        uses: actions/cache@v4
+        with:
+          path: |
+            node_modules
+            ~/.cache/playwright
+          key: ${{ runner.os }}-deps-${{ hashFiles('**/yarn.lock', '**/package.json') }}
+          restore-keys: |
+            ${{ runner.os }}-deps-
+            ${{ runner.os }}-
+
+      # Install dependencies with offline preference
       - name: Install dependencies
-        run: npm install -g yarn && yarn
-      - name: Install Playwright Browsers
-        run: yarn playwright install --with-deps
+        run: yarn install --prefer-offline --frozen-lockfile
+
+      # Install browser dependencies using Playwright's official script
+      - name: Install browser dependencies
+        run: |
+          # Update package lists
+          sudo apt-get update
+
+          # Install common dependencies
+          sudo apt-get install -y --no-install-recommends \
+            libwoff1 \
+            libopus0 \
+            libwebp7 \
+            libwebpdemux2 \
+            libenchant-2-2 \
+            libgudev-1.0-0 \
+            libsecret-1-0 \
+            libhyphen0 \
+            libgdk-pixbuf2.0-0 \
+            libegl1 \
+            libnotify4 \
+            libxslt1.1 \
+            libevent-2.1-7 \
+            libgles2 \
+            libvpx7 \
+            libharfbuzz-icu0
+
+          # Install WebKit-specific dependencies
+          sudo apt-get install -y --no-install-recommends \
+            libgstreamer-plugins-base1.0-0 \
+            libgstreamer-gl1.0-0 \
+            libgstreamer-plugins-bad1.0-0 \
+            libopenjp2-7 \
+            libharfbuzz0b \
+            libmanette-0.2-0 \
+            libharfbuzz-icu0 \
+            libgstreamer1.0-0 \
+            gstreamer1.0-plugins-base \
+            gstreamer1.0-plugins-good \
+            libwoff1
+
+          # Install Playwright browsers with system dependencies
+          npx playwright install --with-deps
+
+      # Setup test database
+      - name: Run migrations
+        run: psql -v POSTGRES_DB="$POSTGRES_DB" -v POSTGRES_PASSWORD="$POSTGRES_PASSWORD" -v POSTGRES_USER="$POSTGRES_USER" -f ./src/lib/scripts/000-init.sql postgresql://${{secrets.POSTGRES_USER}}:${{secrets.POSTGRES_PASSWORD}}@${{secrets.POSTGRES_HOST}}:${{secrets.POSTGRES_PORT}}
+
+      # Run E2E tests with sharding
       - name: Run Playwright tests
-        env:
-          POSTGRES_HOST: ${{ secrets.POSTGRES_HOST }}
-          POSTGRES_PORT: ${{ secrets.POSTGRES_PORT }}
-          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
-          POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
-          POSTGRES_HOST_AUTH_METHOD: md5
-          POSTGRES_INITDB_ARGS: --auth-host=md5
-        run: IS_CI=1 yarn playwright test
+        run: |
+          echo "::group::Running Playwright Tests (Shard ${{ matrix.shard }}/3)"
+          # Create directories for each project
+          mkdir -p test-results/{chromium,firefox,webkit} playwright-report
+
+          # Run tests with reporters configured in playwright.config.ts
+          IS_CI=1 FORCE_COLOR=1 yarn playwright test \
+            --shard=${{ matrix.shard }}/3
+
+          # Debug: Show test results
+          echo "Test results directory contents:"
+          ls -la test-results/
+          echo "\nTest results by project:"
+          for dir in test-results/*/; do
+            echo "\n$dir:"
+            ls -la "$dir"
+          done
+          echo "::endgroup::"
+
+      # Upload test results for this shard
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-results-${{ matrix.shard }}
+          path: |
+            test-results/**/*
+            playwright-report/**/*
+          retention-days: 30
+
+      # Upload traces only on failure
+      - name: Upload test traces on failure
+        if: ${{ failure() && !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-traces-${{ matrix.shard }}
+          path: test-results/
+          retention-days: 7
+
+      # Add this shared function to both Playwright and Jest steps
+      - name: Update Test Report Comment
+        if: always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { existsSync, readFileSync } = require('fs');
+
+            async function updateTestComment(newSection) {
+              try {
+                // Only proceed if we're in a PR context
+                if (!context.payload.pull_request) {
+                  console.log('Not a pull request - skipping comment update');
+                  return;
+                }
+
+                // Determine which type of test result we're adding
+                const isJest = newSection.includes('## 🃏 Jest Tests');
+                const isPlaywright = newSection.includes('## 🎭 Playwright Tests');
+                
+                // Set appropriate title based on test type
+                const title = isJest 
+                  ? '# 🃏 Unit Test Results\n\n'
+                  : '# 🎭 E2E Test Results\n\n';
+
+                // Find existing comments of the same type
+                const { data: comments } = await github.rest.issues.listComments({
+                  issue_number: context.issue.number,
+                  owner: context.repo.owner,
+                  repo: context.repo.repo
+                });
+                
+                const existingComment = comments.find(comment => 
+                  (isJest && comment.body.includes('Unit Test Results')) ||
+                  (isPlaywright && comment.body.includes('E2E Test Results'))
+                );
+
+                // Create comment body with specific title
+                const commentBody = title + newSection.trim();
+
+                // Delete existing comment of the same type if it exists
+                if (existingComment) {
+                  await github.rest.issues.deleteComment({
+                    comment_id: existingComment.id,
+                    owner: context.repo.owner,
+                    repo: context.repo.repo
+                  });
+                }
+
+                // Create new comment
+                await github.rest.issues.createComment({
+                  issue_number: context.issue.number,
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  body: commentBody
+                });
+
+              } catch (error) {
+                console.error('Error updating test report comment:', error);
+                throw error;
+              }
+            }
+
+            // Generate Playwright section
+            if ('${{ github.job }}' === 'playwright') {
+              const reportPath = 'coverage/playwright-test-results.json';
+              
+              if (!existsSync(reportPath)) {
+                console.log(`Playwright results file not found at ${reportPath}, trying alternate locations...`);
+                const possiblePaths = [
+                  'playwright-report/report.json',
+                  'test-results/report.json',
+                  'test-results/results.json',
+                  'playwright-report/results.json',
+                  'test-report.json',
+                  'coverage/playwright-test-results.json'
+                ];
+                
+                for (const path of possiblePaths) {
+                  if (existsSync(path)) {
+                    console.log(`Found results at ${path}`);
+                    reportPath = path;
+                    break;
+                  }
+                }
+                
+                if (!existsSync(reportPath)) {
+                  console.log('No Playwright results file found in any expected location');
+                  return;
+                }
+              }
+
+              const report = JSON.parse(readFileSync(reportPath, 'utf8'));
+              console.log('Raw Playwright report:', report);
+
+              // Extract stats from the correct location
+              const stats = {
+                passed: report.stats.expected - report.stats.unexpected - report.stats.skipped,
+                failed: report.stats.unexpected,
+                skipped: report.stats.skipped,
+                duration: report.stats.duration
+              };
+
+              let section = `## 🃏 Playwright Tests\n`;
+              section += `\n| Status | Count |\n`;
+              section += `|--------|-------|\n`;
+              section += `| ✅ Passed | ${stats.passed} |\n`;
+              section += `| ❌ Failed | ${stats.failed} |\n`;
+              section += `| ⏭️ Skipped | ${stats.skipped} |\n`;
+              section += `| ⏱️ Duration | ${Math.round(stats.duration / 1000)}s |\n\n`;
+
+              // Add failed test details if any
+              if (report.suites) {
+                const failedTests = [];
+                
+                // Recursively collect failed tests from suites
+                function collectFailedTests(suite) {
+                  if (suite.specs) {
+                    suite.specs.forEach(spec => {
+                      if (spec.tests) {
+                        spec.tests.forEach(test => {
+                          if (test.results && test.results.some(r => r.status === 'failed')) {
+                            failedTests.push({
+                              title: `${suite.title} › ${test.title}`,
+                              error: test.results.find(r => r.status === 'failed').error?.message || 'No error message available'
+                            });
+                          }
+                        });
+                      }
+                    });
+                  }
+                }
+
+                report.suites.forEach(collectFailedTests);
+
+                if (failedTests.length > 0) {
+                  section += `### Failed Playwright Tests\n\n`;
+                  failedTests.forEach(test => {
+                    section += `<details><summary>❌ ${test.title}</summary>\n\n`;
+                    section += `\`\`\`\n${test.error}\n\`\`\`\n\n</details>\n\n`;
+                  });
+                }
+              }
+
+              await updateTestComment(section);
+            }
+
+  jest:
+    timeout-minutes: 15
+    name: Jest Tests
+    needs: setup
+    runs-on: ubuntu-latest
+    environment: actions
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3] # Run tests in 3 parallel shards
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: 'yarn'
+
+      # Restore cached dependencies
+      - name: Restore cache
+        id: cache-deps
+        uses: actions/cache@v4
+        with:
+          path: |
+            node_modules
+            coverage
+          key: ${{ runner.os }}-deps-${{ hashFiles('**/yarn.lock', '**/package.json') }}
+          restore-keys: |
+            ${{ runner.os }}-deps-
+            ${{ runner.os }}-
+
+      # Install dependencies with offline preference
+      - name: Install dependencies
+        run: yarn install --prefer-offline --frozen-lockfile
+
+      # Run unit tests with sharding
       - name: Run Jest tests
-        run: yarn test:coverage
+        run: |
+          echo "::group::Running Jest Tests (Shard ${{ matrix.shard }}/3)"
+          FORCE_COLOR=1 yarn test:coverage --ci --colors --json --shard=${{ matrix.shard }}/3 --testLocationInResults --outputFile="$GITHUB_WORKSPACE/jest-results-${{ matrix.shard }}.json"
+          echo "::endgroup::"
+
+      # Save cache after installing dependencies
+      - name: Save cache
+        if: ${{ !cancelled() }}
+        uses: actions/cache@v4
+        with:
+          path: |
+            node_modules
+            coverage
+          key: ${{ runner.os }}-deps-${{ hashFiles('**/yarn.lock', '**/package.json') }}
+
+      # Upload coverage reports for each shard
+      - name: Upload Jest coverage
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: jest-coverage-${{ matrix.shard }}
+          path: coverage/
+          retention-days: 30
+
+      # Add this shared function to both Playwright and Jest steps
+      - name: Update Test Report Comment
+        if: always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { existsSync, readFileSync } = require('fs');
+
+            async function updateTestComment(newSection) {
+              try {
+                // Only proceed if we're in a PR context
+                if (!context.payload.pull_request) {
+                  console.log('Not a pull request - skipping comment update');
+                  return;
+                }
+
+                // Determine which type of test result we're adding
+                const isJest = newSection.includes('## 🃏 Jest Tests');
+                const isPlaywright = newSection.includes('## 🎭 Playwright Tests');
+                
+                // Set appropriate title based on test type
+                const title = isJest 
+                  ? '# 🃏 Unit Test Results\n\n'
+                  : '# 🎭 E2E Test Results\n\n';
+
+                // Find existing comments of the same type
+                const { data: comments } = await github.rest.issues.listComments({
+                  issue_number: context.issue.number,
+                  owner: context.repo.owner,
+                  repo: context.repo.repo
+                });
+                
+                const existingComment = comments.find(comment => 
+                  (isJest && comment.body.includes('Unit Test Results')) ||
+                  (isPlaywright && comment.body.includes('E2E Test Results'))
+                );
+
+                // Create comment body with specific title
+                const commentBody = title + newSection.trim();
+
+                // Delete existing comment of the same type if it exists
+                if (existingComment) {
+                  await github.rest.issues.deleteComment({
+                    comment_id: existingComment.id,
+                    owner: context.repo.owner,
+                    repo: context.repo.repo
+                  });
+                }
+
+                // Create new comment
+                await github.rest.issues.createComment({
+                  issue_number: context.issue.number,
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  body: commentBody
+                });
+
+              } catch (error) {
+                console.error('Error updating test report comment:', error);
+                throw error;
+              }
+            }
+
+            // Generate Playwright section
+            if ('${{ github.job }}' === 'playwright') {
+              const reportPath = 'coverage/playwright-test-results.json';
+              
+              if (!existsSync(reportPath)) {
+                console.log(`Playwright results file not found at ${reportPath}, trying alternate locations...`);
+                const possiblePaths = [
+                  'playwright-report/report.json',
+                  'test-results/report.json',
+                  'test-results/results.json',
+                  'playwright-report/results.json',
+                  'test-report.json',
+                  'coverage/playwright-test-results.json'
+                ];
+                
+                for (const path of possiblePaths) {
+                  if (existsSync(path)) {
+                    console.log(`Found results at ${path}`);
+                    reportPath = path;
+                    break;
+                  }
+                }
+                
+                if (!existsSync(reportPath)) {
+                  console.log('No Playwright results file found in any expected location');
+                  return;
+                }
+              }
+
+              const report = JSON.parse(readFileSync(reportPath, 'utf8'));
+              console.log('Raw Playwright report:', report);
+
+              // Extract stats from the correct location
+              const stats = {
+                passed: report.stats.expected - report.stats.unexpected - report.stats.skipped,
+                failed: report.stats.unexpected,
+                skipped: report.stats.skipped,
+                duration: report.stats.duration
+              };
+
+              let section = `## 🃏 Playwright Tests\n`;
+              section += `\n| Status | Count |\n`;
+              section += `|--------|-------|\n`;
+              section += `| ✅ Passed | ${stats.passed} |\n`;
+              section += `| ❌ Failed | ${stats.failed} |\n`;
+              section += `| ⏭️ Skipped | ${stats.skipped} |\n`;
+              section += `| ⏱️ Duration | ${Math.round(stats.duration / 1000)}s |\n\n`;
+
+              // Add failed test details if any
+              if (report.suites) {
+                const failedTests = [];
+                
+                // Recursively collect failed tests from suites
+                function collectFailedTests(suite) {
+                  if (suite.specs) {
+                    suite.specs.forEach(spec => {
+                      if (spec.tests) {
+                        spec.tests.forEach(test => {
+                          if (test.results && test.results.some(r => r.status === 'failed')) {
+                            failedTests.push({
+                              title: `${suite.title} › ${test.title}`,
+                              error: test.results.find(r => r.status === 'failed').error?.message || 'No error message available'
+                            });
+                          }
+                        });
+                      }
+                    });
+                  }
+                }
+
+                report.suites.forEach(collectFailedTests);
+
+                if (failedTests.length > 0) {
+                  section += `### Failed Playwright Tests\n\n`;
+                  failedTests.forEach(test => {
+                    section += `<details><summary>❌ ${test.title}</summary>\n\n`;
+                    section += `\`\`\`\n${test.error}\n\`\`\`\n\n</details>\n\n`;
+                  });
+                }
+              }
+
+              await updateTestComment(section);
+            }
+
+            // Generate Jest section
+            if ('${{ github.job }}' === 'jest') {
+              const reportPath = 'jest-results.json';
+              
+              if (!existsSync(reportPath)) {
+                console.log('Jest results file not found, skipping report');
+                return;
+              }
+
+              const results = JSON.parse(readFileSync(reportPath, 'utf8'));
+              
+              const formattedDuration = `${Math.round(results.testResults.reduce((acc, result) => acc + result.endTime - result.startTime, 0) / 1000)}s`;
+              
+              // Ensure exact match with regex pattern
+              let section = `## 🃏 Jest Tests\n`;  // Remove extra newline
+              section += `\n| Status | Count |\n`;  // Add newline here instead
+              section += `|--------|-------|\n`;
+              section += `| ✅ Passed | ${results.numPassedTests} |\n`;
+              section += `| ❌ Failed | ${results.numFailedTests} |\n`;
+              section += `| ⏭️ Skipped | ${results.numPendingTests} |\n`;
+              section += `| ⏱️ Duration | ${formattedDuration} |\n\n`;
+              
+              if (results.numFailedTests > 0) {
+                section += `### Failed Jest Tests\n\n`;
+                results.testResults.forEach(suite => {
+                  if (suite.numFailingTests > 0) {
+                    suite.testResults
+                      ?.filter(test => test.status === 'failed')
+                      .forEach(test => {
+                        section += `<details><summary>❌ ${test.fullName || test.title}</summary>\n\n`;
+                        section += `\`\`\`ansi\n${(test.failureMessages || []).join('\n')}\n\`\`\`\n\n</details>\n\n`;
+                      });
+                  }
+                });
+              }
+              
+              await updateTestComment(section);
+            }
+
+  combine-coverage:
+    name: Combine Coverage Reports
+    needs: jest
+    runs-on: ubuntu-latest
+    if: ${{ !cancelled() }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: 'yarn'
+
+      # Download all coverage artifacts
+      - name: Download coverage artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: jest-coverage-*
+          merge-multiple: true
+          path: coverage-shards
+
+      # Install coverage tools
+      - name: Install coverage tools
+        run: yarn add -D nyc istanbul-reports istanbul-lib-coverage
+
+      # Merge coverage reports
+      - name: Merge coverage reports
+        run: |
+          # Create directory for merged reports
+          mkdir -p .nyc_output coverage
+
+          # Find and merge all coverage-final.json files from shards
+          echo "Merging coverage reports..."
+          # First, find all coverage files and copy them with unique names
+          shardNum=1
+          for file in $(find coverage-shards -name 'coverage-final.json' -not -path "*/playwright*"); do
+            echo "Processing coverage file: $file"
+            cp "$file" "coverage/coverage-final-$shardNum.json"
+            shardNum=$((shardNum + 1))
+          done
+
+          # List found coverage files for debugging
+          echo "Found coverage files:"
+          ls -la coverage/
+
+          # Remove any Playwright files that might have been copied
+          rm -f coverage/playwright-*.json
+
+          # Merge the coverage files
+          echo "Merging coverage files..."
+          npx nyc merge coverage/ coverage/.nyc_output/out.json
+
+          # Generate the combined report
+          echo "Generating combined report..."
+          npx nyc report --reporter=lcov --reporter=text --reporter=json-summary \
+            --temp-dir coverage/.nyc_output \
+            --report-dir coverage
+
+      # Upload combined coverage
+      - name: Upload combined coverage
+        uses: actions/upload-artifact@v4
+        with:
+          name: combined-coverage
+          path: coverage/
+          retention-days: 30
+
+  combine-playwright:
+    name: Combine Playwright Reports
+    needs: playwright
+    runs-on: ubuntu-latest
+    if: ${{ !cancelled() }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: 'yarn'
+
+      # Install dependencies with offline preference
+      - name: Install dependencies
+        run: yarn install --prefer-offline --frozen-lockfile
+
+      # Download all Playwright results
+      - name: Download Playwright results
+        uses: actions/download-artifact@v4
+        with:
+          pattern: playwright-results-*
+          merge-multiple: true
+          path: downloaded-results
+
+      # Debug directory contents
+      - name: List downloaded artifacts
+        run: |
+          echo "Contents of workspace:"
+          ls -la
+          echo "\nContents of downloaded-results:"
+          ls -la downloaded-results || echo "downloaded-results directory not found"
+
+      # Merge reports
+      - name: Merge Playwright reports
+        run: |
+          # Create output directory
+          mkdir -p playwright-report
+
+          # Debug: Show full directory structure
+          echo "Full directory structure:"
+          find downloaded-results -type f
+
+          # Generate HTML report from merged results
+          echo "Generating HTML report..."
+          npx playwright merge-reports --reporter html downloaded-results
+
+          # Debug: Show final report contents
+          echo "Final report contents:"
+          ls -la playwright-report/
+
+      # Upload merged report
+      - name: Upload merged report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report/**/*
+          retention-days: 30
+
+  sonar:
+    timeout-minutes: 15
+    name: SonarCloud Analysis
+    needs: [combine-playwright, combine-coverage]
+    if: ${{ !cancelled() }}
+    runs-on: ubuntu-latest
+    environment: actions
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      # Download test results for analysis
+      - name: Download all workflow run artifacts
+        uses: actions/download-artifact@v4
+      # Run SonarCloud analysis
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master
         env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-      - uses: actions/upload-artifact@v4
-        if: always()
+
+      # Add this after SonarCloud scan
+      - name: Create SonarCloud Report Comment
+        if: ${{ !cancelled() }}
+        uses: actions/github-script@v7
         with:
-          name: playwright-report
-          path: playwright-report/
-          retention-days: 30
+          script: |
+            try {
+              const sonarResults = process.env.SONAR_RESULTS;
+              
+              let comment = `##  SonarCloud Analysis Results\n\n`;
+              comment += `| Metric | Value |\n|--------|-------|\n`;
+              comment += `| 🐛 Bugs | ${sonarResults.bugs || 0} |\n`;
+              comment += `| 🔒 Vulnerabilities | ${sonarResults.vulnerabilities || 0} |\n`;
+              comment += `| 🧹 Code Smells | ${sonarResults.code_smells || 0} |\n`;
+              comment += `| 📊 Coverage | ${sonarResults.coverage || '0'}% |\n`;
+              
+              if (sonarResults.issues?.length > 0) {
+                comment += `\n### Issues Found\n\n`;
+                sonarResults.issues.forEach(issue => {
+                  comment += `<details><summary>${issue.severity}: ${issue.message}</summary>\n\n`;
+                  comment += `- File: ${issue.component}\n`;
+                  comment += `- Line: ${issue.line}\n`;
+                  comment += `- Rule: ${issue.rule}\n\n</details>\n\n`;
+                });
+              }
+              
+              await github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: comment
+              });
+            } catch (error) {
+              console.error('Error creating SonarCloud report comment:', error);
+            }
+
+  # Add status badges to PR description
+  update-pr-badges:
+    name: Update PR Description with Status Badges
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - name: Update PR Description
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const branch = context.payload.pull_request.head.ref;
+            const baseBranch = context.payload.pull_request.base.ref;
+
+            // Define badges
+            const badges = [
+              // Tests status badge
+              `[![Tests](https://github.com/${owner}/${repo}/actions/workflows/tests.yml/badge.svg?branch=${branch})](https://github.com/${owner}/${repo}/actions/workflows/tests.yml)`,
+              // SonarCloud badges - using organization and PR-specific format
+              `[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=Underwood-Inc_${repo}&metric=alert_status&pullRequest=${context.issue.number})](https://sonarcloud.io/summary/new_code?id=Underwood-Inc_${repo}&pullRequest=${context.issue.number})`,
+              `[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=Underwood-Inc_${repo}&metric=coverage&pullRequest=${context.issue.number})](https://sonarcloud.io/summary/new_code?id=Underwood-Inc_${repo}&pullRequest=${context.issue.number})`,
+              `[![Bugs](https://sonarcloud.io/api/project_badges/measure?project=Underwood-Inc_${repo}&metric=bugs&pullRequest=${context.issue.number})](https://sonarcloud.io/summary/new_code?id=Underwood-Inc_${repo}&pullRequest=${context.issue.number})`,
+              `[![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=Underwood-Inc_${repo}&metric=code_smells&pullRequest=${context.issue.number})](https://sonarcloud.io/summary/new_code?id=Underwood-Inc_${repo}&pullRequest=${context.issue.number})`
+            ].join(' ');
+
+            try {
+              // Get current PR description
+              const { data: pr } = await github.rest.pulls.get({
+                owner,
+                repo,
+                pull_number: context.issue.number
+              });
+              
+              let body = pr.body || '';
+              
+              // Check if badges section already exists
+              if (!body.includes('<!-- status-badges-start -->')) {
+                // Create badges section
+                const badgesSection = [
+                  '<!-- status-badges-start -->',
+                  '## Status Badges',
+                  'Status badges for the current branch:',
+                  '',
+                  badges,
+                  '',
+                  '<!-- status-badges-end -->'
+                ].join('\n');
+                
+                // Find position after first header
+                const firstHeaderMatch = body.match(/^#\s+.*$/m);
+                if (firstHeaderMatch) {
+                  // Insert after the first header and any immediate newlines
+                  const headerIndex = body.indexOf(firstHeaderMatch[0]) + firstHeaderMatch[0].length;
+                  const afterHeader = body.slice(headerIndex).match(/^\n*/)[0];
+                  const insertPosition = headerIndex + afterHeader.length;
+                  
+                  // Insert badges section with proper spacing
+                  body = body.slice(0, insertPosition) + '\n\n' + badgesSection + '\n\n' + body.slice(insertPosition);
+                } else {
+                  // If no header found, prepend badges section
+                  body = badgesSection + '\n\n' + body;
+                }
+                
+                // Update PR description
+                await github.rest.pulls.update({
+                  owner,
+                  repo,
+                  pull_number: context.issue.number,
+                  body
+                });
+                
+                console.log('Successfully added status badges to PR description');
+              } else {
+                console.log('Status badges section already exists in PR description');
+              }
+            } catch (error) {
+              console.error('Error updating PR description:', error);
+              core.setFailed(error.message);
+            }
