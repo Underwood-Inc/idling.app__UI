@@ -690,7 +690,8 @@ jobs:
       - name: Download Playwright results
         uses: actions/download-artifact@v4
         with:
-          name: playwright-results
+          pattern: playwright-results-*
+          merge-multiple: true
           path: playwright-results
 
       # Debug directory contents
@@ -699,11 +700,7 @@ jobs:
           echo "Contents of workspace:"
           ls -la
           echo "\nContents of playwright-results:"
-          ls -la playwright-results
-          echo "\nContents of test-results (if exists):"
-          ls -la test-results || echo "test-results directory not found"
-          echo "\nContents of playwright-report (if exists):"
-          ls -la playwright-report || echo "playwright-report directory not found"
+          ls -la playwright-results || echo "playwright-results directory not found"
 
       # Merge reports
       - name: Merge Playwright reports
@@ -720,7 +717,17 @@ jobs:
             npx playwright merge-reports --reporter html playwright-results
           else
             echo "Searching for json files..."
-            find playwright-results -name "*.json" -type f
+            find playwright-results -name "*.json" -type f -exec cp {} playwright-results/ \;
+            npx playwright merge-reports --reporter html playwright-results
+          fi
+
+          # Verify merged report exists
+          if [ -d "playwright-report" ]; then
+            echo "Contents of playwright-report:"
+            ls -la playwright-report
+          else
+            echo "Error: playwright-report directory not found after merge"
+            exit 1
           fi
 
       # Upload merged report
