@@ -178,17 +178,21 @@ jobs:
       - name: Run Playwright tests
         run: |
           echo "::group::Running Playwright Tests (Shard ${{ matrix.shard }}/3)"
-          # Create directories
-          mkdir -p test-results playwright-report
+          # Create directories for each project
+          mkdir -p test-results/{chromium,firefox,webkit} playwright-report
 
-          # Run tests with both reporters
+          # Run tests with reporters configured in playwright.config.ts
           IS_CI=1 FORCE_COLOR=1 yarn playwright test \
-            --shard=${{ matrix.shard }}/3 \
-            --reporter="json,list"
+            --shard=${{ matrix.shard }}/3
 
           # Debug: Show test results
           echo "Test results directory contents:"
           ls -la test-results/
+          echo "\nTest results by project:"
+          for dir in test-results/*/; do
+            echo "\n$dir:"
+            ls -la "$dir"
+          done
           echo "::endgroup::"
 
       # Upload test results for this shard
