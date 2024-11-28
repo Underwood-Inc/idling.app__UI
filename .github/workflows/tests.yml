@@ -761,7 +761,7 @@ jobs:
             try {
               const sonarResults = process.env.SONAR_RESULTS;
               
-              let comment = `## 🔍 SonarCloud Analysis Results\n\n`;
+              let comment = `## �� SonarCloud Analysis Results\n\n`;
               comment += `| Metric | Value |\n|--------|-------|\n`;
               comment += `| 🐛 Bugs | ${sonarResults.bugs || 0} |\n`;
               comment += `| 🔒 Vulnerabilities | ${sonarResults.vulnerabilities || 0} |\n`;
@@ -837,8 +837,20 @@ jobs:
                   '<!-- status-badges-end -->'
                 ].join('\n');
                 
-                // Add badges section at the top of the description
-                body = badgesSection + '\n\n' + body;
+                // Find position after first header
+                const firstHeaderMatch = body.match(/^#\s+.*$/m);
+                if (firstHeaderMatch) {
+                  // Insert after the first header and any immediate newlines
+                  const headerIndex = body.indexOf(firstHeaderMatch[0]) + firstHeaderMatch[0].length;
+                  const afterHeader = body.slice(headerIndex).match(/^\n*/)[0];
+                  const insertPosition = headerIndex + afterHeader.length;
+                  
+                  // Insert badges section with proper spacing
+                  body = body.slice(0, insertPosition) + '\n\n' + badgesSection + '\n\n' + body.slice(insertPosition);
+                } else {
+                  // If no header found, prepend badges section
+                  body = badgesSection + '\n\n' + body;
+                }
                 
                 // Update PR description
                 await github.rest.pulls.update({
