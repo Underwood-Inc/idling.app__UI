@@ -11,10 +11,8 @@ import { PageAside } from '../components/page-aside/PageAside';
 import { PageContainer } from '../components/page-container/PageContainer';
 import PageContent from '../components/page-content/PageContent';
 import PageHeader from '../components/page-header/PageHeader';
-import {
-  RecentTags,
-  RecentTagsLoader
-} from '../components/recent-tags/RecentTags';
+import { RecentTags } from '../components/recent-tags/RecentTags';
+import { RecentTagsLoader } from '../components/recent-tags/RecentTagsClient';
 import { AddSubmissionForm } from '../components/submission-forms/add-submission-form/AddSubmissionForm';
 import styles from './page.module.css';
 

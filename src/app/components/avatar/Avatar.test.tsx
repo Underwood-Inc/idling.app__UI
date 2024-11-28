@@ -5,7 +5,7 @@ import { AVATAR_SELECTORS } from 'src/lib/test-selectors/components/avatar.selec
 import Avatar, { AvatarPropSizes } from './Avatar';
 
 jest.mock('@dicebear/core', () => ({
-  createAvatar: jest.fn(() => ({ toDataUriSync: () => 'mocked-avatar-url' }))
+  createAvatar: jest.fn(() => ({ toDataUri : () => 'mocked-avatar-url' }))
 }));
 jest.mock('@dicebear/collection', () => ({ adventurer: {} }));
 
