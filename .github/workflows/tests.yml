@@ -137,7 +137,7 @@ jobs:
       - name: Install WebKit dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y libwoff2dec1 libwoff2dec1.0.2
+          sudo apt-get install -y libwoff2-1
 
       # Save cache after installing dependencies
       - name: Save cache
