@@ -173,7 +173,7 @@ jobs:
 
       # Save cache after installing dependencies
       - name: Save cache
-        if: always()
+        if: ${{ !cancelled() }}
         uses: actions/cache@v4
         with:
           path: |
@@ -195,7 +195,7 @@ jobs:
 
       # Always upload test results
       - name: Upload test results
-        if: always()
+        if: ${{ !cancelled() }}
         uses: actions/upload-artifact@v4
         with:
           name: playwright-results
@@ -206,7 +206,7 @@ jobs:
 
       # Upload traces only on failure
       - name: Upload test traces on failure
-        if: failure()
+        if: ${{ failure() && !cancelled() }}
         uses: actions/upload-artifact@v4
         with:
           name: playwright-traces
@@ -403,7 +403,7 @@ jobs:
 
       # Save cache after installing dependencies
       - name: Save cache
-        if: always()
+        if: ${{ !cancelled() }}
         uses: actions/cache@v4
         with:
           path: |
@@ -413,7 +413,7 @@ jobs:
 
       # Upload coverage reports for each shard
       - name: Upload Jest coverage
-        if: always()
+        if: ${{ !cancelled() }}
         uses: actions/upload-artifact@v4
         with:
           name: jest-coverage-${{ matrix.shard }}
@@ -610,7 +610,7 @@ jobs:
     name: Combine Coverage Reports
     needs: jest
     runs-on: ubuntu-latest
-    if: always()
+    if: ${{ !cancelled() }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -659,7 +659,7 @@ jobs:
     name: Combine Playwright Reports
     needs: playwright
     runs-on: ubuntu-latest
-    if: always()
+    if: ${{ !cancelled() }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -694,9 +694,9 @@ jobs:
 
   sonar:
     timeout-minutes: 15
-    if: always() # Run even if tests fail
     name: SonarCloud Analysis
-    needs: [combine-playwright, combine-coverage] # Waits for both test jobs
+    needs: [combine-playwright, combine-coverage]
+    if: ${{ !cancelled() }}
     runs-on: ubuntu-latest
     environment: actions
     steps:
@@ -715,7 +715,7 @@ jobs:
 
       # Add this after SonarCloud scan
       - name: Create SonarCloud Report Comment
-        if: always()
+        if: ${{ !cancelled() }}
         uses: actions/github-script@v7
         with:
           script: |
