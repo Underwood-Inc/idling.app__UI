@@ -638,7 +638,8 @@ jobs:
 
           # Find and merge all coverage-final.json files from shards
           echo "Merging coverage reports..."
-          npx nyc merge coverage-shards/coverage coverage/.nyc_output/out.json
+          find coverage-shards -name 'coverage-final.json' -exec cp {} coverage/ \;
+          npx nyc merge coverage coverage/.nyc_output/out.json
 
           # Generate the combined report
           echo "Generating combined report..."
