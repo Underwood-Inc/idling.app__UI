@@ -128,11 +128,6 @@ jobs:
       - name: Install dependencies
         run: yarn install --prefer-offline --frozen-lockfile
 
-      # Install browser dependencies if cache miss or partial hit
-      - name: Install Playwright Browsers
-        if: steps.cache-deps.outputs.cache-hit != 'true'
-        run: npx playwright install
-
       # Save cache after installing dependencies
       - name: Save cache
         if: always()
