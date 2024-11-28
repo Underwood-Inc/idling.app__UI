@@ -812,7 +812,7 @@ jobs:
               `[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=Underwood-Inc_${repo}&metric=coverage&pullRequest=${context.issue.number})](https://sonarcloud.io/summary/new_code?id=Underwood-Inc_${repo}&pullRequest=${context.issue.number})`,
               `[![Bugs](https://sonarcloud.io/api/project_badges/measure?project=Underwood-Inc_${repo}&metric=bugs&pullRequest=${context.issue.number})](https://sonarcloud.io/summary/new_code?id=Underwood-Inc_${repo}&pullRequest=${context.issue.number})`,
               `[![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=Underwood-Inc_${repo}&metric=code_smells&pullRequest=${context.issue.number})](https://sonarcloud.io/summary/new_code?id=Underwood-Inc_${repo}&pullRequest=${context.issue.number})`
-            ];
+            ].join(' ');
 
             try {
               // Get current PR description
@@ -832,7 +832,7 @@ jobs:
                   '## Status Badges',
                   'Status badges for the current branch:',
                   '',
-                  badges.join('\n'),
+                  badges,
                   '',
                   '<!-- status-badges-end -->'
                 ].join('\n');
