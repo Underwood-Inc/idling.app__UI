@@ -1,0 +1,40 @@
+{
+  "compilerOptions": {
+    "target": "es2018",
+    "module": "node16",
+    "moduleResolution": "node16",
+    "lib": ["es2018", "dom"],
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "outDir": "./dist",
+    "rootDir": ".",
+    "strict": true,
+    "noImplicitAny": false,
+    "strictNullChecks": true,
+    "strictFunctionTypes": true,
+    "strictBindCallApply": true,
+    "strictPropertyInitialization": true,
+    "noImplicitThis": true,
+    "alwaysStrict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "baseUrl": ".",
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "jsx": "react"
+  },
+  "include": [
+    "rules/**/*.ts",
+    "utils/**/*.ts",
+    "*.ts",
+    "__tests__/**/*.tsx",
+    "__tests__/**/*.ts",
+    "test-eslint.tsx",
+    "jest.config.cjs"
+  ],
+  "exclude": ["node_modules", "dist"]
+}

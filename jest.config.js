@@ -1,23 +1,53 @@
 const nextJest = require('next/jest');
 
 const createJestConfig = nextJest({
-  // Provide the path to your Next.js app to load next.config.js and .env files in your test environment
   dir: './'
 });
 
-// Add any custom config to be passed to Jest
 const customJestConfig = {
-  testPathIgnorePatterns: [
-    '<rootDir>/e2e',
-    '<rootDir>/custom-eslint-rules',
-    '\\.spec\\.ts$'
-  ],
-  setupFilesAfterEnv: ['jest-chain', '<rootDir>/jest.setup.js'],
-  moduleNameMapper: {
-    '^next/navigation$': '<rootDir>/__mocks__/next/navigation.ts'
-  },
-  testEnvironment: 'jest-environment-jsdom'
+  testEnvironment: 'jest-environment-jsdom',
+  testPathIgnorePatterns: ['<rootDir>/e2e', '\\.spec\\.ts$', '\\.d\\.ts$'],
+  setupFilesAfterEnv: ['<rootDir>/src/jest.setup.js'],
+  moduleDirectories: ['node_modules', '<rootDir>'],
+  projects: [
+    {
+      displayName: 'app',
+      testMatch: ['<rootDir>/src/**/*.test.{ts,tsx}'],
+      testPathIgnorePatterns: [
+        '<rootDir>/e2e',
+        '<rootDir>/custom-eslint-rules',
+        '\\.spec\\.ts$',
+        'dist'
+      ],
+      setupFilesAfterEnv: [
+        '@testing-library/jest-dom',
+        '<rootDir>/src/jest.setup.js'
+      ],
+      moduleNameMapper: {
+        '^next/navigation$': '<rootDir>/__mocks__/next/navigation.ts'
+      },
+      testEnvironment: 'jest-environment-jsdom'
+    },
+    {
+      displayName: 'eslint-rules',
+      rootDir: 'custom-eslint-rules',
+      testMatch: ['<rootDir>/rules/__tests__/**/*.test.ts'],
+      testPathIgnorePatterns: ['dist'],
+      transform: {
+        '^.+\\.tsx?$': [
+          'ts-jest',
+          {
+            tsconfig: '<rootDir>/tsconfig.json'
+          }
+        ]
+      },
+      testEnvironment: 'node',
+      setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
+      moduleNameMapper: {
+        '^@typescript-eslint/utils$': '@typescript-eslint/utils/dist/index.js'
+      }
+    }
+  ]
 };
 
-// createJestConfig is exported this way to ensure that next/jest can load the Next.js config which is async
 module.exports = createJestConfig(customJestConfig);

@@ -35,7 +35,8 @@
     "**/*.tsx",
     "types.d.ts",
     ".next/types/**/*.ts",
-    "**/*.mts"
+    "**/*.mts",
+    "custom-eslint-rules/rules/logical-grouping.js"
   ],
   "exclude": ["node_modules"],
   "ts-node": {
