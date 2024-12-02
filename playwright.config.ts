@@ -64,10 +64,13 @@ export default defineConfig({
 
   /* Run your local dev server before starting the tests */
   webServer: {
-    command:
-      'echo "======================building..."; yarn build; yarn start;',
+    command: process.env.CI
+      ? 'yarn install && yarn build && yarn start'
+      : 'yarn build && yarn start',
     stdout: 'pipe',
+    stderr: 'pipe',
     url: 'http://127.0.0.1:3000',
-    reuseExistingServer: !process.env.CI
+    reuseExistingServer: !process.env.CI,
+    timeout: 120000 // 2 minutes timeout for build
   }
 });

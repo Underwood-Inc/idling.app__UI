@@ -1,12 +1,12 @@
 "use strict";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck - this file is for testing ESLint rules
-/**
- * try removing the spaces between the comments and the code or removing the aria-label
- */
 /* eslint-disable no-unused-vars */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-empty-function */
+/**
+ * try removing the spaces between the comments and the code or removing the aria-label
+ */
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = TestComponent;
 // Constants
