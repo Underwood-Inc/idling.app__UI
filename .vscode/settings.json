@@ -1,4 +1,13 @@
 {
+  "cSpell.words": ["nextjs", "SIGNIN", "testid"],
+  "window.commandCenter": true,
+  "diffEditor.maxComputationTime": 0,
+  "workbench.colorTheme": "Monokai Pro (Filter Spectrum)",
+  "git.autofetch": true,
+  "git.confirmSync": false,
+  "remote.autoForwardPortsSource": "hybrid",
+  "explorer.confirmDragAndDrop": false,
+  "editor.formatOnSave": true,
   "eslint.validate": [
     "javascript",
     "javascriptreact",
