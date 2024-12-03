@@ -1,2 +1,5 @@
-custom-eslint-rules
-public
+node_modules/
+dist/
+build/
+coverage/
+*.d.ts

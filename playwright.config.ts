@@ -64,10 +64,21 @@ export default defineConfig({
 
   /* Run your local dev server before starting the tests */
   webServer: {
-    command:
-      'echo "======================building..."; yarn build; yarn start;',
+    command: process.env.CI
+      ? 'yarn install --frozen-lockfile && NODE_ENV=production yarn build && yarn start'
+      : 'NODE_ENV=production yarn build && yarn start',
     stdout: 'pipe',
+    stderr: 'pipe',
     url: 'http://127.0.0.1:3000',
-    reuseExistingServer: !process.env.CI
+    reuseExistingServer: !process.env.CI,
+    timeout: 180000, // 3 minutes timeout for build
+    env: {
+      // Force production environment for build
+      NODE_ENV: 'production',
+      // Disable telemetry
+      NEXT_TELEMETRY_DISABLED: '1',
+      // Ensure Next.js uses SWC
+      DISABLE_BABEL: '1'
+    }
   }
 });

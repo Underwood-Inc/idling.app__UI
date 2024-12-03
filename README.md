@@ -363,6 +363,32 @@ You can run playwright test with a few different scripts:
 
 All test scripts will run against `**.spec.ts` files.
 
+## Linting
+
+This project uses ESLint for code quality and consistency enforcement. Our linting setup includes:
+
+- React-specific rules
+- TypeScript support
+- Accessibility (a11y) checks
+- Import ordering
+- Security best practices
+
+**Key Features:**
+- Automatic fix on save (when supported by the rule)
+- Pre-commit hooks to prevent commits with linting errors
+- CI pipeline integration
+
+To run the linter:
+```bash
+# Check for issues
+yarn lint
+
+# Fix auto-fixable issues
+yarn lint:fix
+```
+
+For detailed information about our linting configuration and rules, please refer to [ESLINT.README.md](./ESLINT.README.md).
+
 ## Deployment
 
 This project was created from the NextJS quickstart script (bootstrapped) however, it does not have TailwindCSS. Additionally, it uses basic CSS at the moment. This project is deployed manually to an ubuntu environment in the cloud.

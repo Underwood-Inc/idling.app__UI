@@ -1,0 +1,1 @@
+{"version":3,"file":"declaration-spacing.d.ts","sourceRoot":"","sources":["../../rules/declaration-spacing.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,QAAQ,EAAY,MAAM,0BAA0B,CAAC;AAE9D,UAAU,WAAW;IACnB,QAAQ,CAAC,EAAE,MAAM,CAAC;IAClB,MAAM,CAAC,EAAE,MAAM,EAAE,CAAC;CACnB;AASD,QAAA,MAAM,IAAI,EAAE,QAAQ,CAAC,UAAU,CAAC,mBAAmB,EAAE,CAAC,WAAW,CAAC,CA2FjE,CAAC;AAEF,eAAe,IAAI,CAAC"}

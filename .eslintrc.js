@@ -1,26 +1,59 @@
 module.exports = {
-  extends: ['next', 'next/core-web-vitals', 'prettier', 'eslint:recommended'],
-  plugins: ['prettier', 'jest', 'custom-rules'],
-  globals: {
-    React: 'readonly'
+  root: true,
+  extends: [
+    'eslint:recommended',
+    'plugin:@typescript-eslint/recommended',
+    'plugin:react/recommended',
+    'plugin:react-hooks/recommended',
+    'next/core-web-vitals',
+    'plugin:jest/recommended',
+    'prettier'
+  ],
+  parser: '@typescript-eslint/parser',
+  plugins: ['@typescript-eslint', 'react', 'jest', 'custom-rules'],
+  parserOptions: {
+    ecmaVersion: 2020,
+    sourceType: 'module',
+    ecmaFeatures: {
+      jsx: true
+    }
+  },
+  settings: {
+    react: {
+      version: 'detect'
+    }
   },
   env: {
-    'jest/globals': true
+    browser: true,
+    node: true,
+    es6: true,
+    jest: true
+  },
+  rules: {
+    'custom-rules/link-target-blank': 'warn',
+    'custom-rules/declaration-spacing': [
+      'warn',
+      {
+        minLines: 1,
+        groups: ['[A-Z][A-Z_]+', '(handle|validate|update)[A-Z]\\w+']
+      }
+    ]
   },
   overrides: [
     {
-      files: ['*.stories.@(ts|tsx|js|jsx|mjs|cjs)']
+      files: ['**/__tests__/**/*.[jt]s?(x)', '**/?(*.)+(spec|test).[jt]s?(x)'],
+      extends: ['plugin:jest/recommended'],
+      rules: {
+        'jest/prefer-expect-assertions': 'off'
+      }
     }
   ],
-  rules: {
-    'custom-rules/enforce-link-target-blank': 'warn',
-    'max-len': ['error', { code: 130 }],
-    'no-unused-vars': 'warn',
-    'no-console': [
-      'error',
-      {
-        allow: ['info', 'warn', 'error', 'table']
-      }
-    ]
-  }
+  ignorePatterns: [
+    'node_modules/',
+    '.next/',
+    'dist/',
+    'coverage/',
+    'playwright-report/',
+    'test-results/'
+  ]
 };

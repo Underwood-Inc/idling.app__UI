@@ -1,7 +1,9 @@
-const linkTargetBlankRule = require('./rules/link-target-blank');
+const linkTargetBlank = require('./dist/rules/link-target-blank');
+const declarationSpacing = require('./dist/rules/declaration-spacing');
 
-const plugin = {
-  rules: { 'enforce-link-target-blank': linkTargetBlankRule }
+module.exports = {
+  rules: {
+    'link-target-blank': linkTargetBlank,
+    'declaration-spacing': declarationSpacing
+  }
 };
-
-module.exports = plugin;
