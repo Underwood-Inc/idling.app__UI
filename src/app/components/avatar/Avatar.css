@@ -9,16 +9,19 @@
   height: 100%;
   width: 100%;
 }
+
 .avatar__img.lg {
   max-width: 10rem;
   height: 10rem;
   width: 10rem;
 }
+
 .avatar__img.md {
   max-width: 7rem;
   height: 7rem;
   width: 7rem;
 }
+
 .avatar__img.sm {
   max-width: 5rem;
   height: 5rem;
@@ -26,5 +29,15 @@
 }
 
 .avatar__loader {
-  margin-bottom: 1.3rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  min-height: 5rem;
+}
+
+/* Override react-spinners animation to ensure consistency */
+.avatar__loader :global(.react-spinners-GridLoader-grid) {
+  animation: react-spinners-GridLoader-grid 1s infinite ease !important;
 }

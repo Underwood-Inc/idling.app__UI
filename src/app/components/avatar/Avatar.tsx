@@ -42,8 +42,12 @@ const Avatar = memo(
           />
         ) : (
           <div className="avatar__loader" data-testid={AVATAR_SELECTORS.LOADER}>
-            {/* loader use brand primary color */}
-            <GridLoader color="#edae49ff" />
+            <GridLoader
+              color="#edae49ff"
+              size={15}
+              margin={2}
+              speedMultiplier={1}
+            />
           </div>
         )}
       </div>

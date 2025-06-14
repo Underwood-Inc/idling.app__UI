@@ -14,7 +14,9 @@ export async function RecentTags({
   const session = (await auth()) as CustomSession | null;
   const initialRecentTags = await getRecentTags(
     'months',
-    onlyMine ? session!.user.providerAccountId : undefined
+    onlyMine && session?.user?.providerAccountId
+      ? session.user.providerAccountId
+      : undefined
   );
 
   return (

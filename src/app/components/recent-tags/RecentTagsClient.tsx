@@ -27,10 +27,16 @@ export function RecentTagsClient({
 
   useEffect(() => {
     async function fetchTags() {
+      if (!session?.user?.providerAccountId && onlyMine) {
+        return;
+      }
+
       setLoading(true);
       const tags = await getRecentTags(
         'months',
-        onlyMine ? session!.user.providerAccountId : undefined
+        onlyMine && session?.user?.providerAccountId
+          ? session.user.providerAccountId
+          : undefined
       );
       setRecentTags(tags);
       setLoading(false);
