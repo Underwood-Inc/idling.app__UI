@@ -47,6 +47,10 @@ const Avatar = memo(
               size={15}
               margin={2}
               speedMultiplier={1}
+              cssOverride={{
+                animationDuration: '1.4s',
+                animationDelay: '0.6s'
+              }}
             />
           </div>
         )}

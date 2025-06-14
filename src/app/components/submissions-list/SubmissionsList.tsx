@@ -4,7 +4,6 @@ import { useCallback, useEffect, useState } from 'react';
 import { SUBMISSIONS_LIST_SELECTORS } from '../../../lib/test-selectors/components/submissions-list.selectors';
 import { PostFilters } from '../../posts/page';
 import Empty from '../empty/Empty';
-import FadeIn, { DisplayType } from '../fade-in/FadeIn';
 import { Filter } from '../filter-bar/FilterBar';
 import Loader from '../loader/Loader';
 import Pagination from '../pagination/Pagination';
@@ -20,7 +19,97 @@ interface SubmissionWithReplies extends Submission {
   replies?: SubmissionWithReplies[];
 }
 
-export default function SubmissionsList({
+// New component to render a single submission and its replies
+const SubmissionThread = ({
+  submission,
+  depth = 0,
+  contextId,
+  providerAccountId,
+  activeReplyId,
+  onToggleReply,
+  onToggleThread,
+  isExpanded
+}: {
+  submission: SubmissionWithReplies;
+  depth?: number;
+  contextId: string;
+  providerAccountId: string;
+  activeReplyId: number | null;
+  onToggleReply: (id: number) => void;
+  onToggleThread: (id: number) => void;
+  isExpanded: boolean;
+}) => {
+  const canDelete = submission.author_id === providerAccountId;
+  const createdDate = new Date(
+    submission.submission_datetime
+  ).toLocaleDateString();
+  const hasReplies = submission.replies && submission.replies.length > 0;
+
+  return (
+    <li
+      className="submission__wrapper"
+      style={{ marginLeft: `${depth * 20}px` }}
+    >
+      <div className="submission__meta">
+        <p className="submission__datetime">{createdDate}</p>
+        {canDelete && (
+          <DeleteSubmissionForm
+            id={submission.submission_id}
+            name={submission.submission_name}
+            isAuthorized={!!providerAccountId}
+          />
+        )}
+        <button
+          onClick={() => onToggleReply(submission.submission_id)}
+          className="thread-button"
+        >
+          {activeReplyId === submission.submission_id ? 'Close Reply' : 'Reply'}
+        </button>
+        {hasReplies && (
+          <button
+            onClick={() => onToggleThread(submission.submission_id)}
+            className="expand-thread-button"
+          >
+            {isExpanded ? 'Hide Replies' : 'Show Replies'}
+          </button>
+        )}
+      </div>
+
+      <p className="submission__content">
+        {submission.author && (
+          <span className="submission__author">{submission.author}:&nbsp;</span>
+        )}
+        <span>
+          <TagLink
+            value={submission.submission_name}
+            contextId={contextId}
+            appendSearchParam
+          />
+        </span>
+      </p>
+
+      {hasReplies && isExpanded && (
+        <ol className="submission__replies">
+          {submission.replies?.map((reply) => (
+            <SubmissionThread
+              key={reply.submission_id}
+              submission={reply}
+              depth={depth + 1}
+              contextId={contextId}
+              providerAccountId={providerAccountId}
+              activeReplyId={activeReplyId}
+              onToggleReply={onToggleReply}
+              onToggleThread={onToggleThread}
+              isExpanded={isExpanded}
+            />
+          ))}
+        </ol>
+      )}
+    </li>
+  );
+};
+
+function SubmissionsList({
   contextId = 'default',
   providerAccountId,
   onlyMine = false,
@@ -33,10 +122,15 @@ export default function SubmissionsList({
   onlyMine?: boolean;
   filters?: Filter<PostFilters>[];
 }) {
+  const [mounted, setMounted] = useState(false);
   const [activeReplyId, setActiveReplyId] = useState<number | null>(null);
   const [expandedThreads, setExpandedThreads] = useState<Set<number>>(
     new Set()
   );
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const toggleReplyForm = (submissionId: number) => {
     setActiveReplyId(activeReplyId === submissionId ? null : submissionId);
@@ -96,85 +190,9 @@ export default function SubmissionsList({
     []
   );
 
-  // New component to render a single submission and its replies
-  const SubmissionThread = ({
-    submission,
-    depth = 0
-  }: {
-    submission: SubmissionWithReplies;
-    depth?: number;
-  }) => {
-    const [isExpanded, setIsExpanded] = useState(false);
-    const canDelete = isAuthorized(submission.author_id);
-    const createdDate = new Date(
-      submission.submission_datetime
-    ).toLocaleDateString();
-    const hasReplies = submission.replies && submission.replies.length > 0;
-
-    const toggleExpand = () => {
-      setIsExpanded(!isExpanded);
-    };
-
-    return (
-      <li
-        className="submission__wrapper"
-        style={{ marginLeft: `${depth * 20}px` }}
-      >
-        {/* <FadeIn display={DisplayType.DIV} key={submission.submission_id}> */}
-          <div className="submission__meta">
-            <p className="submission__datetime">{createdDate}</p>
-            {canDelete && (
-              <DeleteSubmissionForm
-                id={submission.submission_id}
-                name={submission.submission_name}
-                isAuthorized={!!providerAccountId}
-              />
-            )}
-            <button
-              onClick={() => toggleReplyForm(submission.submission_id)}
-              className="thread-button"
-            >
-              {activeReplyId === submission.submission_id
-                ? 'Close Reply'
-                : 'Reply'}
-            </button>
-            {hasReplies && (
-              <button onClick={toggleExpand} className="expand-thread-button">
-                {isExpanded ? 'Hide Replies' : 'Show Replies'}
-              </button>
-            )}
-          </div>
-
-          <p className="submission__content">
-            {submission.author && (
-              <span className="submission__author">
-                {submission.author}:&nbsp;
-              </span>
-            )}
-            <span>
-              <TagLink
-                value={submission.submission_name}
-                contextId={contextId}
-                appendSearchParam
-              />
-            </span>
-          </p>
-        {/* </FadeIn> */}
-
-        {hasReplies && isExpanded && (
-          <ol className="submission__replies">
-            {submission.replies?.map((reply) => (
-              <SubmissionThread
-                key={reply.submission_id}
-                submission={reply}
-                depth={depth + 1}
-              />
-            ))}
-          </ol>
-        )}
-      </li>
-    );
-  };
+  if (!mounted) {
+    return <Loader />;
+  }
 
   return (
     <article
@@ -200,6 +218,12 @@ export default function SubmissionsList({
                   <SubmissionThread
                     key={submission.submission_id}
                     submission={submission}
+                    contextId={contextId}
+                    providerAccountId={providerAccountId}
+                    activeReplyId={activeReplyId}
+                    onToggleReply={toggleReplyForm}
+                    onToggleThread={toggleThread}
+                    isExpanded={expandedThreads.has(submission.submission_id)}
                   />
                 ))}
           </ol>
@@ -209,3 +233,5 @@ export default function SubmissionsList({
     </article>
   );
 }
+
+export default SubmissionsList;
