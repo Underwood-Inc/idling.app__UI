@@ -3,11 +3,13 @@ import { Inter } from 'next/font/google';
 import { Suspense } from 'react';
 import { ShouldUpdateProvider } from '../lib/state/ShouldUpdateContext';
 import { AvatarsBackground } from './components/avatars-background/AvatarsBackground';
+import { NotFoundErrorBoundary } from './components/error-boundary/NotFoundErrorBoundary';
 import FadeIn from './components/fade-in/FadeIn';
 import Footer from './components/footer/Footer';
 import Header from './components/header/Header';
 import Loader from './components/loader/Loader';
 import MessageTickerWithInterval from './components/message-ticker/MessageTickerWithInterval';
+import { ServiceWorkerRegistration } from './components/service-worker/ServiceWorkerRegistration';
 import './globals.css';
 
 const inter = Inter({ subsets: ['latin'] });
@@ -62,10 +64,9 @@ export default function RootLayout({
       />
 
       <body className={inter.className}>
+        <ServiceWorkerRegistration />
         <main>
-          <Suspense fallback={<Loader />}>
-            <AvatarsBackground />
-          </Suspense>
+          <AvatarsBackground />
 
           <Header />
 
@@ -73,7 +74,9 @@ export default function RootLayout({
 
           <Suspense fallback={<Loader />}>
             <ShouldUpdateProvider>
-              <FadeIn>{children}</FadeIn>
+              <NotFoundErrorBoundary>
+                <FadeIn>{children}</FadeIn>
+              </NotFoundErrorBoundary>
             </ShouldUpdateProvider>
           </Suspense>
           <Footer />

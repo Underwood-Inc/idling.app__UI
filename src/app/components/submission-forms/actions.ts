@@ -80,15 +80,18 @@ export async function createSubmissionAction(
   const tags =
     data.submission_name.match(tagRegex)?.map((tag) => tag.toLowerCase()) || [];
 
+  const threadParentId = formData.get('thread_parent_id');
+
   try {
     await sql`
-      insert into submissions (submission_name, submission_datetime, author, author_id, tags)
+      insert into submissions (submission_name, submission_datetime, author, author_id, tags, thread_parent_id)
       VALUES (
         ${data.submission_name},
         ${data.submission_datetime},
         ${session?.user?.name},
         ${session?.user.providerAccountId},
-        ${tags}
+        ${tags},
+        ${threadParentId ? parseInt(threadParentId as string) : null}
       );
     `;
 
@@ -136,7 +139,6 @@ export async function deleteSubmissionAction(
       AND author_id = ${session?.user?.providerAccountId!}
     `;
 
-    revalidatePath('/');
     return {
       status: 1,
       message: `Deleted post ${data.submission_name}.`

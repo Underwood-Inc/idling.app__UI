@@ -13,7 +13,8 @@ export const submissionSchema = z.object({
       message: `Message length must not exceed ${SUBMISSION_NAME_MAX_LENGTH}`
     }),
   submission_datetime: z.string().datetime(),
-  tags: z.array(z.string()).nullable().optional()
+  tags: z.array(z.string()).nullable().optional(),
+  thread_parent_id: z.coerce.number().gte(1).nullable().optional() // New field
 });
 
 export const deleteSubmissionSchema = z.object({
@@ -31,12 +32,14 @@ export type DeleteSubmission = z.infer<typeof deleteSubmissionSchema>;
 export function parseSubmission({
   submission_datetime,
   submission_name,
-  tags
+  tags,
+  thread_parent_id
 }: Partial<CreateSubmission>) {
   return submissionSchema.safeParse({
     submission_name: submission_name?.toString().trim(),
     submission_datetime,
-    tags
+    tags,
+    thread_parent_id: thread_parent_id ? Number(thread_parent_id) : null
   });
 }
 
@@ -65,7 +68,9 @@ export function parseZodErrors(error: ZodError): string {
     if (key === 'submission_name') {
       return 'post message';
     }
-
+    if (key === 'thread_parent_id') {
+      return 'parent thread';
+    }
     return key;
   };
 

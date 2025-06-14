@@ -1,28 +1,115 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 'use client';
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
-import { useFilters } from '../../../lib/state/FiltersContext';
-import { PageSize, usePagination } from '../../../lib/state/PaginationContext';
-import { useShouldUpdate } from '../../../lib/state/ShouldUpdateContext';
 import { SUBMISSIONS_LIST_SELECTORS } from '../../../lib/test-selectors/components/submissions-list.selectors';
 import { PostFilters } from '../../posts/page';
 import Empty from '../empty/Empty';
-import FadeIn from '../fade-in/FadeIn';
 import { Filter } from '../filter-bar/FilterBar';
 import Loader from '../loader/Loader';
 import Pagination from '../pagination/Pagination';
 import { DeleteSubmissionForm } from '../submission-forms/delete-submission-form/DeleteSubmissionForm';
 import { Submission } from '../submission-forms/schema';
 import { TagLink } from '../tag-link/TagLink';
-import {
-  getSubmissionsAction,
-  GetSubmissionsActionArguments,
-  PaginatedResponse
-} from './actions';
+import { ReplyForm } from '../thread/ReplyForm';
 import './SubmissionsList.css';
+import { useSubmissionsList } from './use-submissions-list';
 
-export default function SubmissionsList({
+// Add this new interface
+interface SubmissionWithReplies extends Submission {
+  replies?: SubmissionWithReplies[];
+}
+
+// New component to render a single submission and its replies
+const SubmissionThread = ({
+  submission,
+  depth = 0,
+  contextId,
+  providerAccountId,
+  activeReplyId,
+  onToggleReply,
+  onToggleThread,
+  isExpanded
+}: {
+  submission: SubmissionWithReplies;
+  depth?: number;
+  contextId: string;
+  providerAccountId: string;
+  activeReplyId: number | null;
+  onToggleReply: (id: number) => void;
+  onToggleThread: (id: number) => void;
+  isExpanded: boolean;
+}) => {
+  const canDelete = submission.author_id === providerAccountId;
+  const createdDate = new Date(
+    submission.submission_datetime
+  ).toLocaleDateString();
+  const hasReplies = submission.replies && submission.replies.length > 0;
+
+  return (
+    <li
+      className="submission__wrapper"
+      style={{ marginLeft: `${depth * 20}px` }}
+    >
+      <div className="submission__meta">
+        <p className="submission__datetime">{createdDate}</p>
+        {canDelete && (
+          <DeleteSubmissionForm
+            id={submission.submission_id}
+            name={submission.submission_name}
+            isAuthorized={!!providerAccountId}
+          />
+        )}
+        <button
+          onClick={() => onToggleReply(submission.submission_id)}
+          className="thread-button"
+        >
+          {activeReplyId === submission.submission_id ? 'Close Reply' : 'Reply'}
+        </button>
+        {hasReplies && (
+          <button
+            onClick={() => onToggleThread(submission.submission_id)}
+            className="expand-thread-button"
+          >
+            {isExpanded ? 'Hide Replies' : 'Show Replies'}
+          </button>
+        )}
+      </div>
+
+      <p className="submission__content">
+        {submission.author && (
+          <span className="submission__author">{submission.author}:&nbsp;</span>
+        )}
+        <span>
+          <TagLink
+            value={submission.submission_name}
+            contextId={contextId}
+            appendSearchParam
+          />
+        </span>
+      </p>
+
+      {hasReplies && isExpanded && (
+        <ol className="submission__replies">
+          {submission.replies?.map((reply) => (
+            <SubmissionThread
+              key={reply.submission_id}
+              submission={reply}
+              depth={depth + 1}
+              contextId={contextId}
+              providerAccountId={providerAccountId}
+              activeReplyId={activeReplyId}
+              onToggleReply={onToggleReply}
+              onToggleThread={onToggleThread}
+              isExpanded={isExpanded}
+            />
+          ))}
+        </ol>
+      )}
+    </li>
+  );
+};
+
+function SubmissionsList({
   contextId = 'default',
   providerAccountId,
   onlyMine = false,
@@ -35,204 +122,77 @@ export default function SubmissionsList({
   onlyMine?: boolean;
   filters?: Filter<PostFilters>[];
 }) {
-  const router = useRouter();
-  const pathName = usePathname();
-  const searchParams = useSearchParams();
-  const tagSearchParams = searchParams.get('tags');
-  const pageSearchParam = searchParams.get('page');
-  const { state: filtersState, dispatch: dispatchFilters } = useFilters();
-  const { state: shouldUpdate, dispatch: dispatchShouldUpdate } =
-    useShouldUpdate();
-  const { state: paginationState, dispatch: dispatchPagination } =
-    usePagination();
-  const paginationContext = paginationState[contextId];
-  const filtersContext = filtersState[contextId];
-  const tagSearchParamFilters: Filter<PostFilters>[] = tagSearchParams
-    ? [{ name: 'tags', value: tagSearchParams }]
-    : [];
+  const [mounted, setMounted] = useState(false);
+  const [activeReplyId, setActiveReplyId] = useState<number | null>(null);
+  const [expandedThreads, setExpandedThreads] = useState<Set<number>>(
+    new Set()
+  );
 
-  // TODO: https://github.com/vercel/next.js/issues/65673#issuecomment-2112746191
-  // const [state, formAction] = useActionState(getSubmissionsAction, initialState)
-  const [loading, setLoading] = useState(true);
-  const [response, setResponse] = useState<
-    | {
-        data?: PaginatedResponse<Submission>;
-        message?: string;
-        error?: string;
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const toggleReplyForm = (submissionId: number) => {
+    setActiveReplyId(activeReplyId === submissionId ? null : submissionId);
+  };
+
+  const toggleThread = (submissionId: number) => {
+    setExpandedThreads((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(submissionId)) {
+        newSet.delete(submissionId);
+      } else {
+        newSet.add(submissionId);
       }
-    | undefined
-  >();
+      return newSet;
+    });
+  };
 
-  const getArgs = useCallback(() => {
-    // prioritize url params, context state data, and then defer to prop data
-    const data: {
-      currentPage: number;
-      onlyMine: boolean;
-      providerAccountId: string;
-      filters: Filter[];
-      pageSize: number;
-    } = {
-      currentPage:
-        Number(pageSearchParam) || paginationContext?.currentPage || page,
-      filters: tagSearchParamFilters || filtersContext?.filters || filters,
-      onlyMine,
-      providerAccountId,
-      pageSize: paginationContext?.pageSize || PageSize.TEN
-    };
-
-    return data;
-  }, [
-    paginationContext,
-    page,
-    tagSearchParams,
-    pageSearchParam,
-    filters,
+  const { isAuthorized, loading, response } = useSubmissionsList(
+    contextId,
+    providerAccountId,
     onlyMine,
-    providerAccountId
-  ]);
+    page,
+    filters
+  );
 
-  // TODO: extract fetch submissions and useEffects into custom hook
+  useEffect(() => {
+    // when response updates, ensure thread response forms are not open
+    setActiveReplyId(null);
+  }, [response]);
 
-  const fetchSubmissions = useCallback(
-    async (args: GetSubmissionsActionArguments) => {
-      setLoading(true);
-      setResponse(await getSubmissionsAction(args));
-      setLoading(false);
+  // New function to organize submissions into a tree structure
+  const organizeSubmissions = useCallback(
+    (submissions: Submission[]): SubmissionWithReplies[] => {
+      const submissionMap = new Map<number, SubmissionWithReplies>();
+      const rootSubmissions: SubmissionWithReplies[] = [];
+
+      submissions.forEach((submission) => {
+        submissionMap.set(submission.submission_id, {
+          ...submission,
+          replies: []
+        });
+      });
+
+      submissions.forEach((submission) => {
+        if (submission.thread_parent_id) {
+          const parent = submissionMap.get(submission.thread_parent_id);
+          if (parent) {
+            parent.replies?.push(submissionMap.get(submission.submission_id)!);
+          }
+        } else {
+          rootSubmissions.push(submissionMap.get(submission.submission_id)!);
+        }
+      });
+
+      return rootSubmissions;
     },
     []
   );
 
-  /** response listener/handler */
-  useEffect(() => {
-    if (response && response.data?.pagination) {
-      const newTotalPages =
-        response.data.pagination.totalRecords /
-        (response.data.pagination.pageSize || 10);
-      const totalPages = Math.ceil(newTotalPages);
-      const requestedPage = response?.data?.pagination.currentPage;
-
-      if (requestedPage > totalPages) {
-        // replace requested page with last available page
-        dispatchPagination({
-          type: 'SET_CURRENT_PAGE',
-          payload: {
-            id: contextId,
-            currentPage: totalPages
-          }
-        });
-      }
-
-      if (requestedPage < 1) {
-        // replace requested page with first page
-        dispatchPagination({
-          type: 'SET_CURRENT_PAGE',
-          payload: {
-            id: contextId,
-            currentPage: 1
-          }
-        });
-      }
-
-      dispatchPagination({
-        type: 'SET_TOTAL_PAGES',
-        payload: {
-          id: contextId,
-          totalPages
-        }
-      });
-    }
-  }, [
-    dispatchPagination,
-    response?.data?.pagination.totalRecords,
-    response?.data?.pagination.currentPage,
-    response?.data?.pagination.pageSize,
-    contextId
-  ]);
-
-  /**
-   * shouldUpdate listener + handler
-   * triggers a refetch of latest data with latest filters/pagination withi initial page size of 10
-   * */
-  useEffect(() => {
-    if (shouldUpdate) {
-      dispatchShouldUpdate({ type: 'SET_SHOULD_UPDATE', payload: false });
-
-      fetchSubmissions(getArgs());
-    }
-  }, [shouldUpdate]);
-
-  /**
-   * context listeners: filter context filters, pagination context current page
-   *
-   * will update the url search params to match latest context data
-   */
-  useEffect(() => {
-    const latestFilters = filtersContext?.filters.find(
-      (filter) => filter.name === 'tags'
-    )?.value;
-    const params = new URLSearchParams();
-
-    if (latestFilters) {
-      params.set('tags', latestFilters);
-    }
-
-    if (page || page === 0) {
-      const maxPage = Number(paginationContext?.totalPages);
-      let newPage = paginationContext?.currentPage?.toString() || '1';
-
-      if (Number(newPage) > maxPage) {
-        newPage = maxPage.toString();
-      }
-      if (Number(newPage) < 1) {
-        newPage = '1';
-      }
-
-      // update url param page to the current pagination state value
-      params.set('page', newPage);
-    }
-
-    const newRoute = `${pathName}?${params.toString()}`;
-    router.push(newRoute);
-  }, [paginationContext?.currentPage, filtersContext?.filters]);
-
-  // page size listener
-  useEffect(() => {
-    // manual fetch so that default page size of 10 is not used from shouldUpdate dispatch handler
-    dispatchShouldUpdate({ payload: true, type: 'SET_SHOULD_UPDATE' });
-  }, [paginationContext?.pageSize]);
-
-  // route params listener: tags & current page
-  useEffect(() => {
-    // ensure context state is updated on manual url change (i.e. browser navigation action)
-    if (Number(pageSearchParam) !== paginationContext?.currentPage) {
-      dispatchPagination({
-        type: 'SET_CURRENT_PAGE',
-        payload: {
-          id: contextId,
-          currentPage: Number(pageSearchParam)
-        }
-      });
-    }
-
-    if (
-      tagSearchParams !==
-      filtersContext?.filters.find((filter) => filter.name === 'tags')?.value
-    ) {
-      dispatchFilters({
-        type: 'SET_CURRENT_FILTERS',
-        payload: {
-          id: contextId,
-          filters: tagSearchParamFilters
-        }
-      });
-    }
-
-    dispatchShouldUpdate({ type: 'SET_SHOULD_UPDATE', payload: true });
-  }, [tagSearchParams?.length, pageSearchParam]);
-
-  const isAuthorized = (authorId: string) => {
-    return providerAccountId === authorId;
-  };
+  if (!mounted) {
+    return <Loader />;
+  }
 
   return (
     <article
@@ -252,57 +212,26 @@ export default function SubmissionsList({
           )}
           <ol className="submission__list">
             {!!response?.data?.result.length &&
-              response?.data.result.map(
-                ({
-                  submission_id,
-                  submission_name,
-                  author,
-                  author_id,
-                  submission_datetime
-                }) => {
-                  const canDelete = isAuthorized(author_id);
-                  const createdDate = new Date(
-                    submission_datetime
-                  ).toLocaleDateString();
-
-                  return (
-                    <FadeIn
-                      display="li"
-                      key={submission_id}
-                      className="submission__wrapper"
-                    >
-                      <p className="submission__content">
-                        {author && (
-                          <span className="submission__author">
-                            {author}:&nbsp;
-                          </span>
-                        )}
-                        <span>
-                          <TagLink
-                            value={submission_name}
-                            contextId={contextId}
-                            appendSearchParam
-                          />
-                        </span>
-                      </p>
-
-                      <div className="submission__meta">
-                        <p className="submission__datetime">{createdDate}</p>
-                        {canDelete && (
-                          <DeleteSubmissionForm
-                            id={submission_id}
-                            name={submission_name}
-                            isAuthorized={!!providerAccountId}
-                          />
-                        )}
-                      </div>
-                    </FadeIn>
-                  );
-                }
-              )}
+              organizeSubmissions(response.data.result)
+                .filter((submission) => !submission.thread_parent_id)
+                .map((submission) => (
+                  <SubmissionThread
+                    key={submission.submission_id}
+                    submission={submission}
+                    contextId={contextId}
+                    providerAccountId={providerAccountId}
+                    activeReplyId={activeReplyId}
+                    onToggleReply={toggleReplyForm}
+                    onToggleThread={toggleThread}
+                    isExpanded={expandedThreads.has(submission.submission_id)}
+                  />
+                ))}
           </ol>
+          {activeReplyId !== null && <ReplyForm parentId={activeReplyId} />}
         </>
       )}
     </article>
   );
 }
+
+export default SubmissionsList;

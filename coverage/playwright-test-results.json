@@ -11,7 +11,7 @@
     "grepInvert": null,
     "maxFailures": 0,
     "metadata": {
-      "actualWorkers": 6
+      "actualWorkers": 1
     },
     "preserveOutput": "always",
     "reporter": [
@@ -139,8 +139,8 @@
     ],
     "shard": null,
     "updateSnapshots": "missing",
-    "version": "1.46.1",
-    "workers": 6,
+    "version": "1.48.1",
+    "workers": 8,
     "webServer": {
       "command": "echo \"======================building...\"; yarn build; yarn start;",
       "stdout": "pipe",
@@ -149,238 +149,6 @@
     }
   },
   "suites": [
-    {
-      "title": "posts.spec.ts",
-      "file": "posts.spec.ts",
-      "column": 0,
-      "line": 0,
-      "specs": [
-        {
-          "title": "loads posts page",
-          "ok": true,
-          "tags": [],
-          "tests": [
-            {
-              "timeout": 30000,
-              "annotations": [],
-              "expectedStatus": "passed",
-              "projectId": "chromium",
-              "projectName": "chromium",
-              "results": [
-                {
-                  "workerIndex": 0,
-                  "status": "passed",
-                  "duration": 15025,
-                  "errors": [],
-                  "stdout": [],
-                  "stderr": [],
-                  "retry": 0,
-                  "startTime": "2024-09-01T22:05:59.328Z",
-                  "attachments": []
-                }
-              ],
-              "status": "expected"
-            }
-          ],
-          "id": "b37e12cd73bb054e2a6c-311ef0f2fb477b090b07",
-          "file": "posts.spec.ts",
-          "line": 33,
-          "column": 17
-        },
-        {
-          "title": "loads posts page",
-          "ok": true,
-          "tags": [],
-          "tests": [
-            {
-              "timeout": 30000,
-              "annotations": [],
-              "expectedStatus": "passed",
-              "projectId": "firefox",
-              "projectName": "firefox",
-              "results": [
-                {
-                  "workerIndex": 2,
-                  "status": "passed",
-                  "duration": 17640,
-                  "errors": [],
-                  "stdout": [],
-                  "stderr": [],
-                  "retry": 0,
-                  "startTime": "2024-09-01T22:05:59.371Z",
-                  "attachments": []
-                }
-              ],
-              "status": "expected"
-            }
-          ],
-          "id": "b37e12cd73bb054e2a6c-498c840d67165a513055",
-          "file": "posts.spec.ts",
-          "line": 33,
-          "column": 17
-        },
-        {
-          "title": "loads posts page",
-          "ok": true,
-          "tags": [],
-          "tests": [
-            {
-              "timeout": 30000,
-              "annotations": [],
-              "expectedStatus": "passed",
-              "projectId": "webkit",
-              "projectName": "webkit",
-              "results": [
-                {
-                  "workerIndex": 4,
-                  "status": "passed",
-                  "duration": 15315,
-                  "errors": [],
-                  "stdout": [],
-                  "stderr": [],
-                  "retry": 0,
-                  "startTime": "2024-09-01T22:05:59.351Z",
-                  "attachments": []
-                }
-              ],
-              "status": "expected"
-            }
-          ],
-          "id": "b37e12cd73bb054e2a6c-b2eb4863a0fb23c4584e",
-          "file": "posts.spec.ts",
-          "line": 33,
-          "column": 17
-        },
-        {
-          "title": "loads posts page",
-          "ok": true,
-          "tags": [],
-          "tests": [
-            {
-              "timeout": 30000,
-              "annotations": [],
-              "expectedStatus": "passed",
-              "projectId": "Mobile Chrome",
-              "projectName": "Mobile Chrome",
-              "results": [
-                {
-                  "workerIndex": 6,
-                  "status": "passed",
-                  "duration": 11177,
-                  "errors": [],
-                  "stdout": [],
-                  "stderr": [],
-                  "retry": 0,
-                  "startTime": "2024-09-01T22:06:09.145Z",
-                  "attachments": []
-                }
-              ],
-              "status": "expected"
-            }
-          ],
-          "id": "b37e12cd73bb054e2a6c-92a24f33b170e2f40247",
-          "file": "posts.spec.ts",
-          "line": 33,
-          "column": 17
-        },
-        {
-          "title": "loads posts page",
-          "ok": true,
-          "tags": [],
-          "tests": [
-            {
-              "timeout": 30000,
-              "annotations": [],
-              "expectedStatus": "passed",
-              "projectId": "Mobile Safari",
-              "projectName": "Mobile Safari",
-              "results": [
-                {
-                  "workerIndex": 8,
-                  "status": "passed",
-                  "duration": 12678,
-                  "errors": [],
-                  "stdout": [],
-                  "stderr": [],
-                  "retry": 0,
-                  "startTime": "2024-09-01T22:06:15.057Z",
-                  "attachments": []
-                }
-              ],
-              "status": "expected"
-            }
-          ],
-          "id": "b37e12cd73bb054e2a6c-a98bb724573872e319aa",
-          "file": "posts.spec.ts",
-          "line": 33,
-          "column": 17
-        },
-        {
-          "title": "loads posts page",
-          "ok": true,
-          "tags": [],
-          "tests": [
-            {
-              "timeout": 30000,
-              "annotations": [],
-              "expectedStatus": "passed",
-              "projectId": "Microsoft Edge",
-              "projectName": "Microsoft Edge",
-              "results": [
-                {
-                  "workerIndex": 10,
-                  "status": "passed",
-                  "duration": 12065,
-                  "errors": [],
-                  "stdout": [],
-                  "stderr": [],
-                  "retry": 0,
-                  "startTime": "2024-09-01T22:06:15.948Z",
-                  "attachments": []
-                }
-              ],
-              "status": "expected"
-            }
-          ],
-          "id": "b37e12cd73bb054e2a6c-0cebde4beddb832a44be",
-          "file": "posts.spec.ts",
-          "line": 33,
-          "column": 17
-        },
-        {
-          "title": "loads posts page",
-          "ok": true,
-          "tags": [],
-          "tests": [
-            {
-              "timeout": 30000,
-              "annotations": [],
-              "expectedStatus": "passed",
-              "projectId": "Google Chrome",
-              "projectName": "Google Chrome",
-              "results": [
-                {
-                  "workerIndex": 12,
-                  "status": "passed",
-                  "duration": 8668,
-                  "errors": [],
-                  "stdout": [],
-                  "stderr": [],
-                  "retry": 0,
-                  "startTime": "2024-09-01T22:06:21.731Z",
-                  "attachments": []
-                }
-              ],
-              "status": "expected"
-            }
-          ],
-          "id": "b37e12cd73bb054e2a6c-ea973c2e6b8ee8bbeb1d",
-          "file": "posts.spec.ts",
-          "line": 33,
-          "column": 17
-        }
-      ]
-    },
     {
       "title": "root.spec.ts",
       "file": "root.spec.ts",
@@ -402,13 +170,19 @@
                 {
                   "workerIndex": 1,
                   "status": "passed",
-                  "duration": 8063,
+                  "duration": 6500,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2024-09-01T22:05:59.342Z",
-                  "attachments": []
+                  "startTime": "2024-10-20T15:09:13.255Z",
+                  "attachments": [
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/home/underwood/code/idling.app__UI/test-results/root-loads-root-page-chromium/trace.zip"
+                    }
+                  ]
                 }
               ],
               "status": "expected"
@@ -418,207 +192,15 @@
           "file": "root.spec.ts",
           "line": 33,
           "column": 5
-        },
-        {
-          "title": "loads root page",
-          "ok": true,
-          "tags": [],
-          "tests": [
-            {
-              "timeout": 30000,
-              "annotations": [],
-              "expectedStatus": "passed",
-              "projectId": "firefox",
-              "projectName": "firefox",
-              "results": [
-                {
-                  "workerIndex": 3,
-                  "status": "passed",
-                  "duration": 12220,
-                  "errors": [],
-                  "stdout": [],
-                  "stderr": [],
-                  "retry": 0,
-                  "startTime": "2024-09-01T22:05:59.343Z",
-                  "attachments": []
-                }
-              ],
-              "status": "expected"
-            }
-          ],
-          "id": "966214b333bb361a5f05-058138dff07ff6abc294",
-          "file": "root.spec.ts",
-          "line": 33,
-          "column": 5
-        },
-        {
-          "title": "loads root page",
-          "ok": true,
-          "tags": [],
-          "tests": [
-            {
-              "timeout": 30000,
-              "annotations": [],
-              "expectedStatus": "passed",
-              "projectId": "webkit",
-              "projectName": "webkit",
-              "results": [
-                {
-                  "workerIndex": 5,
-                  "status": "passed",
-                  "duration": 12681,
-                  "errors": [],
-                  "stdout": [],
-                  "stderr": [],
-                  "retry": 0,
-                  "startTime": "2024-09-01T22:05:59.326Z",
-                  "attachments": []
-                }
-              ],
-              "status": "expected"
-            }
-          ],
-          "id": "966214b333bb361a5f05-a1ee82559089687a471e",
-          "file": "root.spec.ts",
-          "line": 33,
-          "column": 5
-        },
-        {
-          "title": "loads root page",
-          "ok": true,
-          "tags": [],
-          "tests": [
-            {
-              "timeout": 30000,
-              "annotations": [],
-              "expectedStatus": "passed",
-              "projectId": "Mobile Chrome",
-              "projectName": "Mobile Chrome",
-              "results": [
-                {
-                  "workerIndex": 7,
-                  "status": "passed",
-                  "duration": 7170,
-                  "errors": [],
-                  "stdout": [],
-                  "stderr": [],
-                  "retry": 0,
-                  "startTime": "2024-09-01T22:06:13.983Z",
-                  "attachments": []
-                }
-              ],
-              "status": "expected"
-            }
-          ],
-          "id": "966214b333bb361a5f05-ae6c601a5fd1301ca83a",
-          "file": "root.spec.ts",
-          "line": 33,
-          "column": 5
-        },
-        {
-          "title": "loads root page",
-          "ok": true,
-          "tags": [],
-          "tests": [
-            {
-              "timeout": 30000,
-              "annotations": [],
-              "expectedStatus": "passed",
-              "projectId": "Mobile Safari",
-              "projectName": "Mobile Safari",
-              "results": [
-                {
-                  "workerIndex": 9,
-                  "status": "passed",
-                  "duration": 9909,
-                  "errors": [],
-                  "stdout": [],
-                  "stderr": [],
-                  "retry": 0,
-                  "startTime": "2024-09-01T22:06:15.541Z",
-                  "attachments": []
-                }
-              ],
-              "status": "expected"
-            }
-          ],
-          "id": "966214b333bb361a5f05-f13e7caadc460dadd363",
-          "file": "root.spec.ts",
-          "line": 33,
-          "column": 5
-        },
-        {
-          "title": "loads root page",
-          "ok": true,
-          "tags": [],
-          "tests": [
-            {
-              "timeout": 30000,
-              "annotations": [],
-              "expectedStatus": "passed",
-              "projectId": "Microsoft Edge",
-              "projectName": "Microsoft Edge",
-              "results": [
-                {
-                  "workerIndex": 11,
-                  "status": "passed",
-                  "duration": 7101,
-                  "errors": [],
-                  "stdout": [],
-                  "stderr": [],
-                  "retry": 0,
-                  "startTime": "2024-09-01T22:06:19.988Z",
-                  "attachments": []
-                }
-              ],
-              "status": "expected"
-            }
-          ],
-          "id": "966214b333bb361a5f05-d93474e5d13754473d8a",
-          "file": "root.spec.ts",
-          "line": 33,
-          "column": 5
-        },
-        {
-          "title": "loads root page",
-          "ok": true,
-          "tags": [],
-          "tests": [
-            {
-              "timeout": 30000,
-              "annotations": [],
-              "expectedStatus": "passed",
-              "projectId": "Google Chrome",
-              "projectName": "Google Chrome",
-              "results": [
-                {
-                  "workerIndex": 13,
-                  "status": "passed",
-                  "duration": 6270,
-                  "errors": [],
-                  "stdout": [],
-                  "stderr": [],
-                  "retry": 0,
-                  "startTime": "2024-09-01T22:06:22.511Z",
-                  "attachments": []
-                }
-              ],
-              "status": "expected"
-            }
-          ],
-          "id": "966214b333bb361a5f05-9548886e86446cd401ad",
-          "file": "root.spec.ts",
-          "line": 33,
-          "column": 5
         }
       ]
     }
   ],
   "errors": [],
   "stats": {
-    "startTime": "2024-09-01T22:05:58.467Z",
-    "duration": 32278.036,
-    "expected": 14,
+    "startTime": "2024-10-20T15:09:12.579Z",
+    "duration": 8385.772,
+    "expected": 1,
     "skipped": 0,
     "unexpected": 0,
     "flaky": 0

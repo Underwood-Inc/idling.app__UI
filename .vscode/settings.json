@@ -3,7 +3,7 @@
     "connectionId": "underwood-inc",
     "projectKey": "Underwood-Inc_idling.app__UI"
   },
-  "cSpell.words": ["nextjs", "SIGNIN", "testid"],
+  "cSpell.words": ["nextjs", "SIGNIN", "Subthread", "testid"],
   "window.commandCenter": true,
   "diffEditor.maxComputationTime": 0,
   "workbench.colorTheme": "Monokai Pro (Filter Spectrum)",

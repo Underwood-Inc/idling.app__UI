@@ -356,6 +356,15 @@ To test a page that requires authentication, ensure you have the correct environ
 
 When it comes to accessibility testing, `@axe-core/playwright` has been added. This package is used to produce a utility method that accepts a page argument to analyze and will output any violations with the offending nodes defined.
 
+Scripts you may need for first time setup:
+
+| script |
+|---|
+| `yarn playwright install` |
+| `yarn playwright install chromium` |
+| `yarn playwright install-deps --legacy-peer-deps` |
+| `npm install -D @playwright/test@latest --legacy-peer-deps` |
+
 You can run playwright test with a few different scripts:
 
 - `yarn e2e` is the default script that should be used while writing e2e tests
