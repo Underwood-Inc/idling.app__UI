@@ -14,11 +14,30 @@
   min-width: 300px;
   width: fit-content;
   max-width: min(800px, 90vw);
+  max-height: 80vh;
+  overflow-y: auto;
   opacity: 0;
   visibility: hidden;
   transition: opacity 0.2s ease, visibility 0.2s ease;
   pointer-events: none;
   color: var(--light-bg__text-color--primary);
+  scrollbar-width: thin;
+  scrollbar-color: var(--brand-tertiary--dark) var(--light-background--quaternary);
+}
+
+.link-tooltip::-webkit-scrollbar {
+  width: 8px;
+}
+
+.link-tooltip::-webkit-scrollbar-track {
+  background: var(--light-background--quaternary);
+  border-radius: 4px;
+}
+
+.link-tooltip::-webkit-scrollbar-thumb {
+  background-color: var(--brand-tertiary--dark);
+  border-radius: 4px;
+  border: 2px solid var(--light-background--quaternary);
 }
 
 .link-tooltip.visible {
@@ -41,6 +60,9 @@
   border-radius: 4px;
   margin-bottom: 8px;
   text-align: center;
+  position: sticky;
+  top: 0;
+  z-index: 1;
 }
 
 .link-tooltip-loading,
@@ -243,6 +265,9 @@
   margin-bottom: 12px;
   font-size: 12px;
   color: var(--light-bg__text-color--secondary);
+  position: sticky;
+  top: 0;
+  z-index: 1;
 }
 
 .tooltip-cache-time {
@@ -259,6 +284,7 @@
   font-size: 12px;
   cursor: pointer;
   transition: all 0.2s ease;
+  white-space: nowrap;
 }
 
 .tooltip-refresh-button:hover {

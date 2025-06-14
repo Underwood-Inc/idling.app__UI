@@ -9,6 +9,7 @@ interface LinkTooltipProps {
   enableExtendedPreview?: boolean;
   enableCtrlClick?: boolean;
   cacheDuration?: number; // Duration in milliseconds, default 1 hour
+  isInsideParagraph?: boolean;
 }
 
 interface CachedData {
@@ -19,43 +20,37 @@ interface CachedData {
 const CACHE_KEY_PREFIX = 'link_tooltip_cache_';
 const DEFAULT_CACHE_DURATION = 60 * 60 * 1000; // 1 hour in milliseconds
 
-const formatLastUpdated = (date: Date) => {
-  const now = new Date();
-  const diff = now.getTime() - date.getTime();
+const formatLastUpdated = (timestamp: number) => {
+  const now = Date.now();
+  const diff = now - timestamp;
 
-  const seconds = Math.floor(diff / 1000);
-  const minutes = Math.floor(seconds / 60);
-  const hours = Math.floor(minutes / 60);
-  const days = Math.floor(hours / 24);
-  const weeks = Math.floor(days / 7);
-  const months = Math.floor(days / 30);
-  const years = Math.floor(days / 365);
+  // Convert to seconds first
+  const totalSeconds = Math.floor(diff / 1000);
 
-  const parts: string[] = [];
+  // Calculate each unit
+  const seconds = totalSeconds % 60;
+  const totalMinutes = Math.floor(totalSeconds / 60);
+  const minutes = totalMinutes % 60;
+  const totalHours = Math.floor(totalMinutes / 60);
+  const hours = totalHours % 24;
+  const totalDays = Math.floor(totalHours / 24);
+  const days = totalDays % 7;
+  const totalWeeks = Math.floor(totalDays / 7);
+  const weeks = totalWeeks % 4;
+  const totalMonths = Math.floor(totalWeeks / 4);
+  const months = totalMonths % 12;
+  const years = Math.floor(totalMonths / 12);
 
-  if (years > 0) {
-    parts.push(`${years}y`);
-  }
-  if (months > 0) {
-    parts.push(`${months}mo`);
-  }
-  if (weeks > 0) {
-    parts.push(`${weeks}w`);
-  }
-  if (days > 0) {
-    parts.push(`${days}d`);
-  }
-  if (hours > 0) {
-    parts.push(`${hours}h`);
-  }
-  if (minutes > 0) {
-    parts.push(`${minutes}m`);
-  }
-  if (seconds > 0 || parts.length === 0) {
-    parts.push(`${seconds}s`);
-  }
+  const parts = [];
+  if (years > 0) parts.push(`${years}y`);
+  if (months > 0) parts.push(`${months}mo`);
+  if (weeks > 0) parts.push(`${weeks}w`);
+  if (days > 0) parts.push(`${days}d`);
+  if (hours > 0) parts.push(`${hours}h`);
+  if (minutes > 0) parts.push(`${minutes}m`);
+  if (seconds > 0 || parts.length === 0) parts.push(`${seconds}s`);
 
-  return parts.join(' ') + ' ago';
+  return parts.join(' ');
 };
 
 export const LinkTooltip: React.FC<LinkTooltipProps> = ({
@@ -63,7 +58,8 @@ export const LinkTooltip: React.FC<LinkTooltipProps> = ({
   children,
   enableExtendedPreview = false,
   enableCtrlClick = false,
-  cacheDuration = DEFAULT_CACHE_DURATION
+  cacheDuration = DEFAULT_CACHE_DURATION,
+  isInsideParagraph = false
 }) => {
   const [showTooltip, setShowTooltip] = useState(false);
   const [showLargePreview, setShowLargePreview] = useState(false);
@@ -74,6 +70,7 @@ export const LinkTooltip: React.FC<LinkTooltipProps> = ({
   const [isCached, setIsCached] = useState(false);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
   const [timeAgo, setTimeAgo] = useState<string>('');
+  const [position, setPosition] = useState({ top: 0, left: 0 });
   const tooltipRef = useRef<HTMLDivElement>(null);
   const tooltipContentRef = useRef<HTMLDivElement>(null);
   const hideTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -112,11 +109,11 @@ export const LinkTooltip: React.FC<LinkTooltipProps> = ({
   useEffect(() => {
     if (lastUpdated) {
       // Update immediately
-      setTimeAgo(formatLastUpdated(lastUpdated));
+      setTimeAgo(formatLastUpdated(lastUpdated.getTime()));
 
       // Then update every second for more precise timing
       timerRef.current = setInterval(() => {
-        setTimeAgo(formatLastUpdated(lastUpdated));
+        setTimeAgo(formatLastUpdated(lastUpdated.getTime()));
       }, 1000); // Update every second
     }
 
@@ -209,6 +206,74 @@ export const LinkTooltip: React.FC<LinkTooltipProps> = ({
     }
   }, [showTooltip]);
 
+  const updatePosition = () => {
+    if (!tooltipRef.current || !tooltipContentRef.current) return;
+
+    const triggerRect = tooltipRef.current.getBoundingClientRect();
+    const tooltipRect = tooltipContentRef.current.getBoundingClientRect();
+    const viewportHeight = window.innerHeight;
+    const viewportWidth = window.innerWidth;
+
+    // Calculate available space
+    const spaceAbove = triggerRect.top;
+    const spaceBelow = viewportHeight - triggerRect.bottom;
+    const spaceLeft = triggerRect.left;
+    const spaceRight = viewportWidth - triggerRect.right;
+
+    // Determine vertical position
+    let top: number;
+    if (spaceBelow >= tooltipRect.height || spaceBelow >= spaceAbove) {
+      // Position below if there's more space below or equal space
+      top = triggerRect.bottom + 8;
+    } else {
+      // Position above if there's more space above
+      top = triggerRect.top - tooltipRect.height - 8;
+    }
+
+    // Ensure tooltip stays within viewport vertically
+    top = Math.max(8, Math.min(top, viewportHeight - tooltipRect.height - 8));
+
+    // Determine horizontal position
+    let left: number;
+    if (
+      spaceRight >= tooltipRect.width / 2 &&
+      spaceLeft >= tooltipRect.width / 2
+    ) {
+      // Center if enough space on both sides
+      left = triggerRect.left + (triggerRect.width - tooltipRect.width) / 2;
+    } else if (spaceRight >= tooltipRect.width) {
+      // Align to left if more space on right
+      left = triggerRect.left;
+    } else if (spaceLeft >= tooltipRect.width) {
+      // Align to right if more space on left
+      left = triggerRect.right - tooltipRect.width;
+    } else {
+      // Center if no space on either side
+      left = Math.max(
+        8,
+        Math.min(
+          triggerRect.left + (triggerRect.width - tooltipRect.width) / 2,
+          viewportWidth - tooltipRect.width - 8
+        )
+      );
+    }
+
+    setPosition({ top, left });
+  };
+
+  useEffect(() => {
+    if (showTooltip) {
+      updatePosition();
+      window.addEventListener('scroll', updatePosition);
+      window.addEventListener('resize', updatePosition);
+    }
+
+    return () => {
+      window.removeEventListener('scroll', updatePosition);
+      window.removeEventListener('resize', updatePosition);
+    };
+  }, [showTooltip]);
+
   const handleMouseEnter = () => {
     isHoveringRef.current = true;
     if (hideTimeoutRef.current) {
@@ -219,6 +284,8 @@ export const LinkTooltip: React.FC<LinkTooltipProps> = ({
       if (enableExtendedPreview) {
         setShowLargePreview(true);
       }
+      // Update position after a short delay to ensure content is rendered
+      setTimeout(updatePosition, 0);
     }, 500);
     hideTimeoutRef.current = timeout;
   };
@@ -337,8 +404,10 @@ export const LinkTooltip: React.FC<LinkTooltipProps> = ({
     );
   };
 
+  const Wrapper = isInsideParagraph ? 'span' : 'div';
+
   return (
-    <div
+    <Wrapper
       ref={tooltipRef}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
@@ -352,6 +421,10 @@ export const LinkTooltip: React.FC<LinkTooltipProps> = ({
           className={`link-tooltip ${showLargePreview ? 'large' : ''} ${showTooltip ? 'visible' : ''}`}
           onMouseEnter={handleTooltipMouseEnter}
           onMouseLeave={handleTooltipMouseLeave}
+          style={{
+            top: `${position.top}px`,
+            left: `${position.left}px`
+          }}
         >
           {enableCtrlClick && (
             <div className="link-tooltip-ctrl-message">
@@ -381,6 +454,6 @@ export const LinkTooltip: React.FC<LinkTooltipProps> = ({
           </div>
         </div>
       )}
-    </div>
+    </Wrapper>
   );
 };

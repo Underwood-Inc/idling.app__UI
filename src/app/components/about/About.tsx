@@ -7,7 +7,7 @@ export function About() {
   return (
     <div>
       <p>
-        <LinkTooltip url={NAV_PATHS.ROOT}>
+        <LinkTooltip url={NAV_PATHS.ROOT} isInsideParagraph>
           {/* eslint-disable-next-line custom-rules/enforce-link-target-blank */}
           <Link
             data-testid={ABOUT_PAGE_SELECTORS.ROOT_LINK}
@@ -24,6 +24,7 @@ export function About() {
           url={NAV_PATHS.GALAXY}
           enableExtendedPreview
           enableCtrlClick
+          isInsideParagraph
         >
           <Link target="_blank" href={NAV_PATHS.GALAXY}>
             Galaxy
@@ -38,6 +39,7 @@ export function About() {
           url={NAV_PATHS.GALAXY}
           enableExtendedPreview
           enableCtrlClick
+          isInsideParagraph
         >
           <Link target="_blank" href={NAV_PATHS.GALAXY}>
             Galaxy
