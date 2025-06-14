@@ -23,34 +23,25 @@ const DEFAULT_CACHE_DURATION = 60 * 60 * 1000; // 1 hour in milliseconds
 const formatLastUpdated = (timestamp: number) => {
   const now = Date.now();
   const diff = now - timestamp;
+  const seconds = Math.floor(diff / 1000);
+  const minutes = Math.floor(seconds / 60);
+  const hours = Math.floor(minutes / 60);
+  const days = Math.floor(hours / 24);
+  const weeks = Math.floor(days / 7);
+  const months = Math.floor(days / 30);
+  const years = Math.floor(days / 365);
 
-  // Convert to seconds first
-  const totalSeconds = Math.floor(diff / 1000);
+  const parts: string[] = [];
 
-  // Calculate each unit
-  const seconds = totalSeconds % 60;
-  const totalMinutes = Math.floor(totalSeconds / 60);
-  const minutes = totalMinutes % 60;
-  const totalHours = Math.floor(totalMinutes / 60);
-  const hours = totalHours % 24;
-  const totalDays = Math.floor(totalHours / 24);
-  const days = totalDays % 7;
-  const totalWeeks = Math.floor(totalDays / 7);
-  const weeks = totalWeeks % 4;
-  const totalMonths = Math.floor(totalWeeks / 4);
-  const months = totalMonths % 12;
-  const years = Math.floor(totalMonths / 12);
-
-  const parts = [];
   if (years > 0) parts.push(`${years}y`);
   if (months > 0) parts.push(`${months}mo`);
   if (weeks > 0) parts.push(`${weeks}w`);
   if (days > 0) parts.push(`${days}d`);
   if (hours > 0) parts.push(`${hours}h`);
   if (minutes > 0) parts.push(`${minutes}m`);
-  if (seconds > 0 || parts.length === 0) parts.push(`${seconds}s`);
+  if (seconds > 0 || parts.length === 0) parts.push(`${seconds % 60}s`);
 
-  return parts.join(' ');
+  return parts.join(' ') + ' ago';
 };
 
 export const LinkTooltip: React.FC<LinkTooltipProps> = ({
