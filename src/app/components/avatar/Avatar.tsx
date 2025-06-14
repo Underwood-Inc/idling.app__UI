@@ -3,7 +3,6 @@ import { adventurer } from '@dicebear/collection';
 import { createAvatar } from '@dicebear/core';
 import { atom, useAtom } from 'jotai';
 import { memo, useEffect, useState } from 'react';
-import { GridLoader } from 'react-spinners';
 import { AVATAR_SELECTORS } from 'src/lib/test-selectors/components/avatar.selectors';
 import './Avatar.css';
 
@@ -16,6 +15,8 @@ const Avatar = memo(
     const [avatarCache, setAvatarCache] = useAtom(avatarCacheAtom);
     const cacheKey = seed || new Date().getTime().toString();
     const [img, setImg] = useState(avatarCache[cacheKey] || '');
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState(false);
 
     useEffect(() => {
       if (!avatarCache[cacheKey]) {
@@ -27,32 +28,40 @@ const Avatar = memo(
       }
     }, [cacheKey, setAvatarCache]);
 
+    const handleLoad = () => {
+      setIsLoading(false);
+    };
+
+    const handleError = () => {
+      setIsLoading(false);
+      setError(true);
+    };
+
     return (
       <div
         className={`avatar ${size}`}
         data-testid={AVATAR_SELECTORS.CONTAINER}
+        style={{ width: size, height: size }}
       >
-        {img ? (
-          // eslint-disable-next-line @next/next/no-img-element
+        {isLoading && (
+          <div className="loading-overlay">
+            <div className="grid-loader">
+              {[...Array(9)].map((_, i) => (
+                <span key={i} />
+              ))}
+            </div>
+          </div>
+        )}
+        {!error && (
           <img
             src={img}
             className={`avatar__img ${size}`}
             alt="avatar"
             data-testid={AVATAR_SELECTORS.IMAGE}
+            onLoad={handleLoad}
+            onError={handleError}
+            style={{ display: isLoading ? 'none' : 'block' }}
           />
-        ) : (
-          <div className="avatar__loader" data-testid={AVATAR_SELECTORS.LOADER}>
-            <GridLoader
-              color="#edae49ff"
-              size={15}
-              margin={2}
-              speedMultiplier={1}
-              cssOverride={{
-                animationDuration: '1.4s',
-                animationDelay: '0.6s'
-              }}
-            />
-          </div>
         )}
       </div>
     );

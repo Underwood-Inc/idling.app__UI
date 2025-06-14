@@ -4,7 +4,7 @@ import { LinkTooltip } from '../tooltip/LinkTooltip';
 
 export const DiscordLink: React.FC = () => {
   return (
-    <LinkTooltip url="https://discord.gg/mpThbx67J7">
+    <LinkTooltip url="https://discord.gg/mpThbx67J7" isInsideParagraph>
       <a
         data-testid={DISCORD_LINK_SELECTORS.LINK}
         href="https://discord.gg/mpThbx67J7"
