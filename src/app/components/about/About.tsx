@@ -1,14 +1,8 @@
 import Link from 'next/link';
 import { NAV_PATHS } from '../../../lib/routes';
 import { ABOUT_PAGE_SELECTORS } from '../../../lib/test-selectors/pages/about.selectors';
-import { GitLabLink } from '../gitlab-link/GitLabLink';
 
 export function About() {
-  const externalResourceTitle = `
-    Most commonly due to technological limitations of web applications.
-    i.e. The Godot project involves multiple external resources.
-  `;
-
   return (
     <div>
       <p>
@@ -19,38 +13,35 @@ export function About() {
         >
           idling.app
         </Link>
-        &nbsp;is my landing page to personal project that I do when I
-        am..ahem...idle.
+        &nbsp;serves as the central hub for my professional portfolio and
+        personal projects, showcasing my expertise in front-end web development
+        and interactive 3D applications. The platform hosts a collection of
+        innovative web applications, with&nbsp;
+        <Link target="_blank" href={NAV_PATHS.GALAXY}>
+          Galaxy
+        </Link>
+        &nbsp; standing as a flagship project that demonstrates advanced 3D
+        space visualization capabilities.
       </p>
-
+      <br />
       <p>
-        The primary focus of my Information Technology (IT) career has been on
-        the front end of web applications and so, this web domain will house my
-        pet projects or provide web links&nbsp;
-        <span title={externalResourceTitle}>
-          to other domains with more of the same
-        </span>
-        . Anything that is publicly available can be found in this websites
-        navigation links and development activity can be found on the idling.app
-        Discord server or on respective development platform repositories.
+        <Link target="_blank" href={NAV_PATHS.GALAXY}>
+          Galaxy
+        </Link>
+        &nbsp; represents a cutting-edge web application that leverages modern
+        web technologies to create immersive space environments. The application
+        features procedurally generated galaxies with dynamic star fields,
+        realistic nebula effects, and interactive space environments. Built with
+        Three.js and TypeScript, Galaxy showcases sophisticated particle
+        systems, advanced rendering techniques, and responsive user interfaces.
       </p>
-
+      <br />
       <p>
-        Additionally, new game being developed in the&nbsp;
-        <a href="https://godotengine.org/" target="_blank">
-          Godot v4 game engine
-        </a>
-        &nbsp; is being worked on (at a lower priority to that of this web
-        application).
-      </p>
-
-      <p>
-        This game will have idle elements to take over tasks that become tedious
-        as game progression advances.
-      </p>
-
-      <p>
-        See the <GitLabLink /> page for releases and more information.
+        All publicly available projects can be accessed through the
+        website&apos;s navigation, while active development discussions and
+        updates are hosted on the idling.app Discord server. For detailed
+        technical documentation, release notes, and contribution guidelines,
+        please refer to the project&apos;s GitLab repository.
       </p>
     </div>
   );
