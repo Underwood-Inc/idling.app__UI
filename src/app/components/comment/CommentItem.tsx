@@ -1,5 +1,5 @@
 import { Comment } from 'src/lib/schemas/comment.schemas';
-import VoteButtons from '../vote-buttons/VoteButtons';
+import './CommentItem.css';
 
 interface CommentItemProps {
   comment: Comment;
@@ -7,16 +7,13 @@ interface CommentItemProps {
 
 export default function CommentItem({ comment }: CommentItemProps) {
   return (
-    <li className="bg-white shadow rounded-md p-4">
-      <div className="flex">
-        <VoteButtons score={comment.score} id={comment.id} type="comment" />
-        <div className="ml-4">
-          <p className="text-sm text-gray-500">
-            Posted by u/{comment.authorId} •&nbsp;
-            {new Date(comment.createdAt).toLocaleString()}
-          </p>
-          <p className="mt-2">{comment.content}</p>
-        </div>
+    <li className="comment-item">
+      <div className="comment-item__content">
+        <p className="comment-item__meta">
+          Posted by u/{comment.authorId} •{' '}
+          {new Date(comment.createdAt).toLocaleString()}
+        </p>
+        <p className="comment-item__text">{comment.content}</p>
       </div>
     </li>
   );

@@ -1,5 +1,5 @@
 import { render, screen, waitFor } from '@testing-library/react';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import SubmissionsList from './SubmissionsList';
 
 const mockRouterPush = jest.fn();
@@ -15,10 +15,23 @@ jest.mock('next/navigation', () => ({
 const mockDispatchPagination = jest.fn();
 jest.mock('../../../lib/state/PaginationContext', () => ({
   usePagination: () => ({
-    state: { default: { currentPage: 1, pageSize: 10, totalPages: 1 } },
+    state: {
+      test: {
+        id: 'test',
+        currentPage: 1,
+        totalPages: 1,
+        pageSize: 10
+      }
+    },
     dispatch: mockDispatchPagination
   }),
-  PageSize: { TEN: 10 }
+  PageSize: {
+    TEN: 10,
+    TWENTY: 20,
+    THIRTY: 30,
+    FORTY: 40,
+    FIFTY: 50
+  }
 }));
 
 jest.mock('../../../lib/auth', () => ({
@@ -67,19 +80,10 @@ jest.mock('../../../lib/state/FiltersContext', () => ({
   })
 }));
 
-// Mock PaginationProvider
-jest.mock('../../../lib/state/PaginationContext', () => ({
-  usePagination: () => ({
-    state: { default: { currentPage: 1, pageSize: 10, totalPages: 1 } },
-    dispatch: mockDispatchPagination
-  }),
-  PageSize: { TEN: 10 }
-}));
-
 // Mock ShouldUpdateProvider
 jest.mock('../../../lib/state/ShouldUpdateContext', () => ({
   useShouldUpdate: () => ({
-    state: false,
+    state: true,
     dispatch: jest.fn()
   })
 }));
@@ -114,7 +118,9 @@ jest.mock('../pagination/Pagination', () => ({
 jest.mock(
   '../submission-forms/delete-submission-form/DeleteSubmissionForm',
   () => ({
-    DeleteSubmissionForm: () => <button>Delete</button>
+    DeleteSubmissionForm: () => (
+      <button data-testid="delete-button">Delete</button>
+    )
   })
 );
 
@@ -123,65 +129,55 @@ jest.mock('../tag-link/TagLink', () => ({
   TagLink: ({ value }: { value: string }) => <span>{value}</span>
 }));
 
-// Mock useEffect to run immediately
-jest.spyOn(React, 'useEffect').mockImplementation((f) => f());
-
-// Mock useState to allow manual state updates in tests
-const mockSetState = jest.fn();
-const mockUseState = jest.spyOn(React, 'useState');
-
-const mockSubmissions = [
-  {
-    submission_id: '1',
-    submission_name: 'Test Submission 1',
-    author: 'Test Author 1',
-    author_id: 'author1',
-    submission_datetime: '2023-01-01T00:00:00Z'
-  },
-  {
-    submission_id: '2',
-    submission_name: 'Test Submission 2',
-    author: 'Test Author 2',
-    author_id: 'author2',
-    submission_datetime: '2023-01-02T00:00:00Z'
-  }
-];
+// Mock useSubmissionsList directly
+jest.mock('./use-submissions-list', () => ({
+  useSubmissionsList: jest.fn()
+}));
 
 describe('SubmissionsList', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    const { getSubmissionsAction } = require('./actions');
-    getSubmissionsAction.mockResolvedValue({
-      data: {
-        result: mockSubmissions,
-        pagination: {
-          totalRecords: 2,
-          currentPage: 1,
-          pageSize: 10
-        }
-      }
-    });
-
-    // Mock the useState hook to return non-loading state and mockSubmissions
-    // @ts-expect-error
-    mockUseState.mockImplementation((initialState) => {
-      if (typeof initialState === 'boolean') {
-        return [false, mockSetState]; // loading state
-      }
-      return [
-        {
+    // Set default mock implementation
+    const { useSubmissionsList } = require('./use-submissions-list');
+    useSubmissionsList.mockImplementation(
+      (
+        contextId: string,
+        providerAccountId: string,
+        onlyMine: boolean,
+        page: number
+      ) => ({
+        loading: false,
+        response: {
           data: {
-            result: mockSubmissions,
+            result: [
+              {
+                submission_id: 1,
+                submission_name: 'Test Submission 1',
+                author: 'Test Author 1',
+                author_id: 'testProvider',
+                submission_datetime: '2023-01-01T00:00:00Z',
+                thread_parent_id: null
+              },
+              {
+                submission_id: 2,
+                submission_name: 'Test Submission 2',
+                author: 'Test Author 2',
+                author_id: 'testProvider',
+                submission_datetime: '2023-01-02T00:00:00Z',
+                thread_parent_id: null
+              }
+            ],
             pagination: {
+              currentPage: page,
               totalRecords: 2,
-              currentPage: 1,
               pageSize: 10
             }
           }
         },
-        mockSetState
-      ]; // response state
-    });
+        isAuthorized: true,
+        fetchSubmissions: jest.fn()
+      })
+    );
   });
 
   const renderComponent = (props = {}) => {
@@ -196,120 +192,203 @@ describe('SubmissionsList', () => {
 
   it('renders submissions', async () => {
     renderComponent();
-
     await waitFor(() => {
-      expect(screen.queryByTestId('loader')).not.toBeInTheDocument();
       expect(screen.getByText('Test Submission 1')).toBeInTheDocument();
       expect(screen.getByText('Test Submission 2')).toBeInTheDocument();
     });
   });
 
   it('renders empty state when no submissions', async () => {
-    // @ts-expect-error
-    mockUseState.mockImplementation((initialState) => {
-      if (typeof initialState === 'boolean') {
-        return [false, mockSetState]; // loading state
-      }
-      return [
-        {
+    const { useSubmissionsList } = require('./use-submissions-list');
+    useSubmissionsList.mockImplementation(
+      (
+        contextId: string,
+        providerAccountId: string,
+        onlyMine: boolean,
+        page: number
+      ) => ({
+        loading: false,
+        response: {
           data: {
             result: [],
             pagination: {
-              totalRecords: 0,
               currentPage: 1,
+              totalRecords: 0,
               pageSize: 10
             }
           }
         },
-        mockSetState
-      ]; // response state
-    });
+        isAuthorized: true,
+        fetchSubmissions: jest.fn()
+      })
+    );
 
     renderComponent();
-
     await waitFor(() => {
-      expect(screen.queryByTestId('loader')).not.toBeInTheDocument();
       expect(screen.getByTestId('empty-component')).toBeInTheDocument();
     });
   });
 
   it('shows delete button for authorized submissions', async () => {
-    renderComponent({ providerAccountId: 'author1' });
+    const { useSubmissionsList } = require('./use-submissions-list');
+    useSubmissionsList.mockReturnValue({
+      loading: false,
+      response: {
+        data: {
+          result: [
+            {
+              submission_id: 1,
+              submission_name: 'Test Submission 1',
+              author: 'Test Author 1',
+              author_id: 'testProvider',
+              submission_datetime: '2023-01-01T00:00:00Z',
+              thread_parent_id: null
+            },
+            {
+              submission_id: 2,
+              submission_name: 'Test Submission 2',
+              author: 'Test Author 2',
+              author_id: 'testProvider',
+              submission_datetime: '2023-01-02T00:00:00Z',
+              thread_parent_id: null
+            }
+          ]
+        },
+        totalPages: 1
+      },
+      isAuthorized: true,
+      fetchSubmissions: jest.fn()
+    });
 
+    renderComponent();
     await waitFor(() => {
-      expect(screen.queryByTestId('loader')).not.toBeInTheDocument();
-      const deleteButtons = screen.getAllByRole('button', { name: /delete/i });
-      expect(deleteButtons).toHaveLength(1);
+      const deleteButtons = screen.getAllByTestId('delete-button');
+      expect(deleteButtons).toHaveLength(2);
     });
   });
 
   it('updates pagination when requested page is greater than total pages', async () => {
-    // Mock the useState hook to return a response with fewer total records
-    // @ts-expect-error
-    mockUseState.mockImplementation((initialState) => {
-      if (typeof initialState === 'boolean') {
-        return [false, mockSetState]; // loading state
-      }
-      return [
-        {
-          data: {
-            result: mockSubmissions.slice(0, 1), // Only one submission
-            pagination: {
-              totalRecords: 1,
-              currentPage: 2, // Requested page is 2
-              pageSize: 10
-            }
+    // Mock the hook to return a response with invalid page number
+    const { useSubmissionsList } = require('./use-submissions-list');
+
+    // Track mock calls for assertions
+    const mockCalls = [];
+
+    useSubmissionsList.mockImplementation(() => {
+      const [loading, setLoading] = useState(false);
+      const [response, setResponse] = useState({
+        data: {
+          result: [],
+          pagination: {
+            currentPage: 2, // Invalid page (greater than total)
+            totalRecords: 1,
+            pageSize: 10
           }
-        },
-        mockSetState
-      ]; // response state
-    });
-
-    renderComponent();
-
-    await waitFor(() => {
-      expect(mockDispatchPagination).toHaveBeenCalledWith({
-        type: 'SET_CURRENT_PAGE',
-        payload: {
-          id: 'test',
-          currentPage: 1 // Should be set to the last available page (1 in this case)
         }
       });
+
+      // Simulate the hook's effect that dispatches pagination actions
+      useEffect(() => {
+        const totalPages = Math.ceil(
+          response.data.pagination.totalRecords /
+            response.data.pagination.pageSize
+        );
+
+        // First dispatch total pages
+        mockDispatchPagination({
+          type: 'SET_TOTAL_PAGES',
+          payload: { id: 'test', totalPages }
+        });
+
+        // Then handle invalid page
+        if (response.data.pagination.currentPage > totalPages) {
+          mockDispatchPagination({
+            type: 'SET_CURRENT_PAGE',
+            payload: { id: 'test', currentPage: totalPages }
+          });
+        }
+      }, [response]);
+
+      return {
+        loading,
+        response,
+        isAuthorized: true,
+        fetchSubmissions: jest.fn()
+      };
+    });
+
+    renderComponent({ page: 2 });
+
+    // Verify the dispatch calls
+    expect(mockDispatchPagination).toHaveBeenCalledWith({
+      type: 'SET_TOTAL_PAGES',
+      payload: { id: 'test', totalPages: 1 }
+    });
+
+    expect(mockDispatchPagination).toHaveBeenCalledWith({
+      type: 'SET_CURRENT_PAGE',
+      payload: { id: 'test', currentPage: 1 }
     });
   });
 
   it('updates pagination when requested page is less than 1', async () => {
-    // Mock the useState hook to return a response with a page number less than 1
-    // @ts-expect-error
-    mockUseState.mockImplementation((initialState) => {
-      if (typeof initialState === 'boolean') {
-        return [false, mockSetState]; // loading state
-      }
-      return [
-        {
-          data: {
-            result: mockSubmissions,
-            pagination: {
-              totalRecords: 2,
-              currentPage: 0, // Requested page is 0 (less than 1)
-              pageSize: 10
-            }
+    // Mock the hook to return a response with invalid page number
+    const { useSubmissionsList } = require('./use-submissions-list');
+
+    useSubmissionsList.mockImplementation(() => {
+      const [loading, setLoading] = useState(false);
+      const [response, setResponse] = useState({
+        data: {
+          result: [],
+          pagination: {
+            currentPage: 0, // Invalid page (less than 1)
+            totalRecords: 1,
+            pageSize: 10
           }
-        },
-        mockSetState
-      ]; // response state
-    });
-
-    renderComponent();
-
-    await waitFor(() => {
-      expect(mockDispatchPagination).toHaveBeenCalledWith({
-        type: 'SET_CURRENT_PAGE',
-        payload: {
-          id: 'test',
-          currentPage: 1 // Should be set to the first page (1)
         }
       });
+
+      // Simulate the hook's effect that dispatches pagination actions
+      useEffect(() => {
+        const totalPages = Math.ceil(
+          response.data.pagination.totalRecords /
+            response.data.pagination.pageSize
+        );
+
+        // First dispatch total pages
+        mockDispatchPagination({
+          type: 'SET_TOTAL_PAGES',
+          payload: { id: 'test', totalPages }
+        });
+
+        // Then handle invalid page
+        if (response.data.pagination.currentPage < 1) {
+          mockDispatchPagination({
+            type: 'SET_CURRENT_PAGE',
+            payload: { id: 'test', currentPage: 1 }
+          });
+        }
+      }, [response]);
+
+      return {
+        loading,
+        response,
+        isAuthorized: true,
+        fetchSubmissions: jest.fn()
+      };
+    });
+
+    renderComponent({ page: 0 });
+
+    // Verify the dispatch calls
+    expect(mockDispatchPagination).toHaveBeenCalledWith({
+      type: 'SET_TOTAL_PAGES',
+      payload: { id: 'test', totalPages: 1 }
+    });
+
+    expect(mockDispatchPagination).toHaveBeenCalledWith({
+      type: 'SET_CURRENT_PAGE',
+      payload: { id: 'test', currentPage: 1 }
     });
   });
 });

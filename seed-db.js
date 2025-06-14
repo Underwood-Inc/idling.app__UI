@@ -3,14 +3,31 @@ const postgres = require('postgres');
 
 const SEED_RECORD_COUNT = 500;
 
+// Check if we're in a devcontainer environment
+const isDevContainer = process.env.HOME?.includes('devcontainers');
 console.info('is dockerized?', process.env.IS_DOCKERIZED);
+console.info('is devcontainer?', isDevContainer);
+
+const getConfigValue = (dockerizedValue, devContainerValue, envValue) => {
+  if (process.env.IS_DOCKERIZED) {
+    return dockerizedValue;
+  }
+  if (isDevContainer) {
+    return devContainerValue;
+  }
+  return envValue;
+};
 
 const sql = postgres({
-  host: process.env.IS_DOCKERIZED ? 'postgres' : process.env.POSTGRES_HOST,
-  user: process.env.IS_DOCKERIZED ? 'postgres' : process.env.POSTGRES_USER,
-  database: process.env.IS_DOCKERIZED ? 'idling' : process.env.POSTGRES_DB,
-  password: process.env.IS_DOCKERIZED ? 'postgres' : process.env.POSTGRES_PASSWORD, // Changed 'pass' to 'password'
-  port: process.env.IS_DOCKERIZED ? 5432 : process.env.POSTGRES_PORT,
+  host: getConfigValue('postgres', 'localhost', process.env.POSTGRES_HOST),
+  user: getConfigValue('postgres', 'postgres', process.env.POSTGRES_USER),
+  database: getConfigValue('idling', 'idling', process.env.POSTGRES_DB),
+  password: getConfigValue(
+    process.env.DOCKER_POSTGRES_PASSWORD || 'postgres',
+    process.env.DEV_CONTAINER_PASSWORD,
+    process.env.POSTGRES_PASSWORD
+  ),
+  port: getConfigValue(5432, 5432, process.env.POSTGRES_PORT),
   ssl: 'prefer'
 });
 

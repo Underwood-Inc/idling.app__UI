@@ -14,8 +14,10 @@ const customJestConfig = {
   ],
   setupFilesAfterEnv: ['jest-chain', '<rootDir>/jest.setup.js'],
   moduleNameMapper: {
-    '^next/navigation$': '<rootDir>/__mocks__/next/navigation.ts'
+    '^next/navigation$': '<rootDir>/__mocks__/next/navigation.ts',
+    '^@dicebear/(.*)$': '<rootDir>/node_modules/@dicebear/$1'
   },
+  transformIgnorePatterns: ['/node_modules/(?!(@dicebear|@babel/runtime)/)'],
   testEnvironment: 'jest-environment-jsdom'
 };
 

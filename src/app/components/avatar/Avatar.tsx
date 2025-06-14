@@ -14,7 +14,7 @@ const Avatar = memo(
   ({ seed, size = 'md' }: { seed?: string; size?: AvatarPropSizes }) => {
     const [avatarCache, setAvatarCache] = useAtom(avatarCacheAtom);
     const cacheKey = seed || new Date().getTime().toString();
-    const [img, setImg] = useState(avatarCache[cacheKey] || '');
+    const [img, setImg] = useState(avatarCache[cacheKey] || null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(false);
 
@@ -26,7 +26,7 @@ const Avatar = memo(
         setAvatarCache((prev) => ({ ...prev, [cacheKey]: newAvatar }));
         setImg(newAvatar);
       }
-    }, [cacheKey, setAvatarCache]);
+    }, [cacheKey, setAvatarCache, avatarCache]);
 
     const handleLoad = () => {
       setIsLoading(false);
@@ -52,11 +52,11 @@ const Avatar = memo(
             </div>
           </div>
         )}
-        {!error && (
+        {!error && img && (
           <img
             src={img}
             className={`avatar__img ${size}`}
-            alt="avatar"
+            alt="Avatar"
             data-testid={AVATAR_SELECTORS.IMAGE}
             onLoad={handleLoad}
             onError={handleError}

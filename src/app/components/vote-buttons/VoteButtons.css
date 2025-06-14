@@ -1,0 +1,55 @@
+.vote-buttons {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.vote-buttons__container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.vote-buttons__button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #6b7280;
+  padding: 0.25rem;
+  transition: color 0.2s;
+}
+
+.vote-buttons__button:hover {
+  color: #3b82f6;
+}
+
+.vote-buttons__button--up:hover {
+  color: #ef4444;
+}
+
+.vote-buttons__button--down:hover {
+  color: #3b82f6;
+}
+
+.vote-buttons__button--active {
+  color: #3b82f6;
+}
+
+.vote-buttons__button--up.vote-buttons__button--active {
+  color: #ef4444;
+}
+
+.vote-buttons__button--down.vote-buttons__button--active {
+  color: #3b82f6;
+}
+
+.vote-buttons__button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.vote-buttons__score {
+  font-size: 0.875rem;
+  font-weight: 600;
+}

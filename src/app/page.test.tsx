@@ -58,7 +58,7 @@ describe('Home Page', () => {
 
     // Check Discord links
     const discordLinks = screen.getAllByTestId(DISCORD_LINK_SELECTORS.LINK);
-    expect(discordLinks).toHaveLength(2);
+    expect(discordLinks).toHaveLength(3);
     expect(discordLinks[0]).toHaveAttribute(
       'href',
       'https://discord.gg/mpThbx67J7'

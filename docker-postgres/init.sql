@@ -10,7 +10,7 @@ CREATE EXTENSION IF NOT EXISTS dblink;
 DO $$
 BEGIN
   IF NOT EXISTS (SELECT 1 FROM pg_database WHERE datname = 'idling') THEN
-    PERFORM dblink_exec('dbname=idling', 'CREATE DATABASE idling WITH OWNER postgres');
+    CREATE DATABASE idling WITH OWNER postgres;
   END IF;
 END
 $$;

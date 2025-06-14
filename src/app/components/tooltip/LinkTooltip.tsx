@@ -54,8 +54,10 @@ import {
   differenceInYears
 } from 'date-fns';
 import { formatInTimeZone } from 'date-fns-tz';
+import { useAtom } from 'jotai';
 import React, { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
+import { linkTooltipModalAtom } from './link-tooltip-modal-atom';
 import './LinkTooltip.css';
 
 interface LinkTooltipProps {
@@ -176,9 +178,9 @@ export const LinkTooltip: React.FC<LinkTooltipProps> = ({
   cacheDuration = DEFAULT_CACHE_DURATION,
   isInsideParagraph = false
 }) => {
+  const [isModalOpen, setIsModalOpen] = useAtom(linkTooltipModalAtom);
   const [showTooltip, setShowTooltip] = useState(false);
   const [showLargePreview, setShowLargePreview] = useState(false);
-  const [showModal, setShowModal] = useState(false);
   const [tooltipData, setTooltipData] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -442,12 +444,12 @@ export const LinkTooltip: React.FC<LinkTooltipProps> = ({
   const handleClick = (e: React.MouseEvent) => {
     if (enableCtrlClick && e.ctrlKey) {
       e.preventDefault();
-      setShowModal(true);
+      setIsModalOpen(true);
     }
   };
 
   const handleModalClose = () => {
-    setShowModal(false);
+    setIsModalOpen(false);
   };
 
   const renderTooltipContent = () => {
@@ -557,7 +559,7 @@ export const LinkTooltip: React.FC<LinkTooltipProps> = ({
           document.body
         )}
       {mounted &&
-        showModal &&
+        isModalOpen &&
         createPortal(
           <div className="link-preview-modal" onClick={handleModalClose}>
             <div

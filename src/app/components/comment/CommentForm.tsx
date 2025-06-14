@@ -1,6 +1,7 @@
 'use client';
 import { useState } from 'react';
 import { createComment } from 'src/lib/actions/comment.actions';
+import './CommentForm.css';
 
 interface CommentFormProps {
   postId: string;
@@ -21,19 +22,18 @@ export default function CommentForm({ postId }: CommentFormProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="mt-4">
-      <textarea
-        value={content}
-        onChange={(e) => setContent(e.target.value)}
-        className="w-full p-2 border rounded"
-        placeholder="Write a comment..."
-        required
-      />
-      <button
-        type="submit"
-        className="mt-2 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-      >
-        Submit
+    <form onSubmit={handleSubmit} className="comment-form">
+      <div className="comment-form__field">
+        <textarea
+          value={content}
+          onChange={(e) => setContent(e.target.value)}
+          placeholder="Write a comment..."
+          required
+          className="comment-form__textarea"
+        />
+      </div>
+      <button type="submit" className="comment-form__submit">
+        Post Comment
       </button>
     </form>
   );

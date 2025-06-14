@@ -7,10 +7,12 @@ interface CommentListProps {
 
 export default function CommentList({ comments }: CommentListProps) {
   return (
-    <ul className="space-y-4 mt-8">
-      {comments.map((comment) => (
-        <CommentItem key={comment.id} comment={comment} />
-      ))}
-    </ul>
+    <div className="comment-list">
+      <ul className="comment-list__items">
+        {comments.map((comment) => (
+          <CommentItem key={comment.id} comment={comment} />
+        ))}
+      </ul>
+    </div>
   );
 }

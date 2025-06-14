@@ -3,13 +3,13 @@ import { makeid } from '../../../lib/utils/string/make-id';
 import Avatar from '../avatar/Avatar';
 import './AvatarsBackground.css';
 
-// Create stable avatar data outside the component
-const AVATAR_DATA = Array.from({ length: 10 }, (_, i) => ({
-  key: `avatar__${i}`,
-  seed: makeid(15)
-}));
-
 export const AvatarsBackground = React.memo(function AvatarsBackground() {
+  // Create avatar data inside the component
+  const AVATAR_DATA = Array.from({ length: 10 }, (_, i) => ({
+    key: `avatar__${i}`,
+    seed: makeid(15)
+  }));
+
   return (
     <section className="avatar__background-container">
       <div className="avatar__background">

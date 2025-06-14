@@ -17,7 +17,10 @@ import { AddSubmissionForm } from '../components/submission-forms/add-submission
 import styles from './page.module.css';
 
 const LazyPostsList = dynamic(
-  () => import('../components/submissions-list/SubmissionsList'),
+  () =>
+    import('../components/submissions-list/SubmissionsList').then(
+      (mod) => mod.SubmissionsList
+    ),
   {
     ssr: false,
     loading: () => <Loader />
