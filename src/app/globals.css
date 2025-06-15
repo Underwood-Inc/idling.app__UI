@@ -280,15 +280,17 @@ code {
 
 a {
   color: var(--anchor__light-bg--primary);
-  transition: color 0.2s ease-in-out;
+  text-decoration: underline;
+  transition: all 0.2s ease-in-out;
 }
 
 a:hover {
   color: var(--anchor__light-bg--primary-hover);
+  text-decoration: underline;
 }
 
 a:focus {
-  outline: 2px solid var(--brand-primary--dark);
+  outline: 2px solid var(--anchor__light-bg--primary);
   outline-offset: 2px;
 }
 

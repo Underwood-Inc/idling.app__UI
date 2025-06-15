@@ -1,11 +1,14 @@
 export function getFakeAuthCookie() {
+  const expiresIn24Hours = new Date();
+  expiresIn24Hours.setHours(expiresIn24Hours.getHours() + 24);
+
   return [
     {
       name: 'authjs.csrf-token',
       value: process.env.AUTHJS_CSRF_TOKEN ?? '',
       domain: '127.0.0.1',
       path: '/',
-      expires: -1,
+      expires: expiresIn24Hours.getTime() / 1000,
       httpOnly: true,
       secure: false,
       sameSite: 'Lax' as 'Strict' | 'Lax' | 'None'
@@ -15,7 +18,7 @@ export function getFakeAuthCookie() {
       value: process.env.AUTHJS_CALLBACK_URL ?? '',
       domain: '127.0.0.1',
       path: '/',
-      expires: -1,
+      expires: expiresIn24Hours.getTime() / 1000,
       httpOnly: true,
       secure: false,
       sameSite: 'Lax' as 'Strict' | 'Lax' | 'None'
@@ -25,7 +28,7 @@ export function getFakeAuthCookie() {
       value: process.env.AUTHJS_SESSION_TOKEN ?? '',
       domain: '127.0.0.1',
       path: '/',
-      expires: -1,
+      expires: expiresIn24Hours.getTime() / 1000,
       httpOnly: true,
       secure: false,
       sameSite: 'Lax' as 'Strict' | 'Lax' | 'None'
