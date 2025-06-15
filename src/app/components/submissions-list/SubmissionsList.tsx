@@ -109,7 +109,7 @@ const SubmissionThread = ({
   );
 };
 
-function SubmissionsList({
+const SubmissionsList = ({
   contextId = 'default',
   providerAccountId,
   onlyMine = false,
@@ -121,7 +121,7 @@ function SubmissionsList({
   page?: number;
   onlyMine?: boolean;
   filters?: Filter<PostFilters>[];
-}) {
+}) => {
   const [mounted, setMounted] = useState(false);
   const [activeReplyId, setActiveReplyId] = useState<number | null>(null);
   const [expandedThreads, setExpandedThreads] = useState<Set<number>>(
@@ -194,6 +194,10 @@ function SubmissionsList({
     return <Loader />;
   }
 
+  const organizedSubmissions = organizeSubmissions(
+    response?.data?.result || []
+  );
+
   return (
     <article
       data-testid={SUBMISSIONS_LIST_SELECTORS.CONTAINER}
@@ -207,31 +211,32 @@ function SubmissionsList({
 
       {!loading && (
         <>
-          {response?.data?.result.length === 0 && (
+          {organizedSubmissions.length === 0 && (
             <Empty label="No posts to show" />
           )}
           <ol className="submission__list">
-            {!!response?.data?.result.length &&
-              organizeSubmissions(response.data.result)
-                .filter((submission) => !submission.thread_parent_id)
-                .map((submission) => (
-                  <SubmissionThread
-                    key={submission.submission_id}
-                    submission={submission}
-                    contextId={contextId}
-                    providerAccountId={providerAccountId}
-                    activeReplyId={activeReplyId}
-                    onToggleReply={toggleReplyForm}
-                    onToggleThread={toggleThread}
-                    isExpanded={expandedThreads.has(submission.submission_id)}
-                  />
-                ))}
+            {organizedSubmissions.map((submission) => (
+              <SubmissionThread
+                key={submission.submission_id}
+                submission={submission}
+                contextId={contextId}
+                providerAccountId={providerAccountId}
+                activeReplyId={activeReplyId}
+                onToggleReply={toggleReplyForm}
+                onToggleThread={toggleThread}
+                isExpanded={expandedThreads.has(submission.submission_id)}
+              />
+            ))}
           </ol>
           {activeReplyId !== null && <ReplyForm parentId={activeReplyId} />}
         </>
       )}
     </article>
   );
-}
+};
 
+// Add displayName for better debugging
+SubmissionsList.displayName = 'SubmissionsList';
+
+export { SubmissionsList };
 export default SubmissionsList;

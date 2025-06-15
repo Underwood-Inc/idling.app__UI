@@ -2,6 +2,7 @@
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { createPost } from 'src/lib/actions/post.actions';
+import './CreatePostForm.css';
 
 export default function CreatePostForm({ subthread }: { subthread: string }) {
   const [title, setTitle] = useState('');
@@ -31,30 +32,32 @@ export default function CreatePostForm({ subthread }: { subthread: string }) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <div>
-        <label htmlFor="title" className="block mb-1">
+    <form onSubmit={handleSubmit} className="create-post-form">
+      <div className="create-post-form__field">
+        <label htmlFor="title" className="create-post-form__label">
           Title
         </label>
         <input
           type="text"
           id="title"
+          name="title"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          className="w-full p-2 border rounded"
           required
+          className="create-post-form__input"
         />
       </div>
-      <div>
-        <label htmlFor="content" className="block mb-1">
+      <div className="create-post-form__field">
+        <label htmlFor="content" className="create-post-form__label">
           Content
         </label>
         <textarea
           id="content"
+          name="content"
           value={content}
           onChange={(e) => setContent(e.target.value)}
-          className="w-full p-2 border rounded"
           required
+          className="create-post-form__textarea"
         />
       </div>
       {!subthread && (
@@ -72,10 +75,7 @@ export default function CreatePostForm({ subthread }: { subthread: string }) {
           />
         </div>
       )}
-      <button
-        type="submit"
-        className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-      >
+      <button type="submit" className="create-post-form__submit">
         Create Post
       </button>
       {error && <p className="text-red-500">{error}</p>}

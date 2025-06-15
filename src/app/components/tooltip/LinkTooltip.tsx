@@ -20,26 +20,40 @@ interface CachedData {
 const CACHE_KEY_PREFIX = 'link_tooltip_cache_';
 const DEFAULT_CACHE_DURATION = 60 * 60 * 1000; // 1 hour in milliseconds
 
-const formatLastUpdated = (timestamp: number) => {
+export const formatLastUpdated = (timestamp: number) => {
   const now = Date.now();
-  const diff = now - timestamp;
-  const seconds = Math.floor(diff / 1000);
-  const minutes = Math.floor(seconds / 60);
-  const hours = Math.floor(minutes / 60);
-  const days = Math.floor(hours / 24);
-  const weeks = Math.floor(days / 7);
-  const months = Math.floor(days / 30);
-  const years = Math.floor(days / 365);
+  if (timestamp > now) return '0s ago';
+
+  let remaining = now - timestamp;
+
+  const years = Math.floor(remaining / (365 * 24 * 60 * 60 * 1000));
+  remaining -= years * 365 * 24 * 60 * 60 * 1000;
+
+  const months = Math.floor(remaining / (30 * 24 * 60 * 60 * 1000));
+  remaining -= months * 30 * 24 * 60 * 60 * 1000;
+
+  const weeks = Math.floor(remaining / (7 * 24 * 60 * 60 * 1000));
+  remaining -= weeks * 7 * 24 * 60 * 60 * 1000;
+
+  const days = Math.floor(remaining / (24 * 60 * 60 * 1000));
+  remaining -= days * 24 * 60 * 60 * 1000;
+
+  const hours = Math.floor(remaining / (60 * 60 * 1000));
+  remaining -= hours * 60 * 60 * 1000;
+
+  const minutes = Math.floor(remaining / (60 * 1000));
+  remaining -= minutes * 60 * 1000;
+
+  const seconds = Math.floor(remaining / 1000);
 
   const parts: string[] = [];
-
-  if (years > 0) parts.push(`${years}y`);
-  if (months > 0) parts.push(`${months}mo`);
-  if (weeks > 0) parts.push(`${weeks}w`);
-  if (days > 0) parts.push(`${days}d`);
-  if (hours > 0) parts.push(`${hours}h`);
-  if (minutes > 0) parts.push(`${minutes}m`);
-  if (seconds > 0 || parts.length === 0) parts.push(`${seconds % 60}s`);
+  if (years) parts.push(`${years}y`);
+  if (months) parts.push(`${months}mo`);
+  if (weeks) parts.push(`${weeks}w`);
+  if (days) parts.push(`${days}d`);
+  if (hours) parts.push(`${hours}h`);
+  if (minutes) parts.push(`${minutes}m`);
+  if (seconds || parts.length === 0) parts.push(`${seconds}s`);
 
   return parts.join(' ') + ' ago';
 };
@@ -55,6 +69,9 @@ export const LinkTooltip: React.FC<LinkTooltipProps> = ({
   const [showTooltip, setShowTooltip] = useState(false);
   const [showLargePreview, setShowLargePreview] = useState(false);
   const [showModal, setShowModal] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [showControls, setShowControls] = useState(true);
+  const modalContentRef = useRef<HTMLDivElement>(null);
   const [tooltipData, setTooltipData] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -266,6 +283,7 @@ export const LinkTooltip: React.FC<LinkTooltipProps> = ({
   }, [showTooltip]);
 
   const handleMouseEnter = () => {
+    if (showModal) return; // Don't show tooltip if modal is open
     isHoveringRef.current = true;
     if (hideTimeoutRef.current) {
       clearTimeout(hideTimeoutRef.current);
@@ -297,24 +315,65 @@ export const LinkTooltip: React.FC<LinkTooltipProps> = ({
   };
 
   const handleTooltipMouseEnter = () => {
+    if (showModal) return; // Don't handle tooltip mouse events if modal is open
     if (hideTimeoutRef.current) {
       clearTimeout(hideTimeoutRef.current);
     }
   };
 
   const handleTooltipMouseLeave = () => {
+    if (showModal) return; // Don't handle tooltip mouse events if modal is open
     handleMouseLeave();
   };
 
   const handleClick = (e: React.MouseEvent) => {
     if (enableCtrlClick && (e.ctrlKey || e.metaKey)) {
       e.preventDefault();
+      setShowTooltip(false);
+      setShowLargePreview(false);
       setShowModal(true);
+    } else {
+      e.preventDefault();
+      window.open(url, '_blank');
     }
   };
 
-  const handleModalClose = () => {
+  const handleModalClose = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
     setShowModal(false);
+  };
+
+  const handleModalContentClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+  };
+
+  // Add effect to manage body class when modal is open
+  useEffect(() => {
+    if (showModal) {
+      document.body.classList.add('modal-open');
+      setShowTooltip(false);
+      setShowLargePreview(false);
+      shouldFetchRef.current = true;
+    } else {
+      document.body.classList.remove('modal-open');
+    }
+
+    return () => {
+      document.body.classList.remove('modal-open');
+    };
+  }, [showModal]);
+
+  const handleFullscreenToggle = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsFullscreen(!isFullscreen);
+  };
+
+  const handleControlsToggle = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setShowControls(!showControls);
   };
 
   const renderTooltipContent = () => {
@@ -377,20 +436,22 @@ export const LinkTooltip: React.FC<LinkTooltipProps> = ({
     }
 
     return (
-      <div onClick={handleClick}>
+      <div className="link-tooltip-content" onClick={handleClick}>
         {isCached && renderCacheInfo()}
         {tooltipData.image && (
           <div className="link-tooltip-image">
             <img src={tooltipData.image} alt={tooltipData.title} />
           </div>
         )}
-        <div className="link-tooltip-content">
-          <div className="link-tooltip-text">
-            <h4>{tooltipData.title}</h4>
-            {tooltipData.description && <p>{tooltipData.description}</p>}
-          </div>
-          <div className="link-tooltip-url">{tooltipData.url}</div>
+        <div className="link-tooltip-text">
+          <div className="link-tooltip-title">{tooltipData.title}</div>
+          {tooltipData.description && (
+            <div className="link-tooltip-description">
+              {tooltipData.description}
+            </div>
+          )}
         </div>
+        <div className="link-tooltip-url">{tooltipData.url}</div>
       </div>
     );
   };
@@ -412,10 +473,8 @@ export const LinkTooltip: React.FC<LinkTooltipProps> = ({
           className={`link-tooltip ${showLargePreview ? 'large' : ''} ${showTooltip ? 'visible' : ''}`}
           onMouseEnter={handleTooltipMouseEnter}
           onMouseLeave={handleTooltipMouseLeave}
-          style={{
-            top: `${position.top}px`,
-            left: `${position.left}px`
-          }}
+          style={position}
+          data-testid="link-tooltip"
         >
           {enableCtrlClick && (
             <div className="link-tooltip-ctrl-message">
@@ -426,17 +485,110 @@ export const LinkTooltip: React.FC<LinkTooltipProps> = ({
         </div>
       )}
       {showModal && enableCtrlClick && (
-        <div className="link-preview-modal" onClick={handleModalClose}>
+        <div
+          className="link-preview-modal"
+          data-testid="link-preview-modal"
+          onMouseDown={(e) => e.preventDefault()}
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+          }}
+        >
           <div
-            className="link-preview-modal-content"
-            onClick={(e) => e.stopPropagation()}
+            ref={modalContentRef}
+            className={`link-preview-modal-content ${isFullscreen ? 'fullscreen' : ''}`}
+            onClick={handleModalContentClick}
           >
-            <button
-              className="link-preview-modal-close"
-              onClick={handleModalClose}
+            <div
+              className={`modal-controls ${showControls ? 'visible' : 'hidden'}`}
             >
-              ×
-            </button>
+              <div className="modal-controls-buttons">
+                <button
+                  className="modal-control-button fullscreen-toggle"
+                  onClick={handleFullscreenToggle}
+                  aria-label={
+                    isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'
+                  }
+                >
+                  {isFullscreen ? (
+                    <svg
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3" />
+                    </svg>
+                  ) : (
+                    <svg
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" />
+                    </svg>
+                  )}
+                </button>
+                <button
+                  className="modal-control-button close-button"
+                  onClick={handleModalClose}
+                  aria-label="Close modal"
+                >
+                  ×
+                </button>
+                <button
+                  className="modal-control-button toggle-button"
+                  onClick={handleControlsToggle}
+                  aria-label="Hide controls"
+                >
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    style={{
+                      transform: 'rotate(180deg)',
+                      transition: 'transform 0.2s ease'
+                    }}
+                  >
+                    <path d="M18 15l-6-6-6 6" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+            {!showControls && (
+              <button
+                className="modal-control-button toggle-button restore-button"
+                onClick={handleControlsToggle}
+                aria-label="Show controls"
+              >
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M18 15l-6-6-6 6" />
+                </svg>
+              </button>
+            )}
             <iframe
               src={url}
               style={{ width: '100%', height: '100%', border: 'none' }}

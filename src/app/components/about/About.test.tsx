@@ -15,10 +15,11 @@ describe('Page', () => {
       .toHaveAttribute('href', NAV_PATHS.ROOT)
       .not.toHaveAttribute('target', '_blank');
 
-    expect(screen.getByText('GitLab'))
+    const gitlabLink = screen.getByText(/gitlab/i, { selector: 'a' });
+    expect(gitlabLink)
       .toBeVisible()
       .toBeEnabled()
-      .toHaveAttribute('href', 'https://gitlab.com/underwood_inc/idling-app')
+      .toHaveAttribute('href', 'https://gitlab.com/idling.app')
       .toHaveAttribute('target', '_blank');
   });
 });

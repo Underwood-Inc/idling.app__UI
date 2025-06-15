@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { voteComment } from 'src/lib/actions/comment.actions';
 import { votePost } from 'src/lib/actions/post.actions';
+import './VoteButtons.css';
 
 interface VoteButtonsProps {
   score: number;
@@ -11,35 +12,54 @@ interface VoteButtonsProps {
 
 export default function VoteButtons({ score, id, type }: VoteButtonsProps) {
   const [currentScore, setCurrentScore] = useState(score);
+  const [isVoting, setIsVoting] = useState(false);
+  const [hasUpvoted, setHasUpvoted] = useState(false);
+  const [hasDownvoted, setHasDownvoted] = useState(false);
 
   const handleVote = async (voteType: 1 | -1) => {
     try {
+      setIsVoting(true);
       if (type === 'post') {
         await votePost(id, voteType);
       } else {
         await voteComment(id, voteType);
       }
       setCurrentScore((prevScore) => prevScore + voteType);
+      if (voteType === 1) {
+        setHasUpvoted(true);
+        setHasDownvoted(false);
+      } else {
+        setHasUpvoted(false);
+        setHasDownvoted(true);
+      }
     } catch (error) {
       console.error('Error voting:', error);
+    } finally {
+      setIsVoting(false);
     }
   };
 
   return (
-    <div className="flex flex-col items-center">
-      <button
-        onClick={() => handleVote(1)}
-        className="text-gray-500 hover:text-red-500"
-      >
-        ▲
-      </button>
-      <span className="text-sm font-semibold">{currentScore}</span>
-      <button
-        onClick={() => handleVote(-1)}
-        className="text-gray-500 hover:text-blue-500"
-      >
-        ▼
-      </button>
+    <div className="vote-buttons">
+      <div className="vote-buttons__container">
+        <button
+          onClick={() => handleVote(1)}
+          disabled={isVoting}
+          className={`vote-buttons__button vote-buttons__button--up ${hasUpvoted ? 'vote-buttons__button--active' : ''}`}
+          aria-label="Upvote"
+        >
+          ▲
+        </button>
+        <span className="vote-buttons__score">{currentScore}</span>
+        <button
+          onClick={() => handleVote(-1)}
+          disabled={isVoting}
+          className={`vote-buttons__button vote-buttons__button--down ${hasDownvoted ? 'vote-buttons__button--active' : ''}`}
+          aria-label="Downvote"
+        >
+          ▼
+        </button>
+      </div>
     </div>
   );
 }

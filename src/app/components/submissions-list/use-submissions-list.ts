@@ -85,6 +85,11 @@ export function useSubmissionsList(
     []
   );
 
+  // Initial fetch and page change effect
+  useEffect(() => {
+    fetchSubmissions(getArgs());
+  }, [page, getArgs, fetchSubmissions]);
+
   /** response listener/handler */
   useEffect(() => {
     if (response && response.data?.pagination) {
@@ -94,6 +99,16 @@ export function useSubmissionsList(
       const totalPages = Math.ceil(newTotalPages);
       const requestedPage = response?.data?.pagination.currentPage;
 
+      // Always dispatch total pages first
+      dispatchPagination({
+        type: 'SET_TOTAL_PAGES',
+        payload: {
+          id: contextId,
+          totalPages
+        }
+      });
+
+      // Then handle invalid page numbers
       if (requestedPage > totalPages) {
         // replace requested page with last available page
         dispatchPagination({
@@ -103,9 +118,7 @@ export function useSubmissionsList(
             currentPage: totalPages
           }
         });
-      }
-
-      if (requestedPage < 1) {
+      } else if (requestedPage < 1) {
         // replace requested page with first page
         dispatchPagination({
           type: 'SET_CURRENT_PAGE',
@@ -115,14 +128,6 @@ export function useSubmissionsList(
           }
         });
       }
-
-      dispatchPagination({
-        type: 'SET_TOTAL_PAGES',
-        payload: {
-          id: contextId,
-          totalPages
-        }
-      });
     }
   }, [
     dispatchPagination,

@@ -4,7 +4,7 @@ import { AvatarsBackground } from './AvatarsBackground';
 
 // Mock the makeid function
 jest.mock('../../../lib/utils/string/make-id', () => ({
-  makeid: jest.fn(() => 'mocked-seed')
+  makeid: jest.fn().mockReturnValue('mocked-seed')
 }));
 
 // Mock the Avatar component

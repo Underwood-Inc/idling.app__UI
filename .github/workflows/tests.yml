@@ -150,7 +150,7 @@ jobs:
             libxslt1.1 \
             libevent-2.1-7 \
             libgles2 \
-            libvpx7 \
+            libvpx9 \
             libharfbuzz-icu0
 
           # Install WebKit-specific dependencies
