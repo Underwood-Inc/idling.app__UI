@@ -44,15 +44,13 @@ export function About() {
         updates are hosted on the idling.app <DiscordLink /> server. For
         detailed technical documentation, release notes, and contribution
         guidelines, please refer to the project&apos;s&nbsp;
-        <LinkTooltip url="https://gitlab.com/idling.app" isInsideParagraph>
-          <a
-            href="https://gitlab.com/idling.app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            GitLab
-          </a>
-        </LinkTooltip>
+        <a
+          href="https://gitlab.com/idling.app"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          GitLab
+        </a>
         &nbsp;repository.
       </p>
     </div>

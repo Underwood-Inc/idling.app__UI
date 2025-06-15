@@ -20,26 +20,40 @@ interface CachedData {
 const CACHE_KEY_PREFIX = 'link_tooltip_cache_';
 const DEFAULT_CACHE_DURATION = 60 * 60 * 1000; // 1 hour in milliseconds
 
-const formatLastUpdated = (timestamp: number) => {
+export const formatLastUpdated = (timestamp: number) => {
   const now = Date.now();
-  const diff = now - timestamp;
-  const seconds = Math.floor(diff / 1000);
-  const minutes = Math.floor(seconds / 60);
-  const hours = Math.floor(minutes / 60);
-  const days = Math.floor(hours / 24);
-  const weeks = Math.floor(days / 7);
-  const months = Math.floor(days / 30);
-  const years = Math.floor(days / 365);
+  if (timestamp > now) return '0s ago';
+
+  let remaining = now - timestamp;
+
+  const years = Math.floor(remaining / (365 * 24 * 60 * 60 * 1000));
+  remaining -= years * 365 * 24 * 60 * 60 * 1000;
+
+  const months = Math.floor(remaining / (30 * 24 * 60 * 60 * 1000));
+  remaining -= months * 30 * 24 * 60 * 60 * 1000;
+
+  const weeks = Math.floor(remaining / (7 * 24 * 60 * 60 * 1000));
+  remaining -= weeks * 7 * 24 * 60 * 60 * 1000;
+
+  const days = Math.floor(remaining / (24 * 60 * 60 * 1000));
+  remaining -= days * 24 * 60 * 60 * 1000;
+
+  const hours = Math.floor(remaining / (60 * 60 * 1000));
+  remaining -= hours * 60 * 60 * 1000;
+
+  const minutes = Math.floor(remaining / (60 * 1000));
+  remaining -= minutes * 60 * 1000;
+
+  const seconds = Math.floor(remaining / 1000);
 
   const parts: string[] = [];
-
-  if (years > 0) parts.push(`${years}y`);
-  if (months > 0) parts.push(`${months}mo`);
-  if (weeks > 0) parts.push(`${weeks}w`);
-  if (days > 0) parts.push(`${days}d`);
-  if (hours > 0) parts.push(`${hours}h`);
-  if (minutes > 0) parts.push(`${minutes}m`);
-  if (seconds > 0 || parts.length === 0) parts.push(`${seconds % 60}s`);
+  if (years) parts.push(`${years}y`);
+  if (months) parts.push(`${months}mo`);
+  if (weeks) parts.push(`${weeks}w`);
+  if (days) parts.push(`${days}d`);
+  if (hours) parts.push(`${hours}h`);
+  if (minutes) parts.push(`${minutes}m`);
+  if (seconds || parts.length === 0) parts.push(`${seconds}s`);
 
   return parts.join(' ') + ' ago';
 };
@@ -380,20 +394,22 @@ export const LinkTooltip: React.FC<LinkTooltipProps> = ({
     }
 
     return (
-      <div onClick={handleClick}>
+      <div className="link-tooltip-content" onClick={handleClick}>
         {isCached && renderCacheInfo()}
         {tooltipData.image && (
           <div className="link-tooltip-image">
             <img src={tooltipData.image} alt={tooltipData.title} />
           </div>
         )}
-        <div className="link-tooltip-content">
-          <div className="link-tooltip-text">
-            <h4>{tooltipData.title}</h4>
-            {tooltipData.description && <p>{tooltipData.description}</p>}
-          </div>
-          <div className="link-tooltip-url">{tooltipData.url}</div>
+        <div className="link-tooltip-text">
+          <div className="link-tooltip-title">{tooltipData.title}</div>
+          {tooltipData.description && (
+            <div className="link-tooltip-description">
+              {tooltipData.description}
+            </div>
+          )}
         </div>
+        <div className="link-tooltip-url">{tooltipData.url}</div>
       </div>
     );
   };
