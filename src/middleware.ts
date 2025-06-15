@@ -1,9 +1,12 @@
 import NextAuth from 'next-auth';
 import { NextResponse } from 'next/server';
-import authConfig from './auth.config';
+import { authConfig } from './auth.config';
 import { NAV_PATHS, PUBLIC_ROUTES } from './lib/routes';
 
-const { auth } = NextAuth(authConfig);
+const { auth } = NextAuth({
+  ...authConfig,
+  basePath: '/api/auth'
+});
 
 export default auth((req) => {
   const { nextUrl } = req;

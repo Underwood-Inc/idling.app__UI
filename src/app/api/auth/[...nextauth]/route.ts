@@ -1,1 +1,4 @@
-export { GET, POST } from '../../../../lib/auth';
+import { nextAuth } from '../../../../lib/auth';
+
+export const GET = nextAuth.handlers.GET;
+export const POST = nextAuth.handlers.POST;

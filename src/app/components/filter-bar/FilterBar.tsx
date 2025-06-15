@@ -4,6 +4,7 @@ import { dedupeStringArray } from '../../../lib/utils/array/dedupe-string-array'
 import './FilterBar.css';
 import { FilterLabel } from './FilterLabel';
 import { getTagsFromSearchParams } from './utils/get-tags';
+
 export interface Filter<T extends string = string> {
   name: T;
   value: string;
@@ -49,16 +50,19 @@ export default function FilterBar({ filterId }: { filterId: string }) {
           return null;
         }
 
+        // Deduplicate tags before rendering
         const values = dedupeStringArray(getTagsFromSearchParams(value));
 
+        if (values.length === 0) {
+          return null;
+        }
+
         const renderValues = () =>
-          values.map((value) => {
-            return (
-              <div key={value} className="filter-bar__filter-value-container">
-                <FilterLabel name={name} label={value} filterId={filterId} />
-              </div>
-            );
-          });
+          values.map((value) => (
+            <div key={value} className="filter-bar__filter-value-container">
+              <FilterLabel name={name} label={value} filterId={filterId} />
+            </div>
+          ));
 
         return (
           <div key={name} className="filter-bar__filter">

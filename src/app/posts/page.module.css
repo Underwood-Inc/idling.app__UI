@@ -1,3 +1,21 @@
-.aside__recentTags {
+.posts__container {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: 100%;
+}
+
+.posts__container_fade {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: 100%;
+}
+
+.posts__container_item {
+  width: 100%;
+}
+
+.tags_aside {
   top: 21rem;
 }
