@@ -1,135 +1,135 @@
+/* eslint-disable no-console */
 'use server';
-import { PageSize } from 'src/lib/state/PaginationContext';
 import sql from '../../../lib/db';
-import { Filter } from '../filter-bar/FilterBar';
-import { Submission } from '../submission-forms/schema';
+import { Submission, submissionSchema } from '../submission-forms/schema';
 
-export interface Pagination {
-  currentPage: number;
-  pageSize: number;
-  totalPages: number;
-  totalRecords: number;
-}
-
-export interface PaginatedResponse<T> {
-  result: T[];
-  pagination: Pagination;
-}
-
-export async function getSubmissions({
-  onlyMine = false,
-  providerAccountId = '',
-  filters,
-  page = 0,
-  pageSize = PageSize.TEN
-}: {
+export type GetSubmissionsActionArguments = {
   onlyMine: boolean;
   providerAccountId: string;
-  filters: Filter[];
-  page: number;
-  pageSize: PageSize;
-}): Promise<PaginatedResponse<Submission>> {
-  let submissions: Submission[] = [];
-  let newPage = page;
+  filters?: { name: string; value: string }[];
+  page?: number;
+  pageSize?: number;
+};
 
-  if (page < 1) {
-    // ensure lowest page is the first one
-    newPage = 1;
-  }
-
-  const pagination: Pagination = {
-    currentPage: newPage,
-    pageSize,
-    totalPages: 0,
-    totalRecords: 0
+export type PaginatedResponse<T> = {
+  data: T[];
+  pagination: {
+    currentPage: number;
+    pageSize: number;
+    totalRecords: number;
   };
-
-  const response: PaginatedResponse<Submission> = {
-    result: [],
-    pagination
-  };
-
-  const tagFilters = filters.find((filter) => filter.name === 'tags')?.value;
-
-  const tags = tagFilters
-    ? tagFilters.split(',').map((value) => `#${value}`) || []
-    : null; // prepend a #. values come from URL so they are excluded lest the URL break expected params behavior
-
-  if (onlyMine && providerAccountId) {
-    const submissionsCount = await sql`
-        SELECT COUNT(*)
-        FROM submissions ${
-          tags
-            ? sql`WHERE tags && ${tags} AND author_id = ${providerAccountId}`
-            : sql`WHERE author_id = ${providerAccountId}`
-        }
-      `;
-
-    submissions = await sql`
-      SELECT * FROM submissions ${
-        tags
-          ? sql`WHERE tags && ${tags} AND author_id = ${providerAccountId}`
-          : sql`WHERE author_id = ${providerAccountId}`
-      }
-      ORDER BY submission_datetime DESC LIMIT ${pageSize} OFFSET ${(newPage - 1) * pageSize}
-    `;
-    // TODO: add zod schema parsing for `submissions`
-
-    response.pagination.totalRecords = submissionsCount[0].count;
-    response.result = submissions;
-  } else if (!onlyMine) {
-    const submissionsCount =
-      await sql`SELECT COUNT(*) FROM submissions ${tags ? sql`where tags && ${tags}` : sql``}`;
-
-    submissions = await sql`
-      SELECT * FROM submissions ${tags ? sql`WHERE tags && ${tags}` : sql``}
-      ORDER BY submission_datetime DESC LIMIT ${pageSize} OFFSET ${(newPage - 1) * pageSize}
-    `;
-    // TODO: add zod schema parsing for `submissions`
-
-    response.pagination.totalRecords = submissionsCount[0].count;
-    response.result = submissions;
-  }
-
-  return response;
-}
-
-export interface GetSubmissionsActionArguments {
-  currentPage: number;
-  pageSize: number;
-  onlyMine: boolean;
-  providerAccountId: string;
-  filters: Filter[];
-}
+};
 
 export type GetSubmissionsActionResponse = {
   data?: PaginatedResponse<Submission>;
-  message?: string;
   error?: string;
 };
 
-/**
- * GET submissions
- * performs SQL
- */
 export async function getSubmissionsAction({
-  currentPage = 0,
-  filters,
-  onlyMine = false,
-  providerAccountId = '',
+  onlyMine,
+  providerAccountId,
+  filters = [],
+  page = 1,
   pageSize = 10
 }: GetSubmissionsActionArguments): Promise<GetSubmissionsActionResponse> {
-  const pagedSubmissions = await getSubmissions({
+  console.log('getSubmissions called with:', {
     onlyMine,
     providerAccountId,
     filters,
-    page: currentPage,
+    page,
     pageSize
   });
 
-  return {
-    data: pagedSubmissions,
-    error: '',
-    message: ''
-  };
+  if (!providerAccountId) {
+    return {
+      error: 'Provider account ID is required'
+    };
+  }
+
+  try {
+    const offset = (page - 1) * pageSize;
+    const tagFilter = filters.find((f) => f.name === 'tags')?.value;
+
+    const countQuery = sql`
+      SELECT COUNT(*) 
+      FROM submissions s
+      WHERE ${onlyMine ? sql`s.author_id = ${providerAccountId}` : sql`1=1`}
+      ${tagFilter ? sql`AND EXISTS (SELECT 1 FROM unnest(s.tags) tag WHERE tag = ${tagFilter})` : sql``}
+    `;
+
+    const submissionsQuery = sql`
+      SELECT 
+        s.submission_id,
+        s.submission_name,
+        s.submission_datetime,
+        s.author_id,
+        s.author,
+        COALESCE(s.tags, ARRAY[]::text[]) as tags,
+        s.thread_parent_id
+      FROM submissions s
+      WHERE ${onlyMine ? sql`s.author_id = ${providerAccountId}` : sql`1=1`}
+      ${tagFilter ? sql`AND EXISTS (SELECT 1 FROM unnest(s.tags) tag WHERE tag = ${tagFilter})` : sql``}
+      ORDER BY s.submission_datetime DESC
+      LIMIT ${pageSize}
+      OFFSET ${offset}
+    `;
+
+    console.log('Executing count query:', countQuery);
+    const countResult = await countQuery;
+    const totalRecords = parseInt(countResult[0].count);
+
+    console.log('Executing submissions query:', submissionsQuery);
+    const submissionsResult = await submissionsQuery;
+
+    if (!submissionsResult || submissionsResult.length === 0) {
+      return {
+        data: {
+          data: [],
+          pagination: {
+            currentPage: page,
+            pageSize,
+            totalRecords: 0
+          }
+        }
+      };
+    }
+
+    const submissions = submissionsResult.map((row: any) => {
+      console.log('Processing row:', row);
+      try {
+        const parsedData = {
+          submission_id: Number(row.submission_id),
+          submission_name: row.submission_name,
+          submission_datetime: new Date(row.submission_datetime),
+          author_id: row.author_id,
+          author: row.author,
+          tags: Array.isArray(row.tags) ? row.tags : [],
+          thread_parent_id: row.thread_parent_id
+            ? Number(row.thread_parent_id)
+            : null
+        };
+        return submissionSchema.parse(parsedData);
+      } catch (parseError) {
+        console.error('Error parsing submission:', parseError, 'Row:', row);
+        throw new Error(`Failed to parse submission: ${parseError.message}`);
+      }
+    });
+
+    return {
+      data: {
+        data: submissions,
+        pagination: {
+          currentPage: page,
+          pageSize,
+          totalRecords
+        }
+      }
+    };
+  } catch (error) {
+    console.error('Error in getSubmissions:', error);
+    return {
+      error:
+        error instanceof Error ? error.message : 'Failed to fetch submissions'
+    };
+  }
 }

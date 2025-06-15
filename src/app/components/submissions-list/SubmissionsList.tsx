@@ -1,242 +1,229 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 'use client';
-import { useCallback, useEffect, useState } from 'react';
-import { SUBMISSIONS_LIST_SELECTORS } from '../../../lib/test-selectors/components/submissions-list.selectors';
+import { useSession } from 'next-auth/react';
+import { useEffect, useMemo, useState } from 'react';
+import { useFilters } from '../../../lib/state/FiltersContext';
+import { usePagination } from '../../../lib/state/PaginationContext';
 import { PostFilters } from '../../posts/page';
-import Empty from '../empty/Empty';
-import { Filter } from '../filter-bar/FilterBar';
-import Loader from '../loader/Loader';
+import FilterBar, { Filter } from '../filter-bar/FilterBar';
+import { PageSize } from '../pagination/PageSizeSelector';
 import Pagination from '../pagination/Pagination';
-import { DeleteSubmissionForm } from '../submission-forms/delete-submission-form/DeleteSubmissionForm';
-import { Submission } from '../submission-forms/schema';
-import { TagLink } from '../tag-link/TagLink';
 import { ReplyForm } from '../thread/ReplyForm';
 import './SubmissionsList.css';
-import { useSubmissionsList } from './use-submissions-list';
+import { useSubmissions } from './use-submissions';
 
-// Add this new interface
-interface SubmissionWithReplies extends Submission {
-  replies?: SubmissionWithReplies[];
+interface Submission {
+  submission_id: number;
+  submission_name: string;
+  submission_datetime: Date;
+  author_id: string;
+  author: string;
+  thread_parent_id: number | null;
+  tags: string[];
 }
 
-// New component to render a single submission and its replies
-const SubmissionThread = ({
-  submission,
-  depth = 0,
-  contextId,
-  providerAccountId,
-  activeReplyId,
-  onToggleReply,
-  onToggleThread,
-  isExpanded
-}: {
-  submission: SubmissionWithReplies;
-  depth?: number;
+interface SubmissionsListProps {
   contextId: string;
-  providerAccountId: string;
-  activeReplyId: number | null;
-  onToggleReply: (id: number) => void;
-  onToggleThread: (id: number) => void;
-  isExpanded: boolean;
-}) => {
-  const canDelete = submission.author_id === providerAccountId;
-  const createdDate = new Date(
-    submission.submission_datetime
-  ).toLocaleDateString();
-  const hasReplies = submission.replies && submission.replies.length > 0;
-
-  return (
-    <li
-      className="submission__wrapper"
-      style={{ marginLeft: `${depth * 20}px` }}
-    >
-      <div className="submission__meta">
-        <p className="submission__datetime">{createdDate}</p>
-        {canDelete && (
-          <DeleteSubmissionForm
-            id={submission.submission_id}
-            name={submission.submission_name}
-            isAuthorized={!!providerAccountId}
-          />
-        )}
-        <button
-          onClick={() => onToggleReply(submission.submission_id)}
-          className="thread-button"
-        >
-          {activeReplyId === submission.submission_id ? 'Close Reply' : 'Reply'}
-        </button>
-        {hasReplies && (
-          <button
-            onClick={() => onToggleThread(submission.submission_id)}
-            className="expand-thread-button"
-          >
-            {isExpanded ? 'Hide Replies' : 'Show Replies'}
-          </button>
-        )}
-      </div>
-
-      <p className="submission__content">
-        {submission.author && (
-          <span className="submission__author">{submission.author}:&nbsp;</span>
-        )}
-        <span>
-          <TagLink
-            value={submission.submission_name}
-            contextId={contextId}
-            appendSearchParam
-          />
-        </span>
-      </p>
-
-      {hasReplies && isExpanded && (
-        <ol className="submission__replies">
-          {submission.replies?.map((reply) => (
-            <SubmissionThread
-              key={reply.submission_id}
-              submission={reply}
-              depth={depth + 1}
-              contextId={contextId}
-              providerAccountId={providerAccountId}
-              activeReplyId={activeReplyId}
-              onToggleReply={onToggleReply}
-              onToggleThread={onToggleThread}
-              isExpanded={isExpanded}
-            />
-          ))}
-        </ol>
-      )}
-    </li>
-  );
-};
-
-const SubmissionsList = ({
-  contextId = 'default',
-  providerAccountId,
-  onlyMine = false,
-  filters = [],
-  page = 1
-}: {
-  contextId: string;
-  providerAccountId: string;
-  page?: number;
   onlyMine?: boolean;
   filters?: Filter<PostFilters>[];
-}) => {
-  const [mounted, setMounted] = useState(false);
-  const [activeReplyId, setActiveReplyId] = useState<number | null>(null);
-  const [expandedThreads, setExpandedThreads] = useState<Set<number>>(
-    new Set()
+  providerAccountId?: string;
+}
+
+export default function SubmissionsList({
+  contextId,
+  onlyMine = false,
+  filters = [],
+  providerAccountId: initialProviderAccountId
+}: SubmissionsListProps) {
+  const { data: session, status } = useSession();
+  const { state: filtersState, dispatch: filtersDispatch } = useFilters();
+  const { state: paginationState, dispatch: paginationDispatch } =
+    usePagination();
+  const [activeReplies, setActiveReplies] = useState<{
+    [key: number]: boolean;
+  }>({});
+  const [expandedThreads, setExpandedThreads] = useState<{
+    [key: number]: boolean;
+  }>({});
+
+  // Memoize the provider account ID to prevent unnecessary re-renders
+  const providerAccountId = useMemo(
+    () => initialProviderAccountId || session?.user?.providerAccountId || '',
+    [initialProviderAccountId, session?.user?.providerAccountId]
   );
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  // Memoize the current filters to prevent unnecessary re-renders
+  const currentFilters = useMemo(
+    () => (filtersState[contextId]?.filters || []) as Filter<PostFilters>[],
+    [filtersState, contextId]
+  );
 
-  const toggleReplyForm = (submissionId: number) => {
-    setActiveReplyId(activeReplyId === submissionId ? null : submissionId);
+  // Initialize filters in context only once
+  useEffect(() => {
+    if (filters.length > 0 && !filtersState[contextId]?.filters?.length) {
+      filtersDispatch({
+        type: 'SET_CURRENT_FILTERS',
+        payload: {
+          id: contextId,
+          filters: filters as Filter<string>[]
+        }
+      });
+    }
+  }, [contextId, filters, filtersDispatch, filtersState]);
+
+  const { loading, data, error, currentPage, totalPages, setPage, setFilters } =
+    useSubmissions(
+      contextId,
+      providerAccountId,
+      onlyMine,
+      paginationState[contextId]?.currentPage || 1,
+      currentFilters
+    );
+
+  // Update pagination context when data changes
+  useEffect(() => {
+    if (data?.pagination) {
+      paginationDispatch({
+        type: 'SET_TOTAL_PAGES',
+        payload: {
+          id: contextId,
+          totalPages: Math.ceil(
+            data.pagination.totalRecords / data.pagination.pageSize
+          )
+        }
+      });
+    }
+  }, [contextId, data?.pagination, paginationDispatch]);
+
+  // Sync current page from pagination context to useSubmissions
+  useEffect(() => {
+    const contextPage = paginationState[contextId]?.currentPage;
+    if (contextPage && contextPage !== currentPage) {
+      setPage(contextPage);
+    }
+  }, [contextId, currentPage, paginationState, setPage]);
+
+  const handleTagClick = (tag: string) => {
+    const newFilters = [...currentFilters];
+    const tagFilter = newFilters.find((f) => f.name === 'tags');
+    if (tagFilter) {
+      tagFilter.value = tag;
+    } else {
+      newFilters.push({ name: 'tags', value: tag });
+    }
+    setFilters(newFilters);
   };
 
-  const toggleThread = (submissionId: number) => {
-    setExpandedThreads((prev) => {
-      const newSet = new Set(prev);
-      if (newSet.has(submissionId)) {
-        newSet.delete(submissionId);
-      } else {
-        newSet.add(submissionId);
+  const toggleReply = (submissionId: number) => {
+    setActiveReplies((prev) => ({
+      ...prev,
+      [submissionId]: !prev[submissionId]
+    }));
+  };
+
+  const toggleExpand = (submissionId: number) => {
+    setExpandedThreads((prev) => ({
+      ...prev,
+      [submissionId]: !prev[submissionId]
+    }));
+  };
+
+  const handlePageChange = (newPage: number) => {
+    setPage(newPage);
+    paginationDispatch({
+      type: 'SET_CURRENT_PAGE',
+      payload: {
+        id: contextId,
+        currentPage: newPage
       }
-      return newSet;
     });
   };
 
-  const { isAuthorized, loading, response } = useSubmissionsList(
-    contextId,
-    providerAccountId,
-    onlyMine,
-    page,
-    filters
-  );
+  const handlePageSizeChange = (newPageSize: PageSize) => {
+    paginationDispatch({
+      type: 'SET_PAGE_SIZE',
+      payload: {
+        id: contextId,
+        pageSize: newPageSize
+      }
+    });
+    paginationDispatch({
+      type: 'SET_CURRENT_PAGE',
+      payload: {
+        id: contextId,
+        currentPage: 1
+      }
+    });
+  };
 
-  useEffect(() => {
-    // when response updates, ensure thread response forms are not open
-    setActiveReplyId(null);
-  }, [response]);
-
-  // New function to organize submissions into a tree structure
-  const organizeSubmissions = useCallback(
-    (submissions: Submission[]): SubmissionWithReplies[] => {
-      const submissionMap = new Map<number, SubmissionWithReplies>();
-      const rootSubmissions: SubmissionWithReplies[] = [];
-
-      submissions.forEach((submission) => {
-        submissionMap.set(submission.submission_id, {
-          ...submission,
-          replies: []
-        });
-      });
-
-      submissions.forEach((submission) => {
-        if (submission.thread_parent_id) {
-          const parent = submissionMap.get(submission.thread_parent_id);
-          if (parent) {
-            parent.replies?.push(submissionMap.get(submission.submission_id)!);
-          }
-        } else {
-          rootSubmissions.push(submissionMap.get(submission.submission_id)!);
-        }
-      });
-
-      return rootSubmissions;
-    },
-    []
-  );
-
-  if (!mounted) {
-    return <Loader />;
+  if (status === 'loading' || loading) {
+    return <div className="submissions-list__loading">Loading...</div>;
   }
 
-  const organizedSubmissions = organizeSubmissions(
-    response?.data?.result || []
-  );
+  if (error) {
+    return <div className="submissions-list__error">Error: {error}</div>;
+  }
+
+  if (!data?.submissions.length) {
+    return <div className="submissions-list__empty">No submissions found</div>;
+  }
 
   return (
-    <article
-      data-testid={SUBMISSIONS_LIST_SELECTORS.CONTAINER}
-      className="submissions-list__container"
-    >
-      <div className="submissions-list__header">
+    <div className="submissions-list__container">
+      <FilterBar filterId={contextId} />
+      <div className="submission__list">
+        {data.submissions.map((submission: Submission) => (
+          <div key={submission.submission_id} className="submission__wrapper">
+            <div className="submission__meta">
+              <span className="submission__author">{submission.author}</span>
+              <span className="submission__datetime">
+                {submission.submission_datetime.toLocaleString()}
+              </span>
+            </div>
+            <div className="submission__content">
+              {submission.submission_name}
+            </div>
+            {submission.tags && submission.tags.length > 0 && (
+              <div className="submission__tags">
+                {submission.tags.map((tag: string) => (
+                  <span
+                    key={tag}
+                    className="submission__tag"
+                    onClick={() => handleTagClick(tag)}
+                  >
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            )}
+            <div className="submission__actions">
+              {session?.user?.providerAccountId && (
+                <button
+                  onClick={() => toggleReply(submission.submission_id)}
+                  className="submission__action-btn"
+                >
+                  {activeReplies[submission.submission_id] ? 'Cancel' : 'Reply'}
+                </button>
+              )}
+              {submission.thread_parent_id && (
+                <button
+                  onClick={() => toggleExpand(submission.submission_id)}
+                  className="submission__action-btn"
+                >
+                  {expandedThreads[submission.submission_id]
+                    ? 'Collapse'
+                    : 'Expand'}
+                </button>
+              )}
+            </div>
+            {activeReplies[submission.submission_id] && (
+              <ReplyForm parentId={submission.submission_id} />
+            )}
+          </div>
+        ))}
+      </div>
+      <div className="submissions-list__pagination">
         <Pagination id={contextId} />
       </div>
-
-      {loading && <Loader color="black" />}
-
-      {!loading && (
-        <>
-          {organizedSubmissions.length === 0 && (
-            <Empty label="No posts to show" />
-          )}
-          <ol className="submission__list">
-            {organizedSubmissions.map((submission) => (
-              <SubmissionThread
-                key={submission.submission_id}
-                submission={submission}
-                contextId={contextId}
-                providerAccountId={providerAccountId}
-                activeReplyId={activeReplyId}
-                onToggleReply={toggleReplyForm}
-                onToggleThread={toggleThread}
-                isExpanded={expandedThreads.has(submission.submission_id)}
-              />
-            ))}
-          </ol>
-          {activeReplyId !== null && <ReplyForm parentId={activeReplyId} />}
-        </>
-      )}
-    </article>
+    </div>
   );
-};
-
-// Add displayName for better debugging
-SubmissionsList.displayName = 'SubmissionsList';
-
-export { SubmissionsList };
-export default SubmissionsList;
+}

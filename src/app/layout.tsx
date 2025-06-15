@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { SessionProvider } from 'next-auth/react';
 import { Inter } from 'next/font/google';
 import { Suspense } from 'react';
 import { ShouldUpdateProvider } from '../lib/state/ShouldUpdateContext';
@@ -54,22 +55,24 @@ export default function RootLayout({
 
       <body className={inter.className}>
         <ServiceWorkerRegistration />
-        <main>
-          <AvatarsBackground />
+        <SessionProvider>
+          <main>
+            <AvatarsBackground />
 
-          <Header />
+            <Header />
 
-          <MessageTickerWithInterval />
+            <MessageTickerWithInterval />
 
-          <Suspense fallback={<Loader />}>
-            <ShouldUpdateProvider>
-              <NotFoundErrorBoundary>
-                <FadeIn>{children}</FadeIn>
-              </NotFoundErrorBoundary>
-            </ShouldUpdateProvider>
-          </Suspense>
-          <Footer />
-        </main>
+            <Suspense fallback={<Loader />}>
+              <ShouldUpdateProvider>
+                <NotFoundErrorBoundary>
+                  <FadeIn>{children}</FadeIn>
+                </NotFoundErrorBoundary>
+              </ShouldUpdateProvider>
+            </Suspense>
+            <Footer />
+          </main>
+        </SessionProvider>
       </body>
     </html>
   );

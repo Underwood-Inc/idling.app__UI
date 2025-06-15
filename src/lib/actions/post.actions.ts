@@ -39,12 +39,10 @@ export async function createPost(data: Omit<CreatePost, 'authorId'>) {
 }
 
 export async function getPosts(subthread?: string, limit = 20, offset = 0) {
-  console.info('subthread', subthread);
-
   const result = await sql<Post[]>`
-    SELECT * FROM posts
+    SELECT * FROM submissions
     ${subthread ? sql`WHERE subthread = ${subthread}` : sql``}
-    ORDER BY created_at DESC
+    ORDER BY submission_datetime DESC
     LIMIT ${limit} OFFSET ${offset}
   `;
 

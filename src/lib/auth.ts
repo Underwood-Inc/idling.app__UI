@@ -19,7 +19,26 @@ export const nextAuth = NextAuth({
   ...authConfig,
   session: {
     strategy: 'jwt',
-    maxAge: process.env.NODE_ENV === 'test' ? 30 * 24 * 60 * 60 : 24 * 60 * 60 // 30 days for tests, 1 day for production
+    maxAge: process.env.NODE_ENV === 'test' ? 30 * 24 * 60 * 60 : 24 * 60 * 60, // 30 days for tests, 1 day for production
+    updateAge: 24 * 60 * 60 // Only update session once per day
+  },
+  callbacks: {
+    ...authConfig.callbacks,
+    session: async ({ session, token }) => {
+      if (token) {
+        session.user = {
+          ...session.user,
+          providerAccountId: token.providerAccountId as string
+        };
+      }
+      return session;
+    },
+    jwt: async ({ token, user }) => {
+      if (user) {
+        token.providerAccountId = user.providerAccountId;
+      }
+      return token;
+    }
   }
 });
 

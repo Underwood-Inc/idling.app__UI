@@ -3,18 +3,13 @@ import { z, ZodError } from 'zod';
 export const SUBMISSION_NAME_MAX_LENGTH = 255;
 
 export const submissionSchema = z.object({
-  author: z.string().min(3).optional(), // added in action handler
-  author_id: z.string().min(3).optional(),
-  submission_id: z.coerce.number().gte(1).optional(), // added in action handler
-  submission_name: z
-    .string()
-    .min(1)
-    .max(SUBMISSION_NAME_MAX_LENGTH, {
-      message: `Message length must not exceed ${SUBMISSION_NAME_MAX_LENGTH}`
-    }),
-  submission_datetime: z.string().datetime(),
-  tags: z.array(z.string()).nullable().optional(),
-  thread_parent_id: z.coerce.number().gte(1).nullable().optional() // New field
+  submission_id: z.number(),
+  submission_name: z.string(),
+  submission_datetime: z.date(),
+  author_id: z.string().min(1),
+  author: z.string(),
+  tags: z.array(z.string()),
+  thread_parent_id: z.number().nullable()
 });
 
 export const deleteSubmissionSchema = z.object({
@@ -22,7 +17,7 @@ export const deleteSubmissionSchema = z.object({
   submission_name: z.string().min(1).max(SUBMISSION_NAME_MAX_LENGTH)
 });
 
-export type Submission = Required<z.infer<typeof submissionSchema>>;
+export type Submission = z.infer<typeof submissionSchema>;
 export type CreateSubmission = z.infer<typeof submissionSchema>;
 export type DeleteSubmission = z.infer<typeof deleteSubmissionSchema>;
 
@@ -80,3 +75,10 @@ export function parseZodErrors(error: ZodError): string {
 
   return errors.join('\n');
 }
+
+export const submissionFormSchema = z.object({
+  submission_name: z.string().min(1, 'Submission name is required'),
+  tags: z.array(z.string()).optional()
+});
+
+export type SubmissionForm = z.infer<typeof submissionFormSchema>;

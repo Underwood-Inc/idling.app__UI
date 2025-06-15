@@ -1,4 +1,6 @@
 import type { NextAuthConfig, Session } from 'next-auth';
+import { User } from 'next-auth';
+import { JWT } from 'next-auth/jwt';
 import google from 'next-auth/providers/google';
 import twitch from 'next-auth/providers/twitch';
 
@@ -8,14 +10,30 @@ declare module 'next-auth' {
     user: {
       id?: string;
       name?: string | null;
+      email?: string | null;
       image?: string | null;
+      providerAccountId?: string;
     };
+  }
+
+  interface User {
+    providerAccountId?: string;
+  }
+
+  interface JWT {
+    providerAccountId?: string;
   }
 }
 
-export type CustomSession = Session & {
-  user: Session['user'] & { providerAccountId?: string };
-};
+export type CustomSession = Session;
+
+export interface UserWithProviderAccountId extends User {
+  providerAccountId?: string;
+}
+
+export interface JWTWithProviderAccountId extends JWT {
+  providerAccountId?: string;
+}
 
 // Notice this is only an object, not a full Auth.js instance
 export const authConfig: NextAuthConfig = {
@@ -40,41 +58,42 @@ export const authConfig: NextAuthConfig = {
 
       return isAuthenticated;
     },
-    signIn({ account, user }) {
-      //providerAccountId
+    async signIn({ account, user }) {
       if (account?.providerAccountId) {
-        // @ts-expect-error intentionally adding this info for future reference
-        user.providerAccountId = account.providerAccountId;
+        (user as UserWithProviderAccountId).providerAccountId =
+          account.providerAccountId;
       }
-
-      if (account?.userId && !user.id) {
-        user.id = account?.userId;
-      }
-
       return true;
     },
-    async jwt({ token, account, profile }) {
-      if (account && profile) {
-        token.accessToken = account.access_token as string;
-        token.id = profile.sub as string;
-        token.name = profile.preferred_username as string;
-        token.picture = profile.picture as string;
+    async jwt({ token, account, user }) {
+      if (account?.providerAccountId) {
+        (token as JWTWithProviderAccountId).providerAccountId =
+          account.providerAccountId;
+      } else if (user?.providerAccountId) {
+        (token as JWTWithProviderAccountId).providerAccountId =
+          user.providerAccountId;
+      } else if (token?.sub) {
+        // Use sub as providerAccountId if no other ID is available
+        (token as JWTWithProviderAccountId).providerAccountId = token.sub;
       }
       return token;
     },
     async session({ session, token }) {
-      if (token) {
-        session.user.id = token.id as string;
-        session.user.name = token.name as string;
-        session.user.image = token.picture as string;
-        session.accessToken = token.accessToken as string;
+      if (token.providerAccountId) {
+        session.user.providerAccountId = token.providerAccountId as string;
       }
+      // Ensure required fields are set
+      session.user.name =
+        session.user.name || token.name || token.email?.split('@')[0] || 'User';
+      session.user.email = session.user.email || token.email || '';
+      session.user.image = session.user.image || token.picture || '';
       return session;
     }
   },
   session: {
     strategy: 'jwt',
-    maxAge: process.env.NODE_ENV === 'test' ? 30 * 24 * 60 * 60 : 24 * 60 * 60 // 30 days for tests, 1 day for production
+    maxAge:
+      process.env.NODE_ENV === 'development' ? 30 * 24 * 60 * 60 : 24 * 60 * 60 // 30 days in dev, 1 day in prod
   },
   secret: process.env.NEXTAUTH_SECRET
 } satisfies NextAuthConfig;
