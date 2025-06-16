@@ -1,5 +1,5 @@
 import React, { memo } from 'react';
-import { PageSize } from 'src/lib/state/PaginationContext';
+import { PageSize } from 'src/lib/state/atoms';
 import { PAGINATION_SELECTORS } from 'src/lib/test-selectors/components/pagination.selectors';
 
 type PageSizeSelectorProps = {
@@ -24,7 +24,7 @@ const PageSizeSelector: React.FC<PageSizeSelectorProps> = ({
       aria-label="Page size selector"
       value={pageSize}
       onChange={handlePageSizeSelect}
-      className="pagination__page-size-selector"
+      className="pagination__page-size-select"
       data-testid={PAGINATION_SELECTORS.PAGE_SIZE_SELECTOR}
     >
       {Object.values(PageSize)

@@ -1,43 +1,290 @@
 .recent-tags__article {
-  height: inherit;
   width: 100%;
-  overflow: hidden;
-  border-radius: var(--border-radius);
-
-  max-height: calc(100vh / 1.5);
-  min-height: 30rem;
   height: 100%;
-}
-
-.recent-tags__fancy-border {
-  padding-bottom: 1rem;
+  max-height: 50vh;
+  display: flex;
+  flex-direction: column;
 }
 
 .recent-tags__card {
-  /* nextjs route change result in inconsistent stylesheet load orders */
-  /* this results in card styles being unable to be overridden */
-  /* style overrides only work on fresh page loads */
-  /* scss, css modules, & clsx do not fix it */
-  overflow: hidden !important;
-  padding-bottom: 0 !important;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.recent-tags__fancy-border {
+  padding: 0.75rem;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 .recent-tags__container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+.recent-tags__header {
+  flex-shrink: 0;
+  margin-bottom: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.recent-tags__title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--light-bg__text-color--primary);
+  line-height: 1.3;
+  word-break: break-word;
+}
+
+.recent-tags__logic-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Compact toggle slider */
+.toggle-slider {
+  position: relative;
+  cursor: pointer;
+  user-select: none;
+  outline: none;
+  border: none;
+  background: none;
+  padding: 0;
+}
+
+.toggle-track {
+  position: relative;
+  width: 4rem;
+  height: 1.5rem;
+  background-color: var(--brand-tertiary);
+  border-radius: 0.75rem;
+  transition: background-color 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 0.2rem;
+  overflow: hidden;
+  border: 1px solid var(--brand-tertiary--dark);
+}
+
+.toggle-slider.active .toggle-track {
+  background-color: var(--brand-primary);
+  border-color: var(--brand-primary--dark);
+}
+
+.toggle-label {
+  position: relative;
+  z-index: 2;
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  transition: color 0.3s ease;
+  padding: 0 0.3rem;
+  color: var(--light-bg__text-color--secondary);
+}
+
+.toggle-label.left.active {
+  color: var(--brand-primary--dark);
+}
+
+.toggle-label.right.active {
+  color: var(--font-color--primary);
+}
+
+.toggle-slider:not(.active) .toggle-label.left {
+  color: var(--light-bg__text-color--secondary);
+}
+
+.toggle-slider.active .toggle-label.right {
+  color: var(--font-color--primary);
+}
+
+.toggle-thumb {
+  position: absolute;
+  top: 0.1rem;
+  left: 0.1rem;
+  width: 1.3rem;
+  height: 1.3rem;
+  background-color: white;
+  border-radius: 50%;
+  transition: transform 0.3s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  z-index: 3;
+}
+
+.toggle-slider.active .toggle-thumb {
+  transform: translateX(2.5rem);
+}
+
+.toggle-slider:hover .toggle-track {
+  background-color: var(--brand-tertiary--dark);
+}
+
+.toggle-slider.active:hover .toggle-track {
+  background-color: var(--brand-primary--dark);
+}
+
+.toggle-slider:focus {
+  box-shadow: 0 0 0 2px rgba(237, 174, 73, 0.2);
+  border-radius: 0.75rem;
+}
+
+.recent-tags__content {
+  flex: 1;
   overflow: hidden;
   display: flex;
   flex-direction: column;
 }
 
+/* Compact, flexible tag grid */
 .recent-tags__list {
-  overflow: auto;
-  padding-right: 1rem;
+  list-style: none;
+  padding: 0;
+  margin: 0;
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem;
+  gap: 0.25rem;
+  overflow-y: auto;
+  flex: 1;
+  padding-right: 0.25rem;
+  scrollbar-width: thin;
+  scrollbar-color: var(--brand-tertiary--dark) transparent;
+  align-content: flex-start;
+}
+
+.recent-tags__list::-webkit-scrollbar {
+  width: 4px;
+}
+
+.recent-tags__list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.recent-tags__list::-webkit-scrollbar-thumb {
+  background-color: var(--brand-tertiary--dark);
+  border-radius: 2px;
+}
+
+.recent-tags__list::-webkit-scrollbar-thumb:hover {
+  background-color: var(--brand-primary);
 }
 
 .recent-tags__list-item {
-  list-style-type: none;
-  flex: 1 1 calc(33.333% - 0.5rem); /* Adjust the width to fit three columns */
-  box-sizing: border-box;
+  display: flex;
+  flex-shrink: 0;
+}
+
+/* Compact tag buttons with no flickering */
+.recent-tags__tag-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.25rem 0.5rem;
+  background-color: var(--brand-tertiary);
+  color: var(--light-bg__text-color--primary);
+  border: 1px solid var(--brand-tertiary--dark);
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+  text-align: center;
+  position: relative;
+  white-space: nowrap;
+  min-height: auto;
+  line-height: 1.2;
+}
+
+.recent-tags__tag-button:hover {
+  background-color: var(--brand-tertiary--dark);
+  border-color: var(--brand-primary);
+  color: var(--light-bg__text-color--primary);
+}
+
+.recent-tags__tag-button.active {
+  background-color: var(--brand-primary);
+  color: var(--font-color--primary);
+  border-color: var(--brand-primary--dark);
+}
+
+.recent-tags__tag-button.active:hover {
+  background-color: var(--brand-primary--dark);
+  border-color: var(--brand-primary--dark);
+}
+
+.checkmark {
+  margin-left: 0.25rem;
+  font-weight: bold;
+  color: var(--font-color--primary);
+  font-size: 0.7rem;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .recent-tags__fancy-border {
+    padding: 0.5rem;
+  }
+
+  .recent-tags__header {
+    margin-bottom: 0.5rem;
+    gap: 0.375rem;
+  }
+
+  .recent-tags__title {
+    font-size: 0.9rem;
+  }
+
+  .recent-tags__list {
+    gap: 0.2rem;
+  }
+
+  .recent-tags__tag-button {
+    padding: 0.2rem 0.4rem;
+    font-size: 0.7rem;
+  }
+
+  .toggle-track {
+    width: 3.5rem;
+    height: 1.25rem;
+  }
+
+  .toggle-thumb {
+    width: 1.05rem;
+    height: 1.05rem;
+  }
+
+  .toggle-slider.active .toggle-thumb {
+    transform: translateX(2.25rem);
+  }
+
+  .toggle-label {
+    font-size: 0.6rem;
+    padding: 0 0.25rem;
+  }
+
+  .checkmark {
+    margin-left: 0.2rem;
+    font-size: 0.65rem;
+  }
+}
+
+/* Loader container styles */
+.recent-tags__loader-container {
+  min-height: 80px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }

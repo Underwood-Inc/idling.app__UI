@@ -1,10 +1,14 @@
 'use client';
-import Link from 'next/link';
-import { usePathname, useSearchParams } from 'next/navigation';
-import reactStringReplace from 'react-string-replace';
-import { usePagination } from 'src/lib/state/PaginationContext';
-import { useFilters } from '../../../lib/state/FiltersContext';
-import { tagRegex } from '../../../lib/utils/string/tag-regex';
+import { useSearchParams } from 'next/navigation';
+import { useSubmissionsManager } from '../../../lib/state/useSubmissionsManager';
+import './TagLink.css';
+
+interface TagLinkProps {
+  value: string;
+  contextId: string;
+  appendSearchParam?: boolean;
+  onTagClick?: (tag: string) => void;
+}
 
 /**
  * A component that will return a nextjs link component instance that navigates to the /posts page with a filter applied that
@@ -13,72 +17,49 @@ import { tagRegex } from '../../../lib/utils/string/tag-regex';
  */
 export function TagLink({
   value,
+  contextId,
   appendSearchParam = false,
-  contextId
-}: {
-  value: string;
-  appendSearchParam?: boolean;
-  contextId: string;
-}) {
-  const { dispatch: dispatchFilters } = useFilters();
-  const { dispatch: dispatchPagination } = usePagination();
-  const pathname = usePathname();
+  onTagClick
+}: TagLinkProps) {
   const searchParams = useSearchParams();
-  const tagSearchParams = searchParams.get('tags');
 
-  // you normally would not use an onClick with a nextjs Link component however, we need to ensure filters are updated in the
-  // client context so as to ensure certain UI/X behaviors occur
-  const onClick = (tag: string) => {
-    if (!tagSearchParams?.includes(tag)) {
-      dispatchFilters({
-        payload: {
-          filters: [
-            {
-              name: 'tags',
-              value:
-                tagSearchParams && appendSearchParam
-                  ? `${tagSearchParams},${tag.toLowerCase()}`
-                  : tag.toLowerCase()
-            }
-          ],
-          id: contextId
-        },
-        type: 'SET_CURRENT_FILTERS'
-      });
-      // ensure we are on page 1
-      dispatchPagination({
-        payload: {
-          currentPage: 1,
-          id: contextId
-        },
-        type: 'SET_CURRENT_PAGE'
-      });
-    }
-  };
+  // Get submissions manager for direct state management
+  const { addFilter } = useSubmissionsManager({
+    contextId
+  });
 
-  // dynamic anchors, huzzah
-  const getHref = (tag: string) => {
-    // ensure we do not construct URLs with duplicate tags
-    if (!tagSearchParams?.includes(tag)) {
-      return tagSearchParams
-        ? `${pathname}?tags=${tagSearchParams},${tag.toLowerCase()}`
-        : `${pathname}?tags=${tag.toLowerCase()}`;
+  const handleClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
+    event.preventDefault();
+
+    // Sanitize tag input but preserve the hash symbol
+    const sanitizedTag = value.trim();
+    if (!sanitizedTag || sanitizedTag.length > 50) {
+      console.warn('Invalid tag:', value);
+      return;
     }
 
-    return `${pathname}?tags=${tagSearchParams}`;
+    // If parent provides onTagClick callback, use it (highest priority)
+    if (onTagClick) {
+      onTagClick(sanitizedTag);
+      return;
+    }
+
+    // Use direct state management instead of router navigation
+    addFilter({ name: 'tags', value: sanitizedTag });
   };
 
-  // using reactStringReplace we can leverage the power of regex and return React nodes.
-  // normally, this would blow up using a vanilla regex replace string match
-  return reactStringReplace(value, tagRegex, (match, i) => (
-    // eslint-disable-next-line custom-rules/enforce-link-target-blank
-    <Link
-      key={`${match}_${i}`}
-      onClick={() => onClick(match)}
-      href={getHref(match)}
-      prefetch={false}
+  // Check if this tag is currently active
+  const currentTags = searchParams.get('tags') || '';
+  const isActive = currentTags.split(',').includes(value);
+
+  return (
+    <a
+      href="#"
+      onClick={handleClick}
+      className={`tag-link ${isActive ? 'active' : ''}`}
+      title={`Filter by tag: ${value}`}
     >
-      #{match}
-    </Link>
-  ));
+      {value}
+    </a>
+  );
 }

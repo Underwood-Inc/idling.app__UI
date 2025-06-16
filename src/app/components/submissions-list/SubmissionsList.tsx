@@ -1,19 +1,17 @@
 'use client';
+
 import { useSession } from 'next-auth/react';
-import { useEffect, useMemo, useState } from 'react';
-import { useFilters } from '../../../lib/state/FiltersContext';
-import { usePagination } from '../../../lib/state/PaginationContext';
-import { PostFilters } from '../../posts/page';
-import FilterBar, { Filter } from '../filter-bar/FilterBar';
-import { PageSize } from '../pagination/PageSizeSelector';
+import { useState } from 'react';
+import { Filter } from '../../../lib/state/atoms';
+import { PostFilters } from '../../../lib/types/filters';
 import Pagination from '../pagination/Pagination';
 import { ReplyForm } from '../thread/ReplyForm';
 import './SubmissionsList.css';
-import { useSubmissions } from './use-submissions';
 
 interface Submission {
   submission_id: number;
   submission_name: string;
+  submission_title: string;
   submission_datetime: Date;
   author_id: string;
   author: string;
@@ -21,23 +19,34 @@ interface Submission {
   tags: string[];
 }
 
+interface PaginationInfo {
+  currentPage: number;
+  pageSize: number;
+  totalRecords: number;
+}
+
 interface SubmissionsListProps {
-  contextId: string;
-  onlyMine?: boolean;
-  filters?: Filter<PostFilters>[];
-  providerAccountId?: string;
+  isLoading: boolean;
+  error: string | null;
+  submissions: Submission[];
+  pagination: PaginationInfo;
+  totalPages: number;
+  onPageChange: (page: number) => void;
+  onPageSizeChange: (pageSize: number) => void;
+  onTagClick: (filter: Filter<PostFilters>) => void;
 }
 
 export default function SubmissionsList({
-  contextId,
-  onlyMine = false,
-  filters = [],
-  providerAccountId: initialProviderAccountId
+  isLoading,
+  error,
+  submissions,
+  pagination,
+  totalPages,
+  onPageChange,
+  onPageSizeChange,
+  onTagClick
 }: SubmissionsListProps) {
   const { data: session, status } = useSession();
-  const { state: filtersState, dispatch: filtersDispatch } = useFilters();
-  const { state: paginationState, dispatch: paginationDispatch } =
-    usePagination();
   const [activeReplies, setActiveReplies] = useState<{
     [key: number]: boolean;
   }>({});
@@ -45,72 +54,43 @@ export default function SubmissionsList({
     [key: number]: boolean;
   }>({});
 
-  // Memoize the provider account ID to prevent unnecessary re-renders
-  const providerAccountId = useMemo(
-    () => initialProviderAccountId || session?.user?.providerAccountId || '',
-    [initialProviderAccountId, session?.user?.providerAccountId]
-  );
+  // eslint-disable-next-line no-console
+  console.log('📋 [SUBMISSIONS_LIST] Rendering with state:', {
+    submissionsCount: submissions.length,
+    isLoading,
+    hasError: !!error,
+    error,
+    pagination
+  });
 
-  // Memoize the current filters to prevent unnecessary re-renders
-  const currentFilters = useMemo(
-    () => (filtersState[contextId]?.filters || []) as Filter<PostFilters>[],
-    [filtersState, contextId]
-  );
-
-  // Initialize filters in context only once
-  useEffect(() => {
-    if (filters.length > 0 && !filtersState[contextId]?.filters?.length) {
-      filtersDispatch({
-        type: 'SET_CURRENT_FILTERS',
-        payload: {
-          id: contextId,
-          filters: filters as Filter<string>[]
-        }
-      });
-    }
-  }, [contextId, filters, filtersDispatch, filtersState]);
-
-  const { loading, data, error, currentPage, totalPages, setPage, setFilters } =
-    useSubmissions(
-      contextId,
-      providerAccountId,
-      onlyMine,
-      paginationState[contextId]?.currentPage || 1,
-      currentFilters
-    );
-
-  // Update pagination context when data changes
-  useEffect(() => {
-    if (data?.pagination) {
-      paginationDispatch({
-        type: 'SET_TOTAL_PAGES',
-        payload: {
-          id: contextId,
-          totalPages: Math.ceil(
-            data.pagination.totalRecords / data.pagination.pageSize
-          )
-        }
-      });
-    }
-  }, [contextId, data?.pagination, paginationDispatch]);
-
-  // Sync current page from pagination context to useSubmissions
-  useEffect(() => {
-    const contextPage = paginationState[contextId]?.currentPage;
-    if (contextPage && contextPage !== currentPage) {
-      setPage(contextPage);
-    }
-  }, [contextId, currentPage, paginationState, setPage]);
+  // Log sample of submissions for verification
+  if (submissions.length > 0) {
+    // eslint-disable-next-line no-console
+    console.log('📋 [SUBMISSIONS_LIST] Sample submissions:', {
+      firstSubmission: {
+        id: submissions[0].submission_id,
+        title: submissions[0].submission_title,
+        tags: submissions[0].tags
+      },
+      lastSubmission: {
+        id: submissions[submissions.length - 1].submission_id,
+        title: submissions[submissions.length - 1].submission_title,
+        tags: submissions[submissions.length - 1].tags
+      }
+    });
+  }
 
   const handleTagClick = (tag: string) => {
-    const newFilters = [...currentFilters];
-    const tagFilter = newFilters.find((f) => f.name === 'tags');
-    if (tagFilter) {
-      tagFilter.value = tag;
-    } else {
-      newFilters.push({ name: 'tags', value: tag });
+    // eslint-disable-next-line no-console
+    console.log('🏷️ [SUBMISSIONS_LIST] Tag clicked:', tag);
+    // Sanitize tag input but preserve the hash symbol
+    const sanitizedTag = tag.trim();
+    if (!sanitizedTag || sanitizedTag.length > 50) {
+      console.warn('Invalid tag:', tag);
+      return;
     }
-    setFilters(newFilters);
+
+    onTagClick({ name: 'tags', value: sanitizedTag });
   };
 
   const toggleReply = (submissionId: number) => {
@@ -127,51 +107,43 @@ export default function SubmissionsList({
     }));
   };
 
-  const handlePageChange = (newPage: number) => {
-    setPage(newPage);
-    paginationDispatch({
-      type: 'SET_CURRENT_PAGE',
-      payload: {
-        id: contextId,
-        currentPage: newPage
-      }
+  const handlePageChange = (page: number) => {
+    // eslint-disable-next-line no-console
+    console.log('📄 [SUBMISSIONS_LIST] Page change requested:', {
+      from: pagination.currentPage,
+      to: page
     });
+    onPageChange(page);
   };
 
-  const handlePageSizeChange = (newPageSize: PageSize) => {
-    paginationDispatch({
-      type: 'SET_PAGE_SIZE',
-      payload: {
-        id: contextId,
-        pageSize: newPageSize
-      }
+  const handlePageSizeChange = (pageSize: number) => {
+    // eslint-disable-next-line no-console
+    console.log('📏 [SUBMISSIONS_LIST] Page size change requested:', {
+      from: pagination.pageSize,
+      to: pageSize
     });
-    paginationDispatch({
-      type: 'SET_CURRENT_PAGE',
-      payload: {
-        id: contextId,
-        currentPage: 1
-      }
-    });
+    onPageSizeChange(pageSize);
   };
 
-  if (status === 'loading' || loading) {
+  // Security check - ensure user is authenticated for sensitive operations
+  if (status === 'loading' || isLoading) {
     return <div className="submissions-list__loading">Loading...</div>;
   }
 
   if (error) {
+    // eslint-disable-next-line no-console
+    console.error('📋 [SUBMISSIONS_LIST] Rendering error state:', error);
     return <div className="submissions-list__error">Error: {error}</div>;
   }
 
-  if (!data?.submissions.length) {
+  if (!submissions || submissions.length === 0) {
     return <div className="submissions-list__empty">No submissions found</div>;
   }
 
   return (
     <div className="submissions-list__container">
-      <FilterBar filterId={contextId} />
       <div className="submission__list">
-        {data.submissions.map((submission: Submission) => (
+        {submissions.map((submission: Submission) => (
           <div key={submission.submission_id} className="submission__wrapper">
             <div className="submission__meta">
               <span className="submission__author">{submission.author}</span>
@@ -180,7 +152,15 @@ export default function SubmissionsList({
               </span>
             </div>
             <div className="submission__content">
-              {submission.submission_name}
+              <h3 className="submission__title">
+                {submission.submission_title}
+              </h3>
+              {submission.submission_name &&
+                submission.submission_name !== submission.submission_title && (
+                  <p className="submission__description">
+                    {submission.submission_name}
+                  </p>
+                )}
             </div>
             {submission.tags && submission.tags.length > 0 && (
               <div className="submission__tags">
@@ -195,19 +175,19 @@ export default function SubmissionsList({
                 ))}
               </div>
             )}
+
+            {/* Reply functionality */}
             <div className="submission__actions">
-              {session?.user?.providerAccountId && (
+              <button
+                className="submission__reply-button"
+                onClick={() => toggleReply(submission.submission_id)}
+              >
+                {activeReplies[submission.submission_id] ? 'Cancel' : 'Reply'}
+              </button>
+              {submission.thread_parent_id === null && (
                 <button
-                  onClick={() => toggleReply(submission.submission_id)}
-                  className="submission__action-btn"
-                >
-                  {activeReplies[submission.submission_id] ? 'Cancel' : 'Reply'}
-                </button>
-              )}
-              {submission.thread_parent_id && (
-                <button
+                  className="submission__expand-button"
                   onClick={() => toggleExpand(submission.submission_id)}
-                  className="submission__action-btn"
                 >
                   {expandedThreads[submission.submission_id]
                     ? 'Collapse'
@@ -215,14 +195,25 @@ export default function SubmissionsList({
                 </button>
               )}
             </div>
+
             {activeReplies[submission.submission_id] && (
-              <ReplyForm parentId={submission.submission_id} />
+              <div className="submission__reply-form">
+                <ReplyForm parentId={submission.submission_id} />
+              </div>
             )}
           </div>
         ))}
       </div>
+
       <div className="submissions-list__pagination">
-        <Pagination id={contextId} />
+        <Pagination
+          id="submissions"
+          currentPage={pagination.currentPage}
+          totalPages={totalPages}
+          pageSize={pagination.pageSize}
+          onPageChange={handlePageChange}
+          onPageSizeChange={handlePageSizeChange}
+        />
       </div>
     </div>
   );

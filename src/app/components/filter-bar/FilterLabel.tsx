@@ -1,45 +1,40 @@
 'use client';
-import { useSearchParams } from 'next/navigation';
-import { useFilters } from '../../../lib/state/FiltersContext';
-import BadgeWrapper from '../badge/Badge';
+import { PostFilters } from '../../../lib/types/filters';
 import './FilterBar.css';
-import { getTagsFromSearchParams } from './utils/get-tags';
 
 export function FilterLabel({
-  label,
   name,
-  filterId
+  label,
+  filterId,
+  onRemoveFilter
 }: {
-  label: string;
   name: string;
+  label: string;
   filterId: string;
+  onRemoveFilter: (filterName: PostFilters) => void;
 }) {
-  const searchParams = useSearchParams();
-  const tags = getTagsFromSearchParams(searchParams.get(name) || '');
-  const { dispatch } = useFilters();
-
-  const onClick = (event: React.MouseEvent<HTMLElement>) => {
-    event.preventDefault();
-    const newTags = tags.filter((tag) => tag !== label);
-    const newTagsSearchParams = newTags.join(',');
-
-    dispatch({
-      payload: {
-        filters: [
-          {
-            name: 'tags',
-            value: newTags.length ? newTagsSearchParams : ''
-          }
-        ],
-        id: filterId
-      },
-      type: 'SET_CURRENT_FILTERS'
+  const onClick = () => {
+    // eslint-disable-next-line no-console
+    console.log('🏷️ [FILTER_LABEL] Filter label clicked:', {
+      name,
+      label,
+      filterId
     });
+
+    // Delegate to parent component
+    onRemoveFilter(name as PostFilters);
   };
 
   return (
-    <BadgeWrapper badgeContent="&#10005;" onClick={onClick} showOnHover>
-      <p className="filter-bar__filter-value">{label}</p>
-    </BadgeWrapper>
+    <button
+      className="filter-bar__filter-value"
+      onClick={onClick}
+      aria-label={`Remove ${label} filter`}
+    >
+      {label}
+      <span className="filter-bar__filter-remove" aria-hidden="true">
+        ×
+      </span>
+    </button>
   );
 }

@@ -106,8 +106,13 @@ const generateRecords = async () => {
 
       // Generate submission
       const useTags = faker.datatype.boolean();
+
       let submission_name;
+      let submission_title;
       let tags = [];
+
+      // Generate title
+      submission_title = faker.lorem.sentence({ min: 3, max: 8 }).slice(0, -1); // Remove period
 
       if (useTags) {
         tags = Array.from({ length: 5 }, () => `#${faker.lorem.word()}`);
@@ -123,8 +128,8 @@ const generateRecords = async () => {
       });
 
       await sql`
-        INSERT INTO submissions (submission_name, author_id, author, tags, submission_datetime)
-        VALUES (${submission_name}, ${userId}, ${author}, ${tags}, ${submission_datetime})
+        INSERT INTO submissions (submission_name, submission_title, author_id, author, tags, submission_datetime)
+        VALUES (${submission_name}, ${submission_title}, ${userId}, ${author}, ${tags}, ${submission_datetime})
       `;
     }
 

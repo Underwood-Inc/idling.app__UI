@@ -1,5 +1,5 @@
 import { fireEvent, render, screen } from '@testing-library/react';
-import { PageSize } from 'src/lib/state/PaginationContext';
+import { PageSize } from 'src/lib/state/atoms';
 import { PAGINATION_SELECTORS } from 'src/lib/test-selectors/components/pagination.selectors';
 import PageSizeSelector from './PageSizeSelector';
 

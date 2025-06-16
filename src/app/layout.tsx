@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { SessionProvider } from 'next-auth/react';
 import { Inter } from 'next/font/google';
 import { Suspense } from 'react';
-import { ShouldUpdateProvider } from '../lib/state/ShouldUpdateContext';
+import { JotaiProvider } from '../lib/state/JotaiProvider';
 import { AvatarsBackground } from './components/avatars-background/AvatarsBackground';
 import { NotFoundErrorBoundary } from './components/error-boundary/NotFoundErrorBoundary';
 import FadeIn from './components/fade-in/FadeIn';
@@ -64,11 +64,11 @@ export default function RootLayout({
             <MessageTickerWithInterval />
 
             <Suspense fallback={<Loader />}>
-              <ShouldUpdateProvider>
+              <JotaiProvider>
                 <NotFoundErrorBoundary>
                   <FadeIn>{children}</FadeIn>
                 </NotFoundErrorBoundary>
-              </ShouldUpdateProvider>
+              </JotaiProvider>
             </Suspense>
             <Footer />
           </main>

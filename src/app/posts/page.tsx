@@ -4,7 +4,6 @@ import { CONTEXT_IDS } from 'src/lib/context-ids';
 import { auth } from '../../lib/auth';
 import { Card } from '../components/card/Card';
 import FadeIn from '../components/fade-in/FadeIn';
-import FilterBar from '../components/filter-bar/FilterBar';
 import Loader from '../components/loader/Loader';
 import { PageAside } from '../components/page-aside/PageAside';
 import { PageContainer } from '../components/page-container/PageContainer';
@@ -15,15 +14,13 @@ import { RecentTagsLoader } from '../components/recent-tags/RecentTagsClient';
 import { AddSubmissionForm } from '../components/submission-forms/add-submission-form/AddSubmissionForm';
 import styles from './page.module.css';
 
-const LazyPostsList = dynamic(
-  () => import('../components/submissions-list/SubmissionsList'),
+const LazyPostsManager = dynamic(
+  () => import('../components/submissions-list/PostsManager'),
   {
     ssr: false,
     loading: () => <Loader />
   }
 );
-
-export type PostFilters = 'tags' | 'page';
 
 export default async function Posts() {
   const session = await auth();
@@ -42,9 +39,8 @@ export default async function Posts() {
               <AddSubmissionForm
                 isAuthorized={!!session?.user?.providerAccountId}
               />
-              <FilterBar filterId={CONTEXT_IDS.POSTS.toString()} />
               <Suspense fallback={<Loader />}>
-                <LazyPostsList contextId={CONTEXT_IDS.POSTS.toString()} />
+                <LazyPostsManager contextId={CONTEXT_IDS.POSTS.toString()} />
               </Suspense>
             </Card>
           </FadeIn>

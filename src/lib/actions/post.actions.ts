@@ -39,8 +39,17 @@ export async function createPost(data: Omit<CreatePost, 'authorId'>) {
 }
 
 export async function getPosts(subthread?: string, limit = 20, offset = 0) {
-  const result = await sql<Post[]>`
-    SELECT * FROM submissions
+  const result = await sql<any[]>`
+    SELECT 
+      submission_id,
+      submission_name,
+      submission_title,
+      submission_datetime,
+      author_id,
+      author,
+      COALESCE(tags, ARRAY[]::text[]) as tags,
+      thread_parent_id
+    FROM submissions
     ${subthread ? sql`WHERE subthread = ${subthread}` : sql``}
     ORDER BY submission_datetime DESC
     LIMIT ${limit} OFFSET ${offset}

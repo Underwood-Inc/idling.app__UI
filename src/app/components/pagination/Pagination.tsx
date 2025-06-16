@@ -1,139 +1,138 @@
 'use client';
-import { PageSize, usePagination } from '../../../lib/state/PaginationContext';
+import { PageSize } from '../../../lib/state/atoms';
 import { PAGINATION_SELECTORS } from '../../../lib/test-selectors/components/pagination.selectors';
 import PageSizeSelector from './PageSizeSelector';
 import './Pagination.css';
 
-function Pagination({ id = 'default' }: { id: string }) {
-  const { state, dispatch } = usePagination();
-  const pagination = state[id];
+interface PaginationProps {
+  id: string;
+  currentPage?: number;
+  totalPages?: number;
+  pageSize?: PageSize;
+  onPageChange?: (page: number) => void;
+  onPageSizeChange?: (pageSize: PageSize) => void;
+}
 
-  if (!pagination) {
-    return null;
-  }
-
-  const { currentPage, totalPages, pageSize } = pagination;
-
+function Pagination({
+  id,
+  currentPage = 1,
+  totalPages = 1,
+  pageSize = 10,
+  onPageChange,
+  onPageSizeChange
+}: PaginationProps) {
   const handlePrevious = (event: React.MouseEvent<HTMLElement>) => {
     event.preventDefault();
-
-    if (currentPage && currentPage > 1) {
+    if (currentPage > 1 && onPageChange) {
       const newPage = currentPage - 1;
-
-      dispatch({
-        type: 'SET_CURRENT_PAGE',
-        payload: {
-          id,
-          currentPage: newPage
-        }
-      });
+      onPageChange(newPage);
     }
   };
 
   const handleNext = (event: React.MouseEvent<HTMLElement>) => {
     event.preventDefault();
-
-    if (currentPage && totalPages && currentPage < totalPages) {
+    if (currentPage < totalPages && onPageChange) {
       const newPage = currentPage + 1;
-
-      dispatch({
-        type: 'SET_CURRENT_PAGE',
-        payload: {
-          id,
-          currentPage: newPage
-        }
-      });
+      onPageChange(newPage);
     }
   };
 
   const handlePageSelect = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const newPage = Number(event.target.value);
-
-    dispatch({
-      type: 'SET_CURRENT_PAGE',
-      payload: {
-        id,
-        currentPage: newPage
-      }
-    });
+    if (onPageChange) {
+      onPageChange(newPage);
+    }
   };
 
   const handlePageSizeSelect = (newPageSize: PageSize) => {
-    dispatch({
-      type: 'SET_PAGE_SIZE',
-      payload: {
-        id,
-        pageSize: newPageSize
-      }
-    });
-    dispatch({
-      type: 'SET_CURRENT_PAGE',
-      payload: {
-        id,
-        currentPage: 1
-      }
-    });
+    if (onPageSizeChange) {
+      onPageSizeChange(newPageSize);
+    }
   };
 
+  // Don't render if only one page
+  if (totalPages <= 1) {
+    return null;
+  }
+
   return (
-    <article className="pagination__container">
-      <div className="flex ai-center">
+    <div className="pagination">
+      <div className="pagination__info">
+        <span className="pagination__page-info">
+          Page {currentPage} of {totalPages}
+        </span>
+      </div>
+
+      <div className="pagination__controls">
         <button
           type="button"
           onClick={handlePrevious}
           disabled={currentPage === 1}
-          className="pagination__previous-button"
+          className="pagination__button pagination__button--prev"
           data-testid={PAGINATION_SELECTORS.PREVIOUS}
+          aria-label="Go to previous page"
         >
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+          >
+            <polyline points="15,18 9,12 15,6"></polyline>
+          </svg>
           Previous
         </button>
 
-        <p data-testid={PAGINATION_SELECTORS.STATE}>
-          Page&nbsp;
+        <div className="pagination__page-selector-container">
           <select
             aria-label="Current page selector"
             value={currentPage}
             onChange={handlePageSelect}
-            className="pagination__page-selector"
+            className="pagination__page-select"
             data-testid={PAGINATION_SELECTORS.PAGE_SELECTOR}
           >
-            {totalPages
-              ? Array.from({ length: totalPages }, (_, index) => (
-                  <option key={index + 1} value={index + 1}>
-                    {index + 1}
-                  </option>
-                ))
-              : null}
+            {Array.from({ length: totalPages }, (_, index) => (
+              <option key={index + 1} value={index + 1}>
+                {index + 1}
+              </option>
+            ))}
           </select>
-          &nbsp;of {totalPages}
-        </p>
-      </div>
-
-      <div className="flex ai-center">
-        {pageSize && (
-          <p
-            data-testid={PAGINATION_SELECTORS.PAGE_SIZE_STATE}
-            className="pagination__page-size-selector"
-          >
-            Page Size&nbsp;
-            <PageSizeSelector
-              pageSize={pageSize}
-              onPageSizeChange={handlePageSizeSelect}
-            />
-          </p>
-        )}
+        </div>
 
         <button
           type="button"
           onClick={handleNext}
           disabled={currentPage === totalPages}
-          className="pagination__next-button"
+          className="pagination__button pagination__button--next"
           data-testid={PAGINATION_SELECTORS.NEXT}
+          aria-label="Go to next page"
         >
           Next
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+          >
+            <polyline points="9,18 15,12 9,6"></polyline>
+          </svg>
         </button>
       </div>
-    </article>
+
+      <div className="pagination__page-size">
+        <label className="pagination__page-size-label">
+          Show:
+          <PageSizeSelector
+            pageSize={pageSize as PageSize}
+            onPageSizeChange={handlePageSizeSelect}
+          />
+        </label>
+      </div>
+    </div>
   );
 }
 

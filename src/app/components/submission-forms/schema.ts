@@ -5,6 +5,10 @@ export const SUBMISSION_NAME_MAX_LENGTH = 255;
 export const submissionSchema = z.object({
   submission_id: z.number(),
   submission_name: z.string(),
+  submission_title: z
+    .string()
+    .min(1, 'Title is required')
+    .max(255, 'Title must be 255 characters or less'),
   submission_datetime: z.date(),
   author_id: z.string().min(1),
   author: z.string(),
@@ -27,11 +31,13 @@ export type DeleteSubmission = z.infer<typeof deleteSubmissionSchema>;
 export function parseSubmission({
   submission_datetime,
   submission_name,
+  submission_title,
   tags,
   thread_parent_id
 }: Partial<CreateSubmission>) {
   return submissionSchema.safeParse({
     submission_name: submission_name?.toString().trim(),
+    submission_title: submission_title?.toString().trim(),
     submission_datetime,
     tags,
     thread_parent_id: thread_parent_id ? Number(thread_parent_id) : null
@@ -63,6 +69,9 @@ export function parseZodErrors(error: ZodError): string {
     if (key === 'submission_name') {
       return 'post message';
     }
+    if (key === 'submission_title') {
+      return 'title';
+    }
     if (key === 'thread_parent_id') {
       return 'parent thread';
     }
@@ -77,6 +86,10 @@ export function parseZodErrors(error: ZodError): string {
 }
 
 export const submissionFormSchema = z.object({
+  submission_title: z
+    .string()
+    .min(1, 'Title is required')
+    .max(255, 'Title must be 255 characters or less'),
   submission_name: z.string().min(1, 'Submission name is required'),
   tags: z.array(z.string()).optional()
 });

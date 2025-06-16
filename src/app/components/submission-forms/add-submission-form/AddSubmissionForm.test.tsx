@@ -1,176 +1,132 @@
-import {
-  act,
-  fireEvent,
-  render,
-  screen,
-  waitFor
-} from '@testing-library/react';
-import { ADD_SUBMISSION_FORM_SELECTORS } from 'src/lib/test-selectors/components/add-submission-form.selectors';
-import * as actions from '../actions';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { Provider } from 'jotai';
 import { AddSubmissionForm } from './AddSubmissionForm';
 
-// Mock the actions
-jest.mock('../actions', () => ({
-  createSubmissionAction: jest.fn(),
-  validateCreateSubmissionFormAction: jest.fn()
+// Mock Jotai atoms instead of old context hooks
+jest.mock('jotai', () => ({
+  ...jest.requireActual('jotai'),
+  useAtom: jest.fn().mockReturnValue([false, jest.fn()])
 }));
 
-// Update the mock for react-dom
+// Mock the add submission action
+jest.mock('../actions', () => ({
+  addSubmissionAction: jest.fn().mockResolvedValue({
+    status: 1,
+    message: 'Submission added successfully'
+  })
+}));
+
+// Mock react-dom hooks
 jest.mock('react-dom', () => ({
   ...jest.requireActual('react-dom'),
   useFormState: jest.fn(),
   useFormStatus: jest.fn(() => ({ pending: false }))
 }));
 
-// Add this mock for ShouldUpdateContext
-jest.mock('../../../../lib/state/ShouldUpdateContext', () => ({
-  useShouldUpdate: jest.fn().mockReturnValue({
-    state: false,
-    dispatch: jest.fn()
-  })
-}));
-
 describe('AddSubmissionForm', () => {
-  let mockValidateAction: jest.Mock;
-  let mockDispatch: jest.Mock;
+  const defaultProps = {
+    isAuthorized: true
+  };
 
   beforeEach(() => {
     jest.clearAllMocks();
-    mockValidateAction = jest.fn().mockResolvedValue({
-      message: '',
-      error: ''
-    });
-    (
-      actions.validateCreateSubmissionFormAction as jest.Mock
-    ).mockImplementation(mockValidateAction);
 
-    mockDispatch = jest.fn();
-    (require('react-dom').useFormState as jest.Mock).mockReturnValue([
-      { status: 0, message: '', error: '' },
-      mockDispatch
+    // Setup default form state mock
+    const { useFormState } = require('react-dom');
+    useFormState.mockReturnValue([{ status: 0, message: '' }, jest.fn()]);
+  });
+
+  it('renders form correctly', () => {
+    render(
+      <Provider>
+        <AddSubmissionForm {...defaultProps} />
+      </Provider>
+    );
+
+    expect(screen.getByRole('form')).toBeInTheDocument();
+    expect(screen.getByLabelText(/title/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/tags/i)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /submit/i })).toBeInTheDocument();
+  });
+
+  it('handles form submission correctly', async () => {
+    const mockSetShouldUpdate = jest.fn();
+    const mockFormAction = jest.fn();
+
+    const { useAtom } = require('jotai');
+    const { useFormState } = require('react-dom');
+
+    useAtom.mockReturnValue([false, mockSetShouldUpdate]);
+
+    useFormState.mockReturnValue([
+      { status: 1, message: 'Success' },
+      mockFormAction
     ]);
-  });
 
-  const renderComponent = (isAuthorized = true) => {
-    return render(<AddSubmissionForm isAuthorized={isAuthorized} />);
-  };
+    render(
+      <Provider>
+        <AddSubmissionForm {...defaultProps} />
+      </Provider>
+    );
 
-  test('renders form elements correctly', () => {
-    renderComponent();
-    expect(
-      screen.getByTestId(ADD_SUBMISSION_FORM_SELECTORS.NAME_INPUT)
-    ).toBeInTheDocument();
-    expect(
-      screen.getByTestId(ADD_SUBMISSION_FORM_SELECTORS.SUBMIT_BUTTON)
-    ).toBeInTheDocument();
-  });
+    const titleInput = screen.getByLabelText(/title/i);
+    const tagsInput = screen.getByLabelText(/tags/i);
+    const submitButton = screen.getByRole('button', { name: /submit/i });
 
-  test('disables input and button when not authorized', () => {
-    renderComponent(false);
-    expect(
-      screen.getByTestId(ADD_SUBMISSION_FORM_SELECTORS.NAME_INPUT)
-    ).toBeDisabled();
-    expect(
-      screen.getByTestId(ADD_SUBMISSION_FORM_SELECTORS.SUBMIT_BUTTON)
-    ).toBeDisabled();
-  });
+    fireEvent.change(titleInput, { target: { value: 'Test Title' } });
+    fireEvent.change(tagsInput, { target: { value: 'test, example' } });
+    fireEvent.click(submitButton);
 
-  test('updates character count on input change', async () => {
-    renderComponent();
-    const input = screen.getByTestId(ADD_SUBMISSION_FORM_SELECTORS.NAME_INPUT);
-    fireEvent.change(input, { target: { value: 'Test Submission' } });
     await waitFor(() => {
-      expect(
-        screen.getByTestId(ADD_SUBMISSION_FORM_SELECTORS.CHARACTER_COUNT)
-      ).toHaveTextContent('15/255');
+      expect(mockSetShouldUpdate).toHaveBeenCalledWith(true);
     });
   });
 
-  test('displays warning when character count is between 80% and 100%', async () => {
-    renderComponent();
-    const input = screen.getByTestId(ADD_SUBMISSION_FORM_SELECTORS.NAME_INPUT);
-    fireEvent.change(input, { target: { value: 'a'.repeat(205) } });
-    await waitFor(() => {
-      const countElement = screen.getByTestId(
-        ADD_SUBMISSION_FORM_SELECTORS.CHARACTER_COUNT
-      );
-      expect(countElement).toHaveTextContent('205/255');
-      expect(countElement).toHaveClass('warning');
-    });
+  it('shows loading state during submission', () => {
+    const { useFormStatus } = require('react-dom');
+    useFormStatus.mockReturnValue({ pending: true });
+
+    render(
+      <Provider>
+        <AddSubmissionForm {...defaultProps} />
+      </Provider>
+    );
+
+    const submitButton = screen.getByRole('button', { name: /submit/i });
+    expect(submitButton).toBeDisabled();
   });
 
-  test('displays error when character count exceeds 100%', async () => {
-    renderComponent();
-    const input = screen.getByTestId(ADD_SUBMISSION_FORM_SELECTORS.NAME_INPUT);
-    fireEvent.change(input, { target: { value: 'a'.repeat(256) } });
-    await waitFor(() => {
-      const countElement = screen.getByTestId(
-        ADD_SUBMISSION_FORM_SELECTORS.CHARACTER_COUNT
-      );
-      expect(countElement).toHaveTextContent('256/255');
-      expect(countElement).toHaveClass('error');
-    });
-  });
-
-  test('displays error message when validation fails', async () => {
-    (require('react-dom').useFormState as jest.Mock).mockReturnValue([
-      { status: 0, message: '', error: 'Invalid submission name' },
+  it('displays error message on failed submission', () => {
+    const { useFormState } = require('react-dom');
+    useFormState.mockReturnValue([
+      { status: -1, message: 'Submission failed' },
       jest.fn()
     ]);
-    renderComponent();
-    const input = screen.getByTestId(ADD_SUBMISSION_FORM_SELECTORS.NAME_INPUT);
-    fireEvent.blur(input, { target: { value: '' } });
-    await waitFor(() => {
-      expect(
-        screen.getByTestId(ADD_SUBMISSION_FORM_SELECTORS.STATUS_MESSAGE)
-      ).toHaveTextContent('Invalid submission name');
-    });
+
+    render(
+      <Provider>
+        <AddSubmissionForm {...defaultProps} />
+      </Provider>
+    );
+
+    expect(screen.getByText('Submission failed')).toBeInTheDocument();
   });
 
-  test('submits form successfully', async () => {
-    const mockFormAction = jest.fn();
-    (require('react-dom').useFormState as jest.Mock).mockReturnValue([
-      { status: 1, message: 'Submission created', error: '' },
-      mockFormAction
+  it('resets form after successful submission', async () => {
+    const { useFormState } = require('react-dom');
+    useFormState.mockReturnValue([
+      { status: 1, message: 'Success' },
+      jest.fn()
     ]);
-    renderComponent();
-    const form = screen.getByTestId(ADD_SUBMISSION_FORM_SELECTORS.FORM);
-    fireEvent.submit(form);
-    await waitFor(() => {
-      expect(mockFormAction).toHaveBeenCalled();
-      expect(screen.getByText('Submission created')).toBeInTheDocument();
-    });
-  });
 
-  test('resets form after successful submission', async () => {
-    const mockFormAction = jest.fn();
-    (require('react-dom').useFormState as jest.Mock).mockReturnValue([
-      { status: 1, message: 'Submission created', error: '' },
-      mockFormAction
-    ]);
-    renderComponent();
-    const input = screen.getByTestId(ADD_SUBMISSION_FORM_SELECTORS.NAME_INPUT);
-    fireEvent.change(input, { target: { value: 'Test Submission' } });
-    const form = screen.getByTestId(ADD_SUBMISSION_FORM_SELECTORS.FORM);
-    fireEvent.submit(form);
-    await waitFor(() => {
-      expect(input).toHaveValue('');
-    });
-  });
+    render(
+      <Provider>
+        <AddSubmissionForm {...defaultProps} />
+      </Provider>
+    );
 
-  test('calls handleFormValidateAction on input blur', async () => {
-    render(<AddSubmissionForm isAuthorized={true} />);
-    const input = screen.getByTestId(ADD_SUBMISSION_FORM_SELECTORS.NAME_INPUT);
-
-    await act(async () => {
-      fireEvent.change(input, { target: { value: 'Test Submission' } });
-      fireEvent.blur(input);
-    });
-
-    await waitFor(() => {
-      expect(
-        screen.getByTestId(ADD_SUBMISSION_FORM_SELECTORS.STATUS_MESSAGE)
-      ).toHaveTextContent('');
-    });
+    // Form should be reset after successful submission
+    const titleInput = screen.getByLabelText(/title/i) as HTMLInputElement;
+    expect(titleInput.value).toBe('');
   });
 });

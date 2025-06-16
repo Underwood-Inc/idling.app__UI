@@ -1,14 +1,14 @@
 'use client';
+import { useAtom } from 'jotai';
 import { useEffect, useRef } from 'react';
 import { useFormState, useFormStatus } from 'react-dom';
-import { useShouldUpdate } from '../../../../lib/state/ShouldUpdateContext';
+import { shouldUpdateAtom } from '../../../../lib/state/atoms';
 import { deleteSubmissionAction } from '../actions';
 import './DeleteSubmissionForm.css';
 
 const initialState = {
   status: 0,
-  message: '',
-  submission_name: ''
+  message: ''
 };
 
 function DeleteButton({ isAuthorized }: { isAuthorized: boolean }) {
@@ -39,37 +39,27 @@ export function DeleteSubmissionForm({
   isAuthorized: boolean;
 }) {
   const ref = useRef<HTMLFormElement>(null);
-  const { dispatch: dispatchShouldUpdate } = useShouldUpdate();
-  // TODO: https://github.com/vercel/next.js/issues/65673#issuecomment-2112746191
-  // const [state, formAction] = useActionState(deleteSubmissionAction, initialState)
+  const [, setShouldUpdate] = useAtom(shouldUpdateAtom);
   const [state, formAction] = useFormState(
     deleteSubmissionAction,
     initialState
   );
 
   useEffect(() => {
-    dispatchShouldUpdate({
-      type: 'SET_SHOULD_UPDATE',
-      payload: !!state.status
-    });
+    setShouldUpdate(!!state.status);
 
     if (state.status) {
       ref.current?.reset();
     }
-  }, [state.status, state.message, dispatchShouldUpdate]);
-
-  const handleFormAction = async (formData: FormData) => {
-    await formAction(formData);
-    ref.current?.reset();
-  };
+  }, [state.status, state.message, setShouldUpdate]);
 
   return (
-    <form ref={ref} action={handleFormAction}>
+    <form ref={ref} action={formAction}>
       <input type="hidden" name="submission_id" value={id} />
       <input type="hidden" name="submission_name" value={name} />
       <DeleteButton isAuthorized={isAuthorized} />
       <p aria-live="polite" className="" role="status">
-        {state?.message}
+        {state?.message || (state as any)?.error}
       </p>
     </form>
   );

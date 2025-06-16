@@ -90,6 +90,36 @@
   margin-top: 0.25rem;
 }
 
+.submission__title {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  line-height: 1.4;
+}
+
+.submission__url {
+  display: inline-block;
+  margin-bottom: 0.5rem;
+  color: var(--link-color, #0066cc);
+  text-decoration: none;
+  font-size: 0.9rem;
+  word-break: break-all;
+  transition: color 0.2s ease;
+}
+
+.submission__url:hover {
+  text-decoration: underline;
+  color: var(--link-hover-color, #0052a3);
+}
+
+.submission__description {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
 .submission__tag {
   padding: 0.25rem 0.5rem;
   background: var(--background-secondary);

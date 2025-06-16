@@ -1,8 +1,9 @@
 'use client';
 
+import { useAtom } from 'jotai';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { useShouldUpdate } from '../../../lib/state/ShouldUpdateContext';
+import { shouldUpdateAtom } from '../../../lib/state/atoms';
 import { createSubmissionAction } from '../submission-forms/actions';
 import './ReplyForm.css';
 
@@ -11,7 +12,7 @@ interface ReplyFormProps {
 }
 
 export function ReplyForm({ parentId }: ReplyFormProps) {
-  const { dispatch: dispatchShouldUpdate } = useShouldUpdate();
+  const [, setShouldUpdate] = useAtom(shouldUpdateAtom);
   const [replyContent, setReplyContent] = useState('');
   const router = useRouter();
 
@@ -25,10 +26,7 @@ export function ReplyForm({ parentId }: ReplyFormProps) {
 
     if (result.status === 1) {
       setReplyContent('');
-      dispatchShouldUpdate({
-        type: 'SET_SHOULD_UPDATE',
-        payload: true
-      });
+      setShouldUpdate(true);
       router.refresh();
     } else {
       alert(result.error || 'Failed to submit reply');
