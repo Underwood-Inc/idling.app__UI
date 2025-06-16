@@ -487,6 +487,61 @@ export function useSubmissionsManager({
     [setFiltersState]
   );
 
+  const removeTag = useCallback(
+    (tagToRemove: string) => {
+      // eslint-disable-next-line no-console
+      console.log('🏷️ [MANAGER] removeTag called:', tagToRemove);
+
+      setFiltersState((prev) => {
+        const tagsFilter = prev.filters.find((f) => f.name === 'tags');
+        if (!tagsFilter) {
+          // eslint-disable-next-line no-console
+          console.log('🏷️ [MANAGER] No tags filter found');
+          return prev;
+        }
+
+        // Parse current tags and remove the specific tag
+        const currentTags = tagsFilter.value
+          .split(',')
+          .map((tag) => tag.trim())
+          .filter(Boolean);
+
+        const newTags = currentTags.filter((tag) => tag !== tagToRemove);
+
+        // eslint-disable-next-line no-console
+        console.log('🏷️ [MANAGER] Tags before removal:', currentTags);
+        console.log('🏷️ [MANAGER] Tags after removal:', newTags);
+
+        let newFilters = [...prev.filters];
+
+        if (newTags.length === 0) {
+          // Remove both tags and tagLogic filters when no tags left
+          newFilters = newFilters.filter(
+            (f) => f.name !== 'tags' && f.name !== 'tagLogic'
+          );
+        } else {
+          // Update tags filter with remaining tags
+          const tagsIndex = newFilters.findIndex((f) => f.name === 'tags');
+          if (tagsIndex >= 0) {
+            newFilters[tagsIndex] = { name: 'tags', value: newTags.join(',') };
+          }
+
+          // Remove tagLogic if only one tag remains
+          if (newTags.length === 1) {
+            newFilters = newFilters.filter((f) => f.name !== 'tagLogic');
+          }
+        }
+
+        return {
+          ...prev,
+          filters: newFilters,
+          page: 1 // Reset to first page when removing tags
+        };
+      });
+    },
+    [setFiltersState]
+  );
+
   const clearFilters = useCallback(() => {
     // eslint-disable-next-line no-console
     console.log('🧹 [MANAGER] clearFilters called');
@@ -524,6 +579,7 @@ export function useSubmissionsManager({
     setPageSize,
     addFilter,
     removeFilter,
+    removeTag,
     clearFilters,
 
     // Computed

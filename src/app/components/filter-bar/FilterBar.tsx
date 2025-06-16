@@ -13,6 +13,7 @@ interface FilterBarProps {
   filterId: string;
   filters: Filter<PostFilters>[];
   onRemoveFilter: (filterName: PostFilters) => void;
+  onRemoveTag: (tagToRemove: string) => void;
   onClearFilters: () => void;
 }
 
@@ -20,6 +21,7 @@ export default function FilterBar({
   filterId,
   filters,
   onRemoveFilter,
+  onRemoveTag,
   onClearFilters
 }: FilterBarProps) {
   // Add null check for filters
@@ -68,7 +70,7 @@ export default function FilterBar({
                 name={filter.name}
                 label={value}
                 filterId={filterId}
-                onRemoveFilter={onRemoveFilter}
+                onRemoveTag={onRemoveTag}
               />
             </div>
           ));

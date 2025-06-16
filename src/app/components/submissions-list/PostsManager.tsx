@@ -32,6 +32,7 @@ export default function PostsManager({
     setPageSize,
     addFilter,
     removeFilter,
+    removeTag,
     clearFilters,
     totalPages
   } = useSubmissionsManager({
@@ -56,6 +57,7 @@ export default function PostsManager({
         filterId={contextId}
         filters={filters as any}
         onRemoveFilter={removeFilter}
+        onRemoveTag={removeTag}
         onClearFilters={clearFilters}
       />
       <SubmissionsList

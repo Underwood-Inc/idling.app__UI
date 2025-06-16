@@ -32,7 +32,6 @@ const RecentTagsClientComponent = ({
 }) => {
   const [recentTags, setRecentTags] = useState(initialRecentTags);
   const [loading, setLoading] = useState(false);
-  const [hoveredTag, setHoveredTag] = useState<string | null>(null);
 
   // Use shared Jotai atoms directly for state synchronization
   const [filtersState, setFiltersState] = useAtom(
@@ -58,6 +57,21 @@ const RecentTagsClientComponent = ({
     }),
     [currentTags.join(','), currentTagLogic]
   ); // Only depend on actual tag values
+
+  // Stable title that doesn't change on hover - no more flickering
+  const stableTitle = useMemo(() => {
+    if (tagState.currentTags.length === 0) {
+      return 'Recent Tags';
+    }
+
+    if (tagState.currentTags.length === 1) {
+      return `Posts tagged: ${tagState.currentTags[0]}`;
+    }
+
+    const logicText = tagState.currentTagLogic === 'OR' ? 'any of' : 'all of';
+    const tagList = tagState.currentTags.join(', ');
+    return `Posts with ${logicText}: ${tagList}`;
+  }, [tagState.currentTags, tagState.currentTagLogic]);
 
   // Debug effect to track state changes - only for tag-related changes
   useEffect(() => {
@@ -192,27 +206,6 @@ const RecentTagsClientComponent = ({
     }
   };
 
-  const getSmartTitle = () => {
-    const previewTag = hoveredTag;
-    const activeTagsForPreview = previewTag
-      ? tagState.currentTags.includes(previewTag)
-        ? tagState.currentTags.filter((t) => t !== previewTag) // Removing
-        : [...tagState.currentTags, previewTag] // Adding
-      : tagState.currentTags;
-
-    if (activeTagsForPreview.length === 0) {
-      return 'Recent Tags';
-    }
-
-    if (activeTagsForPreview.length === 1) {
-      return `Posts tagged with ${activeTagsForPreview[0]}`;
-    }
-
-    const logicText = tagState.currentTagLogic === 'OR' ? 'any of' : 'all of';
-    const tagList = activeTagsForPreview.join(', ');
-    return `Posts with ${logicText}: ${tagList}`;
-  };
-
   if (loading) {
     return <RecentTagsLoader />;
   }
@@ -226,8 +219,8 @@ const RecentTagsClientComponent = ({
               data-testid={RECENT_TAGS_SELECTORS.TITLE}
               className="recent-tags__header"
             >
-              <h3 className="recent-tags__title" title={getSmartTitle()}>
-                {getSmartTitle()}
+              <h3 className="recent-tags__title" title={stableTitle}>
+                {stableTitle}
               </h3>
               {tagState.currentTags.length > 1 && (
                 <div className="recent-tags__logic-toggle">
@@ -236,7 +229,8 @@ const RecentTagsClientComponent = ({
                     onClick={handleLogicToggle}
                     role="button"
                     tabIndex={0}
-                    aria-label={`Switch to ${tagState.currentTagLogic === 'OR' ? 'AND' : 'OR'} logic`}
+                    aria-label={`Current filter logic: ${tagState.currentTagLogic === 'OR' ? 'ANY (OR)' : 'ALL (AND)'} - Click to switch to ${tagState.currentTagLogic === 'OR' ? 'ALL (AND)' : 'ANY (OR)'}`}
+                    title={`Currently showing posts with ${tagState.currentTagLogic === 'OR' ? 'ANY of the selected tags' : 'ALL of the selected tags'}. Click to switch to ${tagState.currentTagLogic === 'OR' ? 'ALL (AND)' : 'ANY (OR)'}.`}
                     onKeyDown={(e) => {
                       if (e.key === 'Enter' || e.key === ' ') {
                         e.preventDefault();
@@ -247,11 +241,13 @@ const RecentTagsClientComponent = ({
                     <div className="toggle-track">
                       <span
                         className={`toggle-label left ${tagState.currentTagLogic === 'OR' ? 'active' : ''}`}
+                        title="Show posts with ANY of the selected tags"
                       >
                         ANY
                       </span>
                       <span
                         className={`toggle-label right ${tagState.currentTagLogic === 'AND' ? 'active' : ''}`}
+                        title="Show posts with ALL of the selected tags"
                       >
                         ALL
                       </span>
@@ -272,8 +268,6 @@ const RecentTagsClientComponent = ({
                         <button
                           className={`recent-tags__tag-button ${isActive ? 'active' : ''}`}
                           onClick={() => handleTagClick(tag)}
-                          onMouseEnter={() => setHoveredTag(tag)}
-                          onMouseLeave={() => setHoveredTag(null)}
                           title={
                             isActive
                               ? `Remove ${tag} filter`

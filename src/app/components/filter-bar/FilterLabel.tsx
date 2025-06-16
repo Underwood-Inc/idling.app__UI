@@ -1,17 +1,16 @@
 'use client';
-import { PostFilters } from '../../../lib/types/filters';
 import './FilterBar.css';
 
 export function FilterLabel({
   name,
   label,
   filterId,
-  onRemoveFilter
+  onRemoveTag
 }: {
   name: string;
   label: string;
   filterId: string;
-  onRemoveFilter: (filterName: PostFilters) => void;
+  onRemoveTag: (tagToRemove: string) => void;
 }) {
   const onClick = () => {
     // eslint-disable-next-line no-console
@@ -21,8 +20,8 @@ export function FilterLabel({
       filterId
     });
 
-    // Delegate to parent component
-    onRemoveFilter(name as PostFilters);
+    // Remove the specific tag, not the entire filter
+    onRemoveTag(label);
   };
 
   return (
