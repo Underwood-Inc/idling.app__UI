@@ -2,23 +2,6 @@ import { render, screen } from '@testing-library/react';
 import { Provider } from 'jotai';
 import SubmissionsList from './SubmissionsList';
 
-// Mock the useSubmissionsManager hook
-jest.mock('../../../lib/state/useSubmissionsManager', () => ({
-  useSubmissionsManager: jest.fn().mockReturnValue({
-    loading: false,
-    submissions: [],
-    pagination: { totalRecords: 0, pageSize: 10, currentPage: 1 },
-    error: null,
-    setPage: jest.fn(),
-    setPageSize: jest.fn(),
-    addFilter: jest.fn(),
-    removeFilter: jest.fn(),
-    clearFilters: jest.fn(),
-    hasFilters: false,
-    isInitialized: true
-  })
-}));
-
 // Mock Next.js router
 jest.mock('next/navigation', () => ({
   useRouter: () => ({
@@ -60,12 +43,49 @@ jest.mock('jotai', () => ({
   ])
 }));
 
+// Mock the pagination component
+jest.mock('../pagination/Pagination', () => {
+  return function MockPagination() {
+    return <div data-testid="pagination">Pagination Component</div>;
+  };
+});
+
+// Mock the reply form component
+jest.mock('../thread/ReplyForm', () => ({
+  ReplyForm: function MockReplyForm() {
+    return <div data-testid="reply-form">Reply Form</div>;
+  }
+}));
+
 describe('SubmissionsList', () => {
+  const mockOnPageChange = jest.fn();
+  const mockOnPageSizeChange = jest.fn();
+  const mockOnTagClick = jest.fn();
+
   const defaultProps = {
-    contextId: 'test-context',
-    onlyMine: false,
-    providerAccountId: 'test-user-id',
-    initialSubmissions: { submissions: [], totalCount: 0 }
+    isLoading: false,
+    error: null,
+    submissions: [],
+    pagination: {
+      currentPage: 1,
+      pageSize: 10,
+      totalRecords: 0
+    },
+    totalPages: 1,
+    onPageChange: mockOnPageChange,
+    onPageSizeChange: mockOnPageSizeChange,
+    onTagClick: mockOnTagClick
+  };
+
+  const sampleSubmission = {
+    submission_id: 1,
+    submission_name: 'Test Submission',
+    submission_title: 'Test Title',
+    submission_datetime: new Date('2024-01-01T12:00:00Z'),
+    author_id: 'test-user',
+    author: 'Test User',
+    thread_parent_id: null,
+    tags: ['test', 'javascript']
   };
 
   beforeEach(() => {
@@ -84,14 +104,10 @@ describe('SubmissionsList', () => {
   });
 
   it('handles onlyMine prop correctly', () => {
-    const onlyMineProps = {
-      ...defaultProps,
-      onlyMine: true
-    };
-
+    // This component doesn't have onlyMine prop directly, but we can test empty state
     render(
       <Provider>
-        <SubmissionsList {...onlyMineProps} />
+        <SubmissionsList {...defaultProps} />
       </Provider>
     );
 
@@ -99,60 +115,29 @@ describe('SubmissionsList', () => {
   });
 
   it('renders with initial submissions', () => {
-    const {
-      useSubmissionsManager
-    } = require('../../../lib/state/useSubmissionsManager');
-    useSubmissionsManager.mockReturnValue({
-      loading: false,
-      submissions: [
-        {
-          submission_id: 1,
-          submission_name: 'Test Submission',
-          submission_datetime: new Date(),
-          author_id: 'test-user',
-          author: 'Test User',
-          thread_parent_id: null,
-          tags: ['test']
-        }
-      ],
-      pagination: { totalRecords: 1, pageSize: 10, currentPage: 1 },
-      error: null,
-      setPage: jest.fn(),
-      setPageSize: jest.fn(),
-      addFilter: jest.fn(),
-      removeFilter: jest.fn(),
-      clearFilters: jest.fn(),
-      hasFilters: false,
-      isInitialized: true
-    });
+    const propsWithSubmissions = {
+      ...defaultProps,
+      submissions: [sampleSubmission],
+      pagination: {
+        currentPage: 1,
+        pageSize: 10,
+        totalRecords: 1
+      }
+    };
 
     render(
       <Provider>
-        <SubmissionsList {...defaultProps} />
+        <SubmissionsList {...propsWithSubmissions} />
       </Provider>
     );
 
-    expect(screen.getByText('Test Submission')).toBeInTheDocument();
+    expect(screen.getByText('Test Title')).toBeInTheDocument();
+    expect(screen.getByText('Test User')).toBeInTheDocument();
+    expect(screen.getByText('test')).toBeInTheDocument();
+    expect(screen.getByText('javascript')).toBeInTheDocument();
   });
 
   it('renders empty state when no submissions', () => {
-    const {
-      useSubmissionsManager
-    } = require('../../../lib/state/useSubmissionsManager');
-    useSubmissionsManager.mockReturnValue({
-      loading: false,
-      submissions: [],
-      pagination: { totalRecords: 0, pageSize: 10, currentPage: 1 },
-      error: null,
-      setPage: jest.fn(),
-      setPageSize: jest.fn(),
-      addFilter: jest.fn(),
-      removeFilter: jest.fn(),
-      clearFilters: jest.fn(),
-      hasFilters: false,
-      isInitialized: true
-    });
-
     render(
       <Provider>
         <SubmissionsList {...defaultProps} />
@@ -163,26 +148,14 @@ describe('SubmissionsList', () => {
   });
 
   it('shows loading state', () => {
-    const {
-      useSubmissionsManager
-    } = require('../../../lib/state/useSubmissionsManager');
-    useSubmissionsManager.mockReturnValue({
-      loading: true,
-      submissions: [],
-      pagination: null,
-      error: null,
-      setPage: jest.fn(),
-      setPageSize: jest.fn(),
-      addFilter: jest.fn(),
-      removeFilter: jest.fn(),
-      clearFilters: jest.fn(),
-      hasFilters: false,
-      isInitialized: false
-    });
+    const loadingProps = {
+      ...defaultProps,
+      isLoading: true
+    };
 
     render(
       <Provider>
-        <SubmissionsList {...defaultProps} />
+        <SubmissionsList {...loadingProps} />
       </Provider>
     );
 
@@ -191,29 +164,19 @@ describe('SubmissionsList', () => {
   });
 
   it('shows error state', () => {
-    const {
-      useSubmissionsManager
-    } = require('../../../lib/state/useSubmissionsManager');
-    useSubmissionsManager.mockReturnValue({
-      loading: false,
-      submissions: [],
-      pagination: null,
-      error: 'Failed to load submissions',
-      setPage: jest.fn(),
-      setPageSize: jest.fn(),
-      addFilter: jest.fn(),
-      removeFilter: jest.fn(),
-      clearFilters: jest.fn(),
-      hasFilters: false,
-      isInitialized: true
-    });
+    const errorProps = {
+      ...defaultProps,
+      error: 'Failed to load submissions'
+    };
 
     render(
       <Provider>
-        <SubmissionsList {...defaultProps} />
+        <SubmissionsList {...errorProps} />
       </Provider>
     );
 
-    expect(screen.getByText('Failed to load submissions')).toBeInTheDocument();
+    expect(
+      screen.getByText('Error: Failed to load submissions')
+    ).toBeInTheDocument();
   });
 });

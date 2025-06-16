@@ -9,22 +9,17 @@ jest.mock('next/navigation', () => ({
     replace: jest.fn(),
     prefetch: jest.fn()
   }),
-  useSearchParams: () => new URLSearchParams(),
+  useSearchParams: jest.fn(() => new URLSearchParams()),
   usePathname: () => '/test'
 }));
 
-// Mock the atoms module
-jest.mock('../../../lib/state/atoms', () => ({
-  getDisplayFiltersAtom: jest.fn().mockReturnValue({
-    read: jest.fn(),
-    write: jest.fn()
-  }),
-  paginationActionAtom: jest.fn()
-}));
-
-jest.mock('jotai', () => ({
-  ...jest.requireActual('jotai'),
-  useAtom: jest.fn().mockReturnValue([[], jest.fn()]) // displayFilters is an array
+// Mock useSubmissionsManager to avoid next-auth import issues
+jest.mock('../../../lib/state/useSubmissionsManager', () => ({
+  useSubmissionsManager: jest.fn().mockReturnValue({
+    addFilter: jest.fn(),
+    removeFilter: jest.fn(),
+    clearFilters: jest.fn()
+  })
 }));
 
 describe('TagLink', () => {
@@ -49,14 +44,16 @@ describe('TagLink', () => {
   });
 
   it('handles click correctly', () => {
-    const mockSetFilters = jest.fn();
-    const mockDispatchPagination = jest.fn();
-    const { useAtom } = require('jotai');
+    const mockAddFilter = jest.fn();
+    const {
+      useSubmissionsManager
+    } = require('../../../lib/state/useSubmissionsManager');
 
-    // Mock multiple useAtom calls
-    useAtom
-      .mockReturnValueOnce([null, mockDispatchPagination]) // paginationActionAtom
-      .mockReturnValueOnce([[], mockSetFilters]); // displayFilters
+    useSubmissionsManager.mockReturnValue({
+      addFilter: mockAddFilter,
+      removeFilter: jest.fn(),
+      clearFilters: jest.fn()
+    });
 
     render(
       <Provider>
@@ -67,21 +64,17 @@ describe('TagLink', () => {
     const tagLink = screen.getByRole('link');
     fireEvent.click(tagLink);
 
-    expect(mockSetFilters).toHaveBeenCalled();
-    expect(mockDispatchPagination).toHaveBeenCalledWith({
-      type: 'SET_CURRENT_PAGE',
-      payload: {
-        id: 'test-context',
-        currentPage: 1
-      }
+    expect(mockAddFilter).toHaveBeenCalledWith({
+      name: 'tags',
+      value: 'test-tag'
     });
   });
 
   it('shows active state when tag is selected', () => {
-    const { useAtom } = require('jotai');
-    useAtom
-      .mockReturnValueOnce([null, jest.fn()]) // paginationActionAtom
-      .mockReturnValueOnce([[{ name: 'tags', value: 'test-tag' }], jest.fn()]); // displayFilters
+    // Mock useSearchParams to return tags that include our test tag
+    const mockSearchParams = new URLSearchParams('tags=test-tag,other-tag');
+    const { useSearchParams } = require('next/navigation');
+    useSearchParams.mockReturnValue(mockSearchParams);
 
     render(
       <Provider>
@@ -94,13 +87,10 @@ describe('TagLink', () => {
   });
 
   it('handles multiple tags correctly', () => {
-    const { useAtom } = require('jotai');
-    useAtom
-      .mockReturnValueOnce([null, jest.fn()]) // paginationActionAtom
-      .mockReturnValueOnce([
-        [{ name: 'tags', value: 'tag1,tag2,test-tag' }],
-        jest.fn()
-      ]); // displayFilters
+    // Mock useSearchParams to return multiple tags including our test tag
+    const mockSearchParams = new URLSearchParams('tags=tag1,tag2,test-tag');
+    const { useSearchParams } = require('next/navigation');
+    useSearchParams.mockReturnValue(mockSearchParams);
 
     render(
       <Provider>
@@ -113,7 +103,9 @@ describe('TagLink', () => {
   });
 
   it('handles contextId correctly', () => {
-    const { getDisplayFiltersAtom } = require('../../../lib/state/atoms');
+    const {
+      useSubmissionsManager
+    } = require('../../../lib/state/useSubmissionsManager');
 
     render(
       <Provider>
@@ -121,28 +113,23 @@ describe('TagLink', () => {
       </Provider>
     );
 
-    expect(getDisplayFiltersAtom).toHaveBeenCalledWith('test-context');
+    expect(useSubmissionsManager).toHaveBeenCalledWith({
+      contextId: 'test-context'
+    });
   });
 
-  it('handles appendSearchParam prop correctly', () => {
-    const mockRouter = { push: jest.fn() };
-    const { useRouter } = require('next/navigation');
-    useRouter.mockReturnValue(mockRouter);
-
-    const { useAtom } = require('jotai');
-    useAtom
-      .mockReturnValueOnce([null, jest.fn()]) // paginationActionAtom
-      .mockReturnValueOnce([[], jest.fn()]); // displayFilters
+  it('handles onTagClick callback correctly', () => {
+    const mockOnTagClick = jest.fn();
 
     render(
       <Provider>
-        <TagLink {...defaultProps} appendSearchParam={true} />
+        <TagLink {...defaultProps} onTagClick={mockOnTagClick} />
       </Provider>
     );
 
     const tagLink = screen.getByRole('link');
     fireEvent.click(tagLink);
 
-    expect(mockRouter.push).toHaveBeenCalledWith('?tags=test-tag&page=1');
+    expect(mockOnTagClick).toHaveBeenCalledWith('test-tag');
   });
 });

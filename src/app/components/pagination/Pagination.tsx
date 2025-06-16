@@ -58,7 +58,10 @@ function Pagination({
   return (
     <div className="pagination">
       <div className="pagination__info">
-        <span className="pagination__page-info">
+        <span
+          className="pagination__page-info"
+          data-testid={PAGINATION_SELECTORS.STATE}
+        >
           Page {currentPage} of {totalPages}
         </span>
       </div>
@@ -124,6 +127,12 @@ function Pagination({
       </div>
 
       <div className="pagination__page-size">
+        <span
+          className="pagination__page-size-state"
+          data-testid={PAGINATION_SELECTORS.PAGE_SIZE_STATE}
+        >
+          Page Size {pageSize}
+        </span>
         <label className="pagination__page-size-label">
           Show:
           <PageSizeSelector

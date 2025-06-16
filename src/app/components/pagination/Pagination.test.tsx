@@ -1,70 +1,36 @@
 import { fireEvent, render, screen } from '@testing-library/react';
-import { Provider } from 'jotai';
-import React from 'react';
 import { PageSize } from '../../../lib/state/atoms';
 import { PAGINATION_SELECTORS } from '../../../lib/test-selectors/components/pagination.selectors';
 import Pagination from './Pagination';
 
-// Mock Next.js navigation hooks
-jest.mock('next/navigation', () => ({
-  usePathname: jest.fn(() => '/test'),
-  useSearchParams: jest.fn(() => new URLSearchParams())
-}));
-
-// Mock the atoms
-jest.mock('../../../lib/state/atoms', () => ({
-  ...jest.requireActual('../../../lib/state/atoms'),
-  getSubmissionsStateAtom: jest.fn(),
-  getSubmissionsFiltersAtom: jest.fn()
-}));
-
-// Mock jotai useAtom
-jest.mock('jotai', () => ({
-  ...jest.requireActual('jotai'),
-  useAtom: jest.fn()
-}));
+// Mock the PageSizeSelector component to avoid import issues
+jest.mock('./PageSizeSelector', () => {
+  const {
+    PAGINATION_SELECTORS
+  } = require('../../../lib/test-selectors/components/pagination.selectors');
+  return function MockPageSizeSelector({
+    pageSize,
+    onPageSizeChange
+  }: {
+    pageSize: any;
+    onPageSizeChange: (size: any) => void;
+  }) {
+    return (
+      <select
+        value={pageSize}
+        onChange={(e) => onPageSizeChange(Number(e.target.value))}
+        data-testid={PAGINATION_SELECTORS.PAGE_SIZE_SELECTOR}
+      >
+        <option value={10}>10</option>
+        <option value={20}>20</option>
+        <option value={50}>50</option>
+        <option value={100}>100</option>
+      </select>
+    );
+  };
+});
 
 const testDataId = 'default';
-
-const renderWithProvider = (
-  component: React.ReactNode,
-  totalPages = 1,
-  currentPage = 1,
-  pageSize = PageSize.TEN
-) => {
-  const { useAtom } = require('jotai');
-
-  // Mock the submissions state atom
-  useAtom.mockReturnValueOnce([
-    {
-      loading: false,
-      data: {
-        submissions: [],
-        pagination: {
-          currentPage,
-          pageSize,
-          totalRecords: totalPages * pageSize
-        }
-      }
-    },
-    jest.fn()
-  ]);
-
-  // Mock the submissions filters atom
-  useAtom.mockReturnValueOnce([
-    {
-      onlyMine: false,
-      providerAccountId: '',
-      filters: [],
-      page: currentPage,
-      pageSize,
-      initialized: true
-    },
-    jest.fn()
-  ]);
-
-  return render(<Provider>{component}</Provider>);
-};
 
 describe('Pagination', () => {
   beforeEach(() => {
@@ -72,17 +38,18 @@ describe('Pagination', () => {
   });
 
   it('renders correctly with initial state', () => {
-    renderWithProvider(<Pagination id={testDataId} />, 3);
+    render(
+      <Pagination
+        id={testDataId}
+        currentPage={1}
+        totalPages={3}
+        pageSize={PageSize.TEN}
+      />
+    );
 
     expect(screen.getByText('Previous')).toBeInTheDocument();
     expect(screen.getByText('Next')).toBeInTheDocument();
-    expect(screen.getByTestId(PAGINATION_SELECTORS.STATE)).toBeVisible();
-    expect(screen.getByTestId(PAGINATION_SELECTORS.STATE)).toHaveTextContent(
-      'Page'
-    );
-    expect(screen.getByTestId(PAGINATION_SELECTORS.STATE)).toHaveTextContent(
-      'of 3'
-    );
+    expect(screen.getByText('Page 1 of 3')).toBeInTheDocument();
     expect(screen.getByTestId(PAGINATION_SELECTORS.PAGE_SELECTOR)).toHaveValue(
       '1'
     );
@@ -90,14 +57,19 @@ describe('Pagination', () => {
     expect(screen.getByText('2')).toBeInTheDocument();
     expect(screen.getByText('3')).toBeInTheDocument();
     expect(
-      screen.getByTestId(PAGINATION_SELECTORS.PAGE_SIZE_STATE)
-    ).toHaveTextContent('Page Size 10');
+      screen.getByTestId(PAGINATION_SELECTORS.PAGE_SIZE_SELECTOR)
+    ).toHaveValue('10');
   });
 
   it('handles previous button click', () => {
     const mockOnPageChange = jest.fn();
-    renderWithProvider(
-      <Pagination id={testDataId} onPageChange={mockOnPageChange} />
+    render(
+      <Pagination
+        id={testDataId}
+        currentPage={1}
+        totalPages={3}
+        onPageChange={mockOnPageChange}
+      />
     );
 
     const previousButton = screen.getByText('Previous');
@@ -109,9 +81,13 @@ describe('Pagination', () => {
 
   it('handles next button click', () => {
     const mockOnPageChange = jest.fn();
-    renderWithProvider(
-      <Pagination id={testDataId} onPageChange={mockOnPageChange} />,
-      3
+    render(
+      <Pagination
+        id={testDataId}
+        currentPage={1}
+        totalPages={3}
+        onPageChange={mockOnPageChange}
+      />
     );
 
     const nextButton = screen.getByText('Next');
@@ -122,9 +98,13 @@ describe('Pagination', () => {
 
   it('handles page selection', () => {
     const mockOnPageChange = jest.fn();
-    renderWithProvider(
-      <Pagination id={testDataId} onPageChange={mockOnPageChange} />,
-      4
+    render(
+      <Pagination
+        id={testDataId}
+        currentPage={1}
+        totalPages={4}
+        onPageChange={mockOnPageChange}
+      />
     );
 
     const pageSelector = screen.getByTestId(PAGINATION_SELECTORS.PAGE_SELECTOR);
@@ -135,8 +115,14 @@ describe('Pagination', () => {
 
   it('handles page size selection', () => {
     const mockOnPageSizeChange = jest.fn();
-    renderWithProvider(
-      <Pagination id={testDataId} onPageSizeChange={mockOnPageSizeChange} />
+    render(
+      <Pagination
+        id={testDataId}
+        currentPage={1}
+        totalPages={2}
+        pageSize={PageSize.TEN}
+        onPageSizeChange={mockOnPageSizeChange}
+      />
     );
 
     const pageSizeSelector = screen.getByTestId(
@@ -154,38 +140,48 @@ describe('Pagination', () => {
   });
 
   it('disables previous button on first page', () => {
-    renderWithProvider(<Pagination id={testDataId} />);
+    render(<Pagination id={testDataId} currentPage={1} totalPages={3} />);
 
     const previousButton = screen.getByText('Previous');
     expect(previousButton).toBeDisabled();
   });
 
   it('disables next button on last page', () => {
-    renderWithProvider(<Pagination id={testDataId} />, 1, 1);
+    render(<Pagination id={testDataId} currentPage={1} totalPages={1} />);
 
-    const nextButton = screen.getByText('Next');
-    expect(nextButton).toBeDisabled();
+    // Component should not render when totalPages <= 1
+    expect(screen.queryByText('Previous')).not.toBeInTheDocument();
+    expect(screen.queryByText('Next')).not.toBeInTheDocument();
   });
 
   it('shows correct page information for middle page', () => {
-    renderWithProvider(<Pagination id={testDataId} />, 5, 3);
+    render(<Pagination id={testDataId} currentPage={3} totalPages={5} />);
 
-    expect(screen.getByTestId(PAGINATION_SELECTORS.STATE)).toHaveTextContent(
-      'Page 3 of 5'
-    );
+    expect(screen.getByText('Page 3 of 5')).toBeInTheDocument();
     expect(screen.getByTestId(PAGINATION_SELECTORS.PAGE_SELECTOR)).toHaveValue(
       '3'
     );
   });
 
   it('handles different page sizes correctly', () => {
-    renderWithProvider(<Pagination id={testDataId} />, 2, 1, PageSize.TWENTY);
+    render(
+      <Pagination
+        id={testDataId}
+        currentPage={1}
+        totalPages={2}
+        pageSize={PageSize.TWENTY}
+      />
+    );
 
-    expect(
-      screen.getByTestId(PAGINATION_SELECTORS.PAGE_SIZE_STATE)
-    ).toHaveTextContent('Page Size 20');
     expect(
       screen.getByTestId(PAGINATION_SELECTORS.PAGE_SIZE_SELECTOR)
     ).toHaveValue('20');
+  });
+
+  it('does not render when totalPages is 1 or less', () => {
+    render(<Pagination id={testDataId} currentPage={1} totalPages={1} />);
+
+    expect(screen.queryByText('Previous')).not.toBeInTheDocument();
+    expect(screen.queryByText('Next')).not.toBeInTheDocument();
   });
 });

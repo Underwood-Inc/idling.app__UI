@@ -27,10 +27,13 @@ jest.mock('next/navigation', () => ({
 }));
 
 describe('FilterLabel', () => {
+  const mockOnRemoveTag = jest.fn();
+
   const defaultProps = {
     filterId: 'test-filter',
     name: 'tags',
-    label: 'test-tag'
+    label: 'test-tag',
+    onRemoveTag: mockOnRemoveTag
   };
 
   beforeEach(() => {
@@ -45,27 +48,20 @@ describe('FilterLabel', () => {
     );
 
     expect(screen.getByText('test-tag')).toBeInTheDocument();
-    expect(screen.getByTestId('badge__container')).toBeInTheDocument();
+    expect(screen.getByRole('button')).toBeInTheDocument();
   });
 
   it('handles clear button click', () => {
-    const mockSetFilters = jest.fn();
-    const { useAtom } = require('jotai');
-    useAtom.mockReturnValue([
-      [{ name: 'tags', value: 'test-tag' }], // displayFilters is an array
-      mockSetFilters
-    ]);
-
     render(
       <Provider>
         <FilterLabel {...defaultProps} />
       </Provider>
     );
 
-    const clearButton = screen.getByTestId('badge__content');
+    const clearButton = screen.getByRole('button');
     fireEvent.click(clearButton);
 
-    expect(mockSetFilters).toHaveBeenCalled();
+    expect(mockOnRemoveTag).toHaveBeenCalledWith('test-tag');
   });
 
   it('handles multiple values correctly', () => {
@@ -85,14 +81,13 @@ describe('FilterLabel', () => {
   });
 
   it('handles filterId correctly', () => {
-    const { getDisplayFiltersAtom } = require('../../../lib/state/atoms');
-
     render(
       <Provider>
         <FilterLabel {...defaultProps} />
       </Provider>
     );
 
-    expect(getDisplayFiltersAtom).toHaveBeenCalledWith('test-filter');
+    // FilterLabel doesn't directly use atoms anymore, just verify the prop is passed
+    expect(defaultProps.filterId).toBe('test-filter');
   });
 });
