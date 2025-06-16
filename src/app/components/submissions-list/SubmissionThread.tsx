@@ -1,6 +1,7 @@
 'use client';
 
 import { Submission } from '../submission-forms/schema';
+import { ReplyForm } from '../thread/ReplyForm';
 import './SubmissionThread.css';
 
 interface SubmissionWithReplies extends Submission {
@@ -88,10 +89,7 @@ export function SubmissionThread({
 
       {activeReplies[submission.submission_id] && (
         <div className="submission-thread__reply-form">
-          {/* Reply form component would go here */}
-          <div className="submission-thread__reply-form-placeholder">
-            Reply form placeholder
-          </div>
+          <ReplyForm parentId={submission.submission_id} />
         </div>
       )}
 

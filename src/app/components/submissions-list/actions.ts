@@ -3,12 +3,17 @@
 import sql from '../../../lib/db';
 import { Submission, submissionSchema } from '../submission-forms/schema';
 
+export interface SubmissionWithReplies extends Submission {
+  replies?: SubmissionWithReplies[];
+}
+
 export type GetSubmissionsActionArguments = {
   onlyMine: boolean;
   providerAccountId: string;
   filters?: { name: string; value: string }[];
   page?: number;
   pageSize?: number;
+  includeThreadReplies?: boolean;
 };
 
 export type PaginatedResponse<T> = {
@@ -31,7 +36,8 @@ export async function getSubmissions({
   providerAccountId,
   filters = [],
   page = 1,
-  pageSize = 10
+  pageSize = 10,
+  includeThreadReplies = false
 }: GetSubmissionsActionArguments) {
   // Handle edge case for tests
   if (onlyMine && !providerAccountId) {
@@ -56,6 +62,11 @@ export async function getSubmissions({
     // Build WHERE conditions
     let whereConditions = [];
     let queryParams = [];
+
+    // Exclude thread replies by default unless explicitly requested
+    if (!includeThreadReplies) {
+      whereConditions.push('s.thread_parent_id IS NULL');
+    }
 
     if (onlyMine) {
       whereConditions.push('s.author_id = $' + (queryParams.length + 1));
@@ -134,12 +145,124 @@ export async function getSubmissions({
   }
 }
 
+/**
+ * Fetch replies for a specific submission thread
+ */
+export async function getSubmissionReplies(
+  parentId: number
+): Promise<SubmissionWithReplies[]> {
+  try {
+    const repliesResult = await sql<any[]>`
+      SELECT 
+        submission_id,
+        submission_name,
+        submission_title,
+        submission_datetime,
+        author_id,
+        author,
+        COALESCE(tags, ARRAY[]::text[]) as tags,
+        thread_parent_id
+      FROM submissions
+      WHERE thread_parent_id = ${parentId}
+      ORDER BY submission_datetime ASC
+    `;
+
+    const replies: SubmissionWithReplies[] = repliesResult.map((row: any) => {
+      const submission: SubmissionWithReplies = {
+        submission_id: Number(row.submission_id),
+        submission_name: row.submission_name,
+        submission_title: row.submission_title || row.submission_name,
+        submission_datetime: new Date(row.submission_datetime),
+        author_id: row.author_id,
+        author: row.author,
+        tags: Array.isArray(row.tags) ? row.tags : [],
+        thread_parent_id: row.thread_parent_id
+          ? Number(row.thread_parent_id)
+          : null
+      };
+      return submission;
+    });
+
+    // Recursively fetch replies for each reply (nested threads)
+    for (const reply of replies) {
+      const nestedReplies = await getSubmissionReplies(reply.submission_id);
+      if (nestedReplies.length > 0) {
+        reply.replies = nestedReplies;
+      }
+    }
+
+    return replies;
+  } catch (error) {
+    console.error('Error fetching submission replies:', error);
+    return [];
+  }
+}
+
+/**
+ * Get submissions with their thread replies populated
+ */
+export async function getSubmissionsWithReplies({
+  onlyMine,
+  providerAccountId,
+  filters = [],
+  page = 1,
+  pageSize = 10,
+  includeThreadReplies = false
+}: GetSubmissionsActionArguments): Promise<GetSubmissionsActionResponse> {
+  try {
+    // First get the main submissions (excluding thread replies)
+    const mainSubmissionsResponse = await getSubmissionsAction({
+      onlyMine,
+      providerAccountId,
+      filters,
+      page,
+      pageSize,
+      includeThreadReplies: false // Always exclude replies for main query
+    });
+
+    if (!mainSubmissionsResponse.data) {
+      return mainSubmissionsResponse;
+    }
+
+    const submissionsWithReplies: SubmissionWithReplies[] = [];
+
+    // For each main submission, fetch its replies
+    for (const submission of mainSubmissionsResponse.data.data) {
+      const submissionWithReplies: SubmissionWithReplies = { ...submission };
+
+      // Fetch replies for this submission
+      const replies = await getSubmissionReplies(submission.submission_id);
+      if (replies.length > 0) {
+        submissionWithReplies.replies = replies;
+      }
+
+      submissionsWithReplies.push(submissionWithReplies);
+    }
+
+    return {
+      data: {
+        data: submissionsWithReplies,
+        pagination: mainSubmissionsResponse.data.pagination
+      }
+    };
+  } catch (error) {
+    console.error('Error in getSubmissionsWithReplies:', error);
+    return {
+      error:
+        error instanceof Error
+          ? error.message
+          : 'Failed to fetch submissions with replies'
+    };
+  }
+}
+
 export async function getSubmissionsAction({
   onlyMine,
   providerAccountId,
   filters = [],
   page = 1,
-  pageSize = 10
+  pageSize = 10,
+  includeThreadReplies = false
 }: GetSubmissionsActionArguments): Promise<GetSubmissionsActionResponse> {
   // eslint-disable-next-line no-console
   console.log('🔍 [BACKEND] getSubmissionsAction called with:', {
@@ -174,6 +297,11 @@ export async function getSubmissionsAction({
     // Build WHERE conditions
     let whereConditions = [];
     let queryParams = [];
+
+    // Exclude thread replies by default unless explicitly requested
+    if (!includeThreadReplies) {
+      whereConditions.push('s.thread_parent_id IS NULL');
+    }
 
     if (onlyMine) {
       whereConditions.push('s.author_id = $' + (queryParams.length + 1));

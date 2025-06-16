@@ -1,6 +1,7 @@
 'use client';
+import { useAtom } from 'jotai';
 import { useSearchParams } from 'next/navigation';
-import { useSubmissionsManager } from '../../../lib/state/useSubmissionsManager';
+import { getSubmissionsFiltersAtom } from '../../../lib/state/atoms';
 import './TagLink.css';
 
 interface TagLinkProps {
@@ -23,10 +24,10 @@ export function TagLink({
 }: TagLinkProps) {
   const searchParams = useSearchParams();
 
-  // Get submissions manager for direct state management
-  const { addFilter } = useSubmissionsManager({
-    contextId
-  });
+  // Use shared Jotai atoms directly for state synchronization
+  const [filtersState, setFiltersState] = useAtom(
+    getSubmissionsFiltersAtom(contextId)
+  );
 
   const handleClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
     event.preventDefault();
@@ -44,13 +45,60 @@ export function TagLink({
       return;
     }
 
-    // Use direct state management instead of router navigation
-    addFilter({ name: 'tags', value: sanitizedTag });
+    // Use direct state management via shared atoms
+    setFiltersState((prev) => {
+      const newFilters = [...prev.filters];
+
+      // Check if tags filter already exists
+      const tagsIndex = newFilters.findIndex((f) => f.name === 'tags');
+
+      if (tagsIndex >= 0) {
+        // Update existing tags filter by appending the new tag
+        const currentTags = newFilters[tagsIndex].value
+          .split(',')
+          .map((tag) => tag.trim())
+          .filter(Boolean);
+
+        // Only add if not already present
+        if (!currentTags.includes(sanitizedTag)) {
+          const updatedTags = [...currentTags, sanitizedTag];
+          newFilters[tagsIndex] = {
+            name: 'tags',
+            value: updatedTags.join(',')
+          };
+
+          // Add tagLogic if we now have multiple tags
+          if (updatedTags.length > 1) {
+            const logicIndex = newFilters.findIndex(
+              (f) => f.name === 'tagLogic'
+            );
+            if (logicIndex === -1) {
+              newFilters.push({ name: 'tagLogic', value: 'OR' });
+            }
+          }
+        }
+      } else {
+        // Add new tags filter
+        newFilters.push({ name: 'tags', value: sanitizedTag });
+      }
+
+      return {
+        ...prev,
+        filters: newFilters,
+        page: 1 // Reset to first page when adding filters
+      };
+    });
   };
 
-  // Check if this tag is currently active
-  const currentTags = searchParams.get('tags') || '';
-  const isActive = currentTags.split(',').includes(value);
+  // Check if this tag is currently active using shared state
+  const tagsFilter = filtersState?.filters?.find((f) => f.name === 'tags');
+  const currentTags = tagsFilter
+    ? tagsFilter.value
+        .split(',')
+        .map((tag) => tag.trim())
+        .filter(Boolean)
+    : [];
+  const isActive = currentTags.includes(value);
 
   return (
     <a

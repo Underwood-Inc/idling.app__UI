@@ -2,7 +2,7 @@ import { useAtom } from 'jotai';
 import { useSession } from 'next-auth/react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
-import { getSubmissionsAction } from '../../app/components/submissions-list/actions';
+import { getSubmissionsWithReplies } from '../../app/components/submissions-list/actions';
 import { PostFilters } from '../types/filters';
 import {
   Filter,
@@ -15,19 +15,10 @@ interface UseSubmissionsManagerProps {
   onlyMine?: boolean;
   initialFilters?: Filter<PostFilters>[];
   providerAccountId?: string;
+  includeThreadReplies?: boolean;
 }
 
-interface Submission {
-  submission_id: number;
-  submission_name: string;
-  submission_title: string;
-  submission_datetime: Date;
-  author_id: string;
-  author: string;
-  tags: string[];
-  thread_parent_id: number | null;
-}
-
+// Use SubmissionWithReplies to support thread structure
 interface PaginationInfo {
   currentPage: number;
   pageSize: number;
@@ -38,7 +29,8 @@ export function useSubmissionsManager({
   contextId,
   onlyMine = false,
   initialFilters = [],
-  providerAccountId: initialProviderAccountId
+  providerAccountId: initialProviderAccountId,
+  includeThreadReplies = false
 }: UseSubmissionsManagerProps) {
   const { data: session } = useSession();
   const router = useRouter();
@@ -102,10 +94,11 @@ export function useSubmissionsManager({
         page: currentPage,
         pageSize: currentPageSize,
         onlyMine,
-        providerAccountId
+        providerAccountId,
+        includeThreadReplies
       });
     },
-    [onlyMine, providerAccountId]
+    [onlyMine, providerAccountId, includeThreadReplies]
   );
 
   // URL synchronization effect - only when filters change
@@ -212,12 +205,15 @@ export function useSubmissionsManager({
       }));
 
       try {
-        const result = await getSubmissionsAction({
+        // Always use getSubmissionsWithReplies to ensure proper thread structure
+        // Thread replies will never appear as standalone items in the main list
+        const result = await getSubmissionsWithReplies({
           onlyMine,
           providerAccountId,
           filters: currentFilters,
           page: currentPage,
-          pageSize: currentPageSize
+          pageSize: currentPageSize,
+          includeThreadReplies
         });
 
         // Check if request was aborted
@@ -270,7 +266,13 @@ export function useSubmissionsManager({
         });
       }
     },
-    [onlyMine, providerAccountId, createFetchKey, setSubmissionsState]
+    [
+      onlyMine,
+      providerAccountId,
+      createFetchKey,
+      setSubmissionsState,
+      includeThreadReplies
+    ]
   );
 
   // Initialize from URL parameters and handle URL changes
