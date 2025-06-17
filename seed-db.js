@@ -368,7 +368,7 @@ const generateRecords = async () => {
         batch.push([
           content,
           title,
-          author.id,
+          author.id.toString(),
           author.name,
           tags,
           datetime,
