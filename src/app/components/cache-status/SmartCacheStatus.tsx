@@ -177,17 +177,13 @@ const SmartCacheStatus: React.FC = () => {
         );
 
         await refreshPromise;
-        await checkCacheStatus();
 
-        // Dispatch event to notify other components
-        window.dispatchEvent(new CustomEvent('cache-updated'));
-
-        if (!clearAll) {
-          // Small delay to show the updated cache status
-          setTimeout(() => {
-            window.location.reload();
-          }, 500);
-        }
+        // Wait a moment for cache to be updated
+        setTimeout(async () => {
+          await checkCacheStatus();
+          // Dispatch event to notify other components
+          window.dispatchEvent(new CustomEvent('cache-updated'));
+        }, 200);
       } else {
         // Fallback: manual refresh with cache busting
         const response = await fetch(window.location.href, {
@@ -198,12 +194,11 @@ const SmartCacheStatus: React.FC = () => {
         });
 
         if (response.ok) {
-          await checkCacheStatus();
-          window.dispatchEvent(new CustomEvent('cache-updated'));
-
-          setTimeout(() => {
-            window.location.reload();
-          }, 500);
+          // Wait a moment for cache to be updated
+          setTimeout(async () => {
+            await checkCacheStatus();
+            window.dispatchEvent(new CustomEvent('cache-updated'));
+          }, 200);
         }
       }
     } catch (error) {

@@ -4,9 +4,11 @@ require('dotenv').config({ path: '.env.local' });
 const { faker } = require('@faker-js/faker');
 const postgres = require('postgres');
 
-const SEED_USERS_COUNT = 25; // Smaller user base for more realistic interactions
-const SEED_POSTS_COUNT = 150; // More posts per user
-const SEED_REPLIES_COUNT = 300; // Many replies for threading
+// MASSIVE SCALE CONFIGURATION - 1 MILLION RECORDS
+const SEED_USERS_COUNT = 5000; // More users for realistic distribution
+const SEED_POSTS_COUNT = 200000; // 200k main posts
+const SEED_REPLIES_COUNT = 800000; // 800k replies = 1M total posts
+const BATCH_SIZE = 1000; // Process in batches for memory efficiency
 
 // Check if we're in a devcontainer environment
 const isDevContainer = process.env.HOME?.includes('devcontainers');
@@ -25,10 +27,14 @@ const sql = postgres({
     process.env.DOCKER_POSTGRES_PASSWORD ||
     'postgres',
   port: process.env.POSTGRES_PORT || 5432,
-  ssl: 'prefer'
+  ssl: 'prefer',
+  // Optimize for bulk operations
+  max: 20,
+  idle_timeout: 0,
+  connect_timeout: 60
 });
 
-// Common hashtags for realistic clustering
+// Pre-generated data pools for efficiency
 const COMMON_HASHTAGS = [
   '#javascript',
   '#react',
@@ -49,10 +55,31 @@ const COMMON_HASHTAGS = [
   '#css',
   '#html',
   '#database',
-  '#api'
+  '#api',
+  '#docker',
+  '#kubernetes',
+  '#aws',
+  '#cloud',
+  '#microservices',
+  '#graphql',
+  '#mongodb',
+  '#postgresql',
+  '#redis',
+  '#elasticsearch',
+  '#nextjs',
+  '#vue',
+  '#angular',
+  '#svelte',
+  '#rust',
+  '#golang',
+  '#java',
+  '#csharp',
+  '#php',
+  '#ruby',
+  '#swift',
+  '#kotlin'
 ];
 
-// Topic-based conversation starters
 const CONVERSATION_TOPICS = [
   'debugging',
   'performance optimization',
@@ -66,294 +93,366 @@ const CONVERSATION_TOPICS = [
   'libraries',
   'tools',
   'career advice',
-  'learning resources'
+  'learning resources',
+  'algorithms',
+  'data structures',
+  'system design',
+  'scalability',
+  'monitoring',
+  'CI/CD',
+  'agile',
+  'remote work',
+  'technical interviews'
 ];
 
-// Create embedded mention format: @[username|userId]
-const createMention = (username, userId) => `@[${username}|${userId}]`;
+// Pre-generated content templates for speed
+const TITLE_TEMPLATES = [
+  'How to {topic}?',
+  'Best practices for {topic}',
+  '{topic} help needed',
+  'Thoughts on {topic}?',
+  '{topic} patterns',
+  '{topic} experience?',
+  '{topic} tips',
+  '{topic} discussion',
+  'Advanced {topic}',
+  '{topic} guide',
+  'Common {topic} mistakes',
+  '{topic} vs alternatives',
+  'Modern {topic}',
+  '{topic} optimization',
+  '{topic} tutorial',
+  '{topic} deep dive'
+];
 
-// Generate realistic content with mentions and hashtags
-const generateContentWithMentions = (
-  users,
-  excludeUserId,
-  includeHashtags = true
-) => {
-  const baseContent = faker.lorem.paragraph({ min: 1, max: 2 }); // Shorter content
-  let content = baseContent;
+const CONTENT_TEMPLATES = [
+  "I've been working on {topic} and wondering about best practices.",
+  'Has anyone tried {topic} in production? Looking for insights.',
+  'Struggling with {topic}. Any recommendations?',
+  'Just discovered {topic}. Thoughts on adoption?',
+  'Comparing different approaches to {topic}.',
+  'Performance considerations for {topic}?',
+  'Security implications of {topic}?',
+  'Team is debating {topic} implementation.',
+  'Latest trends in {topic}?',
+  'Migrating from legacy {topic} solutions.'
+];
 
-  // Add mentions (30% chance)
-  if (faker.datatype.boolean(0.3) && users.length > 1) {
-    const mentionableUsers = users.filter((u) => u.id !== excludeUserId);
-    const mentionCount = faker.number.int({
-      min: 1,
-      max: Math.min(3, mentionableUsers.length)
-    });
+// Algorithmic generators for efficiency
+class AlgorithmicGenerator {
+  constructor() {
+    this.userPool = [];
+    this.hashtagPool = [];
+    this.topicPool = [];
+    this.mentionPatterns = [];
+  }
 
-    for (let i = 0; i < mentionCount; i++) {
-      const randomUser = faker.helpers.arrayElement(mentionableUsers);
-      const mention = createMention(randomUser.name, randomUser.id);
+  // Pre-compute data pools
+  initialize() {
+    // Create hashtag combinations
+    for (let i = 0; i < COMMON_HASHTAGS.length; i++) {
+      for (let j = i + 1; j < Math.min(i + 4, COMMON_HASHTAGS.length); j++) {
+        this.hashtagPool.push([COMMON_HASHTAGS[i], COMMON_HASHTAGS[j]]);
+      }
+    }
 
-      // Insert mention at random position
-      const sentences = content.split('. ');
-      const randomSentence = faker.number.int({
-        min: 0,
-        max: sentences.length - 1
+    // Create topic combinations
+    CONVERSATION_TOPICS.forEach((topic) => {
+      TITLE_TEMPLATES.forEach((template) => {
+        this.topicPool.push(template.replace('{topic}', topic));
       });
-      sentences[randomSentence] += ` ${mention}`;
-      content = sentences.join('. ');
+    });
+  }
+
+  // Generate user algorithmically based on index
+  generateUser(index) {
+    // Use index as seed for consistent generation
+    faker.seed(index);
+
+    const domains = ['gmail.com', 'yahoo.com', 'outlook.com', 'company.com'];
+    const firstNames = [
+      'John',
+      'Jane',
+      'Alex',
+      'Sam',
+      'Chris',
+      'Jordan',
+      'Taylor'
+    ];
+    const lastNames = [
+      'Smith',
+      'Johnson',
+      'Williams',
+      'Brown',
+      'Jones',
+      'Garcia'
+    ];
+
+    const firstName = firstNames[index % firstNames.length];
+    const lastName = lastNames[(index * 7) % lastNames.length];
+    const domain = domains[(index * 3) % domains.length];
+
+    return {
+      name: `${firstName} ${lastName}`,
+      email: `${firstName.toLowerCase()}.${lastName.toLowerCase()}${index}@${domain}`,
+      emailVerified: new Date(Date.now() - index * 86400000), // Spread over time
+      image: `https://avatar.githubusercontent.com/u/${100000 + index}?v=4`
+    };
+  }
+
+  // Generate post content algorithmically
+  generateContent(index, users, authorId) {
+    const topicIndex = index % this.topicPool.length;
+    const contentIndex = index % CONTENT_TEMPLATES.length;
+    const hashtagIndex = index % this.hashtagPool.length;
+
+    let content = CONTENT_TEMPLATES[contentIndex].replace(
+      '{topic}',
+      CONVERSATION_TOPICS[index % CONVERSATION_TOPICS.length]
+    );
+
+    // Add hashtags (60% chance based on index)
+    if (index % 5 < 3) {
+      const hashtags = this.hashtagPool[hashtagIndex];
+      content += ` ${hashtags.join(' ')}`;
+    }
+
+    // Add mentions (30% chance based on index)
+    if (index % 10 < 3 && users.length > 1) {
+      const mentionUser = users[(index * 17) % users.length];
+      if (mentionUser.id !== authorId) {
+        content += ` @[${mentionUser.name}|${mentionUser.id}]`;
+      }
+    }
+
+    return content;
+  }
+
+  // Generate title algorithmically
+  generateTitle(index) {
+    return this.topicPool[index % this.topicPool.length];
+  }
+
+  // Generate timestamp algorithmically (spread over 90 days)
+  generateTimestamp(index) {
+    const now = Date.now();
+    const ninetyDaysAgo = now - 90 * 24 * 60 * 60 * 1000;
+    const timeSpread = now - ninetyDaysAgo;
+
+    return new Date(ninetyDaysAgo + ((index * 1000) % timeSpread));
+  }
+
+  // Extract hashtags from content
+  extractHashtags(content) {
+    const matches = content.match(/#[a-zA-Z0-9_-]+/g);
+    return matches && matches.length > 0 ? matches : null;
+  }
+}
+
+// Batch processing utilities
+const processBatch = async (items, processor, batchSize = BATCH_SIZE) => {
+  const results = [];
+
+  for (let i = 0; i < items.length; i += batchSize) {
+    const batch = items.slice(i, i + batchSize);
+    const batchResults = await processor(batch);
+    results.push(...batchResults);
+
+    // Progress indicator
+    if (i % (batchSize * 10) === 0) {
+      console.info(`  Processed ${i + batch.length}/${items.length} items...`);
     }
   }
 
-  // Add hashtags (60% chance)
-  if (includeHashtags && faker.datatype.boolean(0.6)) {
-    const hashtagCount = faker.number.int({ min: 1, max: 4 });
-    const selectedHashtags = faker.helpers.arrayElements(
-      COMMON_HASHTAGS,
-      hashtagCount
-    );
-
-    // Insert hashtags naturally
-    selectedHashtags.forEach((hashtag) => {
-      const sentences = content.split('. ');
-      const randomSentence = faker.number.int({
-        min: 0,
-        max: sentences.length - 1
-      });
-      sentences[randomSentence] += ` ${hashtag}`;
-      content = sentences.join('. ');
-    });
-  }
-
-  return content;
-};
-
-// Generate thread-aware reply content
-const generateReplyContent = (users, parentAuthor, replyAuthorId) => {
-  const replyStarters = [
-    `${createMention(parentAuthor.name, parentAuthor.id)} I think`,
-    `Great point ${createMention(parentAuthor.name, parentAuthor.id)}!`,
-    `${createMention(parentAuthor.name, parentAuthor.id)} Have you considered`,
-    `I disagree with ${createMention(parentAuthor.name, parentAuthor.id)} on this.`,
-    `Building on what ${createMention(parentAuthor.name, parentAuthor.id)} said,`,
-    `${createMention(parentAuthor.name, parentAuthor.id)} This reminds me of`
-  ];
-
-  const starter = faker.helpers.arrayElement(replyStarters);
-  const continuation = faker.lorem.sentences({ min: 1, max: 2 }); // Shorter replies
-
-  return `${starter} ${continuation}`;
+  return results;
 };
 
 const generateRecords = async () => {
+  const generator = new AlgorithmicGenerator();
+  generator.initialize();
+
+  const startTime = Date.now();
+
   try {
-    console.info('🚀 Starting advanced seed generation...');
+    console.info('🚀 Starting MASSIVE seed generation (1M records)...');
+    console.info(
+      `📊 Target: ${SEED_USERS_COUNT} users, ${SEED_POSTS_COUNT} posts, ${SEED_REPLIES_COUNT} replies`
+    );
 
     // Clear existing data
+    console.info('🧹 Clearing existing data...');
     await sql`DELETE FROM submissions WHERE 1=1`;
     await sql`DELETE FROM accounts WHERE 1=1`;
     await sql`DELETE FROM users WHERE 1=1`;
 
-    console.info('📝 Creating users...');
+    console.info('👥 Creating users in batches...');
     const users = [];
 
-    // Generate users with realistic profiles
-    for (let i = 0; i < SEED_USERS_COUNT; i++) {
-      const name = faker.person.fullName();
-      const email = faker.internet.email();
-      const emailVerified = faker.date.past();
-      const image = faker.image.avatar();
+    // Generate users in batches
+    const userBatches = [];
+    for (let i = 0; i < SEED_USERS_COUNT; i += BATCH_SIZE) {
+      const batchEnd = Math.min(i + BATCH_SIZE, SEED_USERS_COUNT);
+      const batch = [];
 
-      const userResult = await sql`
+      for (let j = i; j < batchEnd; j++) {
+        batch.push(generator.generateUser(j));
+      }
+      userBatches.push(batch);
+    }
+
+    // Process user batches
+    for (let batchIndex = 0; batchIndex < userBatches.length; batchIndex++) {
+      const batch = userBatches[batchIndex];
+
+      // Insert users batch
+      const userResults = await sql`
         INSERT INTO users (name, email, "emailVerified", image)
-        VALUES (${name}, ${email}, ${emailVerified}, ${image})
+        SELECT * FROM ${sql(batch.map((u) => [u.name, u.email, u.emailVerified, u.image]))}
         RETURNING id, name
       `;
 
-      const user = userResult[0];
-      users.push(user);
+      users.push(...userResults);
 
-      // Generate account for each user
-      const providerAccountId = faker.string.uuid();
+      // Insert accounts batch
+      const accountData = userResults.map((user, index) => [
+        user.id,
+        'oauth',
+        'github',
+        `github_${Date.now()}_${batchIndex}_${index}`,
+        'refresh_token',
+        'access_token',
+        Math.floor(Date.now() / 1000) + 3600,
+        'id_token',
+        'read:user',
+        'session_state',
+        'Bearer'
+      ]);
+
       await sql`
         INSERT INTO accounts (
           "userId", type, provider, "providerAccountId",
           refresh_token, access_token, expires_at, id_token,
           scope, session_state, token_type
-        ) VALUES (
-          ${user.id}, 'oauth', 'github', ${providerAccountId},
-          ${faker.internet.password()}, ${faker.internet.password()}, 
-          ${faker.number.int({ min: 1609459200, max: 1672444800 })},
-          ${faker.internet.password()}, 'read:user', 
-          ${faker.lorem.word()}, 'Bearer'
-        )
+        ) SELECT * FROM ${sql(accountData)}
       `;
+
+      if (batchIndex % 5 === 0) {
+        console.info(`  Created ${users.length}/${SEED_USERS_COUNT} users...`);
+      }
     }
 
     console.info(`✅ Created ${users.length} users`);
-    console.info('📄 Creating main posts...');
+    console.info('📝 Creating main posts in batches...');
 
     const posts = [];
 
-    // Generate main posts with realistic content
-    for (let i = 0; i < SEED_POSTS_COUNT; i++) {
-      const author = faker.helpers.arrayElement(users);
-      const topic = faker.helpers.arrayElement(CONVERSATION_TOPICS);
+    // Generate main posts in batches
+    for (let i = 0; i < SEED_POSTS_COUNT; i += BATCH_SIZE) {
+      const batchEnd = Math.min(i + BATCH_SIZE, SEED_POSTS_COUNT);
+      const batch = [];
 
-      // Generate realistic titles (keep under 200 chars for VARCHAR(255) safety)
-      const titleTemplates = [
-        `How to ${topic}?`,
-        `Best practices for ${topic}`,
-        `${topic} help needed`,
-        `Thoughts on ${topic}?`,
-        `${topic} patterns`,
-        `${topic} experience?`,
-        `${topic} tips`,
-        `${topic} discussion`
-      ];
+      for (let j = i; j < batchEnd; j++) {
+        const author = users[j % users.length];
+        const content = generator.generateContent(j, users, author.id);
+        const title = generator.generateTitle(j);
+        const datetime = generator.generateTimestamp(j);
+        const tags = generator.extractHashtags(content);
 
-      let submission_title = faker.helpers.arrayElement(titleTemplates);
-      // Ensure title is under 200 characters for safety
-      if (submission_title.length > 200) {
-        submission_title = submission_title.substring(0, 197) + '...';
-      }
-      const submission_name = generateContentWithMentions(users, author.id);
-
-      // Extract hashtags from content for the tags array
-      const hashtagMatches = submission_name.match(/#[a-zA-Z0-9_-]+/g) || [];
-      const tags = hashtagMatches.length > 0 ? hashtagMatches : null;
-
-      const submission_datetime = faker.date.between({
-        from: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000), // 90 days ago
-        to: new Date()
-      });
-
-      const postResult = await sql`
-        INSERT INTO submissions (
-          submission_name, submission_title, author_id, author, 
-          tags, submission_datetime, thread_parent_id
-        ) VALUES (
-          ${submission_name}, ${submission_title}, ${author.id}, ${author.name},
-          ${tags}, ${submission_datetime}, NULL
-        ) RETURNING submission_id
-      `;
-
-      posts.push({
-        id: postResult[0].submission_id,
-        author: author,
-        title: submission_title,
-        datetime: submission_datetime
-      });
-    }
-
-    console.info(`✅ Created ${posts.length} main posts`);
-    console.info('💬 Creating threaded replies...');
-
-    let repliesCreated = 0;
-
-    // Generate replies and nested conversations
-    for (let i = 0; i < SEED_REPLIES_COUNT; i++) {
-      const parentPost = faker.helpers.arrayElement(posts);
-      const replyAuthor = faker.helpers.arrayElement(users);
-
-      // Don't reply to your own post too often
-      if (
-        replyAuthor.id === parentPost.author.id &&
-        faker.datatype.boolean(0.7)
-      ) {
-        continue;
+        batch.push([
+          content,
+          title,
+          author.id,
+          author.name,
+          tags,
+          datetime,
+          null
+        ]);
       }
 
-      const replyContent = generateReplyContent(
-        users,
-        parentPost.author,
-        replyAuthor.id
-      );
-
-      // Extract hashtags from reply content
-      const hashtagMatches = replyContent.match(/#[a-zA-Z0-9_-]+/g) || [];
-      const tags = hashtagMatches.length > 0 ? hashtagMatches : null;
-
-      // Reply datetime should be after parent post
-      const replyDatetime = faker.date.between({
-        from: parentPost.datetime,
-        to: new Date()
-      });
-
-      // Keep reply titles short
-      let replyTitle = `Re: ${parentPost.title}`;
-      if (replyTitle.length > 200) {
-        replyTitle = replyTitle.substring(0, 197) + '...';
-      }
-
-      await sql`
+      const postResults = await sql`
         INSERT INTO submissions (
           submission_name, submission_title, author_id, author,
           tags, submission_datetime, thread_parent_id
-        ) VALUES (
-          ${replyContent}, ${replyTitle}, ${replyAuthor.id}, ${replyAuthor.name},
-          ${tags}, ${replyDatetime}, ${parentPost.id}
-        )
+        ) SELECT * FROM ${sql(batch)}
+        RETURNING submission_id, author_id, submission_datetime
       `;
 
-      repliesCreated++;
+      posts.push(
+        ...postResults.map((p, index) => ({
+          id: p.submission_id,
+          author_id: p.author_id,
+          datetime: p.submission_datetime,
+          author: users.find((u) => u.id === p.author_id)
+        }))
+      );
+
+      if (i % (BATCH_SIZE * 5) === 0) {
+        console.info(
+          `  Created ${posts.length}/${SEED_POSTS_COUNT} main posts...`
+        );
+      }
     }
 
-    console.info(`✅ Created ${repliesCreated} threaded replies`);
-    console.info('🔗 Creating nested reply chains...');
+    console.info(`✅ Created ${posts.length} main posts`);
+    console.info('💬 Creating replies in batches...');
 
-    // Create some deeper nested conversations
-    const recentReplies = await sql`
-      SELECT submission_id, author_id, author, submission_title, submission_datetime
-      FROM submissions 
-      WHERE thread_parent_id IS NOT NULL
-      ORDER BY submission_datetime DESC
-      LIMIT 50
-    `;
+    let repliesCreated = 0;
 
-    let nestedRepliesCreated = 0;
+    // Generate replies in batches
+    for (let i = 0; i < SEED_REPLIES_COUNT; i += BATCH_SIZE) {
+      const batchEnd = Math.min(i + BATCH_SIZE, SEED_REPLIES_COUNT);
+      const batch = [];
 
-    for (const reply of recentReplies.slice(0, 30)) {
-      if (faker.datatype.boolean(0.4)) {
-        // 40% chance of nested reply
-        const nestedAuthor = faker.helpers.arrayElement(users);
+      for (let j = i; j < batchEnd; j++) {
+        const parentPost = posts[j % posts.length];
+        const replyAuthor = users[(j * 7) % users.length];
 
-        // Don't reply to yourself
-        if (nestedAuthor.id === reply.author_id) continue;
+        // Skip self-replies occasionally
+        if (replyAuthor.id === parentPost.author_id && j % 4 === 0) {
+          continue;
+        }
 
-        const originalAuthor = users.find((u) => u.id === reply.author_id);
-        if (!originalAuthor) continue; // Skip if author not found
-
-        const nestedContent = generateReplyContent(
+        const content = generator.generateContent(
+          j + SEED_POSTS_COUNT,
           users,
-          originalAuthor,
-          nestedAuthor.id
+          replyAuthor.id
         );
+        const title = `Re: ${generator.generateTitle(j)}`;
+        const datetime = new Date(parentPost.datetime.getTime() + j * 1000);
+        const tags = generator.extractHashtags(content);
 
-        const hashtagMatches = nestedContent.match(/#[a-zA-Z0-9_-]+/g) || [];
-        const tags = hashtagMatches.length > 0 ? hashtagMatches : null;
+        batch.push([
+          content,
+          title.substring(0, 200),
+          replyAuthor.id,
+          replyAuthor.name,
+          tags,
+          datetime,
+          parentPost.id
+        ]);
+      }
 
-        const nestedDatetime = faker.date.between({
-          from: reply.submission_datetime,
-          to: new Date()
-        });
-
+      if (batch.length > 0) {
         await sql`
           INSERT INTO submissions (
             submission_name, submission_title, author_id, author,
             tags, submission_datetime, thread_parent_id
-          ) VALUES (
-            ${nestedContent}, ${reply.submission_title}, ${nestedAuthor.id}, ${nestedAuthor.name},
-            ${tags}, ${nestedDatetime}, ${reply.submission_id}
-          )
+          ) SELECT * FROM ${sql(batch)}
         `;
 
-        nestedRepliesCreated++;
+        repliesCreated += batch.length;
+      }
+
+      if (i % (BATCH_SIZE * 10) === 0) {
+        console.info(
+          `  Created ${repliesCreated}/${SEED_REPLIES_COUNT} replies...`
+        );
       }
     }
 
-    console.info(`✅ Created ${nestedRepliesCreated} nested replies`);
+    console.info(`✅ Created ${repliesCreated} replies`);
 
-    // Generate some statistics
+    // Generate final statistics
     const stats = await sql`
       SELECT 
         COUNT(*) as total_posts,
@@ -363,34 +462,46 @@ const generateRecords = async () => {
       FROM submissions
     `;
 
-    const mentionStats = await sql`
-      SELECT COUNT(*) as posts_with_mentions
-      FROM submissions 
-      WHERE submission_name LIKE '%@[%|%]%'
-    `;
-
     const hashtagStats = await sql`
       SELECT COUNT(*) as posts_with_hashtags
       FROM submissions 
       WHERE tags IS NOT NULL AND array_length(tags, 1) > 0
     `;
 
-    console.info('\n📊 SEED GENERATION COMPLETE!');
-    console.info('================================');
+    const mentionStats = await sql`
+      SELECT COUNT(*) as posts_with_mentions
+      FROM submissions 
+      WHERE submission_name LIKE '%@[%|%]%'
+    `;
+
+    const endTime = Date.now();
+    const duration = Math.round((endTime - startTime) / 1000);
+
+    console.info('\n🎉 MASSIVE SEED GENERATION COMPLETE!');
+    console.info('==========================================');
+    console.info(`⏱️  Total time: ${duration} seconds`);
     console.info(`👥 Users created: ${users.length}`);
     console.info(`📝 Total posts: ${stats[0].total_posts}`);
     console.info(`📄 Main posts: ${stats[0].main_posts}`);
     console.info(`💬 Replies: ${stats[0].replies}`);
     console.info(
-      `🏷️ Posts with hashtags: ${hashtagStats[0].posts_with_hashtags}`
+      `🏷️  Posts with hashtags: ${hashtagStats[0].posts_with_hashtags}`
     );
     console.info(
       `👤 Posts with mentions: ${mentionStats[0].posts_with_mentions}`
     );
     console.info(`🔥 Active users: ${stats[0].active_users}`);
-    console.info('================================');
+    console.info(
+      `📊 Posts per second: ${Math.round(stats[0].total_posts / duration)}`
+    );
+    console.info('==========================================');
+
+    if (stats[0].total_posts >= 1000000) {
+      console.info('🏆 MILESTONE: 1 MILLION POSTS ACHIEVED!');
+    }
   } catch (error) {
     console.error('❌ Error generating records:', error);
+    console.error(error.stack);
   } finally {
     await sql.end();
   }
