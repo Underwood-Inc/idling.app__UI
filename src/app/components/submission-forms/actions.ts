@@ -3,7 +3,11 @@ import { revalidatePath } from 'next/cache';
 import { CustomSession } from '../../../auth.config';
 import { auth } from '../../../lib/auth';
 import sql from '../../../lib/db';
-import { tagRegex } from '../../../lib/utils/string/tag-regex';
+import {
+  extractTagsFromText,
+  parseTagsInput,
+  validateTagsInput
+} from '../../../lib/utils/string/tag-regex';
 import {
   parseDeleteSubmission,
   parseEditSubmission,
@@ -16,37 +20,46 @@ import {
 async function validateCreateSubmissionForm(formData: FormData) {
   const submissionTitle =
     formData.get('submission_title')?.toString().trim() || '';
-  const submissionName =
-    formData.get('submission_name')?.toString().trim() || submissionTitle; // Fallback to title
+  const submissionContent =
+    formData.get('submission_content')?.toString().trim() || '';
   const tagsString = formData.get('submission_tags')?.toString().trim() || '';
-  const tags = tagsString ? tagsString.split(',').map((tag) => tag.trim()) : [];
+
+  // Use content as submission_name (description), fallback to title if empty
+  const submissionName = submissionContent || submissionTitle;
+
   const submissionDatetime = new Date();
   const session = await auth();
 
   if (session && session.user?.name) {
-    // For validation, we use a simpler schema that doesn't require all database fields
-    const validationData = {
-      submission_title: submissionTitle,
-      submission_name: submissionName,
-      tags: tags
-    };
-
-    // Basic validation - just check required fields
+    // Basic validation - check required fields
     if (!submissionTitle.trim()) {
       return { errors: 'Title is required' };
     }
 
-    if (!submissionName.trim()) {
-      return { errors: 'Submission name is required' };
+    // Validate title length
+    if (submissionTitle.length > 255) {
+      return { errors: 'Title must be 255 characters or less' };
+    }
+
+    // Validate content length
+    if (submissionContent.length > 1000) {
+      return { errors: 'Content must be 1000 characters or less' };
+    }
+
+    // Validate tags format
+    const tagValidationErrors = validateTagsInput(tagsString);
+    if (tagValidationErrors.length > 0) {
+      return { errors: tagValidationErrors.join(', ') };
     }
 
     return {
       data: {
         submission_title: submissionTitle,
         submission_name: submissionName,
+        submission_content: submissionContent,
         submission_datetime: submissionDatetime,
         author: session.user.name,
-        tags
+        tags: parseTagsInput(tagsString)
       }
     };
   }
@@ -54,20 +67,20 @@ async function validateCreateSubmissionForm(formData: FormData) {
   return { errors: 'Session error. Please login again.' };
 }
 
+/**
+ * Form validation action exposed to client
+ */
 export async function validateCreateSubmissionFormAction(
-  prevState: {
-    message?: string;
-    error?: string;
-  },
+  prevState: { status: number; message?: string; error?: string },
   formData: FormData
-): Promise<{ message: string; error?: string }> {
-  const { data, errors } = await validateCreateSubmissionForm(formData);
+): Promise<{ status: number; message?: string; error?: string }> {
+  const result = await validateCreateSubmissionForm(formData);
 
-  if (!data) {
-    return { message: '', error: errors };
+  if (result.errors) {
+    return { status: -1, error: result.errors };
   }
 
-  return { message: '' };
+  return { status: 0, message: '' };
 }
 
 /**
@@ -98,13 +111,13 @@ export async function createSubmissionAction(
     return { status: -1, error: 'Authentication error.' };
   }
 
-  // Extract tags from both the title and the explicit tags field
-  const titleTags =
-    data.submission_title.match(tagRegex)?.map((tag) => tag.toLowerCase()) ||
-    [];
+  // Extract tags from title and content
+  const titleTags = extractTagsFromText(data.submission_title);
+  const contentTags = extractTagsFromText(data.submission_content || '');
   const explicitTags = data.tags || [];
-  // Remove duplicates
-  const allTags = [...new Set([...titleTags, ...explicitTags])];
+
+  // Combine all tags and remove duplicates
+  const allTags = [...new Set([...titleTags, ...contentTags, ...explicitTags])];
 
   const threadParentId = formData.get('thread_parent_id');
 
@@ -217,29 +230,47 @@ export async function editSubmissionAction(
   const submissionId = Number.parseInt(formData.get('submission_id') as string);
   const submissionTitle =
     formData.get('submission_title')?.toString().trim() || '';
-  const submissionName =
-    formData.get('submission_name')?.toString().trim() || '';
+  const submissionContent =
+    formData.get('submission_content')?.toString().trim() || '';
   const tagsString = formData.get('submission_tags')?.toString().trim() || '';
-  const tags = tagsString ? tagsString.split(',').map((tag) => tag.trim()) : [];
+
+  // Use content as submission_name, fallback to title if empty
+  const submissionName = submissionContent || submissionTitle;
+
+  // Validate title length
+  if (submissionTitle.length > 255) {
+    return { status: -1, error: 'Title must be 255 characters or less' };
+  }
+
+  // Validate content length
+  if (submissionContent.length > 1000) {
+    return { status: -1, error: 'Content must be 1000 characters or less' };
+  }
+
+  // Validate tags format
+  const tagValidationErrors = validateTagsInput(tagsString);
+  if (tagValidationErrors.length > 0) {
+    return { status: -1, error: tagValidationErrors.join(', ') };
+  }
 
   const { success, data, error } = parseEditSubmission({
     submission_id: submissionId,
     submission_title: submissionTitle,
     submission_name: submissionName,
-    tags
+    tags: parseTagsInput(tagsString)
   });
 
   if (!success) {
     return { status: -1, error: parseZodErrors(error) };
   }
 
-  // Extract tags from both the title and the explicit tags field
-  const titleTags =
-    data.submission_title.match(tagRegex)?.map((tag) => tag.toLowerCase()) ||
-    [];
+  // Extract tags from title, content, and explicit tags
+  const titleTags = extractTagsFromText(data.submission_title);
+  const contentTags = extractTagsFromText(submissionContent);
   const explicitTags = data.tags || [];
-  // Remove duplicates
-  const allTags = [...new Set([...titleTags, ...explicitTags])];
+
+  // Combine all tags and remove duplicates
+  const allTags = [...new Set([...titleTags, ...contentTags, ...explicitTags])];
 
   try {
     const result = await sql`

@@ -1,5 +1,20 @@
 import { z } from 'zod';
 
+/**
+ * @deprecated Legacy Post schema - kept for backward compatibility only.
+ * New submissions should use Submission types from src/app/components/submission-forms/schema.ts
+ *
+ * This schema represents the old Reddit-style posts system with:
+ * - id (string)
+ * - title/content fields
+ * - authorId/subthread fields
+ *
+ * Current system uses submissions table with:
+ * - submission_id (number)
+ * - submission_title/submission_name fields
+ * - author_id/author fields
+ * - threading support via thread_parent_id
+ */
 export const PostSchema = z.object({
   id: z.string(),
   title: z.string().min(1).max(300),
@@ -12,8 +27,14 @@ export const PostSchema = z.object({
   updatedAt: z.string().datetime()
 });
 
+/**
+ * @deprecated Use SubmissionWithReplies from submissions-list/actions.ts instead
+ */
 export type Post = z.infer<typeof PostSchema>;
 
+/**
+ * @deprecated Use createSubmissionAction from submission-forms/actions.ts instead
+ */
 export const CreatePostSchema = PostSchema.omit({
   id: true,
   score: true,
@@ -22,4 +43,7 @@ export const CreatePostSchema = PostSchema.omit({
   updatedAt: true
 });
 
+/**
+ * @deprecated Use createSubmissionAction from submission-forms/actions.ts instead
+ */
 export type CreatePost = z.infer<typeof CreatePostSchema>;

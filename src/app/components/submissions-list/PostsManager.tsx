@@ -4,6 +4,7 @@ import { useSession } from 'next-auth/react';
 import { useState } from 'react';
 import { useSubmissionsManager } from '../../../lib/state/useSubmissionsManager';
 import FilterBar from '../filter-bar/FilterBar';
+import Pagination from '../pagination/Pagination';
 import { SpacingThemeToggle } from '../spacing-theme-toggle/SpacingThemeToggle';
 import './PostsManager.css';
 import SubmissionsList from './SubmissionsList';
@@ -82,6 +83,20 @@ export default function PostsManager({
     }
   };
 
+  const handleTagClick = (tag: string) => {
+    // Convert tag string to filter format
+    addFilter({ name: 'tags' as const, value: tag });
+  };
+
+  const handleRefresh = () => {
+    // Force a refresh by toggling includeThreadReplies
+    setIncludeThreadReplies((prev) => {
+      // Toggle and immediately toggle back to force refetch
+      setTimeout(() => setIncludeThreadReplies(prev), 50);
+      return !prev;
+    });
+  };
+
   const isAuthorized = !!session?.user?.providerAccountId;
 
   return (
@@ -147,17 +162,42 @@ export default function PostsManager({
         </div>
       </div>
 
+      {error && (
+        <div className="posts-manager__error">
+          <p>Error loading posts: {error}</p>
+          <button onClick={handleRefresh}>Try Again</button>
+        </div>
+      )}
+
       <SubmissionsList
-        isLoading={isLoading}
-        error={error || null}
-        submissions={submissions}
-        pagination={pagination}
-        totalPages={totalPages}
-        onPageChange={setPage}
-        onPageSizeChange={setPageSize}
-        onTagClick={addFilter}
-        enableThreadMode={enableThreadMode}
+        posts={submissions}
+        onTagClick={handleTagClick}
+        showSkeletons={isLoading}
+        onRefresh={handleRefresh}
       />
+
+      {!isLoading && !error && submissions.length === 0 && (
+        <div className="posts-manager__empty">
+          <p>No posts found.</p>
+          {filters.length > 0 && (
+            <button onClick={clearFilters}>Clear filters</button>
+          )}
+        </div>
+      )}
+
+      {/* Pagination */}
+      {!isLoading && !error && submissions.length > 0 && (
+        <div className="posts-manager__pagination">
+          <Pagination
+            id="submissions"
+            currentPage={pagination.currentPage}
+            totalPages={totalPages}
+            pageSize={pagination.pageSize}
+            onPageChange={setPage}
+            onPageSizeChange={setPageSize}
+          />
+        </div>
+      )}
     </>
   );
 }

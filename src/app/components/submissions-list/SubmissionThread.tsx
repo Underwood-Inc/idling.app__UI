@@ -1,12 +1,8 @@
 'use client';
 
-import { Submission } from '../submission-forms/schema';
 import { ReplyForm } from '../thread/ReplyForm';
+import { SubmissionWithReplies } from './actions';
 import './SubmissionThread.css';
-
-interface SubmissionWithReplies extends Submission {
-  replies?: SubmissionWithReplies[];
-}
 
 interface SubmissionThreadProps {
   submission: SubmissionWithReplies;
@@ -91,6 +87,7 @@ export function SubmissionThread({
         <div className="submission-thread__reply-form">
           <ReplyForm
             parentId={submission.submission_id}
+            replyToAuthor={submission.author}
             onSuccess={() => {
               // Close the reply form
               setActiveReplies({

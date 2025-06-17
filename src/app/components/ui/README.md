@@ -148,7 +148,7 @@ export const FloatingAddPost = ({ onPostCreated }) => {
   // Uses session hooks internally for authorization
   // Fully draggable with position persistence
   // Opens inline modal with AddSubmissionForm
-  
+
   return (
     <div className="floating-add-post">
       {/* Draggable button with warm theme */}
@@ -191,4 +191,112 @@ The overlay system automatically:
 - Cleans up containers when all overlays close
 - Manages event listeners and cleanup
 - Handles body scroll locking for modals
-- Provides backdrop click and escape key handling 
+- Provides backdrop click and escape key handling
+
+## SmartInput
+
+The `SmartInput` component provides intelligent hashtag and user mention suggestions as users type. It can be used anywhere in the application where you want to enable #hashtag and @user suggestions.
+
+### Basic Usage
+
+```tsx
+import { SmartInput } from '../ui/SmartInput';
+
+function MyComponent() {
+  const [value, setValue] = useState('');
+
+  return (
+    <SmartInput
+      value={value}
+      onChange={setValue}
+      placeholder="Type # for hashtags or @ for mentions..."
+      as="textarea"  // or "input"
+      rows={4}
+    />
+  );
+}
+```
+
+### Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `value` | `string` | - | Current input value |
+| `onChange` | `(value: string) => void` | - | Called when value changes |
+| `placeholder` | `string` | - | Input placeholder text |
+| `className` | `string` | `''` | Additional CSS classes |
+| `disabled` | `boolean` | `false` | Whether input is disabled |
+| `as` | `'input' \| 'textarea'` | `'input'` | Type of input element |
+| `rows` | `number` | `3` | Number of rows (textarea only) |
+| `enableHashtags` | `boolean` | `true` | Enable hashtag suggestions |
+| `enableUserMentions` | `boolean` | `true` | Enable user mention suggestions |
+| `maxSuggestions` | `number` | `5` | Max suggestions to show |
+| `minQueryLength` | `number` | `2` | Min characters before searching |
+
+### Features
+
+- **Hashtag Suggestions**: Type `#` followed by text to see hashtag suggestions based on existing posts
+- **User Mentions**: Type `@` followed by text to see user suggestions based on post authors
+- **Keyboard Navigation**: Use arrow keys to navigate, Enter/Tab to select, Escape to close
+- **Click to Select**: Click on any suggestion to insert it
+- **Smart Replacement**: Automatically handles duplicate `#` or `@` characters in suggestions
+- **Responsive**: Works on mobile and desktop
+
+### Advanced Usage
+
+```tsx
+// Only enable hashtags
+<SmartInput
+  value={tags}
+  onChange={setTags}
+  enableHashtags={true}
+  enableUserMentions={false}
+  placeholder="#tag1, #tag2, #tag3"
+/>
+
+// Custom styling
+<SmartInput
+  value={content}
+  onChange={setContent}
+  className="my-custom-input-class"
+  as="textarea"
+  rows={6}
+  maxSuggestions={10}
+/>
+```
+
+### CSS Classes
+
+The component uses these CSS classes for styling:
+
+- `.inline-suggestion-container` - Main container
+- `.inline-suggestion-input` - Input/textarea element
+- `.suggestion-list` - Dropdown list
+- `.suggestion-item` - Individual suggestion
+- `.suggestion-item.selected` - Selected suggestion
+- `.suggestion-trigger` - The # or @ character
+- `.suggestion-label` - Suggestion text
+- `.suggestion-avatar` - User avatar (for mentions)
+
+### Examples in the App
+
+The SmartInput is currently used in:
+
+1. **Reply Forms** - For titles, content, and tags
+2. **Thread Discussions** - Pre-filled with @mentions when replying
+3. **Post Creation** - Can be added to any form field
+
+### Low-Level Component
+
+If you need more control, you can use the underlying `InlineSuggestionInput` component directly and provide your own search functions:
+
+```tsx
+import { InlineSuggestionInput } from '../ui/InlineSuggestionInput';
+
+<InlineSuggestionInput
+  value={value}
+  onChange={setValue}
+  onHashtagSearch={myCustomHashtagSearch}
+  onUserSearch={myCustomUserSearch}
+/>
+``` 

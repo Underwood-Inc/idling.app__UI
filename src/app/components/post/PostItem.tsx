@@ -17,7 +17,7 @@ export default function PostItem({ post }: PostItemProps) {
           </Link>
         </h2>
         <p className="post-item__meta">
-          Posted by u/{post.authorId} in r/{post.subthread} •&nbsp;
+          Posted by {post.authorId} in {post.subthread} •&nbsp;
           {new Date(post.createdAt).toLocaleString()}
         </p>
         <p className="post-item__description">{post.content}</p>

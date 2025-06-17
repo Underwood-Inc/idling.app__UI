@@ -4,6 +4,7 @@ import { useSession } from 'next-auth/react';
 import { ChangeEvent, useEffect, useRef, useState } from 'react';
 import { useFormState, useFormStatus } from 'react-dom';
 import { shouldUpdateAtom } from '../../../../lib/state/atoms';
+import { validateTagsInput } from '../../../../lib/utils/string/tag-regex';
 import { editSubmissionAction } from '../actions';
 import { parseEditSubmission, parseZodErrors } from '../schema';
 import './EditSubmissionForm.css';
@@ -62,18 +63,21 @@ export function EditSubmissionForm({
   const [titleLength, setTitleLength] = useState(
     submission.submission_title.length
   );
-  const [nameLength, setNameLength] = useState(
+  const [contentLength, setContentLength] = useState(
     submission.submission_name.length
   );
   const [errors, setErrors] = useState('');
+  const [tagErrors, setTagErrors] = useState<string[]>([]);
 
-  const isDisabled = !isAuthorized || !!errors;
+  const isDisabled = !isAuthorized || !!errors || tagErrors.length > 0;
 
   const submitButtonTitle = errors
     ? 'Resolve form errors.'
-    : !isAuthorized
-      ? 'Login to manage posts.'
-      : undefined;
+    : tagErrors.length > 0
+      ? 'Fix tag errors.'
+      : !isAuthorized
+        ? 'Login to manage posts.'
+        : undefined;
 
   useEffect(() => {
     if (state.status) {
@@ -100,13 +104,32 @@ export function EditSubmissionForm({
     }
   };
 
-  const handleNameChange = (event: ChangeEvent<HTMLInputElement>) => {
-    event.preventDefault();
-    setNameLength(event.target.value.trim().length);
+  const handleContentChange = (event: ChangeEvent<HTMLTextAreaElement>) => {
+    setContentLength(event.target.value.trim().length);
+  };
+
+  const handleTagsChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const tagsValue = event.target.value;
+    const validationErrors = validateTagsInput(tagsValue);
+    setTagErrors(validationErrors);
   };
 
   const getTitleLengthStatus = () => {
     const percentOfMax = (titleLength / 255) * 100;
+
+    if (percentOfMax >= 80 && percentOfMax < 100) {
+      return 'warning';
+    }
+
+    if (percentOfMax >= 100) {
+      return 'error';
+    }
+
+    return 'info';
+  };
+
+  const getContentLengthStatus = () => {
+    const percentOfMax = (contentLength / 1000) * 100;
 
     if (percentOfMax >= 80 && percentOfMax < 100) {
       return 'warning';
@@ -136,7 +159,7 @@ export function EditSubmissionForm({
       {/* Title Field */}
       <label htmlFor="submission_title" className="submission__title-label">
         <div className="row--sm-margin">
-          <span>Title</span>
+          <span>Title *</span>
           <input
             type="text"
             id="submission_title"
@@ -147,6 +170,7 @@ export function EditSubmissionForm({
             disabled={!isAuthorized}
             title={!isAuthorized ? 'Login to manage posts.' : undefined}
             required
+            maxLength={255}
           />
         </div>
         <div className="row">
@@ -156,24 +180,67 @@ export function EditSubmissionForm({
         </div>
       </label>
 
+      {/* Content Field */}
+      <label htmlFor="submission_content" className="submission__content-label">
+        <div className="row--sm-margin">
+          <span>Content</span>
+          <textarea
+            id="submission_content"
+            name="submission_content"
+            className="submission__content-input"
+            defaultValue={submission.submission_name}
+            onChange={handleContentChange}
+            disabled={!isAuthorized}
+            title={!isAuthorized ? 'Login to manage posts.' : undefined}
+            maxLength={1000}
+            rows={4}
+            placeholder="Write your post content... (tags like #hashtag will be automatically detected)"
+          />
+        </div>
+        <div className="row">
+          <p className={`column ${getContentLengthStatus()}`}>
+            {contentLength}/1000
+          </p>
+        </div>
+      </label>
+
       {/* Tags Field */}
       <label htmlFor="submission_tags" className="submission__tags-label">
         <div className="row--sm-margin">
-          <span>Tags</span>
+          <span>Additional Tags</span>
           <input
             type="text"
             id="submission_tags"
             name="submission_tags"
             className="submission__tags-input"
-            defaultValue={submission.tags.join(', ')}
+            defaultValue={submission.tags
+              .map((tag) => (tag.startsWith('#') ? tag : `#${tag}`))
+              .join(', ')}
+            onChange={handleTagsChange}
             disabled={!isAuthorized}
             title={!isAuthorized ? 'Login to manage posts.' : undefined}
-            placeholder="tag1, tag2, tag3"
+            placeholder="#tag1, #tag2, #tag3"
           />
+        </div>
+        {tagErrors.length > 0 && (
+          <div className="submission__tag-errors">
+            {tagErrors.map((error, index) => (
+              <p key={index} className="error" role="alert">
+                {error}
+              </p>
+            ))}
+          </div>
+        )}
+        <div className="submission__tag-help">
+          <p className="info">
+            Tags must start with # and contain only letters, numbers, hyphens,
+            and underscores. Tags from your title and content will be
+            automatically detected.
+          </p>
         </div>
       </label>
 
-      {/* Hidden submission_name field for backward compatibility */}
+      {/* Hidden submission_name field - now populated from content */}
       <input
         type="hidden"
         id="submission_name"

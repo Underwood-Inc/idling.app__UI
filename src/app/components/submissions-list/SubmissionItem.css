@@ -1,0 +1,280 @@
+/* SubmissionItem Component Styles */
+
+.submission__wrapper {
+  border: 1px solid var(--brand-tertiary--dark);
+  border-radius: var(--border-radius);
+  padding: 1rem;
+  margin-bottom: 1rem;
+  background-color: var(--light-background--primary);
+  transition: all 0.2s ease-in-out;
+}
+
+.submission__wrapper:hover {
+  border-color: var(--brand-primary);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Reply styling with visual hierarchy */
+.submission__wrapper--reply {
+  background-color: var(--light-background--tertiary);
+  border-left: 3px solid var(--brand-primary);
+  border-radius: 0 var(--border-radius) var(--border-radius) 0;
+  margin-top: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.submission__meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+  font-size: 0.875rem;
+  color: var(--light-bg__text-color--secondary);
+}
+
+.submission__author {
+  font-weight: 600;
+  color: var(--light-bg__text-color--primary);
+}
+
+.submission__datetime {
+  color: var(--light-bg__text-color--tertiary);
+}
+
+.submission__owner-actions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+/* Consistent button styling for edit and delete */
+.submission__edit-btn,
+.submission__delete-btn {
+  background: none;
+  border: 1px solid var(--brand-primary);
+  color: var(--brand-primary);
+  padding: 0.25rem 0.75rem;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  font-weight: 500;
+  min-width: 60px;
+  text-align: center;
+}
+
+.submission__edit-btn:hover,
+.submission__delete-btn:hover {
+  background-color: var(--brand-primary);
+  color: var(--font-color--primary);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Delete button specific styling */
+.submission__delete-btn {
+  border-color: var(--error);
+  color: var(--error);
+}
+
+.submission__delete-btn:hover {
+  background-color: var(--error);
+  color: white;
+}
+
+.submission__delete-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Content styling */
+.submission__content {
+  margin-bottom: 0.75rem;
+}
+
+.submission__title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--light-bg__text-color--primary);
+  margin: 0 0 0.5rem 0;
+  line-height: 1.4;
+}
+
+.submission__title--reply {
+  font-size: 1.125rem;
+  font-weight: 500;
+}
+
+.submission__description {
+  color: var(--light-bg__text-color--secondary);
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* Tags styling */
+.submission__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.submission__tag {
+  background-color: var(--brand-secondary);
+  color: var(--light-bg__text-color--primary);
+  border: 1px solid var(--brand-secondary--dark);
+  padding: 0.25rem 0.75rem;
+  border-radius: 1rem;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.submission__tag:hover {
+  background-color: var(--brand-secondary--dark);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Action buttons */
+.submission__actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 0.75rem;
+}
+
+.submission__reply-btn,
+.submission__expand-btn,
+.submission__nested-reply-btn {
+  background: none;
+  border: none;
+  color: var(--brand-primary);
+  font-size: 0.875rem;
+  cursor: pointer;
+  padding: 0.25rem 0;
+  transition: all 0.2s ease-in-out;
+  text-decoration: underline;
+}
+
+.submission__reply-btn:hover,
+.submission__expand-btn:hover,
+.submission__nested-reply-btn:hover {
+  color: var(--brand-primary--dark);
+  transform: translateY(-1px);
+}
+
+/* Nested reply specific styles */
+.submission__nested-actions {
+  margin-top: 0.5rem;
+  padding-left: 0.5rem;
+  border-left: 2px solid var(--brand-tertiary);
+}
+
+.submission__nested-reply-btn {
+  font-size: 0.8rem;
+  color: var(--brand-secondary);
+}
+
+.submission__nested-reply-btn:hover {
+  color: var(--brand-secondary--dark);
+}
+
+/* Form containers */
+.submission__edit-form,
+.submission__reply-form,
+.submission__nested-reply-form {
+  margin-top: 1rem;
+  padding: 1rem;
+  background-color: var(--light-background--quaternary);
+  border-radius: var(--border-radius);
+  border: 1px solid var(--brand-tertiary);
+}
+
+.submission__nested-reply-form {
+  margin-top: 0.75rem;
+  padding: 0.75rem;
+  background-color: var(--light-background--quinary);
+}
+
+/* Replies container */
+.submission__replies {
+  margin-top: 1rem;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .submission__wrapper {
+    padding: 0.75rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .submission__wrapper--reply {
+    margin-left: 0.5rem !important;
+  }
+
+  .submission__meta {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .submission__title {
+    font-size: 1.125rem;
+  }
+
+  .submission__title--reply {
+    font-size: 1rem;
+  }
+
+  .submission__actions {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .submission__nested-reply-form,
+  .submission__nested-actions {
+    margin-left: 0.25rem !important;
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .submission__wrapper {
+    background-color: var(--dark-background--primary, #1f2937);
+    border-color: var(--dark-brand-tertiary--dark, #374151);
+  }
+
+  .submission__wrapper--reply {
+    background-color: var(--dark-background--tertiary, #374151);
+    border-left-color: var(--brand-primary);
+  }
+
+  .submission__title {
+    color: var(--dark-bg__text-color--primary, #f9fafb);
+  }
+
+  .submission__description {
+    color: var(--dark-bg__text-color--secondary, #d1d5db);
+  }
+
+  .submission__meta,
+  .submission__datetime {
+    color: var(--dark-bg__text-color--tertiary, #9ca3af);
+  }
+
+  .submission__author {
+    color: var(--dark-bg__text-color--primary, #f9fafb);
+  }
+
+  .submission__edit-form,
+  .submission__reply-form {
+    background-color: var(--dark-background--quaternary, #4b5563);
+    border-color: var(--dark-brand-tertiary, #6b7280);
+  }
+
+  .submission__nested-reply-form {
+    background-color: var(--dark-background--quinary, #6b7280);
+  }
+}

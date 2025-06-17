@@ -5,11 +5,11 @@ import { ChangeEvent, useEffect, useRef, useState } from 'react';
 import { useFormState, useFormStatus } from 'react-dom';
 import { shouldUpdateAtom } from '../../../../lib/state/atoms';
 import { ADD_SUBMISSION_FORM_SELECTORS } from '../../../../lib/test-selectors/components/add-submission-form.selectors';
+import { validateTagsInput } from '../../../../lib/utils/string/tag-regex';
 import {
   createSubmissionAction,
   validateCreateSubmissionFormAction
 } from '../actions';
-import { parseSubmission, parseZodErrors } from '../schema';
 import './AddSubmissionForm.css';
 
 const initialState = {
@@ -53,67 +53,59 @@ export function AddSubmissionForm({
   const { data: session } = useSession();
   const isAuthorized = !!session?.user;
 
-  // TODO: https://github.com/vercel/next.js/issues/65673#issuecomment-2112746191
-  // const [state, formAction] = useActionState(createSubmissionAction, initialState)
   const [state, formAction] = useFormState(
     createSubmissionAction,
     initialState
   );
-  const [validateState, validateFormAction] = useFormState(
+  const [validateState, handleFormValidateAction] = useFormState(
     validateCreateSubmissionFormAction,
     initialState
   );
-  const [titleLength, setTitleLength] = useState(0);
-  const [nameLength, setNameLength] = useState(0);
-  const [errors, setErrors] = useState('');
 
-  const isDisabled = !isAuthorized || !!errors;
+  const [titleLength, setTitleLength] = useState(0);
+  const [contentLength, setContentLength] = useState(0);
+  const [errors, setErrors] = useState('');
+  const [tagErrors, setTagErrors] = useState<string[]>([]);
+
+  const isDisabled = !isAuthorized || !!errors || tagErrors.length > 0;
 
   const submitButtonTitle = errors
     ? 'Resolve form errors.'
-    : !isAuthorized
-      ? 'Login to manage posts.'
-      : undefined;
+    : tagErrors.length > 0
+      ? 'Fix tag errors.'
+      : !isAuthorized
+        ? 'Login to create posts.'
+        : undefined;
 
+  // Update should trigger when state changes
   useEffect(() => {
     if (state.status) {
-      setTitleLength(0);
-      setNameLength(0);
-      ref.current?.reset();
-
-      // For now, just use the global update trigger
-      // TODO: Implement proper optimistic updates in a future iteration
       setShouldUpdate(!!state.status);
-
-      // Call the success callback if provided
       onSuccess?.();
     }
   }, [state.status, state.message, setShouldUpdate, onSuccess]);
 
-  const handleFormValidateAction = async (formData: FormData) => {
-    await validateFormAction(formData);
-    setErrors(validateState.error || '');
-  };
+  useEffect(() => {
+    if (validateState.error) {
+      setErrors(validateState.error);
+    } else {
+      setErrors('');
+    }
+  }, [validateState]);
 
   const handleTitleChange = async (event: ChangeEvent<HTMLInputElement>) => {
     event.preventDefault();
     setTitleLength(event.target.value.trim().length);
-
-    const { error } = parseSubmission({
-      submission_title: event.target.value,
-      submission_datetime: new Date()
-    });
-
-    if (error) {
-      setErrors(parseZodErrors(error));
-    } else {
-      setErrors('');
-    }
   };
 
-  const handleNameChange = async (event: ChangeEvent<HTMLInputElement>) => {
-    event.preventDefault();
-    setNameLength(event.target.value.trim().length);
+  const handleContentChange = (event: ChangeEvent<HTMLTextAreaElement>) => {
+    setContentLength(event.target.value.trim().length);
+  };
+
+  const handleTagsChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const tagsValue = event.target.value;
+    const validationErrors = validateTagsInput(tagsValue);
+    setTagErrors(validationErrors);
   };
 
   const handleTitleBlur = async (event: ChangeEvent<HTMLInputElement>) => {
@@ -138,6 +130,20 @@ export function AddSubmissionForm({
     return 'info';
   };
 
+  const getContentLengthStatus = () => {
+    const percentOfMax = (contentLength / 1000) * 100;
+
+    if (percentOfMax >= 80 && percentOfMax < 100) {
+      return 'warning';
+    }
+
+    if (percentOfMax >= 100) {
+      return 'error';
+    }
+
+    return 'info';
+  };
+
   return (
     <form
       ref={ref}
@@ -149,7 +155,7 @@ export function AddSubmissionForm({
       {/* Title Field */}
       <label htmlFor="submission_title" className="submission__title-label">
         <div className="row--sm-margin">
-          <span>Title</span>
+          <span>Title *</span>
           <input
             type="text"
             id="submission_title"
@@ -160,6 +166,8 @@ export function AddSubmissionForm({
             disabled={!isAuthorized}
             title={!isAuthorized ? 'Login to manage posts.' : undefined}
             required
+            maxLength={255}
+            placeholder="Enter a title for your post..."
             data-testid="add-submission-title-input"
           />
         </div>
@@ -173,24 +181,68 @@ export function AddSubmissionForm({
         </div>
       </label>
 
+      {/* Content/Description Field */}
+      <label htmlFor="submission_content" className="submission__content-label">
+        <div className="row--sm-margin">
+          <span>Content</span>
+          <textarea
+            id="submission_content"
+            name="submission_content"
+            className="submission__content-input"
+            onChange={handleContentChange}
+            disabled={!isAuthorized}
+            title={!isAuthorized ? 'Login to manage posts.' : undefined}
+            maxLength={1000}
+            rows={4}
+            placeholder="Write your post content... (tags like #hashtag will be automatically detected)"
+            data-testid="add-submission-content-input"
+          />
+        </div>
+        <div className="row">
+          <p
+            className={`column ${getContentLengthStatus()}`}
+            data-testid="add-submission-content-character-count"
+          >
+            {contentLength}/1000
+          </p>
+        </div>
+      </label>
+
       {/* Tags Field */}
       <label htmlFor="submission_tags" className="submission__tags-label">
         <div className="row--sm-margin">
-          <span>Tags</span>
+          <span>Additional Tags</span>
           <input
             type="text"
             id="submission_tags"
             name="submission_tags"
             className="submission__tags-input"
+            onChange={handleTagsChange}
             disabled={!isAuthorized}
             title={!isAuthorized ? 'Login to manage posts.' : undefined}
-            placeholder="tag1, tag2, tag3"
+            placeholder="#tag1, #tag2, #tag3"
             data-testid="add-submission-tags-input"
           />
         </div>
+        {tagErrors.length > 0 && (
+          <div className="submission__tag-errors">
+            {tagErrors.map((error, index) => (
+              <p key={index} className="error" role="alert">
+                {error}
+              </p>
+            ))}
+          </div>
+        )}
+        <div className="submission__tag-help">
+          <p className="info">
+            Tags must start with # and contain only letters, numbers, hyphens,
+            and underscores. Tags from your title and content will be
+            automatically detected.
+          </p>
+        </div>
       </label>
 
-      {/* Hidden submission_name field for backward compatibility */}
+      {/* Hidden submission_name field - now populated from content */}
       <input
         type="hidden"
         id="submission_name"

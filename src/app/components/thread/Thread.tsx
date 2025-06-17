@@ -1,106 +1,183 @@
 'use client';
 
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import { NAV_PATHS } from '../../../lib/routes';
+import { Author } from '../author/Author';
 import Loader from '../loader/Loader';
 import { DeleteSubmissionForm } from '../submission-forms/delete-submission-form/DeleteSubmissionForm';
 import { Submission } from '../submission-forms/schema';
 import { TagLink } from '../tag-link/TagLink';
 import { getSubmissionThread } from './actions';
 import { ReplyForm } from './ReplyForm';
+import './Thread.css';
 
 interface ThreadProps {
   submissionId: number;
   providerAccountId: string;
 }
 
+interface ThreadData {
+  parent: Submission | null;
+  replies: Submission[];
+}
+
 export default function Thread({
   submissionId,
   providerAccountId
 }: ThreadProps) {
+  const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [parentSubmission, setParentSubmission] = useState<Submission | null>(
     null
   );
   const [replies, setReplies] = useState<Submission[]>([]);
 
-  const fetchThread = async () => {
-    setLoading(true);
-    const threadData = await getSubmissionThread(submissionId);
-    setParentSubmission(threadData.parent);
-    setReplies(threadData.replies);
-    setLoading(false);
-  };
-
   useEffect(() => {
-    fetchThread();
+    const loadThread = async () => {
+      try {
+        setLoading(true);
+        const threadData: ThreadData = await getSubmissionThread(submissionId);
+
+        if (!threadData.parent) {
+          setParentSubmission(null);
+        } else {
+          setParentSubmission(threadData.parent);
+          setReplies(threadData.replies || []);
+        }
+      } catch (error) {
+        console.error('Error loading thread:', error);
+        setParentSubmission(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadThread();
   }, [submissionId]);
 
-  const isAuthorized = (authorId: string) => {
-    return providerAccountId === authorId;
+  const handleReplyAdded = async () => {
+    // Refresh the thread data when a new reply is added
+    try {
+      const threadData: ThreadData = await getSubmissionThread(submissionId);
+      setReplies(threadData.replies || []);
+    } catch (error) {
+      console.error('Error refreshing replies:', error);
+    }
   };
 
-  const renderSubmission = (submission: Submission) => {
-    const createdDate = new Date(
-      submission.submission_datetime
-    ).toLocaleDateString();
-    const canDelete = isAuthorized(submission.author_id);
-
-    return (
-      <div key={submission.submission_id} className="submission__wrapper">
-        <p className="submission__content">
-          <span className="submission__author">{submission.author}:&nbsp;</span>
-          <span>
-            <TagLink
-              value={submission.submission_name}
-              contextId="thread"
-              appendSearchParam
-            />
-          </span>
-        </p>
-        <div className="submission__meta">
-          <p className="submission__datetime">{createdDate}</p>
-          {canDelete && (
-            <DeleteSubmissionForm
-              id={submission.submission_id}
-              name={submission.submission_name}
-              isAuthorized={!!providerAccountId}
-            />
-          )}
-        </div>
-      </div>
-    );
+  const handleSubmissionDeleted = (deletedId: number) => {
+    if (deletedId === submissionId) {
+      // Parent was deleted, redirect to posts
+      router.push(NAV_PATHS.POSTS);
+    } else {
+      // A reply was deleted, remove it from the list
+      setReplies(replies.filter((reply) => reply.submission_id !== deletedId));
+    }
   };
 
   if (loading) {
-    return <Loader color="black" />;
+    return <Loader />;
   }
 
   if (!parentSubmission) {
-    return <div>Submission not found</div>;
+    return (
+      <div className="thread__not-found">
+        <h2>Thread not found</h2>
+        <p>
+          The post you&apos;re looking for doesn&apos;t exist or has been
+          deleted.
+        </p>
+        <Link href={NAV_PATHS.POSTS} className="thread__back-link">
+          ← Back to Posts
+        </Link>
+      </div>
+    );
   }
+
+  const renderSubmission = (submission: Submission, isReply = false) => (
+    <div
+      key={submission.submission_id}
+      className={`submission__wrapper ${isReply ? 'submission__wrapper--reply' : ''}`}
+    >
+      <div className="submission__meta">
+        <Author
+          authorId={submission.author_id}
+          authorName={submission.author_id}
+          size="sm"
+          showFullName={false}
+        />
+        <span className="submission__datetime">
+          {new Date(submission.submission_datetime).toLocaleDateString()}
+        </span>
+      </div>
+
+      <div className="submission__content">
+        <h3
+          className={
+            isReply ? 'submission__title--reply' : 'thread__main-title'
+          }
+        >
+          {submission.submission_title}
+        </h3>
+        {submission.submission_name &&
+          submission.submission_name !== submission.submission_title && (
+            <p className="submission__description">
+              {submission.submission_name}
+            </p>
+          )}
+      </div>
+
+      {submission.tags && submission.tags.length > 0 && (
+        <div className="submission__tags">
+          {submission.tags.map((tag) => (
+            <TagLink key={tag} value={tag} contextId="thread" />
+          ))}
+        </div>
+      )}
+
+      {submission.author_id === providerAccountId && (
+        <DeleteSubmissionForm
+          id={submission.submission_id}
+          name={submission.submission_name}
+          isAuthorized={true}
+        />
+      )}
+    </div>
+  );
 
   return (
     <div className="thread__container">
-      <h2>Thread</h2>
-      <div className="thread__parent">
-        <h3>Original Post</h3>
-        {renderSubmission(parentSubmission)}
+      <nav className="thread__navigation">
+        <Link href={NAV_PATHS.POSTS} className="thread__back-link">
+          ← Back to Posts
+        </Link>
+        <span className="thread__breadcrumb">Thread Discussion</span>
+      </nav>
+
+      {/* Parent Post */}
+      <div className="thread__parent">{renderSubmission(parentSubmission)}</div>
+
+      {/* Reply Form */}
+      <div className="thread__reply-section">
+        <h3>Add a Reply</h3>
+        <ReplyForm
+          parentId={submissionId}
+          onSuccess={handleReplyAdded}
+          replyToAuthor={parentSubmission?.author_id}
+        />
       </div>
-      <ReplyForm
-        parentId={submissionId}
-        onSuccess={() => {
-          // Refresh the thread data to show the new reply
-          fetchThread();
-        }}
-      />
-      <div className="thread__replies">
-        <h3>Replies</h3>
-        {replies.length === 0 ? (
-          <p>No replies yet</p>
-        ) : (
-          replies.map(renderSubmission)
-        )}
-      </div>
+
+      {/* Replies */}
+      {replies.length > 0 && (
+        <div className="thread__replies">
+          <h3 className="thread__replies-title">Replies ({replies.length})</h3>
+          <div className="thread__replies-list">
+            {replies.map((reply) => renderSubmission(reply, true))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
