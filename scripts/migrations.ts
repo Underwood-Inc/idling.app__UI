@@ -6,6 +6,7 @@ import chalk from 'chalk';
 import { existsSync, readdirSync, writeFileSync } from 'fs';
 import { mkdir } from 'fs/promises';
 import path from 'path';
+import postgres from 'postgres';
 import { createInterface } from 'readline';
 
 // Debug: Log the environment variables being used
@@ -25,7 +26,20 @@ console.log(
   process.env.POSTGRES_PASSWORD ? '[SET]' : '[NOT SET]'
 );
 
-import sql from '../src/lib/db';
+// Create database connection AFTER environment variables are loaded
+const sql = postgres({
+  host: process.env.POSTGRES_HOST,
+  user: process.env.POSTGRES_USER,
+  database: process.env.POSTGRES_DB,
+  password: process.env.POSTGRES_PASSWORD,
+  port: process.env.POSTGRES_PORT as unknown as number,
+  ssl: 'prefer',
+  onnotice: () => {},
+  max: 10,
+  idle_timeout: 20,
+  connect_timeout: 10,
+  prepare: false
+});
 
 // Directory where all database migration files are stored
 export const MIGRATIONS_DIR = path.join(process.cwd(), 'migrations');
