@@ -307,7 +307,7 @@ const generateRecords = async () => {
       // Insert users batch
       const userResults = await sql`
         INSERT INTO users (name, email, "emailVerified", image)
-        SELECT * FROM ${sql(batch.map((u) => [u.name, u.email, u.emailVerified, u.image]))}
+        VALUES ${sql(batch.map((u) => sql`(${u.name}, ${u.email}, ${u.emailVerified}, ${u.image})`))}
         RETURNING id, name
       `;
 
@@ -333,7 +333,14 @@ const generateRecords = async () => {
           "userId", type, provider, "providerAccountId",
           refresh_token, access_token, expires_at, id_token,
           scope, session_state, token_type
-        ) SELECT * FROM ${sql(accountData)}
+        ) VALUES ${sql(
+          accountData.map(
+            (acc) => sql`(
+          ${acc[0]}, ${acc[1]}, ${acc[2]}, ${acc[3]}, ${acc[4]}, 
+          ${acc[5]}, ${acc[6]}, ${acc[7]}, ${acc[8]}, ${acc[9]}, ${acc[10]}
+        )`
+          )
+        )}
       `;
 
       if (batchIndex % 5 === 0) {
@@ -373,7 +380,14 @@ const generateRecords = async () => {
         INSERT INTO submissions (
           submission_name, submission_title, author_id, author,
           tags, submission_datetime, thread_parent_id
-        ) SELECT * FROM ${sql(batch)}
+        ) VALUES ${sql(
+          batch.map(
+            (post) => sql`(
+          ${post[0]}, ${post[1]}, ${post[2]}, ${post[3]}, 
+          ${post[4]}, ${post[5]}, ${post[6]}
+        )`
+          )
+        )}
         RETURNING submission_id, author_id, submission_datetime
       `;
 
@@ -437,7 +451,14 @@ const generateRecords = async () => {
           INSERT INTO submissions (
             submission_name, submission_title, author_id, author,
             tags, submission_datetime, thread_parent_id
-          ) SELECT * FROM ${sql(batch)}
+          ) VALUES ${sql(
+            batch.map(
+              (reply) => sql`(
+            ${reply[0]}, ${reply[1]}, ${reply[2]}, ${reply[3]}, 
+            ${reply[4]}, ${reply[5]}, ${reply[6]}
+          )`
+            )
+          )}
         `;
 
         repliesCreated += batch.length;
