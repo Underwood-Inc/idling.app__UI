@@ -8,6 +8,23 @@ import { createInterface } from 'readline';
 import { config } from 'dotenv';
 config({ path: '.env.local' }); // Load .env.local file
 
+// Debug: Log the environment variables being used
+// eslint-disable-next-line no-console
+console.log('🔍 Debug: Environment variables loaded:');
+// eslint-disable-next-line no-console
+console.log('POSTGRES_HOST:', process.env.POSTGRES_HOST);
+// eslint-disable-next-line no-console
+console.log('POSTGRES_USER:', process.env.POSTGRES_USER);
+// eslint-disable-next-line no-console
+console.log('POSTGRES_DB:', process.env.POSTGRES_DB);
+// eslint-disable-next-line no-console
+console.log('POSTGRES_PORT:', process.env.POSTGRES_PORT);
+// eslint-disable-next-line no-console
+console.log(
+  'POSTGRES_PASSWORD:',
+  process.env.POSTGRES_PASSWORD ? '[SET]' : '[NOT SET]'
+);
+
 import sql from '../src/lib/db';
 
 // Directory where all database migration files are stored
