@@ -208,15 +208,15 @@
 .submission__nested-reply-form {
   margin-top: 1rem;
   padding: 1rem;
-  background-color: var(--light-background--quaternary);
+  background-color: #fefefe;
   border-radius: var(--border-radius);
-  border: 1px solid var(--brand-tertiary);
+  border: 1px solid #e5e5e5;
 }
 
 .submission__nested-reply-form {
   margin-top: 0.75rem;
   padding: 0.75rem;
-  background-color: var(--light-background--quinary);
+  background-color: #fefefe;
 }
 
 /* Replies container */

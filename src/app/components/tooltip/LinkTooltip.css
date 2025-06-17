@@ -521,3 +521,48 @@ body.modal-open .link-preview-modal {
     transform: translateY(0);
   }
 }
+
+/* Info tooltip styles - simpler version of link tooltip for text content */
+.info-tooltip {
+  min-width: 200px;
+  max-width: min(400px, 90vw);
+  padding: 12px;
+  background: var(--light-background--quaternary);
+  color: var(--light-bg__text-color--primary);
+  border: 1px solid var(--brand-tertiary--dark);
+}
+
+.info-tooltip-content {
+  font-size: 14px;
+  line-height: 1.4;
+  color: var(--light-bg__text-color--primary);
+  text-align: left;
+  word-wrap: break-word;
+}
+
+/* Dark mode support for info tooltip */
+@media (prefers-color-scheme: dark) {
+  .info-tooltip {
+    background: var(--dark-background--secondary);
+    color: var(--dark-bg__text-color--primary);
+    border-color: var(--brand-primary);
+  }
+
+  .info-tooltip .info-tooltip-content {
+    color: var(--dark-bg__text-color--primary);
+  }
+}
+
+/* High contrast mode for info tooltip */
+@media (prefers-contrast: high) {
+  .info-tooltip {
+    border-width: 2px;
+    background: #ffffff;
+    color: #000000;
+    border-color: #000000;
+  }
+
+  .info-tooltip-content {
+    color: #000000;
+  }
+}

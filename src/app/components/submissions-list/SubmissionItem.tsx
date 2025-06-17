@@ -140,6 +140,7 @@ export function SubmissionItem({
                 id={submission.submission_id}
                 name={submission.submission_name}
                 isAuthorized={true}
+                authorId={session?.user?.providerAccountId}
               />
             </>
           )}

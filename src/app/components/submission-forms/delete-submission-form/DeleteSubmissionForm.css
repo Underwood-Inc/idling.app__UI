@@ -6,3 +6,5 @@
     /* Styles handled by parent component */
   }
 }
+
+/* Remove custom tooltip styles since we're using InfoTooltip */

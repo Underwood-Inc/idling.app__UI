@@ -16,12 +16,12 @@
 .submission__tags-input {
   width: 100%;
   padding: 0.75rem;
-  border: 1px solid var(--brand-tertiary--dark);
+  border: 1px solid #e0e0e0;
   border-radius: var(--border-radius);
   font-size: 1rem;
   font-family: inherit;
   background-color: #ffffff;
-  color: var(--light-bg__text-color--primary);
+  color: #333333;
   transition: all 0.2s ease-in-out;
 }
 
@@ -42,8 +42,8 @@
 .submission__title-input:disabled,
 .submission__content-input:disabled,
 .submission__tags-input:disabled {
-  background-color: var(--light-background--secondary);
-  color: var(--light-bg__text-color--tertiary);
+  background-color: #f5f5f5;
+  color: #999999;
   cursor: not-allowed;
 }
 
@@ -64,7 +64,7 @@
 .submission__tag-help .info {
   margin: 0;
   font-size: 0.875rem;
-  color: var(--light-bg__text-color--secondary);
+  color: #666666;
   line-height: 1.4;
 }
 
@@ -95,25 +95,4 @@
   margin-right: 1rem;
 }
 
-/* Dark mode support */
-@media (prefers-color-scheme: dark) {
-
-  .submission__title-input,
-  .submission__content-input,
-  .submission__tags-input {
-    background-color: var(--dark-background--tertiary, #374151);
-    border-color: var(--dark-brand-tertiary--dark, #4b5563);
-    color: var(--dark-bg__text-color--primary, #f9fafb);
-  }
-
-  .submission__title-input:focus,
-  .submission__content-input:focus,
-  .submission__tags-input:focus {
-    border-color: var(--brand-primary);
-    box-shadow: 0 0 0 2px rgba(237, 174, 73, 0.2);
-  }
-
-  .submission__tag-help .info {
-    color: var(--dark-bg__text-color--secondary, #9ca3af);
-  }
-}
+/* Dark mode removed - using light colors consistently */

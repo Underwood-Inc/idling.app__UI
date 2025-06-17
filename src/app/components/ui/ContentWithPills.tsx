@@ -1,10 +1,9 @@
 'use client';
 
-import { useAtom } from 'jotai';
 import Link from 'next/link';
-import { usePathname, useSearchParams } from 'next/navigation';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import React from 'react';
 import { NAV_PATHS } from '../../../lib/routes';
-import { getSubmissionsFiltersAtom } from '../../../lib/state/atoms';
 import './ContentWithPills.css';
 
 interface ContentWithPillsProps {
@@ -12,11 +11,14 @@ interface ContentWithPillsProps {
   onHashtagClick?: (hashtag: string) => void;
   onMentionClick?: (mention: string) => void;
   className?: string;
-  contextId?: string; // Add contextId for global filter integration
+  contextId: string;
+  isFilterBarContext?: boolean; // New prop to indicate filter bar context
 }
 
+type SegmentType = 'text' | 'hashtag' | 'mention';
+
 interface ContentSegment {
-  type: 'text' | 'hashtag' | 'mention';
+  type: SegmentType;
   value: string;
 }
 
@@ -25,178 +27,251 @@ export function ContentWithPills({
   onHashtagClick,
   onMentionClick,
   className = '',
-  contextId
+  contextId,
+  isFilterBarContext = false
 }: ContentWithPillsProps) {
   const pathname = usePathname();
+  const router = useRouter();
   const searchParams = useSearchParams();
 
-  // Use global filter state with provided contextId or default fallback
-  const [filtersState, setFiltersState] = useAtom(
-    getSubmissionsFiltersAtom(contextId || 'default')
-  );
-
+  // Parse content into segments with hashtags and mentions
   const parseContent = (text: string): ContentSegment[] => {
     const segments: ContentSegment[] = [];
+    // Regex to handle hashtags and mentions:
+    // - Hashtags: #[alphanumeric, underscore, hyphen]
+    // - Mentions: @[any characters except @ # and newlines, but stop at punctuation followed by space]
+    const regex = /(#[a-zA-Z0-9_-]+)|(@[^@#\n]+?)(?=\s*[.!?,:;]\s|$|@|#)/g;
 
-    // Improved regex to match hashtags and mentions without requiring spaces
-    // This handles cases like "#ademptio#testimonium" or "@user1@user2"
-    const regex = /([@#])([a-zA-Z0-9_-]+)/g;
     let lastIndex = 0;
     let match;
 
     while ((match = regex.exec(text)) !== null) {
-      const [fullMatch, symbol, value] = match;
-      const matchStart = match.index;
-      const matchEnd = matchStart + fullMatch.length;
-
       // Add text before the match
-      if (matchStart > lastIndex) {
-        const beforeText = text.slice(lastIndex, matchStart);
-        if (beforeText) {
-          segments.push({ type: 'text', value: beforeText });
+      if (match.index > lastIndex) {
+        const textContent = text.slice(lastIndex, match.index);
+        if (textContent) {
+          segments.push({ type: 'text', value: textContent });
         }
       }
 
       // Add the hashtag or mention
-      if (symbol === '#') {
+      const fullMatch = match[0];
+      let value = fullMatch.slice(1); // Remove # or @
+
+      if (fullMatch.startsWith('#')) {
         segments.push({ type: 'hashtag', value });
-      } else if (symbol === '@') {
-        segments.push({ type: 'mention', value });
+      } else if (fullMatch.startsWith('@')) {
+        // Clean up the mention value
+        value = value.trim();
+        // Remove trailing punctuation that might have been captured
+        value = value.replace(/[.!?,:;]+$/, '');
+        if (value) {
+          segments.push({ type: 'mention', value });
+        }
       }
 
-      lastIndex = matchEnd;
+      lastIndex = regex.lastIndex;
     }
 
     // Add remaining text
     if (lastIndex < text.length) {
-      segments.push({ type: 'text', value: text.slice(lastIndex) });
+      const remainingText = text.slice(lastIndex);
+      if (remainingText) {
+        segments.push({ type: 'text', value: remainingText });
+      }
     }
 
     return segments;
   };
 
+  // Generate URL for pill clicks (synchronous version for Link href)
   const generatePillUrl = (
     type: 'hashtag' | 'mention',
     value: string
   ): string => {
-    const params = new URLSearchParams(searchParams.toString());
+    const params = new URLSearchParams(searchParams);
 
-    if (type === 'hashtag') {
-      // Always handle hashtag filters
-      const hashtagValue = value.startsWith('#') ? value : `#${value}`;
-      const currentTags =
-        params
-          .get('tags')
-          ?.split(',')
-          .map((tag) => tag.trim())
-          .filter(Boolean) || [];
-
-      if (currentTags.includes(hashtagValue)) {
-        // Remove the tag if it's already active
-        const newTags = currentTags.filter((tag) => tag !== hashtagValue);
-        if (newTags.length > 0) {
-          params.set('tags', newTags.join(','));
-        } else {
-          params.delete('tags');
+    if (isFilterBarContext) {
+      // In filter bar context, we remove filters instead of adding them
+      if (type === 'hashtag') {
+        const currentTags = params.get('tags');
+        if (currentTags) {
+          const hashtagValue = `#${value}`;
+          const tags = currentTags
+            .split(',')
+            .filter((tag) => tag !== hashtagValue);
+          if (tags.length > 0) {
+            params.set('tags', tags.join(','));
+          } else {
+            params.delete('tags');
+          }
         }
-      } else {
-        // Add the tag
-        const newTags = [...currentTags, hashtagValue];
-        params.set('tags', newTags.join(','));
-      }
-
-      // Reset to first page when filters change
-      params.delete('page');
-
-      // For hashtags, always navigate to /posts with filters
-      const targetPath = pathname.startsWith('/t/')
-        ? NAV_PATHS.POSTS
-        : pathname;
-      return `${targetPath}${params.toString() ? `?${params.toString()}` : ''}`;
-    } else if (type === 'mention') {
-      // Only allow author filters on /posts route
-      if (pathname !== NAV_PATHS.POSTS) {
-        // For non-posts routes, navigate to posts with author filter
-        const newParams = new URLSearchParams();
-        newParams.set('author', value);
-        return `${NAV_PATHS.POSTS}?${newParams.toString()}`;
-      }
-
-      const currentAuthor = params.get('author');
-
-      if (currentAuthor === value) {
-        // Remove author filter if same mention clicked
+      } else if (type === 'mention') {
         params.delete('author');
-      } else {
-        // Set author filter
+      }
+    } else {
+      // Normal behavior: add filters
+      if (type === 'hashtag') {
+        const currentTags = params.get('tags');
+        const hashtagValue = `#${value}`;
+        if (currentTags && !currentTags.split(',').includes(hashtagValue)) {
+          params.set('tags', `${currentTags},${hashtagValue}`);
+        } else if (!currentTags) {
+          params.set('tags', hashtagValue);
+        }
+      } else if (type === 'mention' && pathname === NAV_PATHS.POSTS) {
+        // For mentions, we'll handle user ID resolution in the click handler
+        // For now, use the username to generate a placeholder URL
         params.set('author', value);
       }
-
-      // Reset to first page when filters change
-      params.delete('page');
-
-      return `${pathname}${params.toString() ? `?${params.toString()}` : ''}`;
     }
 
-    return '#';
+    // Reset to first page when filters change
+    params.set('page', '1');
+
+    // For hashtags on thread pages, navigate to posts
+    if (type === 'hashtag' && pathname.startsWith('/t/')) {
+      return `${NAV_PATHS.POSTS}?${params.toString()}`;
+    }
+
+    return `${pathname}?${params.toString()}`;
   };
 
-  const handlePillClick = (
+  // Handle pill clicks
+  const handlePillClick = async (
     type: 'hashtag' | 'mention',
     value: string,
     event: React.MouseEvent
   ) => {
-    // If parent provides callbacks, use them (for thread filtering) and prevent navigation
-    if (type === 'hashtag' && onHashtagClick) {
-      event.preventDefault();
-      onHashtagClick(`#${value}`);
-      return;
-    }
-    if (type === 'mention' && onMentionClick) {
-      event.preventDefault();
-      onMentionClick(value);
+    event.preventDefault();
+
+    if (isFilterBarContext) {
+      // In filter bar context, trigger removal callbacks
+      if (type === 'hashtag' && onHashtagClick) {
+        onHashtagClick(`#${value}`);
+      } else if (type === 'mention' && onMentionClick) {
+        onMentionClick(value);
+      }
       return;
     }
 
-    // Otherwise, let the Link component handle navigation
-    // The URL is already generated correctly in generatePillUrl
+    // Normal behavior: trigger add callbacks or handle navigation
+    if (type === 'hashtag' && onHashtagClick) {
+      onHashtagClick(`#${value}`);
+    } else if (type === 'mention' && onMentionClick) {
+      // For mentions, ALWAYS resolve username to user ID before calling callback
+      // This ensures we never filter by username, only by user ID
+      try {
+        const { getUserInfo } = await import(
+          '../../../lib/actions/search.actions'
+        );
+        const userInfo = await getUserInfo(value);
+
+        if (userInfo && userInfo.userId) {
+          // SUCCESS: We found the user, use their user ID for filtering
+          onMentionClick(userInfo.userId);
+        } else {
+          // FAILURE: User not found, don't apply any filter
+          console.warn(`User not found for mention: ${value}`);
+          // Don't call the callback - this prevents invalid filters
+          return;
+        }
+      } catch (error) {
+        console.error('Error resolving mention for callback:', error);
+        // Don't call the callback on error - this prevents invalid filters
+        return;
+      }
+    } else if (type === 'mention' && pathname === NAV_PATHS.POSTS) {
+      // For direct navigation on posts page, also resolve to user ID
+      try {
+        const { getUserInfo } = await import(
+          '../../../lib/actions/search.actions'
+        );
+        const userInfo = await getUserInfo(value);
+
+        if (userInfo && userInfo.userId) {
+          // SUCCESS: Navigate with user ID
+          const params = new URLSearchParams(searchParams);
+          params.set('author', userInfo.userId);
+          params.set('page', '1');
+          router.push(`${pathname}?${params.toString()}`);
+        } else {
+          // FAILURE: User not found, don't navigate/filter
+          console.warn(`User not found for mention: ${value}`);
+          return;
+        }
+      } catch (error) {
+        console.error('Error getting user info for navigation:', error);
+        return;
+      }
+    }
+  };
+
+  // Check if a filter is currently active
+  const isActiveFilter = (
+    type: 'hashtag' | 'mention',
+    value: string
+  ): boolean => {
+    if (type === 'hashtag') {
+      const currentTags = searchParams.get('tags');
+      const hashtagValue = `#${value}`;
+      return currentTags
+        ? currentTags.split(',').includes(hashtagValue)
+        : false;
+    } else if (type === 'mention') {
+      const currentAuthor = searchParams.get('author');
+      if (!currentAuthor) return false;
+
+      // The current author filter could be either a user ID or username
+      // Check if it matches the displayed username directly
+      if (currentAuthor === value) return true;
+
+      // TODO: We could also check if the current author ID resolves to this username
+      // For now, we'll rely on the direct match since the display logic will handle showing usernames
+      return false;
+    }
+    return false;
   };
 
   const segments = parseContent(content);
 
   return (
-    <span className={`content-with-pills ${className}`}>
+    <span
+      className={`content-with-pills ${className}`}
+      data-context-id={contextId}
+    >
       {segments.map((segment, index) => {
         if (segment.type === 'text') {
           return <span key={index}>{segment.value}</span>;
         }
 
-        const isClickable =
-          (segment.type === 'hashtag' && (onHashtagClick || contextId)) ||
-          (segment.type === 'mention' &&
-            (onMentionClick || (contextId && pathname === NAV_PATHS.POSTS)));
+        // For hashtags and mentions, create interactive pills
+        const isActiveFilter_ = isActiveFilter(
+          segment.type as 'hashtag' | 'mention',
+          segment.value
+        );
 
+        // Determine if the pill should be clickable
+        let isClickable = false;
+
+        if (segment.type === 'hashtag') {
+          isClickable = true;
+        } else if (segment.type === 'mention') {
+          // For mentions, only make clickable if we have proper callback or are in posts page
+          if (isFilterBarContext || onMentionClick) {
+            // Filter bar context or explicit callback - always clickable
+            isClickable = true;
+          } else if (pathname === NAV_PATHS.POSTS) {
+            // On posts page - make clickable but will need to resolve
+            isClickable = true;
+          }
+        }
+
+        // Generate the URL for this pill
         const pillUrl = generatePillUrl(
           segment.type as 'hashtag' | 'mention',
           segment.value
         );
-        const isActiveFilter = (() => {
-          if (segment.type === 'hashtag') {
-            const hashtagValue = segment.value.startsWith('#')
-              ? segment.value
-              : `#${segment.value}`;
-            const currentTags =
-              searchParams
-                .get('tags')
-                ?.split(',')
-                .map((tag) => tag.trim())
-                .filter(Boolean) || [];
-            return currentTags.includes(hashtagValue);
-          } else if (segment.type === 'mention') {
-            return searchParams.get('author') === segment.value;
-          }
-          return false;
-        })();
 
         if (isClickable) {
           return (
@@ -204,8 +279,8 @@ export function ContentWithPills({
               key={index}
               href={pillUrl}
               className={`content-pill content-pill--${segment.type} content-pill--clickable ${
-                isActiveFilter ? 'content-pill--active' : ''
-              }`}
+                isActiveFilter_ ? 'content-pill--active' : ''
+              } ${isFilterBarContext ? 'content-pill--filter-context' : ''}`}
               onClick={(event) =>
                 handlePillClick(
                   segment.type as 'hashtag' | 'mention',
@@ -214,13 +289,16 @@ export function ContentWithPills({
                 )
               }
               title={
-                segment.type === 'hashtag'
-                  ? `Filter by hashtag: ${segment.value}`
-                  : segment.type === 'mention' && pathname === NAV_PATHS.POSTS
-                    ? `Filter by user: ${segment.value}`
-                    : segment.type === 'mention'
-                      ? 'Author filters only available on Posts page'
-                      : ''
+                isFilterBarContext
+                  ? `Remove ${segment.type === 'hashtag' ? 'hashtag' : 'author'} filter: ${segment.value}`
+                  : segment.type === 'hashtag'
+                    ? `Filter by hashtag: ${segment.value}`
+                    : segment.type === 'mention' &&
+                        (pathname === NAV_PATHS.POSTS || onMentionClick)
+                      ? `Filter by user: ${segment.value}`
+                      : segment.type === 'mention'
+                        ? 'Author filters only available on Posts page'
+                        : ''
               }
             >
               {segment.type === 'hashtag' ? '#' : '@'}

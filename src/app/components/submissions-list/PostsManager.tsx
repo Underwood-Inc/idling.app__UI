@@ -93,10 +93,10 @@ export default function PostsManager({
     addFilter({ name: 'tags' as const, value: hashtag });
   };
 
-  const handleMentionClick = (mention: string) => {
-    // Filter by author mention - use the mention value directly
-    // The backend will handle both author_id and author name matching
-    addFilter({ name: 'author' as const, value: mention });
+  const handleMentionClick = async (mentionValue: string) => {
+    // ContentWithPills now ONLY passes user IDs, never usernames
+    // We can directly use the mentionValue as the author ID for filtering
+    addFilter({ name: 'author' as const, value: mentionValue });
   };
 
   const handleRefresh = () => {

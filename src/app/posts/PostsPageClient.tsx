@@ -25,15 +25,20 @@ interface PostsPageClientProps {
 }
 
 export default function PostsPageClient({ contextId }: PostsPageClientProps) {
-  const [showFloatingModal, setShowFloatingModal] = useState(false);
+  const [triggerModal, setTriggerModal] = useState(false);
 
   const handleNewPostClick = () => {
     // Trigger the floating add post modal
-    setShowFloatingModal(true);
+    setTriggerModal(true);
+  };
+
+  const handleTriggerHandled = () => {
+    setTriggerModal(false);
   };
 
   const handleModalClose = () => {
-    setShowFloatingModal(false);
+    // Modal closed, refresh the posts if needed
+    // The PostsManager will handle refreshing automatically
   };
 
   return (
@@ -42,10 +47,11 @@ export default function PostsPageClient({ contextId }: PostsPageClientProps) {
         contextId={contextId}
         onNewPostClick={handleNewPostClick}
       />
-      {showFloatingModal && (
-        <FloatingAddPost onPostCreated={handleModalClose} />
-      )}
-      {!showFloatingModal && <FloatingAddPost />}
+      <FloatingAddPost
+        externalTrigger={triggerModal}
+        onTriggerHandled={handleTriggerHandled}
+        onPostCreated={handleModalClose}
+      />
       {DevSkeletonToggle && <DevSkeletonToggle />}
     </>
   );

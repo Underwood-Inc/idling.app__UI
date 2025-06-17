@@ -52,8 +52,9 @@ export const SmartInput: React.FC<SmartInputProps> = ({
       const results = await searchUsers(query);
       return results.map((result: UserResult) => ({
         id: result.id,
-        value: result.value,
+        value: result.value, // author_id for filtering
         label: result.label,
+        displayName: result.displayName, // author name for display
         avatar: result.avatar,
         type: 'user' as const
       }));

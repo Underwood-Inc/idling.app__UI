@@ -189,17 +189,55 @@ export async function deleteSubmissionAction(
   const sqlSubmissionId = data.submission_id!.toString();
 
   try {
+    // First, check if this post has any replies
+    const replyCheck = await sql`
+      SELECT COUNT(*) as reply_count 
+      FROM submissions 
+      WHERE thread_parent_id = ${sqlSubmissionId}
+    `;
+
+    const replyCount = Number(replyCheck[0]?.reply_count || 0);
+
+    if (replyCount > 0) {
+      const replyText = replyCount === 1 ? 'reply' : 'replies';
+      const errorMessage =
+        `Cannot delete this post because it has ${replyCount} ${replyText}. ` +
+        `Delete the ${replyText} first to delete this post.`;
+      return {
+        status: -1,
+        error: errorMessage
+      };
+    }
+
+    // Check if the post exists and belongs to the user
+    const submissionCheck = await sql`
+      SELECT submission_id, submission_title 
+      FROM submissions 
+      WHERE submission_id = ${sqlSubmissionId}
+      AND author_id = ${session?.user?.providerAccountId!}
+    `;
+
+    if (submissionCheck.length === 0) {
+      return {
+        status: -1,
+        error: 'Post not found or you do not have permission to delete it.'
+      };
+    }
+
+    // Now safe to delete
     await sql`
       DELETE FROM submissions
       WHERE submission_id = ${sqlSubmissionId}
       AND author_id = ${session?.user?.providerAccountId!}
     `;
 
+    revalidatePath('/');
     return {
       status: 1,
-      message: `Deleted post ${data.submission_name}.`
+      message: `Deleted post "${submissionCheck[0].submission_title}".`
     };
   } catch (e) {
+    console.error('Delete submission error:', e);
     return { status: -1, error: `Failed to delete post.` };
   }
 }
@@ -300,5 +338,61 @@ export async function editSubmissionAction(
   } catch (e) {
     console.error(e);
     return { status: -1, error: `Failed to update post.` };
+  }
+}
+
+/**
+ * Check if a submission can be deleted
+ * Used by UI components to show/hide delete options
+ */
+export async function canDeleteSubmission(
+  submissionId: number,
+  authorId: string
+): Promise<{
+  canDelete: boolean;
+  reason?: string;
+  replyCount?: number;
+}> {
+  try {
+    // Check if post has replies
+    const replyCheck = await sql`
+      SELECT COUNT(*) as reply_count 
+      FROM submissions 
+      WHERE thread_parent_id = ${submissionId.toString()}
+    `;
+
+    const replyCount = Number(replyCheck[0]?.reply_count || 0);
+
+    if (replyCount > 0) {
+      const replyText = replyCount === 1 ? 'reply' : 'replies';
+      return {
+        canDelete: false,
+        reason: `This post has ${replyCount} ${replyText} and cannot be deleted until all ${replyText} are removed.`,
+        replyCount
+      };
+    }
+
+    // Check if post exists and user owns it
+    const submissionCheck = await sql`
+      SELECT submission_id 
+      FROM submissions 
+      WHERE submission_id = ${submissionId.toString()}
+      AND author_id = ${authorId}
+    `;
+
+    if (submissionCheck.length === 0) {
+      return {
+        canDelete: false,
+        reason: 'Post not found or you do not have permission to delete it.'
+      };
+    }
+
+    return { canDelete: true };
+  } catch (e) {
+    console.error('Error checking delete permission:', e);
+    return {
+      canDelete: false,
+      reason: 'Unable to verify delete permissions.'
+    };
   }
 }

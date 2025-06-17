@@ -16,7 +16,7 @@
   gap: 1rem;
   margin-bottom: 1rem;
   padding-bottom: 1rem;
-  border-bottom: 1px solid var(--brand-tertiary--dark);
+  border-bottom: 1px solid #e5e5e5;
 }
 
 .thread__back-link {
@@ -25,13 +25,13 @@
   font-size: 1.4rem;
   font-weight: 500;
   padding: 0.5rem 1rem;
-  border: 1px solid var(--brand-tertiary--dark);
+  border: 1px solid #e0e0e0;
   border-radius: var(--border-radius);
   transition: all 0.2s ease-in-out;
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  background: var(--brand-tertiary);
+  background: #f8f8f8;
 }
 
 .thread__back-link:hover {
@@ -51,8 +51,8 @@
 
 /* Main Post Container */
 .thread__parent {
-  background: var(--light-background--quaternary);
-  border: 1px solid var(--brand-tertiary--dark);
+  background: #fefefe;
+  border: 1px solid #e5e5e5;
   border-radius: var(--border-radius);
   padding: 1.2rem;
   margin-bottom: 1rem;
@@ -68,8 +68,8 @@
 
 /* Reply Section */
 .thread__reply-section {
-  background: var(--light-background--quaternary);
-  border: 1px solid var(--brand-tertiary--dark);
+  background: #fefefe;
+  border: 1px solid #e5e5e5;
   border-radius: var(--border-radius);
   padding: 1.2rem;
   margin-bottom: 1rem;
@@ -93,7 +93,7 @@
   margin: 0 0 1rem 0;
   color: var(--light-bg__text-color--primary);
   padding-bottom: 0.5rem;
-  border-bottom: 1px solid var(--brand-tertiary--dark);
+  border-bottom: 1px solid #e5e5e5;
 }
 
 .thread__replies-list {
@@ -106,8 +106,8 @@
 .thread__not-found {
   text-align: center;
   padding: 2rem;
-  background: var(--light-background--quaternary);
-  border: 1px solid var(--brand-tertiary--dark);
+  background: #fefefe;
+  border: 1px solid #e5e5e5;
   border-radius: var(--border-radius);
 }
 
@@ -127,8 +127,8 @@
 
 /* Submission styles for thread view */
 .thread__container .submission__wrapper {
-  background: var(--light-background--quinary);
-  border: 1px solid var(--brand-tertiary--dark);
+  background: #fefefe;
+  border: 1px solid #e5e5e5;
   border-radius: var(--border-radius);
   padding: 1rem;
   margin-bottom: 1rem;
@@ -137,12 +137,12 @@
 
 .thread__container .submission__wrapper:hover {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  background-color: var(--light-background--tertiary);
+  background-color: #f8f8f8;
 }
 
 .thread__container .submission__wrapper--reply {
   margin-left: 2rem;
-  background: var(--light-background--secondary);
+  background: #f9f9f9;
   border-left: 3px solid var(--brand-primary);
 }
 

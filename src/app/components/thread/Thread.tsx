@@ -203,6 +203,7 @@ export default function Thread({
           id={submission.submission_id}
           name={submission.submission_name}
           isAuthorized={!!providerAccountId}
+          {...(providerAccountId && { authorId: providerAccountId })}
         />
       </div>
     );

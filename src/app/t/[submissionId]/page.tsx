@@ -116,7 +116,9 @@ export default function ThreadPage({ params }: ThreadPageProps) {
     });
   };
 
-  const handleMentionClick = (mention: string) => {
+  const handleMentionClick = async (mentionValue: string) => {
+    // ContentWithPills now ONLY passes user IDs, never usernames
+    // We can directly use the mentionValue as the author ID for filtering
     setFiltersState((prev) => {
       const newFilters = [...prev.filters];
       const authorIndex = newFilters.findIndex((f) => f.name === 'author');
@@ -124,7 +126,7 @@ export default function ThreadPage({ params }: ThreadPageProps) {
       if (authorIndex >= 0) {
         // Toggle author filter
         const currentAuthor = newFilters[authorIndex].value;
-        if (currentAuthor === mention) {
+        if (currentAuthor === mentionValue) {
           // Remove author filter if same mention clicked
           return {
             ...prev,
@@ -132,11 +134,11 @@ export default function ThreadPage({ params }: ThreadPageProps) {
           };
         } else {
           // Update author filter
-          newFilters[authorIndex] = { name: 'author', value: mention };
+          newFilters[authorIndex] = { name: 'author', value: mentionValue };
         }
       } else {
         // Add new author filter
-        newFilters.push({ name: 'author', value: mention });
+        newFilters.push({ name: 'author', value: mentionValue });
       }
 
       return {

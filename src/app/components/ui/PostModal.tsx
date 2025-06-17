@@ -2,7 +2,8 @@
 
 import React from 'react';
 import { useOverlay } from '../../../lib/context/OverlayContext';
-import { AddSubmissionForm } from '../submission-forms/add-submission-form/AddSubmissionForm';
+import { EditSubmissionForm } from '../submission-forms/edit-submission-form/EditSubmissionForm';
+import { SharedSubmissionForm } from '../submission-forms/shared-submission-form/SharedSubmissionForm';
 import './PostModal.css';
 
 interface PostModalProps {
@@ -11,6 +12,13 @@ interface PostModalProps {
   title?: string;
   content?: React.ReactNode;
   onClose?: () => void;
+  // Edit mode props
+  submission?: {
+    submission_id: number;
+    submission_title: string;
+    submission_name: string;
+    tags: string[];
+  };
 }
 
 export const PostModal: React.FC<PostModalProps> = ({
@@ -18,7 +26,8 @@ export const PostModal: React.FC<PostModalProps> = ({
   postId,
   title,
   content,
-  onClose
+  onClose,
+  submission
 }) => {
   const { closeOverlay } = useOverlay();
 
@@ -53,10 +62,18 @@ export const PostModal: React.FC<PostModalProps> = ({
 
     switch (mode) {
       case 'create':
-        return <AddSubmissionForm />;
+        return <SharedSubmissionForm mode="create" onSuccess={handleClose} />;
       case 'edit':
-        // TODO: Implement edit form
-        return <div>Edit form coming soon...</div>;
+        if (!submission) {
+          return <div>Error: No submission data provided for edit mode</div>;
+        }
+        return (
+          <EditSubmissionForm
+            submission={submission}
+            onSuccess={handleClose}
+            onCancel={handleClose}
+          />
+        );
       case 'view':
         // TODO: Implement post view
         return <div>Post view coming soon...</div>;

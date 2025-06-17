@@ -11,8 +11,9 @@ import './InlineSuggestionInput.css';
 
 export interface SuggestionItem {
   id: string;
-  value: string;
+  value: string; // For users, this is the author_id
   label: string;
+  displayName?: string; // For users, this is the author name for display
   avatar?: string;
   type: 'hashtag' | 'user';
 }
@@ -200,13 +201,19 @@ export const InlineSuggestionInput: React.FC<InlineSuggestionInputProps> = ({
       const before = value.substring(0, startIndex);
       const after = value.substring(startIndex + 1 + query.length);
 
-      // Check if suggestion value already contains the trigger character
+      // For user mentions, use displayName for visual insertion but track value (user ID) internally
       let suggestionValue = suggestion.value;
-      if (suggestion.type === 'hashtag' && suggestionValue.startsWith('#')) {
+      if (suggestion.type === 'user') {
+        // Use displayName for the visual text insertion, but the value (user ID) is stored for filtering
+        suggestionValue = suggestion.displayName || suggestion.value;
+        if (suggestionValue.startsWith('@')) {
+          suggestionValue = suggestionValue.substring(1); // Remove the @ as we'll add it
+        }
+      } else if (
+        suggestion.type === 'hashtag' &&
+        suggestionValue.startsWith('#')
+      ) {
         suggestionValue = suggestionValue.substring(1); // Remove the # as we'll add it
-      }
-      if (suggestion.type === 'user' && suggestionValue.startsWith('@')) {
-        suggestionValue = suggestionValue.substring(1); // Remove the @ as we'll add it
       }
 
       const replacement = `${trigger}${suggestionValue} `;
