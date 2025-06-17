@@ -135,6 +135,8 @@ export function useSubmissionsManager({
         params.set('tags', filter.value);
       } else if (filter.name === 'author') {
         params.set('author', filter.value);
+      } else if (filter.name === 'mentions') {
+        params.set('mentions', filter.value);
       } else if (
         filter.name === 'tagLogic' &&
         filtersState.filters.some((f) => f.name === 'tags')
@@ -303,6 +305,7 @@ export function useSubmissionsManager({
     const pageParam = searchParams.get('page');
     const tagsParam = searchParams.get('tags');
     const authorParam = searchParams.get('author');
+    const mentionsParam = searchParams.get('mentions');
     const tagLogicParam = searchParams.get('tagLogic');
     const pageSizeParam = searchParams.get('pageSize');
 
@@ -316,6 +319,12 @@ export function useSubmissionsManager({
     }
     if (authorParam) {
       urlFilters.push({ name: 'author' as PostFilters, value: authorParam });
+    }
+    if (mentionsParam) {
+      urlFilters.push({
+        name: 'mentions' as PostFilters,
+        value: mentionsParam
+      });
     }
     if (tagLogicParam && (tagLogicParam === 'OR' || tagLogicParam === 'AND')) {
       urlFilters.push({

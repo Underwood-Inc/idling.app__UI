@@ -18,7 +18,7 @@ interface ThreadProps {
   submissionId: number;
   providerAccountId: string;
   onHashtagClick?: (hashtag: string) => void;
-  onMentionClick?: (mention: string) => void;
+  onMentionClick?: (mention: string, filterType: 'author' | 'mentions') => void;
   activeFilters?: {
     hashtags: string[];
     mentions: string[];
@@ -175,7 +175,7 @@ export default function Thread({
               content={submission.submission_title}
               onHashtagClick={onHashtagClick}
               onMentionClick={onMentionClick}
-              contextId={contextId}
+              contextId={contextId || 'thread'}
             />
           </h3>
           {submission.submission_name &&
@@ -185,7 +185,7 @@ export default function Thread({
                   content={submission.submission_name}
                   onHashtagClick={onHashtagClick}
                   onMentionClick={onMentionClick}
-                  contextId={contextId}
+                  contextId={contextId || 'thread'}
                 />
               </p>
             )}

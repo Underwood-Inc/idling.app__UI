@@ -16,7 +16,7 @@ interface SubmissionItemProps {
   submission: SubmissionWithReplies;
   onTagClick: (tag: string) => void;
   onHashtagClick?: (hashtag: string) => void;
-  onMentionClick?: (mention: string) => void;
+  onMentionClick?: (mention: string, filterType: 'author' | 'mentions') => void;
   isReply?: boolean;
   depth?: number;
   maxDepth?: number;
@@ -180,7 +180,7 @@ export function SubmissionItem({
                       content={submission.submission_title}
                       onHashtagClick={onHashtagClick}
                       onMentionClick={onMentionClick}
-                      contextId={contextId}
+                      contextId={contextId || 'submission-item'}
                     />
                   </Link>
                 ) : (
@@ -188,7 +188,7 @@ export function SubmissionItem({
                     content={submission.submission_title}
                     onHashtagClick={onHashtagClick}
                     onMentionClick={onMentionClick}
-                    contextId={contextId}
+                    contextId={contextId || 'submission-item'}
                   />
                 )}
               </h3>
@@ -204,7 +204,7 @@ export function SubmissionItem({
                       content={submission.submission_name}
                       onHashtagClick={onHashtagClick}
                       onMentionClick={onMentionClick}
-                      contextId={contextId}
+                      contextId={contextId || 'submission-item'}
                     />
                   </p>
                 </div>
@@ -274,7 +274,7 @@ export function SubmissionItem({
                 depth={depth + 1}
                 maxDepth={maxDepth}
                 onSubmissionUpdate={onSubmissionUpdate}
-                contextId={contextId}
+                contextId={contextId || 'submission-item'}
               />
 
               {/* Nested reply form for this specific reply */}

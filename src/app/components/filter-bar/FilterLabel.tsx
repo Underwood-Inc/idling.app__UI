@@ -7,12 +7,14 @@ export function FilterLabel({
   name,
   label,
   filterId,
-  onRemoveTag
+  onRemoveTag,
+  onRemoveFilter
 }: {
   name: string;
   label: string;
   filterId: string;
   onRemoveTag: (tagToRemove: string) => void;
+  onRemoveFilter?: (filterName: string) => void;
 }) {
   const [displayLabel, setDisplayLabel] = useState(label);
 
@@ -28,7 +30,8 @@ export function FilterLabel({
           );
           const username = await resolveUserIdToUsername(label);
           if (username) {
-            setDisplayLabel(`@${username}`);
+            // Display format: @username|userID
+            setDisplayLabel(`@${username}|${label}`);
           } else {
             // If resolution fails, assume it's already a username and add @
             setDisplayLabel(label.startsWith('@') ? label : `@${label}`);
@@ -48,29 +51,20 @@ export function FilterLabel({
   }, [name, label]);
 
   const handleTagClick = (tagValue: string) => {
-    // eslint-disable-next-line no-console
-    console.log('🏷️ [FILTER_LABEL] Filter label clicked:', {
-      name,
-      label,
-      tagValue,
-      filterId
-    });
-
-    // Remove the specific tag
+    // For hashtag filters in tag lists, remove the specific tag
     onRemoveTag(tagValue);
   };
 
   const handleMentionClick = (mentionValue: string) => {
-    // eslint-disable-next-line no-console
-    console.log('👤 [FILTER_LABEL] Filter mention clicked:', {
-      name,
-      label,
-      mentionValue,
-      filterId
-    });
-
-    // For author filters, use the original label (user ID) for removal
-    onRemoveTag(label); // Use original label, not display label
+    // For author filters, remove the entire author filter (not individual tags)
+    if (name === 'author' && onRemoveFilter) {
+      onRemoveFilter('author');
+    } else if (name === 'mentions' && onRemoveFilter) {
+      onRemoveFilter('mentions');
+    } else {
+      // Fallback to removeTag if no removeFilter provided
+      onRemoveTag(label);
+    }
   };
 
   // If the display label starts with # or @, use ContentWithPills for proper styling
@@ -91,7 +85,15 @@ export function FilterLabel({
   return (
     <button
       className="filter-bar__filter-value"
-      onClick={() => onRemoveTag(label)}
+      onClick={() => {
+        if (name === 'author' && onRemoveFilter) {
+          onRemoveFilter('author');
+        } else if (name === 'mentions' && onRemoveFilter) {
+          onRemoveFilter('mentions');
+        } else {
+          onRemoveTag(label);
+        }
+      }}
       aria-label={`Remove ${displayLabel} filter`}
     >
       {displayLabel}

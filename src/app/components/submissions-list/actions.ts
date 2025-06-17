@@ -469,12 +469,14 @@ export async function getSubmissionsAction({
     const tagLogicFilter =
       filters.find((f) => f.name === 'tagLogic')?.value || 'OR'; // Default to OR
     const authorFilter = filters.find((f) => f.name === 'author')?.value;
+    const mentionsFilter = filters.find((f) => f.name === 'mentions')?.value;
 
     // eslint-disable-next-line no-console
     console.log('🔍 [BACKEND] Extracted filters:', {
       tagFilter,
       tagLogicFilter,
       authorFilter,
+      mentionsFilter,
       filtersCount: filters.length
     });
 
@@ -502,6 +504,21 @@ export async function getSubmissionsAction({
           ')'
       );
       queryParams.push(authorFilter, authorFilter);
+    }
+
+    if (mentionsFilter) {
+      // Filter by content that mentions a specific user (by username or user ID)
+      // Search in both submission_title and submission_name for mentions
+      whereConditions.push(
+        '(s.submission_title ILIKE $' +
+          (queryParams.length + 1) +
+          ' OR s.submission_name ILIKE $' +
+          (queryParams.length + 2) +
+          ')'
+      );
+      // Search for @username pattern in content
+      const mentionPattern = `%@${mentionsFilter}%`;
+      queryParams.push(mentionPattern, mentionPattern);
     }
 
     if (tagFilter) {

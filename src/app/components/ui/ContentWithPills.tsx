@@ -2,17 +2,18 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import React from 'react';
+import React, { useState } from 'react';
 import { NAV_PATHS } from '../../../lib/routes';
+import { MentionTooltip } from '../tooltip/LinkTooltip';
 import './ContentWithPills.css';
 
 interface ContentWithPillsProps {
   content: string;
   onHashtagClick?: (hashtag: string) => void;
-  onMentionClick?: (mention: string) => void;
+  onMentionClick?: (mention: string, filterType: 'author' | 'mentions') => void;
   className?: string;
   contextId: string;
-  isFilterBarContext?: boolean; // New prop to indicate filter bar context
+  isFilterBarContext?: boolean;
 }
 
 type SegmentType = 'text' | 'hashtag' | 'mention';
@@ -33,6 +34,20 @@ export function ContentWithPills({
   const pathname = usePathname();
   const router = useRouter();
   const searchParams = useSearchParams();
+
+  // Tooltip state for mention pills with debouncing
+  const [tooltip, setTooltip] = useState<{
+    visible: boolean;
+    username: string;
+    position: { x: number; y: number };
+    timeoutId?: ReturnType<typeof setTimeout>;
+    isHoveringTooltip: boolean;
+  }>({
+    visible: false,
+    username: '',
+    position: { x: 0, y: 0 },
+    isHoveringTooltip: false
+  });
 
   // Parse content into segments with hashtags and mentions
   const parseContent = (text: string): ContentSegment[] => {
@@ -150,7 +165,7 @@ export function ContentWithPills({
       if (type === 'hashtag' && onHashtagClick) {
         onHashtagClick(`#${value}`);
       } else if (type === 'mention' && onMentionClick) {
-        onMentionClick(value);
+        onMentionClick(value, 'author');
       }
       return;
     }
@@ -169,7 +184,7 @@ export function ContentWithPills({
 
         if (userInfo && userInfo.userId) {
           // SUCCESS: We found the user, use their user ID for filtering
-          onMentionClick(userInfo.userId);
+          onMentionClick(userInfo.userId, 'author');
         } else {
           // FAILURE: User not found, don't apply any filter
           console.warn(`User not found for mention: ${value}`);
@@ -233,95 +248,249 @@ export function ContentWithPills({
     return false;
   };
 
+  // Handle showing tooltip on mention hover with debouncing
+  const handleMentionHover = (username: string, event: React.MouseEvent) => {
+    // Don't show tooltip in filter bar context or if it's not a posts page
+    if (isFilterBarContext || pathname !== NAV_PATHS.POSTS) {
+      return;
+    }
+
+    // Clear any existing timeout
+    if (tooltip.timeoutId) {
+      clearTimeout(tooltip.timeoutId);
+    }
+
+    const rect = event.currentTarget.getBoundingClientRect();
+    setTooltip({
+      visible: true,
+      username,
+      position: {
+        x: rect.left + rect.width / 2,
+        y: rect.top - 8 // Position above the pill instead of below
+      },
+      isHoveringTooltip: false
+    });
+  };
+
+  // Handle hiding tooltip with debouncing
+  const handleMentionLeave = () => {
+    // Clear any existing timeout
+    if (tooltip.timeoutId) {
+      clearTimeout(tooltip.timeoutId);
+    }
+
+    // Set a timeout to hide the tooltip after 300ms, but only if not hovering tooltip
+    const timeoutId = setTimeout(() => {
+      setTooltip((prev) => {
+        // Don't hide if actively hovering over the tooltip
+        if (prev.isHoveringTooltip) {
+          return { ...prev, timeoutId: undefined };
+        }
+        return { ...prev, visible: false, timeoutId: undefined };
+      });
+    }, 300);
+
+    setTooltip((prev) => ({ ...prev, timeoutId }));
+  };
+
+  // Handle tooltip hover to keep it visible
+  const handleTooltipHover = () => {
+    // Clear any existing timeout to keep tooltip visible
+    if (tooltip.timeoutId) {
+      clearTimeout(tooltip.timeoutId);
+    }
+
+    // Mark that we're hovering over the tooltip
+    setTooltip((prev) => ({
+      ...prev,
+      timeoutId: undefined,
+      isHoveringTooltip: true
+    }));
+  };
+
+  // Handle tooltip leave to allow hiding
+  const handleTooltipLeave = () => {
+    // Mark that we're no longer hovering over the tooltip
+    setTooltip((prev) => ({
+      ...prev,
+      isHoveringTooltip: false
+    }));
+
+    // Immediately hide the tooltip when leaving it
+    setTooltip((prev) => ({
+      ...prev,
+      visible: false,
+      timeoutId: undefined
+    }));
+  };
+
+  // Handle filter by author action
+  const handleFilterByAuthor = async () => {
+    const username = tooltip.username;
+    setTooltip((prev) => ({
+      ...prev,
+      visible: false,
+      isHoveringTooltip: false,
+      timeoutId: undefined
+    }));
+
+    if (onMentionClick) {
+      // Resolve username to user ID for accurate filtering
+      try {
+        const { getUserInfo } = await import(
+          '../../../lib/actions/search.actions'
+        );
+        const userInfo = await getUserInfo(username);
+        if (userInfo && userInfo.userId) {
+          onMentionClick(userInfo.userId, 'author');
+        }
+      } catch (error) {
+        console.error('Error resolving username for author filter:', error);
+      }
+    }
+  };
+
+  // Handle filter by content action
+  const handleFilterByContent = async () => {
+    const username = tooltip.username;
+    setTooltip((prev) => ({
+      ...prev,
+      visible: false,
+      isHoveringTooltip: false,
+      timeoutId: undefined
+    }));
+
+    if (onMentionClick) {
+      // For content filtering, we use the username directly
+      onMentionClick(username, 'mentions');
+    }
+  };
+
   const segments = parseContent(content);
 
   return (
-    <span
-      className={`content-with-pills ${className}`}
-      data-context-id={contextId}
-    >
-      {segments.map((segment, index) => {
-        if (segment.type === 'text') {
-          return <span key={index}>{segment.value}</span>;
-        }
-
-        // For hashtags and mentions, create interactive pills
-        const isActiveFilter_ = isActiveFilter(
-          segment.type as 'hashtag' | 'mention',
-          segment.value
-        );
-
-        // Determine if the pill should be clickable
-        let isClickable = false;
-
-        if (segment.type === 'hashtag') {
-          isClickable = true;
-        } else if (segment.type === 'mention') {
-          // For mentions, only make clickable if we have proper callback or are in posts page
-          if (isFilterBarContext || onMentionClick) {
-            // Filter bar context or explicit callback - always clickable
-            isClickable = true;
-          } else if (pathname === NAV_PATHS.POSTS) {
-            // On posts page - make clickable but will need to resolve
-            isClickable = true;
+    <>
+      <span
+        className={`content-with-pills ${className}`}
+        data-context-id={contextId}
+      >
+        {segments.map((segment, index) => {
+          if (segment.type === 'text') {
+            return <span key={index}>{segment.value}</span>;
           }
-        }
 
-        // Generate the URL for this pill
-        const pillUrl = generatePillUrl(
-          segment.type as 'hashtag' | 'mention',
-          segment.value
-        );
+          // For hashtags and mentions, create interactive pills
+          const isActiveFilter_ = isActiveFilter(
+            segment.type as 'hashtag' | 'mention',
+            segment.value
+          );
 
-        if (isClickable) {
+          // Determine if the pill should be clickable
+          let isClickable = false;
+
+          if (segment.type === 'hashtag') {
+            isClickable = true;
+          } else if (segment.type === 'mention') {
+            // For mentions, only make clickable if we have proper callback or are in posts page
+            if (isFilterBarContext || onMentionClick) {
+              // Filter bar context or explicit callback - always clickable
+              isClickable = true;
+            } else if (pathname === NAV_PATHS.POSTS) {
+              // On posts page - make clickable but will need to resolve
+              isClickable = true;
+            }
+          }
+
+          // Generate the URL for this pill
+          const pillUrl = generatePillUrl(
+            segment.type as 'hashtag' | 'mention',
+            segment.value
+          );
+
+          if (isClickable) {
+            return (
+              <Link
+                key={index}
+                href={pillUrl}
+                className={`content-pill content-pill--${segment.type} content-pill--clickable ${
+                  isActiveFilter_ ? 'content-pill--active' : ''
+                } ${isFilterBarContext ? 'content-pill--filter-context' : ''}`}
+                onClick={(event) =>
+                  handlePillClick(
+                    segment.type as 'hashtag' | 'mention',
+                    segment.value,
+                    event
+                  )
+                }
+                onMouseEnter={
+                  segment.type === 'mention' &&
+                  !isFilterBarContext &&
+                  pathname === NAV_PATHS.POSTS
+                    ? (event) => handleMentionHover(segment.value, event)
+                    : undefined
+                }
+                onMouseLeave={
+                  segment.type === 'mention' &&
+                  !isFilterBarContext &&
+                  pathname === NAV_PATHS.POSTS
+                    ? handleMentionLeave
+                    : undefined
+                }
+                title={
+                  isFilterBarContext
+                    ? `Remove ${segment.type === 'hashtag' ? 'hashtag' : 'author'} filter: ${segment.value}`
+                    : segment.type === 'hashtag'
+                      ? `Filter by hashtag: ${segment.value}`
+                      : segment.type === 'mention' &&
+                          (pathname === NAV_PATHS.POSTS || onMentionClick)
+                        ? `Filter by user: ${segment.value} (hover for options)`
+                        : segment.type === 'mention'
+                          ? 'Author filters only available on Posts page'
+                          : ''
+                }
+              >
+                {segment.type === 'hashtag' ? '#' : '@'}
+                {segment.value}
+              </Link>
+            );
+          }
+
           return (
-            <Link
+            <span
               key={index}
-              href={pillUrl}
-              className={`content-pill content-pill--${segment.type} content-pill--clickable ${
-                isActiveFilter_ ? 'content-pill--active' : ''
-              } ${isFilterBarContext ? 'content-pill--filter-context' : ''}`}
-              onClick={(event) =>
-                handlePillClick(
-                  segment.type as 'hashtag' | 'mention',
-                  segment.value,
-                  event
-                )
-              }
+              className={`content-pill content-pill--${segment.type}`}
               title={
-                isFilterBarContext
-                  ? `Remove ${segment.type === 'hashtag' ? 'hashtag' : 'author'} filter: ${segment.value}`
-                  : segment.type === 'hashtag'
-                    ? `Filter by hashtag: ${segment.value}`
-                    : segment.type === 'mention' &&
-                        (pathname === NAV_PATHS.POSTS || onMentionClick)
-                      ? `Filter by user: ${segment.value}`
-                      : segment.type === 'mention'
-                        ? 'Author filters only available on Posts page'
-                        : ''
+                segment.type === 'hashtag'
+                  ? `Hashtag: ${segment.value}`
+                  : `Mention: ${segment.value}`
               }
             >
               {segment.type === 'hashtag' ? '#' : '@'}
               {segment.value}
-            </Link>
+            </span>
           );
-        }
+        })}
+      </span>
 
-        return (
-          <span
-            key={index}
-            className={`content-pill content-pill--${segment.type}`}
-            title={
-              segment.type === 'hashtag'
-                ? `Hashtag: ${segment.value}`
-                : `Mention: ${segment.value}`
-            }
-          >
-            {segment.type === 'hashtag' ? '#' : '@'}
-            {segment.value}
-          </span>
-        );
-      })}
-    </span>
+      {/* Render mention tooltip */}
+      {tooltip.visible && (
+        <MentionTooltip
+          username={tooltip.username}
+          onFilterByAuthor={handleFilterByAuthor}
+          onFilterByContent={handleFilterByContent}
+          onClose={() =>
+            setTooltip((prev) => ({
+              ...prev,
+              visible: false,
+              isHoveringTooltip: false,
+              timeoutId: undefined
+            }))
+          }
+          onHover={handleTooltipHover}
+          onLeave={handleTooltipLeave}
+          position={tooltip.position}
+        />
+      )}
+    </>
   );
 }

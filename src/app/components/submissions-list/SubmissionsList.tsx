@@ -1,18 +1,17 @@
 'use client';
 
-import { SubmissionWithReplies } from './actions';
 import { SubmissionItem } from './SubmissionItem';
 import './SubmissionItem.css';
 import './SubmissionsList.css';
 
-interface SubmissionsListProps {
-  posts: SubmissionWithReplies[];
+export interface SubmissionsListProps {
+  posts: any[];
   onTagClick: (tag: string) => void;
   onHashtagClick?: (hashtag: string) => void;
-  onMentionClick?: (mention: string) => void;
+  onMentionClick?: (mention: string, filterType: 'author' | 'mentions') => void;
   showSkeletons?: boolean;
   onRefresh?: () => void;
-  contextId?: string;
+  contextId: string;
 }
 
 export default function SubmissionsList({

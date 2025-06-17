@@ -418,3 +418,11 @@ show tables in selected database
 `\dt` or `SELECT * FROM pg_catalog.pg_tables;`
 
 See more in this [postgres cheat sheet](https://learnsql.com/blog/postgresql-cheat-sheet/postgresql-cheat-sheet-a4.pdf)
+
+## Features
+
+- **Smart Filtering System**: Filter posts by hashtags, authors, and mentions with URL parameter support
+- **Mention Filter Tooltip**: Hover over user mention pills to choose between filtering by author or by content mentions
+- **Thread Management**: Nested replies with configurable depth limits
+- **Real-time Updates**: Optimistic UI updates with state management via Jotai
+- **Advanced Search**: Support for multiple tags with AND/OR logic
