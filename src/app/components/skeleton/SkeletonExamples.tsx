@@ -23,8 +23,13 @@ import { SmartPostsSkeleton } from './useSmartPostsSkeleton';
 export const SkeletonExamples: React.FC = () => {
   const [showExample, setShowExample] = useState(1);
   const contentRef = useRef<HTMLDivElement>(null);
-  const { isCapturing, skeletonConfig, captureLayout, stopCapture } =
-    useSmartSkeleton(contentRef);
+  const {
+    skeletonContent,
+    isAnalyzing,
+    capturedLayout,
+    captureLayout,
+    clearCapture
+  } = useSmartSkeleton(contentRef);
 
   const toggleExample = (exampleNumber: number) => {
     setShowExample(exampleNumber);
@@ -91,7 +96,11 @@ export const SkeletonExamples: React.FC = () => {
             <SkeletonLoader
               config={{
                 type: 'manual',
-                paragraphs: 3
+                customElements: [
+                  <SkeletonText key="p1" width="90%" height="1rem" />,
+                  <SkeletonText key="p2" width="85%" height="1rem" />,
+                  <SkeletonText key="p3" width="70%" height="1rem" />
+                ]
               }}
             />
           </div>
@@ -101,7 +110,11 @@ export const SkeletonExamples: React.FC = () => {
             <SkeletonLoader
               config={{
                 type: 'manual',
-                words: 12
+                customElements: [
+                  <SkeletonText key="w1" width="60px" height="1rem" />,
+                  <SkeletonText key="w2" width="80px" height="1rem" />,
+                  <SkeletonText key="w3" width="90px" height="1rem" />
+                ]
               }}
             />
           </div>
@@ -111,40 +124,21 @@ export const SkeletonExamples: React.FC = () => {
             <SkeletonLoader
               config={{
                 type: 'manual',
-                boxes: 3
-              }}
-            />
-          </div>
-
-          <div style={{ marginBottom: '2rem' }}>
-            <h3>Custom Elements</h3>
-            <SkeletonLoader
-              config={{
-                type: 'manual',
                 customElements: [
-                  <div
-                    key="custom"
-                    style={{
-                      display: 'flex',
-                      gap: '1rem',
-                      alignItems: 'center',
-                      marginBottom: '1rem'
-                    }}
-                  >
-                    <SkeletonCircle size="50px" />
-                    <div style={{ flex: 1 }}>
-                      <SkeletonText
-                        width="60%"
-                        height="1.2rem"
-                        className="mb-2"
-                      />
-                      <SkeletonText width="40%" height="0.9rem" />
-                    </div>
-                  </div>
+                  <SkeletonBox key="b1" width="100%" height="50px" />,
+                  <SkeletonBox key="b2" width="100%" height="50px" />,
+                  <SkeletonBox key="b3" width="100%" height="50px" />
                 ]
               }}
             />
           </div>
+
+          {capturedLayout && skeletonContent && (
+            <div style={{ marginBottom: '2rem' }}>
+              <h3>Generated Smart Skeleton</h3>
+              {skeletonContent}
+            </div>
+          )}
         </div>
       )}
 
@@ -152,20 +146,20 @@ export const SkeletonExamples: React.FC = () => {
         <div>
           <h2>Smart Skeleton Detection</h2>
           <div style={{ marginBottom: '1rem' }}>
-            <button onClick={captureLayout} disabled={isCapturing}>
+            <button onClick={captureLayout} disabled={isAnalyzing}>
               Capture Current Layout
             </button>
-            <button onClick={stopCapture} style={{ marginLeft: '1rem' }}>
+            <button onClick={clearCapture} style={{ marginLeft: '1rem' }}>
               Stop Capture
             </button>
           </div>
 
-          {isCapturing && <p>Analyzing layout...</p>}
+          {isAnalyzing && <p>Analyzing layout...</p>}
 
-          {skeletonConfig && (
+          {capturedLayout && skeletonContent && (
             <div style={{ marginBottom: '2rem' }}>
               <h3>Generated Smart Skeleton</h3>
-              <SkeletonLoader config={skeletonConfig} />
+              {skeletonContent}
             </div>
           )}
 

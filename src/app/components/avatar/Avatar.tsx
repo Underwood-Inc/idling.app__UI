@@ -54,8 +54,6 @@ const Avatar = memo(
       // Calculate available space
       const spaceAbove = avatarRect.top;
       const spaceBelow = viewportHeight - avatarRect.bottom;
-      const spaceLeft = avatarRect.left;
-      const spaceRight = viewportWidth - avatarRect.right;
 
       // Determine vertical position
       let top: number;

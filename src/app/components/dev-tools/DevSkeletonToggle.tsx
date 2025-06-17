@@ -39,7 +39,7 @@ export const useDevSkeletonState = () => {
 // Internal component that's only rendered in development
 const DevSkeletonToggleInternal: React.FC = () => {
   const [mode, setMode] = useAtom(devSkeletonModeAtom);
-  const [isEnabled, setIsEnabled] = useAtom(devSkeletonEnabledAtom);
+  const [, setIsEnabled] = useAtom(devSkeletonEnabledAtom);
   const [isVisible, setIsVisible] = useState(false);
 
   // Get dev mode state

@@ -490,6 +490,9 @@ export const SkeletonLoader: React.FC<SkeletonLoaderProps> = ({
   forceShow = false,
   isLoading = true
 }) => {
+  // Always call hooks at the top level
+  const { shouldShowSkeleton, isDevModeActive } = useDevSkeletonState();
+
   if (config.type === 'smart') {
     return (
       <SmartSkeletonLoader
@@ -503,8 +506,6 @@ export const SkeletonLoader: React.FC<SkeletonLoaderProps> = ({
   }
 
   // Manual mode - just render the custom elements
-  const { shouldShowSkeleton, isDevModeActive } = useDevSkeletonState();
-
   const shouldShow = (() => {
     if (process.env.NODE_ENV === 'development' && isDevModeActive) {
       return shouldShowSkeleton;
