@@ -6,7 +6,7 @@ import { createInterface } from 'readline';
 
 // Load environment variables
 import { config } from 'dotenv';
-config(); // Load .env file
+config({ path: '.env.local' }); // Load .env.local file
 
 import sql from '../src/lib/db';
 
