@@ -260,7 +260,7 @@ export function CustomFilterInput({
           {!(currentEditValue || inputValue) &&
             'Type # for hashtags or @ for users...'}
           {(currentEditValue || inputValue).startsWith('#') &&
-            'Filtering by hashtag - select from suggestions or type custom tag'}
+            'Filtering by hashtag - select from suggestions, add space to complete, or click Add'}
           {(currentEditValue || inputValue).startsWith('@') &&
             `Filtering posts ${userFilterMode === 'author' ? 'by' : 'mentioning'} user - select from suggestions`}
           {(currentEditValue || inputValue) &&

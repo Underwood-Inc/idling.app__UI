@@ -173,6 +173,25 @@ export default function PostsManager({
           )}
         </div>
 
+        {/* Results count display */}
+        {!isLoading && !error && (
+          <div className="posts-manager__results-count">
+            <span className="posts-manager__results-text">
+              {pagination.totalRecords === 0
+                ? 'No results found'
+                : `${pagination.totalRecords.toLocaleString()} result${
+                    pagination.totalRecords === 1 ? '' : 's'
+                  }`}
+              {filters.length > 0 && (
+                <span className="posts-manager__results-filtered">
+                  {' '}
+                  (filtered)
+                </span>
+              )}
+            </span>
+          </div>
+        )}
+
         <FilterBar
           filterId={contextId}
           filters={filters as any}

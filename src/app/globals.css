@@ -237,6 +237,16 @@
   padding: var(--current-spacing-sm);
 }
 
+.spacing-theme-cozy .posts-manager__results-count {
+  margin: var(--current-spacing) 0;
+  padding: var(--current-spacing-sm) var(--current-spacing);
+}
+
+.spacing-theme-compact .posts-manager__results-count {
+  margin: var(--current-spacing-sm) 0;
+  padding: var(--current-spacing-xs) var(--current-spacing-sm);
+}
+
 /* Additional submission spacing */
 .spacing-theme-cozy .submission__list {
   gap: var(--current-spacing);

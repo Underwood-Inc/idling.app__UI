@@ -283,13 +283,26 @@ export function useSubmissionsManager({
     // Build filters array including all logic parameters
     const urlFilters: Filter<PostFilters>[] = [];
 
-    // Handle comma-separated values for filters that can have multiple instances
+    // Handle comma-separated values for tags filter (should be single filter with comma-separated values)
     if (tagsParam) {
-      tagsParam.split(',').forEach((value) => {
-        if (value.trim()) {
-          urlFilters.push({ name: 'tags' as PostFilters, value: value.trim() });
+      const cleanTags = tagsParam
+        .split(',')
+        .map((tag) => tag.trim())
+        .filter(Boolean);
+      if (cleanTags.length > 0) {
+        urlFilters.push({
+          name: 'tags' as PostFilters,
+          value: cleanTags.join(',')
+        });
+
+        // Auto-add tagLogic filter if multiple tags but no explicit tagLogic in URL
+        if (cleanTags.length > 1 && !tagLogicParam) {
+          urlFilters.push({
+            name: 'tagLogic' as PostFilters,
+            value: 'OR' // Default to OR logic
+          });
         }
-      });
+      }
     }
     if (authorParam) {
       authorParam.split(',').forEach((value) => {

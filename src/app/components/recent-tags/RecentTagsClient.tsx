@@ -7,17 +7,10 @@ import { RECENT_TAGS_SELECTORS } from '../../../lib/test-selectors/components/re
 import { Card } from '../card/Card';
 import Empty from '../empty/Empty';
 import FancyBorder from '../fancy-border/FancyBorder';
+import { getTagsFromSearchParams } from '../filter-bar/utils/get-tags';
 import Loader from '../loader/Loader';
 import { getRecentTags } from './actions';
 import './RecentTags.css';
-
-function getTagsFromSearchParams(tagsParam: string): string[] {
-  if (!tagsParam) return [];
-  return tagsParam
-    .split(',')
-    .map((tag) => tag.trim())
-    .filter(Boolean);
-}
 
 const RecentTagsClientComponent = ({
   contextId,
@@ -73,27 +66,32 @@ const RecentTagsClientComponent = ({
     return `Posts with ${logicText}: ${tagList}`;
   }, [tagState.currentTags, tagState.currentTagLogic]);
 
-  // Debug effect to track state changes - only for tag-related changes
+  // Ensure tagLogic filter exists when multiple tags are present
   useEffect(() => {
-    // eslint-disable-next-line no-console
-    console.log('🏷️ [RECENT_TAGS] Tag state changed:', {
-      contextId,
-      currentTags: tagState.currentTags,
-      currentTagLogic: tagState.currentTagLogic,
-      tagFiltersCount: filters.filter(
-        (f) => f.name === 'tags' || f.name === 'tagLogic'
-      ).length
-    });
-  }, [contextId, tagState.currentTags, tagState.currentTagLogic]); // Only react to tag changes
-
-  // eslint-disable-next-line no-console
-  console.log('🏷️ [RECENT_TAGS] Current state:', {
-    currentTags: tagState.currentTags,
-    currentTagLogic: tagState.currentTagLogic,
-    filtersCount: filters.length,
-    usingSharedAtoms: true,
-    filtersStateExists: !!filtersState
-  });
+    if (
+      tagState.currentTags.length > 1 &&
+      !tagState.tagLogicFilter &&
+      filtersState.initialized
+    ) {
+      // Add default tagLogic filter when multiple tags exist but no logic filter is present
+      setFiltersState((prev) => {
+        const newFilters = [...prev.filters];
+        newFilters.push({
+          name: 'tagLogic',
+          value: 'OR' // Default to OR logic
+        });
+        return {
+          ...prev,
+          filters: newFilters
+        };
+      });
+    }
+  }, [
+    tagState.currentTags.length,
+    tagState.tagLogicFilter,
+    filtersState.initialized,
+    setFiltersState
+  ]);
 
   // Fetch recent tags
   useEffect(() => {
@@ -118,12 +116,6 @@ const RecentTagsClientComponent = ({
   }, [onlyMine, session]);
 
   const handleTagClick = (tag: string) => {
-    // eslint-disable-next-line no-console
-    console.log('🏷️ [RECENT_TAGS] Tag clicked:', {
-      tag,
-      currentTags: tagState.currentTags
-    });
-
     const isSelected = tagState.currentTags.includes(tag);
     let newTags: string[];
 

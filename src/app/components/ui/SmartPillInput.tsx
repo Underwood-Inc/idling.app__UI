@@ -137,8 +137,12 @@ export const SmartPillInput: React.FC<SmartPillInputProps> = ({
     const combinedValue = editValue + (newValue ? ' ' + newValue : '');
 
     // Check if the new input contains complete pills (hashtags or structured mentions)
+    // Only auto-create pills for:
+    // 1. Structured mentions from suggestions: @[username|userId]
+    // 2. Hashtags that end with a space (indicating completion/selection)
     const hasCompletePill =
-      /@\[[^\]]+\]$/.test(newValue.trim()) || /^#\w+$/.test(newValue.trim());
+      /@\[[^\]]+\]$/.test(newValue.trim()) || // Structured mentions
+      (/^#\w+\s$/.test(newValue) && newValue.trim().length > 2); // Hashtags ending with space, 3+ chars total
 
     if (hasCompletePill) {
       const newPill = newValue.trim();

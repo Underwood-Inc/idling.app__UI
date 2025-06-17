@@ -1,9 +1,9 @@
 .cache-status {
   position: fixed;
-  bottom: 0.5rem;
+  bottom: 1rem;
   left: 1rem;
   z-index: 15;
-  /* Above footer (footer is z-index: 10) */
+  /* Above footer content but positioned within footer bounds */
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -38,6 +38,11 @@
 .cache-status__indicator--cached {
   color: #f59e0b;
   /* Amber for cached */
+}
+
+.cache-status__indicator--stale {
+  color: #ef4444;
+  /* Red for stale */
 }
 
 .cache-status__text {
@@ -100,10 +105,47 @@
   }
 }
 
+.cache-status__details {
+  position: absolute;
+  bottom: 100%;
+  left: 0;
+  margin-bottom: 0.5rem;
+  background: rgba(17, 17, 17, 0.95);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 0.5rem;
+  padding: 0.75rem;
+  min-width: 250px;
+  font-size: 0.75rem;
+  z-index: 20;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.cache-status__detail-item {
+  margin-bottom: 0.75rem;
+}
+
+.cache-status__detail-item:last-child {
+  margin-bottom: 0;
+}
+
+.cache-status__detail-item strong {
+  display: block;
+  color: #ffffff;
+  margin-bottom: 0.25rem;
+  font-size: 0.8rem;
+}
+
+.cache-status__detail-item div {
+  color: #d1d5db;
+  margin-bottom: 0.125rem;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+}
+
 /* Mobile responsiveness */
 @media (max-width: 768px) {
   .cache-status {
-    bottom: 0.25rem;
+    bottom: 0.75rem;
     left: 0.5rem;
     padding: 0.375rem 0.5rem;
     font-size: 0.7rem;
@@ -114,6 +156,11 @@
     min-width: 1.25rem;
     height: 1.25rem;
     font-size: 0.75rem;
+  }
+
+  .cache-status__details {
+    min-width: 200px;
+    font-size: 0.7rem;
   }
 }
 
