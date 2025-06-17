@@ -1,1 +1,1 @@
-export type PostFilters = 'tags' | 'tagLogic';
+export type PostFilters = 'tags' | 'tagLogic' | 'author';

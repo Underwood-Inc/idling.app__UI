@@ -1,0 +1,109 @@
+.content-with-pills {
+  display: inline;
+  line-height: inherit;
+}
+
+.content-pill {
+  display: inline-block;
+  padding: 0.15rem 0.5rem;
+  margin: 0 0.1rem;
+  border-radius: 0.75rem;
+  font-size: 1.2rem;
+  font-weight: 500;
+  border: 1px solid;
+  cursor: default;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  vertical-align: baseline;
+  line-height: 1.2;
+  opacity: 0.9;
+}
+
+.content-pill--hashtag {
+  background-color: var(--brand-secondary);
+  color: var(--brand-bg__text-color--primary);
+  border-color: var(--brand-secondary--dark);
+}
+
+.content-pill--mention {
+  background-color: var(--brand-tertiary);
+  color: var(--brand-bg__text-color--primary);
+  border-color: var(--brand-tertiary--dark);
+}
+
+.content-pill--clickable {
+  cursor: pointer;
+  opacity: 1;
+}
+
+.content-pill--clickable:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
+  opacity: 1;
+}
+
+.content-pill--hashtag.content-pill--clickable:hover {
+  background-color: var(--brand-secondary--dark);
+  border-color: var(--brand-secondary--dark);
+}
+
+.content-pill--mention.content-pill--clickable:hover {
+  background-color: var(--brand-tertiary--dark);
+  border-color: var(--brand-tertiary--dark);
+}
+
+.content-pill--active {
+  background-color: var(--brand-primary);
+  color: var(--brand-bg__text-color--primary);
+  border-color: var(--brand-primary--dark);
+  opacity: 1;
+  font-weight: 600;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.content-pill--active:hover {
+  background-color: var(--brand-primary--dark);
+  border-color: var(--brand-primary--dark);
+}
+
+/* Focus styles for accessibility */
+.content-pill--clickable:focus {
+  outline: 2px solid var(--brand-primary);
+  outline-offset: 2px;
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .content-pill--hashtag {
+    background-color: var(--dark-background--secondary);
+    color: var(--dark-bg__text-color--primary);
+    border-color: var(--brand-tertiary--dark);
+  }
+
+  .content-pill--mention {
+    background-color: var(--dark-background--tertiary);
+    color: var(--dark-bg__text-color--primary);
+    border-color: var(--brand-tertiary--dark);
+  }
+
+  .content-pill--hashtag.content-pill--clickable:hover {
+    background-color: var(--brand-secondary);
+    border-color: var(--brand-secondary--dark);
+    color: var(--font-color--primary);
+  }
+
+  .content-pill--mention.content-pill--clickable:hover {
+    background-color: var(--brand-tertiary);
+    border-color: var(--brand-tertiary--dark);
+    color: var(--font-color--primary);
+  }
+}
+
+/* Small screen adjustments */
+@media (max-width: 768px) {
+  .content-pill {
+    padding: 0.08rem 0.3rem;
+    font-size: 1.2rem;
+    margin: 0 0.03rem;
+  }
+}

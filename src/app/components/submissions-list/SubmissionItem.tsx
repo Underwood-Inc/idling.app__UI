@@ -7,25 +7,33 @@ import { buildThreadUrl } from '../../../lib/routes';
 import { Author } from '../author/Author';
 import { DeleteSubmissionForm } from '../submission-forms/delete-submission-form/DeleteSubmissionForm';
 import { EditSubmissionForm } from '../submission-forms/edit-submission-form/EditSubmissionForm';
+import { TagLink } from '../tag-link/TagLink';
 import { ReplyForm } from '../thread/ReplyForm';
+import { ContentWithPills } from '../ui/ContentWithPills';
 import { SubmissionWithReplies } from './actions';
 
 interface SubmissionItemProps {
   submission: SubmissionWithReplies;
   onTagClick: (tag: string) => void;
+  onHashtagClick?: (hashtag: string) => void;
+  onMentionClick?: (mention: string) => void;
   isReply?: boolean;
   depth?: number;
   maxDepth?: number;
   onSubmissionUpdate?: () => void;
+  contextId?: string;
 }
 
 export function SubmissionItem({
   submission,
   onTagClick,
+  onHashtagClick,
+  onMentionClick,
   isReply = false,
   depth = 0,
   maxDepth = 3,
-  onSubmissionUpdate
+  onSubmissionUpdate,
+  contextId
 }: SubmissionItemProps) {
   const { data: session } = useSession();
 
@@ -87,15 +95,13 @@ export function SubmissionItem({
 
     return (
       <div className="submission__tags">
-        {tags.map((tag: string) => (
-          <button
-            key={tag}
-            className="submission__tag"
-            onClick={() => handleTagClick(tag)}
-            title={`Filter by ${tag}`}
-          >
-            {tag}
-          </button>
+        {tags.map((tag, index) => (
+          <TagLink
+            key={`${tag}-${index}`}
+            value={tag}
+            contextId={contextId || 'default'}
+            onTagClick={handleTagClick}
+          />
         ))}
       </div>
     );
@@ -113,30 +119,31 @@ export function SubmissionItem({
         <Author
           authorId={submission.author_id}
           authorName={submission.author}
-          size="sm"
           showFullName={true}
         />
         <span className="submission__datetime">
           {submission.submission_datetime.toLocaleString()}
         </span>
 
-        {/* Edit/Delete buttons for current user's posts */}
-        {isCurrentUserPost(submission.author_id) && (
-          <div className="submission__owner-actions">
-            <button
-              className="submission__edit-btn"
-              onClick={toggleEdit}
-              title={`Edit ${isReply ? 'reply' : 'post'}`}
-            >
-              {isEditing ? 'Cancel' : 'Edit'}
-            </button>
-            <DeleteSubmissionForm
-              id={submission.submission_id}
-              name={submission.submission_name}
-              isAuthorized={!!session?.user?.providerAccountId}
-            />
-          </div>
-        )}
+        {/* Edit/Delete buttons */}
+        <div className="submission__owner-actions">
+          {isCurrentUserPost(submission.author_id) && (
+            <>
+              <button
+                className="submission__edit-btn"
+                onClick={toggleEdit}
+                title={`Edit ${isReply ? 'reply' : 'post'}`}
+              >
+                {isEditing ? 'Cancel' : 'Edit'}
+              </button>
+              <DeleteSubmissionForm
+                id={submission.submission_id}
+                name={submission.submission_name}
+                isAuthorized={true}
+              />
+            </>
+          )}
+        </div>
       </div>
 
       {/* Show edit form or regular content */}
@@ -156,29 +163,60 @@ export function SubmissionItem({
       ) : (
         <>
           <div className="submission__content">
-            <h3
-              className={`submission__title ${isReply ? 'submission__title--reply' : ''}`}
-            >
-              {hasReplies && !isReply ? (
-                <Link
-                  href={buildThreadUrl(submission.submission_id)}
-                  className="submission__title-link"
-                  title="View thread"
-                >
-                  {submission.submission_title}
-                </Link>
-              ) : (
-                submission.submission_title
-              )}
-            </h3>
+            {/* Title field label and content */}
+            <div className="submission__field">
+              <span className="submission__field-label">Title:</span>
+              <h3
+                className={`submission__title ${isReply ? 'submission__title--reply' : ''}`}
+              >
+                {hasReplies && !isReply ? (
+                  <Link
+                    href={buildThreadUrl(submission.submission_id)}
+                    className="submission__title-link"
+                    title="View thread"
+                  >
+                    <ContentWithPills
+                      content={submission.submission_title}
+                      onHashtagClick={onHashtagClick}
+                      onMentionClick={onMentionClick}
+                      contextId={contextId}
+                    />
+                  </Link>
+                ) : (
+                  <ContentWithPills
+                    content={submission.submission_title}
+                    onHashtagClick={onHashtagClick}
+                    onMentionClick={onMentionClick}
+                    contextId={contextId}
+                  />
+                )}
+              </h3>
+            </div>
+
+            {/* Content field label and content (only if different from title) */}
             {submission.submission_name &&
               submission.submission_name !== submission.submission_title && (
-                <p className="submission__description">
-                  {submission.submission_name}
-                </p>
+                <div className="submission__field">
+                  <span className="submission__field-label">Content:</span>
+                  <p className="submission__description">
+                    <ContentWithPills
+                      content={submission.submission_name}
+                      onHashtagClick={onHashtagClick}
+                      onMentionClick={onMentionClick}
+                      contextId={contextId}
+                    />
+                  </p>
+                </div>
               )}
           </div>
-          {renderTags(submission.tags || [])}
+
+          {/* Tags field label and content (only if tags exist) */}
+          {submission.tags && submission.tags.length > 0 && (
+            <div className="submission__field">
+              <span className="submission__field-label">Tags:</span>
+              {renderTags(submission.tags)}
+            </div>
+          )}
         </>
       )}
 
@@ -229,10 +267,13 @@ export function SubmissionItem({
               <SubmissionItem
                 submission={reply}
                 onTagClick={onTagClick}
+                onHashtagClick={onHashtagClick}
+                onMentionClick={onMentionClick}
                 isReply={true}
                 depth={depth + 1}
                 maxDepth={maxDepth}
                 onSubmissionUpdate={onSubmissionUpdate}
+                contextId={contextId}
               />
 
               {/* Nested reply form for this specific reply */}

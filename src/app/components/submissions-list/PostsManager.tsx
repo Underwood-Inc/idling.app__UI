@@ -88,6 +88,17 @@ export default function PostsManager({
     addFilter({ name: 'tags' as const, value: tag });
   };
 
+  const handleHashtagClick = (hashtag: string) => {
+    // Filter by hashtag in title or content
+    addFilter({ name: 'tags' as const, value: hashtag });
+  };
+
+  const handleMentionClick = (mention: string) => {
+    // Filter by author mention - use the mention value directly
+    // The backend will handle both author_id and author name matching
+    addFilter({ name: 'author' as const, value: mention });
+  };
+
   const handleRefresh = () => {
     // Force a refresh by toggling includeThreadReplies
     setIncludeThreadReplies((prev) => {
@@ -172,8 +183,11 @@ export default function PostsManager({
       <SubmissionsList
         posts={submissions}
         onTagClick={handleTagClick}
+        onHashtagClick={handleHashtagClick}
+        onMentionClick={handleMentionClick}
         showSkeletons={isLoading}
         onRefresh={handleRefresh}
+        contextId={contextId}
       />
 
       {!isLoading && !error && submissions.length === 0 && (

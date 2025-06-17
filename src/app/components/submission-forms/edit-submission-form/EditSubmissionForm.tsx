@@ -1,12 +1,12 @@
 'use client';
 import { useAtom } from 'jotai';
 import { useSession } from 'next-auth/react';
-import { ChangeEvent, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useFormState, useFormStatus } from 'react-dom';
 import { shouldUpdateAtom } from '../../../../lib/state/atoms';
 import { validateTagsInput } from '../../../../lib/utils/string/tag-regex';
+import { SmartInput } from '../../ui/SmartInput';
 import { editSubmissionAction } from '../actions';
-import { parseEditSubmission, parseZodErrors } from '../schema';
 import './EditSubmissionForm.css';
 
 const initialState = {
@@ -60,20 +60,28 @@ export function EditSubmissionForm({
   const isAuthorized = !!session?.user;
 
   const [state, formAction] = useFormState(editSubmissionAction, initialState);
+
+  const [titleValue, setTitleValue] = useState(submission.submission_title);
+  const [contentValue, setContentValue] = useState(
+    submission.submission_name || ''
+  );
+  const [tagsValue, setTagsValue] = useState(
+    submission.tags
+      .map((tag) => (tag.startsWith('#') ? tag : `#${tag}`))
+      .join(', ')
+  );
   const [titleLength, setTitleLength] = useState(
     submission.submission_title.length
   );
   const [contentLength, setContentLength] = useState(
-    submission.submission_name.length
+    (submission.submission_name || '').length
   );
-  const [errors, setErrors] = useState('');
   const [tagErrors, setTagErrors] = useState<string[]>([]);
 
-  const isDisabled = !isAuthorized || !!errors || tagErrors.length > 0;
+  const isDisabled = !isAuthorized || tagErrors.length > 0;
 
-  const submitButtonTitle = errors
-    ? 'Resolve form errors.'
-    : tagErrors.length > 0
+  const submitButtonTitle =
+    tagErrors.length > 0
       ? 'Fix tag errors.'
       : !isAuthorized
         ? 'Login to manage posts.'
@@ -82,35 +90,25 @@ export function EditSubmissionForm({
   useEffect(() => {
     if (state.status) {
       setShouldUpdate(!!state.status);
-      // Call the success callback if provided
-      onSuccess?.();
+      if (state.status === 1) {
+        onSuccess?.();
+      }
     }
   }, [state.status, state.message, setShouldUpdate, onSuccess]);
 
-  const handleTitleChange = (event: ChangeEvent<HTMLInputElement>) => {
-    event.preventDefault();
-    setTitleLength(event.target.value.trim().length);
-
-    const { error } = parseEditSubmission({
-      submission_id: submission.submission_id,
-      submission_title: event.target.value,
-      submission_name: submission.submission_name
-    });
-
-    if (error) {
-      setErrors(parseZodErrors(error));
-    } else {
-      setErrors('');
-    }
+  const handleTitleChange = (value: string) => {
+    setTitleValue(value);
+    setTitleLength(value.trim().length);
   };
 
-  const handleContentChange = (event: ChangeEvent<HTMLTextAreaElement>) => {
-    setContentLength(event.target.value.trim().length);
+  const handleContentChange = (value: string) => {
+    setContentValue(value);
+    setContentLength(value.trim().length);
   };
 
-  const handleTagsChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const tagsValue = event.target.value;
-    const validationErrors = validateTagsInput(tagsValue);
+  const handleTagsChange = (value: string) => {
+    setTagsValue(value);
+    const validationErrors = validateTagsInput(value);
     setTagErrors(validationErrors);
   };
 
@@ -160,18 +158,17 @@ export function EditSubmissionForm({
       <label htmlFor="submission_title" className="submission__title-label">
         <div className="row--sm-margin">
           <span>Title *</span>
-          <input
-            type="text"
-            id="submission_title"
-            name="submission_title"
-            className="submission__title-input"
-            defaultValue={submission.submission_title}
+          <SmartInput
+            value={titleValue}
             onChange={handleTitleChange}
             disabled={!isAuthorized}
-            title={!isAuthorized ? 'Login to manage posts.' : undefined}
-            required
-            maxLength={255}
+            placeholder="Enter a title for your post... Use #hashtags and @mentions!"
+            className="submission__title-input"
+            as="input"
+            enableHashtags={true}
+            enableUserMentions={true}
           />
+          <input type="hidden" name="submission_title" value={titleValue} />
         </div>
         <div className="row">
           <p className={`column ${getTitleLengthStatus()}`}>
@@ -184,18 +181,18 @@ export function EditSubmissionForm({
       <label htmlFor="submission_content" className="submission__content-label">
         <div className="row--sm-margin">
           <span>Content</span>
-          <textarea
-            id="submission_content"
-            name="submission_content"
-            className="submission__content-input"
-            defaultValue={submission.submission_name}
+          <SmartInput
+            value={contentValue}
             onChange={handleContentChange}
             disabled={!isAuthorized}
-            title={!isAuthorized ? 'Login to manage posts.' : undefined}
-            maxLength={1000}
+            placeholder="Write your post content... Use #hashtags and @mentions!"
+            className="submission__content-input"
+            as="textarea"
             rows={4}
-            placeholder="Write your post content... (tags like #hashtag will be automatically detected)"
+            enableHashtags={true}
+            enableUserMentions={true}
           />
+          <input type="hidden" name="submission_content" value={contentValue} />
         </div>
         <div className="row">
           <p className={`column ${getContentLengthStatus()}`}>
@@ -208,19 +205,17 @@ export function EditSubmissionForm({
       <label htmlFor="submission_tags" className="submission__tags-label">
         <div className="row--sm-margin">
           <span>Additional Tags</span>
-          <input
-            type="text"
-            id="submission_tags"
-            name="submission_tags"
-            className="submission__tags-input"
-            defaultValue={submission.tags
-              .map((tag) => (tag.startsWith('#') ? tag : `#${tag}`))
-              .join(', ')}
+          <SmartInput
+            value={tagsValue}
             onChange={handleTagsChange}
             disabled={!isAuthorized}
-            title={!isAuthorized ? 'Login to manage posts.' : undefined}
             placeholder="#tag1, #tag2, #tag3"
+            className="submission__tags-input"
+            as="input"
+            enableHashtags={true}
+            enableUserMentions={false}
           />
+          <input type="hidden" name="submission_tags" value={tagsValue} />
         </div>
         {tagErrors.length > 0 && (
           <div className="submission__tag-errors">
@@ -245,7 +240,7 @@ export function EditSubmissionForm({
         type="hidden"
         id="submission_name"
         name="submission_name"
-        defaultValue={submission.submission_name}
+        value={contentValue}
       />
 
       {/* Submit Button */}
@@ -263,12 +258,14 @@ export function EditSubmissionForm({
       </div>
 
       {/* Status Messages */}
-      <div aria-live="polite" role="status">
-        {state?.message && (
-          <p className={state.status > 0 ? 'info' : 'error'}>{state.message}</p>
-        )}
-        {state?.error && <p className="error">{state.error}</p>}
-        {errors && <p className="error">{errors}</p>}
+      <div className="row">
+        <p
+          aria-live="polite"
+          className={`column ${state.error ? 'error' : 'info'}`}
+          role="status"
+        >
+          {state.error || state.message}
+        </p>
       </div>
     </form>
   );

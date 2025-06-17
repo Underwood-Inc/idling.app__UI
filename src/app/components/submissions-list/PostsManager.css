@@ -18,7 +18,7 @@
   color: var(--font-color--primary);
   border: 1px solid var(--brand-primary--dark);
   border-radius: 0.375rem;
-  font-size: 0.875rem;
+  font-size: 1.2rem;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease-in-out;
@@ -55,7 +55,8 @@
   .posts-manager__new-post-button {
     align-self: flex-end;
     padding: 0.375rem 0.75rem;
-    font-size: 0.8rem;
+    font-size: 1.2rem;
+    /* Increased from 0.8rem to ensure minimum 12px */
   }
 
   .posts-manager__new-post-button svg {
@@ -89,7 +90,8 @@
   align-items: center;
   gap: 0.5rem;
   cursor: pointer;
-  font-size: 0.875rem;
+  font-size: 1.2rem;
+  /* Increased from 0.875rem to ensure minimum 12px */
   font-weight: 500;
   color: var(--light-bg__text-color--primary);
 }
@@ -109,7 +111,8 @@
 .posts-manager__help-text {
   display: block;
   margin-top: 0.5rem;
-  font-size: 0.75rem;
+  font-size: 1.2rem;
+  /* Increased from 0.75rem to ensure minimum 12px */
   color: var(--light-bg__text-color--secondary);
   line-height: 1.4;
 }
@@ -129,10 +132,12 @@
   }
 
   .posts-manager__toggle {
-    font-size: 0.8rem;
+    font-size: 1.2rem;
+    /* Increased from 0.8rem to ensure minimum 12px */
   }
 
   .posts-manager__help-text {
-    font-size: 0.7rem;
+    font-size: 1.2rem;
+    /* Increased from 0.7rem to ensure minimum 12px */
   }
 }

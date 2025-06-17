@@ -1,7 +1,6 @@
 .filter-bar__container {
   width: 100%;
   max-width: 1600px;
-  padding-top: 1rem;
 }
 
 .filter-bar__filter {

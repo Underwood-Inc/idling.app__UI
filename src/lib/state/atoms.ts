@@ -431,6 +431,7 @@ export const initializeFiltersFromUrl = (
 ) => {
   const pageParam = searchParams.get('page');
   const tagsParam = searchParams.get('tags');
+  const authorParam = searchParams.get('author');
   const pageSizeParam = searchParams.get('pageSize');
 
   // Validate and sanitize tags parameter - remove any HTML/script tags
@@ -446,20 +447,35 @@ export const initializeFiltersFromUrl = (
             !tag.includes('<') &&
             !tag.includes('>') &&
             !tag.includes('script') &&
-            /^[a-z0-9\-_]+$/.test(tag)
-          ); // Only allow alphanumeric, hyphens, underscores
+            /^[#a-z0-9\-_]+$/.test(tag) // Allow hashtags and alphanumeric, hyphens, underscores
+          );
         })
         .join(',')
     : '';
 
-  const filters = sanitizedTags
-    ? [{ name: 'tags', value: sanitizedTags }]
-    : initialFilters;
+  // Validate and sanitize author parameter
+  const sanitizedAuthor = authorParam
+    ? authorParam.trim().slice(0, 100) // Limit length and trim
+    : '';
+
+  // Build filters array
+  const filters: Filter[] = [];
+
+  if (sanitizedTags) {
+    filters.push({ name: 'tags', value: sanitizedTags });
+  }
+
+  if (sanitizedAuthor) {
+    filters.push({ name: 'author', value: sanitizedAuthor });
+  }
+
+  // If no filters from URL, use initial filters
+  const finalFilters = filters.length > 0 ? filters : initialFilters;
 
   return {
     onlyMine,
     providerAccountId,
-    filters,
+    filters: finalFilters,
     page: pageParam ? Math.max(1, parseInt(pageParam)) : 1,
     pageSize: pageSizeParam ? Math.max(10, parseInt(pageSizeParam)) : 10,
     initialized: true

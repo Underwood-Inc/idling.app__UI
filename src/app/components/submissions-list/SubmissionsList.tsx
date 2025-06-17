@@ -8,15 +8,21 @@ import './SubmissionsList.css';
 interface SubmissionsListProps {
   posts: SubmissionWithReplies[];
   onTagClick: (tag: string) => void;
+  onHashtagClick?: (hashtag: string) => void;
+  onMentionClick?: (mention: string) => void;
   showSkeletons?: boolean;
   onRefresh?: () => void;
+  contextId?: string;
 }
 
 export default function SubmissionsList({
   posts,
   onTagClick,
+  onHashtagClick,
+  onMentionClick,
   showSkeletons,
-  onRefresh
+  onRefresh,
+  contextId
 }: SubmissionsListProps) {
   // TODO: this is wrong, this skeleton must be fully automatic generation via DOM
   // traversal at run-time or via advanced snapshots and must be a standalone agnostic
@@ -55,7 +61,10 @@ export default function SubmissionsList({
           key={post.submission_id}
           submission={post}
           onTagClick={onTagClick}
+          onHashtagClick={onHashtagClick}
+          onMentionClick={onMentionClick}
           onSubmissionUpdate={onRefresh}
+          contextId={contextId}
         />
       ))}
     </div>

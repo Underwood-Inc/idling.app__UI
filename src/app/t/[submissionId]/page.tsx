@@ -1,9 +1,12 @@
-import { notFound } from 'next/navigation';
-import { Suspense } from 'react';
-import { CustomSession } from '../../../auth.config';
-import { auth } from '../../../lib/auth';
+'use client';
+
+import { useAtom } from 'jotai';
+import { useSession } from 'next-auth/react';
+import { notFound, useRouter } from 'next/navigation';
+import { Suspense, useEffect, useState } from 'react';
 import { CONTEXT_IDS } from '../../../lib/context-ids';
 import { SpacingThemeProvider } from '../../../lib/context/SpacingThemeContext';
+import { getSubmissionsFiltersAtom } from '../../../lib/state/atoms';
 import { Card } from '../../components/card/Card';
 import FadeIn from '../../components/fade-in/FadeIn';
 import Loader from '../../components/loader/Loader';
@@ -22,29 +25,208 @@ interface ThreadPageProps {
   };
 }
 
-export default async function ThreadPage({ params }: ThreadPageProps) {
+interface ThreadData {
+  parent: any;
+  replies: any[];
+}
+
+export default function ThreadPage({ params }: ThreadPageProps) {
+  const { data: session } = useSession();
+  const router = useRouter();
+  const [threadData, setThreadData] = useState<ThreadData | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  // Use global filter state management
+  const contextId = CONTEXT_IDS.THREAD.toString();
+  const [filtersState, setFiltersState] = useAtom(
+    getSubmissionsFiltersAtom(contextId)
+  );
+
   const submissionId = parseInt(params.submissionId);
 
-  if (isNaN(submissionId)) {
-    notFound();
+  useEffect(() => {
+    if (isNaN(submissionId)) {
+      notFound();
+      return;
+    }
+
+    const loadThreadData = async () => {
+      try {
+        const data = await getSubmissionThread(submissionId);
+        if (!data.parent) {
+          notFound();
+          return;
+        }
+        setThreadData(data);
+      } catch (error) {
+        console.error('Error loading thread:', error);
+        notFound();
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadThreadData();
+  }, [submissionId]);
+
+  const handleHashtagClick = (hashtag: string) => {
+    // Ensure hashtag value includes # prefix for proper filtering
+    const hashtagValue = hashtag.startsWith('#') ? hashtag : `#${hashtag}`;
+
+    setFiltersState((prev) => {
+      const newFilters = [...prev.filters];
+      const tagsIndex = newFilters.findIndex((f) => f.name === 'tags');
+
+      if (tagsIndex >= 0) {
+        // Update existing tags filter
+        const currentTags = newFilters[tagsIndex].value
+          .split(',')
+          .map((tag) => tag.trim())
+          .filter(Boolean);
+
+        const isTagActive = currentTags.includes(hashtagValue);
+        const updatedTags = isTagActive
+          ? currentTags.filter((tag) => tag !== hashtagValue)
+          : [...currentTags, hashtagValue];
+
+        if (updatedTags.length > 0) {
+          newFilters[tagsIndex] = {
+            name: 'tags',
+            value: updatedTags.join(',')
+          };
+        } else {
+          // Remove tags filter if no tags left
+          return {
+            ...prev,
+            filters: newFilters.filter(
+              (f) => f.name !== 'tags' && f.name !== 'tagLogic'
+            )
+          };
+        }
+      } else {
+        // Add new tags filter
+        newFilters.push({ name: 'tags', value: hashtagValue });
+      }
+
+      return {
+        ...prev,
+        filters: newFilters,
+        page: 1
+      };
+    });
+  };
+
+  const handleMentionClick = (mention: string) => {
+    setFiltersState((prev) => {
+      const newFilters = [...prev.filters];
+      const authorIndex = newFilters.findIndex((f) => f.name === 'author');
+
+      if (authorIndex >= 0) {
+        // Toggle author filter
+        const currentAuthor = newFilters[authorIndex].value;
+        if (currentAuthor === mention) {
+          // Remove author filter if same mention clicked
+          return {
+            ...prev,
+            filters: newFilters.filter((f) => f.name !== 'author')
+          };
+        } else {
+          // Update author filter
+          newFilters[authorIndex] = { name: 'author', value: mention };
+        }
+      } else {
+        // Add new author filter
+        newFilters.push({ name: 'author', value: mention });
+      }
+
+      return {
+        ...prev,
+        filters: newFilters,
+        page: 1
+      };
+    });
+  };
+
+  const clearFilters = () => {
+    setFiltersState((prev) => ({
+      ...prev,
+      filters: [],
+      page: 1
+    }));
+  };
+
+  if (loading) {
+    return <Loader />;
   }
 
-  const session = (await auth()) as CustomSession;
+  if (!threadData) {
+    return notFound();
+  }
+
   const providerAccountId = session?.user?.providerAccountId || '';
 
-  // Fetch the thread data on the server to check if it exists
-  const threadData = await getSubmissionThread(submissionId);
+  // Extract active filters from global state
+  const activeHashtags =
+    filtersState.filters
+      .find((f) => f.name === 'tags')
+      ?.value?.split(',')
+      ?.map((tag) => tag.trim())
+      ?.filter(Boolean) || [];
 
-  if (!threadData.parent) {
-    notFound();
-  }
+  const authorFilter = filtersState.filters.find((f) => f.name === 'author');
+  const activeMentions = authorFilter?.value ? [authorFilter.value] : [];
+
+  const hasActiveFilters =
+    activeHashtags.length > 0 || activeMentions.length > 0;
+
+  // Convert to format expected by Thread component
+  const activeFilters = {
+    hashtags: activeHashtags,
+    mentions: activeMentions
+  };
 
   return (
     <SpacingThemeProvider>
       <PageContainer>
         <PageHeader>
           <FadeIn>
-            <h2>Thread Discussion</h2>
+            <div className={styles.thread__header}>
+              <h2>Thread Discussion</h2>
+              {hasActiveFilters && (
+                <div className={styles.thread__filters}>
+                  <span className={styles.thread__filters_label}>
+                    Active Filters:
+                  </span>
+                  {activeHashtags.map((hashtag) => (
+                    <button
+                      key={hashtag}
+                      className={styles.thread__filter_pill}
+                      onClick={() => handleHashtagClick(hashtag)}
+                      title="Click to remove filter"
+                    >
+                      #{hashtag} ×
+                    </button>
+                  ))}
+                  {activeMentions.map((mention) => (
+                    <button
+                      key={mention}
+                      className={styles.thread__filter_pill}
+                      onClick={() => handleMentionClick(mention)}
+                      title="Click to remove filter"
+                    >
+                      @{mention} ×
+                    </button>
+                  ))}
+                  <button
+                    className={styles.thread__clear_filters}
+                    onClick={clearFilters}
+                    title="Clear all filters"
+                  >
+                    Clear All
+                  </button>
+                </div>
+              )}
+            </div>
           </FadeIn>
         </PageHeader>
         <PageContent>
@@ -55,6 +237,10 @@ export default async function ThreadPage({ params }: ThreadPageProps) {
                   <Thread
                     submissionId={submissionId}
                     providerAccountId={providerAccountId}
+                    onHashtagClick={handleHashtagClick}
+                    onMentionClick={handleMentionClick}
+                    activeFilters={activeFilters}
+                    contextId={contextId}
                   />
                 </Suspense>
               </Card>
@@ -77,37 +263,4 @@ export default async function ThreadPage({ params }: ThreadPageProps) {
       </PageContainer>
     </SpacingThemeProvider>
   );
-}
-
-// Generate metadata for the page
-export async function generateMetadata({ params }: ThreadPageProps) {
-  const submissionId = parseInt(params.submissionId);
-
-  if (isNaN(submissionId)) {
-    return {
-      title: 'Thread Not Found'
-    };
-  }
-
-  try {
-    const threadData = await getSubmissionThread(submissionId);
-
-    if (!threadData.parent) {
-      return {
-        title: 'Thread Not Found'
-      };
-    }
-
-    return {
-      title: `${threadData.parent.submission_title || threadData.parent.submission_name} - Thread`,
-      description:
-        threadData.parent.submission_name.length > 160
-          ? threadData.parent.submission_name.substring(0, 160) + '...'
-          : threadData.parent.submission_name
-    };
-  } catch {
-    return {
-      title: 'Thread Not Found'
-    };
-  }
 }

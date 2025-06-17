@@ -41,13 +41,20 @@ export async function searchHashtags(query: string): Promise<HashtagResult[]> {
       LIMIT 10
     `;
 
-    return results.map((result, index) => ({
-      id: `hashtag-${index}-${result.tag}`,
-      value: result.tag,
-      label: `${result.tag} (${result.count} posts)`,
-      count: parseInt(result.count),
-      type: 'hashtag' as const
-    }));
+    return results.map((result, index) => {
+      // Remove # prefix from tag if it exists to avoid double #
+      const cleanTag = result.tag.startsWith('#')
+        ? result.tag.slice(1)
+        : result.tag;
+
+      return {
+        id: `hashtag-${index}-${cleanTag}`,
+        value: cleanTag,
+        label: `${cleanTag} (${result.count} posts)`,
+        count: parseInt(result.count),
+        type: 'hashtag' as const
+      };
+    });
   } catch (error) {
     console.error('Error searching hashtags:', error);
     return [];

@@ -94,12 +94,33 @@
   margin-bottom: 0.75rem;
 }
 
+.submission__field {
+  margin-bottom: 0.75rem;
+}
+
+.submission__field:last-child {
+  margin-bottom: 0;
+}
+
+.submission__field-label {
+  display: inline-block;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--light-bg__text-color--tertiary);
+  margin-bottom: 0.25rem;
+  margin-right: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  flex-shrink: 0;
+}
+
 .submission__title {
   font-size: 1.25rem;
   font-weight: 600;
   color: var(--light-bg__text-color--primary);
-  margin: 0 0 0.5rem 0;
+  margin: 0;
   line-height: 1.4;
+  display: inline;
 }
 
 .submission__title--reply {

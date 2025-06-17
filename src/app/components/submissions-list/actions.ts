@@ -468,11 +468,13 @@ export async function getSubmissionsAction({
     const tagFilter = filters.find((f) => f.name === 'tags')?.value;
     const tagLogicFilter =
       filters.find((f) => f.name === 'tagLogic')?.value || 'OR'; // Default to OR
+    const authorFilter = filters.find((f) => f.name === 'author')?.value;
 
     // eslint-disable-next-line no-console
     console.log('🔍 [BACKEND] Extracted filters:', {
       tagFilter,
       tagLogicFilter,
+      authorFilter,
       filtersCount: filters.length
     });
 
@@ -488,6 +490,18 @@ export async function getSubmissionsAction({
     if (onlyMine) {
       whereConditions.push('s.author_id = $' + (queryParams.length + 1));
       queryParams.push(providerAccountId);
+    }
+
+    if (authorFilter) {
+      // Support both author ID and author name filtering
+      whereConditions.push(
+        '(s.author_id = $' +
+          (queryParams.length + 1) +
+          ' OR s.author = $' +
+          (queryParams.length + 2) +
+          ')'
+      );
+      queryParams.push(authorFilter, authorFilter);
     }
 
     if (tagFilter) {

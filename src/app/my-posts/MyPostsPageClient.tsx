@@ -1,6 +1,7 @@
 'use client';
 
 import dynamic from 'next/dynamic';
+import { useState } from 'react';
 import FloatingAddPost from '../components/floating-add-post/FloatingAddPost';
 
 // Development-only import that gets tree-shaken in production
@@ -26,10 +27,15 @@ interface MyPostsPageClientProps {
 export default function MyPostsPageClient({
   contextId
 }: MyPostsPageClientProps) {
+  const [showFloatingModal, setShowFloatingModal] = useState(false);
+
   const handleNewPostClick = () => {
-    // This will be handled by the floating button now
-    // eslint-disable-next-line no-console
-    console.log('New post button clicked from PostsManager');
+    // Trigger the floating add post modal
+    setShowFloatingModal(true);
+  };
+
+  const handleModalClose = () => {
+    setShowFloatingModal(false);
   };
 
   return (
@@ -39,7 +45,10 @@ export default function MyPostsPageClient({
         onlyMine={true}
         onNewPostClick={handleNewPostClick}
       />
-      <FloatingAddPost />
+      {showFloatingModal && (
+        <FloatingAddPost onPostCreated={handleModalClose} />
+      )}
+      {!showFloatingModal && <FloatingAddPost />}
       {DevSkeletonToggle && <DevSkeletonToggle />}
     </>
   );

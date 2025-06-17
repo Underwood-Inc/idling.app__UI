@@ -1,6 +1,8 @@
 'use client';
 import { useAtom } from 'jotai';
-import { useSearchParams } from 'next/navigation';
+import Link from 'next/link';
+import { usePathname, useSearchParams } from 'next/navigation';
+import { NAV_PATHS } from '../../../lib/routes';
 import { getSubmissionsFiltersAtom } from '../../../lib/state/atoms';
 import './TagLink.css';
 
@@ -12,9 +14,8 @@ interface TagLinkProps {
 }
 
 /**
- * A component that will return a nextjs link component instance that navigates to the /posts page with a filter applied that
- * matches the TagLink
- * @example <TagLink value="bacon" /> => a link that navigates to '/posts?tags=bacon'
+ * A component that returns a Next.js Link component that navigates with a filter applied
+ * @example <TagLink value="bacon" /> => a link that navigates to current route with tags=bacon filter
  */
 export function TagLink({
   value,
@@ -22,6 +23,7 @@ export function TagLink({
   appendSearchParam = false,
   onTagClick
 }: TagLinkProps) {
+  const pathname = usePathname();
   const searchParams = useSearchParams();
 
   // Use shared Jotai atoms directly for state synchronization
@@ -29,85 +31,85 @@ export function TagLink({
     getSubmissionsFiltersAtom(contextId)
   );
 
-  const handleClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
-    event.preventDefault();
-
-    // Sanitize tag input but preserve the hash symbol
+  const generateTagUrl = (): string => {
+    const params = new URLSearchParams(searchParams.toString());
     const sanitizedTag = value.trim();
+
     if (!sanitizedTag || sanitizedTag.length > 50) {
-      console.warn('Invalid tag:', value);
-      return;
+      return '#';
     }
 
-    // If parent provides onTagClick callback, use it (highest priority)
+    const currentTags =
+      params
+        .get('tags')
+        ?.split(',')
+        .map((tag) => tag.trim())
+        .filter(Boolean) || [];
+
+    if (appendSearchParam) {
+      // Add tag if not already present
+      if (!currentTags.includes(sanitizedTag)) {
+        const newTags = [...currentTags, sanitizedTag];
+        params.set('tags', newTags.join(','));
+      }
+    } else {
+      // Toggle tag
+      if (currentTags.includes(sanitizedTag)) {
+        const newTags = currentTags.filter((tag) => tag !== sanitizedTag);
+        if (newTags.length > 0) {
+          params.set('tags', newTags.join(','));
+        } else {
+          params.delete('tags');
+        }
+      } else {
+        const newTags = [...currentTags, sanitizedTag];
+        params.set('tags', newTags.join(','));
+      }
+    }
+
+    // Reset to first page when filters change
+    params.delete('page');
+
+    // For thread pages, navigate to posts with filters
+    const targetPath = pathname.startsWith('/t/') ? NAV_PATHS.POSTS : pathname;
+    return `${targetPath}${params.toString() ? `?${params.toString()}` : ''}`;
+  };
+
+  const handleClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
+    // If parent provides onTagClick callback, use it and prevent navigation
     if (onTagClick) {
+      event.preventDefault();
+      const sanitizedTag = value.trim();
+      if (!sanitizedTag || sanitizedTag.length > 50) {
+        console.warn('Invalid tag:', value);
+        return;
+      }
       onTagClick(sanitizedTag);
       return;
     }
 
-    // Use direct state management via shared atoms
-    setFiltersState((prev) => {
-      const newFilters = [...prev.filters];
-
-      // Check if tags filter already exists
-      const tagsIndex = newFilters.findIndex((f) => f.name === 'tags');
-
-      if (tagsIndex >= 0) {
-        // Update existing tags filter by appending the new tag
-        const currentTags = newFilters[tagsIndex].value
-          .split(',')
-          .map((tag) => tag.trim())
-          .filter(Boolean);
-
-        // Only add if not already present
-        if (!currentTags.includes(sanitizedTag)) {
-          const updatedTags = [...currentTags, sanitizedTag];
-          newFilters[tagsIndex] = {
-            name: 'tags',
-            value: updatedTags.join(',')
-          };
-
-          // Add tagLogic if we now have multiple tags
-          if (updatedTags.length > 1) {
-            const logicIndex = newFilters.findIndex(
-              (f) => f.name === 'tagLogic'
-            );
-            if (logicIndex === -1) {
-              newFilters.push({ name: 'tagLogic', value: 'OR' });
-            }
-          }
-        }
-      } else {
-        // Add new tags filter
-        newFilters.push({ name: 'tags', value: sanitizedTag });
-      }
-
-      return {
-        ...prev,
-        filters: newFilters,
-        page: 1 // Reset to first page when adding filters
-      };
-    });
+    // Otherwise, let the Link component handle navigation
   };
 
-  // Check if this tag is currently active using shared state
-  const tagsFilter = filtersState?.filters?.find((f) => f.name === 'tags');
-  const currentTags = tagsFilter
-    ? tagsFilter.value
-        .split(',')
-        .map((tag) => tag.trim())
-        .filter(Boolean)
-    : [];
+  // Check if this tag is currently active
+  const currentTags =
+    searchParams
+      .get('tags')
+      ?.split(',')
+      .map((tag) => tag.trim())
+      .filter(Boolean) || [];
   const isActive = currentTags.includes(value);
 
+  const tagUrl = generateTagUrl();
+
   return (
-    <a
-      href="#"
+    <Link
+      href={tagUrl}
       onClick={handleClick}
       className={`tag-link ${isActive ? 'active' : ''}`}
       title={`Filter by tag: ${value}`}
     >
       {value}
-    </a>
+    </Link>
   );
 }

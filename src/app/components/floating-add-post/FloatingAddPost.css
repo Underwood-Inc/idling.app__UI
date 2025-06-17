@@ -162,7 +162,7 @@
   font-weight: 500;
   color: var(--light-bg__text-color--primary);
   margin-bottom: 0.5rem;
-  font-size: 0.9rem;
+  font-size: 1.2rem;
 }
 
 .floating-add-post__content .submission__title-input,
@@ -172,7 +172,7 @@
   color: var(--light-bg__text-color--primary);
   padding: 0.75rem;
   border-radius: 0.5rem;
-  font-size: 0.9rem;
+  font-size: 1.2rem;
   transition: all 0.2s ease;
   width: 100%;
   font-family: inherit;
@@ -197,7 +197,7 @@
   transition: all 0.2s ease;
   width: 100%;
   margin-top: 0.5rem;
-  font-size: 0.9rem;
+  font-size: 1.2rem;
   font-family: inherit;
 }
 
@@ -223,7 +223,7 @@
 .floating-add-post__content .info,
 .floating-add-post__content .warning,
 .floating-add-post__content .error {
-  font-size: 0.8rem;
+  font-size: 1.2rem;
   margin-top: 0.25rem;
 }
 

@@ -1,13 +1,13 @@
 'use client';
 
 import React from 'react';
-import Avatar from '../avatar/Avatar';
+import Avatar, { AvatarPropSizes } from '../avatar/Avatar';
 import './Author.css';
 
 export interface AuthorProps {
   authorId: string;
   authorName: string;
-  size?: 'sm' | 'md' | 'lg';
+  size?: AvatarPropSizes;
   showFullName?: boolean;
   onClick?: (authorId: string) => void;
   className?: string;
@@ -16,7 +16,7 @@ export interface AuthorProps {
 export const Author: React.FC<AuthorProps> = ({
   authorId,
   authorName,
-  size = 'sm',
+  size = 'xs',
   showFullName = true,
   onClick,
   className = ''
@@ -33,7 +33,12 @@ export const Author: React.FC<AuthorProps> = ({
 
   return (
     <div className={containerClass} onClick={handleClick}>
-      <Avatar seed={authorName} size={size} />
+      <Avatar
+        seed={authorName}
+        size={size}
+        enableTooltip={true}
+        tooltipScale={2}
+      />
       <span className="author__name" title={authorName}>
         {displayName}
       </span>
