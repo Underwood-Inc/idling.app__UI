@@ -12,6 +12,12 @@ jest.mock('next/navigation', () => ({
   })
 }));
 
+// Mock jotai
+jest.mock('jotai', () => ({
+  ...jest.requireActual('jotai'),
+  useAtom: jest.fn().mockReturnValue([false, jest.fn()])
+}));
+
 // Mock the createSubmissionAction
 const mockCreateSubmissionAction = jest.fn();
 jest.mock('../submission-forms/actions', () => ({
@@ -19,14 +25,11 @@ jest.mock('../submission-forms/actions', () => ({
     mockCreateSubmissionAction(...args)
 }));
 
-// Mock jotai atoms
-jest.mock('../../../lib/state/atoms', () => ({
-  shouldUpdateAtom: jest.fn()
-}));
-
 describe('ReplyForm', () => {
+  const mockOnSuccess = jest.fn();
   const defaultProps = {
-    parentId: 123
+    parentId: 123,
+    onSuccess: mockOnSuccess
   };
 
   beforeEach(() => {
@@ -111,5 +114,67 @@ describe('ReplyForm', () => {
     expect(formData.get('submission_title')).toBe('Test Reply Title');
     expect(formData.get('submission_name')).toBe('Test reply content');
     expect(formData.get('thread_parent_id')).toBe('123');
+  });
+
+  it('calls onSuccess callback after successful submission', async () => {
+    renderReplyForm();
+
+    const titleInput = screen.getByLabelText(/Reply Title/);
+    const contentInput = screen.getByLabelText(/Reply Content/);
+    const submitButton = screen.getByRole('button', { name: /Submit Reply/ });
+
+    fireEvent.change(titleInput, { target: { value: 'Test Reply Title' } });
+    fireEvent.change(contentInput, { target: { value: 'Test reply content' } });
+    fireEvent.click(submitButton);
+
+    await waitFor(() => {
+      expect(mockOnSuccess).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  it('does not call onSuccess callback when submission fails', async () => {
+    mockCreateSubmissionAction.mockResolvedValue({
+      status: 0,
+      error: 'Failed to submit'
+    });
+    renderReplyForm();
+
+    const titleInput = screen.getByLabelText(/Reply Title/);
+    const contentInput = screen.getByLabelText(/Reply Content/);
+    const submitButton = screen.getByRole('button', { name: /Submit Reply/ });
+
+    fireEvent.change(titleInput, { target: { value: 'Test Reply Title' } });
+    fireEvent.change(contentInput, { target: { value: 'Test reply content' } });
+    fireEvent.click(submitButton);
+
+    await waitFor(() => {
+      expect(screen.getByText('Failed to submit')).toBeInTheDocument();
+    });
+
+    expect(mockOnSuccess).not.toHaveBeenCalled();
+  });
+
+  it('works without onSuccess callback', async () => {
+    const propsWithoutCallback = { parentId: 123 };
+
+    render(
+      <Provider>
+        <ReplyForm {...propsWithoutCallback} />
+      </Provider>
+    );
+
+    const titleInput = screen.getByLabelText(/Reply Title/);
+    const contentInput = screen.getByLabelText(/Reply Content/);
+    const submitButton = screen.getByRole('button', { name: /Submit Reply/ });
+
+    fireEvent.change(titleInput, { target: { value: 'Test Reply Title' } });
+    fireEvent.change(contentInput, { target: { value: 'Test reply content' } });
+    fireEvent.click(submitButton);
+
+    await waitFor(() => {
+      expect(mockCreateSubmissionAction).toHaveBeenCalled();
+    });
+
+    // Should not throw any errors
   });
 });

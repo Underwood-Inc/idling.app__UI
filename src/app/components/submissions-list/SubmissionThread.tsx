@@ -89,7 +89,21 @@ export function SubmissionThread({
 
       {activeReplies[submission.submission_id] && (
         <div className="submission-thread__reply-form">
-          <ReplyForm parentId={submission.submission_id} />
+          <ReplyForm
+            parentId={submission.submission_id}
+            onSuccess={() => {
+              // Close the reply form
+              setActiveReplies({
+                ...activeReplies,
+                [submission.submission_id]: false
+              });
+              // Expand the thread to show the new reply
+              setExpandedThreads({
+                ...expandedThreads,
+                [submission.submission_id]: true
+              });
+            }}
+          />
         </div>
       )}
 

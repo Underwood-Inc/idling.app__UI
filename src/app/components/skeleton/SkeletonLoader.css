@@ -1,0 +1,335 @@
+/* Base skeleton styles */
+.skeleton {
+  background: linear-gradient(90deg,
+      var(--light-background--tertiary, #f0f0f0) 25%,
+      var(--light-background--secondary, #e0e0e0) 50%,
+      var(--light-background--tertiary, #f0f0f0) 75%);
+  background-size: 200% 100%;
+  border-radius: var(--border-radius, 4px);
+  animation: skeleton-shimmer 1.5s ease-in-out infinite;
+  position: relative;
+  overflow: hidden;
+}
+
+@keyframes skeleton-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* Skeleton variants */
+.skeleton--text {
+  border-radius: 0.25rem;
+  min-height: 0.75rem;
+}
+
+.skeleton--box {
+  border-radius: var(--border-radius, 4px);
+  min-height: 2rem;
+}
+
+.skeleton--circle {
+  border-radius: 50%;
+}
+
+.skeleton--button {
+  border-radius: 0.375rem;
+  min-height: 2.5rem;
+}
+
+.skeleton--input {
+  border-radius: 0.375rem;
+  min-height: 2.5rem;
+  border: 1px solid var(--brand-tertiary--dark, #ddd);
+}
+
+/* Auto-generated skeleton variants */
+.skeleton--auto {
+  /* Override min-height for auto-generated skeletons to use exact measurements */
+  min-height: unset;
+}
+
+.skeleton--text-node {
+  /* Special styling for text nodes */
+  display: inline-block;
+  vertical-align: baseline;
+}
+
+.skeleton--button-auto {
+  background: linear-gradient(90deg,
+      var(--brand-tertiary, #e5e5e5) 25%,
+      var(--brand-secondary, #d0d0d0) 50%,
+      var(--brand-tertiary, #e5e5e5) 75%);
+  background-size: 200% 100%;
+}
+
+.skeleton--input-auto {
+  border: 1px solid var(--brand-tertiary--dark, #ddd);
+  background: linear-gradient(90deg,
+      var(--light-background--quinary, #fafafa) 25%,
+      var(--light-background--quaternary, #f5f5f5) 50%,
+      var(--light-background--quinary, #fafafa) 75%);
+  background-size: 200% 100%;
+}
+
+/* Skeleton replica system - preserves exact DOM structure */
+.skeleton-replica {
+  /* Base replica container - inherits all original styles via inline styles */
+  position: relative;
+}
+
+.skeleton-replica--container {
+  /* Container replica - preserves layout properties exactly */
+  /* All layout styles applied via inline styles from original element */
+}
+
+.skeleton-replica--mixed {
+  /* Mixed content replica - has both structure and content */
+  /* All layout styles applied via inline styles from original element */
+}
+
+/* Container styles - Match SubmissionsList spacing */
+.skeleton-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+/* Smart skeleton container - preserves original layout structure */
+.skeleton-container--smart {
+  /* Use display: contents to avoid adding extra wrapper styling */
+  display: contents;
+}
+
+/* Auto-generated container - preserves exact layout */
+.skeleton-container--auto {
+  /* Inherits all styles from the original element via inline styles */
+  position: relative;
+}
+
+/* Match .submission__list spacing */
+.skeleton-container.skeleton--posts-list {
+  gap: 1rem;
+  /* Match submission__list gap */
+  padding: 0.75rem;
+  /* Match submission__list padding */
+}
+
+.skeleton-container.skeleton--analyzing {
+  gap: 0.5rem;
+  padding: 0.75rem;
+}
+
+/* Row layout */
+.skeleton-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.skeleton-row:last-child {
+  margin-bottom: 0;
+}
+
+/* Paragraph layout */
+.skeleton-paragraph {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin-bottom: 1rem;
+}
+
+.skeleton-paragraph:last-child {
+  margin-bottom: 0;
+}
+
+/* Word layout */
+.skeleton-words {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.skeleton-word {
+  flex-shrink: 0;
+}
+
+/* Manual box layout */
+.skeleton-manual-box {
+  margin-bottom: 1rem;
+}
+
+.skeleton-manual-box:last-child {
+  margin-bottom: 0;
+}
+
+/* Smart skeleton adjustments */
+.skeleton--smart {
+  flex-shrink: 0;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .skeleton-container {
+    gap: 0.75rem;
+  }
+
+  .skeleton-container.skeleton--posts-list {
+    gap: 1rem;
+    /* Keep consistent with mobile submission__list */
+    padding: 0.75rem;
+  }
+
+  .skeleton-row {
+    gap: 0.375rem;
+    margin-bottom: 0.375rem;
+  }
+
+  .skeleton-paragraph {
+    gap: 0.25rem;
+    margin-bottom: 0.75rem;
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .skeleton {
+    background: linear-gradient(90deg,
+        var(--dark-background--tertiary, #2a2a2a) 25%,
+        var(--dark-background--secondary, #3a3a3a) 50%,
+        var(--dark-background--tertiary, #2a2a2a) 75%);
+  }
+
+  .skeleton--button-auto {
+    background: linear-gradient(90deg,
+        var(--dark-background--tertiary, #2a2a2a) 25%,
+        var(--dark-background--secondary, #3a3a3a) 50%,
+        var(--dark-background--tertiary, #2a2a2a) 75%);
+    background-size: 200% 100%;
+  }
+
+  .skeleton--input-auto {
+    background: linear-gradient(90deg,
+        var(--dark-background--secondary, #3a3a3a) 25%,
+        var(--dark-background--tertiary, #2a2a2a) 50%,
+        var(--dark-background--secondary, #3a3a3a) 75%);
+    background-size: 200% 100%;
+  }
+}
+
+/* Accessibility */
+.skeleton-container[role="status"] {
+  position: relative;
+}
+
+.skeleton-container[role="status"]::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+}
+
+/* Reduce motion for users who prefer it */
+@media (prefers-reduced-motion: reduce) {
+  .skeleton {
+    animation: none;
+    background: var(--light-background--secondary, #e0e0e0);
+  }
+
+  .skeleton--button-auto,
+  .skeleton--input-auto {
+    animation: none;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .skeleton {
+      background: var(--dark-background--secondary, #3a3a3a);
+    }
+
+    .skeleton--button-auto,
+    .skeleton--input-auto {
+      background: var(--dark-background--secondary, #3a3a3a);
+    }
+  }
+}
+
+/* Utility classes */
+.mb-2 {
+  margin-bottom: 0.5rem;
+}
+
+/* Loading state transitions */
+.skeleton-container {
+  transition: opacity 0.2s ease-in-out;
+}
+
+.skeleton-container.skeleton--fade-in {
+  opacity: 0;
+  animation: skeleton-fade-in 0.3s ease-in-out forwards;
+}
+
+@keyframes skeleton-fade-in {
+  to {
+    opacity: 1;
+  }
+}
+
+/* Skeleton for specific component types - Match exact SubmissionsList styles */
+.skeleton--submission-card {
+  /* Match .submission__wrapper exactly */
+  padding: 1rem;
+  border-radius: var(--border-radius, 4px);
+  background-color: var(--light-background--quinary, #fafafa);
+  border: 1px solid var(--brand-tertiary--dark, #ddd);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  /* Match submission__wrapper gap */
+  position: relative;
+  transition: box-shadow 0.2s ease-in-out, background-color 0.2s ease-in-out;
+  /* Remove margin-bottom since container handles gap */
+  margin-bottom: 0;
+}
+
+.skeleton--submission-card:last-child {
+  margin-bottom: 0;
+}
+
+/* Pagination skeleton styles are now handled by submissions-list__pagination wrapper */
+
+/* Mobile adjustments to match SubmissionsList responsive styles */
+@media (max-width: 768px) {
+  .skeleton--submission-card {
+    padding: 0.75rem;
+    /* Match mobile submission__wrapper padding */
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .skeleton {
+    background: #808080;
+    border: 1px solid #000;
+  }
+
+  @keyframes skeleton-shimmer {
+
+    0%,
+    100% {
+      opacity: 0.7;
+    }
+
+    50% {
+      opacity: 1;
+    }
+  }
+}

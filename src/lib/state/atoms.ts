@@ -467,6 +467,34 @@ export const initializeFiltersFromUrl = (
 };
 
 /**
+ * Add a new submission to the beginning of the submissions list
+ * for optimistic updates
+ */
+export const addSubmissionToList = (contextId: string, submission: any) => {
+  const stateAtom = getSubmissionsStateAtom(contextId);
+
+  return atom(null, (get, set) => {
+    const currentState = get(stateAtom);
+
+    if (currentState.data) {
+      const updatedSubmissions = [submission, ...currentState.data.submissions];
+      const updatedPagination = {
+        ...currentState.data.pagination,
+        totalRecords: currentState.data.pagination.totalRecords + 1
+      };
+
+      set(stateAtom, {
+        ...currentState,
+        data: {
+          submissions: updatedSubmissions,
+          pagination: updatedPagination
+        }
+      });
+    }
+  });
+};
+
+/**
  * Clear all atoms for a specific context
  * Useful for cleanup and testing
  */

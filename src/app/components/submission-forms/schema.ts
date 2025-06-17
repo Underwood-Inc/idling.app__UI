@@ -21,9 +21,23 @@ export const deleteSubmissionSchema = z.object({
   submission_name: z.string().min(1).max(SUBMISSION_NAME_MAX_LENGTH)
 });
 
+export const editSubmissionSchema = z.object({
+  submission_id: z.coerce.number().gte(1),
+  submission_title: z
+    .string()
+    .min(1, 'Title is required')
+    .max(255, 'Title must be 255 characters or less'),
+  submission_name: z
+    .string()
+    .min(1, 'Submission name is required')
+    .max(SUBMISSION_NAME_MAX_LENGTH),
+  tags: z.array(z.string()).optional()
+});
+
 export type Submission = z.infer<typeof submissionSchema>;
 export type CreateSubmission = z.infer<typeof submissionSchema>;
 export type DeleteSubmission = z.infer<typeof deleteSubmissionSchema>;
+export type EditSubmission = z.infer<typeof editSubmissionSchema>;
 
 /**
  * CREATE Submission Schema Parser
@@ -54,6 +68,23 @@ export function parseDeleteSubmission({
   return deleteSubmissionSchema.safeParse({
     submission_id,
     submission_name
+  });
+}
+
+/**
+ * EDIT Submission Schema Parser
+ */
+export function parseEditSubmission({
+  submission_id,
+  submission_title,
+  submission_name,
+  tags
+}: Partial<EditSubmission>) {
+  return editSubmissionSchema.safeParse({
+    submission_id,
+    submission_title: submission_title?.toString().trim(),
+    submission_name: submission_name?.toString().trim(),
+    tags
   });
 }
 

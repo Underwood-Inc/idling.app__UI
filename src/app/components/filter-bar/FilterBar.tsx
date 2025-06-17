@@ -77,18 +77,8 @@ export default function FilterBar({
 
         return (
           <div key={filter.name} className="filter-bar__filter">
-            <div className="filter-bar__filter-name-container">
-              <button
-                className="filter-bar__clear"
-                onClick={() => handleRemoveFilter(filter.name)}
-              >
-                Clear
-              </button>
-              &nbsp;
-              <p className="uppercase filter-bar__filter-name">
-                {filter.name}:
-              </p>
-              &nbsp;
+            <p className="uppercase filter-bar__filter-name">{filter.name}:</p>
+            <div className="filter-bar__filter-values-container">
               {renderValues()}
             </div>
           </div>

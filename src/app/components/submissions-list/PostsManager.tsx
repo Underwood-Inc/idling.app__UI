@@ -4,6 +4,7 @@ import { useSession } from 'next-auth/react';
 import { useState } from 'react';
 import { useSubmissionsManager } from '../../../lib/state/useSubmissionsManager';
 import FilterBar from '../filter-bar/FilterBar';
+import { SpacingThemeToggle } from '../spacing-theme-toggle/SpacingThemeToggle';
 import './PostsManager.css';
 import SubmissionsList from './SubmissionsList';
 
@@ -11,6 +12,7 @@ interface PostsManagerProps {
   contextId: string;
   onlyMine?: boolean;
   enableThreadMode?: boolean;
+  onNewPostClick?: () => void;
 }
 
 /**
@@ -21,7 +23,8 @@ interface PostsManagerProps {
 export default function PostsManager({
   contextId,
   onlyMine = false,
-  enableThreadMode = false
+  enableThreadMode = false,
+  onNewPostClick
 }: PostsManagerProps) {
   const { data: session } = useSession();
   const [includeThreadReplies, setIncludeThreadReplies] = useState(false);
@@ -60,12 +63,61 @@ export default function PostsManager({
   });
 
   const handleToggleThreadReplies = () => {
-    setIncludeThreadReplies((prev) => !prev);
+    setIncludeThreadReplies((prev) => {
+      const newValue = !prev;
+      // eslint-disable-next-line no-console
+      console.log('🔧 [POSTS_MANAGER] Toggle includeThreadReplies:', {
+        from: prev,
+        to: newValue,
+        hasFilters: filters.length > 0,
+        currentFilters: filters
+      });
+      return newValue;
+    });
   };
+
+  const handleNewPostClick = () => {
+    if (onNewPostClick) {
+      onNewPostClick();
+    }
+  };
+
+  const isAuthorized = !!session?.user?.providerAccountId;
 
   return (
     <>
       <div className="posts-manager__controls">
+        {/* Top controls row with spacing toggle on left, new post button on right */}
+        <div className="posts-manager__top-controls">
+          <SpacingThemeToggle />
+
+          {onNewPostClick && (
+            <button
+              className="posts-manager__new-post-button"
+              onClick={handleNewPostClick}
+              disabled={!isAuthorized}
+              title={
+                isAuthorized ? 'Create a new post' : 'Login to create posts'
+              }
+            >
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <line x1="12" y1="5" x2="12" y2="19" />
+                <line x1="5" y1="12" x2="19" y2="12" />
+              </svg>
+              New Post
+            </button>
+          )}
+        </div>
+
         <FilterBar
           filterId={contextId}
           filters={filters as any}

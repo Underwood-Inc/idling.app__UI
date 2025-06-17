@@ -1,5 +1,6 @@
 'use client';
 import { useAtom } from 'jotai';
+import { useSession } from 'next-auth/react';
 import { ChangeEvent, useEffect, useRef, useState } from 'react';
 import { useFormState, useFormStatus } from 'react-dom';
 import { shouldUpdateAtom } from '../../../../lib/state/atoms';
@@ -43,9 +44,15 @@ function SubmitButton({
   );
 }
 
-export function AddSubmissionForm({ isAuthorized }: { isAuthorized: boolean }) {
+export function AddSubmissionForm({
+  onSuccess,
+  contextId
+}: { onSuccess?: () => void; contextId?: string } = {}) {
   const ref = useRef<HTMLFormElement>(null);
   const [, setShouldUpdate] = useAtom(shouldUpdateAtom);
+  const { data: session } = useSession();
+  const isAuthorized = !!session?.user;
+
   // TODO: https://github.com/vercel/next.js/issues/65673#issuecomment-2112746191
   // const [state, formAction] = useActionState(createSubmissionAction, initialState)
   const [state, formAction] = useFormState(
@@ -69,14 +76,19 @@ export function AddSubmissionForm({ isAuthorized }: { isAuthorized: boolean }) {
       : undefined;
 
   useEffect(() => {
-    setShouldUpdate(!!state.status);
-
     if (state.status) {
       setTitleLength(0);
       setNameLength(0);
       ref.current?.reset();
+
+      // For now, just use the global update trigger
+      // TODO: Implement proper optimistic updates in a future iteration
+      setShouldUpdate(!!state.status);
+
+      // Call the success callback if provided
+      onSuccess?.();
     }
-  }, [state.status, state.message, setShouldUpdate]);
+  }, [state.status, state.message, setShouldUpdate, onSuccess]);
 
   const handleFormValidateAction = async (formData: FormData) => {
     await validateFormAction(formData);

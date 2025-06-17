@@ -1,0 +1,181 @@
+/* Post Modal Styles */
+.post-modal {
+  background-color: var(--light-background--quaternary, white);
+  border-radius: var(--border-radius, 12px) var(--border-radius, 12px) 0 0;
+  width: 100%;
+  max-width: 600px;
+  max-height: 80vh;
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.3);
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--brand-tertiary--dark, #e5e7eb);
+}
+
+/* Modal Header */
+.post-modal__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.5rem 1.5rem 1rem 1.5rem;
+  border-bottom: 1px solid var(--brand-tertiary--dark, #e5e7eb);
+  background-color: var(--light-background--tertiary, #f9fafb);
+  border-radius: var(--border-radius, 12px) var(--border-radius, 12px) 0 0;
+}
+
+.post-modal__title {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--light-bg__text-color--primary, #111827);
+  text-transform: none;
+}
+
+.post-modal__close {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  background-color: transparent;
+  color: var(--light-bg__text-color--secondary, #6b7280);
+  border: 1px solid var(--brand-tertiary--dark, #e5e7eb);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease-in-out;
+  padding: 0;
+}
+
+.post-modal__close:hover {
+  background-color: var(--brand-tertiary, #f3f4f6);
+  color: var(--light-bg__text-color--primary, #111827);
+  border-color: var(--brand-primary, #3b82f6);
+}
+
+.post-modal__close svg {
+  width: 1rem;
+  height: 1rem;
+}
+
+/* Modal Content */
+.post-modal__content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1.5rem;
+}
+
+/* Override form styles within the modal */
+.post-modal__content .submission__form {
+  background: transparent;
+  border: none;
+  padding: 0;
+  margin: 0;
+  box-shadow: none;
+}
+
+.post-modal__content .submission__title-label,
+.post-modal__content .submission__tags-label {
+  margin-bottom: 1rem;
+}
+
+.post-modal__content .submission__title-input,
+.post-modal__content .submission__tags-input {
+  background-color: var(--light-background--quinary, #f9fafb);
+  border: 1px solid var(--brand-tertiary--dark, #e5e7eb);
+  color: var(--light-bg__text-color--primary, #111827);
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+  font-size: 0.95rem;
+  transition: all 0.2s ease-in-out;
+}
+
+.post-modal__content .submission__title-input:focus,
+.post-modal__content .submission__tags-input:focus {
+  outline: none;
+  border-color: var(--brand-primary, #3b82f6);
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .post-modal {
+    background-color: #1f2937;
+    border-color: #374151;
+  }
+
+  .post-modal__header {
+    background-color: #111827;
+    border-bottom-color: #374151;
+  }
+
+  .post-modal__title {
+    color: #f9fafb;
+  }
+
+  .post-modal__close {
+    color: #9ca3af;
+    border-color: #374151;
+  }
+
+  .post-modal__close:hover {
+    background-color: #374151;
+    color: #d1d5db;
+    border-color: #3b82f6;
+  }
+
+  .post-modal__content .submission__title-input,
+  .post-modal__content .submission__tags-input {
+    background-color: #374151;
+    border-color: #4b5563;
+    color: #f9fafb;
+  }
+
+  .post-modal__content .submission__title-input:focus,
+  .post-modal__content .submission__tags-input:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .post-modal {
+    max-height: 90vh;
+    margin: 0;
+    border-radius: 1rem 1rem 0 0;
+  }
+
+  .post-modal__header {
+    padding: 1rem;
+  }
+
+  .post-modal__title {
+    font-size: 1.25rem;
+  }
+
+  .post-modal__content {
+    padding: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .post-modal {
+    border-radius: 0.5rem 0.5rem 0 0;
+  }
+
+  .post-modal__header {
+    padding: 0.75rem;
+  }
+
+  .post-modal__content {
+    padding: 0.75rem;
+  }
+}
+
+/* Accessibility */
+@media (prefers-reduced-motion: reduce) {
+
+  .post-modal,
+  .post-modal__close {
+    transition: none;
+  }
+}

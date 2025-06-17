@@ -6,7 +6,16 @@ const nextConfig = {
     version
   },
   reactStrictMode: true,
-  webpack: (config, { webpack }) => {
+  webpack: (config, { webpack, dev }) => {
+    // In production builds, exclude dev tools entirely
+    if (!dev) {
+      config.plugins.push(
+        new webpack.IgnorePlugin({
+          resourceRegExp: /^.*\/dev-tools\/.*$/,
+          contextRegExp: /src\/app\/components/
+        })
+      );
+    }
     config.plugins.push(
       new webpack.ProvidePlugin({
         Buffer: ['buffer', 'Buffer']

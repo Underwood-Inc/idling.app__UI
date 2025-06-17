@@ -9,9 +9,10 @@ import './ReplyForm.css';
 
 interface ReplyFormProps {
   parentId: number;
+  onSuccess?: () => void;
 }
 
-export function ReplyForm({ parentId }: ReplyFormProps) {
+export function ReplyForm({ parentId, onSuccess }: ReplyFormProps) {
   const [, setShouldUpdate] = useAtom(shouldUpdateAtom);
   const [formData, setFormData] = useState({
     title: '',
@@ -72,6 +73,12 @@ export function ReplyForm({ parentId }: ReplyFormProps) {
         // Reset form
         setFormData({ title: '', content: '' });
         setShouldUpdate(true);
+
+        // Call success callback to close form and refresh
+        if (onSuccess) {
+          onSuccess();
+        }
+
         router.refresh();
       } else {
         setError(result.error || 'Failed to submit reply');

@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { SessionProvider } from 'next-auth/react';
 import { Inter } from 'next/font/google';
 import { Suspense } from 'react';
+import { OverlayProvider } from '../lib/context/OverlayContext';
 import { JotaiProvider } from '../lib/state/JotaiProvider';
 import { AvatarsBackground } from './components/avatars-background/AvatarsBackground';
 import { NotFoundErrorBoundary } from './components/error-boundary/NotFoundErrorBoundary';
@@ -11,6 +12,7 @@ import Header from './components/header/Header';
 import Loader from './components/loader/Loader';
 import MessageTickerWithInterval from './components/message-ticker/MessageTickerWithInterval';
 import { ServiceWorkerRegistration } from './components/service-worker/ServiceWorkerRegistration';
+import { OverlayRenderer } from './components/ui/OverlayRenderer';
 import './globals.css';
 
 const inter = Inter({ subsets: ['latin'] });
@@ -56,22 +58,25 @@ export default function RootLayout({
       <body className={inter.className}>
         <ServiceWorkerRegistration />
         <SessionProvider>
-          <main>
-            <AvatarsBackground />
+          <OverlayProvider>
+            <main>
+              <AvatarsBackground />
 
-            <Header />
+              <Header />
 
-            <MessageTickerWithInterval />
+              <MessageTickerWithInterval />
 
-            <Suspense fallback={<Loader />}>
-              <JotaiProvider>
-                <NotFoundErrorBoundary>
-                  <FadeIn>{children}</FadeIn>
-                </NotFoundErrorBoundary>
-              </JotaiProvider>
-            </Suspense>
-            <Footer />
-          </main>
+              <Suspense fallback={<Loader />}>
+                <JotaiProvider>
+                  <NotFoundErrorBoundary>
+                    <FadeIn>{children}</FadeIn>
+                  </NotFoundErrorBoundary>
+                </JotaiProvider>
+              </Suspense>
+              <Footer />
+            </main>
+            <OverlayRenderer />
+          </OverlayProvider>
         </SessionProvider>
       </body>
     </html>

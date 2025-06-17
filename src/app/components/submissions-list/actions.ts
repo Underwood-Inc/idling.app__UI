@@ -209,42 +209,223 @@ export async function getSubmissionsWithReplies({
   pageSize = 10,
   includeThreadReplies = false
 }: GetSubmissionsActionArguments): Promise<GetSubmissionsActionResponse> {
+  // eslint-disable-next-line no-console
+  console.log('🔄 [getSubmissionsWithReplies] Called with:', {
+    onlyMine,
+    providerAccountId: providerAccountId
+      ? `${providerAccountId.substring(0, 8)}...`
+      : 'null',
+    filters,
+    page,
+    pageSize,
+    includeThreadReplies,
+    hasFilters: filters.length > 0
+  });
+
   try {
-    // First get the main submissions (excluding thread replies)
-    const mainSubmissionsResponse = await getSubmissionsAction({
-      onlyMine,
-      providerAccountId,
-      filters,
-      page,
-      pageSize,
-      includeThreadReplies: false // Always exclude replies for main query
-    });
+    if (includeThreadReplies && filters.length > 0) {
+      // eslint-disable-next-line no-console
+      console.log(
+        '🔄 [getSubmissionsWithReplies] Using includeThreadReplies=true with filters'
+      );
 
-    if (!mainSubmissionsResponse.data) {
-      return mainSubmissionsResponse;
-    }
+      // When includeThreadReplies is true and we have filters:
+      // 1. Get all submissions (including replies) that match filters
+      // 2. Group them into proper thread structure
+      // 3. Return only parent posts with nested replies
 
-    const submissionsWithReplies: SubmissionWithReplies[] = [];
+      const allMatchingSubmissions = await getSubmissionsAction({
+        onlyMine,
+        providerAccountId,
+        filters,
+        page,
+        pageSize,
+        includeThreadReplies: true // Include replies in filter matching
+      });
 
-    // For each main submission, fetch its replies
-    for (const submission of mainSubmissionsResponse.data.data) {
-      const submissionWithReplies: SubmissionWithReplies = { ...submission };
-
-      // Fetch replies for this submission
-      const replies = await getSubmissionReplies(submission.submission_id);
-      if (replies.length > 0) {
-        submissionWithReplies.replies = replies;
+      if (!allMatchingSubmissions.data) {
+        return allMatchingSubmissions;
       }
 
-      submissionsWithReplies.push(submissionWithReplies);
-    }
+      // eslint-disable-next-line no-console
+      console.log(
+        '🔄 [getSubmissionsWithReplies] Found matching submissions:',
+        {
+          totalCount: allMatchingSubmissions.data.data.length,
+          sampleItems: allMatchingSubmissions.data.data
+            .slice(0, 3)
+            .map((s) => ({
+              id: s.submission_id,
+              title: s.submission_title?.substring(0, 30) + '...',
+              isReply: s.thread_parent_id !== null,
+              parentId: s.thread_parent_id
+            }))
+        }
+      );
 
-    return {
-      data: {
-        data: submissionsWithReplies,
-        pagination: mainSubmissionsResponse.data.pagination
+      // Group submissions by thread (parent posts and their replies)
+      const submissionMap = new Map<number, SubmissionWithReplies>();
+      const threadReplies = new Map<number, SubmissionWithReplies[]>();
+
+      // First pass: separate parents and replies
+      for (const submission of allMatchingSubmissions.data.data) {
+        const submissionWithReplies: SubmissionWithReplies = { ...submission };
+
+        if (submission.thread_parent_id === null) {
+          // This is a parent post
+          submissionMap.set(submission.submission_id, submissionWithReplies);
+        } else {
+          // This is a reply - group by parent
+          const parentId = submission.thread_parent_id;
+          if (!threadReplies.has(parentId)) {
+            threadReplies.set(parentId, []);
+          }
+          threadReplies.get(parentId)!.push(submissionWithReplies);
+
+          // If parent isn't in results, fetch it
+          if (!submissionMap.has(parentId)) {
+            const parentResult = await sql<any[]>`
+              SELECT 
+                submission_id,
+                submission_name,
+                submission_title,
+                submission_datetime,
+                author_id,
+                author,
+                COALESCE(tags, ARRAY[]::text[]) as tags,
+                thread_parent_id
+              FROM submissions
+              WHERE submission_id = ${parentId}
+            `;
+
+            if (parentResult[0]) {
+              const parentSubmission: SubmissionWithReplies = {
+                submission_id: Number(parentResult[0].submission_id),
+                submission_name: parentResult[0].submission_name,
+                submission_title:
+                  parentResult[0].submission_title ||
+                  parentResult[0].submission_name,
+                submission_datetime: new Date(
+                  parentResult[0].submission_datetime
+                ),
+                author_id: parentResult[0].author_id,
+                author: parentResult[0].author,
+                tags: Array.isArray(parentResult[0].tags)
+                  ? parentResult[0].tags
+                  : [],
+                thread_parent_id: parentResult[0].thread_parent_id
+                  ? Number(parentResult[0].thread_parent_id)
+                  : null
+              };
+              submissionMap.set(parentId, parentSubmission);
+              // eslint-disable-next-line no-console
+              console.log(
+                '🔄 [getSubmissionsWithReplies] Fetched missing parent:',
+                {
+                  parentId,
+                  title:
+                    parentSubmission.submission_title?.substring(0, 30) + '...'
+                }
+              );
+            }
+          }
+        }
       }
-    };
+
+      // Second pass: attach replies to their parents
+      for (const [parentId, replies] of threadReplies) {
+        const parent = submissionMap.get(parentId);
+        if (parent) {
+          parent.replies = replies;
+        }
+      }
+
+      // Convert to array and sort by datetime (most recent first)
+      const finalSubmissions = Array.from(submissionMap.values()).sort(
+        (a, b) =>
+          new Date(b.submission_datetime).getTime() -
+          new Date(a.submission_datetime).getTime()
+      );
+
+      // eslint-disable-next-line no-console
+      console.log(
+        '🔄 [getSubmissionsWithReplies] Final result with includeThreadReplies=true:',
+        {
+          parentPostsCount: finalSubmissions.length,
+          postsWithReplies: finalSubmissions.filter(
+            (s) => s.replies && s.replies.length > 0
+          ).length,
+          totalRepliesIncluded: finalSubmissions.reduce(
+            (acc, s) => acc + (s.replies?.length || 0),
+            0
+          )
+        }
+      );
+
+      return {
+        data: {
+          data: finalSubmissions,
+          pagination: allMatchingSubmissions.data.pagination
+        }
+      };
+    } else {
+      // eslint-disable-next-line no-console
+      console.log(
+        '🔄 [getSubmissionsWithReplies] Using standard mode (includeThreadReplies=false or no filters)'
+      );
+
+      // When includeThreadReplies is false or no filters:
+      // Get main submissions only and fetch their replies separately
+      const mainSubmissionsResponse = await getSubmissionsAction({
+        onlyMine,
+        providerAccountId,
+        filters,
+        page,
+        pageSize,
+        includeThreadReplies: false // Only main posts for filtering
+      });
+
+      if (!mainSubmissionsResponse.data) {
+        return mainSubmissionsResponse;
+      }
+
+      const submissionsWithReplies: SubmissionWithReplies[] = [];
+
+      // For each main submission, fetch its replies
+      for (const submission of mainSubmissionsResponse.data.data) {
+        const submissionWithReplies: SubmissionWithReplies = { ...submission };
+
+        // Fetch replies for this submission
+        const replies = await getSubmissionReplies(submission.submission_id);
+        if (replies.length > 0) {
+          submissionWithReplies.replies = replies;
+        }
+
+        submissionsWithReplies.push(submissionWithReplies);
+      }
+
+      // eslint-disable-next-line no-console
+      console.log(
+        '🔄 [getSubmissionsWithReplies] Final result with standard mode:',
+        {
+          mainPostsCount: submissionsWithReplies.length,
+          postsWithReplies: submissionsWithReplies.filter(
+            (s) => s.replies && s.replies.length > 0
+          ).length,
+          totalRepliesIncluded: submissionsWithReplies.reduce(
+            (acc, s) => acc + (s.replies?.length || 0),
+            0
+          )
+        }
+      );
+
+      return {
+        data: {
+          data: submissionsWithReplies,
+          pagination: mainSubmissionsResponse.data.pagination
+        }
+      };
+    }
   } catch (error) {
     console.error('Error in getSubmissionsWithReplies:', error);
     return {
@@ -272,7 +453,8 @@ export async function getSubmissionsAction({
       : 'null',
     filters,
     page,
-    pageSize
+    pageSize,
+    includeThreadReplies
   });
 
   if (!providerAccountId) {

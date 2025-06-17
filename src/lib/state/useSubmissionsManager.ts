@@ -7,7 +7,8 @@ import { PostFilters } from '../types/filters';
 import {
   Filter,
   getSubmissionsFiltersAtom,
-  getSubmissionsStateAtom
+  getSubmissionsStateAtom,
+  shouldUpdateAtom
 } from './atoms';
 
 interface UseSubmissionsManagerProps {
@@ -44,6 +45,9 @@ export function useSubmissionsManager({
   const [filtersState, setFiltersState] = useAtom(
     getSubmissionsFiltersAtom(contextId)
   );
+
+  // Monitor global shouldUpdate atom for refresh triggers
+  const [shouldUpdate, setShouldUpdate] = useAtom(shouldUpdateAtom);
 
   // Refs to prevent infinite loops and optimize requests
   const isInitializing = useRef(true);
@@ -394,6 +398,32 @@ export function useSubmissionsManager({
       }
     };
   }, []);
+
+  // Monitor shouldUpdate atom for refresh triggers
+  useEffect(() => {
+    if (shouldUpdate && !isInitializing.current && filtersState.initialized) {
+      // eslint-disable-next-line no-console
+      console.log('🔄 [MANAGER] shouldUpdate triggered, refreshing...');
+
+      // Reset the shouldUpdate flag
+      setShouldUpdate(false);
+
+      // Force a refresh by triggering fetchSubmissions
+      fetchSubmissions(
+        filtersState.filters as Filter<PostFilters>[],
+        filtersState.page,
+        filtersState.pageSize
+      );
+    }
+  }, [
+    shouldUpdate,
+    setShouldUpdate,
+    fetchSubmissions,
+    filtersState.filters,
+    filtersState.page,
+    filtersState.pageSize,
+    filtersState.initialized
+  ]);
 
   // Action methods that update shared atoms
   const setPage = useCallback(

@@ -39,7 +39,7 @@ describe('AddSubmissionForm', () => {
   it('renders form correctly', () => {
     render(
       <Provider>
-        <AddSubmissionForm {...defaultProps} />
+        <AddSubmissionForm />
       </Provider>
     );
 
@@ -65,7 +65,7 @@ describe('AddSubmissionForm', () => {
 
     render(
       <Provider>
-        <AddSubmissionForm {...defaultProps} />
+        <AddSubmissionForm />
       </Provider>
     );
 
@@ -88,7 +88,7 @@ describe('AddSubmissionForm', () => {
 
     render(
       <Provider>
-        <AddSubmissionForm {...defaultProps} />
+        <AddSubmissionForm />
       </Provider>
     );
 
@@ -105,7 +105,7 @@ describe('AddSubmissionForm', () => {
 
     render(
       <Provider>
-        <AddSubmissionForm {...defaultProps} />
+        <AddSubmissionForm />
       </Provider>
     );
 
@@ -121,7 +121,7 @@ describe('AddSubmissionForm', () => {
 
     render(
       <Provider>
-        <AddSubmissionForm {...defaultProps} />
+        <AddSubmissionForm />
       </Provider>
     );
 

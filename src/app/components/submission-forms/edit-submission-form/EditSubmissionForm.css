@@ -1,0 +1,48 @@
+/* Edit Submission Form Styles */
+
+.submission__form-actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.submission__submit-button {
+  background: linear-gradient(135deg, var(--brand-primary) 0%, var(--brand-secondary) 100%);
+  color: var(--font-color--primary);
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex: 1;
+}
+
+.submission__submit-button:hover:not(:disabled) {
+  background: linear-gradient(135deg, var(--brand-primary--dark) 0%, var(--brand-secondary--dark) 100%);
+  transform: translateY(-1px);
+}
+
+.submission__submit-button:disabled {
+  background: var(--brand-tertiary);
+  color: var(--light-bg__text-color--tertiary);
+  cursor: not-allowed;
+}
+
+.submission__cancel-button {
+  background: var(--light-background--tertiary);
+  color: var(--light-bg__text-color--secondary);
+  border: 1px solid var(--brand-tertiary);
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex: 1;
+}
+
+.submission__cancel-button:hover {
+  background: var(--brand-tertiary);
+  color: var(--light-bg__text-color--primary);
+  border-color: var(--brand-primary);
+}

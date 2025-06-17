@@ -23,15 +23,15 @@ export default function Thread({
   );
   const [replies, setReplies] = useState<Submission[]>([]);
 
-  useEffect(() => {
-    const fetchThread = async () => {
-      setLoading(true);
-      const threadData = await getSubmissionThread(submissionId);
-      setParentSubmission(threadData.parent);
-      setReplies(threadData.replies);
-      setLoading(false);
-    };
+  const fetchThread = async () => {
+    setLoading(true);
+    const threadData = await getSubmissionThread(submissionId);
+    setParentSubmission(threadData.parent);
+    setReplies(threadData.replies);
+    setLoading(false);
+  };
 
+  useEffect(() => {
     fetchThread();
   }, [submissionId]);
 
@@ -86,7 +86,13 @@ export default function Thread({
         <h3>Original Post</h3>
         {renderSubmission(parentSubmission)}
       </div>
-      <ReplyForm parentId={submissionId} />
+      <ReplyForm
+        parentId={submissionId}
+        onSuccess={() => {
+          // Refresh the thread data to show the new reply
+          fetchThread();
+        }}
+      />
       <div className="thread__replies">
         <h3>Replies</h3>
         {replies.length === 0 ? (
