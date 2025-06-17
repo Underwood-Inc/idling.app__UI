@@ -17,11 +17,15 @@ export interface SmartInputProps
   extends Omit<InlineSuggestionInputProps, 'onHashtagSearch' | 'onUserSearch'> {
   enableHashtags?: boolean;
   enableUserMentions?: boolean;
+  existingHashtags?: string[]; // Hashtags to exclude from search results
+  existingUserIds?: string[]; // User IDs to exclude from search results
 }
 
 export const SmartInput: React.FC<SmartInputProps> = ({
   enableHashtags = true,
   enableUserMentions = true,
+  existingHashtags = [],
+  existingUserIds = [],
   ...props
 }) => {
   // Default hashtag search function
@@ -32,12 +36,20 @@ export const SmartInput: React.FC<SmartInputProps> = ({
 
     try {
       const results = await searchHashtags(query);
-      return results.map((result: HashtagResult) => ({
-        id: result.id,
-        value: result.value,
-        label: result.label,
-        type: 'hashtag' as const
-      }));
+      return results
+        .filter((result: HashtagResult) => {
+          // Exclude hashtags that are already added
+          const hashtagValue = result.value.startsWith('#')
+            ? result.value
+            : `#${result.value}`;
+          return !existingHashtags.includes(hashtagValue);
+        })
+        .map((result: HashtagResult) => ({
+          id: result.id,
+          value: result.value,
+          label: result.label,
+          type: 'hashtag' as const
+        }));
     } catch (error) {
       console.error('Error searching hashtags:', error);
       return [];
@@ -50,14 +62,19 @@ export const SmartInput: React.FC<SmartInputProps> = ({
 
     try {
       const results = await searchUsers(query);
-      return results.map((result: UserResult) => ({
-        id: result.id,
-        value: result.value, // author_id for filtering
-        label: result.label,
-        displayName: result.displayName, // author name for display
-        avatar: result.avatar,
-        type: 'user' as const
-      }));
+      return results
+        .filter((result: UserResult) => {
+          // Exclude users that are already added (by user ID)
+          return !existingUserIds.includes(result.value);
+        })
+        .map((result: UserResult) => ({
+          id: result.id,
+          value: result.value, // author_id for filtering
+          label: result.label,
+          displayName: result.displayName, // author name for display
+          avatar: result.avatar,
+          type: 'user' as const
+        }));
     } catch (error) {
       console.error('Error searching users:', error);
       return [];

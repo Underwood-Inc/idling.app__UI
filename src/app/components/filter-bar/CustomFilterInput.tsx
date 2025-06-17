@@ -42,24 +42,70 @@ export function CustomFilterInput({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!inputValue.trim()) return;
+
+    // Get the complete value including both existing pills and new input
+    const valueToProcess = currentEditValue || inputValue;
+    if (!valueToProcess.trim()) return;
 
     // Process the input and create appropriate filter
-    processFilterInput(inputValue.trim());
+    processFilterInput(valueToProcess.trim());
+
+    // Clear both values after processing
     setInputValue('');
+    setCurrentEditValue('');
   };
 
   const processFilterInput = (value: string) => {
-    if (value.startsWith('#')) {
-      // Handle hashtag filter
-      processHashtagFilter(value);
-    } else if (value.startsWith('@')) {
-      // Handle user filter (mention format: @[username|userId])
-      processUserFilter(value);
-    } else {
-      // Auto-detect: treat as tag if no prefix
-      processHashtagFilter(value.startsWith('#') ? value : `#${value}`);
+    // Parse the input to extract all pills (hashtags and mentions)
+    const pills = parseMultiplePills(value);
+
+    // Process each pill individually
+    pills.forEach((pill) => {
+      if (pill.type === 'hashtag') {
+        processHashtagFilter(pill.content);
+      } else if (pill.type === 'mention') {
+        processUserFilter(pill.content);
+      }
+    });
+  };
+
+  // Parse input string to extract multiple pills
+  const parseMultiplePills = (
+    text: string
+  ): Array<{ type: 'hashtag' | 'mention'; content: string }> => {
+    const pills: Array<{ type: 'hashtag' | 'mention'; content: string }> = [];
+
+    // Simple regex to match:
+    // - Hashtags: #word
+    // - Valid mentions: @[username|userId]
+    // - Malformed mentions: [username|userId] (missing @ prefix - fix these)
+    const pillRegex = /#\w+|@\[[^\]]+\]|\[[^\]]+\]/g;
+    let match;
+
+    while ((match = pillRegex.exec(text)) !== null) {
+      const matchedText = match[0];
+
+      if (matchedText.startsWith('#')) {
+        pills.push({
+          type: 'hashtag',
+          content: matchedText
+        });
+      } else if (matchedText.startsWith('@[')) {
+        // Valid mention format
+        pills.push({
+          type: 'mention',
+          content: matchedText
+        });
+      } else if (matchedText.startsWith('[') && matchedText.includes('|')) {
+        // Malformed mention missing @ prefix - fix it
+        pills.push({
+          type: 'mention',
+          content: `@${matchedText}`
+        });
+      }
     }
+
+    return pills;
   };
 
   const processHashtagFilter = (value: string) => {

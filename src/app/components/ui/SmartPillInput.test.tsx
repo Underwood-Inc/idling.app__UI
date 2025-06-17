@@ -91,14 +91,14 @@ describe('SmartPillInput', () => {
     const input = screen.getByRole('textbox');
     fireEvent.change(input, { target: { value: '#test' } });
 
-    // Press Enter to commit
-    fireEvent.keyDown(input, { key: 'Enter' });
+    // Click outside to commit (since we removed keyboard shortcuts)
+    fireEvent.click(document.body);
 
     // Should call onChange with the combined value
     expect(onChange).toHaveBeenCalledWith('#existing #test');
   });
 
-  it('cancels changes when Escape key is pressed', () => {
+  it('cancels changes when clicking outside without typing', () => {
     const onChange = jest.fn();
     render(
       <SmartPillInput {...defaultProps} onChange={onChange} value="#original" />
@@ -108,15 +108,11 @@ describe('SmartPillInput', () => {
     const container = screen.getByText('#original').closest('div');
     fireEvent.click(container!);
 
-    // Type in the input
-    const input = screen.getByRole('textbox');
-    fireEvent.change(input, { target: { value: '#changed' } });
+    // Click outside without typing anything
+    fireEvent.click(document.body);
 
-    // Press Escape to cancel
-    fireEvent.keyDown(input, { key: 'Escape' });
-
-    // Should not call onChange
-    expect(onChange).not.toHaveBeenCalled();
+    // Should call onChange with just the original value (no new content added)
+    expect(onChange).toHaveBeenCalledWith('#original');
 
     // Should return to display mode with original value
     expect(screen.getByText('#original')).toBeInTheDocument();
@@ -144,9 +140,8 @@ describe('SmartPillInput', () => {
     const existingPill = screen.getByText('#existing');
     fireEvent.click(existingPill);
 
-    // Press Enter to commit the changes
-    const input = screen.getByRole('textbox');
-    fireEvent.keyDown(input, { key: 'Enter' });
+    // Click outside to commit the changes
+    fireEvent.click(document.body);
 
     // Should call onChange with the remaining pill
     expect(onChange).toHaveBeenCalledWith('#test');
@@ -168,5 +163,51 @@ describe('SmartPillInput', () => {
 
     // Should call onChange immediately with the remaining content
     expect(onChange).toHaveBeenCalledWith('#keep');
+  });
+
+  it('prevents duplicate hashtags from being added', () => {
+    const onChange = jest.fn();
+    render(
+      <SmartPillInput {...defaultProps} onChange={onChange} value="#existing" />
+    );
+
+    // Enter edit mode
+    const container = screen.getByText('#existing').closest('div');
+    fireEvent.click(container!);
+
+    // Try to add the same hashtag again
+    const input = screen.getByRole('textbox');
+    fireEvent.change(input, { target: { value: '#existing' } });
+
+    // Click outside to commit
+    fireEvent.click(document.body);
+
+    // Should not add duplicate - value should remain the same
+    expect(onChange).toHaveBeenCalledWith('#existing');
+  });
+
+  it('prevents duplicate mentions from being added', () => {
+    const onChange = jest.fn();
+    render(
+      <SmartPillInput
+        {...defaultProps}
+        onChange={onChange}
+        value="@[testuser|user123]"
+      />
+    );
+
+    // Enter edit mode
+    const container = screen.getByText('@testuser').closest('div');
+    fireEvent.click(container!);
+
+    // Try to add the same mention again
+    const input = screen.getByRole('textbox');
+    fireEvent.change(input, { target: { value: '@[testuser|user123]' } });
+
+    // Click outside to commit
+    fireEvent.click(document.body);
+
+    // Should not add duplicate - value should remain the same
+    expect(onChange).toHaveBeenCalledWith('@[testuser|user123]');
   });
 });

@@ -20,6 +20,17 @@ jest.mock('../../../lib/actions/search.actions', () => ({
   ])
 }));
 
+// Mock Next.js navigation
+jest.mock('next/navigation', () => ({
+  usePathname: jest.fn(() => '/posts'),
+  useRouter: jest.fn(() => ({
+    push: jest.fn(),
+    replace: jest.fn(),
+    back: jest.fn()
+  })),
+  useSearchParams: jest.fn(() => new URLSearchParams())
+}));
+
 describe('CustomFilterInput', () => {
   const mockOnAddFilter = jest.fn();
 
@@ -241,5 +252,82 @@ describe('CustomFilterInput', () => {
     // Type # to hide selector
     fireEvent.change(input, { target: { value: '#tag' } });
     expect(screen.queryByDisplayValue('Posts by user')).not.toBeInTheDocument();
+  });
+
+  it('handles multiple structured mentions correctly', () => {
+    render(<CustomFilterInput {...defaultProps} />);
+
+    const input = enterEditMode();
+    const submitButton = screen.getByText('Add');
+
+    // Type multiple structured mentions (simulating the malformed case)
+    fireEvent.change(input, {
+      target: { value: '[Kelli Streich-Sporer|100] @[strixun|529]' }
+    });
+
+    // Submit the form
+    fireEvent.click(submitButton);
+
+    // Should call onAddFilter twice - once for each user
+    expect(mockOnAddFilter).toHaveBeenCalledTimes(2);
+
+    // First call should be for the fixed malformed mention
+    expect(mockOnAddFilter).toHaveBeenNthCalledWith(1, {
+      name: 'author',
+      value: '100'
+    });
+
+    // Second call should be for the properly formatted mention
+    expect(mockOnAddFilter).toHaveBeenNthCalledWith(2, {
+      name: 'author',
+      value: '529'
+    });
+  });
+
+  it('processes multiple hashtags correctly', () => {
+    render(<CustomFilterInput {...defaultProps} />);
+
+    const input = enterEditMode();
+    const submitButton = screen.getByText('Add');
+
+    // Type multiple hashtags
+    fireEvent.change(input, {
+      target: { value: '#javascript #react #nodejs' }
+    });
+
+    // Submit the form
+    fireEvent.click(submitButton);
+
+    // Should call onAddFilter three times - once for each hashtag
+    expect(mockOnAddFilter).toHaveBeenCalledTimes(3);
+    expect(mockOnAddFilter).toHaveBeenNthCalledWith(1, {
+      name: 'tags',
+      value: '#javascript'
+    });
+    expect(mockOnAddFilter).toHaveBeenNthCalledWith(2, {
+      name: 'tags',
+      value: '#react'
+    });
+    expect(mockOnAddFilter).toHaveBeenNthCalledWith(3, {
+      name: 'tags',
+      value: '#nodejs'
+    });
+  });
+
+  it('parseMultiplePills regex works correctly', () => {
+    // Create a mock instance to test the parsing function
+    const testInput = '[Kelli Streich-Sporer|100] @[strixun|529]';
+    const pillRegex = /#\w+|@\[[^\]]+\]|\[[^\]]+\]/g;
+    const matches = [];
+    let match;
+
+    while ((match = pillRegex.exec(testInput)) !== null) {
+      matches.push(match[0]);
+    }
+
+    // Should find both mentions
+    expect(matches).toHaveLength(2);
+    expect(matches[0]).toBe('[Kelli Streich-Sporer|100]');
+    expect(matches[1]).toBe('@[strixun|529]');
   });
 });

@@ -14,7 +14,7 @@ export function FilterLabel({
   label: string;
   filterId: string;
   onRemoveTag: (tagToRemove: string) => void;
-  onRemoveFilter?: (filterName: string) => void;
+  onRemoveFilter?: (filterName: string, filterValue?: string) => void;
 }) {
   const [displayLabel, setDisplayLabel] = useState(label);
 
@@ -78,13 +78,11 @@ export function FilterLabel({
     mentionValue: string,
     filterType?: 'author' | 'mentions'
   ) => {
-    // For author and mentions filters, remove the entire filter (not individual tags)
     if (name === 'author' && onRemoveFilter) {
-      onRemoveFilter('author');
+      onRemoveFilter('author', label);
     } else if (name === 'mentions' && onRemoveFilter) {
-      onRemoveFilter('mentions');
+      onRemoveFilter('mentions', label);
     } else {
-      // Fallback to removeTag if no removeFilter provided
       onRemoveTag(label);
     }
   };
@@ -109,9 +107,9 @@ export function FilterLabel({
       className="filter-bar__filter-value"
       onClick={() => {
         if (name === 'author' && onRemoveFilter) {
-          onRemoveFilter('author');
+          onRemoveFilter('author', label);
         } else if (name === 'mentions' && onRemoveFilter) {
-          onRemoveFilter('mentions');
+          onRemoveFilter('mentions', label);
         } else {
           onRemoveTag(label);
         }

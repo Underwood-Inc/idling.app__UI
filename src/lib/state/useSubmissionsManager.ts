@@ -129,31 +129,27 @@ export function useSubmissionsManager({
 
     const params = new URLSearchParams();
 
-    // Add filters to URL
-    filtersState.filters.forEach((filter) => {
-      if (filter.name === 'tags') {
-        params.set('tags', filter.value);
-      } else if (filter.name === 'author') {
-        params.set('author', filter.value);
-      } else if (filter.name === 'mentions') {
-        params.set('mentions', filter.value);
-      } else if (
-        filter.name === 'tagLogic' &&
-        filtersState.filters.some((f) => f.name === 'tags')
-      ) {
-        params.set('tagLogic', filter.value);
-      } else if (
-        filter.name === 'authorLogic' &&
-        filtersState.filters.some((f) => f.name === 'author')
-      ) {
-        params.set('authorLogic', filter.value);
-      } else if (
-        filter.name === 'mentionsLogic' &&
-        filtersState.filters.some((f) => f.name === 'mentions')
-      ) {
-        params.set('mentionsLogic', filter.value);
-      } else if (filter.name === 'globalLogic') {
-        params.set('globalLogic', filter.value);
+    // Add filters to URL - combine multiple values for same filter type
+    const filterGroups = filtersState.filters.reduce(
+      (acc, filter) => {
+        if (!acc[filter.name]) acc[filter.name] = [];
+        acc[filter.name].push(filter.value);
+        return acc;
+      },
+      {} as Record<string, string[]>
+    );
+
+    Object.entries(filterGroups).forEach(([name, values]) => {
+      if (name === 'tags' || name === 'author' || name === 'mentions') {
+        params.set(name, values.join(','));
+      } else if (name === 'tagLogic' && filterGroups.tags) {
+        params.set('tagLogic', values[0]);
+      } else if (name === 'authorLogic' && filterGroups.author) {
+        params.set('authorLogic', values[0]);
+      } else if (name === 'mentionsLogic' && filterGroups.mentions) {
+        params.set('mentionsLogic', values[0]);
+      } else if (name === 'globalLogic') {
+        params.set('globalLogic', values[0]);
       }
     });
 
@@ -329,16 +325,33 @@ export function useSubmissionsManager({
 
     // Build filters array including all logic parameters
     const urlFilters: Filter<PostFilters>[] = [];
+
+    // Handle comma-separated values for filters that can have multiple instances
     if (tagsParam) {
-      urlFilters.push({ name: 'tags' as PostFilters, value: tagsParam });
+      tagsParam.split(',').forEach((value) => {
+        if (value.trim()) {
+          urlFilters.push({ name: 'tags' as PostFilters, value: value.trim() });
+        }
+      });
     }
     if (authorParam) {
-      urlFilters.push({ name: 'author' as PostFilters, value: authorParam });
+      authorParam.split(',').forEach((value) => {
+        if (value.trim()) {
+          urlFilters.push({
+            name: 'author' as PostFilters,
+            value: value.trim()
+          });
+        }
+      });
     }
     if (mentionsParam) {
-      urlFilters.push({
-        name: 'mentions' as PostFilters,
-        value: mentionsParam
+      mentionsParam.split(',').forEach((value) => {
+        if (value.trim()) {
+          urlFilters.push({
+            name: 'mentions' as PostFilters,
+            value: value.trim()
+          });
+        }
       });
     }
     if (tagLogicParam && (tagLogicParam === 'OR' || tagLogicParam === 'AND')) {
@@ -525,34 +538,29 @@ export function useSubmissionsManager({
 
   const addFilter = useCallback(
     (filter: Filter<PostFilters>) => {
-      // eslint-disable-next-line no-console
       console.log('🏷️ [MANAGER] addFilter called:', filter);
 
       setFiltersState((prev) => {
-        const existingIndex = prev.filters.findIndex(
-          (f) => f.name === filter.name
-        );
-        let newFilters;
+        console.log('🏷️ [MANAGER] Current filters before add:', prev.filters);
 
-        if (existingIndex >= 0) {
-          // Replace existing filter
-          newFilters = [...prev.filters];
-          newFilters[existingIndex] = filter;
-          // eslint-disable-next-line no-console
-          console.log('🏷️ [MANAGER] Replacing existing filter');
-        } else {
-          // Add new filter
-          newFilters = [...prev.filters, filter];
-          // eslint-disable-next-line no-console
-          console.log('🏷️ [MANAGER] Adding new filter');
+        // Check if this exact filter already exists to prevent duplicates
+        const isDuplicate = prev.filters.some(
+          (f) => f.name === filter.name && f.value === filter.value
+        );
+
+        if (isDuplicate) {
+          console.log('🏷️ [MANAGER] Filter already exists, skipping:', filter);
+          return prev;
         }
 
-        // eslint-disable-next-line no-console
-        console.log('🏷️ [MANAGER] New filters array:', newFilters);
+        // Add new filter (allow multiple filters with same name but different values)
+        const newFilters = [...prev.filters, filter];
+        console.log('🏷️ [MANAGER] Filters after add:', newFilters);
+
         return {
           ...prev,
           filters: newFilters,
-          page: 1 // Reset to first page when adding filters
+          page: 1
         };
       });
     },
@@ -560,18 +568,30 @@ export function useSubmissionsManager({
   );
 
   const removeFilter = useCallback(
-    (filterName: PostFilters) => {
-      // eslint-disable-next-line no-console
-      console.log('🗑️ [MANAGER] removeFilter called:', filterName);
+    (filterName: PostFilters, filterValue?: string) => {
+      console.log('🗑️ [MANAGER] removeFilter called:', {
+        filterName,
+        filterValue
+      });
 
       setFiltersState((prev) => {
-        const newFilters = prev.filters.filter((f) => f.name !== filterName);
-        // eslint-disable-next-line no-console
+        console.log(
+          '🗑️ [MANAGER] Current filters before removal:',
+          prev.filters
+        );
+
+        const newFilters = filterValue
+          ? prev.filters.filter(
+              (f) => !(f.name === filterName && f.value === filterValue)
+            )
+          : prev.filters.filter((f) => f.name !== filterName);
+
         console.log('🗑️ [MANAGER] Filters after removal:', newFilters);
+
         return {
           ...prev,
           filters: newFilters,
-          page: 1 // Reset to first page when removing filters
+          page: 1
         };
       });
     },

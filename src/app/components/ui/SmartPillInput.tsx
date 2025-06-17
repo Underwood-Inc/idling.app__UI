@@ -141,18 +141,62 @@ export const SmartPillInput: React.FC<SmartPillInputProps> = ({
       /@\[[^\]]+\]$/.test(newValue.trim()) || /^#\w+$/.test(newValue.trim());
 
     if (hasCompletePill) {
-      // If we have a complete pill, add it to editValue and clear newInputValue
-      const newEditValue = editValue + (editValue ? ' ' : '') + newValue.trim();
-      setEditValue(newEditValue);
-      setNewInputValue('');
+      const newPill = newValue.trim();
 
-      if (onEditValueChange) {
-        onEditValueChange(''); // Clear since we moved it to editValue
+      // Check for duplicates - parse existing content to get all current pills
+      const existingSegments = parseContent(editValue);
+      const existingPills = existingSegments
+        .filter(
+          (segment) => segment.type === 'hashtag' || segment.type === 'mention'
+        )
+        .map((segment) => segment.raw || segment.content);
+
+      // For mentions, we need to check both the structured format and display format
+      const isDuplicate = existingPills.some((existingPill) => {
+        if (newPill.startsWith('@[') && existingPill.startsWith('@[')) {
+          // Both are structured mentions - compare the structured format
+          return newPill === existingPill;
+        } else if (newPill.startsWith('#') && existingPill.startsWith('#')) {
+          // Both are hashtags - direct comparison
+          return newPill === existingPill;
+        } else if (newPill.startsWith('@[') && existingPill.startsWith('@')) {
+          // New is structured, existing might be display format - extract username from structured
+          const usernameMatch = newPill.match(/@\[([^|]+)\|/);
+          const username = usernameMatch ? usernameMatch[1] : '';
+          return existingPill === `@${username}`;
+        } else if (existingPill.startsWith('@[') && newPill.startsWith('@')) {
+          // Existing is structured, new might be display format
+          const usernameMatch = existingPill.match(/@\[([^|]+)\|/);
+          const username = usernameMatch ? usernameMatch[1] : '';
+          return newPill === `@${username}`;
+        }
+        return false;
+      });
+
+      if (!isDuplicate) {
+        // If not duplicate, add it to editValue and clear newInputValue
+        const newEditValue = editValue + (editValue ? ' ' : '') + newPill;
+        setEditValue(newEditValue);
+        setNewInputValue('');
+
+        if (onEditValueChange) {
+          onEditValueChange(newEditValue); // Pass the updated edit value with the new pill
+        }
+      } else {
+        // If duplicate, just clear the input without adding
+        setNewInputValue('');
+
+        if (onEditValueChange) {
+          onEditValueChange(editValue); // Pass existing pills so parent knows complete content
+        }
       }
     } else {
       // Notify parent of edit value changes for mode indicators
+      // Pass the complete combined value so parent can process all pills
+      const combinedForParent =
+        editValue + (newValue ? (editValue ? ' ' : '') + newValue : '');
       if (onEditValueChange) {
-        onEditValueChange(newValue); // Only pass the new input for mode detection
+        onEditValueChange(combinedForParent.trim());
       }
     }
   };
@@ -186,6 +230,7 @@ export const SmartPillInput: React.FC<SmartPillInputProps> = ({
   const handleCommit = useCallback(() => {
     const finalValue =
       editValue + (newInputValue ? (editValue ? ' ' : '') + newInputValue : '');
+
     onChange(finalValue.trim());
     setIsEditing(false);
     setEditValue('');
@@ -205,49 +250,34 @@ export const SmartPillInput: React.FC<SmartPillInputProps> = ({
     }
   }, [onEditValueChange]);
 
-  // Handle keyboard events and clicks outside
+  // Handle clicks outside to commit changes
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (!isEditing) return;
-
-      if (e.key === 'Enter') {
-        e.preventDefault();
-        handleCommit();
-      } else if (e.key === 'Escape') {
-        e.preventDefault();
-        handleCancel();
-      }
-    };
-
     const handleClickOutside = (e: MouseEvent) => {
       if (!isEditing) return;
 
-      if (
-        containerRef.current &&
-        !containerRef.current.contains(e.target as Node)
-      ) {
+      const target = e.target as Element;
+
+      // Don't commit if clicking form buttons
+      if (target?.closest('button[type="submit"]')) {
+        return;
+      }
+
+      if (containerRef.current && !containerRef.current.contains(target)) {
         handleCommit();
       }
     };
 
     if (isEditing) {
-      document.addEventListener('keydown', handleKeyDown);
       document.addEventListener('click', handleClickOutside);
 
-      // Auto-focus the input
+      // Auto-focus input
       setTimeout(() => {
-        const input = containerRef.current?.querySelector('input');
-        if (input) {
-          input.focus();
-        }
+        containerRef.current?.querySelector('input')?.focus();
       }, 0);
     }
 
-    return () => {
-      document.removeEventListener('keydown', handleKeyDown);
-      document.removeEventListener('click', handleClickOutside);
-    };
-  }, [isEditing, handleCommit, handleCancel]);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, [isEditing, handleCommit]);
 
   // Handle pill click to remove it from the input
   const handlePillRemove = (pillText: string) => {
@@ -265,7 +295,11 @@ export const SmartPillInput: React.FC<SmartPillInputProps> = ({
       }
 
       if (onEditValueChange) {
-        onEditValueChange(newInputValue); // Keep the current new input for mode detection
+        // Pass the complete combined value after removal
+        const combinedAfterRemoval =
+          newEditValue +
+          (newInputValue ? (newEditValue ? ' ' : '') + newInputValue : '');
+        onEditValueChange(combinedAfterRemoval.trim());
       }
     } else {
       // Remove the pill from main value
@@ -277,6 +311,32 @@ export const SmartPillInput: React.FC<SmartPillInputProps> = ({
   const parsedSegments = parseContent(value);
   const editParsedSegments = parseContent(editValue); // Parse current edit state
   const isEmpty = !value || value.trim() === '';
+
+  // Extract existing pills to exclude from search results
+  const extractExistingPills = (segments: ParsedContent[]) => {
+    const hashtags: string[] = [];
+    const userIds: string[] = [];
+
+    segments.forEach((segment) => {
+      if (segment.type === 'hashtag') {
+        hashtags.push(segment.content);
+      } else if (segment.type === 'mention') {
+        // Extract user ID from structured mention format @[username|userId]
+        if (segment.raw && segment.raw.includes('|')) {
+          const userIdMatch = segment.raw.match(/@\[[^|]+\|([^\]]+)\]/);
+          if (userIdMatch) {
+            userIds.push(userIdMatch[1]);
+          }
+        }
+      }
+    });
+
+    return { hashtags, userIds };
+  };
+
+  // Get existing pills from current edit state
+  const { hashtags: existingHashtags, userIds: existingUserIds } =
+    extractExistingPills(editParsedSegments);
 
   return (
     <div
@@ -313,14 +373,15 @@ export const SmartPillInput: React.FC<SmartPillInputProps> = ({
           )}
 
           <div ref={smartInputRef} className="smart-pill-input__smart-input">
+            {/* Input for new content */}
             <SmartInput
               value={newInputValue}
               onChange={handleSmartInputChange}
               placeholder={placeholder}
-              className="smart-pill-input__smart-input-field"
               enableHashtags={enableHashtags}
               enableUserMentions={enableUserMentions}
-              as="input"
+              existingHashtags={existingHashtags}
+              existingUserIds={existingUserIds}
             />
           </div>
         </div>
