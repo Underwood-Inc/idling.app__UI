@@ -320,11 +320,11 @@ describe('RecentTagsClient', () => {
       ).not.toBeInTheDocument();
     });
 
-    // Find and click the toggle slider
-    const toggleSlider = screen.getByRole('button', {
-      name: /Current filter logic: ANY \(OR\)/
+    // Find and click the ALL button to switch from ANY to ALL
+    const allButton = screen.getByRole('button', {
+      name: 'ALL'
     });
-    fireEvent.click(toggleSlider);
+    fireEvent.click(allButton);
 
     // Should call setFiltersState to update logic to AND
     await waitFor(() => {

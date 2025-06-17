@@ -13,6 +13,15 @@ jest.mock('../actions', () => ({
   addSubmissionAction: jest.fn().mockResolvedValue({
     status: 1,
     message: 'Submission added successfully'
+  }),
+  createSubmissionAction: jest.fn().mockResolvedValue({
+    status: 1,
+    message: 'Submission added successfully'
+  }),
+  validateCreateSubmissionFormAction: jest.fn().mockResolvedValue({
+    status: 0,
+    message: '',
+    error: ''
   })
 }));
 
@@ -21,6 +30,38 @@ jest.mock('react-dom', () => ({
   ...jest.requireActual('react-dom'),
   useFormState: jest.fn(),
   useFormStatus: jest.fn(() => ({ pending: false }))
+}));
+
+// Mock next-auth
+jest.mock('next-auth/react', () => ({
+  useSession: jest.fn(() => ({
+    data: { user: { providerAccountId: 'test-user' } },
+    status: 'authenticated'
+  }))
+}));
+
+// Mock SmartInput component
+jest.mock('../../ui/SmartInput', () => ({
+  SmartInput: ({
+    value,
+    onChange,
+    disabled,
+    placeholder,
+    className,
+    as
+  }: any) => {
+    const Component = as || 'input';
+    return (
+      <Component
+        value={value}
+        onChange={(e: any) => onChange(e.target.value)}
+        disabled={disabled}
+        placeholder={placeholder}
+        className={className}
+        data-testid={`smart-input-${className}`}
+      />
+    );
+  }
 }));
 
 describe('AddSubmissionForm', () => {
@@ -44,8 +85,12 @@ describe('AddSubmissionForm', () => {
     );
 
     expect(screen.getByRole('form')).toBeInTheDocument();
-    expect(screen.getByLabelText(/title/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/tags/i)).toBeInTheDocument();
+    expect(
+      screen.getByTestId('smart-input-submission__title-input')
+    ).toBeInTheDocument();
+    expect(
+      screen.getByTestId('smart-input-submission__tags-input')
+    ).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /submit/i })).toBeInTheDocument();
   });
 
@@ -69,8 +114,10 @@ describe('AddSubmissionForm', () => {
       </Provider>
     );
 
-    const titleInput = screen.getByLabelText(/title/i);
-    const tagsInput = screen.getByLabelText(/tags/i);
+    const titleInput = screen.getByTestId(
+      'smart-input-submission__title-input'
+    );
+    const tagsInput = screen.getByTestId('smart-input-submission__tags-input');
     const submitButton = screen.getByRole('button', { name: /submit/i });
 
     fireEvent.change(titleInput, { target: { value: 'Test Title' } });
@@ -126,7 +173,9 @@ describe('AddSubmissionForm', () => {
     );
 
     // Form should be reset after successful submission
-    const titleInput = screen.getByLabelText(/title/i) as HTMLInputElement;
+    const titleInput = screen.getByTestId(
+      'smart-input-submission__title-input'
+    ) as HTMLInputElement;
     expect(titleInput.value).toBe('');
   });
 });

@@ -224,35 +224,74 @@ const RecentTagsClientComponent = ({
               </h3>
               {tagState.currentTags.length > 1 && (
                 <div className="recent-tags__logic-toggle">
-                  <div
-                    className={`toggle-slider ${tagState.currentTagLogic === 'AND' ? 'active' : ''}`}
-                    onClick={handleLogicToggle}
-                    role="button"
-                    tabIndex={0}
-                    aria-label={`Current filter logic: ${tagState.currentTagLogic === 'OR' ? 'ANY (OR)' : 'ALL (AND)'} - Click to switch to ${tagState.currentTagLogic === 'OR' ? 'ALL (AND)' : 'ANY (OR)'}`}
-                    title={`Currently showing posts with ${tagState.currentTagLogic === 'OR' ? 'ANY of the selected tags' : 'ALL of the selected tags'}. Click to switch to ${tagState.currentTagLogic === 'OR' ? 'ALL (AND)' : 'ANY (OR)'}.`}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' || e.key === ' ') {
-                        e.preventDefault();
-                        handleLogicToggle();
-                      }
-                    }}
-                  >
-                    <div className="toggle-track">
-                      <span
-                        className={`toggle-label left ${tagState.currentTagLogic === 'OR' ? 'active' : ''}`}
-                        title="Show posts with ANY of the selected tags"
-                      >
-                        ANY
-                      </span>
-                      <span
-                        className={`toggle-label right ${tagState.currentTagLogic === 'AND' ? 'active' : ''}`}
-                        title="Show posts with ALL of the selected tags"
-                      >
-                        ALL
-                      </span>
-                      <div className="toggle-thumb"></div>
-                    </div>
+                  <span className="recent-tags__logic-label">Tags:</span>
+                  <div className="recent-tags__logic-button-group">
+                    <button
+                      className={`recent-tags__logic-button ${tagState.currentTagLogic === 'AND' ? 'recent-tags__logic-button--active' : ''}`}
+                      onClick={() => {
+                        if (tagState.currentTags.length > 1) {
+                          setFiltersState((prev) => {
+                            const newFilters = [...prev.filters];
+                            const logicIndex = newFilters.findIndex(
+                              (f) => f.name === 'tagLogic'
+                            );
+
+                            if (logicIndex >= 0) {
+                              newFilters[logicIndex] = {
+                                name: 'tagLogic',
+                                value: 'AND'
+                              };
+                            } else {
+                              newFilters.push({
+                                name: 'tagLogic',
+                                value: 'AND'
+                              });
+                            }
+
+                            return {
+                              ...prev,
+                              filters: newFilters
+                            };
+                          });
+                        }
+                      }}
+                      title="Show posts with ALL of the selected tags"
+                    >
+                      ALL
+                    </button>
+                    <button
+                      className={`recent-tags__logic-button ${tagState.currentTagLogic === 'OR' ? 'recent-tags__logic-button--active' : ''}`}
+                      onClick={() => {
+                        if (tagState.currentTags.length > 1) {
+                          setFiltersState((prev) => {
+                            const newFilters = [...prev.filters];
+                            const logicIndex = newFilters.findIndex(
+                              (f) => f.name === 'tagLogic'
+                            );
+
+                            if (logicIndex >= 0) {
+                              newFilters[logicIndex] = {
+                                name: 'tagLogic',
+                                value: 'OR'
+                              };
+                            } else {
+                              newFilters.push({
+                                name: 'tagLogic',
+                                value: 'OR'
+                              });
+                            }
+
+                            return {
+                              ...prev,
+                              filters: newFilters
+                            };
+                          });
+                        }
+                      }}
+                      title="Show posts with ANY of the selected tags"
+                    >
+                      ANY
+                    </button>
                   </div>
                 </div>
               )}

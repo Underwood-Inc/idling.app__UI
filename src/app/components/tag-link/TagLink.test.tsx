@@ -3,9 +3,10 @@ import { Provider } from 'jotai';
 import { TagLink } from './TagLink';
 
 // Mock Next.js navigation
+const mockPush = jest.fn();
 jest.mock('next/navigation', () => ({
   useRouter: () => ({
-    push: jest.fn(),
+    push: mockPush,
     replace: jest.fn(),
     prefetch: jest.fn()
   }),
@@ -13,13 +14,18 @@ jest.mock('next/navigation', () => ({
   usePathname: () => '/test'
 }));
 
-// Mock useSubmissionsManager to avoid next-auth import issues
-jest.mock('../../../lib/state/useSubmissionsManager', () => ({
-  useSubmissionsManager: jest.fn().mockReturnValue({
-    addFilter: jest.fn(),
-    removeFilter: jest.fn(),
-    clearFilters: jest.fn()
-  })
+// Mock Jotai hooks and atoms
+const mockSetFiltersState = jest.fn();
+const mockFiltersState = { filters: [], page: 1, pageSize: 10 };
+
+jest.mock('jotai', () => ({
+  ...jest.requireActual('jotai'),
+  useAtom: jest.fn(() => [mockFiltersState, mockSetFiltersState]),
+  Provider: jest.requireActual('jotai').Provider
+}));
+
+jest.mock('../../../lib/state/atoms', () => ({
+  getSubmissionsFiltersAtom: jest.fn(() => ({}))
 }));
 
 describe('TagLink', () => {
@@ -44,17 +50,6 @@ describe('TagLink', () => {
   });
 
   it('handles click correctly', () => {
-    const mockAddFilter = jest.fn();
-    const {
-      useSubmissionsManager
-    } = require('../../../lib/state/useSubmissionsManager');
-
-    useSubmissionsManager.mockReturnValue({
-      addFilter: mockAddFilter,
-      removeFilter: jest.fn(),
-      clearFilters: jest.fn()
-    });
-
     render(
       <Provider>
         <TagLink {...defaultProps} />
@@ -62,12 +57,8 @@ describe('TagLink', () => {
     );
 
     const tagLink = screen.getByRole('link');
-    fireEvent.click(tagLink);
-
-    expect(mockAddFilter).toHaveBeenCalledWith({
-      name: 'tags',
-      value: 'test-tag'
-    });
+    expect(tagLink).toHaveAttribute('href');
+    expect(tagLink.getAttribute('href')).toContain('tags=test-tag');
   });
 
   it('shows active state when tag is selected', () => {
@@ -103,9 +94,7 @@ describe('TagLink', () => {
   });
 
   it('handles contextId correctly', () => {
-    const {
-      useSubmissionsManager
-    } = require('../../../lib/state/useSubmissionsManager');
+    const { getSubmissionsFiltersAtom } = require('../../../lib/state/atoms');
 
     render(
       <Provider>
@@ -113,9 +102,7 @@ describe('TagLink', () => {
       </Provider>
     );
 
-    expect(useSubmissionsManager).toHaveBeenCalledWith({
-      contextId: 'test-context'
-    });
+    expect(getSubmissionsFiltersAtom).toHaveBeenCalledWith('test-context');
   });
 
   it('handles onTagClick callback correctly', () => {

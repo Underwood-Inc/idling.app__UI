@@ -282,7 +282,11 @@ export const InlineSuggestionInput: React.FC<InlineSuggestionInputProps> = ({
         onSelect={handleCursorPositionChange}
         onKeyDown={handleKeyDown}
         placeholder={placeholder}
-        className={`inline-suggestion-input ${className}`}
+        className={`inline-suggestion-input ${
+          showSuggestions && suggestions.length > 0
+            ? 'inline-suggestion-input--with-suggestions'
+            : ''
+        } ${className}`}
         disabled={disabled}
         rows={as === 'textarea' ? rows : undefined}
       />

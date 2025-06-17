@@ -55,7 +55,10 @@ describe('Submission Form Actions', () => {
       const formData = new FormData();
       formData.append('submission_name', '');
 
-      const result = await validateCreateSubmissionFormAction({}, formData);
+      const result = await validateCreateSubmissionFormAction(
+        { status: 0 },
+        formData
+      );
 
       expect(result.error).toBeDefined();
     });
@@ -67,8 +70,12 @@ describe('Submission Form Actions', () => {
       formData.append('submission_title', 'Valid Title');
       formData.append('submission_name', 'Valid Submission');
 
-      const result = await validateCreateSubmissionFormAction({}, formData);
+      const result = await validateCreateSubmissionFormAction(
+        { status: 0 },
+        formData
+      );
 
+      expect(result.status).toBe(0);
       expect(result.message).toBe('');
     });
 
@@ -79,7 +86,10 @@ describe('Submission Form Actions', () => {
       formData.append('submission_title', 'Valid Title');
       formData.append('submission_name', 'Valid Submission');
 
-      const result = await validateCreateSubmissionFormAction({}, formData);
+      const result = await validateCreateSubmissionFormAction(
+        { status: 0 },
+        formData
+      );
 
       expect(result.error).toBe('Session error. Please login again.');
     });
@@ -92,7 +102,10 @@ describe('Submission Form Actions', () => {
       formData.append('submission_name', 'Test Submission');
       formData.append('submission_tags', 'tag1,tag2');
 
-      const result = await validateCreateSubmissionFormAction({}, formData);
+      const result = await validateCreateSubmissionFormAction(
+        { status: 0 },
+        formData
+      );
 
       expect(result.error).toBe('Session error. Please login again.');
     });
@@ -102,11 +115,15 @@ describe('Submission Form Actions', () => {
 
       const formData = new FormData();
       formData.append('submission_title', 'Valid Title');
-      formData.append('submission_name', 'Valid Submission');
-      formData.append('submission_tags', 'tag1,tag2');
+      formData.append('submission_content', 'Valid Submission Content');
+      formData.append('submission_tags', '#tag1,#tag2');
 
-      const result = await validateCreateSubmissionFormAction({}, formData);
+      const result = await validateCreateSubmissionFormAction(
+        { status: 0 },
+        formData
+      );
 
+      expect(result.status).toBe(0);
       expect(result.message).toBe('');
     });
   });
@@ -235,7 +252,14 @@ describe('Submission Form Actions', () => {
       (auth as jest.Mock).mockResolvedValue({
         user: { providerAccountId: '123' }
       });
-      (sql as unknown as jest.Mock).mockResolvedValue({});
+
+      // Mock the SQL calls for delete action
+      (sql as unknown as jest.Mock)
+        .mockResolvedValueOnce([{ reply_count: 0 }]) // Reply check query
+        .mockResolvedValueOnce([
+          { submission_id: 1, submission_title: 'Test Submission' }
+        ]) // Submission check query
+        .mockResolvedValueOnce({}); // Delete query
 
       const formData = new FormData();
       formData.append('submission_id', '1');

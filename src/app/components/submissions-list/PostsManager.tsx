@@ -3,6 +3,7 @@
 import { useSession } from 'next-auth/react';
 import { useState } from 'react';
 import { useSubmissionsManager } from '../../../lib/state/useSubmissionsManager';
+import { CustomFilterInput } from '../filter-bar/CustomFilterInput';
 import FilterBar from '../filter-bar/FilterBar';
 import Pagination from '../pagination/Pagination';
 import { SpacingThemeToggle } from '../spacing-theme-toggle/SpacingThemeToggle';
@@ -179,6 +180,13 @@ export default function PostsManager({
           onRemoveTag={removeTag}
           onClearFilters={clearFilters}
           onUpdateFilter={handleUpdateFilter}
+        />
+
+        {/* Custom Filter Input */}
+        <CustomFilterInput
+          contextId={contextId}
+          onAddFilter={addFilter}
+          className="posts-manager__custom-filter"
         />
 
         {/* Thread Reply Toggle */}

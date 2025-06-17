@@ -6,27 +6,42 @@
 .inline-suggestion-input {
   width: 100%;
   padding: 1rem;
-  border: 1px solid #e0e0e0;
+  border: 2px solid var(--brand-primary);
   border-radius: var(--border-radius);
   font-size: 1.4rem;
   font-family: inherit;
   line-height: 1.5;
-  background: #ffffff;
-  color: #333333;
+  background: var(--light-bg__color--primary);
+  color: var(--light-bg__text-color--primary);
   transition: all 0.2s ease;
   resize: vertical;
 }
 
+/* When suggestions are showing, make bottom corners rectangular for seamless connection */
+.inline-suggestion-input--with-suggestions {
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+  border-bottom: 1px solid var(--brand-primary);
+}
+
 .inline-suggestion-input:focus {
   outline: none;
-  border-color: var(--brand-primary);
-  box-shadow: 0 0 0 2px rgba(237, 174, 73, 0.1);
+  border-color: var(--brand-primary--dark);
+  box-shadow: 0 0 0 3px rgba(237, 174, 73, 0.2);
   transform: translateY(-1px);
 }
 
+/* Focus state when suggestions are showing */
+.inline-suggestion-input--with-suggestions:focus {
+  border-bottom-color: var(--brand-primary--dark);
+  transform: none;
+  /* Don't lift when connected to dropdown */
+}
+
 .inline-suggestion-input:disabled {
-  background-color: #f5f5f5;
-  color: #999999;
+  background-color: var(--light-bg__color--tertiary, #f5f5f5);
+  color: var(--light-bg__text-color--secondary);
+  border-color: var(--light-bg__text-color--secondary);
   cursor: not-allowed;
 }
 
@@ -37,10 +52,12 @@
   right: 0;
   z-index: 1000;
   background: #ffffff;
-  border: 1px solid #e0e0e0;
-  border-top: none;
-  border-radius: 0;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  background: var(--light-bg__color--primary);
+  backdrop-filter: blur(8px);
+  border: 2px solid var(--brand-primary);
+  border-top: 1px solid var(--brand-primary);
+  border-radius: 0 0 var(--border-radius) var(--border-radius);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
   max-height: 200px;
   overflow-y: auto;
 }
@@ -51,11 +68,15 @@
   padding: 0.75rem 1rem;
   cursor: pointer;
   transition: background-color 0.1s ease;
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid var(--light-bg__color--secondary);
+  background-color: #ffffff;
+  background-color: var(--light-bg__color--primary);
 }
 
 .suggestion-item:first-child {
-  border-top: 1px solid #f0f0f0;
+  border-top: 1px solid var(--light-bg__color--secondary);
+  background-color: #ffffff;
+  background-color: var(--light-bg__color--primary);
 }
 
 .suggestion-item:last-child {
@@ -66,7 +87,7 @@
 
 .suggestion-item:hover,
 .suggestion-item.selected {
-  background-color: #f8f8f8;
+  background-color: var(--light-bg__color--secondary);
 }
 
 .suggestion-item.selected {
@@ -80,7 +101,7 @@
   border-radius: 50%;
   margin-right: 0.75rem;
   object-fit: cover;
-  border: 2px solid #e0e0e0;
+  border: 1px solid var(--light-bg__color--secondary);
 }
 
 .suggestion-trigger {
@@ -97,6 +118,7 @@
   flex: 1;
   font-size: 1.4rem;
   color: #333333;
+  color: var(--light-bg__text-color--primary);
 }
 
 .suggestion-item.selected .suggestion-label {
@@ -124,4 +146,4 @@
   }
 }
 
-/* Dark mode removed - using light colors consistently */
+/* Theme integration complete - using app's light theme variables consistently */

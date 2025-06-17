@@ -78,114 +78,118 @@ export default function FilterBar({
 
   return (
     <article className="filter-bar__container">
-      {/* Global Logic Toggle - only show when multiple filter types are active */}
-      {hasMultipleFilterTypes && onUpdateFilter && (
-        <div className="filter-bar__global-logic">
-          <span className="filter-bar__logic-label">Filter Groups:</span>
-          <button
-            className={`filter-bar__logic-button ${globalLogic === 'AND' ? 'filter-bar__logic-button--active' : ''}`}
-            onClick={() => handleLogicToggle('globalLogic')}
-            title={`Currently using ${globalLogic} logic between filter groups. Click to toggle.`}
-          >
-            {globalLogic === 'AND' ? 'ALL' : 'ANY'}
-          </button>
-        </div>
-      )}
-
-      {safeFilters
-        .filter(
-          (filter) =>
-            ![
-              'tagLogic',
-              'authorLogic',
-              'mentionsLogic',
-              'globalLogic'
-            ].includes(filter.name)
-        )
-        .map((filter) => {
-          if (!filter.value) {
-            return null;
-          }
-
-          // For tags, handle comma-separated values
-          const values =
-            filter.name === 'tags'
-              ? dedupeStringArray(getTagsFromSearchParams(filter.value))
-              : [filter.value]; // For author/mentions, single value
-
-          if (values.length === 0) {
-            return null;
-          }
-
-          const renderValues = () =>
-            values.map((value) => (
-              <div key={value} className="filter-bar__filter-value-container">
-                <FilterLabel
-                  name={filter.name}
-                  label={value}
-                  filterId={filterId}
-                  onRemoveTag={onRemoveTag}
-                  onRemoveFilter={handleFilterRemoveString}
-                />
-              </div>
-            ));
-
-          return (
-            <div key={filter.name} className="filter-bar__filter">
-              <div className="filter-bar__filter-header">
-                <p className="uppercase filter-bar__filter-name">
-                  {filter.name}:
-                </p>
-
-                {/* Logic toggle for specific filter types */}
-                {filter.name === 'tags' &&
-                  filter.value.includes(',') &&
-                  onUpdateFilter && (
-                    <button
-                      className={`filter-bar__logic-toggle ${tagLogic === 'AND' ? 'filter-bar__logic-toggle--active' : ''}`}
-                      onClick={() => handleLogicToggle('tagLogic')}
-                      title={`Tags: ${tagLogic === 'AND' ? 'Must have ALL selected tags' : 'Must have ANY selected tag'}`}
-                    >
-                      {tagLogic === 'AND' ? 'ALL' : 'ANY'}
-                    </button>
-                  )}
-
-                {filter.name === 'author' && onUpdateFilter && (
-                  <button
-                    className={`filter-bar__logic-toggle ${authorLogic === 'AND' ? 'filter-bar__logic-toggle--active' : ''}`}
-                    onClick={() => handleLogicToggle('authorLogic')}
-                    title={`Authors: ${authorLogic === 'AND' ? 'Must match ALL authors' : 'Must match ANY author'}`}
-                    style={{ opacity: 0.6 }}
-                  >
-                    {authorLogic === 'AND' ? 'ALL' : 'ANY'}
-                  </button>
-                )}
-
-                {filter.name === 'mentions' && onUpdateFilter && (
-                  <button
-                    className={`filter-bar__logic-toggle ${mentionsLogic === 'AND' ? 'filter-bar__logic-toggle--active' : ''}`}
-                    onClick={() => handleLogicToggle('mentionsLogic')}
-                    title={`Mentions: ${mentionsLogic === 'AND' ? 'Must mention ALL users' : 'Must mention ANY user'}`}
-                    style={{ opacity: 0.6 }}
-                  >
-                    {mentionsLogic === 'AND' ? 'ALL' : 'ANY'}
-                  </button>
-                )}
-              </div>
-              <div className="filter-bar__filter-values-container">
-                {renderValues()}
-              </div>
+      {/* Compact filter display with integrated global logic */}
+      <div className="filter-bar__filters-compact">
+        {/* Global Logic Toggle - inline with filters when multiple filter types are active */}
+        {hasMultipleFilterTypes && onUpdateFilter && (
+          <div className="filter-bar__global-logic-inline">
+            <span className="filter-bar__logic-label">Groups:</span>
+            <div className="filter-bar__logic-button-group">
+              <button
+                className={`filter-bar__logic-button ${globalLogic === 'AND' ? 'filter-bar__logic-button--active' : ''}`}
+                onClick={() => onUpdateFilter('globalLogic', 'AND')}
+                title="All filter groups must match"
+              >
+                ALL
+              </button>
+              <button
+                className={`filter-bar__logic-button ${globalLogic === 'OR' ? 'filter-bar__logic-button--active' : ''}`}
+                onClick={() => onUpdateFilter('globalLogic', 'OR')}
+                title="Any filter group can match"
+              >
+                ANY
+              </button>
             </div>
-          );
-        })}
+          </div>
+        )}
 
-      <button
-        className="filter-bar__clear-all-button"
-        onClick={handleClearFilters}
-        aria-label="Clear all filters"
-      >
-        Clear all
-      </button>
+        {safeFilters
+          .filter(
+            (filter) =>
+              ![
+                'tagLogic',
+                'authorLogic',
+                'mentionsLogic',
+                'globalLogic'
+              ].includes(filter.name)
+          )
+          .map((filter) => {
+            if (!filter.value) {
+              return null;
+            }
+
+            // For tags, handle comma-separated values
+            const values =
+              filter.name === 'tags'
+                ? dedupeStringArray(getTagsFromSearchParams(filter.value))
+                : [filter.value]; // For author/mentions, single value
+
+            if (values.length === 0) {
+              return null;
+            }
+
+            return (
+              <div key={filter.name} className="filter-bar__filter-compact">
+                <div className="filter-bar__filter-inline">
+                  <span className="filter-bar__filter-label">
+                    {filter.name}:
+                  </span>
+
+                  {/* Logic toggle for multi-value filters */}
+                  {filter.name === 'tags' &&
+                    filter.value.includes(',') &&
+                    onUpdateFilter && (
+                      <div className="filter-bar__logic-toggle-group">
+                        <button
+                          className={`filter-bar__logic-toggle ${tagLogic === 'AND' ? 'filter-bar__logic-toggle--active' : ''}`}
+                          onClick={() => onUpdateFilter('tagLogic', 'AND')}
+                          title="Must have ALL selected tags"
+                        >
+                          ALL
+                        </button>
+                        <button
+                          className={`filter-bar__logic-toggle ${tagLogic === 'OR' ? 'filter-bar__logic-toggle--active' : ''}`}
+                          onClick={() => onUpdateFilter('tagLogic', 'OR')}
+                          title="Must have ANY selected tag"
+                        >
+                          ANY
+                        </button>
+                      </div>
+                    )}
+
+                  {/* Filter values */}
+                  <div className="filter-bar__filter-values-inline">
+                    {values.map((value) => (
+                      <div
+                        key={value}
+                        className="filter-bar__filter-value-container"
+                      >
+                        <FilterLabel
+                          name={filter.name}
+                          label={value}
+                          filterId={filterId}
+                          onRemoveTag={onRemoveTag}
+                          onRemoveFilter={handleFilterRemoveString}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+
+        {safeFilters.length > 0 && (
+          <button
+            className="filter-bar__clear-all-button-compact"
+            onClick={handleClearFilters}
+            aria-label="Clear all filters"
+            title="Clear all filters"
+          >
+            Clear
+          </button>
+        )}
+      </div>
     </article>
   );
 }

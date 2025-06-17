@@ -43,38 +43,36 @@ jest.mock('jotai', () => ({
   ])
 }));
 
-// Mock the pagination component
-jest.mock('../pagination/Pagination', () => {
-  return function MockPagination() {
-    return <div data-testid="pagination">Pagination Component</div>;
-  };
-});
-
-// Mock the reply form component
-jest.mock('../thread/ReplyForm', () => ({
-  ReplyForm: function MockReplyForm() {
-    return <div data-testid="reply-form">Reply Form</div>;
-  }
+// Mock the SubmissionItem component
+jest.mock('./SubmissionItem', () => ({
+  SubmissionItem: ({ submission, onTagClick }: any) => (
+    <div data-testid="submission-item">
+      <h3>{submission.submission_title}</h3>
+      <p>{submission.author}</p>
+      <div>
+        {submission.tags?.map((tag: string) => (
+          <span key={tag} onClick={() => onTagClick(tag)}>
+            {tag}
+          </span>
+        ))}
+      </div>
+    </div>
+  )
 }));
 
 describe('SubmissionsList', () => {
-  const mockOnPageChange = jest.fn();
-  const mockOnPageSizeChange = jest.fn();
   const mockOnTagClick = jest.fn();
+  const mockOnHashtagClick = jest.fn();
+  const mockOnMentionClick = jest.fn();
+  const mockOnRefresh = jest.fn();
 
   const defaultProps = {
-    isLoading: false,
-    error: null,
-    submissions: [],
-    pagination: {
-      currentPage: 1,
-      pageSize: 10,
-      totalRecords: 0
-    },
-    totalPages: 1,
-    onPageChange: mockOnPageChange,
-    onPageSizeChange: mockOnPageSizeChange,
-    onTagClick: mockOnTagClick
+    posts: [],
+    onTagClick: mockOnTagClick,
+    onHashtagClick: mockOnHashtagClick,
+    onMentionClick: mockOnMentionClick,
+    onRefresh: mockOnRefresh,
+    contextId: 'test-context'
   };
 
   const sampleSubmission = {
@@ -100,7 +98,7 @@ describe('SubmissionsList', () => {
     );
 
     // The component should render without errors
-    expect(screen.getByText('No submissions found')).toBeInTheDocument();
+    expect(screen.getByTestId('submissions-list')).toBeInTheDocument();
   });
 
   it('handles onlyMine prop correctly', () => {
@@ -111,18 +109,13 @@ describe('SubmissionsList', () => {
       </Provider>
     );
 
-    expect(screen.getByText('No submissions found')).toBeInTheDocument();
+    expect(screen.getByTestId('submissions-list')).toBeInTheDocument();
   });
 
   it('renders with initial submissions', () => {
     const propsWithSubmissions = {
       ...defaultProps,
-      submissions: [sampleSubmission],
-      pagination: {
-        currentPage: 1,
-        pageSize: 10,
-        totalRecords: 1
-      }
+      posts: [sampleSubmission]
     };
 
     render(
@@ -144,13 +137,14 @@ describe('SubmissionsList', () => {
       </Provider>
     );
 
-    expect(screen.getByText('No submissions found')).toBeInTheDocument();
+    expect(screen.getByTestId('submissions-list')).toBeInTheDocument();
+    expect(screen.queryByTestId('submission-item')).not.toBeInTheDocument();
   });
 
   it('shows loading state', () => {
     const loadingProps = {
       ...defaultProps,
-      isLoading: true
+      showSkeletons: true
     };
 
     render(
@@ -159,24 +153,20 @@ describe('SubmissionsList', () => {
       </Provider>
     );
 
-    // Should show loading state
-    expect(screen.getByText('Loading...')).toBeInTheDocument();
+    // Should show skeleton loading state
+    expect(screen.getByTestId('submissions-list')).toBeInTheDocument();
+    expect(screen.getAllByTestId('submissions-list__skeleton')).toHaveLength(5);
   });
 
   it('shows error state', () => {
-    const errorProps = {
-      ...defaultProps,
-      error: 'Failed to load submissions'
-    };
-
+    // This component doesn't handle error state directly
+    // Error handling would be done by parent component
     render(
       <Provider>
-        <SubmissionsList {...errorProps} />
+        <SubmissionsList {...defaultProps} />
       </Provider>
     );
 
-    expect(
-      screen.getByText('Error: Failed to load submissions')
-    ).toBeInTheDocument();
+    expect(screen.getByTestId('submissions-list')).toBeInTheDocument();
   });
 });

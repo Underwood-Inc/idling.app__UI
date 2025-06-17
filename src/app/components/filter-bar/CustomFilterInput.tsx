@@ -1,0 +1,228 @@
+'use client';
+
+import { useState } from 'react';
+import { Filter } from '../../../lib/state/atoms';
+import { PostFilters } from '../../../lib/types/filters';
+import { SmartPillInput } from '../ui/SmartPillInput';
+import './CustomFilterInput.css';
+
+export type FilterType = 'tags' | 'users';
+export type UserFilterMode = 'author' | 'mentions';
+
+interface CustomFilterInputProps {
+  contextId: string;
+  onAddFilter: (filter: Filter<PostFilters>) => void;
+  placeholder?: string;
+  className?: string;
+}
+
+export function CustomFilterInput({
+  contextId,
+  onAddFilter,
+  placeholder = 'Add filter: @user or #tag...',
+  className = ''
+}: CustomFilterInputProps) {
+  const [inputValue, setInputValue] = useState('');
+  const [currentEditValue, setCurrentEditValue] = useState(''); // Track edit value from SmartPillInput
+  const [filterType, setFilterType] = useState<FilterType>('tags');
+  const [userFilterMode, setUserFilterMode] =
+    useState<UserFilterMode>('author');
+
+  const handleInputChange = (value: string) => {
+    setInputValue(value);
+    setCurrentEditValue(value);
+
+    // Auto-detect filter type based on input
+    if (value.startsWith('#')) {
+      setFilterType('tags');
+    } else if (value.startsWith('@')) {
+      setFilterType('users');
+    }
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!inputValue.trim()) return;
+
+    // Process the input and create appropriate filter
+    processFilterInput(inputValue.trim());
+    setInputValue('');
+  };
+
+  const processFilterInput = (value: string) => {
+    if (value.startsWith('#')) {
+      // Handle hashtag filter
+      processHashtagFilter(value);
+    } else if (value.startsWith('@')) {
+      // Handle user filter (mention format: @[username|userId])
+      processUserFilter(value);
+    } else {
+      // Auto-detect: treat as tag if no prefix
+      processHashtagFilter(value.startsWith('#') ? value : `#${value}`);
+    }
+  };
+
+  const processHashtagFilter = (value: string) => {
+    // Clean the hashtag value
+    let cleanValue = value.replace(/^#+/, ''); // Remove leading #'s
+    if (!cleanValue) return;
+
+    // Ensure it starts with # for consistency
+    const hashtagValue = `#${cleanValue}`;
+
+    // Add tags filter
+    onAddFilter({
+      name: 'tags',
+      value: hashtagValue
+    });
+  };
+
+  const processUserFilter = (value: string) => {
+    // Handle different mention formats:
+    // @username
+    // @[username|userId] (from SmartInput)
+
+    let userId = '';
+    let username = '';
+
+    // Check if it's in the structured format @[username|userId]
+    const structuredMatch = value.match(/^@\[([^|]+)\|([^\]]+)\]$/);
+    if (structuredMatch) {
+      username = structuredMatch[1];
+      userId = structuredMatch[2];
+    } else {
+      // Simple @username format
+      username = value.replace(/^@+/, ''); // Remove leading @'s
+      if (!username) return;
+
+      // For simple format, we'll use the username as-is
+      // The backend will handle username->userId resolution
+      userId = username;
+    }
+
+    // Create filter based on selected mode
+    const filterName: PostFilters = userFilterMode;
+    const filterValue = userFilterMode === 'author' ? userId : username;
+
+    onAddFilter({
+      name: filterName,
+      value: filterValue
+    });
+  };
+
+  // Determine current mode for display
+  const getCurrentMode = () => {
+    const valueToCheck = currentEditValue || inputValue;
+    if (valueToCheck.startsWith('#')) {
+      return 'hashtag';
+    } else if (valueToCheck.startsWith('@')) {
+      return userFilterMode;
+    }
+    return null;
+  };
+
+  const currentMode = getCurrentMode();
+  const showUserModeSelector =
+    filterType === 'users' && (currentEditValue || inputValue).startsWith('@');
+
+  const handleSmartInputChange = (newValue: string) => {
+    // Update input value and handle filter type detection
+    handleInputChange(newValue);
+  };
+
+  const handleEditValueChange = (editValue: string) => {
+    setCurrentEditValue(editValue);
+
+    // Auto-detect filter type based on edit value
+    if (editValue.startsWith('#')) {
+      setFilterType('tags');
+    } else if (editValue.startsWith('@')) {
+      setFilterType('users');
+    }
+  };
+
+  return (
+    <div className={`custom-filter-input ${className}`}>
+      <form onSubmit={handleSubmit} className="custom-filter-input__form">
+        {/* Smart Pill Input with Mode Indicator */}
+        <div className="custom-filter-input__input-container">
+          <div className="custom-filter-input__input-wrapper">
+            <SmartPillInput
+              value={inputValue}
+              onChange={handleSmartInputChange}
+              onEditValueChange={handleEditValueChange}
+              placeholder={placeholder}
+              className="custom-filter-input__input"
+              enableHashtags={true}
+              enableUserMentions={true}
+              contextId={contextId}
+            />
+
+            {/* Mode Indicator */}
+            {currentMode && (
+              <div className="custom-filter-input__mode-indicator">
+                {currentMode === 'hashtag' && (
+                  <span className="custom-filter-input__mode-badge custom-filter-input__mode-badge--hashtag">
+                    #Tag
+                  </span>
+                )}
+                {currentMode === 'author' && (
+                  <span className="custom-filter-input__mode-badge custom-filter-input__mode-badge--author">
+                    @Author
+                  </span>
+                )}
+                {currentMode === 'mentions' && (
+                  <span className="custom-filter-input__mode-badge custom-filter-input__mode-badge--mentions">
+                    @Mentions
+                  </span>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* User Filter Mode Selector - only shown when typing @ */}
+          {showUserModeSelector && (
+            <div className="custom-filter-input__user-mode">
+              <select
+                value={userFilterMode}
+                onChange={(e) =>
+                  setUserFilterMode(e.target.value as UserFilterMode)
+                }
+                className="custom-filter-input__select"
+                title="Choose how to filter by users"
+              >
+                <option value="author">Posts by user</option>
+                <option value="mentions">Posts mentioning user</option>
+              </select>
+            </div>
+          )}
+
+          <button
+            type="submit"
+            className="custom-filter-input__submit"
+            disabled={!inputValue.trim()}
+            title="Add filter"
+          >
+            Add
+          </button>
+        </div>
+      </form>
+
+      {/* Dynamic Help Text */}
+      <div className="custom-filter-input__help">
+        <p className="custom-filter-input__help-text">
+          {!(currentEditValue || inputValue) &&
+            'Type # for hashtags or @ for users...'}
+          {(currentEditValue || inputValue).startsWith('#') &&
+            'Filtering by hashtag - select from suggestions or type custom tag'}
+          {(currentEditValue || inputValue).startsWith('@') &&
+            `Filtering posts ${userFilterMode === 'author' ? 'by' : 'mentioning'} user - select from suggestions`}
+          {(currentEditValue || inputValue) &&
+            !(currentEditValue || inputValue).startsWith('#') &&
+            !(currentEditValue || inputValue).startsWith('@') &&
+            'Will be treated as hashtag when added'}
+        </p>
+      </div>
+    </div>
+  );
+}

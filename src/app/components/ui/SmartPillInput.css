@@ -1,0 +1,274 @@
+.smart-pill-input {
+  position: relative;
+  min-height: 2.5rem;
+  border: 2px solid var(--brand-tertiary);
+  border-radius: 0.5rem;
+  background-color: var(--light-bg__background-color--primary);
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: stretch;
+  font-size: 1.4rem;
+}
+
+.smart-pill-input:hover {
+  border-color: var(--brand-primary);
+}
+
+.smart-pill-input:focus-within {
+  border-color: var(--brand-primary);
+  box-shadow: 0 0 0 2px rgba(237, 174, 73, 0.2);
+  outline: none;
+}
+
+.smart-pill-input--editing {
+  border-color: var(--brand-primary);
+  box-shadow: 0 0 0 2px rgba(237, 174, 73, 0.2);
+}
+
+.smart-pill-input--empty {
+  color: var(--light-bg__text-color--secondary);
+}
+
+/* Edit mode container */
+.smart-pill-input__edit-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+
+.smart-pill-input__existing-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  align-items: center;
+}
+
+.smart-pill-input__pill-wrapper {
+  display: inline-flex;
+}
+
+.smart-pill-input__smart-input {
+  flex: 1;
+}
+
+/* Override SmartInput border in our container but preserve suggestion positioning */
+.smart-pill-input__smart-input .inline-suggestion-container {
+  position: relative;
+  width: 100%;
+}
+
+.smart-pill-input__smart-input .inline-suggestion-input {
+  border: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
+  padding: 0.25rem 0.5rem;
+  font-size: inherit;
+}
+
+.smart-pill-input__smart-input .inline-suggestion-input:focus {
+  border: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+  transform: none !important;
+}
+
+/* Ensure suggestion dropdown is visible and properly styled */
+.smart-pill-input__smart-input .suggestion-list {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 1001;
+  margin-top: 0.25rem;
+  border-radius: var(--border-radius);
+  border: 2px solid var(--brand-primary);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+/* When editing and suggestions are showing, adjust border radius */
+.smart-pill-input--editing.smart-pill-input--with-suggestions {
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+/* Edit control buttons */
+.smart-pill-input__edit-controls {
+  display: flex;
+  gap: 0.25rem;
+  flex-shrink: 0;
+}
+
+.smart-pill-input__commit-btn,
+.smart-pill-input__cancel-btn {
+  width: 2rem;
+  height: 2rem;
+  border: none;
+  border-radius: 0.25rem;
+  cursor: pointer;
+  font-size: 1.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.smart-pill-input__commit-btn {
+  background-color: var(--brand-primary);
+  color: white;
+}
+
+.smart-pill-input__commit-btn:hover {
+  background-color: var(--brand-primary--dark);
+  transform: scale(1.05);
+}
+
+.smart-pill-input__cancel-btn {
+  background-color: #dc3545;
+  color: white;
+}
+
+.smart-pill-input__cancel-btn:hover {
+  background-color: #c82333;
+  transform: scale(1.05);
+}
+
+/* Display mode */
+.smart-pill-input__display {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem;
+  cursor: text;
+  min-height: 2rem;
+}
+
+.smart-pill-input__placeholder {
+  color: var(--light-bg__text-color--secondary);
+  font-style: italic;
+  flex: 1;
+}
+
+.smart-pill-input__content {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem;
+  flex: 1;
+}
+
+.smart-pill-input__text {
+  color: var(--light-bg__text-color--primary);
+  white-space: pre-wrap;
+}
+
+.smart-pill-input__pill {
+  display: inline-flex;
+  align-items: center;
+}
+
+/* Ensure pills in the input don't have extra margins */
+.smart-pill-input__pill .content-pill {
+  margin: 0;
+}
+
+/* Edit hint */
+.smart-pill-input__edit-hint {
+  display: flex;
+  align-items: center;
+  opacity: 0.5;
+  transition: opacity 0.2s ease;
+  flex-shrink: 0;
+  margin-left: 0.5rem;
+}
+
+.smart-pill-input:hover .smart-pill-input__edit-hint {
+  opacity: 0.8;
+}
+
+.smart-pill-input__edit-icon {
+  font-size: 1.2rem;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .smart-pill-input {
+    font-size: 1.2rem;
+    min-height: 2.2rem;
+  }
+
+  .smart-pill-input__display {
+    padding: 0.4rem;
+  }
+
+  .smart-pill-input__content {
+    gap: 0.2rem;
+  }
+
+  .smart-pill-input__edit-container {
+    padding: 0.2rem;
+    gap: 0.3rem;
+  }
+
+  .smart-pill-input__commit-btn,
+  .smart-pill-input__cancel-btn {
+    width: 1.8rem;
+    height: 1.8rem;
+    font-size: 1rem;
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .smart-pill-input {
+    background-color: var(--dark-bg__background-color--primary);
+    border-color: var(--brand-tertiary--dark);
+  }
+
+  .smart-pill-input:hover {
+    border-color: var(--brand-primary--light);
+  }
+
+  .smart-pill-input:focus-within,
+  .smart-pill-input--editing {
+    border-color: var(--brand-primary--light);
+    box-shadow: 0 0 0 2px rgba(237, 174, 73, 0.3);
+  }
+
+  .smart-pill-input__text {
+    color: var(--dark-bg__text-color--primary);
+  }
+
+  .smart-pill-input__placeholder {
+    color: var(--dark-bg__text-color--secondary);
+  }
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+  .smart-pill-input {
+    border-width: 3px;
+  }
+
+  .smart-pill-input:focus-within,
+  .smart-pill-input--editing {
+    border-color: #000;
+    box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.3);
+  }
+
+  .smart-pill-input__commit-btn,
+  .smart-pill-input__cancel-btn {
+    border: 2px solid #000;
+  }
+}
+
+/* Make pills in edit mode clickable for removal */
+.smart-pill-input__pill .content-pill {
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.smart-pill-input__pill .content-pill:hover {
+  opacity: 0.7;
+}

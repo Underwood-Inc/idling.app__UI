@@ -30,9 +30,13 @@ export default function SubmissionsList({
   // possible so as to avoid sudden height changes.
   if (showSkeletons) {
     return (
-      <div className="submissions-list">
+      <div className="submissions-list" data-testid="submissions-list">
         {[1, 2, 3, 4, 5].map((index) => (
-          <div key={index} className="submissions-list__skeleton">
+          <div
+            key={index}
+            className="submissions-list__skeleton"
+            data-testid="submissions-list__skeleton"
+          >
             <div className="submission__wrapper">
               <div className="submission__meta">
                 <div className="skeleton-line skeleton-line--short"></div>
@@ -54,7 +58,7 @@ export default function SubmissionsList({
   }
 
   return (
-    <div className="submissions-list">
+    <div className="submissions-list" data-testid="submissions-list">
       {posts.map((post) => (
         <SubmissionItem
           key={post.submission_id}

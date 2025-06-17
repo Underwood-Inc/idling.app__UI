@@ -418,7 +418,7 @@ export function ContentWithPills({
                 }
                 title={
                   isFilterBarContext
-                    ? `Remove ${segment.type === 'hashtag' ? 'hashtag' : 'author'} filter: ${segment.value}`
+                    ? undefined // No tooltip in filter input context
                     : segment.type === 'hashtag'
                       ? `Filter by hashtag: ${segment.value}`
                       : `Filter by user: ${segment.value}`
@@ -435,9 +435,11 @@ export function ContentWithPills({
               key={index}
               className={`content-pill content-pill--${segment.type}`}
               title={
-                segment.type === 'hashtag'
-                  ? `Hashtag: ${segment.value}`
-                  : `Mention: ${segment.value}`
+                isFilterBarContext
+                  ? undefined // No tooltip in filter input context
+                  : segment.type === 'hashtag'
+                    ? `Hashtag: ${segment.value}`
+                    : `Mention: ${segment.value}`
               }
             >
               {segment.type === 'hashtag' ? '#' : '@'}
