@@ -1,12 +1,12 @@
+// Load environment variables FIRST, before any other imports
+import { config } from 'dotenv';
+config({ path: '.env.local' }); // Load .env.local file
+
 import chalk from 'chalk';
 import { existsSync, readdirSync, writeFileSync } from 'fs';
 import { mkdir } from 'fs/promises';
 import path from 'path';
 import { createInterface } from 'readline';
-
-// Load environment variables
-import { config } from 'dotenv';
-config({ path: '.env.local' }); // Load .env.local file
 
 // Debug: Log the environment variables being used
 // eslint-disable-next-line no-console
