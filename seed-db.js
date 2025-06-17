@@ -1,3 +1,6 @@
+// Load environment variables FIRST
+require('dotenv').config({ path: '.env.local' });
+
 const { faker } = require('@faker-js/faker');
 const postgres = require('postgres');
 
@@ -10,26 +13,18 @@ const isDevContainer = process.env.HOME?.includes('devcontainers');
 console.info('is dockerized?', process.env.IS_DOCKERIZED);
 console.info('is devcontainer?', isDevContainer);
 
-const getConfigValue = (dockerizedValue, devContainerValue, envValue) => {
-  if (process.env.IS_DOCKERIZED) {
-    return dockerizedValue;
-  }
-  if (isDevContainer) {
-    return devContainerValue;
-  }
-  return envValue;
-};
-
+// Create database connection using environment variables
 const sql = postgres({
-  host: getConfigValue('postgres', 'localhost', process.env.POSTGRES_HOST),
-  user: getConfigValue('postgres', 'postgres', process.env.POSTGRES_USER),
-  database: getConfigValue('idling', 'idling', process.env.POSTGRES_DB),
-  password: getConfigValue(
-    process.env.DOCKER_POSTGRES_PASSWORD || 'postgres',
-    process.env.DEV_CONTAINER_PASSWORD,
-    process.env.POSTGRES_PASSWORD
-  ),
-  port: getConfigValue(5432, 5432, process.env.POSTGRES_PORT),
+  host:
+    process.env.POSTGRES_HOST ||
+    (process.env.IS_DOCKERIZED ? 'postgres' : 'localhost'),
+  user: process.env.POSTGRES_USER || 'postgres',
+  database: process.env.POSTGRES_DB || 'idling',
+  password:
+    process.env.POSTGRES_PASSWORD ||
+    process.env.DOCKER_POSTGRES_PASSWORD ||
+    'postgres',
+  port: process.env.POSTGRES_PORT || 5432,
   ssl: 'prefer'
 });
 
