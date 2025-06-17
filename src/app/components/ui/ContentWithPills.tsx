@@ -21,6 +21,8 @@ type SegmentType = 'text' | 'hashtag' | 'mention';
 interface ContentSegment {
   type: SegmentType;
   value: string;
+  userId?: string; // For mentions, store the resolved user ID
+  displayName?: string; // For mentions, store the display username
 }
 
 export function ContentWithPills({
@@ -35,13 +37,14 @@ export function ContentWithPills({
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  // Tooltip state for mention pills with debouncing
+  // Tooltip state for mention actions
   const [tooltip, setTooltip] = useState<{
     visible: boolean;
     username: string;
+    userId?: string;
     position: { x: number; y: number };
-    timeoutId?: ReturnType<typeof setTimeout>;
     isHoveringTooltip: boolean;
+    timeoutId?: ReturnType<typeof setTimeout>;
   }>({
     visible: false,
     username: '',
@@ -49,18 +52,24 @@ export function ContentWithPills({
     isHoveringTooltip: false
   });
 
-  // Parse content into segments with hashtags and mentions
+  /**
+   * Parse content for ONLY structured pills from InlineSuggestionInput:
+   * - Hashtags: #tagname
+   * - Embedded mentions: @[username|userId] (created by autocomplete only)
+   *
+   * Legacy data and adhoc usernames are ignored to prevent false positives
+   */
   const parseContent = (text: string): ContentSegment[] => {
     const segments: ContentSegment[] = [];
-    // Regex to handle hashtags and mentions:
-    // - Hashtags: #[alphanumeric, underscore, hyphen]
-    // - Mentions: @[any characters except @ # and newlines, but stop at punctuation followed by space]
-    const regex = /(#[a-zA-Z0-9_-]+)|(@[^@#\n]+?)(?=\s*[.!?,:;]\s|$|@|#)/g;
+
+    // ONLY parse structured formats created by the input system
+    // No legacy @username or adhoc name detection to avoid false positives
+    const structuredRegex = /(#[a-zA-Z0-9_-]+)|(@\[([^|]+)\|([^\]]+)\])/g;
 
     let lastIndex = 0;
     let match;
 
-    while ((match = regex.exec(text)) !== null) {
+    while ((match = structuredRegex.exec(text)) !== null) {
       // Add text before the match
       if (match.index > lastIndex) {
         const textContent = text.slice(lastIndex, match.index);
@@ -69,23 +78,25 @@ export function ContentWithPills({
         }
       }
 
-      // Add the hashtag or mention
       const fullMatch = match[0];
-      let value = fullMatch.slice(1); // Remove # or @
 
       if (fullMatch.startsWith('#')) {
-        segments.push({ type: 'hashtag', value });
-      } else if (fullMatch.startsWith('@')) {
-        // Clean up the mention value
-        value = value.trim();
-        // Remove trailing punctuation that might have been captured
-        value = value.replace(/[.!?,:;]+$/, '');
-        if (value) {
-          segments.push({ type: 'mention', value });
-        }
+        // Hashtag: #tagname
+        const hashtag = fullMatch.slice(1);
+        segments.push({ type: 'hashtag', value: hashtag });
+      } else if (fullMatch.includes('|')) {
+        // Embedded mention: @[username|userId] (from InlineSuggestionInput only)
+        const username = match[3];
+        const userId = match[4];
+        segments.push({
+          type: 'mention',
+          value: username,
+          userId: userId,
+          displayName: username
+        });
       }
 
-      lastIndex = regex.lastIndex;
+      lastIndex = structuredRegex.lastIndex;
     }
 
     // Add remaining text
@@ -99,15 +110,16 @@ export function ContentWithPills({
     return segments;
   };
 
-  // Generate URL for pill clicks (synchronous version for Link href)
+  // Simplified URL generation
   const generatePillUrl = (
     type: 'hashtag' | 'mention',
-    value: string
+    value: string,
+    segment?: ContentSegment
   ): string => {
     const params = new URLSearchParams(searchParams);
 
     if (isFilterBarContext) {
-      // In filter bar context, we remove filters instead of adding them
+      // Remove filters in filter bar context
       if (type === 'hashtag') {
         const currentTags = params.get('tags');
         if (currentTags) {
@@ -123,9 +135,10 @@ export function ContentWithPills({
         }
       } else if (type === 'mention') {
         params.delete('author');
+        params.delete('mentions');
       }
     } else {
-      // Normal behavior: add filters
+      // Add filters in normal context
       if (type === 'hashtag') {
         const currentTags = params.get('tags');
         const hashtagValue = `#${value}`;
@@ -135,16 +148,16 @@ export function ContentWithPills({
           params.set('tags', hashtagValue);
         }
       } else if (type === 'mention' && pathname === NAV_PATHS.POSTS) {
-        // For mentions, we'll handle user ID resolution in the click handler
-        // For now, use the username to generate a placeholder URL
-        params.set('author', value);
+        // Always use userId for author filtering (required)
+        if (segment?.userId) {
+          params.set('author', segment.userId);
+        }
+        // If no userId available, skip filtering (embedded data should always have userId)
       }
     }
 
-    // Reset to first page when filters change
     params.set('page', '1');
 
-    // For hashtags on thread pages, navigate to posts
     if (type === 'hashtag' && pathname.startsWith('/t/')) {
       return `${NAV_PATHS.POSTS}?${params.toString()}`;
     }
@@ -152,80 +165,50 @@ export function ContentWithPills({
     return `${pathname}?${params.toString()}`;
   };
 
-  // Handle pill clicks
+  // Simplified pill click handler
   const handlePillClick = async (
     type: 'hashtag' | 'mention',
     value: string,
-    event: React.MouseEvent
+    event: React.MouseEvent,
+    segment?: ContentSegment
   ) => {
     event.preventDefault();
 
     if (isFilterBarContext) {
-      // In filter bar context, trigger removal callbacks
+      // Filter bar context - trigger removal
       if (type === 'hashtag' && onHashtagClick) {
         onHashtagClick(`#${value}`);
-      } else if (type === 'mention' && onMentionClick) {
-        onMentionClick(value, 'author');
+      } else if (type === 'mention' && onMentionClick && segment?.userId) {
+        // Always use userId for filter removal
+        onMentionClick(segment.userId, 'author');
       }
       return;
     }
 
-    // Normal behavior: trigger add callbacks or handle navigation
+    // Normal context - trigger add
     if (type === 'hashtag' && onHashtagClick) {
       onHashtagClick(`#${value}`);
-    } else if (type === 'mention' && onMentionClick) {
-      // For mentions, ALWAYS resolve username to user ID before calling callback
-      // This ensures we never filter by username, only by user ID
-      try {
-        const { getUserInfo } = await import(
-          '../../../lib/actions/search.actions'
-        );
-        const userInfo = await getUserInfo(value);
-
-        if (userInfo && userInfo.userId) {
-          // SUCCESS: We found the user, use their user ID for filtering
-          onMentionClick(userInfo.userId, 'author');
-        } else {
-          // FAILURE: User not found, don't apply any filter
-          console.warn(`User not found for mention: ${value}`);
-          // Don't call the callback - this prevents invalid filters
-          return;
-        }
-      } catch (error) {
-        console.error('Error resolving mention for callback:', error);
-        // Don't call the callback on error - this prevents invalid filters
-        return;
-      }
-    } else if (type === 'mention' && pathname === NAV_PATHS.POSTS) {
-      // For direct navigation on posts page, also resolve to user ID
-      try {
-        const { getUserInfo } = await import(
-          '../../../lib/actions/search.actions'
-        );
-        const userInfo = await getUserInfo(value);
-
-        if (userInfo && userInfo.userId) {
-          // SUCCESS: Navigate with user ID
-          const params = new URLSearchParams(searchParams);
-          params.set('author', userInfo.userId);
-          params.set('page', '1');
-          router.push(`${pathname}?${params.toString()}`);
-        } else {
-          // FAILURE: User not found, don't navigate/filter
-          console.warn(`User not found for mention: ${value}`);
-          return;
-        }
-      } catch (error) {
-        console.error('Error getting user info for navigation:', error);
-        return;
-      }
+    } else if (type === 'mention' && onMentionClick && segment?.userId) {
+      // Always use userId for author filtering
+      onMentionClick(segment.userId, 'author');
+    } else if (
+      type === 'mention' &&
+      pathname === NAV_PATHS.POSTS &&
+      segment?.userId
+    ) {
+      // Direct navigation - only with userId
+      const params = new URLSearchParams(searchParams);
+      params.set('author', segment.userId);
+      params.set('page', '1');
+      router.push(`${pathname}?${params.toString()}`);
     }
   };
 
   // Check if a filter is currently active
   const isActiveFilter = (
     type: 'hashtag' | 'mention',
-    value: string
+    value: string,
+    segment?: ContentSegment
   ): boolean => {
     if (type === 'hashtag') {
       const currentTags = searchParams.get('tags');
@@ -233,56 +216,86 @@ export function ContentWithPills({
       return currentTags
         ? currentTags.split(',').includes(hashtagValue)
         : false;
-    } else if (type === 'mention') {
+    } else if (type === 'mention' && segment?.userId) {
       const currentAuthor = searchParams.get('author');
-      if (!currentAuthor) return false;
+      const currentMentions = searchParams.get('mentions');
 
-      // The current author filter could be either a user ID or username
-      // Check if it matches the displayed username directly
-      if (currentAuthor === value) return true;
+      if (!currentAuthor && !currentMentions) return false;
 
-      // TODO: We could also check if the current author ID resolves to this username
-      // For now, we'll rely on the direct match since the display logic will handle showing usernames
+      // Ensure values are strings and trim whitespace
+      const normalizedSegmentUserId = String(segment.userId).trim();
+      const normalizedSegmentUsername = String(segment.value).trim();
+
+      // Check if this mention matches the active author filter (filtering by who wrote posts)
+      if (currentAuthor) {
+        const normalizedCurrentAuthor = String(currentAuthor).trim();
+        if (normalizedCurrentAuthor === normalizedSegmentUserId) {
+          return true;
+        }
+      }
+
+      // Check if this mention matches the active mentions filter (filtering by who is mentioned in content)
+      if (currentMentions) {
+        const normalizedCurrentMentions = String(currentMentions).trim();
+        if (normalizedCurrentMentions === normalizedSegmentUsername) {
+          return true;
+        }
+      }
+
       return false;
     }
     return false;
   };
 
-  // Handle showing tooltip on mention hover with debouncing
-  const handleMentionHover = (username: string, event: React.MouseEvent) => {
-    // Don't show tooltip in filter bar context or if it's not a posts page
-    if (isFilterBarContext || pathname !== NAV_PATHS.POSTS) {
-      return;
-    }
+  // Enhanced mention hover handlers for both structured and adhoc usernames
+  const handleMentionHover = async (
+    segment: ContentSegment,
+    event: React.MouseEvent
+  ) => {
+    if (isFilterBarContext || pathname !== NAV_PATHS.POSTS) return;
 
-    // Clear any existing timeout
     if (tooltip.timeoutId) {
       clearTimeout(tooltip.timeoutId);
     }
 
     const rect = event.currentTarget.getBoundingClientRect();
+
+    // For adhoc usernames without userId, try to resolve them
+    let resolvedUserId = segment.userId;
+    if (!resolvedUserId && segment.value) {
+      try {
+        // Simple regex-based check if this looks like a username we can resolve
+        const usernamePattern = /^[A-Z][a-z]+ [A-Z][a-z]+/;
+        if (usernamePattern.test(segment.value)) {
+          // This is a basic implementation
+          // In a real app, you'd query your user database
+          // For now, we'll work without userId resolution
+          // The tooltip will still work with username-only filtering
+        }
+      } catch (error) {
+        // Silently fail - tooltip will still work without userId
+      }
+    }
+
     setTooltip({
       visible: true,
-      username,
+      username: segment.displayName || segment.value,
+      userId: resolvedUserId,
       position: {
         x: rect.left + rect.width / 2,
-        y: rect.top - 8 // Position above the pill instead of below
+        y: rect.top - 8
       },
       isHoveringTooltip: false
     });
   };
 
-  // Handle hiding tooltip with debouncing
   const handleMentionLeave = () => {
-    // Clear any existing timeout
     if (tooltip.timeoutId) {
       clearTimeout(tooltip.timeoutId);
     }
 
-    // Set a timeout to hide the tooltip after 300ms, but only if not hovering tooltip
     const timeoutId = setTimeout(() => {
       setTooltip((prev) => {
-        // Don't hide if actively hovering over the tooltip
         if (prev.isHoveringTooltip) {
           return { ...prev, timeoutId: undefined };
         }
@@ -293,14 +306,11 @@ export function ContentWithPills({
     setTooltip((prev) => ({ ...prev, timeoutId }));
   };
 
-  // Handle tooltip hover to keep it visible
+  // Tooltip interaction handlers
   const handleTooltipHover = () => {
-    // Clear any existing timeout to keep tooltip visible
     if (tooltip.timeoutId) {
       clearTimeout(tooltip.timeoutId);
     }
-
-    // Mark that we're hovering over the tooltip
     setTooltip((prev) => ({
       ...prev,
       timeoutId: undefined,
@@ -308,25 +318,19 @@ export function ContentWithPills({
     }));
   };
 
-  // Handle tooltip leave to allow hiding
   const handleTooltipLeave = () => {
-    // Mark that we're no longer hovering over the tooltip
-    setTooltip((prev) => ({
-      ...prev,
-      isHoveringTooltip: false
-    }));
-
-    // Immediately hide the tooltip when leaving it
     setTooltip((prev) => ({
       ...prev,
       visible: false,
+      isHoveringTooltip: false,
       timeoutId: undefined
     }));
   };
 
-  // Handle filter by author action
+  // Tooltip action handlers
   const handleFilterByAuthor = async () => {
-    const username = tooltip.username;
+    const userId = tooltip.userId;
+
     setTooltip((prev) => ({
       ...prev,
       visible: false,
@@ -334,23 +338,12 @@ export function ContentWithPills({
       timeoutId: undefined
     }));
 
-    if (onMentionClick) {
-      // Resolve username to user ID for accurate filtering
-      try {
-        const { getUserInfo } = await import(
-          '../../../lib/actions/search.actions'
-        );
-        const userInfo = await getUserInfo(username);
-        if (userInfo && userInfo.userId) {
-          onMentionClick(userInfo.userId, 'author');
-        }
-      } catch (error) {
-        console.error('Error resolving username for author filter:', error);
-      }
+    if (onMentionClick && userId) {
+      // Always use userId for author filtering - no fallbacks needed with embedded data
+      onMentionClick(userId, 'author');
     }
   };
 
-  // Handle filter by content action
   const handleFilterByContent = async () => {
     const username = tooltip.username;
     setTooltip((prev) => ({
@@ -361,7 +354,6 @@ export function ContentWithPills({
     }));
 
     if (onMentionClick) {
-      // For content filtering, we use the username directly
       onMentionClick(username, 'mentions');
     }
   };
@@ -379,33 +371,20 @@ export function ContentWithPills({
             return <span key={index}>{segment.value}</span>;
           }
 
-          // For hashtags and mentions, create interactive pills
           const isActiveFilter_ = isActiveFilter(
             segment.type as 'hashtag' | 'mention',
-            segment.value
+            segment.value,
+            segment
           );
 
-          // Determine if the pill should be clickable
-          let isClickable = false;
-
-          if (segment.type === 'hashtag') {
-            isClickable = true;
-          } else if (segment.type === 'mention') {
-            // For mentions, only make clickable if we have proper callback or are in posts page
-            if (isFilterBarContext || onMentionClick) {
-              // Filter bar context or explicit callback - always clickable
-              isClickable = true;
-            } else if (pathname === NAV_PATHS.POSTS) {
-              // On posts page - make clickable but will need to resolve
-              isClickable = true;
-            }
-          }
-
-          // Generate the URL for this pill
           const pillUrl = generatePillUrl(
             segment.type as 'hashtag' | 'mention',
-            segment.value
+            segment.value,
+            segment
           );
+
+          // All pills are clickable now - simplified logic
+          const isClickable = true;
 
           if (isClickable) {
             return (
@@ -419,14 +398,15 @@ export function ContentWithPills({
                   handlePillClick(
                     segment.type as 'hashtag' | 'mention',
                     segment.value,
-                    event
+                    event,
+                    segment
                   )
                 }
                 onMouseEnter={
                   segment.type === 'mention' &&
                   !isFilterBarContext &&
                   pathname === NAV_PATHS.POSTS
-                    ? (event) => handleMentionHover(segment.value, event)
+                    ? (event) => handleMentionHover(segment, event)
                     : undefined
                 }
                 onMouseLeave={
@@ -441,12 +421,7 @@ export function ContentWithPills({
                     ? `Remove ${segment.type === 'hashtag' ? 'hashtag' : 'author'} filter: ${segment.value}`
                     : segment.type === 'hashtag'
                       ? `Filter by hashtag: ${segment.value}`
-                      : segment.type === 'mention' &&
-                          (pathname === NAV_PATHS.POSTS || onMentionClick)
-                        ? `Filter by user: ${segment.value} (hover for options)`
-                        : segment.type === 'mention'
-                          ? 'Author filters only available on Posts page'
-                          : ''
+                      : `Filter by user: ${segment.value}`
                 }
               >
                 {segment.type === 'hashtag' ? '#' : '@'}
@@ -472,7 +447,7 @@ export function ContentWithPills({
         })}
       </span>
 
-      {/* Render mention tooltip */}
+      {/* Tooltip for mention actions */}
       {tooltip.visible && (
         <MentionTooltip
           username={tooltip.username}
@@ -494,3 +469,49 @@ export function ContentWithPills({
     </>
   );
 }
+
+/**
+ * Utility functions for creating robust mention content
+ */
+export const createRobustMention = (
+  username: string,
+  userId: string
+): string => {
+  const cleanUsername = username.trim().replace(/[[\]|]/g, '');
+  const cleanUserId = userId.trim().replace(/[[\]|]/g, '');
+  return `@[${cleanUsername}|${cleanUserId}]`;
+};
+
+export const parseRobustMention = (
+  mentionString: string
+): { username: string; userId: string } | null => {
+  const match = mentionString.match(/^@\[([^|]+)\|([^\]]+)\]$/);
+  if (match) {
+    return {
+      username: match[1].trim(),
+      userId: match[2].trim()
+    };
+  }
+  return null;
+};
+
+export const convertLegacyMention = async (
+  legacyMention: string,
+  getUserId: (username: string) => Promise<string | undefined>
+): Promise<string> => {
+  const match = legacyMention.match(
+    /^@([a-zA-Z0-9._-]+(?:\s+[a-zA-Z0-9._-]+)*)$/
+  );
+  if (match) {
+    const username = match[1];
+    try {
+      const userId = await getUserId(username);
+      if (userId) {
+        return createRobustMention(username, userId);
+      }
+    } catch (error) {
+      console.error('Error converting legacy mention:', error);
+    }
+  }
+  return legacyMention;
+};

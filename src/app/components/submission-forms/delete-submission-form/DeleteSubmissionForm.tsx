@@ -95,9 +95,9 @@ export function DeleteSubmissionForm({
   }, [id, isAuthorized, authorId]);
 
   useEffect(() => {
-    setShouldUpdate(!!state.status);
-
-    if (state.status) {
+    if (state.status === 1) {
+      // Only trigger update on successful deletion
+      setShouldUpdate(true);
       ref.current?.reset();
     }
   }, [state.status, state.message, setShouldUpdate]);

@@ -142,6 +142,18 @@ export function useSubmissionsManager({
         filtersState.filters.some((f) => f.name === 'tags')
       ) {
         params.set('tagLogic', filter.value);
+      } else if (
+        filter.name === 'authorLogic' &&
+        filtersState.filters.some((f) => f.name === 'author')
+      ) {
+        params.set('authorLogic', filter.value);
+      } else if (
+        filter.name === 'mentionsLogic' &&
+        filtersState.filters.some((f) => f.name === 'mentions')
+      ) {
+        params.set('mentionsLogic', filter.value);
+      } else if (filter.name === 'globalLogic') {
+        params.set('globalLogic', filter.value);
       }
     });
 
@@ -158,7 +170,7 @@ export function useSubmissionsManager({
     // Only update URL if it's different
     const currentUrl = `${pathname}${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;
     if (newUrl !== currentUrl) {
-      router.replace(newUrl, { scroll: false });
+      router.push(newUrl, { scroll: false });
       lastSyncedFilters.current = currentFiltersKey;
     }
   }, [
@@ -307,12 +319,15 @@ export function useSubmissionsManager({
     const authorParam = searchParams.get('author');
     const mentionsParam = searchParams.get('mentions');
     const tagLogicParam = searchParams.get('tagLogic');
+    const authorLogicParam = searchParams.get('authorLogic');
+    const mentionsLogicParam = searchParams.get('mentionsLogic');
+    const globalLogicParam = searchParams.get('globalLogic');
     const pageSizeParam = searchParams.get('pageSize');
 
     const page = pageParam ? Math.max(1, parseInt(pageParam)) : 1;
     const pageSize = pageSizeParam ? Math.max(10, parseInt(pageSizeParam)) : 10;
 
-    // Build filters array including tagLogic if present
+    // Build filters array including all logic parameters
     const urlFilters: Filter<PostFilters>[] = [];
     if (tagsParam) {
       urlFilters.push({ name: 'tags' as PostFilters, value: tagsParam });
@@ -330,6 +345,33 @@ export function useSubmissionsManager({
       urlFilters.push({
         name: 'tagLogic' as PostFilters,
         value: tagLogicParam
+      });
+    }
+    if (
+      authorLogicParam &&
+      (authorLogicParam === 'OR' || authorLogicParam === 'AND')
+    ) {
+      urlFilters.push({
+        name: 'authorLogic' as PostFilters,
+        value: authorLogicParam
+      });
+    }
+    if (
+      mentionsLogicParam &&
+      (mentionsLogicParam === 'OR' || mentionsLogicParam === 'AND')
+    ) {
+      urlFilters.push({
+        name: 'mentionsLogic' as PostFilters,
+        value: mentionsLogicParam
+      });
+    }
+    if (
+      globalLogicParam &&
+      (globalLogicParam === 'OR' || globalLogicParam === 'AND')
+    ) {
+      urlFilters.push({
+        name: 'globalLogic' as PostFilters,
+        value: globalLogicParam
       });
     }
 

@@ -20,16 +20,25 @@
 
 .author__name {
   font-size: 1.6rem;
-  font-weight: 600;
-  color: #2d3748;
-  transition: color 0.2s ease;
+  font-weight: 700;
+  color: #1a202c;
+  background: linear-gradient(135deg, #f7fafc, #edf2f7);
+  padding: 0.25rem 0.75rem;
+  border-radius: 6px;
+  border: 1px solid #e2e8f0;
+  transition: all 0.2s ease;
   white-space: nowrap;
   flex-grow: 1;
-  text-shadow: 0 1px 1px rgba(255, 255, 255, 0.5);
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.9);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .author.clickable:hover .author__name {
-  color: var(--brand-primary);
+  color: #2b6cb0;
+  background: linear-gradient(135deg, #ebf8ff, #bee3f8);
+  border-color: #90cdf4;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
 }
 
 /* Size variants */
@@ -38,8 +47,9 @@
 }
 
 .author.sm .author__name {
-  font-size: 1.5rem;
-  font-weight: 600;
+  font-size: 1.4rem;
+  font-weight: 700;
+  padding: 0.2rem 0.6rem;
 }
 
 .author.md {
@@ -48,7 +58,8 @@
 
 .author.md .author__name {
   font-size: 1.6rem;
-  font-weight: 600;
+  font-weight: 700;
+  padding: 0.25rem 0.75rem;
 }
 
 .author.lg {
@@ -57,7 +68,8 @@
 
 .author.lg .author__name {
   font-size: 1.8rem;
-  font-weight: 700;
+  font-weight: 800;
+  padding: 0.3rem 0.9rem;
 }
 
 /* Responsive design - only apply minimal constraints on very small screens */
@@ -70,14 +82,17 @@
 
   .author.sm .author__name {
     font-size: 1.2rem;
+    padding: 0.15rem 0.5rem;
   }
 
   .author.md .author__name {
     font-size: 1.3rem;
+    padding: 0.2rem 0.6rem;
   }
 
   .author.lg .author__name {
     font-size: 1.4rem;
+    padding: 0.25rem 0.7rem;
   }
 }
 
@@ -88,11 +103,17 @@
   }
 
   .author__name {
-    color: #e2e8f0;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+    color: #f7fafc;
+    background: linear-gradient(135deg, #2d3748, #4a5568);
+    border-color: #4a5568;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
   }
 
   .author.clickable:hover .author__name {
-    color: var(--brand-primary);
+    color: #90cdf4;
+    background: linear-gradient(135deg, #2a4365, #3182ce);
+    border-color: #63b3ed;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
   }
 }

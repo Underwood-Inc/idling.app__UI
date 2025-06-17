@@ -465,18 +465,13 @@ export async function getSubmissionsAction({
 
   try {
     const offset = (page - 1) * pageSize;
-    const tagFilter = filters.find((f) => f.name === 'tags')?.value;
-    const tagLogicFilter =
-      filters.find((f) => f.name === 'tagLogic')?.value || 'OR'; // Default to OR
-    const authorFilter = filters.find((f) => f.name === 'author')?.value;
-    const mentionsFilter = filters.find((f) => f.name === 'mentions')?.value;
+
+    // Parse filters into groups
+    const filterGroups = parseFiltersIntoGroups(filters);
 
     // eslint-disable-next-line no-console
-    console.log('🔍 [BACKEND] Extracted filters:', {
-      tagFilter,
-      tagLogicFilter,
-      authorFilter,
-      mentionsFilter,
+    console.log('🔍 [BACKEND] Parsed filter groups:', {
+      filterGroups,
       filtersCount: filters.length
     });
 
@@ -494,84 +489,14 @@ export async function getSubmissionsAction({
       queryParams.push(providerAccountId);
     }
 
-    if (authorFilter) {
-      // Support both author ID and author name filtering
-      whereConditions.push(
-        '(s.author_id = $' +
-          (queryParams.length + 1) +
-          ' OR s.author = $' +
-          (queryParams.length + 2) +
-          ')'
-      );
-      queryParams.push(authorFilter, authorFilter);
-    }
-
-    if (mentionsFilter) {
-      // Filter by content that mentions a specific user (by username or user ID)
-      // Search in both submission_title and submission_name for mentions
-      whereConditions.push(
-        '(s.submission_title ILIKE $' +
-          (queryParams.length + 1) +
-          ' OR s.submission_name ILIKE $' +
-          (queryParams.length + 2) +
-          ')'
-      );
-      // Search for @username pattern in content
-      const mentionPattern = `%@${mentionsFilter}%`;
-      queryParams.push(mentionPattern, mentionPattern);
-    }
-
-    if (tagFilter) {
-      // Parse multiple tags from comma-separated string
-      const tags = tagFilter
-        .split(',')
-        .map((tag) => tag.trim())
-        .filter(Boolean);
-
-      // eslint-disable-next-line no-console
-      console.log('🔍 [BACKEND] Parsed tags:', {
-        tags,
-        tagCount: tags.length,
-        logic: tagLogicFilter
-      });
-
-      if (tags.length === 1) {
-        // Single tag - use simple EXISTS
-        whereConditions.push(
-          'EXISTS (SELECT 1 FROM unnest(s.tags) tag WHERE tag = $' +
-            (queryParams.length + 1) +
-            ')'
-        );
-        queryParams.push(tags[0]);
-        // eslint-disable-next-line no-console
-        console.log('🔍 [BACKEND] Using single tag logic');
-      } else if (tags.length > 1) {
-        if (tagLogicFilter === 'AND') {
-          // AND logic - submissions must contain ALL selected tags
-          const tagConditions = tags.map((_, index) => {
-            const paramIndex = queryParams.length + index + 1;
-            return `EXISTS (SELECT 1 FROM unnest(s.tags) tag WHERE tag = $${paramIndex})`;
-          });
-
-          whereConditions.push(`(${tagConditions.join(' AND ')})`);
-          queryParams.push(...tags);
-          // eslint-disable-next-line no-console
-          console.log(
-            '🔍 [BACKEND] Using AND logic - posts must have ALL tags'
-          );
-        } else {
-          // OR logic - submissions must contain ANY of the selected tags (default)
-          const tagConditions = tags.map((_, index) => {
-            const paramIndex = queryParams.length + index + 1;
-            return `EXISTS (SELECT 1 FROM unnest(s.tags) tag WHERE tag = $${paramIndex})`;
-          });
-
-          whereConditions.push(`(${tagConditions.join(' OR ')})`);
-          queryParams.push(...tags);
-          // eslint-disable-next-line no-console
-          console.log('🔍 [BACKEND] Using OR logic - posts must have ANY tag');
-        }
-      }
+    // Build complex filter conditions
+    const filterConditions = await buildFilterConditions(
+      filterGroups,
+      queryParams
+    );
+    if (filterConditions.condition) {
+      whereConditions.push(filterConditions.condition);
+      queryParams.push(...filterConditions.params);
     }
 
     const whereClause =
@@ -705,4 +630,150 @@ export async function getSubmissionsAction({
         error instanceof Error ? error.message : 'Failed to fetch submissions'
     };
   }
+}
+
+/**
+ * Parse simple filters into filter groups for complex filtering
+ */
+function parseFiltersIntoGroups(filters: { name: string; value: string }[]): {
+  tags: { values: string[]; logic: 'AND' | 'OR' };
+  authors: { values: string[]; logic: 'AND' | 'OR' };
+  mentions: { values: string[]; logic: 'AND' | 'OR' };
+  globalLogic: 'AND' | 'OR';
+} {
+  const tagFilter = filters.find((f) => f.name === 'tags')?.value;
+  const tagLogic = filters.find((f) => f.name === 'tagLogic')?.value || 'OR';
+  const authorFilter = filters.find((f) => f.name === 'author')?.value;
+  const authorLogic =
+    filters.find((f) => f.name === 'authorLogic')?.value || 'OR';
+  const mentionsFilter = filters.find((f) => f.name === 'mentions')?.value;
+  const mentionsLogic =
+    filters.find((f) => f.name === 'mentionsLogic')?.value || 'OR';
+  const globalLogic =
+    filters.find((f) => f.name === 'globalLogic')?.value || 'AND';
+
+  return {
+    tags: {
+      values: tagFilter
+        ? tagFilter
+            .split(',')
+            .map((tag) => tag.trim())
+            .filter(Boolean)
+        : [],
+      logic: tagLogic === 'AND' || tagLogic === 'OR' ? tagLogic : 'OR'
+    },
+    authors: {
+      values: authorFilter ? [authorFilter] : [], // For now, single author but ready for multiple
+      logic: authorLogic === 'AND' || authorLogic === 'OR' ? authorLogic : 'OR'
+    },
+    mentions: {
+      values: mentionsFilter ? [mentionsFilter] : [], // For now, single mention but ready for multiple
+      logic:
+        mentionsLogic === 'AND' || mentionsLogic === 'OR' ? mentionsLogic : 'OR'
+    },
+    globalLogic:
+      globalLogic === 'AND' || globalLogic === 'OR' ? globalLogic : 'AND'
+  };
+}
+
+/**
+ * Build SQL conditions for complex filtering
+ */
+async function buildFilterConditions(
+  filterGroups: ReturnType<typeof parseFiltersIntoGroups>,
+  baseParams: any[]
+): Promise<{ condition: string; params: any[] }> {
+  const conditions: string[] = [];
+  const params: any[] = [];
+  let paramIndex = baseParams.length;
+
+  // Build tags conditions
+  if (filterGroups.tags.values.length > 0) {
+    const tagConditions = filterGroups.tags.values.map(() => {
+      paramIndex++;
+      return `EXISTS (SELECT 1 FROM unnest(s.tags) tag WHERE tag = $${paramIndex})`;
+    });
+
+    const tagsCondition =
+      filterGroups.tags.values.length === 1
+        ? tagConditions[0]
+        : `(${tagConditions.join(` ${filterGroups.tags.logic} `)})`;
+
+    conditions.push(tagsCondition);
+    params.push(...filterGroups.tags.values);
+  }
+
+  // Build author conditions (author ID only)
+  if (filterGroups.authors.values.length > 0) {
+    const authorConditions = [];
+
+    for (const authorValue of filterGroups.authors.values) {
+      paramIndex += 1;
+      // Only filter by author ID - simpler and more reliable
+      authorConditions.push(`s.author_id = $${paramIndex}`);
+      params.push(authorValue);
+    }
+
+    const authorsCondition =
+      authorConditions.length === 1
+        ? authorConditions[0]
+        : `(${authorConditions.join(` ${filterGroups.authors.logic} `)})`;
+
+    conditions.push(authorsCondition);
+  }
+
+  // Build mentions conditions (username-based content search)
+  if (filterGroups.mentions.values.length > 0) {
+    const mentionConditions = [];
+
+    for (const mentionValue of filterGroups.mentions.values) {
+      // For mentions, the value should always be a username (for content search)
+      // If it's a userId, resolve it to username at request time
+      let searchUsername = mentionValue;
+
+      if (/^[0-9a-f-]{8,}$/i.test(mentionValue)) {
+        try {
+          const { resolveUserIdToUsername } = await import(
+            '../../../lib/actions/search.actions'
+          );
+          const resolvedUsername = await resolveUserIdToUsername(mentionValue);
+          if (resolvedUsername) {
+            searchUsername = resolvedUsername;
+          }
+        } catch (error) {
+          console.error(
+            'Error resolving user ID to username for mentions search:',
+            error
+          );
+        }
+      }
+
+      paramIndex += 2;
+      // Search for @[username|...] format in content (more reliable)
+      const robustPattern = `%@[${searchUsername}|%`;
+      mentionConditions.push(
+        `(s.submission_title ILIKE $${paramIndex - 1} OR s.submission_name ILIKE $${paramIndex})`
+      );
+      params.push(robustPattern, robustPattern);
+    }
+
+    const mentionsCondition =
+      mentionConditions.length === 1
+        ? mentionConditions[0]
+        : `(${mentionConditions.join(` ${filterGroups.mentions.logic} `)})`;
+
+    conditions.push(mentionsCondition);
+  }
+
+  // Combine all conditions with global logic
+  if (conditions.length === 0) {
+    return { condition: '', params: [] };
+  }
+
+  const finalCondition =
+    conditions.length === 1
+      ? conditions[0]
+      : `(${conditions.join(` ${filterGroups.globalLogic} `)})`;
+
+  return { condition: finalCondition, params };
 }

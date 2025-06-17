@@ -97,11 +97,27 @@ export default function PostsManager({
     mentionValue: string,
     filterType: 'author' | 'mentions'
   ) => {
+    // eslint-disable-next-line no-console
+    console.log('🎯 [POSTS_MANAGER] handleMentionClick called:', {
+      mentionValue,
+      filterType,
+      valueLength: mentionValue.length,
+      isUserIdPattern: /^[0-9a-f-]{8,}$/i.test(mentionValue)
+    });
+
     if (filterType === 'author') {
       // Add author filter using the resolved user ID
+      // eslint-disable-next-line no-console
+      console.log('🎯 [POSTS_MANAGER] Adding author filter:', {
+        value: mentionValue
+      });
       addFilter({ name: 'author', value: mentionValue });
     } else if (filterType === 'mentions') {
       // Add mentions filter using the username for content search
+      // eslint-disable-next-line no-console
+      console.log('🎯 [POSTS_MANAGER] Adding mentions filter:', {
+        value: mentionValue
+      });
       addFilter({ name: 'mentions', value: mentionValue });
     }
   };
@@ -113,6 +129,11 @@ export default function PostsManager({
       setTimeout(() => setIncludeThreadReplies(prev), 50);
       return !prev;
     });
+  };
+
+  const handleUpdateFilter = (name: string, value: string) => {
+    // Add or update a filter with the new value
+    addFilter({ name: name as any, value });
   };
 
   const isAuthorized = !!session?.user?.providerAccountId;
@@ -157,6 +178,7 @@ export default function PostsManager({
           onRemoveFilter={removeFilter}
           onRemoveTag={removeTag}
           onClearFilters={clearFilters}
+          onUpdateFilter={handleUpdateFilter}
         />
 
         {/* Thread Reply Toggle */}

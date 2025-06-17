@@ -83,8 +83,9 @@ export function AddSubmissionForm({
 
   // Update should trigger when state changes
   useEffect(() => {
-    if (state.status) {
-      setShouldUpdate(!!state.status);
+    if (state.status === 1) {
+      // Only trigger update on successful submission
+      setShouldUpdate(true);
       onSuccess?.();
     }
   }, [state.status, state.message, setShouldUpdate, onSuccess]);

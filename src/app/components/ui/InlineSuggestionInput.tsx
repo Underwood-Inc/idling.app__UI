@@ -201,22 +201,32 @@ export const InlineSuggestionInput: React.FC<InlineSuggestionInputProps> = ({
       const before = value.substring(0, startIndex);
       const after = value.substring(startIndex + 1 + query.length);
 
-      // For user mentions, use displayName for visual insertion but track value (user ID) internally
-      let suggestionValue = suggestion.value;
+      let replacement = '';
+
       if (suggestion.type === 'user') {
-        // Use displayName for the visual text insertion, but the value (user ID) is stored for filtering
-        suggestionValue = suggestion.displayName || suggestion.value;
-        if (suggestionValue.startsWith('@')) {
-          suggestionValue = suggestionValue.substring(1); // Remove the @ as we'll add it
+        // Create robust mention format: @[username|userId]
+        const username = suggestion.displayName || suggestion.value;
+        const userId = suggestion.value; // The value is the user ID
+
+        // Clean username (remove @ if present)
+        const cleanUsername = username.startsWith('@')
+          ? username.substring(1)
+          : username;
+
+        // Create robust mention: @[username|userId]
+        replacement = `@[${cleanUsername}|${userId}] `;
+      } else if (suggestion.type === 'hashtag') {
+        // Handle hashtags normally
+        let hashtagValue = suggestion.value;
+        if (hashtagValue.startsWith('#')) {
+          hashtagValue = hashtagValue.substring(1);
         }
-      } else if (
-        suggestion.type === 'hashtag' &&
-        suggestionValue.startsWith('#')
-      ) {
-        suggestionValue = suggestionValue.substring(1); // Remove the # as we'll add it
+        replacement = `#${hashtagValue} `;
+      } else {
+        // Fallback for other types
+        replacement = `${trigger}${suggestion.value} `;
       }
 
-      const replacement = `${trigger}${suggestionValue} `;
       const newValue = before + replacement + after;
       const newCursorPosition = before.length + replacement.length;
 

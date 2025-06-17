@@ -130,3 +130,86 @@
     padding: 0.25em 0.5em;
   }
 }
+
+/* Logic controls */
+.filter-bar__global-logic {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  padding: 0.5rem;
+  background-color: var(--light-bg__color--secondary);
+  border-radius: var(--border-radius);
+  border: 1px solid var(--brand-primary--light);
+}
+
+.filter-bar__logic-label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--light-bg__text-color--primary);
+}
+
+.filter-bar__logic-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 40px;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  background-color: var(--brand-primary--light);
+  color: var(--light-bg__text-color--secondary);
+  border: 1px solid var(--brand-primary);
+  border-radius: calc(var(--border-radius) / 2);
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.filter-bar__logic-button:hover {
+  background-color: var(--brand-primary);
+  color: var(--font-color--primary);
+  transform: translateY(-1px);
+}
+
+.filter-bar__logic-button--active {
+  background-color: var(--brand-primary);
+  color: var(--font-color--primary);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.filter-bar__filter-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.filter-bar__logic-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 35px;
+  padding: 0.2rem 0.4rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  background-color: var(--brand-tertiary--light);
+  color: var(--light-bg__text-color--secondary);
+  border: 1px solid var(--brand-tertiary);
+  border-radius: calc(var(--border-radius) / 2);
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.filter-bar__logic-toggle:hover {
+  background-color: var(--brand-tertiary);
+  color: var(--font-color--primary);
+  transform: translateY(-1px);
+}
+
+.filter-bar__logic-toggle--active {
+  background-color: var(--brand-tertiary);
+  color: var(--font-color--primary);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+}

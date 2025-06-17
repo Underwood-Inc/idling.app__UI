@@ -18,36 +18,55 @@ export function FilterLabel({
 }) {
   const [displayLabel, setDisplayLabel] = useState(label);
 
-  // For author filters, try to resolve user ID to username for better display
+  // Simplified display logic - resolve userId to username for display
   useEffect(() => {
-    const resolveAuthorDisplay = async () => {
+    const resolveUserDisplay = async () => {
       if (name === 'author' && label && !label.startsWith('@')) {
-        // If the label doesn't start with @ and looks like it might be a user ID,
-        // try to resolve it to a username for better display
+        // Author filter: label is always a userId, resolve to username for display
         try {
           const { resolveUserIdToUsername } = await import(
             '../../../lib/actions/search.actions'
           );
           const username = await resolveUserIdToUsername(label);
           if (username) {
-            // Display format: @username|userID
-            setDisplayLabel(`@${username}|${label}`);
+            // Display format: @[username|userID] (structured format for ContentWithPills)
+            setDisplayLabel(`@[${username}|${label}]`);
           } else {
-            // If resolution fails, assume it's already a username and add @
-            setDisplayLabel(label.startsWith('@') ? label : `@${label}`);
+            // Fallback: show userId with @ prefix
+            setDisplayLabel(`@${label}`);
           }
         } catch (error) {
           console.error('Error resolving user ID to username:', error);
-          // Fall back to original label with @ prefix if needed
-          setDisplayLabel(label.startsWith('@') ? label : `@${label}`);
+          setDisplayLabel(`@${label}`);
         }
-      } else if (name === 'author' && !label.startsWith('@')) {
-        // For author filters, ensure @ prefix
-        setDisplayLabel(`@${label}`);
+      } else if (name === 'mentions' && label && !label.startsWith('@')) {
+        // Mentions filter: label is username, need to get userId for display consistency
+        try {
+          const { getUserInfo } = await import(
+            '../../../lib/actions/search.actions'
+          );
+          const userInfo = await getUserInfo(label);
+          if (userInfo && userInfo.userId) {
+            // Display format: @[username|userID] (structured format for ContentWithPills)
+            setDisplayLabel(`@[${userInfo.username}|${userInfo.userId}]`);
+          } else {
+            // Fallback: show username with @ prefix
+            setDisplayLabel(`@${label}`);
+          }
+        } catch (error) {
+          console.error(
+            'Error resolving username to user ID for display:',
+            error
+          );
+          setDisplayLabel(`@${label}`);
+        }
+      } else {
+        // Already formatted or other types
+        setDisplayLabel(label);
       }
     };
 
-    resolveAuthorDisplay();
+    resolveUserDisplay();
   }, [name, label]);
 
   const handleTagClick = (tagValue: string) => {
@@ -55,8 +74,11 @@ export function FilterLabel({
     onRemoveTag(tagValue);
   };
 
-  const handleMentionClick = (mentionValue: string) => {
-    // For author filters, remove the entire author filter (not individual tags)
+  const handleMentionClick = (
+    mentionValue: string,
+    filterType?: 'author' | 'mentions'
+  ) => {
+    // For author and mentions filters, remove the entire filter (not individual tags)
     if (name === 'author' && onRemoveFilter) {
       onRemoveFilter('author');
     } else if (name === 'mentions' && onRemoveFilter) {

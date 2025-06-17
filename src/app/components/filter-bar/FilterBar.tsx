@@ -2,19 +2,21 @@
 
 import { Filter } from '../../../lib/state/atoms';
 import { PostFilters } from '../../../lib/types/filters';
+import './FilterBar.css';
 import { FilterLabel } from './FilterLabel';
 import { getTagsFromSearchParams } from './utils/get-tags';
 
 function dedupeStringArray(arr: string[]): string[] {
-  return Array.from(new Set(arr));
+  return [...new Set(arr)];
 }
 
 interface FilterBarProps {
   filterId: string;
   filters: Filter<PostFilters>[];
-  onRemoveFilter: (filterName: PostFilters) => void;
+  onRemoveFilter: (filterType: PostFilters) => void;
   onRemoveTag: (tagToRemove: string) => void;
   onClearFilters: () => void;
+  onUpdateFilter?: (name: string, value: string) => void;
 }
 
 export default function FilterBar({
@@ -22,52 +24,94 @@ export default function FilterBar({
   filters,
   onRemoveFilter,
   onRemoveTag,
-  onClearFilters
+  onClearFilters,
+  onUpdateFilter
 }: FilterBarProps) {
   // Add null check for filters
   const safeFilters = filters || [];
 
-  // eslint-disable-next-line no-console
-  console.log('🔍 [FILTER_BAR] Rendering with filters:', {
-    filtersCount: safeFilters.length,
-    filters: safeFilters.map((f) => ({ name: f.name, value: f.value }))
-  });
-
-  if (safeFilters.length === 0) {
+  // Enhanced logic: if filters is empty or undefined, don't render
+  if (!safeFilters || safeFilters.length === 0) {
     return null;
   }
 
-  const handleFilterRemove = (filterName: string) => {
-    if (filterName === 'author') {
-      onRemoveFilter('author');
-    } else if (filterName === 'mentions') {
-      onRemoveFilter('mentions');
-    } else if (filterName === 'tagLogic') {
-      onRemoveFilter('tagLogic');
-    }
+  const handleFilterRemove = (filterName: PostFilters) => {
+    onRemoveFilter(filterName);
+  };
+
+  const handleFilterRemoveString = (filterName: string) => {
+    onRemoveFilter(filterName as PostFilters);
   };
 
   const handleClearFilters = () => {
-    // eslint-disable-next-line no-console
-    console.log('🧹 [FILTER_BAR] Clearing all filters');
     onClearFilters();
+  };
+
+  // Get logic values from filters
+  const tagLogic =
+    safeFilters.find((f) => f.name === 'tagLogic')?.value || 'OR';
+  const authorLogic =
+    safeFilters.find((f) => f.name === 'authorLogic')?.value || 'OR';
+  const mentionsLogic =
+    safeFilters.find((f) => f.name === 'mentionsLogic')?.value || 'OR';
+  const globalLogic =
+    safeFilters.find((f) => f.name === 'globalLogic')?.value || 'AND';
+
+  const hasTagsFilter = safeFilters.some((f) => f.name === 'tags');
+  const hasAuthorFilter = safeFilters.some((f) => f.name === 'author');
+  const hasMentionsFilter = safeFilters.some((f) => f.name === 'mentions');
+  const hasMultipleFilterTypes =
+    [hasTagsFilter, hasAuthorFilter, hasMentionsFilter].filter(Boolean).length >
+    1;
+
+  const handleLogicToggle = (
+    filterType: 'tagLogic' | 'authorLogic' | 'mentionsLogic' | 'globalLogic'
+  ) => {
+    if (!onUpdateFilter) return;
+
+    const currentValue =
+      safeFilters.find((f) => f.name === filterType)?.value ||
+      (filterType === 'globalLogic' ? 'AND' : 'OR');
+    const newValue = currentValue === 'AND' ? 'OR' : 'AND';
+    onUpdateFilter(filterType, newValue);
   };
 
   return (
     <article className="filter-bar__container">
+      {/* Global Logic Toggle - only show when multiple filter types are active */}
+      {hasMultipleFilterTypes && onUpdateFilter && (
+        <div className="filter-bar__global-logic">
+          <span className="filter-bar__logic-label">Filter Groups:</span>
+          <button
+            className={`filter-bar__logic-button ${globalLogic === 'AND' ? 'filter-bar__logic-button--active' : ''}`}
+            onClick={() => handleLogicToggle('globalLogic')}
+            title={`Currently using ${globalLogic} logic between filter groups. Click to toggle.`}
+          >
+            {globalLogic === 'AND' ? 'ALL' : 'ANY'}
+          </button>
+        </div>
+      )}
+
       {safeFilters
         .filter(
-          (filter) => filter.name !== 'author' && filter.name !== 'mentions'
-        ) // Exclude author and mentions from generic display
+          (filter) =>
+            ![
+              'tagLogic',
+              'authorLogic',
+              'mentionsLogic',
+              'globalLogic'
+            ].includes(filter.name)
+        )
         .map((filter) => {
           if (!filter.value) {
             return null;
           }
 
-          // Deduplicate tags before rendering with proper validation
-          const values = dedupeStringArray(
-            getTagsFromSearchParams(filter.value)
-          );
+          // For tags, handle comma-separated values
+          const values =
+            filter.name === 'tags'
+              ? dedupeStringArray(getTagsFromSearchParams(filter.value))
+              : [filter.value]; // For author/mentions, single value
 
           if (values.length === 0) {
             return null;
@@ -81,60 +125,59 @@ export default function FilterBar({
                   label={value}
                   filterId={filterId}
                   onRemoveTag={onRemoveTag}
-                  onRemoveFilter={handleFilterRemove}
+                  onRemoveFilter={handleFilterRemoveString}
                 />
               </div>
             ));
 
           return (
             <div key={filter.name} className="filter-bar__filter">
-              <p className="uppercase filter-bar__filter-name">
-                {filter.name}:
-              </p>
+              <div className="filter-bar__filter-header">
+                <p className="uppercase filter-bar__filter-name">
+                  {filter.name}:
+                </p>
+
+                {/* Logic toggle for specific filter types */}
+                {filter.name === 'tags' &&
+                  filter.value.includes(',') &&
+                  onUpdateFilter && (
+                    <button
+                      className={`filter-bar__logic-toggle ${tagLogic === 'AND' ? 'filter-bar__logic-toggle--active' : ''}`}
+                      onClick={() => handleLogicToggle('tagLogic')}
+                      title={`Tags: ${tagLogic === 'AND' ? 'Must have ALL selected tags' : 'Must have ANY selected tag'}`}
+                    >
+                      {tagLogic === 'AND' ? 'ALL' : 'ANY'}
+                    </button>
+                  )}
+
+                {filter.name === 'author' && onUpdateFilter && (
+                  <button
+                    className={`filter-bar__logic-toggle ${authorLogic === 'AND' ? 'filter-bar__logic-toggle--active' : ''}`}
+                    onClick={() => handleLogicToggle('authorLogic')}
+                    title={`Authors: ${authorLogic === 'AND' ? 'Must match ALL authors' : 'Must match ANY author'}`}
+                    style={{ opacity: 0.6 }}
+                  >
+                    {authorLogic === 'AND' ? 'ALL' : 'ANY'}
+                  </button>
+                )}
+
+                {filter.name === 'mentions' && onUpdateFilter && (
+                  <button
+                    className={`filter-bar__logic-toggle ${mentionsLogic === 'AND' ? 'filter-bar__logic-toggle--active' : ''}`}
+                    onClick={() => handleLogicToggle('mentionsLogic')}
+                    title={`Mentions: ${mentionsLogic === 'AND' ? 'Must mention ALL users' : 'Must mention ANY user'}`}
+                    style={{ opacity: 0.6 }}
+                  >
+                    {mentionsLogic === 'AND' ? 'ALL' : 'ANY'}
+                  </button>
+                )}
+              </div>
               <div className="filter-bar__filter-values-container">
                 {renderValues()}
               </div>
             </div>
           );
         })}
-
-      {/* Author filter with username|userID format */}
-      {safeFilters.find((f) => f.name === 'author') && (
-        <div key="author-filter" className="filter-bar__filter">
-          <p className="uppercase filter-bar__filter-name">author:</p>
-          <div className="filter-bar__filter-values-container">
-            <div className="filter-bar__filter-value-container">
-              <FilterLabel
-                name="author"
-                label={
-                  safeFilters.find((f) => f.name === 'author')?.value || ''
-                }
-                filterId="author"
-                onRemoveTag={onRemoveTag}
-                onRemoveFilter={handleFilterRemove}
-              />
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Mentions filter */}
-      {safeFilters.find((f) => f.name === 'mentions') && (
-        <div key="mentions-filter" className="filter-bar__filter">
-          <p className="uppercase filter-bar__filter-name">mentions:</p>
-          <div className="filter-bar__filter-values-container">
-            <div className="filter-bar__filter-value-container">
-              <FilterLabel
-                name="mentions"
-                label={`@${safeFilters.find((f) => f.name === 'mentions')?.value}`}
-                filterId="mentions"
-                onRemoveTag={onRemoveTag}
-                onRemoveFilter={handleFilterRemove}
-              />
-            </div>
-          </div>
-        </div>
-      )}
 
       <button
         className="filter-bar__clear-all-button"

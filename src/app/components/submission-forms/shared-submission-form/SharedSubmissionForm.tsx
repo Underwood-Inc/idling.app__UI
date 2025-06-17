@@ -191,8 +191,6 @@ export function SharedSubmissionForm({
         if (onSuccess) {
           onSuccess();
         }
-
-        router.refresh();
       } else {
         const errorMessage =
           result.error ||
