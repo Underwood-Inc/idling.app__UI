@@ -488,7 +488,10 @@ describe('ContentWithPills', () => {
       render(
         <Provider>
           <ContentWithPills
-            content="Amazing progress on #webdev! Thanks to @[alice|123] and @[bob|456] for the help. Looking forward to #react2024 conference. #javascript #typescript"
+            content={
+              'Amazing progress on #webdev! Thanks to @[alice|123] and @[bob|456] for the help. ' +
+              'Looking forward to #react2024 conference. #javascript #typescript'
+            }
             contextId="test"
             onHashtagClick={mockOnHashtagClick}
             onMentionClick={mockOnMentionClick}

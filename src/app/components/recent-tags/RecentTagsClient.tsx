@@ -227,7 +227,11 @@ const RecentTagsClientComponent = ({
                   <span className="recent-tags__logic-label">Tags:</span>
                   <div className="recent-tags__logic-button-group">
                     <button
-                      className={`recent-tags__logic-button ${tagState.currentTagLogic === 'AND' ? 'recent-tags__logic-button--active' : ''}`}
+                      className={`recent-tags__logic-button ${
+                        tagState.currentTagLogic === 'AND'
+                          ? 'recent-tags__logic-button--active'
+                          : ''
+                      }`}
                       onClick={() => {
                         if (tagState.currentTags.length > 1) {
                           setFiltersState((prev) => {
@@ -260,7 +264,11 @@ const RecentTagsClientComponent = ({
                       ALL
                     </button>
                     <button
-                      className={`recent-tags__logic-button ${tagState.currentTagLogic === 'OR' ? 'recent-tags__logic-button--active' : ''}`}
+                      className={`recent-tags__logic-button ${
+                        tagState.currentTagLogic === 'OR'
+                          ? 'recent-tags__logic-button--active'
+                          : ''
+                      }`}
                       onClick={() => {
                         if (tagState.currentTags.length > 1) {
                           setFiltersState((prev) => {

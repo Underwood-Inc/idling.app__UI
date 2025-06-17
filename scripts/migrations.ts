@@ -3,6 +3,11 @@ import { existsSync, readdirSync, writeFileSync } from 'fs';
 import { mkdir } from 'fs/promises';
 import path from 'path';
 import { createInterface } from 'readline';
+
+// Load environment variables
+import { config } from 'dotenv';
+config(); // Load .env file
+
 import sql from '../src/lib/db';
 
 // Directory where all database migration files are stored

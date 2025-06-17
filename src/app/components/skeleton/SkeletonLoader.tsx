@@ -9,9 +9,18 @@ let useDevSkeletonState: () => {
   isDevModeActive: boolean;
 };
 
+// Always define the hook, but conditionally import the real implementation
 if (process.env.NODE_ENV === 'development') {
-  const devModule = require('../dev-tools/DevSkeletonToggle');
-  useDevSkeletonState = devModule.useDevSkeletonState;
+  try {
+    const devModule = require('../dev-tools/DevSkeletonToggle');
+    useDevSkeletonState = devModule.useDevSkeletonState;
+  } catch {
+    // Fallback if dev module not available
+    useDevSkeletonState = () => ({
+      shouldShowSkeleton: false,
+      isDevModeActive: false
+    });
+  }
 } else {
   // Production fallback - returns inactive state
   useDevSkeletonState = () => ({
@@ -312,34 +321,21 @@ export const useSmartSkeleton = (targetRef: React.RefObject<HTMLElement>) => {
   );
 
   const captureLayout = () => {
-    if (!targetRef.current) {
-      console.warn('Target ref is not available for skeleton capture');
-      return;
-    }
-
     setIsAnalyzing(true);
 
     try {
       // Small delay to ensure DOM is stable
       setTimeout(() => {
         if (targetRef.current) {
-          console.log(
-            '📸 [SMART_SKELETON] Capturing layout from:',
-            targetRef.current
-          );
-
           const elementInfo = analyzeElement(targetRef.current);
           setCapturedLayout(elementInfo);
 
           const skeleton = generateSkeletonFromElement(elementInfo, 'root');
           setSkeletonContent(skeleton);
-
-          console.log('✅ [SMART_SKELETON] Layout captured:', elementInfo);
         }
         setIsAnalyzing(false);
       }, 100);
     } catch (error) {
-      console.error('❌ [SMART_SKELETON] Failed to capture layout:', error);
       setIsAnalyzing(false);
     }
   };

@@ -568,7 +568,6 @@ export const useSmartSkeleton = (targetRef: React.RefObject<HTMLElement>) => {
 
   const captureLayout = () => {
     if (!targetRef.current) {
-      console.warn('Target ref is not available for skeleton capture');
       return;
     }
 
@@ -582,30 +581,6 @@ export const useSmartSkeleton = (targetRef: React.RefObject<HTMLElement>) => {
           const elementInfo = analyzeElementStructure(targetRef.current);
           setCapturedLayout(elementInfo);
 
-          // Debug logging in development
-          if (process.env.NODE_ENV === 'development') {
-            console.log('🔍 [SMART_SKELETON] Element analysis:', {
-              tag: elementInfo.tagName,
-              type: elementInfo.skeletonType,
-              dimensions: elementInfo.rect,
-              childrenCount: elementInfo.children.length,
-              className: elementInfo.className
-            });
-
-            // Log problematic large boxes
-            if (
-              elementInfo.skeletonType === 'box' &&
-              elementInfo.rect.height > 200
-            ) {
-              console.warn('⚠️ [SMART_SKELETON] Large box detected:', {
-                tag: elementInfo.tagName,
-                className: elementInfo.className,
-                dimensions: elementInfo.rect,
-                children: elementInfo.children.length
-              });
-            }
-          }
-
           const skeleton = generateRealisticSkeleton(elementInfo, 'root');
           setSkeletonContent(skeleton);
 
@@ -614,7 +589,6 @@ export const useSmartSkeleton = (targetRef: React.RefObject<HTMLElement>) => {
         setIsAnalyzing(false);
       }, 100);
     } catch (error) {
-      console.error('❌ [SMART_SKELETON] Failed to capture layout:', error);
       setIsAnalyzing(false);
     }
   };

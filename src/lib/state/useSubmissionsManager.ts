@@ -66,11 +66,6 @@ export function useSubmissionsManager({
   // Ensure atoms are properly initialized
   useEffect(() => {
     if (!filtersState.initialized) {
-      // eslint-disable-next-line no-console
-      console.log(
-        '🚀 [MANAGER] Initializing filters state for context:',
-        contextId
-      );
       setFiltersState((prev) => ({
         ...prev,
         onlyMine,
@@ -119,13 +114,6 @@ export function useSubmissionsManager({
     if (lastSyncedFilters.current === currentFiltersKey) {
       return;
     }
-
-    // eslint-disable-next-line no-console
-    console.log('🔗 [MANAGER] Syncing URL with state:', {
-      filters: filtersState.filters,
-      page: filtersState.page,
-      pageSize: filtersState.pageSize
-    });
 
     const params = new URLSearchParams();
 
@@ -194,8 +182,6 @@ export function useSubmissionsManager({
 
       // Skip if this is the same request we just made
       if (lastFetchParams.current === fetchKey) {
-        // eslint-disable-next-line no-console
-        console.log('🔄 [MANAGER] Skipping duplicate request');
         return;
       }
 
@@ -207,14 +193,6 @@ export function useSubmissionsManager({
       // Create new abort controller for this request
       abortController.current = new AbortController();
       lastFetchParams.current = fetchKey;
-
-      // eslint-disable-next-line no-console
-      console.log('🔄 [MANAGER] fetchSubmissions called with:', {
-        currentFilters,
-        currentPage,
-        currentPageSize,
-        onlyMine
-      });
 
       setSubmissionsState((prev) => ({
         ...prev,
@@ -236,19 +214,8 @@ export function useSubmissionsManager({
 
         // Check if request was aborted
         if (abortController.current?.signal.aborted) {
-          // eslint-disable-next-line no-console
-          console.log('🔄 [MANAGER] Request was aborted');
           return;
         }
-
-        // eslint-disable-next-line no-console
-        console.log('🔄 [MANAGER] API response received:', {
-          hasError: !!result.error,
-          error: result.error,
-          dataCount: result.data?.data?.length || 0,
-          totalRecords: result.data?.pagination?.totalRecords || 0,
-          currentPage: result.data?.pagination?.currentPage || 0
-        });
 
         if (result.error) {
           setSubmissionsState({
@@ -265,8 +232,6 @@ export function useSubmissionsManager({
               pagination: result.data.pagination
             }
           });
-          // eslint-disable-next-line no-console
-          console.log('🔄 [MANAGER] State updated successfully');
         }
       } catch (err) {
         // Don't show error if request was aborted
@@ -301,14 +266,6 @@ export function useSubmissionsManager({
     if (lastUrlParams.current === currentUrlParams && !isInitializing.current) {
       return;
     }
-
-    // eslint-disable-next-line no-console
-    console.log('🚀 [MANAGER] Processing URL change:', {
-      searchParams: currentUrlParams,
-      contextId,
-      onlyMine,
-      isInitializing: isInitializing.current
-    });
 
     const pageParam = searchParams.get('page');
     const tagsParam = searchParams.get('tags');
@@ -388,16 +345,6 @@ export function useSubmissionsManager({
       });
     }
 
-    // eslint-disable-next-line no-console
-    console.log('🚀 [MANAGER] Updating state from URL:', {
-      page,
-      pageSize,
-      urlFilters,
-      providerAccountId: providerAccountId
-        ? `${providerAccountId.substring(0, 8)}...`
-        : 'null'
-    });
-
     // Update shared atom state
     setFiltersState({
       onlyMine,
@@ -424,13 +371,6 @@ export function useSubmissionsManager({
   // Single debounced fetch effect that triggers on any relevant state change
   useEffect(() => {
     if (isInitializing.current || !filtersState.initialized) return;
-
-    // eslint-disable-next-line no-console
-    console.log('⏱️ [MANAGER] Setting up debounced fetch:', {
-      filtersCount: filtersState.filters.length,
-      page: filtersState.page,
-      pageSize: filtersState.pageSize
-    });
 
     // Clear previous timeout
     if (fetchTimeout.current) {
@@ -474,9 +414,6 @@ export function useSubmissionsManager({
   // Monitor shouldUpdate atom for refresh triggers
   useEffect(() => {
     if (shouldUpdate && !isInitializing.current && filtersState.initialized) {
-      // eslint-disable-next-line no-console
-      console.log('🔄 [MANAGER] shouldUpdate triggered, refreshing...');
-
       // Reset the shouldUpdate flag
       setShouldUpdate(false);
 
@@ -500,15 +437,7 @@ export function useSubmissionsManager({
   // Action methods that update shared atoms
   const setPage = useCallback(
     (page: number) => {
-      // eslint-disable-next-line no-console
-      console.log('📄 [MANAGER] setPage called:', {
-        page,
-        currentPage: filtersState.page
-      });
-
       if (page === filtersState.page) {
-        // eslint-disable-next-line no-console
-        console.log('📄 [MANAGER] Page unchanged, skipping');
         return;
       }
 
@@ -519,15 +448,7 @@ export function useSubmissionsManager({
 
   const setPageSize = useCallback(
     (pageSize: number) => {
-      // eslint-disable-next-line no-console
-      console.log('📏 [MANAGER] setPageSize called:', {
-        pageSize,
-        currentPageSize: filtersState.pageSize
-      });
-
       if (pageSize === filtersState.pageSize) {
-        // eslint-disable-next-line no-console
-        console.log('📏 [MANAGER] Page size unchanged, skipping');
         return;
       }
 
@@ -538,24 +459,18 @@ export function useSubmissionsManager({
 
   const addFilter = useCallback(
     (filter: Filter<PostFilters>) => {
-      console.log('🏷️ [MANAGER] addFilter called:', filter);
-
       setFiltersState((prev) => {
-        console.log('🏷️ [MANAGER] Current filters before add:', prev.filters);
-
         // Check if this exact filter already exists to prevent duplicates
         const isDuplicate = prev.filters.some(
           (f) => f.name === filter.name && f.value === filter.value
         );
 
         if (isDuplicate) {
-          console.log('🏷️ [MANAGER] Filter already exists, skipping:', filter);
           return prev;
         }
 
         // Add new filter (allow multiple filters with same name but different values)
         const newFilters = [...prev.filters, filter];
-        console.log('🏷️ [MANAGER] Filters after add:', newFilters);
 
         return {
           ...prev,
@@ -569,24 +484,12 @@ export function useSubmissionsManager({
 
   const removeFilter = useCallback(
     (filterName: PostFilters, filterValue?: string) => {
-      console.log('🗑️ [MANAGER] removeFilter called:', {
-        filterName,
-        filterValue
-      });
-
       setFiltersState((prev) => {
-        console.log(
-          '🗑️ [MANAGER] Current filters before removal:',
-          prev.filters
-        );
-
         const newFilters = filterValue
           ? prev.filters.filter(
               (f) => !(f.name === filterName && f.value === filterValue)
             )
           : prev.filters.filter((f) => f.name !== filterName);
-
-        console.log('🗑️ [MANAGER] Filters after removal:', newFilters);
 
         return {
           ...prev,
@@ -600,14 +503,9 @@ export function useSubmissionsManager({
 
   const removeTag = useCallback(
     (tagToRemove: string) => {
-      // eslint-disable-next-line no-console
-      console.log('🏷️ [MANAGER] removeTag called:', tagToRemove);
-
       setFiltersState((prev) => {
         const tagsFilter = prev.filters.find((f) => f.name === 'tags');
         if (!tagsFilter) {
-          // eslint-disable-next-line no-console
-          console.log('🏷️ [MANAGER] No tags filter found');
           return prev;
         }
 
@@ -618,10 +516,6 @@ export function useSubmissionsManager({
           .filter(Boolean);
 
         const newTags = currentTags.filter((tag) => tag !== tagToRemove);
-
-        // eslint-disable-next-line no-console
-        console.log('🏷️ [MANAGER] Tags before removal:', currentTags);
-        console.log('🏷️ [MANAGER] Tags after removal:', newTags);
 
         let newFilters = [...prev.filters];
 
@@ -654,9 +548,6 @@ export function useSubmissionsManager({
   );
 
   const clearFilters = useCallback(() => {
-    // eslint-disable-next-line no-console
-    console.log('🧹 [MANAGER] clearFilters called');
-
     setFiltersState((prev) => ({
       ...prev,
       filters: [],
