@@ -150,8 +150,13 @@ const CacheStatus: React.FC = () => {
         // Update cache info after successful refresh
         await checkCacheStatus();
 
-        // Reload page to show fresh content
-        window.location.reload();
+        // Dispatch event to notify other components
+        window.dispatchEvent(new CustomEvent('cache-updated'));
+
+        // Small delay to show the updated cache status before reload
+        setTimeout(() => {
+          window.location.reload();
+        }, 500);
       } else {
         // Fallback to manual cache refresh
         const response = await fetch(window.location.href, {
@@ -162,7 +167,16 @@ const CacheStatus: React.FC = () => {
         });
 
         if (response.ok) {
-          window.location.reload();
+          // Update cache status to show it's now fresh
+          await checkCacheStatus();
+
+          // Dispatch event to notify other components
+          window.dispatchEvent(new CustomEvent('cache-updated'));
+
+          // Small delay to show the updated status
+          setTimeout(() => {
+            window.location.reload();
+          }, 500);
         }
       }
     } catch (error) {
@@ -177,6 +191,19 @@ const CacheStatus: React.FC = () => {
   useEffect(() => {
     checkCacheStatus();
 
+    // Listen for cache updates from service worker or other sources
+    const handleCacheUpdate = () => {
+      checkCacheStatus();
+    };
+
+    window.addEventListener('cache-updated', handleCacheUpdate);
+
+    return () => {
+      window.removeEventListener('cache-updated', handleCacheUpdate);
+    };
+  }, []); // Run once on mount
+
+  useEffect(() => {
     // Update cache age every 30 seconds
     const interval = setInterval(() => {
       if (cacheInfo.isCached && cacheInfo.cacheTimestamp) {
