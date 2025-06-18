@@ -489,21 +489,42 @@ export function useSubmissionsManager({
       // Reset the shouldUpdate flag
       setShouldUpdate(false);
 
-      // Force a refresh by triggering fetchSubmissions
-      fetchSubmissions(
-        effectiveFiltersState.filters as Filter<PostFilters>[],
-        effectiveFiltersState.page,
-        effectiveFiltersState.pageSize
-      );
+      // Clear any existing timeout to prevent race conditions
+      if (fetchTimeout.current) {
+        clearTimeout(fetchTimeout.current);
+      }
+
+      // Use the same debouncing system as the main fetch effect
+      fetchTimeout.current = setTimeout(() => {
+        const currentFetchKey = createFetchKey(
+          effectiveFiltersState.filters as Filter<PostFilters>[],
+          effectiveFiltersState.page,
+          effectiveFiltersState.pageSize
+        );
+
+        // Only fetch if this is a different request or we're not already loading
+        if (
+          lastFetchParams.current !== currentFetchKey &&
+          !submissionsState.loading
+        ) {
+          fetchSubmissions(
+            effectiveFiltersState.filters as Filter<PostFilters>[],
+            effectiveFiltersState.page,
+            effectiveFiltersState.pageSize
+          );
+        }
+      }, 50); // Use same timing as main fetch effect
     }
   }, [
     shouldUpdate,
     setShouldUpdate,
     fetchSubmissions,
+    createFetchKey,
     effectiveFiltersState.filters,
     effectiveFiltersState.page,
     effectiveFiltersState.pageSize,
-    effectiveFiltersState.initialized
+    effectiveFiltersState.initialized,
+    submissionsState.loading
   ]);
 
   // Batched filter updates to prevent multiple network requests
@@ -744,7 +765,7 @@ export function useSubmissionsManager({
 
   const removeFilter = useCallback(
     (filterName: PostFilters, filterValue?: string) => {
-      setFiltersState((prev) => {
+      updateFiltersBatched((prev) => {
         const newFilters = filterValue
           ? prev.filters.filter(
               (f) => !(f.name === filterName && f.value === filterValue)
@@ -758,12 +779,12 @@ export function useSubmissionsManager({
         };
       });
     },
-    [setFiltersState]
+    [updateFiltersBatched]
   );
 
   const removeTag = useCallback(
     (tagToRemove: string) => {
-      setFiltersState((prev) => {
+      updateFiltersBatched((prev) => {
         const tagsFilter = prev.filters.find((f) => f.name === 'tags');
         if (!tagsFilter) {
           return prev;
@@ -804,11 +825,11 @@ export function useSubmissionsManager({
         };
       });
     },
-    [setFiltersState]
+    [updateFiltersBatched]
   );
 
   const clearFilters = useCallback(() => {
-    setFiltersState((prev) => ({
+    updateFiltersBatched((prev) => ({
       ...prev,
       filters: [],
       page: 1
@@ -820,7 +841,7 @@ export function useSubmissionsManager({
       setInfinitePage(1);
       setHasMore(true);
     }
-  }, [setFiltersState, infiniteScroll]);
+  }, [updateFiltersBatched, infiniteScroll]);
 
   // Load more function for infinite scroll with performance optimizations
   const loadMore = useCallback(async () => {

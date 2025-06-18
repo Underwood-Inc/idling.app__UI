@@ -92,25 +92,27 @@
   position: relative;
   background: linear-gradient(135deg, #f8f9fa, #e9ecef) !important;
   color: #495057 !important;
-  border: 2px solid #6c757d !important;
+  border: 1px solid #6c757d !important;
   font-weight: 600 !important;
-  box-shadow: 0 2px 4px rgba(108, 117, 125, 0.2);
-  transform: scale(1.02);
+  /* Use inset shadow to prevent layout changes */
+  box-shadow: inset 0 -1px 2px rgba(108, 117, 125, 0.2);
+  /* Remove transform to prevent layout shifts */
+  /* Prevent layout shifts by maintaining consistent dimensions */
 }
 
 /* Specific filter context styling for different pill types */
 .content-pill--hashtag.content-pill--filter-context {
   background: linear-gradient(135deg, #f0f8ff, #e1f5fe) !important;
   color: #1565c0 !important;
-  border: 2px solid #42a5f5 !important;
-  box-shadow: 0 2px 4px rgba(66, 165, 245, 0.25);
+  border: 1px solid #42a5f5 !important;
+  box-shadow: inset 0 -1px 2px rgba(66, 165, 245, 0.25);
 }
 
 .content-pill--mention.content-pill--filter-context {
   background: linear-gradient(135deg, #f1f8e9, #e8f5e8) !important;
   color: #2e7d32 !important;
-  border: 2px solid #66bb6a !important;
-  box-shadow: 0 2px 4px rgba(102, 187, 106, 0.25);
+  border: 1px solid #66bb6a !important;
+  box-shadow: inset 0 -1px 2px rgba(102, 187, 106, 0.25);
 }
 
 .content-pill--filter-context::after {
@@ -125,9 +127,16 @@
 .content-pill--filter-context:hover {
   background: linear-gradient(135deg, #ffebee, #ffcdd2) !important;
   color: #c62828 !important;
-  border-color: #ef5350 !important;
-  transform: scale(1.05) translateY(-1px);
-  box-shadow: 0 4px 8px rgba(239, 83, 80, 0.3);
+  /* Keep same border width and color to prevent reflow */
+  border: 1px solid #6c757d !important;
+  /* Add scale transform with proper isolation to prevent layout shifts */
+  transform: scale(1.02);
+  transform-origin: center;
+  /* Use inset shadow to prevent DOM space changes */
+  box-shadow: inset 0 -2px 4px rgba(239, 83, 80, 0.3);
+  /* Ensure element doesn't affect surrounding layout */
+  position: relative;
+  z-index: 10;
 }
 
 .content-pill--filter-context:hover::after {
@@ -184,7 +193,7 @@
 /* High contrast mode */
 @media (prefers-contrast: high) {
   .content-pill {
-    border-width: 2px;
+    border-width: 1px;
   }
 
   .content-pill--hashtag {
@@ -238,8 +247,14 @@
 }
 
 .content-pill__filter-toggle:hover {
+  /* Use scale transform with proper isolation to prevent layout shifts */
   transform: scale(1.05);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+  transform-origin: center;
+  /* Use inset shadow to prevent additional DOM space */
+  box-shadow: inset 0 -1px 2px rgba(0, 0, 0, 0.15);
+  /* Ensure element doesn't affect surrounding layout */
+  position: relative;
+  z-index: 10;
 }
 
 .content-pill__filter-toggle--author {
@@ -281,7 +296,7 @@
 /* High contrast mode for inline filter toggle */
 @media (prefers-contrast: high) {
   .content-pill__filter-toggle {
-    border: 2px solid #000;
+    border: 1px solid #000;
   }
 
   .content-pill__filter-toggle--author {

@@ -173,9 +173,10 @@
 .smart-pill-input__pill .content-pill--filter-context {
   background: linear-gradient(135deg, #f8f9fa, #e9ecef) !important;
   color: #495057 !important;
-  border: 2px solid #6c757d !important;
+  border: 1px solid #6c757d !important;
   font-weight: 600 !important;
-  box-shadow: 0 2px 4px rgba(108, 117, 125, 0.2);
+  /* Use inset shadow to prevent layout changes */
+  box-shadow: inset 0 -1px 2px rgba(108, 117, 125, 0.2);
   border-radius: 16px;
   padding: 6px 12px;
   font-size: 13px;
@@ -186,16 +187,16 @@
 .smart-pill-input__pill .content-pill--hashtag.content-pill--filter-context {
   background: linear-gradient(135deg, #e3f2fd, #bbdefb) !important;
   color: #1565c0 !important;
-  border: 2px solid #42a5f5 !important;
-  box-shadow: 0 2px 4px rgba(66, 165, 245, 0.25);
+  border: 1px solid #42a5f5 !important;
+  box-shadow: inset 0 -1px 2px rgba(66, 165, 245, 0.25);
 }
 
 /* Mention specific styling in smart filter input */
 .smart-pill-input__pill .content-pill--mention.content-pill--filter-context {
   background: linear-gradient(135deg, #e8f5e8, #c8e6c9) !important;
   color: #2e7d32 !important;
-  border: 2px solid #66bb6a !important;
-  box-shadow: 0 2px 4px rgba(102, 187, 106, 0.25);
+  border: 1px solid #66bb6a !important;
+  box-shadow: inset 0 -1px 2px rgba(102, 187, 106, 0.25);
 }
 
 /* Remove indicator - X symbol */
@@ -213,9 +214,16 @@
 .smart-pill-input__pill .content-pill--filter-context:hover {
   background: linear-gradient(135deg, #ffebee, #ffcdd2) !important;
   color: #c62828 !important;
-  border-color: #ef5350 !important;
-  transform: scale(1.05) translateY(-1px);
-  box-shadow: 0 4px 8px rgba(239, 83, 80, 0.3);
+  /* Keep same border width to prevent reflow */
+  border: 1px solid #6c757d !important;
+  /* Add scale transform with proper isolation to prevent layout shifts */
+  transform: scale(1.02);
+  transform-origin: center;
+  /* Use inset shadow to prevent DOM space changes */
+  box-shadow: inset 0 -2px 4px rgba(239, 83, 80, 0.3);
+  /* Ensure element doesn't affect surrounding layout */
+  position: relative;
+  z-index: 10;
 }
 
 .smart-pill-input__pill .content-pill--filter-context:hover::after {
@@ -258,14 +266,26 @@
 
 .smart-pill-input__pill .content-pill__filter-toggle--author:hover {
   background: linear-gradient(135deg, #a5d6a7, #81c784);
-  transform: scale(1.1);
-  box-shadow: 0 2px 4px rgba(27, 94, 32, 0.3);
+  /* Add scale transform with proper isolation */
+  transform: scale(1.05);
+  transform-origin: center;
+  /* Use inset shadow to prevent layout shifts */
+  box-shadow: inset 0 -1px 2px rgba(27, 94, 32, 0.3);
+  /* Ensure element doesn't affect surrounding layout */
+  position: relative;
+  z-index: 10;
 }
 
 .smart-pill-input__pill .content-pill__filter-toggle--mentions:hover {
   background: linear-gradient(135deg, #90caf9, #64b5f6);
-  transform: scale(1.1);
-  box-shadow: 0 2px 4px rgba(13, 71, 161, 0.3);
+  /* Add scale transform with proper isolation */
+  transform: scale(1.05);
+  transform-origin: center;
+  /* Use inset shadow to prevent layout shifts */
+  box-shadow: inset 0 -1px 2px rgba(13, 71, 161, 0.3);
+  /* Ensure element doesn't affect surrounding layout */
+  position: relative;
+  z-index: 10;
 }
 
 /* Edit hint */
@@ -392,7 +412,7 @@
 /* High contrast mode for filter type toggles */
 @media (prefers-contrast: high) {
   .smart-pill-input__filter-type-toggle {
-    border: 2px solid #000;
+    border: 1px solid #000;
   }
 
   .smart-pill-input__filter-type-toggle--author {
@@ -418,17 +438,25 @@
   align-items: center;
   gap: 6px;
   background: linear-gradient(135deg, #e8f5e8, #c8e6c9);
-  border: 2px solid #66bb6a;
+  border: 1px solid #66bb6a;
   border-radius: 16px;
   padding: 4px 8px 4px 0;
   transition: all 0.2s ease;
-  box-shadow: 0 2px 4px rgba(102, 187, 106, 0.25);
+  /* Use inset shadow to prevent layout changes */
+  box-shadow: inset 0 -1px 2px rgba(102, 187, 106, 0.25);
 }
 
 .smart-pill-input__mention-pill:hover {
   background: linear-gradient(135deg, #c8e6c9, #a5d6a7);
   border-color: #4caf50;
-  box-shadow: 0 4px 8px rgba(76, 175, 80, 0.3);
+  /* Add scale transform with proper isolation */
+  transform: scale(1.02);
+  transform-origin: center;
+  /* Use inset shadow to prevent DOM space changes */
+  box-shadow: inset 0 -2px 4px rgba(76, 175, 80, 0.3);
+  /* Ensure element doesn't affect surrounding layout */
+  position: relative;
+  z-index: 10;
 }
 
 /* External filter type toggle button */
@@ -451,8 +479,14 @@
 }
 
 .smart-pill-input__filter-type-toggle:hover {
+  /* Use scale transform with proper isolation to prevent layout shifts */
   transform: scale(1.05);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+  transform-origin: center;
+  /* Use inset shadow to prevent additional DOM space */
+  box-shadow: inset 0 -1px 2px rgba(0, 0, 0, 0.15);
+  /* Ensure element doesn't affect surrounding layout */
+  position: relative;
+  z-index: 10;
 }
 
 .smart-pill-input__filter-type-toggle--author {
