@@ -15,8 +15,8 @@ const sql = postgres({
   max: 10, // Maximum number of connections
   idle_timeout: 20, // Idle connection timeout in seconds
   connect_timeout: 10, // Connection timeout in seconds
-  prepare: false, // Disable prepared statements to reduce connection usage
-  transform: postgres.camel // Enable camelCase transformation for consistency
+  prepare: false // Disable prepared statements to reduce connection usage
+  // Removed transform: postgres.camel to maintain snake_case compatibility
 });
 
 export default sql;
