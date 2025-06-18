@@ -1,7 +1,7 @@
 'use client';
 
 import { useSession } from 'next-auth/react';
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { useSubmissionsManager } from '../../../lib/state/useSubmissionsManager';
 import { CustomFilterInput } from '../filter-bar/CustomFilterInput';
 import FilterBar from '../filter-bar/FilterBar';
@@ -72,14 +72,18 @@ const PostsManager = React.memo(function PostsManager({
     [pagination.totalRecords, pagination.pageSize]
   );
 
+  // Use refs for stable function references
+  const addFilterRef = useRef(addFilter);
+  addFilterRef.current = addFilter;
+
   // Optimize callbacks with useCallback to prevent child re-renders
   const handleTagClick = useCallback(
     (tag: string) => {
       // Ensure consistent formatting with # prefix to match handleHashtagClick
       const formattedTag = tag.startsWith('#') ? tag : `#${tag}`;
-      addFilter({ name: 'tags', value: formattedTag });
+      addFilterRef.current({ name: 'tags', value: formattedTag });
     },
-    [addFilter]
+    [] // Empty dependency array for stable reference
   );
 
   const handleHashtagClick = useCallback(
@@ -88,16 +92,19 @@ const PostsManager = React.memo(function PostsManager({
       const formattedHashtag = hashtag.startsWith('#')
         ? hashtag
         : `#${hashtag}`;
-      addFilter({ name: 'tags', value: formattedHashtag });
+      addFilterRef.current({ name: 'tags', value: formattedHashtag });
     },
-    [addFilter]
+    [] // Empty dependency array for stable reference
   );
 
   const handleMentionClick = useCallback(
     (mention: string, filterType: 'author' | 'mentions') => {
-      addFilter({ name: filterType, value: mention.replace('@', '') });
+      addFilterRef.current({
+        name: filterType,
+        value: mention.replace('@', '')
+      });
     },
-    [addFilter]
+    [] // Empty dependency array for stable reference
   );
 
   const handleToggleThreadReplies = useCallback(
@@ -128,9 +135,9 @@ const PostsManager = React.memo(function PostsManager({
   const handleUpdateFilter = useCallback(
     (name: string, value: string) => {
       // Add or update a filter with the new value
-      addFilter({ name: name as any, value });
+      addFilterRef.current({ name: name as any, value });
     },
-    [addFilter]
+    [] // Empty dependency array for stable reference
   );
 
   // eslint-disable-next-line no-console

@@ -11,6 +11,12 @@ import { SubmissionItem } from './SubmissionItem';
 import './SubmissionItem.css';
 import './SubmissionsList.css';
 
+// Virtual scrolling constants
+const BATCH_SIZE = 20; // Number of items to render in each batch
+const BUFFER_SIZE = 1; // Number of batches to render outside visible area
+const ESTIMATED_ITEM_HEIGHT = 150; // Fallback height estimate
+const HEIGHT_CACHE_SIZE = 100; // Maximum items to cache heights for
+
 export interface SubmissionsListProps {
   posts: any[];
   onTagClick: (tag: string) => void;
@@ -21,11 +27,6 @@ export interface SubmissionsListProps {
   contextId: string;
 }
 
-// Virtual scrolling configuration
-const BATCH_SIZE = 10; // Max 10 posts rendered at a time as requested
-const ESTIMATED_ITEM_HEIGHT = 150; // Estimated height per post item (reduced from 200)
-const BUFFER_SIZE = 2; // Number of batches to keep rendered before/after visible area
-
 const SubmissionsList = React.memo(function SubmissionsList({
   posts,
   onTagClick,
@@ -35,38 +36,101 @@ const SubmissionsList = React.memo(function SubmissionsList({
   onRefresh,
   contextId
 }: SubmissionsListProps) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const itemRefs = useRef<Map<number, HTMLDivElement>>(new Map());
+  const heightCache = useRef<Map<number, number>>(new Map());
+  const [scrollTop, setScrollTop] = useState(0);
   const [visibleRange, setVisibleRange] = useState({
     start: 0,
     end: BATCH_SIZE
   });
-  const [scrollTop, setScrollTop] = useState(0);
-  const containerRef = useRef<HTMLDivElement>(null);
+  const visibleRangeRef = useRef(visibleRange);
   const isScrolling = useRef(false);
-  const scrollTimeout = useRef<ReturnType<typeof setTimeout>>();
+  const scrollTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const resizeObserver = useRef<ResizeObserver | null>(null);
 
-  // Calculate visible posts based on scroll position
+  // Update ref when visible range changes
+  useEffect(() => {
+    visibleRangeRef.current = visibleRange;
+  }, [visibleRange]);
+
+  // Get cached height or estimate
+  const getItemHeight = useCallback((index: number): number => {
+    const cached = heightCache.current.get(index);
+    if (cached) return cached;
+
+    // Use average of cached heights if available, otherwise use estimate
+    const cachedHeights = Array.from(heightCache.current.values());
+    if (cachedHeights.length > 0) {
+      const average =
+        cachedHeights.reduce((sum, h) => sum + h, 0) / cachedHeights.length;
+      return Math.round(average);
+    }
+
+    return ESTIMATED_ITEM_HEIGHT;
+  }, []);
+
+  // Calculate cumulative heights for positioning
+  const getCumulativeHeight = useCallback(
+    (index: number): number => {
+      let height = 0;
+      for (let i = 0; i < index; i++) {
+        height += getItemHeight(i);
+      }
+      return height;
+    },
+    [getItemHeight]
+  );
+
+  // Calculate visible range based on scroll position
   const calculateVisibleRange = useCallback(
     (scrollTop: number, containerHeight: number) => {
-      const startIndex = Math.max(
-        0,
-        Math.floor(scrollTop / ESTIMATED_ITEM_HEIGHT) - BUFFER_SIZE * BATCH_SIZE
-      );
-      const endIndex = Math.min(
+      if (posts.length === 0) return { start: 0, end: 0 };
+
+      // Find start index using binary search for efficiency
+      let startIndex = 0;
+      let endIndex = posts.length - 1;
+
+      while (startIndex < endIndex) {
+        const mid = Math.floor((startIndex + endIndex) / 2);
+        const midTop = getCumulativeHeight(mid);
+
+        if (midTop < scrollTop) {
+          startIndex = mid + 1;
+        } else {
+          endIndex = mid;
+        }
+      }
+
+      // Find end index
+      let currentHeight = getCumulativeHeight(startIndex);
+      let visibleEndIndex = startIndex;
+
+      while (
+        visibleEndIndex < posts.length &&
+        currentHeight < scrollTop + containerHeight
+      ) {
+        currentHeight += getItemHeight(visibleEndIndex);
+        visibleEndIndex++;
+      }
+
+      // Add buffer
+      const bufferStart = Math.max(0, startIndex - BUFFER_SIZE * BATCH_SIZE);
+      const bufferEnd = Math.min(
         posts.length,
-        Math.ceil((scrollTop + containerHeight) / ESTIMATED_ITEM_HEIGHT) +
-          BUFFER_SIZE * BATCH_SIZE
+        visibleEndIndex + BUFFER_SIZE * BATCH_SIZE
       );
 
-      // Ensure we render in batches of BATCH_SIZE
-      const startBatch = Math.floor(startIndex / BATCH_SIZE);
-      const endBatch = Math.ceil(endIndex / BATCH_SIZE);
+      // Ensure we render in batches
+      const startBatch = Math.floor(bufferStart / BATCH_SIZE);
+      const endBatch = Math.ceil(bufferEnd / BATCH_SIZE);
 
       return {
         start: startBatch * BATCH_SIZE,
         end: Math.min(posts.length, endBatch * BATCH_SIZE)
       };
     },
-    [posts.length]
+    [posts.length, getCumulativeHeight, getItemHeight]
   );
 
   // Handle scroll events with throttling
@@ -89,10 +153,11 @@ const SubmissionsList = React.memo(function SubmissionsList({
       // Throttle scroll updates
       scrollTimeout.current = setTimeout(() => {
         const newRange = calculateVisibleRange(scrollTop, containerHeight);
+        const currentRange = visibleRangeRef.current;
 
         if (
-          newRange.start !== visibleRange.start ||
-          newRange.end !== visibleRange.end
+          newRange.start !== currentRange.start ||
+          newRange.end !== currentRange.end
         ) {
           setVisibleRange(newRange);
         }
@@ -100,8 +165,56 @@ const SubmissionsList = React.memo(function SubmissionsList({
         isScrolling.current = false;
       }, 100);
     },
-    [calculateVisibleRange, visibleRange.start, visibleRange.end]
+    [calculateVisibleRange]
   );
+
+  // Set up ResizeObserver to track actual item heights
+  useEffect(() => {
+    if (!window.ResizeObserver) return;
+
+    resizeObserver.current = new ResizeObserver((entries) => {
+      let heightsChanged = false;
+
+      entries.forEach((entry) => {
+        const element = entry.target as HTMLDivElement;
+        const index = parseInt(element.dataset.itemIndex || '-1');
+
+        if (index >= 0) {
+          const newHeight = Math.round(entry.contentRect.height);
+          const oldHeight = heightCache.current.get(index);
+
+          if (oldHeight !== newHeight) {
+            heightCache.current.set(index, newHeight);
+            heightsChanged = true;
+
+            // Limit cache size
+            if (heightCache.current.size > HEIGHT_CACHE_SIZE) {
+              const oldestKey = heightCache.current.keys().next().value;
+              if (oldestKey !== undefined) {
+                heightCache.current.delete(oldestKey);
+              }
+            }
+          }
+        }
+      });
+
+      // Recalculate visible range if heights changed
+      if (heightsChanged && containerRef.current) {
+        const containerHeight = containerRef.current.clientHeight;
+        const newRange = calculateVisibleRange(scrollTop, containerHeight);
+        setVisibleRange(newRange);
+      }
+    });
+
+    // Observe all currently rendered items
+    itemRefs.current.forEach((element) => {
+      resizeObserver.current?.observe(element);
+    });
+
+    return () => {
+      resizeObserver.current?.disconnect();
+    };
+  }, [calculateVisibleRange, scrollTop]);
 
   // Initialize visible range when posts change
   useEffect(() => {
@@ -110,7 +223,7 @@ const SubmissionsList = React.memo(function SubmissionsList({
       const newRange = calculateVisibleRange(scrollTop, containerHeight);
       setVisibleRange(newRange);
     }
-  }, [posts.length, calculateVisibleRange, scrollTop]);
+  }, [posts.length, calculateVisibleRange]);
 
   // Get visible posts to render
   const visiblePosts = useMemo(() => {
@@ -118,9 +231,27 @@ const SubmissionsList = React.memo(function SubmissionsList({
   }, [posts, visibleRange.start, visibleRange.end]);
 
   // Calculate spacing for virtual scrolling
-  const topSpacer = visibleRange.start * ESTIMATED_ITEM_HEIGHT;
+  const topSpacer = getCumulativeHeight(visibleRange.start);
   const bottomSpacer =
-    (posts.length - visibleRange.end) * ESTIMATED_ITEM_HEIGHT;
+    getCumulativeHeight(posts.length) - getCumulativeHeight(visibleRange.end);
+
+  // Track item refs for ResizeObserver
+  const setItemRef = useCallback(
+    (index: number, element: HTMLDivElement | null) => {
+      if (element) {
+        itemRefs.current.set(index, element);
+        element.dataset.itemIndex = index.toString();
+        resizeObserver.current?.observe(element);
+      } else {
+        const oldElement = itemRefs.current.get(index);
+        if (oldElement) {
+          resizeObserver.current?.unobserve(oldElement);
+          itemRefs.current.delete(index);
+        }
+      }
+    },
+    []
+  );
 
   // Skeleton loading
   if (showSkeletons) {
@@ -194,6 +325,7 @@ const SubmissionsList = React.memo(function SubmissionsList({
           return (
             <div
               key={post.submission_id}
+              ref={(el) => setItemRef(actualIndex, el)}
               className="submissions-list__item"
               style={
                 {
@@ -246,6 +378,7 @@ const SubmissionsList = React.memo(function SubmissionsList({
           </div>
           <div>Rendered: {visiblePosts.length}</div>
           <div>Scroll: {Math.round(scrollTop)}px</div>
+          <div>Heights Cached: {heightCache.current.size}</div>
         </div>
       )}
     </div>

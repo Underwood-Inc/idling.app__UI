@@ -25,7 +25,7 @@ const Avatar = memo(
     const [avatarCache, setAvatarCache] = useAtom(avatarCacheAtom);
     const cacheKey = seed || new Date().getTime().toString();
     const [img, setImg] = useState(avatarCache[cacheKey] || null);
-    const [isLoading, setIsLoading] = useState(true);
+    const [isLoading, setIsLoading] = useState(!avatarCache[cacheKey]);
     const [error, setError] = useState(false);
     const [showTooltip, setShowTooltip] = useState(false);
     const [position, setPosition] = useState({ top: 0, left: 0 });
@@ -40,6 +40,10 @@ const Avatar = memo(
         }).toDataUri();
         setAvatarCache((prev) => ({ ...prev, [cacheKey]: newAvatar }));
         setImg(newAvatar);
+        setIsLoading(false);
+      } else {
+        setImg(avatarCache[cacheKey]);
+        setIsLoading(false);
       }
     }, [cacheKey, setAvatarCache, avatarCache]);
 
@@ -174,26 +178,32 @@ const Avatar = memo(
           onMouseEnter={handleMouseEnter}
           onMouseLeave={handleMouseLeave}
         >
-          {isLoading && (
-            <div className="loading-overlay">
-              <div className="grid-loader">
-                {[...Array(9)].map((_, i) => (
-                  <span key={i} />
-                ))}
+          {/* Always render image container to maintain layout */}
+          <div className="avatar__image-container">
+            {isLoading && (
+              <div className="avatar__loading-overlay">
+                <div className="avatar__grid-loader">
+                  {[...Array(9)].map((_, i) => (
+                    <span key={i} />
+                  ))}
+                </div>
               </div>
-            </div>
-          )}
-          {!error && img && (
-            <img
-              src={img}
-              className={`avatar__img ${size}`}
-              alt="Avatar"
-              data-testid={AVATAR_SELECTORS.IMAGE}
-              onLoad={handleLoad}
-              onError={handleError}
-              style={{ display: isLoading ? 'none' : 'block' }}
-            />
-          )}
+            )}
+            {!error && img && (
+              <img
+                src={img}
+                className={`avatar__img ${size}`}
+                alt="Avatar"
+                data-testid={AVATAR_SELECTORS.IMAGE}
+                onLoad={handleLoad}
+                onError={handleError}
+                style={{
+                  opacity: isLoading ? 0 : 1,
+                  transition: 'opacity 0.2s ease'
+                }}
+              />
+            )}
+          </div>
         </div>
 
         {/* Avatar Tooltip */}

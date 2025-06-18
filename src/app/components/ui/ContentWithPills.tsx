@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import React from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { NAV_PATHS } from '../../../lib/routes';
 import { InteractiveTooltip } from '../tooltip/InteractiveTooltip';
 import './ContentWithPills.css';
@@ -131,218 +131,225 @@ export function ContentWithPills({
     return segments;
   };
 
-  // Simplified URL generation
-  const generatePillUrl = (
-    type: 'hashtag' | 'mention',
-    value: string,
-    segment?: ContentSegment
-  ): string => {
-    const params = new URLSearchParams(searchParams);
+  // Memoize the parsing result
+  const segments = useMemo(() => parseContent(content), [content]);
 
-    if (isFilterBarContext) {
-      // Remove filters in filter bar context
-      if (type === 'hashtag') {
-        const currentTags = params.get('tags');
-        if (currentTags) {
-          const hashtagValue = value; // URL stores tags without # prefix now
-          const tags = currentTags
-            .split(',')
-            .filter((tag) => tag !== hashtagValue);
-          if (tags.length > 0) {
-            params.set('tags', tags.join(','));
-          } else {
-            params.delete('tags');
+  // Memoize URL generation to prevent recreation on every render
+  const generatePillUrl = useCallback(
+    (
+      type: 'hashtag' | 'mention',
+      value: string,
+      segment?: ContentSegment
+    ): string => {
+      const params = new URLSearchParams(searchParams);
+
+      if (isFilterBarContext) {
+        // Remove filters in filter bar context
+        if (type === 'hashtag') {
+          const currentTags = params.get('tags');
+          if (currentTags) {
+            const hashtagValue = value; // URL stores tags without # prefix now
+            const tags = currentTags
+              .split(',')
+              .filter((tag) => tag !== hashtagValue);
+            if (tags.length > 0) {
+              params.set('tags', tags.join(','));
+            } else {
+              params.delete('tags');
+            }
           }
+        } else if (type === 'mention') {
+          params.delete('author');
+          params.delete('mentions');
         }
-      } else if (type === 'mention') {
-        params.delete('author');
-        params.delete('mentions');
+      } else {
+        // Add filters in normal context
+        if (type === 'hashtag') {
+          const currentTags = params.get('tags');
+          const hashtagValue = value; // Use value without # for URL (cleaner URLs)
+          if (currentTags && !currentTags.split(',').includes(hashtagValue)) {
+            params.set('tags', `${currentTags},${hashtagValue}`);
+          } else if (!currentTags) {
+            params.set('tags', hashtagValue);
+          }
+        } else if (type === 'mention' && pathname === NAV_PATHS.POSTS) {
+          // Always use userId for author filtering (required)
+          if (segment?.userId) {
+            params.set('author', segment.userId);
+          }
+          // If no userId available, skip filtering (embedded data should always have userId)
+        }
       }
-    } else {
-      // Add filters in normal context
-      if (type === 'hashtag') {
-        const currentTags = params.get('tags');
-        const hashtagValue = value; // Use value without # for URL (cleaner URLs)
-        if (currentTags && !currentTags.split(',').includes(hashtagValue)) {
-          params.set('tags', `${currentTags},${hashtagValue}`);
-        } else if (!currentTags) {
-          params.set('tags', hashtagValue);
-        }
-      } else if (type === 'mention' && pathname === NAV_PATHS.POSTS) {
-        // Always use userId for author filtering (required)
-        if (segment?.userId) {
-          params.set('author', segment.userId);
-        }
-        // If no userId available, skip filtering (embedded data should always have userId)
+
+      params.set('page', '1');
+
+      if (type === 'hashtag' && pathname.startsWith('/t/')) {
+        return `${NAV_PATHS.POSTS}?${params.toString()}`;
       }
-    }
 
-    params.set('page', '1');
+      return `${pathname}?${params.toString()}`;
+    },
+    [searchParams, isFilterBarContext, pathname]
+  );
 
-    if (type === 'hashtag' && pathname.startsWith('/t/')) {
-      return `${NAV_PATHS.POSTS}?${params.toString()}`;
-    }
+  // Memoize pill click handler
+  const handlePillClick = useCallback(
+    async (
+      type: 'hashtag' | 'mention',
+      value: string,
+      event: React.MouseEvent,
+      segment?: ContentSegment
+    ) => {
+      event.preventDefault();
 
-    return `${pathname}?${params.toString()}`;
-  };
+      if (isFilterBarContext) {
+        // Filter bar context - trigger removal
+        if (type === 'hashtag' && onHashtagClick) {
+          onHashtagClick(`#${value}`);
+        } else if (type === 'mention' && onMentionClick && segment?.userId) {
+          // Always use userId for filter removal
+          onMentionClick(segment.userId, 'author');
+        }
+        return;
+      }
 
-  // Simplified pill click handler
-  const handlePillClick = async (
-    type: 'hashtag' | 'mention',
-    value: string,
-    event: React.MouseEvent,
-    segment?: ContentSegment
-  ) => {
-    event.preventDefault();
-
-    if (isFilterBarContext) {
-      // Filter bar context - trigger removal
+      // Normal context - trigger add
       if (type === 'hashtag' && onHashtagClick) {
         onHashtagClick(`#${value}`);
       } else if (type === 'mention' && onMentionClick && segment?.userId) {
-        // Always use userId for filter removal
+        // Always use userId for author filtering
         onMentionClick(segment.userId, 'author');
+      } else if (
+        type === 'mention' &&
+        pathname === NAV_PATHS.POSTS &&
+        segment?.userId
+      ) {
+        // Direct navigation - only with userId
+        const params = new URLSearchParams(searchParams);
+        params.set('author', segment.userId);
+        params.set('page', '1');
+        router.push(`${pathname}?${params.toString()}`);
       }
-      return;
-    }
-
-    // Normal context - trigger add
-    if (type === 'hashtag' && onHashtagClick) {
-      onHashtagClick(`#${value}`);
-    } else if (type === 'mention' && onMentionClick && segment?.userId) {
-      // Always use userId for author filtering
-      onMentionClick(segment.userId, 'author');
-    } else if (
-      type === 'mention' &&
-      pathname === NAV_PATHS.POSTS &&
-      segment?.userId
-    ) {
-      // Direct navigation - only with userId
-      const params = new URLSearchParams(searchParams);
-      params.set('author', segment.userId);
-      params.set('page', '1');
-      router.push(`${pathname}?${params.toString()}`);
-    }
-  };
-
-  // Check if a filter is currently active
-  const isActiveFilter = (
-    type: 'hashtag' | 'mention',
-    value: string,
-    segment?: ContentSegment
-  ): boolean => {
-    if (type === 'hashtag') {
-      const currentTags = searchParams.get('tags');
-      const hashtagValue = value; // URL stores tags without # prefix now
-      return currentTags
-        ? currentTags.split(',').includes(hashtagValue)
-        : false;
-    } else if (type === 'mention' && segment?.userId) {
-      const currentAuthor = searchParams.get('author');
-      const currentMentions = searchParams.get('mentions');
-
-      if (!currentAuthor && !currentMentions) return false;
-
-      // Ensure values are strings and trim whitespace
-      const normalizedSegmentUserId = String(segment.userId).trim();
-      const normalizedSegmentUsername = String(segment.value).trim();
-
-      // Check if this mention matches the active author filter (filtering by who wrote posts)
-      if (currentAuthor) {
-        const normalizedCurrentAuthor = String(currentAuthor).trim();
-        if (normalizedCurrentAuthor === normalizedSegmentUserId) {
-          return true;
-        }
-      }
-
-      // Check if this mention matches the active mentions filter (filtering by who is mentioned in content)
-      if (currentMentions) {
-        const normalizedCurrentMentions = String(currentMentions).trim();
-        if (normalizedCurrentMentions === normalizedSegmentUsername) {
-          return true;
-        }
-      }
-
-      return false;
-    }
-    return false;
-  };
-
-  const segments = parseContent(content);
-
-  // Debug: Log parsed segments in development
-  if (
-    process.env.NODE_ENV === 'development' &&
-    segments.some((s) => s.type === 'mention')
-  ) {
-    // eslint-disable-next-line no-console
-    console.log('ContentWithPills parsed segments:', {
-      content,
-      segments: segments.filter((s) => s.type === 'mention'),
+    },
+    [
       isFilterBarContext,
-      contextId
-    });
-  }
+      onHashtagClick,
+      onMentionClick,
+      pathname,
+      searchParams,
+      router
+    ]
+  );
 
-  // Simplified filter handlers
-  const createFilterHandler = (
-    segment: ContentSegment,
-    filterType: 'author' | 'mentions'
-  ) => {
-    return () => {
-      if (onMentionClick) {
-        // For author filters: use userId (who wrote the posts)
-        // For mentions filters: use username (who is mentioned in content)
-        if (filterType === 'author') {
-          // Author filter needs userId
-          const authorValue = segment.userId || segment.value;
-          onMentionClick(authorValue, filterType);
-        } else {
-          // Mentions filter needs username
-          const mentionValue = segment.displayName || segment.value;
-          onMentionClick(mentionValue, filterType);
+  // Memoize active filter check
+  const isActiveFilter = useCallback(
+    (
+      type: 'hashtag' | 'mention',
+      value: string,
+      segment?: ContentSegment
+    ): boolean => {
+      if (type === 'hashtag') {
+        const currentTags = searchParams.get('tags');
+        const hashtagValue = value; // URL stores tags without # prefix now
+        return currentTags
+          ? currentTags.split(',').includes(hashtagValue)
+          : false;
+      } else if (type === 'mention' && segment?.userId) {
+        const currentAuthor = searchParams.get('author');
+        const currentMentions = searchParams.get('mentions');
+
+        if (!currentAuthor && !currentMentions) return false;
+
+        // Ensure values are strings and trim whitespace
+        const normalizedSegmentUserId = String(segment.userId).trim();
+        const normalizedSegmentUsername = String(segment.value).trim();
+
+        // Check if this mention matches the active author filter (filtering by who wrote posts)
+        if (currentAuthor) {
+          const normalizedCurrentAuthor = String(currentAuthor).trim();
+          if (normalizedCurrentAuthor === normalizedSegmentUserId) {
+            return true;
+          }
         }
+
+        // Check if this mention matches the active mentions filter (filtering by who is mentioned in content)
+        if (currentMentions) {
+          const normalizedCurrentMentions = String(currentMentions).trim();
+          if (normalizedCurrentMentions === normalizedSegmentUsername) {
+            return true;
+          }
+        }
+
+        return false;
       }
-    };
-  };
+      return false;
+    },
+    [searchParams]
+  );
 
-  const createMentionTooltipContent = (segment: ContentSegment) => {
-    const username = segment.displayName || segment.value;
+  // Memoize filter handlers
+  const createFilterHandler = useCallback(
+    (segment: ContentSegment, filterType: 'author' | 'mentions') => {
+      return () => {
+        if (onMentionClick) {
+          // For author filters: use userId (who wrote the posts)
+          // For mentions filters: use username (who is mentioned in content)
+          if (filterType === 'author') {
+            // Author filter needs userId
+            const authorValue = segment.userId || segment.value;
+            onMentionClick(authorValue, filterType);
+          } else {
+            // Mentions filter needs username
+            const mentionValue = segment.displayName || segment.value;
+            onMentionClick(mentionValue, filterType);
+          }
+        }
+      };
+    },
+    [onMentionClick]
+  );
 
-    return (
-      <div className="mention-tooltip-content">
-        <div className="mention-tooltip__header">Filter by @{username}</div>
-        <div className="mention-tooltip__options">
-          <button
-            className="mention-tooltip__option mention-tooltip__option--primary"
-            onClick={createFilterHandler(segment, 'author')}
-            title="Show posts authored by this user"
-          >
-            <span className="mention-tooltip__icon">👤</span>
-            <div>
-              Filter by Author
-              <span className="mention-tooltip__description">
-                Posts by this user
-              </span>
-            </div>
-          </button>
-          <button
-            className="mention-tooltip__option"
-            onClick={createFilterHandler(segment, 'mentions')}
-            title="Show posts that mention this user"
-          >
-            <span className="mention-tooltip__icon">💬</span>
-            <div>
-              Filter by Mentions
-              <span className="mention-tooltip__description">
-                Posts mentioning this user
-              </span>
-            </div>
-          </button>
+  // Memoize tooltip content
+  const createMentionTooltipContent = useCallback(
+    (segment: ContentSegment) => {
+      const username = segment.displayName || segment.value;
+
+      return (
+        <div className="mention-tooltip-content">
+          <div className="mention-tooltip__header">Filter by @{username}</div>
+          <div className="mention-tooltip__options">
+            <button
+              className="mention-tooltip__option mention-tooltip__option--primary"
+              onClick={createFilterHandler(segment, 'author')}
+              title="Show posts authored by this user"
+            >
+              <span className="mention-tooltip__icon">👤</span>
+              <div>
+                Filter by Author
+                <span className="mention-tooltip__description">
+                  Posts by this user
+                </span>
+              </div>
+            </button>
+            <button
+              className="mention-tooltip__option"
+              onClick={createFilterHandler(segment, 'mentions')}
+              title="Show posts that mention this user"
+            >
+              <span className="mention-tooltip__icon">💬</span>
+              <div>
+                Filter by Mentions
+                <span className="mention-tooltip__description">
+                  Posts mentioning this user
+                </span>
+              </div>
+            </button>
+          </div>
         </div>
-      </div>
-    );
-  };
+      );
+    },
+    [createFilterHandler]
+  );
 
   return (
     <>
