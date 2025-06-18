@@ -7,21 +7,13 @@
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 APP_DIR="$(dirname "$SCRIPT_DIR")"
 
-echo "Debug: SCRIPT_DIR = $SCRIPT_DIR"
-echo "Debug: APP_DIR = $APP_DIR"
-
 ENV_FILE=""
 if [ -f "$APP_DIR/.env.local" ]; then
     ENV_FILE="$APP_DIR/.env.local"
-    echo "Debug: Found .env.local at $ENV_FILE"
 elif [ -f "$APP_DIR/.env" ]; then
     ENV_FILE="$APP_DIR/.env"
-    echo "Debug: Found .env at $ENV_FILE"
 else
     echo "Error: No environment file found at $APP_DIR/.env.local or $APP_DIR/.env"
-    echo "Current directory: $(pwd)"
-    echo "Contents of APP_DIR ($APP_DIR):"
-    ls -la "$APP_DIR" | head -10
     exit 1
 fi
 
