@@ -27,6 +27,7 @@ interface ParsedContent {
   type: 'text' | 'hashtag' | 'mention';
   content: string;
   raw?: string;
+  filterType?: 'author' | 'mentions'; // For mention pills, store their specific filter type
 }
 
 export const SmartPillInput: React.FC<SmartPillInputProps> = ({
@@ -57,7 +58,7 @@ export const SmartPillInput: React.FC<SmartPillInputProps> = ({
     const segments: ParsedContent[] = [];
     let currentIndex = 0;
 
-    // Enhanced regex to match hashtags and structured mentions
+    // Enhanced regex to match hashtags and structured mentions (with optional filter type)
     const pillRegex = /(#\w+)|(@\[[^\]]+\])|(@\w+)/g;
     let match;
 
@@ -75,26 +76,46 @@ export const SmartPillInput: React.FC<SmartPillInputProps> = ({
       if (matchedText.startsWith('#')) {
         segments.push({ type: 'hashtag', content: matchedText });
       } else if (matchedText.startsWith('@[')) {
-        // Extract display name from structured format @[username|userId]
-        const structuredMatch = matchedText.match(/^@\[([^|]+)\|([^\]]+)\]$/);
-        if (structuredMatch) {
-          const [, username, userId] = structuredMatch;
+        // Enhanced mention format: @[username|userId] or @[username|userId|filterType]
+        const enhancedMatch = matchedText.match(
+          /^@\[([^|]+)\|([^|]+)(?:\|([^|]+))?\]$/
+        );
+        if (enhancedMatch) {
+          const [, username, userId, filterType] = enhancedMatch;
           // Pass the clean @username format to ContentWithPills for display
           segments.push({
             type: 'mention',
             content: `@${username}`,
-            raw: matchedText // Keep the original structured format
+            raw: matchedText, // Keep the original structured format
+            filterType: (filterType as 'author' | 'mentions') || 'author' // Default to author
           });
         } else {
-          // Fallback if parsing fails
-          segments.push({
-            type: 'mention',
-            content: matchedText,
-            raw: matchedText
-          });
+          // Fallback for legacy format @[username|userId]
+          const legacyMatch = matchedText.match(/^@\[([^|]+)\|([^\]]+)\]$/);
+          if (legacyMatch) {
+            const [, username, userId] = legacyMatch;
+            segments.push({
+              type: 'mention',
+              content: `@${username}`,
+              raw: matchedText,
+              filterType: 'author' // Default to author for legacy format
+            });
+          } else {
+            // Fallback if parsing fails
+            segments.push({
+              type: 'mention',
+              content: matchedText,
+              raw: matchedText,
+              filterType: 'author'
+            });
+          }
         }
       } else if (matchedText.startsWith('@')) {
-        segments.push({ type: 'mention', content: matchedText });
+        segments.push({
+          type: 'mention',
+          content: matchedText,
+          filterType: 'author' // Default for simple mentions
+        });
       }
 
       currentIndex = match.index + matchedText.length;
@@ -292,20 +313,15 @@ export const SmartPillInput: React.FC<SmartPillInputProps> = ({
 
   // Handle pill click to edit incomplete pills or remove complete ones
   const handlePillClick = (pillText: string) => {
+    // Check if this is an incomplete pill (doesn't match complete patterns)
+    const isCompletePill =
+      /^#\w+$/.test(pillText.trim()) || // Complete hashtag
+      /^@\[[^\]]+\]$/.test(pillText.trim()); // Complete structured mention
+
     if (!isEditing) {
-      // Check if this is an incomplete pill (doesn't match complete patterns)
-      const isCompletePill =
-        /^#\w+$/.test(pillText.trim()) || // Complete hashtag
-        /^@\[[^\]]+\]$/.test(pillText.trim()); // Complete structured mention
-
+      // Not in edit mode - enter edit mode for incomplete pills, remove complete ones
       if (!isCompletePill) {
-        // If parent wants to handle pill clicks, delegate to them
-        if (onPillClick) {
-          onPillClick(pillText, 'edit');
-          return;
-        }
-
-        // This is an incomplete pill - enter edit mode to allow editing
+        // Incomplete pill - enter edit mode to allow editing
         setIsEditing(true);
 
         // Remove the incomplete pill from the main value and put it in the input
@@ -333,41 +349,43 @@ export const SmartPillInput: React.FC<SmartPillInputProps> = ({
           }
         }, 0);
         return;
+      } else {
+        // Complete pill - remove it directly
+        const newValue = value
+          .replace(pillText, '')
+          .replace(/\s+/g, ' ')
+          .trim();
+        onChange(newValue);
+        return;
       }
     }
 
-    // For complete pills or when already in edit mode, remove the pill
+    // Already in edit mode - always remove the pill
     if (onPillClick) {
       onPillClick(pillText, 'remove');
       return;
     }
 
-    if (isEditing) {
-      // Remove the pill from edit value and update immediately
-      const newEditValue = editValue
-        .replace(pillText, '')
-        .replace(/\s+/g, ' ')
-        .trim();
-      setEditValue(newEditValue);
+    // Remove the pill from edit value and update immediately
+    const newEditValue = editValue
+      .replace(pillText, '')
+      .replace(/\s+/g, ' ')
+      .trim();
+    setEditValue(newEditValue);
 
-      // Also clear newInputValue if it matches
-      if (newInputValue.trim() === pillText.trim()) {
-        setNewInputValue('');
-      }
+    // Also clear newInputValue if it matches
+    if (newInputValue.trim() === pillText.trim()) {
+      setNewInputValue('');
+    }
 
-      if (onEditValueChange) {
-        // Pass the complete combined value after removal
-        const combinedAfterRemoval =
-          newEditValue +
-          (newInputValue && newInputValue.trim() !== pillText.trim()
-            ? (newEditValue ? ' ' : '') + newInputValue
-            : '');
-        onEditValueChange(combinedAfterRemoval.trim());
-      }
-    } else {
-      // Remove the pill from main value
-      const newValue = value.replace(pillText, '').replace(/\s+/g, ' ').trim();
-      onChange(newValue);
+    if (onEditValueChange) {
+      // Pass the complete combined value after removal
+      const combinedAfterRemoval =
+        newEditValue +
+        (newInputValue && newInputValue.trim() !== pillText.trim()
+          ? (newEditValue ? ' ' : '') + newInputValue
+          : '');
+      onEditValueChange(combinedAfterRemoval.trim());
     }
   };
 
@@ -401,6 +419,51 @@ export const SmartPillInput: React.FC<SmartPillInputProps> = ({
   const { hashtags: existingHashtags, userIds: existingUserIds } =
     extractExistingPills(editParsedSegments);
 
+  // Handle filter type toggle for mention pills
+  const handleFilterTypeToggle = (index: number, segment: ParsedContent) => {
+    if (segment.type !== 'mention') return;
+
+    const newFilterType =
+      segment.filterType === 'author' ? 'mentions' : 'author';
+
+    // Update the segment in editValue
+    const updatedSegments = editParsedSegments.map((seg, i) => {
+      if (i === index && seg.type === 'mention') {
+        // Create new enhanced mention format with the toggled filter type
+        const rawMatch = seg.raw?.match(
+          /^@\[([^|]+)\|([^|]+)(?:\|([^|]+))?\]$/
+        );
+        if (rawMatch) {
+          const [, username, userId] = rawMatch;
+          const newRaw = `@[${username}|${userId}|${newFilterType}]`;
+          return {
+            ...seg,
+            raw: newRaw,
+            filterType: newFilterType
+          };
+        }
+      }
+      return seg;
+    });
+
+    // Reconstruct the editValue from updated segments
+    const newEditValue = updatedSegments
+      .map((seg) => {
+        if (seg.type === 'text') return seg.content;
+        return seg.raw || seg.content;
+      })
+      .join(' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+
+    setEditValue(newEditValue);
+
+    // Notify parent of the change
+    if (onEditValueChange) {
+      onEditValueChange(newEditValue);
+    }
+  };
+
   return (
     <div
       ref={containerRef}
@@ -416,15 +479,55 @@ export const SmartPillInput: React.FC<SmartPillInputProps> = ({
               {editParsedSegments.map((segment, index) => {
                 if (segment.type === 'text') {
                   return null; // Skip text segments in edit mode
+                } else if (segment.type === 'mention') {
+                  // For mention pills, show with filter type control
+                  return (
+                    <div
+                      key={index}
+                      className="smart-pill-input__mention-pill-wrapper"
+                    >
+                      <div className="smart-pill-input__mention-pill">
+                        <ContentWithPills
+                          content={segment.raw || segment.content}
+                          contextId={contextId}
+                          onHashtagClick={() =>
+                            handlePillClick(segment.raw || segment.content)
+                          }
+                          onMentionClick={() =>
+                            handlePillClick(segment.raw || segment.content)
+                          }
+                          className="smart-pill-input__pill"
+                          isFilterBarContext={true}
+                        />
+                        {/* Filter type toggle button */}
+                        <button
+                          type="button"
+                          className={
+                            `smart-pill-input__filter-type-toggle ` +
+                            `smart-pill-input__filter-type-toggle--${segment.filterType}`
+                          }
+                          onClick={() => handleFilterTypeToggle(index, segment)}
+                          title={`Current: ${
+                            segment.filterType === 'author'
+                              ? 'Author'
+                              : 'Mentions'
+                          } filter. Click to toggle.`}
+                        >
+                          {segment.filterType === 'author' ? '👤' : '💬'}
+                        </button>
+                      </div>
+                    </div>
+                  );
                 } else {
+                  // For hashtag pills, use the existing approach
                   const contentForPills = segment.raw || segment.content;
                   return (
                     <div key={index} className="smart-pill-input__pill-wrapper">
                       <ContentWithPills
                         content={contentForPills}
                         contextId={contextId}
-                        onHashtagClick={() => handlePillClick(contentForPills)}
-                        onMentionClick={() => handlePillClick(contentForPills)}
+                        onHashtagClick={(hashtag) => handlePillClick(hashtag)}
+                        onMentionClick={(mention) => handlePillClick(mention)}
                         className="smart-pill-input__pill"
                         isFilterBarContext={true}
                       />
@@ -473,8 +576,8 @@ export const SmartPillInput: React.FC<SmartPillInputProps> = ({
                       key={index}
                       content={contentForPills}
                       contextId={contextId}
-                      onHashtagClick={() => handlePillClick(contentForPills)}
-                      onMentionClick={() => handlePillClick(contentForPills)}
+                      onHashtagClick={(hashtag) => handlePillClick(hashtag)}
+                      onMentionClick={(mention) => handlePillClick(mention)}
                       className="smart-pill-input__pill"
                       isFilterBarContext={true}
                     />

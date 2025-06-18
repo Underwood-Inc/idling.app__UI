@@ -14,6 +14,7 @@ interface ContentWithPillsProps {
   className?: string;
   contextId: string;
   isFilterBarContext?: boolean;
+  enableInlineFilterControl?: boolean;
 }
 
 type SegmentType = 'text' | 'hashtag' | 'mention';
@@ -23,6 +24,8 @@ interface ContentSegment {
   value: string;
   userId?: string; // For mentions, store the resolved user ID
   displayName?: string; // For mentions, store the display username
+  filterType?: 'author' | 'mentions'; // For enhanced mentions, store filter type
+  rawFormat?: string; // Store the original format for enhanced mentions
 }
 
 export function ContentWithPills({
@@ -31,7 +34,8 @@ export function ContentWithPills({
   onMentionClick,
   className = '',
   contextId,
-  isFilterBarContext = false
+  isFilterBarContext = false,
+  enableInlineFilterControl = false
 }: ContentWithPillsProps) {
   const pathname = usePathname();
   const router = useRouter();
@@ -85,15 +89,35 @@ export function ContentWithPills({
         const hashtag = fullMatch.slice(1);
         segments.push({ type: 'hashtag', value: hashtag });
       } else if (fullMatch.includes('|')) {
-        // Embedded mention: @[username|userId] (from InlineSuggestionInput only)
-        const username = match[3];
-        const userId = match[4];
-        segments.push({
-          type: 'mention',
-          value: username,
-          userId: userId,
-          displayName: username
-        });
+        // Enhanced mention: @[username|userId] or @[username|userId|filterType]
+        const enhancedMatch = fullMatch.match(
+          /^@\[([^|]+)\|([^|]+)(?:\|([^|]+))?\]$/
+        );
+        if (enhancedMatch) {
+          const [, username, userId, filterType] = enhancedMatch;
+          segments.push({
+            type: 'mention',
+            value: username,
+            userId: userId,
+            displayName: username,
+            filterType: (filterType as 'author' | 'mentions') || 'author',
+            rawFormat: fullMatch
+          });
+        } else {
+          // Legacy format fallback
+          const legacyMatch = fullMatch.match(/^@\[([^|]+)\|([^\]]+)\]$/);
+          if (legacyMatch) {
+            const [, username, userId] = legacyMatch;
+            segments.push({
+              type: 'mention',
+              value: username,
+              userId: userId,
+              displayName: username,
+              filterType: 'author', // Default for legacy format
+              rawFormat: fullMatch
+            });
+          }
+        }
       }
 
       lastIndex = structuredRegex.lastIndex;
@@ -252,7 +276,13 @@ export function ContentWithPills({
     segment: ContentSegment,
     event: React.MouseEvent
   ) => {
-    if (isFilterBarContext || pathname !== NAV_PATHS.POSTS) return;
+    // Show tooltips in posts list and thread pages, NOT in filter bar context
+    if (isFilterBarContext) return;
+
+    // Allow tooltips on posts page and thread pages
+    const isPostsOrThreadPage =
+      pathname === NAV_PATHS.POSTS || pathname.startsWith('/t/');
+    if (!isPostsOrThreadPage) return;
 
     if (tooltip.timeoutId) {
       clearTimeout(tooltip.timeoutId);
@@ -358,6 +388,26 @@ export function ContentWithPills({
     }
   };
 
+  // Handle inline filter type toggle for mention pills
+  const handleInlineFilterToggle = (segment: ContentSegment) => {
+    if (segment.type !== 'mention' || !segment.filterType || !segment.rawFormat)
+      return;
+
+    const newFilterType =
+      segment.filterType === 'author' ? 'mentions' : 'author';
+
+    // Create updated mention format with new filter type
+    const updatedMention = segment.rawFormat.replace(
+      /(@\[[^|]+\|[^|]+)\|?([^\]]*)\]/,
+      `$1|${newFilterType}]`
+    );
+
+    // Call the onMentionClick with the updated mention
+    if (onMentionClick) {
+      onMentionClick(updatedMention, newFilterType);
+    }
+  };
+
   const segments = parseContent(content);
 
   return (
@@ -405,14 +455,14 @@ export function ContentWithPills({
                 onMouseEnter={
                   segment.type === 'mention' &&
                   !isFilterBarContext &&
-                  pathname === NAV_PATHS.POSTS
+                  (pathname === NAV_PATHS.POSTS || pathname.startsWith('/t/'))
                     ? (event) => handleMentionHover(segment, event)
                     : undefined
                 }
                 onMouseLeave={
                   segment.type === 'mention' &&
                   !isFilterBarContext &&
-                  pathname === NAV_PATHS.POSTS
+                  (pathname === NAV_PATHS.POSTS || pathname.startsWith('/t/'))
                     ? handleMentionLeave
                     : undefined
                 }
@@ -426,6 +476,24 @@ export function ContentWithPills({
               >
                 {segment.type === 'hashtag' ? '#' : '@'}
                 {segment.value}
+
+                {/* Inline filter type control for mention pills */}
+                {enableInlineFilterControl &&
+                  segment.type === 'mention' &&
+                  segment.filterType && (
+                    <button
+                      type="button"
+                      className={`content-pill__filter-toggle content-pill__filter-toggle--${segment.filterType}`}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        handleInlineFilterToggle(segment);
+                      }}
+                      title={`Current: ${segment.filterType === 'author' ? 'Author' : 'Mentions'} filter. Click to toggle.`}
+                    >
+                      {segment.filterType === 'author' ? '👤' : '💬'}
+                    </button>
+                  )}
               </Link>
             );
           }

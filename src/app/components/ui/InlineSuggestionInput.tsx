@@ -310,7 +310,7 @@ export const InlineSuggestionInput: React.FC<InlineSuggestionInputProps> = ({
     let replacement = '';
 
     if (suggestion.type === 'user') {
-      // Create robust mention format: @[username|userId]
+      // Create enhanced mention format: @[username|userId|filterType]
       const username = suggestion.displayName || suggestion.value;
       const userId = suggestion.value; // The value is the user ID
 
@@ -319,8 +319,8 @@ export const InlineSuggestionInput: React.FC<InlineSuggestionInputProps> = ({
         ? username.substring(1)
         : username;
 
-      // Create robust mention: @[username|userId]
-      replacement = `@[${cleanUsername}|${userId}] `;
+      // Create enhanced mention with default filter type: @[username|userId|author]
+      replacement = `@[${cleanUsername}|${userId}|author] `;
     } else if (suggestion.type === 'hashtag') {
       // Handle hashtags normally
       let hashtagValue = suggestion.value;

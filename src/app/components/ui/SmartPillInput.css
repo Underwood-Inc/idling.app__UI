@@ -272,3 +272,94 @@
 .smart-pill-input__pill .content-pill:hover {
   opacity: 0.7;
 }
+
+/* Mention pill wrapper with filter type control */
+.smart-pill-input__mention-pill-wrapper {
+  display: inline-flex;
+  align-items: center;
+}
+
+.smart-pill-input__mention-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--light-background--quaternary);
+  border: 1px solid var(--brand-tertiary);
+  border-radius: 8px;
+  padding: 2px 4px;
+  transition: all 0.2s ease;
+}
+
+.smart-pill-input__mention-pill:hover {
+  background: var(--light-background--tertiary);
+  border-color: var(--brand-primary);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Filter type toggle button */
+.smart-pill-input__filter-type-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border: none;
+  border-radius: 50%;
+  background: var(--brand-primary);
+  color: white;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.smart-pill-input__filter-type-toggle:hover {
+  transform: scale(1.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.smart-pill-input__filter-type-toggle--author {
+  background: linear-gradient(135deg, #4caf50, #45a049);
+}
+
+.smart-pill-input__filter-type-toggle--mentions {
+  background: linear-gradient(135deg, #2196f3, #1976d2);
+}
+
+.smart-pill-input__filter-type-toggle--author:hover {
+  background: linear-gradient(135deg, #45a049, #3d8b40);
+}
+
+.smart-pill-input__filter-type-toggle--mentions:hover {
+  background: linear-gradient(135deg, #1976d2, #1565c0);
+}
+
+/* Dark mode support for mention pills */
+@media (prefers-color-scheme: dark) {
+  .smart-pill-input__mention-pill {
+    background: var(--dark-background--secondary);
+    border-color: var(--brand-tertiary--dark);
+  }
+
+  .smart-pill-input__mention-pill:hover {
+    background: var(--dark-background--tertiary);
+    border-color: var(--brand-primary--light);
+  }
+}
+
+/* High contrast mode for filter type toggles */
+@media (prefers-contrast: high) {
+  .smart-pill-input__filter-type-toggle {
+    border: 2px solid #000;
+  }
+
+  .smart-pill-input__filter-type-toggle--author {
+    background: #000;
+    color: #fff;
+  }
+
+  .smart-pill-input__filter-type-toggle--mentions {
+    background: #000;
+    color: #fff;
+  }
+}

@@ -1,3 +1,4 @@
+// Import batched updater from separate file
 import { atom } from 'jotai';
 import { atomWithStorage } from 'jotai/utils';
 

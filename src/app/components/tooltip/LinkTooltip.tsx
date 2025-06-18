@@ -620,7 +620,7 @@ export function MentionTooltip({
   onLeave,
   position
 }: MentionTooltipProps) {
-  const tooltipRef = useRef<HTMLSpanElement>(null);
+  const tooltipRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -648,7 +648,7 @@ export function MentionTooltip({
   }, [onClose]);
 
   return (
-    <span
+    <div
       ref={tooltipRef}
       className="mention-tooltip"
       onMouseEnter={onHover}
@@ -686,6 +686,6 @@ export function MentionTooltip({
           </span>
         </button>
       </div>
-    </span>
+    </div>
   );
 }

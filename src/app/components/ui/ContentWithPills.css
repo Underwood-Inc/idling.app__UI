@@ -214,3 +214,73 @@
     margin: 0 0.03rem;
   }
 }
+
+/* Inline filter type toggle for mention pills */
+.content-pill__filter-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border: none;
+  border-radius: 50%;
+  background: var(--brand-primary);
+  color: white;
+  font-size: 10px;
+  cursor: pointer;
+  margin-left: 4px;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 1;
+}
+
+.content-pill__filter-toggle:hover {
+  transform: scale(1.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.content-pill__filter-toggle--author {
+  background: linear-gradient(135deg, #4caf50, #45a049);
+}
+
+.content-pill__filter-toggle--mentions {
+  background: linear-gradient(135deg, #2196f3, #1976d2);
+}
+
+.content-pill__filter-toggle--author:hover {
+  background: linear-gradient(135deg, #45a049, #3d8b40);
+}
+
+.content-pill__filter-toggle--mentions:hover {
+  background: linear-gradient(135deg, #1976d2, #1565c0);
+}
+
+/* Adjust pill padding to accommodate inline toggle */
+.content-pill--mention:has(.content-pill__filter-toggle) {
+  padding-right: 8px;
+}
+
+/* Dark mode support for inline filter toggle */
+@media (prefers-color-scheme: dark) {
+  .content-pill__filter-toggle {
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+}
+
+/* High contrast mode for inline filter toggle */
+@media (prefers-contrast: high) {
+  .content-pill__filter-toggle {
+    border: 2px solid #000;
+  }
+
+  .content-pill__filter-toggle--author {
+    background: #000;
+    color: #fff;
+  }
+
+  .content-pill__filter-toggle--mentions {
+    background: #000;
+    color: #fff;
+  }
+}

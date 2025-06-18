@@ -109,13 +109,16 @@ export function SubmissionItem({
 
   const canReply = session?.user?.providerAccountId && depth < maxDepth;
   const hasReplies = submission.replies && submission.replies.length > 0;
+  const hasOwnerActions = isCurrentUserPost(submission.author_id);
 
   return (
     <div
       className={`submission__wrapper ${isReply ? 'submission__wrapper--reply' : ''}`}
       style={{ marginLeft: isReply ? `${depth * 1.5}rem` : 0 }}
     >
-      <div className="submission__meta">
+      <div
+        className={`submission__meta ${!hasOwnerActions ? 'submission__meta--no-actions' : ''}`}
+      >
         <Author
           authorId={submission.author_id}
           authorName={submission.author}
@@ -127,7 +130,7 @@ export function SubmissionItem({
 
         {/* Edit/Delete buttons */}
         <div className="submission__owner-actions">
-          {isCurrentUserPost(submission.author_id) && (
+          {hasOwnerActions && (
             <>
               <button
                 className="submission__edit-btn"
@@ -199,14 +202,14 @@ export function SubmissionItem({
               submission.submission_name !== submission.submission_title && (
                 <div className="submission__field">
                   <span className="submission__field-label">Content:</span>
-                  <p className="submission__description">
+                  <div className="submission__description">
                     <ContentWithPills
                       content={submission.submission_name}
                       onHashtagClick={onHashtagClick}
                       onMentionClick={onMentionClick}
                       contextId={contextId || 'submission-item'}
                     />
-                  </p>
+                  </div>
                 </div>
               )}
           </div>

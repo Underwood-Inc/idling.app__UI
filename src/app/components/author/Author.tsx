@@ -33,13 +33,13 @@ export const Author: React.FC<AuthorProps> = ({
 
   return (
     <div className={containerClass} onClick={handleClick}>
-      <Avatar
-        seed={authorName}
-        size={size}
-        enableTooltip={true}
-        tooltipScale={2}
-      />
       <span className="author__name" title={authorName}>
+        <Avatar
+          seed={authorName}
+          size={size}
+          enableTooltip={true}
+          tooltipScale={2}
+        />
         {displayName}
       </span>
     </div>

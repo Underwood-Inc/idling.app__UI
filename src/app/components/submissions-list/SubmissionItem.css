@@ -32,6 +32,15 @@
   color: var(--light-bg__text-color--secondary);
 }
 
+.submission__meta--no-actions {
+  /* When no edit/delete actions are present, move datetime to far right */
+  justify-content: space-between;
+}
+
+.submission__meta--no-actions .submission__datetime {
+  margin-left: auto;
+}
+
 .submission__author {
   font-weight: 600;
   color: var(--light-bg__text-color--primary);

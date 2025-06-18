@@ -12,6 +12,8 @@ export type UserFilterMode = 'author' | 'mentions';
 interface CustomFilterInputProps {
   contextId: string;
   onAddFilter: (filter: Filter<PostFilters>) => void;
+  onAddFilters?: (filters: Filter<PostFilters>[]) => void;
+  onFilterSuccess?: () => void;
   placeholder?: string;
   className?: string;
 }
@@ -19,11 +21,13 @@ interface CustomFilterInputProps {
 export function CustomFilterInput({
   contextId,
   onAddFilter,
+  onAddFilters,
+  onFilterSuccess,
   placeholder = 'Add filter: @user or #tag...',
   className = ''
 }: CustomFilterInputProps) {
   const [inputValue, setInputValue] = useState('');
-  const [currentEditValue, setCurrentEditValue] = useState(''); // Track edit value from SmartPillInput
+  const [currentEditValue, setCurrentEditValue] = useState('');
   const [filterType, setFilterType] = useState<FilterType>('tags');
   const [userFilterMode, setUserFilterMode] =
     useState<UserFilterMode>('author');
@@ -53,14 +57,25 @@ export function CustomFilterInput({
 
   const processFilterInput = (value: string) => {
     const pills = parseMultiplePills(value);
+    const filtersToAdd: Filter<PostFilters>[] = [];
 
     pills.forEach((pill) => {
       if (pill.type === 'hashtag') {
-        processHashtagFilter(pill.content);
+        const filter = createHashtagFilter(pill.content);
+        if (filter) filtersToAdd.push(filter);
       } else if (pill.type === 'mention') {
-        processUserFilter(pill.content);
+        const filter = createUserFilter(pill.content);
+        if (filter) filtersToAdd.push(filter);
       }
     });
+
+    // Use batched addition if available and we have multiple filters
+    if (onAddFilters && filtersToAdd.length > 1) {
+      onAddFilters(filtersToAdd);
+    } else {
+      // Fall back to individual addition
+      filtersToAdd.forEach((filter) => onAddFilter(filter));
+    }
 
     // Clear the input after processing with a small delay to ensure state updates complete
     setTimeout(() => {
@@ -68,6 +83,10 @@ export function CustomFilterInput({
       setCurrentEditValue('');
       setFilterType('tags'); // Reset to default
     }, 0);
+
+    if (onFilterSuccess) {
+      onFilterSuccess();
+    }
   };
 
   // Parse input string to extract multiple pills
@@ -109,58 +128,69 @@ export function CustomFilterInput({
     return pills;
   };
 
-  const processHashtagFilter = (value: string) => {
+  const createHashtagFilter = (value: string): Filter<PostFilters> | null => {
     // Clean the hashtag value
     let cleanValue = value.replace(/^#+/, ''); // Remove leading #'s
-    if (!cleanValue) return;
+    if (!cleanValue) return null;
 
     // Ensure it starts with # for consistency
     const hashtagValue = `#${cleanValue}`;
 
-    // Add tags filter
-    onAddFilter({
+    // Return tags filter
+    return {
       name: 'tags',
       value: hashtagValue
-    });
+    };
   };
 
-  const processUserFilter = (value: string) => {
+  const createUserFilter = (value: string): Filter<PostFilters> | null => {
     // Handle different mention formats:
     // @username
-    // @[username|userId] (from SmartInput)
+    // @[username|userId] (legacy from SmartInput)
+    // @[username|userId|filterType] (enhanced with filter type)
 
     let userId = '';
     let username = '';
+    let filterType: 'author' | 'mentions' = userFilterMode; // Default to current mode
 
-    // Check if it's in the structured format @[username|userId]
-    const structuredMatch = value.match(/^@\[([^|]+)\|([^\]]+)\]$/);
-    if (structuredMatch) {
-      username = structuredMatch[1];
-      userId = structuredMatch[2];
+    // Check if it's in the enhanced format @[username|userId|filterType]
+    const enhancedMatch = value.match(/^@\[([^|]+)\|([^|]+)\|([^|]+)\]$/);
+    if (enhancedMatch) {
+      username = enhancedMatch[1];
+      userId = enhancedMatch[2];
+      filterType = enhancedMatch[3] as 'author' | 'mentions';
     } else {
-      // Simple @username format
-      username = value.replace(/^@+/, ''); // Remove leading @'s
-      if (!username) return;
+      // Check if it's in the legacy structured format @[username|userId]
+      const structuredMatch = value.match(/^@\[([^|]+)\|([^\]]+)\]$/);
+      if (structuredMatch) {
+        username = structuredMatch[1];
+        userId = structuredMatch[2];
+        // Use the current user filter mode for legacy format
+      } else {
+        // Simple @username format
+        username = value.replace(/^@+/, ''); // Remove leading @'s
+        if (!username) return null;
 
-      // Validate username format (alphanumeric, underscore, hyphen)
-      if (!/^[a-zA-Z0-9_-]+$/.test(username)) {
-        console.warn('Invalid username format:', username);
-        return;
+        // Validate username format (alphanumeric, underscore, hyphen)
+        if (!/^[a-zA-Z0-9_-]+$/.test(username)) {
+          console.warn('Invalid username format:', username);
+          return null;
+        }
+
+        // For simple format, we'll use the username as both username and userId
+        // The backend will handle username resolution
+        userId = username;
       }
-
-      // For simple format, we'll use the username as both username and userId
-      // The backend will handle username resolution
-      userId = username;
     }
 
-    // Create filter based on selected mode
-    const filterName: PostFilters = userFilterMode;
-    const filterValue = userFilterMode === 'author' ? userId : username;
+    // Create filter based on the determined filter type
+    const filterName: PostFilters = filterType;
+    const filterValue = filterType === 'author' ? userId : username;
 
-    onAddFilter({
+    return {
       name: filterName,
       value: filterValue
-    });
+    };
   };
 
   // Determine current mode for display
@@ -175,9 +205,8 @@ export function CustomFilterInput({
   };
 
   const currentMode = getCurrentMode();
-  const showUserModeSelector =
-    filterType === 'users' && (currentEditValue || inputValue).startsWith('@');
 
+  // Handle input changes from SmartPillInput
   const handleSmartInputChange = (newValue: string) => {
     // Update input value and handle filter type detection
     setInputValue(newValue);
@@ -212,14 +241,107 @@ export function CustomFilterInput({
       setCurrentEditValue(pillText);
       setInputValue(pillText);
     } else if (action === 'remove') {
-      // Remove the pill from both values
-      const newValue = inputValue
-        .replace(pillText, '')
-        .replace(/\s+/g, ' ')
-        .trim();
-      setInputValue(newValue);
-      setCurrentEditValue(newValue);
+      // Remove the pill from both values - let SmartPillInput handle its own removal
+      // We just need to clear our local state
+      setCurrentEditValue('');
+      // Don't modify inputValue here - let SmartPillInput handle it
     }
+  };
+
+  const handleMentionClick = (
+    mention: string,
+    filterType?: 'author' | 'mentions'
+  ) => {
+    // Handle enhanced mention format with embedded filter type
+    const enhancedMatch = mention.match(/^@\[([^|]+)\|([^|]+)\|([^|]+)\]$/);
+    if (enhancedMatch) {
+      const [, username, userId, embeddedFilterType] = enhancedMatch;
+      // Use the embedded filter type if no explicit type provided
+      const selectedFilterType =
+        filterType || (embeddedFilterType as 'author' | 'mentions') || 'author';
+
+      // Create and add the appropriate filter
+      const filter = createUserFilterWithType(
+        `@[${username}|${userId}]`,
+        selectedFilterType
+      );
+      if (filter) {
+        onAddFilter(filter);
+
+        // Clear input after successful addition
+        setTimeout(() => {
+          setInputValue('');
+          setCurrentEditValue('');
+          setFilterType('tags'); // Reset to default
+        }, 0);
+
+        if (onFilterSuccess) {
+          onFilterSuccess();
+        }
+      }
+      return;
+    }
+
+    // Default to 'author' if no filter type is specified
+    const selectedFilterType = filterType || 'author';
+
+    // Update the user filter mode based on the selected filter type
+    setUserFilterMode(selectedFilterType);
+
+    // Create and add the appropriate filter
+    const filter = createUserFilterWithType(mention, selectedFilterType);
+    if (filter) {
+      onAddFilter(filter);
+
+      // Clear input after successful addition
+      setTimeout(() => {
+        setInputValue('');
+        setCurrentEditValue('');
+        setFilterType('tags'); // Reset to default
+      }, 0);
+
+      if (onFilterSuccess) {
+        onFilterSuccess();
+      }
+    }
+  };
+
+  const createUserFilterWithType = (
+    value: string,
+    filterType: 'author' | 'mentions'
+  ): Filter<PostFilters> | null => {
+    let userId = '';
+    let username = '';
+
+    // Check if it's in the structured format @[username|userId]
+    const structuredMatch = value.match(/^@\[([^|]+)\|([^\]]+)\]$/);
+    if (structuredMatch) {
+      username = structuredMatch[1];
+      userId = structuredMatch[2];
+    } else {
+      // Simple @username format
+      username = value.replace(/^@+/, ''); // Remove leading @'s
+      if (!username) return null;
+
+      // Validate username format (alphanumeric, underscore, hyphen)
+      if (!/^[a-zA-Z0-9_-]+$/.test(username)) {
+        console.warn('Invalid username format:', username);
+        return null;
+      }
+
+      // For simple format, we'll use the username as both username and userId
+      // The backend will handle username resolution
+      userId = username;
+    }
+
+    // Create filter based on specified type
+    const filterName: PostFilters = filterType;
+    const filterValue = filterType === 'author' ? userId : username;
+
+    return {
+      name: filterName,
+      value: filterValue
+    };
   };
 
   return (
@@ -233,6 +355,7 @@ export function CustomFilterInput({
               onChange={handleSmartInputChange}
               onEditValueChange={handleEditValueChange}
               onPillClick={handlePillClick}
+              onMentionClick={handleMentionClick}
               placeholder={placeholder}
               className="custom-filter-input__input"
               enableHashtags={true}
@@ -262,23 +385,6 @@ export function CustomFilterInput({
             )}
           </div>
 
-          {/* User Filter Mode Selector - only shown when typing @ */}
-          {showUserModeSelector && (
-            <div className="custom-filter-input__user-mode">
-              <select
-                value={userFilterMode}
-                onChange={(e) =>
-                  setUserFilterMode(e.target.value as UserFilterMode)
-                }
-                className="custom-filter-input__select"
-                title="Choose how to filter by users"
-              >
-                <option value="author">Posts by user</option>
-                <option value="mentions">Posts mentioning user</option>
-              </select>
-            </div>
-          )}
-
           <button
             type="submit"
             className="custom-filter-input__submit"
@@ -298,7 +404,7 @@ export function CustomFilterInput({
           {(currentEditValue || inputValue).startsWith('#') &&
             'Filtering by hashtag - select from suggestions, add space to complete, or click Add'}
           {(currentEditValue || inputValue).startsWith('@') &&
-            `Filtering posts ${userFilterMode === 'author' ? 'by' : 'mentioning'} user - select from suggestions`}
+            'Filtering by user - select from suggestions or use inline controls on pills'}
           {(currentEditValue || inputValue) &&
             !(currentEditValue || inputValue).startsWith('#') &&
             !(currentEditValue || inputValue).startsWith('@') &&

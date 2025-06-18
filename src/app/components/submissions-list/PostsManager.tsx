@@ -43,6 +43,7 @@ const PostsManager = React.memo(function PostsManager({
     filters,
     pagination,
     addFilter,
+    addFilters,
     removeFilter,
     removeTag,
     clearFilters,
@@ -117,6 +118,11 @@ const PostsManager = React.memo(function PostsManager({
     setIncludeThreadReplies((prev) => !prev);
     // Toggle and immediately toggle back to force refetch
     setTimeout(() => setIncludeThreadReplies((prev) => !prev), 10);
+  }, []);
+
+  const handleFilterSuccess = useCallback(() => {
+    // This callback is triggered when filters are successfully added
+    // Can be used for additional logic if needed
   }, []);
 
   const handleUpdateFilter = useCallback(
@@ -232,12 +238,14 @@ const PostsManager = React.memo(function PostsManager({
         <CustomFilterInput
           contextId={contextId}
           onAddFilter={addFilter}
+          onAddFilters={addFilters}
+          onFilterSuccess={handleFilterSuccess}
           className="posts-manager__custom-filter"
         />
 
-        {/* Thread Reply Toggle */}
+        {/* Thread Reply Toggle - Compact */}
         <div className="posts-manager__thread-controls">
-          <label className="posts-manager__toggle">
+          <label className="posts-manager__toggle posts-manager__toggle--compact">
             <input
               type="checkbox"
               checked={includeThreadReplies}
@@ -245,14 +253,19 @@ const PostsManager = React.memo(function PostsManager({
               className="posts-manager__checkbox"
             />
             <span className="posts-manager__toggle-text">
-              Include thread replies when filtering/searching
+              Include thread replies in filters
+            </span>
+            <span
+              className="posts-manager__toggle-hint"
+              title={
+                includeThreadReplies
+                  ? 'Filters apply to both main posts and their replies'
+                  : 'Filters only apply to main posts (replies shown when expanded)'
+              }
+            >
+              ?
             </span>
           </label>
-          <small className="posts-manager__help-text">
-            {includeThreadReplies
-              ? 'Filters and searches will apply to both main posts and their replies'
-              : 'Filters only apply to main posts (replies always shown nested when expanded)'}
-          </small>
         </div>
       </div>
 

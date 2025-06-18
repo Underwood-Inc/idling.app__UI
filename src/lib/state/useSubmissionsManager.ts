@@ -8,7 +8,8 @@ import {
   Filter,
   getSubmissionsFiltersAtom,
   getSubmissionsStateAtom,
-  shouldUpdateAtom
+  shouldUpdateAtom,
+  SubmissionsFilters
 } from './atoms';
 
 interface UseSubmissionsManagerProps {
@@ -25,23 +26,6 @@ interface PaginationInfo {
   currentPage: number;
   pageSize: number;
   totalRecords: number;
-}
-
-// Debounce utility for filter updates
-function useDebounce<T>(value: T, delay: number): T {
-  const [debouncedValue, setDebouncedValue] = useState<T>(value);
-
-  useEffect(() => {
-    const handler = setTimeout(() => {
-      setDebouncedValue(value);
-    }, delay);
-
-    return () => {
-      clearTimeout(handler);
-    };
-  }, [value, delay]);
-
-  return debouncedValue;
 }
 
 export function useSubmissionsManager({
@@ -68,8 +52,8 @@ export function useSubmissionsManager({
   // Monitor global shouldUpdate atom for refresh triggers
   const [shouldUpdate, setShouldUpdate] = useAtom(shouldUpdateAtom);
 
-  // Debounce filter changes to prevent excessive network requests
-  const debouncedFiltersState = useDebounce(filtersState, 300);
+  // Use filtersState directly for immediate, atomic updates
+  const effectiveFiltersState = filtersState;
 
   // Refs to prevent infinite loops and optimize requests
   const isInitializing = useRef(true);
@@ -428,9 +412,9 @@ export function useSubmissionsManager({
     setFiltersState
   ]);
 
-  // Single debounced fetch effect that triggers on any relevant state change
+  // Single fetch effect that triggers on any relevant state change
   useEffect(() => {
-    if (isInitializing.current || !debouncedFiltersState.initialized) return;
+    if (isInitializing.current || !effectiveFiltersState.initialized) return;
 
     // Clear previous timeout
     if (fetchTimeout.current) {
@@ -439,9 +423,9 @@ export function useSubmissionsManager({
 
     // Only fetch if we're not already loading and this is a different request
     const fetchKey = createFetchKey(
-      debouncedFiltersState.filters as Filter<PostFilters>[],
-      debouncedFiltersState.page,
-      debouncedFiltersState.pageSize
+      effectiveFiltersState.filters as Filter<PostFilters>[],
+      effectiveFiltersState.page,
+      effectiveFiltersState.pageSize
     );
 
     if (lastFetchParams.current === fetchKey && !submissionsState.error) {
@@ -449,20 +433,20 @@ export function useSubmissionsManager({
       return;
     }
 
-    // Fetch immediately since we're already debounced
+    // Fetch immediately since filters are now properly consolidated
     if (!submissionsState.loading) {
       fetchSubmissions(
-        debouncedFiltersState.filters as Filter<PostFilters>[],
-        debouncedFiltersState.page,
-        debouncedFiltersState.pageSize
+        effectiveFiltersState.filters as Filter<PostFilters>[],
+        effectiveFiltersState.page,
+        effectiveFiltersState.pageSize
       );
     }
   }, [
-    // Use debounced filters to prevent rapid changes
-    JSON.stringify(debouncedFiltersState.filters),
-    debouncedFiltersState.page,
-    debouncedFiltersState.pageSize,
-    debouncedFiltersState.initialized,
+    // Track filter changes directly for immediate response
+    JSON.stringify(effectiveFiltersState.filters),
+    effectiveFiltersState.page,
+    effectiveFiltersState.pageSize,
+    effectiveFiltersState.initialized,
     fetchSubmissions,
     createFetchKey,
     submissionsState.loading,
@@ -486,54 +470,162 @@ export function useSubmissionsManager({
     if (
       shouldUpdate &&
       !isInitializing.current &&
-      debouncedFiltersState.initialized
+      effectiveFiltersState.initialized
     ) {
       // Reset the shouldUpdate flag
       setShouldUpdate(false);
 
       // Force a refresh by triggering fetchSubmissions
       fetchSubmissions(
-        debouncedFiltersState.filters as Filter<PostFilters>[],
-        debouncedFiltersState.page,
-        debouncedFiltersState.pageSize
+        effectiveFiltersState.filters as Filter<PostFilters>[],
+        effectiveFiltersState.page,
+        effectiveFiltersState.pageSize
       );
     }
   }, [
     shouldUpdate,
     setShouldUpdate,
     fetchSubmissions,
-    debouncedFiltersState.filters,
-    debouncedFiltersState.page,
-    debouncedFiltersState.pageSize,
-    debouncedFiltersState.initialized
+    effectiveFiltersState.filters,
+    effectiveFiltersState.page,
+    effectiveFiltersState.pageSize,
+    effectiveFiltersState.initialized
   ]);
 
-  // Action methods that update shared atoms
-  const setPage = useCallback(
-    (page: number) => {
-      if (page === filtersState.page) {
-        return;
+  // Batched filter updates to prevent multiple network requests
+  const batchedFilterUpdates = useRef<{
+    pending: Array<(prev: SubmissionsFilters) => SubmissionsFilters>;
+    timeout?: ReturnType<typeof setTimeout>;
+  }>({ pending: [] });
+
+  // Batched filter update function
+  const updateFiltersBatched = useCallback(
+    (updater: (prev: SubmissionsFilters) => SubmissionsFilters) => {
+      // Add to pending updates
+      batchedFilterUpdates.current.pending.push(updater);
+
+      // Clear existing timeout
+      if (batchedFilterUpdates.current.timeout) {
+        clearTimeout(batchedFilterUpdates.current.timeout);
       }
 
-      setFiltersState((prev) => ({ ...prev, page }));
+      // Process batch immediately (no delay for atomic updates)
+      batchedFilterUpdates.current.timeout = setTimeout(() => {
+        const updates = batchedFilterUpdates.current.pending;
+        batchedFilterUpdates.current.pending = [];
+
+        if (updates.length > 0) {
+          // Apply all updates atomically
+          setFiltersState((prev) => {
+            return updates.reduce((state, update) => update(state), prev);
+          });
+        }
+      }, 0);
     },
-    [filtersState.page, setFiltersState]
+    [setFiltersState]
   );
 
-  const setPageSize = useCallback(
-    (pageSize: number) => {
-      if (pageSize === filtersState.pageSize) {
-        return;
-      }
+  // Enhanced addFilters function using batched updates
+  const addFilters = useCallback(
+    (filters: Filter<PostFilters>[]) => {
+      updateFiltersBatched((prev) => {
+        let newFilters = [...prev.filters];
 
-      setFiltersState((prev) => ({ ...prev, pageSize, page: 1 }));
+        // Process each filter
+        for (const filter of filters) {
+          // Check for duplicates
+          const isDuplicate = newFilters.some(
+            (f) => f.name === filter.name && f.value === filter.value
+          );
+
+          if (isDuplicate) {
+            continue;
+          }
+
+          // Handle logic filters
+          if (filter.name.endsWith('Logic')) {
+            const existingIndex = newFilters.findIndex(
+              (f) => f.name === filter.name
+            );
+
+            if (existingIndex >= 0) {
+              newFilters[existingIndex] = filter;
+            } else {
+              newFilters.push(filter);
+            }
+            continue;
+          }
+
+          // Handle tags consolidation
+          if (filter.name === 'tags') {
+            const existingTagsIndex = newFilters.findIndex(
+              (f) => f.name === 'tags'
+            );
+
+            if (existingTagsIndex >= 0) {
+              // Consolidate with existing tags
+              const existingTags = newFilters[existingTagsIndex].value
+                .split(',')
+                .map((tag: string) => tag.trim())
+                .filter(Boolean);
+
+              const newTags = filter.value
+                .split(',')
+                .map((tag: string) => tag.trim())
+                .filter(Boolean);
+
+              // Combine and deduplicate tags
+              const allTags = [...existingTags, ...newTags];
+              const uniqueTags = [...new Set(allTags)];
+
+              // Update the existing tags filter
+              newFilters[existingTagsIndex] = {
+                name: 'tags',
+                value: uniqueTags.join(',')
+              };
+            } else {
+              // No existing tags filter, add the new one
+              newFilters.push(filter);
+            }
+          } else {
+            // For other filters, just add normally
+            newFilters.push(filter);
+          }
+        }
+
+        // Auto-add tagLogic if we have multiple tags and no logic filter exists
+        const tagsFilter = newFilters.find((f) => f.name === 'tags');
+        if (tagsFilter) {
+          const tags = tagsFilter.value
+            .split(',')
+            .map((tag: string) => tag.trim())
+            .filter(Boolean);
+
+          if (tags.length > 1) {
+            const hasTagLogic = newFilters.some((f) => f.name === 'tagLogic');
+            if (!hasTagLogic) {
+              newFilters.push({
+                name: 'tagLogic',
+                value: 'OR' // Default to OR logic
+              });
+            }
+          }
+        }
+
+        return {
+          ...prev,
+          filters: newFilters,
+          page: 1
+        };
+      });
     },
-    [filtersState.pageSize, setFiltersState]
+    [updateFiltersBatched]
   );
 
+  // Enhanced addFilter function using batched updates
   const addFilter = useCallback(
     (filter: Filter<PostFilters>) => {
-      setFiltersState((prev) => {
+      updateFiltersBatched((prev) => {
         // Check if this exact filter already exists to prevent duplicates
         const isDuplicate = prev.filters.some(
           (f) => f.name === filter.name && f.value === filter.value
@@ -563,8 +655,68 @@ export function useSubmissionsManager({
           };
         }
 
-        // Add new filter (allow multiple filters with same name but different values)
-        const newFilters = [...prev.filters, filter];
+        // Start with current filters
+        let newFilters = [...prev.filters];
+
+        // Special handling for tags to consolidate them immediately
+        if (filter.name === 'tags') {
+          // Find existing tags filter
+          const existingTagsIndex = newFilters.findIndex(
+            (f) => f.name === 'tags'
+          );
+
+          if (existingTagsIndex >= 0) {
+            // Consolidate with existing tags
+            const existingTags = newFilters[existingTagsIndex].value
+              .split(',')
+              .map((tag: string) => tag.trim())
+              .filter(Boolean);
+
+            const newTags = filter.value
+              .split(',')
+              .map((tag: string) => tag.trim())
+              .filter(Boolean);
+
+            // Combine and deduplicate tags
+            const allTags = [...existingTags, ...newTags];
+            const uniqueTags = [...new Set(allTags)];
+
+            // Update the existing tags filter
+            newFilters[existingTagsIndex] = {
+              name: 'tags',
+              value: uniqueTags.join(',')
+            };
+
+            // Auto-add tagLogic if we have multiple tags and no logic filter exists
+            if (uniqueTags.length > 1) {
+              const hasTagLogic = newFilters.some((f) => f.name === 'tagLogic');
+              if (!hasTagLogic) {
+                newFilters.push({
+                  name: 'tagLogic',
+                  value: 'OR' // Default to OR logic
+                });
+              }
+            }
+          } else {
+            // No existing tags filter, add the new one
+            newFilters.push(filter);
+
+            // Auto-add tagLogic if we have multiple tags in the new filter
+            const newTags = filter.value
+              .split(',')
+              .map((tag: string) => tag.trim())
+              .filter(Boolean);
+            if (newTags.length > 1) {
+              newFilters.push({
+                name: 'tagLogic',
+                value: 'OR' // Default to OR logic
+              });
+            }
+          }
+        } else {
+          // For non-tags filters, just add normally (allow multiple filters with same name but different values)
+          newFilters.push(filter);
+        }
 
         return {
           ...prev,
@@ -573,7 +725,7 @@ export function useSubmissionsManager({
         };
       });
     },
-    [setFiltersState]
+    [updateFiltersBatched]
   );
 
   const removeFilter = useCallback(
@@ -678,9 +830,9 @@ export function useSubmissionsManager({
       const nextPage = infinitePage + 1;
 
       const result = await getSubmissionsWithReplies({
-        filters: debouncedFiltersState.filters as Filter<PostFilters>[],
+        filters: effectiveFiltersState.filters as Filter<PostFilters>[],
         page: nextPage,
-        pageSize: debouncedFiltersState.pageSize,
+        pageSize: effectiveFiltersState.pageSize,
         onlyMine,
         providerAccountId,
         includeThreadReplies
@@ -718,8 +870,8 @@ export function useSubmissionsManager({
     hasMore,
     infinitePage,
     infiniteData.length,
-    debouncedFiltersState.filters,
-    debouncedFiltersState.pageSize,
+    effectiveFiltersState.filters,
+    effectiveFiltersState.pageSize,
     onlyMine,
     providerAccountId,
     includeThreadReplies,
@@ -728,18 +880,41 @@ export function useSubmissionsManager({
 
   // Display filters (include all filters for proper FilterBar functionality)
   const displayFilters = useMemo(() => {
-    return filtersState.filters; // Include all filters including logic filters
-  }, [filtersState.filters]);
+    return effectiveFiltersState.filters; // Include all filters including logic filters
+  }, [effectiveFiltersState.filters]);
 
   // Extract data from atoms
   const submissions = infiniteScroll
     ? infiniteData
     : submissionsState.data?.submissions || [];
   const pagination: PaginationInfo = submissionsState.data?.pagination || {
-    currentPage: filtersState.page,
-    pageSize: filtersState.pageSize,
+    currentPage: effectiveFiltersState.page,
+    pageSize: effectiveFiltersState.pageSize,
     totalRecords: 0
   };
+
+  // Action methods that update shared atoms using batched updates
+  const setPage = useCallback(
+    (page: number) => {
+      if (page === effectiveFiltersState.page) {
+        return;
+      }
+
+      updateFiltersBatched((prev) => ({ ...prev, page }));
+    },
+    [effectiveFiltersState.page, updateFiltersBatched]
+  );
+
+  const setPageSize = useCallback(
+    (pageSize: number) => {
+      if (pageSize === effectiveFiltersState.pageSize) {
+        return;
+      }
+
+      updateFiltersBatched((prev) => ({ ...prev, pageSize, page: 1 }));
+    },
+    [effectiveFiltersState.pageSize, updateFiltersBatched]
+  );
 
   return {
     // State
@@ -753,6 +928,7 @@ export function useSubmissionsManager({
     setPage,
     setPageSize,
     addFilter,
+    addFilters,
     removeFilter,
     removeTag,
     clearFilters,
