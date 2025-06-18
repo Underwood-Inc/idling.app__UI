@@ -13,6 +13,9 @@
  * - Realistic data patterns
  */
 
+// Load environment variables FIRST, before any other imports
+require('dotenv').config({ path: '.env.local' });
+
 const postgres = require('postgres');
 
 // Check if we're in a devcontainer environment
