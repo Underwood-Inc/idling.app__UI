@@ -21,12 +21,12 @@ class ServerLogger {
   }
 
   private shouldLog(level: LogLevel): boolean {
-    // In production, only log WARN, ERROR, and PERF
+    // In production, only log critical errors
     if (this.isProduction) {
-      return ['WARN', 'ERROR', 'PERF'].includes(level);
+      return ['ERROR'].includes(level);
     }
-    // In development, log everything
-    return true;
+    // In development, only log errors and warnings
+    return ['ERROR', 'WARN'].includes(level);
   }
 
   private log(entry: LogEntry): void {

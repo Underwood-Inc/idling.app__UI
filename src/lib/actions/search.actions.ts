@@ -184,11 +184,6 @@ export async function searchUsers(
 
     // If materialized view doesn't exist or is empty, fall back to live query
     if (results.length === 0 && page === 1) {
-      serverLogger.debug(
-        'Materialized view empty, falling back to live query',
-        { query, page, pageSize }
-      );
-
       results = await sql<
         Array<{
           author_id: string;
@@ -219,25 +214,12 @@ export async function searchUsers(
       `;
     }
 
+    // Only log truly slow queries (>1000ms) in production
     const endTime = performance.now();
     const queryTime = endTime - startTime;
 
-    // Server-side performance logging with detailed metrics
-    serverLogger.perf('searchUsers', queryTime, {
-      query,
-      page,
-      pageSize,
-      resultCount: results.length,
-      total,
-      usedMaterializedView: results.length > 0
-    });
-
-    // Log slow queries for optimization
-    serverLogger.slowQuery('searchUsers', queryTime);
-
-    // Advanced debugging for empty results
-    if (results.length === 0 && page === 1) {
-      await debugUserSearch(query);
+    if (queryTime > 1000) {
+      serverLogger.slowQuery('searchUsers', queryTime, 1000);
     }
 
     const items = results.map((result, index) => ({
@@ -263,69 +245,9 @@ export async function searchUsers(
 }
 
 /**
- * Advanced debugging for user search issues
+ * Removed expensive debugging function that was running extra queries on every search
+ * This was causing significant performance overhead
  */
-async function debugUserSearch(query: string): Promise<void> {
-  try {
-    serverLogger.debug('Starting comprehensive user search debug', { query });
-
-    // Check if materialized view exists and has data
-    const viewExists = await sql<Array<{ exists: boolean }>>`
-      SELECT EXISTS (
-        SELECT 1 FROM information_schema.tables 
-        WHERE table_name = 'user_submission_stats'
-      ) as exists
-    `;
-
-    if (viewExists[0]?.exists) {
-      const viewCount = await sql<Array<{ count: string }>>`
-        SELECT COUNT(*) as count FROM user_submission_stats
-      `;
-      serverLogger.debug('Materialized view status', {
-        exists: true,
-        rowCount: viewCount[0]?.count || 0
-      });
-    } else {
-      serverLogger.debug('Materialized view does not exist');
-    }
-
-    // Check total users in submissions table
-    const totalUsers = await sql<Array<{ count: string }>>`
-      SELECT COUNT(DISTINCT author_id) as count 
-      FROM submissions 
-      WHERE author_id IS NOT NULL
-    `;
-
-    // Check for sample users
-    const sampleUsers = await sql<Array<{ author: string; author_id: string }>>`
-      SELECT DISTINCT author, author_id
-      FROM submissions 
-      WHERE author IS NOT NULL AND author_id IS NOT NULL
-      LIMIT 5
-    `;
-
-    // Check if query matches any users (case insensitive)
-    const matchingUsers = await sql<
-      Array<{ author: string; author_id: string }>
-    >`
-      SELECT DISTINCT author, author_id
-      FROM submissions 
-      WHERE LOWER(author) LIKE LOWER(${`%${query}%`})
-      AND author_id IS NOT NULL
-      LIMIT 3
-    `;
-
-    serverLogger.debug('User search debugging complete', {
-      query,
-      totalUsers: totalUsers[0]?.count || 0,
-      sampleUsers: sampleUsers.length,
-      matchingUsers: matchingUsers.length,
-      firstMatch: matchingUsers[0]?.author || 'none'
-    });
-  } catch (debugError) {
-    serverLogger.error('Debug user search failed', debugError, { query });
-  }
-}
 
 /**
  * OPTIMIZED: Get user information by username for millions of records
@@ -362,10 +284,7 @@ export async function getUserInfo(
       `;
     }
 
-    const endTime = performance.now();
-    serverLogger.perf('getUserInfo', endTime - startTime, {
-      username: cleanUsername
-    });
+    // Removed performance logging for frequently called function
 
     if (result.length > 0) {
       return {
@@ -427,10 +346,7 @@ export async function resolveUserIdToUsername(
       `;
     }
 
-    const endTime = performance.now();
-    serverLogger.perf('resolveUserIdToUsername', endTime - startTime, {
-      userId
-    });
+    // Removed performance logging for frequently called function
 
     return result.length > 0 ? result[0].author : null;
   } catch (error) {
@@ -449,8 +365,13 @@ export async function refreshUserStats(): Promise<void> {
   try {
     await sql`SELECT refresh_user_submission_stats()`;
 
+    // Only log if refresh takes longer than expected
     const endTime = performance.now();
-    serverLogger.perf('refreshUserStats', endTime - startTime);
+    const duration = endTime - startTime;
+    if (duration > 5000) {
+      // 5 seconds
+      serverLogger.slowQuery('refreshUserStats', duration, 5000);
+    }
   } catch (error) {
     serverLogger.error('refreshUserStats failed', error);
   }

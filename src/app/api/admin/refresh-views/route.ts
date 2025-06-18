@@ -12,7 +12,7 @@ export async function GET() {
   try {
     const status = materializedViewRefresher.getStatus();
 
-    serverLogger.info('Materialized view status requested', { status });
+    // Status request logged silently
 
     return NextResponse.json({
       success: true,
@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json().catch(() => ({}));
     const { jobId } = body;
 
-    serverLogger.info('Manual materialized view refresh triggered', { jobId });
+    // Manual refresh triggered silently
 
     // Force refresh (specific job or all jobs)
     await materializedViewRefresher.forceRefresh(jobId);

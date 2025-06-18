@@ -95,7 +95,7 @@ class BatchedAtomUpdater {
         try {
           return update.updater(state);
         } catch (error) {
-          console.error(`Batched update error for ${atomKey}:`, error);
+          // Silently handle errors to avoid console spam
           return state;
         }
       }, currentState);

@@ -65,7 +65,7 @@ class MaterializedViewRefresher {
   }
 
   async start(): Promise<void> {
-    serverLogger.info('Starting materialized view refresh scheduler');
+    // Starting scheduler silently
 
     for (const [jobId, job] of this.jobs) {
       // Run immediately on startup
@@ -89,7 +89,7 @@ class MaterializedViewRefresher {
   }
 
   async stop(): Promise<void> {
-    serverLogger.info('Stopping materialized view refresh scheduler');
+    // Stopping scheduler silently
 
     for (const [jobId, timer] of this.timers) {
       clearInterval(timer);
@@ -114,7 +114,7 @@ class MaterializedViewRefresher {
     }
 
     if (job.isRunning) {
-      serverLogger.debug(`Skipping ${job.name} refresh - already running`);
+      // Skip silently to reduce log noise
       return;
     }
 
@@ -122,7 +122,7 @@ class MaterializedViewRefresher {
     job.lastRun = new Date();
 
     try {
-      serverLogger.info(`Starting materialized view refresh: ${job.name}`);
+      // Starting refresh silently
 
       switch (jobId) {
         case 'user_stats':
@@ -144,10 +144,12 @@ class MaterializedViewRefresher {
       // Update next run time
       job.nextRun = new Date(Date.now() + job.intervalMs);
 
-      serverLogger.info(`Completed materialized view refresh: ${job.name}`, {
-        lastRun: job.lastRun.toISOString(),
-        nextRun: job.nextRun.toISOString()
-      });
+      // Only log if refresh took a long time
+      const duration = Date.now() - job.lastRun.getTime();
+      if (duration > 30000) {
+        // 30 seconds
+        serverLogger.slowQuery(`${job.name} refresh`, duration, 30000);
+      }
     } catch (error) {
       serverLogger.error(
         `Failed to refresh materialized view: ${job.name}`,
