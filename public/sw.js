@@ -1,5 +1,5 @@
 // Smart Caching Service Worker with Version-Based Cache Busting
-const CACHE_VERSION = 'v3'; // Increment this to force cache refresh
+const CACHE_VERSION = 'v4'; // Increment this to force cache refresh
 const CACHE_NAME = `idling-app-cache-${CACHE_VERSION}`;
 const CACHE_METADATA_NAME = `idling-app-cache-metadata-${CACHE_VERSION}`;
 
