@@ -61,11 +61,16 @@ Expected performance on modern hardware:
 # Standard run (1M records)
 node seed-db.js
 
-# For testing with smaller dataset, modify constants:
+# For testing with smaller dataset
+node test-seed.js
+
+# For manual configuration, modify constants in seed-db.js:
 # SEED_USERS_COUNT = 100
 # SEED_POSTS_COUNT = 1000  
 # SEED_REPLIES_COUNT = 4000
 ```
+
+The scripts automatically detect the environment and use the appropriate database connection settings from your `.env` file.
 
 ## Data Quality
 

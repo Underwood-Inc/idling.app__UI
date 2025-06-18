@@ -390,14 +390,29 @@ export function useSubmissionsManager({
       clearTimeout(fetchTimeout.current);
     }
 
-    // Debounce the fetch request
+    // Increased debounce time to reduce excessive requests
+    // Only fetch if we're not already loading and this is a different request
+    const fetchKey = createFetchKey(
+      filtersState.filters as Filter<PostFilters>[],
+      filtersState.page,
+      filtersState.pageSize
+    );
+
+    if (lastFetchParams.current === fetchKey && !submissionsState.error) {
+      // Same request and no error - skip
+      return;
+    }
+
+    // Debounce the fetch request with longer delay for better UX
     fetchTimeout.current = setTimeout(() => {
-      fetchSubmissions(
-        filtersState.filters as Filter<PostFilters>[],
-        filtersState.page,
-        filtersState.pageSize
-      );
-    }, 300);
+      if (!submissionsState.loading) {
+        fetchSubmissions(
+          filtersState.filters as Filter<PostFilters>[],
+          filtersState.page,
+          filtersState.pageSize
+        );
+      }
+    }, 500); // Increased from 300ms to 500ms
 
     return () => {
       if (fetchTimeout.current) {
@@ -405,11 +420,15 @@ export function useSubmissionsManager({
       }
     };
   }, [
-    filtersState.filters,
+    // Only depend on the actual values that matter for fetching
+    JSON.stringify(filtersState.filters), // Serialize to prevent reference changes from triggering
     filtersState.page,
     filtersState.pageSize,
     filtersState.initialized,
-    fetchSubmissions
+    fetchSubmissions,
+    createFetchKey,
+    submissionsState.loading,
+    submissionsState.error
   ]);
 
   // Cleanup on unmount

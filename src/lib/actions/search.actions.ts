@@ -1,6 +1,10 @@
 'use server';
 
 import sql from '../db';
+import { serverLogger } from '../utils/server-logger';
+
+// Initialize materialized view refresher
+import '../cron/refresh-materialized-views';
 
 export interface HashtagResult {
   id: string;
@@ -20,12 +24,14 @@ export interface UserResult {
 }
 
 export async function searchHashtags(query: string): Promise<HashtagResult[]> {
+  const startTime = performance.now();
+
   if (!query || query.length < 2) {
     return [];
   }
 
   try {
-    // Search for hashtags in the tags array of submissions
+    // Optimized query with proper indexing for millions of records
     const results = await sql<Array<{ tag: string; count: string }>>`
       SELECT 
         tag,
@@ -35,6 +41,7 @@ export async function searchHashtags(query: string): Promise<HashtagResult[]> {
         FROM submissions 
         WHERE tags IS NOT NULL 
         AND array_length(tags, 1) > 0
+        AND tags && ARRAY[${query}] -- Use GIN index operator for faster tag searches
       ) tag_table
       WHERE LOWER(tag) LIKE LOWER(${`%${query}%`})
       GROUP BY tag
@@ -42,12 +49,19 @@ export async function searchHashtags(query: string): Promise<HashtagResult[]> {
       LIMIT 10
     `;
 
+    const endTime = performance.now();
+    const duration = endTime - startTime;
+
+    // Server-side performance logging
+    serverLogger.perf('searchHashtags', duration, {
+      query,
+      resultCount: results.length
+    });
+
     return results.map((result, index) => {
-      // Remove # prefix from tag if it exists to avoid double #
       const cleanTag = result.tag.startsWith('#')
         ? result.tag.slice(1)
         : result.tag;
-
       return {
         id: `hashtag-${index}-${cleanTag}`,
         value: cleanTag,
@@ -57,78 +71,213 @@ export async function searchHashtags(query: string): Promise<HashtagResult[]> {
       };
     });
   } catch (error) {
-    console.error('Error searching hashtags:', error);
+    serverLogger.error('searchHashtags failed', error, { query });
     return [];
   }
 }
 
 export async function searchUsers(query: string): Promise<UserResult[]> {
+  const startTime = performance.now();
+
   if (!query || query.length < 2) {
     return [];
   }
 
   try {
-    // Search for users in the submissions table by author and author_id
-    const results = await sql<
+    // ULTRA-OPTIMIZED QUERY FOR MILLIONS OF RECORDS
+    // First try materialized view for better performance
+    let results = await sql<
       Array<{
         author_id: string;
         author: string;
-        submission_count: string;
+        submission_count: number;
       }>
     >`
-      SELECT DISTINCT
+      SELECT 
         author_id,
         author,
-        COUNT(*) as submission_count
-      FROM submissions 
+        submission_count
+      FROM user_submission_stats
       WHERE 
-        LOWER(author) LIKE LOWER(${`%${query}%`})
-        OR LOWER(author_id) LIKE LOWER(${`%${query}%`})
-      GROUP BY author_id, author
+        author ILIKE ${`%${query}%`}
       ORDER BY submission_count DESC, author ASC
       LIMIT 10
     `;
 
-    // For now, we'll generate avatar URLs using the author name as seed
-    // In a real app, you'd have actual user avatar URLs
-    return results.map((result, index) => ({
+    // If materialized view doesn't exist or is empty, fall back to live query
+    if (results.length === 0) {
+      serverLogger.debug(
+        'Materialized view empty, falling back to live query',
+        { query }
+      );
+
+      results = await sql<
+        Array<{
+          author_id: string;
+          author: string;
+          submission_count: number;
+        }>
+      >`
+        WITH user_search AS (
+          -- Use optimized indexes for fast search
+          SELECT DISTINCT author_id, author
+          FROM submissions 
+          WHERE 
+            author ILIKE ${`%${query}%`}
+            AND author_id IS NOT NULL 
+            AND author IS NOT NULL  
+          LIMIT 50
+        )
+        SELECT 
+          us.author_id,
+          us.author,
+          COUNT(s.submission_id)::integer as submission_count
+        FROM user_search us
+        LEFT JOIN submissions s ON s.author_id = us.author_id
+        GROUP BY us.author_id, us.author
+        ORDER BY submission_count DESC, author ASC
+        LIMIT 10
+      `;
+    }
+
+    const endTime = performance.now();
+    const queryTime = endTime - startTime;
+
+    // Server-side performance logging with detailed metrics
+    serverLogger.perf('searchUsers', queryTime, {
+      query,
+      resultCount: results.length,
+      usedMaterializedView: results.length > 0
+    });
+
+    // Log slow queries for optimization
+    serverLogger.slowQuery('searchUsers', queryTime);
+
+    // Advanced debugging for empty results
+    if (results.length === 0) {
+      await debugUserSearch(query);
+    }
+
+    const mappedResults = results.map((result, index) => ({
       id: `user-${index}-${result.author_id}`,
-      value: result.author_id, // Use author_id for filtering
+      value: result.author_id,
       label: `${result.author} (${result.submission_count} posts)`,
-      displayName: result.author, // Keep the display name separate
-      avatar: undefined, // We'll generate this in the component using Avatar
+      displayName: result.author,
+      avatar: undefined,
       type: 'user' as const
     }));
+
+    return mappedResults;
   } catch (error) {
-    console.error('Error searching users:', error);
+    serverLogger.error('searchUsers failed', error, { query });
     return [];
   }
 }
 
 /**
- * Get user information by username - returns both ID and username in one call
- * This replaces the separate resolution functions for better efficiency
+ * Advanced debugging for user search issues
+ */
+async function debugUserSearch(query: string): Promise<void> {
+  try {
+    serverLogger.debug('Starting comprehensive user search debug', { query });
+
+    // Check if materialized view exists and has data
+    const viewExists = await sql<Array<{ exists: boolean }>>`
+      SELECT EXISTS (
+        SELECT 1 FROM information_schema.tables 
+        WHERE table_name = 'user_submission_stats'
+      ) as exists
+    `;
+
+    if (viewExists[0]?.exists) {
+      const viewCount = await sql<Array<{ count: string }>>`
+        SELECT COUNT(*) as count FROM user_submission_stats
+      `;
+      serverLogger.debug('Materialized view status', {
+        exists: true,
+        rowCount: viewCount[0]?.count || 0
+      });
+    } else {
+      serverLogger.debug('Materialized view does not exist');
+    }
+
+    // Check total users in submissions table
+    const totalUsers = await sql<Array<{ count: string }>>`
+      SELECT COUNT(DISTINCT author_id) as count 
+      FROM submissions 
+      WHERE author_id IS NOT NULL
+    `;
+
+    // Check for sample users
+    const sampleUsers = await sql<Array<{ author: string; author_id: string }>>`
+      SELECT DISTINCT author, author_id
+      FROM submissions 
+      WHERE author IS NOT NULL AND author_id IS NOT NULL
+      LIMIT 5
+    `;
+
+    // Check if query matches any users (case insensitive)
+    const matchingUsers = await sql<
+      Array<{ author: string; author_id: string }>
+    >`
+      SELECT DISTINCT author, author_id
+      FROM submissions 
+      WHERE LOWER(author) LIKE LOWER(${`%${query}%`})
+      AND author_id IS NOT NULL
+      LIMIT 3
+    `;
+
+    serverLogger.debug('User search debugging complete', {
+      query,
+      totalUsers: totalUsers[0]?.count || 0,
+      sampleUsers: sampleUsers.length,
+      matchingUsers: matchingUsers.length,
+      firstMatch: matchingUsers[0]?.author || 'none'
+    });
+  } catch (debugError) {
+    serverLogger.error('Debug user search failed', debugError, { query });
+  }
+}
+
+/**
+ * OPTIMIZED: Get user information by username for millions of records
  */
 export async function getUserInfo(
   username: string
 ): Promise<{ userId: string; username: string } | null> {
+  const startTime = performance.now();
+
   if (!username) {
     return null;
   }
 
   try {
-    // Remove @ prefix if present
     const cleanUsername = username.startsWith('@')
       ? username.slice(1)
       : username;
 
-    // Look up both user ID and username by exact username match
-    const result = await sql<Array<{ author_id: string; author: string }>>`
-      SELECT DISTINCT author_id, author
-      FROM submissions 
-      WHERE LOWER(author) = LOWER(${cleanUsername})
+    // Try materialized view first for better performance
+    let result = await sql<Array<{ author_id: string; author: string }>>`
+      SELECT author_id, author
+      FROM user_submission_stats 
+      WHERE author = ${cleanUsername}
       LIMIT 1
     `;
+
+    // Fall back to live query if needed
+    if (result.length === 0) {
+      result = await sql<Array<{ author_id: string; author: string }>>`
+        SELECT author_id, author
+        FROM submissions 
+        WHERE author = ${cleanUsername}
+        LIMIT 1
+      `;
+    }
+
+    const endTime = performance.now();
+    serverLogger.perf('getUserInfo', endTime - startTime, {
+      username: cleanUsername
+    });
 
     if (result.length > 0) {
       return {
@@ -137,49 +286,84 @@ export async function getUserInfo(
       };
     }
 
-    return null;
+    // If no exact match, try case-insensitive search
+    const fallbackResult = await sql<
+      Array<{ author_id: string; author: string }>
+    >`
+      SELECT author_id, author
+      FROM submissions 
+      WHERE LOWER(author) = LOWER(${cleanUsername})
+      LIMIT 1
+    `;
+
+    return fallbackResult.length > 0
+      ? {
+          userId: fallbackResult[0].author_id,
+          username: fallbackResult[0].author
+        }
+      : null;
   } catch (error) {
-    console.error('Error getting user info:', error);
+    serverLogger.error('getUserInfo failed', error, { username });
     return null;
   }
 }
 
 /**
- * Resolve a username to a user ID for more accurate filtering
- * This helps when clicking mentions in content to filter by the actual user ID
- * @deprecated Use getUserInfo instead for better efficiency
- */
-export async function resolveUsernameToUserId(
-  username: string
-): Promise<string | null> {
-  const userInfo = await getUserInfo(username);
-  return userInfo?.userId || null;
-}
-
-/**
- * Resolve a user ID back to a username for display purposes
- * This helps when showing user ID filters in a readable format
- * @deprecated Use getUserInfo instead for better efficiency
+ * OPTIMIZED: Resolve user ID to username with caching consideration
  */
 export async function resolveUserIdToUsername(
   userId: string
 ): Promise<string | null> {
+  const startTime = performance.now();
+
   if (!userId) {
     return null;
   }
 
   try {
-    // Look up the username by user ID
-    const result = await sql<Array<{ author: string }>>`
-      SELECT DISTINCT author
-      FROM submissions 
+    // Try materialized view first
+    let result = await sql<Array<{ author: string }>>`
+      SELECT author
+      FROM user_submission_stats 
       WHERE author_id = ${userId}
       LIMIT 1
     `;
 
+    // Fall back to live query if needed
+    if (result.length === 0) {
+      result = await sql<Array<{ author: string }>>`
+        SELECT author
+        FROM submissions 
+        WHERE author_id = ${userId}
+        LIMIT 1
+      `;
+    }
+
+    const endTime = performance.now();
+    serverLogger.perf('resolveUserIdToUsername', endTime - startTime, {
+      userId
+    });
+
     return result.length > 0 ? result[0].author : null;
   } catch (error) {
-    console.error('Error resolving user ID to username:', error);
+    serverLogger.error('resolveUserIdToUsername failed', error, { userId });
     return null;
+  }
+}
+
+/**
+ * Refresh user statistics materialized view
+ * Call this periodically (e.g., every hour) for optimal performance
+ */
+export async function refreshUserStats(): Promise<void> {
+  const startTime = performance.now();
+
+  try {
+    await sql`SELECT refresh_user_submission_stats()`;
+
+    const endTime = performance.now();
+    serverLogger.perf('refreshUserStats', endTime - startTime);
+  } catch (error) {
+    serverLogger.error('refreshUserStats failed', error);
   }
 }

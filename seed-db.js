@@ -1,14 +1,19 @@
-// Load environment variables FIRST
-require('dotenv').config({ path: '.env.local' });
+#!/usr/bin/env node
 
-const { faker } = require('@faker-js/faker');
+/* eslint-disable no-console, no-undef */
+
+/**
+ * MASSIVE SCALE SEED SCRIPT - 1 Million Records
+ * Optimized for performance with GUARANTEED unique usernames
+ *
+ * Features:
+ * - No duplicate usernames (guaranteed unique)
+ * - Algorithmic generation for performance
+ * - Batch processing for efficiency
+ * - Realistic data patterns
+ */
+
 const postgres = require('postgres');
-
-// MASSIVE SCALE CONFIGURATION - 1 MILLION RECORDS
-const SEED_USERS_COUNT = 5000; // More users for realistic distribution
-const SEED_POSTS_COUNT = 200000; // 200k main posts
-const SEED_REPLIES_COUNT = 800000; // 800k replies = 1M total posts
-const BATCH_SIZE = 1000; // Process in batches for memory efficiency
 
 // Check if we're in a devcontainer environment
 const isDevContainer = process.env.HOME?.includes('devcontainers');
@@ -34,475 +39,692 @@ const sql = postgres({
   connect_timeout: 60
 });
 
-// Pre-generated data pools for efficiency
-const COMMON_HASHTAGS = [
-  '#javascript',
-  '#react',
-  '#nodejs',
-  '#python',
-  '#webdev',
-  '#programming',
-  '#coding',
-  '#tech',
-  '#opensource',
-  '#ai',
-  '#machinelearning',
-  '#devops',
-  '#frontend',
-  '#backend',
-  '#fullstack',
-  '#typescript',
-  '#css',
-  '#html',
-  '#database',
-  '#api',
-  '#docker',
-  '#kubernetes',
-  '#aws',
-  '#cloud',
-  '#microservices',
-  '#graphql',
-  '#mongodb',
-  '#postgresql',
-  '#redis',
-  '#elasticsearch',
-  '#nextjs',
-  '#vue',
-  '#angular',
-  '#svelte',
-  '#rust',
-  '#golang',
-  '#java',
-  '#csharp',
-  '#php',
-  '#ruby',
-  '#swift',
-  '#kotlin'
+// ================================
+// CONFIGURATION
+// ================================
+
+const SEED_USERS_COUNT = 5000; // Number of unique users
+const SEED_POSTS_COUNT = 200000; // Number of main posts
+const SEED_REPLIES_COUNT = 800000; // Number of replies
+const BATCH_SIZE = 1000; // Batch processing size
+
+// ================================
+// UNIQUE USERNAME GENERATION SYSTEM
+// ================================
+
+const FIRST_NAMES = [
+  'John',
+  'Jane',
+  'Alex',
+  'Chris',
+  'Sarah',
+  'Mike',
+  'Lisa',
+  'David',
+  'Emma',
+  'James',
+  'Emily',
+  'Robert',
+  'Jessica',
+  'William',
+  'Ashley',
+  'Michael',
+  'Amanda',
+  'Richard',
+  'Stephanie',
+  'Daniel',
+  'Jennifer',
+  'Thomas',
+  'Elizabeth',
+  'Christopher',
+  'Heather',
+  'Matthew',
+  'Nicole',
+  'Anthony',
+  'Samantha',
+  'Mark',
+  'Rachel',
+  'Steven',
+  'Amy',
+  'Paul',
+  'Angela',
+  'Andrew',
+  'Brenda',
+  'Joshua',
+  'Emma',
+  'Kenneth',
+  'Olivia',
+  'Kevin',
+  'Kimberly',
+  'Brian',
+  'Lisa',
+  'George',
+  'Betty',
+  'Edward',
+  'Helen',
+  'Ronald',
+  'Sandra',
+  'Timothy',
+  'Donna',
+  'Jason',
+  'Carol',
+  'Jeffrey',
+  'Ruth',
+  'Ryan',
+  'Sharon',
+  'Jacob',
+  'Michelle',
+  'Gary',
+  'Laura',
+  'Nicholas',
+  'Sarah',
+  'Eric',
+  'Kimberly',
+  'Jonathan',
+  'Deborah',
+  'Stephen',
+  'Dorothy',
+  'Larry',
+  'Lisa',
+  'Justin',
+  'Nancy',
+  'Scott',
+  'Karen',
+  'Brandon',
+  'Betty',
+  'Benjamin',
+  'Maria',
+  'Samuel',
+  'Helen',
+  'Gregory',
+  'Sandra',
+  'Frank',
+  'Donna',
+  'Raymond',
+  'Carol',
+  'Alexander',
+  'Ruth',
+  'Patrick',
+  'Sharon',
+  'Jack',
+  'Michelle',
+  'Dennis',
+  'Laura',
+  'Jerry',
+  'Sarah',
+  'Tyler'
 ];
 
-const CONVERSATION_TOPICS = [
-  'debugging',
-  'performance optimization',
-  'code review',
-  'architecture',
+const LAST_NAMES = [
+  'Smith',
+  'Johnson',
+  'Williams',
+  'Brown',
+  'Jones',
+  'Garcia',
+  'Miller',
+  'Davis',
+  'Rodriguez',
+  'Martinez',
+  'Hernandez',
+  'Lopez',
+  'Gonzalez',
+  'Wilson',
+  'Anderson',
+  'Thomas',
+  'Taylor',
+  'Moore',
+  'Jackson',
+  'Martin',
+  'Lee',
+  'Perez',
+  'Thompson',
+  'White',
+  'Harris',
+  'Sanchez',
+  'Clark',
+  'Ramirez',
+  'Lewis',
+  'Robinson',
+  'Walker',
+  'Young',
+  'Allen',
+  'King',
+  'Wright',
+  'Scott',
+  'Torres',
+  'Nguyen',
+  'Hill',
+  'Flores',
+  'Green',
+  'Adams',
+  'Nelson',
+  'Baker',
+  'Hall',
+  'Rivera',
+  'Campbell',
+  'Mitchell',
+  'Carter',
+  'Roberts',
+  'Gomez',
+  'Phillips',
+  'Evans',
+  'Turner',
+  'Diaz',
+  'Parker',
+  'Cruz',
+  'Edwards',
+  'Collins',
+  'Reyes',
+  'Stewart',
+  'Morris',
+  'Morales',
+  'Murphy',
+  'Cook',
+  'Rogers',
+  'Gutierrez',
+  'Ortiz',
+  'Morgan',
+  'Cooper',
+  'Peterson',
+  'Bailey',
+  'Reed',
+  'Kelly',
+  'Howard',
+  'Ramos',
+  'Kim',
+  'Cox',
+  'Ward',
+  'Richardson',
+  'Watson',
+  'Brooks',
+  'Chavez',
+  'Wood',
+  'James',
+  'Bennett',
+  'Gray',
+  'Mendoza',
+  'Ruiz',
+  'Hughes',
+  'Price',
+  'Alvarez',
+  'Castillo',
+  'Sanders',
+  'Patel',
+  'Myers',
+  'Long',
+  'Ross',
+  'Foster',
+  'Jimenez'
+];
+
+const DOMAINS = [
+  'gmail.com',
+  'yahoo.com',
+  'hotmail.com',
+  'outlook.com',
+  'icloud.com',
+  'protonmail.com',
+  'aol.com',
+  'mail.com',
+  'zoho.com',
+  'fastmail.com'
+];
+
+/**
+ * Generate guaranteed unique usernames using algorithmic approach
+ */
+function generateUniqueUsers(count) {
+  console.log(`🔄 Generating ${count} unique users...`);
+
+  const users = [];
+  const usedUsernames = new Set();
+  const usedEmails = new Set();
+
+  let userIndex = 0;
+
+  while (users.length < count) {
+    const firstNameIndex = userIndex % FIRST_NAMES.length;
+    const lastNameIndex =
+      Math.floor(userIndex / FIRST_NAMES.length) % LAST_NAMES.length;
+    const domainIndex = userIndex % DOMAINS.length;
+
+    const firstName = FIRST_NAMES[firstNameIndex];
+    const lastName = LAST_NAMES[lastNameIndex];
+
+    // Create base username
+    let username = `${firstName} ${lastName}`;
+
+    // Add suffix if needed to ensure uniqueness
+    let suffix = '';
+    let attempts = 0;
+    while (usedUsernames.has(username + suffix) && attempts < 1000) {
+      attempts++;
+      suffix = ` ${attempts}`;
+    }
+
+    const finalUsername = username + suffix;
+
+    // Create unique email
+    const emailBase = `${firstName.toLowerCase()}.${lastName.toLowerCase()}`;
+    let emailSuffix =
+      userIndex > FIRST_NAMES.length * LAST_NAMES.length ? userIndex : '';
+    const email = `${emailBase}${emailSuffix}@${DOMAINS[domainIndex]}`;
+
+    // Ensure email uniqueness
+    if (!usedEmails.has(email)) {
+      // Generate unique author_id (UUID-like)
+      const authorId = `user_${userIndex.toString().padStart(6, '0')}_${Date.now().toString(36)}`;
+
+      users.push({
+        author_id: authorId,
+        author: finalUsername,
+        email: email,
+        created_at: new Date(
+          Date.now() - Math.random() * 90 * 24 * 60 * 60 * 1000
+        ) // Random date within last 90 days
+      });
+
+      usedUsernames.add(finalUsername);
+      usedEmails.add(email);
+    }
+
+    userIndex++;
+
+    // Safety check to prevent infinite loop
+    if (userIndex > count * 10) {
+      console.error('❌ Unable to generate enough unique users');
+      break;
+    }
+  }
+
+  console.log(
+    `✅ Generated ${users.length} unique users (${usedUsernames.size} unique usernames)`
+  );
+  return users;
+}
+
+// ================================
+// CONTENT GENERATION
+// ================================
+
+const TOPICS = [
+  'web development',
+  'machine learning',
+  'cloud computing',
+  'cybersecurity',
+  'data science',
+  'mobile development',
+  'blockchain',
+  'artificial intelligence',
+  'devops',
+  'frontend frameworks',
+  'backend architecture',
+  'database optimization',
+  'api design',
+  'microservices',
+  'containerization',
+  'serverless computing',
+  'edge computing',
+  'quantum computing',
+  'augmented reality',
+  'virtual reality',
+  'internet of things',
+  'game development',
+  'ui/ux design',
+  'product management',
+  'agile methodology'
+];
+
+const HASHTAGS = [
+  'javascript',
+  'python',
+  'react',
+  'nodejs',
+  'typescript',
+  'docker',
+  'kubernetes',
+  'aws',
+  'azure',
+  'gcp',
+  'mongodb',
+  'postgresql',
+  'redis',
+  'elasticsearch',
+  'graphql',
+  'rest',
+  'microservices',
+  'serverless',
+  'cicd',
   'testing',
-  'deployment',
   'security',
-  'best practices',
-  'frameworks',
-  'libraries',
-  'tools',
-  'career advice',
-  'learning resources',
-  'algorithms',
-  'data structures',
-  'system design',
+  'performance',
   'scalability',
-  'monitoring',
-  'CI/CD',
-  'agile',
-  'remote work',
-  'technical interviews'
-];
-
-// Pre-generated content templates for speed
-const TITLE_TEMPLATES = [
-  'How to {topic}?',
-  'Best practices for {topic}',
-  '{topic} help needed',
-  'Thoughts on {topic}?',
-  '{topic} patterns',
-  '{topic} experience?',
-  '{topic} tips',
-  '{topic} discussion',
-  'Advanced {topic}',
-  '{topic} guide',
-  'Common {topic} mistakes',
-  '{topic} vs alternatives',
-  'Modern {topic}',
-  '{topic} optimization',
-  '{topic} tutorial',
-  '{topic} deep dive'
+  'architecture',
+  'designpatterns',
+  'algorithms',
+  'datastructures',
+  'machinelearning',
+  'ai',
+  'blockchain',
+  'cryptocurrency',
+  'webdev',
+  'mobiledev',
+  'gamedev',
+  'startup',
+  'tech',
+  'coding'
 ];
 
 const CONTENT_TEMPLATES = [
-  "I've been working on {topic} and wondering about best practices.",
-  'Has anyone tried {topic} in production? Looking for insights.',
-  'Struggling with {topic}. Any recommendations?',
-  'Just discovered {topic}. Thoughts on adoption?',
-  'Comparing different approaches to {topic}.',
-  'Performance considerations for {topic}?',
-  'Security implications of {topic}?',
-  'Team is debating {topic} implementation.',
-  'Latest trends in {topic}?',
-  'Migrating from legacy {topic} solutions.'
+  'Just learned about {topic}! The {hashtag} ecosystem is amazing. #tech #learning',
+  'Working on a new project using {hashtag}. Any tips for {topic}? #coding #help',
+  'Great article about {topic} and how it relates to {hashtag}. Thoughts? #discussion',
+  'Debugging {hashtag} issues all day. {topic} is harder than it looks! #debugging #dev',
+  'Excited to share my latest {topic} project! Built with {hashtag}. #project #showcase',
+  'Conference talk about {topic} was mind-blowing! #conference #tech #learning',
+  'Looking for recommendations on {topic} tools. Currently using {hashtag}. #tools #advice',
+  'Just deployed my first {hashtag} application! {topic} concepts finally clicked. #milestone',
+  'Reading about {topic} architecture patterns. {hashtag} implementation is elegant. #architecture',
+  'Team discussion on {topic} best practices. {hashtag} seems like the way to go. #teamwork'
 ];
 
-// Algorithmic generators for efficiency
-class AlgorithmicGenerator {
-  constructor() {
-    this.userPool = [];
-    this.hashtagPool = [];
-    this.topicPool = [];
-    this.mentionPatterns = [];
+/**
+ * Generate post content with mentions and hashtags
+ */
+function generatePostContent(users, index) {
+  const topic = TOPICS[index % TOPICS.length];
+  const hashtag = HASHTAGS[index % HASHTAGS.length];
+  const template = CONTENT_TEMPLATES[index % CONTENT_TEMPLATES.length];
+
+  let content = template
+    .replace('{topic}', topic)
+    .replace('{hashtag}', hashtag);
+
+  // Add random hashtags (60% chance)
+  if (Math.random() < 0.6) {
+    const extraHashtags = HASHTAGS.filter((h) => h !== hashtag)
+      .sort(() => Math.random() - 0.5)
+      .slice(0, 2)
+      .map((h) => `#${h}`)
+      .join(' ');
+    content += ` ${extraHashtags}`;
   }
 
-  // Pre-compute data pools
-  initialize() {
-    // Create hashtag combinations
-    for (let i = 0; i < COMMON_HASHTAGS.length; i++) {
-      for (let j = i + 1; j < Math.min(i + 4, COMMON_HASHTAGS.length); j++) {
-        this.hashtagPool.push([COMMON_HASHTAGS[i], COMMON_HASHTAGS[j]]);
-      }
-    }
-
-    // Create topic combinations
-    CONVERSATION_TOPICS.forEach((topic) => {
-      TITLE_TEMPLATES.forEach((template) => {
-        this.topicPool.push(template.replace('{topic}', topic));
-      });
-    });
+  // Add user mentions (30% chance)
+  if (Math.random() < 0.3 && users.length > 0) {
+    const randomUser = users[Math.floor(Math.random() * users.length)];
+    content += ` @[${randomUser.author}|${randomUser.author_id}]`;
   }
 
-  // Generate user algorithmically based on index
-  generateUser(index) {
-    // Use index as seed for consistent generation
-    faker.seed(index);
+  return content;
+}
 
-    const domains = ['gmail.com', 'yahoo.com', 'outlook.com', 'company.com'];
-    const firstNames = [
-      'John',
-      'Jane',
-      'Alex',
-      'Sam',
-      'Chris',
-      'Jordan',
-      'Taylor'
-    ];
-    const lastNames = [
-      'Smith',
-      'Johnson',
-      'Williams',
-      'Brown',
-      'Jones',
-      'Garcia'
-    ];
+// ================================
+// DATABASE OPERATIONS
+// ================================
 
-    const firstName = firstNames[index % firstNames.length];
-    const lastName = lastNames[(index * 7) % lastNames.length];
-    const domain = domains[(index * 3) % domains.length];
+/**
+ * Clear existing data
+ */
+async function clearDatabase() {
+  console.log('🧹 Clearing existing data...');
 
-    return {
-      name: `${firstName} ${lastName}`,
-      email: `${firstName.toLowerCase()}.${lastName.toLowerCase()}${index}@${domain}`,
-      emailVerified: new Date(Date.now() - index * 86400000), // Spread over time
-      image: `https://avatar.githubusercontent.com/u/${100000 + index}?v=4`
-    };
-  }
-
-  // Generate post content algorithmically
-  generateContent(index, users, authorId) {
-    const topicIndex = index % this.topicPool.length;
-    const contentIndex = index % CONTENT_TEMPLATES.length;
-    const hashtagIndex = index % this.hashtagPool.length;
-
-    let content = CONTENT_TEMPLATES[contentIndex].replace(
-      '{topic}',
-      CONVERSATION_TOPICS[index % CONVERSATION_TOPICS.length]
-    );
-
-    // Add hashtags (60% chance based on index)
-    if (index % 5 < 3) {
-      const hashtags = this.hashtagPool[hashtagIndex];
-      content += ` ${hashtags.join(' ')}`;
-    }
-
-    // Add mentions (30% chance based on index)
-    if (index % 10 < 3 && users.length > 1) {
-      const mentionUser = users[(index * 17) % users.length];
-      if (mentionUser.id !== authorId) {
-        content += ` @[${mentionUser.name}|${mentionUser.id}]`;
-      }
-    }
-
-    return content;
-  }
-
-  // Generate title algorithmically
-  generateTitle(index) {
-    return this.topicPool[index % this.topicPool.length];
-  }
-
-  // Generate timestamp algorithmically (spread over 90 days)
-  generateTimestamp(index) {
-    const now = Date.now();
-    const ninetyDaysAgo = now - 90 * 24 * 60 * 60 * 1000;
-    const timeSpread = now - ninetyDaysAgo;
-
-    return new Date(ninetyDaysAgo + ((index * 1000) % timeSpread));
-  }
-
-  // Extract hashtags from content
-  extractHashtags(content) {
-    const matches = content.match(/#[a-zA-Z0-9_-]+/g);
-    return matches && matches.length > 0 ? matches : null;
+  try {
+    await sql`DELETE FROM submissions`;
+    await sql`ALTER SEQUENCE submissions_submission_id_seq RESTART WITH 1`;
+    console.log('✅ Database cleared');
+  } catch (error) {
+    console.error('❌ Error clearing database:', error);
+    throw error;
   }
 }
 
-// Batch processing utilities
-const processBatch = async (items, processor, batchSize = BATCH_SIZE) => {
-  const results = [];
+/**
+ * Create main posts in batches
+ */
+async function createMainPosts(users, count) {
+  console.log(`📝 Creating ${count} main posts in batches...`);
 
-  for (let i = 0; i < items.length; i += batchSize) {
-    const batch = items.slice(i, i + batchSize);
-    const batchResults = await processor(batch);
-    results.push(...batchResults);
+  const batches = Math.ceil(count / BATCH_SIZE);
+  let totalCreated = 0;
 
-    // Progress indicator
-    if (i % (batchSize * 10) === 0) {
-      console.info(`  Processed ${i + batch.length}/${items.length} items...`);
-    }
-  }
-
-  return results;
-};
-
-const generateRecords = async () => {
-  const generator = new AlgorithmicGenerator();
-  generator.initialize();
-
-  const startTime = Date.now();
-
-  try {
-    console.info('🚀 Starting MASSIVE seed generation (1M records)...');
-    console.info(
-      `📊 Target: ${SEED_USERS_COUNT} users, ${SEED_POSTS_COUNT} posts, ${SEED_REPLIES_COUNT} replies`
-    );
-
-    // Clear existing data
-    console.info('🧹 Clearing existing data...');
-    await sql`DELETE FROM submissions WHERE 1=1`;
-    await sql`DELETE FROM accounts WHERE 1=1`;
-    await sql`DELETE FROM users WHERE 1=1`;
-
-    console.info('👥 Creating users in batches...');
-    const users = [];
-
-    // Generate users in batches
-    const userBatches = [];
-    for (let i = 0; i < SEED_USERS_COUNT; i += BATCH_SIZE) {
-      const batchEnd = Math.min(i + BATCH_SIZE, SEED_USERS_COUNT);
-      const batch = [];
-
-      for (let j = i; j < batchEnd; j++) {
-        batch.push(generator.generateUser(j));
-      }
-      userBatches.push(batch);
-    }
-
-    // Process user batches
-    for (let batchIndex = 0; batchIndex < userBatches.length; batchIndex++) {
-      const batch = userBatches[batchIndex];
-
-      // Insert users batch
-      const userResults = await sql`
-        INSERT INTO users (name, email, "emailVerified", image)
-        VALUES ${sql(batch.map((u) => [u.name, u.email, u.emailVerified, u.image]))}
-        RETURNING id, name
-      `;
-
-      users.push(...userResults);
-
-      // Insert accounts batch
-      const accountData = userResults.map((user, index) => [
-        user.id,
-        'oauth',
-        'github',
-        `github_${Date.now()}_${batchIndex}_${index}`,
-        'refresh_token',
-        'access_token',
-        Math.floor(Date.now() / 1000) + 3600,
-        'id_token',
-        'read:user',
-        'session_state',
-        'Bearer'
-      ]);
-
-      await sql`
-        INSERT INTO accounts (
-          "userId", type, provider, "providerAccountId",
-          refresh_token, access_token, expires_at, id_token,
-          scope, session_state, token_type
-        ) VALUES ${sql(accountData)}
-      `;
-
-      if (batchIndex % 5 === 0) {
-        console.info(`  Created ${users.length}/${SEED_USERS_COUNT} users...`);
-      }
-    }
-
-    console.info(`✅ Created ${users.length} users`);
-    console.info('📝 Creating main posts in batches...');
+  for (let batch = 0; batch < batches; batch++) {
+    const batchStart = batch * BATCH_SIZE;
+    const batchSize = Math.min(BATCH_SIZE, count - batchStart);
 
     const posts = [];
+    for (let i = 0; i < batchSize; i++) {
+      const postIndex = batchStart + i;
+      const user = users[postIndex % users.length];
+      const content = generatePostContent(users, postIndex);
 
-    // Generate main posts in batches
-    for (let i = 0; i < SEED_POSTS_COUNT; i += BATCH_SIZE) {
-      const batchEnd = Math.min(i + BATCH_SIZE, SEED_POSTS_COUNT);
-      const batch = [];
+      // Extract hashtags for tags array
+      const hashtagMatches = content.match(/#[\w]+/g) || [];
+      const tags = hashtagMatches.map((tag) => tag.substring(1));
 
-      for (let j = i; j < batchEnd; j++) {
-        const author = users[j % users.length];
-        const content = generator.generateContent(j, users, author.id);
-        const title = generator.generateTitle(j);
-        const datetime = generator.generateTimestamp(j);
-        const tags = generator.extractHashtags(content);
-
-        batch.push([
-          content,
-          author.id.toString(),
-          author.name,
-          tags,
-          datetime,
-          null
-        ]);
-      }
-
-      const postResults = await sql`
-        INSERT INTO submissions (
-          submission_name, author_id, author,
-          tags, submission_datetime, thread_parent_id
-        ) VALUES ${sql(batch.map((post) => [post[0], post[1], post[2], post[3], post[4], post[5]]))}
-        RETURNING submission_id, author_id, submission_datetime
-      `;
-
-      posts.push(
-        ...postResults.map((p, index) => ({
-          id: p.submission_id,
-          author_id: p.author_id,
-          datetime: p.submission_datetime,
-          author: users.find((u) => u.id === p.author_id)
-        }))
+      // Random timestamp within last 90 days
+      const timestamp = new Date(
+        Date.now() - Math.random() * 90 * 24 * 60 * 60 * 1000
       );
 
-      if (i % (BATCH_SIZE * 5) === 0) {
-        console.info(
-          `  Created ${posts.length}/${SEED_POSTS_COUNT} main posts...`
-        );
-      }
+      posts.push({
+        submission_name: content,
+        submission_title: `Post ${postIndex + 1}`,
+        author_id: user.author_id,
+        author: user.author,
+        tags: tags.length > 0 ? tags : null,
+        thread_parent_id: null,
+        submission_datetime: timestamp
+      });
     }
 
-    console.info(`✅ Created ${posts.length} main posts`);
-    console.info('💬 Creating replies in batches...');
+    // Batch insert
+    await sql`
+      INSERT INTO submissions (
+        submission_name, submission_title, author_id, author, tags, thread_parent_id, submission_datetime
+      ) ${sql(posts)}
+    `;
 
-    let repliesCreated = 0;
+    totalCreated += batchSize;
+    console.log(`  Created ${totalCreated}/${count} main posts...`);
+  }
 
-    // Generate replies in batches
-    for (let i = 0; i < SEED_REPLIES_COUNT; i += BATCH_SIZE) {
-      const batchEnd = Math.min(i + BATCH_SIZE, SEED_REPLIES_COUNT);
-      const batch = [];
+  console.log(`✅ Created ${totalCreated} main posts`);
+}
 
-      for (let j = i; j < batchEnd; j++) {
-        const parentPost = posts[j % posts.length];
-        const replyAuthor = users[(j * 7) % users.length];
+/**
+ * Create replies in batches
+ */
+async function createReplies(users, count) {
+  console.log(`💬 Creating ${count} replies in batches...`);
 
-        // Skip self-replies occasionally
-        if (replyAuthor.id === parentPost.author_id && j % 4 === 0) {
-          continue;
-        }
+  // Get all main post IDs
+  const mainPosts = await sql`
+    SELECT submission_id FROM submissions WHERE thread_parent_id IS NULL
+  `;
 
-        const content = generator.generateContent(
-          j + SEED_POSTS_COUNT,
-          users,
-          replyAuthor.id
-        );
-        const title = `Re: ${generator.generateTitle(j)}`;
-        const datetime = new Date(parentPost.datetime.getTime() + j * 1000);
-        const tags = generator.extractHashtags(content);
+  if (mainPosts.length === 0) {
+    console.error('❌ No main posts found to reply to');
+    return;
+  }
 
-        batch.push([
-          content,
-          replyAuthor.id,
-          replyAuthor.name,
-          tags,
-          datetime,
-          parentPost.id
-        ]);
-      }
+  const batches = Math.ceil(count / BATCH_SIZE);
+  let totalCreated = 0;
 
-      if (batch.length > 0) {
-        await sql`
-          INSERT INTO submissions (
-            submission_name, author_id, author,
-            tags, submission_datetime, thread_parent_id
-          ) VALUES ${sql(batch.map((reply) => [reply[0], reply[1], reply[2], reply[3], reply[4], reply[5]]))}
-        `;
+  for (let batch = 0; batch < batches; batch++) {
+    const batchStart = batch * BATCH_SIZE;
+    const batchSize = Math.min(BATCH_SIZE, count - batchStart);
 
-        repliesCreated += batch.length;
-      }
+    const replies = [];
+    for (let i = 0; i < batchSize; i++) {
+      const replyIndex = batchStart + i;
+      const user = users[replyIndex % users.length];
+      const parentPost = mainPosts[replyIndex % mainPosts.length];
 
-      if (i % (BATCH_SIZE * 10) === 0) {
-        console.info(
-          `  Created ${repliesCreated}/${SEED_REPLIES_COUNT} replies...`
-        );
-      }
+      const content = generatePostContent(users, replyIndex + 1000000); // Offset for variety
+
+      // Extract hashtags for tags array
+      const hashtagMatches = content.match(/#[\w]+/g) || [];
+      const tags = hashtagMatches.map((tag) => tag.substring(1));
+
+      // Random timestamp within last 90 days
+      const timestamp = new Date(
+        Date.now() - Math.random() * 90 * 24 * 60 * 60 * 1000
+      );
+
+      replies.push({
+        submission_name: content,
+        submission_title: `Reply ${replyIndex + 1}`,
+        author_id: user.author_id,
+        author: user.author,
+        tags: tags.length > 0 ? tags : null,
+        thread_parent_id: parentPost.submission_id,
+        submission_datetime: timestamp
+      });
     }
 
-    console.info(`✅ Created ${repliesCreated} replies`);
-
-    // Generate final statistics
-    const stats = await sql`
-      SELECT 
-        COUNT(*) as total_posts,
-        COUNT(CASE WHEN thread_parent_id IS NULL THEN 1 END) as main_posts,
-        COUNT(CASE WHEN thread_parent_id IS NOT NULL THEN 1 END) as replies,
-        COUNT(DISTINCT author_id) as active_users
-      FROM submissions
+    // Batch insert
+    await sql`
+      INSERT INTO submissions (
+        submission_name, submission_title, author_id, author, tags, thread_parent_id, submission_datetime
+      ) ${sql(replies)}
     `;
 
-    const hashtagStats = await sql`
-      SELECT COUNT(*) as posts_with_hashtags
+    totalCreated += batchSize;
+    console.log(`  Created ${totalCreated}/${count} replies...`);
+  }
+
+  console.log(`✅ Created ${totalCreated} replies`);
+}
+
+/**
+ * Refresh materialized view after seeding
+ */
+async function refreshMaterializedView() {
+  console.log('🔄 Refreshing materialized view...');
+
+  try {
+    await sql`SELECT refresh_user_submission_stats()`;
+    console.log('✅ Materialized view refreshed');
+  } catch (error) {
+    console.warn(
+      '⚠️  Materialized view refresh failed (may not exist yet):',
+      error.message
+    );
+  }
+}
+
+/**
+ * Display final statistics
+ */
+async function displayStatistics() {
+  console.log('\n📊 Final Statistics:');
+
+  try {
+    const totalSubmissions =
+      await sql`SELECT COUNT(*) as count FROM submissions`;
+    const totalUsers =
+      await sql`SELECT COUNT(DISTINCT author_id) as count FROM submissions`;
+    const mainPosts =
+      await sql`SELECT COUNT(*) as count FROM submissions WHERE thread_parent_id IS NULL`;
+    const replies =
+      await sql`SELECT COUNT(*) as count FROM submissions WHERE thread_parent_id IS NOT NULL`;
+
+    console.log(`  Total Submissions: ${totalSubmissions[0].count}`);
+    console.log(`  Unique Users: ${totalUsers[0].count}`);
+    console.log(`  Main Posts: ${mainPosts[0].count}`);
+    console.log(`  Replies: ${replies[0].count}`);
+
+    // Check for duplicate usernames
+    const duplicateCheck = await sql`
+      SELECT author, COUNT(*) as count 
       FROM submissions 
-      WHERE tags IS NOT NULL AND array_length(tags, 1) > 0
+      GROUP BY author 
+      HAVING COUNT(*) > 0
+      ORDER BY count DESC 
+      LIMIT 5
     `;
 
-    const mentionStats = await sql`
-      SELECT COUNT(*) as posts_with_mentions
-      FROM submissions 
-      WHERE submission_name LIKE '%@[%|%]%'
-    `;
+    console.log('\n  Top Users by Post Count:');
+    duplicateCheck.forEach((user) => {
+      console.log(`    ${user.author}: ${user.count} posts`);
+    });
+
+    // Verify no duplicate usernames
+    const uniqueUsernames =
+      await sql`SELECT COUNT(DISTINCT author) as count FROM submissions`;
+    const totalUserRecords =
+      await sql`SELECT COUNT(DISTINCT author_id) as count FROM submissions`;
+
+    console.log(`\n✅ Username Uniqueness Check:`);
+    console.log(`  Unique Usernames: ${uniqueUsernames[0].count}`);
+    console.log(`  Unique User IDs: ${totalUserRecords[0].count}`);
+    console.log(
+      `  No Duplicates: ${uniqueUsernames[0].count === totalUserRecords[0].count ? '✅ PASSED' : '❌ FAILED'}`
+    );
+  } catch (error) {
+    console.error('❌ Error getting statistics:', error);
+  }
+}
+
+// ================================
+// MAIN EXECUTION
+// ================================
+
+async function main() {
+  const startTime = Date.now();
+
+  console.log('🚀 Starting MASSIVE seed generation (1M records)...');
+  console.log(
+    `📊 Target: ${SEED_USERS_COUNT} users, ${SEED_POSTS_COUNT} posts, ${SEED_REPLIES_COUNT} replies`
+  );
+  console.log(`🔒 GUARANTEED unique usernames - no duplicates!\n`);
+
+  try {
+    // Step 1: Clear existing data
+    await clearDatabase();
+
+    // Step 2: Generate unique users
+    const users = generateUniqueUsers(SEED_USERS_COUNT);
+
+    // Step 3: Create main posts
+    await createMainPosts(users, SEED_POSTS_COUNT);
+
+    // Step 4: Create replies
+    await createReplies(users, SEED_REPLIES_COUNT);
+
+    // Step 5: Refresh materialized view
+    await refreshMaterializedView();
+
+    // Step 6: Display statistics
+    await displayStatistics();
 
     const endTime = Date.now();
-    const duration = Math.round((endTime - startTime) / 1000);
+    const duration = ((endTime - startTime) / 1000).toFixed(2);
 
-    console.info('\n🎉 MASSIVE SEED GENERATION COMPLETE!');
-    console.info('==========================================');
-    console.info(`⏱️  Total time: ${duration} seconds`);
-    console.info(`👥 Users created: ${users.length}`);
-    console.info(`📝 Total posts: ${stats[0].total_posts}`);
-    console.info(`📄 Main posts: ${stats[0].main_posts}`);
-    console.info(`💬 Replies: ${stats[0].replies}`);
-    console.info(
-      `🏷️  Posts with hashtags: ${hashtagStats[0].posts_with_hashtags}`
+    console.log(`\n🎉 Seed generation completed in ${duration} seconds!`);
+    console.log(
+      `📈 Performance: ${Math.round((SEED_POSTS_COUNT + SEED_REPLIES_COUNT) / duration)} records/second`
     );
-    console.info(
-      `👤 Posts with mentions: ${mentionStats[0].posts_with_mentions}`
-    );
-    console.info(`🔥 Active users: ${stats[0].active_users}`);
-    console.info(
-      `📊 Posts per second: ${Math.round(stats[0].total_posts / duration)}`
-    );
-    console.info('==========================================');
-
-    if (stats[0].total_posts >= 1000000) {
-      console.info('🏆 MILESTONE: 1 MILLION POSTS ACHIEVED!');
-    }
   } catch (error) {
-    console.error('❌ Error generating records:', error);
-    console.error(error.stack);
+    console.error('❌ Seed generation failed:', error);
+    process.exit(1);
   } finally {
     await sql.end();
   }
-};
+}
 
-generateRecords();
+// Run the script
+if (require.main === module) {
+  main().catch(console.error);
+}
+
+module.exports = {
+  generateUniqueUsers,
+  generatePostContent,
+  FIRST_NAMES,
+  LAST_NAMES,
+  TOPICS,
+  HASHTAGS
+};

@@ -441,3 +441,107 @@
     background-size: 200% 100%;
   }
 }
+
+/* Virtual scrolling styles */
+.submissions-list--virtual {
+  height: 70vh;
+  overflow-y: auto;
+  position: relative;
+  scroll-behavior: smooth;
+}
+
+.submissions-list__spacer {
+  width: 100%;
+  pointer-events: none;
+}
+
+.submissions-list__content {
+  display: flex;
+  flex-direction: column;
+}
+
+.submissions-list__item {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  border-bottom: 1px solid var(--light-background--tertiary, #f0f0f0);
+}
+
+.submissions-list__item:last-child {
+  border-bottom: none;
+}
+
+.submissions-list--empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+}
+
+.submissions-list__empty-message {
+  color: var(--light-bg__text-color--secondary);
+  font-size: 1.1rem;
+  text-align: center;
+  padding: 2rem;
+}
+
+/* Smooth scrolling performance optimizations */
+.submissions-list--virtual {
+  -webkit-overflow-scrolling: touch;
+  will-change: scroll-position;
+}
+
+.submissions-list__item {
+  contain: layout style paint;
+}
+
+/* Loading state improvements */
+.submissions-list__skeleton {
+  border-bottom: 1px solid var(--light-background--tertiary, #f0f0f0);
+}
+
+.submissions-list__skeleton:last-child {
+  border-bottom: none;
+}
+
+/* Debug info styles (development only) */
+.submissions-list__debug {
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  z-index: 1000;
+  font-family: monospace;
+  line-height: 1.4;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .submissions-list--virtual {
+    height: 60vh;
+    /* Slightly shorter on mobile */
+  }
+
+  .submissions-list__debug {
+    font-size: 10px;
+    padding: 6px;
+    top: 5px;
+    right: 5px;
+  }
+}
+
+/* Accessibility improvements */
+.submissions-list--virtual:focus-within {
+  outline: 2px solid var(--brand-primary);
+  outline-offset: 2px;
+}
+
+/* Prevent layout shift during loading */
+.submissions-list__item {
+  transform: translateZ(0);
+  /* Force hardware acceleration */
+}

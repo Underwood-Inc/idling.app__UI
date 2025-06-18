@@ -1,12 +1,13 @@
 'use client';
 
 import { useSession } from 'next-auth/react';
-import { useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { useSubmissionsManager } from '../../../lib/state/useSubmissionsManager';
 import { CustomFilterInput } from '../filter-bar/CustomFilterInput';
 import FilterBar from '../filter-bar/FilterBar';
 import Pagination from '../pagination/Pagination';
 import { SpacingThemeToggle } from '../spacing-theme-toggle/SpacingThemeToggle';
+
 import './PostsManager.css';
 import SubmissionsList from './SubmissionsList';
 
@@ -22,7 +23,7 @@ interface PostsManagerProps {
  * Manages state with useSubmissionsManager and passes data to child components
  * This eliminates duplicate API calls from multiple useSubmissionsManager instances
  */
-export default function PostsManager({
+const PostsManager = React.memo(function PostsManager({
   contextId,
   onlyMine = false,
   enableThreadMode = false,
@@ -31,26 +32,87 @@ export default function PostsManager({
   const { data: session } = useSession();
   const [includeThreadReplies, setIncludeThreadReplies] = useState(false);
 
-  // Single instance of useSubmissionsManager
+  // Memoize the submissions manager call
   const {
+    submissions,
     isLoading,
     error,
-    submissions,
-    pagination,
     filters,
-    setPage,
-    setPageSize,
+    pagination,
     addFilter,
     removeFilter,
     removeTag,
     clearFilters,
-    totalPages
+    setPage,
+    setPageSize
   } = useSubmissionsManager({
     contextId,
     onlyMine,
-    providerAccountId: session?.user?.providerAccountId,
+    providerAccountId: session?.user?.providerAccountId || '',
     includeThreadReplies
   });
+
+  // Memoize authorization check
+  const isAuthorized = useMemo(
+    () => !!session?.user?.providerAccountId,
+    [session?.user?.providerAccountId]
+  );
+
+  // Memoize total pages calculation
+  const totalPages = useMemo(
+    () => Math.ceil(pagination.totalRecords / pagination.pageSize),
+    [pagination.totalRecords, pagination.pageSize]
+  );
+
+  // Optimize callbacks with useCallback to prevent child re-renders
+  const handleTagClick = useCallback(
+    (tag: string) => {
+      addFilter({ name: 'tags', value: tag });
+    },
+    [addFilter]
+  );
+
+  const handleHashtagClick = useCallback(
+    (hashtag: string) => {
+      addFilter({ name: 'tags', value: hashtag.replace('#', '') });
+    },
+    [addFilter]
+  );
+
+  const handleMentionClick = useCallback(
+    (mention: string, filterType: 'author' | 'mentions') => {
+      addFilter({ name: filterType, value: mention.replace('@', '') });
+    },
+    [addFilter]
+  );
+
+  const handleToggleThreadReplies = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setIncludeThreadReplies(e.target.checked);
+    },
+    []
+  );
+
+  const handleNewPostClick = useCallback(() => {
+    if (onNewPostClick) {
+      onNewPostClick();
+    }
+  }, [onNewPostClick]);
+
+  const handleRefresh = useCallback(() => {
+    // Force a refresh by toggling includeThreadReplies briefly
+    setIncludeThreadReplies((prev) => !prev);
+    // Toggle and immediately toggle back to force refetch
+    setTimeout(() => setIncludeThreadReplies((prev) => !prev), 10);
+  }, []);
+
+  const handleUpdateFilter = useCallback(
+    (name: string, value: string) => {
+      // Add or update a filter with the new value
+      addFilter({ name: name as any, value });
+    },
+    [addFilter]
+  );
 
   // eslint-disable-next-line no-console
   console.log('📊 [POSTS_MANAGER] Rendering with state:', {
@@ -63,81 +125,6 @@ export default function PostsManager({
     isLoading,
     hasError: !!error
   });
-
-  const handleToggleThreadReplies = () => {
-    setIncludeThreadReplies((prev) => {
-      const newValue = !prev;
-      // eslint-disable-next-line no-console
-      console.log('🔧 [POSTS_MANAGER] Toggle includeThreadReplies:', {
-        from: prev,
-        to: newValue,
-        hasFilters: filters.length > 0,
-        currentFilters: filters
-      });
-      return newValue;
-    });
-  };
-
-  const handleNewPostClick = () => {
-    if (onNewPostClick) {
-      onNewPostClick();
-    }
-  };
-
-  const handleTagClick = (tag: string) => {
-    // Convert tag string to filter format
-    addFilter({ name: 'tags' as const, value: tag });
-  };
-
-  const handleHashtagClick = (hashtag: string) => {
-    // Filter by hashtag in title or content
-    addFilter({ name: 'tags' as const, value: hashtag });
-  };
-
-  const handleMentionClick = async (
-    mentionValue: string,
-    filterType: 'author' | 'mentions'
-  ) => {
-    // eslint-disable-next-line no-console
-    console.log('🎯 [POSTS_MANAGER] handleMentionClick called:', {
-      mentionValue,
-      filterType,
-      valueLength: mentionValue.length,
-      isUserIdPattern: /^[0-9a-f-]{8,}$/i.test(mentionValue)
-    });
-
-    if (filterType === 'author') {
-      // Add author filter using the resolved user ID
-      // eslint-disable-next-line no-console
-      console.log('🎯 [POSTS_MANAGER] Adding author filter:', {
-        value: mentionValue
-      });
-      addFilter({ name: 'author', value: mentionValue });
-    } else if (filterType === 'mentions') {
-      // Add mentions filter using the username for content search
-      // eslint-disable-next-line no-console
-      console.log('🎯 [POSTS_MANAGER] Adding mentions filter:', {
-        value: mentionValue
-      });
-      addFilter({ name: 'mentions', value: mentionValue });
-    }
-  };
-
-  const handleRefresh = () => {
-    // Force a refresh by toggling includeThreadReplies
-    setIncludeThreadReplies((prev) => {
-      // Toggle and immediately toggle back to force refetch
-      setTimeout(() => setIncludeThreadReplies(prev), 50);
-      return !prev;
-    });
-  };
-
-  const handleUpdateFilter = (name: string, value: string) => {
-    // Add or update a filter with the new value
-    addFilter({ name: name as any, value });
-  };
-
-  const isAuthorized = !!session?.user?.providerAccountId;
 
   return (
     <>
@@ -270,4 +257,6 @@ export default function PostsManager({
       )}
     </>
   );
-}
+});
+
+export default PostsManager;

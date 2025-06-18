@@ -146,13 +146,21 @@ export async function getSubmissions({
 }
 
 /**
- * Fetch replies for a specific submission thread
+ * OPTIMIZED: Fetch submissions with replies using a single query to eliminate N+1 problem
+ * This replaces the inefficient getSubmissionReplies approach
  */
-export async function getSubmissionReplies(
-  parentId: number
-): Promise<SubmissionWithReplies[]> {
+export async function getSubmissionsWithRepliesOptimized(
+  parentIds: number[]
+): Promise<Map<number, SubmissionWithReplies[]>> {
+  if (parentIds.length === 0) {
+    return new Map();
+  }
+
   try {
+    // Single query to fetch all replies for all parents at once
     const repliesResult = await sql<any[]>`
+      WITH RECURSIVE reply_tree AS (
+        -- Base case: direct replies to the parent posts
       SELECT 
         submission_id,
         submission_name,
@@ -161,13 +169,40 @@ export async function getSubmissionReplies(
         author_id,
         author,
         COALESCE(tags, ARRAY[]::text[]) as tags,
-        thread_parent_id
+          thread_parent_id,
+          thread_parent_id as root_parent_id,
+          1 as depth
       FROM submissions
-      WHERE thread_parent_id = ${parentId}
-      ORDER BY submission_datetime ASC
+        WHERE thread_parent_id = ANY(${parentIds})
+        
+        UNION ALL
+        
+        -- Recursive case: replies to replies (nested threads)
+        SELECT 
+          s.submission_id,
+          s.submission_name,
+          s.submission_title,
+          s.submission_datetime,
+          s.author_id,
+          s.author,
+          COALESCE(s.tags, ARRAY[]::text[]) as tags,
+          s.thread_parent_id,
+          rt.root_parent_id,
+          rt.depth + 1
+        FROM submissions s
+        INNER JOIN reply_tree rt ON s.thread_parent_id = rt.submission_id
+        WHERE rt.depth < 10 -- Prevent infinite recursion
+      )
+      SELECT * FROM reply_tree
+      ORDER BY root_parent_id, thread_parent_id, submission_datetime ASC
     `;
 
-    const replies: SubmissionWithReplies[] = repliesResult.map((row: any) => {
+    // Group replies by root parent ID
+    const repliesMap = new Map<number, SubmissionWithReplies[]>();
+    const allRepliesById = new Map<number, SubmissionWithReplies>();
+
+    // First pass: create all reply objects
+    for (const row of repliesResult) {
       const submission: SubmissionWithReplies = {
         submission_id: Number(row.submission_id),
         submission_name: row.submission_name,
@@ -178,24 +213,51 @@ export async function getSubmissionReplies(
         tags: Array.isArray(row.tags) ? row.tags : [],
         thread_parent_id: row.thread_parent_id
           ? Number(row.thread_parent_id)
-          : null
+          : null,
+        replies: []
       };
-      return submission;
-    });
 
-    // Recursively fetch replies for each reply (nested threads)
-    for (const reply of replies) {
-      const nestedReplies = await getSubmissionReplies(reply.submission_id);
-      if (nestedReplies.length > 0) {
-        reply.replies = nestedReplies;
+      allRepliesById.set(submission.submission_id, submission);
+    }
+
+    // Second pass: organize into tree structure
+    for (const reply of allRepliesById.values()) {
+      if (parentIds.includes(reply.thread_parent_id!)) {
+        // This is a direct reply to a parent post
+        const parentId = reply.thread_parent_id!;
+        if (!repliesMap.has(parentId)) {
+          repliesMap.set(parentId, []);
+        }
+        repliesMap.get(parentId)!.push(reply);
+      } else if (
+        reply.thread_parent_id &&
+        allRepliesById.has(reply.thread_parent_id)
+      ) {
+        // This is a nested reply
+        const parent = allRepliesById.get(reply.thread_parent_id);
+        if (parent) {
+          if (!parent.replies) parent.replies = [];
+          parent.replies.push(reply);
+        }
       }
     }
 
-    return replies;
+    return repliesMap;
   } catch (error) {
-    console.error('Error fetching submission replies:', error);
-    return [];
+    console.error('Error fetching optimized submission replies:', error);
+    return new Map();
   }
+}
+
+/**
+ * Legacy function kept for backward compatibility
+ * @deprecated Use getSubmissionsWithRepliesOptimized instead
+ */
+export async function getSubmissionReplies(
+  parentId: number
+): Promise<SubmissionWithReplies[]> {
+  const repliesMap = await getSubmissionsWithRepliesOptimized([parentId]);
+  return repliesMap.get(parentId) || [];
 }
 
 /**
@@ -209,18 +271,19 @@ export async function getSubmissionsWithReplies({
   pageSize = 10,
   includeThreadReplies = false
 }: GetSubmissionsActionArguments): Promise<GetSubmissionsActionResponse> {
-  // eslint-disable-next-line no-console
-  console.log('🔄 [getSubmissionsWithReplies] Called with:', {
-    onlyMine,
-    providerAccountId: providerAccountId
-      ? `${providerAccountId.substring(0, 8)}...`
-      : 'null',
-    filters,
-    page,
-    pageSize,
-    includeThreadReplies,
-    hasFilters: filters.length > 0
-  });
+  // Reduced logging for production performance
+  if (process.env.NODE_ENV === 'development') {
+    console.log('🔄 [getSubmissionsWithReplies] Called with:', {
+      onlyMine,
+      providerAccountId: providerAccountId
+        ? `${providerAccountId.substring(0, 8)}...`
+        : 'null',
+      filters: filters.length,
+      page,
+      pageSize,
+      includeThreadReplies
+    });
+  }
 
   try {
     if (includeThreadReplies && filters.length > 0) {
@@ -389,15 +452,20 @@ export async function getSubmissionsWithReplies({
         return mainSubmissionsResponse;
       }
 
+      // OPTIMIZED: Fetch all replies in a single query instead of N+1 queries
+      const parentIds = mainSubmissionsResponse.data.data.map(
+        (s) => s.submission_id
+      );
+      const repliesMap = await getSubmissionsWithRepliesOptimized(parentIds);
+
       const submissionsWithReplies: SubmissionWithReplies[] = [];
 
-      // For each main submission, fetch its replies
+      // Attach replies to their parent submissions
       for (const submission of mainSubmissionsResponse.data.data) {
         const submissionWithReplies: SubmissionWithReplies = { ...submission };
 
-        // Fetch replies for this submission
-        const replies = await getSubmissionReplies(submission.submission_id);
-        if (replies.length > 0) {
+        const replies = repliesMap.get(submission.submission_id);
+        if (replies && replies.length > 0) {
           submissionWithReplies.replies = replies;
         }
 
@@ -445,17 +513,19 @@ export async function getSubmissionsAction({
   pageSize = 10,
   includeThreadReplies = false
 }: GetSubmissionsActionArguments): Promise<GetSubmissionsActionResponse> {
-  // eslint-disable-next-line no-console
-  console.log('🔍 [BACKEND] getSubmissionsAction called with:', {
-    onlyMine,
-    providerAccountId: providerAccountId
-      ? `${providerAccountId.substring(0, 8)}...`
-      : 'null',
-    filters,
-    page,
-    pageSize,
-    includeThreadReplies
-  });
+  // Reduced logging for production performance
+  if (process.env.NODE_ENV === 'development') {
+    console.log('🔍 [BACKEND] getSubmissionsAction called with:', {
+      onlyMine,
+      providerAccountId: providerAccountId
+        ? `${providerAccountId.substring(0, 8)}...`
+        : 'null',
+      filtersCount: filters.length,
+      page,
+      pageSize,
+      includeThreadReplies
+    });
+  }
 
   if (!providerAccountId) {
     return {
