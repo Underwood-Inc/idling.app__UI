@@ -284,15 +284,32 @@ export async function runMigration(
             executed_at = CURRENT_TIMESTAMP
         `;
       } catch (insertError) {
-        // If ON CONFLICT fails, try a simple INSERT
-        console.info(chalk.dim(`  Recording migration success...`));
-        await sql`
-          DELETE FROM migrations WHERE filename = ${fileName}
-        `;
-        await sql`
-          INSERT INTO migrations (filename, success, error_message)
-          VALUES (${fileName}, true, null)
-        `;
+        // If ON CONFLICT fails due to missing constraint, use different approach
+        console.info(
+          chalk.dim(`  Recording migration success (fallback method)...`)
+        );
+        try {
+          // Try to update first
+          const updateResult = await sql`
+            UPDATE migrations 
+            SET success = true, error_message = null, executed_at = CURRENT_TIMESTAMP
+            WHERE filename = ${fileName}
+          `;
+
+          // If no rows updated, insert new record
+          if (updateResult.count === 0) {
+            await sql`
+              INSERT INTO migrations (filename, success, error_message)
+              VALUES (${fileName}, true, null)
+            `;
+          }
+        } catch (fallbackError) {
+          console.info(
+            chalk.yellow(
+              `  Warning: Could not record migration status - ${fallbackError}`
+            )
+          );
+        }
       }
     } else {
       // Regular migration with transaction
@@ -326,12 +343,19 @@ export async function runMigration(
               executed_at = CURRENT_TIMESTAMP
           `;
         } catch (insertError) {
-          // If ON CONFLICT fails, try a simple INSERT
-          await transaction`DELETE FROM migrations WHERE filename = ${fileName}`;
-          await transaction`
-            INSERT INTO migrations (filename, success, error_message)
-            VALUES (${fileName}, true, null)
+          // Fallback approach for missing constraint
+          const updateResult = await transaction`
+            UPDATE migrations 
+            SET success = true, error_message = null, executed_at = CURRENT_TIMESTAMP
+            WHERE filename = ${fileName}
           `;
+
+          if (updateResult.count === 0) {
+            await transaction`
+              INSERT INTO migrations (filename, success, error_message)
+              VALUES (${fileName}, true, null)
+            `;
+          }
         }
       });
     }
@@ -369,11 +393,18 @@ export async function runMigration(
             executed_at = CURRENT_TIMESTAMP
         `;
       } catch (insertError) {
-        await sql`DELETE FROM migrations WHERE filename = ${fileName}`;
-        await sql`
-          INSERT INTO migrations (filename, success, error_message)
-          VALUES (${fileName}, true, ${errorMessage})
+        const updateResult = await sql`
+          UPDATE migrations 
+          SET success = true, error_message = ${errorMessage}, executed_at = CURRENT_TIMESTAMP
+          WHERE filename = ${fileName}
         `;
+
+        if (updateResult.count === 0) {
+          await sql`
+            INSERT INTO migrations (filename, success, error_message)
+            VALUES (${fileName}, true, ${errorMessage})
+          `;
+        }
       }
 
       return 'success';
@@ -391,11 +422,18 @@ export async function runMigration(
           executed_at = CURRENT_TIMESTAMP
       `;
     } catch (insertError) {
-      await sql`DELETE FROM migrations WHERE filename = ${fileName}`;
-      await sql`
-        INSERT INTO migrations (filename, success, error_message) 
-        VALUES (${fileName}, false, ${errorMessage})
+      const updateResult = await sql`
+        UPDATE migrations 
+        SET success = false, error_message = ${errorMessage}, executed_at = CURRENT_TIMESTAMP
+        WHERE filename = ${fileName}
       `;
+
+      if (updateResult.count === 0) {
+        await sql`
+          INSERT INTO migrations (filename, success, error_message) 
+          VALUES (${fileName}, false, ${errorMessage})
+        `;
+      }
     }
 
     console.error(
