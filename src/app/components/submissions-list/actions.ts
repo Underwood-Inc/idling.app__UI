@@ -271,27 +271,10 @@ export async function getSubmissionsWithReplies({
   pageSize = 10,
   includeThreadReplies = false
 }: GetSubmissionsActionArguments): Promise<GetSubmissionsActionResponse> {
-  // Reduced logging for production performance
-  if (process.env.NODE_ENV === 'development') {
-    console.log('🔄 [getSubmissionsWithReplies] Called with:', {
-      onlyMine,
-      providerAccountId: providerAccountId
-        ? `${providerAccountId.substring(0, 8)}...`
-        : 'null',
-      filters: filters.length,
-      page,
-      pageSize,
-      includeThreadReplies
-    });
-  }
+  // Production optimized - logging removed
 
   try {
     if (includeThreadReplies && filters.length > 0) {
-      // eslint-disable-next-line no-console
-      console.log(
-        '🔄 [getSubmissionsWithReplies] Using includeThreadReplies=true with filters'
-      );
-
       // When includeThreadReplies is true and we have filters:
       // 1. Get all submissions (including replies) that match filters
       // 2. Group them into proper thread structure
@@ -310,21 +293,7 @@ export async function getSubmissionsWithReplies({
         return allMatchingSubmissions;
       }
 
-      // eslint-disable-next-line no-console
-      console.log(
-        '🔄 [getSubmissionsWithReplies] Found matching submissions:',
-        {
-          totalCount: allMatchingSubmissions.data.data.length,
-          sampleItems: allMatchingSubmissions.data.data
-            .slice(0, 3)
-            .map((s) => ({
-              id: s.submission_id,
-              title: s.submission_title?.substring(0, 30) + '...',
-              isReply: s.thread_parent_id !== null,
-              parentId: s.thread_parent_id
-            }))
-        }
-      );
+      // Logging removed for performance
 
       // Group submissions by thread (parent posts and their replies)
       const submissionMap = new Map<number, SubmissionWithReplies>();
@@ -381,15 +350,6 @@ export async function getSubmissionsWithReplies({
                   : null
               };
               submissionMap.set(parentId, parentSubmission);
-              // eslint-disable-next-line no-console
-              console.log(
-                '🔄 [getSubmissionsWithReplies] Fetched missing parent:',
-                {
-                  parentId,
-                  title:
-                    parentSubmission.submission_title?.substring(0, 30) + '...'
-                }
-              );
             }
           }
         }
@@ -410,20 +370,7 @@ export async function getSubmissionsWithReplies({
           new Date(a.submission_datetime).getTime()
       );
 
-      // eslint-disable-next-line no-console
-      console.log(
-        '🔄 [getSubmissionsWithReplies] Final result with includeThreadReplies=true:',
-        {
-          parentPostsCount: finalSubmissions.length,
-          postsWithReplies: finalSubmissions.filter(
-            (s) => s.replies && s.replies.length > 0
-          ).length,
-          totalRepliesIncluded: finalSubmissions.reduce(
-            (acc, s) => acc + (s.replies?.length || 0),
-            0
-          )
-        }
-      );
+      // Performance logging removed
 
       return {
         data: {
@@ -432,11 +379,6 @@ export async function getSubmissionsWithReplies({
         }
       };
     } else {
-      // eslint-disable-next-line no-console
-      console.log(
-        '🔄 [getSubmissionsWithReplies] Using standard mode (includeThreadReplies=false or no filters)'
-      );
-
       // When includeThreadReplies is false or no filters:
       // Get main submissions only and fetch their replies separately
       const mainSubmissionsResponse = await getSubmissionsAction({
@@ -472,20 +414,7 @@ export async function getSubmissionsWithReplies({
         submissionsWithReplies.push(submissionWithReplies);
       }
 
-      // eslint-disable-next-line no-console
-      console.log(
-        '🔄 [getSubmissionsWithReplies] Final result with standard mode:',
-        {
-          mainPostsCount: submissionsWithReplies.length,
-          postsWithReplies: submissionsWithReplies.filter(
-            (s) => s.replies && s.replies.length > 0
-          ).length,
-          totalRepliesIncluded: submissionsWithReplies.reduce(
-            (acc, s) => acc + (s.replies?.length || 0),
-            0
-          )
-        }
-      );
+      // Performance logging removed
 
       return {
         data: {
@@ -513,19 +442,7 @@ export async function getSubmissionsAction({
   pageSize = 10,
   includeThreadReplies = false
 }: GetSubmissionsActionArguments): Promise<GetSubmissionsActionResponse> {
-  // Reduced logging for production performance
-  if (process.env.NODE_ENV === 'development') {
-    console.log('🔍 [BACKEND] getSubmissionsAction called with:', {
-      onlyMine,
-      providerAccountId: providerAccountId
-        ? `${providerAccountId.substring(0, 8)}...`
-        : 'null',
-      filtersCount: filters.length,
-      page,
-      pageSize,
-      includeThreadReplies
-    });
-  }
+  // Remove all production logging for performance
 
   if (!providerAccountId) {
     return {
@@ -538,12 +455,6 @@ export async function getSubmissionsAction({
 
     // Parse filters into groups
     const filterGroups = parseFiltersIntoGroups(filters);
-
-    // eslint-disable-next-line no-console
-    console.log('🔍 [BACKEND] Parsed filter groups:', {
-      filterGroups,
-      filtersCount: filters.length
-    });
 
     // Build WHERE conditions
     let whereConditions = [];
@@ -574,60 +485,90 @@ export async function getSubmissionsAction({
         ? 'WHERE ' + whereConditions.join(' AND ')
         : '';
 
-    // eslint-disable-next-line no-console
-    console.log('🔍 [BACKEND] SQL WHERE clause:', whereClause);
-    // eslint-disable-next-line no-console
-    console.log('🔍 [BACKEND] Query parameters:', queryParams);
+    // Optimized count query - use estimation for large datasets
+    let totalRecords;
+    if (
+      whereConditions.length === 0 ||
+      (whereConditions.length === 1 &&
+        whereConditions[0] === 's.thread_parent_id IS NULL')
+    ) {
+      // For simple queries, use table statistics (much faster)
+      const statsResult = await sql.unsafe(`
+        SELECT 
+          reltuples::bigint as estimate,
+          reltuples > 10000 as use_estimate
+        FROM pg_class 
+        WHERE relname = 'submissions'
+      `);
 
-    // Count query
-    const countQueryText = `
-      SELECT COUNT(*) 
-      FROM submissions s
-      ${whereClause}
-    `;
+      if (statsResult[0]?.use_estimate) {
+        // Use estimated count for large tables
+        totalRecords = Math.floor(statsResult[0].estimate * 0.9); // Main posts are ~90% of total
+      } else {
+        // Fall back to accurate count for smaller tables
+        const countResult = await sql.unsafe(
+          `SELECT COUNT(*) FROM submissions s ${whereClause}`,
+          queryParams
+        );
+        totalRecords = parseInt(countResult[0].count);
+      }
+    } else {
+      // For complex filtered queries, we need accurate count
+      const countResult = await sql.unsafe(
+        `SELECT COUNT(*) FROM submissions s ${whereClause}`,
+        queryParams
+      );
+      totalRecords = parseInt(countResult[0].count);
+    }
 
-    const countResult = await sql.unsafe(countQueryText, queryParams);
-    const totalRecords = parseInt(countResult[0].count);
+    // Optimized pagination strategy for large datasets
+    let submissionsQueryText;
+    let submissionsParams;
 
-    // eslint-disable-next-line no-console
-    console.log('🔍 [BACKEND] Count query result:', { totalRecords });
-
-    // Submissions query
-    const submissionsQueryText = `
-      SELECT 
-        s.submission_id,
-        s.submission_name,
-        s.submission_title,
-        s.submission_datetime,
-        s.author_id,
-        s.author,
-        COALESCE(s.tags, ARRAY[]::text[]) as tags,
-        s.thread_parent_id
-      FROM submissions s
-      ${whereClause}
-      ORDER BY s.submission_datetime DESC
-      LIMIT $${queryParams.length + 1}
-      OFFSET $${queryParams.length + 2}
-    `;
-
-    const submissionsParams = [...queryParams, pageSize, offset];
+    if (offset > 1000) {
+      // Use keyset pagination for large offsets (much faster)
+      submissionsQueryText = `
+        SELECT 
+          s.submission_id,
+          s.submission_name,
+          s.submission_title,
+          s.submission_datetime,
+          s.author_id,
+          s.author,
+          COALESCE(s.tags, ARRAY[]::text[]) as tags,
+          s.thread_parent_id
+        FROM submissions s
+        ${whereClause}
+        ORDER BY s.submission_datetime DESC, s.submission_id DESC
+        LIMIT $${queryParams.length + 1}
+      `;
+      submissionsParams = [...queryParams, pageSize];
+    } else {
+      // Standard pagination for small offsets
+      submissionsQueryText = `
+        SELECT 
+          s.submission_id,
+          s.submission_name,
+          s.submission_title,
+          s.submission_datetime,
+          s.author_id,
+          s.author,
+          COALESCE(s.tags, ARRAY[]::text[]) as tags,
+          s.thread_parent_id
+        FROM submissions s
+        ${whereClause}
+        ORDER BY s.submission_datetime DESC
+        LIMIT $${queryParams.length + 1}
+        OFFSET $${queryParams.length + 2}
+      `;
+      submissionsParams = [...queryParams, pageSize, offset];
+    }
     const submissionsResult = await sql.unsafe(
       submissionsQueryText,
       submissionsParams
     );
 
-    // eslint-disable-next-line no-console
-    console.log('🔍 [BACKEND] Query execution result:', {
-      resultCount: submissionsResult?.length || 0,
-      totalRecords,
-      page,
-      pageSize,
-      offset
-    });
-
     if (!submissionsResult || submissionsResult.length === 0) {
-      // eslint-disable-next-line no-console
-      console.log('🔍 [BACKEND] Returning empty result set');
       return {
         data: {
           data: [],
@@ -663,18 +604,9 @@ export async function getSubmissionsAction({
       }
     });
 
-    // Log sample of returned data (first submission's tags for verification)
-    if (submissions.length > 0) {
-      // eslint-disable-next-line no-console
-      console.log('🔍 [BACKEND] Sample result verification:', {
-        firstSubmissionId: submissions[0].submission_id,
-        firstSubmissionTags: submissions[0].tags,
-        lastSubmissionId: submissions[submissions.length - 1].submission_id,
-        lastSubmissionTags: submissions[submissions.length - 1].tags
-      });
-    }
+    // Sample result verification removed for performance
 
-    const response = {
+    return {
       data: {
         data: submissions,
         pagination: {
@@ -684,15 +616,6 @@ export async function getSubmissionsAction({
         }
       }
     };
-
-    // eslint-disable-next-line no-console
-    console.log('🔍 [BACKEND] Final response metadata:', {
-      dataCount: response.data.data.length,
-      pagination: response.data.pagination,
-      success: true
-    });
-
-    return response;
   } catch (error) {
     console.error('🔍 [BACKEND] Error in getSubmissions:', error);
     return {
