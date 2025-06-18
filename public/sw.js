@@ -1,5 +1,5 @@
 // Smart Caching Service Worker with Version-Based Cache Busting
-const CACHE_VERSION = 'v2'; // Increment this to force cache refresh
+const CACHE_VERSION = 'v3'; // Increment this to force cache refresh
 const CACHE_NAME = `idling-app-cache-${CACHE_VERSION}`;
 const CACHE_METADATA_NAME = `idling-app-cache-metadata-${CACHE_VERSION}`;
 
@@ -179,6 +179,11 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
+  // Skip authentication routes - they should never be cached
+  if (event.request.url.includes('/api/auth/')) {
+    return;
+  }
+
   event.respondWith(
     (async () => {
       const cache = await caches.open(CACHE_NAME);
@@ -187,8 +192,8 @@ self.addEventListener('fetch', (event) => {
       
       // Check if we have a valid cached response
       if (cachedResponse && isCacheValid(cachedResponse, ttl)) {
-        // For API routes, also check version header
-        if (event.request.url.includes('/api/')) {
+        // For API routes (excluding auth routes), also check version header
+        if (event.request.url.includes('/api/') && !event.request.url.includes('/api/auth/')) {
           try {
             const headResponse = await fetch(event.request.url, { method: 'HEAD' });
             const currentVersion = headResponse.headers.get('X-App-Version');
