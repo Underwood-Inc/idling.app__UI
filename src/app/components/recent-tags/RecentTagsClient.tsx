@@ -116,15 +116,17 @@ const RecentTagsClientComponent = ({
   }, [onlyMine, session]);
 
   const handleTagClick = (tag: string) => {
-    const isSelected = tagState.currentTags.includes(tag);
+    // Ensure consistent formatting with # prefix
+    const formattedTag = tag.startsWith('#') ? tag : `#${tag}`;
+    const isSelected = tagState.currentTags.includes(formattedTag);
     let newTags: string[];
 
     if (isSelected) {
       // Remove tag
-      newTags = tagState.currentTags.filter((t) => t !== tag);
+      newTags = tagState.currentTags.filter((t) => t !== formattedTag);
     } else {
       // Add tag
-      newTags = [...tagState.currentTags, tag];
+      newTags = [...tagState.currentTags, formattedTag];
     }
 
     // Update shared atom state directly
@@ -301,7 +303,9 @@ const RecentTagsClientComponent = ({
               {recentTags.tags.length > 0 && (
                 <ol className="recent-tags__list">
                   {recentTags.tags.map((tag) => {
-                    const isActive = tagState.currentTags.includes(tag);
+                    const formattedTag = tag.startsWith('#') ? tag : `#${tag}`;
+                    const isActive =
+                      tagState.currentTags.includes(formattedTag);
                     return (
                       <li key={tag} className="recent-tags__list-item">
                         <button
@@ -350,11 +354,21 @@ export const RecentTagsClient = React.memo(
 
 export function RecentTagsLoader() {
   return (
-    <article className="recent-tags__container">
-      <Card width="full">
+    <article className="recent-tags__article">
+      <Card width="full" className="recent-tags__card">
         <FancyBorder className="recent-tags__fancy-border">
-          <h3 title="3 months">Recent Tags</h3>
-          <Loader label="" color="black" />
+          <div className="recent-tags__container">
+            <div className="recent-tags__header">
+              <h3 className="recent-tags__title" title="3 months">
+                Recent Tags
+              </h3>
+            </div>
+            <div className="recent-tags__content">
+              <div className="recent-tags__loading">
+                <Loader label="Loading recent tags..." color="black" />
+              </div>
+            </div>
+          </div>
         </FancyBorder>
       </Card>
     </article>

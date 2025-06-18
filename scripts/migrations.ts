@@ -266,14 +266,14 @@ export async function runMigration(
         }
 
         await transaction`
-          INSERT INTO migrations (filename, success, error_message)
-          VALUES (${fileName}, true, null)
+        INSERT INTO migrations (filename, success, error_message)
+        VALUES (${fileName}, true, null)
           ON CONFLICT (filename) 
           DO UPDATE SET 
             success = EXCLUDED.success,
             error_message = EXCLUDED.error_message,
             executed_at = CURRENT_TIMESTAMP
-        `;
+      `;
       });
     }
 

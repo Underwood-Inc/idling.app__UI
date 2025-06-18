@@ -620,7 +620,7 @@ export function MentionTooltip({
   onLeave,
   position
 }: MentionTooltipProps) {
-  const tooltipRef = useRef<HTMLDivElement>(null);
+  const tooltipRef = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -648,7 +648,7 @@ export function MentionTooltip({
   }, [onClose]);
 
   return (
-    <div
+    <span
       ref={tooltipRef}
       className="mention-tooltip"
       onMouseEnter={onHover}
@@ -657,7 +657,8 @@ export function MentionTooltip({
         position: 'fixed',
         left: position.x,
         top: position.y,
-        zIndex: 1000
+        zIndex: 1000,
+        display: 'block'
       }}
     >
       <div className="mention-tooltip__header">Filter by @{username}</div>
@@ -685,6 +686,6 @@ export function MentionTooltip({
           </span>
         </button>
       </div>
-    </div>
+    </span>
   );
 }

@@ -49,17 +49,11 @@ export function CustomFilterInput({
 
     // Process the input and create appropriate filter
     processFilterInput(valueToProcess.trim());
-
-    // Clear both values after processing
-    setInputValue('');
-    setCurrentEditValue('');
   };
 
   const processFilterInput = (value: string) => {
-    // Parse the input to extract all pills (hashtags and mentions)
     const pills = parseMultiplePills(value);
 
-    // Process each pill individually
     pills.forEach((pill) => {
       if (pill.type === 'hashtag') {
         processHashtagFilter(pill.content);
@@ -67,6 +61,13 @@ export function CustomFilterInput({
         processUserFilter(pill.content);
       }
     });
+
+    // Clear the input after processing with a small delay to ensure state updates complete
+    setTimeout(() => {
+      setInputValue('');
+      setCurrentEditValue('');
+      setFilterType('tags'); // Reset to default
+    }, 0);
   };
 
   // Parse input string to extract multiple pills
@@ -141,8 +142,14 @@ export function CustomFilterInput({
       username = value.replace(/^@+/, ''); // Remove leading @'s
       if (!username) return;
 
-      // For simple format, we'll use the username as-is
-      // The backend will handle username->userId resolution
+      // Validate username format (alphanumeric, underscore, hyphen)
+      if (!/^[a-zA-Z0-9_-]+$/.test(username)) {
+        console.warn('Invalid username format:', username);
+        return;
+      }
+
+      // For simple format, we'll use the username as both username and userId
+      // The backend will handle username resolution
       userId = username;
     }
 
@@ -173,17 +180,45 @@ export function CustomFilterInput({
 
   const handleSmartInputChange = (newValue: string) => {
     // Update input value and handle filter type detection
-    handleInputChange(newValue);
+    setInputValue(newValue);
+    // Don't set currentEditValue here to avoid circular updates
+
+    // Auto-detect filter type based on input
+    if (newValue.startsWith('#')) {
+      setFilterType('tags');
+    } else if (newValue.startsWith('@')) {
+      setFilterType('users');
+    }
   };
 
   const handleEditValueChange = (editValue: string) => {
     setCurrentEditValue(editValue);
+
+    // Don't sync inputValue here to avoid circular updates
+    // The SmartPillInput will handle its own state
 
     // Auto-detect filter type based on edit value
     if (editValue.startsWith('#')) {
       setFilterType('tags');
     } else if (editValue.startsWith('@')) {
       setFilterType('users');
+    }
+  };
+
+  const handlePillClick = (pillText: string, action: 'edit' | 'remove') => {
+    if (action === 'edit') {
+      // For incomplete pills, the SmartPillInput will handle entering edit mode
+      // We just need to make sure our state is in sync
+      setCurrentEditValue(pillText);
+      setInputValue(pillText);
+    } else if (action === 'remove') {
+      // Remove the pill from both values
+      const newValue = inputValue
+        .replace(pillText, '')
+        .replace(/\s+/g, ' ')
+        .trim();
+      setInputValue(newValue);
+      setCurrentEditValue(newValue);
     }
   };
 
@@ -197,6 +232,7 @@ export function CustomFilterInput({
               value={inputValue}
               onChange={handleSmartInputChange}
               onEditValueChange={handleEditValueChange}
+              onPillClick={handlePillClick}
               placeholder={placeholder}
               className="custom-filter-input__input"
               enableHashtags={true}

@@ -92,7 +92,7 @@ When you choose option 2:
 2. **A new file is created** with the next number
    ```
    ✓ Created new migration: 0005-add-user-profile-pictures.sql
-   ```
+```
 
 3. **Edit the file** to add your database changes
 

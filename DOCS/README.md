@@ -52,17 +52,40 @@ gh workflow run docs.yml
 
 To test documentation locally:
 
+#### Prerequisites (WSL/Ubuntu)
+
+If you're on WSL or Ubuntu and don't have Ruby installed:
+
 ```bash
+# Install Ruby and dependencies
+sudo apt update
+sudo apt install ruby-full build-essential zlib1g-dev
+
+# Install bundler
+gem install bundler jekyll
+```
+
+#### Development Commands
+
+```bash
+# From project root, use npm scripts:
+npm run docs:install    # Install Jekyll dependencies
+npm run docs:dev        # Serve with live reload
+npm run docs:build      # Build static site
+
+# Or manually:
 cd DOCS
 
 # Install dependencies
 bundle install
 
-# Serve locally
-bundle exec jekyll serve --baseurl "/idling.app__UI"
+# Serve locally with live reload
+bundle exec jekyll serve --livereload --host=0.0.0.0 --port=4000
 
-# Visit: http://localhost:4000/idling.app__UI/
+# Visit: http://localhost:4000/ (or http://0.0.0.0:4000/ on WSL)
 ```
+
+**Note**: The `--host=0.0.0.0` flag is required for WSL compatibility.
 
 ## 📝 Writing Documentation
 

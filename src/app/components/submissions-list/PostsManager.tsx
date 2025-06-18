@@ -5,7 +5,9 @@ import React, { useCallback, useMemo, useState } from 'react';
 import { useSubmissionsManager } from '../../../lib/state/useSubmissionsManager';
 import { CustomFilterInput } from '../filter-bar/CustomFilterInput';
 import FilterBar from '../filter-bar/FilterBar';
+import InfiniteScrollTrigger from '../infinite-scroll-trigger/InfiniteScrollTrigger';
 import Pagination from '../pagination/Pagination';
+import { StickyPagination } from '../pagination/StickyPagination';
 import { SpacingThemeToggle } from '../spacing-theme-toggle/SpacingThemeToggle';
 
 import './PostsManager.css';
@@ -31,6 +33,7 @@ const PostsManager = React.memo(function PostsManager({
 }: PostsManagerProps) {
   const { data: session } = useSession();
   const [includeThreadReplies, setIncludeThreadReplies] = useState(false);
+  const [infiniteScrollMode, setInfiniteScrollMode] = useState(false);
 
   // Memoize the submissions manager call
   const {
@@ -44,12 +47,16 @@ const PostsManager = React.memo(function PostsManager({
     removeTag,
     clearFilters,
     setPage,
-    setPageSize
+    setPageSize,
+    loadMore,
+    isLoadingMore,
+    hasMore
   } = useSubmissionsManager({
     contextId,
     onlyMine,
     providerAccountId: session?.user?.providerAccountId || '',
-    includeThreadReplies
+    includeThreadReplies,
+    infiniteScroll: infiniteScrollMode
   });
 
   // Memoize authorization check
@@ -67,14 +74,20 @@ const PostsManager = React.memo(function PostsManager({
   // Optimize callbacks with useCallback to prevent child re-renders
   const handleTagClick = useCallback(
     (tag: string) => {
-      addFilter({ name: 'tags', value: tag });
+      // Ensure consistent formatting with # prefix to match handleHashtagClick
+      const formattedTag = tag.startsWith('#') ? tag : `#${tag}`;
+      addFilter({ name: 'tags', value: formattedTag });
     },
     [addFilter]
   );
 
   const handleHashtagClick = useCallback(
     (hashtag: string) => {
-      addFilter({ name: 'tags', value: hashtag.replace('#', '') });
+      // Ensure hashtag has # prefix for consistency with other components
+      const formattedHashtag = hashtag.startsWith('#')
+        ? hashtag
+        : `#${hashtag}`;
+      addFilter({ name: 'tags', value: formattedHashtag });
     },
     [addFilter]
   );
@@ -129,9 +142,36 @@ const PostsManager = React.memo(function PostsManager({
   return (
     <>
       <div className="posts-manager__controls">
-        {/* Top controls row with spacing toggle, results count, and new post button */}
+        {/* Top controls row with spacing toggle, pagination toggle, results count, and new post button */}
         <div className="posts-manager__top-controls">
-          <SpacingThemeToggle />
+          <div className="posts-manager__display-controls">
+            <SpacingThemeToggle />
+
+            {/* Pagination Mode Toggle */}
+            <div className="posts-manager__pagination-toggle">
+              <label className="posts-manager__pagination-label">Pages:</label>
+              <div className="posts-manager__pagination-options">
+                <button
+                  className={`posts-manager__pagination-button ${
+                    !infiniteScrollMode ? 'active' : ''
+                  }`}
+                  onClick={() => setInfiniteScrollMode(false)}
+                  aria-pressed={!infiniteScrollMode}
+                >
+                  Traditional
+                </button>
+                <button
+                  className={`posts-manager__pagination-button ${
+                    infiniteScrollMode ? 'active' : ''
+                  }`}
+                  onClick={() => setInfiniteScrollMode(true)}
+                  aria-pressed={infiniteScrollMode}
+                >
+                  Infinite
+                </button>
+              </div>
+            </div>
+          </div>
 
           {/* Results count display */}
           {!isLoading && !error && (
@@ -233,26 +273,47 @@ const PostsManager = React.memo(function PostsManager({
         contextId={contextId}
       />
 
-      {!isLoading && !error && submissions.length === 0 && (
-        <div className="posts-manager__empty">
-          <p>No posts found.</p>
-          {filters.length > 0 && (
-            <button onClick={clearFilters}>Clear filters</button>
-          )}
-        </div>
-      )}
-
       {/* Pagination */}
       {!isLoading && !error && submissions.length > 0 && (
         <div className="posts-manager__pagination">
-          <Pagination
-            id="submissions"
-            currentPage={pagination.currentPage}
-            totalPages={totalPages}
-            pageSize={pagination.pageSize}
-            onPageChange={setPage}
-            onPageSizeChange={setPageSize}
-          />
+          {!infiniteScrollMode ? (
+            <>
+              <Pagination
+                id="submissions"
+                currentPage={pagination.currentPage}
+                totalPages={totalPages}
+                pageSize={pagination.pageSize}
+                onPageChange={setPage}
+                onPageSizeChange={setPageSize}
+              />
+              <StickyPagination
+                id="submissions"
+                currentPage={pagination.currentPage}
+                totalPages={totalPages}
+                pageSize={pagination.pageSize}
+                onPageChange={setPage}
+                onPageSizeChange={setPageSize}
+                containerSelector=".posts-manager__pagination"
+              />
+            </>
+          ) : (
+            <div className="posts-manager__infinite-scroll">
+              {/* Automatic loading trigger */}
+              {hasMore && (
+                <InfiniteScrollTrigger
+                  onLoadMore={loadMore}
+                  isLoading={isLoadingMore}
+                  className="posts-manager__infinite-trigger"
+                />
+              )}
+              {!hasMore && submissions.length > 0 && (
+                <div className="posts-manager__infinite-info">
+                  Showing all {submissions.length} of{' '}
+                  {pagination.totalRecords.toLocaleString()} posts
+                </div>
+              )}
+            </div>
+          )}
         </div>
       )}
     </>

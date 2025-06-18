@@ -1,3 +1,11 @@
+---
+title: "Discord Release Notes"
+description: "Release notes and announcements for Discord community"
+category: project
+layout: default
+nav_order: 3
+---
+
 # 🚀 **MAJOR UPDATE: Smart Filtering & Production Caching System**
 
 ## 📦 **What's New**

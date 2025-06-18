@@ -1,7 +1,7 @@
 import { useAtom } from 'jotai';
 import { useSession } from 'next-auth/react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { getSubmissionsWithReplies } from '../../app/components/submissions-list/actions';
 import { PostFilters } from '../types/filters';
 import {
@@ -17,6 +17,7 @@ interface UseSubmissionsManagerProps {
   initialFilters?: Filter<PostFilters>[];
   providerAccountId?: string;
   includeThreadReplies?: boolean;
+  infiniteScroll?: boolean;
 }
 
 // Use SubmissionWithReplies to support thread structure
@@ -26,12 +27,30 @@ interface PaginationInfo {
   totalRecords: number;
 }
 
+// Debounce utility for filter updates
+function useDebounce<T>(value: T, delay: number): T {
+  const [debouncedValue, setDebouncedValue] = useState<T>(value);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedValue(value);
+    }, delay);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [value, delay]);
+
+  return debouncedValue;
+}
+
 export function useSubmissionsManager({
   contextId,
   onlyMine = false,
   initialFilters = [],
   providerAccountId: initialProviderAccountId,
-  includeThreadReplies = false
+  includeThreadReplies = false,
+  infiniteScroll = false
 }: UseSubmissionsManagerProps) {
   const { data: session } = useSession();
   const router = useRouter();
@@ -49,6 +68,9 @@ export function useSubmissionsManager({
   // Monitor global shouldUpdate atom for refresh triggers
   const [shouldUpdate, setShouldUpdate] = useAtom(shouldUpdateAtom);
 
+  // Debounce filter changes to prevent excessive network requests
+  const debouncedFiltersState = useDebounce(filtersState, 300);
+
   // Refs to prevent infinite loops and optimize requests
   const isInitializing = useRef(true);
   const lastUrlParams = useRef<string>('');
@@ -56,6 +78,12 @@ export function useSubmissionsManager({
   const lastFetchParams = useRef<string>('');
   const abortController = useRef<AbortController>();
   const lastSyncedFilters = useRef<string>('');
+
+  // Infinite scroll state
+  const [infiniteData, setInfiniteData] = useState<any[]>([]);
+  const [infinitePage, setInfinitePage] = useState(1);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
 
   // Memoized provider account ID
   const providerAccountId = useMemo(
@@ -100,9 +128,10 @@ export function useSubmissionsManager({
     [onlyMine, providerAccountId, includeThreadReplies]
   );
 
-  // URL synchronization effect - only when filters change
+  // URL synchronization effect - only when filters change and not in infinite mode
   useEffect(() => {
-    if (isInitializing.current || !filtersState.initialized) return;
+    if (isInitializing.current || !filtersState.initialized || infiniteScroll)
+      return;
 
     const currentFiltersKey = JSON.stringify({
       filters: filtersState.filters,
@@ -141,12 +170,14 @@ export function useSubmissionsManager({
       }
     });
 
-    // Add pagination
-    if (filtersState.page > 1) {
-      params.set('page', filtersState.page.toString());
-    }
-    if (filtersState.pageSize !== 10) {
-      params.set('pageSize', filtersState.pageSize.toString());
+    // Add pagination only if not in infinite scroll mode
+    if (!infiniteScroll) {
+      if (filtersState.page > 1) {
+        params.set('page', filtersState.page.toString());
+      }
+      if (filtersState.pageSize !== 10) {
+        params.set('pageSize', filtersState.pageSize.toString());
+      }
     }
 
     const newUrl = `${pathname}${params.toString() ? `?${params.toString()}` : ''}`;
@@ -164,7 +195,8 @@ export function useSubmissionsManager({
     filtersState.initialized,
     pathname,
     router,
-    searchParams
+    searchParams,
+    infiniteScroll
   ]);
 
   // Optimized fetch function with deduplication
@@ -201,60 +233,61 @@ export function useSubmissionsManager({
       }));
 
       try {
-        // Always use getSubmissionsWithReplies to ensure proper thread structure
-        // Thread replies will never appear as standalone items in the main list
         const result = await getSubmissionsWithReplies({
-          onlyMine,
-          providerAccountId,
           filters: currentFilters,
           page: currentPage,
           pageSize: currentPageSize,
+          onlyMine,
+          providerAccountId,
           includeThreadReplies
         });
 
-        // Check if request was aborted
-        if (abortController.current?.signal.aborted) {
-          return;
-        }
+        if (result.data) {
+          if (infiniteScroll && currentPage === 1) {
+            // For infinite scroll, initialize the infinite data
+            setInfiniteData(result.data.data || []);
+            setInfinitePage(1);
+            setHasMore(
+              (result.data.data?.length || 0) <
+                (result.data.pagination?.totalRecords || 0)
+            );
+          }
 
-        if (result.error) {
-          setSubmissionsState({
+          setSubmissionsState((prev) => ({
+            ...prev,
             loading: false,
-            error: result.error,
-            data: undefined
-          });
-        } else if (result.data) {
-          setSubmissionsState({
-            loading: false,
-            error: undefined,
             data: {
-              submissions: result.data.data,
-              pagination: result.data.pagination
-            }
-          });
+              submissions: result.data?.data || [],
+              pagination: result.data?.pagination || {
+                currentPage: currentPage,
+                pageSize: currentPageSize,
+                totalRecords: 0
+              }
+            },
+            error: undefined
+          }));
+        } else {
+          setSubmissionsState((prev) => ({
+            ...prev,
+            loading: false,
+            error: result.error || 'Failed to fetch submissions'
+          }));
         }
-      } catch (err) {
-        // Don't show error if request was aborted
-        if (abortController.current?.signal.aborted) {
-          return;
-        }
-
-        const errorMessage =
-          err instanceof Error ? err.message : 'Failed to fetch submissions';
-        console.error('🔄 [MANAGER] Fetch error:', err);
-        setSubmissionsState({
+      } catch (error: any) {
+        console.error('Error fetching submissions:', error);
+        setSubmissionsState((prev) => ({
+          ...prev,
           loading: false,
-          error: errorMessage,
-          data: undefined
-        });
+          error: error.message || 'Failed to fetch submissions'
+        }));
       }
     },
     [
       onlyMine,
       providerAccountId,
+      includeThreadReplies,
       createFetchKey,
-      setSubmissionsState,
-      includeThreadReplies
+      infiniteScroll
     ]
   );
 
@@ -383,19 +416,18 @@ export function useSubmissionsManager({
 
   // Single debounced fetch effect that triggers on any relevant state change
   useEffect(() => {
-    if (isInitializing.current || !filtersState.initialized) return;
+    if (isInitializing.current || !debouncedFiltersState.initialized) return;
 
     // Clear previous timeout
     if (fetchTimeout.current) {
       clearTimeout(fetchTimeout.current);
     }
 
-    // Increased debounce time to reduce excessive requests
     // Only fetch if we're not already loading and this is a different request
     const fetchKey = createFetchKey(
-      filtersState.filters as Filter<PostFilters>[],
-      filtersState.page,
-      filtersState.pageSize
+      debouncedFiltersState.filters as Filter<PostFilters>[],
+      debouncedFiltersState.page,
+      debouncedFiltersState.pageSize
     );
 
     if (lastFetchParams.current === fetchKey && !submissionsState.error) {
@@ -403,28 +435,20 @@ export function useSubmissionsManager({
       return;
     }
 
-    // Debounce the fetch request with longer delay for better UX
-    fetchTimeout.current = setTimeout(() => {
-      if (!submissionsState.loading) {
-        fetchSubmissions(
-          filtersState.filters as Filter<PostFilters>[],
-          filtersState.page,
-          filtersState.pageSize
-        );
-      }
-    }, 500); // Increased from 300ms to 500ms
-
-    return () => {
-      if (fetchTimeout.current) {
-        clearTimeout(fetchTimeout.current);
-      }
-    };
+    // Fetch immediately since we're already debounced
+    if (!submissionsState.loading) {
+      fetchSubmissions(
+        debouncedFiltersState.filters as Filter<PostFilters>[],
+        debouncedFiltersState.page,
+        debouncedFiltersState.pageSize
+      );
+    }
   }, [
-    // Only depend on the actual values that matter for fetching
-    JSON.stringify(filtersState.filters), // Serialize to prevent reference changes from triggering
-    filtersState.page,
-    filtersState.pageSize,
-    filtersState.initialized,
+    // Use debounced filters to prevent rapid changes
+    JSON.stringify(debouncedFiltersState.filters),
+    debouncedFiltersState.page,
+    debouncedFiltersState.pageSize,
+    debouncedFiltersState.initialized,
     fetchSubmissions,
     createFetchKey,
     submissionsState.loading,
@@ -445,25 +469,29 @@ export function useSubmissionsManager({
 
   // Monitor shouldUpdate atom for refresh triggers
   useEffect(() => {
-    if (shouldUpdate && !isInitializing.current && filtersState.initialized) {
+    if (
+      shouldUpdate &&
+      !isInitializing.current &&
+      debouncedFiltersState.initialized
+    ) {
       // Reset the shouldUpdate flag
       setShouldUpdate(false);
 
       // Force a refresh by triggering fetchSubmissions
       fetchSubmissions(
-        filtersState.filters as Filter<PostFilters>[],
-        filtersState.page,
-        filtersState.pageSize
+        debouncedFiltersState.filters as Filter<PostFilters>[],
+        debouncedFiltersState.page,
+        debouncedFiltersState.pageSize
       );
     }
   }, [
     shouldUpdate,
     setShouldUpdate,
     fetchSubmissions,
-    filtersState.filters,
-    filtersState.page,
-    filtersState.pageSize,
-    filtersState.initialized
+    debouncedFiltersState.filters,
+    debouncedFiltersState.page,
+    debouncedFiltersState.pageSize,
+    debouncedFiltersState.initialized
   ]);
 
   // Action methods that update shared atoms
@@ -585,7 +613,84 @@ export function useSubmissionsManager({
       filters: [],
       page: 1
     }));
-  }, [setFiltersState]);
+
+    if (infiniteScroll) {
+      // Reset infinite scroll state when filters change
+      setInfiniteData([]);
+      setInfinitePage(1);
+      setHasMore(true);
+    }
+  }, [setFiltersState, infiniteScroll]);
+
+  // Load more function for infinite scroll with performance optimizations
+  const loadMore = useCallback(async () => {
+    // Multiple guards to prevent unnecessary requests
+    if (!infiniteScroll || isLoadingMore || !hasMore) return;
+
+    // Prevent rapid consecutive calls
+    const now = Date.now();
+    const lastCallKey = `${contextId}-last-load-more-call`;
+    const lastCall = parseInt(sessionStorage.getItem(lastCallKey) || '0');
+    const minInterval = 500; // Minimum 500ms between calls
+
+    if (now - lastCall < minInterval) {
+      return;
+    }
+
+    sessionStorage.setItem(lastCallKey, now.toString());
+    setIsLoadingMore(true);
+
+    try {
+      const nextPage = infinitePage + 1;
+
+      const result = await getSubmissionsWithReplies({
+        filters: debouncedFiltersState.filters as Filter<PostFilters>[],
+        page: nextPage,
+        pageSize: debouncedFiltersState.pageSize,
+        onlyMine,
+        providerAccountId,
+        includeThreadReplies
+      });
+
+      if (result.data) {
+        const newSubmissions = result.data.data || [];
+
+        // Only update state if we actually got new data
+        if (newSubmissions.length > 0) {
+          setInfiniteData((prev) => [...prev, ...newSubmissions]);
+          setInfinitePage(nextPage);
+
+          // Check if we have more data
+          const totalLoaded = infiniteData.length + newSubmissions.length;
+          const totalAvailable = result.data.pagination?.totalRecords || 0;
+          setHasMore(totalLoaded < totalAvailable);
+        } else {
+          // No more data available
+          setHasMore(false);
+        }
+      } else {
+        // Handle error case
+        setHasMore(false);
+      }
+    } catch (error: any) {
+      console.error('Error loading more submissions:', error);
+      // Don't disable hasMore on error - allow retry
+    } finally {
+      setIsLoadingMore(false);
+    }
+  }, [
+    infiniteScroll,
+    isLoadingMore,
+    hasMore,
+    infinitePage,
+    infiniteData.length,
+    debouncedFiltersState.filters,
+    debouncedFiltersState.pageSize,
+    onlyMine,
+    providerAccountId,
+    includeThreadReplies,
+    contextId
+  ]);
 
   // Display filters (exclude tagLogic from UI display)
   const displayFilters = useMemo(() => {
@@ -593,7 +698,9 @@ export function useSubmissionsManager({
   }, [filtersState.filters]);
 
   // Extract data from atoms
-  const submissions = submissionsState.data?.submissions || [];
+  const submissions = infiniteScroll
+    ? infiniteData
+    : submissionsState.data?.submissions || [];
   const pagination: PaginationInfo = submissionsState.data?.pagination || {
     currentPage: filtersState.page,
     pageSize: filtersState.pageSize,
@@ -615,8 +722,13 @@ export function useSubmissionsManager({
     removeFilter,
     removeTag,
     clearFilters,
+    loadMore,
 
     // Computed
-    totalPages: Math.ceil(pagination.totalRecords / pagination.pageSize)
+    totalPages: Math.ceil(pagination.totalRecords / pagination.pageSize),
+
+    // Infinite scroll state
+    isLoadingMore,
+    hasMore
   };
 }

@@ -91,11 +91,11 @@
 .floating-add-post__modal-content .submission__title-input,
 .floating-add-post__modal-content .submission__content-input,
 .floating-add-post__modal-content .submission__tags-input {
-  background: #ffffff !important;
-  border: 1px solid var(--brand-tertiary) !important;
+  background: var(--light-bg__color--primary) !important;
+  border: 1px solid var(--brand-primary--light) !important;
   color: var(--light-bg__text-color--primary) !important;
   padding: 0.75rem !important;
-  border-radius: 0.5rem !important;
+  border-radius: var(--border-radius) !important;
   font-size: 1rem !important;
   transition: all 0.2s ease !important;
   width: 100% !important;
@@ -114,16 +114,16 @@
 .floating-add-post__modal-content .submission__tags-input:focus {
   outline: none !important;
   border-color: var(--brand-primary) !important;
-  background: #ffffff !important;
+  background: var(--light-bg__color--primary) !important;
   box-shadow: 0 0 0 3px rgba(237, 174, 73, 0.1) !important;
 }
 
 .floating-add-post__modal-content .submission__submit-button {
-  background: linear-gradient(135deg, var(--brand-primary) 0%, var(--brand-secondary) 100%) !important;
+  background: var(--brand-primary) !important;
   color: var(--font-color--primary) !important;
-  border: none !important;
+  border: 1px solid var(--brand-primary--dark) !important;
   padding: 0.75rem 1.5rem !important;
-  border-radius: 0.5rem !important;
+  border-radius: var(--border-radius) !important;
   font-weight: 500 !important;
   cursor: pointer !important;
   transition: all 0.2s ease !important;
@@ -134,14 +134,15 @@
 }
 
 .floating-add-post__modal-content .submission__submit-button:hover:not(:disabled) {
-  background: linear-gradient(135deg, var(--brand-primary--dark) 0%, var(--brand-secondary--dark) 100%) !important;
+  background: var(--brand-primary--dark) !important;
   transform: translateY(-1px) !important;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
 }
 
 .floating-add-post__modal-content .submission__submit-button:disabled {
-  background: var(--brand-tertiary) !important;
+  background: var(--light-bg__color--tertiary) !important;
   color: var(--light-bg__text-color--secondary) !important;
+  border-color: var(--light-bg__color--tertiary) !important;
   cursor: not-allowed !important;
   transform: none !important;
   box-shadow: none !important;
@@ -203,27 +204,27 @@
 /* Dark mode support */
 @media (prefers-color-scheme: dark) {
   .floating-add-post__title {
-    color: var(--dark-bg__text-color--primary, #f9fafb);
+    color: var(--light-bg__text-color--primary);
   }
 
   .floating-add-post__modal-content .submission__title-input,
   .floating-add-post__modal-content .submission__content-input,
   .floating-add-post__modal-content .submission__tags-input {
-    background: var(--dark-background--tertiary, #374151) !important;
-    border-color: var(--dark-brand-tertiary--dark, #4b5563) !important;
-    color: var(--dark-bg__text-color--primary, #f9fafb) !important;
+    background: var(--light-bg__color--secondary) !important;
+    border-color: var(--brand-primary--light) !important;
+    color: var(--light-bg__text-color--primary) !important;
   }
 
   .floating-add-post__modal-content .submission__title-input:focus,
   .floating-add-post__modal-content .submission__content-input:focus,
   .floating-add-post__modal-content .submission__tags-input:focus {
-    background: var(--dark-background--tertiary, #374151) !important;
+    background: var(--light-bg__color--secondary) !important;
     border-color: var(--brand-primary) !important;
     box-shadow: 0 0 0 3px rgba(237, 174, 73, 0.2) !important;
   }
 
   .floating-add-post__modal-content .info {
-    color: var(--dark-bg__text-color--secondary, #9ca3af);
+    color: var(--light-bg__text-color--secondary);
   }
 }
 
