@@ -313,14 +313,23 @@ export const SmartPillInput: React.FC<SmartPillInputProps> = ({
 
   // Handle pill click to edit incomplete pills or remove complete ones
   const handlePillClick = (pillText: string) => {
-    // Check if this is an incomplete pill (doesn't match complete patterns)
+    // Check if this is a complete pill (matches complete patterns)
     const isCompletePill =
       /^#\w+$/.test(pillText.trim()) || // Complete hashtag
-      /^@\[[^\]]+\]$/.test(pillText.trim()); // Complete structured mention
+      /^@\[[^\]]+\]$/.test(pillText.trim()) || // Complete structured mention (any format)
+      /^@[a-zA-Z0-9._-]+(?:\s+[a-zA-Z0-9._-]+)*$/.test(pillText.trim()); // Simple mention
 
     if (!isEditing) {
-      // Not in edit mode - enter edit mode for incomplete pills, remove complete ones
-      if (!isCompletePill) {
+      // Not in edit mode - remove complete pills directly, edit incomplete ones
+      if (isCompletePill) {
+        // Complete pill - remove it directly
+        const newValue = value
+          .replace(pillText, '')
+          .replace(/\s+/g, ' ')
+          .trim();
+        onChange(newValue);
+        return;
+      } else {
         // Incomplete pill - enter edit mode to allow editing
         setIsEditing(true);
 
@@ -348,14 +357,6 @@ export const SmartPillInput: React.FC<SmartPillInputProps> = ({
             input.setSelectionRange(pillLength, pillLength);
           }
         }, 0);
-        return;
-      } else {
-        // Complete pill - remove it directly
-        const newValue = value
-          .replace(pillText, '')
-          .replace(/\s+/g, ' ')
-          .trim();
-        onChange(newValue);
         return;
       }
     }
@@ -480,7 +481,8 @@ export const SmartPillInput: React.FC<SmartPillInputProps> = ({
                 if (segment.type === 'text') {
                   return null; // Skip text segments in edit mode
                 } else if (segment.type === 'mention') {
-                  // For mention pills, show with filter type control
+                  // For mention pills, show with external filter type control
+                  const contentForPills = segment.raw || segment.content;
                   return (
                     <div
                       key={index}
@@ -488,18 +490,19 @@ export const SmartPillInput: React.FC<SmartPillInputProps> = ({
                     >
                       <div className="smart-pill-input__mention-pill">
                         <ContentWithPills
-                          content={segment.raw || segment.content}
+                          content={contentForPills}
                           contextId={contextId}
                           onHashtagClick={() =>
-                            handlePillClick(segment.raw || segment.content)
+                            handlePillClick(contentForPills)
                           }
                           onMentionClick={() =>
-                            handlePillClick(segment.raw || segment.content)
+                            handlePillClick(contentForPills)
                           }
                           className="smart-pill-input__pill"
                           isFilterBarContext={true}
+                          enableInlineFilterControl={false}
                         />
-                        {/* Filter type toggle button */}
+                        {/* External filter type toggle button */}
                         <button
                           type="button"
                           className={
@@ -513,7 +516,7 @@ export const SmartPillInput: React.FC<SmartPillInputProps> = ({
                               : 'Mentions'
                           } filter. Click to toggle.`}
                         >
-                          {segment.filterType === 'author' ? '👤' : '💬'}
+                          {segment.filterType === 'author' ? 'BY' : 'IN'}
                         </button>
                       </div>
                     </div>
@@ -526,10 +529,11 @@ export const SmartPillInput: React.FC<SmartPillInputProps> = ({
                       <ContentWithPills
                         content={contentForPills}
                         contextId={contextId}
-                        onHashtagClick={(hashtag) => handlePillClick(hashtag)}
-                        onMentionClick={(mention) => handlePillClick(mention)}
+                        onHashtagClick={() => handlePillClick(contentForPills)}
+                        onMentionClick={() => handlePillClick(contentForPills)}
                         className="smart-pill-input__pill"
                         isFilterBarContext={true}
+                        enableInlineFilterControl={false}
                       />
                     </div>
                   );
@@ -567,20 +571,60 @@ export const SmartPillInput: React.FC<SmartPillInputProps> = ({
                       {segment.content}
                     </span>
                   );
-                } else {
-                  // For hashtags and mentions, pass the original raw format to ContentWithPills
-                  // so it can properly parse and style them
+                } else if (segment.type === 'mention') {
+                  // For mention pills in display mode, show with filter type indicator
                   const contentForPills = segment.raw || segment.content;
                   return (
-                    <ContentWithPills
+                    <div
                       key={index}
-                      content={contentForPills}
-                      contextId={contextId}
-                      onHashtagClick={(hashtag) => handlePillClick(hashtag)}
-                      onMentionClick={(mention) => handlePillClick(mention)}
-                      className="smart-pill-input__pill"
-                      isFilterBarContext={true}
-                    />
+                      className="smart-pill-input__mention-pill-wrapper"
+                    >
+                      <div className="smart-pill-input__mention-pill">
+                        <ContentWithPills
+                          content={contentForPills}
+                          contextId={contextId}
+                          onHashtagClick={() =>
+                            handlePillClick(contentForPills)
+                          }
+                          onMentionClick={() =>
+                            handlePillClick(contentForPills)
+                          }
+                          className="smart-pill-input__pill"
+                          isFilterBarContext={true}
+                          enableInlineFilterControl={false}
+                        />
+                        {/* Non-clickable filter type display */}
+                        <span
+                          className={
+                            `smart-pill-input__filter-type-display ` +
+                            `smart-pill-input__filter-type-display--${segment.filterType}`
+                          }
+                          title={`Filtering by ${
+                            segment.filterType === 'author'
+                              ? 'posts authored by this user'
+                              : 'posts that mention this user'
+                          }`}
+                        >
+                          {segment.filterType === 'author' ? 'BY' : 'IN'}
+                        </span>
+                      </div>
+                    </div>
+                  );
+                } else {
+                  // For hashtag pills, use the existing approach
+                  const contentForPills = segment.raw || segment.content;
+                  return (
+                    <div key={index} className="smart-pill-input__pill-wrapper">
+                      <ContentWithPills
+                        content={contentForPills}
+                        contextId={contextId}
+                        onHashtagClick={() => handlePillClick(contentForPills)}
+                        onMentionClick={() => handlePillClick(contentForPills)}
+                        className="smart-pill-input__pill"
+                        isFilterBarContext={true}
+                        enableInlineFilterControl={false}
+                      />
+                    </div>
                   );
                 }
               })}

@@ -32,16 +32,16 @@ export const Author: React.FC<AuthorProps> = ({
   const containerClass = `author ${size} ${onClick ? 'clickable' : ''} ${className}`;
 
   return (
-    <div className={containerClass} onClick={handleClick}>
-      <span className="author__name" title={authorName}>
+    <article className={containerClass} onClick={handleClick}>
+      <div className="author__name" title={authorName}>
         <Avatar
           seed={authorName}
           size={size}
           enableTooltip={true}
           tooltipScale={2}
         />
-        {displayName}
-      </span>
-    </div>
+        <span>{displayName}</span>
+      </div>
+    </article>
   );
 };

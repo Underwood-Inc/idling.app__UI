@@ -362,27 +362,6 @@ export function CustomFilterInput({
               enableUserMentions={true}
               contextId={contextId}
             />
-
-            {/* Mode Indicator */}
-            {currentMode && (
-              <div className="custom-filter-input__mode-indicator">
-                {currentMode === 'hashtag' && (
-                  <span className="custom-filter-input__mode-badge custom-filter-input__mode-badge--hashtag">
-                    #Tag
-                  </span>
-                )}
-                {currentMode === 'author' && (
-                  <span className="custom-filter-input__mode-badge custom-filter-input__mode-badge--author">
-                    @Author
-                  </span>
-                )}
-                {currentMode === 'mentions' && (
-                  <span className="custom-filter-input__mode-badge custom-filter-input__mode-badge--mentions">
-                    @Mentions
-                  </span>
-                )}
-              </div>
-            )}
           </div>
 
           <button

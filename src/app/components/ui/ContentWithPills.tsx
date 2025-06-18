@@ -66,14 +66,16 @@ export function ContentWithPills({
   const parseContent = (text: string): ContentSegment[] => {
     const segments: ContentSegment[] = [];
 
-    // ONLY parse structured formats created by the input system
-    // No legacy @username or adhoc name detection to avoid false positives
-    const structuredRegex = /(#[a-zA-Z0-9_-]+)|(@\[([^|]+)\|([^\]]+)\])/g;
+    // Parse both structured formats AND simple @username mentions
+    // Structured: #hashtag or @[username|userId] or @[username|userId|filterType]
+    // Simple: @username (for posts with simple mentions)
+    const combinedRegex =
+      /(#[a-zA-Z0-9_-]+)|(@\[([^|]+)\|([^\]]+)(?:\|([^\]]+))?\])|(@[a-zA-Z0-9._-]+(?:\s+[a-zA-Z0-9._-]+)*)/g;
 
     let lastIndex = 0;
     let match;
 
-    while ((match = structuredRegex.exec(text)) !== null) {
+    while ((match = combinedRegex.exec(text)) !== null) {
       // Add text before the match
       if (match.index > lastIndex) {
         const textContent = text.slice(lastIndex, match.index);
@@ -118,9 +120,18 @@ export function ContentWithPills({
             });
           }
         }
+      } else if (fullMatch.startsWith('@')) {
+        // Simple mention: @username (show tooltip but limited functionality)
+        const username = fullMatch.slice(1);
+        segments.push({
+          type: 'mention',
+          value: username,
+          displayName: username
+          // No userId - this will show tooltip but with limited functionality
+        });
       }
 
-      lastIndex = structuredRegex.lastIndex;
+      lastIndex = combinedRegex.lastIndex;
     }
 
     // Add remaining text
@@ -276,41 +287,17 @@ export function ContentWithPills({
     segment: ContentSegment,
     event: React.MouseEvent
   ) => {
-    // Show tooltips in posts list and thread pages, NOT in filter bar context
-    if (isFilterBarContext) return;
-
-    // Allow tooltips on posts page and thread pages
-    const isPostsOrThreadPage =
-      pathname === NAV_PATHS.POSTS || pathname.startsWith('/t/');
-    if (!isPostsOrThreadPage) return;
-
+    // Always show tooltips for mentions in posts and threads (not in filter bar)
     if (tooltip.timeoutId) {
       clearTimeout(tooltip.timeoutId);
     }
 
     const rect = event.currentTarget.getBoundingClientRect();
 
-    // For adhoc usernames without userId, try to resolve them
-    let resolvedUserId = segment.userId;
-    if (!resolvedUserId && segment.value) {
-      try {
-        // Simple regex-based check if this looks like a username we can resolve
-        const usernamePattern = /^[A-Z][a-z]+ [A-Z][a-z]+/;
-        if (usernamePattern.test(segment.value)) {
-          // This is a basic implementation
-          // In a real app, you'd query your user database
-          // For now, we'll work without userId resolution
-          // The tooltip will still work with username-only filtering
-        }
-      } catch (error) {
-        // Silently fail - tooltip will still work without userId
-      }
-    }
-
     setTooltip({
       visible: true,
       username: segment.displayName || segment.value,
-      userId: resolvedUserId,
+      userId: segment.userId,
       position: {
         x: rect.left + rect.width / 2,
         y: rect.top - 8
@@ -453,16 +440,12 @@ export function ContentWithPills({
                   )
                 }
                 onMouseEnter={
-                  segment.type === 'mention' &&
-                  !isFilterBarContext &&
-                  (pathname === NAV_PATHS.POSTS || pathname.startsWith('/t/'))
+                  segment.type === 'mention' && !isFilterBarContext
                     ? (event) => handleMentionHover(segment, event)
                     : undefined
                 }
                 onMouseLeave={
-                  segment.type === 'mention' &&
-                  !isFilterBarContext &&
-                  (pathname === NAV_PATHS.POSTS || pathname.startsWith('/t/'))
+                  segment.type === 'mention' && !isFilterBarContext
                     ? handleMentionLeave
                     : undefined
                 }
@@ -476,24 +459,6 @@ export function ContentWithPills({
               >
                 {segment.type === 'hashtag' ? '#' : '@'}
                 {segment.value}
-
-                {/* Inline filter type control for mention pills */}
-                {enableInlineFilterControl &&
-                  segment.type === 'mention' &&
-                  segment.filterType && (
-                    <button
-                      type="button"
-                      className={`content-pill__filter-toggle content-pill__filter-toggle--${segment.filterType}`}
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        handleInlineFilterToggle(segment);
-                      }}
-                      title={`Current: ${segment.filterType === 'author' ? 'Author' : 'Mentions'} filter. Click to toggle.`}
-                    >
-                      {segment.filterType === 'author' ? '👤' : '💬'}
-                    </button>
-                  )}
               </Link>
             );
           }

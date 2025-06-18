@@ -90,49 +90,49 @@
 /* Filter context styling - indicates removal behavior */
 .content-pill--filter-context {
   position: relative;
-  background: linear-gradient(135deg, #fff3cd, #ffeaa7) !important;
-  color: #856404 !important;
-  border: 2px solid #ffc107 !important;
+  background: linear-gradient(135deg, #f8f9fa, #e9ecef) !important;
+  color: #495057 !important;
+  border: 2px solid #6c757d !important;
   font-weight: 600 !important;
-  box-shadow: 0 2px 4px rgba(255, 193, 7, 0.2);
-  transform: scale(1.05);
+  box-shadow: 0 2px 4px rgba(108, 117, 125, 0.2);
+  transform: scale(1.02);
 }
 
 /* Specific filter context styling for different pill types */
 .content-pill--hashtag.content-pill--filter-context {
-  background: linear-gradient(135deg, #e3f2fd, #bbdefb) !important;
-  color: #0d47a1 !important;
-  border: 2px solid #2196f3 !important;
-  box-shadow: 0 2px 4px rgba(33, 150, 243, 0.3);
+  background: linear-gradient(135deg, #f0f8ff, #e1f5fe) !important;
+  color: #1565c0 !important;
+  border: 2px solid #42a5f5 !important;
+  box-shadow: 0 2px 4px rgba(66, 165, 245, 0.25);
 }
 
 .content-pill--mention.content-pill--filter-context {
-  background: linear-gradient(135deg, #e8f5e8, #c8e6c9) !important;
-  color: #1b5e20 !important;
-  border: 2px solid #4caf50 !important;
-  box-shadow: 0 2px 4px rgba(76, 175, 80, 0.3);
+  background: linear-gradient(135deg, #f1f8e9, #e8f5e8) !important;
+  color: #2e7d32 !important;
+  border: 2px solid #66bb6a !important;
+  box-shadow: 0 2px 4px rgba(102, 187, 106, 0.25);
 }
 
 .content-pill--filter-context::after {
   content: "×";
   margin-left: 6px;
   font-weight: bold;
-  opacity: 0.8;
+  opacity: 0.7;
   font-size: 1.1em;
   color: #dc3545;
 }
 
 .content-pill--filter-context:hover {
-  background: linear-gradient(135deg, #f8d7da, #f5c6cb) !important;
-  color: #721c24 !important;
-  border-color: #dc3545 !important;
-  transform: scale(1.08) translateY(-1px);
-  box-shadow: 0 4px 8px rgba(220, 53, 69, 0.3);
+  background: linear-gradient(135deg, #ffebee, #ffcdd2) !important;
+  color: #c62828 !important;
+  border-color: #ef5350 !important;
+  transform: scale(1.05) translateY(-1px);
+  box-shadow: 0 4px 8px rgba(239, 83, 80, 0.3);
 }
 
 .content-pill--filter-context:hover::after {
   opacity: 1;
-  color: #dc3545;
+  color: #c62828;
   font-size: 1.2em;
 }
 
@@ -215,45 +215,55 @@
   }
 }
 
-/* Inline filter type toggle for mention pills */
+/* Inline filter type toggle for mention pills - Redesigned */
 .content-pill__filter-toggle {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 16px;
-  height: 16px;
+  height: 18px;
   border: none;
-  border-radius: 50%;
-  background: var(--brand-primary);
-  color: white;
-  font-size: 10px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
   cursor: pointer;
-  margin-left: 4px;
+  margin-left: 6px;
+  padding: 0 6px;
   transition: all 0.2s ease;
   flex-shrink: 0;
   position: relative;
   z-index: 1;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  min-width: 32px;
 }
 
 .content-pill__filter-toggle:hover {
-  transform: scale(1.1);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  transform: scale(1.05);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
 }
 
 .content-pill__filter-toggle--author {
-  background: linear-gradient(135deg, #4caf50, #45a049);
+  background: linear-gradient(135deg, #e8f5e8, #c8e6c9);
+  color: #2e7d32;
+  border: 1px solid #81c784;
 }
 
 .content-pill__filter-toggle--mentions {
-  background: linear-gradient(135deg, #2196f3, #1976d2);
+  background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+  color: #1976d2;
+  border: 1px solid #64b5f6;
 }
 
 .content-pill__filter-toggle--author:hover {
-  background: linear-gradient(135deg, #45a049, #3d8b40);
+  background: linear-gradient(135deg, #c8e6c9, #a5d6a7);
+  color: #1b5e20;
+  border-color: #66bb6a;
 }
 
 .content-pill__filter-toggle--mentions:hover {
-  background: linear-gradient(135deg, #1976d2, #1565c0);
+  background: linear-gradient(135deg, #bbdefb, #90caf9);
+  color: #0d47a1;
+  border-color: #42a5f5;
 }
 
 /* Adjust pill padding to accommodate inline toggle */
@@ -283,4 +293,35 @@
     background: #000;
     color: #fff;
   }
+}
+
+/* Filter type display (non-clickable) - matches toggle button appearance */
+.content-pill__filter-display {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 18px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  margin-left: 6px;
+  padding: 0 6px;
+  flex-shrink: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  min-width: 32px;
+  pointer-events: none;
+  /* Not clickable */
+}
+
+.content-pill__filter-display--author {
+  background: linear-gradient(135deg, #e8f5e8, #c8e6c9);
+  color: #2e7d32;
+  border: 1px solid #81c784;
+}
+
+.content-pill__filter-display--mentions {
+  background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+  color: #1976d2;
+  border: 1px solid #64b5f6;
 }
