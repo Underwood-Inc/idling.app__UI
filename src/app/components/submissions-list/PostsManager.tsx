@@ -129,9 +129,28 @@ const PostsManager = React.memo(function PostsManager({
   return (
     <>
       <div className="posts-manager__controls">
-        {/* Top controls row with spacing toggle on left, new post button on right */}
+        {/* Top controls row with spacing toggle, results count, and new post button */}
         <div className="posts-manager__top-controls">
           <SpacingThemeToggle />
+
+          {/* Results count display */}
+          {!isLoading && !error && (
+            <div className="posts-manager__results-count">
+              <span className="posts-manager__results-text">
+                {pagination.totalRecords === 0
+                  ? 'No results found'
+                  : `${pagination.totalRecords.toLocaleString()} result${
+                      pagination.totalRecords === 1 ? '' : 's'
+                    }`}
+                {filters.length > 0 && (
+                  <span className="posts-manager__results-filtered">
+                    {' '}
+                    (filtered)
+                  </span>
+                )}
+              </span>
+            </div>
+          )}
 
           {onNewPostClick && (
             <button
@@ -159,25 +178,6 @@ const PostsManager = React.memo(function PostsManager({
             </button>
           )}
         </div>
-
-        {/* Results count display */}
-        {!isLoading && !error && (
-          <div className="posts-manager__results-count">
-            <span className="posts-manager__results-text">
-              {pagination.totalRecords === 0
-                ? 'No results found'
-                : `${pagination.totalRecords.toLocaleString()} result${
-                    pagination.totalRecords === 1 ? '' : 's'
-                  }`}
-              {filters.length > 0 && (
-                <span className="posts-manager__results-filtered">
-                  {' '}
-                  (filtered)
-                </span>
-              )}
-            </span>
-          </div>
-        )}
 
         <FilterBar
           filterId={contextId}

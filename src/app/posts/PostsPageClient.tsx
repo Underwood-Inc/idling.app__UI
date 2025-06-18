@@ -26,6 +26,7 @@ interface PostsPageClientProps {
 
 export default function PostsPageClient({ contextId }: PostsPageClientProps) {
   const [triggerModal, setTriggerModal] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   const handleNewPostClick = () => {
     // Trigger the floating add post modal
@@ -37,13 +38,14 @@ export default function PostsPageClient({ contextId }: PostsPageClientProps) {
   };
 
   const handleModalClose = () => {
-    // Modal closed, refresh the posts if needed
-    // The PostsManager will handle refreshing automatically
+    // Modal closed, force refresh the posts list
+    setRefreshKey((prev) => prev + 1);
   };
 
   return (
     <>
       <LazyPostsManager
+        key={refreshKey}
         contextId={contextId}
         onNewPostClick={handleNewPostClick}
       />

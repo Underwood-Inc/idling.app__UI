@@ -1,3 +1,9 @@
+---
+layout: default
+title: Database Migration System
+description: Complete guide to the database migration system - safe, automated database changes with rollback protection
+---
+
 # Database Migrations System - User Guide
 
 ## 🤔 What Are Database Migrations?

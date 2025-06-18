@@ -26,7 +26,7 @@ SELECT
     COUNT(CASE WHEN thread_parent_id IS NOT NULL THEN 1 END) as reply_count
 FROM submissions 
 WHERE author_id IS NOT NULL 
-    AND author IS NOT NULL 
+    AND author IS NOT NULL
 GROUP BY author_id, author;
 
 -- Create indexes on the materialized view for optimal performance
@@ -55,8 +55,8 @@ RETURNS void
 LANGUAGE plpgsql
 AS $$
 BEGIN
-    -- Use CONCURRENTLY for zero-downtime refresh
-    REFRESH MATERIALIZED VIEW CONCURRENTLY user_submission_stats;
+    -- Use regular refresh (CONCURRENT requires unique index which may not exist yet)
+    REFRESH MATERIALIZED VIEW user_submission_stats;
     
     -- Log refresh for monitoring (ignore if admin_logs table doesn't exist)
     BEGIN
@@ -67,11 +67,6 @@ BEGIN
             -- Continue even if logging fails
             NULL;
     END;
-    
-EXCEPTION
-    WHEN OTHERS THEN
-        -- If concurrent refresh fails, try regular refresh
-        REFRESH MATERIALIZED VIEW user_submission_stats;
 END;
 $$;
 
@@ -134,5 +129,11 @@ BEGIN
     RAISE NOTICE 'Materialized view created successfully:';
     RAISE NOTICE '- Materialized view rows: %', view_count;
     RAISE NOTICE '- Total unique users: %', user_count;
-    RAISE NOTICE '- Coverage: % of users', ROUND((view_count::NUMERIC / user_count::NUMERIC) * 100, 2);
+    
+    -- Avoid division by zero
+    IF user_count > 0 THEN
+        RAISE NOTICE '- Coverage: % of users', ROUND((view_count::NUMERIC / user_count::NUMERIC) * 100, 2);
+    ELSE
+        RAISE NOTICE '- Coverage: No users found in database';
+    END IF;
 END $$; 

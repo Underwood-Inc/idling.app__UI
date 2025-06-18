@@ -513,18 +513,28 @@ async function createMainPosts(users, count) {
         submission_title: `Post ${postIndex + 1}`,
         author_id: user.author_id,
         author: user.author,
-        tags: tags.length > 0 ? tags : null,
+        tags: tags,
         thread_parent_id: null,
         submission_datetime: timestamp
       });
     }
 
-    // Batch insert
-    await sql`
-      INSERT INTO submissions (
-        submission_name, submission_title, author_id, author, tags, thread_parent_id, submission_datetime
-      ) ${sql(posts)}
-    `;
+    // Batch insert with individual inserts to avoid type issues
+    for (const post of posts) {
+      await sql`
+        INSERT INTO submissions (
+          submission_name, submission_title, author_id, author, tags, thread_parent_id, submission_datetime
+        ) VALUES (
+          ${post.submission_name},
+          ${post.submission_title},
+          ${post.author_id},
+          ${post.author},
+          ${post.tags},
+          ${post.thread_parent_id},
+          ${post.submission_datetime}
+        )
+      `;
+    }
 
     totalCreated += batchSize;
     console.log(`  Created ${totalCreated}/${count} main posts...`);
@@ -578,18 +588,28 @@ async function createReplies(users, count) {
         submission_title: `Reply ${replyIndex + 1}`,
         author_id: user.author_id,
         author: user.author,
-        tags: tags.length > 0 ? tags : null,
+        tags: tags,
         thread_parent_id: parentPost.submission_id,
         submission_datetime: timestamp
       });
     }
 
-    // Batch insert
-    await sql`
-      INSERT INTO submissions (
-        submission_name, submission_title, author_id, author, tags, thread_parent_id, submission_datetime
-      ) ${sql(replies)}
-    `;
+    // Batch insert with individual inserts to avoid type issues
+    for (const reply of replies) {
+      await sql`
+        INSERT INTO submissions (
+          submission_name, submission_title, author_id, author, tags, thread_parent_id, submission_datetime
+        ) VALUES (
+          ${reply.submission_name},
+          ${reply.submission_title},
+          ${reply.author_id},
+          ${reply.author},
+          ${reply.tags},
+          ${reply.thread_parent_id},
+          ${reply.submission_datetime}
+        )
+      `;
+    }
 
     totalCreated += batchSize;
     console.log(`  Created ${totalCreated}/${count} replies...`);

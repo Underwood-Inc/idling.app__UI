@@ -23,68 +23,145 @@ export interface UserResult {
   type: 'user';
 }
 
-export async function searchHashtags(query: string): Promise<HashtagResult[]> {
+export interface PaginatedHashtagResult {
+  items: HashtagResult[];
+  hasMore: boolean;
+  total: number;
+  page: number;
+  pageSize: number;
+}
+
+export interface PaginatedUserResult {
+  items: UserResult[];
+  hasMore: boolean;
+  total: number;
+  page: number;
+  pageSize: number;
+}
+
+// Enhanced searchHashtags with pagination support
+export async function searchHashtags(
+  query: string,
+  page: number = 1,
+  pageSize: number = 10
+): Promise<PaginatedHashtagResult> {
   const startTime = performance.now();
 
   if (!query || query.length < 2) {
-    return [];
+    return { items: [], hasMore: false, total: 0, page, pageSize };
   }
 
   try {
-    // Optimized query with proper indexing for millions of records
-    const results = await sql<Array<{ tag: string; count: string }>>`
-      SELECT 
-        tag,
-        COUNT(*) as count
-      FROM (
-        SELECT UNNEST(tags) as tag
+    const offset = (page - 1) * pageSize;
+
+    // Get total count for pagination
+    const totalResult = await sql<Array<{ total: string }>>`
+      WITH hashtag_search AS (
+        SELECT DISTINCT unnest(tags) as tag
         FROM submissions 
         WHERE tags IS NOT NULL 
-        AND array_length(tags, 1) > 0
-        AND tags && ARRAY[${query}] -- Use GIN index operator for faster tag searches
-      ) tag_table
-      WHERE LOWER(tag) LIKE LOWER(${`%${query}%`})
+        AND array_to_string(tags, ' ') ILIKE ${`%${query}%`}
+      )
+      SELECT COUNT(*) as total FROM hashtag_search
+      WHERE tag ILIKE ${`%${query}%`}
+    `;
+
+    const total = parseInt(totalResult[0]?.total || '0');
+
+    // Get paginated results
+    const results = await sql<
+      Array<{
+        tag: string;
+        tag_count: number;
+      }>
+    >`
+      WITH hashtag_search AS (
+        SELECT unnest(tags) as tag
+        FROM submissions 
+        WHERE tags IS NOT NULL 
+        AND array_to_string(tags, ' ') ILIKE ${`%${query}%`}
+      )
+      SELECT 
+        tag,
+        COUNT(*) as tag_count
+      FROM hashtag_search
+      WHERE tag ILIKE ${`%${query}%`}
       GROUP BY tag
-      ORDER BY count DESC, tag ASC
-      LIMIT 10
+      ORDER BY tag_count DESC, tag ASC
+      LIMIT ${pageSize}
+      OFFSET ${offset}
     `;
 
     const endTime = performance.now();
-    const duration = endTime - startTime;
-
-    // Server-side performance logging
-    serverLogger.perf('searchHashtags', duration, {
+    serverLogger.perf('searchHashtags', endTime - startTime, {
       query,
-      resultCount: results.length
+      page,
+      pageSize,
+      resultCount: results.length,
+      total
     });
 
-    return results.map((result, index) => {
-      const cleanTag = result.tag.startsWith('#')
-        ? result.tag.slice(1)
-        : result.tag;
-      return {
-        id: `hashtag-${index}-${cleanTag}`,
-        value: cleanTag,
-        label: `${cleanTag} (${result.count} posts)`,
-        count: parseInt(result.count),
-        type: 'hashtag' as const
-      };
-    });
+    const items = results.map((result, index) => ({
+      id: `hashtag-${page}-${index}-${result.tag}`,
+      value: result.tag,
+      label: `#${result.tag} (${result.tag_count} posts)`,
+      count: result.tag_count,
+      type: 'hashtag' as const
+    }));
+
+    return {
+      items,
+      hasMore: offset + results.length < total,
+      total,
+      page,
+      pageSize
+    };
   } catch (error) {
-    serverLogger.error('searchHashtags failed', error, { query });
-    return [];
+    serverLogger.error('searchHashtags failed', error, {
+      query,
+      page,
+      pageSize
+    });
+    return { items: [], hasMore: false, total: 0, page, pageSize };
   }
 }
 
-export async function searchUsers(query: string): Promise<UserResult[]> {
+// Enhanced searchUsers with pagination support
+export async function searchUsers(
+  query: string,
+  page: number = 1,
+  pageSize: number = 10
+): Promise<PaginatedUserResult> {
   const startTime = performance.now();
 
   if (!query || query.length < 2) {
-    return [];
+    return { items: [], hasMore: false, total: 0, page, pageSize };
   }
 
   try {
-    // ULTRA-OPTIMIZED QUERY FOR MILLIONS OF RECORDS
+    const offset = (page - 1) * pageSize;
+
+    // Get total count for pagination
+    let totalResult = await sql<Array<{ total: string }>>`
+      SELECT COUNT(*) as total
+      FROM user_submission_stats
+      WHERE author ILIKE ${`%${query}%`}
+    `;
+
+    // Fall back to live query if materialized view is empty
+    if (parseInt(totalResult[0]?.total || '0') === 0) {
+      totalResult = await sql<Array<{ total: string }>>`
+        SELECT COUNT(DISTINCT author_id) as total
+        FROM submissions 
+        WHERE author ILIKE ${`%${query}%`}
+        AND author_id IS NOT NULL 
+        AND author IS NOT NULL
+      `;
+    }
+
+    const total = parseInt(totalResult[0]?.total || '0');
+
+    // ULTRA-OPTIMIZED QUERY FOR MILLIONS OF RECORDS with pagination
     // First try materialized view for better performance
     let results = await sql<
       Array<{
@@ -101,14 +178,15 @@ export async function searchUsers(query: string): Promise<UserResult[]> {
       WHERE 
         author ILIKE ${`%${query}%`}
       ORDER BY submission_count DESC, author ASC
-      LIMIT 10
+      LIMIT ${pageSize}
+      OFFSET ${offset}
     `;
 
     // If materialized view doesn't exist or is empty, fall back to live query
-    if (results.length === 0) {
+    if (results.length === 0 && page === 1) {
       serverLogger.debug(
         'Materialized view empty, falling back to live query',
-        { query }
+        { query, page, pageSize }
       );
 
       results = await sql<
@@ -126,7 +204,8 @@ export async function searchUsers(query: string): Promise<UserResult[]> {
             author ILIKE ${`%${query}%`}
             AND author_id IS NOT NULL 
             AND author IS NOT NULL  
-          LIMIT 50
+          LIMIT ${pageSize * 3} -- Get more for better accuracy
+          OFFSET ${offset}
         )
         SELECT 
           us.author_id,
@@ -136,7 +215,7 @@ export async function searchUsers(query: string): Promise<UserResult[]> {
         LEFT JOIN submissions s ON s.author_id = us.author_id
         GROUP BY us.author_id, us.author
         ORDER BY submission_count DESC, author ASC
-        LIMIT 10
+        LIMIT ${pageSize}
       `;
     }
 
@@ -146,7 +225,10 @@ export async function searchUsers(query: string): Promise<UserResult[]> {
     // Server-side performance logging with detailed metrics
     serverLogger.perf('searchUsers', queryTime, {
       query,
+      page,
+      pageSize,
       resultCount: results.length,
+      total,
       usedMaterializedView: results.length > 0
     });
 
@@ -154,12 +236,12 @@ export async function searchUsers(query: string): Promise<UserResult[]> {
     serverLogger.slowQuery('searchUsers', queryTime);
 
     // Advanced debugging for empty results
-    if (results.length === 0) {
+    if (results.length === 0 && page === 1) {
       await debugUserSearch(query);
     }
 
-    const mappedResults = results.map((result, index) => ({
-      id: `user-${index}-${result.author_id}`,
+    const items = results.map((result, index) => ({
+      id: `user-${page}-${index}-${result.author_id}`,
       value: result.author_id,
       label: `${result.author} (${result.submission_count} posts)`,
       displayName: result.author,
@@ -167,10 +249,16 @@ export async function searchUsers(query: string): Promise<UserResult[]> {
       type: 'user' as const
     }));
 
-    return mappedResults;
+    return {
+      items,
+      hasMore: offset + results.length < total,
+      total,
+      page,
+      pageSize
+    };
   } catch (error) {
-    serverLogger.error('searchUsers failed', error, { query });
-    return [];
+    serverLogger.error('searchUsers failed', error, { query, page, pageSize });
+    return { items: [], hasMore: false, total: 0, page, pageSize };
   }
 }
 

@@ -1,0 +1,109 @@
+# Jekyll Configuration for GitHub Pages
+title: "Idling.app Documentation"
+description: "Complete documentation for the Idling.app project - migrations, deployment, development guides and more"
+url: "https://underwood-inc.github.io"
+baseurl: "/idling.app__UI"
+
+# Build settings
+markdown: kramdown
+highlighter: rouge
+theme: minima
+
+# Plugins
+plugins:
+  - jekyll-feed
+  - jekyll-sitemap
+  - jekyll-seo-tag
+
+# Navigation
+navigation:
+  - title: "Home"
+    url: "/"
+  - title: "Getting Started"
+    url: "/getting-started"
+  - title: "Database"
+    url: "/database/"
+    subnav:
+      - title: "Migration System"
+        url: "/database/migrations"
+      - title: "Optimization"
+        url: "/database/optimization"
+      - title: "Seeding"
+        url: "/database/seeding"
+  - title: "Development"
+    url: "/development/"
+    subnav:
+      - title: "Smart Filters"
+        url: "/development/smart-filters"
+      - title: "Caching"
+        url: "/development/caching"
+      - title: "Testing"
+        url: "/development/testing"
+  - title: "Deployment"
+    url: "/deployment/"
+    subnav:
+      - title: "Cache Management"
+        url: "/deployment/cache-management"
+      - title: "Releases"
+        url: "/deployment/releases"
+  - title: "Project"
+    url: "/project/"
+    subnav:
+      - title: "Commits"
+        url: "/project/commits"
+      - title: "Updates"
+        url: "/project/updates"
+      - title: "Discord"
+        url: "/project/discord"
+
+# Collections
+collections:
+  docs:
+    output: true
+    permalink: /:collection/:name/
+
+# Defaults
+defaults:
+  - scope:
+      path: ""
+      type: "pages"
+    values:
+      layout: "default"
+  - scope:
+      path: ""
+      type: "docs"
+    values:
+      layout: "default"
+
+# Exclude files
+exclude:
+  - .sass-cache/
+  - .jekyll-cache/
+  - gemfiles/
+  - Gemfile
+  - Gemfile.lock
+  - node_modules/
+  - vendor/bundle/
+  - vendor/cache/
+  - vendor/gems/
+  - vendor/ruby/
+
+# Include files
+include:
+  - _pages
+
+# SEO
+author: "Underwood Inc"
+twitter:
+  username: "idling_app"
+social:
+  name: "Idling.app"
+  links:
+    - "https://github.com/Underwood-Inc/idling.app__UI"
+
+# Analytics (optional)
+google_analytics: # Add GA tracking ID if needed
+
+# GitHub Pages settings
+github:
+  repository_url: "https://github.com/Underwood-Inc/idling.app__UI" 

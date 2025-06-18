@@ -1,10 +1,11 @@
--- Migration: 0007-optimize-for-millions-performance.sql
--- Purpose: Comprehensive database optimizations for handling millions of records
--- Includes advanced indexing, constraints, and query optimizations
--- NOTE: This migration runs without transaction due to CONCURRENTLY operations
+-- Migration: 0009-fix-concurrent-index-creation.sql
+-- Purpose: Fix the concurrent index creation issues from migration 0007
+-- This migration properly separates CONCURRENT operations from transaction blocks
+-- NOTE: CONCURRENT operations must run outside transaction blocks
 
 -- ================================
--- ADVANCED SEARCH OPTIMIZATIONS
+-- PART 1: CONCURRENT INDEX CREATION
+-- (These run outside of transactions automatically)
 -- ================================
 
 -- 1. Composite index for user search (author + author_id)
@@ -32,56 +33,43 @@ CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_submissions_distinct_authors
 ON submissions (author_id) 
 WHERE author_id IS NOT NULL;
 
--- ================================
--- PERFORMANCE MONITORING INDEXES
--- ================================
-
 -- 6. Query performance index for submission filtering
 CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_submissions_perf_filter 
-ON submissions (created_at DESC, author_id, submission_id) 
-WHERE deleted_at IS NULL;
+ON submissions (submission_datetime DESC, author_id, submission_id);
 
 -- 7. Pagination optimization index
 CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_submissions_pagination 
-ON submissions (created_at DESC, submission_id) 
-WHERE deleted_at IS NULL;
+ON submissions (submission_datetime DESC, submission_id);
 
 -- 8. Thread hierarchy performance index
 CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_submissions_thread_hierarchy 
-ON submissions (parent_submission_id, created_at) 
-WHERE parent_submission_id IS NOT NULL;
+ON submissions (thread_parent_id, submission_datetime) 
+WHERE thread_parent_id IS NOT NULL;
 
--- ================================
--- STATISTICAL INDEXES FOR ANALYTICS
--- ================================
-
--- 9. Tag usage statistics index
-CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_submissions_tag_stats 
-ON submissions USING GIN (tags) 
-WHERE tags IS NOT NULL AND array_length(tags, 1) > 0;
-
--- 10. Author activity index for performance metrics
+-- 9. Author activity index for performance metrics
 CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_submissions_author_activity 
-ON submissions (author_id, created_at DESC) 
-WHERE author_id IS NOT NULL AND deleted_at IS NULL;
+ON submissions (author_id, submission_datetime DESC) 
+WHERE author_id IS NOT NULL;
 
 -- ================================
--- POST-INDEX OPTIMIZATION
+-- PART 2: POST-INDEX OPTIMIZATION
+-- (Just analyze - no transaction conflicts)
 -- ================================
 
 -- Update statistics for better query planning after index creation
 ANALYZE submissions;
 
 -- ================================
--- POST-MIGRATION RECOMMENDATIONS
+-- MIGRATION VERIFICATION
 -- ================================
 
--- COMMENT: After this migration, consider:
--- 1. Run VACUUM ANALYZE on submissions table
--- 2. Monitor query performance with the new indexes
--- 3. Schedule periodic refresh of user_submission_stats (every hour)
--- 4. Monitor index usage with pg_stat_user_indexes
--- 5. Consider partitioning submissions table if > 10M records
--- 6. Set up connection pooling (pgbouncer) for better connection management
--- 7. Configure shared_buffers to 25% of available RAM
--- 8. Set effective_cache_size to 75% of available RAM 
+-- Simple verification query (avoiding DO blocks that break our parser)
+SELECT 
+    COUNT(*) as index_count,
+    CASE 
+        WHEN COUNT(*) >= 5 THEN 'SUCCESS: Created ' || COUNT(*) || ' submission indexes'
+        ELSE 'WARNING: Only created ' || COUNT(*) || ' submission indexes'
+    END as status
+FROM pg_indexes 
+WHERE tablename = 'submissions' 
+AND indexname LIKE 'idx_submissions_%'; 

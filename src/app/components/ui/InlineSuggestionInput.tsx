@@ -24,8 +24,22 @@ export interface InlineSuggestionInputProps {
   placeholder?: string;
   className?: string;
   disabled?: boolean;
-  onHashtagSearch?: (query: string) => Promise<SuggestionItem[]>;
-  onUserSearch?: (query: string) => Promise<SuggestionItem[]>;
+  onHashtagSearch?: (
+    query: string,
+    page?: number
+  ) => Promise<{
+    items: SuggestionItem[];
+    hasMore: boolean;
+    total: number;
+  }>;
+  onUserSearch?: (
+    query: string,
+    page?: number
+  ) => Promise<{
+    items: SuggestionItem[];
+    hasMore: boolean;
+    total: number;
+  }>;
   maxSuggestions?: number;
   minQueryLength?: number;
   as?: 'input' | 'textarea';
@@ -40,7 +54,7 @@ export const InlineSuggestionInput: React.FC<InlineSuggestionInputProps> = ({
   disabled = false,
   onHashtagSearch,
   onUserSearch,
-  maxSuggestions = 5,
+  maxSuggestions = 10,
   minQueryLength = 2,
   as = 'input',
   rows = 3
@@ -51,11 +65,16 @@ export const InlineSuggestionInput: React.FC<InlineSuggestionInputProps> = ({
   const [currentTrigger, setCurrentTrigger] = useState<'#' | '@' | null>(null);
   const [currentQuery, setCurrentQuery] = useState('');
   const [cursorPosition, setCursorPosition] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
+  const [hasMore, setHasMore] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalResults, setTotalResults] = useState(0);
+  const [triggerStartIndex, setTriggerStartIndex] = useState(-1);
 
   const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null);
   const suggestionListRef = useRef<HTMLDivElement>(null);
 
-  // Detect trigger characters and extract query
+  // Enhanced trigger detection that persists through spaces
   const detectTriggerAndQuery = (text: string, position: number) => {
     const beforeCursor = text.substring(0, position);
 
@@ -72,43 +91,110 @@ export const InlineSuggestionInput: React.FC<InlineSuggestionInputProps> = ({
     const trigger = text[lastTriggerIndex] as '#' | '@';
     const afterTrigger = beforeCursor.substring(lastTriggerIndex + 1);
 
-    // Check if there's a space after the trigger, which would invalidate the query
-    if (afterTrigger.includes(' ')) {
-      return { trigger: null, query: '', startIndex: -1 };
-    }
+    // For @ mentions, continue searching until we find a closing bracket or end of meaningful content
+    if (trigger === '@') {
+      // If we already have a complete mention @[username|userId], don't trigger search
+      const completeStructuredMention = text
+        .substring(lastTriggerIndex)
+        .match(/^@\[[^\]]+\]/);
+      if (
+        completeStructuredMention &&
+        lastTriggerIndex + completeStructuredMention[0].length <= position
+      ) {
+        return { trigger: null, query: '', startIndex: -1 };
+      }
 
-    return {
-      trigger,
-      query: afterTrigger,
-      startIndex: lastTriggerIndex
-    };
+      // For @ mentions, allow spaces in the query until we hit certain terminating characters
+      const terminatingChars = /[.,!?;:\n\r\t]/;
+      if (terminatingChars.test(afterTrigger)) {
+        return { trigger: null, query: '', startIndex: -1 };
+      }
+
+      // Continue search with spaces allowed for user mentions
+      return {
+        trigger,
+        query: afterTrigger.trim(),
+        startIndex: lastTriggerIndex
+      };
+    } else {
+      // For hashtags, stop at first space (original behavior)
+      if (afterTrigger.includes(' ')) {
+        return { trigger: null, query: '', startIndex: -1 };
+      }
+
+      return {
+        trigger,
+        query: afterTrigger,
+        startIndex: lastTriggerIndex
+      };
+    }
   };
 
-  // Search for suggestions
-  const searchSuggestions = async (trigger: '#' | '@', query: string) => {
+  // Enhanced search with pagination support
+  const searchSuggestions = async (
+    trigger: '#' | '@',
+    query: string,
+    page: number = 1,
+    append: boolean = false
+  ) => {
     if (query.length < minQueryLength) {
       setSuggestions([]);
       setShowSuggestions(false);
+      setHasMore(false);
+      setTotalResults(0);
       return;
     }
 
+    setIsLoading(true);
+
     try {
-      let results: SuggestionItem[] = [];
+      let result: { items: SuggestionItem[]; hasMore: boolean; total: number } =
+        {
+          items: [],
+          hasMore: false,
+          total: 0
+        };
 
       if (trigger === '#' && onHashtagSearch) {
-        results = await onHashtagSearch(query);
+        result = await onHashtagSearch(query, page);
       } else if (trigger === '@' && onUserSearch) {
-        results = await onUserSearch(query);
+        result = await onUserSearch(query, page);
       }
 
-      setSuggestions(results.slice(0, maxSuggestions));
-      setShowSuggestions(results.length > 0);
-      setSelectedIndex(-1);
+      if (append) {
+        setSuggestions((prev) => [...prev, ...result.items]);
+      } else {
+        setSuggestions(result.items);
+        setSelectedIndex(-1);
+      }
+
+      setHasMore(result.hasMore);
+      setTotalResults(result.total);
+      setShowSuggestions(result.items.length > 0);
+      setCurrentPage(page);
     } catch (error) {
       console.error('Error searching suggestions:', error);
-      setSuggestions([]);
-      setShowSuggestions(false);
+      if (!append) {
+        setSuggestions([]);
+        setShowSuggestions(false);
+        setHasMore(false);
+        setTotalResults(0);
+      }
+    } finally {
+      setIsLoading(false);
     }
+  };
+
+  // Load more results
+  const loadMore = async () => {
+    if (!hasMore || isLoading || !currentTrigger || !currentQuery) return;
+
+    await searchSuggestions(
+      currentTrigger,
+      currentQuery,
+      currentPage + 1,
+      true
+    );
   };
 
   // Handle input change
@@ -121,19 +207,24 @@ export const InlineSuggestionInput: React.FC<InlineSuggestionInputProps> = ({
     onChange(newValue);
     setCursorPosition(newCursorPosition);
 
-    const { trigger, query } = detectTriggerAndQuery(
+    const { trigger, query, startIndex } = detectTriggerAndQuery(
       newValue,
       newCursorPosition
     );
 
     setCurrentTrigger(trigger);
     setCurrentQuery(query);
+    setTriggerStartIndex(startIndex);
 
     if (trigger && query !== currentQuery) {
-      searchSuggestions(trigger, query);
+      // Reset pagination when query changes
+      setCurrentPage(1);
+      searchSuggestions(trigger, query, 1, false);
     } else if (!trigger) {
       setShowSuggestions(false);
       setSuggestions([]);
+      setHasMore(false);
+      setTotalResults(0);
     }
   };
 
@@ -145,18 +236,24 @@ export const InlineSuggestionInput: React.FC<InlineSuggestionInputProps> = ({
     const newCursorPosition = target.selectionStart || 0;
     setCursorPosition(newCursorPosition);
 
-    const { trigger, query } = detectTriggerAndQuery(value, newCursorPosition);
+    const { trigger, query, startIndex } = detectTriggerAndQuery(
+      value,
+      newCursorPosition
+    );
 
     setCurrentTrigger(trigger);
     setCurrentQuery(query);
+    setTriggerStartIndex(startIndex);
 
     if (!trigger) {
       setShowSuggestions(false);
       setSuggestions([]);
+      setHasMore(false);
+      setTotalResults(0);
     }
   };
 
-  // Handle keyboard navigation
+  // Handle keyboard navigation with pagination support
   const handleKeyDown = (
     e: KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
@@ -165,9 +262,14 @@ export const InlineSuggestionInput: React.FC<InlineSuggestionInputProps> = ({
     switch (e.key) {
       case 'ArrowDown':
         e.preventDefault();
-        setSelectedIndex((prev) =>
-          prev < suggestions.length - 1 ? prev + 1 : 0
-        );
+        if (selectedIndex < suggestions.length - 1) {
+          setSelectedIndex(selectedIndex + 1);
+        } else if (hasMore && !isLoading) {
+          // Load more when reaching the end
+          loadMore();
+        } else {
+          setSelectedIndex(0);
+        }
         break;
       case 'ArrowUp':
         e.preventDefault();
@@ -177,7 +279,7 @@ export const InlineSuggestionInput: React.FC<InlineSuggestionInputProps> = ({
         break;
       case 'Enter':
       case 'Tab':
-        if (selectedIndex >= 0) {
+        if (selectedIndex >= 0 && selectedIndex < suggestions.length) {
           e.preventDefault();
           insertSuggestion(suggestions[selectedIndex]);
         }
@@ -186,72 +288,91 @@ export const InlineSuggestionInput: React.FC<InlineSuggestionInputProps> = ({
         setShowSuggestions(false);
         setSuggestions([]);
         setSelectedIndex(-1);
+        setHasMore(false);
+        setTotalResults(0);
+        break;
+      case 'PageDown':
+        e.preventDefault();
+        if (hasMore && !isLoading) {
+          loadMore();
+        }
         break;
     }
   };
 
   // Insert selected suggestion
   const insertSuggestion = (suggestion: SuggestionItem) => {
-    const { trigger, query, startIndex } = detectTriggerAndQuery(
-      value,
-      cursorPosition
-    );
+    if (triggerStartIndex === -1) return;
 
-    if (trigger && startIndex !== -1) {
-      const before = value.substring(0, startIndex);
-      const after = value.substring(startIndex + 1 + query.length);
+    const before = value.substring(0, triggerStartIndex);
+    const after = value.substring(cursorPosition);
 
-      let replacement = '';
+    let replacement = '';
 
-      if (suggestion.type === 'user') {
-        // Create robust mention format: @[username|userId]
-        const username = suggestion.displayName || suggestion.value;
-        const userId = suggestion.value; // The value is the user ID
+    if (suggestion.type === 'user') {
+      // Create robust mention format: @[username|userId]
+      const username = suggestion.displayName || suggestion.value;
+      const userId = suggestion.value; // The value is the user ID
 
-        // Clean username (remove @ if present)
-        const cleanUsername = username.startsWith('@')
-          ? username.substring(1)
-          : username;
+      // Clean username (remove @ if present)
+      const cleanUsername = username.startsWith('@')
+        ? username.substring(1)
+        : username;
 
-        // Create robust mention: @[username|userId]
-        replacement = `@[${cleanUsername}|${userId}] `;
-      } else if (suggestion.type === 'hashtag') {
-        // Handle hashtags normally
-        let hashtagValue = suggestion.value;
-        if (hashtagValue.startsWith('#')) {
-          hashtagValue = hashtagValue.substring(1);
-        }
-        replacement = `#${hashtagValue} `;
-      } else {
-        // Fallback for other types
-        replacement = `${trigger}${suggestion.value} `;
+      // Create robust mention: @[username|userId]
+      replacement = `@[${cleanUsername}|${userId}] `;
+    } else if (suggestion.type === 'hashtag') {
+      // Handle hashtags normally
+      let hashtagValue = suggestion.value;
+      if (hashtagValue.startsWith('#')) {
+        hashtagValue = hashtagValue.substring(1);
       }
-
-      const newValue = before + replacement + after;
-      const newCursorPosition = before.length + replacement.length;
-
-      onChange(newValue);
-
-      // Focus and set cursor position
-      setTimeout(() => {
-        if (inputRef.current) {
-          inputRef.current.focus();
-          inputRef.current.setSelectionRange(
-            newCursorPosition,
-            newCursorPosition
-          );
-        }
-      }, 0);
+      replacement = `#${hashtagValue} `;
+    } else {
+      // Fallback for other types
+      replacement = `${currentTrigger}${suggestion.value} `;
     }
+
+    const newValue = before + replacement + after;
+    const newCursorPosition = before.length + replacement.length;
+
+    onChange(newValue);
+
+    // Focus and set cursor position
+    setTimeout(() => {
+      if (inputRef.current) {
+        inputRef.current.focus();
+        inputRef.current.setSelectionRange(
+          newCursorPosition,
+          newCursorPosition
+        );
+      }
+    }, 0);
 
     setShowSuggestions(false);
     setSuggestions([]);
     setSelectedIndex(-1);
+    setHasMore(false);
+    setTotalResults(0);
   };
 
   // Handle clicking on suggestions
   const handleSuggestionClick = (suggestion: SuggestionItem) => {
     insertSuggestion(suggestion);
+  };
+
+  // Handle scroll to load more
+  const handleSuggestionScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const { scrollTop, scrollHeight, clientHeight } = e.currentTarget;
+
+    // Load more when scrolled to bottom
+    if (
+      scrollHeight - scrollTop <= clientHeight + 10 &&
+      hasMore &&
+      !isLoading
+    ) {
+      loadMore();
+    }
   };
 
   // Close suggestions when clicking outside
@@ -291,8 +412,23 @@ export const InlineSuggestionInput: React.FC<InlineSuggestionInputProps> = ({
         rows={as === 'textarea' ? rows : undefined}
       />
 
-      {showSuggestions && suggestions.length > 0 && (
-        <div ref={suggestionListRef} className="suggestion-list">
+      {showSuggestions && (suggestions.length > 0 || isLoading) && (
+        <div
+          ref={suggestionListRef}
+          className="suggestion-list"
+          onScroll={handleSuggestionScroll}
+        >
+          {/* Results header */}
+          {totalResults > 0 && (
+            <div className="suggestion-header">
+              <span className="suggestion-count">
+                {suggestions.length} of {totalResults} results
+                {currentQuery && ` for "${currentQuery}"`}
+              </span>
+            </div>
+          )}
+
+          {/* Suggestion items */}
           {suggestions.map((suggestion, index) => (
             <div
               key={suggestion.id}
@@ -312,6 +448,35 @@ export const InlineSuggestionInput: React.FC<InlineSuggestionInputProps> = ({
               <span className="suggestion-label">{suggestion.label}</span>
             </div>
           ))}
+
+          {/* Load more button */}
+          {hasMore && !isLoading && (
+            <div className="suggestion-load-more">
+              <button
+                type="button"
+                onClick={loadMore}
+                className="suggestion-load-more-btn"
+              >
+                Load More ({totalResults - suggestions.length} remaining)
+              </button>
+            </div>
+          )}
+
+          {/* Loading indicator */}
+          {isLoading && (
+            <div className="suggestion-loading">
+              <div className="suggestion-loading-spinner"></div>
+              <span>Loading more results...</span>
+            </div>
+          )}
+
+          {/* No results message */}
+          {!isLoading && suggestions.length === 0 && currentQuery && (
+            <div className="suggestion-no-results">
+              No {currentTrigger === '@' ? 'users' : 'hashtags'} found for{' '}
+              {`"${currentQuery}"`}
+            </div>
+          )}
         </div>
       )}
     </div>

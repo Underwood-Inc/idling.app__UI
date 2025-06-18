@@ -2,10 +2,10 @@
 
 import React from 'react';
 import {
-  HashtagResult,
+  PaginatedHashtagResult,
+  PaginatedUserResult,
   searchHashtags,
-  searchUsers,
-  UserResult
+  searchUsers
 } from '../../../lib/actions/search.actions';
 import {
   InlineSuggestionInput,
@@ -28,56 +28,76 @@ export const SmartInput: React.FC<SmartInputProps> = ({
   existingUserIds = [],
   ...props
 }) => {
-  // Default hashtag search function
+  // Enhanced hashtag search function with pagination
   const handleHashtagSearch = async (
-    query: string
-  ): Promise<SuggestionItem[]> => {
-    if (!enableHashtags) return [];
+    query: string,
+    page: number = 1
+  ): Promise<{ items: SuggestionItem[]; hasMore: boolean; total: number }> => {
+    if (!enableHashtags) {
+      return { items: [], hasMore: false, total: 0 };
+    }
 
     try {
-      const results = await searchHashtags(query);
-      return results
-        .filter((result: HashtagResult) => {
+      const result: PaginatedHashtagResult = await searchHashtags(query, page);
+      const filteredResults = result.items
+        .filter((hashtagResult) => {
           // Exclude hashtags that are already added
-          const hashtagValue = result.value.startsWith('#')
-            ? result.value
-            : `#${result.value}`;
+          const hashtagValue = hashtagResult.value.startsWith('#')
+            ? hashtagResult.value
+            : `#${hashtagResult.value}`;
           return !existingHashtags.includes(hashtagValue);
         })
-        .map((result: HashtagResult) => ({
-          id: result.id,
-          value: result.value,
-          label: result.label,
+        .map((hashtagResult) => ({
+          id: hashtagResult.id,
+          value: hashtagResult.value,
+          label: hashtagResult.label,
           type: 'hashtag' as const
         }));
+
+      return {
+        items: filteredResults,
+        hasMore: result.hasMore,
+        total: result.total
+      };
     } catch (error) {
       console.error('Error searching hashtags:', error);
-      return [];
+      return { items: [], hasMore: false, total: 0 };
     }
   };
 
-  // Default user search function
-  const handleUserSearch = async (query: string): Promise<SuggestionItem[]> => {
-    if (!enableUserMentions) return [];
+  // Enhanced user search function with pagination
+  const handleUserSearch = async (
+    query: string,
+    page: number = 1
+  ): Promise<{ items: SuggestionItem[]; hasMore: boolean; total: number }> => {
+    if (!enableUserMentions) {
+      return { items: [], hasMore: false, total: 0 };
+    }
 
     try {
-      const results = await searchUsers(query);
-      return results
-        .filter((result: UserResult) => {
+      const result: PaginatedUserResult = await searchUsers(query, page);
+      const filteredResults = result.items
+        .filter((userResult) => {
           // Exclude users that are already added (by user ID)
-          return !existingUserIds.includes(result.value);
+          return !existingUserIds.includes(userResult.value);
         })
-        .map((result: UserResult) => ({
-          id: result.id,
-          value: result.value, // author_id for filtering
-          label: result.label,
-          displayName: result.displayName, // author name for display
-          avatar: result.avatar,
+        .map((userResult) => ({
+          id: userResult.id,
+          value: userResult.value, // author_id for filtering
+          label: userResult.label,
+          displayName: userResult.displayName, // author name for display
+          avatar: userResult.avatar,
           type: 'user' as const
         }));
+
+      return {
+        items: filteredResults,
+        hasMore: result.hasMore,
+        total: result.total
+      };
     } catch (error) {
       console.error('Error searching users:', error);
-      return [];
+      return { items: [], hasMore: false, total: 0 };
     }
   };
 
