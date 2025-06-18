@@ -441,7 +441,7 @@ export async function resolveUserIdToUsername(
 
 /**
  * Refresh user statistics materialized view
- * Call this periodically (e.g., every hour) for optimal performance
+ * Call this periodically (e.g., nightly) for optimal performance
  */
 export async function refreshUserStats(): Promise<void> {
   const startTime = performance.now();
@@ -453,5 +453,56 @@ export async function refreshUserStats(): Promise<void> {
     serverLogger.perf('refreshUserStats', endTime - startTime);
   } catch (error) {
     serverLogger.error('refreshUserStats failed', error);
+  }
+}
+
+/**
+ * Refresh tag statistics materialized view
+ * Call this periodically (e.g., nightly) for optimal performance
+ */
+export async function refreshTagStats(): Promise<void> {
+  const startTime = performance.now();
+
+  try {
+    await sql`SELECT refresh_tag_statistics()`;
+
+    const endTime = performance.now();
+    serverLogger.perf('refreshTagStats', endTime - startTime);
+  } catch (error) {
+    serverLogger.error('refreshTagStats failed', error);
+  }
+}
+
+/**
+ * Refresh trending posts materialized view
+ * Call this periodically (e.g., every 6 hours) for optimal performance
+ */
+export async function refreshTrendingPosts(): Promise<void> {
+  const startTime = performance.now();
+
+  try {
+    await sql`SELECT refresh_trending_posts()`;
+
+    const endTime = performance.now();
+    serverLogger.perf('refreshTrendingPosts', endTime - startTime);
+  } catch (error) {
+    serverLogger.error('refreshTrendingPosts failed', error);
+  }
+}
+
+/**
+ * Refresh daily statistics materialized view
+ * Call this periodically (e.g., nightly) for optimal performance
+ */
+export async function refreshDailyStats(): Promise<void> {
+  const startTime = performance.now();
+
+  try {
+    await sql`SELECT refresh_daily_stats()`;
+
+    const endTime = performance.now();
+    serverLogger.perf('refreshDailyStats', endTime - startTime);
+  } catch (error) {
+    serverLogger.error('refreshDailyStats failed', error);
   }
 }

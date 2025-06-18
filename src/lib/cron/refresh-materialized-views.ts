@@ -3,7 +3,12 @@
  * Automatically refreshes user_submission_stats every hour for optimal performance
  */
 
-import { refreshUserStats } from '../actions/search.actions';
+import {
+  refreshDailyStats,
+  refreshTagStats,
+  refreshTrendingPosts,
+  refreshUserStats
+} from '../actions/search.actions';
 import { serverLogger } from '../utils/server-logger';
 
 interface RefreshJob {
@@ -23,17 +28,38 @@ class MaterializedViewRefresher {
   }
 
   private setupJobs(): void {
-    // Refresh user stats every hour (3600000ms)
+    // Refresh user stats nightly (86400000ms = 24 hours)
     this.jobs.set('user_stats', {
       name: 'user_submission_stats',
-      intervalMs: 60 * 60 * 1000, // 1 hour
+      intervalMs: 24 * 60 * 60 * 1000, // 24 hours (nightly)
+      isRunning: false
+    });
+
+    // Refresh tag statistics nightly
+    this.jobs.set('tag_stats', {
+      name: 'tag_statistics',
+      intervalMs: 24 * 60 * 60 * 1000, // 24 hours (nightly)
+      isRunning: false
+    });
+
+    // Refresh trending posts every 6 hours (more frequent for trending data)
+    this.jobs.set('trending_posts', {
+      name: 'trending_posts',
+      intervalMs: 6 * 60 * 60 * 1000, // 6 hours
+      isRunning: false
+    });
+
+    // Refresh daily stats nightly
+    this.jobs.set('daily_stats', {
+      name: 'daily_submission_stats',
+      intervalMs: 24 * 60 * 60 * 1000, // 24 hours (nightly)
       isRunning: false
     });
 
     serverLogger.info('Materialized view refresh jobs configured', {
       jobs: Array.from(this.jobs.keys()),
       intervals: Array.from(this.jobs.values()).map(
-        (j) => `${j.name}: ${j.intervalMs / 1000 / 60}min`
+        (j) => `${j.name}: ${j.intervalMs / 1000 / 60 / 60}h`
       )
     });
   }
@@ -101,6 +127,15 @@ class MaterializedViewRefresher {
       switch (jobId) {
         case 'user_stats':
           await refreshUserStats();
+          break;
+        case 'tag_stats':
+          await refreshTagStats();
+          break;
+        case 'trending_posts':
+          await refreshTrendingPosts();
+          break;
+        case 'daily_stats':
+          await refreshDailyStats();
           break;
         default:
           throw new Error(`Unknown job type: ${jobId}`);
