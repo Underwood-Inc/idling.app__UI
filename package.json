@@ -1,6 +1,6 @@
 {
   "name": "idling.app",
-  "version": "0.31.3",
+  "version": "0.34.0",
   "private": true,
   "engines": {
     "node": ">=20.x"
@@ -8,9 +8,13 @@
   "engineStrict": true,
   "scripts": {
     "build": "next build",
+    "prebuild": "node scripts/update-sw-version.js",
+    "postbuild": "node scripts/update-sw-version.js --restore",
     "dev:docker": "./scripts/docker-dev.sh",
     "dev:seed": "./seed-db.sh",
     "dev": "next dev",
+    "sw:update": "node scripts/update-sw-version.js",
+    "sw:restore": "node scripts/update-sw-version.js --restore",
     "docs:dev": "cd DOCS && (bundle exec jekyll serve --livereload --host=0.0.0.0 --port=4000 || echo 'Error: Ruby/Jekyll not installed. Please install Ruby and run: gem install bundler jekyll')",
     "docs:build": "cd DOCS && (bundle exec jekyll build || echo 'Error: Ruby/Jekyll not installed. Please install Ruby and run: gem install bundler jekyll')",
     "docs:install": "cd DOCS && (bundle install || echo 'Error: Ruby/Bundler not installed. Please install Ruby first: sudo apt update && sudo apt install ruby-full build-essential zlib1g-dev && gem install bundler')",
