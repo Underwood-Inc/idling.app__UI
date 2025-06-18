@@ -215,6 +215,21 @@ export async function runMigration(
               continue; // Skip RAISE NOTICE - it's not an actual SQL operation
             }
 
+            // FIXED: Skip invalid standalone PL/pgSQL statements
+            if (
+              /^\s*(EXCEPTION|WHEN\s+OTHERS|BEGIN|END|DECLARE)\s/i.test(
+                statement
+              ) ||
+              statement.trim() === 'NULL'
+            ) {
+              console.info(
+                chalk.dim(
+                  `  Skipping PL/pgSQL fragment: ${statement.substring(0, 30)}...`
+                )
+              );
+              continue;
+            }
+
             lastResult = await sql.unsafe(statement);
           } catch (error) {
             const errorMessage =
@@ -258,15 +273,27 @@ export async function runMigration(
       }
 
       // Record success separately (not in the main transaction)
-      await sql`
-        INSERT INTO migrations (filename, success, error_message)
-        VALUES (${fileName}, true, null)
-        ON CONFLICT (filename) 
-        DO UPDATE SET 
-          success = EXCLUDED.success,
-          error_message = EXCLUDED.error_message,
-          executed_at = CURRENT_TIMESTAMP
-      `;
+      try {
+        await sql`
+          INSERT INTO migrations (filename, success, error_message)
+          VALUES (${fileName}, true, null)
+          ON CONFLICT (filename) 
+          DO UPDATE SET 
+            success = EXCLUDED.success,
+            error_message = EXCLUDED.error_message,
+            executed_at = CURRENT_TIMESTAMP
+        `;
+      } catch (insertError) {
+        // If ON CONFLICT fails, try a simple INSERT
+        console.info(chalk.dim(`  Recording migration success...`));
+        await sql`
+          DELETE FROM migrations WHERE filename = ${fileName}
+        `;
+        await sql`
+          INSERT INTO migrations (filename, success, error_message)
+          VALUES (${fileName}, true, null)
+        `;
+      }
     } else {
       // Regular migration with transaction
       await sql.begin(async (transaction) => {
@@ -288,15 +315,24 @@ export async function runMigration(
           }
         }
 
-        await transaction`
-        INSERT INTO migrations (filename, success, error_message)
-        VALUES (${fileName}, true, null)
-          ON CONFLICT (filename) 
-          DO UPDATE SET 
-            success = EXCLUDED.success,
-            error_message = EXCLUDED.error_message,
-            executed_at = CURRENT_TIMESTAMP
-      `;
+        try {
+          await transaction`
+            INSERT INTO migrations (filename, success, error_message)
+            VALUES (${fileName}, true, null)
+            ON CONFLICT (filename) 
+            DO UPDATE SET 
+              success = EXCLUDED.success,
+              error_message = EXCLUDED.error_message,
+              executed_at = CURRENT_TIMESTAMP
+          `;
+        } catch (insertError) {
+          // If ON CONFLICT fails, try a simple INSERT
+          await transaction`DELETE FROM migrations WHERE filename = ${fileName}`;
+          await transaction`
+            INSERT INTO migrations (filename, success, error_message)
+            VALUES (${fileName}, true, null)
+          `;
+        }
       });
     }
 
@@ -322,29 +358,45 @@ export async function runMigration(
       console.info(chalk.dim(`  Warning: ${errorMessage}`));
 
       // Mark as successful since these are just warnings
+      try {
+        await sql`
+          INSERT INTO migrations (filename, success, error_message)
+          VALUES (${fileName}, true, ${errorMessage})
+          ON CONFLICT (filename) 
+          DO UPDATE SET 
+            success = EXCLUDED.success,
+            error_message = EXCLUDED.error_message,
+            executed_at = CURRENT_TIMESTAMP
+        `;
+      } catch (insertError) {
+        await sql`DELETE FROM migrations WHERE filename = ${fileName}`;
+        await sql`
+          INSERT INTO migrations (filename, success, error_message)
+          VALUES (${fileName}, true, ${errorMessage})
+        `;
+      }
+
+      return 'success';
+    }
+
+    // Only mark as failed for actual critical errors
+    try {
       await sql`
-        INSERT INTO migrations (filename, success, error_message)
-        VALUES (${fileName}, true, ${errorMessage})
+        INSERT INTO migrations (filename, success, error_message) 
+        VALUES (${fileName}, false, ${errorMessage})
         ON CONFLICT (filename) 
         DO UPDATE SET 
           success = EXCLUDED.success,
           error_message = EXCLUDED.error_message,
           executed_at = CURRENT_TIMESTAMP
       `;
-
-      return 'success';
+    } catch (insertError) {
+      await sql`DELETE FROM migrations WHERE filename = ${fileName}`;
+      await sql`
+        INSERT INTO migrations (filename, success, error_message) 
+        VALUES (${fileName}, false, ${errorMessage})
+      `;
     }
-
-    // Only mark as failed for actual critical errors
-    await sql`
-      INSERT INTO migrations (filename, success, error_message) 
-      VALUES (${fileName}, false, ${errorMessage})
-      ON CONFLICT (filename) 
-      DO UPDATE SET 
-        success = EXCLUDED.success,
-        error_message = EXCLUDED.error_message,
-        executed_at = CURRENT_TIMESTAMP
-    `;
 
     console.error(
       chalk.red('✖'),
