@@ -9,9 +9,13 @@ const pool = new Pool({
   password: process.env.POSTGRES_PASSWORD,
   database: process.env.POSTGRES_DB,
   max: 20,
-  idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 2000,
-  port: Number(process.env.POSTGRES_PORT) || 5432
+  idleTimeoutMillis: 20000, // Align with main db config
+  connectionTimeoutMillis: 10000, // Align with main db config
+  port: Number(process.env.POSTGRES_PORT) || 5432,
+  ssl:
+    process.env.NODE_ENV === 'production'
+      ? { rejectUnauthorized: false }
+      : false
 });
 
 export const nextAuth = NextAuth({

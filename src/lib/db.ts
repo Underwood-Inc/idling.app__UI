@@ -7,12 +7,16 @@ const sql = postgres({
   password: process.env.POSTGRES_PASSWORD,
   pass: process.env.POSTGRES_PASSWORD,
   port: process.env.POSTGRES_PORT as unknown as number,
-  ssl: 'prefer',
+  ssl:
+    process.env.NODE_ENV === 'production'
+      ? { rejectUnauthorized: false }
+      : false,
   onnotice: () => {},
   max: 10, // Maximum number of connections
   idle_timeout: 20, // Idle connection timeout in seconds
   connect_timeout: 10, // Connection timeout in seconds
-  prepare: false // Disable prepared statements to reduce connection usage
+  prepare: false, // Disable prepared statements to reduce connection usage
+  transform: postgres.camel // Enable camelCase transformation for consistency
 });
 
 export default sql;
