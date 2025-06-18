@@ -522,6 +522,38 @@ export function useSubmissionsManager({
     includeThreadReplies
   ]);
 
+  // Initialize infinite scroll data when switching modes or when regular data loads
+  useEffect(() => {
+    if (infiniteScroll && submissionsState.data?.submissions) {
+      // If we're in infinite scroll mode but don't have infinite data, initialize it
+      if (
+        infiniteData.length === 0 &&
+        submissionsState.data.submissions.length > 0
+      ) {
+        setInfiniteData(submissionsState.data.submissions);
+        setInfinitePage(filtersState.page);
+        setHasMore(
+          submissionsState.data.submissions.length === filtersState.pageSize
+        );
+      }
+    }
+  }, [
+    infiniteScroll,
+    submissionsState.data?.submissions,
+    infiniteData.length,
+    filtersState.page,
+    filtersState.pageSize
+  ]);
+
+  // Reset infinite scroll state when switching to paged mode
+  useEffect(() => {
+    if (!infiniteScroll) {
+      setInfiniteData([]);
+      setInfinitePage(1);
+      setHasMore(true);
+    }
+  }, [infiniteScroll]);
+
   // Default pagination
   const defaultPagination = useMemo(
     () => ({
@@ -533,8 +565,10 @@ export function useSubmissionsManager({
   );
 
   return {
-    // State
-    submissions: submissionsState.data?.submissions || [],
+    // State - return correct data based on mode
+    submissions: infiniteScroll
+      ? infiniteData
+      : submissionsState.data?.submissions || [],
     pagination: submissionsState.data?.pagination || defaultPagination,
     isLoading: submissionsState.loading,
     error: submissionsState.error,

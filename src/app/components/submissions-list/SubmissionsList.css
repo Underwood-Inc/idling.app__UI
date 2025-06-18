@@ -540,6 +540,20 @@
   outline-offset: 2px;
 }
 
+/* Infinite scroll trigger inside virtual container */
+.submissions-list__infinite-trigger {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 1rem;
+  min-height: 80px;
+}
+
+.submissions-list__trigger {
+  width: 100%;
+  max-width: 400px;
+}
+
 /* Prevent layout shift during loading */
 .submissions-list__item {
   transform: translateZ(0);

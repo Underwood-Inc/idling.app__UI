@@ -7,6 +7,7 @@ import React, {
   useRef,
   useState
 } from 'react';
+import InfiniteScrollTrigger from '../infinite-scroll-trigger/InfiniteScrollTrigger';
 import { SubmissionItem } from './SubmissionItem';
 import './SubmissionItem.css';
 import './SubmissionsList.css';
@@ -25,6 +26,11 @@ export interface SubmissionsListProps {
   showSkeletons?: boolean;
   onRefresh?: () => void;
   contextId: string;
+  // Infinite scroll props
+  infiniteScrollMode?: boolean;
+  hasMore?: boolean;
+  isLoadingMore?: boolean;
+  onLoadMore?: () => void;
 }
 
 const SubmissionsList = React.memo(function SubmissionsList({
@@ -34,7 +40,11 @@ const SubmissionsList = React.memo(function SubmissionsList({
   onMentionClick,
   showSkeletons,
   onRefresh,
-  contextId
+  contextId,
+  infiniteScrollMode = false,
+  hasMore = false,
+  isLoadingMore = false,
+  onLoadMore
 }: SubmissionsListProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const itemRefs = useRef<Map<number, HTMLDivElement>>(new Map());
@@ -344,6 +354,20 @@ const SubmissionsList = React.memo(function SubmissionsList({
             </div>
           );
         })}
+
+        {/* Infinite scroll trigger - only show when in infinite mode and at the end */}
+        {infiniteScrollMode &&
+          hasMore &&
+          onLoadMore &&
+          visibleRange.end >= posts.length && (
+            <div className="submissions-list__infinite-trigger">
+              <InfiniteScrollTrigger
+                onLoadMore={onLoadMore}
+                isLoading={isLoadingMore}
+                className="submissions-list__trigger"
+              />
+            </div>
+          )}
       </div>
 
       {/* Bottom spacer for virtual scrolling */}

@@ -5,7 +5,6 @@ import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { useSubmissionsManager } from '../../../lib/state/useSubmissionsManager';
 import { CustomFilterInput } from '../filter-bar/CustomFilterInput';
 import FilterBar from '../filter-bar/FilterBar';
-import InfiniteScrollTrigger from '../infinite-scroll-trigger/InfiniteScrollTrigger';
 import Pagination from '../pagination/Pagination';
 import { StickyPagination } from '../pagination/StickyPagination';
 import { SpacingThemeToggle } from '../spacing-theme-toggle/SpacingThemeToggle';
@@ -291,6 +290,10 @@ const PostsManager = React.memo(function PostsManager({
         showSkeletons={isLoading}
         onRefresh={handleRefresh}
         contextId={contextId}
+        infiniteScrollMode={infiniteScrollMode}
+        hasMore={hasMore}
+        isLoadingMore={isLoadingMore}
+        onLoadMore={loadMore}
       />
 
       {/* Pagination */}
@@ -318,14 +321,7 @@ const PostsManager = React.memo(function PostsManager({
             </>
           ) : (
             <div className="posts-manager__infinite-scroll">
-              {/* Automatic loading trigger */}
-              {hasMore && (
-                <InfiniteScrollTrigger
-                  onLoadMore={loadMore}
-                  isLoading={isLoadingMore}
-                  className="posts-manager__infinite-trigger"
-                />
-              )}
+              {/* Show completion message when no more posts */}
               {!hasMore && submissions.length > 0 && (
                 <div className="posts-manager__infinite-info">
                   Showing all {submissions.length} of{' '}
