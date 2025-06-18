@@ -657,7 +657,7 @@ export function MentionTooltip({
         position: 'fixed',
         left: position.x,
         top: position.y,
-        zIndex: 1000,
+        zIndex: 10000,
         display: 'block'
       }}
     >

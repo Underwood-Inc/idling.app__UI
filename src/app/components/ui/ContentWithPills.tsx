@@ -2,9 +2,9 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import React, { useState } from 'react';
+import React from 'react';
 import { NAV_PATHS } from '../../../lib/routes';
-import { MentionTooltip } from '../tooltip/LinkTooltip';
+import { InteractiveTooltip } from '../tooltip/InteractiveTooltip';
 import './ContentWithPills.css';
 
 interface ContentWithPillsProps {
@@ -41,21 +41,6 @@ export function ContentWithPills({
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  // Tooltip state for mention actions
-  const [tooltip, setTooltip] = useState<{
-    visible: boolean;
-    username: string;
-    userId?: string;
-    position: { x: number; y: number };
-    isHoveringTooltip: boolean;
-    timeoutId?: ReturnType<typeof setTimeout>;
-  }>({
-    visible: false,
-    username: '',
-    position: { x: 0, y: 0 },
-    isHoveringTooltip: false
-  });
-
   /**
    * Parse content for ONLY structured pills from InlineSuggestionInput:
    * - Hashtags: #tagname
@@ -68,9 +53,10 @@ export function ContentWithPills({
 
     // Parse both structured formats AND simple @username mentions
     // Structured: #hashtag or @[username|userId] or @[username|userId|filterType]
-    // Simple: @username (for posts with simple mentions)
+    // Simple: @username (for posts with simple mentions, including names with spaces)
+    // Order matters: structured patterns must come before simple patterns
     const combinedRegex =
-      /(#[a-zA-Z0-9_-]+)|(@\[([^|]+)\|([^\]]+)(?:\|([^\]]+))?\])|(@[a-zA-Z0-9._-]+(?:\s+[a-zA-Z0-9._-]+)*)/g;
+      /(#[a-zA-Z0-9_-]+)|(@\[[^\]]+\])|(@[^\s@#[]+(?:\s+[^\s@#[]+)*)/g;
 
     let lastIndex = 0;
     let match;
@@ -90,8 +76,8 @@ export function ContentWithPills({
         // Hashtag: #tagname
         const hashtag = fullMatch.slice(1);
         segments.push({ type: 'hashtag', value: hashtag });
-      } else if (fullMatch.includes('|')) {
-        // Enhanced mention: @[username|userId] or @[username|userId|filterType]
+      } else if (fullMatch.startsWith('@[') && fullMatch.endsWith(']')) {
+        // Structured mention: @[username|userId] or @[username|userId|filterType]
         const enhancedMatch = fullMatch.match(
           /^@\[([^|]+)\|([^|]+)(?:\|([^|]+))?\]$/
         );
@@ -282,120 +268,81 @@ export function ContentWithPills({
     return false;
   };
 
-  // Enhanced mention hover handlers for both structured and adhoc usernames
-  const handleMentionHover = async (
-    segment: ContentSegment,
-    event: React.MouseEvent
-  ) => {
-    // Always show tooltips for mentions in posts and threads (not in filter bar)
-    if (tooltip.timeoutId) {
-      clearTimeout(tooltip.timeoutId);
-    }
-
-    const rect = event.currentTarget.getBoundingClientRect();
-
-    setTooltip({
-      visible: true,
-      username: segment.displayName || segment.value,
-      userId: segment.userId,
-      position: {
-        x: rect.left + rect.width / 2,
-        y: rect.top - 8
-      },
-      isHoveringTooltip: false
-    });
-  };
-
-  const handleMentionLeave = () => {
-    if (tooltip.timeoutId) {
-      clearTimeout(tooltip.timeoutId);
-    }
-
-    const timeoutId = setTimeout(() => {
-      setTooltip((prev) => {
-        if (prev.isHoveringTooltip) {
-          return { ...prev, timeoutId: undefined };
-        }
-        return { ...prev, visible: false, timeoutId: undefined };
-      });
-    }, 300);
-
-    setTooltip((prev) => ({ ...prev, timeoutId }));
-  };
-
-  // Tooltip interaction handlers
-  const handleTooltipHover = () => {
-    if (tooltip.timeoutId) {
-      clearTimeout(tooltip.timeoutId);
-    }
-    setTooltip((prev) => ({
-      ...prev,
-      timeoutId: undefined,
-      isHoveringTooltip: true
-    }));
-  };
-
-  const handleTooltipLeave = () => {
-    setTooltip((prev) => ({
-      ...prev,
-      visible: false,
-      isHoveringTooltip: false,
-      timeoutId: undefined
-    }));
-  };
-
-  // Tooltip action handlers
-  const handleFilterByAuthor = async () => {
-    const userId = tooltip.userId;
-
-    setTooltip((prev) => ({
-      ...prev,
-      visible: false,
-      isHoveringTooltip: false,
-      timeoutId: undefined
-    }));
-
-    if (onMentionClick && userId) {
-      // Always use userId for author filtering - no fallbacks needed with embedded data
-      onMentionClick(userId, 'author');
-    }
-  };
-
-  const handleFilterByContent = async () => {
-    const username = tooltip.username;
-    setTooltip((prev) => ({
-      ...prev,
-      visible: false,
-      isHoveringTooltip: false,
-      timeoutId: undefined
-    }));
-
-    if (onMentionClick) {
-      onMentionClick(username, 'mentions');
-    }
-  };
-
-  // Handle inline filter type toggle for mention pills
-  const handleInlineFilterToggle = (segment: ContentSegment) => {
-    if (segment.type !== 'mention' || !segment.filterType || !segment.rawFormat)
-      return;
-
-    const newFilterType =
-      segment.filterType === 'author' ? 'mentions' : 'author';
-
-    // Create updated mention format with new filter type
-    const updatedMention = segment.rawFormat.replace(
-      /(@\[[^|]+\|[^|]+)\|?([^\]]*)\]/,
-      `$1|${newFilterType}]`
-    );
-
-    // Call the onMentionClick with the updated mention
-    if (onMentionClick) {
-      onMentionClick(updatedMention, newFilterType);
-    }
-  };
-
   const segments = parseContent(content);
+
+  // Debug: Log parsed segments in development
+  if (
+    process.env.NODE_ENV === 'development' &&
+    segments.some((s) => s.type === 'mention')
+  ) {
+    // eslint-disable-next-line no-console
+    console.log('ContentWithPills parsed segments:', {
+      content,
+      segments: segments.filter((s) => s.type === 'mention'),
+      isFilterBarContext,
+      contextId
+    });
+  }
+
+  // Simplified filter handlers
+  const createFilterHandler = (
+    segment: ContentSegment,
+    filterType: 'author' | 'mentions'
+  ) => {
+    return () => {
+      if (onMentionClick) {
+        // For author filters: use userId (who wrote the posts)
+        // For mentions filters: use username (who is mentioned in content)
+        if (filterType === 'author') {
+          // Author filter needs userId
+          const authorValue = segment.userId || segment.value;
+          onMentionClick(authorValue, filterType);
+        } else {
+          // Mentions filter needs username
+          const mentionValue = segment.displayName || segment.value;
+          onMentionClick(mentionValue, filterType);
+        }
+      }
+    };
+  };
+
+  const createMentionTooltipContent = (segment: ContentSegment) => {
+    const username = segment.displayName || segment.value;
+
+    return (
+      <div className="mention-tooltip-content">
+        <div className="mention-tooltip__header">Filter by @{username}</div>
+        <div className="mention-tooltip__options">
+          <button
+            className="mention-tooltip__option mention-tooltip__option--primary"
+            onClick={createFilterHandler(segment, 'author')}
+            title="Show posts authored by this user"
+          >
+            <span className="mention-tooltip__icon">👤</span>
+            <div>
+              Filter by Author
+              <span className="mention-tooltip__description">
+                Posts by this user
+              </span>
+            </div>
+          </button>
+          <button
+            className="mention-tooltip__option"
+            onClick={createFilterHandler(segment, 'mentions')}
+            title="Show posts that mention this user"
+          >
+            <span className="mention-tooltip__icon">💬</span>
+            <div>
+              Filter by Mentions
+              <span className="mention-tooltip__description">
+                Posts mentioning this user
+              </span>
+            </div>
+          </button>
+        </div>
+      </div>
+    );
+  };
 
   return (
     <>
@@ -424,7 +371,10 @@ export function ContentWithPills({
           const isClickable = true;
 
           if (isClickable) {
-            return (
+            const shouldShowTooltip =
+              segment.type === 'mention' && !isFilterBarContext;
+
+            const pillElement = (
               <Link
                 key={index}
                 href={pillUrl}
@@ -439,19 +389,9 @@ export function ContentWithPills({
                     segment
                   )
                 }
-                onMouseEnter={
-                  segment.type === 'mention' && !isFilterBarContext
-                    ? (event) => handleMentionHover(segment, event)
-                    : undefined
-                }
-                onMouseLeave={
-                  segment.type === 'mention' && !isFilterBarContext
-                    ? handleMentionLeave
-                    : undefined
-                }
                 title={
-                  isFilterBarContext
-                    ? undefined // No tooltip in filter input context
+                  isFilterBarContext || shouldShowTooltip
+                    ? undefined // No title tooltip when InfoTooltip is used or in filter context
                     : segment.type === 'hashtag'
                       ? `Filter by hashtag: ${segment.value}`
                       : `Filter by user: ${segment.value}`
@@ -461,6 +401,22 @@ export function ContentWithPills({
                 {segment.value}
               </Link>
             );
+
+            // Wrap mention pills with InteractiveTooltip for interactive content
+            if (shouldShowTooltip) {
+              return (
+                <InteractiveTooltip
+                  key={index}
+                  content={createMentionTooltipContent(segment)}
+                  isInsideParagraph={true}
+                  delay={500}
+                >
+                  {pillElement}
+                </InteractiveTooltip>
+              );
+            }
+
+            return pillElement;
           }
 
           return (
@@ -481,26 +437,6 @@ export function ContentWithPills({
           );
         })}
       </span>
-
-      {/* Tooltip for mention actions */}
-      {tooltip.visible && (
-        <MentionTooltip
-          username={tooltip.username}
-          onFilterByAuthor={handleFilterByAuthor}
-          onFilterByContent={handleFilterByContent}
-          onClose={() =>
-            setTooltip((prev) => ({
-              ...prev,
-              visible: false,
-              isHoveringTooltip: false,
-              timeoutId: undefined
-            }))
-          }
-          onHover={handleTooltipHover}
-          onLeave={handleTooltipLeave}
-          position={tooltip.position}
-        />
-      )}
     </>
   );
 }

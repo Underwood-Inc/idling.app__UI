@@ -317,7 +317,7 @@ export const SmartPillInput: React.FC<SmartPillInputProps> = ({
     const isCompletePill =
       /^#\w+$/.test(pillText.trim()) || // Complete hashtag
       /^@\[[^\]]+\]$/.test(pillText.trim()) || // Complete structured mention (any format)
-      /^@[a-zA-Z0-9._-]+(?:\s+[a-zA-Z0-9._-]+)*$/.test(pillText.trim()); // Simple mention
+      /^@[^\s@#]+(?:\s+[^\s@#]+)*$/.test(pillText.trim()); // Simple mention (updated to match ContentWithPills)
 
     if (!isEditing) {
       // Not in edit mode - remove complete pills directly, edit incomplete ones

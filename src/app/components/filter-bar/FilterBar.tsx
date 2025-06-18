@@ -13,7 +13,7 @@ function dedupeStringArray(arr: string[]): string[] {
 interface FilterBarProps {
   filterId: string;
   filters: Filter<PostFilters>[];
-  onRemoveFilter: (filterType: PostFilters) => void;
+  onRemoveFilter: (filterType: PostFilters, filterValue?: string) => void;
   onRemoveTag: (tagToRemove: string) => void;
   onClearFilters: () => void;
   onUpdateFilter?: (name: string, value: string) => void;
@@ -34,14 +34,6 @@ export default function FilterBar({
   if (!safeFilters || safeFilters.length === 0) {
     return null;
   }
-
-  const handleFilterRemove = (filterName: PostFilters) => {
-    onRemoveFilter(filterName);
-  };
-
-  const handleFilterRemoveString = (filterName: string) => {
-    onRemoveFilter(filterName as PostFilters);
-  };
 
   const handleClearFilters = () => {
     onClearFilters();
@@ -113,57 +105,112 @@ export default function FilterBar({
                 'globalLogic'
               ].includes(filter.name)
           )
+          // Group filters by name to consolidate multiple values
+          .reduce((acc, filter) => {
+            const existingFilter = acc.find((f) => f.name === filter.name);
+            if (existingFilter) {
+              // Consolidate values with comma separation
+              existingFilter.value = existingFilter.value + ',' + filter.value;
+            } else {
+              acc.push({ ...filter });
+            }
+            return acc;
+          }, [] as Filter<PostFilters>[])
           .map((filter) => {
             if (!filter.value) {
               return null;
             }
 
-            // For tags, handle comma-separated values
+            // Handle comma-separated values for all filter types
             const values =
               filter.name === 'tags'
                 ? dedupeStringArray(getTagsFromSearchParams(filter.value))
-                : [filter.value]; // For author/mentions, single value
+                : dedupeStringArray(
+                    filter.value
+                      .split(',')
+                      .map((v) => v.trim())
+                      .filter((v) => v)
+                  );
 
             if (values.length === 0) {
               return null;
             }
 
+            const hasMultipleValues = values.length > 1;
+            const currentLogic =
+              filter.name === 'tags'
+                ? tagLogic
+                : filter.name === 'author'
+                  ? authorLogic
+                  : filter.name === 'mentions'
+                    ? mentionsLogic
+                    : 'OR';
+
             return (
-              <div key={filter.name} className="filter-bar__filter-compact">
+              <div
+                key={`${filter.name}-consolidated`}
+                className="filter-bar__filter-compact"
+              >
                 <div className="filter-bar__filter-inline">
                   <span className="filter-bar__filter-label">
                     {filter.name}:
                   </span>
 
                   {/* Logic toggle for multi-value filters */}
-                  {filter.name === 'tags' &&
-                    filter.value.includes(',') &&
-                    onUpdateFilter && (
-                      <div className="filter-bar__logic-toggle-inline">
-                        <div className="filter-bar__logic-button-group">
-                          <button
-                            className={`filter-bar__logic-button ${tagLogic === 'AND' ? 'filter-bar__logic-button--active' : ''}`}
-                            onClick={() => onUpdateFilter('tagLogic', 'AND')}
-                            title="Must have ALL selected tags"
-                          >
-                            ALL
-                          </button>
-                          <button
-                            className={`filter-bar__logic-button ${tagLogic === 'OR' ? 'filter-bar__logic-button--active' : ''}`}
-                            onClick={() => onUpdateFilter('tagLogic', 'OR')}
-                            title="Must have ANY selected tag"
-                          >
-                            ANY
-                          </button>
-                        </div>
+                  {hasMultipleValues && onUpdateFilter && (
+                    <div className="filter-bar__logic-toggle-inline">
+                      <div className="filter-bar__logic-button-group">
+                        <button
+                          className={`filter-bar__logic-button ${
+                            currentLogic === 'AND'
+                              ? 'filter-bar__logic-button--active'
+                              : ''
+                          }`}
+                          onClick={() => {
+                            const logicType =
+                              filter.name === 'tags'
+                                ? 'tagLogic'
+                                : filter.name === 'author'
+                                  ? 'authorLogic'
+                                  : filter.name === 'mentions'
+                                    ? 'mentionsLogic'
+                                    : 'tagLogic';
+                            onUpdateFilter(logicType, 'AND');
+                          }}
+                          title={`Must have ALL selected ${filter.name}`}
+                        >
+                          ALL
+                        </button>
+                        <button
+                          className={`filter-bar__logic-button ${
+                            currentLogic === 'OR'
+                              ? 'filter-bar__logic-button--active'
+                              : ''
+                          }`}
+                          onClick={() => {
+                            const logicType =
+                              filter.name === 'tags'
+                                ? 'tagLogic'
+                                : filter.name === 'author'
+                                  ? 'authorLogic'
+                                  : filter.name === 'mentions'
+                                    ? 'mentionsLogic'
+                                    : 'tagLogic';
+                            onUpdateFilter(logicType, 'OR');
+                          }}
+                          title={`Must have ANY selected ${filter.name}`}
+                        >
+                          ANY
+                        </button>
                       </div>
-                    )}
+                    </div>
+                  )}
 
                   {/* Filter values */}
                   <div className="filter-bar__filter-values-inline">
-                    {values.map((value) => (
+                    {values.map((value, valueIndex) => (
                       <div
-                        key={value}
+                        key={`${filter.name}-${value}-${valueIndex}`}
                         className="filter-bar__filter-value-container"
                       >
                         <FilterLabel
@@ -171,7 +218,12 @@ export default function FilterBar({
                           label={value}
                           filterId={filterId}
                           onRemoveTag={onRemoveTag}
-                          onRemoveFilter={handleFilterRemoveString}
+                          onRemoveFilter={(filterName, filterValue) =>
+                            onRemoveFilter(
+                              filterName as PostFilters,
+                              filterValue
+                            )
+                          }
                         />
                       </div>
                     ))}

@@ -416,11 +416,6 @@ export function useSubmissionsManager({
   useEffect(() => {
     if (isInitializing.current || !effectiveFiltersState.initialized) return;
 
-    // Clear previous timeout
-    if (fetchTimeout.current) {
-      clearTimeout(fetchTimeout.current);
-    }
-
     // Only fetch if we're not already loading and this is a different request
     const fetchKey = createFetchKey(
       effectiveFiltersState.filters as Filter<PostFilters>[],
@@ -433,14 +428,33 @@ export function useSubmissionsManager({
       return;
     }
 
-    // Fetch immediately since filters are now properly consolidated
-    if (!submissionsState.loading) {
+    // Clear previous timeout to prevent duplicate requests
+    if (fetchTimeout.current) {
+      clearTimeout(fetchTimeout.current);
+    }
+
+    // Add debouncing to prevent rapid successive requests
+    fetchTimeout.current = setTimeout(() => {
+      // Double-check that this is still a different request
+      const currentFetchKey = createFetchKey(
+        effectiveFiltersState.filters as Filter<PostFilters>[],
+        effectiveFiltersState.page,
+        effectiveFiltersState.pageSize
+      );
+
+      if (
+        lastFetchParams.current === currentFetchKey ||
+        submissionsState.loading
+      ) {
+        return; // Skip if same request or already loading
+      }
+
       fetchSubmissions(
         effectiveFiltersState.filters as Filter<PostFilters>[],
         effectiveFiltersState.page,
         effectiveFiltersState.pageSize
       );
-    }
+    }, 50); // Reduced debounce to align with batching timeout
   }, [
     // Track filter changes directly for immediate response
     JSON.stringify(effectiveFiltersState.filters),
@@ -509,7 +523,7 @@ export function useSubmissionsManager({
         clearTimeout(batchedFilterUpdates.current.timeout);
       }
 
-      // Process batch immediately (no delay for atomic updates)
+      // Process batch with minimal delay for atomic updates
       batchedFilterUpdates.current.timeout = setTimeout(() => {
         const updates = batchedFilterUpdates.current.pending;
         batchedFilterUpdates.current.pending = [];
@@ -520,7 +534,7 @@ export function useSubmissionsManager({
             return updates.reduce((state, update) => update(state), prev);
           });
         }
-      }, 0);
+      }, 50); // Align with fetch debounce timing
     },
     [setFiltersState]
   );
