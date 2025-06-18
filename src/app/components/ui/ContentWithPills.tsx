@@ -123,7 +123,7 @@ export function ContentWithPills({
       if (type === 'hashtag') {
         const currentTags = params.get('tags');
         if (currentTags) {
-          const hashtagValue = `#${value}`;
+          const hashtagValue = value; // URL stores tags without # prefix now
           const tags = currentTags
             .split(',')
             .filter((tag) => tag !== hashtagValue);
@@ -141,7 +141,7 @@ export function ContentWithPills({
       // Add filters in normal context
       if (type === 'hashtag') {
         const currentTags = params.get('tags');
-        const hashtagValue = `#${value}`;
+        const hashtagValue = value; // Use value without # for URL (cleaner URLs)
         if (currentTags && !currentTags.split(',').includes(hashtagValue)) {
           params.set('tags', `${currentTags},${hashtagValue}`);
         } else if (!currentTags) {
@@ -212,7 +212,7 @@ export function ContentWithPills({
   ): boolean => {
     if (type === 'hashtag') {
       const currentTags = searchParams.get('tags');
-      const hashtagValue = `#${value}`;
+      const hashtagValue = value; // URL stores tags without # prefix now
       return currentTags
         ? currentTags.split(',').includes(hashtagValue)
         : false;

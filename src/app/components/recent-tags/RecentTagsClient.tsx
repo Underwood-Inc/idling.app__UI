@@ -227,30 +227,11 @@ const RecentTagsClientComponent = ({
                           : ''
                       }`}
                       onClick={() => {
-                        if (tagState.currentTags.length > 1) {
-                          setFiltersState((prev) => {
-                            const newFilters = [...prev.filters];
-                            const logicIndex = newFilters.findIndex(
-                              (f) => f.name === 'tagLogic'
-                            );
-
-                            if (logicIndex >= 0) {
-                              newFilters[logicIndex] = {
-                                name: 'tagLogic',
-                                value: 'AND'
-                              };
-                            } else {
-                              newFilters.push({
-                                name: 'tagLogic',
-                                value: 'AND'
-                              });
-                            }
-
-                            return {
-                              ...prev,
-                              filters: newFilters
-                            };
-                          });
+                        if (
+                          tagState.currentTags.length > 1 &&
+                          tagState.currentTagLogic !== 'AND'
+                        ) {
+                          handleLogicToggle();
                         }
                       }}
                       title="Show posts with ALL of the selected tags"
@@ -264,30 +245,11 @@ const RecentTagsClientComponent = ({
                           : ''
                       }`}
                       onClick={() => {
-                        if (tagState.currentTags.length > 1) {
-                          setFiltersState((prev) => {
-                            const newFilters = [...prev.filters];
-                            const logicIndex = newFilters.findIndex(
-                              (f) => f.name === 'tagLogic'
-                            );
-
-                            if (logicIndex >= 0) {
-                              newFilters[logicIndex] = {
-                                name: 'tagLogic',
-                                value: 'OR'
-                              };
-                            } else {
-                              newFilters.push({
-                                name: 'tagLogic',
-                                value: 'OR'
-                              });
-                            }
-
-                            return {
-                              ...prev,
-                              filters: newFilters
-                            };
-                          });
+                        if (
+                          tagState.currentTags.length > 1 &&
+                          tagState.currentTagLogic !== 'OR'
+                        ) {
+                          handleLogicToggle();
                         }
                       }}
                       title="Show posts with ANY of the selected tags"

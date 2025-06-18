@@ -728,6 +728,7 @@ function parseFiltersIntoGroups(filters: { name: string; value: string }[]): {
         ? tagFilter
             .split(',')
             .map((tag) => tag.trim())
+            .map((tag) => (tag.startsWith('#') ? tag.substring(1) : tag))
             .filter(Boolean)
         : [],
       logic: tagLogic === 'AND' || tagLogic === 'OR' ? tagLogic : 'OR'

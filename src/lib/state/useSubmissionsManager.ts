@@ -158,7 +158,20 @@ export function useSubmissionsManager({
 
     Object.entries(filterGroups).forEach(([name, values]) => {
       if (name === 'tags' || name === 'author' || name === 'mentions') {
-        params.set(name, values.join(','));
+        // Strip # prefix from tags for cleaner URLs
+        if (name === 'tags') {
+          const cleanValues = values.map((value) =>
+            value
+              .split(',')
+              .map((tag) =>
+                tag.trim().startsWith('#') ? tag.substring(1) : tag
+              )
+              .join(',')
+          );
+          params.set(name, cleanValues.join(','));
+        } else {
+          params.set(name, values.join(','));
+        }
       } else if (name === 'tagLogic' && filterGroups.tags) {
         params.set('tagLogic', values[0]);
       } else if (name === 'authorLogic' && filterGroups.author) {
@@ -321,6 +334,7 @@ export function useSubmissionsManager({
       const cleanTags = tagsParam
         .split(',')
         .map((tag) => tag.trim())
+        .map((tag) => (tag.startsWith('#') ? tag : `#${tag}`)) // Add # prefix when reading from URL
         .filter(Boolean);
       if (cleanTags.length > 0) {
         urlFilters.push({
@@ -529,6 +543,26 @@ export function useSubmissionsManager({
           return prev;
         }
 
+        // For logic filters, update existing rather than add duplicate
+        if (filter.name.endsWith('Logic')) {
+          const newFilters = [...prev.filters];
+          const existingIndex = newFilters.findIndex(
+            (f) => f.name === filter.name
+          );
+
+          if (existingIndex >= 0) {
+            newFilters[existingIndex] = filter;
+          } else {
+            newFilters.push(filter);
+          }
+
+          return {
+            ...prev,
+            filters: newFilters,
+            page: 1
+          };
+        }
+
         // Add new filter (allow multiple filters with same name but different values)
         const newFilters = [...prev.filters, filter];
 
@@ -692,9 +726,9 @@ export function useSubmissionsManager({
     contextId
   ]);
 
-  // Display filters (exclude tagLogic from UI display)
+  // Display filters (include all filters for proper FilterBar functionality)
   const displayFilters = useMemo(() => {
-    return filtersState.filters.filter((f) => f.name !== 'tagLogic');
+    return filtersState.filters; // Include all filters including logic filters
   }, [filtersState.filters]);
 
   // Extract data from atoms

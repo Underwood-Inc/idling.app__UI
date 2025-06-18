@@ -139,21 +139,23 @@ export default function FilterBar({
                   {filter.name === 'tags' &&
                     filter.value.includes(',') &&
                     onUpdateFilter && (
-                      <div className="filter-bar__logic-toggle-group">
-                        <button
-                          className={`filter-bar__logic-toggle ${tagLogic === 'AND' ? 'filter-bar__logic-toggle--active' : ''}`}
-                          onClick={() => onUpdateFilter('tagLogic', 'AND')}
-                          title="Must have ALL selected tags"
-                        >
-                          ALL
-                        </button>
-                        <button
-                          className={`filter-bar__logic-toggle ${tagLogic === 'OR' ? 'filter-bar__logic-toggle--active' : ''}`}
-                          onClick={() => onUpdateFilter('tagLogic', 'OR')}
-                          title="Must have ANY selected tag"
-                        >
-                          ANY
-                        </button>
+                      <div className="filter-bar__logic-toggle-inline">
+                        <div className="filter-bar__logic-button-group">
+                          <button
+                            className={`filter-bar__logic-button ${tagLogic === 'AND' ? 'filter-bar__logic-button--active' : ''}`}
+                            onClick={() => onUpdateFilter('tagLogic', 'AND')}
+                            title="Must have ALL selected tags"
+                          >
+                            ALL
+                          </button>
+                          <button
+                            className={`filter-bar__logic-button ${tagLogic === 'OR' ? 'filter-bar__logic-button--active' : ''}`}
+                            onClick={() => onUpdateFilter('tagLogic', 'OR')}
+                            title="Must have ANY selected tag"
+                          >
+                            ANY
+                          </button>
+                        </div>
                       </div>
                     )}
 
