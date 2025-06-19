@@ -2,11 +2,11 @@ import { cleanup, render } from '@testing-library/react';
 import { COIN_SELECTORS } from '../../../lib/test-selectors/components/coin.selectors';
 import Coin, { CoinPropsSize } from './Coin';
 
-jest.mock('../avatar/Avatar', () => {
-  const MockedAvatar = () => <div>Mocked Avatar</div>;
-  MockedAvatar.displayName = 'MockedAvatar';
-  return MockedAvatar;
-});
+jest.mock('../avatar/Avatar', () => ({
+  Avatar: function MockedAvatar() {
+    return <div>Mocked Avatar</div>;
+  }
+}));
 
 describe('Coin Component', () => {
   const renderCoin = (seed: string, size?: CoinPropsSize) =>

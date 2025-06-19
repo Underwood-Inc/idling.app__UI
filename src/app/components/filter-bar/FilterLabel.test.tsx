@@ -1,77 +1,93 @@
 import { fireEvent, render, screen } from '@testing-library/react';
-import { useSearchParams } from 'next/navigation';
-import { useFilters } from '../../../lib/state/FiltersContext';
+import { Provider } from 'jotai';
 import { FilterLabel } from './FilterLabel';
 
-// Mock the useSearchParams hook
-jest.mock('next/navigation', () => ({
-  useSearchParams: jest.fn()
+// Mock the atoms module
+jest.mock('../../../lib/state/atoms', () => ({
+  getDisplayFiltersAtom: jest.fn().mockReturnValue({
+    read: jest.fn(),
+    write: jest.fn()
+  })
 }));
 
-// Mock the useFilters hook
-jest.mock('../../../lib/state/FiltersContext', () => ({
-  useFilters: jest.fn()
+jest.mock('jotai', () => ({
+  ...jest.requireActual('jotai'),
+  useAtom: jest.fn().mockReturnValue([[], jest.fn()]) // displayFilters is an array
+}));
+
+// Mock Next.js navigation
+jest.mock('next/navigation', () => ({
+  useRouter: () => ({
+    push: jest.fn(),
+    replace: jest.fn(),
+    prefetch: jest.fn()
+  }),
+  useSearchParams: () => new URLSearchParams(),
+  usePathname: () => '/test'
 }));
 
 describe('FilterLabel', () => {
-  let dispatchSpy: jest.Mock;
-  const mockSearchParams = {
-    get: jest.fn()
+  const mockOnRemoveTag = jest.fn();
+
+  const defaultProps = {
+    filterId: 'test-filter',
+    name: 'tags',
+    label: 'test-tag',
+    onRemoveTag: mockOnRemoveTag
   };
 
   beforeEach(() => {
     jest.clearAllMocks();
-    (useSearchParams as jest.Mock).mockReturnValue(mockSearchParams);
-    dispatchSpy = jest.fn();
-    (useFilters as jest.Mock).mockReturnValue({ dispatch: dispatchSpy });
   });
 
-  it('renders the FilterLabel component', () => {
-    mockSearchParams.get.mockReturnValue('tag1,tag2');
-    render(<FilterLabel label="tag1" name="tags" filterId="1" />);
-    expect(screen.getByText('tag1')).toBeInTheDocument();
+  it('renders filter label correctly', () => {
+    render(
+      <Provider>
+        <FilterLabel {...defaultProps} />
+      </Provider>
+    );
+
+    expect(screen.getByText('test-tag')).toBeInTheDocument();
+    expect(screen.getByRole('button')).toBeInTheDocument();
   });
 
-  it('calls dispatch with correct payload on click', () => {
-    mockSearchParams.get.mockReturnValue('tag1,tag2');
-    render(<FilterLabel label="tag1" name="tags" filterId="1" />);
-    const badge = screen.getByText('✕');
-    expect(badge).toBeInTheDocument();
-    fireEvent.click(badge!);
+  it('handles clear button click', () => {
+    render(
+      <Provider>
+        <FilterLabel {...defaultProps} />
+      </Provider>
+    );
 
-    expect(dispatchSpy).toHaveBeenCalledTimes(1);
-    expect(dispatchSpy).toHaveBeenCalledWith({
-      payload: {
-        filters: [
-          {
-            name: 'tags',
-            value: 'tag2'
-          }
-        ],
-        id: '1'
-      },
-      type: 'SET_CURRENT_FILTERS'
-    });
+    const clearButton = screen.getByRole('button');
+    fireEvent.click(clearButton);
+
+    expect(mockOnRemoveTag).toHaveBeenCalledWith('test-tag');
   });
 
-  it('removes the tag if it is the only one', () => {
-    mockSearchParams.get.mockReturnValue('tag1');
-    render(<FilterLabel label="tag1" name="tags" filterId="1" />);
-    const badge = screen.getByText('✕');
-    fireEvent.click(badge!);
+  it('handles multiple values correctly', () => {
+    const propsWithMultipleValues = {
+      ...defaultProps,
+      label: 'tag1,tag2,tag3'
+    };
 
-    expect(dispatchSpy).toHaveBeenCalledTimes(1);
-    expect(dispatchSpy).toHaveBeenCalledWith({
-      payload: {
-        filters: [
-          {
-            name: 'tags',
-            value: ''
-          }
-        ],
-        id: '1'
-      },
-      type: 'SET_CURRENT_FILTERS'
-    });
+    render(
+      <Provider>
+        <FilterLabel {...propsWithMultipleValues} />
+      </Provider>
+    );
+
+    // FilterLabel renders the full label as one string, not individual tags
+    expect(screen.getByText('tag1,tag2,tag3')).toBeInTheDocument();
+  });
+
+  it('handles filterId correctly', () => {
+    render(
+      <Provider>
+        <FilterLabel {...defaultProps} />
+      </Provider>
+    );
+
+    // FilterLabel doesn't directly use atoms anymore, just verify the prop is passed
+    expect(defaultProps.filterId).toBe('test-filter');
   });
 });

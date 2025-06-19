@@ -1,0 +1,88 @@
+.submission-thread {
+  border: 1px solid #e2e8f0;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.submission-thread__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.submission-thread__content {
+  flex: 1;
+}
+
+.submission-thread__title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.submission-thread__datetime {
+  font-size: --font-size-base;
+  color: #64748b;
+  margin: 0.25rem 0;
+}
+
+.submission-thread__tags {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.submission-thread__tag {
+  background-color: #e0f2fe;
+  color: #0369a1;
+  font-size: 0.75rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+}
+
+.submission-thread__actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.submission-thread__reply-button,
+.submission-thread__expand-button {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: --font-size-base;
+  cursor: pointer;
+}
+
+.submission-thread__reply-button {
+  color: #2563eb;
+}
+
+.submission-thread__reply-button:hover {
+  color: #1d4ed8;
+}
+
+.submission-thread__expand-button {
+  color: #64748b;
+}
+
+.submission-thread__expand-button:hover {
+  color: #475569;
+}
+
+.submission-thread__reply-form {
+  margin-top: 1rem;
+}
+
+.submission-thread__reply-form-placeholder {
+  border: 1px solid #e2e8f0;
+  border-radius: 0.25rem;
+  padding: 1rem;
+  background-color: #f8fafc;
+}
+
+.submission-thread__replies {
+  margin-left: 2rem;
+  margin-top: 1rem;
+}

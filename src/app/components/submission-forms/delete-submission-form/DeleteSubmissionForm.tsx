@@ -1,75 +1,131 @@
 'use client';
-import { useEffect, useRef } from 'react';
+import { useAtom } from 'jotai';
+import { useEffect, useRef, useState } from 'react';
 import { useFormState, useFormStatus } from 'react-dom';
-import { useShouldUpdate } from '../../../../lib/state/ShouldUpdateContext';
-import { deleteSubmissionAction } from '../actions';
+import { shouldUpdateAtom } from '../../../../lib/state/atoms';
+import { InfoTooltip } from '../../tooltip/InfoTooltip';
+import { canDeleteSubmission, deleteSubmissionAction } from '../actions';
 import './DeleteSubmissionForm.css';
 
 const initialState = {
   status: 0,
-  message: '',
-  submission_name: ''
+  message: ''
 };
 
-function DeleteButton({ isAuthorized }: { isAuthorized: boolean }) {
-  const { pending } = useFormStatus();
-  const isDisabled = pending || !isAuthorized;
-  const title = isDisabled ? 'Login to manage posts.' : undefined;
+interface DeletePermission {
+  canDelete: boolean;
+  reason?: string;
+  replyCount?: number;
+}
 
-  return (
+function DeleteButton({
+  isAuthorized,
+  deletePermission
+}: {
+  isAuthorized: boolean;
+  deletePermission: DeletePermission | null;
+}) {
+  const { pending } = useFormStatus();
+
+  // Default to false until permission is explicitly checked
+  const canDelete = isAuthorized && deletePermission?.canDelete === true;
+  const isDisabled = pending || !canDelete;
+
+  let tooltipText = '';
+  if (!isAuthorized) {
+    tooltipText = 'Login to manage posts.';
+  } else if (
+    deletePermission &&
+    !deletePermission.canDelete &&
+    deletePermission.reason
+  ) {
+    tooltipText = deletePermission.reason;
+  }
+
+  const button = (
     <button
       type="submit"
       aria-disabled={isDisabled}
       disabled={isDisabled}
       className="submission__delete-btn"
-      title={title}
     >
       Delete
     </button>
   );
+
+  // Wrap in tooltip if there's a reason the button is disabled
+  if (tooltipText) {
+    return <InfoTooltip content={tooltipText}>{button}</InfoTooltip>;
+  }
+
+  return button;
 }
 
 export function DeleteSubmissionForm({
   id,
   name,
-  isAuthorized
+  isAuthorized,
+  authorId
 }: {
   id: number;
   name: string;
   isAuthorized: boolean;
+  authorId?: string | undefined;
 }) {
   const ref = useRef<HTMLFormElement>(null);
-  const { dispatch: dispatchShouldUpdate } = useShouldUpdate();
-  // TODO: https://github.com/vercel/next.js/issues/65673#issuecomment-2112746191
-  // const [state, formAction] = useActionState(deleteSubmissionAction, initialState)
+  const [, setShouldUpdate] = useAtom(shouldUpdateAtom);
+  const [deletePermission, setDeletePermission] =
+    useState<DeletePermission | null>({ canDelete: false });
   const [state, formAction] = useFormState(
     deleteSubmissionAction,
     initialState
   );
 
+  // Check delete permission when component mounts or dependencies change
   useEffect(() => {
-    dispatchShouldUpdate({
-      type: 'SET_SHOULD_UPDATE',
-      payload: !!state.status
-    });
+    async function checkPermission() {
+      if (isAuthorized && authorId) {
+        try {
+          const permission = await canDeleteSubmission(id, authorId);
+          setDeletePermission(permission);
+        } catch (error) {
+          console.error('Error checking delete permission:', error);
+          setDeletePermission({
+            canDelete: false,
+            reason: 'Unable to verify delete permissions.'
+          });
+        }
+      } else {
+        setDeletePermission({
+          canDelete: false,
+          reason: isAuthorized
+            ? 'Unable to verify permissions.'
+            : 'Login required to delete posts.'
+        });
+      }
+    }
 
-    if (state.status) {
+    checkPermission();
+  }, [id, isAuthorized, authorId]);
+
+  useEffect(() => {
+    if (state.status === 1) {
+      // Only trigger update on successful deletion
+      setShouldUpdate(true);
       ref.current?.reset();
     }
-  }, [state.status, state.message, dispatchShouldUpdate]);
-
-  const handleFormAction = async (formData: FormData) => {
-    await formAction(formData);
-    ref.current?.reset();
-  };
+  }, [state.status, state.message, setShouldUpdate]);
 
   return (
-    <form ref={ref} action={handleFormAction}>
+    <form ref={ref} action={formAction}>
       <input type="hidden" name="submission_id" value={id} />
       <input type="hidden" name="submission_name" value={name} />
-      <DeleteButton isAuthorized={isAuthorized} />
+      <DeleteButton
+        isAuthorized={isAuthorized}
+        deletePermission={deletePermission}
+      />
       <p aria-live="polite" className="" role="status">
-        {state?.message}
+        {state?.message || (state as any)?.error}
       </p>
     </form>
   );

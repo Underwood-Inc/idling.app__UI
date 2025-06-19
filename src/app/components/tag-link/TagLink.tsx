@@ -1,84 +1,115 @@
 'use client';
+import { useAtom } from 'jotai';
 import Link from 'next/link';
 import { usePathname, useSearchParams } from 'next/navigation';
-import reactStringReplace from 'react-string-replace';
-import { usePagination } from 'src/lib/state/PaginationContext';
-import { useFilters } from '../../../lib/state/FiltersContext';
-import { tagRegex } from '../../../lib/utils/string/tag-regex';
+import { NAV_PATHS } from '../../../lib/routes';
+import { getSubmissionsFiltersAtom } from '../../../lib/state/atoms';
+import './TagLink.css';
+
+interface TagLinkProps {
+  value: string;
+  contextId: string;
+  appendSearchParam?: boolean;
+  onTagClick?: (tag: string) => void;
+}
 
 /**
- * A component that will return a nextjs link component instance that navigates to the /posts page with a filter applied that
- * matches the TagLink
- * @example <TagLink value="bacon" /> => a link that navigates to '/posts?tags=bacon'
+ * A component that returns a Next.js Link component that navigates with a filter applied
+ * @example <TagLink value="bacon" /> => a link that navigates to current route with tags=bacon filter
  */
 export function TagLink({
   value,
+  contextId,
   appendSearchParam = false,
-  contextId
-}: {
-  value: string;
-  appendSearchParam?: boolean;
-  contextId: string;
-}) {
-  const { dispatch: dispatchFilters } = useFilters();
-  const { dispatch: dispatchPagination } = usePagination();
+  onTagClick
+}: TagLinkProps) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const tagSearchParams = searchParams.get('tags');
 
-  // you normally would not use an onClick with a nextjs Link component however, we need to ensure filters are updated in the
-  // client context so as to ensure certain UI/X behaviors occur
-  const onClick = (tag: string) => {
-    if (!tagSearchParams?.includes(tag)) {
-      dispatchFilters({
-        payload: {
-          filters: [
-            {
-              name: 'tags',
-              value:
-                tagSearchParams && appendSearchParam
-                  ? `${tagSearchParams},${tag.toLowerCase()}`
-                  : tag.toLowerCase()
-            }
-          ],
-          id: contextId
-        },
-        type: 'SET_CURRENT_FILTERS'
-      });
-      // ensure we are on page 1
-      dispatchPagination({
-        payload: {
-          currentPage: 1,
-          id: contextId
-        },
-        type: 'SET_CURRENT_PAGE'
-      });
-    }
-  };
+  // Use shared Jotai atoms directly for state synchronization
+  const [filtersState, setFiltersState] = useAtom(
+    getSubmissionsFiltersAtom(contextId)
+  );
 
-  // dynamic anchors, huzzah
-  const getHref = (tag: string) => {
-    // ensure we do not construct URLs with duplicate tags
-    if (!tagSearchParams?.includes(tag)) {
-      return tagSearchParams
-        ? `${pathname}?tags=${tagSearchParams},${tag.toLowerCase()}`
-        : `${pathname}?tags=${tag.toLowerCase()}`;
+  const generateTagUrl = (): string => {
+    const params = new URLSearchParams(searchParams.toString());
+    const sanitizedTag = value.trim();
+
+    if (!sanitizedTag || sanitizedTag.length > 50) {
+      return '#';
     }
 
-    return `${pathname}?tags=${tagSearchParams}`;
+    const currentTags =
+      params
+        .get('tags')
+        ?.split(',')
+        .map((tag) => tag.trim())
+        .filter(Boolean) || [];
+
+    if (appendSearchParam) {
+      // Add tag if not already present
+      if (!currentTags.includes(sanitizedTag)) {
+        const newTags = [...currentTags, sanitizedTag];
+        params.set('tags', newTags.join(','));
+      }
+    } else {
+      // Toggle tag
+      if (currentTags.includes(sanitizedTag)) {
+        const newTags = currentTags.filter((tag) => tag !== sanitizedTag);
+        if (newTags.length > 0) {
+          params.set('tags', newTags.join(','));
+        } else {
+          params.delete('tags');
+        }
+      } else {
+        const newTags = [...currentTags, sanitizedTag];
+        params.set('tags', newTags.join(','));
+      }
+    }
+
+    // Reset to first page when filters change
+    params.delete('page');
+
+    // For thread pages, navigate to posts with filters
+    const targetPath = pathname.startsWith('/t/') ? NAV_PATHS.POSTS : pathname;
+    return `${targetPath}${params.toString() ? `?${params.toString()}` : ''}`;
   };
 
-  // using reactStringReplace we can leverage the power of regex and return React nodes.
-  // normally, this would blow up using a vanilla regex replace string match
-  return reactStringReplace(value, tagRegex, (match, i) => (
-    // eslint-disable-next-line custom-rules/enforce-link-target-blank
+  const handleClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
+    // If parent provides onTagClick callback, use it and prevent navigation
+    if (onTagClick) {
+      event.preventDefault();
+      const sanitizedTag = value.trim();
+      if (!sanitizedTag || sanitizedTag.length > 50) {
+        console.warn('Invalid tag:', value);
+        return;
+      }
+      onTagClick(sanitizedTag);
+      return;
+    }
+
+    // Otherwise, let the Link component handle navigation
+  };
+
+  // Check if this tag is currently active
+  const currentTags =
+    searchParams
+      .get('tags')
+      ?.split(',')
+      .map((tag) => tag.trim())
+      .filter(Boolean) || [];
+  const isActive = currentTags.includes(value);
+
+  const tagUrl = generateTagUrl();
+
+  return (
     <Link
-      key={`${match}_${i}`}
-      onClick={() => onClick(match)}
-      href={getHref(match)}
-      prefetch={false}
+      href={tagUrl}
+      onClick={handleClick}
+      className={`tag-link ${isActive ? 'active' : ''}`}
+      title={`Filter by tag: ${value}`}
     >
-      #{match}
+      {value}
     </Link>
-  ));
+  );
 }

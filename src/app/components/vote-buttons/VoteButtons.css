@@ -50,6 +50,6 @@
 }
 
 .vote-buttons__score {
-  font-size: 0.875rem;
+  font-size: --font-size-base;
   font-weight: 600;
 }

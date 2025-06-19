@@ -1,198 +1,187 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import React from 'react';
-import {
-  PageSize,
-  PaginationProvider
-} from '../../../lib/state/PaginationContext';
+import { fireEvent, render, screen } from '@testing-library/react';
+import { PageSize } from '../../../lib/state/atoms';
 import { PAGINATION_SELECTORS } from '../../../lib/test-selectors/components/pagination.selectors';
 import Pagination from './Pagination';
 
+// Mock the PageSizeSelector component to avoid import issues
+jest.mock('./PageSizeSelector', () => {
+  const {
+    PAGINATION_SELECTORS
+  } = require('../../../lib/test-selectors/components/pagination.selectors');
+  return function MockPageSizeSelector({
+    pageSize,
+    onPageSizeChange
+  }: {
+    pageSize: any;
+    onPageSizeChange: (size: any) => void;
+  }) {
+    return (
+      <select
+        value={pageSize}
+        onChange={(e) => onPageSizeChange(Number(e.target.value))}
+        data-testid={PAGINATION_SELECTORS.PAGE_SIZE_SELECTOR}
+      >
+        <option value={10}>10</option>
+        <option value={20}>20</option>
+        <option value={50}>50</option>
+        <option value={100}>100</option>
+      </select>
+    );
+  };
+});
+
 const testDataId = 'default';
 
-const renderWithProvider = (component: React.ReactNode, totalPages = 1) => {
-  return render(
-    <PaginationProvider
-      value={{
-        [testDataId]: {
-          id: testDataId,
-          currentPage: 1,
-          totalPages: totalPages,
-          pageSize: PageSize.TEN
-        }
-      }}
-    >
-      {component}
-    </PaginationProvider>
-  );
-};
-
 describe('Pagination', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
   it('renders correctly with initial state', () => {
-    renderWithProvider(<Pagination id={testDataId} />, 3);
+    render(
+      <Pagination
+        id={testDataId}
+        currentPage={1}
+        totalPages={3}
+        pageSize={PageSize.TEN}
+      />
+    );
 
     expect(screen.getByText('Previous')).toBeInTheDocument();
     expect(screen.getByText('Next')).toBeInTheDocument();
-    expect(screen.getByTestId(PAGINATION_SELECTORS.STATE)).toBeVisible();
-    expect(
-      screen.getByTestId(PAGINATION_SELECTORS.PAGE_SELECTOR)
-    ).toHaveTextContent('123');
+    expect(screen.getByText('Page 1 of 3')).toBeInTheDocument();
     expect(screen.getByTestId(PAGINATION_SELECTORS.PAGE_SELECTOR)).toHaveValue(
       '1'
     );
+    expect(screen.getByDisplayValue('1')).toBeInTheDocument();
+    expect(screen.getByText('2')).toBeInTheDocument();
+    expect(screen.getByText('3')).toBeInTheDocument();
     expect(
-      screen.getByTestId(PAGINATION_SELECTORS.PAGE_SIZE_STATE)
-    ).toHaveTextContent('Page Size 10');
+      screen.getByTestId(PAGINATION_SELECTORS.PAGE_SIZE_SELECTOR)
+    ).toHaveValue('10');
   });
 
   it('handles previous button click', () => {
-    renderWithProvider(<Pagination id={testDataId} />);
+    const mockOnPageChange = jest.fn();
+    render(
+      <Pagination
+        id={testDataId}
+        currentPage={1}
+        totalPages={3}
+        onPageChange={mockOnPageChange}
+      />
+    );
 
     const previousButton = screen.getByText('Previous');
     fireEvent.click(previousButton);
 
-    // Ensure it stays on page 1 (can't go below 1)
-    expect(screen.getByTestId(PAGINATION_SELECTORS.STATE)).toHaveTextContent(
-      'Page 1 of'
-    );
+    // Should not call onPageChange when already on page 1
+    expect(mockOnPageChange).not.toHaveBeenCalled();
   });
 
-  it('handles next button click', async () => {
-    renderWithProvider(<Pagination id={testDataId} />, 3);
+  it('handles next button click', () => {
+    const mockOnPageChange = jest.fn();
+    render(
+      <Pagination
+        id={testDataId}
+        currentPage={1}
+        totalPages={3}
+        onPageChange={mockOnPageChange}
+      />
+    );
 
     const nextButton = screen.getByText('Next');
     fireEvent.click(nextButton);
 
-    await waitFor(() => {
-      expect(
-        screen.getByTestId(PAGINATION_SELECTORS.PAGE_SELECTOR)
-      ).toHaveTextContent('123');
-      expect(
-        screen.getByTestId(PAGINATION_SELECTORS.PAGE_SELECTOR)
-      ).toHaveValue('2');
-      expect(screen.getByTestId(PAGINATION_SELECTORS.STATE)).toHaveTextContent(
-        'Page 123 of 3'
-      );
-    });
+    expect(mockOnPageChange).toHaveBeenCalledWith(2);
   });
 
   it('handles page selection', () => {
-    renderWithProvider(<Pagination id={testDataId} />, 4);
+    const mockOnPageChange = jest.fn();
+    render(
+      <Pagination
+        id={testDataId}
+        currentPage={1}
+        totalPages={4}
+        onPageChange={mockOnPageChange}
+      />
+    );
 
     const pageSelector = screen.getByTestId(PAGINATION_SELECTORS.PAGE_SELECTOR);
     fireEvent.change(pageSelector, { target: { value: '3' } });
 
-    expect(
-      screen.getByTestId(PAGINATION_SELECTORS.PAGE_SELECTOR)
-    ).toHaveTextContent('1234');
-    expect(screen.getByTestId(PAGINATION_SELECTORS.PAGE_SELECTOR)).toHaveValue(
-      '3'
-    );
-    expect(screen.getByTestId(PAGINATION_SELECTORS.STATE)).toHaveTextContent(
-      'Page 1234 of 4'
-    );
+    expect(mockOnPageChange).toHaveBeenCalledWith(3);
   });
 
   it('handles page size selection', () => {
-    renderWithProvider(<Pagination id={testDataId} />);
+    const mockOnPageSizeChange = jest.fn();
+    render(
+      <Pagination
+        id={testDataId}
+        currentPage={1}
+        totalPages={2}
+        pageSize={PageSize.TEN}
+        onPageSizeChange={mockOnPageSizeChange}
+      />
+    );
 
     const pageSizeSelector = screen.getByTestId(
       PAGINATION_SELECTORS.PAGE_SIZE_SELECTOR
     );
+
+    expect(screen.getByDisplayValue('10')).toBeInTheDocument();
+    expect(screen.getByText('20')).toBeInTheDocument();
+    expect(screen.getByText('50')).toBeInTheDocument();
+    expect(screen.getByText('100')).toBeInTheDocument();
+
     fireEvent.change(pageSizeSelector, { target: { value: '50' } });
 
-    expect(
-      screen.getByTestId(PAGINATION_SELECTORS.PAGE_SIZE_STATE)
-    ).toHaveTextContent('Page Size 1020304050');
-    expect(
-      screen.getByTestId(PAGINATION_SELECTORS.PAGE_SIZE_SELECTOR)
-    ).toHaveValue('50');
+    expect(mockOnPageSizeChange).toHaveBeenCalledWith(50);
   });
 
   it('disables previous button on first page', () => {
-    renderWithProvider(<Pagination id={testDataId} />);
+    render(<Pagination id={testDataId} currentPage={1} totalPages={3} />);
 
     const previousButton = screen.getByText('Previous');
     expect(previousButton).toBeDisabled();
   });
 
   it('disables next button on last page', () => {
-    renderWithProvider(<Pagination id={testDataId} />);
+    render(<Pagination id={testDataId} currentPage={1} totalPages={1} />);
 
-    const nextButton = screen.getByText('Next');
-    fireEvent.click(nextButton);
-
-    expect(nextButton).toBeDisabled();
+    // Component should not render when totalPages <= 1
+    expect(screen.queryByText('Previous')).not.toBeInTheDocument();
+    expect(screen.queryByText('Next')).not.toBeInTheDocument();
   });
 
-  it('returns null when pagination state is not available', () => {
-    const { container } = renderWithProvider(<Pagination id="non-existent" />);
-    expect(container.firstChild).toBeNull();
+  it('shows correct page information for middle page', () => {
+    render(<Pagination id={testDataId} currentPage={3} totalPages={5} />);
+
+    expect(screen.getByText('Page 3 of 5')).toBeInTheDocument();
+    expect(screen.getByTestId(PAGINATION_SELECTORS.PAGE_SELECTOR)).toHaveValue(
+      '3'
+    );
   });
 
-  it('handles previous button click when not on first page', async () => {
-    renderWithProvider(<Pagination id={testDataId} />, 3);
-
-    // First, move to page 2
-    const nextButton = screen.getByText('Next');
-    fireEvent.click(nextButton);
-
-    await waitFor(() => {
-      expect(
-        screen.getByTestId(PAGINATION_SELECTORS.PAGE_SELECTOR)
-      ).toHaveValue('2');
-    });
-
-    // Now click previous
-    const previousButton = screen.getByText('Previous');
-    fireEvent.click(previousButton);
-
-    await waitFor(() => {
-      expect(
-        screen.getByTestId(PAGINATION_SELECTORS.PAGE_SELECTOR)
-      ).toHaveValue('1');
-      expect(screen.getByTestId(PAGINATION_SELECTORS.STATE)).toHaveTextContent(
-        'Page 123 of 3'
-      );
-    });
-  });
-
-  it('renders correctly when totalPages is not available', () => {
+  it('handles different page sizes correctly', () => {
     render(
-      <PaginationProvider
-        value={{
-          default: {
-            id: 'default',
-            currentPage: 1,
-            totalPages: undefined,
-            pageSize: PageSize.TEN
-          }
-        }}
-      >
-        <Pagination id={testDataId} />
-      </PaginationProvider>
+      <Pagination
+        id={testDataId}
+        currentPage={1}
+        totalPages={2}
+        pageSize={PageSize.TWENTY}
+      />
     );
 
-    expect(screen.getByText('Previous')).toBeInTheDocument();
-    expect(screen.getByText('Next')).toBeInTheDocument();
-    expect(screen.getByTestId(PAGINATION_SELECTORS.STATE)).toBeVisible();
     expect(
-      screen.getByTestId(PAGINATION_SELECTORS.PAGE_SELECTOR)
-    ).toBeEmptyDOMElement();
-    expect(screen.getByTestId(PAGINATION_SELECTORS.STATE)).toHaveTextContent(
-      'Page of'
-    );
+      screen.getByTestId(PAGINATION_SELECTORS.PAGE_SIZE_SELECTOR)
+    ).toHaveValue('20');
   });
 
-  it('uses default id when not provided', () => {
-    // @ts-expect-error default prop value test
-    renderWithProvider(<Pagination />);
+  it('does not render when totalPages is 1 or less', () => {
+    render(<Pagination id={testDataId} currentPage={1} totalPages={1} />);
 
-    expect(screen.getByTestId(PAGINATION_SELECTORS.STATE)).toBeInTheDocument();
-    expect(
-      screen.getByTestId(PAGINATION_SELECTORS.PAGE_SELECTOR)
-    ).toBeInTheDocument();
-    expect(
-      screen.getByTestId(PAGINATION_SELECTORS.PAGE_SIZE_STATE)
-    ).toBeInTheDocument();
+    expect(screen.queryByText('Previous')).not.toBeInTheDocument();
+    expect(screen.queryByText('Next')).not.toBeInTheDocument();
   });
 });

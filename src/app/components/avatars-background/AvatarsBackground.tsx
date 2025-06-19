@@ -1,14 +1,17 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { makeid } from '../../../lib/utils/string/make-id';
-import Avatar from '../avatar/Avatar';
+import { Avatar } from '../avatar/Avatar';
 import './AvatarsBackground.css';
 
+// Generate stable seeds outside of component to prevent regeneration
+const STABLE_AVATAR_DATA = Array.from({ length: 10 }, (_, i) => ({
+  key: `avatar__${i}`,
+  seed: `background-${i}-${makeid(8)}`
+}));
+
 export const AvatarsBackground = React.memo(function AvatarsBackground() {
-  // Create avatar data inside the component
-  const AVATAR_DATA = Array.from({ length: 10 }, (_, i) => ({
-    key: `avatar__${i}`,
-    seed: makeid(15)
-  }));
+  // Use stable seeds that don't change on re-render
+  const AVATAR_DATA = useMemo(() => STABLE_AVATAR_DATA, []);
 
   return (
     <section className="avatar__background-container">

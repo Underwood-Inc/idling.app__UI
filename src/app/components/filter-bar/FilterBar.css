@@ -5,46 +5,450 @@
 
 .filter-bar__filter {
   width: 100%;
-}
-
-.filter-bar__filter-name-container {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  display: flex;
-  flex-wrap: wrap;
-  min-width: 100%;
-  width: 100%;
-  max-height: 20rem;
-  height: auto;
-  overflow-y: auto;
-  padding-top: 1rem;
-  padding-right: 1rem;
-}
-
-.filter-bar__filter-name,
-.filter-bar__filter-value-container,
-.filter-bar__clear {
   margin-bottom: 1rem;
 }
 
-.filter-bar__filter-value-container:not(:last-of-type) {
-  margin-right: 1rem;
+.filter-bar__filter-name {
+  flex-shrink: 0;
+  /* Prevent the label from shrinking */
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: var(--light-bg__text-color--primary);
 }
 
+.filter-bar__filter-values-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.filter-bar__filter-value-container {
+  /* Container for individual filter values */
+}
+
+/* Old filter-name-container styles removed - no longer needed */
+
 .filter-bar__filter-value {
-  font-size: 1.4rem;
-  color: var(--font-color--primary);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: var(--font-size-base);
   padding: 0.4em;
-  background-color: var(--brand-tertiary);
-  box-shadow: inset 0 0 0 2px var(--brand-tertiary--dark);
+  border-radius: 4px;
+  border: 1px solid #ffcc02;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-weight: 500;
+  position: relative;
+  /* Tag styling - orange theme to match hashtags */
+  background: linear-gradient(135deg, #fff9c4, #fff59d);
+  color: #f57f17;
+  text-shadow: 0 1px 1px rgba(255, 255, 255, 0.9);
+  /* Use inset shadow to prevent layout changes */
+  box-shadow: inset 0 0 0 rgba(255, 193, 7, 0);
+}
+
+.filter-bar__filter-value:hover {
+  background: linear-gradient(135deg, #fff59d, #fff176);
+  color: #e65100;
+  /* Add scale transform with proper isolation to prevent layout shifts */
+  transform: scale(1.02);
+  transform-origin: center;
+  /* Use inset shadow to prevent DOM space changes */
+  box-shadow: inset 0 -2px 4px rgba(255, 193, 7, 0.25);
+  /* Keep same border color to prevent reflow */
+  border-color: #ffcc02;
+  /* Ensure element doesn't affect surrounding layout */
+  position: relative;
+  z-index: 10;
+}
+
+.filter-bar__filter-remove {
+  font-size: 0.9em;
+  font-weight: bold;
+  margin-left: 4px;
+  opacity: 0.7;
+  transition: all 0.2s ease;
+}
+
+.filter-bar__filter-value:hover .filter-bar__filter-remove {
+  opacity: 1;
+  color: #dc3545;
+}
+
+/* ContentWithPills in filter bar context */
+.filter-bar__filter-pill .content-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: var(--font-size-base);
+  padding: 0.4em;
   border-radius: var(--border-radius);
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.filter-bar__filter-pill .content-pill--filter-context {
+  /* Let ContentWithPills handle its own styling - don't override */
+}
+
+.filter-bar__clear-all-button {
+  margin-top: 1rem;
+  padding: 0.5rem 1rem;
+  background-color: var(--brand-secondary);
+  color: var(--font-color--primary);
+  border: 1px solid var(--brand-secondary--dark);
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.2s ease-in-out;
+}
+
+.filter-bar__clear-all-button:hover {
+  background-color: var(--brand-secondary--dark);
+  /* Add scale transform with proper isolation to prevent layout shifts */
+  transform: scale(1.02);
+  transform-origin: center;
+  /* Ensure element doesn't affect surrounding layout */
+  position: relative;
+  z-index: 10;
 }
 
 @media (max-width: 961px) {
-  /* tablet, landscape iPad, lo-res laptops ands desktops */
+
+  /* tablet, landscape iPad, lo-res laptops and desktops */
   .filter-bar__container {
     width: 100%;
     min-width: 100%;
   }
+
+  .filter-bar__filter-values-container {
+    gap: 0.375rem;
+  }
+
+  .filter-bar__filter-value {
+    font-size: var(--font-size-xs);
+    padding: 0.3em;
+  }
+
+  /* Compact layout adjustments */
+  .filter-bar__filters-compact {
+    gap: 0.5rem;
+  }
+
+  .filter-bar__filter-inline {
+    gap: 0.375rem;
+  }
+
+  .filter-bar__filter-label {
+    font-size: 0.8rem;
+  }
+
+  .filter-bar__clear-all-button-compact {
+    padding: 0.375rem 0.5rem;
+    font-size: 0.75rem;
+  }
+
+  /* Logic button improvements for tablets */
+  .filter-bar__global-logic {
+    padding: 0.5rem;
+    gap: 0.5rem;
+  }
+
+  .filter-bar__global-logic-inline {
+    padding: 0.4rem 0.7rem;
+    gap: 0.6rem;
+  }
+
+  .filter-bar__logic-button-group {
+    border-radius: 0.375rem;
+  }
+
+  .filter-bar__logic-button {
+    min-width: 3rem;
+    padding: 0.4rem 0.7rem;
+    font-size: 0.8rem;
+  }
+
+  .filter-bar__logic-toggle-group {
+    border-radius: calc(var(--border-radius) * 0.5);
+  }
+
+  .filter-bar__logic-toggle {
+    min-width: 32px;
+    padding: 0.2rem 0.4rem;
+    font-size: 0.65rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .filter-bar__filter-values-container {
+    gap: 0.25rem;
+  }
+
+  .filter-bar__filter-value {
+    font-size: 1rem;
+    padding: 0.25em 0.5em;
+  }
+
+  /* Compact layout mobile adjustments */
+  .filter-bar__filters-compact {
+    gap: 0.375rem;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .filter-bar__filter-inline {
+    width: 100%;
+  }
+
+  .filter-bar__filter-values-inline {
+    gap: 0.25rem;
+  }
+
+  .filter-bar__clear-all-button-compact {
+    align-self: flex-end;
+    margin-left: 0;
+    margin-top: 0.25rem;
+  }
+
+  /* Mobile logic button improvements */
+  .filter-bar__global-logic {
+    padding: 0.5rem;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  .filter-bar__global-logic-inline {
+    padding: 0.375rem 0.6rem;
+    gap: 0.5rem;
+  }
+
+  .filter-bar__logic-label {
+    font-size: 0.8rem;
+  }
+
+  .filter-bar__logic-button-group {
+    border-radius: 0.375rem;
+  }
+
+  .filter-bar__logic-button {
+    min-width: 2.2rem;
+    padding: 0.25rem 0.4rem;
+    font-size: 0.7rem;
+  }
+
+  .filter-bar__logic-toggle-group {
+    border-radius: calc(var(--border-radius) * 0.4);
+  }
+
+  .filter-bar__logic-toggle {
+    min-width: 30px;
+    padding: 0.2rem 0.35rem;
+    font-size: 0.6rem;
+    letter-spacing: 0.1px;
+  }
+}
+
+@media (max-width: 480px) {
+  .filter-bar__global-logic {
+    padding: 0.375rem;
+    gap: 0.375rem;
+  }
+
+  .filter-bar__global-logic-inline {
+    padding: 0.3rem 0.5rem;
+    gap: 0.4rem;
+  }
+
+  .filter-bar__logic-label {
+    font-size: 0.75rem;
+  }
+
+  .filter-bar__logic-button-group {
+    border-radius: 0.375rem;
+  }
+
+  .filter-bar__logic-button {
+    min-width: 2.2rem;
+    padding: 0.25rem 0.4rem;
+    font-size: 0.7rem;
+  }
+
+  .filter-bar__logic-toggle-group {
+    border-radius: calc(var(--border-radius) * 0.3);
+  }
+
+  .filter-bar__logic-toggle {
+    min-width: 28px;
+    padding: 0.15rem 0.3rem;
+    font-size: 0.55rem;
+  }
+}
+
+/* Logic controls */
+.filter-bar__global-logic {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  padding: 0.75rem;
+  background-color: var(--light-bg__color--secondary);
+  border-radius: var(--border-radius);
+  border: 1px solid var(--brand-primary--light);
+}
+
+/* Inline global logic control */
+.filter-bar__global-logic-inline {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem --font-size-base;
+  background-color: var(--light-bg__color--secondary);
+  border-radius: var(--border-radius);
+  border: 1px solid var(--brand-primary--light);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.filter-bar__logic-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--light-bg__text-color--primary);
+  white-space: nowrap;
+  margin-right: 0.25rem;
+}
+
+/* Toggle button group container - updated to match aside version */
+.filter-bar__logic-button-group {
+  display: inline-flex;
+  background-color: var(--light-bg__color--primary);
+  border-radius: 0.375rem;
+  border: 2px solid var(--brand-tertiary--dark);
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.filter-bar__logic-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 3rem;
+  padding: 0.4rem 0.7rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  background-color: var(--brand-tertiary);
+  color: var(--light-bg__text-color--secondary);
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  position: relative;
+}
+
+.filter-bar__logic-button:first-child {
+  border-right: 1px solid var(--brand-tertiary);
+}
+
+.filter-bar__logic-button:hover {
+  background-color: var(--brand-primary--light);
+  color: var(--brand-primary--dark);
+  /* Add scale transform with proper isolation to prevent layout shifts */
+  transform: scale(1.02);
+  transform-origin: center;
+  /* Ensure element doesn't affect surrounding layout */
+  position: relative;
+  z-index: 10;
+}
+
+.filter-bar__logic-button--active {
+  background-color: var(--brand-primary);
+  color: white;
+  font-weight: 700;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.filter-bar__logic-button--active:hover {
+  background-color: var(--brand-primary--dark);
+  color: white;
+  /* Add scale transform with proper isolation to prevent layout shifts */
+  transform: scale(1.02);
+  transform-origin: center;
+  /* Ensure element doesn't affect surrounding layout */
+  position: relative;
+  z-index: 10;
+}
+
+.filter-bar__logic-button:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--brand-primary--light);
+  z-index: 1;
+}
+
+/* Compact filter layout */
+.filter-bar__filters-compact {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.filter-bar__filter-compact {
+  /* Individual filter group container */
+}
+
+.filter-bar__filter-inline {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.filter-bar__filter-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--light-bg__text-color--primary);
+  white-space: nowrap;
+  text-transform: uppercase;
+}
+
+.filter-bar__filter-values-inline {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+  align-items: center;
+}
+
+.filter-bar__clear-all-button-compact {
+  margin-left: auto;
+  padding: 0.375rem 0.75rem;
+  background-color: var(--brand-secondary);
+  color: var(--font-color--primary);
+  border: 1px solid var(--brand-secondary--dark);
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-weight: 600;
+  transition: all 0.2s ease-in-out;
+  white-space: nowrap;
+}
+
+.filter-bar__clear-all-button-compact:hover {
+  background-color: var(--brand-secondary--dark);
+  /* Add scale transform with proper isolation to prevent layout shifts */
+  transform: scale(1.02);
+  transform-origin: center;
+  /* Ensure element doesn't affect surrounding layout */
+  position: relative;
+  z-index: 10;
+}
+
+/* Inline tags logic toggle styling */
+.filter-bar__logic-toggle-inline {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-left: 0.5rem;
 }

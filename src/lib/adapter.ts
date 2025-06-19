@@ -46,15 +46,26 @@ export default function CustomPostgresAdapter(client: Pool): Adapter {
 
     async createUser(user: Omit<AdapterUser, 'id'>) {
       const { name, email, emailVerified, image } = user;
+
+      // Clean modern user creation for NextAuth integration
       const sql = `
-        INSERT INTO users (name, email, "emailVerified", image) 
-        VALUES ($1, $2, $3, $4) 
-        RETURNING id, name, email, "emailVerified", image`;
+        INSERT INTO users (
+          name, 
+          email, 
+          "emailVerified", 
+          image, 
+          profile_public,
+          created_at
+        ) 
+        VALUES ($1, $2, $3, $4, $5, CURRENT_TIMESTAMP) 
+        RETURNING id, name, email, "emailVerified", image, profile_public, created_at`;
+
       const result = await client.query(sql, [
         name,
         email,
         emailVerified,
-        image
+        image,
+        true // Default to public profile
       ]);
 
       return result.rows[0];
@@ -80,7 +91,7 @@ export default function CustomPostgresAdapter(client: Pool): Adapter {
       provider
     }): Promise<AdapterUser | null> {
       const sql = `
-          select u.* from users u join accounts a on u.id = a."userId"
+          select u.*, a."providerAccountId" from users u join accounts a on u.id = a."userId"
           where 
           a.provider = $1 
           and 
@@ -88,7 +99,16 @@ export default function CustomPostgresAdapter(client: Pool): Adapter {
 
       const result = await client.query(sql, [provider, providerAccountId]);
 
-      return result.rowCount !== 0 ? result.rows[0] : null;
+      if (result.rowCount === 0) {
+        return null;
+      }
+
+      const user = result.rows[0];
+      // Attach providerAccountId to the user object for JWT callback
+      return {
+        ...user,
+        providerAccountId: user.providerAccountId
+      };
     },
     async updateUser(user: Partial<AdapterUser>): Promise<AdapterUser> {
       const fetchSql = `select * from users where id = $1`;
@@ -105,7 +125,7 @@ export default function CustomPostgresAdapter(client: Pool): Adapter {
         UPDATE users set
         name = $2, email = $3, "emailVerified" = $4, image = $5
         where id = $1
-        RETURNING name, id, email, "emailVerified", image
+        RETURNING *
       `;
       const query2 = await client.query(updateSql, [
         id,

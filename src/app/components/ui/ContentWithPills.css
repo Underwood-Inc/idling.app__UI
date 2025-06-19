@@ -1,0 +1,342 @@
+.content-with-pills {
+  display: inline;
+  line-height: inherit;
+}
+
+.content-pill {
+  display: inline;
+  margin: 0 1px;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  border-radius: 4px;
+  padding: 1px 4px;
+  font-weight: 500;
+}
+
+.content-pill--hashtag {
+  background: linear-gradient(135deg, #e0f2ff, #cce7ff);
+  color: #0066cc;
+  border: 1px solid #b3d9ff;
+}
+
+.content-pill--hashtag.content-pill--clickable:hover {
+  background: linear-gradient(135deg, #cce7ff, #b3d9ff);
+  color: #0052a3;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.content-pill--mention {
+  background: linear-gradient(135deg, #e8f4fd, #d1e7dd);
+  color: #0d47a1;
+  border: 1px solid #81c784;
+  font-weight: 600;
+  text-shadow: 0 1px 1px rgba(255, 255, 255, 0.8);
+}
+
+.content-pill--mention.content-pill--clickable:hover {
+  background: linear-gradient(135deg, #d1e7dd, #c8e6c9);
+  color: #1565c0;
+  transform: translateY(-1px);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
+  border-color: #66bb6a;
+}
+
+/* Style for adhoc usernames (no @ prefix) */
+.content-pill--mention.content-pill--adhoc {
+  background: linear-gradient(135deg, #fff9c4, #fff59d);
+  color: #f57f17;
+  border: 1px solid #ffcc02;
+  font-weight: 600;
+  text-shadow: 0 1px 1px rgba(255, 255, 255, 0.9);
+}
+
+.content-pill--mention.content-pill--adhoc:hover {
+  background: linear-gradient(135deg, #fff59d, #fff176);
+  color: #e65100;
+  transform: translateY(-1px);
+  box-shadow: 0 3px 8px rgba(255, 193, 7, 0.25);
+  border-color: #ffc107;
+}
+
+.content-pill--active {
+  background: linear-gradient(135deg, #e1f5fe, #b3e5fc) !important;
+  color: #01579b !important;
+  border: 2px solid #0277bd !important;
+  box-shadow: 0 0 0 3px rgba(1, 87, 155, 0.3);
+  font-weight: 600 !important;
+}
+
+.content-pill--active:hover {
+  background: linear-gradient(135deg, #b3e5fc, #81d4fa) !important;
+  color: #003c71 !important;
+  box-shadow: 0 0 0 3px rgba(1, 87, 155, 0.4);
+}
+
+/* Ensure mention pills are clearly highlighted when active */
+.content-pill--mention.content-pill--active {
+  background: linear-gradient(135deg, #e8f5e8, #c8e6c9) !important;
+  color: #2e7d32 !important;
+  border: 2px solid #4caf50 !important;
+  box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.3);
+}
+
+.content-pill--mention.content-pill--active:hover {
+  background: linear-gradient(135deg, #c8e6c9, #a5d6a7) !important;
+  color: #1b5e20 !important;
+  box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.4);
+}
+
+/* Filter context styling - indicates removal behavior */
+.content-pill--filter-context {
+  position: relative;
+  background: linear-gradient(135deg, #f8f9fa, #e9ecef) !important;
+  color: #495057 !important;
+  border: 1px solid #6c757d !important;
+  font-weight: 600 !important;
+  /* Use inset shadow to prevent layout changes */
+  box-shadow: inset 0 -1px 2px rgba(108, 117, 125, 0.2);
+  /* Remove transform to prevent layout shifts */
+  /* Prevent layout shifts by maintaining consistent dimensions */
+}
+
+/* Specific filter context styling for different pill types */
+.content-pill--hashtag.content-pill--filter-context {
+  background: linear-gradient(135deg, #f0f8ff, #e1f5fe) !important;
+  color: #1565c0 !important;
+  border: 1px solid #42a5f5 !important;
+  box-shadow: inset 0 -1px 2px rgba(66, 165, 245, 0.25);
+}
+
+.content-pill--mention.content-pill--filter-context {
+  background: linear-gradient(135deg, #f1f8e9, #e8f5e8) !important;
+  color: #2e7d32 !important;
+  border: 1px solid #66bb6a !important;
+  box-shadow: inset 0 -1px 2px rgba(102, 187, 106, 0.25);
+}
+
+.content-pill--filter-context::after {
+  content: "×";
+  margin-left: 6px;
+  font-weight: bold;
+  opacity: 0.7;
+  font-size: 1.1em;
+  color: #dc3545;
+}
+
+.content-pill--filter-context:hover {
+  background: linear-gradient(135deg, #ffebee, #ffcdd2) !important;
+  color: #c62828 !important;
+  /* Keep same border width and color to prevent reflow */
+  border: 1px solid #6c757d !important;
+  /* Add scale transform with proper isolation to prevent layout shifts */
+  transform: scale(1.02);
+  transform-origin: center;
+  /* Use inset shadow to prevent DOM space changes */
+  box-shadow: inset 0 -2px 4px rgba(239, 83, 80, 0.3);
+  /* Ensure element doesn't affect surrounding layout */
+  position: relative;
+  z-index: 10;
+}
+
+.content-pill--filter-context:hover::after {
+  opacity: 1;
+  color: #c62828;
+  font-size: 1.2em;
+}
+
+/* Non-clickable pills (disabled state) */
+.content-pill:not(.content-pill--clickable) {
+  background: #f5f5f5;
+  color: #666;
+  border: 1px solid #ddd;
+  cursor: default;
+}
+
+/* Dark mode support - keep the light pastels visible */
+@media (prefers-color-scheme: dark) {
+  .content-pill--active {
+    background: linear-gradient(135deg, #e1f5fe, #b3e5fc) !important;
+    color: #01579b !important;
+    border-color: #81d4fa !important;
+  }
+
+  .content-pill--active:hover {
+    background: linear-gradient(135deg, #b3e5fc, #81d4fa) !important;
+    color: #003c71 !important;
+  }
+
+  .content-pill--filter-context:hover {
+    background: linear-gradient(135deg, #ffebee, #ffcdd2) !important;
+    color: #c62828 !important;
+    border-color: #ef5350 !important;
+  }
+
+  .content-pill:not(.content-pill--clickable) {
+    background: #f5f5f5;
+    color: #666;
+    border-color: #ddd;
+  }
+}
+
+/* Accessibility and motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  .content-pill {
+    transition: none;
+  }
+
+  .content-pill--clickable:hover {
+    transform: none;
+  }
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+  .content-pill {
+    border-width: 1px;
+  }
+
+  .content-pill--hashtag {
+    background: #f0f8ff;
+    color: #000;
+    border-color: #000;
+  }
+
+  .content-pill--mention {
+    background: #faf5ff;
+    color: #000;
+    border-color: #000;
+  }
+
+  .content-pill--active {
+    background: #e1f5fe !important;
+    color: #000 !important;
+    border-color: #000 !important;
+  }
+}
+
+/* Small screen adjustments */
+@media (max-width: 768px) {
+  .content-pill {
+    padding: 0.08rem 0.3rem;
+    font-size: var(--font-size-xs);
+    margin: 0 0.03rem;
+  }
+}
+
+/* Inline filter type toggle for mention pills - Redesigned */
+.content-pill__filter-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 18px;
+  border: none;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-left: 6px;
+  padding: 0 6px;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 1;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  min-width: 32px;
+}
+
+.content-pill__filter-toggle:hover {
+  /* Use scale transform with proper isolation to prevent layout shifts */
+  transform: scale(1.05);
+  transform-origin: center;
+  /* Use inset shadow to prevent additional DOM space */
+  box-shadow: inset 0 -1px 2px rgba(0, 0, 0, 0.15);
+  /* Ensure element doesn't affect surrounding layout */
+  position: relative;
+  z-index: 10;
+}
+
+.content-pill__filter-toggle--author {
+  background: linear-gradient(135deg, #e8f5e8, #c8e6c9);
+  color: #2e7d32;
+  border: 1px solid #81c784;
+}
+
+.content-pill__filter-toggle--mentions {
+  background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+  color: #1976d2;
+  border: 1px solid #64b5f6;
+}
+
+.content-pill__filter-toggle--author:hover {
+  background: linear-gradient(135deg, #c8e6c9, #a5d6a7);
+  color: #1b5e20;
+  border-color: #66bb6a;
+}
+
+.content-pill__filter-toggle--mentions:hover {
+  background: linear-gradient(135deg, #bbdefb, #90caf9);
+  color: #0d47a1;
+  border-color: #42a5f5;
+}
+
+/* Adjust pill padding to accommodate inline toggle */
+.content-pill--mention:has(.content-pill__filter-toggle) {
+  padding-right: 8px;
+}
+
+/* Dark mode support for inline filter toggle */
+@media (prefers-color-scheme: dark) {
+  .content-pill__filter-toggle {
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+}
+
+/* High contrast mode for inline filter toggle */
+@media (prefers-contrast: high) {
+  .content-pill__filter-toggle {
+    border: 1px solid #000;
+  }
+
+  .content-pill__filter-toggle--author {
+    background: #000;
+    color: #fff;
+  }
+
+  .content-pill__filter-toggle--mentions {
+    background: #000;
+    color: #fff;
+  }
+}
+
+/* Filter type display (non-clickable) - matches toggle button appearance */
+.content-pill__filter-display {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 18px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  margin-left: 6px;
+  padding: 0 6px;
+  flex-shrink: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  min-width: 32px;
+  pointer-events: none;
+  /* Not clickable */
+}
+
+.content-pill__filter-display--author {
+  background: linear-gradient(135deg, #e8f5e8, #c8e6c9);
+  color: #2e7d32;
+  border: 1px solid #81c784;
+}
+
+.content-pill__filter-display--mentions {
+  background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+  color: #1976d2;
+  border: 1px solid #64b5f6;
+}

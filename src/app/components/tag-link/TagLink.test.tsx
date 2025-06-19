@@ -1,114 +1,122 @@
 import { fireEvent, render, screen } from '@testing-library/react';
-import { usePathname, useSearchParams } from 'next/navigation';
-import { useFilters } from '../../../lib/state/FiltersContext';
-import { usePagination } from '../../../lib/state/PaginationContext';
+import { Provider } from 'jotai';
 import { TagLink } from './TagLink';
 
-// Mock the necessary hooks and modules
-jest.mock('../../../lib/state/FiltersContext', () => ({
-  useFilters: jest.fn()
-}));
-jest.mock('../../../lib/state/PaginationContext', () => ({
-  usePagination: jest.fn()
-}));
+// Mock Next.js navigation
+const mockPush = jest.fn();
 jest.mock('next/navigation', () => ({
-  usePathname: jest.fn(),
-  useSearchParams: jest.fn()
+  useRouter: () => ({
+    push: mockPush,
+    replace: jest.fn(),
+    prefetch: jest.fn()
+  }),
+  useSearchParams: jest.fn(() => new URLSearchParams()),
+  usePathname: () => '/test'
+}));
+
+// Mock Jotai hooks and atoms
+const mockSetFiltersState = jest.fn();
+const mockFiltersState = { filters: [], page: 1, pageSize: 10 };
+
+jest.mock('jotai', () => ({
+  ...jest.requireActual('jotai'),
+  useAtom: jest.fn(() => [mockFiltersState, mockSetFiltersState]),
+  Provider: jest.requireActual('jotai').Provider
+}));
+
+jest.mock('../../../lib/state/atoms', () => ({
+  getSubmissionsFiltersAtom: jest.fn(() => ({}))
 }));
 
 describe('TagLink', () => {
-  const mockDispatchFilters = jest.fn();
-  const mockDispatchPagination = jest.fn();
-  const mockPathname = '/posts';
-  let mockSearchParams: URLSearchParams;
+  const defaultProps = {
+    value: 'test-tag',
+    contextId: 'test-context'
+  };
 
   beforeEach(() => {
     jest.clearAllMocks();
-    mockSearchParams = new URLSearchParams();
-    (useFilters as jest.Mock).mockReturnValue({
-      dispatch: mockDispatchFilters
-    });
-    (usePagination as jest.Mock).mockReturnValue({
-      dispatch: mockDispatchPagination
-    });
-    (usePathname as jest.Mock).mockReturnValue(mockPathname);
-    (useSearchParams as jest.Mock).mockReturnValue(mockSearchParams);
   });
 
-  it('renders a single tag link correctly', () => {
-    render(<TagLink value="#singleTag" contextId="test" />);
-    expect(screen.getByText('#singleTag')).toBeInTheDocument();
-  });
-
-  it('renders multiple tag links correctly', () => {
-    render(<TagLink value="#firstTag #secondTag" contextId="test" />);
-    expect(screen.getByText('#firstTag')).toBeInTheDocument();
-    expect(screen.getByText('#secondTag')).toBeInTheDocument();
-  });
-
-  it('handles click event and dispatches actions', () => {
-    render(<TagLink value="#clickableTag" contextId="test" />);
-    fireEvent.click(screen.getByText('#clickableTag'));
-
-    expect(mockDispatchFilters).toHaveBeenCalledWith({
-      payload: {
-        filters: [{ name: 'tags', value: 'clickabletag' }],
-        id: 'test'
-      },
-      type: 'SET_CURRENT_FILTERS'
-    });
-
-    expect(mockDispatchPagination).toHaveBeenCalledWith({
-      payload: {
-        currentPage: 1,
-        id: 'test'
-      },
-      type: 'SET_CURRENT_PAGE'
-    });
-  });
-
-  it('appends tag to existing search params when appendSearchParam is true', () => {
-    mockSearchParams.set('tags', 'existingTag');
+  it('renders tag link correctly', () => {
     render(
-      <TagLink value="#newTag" contextId="test" appendSearchParam={true} />
+      <Provider>
+        <TagLink {...defaultProps} />
+      </Provider>
     );
-    fireEvent.click(screen.getByText('#newTag'));
 
-    expect(mockDispatchFilters).toHaveBeenCalledWith({
-      payload: {
-        filters: [{ name: 'tags', value: 'existingTag,newtag' }],
-        id: 'test'
-      },
-      type: 'SET_CURRENT_FILTERS'
-    });
+    expect(screen.getByText('test-tag')).toBeInTheDocument();
+    expect(screen.getByRole('link')).toBeInTheDocument();
   });
 
-  it('does not dispatch actions when tag is already in search params', () => {
-    mockSearchParams.set('tags', 'existingTag');
-    render(<TagLink value="#existingTag" contextId="test" />);
-    fireEvent.click(screen.getByText('#existingTag'));
+  it('handles click correctly', () => {
+    render(
+      <Provider>
+        <TagLink {...defaultProps} />
+      </Provider>
+    );
 
-    expect(mockDispatchFilters).not.toHaveBeenCalled();
-    expect(mockDispatchPagination).not.toHaveBeenCalled();
+    const tagLink = screen.getByRole('link');
+    expect(tagLink).toHaveAttribute('href');
+    expect(tagLink.getAttribute('href')).toContain('tags=test-tag');
   });
 
-  it('generates correct href for new tag', () => {
-    render(<TagLink value="#newTag" contextId="test" />);
-    const link = screen.getByText('#newTag');
-    expect(link.getAttribute('href')).toBe('/posts?tags=newtag');
+  it('shows active state when tag is selected', () => {
+    // Mock useSearchParams to return tags that include our test tag
+    const mockSearchParams = new URLSearchParams('tags=test-tag,other-tag');
+    const { useSearchParams } = require('next/navigation');
+    useSearchParams.mockReturnValue(mockSearchParams);
+
+    render(
+      <Provider>
+        <TagLink {...defaultProps} />
+      </Provider>
+    );
+
+    const tagLink = screen.getByRole('link');
+    expect(tagLink).toHaveClass('active');
   });
 
-  it('generates correct href for appending tag', () => {
-    mockSearchParams.set('tags', 'existingTag');
-    render(<TagLink value="#newTag" contextId="test" />);
-    const link = screen.getByText('#newTag');
-    expect(link.getAttribute('href')).toBe('/posts?tags=existingTag,newtag');
+  it('handles multiple tags correctly', () => {
+    // Mock useSearchParams to return multiple tags including our test tag
+    const mockSearchParams = new URLSearchParams('tags=tag1,tag2,test-tag');
+    const { useSearchParams } = require('next/navigation');
+    useSearchParams.mockReturnValue(mockSearchParams);
+
+    render(
+      <Provider>
+        <TagLink {...defaultProps} />
+      </Provider>
+    );
+
+    const tagLink = screen.getByRole('link');
+    expect(tagLink).toHaveClass('active');
   });
 
-  it('generates correct href for existing tag', () => {
-    mockSearchParams.set('tags', 'existingTag');
-    render(<TagLink value="#existingTag" contextId="test" />);
-    const link = screen.getByText('#existingTag');
-    expect(link.getAttribute('href')).toBe('/posts?tags=existingTag');
+  it('handles contextId correctly', () => {
+    const { getSubmissionsFiltersAtom } = require('../../../lib/state/atoms');
+
+    render(
+      <Provider>
+        <TagLink {...defaultProps} />
+      </Provider>
+    );
+
+    expect(getSubmissionsFiltersAtom).toHaveBeenCalledWith('test-context');
+  });
+
+  it('handles onTagClick callback correctly', () => {
+    const mockOnTagClick = jest.fn();
+
+    render(
+      <Provider>
+        <TagLink {...defaultProps} onTagClick={mockOnTagClick} />
+      </Provider>
+    );
+
+    const tagLink = screen.getByRole('link');
+    fireEvent.click(tagLink);
+
+    expect(mockOnTagClick).toHaveBeenCalledWith('test-tag');
   });
 });

@@ -1,11 +1,12 @@
 import '@testing-library/jest-dom';
 import { render, screen } from '@testing-library/react';
 import { useAtom } from 'jotai';
-import { AVATAR_SELECTORS } from '../../../lib/test-selectors/components/avatar.selectors';
-import Avatar from './Avatar';
+import { Avatar } from './Avatar';
 
 // Mock the avatar cache atom
 const mockAvatarCache = {};
+const mockSetAvatarCache = jest.fn();
+
 jest.mock('jotai', () => ({
   useAtom: jest.fn(),
   atom: jest.fn()
@@ -14,7 +15,7 @@ jest.mock('jotai', () => ({
 // Mock @dicebear/core
 jest.mock('@dicebear/core', () => ({
   createAvatar: jest.fn().mockReturnValue({
-    toDataUri: jest.fn().mockResolvedValue('data:image/svg+xml;base64,mock')
+    toDataUri: jest.fn().mockReturnValue('data:image/svg+xml;base64,mock')
   })
 }));
 
@@ -30,23 +31,37 @@ jest.mock('@dicebear/collection', () => ({
 describe('Avatar', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    (useAtom as jest.Mock).mockReturnValue([mockAvatarCache, jest.fn()]);
+    (useAtom as jest.Mock).mockReturnValue([
+      mockAvatarCache,
+      mockSetAvatarCache
+    ]);
   });
 
-  it('renders loader when avatar is not ready', () => {
+  it('renders loading state when avatar is not ready', () => {
+    // Mock createAvatar to return null to simulate loading state
+    const { createAvatar } = require('@dicebear/core');
+    (createAvatar as jest.Mock).mockReturnValueOnce({
+      toDataUri: jest.fn().mockReturnValue(null)
+    });
+
     render(<Avatar />);
-    expect(screen.getByTestId(AVATAR_SELECTORS.CONTAINER)).toBeInTheDocument();
+    expect(screen.getByTestId('avatar-loading')).toBeInTheDocument();
+    expect(screen.getByTestId('avatar-loading')).toHaveClass('avatar--loading');
   });
 
-  it('renders avatar image when ready', async () => {
+  it('renders avatar image when ready', () => {
     render(<Avatar seed="test-seed" />);
-    const img = await screen.findByTestId(AVATAR_SELECTORS.IMAGE);
+    const avatarDiv = screen.getByTestId('avatar');
+    const img = avatarDiv.querySelector('img');
     expect(img).toHaveClass('avatar__img', 'md');
+    expect(avatarDiv).toHaveClass('avatar', 'md');
   });
 
-  it('applies correct size class', async () => {
-    render(<Avatar seed="test-seed" size="full" />);
-    const img = await screen.findByTestId(AVATAR_SELECTORS.IMAGE);
-    expect(img).toHaveClass('avatar__img', 'full');
+  it('applies correct size class', () => {
+    render(<Avatar seed="test-seed" size="lg" />);
+    const avatarDiv = screen.getByTestId('avatar');
+    const img = avatarDiv.querySelector('img');
+    expect(img).toHaveClass('avatar__img', 'lg');
+    expect(avatarDiv).toHaveClass('avatar', 'lg');
   });
 });

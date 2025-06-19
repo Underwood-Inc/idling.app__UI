@@ -1,11 +1,10 @@
-.submission__delete-btn {
-  background-color: var(--brand-quaternary);
-  color: var(--brand-tertiary);
-  position: relative;
-}
+/* Delete button styles moved to SubmissionItem.css for consistency */
 
+/* Keep only the hover media query if needed for specific cases */
 @media (hover: hover) {
   .submission__delete-btn:hover:not(:disabled) {
-    background-color: var(--brand-quaternary--dark);
+    /* Styles handled by parent component */
   }
 }
+
+/* Remove custom tooltip styles since we're using InfoTooltip */

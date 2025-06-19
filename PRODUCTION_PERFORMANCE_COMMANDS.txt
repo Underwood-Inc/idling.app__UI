@@ -1,0 +1,35 @@
+# PRODUCTION PERFORMANCE OPTIMIZATION COMMANDS
+# Copy and paste these commands one by one into your production server
+
+# STEP 1: Enable trigram extension (REQUIRED)
+psql -h 127.0.0.1 -p 5432 -U idler -d mydatabase -c "CREATE EXTENSION IF NOT EXISTS pg_trgm;"
+
+# STEP 2: Critical performance indexes (MOST IMPORTANT - fixes 277ms → <50ms)
+psql -h 127.0.0.1 -p 5432 -U idler -d mydatabase -c "CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_submissions_author_trgm ON submissions USING GIN (author gin_trgm_ops) WHERE author IS NOT NULL;"
+
+psql -h 127.0.0.1 -p 5432 -U idler -d mydatabase -c "CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_submissions_title_trgm ON submissions USING GIN (submission_title gin_trgm_ops) WHERE submission_title IS NOT NULL;"
+
+# STEP 3: Additional performance indexes
+psql -h 127.0.0.1 -p 5432 -U idler -d mydatabase -c "CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_submissions_datetime_id ON submissions (submission_datetime DESC, submission_id);"
+
+psql -h 127.0.0.1 -p 5432 -U idler -d mydatabase -c "CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_submissions_author_datetime_fast ON submissions (author, submission_datetime DESC) WHERE author IS NOT NULL;"
+
+psql -h 127.0.0.1 -p 5432 -U idler -d mydatabase -c "CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_submissions_tags_array ON submissions USING GIN (tags) WHERE tags IS NOT NULL AND array_length(tags, 1) > 0;"
+
+psql -h 127.0.0.1 -p 5432 -U idler -d mydatabase -c "CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_submissions_main_posts_only ON submissions (submission_datetime DESC, submission_id) WHERE thread_parent_id IS NULL;"
+
+# STEP 4: Update statistics
+psql -h 127.0.0.1 -p 5432 -U idler -d mydatabase -c "ANALYZE submissions;"
+
+# STEP 5: Test the performance improvement
+psql -h 127.0.0.1 -p 5432 -U idler -d mydatabase -c "EXPLAIN ANALYZE SELECT submission_id, author, submission_title FROM submissions WHERE author ILIKE '%test%' LIMIT 10;"
+
+# STEP 6: Verify indexes were created
+psql -h 127.0.0.1 -p 5432 -U idler -d mydatabase -c "SELECT indexname, tablename FROM pg_indexes WHERE tablename = 'submissions' AND indexname LIKE 'idx_submissions_%' ORDER BY indexname;"
+
+# IMPORTANT NOTES:
+# - STEP 1 and STEP 2 are the most critical for fixing your slow search issue
+# - CONCURRENTLY means zero downtime - your app keeps running
+# - Each index creation may take 10-30 minutes on million+ records
+# - Monitor disk space - indexes will use additional storage
+# - After STEP 2, your searches should go from 277ms to <50ms 

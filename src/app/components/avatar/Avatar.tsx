@@ -1,73 +1,150 @@
 'use client';
+
 import { adventurer } from '@dicebear/collection';
 import { createAvatar } from '@dicebear/core';
-import { atom, useAtom } from 'jotai';
-import { memo, useEffect, useState } from 'react';
-import { AVATAR_SELECTORS } from 'src/lib/test-selectors/components/avatar.selectors';
+import { useAtom } from 'jotai';
+import { memo, useCallback, useMemo, useState } from 'react';
+import { avatarCacheAtom } from '../../../lib/state/atoms';
+import { InteractiveTooltip } from '../tooltip/InteractiveTooltip';
 import './Avatar.css';
 
-export type AvatarPropSizes = 'full' | 'lg' | 'md' | 'sm';
+export type AvatarPropSizes = 'full' | 'lg' | 'md' | 'sm' | 'xs' | 'xxs';
 
-const avatarCacheAtom = atom<Record<string, string>>({});
+// Generate a stable fallback seed once per component instance
+const generateStableFallbackSeed = () =>
+  `fallback-${Math.random().toString(36).substring(2, 15)}`;
 
 const Avatar = memo(
-  ({ seed, size = 'md' }: { seed?: string; size?: AvatarPropSizes }) => {
+  ({
+    seed,
+    size = 'md',
+    enableTooltip = false,
+    tooltipScale = 2
+  }: {
+    seed?: string;
+    size?: AvatarPropSizes;
+    enableTooltip?: boolean;
+    tooltipScale?: 2 | 3 | 4;
+  }) => {
     const [avatarCache, setAvatarCache] = useAtom(avatarCacheAtom);
-    const cacheKey = seed || new Date().getTime().toString();
-    const [img, setImg] = useState(avatarCache[cacheKey] || null);
-    const [isLoading, setIsLoading] = useState(true);
-    const [error, setError] = useState(false);
 
-    useEffect(() => {
-      if (!avatarCache[cacheKey]) {
-        const newAvatar = createAvatar(adventurer, {
-          seed: cacheKey
-        }).toDataUri();
-        setAvatarCache((prev) => ({ ...prev, [cacheKey]: newAvatar }));
-        setImg(newAvatar);
+    // Create a stable seed that only changes when the seed prop changes
+    const stableSeed = useMemo(() => {
+      return seed || generateStableFallbackSeed();
+    }, [seed]);
+
+    // Check if we have a cached avatar
+    const cachedAvatar = avatarCache[stableSeed];
+
+    // Generate avatar using useMemo to prevent regeneration on every render
+    const avatarDataUri = useMemo(() => {
+      if (cachedAvatar) {
+        return cachedAvatar;
       }
-    }, [cacheKey, setAvatarCache, avatarCache]);
 
-    const handleLoad = () => {
-      setIsLoading(false);
-    };
+      try {
+        const avatar = createAvatar(adventurer, {
+          seed: stableSeed
+        });
+        return avatar.toDataUri();
+      } catch (error) {
+        console.error('Failed to generate avatar:', error);
+        return null;
+      }
+    }, [stableSeed, cachedAvatar]);
 
-    const handleError = () => {
-      setIsLoading(false);
-      setError(true);
-    };
+    // Cache the generated avatar
+    const cacheAvatar = useCallback(() => {
+      if (avatarDataUri && !avatarCache[stableSeed]) {
+        setAvatarCache((prev: Record<string, string>) => ({
+          ...prev,
+          [stableSeed]: avatarDataUri
+        }));
+      }
+    }, [avatarDataUri, stableSeed, avatarCache, setAvatarCache]);
 
-    return (
+    // Cache the avatar when it's generated
+    useMemo(() => {
+      cacheAvatar();
+    }, [cacheAvatar]);
+
+    const [showTooltip, setShowTooltip] = useState(false);
+    const [position, setPosition] = useState({ top: 0, left: 0 });
+
+    const handleMouseEnter = useCallback(
+      (e: React.MouseEvent) => {
+        if (!enableTooltip) return;
+
+        const rect = e.currentTarget.getBoundingClientRect();
+        setPosition({
+          top: rect.top + window.scrollY,
+          left: rect.left + window.scrollX + rect.width / 2
+        });
+        setShowTooltip(true);
+      },
+      [enableTooltip]
+    );
+
+    const handleMouseLeave = useCallback(() => {
+      if (!enableTooltip) return;
+      setShowTooltip(false);
+    }, [enableTooltip]);
+
+    if (!avatarDataUri) {
+      return (
+        <div
+          className={`avatar ${size} avatar--loading`}
+          data-testid="avatar-loading"
+        >
+          <div className="avatar__placeholder" />
+        </div>
+      );
+    }
+
+    const avatarElement = (
       <div
         className={`avatar ${size}`}
-        data-testid={AVATAR_SELECTORS.CONTAINER}
-        style={{ width: size, height: size }}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+        data-testid="avatar"
       >
-        {isLoading && (
-          <div className="loading-overlay">
-            <div className="grid-loader">
-              {[...Array(9)].map((_, i) => (
-                <span key={i} />
-              ))}
-            </div>
-          </div>
-        )}
-        {!error && img && (
-          <img
-            src={img}
-            className={`avatar__img ${size}`}
-            alt="Avatar"
-            data-testid={AVATAR_SELECTORS.IMAGE}
-            onLoad={handleLoad}
-            onError={handleError}
-            style={{ display: isLoading ? 'none' : 'block' }}
-          />
-        )}
+        <img
+          src={avatarDataUri}
+          className={`avatar__img ${size}`}
+          alt="Avatar"
+          style={{
+            opacity: 1,
+            transition: 'opacity 0.2s ease'
+          }}
+        />
       </div>
     );
+
+    if (enableTooltip) {
+      return (
+        <InteractiveTooltip
+          content={
+            <div
+              className={`avatar ${size === 'xs' ? 'lg' : size === 'xxs' ? 'lg' : 'full'}`}
+              style={{ transform: `scale(${tooltipScale})` }}
+            >
+              <img
+                src={avatarDataUri}
+                className={`avatar__img ${size === 'xs' ? 'lg' : size === 'xxs' ? 'lg' : 'full'}`}
+                alt="Avatar (enlarged)"
+              />
+            </div>
+          }
+        >
+          {avatarElement}
+        </InteractiveTooltip>
+      );
+    }
+
+    return avatarElement;
   }
 );
 
 Avatar.displayName = 'Avatar';
 
-export default Avatar;
+export { Avatar };

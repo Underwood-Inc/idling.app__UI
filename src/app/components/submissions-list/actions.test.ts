@@ -1,11 +1,13 @@
-import { PageSize } from 'src/lib/state/PaginationContext';
+import { PageSize } from 'src/lib/state/atoms';
 import sql from '../../../lib/db';
 import { getSubmissions, getSubmissionsAction } from './actions';
 
 // Mock the sql module
 jest.mock('../../../lib/db', () => ({
   __esModule: true,
-  default: jest.fn()
+  default: {
+    unsafe: jest.fn()
+  }
 }));
 
 describe('getSubmissions', () => {
@@ -17,8 +19,8 @@ describe('getSubmissions', () => {
     const mockSubmissions = [{ id: 1, title: 'Test Submission' }];
     const mockCount = [{ count: 1 }];
 
-    (sql as unknown as jest.Mock).mockImplementation((strings, ...values) => {
-      if (strings[0].includes('COUNT')) return Promise.resolve(mockCount);
+    (sql.unsafe as jest.Mock).mockImplementation((query, params) => {
+      if (query.includes('COUNT')) return Promise.resolve(mockCount);
       return Promise.resolve(mockSubmissions);
     });
 
@@ -38,8 +40,8 @@ describe('getSubmissions', () => {
     const mockSubmissions = [{ id: 1, title: 'Test Submission' }];
     const mockCount = [{ count: 1 }];
 
-    (sql as unknown as jest.Mock).mockImplementation((strings, ...values) => {
-      if (strings[0].includes('COUNT')) return Promise.resolve(mockCount);
+    (sql.unsafe as jest.Mock).mockImplementation((query, params) => {
+      if (query.includes('COUNT')) return Promise.resolve(mockCount);
       return Promise.resolve(mockSubmissions);
     });
 
@@ -61,8 +63,8 @@ describe('getSubmissions', () => {
     ];
     const mockCount = [{ count: 1 }];
 
-    (sql as unknown as jest.Mock).mockImplementation((strings, ...values) => {
-      if (strings[0].includes('COUNT')) return Promise.resolve(mockCount);
+    (sql.unsafe as jest.Mock).mockImplementation((query, params) => {
+      if (query.includes('COUNT')) return Promise.resolve(mockCount);
       return Promise.resolve(mockSubmissions);
     });
 
@@ -82,8 +84,8 @@ describe('getSubmissions', () => {
     const mockSubmissions = [{ id: 1, title: 'Test Submission' }];
     const mockCount = [{ count: 1 }];
 
-    (sql as unknown as jest.Mock).mockImplementation((strings, ...values) => {
-      if (strings[0].includes('COUNT')) return Promise.resolve(mockCount);
+    (sql.unsafe as jest.Mock).mockImplementation((query, params) => {
+      if (query.includes('COUNT')) return Promise.resolve(mockCount);
       return Promise.resolve(mockSubmissions);
     });
 
@@ -120,8 +122,8 @@ describe('getSubmissions', () => {
     ];
     const mockCount = [{ count: 1 }];
 
-    (sql as unknown as jest.Mock).mockImplementation((strings, ...values) => {
-      if (strings[0].includes('COUNT')) return Promise.resolve(mockCount);
+    (sql.unsafe as jest.Mock).mockImplementation((query, params) => {
+      if (query.includes('COUNT')) return Promise.resolve(mockCount);
       return Promise.resolve(mockSubmissions);
     });
 
@@ -141,8 +143,8 @@ describe('getSubmissions', () => {
     const mockSubmissions = [{ id: 1, title: 'Test Submission' }];
     const mockCount = [{ count: 1 }];
 
-    (sql as unknown as jest.Mock).mockImplementation((strings, ...values) => {
-      if (strings[0].includes('COUNT')) return Promise.resolve(mockCount);
+    (sql.unsafe as jest.Mock).mockImplementation((query, params) => {
+      if (query.includes('COUNT')) return Promise.resolve(mockCount);
       return Promise.resolve(mockSubmissions);
     });
 
@@ -161,52 +163,70 @@ describe('getSubmissions', () => {
 
 describe('getSubmissionsAction', () => {
   it('should return paginated submissions', async () => {
-    const mockSubmissions = [{ id: 1, title: 'Test Submission' }];
+    const mockSubmissions = [
+      {
+        submission_id: 1,
+        submission_name: 'test-submission',
+        submission_title: 'Test Submission',
+        submission_datetime: new Date(),
+        user_id: 123,
+        author: 'Test Author',
+        tags: [],
+        thread_parent_id: null
+      }
+    ];
     const mockCount = [{ count: 1 }];
 
-    (sql as unknown as jest.Mock).mockImplementation((strings, ...values) => {
-      if (strings[0].includes('COUNT')) return Promise.resolve(mockCount);
+    (sql.unsafe as jest.Mock).mockImplementation((query, params) => {
+      if (query.includes('COUNT')) return Promise.resolve(mockCount);
       return Promise.resolve(mockSubmissions);
     });
 
     const result = await getSubmissionsAction({
-      currentPage: 1,
+      page: 1,
       pageSize: PageSize.TEN,
       onlyMine: false,
-      providerAccountId: '',
+      providerAccountId: '123',
       filters: []
     });
 
-    expect(result.data?.result).toEqual(mockSubmissions);
+    expect(result.data?.data).toHaveLength(1);
     expect(result.data?.pagination.totalRecords).toBe(1);
-    expect(result.error).toBe('');
-    expect(result.message).toBe('');
+    expect(result.error).toBeUndefined();
   });
 
   it('should handle default values', async () => {
-    const mockSubmissions = [{ id: 1, title: 'Test Submission' }];
+    const mockSubmissions = [
+      {
+        submission_id: 1,
+        submission_name: 'test-submission',
+        submission_title: 'Test Submission',
+        submission_datetime: new Date(),
+        user_id: 123,
+        author: 'Test Author',
+        tags: [],
+        thread_parent_id: null
+      }
+    ];
     const mockCount = [{ count: 1 }];
 
-    (sql as unknown as jest.Mock).mockImplementation((strings, ...values) => {
-      if (strings[0].includes('COUNT')) return Promise.resolve(mockCount);
+    (sql.unsafe as jest.Mock).mockImplementation((query, params) => {
+      if (query.includes('COUNT')) return Promise.resolve(mockCount);
       return Promise.resolve(mockSubmissions);
     });
 
     const result = await getSubmissionsAction({
-      // @ts-expect-error branch test coverage
-      currentPage: undefined,
-      // @ts-expect-error branch test coverage
+      page: undefined,
       pageSize: undefined,
       onlyMine: false,
-      providerAccountId: '',
+      providerAccountId: '123',
       filters: []
     });
 
     expect(result.data?.pagination.currentPage).toBe(1);
-    expect(result.data?.pagination.pageSize).toBe(PageSize.TEN);
-    expect(result.data?.result).toEqual(mockSubmissions);
+    expect(result.data?.pagination.pageSize).toBe(10);
+    expect(result.data?.data).toHaveLength(1);
     expect(result.data?.pagination.totalRecords).toBe(1);
-    expect(result.error).toBe('');
-    expect(result.message).toBe('');
+    expect(result.error).toBeUndefined();
   });
 });

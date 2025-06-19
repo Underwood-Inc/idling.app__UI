@@ -30,3 +30,27 @@
   margin-bottom: 0;
   text-transform: none;
 }
+
+/* Profile navigation styles */
+.nav__profile-link {
+  text-decoration: none;
+  color: inherit;
+  margin-right: 1rem;
+  transition: opacity 0.2s ease;
+}
+
+.nav__profile-link:hover {
+  opacity: 0.8;
+}
+
+.nav__user-profile {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.nav__user-profile .header__user-name {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 500;
+}

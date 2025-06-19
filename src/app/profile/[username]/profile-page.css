@@ -1,0 +1,254 @@
+/* Profile Page Styles */
+
+/* 
+ * CSS Specificity Note:
+ * The .card span rule from Card.css (display: inline-block) has higher specificity
+ * than single class selectors. We use more specific selectors and !important
+ * declarations where necessary to ensure our profile page styles take precedence.
+ */
+
+.profile-page {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.profile-page__fade {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.profile-page__main-card {
+  width: 100%;
+  background: linear-gradient(135deg, var(--light-background--primary) 0%, var(--light-background--secondary) 100%);
+  border: 2px solid var(--brand-primary);
+  transition: all 0.2s ease-in-out;
+}
+
+.profile-page__main-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(200, 130, 20, 0.2);
+  border-color: var(--brand-primary--dark);
+}
+
+/* Aside Styles */
+.profile-page__aside {
+  top: 21rem;
+}
+
+.profile-page__aside-title {
+  color: var(--light-bg__text-color--primary);
+  font-size: var(--font-size-md);
+  font-weight: 700;
+  margin: 0 0 2rem 0;
+  text-align: center;
+  position: relative;
+  padding-bottom: 1rem;
+}
+
+.profile-page__aside-title::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80px;
+  height: 4px;
+  background: linear-gradient(90deg, var(--brand-primary), var(--brand-primary--dark));
+  border-radius: 2px;
+}
+
+.profile-page__info-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: 100%;
+}
+
+.profile-page__info-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  background: var(--light-background--tertiary);
+  border-radius: var(--border-radius);
+  border: 1px solid var(--brand-secondary--dark);
+  transition: all 0.2s ease-in-out;
+}
+
+.profile-page__info-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border-color: var(--brand-primary);
+  background: var(--light-background--secondary);
+}
+
+/* Override .card span styles for profile page specific elements */
+.profile-page__info-item span.profile-page__info-icon {
+  font-size: var(--font-size-md);
+  flex-shrink: 0;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: var(--light-background--primary);
+  border-radius: 50%;
+  border: 2px solid var(--brand-primary);
+  line-height: 1;
+  transform: none !important;
+  /* Override card span transform */
+}
+
+.profile-page__info-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.profile-page__info-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--light-bg__text-color--tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.profile-page__info-value {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--brand-primary--dark);
+  word-wrap: break-word;
+}
+
+.profile-page__owner-actions {
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 2px solid var(--brand-primary);
+}
+
+.profile-page__owner-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 1rem;
+  background: var(--light-background--quaternary);
+  border-radius: var(--border-radius);
+  border: 1px dashed var(--brand-secondary--dark);
+}
+
+.profile-page__owner-icon {
+  font-size: 1.25rem;
+  flex-shrink: 0;
+  margin-top: 0.125rem;
+}
+
+.profile-page__owner-note p {
+  font-size: --font-size-base;
+  color: var(--light-bg__text-color--secondary);
+  margin: 0;
+  line-height: 1.5;
+  font-style: italic;
+}
+
+/* Mobile Responsive */
+@media (max-width: 767px) {
+  .profile-page__aside {
+    top: 18rem;
+  }
+
+  .profile-page__aside-title {
+    font-size: var(--font-size-base);
+    margin-bottom: 1.5rem;
+  }
+
+  .profile-page__info-grid {
+    gap: 0.75rem;
+  }
+
+  .profile-page__info-item {
+    padding: 0.75rem;
+  }
+
+  .profile-page__info-item span.profile-page__info-icon {
+    width: 32px;
+    height: 32px;
+    font-size: 1.25rem;
+  }
+}
+
+/* Tablet Layout */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .profile-page__aside {
+    top: 20rem;
+  }
+}
+
+/* Dark Theme Support */
+@media (prefers-color-scheme: dark) {
+  .profile-page__main-card {
+    background: linear-gradient(135deg, var(--dark-background--primary) 0%, var(--dark-background--secondary) 100%);
+    border-color: var(--brand-primary);
+  }
+
+  .profile-page__aside-title {
+    color: var(--dark-bg__text-color--primary);
+  }
+
+  .profile-page__info-item {
+    background: var(--dark-background--tertiary);
+    border-color: var(--brand-secondary);
+  }
+
+  .profile-page__info-item span.profile-page__info-icon {
+    background: var(--dark-background--primary);
+    border-color: var(--brand-primary);
+  }
+
+  .profile-page__info-label {
+    color: var(--dark-bg__text-color--tertiary);
+  }
+
+  .profile-page__info-value {
+    color: var(--brand-primary);
+  }
+
+  .profile-page__owner-note {
+    background: var(--dark-background--quaternary);
+    border-color: var(--brand-secondary);
+  }
+
+  .profile-page__owner-note p {
+    color: var(--dark-bg__text-color--secondary);
+  }
+}
+
+/* High Contrast Support */
+@media (prefers-contrast: high) {
+
+  .profile-page__main-card,
+  .profile-page__info-item {
+    border-width: 3px;
+  }
+
+  .profile-page__owner-note {
+    border-width: 3px;
+  }
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+
+  .profile-page__main-card,
+  .profile-page__info-item {
+    transition: none;
+  }
+
+  .profile-page__main-card:hover,
+  .profile-page__info-item:hover {
+    transform: none;
+  }
+}

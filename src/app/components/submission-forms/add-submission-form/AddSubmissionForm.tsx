@@ -1,17 +1,16 @@
 'use client';
-import { ChangeEvent, useEffect, useRef, useState } from 'react';
+import { useAtom } from 'jotai';
+import { useSession } from 'next-auth/react';
+import { useEffect, useRef, useState } from 'react';
 import { useFormState, useFormStatus } from 'react-dom';
-import { ADD_SUBMISSION_FORM_SELECTORS } from 'src/lib/test-selectors/components/add-submission-form.selectors';
-import { useShouldUpdate } from '../../../../lib/state/ShouldUpdateContext';
+import { shouldUpdateAtom } from '../../../../lib/state/atoms';
+import { ADD_SUBMISSION_FORM_SELECTORS } from '../../../../lib/test-selectors/components/add-submission-form.selectors';
+import { validateTagsInput } from '../../../../lib/utils/string/tag-regex';
+import { SmartInput } from '../../ui/SmartInput';
 import {
   createSubmissionAction,
   validateCreateSubmissionFormAction
 } from '../actions';
-import {
-  parseSubmission,
-  parseZodErrors,
-  SUBMISSION_NAME_MAX_LENGTH
-} from '../schema';
 import './AddSubmissionForm.css';
 
 const initialState = {
@@ -19,7 +18,8 @@ const initialState = {
   message: '',
   error: '',
   submission_datetime: '',
-  submission_name: ''
+  submission_name: '',
+  submission_title: ''
 };
 
 function SubmitButton({
@@ -40,78 +40,110 @@ function SubmitButton({
       title={title}
       data-testid={ADD_SUBMISSION_FORM_SELECTORS.SUBMIT_BUTTON}
     >
-      Post
+      Submit
     </button>
   );
 }
 
-export function AddSubmissionForm({ isAuthorized }: { isAuthorized: boolean }) {
+export function AddSubmissionForm({
+  onSuccess,
+  contextId
+}: { onSuccess?: () => void; contextId?: string } = {}) {
   const ref = useRef<HTMLFormElement>(null);
-  const { dispatch: dispatchShouldUpdate } = useShouldUpdate();
-  // TODO: https://github.com/vercel/next.js/issues/65673#issuecomment-2112746191
-  // const [state, formAction] = useActionState(createSubmissionAction, initialState)
+  const [, setShouldUpdate] = useAtom(shouldUpdateAtom);
+  const { data: session } = useSession();
+  const isAuthorized = !!session?.user;
+
   const [state, formAction] = useFormState(
     createSubmissionAction,
     initialState
   );
-  const [validateState, validateFormAction] = useFormState(
+  const [validateState, handleFormValidateAction] = useFormState(
     validateCreateSubmissionFormAction,
     initialState
   );
-  const [nameLength, setNameLength] = useState(0);
-  const [errors, setErrors] = useState('');
 
-  const isDisabled = !isAuthorized || !!errors;
+  const [titleValue, setTitleValue] = useState('');
+  const [contentValue, setContentValue] = useState('');
+  const [tagsValue, setTagsValue] = useState('');
+  const [titleLength, setTitleLength] = useState(0);
+  const [contentLength, setContentLength] = useState(0);
+  const [errors, setErrors] = useState('');
+  const [tagErrors, setTagErrors] = useState<string[]>([]);
+
+  const isDisabled = !isAuthorized || !!errors || tagErrors.length > 0;
 
   const submitButtonTitle = errors
     ? 'Resolve form errors.'
-    : !isAuthorized
-      ? 'Login to manage posts.'
-      : undefined;
+    : tagErrors.length > 0
+      ? 'Fix tag errors.'
+      : !isAuthorized
+        ? 'Login to create posts.'
+        : undefined;
+
+  // Update should trigger when state changes
+  useEffect(() => {
+    if (state.status === 1) {
+      // Only trigger update on successful submission
+      setShouldUpdate(true);
+      onSuccess?.();
+    }
+  }, [state.status, state.message, setShouldUpdate, onSuccess]);
 
   useEffect(() => {
-    dispatchShouldUpdate({
-      type: 'SET_SHOULD_UPDATE',
-      payload: !!state.status
-    });
-
-    if (state.status) {
-      setNameLength(0);
-      ref.current?.reset();
-    }
-  }, [state.status, state.message, dispatchShouldUpdate]);
-
-  const handleFormValidateAction = async (formData: FormData) => {
-    await validateFormAction(formData);
-    setErrors(validateState.error || '');
-  };
-
-  const handleNameChange = async (event: ChangeEvent<HTMLInputElement>) => {
-    event.preventDefault();
-    setNameLength(event.target.value.trim().length);
-
-    const { error } = parseSubmission({
-      submission_name: event.target.value,
-      submission_datetime: new Date().toISOString()
-    });
-
-    if (error) {
-      setErrors(parseZodErrors(error));
+    if (validateState.error) {
+      setErrors(validateState.error);
     } else {
       setErrors('');
     }
+  }, [validateState]);
+
+  const handleTitleChange = async (value: string) => {
+    setTitleValue(value);
+    setTitleLength(value.trim().length);
+
+    // Validate title on change instead of blur
+    if (value.trim().length > 0) {
+      const formData = new FormData();
+      formData.append('submission_title', value);
+      await handleFormValidateAction(formData);
+    }
   };
 
-  const handleNameBlur = async (event: ChangeEvent<HTMLInputElement>) => {
-    event.preventDefault();
+  const handleContentChange = (value: string) => {
+    setContentValue(value);
+    setContentLength(value.trim().length);
+  };
+
+  const handleTagsChange = (value: string) => {
+    setTagsValue(value);
+    const validationErrors = validateTagsInput(value);
+    setTagErrors(validationErrors);
+  };
+
+  const handleTitleBlur = async () => {
     const formData = new FormData();
-    formData.append('submission_name', event.target.value);
-    setNameLength(event.target.value.trim().length);
+    formData.append('submission_title', titleValue);
+    setTitleLength(titleValue.trim().length);
     await handleFormValidateAction(formData);
   };
 
-  const getNameLengthStatus = () => {
-    const percentOfMax = (nameLength / 255) * 100;
+  const getTitleLengthStatus = () => {
+    const percentOfMax = (titleLength / 255) * 100;
+
+    if (percentOfMax >= 80 && percentOfMax < 100) {
+      return 'warning';
+    }
+
+    if (percentOfMax >= 100) {
+      return 'error';
+    }
+
+    return 'info';
+  };
+
+  const getContentLengthStatus = () => {
+    const percentOfMax = (contentLength / 1000) * 100;
 
     if (percentOfMax >= 80 && percentOfMax < 100) {
       return 'warning';
@@ -129,42 +161,118 @@ export function AddSubmissionForm({ isAuthorized }: { isAuthorized: boolean }) {
       ref={ref}
       action={formAction}
       className="submission__form"
+      role="form"
       data-testid={ADD_SUBMISSION_FORM_SELECTORS.FORM}
     >
-      <label htmlFor="submission_name" className="submission__name-label">
+      {/* Title Field */}
+      <label htmlFor="submission_title" className="submission__title-label">
         <div className="row--sm-margin">
-          <input
-            type="text"
-            id="submission_name"
-            name="submission_name"
-            className="submission__name-input"
-            onChange={handleNameChange}
-            onBlur={handleNameBlur}
+          <span>Title *</span>
+          <SmartInput
+            value={titleValue}
+            onChange={handleTitleChange}
             disabled={!isAuthorized}
-            title={!isAuthorized ? 'Login to manage posts.' : undefined}
-            required
-            data-testid={ADD_SUBMISSION_FORM_SELECTORS.NAME_INPUT}
+            placeholder="Enter a title for your post... Use #hashtags and @mentions!"
+            className="submission__title-input"
+            as="input"
+            enableHashtags={true}
+            enableUserMentions={true}
           />
-          <SubmitButton isDisabled={isDisabled} title={submitButtonTitle} />
+          <input type="hidden" name="submission_title" value={titleValue} />
         </div>
         <div className="row">
           <p
-            className={`column ${getNameLengthStatus()}`}
-            data-testid={ADD_SUBMISSION_FORM_SELECTORS.CHARACTER_COUNT}
+            className={`column ${getTitleLengthStatus()}`}
+            data-testid="add-submission-title-character-count"
           >
-            {nameLength}/{SUBMISSION_NAME_MAX_LENGTH}
-          </p>
-
-          <p
-            aria-live="polite"
-            className={`column ${errors ? 'error' : 'info'}`}
-            role="status"
-            data-testid={ADD_SUBMISSION_FORM_SELECTORS.STATUS_MESSAGE}
-          >
-            {errors || state.message}
+            {titleLength}/255
           </p>
         </div>
       </label>
+
+      {/* Content/Description Field */}
+      <label htmlFor="submission_content" className="submission__content-label">
+        <div className="row--sm-margin">
+          <span>Content</span>
+          <SmartInput
+            value={contentValue}
+            onChange={handleContentChange}
+            disabled={!isAuthorized}
+            placeholder="Write your post content... Use #hashtags and @mentions!"
+            className="submission__content-input"
+            as="textarea"
+            rows={4}
+            enableHashtags={true}
+            enableUserMentions={true}
+          />
+          <input type="hidden" name="submission_content" value={contentValue} />
+        </div>
+        <div className="row">
+          <p
+            className={`column ${getContentLengthStatus()}`}
+            data-testid="add-submission-content-character-count"
+          >
+            {contentLength}/1000
+          </p>
+        </div>
+      </label>
+
+      {/* Tags Field */}
+      <label htmlFor="submission_tags" className="submission__tags-label">
+        <div className="row--sm-margin">
+          <span>Additional Tags</span>
+          <SmartInput
+            value={tagsValue}
+            onChange={handleTagsChange}
+            disabled={!isAuthorized}
+            placeholder="#tag1, #tag2, #tag3"
+            className="submission__tags-input"
+            as="input"
+            enableHashtags={true}
+            enableUserMentions={false}
+          />
+          <input type="hidden" name="submission_tags" value={tagsValue} />
+        </div>
+        {tagErrors.length > 0 && (
+          <div className="submission__tag-errors">
+            {tagErrors.map((error, index) => (
+              <p key={index} className="error" role="alert">
+                {error}
+              </p>
+            ))}
+          </div>
+        )}
+        <div className="submission__tag-help">
+          <p className="info">
+            Tags must start with # and contain only letters, numbers, hyphens,
+            and underscores. Tags from your title and content will be
+            automatically detected.
+          </p>
+        </div>
+      </label>
+
+      {/* Hidden submission_name field - now populated from content */}
+      <input
+        type="hidden"
+        id="submission_name"
+        name="submission_name"
+        value=""
+      />
+
+      <div className="row--sm-margin">
+        <SubmitButton isDisabled={isDisabled} title={submitButtonTitle} />
+      </div>
+
+      <div className="row">
+        <p
+          aria-live="polite"
+          className={`column ${errors ? 'error' : 'info'}`}
+          role="status"
+          data-testid={ADD_SUBMISSION_FORM_SELECTORS.STATUS_MESSAGE}
+        >
+          {errors || state.message}
+        </p>
+      </div>
     </form>
   );
 }

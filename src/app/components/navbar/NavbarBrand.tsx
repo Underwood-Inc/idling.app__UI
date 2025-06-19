@@ -1,8 +1,7 @@
-import { auth } from '../../../lib/auth';
-import Avatar from '../avatar/Avatar';
+'use client';
 
-export async function NavbarBrand() {
-  const session = await auth();
+import { AuthAvatar } from '../auth-avatar';
 
-  return <Avatar seed={session?.user?.name || undefined} size="sm" />;
+export function NavbarBrand() {
+  return <AuthAvatar size="sm" />;
 }

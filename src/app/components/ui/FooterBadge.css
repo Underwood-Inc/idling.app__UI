@@ -1,0 +1,294 @@
+/* Footer Badge - Dual-button gripping effect */
+.footer-badge {
+  position: fixed;
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+  user-select: none;
+  outline: none;
+  font-family: inherit;
+}
+
+/* Background button - full button behind footer */
+.footer-badge--background {
+  z-index: 5;
+  /* Behind footer (footer is z-index: 10) */
+  bottom: -20px;
+  /* Mostly hidden behind footer */
+  transform: translateY(0);
+}
+
+/* Clipped button - partial button in front of footer */
+.footer-badge--clipped {
+  z-index: 100;
+  /* Well above footer (footer is z-index: 10) */
+  bottom: -20px;
+  /* Same position as background */
+  transform: translateY(0);
+  /* Clip the bottom portion to show only the top part */
+  clip-path: inset(0 0 75% 0);
+  /* Show only top 25% peeking over footer */
+}
+
+.footer-badge:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}
+
+/* Content container */
+.footer-badge__content {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px;
+  white-space: nowrap;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Icon container */
+.footer-badge__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 18px;
+  line-height: 1;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Text container */
+.footer-badge__text {
+  font-weight: 500;
+  font-size: 14px;
+  opacity: 0;
+  transform: translateX(-10px);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  max-width: 0;
+  overflow: hidden;
+}
+
+/* Collapsed state - mostly hidden behind footer */
+.footer-badge--collapsed.footer-badge--background {
+  transform: translateY(0);
+}
+
+.footer-badge--collapsed.footer-badge--clipped {
+  transform: translateY(0);
+  clip-path: inset(0 0 75% 0);
+  /* Show only top 25% */
+}
+
+.footer-badge--collapsed .footer-badge__content {
+  padding: 12px;
+}
+
+.footer-badge--collapsed .footer-badge__text {
+  opacity: 0;
+  transform: translateX(-10px);
+  max-width: 0;
+}
+
+/* Expanded state - both slide up to reveal full button */
+.footer-badge--expanded.footer-badge--background {
+  transform: translateY(-50px);
+  /* Slide up to reveal full button */
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+.footer-badge--expanded.footer-badge--clipped {
+  transform: translateY(-50px);
+  /* Slide up same amount */
+  clip-path: inset(0 0 0 0);
+  /* Show full button when expanded */
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+.footer-badge--expanded .footer-badge__content {
+  padding: 12px 16px;
+}
+
+.footer-badge--expanded .footer-badge__text {
+  opacity: 1;
+  transform: translateX(0);
+  max-width: 200px;
+}
+
+.footer-badge--expanded .footer-badge__icon {
+  transform: scale(1.1);
+}
+
+/* Theme variations */
+.footer-badge--primary {
+  background: #3b82f6;
+  color: white;
+}
+
+.footer-badge--primary:hover {
+  background: #2563eb;
+}
+
+.footer-badge--secondary {
+  background: #6b7280;
+  color: white;
+}
+
+.footer-badge--secondary:hover {
+  background: #4b5563;
+}
+
+.footer-badge--success {
+  background: #10b981;
+  color: white;
+}
+
+.footer-badge--success:hover {
+  background: #059669;
+}
+
+.footer-badge--warning {
+  background: #f59e0b;
+  color: white;
+}
+
+.footer-badge--warning:hover {
+  background: #d97706;
+}
+
+.footer-badge--danger {
+  background: #ef4444;
+  color: white;
+}
+
+.footer-badge--danger:hover {
+  background: #dc2626;
+}
+
+/* Disabled state */
+.footer-badge--disabled.footer-badge--background {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: translateY(10px) !important;
+  /* Sink even lower */
+}
+
+.footer-badge--disabled.footer-badge--clipped {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: translateY(10px) !important;
+  /* Sink even lower */
+  clip-path: inset(0 0 90% 0) !important;
+  /* Show almost nothing when disabled */
+}
+
+.footer-badge--disabled:hover {
+  /* Prevent hover effects when disabled */
+}
+
+/* Hover effects for expanded state */
+.footer-badge--expanded:hover.footer-badge--background {
+  transform: translateY(-55px);
+  /* Lift slightly higher on hover */
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+.footer-badge--expanded:hover.footer-badge--clipped {
+  transform: translateY(-55px);
+  /* Lift slightly higher on hover */
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+/* Active state */
+.footer-badge:active.footer-badge--background {
+  transform: translateY(-45px) scale(0.95);
+}
+
+.footer-badge:active.footer-badge--clipped {
+  transform: translateY(-45px) scale(0.95);
+}
+
+.footer-badge--expanded:active.footer-badge--background {
+  transform: translateY(-50px) scale(0.95);
+}
+
+.footer-badge--expanded:active.footer-badge--clipped {
+  transform: translateY(-50px) scale(0.95);
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .footer-badge {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+  }
+
+  .footer-badge--expanded {
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
+  }
+
+  .footer-badge--expanded:hover {
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+
+  .footer-badge--background,
+  .footer-badge--clipped {
+    bottom: -15px;
+    /* Slightly less hidden on mobile */
+  }
+
+  .footer-badge--collapsed.footer-badge--clipped {
+    clip-path: inset(0 0 65% 0);
+    /* Show a bit more on mobile */
+  }
+
+  .footer-badge--expanded.footer-badge--background,
+  .footer-badge--expanded.footer-badge--clipped {
+    transform: translateY(-40px);
+    /* Less movement on mobile */
+  }
+
+  .footer-badge--expanded:hover.footer-badge--background,
+  .footer-badge--expanded:hover.footer-badge--clipped {
+    transform: translateY(-45px);
+  }
+
+  .footer-badge__content {
+    padding: 10px;
+  }
+
+  .footer-badge--expanded .footer-badge__content {
+    padding: 10px 14px;
+  }
+
+  .footer-badge__text {
+    font-size: 13px;
+    max-width: 150px;
+  }
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+  .footer-badge {
+    border: 2px solid currentColor;
+  }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+
+  .footer-badge,
+  .footer-badge__content,
+  .footer-badge__icon,
+  .footer-badge__text {
+    transition: none;
+  }
+
+  .footer-badge--expanded .footer-badge__icon {
+    transform: none;
+  }
+}

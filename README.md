@@ -198,6 +198,65 @@ yarn dev:seed
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
+## Documentation Development
+
+This project uses Jekyll for documentation hosted on GitHub Pages. The documentation is located in the `DOCS/` directory.
+
+### Prerequisites
+
+To develop documentation locally, you need:
+- Ruby (version 2.7 or higher)
+- Bundler gem
+- Jekyll gem
+
+Install Ruby and Bundler:
+```bash
+# On Ubuntu/Debian
+sudo apt-get install ruby-full build-essential zlib1g-dev
+
+# Install Bundler
+gem install bundler
+```
+
+### DOCS Development
+
+1. **Install dependencies** (first time only):
+```bash
+yarn docs:install
+```
+
+2. **Start local development server**:
+```bash
+yarn docs:dev
+```
+This will start Jekyll with live reload at [http://localhost:4000](http://localhost:4000)
+
+3. **Build documentation** (for testing):
+```bash
+yarn docs:build
+```
+
+### DOCS Deployment
+
+Documentation is automatically deployed to GitHub Pages via GitHub Actions when changes are pushed to the `main` branch. The workflow is defined in `.github/workflows/docs.yml`.
+
+**Manual deployment** (if needed):
+- Push changes to the `main` branch
+- GitHub Actions will automatically build and deploy to GitHub Pages
+- Documentation will be available at your GitHub Pages URL
+
+### DOCS Structure
+
+- `DOCS/_config.yml` - Jekyll configuration
+- `DOCS/index.md` - Homepage
+- `DOCS/getting-started.md` - Getting started guide
+- `DOCS/database/` - Database-related documentation
+- `DOCS/development/` - Development guides
+- `DOCS/deployment/` - Deployment documentation
+- `DOCS/project/` - Project-specific documentation
+
+All markdown files include proper Jekyll front matter for navigation and SEO.
+
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
 This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
@@ -418,3 +477,70 @@ show tables in selected database
 `\dt` or `SELECT * FROM pg_catalog.pg_tables;`
 
 See more in this [postgres cheat sheet](https://learnsql.com/blog/postgresql-cheat-sheet/postgresql-cheat-sheet-a4.pdf)
+
+## Features
+
+- **Smart Filtering System**: Filter posts by hashtags, authors, and mentions with URL parameter support
+- **Mention Filter Tooltip**: Hover over user mention pills to choose between filtering by author or by content mentions
+- **Thread Management**: Nested replies with configurable depth limits
+- **Real-time Updates**: Optimistic UI updates with state management via Jotai
+- **Advanced Search**: Support for multiple tags with AND/OR logic
+
+## Documentation Development
+
+This project uses Jekyll for documentation hosted on GitHub Pages. The documentation is located in the `DOCS/` directory.
+
+### Prerequisites
+
+To develop documentation locally, you need:
+- Ruby (version 2.7 or higher)
+- Bundler gem
+- Jekyll gem
+
+Install Ruby and Bundler:
+```bash
+# On Ubuntu/Debian
+sudo apt-get install ruby-full build-essential zlib1g-dev
+
+# Install Bundler
+gem install bundler
+```
+
+### DOCS Development
+
+1. **Install dependencies** (first time only):
+```bash
+yarn docs:install
+```
+
+2. **Start local development server**:
+```bash
+yarn docs:dev
+```
+This will start Jekyll with live reload at [http://localhost:4000](http://localhost:4000)
+
+3. **Build documentation** (for testing):
+```bash
+yarn docs:build
+```
+
+### DOCS Deployment
+
+Documentation is automatically deployed to GitHub Pages via GitHub Actions when changes are pushed to the `main` branch. The workflow is defined in `.github/workflows/docs.yml`.
+
+**Manual deployment** (if needed):
+- Push changes to the `main` branch
+- GitHub Actions will automatically build and deploy to GitHub Pages
+- Documentation will be available at your GitHub Pages URL
+
+### DOCS Structure
+
+- `DOCS/_config.yml` - Jekyll configuration
+- `DOCS/index.md` - Homepage
+- `DOCS/getting-started.md` - Getting started guide
+- `DOCS/database/` - Database-related documentation
+- `DOCS/development/` - Development guides
+- `DOCS/deployment/` - Deployment documentation
+- `DOCS/project/` - Project-specific documentation
+
+All markdown files include proper Jekyll front matter for navigation and SEO.

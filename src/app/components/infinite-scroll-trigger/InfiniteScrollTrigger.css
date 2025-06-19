@@ -1,0 +1,145 @@
+.infinite-scroll-trigger {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem 1rem;
+  min-height: 80px;
+  transition: all 0.3s ease;
+}
+
+.infinite-scroll-trigger__loader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  color: var(--light-bg__text-color--secondary);
+}
+
+.infinite-scroll-trigger__spinner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.infinite-scroll-trigger__spinner-icon {
+  animation: spin 1s linear infinite;
+  color: var(--brand-primary);
+}
+
+.infinite-scroll-trigger__text {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--light-bg__text-color--secondary);
+}
+
+.infinite-scroll-trigger__ready {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.3;
+  transition: opacity 0.3s ease;
+}
+
+.infinite-scroll-trigger__ready:hover {
+  opacity: 0.6;
+}
+
+.infinite-scroll-trigger__indicator {
+  color: var(--light-bg__text-color--tertiary);
+  animation: bounce 2s infinite;
+}
+
+/* Loading state */
+.infinite-scroll-trigger--loading {
+  background: linear-gradient(135deg,
+      rgba(199, 82, 42, 0.05),
+      rgba(199, 82, 42, 0.02));
+  border-radius: var(--border-radius);
+}
+
+/* Animations */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes bounce {
+
+  0%,
+  20%,
+  50%,
+  80%,
+  100% {
+    transform: translateY(0);
+  }
+
+  40% {
+    transform: translateY(-4px);
+  }
+
+  60% {
+    transform: translateY(-2px);
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .infinite-scroll-trigger__loader {
+    color: var(--dark-bg__text-color--secondary);
+  }
+
+  .infinite-scroll-trigger__text {
+    color: var(--dark-bg__text-color--secondary);
+  }
+
+  .infinite-scroll-trigger__indicator {
+    color: var(--dark-bg__text-color--tertiary);
+  }
+
+  .infinite-scroll-trigger--loading {
+    background: linear-gradient(135deg,
+        rgba(199, 82, 42, 0.1),
+        rgba(199, 82, 42, 0.05));
+  }
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .infinite-scroll-trigger {
+    padding: 1.5rem 0.5rem;
+    min-height: 60px;
+  }
+
+  .infinite-scroll-trigger__text {
+    font-size: 0.8rem;
+  }
+
+  .infinite-scroll-trigger__spinner-icon {
+    width: 20px;
+    height: 20px;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .infinite-scroll-trigger__spinner-icon {
+    animation: none;
+  }
+
+  .infinite-scroll-trigger__indicator {
+    animation: none;
+  }
+
+  .infinite-scroll-trigger {
+    transition: none;
+  }
+
+  .infinite-scroll-trigger__ready {
+    transition: none;
+  }
+}

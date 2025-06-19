@@ -1,0 +1,189 @@
+name: Build and Deploy Documentation
+
+# Trigger on pushes to main branch and changes to documentation
+on:
+  push:
+    branches: [main, master]
+    paths:
+      - 'DOCS/**'
+      - '.github/workflows/docs.yml'
+  pull_request:
+    branches: [main, master]
+    paths:
+      - 'DOCS/**'
+      - '.github/workflows/docs.yml'
+  # Manual trigger
+  workflow_dispatch:
+
+# Required permissions for GitHub Pages deployment
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Concurrency group to prevent concurrent deployments
+concurrency:
+  group: 'pages'
+  cancel-in-progress: false
+
+jobs:
+  # Build documentation
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.1'
+          bundler-cache: true
+
+      - name: Setup Pages
+        id: pages
+        uses: actions/configure-pages@v3
+
+      - name: Create Gemfile for Jekyll
+        run: |
+          cat > DOCS/Gemfile << EOF
+          source "https://rubygems.org"
+
+          gem "github-pages", group: :jekyll_plugins
+          gem "jekyll-feed"
+          gem "jekyll-sitemap"
+          gem "jekyll-seo-tag"
+          gem "webrick"
+          EOF
+
+      - name: Install Jekyll dependencies
+        run: |
+          cd DOCS
+          bundle install
+
+      - name: Build Jekyll site
+        run: |
+          cd DOCS
+          bundle exec jekyll build --baseurl "${{ steps.pages.outputs.base_path }}"
+        env:
+          JEKYLL_ENV: production
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v2
+        with:
+          path: DOCS/_site
+
+  # Deploy to GitHub Pages (only on main/master branch)
+  deploy:
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v2
+
+  # Build check for PRs (no deployment)
+  build-check:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.1'
+
+      - name: Create Gemfile for Jekyll
+        run: |
+          cat > DOCS/Gemfile << EOF
+          source "https://rubygems.org"
+
+          gem "github-pages", group: :jekyll_plugins
+          gem "jekyll-feed"
+          gem "jekyll-sitemap"  
+          gem "jekyll-seo-tag"
+          gem "webrick"
+          EOF
+
+      - name: Install Jekyll dependencies
+        run: |
+          cd DOCS
+          bundle install
+
+      - name: Build Jekyll site (PR check)
+        run: |
+          cd DOCS
+          bundle exec jekyll build --baseurl "/idling.app__UI"
+        env:
+          JEKYLL_ENV: production
+
+      - name: Check for build errors
+        run: |
+          if [ ! -d "DOCS/_site" ]; then
+            echo "❌ Jekyll build failed - _site directory not created"
+            exit 1
+          fi
+
+          if [ ! -f "DOCS/_site/index.html" ]; then
+            echo "❌ Jekyll build failed - index.html not generated"
+            exit 1
+          fi
+
+          echo "✅ Jekyll build successful"
+          echo "📊 Generated files:"
+          find DOCS/_site -name "*.html" | head -10
+
+      - name: Comment on PR
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+
+            // Count generated files
+            const siteDir = 'DOCS/_site';
+            const htmlFiles = [];
+
+            function findHtmlFiles(dir) {
+              const files = fs.readdirSync(dir);
+              files.forEach(file => {
+                const filePath = path.join(dir, file);
+                const stat = fs.statSync(filePath);
+                if (stat.isDirectory()) {
+                  findHtmlFiles(filePath);
+                } else if (file.endsWith('.html')) {
+                  htmlFiles.push(filePath.replace('DOCS/_site/', ''));
+                }
+              });
+            }
+
+            findHtmlFiles(siteDir);
+
+            const comment = `## 📚 Documentation Build Check
+
+            ✅ **Jekyll build successful!**
+
+            **Generated Pages:** ${htmlFiles.length}
+            **Preview:** Documentation will be available at: \`https://underwood-inc.github.io/idling.app__UI/\`
+
+            **Key Pages:**
+            ${htmlFiles.slice(0, 10).map(f => `- \`${f}\``).join('\n')}
+            ${htmlFiles.length > 10 ? `\n... and ${htmlFiles.length - 10} more pages` : ''}
+
+            The documentation site will be automatically deployed when this PR is merged to main.`;
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });

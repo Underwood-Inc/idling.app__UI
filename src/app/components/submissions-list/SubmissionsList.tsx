@@ -1,242 +1,412 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 'use client';
-import { useCallback, useEffect, useState } from 'react';
-import { SUBMISSIONS_LIST_SELECTORS } from '../../../lib/test-selectors/components/submissions-list.selectors';
-import { PostFilters } from '../../posts/page';
-import Empty from '../empty/Empty';
-import { Filter } from '../filter-bar/FilterBar';
-import Loader from '../loader/Loader';
-import Pagination from '../pagination/Pagination';
-import { DeleteSubmissionForm } from '../submission-forms/delete-submission-form/DeleteSubmissionForm';
-import { Submission } from '../submission-forms/schema';
-import { TagLink } from '../tag-link/TagLink';
-import { ReplyForm } from '../thread/ReplyForm';
-import './SubmissionsList.css';
-import { useSubmissionsList } from './use-submissions-list';
 
-// Add this new interface
-interface SubmissionWithReplies extends Submission {
-  replies?: SubmissionWithReplies[];
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState
+} from 'react';
+import InfiniteScrollTrigger from '../infinite-scroll-trigger/InfiniteScrollTrigger';
+import { SubmissionItem } from './SubmissionItem';
+import './SubmissionItem.css';
+import './SubmissionsList.css';
+
+// Virtual scrolling constants
+const BATCH_SIZE = 20; // Number of items to render in each batch
+const BUFFER_SIZE = 1; // Number of batches to render outside visible area
+const ESTIMATED_ITEM_HEIGHT = 150; // Fallback height estimate
+const HEIGHT_CACHE_SIZE = 100; // Maximum items to cache heights for
+
+export interface SubmissionsListProps {
+  posts: any[];
+  onTagClick: (tag: string) => void;
+  onHashtagClick?: (hashtag: string) => void;
+  onMentionClick?: (mention: string, filterType: 'author' | 'mentions') => void;
+  showSkeletons?: boolean;
+  onRefresh?: () => void;
+  contextId: string;
+  // Infinite scroll props
+  infiniteScrollMode?: boolean;
+  hasMore?: boolean;
+  isLoadingMore?: boolean;
+  onLoadMore?: () => void;
 }
 
-// New component to render a single submission and its replies
-const SubmissionThread = ({
-  submission,
-  depth = 0,
+const SubmissionsList = React.memo(function SubmissionsList({
+  posts,
+  onTagClick,
+  onHashtagClick,
+  onMentionClick,
+  showSkeletons,
+  onRefresh,
   contextId,
-  providerAccountId,
-  activeReplyId,
-  onToggleReply,
-  onToggleThread,
-  isExpanded
-}: {
-  submission: SubmissionWithReplies;
-  depth?: number;
-  contextId: string;
-  providerAccountId: string;
-  activeReplyId: number | null;
-  onToggleReply: (id: number) => void;
-  onToggleThread: (id: number) => void;
-  isExpanded: boolean;
-}) => {
-  const canDelete = submission.author_id === providerAccountId;
-  const createdDate = new Date(
-    submission.submission_datetime
-  ).toLocaleDateString();
-  const hasReplies = submission.replies && submission.replies.length > 0;
+  infiniteScrollMode = false,
+  hasMore = false,
+  isLoadingMore = false,
+  onLoadMore
+}: SubmissionsListProps) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const itemRefs = useRef<Map<number, HTMLDivElement>>(new Map());
+  const heightCache = useRef<Map<number, number>>(new Map());
+  const [scrollTop, setScrollTop] = useState(0);
+  const [visibleRange, setVisibleRange] = useState({
+    start: 0,
+    end: BATCH_SIZE
+  });
+  const visibleRangeRef = useRef(visibleRange);
+  const isScrolling = useRef(false);
+  const scrollTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const resizeObserver = useRef<ResizeObserver | null>(null);
 
-  return (
-    <li
-      className="submission__wrapper"
-      style={{ marginLeft: `${depth * 20}px` }}
-    >
-      <div className="submission__meta">
-        <p className="submission__datetime">{createdDate}</p>
-        {canDelete && (
-          <DeleteSubmissionForm
-            id={submission.submission_id}
-            name={submission.submission_name}
-            isAuthorized={!!providerAccountId}
-          />
-        )}
-        <button
-          onClick={() => onToggleReply(submission.submission_id)}
-          className="thread-button"
-        >
-          {activeReplyId === submission.submission_id ? 'Close Reply' : 'Reply'}
-        </button>
-        {hasReplies && (
-          <button
-            onClick={() => onToggleThread(submission.submission_id)}
-            className="expand-thread-button"
-          >
-            {isExpanded ? 'Hide Replies' : 'Show Replies'}
-          </button>
-        )}
-      </div>
-
-      <p className="submission__content">
-        {submission.author && (
-          <span className="submission__author">{submission.author}:&nbsp;</span>
-        )}
-        <span>
-          <TagLink
-            value={submission.submission_name}
-            contextId={contextId}
-            appendSearchParam
-          />
-        </span>
-      </p>
-
-      {hasReplies && isExpanded && (
-        <ol className="submission__replies">
-          {submission.replies?.map((reply) => (
-            <SubmissionThread
-              key={reply.submission_id}
-              submission={reply}
-              depth={depth + 1}
-              contextId={contextId}
-              providerAccountId={providerAccountId}
-              activeReplyId={activeReplyId}
-              onToggleReply={onToggleReply}
-              onToggleThread={onToggleThread}
-              isExpanded={isExpanded}
-            />
-          ))}
-        </ol>
-      )}
-    </li>
-  );
-};
-
-const SubmissionsList = ({
-  contextId = 'default',
-  providerAccountId,
-  onlyMine = false,
-  filters = [],
-  page = 1
-}: {
-  contextId: string;
-  providerAccountId: string;
-  page?: number;
-  onlyMine?: boolean;
-  filters?: Filter<PostFilters>[];
-}) => {
-  const [mounted, setMounted] = useState(false);
-  const [activeReplyId, setActiveReplyId] = useState<number | null>(null);
-  const [expandedThreads, setExpandedThreads] = useState<Set<number>>(
-    new Set()
-  );
-
+  // Update ref when visible range changes
   useEffect(() => {
-    setMounted(true);
+    visibleRangeRef.current = visibleRange;
+  }, [visibleRange]);
+
+  // Get cached height or estimate
+  const getItemHeight = useCallback((index: number): number => {
+    const cached = heightCache.current.get(index);
+    if (cached) return cached;
+
+    // Use average of cached heights if available, otherwise use estimate
+    const cachedHeights = Array.from(heightCache.current.values());
+    if (cachedHeights.length > 0) {
+      const average =
+        cachedHeights.reduce((sum, h) => sum + h, 0) / cachedHeights.length;
+      return Math.round(average);
+    }
+
+    return ESTIMATED_ITEM_HEIGHT;
   }, []);
 
-  const toggleReplyForm = (submissionId: number) => {
-    setActiveReplyId(activeReplyId === submissionId ? null : submissionId);
-  };
-
-  const toggleThread = (submissionId: number) => {
-    setExpandedThreads((prev) => {
-      const newSet = new Set(prev);
-      if (newSet.has(submissionId)) {
-        newSet.delete(submissionId);
-      } else {
-        newSet.add(submissionId);
+  // Calculate cumulative heights for positioning
+  const getCumulativeHeight = useCallback(
+    (index: number): number => {
+      let height = 0;
+      for (let i = 0; i < index; i++) {
+        height += getItemHeight(i);
       }
-      return newSet;
-    });
-  };
-
-  const { isAuthorized, loading, response } = useSubmissionsList(
-    contextId,
-    providerAccountId,
-    onlyMine,
-    page,
-    filters
+      return height;
+    },
+    [getItemHeight]
   );
 
-  useEffect(() => {
-    // when response updates, ensure thread response forms are not open
-    setActiveReplyId(null);
-  }, [response]);
+  // Calculate visible range based on scroll position
+  const calculateVisibleRange = useCallback(
+    (scrollTop: number, containerHeight: number) => {
+      if (posts.length === 0) return { start: 0, end: 0 };
 
-  // New function to organize submissions into a tree structure
-  const organizeSubmissions = useCallback(
-    (submissions: Submission[]): SubmissionWithReplies[] => {
-      const submissionMap = new Map<number, SubmissionWithReplies>();
-      const rootSubmissions: SubmissionWithReplies[] = [];
+      // Find start index using binary search for efficiency
+      let startIndex = 0;
+      let endIndex = posts.length - 1;
 
-      submissions.forEach((submission) => {
-        submissionMap.set(submission.submission_id, {
-          ...submission,
-          replies: []
-        });
-      });
+      while (startIndex < endIndex) {
+        const mid = Math.floor((startIndex + endIndex) / 2);
+        const midTop = getCumulativeHeight(mid);
 
-      submissions.forEach((submission) => {
-        if (submission.thread_parent_id) {
-          const parent = submissionMap.get(submission.thread_parent_id);
-          if (parent) {
-            parent.replies?.push(submissionMap.get(submission.submission_id)!);
-          }
+        if (midTop < scrollTop) {
+          startIndex = mid + 1;
         } else {
-          rootSubmissions.push(submissionMap.get(submission.submission_id)!);
+          endIndex = mid;
+        }
+      }
+
+      // Find end index
+      let currentHeight = getCumulativeHeight(startIndex);
+      let visibleEndIndex = startIndex;
+
+      while (
+        visibleEndIndex < posts.length &&
+        currentHeight < scrollTop + containerHeight
+      ) {
+        currentHeight += getItemHeight(visibleEndIndex);
+        visibleEndIndex++;
+      }
+
+      // Add buffer
+      const bufferStart = Math.max(0, startIndex - BUFFER_SIZE * BATCH_SIZE);
+      const bufferEnd = Math.min(
+        posts.length,
+        visibleEndIndex + BUFFER_SIZE * BATCH_SIZE
+      );
+
+      // Ensure we render in batches
+      const startBatch = Math.floor(bufferStart / BATCH_SIZE);
+      const endBatch = Math.ceil(bufferEnd / BATCH_SIZE);
+
+      return {
+        start: startBatch * BATCH_SIZE,
+        end: Math.min(posts.length, endBatch * BATCH_SIZE)
+      };
+    },
+    [posts.length, getCumulativeHeight, getItemHeight]
+  );
+
+  // Handle scroll events with throttling
+  const handleScroll = useCallback(
+    (e: React.UIEvent<HTMLDivElement>) => {
+      const scrollTop = e.currentTarget.scrollTop;
+      const containerHeight = e.currentTarget.clientHeight;
+
+      setScrollTop(scrollTop);
+
+      if (!isScrolling.current) {
+        isScrolling.current = true;
+      }
+
+      // Clear existing timeout
+      if (scrollTimeout.current) {
+        clearTimeout(scrollTimeout.current);
+      }
+
+      // Throttle scroll updates
+      scrollTimeout.current = setTimeout(() => {
+        const newRange = calculateVisibleRange(scrollTop, containerHeight);
+        const currentRange = visibleRangeRef.current;
+
+        if (
+          newRange.start !== currentRange.start ||
+          newRange.end !== currentRange.end
+        ) {
+          setVisibleRange(newRange);
+        }
+
+        isScrolling.current = false;
+      }, 100);
+    },
+    [calculateVisibleRange]
+  );
+
+  // Set up ResizeObserver to track actual item heights
+  useEffect(() => {
+    if (!window.ResizeObserver) return;
+
+    resizeObserver.current = new ResizeObserver((entries) => {
+      let heightsChanged = false;
+
+      entries.forEach((entry) => {
+        const element = entry.target as HTMLDivElement;
+        const index = parseInt(element.dataset.itemIndex || '-1');
+
+        if (index >= 0) {
+          const newHeight = Math.round(entry.contentRect.height);
+          const oldHeight = heightCache.current.get(index);
+
+          if (oldHeight !== newHeight) {
+            heightCache.current.set(index, newHeight);
+            heightsChanged = true;
+
+            // Limit cache size
+            if (heightCache.current.size > HEIGHT_CACHE_SIZE) {
+              const oldestKey = heightCache.current.keys().next().value;
+              if (oldestKey !== undefined) {
+                heightCache.current.delete(oldestKey);
+              }
+            }
+          }
         }
       });
 
-      return rootSubmissions;
+      // Recalculate visible range if heights changed
+      if (heightsChanged && containerRef.current) {
+        const containerHeight = containerRef.current.clientHeight;
+        const newRange = calculateVisibleRange(scrollTop, containerHeight);
+        setVisibleRange(newRange);
+      }
+    });
+
+    // Observe all currently rendered items
+    itemRefs.current.forEach((element) => {
+      resizeObserver.current?.observe(element);
+    });
+
+    return () => {
+      resizeObserver.current?.disconnect();
+    };
+  }, [calculateVisibleRange, scrollTop]);
+
+  // Initialize visible range when posts change
+  useEffect(() => {
+    if (containerRef.current) {
+      const containerHeight = containerRef.current.clientHeight;
+      const newRange = calculateVisibleRange(scrollTop, containerHeight);
+      setVisibleRange(newRange);
+    }
+  }, [posts.length, calculateVisibleRange]);
+
+  // Get visible posts to render
+  const visiblePosts = useMemo(() => {
+    return posts.slice(visibleRange.start, visibleRange.end);
+  }, [posts, visibleRange.start, visibleRange.end]);
+
+  // Calculate spacing for virtual scrolling
+  const topSpacer = getCumulativeHeight(visibleRange.start);
+  const bottomSpacer =
+    getCumulativeHeight(posts.length) - getCumulativeHeight(visibleRange.end);
+
+  // Track item refs for ResizeObserver
+  const setItemRef = useCallback(
+    (index: number, element: HTMLDivElement | null) => {
+      if (element) {
+        itemRefs.current.set(index, element);
+        element.dataset.itemIndex = index.toString();
+        resizeObserver.current?.observe(element);
+      } else {
+        const oldElement = itemRefs.current.get(index);
+        if (oldElement) {
+          resizeObserver.current?.unobserve(oldElement);
+          itemRefs.current.delete(index);
+        }
+      }
     },
     []
   );
 
-  if (!mounted) {
-    return <Loader />;
+  // Skeleton loading
+  if (showSkeletons) {
+    return (
+      <div className="submissions-list" data-testid="submissions-list">
+        {Array.from({ length: Math.min(BATCH_SIZE, 5) }, (_, index) => (
+          <div
+            key={index}
+            className="submissions-list__skeleton"
+            data-testid="submissions-list__skeleton"
+          >
+            <div className="submission__wrapper">
+              <div className="submission__meta">
+                <div className="skeleton-line skeleton-line--short"></div>
+                <div className="skeleton-line skeleton-line--xs"></div>
+              </div>
+              <div className="submission__content">
+                <div className="skeleton-line skeleton-line--title"></div>
+                <div className="skeleton-line skeleton-line--description"></div>
+              </div>
+              <div className="submission__tags">
+                <div className="skeleton-tag"></div>
+                <div className="skeleton-tag"></div>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    );
   }
 
-  const organizedSubmissions = organizeSubmissions(
-    response?.data?.result || []
-  );
+  // Empty state
+  if (posts.length === 0) {
+    return (
+      <div
+        className="submissions-list submissions-list--empty"
+        data-testid="submissions-list"
+      >
+        <div className="submissions-list__empty-message">
+          No posts to display
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <article
-      data-testid={SUBMISSIONS_LIST_SELECTORS.CONTAINER}
-      className="submissions-list__container"
+    <div
+      ref={containerRef}
+      className="submissions-list submissions-list--virtual"
+      data-testid="submissions-list"
+      onScroll={handleScroll}
+      style={{
+        height: '70vh', // Fixed height for virtual scrolling
+        overflowY: 'auto',
+        position: 'relative'
+      }}
     >
-      <div className="submissions-list__header">
-        <Pagination id={contextId} />
+      {/* Top spacer for virtual scrolling */}
+      {topSpacer > 0 && (
+        <div
+          className="submissions-list__spacer"
+          style={{ height: topSpacer }}
+          aria-hidden="true"
+        />
+      )}
+
+      {/* Render visible posts */}
+      <div className="submissions-list__content">
+        {visiblePosts.map((post, index) => {
+          const actualIndex = visibleRange.start + index;
+          return (
+            <div
+              key={post.submission_id}
+              ref={(el) => setItemRef(actualIndex, el)}
+              className="submissions-list__item"
+              style={
+                {
+                  '--item-index': actualIndex
+                } as React.CSSProperties & { '--item-index': number }
+              }
+            >
+              <SubmissionItem
+                submission={post}
+                onTagClick={onTagClick}
+                onHashtagClick={onHashtagClick}
+                onMentionClick={onMentionClick}
+                onSubmissionUpdate={onRefresh}
+                contextId={contextId}
+              />
+            </div>
+          );
+        })}
+
+        {/* Infinite scroll trigger - only show when in infinite mode and at the end */}
+        {infiniteScrollMode &&
+          hasMore &&
+          onLoadMore &&
+          visibleRange.end >= posts.length && (
+            <div className="submissions-list__infinite-trigger">
+              <InfiniteScrollTrigger
+                onLoadMore={onLoadMore}
+                isLoading={isLoadingMore}
+                className="submissions-list__trigger"
+              />
+            </div>
+          )}
       </div>
 
-      {loading && <Loader color="black" />}
-
-      {!loading && (
-        <>
-          {organizedSubmissions.length === 0 && (
-            <Empty label="No posts to show" />
-          )}
-          <ol className="submission__list">
-            {organizedSubmissions.map((submission) => (
-              <SubmissionThread
-                key={submission.submission_id}
-                submission={submission}
-                contextId={contextId}
-                providerAccountId={providerAccountId}
-                activeReplyId={activeReplyId}
-                onToggleReply={toggleReplyForm}
-                onToggleThread={toggleThread}
-                isExpanded={expandedThreads.has(submission.submission_id)}
-              />
-            ))}
-          </ol>
-          {activeReplyId !== null && <ReplyForm parentId={activeReplyId} />}
-        </>
+      {/* Bottom spacer for virtual scrolling */}
+      {bottomSpacer > 0 && (
+        <div
+          className="submissions-list__spacer"
+          style={{ height: bottomSpacer }}
+          aria-hidden="true"
+        />
       )}
-    </article>
+
+      {/* Debugging info in development */}
+      {process.env.NODE_ENV === 'development' && (
+        <div
+          className="submissions-list__debug"
+          style={{
+            position: 'fixed',
+            top: '10px',
+            right: '10px',
+            background: 'rgba(0,0,0,0.8)',
+            color: 'white',
+            padding: '8px',
+            borderRadius: '4px',
+            fontSize: '12px',
+            zIndex: 1000,
+            fontFamily: 'monospace'
+          }}
+        >
+          <div>Total: {posts.length}</div>
+          <div>
+            Visible: {visibleRange.start}-{visibleRange.end}
+          </div>
+          <div>Rendered: {visiblePosts.length}</div>
+          <div>Scroll: {Math.round(scrollTop)}px</div>
+          <div>Heights Cached: {heightCache.current.size}</div>
+        </div>
+      )}
+    </div>
   );
-};
+});
 
-// Add displayName for better debugging
-SubmissionsList.displayName = 'SubmissionsList';
-
-export { SubmissionsList };
 export default SubmissionsList;

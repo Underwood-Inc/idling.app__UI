@@ -1,0 +1,246 @@
+/* Modern Discrete Floating Action Button */
+
+.floating-add-post__button {
+  position: fixed;
+  bottom: 4rem;
+  right: 2rem;
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: 50%;
+  border: none;
+  background: linear-gradient(135deg, var(--brand-primary) 0%, var(--brand-secondary) 100%);
+  color: var(--font-color--primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  box-shadow:
+    0 4px 12px rgba(0, 0, 0, 0.15),
+    0 0 0 3px var(--brand-tertiary),
+    inset 0 1px 2px rgba(255, 255, 255, 0.3);
+  z-index: 1000;
+  cursor: pointer;
+  user-select: none;
+}
+
+.floating-add-post__button::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.2) 0%, transparent 50%);
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+.floating-add-post__button:hover {
+  transform: scale(1.1) rotate(5deg);
+  background: linear-gradient(135deg, var(--brand-primary--dark) 0%, var(--brand-secondary--dark) 100%);
+  box-shadow:
+    0 6px 20px rgba(0, 0, 0, 0.25),
+    0 0 0 4px var(--brand-tertiary--dark),
+    inset 0 1px 2px rgba(255, 255, 255, 0.4);
+}
+
+.floating-add-post__button:active {
+  transform: scale(1.05) rotate(2deg);
+  transition: all 0.1s ease;
+}
+
+.floating-add-post__icon {
+  font-size: var(--font-size-md);
+  font-weight: bold;
+  transition: transform 0.3s ease;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.2));
+}
+
+.floating-add-post__button:hover .floating-add-post__icon {
+  transform: rotate(-5deg) scale(1.1);
+}
+
+/* Modal Content Styles - used within overlay system */
+.floating-add-post__modal-content {
+  width: 100%;
+  max-width: 500px;
+  padding: 1.5rem;
+}
+
+.floating-add-post__header {
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--brand-tertiary);
+}
+
+.floating-add-post__title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--dark-bg__text-color--primary);
+  margin: 0;
+}
+
+/* Form styling within modal */
+.floating-add-post__modal-content .submission__form {
+  background: transparent !important;
+  border: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  box-shadow: none !important;
+  overflow: visible !important;
+  max-height: none !important;
+}
+
+.floating-add-post__modal-content .submission__title-input,
+.floating-add-post__modal-content .submission__content-input,
+.floating-add-post__modal-content .submission__tags-input {
+  background: var(--light-bg__color--primary) !important;
+  border: 1px solid var(--brand-primary--light) !important;
+  color: var(--light-bg__text-color--primary) !important;
+  padding: 0.75rem !important;
+  border-radius: var(--border-radius) !important;
+  font-size: 1rem !important;
+  transition: all 0.2s ease !important;
+  width: 100% !important;
+  font-family: inherit !important;
+  resize: vertical !important;
+  min-height: 60px !important;
+}
+
+.floating-add-post__modal-content .submission__content-input {
+  min-height: 120px !important;
+  line-height: 1.5 !important;
+}
+
+.floating-add-post__modal-content .submission__title-input:focus,
+.floating-add-post__modal-content .submission__content-input:focus,
+.floating-add-post__modal-content .submission__tags-input:focus {
+  outline: none !important;
+  border-color: var(--brand-primary) !important;
+  background: var(--light-bg__color--primary) !important;
+  box-shadow: 0 0 0 3px rgba(237, 174, 73, 0.1) !important;
+}
+
+.floating-add-post__modal-content .submission__submit-button {
+  background: var(--brand-primary) !important;
+  color: var(--font-color--primary) !important;
+  border: 1px solid var(--brand-primary--dark) !important;
+  padding: 0.75rem 1.5rem !important;
+  border-radius: var(--border-radius) !important;
+  font-weight: 500 !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+  width: 100% !important;
+  margin-top: 0.5rem !important;
+  font-size: var(--font-size-xs) !important;
+  font-family: inherit !important;
+}
+
+.floating-add-post__modal-content .submission__submit-button:hover:not(:disabled) {
+  background: var(--brand-primary--dark) !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+}
+
+.floating-add-post__modal-content .submission__submit-button:disabled {
+  background: var(--light-bg__color--tertiary) !important;
+  color: var(--light-bg__text-color--secondary) !important;
+  border-color: var(--light-bg__color--tertiary) !important;
+  cursor: not-allowed !important;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+/* Character count and validation messages */
+.floating-add-post__modal-content .info,
+.floating-add-post__modal-content .warning,
+.floating-add-post__modal-content .error {
+  font-size: var(--font-size-xs);
+  margin-top: 0.25rem;
+}
+
+.floating-add-post__modal-content .info {
+  color: var(--light-bg__text-color--secondary);
+}
+
+.floating-add-post__modal-content .warning {
+  color: #f59e0b;
+}
+
+.floating-add-post__modal-content .error {
+  color: #ef4444;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .floating-add-post__button {
+    bottom: 5rem;
+    right: 1rem;
+    width: 3rem;
+    height: 3rem;
+  }
+
+  .floating-add-post__icon {
+    font-size: var(--font-size-base);
+  }
+
+  .floating-add-post__modal-content {
+    padding: 1rem;
+    max-width: calc(100vw - 2rem);
+  }
+
+  .floating-add-post__title {
+    font-size: var(--font-size-xs);
+  }
+}
+
+@media (max-width: 480px) {
+  .floating-add-post__modal-content {
+    padding: 0.75rem;
+  }
+
+  .floating-add-post__header {
+    margin-bottom: 0.75rem;
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .floating-add-post__title {
+    color: var(--dark-bg__text-color--primary);
+  }
+
+  .floating-add-post__modal-content .submission__title-input,
+  .floating-add-post__modal-content .submission__content-input,
+  .floating-add-post__modal-content .submission__tags-input {
+    background: var(--light-bg__color--secondary) !important;
+    border-color: var(--brand-primary--light) !important;
+    color: var(--light-bg__text-color--primary) !important;
+  }
+
+  .floating-add-post__modal-content .submission__title-input:focus,
+  .floating-add-post__modal-content .submission__content-input:focus,
+  .floating-add-post__modal-content .submission__tags-input:focus {
+    background: var(--light-bg__color--secondary) !important;
+    border-color: var(--brand-primary) !important;
+    box-shadow: 0 0 0 3px rgba(237, 174, 73, 0.2) !important;
+  }
+
+  .floating-add-post__modal-content .info {
+    color: var(--light-bg__text-color--secondary);
+  }
+}
+
+/* Accessibility */
+@media (prefers-reduced-motion: reduce) {
+
+  .floating-add-post__button,
+  .floating-add-post__icon {
+    transition: none;
+  }
+
+  .floating-add-post__button:hover {
+    transform: none;
+  }
+
+  .floating-add-post__button:hover .floating-add-post__icon {
+    transform: none;
+  }
+}

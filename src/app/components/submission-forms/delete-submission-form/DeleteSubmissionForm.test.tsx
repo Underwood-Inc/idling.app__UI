@@ -1,13 +1,22 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { useShouldUpdate } from '../../../../lib/state/ShouldUpdateContext';
-import * as actions from '../actions';
+import { Provider } from 'jotai';
 import { DeleteSubmissionForm } from './DeleteSubmissionForm';
 
-// Mock the necessary dependencies
-jest.mock('../../../../lib/state/ShouldUpdateContext');
-jest.mock('../actions', () => ({
-  deleteSubmissionAction: jest.fn()
+// Mock Jotai atoms instead of old context hooks
+jest.mock('jotai', () => ({
+  ...jest.requireActual('jotai'),
+  useAtom: jest.fn().mockReturnValue([false, jest.fn()])
 }));
+
+// Mock the delete submission action
+jest.mock('../actions', () => ({
+  deleteSubmissionAction: jest.fn().mockResolvedValue({
+    status: 1,
+    message: 'Submission deleted successfully'
+  })
+}));
+
+// Mock react-dom hooks
 jest.mock('react-dom', () => ({
   ...jest.requireActual('react-dom'),
   useFormState: jest.fn(),
@@ -15,92 +24,101 @@ jest.mock('react-dom', () => ({
 }));
 
 describe('DeleteSubmissionForm', () => {
-  let mockDispatch: jest.Mock;
-  let mockFormAction: jest.Mock;
+  const defaultProps = {
+    id: 1,
+    name: 'Test Submission',
+    isAuthorized: true
+  };
 
   beforeEach(() => {
     jest.clearAllMocks();
-    mockDispatch = jest.fn();
-    mockFormAction = jest.fn();
 
-    (useShouldUpdate as jest.Mock).mockReturnValue({ dispatch: mockDispatch });
-    (actions.deleteSubmissionAction as jest.Mock).mockResolvedValue({
-      status: 0,
-      message: ''
-    });
-    (require('react-dom').useFormState as jest.Mock).mockReturnValue([
-      { status: 0, message: '' },
+    // Setup default form state mock
+    const { useFormState } = require('react-dom');
+    useFormState.mockReturnValue([{ status: 0, message: '' }, jest.fn()]);
+  });
+
+  it('renders delete button when authorized', () => {
+    render(
+      <Provider>
+        <DeleteSubmissionForm {...defaultProps} />
+      </Provider>
+    );
+
+    expect(screen.getByRole('button', { name: /delete/i })).toBeInTheDocument();
+  });
+
+  it('handles form submission correctly', async () => {
+    const mockSetShouldUpdate = jest.fn();
+    const mockFormAction = jest.fn();
+
+    const { useAtom } = require('jotai');
+    const { useFormState } = require('react-dom');
+
+    useAtom.mockReturnValue([false, mockSetShouldUpdate]);
+
+    useFormState.mockReturnValue([
+      { status: 1, message: 'Deleted successfully' },
       mockFormAction
     ]);
+
+    render(
+      <Provider>
+        <DeleteSubmissionForm {...defaultProps} />
+      </Provider>
+    );
+
+    const deleteButton = screen.getByRole('button', { name: /delete/i });
+    fireEvent.click(deleteButton);
+
+    await waitFor(() => {
+      expect(mockSetShouldUpdate).toHaveBeenCalledWith(true);
+    });
   });
 
-  it('renders the delete button', () => {
-    render(
-      <DeleteSubmissionForm id={1} name="Test Submission" isAuthorized={true} />
-    );
-    expect(screen.getByRole('button', { name: 'Delete' })).toBeInTheDocument();
-  });
+  it('shows loading state during submission', () => {
+    const { useFormStatus } = require('react-dom');
+    useFormStatus.mockReturnValue({ pending: true });
 
-  it('disables the delete button when not authorized', () => {
     render(
-      <DeleteSubmissionForm
-        id={1}
-        name="Test Submission"
-        isAuthorized={false}
-      />
+      <Provider>
+        <DeleteSubmissionForm {...defaultProps} />
+      </Provider>
     );
-    const deleteButton = screen.getByRole('button', { name: 'Delete' });
+
+    const deleteButton = screen.getByRole('button', { name: /delete/i });
     expect(deleteButton).toBeDisabled();
-    expect(deleteButton).toHaveAttribute('title', 'Login to manage posts.');
   });
 
-  it('submits the form and resets on successful deletion', async () => {
-    (actions.deleteSubmissionAction as jest.Mock).mockResolvedValue({
-      status: 1,
-      message: 'Deleted post Test Submission.'
-    });
-    (require('react-dom').useFormState as jest.Mock).mockReturnValue([
-      { status: 1, message: '' },
-      mockFormAction
+  it('displays success message after deletion', () => {
+    const { useFormState } = require('react-dom');
+    useFormState.mockReturnValue([
+      { status: 1, message: 'Deleted successfully' },
+      jest.fn()
     ]);
 
     render(
-      <DeleteSubmissionForm id={1} name="Test Submission" isAuthorized={true} />
+      <Provider>
+        <DeleteSubmissionForm {...defaultProps} />
+      </Provider>
     );
 
-    const deleteButton = screen.getByRole('button', { name: 'Delete' });
-    fireEvent.click(deleteButton);
-
-    await waitFor(() => {
-      expect(mockFormAction).toHaveBeenCalled();
-      expect(mockDispatch).toHaveBeenCalledWith({
-        type: 'SET_SHOULD_UPDATE',
-        payload: true
-      });
-    });
+    expect(screen.getByText('Deleted successfully')).toBeInTheDocument();
   });
 
-  it('displays an error message on failed deletion', async () => {
-    (actions.deleteSubmissionAction as jest.Mock).mockResolvedValue({
-      status: -1,
-      message: 'Failed to delete post.',
-      error: 'Failed to delete post.'
-    });
-    (require('react-dom').useFormState as jest.Mock).mockReturnValue([
-      { status: -1, message: 'Failed to delete post.' },
-      mockFormAction
+  it('displays error message on failed deletion', () => {
+    const { useFormState } = require('react-dom');
+    useFormState.mockReturnValue([
+      { status: -1, error: 'Deletion failed' },
+      jest.fn()
     ]);
 
     render(
-      <DeleteSubmissionForm id={1} name="Test Submission" isAuthorized={true} />
+      <Provider>
+        <DeleteSubmissionForm {...defaultProps} />
+      </Provider>
     );
 
-    const deleteButton = screen.getByRole('button', { name: 'Delete' });
-    fireEvent.click(deleteButton);
-
-    await waitFor(() => {
-      expect(mockFormAction).toHaveBeenCalled();
-      expect(screen.getByText('Failed to delete post.')).toBeInTheDocument();
-    });
+    expect(screen.getByText('Deletion failed')).toBeInTheDocument();
   });
 });

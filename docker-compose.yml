@@ -23,7 +23,7 @@ services:
       - .:/app
       - /app/node_modules
     ports:
-      - '3000:3000'
+      - '0.0.0.0:3000:3000'
     env_file:
       - ./.env.local
     environment:
@@ -33,7 +33,7 @@ services:
       # By defining this here, we override the value defined in ./.env.local
       POSTGRES_HOST: postgres
       IS_DOCKERIZED: true
-    command: sh -c "npm install --legacy-peer-deps && npm run dev"
+    command: sh -c "npm install --legacy-peer-deps && npm run dev -- -H 0.0.0.0"
     depends_on:
       postgres:
         condition: service_healthy

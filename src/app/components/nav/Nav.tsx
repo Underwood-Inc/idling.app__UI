@@ -32,13 +32,17 @@ export default async function Nav() {
         <Navbar.Content justify="end" className="nav--as-flex-end">
           <Navbar.Item className="nav__auth">
             {session?.user && (
-              <p
-                className="header__user-name"
-                data-testid={NAV_SELECTORS.USER_NAME}
+              <Link
+                href={`/profile/${encodeURIComponent(session.user.name || session.user.email || '')}`}
+                className="nav__profile-link"
               >
-                &nbsp;
-                {session.user.name}
-              </p>
+                <p
+                  className="header__user-name"
+                  data-testid={NAV_SELECTORS.USER_NAME}
+                >
+                  {session.user.name}
+                </p>
+              </Link>
             )}
 
             {session ? (

@@ -26,7 +26,7 @@ export async function createComment(data: CreateComment) {
     WHERE id = ${postId}
   `;
 
-  revalidatePath(`/t/[subreddit]/comments/${postId}`);
+  revalidatePath(`/t/[thread]/comments/${postId}`);
   return comment;
 }
 
@@ -63,5 +63,5 @@ export async function voteComment(commentId: string, voteType: 1 | -1) {
     WHERE id = ${commentId}
   `;
 
-  revalidatePath(`/t/[subreddit]/comments/[postId]`);
+  revalidatePath(`/t/[thread]/comments/[postId]`);
 }
