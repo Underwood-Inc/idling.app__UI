@@ -17,21 +17,24 @@ export async function getUserProfile(
   username: string
 ): Promise<UserProfileData | null> {
   try {
-    // First, try to find user in the users table (primary source)
+    // First, try to find user by providerAccountId (most reliable)
     const userResult = await sql`
       SELECT 
-        id,
-        name,
-        email,
-        bio,
-        location,
-        image,
-        created_at,
-        profile_public
-      FROM users 
-      WHERE LOWER(name) = LOWER(${username})
-         OR LOWER(split_part(email, '@', 1)) = LOWER(${username})
-         OR id = ${username}
+        u.id,
+        u.name,
+        u.email,
+        u.bio,
+        u.location,
+        u.image,
+        u.created_at,
+        u.profile_public,
+        a."providerAccountId"
+      FROM users u 
+      LEFT JOIN accounts a ON u.id = a."userId"
+      WHERE LOWER(u.name) = LOWER(${username})
+         OR LOWER(split_part(u.email, '@', 1)) = LOWER(${username})
+         OR a."providerAccountId" = ${username}
+         OR u.id::text = ${username}
       LIMIT 1
     `;
 
@@ -108,7 +111,7 @@ export async function getUserProfile(
     }
 
     return {
-      id: user.id.toString(),
+      id: user.providerAccountId || user.id.toString(), // Use providerAccountId as primary ID
       username: user.name, // Use name as username for display
       name: user.name,
       email: user.email,
@@ -135,20 +138,21 @@ export async function getUserProfileById(
   userId: string
 ): Promise<UserProfileData | null> {
   try {
-    // First try to find the user in the NextAuth users table
+    // Find user by providerAccountId first (most reliable), then by database ID
     const result = await sql`
       SELECT 
-        id,
-        username,
-        name,
-        email,
-        bio,
-        location,
-        image,
-        created_at,
-        profile_public
-      FROM users 
-      WHERE id = ${userId}
+        u.id,
+        u.name,
+        u.email,
+        u.bio,
+        u.location,
+        u.image,
+        u.created_at,
+        u.profile_public,
+        a."providerAccountId"
+      FROM users u 
+      LEFT JOIN accounts a ON u.id = a."userId"
+      WHERE a."providerAccountId" = ${userId} OR u.id::text = ${userId}
       LIMIT 1
     `;
 
@@ -179,7 +183,7 @@ export async function getUserProfileById(
     }
 
     return {
-      id: user.id.toString(),
+      id: user.providerAccountId || user.id.toString(), // Use providerAccountId as primary ID
       username: user.name, // Use name as username for display
       name: user.name,
       email: user.email,
@@ -205,7 +209,6 @@ export async function getUserProfileById(
 export async function updateUserProfile(
   userId: string,
   updates: Partial<{
-    username: string;
     bio: string;
     location: string;
     profile_public: boolean;
@@ -216,89 +219,77 @@ export async function updateUserProfile(
       return getUserProfileById(userId);
     }
 
-    // Handle each update type individually to avoid dynamic SQL issues
-    let result;
+    // Build dynamic update query
+    const setClauses = [];
+    const values = [];
+    let paramIndex = 1;
 
     if (updates.bio !== undefined) {
-      result = await sql`
-        UPDATE users 
-        SET bio = ${updates.bio}
-        WHERE id = ${userId}
-        RETURNING 
-          id,
-          username,
-          name,
-          email,
-          bio,
-          location,
-          image,
-          created_at,
-          profile_public
-      `;
-    } else if (updates.username !== undefined) {
-      result = await sql`
-        UPDATE users 
-        SET username = ${updates.username}
-        WHERE id = ${userId}
-        RETURNING 
-          id,
-          username,
-          name,
-          email,
-          bio,
-          location,
-          image,
-          created_at,
-          profile_public
-      `;
-    } else if (updates.location !== undefined) {
-      result = await sql`
-        UPDATE users 
-        SET location = ${updates.location}
-        WHERE id = ${userId}
-        RETURNING 
-          id,
-          username,
-          name,
-          email,
-          bio,
-          location,
-          image,
-          created_at,
-          profile_public
-      `;
-    } else if (updates.profile_public !== undefined) {
-      result = await sql`
-        UPDATE users 
-        SET profile_public = ${updates.profile_public}
-        WHERE id = ${userId}
-        RETURNING 
-          id,
-          username,
-          name,
-          email,
-          bio,
-          location,
-          image,
-          created_at,
-          profile_public
-      `;
+      setClauses.push(`bio = $${paramIndex++}`);
+      values.push(updates.bio);
     }
+    if (updates.location !== undefined) {
+      setClauses.push(`location = $${paramIndex++}`);
+      values.push(updates.location);
+    }
+    if (updates.profile_public !== undefined) {
+      setClauses.push(`profile_public = $${paramIndex++}`);
+      values.push(updates.profile_public);
+    }
+
+    if (setClauses.length === 0) {
+      return getUserProfileById(userId);
+    }
+
+    // Update user by providerAccountId or database ID
+    const queryText = `
+      UPDATE users 
+      SET ${setClauses.join(', ')}
+      WHERE id IN (
+        SELECT u.id FROM users u 
+        LEFT JOIN accounts a ON u.id = a."userId"
+        WHERE a."providerAccountId" = $${paramIndex} OR u.id::text = $${paramIndex}
+      )
+      RETURNING 
+        id,
+        name,
+        email,
+        bio,
+        location,
+        image,
+        created_at,
+        profile_public
+    `;
+
+    const result = await sql.unsafe(queryText, [...values, userId]);
 
     if (!result || result.length === 0) {
       return null;
     }
 
+    const updatedUser = result[0];
+
+    // Get the providerAccountId for the return value
+    const userWithAccount = await sql`
+      SELECT u.*, a."providerAccountId"
+      FROM users u 
+      LEFT JOIN accounts a ON u.id = a."userId"
+      WHERE u.id = ${updatedUser.id}
+      LIMIT 1
+    `;
+
+    const userRow = userWithAccount[0] || updatedUser;
+
     return {
-      id: result[0].id.toString(),
-      username: result[0].username,
-      name: result[0].name,
-      email: result[0].email,
-      bio: result[0].bio,
-      location: result[0].location,
-      image: result[0].image,
-      created_at: result[0].created_at,
-      profile_public: result[0].profile_public
+      id: userRow.providerAccountId || userRow.id.toString(),
+      username: userRow.name,
+      name: userRow.name,
+      email: userRow.email,
+      bio: userRow.bio,
+      location: userRow.location,
+      image: userRow.image,
+      created_at: userRow.created_at,
+      profile_public: userRow.profile_public
     };
   } catch (error) {
     console.error('Error updating user profile:', error);

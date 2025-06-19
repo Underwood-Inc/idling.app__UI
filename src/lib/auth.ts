@@ -32,7 +32,8 @@ export const nextAuth = NextAuth({
       if (token) {
         session.user = {
           ...session.user,
-          id: (token.sub || token.providerAccountId || '') as string,
+          // Use providerAccountId as the primary ID for consistency
+          id: (token.providerAccountId || token.sub || '') as string,
           providerAccountId: token.providerAccountId as string
         };
       }
