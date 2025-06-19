@@ -1,4 +1,4 @@
--- Migration: 0009-fix-concurrent-index-creation.sql
+-- Migration: 0005-fix-concurrent-index-creation.sql
 -- Purpose: Fix the concurrent index creation issues from migration 0007
 -- This migration properly separates CONCURRENT operations from transaction blocks
 -- NOTE: CONCURRENT operations must run outside transaction blocks
