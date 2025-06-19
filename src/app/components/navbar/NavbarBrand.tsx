@@ -1,5 +1,5 @@
 import { auth } from '../../../lib/auth';
-import Avatar from '../avatar/Avatar';
+import { Avatar } from '../avatar/Avatar';
 
 export async function NavbarBrand() {
   const session = await auth();

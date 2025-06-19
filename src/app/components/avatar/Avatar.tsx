@@ -1,14 +1,18 @@
 'use client';
+
 import { adventurer } from '@dicebear/collection';
 import { createAvatar } from '@dicebear/core';
-import { atom, useAtom } from 'jotai';
-import { memo, useEffect, useRef, useState } from 'react';
-import { AVATAR_SELECTORS } from 'src/lib/test-selectors/components/avatar.selectors';
+import { useAtom } from 'jotai';
+import { memo, useCallback, useMemo, useState } from 'react';
+import { avatarCacheAtom } from '../../../lib/state/atoms';
+import { InteractiveTooltip } from '../tooltip/InteractiveTooltip';
 import './Avatar.css';
 
 export type AvatarPropSizes = 'full' | 'lg' | 'md' | 'sm' | 'xs' | 'xxs';
 
-const avatarCacheAtom = atom<Record<string, string>>({});
+// Generate a stable fallback seed once per component instance
+const generateStableFallbackSeed = () =>
+  `fallback-${Math.random().toString(36).substring(2, 15)}`;
 
 const Avatar = memo(
   ({
@@ -23,218 +27,124 @@ const Avatar = memo(
     tooltipScale?: 2 | 3 | 4;
   }) => {
     const [avatarCache, setAvatarCache] = useAtom(avatarCacheAtom);
-    const cacheKey = seed || new Date().getTime().toString();
-    const [img, setImg] = useState(avatarCache[cacheKey] || null);
-    const [isLoading, setIsLoading] = useState(!avatarCache[cacheKey]);
-    const [error, setError] = useState(false);
+
+    // Create a stable seed that only changes when the seed prop changes
+    const stableSeed = useMemo(() => {
+      return seed || generateStableFallbackSeed();
+    }, [seed]);
+
+    // Check if we have a cached avatar
+    const cachedAvatar = avatarCache[stableSeed];
+
+    // Generate avatar using useMemo to prevent regeneration on every render
+    const avatarDataUri = useMemo(() => {
+      if (cachedAvatar) {
+        return cachedAvatar;
+      }
+
+      try {
+        const avatar = createAvatar(adventurer, {
+          seed: stableSeed
+        });
+        return avatar.toDataUri();
+      } catch (error) {
+        console.error('Failed to generate avatar:', error);
+        return null;
+      }
+    }, [stableSeed, cachedAvatar]);
+
+    // Cache the generated avatar
+    const cacheAvatar = useCallback(() => {
+      if (avatarDataUri && !avatarCache[stableSeed]) {
+        setAvatarCache((prev: Record<string, string>) => ({
+          ...prev,
+          [stableSeed]: avatarDataUri
+        }));
+      }
+    }, [avatarDataUri, stableSeed, avatarCache, setAvatarCache]);
+
+    // Cache the avatar when it's generated
+    useMemo(() => {
+      cacheAvatar();
+    }, [cacheAvatar]);
+
     const [showTooltip, setShowTooltip] = useState(false);
     const [position, setPosition] = useState({ top: 0, left: 0 });
-    const avatarRef = useRef<HTMLDivElement>(null);
-    const tooltipRef = useRef<HTMLDivElement>(null);
-    const hideTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-    useEffect(() => {
-      if (!avatarCache[cacheKey]) {
-        const newAvatar = createAvatar(adventurer, {
-          seed: cacheKey
-        }).toDataUri();
-        setAvatarCache((prev) => ({ ...prev, [cacheKey]: newAvatar }));
-        setImg(newAvatar);
-        setIsLoading(false);
-      } else {
-        setImg(avatarCache[cacheKey]);
-        setIsLoading(false);
-      }
-    }, [cacheKey, setAvatarCache, avatarCache]);
+    const handleMouseEnter = useCallback(
+      (e: React.MouseEvent) => {
+        if (!enableTooltip) return;
 
-    const updateTooltipPosition = () => {
-      if (!avatarRef.current || !tooltipRef.current) return;
-
-      const avatarRect = avatarRef.current.getBoundingClientRect();
-      const tooltipRect = tooltipRef.current.getBoundingClientRect();
-      const viewportHeight = window.innerHeight;
-      const viewportWidth = window.innerWidth;
-
-      // Calculate available space
-      const spaceAbove = avatarRect.top;
-      const spaceBelow = viewportHeight - avatarRect.bottom;
-
-      // Determine vertical position
-      let top: number;
-      if (spaceBelow >= tooltipRect.height || spaceBelow >= spaceAbove) {
-        // Position below if there's more space below
-        top = avatarRect.bottom + 8;
-      } else {
-        // Position above if there's more space above
-        top = avatarRect.top - tooltipRect.height - 8;
-      }
-
-      // Ensure tooltip stays within viewport vertically
-      top = Math.max(8, Math.min(top, viewportHeight - tooltipRect.height - 8));
-
-      // Determine horizontal position - center on avatar
-      let left = avatarRect.left + (avatarRect.width - tooltipRect.width) / 2;
-
-      // Ensure tooltip stays within viewport horizontally
-      left = Math.max(8, Math.min(left, viewportWidth - tooltipRect.width - 8));
-
-      setPosition({ top, left });
-    };
-
-    const handleMouseEnter = () => {
-      if (!enableTooltip) return;
-
-      if (hideTimeoutRef.current) {
-        clearTimeout(hideTimeoutRef.current);
-      }
-
-      const timeout = setTimeout(() => {
+        const rect = e.currentTarget.getBoundingClientRect();
+        setPosition({
+          top: rect.top + window.scrollY,
+          left: rect.left + window.scrollX + rect.width / 2
+        });
         setShowTooltip(true);
-        // Update position after a short delay to ensure content is rendered
-        setTimeout(updateTooltipPosition, 0);
-      }, 500);
-      hideTimeoutRef.current = timeout;
-    };
+      },
+      [enableTooltip]
+    );
 
-    const handleMouseLeave = () => {
+    const handleMouseLeave = useCallback(() => {
       if (!enableTooltip) return;
+      setShowTooltip(false);
+    }, [enableTooltip]);
 
-      if (hideTimeoutRef.current) {
-        clearTimeout(hideTimeoutRef.current);
-      }
-
-      const timeout = setTimeout(() => {
-        setShowTooltip(false);
-      }, 100);
-      hideTimeoutRef.current = timeout;
-    };
-
-    const handleTooltipMouseEnter = () => {
-      if (hideTimeoutRef.current) {
-        clearTimeout(hideTimeoutRef.current);
-      }
-    };
-
-    const handleTooltipMouseLeave = () => {
-      if (hideTimeoutRef.current) {
-        clearTimeout(hideTimeoutRef.current);
-      }
-      const timeout = setTimeout(() => {
-        setShowTooltip(false);
-      }, 100);
-      hideTimeoutRef.current = timeout;
-    };
-
-    useEffect(() => {
-      if (showTooltip) {
-        updateTooltipPosition();
-        window.addEventListener('scroll', updateTooltipPosition);
-        window.addEventListener('resize', updateTooltipPosition);
-      }
-
-      return () => {
-        window.removeEventListener('scroll', updateTooltipPosition);
-        window.removeEventListener('resize', updateTooltipPosition);
-      };
-    }, [showTooltip]);
-
-    useEffect(() => {
-      return () => {
-        if (hideTimeoutRef.current) {
-          clearTimeout(hideTimeoutRef.current);
-        }
-      };
-    }, []);
-
-    const handleLoad = () => {
-      setIsLoading(false);
-    };
-
-    const handleError = () => {
-      setIsLoading(false);
-      setError(true);
-    };
-
-    const getTooltipSize = () => {
-      const sizeMap = {
-        xxs: 2,
-        xs: 3,
-        sm: 5,
-        md: 7,
-        lg: 10,
-        full: 20
-      };
-      const baseSize = sizeMap[size] || 7; // Default to md size
-      return baseSize * tooltipScale;
-    };
-
-    return (
-      <>
+    if (!avatarDataUri) {
+      return (
         <div
-          ref={avatarRef}
-          className={`avatar ${size}`}
-          data-testid={AVATAR_SELECTORS.CONTAINER}
-          style={{ width: size, height: size }}
-          onMouseEnter={handleMouseEnter}
-          onMouseLeave={handleMouseLeave}
+          className={`avatar ${size} avatar--loading`}
+          data-testid="avatar-loading"
         >
-          {/* Always render image container to maintain layout */}
-          <div className="avatar__image-container">
-            {isLoading && (
-              <div className="avatar__loading-overlay">
-                <div className="avatar__grid-loader">
-                  {[...Array(9)].map((_, i) => (
-                    <span key={i} />
-                  ))}
-                </div>
-              </div>
-            )}
-            {!error && img && (
-              <img
-                src={img}
-                className={`avatar__img ${size}`}
-                alt="Avatar"
-                data-testid={AVATAR_SELECTORS.IMAGE}
-                onLoad={handleLoad}
-                onError={handleError}
-                style={{
-                  opacity: isLoading ? 0 : 1,
-                  transition: 'opacity 0.2s ease'
-                }}
-              />
-            )}
-          </div>
+          <div className="avatar__placeholder" />
         </div>
+      );
+    }
 
-        {/* Avatar Tooltip */}
-        {enableTooltip && showTooltip && !error && img && (
-          <div
-            ref={tooltipRef}
-            className="avatar-tooltip"
-            style={position}
-            onMouseEnter={handleTooltipMouseEnter}
-            onMouseLeave={handleTooltipMouseLeave}
-          >
+    const avatarElement = (
+      <div
+        className={`avatar ${size}`}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+        data-testid="avatar"
+      >
+        <img
+          src={avatarDataUri}
+          className={`avatar__img ${size}`}
+          alt="Avatar"
+          style={{
+            opacity: 1,
+            transition: 'opacity 0.2s ease'
+          }}
+        />
+      </div>
+    );
+
+    if (enableTooltip) {
+      return (
+        <InteractiveTooltip
+          content={
             <div
-              className="avatar-tooltip__container"
-              style={{
-                width: `${getTooltipSize()}rem`,
-                height: `${getTooltipSize()}rem`
-              }}
+              className={`avatar ${size === 'xs' ? 'lg' : size === 'xxs' ? 'lg' : 'full'}`}
+              style={{ transform: `scale(${tooltipScale})` }}
             >
               <img
-                src={img}
-                className="avatar-tooltip__image"
+                src={avatarDataUri}
+                className={`avatar__img ${size === 'xs' ? 'lg' : size === 'xxs' ? 'lg' : 'full'}`}
                 alt="Avatar (enlarged)"
               />
             </div>
-          </div>
-        )}
-      </>
-    );
+          }
+        >
+          {avatarElement}
+        </InteractiveTooltip>
+      );
+    }
+
+    return avatarElement;
   }
 );
 
 Avatar.displayName = 'Avatar';
 
-export default Avatar;
+export { Avatar };

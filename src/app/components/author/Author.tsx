@@ -1,8 +1,10 @@
 'use client';
 
 import React from 'react';
-import Avatar, { AvatarPropSizes } from '../avatar/Avatar';
+import { Avatar } from '../avatar/Avatar';
 import './Author.css';
+
+type AvatarPropSizes = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
 
 export interface AuthorProps {
   authorId: string;

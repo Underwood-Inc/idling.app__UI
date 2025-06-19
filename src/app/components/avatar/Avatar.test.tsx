@@ -2,7 +2,7 @@ import '@testing-library/jest-dom';
 import { render, screen } from '@testing-library/react';
 import { useAtom } from 'jotai';
 import { AVATAR_SELECTORS } from '../../../lib/test-selectors/components/avatar.selectors';
-import Avatar from './Avatar';
+import { Avatar } from './Avatar';
 
 // Mock the avatar cache atom
 const mockAvatarCache = {};
@@ -45,8 +45,8 @@ describe('Avatar', () => {
   });
 
   it('applies correct size class', async () => {
-    render(<Avatar seed="test-seed" size="full" />);
+    render(<Avatar seed="test-seed" size="xl" />);
     const img = await screen.findByTestId(AVATAR_SELECTORS.IMAGE);
-    expect(img).toHaveClass('avatar__img', 'full');
+    expect(img).toHaveClass('avatar__img', 'xl');
   });
 });

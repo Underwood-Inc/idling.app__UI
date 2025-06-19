@@ -3,12 +3,18 @@ import { signInAction, signOutAction } from './actions';
 import './AuthButtons.css';
 
 export type SignInProviders = 'twitch' | 'google';
-export function SignIn({ provider }: Readonly<{ provider: SignInProviders }>) {
+export function SignIn({
+  provider,
+  redirectTo
+}: Readonly<{
+  provider: SignInProviders;
+  redirectTo?: string;
+}>) {
   return (
     <form
       action={async () => {
         'use server';
-        await signInAction(provider);
+        await signInAction(provider, redirectTo);
       }}
     >
       <button

@@ -1520,21 +1520,56 @@ class FakerContentGenerator {
     const firstName = faker.person.firstName();
     const lastName = faker.person.lastName();
 
+    // Enhanced username formats including typical third-party auth formats
     const usernameFormats = [
+      // Standard formats
       `${firstName.toLowerCase()}${lastName.toLowerCase()}`,
       `${firstName.toLowerCase()}_${lastName.toLowerCase()}`,
       `${firstName.toLowerCase()}.${lastName.toLowerCase()}`,
       `${firstName.toLowerCase()}${faker.number.int({ min: 10, max: 999 })}`,
+
+      // Third-party auth typical formats (Google, GitHub, etc.)
+      `${firstName} ${lastName}`, // Full name with space (common in Google auth)
+      `${firstName.toLowerCase()} ${lastName.toLowerCase()}`, // Lowercase with space
+      `${firstName} ${lastName.charAt(0)}.`, // First name + last initial
+      `${firstName.charAt(0)}. ${lastName}`, // First initial + last name
+      `${firstName.toLowerCase()}${lastName.charAt(0).toLowerCase()}`, // firstname + last initial
+
+      // Professional formats
+      `${firstName}.${lastName}@${faker.helpers.arrayElement(['dev', 'tech', 'code'])}`,
+      `${firstName}_${lastName}_${faker.helpers.arrayElement(['dev', 'engineer', 'coder'])}`,
+
+      // Tech-focused formats
       `${industry.technologies[0].toLowerCase()}_${firstName.toLowerCase()}`,
       `${persona.type.split('_')[0]}${faker.number.int({ min: 10, max: 9999 })}`,
       `${faker.hacker.noun()}${faker.number.int({ min: 10, max: 999 })}`,
-      `${faker.company.buzzNoun()}${faker.number.int({ min: 10, max: 99 })}`
+      `${faker.company.buzzNoun()}${faker.number.int({ min: 10, max: 99 })}`,
+
+      // Modern formats
+      `${firstName.toLowerCase()}-${lastName.toLowerCase()}`,
+      `${firstName.toLowerCase()}+${lastName.toLowerCase()}`,
+      `${lastName.toLowerCase()}.${firstName.toLowerCase()}`,
+
+      // Abbreviated formats
+      `${firstName.substring(0, 3)}${lastName.substring(0, 3)}${faker.number.int({ min: 10, max: 99 })}`,
+      `${firstName.charAt(0)}${lastName}${faker.number.int({ min: 1000, max: 9999 })}`,
+
+      // International formats
+      `${firstName.toLowerCase()}_${lastName.toLowerCase()}_${faker.number.int({ min: 10, max: 99 })}`,
+      `${lastName.toLowerCase()}_${firstName.charAt(0).toLowerCase()}`
     ];
 
-    const username = faker.helpers
-      .arrayElement(usernameFormats)
-      .replace(/[^a-z0-9._]/g, '')
-      .substring(0, 20);
+    let username = faker.helpers.arrayElement(usernameFormats);
+
+    // Clean username for database storage (remove special chars except allowed ones)
+    // But preserve spaces for third-party auth formats
+    if (username.includes(' ') && Math.random() < 0.3) {
+      // Keep some usernames with spaces (typical of Google/Facebook auth)
+      username = username.substring(0, 50);
+    } else {
+      // Clean for traditional username format
+      username = username.replace(/[^a-z0-9._\-+@]/g, '').substring(0, 50);
+    }
 
     return {
       username: username,
@@ -1749,7 +1784,7 @@ class FakerContentGenerator {
     }));
   }
 
-  generateContent(user, index) {
+  generateContent(user, index, allUsers = []) {
     faker.seed(parseInt(user.seed.substring(8, 16), 16) + index);
 
     const contentType = faker.helpers.arrayElement(user.persona.contentTypes);
@@ -1757,7 +1792,13 @@ class FakerContentGenerator {
       this.contentTemplates[contentType]
     );
 
-    const content = this.fillTemplate(template, user, contentType);
+    let content = this.fillTemplate(template, user, contentType);
+
+    // Add user mentions 30% of the time
+    if (Math.random() < 0.3 && allUsers.length > 0) {
+      content = this.addUserMentions(content, user, allUsers);
+    }
+
     const hashtags = this.generateHashtags(user, contentType, content);
 
     return {
@@ -1895,6 +1936,51 @@ class FakerContentGenerator {
     );
 
     return selectedHashtags;
+  }
+
+  addUserMentions(content, currentUser, allUsers) {
+    // Don't mention yourself
+    const otherUsers = allUsers.filter(
+      (u) => u.author_id !== currentUser.author_id
+    );
+    if (otherUsers.length === 0) return content;
+
+    // Randomly select 1-3 users to mention
+    const numMentions = Math.min(
+      faker.number.int({ min: 1, max: 3 }),
+      otherUsers.length
+    );
+    const mentionedUsers = faker.helpers.arrayElements(otherUsers, numMentions);
+
+    // Add mentions naturally to the content
+    const mentionTemplates = [
+      `Thanks @{username} for the insights!`,
+      `@{username} what do you think about this?`,
+      `As @{username} mentioned earlier,`,
+      `Great point @{username}!`,
+      `@{username} might have experience with this.`,
+      `Similar to what @{username} suggested,`,
+      `@{username} @{username2} thoughts?`
+    ];
+
+    const template = faker.helpers.arrayElement(mentionTemplates);
+    let mentionText = template;
+
+    // Replace placeholders with actual usernames
+    mentionedUsers.forEach((user, index) => {
+      const placeholder = index === 0 ? '{username}' : `{username${index + 1}}`;
+      mentionText = mentionText.replace(placeholder, user.profile.username);
+    });
+
+    // Remove any unused placeholders
+    mentionText = mentionText.replace(/@\{username\d*\}/g, '').trim();
+
+    // Add mention to content (50% at start, 50% at end)
+    if (Math.random() < 0.5) {
+      return `${mentionText} ${content}`;
+    } else {
+      return `${content} ${mentionText}`;
+    }
   }
 
   calculateEngagementPotential(user, contentType) {
@@ -2148,7 +2234,7 @@ async function createPosts(users, config, generator) {
       // Use persona posting frequency
       if (Math.random() > user.persona.postFreq) continue;
 
-      const contentData = generator.generateContent(user, postIndex);
+      const contentData = generator.generateContent(user, postIndex, users);
 
       // Generate realistic titles
       const titleTemplates = [

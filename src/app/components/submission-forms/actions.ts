@@ -111,13 +111,30 @@ export async function createSubmissionAction(
     return { status: -1, error: 'Authentication error.' };
   }
 
-  // Extract tags from title and content
+  // Extract tags from title and content (these come without # prefix)
   const titleTags = extractTagsFromText(data.submission_title);
   const contentTags = extractTagsFromText(data.submission_content || '');
   const explicitTags = data.tags || [];
 
+  // Ensure all tags are normalized (without # prefix)
+  const normalizedTitleTags = titleTags.map((tag) =>
+    tag.startsWith('#') ? tag.slice(1) : tag
+  );
+  const normalizedContentTags = contentTags.map((tag) =>
+    tag.startsWith('#') ? tag.slice(1) : tag
+  );
+  const normalizedExplicitTags = explicitTags.map((tag) =>
+    tag.startsWith('#') ? tag.slice(1) : tag
+  );
+
   // Combine all tags and remove duplicates
-  const allTags = [...new Set([...titleTags, ...contentTags, ...explicitTags])];
+  const allTags = [
+    ...new Set([
+      ...normalizedTitleTags,
+      ...normalizedContentTags,
+      ...normalizedExplicitTags
+    ])
+  ];
 
   const threadParentId = formData.get('thread_parent_id');
 
@@ -307,8 +324,25 @@ export async function editSubmissionAction(
   const contentTags = extractTagsFromText(submissionContent);
   const explicitTags = data.tags || [];
 
+  // Ensure all tags are normalized (without # prefix)
+  const normalizedTitleTags = titleTags.map((tag) =>
+    tag.startsWith('#') ? tag.slice(1) : tag
+  );
+  const normalizedContentTags = contentTags.map((tag) =>
+    tag.startsWith('#') ? tag.slice(1) : tag
+  );
+  const normalizedExplicitTags = explicitTags.map((tag) =>
+    tag.startsWith('#') ? tag.slice(1) : tag
+  );
+
   // Combine all tags and remove duplicates
-  const allTags = [...new Set([...titleTags, ...contentTags, ...explicitTags])];
+  const allTags = [
+    ...new Set([
+      ...normalizedTitleTags,
+      ...normalizedContentTags,
+      ...normalizedExplicitTags
+    ])
+  ];
 
   try {
     const result = await sql`

@@ -108,6 +108,15 @@ export const shouldUpdateAtom = atom<boolean>(false);
  */
 export const sessionCacheAtom = atomWithStorage<any>('session-cache', null);
 
+/**
+ * Avatar cache atom - stores generated avatar SVGs to prevent regeneration
+ * v2: Changed from lorelei to adventurer style - cache key updated to force regeneration
+ */
+export const avatarCacheAtom = atomWithStorage<Record<string, string>>(
+  'avatar-cache-v2-adventurer',
+  {}
+);
+
 // ============================================================================
 // PAGINATION ACTIONS - Exact match to PaginationContext reducer
 // ============================================================================

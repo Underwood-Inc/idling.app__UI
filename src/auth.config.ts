@@ -58,6 +58,22 @@ export const authConfig: NextAuthConfig = {
 
       return isAuthenticated;
     },
+    async redirect({ url, baseUrl }) {
+      // Handle custom redirects
+      if (url.startsWith('/')) {
+        return `${baseUrl}${url}`;
+      }
+      // Handle callback URLs with redirect parameter
+      if (url.startsWith(baseUrl)) {
+        const urlObj = new URL(url);
+        const redirectParam = urlObj.searchParams.get('redirect');
+        if (redirectParam && redirectParam.startsWith('/')) {
+          return `${baseUrl}${redirectParam}`;
+        }
+        return url;
+      }
+      return baseUrl;
+    },
     async signIn({ account, user }) {
       if (account?.providerAccountId) {
         (user as UserWithProviderAccountId).providerAccountId =

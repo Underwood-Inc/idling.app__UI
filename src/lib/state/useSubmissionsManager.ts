@@ -180,9 +180,7 @@ export function useSubmissionsManager({
     const pageSizeParam = searchParams.get('pageSize');
 
     const page = pageParam ? Math.max(1, parseInt(pageParam)) : 1;
-    const pageSize = pageSizeParam
-      ? Math.max(10, parseInt(pageSizeParam))
-      : 100;
+    const pageSize = pageSizeParam ? Math.max(10, parseInt(pageSizeParam)) : 10;
 
     // Build filters array from URL
     const urlFilters: Filter<PostFilters>[] = [...initialFilters];

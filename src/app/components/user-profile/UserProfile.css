@@ -1,0 +1,216 @@
+/* UserProfile Component Styles */
+
+.user-profile {
+  background: var(--color-background-card);
+  border-radius: var(--border-radius-md);
+  border: 1px solid var(--color-border);
+  padding: var(--spacing-md);
+  transition: all 0.2s ease;
+}
+
+.user-profile:hover {
+  border-color: var(--color-border-hover);
+}
+
+/* Header Section */
+.user-profile__header {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-sm);
+}
+
+.user-profile__header-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.user-profile__name {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  margin: 0 0 var(--spacing-xs) 0;
+  word-wrap: break-word;
+}
+
+.user-profile__location {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+.user-profile__join-date {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-tertiary);
+  margin: var(--spacing-xs) 0 0 0;
+}
+
+/* Bio Section */
+.user-profile__bio {
+  margin-top: var(--spacing-md);
+}
+
+.user-profile__bio h3 {
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  margin: 0 0 var(--spacing-xs) 0;
+}
+
+.user-profile__bio p {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  line-height: 1.5;
+  margin: 0;
+  word-wrap: break-word;
+}
+
+/* Footer Section */
+.user-profile__footer {
+  margin-top: var(--spacing-md);
+  padding-top: var(--spacing-sm);
+  border-top: 1px solid var(--color-border);
+}
+
+.user-profile__footer .user-profile__join-date {
+  margin: 0;
+  font-size: var(--font-size-xs);
+}
+
+/* Variant: Full Profile */
+.user-profile--full {
+  max-width: 400px;
+}
+
+.user-profile--full .user-profile__name {
+  font-size: var(--font-size-xl);
+}
+
+.user-profile--full .user-profile__bio {
+  margin-top: var(--spacing-lg);
+}
+
+/* Variant: Compact Profile */
+.user-profile--compact {
+  padding: var(--spacing-sm);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  margin-bottom: 0;
+}
+
+.user-profile--compact .user-profile__header {
+  margin-bottom: 0;
+  flex: 1;
+}
+
+.user-profile--compact .user-profile__info {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.user-profile--compact .user-profile__name {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  margin: 0;
+}
+
+.user-profile--compact .user-profile__location {
+  font-size: var(--font-size-xs);
+}
+
+/* Variant: Tooltip Profile */
+.user-profile--tooltip {
+  background: var(--color-background-tooltip);
+  border: 1px solid var(--color-border-tooltip);
+  border-radius: var(--border-radius-md);
+  box-shadow: var(--shadow-tooltip);
+  padding: var(--spacing-md);
+  min-width: 280px;
+  max-width: 320px;
+  position: fixed;
+  z-index: var(--z-index-tooltip);
+  backdrop-filter: blur(8px);
+}
+
+.user-profile--tooltip .user-profile__name {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  margin: 0 0 var(--spacing-xs) 0;
+}
+
+.user-profile--tooltip .user-profile__location {
+  font-size: var(--font-size-xs);
+  margin: 0;
+}
+
+.user-profile--tooltip .user-profile__bio {
+  margin-top: var(--spacing-sm);
+}
+
+.user-profile--tooltip .user-profile__bio p {
+  font-size: var(--font-size-xs);
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.user-profile--tooltip .user-profile__footer {
+  margin-top: var(--spacing-sm);
+  padding-top: var(--spacing-sm);
+  border-top: 1px solid var(--color-border-tooltip);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .user-profile--full {
+    max-width: 100%;
+  }
+
+  .user-profile--tooltip {
+    min-width: 240px;
+    max-width: 280px;
+    padding: var(--spacing-sm);
+  }
+
+  .user-profile__header {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .user-profile--compact .user-profile__header {
+    flex-direction: row;
+    text-align: left;
+  }
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+  .user-profile--tooltip {
+    background: var(--color-background-tooltip-dark, rgba(23, 23, 23, 0.95));
+    border-color: var(--color-border-tooltip-dark, rgba(255, 255, 255, 0.1));
+  }
+}
+
+/* Animation for tooltip appearance */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.user-profile--tooltip {
+  animation: fadeIn 0.2s ease-out;
+}
