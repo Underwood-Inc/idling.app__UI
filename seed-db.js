@@ -587,6 +587,11 @@ async function clearDatabase() {
 async function createMainPosts(users, count) {
   console.log(`📝 Creating ${count} main posts in batches...`);
 
+  // Get the starting ID once at the beginning
+  const initialQuery =
+    await sql`SELECT COALESCE(MAX(submission_id), 0) as max_id FROM submissions`;
+  let currentMaxId = initialQuery[0].max_id;
+
   const batches = Math.ceil(count / BATCH_SIZE);
   let totalCreated = 0;
   const createdPostIds = []; // Track created post IDs internally
@@ -621,10 +626,8 @@ async function createMainPosts(users, count) {
       ]);
     }
 
-    // Get the current max ID before inserting
-    const beforeInsert =
-      await sql`SELECT COALESCE(MAX(submission_id), 0) as max_id FROM submissions`;
-    const startId = beforeInsert[0].max_id + 1;
+    // Calculate the starting ID for this batch (no database query needed!)
+    const startId = currentMaxId + 1;
 
     // True batch insert using postgres multi-row VALUES
     await sql`
@@ -633,10 +636,13 @@ async function createMainPosts(users, count) {
       ) VALUES ${sql(posts)}
     `;
 
-    // Track the IDs of posts we just created (sequential IDs)
+    // Track the IDs of posts we just created (sequential IDs) - pure math, no queries
     for (let i = 0; i < batchSize; i++) {
       createdPostIds.push(startId + i);
     }
+
+    // Update our internal counter for the next batch
+    currentMaxId += batchSize;
 
     totalCreated += batchSize;
     console.log(`  Created ${totalCreated}/${count} main posts...`);
@@ -653,15 +659,18 @@ async function createMainPosts(users, count) {
 /**
  * Create replies in batches - using internal post ID tracking (NO SQL QUERIES)
  */
-async function createReplies(users, parentPostIds, count) {
+async function createReplies(users, parentPostIds, count, startingMaxId) {
   console.log(
     `💬 Creating ${count} replies using ${parentPostIds.length} tracked parent posts...`
   );
 
   if (parentPostIds.length === 0) {
     console.error('❌ No parent post IDs provided');
-    return [];
+    return { replyIds: [], nextMaxId: startingMaxId };
   }
+
+  // Use the provided starting max ID instead of querying
+  let currentMaxId = startingMaxId;
 
   const batches = Math.ceil(count / BATCH_SIZE);
   let totalCreated = 0;
@@ -705,10 +714,8 @@ async function createReplies(users, parentPostIds, count) {
       ]);
     }
 
-    // Get the current max ID before inserting to track new reply IDs
-    const beforeInsert =
-      await sql`SELECT COALESCE(MAX(submission_id), 0) as max_id FROM submissions`;
-    const startId = beforeInsert[0].max_id + 1;
+    // Calculate the starting ID for this batch (no database query needed!)
+    const startId = currentMaxId + 1;
 
     // Single batch insert - no queries during loop
     await sql`
@@ -717,10 +724,13 @@ async function createReplies(users, parentPostIds, count) {
       ) VALUES ${sql(replies)}
     `;
 
-    // Track the IDs of replies we just created (sequential IDs)
+    // Track the IDs of replies we just created (sequential IDs) - pure math, no queries
     for (let i = 0; i < batchSize; i++) {
       createdReplyIds.push(startId + i);
     }
+
+    // Update our internal counter for the next batch
+    currentMaxId += batchSize;
 
     totalCreated += batchSize;
 
@@ -745,25 +755,28 @@ async function createReplies(users, parentPostIds, count) {
     `📊 Tracked ${createdReplyIds.length} reply IDs for nested reply generation`
   );
 
-  return createdReplyIds; // Return tracked reply IDs
+  return { replyIds: createdReplyIds, nextMaxId: currentMaxId };
 }
 
 /**
  * Create nested replies (replies to replies) - using internal tracking (NO SQL QUERIES)
  */
-async function createNestedReplies(users, replyIds, count) {
+async function createNestedReplies(users, replyIds, count, startingMaxId) {
   console.log(
     `🔗 Creating ${count} nested replies using ${replyIds.length} tracked reply IDs...`
   );
 
   if (replyIds.length === 0) {
     console.error('❌ No reply IDs provided for nested replies');
-    return;
+    return startingMaxId;
   }
 
   console.log(
     `📊 Using ${replyIds.length} internally tracked reply IDs (no database queries needed)`
   );
+
+  // Use the provided starting max ID instead of querying
+  let currentMaxId = startingMaxId;
 
   const batches = Math.ceil(count / BATCH_SIZE);
   let totalCreated = 0;
@@ -813,6 +826,9 @@ async function createNestedReplies(users, replyIds, count) {
       ) VALUES ${sql(nestedReplies)}
     `;
 
+    // Update our internal counter for the next batch (pure math, no queries)
+    currentMaxId += batchSize;
+
     totalCreated += batchSize;
 
     // Progress reporting every 25k records
@@ -832,6 +848,7 @@ async function createNestedReplies(users, replyIds, count) {
   }
 
   console.log(`✅ Created ${totalCreated} nested replies`);
+  return currentMaxId;
 }
 
 /**
@@ -955,12 +972,23 @@ async function main() {
 
     // Step 4: Create main posts
     const mainPostIds = await createMainPosts(users, SEED_POSTS_COUNT);
+    const mainPostMaxId = mainPostIds[mainPostIds.length - 1] || 0; // Get the highest ID from main posts
 
     // Step 5: Create replies
-    const replies = await createReplies(users, mainPostIds, SEED_REPLIES_COUNT);
+    const replies = await createReplies(
+      users,
+      mainPostIds,
+      SEED_REPLIES_COUNT,
+      mainPostMaxId
+    );
 
     // Step 6: Create nested replies
-    await createNestedReplies(users, replies, SEED_NESTED_REPLIES_COUNT);
+    await createNestedReplies(
+      users,
+      replies.replyIds,
+      SEED_NESTED_REPLIES_COUNT,
+      replies.nextMaxId
+    );
 
     // Step 7: Refresh materialized view
     if (!SKIP_MATERIALIZED_VIEW) {
