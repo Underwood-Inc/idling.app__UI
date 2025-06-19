@@ -21,7 +21,6 @@ export async function getUserProfile(
     const userResult = await sql`
       SELECT 
         id,
-        username,
         name,
         email,
         bio,
@@ -30,8 +29,8 @@ export async function getUserProfile(
         created_at,
         profile_public
       FROM users 
-      WHERE LOWER(username) = LOWER(${username})
-         OR LOWER(name) = LOWER(${username})
+      WHERE LOWER(name) = LOWER(${username})
+         OR LOWER(split_part(email, '@', 1)) = LOWER(${username})
          OR id = ${username}
       LIMIT 1
     `;
@@ -98,7 +97,7 @@ export async function getUserProfile(
           COUNT(CASE WHEN thread_parent_id IS NOT NULL THEN 1 END) as replies_count,
           MAX(submission_datetime) as last_activity
         FROM submissions 
-        WHERE author_id = ${user.id} OR LOWER(author) = LOWER(${user.username || user.name})
+        WHERE author_id = ${user.id} OR LOWER(author) = LOWER(${user.name})
       `;
 
       if (submissionStats.length > 0) {
@@ -110,7 +109,7 @@ export async function getUserProfile(
 
     return {
       id: user.id.toString(),
-      username: user.username,
+      username: user.name, // Use name as username for display
       name: user.name,
       email: user.email,
       bio: user.bio,
@@ -169,7 +168,7 @@ export async function getUserProfileById(
           COUNT(CASE WHEN thread_parent_id IS NOT NULL THEN 1 END) as replies_count,
           MAX(submission_datetime) as last_activity
         FROM submissions 
-        WHERE author_id = ${userId} OR LOWER(author) = LOWER(${user.username || user.name})
+        WHERE author_id = ${userId} OR LOWER(author) = LOWER(${user.name})
       `;
 
       if (submissionStats.length > 0) {
@@ -181,7 +180,7 @@ export async function getUserProfileById(
 
     return {
       id: user.id.toString(),
-      username: user.username,
+      username: user.name, // Use name as username for display
       name: user.name,
       email: user.email,
       bio: user.bio,
@@ -402,17 +401,8 @@ export async function updateUserBioAction(formData: FormData): Promise<{
         };
       }
 
-      // Enhanced profile ownership verification
-      const sessionUserId = session.user.id;
-      const sessionUserName = session.user.name;
-      const sessionUserEmail = session.user.email;
-
-      const canEdit =
-        userProfile.id === sessionUserId ||
-        (sessionUserName && userProfile.username === sessionUserName) ||
-        (sessionUserEmail && userProfile.username === sessionUserEmail) ||
-        (sessionUserName && userProfile.name === sessionUserName) ||
-        (sessionUserEmail && userProfile.name === sessionUserEmail);
+      // Simple and secure: only check authenticated user ID
+      const canEdit = userProfile.id === session.user.id;
 
       if (!canEdit) {
         return {
@@ -488,17 +478,8 @@ export async function updateBioAction(
       };
     }
 
-    // Enhanced profile ownership verification
-    const sessionUserId = session.user.id;
-    const sessionUserName = session.user.name;
-    const sessionUserEmail = session.user.email;
-
-    const canEdit =
-      userProfile.id === sessionUserId ||
-      (sessionUserName && userProfile.username === sessionUserName) ||
-      (sessionUserEmail && userProfile.username === sessionUserEmail) ||
-      (sessionUserName && userProfile.name === sessionUserName) ||
-      (sessionUserEmail && userProfile.name === sessionUserEmail);
+    // Simple and secure: only check authenticated user ID
+    const canEdit = userProfile.id === session.user.id;
 
     if (!canEdit) {
       return {
@@ -508,7 +489,7 @@ export async function updateBioAction(
     }
 
     // Update the profile
-    const updatedProfile = await updateUserProfile(sessionUserId, {
+    const updatedProfile = await updateUserProfile(session.user.id, {
       bio: bio || undefined
     });
 
@@ -520,7 +501,7 @@ export async function updateBioAction(
     }
 
     // Get the complete profile with stats
-    const completeProfile = await getUserProfileById(sessionUserId);
+    const completeProfile = await getUserProfileById(session.user.id);
 
     return {
       success: true,

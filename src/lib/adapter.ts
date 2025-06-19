@@ -47,76 +47,23 @@ export default function CustomPostgresAdapter(client: Pool): Adapter {
     async createUser(user: Omit<AdapterUser, 'id'>) {
       const { name, email, emailVerified, image } = user;
 
-      // Generate a username from name or email for profile compatibility
-      const generateUsername = async (
-        name: string | null,
-        email: string | null
-      ): Promise<string> => {
-        let baseUsername: string;
-
-        if (name) {
-          // Clean name for username, allowing spaces for third-party auth
-          baseUsername = name
-            .replace(/[^a-zA-Z0-9\s._\-+@]/g, '')
-            .substring(0, 90);
-        } else if (email) {
-          // Use email prefix as fallback
-          baseUsername = email
-            .split('@')[0]
-            .replace(/[^a-zA-Z0-9._\-+]/g, '')
-            .substring(0, 90);
-        } else {
-          baseUsername = 'user';
-        }
-
-        // Check for username uniqueness and append number if needed
-        let finalUsername = baseUsername;
-        let counter = 1;
-
-        while (counter < 100) {
-          // Prevent infinite loops
-          try {
-            const existingUser = await client.query(
-              'SELECT id FROM users WHERE username = $1',
-              [finalUsername]
-            );
-
-            if (existingUser.rowCount === 0) {
-              break; // Username is unique
-            }
-
-            finalUsername = `${baseUsername}_${counter}`;
-            counter++;
-          } catch (error) {
-            // If there's an error checking, just use the base username
-            break;
-          }
-        }
-
-        return finalUsername.substring(0, 100); // Ensure it fits in the column
-      };
-
-      const username = await generateUsername(name || null, email || null);
-
       const sql = `
         INSERT INTO users (
           name, 
           email, 
           "emailVerified", 
           image, 
-          username, 
           profile_public, 
           created_at
         ) 
-        VALUES ($1, $2, $3, $4, $5, $6, CURRENT_TIMESTAMP) 
-        RETURNING id, name, email, "emailVerified", image, username, profile_public, created_at`;
+        VALUES ($1, $2, $3, $4, $5, CURRENT_TIMESTAMP) 
+        RETURNING id, name, email, "emailVerified", image, profile_public, created_at`;
 
       const result = await client.query(sql, [
         name,
         email,
         emailVerified,
         image,
-        username,
         true // Default to public profile
       ]);
 

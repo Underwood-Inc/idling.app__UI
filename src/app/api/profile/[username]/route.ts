@@ -83,18 +83,8 @@ export async function PATCH(
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
-    // Verify authorization - user can only update their own profile
-    const currentUserId = session.user.id;
-    const currentUserName = session.user.name;
-    const currentUserEmail = session.user.email;
-
-    const isAuthorized =
-      currentUserId === targetProfile.id ||
-      (currentUserName && currentUserName === targetProfile.username) ||
-      (currentUserName && currentUserName === targetProfile.name) ||
-      (currentUserEmail && currentUserEmail === targetProfile.email);
-
-    if (!isAuthorized) {
+    // Simple and secure: only allow users to edit their own profile
+    if (session.user.id !== targetProfile.id) {
       return NextResponse.json(
         { error: 'Forbidden. You can only update your own profile.' },
         { status: 403 }
