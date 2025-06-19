@@ -32,16 +32,6 @@ export function UserProfile({
   const [bioText, setBioText] = useState(user.bio || '');
   const [isSaving, setIsSaving] = useState(false);
 
-  // TEMPORARY DEBUG: Log what user.id contains
-  useEffect(() => {
-    console.log('🟢 UserProfile DEBUG:', {
-      userId: user.id,
-      userName: user.name,
-      userEmail: user.email,
-      fullUser: JSON.stringify(user, null, 2)
-    });
-  }, [user]);
-
   // Sync bioText when user profile changes
   useEffect(() => {
     setBioText(user.bio || '');
