@@ -82,29 +82,24 @@ export const authConfig: NextAuthConfig = {
       return true;
     },
     async jwt({ token, account, user }) {
+      // Simple JWT callback - just store providerAccountId from account or user
       if (account?.providerAccountId) {
         (token as JWTWithProviderAccountId).providerAccountId =
           account.providerAccountId;
       } else if (user?.providerAccountId) {
         (token as JWTWithProviderAccountId).providerAccountId =
           user.providerAccountId;
-      } else if (token?.sub) {
-        // Use sub as providerAccountId if no other ID is available
-        (token as JWTWithProviderAccountId).providerAccountId = token.sub;
       }
+
       return token;
     },
     async session({ session, token }) {
+      // Use providerAccountId as the primary ID for consistency
       if (token.providerAccountId) {
+        session.user.id = token.providerAccountId as string;
         session.user.providerAccountId = token.providerAccountId as string;
       }
-      // Use providerAccountId as the primary ID for consistency across logins
-      session.user.id = (token.providerAccountId || token.sub || '') as string;
-      // Ensure required fields are set
-      session.user.name =
-        session.user.name || token.name || token.email?.split('@')[0] || 'User';
-      session.user.email = session.user.email || token.email || '';
-      session.user.image = session.user.image || token.picture || '';
+
       return session;
     }
   },

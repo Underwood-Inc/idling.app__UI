@@ -91,7 +91,7 @@ export default function CustomPostgresAdapter(client: Pool): Adapter {
       provider
     }): Promise<AdapterUser | null> {
       const sql = `
-          select u.* from users u join accounts a on u.id = a."userId"
+          select u.*, a."providerAccountId" from users u join accounts a on u.id = a."userId"
           where 
           a.provider = $1 
           and 
@@ -99,7 +99,16 @@ export default function CustomPostgresAdapter(client: Pool): Adapter {
 
       const result = await client.query(sql, [provider, providerAccountId]);
 
-      return result.rowCount !== 0 ? result.rows[0] : null;
+      if (result.rowCount === 0) {
+        return null;
+      }
+
+      const user = result.rows[0];
+      // Attach providerAccountId to the user object for JWT callback
+      return {
+        ...user,
+        providerAccountId: user.providerAccountId
+      };
     },
     async updateUser(user: Partial<AdapterUser>): Promise<AdapterUser> {
       const fetchSql = `select * from users where id = $1`;

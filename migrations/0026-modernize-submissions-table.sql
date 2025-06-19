@@ -3,9 +3,18 @@
 -- Add the new user_id column
 ALTER TABLE submissions ADD COLUMN IF NOT EXISTS user_id INTEGER;
 
--- Add foreign key constraint
-ALTER TABLE submissions ADD CONSTRAINT IF NOT EXISTS fk_submissions_user_id 
-  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL;
+-- Add foreign key constraint (with error handling)
+DO $$ 
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.table_constraints 
+    WHERE constraint_name = 'fk_submissions_user_id' 
+    AND table_name = 'submissions'
+  ) THEN
+    ALTER TABLE submissions ADD CONSTRAINT fk_submissions_user_id 
+      FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL;
+  END IF;
+END $$;
 
 -- Create index for performance
 CREATE INDEX IF NOT EXISTS idx_submissions_user_id ON submissions(user_id);
@@ -43,7 +52,16 @@ WHERE submission_title IS NULL OR submission_title = '';
 -- Add NOT NULL constraint to user_id after data migration
 -- Note: This will fail if there are orphaned submissions, which is intentional
 -- to identify data integrity issues
-ALTER TABLE submissions ALTER COLUMN user_id SET NOT NULL;
+DO $$
+BEGIN
+  -- Only add NOT NULL if all submissions have user_id set
+  IF (SELECT COUNT(*) FROM submissions WHERE user_id IS NULL) = 0 THEN
+    ALTER TABLE submissions ALTER COLUMN user_id SET NOT NULL;
+  ELSE
+    RAISE NOTICE 'Cannot set user_id NOT NULL: % submissions have NULL user_id', 
+      (SELECT COUNT(*) FROM submissions WHERE user_id IS NULL);
+  END IF;
+END $$;
 
 -- Legacy fields can be kept for transition period but are no longer primary
 -- They will be removed in a future migration once all code is updated

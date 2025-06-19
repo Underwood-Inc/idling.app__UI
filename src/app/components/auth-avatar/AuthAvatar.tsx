@@ -31,6 +31,15 @@ export function AuthAvatar({
     session?.user?.email ||
     'anonymous';
 
+  // Debug logging to track avatar seed differences
+  console.log('🔴 DEBUG: HEADER AuthAvatar seed:', {
+    seed,
+    sessionUserId: session?.user?.id,
+    sessionUserName: session?.user?.name,
+    sessionUserEmail: session?.user?.email,
+    providerAccountId: session?.user?.providerAccountId
+  });
+
   return (
     <div className={className}>
       <Avatar

@@ -1,5 +1,7 @@
-import { AuthAvatarServer } from '../auth-avatar';
+'use client';
 
-export async function NavbarBrand() {
-  return <AuthAvatarServer size="sm" />;
+import { AuthAvatar } from '../auth-avatar';
+
+export function NavbarBrand() {
+  return <AuthAvatar size="sm" />;
 }
