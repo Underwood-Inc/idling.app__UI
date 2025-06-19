@@ -173,7 +173,7 @@ export function CustomFilterInput({
 
         // Validate username format (alphanumeric, underscore, hyphen)
         if (!/^[a-zA-Z0-9_-]+$/.test(username)) {
-          console.warn('Invalid username format:', username);
+          // console.warn('Invalid username format:', username);
           return null;
         }
 
@@ -235,7 +235,7 @@ export function CustomFilterInput({
   };
 
   const handlePillClick = (pillText: string, action: 'edit' | 'remove') => {
-    console.log('DEBUG: CustomFilterInput handlePillClick:', pillText, action);
+    // console.log('DEBUG: CustomFilterInput handlePillClick:', pillText, action);
 
     if (action === 'edit') {
       // For incomplete pills, the SmartPillInput will handle entering edit mode
@@ -245,9 +245,9 @@ export function CustomFilterInput({
     } else if (action === 'remove') {
       // SmartPillInput handles the removal directly and calls onChange
       // We don't need to do anything here - just log for debugging
-      console.log(
-        'DEBUG: CustomFilterInput: pill removal handled by SmartPillInput'
-      );
+      // console.log(
+      //   'DEBUG: CustomFilterInput: pill removal handled by SmartPillInput'
+      // );
     }
   };
 
@@ -328,7 +328,7 @@ export function CustomFilterInput({
 
       // Validate username format (alphanumeric, underscore, hyphen)
       if (!/^[a-zA-Z0-9_-]+$/.test(username)) {
-        console.warn('Invalid username format:', username);
+        // console.warn('Invalid username format:', username);
         return null;
       }
 

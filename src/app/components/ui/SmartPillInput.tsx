@@ -248,23 +248,23 @@ export const SmartPillInput: React.FC<SmartPillInputProps> = ({
 
   // Update edit value when prop value changes
   useEffect(() => {
-    console.log(
-      'DEBUG: SmartPillInput prop value changed:',
-      value,
-      'isEditing:',
-      isEditing
-    );
+    // console.log(
+    //   'DEBUG: SmartPillInput prop value changed:',
+    //   value,
+    //   'isEditing:',
+    //   isEditing
+    // );
 
     // Always sync when parent explicitly clears the value (empty string)
     if (value === '') {
-      console.log('DEBUG: Clearing all values because prop value is empty');
+      // console.log('DEBUG: Clearing all values because prop value is empty');
       setEditValue('');
       setNewInputValue('');
     } else if (!isEditing) {
       // Only sync non-empty values when not editing to prevent interference with typing
-      console.log(
-        'DEBUG: Syncing editValue with prop value because not editing'
-      );
+      // console.log(
+      //   'DEBUG: Syncing editValue with prop value because not editing'
+      // );
       setEditValue(value);
     }
     // When editing, don't sync to avoid interfering with user typing
@@ -326,17 +326,17 @@ export const SmartPillInput: React.FC<SmartPillInputProps> = ({
 
   // Handle pill click to remove the clicked pill
   const handlePillClick = (pillText: string) => {
-    console.log(
-      'DEBUG: handlePillClick called with:',
-      pillText,
-      'isEditing:',
-      isEditing,
-      'value:',
-      value
-    );
+    // console.log(
+    //   'DEBUG: handlePillClick called with:',
+    //   pillText,
+    //   'isEditing:',
+    //   isEditing,
+    //   'value:',
+    //   value
+    // );
 
     const pillTextTrimmed = pillText.trim();
-    console.log('DEBUG: Removing pill:', pillTextTrimmed);
+    // console.log('DEBUG: Removing pill:', pillTextTrimmed);
 
     // Remove the pill directly from the appropriate state
     let currentValue = value;
@@ -344,7 +344,7 @@ export const SmartPillInput: React.FC<SmartPillInputProps> = ({
     // If we're in edit mode, work with editValue
     if (isEditing) {
       currentValue = editValue;
-      console.log('DEBUG: Using editValue for removal:', editValue);
+      // console.log('DEBUG: Using editValue for removal:', editValue);
     }
 
     // Split into segments and filter out the exact pill
@@ -356,14 +356,14 @@ export const SmartPillInput: React.FC<SmartPillInputProps> = ({
     );
     const newValue = filteredSegments.join(' ').trim();
 
-    console.log(
-      'DEBUG: segments:',
-      segments,
-      'filteredSegments:',
-      filteredSegments,
-      'newValue:',
-      newValue
-    );
+    // console.log(
+    //   'DEBUG: segments:',
+    //   segments,
+    //   'filteredSegments:',
+    //   filteredSegments,
+    //   'newValue:',
+    //   newValue
+    // );
 
     if (isEditing) {
       // Update edit value
@@ -371,7 +371,7 @@ export const SmartPillInput: React.FC<SmartPillInputProps> = ({
 
       // Also clear newInputValue if it matches the pill
       if (newInputValue.trim() === pillTextTrimmed) {
-        console.log('DEBUG: Clearing newInputValue because it matches pill');
+        // console.log('DEBUG: Clearing newInputValue because it matches pill');
         setNewInputValue('');
       }
 
@@ -382,21 +382,21 @@ export const SmartPillInput: React.FC<SmartPillInputProps> = ({
           (newInputValue && newInputValue.trim() !== pillTextTrimmed
             ? (newValue ? ' ' : '') + newInputValue
             : '');
-        console.log(
-          'DEBUG: Calling onEditValueChange with:',
-          combinedValue.trim()
-        );
+        // console.log(
+        //   'DEBUG: Calling onEditValueChange with:',
+        //   combinedValue.trim()
+        // );
         onEditValueChange(combinedValue.trim());
       }
     } else {
       // Update main value immediately - this will trigger parent to update
-      console.log('DEBUG: Calling onChange with:', newValue);
+      // console.log('DEBUG: Calling onChange with:', newValue);
       onChange(newValue);
     }
 
     // Also call the onPillClick callback if provided (for additional handling)
     if (onPillClick) {
-      console.log('DEBUG: Also calling onPillClick callback');
+      // console.log('DEBUG: Also calling onPillClick callback');
       onPillClick(pillText, 'remove');
     }
   };
@@ -504,23 +504,23 @@ export const SmartPillInput: React.FC<SmartPillInputProps> = ({
                           content={contentForPills}
                           contextId={contextId}
                           onHashtagClick={(hashtag) => {
-                            console.log(
-                              'DEBUG: SmartPillInput hashtag clicked:',
-                              hashtag,
-                              'contentForPills:',
-                              contentForPills
-                            );
+                            // console.log(
+                            //   'DEBUG: SmartPillInput hashtag clicked:',
+                            //   hashtag,
+                            //   'contentForPills:',
+                            //   contentForPills
+                            // );
                             handlePillClick(contentForPills);
                           }}
                           onMentionClick={(mention, filterType) => {
-                            console.log(
-                              'DEBUG: SmartPillInput mention clicked:',
-                              mention,
-                              'filterType:',
-                              filterType,
-                              'contentForPills:',
-                              contentForPills
-                            );
+                            // console.log(
+                            //   'DEBUG: SmartPillInput mention clicked:',
+                            //   mention,
+                            //   'filterType:',
+                            //   filterType,
+                            //   'contentForPills:',
+                            //   contentForPills
+                            // );
                             handlePillClick(contentForPills);
                           }}
                           className="smart-pill-input__pill"
@@ -555,23 +555,23 @@ export const SmartPillInput: React.FC<SmartPillInputProps> = ({
                         content={contentForPills}
                         contextId={contextId}
                         onHashtagClick={(hashtag) => {
-                          console.log(
-                            'DEBUG: SmartPillInput hashtag clicked:',
-                            hashtag,
-                            'contentForPills:',
-                            contentForPills
-                          );
+                          // console.log(
+                          //   'DEBUG: SmartPillInput hashtag clicked:',
+                          //   hashtag,
+                          //   'contentForPills:',
+                          //   contentForPills
+                          // );
                           handlePillClick(contentForPills);
                         }}
                         onMentionClick={(mention, filterType) => {
-                          console.log(
-                            'DEBUG: SmartPillInput mention clicked:',
-                            mention,
-                            'filterType:',
-                            filterType,
-                            'contentForPills:',
-                            contentForPills
-                          );
+                          // console.log(
+                          //   'DEBUG: SmartPillInput mention clicked:',
+                          //   mention,
+                          //   'filterType:',
+                          //   filterType,
+                          //   'contentForPills:',
+                          //   contentForPills
+                          // );
                           handlePillClick(contentForPills);
                         }}
                         className="smart-pill-input__pill"
@@ -627,23 +627,23 @@ export const SmartPillInput: React.FC<SmartPillInputProps> = ({
                           content={contentForPills}
                           contextId={contextId}
                           onHashtagClick={(hashtag) => {
-                            console.log(
-                              'DEBUG: SmartPillInput hashtag clicked:',
-                              hashtag,
-                              'contentForPills:',
-                              contentForPills
-                            );
+                            // console.log(
+                            //   'DEBUG: SmartPillInput hashtag clicked:',
+                            //   hashtag,
+                            //   'contentForPills:',
+                            //   contentForPills
+                            // );
                             handlePillClick(contentForPills);
                           }}
                           onMentionClick={(mention, filterType) => {
-                            console.log(
-                              'DEBUG: SmartPillInput mention clicked:',
-                              mention,
-                              'filterType:',
-                              filterType,
-                              'contentForPills:',
-                              contentForPills
-                            );
+                            // console.log(
+                            //   'DEBUG: SmartPillInput mention clicked:',
+                            //   mention,
+                            //   'filterType:',
+                            //   filterType,
+                            //   'contentForPills:',
+                            //   contentForPills
+                            // );
                             handlePillClick(contentForPills);
                           }}
                           className="smart-pill-input__pill"
@@ -676,23 +676,23 @@ export const SmartPillInput: React.FC<SmartPillInputProps> = ({
                         content={contentForPills}
                         contextId={contextId}
                         onHashtagClick={(hashtag) => {
-                          console.log(
-                            'DEBUG: SmartPillInput hashtag clicked:',
-                            hashtag,
-                            'contentForPills:',
-                            contentForPills
-                          );
+                          // console.log(
+                          //   'DEBUG: SmartPillInput hashtag clicked:',
+                          //   hashtag,
+                          //   'contentForPills:',
+                          //   contentForPills
+                          // );
                           handlePillClick(contentForPills);
                         }}
                         onMentionClick={(mention, filterType) => {
-                          console.log(
-                            'DEBUG: SmartPillInput mention clicked:',
-                            mention,
-                            'filterType:',
-                            filterType,
-                            'contentForPills:',
-                            contentForPills
-                          );
+                          // console.log(
+                          //   'DEBUG: SmartPillInput mention clicked:',
+                          //   mention,
+                          //   'filterType:',
+                          //   filterType,
+                          //   'contentForPills:',
+                          //   contentForPills
+                          // );
                           handlePillClick(contentForPills);
                         }}
                         className="smart-pill-input__pill"
