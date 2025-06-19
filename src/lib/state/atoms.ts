@@ -436,23 +436,20 @@ export const initializeFiltersFromUrl = (
   const authorParam = searchParams.get('author');
   const pageSizeParam = searchParams.get('pageSize');
 
-  // Validate and sanitize tags parameter - remove any HTML/script tags
+  // Validate and sanitize tags parameter using unified utilities
   const sanitizedTags = tagsParam
-    ? tagsParam
-        .split(',')
-        .map((tag) => tag.trim().toLowerCase())
-        .filter((tag) => {
-          // Remove any tags containing HTML/script elements
-          return (
-            tag.length > 0 &&
-            tag.length <= 50 &&
-            !tag.includes('<') &&
-            !tag.includes('>') &&
-            !tag.includes('script') &&
-            /^[#a-z0-9\-_]+$/.test(tag) // Allow hashtags and alphanumeric, hyphens, underscores
-          );
-        })
-        .join(',')
+    ? (() => {
+        const {
+          normalizeTagForDatabase,
+          formatTagForDisplay
+        } = require('../utils/string/tag-utils');
+        return tagsParam
+          .split(',')
+          .map((tag) => normalizeTagForDatabase(tag))
+          .filter(Boolean)
+          .map(formatTagForDisplay)
+          .join(',');
+      })()
     : '';
 
   // Validate and sanitize author parameter
@@ -786,7 +783,13 @@ export const filtersFromUrlAtom = atom((get) => {
     const cleanTags = tagsParam
       .split(',')
       .map((tag) => tag.trim())
-      .map((tag) => (tag.startsWith('#') ? tag : `#${tag}`))
+      .map((tag) => {
+        const {
+          formatTagForDisplay,
+          normalizeTagForDatabase
+        } = require('../utils/string/tag-utils');
+        return formatTagForDisplay(normalizeTagForDatabase(tag));
+      })
       .filter(Boolean);
     if (cleanTags.length > 0) {
       filters.push({
@@ -852,7 +855,7 @@ export const paginationFromUrlAtom = atom((get) => {
 
   return {
     page: pageParam ? Math.max(1, parseInt(pageParam)) : 1,
-    pageSize: pageSizeParam ? Math.max(10, parseInt(pageSizeParam)) : 100
+    pageSize: pageSizeParam ? Math.max(10, parseInt(pageSizeParam)) : 10
   };
 });
 
@@ -883,15 +886,11 @@ export const createAutoUrlSyncAtom = (contextId: string) => {
     Object.entries(filterGroups).forEach(([name, values]) => {
       if (name === 'tags' || name === 'author' || name === 'mentions') {
         if (name === 'tags') {
-          const cleanValues = values.map((value) =>
-            value
-              .split(',')
-              .map((tag) =>
-                tag.trim().startsWith('#') ? tag.substring(1) : tag
-              )
-              .join(',')
+          const { formatTagsForUrl } = require('../utils/string/tag-utils');
+          const allTags = values.flatMap((value) =>
+            value.split(',').map((tag) => tag.trim())
           );
-          urlParams.set(name, cleanValues.join(','));
+          urlParams.set(name, formatTagsForUrl(allTags));
         } else {
           urlParams.set(name, values.join(','));
         }
@@ -1073,7 +1072,7 @@ export const createWritableFiltersAtom = (contextId: string) => {
     providerAccountId: '',
     filters: [],
     page: 1,
-    pageSize: 100,
+    pageSize: 10,
     initialized: false
   });
 };

@@ -54,37 +54,34 @@ export async function searchHashtags(
   try {
     const offset = (page - 1) * pageSize;
 
-    // Get total count for pagination
+    // Get total count for pagination - fixed to avoid duplicates
     const totalResult = await sql<Array<{ total: string }>>`
-      WITH hashtag_search AS (
-        SELECT DISTINCT unnest(tags) as tag
+      SELECT COUNT(DISTINCT tag) as total 
+      FROM (
+        SELECT unnest(tags) as tag
         FROM submissions 
         WHERE tags IS NOT NULL 
-        AND array_to_string(tags, ' ') ILIKE ${`%${query}%`}
-      )
-      SELECT COUNT(*) as total FROM hashtag_search
+      ) hashtag_search
       WHERE tag ILIKE ${`%${query}%`}
     `;
 
     const total = parseInt(totalResult[0]?.total || '0');
 
-    // Get paginated results
+    // Get paginated results - fixed to avoid duplicates
     const results = await sql<
       Array<{
         tag: string;
         tag_count: number;
       }>
     >`
-      WITH hashtag_search AS (
-        SELECT unnest(tags) as tag
-        FROM submissions 
-        WHERE tags IS NOT NULL 
-        AND array_to_string(tags, ' ') ILIKE ${`%${query}%`}
-      )
       SELECT 
         tag,
         COUNT(*) as tag_count
-      FROM hashtag_search
+      FROM (
+        SELECT unnest(tags) as tag
+        FROM submissions 
+        WHERE tags IS NOT NULL 
+      ) hashtag_search
       WHERE tag ILIKE ${`%${query}%`}
       GROUP BY tag
       ORDER BY tag_count DESC, tag ASC
@@ -104,7 +101,7 @@ export async function searchHashtags(
     const items = results.map((result, index) => ({
       id: `hashtag-${page}-${index}-${result.tag}`,
       value: result.tag,
-      label: `#${result.tag} (${result.tag_count} posts)`,
+      label: `${result.tag} (${result.tag_count} posts)`,
       count: result.tag_count,
       type: 'hashtag' as const
     }));

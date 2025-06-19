@@ -650,8 +650,12 @@ function parseFiltersIntoGroups(filters: { name: string; value: string }[]): {
       values: tagFilter
         ? tagFilter
             .split(',')
-            .map((tag) => tag.trim())
-            .map((tag) => (tag.startsWith('#') ? tag.substring(1) : tag))
+            .map((tag) => {
+              const {
+                normalizeTagForDatabase
+              } = require('../../../lib/utils/string/tag-utils');
+              return normalizeTagForDatabase(tag);
+            })
             .filter(Boolean)
         : [],
       logic: tagLogic === 'AND' || tagLogic === 'OR' ? tagLogic : 'OR'

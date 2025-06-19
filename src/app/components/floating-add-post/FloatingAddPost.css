@@ -73,7 +73,7 @@
 .floating-add-post__title {
   font-size: 1.25rem;
   font-weight: 600;
-  color: var(--light-bg__text-color--primary);
+  color: var(--dark-bg__text-color--primary);
   margin: 0;
 }
 
@@ -204,7 +204,7 @@
 /* Dark mode support */
 @media (prefers-color-scheme: dark) {
   .floating-add-post__title {
-    color: var(--light-bg__text-color--primary);
+    color: var(--dark-bg__text-color--primary);
   }
 
   .floating-add-post__modal-content .submission__title-input,

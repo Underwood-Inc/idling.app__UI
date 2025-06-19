@@ -77,11 +77,12 @@
   --light-background--quaternary: #ffefd5;
   --light-background--quinary: #fff5ee;
 
-  --dark-background--primary: #8b4513;
-  --dark-background--secondary: #a0522d;
-  --dark-background--tertiary: #d2691e;
-  --dark-background--quaternary: #cd853f;
-  --dark-background--quinary: #8b0000;
+  /* Calmer dark backgrounds for large elements */
+  --dark-background--primary: #1a1611;
+  --dark-background--secondary: #252017;
+  --dark-background--tertiary: #2f2a1d;
+  --dark-background--quaternary: #3a3323;
+  --dark-background--quinary: #443d29;
 
   --light-bg__text-color--primary: #2a2a2a;
   --light-bg__text-color--secondary: #8b4513;

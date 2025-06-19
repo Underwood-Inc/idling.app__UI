@@ -13,10 +13,10 @@
   width: 56px;
   height: 56px;
   border-radius: 50%;
-  background: #2563eb;
-  color: white;
+  background: var(--brand-primary);
+  color: var(--font-color--primary);
   border: none;
-  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+  box-shadow: 0 4px 12px rgba(237, 174, 73, 0.4);
   cursor: pointer;
   z-index: 9999;
   /* Ensure it's above everything */
@@ -33,12 +33,12 @@
   padding: 0;
   /* Ensure button-specific overrides don't interfere */
   border-radius: 50%;
-  background-color: #2563eb;
+  background-color: var(--brand-primary);
 }
 
 .dev-skeleton-toggle-fab.dev-skeleton-toggle-fab:hover {
-  background: #1d4ed8;
-  box-shadow: 0 6px 16px rgba(37, 99, 235, 0.4);
+  background: var(--brand-primary--dark);
+  box-shadow: 0 6px 16px rgba(237, 174, 73, 0.5);
   transform: translateY(-2px);
 }
 
@@ -47,11 +47,11 @@
 }
 
 .dev-skeleton-toggle-fab.dev-skeleton-toggle-fab.dev-skeleton-toggle-fab--open {
-  background: #059669;
+  background: var(--brand-secondary);
 }
 
 .dev-skeleton-toggle-fab.dev-skeleton-toggle-fab.dev-skeleton-toggle-fab--open:hover {
-  background: #047857;
+  background: var(--brand-secondary--dark);
 }
 
 /* Indicator dot for active state */
@@ -61,9 +61,9 @@
   right: 8px;
   width: 12px;
   height: 12px;
-  background: #ef4444;
+  background: var(--brand-quaternary);
   border-radius: 50%;
-  border: 2px solid white;
+  border: 2px solid var(--dark-bg__text-color--primary);
   animation: pulse 2s infinite;
 }
 
@@ -90,10 +90,10 @@
   /* Match FAB right position */
   width: 320px;
   max-height: 80vh;
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-  border: 1px solid #e5e7eb;
+  background: var(--dark-background--primary);
+  border-radius: var(--border-radius);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.4), 0 10px 10px -5px rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--brand-tertiary--dark);
   z-index: 9998;
   overflow: hidden;
   animation: slideUp 0.2s ease-out;
@@ -113,8 +113,8 @@
 
 .dev-skeleton-toggle-panel__header {
   padding: 16px 20px;
-  border-bottom: 1px solid #e5e7eb;
-  background: #f9fafb;
+  border-bottom: 1px solid var(--brand-tertiary--dark);
+  background: var(--dark-background--secondary);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -124,14 +124,14 @@
   margin: 0;
   font-size: 16px;
   font-weight: 600;
-  color: #111827;
+  color: var(--dark-bg__text-color--primary);
 }
 
 .dev-skeleton-toggle-panel__close {
   background: none;
   border: none;
   font-size: 20px;
-  color: #6b7280;
+  color: var(--dark-bg__text-color--secondary);
   cursor: pointer;
   width: 24px;
   height: 24px;
@@ -143,8 +143,8 @@
 }
 
 .dev-skeleton-toggle-panel__close:hover {
-  background: #e5e7eb;
-  color: #374151;
+  background: var(--brand-tertiary);
+  color: var(--dark-bg__text-color--primary);
 }
 
 .dev-skeleton-toggle-panel__content {
@@ -165,7 +165,7 @@
   margin: 0 0 12px 0;
   font-size: 14px;
   font-weight: 600;
-  color: #374151;
+  color: var(--dark-bg__text-color--primary);
 }
 
 /* Radio Group */
@@ -185,7 +185,7 @@
 }
 
 .dev-skeleton-toggle-panel__radio:hover {
-  background: #f3f4f6;
+  background: var(--dark-background--tertiary);
 }
 
 .dev-skeleton-toggle-panel__radio input[type="radio"] {
@@ -195,7 +195,7 @@
 
 .dev-skeleton-toggle-panel__radio span {
   font-size: 14px;
-  color: #374151;
+  color: var(--dark-bg__text-color--secondary);
 }
 
 /* Status */
@@ -214,20 +214,20 @@
 }
 
 .dev-skeleton-toggle-panel__status-indicator.active {
-  background: #dcfce7;
-  color: #166534;
-  border: 1px solid #bbf7d0;
+  background: var(--brand-secondary);
+  color: var(--font-color--primary);
+  border: 1px solid var(--brand-secondary--dark);
 }
 
 .dev-skeleton-toggle-panel__status-indicator.inactive {
-  background: #eff6ff;
-  color: #1e40af;
-  border: 1px solid #dbeafe;
+  background: var(--brand-tertiary);
+  color: var(--font-color--primary);
+  border: 1px solid var(--brand-tertiary--dark);
 }
 
 .dev-skeleton-toggle-panel__description {
   font-size: 13px;
-  color: #6b7280;
+  color: var(--dark-bg__text-color--tertiary);
   margin: 0;
   line-height: 1.4;
 }
@@ -243,7 +243,7 @@
 
 .dev-skeleton-toggle-panel__help li {
   margin-bottom: 6px;
-  color: #6b7280;
+  color: var(--dark-bg__text-color--tertiary);
 }
 
 .dev-skeleton-toggle-panel__help li:last-child {
@@ -251,86 +251,18 @@
 }
 
 .dev-skeleton-toggle-panel__help strong {
-  color: #374151;
+  color: var(--dark-bg__text-color--secondary);
 }
 
 /* Warning */
 .dev-skeleton-toggle-panel__warning {
-  background: #fef3c7;
-  border: 1px solid #f59e0b;
-  color: #92400e;
+  background: var(--dark-background--quaternary);
+  border: 1px solid var(--brand-quaternary);
+  color: var(--brand-quaternary);
   padding: 12px;
   border-radius: 6px;
   font-size: 13px;
   line-height: 1.4;
-}
-
-/* Dark mode support */
-@media (prefers-color-scheme: dark) {
-  .dev-skeleton-toggle-panel {
-    background: #1f2937;
-    border-color: #374151;
-  }
-
-  .dev-skeleton-toggle-panel__header {
-    background: #111827;
-    border-bottom-color: #374151;
-  }
-
-  .dev-skeleton-toggle-panel__header h3 {
-    color: #f9fafb;
-  }
-
-  .dev-skeleton-toggle-panel__close {
-    color: #9ca3af;
-  }
-
-  .dev-skeleton-toggle-panel__close:hover {
-    background: #374151;
-    color: #d1d5db;
-  }
-
-  .dev-skeleton-toggle-panel__section h4 {
-    color: #d1d5db;
-  }
-
-  .dev-skeleton-toggle-panel__radio:hover {
-    background: #374151;
-  }
-
-  .dev-skeleton-toggle-panel__radio span {
-    color: #d1d5db;
-  }
-
-  .dev-skeleton-toggle-panel__description {
-    color: #9ca3af;
-  }
-
-  .dev-skeleton-toggle-panel__help li {
-    color: #9ca3af;
-  }
-
-  .dev-skeleton-toggle-panel__help strong {
-    color: #d1d5db;
-  }
-
-  .dev-skeleton-toggle-panel__status-indicator.active {
-    background: #064e3b;
-    color: #6ee7b7;
-    border-color: #047857;
-  }
-
-  .dev-skeleton-toggle-panel__status-indicator.inactive {
-    background: #1e3a8a;
-    color: #93c5fd;
-    border-color: #1d4ed8;
-  }
-
-  .dev-skeleton-toggle-panel__warning {
-    background: #451a03;
-    border-color: #d97706;
-    color: #fbbf24;
-  }
 }
 
 /* Responsive adjustments */

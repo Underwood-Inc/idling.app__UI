@@ -1,14 +1,14 @@
 /* Post Modal Styles */
 .post-modal {
-  background-color: var(--light-background--quaternary, white);
-  border-radius: var(--border-radius, 12px) var(--border-radius, 12px) 0 0;
+  background-color: var(--dark-background--primary);
+  border-radius: var(--border-radius) var(--border-radius) 0 0;
   width: 100%;
   max-width: 600px;
   max-height: 80vh;
   box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.3);
   display: flex;
   flex-direction: column;
-  border: 1px solid var(--brand-tertiary--dark, #e5e7eb);
+  border: 1px solid var(--brand-tertiary--dark);
 }
 
 /* Modal Header */
@@ -17,16 +17,16 @@
   align-items: center;
   justify-content: space-between;
   padding: 1.5rem 1.5rem 1rem 1.5rem;
-  border-bottom: 1px solid var(--brand-tertiary--dark, #e5e7eb);
-  background-color: var(--light-background--tertiary, #f9fafb);
-  border-radius: var(--border-radius, 12px) var(--border-radius, 12px) 0 0;
+  border-bottom: 1px solid var(--brand-tertiary--dark);
+  background-color: var(--dark-background--secondary);
+  border-radius: var(--border-radius) var(--border-radius) 0 0;
 }
 
 .post-modal__title {
   margin: 0;
   font-size: 1.5rem;
   font-weight: 600;
-  color: var(--light-bg__text-color--primary, #111827);
+  color: var(--dark-bg__text-color--primary);
   text-transform: none;
 }
 
@@ -35,8 +35,8 @@
   height: 2rem;
   border-radius: 50%;
   background-color: transparent;
-  color: var(--light-bg__text-color--secondary, #6b7280);
-  border: 1px solid var(--brand-tertiary--dark, #e5e7eb);
+  color: var(--dark-bg__text-color--secondary);
+  border: 1px solid var(--brand-tertiary--dark);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -46,9 +46,9 @@
 }
 
 .post-modal__close:hover {
-  background-color: var(--brand-tertiary, #f3f4f6);
-  color: var(--light-bg__text-color--primary, #111827);
-  border-color: var(--brand-primary, #3b82f6);
+  background-color: var(--brand-tertiary);
+  color: var(--dark-bg__text-color--primary);
+  border-color: var(--brand-primary);
 }
 
 .post-modal__close svg {
@@ -79,9 +79,9 @@
 
 .post-modal__content .submission__title-input,
 .post-modal__content .submission__tags-input {
-  background-color: var(--light-background--quinary, #f9fafb);
-  border: 1px solid var(--brand-tertiary--dark, #e5e7eb);
-  color: var(--light-bg__text-color--primary, #111827);
+  background-color: var(--dark-background--tertiary);
+  border: 1px solid var(--brand-tertiary--dark);
+  color: var(--dark-bg__text-color--primary);
   padding: 0.75rem;
   border-radius: 0.5rem;
   font-size: 0.95rem;
@@ -91,49 +91,8 @@
 .post-modal__content .submission__title-input:focus,
 .post-modal__content .submission__tags-input:focus {
   outline: none;
-  border-color: var(--brand-primary, #3b82f6);
-  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
-}
-
-/* Dark mode support */
-@media (prefers-color-scheme: dark) {
-  .post-modal {
-    background-color: #1f2937;
-    border-color: #374151;
-  }
-
-  .post-modal__header {
-    background-color: #111827;
-    border-bottom-color: #374151;
-  }
-
-  .post-modal__title {
-    color: #f9fafb;
-  }
-
-  .post-modal__close {
-    color: #9ca3af;
-    border-color: #374151;
-  }
-
-  .post-modal__close:hover {
-    background-color: #374151;
-    color: #d1d5db;
-    border-color: #3b82f6;
-  }
-
-  .post-modal__content .submission__title-input,
-  .post-modal__content .submission__tags-input {
-    background-color: #374151;
-    border-color: #4b5563;
-    color: #f9fafb;
-  }
-
-  .post-modal__content .submission__title-input:focus,
-  .post-modal__content .submission__tags-input:focus {
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
-  }
+  border-color: var(--brand-primary);
+  box-shadow: 0 0 0 2px rgba(237, 174, 73, 0.2);
 }
 
 /* Responsive Design */

@@ -1,6 +1,6 @@
 {
   "name": "idling.app",
-  "version": "0.34.0",
+  "version": "0.34.1",
   "private": true,
   "engines": {
     "node": ">=20.x"
@@ -11,7 +11,7 @@
     "prebuild": "node scripts/update-sw-version.js",
     "postbuild": "node scripts/update-sw-version.js --restore",
     "dev:docker": "./scripts/docker-dev.sh",
-    "dev:seed": "./seed-db.sh",
+    "dev:seed": "node seed-db-faker.js",
     "dev": "next dev",
     "sw:update": "node scripts/update-sw-version.js",
     "sw:restore": "node scripts/update-sw-version.js --restore",
