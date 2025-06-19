@@ -1,9 +1,8 @@
 // Load environment variables FIRST, before any other imports
-import { config } from 'dotenv';
-config({ path: '.env.local' }); // Load .env.local file
+require('dotenv').config({ path: '.env.local' });
 
-import chalk from 'chalk';
-import postgres from 'postgres';
+const chalk = require('chalk');
+const postgres = require('postgres');
 
 // Create database connection AFTER environment variables are loaded
 const sql = postgres({
@@ -11,7 +10,7 @@ const sql = postgres({
   user: process.env.POSTGRES_USER,
   database: process.env.POSTGRES_DB,
   password: process.env.POSTGRES_PASSWORD,
-  port: process.env.POSTGRES_PORT as unknown as number,
+  port: process.env.POSTGRES_PORT,
   ssl: 'prefer',
   onnotice: () => {}, // Ignore NOTICE statements - they're not errors
   max: 10,
