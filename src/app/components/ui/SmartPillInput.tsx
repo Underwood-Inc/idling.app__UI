@@ -248,14 +248,27 @@ export const SmartPillInput: React.FC<SmartPillInputProps> = ({
 
   // Update edit value when prop value changes
   useEffect(() => {
-    // Only sync when parent explicitly clears the value (empty string) AND we're not currently editing
-    // This prevents interference with normal typing while still allowing parent to clear the input
-    if (value === '' && !isEditing) {
+    console.log(
+      'DEBUG: SmartPillInput prop value changed:',
+      value,
+      'isEditing:',
+      isEditing
+    );
+
+    // Always sync when parent explicitly clears the value (empty string)
+    if (value === '') {
+      console.log('DEBUG: Clearing all values because prop value is empty');
       setEditValue('');
       setNewInputValue('');
     } else if (!isEditing) {
+      // Only sync non-empty values when not editing to prevent interference with typing
+      console.log(
+        'DEBUG: Syncing editValue with prop value because not editing'
+      );
       setEditValue(value);
     }
+    // When editing, don't sync to avoid interfering with user typing
+    // The pill removal case is handled by the empty value check above
   }, [value, isEditing]);
 
   // Commit changes
@@ -311,82 +324,80 @@ export const SmartPillInput: React.FC<SmartPillInputProps> = ({
     return () => document.removeEventListener('click', handleClickOutside);
   }, [isEditing, handleCommit]);
 
-  // Handle pill click to edit incomplete pills or remove complete ones
+  // Handle pill click to remove the clicked pill
   const handlePillClick = (pillText: string) => {
-    // Check if this is a complete pill (matches complete patterns)
-    const isCompletePill =
-      /^#\w+$/.test(pillText.trim()) || // Complete hashtag
-      /^@\[[^\]]+\]$/.test(pillText.trim()) || // Complete structured mention (any format)
-      /^@[^\s@#]+(?:\s+[^\s@#]+)*$/.test(pillText.trim()); // Simple mention (updated to match ContentWithPills)
+    console.log(
+      'DEBUG: handlePillClick called with:',
+      pillText,
+      'isEditing:',
+      isEditing,
+      'value:',
+      value
+    );
 
-    if (!isEditing) {
-      // Not in edit mode - remove complete pills directly, edit incomplete ones
-      if (isCompletePill) {
-        // Complete pill - remove it directly
-        const newValue = value
-          .replace(pillText, '')
-          .replace(/\s+/g, ' ')
-          .trim();
-        onChange(newValue);
-        return;
-      } else {
-        // Incomplete pill - enter edit mode to allow editing
-        setIsEditing(true);
+    const pillTextTrimmed = pillText.trim();
+    console.log('DEBUG: Removing pill:', pillTextTrimmed);
 
-        // Remove the incomplete pill from the main value and put it in the input
-        const remainingValue = value
-          .replace(pillText, '')
-          .replace(/\s+/g, ' ')
-          .trim();
-        setEditValue(remainingValue);
-        setNewInputValue(pillText.trim());
+    // Remove the pill directly from the appropriate state
+    let currentValue = value;
 
-        if (onEditValueChange) {
-          const combinedValue =
-            remainingValue + (remainingValue ? ' ' : '') + pillText.trim();
-          onEditValueChange(combinedValue);
-        }
+    // If we're in edit mode, work with editValue
+    if (isEditing) {
+      currentValue = editValue;
+      console.log('DEBUG: Using editValue for removal:', editValue);
+    }
 
-        // Focus the input after entering edit mode
-        setTimeout(() => {
-          const input = smartInputRef.current?.querySelector('input');
-          if (input) {
-            input.focus();
-            // Position cursor at end of incomplete pill text
-            const pillLength = pillText.trim().length;
-            input.setSelectionRange(pillLength, pillLength);
-          }
-        }, 0);
-        return;
+    // Split into segments and filter out the exact pill
+    const segments = currentValue
+      .split(/\s+/)
+      .filter((segment) => segment.trim() !== '');
+    const filteredSegments = segments.filter(
+      (segment) => segment !== pillTextTrimmed
+    );
+    const newValue = filteredSegments.join(' ').trim();
+
+    console.log(
+      'DEBUG: segments:',
+      segments,
+      'filteredSegments:',
+      filteredSegments,
+      'newValue:',
+      newValue
+    );
+
+    if (isEditing) {
+      // Update edit value
+      setEditValue(newValue);
+
+      // Also clear newInputValue if it matches the pill
+      if (newInputValue.trim() === pillTextTrimmed) {
+        console.log('DEBUG: Clearing newInputValue because it matches pill');
+        setNewInputValue('');
       }
+
+      // Call onEditValueChange with the updated value
+      if (onEditValueChange) {
+        const combinedValue =
+          newValue +
+          (newInputValue && newInputValue.trim() !== pillTextTrimmed
+            ? (newValue ? ' ' : '') + newInputValue
+            : '');
+        console.log(
+          'DEBUG: Calling onEditValueChange with:',
+          combinedValue.trim()
+        );
+        onEditValueChange(combinedValue.trim());
+      }
+    } else {
+      // Update main value immediately - this will trigger parent to update
+      console.log('DEBUG: Calling onChange with:', newValue);
+      onChange(newValue);
     }
 
-    // Already in edit mode - always remove the pill
+    // Also call the onPillClick callback if provided (for additional handling)
     if (onPillClick) {
+      console.log('DEBUG: Also calling onPillClick callback');
       onPillClick(pillText, 'remove');
-      return;
-    }
-
-    // Remove the pill from edit value and update immediately
-    const newEditValue = editValue
-      .replace(pillText, '')
-      .replace(/\s+/g, ' ')
-      .trim();
-    setEditValue(newEditValue);
-
-    // Also clear newInputValue if it matches
-    if (newInputValue.trim() === pillText.trim()) {
-      setNewInputValue('');
-    }
-
-    if (onEditValueChange) {
-      // Pass the complete combined value after removal
-      const combinedAfterRemoval =
-        newEditValue +
-        (newInputValue && newInputValue.trim() !== pillText.trim()
-          ? (newEditValue ? ' ' : '') + newInputValue
-          : '');
-      onEditValueChange(combinedAfterRemoval.trim());
     }
   };
 
@@ -492,12 +503,26 @@ export const SmartPillInput: React.FC<SmartPillInputProps> = ({
                         <ContentWithPills
                           content={contentForPills}
                           contextId={contextId}
-                          onHashtagClick={() =>
-                            handlePillClick(contentForPills)
-                          }
-                          onMentionClick={() =>
-                            handlePillClick(contentForPills)
-                          }
+                          onHashtagClick={(hashtag) => {
+                            console.log(
+                              'DEBUG: SmartPillInput hashtag clicked:',
+                              hashtag,
+                              'contentForPills:',
+                              contentForPills
+                            );
+                            handlePillClick(contentForPills);
+                          }}
+                          onMentionClick={(mention, filterType) => {
+                            console.log(
+                              'DEBUG: SmartPillInput mention clicked:',
+                              mention,
+                              'filterType:',
+                              filterType,
+                              'contentForPills:',
+                              contentForPills
+                            );
+                            handlePillClick(contentForPills);
+                          }}
                           className="smart-pill-input__pill"
                           isFilterBarContext={true}
                           enableInlineFilterControl={false}
@@ -529,8 +554,26 @@ export const SmartPillInput: React.FC<SmartPillInputProps> = ({
                       <ContentWithPills
                         content={contentForPills}
                         contextId={contextId}
-                        onHashtagClick={() => handlePillClick(contentForPills)}
-                        onMentionClick={() => handlePillClick(contentForPills)}
+                        onHashtagClick={(hashtag) => {
+                          console.log(
+                            'DEBUG: SmartPillInput hashtag clicked:',
+                            hashtag,
+                            'contentForPills:',
+                            contentForPills
+                          );
+                          handlePillClick(contentForPills);
+                        }}
+                        onMentionClick={(mention, filterType) => {
+                          console.log(
+                            'DEBUG: SmartPillInput mention clicked:',
+                            mention,
+                            'filterType:',
+                            filterType,
+                            'contentForPills:',
+                            contentForPills
+                          );
+                          handlePillClick(contentForPills);
+                        }}
                         className="smart-pill-input__pill"
                         isFilterBarContext={true}
                         enableInlineFilterControl={false}
@@ -583,12 +626,26 @@ export const SmartPillInput: React.FC<SmartPillInputProps> = ({
                         <ContentWithPills
                           content={contentForPills}
                           contextId={contextId}
-                          onHashtagClick={() =>
-                            handlePillClick(contentForPills)
-                          }
-                          onMentionClick={() =>
-                            handlePillClick(contentForPills)
-                          }
+                          onHashtagClick={(hashtag) => {
+                            console.log(
+                              'DEBUG: SmartPillInput hashtag clicked:',
+                              hashtag,
+                              'contentForPills:',
+                              contentForPills
+                            );
+                            handlePillClick(contentForPills);
+                          }}
+                          onMentionClick={(mention, filterType) => {
+                            console.log(
+                              'DEBUG: SmartPillInput mention clicked:',
+                              mention,
+                              'filterType:',
+                              filterType,
+                              'contentForPills:',
+                              contentForPills
+                            );
+                            handlePillClick(contentForPills);
+                          }}
                           className="smart-pill-input__pill"
                           isFilterBarContext={true}
                           enableInlineFilterControl={false}
@@ -618,8 +675,26 @@ export const SmartPillInput: React.FC<SmartPillInputProps> = ({
                       <ContentWithPills
                         content={contentForPills}
                         contextId={contextId}
-                        onHashtagClick={() => handlePillClick(contentForPills)}
-                        onMentionClick={() => handlePillClick(contentForPills)}
+                        onHashtagClick={(hashtag) => {
+                          console.log(
+                            'DEBUG: SmartPillInput hashtag clicked:',
+                            hashtag,
+                            'contentForPills:',
+                            contentForPills
+                          );
+                          handlePillClick(contentForPills);
+                        }}
+                        onMentionClick={(mention, filterType) => {
+                          console.log(
+                            'DEBUG: SmartPillInput mention clicked:',
+                            mention,
+                            'filterType:',
+                            filterType,
+                            'contentForPills:',
+                            contentForPills
+                          );
+                          handlePillClick(contentForPills);
+                        }}
                         className="smart-pill-input__pill"
                         isFilterBarContext={true}
                         enableInlineFilterControl={false}

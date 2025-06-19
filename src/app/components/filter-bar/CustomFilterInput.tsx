@@ -235,16 +235,19 @@ export function CustomFilterInput({
   };
 
   const handlePillClick = (pillText: string, action: 'edit' | 'remove') => {
+    console.log('DEBUG: CustomFilterInput handlePillClick:', pillText, action);
+
     if (action === 'edit') {
       // For incomplete pills, the SmartPillInput will handle entering edit mode
       // We just need to make sure our state is in sync
       setCurrentEditValue(pillText);
       setInputValue(pillText);
     } else if (action === 'remove') {
-      // Remove the pill from both values - let SmartPillInput handle its own removal
-      // We just need to clear our local state
-      setCurrentEditValue('');
-      // Don't modify inputValue here - let SmartPillInput handle it
+      // SmartPillInput handles the removal directly and calls onChange
+      // We don't need to do anything here - just log for debugging
+      console.log(
+        'DEBUG: CustomFilterInput: pill removal handled by SmartPillInput'
+      );
     }
   };
 

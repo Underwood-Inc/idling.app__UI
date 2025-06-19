@@ -206,9 +206,10 @@ export function ContentWithPills({
         // Filter bar context - trigger removal
         if (type === 'hashtag' && onHashtagClick) {
           onHashtagClick(`#${value}`);
-        } else if (type === 'mention' && onMentionClick && segment?.userId) {
-          // Always use userId for filter removal
-          onMentionClick(segment.userId, 'author');
+        } else if (type === 'mention' && onMentionClick) {
+          // Pass the full pill text for removal instead of just userId
+          const fullPillText = segment?.rawFormat || `@${value}`;
+          onMentionClick(fullPillText, segment?.filterType || 'author');
         }
         return;
       }
