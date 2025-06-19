@@ -143,7 +143,7 @@
   color: var(--light-bg__text-color--tertiary) !important;
   background: var(--light-background--quaternary) !important;
   border-left-color: var(--brand-secondary--dark) !important;
-  border-style: dashed !important;
+  border-style: solid !important;
 }
 
 .user-profile__bio-editor {
@@ -420,7 +420,7 @@
   overflow: hidden;
   background: none;
   border: none;
-  padding: 0;
+  padding: var(--spacing-md, 1rem);
 }
 
 .user-profile--tooltip .user-profile__footer {

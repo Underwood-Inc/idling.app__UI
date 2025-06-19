@@ -301,7 +301,7 @@
 .user-profile-modal__title {
   font-size: var(--font-size-xl);
   font-weight: 600;
-  color: var(--text-primary);
+  color: var(--dark-bg__text-color--primary);
   margin: 0;
 }
 

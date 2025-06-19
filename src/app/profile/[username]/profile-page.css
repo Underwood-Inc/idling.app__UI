@@ -137,7 +137,7 @@
   padding: 1rem;
   background: var(--light-background--quaternary);
   border-radius: var(--border-radius);
-  border: 2px dashed var(--brand-secondary--dark);
+  border: 1px dashed var(--brand-secondary--dark);
 }
 
 .profile-page__owner-icon {

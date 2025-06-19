@@ -168,12 +168,7 @@ const Modal: React.FC<{
   return (
     <div className={`overlay-modal ${className}`}>
       <div className="modal-backdrop" onClick={onClose} />
-      <div className="modal-content">
-        <button className="modal-close" onClick={onClose}>
-          ×
-        </button>
-        {children}
-      </div>
+      <div className="modal-content">{children}</div>
     </div>
   );
 };
