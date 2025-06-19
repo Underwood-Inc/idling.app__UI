@@ -56,7 +56,7 @@ const sql = postgres({
 
 const SEED_USERS_COUNT = 5000; // Number of unique users
 const SEED_POSTS_COUNT = 200000; // Number of main posts
-const SEED_REPLIES_COUNT = 800000; // Number of replies
+const SEED_REPLIES_COUNT = 400000; // Reduced from 800k to prevent lockup while maintaining good variety
 const BATCH_SIZE = 5000; // Increased batch size for better performance on production
 
 // ================================
@@ -604,20 +604,26 @@ async function createMainPosts(users, count) {
 }
 
 /**
- * Create replies in batches
+ * Create replies in batches - optimized for performance
  */
 async function createReplies(users, count) {
   console.log(`💬 Creating ${count} replies in batches...`);
 
-  // Get all main post IDs
-  const mainPosts = await sql`
-    SELECT submission_id FROM submissions WHERE thread_parent_id IS NULL
+  // Get the range of main post IDs instead of loading all into memory
+  const postRange = await sql`
+    SELECT MIN(submission_id) as min_id, MAX(submission_id) as max_id, COUNT(*) as total_posts
+    FROM submissions WHERE thread_parent_id IS NULL
   `;
 
-  if (mainPosts.length === 0) {
+  if (postRange.length === 0 || postRange[0].total_posts === 0) {
     console.error('❌ No main posts found to reply to');
     return;
   }
+
+  const { min_id, max_id, total_posts } = postRange[0];
+  console.log(
+    `📊 Found ${total_posts} main posts (ID range: ${min_id} - ${max_id})`
+  );
 
   const batches = Math.ceil(count / BATCH_SIZE);
   let totalCreated = 0;
@@ -627,10 +633,43 @@ async function createReplies(users, count) {
     const batchSize = Math.min(BATCH_SIZE, count - batchStart);
 
     const replies = [];
+
+    // Pre-generate random parent IDs for this batch to avoid repeated queries
+    const parentIds = [];
+    for (let i = 0; i < batchSize; i++) {
+      // Generate random ID in the range, with higher probability for lower IDs (more realistic)
+      const randomFactor = Math.random() * Math.random(); // Skews toward 0
+      const parentId = Math.floor(
+        min_id + randomFactor * (max_id - min_id + 1)
+      );
+      parentIds.push(parentId);
+    }
+
+    // Get valid parent IDs in a single query
+    const validParents = await sql`
+      SELECT submission_id 
+      FROM submissions 
+      WHERE submission_id = ANY(${parentIds}) 
+        AND thread_parent_id IS NULL
+    `;
+
+    // Create a map for quick lookup
+    const validParentSet = new Set(validParents.map((p) => p.submission_id));
+
+    // If we don't have enough valid parents, fill with existing ones
+    const validParentArray = Array.from(validParentSet);
+
     for (let i = 0; i < batchSize; i++) {
       const replyIndex = batchStart + i;
       const user = users[replyIndex % users.length];
-      const parentPost = mainPosts[replyIndex % mainPosts.length];
+
+      // Use valid parent or fallback to cycling through valid ones
+      let parentId;
+      if (validParentSet.has(parentIds[i])) {
+        parentId = parentIds[i];
+      } else {
+        parentId = validParentArray[i % validParentArray.length];
+      }
 
       const content = generatePostContent(users, replyIndex + 1000000); // Offset for variety
 
@@ -638,9 +677,9 @@ async function createReplies(users, count) {
       const hashtagMatches = content.match(/#[\w]+/g) || [];
       const tags = hashtagMatches.map((tag) => tag.substring(1));
 
-      // Random timestamp within last 90 days
+      // Random timestamp within last 90 days, but after the parent post
       const timestamp = new Date(
-        Date.now() - Math.random() * 90 * 24 * 60 * 60 * 1000
+        Date.now() - Math.random() * 89 * 24 * 60 * 60 * 1000
       );
 
       replies.push([
@@ -649,7 +688,7 @@ async function createReplies(users, count) {
         user.author_id, // author_id
         user.author, // author
         tags, // tags
-        parentPost.submission_id, // thread_parent_id
+        parentId, // thread_parent_id
         timestamp // submission_datetime
       ]);
     }
@@ -662,7 +701,21 @@ async function createReplies(users, count) {
     `;
 
     totalCreated += batchSize;
-    console.log(`  Created ${totalCreated}/${count} replies...`);
+
+    // Progress reporting every 50k records
+    if (totalCreated % 50000 === 0 || totalCreated === count) {
+      const progress = ((totalCreated / count) * 100).toFixed(1);
+      console.log(
+        `  📊 Progress: ${totalCreated}/${count} replies (${progress}%)`
+      );
+    } else {
+      console.log(`  Created ${totalCreated}/${count} replies...`);
+    }
+
+    // Small delay every 10 batches to prevent overwhelming the database
+    if (batch > 0 && batch % 10 === 0) {
+      await new Promise((resolve) => setTimeout(resolve, 100));
+    }
   }
 
   console.log(`✅ Created ${totalCreated} replies`);
