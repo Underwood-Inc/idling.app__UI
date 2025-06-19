@@ -2662,7 +2662,7 @@ async function refreshMaterializedView() {
 
   animator.start('Refreshing materialized view...');
   try {
-    await sql`SELECT refresh_user_submission_stats()`;
+    await sql`SELECT refresh_user_stats()`;
     animator.success('Materialized view refreshed');
   } catch (error) {
     animator.error(`Materialized view refresh failed: ${error.message}`);
@@ -2677,7 +2677,7 @@ async function displayStatistics() {
     const [totalSubmissions, totalUsers, mainPosts, replies] =
       await Promise.all([
         sql`SELECT COUNT(*) as count FROM submissions`,
-        sql`SELECT COUNT(DISTINCT author_id) as count FROM submissions`,
+        sql`SELECT COUNT(DISTINCT user_id) as count FROM submissions`,
         sql`SELECT COUNT(*) as count FROM submissions WHERE thread_parent_id IS NULL`,
         sql`SELECT COUNT(*) as count FROM submissions WHERE thread_parent_id IS NOT NULL`
       ]);
