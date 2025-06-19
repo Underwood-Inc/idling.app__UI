@@ -1,6 +1,7 @@
-import { notFound } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 import { getUserProfile } from '../../../lib/actions/profile.actions';
 import { auth } from '../../../lib/auth';
+import { parseUserSlug } from '../../../lib/utils/user-slug';
 import { Card } from '../../components/card/Card';
 import FadeIn from '../../components/fade-in/FadeIn';
 import { PageAside } from '../../components/page-aside/PageAside';
@@ -28,6 +29,13 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
 
   if (!userProfile) {
     notFound();
+  }
+
+  // Check if this is a legacy username URL and redirect to canonical slug URL
+  const slugParsed = parseUserSlug(decodedUsername);
+  if (!slugParsed && userProfile.slug && userProfile.slug !== decodedUsername) {
+    // This is a legacy username URL, redirect to the canonical slug URL
+    redirect(`/profile/${userProfile.slug}`);
   }
 
   // Check if this is the user's own profile

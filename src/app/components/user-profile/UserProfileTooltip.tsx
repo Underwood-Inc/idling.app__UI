@@ -1,12 +1,12 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import React from 'react';
+import { UserProfileData } from '../../../lib/types/profile';
 import { InteractiveTooltip } from '../tooltip/InteractiveTooltip';
-import { UserProfile, UserProfileData } from './UserProfile';
+import { UserProfile } from './UserProfile';
 import './UserProfileTooltip.css';
 
-interface UserProfileTooltipProps {
+export interface UserProfileTooltipProps {
   user: UserProfileData;
   children: React.ReactNode;
   delay?: number;
@@ -24,8 +24,13 @@ export function UserProfileTooltip({
   const router = useRouter();
 
   const handleProfileClick = () => {
-    if (enableClick && user.username) {
-      router.push(`/profile/${user.username}`);
+    if (enableClick) {
+      // Use slug if available (new format), otherwise fall back to username (legacy)
+      const profilePath = user.slug
+        ? `/profile/${user.slug}`
+        : `/profile/${encodeURIComponent(user.username || user.name || '')}`;
+
+      router.push(profilePath);
     }
   };
 
@@ -36,7 +41,7 @@ export function UserProfileTooltip({
         variant="tooltip"
         className="user-profile-tooltip__content"
       />
-      {enableClick && user.username && (
+      {enableClick && (user.slug || user.username) && (
         <div className="user-profile-tooltip__actions">
           <button
             className="user-profile-tooltip__view-profile"

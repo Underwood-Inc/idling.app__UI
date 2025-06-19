@@ -214,7 +214,9 @@ export const Author: React.FC<AuthorProps> = ({
   const { openOverlay, closeOverlay } = useOverlay();
 
   const displayName = showFullName ? authorName : `@${authorName}`;
-  const profileUrl = `/profile/${encodeURIComponent(authorName)}`;
+  const profileUrl = userProfile?.slug
+    ? `/profile/${userProfile.slug}`
+    : `/profile/${encodeURIComponent(authorName)}`;
 
   // Fetch user profile for tooltip via API route
   useEffect(() => {
