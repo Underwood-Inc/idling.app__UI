@@ -69,7 +69,12 @@ export async function getSubmissions({
     }
 
     if (onlyMine) {
-      whereConditions.push('s.author_id = $' + (queryParams.length + 1));
+      // Use modern user_id with JOIN to accounts table to find by providerAccountId
+      whereConditions.push(
+        's.user_id IN (SELECT u.id FROM users u JOIN accounts a ON u.id = a."userId" WHERE a."providerAccountId" = $' +
+          (queryParams.length + 1) +
+          ')'
+      );
       queryParams.push(providerAccountId);
     }
 
@@ -466,7 +471,12 @@ export async function getSubmissionsAction({
     }
 
     if (onlyMine) {
-      whereConditions.push('s.author_id = $' + (queryParams.length + 1));
+      // Use modern user_id with JOIN to accounts table to find by providerAccountId
+      whereConditions.push(
+        's.user_id IN (SELECT u.id FROM users u JOIN accounts a ON u.id = a."userId" WHERE a."providerAccountId" = $' +
+          (queryParams.length + 1) +
+          ')'
+      );
       queryParams.push(providerAccountId);
     }
 

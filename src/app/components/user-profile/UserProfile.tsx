@@ -171,6 +171,7 @@ export function UserProfile({
     );
   }
 
+  console.log('DEBUG: UserProfile:', user);
   if (variant === 'compact') {
     return (
       <div className={`user-profile user-profile--compact ${className}`}>

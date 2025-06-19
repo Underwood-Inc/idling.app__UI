@@ -17,7 +17,7 @@ export async function getUserProfile(
   username: string
 ): Promise<UserProfileData | null> {
   try {
-    // First, try to find user by providerAccountId (most reliable)
+    // Clean modern profile lookup: providerAccountId first, then name
     const userResult = await sql`
       SELECT 
         u.id,
@@ -31,61 +31,19 @@ export async function getUserProfile(
         a."providerAccountId"
       FROM users u 
       LEFT JOIN accounts a ON u.id = a."userId"
-      WHERE LOWER(u.name) = LOWER(${username})
-         OR LOWER(split_part(u.email, '@', 1)) = LOWER(${username})
-         OR a."providerAccountId" = ${username}
-         OR u.id::text = ${username}
+      WHERE a."providerAccountId" = ${username}
+         OR LOWER(u.name) = LOWER(${username})
+      ORDER BY 
+        CASE 
+          WHEN a."providerAccountId" = ${username} THEN 1
+          WHEN LOWER(u.name) = LOWER(${username}) THEN 2
+          ELSE 3
+        END
       LIMIT 1
     `;
 
     if (userResult.length === 0) {
-      // Fallback: try to find user in submissions table (for legacy support)
-      const submissionUser = await sql`
-        SELECT DISTINCT 
-          author_id,
-          author as username,
-          MIN(submission_datetime) as created_at
-        FROM submissions 
-        WHERE LOWER(author) = LOWER(${username})
-           OR author_id = ${username}
-        GROUP BY author_id, author
-        LIMIT 1
-      `;
-
-      if (submissionUser.length === 0) {
-        return null;
-      }
-
-      const authorData = submissionUser[0];
-
-      // Get submission statistics
-      const stats = await sql`
-        SELECT 
-          COUNT(*) as total_submissions,
-          COUNT(CASE WHEN thread_parent_id IS NULL THEN 1 END) as posts_count,
-          COUNT(CASE WHEN thread_parent_id IS NOT NULL THEN 1 END) as replies_count,
-          MAX(submission_datetime) as last_activity
-        FROM submissions 
-        WHERE author_id = ${authorData.author_id}
-      `;
-
-      const userStats = stats[0];
-
-      return {
-        id: authorData.author_id,
-        username: authorData.username,
-        name: undefined,
-        email: undefined,
-        bio: undefined,
-        location: undefined,
-        image: undefined,
-        created_at: authorData.created_at,
-        profile_public: true, // Default to true for legacy users
-        total_submissions: parseInt(userStats.total_submissions),
-        posts_count: parseInt(userStats.posts_count),
-        replies_count: parseInt(userStats.replies_count),
-        last_activity: userStats.last_activity
-      };
+      return null;
     }
 
     const user = userResult[0];

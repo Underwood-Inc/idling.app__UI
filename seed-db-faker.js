@@ -1502,13 +1502,26 @@ class FakerContentGenerator {
     const industry = this.selectIndustry();
 
     const profile = this.generateUserProfile(persona, industry);
-    const authorId = `user_${index.toString().padStart(8, '0')}_${seed.substring(0, 8)}`;
+
+    // Generate NextAuth compatible data
+    const providers = ['twitch', 'discord', 'github'];
+    const provider = faker.helpers.arrayElement(providers);
+    const providerAccountId = `${provider}_${index.toString().padStart(8, '0')}`;
 
     const joinDate = this.generateJoinDate();
 
     return {
-      author_id: authorId,
-      author: profile.username,
+      // NextAuth user fields
+      name: profile.username,
+      email: `${profile.firstName.toLowerCase()}.${profile.lastName.toLowerCase()}@example.com`,
+      image: faker.image.avatar(),
+      profile_public: true,
+
+      // Account fields
+      provider: provider,
+      providerAccountId: providerAccountId,
+
+      // Additional data for content generation
       persona: persona,
       industry: industry,
       profile: profile,
@@ -1941,9 +1954,7 @@ class FakerContentGenerator {
 
   addUserMentions(content, currentUser, allUsers) {
     // Don't mention yourself
-    const otherUsers = allUsers.filter(
-      (u) => u.author_id !== currentUser.author_id
-    );
+    const otherUsers = allUsers.filter((u) => u.id !== currentUser.id);
     if (otherUsers.length === 0) return content;
 
     // Randomly select 1-3 users to mention
@@ -1970,7 +1981,7 @@ class FakerContentGenerator {
     // Replace placeholders with actual usernames
     mentionedUsers.forEach((user, index) => {
       const placeholder = index === 0 ? '{username}' : `{username${index + 1}}`;
-      mentionText = mentionText.replace(placeholder, user.profile.username);
+      mentionText = mentionText.replace(placeholder, user.name); // Use NextAuth name field
     });
 
     // Remove any unused placeholders
@@ -2198,9 +2209,16 @@ async function clearDatabase() {
 
   animator.start('Clearing existing data...');
   try {
+    // Clear in correct order to respect foreign key constraints
     await sql`DELETE FROM submissions`;
+    await sql`DELETE FROM accounts`;
+    await sql`DELETE FROM users`;
+
+    // Reset sequences
     await sql`ALTER SEQUENCE submissions_submission_id_seq RESTART WITH 1`;
-    animator.success('Database cleared');
+    await sql`ALTER SEQUENCE users_id_seq RESTART WITH 1`;
+
+    animator.success('Database cleared (NextAuth tables included)');
   } catch (error) {
     animator.error(`Error clearing database: ${error.message}`);
     throw error;
@@ -2211,27 +2229,100 @@ async function createUsers(config, generator) {
   const animator = new ProgressAnimator();
 
   animator.start(
-    `Generating ${chalk.bold(config.users.toLocaleString())} realistic users...`
+    `Creating ${chalk.bold(config.users.toLocaleString())} NextAuth users with accounts...`
   );
 
-  const users = [];
+  const generatedUsers = [];
+  const finalUsers = [];
   const updateInterval = Math.max(100, Math.floor(config.users / 100));
 
+  // Generate user data
   for (let i = 0; i < config.users; i++) {
-    users.push(generator.generateUser(i));
+    generatedUsers.push(generator.generateUser(i));
 
     if (i % updateInterval === 0 || i === config.users - 1) {
       const progress = (((i + 1) / config.users) * 100).toFixed(1);
       animator.update(
-        `Generating users... ${chalk.bold((i + 1).toLocaleString())}/${chalk.bold(config.users.toLocaleString())} (${progress}%)`
+        `Generating user data... ${chalk.bold((i + 1).toLocaleString())}/${chalk.bold(config.users.toLocaleString())} (${progress}%)`
       );
     }
   }
 
+  // Insert users in batches
+  const batchSize = 100;
+  const batches = Math.ceil(generatedUsers.length / batchSize);
+
+  for (let batch = 0; batch < batches; batch++) {
+    const batchStart = batch * batchSize;
+    const batchEnd = Math.min(batchStart + batchSize, generatedUsers.length);
+    const batchUsers = generatedUsers.slice(batchStart, batchEnd);
+
+    // Prepare user records
+    const userRecords = batchUsers.map((user) => [
+      user.name,
+      user.email,
+      user.image,
+      user.profile_public
+    ]);
+
+    // Insert users and get their IDs
+    const insertedUsers = await sql`
+      INSERT INTO users (name, email, image, profile_public)
+      VALUES ${sql(userRecords)}
+      RETURNING id, name, email
+    `;
+
+    // Prepare account records
+    const accountRecords = [];
+    for (let i = 0; i < insertedUsers.length; i++) {
+      const insertedUser = insertedUsers[i];
+      const generatedUser = batchUsers[i];
+
+      // Store final user data for content generation
+      finalUsers.push({
+        id: insertedUser.id,
+        name: insertedUser.name,
+        email: insertedUser.email,
+        providerAccountId: generatedUser.providerAccountId,
+        persona: generatedUser.persona,
+        industry: generatedUser.industry,
+        profile: generatedUser.profile,
+        created_at: generatedUser.created_at,
+        seed: generatedUser.seed
+      });
+
+      accountRecords.push([
+        insertedUser.id, // userId
+        generatedUser.provider, // provider
+        generatedUser.providerAccountId, // providerAccountId
+        'oauth', // type
+        generatedUser.providerAccountId, // access_token (placeholder)
+        'Bearer', // token_type
+        Math.floor(Date.now() / 1000) + 3600, // expires_at (1 hour from now)
+        'read', // scope
+        generatedUser.providerAccountId, // id_token (placeholder)
+        'active' // session_state
+      ]);
+    }
+
+    // Insert accounts
+    await sql`
+      INSERT INTO accounts (
+        "userId", provider, "providerAccountId", type, access_token, token_type,
+        expires_at, scope, id_token, session_state
+      ) VALUES ${sql(accountRecords)}
+    `;
+
+    const progress = (((batch + 1) / batches) * 100).toFixed(1);
+    animator.update(
+      `Creating users and accounts... ${chalk.bold(batchEnd)}/${chalk.bold(generatedUsers.length)} (${progress}%)`
+    );
+  }
+
   animator.success(
-    `Generated ${chalk.bold(users.length.toLocaleString())} users`
+    `Created ${chalk.bold(finalUsers.length.toLocaleString())} users with NextAuth accounts`
   );
-  return users;
+  return finalUsers;
 }
 
 async function createPosts(users, config, generator) {
@@ -2279,8 +2370,7 @@ async function createPosts(users, config, generator) {
       posts.push({
         submission_name: contentData.content,
         submission_title: title,
-        author_id: user.author_id,
-        author: user.author,
+        user_id: user.id, // Use NextAuth user ID
         tags: contentData.hashtags,
         thread_parent_id: null,
         submission_datetime: timestamp,
@@ -2292,11 +2382,11 @@ async function createPosts(users, config, generator) {
     for (const post of posts) {
       const result = await sql`
         INSERT INTO submissions (
-          submission_name, submission_title, author_id, author, tags, 
+          submission_name, submission_title, user_id, tags, 
           thread_parent_id, submission_datetime
         ) VALUES (
           ${post.submission_name}, ${post.submission_title}, 
-          ${post.author_id}, ${post.author}, ${post.tags}, 
+          ${post.user_id}, ${post.tags}, 
           ${post.thread_parent_id}, ${post.submission_datetime}
         ) RETURNING submission_id
       `;
@@ -2373,7 +2463,7 @@ async function createReplies(users, posts, config, generator) {
             // Smart user selection (simplified to prevent hanging)
             if (depth > 1 && Math.random() < 0.2) {
               const availableUsers = users.filter(
-                (u) => u.author_id !== parent.author_id
+                (u) => u.id !== parent.user_id
               );
               if (availableUsers.length > 0) {
                 replyUser = faker.helpers.arrayElement(availableUsers);
@@ -2408,8 +2498,7 @@ async function createReplies(users, posts, config, generator) {
               const reply = {
                 submission_name: replyContent,
                 submission_title: generateReplyTitle(parent, depth),
-                author_id: replyUser.author_id,
-                author: replyUser.author,
+                user_id: replyUser.id, // Use NextAuth user ID
                 tags: tags,
                 thread_parent_id: parent.submission_id,
                 submission_datetime: replyTime,
@@ -2433,11 +2522,11 @@ async function createReplies(users, posts, config, generator) {
           try {
             const result = await sql`
               INSERT INTO submissions (
-                submission_name, submission_title, author_id, author, tags, 
+                submission_name, submission_title, user_id, tags, 
                 thread_parent_id, submission_datetime
               ) VALUES (
                 ${reply.submission_name}, ${reply.submission_title}, 
-                ${reply.author_id}, ${reply.author}, ${reply.tags}, 
+                ${reply.user_id}, ${reply.tags}, 
                 ${reply.thread_parent_id}, ${reply.submission_datetime}
               ) RETURNING submission_id
             `;

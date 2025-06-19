@@ -47,13 +47,14 @@ export default function CustomPostgresAdapter(client: Pool): Adapter {
     async createUser(user: Omit<AdapterUser, 'id'>) {
       const { name, email, emailVerified, image } = user;
 
+      // Clean modern user creation for NextAuth integration
       const sql = `
         INSERT INTO users (
           name, 
           email, 
           "emailVerified", 
           image, 
-          profile_public, 
+          profile_public,
           created_at
         ) 
         VALUES ($1, $2, $3, $4, $5, CURRENT_TIMESTAMP) 
