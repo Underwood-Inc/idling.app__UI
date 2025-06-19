@@ -6,7 +6,7 @@
   border: 1px solid var(--brand-secondary--dark);
   padding: 0.25rem 0.75rem;
   border-radius: 1rem;
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-md);
   font-weight: 500;
   text-decoration: none;
   cursor: pointer;

@@ -9,16 +9,42 @@ const { auth } = NextAuth({
 });
 
 export default auth((req) => {
-  const { nextUrl } = req;
+  const { nextUrl, auth: session } = req;
 
-  const isAuthenticated = !!req.auth;
+  // Handle API route authentication
+  if (nextUrl.pathname.startsWith('/api/')) {
+    // Protect profile update routes (PATCH, POST, DELETE)
+    if (nextUrl.pathname.startsWith('/api/profile') && req.method !== 'GET') {
+      if (!session) {
+        return NextResponse.json(
+          { error: 'Authentication required' },
+          { status: 401 }
+        );
+      }
+    }
+
+    // Protect admin routes
+    if (nextUrl.pathname.startsWith('/api/admin')) {
+      if (!session) {
+        return NextResponse.json(
+          { error: 'Authentication required' },
+          { status: 401 }
+        );
+      }
+    }
+
+    // Allow other API routes to continue
+    return NextResponse.next();
+  }
+
+  // Handle page route authentication (existing logic)
+  const isAuthenticated = !!session;
   const isPublicRoute =
     PUBLIC_ROUTES.includes(nextUrl.pathname) ||
     nextUrl.pathname.startsWith('/t/');
 
   if (isPublicRoute) {
     return;
-    // return Response.redirect(new URL(DEFAULT_REDIRECT, nextUrl));
   }
 
   if (!isPublicRoute && isAuthenticated) {
@@ -33,5 +59,9 @@ export default auth((req) => {
 });
 
 export const config = {
-  matcher: ['/((?!api|_next/static|_next/image|favicon.ico).*)']
+  matcher: [
+    '/api/profile/:path*',
+    '/api/admin/:path*',
+    '/((?!api|_next/static|_next/image|favicon.ico).*)'
+  ]
 };

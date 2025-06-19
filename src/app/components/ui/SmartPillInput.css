@@ -145,7 +145,7 @@
 }
 
 .smart-pill-input__placeholder {
-  color: var(--light-bg__text-color--secondary);
+  color: var(--light-bg__text-color--tertiary) !important;
   font-style: italic;
   flex: 1;
 }

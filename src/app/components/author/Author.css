@@ -8,14 +8,14 @@
   cursor: pointer;
   border-radius: var(--border-radius);
   padding: 0.25rem 0.5rem;
+  transition: all 0.2s ease;
   /* Remove negative margins that cause alignment issues */
 }
 
 .author.clickable:hover {
-  background-color: var(--light-background--secondary);
-  transform: translateY(-1px);
-  /* Add subtle border to better define hover area */
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  background-color: var(--light-background--tertiary);
+  /* Subtle background change with minimal visual artifacts */
+  opacity: 0.9;
 }
 
 .author__name {
@@ -38,10 +38,8 @@
 
 .author.clickable:hover .author__name {
   color: var(--brand-primary--dark);
-  background: linear-gradient(135deg, var(--light-background--primary), var(--light-background--secondary));
   border-color: var(--brand-primary);
-  transform: translateY(-1px);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  /* Remove transform and extra shadow that cause visual artifacts */
 }
 
 /* Size variants */
@@ -103,7 +101,7 @@
 @media (prefers-color-scheme: dark) {
   .author.clickable:hover {
     background-color: var(--dark-background--secondary, #4b5563);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    opacity: 0.9;
   }
 
   .author__name {
@@ -116,9 +114,8 @@
 
   .author.clickable:hover .author__name {
     color: var(--brand-primary--light);
-    background: linear-gradient(135deg, var(--dark-background--primary), var(--dark-background--secondary));
     border-color: var(--brand-primary);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+    /* Clean hover effect - no extra shadows or transforms */
   }
 }
 
@@ -281,13 +278,15 @@
 /* Modal Styles */
 .user-profile-modal {
   width: 90vw;
-  max-width: 600px;
+  max-width: 500px;
+  min-width: 400px;
   max-height: 90vh;
   background: var(--light-background--primary);
   border-radius: var(--border-radius);
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
 }
 
 .user-profile-modal__header {
@@ -332,6 +331,8 @@
   padding: 1.5rem;
   overflow-y: auto;
   flex: 1;
+  max-height: calc(90vh - 100px);
+  /* Account for header height */
 }
 
 .user-profile-modal__profile {
@@ -339,6 +340,13 @@
   border: none;
   padding: 0;
   box-shadow: none;
+  /* Override tooltip-specific styles that break in modal context */
+  position: relative !important;
+  z-index: auto !important;
+  backdrop-filter: none !important;
+  min-width: auto !important;
+  max-width: none !important;
+  width: 100% !important;
 }
 
 .user-profile-modal__profile:hover {
@@ -425,4 +433,81 @@
   .user-profile-modal__close:hover {
     background: var(--dark-background--primary);
   }
+}
+
+/* Responsive modal design */
+@media (max-width: 768px) {
+  .user-profile-modal {
+    width: 95vw;
+    min-width: 300px;
+    max-width: 400px;
+    max-height: 85vh;
+  }
+
+  .user-profile-modal__content {
+    padding: 1rem;
+    max-height: calc(85vh - 80px);
+  }
+
+  .user-profile-modal__header {
+    padding: 1rem;
+  }
+
+  .user-profile-modal__title {
+    font-size: var(--font-size-lg);
+  }
+}
+
+@media (max-width: 480px) {
+  .user-profile-modal {
+    width: 98vw;
+    min-width: 280px;
+    max-width: 350px;
+    max-height: 80vh;
+  }
+
+  .user-profile-modal__content {
+    padding: 0.75rem;
+    max-height: calc(80vh - 70px);
+  }
+
+  .user-profile-modal__header {
+    padding: 0.75rem;
+  }
+}
+
+/* Bio editing styles specific to modal context */
+.user-profile-modal__profile .user-profile__bio-textarea {
+  min-height: 80px;
+  max-height: 150px;
+  resize: vertical;
+}
+
+.user-profile-modal__profile .user-profile__bio-actions {
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.user-profile-modal__profile .user-profile__bio-save,
+.user-profile-modal__profile .user-profile__bio-cancel {
+  flex: 1;
+  min-width: 80px;
+}
+
+.user-profile-modal__profile .user-profile__edit-bio-btn--compact {
+  margin-bottom: 0.5rem;
+  font-size: var(--font-size-xs);
+  padding: 0.25rem 0.5rem;
+}
+
+/* Ensure stats display properly in modal */
+.user-profile-modal__profile .user-profile__stats {
+  margin-top: 1rem;
+  gap: 0.5rem;
+}
+
+.user-profile-modal__profile .user-profile__stat {
+  padding: 0.5rem;
+  min-width: 0;
+  flex: 1;
 }

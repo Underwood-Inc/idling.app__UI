@@ -147,7 +147,7 @@
 }
 
 .profile-page__owner-note p {
-  font-size: 0.875rem;
+  font-size: --font-size-base;
   color: var(--light-bg__text-color--secondary);
   margin: 0;
   line-height: 1.5;

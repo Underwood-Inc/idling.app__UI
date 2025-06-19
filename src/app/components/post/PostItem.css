@@ -28,13 +28,13 @@
 }
 
 .post-item__meta {
-  font-size: 0.875rem;
+  font-size: --font-size-base;
   color: #6b7280;
   margin-bottom: 0.5rem;
 }
 
 .post-item__description {
-  font-size: 0.875rem;
+  font-size: --font-size-base;
   color: #6b7280;
   margin-top: 0.5rem;
 }

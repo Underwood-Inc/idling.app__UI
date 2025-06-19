@@ -48,23 +48,36 @@ const UserProfileModal: React.FC<{
 
   const handleBioUpdate = async (newBio: string) => {
     try {
+      // Get the session token for authorization
+      const sessionToken = await fetch('/api/auth/session')
+        .then((res) => res.json())
+        .then((session) => session?.accessToken);
+
       const response = await fetch(
         `/api/profile/${encodeURIComponent(user.username || user.name || user.id)}`,
         {
           method: 'PATCH',
           headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            // Include authorization header if we have a token
+            ...(sessionToken && { Authorization: `Bearer ${sessionToken}` })
           },
           body: JSON.stringify({ bio: newBio })
         }
       );
 
       if (!response.ok) {
-        throw new Error('Failed to update bio');
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to update bio');
       }
+
+      const result = await response.json();
 
       // Update the user object locally
       user.bio = newBio;
+
+      // Success - bio updated
+      return result;
     } catch (error) {
       console.error('Error updating bio:', error);
       throw error;

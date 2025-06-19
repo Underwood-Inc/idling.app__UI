@@ -175,7 +175,7 @@
 .submission__thread-link {
   color: var(--anchor__light-bg--primary);
   text-decoration: none;
-  font-size: 0.875rem;
+  font-size: --font-size-base;
   padding: 0.25rem 0.5rem;
   border: 1px solid var(--brand-tertiary--dark);
   border-radius: 0.25rem;
@@ -240,7 +240,7 @@
 
 .submission__reply .submission__description {
   color: var(--light-bg__text-color--secondary);
-  font-size: 0.875rem;
+  font-size: --font-size-base;
 }
 
 .submission__reply .submission__meta {
@@ -359,7 +359,7 @@
   border: none;
   padding: 0.25rem 0.5rem;
   border-radius: 0.25rem;
-  font-size: 0.75rem;
+  font-size: var(--font-size-md);
   cursor: pointer;
   transition: all 0.2s ease;
 }

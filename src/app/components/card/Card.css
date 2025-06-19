@@ -52,7 +52,7 @@
 
 .card p {
   margin: 0;
-  font-size: var(--font-size-base);
+  font-size: var(--font-size-lg);
   line-height: 1.5;
   max-width: 100ch;
   width: 100%;

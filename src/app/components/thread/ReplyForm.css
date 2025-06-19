@@ -214,7 +214,7 @@
 
   .reply-form__input,
   .reply-form__textarea {
-    padding: 0.875rem;
+    padding: --font-size-base;
     font-size: var(--font-size-xs);
   }
 

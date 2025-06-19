@@ -24,7 +24,7 @@
 }
 
 .posts-manager__results-text {
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-md);
   font-weight: 500;
   color: var(--light-bg__text-color--primary);
   text-align: center;
@@ -45,7 +45,7 @@
   color: var(--font-color--primary);
   border: 1px solid var(--brand-primary--dark);
   border-radius: 0.375rem;
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-md);
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease-in-out;
@@ -94,8 +94,8 @@
   }
 
   .posts-manager__new-post-button svg {
-    width: 0.875rem;
-    height: 0.875rem;
+    width: --font-size-base;
+    height: --font-size-base;
   }
 
   .posts-manager__results-text {
@@ -219,7 +219,7 @@
 }
 
 .posts-manager__pagination-label {
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-md);
   font-weight: 500;
   color: var(--light-bg__text-color--primary);
 }
@@ -233,7 +233,7 @@
 
 .posts-manager__pagination-button {
   padding: 0.375rem 0.75rem;
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-md);
   font-weight: 500;
   border: none;
   background-color: var(--light-background--quinary);

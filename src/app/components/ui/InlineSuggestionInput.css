@@ -215,7 +215,7 @@
 /* Responsive design */
 @media (max-width: 768px) {
   .inline-suggestion-input {
-    padding: 0.875rem;
+    padding: --font-size-base;
     font-size: var(--font-size-xs);
   }
 
@@ -224,12 +224,12 @@
   }
 
   .suggestion-header {
-    padding: 0.375rem 0.875rem;
+    padding: 0.375rem --font-size-base;
     font-size: var(--font-size-xs);
   }
 
   .suggestion-item {
-    padding: 0.625rem 0.875rem;
+    padding: 0.625rem --font-size-base;
   }
 
   .suggestion-avatar {
@@ -242,7 +242,7 @@
   }
 
   .suggestion-load-more {
-    padding: 0.625rem 0.875rem;
+    padding: 0.625rem --font-size-base;
   }
 
   .suggestion-load-more-btn {

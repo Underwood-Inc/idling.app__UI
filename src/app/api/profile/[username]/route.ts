@@ -3,6 +3,7 @@ import {
   getUserProfile,
   updateBioAction
 } from '../../../../lib/actions/profile.actions';
+import { auth } from '../../../../lib/auth';
 
 export async function GET(
   request: NextRequest,
@@ -40,6 +41,16 @@ export async function PATCH(
   { params }: { params: { username: string } }
 ) {
   try {
+    // First, verify authentication with JWT
+    const session = await auth();
+
+    if (!session?.user?.id) {
+      return NextResponse.json(
+        { error: 'Authentication required. Please log in.' },
+        { status: 401 }
+      );
+    }
+
     const { username } = params;
     const body = await request.json();
     const { bio } = body;
@@ -58,6 +69,39 @@ export async function PATCH(
       );
     }
 
+    if (bio.length > 500) {
+      return NextResponse.json(
+        { error: 'Bio must be 500 characters or less' },
+        { status: 400 }
+      );
+    }
+
+    // Get the target user profile to verify ownership
+    const targetProfile = await getUserProfile(username);
+
+    if (!targetProfile) {
+      return NextResponse.json({ error: 'User not found' }, { status: 404 });
+    }
+
+    // Verify authorization - user can only update their own profile
+    const currentUserId = session.user.id;
+    const currentUserName = session.user.name;
+    const currentUserEmail = session.user.email;
+
+    const isAuthorized =
+      currentUserId === targetProfile.id ||
+      (currentUserName && currentUserName === targetProfile.username) ||
+      (currentUserName && currentUserName === targetProfile.name) ||
+      (currentUserEmail && currentUserEmail === targetProfile.email);
+
+    if (!isAuthorized) {
+      return NextResponse.json(
+        { error: 'Forbidden. You can only update your own profile.' },
+        { status: 403 }
+      );
+    }
+
+    // Call the secure server action with proper validation
     const result = await updateBioAction(bio, username);
 
     if (!result.success) {
@@ -69,7 +113,8 @@ export async function PATCH(
 
     return NextResponse.json({
       success: true,
-      profile: result.profile
+      profile: result.profile,
+      message: 'Bio updated successfully'
     });
   } catch (error) {
     console.error('Error updating user bio:', error);

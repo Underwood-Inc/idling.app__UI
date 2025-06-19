@@ -278,7 +278,7 @@
 
   .shared-submission-form__input,
   .shared-submission-form__textarea {
-    padding: 0.875rem;
+    padding: --font-size-base;
     font-size: var(--font-size-xs);
   }
 
