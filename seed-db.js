@@ -58,6 +58,7 @@ const SEED_USERS_COUNT = 5000; // Number of unique users
 const SEED_POSTS_COUNT = 200000; // Number of main posts
 const SEED_REPLIES_COUNT = 400000; // Reduced from 800k to prevent lockup while maintaining good variety
 const BATCH_SIZE = 5000; // Increased batch size for better performance on production
+const SKIP_MATERIALIZED_VIEW = process.env.SKIP_MATERIALIZED_VIEW === 'true'; // Set to true to skip slow materialized view refresh
 
 // ================================
 // UNIQUE USERNAME GENERATION SYSTEM
@@ -437,7 +438,16 @@ const CONTENT_TEMPLATES = [
   'Looking for recommendations on {topic} tools. Currently using {hashtag}. #tools #advice',
   'Just deployed my first {hashtag} application! {topic} concepts finally clicked. #milestone',
   'Reading about {topic} architecture patterns. {hashtag} implementation is elegant. #architecture',
-  'Team discussion on {topic} best practices. {hashtag} seems like the way to go. #teamwork'
+  'Team discussion on {topic} best practices. {hashtag} seems like the way to go. #teamwork',
+  // Templates with mention placeholders - will be replaced with proper structured mentions
+  '{mention} what do you think about this? Open sourcing my {topic} platform built with {hashtag}',
+  '{mention} might have experience with this. Looking for {topic} recommendations using {hashtag}',
+  'Thanks to {mention} for the great {topic} tutorial! Perfect for learning {hashtag} development',
+  'Collaborating with {mention} on a {topic} project. {hashtag} is our main tech stack',
+  '{mention} shared an interesting perspective on {topic}. Thoughts on {hashtag} implementation?',
+  'Just saw {mention} post about {topic}. Their {hashtag} approach is really clever!',
+  'Shoutout to {mention} for helping me understand {topic} concepts. {hashtag} makes so much sense now!',
+  '{mention} have you tried the new {hashtag} features for {topic}? Would love your thoughts'
 ];
 
 /**
@@ -452,8 +462,16 @@ function generatePostContent(users, index) {
     .replace('{topic}', topic)
     .replace('{hashtag}', hashtag);
 
-  // Add random hashtags (60% chance)
-  if (Math.random() < 0.6) {
+  // Handle mention placeholders in templates
+  if (content.includes('{mention}') && users.length > 0) {
+    const randomUser = users[Math.floor(Math.random() * users.length)];
+    const filterType = Math.random() < 0.7 ? 'author' : 'mentions'; // 70% author, 30% mentions
+    const structuredMention = `@[${randomUser.author}|${randomUser.author_id}|${filterType}]`;
+    content = content.replace('{mention}', structuredMention);
+  }
+
+  // Add random hashtags (50% chance, but not if template already has mentions)
+  if (Math.random() < 0.5 && !content.includes('@[')) {
     const extraHashtags = HASHTAGS.filter((h) => h !== hashtag)
       .sort(() => Math.random() - 0.5)
       .slice(0, 2)
@@ -462,10 +480,11 @@ function generatePostContent(users, index) {
     content += ` ${extraHashtags}`;
   }
 
-  // Add user mentions (30% chance)
-  if (Math.random() < 0.3 && users.length > 0) {
+  // Add random user mentions (20% chance, reduced since we have template mentions)
+  if (Math.random() < 0.2 && users.length > 0 && !content.includes('@[')) {
     const randomUser = users[Math.floor(Math.random() * users.length)];
-    content += ` @[${randomUser.author}|${randomUser.author_id}]`;
+    const filterType = Math.random() < 0.7 ? 'author' : 'mentions'; // 70% author, 30% mentions
+    content += ` @[${randomUser.author}|${randomUser.author_id}|${filterType}]`;
   }
 
   return content;
@@ -510,6 +529,8 @@ async function restoreDatabaseSettings() {
   console.log('🔄 Restoring database settings...');
 
   try {
+    const startTime = Date.now();
+
     // Restore synchronous_commit
     await sql`SET synchronous_commit = ON`;
 
@@ -522,15 +543,27 @@ async function restoreDatabaseSettings() {
     // Re-enable auto-vacuum
     await sql`SET autovacuum = ON`;
 
-    // Run VACUUM ANALYZE to update statistics
-    await sql`VACUUM ANALYZE submissions`;
+    // Run VACUUM ANALYZE with timeout protection
+    console.log('   Running VACUUM ANALYZE (this may take a while)...');
+    const vacuumPromise = sql`VACUUM ANALYZE submissions`;
 
-    console.log('✅ Database settings restored');
+    // Show progress for vacuum
+    const progressInterval = setInterval(() => {
+      const elapsed = ((Date.now() - startTime) / 1000).toFixed(0);
+      console.log(`   VACUUM still running... (${elapsed}s elapsed)`);
+    }, 15000);
+
+    await vacuumPromise;
+    clearInterval(progressInterval);
+
+    const duration = ((Date.now() - startTime) / 1000).toFixed(2);
+    console.log(`✅ Database settings restored in ${duration}s`);
   } catch (error) {
     console.warn(
       '⚠️  Some database setting restoration failed:',
       error.message
     );
+    console.log('   Continuing anyway...');
   }
 }
 
@@ -726,15 +759,41 @@ async function createReplies(users, count) {
  */
 async function refreshMaterializedView() {
   console.log('🔄 Refreshing materialized view...');
+  console.log('   This may take several minutes for large datasets...');
 
   try {
-    await sql`SELECT refresh_user_submission_stats()`;
-    console.log('✅ Materialized view refreshed');
+    const startTime = Date.now();
+
+    // Add a timeout and progress indicator
+    const refreshPromise = sql`SELECT refresh_user_submission_stats()`;
+
+    // Show progress dots every 10 seconds
+    const progressInterval = setInterval(() => {
+      const elapsed = ((Date.now() - startTime) / 1000).toFixed(0);
+      console.log(`   Still working... (${elapsed}s elapsed)`);
+    }, 10000);
+
+    await refreshPromise;
+
+    clearInterval(progressInterval);
+
+    const duration = ((Date.now() - startTime) / 1000).toFixed(2);
+    console.log(`✅ Materialized view refreshed in ${duration}s`);
   } catch (error) {
     console.warn(
       '⚠️  Materialized view refresh failed (may not exist yet):',
       error.message
     );
+
+    // Try alternative approach if the function doesn't exist
+    try {
+      console.log('   Trying alternative REFRESH MATERIALIZED VIEW...');
+      await sql`REFRESH MATERIALIZED VIEW CONCURRENTLY user_submission_stats`;
+      console.log('✅ Alternative materialized view refresh succeeded');
+    } catch (altError) {
+      console.warn('⚠️  Alternative refresh also failed:', altError.message);
+      console.log('   Continuing without materialized view refresh...');
+    }
   }
 }
 
@@ -821,7 +880,9 @@ async function main() {
     await createReplies(users, SEED_REPLIES_COUNT);
 
     // Step 6: Refresh materialized view
-    await refreshMaterializedView();
+    if (!SKIP_MATERIALIZED_VIEW) {
+      await refreshMaterializedView();
+    }
 
     // Step 7: Restore database settings
     await restoreDatabaseSettings();
