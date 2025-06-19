@@ -39,7 +39,15 @@ const sql = postgres({
   // Optimize for bulk operations
   max: 20,
   idle_timeout: 0,
-  connect_timeout: 60
+  connect_timeout: 60,
+  // Additional performance optimizations
+  transform: {
+    undefined: null
+  },
+  // Increase statement timeout for large batches
+  statement_timeout: 300000, // 5 minutes
+  // Optimize for bulk inserts
+  prepare: false
 });
 
 // ================================
@@ -49,7 +57,7 @@ const sql = postgres({
 const SEED_USERS_COUNT = 5000; // Number of unique users
 const SEED_POSTS_COUNT = 200000; // Number of main posts
 const SEED_REPLIES_COUNT = 800000; // Number of replies
-const BATCH_SIZE = 1000; // Batch processing size
+const BATCH_SIZE = 5000; // Increased batch size for better performance on production
 
 // ================================
 // UNIQUE USERNAME GENERATION SYSTEM
@@ -468,6 +476,65 @@ function generatePostContent(users, index) {
 // ================================
 
 /**
+ * Optimize database for bulk operations
+ */
+async function optimizeDatabaseForBulkOps() {
+  console.log('⚡ Optimizing database for bulk operations...');
+
+  try {
+    // Disable synchronous_commit for faster inserts (data will still be durable)
+    await sql`SET synchronous_commit = OFF`;
+
+    // Increase work_mem for better sorting/grouping performance
+    await sql`SET work_mem = '256MB'`;
+
+    // Increase maintenance_work_mem for bulk operations
+    await sql`SET maintenance_work_mem = '512MB'`;
+
+    // Disable auto-vacuum during bulk insert
+    await sql`SET autovacuum = OFF`;
+
+    console.log('✅ Database optimized for bulk operations');
+  } catch (error) {
+    console.warn(
+      '⚠️  Some database optimizations failed (may not have permissions):',
+      error.message
+    );
+  }
+}
+
+/**
+ * Restore database settings after bulk operations
+ */
+async function restoreDatabaseSettings() {
+  console.log('🔄 Restoring database settings...');
+
+  try {
+    // Restore synchronous_commit
+    await sql`SET synchronous_commit = ON`;
+
+    // Restore work_mem to default
+    await sql`RESET work_mem`;
+
+    // Restore maintenance_work_mem to default
+    await sql`RESET maintenance_work_mem`;
+
+    // Re-enable auto-vacuum
+    await sql`SET autovacuum = ON`;
+
+    // Run VACUUM ANALYZE to update statistics
+    await sql`VACUUM ANALYZE submissions`;
+
+    console.log('✅ Database settings restored');
+  } catch (error) {
+    console.warn(
+      '⚠️  Some database setting restoration failed:',
+      error.message
+    );
+  }
+}
+
+/**
  * Clear existing data
  */
 async function clearDatabase() {
@@ -511,33 +578,23 @@ async function createMainPosts(users, count) {
         Date.now() - Math.random() * 90 * 24 * 60 * 60 * 1000
       );
 
-      posts.push({
-        submission_name: content,
-        submission_title: `Post ${postIndex + 1}`,
-        author_id: user.author_id,
-        author: user.author,
-        tags: tags,
-        thread_parent_id: null,
-        submission_datetime: timestamp
-      });
+      posts.push([
+        content, // submission_name
+        `Post ${postIndex + 1}`, // submission_title
+        user.author_id, // author_id
+        user.author, // author
+        tags, // tags
+        null, // thread_parent_id
+        timestamp // submission_datetime
+      ]);
     }
 
-    // Batch insert with individual inserts to avoid type issues
-    for (const post of posts) {
-      await sql`
-        INSERT INTO submissions (
-          submission_name, submission_title, author_id, author, tags, thread_parent_id, submission_datetime
-        ) VALUES (
-          ${post.submission_name},
-          ${post.submission_title},
-          ${post.author_id},
-          ${post.author},
-          ${post.tags},
-          ${post.thread_parent_id},
-          ${post.submission_datetime}
-        )
-      `;
-    }
+    // True batch insert using postgres multi-row VALUES
+    await sql`
+      INSERT INTO submissions (
+        submission_name, submission_title, author_id, author, tags, thread_parent_id, submission_datetime
+      ) VALUES ${sql(posts)}
+    `;
 
     totalCreated += batchSize;
     console.log(`  Created ${totalCreated}/${count} main posts...`);
@@ -586,33 +643,23 @@ async function createReplies(users, count) {
         Date.now() - Math.random() * 90 * 24 * 60 * 60 * 1000
       );
 
-      replies.push({
-        submission_name: content,
-        submission_title: `Reply ${replyIndex + 1}`,
-        author_id: user.author_id,
-        author: user.author,
-        tags: tags,
-        thread_parent_id: parentPost.submission_id,
-        submission_datetime: timestamp
-      });
+      replies.push([
+        content, // submission_name
+        `Reply ${replyIndex + 1}`, // submission_title
+        user.author_id, // author_id
+        user.author, // author
+        tags, // tags
+        parentPost.submission_id, // thread_parent_id
+        timestamp // submission_datetime
+      ]);
     }
 
-    // Batch insert with individual inserts to avoid type issues
-    for (const reply of replies) {
-      await sql`
-        INSERT INTO submissions (
-          submission_name, submission_title, author_id, author, tags, thread_parent_id, submission_datetime
-        ) VALUES (
-          ${reply.submission_name},
-          ${reply.submission_title},
-          ${reply.author_id},
-          ${reply.author},
-          ${reply.tags},
-          ${reply.thread_parent_id},
-          ${reply.submission_datetime}
-        )
-      `;
-    }
+    // True batch insert using postgres multi-row VALUES
+    await sql`
+      INSERT INTO submissions (
+        submission_name, submission_title, author_id, author, tags, thread_parent_id, submission_datetime
+      ) VALUES ${sql(replies)}
+    `;
 
     totalCreated += batchSize;
     console.log(`  Created ${totalCreated}/${count} replies...`);
@@ -705,22 +752,28 @@ async function main() {
   console.log(`🔒 GUARANTEED unique usernames - no duplicates!\n`);
 
   try {
-    // Step 1: Clear existing data
+    // Step 1: Optimize database for bulk operations
+    await optimizeDatabaseForBulkOps();
+
+    // Step 2: Clear existing data
     await clearDatabase();
 
-    // Step 2: Generate unique users
+    // Step 3: Generate unique users
     const users = generateUniqueUsers(SEED_USERS_COUNT);
 
-    // Step 3: Create main posts
+    // Step 4: Create main posts
     await createMainPosts(users, SEED_POSTS_COUNT);
 
-    // Step 4: Create replies
+    // Step 5: Create replies
     await createReplies(users, SEED_REPLIES_COUNT);
 
-    // Step 5: Refresh materialized view
+    // Step 6: Refresh materialized view
     await refreshMaterializedView();
 
-    // Step 6: Display statistics
+    // Step 7: Restore database settings
+    await restoreDatabaseSettings();
+
+    // Step 8: Display statistics
     await displayStatistics();
 
     const endTime = Date.now();
