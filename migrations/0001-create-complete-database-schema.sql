@@ -61,10 +61,7 @@ CREATE TABLE IF NOT EXISTS submissions (
   user_id INTEGER NOT NULL,
   tags TEXT[],
   thread_parent_id INTEGER,
-  submission_datetime TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  -- Legacy fields for transition (will be removed in future)
-  author_id VARCHAR(255),
-  author VARCHAR(255)
+  submission_datetime TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 
 -- ================================
@@ -150,9 +147,7 @@ CREATE INDEX IF NOT EXISTS idx_submissions_url ON submissions(submission_url) WH
 CREATE INDEX IF NOT EXISTS idx_submissions_tags_gin ON submissions USING GIN (tags) 
   WHERE tags IS NOT NULL AND array_length(tags, 1) > 0;
 
--- Legacy field indexes (for transition period)
-CREATE INDEX IF NOT EXISTS idx_submissions_author_id ON submissions(author_id) WHERE author_id IS NOT NULL;
-CREATE INDEX IF NOT EXISTS idx_submissions_author ON submissions(author) WHERE author IS NOT NULL;
+
 
 -- Composite indexes for common queries
 CREATE INDEX IF NOT EXISTS idx_submissions_user_datetime ON submissions(user_id, submission_datetime DESC);
@@ -207,8 +202,6 @@ COMMENT ON TABLE sessions IS 'NextAuth active sessions';
 COMMENT ON TABLE submissions IS 'User submissions/posts with modern foreign key relationships';
 
 COMMENT ON COLUMN submissions.user_id IS 'Foreign key to users table (modern approach)';
-COMMENT ON COLUMN submissions.author_id IS 'Legacy field - use user_id instead';
-COMMENT ON COLUMN submissions.author IS 'Legacy field - use user_id instead';
 
 -- ================================
 -- FINAL SETUP

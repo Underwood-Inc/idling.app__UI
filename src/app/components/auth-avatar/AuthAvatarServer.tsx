@@ -29,6 +29,18 @@ export async function AuthAvatarServer({
     session?.user?.email ||
     'anonymous';
 
+  // TEMPORARY DEBUG: Log what we're getting
+  if (typeof window === 'undefined') {
+    console.log('🔴 AuthAvatarServer DEBUG:', {
+      seed,
+      sessionUserId: session?.user?.id,
+      sessionUserName: session?.user?.name,
+      sessionUserEmail: session?.user?.email,
+      providerAccountId: session?.user?.providerAccountId,
+      fullSession: JSON.stringify(session, null, 2)
+    });
+  }
+
   return (
     <div className={className}>
       <Avatar

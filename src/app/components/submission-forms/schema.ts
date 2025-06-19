@@ -10,8 +10,8 @@ export const submissionSchema = z.object({
     .min(1, 'Title is required')
     .max(255, 'Title must be 255 characters or less'),
   submission_datetime: z.date(),
-  author_id: z.string().min(1),
-  author: z.string(),
+  user_id: z.number().min(1),
+  author: z.string(), // User's display name from users table
   tags: z.array(z.string()),
   thread_parent_id: z.number().nullable()
 });

@@ -110,11 +110,12 @@ export async function getSubmissions({
         s.submission_name,
         s.submission_title,
         s.submission_datetime,
-        s.author_id,
-        s.author,
+        s.user_id,
+        u.name as author,
         COALESCE(s.tags, ARRAY[]::text[]) as tags,
         s.thread_parent_id
       FROM submissions s
+      LEFT JOIN users u ON s.user_id = u.id
       ${whereClause}
       ORDER BY s.submission_datetime DESC
       LIMIT $${queryParams.length + 1}
@@ -166,19 +167,20 @@ export async function getSubmissionsWithRepliesOptimized(
     const repliesResult = await sql<any[]>`
       WITH RECURSIVE reply_tree AS (
         -- Base case: direct replies to the parent posts
-      SELECT 
-        submission_id,
-        submission_name,
-        submission_title,
-        submission_datetime,
-        author_id,
-        author,
-        COALESCE(tags, ARRAY[]::text[]) as tags,
-          thread_parent_id,
-          thread_parent_id as root_parent_id,
-          1 as depth
-      FROM submissions
-        WHERE thread_parent_id = ANY(${parentIds})
+            SELECT 
+        s.submission_id,
+        s.submission_name,
+        s.submission_title,
+        s.submission_datetime,
+        s.user_id,
+        u.name as author,
+        COALESCE(s.tags, ARRAY[]::text[]) as tags,
+        s.thread_parent_id,
+        s.thread_parent_id as root_parent_id,
+        1 as depth
+      FROM submissions s
+      LEFT JOIN users u ON s.user_id = u.id
+        WHERE s.thread_parent_id = ANY(${parentIds})
         
         UNION ALL
         
@@ -188,13 +190,14 @@ export async function getSubmissionsWithRepliesOptimized(
           s.submission_name,
           s.submission_title,
           s.submission_datetime,
-          s.author_id,
-          s.author,
+          s.user_id,
+          u.name as author,
           COALESCE(s.tags, ARRAY[]::text[]) as tags,
           s.thread_parent_id,
           rt.root_parent_id,
           rt.depth + 1
         FROM submissions s
+        LEFT JOIN users u ON s.user_id = u.id
         INNER JOIN reply_tree rt ON s.thread_parent_id = rt.submission_id
         WHERE rt.depth < 10 -- Prevent infinite recursion
       )
@@ -213,7 +216,7 @@ export async function getSubmissionsWithRepliesOptimized(
         submission_name: row.submission_name,
         submission_title: row.submission_title || row.submission_name,
         submission_datetime: new Date(row.submission_datetime),
-        author_id: row.author_id,
+        user_id: row.user_id,
         author: row.author,
         tags: Array.isArray(row.tags) ? row.tags : [],
         thread_parent_id: row.thread_parent_id
@@ -345,7 +348,7 @@ export async function getSubmissionsWithReplies({
                 submission_datetime: new Date(
                   parentResult[0].submission_datetime
                 ),
-                author_id: parentResult[0].author_id,
+                user_id: parentResult[0].user_id,
                 author: parentResult[0].author,
                 tags: Array.isArray(parentResult[0].tags)
                   ? parentResult[0].tags
@@ -543,11 +546,12 @@ export async function getSubmissionsAction({
           s.submission_name,
           s.submission_title,
           s.submission_datetime,
-          s.author_id,
-          s.author,
+          s.user_id,
+          u.name as author,
           COALESCE(s.tags, ARRAY[]::text[]) as tags,
           s.thread_parent_id
         FROM submissions s
+        LEFT JOIN users u ON s.user_id = u.id
         ${whereClause}
         ORDER BY s.submission_datetime DESC, s.submission_id DESC
         LIMIT $${queryParams.length + 1}
@@ -561,11 +565,12 @@ export async function getSubmissionsAction({
           s.submission_name,
           s.submission_title,
           s.submission_datetime,
-          s.author_id,
-          s.author,
+          s.user_id,
+          u.name as author,
           COALESCE(s.tags, ARRAY[]::text[]) as tags,
           s.thread_parent_id
         FROM submissions s
+        LEFT JOIN users u ON s.user_id = u.id
         ${whereClause}
         ORDER BY s.submission_datetime DESC
         LIMIT $${queryParams.length + 1}
@@ -598,7 +603,7 @@ export async function getSubmissionsAction({
           submission_name: row.submission_name,
           submission_title: row.submission_title || row.submission_name, // Fallback for legacy data
           submission_datetime: new Date(row.submission_datetime),
-          author_id: row.author_id,
+          user_id: row.user_id,
           author: row.author,
           tags: Array.isArray(row.tags) ? row.tags : [],
           thread_parent_id: row.thread_parent_id
@@ -717,8 +722,8 @@ async function buildFilterConditions(
 
     for (const authorValue of filterGroups.authors.values) {
       paramIndex += 1;
-      // Only filter by author ID - simpler and more reliable
-      authorConditions.push(`s.author_id = $${paramIndex}`);
+      // Filter by user_id (modern approach)
+      authorConditions.push(`s.user_id = $${paramIndex}`);
       params.push(authorValue);
     }
 
