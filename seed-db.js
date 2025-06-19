@@ -54,11 +54,12 @@ const sql = postgres({
 // CONFIGURATION
 // ================================
 
-const SEED_USERS_COUNT = 5000; // Number of unique users
-const SEED_POSTS_COUNT = 200000; // Number of main posts
-const SEED_REPLIES_COUNT = 400000; // Reduced from 800k to prevent lockup while maintaining good variety
-const BATCH_SIZE = 5000; // Increased batch size for better performance on production
-const SKIP_MATERIALIZED_VIEW = process.env.SKIP_MATERIALIZED_VIEW === 'true'; // Set to true to skip slow materialized view refresh
+const SEED_USERS_COUNT = 20000;
+const SEED_POSTS_COUNT = 200000;
+const SEED_REPLIES_COUNT = 400000; // Reduced from 800k
+const SEED_NESTED_REPLIES_COUNT = 200000; // New: replies to replies
+const BATCH_SIZE = 5000;
+const SKIP_MATERIALIZED_VIEW = process.env.SKIP_MATERIALIZED_VIEW === 'true';
 
 // ================================
 // UNIQUE USERNAME GENERATION SYSTEM
@@ -495,75 +496,72 @@ function generatePostContent(users, index) {
 // ================================
 
 /**
- * Optimize database for bulk operations
+ * Optimize database settings for bulk operations
  */
-async function optimizeDatabaseForBulkOps() {
-  console.log('⚡ Optimizing database for bulk operations...');
+async function optimizeDatabaseSettings() {
+  console.log('⚙️  Optimizing database settings for bulk operations...');
 
   try {
-    // Disable synchronous_commit for faster inserts (data will still be durable)
-    await sql`SET synchronous_commit = OFF`;
-
-    // Increase work_mem for better sorting/grouping performance
-    await sql`SET work_mem = '256MB'`;
-
-    // Increase maintenance_work_mem for bulk operations
-    await sql`SET maintenance_work_mem = '512MB'`;
-
-    // Disable auto-vacuum during bulk insert
-    await sql`SET autovacuum = OFF`;
+    await sql`SET synchronous_commit = OFF`; // Massive performance boost for bulk inserts
+    await sql`SET work_mem = '256MB'`; // Increase work memory for sorting/hashing
+    await sql`SET maintenance_work_mem = '1GB'`; // Increase maintenance work memory
+    await sql`SET autovacuum = OFF`; // Disable autovacuum during bulk operations
 
     console.log('✅ Database optimized for bulk operations');
   } catch (error) {
-    console.warn(
-      '⚠️  Some database optimizations failed (may not have permissions):',
-      error.message
-    );
+    console.warn('⚠️  Some database optimizations failed:', error.message);
+    console.log('   Continuing with basic optimizations...');
+
+    // Fallback to minimal optimizations
+    try {
+      await sql`SET synchronous_commit = OFF`;
+      await sql`SET autovacuum = OFF`;
+      console.log('✅ Basic database optimizations applied');
+    } catch (fallbackError) {
+      console.warn(
+        '⚠️  Even basic optimizations failed, continuing without optimization'
+      );
+    }
   }
 }
 
 /**
- * Restore database settings after bulk operations
+ * Restore database settings to production defaults
  */
 async function restoreDatabaseSettings() {
-  console.log('🔄 Restoring database settings...');
+  console.log('🔄 Restoring database settings to production defaults...');
 
   try {
-    const startTime = Date.now();
-
-    // Restore synchronous_commit
     await sql`SET synchronous_commit = ON`;
-
-    // Restore work_mem to default
     await sql`RESET work_mem`;
-
-    // Restore maintenance_work_mem to default
     await sql`RESET maintenance_work_mem`;
-
-    // Re-enable auto-vacuum
     await sql`SET autovacuum = ON`;
 
-    // Run VACUUM ANALYZE with timeout protection
-    console.log('   Running VACUUM ANALYZE (this may take a while)...');
-    const vacuumPromise = sql`VACUUM ANALYZE submissions`;
+    // Force a checkpoint and vacuum analyze to clean up
+    console.log(
+      '🧹 Running VACUUM ANALYZE to clean up after bulk operations...'
+    );
 
-    // Show progress for vacuum
-    const progressInterval = setInterval(() => {
-      const elapsed = ((Date.now() - startTime) / 1000).toFixed(0);
-      console.log(`   VACUUM still running... (${elapsed}s elapsed)`);
+    // Progress reporting for VACUUM
+    const vacuumStart = Date.now();
+    let vacuumInterval;
+
+    const vacuumPromise = sql`VACUUM ANALYZE`;
+
+    vacuumInterval = setInterval(() => {
+      const elapsed = Math.round((Date.now() - vacuumStart) / 1000);
+      console.log(`  🧹 VACUUM ANALYZE running... ${elapsed}s elapsed`);
     }, 15000);
 
     await vacuumPromise;
-    clearInterval(progressInterval);
+    clearInterval(vacuumInterval);
 
-    const duration = ((Date.now() - startTime) / 1000).toFixed(2);
-    console.log(`✅ Database settings restored in ${duration}s`);
+    const vacuumTime = Math.round((Date.now() - vacuumStart) / 1000);
+    console.log(`✅ VACUUM ANALYZE completed in ${vacuumTime}s`);
+    console.log('✅ Database settings restored');
   } catch (error) {
-    console.warn(
-      '⚠️  Some database setting restoration failed:',
-      error.message
-    );
-    console.log('   Continuing anyway...');
+    console.warn('⚠️  Database setting restoration failed:', error.message);
+    console.log('   Manual cleanup may be required');
   }
 }
 
@@ -584,13 +582,14 @@ async function clearDatabase() {
 }
 
 /**
- * Create main posts in batches
+ * Create main posts in batches - track IDs internally
  */
 async function createMainPosts(users, count) {
   console.log(`📝 Creating ${count} main posts in batches...`);
 
   const batches = Math.ceil(count / BATCH_SIZE);
   let totalCreated = 0;
+  const createdPostIds = []; // Track created post IDs internally
 
   for (let batch = 0; batch < batches; batch++) {
     const batchStart = batch * BATCH_SIZE;
@@ -622,6 +621,11 @@ async function createMainPosts(users, count) {
       ]);
     }
 
+    // Get the current max ID before inserting
+    const beforeInsert =
+      await sql`SELECT COALESCE(MAX(submission_id), 0) as max_id FROM submissions`;
+    const startId = beforeInsert[0].max_id + 1;
+
     // True batch insert using postgres multi-row VALUES
     await sql`
       INSERT INTO submissions (
@@ -629,34 +633,35 @@ async function createMainPosts(users, count) {
       ) VALUES ${sql(posts)}
     `;
 
+    // Track the IDs of posts we just created (sequential IDs)
+    for (let i = 0; i < batchSize; i++) {
+      createdPostIds.push(startId + i);
+    }
+
     totalCreated += batchSize;
     console.log(`  Created ${totalCreated}/${count} main posts...`);
   }
 
   console.log(`✅ Created ${totalCreated} main posts`);
+  console.log(
+    `📊 Tracked ${createdPostIds.length} post IDs for reply generation`
+  );
+
+  return createdPostIds; // Return the tracked IDs
 }
 
 /**
- * Create replies in batches - optimized for performance
+ * Create replies in batches - using internal post ID tracking (NO SQL QUERIES)
  */
-async function createReplies(users, count) {
-  console.log(`💬 Creating ${count} replies in batches...`);
+async function createReplies(users, parentPostIds, count) {
+  console.log(
+    `💬 Creating ${count} replies using ${parentPostIds.length} tracked parent posts...`
+  );
 
-  // Get the range of main post IDs instead of loading all into memory
-  const postRange = await sql`
-    SELECT MIN(submission_id) as min_id, MAX(submission_id) as max_id, COUNT(*) as total_posts
-    FROM submissions WHERE thread_parent_id IS NULL
-  `;
-
-  if (postRange.length === 0 || postRange[0].total_posts === 0) {
-    console.error('❌ No main posts found to reply to');
+  if (parentPostIds.length === 0) {
+    console.error('❌ No parent post IDs provided');
     return;
   }
-
-  const { min_id, max_id, total_posts } = postRange[0];
-  console.log(
-    `📊 Found ${total_posts} main posts (ID range: ${min_id} - ${max_id})`
-  );
 
   const batches = Math.ceil(count / BATCH_SIZE);
   let totalCreated = 0;
@@ -667,42 +672,15 @@ async function createReplies(users, count) {
 
     const replies = [];
 
-    // Pre-generate random parent IDs for this batch to avoid repeated queries
-    const parentIds = [];
-    for (let i = 0; i < batchSize; i++) {
-      // Generate random ID in the range, with higher probability for lower IDs (more realistic)
-      const randomFactor = Math.random() * Math.random(); // Skews toward 0
-      const parentId = Math.floor(
-        min_id + randomFactor * (max_id - min_id + 1)
-      );
-      parentIds.push(parentId);
-    }
-
-    // Get valid parent IDs in a single query
-    const validParents = await sql`
-      SELECT submission_id 
-      FROM submissions 
-      WHERE submission_id = ANY(${parentIds}) 
-        AND thread_parent_id IS NULL
-    `;
-
-    // Create a map for quick lookup
-    const validParentSet = new Set(validParents.map((p) => p.submission_id));
-
-    // If we don't have enough valid parents, fill with existing ones
-    const validParentArray = Array.from(validParentSet);
-
     for (let i = 0; i < batchSize; i++) {
       const replyIndex = batchStart + i;
       const user = users[replyIndex % users.length];
 
-      // Use valid parent or fallback to cycling through valid ones
-      let parentId;
-      if (validParentSet.has(parentIds[i])) {
-        parentId = parentIds[i];
-      } else {
-        parentId = validParentArray[i % validParentArray.length];
-      }
+      // Use internal tracking - no SQL queries needed!
+      // Weighted selection: favor earlier posts (more realistic threading)
+      const randomFactor = Math.random() * Math.random(); // Skews toward 0
+      const parentIndex = Math.floor(randomFactor * parentPostIds.length);
+      const parentId = parentPostIds[parentIndex];
 
       const content = generatePostContent(users, replyIndex + 1000000); // Offset for variety
 
@@ -710,7 +688,7 @@ async function createReplies(users, count) {
       const hashtagMatches = content.match(/#[\w]+/g) || [];
       const tags = hashtagMatches.map((tag) => tag.substring(1));
 
-      // Random timestamp within last 90 days, but after the parent post
+      // Random timestamp within last 89 days
       const timestamp = new Date(
         Date.now() - Math.random() * 89 * 24 * 60 * 60 * 1000
       );
@@ -726,7 +704,7 @@ async function createReplies(users, count) {
       ]);
     }
 
-    // True batch insert using postgres multi-row VALUES
+    // Single batch insert - no queries during loop
     await sql`
       INSERT INTO submissions (
         submission_name, submission_title, author_id, author, tags, thread_parent_id, submission_datetime
@@ -745,13 +723,112 @@ async function createReplies(users, count) {
       console.log(`  Created ${totalCreated}/${count} replies...`);
     }
 
-    // Small delay every 10 batches to prevent overwhelming the database
-    if (batch > 0 && batch % 10 === 0) {
-      await new Promise((resolve) => setTimeout(resolve, 100));
+    // Small delay every 20 batches to prevent overwhelming the database
+    if (batch > 0 && batch % 20 === 0) {
+      await new Promise((resolve) => setTimeout(resolve, 50));
     }
   }
 
   console.log(`✅ Created ${totalCreated} replies`);
+}
+
+/**
+ * Create nested replies (replies to replies) - using internal tracking (NO SQL QUERIES)
+ */
+async function createNestedReplies(users, mainPostIds, count) {
+  console.log(`🔗 Creating ${count} nested replies using internal tracking...`);
+
+  if (mainPostIds.length === 0) {
+    console.error('❌ No main post IDs provided for nested replies');
+    return;
+  }
+
+  // Get all reply IDs that we can nest under - single query at start
+  console.log('📊 Loading existing reply IDs for nesting...');
+  const replyIds = await sql`
+    SELECT submission_id 
+    FROM submissions 
+    WHERE thread_parent_id IS NOT NULL
+    ORDER BY submission_id
+  `;
+
+  if (replyIds.length === 0) {
+    console.log(
+      '⚠️  No existing replies found, creating nested replies under main posts instead'
+    );
+    return await createReplies(users, mainPostIds, count);
+  }
+
+  const replyIdArray = replyIds.map((r) => r.submission_id);
+  console.log(`📊 Found ${replyIdArray.length} existing replies to nest under`);
+
+  const batches = Math.ceil(count / BATCH_SIZE);
+  let totalCreated = 0;
+
+  for (let batch = 0; batch < batches; batch++) {
+    const batchStart = batch * BATCH_SIZE;
+    const batchSize = Math.min(BATCH_SIZE, count - batchStart);
+
+    const nestedReplies = [];
+
+    for (let i = 0; i < batchSize; i++) {
+      const replyIndex = batchStart + i;
+      const user = users[replyIndex % users.length];
+
+      // Use internal tracking - no SQL queries needed!
+      // Weighted selection: favor earlier replies (more realistic threading)
+      const randomFactor = Math.random() * Math.random(); // Skews toward 0
+      const parentIndex = Math.floor(randomFactor * replyIdArray.length);
+      const parentId = replyIdArray[parentIndex];
+
+      const content = generatePostContent(users, replyIndex + 2000000); // Offset for variety
+
+      // Extract hashtags for tags array
+      const hashtagMatches = content.match(/#[\w]+/g) || [];
+      const tags = hashtagMatches.map((tag) => tag.substring(1));
+
+      // Random timestamp within last 88 days
+      const timestamp = new Date(
+        Date.now() - Math.random() * 88 * 24 * 60 * 60 * 1000
+      );
+
+      nestedReplies.push([
+        content, // submission_name
+        `Nested Reply ${replyIndex + 1}`, // submission_title
+        user.author_id, // author_id
+        user.author, // author
+        tags, // tags
+        parentId, // thread_parent_id
+        timestamp // submission_datetime
+      ]);
+    }
+
+    // Single batch insert - no queries during loop
+    await sql`
+      INSERT INTO submissions (
+        submission_name, submission_title, author_id, author, tags, thread_parent_id, submission_datetime
+      ) VALUES ${sql(nestedReplies)}
+    `;
+
+    totalCreated += batchSize;
+
+    // Progress reporting every 25k records
+    if (totalCreated % 25000 === 0 || totalCreated === count) {
+      const progress = ((totalCreated / count) * 100).toFixed(1);
+      console.log(
+        `  📊 Progress: ${totalCreated}/${count} nested replies (${progress}%)`
+      );
+    } else {
+      console.log(`  Created ${totalCreated}/${count} nested replies...`);
+    }
+
+    // Small delay every 20 batches to prevent overwhelming the database
+    if (batch > 0 && batch % 20 === 0) {
+      await new Promise((resolve) => setTimeout(resolve, 50));
+    }
+  }
+
+  console.log(`✅ Created ${totalCreated} nested replies`);
 }
 
 /**
@@ -864,8 +941,8 @@ async function main() {
   console.log(`🔒 GUARANTEED unique usernames - no duplicates!\n`);
 
   try {
-    // Step 1: Optimize database for bulk operations
-    await optimizeDatabaseForBulkOps();
+    // Step 1: Optimize database settings
+    await optimizeDatabaseSettings();
 
     // Step 2: Clear existing data
     await clearDatabase();
@@ -874,20 +951,23 @@ async function main() {
     const users = generateUniqueUsers(SEED_USERS_COUNT);
 
     // Step 4: Create main posts
-    await createMainPosts(users, SEED_POSTS_COUNT);
+    const mainPostIds = await createMainPosts(users, SEED_POSTS_COUNT);
 
     // Step 5: Create replies
-    await createReplies(users, SEED_REPLIES_COUNT);
+    await createReplies(users, mainPostIds, SEED_REPLIES_COUNT);
 
-    // Step 6: Refresh materialized view
+    // Step 6: Create nested replies
+    await createNestedReplies(users, mainPostIds, SEED_NESTED_REPLIES_COUNT);
+
+    // Step 7: Refresh materialized view
     if (!SKIP_MATERIALIZED_VIEW) {
       await refreshMaterializedView();
     }
 
-    // Step 7: Restore database settings
+    // Step 8: Restore database settings
     await restoreDatabaseSettings();
 
-    // Step 8: Display statistics
+    // Step 9: Display statistics
     await displayStatistics();
 
     const endTime = Date.now();
