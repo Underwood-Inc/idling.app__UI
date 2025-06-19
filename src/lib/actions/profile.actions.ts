@@ -1,4 +1,7 @@
+'use server';
+
 import { UserProfileData } from '../../app/components/user-profile/UserProfile';
+import { auth } from '../auth';
 import sql from '../db';
 
 export interface ProfileFilters {
@@ -14,39 +17,68 @@ export async function getUserProfile(
   username: string
 ): Promise<UserProfileData | null> {
   try {
-    const result = await sql`
-      SELECT 
-        id,
-        username,
-        name,
-        email,
-        bio,
-        location,
-        image,
-        avatar_seed,
-        created_at,
-        profile_public
-      FROM users 
-      WHERE username = ${username}
-      AND profile_public = true
+    // First, try to find user in submissions table since that's where author data actually exists
+    const submissionUser = await sql`
+      SELECT DISTINCT 
+        author_id,
+        author as username,
+        MIN(submission_datetime) as created_at
+      FROM submissions 
+      WHERE LOWER(author) = LOWER(${username})
+         OR author_id = ${username}
+      GROUP BY author_id, author
       LIMIT 1
     `;
 
-    if (result.length === 0) {
+    if (submissionUser.length === 0) {
       return null;
     }
 
+    const authorData = submissionUser[0];
+
+    // Try to get additional profile data from users table if it exists
+    let profileData = null;
+    try {
+      const userProfile = await sql`
+        SELECT username, bio, location, profile_public, created_at
+        FROM users 
+        WHERE LOWER(username) = LOWER(${username})
+           OR LOWER(name) = LOWER(${username})
+        LIMIT 1
+      `;
+
+      if (userProfile.length > 0) {
+        profileData = userProfile[0];
+      }
+    } catch (profileError) {
+      // Users table might not have the profile columns yet, that's ok
+      // Silently continue without profile data
+    }
+
+    // Get submission statistics
+    const stats = await sql`
+      SELECT 
+        COUNT(*) as total_submissions,
+        COUNT(CASE WHEN thread_parent_id IS NULL THEN 1 END) as posts_count,
+        COUNT(CASE WHEN thread_parent_id IS NOT NULL THEN 1 END) as replies_count,
+        MAX(submission_datetime) as last_activity
+      FROM submissions 
+      WHERE author_id = ${authorData.author_id}
+    `;
+
+    const userStats = stats[0];
+
     return {
-      id: result[0].id.toString(),
-      username: result[0].username,
-      name: result[0].name,
-      email: result[0].email,
-      bio: result[0].bio,
-      location: result[0].location,
-      image: result[0].image,
-      avatar_seed: result[0].avatar_seed,
-      created_at: result[0].created_at,
-      profile_public: result[0].profile_public
+      id: authorData.author_id,
+      username: authorData.username,
+      bio: profileData?.bio || null,
+      location: profileData?.location || null,
+      created_at: profileData?.created_at || authorData.created_at,
+      profile_public: profileData?.profile_public !== false, // Default to true
+      total_submissions: parseInt(userStats.total_submissions),
+      posts_count: parseInt(userStats.posts_count),
+      replies_count: parseInt(userStats.replies_count),
+      last_activity: userStats.last_activity
     };
   } catch (error) {
     console.error('Error fetching user profile:', error);
@@ -61,6 +93,7 @@ export async function getUserProfileById(
   userId: string
 ): Promise<UserProfileData | null> {
   try {
+    // First try to find the user in the NextAuth users table
     const result = await sql`
       SELECT 
         id,
@@ -70,7 +103,6 @@ export async function getUserProfileById(
         bio,
         location,
         image,
-        avatar_seed,
         created_at,
         profile_public
       FROM users 
@@ -82,17 +114,42 @@ export async function getUserProfileById(
       return null;
     }
 
+    const user = result[0];
+
+    // Get submission statistics if they exist
+    let stats = null;
+    try {
+      const submissionStats = await sql`
+        SELECT 
+          COUNT(*) as total_submissions,
+          COUNT(CASE WHEN thread_parent_id IS NULL THEN 1 END) as posts_count,
+          COUNT(CASE WHEN thread_parent_id IS NOT NULL THEN 1 END) as replies_count,
+          MAX(submission_datetime) as last_activity
+        FROM submissions 
+        WHERE author_id = ${userId} OR LOWER(author) = LOWER(${user.username || user.name})
+      `;
+
+      if (submissionStats.length > 0) {
+        stats = submissionStats[0];
+      }
+    } catch (statsError) {
+      // Stats not available, continue without them
+    }
+
     return {
-      id: result[0].id.toString(),
-      username: result[0].username,
-      name: result[0].name,
-      email: result[0].email,
-      bio: result[0].bio,
-      location: result[0].location,
-      image: result[0].image,
-      avatar_seed: result[0].avatar_seed,
-      created_at: result[0].created_at,
-      profile_public: result[0].profile_public
+      id: user.id.toString(),
+      username: user.username,
+      name: user.name,
+      email: user.email,
+      bio: user.bio,
+      location: user.location,
+      image: user.image,
+      created_at: user.created_at,
+      profile_public: user.profile_public,
+      total_submissions: stats ? parseInt(stats.total_submissions) : 0,
+      posts_count: stats ? parseInt(stats.posts_count) : 0,
+      replies_count: stats ? parseInt(stats.replies_count) : 0,
+      last_activity: stats?.last_activity || null
     };
   } catch (error) {
     console.error('Error fetching user profile by ID:', error);
@@ -113,54 +170,80 @@ export async function updateUserProfile(
   }>
 ): Promise<UserProfileData | null> {
   try {
-    // Build dynamic update query
-    const setClause = [];
-    const values = [];
-
-    if (updates.username !== undefined) {
-      setClause.push(`username = $${setClause.length + 1}`);
-      values.push(updates.username);
-    }
-
-    if (updates.bio !== undefined) {
-      setClause.push(`bio = $${setClause.length + 1}`);
-      values.push(updates.bio);
-    }
-
-    if (updates.location !== undefined) {
-      setClause.push(`location = $${setClause.length + 1}`);
-      values.push(updates.location);
-    }
-
-    if (updates.profile_public !== undefined) {
-      setClause.push(`profile_public = $${setClause.length + 1}`);
-      values.push(updates.profile_public);
-    }
-
-    if (setClause.length === 0) {
+    if (Object.keys(updates).length === 0) {
       return getUserProfileById(userId);
     }
 
-    values.push(userId); // Add userId as the last parameter
+    // Handle each update type individually to avoid dynamic SQL issues
+    let result;
 
-    const result = await sql`
-      UPDATE users 
-      SET ${sql.unsafe(setClause.join(', '))}
-      WHERE id = $${values.length}
-      RETURNING 
-        id,
-        username,
-        name,
-        email,
-        bio,
-        location,
-        image,
-        avatar_seed,
-        created_at,
-        profile_public
-    `;
+    if (updates.bio !== undefined) {
+      result = await sql`
+        UPDATE users 
+        SET bio = ${updates.bio}
+        WHERE id = ${userId}
+        RETURNING 
+          id,
+          username,
+          name,
+          email,
+          bio,
+          location,
+          image,
+          created_at,
+          profile_public
+      `;
+    } else if (updates.username !== undefined) {
+      result = await sql`
+        UPDATE users 
+        SET username = ${updates.username}
+        WHERE id = ${userId}
+        RETURNING 
+          id,
+          username,
+          name,
+          email,
+          bio,
+          location,
+          image,
+          created_at,
+          profile_public
+      `;
+    } else if (updates.location !== undefined) {
+      result = await sql`
+        UPDATE users 
+        SET location = ${updates.location}
+        WHERE id = ${userId}
+        RETURNING 
+          id,
+          username,
+          name,
+          email,
+          bio,
+          location,
+          image,
+          created_at,
+          profile_public
+      `;
+    } else if (updates.profile_public !== undefined) {
+      result = await sql`
+        UPDATE users 
+        SET profile_public = ${updates.profile_public}
+        WHERE id = ${userId}
+        RETURNING 
+          id,
+          username,
+          name,
+          email,
+          bio,
+          location,
+          image,
+          created_at,
+          profile_public
+      `;
+    }
 
-    if (result.length === 0) {
+    if (!result || result.length === 0) {
       return null;
     }
 
@@ -172,7 +255,6 @@ export async function updateUserProfile(
       bio: result[0].bio,
       location: result[0].location,
       image: result[0].image,
-      avatar_seed: result[0].avatar_seed,
       created_at: result[0].created_at,
       profile_public: result[0].profile_public
     };
@@ -201,7 +283,6 @@ export async function searchUsers(
         bio,
         location,
         image,
-        avatar_seed,
         created_at,
         profile_public
       FROM users 
@@ -230,12 +311,183 @@ export async function searchUsers(
       bio: row.bio,
       location: row.location,
       image: row.image,
-      avatar_seed: row.avatar_seed,
       created_at: row.created_at,
       profile_public: row.profile_public
     }));
   } catch (error) {
     console.error('Error searching users:', error);
     return [];
+  }
+}
+
+/**
+ * Server action to update user bio
+ */
+export async function updateUserBioAction(formData: FormData): Promise<{
+  success: boolean;
+  error?: string;
+  profile?: UserProfileData;
+}> {
+  try {
+    const session = await auth();
+
+    if (!session?.user?.id) {
+      return {
+        success: false,
+        error: 'Authentication required'
+      };
+    }
+
+    const bio = formData.get('bio') as string;
+    const username = formData.get('username') as string;
+
+    // Validate bio length
+    if (bio && bio.length > 500) {
+      return {
+        success: false,
+        error: 'Bio must be 500 characters or less'
+      };
+    }
+
+    // Verify the user is updating their own profile
+    if (username) {
+      const userProfile = await getUserProfile(username);
+      if (!userProfile) {
+        return {
+          success: false,
+          error: 'User not found'
+        };
+      }
+
+      // Enhanced profile ownership verification
+      const sessionUserId = session.user.id;
+      const sessionUserName = session.user.name;
+      const sessionUserEmail = session.user.email;
+
+      const canEdit =
+        userProfile.id === sessionUserId ||
+        (sessionUserName && userProfile.username === sessionUserName) ||
+        (sessionUserEmail && userProfile.username === sessionUserEmail) ||
+        (sessionUserName && userProfile.name === sessionUserName) ||
+        (sessionUserEmail && userProfile.name === sessionUserEmail);
+
+      if (!canEdit) {
+        return {
+          success: false,
+          error: 'You can only edit your own profile'
+        };
+      }
+    }
+
+    // Update the profile
+    const updatedProfile = await updateUserProfile(session.user.id, {
+      bio: bio || undefined
+    });
+
+    if (!updatedProfile) {
+      return {
+        success: false,
+        error: 'Failed to update profile'
+      };
+    }
+
+    // Get the complete profile with stats
+    const completeProfile = await getUserProfileById(session.user.id);
+
+    return {
+      success: true,
+      profile: completeProfile || updatedProfile
+    };
+  } catch (error) {
+    console.error('Error updating user bio:', error);
+    return {
+      success: false,
+      error: 'Internal server error'
+    };
+  }
+}
+
+/**
+ * Alternative server action using direct bio and username parameters
+ */
+export async function updateBioAction(
+  bio: string,
+  username: string
+): Promise<{
+  success: boolean;
+  error?: string;
+  profile?: UserProfileData;
+}> {
+  try {
+    const session = await auth();
+
+    if (!session?.user?.id) {
+      return {
+        success: false,
+        error: 'Authentication required'
+      };
+    }
+
+    // Validate bio length
+    if (bio && bio.length > 500) {
+      return {
+        success: false,
+        error: 'Bio must be 500 characters or less'
+      };
+    }
+
+    // Verify the user is updating their own profile
+    const userProfile = await getUserProfile(username);
+    if (!userProfile) {
+      return {
+        success: false,
+        error: 'User not found'
+      };
+    }
+
+    // Enhanced profile ownership verification
+    const sessionUserId = session.user.id;
+    const sessionUserName = session.user.name;
+    const sessionUserEmail = session.user.email;
+
+    const canEdit =
+      userProfile.id === sessionUserId ||
+      (sessionUserName && userProfile.username === sessionUserName) ||
+      (sessionUserEmail && userProfile.username === sessionUserEmail) ||
+      (sessionUserName && userProfile.name === sessionUserName) ||
+      (sessionUserEmail && userProfile.name === sessionUserEmail);
+
+    if (!canEdit) {
+      return {
+        success: false,
+        error: 'You can only edit your own profile'
+      };
+    }
+
+    // Update the profile
+    const updatedProfile = await updateUserProfile(sessionUserId, {
+      bio: bio || undefined
+    });
+
+    if (!updatedProfile) {
+      return {
+        success: false,
+        error: 'Failed to update profile'
+      };
+    }
+
+    // Get the complete profile with stats
+    const completeProfile = await getUserProfileById(sessionUserId);
+
+    return {
+      success: true,
+      profile: completeProfile || updatedProfile
+    };
+  } catch (error) {
+    console.error('Error updating user bio:', error);
+    return {
+      success: false,
+      error: 'Internal server error'
+    };
   }
 }

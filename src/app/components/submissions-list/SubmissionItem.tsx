@@ -46,7 +46,7 @@ export function SubmissionItem({
   >({});
 
   const isCurrentUserPost = (authorId: string) => {
-    return session?.user?.providerAccountId === authorId;
+    return session?.user?.id === authorId;
   };
 
   const handleTagClick = (tag: string) => {
@@ -107,7 +107,7 @@ export function SubmissionItem({
     );
   };
 
-  const canReply = session?.user?.providerAccountId && depth < maxDepth;
+  const canReply = session?.user?.id && depth < maxDepth;
   const hasReplies = submission.replies && submission.replies.length > 0;
   const hasOwnerActions = isCurrentUserPost(submission.author_id);
 
@@ -143,7 +143,7 @@ export function SubmissionItem({
                 id={submission.submission_id}
                 name={submission.submission_name}
                 isAuthorized={true}
-                authorId={session?.user?.providerAccountId}
+                authorId={session?.user?.id}
               />
             </>
           )}
@@ -295,7 +295,7 @@ export function SubmissionItem({
               )}
 
               {/* Reply to reply button */}
-              {session?.user?.providerAccountId && depth + 1 < maxDepth && (
+              {session?.user?.id && depth + 1 < maxDepth && (
                 <div
                   className="submission__nested-actions"
                   style={{ marginLeft: `${(depth + 1) * 1.5}rem` }}

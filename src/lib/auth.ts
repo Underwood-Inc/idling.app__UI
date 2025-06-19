@@ -32,6 +32,7 @@ export const nextAuth = NextAuth({
       if (token) {
         session.user = {
           ...session.user,
+          id: (token.sub || token.providerAccountId || '') as string,
           providerAccountId: token.providerAccountId as string
         };
       }

@@ -8,7 +8,7 @@
   padding: 1rem;
   border: 2px solid var(--brand-primary);
   border-radius: var(--border-radius);
-  font-size: 1.4rem;
+  font-size: var(--font-size-base);
   font-family: inherit;
   line-height: 1.5;
   background: var(--light-bg__color--primary);
@@ -70,7 +70,7 @@
   background: var(--light-bg__color--secondary);
   border-bottom: 1px solid var(--light-bg__color--tertiary);
   padding: 0.5rem 1rem;
-  font-size: 1.2rem;
+  font-size: var(--font-size-xs);
   color: var(--light-bg__text-color--secondary);
   z-index: 1001;
 }
@@ -131,7 +131,7 @@
 
 .suggestion-label {
   flex: 1;
-  font-size: 1.4rem;
+  font-size: var(--font-size-base);
   color: #333333;
   color: var(--light-bg__text-color--primary);
 }
@@ -154,7 +154,7 @@
   color: var(--font-color--primary);
   border: none;
   border-radius: var(--border-radius);
-  font-size: 1.3rem;
+  font-size: var(--font-size-base);
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -179,7 +179,7 @@
   background: var(--light-bg__color--secondary);
   border-top: 1px solid var(--light-bg__color--tertiary);
   color: var(--light-bg__text-color--secondary);
-  font-size: 1.3rem;
+  font-size: var(--font-size-base);
 }
 
 .suggestion-loading-spinner {
@@ -207,7 +207,7 @@
   padding: 1rem;
   text-align: center;
   color: var(--light-bg__text-color--secondary);
-  font-size: 1.3rem;
+  font-size: var(--font-size-base);
   background: var(--light-bg__color--secondary);
   border-top: 1px solid var(--light-bg__color--tertiary);
 }
@@ -216,7 +216,7 @@
 @media (max-width: 768px) {
   .inline-suggestion-input {
     padding: 0.875rem;
-    font-size: 1.2rem;
+    font-size: var(--font-size-xs);
   }
 
   .suggestion-list {
@@ -225,7 +225,7 @@
 
   .suggestion-header {
     padding: 0.375rem 0.875rem;
-    font-size: 1.1rem;
+    font-size: var(--font-size-xs);
   }
 
   .suggestion-item {
@@ -238,7 +238,7 @@
   }
 
   .suggestion-label {
-    font-size: 1.2rem;
+    font-size: var(--font-size-xs);
   }
 
   .suggestion-load-more {
@@ -247,17 +247,17 @@
 
   .suggestion-load-more-btn {
     padding: 0.375rem 0.75rem;
-    font-size: 1.2rem;
+    font-size: var(--font-size-xs);
   }
 
   .suggestion-loading {
     padding: 0.75rem;
-    font-size: 1.2rem;
+    font-size: var(--font-size-xs);
   }
 
   .suggestion-no-results {
     padding: 0.75rem;
-    font-size: 1.2rem;
+    font-size: var(--font-size-xs);
   }
 }
 

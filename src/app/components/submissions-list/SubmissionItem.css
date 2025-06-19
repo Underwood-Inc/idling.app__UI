@@ -122,7 +122,7 @@
 
 .submission__field-label {
   display: inline-block;
-  font-size: 1.2rem;
+  font-size: var(--font-size-xs);
   font-weight: 600;
   color: var(--light-bg__text-color--tertiary);
   margin-bottom: 0.25rem;

@@ -24,7 +24,7 @@
 
 .post-modal__title {
   margin: 0;
-  font-size: 1.5rem;
+  font-size: var(--font-size-md);
   font-weight: 600;
   color: var(--dark-bg__text-color--primary);
   text-transform: none;

@@ -40,7 +40,7 @@ export default async function MyPosts() {
             <FadeIn className={styles.posts__container_fade}>
               <Card width="full" className={styles.posts__container_item}>
                 <Suspense fallback={<Loader />}>
-                  {session?.user?.providerAccountId && (
+                  {session?.user?.id && (
                     <MyPostsPageClient
                       contextId={CONTEXT_IDS.MY_POSTS.toString()}
                     />

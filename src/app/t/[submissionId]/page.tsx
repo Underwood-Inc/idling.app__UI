@@ -165,7 +165,7 @@ export default function ThreadPage({ params }: ThreadPageProps) {
     return notFound();
   }
 
-  const providerAccountId = session?.user?.providerAccountId || '';
+  const providerAccountId = session?.user?.id || '';
 
   // Extract active filters from global state
   const activeHashtags =

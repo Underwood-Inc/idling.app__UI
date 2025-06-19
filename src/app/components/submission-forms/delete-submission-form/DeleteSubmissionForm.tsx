@@ -27,13 +27,18 @@ function DeleteButton({
 }) {
   const { pending } = useFormStatus();
 
-  const canDelete = isAuthorized && deletePermission?.canDelete !== false;
+  // Default to false until permission is explicitly checked
+  const canDelete = isAuthorized && deletePermission?.canDelete === true;
   const isDisabled = pending || !canDelete;
 
   let tooltipText = '';
   if (!isAuthorized) {
     tooltipText = 'Login to manage posts.';
-  } else if (!deletePermission?.canDelete && deletePermission?.reason) {
+  } else if (
+    deletePermission &&
+    !deletePermission.canDelete &&
+    deletePermission.reason
+  ) {
     tooltipText = deletePermission.reason;
   }
 
@@ -50,11 +55,7 @@ function DeleteButton({
 
   // Wrap in tooltip if there's a reason the button is disabled
   if (tooltipText) {
-    return (
-      <InfoTooltip content={tooltipText} disabled={!isDisabled}>
-        {button}
-      </InfoTooltip>
-    );
+    return <InfoTooltip content={tooltipText}>{button}</InfoTooltip>;
   }
 
   return button;
@@ -74,7 +75,7 @@ export function DeleteSubmissionForm({
   const ref = useRef<HTMLFormElement>(null);
   const [, setShouldUpdate] = useAtom(shouldUpdateAtom);
   const [deletePermission, setDeletePermission] =
-    useState<DeletePermission | null>(null);
+    useState<DeletePermission | null>({ canDelete: false });
   const [state, formAction] = useFormState(
     deleteSubmissionAction,
     initialState
@@ -84,10 +85,23 @@ export function DeleteSubmissionForm({
   useEffect(() => {
     async function checkPermission() {
       if (isAuthorized && authorId) {
-        const permission = await canDeleteSubmission(id, authorId);
-        setDeletePermission(permission);
+        try {
+          const permission = await canDeleteSubmission(id, authorId);
+          setDeletePermission(permission);
+        } catch (error) {
+          console.error('Error checking delete permission:', error);
+          setDeletePermission({
+            canDelete: false,
+            reason: 'Unable to verify delete permissions.'
+          });
+        }
       } else {
-        setDeletePermission({ canDelete: false });
+        setDeletePermission({
+          canDelete: false,
+          reason: isAuthorized
+            ? 'Unable to verify permissions.'
+            : 'Login required to delete posts.'
+        });
       }
     }
 

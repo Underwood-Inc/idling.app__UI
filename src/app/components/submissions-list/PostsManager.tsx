@@ -54,16 +54,13 @@ const PostsManager = React.memo(function PostsManager({
   } = useSubmissionsManager({
     contextId,
     onlyMine,
-    providerAccountId: session?.user?.providerAccountId || '',
+    providerAccountId: session?.user?.id || '',
     includeThreadReplies,
     infiniteScroll: infiniteScrollMode
   });
 
   // Memoize authorization check
-  const isAuthorized = useMemo(
-    () => !!session?.user?.providerAccountId,
-    [session?.user?.providerAccountId]
-  );
+  const isAuthorized = useMemo(() => !!session?.user?.id, [session?.user?.id]);
 
   // Memoize total pages calculation
   const totalPages = useMemo(

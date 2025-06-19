@@ -42,7 +42,7 @@
 
 .recent-tags__title {
   margin: 0;
-  font-size: 1.2rem;
+  font-size: var(--font-size-base);
   font-weight: 600;
   color: var(--light-bg__text-color--primary);
   line-height: 1.3;
@@ -56,7 +56,7 @@
 }
 
 .recent-tags__logic-label {
-  font-size: 1.2rem;
+  font-size: var(--font-size-base);
   font-weight: 600;
   color: var(--light-bg__text-color--primary);
 }
@@ -74,7 +74,7 @@
   background: none;
   border: none;
   padding: 0.5rem 1rem;
-  font-size: 1.2rem;
+  font-size: var(--font-size-xs);
   font-weight: 600;
   color: var(--light-bg__text-color--secondary);
   cursor: pointer;
@@ -127,8 +127,8 @@
   }
 
   .recent-tags__title {
-    font-size: 1.2rem;
-    /* Increased from 0.85rem to ensure minimum 12px */
+    font-size: var(--font-size-base);
+    /* Using CSS variable for consistency */
   }
 
   .recent-tags__logic-toggle {
@@ -136,12 +136,12 @@
   }
 
   .recent-tags__logic-label {
-    font-size: 1.1rem;
+    font-size: var(--font-size-base);
   }
 
   .recent-tags__logic-button {
     padding: 0.4rem 0.8rem;
-    font-size: 1.1rem;
+    font-size: var(--font-size-xs);
     min-width: 3rem;
   }
 
@@ -151,12 +151,12 @@
 
   .recent-tags__tag-button {
     padding: 0.3rem 0.5rem;
-    font-size: 1.2rem;
+    font-size: var(--font-size-base);
   }
 
   .checkmark {
     margin-left: 0.25rem;
-    font-size: 1.2rem;
+    font-size: var(--font-size-base);
   }
 }
 
@@ -170,8 +170,8 @@
 }
 
 .recent-tags__header .recent-tags__count {
-  font-size: 1.2rem;
-  /* Increased from 0.65rem to ensure minimum 12px */
+  font-size: var(--font-size-xs);
+  /* Using CSS variable for consistency */
   color: var(--light-bg__text-color--secondary);
   font-weight: 400;
 }
@@ -242,7 +242,7 @@
   color: var(--light-bg__text-color--primary);
   border: 1px solid var(--brand-tertiary--dark);
   border-radius: 0.3rem;
-  font-size: 1.2rem;
+  font-size: var(--font-size-base);
   font-weight: 500;
   cursor: pointer;
   transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
@@ -274,5 +274,5 @@
   margin-left: 0.3rem;
   font-weight: bold;
   color: var(--font-color--primary);
-  font-size: 1.2rem;
+  font-size: var(--font-size-base);
 }

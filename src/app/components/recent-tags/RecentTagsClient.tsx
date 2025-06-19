@@ -96,16 +96,14 @@ const RecentTagsClientComponent = ({
   // Fetch recent tags
   useEffect(() => {
     async function fetchTags() {
-      if (!session?.user?.providerAccountId && onlyMine) {
+      if (!session?.user?.id && onlyMine) {
         return;
       }
 
       setLoading(true);
       const tags = await getRecentTags(
         'months',
-        onlyMine && session?.user?.providerAccountId
-          ? session.user.providerAccountId
-          : undefined
+        onlyMine && session?.user?.id ? session.user.id : undefined
       );
       setRecentTags(tags);
       setLoading(false);
@@ -306,8 +304,7 @@ export const RecentTagsClient = React.memo(
     return (
       prevProps.contextId === nextProps.contextId &&
       prevProps.onlyMine === nextProps.onlyMine &&
-      prevProps.session?.user?.providerAccountId ===
-        nextProps.session?.user?.providerAccountId &&
+      prevProps.session?.user?.id === nextProps.session?.user?.id &&
       prevProps.initialRecentTags.tags.length ===
         nextProps.initialRecentTags.tags.length
     );

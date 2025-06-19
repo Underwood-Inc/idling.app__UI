@@ -98,6 +98,8 @@ export const authConfig: NextAuthConfig = {
       if (token.providerAccountId) {
         session.user.providerAccountId = token.providerAccountId as string;
       }
+      // Set the user ID - this is critical for server actions
+      session.user.id = (token.sub || token.providerAccountId || '') as string;
       // Ensure required fields are set
       session.user.name =
         session.user.name || token.name || token.email?.split('@')[0] || 'User';

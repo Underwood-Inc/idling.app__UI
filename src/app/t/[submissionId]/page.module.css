@@ -38,7 +38,7 @@
 .thread__filters_label {
   font-weight: 600;
   color: var(--light-bg__text-color--primary);
-  font-size: 1.4rem;
+  font-size: var(--font-size-base);
 }
 
 .thread__filter_pill {
@@ -49,7 +49,7 @@
   color: white;
   border: none;
   border-radius: 1.5rem;
-  font-size: 1.2rem;
+  font-size: var(--font-size-xs);
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -67,7 +67,7 @@
   color: white;
   border: none;
   border-radius: 1.5rem;
-  font-size: 1.2rem;
+  font-size: var(--font-size-xs);
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -91,13 +91,13 @@
   }
 
   .thread__filters_label {
-    font-size: 1.2rem;
+    font-size: var(--font-size-xs);
   }
 
   .thread__filter_pill,
   .thread__clear_filters {
     padding: 0.3rem 0.6rem;
-    font-size: 1.1rem;
+    font-size: var(--font-size-xs);
   }
 }
 

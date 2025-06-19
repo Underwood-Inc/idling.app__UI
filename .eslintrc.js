@@ -20,7 +20,7 @@ module.exports = {
       }
     ],
     'custom-rules/enforce-link-target-blank': 'warn',
-    'max-len': ['error', { code: 130 }],
+    'max-len': ['error', { code: 180 }],
     'no-console': [
       'error',
       {

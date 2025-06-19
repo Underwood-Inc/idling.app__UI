@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+/* eslint-disable max-len */
 
 /* eslint-disable no-console, no-undef */
 
@@ -2083,20 +2084,42 @@ class FakerContentGenerator {
       ],
       technical: [
         `Building on this, ${contextWord} works really well when combined with ${faker.helpers.arrayElement(industry.frameworks || industry.technologies)}.`,
-        `I've implemented something similar with ${contextWord}. The key is ${faker.helpers.arrayElement(['performance optimization', 'proper error handling', 'comprehensive testing'])}.`,
-        `For ${contextWord}, I'd also recommend considering ${faker.helpers.arrayElement(industry.technologies)} for better ${faker.helpers.arrayElement(['performance', 'maintainability', 'scalability'])}.`,
+        `I've implemented something similar with ${contextWord}. The key is ${faker.helpers.arrayElement(
+          [
+            'performance optimization',
+            'proper error handling',
+            'comprehensive testing'
+          ]
+        )}.`,
+        `For ${contextWord}, I'd also recommend considering ${faker.helpers.arrayElement(industry.technologies)} for better ${faker.helpers.arrayElement(
+          ['performance', 'maintainability', 'scalability']
+        )}.`,
         `Technical note on ${contextWord}: make sure to handle ${faker.helpers.arrayElement(['edge cases', 'error states', 'memory management'])} properly.`
       ],
       experiential: [
         `This reminds me of a ${faker.helpers.arrayElement(this.projectTypes)} I built using ${faker.helpers.arrayElement(industry.technologies)}.`,
-        `I ran into something similar with ${contextWord} last year. What worked for me was ${faker.helpers.arrayElement(['refactoring the architecture', 'switching to a different approach', 'optimizing the algorithm'])}.`,
+        `I ran into something similar with ${contextWord} last year. What worked for me was ${faker.helpers.arrayElement(
+          [
+            'refactoring the architecture',
+            'switching to a different approach',
+            'optimizing the algorithm'
+          ]
+        )}.`,
         `Been there with ${contextWord}! The learning curve was steep but totally worth it.`,
         `My team faced this exact ${contextWord} challenge. We ended up using ${faker.helpers.arrayElement(industry.technologies)} and it solved everything.`
       ],
       detailed: [
-        `Expanding on ${contextWord}: I've found that ${faker.helpers.arrayElement(industry.technologies)} provides better ${faker.helpers.arrayElement(['performance', 'developer experience', 'maintainability'])} compared to alternatives. The key considerations are ${faker.helpers.arrayElement(['implementation complexity', 'learning curve', 'community support'])}.`,
-        `Deep dive into ${contextWord}: From my experience, the biggest challenges are ${faker.helpers.arrayElement(['state management', 'data consistency', 'error handling'])}. I'd recommend starting with ${faker.helpers.arrayElement(industry.technologies)} and gradually optimizing.`,
-        `Comprehensive analysis of ${contextWord}: The approach you mentioned works well, but consider these factors: ${faker.helpers.arrayElement(['scalability requirements', 'team expertise', 'maintenance overhead'])}. In my projects, ${faker.helpers.arrayElement(industry.technologies)} has been a game-changer.`
+        `Expanding on ${contextWord}: I've found that ${faker.helpers.arrayElement(industry.technologies)} provides better ${faker.helpers.arrayElement(
+          ['performance', 'developer experience', 'maintainability']
+        )} compared to alternatives. The key considerations are ${faker.helpers.arrayElement(
+          ['implementation complexity', 'learning curve', 'community support']
+        )}.`,
+        `Deep dive into ${contextWord}: From my experience, the biggest challenges are ${faker.helpers.arrayElement(
+          ['state management', 'data consistency', 'error handling']
+        )}. I'd recommend starting with ${faker.helpers.arrayElement(industry.technologies)} and gradually optimizing.`,
+        `Comprehensive analysis of ${contextWord}: The approach you mentioned works well, but consider these factors: ${faker.helpers.arrayElement(
+          ['scalability requirements', 'team expertise', 'maintenance overhead']
+        )}. In my projects, ${faker.helpers.arrayElement(industry.technologies)} has been a game-changer.`
       ],
       contrasting: [
         `Interesting take on ${contextWord}. I've had different results with ${faker.helpers.arrayElement(industry.technologies)} - found it better for ${faker.helpers.arrayElement(['large-scale applications', 'rapid prototyping', 'team collaboration'])}.`,

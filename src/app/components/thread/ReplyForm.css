@@ -23,7 +23,7 @@
 .reply-form__label {
   display: block;
   font-weight: 600;
-  font-size: 1.4rem;
+  font-size: var(--font-size-base);
   color: #333333;
   margin-bottom: 0.75rem;
 }
@@ -34,7 +34,7 @@
   padding: 1rem;
   border: 1px solid #e0e0e0;
   border-radius: var(--border-radius);
-  font-size: 1.4rem;
+  font-size: var(--font-size-base);
   font-family: inherit;
   line-height: 1.5;
   background: #ffffff;
@@ -78,7 +78,7 @@
 .reply-form__char-count {
   text-align: right;
   margin-top: 0.5rem;
-  font-size: 1.2rem;
+  font-size: var(--font-size-xs);
 }
 
 .reply-form__char-count span {
@@ -97,7 +97,7 @@
 
 .reply-form__error-text {
   color: #ef4444;
-  font-size: 1.2rem;
+  font-size: var(--font-size-xs);
   font-weight: 500;
   margin: 0.25rem 0;
   padding: 0.5rem 0.75rem;
@@ -112,7 +112,7 @@
 
 .reply-form__help-text {
   color: #666666;
-  font-size: 1.2rem;
+  font-size: var(--font-size-xs);
   line-height: 1.4;
 }
 
@@ -124,7 +124,7 @@
   border: 1px solid #fecaca;
   margin-bottom: 1rem;
   font-weight: 500;
-  font-size: 1.4rem;
+  font-size: var(--font-size-base);
 }
 
 .reply-form__actions {
@@ -142,7 +142,7 @@
   padding: 0.875rem 2rem;
   border: none;
   border-radius: var(--border-radius);
-  font-size: 1.4rem;
+  font-size: var(--font-size-base);
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -215,12 +215,12 @@
   .reply-form__input,
   .reply-form__textarea {
     padding: 0.875rem;
-    font-size: 1.2rem;
+    font-size: var(--font-size-xs);
   }
 
   .reply-form__submit {
     padding: 0.75rem 1.5rem;
-    font-size: 1.2rem;
+    font-size: var(--font-size-xs);
     width: 100%;
   }
 
