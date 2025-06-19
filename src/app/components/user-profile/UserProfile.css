@@ -120,7 +120,7 @@
 }
 
 .user-profile__edit-bio-btn--compact {
-  font-size: var(--font-size-xs, 0.75rem);
+  font-size: var(--font-size-md, 0.75rem);
   padding: 0.3rem 0.5rem;
   margin-bottom: var(--spacing-sm, 0.75rem);
   align-self: flex-start;

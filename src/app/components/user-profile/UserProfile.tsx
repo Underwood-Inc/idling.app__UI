@@ -83,7 +83,9 @@ export function UserProfile({
     return (
       <div className={`user-profile user-profile--tooltip ${className}`}>
         <div className="user-profile__header">
-          <Avatar seed={user.id} size="md" />
+          <div>
+            <Avatar seed={user.id} size="md" />
+          </div>
           <div className="user-profile__header-info">
             <h4 className="user-profile__name">{displayName}</h4>
             {user.location && (

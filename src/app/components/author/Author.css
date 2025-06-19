@@ -496,7 +496,7 @@
 
 .user-profile-modal__profile .user-profile__edit-bio-btn--compact {
   margin-bottom: 0.5rem;
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-md);
   padding: 0.25rem 0.5rem;
 }
 
