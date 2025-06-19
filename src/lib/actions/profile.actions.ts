@@ -17,68 +17,111 @@ export async function getUserProfile(
   username: string
 ): Promise<UserProfileData | null> {
   try {
-    // First, try to find user in submissions table since that's where author data actually exists
-    const submissionUser = await sql`
-      SELECT DISTINCT 
-        author_id,
-        author as username,
-        MIN(submission_datetime) as created_at
-      FROM submissions 
-      WHERE LOWER(author) = LOWER(${username})
-         OR author_id = ${username}
-      GROUP BY author_id, author
+    // First, try to find user in the users table (primary source)
+    const userResult = await sql`
+      SELECT 
+        id,
+        username,
+        name,
+        email,
+        bio,
+        location,
+        image,
+        created_at,
+        profile_public
+      FROM users 
+      WHERE LOWER(username) = LOWER(${username})
+         OR LOWER(name) = LOWER(${username})
+         OR id = ${username}
       LIMIT 1
     `;
 
-    if (submissionUser.length === 0) {
-      return null;
-    }
-
-    const authorData = submissionUser[0];
-
-    // Try to get additional profile data from users table if it exists
-    let profileData = null;
-    try {
-      const userProfile = await sql`
-        SELECT username, bio, location, profile_public, created_at
-        FROM users 
-        WHERE LOWER(username) = LOWER(${username})
-           OR LOWER(name) = LOWER(${username})
+    if (userResult.length === 0) {
+      // Fallback: try to find user in submissions table (for legacy support)
+      const submissionUser = await sql`
+        SELECT DISTINCT 
+          author_id,
+          author as username,
+          MIN(submission_datetime) as created_at
+        FROM submissions 
+        WHERE LOWER(author) = LOWER(${username})
+           OR author_id = ${username}
+        GROUP BY author_id, author
         LIMIT 1
       `;
 
-      if (userProfile.length > 0) {
-        profileData = userProfile[0];
+      if (submissionUser.length === 0) {
+        return null;
       }
-    } catch (profileError) {
-      // Users table might not have the profile columns yet, that's ok
-      // Silently continue without profile data
+
+      const authorData = submissionUser[0];
+
+      // Get submission statistics
+      const stats = await sql`
+        SELECT 
+          COUNT(*) as total_submissions,
+          COUNT(CASE WHEN thread_parent_id IS NULL THEN 1 END) as posts_count,
+          COUNT(CASE WHEN thread_parent_id IS NOT NULL THEN 1 END) as replies_count,
+          MAX(submission_datetime) as last_activity
+        FROM submissions 
+        WHERE author_id = ${authorData.author_id}
+      `;
+
+      const userStats = stats[0];
+
+      return {
+        id: authorData.author_id,
+        username: authorData.username,
+        name: undefined,
+        email: undefined,
+        bio: undefined,
+        location: undefined,
+        image: undefined,
+        created_at: authorData.created_at,
+        profile_public: true, // Default to true for legacy users
+        total_submissions: parseInt(userStats.total_submissions),
+        posts_count: parseInt(userStats.posts_count),
+        replies_count: parseInt(userStats.replies_count),
+        last_activity: userStats.last_activity
+      };
     }
 
-    // Get submission statistics
-    const stats = await sql`
-      SELECT 
-        COUNT(*) as total_submissions,
-        COUNT(CASE WHEN thread_parent_id IS NULL THEN 1 END) as posts_count,
-        COUNT(CASE WHEN thread_parent_id IS NOT NULL THEN 1 END) as replies_count,
-        MAX(submission_datetime) as last_activity
-      FROM submissions 
-      WHERE author_id = ${authorData.author_id}
-    `;
+    const user = userResult[0];
 
-    const userStats = stats[0];
+    // Get submission statistics if they exist
+    let stats = null;
+    try {
+      const submissionStats = await sql`
+        SELECT 
+          COUNT(*) as total_submissions,
+          COUNT(CASE WHEN thread_parent_id IS NULL THEN 1 END) as posts_count,
+          COUNT(CASE WHEN thread_parent_id IS NOT NULL THEN 1 END) as replies_count,
+          MAX(submission_datetime) as last_activity
+        FROM submissions 
+        WHERE author_id = ${user.id} OR LOWER(author) = LOWER(${user.username || user.name})
+      `;
+
+      if (submissionStats.length > 0) {
+        stats = submissionStats[0];
+      }
+    } catch (statsError) {
+      // Stats not available, continue without them
+    }
 
     return {
-      id: authorData.author_id,
-      username: authorData.username,
-      bio: profileData?.bio || null,
-      location: profileData?.location || null,
-      created_at: profileData?.created_at || authorData.created_at,
-      profile_public: profileData?.profile_public !== false, // Default to true
-      total_submissions: parseInt(userStats.total_submissions),
-      posts_count: parseInt(userStats.posts_count),
-      replies_count: parseInt(userStats.replies_count),
-      last_activity: userStats.last_activity
+      id: user.id.toString(),
+      username: user.username,
+      name: user.name,
+      email: user.email,
+      bio: user.bio,
+      location: user.location,
+      image: user.image,
+      created_at: user.created_at,
+      profile_public: user.profile_public,
+      total_submissions: stats ? parseInt(stats.total_submissions) : 0,
+      posts_count: stats ? parseInt(stats.posts_count) : 0,
+      replies_count: stats ? parseInt(stats.replies_count) : 0,
+      last_activity: stats?.last_activity || null
     };
   } catch (error) {
     console.error('Error fetching user profile:', error);
