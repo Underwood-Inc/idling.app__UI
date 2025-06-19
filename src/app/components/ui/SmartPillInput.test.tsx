@@ -175,9 +175,9 @@ describe('SmartPillInput', () => {
     const container = screen.getByText('#existing').closest('div');
     fireEvent.click(container!);
 
-    // Try to add the same hashtag again
+    // Try to add the same hashtag again (must end with space to be detected as complete pill)
     const input = screen.getByRole('textbox');
-    fireEvent.change(input, { target: { value: '#existing' } });
+    fireEvent.change(input, { target: { value: '#existing ' } }); // Note the space at the end
 
     // Click outside to commit
     fireEvent.click(document.body);
@@ -200,9 +200,9 @@ describe('SmartPillInput', () => {
     const container = screen.getByText('@testuser').closest('div');
     fireEvent.click(container!);
 
-    // Try to add the same mention again
+    // Try to add the same mention again (must end with space to be detected as complete pill)
     const input = screen.getByRole('textbox');
-    fireEvent.change(input, { target: { value: '@[testuser|user123]' } });
+    fireEvent.change(input, { target: { value: '@[testuser|user123] ' } }); // Note the space at the end
 
     // Click outside to commit
     fireEvent.click(document.body);

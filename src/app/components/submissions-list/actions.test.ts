@@ -169,7 +169,7 @@ describe('getSubmissionsAction', () => {
         submission_name: 'test-submission',
         submission_title: 'Test Submission',
         submission_datetime: new Date(),
-        author_id: '123',
+        user_id: 123,
         author: 'Test Author',
         tags: [],
         thread_parent_id: null
@@ -202,7 +202,7 @@ describe('getSubmissionsAction', () => {
         submission_name: 'test-submission',
         submission_title: 'Test Submission',
         submission_datetime: new Date(),
-        author_id: '123',
+        user_id: 123,
         author: 'Test Author',
         tags: [],
         thread_parent_id: null

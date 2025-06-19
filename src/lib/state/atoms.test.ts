@@ -214,7 +214,7 @@ describe('Jotai Atoms', () => {
       expect(result).toEqual({
         onlyMine: true,
         providerAccountId: 'user123',
-        filters: [{ name: 'tags', value: 'test-tag,another-tag' }],
+        filters: [{ name: 'tags', value: '#test-tag,#another-tag' }],
         page: 2,
         pageSize: 50,
         initialized: true
