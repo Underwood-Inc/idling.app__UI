@@ -141,18 +141,19 @@ export async function searchUsers(
     // Get total count for pagination
     let totalResult = await sql<Array<{ total: string }>>`
       SELECT COUNT(*) as total
-      FROM user_submission_stats
-      WHERE author ILIKE ${`%${query}%`}
+      FROM user_stats
+      WHERE name ILIKE ${`%${query}%`}
     `;
 
     // Fall back to live query if materialized view is empty
     if (parseInt(totalResult[0]?.total || '0') === 0) {
       totalResult = await sql<Array<{ total: string }>>`
-        SELECT COUNT(DISTINCT author_id) as total
-        FROM submissions 
-        WHERE author ILIKE ${`%${query}%`}
-        AND author_id IS NOT NULL 
-        AND author IS NOT NULL
+        SELECT COUNT(DISTINCT u.id) as total
+        FROM users u
+        JOIN submissions s ON u.id = s.user_id
+        WHERE u.name ILIKE ${`%${query}%`}
+        AND s.user_id IS NOT NULL 
+        AND u.name IS NOT NULL
       `;
     }
 
@@ -162,19 +163,19 @@ export async function searchUsers(
     // First try materialized view for better performance
     let results = await sql<
       Array<{
-        author_id: string;
-        author: string;
+        user_id: string;
+        name: string;
         submission_count: number;
       }>
     >`
       SELECT 
-        author_id,
-        author,
+        user_id::text,
+        name,
         submission_count
-      FROM user_submission_stats
+      FROM user_stats
       WHERE 
-        author ILIKE ${`%${query}%`}
-      ORDER BY submission_count DESC, author ASC
+        name ILIKE ${`%${query}%`}
+      ORDER BY submission_count DESC, name ASC
       LIMIT ${pageSize}
       OFFSET ${offset}
     `;
@@ -183,30 +184,31 @@ export async function searchUsers(
     if (results.length === 0 && page === 1) {
       results = await sql<
         Array<{
-          author_id: string;
-          author: string;
+          user_id: string;
+          name: string;
           submission_count: number;
         }>
       >`
         WITH user_search AS (
           -- Use optimized indexes for fast search
-          SELECT DISTINCT author_id, author
-          FROM submissions 
+          SELECT DISTINCT u.id, u.name
+          FROM users u
+          JOIN submissions s ON u.id = s.user_id
           WHERE 
-            author ILIKE ${`%${query}%`}
-            AND author_id IS NOT NULL 
-            AND author IS NOT NULL  
+            u.name ILIKE ${`%${query}%`}
+            AND s.user_id IS NOT NULL 
+            AND u.name IS NOT NULL  
           LIMIT ${pageSize * 3} -- Get more for better accuracy
           OFFSET ${offset}
         )
         SELECT 
-          us.author_id,
-          us.author,
+          us.id::text as user_id,
+          us.name,
           COUNT(s.submission_id)::integer as submission_count
         FROM user_search us
-        LEFT JOIN submissions s ON s.author_id = us.author_id
-        GROUP BY us.author_id, us.author
-        ORDER BY submission_count DESC, author ASC
+        LEFT JOIN submissions s ON s.user_id = us.id
+        GROUP BY us.id, us.name
+        ORDER BY submission_count DESC, name ASC
         LIMIT ${pageSize}
       `;
     }
@@ -220,10 +222,10 @@ export async function searchUsers(
     }
 
     const items = results.map((result, index) => ({
-      id: `user-${page}-${index}-${result.author_id}`,
-      value: result.author_id,
-      label: `${result.author} (${result.submission_count} posts)`,
-      displayName: result.author,
+      id: `user-${page}-${index}-${result.user_id}`,
+      value: result.user_id,
+      label: `${result.name} (${result.submission_count} posts)`,
+      displayName: result.name,
       avatar: undefined,
       type: 'user' as const
     }));
@@ -264,19 +266,20 @@ export async function getUserInfo(
       : username;
 
     // Try materialized view first for better performance
-    let result = await sql<Array<{ author_id: string; author: string }>>`
-      SELECT author_id, author
-      FROM user_submission_stats 
-      WHERE author = ${cleanUsername}
+    let result = await sql<Array<{ user_id: string; name: string }>>`
+      SELECT user_id::text as user_id, name
+      FROM user_stats 
+      WHERE name = ${cleanUsername}
       LIMIT 1
     `;
 
     // Fall back to live query if needed
     if (result.length === 0) {
-      result = await sql<Array<{ author_id: string; author: string }>>`
-        SELECT author_id, author
-        FROM submissions 
-        WHERE author = ${cleanUsername}
+      result = await sql<Array<{ user_id: string; name: string }>>`
+        SELECT u.id::text as user_id, u.name
+        FROM users u
+        JOIN submissions s ON u.id = s.user_id
+        WHERE u.name = ${cleanUsername}
         LIMIT 1
       `;
     }
@@ -285,25 +288,24 @@ export async function getUserInfo(
 
     if (result.length > 0) {
       return {
-        userId: result[0].author_id,
-        username: result[0].author
+        userId: result[0].user_id,
+        username: result[0].name
       };
     }
 
     // If no exact match, try case-insensitive search
-    const fallbackResult = await sql<
-      Array<{ author_id: string; author: string }>
-    >`
-      SELECT author_id, author
-      FROM submissions 
-      WHERE LOWER(author) = LOWER(${cleanUsername})
+    const fallbackResult = await sql<Array<{ user_id: string; name: string }>>`
+      SELECT u.id::text as user_id, u.name
+      FROM users u
+      JOIN submissions s ON u.id = s.user_id
+      WHERE LOWER(u.name) = LOWER(${cleanUsername})
       LIMIT 1
     `;
 
     return fallbackResult.length > 0
       ? {
-          userId: fallbackResult[0].author_id,
-          username: fallbackResult[0].author
+          userId: fallbackResult[0].user_id,
+          username: fallbackResult[0].name
         }
       : null;
   } catch (error) {
@@ -326,26 +328,26 @@ export async function resolveUserIdToUsername(
 
   try {
     // Try materialized view first
-    let result = await sql<Array<{ author: string }>>`
-      SELECT author
-      FROM user_submission_stats 
-      WHERE author_id = ${userId}
+    let result = await sql<Array<{ name: string }>>`
+      SELECT name
+      FROM user_stats 
+      WHERE user_id = ${userId}
       LIMIT 1
     `;
 
     // Fall back to live query if needed
     if (result.length === 0) {
-      result = await sql<Array<{ author: string }>>`
-        SELECT author
-        FROM submissions 
-        WHERE author_id = ${userId}
+      result = await sql<Array<{ name: string }>>`
+        SELECT u.name
+        FROM users u
+        WHERE u.id = ${userId}
         LIMIT 1
       `;
     }
 
     // Removed performance logging for frequently called function
 
-    return result.length > 0 ? result[0].author : null;
+    return result.length > 0 ? result[0].name : null;
   } catch (error) {
     serverLogger.error('resolveUserIdToUsername failed', error, { userId });
     return null;
@@ -360,7 +362,7 @@ export async function refreshUserStats(): Promise<void> {
   const startTime = performance.now();
 
   try {
-    await sql`SELECT refresh_user_submission_stats()`;
+    await sql`SELECT refresh_user_stats()`;
 
     // Only log if refresh takes longer than expected
     const endTime = performance.now();
