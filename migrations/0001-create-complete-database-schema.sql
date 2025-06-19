@@ -72,20 +72,56 @@ CREATE TABLE IF NOT EXISTS submissions (
 -- ================================
 
 -- Link accounts to users
-ALTER TABLE accounts ADD CONSTRAINT IF NOT EXISTS fk_accounts_user 
-  FOREIGN KEY ("userId") REFERENCES users(id) ON DELETE CASCADE;
+DO $$ 
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.table_constraints 
+    WHERE constraint_name = 'fk_accounts_user' 
+    AND table_name = 'accounts'
+  ) THEN
+    ALTER TABLE accounts ADD CONSTRAINT fk_accounts_user 
+      FOREIGN KEY ("userId") REFERENCES users(id) ON DELETE CASCADE;
+  END IF;
+END $$;
 
 -- Link sessions to users
-ALTER TABLE sessions ADD CONSTRAINT IF NOT EXISTS fk_sessions_user 
-  FOREIGN KEY ("userId") REFERENCES users(id) ON DELETE CASCADE;
+DO $$ 
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.table_constraints 
+    WHERE constraint_name = 'fk_sessions_user' 
+    AND table_name = 'sessions'
+  ) THEN
+    ALTER TABLE sessions ADD CONSTRAINT fk_sessions_user 
+      FOREIGN KEY ("userId") REFERENCES users(id) ON DELETE CASCADE;
+  END IF;
+END $$;
 
 -- Link submissions to users
-ALTER TABLE submissions ADD CONSTRAINT IF NOT EXISTS fk_submissions_user 
-  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL;
+DO $$ 
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.table_constraints 
+    WHERE constraint_name = 'fk_submissions_user' 
+    AND table_name = 'submissions'
+  ) THEN
+    ALTER TABLE submissions ADD CONSTRAINT fk_submissions_user 
+      FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL;
+  END IF;
+END $$;
 
 -- Thread parent relationship
-ALTER TABLE submissions ADD CONSTRAINT IF NOT EXISTS fk_thread_parent 
-  FOREIGN KEY (thread_parent_id) REFERENCES submissions(submission_id);
+DO $$ 
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.table_constraints 
+    WHERE constraint_name = 'fk_thread_parent' 
+    AND table_name = 'submissions'
+  ) THEN
+    ALTER TABLE submissions ADD CONSTRAINT fk_thread_parent 
+      FOREIGN KEY (thread_parent_id) REFERENCES submissions(submission_id);
+  END IF;
+END $$;
 
 -- ================================
 -- INDEXES FOR PERFORMANCE
