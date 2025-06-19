@@ -1978,10 +1978,12 @@ class FakerContentGenerator {
     const template = faker.helpers.arrayElement(mentionTemplates);
     let mentionText = template;
 
-    // Replace placeholders with actual usernames
+    // Replace placeholders with structured mentions (prevents false positives)
     mentionedUsers.forEach((user, index) => {
       const placeholder = index === 0 ? '{username}' : `{username${index + 1}}`;
-      mentionText = mentionText.replace(placeholder, user.name); // Use NextAuth name field
+      const filterType = Math.random() < 0.7 ? 'author' : 'mentions'; // 70% author, 30% mentions
+      const structuredMention = `@[${user.name}|${user.id}|${filterType}]`;
+      mentionText = mentionText.replace(placeholder, structuredMention);
     });
 
     // Remove any unused placeholders
