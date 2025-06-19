@@ -1513,7 +1513,7 @@ class FakerContentGenerator {
     return {
       // NextAuth user fields
       name: profile.username,
-      email: `${profile.firstName.toLowerCase()}.${profile.lastName.toLowerCase()}@example.com`,
+      email: `${profile.firstName.toLowerCase()}.${profile.lastName.toLowerCase()}+${index}@example.com`,
       image: faker.image.avatar(),
       profile_public: true,
 
