@@ -2207,16 +2207,54 @@ class FakerContentGenerator {
 async function clearDatabase() {
   const animator = new ProgressAnimator();
 
-  animator.start('Clearing existing data...');
+  animator.start('Checking for existing data...');
   try {
-    // Clear in correct order to respect foreign key constraints
-    await sql`DELETE FROM submissions`;
-    await sql`DELETE FROM accounts`;
-    await sql`DELETE FROM users`;
+    // Check if tables exist before trying to clear them
+    const tableCheck = await sql`
+      SELECT table_name 
+      FROM information_schema.tables 
+      WHERE table_schema = 'public' 
+      AND table_name IN ('submissions', 'accounts', 'users')
+    `;
 
-    // Reset sequences
-    await sql`ALTER SEQUENCE submissions_submission_id_seq RESTART WITH 1`;
-    await sql`ALTER SEQUENCE users_id_seq RESTART WITH 1`;
+    if (tableCheck.length === 0) {
+      animator.success(
+        'Database is empty (tables will be created by migrations)'
+      );
+      return;
+    }
+
+    animator.update('Clearing existing data...');
+
+    // Clear in correct order to respect foreign key constraints
+    // Only clear tables that exist
+    const existingTables = tableCheck.map((row) => row.table_name);
+
+    if (existingTables.includes('submissions')) {
+      await sql`DELETE FROM submissions`;
+      // Reset sequence only if table exists
+      const seqCheck = await sql`
+        SELECT 1 FROM pg_sequences WHERE sequencename = 'submissions_submission_id_seq'
+      `;
+      if (seqCheck.length > 0) {
+        await sql`ALTER SEQUENCE submissions_submission_id_seq RESTART WITH 1`;
+      }
+    }
+
+    if (existingTables.includes('accounts')) {
+      await sql`DELETE FROM accounts`;
+    }
+
+    if (existingTables.includes('users')) {
+      await sql`DELETE FROM users`;
+      // Reset sequence only if table exists
+      const seqCheck = await sql`
+        SELECT 1 FROM pg_sequences WHERE sequencename = 'users_id_seq'
+      `;
+      if (seqCheck.length > 0) {
+        await sql`ALTER SEQUENCE users_id_seq RESTART WITH 1`;
+      }
+    }
 
     animator.success('Database cleared (NextAuth tables included)');
   } catch (error) {
