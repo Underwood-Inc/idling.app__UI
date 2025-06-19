@@ -133,7 +133,7 @@ export default function Thread({
       activeFilters.mentions.some(
         (mention) =>
           content.includes(`@${mention.toLowerCase()}`) ||
-          submission.author_id === mention ||
+          submission.user_id?.toString() === mention ||
           submission.author?.toLowerCase() === mention.toLowerCase()
       );
 
@@ -155,8 +155,10 @@ export default function Thread({
       >
         <div className="submission__meta">
           <Author
-            authorId={submission.author_id}
-            authorName={submission.author || submission.author_id}
+            authorId={submission.user_id?.toString() || ''}
+            authorName={
+              submission.author || submission.user_id?.toString() || ''
+            }
             size="sm"
             showFullName={true}
           />
@@ -230,7 +232,9 @@ export default function Thread({
           parentId={submissionId}
           onSuccess={handleReplyAdded}
           replyToAuthor={
-            parentSubmission?.author || parentSubmission?.author_id
+            parentSubmission?.author ||
+            parentSubmission?.user_id?.toString() ||
+            ''
           }
         />
       </div>

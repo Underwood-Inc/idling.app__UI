@@ -32,7 +32,7 @@ export async function getRecentTags(
           select distinct unnest(tags) as distinct_tags, submission_datetime
           from submissions s
           where s.submission_datetime >= NOW() - INTERVAL '3 days'
-          ${providerAccountId ? sql` and s.author_id = ${providerAccountId}` : sql``}
+          ${providerAccountId ? sql` and s.user_id = (SELECT u.id FROM users u JOIN accounts a ON u.id = a."userId" WHERE a."providerAccountId" = ${providerAccountId} LIMIT 1)` : sql``}
         `;
         break;
       case 'hrs':
@@ -40,7 +40,7 @@ export async function getRecentTags(
           select distinct unnest(tags) as distinct_tags, submission_datetime
           from submissions s
           where s.submission_datetime >= NOW() - INTERVAL '3 hrs'
-          ${providerAccountId ? sql` and s.author_id = ${providerAccountId}` : sql``}
+          ${providerAccountId ? sql` and s.user_id = (SELECT u.id FROM users u JOIN accounts a ON u.id = a."userId" WHERE a."providerAccountId" = ${providerAccountId} LIMIT 1)` : sql``}
         `;
         break;
       case 'months':
@@ -48,7 +48,7 @@ export async function getRecentTags(
           select distinct unnest(tags) as distinct_tags, submission_datetime
           from submissions s
           where s.submission_datetime >= NOW() - INTERVAL '3 months'
-          ${providerAccountId ? sql` and s.author_id = ${providerAccountId}` : sql``}
+          ${providerAccountId ? sql` and s.user_id = (SELECT u.id FROM users u JOIN accounts a ON u.id = a."userId" WHERE a."providerAccountId" = ${providerAccountId} LIMIT 1)` : sql``}
         `;
         break;
     }

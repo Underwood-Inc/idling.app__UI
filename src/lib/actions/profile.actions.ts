@@ -58,7 +58,7 @@ export async function getUserProfile(
           COUNT(CASE WHEN thread_parent_id IS NOT NULL THEN 1 END) as replies_count,
           MAX(submission_datetime) as last_activity
         FROM submissions 
-        WHERE author_id = ${user.id} OR LOWER(author) = LOWER(${user.name})
+        WHERE user_id = ${user.id}
       `;
 
       if (submissionStats.length > 0) {
@@ -130,7 +130,7 @@ export async function getUserProfileById(
           COUNT(CASE WHEN thread_parent_id IS NOT NULL THEN 1 END) as replies_count,
           MAX(submission_datetime) as last_activity
         FROM submissions 
-        WHERE author_id = ${userId} OR LOWER(author) = LOWER(${user.name})
+        WHERE user_id = (SELECT u.id FROM users u LEFT JOIN accounts a ON u.id = a."userId" WHERE a."providerAccountId" = ${userId} OR u.id::text = ${userId} LIMIT 1)
       `;
 
       if (submissionStats.length > 0) {

@@ -109,7 +109,9 @@ export function SubmissionItem({
 
   const canReply = session?.user?.id && depth < maxDepth;
   const hasReplies = submission.replies && submission.replies.length > 0;
-  const hasOwnerActions = isCurrentUserPost(submission.author_id);
+  const hasOwnerActions = isCurrentUserPost(
+    submission.user_id?.toString() || ''
+  );
 
   return (
     <div
@@ -120,7 +122,7 @@ export function SubmissionItem({
         className={`submission__meta ${!hasOwnerActions ? 'submission__meta--no-actions' : ''}`}
       >
         <Author
-          authorId={submission.author_id}
+          authorId={submission.user_id?.toString() || ''}
           authorName={submission.author}
           showFullName={true}
         />

@@ -64,6 +64,115 @@ CREATE TABLE IF NOT EXISTS submissions (
   submission_datetime TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 
+-- Ensure required columns exist (in case tables existed before)
+
+-- Add missing columns to users table
+DO $$ 
+BEGIN
+  -- Add emailVerified if missing
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.columns 
+    WHERE table_name = 'users' AND column_name = 'emailVerified'
+  ) THEN
+    ALTER TABLE users ADD COLUMN "emailVerified" TIMESTAMPTZ;
+  END IF;
+
+  -- Add image if missing
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.columns 
+    WHERE table_name = 'users' AND column_name = 'image'
+  ) THEN
+    ALTER TABLE users ADD COLUMN image TEXT;
+  END IF;
+
+  -- Add profile_public if missing
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.columns 
+    WHERE table_name = 'users' AND column_name = 'profile_public'
+  ) THEN
+    ALTER TABLE users ADD COLUMN profile_public BOOLEAN DEFAULT true;
+  END IF;
+
+  -- Add bio if missing
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.columns 
+    WHERE table_name = 'users' AND column_name = 'bio'
+  ) THEN
+    ALTER TABLE users ADD COLUMN bio TEXT;
+  END IF;
+
+  -- Add location if missing
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.columns 
+    WHERE table_name = 'users' AND column_name = 'location'
+  ) THEN
+    ALTER TABLE users ADD COLUMN location VARCHAR(255);
+  END IF;
+
+  -- Add created_at if missing
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.columns 
+    WHERE table_name = 'users' AND column_name = 'created_at'
+  ) THEN
+    ALTER TABLE users ADD COLUMN created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP;
+  END IF;
+END $$;
+
+-- Add missing columns to submissions table
+DO $$ 
+DECLARE
+  first_user_id INTEGER;
+BEGIN
+  -- Add tags if missing
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.columns 
+    WHERE table_name = 'submissions' AND column_name = 'tags'
+  ) THEN
+    ALTER TABLE submissions ADD COLUMN tags TEXT[];
+  END IF;
+
+  -- Add thread_parent_id if missing
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.columns 
+    WHERE table_name = 'submissions' AND column_name = 'thread_parent_id'
+  ) THEN
+    ALTER TABLE submissions ADD COLUMN thread_parent_id INTEGER;
+  END IF;
+
+  -- Add submission_datetime if missing
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.columns 
+    WHERE table_name = 'submissions' AND column_name = 'submission_datetime'
+  ) THEN
+    ALTER TABLE submissions ADD COLUMN submission_datetime TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL;
+  END IF;
+
+  -- Add user_id if missing
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.columns 
+    WHERE table_name = 'submissions' AND column_name = 'user_id'
+  ) THEN
+    -- Add user_id column as nullable first
+    ALTER TABLE submissions ADD COLUMN user_id INTEGER;
+    
+    -- Get the first user ID (create a default user if none exist)
+    SELECT id INTO first_user_id FROM users LIMIT 1;
+    
+    IF first_user_id IS NULL THEN
+      -- Create a default system user if no users exist
+      INSERT INTO users (name, email) 
+      VALUES ('System', 'system@idling.app') 
+      RETURNING id INTO first_user_id;
+    END IF;
+    
+    -- Update existing submissions to reference the first user
+    UPDATE submissions SET user_id = first_user_id WHERE user_id IS NULL;
+    
+    -- Make the column NOT NULL after updating existing data
+    ALTER TABLE submissions ALTER COLUMN user_id SET NOT NULL;
+  END IF;
+END $$;
+
 -- ================================
 -- FOREIGN KEY CONSTRAINTS
 -- ================================
@@ -101,6 +210,12 @@ BEGIN
     SELECT 1 FROM information_schema.table_constraints 
     WHERE constraint_name = 'fk_submissions_user' 
     AND table_name = 'submissions'
+  ) AND EXISTS (
+    SELECT 1 FROM information_schema.columns 
+    WHERE table_name = 'submissions' AND column_name = 'user_id'
+  ) AND EXISTS (
+    SELECT 1 FROM information_schema.columns 
+    WHERE table_name = 'users' AND column_name = 'id'
   ) THEN
     ALTER TABLE submissions ADD CONSTRAINT fk_submissions_user 
       FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL;

@@ -326,16 +326,17 @@ export async function getSubmissionsWithReplies({
           if (!submissionMap.has(parentId)) {
             const parentResult = await sql<any[]>`
               SELECT 
-                submission_id,
-                submission_name,
-                submission_title,
-                submission_datetime,
-                author_id,
-                author,
-                COALESCE(tags, ARRAY[]::text[]) as tags,
-                thread_parent_id
-              FROM submissions
-              WHERE submission_id = ${parentId}
+                s.submission_id,
+                s.submission_name,
+                s.submission_title,
+                s.submission_datetime,
+                s.user_id,
+                u.name as author,
+                COALESCE(s.tags, ARRAY[]::text[]) as tags,
+                s.thread_parent_id
+              FROM submissions s
+              LEFT JOIN users u ON s.user_id = u.id
+              WHERE s.submission_id = ${parentId}
             `;
 
             if (parentResult[0]) {
