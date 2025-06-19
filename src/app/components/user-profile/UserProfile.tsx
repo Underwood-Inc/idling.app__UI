@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { UserProfileData } from '../../../lib/types/profile';
 import { Avatar } from '../avatar/Avatar';
-import FixAuthButton from '../fix-auth-button/FixAuthButton';
+
 import './UserProfile.css';
 
 // Re-export for backward compatibility
@@ -172,8 +172,6 @@ export function UserProfile({
     );
   }
 
-  console.log('🟢 DEBUG: PROFILE UserProfile Avatar seed:', user.id);
-
   if (variant === 'compact') {
     return (
       <div className={`user-profile user-profile--compact ${className}`}>
@@ -209,24 +207,6 @@ export function UserProfile({
               </p>
             )}
           </div>
-
-          {/* Debug: Show current user ID */}
-          {isOwnProfile && (
-            <div
-              style={{
-                marginTop: '10px',
-                padding: '10px',
-                background: '#f0f0f0',
-                borderRadius: '5px'
-              }}
-            >
-              <p>
-                <strong>Debug Info:</strong>
-              </p>
-              <p>Profile Avatar Seed: {user.id}</p>
-              <FixAuthButton />
-            </div>
-          )}
         </div>
       </div>
 
