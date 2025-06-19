@@ -1,8 +1,8 @@
 'use server';
 
-import { UserProfileData } from '../../app/components/user-profile/UserProfile';
 import { auth } from '../auth';
 import sql from '../db';
+import { UserProfileData } from '../types/profile';
 
 export interface ProfileFilters {
   username?: string;

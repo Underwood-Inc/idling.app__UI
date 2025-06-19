@@ -47,5 +47,9 @@ export const NAV_PATH_LABELS: Record<ROUTES, string> = {
 };
 
 export const DISABLED_PATHS = [NAV_PATHS.GAME];
-export const PUBLIC_ROUTES = [NAV_PATHS.ROOT, NAV_PATHS.SIGNIN];
+export const PUBLIC_ROUTES = [
+  NAV_PATHS.ROOT,
+  NAV_PATHS.SIGNIN,
+  NAV_PATHS.POSTS
+];
 export const DEFAULT_REDIRECT = '/posts';

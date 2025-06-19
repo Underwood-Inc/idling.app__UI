@@ -41,7 +41,8 @@ export default auth((req) => {
   const isAuthenticated = !!session;
   const isPublicRoute =
     PUBLIC_ROUTES.includes(nextUrl.pathname) ||
-    nextUrl.pathname.startsWith('/t/');
+    nextUrl.pathname.startsWith('/t/') ||
+    nextUrl.pathname.startsWith('/profile/');
 
   if (isPublicRoute) {
     return;
