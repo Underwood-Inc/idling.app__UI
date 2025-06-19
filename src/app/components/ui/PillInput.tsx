@@ -46,8 +46,8 @@ export const PillInput: React.FC<PillInputProps> = ({
     const segments: ParsedContent[] = [];
     let currentIndex = 0;
 
-    // Regex to match hashtags and structured mentions
-    const pillRegex = /(#\w+)|(@\[[^\]]+\])|(@\w+)/g;
+    // Regex to match hashtags and structured mentions only (prevent false positives)
+    const pillRegex = /(#\w+)|(@\[[^\]]+\])/g;
     let match;
 
     while ((match = pillRegex.exec(text)) !== null) {
@@ -71,9 +71,6 @@ export const PillInput: React.FC<PillInputProps> = ({
           content: matchedText,
           raw: matchedText
         });
-      } else if (matchedText.startsWith('@')) {
-        // Simple mention: @username
-        segments.push({ type: 'mention', content: matchedText });
       }
 
       currentIndex = match.index + matchedText.length;

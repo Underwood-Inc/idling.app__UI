@@ -58,8 +58,8 @@ export const SmartPillInput: React.FC<SmartPillInputProps> = ({
     const segments: ParsedContent[] = [];
     let currentIndex = 0;
 
-    // Enhanced regex to match hashtags and structured mentions (with optional filter type)
-    const pillRegex = /(#\w+)|(@\[[^\]]+\])|(@\w+)/g;
+    // Enhanced regex to match hashtags and structured mentions only (prevent false positives)
+    const pillRegex = /(#\w+)|(@\[[^\]]+\])/g;
     let match;
 
     while ((match = pillRegex.exec(text)) !== null) {
@@ -110,12 +110,6 @@ export const SmartPillInput: React.FC<SmartPillInputProps> = ({
             });
           }
         }
-      } else if (matchedText.startsWith('@')) {
-        segments.push({
-          type: 'mention',
-          content: matchedText,
-          filterType: 'author' // Default for simple mentions
-        });
       }
 
       currentIndex = match.index + matchedText.length;

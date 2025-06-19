@@ -311,7 +311,7 @@ describe('ContentWithPills', () => {
       expect(links[1]).toHaveTextContent('@dev-ops');
     });
 
-    it('should parse simple mention format (legacy support)', () => {
+    it('should NOT parse simple mention format to prevent false positives', () => {
       render(
         <Provider>
           <ContentWithPills
@@ -321,15 +321,14 @@ describe('ContentWithPills', () => {
         </Provider>
       );
 
-      // The component actually parses simple @username format and creates links
-      const link = screen.getByRole('link');
-      expect(link).toBeInTheDocument();
-      expect(link).toHaveTextContent('@username');
-      expect(link).toHaveClass('content-pill--mention');
+      // Simple @username format should NOT create links to prevent false positives
+      const links = screen.queryAllByRole('link');
+      expect(links).toHaveLength(0);
 
-      // Check that the remaining text is preserved
-      expect(screen.getByText(/Hello/)).toBeInTheDocument();
-      expect(screen.getByText(/this should be parsed/)).toBeInTheDocument();
+      // All text should be preserved as plain text
+      expect(
+        screen.getByText(/Hello @username this should be parsed/)
+      ).toBeInTheDocument();
     });
 
     it('should handle special characters adjacent to hashtags/mentions', () => {
