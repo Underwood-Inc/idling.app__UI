@@ -660,11 +660,12 @@ async function createReplies(users, parentPostIds, count) {
 
   if (parentPostIds.length === 0) {
     console.error('❌ No parent post IDs provided');
-    return;
+    return [];
   }
 
   const batches = Math.ceil(count / BATCH_SIZE);
   let totalCreated = 0;
+  const createdReplyIds = []; // Track reply IDs internally
 
   for (let batch = 0; batch < batches; batch++) {
     const batchStart = batch * BATCH_SIZE;
@@ -704,12 +705,22 @@ async function createReplies(users, parentPostIds, count) {
       ]);
     }
 
+    // Get the current max ID before inserting to track new reply IDs
+    const beforeInsert =
+      await sql`SELECT COALESCE(MAX(submission_id), 0) as max_id FROM submissions`;
+    const startId = beforeInsert[0].max_id + 1;
+
     // Single batch insert - no queries during loop
     await sql`
       INSERT INTO submissions (
         submission_name, submission_title, author_id, author, tags, thread_parent_id, submission_datetime
       ) VALUES ${sql(replies)}
     `;
+
+    // Track the IDs of replies we just created (sequential IDs)
+    for (let i = 0; i < batchSize; i++) {
+      createdReplyIds.push(startId + i);
+    }
 
     totalCreated += batchSize;
 
@@ -730,37 +741,29 @@ async function createReplies(users, parentPostIds, count) {
   }
 
   console.log(`✅ Created ${totalCreated} replies`);
+  console.log(
+    `📊 Tracked ${createdReplyIds.length} reply IDs for nested reply generation`
+  );
+
+  return createdReplyIds; // Return tracked reply IDs
 }
 
 /**
  * Create nested replies (replies to replies) - using internal tracking (NO SQL QUERIES)
  */
-async function createNestedReplies(users, mainPostIds, count) {
-  console.log(`🔗 Creating ${count} nested replies using internal tracking...`);
+async function createNestedReplies(users, replyIds, count) {
+  console.log(
+    `🔗 Creating ${count} nested replies using ${replyIds.length} tracked reply IDs...`
+  );
 
-  if (mainPostIds.length === 0) {
-    console.error('❌ No main post IDs provided for nested replies');
+  if (replyIds.length === 0) {
+    console.error('❌ No reply IDs provided for nested replies');
     return;
   }
 
-  // Get all reply IDs that we can nest under - single query at start
-  console.log('📊 Loading existing reply IDs for nesting...');
-  const replyIds = await sql`
-    SELECT submission_id 
-    FROM submissions 
-    WHERE thread_parent_id IS NOT NULL
-    ORDER BY submission_id
-  `;
-
-  if (replyIds.length === 0) {
-    console.log(
-      '⚠️  No existing replies found, creating nested replies under main posts instead'
-    );
-    return await createReplies(users, mainPostIds, count);
-  }
-
-  const replyIdArray = replyIds.map((r) => r.submission_id);
-  console.log(`📊 Found ${replyIdArray.length} existing replies to nest under`);
+  console.log(
+    `📊 Using ${replyIds.length} internally tracked reply IDs (no database queries needed)`
+  );
 
   const batches = Math.ceil(count / BATCH_SIZE);
   let totalCreated = 0;
@@ -778,8 +781,8 @@ async function createNestedReplies(users, mainPostIds, count) {
       // Use internal tracking - no SQL queries needed!
       // Weighted selection: favor earlier replies (more realistic threading)
       const randomFactor = Math.random() * Math.random(); // Skews toward 0
-      const parentIndex = Math.floor(randomFactor * replyIdArray.length);
-      const parentId = replyIdArray[parentIndex];
+      const parentIndex = Math.floor(randomFactor * replyIds.length);
+      const parentId = replyIds[parentIndex];
 
       const content = generatePostContent(users, replyIndex + 2000000); // Offset for variety
 
@@ -954,10 +957,10 @@ async function main() {
     const mainPostIds = await createMainPosts(users, SEED_POSTS_COUNT);
 
     // Step 5: Create replies
-    await createReplies(users, mainPostIds, SEED_REPLIES_COUNT);
+    const replies = await createReplies(users, mainPostIds, SEED_REPLIES_COUNT);
 
     // Step 6: Create nested replies
-    await createNestedReplies(users, mainPostIds, SEED_NESTED_REPLIES_COUNT);
+    await createNestedReplies(users, replies, SEED_NESTED_REPLIES_COUNT);
 
     // Step 7: Refresh materialized view
     if (!SKIP_MATERIALIZED_VIEW) {
