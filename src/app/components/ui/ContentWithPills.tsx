@@ -4,120 +4,50 @@ import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import React, { useCallback, useMemo } from 'react';
 import { NAV_PATHS } from '../../../lib/routes';
+import {
+  ContentParser,
+  ContentSegment
+} from '../../../lib/utils/content-parsers';
 import { InteractiveTooltip } from '../tooltip/InteractiveTooltip';
 import './ContentWithPills.css';
+import { URLPill } from './URLPill';
 
 interface ContentWithPillsProps {
   content: string;
   onHashtagClick?: (hashtag: string) => void;
   onMentionClick?: (mention: string, filterType: 'author' | 'mentions') => void;
+  onURLClick?: (url: string, behavior: string) => void;
   className?: string;
   contextId: string;
   isFilterBarContext?: boolean;
   enableInlineFilterControl?: boolean;
-}
-
-type SegmentType = 'text' | 'hashtag' | 'mention';
-
-interface ContentSegment {
-  type: SegmentType;
-  value: string;
-  userId?: string; // For mentions, store the resolved user ID
-  displayName?: string; // For mentions, store the display username
-  filterType?: 'author' | 'mentions'; // For enhanced mentions, store filter type
-  rawFormat?: string; // Store the original format for enhanced mentions
+  isEditMode?: boolean;
 }
 
 export function ContentWithPills({
   content,
   onHashtagClick,
   onMentionClick,
+  onURLClick,
   className = '',
   contextId,
   isFilterBarContext = false,
-  enableInlineFilterControl = false
+  enableInlineFilterControl = false,
+  isEditMode = false
 }: ContentWithPillsProps) {
   const pathname = usePathname();
   const router = useRouter();
   const searchParams = useSearchParams();
 
   /**
-   * Parse content for ONLY structured pills from InlineSuggestionInput:
-   * - Hashtags: #tagname
-   * - Embedded mentions: @[username|userId] (created by autocomplete only)
-   *
-   * Legacy data and adhoc usernames are ignored to prevent false positives
+   * Parse content using modular parsers with strict precedence:
+   * 1. Structured URL Pills (highest priority)
+   * 2. Hashtags
+   * 3. Mentions
+   * 4. Fallback URLs (only in remaining text)
    */
   const parseContent = (text: string): ContentSegment[] => {
-    const segments: ContentSegment[] = [];
-
-    // Parse ONLY structured formats to prevent false positives
-    // Structured: #hashtag or @[username|userId] or @[username|userId|filterType]
-    // Simple @username patterns are NOT matched to avoid false positives like @barney_nitzsche
-    const combinedRegex = /(#[a-zA-Z0-9_-]+)|(@\[[^\]]+\])/g;
-
-    let lastIndex = 0;
-    let match;
-
-    while ((match = combinedRegex.exec(text)) !== null) {
-      // Add text before the match
-      if (match.index > lastIndex) {
-        const textContent = text.slice(lastIndex, match.index);
-        if (textContent) {
-          segments.push({ type: 'text', value: textContent });
-        }
-      }
-
-      const fullMatch = match[0];
-
-      if (fullMatch.startsWith('#')) {
-        // Hashtag: #tagname
-        const hashtag = fullMatch.slice(1);
-        segments.push({ type: 'hashtag', value: hashtag });
-      } else if (fullMatch.startsWith('@[') && fullMatch.endsWith(']')) {
-        // Structured mention: @[username|userId] or @[username|userId|filterType]
-        const enhancedMatch = fullMatch.match(
-          /^@\[([^|]+)\|([^|]+)(?:\|([^|]+))?\]$/
-        );
-        if (enhancedMatch) {
-          const [, username, userId, filterType] = enhancedMatch;
-          segments.push({
-            type: 'mention',
-            value: username,
-            userId: userId,
-            displayName: username,
-            filterType: (filterType as 'author' | 'mentions') || 'author',
-            rawFormat: fullMatch
-          });
-        } else {
-          // Legacy format fallback
-          const legacyMatch = fullMatch.match(/^@\[([^|]+)\|([^\]]+)\]$/);
-          if (legacyMatch) {
-            const [, username, userId] = legacyMatch;
-            segments.push({
-              type: 'mention',
-              value: username,
-              userId: userId,
-              displayName: username,
-              filterType: 'author', // Default for legacy format
-              rawFormat: fullMatch
-            });
-          }
-        }
-      }
-
-      lastIndex = combinedRegex.lastIndex;
-    }
-
-    // Add remaining text
-    if (lastIndex < text.length) {
-      const remainingText = text.slice(lastIndex);
-      if (remainingText) {
-        segments.push({ type: 'text', value: remainingText });
-      }
-    }
-
-    return segments;
+    return ContentParser.parse(text);
   };
 
   // Memoize the parsing result
@@ -352,6 +282,21 @@ export function ContentWithPills({
             return <span key={index}>{segment.value}</span>;
           }
 
+          // Handle URL pills separately from other pill types
+          if (segment.type === 'url') {
+            return (
+              <URLPill
+                key={index}
+                content={segment.rawFormat || ''}
+                onURLClick={onURLClick}
+                isEditMode={isEditMode}
+                contextId={contextId}
+                className="content-pill--url"
+              />
+            );
+          }
+
+          // Existing logic for hashtag and mention pills (unchanged)
           const isActiveFilter_ = isActiveFilter(
             segment.type as 'hashtag' | 'mention',
             segment.value,

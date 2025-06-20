@@ -3,8 +3,17 @@
 import { useAtom } from 'jotai';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import {
+  convertURLsToPills,
+  hasConvertibleURLs
+} from '../../../../lib/config/url-pills';
 import { shouldUpdateAtom } from '../../../../lib/state/atoms';
+import {
+  ContentParser,
+  ContentSegment
+} from '../../../../lib/utils/content-parsers';
 import { validateTagsInput } from '../../../../lib/utils/string/tag-regex';
+import { ContentWithPills } from '../../ui/ContentWithPills';
 import { SmartInput } from '../../ui/SmartInput';
 import { createSubmissionAction, editSubmissionAction } from '../actions';
 import { Submission } from '../schema';
@@ -28,6 +37,106 @@ interface SharedSubmissionFormProps {
   initialContent?: string;
   initialTags?: string;
 }
+
+// Custom Form Pill Input Component
+const FormPillInput: React.FC<{
+  value: string;
+  onChange: (value: string) => void;
+  placeholder: string;
+  className?: string;
+  disabled?: boolean;
+  contextId: string;
+  as: 'input' | 'textarea';
+  rows?: number;
+}> = ({
+  value,
+  onChange,
+  placeholder,
+  className = '',
+  disabled = false,
+  contextId,
+  as,
+  rows
+}) => {
+  const [isEditing, setIsEditing] = useState(true); // Always in edit mode for forms
+  const [inputValue, setInputValue] = useState('');
+
+  // Parse content into segments for pill display
+  const segments: ContentSegment[] = ContentParser.parse(value);
+  const textOnlySegments = segments.filter(
+    (seg: ContentSegment) => seg.type === 'text'
+  );
+  const pillSegments = segments.filter(
+    (seg: ContentSegment) => seg.type !== 'text'
+  );
+
+  const handleInputChange = (newValue: string) => {
+    setInputValue(newValue);
+
+    // Combine existing pills with new text
+    const existingPillText = pillSegments
+      .map((seg: ContentSegment) => seg.rawFormat || seg.value)
+      .join(' ');
+    const combinedValue =
+      existingPillText + (existingPillText && newValue ? ' ' : '') + newValue;
+    onChange(combinedValue);
+  };
+
+  const handlePillRemove = (pillIndex: number) => {
+    const updatedPills = pillSegments.filter(
+      (_: ContentSegment, index: number) => index !== pillIndex
+    );
+    const updatedText = updatedPills
+      .map((seg: ContentSegment) => seg.rawFormat || seg.value)
+      .join(' ');
+    const finalValue =
+      updatedText + (updatedText && inputValue ? ' ' : '') + inputValue;
+    onChange(finalValue);
+  };
+
+  const InputComponent = as === 'textarea' ? 'textarea' : 'input';
+
+  return (
+    <div className={`form-pill-input ${className}`}>
+      <div className="form-pill-input__container">
+        {/* Render existing pills */}
+        <div className="form-pill-input__pills">
+          {pillSegments.map((segment, index) => (
+            <div key={index} className="form-pill-input__pill-wrapper">
+              <ContentWithPills
+                content={segment.rawFormat || segment.value}
+                contextId={`${contextId}-pill-${index}`}
+                isEditMode={true}
+                className="form-pill-input__pill"
+              />
+              <button
+                type="button"
+                className="form-pill-input__pill-remove"
+                onClick={() => handlePillRemove(index)}
+                title="Remove pill"
+              >
+                ×
+              </button>
+            </div>
+          ))}
+        </div>
+
+        {/* Input for new content */}
+        <SmartInput
+          value={inputValue}
+          onChange={handleInputChange}
+          placeholder={pillSegments.length > 0 ? 'Add more...' : placeholder}
+          className="form-pill-input__input"
+          disabled={disabled}
+          as={as}
+          rows={rows}
+          enableHashtags={true}
+          enableUserMentions={true}
+        />
+      </div>
+    </div>
+  );
+};
 
 export function SharedSubmissionForm({
   mode,
@@ -124,21 +233,25 @@ export function SharedSubmissionForm({
       ? 'Updating Post...'
       : 'Creating Post...';
 
-  const handleInputChange = (
-    field: 'title' | 'content' | 'tags',
-    value: string
-  ) => {
+  const handleInputChange = (field: keyof typeof formData, value: string) => {
+    // Auto-detect and convert URLs for title and content fields
+    let processedValue = value;
+
+    if ((field === 'title' || field === 'content') && value.endsWith(' ')) {
+      // Check if the text contains convertible URLs
+      if (hasConvertibleURLs(value)) {
+        processedValue = convertURLsToPills(value);
+      }
+    }
+
     setFormData((prev) => ({
       ...prev,
-      [field]: value
+      [field]: processedValue
     }));
 
-    // Clear error when user starts typing
-    if (error) setError('');
-
-    // Validate tags in real-time
+    // Validate tags if tags field changed
     if (field === 'tags') {
-      const validationErrors = validateTagsInput(value);
+      const validationErrors = validateTagsInput(processedValue);
       setTagErrors(validationErrors);
     }
   };
@@ -277,19 +390,18 @@ export function SharedSubmissionForm({
       {/* Title Field */}
       <div className="shared-submission-form__field">
         <label className="shared-submission-form__label">{titleLabel} *</label>
-        <SmartInput
+        <FormPillInput
           value={formData.title}
           onChange={(value) => handleInputChange('title', value)}
-          placeholder={`Enter a ${isReply ? 'reply' : isEdit ? 'post' : 'post'} title... Use #hashtags and @mentions!`}
-          className={`shared-submission-form__input ${
+          placeholder={`Enter a ${isReply ? 'reply' : isEdit ? 'post' : 'post'} title... Use #hashtags, @mentions, and paste URLs!`}
+          className={`shared-submission-form__form-input ${
             titleCharsRemaining < 0
               ? 'shared-submission-form__input--error'
               : ''
           }`}
           disabled={isSubmitting}
+          contextId={`${contextId || 'shared-form'}-title`}
           as="input"
-          enableHashtags={true}
-          enableUserMentions={true}
         />
         <div className="shared-submission-form__char-count">
           <span
@@ -309,20 +421,19 @@ export function SharedSubmissionForm({
         <label className="shared-submission-form__label">
           {contentLabel} *
         </label>
-        <SmartInput
+        <FormPillInput
           value={formData.content}
           onChange={(value) => handleInputChange('content', value)}
-          placeholder={`Write your ${isReply ? 'reply' : isEdit ? 'post' : 'post'} content... Use #hashtags and @mentions!`}
-          className={`shared-submission-form__textarea ${
+          placeholder={`Write your ${isReply ? 'reply' : isEdit ? 'post' : 'post'} content... Use #hashtags, @mentions, and paste URLs!`}
+          className={`shared-submission-form__form-input ${
             contentCharsRemaining < 0
               ? 'shared-submission-form__textarea--error'
               : ''
           }`}
           disabled={isSubmitting}
+          contextId={`${contextId || 'shared-form'}-content`}
           as="textarea"
           rows={4}
-          enableHashtags={true}
-          enableUserMentions={true}
         />
         <div className="shared-submission-form__char-count">
           <span

@@ -1,5 +1,5 @@
 // Smart Caching Service Worker with Version-Based Cache Busting
-const CACHE_VERSION = '0.40.0'; // Will be replaced with package.json version during build
+const CACHE_VERSION = '0.41.0'; // Will be replaced with package.json version during build
 const CACHE_NAME = `idling-app-cache-${CACHE_VERSION}`;
 const CACHE_METADATA_NAME = `idling-app-cache-metadata-${CACHE_VERSION}`;
 
