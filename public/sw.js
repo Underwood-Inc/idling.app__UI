@@ -15,7 +15,13 @@ const CACHE_TTLS = {
 const STATIC_ASSETS = [
   '/',
   '/favicon.ico',
-  '/offline.html'
+  '/manifest.json',
+  '/offline.html',
+  '/android-chrome-192x192.png',
+  '/android-chrome-512x512.png',
+  '/apple-touch-icon.png',
+  '/favicon-16x16.png',
+  '/favicon-32x32.png'
 ];
 
 // Helper function to get app version from headers or fetch
