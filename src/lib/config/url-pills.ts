@@ -251,7 +251,11 @@ export const detectURLsInText = (
 
     if (domain) {
       // Create pill with default behavior
-      const pillFormat = `![${domain.defaultBehavior}](${url})`;
+      // For embed behavior, include default width setting
+      const pillFormat =
+        domain.defaultBehavior === 'embed'
+          ? `![${domain.defaultBehavior}|full](${url})`
+          : `![${domain.defaultBehavior}](${url})`;
 
       detectedUrls.push({
         url,

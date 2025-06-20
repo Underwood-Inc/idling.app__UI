@@ -1,7 +1,11 @@
 'use client';
 
 import React, { useState } from 'react';
-import { findDomainConfig, parseURLPill } from '../../../lib/config/url-pills';
+import {
+  findDomainConfig,
+  parseURLPill,
+  URLPillBehavior
+} from '../../../lib/config/url-pills';
 import { useOverlay } from '../../../lib/context/OverlayContext';
 import './URLPill.css';
 
@@ -9,10 +13,116 @@ interface URLPillProps {
   content: string; // The full pill text: ![behavior](url)
   onURLClick?: (url: string, behavior: string) => void;
   onRemove?: () => void;
+  onBehaviorChange?: (newContent: string) => void; // Callback when behavior changes
   isEditMode?: boolean;
   contextId: string;
   className?: string;
 }
+
+// YouTube Embed Component for inline rich embeds
+const YouTubeEmbed: React.FC<{
+  videoId: string;
+  title?: string;
+  width?: 'small' | 'medium' | 'large' | 'full';
+  isEditMode?: boolean;
+  onWidthChange?: (newWidth: 'small' | 'medium' | 'large' | 'full') => void;
+  onModeChange?: (newMode: string) => void;
+  currentMode?: string;
+  availableModes?: URLPillBehavior[];
+}> = ({
+  videoId,
+  title = 'YouTube video',
+  width = 'full',
+  isEditMode = false,
+  onWidthChange,
+  onModeChange,
+  currentMode,
+  availableModes = []
+}) => {
+  const embedUrl = `https://www.youtube.com/embed/${videoId}?rel=0&showinfo=0&modestbranding=1`;
+
+  const handleWidthChange = (
+    newWidth: 'small' | 'medium' | 'large' | 'full'
+  ) => {
+    if (onWidthChange) {
+      onWidthChange(newWidth);
+    }
+  };
+
+  const widthOptions = [
+    { id: 'small', label: 'S', description: '400px max width' },
+    { id: 'medium', label: 'M', description: '600px max width' },
+    { id: 'large', label: 'L', description: '800px max width' },
+    { id: 'full', label: 'F', description: 'Full available width' }
+  ] as const;
+
+  return (
+    <div className={`youtube-embed youtube-embed--${width}`}>
+      {/* Mode and width controls in edit mode */}
+      {isEditMode && (
+        <div className="youtube-embed__controls">
+          {/* Mode controls */}
+          {availableModes.length > 1 && onModeChange && (
+            <div className="youtube-embed__mode-section">
+              <span className="youtube-embed__controls-label">Mode:</span>
+              {availableModes.map((mode) => (
+                <button
+                  key={mode.id}
+                  type="button"
+                  className={`youtube-embed__mode-button ${
+                    currentMode === mode.id
+                      ? 'youtube-embed__mode-button--active'
+                      : ''
+                  }`}
+                  onClick={() => onModeChange(mode.id)}
+                  title={mode.description}
+                >
+                  {mode.id === 'modal'
+                    ? 'MOD'
+                    : mode.id === 'link'
+                      ? 'LIN'
+                      : mode.id === 'embed'
+                        ? 'EMB'
+                        : mode.id.substring(0, 3).toUpperCase()}
+                </button>
+              ))}
+            </div>
+          )}
+
+          {/* Width controls */}
+          <div className="youtube-embed__width-section">
+            <span className="youtube-embed__controls-label">Width:</span>
+            {widthOptions.map((option) => (
+              <button
+                key={option.id}
+                type="button"
+                className={`youtube-embed__width-button ${
+                  width === option.id
+                    ? 'youtube-embed__width-button--active'
+                    : ''
+                }`}
+                onClick={() => handleWidthChange(option.id)}
+                title={option.description}
+              >
+                {option.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+      <div className="youtube-embed__video-container">
+        <iframe
+          src={embedUrl}
+          frameBorder="0"
+          allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowFullScreen
+          title={title}
+          className="youtube-embed__iframe"
+        />
+      </div>
+    </div>
+  );
+};
 
 // YouTube Modal Component
 const YouTubeModal: React.FC<{
@@ -125,6 +235,7 @@ export const URLPill: React.FC<URLPillProps> = ({
   content,
   onURLClick,
   onRemove,
+  onBehaviorChange,
   isEditMode = false,
   contextId,
   className = ''
@@ -168,7 +279,12 @@ export const URLPill: React.FC<URLPillProps> = ({
 
     if (nextBehavior) {
       setCurrentBehavior(nextBehavior.id);
-      // Note: In a real implementation, this would update the pill content
+
+      // Create updated pill content and notify parent
+      if (onBehaviorChange && pillData) {
+        const updatedContent = `![${nextBehavior.id}](${pillData.url})`;
+        onBehaviorChange(updatedContent);
+      }
     }
   };
 
@@ -207,8 +323,8 @@ export const URLPill: React.FC<URLPillProps> = ({
           window.open(url, '_blank', 'noopener,noreferrer');
           break;
         case 'embed':
-          // Rich embed is handled by the component display itself
-          // No action needed for inline embeds
+          // For embed behavior, we don't need to do anything on click
+          // The embed is rendered inline below
           break;
         default:
           window.open(url, '_blank', 'noopener,noreferrer');
@@ -225,6 +341,52 @@ export const URLPill: React.FC<URLPillProps> = ({
 
   // Create a comprehensive title with all the info
   const pillTitle = `${domain.name}: ${behaviorConfig?.name || displayBehavior} - ${url}`;
+
+  // For embed behavior, render the embed content instead of just a pill
+  if (displayBehavior === 'embed') {
+    const videoId = domain.extractId ? domain.extractId(url) : null;
+    if (
+      videoId &&
+      (domain.domain === 'youtube.com' || domain.domain === 'youtu.be')
+    ) {
+      // Parse width from customId if available (format: ![embed|width](url))
+      const width =
+        (pillData?.customId as 'small' | 'medium' | 'large' | 'full') || 'full';
+
+      return (
+        <div className="url-pill-embed-container">
+          <YouTubeEmbed
+            videoId={videoId}
+            title={`YouTube video from ${domain.name}`}
+            width={width}
+            isEditMode={isEditMode}
+            onWidthChange={(newWidth) => {
+              if (onBehaviorChange && pillData) {
+                // Update the pill content with new width, preserving current mode
+                const updatedContent = `![${displayBehavior}|${newWidth}](${pillData.url})`;
+                onBehaviorChange(updatedContent);
+              }
+            }}
+            onModeChange={(newMode) => {
+              if (onBehaviorChange && pillData) {
+                // Update local state immediately
+                setCurrentBehavior(newMode);
+
+                // Preserve width if it exists
+                const currentWidth = pillData.customId;
+                const updatedContent = currentWidth
+                  ? `![${newMode}|${currentWidth}](${pillData.url})`
+                  : `![${newMode}](${pillData.url})`;
+                onBehaviorChange(updatedContent);
+              }
+            }}
+            currentMode={displayBehavior}
+            availableModes={domain.behaviors.filter((b) => b.enabled)}
+          />
+        </div>
+      );
+    }
+  }
 
   return (
     <span className={pillClasses} title={pillTitle}>
@@ -255,14 +417,45 @@ export const URLPill: React.FC<URLPillProps> = ({
 
       {/* Compact behavior toggle in edit mode - like mention filter toggles */}
       {isEditMode && domain.behaviors.filter((b) => b.enabled).length > 1 && (
-        <button
-          className={`url-pill__behavior-toggle url-pill__behavior-toggle--${displayBehavior}`}
-          onClick={handleBehaviorToggle}
-          title={`Switch behavior (current: ${behaviorConfig?.name})`}
-        >
-          {behaviorConfig?.name?.substring(0, 3).toUpperCase() ||
-            displayBehavior.substring(0, 3).toUpperCase()}
-        </button>
+        <div className="url-pill__behavior-toggles">
+          {domain.behaviors
+            .filter((b) => b.enabled)
+            .map((behaviorOption) => (
+              <button
+                key={behaviorOption.id}
+                className={`url-pill__behavior-toggle url-pill__behavior-toggle--${behaviorOption.id} ${
+                  displayBehavior === behaviorOption.id
+                    ? 'url-pill__behavior-toggle--active'
+                    : ''
+                }`}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  if (onBehaviorChange && pillData) {
+                    // Update local state immediately
+                    setCurrentBehavior(behaviorOption.id);
+
+                    // Preserve width if it exists
+                    const currentWidth = pillData.customId;
+                    const updatedContent = currentWidth
+                      ? `![${behaviorOption.id}|${currentWidth}](${pillData.url})`
+                      : `![${behaviorOption.id}](${pillData.url})`;
+                    onBehaviorChange(updatedContent);
+                  }
+                }}
+                title={behaviorOption.description}
+                type="button"
+              >
+                {behaviorOption.id === 'modal'
+                  ? 'MOD'
+                  : behaviorOption.id === 'link'
+                    ? 'LIN'
+                    : behaviorOption.id === 'embed'
+                      ? 'EMB'
+                      : behaviorOption.id.substring(0, 3).toUpperCase()}
+              </button>
+            ))}
+        </div>
       )}
     </span>
   );

@@ -327,6 +327,37 @@
   width: 100%;
 }
 
+/* Allow URL embeds in edit mode to break out of form constraints */
+.form-pill-input__container:has(.url-pill-embed-container),
+.form-pill-input__container--has-embeds {
+  display: block;
+  padding: 0;
+  border: none;
+  background: transparent;
+}
+
+.form-pill-input__container .url-pill-embed-container {
+  width: 100%;
+  margin: var(--spacing-xs-compact) 0;
+}
+
+/* Override flex constraints for embed containers */
+.form-pill-input__container--has-embeds .form-pill-input__pills {
+  display: block;
+  width: 100%;
+}
+
+.form-pill-input__container--has-embeds .form-pill-input__pill-wrapper {
+  display: block;
+  width: 100%;
+  margin-bottom: var(--spacing-xs-compact);
+}
+
+.form-pill-input__container--has-embeds .form-pill-input__pill {
+  display: block;
+  width: 100%;
+}
+
 .form-pill-input__container {
   border: 1px solid var(--light-border--primary);
   border-radius: var(--border-radius);

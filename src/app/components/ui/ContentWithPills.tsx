@@ -17,6 +17,7 @@ interface ContentWithPillsProps {
   onHashtagClick?: (hashtag: string) => void;
   onMentionClick?: (mention: string, filterType: 'author' | 'mentions') => void;
   onURLClick?: (url: string, behavior: string) => void;
+  onURLBehaviorChange?: (oldContent: string, newContent: string) => void;
   className?: string;
   contextId: string;
   isFilterBarContext?: boolean;
@@ -29,6 +30,7 @@ export function ContentWithPills({
   onHashtagClick,
   onMentionClick,
   onURLClick,
+  onURLBehaviorChange,
   className = '',
   contextId,
   isFilterBarContext = false,
@@ -271,10 +273,15 @@ export function ContentWithPills({
     [createFilterHandler]
   );
 
+  // Check if there are any URL embeds to determine container styling
+  const hasEmbeds = segments.some(
+    (segment) => segment.type === 'url' && segment.behavior === 'embed'
+  );
+
   return (
     <>
       <span
-        className={`content-with-pills ${className}`}
+        className={`content-with-pills ${hasEmbeds ? 'content-with-pills--has-embeds' : ''} ${className}`}
         data-context-id={contextId}
       >
         {segments.map((segment, index) => {
@@ -289,6 +296,11 @@ export function ContentWithPills({
                 key={index}
                 content={segment.rawFormat || ''}
                 onURLClick={onURLClick}
+                onBehaviorChange={(newContent) => {
+                  if (onURLBehaviorChange) {
+                    onURLBehaviorChange(segment.rawFormat || '', newContent);
+                  }
+                }}
                 isEditMode={isEditMode}
                 contextId={contextId}
                 className="content-pill--url"

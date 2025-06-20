@@ -77,8 +77,17 @@ const FormPillInput: React.FC<{
     const existingPillText = pillSegments
       .map((seg: ContentSegment) => seg.rawFormat || seg.value)
       .join(' ');
-    const combinedValue =
+    let combinedValue =
       existingPillText + (existingPillText && newValue ? ' ' : '') + newValue;
+
+    // Auto-detect and convert URLs when user types a space
+    if (newValue.endsWith(' ') && hasConvertibleURLs(newValue)) {
+      const convertedInput = convertURLsToPills(newValue);
+      setInputValue(''); // Clear input since URLs became pills
+      combinedValue =
+        existingPillText + (existingPillText ? ' ' : '') + convertedInput;
+    }
+
     onChange(combinedValue);
   };
 
@@ -94,11 +103,24 @@ const FormPillInput: React.FC<{
     onChange(finalValue);
   };
 
+  const handleURLBehaviorChange = (oldContent: string, newContent: string) => {
+    // Replace the old URL pill content with the new one
+    const updatedValue = value.replace(oldContent, newContent);
+    onChange(updatedValue);
+  };
+
   const InputComponent = as === 'textarea' ? 'textarea' : 'input';
+
+  // Check if there are any URL embeds to determine container styling
+  const hasEmbeds = pillSegments.some(
+    (segment) => segment.type === 'url' && segment.behavior === 'embed'
+  );
 
   return (
     <div className={`form-pill-input ${className}`}>
-      <div className="form-pill-input__container">
+      <div
+        className={`form-pill-input__container ${hasEmbeds ? 'form-pill-input__container--has-embeds' : ''}`}
+      >
         {/* Render existing pills */}
         <div className="form-pill-input__pills">
           {pillSegments.map((segment, index) => (
@@ -107,6 +129,7 @@ const FormPillInput: React.FC<{
                 content={segment.rawFormat || segment.value}
                 contextId={`${contextId}-pill-${index}`}
                 isEditMode={true}
+                onURLBehaviorChange={handleURLBehaviorChange}
                 className="form-pill-input__pill"
               />
               <button

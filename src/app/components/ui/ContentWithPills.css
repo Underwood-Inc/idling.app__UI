@@ -3,6 +3,12 @@
   line-height: inherit;
 }
 
+/* Allow content-with-pills to expand for URL embeds */
+.content-with-pills--has-embeds {
+  display: block;
+  width: 100%;
+}
+
 .content-pill {
   display: inline;
   margin: 0 1px;
