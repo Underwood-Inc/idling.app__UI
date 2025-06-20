@@ -112,6 +112,7 @@ export async function getSubmissions({
         s.submission_datetime,
         s.user_id,
         u.name as author,
+        s.author_provider_account_id,
         COALESCE(s.tags, ARRAY[]::text[]) as tags,
         s.thread_parent_id
       FROM submissions s
@@ -165,45 +166,47 @@ export async function getSubmissionsWithRepliesOptimized(
   try {
     // Single query to fetch all replies for all parents at once
     const repliesResult = await sql<any[]>`
-      WITH RECURSIVE reply_tree AS (
-        -- Base case: direct replies to the parent posts
-            SELECT 
-        s.submission_id,
-        s.submission_name,
-        s.submission_title,
-        s.submission_datetime,
-        s.user_id,
-        u.name as author,
-        COALESCE(s.tags, ARRAY[]::text[]) as tags,
-        s.thread_parent_id,
-        s.thread_parent_id as root_parent_id,
-        1 as depth
-      FROM submissions s
-      LEFT JOIN users u ON s.user_id = u.id
-        WHERE s.thread_parent_id = ANY(${parentIds})
-        
-        UNION ALL
-        
-        -- Recursive case: replies to replies (nested threads)
-        SELECT 
+        WITH RECURSIVE reply_tree AS (
+          -- Base case: direct replies to the parent posts
+              SELECT 
           s.submission_id,
           s.submission_name,
           s.submission_title,
           s.submission_datetime,
           s.user_id,
           u.name as author,
+          s.author_provider_account_id,
           COALESCE(s.tags, ARRAY[]::text[]) as tags,
           s.thread_parent_id,
-          rt.root_parent_id,
-          rt.depth + 1
+          s.thread_parent_id as root_parent_id,
+          1 as depth
         FROM submissions s
         LEFT JOIN users u ON s.user_id = u.id
-        INNER JOIN reply_tree rt ON s.thread_parent_id = rt.submission_id
-        WHERE rt.depth < 10 -- Prevent infinite recursion
-      )
-      SELECT * FROM reply_tree
-      ORDER BY root_parent_id, thread_parent_id, submission_datetime ASC
-    `;
+          WHERE s.thread_parent_id = ANY(${parentIds})
+          
+          UNION ALL
+          
+          -- Recursive case: replies to replies (nested threads)
+          SELECT 
+            s.submission_id,
+            s.submission_name,
+            s.submission_title,
+            s.submission_datetime,
+            s.user_id,
+            u.name as author,
+            s.author_provider_account_id,
+            COALESCE(s.tags, ARRAY[]::text[]) as tags,
+            s.thread_parent_id,
+            rt.root_parent_id,
+            rt.depth + 1
+          FROM submissions s
+          LEFT JOIN users u ON s.user_id = u.id
+          INNER JOIN reply_tree rt ON s.thread_parent_id = rt.submission_id
+          WHERE rt.depth < 10 -- Prevent infinite recursion
+        )
+        SELECT * FROM reply_tree
+        ORDER BY root_parent_id, thread_parent_id, submission_datetime ASC
+      `;
 
     // Group replies by root parent ID
     const repliesMap = new Map<number, SubmissionWithReplies[]>();
@@ -218,6 +221,7 @@ export async function getSubmissionsWithRepliesOptimized(
         submission_datetime: new Date(row.submission_datetime),
         user_id: row.user_id,
         author: row.author,
+        author_provider_account_id: row.author_provider_account_id,
         tags: Array.isArray(row.tags) ? row.tags : [],
         thread_parent_id: row.thread_parent_id
           ? Number(row.thread_parent_id)
@@ -332,6 +336,7 @@ export async function getSubmissionsWithReplies({
                 s.submission_datetime,
                 s.user_id,
                 u.name as author,
+                s.author_provider_account_id,
                 COALESCE(s.tags, ARRAY[]::text[]) as tags,
                 s.thread_parent_id
               FROM submissions s
@@ -351,6 +356,8 @@ export async function getSubmissionsWithReplies({
                 ),
                 user_id: parentResult[0].user_id,
                 author: parentResult[0].author,
+                author_provider_account_id:
+                  parentResult[0].author_provider_account_id,
                 tags: Array.isArray(parentResult[0].tags)
                   ? parentResult[0].tags
                   : [],
@@ -549,6 +556,7 @@ export async function getSubmissionsAction({
           s.submission_datetime,
           s.user_id,
           u.name as author,
+          s.author_provider_account_id,
           COALESCE(s.tags, ARRAY[]::text[]) as tags,
           s.thread_parent_id
         FROM submissions s
@@ -568,6 +576,7 @@ export async function getSubmissionsAction({
           s.submission_datetime,
           s.user_id,
           u.name as author,
+          s.author_provider_account_id,
           COALESCE(s.tags, ARRAY[]::text[]) as tags,
           s.thread_parent_id
         FROM submissions s
@@ -606,6 +615,7 @@ export async function getSubmissionsAction({
           submission_datetime: new Date(row.submission_datetime),
           user_id: row.user_id,
           author: row.author,
+          author_provider_account_id: row.author_provider_account_id,
           tags: Array.isArray(row.tags) ? row.tags : [],
           thread_parent_id: row.thread_parent_id
             ? Number(row.thread_parent_id)

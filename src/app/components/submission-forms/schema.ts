@@ -12,6 +12,7 @@ export const submissionSchema = z.object({
   submission_datetime: z.date(),
   user_id: z.number().min(1),
   author: z.string(), // User's display name from users table
+  author_provider_account_id: z.string(), // OAuth provider account ID for direct session matching
   tags: z.array(z.string()),
   thread_parent_id: z.number().nullable()
 });

@@ -51,12 +51,10 @@ export function ContentWithPills({
   const parseContent = (text: string): ContentSegment[] => {
     const segments: ContentSegment[] = [];
 
-    // Parse both structured formats AND simple @username mentions
+    // Parse ONLY structured formats to prevent false positives
     // Structured: #hashtag or @[username|userId] or @[username|userId|filterType]
-    // Simple: @username (for posts with simple mentions, including names with spaces)
-    // Order matters: structured patterns must come before simple patterns
-    const combinedRegex =
-      /(#[a-zA-Z0-9_-]+)|(@\[[^\]]+\])|(@[^\s@#[]+(?:\s+[^\s@#[]+)*)/g;
+    // Simple @username patterns are NOT matched to avoid false positives like @barney_nitzsche
+    const combinedRegex = /(#[a-zA-Z0-9_-]+)|(@\[[^\]]+\])/g;
 
     let lastIndex = 0;
     let match;
@@ -106,15 +104,6 @@ export function ContentWithPills({
             });
           }
         }
-      } else if (fullMatch.startsWith('@')) {
-        // Simple mention: @username (show tooltip but limited functionality)
-        const username = fullMatch.slice(1);
-        segments.push({
-          type: 'mention',
-          value: username,
-          displayName: username
-          // No userId - this will show tooltip but with limited functionality
-        });
       }
 
       lastIndex = combinedRegex.lastIndex;

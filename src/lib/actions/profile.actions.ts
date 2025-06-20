@@ -3,6 +3,7 @@
 import { auth } from '../auth';
 import sql from '../db';
 import { UserProfileData } from '../types/profile';
+import { generateUserSlug, parseUserSlug } from '../utils/user-slug';
 
 export interface ProfileFilters {
   username?: string;
@@ -11,36 +12,66 @@ export interface ProfileFilters {
 }
 
 /**
- * Get user profile by username
+ * Get user profile by username OR slug
+ * Supports both legacy username format and new slug format
  */
 export async function getUserProfile(
-  username: string
+  usernameOrSlug: string
 ): Promise<UserProfileData | null> {
   try {
-    // Clean modern profile lookup: providerAccountId first, then name
-    const userResult = await sql`
-      SELECT 
-        u.id,
-        u.name,
-        u.email,
-        u.bio,
-        u.location,
-        u.image,
-        u.created_at,
-        u.profile_public,
-        a."providerAccountId"
-      FROM users u 
-      LEFT JOIN accounts a ON u.id = a."userId"
-      WHERE a."providerAccountId" = ${username}
-         OR LOWER(u.name) = LOWER(${username})
-      ORDER BY 
-        CASE 
-          WHEN a."providerAccountId" = ${username} THEN 1
-          WHEN LOWER(u.name) = LOWER(${username}) THEN 2
-          ELSE 3
-        END
-      LIMIT 1
-    `;
+    // Check if this looks like a slug (contains a hyphen followed by numbers at the end)
+    const slugParsed = parseUserSlug(usernameOrSlug);
+
+    let userResult: any[];
+
+    if (slugParsed) {
+      // It's a slug format - look up by ID primarily, with username verification
+      const userIdNum = parseInt(slugParsed.userId);
+      const expectedUsername = slugParsed.username.replace(/-/g, ' '); // Convert hyphens back to spaces
+
+      userResult = await sql`
+        SELECT 
+          u.id,
+          u.name,
+          u.email,
+          u.bio,
+          u.location,
+          u.image,
+          u.created_at,
+          u.profile_public,
+          a."providerAccountId"
+        FROM users u 
+        LEFT JOIN accounts a ON u.id = a."userId"
+        WHERE (u.id = ${userIdNum} OR a."providerAccountId" = ${slugParsed.userId})
+        AND LOWER(u.name) = LOWER(${expectedUsername})
+        LIMIT 1
+      `;
+    } else {
+      // Legacy format - look up by username/providerAccountId only
+      userResult = await sql`
+        SELECT 
+          u.id,
+          u.name,
+          u.email,
+          u.bio,
+          u.location,
+          u.image,
+          u.created_at,
+          u.profile_public,
+          a."providerAccountId"
+        FROM users u 
+        LEFT JOIN accounts a ON u.id = a."userId"
+        WHERE a."providerAccountId" = ${usernameOrSlug}
+           OR LOWER(u.name) = LOWER(${usernameOrSlug})
+        ORDER BY 
+          CASE 
+            WHEN a."providerAccountId" = ${usernameOrSlug} THEN 1
+            WHEN LOWER(u.name) = LOWER(${usernameOrSlug}) THEN 2
+            ELSE 3
+          END
+        LIMIT 1
+      `;
+    }
 
     if (userResult.length === 0) {
       return null;
@@ -81,7 +112,9 @@ export async function getUserProfile(
       total_submissions: stats ? parseInt(stats.total_submissions) : 0,
       posts_count: stats ? parseInt(stats.posts_count) : 0,
       replies_count: stats ? parseInt(stats.replies_count) : 0,
-      last_activity: stats?.last_activity || null
+      last_activity: stats?.last_activity || null,
+      // Add slug for URL generation
+      slug: generateUserSlug(user.name || 'user', user.id)
     };
   } catch (error) {
     console.error('Error fetching user profile:', error);
@@ -153,7 +186,9 @@ export async function getUserProfileById(
       total_submissions: stats ? parseInt(stats.total_submissions) : 0,
       posts_count: stats ? parseInt(stats.posts_count) : 0,
       replies_count: stats ? parseInt(stats.replies_count) : 0,
-      last_activity: stats?.last_activity || null
+      last_activity: stats?.last_activity || null,
+      // Add slug for URL generation
+      slug: generateUserSlug(user.name || 'user', user.id)
     };
   } catch (error) {
     console.error('Error fetching user profile by ID:', error);
@@ -247,7 +282,9 @@ export async function updateUserProfile(
       location: userRow.location,
       image: userRow.image,
       created_at: userRow.created_at,
-      profile_public: userRow.profile_public
+      profile_public: userRow.profile_public,
+      // Add slug for URL generation
+      slug: generateUserSlug(userRow.name || 'user', userRow.id)
     };
   } catch (error) {
     console.error('Error updating user profile:', error);
@@ -303,7 +340,9 @@ export async function searchUsers(
       location: row.location,
       image: row.image,
       created_at: row.created_at,
-      profile_public: row.profile_public
+      profile_public: row.profile_public,
+      // Add slug for URL generation
+      slug: generateUserSlug(row.name || row.username || 'user', row.id)
     }));
   } catch (error) {
     console.error('Error searching users:', error);

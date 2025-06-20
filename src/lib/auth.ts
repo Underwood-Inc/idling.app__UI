@@ -39,8 +39,11 @@ export const nextAuth = NextAuth({
       }
       return session;
     },
-    jwt: async ({ token, user }) => {
-      if (user) {
+    jwt: async ({ token, user, account }) => {
+      // Capture providerAccountId from account during sign-in
+      if (account?.providerAccountId) {
+        token.providerAccountId = account.providerAccountId;
+      } else if (user?.providerAccountId) {
         token.providerAccountId = user.providerAccountId;
       }
       return token;

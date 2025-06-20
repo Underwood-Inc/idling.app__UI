@@ -1966,26 +1966,28 @@ class FakerContentGenerator {
 
     // Add mentions naturally to the content
     const mentionTemplates = [
-      `Thanks @{username} for the insights!`,
-      `@{username} what do you think about this?`,
-      `As @{username} mentioned earlier,`,
-      `Great point @{username}!`,
-      `@{username} might have experience with this.`,
-      `Similar to what @{username} suggested,`,
-      `@{username} @{username2} thoughts?`
+      `Thanks {username} for the insights!`,
+      `{username} what do you think about this?`,
+      `As {username} mentioned earlier,`,
+      `Great point {username}!`,
+      `{username} might have experience with this.`,
+      `Similar to what {username} suggested,`,
+      `{username} {username2} thoughts?`
     ];
 
     const template = faker.helpers.arrayElement(mentionTemplates);
     let mentionText = template;
 
-    // Replace placeholders with actual usernames
+    // Replace placeholders with structured mentions (prevents false positives)
     mentionedUsers.forEach((user, index) => {
       const placeholder = index === 0 ? '{username}' : `{username${index + 1}}`;
-      mentionText = mentionText.replace(placeholder, user.name); // Use NextAuth name field
+      const filterType = Math.random() < 0.7 ? 'author' : 'mentions'; // 70% author, 30% mentions
+      const structuredMention = `@[${user.name}|${user.id}|${filterType}]`;
+      mentionText = mentionText.replace(placeholder, structuredMention);
     });
 
     // Remove any unused placeholders
-    mentionText = mentionText.replace(/@\{username\d*\}/g, '').trim();
+    mentionText = mentionText.replace(/\{username\d*\}/g, '').trim();
 
     // Add mention to content (50% at start, 50% at end)
     if (Math.random() < 0.5) {
@@ -2409,6 +2411,7 @@ async function createPosts(users, config, generator) {
         submission_name: contentData.content,
         submission_title: title,
         user_id: user.id, // Use NextAuth user ID
+        author_provider_account_id: user.providerAccountId, // OAuth provider account ID
         tags: contentData.hashtags,
         thread_parent_id: null,
         submission_datetime: timestamp,
@@ -2420,11 +2423,11 @@ async function createPosts(users, config, generator) {
     for (const post of posts) {
       const result = await sql`
         INSERT INTO submissions (
-          submission_name, submission_title, user_id, tags, 
+          submission_name, submission_title, user_id, author_provider_account_id, tags, 
           thread_parent_id, submission_datetime
         ) VALUES (
           ${post.submission_name}, ${post.submission_title}, 
-          ${post.user_id}, ${post.tags}, 
+          ${post.user_id}, ${post.author_provider_account_id}, ${post.tags}, 
           ${post.thread_parent_id}, ${post.submission_datetime}
         ) RETURNING submission_id
       `;
@@ -2537,6 +2540,7 @@ async function createReplies(users, posts, config, generator) {
                 submission_name: replyContent,
                 submission_title: generateReplyTitle(parent, depth),
                 user_id: replyUser.id, // Use NextAuth user ID
+                author_provider_account_id: replyUser.providerAccountId, // OAuth provider account ID
                 tags: tags,
                 thread_parent_id: parent.submission_id,
                 submission_datetime: replyTime,
@@ -2560,11 +2564,11 @@ async function createReplies(users, posts, config, generator) {
           try {
             const result = await sql`
               INSERT INTO submissions (
-                submission_name, submission_title, user_id, tags, 
+                submission_name, submission_title, user_id, author_provider_account_id, tags, 
                 thread_parent_id, submission_datetime
               ) VALUES (
                 ${reply.submission_name}, ${reply.submission_title}, 
-                ${reply.user_id}, ${reply.tags}, 
+                ${reply.user_id}, ${reply.author_provider_account_id}, ${reply.tags}, 
                 ${reply.thread_parent_id}, ${reply.submission_datetime}
               ) RETURNING submission_id
             `;
@@ -2763,10 +2767,91 @@ async function displayStatistics() {
 // MAIN EXECUTION
 // ================================
 
+async function validateDatabaseSchema() {
+  console.log(chalk.dim('🔍 Validating database schema...'));
+
+  const requiredColumns = [
+    {
+      table: 'users',
+      columns: [
+        'id',
+        'name',
+        'email',
+        'emailVerified',
+        'image',
+        'profile_public',
+        'bio',
+        'location',
+        'created_at'
+      ]
+    },
+    {
+      table: 'submissions',
+      columns: [
+        'submission_id',
+        'submission_name',
+        'submission_title',
+        'user_id',
+        'author_provider_account_id',
+        'tags',
+        'thread_parent_id',
+        'submission_datetime'
+      ]
+    },
+    {
+      table: 'accounts',
+      columns: ['id', 'userId', 'type', 'provider', 'providerAccountId']
+    }
+  ];
+
+  for (const { table, columns } of requiredColumns) {
+    console.log(chalk.dim(`  Checking table: ${table}`));
+
+    // Check if table exists
+    const tableExists = await sql`
+      SELECT EXISTS (
+        SELECT FROM information_schema.tables 
+        WHERE table_schema = 'public' 
+        AND table_name = ${table}
+      )
+    `;
+
+    if (!tableExists[0].exists) {
+      throw new Error(
+        `❌ Table '${table}' does not exist. Please run database migrations first:\n  npx tsx scripts/migrations.ts`
+      );
+    }
+
+    // Check required columns
+    const existingColumns = await sql`
+      SELECT column_name 
+      FROM information_schema.columns 
+      WHERE table_name = ${table} 
+      AND table_schema = 'public'
+    `;
+
+    const existingColumnNames = existingColumns.map((col) => col.column_name);
+    const missingColumns = columns.filter(
+      (col) => !existingColumnNames.includes(col)
+    );
+
+    if (missingColumns.length > 0) {
+      throw new Error(
+        `❌ Table '${table}' is missing required columns: ${missingColumns.join(', ')}\n  Please run database migrations first:\n  npx tsx scripts/migrations.ts`
+      );
+    }
+  }
+
+  console.log(chalk.green('✅ Database schema validation passed'));
+}
+
 async function main() {
   const startTime = Date.now();
 
   try {
+    // Validate database schema before proceeding
+    await validateDatabaseSchema();
+
     const config = new EnhancedSeedConfig();
     await config.promptForConfig();
 
