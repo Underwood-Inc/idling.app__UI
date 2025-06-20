@@ -1,8 +1,6 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import AnimatedBorder from '../ui/AnimatedBorder';
-import AnimatedBorderExample from '../ui/AnimatedBorderExample';
 
 const PWATestPanel: React.FC = () => {
   const [isStandalone, setIsStandalone] = useState(false);
@@ -56,71 +54,60 @@ const PWATestPanel: React.FC = () => {
 
   return (
     <div style={{ padding: '20px', maxWidth: '800px' }}>
-      <AnimatedBorder
-        borderLength={20}
-        animationDuration={2.5}
-        borderColor="var(--brand-primary)"
-        borderWidth={2}
+      <div
+        style={{
+          padding: '20px',
+          background: 'var(--light-background--primary)',
+          borderRadius: '12px',
+          border: '1px solid var(--light-border--primary)'
+        }}
       >
-        <div
-          style={{
-            padding: '20px',
-            background: 'var(--light-background--primary)',
-            borderRadius: '12px',
-            border: '1px solid var(--light-border--primary)'
-          }}
-        >
-          <h2>PWA & Animated Border Test Panel</h2>
+        <h2>PWA & Animated Border Test Panel</h2>
 
-          <div style={{ marginBottom: '20px' }}>
-            <h3>PWA Status</h3>
-            <ul>
-              <li>
-                Running as PWA: <strong>{isStandalone ? 'Yes' : 'No'}</strong>
-              </li>
-              <li>
-                Install prompt available:{' '}
-                <strong>{installPromptAvailable ? 'Yes' : 'No'}</strong>
-              </li>
-              <li>
-                Service Worker: <strong>{serviceWorkerStatus}</strong>
-              </li>
-            </ul>
+        <div style={{ marginBottom: '20px' }}>
+          <h3>PWA Status</h3>
+          <ul>
+            <li>
+              Running as PWA: <strong>{isStandalone ? 'Yes' : 'No'}</strong>
+            </li>
+            <li>
+              Install prompt available:{' '}
+              <strong>{installPromptAvailable ? 'Yes' : 'No'}</strong>
+            </li>
+            <li>
+              Service Worker: <strong>{serviceWorkerStatus}</strong>
+            </li>
+          </ul>
 
-            <button
-              onClick={testInstallPrompt}
-              style={{
-                padding: '8px 16px',
-                background: 'var(--brand-primary)',
-                color: 'white',
-                border: 'none',
-                borderRadius: '4px',
-                cursor: 'pointer',
-                marginTop: '10px'
-              }}
-            >
-              Test Install Prompt
-            </button>
-          </div>
-
-          <div>
-            <h3>PWA Features</h3>
-            <ul>
-              <li>✅ Web App Manifest</li>
-              <li>✅ Service Worker with caching</li>
-              <li>✅ Install prompt component</li>
-              <li>✅ Offline support</li>
-              <li>✅ App icons (multiple sizes)</li>
-              <li>✅ Theme colors</li>
-              <li>✅ Standalone display mode</li>
-              <li>✅ App shortcuts</li>
-            </ul>
-          </div>
+          <button
+            onClick={testInstallPrompt}
+            style={{
+              padding: '8px 16px',
+              background: 'var(--brand-primary)',
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer',
+              marginTop: '10px'
+            }}
+          >
+            Test Install Prompt
+          </button>
         </div>
-      </AnimatedBorder>
 
-      <div style={{ marginTop: '30px' }}>
-        <AnimatedBorderExample />
+        <div>
+          <h3>PWA Features</h3>
+          <ul>
+            <li>✅ Web App Manifest</li>
+            <li>✅ Service Worker with caching</li>
+            <li>✅ Install prompt component</li>
+            <li>✅ Offline support</li>
+            <li>✅ App icons (multiple sizes)</li>
+            <li>✅ Theme colors</li>
+            <li>✅ Standalone display mode</li>
+            <li>✅ App shortcuts</li>
+          </ul>
+        </div>
       </div>
     </div>
   );
