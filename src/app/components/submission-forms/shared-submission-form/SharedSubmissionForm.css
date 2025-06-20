@@ -479,7 +479,8 @@
 .form-pill-input__container--has-embeds .form-pill-input__pill-wrapper:has(.youtube-embed--full) .form-pill-input__pill-remove {
   position: absolute;
   top: 8px;
-  right: 16px;
+  right: 1rem;
+  /* Moved 5px to the right (was 16px) */
   left: auto;
   z-index: 25;
   background: rgba(239, 68, 68, 0.95);
@@ -487,7 +488,33 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
+/* For URL pills in link/modal mode - position like embeds with calculated positioning */
+.form-pill-input__pill-wrapper:has(.url-pill--link) .form-pill-input__pill-remove,
+.form-pill-input__pill-wrapper:has(.url-pill--modal) .form-pill-input__pill-remove {
+  position: absolute;
+  top: -8px;
+  left: 250px;
+  /* Base URL pill width (~170px - button width) */
+  right: auto;
+  z-index: 25;
+  background: rgba(239, 68, 68, 0.95);
+  border: 2px solid white;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
 
+/* Specific positioning for YouTube pills with behavior toggles */
+.form-pill-input__pill-wrapper:has(.url-pill--youtube-com.url-pill--link) .form-pill-input__pill-remove,
+.form-pill-input__pill-wrapper:has(.url-pill--youtu-be.url-pill--link) .form-pill-input__pill-remove {
+  left: 250px;
+  /* YouTube pill + 3 behavior buttons (~190px total) */
+}
+
+/* Specific positioning for YouTube pills in modal mode */
+.form-pill-input__pill-wrapper:has(.url-pill--youtube-com.url-pill--modal) .form-pill-input__pill-remove,
+.form-pill-input__pill-wrapper:has(.url-pill--youtu-be.url-pill--modal) .form-pill-input__pill-remove {
+  left: 250px;
+  /* Same as link mode */
+}
 
 .form-pill-input__container {
   border: 1px solid var(--light-border--primary);
@@ -516,41 +543,44 @@
 }
 
 .form-pill-input__pill-wrapper {
+  position: relative;
+  /* Keep as positioning context for remove button */
   display: inline-flex;
   align-items: center;
+  margin: 2px;
 }
 
 .form-pill-input__pill {
-  position: relative;
   display: inline-flex;
   align-items: center;
 }
 
 .form-pill-input__pill-remove {
   position: absolute;
-  top: -4px;
-  right: -4px;
-  background: rgba(239, 68, 68, 0.9);
-  border: 1px solid rgba(239, 68, 68, 0.8);
+  top: -8px;
+  right: -8px;
+  background: rgba(239, 68, 68, 0.95);
+  border: 2px solid white;
   border-radius: 50%;
-  width: 16px;
-  height: 16px;
+  width: 20px;
+  height: 20px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: var(--font-size-xs);
+  font-size: 12px;
   font-weight: bold;
   color: white;
   cursor: pointer;
   transition: all 0.2s ease;
-  z-index: 10;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  z-index: 15;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
 }
 
 .form-pill-input__pill-remove:hover {
-  background: rgba(239, 68, 68, 0.2);
-  border-color: rgba(239, 68, 68, 0.5);
-  transform: scale(1.1);
+  background: rgba(220, 53, 69, 1);
+  border-color: white;
+  transform: scale(1.15);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.4);
 }
 
 .form-pill-input__input {
@@ -589,7 +619,8 @@
   gap: 4px;
   text-decoration: none;
   transition: all 0.2s ease;
-  margin: 2px 4px 2px 0;
+  margin: 0;
+  /* Remove margin since wrapper handles spacing */
 }
 
 /* YouTube specific styling for form pills */
@@ -703,7 +734,8 @@
   align-items: center;
   gap: 4px;
   transition: all 0.2s ease;
-  margin: 2px 4px 2px 0;
+  margin: 0;
+  /* Remove margin since wrapper handles spacing */
 }
 
 /* Hashtag specific styling in form pills */
@@ -733,21 +765,13 @@
   z-index: 10;
 }
 
-/* Remove indicator for content pills - X symbol */
+/* Content pills in forms don't show X indicator - they use external remove buttons */
 .form-pill-input__pill .content-pill::after {
-  content: "×";
-  margin-left: 8px;
-  font-weight: bold;
-  opacity: 0.7;
-  font-size: 14px;
-  color: #dc3545;
-  transition: all 0.2s ease;
+  display: none;
 }
 
 .form-pill-input__pill .content-pill:hover::after {
-  opacity: 1;
-  color: #c62828;
-  font-size: 16px;
+  display: none;
 }
 
 /* Error state for the form pill input */

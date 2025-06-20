@@ -31,9 +31,9 @@
 }
 
 .sticky-pagination__label {
-  font-size: --font-size-base;
+  font-size: var(--font-size-base);
   font-weight: 500;
-  color: var(--light-bg__text-color--primary);
+  color: var(--brand-tertiary);
   min-width: fit-content;
 }
 
@@ -41,7 +41,7 @@
 .sticky-pagination .pagination {
   margin: 0;
   min-width: fit-content;
-  background-color: var(--light-bg__color--primary);
+  background-color: var(--brand-tertiary);
 }
 
 .sticky-pagination .pagination__info {

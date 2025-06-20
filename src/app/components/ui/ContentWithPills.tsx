@@ -123,6 +123,12 @@ export function ContentWithPills({
     ) => {
       event.preventDefault();
 
+      // In edit mode (submission forms), user mention pills should not have click behavior
+      // They should only be deletable via external remove buttons
+      if (isEditMode && type === 'mention') {
+        return; // No click behavior for mention pills in edit mode
+      }
+
       if (isFilterBarContext) {
         // Filter bar context - trigger removal
         if (type === 'hashtag' && onHashtagClick) {
@@ -154,6 +160,7 @@ export function ContentWithPills({
       }
     },
     [
+      isEditMode, // Add isEditMode to dependencies
       isFilterBarContext,
       onHashtagClick,
       onMentionClick,
@@ -326,7 +333,7 @@ export function ContentWithPills({
 
           if (isClickable) {
             const shouldShowTooltip =
-              segment.type === 'mention' && !isFilterBarContext;
+              segment.type === 'mention' && !isFilterBarContext && !isEditMode; // Don't show tooltip in edit mode
 
             const pillElement = (
               <Link
@@ -334,21 +341,31 @@ export function ContentWithPills({
                 href={pillUrl}
                 className={`content-pill content-pill--${segment.type} content-pill--clickable ${
                   isActiveFilter_ ? 'content-pill--active' : ''
-                } ${isFilterBarContext ? 'content-pill--filter-context' : ''}`}
-                onClick={(event) =>
+                } ${isFilterBarContext ? 'content-pill--filter-context' : ''} ${
+                  isEditMode ? 'content-pill--edit-mode' : ''
+                }`}
+                onClick={(event) => {
+                  // In edit mode for mention pills, prevent all click behavior
+                  if (isEditMode && segment.type === 'mention') {
+                    event.preventDefault();
+                    return;
+                  }
+
                   handlePillClick(
                     segment.type as 'hashtag' | 'mention',
                     segment.value,
                     event,
                     segment
-                  )
-                }
+                  );
+                }}
                 title={
                   isFilterBarContext || shouldShowTooltip
                     ? undefined // No title tooltip when InfoTooltip is used or in filter context
-                    : segment.type === 'hashtag'
-                      ? `Filter by hashtag: ${segment.value}`
-                      : `Filter by user: ${segment.value}`
+                    : isEditMode && segment.type === 'mention'
+                      ? 'Use remove button to delete' // Helpful hint in edit mode
+                      : segment.type === 'hashtag'
+                        ? `Filter by hashtag: ${segment.value}`
+                        : `Filter by user: ${segment.value}`
                 }
               >
                 {segment.type === 'hashtag' ? '#' : '@'}
