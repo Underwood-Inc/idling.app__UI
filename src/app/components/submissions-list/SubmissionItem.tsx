@@ -157,6 +157,7 @@ export function SubmissionItem({
           authorId={submission.user_id?.toString() || ''}
           authorName={submission.author}
           showFullName={true}
+          bio={submission.author_bio}
         />
         <span className="submission__datetime">
           {submission.submission_datetime.toLocaleString()}

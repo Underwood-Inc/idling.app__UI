@@ -111,12 +111,18 @@ export async function getSubmissions({
         s.submission_title,
         s.submission_datetime,
         s.user_id,
-        u.name as author,
+        COALESCE(u.name, fallback_u.name) as author,
         s.author_provider_account_id,
+        COALESCE(u.bio, fallback_u.bio) as author_bio,
         COALESCE(s.tags, ARRAY[]::text[]) as tags,
         s.thread_parent_id
       FROM submissions s
       LEFT JOIN users u ON s.user_id = u.id
+      LEFT JOIN (
+        SELECT u2.*, a."providerAccountId"
+        FROM users u2 
+        LEFT JOIN accounts a ON u2.id = a."userId"
+      ) fallback_u ON s.author_provider_account_id = fallback_u."providerAccountId"
       ${whereClause}
       ORDER BY s.submission_datetime DESC
       LIMIT $${queryParams.length + 1}
@@ -174,14 +180,20 @@ export async function getSubmissionsWithRepliesOptimized(
           s.submission_title,
           s.submission_datetime,
           s.user_id,
-          u.name as author,
+          COALESCE(u.name, fallback_u.name) as author,
           s.author_provider_account_id,
+          COALESCE(u.bio, fallback_u.bio) as author_bio,
           COALESCE(s.tags, ARRAY[]::text[]) as tags,
           s.thread_parent_id,
           s.thread_parent_id as root_parent_id,
           1 as depth
         FROM submissions s
         LEFT JOIN users u ON s.user_id = u.id
+        LEFT JOIN (
+          SELECT u2.*, a."providerAccountId"
+          FROM users u2 
+          LEFT JOIN accounts a ON u2.id = a."userId"
+        ) fallback_u ON s.author_provider_account_id = fallback_u."providerAccountId"
           WHERE s.thread_parent_id = ANY(${parentIds})
           
           UNION ALL
@@ -193,14 +205,20 @@ export async function getSubmissionsWithRepliesOptimized(
             s.submission_title,
             s.submission_datetime,
             s.user_id,
-            u.name as author,
+            COALESCE(u.name, fallback_u.name) as author,
             s.author_provider_account_id,
+            COALESCE(u.bio, fallback_u.bio) as author_bio,
             COALESCE(s.tags, ARRAY[]::text[]) as tags,
             s.thread_parent_id,
             rt.root_parent_id,
             rt.depth + 1
           FROM submissions s
           LEFT JOIN users u ON s.user_id = u.id
+          LEFT JOIN (
+            SELECT u2.*, a."providerAccountId"
+            FROM users u2 
+            LEFT JOIN accounts a ON u2.id = a."userId"
+          ) fallback_u ON s.author_provider_account_id = fallback_u."providerAccountId"
           INNER JOIN reply_tree rt ON s.thread_parent_id = rt.submission_id
           WHERE rt.depth < 10 -- Prevent infinite recursion
         )
