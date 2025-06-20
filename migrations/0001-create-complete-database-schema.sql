@@ -6,18 +6,6 @@
 -- CORE TABLES
 -- ================================
 
-CREATE TABLE IF NOT EXISTS users (
-  id SERIAL PRIMARY KEY,
-  name VARCHAR(255),
-  email VARCHAR(255) UNIQUE,
-  "emailVerified" TIMESTAMPTZ,
-  image TEXT,
-  profile_public BOOLEAN DEFAULT true,
-  bio TEXT,
-  location VARCHAR(255),
-  created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
-);
-
 CREATE TABLE IF NOT EXISTS accounts (
   id SERIAL PRIMARY KEY,
   "userId" INTEGER NOT NULL,
@@ -32,6 +20,18 @@ CREATE TABLE IF NOT EXISTS accounts (
   id_token TEXT,
   session_state VARCHAR(255),
   UNIQUE(provider, "providerAccountId")
+);
+
+CREATE TABLE IF NOT EXISTS users (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(255),
+  email VARCHAR(255) UNIQUE,
+  "emailVerified" TIMESTAMPTZ,
+  image TEXT,
+  profile_public BOOLEAN DEFAULT true,
+  bio TEXT,
+  location VARCHAR(255),
+  created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE IF NOT EXISTS sessions (
