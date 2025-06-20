@@ -3,16 +3,31 @@
 import { useAtom } from 'jotai';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import {
+  convertURLsToPills,
+  hasConvertibleURLs
+} from '../../../../lib/config/url-pills';
 import { shouldUpdateAtom } from '../../../../lib/state/atoms';
+import {
+  ContentParser,
+  ContentSegment
+} from '../../../../lib/utils/content-parsers';
 import { validateTagsInput } from '../../../../lib/utils/string/tag-regex';
+import { ContentWithPills } from '../../ui/ContentWithPills';
 import { SmartInput } from '../../ui/SmartInput';
 import { createSubmissionAction, editSubmissionAction } from '../actions';
+import { Submission } from '../schema';
 import './SharedSubmissionForm.css';
 
 interface SharedSubmissionFormProps {
   mode: 'create' | 'reply' | 'edit';
   parentId?: number;
-  onSuccess?: () => void;
+  onSuccess?: (result?: {
+    status: number;
+    message?: string;
+    error?: string;
+    submission?: Submission;
+  }) => void;
   replyToAuthor?: string;
   contextId?: string;
   className?: string;
@@ -22,6 +37,161 @@ interface SharedSubmissionFormProps {
   initialContent?: string;
   initialTags?: string;
 }
+
+// Custom Form Pill Input Component
+const FormPillInput: React.FC<{
+  value: string;
+  onChange: (value: string) => void;
+  placeholder: string;
+  className?: string;
+  disabled?: boolean;
+  contextId: string;
+  as: 'input' | 'textarea';
+  rows?: number;
+}> = ({
+  value,
+  onChange,
+  placeholder,
+  className = '',
+  disabled = false,
+  contextId,
+  as,
+  rows
+}) => {
+  const [isEditing, setIsEditing] = useState(true); // Always in edit mode for forms
+  const [inputValue, setInputValue] = useState('');
+
+  // Parse content into segments for pill display
+  const segments: ContentSegment[] = ContentParser.parse(value);
+  const textOnlySegments = segments.filter(
+    (seg: ContentSegment) => seg.type === 'text'
+  );
+  const pillSegments = segments.filter(
+    (seg: ContentSegment) => seg.type !== 'text'
+  );
+
+  const handleInputChange = (newValue: string) => {
+    // Combine existing pills with new text
+    const existingPillText = pillSegments
+      .map((seg: ContentSegment) => seg.rawFormat || seg.value)
+      .join(' ');
+
+    // Auto-detect and convert URLs when user types a space (manual typing only)
+    if (newValue.endsWith(' ') && hasConvertibleURLs(newValue)) {
+      const convertedInput = convertURLsToPills(newValue);
+      setInputValue(''); // Clear input since URLs became pills
+      const combinedValue =
+        existingPillText + (existingPillText ? ' ' : '') + convertedInput;
+      onChange(combinedValue);
+    } else {
+      // Normal case - no URL conversion
+      setInputValue(newValue);
+      const combinedValue =
+        existingPillText + (existingPillText && newValue ? ' ' : '') + newValue;
+      onChange(combinedValue);
+    }
+  };
+
+  const handlePaste = (e: React.ClipboardEvent) => {
+    e.preventDefault(); // Prevent default paste behavior
+
+    const pastedText = e.clipboardData.getData('text');
+    const existingPillText = pillSegments
+      .map((seg: ContentSegment) => seg.rawFormat || seg.value)
+      .join(' ');
+
+    // Combine current input with pasted text
+    const newText = inputValue + pastedText;
+
+    // Check if pasted content contains URLs and convert immediately
+    if (hasConvertibleURLs(pastedText)) {
+      const convertedPaste = convertURLsToPills(pastedText);
+      setInputValue(''); // Clear input since URLs became pills
+      const combinedValue =
+        existingPillText +
+        (existingPillText ? ' ' : '') +
+        (inputValue ? inputValue + ' ' : '') +
+        convertedPaste;
+      onChange(combinedValue);
+    } else {
+      // Normal paste - no URLs to convert
+      setInputValue(newText);
+      const combinedValue =
+        existingPillText + (existingPillText && newText ? ' ' : '') + newText;
+      onChange(combinedValue);
+    }
+  };
+
+  const handlePillRemove = (pillIndex: number) => {
+    const updatedPills = pillSegments.filter(
+      (_: ContentSegment, index: number) => index !== pillIndex
+    );
+    const updatedText = updatedPills
+      .map((seg: ContentSegment) => seg.rawFormat || seg.value)
+      .join(' ');
+    const finalValue =
+      updatedText + (updatedText && inputValue ? ' ' : '') + inputValue;
+    onChange(finalValue);
+  };
+
+  const handleURLBehaviorChange = (oldContent: string, newContent: string) => {
+    // Replace the old URL pill content with the new one
+    const updatedValue = value.replace(oldContent, newContent);
+    onChange(updatedValue);
+  };
+
+  const InputComponent = as === 'textarea' ? 'textarea' : 'input';
+
+  // Check if there are any URL embeds to determine container styling
+  const hasEmbeds = pillSegments.some(
+    (segment) => segment.type === 'url' && segment.behavior === 'embed'
+  );
+
+  return (
+    <div className={`form-pill-input ${className}`}>
+      <div
+        className={`form-pill-input__container ${hasEmbeds ? 'form-pill-input__container--has-embeds' : ''}`}
+      >
+        {/* Render existing pills */}
+        <div className="form-pill-input__pills">
+          {pillSegments.map((segment, index) => (
+            <div key={index} className="form-pill-input__pill-wrapper">
+              <ContentWithPills
+                content={segment.rawFormat || segment.value}
+                contextId={`${contextId}-pill-${index}`}
+                isEditMode={true}
+                onURLBehaviorChange={handleURLBehaviorChange}
+                className="form-pill-input__pill"
+              />
+              <button
+                type="button"
+                className="form-pill-input__pill-remove"
+                onClick={() => handlePillRemove(index)}
+                title="Remove pill"
+              >
+                ×
+              </button>
+            </div>
+          ))}
+        </div>
+
+        {/* Input for new content */}
+        <SmartInput
+          value={inputValue}
+          onChange={handleInputChange}
+          onPaste={handlePaste}
+          placeholder={pillSegments.length > 0 ? 'Add more...' : placeholder}
+          className="form-pill-input__input"
+          disabled={disabled}
+          as={as}
+          rows={rows}
+          enableHashtags={true}
+          enableUserMentions={true}
+        />
+      </div>
+    </div>
+  );
+};
 
 export function SharedSubmissionForm({
   mode,
@@ -46,28 +216,56 @@ export function SharedSubmissionForm({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [tagErrors, setTagErrors] = useState<string[]>([]);
+  const [contentViewMode, setContentViewMode] = useState<'preview' | 'raw'>(
+    'preview'
+  );
 
   // Initialize form data based on mode
   useEffect(() => {
-    if (mode === 'edit') {
-      setFormData({
-        title: initialTitle,
-        content: initialContent,
-        tags: initialTags
-      });
-    } else if (mode === 'reply' && replyToAuthor) {
-      setFormData({
-        title: '',
-        content: `@${replyToAuthor} `,
-        tags: ''
-      });
-    } else {
-      setFormData({
-        title: '',
-        content: '',
-        tags: ''
-      });
-    }
+    const initializeForm = async () => {
+      if (mode === 'edit') {
+        setFormData({
+          title: initialTitle,
+          content: initialContent,
+          tags: initialTags
+        });
+      } else if (mode === 'reply' && replyToAuthor) {
+        // Create properly formatted mention for reply
+        try {
+          const { getUserInfo } = await import(
+            '../../../../lib/actions/search.actions'
+          );
+          const userInfo = await getUserInfo(replyToAuthor);
+
+          const properMention =
+            userInfo && userInfo.userId
+              ? `@[${replyToAuthor}|${userInfo.userId}|author] `
+              : `@${replyToAuthor} `;
+
+          setFormData({
+            title: '',
+            content: properMention,
+            tags: ''
+          });
+        } catch (error) {
+          console.error('Error creating mention format:', error);
+          // Fallback to simple format
+          setFormData({
+            title: '',
+            content: `@${replyToAuthor} `,
+            tags: ''
+          });
+        }
+      } else {
+        setFormData({
+          title: '',
+          content: '',
+          tags: ''
+        });
+      }
+    };
+
+    initializeForm();
   }, [mode, initialTitle, initialContent, initialTags, replyToAuthor]);
 
   const isReply = mode === 'reply';
@@ -93,19 +291,15 @@ export function SharedSubmissionForm({
       ? 'Updating Post...'
       : 'Creating Post...';
 
-  const handleInputChange = (
-    field: 'title' | 'content' | 'tags',
-    value: string
-  ) => {
+  const handleInputChange = (field: keyof typeof formData, value: string) => {
+    // For title and content fields, FormPillInput already handles URL conversion
+    // So we just save the value directly
     setFormData((prev) => ({
       ...prev,
       [field]: value
     }));
 
-    // Clear error when user starts typing
-    if (error) setError('');
-
-    // Validate tags in real-time
+    // Validate tags if tags field changed
     if (field === 'tags') {
       const validationErrors = validateTagsInput(value);
       setTagErrors(validationErrors);
@@ -177,19 +371,46 @@ export function SharedSubmissionForm({
       if (result.status === 1) {
         // Reset form only for create/reply modes, not edit
         if (!isEdit) {
-          setFormData({
-            title: '',
-            content:
-              mode === 'reply' && replyToAuthor ? `@${replyToAuthor} ` : '',
-            tags: ''
-          });
+          if (mode === 'reply' && replyToAuthor) {
+            // Try to get proper mention format for reset
+            try {
+              const { getUserInfo } = await import(
+                '../../../../lib/actions/search.actions'
+              );
+              const userInfo = await getUserInfo(replyToAuthor);
+
+              const properMention =
+                userInfo && userInfo.userId
+                  ? `@[${replyToAuthor}|${userInfo.userId}|author] `
+                  : `@${replyToAuthor} `;
+
+              setFormData({
+                title: '',
+                content: properMention,
+                tags: ''
+              });
+            } catch (error) {
+              console.error('Error creating mention format for reset:', error);
+              setFormData({
+                title: '',
+                content: `@${replyToAuthor} `,
+                tags: ''
+              });
+            }
+          } else {
+            setFormData({
+              title: '',
+              content: '',
+              tags: ''
+            });
+          }
         }
         setTagErrors([]);
         setShouldUpdate(true);
 
         // Call success callback
         if (onSuccess) {
-          onSuccess();
+          onSuccess(result);
         }
       } else {
         const errorMessage =
@@ -219,19 +440,18 @@ export function SharedSubmissionForm({
       {/* Title Field */}
       <div className="shared-submission-form__field">
         <label className="shared-submission-form__label">{titleLabel} *</label>
-        <SmartInput
+        <FormPillInput
           value={formData.title}
           onChange={(value) => handleInputChange('title', value)}
-          placeholder={`Enter a ${isReply ? 'reply' : isEdit ? 'post' : 'post'} title... Use #hashtags and @mentions!`}
-          className={`shared-submission-form__input ${
+          placeholder={`Enter a ${isReply ? 'reply' : isEdit ? 'post' : 'post'} title... Use #hashtags, @mentions, and paste URLs!`}
+          className={`shared-submission-form__form-input ${
             titleCharsRemaining < 0
               ? 'shared-submission-form__input--error'
               : ''
           }`}
           disabled={isSubmitting}
+          contextId={`${contextId || 'shared-form'}-title`}
           as="input"
-          enableHashtags={true}
-          enableUserMentions={true}
         />
         <div className="shared-submission-form__char-count">
           <span
@@ -248,24 +468,68 @@ export function SharedSubmissionForm({
 
       {/* Content Field */}
       <div className="shared-submission-form__field">
-        <label className="shared-submission-form__label">
-          {contentLabel} *
-        </label>
-        <SmartInput
-          value={formData.content}
-          onChange={(value) => handleInputChange('content', value)}
-          placeholder={`Write your ${isReply ? 'reply' : isEdit ? 'post' : 'post'} content... Use #hashtags and @mentions!`}
-          className={`shared-submission-form__textarea ${
-            contentCharsRemaining < 0
-              ? 'shared-submission-form__textarea--error'
-              : ''
-          }`}
-          disabled={isSubmitting}
-          as="textarea"
-          rows={4}
-          enableHashtags={true}
-          enableUserMentions={true}
-        />
+        <div className="shared-submission-form__field-header">
+          <label className="shared-submission-form__label">
+            {contentLabel} *
+          </label>
+          <div className="shared-submission-form__view-toggle">
+            <button
+              type="button"
+              className={`shared-submission-form__toggle-btn ${
+                contentViewMode === 'preview'
+                  ? 'shared-submission-form__toggle-btn--active'
+                  : ''
+              }`}
+              onClick={() => setContentViewMode('preview')}
+              disabled={isSubmitting}
+            >
+              PREVIEW
+            </button>
+            <button
+              type="button"
+              className={`shared-submission-form__toggle-btn ${
+                contentViewMode === 'raw'
+                  ? 'shared-submission-form__toggle-btn--active'
+                  : ''
+              }`}
+              onClick={() => setContentViewMode('raw')}
+              disabled={isSubmitting}
+            >
+              RAW
+            </button>
+          </div>
+        </div>
+
+        {contentViewMode === 'preview' ? (
+          <FormPillInput
+            value={formData.content}
+            onChange={(value) => handleInputChange('content', value)}
+            placeholder={`Write your ${isReply ? 'reply' : isEdit ? 'post' : 'post'} content... Use #hashtags, @mentions, and paste URLs!`}
+            className={`shared-submission-form__form-input ${
+              contentCharsRemaining < 0
+                ? 'shared-submission-form__textarea--error'
+                : ''
+            }`}
+            disabled={isSubmitting}
+            contextId={`${contextId || 'shared-form'}-content`}
+            as="textarea"
+            rows={4}
+          />
+        ) : (
+          <textarea
+            value={formData.content}
+            onChange={(e) => handleInputChange('content', e.target.value)}
+            placeholder={`Write your ${isReply ? 'reply' : isEdit ? 'post' : 'post'} content... Raw text mode for easy editing of #hashtags, @mentions, and ![behavior](URLs)`}
+            className={`shared-submission-form__input shared-submission-form__textarea ${
+              contentCharsRemaining < 0
+                ? 'shared-submission-form__textarea--error'
+                : ''
+            }`}
+            disabled={isSubmitting}
+            rows={4}
+          />
+        )}
+
         <div className="shared-submission-form__char-count">
           <span
             className={

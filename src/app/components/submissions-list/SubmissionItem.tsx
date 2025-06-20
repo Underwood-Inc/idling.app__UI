@@ -7,6 +7,7 @@ import { buildThreadUrl } from '../../../lib/routes';
 import { Author } from '../author/Author';
 import { DeleteSubmissionForm } from '../submission-forms/delete-submission-form/DeleteSubmissionForm';
 import { EditSubmissionForm } from '../submission-forms/edit-submission-form/EditSubmissionForm';
+import { Submission } from '../submission-forms/schema';
 import { TagLink } from '../tag-link/TagLink';
 import { ReplyForm } from '../thread/ReplyForm';
 import { ContentWithPills } from '../ui/ContentWithPills';
@@ -22,6 +23,12 @@ interface SubmissionItemProps {
   maxDepth?: number;
   onSubmissionUpdate?: () => void;
   contextId?: string;
+  // Optimistic update functions
+  optimisticUpdateSubmission?: (
+    submissionId: number,
+    updatedSubmission: Submission
+  ) => void;
+  optimisticRemoveSubmission?: (submissionId: number) => void;
 }
 
 export function SubmissionItem({
@@ -33,7 +40,9 @@ export function SubmissionItem({
   depth = 0,
   maxDepth = 3,
   onSubmissionUpdate,
-  contextId
+  contextId,
+  optimisticUpdateSubmission,
+  optimisticRemoveSubmission
 }: SubmissionItemProps) {
   const { data: session } = useSession();
 
@@ -78,9 +87,18 @@ export function SubmissionItem({
     onSubmissionUpdate?.();
   };
 
-  const onEditSuccess = () => {
+  const onEditSuccess = (updatedSubmissionData?: Submission) => {
     setIsEditing(false);
-    onSubmissionUpdate?.();
+    // Use optimistic update if available and we have the updated data
+    if (optimisticUpdateSubmission && updatedSubmissionData) {
+      optimisticUpdateSubmission(
+        submission.submission_id,
+        updatedSubmissionData
+      );
+    } else {
+      // Fallback to refresh mechanism
+      onSubmissionUpdate?.();
+    }
   };
 
   const onNestedReplySuccess = (replyId: number) => {
@@ -89,6 +107,16 @@ export function SubmissionItem({
       [replyId]: false
     }));
     onSubmissionUpdate?.();
+  };
+
+  const onDeleteSuccess = () => {
+    // Use optimistic removal if available
+    if (optimisticRemoveSubmission) {
+      optimisticRemoveSubmission(submission.submission_id);
+    } else {
+      // Fallback to refresh mechanism
+      onSubmissionUpdate?.();
+    }
   };
 
   const renderTags = (tags: string[]) => {
@@ -113,6 +141,9 @@ export function SubmissionItem({
   const hasOwnerActions = isCurrentUserPost(
     submission.author_provider_account_id || ''
   );
+
+  // Check if this is a reply post (has a parent)
+  const isReplyPost = submission.thread_parent_id !== null;
 
   return (
     <div
@@ -147,6 +178,7 @@ export function SubmissionItem({
                 name={submission.submission_name}
                 isAuthorized={true}
                 authorId={session?.user?.id}
+                onDeleteSuccess={onDeleteSuccess}
               />
             </>
           )}
@@ -177,6 +209,7 @@ export function SubmissionItem({
                 className={`submission__title ${isReply ? 'submission__title--reply' : ''}`}
               >
                 {hasReplies && !isReply ? (
+                  // eslint-disable-next-line custom-rules/enforce-link-target-blank
                   <Link
                     href={buildThreadUrl(submission.submission_id)}
                     className="submission__title-link"
@@ -245,6 +278,7 @@ export function SubmissionItem({
 
         {/* Thread view link for posts with replies */}
         {hasReplies && !isReply && (
+          // eslint-disable-next-line custom-rules/enforce-link-target-blank
           <Link
             href={buildThreadUrl(submission.submission_id)}
             className="submission__thread-link"

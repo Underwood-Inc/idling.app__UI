@@ -3,6 +3,12 @@
   line-height: inherit;
 }
 
+/* Allow content-with-pills to expand for URL embeds */
+.content-with-pills--has-embeds {
+  display: block;
+  width: 100%;
+}
+
 .content-pill {
   display: inline;
   margin: 0 1px;
@@ -115,7 +121,9 @@
   box-shadow: inset 0 -1px 2px rgba(102, 187, 106, 0.25);
 }
 
-.content-pill--filter-context::after {
+/* Only show the X in specific contexts where it makes sense */
+.smart-pill-input .content-pill--filter-context::after,
+.filter-bar .content-pill--filter-context::after {
   content: "×";
   margin-left: 6px;
   font-weight: bold;
@@ -139,10 +147,45 @@
   z-index: 10;
 }
 
-.content-pill--filter-context:hover::after {
+/* Only show the X hover effect in specific contexts */
+.smart-pill-input .content-pill--filter-context:hover::after,
+.filter-bar .content-pill--filter-context:hover::after {
   opacity: 1;
   color: #c62828;
   font-size: 1.2em;
+}
+
+/* Edit mode styling for submission forms - no X indicator */
+.content-pill--edit-mode {
+  background: linear-gradient(135deg, #fff3e0, #ffe0b2) !important;
+  color: #e65100 !important;
+  border: 1px solid #ff9800 !important;
+  box-shadow: inset 0 -1px 2px rgba(255, 152, 0, 0.2);
+  cursor: default;
+  /* Indicate no click behavior for mentions */
+}
+
+.content-pill--edit-mode.content-pill--mention {
+  background: linear-gradient(135deg, #f1f8e9, #e8f5e8) !important;
+  color: #2e7d32 !important;
+  border: 1px solid #66bb6a !important;
+  box-shadow: inset 0 -1px 2px rgba(102, 187, 106, 0.25);
+  cursor: default;
+  /* No click behavior for mention pills in edit mode */
+}
+
+.content-pill--edit-mode.content-pill--hashtag {
+  background: linear-gradient(135deg, #e3f2fd, #bbdefb) !important;
+  color: #1565c0 !important;
+  border: 1px solid #42a5f5 !important;
+  box-shadow: inset 0 -1px 2px rgba(66, 165, 245, 0.25);
+  cursor: pointer;
+  /* Hashtags can still be clicked in edit mode */
+}
+
+/* No X indicator for edit mode pills - they use external remove buttons */
+.content-pill--edit-mode::after {
+  display: none;
 }
 
 /* Non-clickable pills (disabled state) */

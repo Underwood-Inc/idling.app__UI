@@ -1,0 +1,201 @@
+.pwa-install-prompt {
+  position: fixed;
+  z-index: 150;
+  /* Higher than sticky pagination (z-index: 100) */
+  opacity: 0;
+  /* Desktop positioning */
+  top: var(--spacing-cozy);
+  right: var(--spacing-cozy);
+  left: auto;
+  bottom: auto;
+  max-width: 280px;
+  transform: translateY(-20px);
+  animation: slideInFromTop 0.5s ease-out 0.5s forwards;
+}
+
+@keyframes slideInFromTop {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.pwa-install-prompt__content {
+  background: var(--light-background--primary);
+  border: 1px solid var(--light-border--primary);
+  border-radius: var(--border-radius);
+  padding: var(--spacing-cozy);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-cozy);
+  box-shadow: var(--shadow-elevated);
+  backdrop-filter: blur(10px);
+}
+
+.pwa-install-prompt__icon {
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.pwa-install-prompt__text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex-grow: 1;
+  min-width: 0;
+}
+
+.pwa-install-prompt__title {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--light-bg__text-color--primary);
+  line-height: 1.2;
+}
+
+.pwa-install-prompt__subtitle {
+  font-size: var(--font-size-xs);
+  color: var(--light-bg__text-color--secondary);
+  line-height: 1.2;
+}
+
+.pwa-install-prompt__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-compact);
+  flex-shrink: 0;
+}
+
+.pwa-install-prompt__install-btn {
+  background: var(--brand-primary);
+  color: white;
+  border: none;
+  border-radius: var(--border-radius-sm);
+  padding: 4px 8px;
+  font-size: var(--font-size-xs);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.pwa-install-prompt__install-btn:hover {
+  background: var(--brand-secondary);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(var(--brand-primary-rgb), 0.3);
+}
+
+.pwa-install-prompt__install-btn:active {
+  transform: translateY(0);
+}
+
+.pwa-install-prompt__dismiss-btn {
+  background: transparent;
+  color: var(--light-bg__text-color--secondary);
+  border: none;
+  border-radius: var(--border-radius-sm);
+  padding: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  line-height: 1;
+}
+
+.pwa-install-prompt__dismiss-btn:hover {
+  background: var(--light-background--secondary);
+  color: var(--light-bg__text-color--primary);
+  transform: scale(1.1);
+}
+
+/* Dark mode styles */
+@media (prefers-color-scheme: dark) {
+  .pwa-install-prompt__content {
+    background: var(--dark-background--primary);
+    border-color: var(--dark-border--primary);
+  }
+
+  .pwa-install-prompt__title {
+    color: var(--dark-bg__text-color--primary);
+  }
+
+  .pwa-install-prompt__subtitle {
+    color: var(--dark-bg__text-color--secondary);
+  }
+
+  .pwa-install-prompt__dismiss-btn {
+    color: var(--dark-bg__text-color--secondary);
+  }
+
+  .pwa-install-prompt__dismiss-btn:hover {
+    background: var(--dark-background--secondary);
+    color: var(--dark-bg__text-color--primary);
+  }
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .pwa-install-prompt {
+    /* Force override desktop positioning */
+    top: 2.5rem !important;
+    bottom: auto !important;
+    left: 1rem !important;
+    right: 1rem !important;
+    max-width: none !important;
+    /* Keep same animation */
+    transform: translateY(-20px) !important;
+    animation: slideInFromTop 0.5s ease-out 0.5s forwards !important;
+  }
+
+  .pwa-install-prompt__content {
+    padding: var(--spacing-compact);
+    gap: var(--spacing-compact);
+  }
+
+  .pwa-install-prompt__icon {
+    font-size: 18px;
+  }
+
+  .pwa-install-prompt__title {
+    font-size: var(--font-size-xs);
+  }
+
+  .pwa-install-prompt__subtitle {
+    font-size: 11px;
+  }
+
+  .pwa-install-prompt__install-btn {
+    padding: 3px 6px;
+    font-size: 11px;
+  }
+}
+
+@media (max-width: 480px) {
+  .pwa-install-prompt {
+    /* Smaller margins on very small screens */
+    top: 2.5rem !important;
+    left: 0.5rem !important;
+    right: 0.5rem !important;
+  }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .pwa-install-prompt {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+
+  .pwa-install-prompt__install-btn:hover {
+    transform: none;
+  }
+
+  .pwa-install-prompt__dismiss-btn:hover {
+    transform: none;
+  }
+}

@@ -3,9 +3,10 @@
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
-  padding: 1rem;
+  padding: var(--spacing-lg-compact);
   background: var(--light-background--quaternary);
-  border-radius: 0 0 var(--border-radius) var(--border-radius);
+  border-radius: var(--border-radius);
+  border: 1px solid var(--brand-tertiary--dark);
   width: 100%;
   flex-wrap: wrap;
 }

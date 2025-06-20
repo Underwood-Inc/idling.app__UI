@@ -1,13 +1,17 @@
 'use client';
 
+import { useAtom } from 'jotai';
 import { useSession } from 'next-auth/react';
 import React, { useCallback, useMemo, useRef, useState } from 'react';
+import { shouldUpdateAtom } from '../../../lib/state/atoms';
 import { useSubmissionsManager } from '../../../lib/state/useSubmissionsManager';
 import { CustomFilterInput } from '../filter-bar/CustomFilterInput';
 import FilterBar from '../filter-bar/FilterBar';
 import Pagination from '../pagination/Pagination';
 import { StickyPagination } from '../pagination/StickyPagination';
 import { SpacingThemeToggle } from '../spacing-theme-toggle/SpacingThemeToggle';
+import { Submission } from '../submission-forms/schema';
+import { SubmissionWithReplies } from './actions';
 
 import './PostsManager.css';
 import SubmissionsList from './SubmissionsList';
@@ -17,6 +21,31 @@ interface PostsManagerProps {
   onlyMine?: boolean;
   enableThreadMode?: boolean;
   onNewPostClick?: () => void;
+  // Custom renderer for submissions
+  // eslint-disable-next-line no-unused-vars
+  renderSubmissionItem?: (props: {
+    submission: SubmissionWithReplies;
+    // eslint-disable-next-line no-unused-vars
+    onTagClick: (tag: string) => void;
+    // eslint-disable-next-line no-unused-vars
+    onHashtagClick?: (hashtag: string) => void;
+    onMentionClick?: (
+      // eslint-disable-next-line no-unused-vars
+      mention: string,
+      // eslint-disable-next-line no-unused-vars
+      filterType: 'author' | 'mentions'
+    ) => void;
+    onSubmissionUpdate?: () => void;
+    contextId: string;
+    optimisticUpdateSubmission?: (
+      // eslint-disable-next-line no-unused-vars
+      submissionId: number,
+      // eslint-disable-next-line no-unused-vars
+      updatedSubmission: Submission
+    ) => void;
+    // eslint-disable-next-line no-unused-vars
+    optimisticRemoveSubmission?: (submissionId: number) => void;
+  }) => React.ReactNode;
 }
 
 /**
@@ -28,11 +57,17 @@ const PostsManager = React.memo(function PostsManager({
   contextId,
   onlyMine = false,
   enableThreadMode = false,
-  onNewPostClick
+  onNewPostClick,
+  renderSubmissionItem
 }: PostsManagerProps) {
   const { data: session } = useSession();
   const [includeThreadReplies, setIncludeThreadReplies] = useState(false);
   const [infiniteScrollMode, setInfiniteScrollMode] = useState(false);
+  const [, setShouldUpdate] = useAtom(shouldUpdateAtom);
+
+  // For my-posts page, always include replies and hide the toggle
+  const shouldIncludeReplies = onlyMine || includeThreadReplies;
+  const showThreadToggle = !onlyMine; // Hide toggle for my-posts page
 
   // Memoize the submissions manager call
   const {
@@ -50,12 +85,14 @@ const PostsManager = React.memo(function PostsManager({
     setPageSize,
     loadMore,
     isLoadingMore,
-    hasMore
+    hasMore,
+    optimisticUpdateSubmission,
+    optimisticRemoveSubmission
   } = useSubmissionsManager({
     contextId,
     onlyMine,
     providerAccountId: session?.user?.id || '',
-    includeThreadReplies,
+    includeThreadReplies: shouldIncludeReplies,
     infiniteScroll: infiniteScrollMode
   });
 
@@ -117,11 +154,9 @@ const PostsManager = React.memo(function PostsManager({
   }, [onNewPostClick]);
 
   const handleRefresh = useCallback(() => {
-    // Force a refresh by toggling includeThreadReplies briefly
-    setIncludeThreadReplies((prev) => !prev);
-    // Toggle and immediately toggle back to force refetch
-    setTimeout(() => setIncludeThreadReplies((prev) => !prev), 10);
-  }, []);
+    // Trigger a refresh using the shouldUpdateAtom mechanism
+    setShouldUpdate(true);
+  }, [setShouldUpdate]);
 
   const handleFilterSuccess = useCallback(() => {
     // This callback is triggered when filters are successfully added
@@ -247,29 +282,31 @@ const PostsManager = React.memo(function PostsManager({
         />
 
         {/* Thread Reply Toggle - Compact */}
-        <div className="posts-manager__thread-controls">
-          <label className="posts-manager__toggle posts-manager__toggle--compact">
-            <input
-              type="checkbox"
-              checked={includeThreadReplies}
-              onChange={handleToggleThreadReplies}
-              className="posts-manager__checkbox"
-            />
-            <span className="posts-manager__toggle-text">
-              Include thread replies in filters
-            </span>
-            <span
-              className="posts-manager__toggle-hint"
-              title={
-                includeThreadReplies
-                  ? 'Filters apply to both main posts and their replies'
-                  : 'Filters only apply to main posts (replies shown when expanded)'
-              }
-            >
-              ?
-            </span>
-          </label>
-        </div>
+        {showThreadToggle && (
+          <div className="posts-manager__thread-controls">
+            <label className="posts-manager__toggle posts-manager__toggle--compact">
+              <input
+                type="checkbox"
+                checked={includeThreadReplies}
+                onChange={handleToggleThreadReplies}
+                className="posts-manager__checkbox"
+              />
+              <span className="posts-manager__toggle-text">
+                Include thread replies in filters
+              </span>
+              <span
+                className="posts-manager__toggle-hint"
+                title={
+                  includeThreadReplies
+                    ? 'Filters apply to both main posts and their replies'
+                    : 'Filters only apply to main posts (replies shown when expanded)'
+                }
+              >
+                ?
+              </span>
+            </label>
+          </div>
+        )}
       </div>
 
       {error && (
@@ -291,7 +328,11 @@ const PostsManager = React.memo(function PostsManager({
         hasMore={hasMore}
         isLoadingMore={isLoadingMore}
         onLoadMore={loadMore}
-      />
+        optimisticUpdateSubmission={optimisticUpdateSubmission}
+        optimisticRemoveSubmission={optimisticRemoveSubmission}
+      >
+        {renderSubmissionItem}
+      </SubmissionsList>
 
       {/* Pagination */}
       {!isLoading && !error && submissions.length > 0 && (

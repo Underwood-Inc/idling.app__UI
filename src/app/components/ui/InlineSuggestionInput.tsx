@@ -21,6 +21,7 @@ export interface SuggestionItem {
 export interface InlineSuggestionInputProps {
   value: string;
   onChange: (value: string) => void;
+  onPaste?: (e: React.ClipboardEvent) => void;
   placeholder?: string;
   className?: string;
   disabled?: boolean;
@@ -49,6 +50,7 @@ export interface InlineSuggestionInputProps {
 export const InlineSuggestionInput: React.FC<InlineSuggestionInputProps> = ({
   value,
   onChange,
+  onPaste,
   placeholder,
   className = '',
   disabled = false,
@@ -400,6 +402,7 @@ export const InlineSuggestionInput: React.FC<InlineSuggestionInputProps> = ({
         ref={inputRef as any}
         value={value}
         onChange={handleInputChange}
+        onPaste={onPaste}
         onSelect={handleCursorPositionChange}
         onKeyDown={handleKeyDown}
         placeholder={placeholder}

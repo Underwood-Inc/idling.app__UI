@@ -519,6 +519,72 @@ export const addSubmissionToList = (contextId: string, submission: any) => {
 };
 
 /**
+ * Update a specific submission in the submissions list
+ * for optimistic updates after edit operations
+ */
+export const updateSubmissionInList = (
+  contextId: string,
+  submissionId: number,
+  updatedSubmission: any
+) => {
+  const stateAtom = getSubmissionsStateAtom(contextId);
+
+  return atom(null, (get, set) => {
+    const currentState = get(stateAtom);
+
+    if (currentState.data) {
+      const updatedSubmissions = currentState.data.submissions.map(
+        (submission) =>
+          submission.submission_id === submissionId
+            ? { ...submission, ...updatedSubmission }
+            : submission
+      );
+
+      set(stateAtom, {
+        ...currentState,
+        data: {
+          submissions: updatedSubmissions,
+          pagination: currentState.data.pagination
+        }
+      });
+    }
+  });
+};
+
+/**
+ * Remove a submission from the submissions list
+ * for optimistic updates after delete operations
+ */
+export const removeSubmissionFromList = (
+  contextId: string,
+  submissionId: number
+) => {
+  const stateAtom = getSubmissionsStateAtom(contextId);
+
+  return atom(null, (get, set) => {
+    const currentState = get(stateAtom);
+
+    if (currentState.data) {
+      const updatedSubmissions = currentState.data.submissions.filter(
+        (submission) => submission.submission_id !== submissionId
+      );
+      const updatedPagination = {
+        ...currentState.data.pagination,
+        totalRecords: Math.max(0, currentState.data.pagination.totalRecords - 1)
+      };
+
+      set(stateAtom, {
+        ...currentState,
+        data: {
+          submissions: updatedSubmissions,
+          pagination: updatedPagination
+        }
+      });
+    }
+  });
+};
+
+/**
  * Clear all atoms for a specific context
  * Useful for cleanup and testing
  */

@@ -5,6 +5,7 @@
   align-items: center;
   margin: 1rem;
   flex-wrap: wrap;
+  gap: 0.5rem;
 }
 
 .nav__links,
@@ -53,4 +54,64 @@
   margin: 0;
   font-size: 0.9rem;
   font-weight: 500;
+}
+
+/* Mobile navigation improvements */
+@media (max-width: 768px) {
+  .nav__content {
+    margin: 0.5rem;
+    gap: 0.25rem;
+  }
+
+  .nav__header {
+    font-size: 1.2rem;
+  }
+
+  .nav__profile-link {
+    margin-right: 0.5rem;
+  }
+
+  .nav__user-profile .header__user-name {
+    font-size: 0.8rem;
+  }
+
+  .nav__links,
+  .nav__auth {
+    gap: 0.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .nav__content {
+    margin: 0.25rem;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .nav__header {
+    font-size: 1.1rem;
+    margin-bottom: 0.25rem;
+  }
+
+  .nav__brand {
+    order: 1;
+  }
+
+  .nav__links {
+    order: 2;
+    justify-content: center;
+  }
+
+  .nav__auth {
+    order: 3;
+    justify-content: center;
+  }
+
+  .nav__profile-link {
+    margin-right: 0.25rem;
+  }
+
+  .nav__user-profile .header__user-name {
+    font-size: 0.75rem;
+  }
 }

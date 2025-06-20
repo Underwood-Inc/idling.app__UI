@@ -1,5 +1,5 @@
 // Smart Caching Service Worker with Version-Based Cache Busting
-const CACHE_VERSION = '0.39.0'; // Will be replaced with package.json version during build
+const CACHE_VERSION = '0.47.0'; // Will be replaced with package.json version during build
 const CACHE_NAME = `idling-app-cache-${CACHE_VERSION}`;
 const CACHE_METADATA_NAME = `idling-app-cache-metadata-${CACHE_VERSION}`;
 
@@ -15,7 +15,13 @@ const CACHE_TTLS = {
 const STATIC_ASSETS = [
   '/',
   '/favicon.ico',
-  '/offline.html'
+  '/manifest.json',
+  '/offline.html',
+  '/android-chrome-192x192.png',
+  '/android-chrome-512x512.png',
+  '/apple-touch-icon.png',
+  '/favicon-16x16.png',
+  '/favicon-32x32.png'
 ];
 
 // Helper function to get app version from headers or fetch

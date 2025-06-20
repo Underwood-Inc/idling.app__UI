@@ -1,5 +1,6 @@
 'use client';
 
+import { Submission } from '../schema';
 import { SharedSubmissionForm } from '../shared-submission-form/SharedSubmissionForm';
 
 interface SubmissionData {
@@ -15,13 +16,23 @@ export function EditSubmissionForm({
   onCancel
 }: {
   submission: SubmissionData;
-  onSuccess?: () => void;
+  onSuccess?: (updatedSubmissionData?: Submission) => void;
   onCancel?: () => void;
 }) {
   // Convert tags array to comma-separated string with # prefix
   const formattedTags = submission.tags
     .map((tag) => (tag.startsWith('#') ? tag : `#${tag}`))
     .join(', ');
+
+  const handleSuccess = (result?: {
+    status: number;
+    message?: string;
+    error?: string;
+    submission?: Submission;
+  }) => {
+    // Pass any updated submission data to the callback
+    onSuccess?.(result?.submission);
+  };
 
   return (
     <div className="edit-submission-form">
@@ -31,7 +42,7 @@ export function EditSubmissionForm({
         initialTitle={submission.submission_title}
         initialContent={submission.submission_name || ''}
         initialTags={formattedTags}
-        onSuccess={onSuccess}
+        onSuccess={handleSuccess}
         className="edit-submission-form__shared-form"
       />
       {onCancel && (

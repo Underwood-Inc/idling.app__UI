@@ -31,9 +31,13 @@
 }
 
 .sticky-pagination__label {
-  font-size: --font-size-base;
+  background-color: var(--brand-tertiary);
+  padding: calc(var(--spacing-lg-cozy) + 1px);
+  border: 1px solid var(--brand-tertiary--dark);
+  border-radius: var(--border-radius);
+  font-size: var(--font-size-base);
   font-weight: 500;
-  color: var(--light-bg__text-color--primary);
+  color: var(--text-color--primary);
   min-width: fit-content;
 }
 
@@ -41,7 +45,7 @@
 .sticky-pagination .pagination {
   margin: 0;
   min-width: fit-content;
-  background-color: var(--light-bg__color--primary);
+  background-color: var(--brand-tertiary);
 }
 
 .sticky-pagination .pagination__info {

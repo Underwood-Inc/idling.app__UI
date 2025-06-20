@@ -12,7 +12,23 @@
 
 .navbar__item:not(:last-of-type) {
   min-width: 5rem;
-}
-.navbar__item:not(:last-of-type) {
   margin-right: 1rem;
+}
+
+/* Mobile navbar improvements */
+@media (max-width: 768px) {
+  .navbar__item:not(:last-of-type) {
+    min-width: auto;
+    margin-right: 0.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .navbar__item:not(:last-of-type) {
+    margin-right: 0.25rem;
+  }
+
+  .navbar__item {
+    font-size: 0.9rem;
+  }
 }

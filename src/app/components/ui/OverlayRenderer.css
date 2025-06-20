@@ -43,8 +43,48 @@
   max-width: 90vw;
   max-height: 90vh;
   overflow: auto;
+  overflow-x: hidden;
   animation: modalSlideIn 0.2s ease-out;
   border: 1px solid var(--brand-tertiary--dark);
+}
+
+/* Constrain YouTube embeds within any modal context */
+.modal-content .youtube-embed {
+  max-width: 100% !important;
+  width: 100% !important;
+}
+
+.modal-content .youtube-embed--small,
+.modal-content .youtube-embed--medium,
+.modal-content .youtube-embed--large,
+.modal-content .youtube-embed--full {
+  max-width: 100% !important;
+  width: 100% !important;
+}
+
+/* Ensure form pill input containers don't overflow in modals */
+.modal-content .form-pill-input__container {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+.modal-content .form-pill-input__container--has-embeds {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+/* Adjust remove button positioning for general modal context */
+.modal-content .form-pill-input__container--has-embeds .form-pill-input__pill-wrapper:has(.youtube-embed--small) .form-pill-input__pill-remove,
+.modal-content .form-pill-input__container--has-embeds .form-pill-input__pill-wrapper:has(.youtube-embed--medium) .form-pill-input__pill-remove,
+.modal-content .form-pill-input__container--has-embeds .form-pill-input__pill-wrapper:has(.youtube-embed--large) .form-pill-input__pill-remove {
+  position: absolute;
+  top: 8px;
+  right: 16px;
+  left: auto;
+  z-index: 25;
+  background: rgba(239, 68, 68, 0.95);
+  border: 2px solid white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
 .modal-close {
@@ -207,6 +247,11 @@
     max-height: calc(100vh - 40px);
   }
 
+  /* Ensure YouTube embeds are fully responsive on mobile in modals */
+  .modal-content .youtube-embed {
+    margin: 8px 0;
+  }
+
   .overlay-widget {
     min-width: 250px;
     min-height: 150px;
@@ -218,6 +263,19 @@
 
   .widget-content {
     padding: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .modal-content {
+    margin: 10px;
+    max-width: calc(100vw - 20px);
+    max-height: calc(100vh - 20px);
+  }
+
+  /* Extra small screens - ensure embeds don't overflow in modals */
+  .modal-content .youtube-embed {
+    margin: 6px 0;
   }
 }
 

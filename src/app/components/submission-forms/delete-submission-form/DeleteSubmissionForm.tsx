@@ -65,12 +65,14 @@ export function DeleteSubmissionForm({
   id,
   name,
   isAuthorized,
-  authorId
+  authorId,
+  onDeleteSuccess
 }: {
   id: number;
   name: string;
   isAuthorized: boolean;
   authorId?: string | undefined;
+  onDeleteSuccess?: () => void;
 }) {
   const ref = useRef<HTMLFormElement>(null);
   const [, setShouldUpdate] = useAtom(shouldUpdateAtom);
@@ -110,11 +112,15 @@ export function DeleteSubmissionForm({
 
   useEffect(() => {
     if (state.status === 1) {
-      // Only trigger update on successful deletion
-      setShouldUpdate(true);
+      // Use optimistic callback if available, otherwise fallback to global update
+      if (onDeleteSuccess) {
+        onDeleteSuccess();
+      } else {
+        setShouldUpdate(true);
+      }
       ref.current?.reset();
     }
-  }, [state.status, state.message, setShouldUpdate]);
+  }, [state.status, state.message, onDeleteSuccess, setShouldUpdate]);
 
   return (
     <form ref={ref} action={formAction}>

@@ -1,8 +1,8 @@
 .shared-submission-form {
-  background: #fefefe;
-  border: 1px solid #e5e5e5;
+  background: var(--light-background--primary);
+  border: 1px solid var(--light-border--primary);
   border-radius: var(--border-radius);
-  padding: 1.2rem;
+  padding: var(--spacing-xl-cozy);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
   transition: all 0.2s ease;
   width: 100%;
@@ -11,10 +11,10 @@
 
 /* Alias for backward compatibility with ReplyForm */
 .reply-form {
-  background: #fefefe;
-  border: 1px solid #e5e5e5;
+  background: var(--light-background--primary);
+  border: 1px solid var(--light-border--primary);
   border-radius: var(--border-radius);
-  padding: 1.2rem;
+  padding: var(--spacing-xl-cozy);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
   transition: all 0.2s ease;
   width: 100%;
@@ -27,32 +27,84 @@
 }
 
 .shared-submission-form__field {
-  margin-bottom: 1.5rem;
+  margin-bottom: var(--spacing-xl-cozy);
 }
 
 .shared-submission-form__field:last-of-type {
-  margin-bottom: 0.5rem;
+  margin-bottom: var(--spacing-sm-cozy);
+}
+
+.shared-submission-form__field-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-xs-compact);
+}
+
+.shared-submission-form__view-toggle {
+  display: flex;
+  border-radius: var(--border-radius);
+  overflow: hidden;
+  border: 1px solid var(--light-border--primary);
+  background: var(--light-background--secondary);
+}
+
+.shared-submission-form__toggle-btn {
+  background: transparent;
+  border: none;
+  padding: 4px 12px;
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  color: var(--light-bg__text-color--secondary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-right: 1px solid var(--light-border--primary);
+}
+
+.shared-submission-form__toggle-btn:last-child {
+  border-right: none;
+}
+
+.shared-submission-form__toggle-btn:hover:not(:disabled) {
+  background: var(--light-background--tertiary);
+  color: var(--light-bg__text-color--primary);
+}
+
+.shared-submission-form__toggle-btn--active {
+  background: var(--brand-primary);
+  color: white;
+}
+
+.shared-submission-form__toggle-btn--active:hover:not(:disabled) {
+  background: var(--brand-secondary);
+}
+
+.shared-submission-form__toggle-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .shared-submission-form__label {
   display: block;
   font-weight: 600;
   font-size: var(--font-size-base);
-  color: #333333;
-  margin-bottom: 0.75rem;
+  color: var(--light-bg__text-color--primary);
+  margin-bottom: var(--spacing-cozy);
 }
 
 .shared-submission-form__input,
 .shared-submission-form__textarea {
   width: 100%;
-  padding: 1rem;
-  border: 1px solid #e0e0e0;
+  padding: var(--spacing-cozy);
+  border: 1px solid var(--light-border--primary);
   border-radius: var(--border-radius);
   font-size: var(--font-size-base);
   font-family: inherit;
   line-height: 1.5;
-  background: #ffffff;
-  color: #333333;
+  background: var(--light-background--primary);
+  color: var(--light-bg__text-color--primary);
   transition: all 0.2s ease;
   resize: vertical;
   box-sizing: border-box;
@@ -62,22 +114,22 @@
 .shared-submission-form__textarea:focus {
   outline: none;
   border-color: var(--brand-primary);
-  background: #ffffff;
+  background: var(--light-background--primary);
   box-shadow: 0 0 0 2px rgba(237, 174, 73, 0.1);
   transform: translateY(-1px);
 }
 
 .shared-submission-form__input:disabled,
 .shared-submission-form__textarea:disabled {
-  background-color: #f5f5f5;
-  color: #999999;
+  background-color: var(--light-background--secondary);
+  color: var(--text-tertiary);
   cursor: not-allowed;
 }
 
 .shared-submission-form__input--error,
 .shared-submission-form__textarea--error {
-  border-color: #ef4444;
-  background: #fef2f2;
+  border-color: var(--error);
+  background: var(--light-background--primary);
 }
 
 .shared-submission-form__input--error:focus,
@@ -92,52 +144,52 @@
 
 .shared-submission-form__char-count {
   text-align: right;
-  margin-top: 0.5rem;
+  margin-top: var(--spacing-sm-cozy);
   font-size: var(--font-size-xs);
 }
 
 .shared-submission-form__char-count span {
-  color: #666666;
+  color: var(--text-secondary);
   font-weight: 500;
 }
 
 .shared-submission-form__char-count--error span {
-  color: #ef4444;
+  color: var(--error);
   font-weight: 600;
 }
 
 .shared-submission-form__tag-errors {
-  margin-top: 0.5rem;
+  margin-top: var(--spacing-sm-cozy);
 }
 
 .shared-submission-form__error-text {
-  color: #ef4444;
+  color: var(--error);
   font-size: var(--font-size-xs);
   font-weight: 500;
-  margin: 0.25rem 0;
-  padding: 0.5rem 0.75rem;
-  background: #fef2f2;
+  margin: var(--spacing-xs-cozy) 0;
+  padding: var(--spacing-sm-cozy) var(--spacing-cozy);
+  background: var(--light-background--primary);
   border-radius: var(--border-radius);
-  border-left: 3px solid #ef4444;
+  border-left: 3px solid var(--error);
 }
 
 .shared-submission-form__help {
-  margin-top: 0.5rem;
+  margin-top: var(--spacing-sm-cozy);
 }
 
 .shared-submission-form__help-text {
-  color: #666666;
-  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
   line-height: 1.4;
 }
 
 .shared-submission-form__error {
-  background: #fef2f2;
-  color: #ef4444;
-  padding: 1rem;
+  background: var(--light-background--primary);
+  color: var(--error);
+  padding: var(--spacing-cozy);
   border-radius: var(--border-radius);
-  border: 1px solid #fecaca;
-  margin-bottom: 1rem;
+  border: 1px solid var(--error);
+  margin-bottom: var(--spacing-cozy);
   font-weight: 500;
   font-size: var(--font-size-base);
 }
@@ -145,15 +197,15 @@
 .shared-submission-form__actions {
   display: flex;
   justify-content: flex-end;
-  margin-top: 2rem;
-  padding-top: 1rem;
-  border-top: 1px solid #e5e5e5;
+  margin-top: var(--spacing-xl-cozy);
+  padding-top: var(--spacing-cozy);
+  border-top: 1px solid var(--light-border--primary);
 }
 
 .shared-submission-form__submit {
   background: var(--brand-primary);
   color: var(--font-color--primary);
-  padding: 0.875rem 2rem;
+  padding: var(--spacing-cozy) var(--spacing-xl-cozy);
   border: none;
   border-radius: var(--border-radius);
   font-size: var(--font-size-base);
@@ -176,7 +228,7 @@
 }
 
 .shared-submission-form__submit:disabled {
-  background: #9ca3af;
+  background: var(--text-tertiary);
   cursor: not-allowed;
   transform: none;
   box-shadow: none;
@@ -207,7 +259,7 @@
 
   50% {
     transform: scale(1.05);
-    background: #10b981;
+    background: var(--info);
   }
 
   100% {
@@ -225,81 +277,101 @@
 
   .shared-submission-form,
   .reply-form {
-    background: #fefefe;
-    border-color: #e5e5e5;
+    background: var(--dark-background--primary);
+    border-color: var(--dark-border--primary);
   }
 
   .shared-submission-form__label {
-    color: #333333;
+    color: var(--dark-bg__text-color--primary);
   }
 
   .shared-submission-form__input,
   .shared-submission-form__textarea {
-    background: #ffffff;
-    border-color: #d0d0d0;
-    color: #333333;
+    background: var(--dark-background--secondary);
+    border-color: var(--dark-border--secondary);
+    color: var(--dark-bg__text-color--primary);
   }
 
   .shared-submission-form__input:focus,
   .shared-submission-form__textarea:focus {
-    background: #ffffff;
+    background: var(--dark-background--secondary);
     box-shadow: 0 0 0 2px rgba(237, 174, 73, 0.3);
     border-color: var(--brand-primary);
   }
 
   .shared-submission-form__char-count span {
-    color: #666666;
+    color: var(--dark-bg__text-color--secondary);
   }
 
   .shared-submission-form__help-text {
-    color: #666666;
+    color: var(--dark-bg__text-color--secondary);
   }
 
   .shared-submission-form__actions {
-    border-top-color: #e5e5e5;
+    border-top-color: var(--dark-border--primary);
   }
 
   .shared-submission-form__error-text {
-    background: #fefefe;
+    background: var(--dark-background--primary);
     border-left-color: var(--error);
   }
 
   .shared-submission-form__error {
-    background: #fefefe;
+    background: var(--dark-background--primary);
     border-color: var(--error);
+  }
+
+  .shared-submission-form__view-toggle {
+    border-color: var(--dark-border--primary);
+    background: var(--dark-background--secondary);
+  }
+
+  .shared-submission-form__toggle-btn {
+    color: var(--dark-bg__text-color--secondary);
+    border-right-color: var(--dark-border--primary);
+  }
+
+  .shared-submission-form__toggle-btn:hover:not(:disabled) {
+    background: var(--dark-background--tertiary);
+    color: var(--dark-bg__text-color--primary);
+  }
+
+  .shared-submission-form__toggle-btn--active {
+    background: var(--brand-primary);
+    color: white;
   }
 }
 
 /* Responsive design */
 @media (max-width: 768px) {
   .shared-submission-form {
-    padding: 1rem;
+    padding: var(--spacing-cozy);
   }
 
   .shared-submission-form__input,
   .shared-submission-form__textarea {
-    padding: --font-size-base;
+    padding: var(--spacing-cozy);
     font-size: var(--font-size-xs);
   }
 
   .shared-submission-form__submit {
-    padding: 0.75rem 1.5rem;
+    padding: var(--spacing-cozy) var(--spacing-xl-cozy);
     font-size: var(--font-size-xs);
     width: 100%;
   }
 
   .shared-submission-form__actions {
-    margin-top: 1.5rem;
+    margin-top: var(--spacing-xl-cozy);
   }
 }
 
 @media (max-width: 480px) {
   .shared-submission-form {
-    padding: 0.8rem;
+    padding: var(--spacing-cozy);
   }
 
   .shared-submission-form__field {
-    margin-bottom: 1.25rem;
+    margin-bottom: var(--spacing-cozy);
   }
 }
 
@@ -320,4 +392,458 @@
   .shared-submission-form__submit::before {
     display: none;
   }
+}
+
+/* Form Pill Input Component - Matching Smart Filter Pills */
+.form-pill-input {
+  width: 100%;
+}
+
+/* Allow URL embeds in edit mode to break out of form constraints */
+.form-pill-input__container:has(.url-pill-embed-container),
+.form-pill-input__container--has-embeds {
+  display: block;
+  padding: 0;
+  border: none;
+  background: transparent;
+}
+
+.form-pill-input__container .url-pill-embed-container {
+  width: 100%;
+  margin: var(--spacing-xs-compact) 0;
+}
+
+/* Override flex constraints for embed containers */
+.form-pill-input__container--has-embeds .form-pill-input__pills {
+  display: block;
+  width: 100%;
+}
+
+.form-pill-input__container--has-embeds .form-pill-input__pill-wrapper {
+  display: block;
+  width: 100%;
+  margin-bottom: var(--spacing-xs-compact);
+}
+
+.form-pill-input__container--has-embeds .form-pill-input__pill {
+  display: block;
+  width: 100%;
+  position: static;
+}
+
+/* For embeds, position the remove button precisely over the video based on embed size */
+.form-pill-input__container--has-embeds .form-pill-input__pill-wrapper:has(.url-pill-embed-container) {
+  position: relative;
+}
+
+/* Default positioning for small embeds (400px) */
+.form-pill-input__container--has-embeds .form-pill-input__pill-wrapper:has(.youtube-embed--small) .form-pill-input__pill-remove {
+  position: absolute;
+  top: 8px;
+  left: 376px;
+  /* 400px - 24px for button positioning */
+  right: auto;
+  z-index: 25;
+  background: rgba(239, 68, 68, 0.95);
+  border: 2px solid white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* Medium embeds (600px) */
+.form-pill-input__container--has-embeds .form-pill-input__pill-wrapper:has(.youtube-embed--medium) .form-pill-input__pill-remove {
+  position: absolute;
+  top: 8px;
+  left: 576px;
+  /* 600px - 24px */
+  right: auto;
+  z-index: 25;
+  background: rgba(239, 68, 68, 0.95);
+  border: 2px solid white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* Large embeds (800px) */
+.form-pill-input__container--has-embeds .form-pill-input__pill-wrapper:has(.youtube-embed--large) .form-pill-input__pill-remove {
+  position: absolute;
+  top: 8px;
+  left: 776px;
+  /* 800px - 24px */
+  right: auto;
+  z-index: 25;
+  background: rgba(239, 68, 68, 0.95);
+  border: 2px solid white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* Full width embeds */
+.form-pill-input__container--has-embeds .form-pill-input__pill-wrapper:has(.youtube-embed--full) .form-pill-input__pill-remove {
+  position: absolute;
+  top: 8px;
+  right: 1rem;
+  /* Moved 5px to the right (was 16px) */
+  left: auto;
+  z-index: 25;
+  background: rgba(239, 68, 68, 0.95);
+  border: 2px solid white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* For URL pills in link/modal mode - position like embeds with calculated positioning */
+.form-pill-input__pill-wrapper:has(.url-pill--link) .form-pill-input__pill-remove,
+.form-pill-input__pill-wrapper:has(.url-pill--modal) .form-pill-input__pill-remove {
+  position: absolute;
+  top: -8px;
+  left: 250px;
+  /* Base URL pill width (~170px - button width) */
+  right: auto;
+  z-index: 25;
+  background: rgba(239, 68, 68, 0.95);
+  border: 2px solid white;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+/* Specific positioning for YouTube pills with behavior toggles */
+.form-pill-input__pill-wrapper:has(.url-pill--youtube-com.url-pill--link) .form-pill-input__pill-remove,
+.form-pill-input__pill-wrapper:has(.url-pill--youtu-be.url-pill--link) .form-pill-input__pill-remove {
+  left: 250px;
+  /* YouTube pill + 3 behavior buttons (~190px total) */
+}
+
+/* Specific positioning for YouTube pills in modal mode */
+.form-pill-input__pill-wrapper:has(.url-pill--youtube-com.url-pill--modal) .form-pill-input__pill-remove,
+.form-pill-input__pill-wrapper:has(.url-pill--youtu-be.url-pill--modal) .form-pill-input__pill-remove {
+  left: 250px;
+  /* Same as link mode */
+}
+
+.form-pill-input__container {
+  border: 1px solid var(--light-border--primary);
+  border-radius: var(--border-radius);
+  background: var(--light-background--primary);
+  min-height: 2.5rem;
+  padding: var(--spacing-xs-compact);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-xs-compact);
+  transition: all 0.2s ease;
+}
+
+.form-pill-input__container:focus-within {
+  border-color: var(--brand-primary);
+  box-shadow: 0 0 0 2px rgba(237, 174, 73, 0.1);
+  transform: translateY(-1px);
+}
+
+.form-pill-input__pills {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-xs-compact);
+}
+
+.form-pill-input__pill-wrapper {
+  position: relative;
+  /* Keep as positioning context for remove button */
+  display: inline-flex;
+  align-items: center;
+  margin: 2px;
+}
+
+.form-pill-input__pill {
+  display: inline-flex;
+  align-items: center;
+}
+
+.form-pill-input__pill-remove {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background: rgba(239, 68, 68, 0.95);
+  border: 2px solid white;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: bold;
+  color: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  z-index: 15;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+.form-pill-input__pill-remove:hover {
+  background: rgba(220, 53, 69, 1);
+  border-color: white;
+  transform: scale(1.15);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.4);
+}
+
+.form-pill-input__input {
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  padding: var(--spacing-xs-compact) 0 !important;
+  margin: 0 !important;
+  flex-grow: 1;
+  min-width: 200px;
+  font-size: var(--font-size-base);
+  line-height: 1.5;
+  color: var(--light-bg__text-color--primary) !important;
+}
+
+.form-pill-input__input:focus {
+  outline: none !important;
+  border: none !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+/* URL Pills - Matching Smart Filter Pill Size with Minimal Text */
+.form-pill-input__pill .url-pill {
+  background: linear-gradient(135deg, #f8f9fa, #e9ecef) !important;
+  color: #495057 !important;
+  border: 1px solid #6c757d !important;
+  font-weight: 600 !important;
+  box-shadow: inset 0 -1px 2px rgba(108, 117, 125, 0.2);
+  border-radius: 16px;
+  padding: 6px 12px;
+  font-size: 13px;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  margin: 0;
+  /* Remove margin since wrapper handles spacing */
+}
+
+/* YouTube specific styling for form pills */
+.form-pill-input__pill .url-pill--youtube-com,
+.form-pill-input__pill .url-pill--youtu-be {
+  background: linear-gradient(135deg, #e8f5e8, #c8e6c9) !important;
+  color: #2e7d32 !important;
+  border: 1px solid #66bb6a !important;
+  box-shadow: inset 0 -1px 2px rgba(102, 187, 106, 0.25);
+}
+
+.form-pill-input__pill .url-pill:hover {
+  background: linear-gradient(135deg, #ffebee, #ffcdd2) !important;
+  color: #c62828 !important;
+  border: 1px solid #6c757d !important;
+  transform: scale(1.02);
+  transform-origin: center;
+  box-shadow: inset 0 -2px 4px rgba(239, 83, 80, 0.3);
+  position: relative;
+  z-index: 10;
+}
+
+.form-pill-input__pill .url-pill--edit-mode {
+  animation: url-pill-pulse 2s infinite;
+}
+
+.form-pill-input__pill .url-pill:hover::after {
+  opacity: 1;
+  color: #c62828;
+  font-size: 16px;
+}
+
+/* URL pill behavior toggle buttons - matching smart filter style */
+.form-pill-input__pill .url-pill__behavior-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 20px;
+  border: none;
+  border-radius: 12px;
+  font-size: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-left: 8px;
+  padding: 0 8px;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  min-width: 28px;
+  position: relative;
+  z-index: 2;
+}
+
+.form-pill-input__pill .url-pill__behavior-toggle--modal {
+  background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+  color: #1976d2;
+  border: 1px solid #64b5f6;
+}
+
+.form-pill-input__pill .url-pill__behavior-toggle--link {
+  background: linear-gradient(135deg, #c8e6c9, #a5d6a7);
+  color: #1b5e20;
+  border: 1px solid #66bb6a;
+}
+
+.form-pill-input__pill .url-pill__behavior-toggle--embed {
+  background: linear-gradient(135deg, #fff9c4, #fff59d);
+  color: #f57f17;
+  border: 1px solid #ffcc02;
+}
+
+.form-pill-input__pill .url-pill__behavior-toggle:hover {
+  transform: scale(1.05);
+  transform-origin: center;
+  box-shadow: inset 0 -1px 2px rgba(0, 0, 0, 0.15);
+  position: relative;
+  z-index: 10;
+}
+
+.form-pill-input__pill .url-pill__behavior-toggle--modal:hover {
+  background: linear-gradient(135deg, #bbdefb, #90caf9);
+  color: #0d47a1;
+  border-color: #42a5f5;
+}
+
+.form-pill-input__pill .url-pill__behavior-toggle--link:hover {
+  background: linear-gradient(135deg, #a5d6a7, #81c784);
+  color: #1b5e20;
+  border-color: #4caf50;
+}
+
+.form-pill-input__pill .url-pill__behavior-toggle--embed:hover {
+  background: linear-gradient(135deg, #fff59d, #fff176);
+  color: #e65100;
+  border-color: #ffc107;
+}
+
+/* Compact form pill styles for hashtags and mentions - matching smart filter size */
+.form-pill-input__pill .content-pill {
+  background: linear-gradient(135deg, #f8f9fa, #e9ecef) !important;
+  color: #495057 !important;
+  border: 1px solid #6c757d !important;
+  font-weight: 600 !important;
+  box-shadow: inset 0 -1px 2px rgba(108, 117, 125, 0.2);
+  border-radius: 16px;
+  padding: 6px 12px;
+  font-size: 13px;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.2s ease;
+  margin: 0;
+  /* Remove margin since wrapper handles spacing */
+}
+
+/* Hashtag specific styling in form pills */
+.form-pill-input__pill .content-pill--hashtag {
+  background: linear-gradient(135deg, #e3f2fd, #bbdefb) !important;
+  color: #1565c0 !important;
+  border: 1px solid #42a5f5 !important;
+  box-shadow: inset 0 -1px 2px rgba(66, 165, 245, 0.25);
+}
+
+/* Mention specific styling in form pills */
+.form-pill-input__pill .content-pill--mention {
+  background: linear-gradient(135deg, #e8f5e8, #c8e6c9) !important;
+  color: #2e7d32 !important;
+  border: 1px solid #66bb6a !important;
+  box-shadow: inset 0 -1px 2px rgba(102, 187, 106, 0.25);
+}
+
+.form-pill-input__pill .content-pill:hover {
+  background: linear-gradient(135deg, #ffebee, #ffcdd2) !important;
+  color: #c62828 !important;
+  border: 1px solid #6c757d !important;
+  transform: scale(1.02);
+  transform-origin: center;
+  box-shadow: inset 0 -2px 4px rgba(239, 83, 80, 0.3);
+  position: relative;
+  z-index: 10;
+}
+
+/* Content pills in forms don't show X indicator - they use external remove buttons */
+.form-pill-input__pill .content-pill::after {
+  display: none;
+}
+
+.form-pill-input__pill .content-pill:hover::after {
+  display: none;
+}
+
+/* Error state for the form pill input */
+.shared-submission-form__form-input.shared-submission-form__input--error .form-pill-input__container,
+.shared-submission-form__form-input.shared-submission-form__textarea--error .form-pill-input__container {
+  border-color: var(--error);
+  background: var(--light-background--primary);
+}
+
+@keyframes url-pill-pulse {
+
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(255, 107, 53, 0.4);
+  }
+
+  50% {
+    box-shadow: 0 0 0 2px rgba(255, 107, 53, 0.1);
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  /* .form-pill-input__container {
+    background: var(--dark-background--primary);
+    border-color: var(--dark-border--primary);
+  } */
+
+  /* .form-pill-input__input {
+    color: var(--dark-bg__text-color--primary) !important;
+  } */
+
+  /* .form-pill-input__pill .url-pill--edit-mode::after {
+    background: var(--dark-background--primary);
+    border-color: var(--dark-border--primary);
+  } */
+
+  /* Dark mode support for form pills */
+  /* .form-pill-input__pill .content-pill {
+    background: linear-gradient(135deg, #2a2a2a, #3a3a3a) !important;
+    color: #e0e0e0 !important;
+    border-color: #555555 !important;
+  } */
+
+  /* .form-pill-input__pill .content-pill--hashtag {
+    background: linear-gradient(135deg, #1a2332, #243244) !important;
+    color: #64b5f6 !important;
+    border-color: #1976d2 !important;
+  } */
+
+  /* .form-pill-input__pill .content-pill--mention {
+    background: linear-gradient(135deg, #1b2e1b, #2e4e2e) !important;
+    color: #81c784 !important;
+    border-color: #2e7d32 !important;
+  } */
+
+  /* Dark mode support for URL pill behavior toggles */
+  /* .form-pill-input__pill .url-pill__behavior-toggle--modal {
+    background: linear-gradient(135deg, #1a2332, #243244) !important;
+    color: #64b5f6 !important;
+    border-color: #1976d2 !important;
+  }
+
+  .form-pill-input__pill .url-pill__behavior-toggle--link {
+    background: linear-gradient(135deg, #1b2e1b, #2e4e2e) !important;
+    color: #81c784 !important;
+    border-color: #2e7d32 !important;
+  }
+
+  .form-pill-input__pill .url-pill__behavior-toggle--embed {
+    background: linear-gradient(135deg, #2a2a1a, #3a3a2a) !important;
+    color: #ffcc02 !important;
+    border-color: #f57f17 !important;
+  } */
 }
