@@ -184,6 +184,9 @@ export function SharedSubmissionForm({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [tagErrors, setTagErrors] = useState<string[]>([]);
+  const [contentViewMode, setContentViewMode] = useState<'preview' | 'raw'>(
+    'preview'
+  );
 
   // Initialize form data based on mode
   useEffect(() => {
@@ -441,23 +444,68 @@ export function SharedSubmissionForm({
 
       {/* Content Field */}
       <div className="shared-submission-form__field">
-        <label className="shared-submission-form__label">
-          {contentLabel} *
-        </label>
-        <FormPillInput
-          value={formData.content}
-          onChange={(value) => handleInputChange('content', value)}
-          placeholder={`Write your ${isReply ? 'reply' : isEdit ? 'post' : 'post'} content... Use #hashtags, @mentions, and paste URLs!`}
-          className={`shared-submission-form__form-input ${
-            contentCharsRemaining < 0
-              ? 'shared-submission-form__textarea--error'
-              : ''
-          }`}
-          disabled={isSubmitting}
-          contextId={`${contextId || 'shared-form'}-content`}
-          as="textarea"
-          rows={4}
-        />
+        <div className="shared-submission-form__field-header">
+          <label className="shared-submission-form__label">
+            {contentLabel} *
+          </label>
+          <div className="shared-submission-form__view-toggle">
+            <button
+              type="button"
+              className={`shared-submission-form__toggle-btn ${
+                contentViewMode === 'preview'
+                  ? 'shared-submission-form__toggle-btn--active'
+                  : ''
+              }`}
+              onClick={() => setContentViewMode('preview')}
+              disabled={isSubmitting}
+            >
+              PREVIEW
+            </button>
+            <button
+              type="button"
+              className={`shared-submission-form__toggle-btn ${
+                contentViewMode === 'raw'
+                  ? 'shared-submission-form__toggle-btn--active'
+                  : ''
+              }`}
+              onClick={() => setContentViewMode('raw')}
+              disabled={isSubmitting}
+            >
+              RAW
+            </button>
+          </div>
+        </div>
+
+        {contentViewMode === 'preview' ? (
+          <FormPillInput
+            value={formData.content}
+            onChange={(value) => handleInputChange('content', value)}
+            placeholder={`Write your ${isReply ? 'reply' : isEdit ? 'post' : 'post'} content... Use #hashtags, @mentions, and paste URLs!`}
+            className={`shared-submission-form__form-input ${
+              contentCharsRemaining < 0
+                ? 'shared-submission-form__textarea--error'
+                : ''
+            }`}
+            disabled={isSubmitting}
+            contextId={`${contextId || 'shared-form'}-content`}
+            as="textarea"
+            rows={4}
+          />
+        ) : (
+          <textarea
+            value={formData.content}
+            onChange={(e) => handleInputChange('content', e.target.value)}
+            placeholder={`Write your ${isReply ? 'reply' : isEdit ? 'post' : 'post'} content... Raw text mode for easy editing of #hashtags, @mentions, and ![behavior](URLs)`}
+            className={`shared-submission-form__input shared-submission-form__textarea ${
+              contentCharsRemaining < 0
+                ? 'shared-submission-form__textarea--error'
+                : ''
+            }`}
+            disabled={isSubmitting}
+            rows={4}
+          />
+        )}
+
         <div className="shared-submission-form__char-count">
           <span
             className={

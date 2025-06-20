@@ -34,6 +34,58 @@
   margin-bottom: var(--spacing-sm-cozy);
 }
 
+.shared-submission-form__field-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-xs-compact);
+}
+
+.shared-submission-form__view-toggle {
+  display: flex;
+  border-radius: var(--border-radius);
+  overflow: hidden;
+  border: 1px solid var(--light-border--primary);
+  background: var(--light-background--secondary);
+}
+
+.shared-submission-form__toggle-btn {
+  background: transparent;
+  border: none;
+  padding: 4px 12px;
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  color: var(--light-bg__text-color--secondary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-right: 1px solid var(--light-border--primary);
+}
+
+.shared-submission-form__toggle-btn:last-child {
+  border-right: none;
+}
+
+.shared-submission-form__toggle-btn:hover:not(:disabled) {
+  background: var(--light-background--tertiary);
+  color: var(--light-bg__text-color--primary);
+}
+
+.shared-submission-form__toggle-btn--active {
+  background: var(--brand-primary);
+  color: white;
+}
+
+.shared-submission-form__toggle-btn--active:hover:not(:disabled) {
+  background: var(--brand-secondary);
+}
+
+.shared-submission-form__toggle-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 .shared-submission-form__label {
   display: block;
   font-weight: 600;
@@ -268,6 +320,26 @@
     background: var(--dark-background--primary);
     border-color: var(--error);
   }
+
+  .shared-submission-form__view-toggle {
+    border-color: var(--dark-border--primary);
+    background: var(--dark-background--secondary);
+  }
+
+  .shared-submission-form__toggle-btn {
+    color: var(--dark-bg__text-color--secondary);
+    border-right-color: var(--dark-border--primary);
+  }
+
+  .shared-submission-form__toggle-btn:hover:not(:disabled) {
+    background: var(--dark-background--tertiary);
+    color: var(--dark-bg__text-color--primary);
+  }
+
+  .shared-submission-form__toggle-btn--active {
+    background: var(--brand-primary);
+    color: white;
+  }
 }
 
 /* Responsive design */
@@ -356,7 +428,66 @@
 .form-pill-input__container--has-embeds .form-pill-input__pill {
   display: block;
   width: 100%;
+  position: static;
 }
+
+/* For embeds, position the remove button precisely over the video based on embed size */
+.form-pill-input__container--has-embeds .form-pill-input__pill-wrapper:has(.url-pill-embed-container) {
+  position: relative;
+}
+
+/* Default positioning for small embeds (400px) */
+.form-pill-input__container--has-embeds .form-pill-input__pill-wrapper:has(.youtube-embed--small) .form-pill-input__pill-remove {
+  position: absolute;
+  top: 8px;
+  left: 376px;
+  /* 400px - 24px for button positioning */
+  right: auto;
+  z-index: 25;
+  background: rgba(239, 68, 68, 0.95);
+  border: 2px solid white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* Medium embeds (600px) */
+.form-pill-input__container--has-embeds .form-pill-input__pill-wrapper:has(.youtube-embed--medium) .form-pill-input__pill-remove {
+  position: absolute;
+  top: 8px;
+  left: 576px;
+  /* 600px - 24px */
+  right: auto;
+  z-index: 25;
+  background: rgba(239, 68, 68, 0.95);
+  border: 2px solid white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* Large embeds (800px) */
+.form-pill-input__container--has-embeds .form-pill-input__pill-wrapper:has(.youtube-embed--large) .form-pill-input__pill-remove {
+  position: absolute;
+  top: 8px;
+  left: 776px;
+  /* 800px - 24px */
+  right: auto;
+  z-index: 25;
+  background: rgba(239, 68, 68, 0.95);
+  border: 2px solid white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* Full width embeds */
+.form-pill-input__container--has-embeds .form-pill-input__pill-wrapper:has(.youtube-embed--full) .form-pill-input__pill-remove {
+  position: absolute;
+  top: 8px;
+  right: 16px;
+  left: auto;
+  z-index: 25;
+  background: rgba(239, 68, 68, 0.95);
+  border: 2px solid white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+
 
 .form-pill-input__container {
   border: 1px solid var(--light-border--primary);
@@ -385,20 +516,22 @@
 }
 
 .form-pill-input__pill-wrapper {
-  position: relative;
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-xs-compact);
 }
 
 .form-pill-input__pill {
+  position: relative;
   display: inline-flex;
   align-items: center;
 }
 
 .form-pill-input__pill-remove {
-  background: rgba(239, 68, 68, 0.1);
-  border: 1px solid rgba(239, 68, 68, 0.3);
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  background: rgba(239, 68, 68, 0.9);
+  border: 1px solid rgba(239, 68, 68, 0.8);
   border-radius: 50%;
   width: 16px;
   height: 16px;
@@ -407,9 +540,11 @@
   justify-content: center;
   font-size: var(--font-size-xs);
   font-weight: bold;
-  color: var(--error);
+  color: white;
   cursor: pointer;
   transition: all 0.2s ease;
+  z-index: 10;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
 }
 
 .form-pill-input__pill-remove:hover {
