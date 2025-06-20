@@ -3,6 +3,9 @@
 import dynamic from 'next/dynamic';
 import { useState } from 'react';
 import FloatingAddPost from '../components/floating-add-post/FloatingAddPost';
+import { Submission } from '../components/submission-forms/schema';
+import { SubmissionItem } from '../components/submissions-list/SubmissionItem';
+import { SubmissionWithReplies } from '../components/submissions-list/actions';
 
 // Development-only import that gets tree-shaken in production
 let DevSkeletonToggle: React.ComponentType | null = null;
@@ -44,6 +47,71 @@ export default function MyPostsPageClient({
     setRefreshKey((prev) => prev + 1);
   };
 
+  // Custom renderer for my-posts page - shows reply indicators
+  const renderMyPostItem = ({
+    submission,
+    onTagClick,
+    onHashtagClick,
+    onMentionClick,
+    onSubmissionUpdate,
+    contextId,
+    optimisticUpdateSubmission,
+    optimisticRemoveSubmission
+  }: {
+    submission: SubmissionWithReplies;
+    // eslint-disable-next-line no-unused-vars
+    onTagClick: (tag: string) => void;
+    // eslint-disable-next-line no-unused-vars
+    onHashtagClick?: (hashtag: string) => void;
+    onMentionClick?: (
+      // eslint-disable-next-line no-unused-vars
+      mention: string,
+      // eslint-disable-next-line no-unused-vars
+      filterType: 'author' | 'mentions'
+    ) => void;
+    onSubmissionUpdate?: () => void;
+    contextId: string;
+    optimisticUpdateSubmission?: (
+      // eslint-disable-next-line no-unused-vars
+      submissionId: number,
+      // eslint-disable-next-line no-unused-vars
+      updatedSubmission: Submission
+    ) => void;
+    // eslint-disable-next-line no-unused-vars
+    optimisticRemoveSubmission?: (submissionId: number) => void;
+  }) => {
+    const isReplyPost = submission.thread_parent_id !== null;
+
+    return (
+      <div
+        className={`submission__wrapper ${isReplyPost ? 'submission__wrapper--is-reply' : ''}`}
+      >
+        {/* Reply indicator for posts that are replies */}
+        {isReplyPost && (
+          <div className="submission__meta">
+            <span
+              className="submission__reply-indicator"
+              title="This is a reply to another post"
+            >
+              💬 Reply
+            </span>
+          </div>
+        )}
+
+        <SubmissionItem
+          submission={submission}
+          onTagClick={onTagClick}
+          onHashtagClick={onHashtagClick}
+          onMentionClick={onMentionClick}
+          onSubmissionUpdate={onSubmissionUpdate}
+          contextId={contextId}
+          optimisticUpdateSubmission={optimisticUpdateSubmission}
+          optimisticRemoveSubmission={optimisticRemoveSubmission}
+        />
+      </div>
+    );
+  };
+
   return (
     <>
       <LazyPostsManager
@@ -51,6 +119,7 @@ export default function MyPostsPageClient({
         contextId={contextId}
         onlyMine={true}
         onNewPostClick={handleNewPostClick}
+        renderSubmissionItem={renderMyPostItem}
       />
       <FloatingAddPost
         externalTrigger={triggerModal}

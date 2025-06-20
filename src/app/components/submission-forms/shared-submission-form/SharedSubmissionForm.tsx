@@ -7,12 +7,18 @@ import { shouldUpdateAtom } from '../../../../lib/state/atoms';
 import { validateTagsInput } from '../../../../lib/utils/string/tag-regex';
 import { SmartInput } from '../../ui/SmartInput';
 import { createSubmissionAction, editSubmissionAction } from '../actions';
+import { Submission } from '../schema';
 import './SharedSubmissionForm.css';
 
 interface SharedSubmissionFormProps {
   mode: 'create' | 'reply' | 'edit';
   parentId?: number;
-  onSuccess?: () => void;
+  onSuccess?: (result?: {
+    status: number;
+    message?: string;
+    error?: string;
+    submission?: Submission;
+  }) => void;
   replyToAuthor?: string;
   contextId?: string;
   className?: string;
@@ -49,25 +55,50 @@ export function SharedSubmissionForm({
 
   // Initialize form data based on mode
   useEffect(() => {
-    if (mode === 'edit') {
-      setFormData({
-        title: initialTitle,
-        content: initialContent,
-        tags: initialTags
-      });
-    } else if (mode === 'reply' && replyToAuthor) {
-      setFormData({
-        title: '',
-        content: `@${replyToAuthor} `,
-        tags: ''
-      });
-    } else {
-      setFormData({
-        title: '',
-        content: '',
-        tags: ''
-      });
-    }
+    const initializeForm = async () => {
+      if (mode === 'edit') {
+        setFormData({
+          title: initialTitle,
+          content: initialContent,
+          tags: initialTags
+        });
+      } else if (mode === 'reply' && replyToAuthor) {
+        // Create properly formatted mention for reply
+        try {
+          const { getUserInfo } = await import(
+            '../../../../lib/actions/search.actions'
+          );
+          const userInfo = await getUserInfo(replyToAuthor);
+
+          const properMention =
+            userInfo && userInfo.userId
+              ? `@[${replyToAuthor}|${userInfo.userId}|author] `
+              : `@${replyToAuthor} `;
+
+          setFormData({
+            title: '',
+            content: properMention,
+            tags: ''
+          });
+        } catch (error) {
+          console.error('Error creating mention format:', error);
+          // Fallback to simple format
+          setFormData({
+            title: '',
+            content: `@${replyToAuthor} `,
+            tags: ''
+          });
+        }
+      } else {
+        setFormData({
+          title: '',
+          content: '',
+          tags: ''
+        });
+      }
+    };
+
+    initializeForm();
   }, [mode, initialTitle, initialContent, initialTags, replyToAuthor]);
 
   const isReply = mode === 'reply';
@@ -177,19 +208,46 @@ export function SharedSubmissionForm({
       if (result.status === 1) {
         // Reset form only for create/reply modes, not edit
         if (!isEdit) {
-          setFormData({
-            title: '',
-            content:
-              mode === 'reply' && replyToAuthor ? `@${replyToAuthor} ` : '',
-            tags: ''
-          });
+          if (mode === 'reply' && replyToAuthor) {
+            // Try to get proper mention format for reset
+            try {
+              const { getUserInfo } = await import(
+                '../../../../lib/actions/search.actions'
+              );
+              const userInfo = await getUserInfo(replyToAuthor);
+
+              const properMention =
+                userInfo && userInfo.userId
+                  ? `@[${replyToAuthor}|${userInfo.userId}|author] `
+                  : `@${replyToAuthor} `;
+
+              setFormData({
+                title: '',
+                content: properMention,
+                tags: ''
+              });
+            } catch (error) {
+              console.error('Error creating mention format for reset:', error);
+              setFormData({
+                title: '',
+                content: `@${replyToAuthor} `,
+                tags: ''
+              });
+            }
+          } else {
+            setFormData({
+              title: '',
+              content: '',
+              tags: ''
+            });
+          }
         }
         setTagErrors([]);
         setShouldUpdate(true);
 
         // Call success callback
         if (onSuccess) {
-          onSuccess();
+          onSuccess(result);
         }
       } else {
         const errorMessage =

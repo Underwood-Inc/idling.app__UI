@@ -394,8 +394,36 @@ export async function getSubmissionsWithReplies({
           pagination: allMatchingSubmissions.data.pagination
         }
       };
+    } else if (includeThreadReplies && filters.length === 0) {
+      // When includeThreadReplies is true but no filters (e.g., my-posts page):
+      // Get all submissions including replies, but render replies as individual items
+      const allSubmissionsResponse = await getSubmissionsAction({
+        onlyMine,
+        providerAccountId,
+        filters,
+        page,
+        pageSize,
+        includeThreadReplies: true // Include both main posts and replies
+      });
+
+      if (!allSubmissionsResponse.data) {
+        return allSubmissionsResponse;
+      }
+
+      // Convert to SubmissionWithReplies format (no nested replies structure needed for my-posts)
+      const submissionsWithReplies: SubmissionWithReplies[] =
+        allSubmissionsResponse.data.data.map((submission) => ({
+          ...submission
+        }));
+
+      return {
+        data: {
+          data: submissionsWithReplies,
+          pagination: allSubmissionsResponse.data.pagination
+        }
+      };
     } else {
-      // When includeThreadReplies is false or no filters:
+      // When includeThreadReplies is false or legacy behavior:
       // Get main submissions only and fetch their replies separately
       const mainSubmissionsResponse = await getSubmissionsAction({
         onlyMine,

@@ -2,12 +2,16 @@ import { useAtom } from 'jotai';
 import { useSession } from 'next-auth/react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { getSubmissionsWithReplies } from '../../app/components/submissions-list/actions';
+import {
+  getSubmissionsWithReplies,
+  SubmissionWithReplies
+} from '../../app/components/submissions-list/actions';
 import { PostFilters } from '../types/filters';
 import {
   Filter,
   getSubmissionsFiltersAtom,
-  getSubmissionsStateAtom
+  getSubmissionsStateAtom,
+  shouldUpdateAtom
 } from './atoms';
 
 interface UseSubmissionsManagerProps {
@@ -39,9 +43,10 @@ export function useSubmissionsManager({
   const [filtersState, setFiltersState] = useAtom(
     getSubmissionsFiltersAtom(contextId)
   );
+  const [shouldUpdate, setShouldUpdate] = useAtom(shouldUpdateAtom);
 
   // Local state for infinite scroll
-  const [infiniteData, setInfiniteData] = useState<any[]>([]);
+  const [infiniteData, setInfiniteData] = useState<SubmissionWithReplies[]>([]);
   const [infinitePage, setInfinitePage] = useState(1);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [hasMore, setHasMore] = useState(true);
@@ -139,13 +144,14 @@ export function useSubmissionsManager({
           error: result.error || 'Failed to fetch submissions'
         });
       }
-    } catch (error: any) {
-      console.error('Error fetching submissions:', error);
-      setSubmissionsState({
+    } catch (error: unknown) {
+      console.error('Error in useSubmissionsManager:', error);
+      setSubmissionsState((prevState) => ({
+        ...prevState,
         loading: false,
-        data: undefined,
-        error: error.message || 'Failed to fetch submissions'
-      });
+        error:
+          error instanceof Error ? error.message : 'Failed to fetch submissions'
+      }));
     } finally {
       isFetching.current = false;
     }
@@ -277,6 +283,20 @@ export function useSubmissionsManager({
     filtersState.initialized,
     fetchSubmissions
   ]);
+
+  // Listen for shouldUpdate changes (edit/delete operations)
+  useEffect(() => {
+    if (shouldUpdate) {
+      // Reset the shouldUpdate flag first
+      setShouldUpdate(false);
+
+      // Force a refresh by clearing the lastFetchKey to bypass duplicate fetch check
+      lastFetchKey.current = '';
+
+      // Trigger a fresh fetch
+      fetchSubmissions();
+    }
+  }, [shouldUpdate, setShouldUpdate, fetchSubmissions]);
 
   // Update URL when filters change (debounced and coordinated)
   useEffect(() => {
@@ -562,6 +582,66 @@ export function useSubmissionsManager({
     [filtersState.page, filtersState.pageSize]
   );
 
+  // Optimistic update functions
+  const optimisticUpdateSubmission = useCallback(
+    (submissionId: number, updatedSubmission: any) => {
+      const currentState = submissionsState;
+      if (currentState.data) {
+        const updatedSubmissions = currentState.data.submissions.map(
+          (submission) =>
+            submission.submission_id === submissionId
+              ? { ...submission, ...updatedSubmission }
+              : submission
+        );
+
+        setSubmissionsState({
+          ...currentState,
+          data: {
+            submissions: updatedSubmissions,
+            pagination: currentState.data.pagination
+          }
+        });
+      }
+    },
+    [submissionsState, setSubmissionsState]
+  );
+
+  const optimisticRemoveSubmission = useCallback(
+    (submissionId: number) => {
+      const currentState = submissionsState;
+      if (currentState.data) {
+        const updatedSubmissions = currentState.data.submissions.filter(
+          (submission) => submission.submission_id !== submissionId
+        );
+        const updatedPagination = {
+          ...currentState.data.pagination,
+          totalRecords: Math.max(
+            0,
+            currentState.data.pagination.totalRecords - 1
+          )
+        };
+
+        setSubmissionsState({
+          ...currentState,
+          data: {
+            submissions: updatedSubmissions,
+            pagination: updatedPagination
+          }
+        });
+
+        // Also update infinite scroll data if in infinite mode
+        if (infiniteScroll) {
+          setInfiniteData((prev) =>
+            prev.filter(
+              (submission) => submission.submission_id !== submissionId
+            )
+          );
+        }
+      }
+    },
+    [submissionsState, setSubmissionsState, infiniteScroll]
+  );
+
   return {
     // State - return correct data based on mode
     submissions: infiniteScroll
@@ -587,6 +667,10 @@ export function useSubmissionsManager({
     setPage,
     setPageSize,
     clearFilters,
+
+    // Optimistic updates
+    optimisticUpdateSubmission,
+    optimisticRemoveSubmission,
 
     // Computed values
     totalFilters: filtersState.filters.length,

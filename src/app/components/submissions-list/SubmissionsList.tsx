@@ -31,6 +31,30 @@ export interface SubmissionsListProps {
   hasMore?: boolean;
   isLoadingMore?: boolean;
   onLoadMore?: () => void;
+  // Optimistic update functions
+  optimisticUpdateSubmission?: (
+    submissionId: number,
+    updatedSubmission: any
+  ) => void;
+  optimisticRemoveSubmission?: (submissionId: number) => void;
+  // Custom renderer
+  children?: (props: {
+    submission: any;
+    onTagClick: (tag: string) => void;
+    onHashtagClick?: (hashtag: string) => void;
+    onMentionClick?: (
+      mention: string,
+      filterType: 'author' | 'mentions'
+    ) => void;
+    onSubmissionUpdate?: () => void;
+    contextId: string;
+    // Add optimistic update functions to custom renderer
+    optimisticUpdateSubmission?: (
+      submissionId: number,
+      updatedSubmission: any
+    ) => void;
+    optimisticRemoveSubmission?: (submissionId: number) => void;
+  }) => React.ReactNode;
 }
 
 const SubmissionsList = React.memo(function SubmissionsList({
@@ -44,7 +68,10 @@ const SubmissionsList = React.memo(function SubmissionsList({
   infiniteScrollMode = false,
   hasMore = false,
   isLoadingMore = false,
-  onLoadMore
+  onLoadMore,
+  optimisticUpdateSubmission,
+  optimisticRemoveSubmission,
+  children
 }: SubmissionsListProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const itemRefs = useRef<Map<number, HTMLDivElement>>(new Map());
@@ -343,14 +370,29 @@ const SubmissionsList = React.memo(function SubmissionsList({
                 } as React.CSSProperties & { '--item-index': number }
               }
             >
-              <SubmissionItem
-                submission={post}
-                onTagClick={onTagClick}
-                onHashtagClick={onHashtagClick}
-                onMentionClick={onMentionClick}
-                onSubmissionUpdate={onRefresh}
-                contextId={contextId}
-              />
+              {children ? (
+                children({
+                  submission: post,
+                  onTagClick,
+                  onHashtagClick,
+                  onMentionClick,
+                  onSubmissionUpdate: onRefresh,
+                  contextId,
+                  optimisticUpdateSubmission,
+                  optimisticRemoveSubmission
+                })
+              ) : (
+                <SubmissionItem
+                  submission={post}
+                  onTagClick={onTagClick}
+                  onHashtagClick={onHashtagClick}
+                  onMentionClick={onMentionClick}
+                  onSubmissionUpdate={onRefresh}
+                  contextId={contextId}
+                  optimisticUpdateSubmission={optimisticUpdateSubmission}
+                  optimisticRemoveSubmission={optimisticRemoveSubmission}
+                />
+              )}
             </div>
           );
         })}
