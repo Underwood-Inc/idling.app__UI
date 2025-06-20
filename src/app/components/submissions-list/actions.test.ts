@@ -171,6 +171,7 @@ describe('getSubmissionsAction', () => {
         submission_datetime: new Date(),
         user_id: 123,
         author: 'Test Author',
+        author_provider_account_id: 'test-provider-123',
         tags: [],
         thread_parent_id: null
       }
@@ -204,6 +205,7 @@ describe('getSubmissionsAction', () => {
         submission_datetime: new Date(),
         user_id: 123,
         author: 'Test Author',
+        author_provider_account_id: 'test-provider-123',
         tags: [],
         thread_parent_id: null
       }
