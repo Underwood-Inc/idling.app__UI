@@ -771,41 +771,41 @@
 
 /* Dark mode support */
 @media (prefers-color-scheme: dark) {
-  .form-pill-input__container {
+  /* .form-pill-input__container {
     background: var(--dark-background--primary);
     border-color: var(--dark-border--primary);
-  }
+  } */
 
-  .form-pill-input__input {
+  /* .form-pill-input__input {
     color: var(--dark-bg__text-color--primary) !important;
-  }
+  } */
 
-  .form-pill-input__pill .url-pill--edit-mode::after {
+  /* .form-pill-input__pill .url-pill--edit-mode::after {
     background: var(--dark-background--primary);
     border-color: var(--dark-border--primary);
-  }
+  } */
 
   /* Dark mode support for form pills */
-  .form-pill-input__pill .content-pill {
+  /* .form-pill-input__pill .content-pill {
     background: linear-gradient(135deg, #2a2a2a, #3a3a3a) !important;
     color: #e0e0e0 !important;
     border-color: #555555 !important;
-  }
+  } */
 
-  .form-pill-input__pill .content-pill--hashtag {
+  /* .form-pill-input__pill .content-pill--hashtag {
     background: linear-gradient(135deg, #1a2332, #243244) !important;
     color: #64b5f6 !important;
     border-color: #1976d2 !important;
-  }
+  } */
 
-  .form-pill-input__pill .content-pill--mention {
+  /* .form-pill-input__pill .content-pill--mention {
     background: linear-gradient(135deg, #1b2e1b, #2e4e2e) !important;
     color: #81c784 !important;
     border-color: #2e7d32 !important;
-  }
+  } */
 
   /* Dark mode support for URL pill behavior toggles */
-  .form-pill-input__pill .url-pill__behavior-toggle--modal {
+  /* .form-pill-input__pill .url-pill__behavior-toggle--modal {
     background: linear-gradient(135deg, #1a2332, #243244) !important;
     color: #64b5f6 !important;
     border-color: #1976d2 !important;
@@ -821,5 +821,5 @@
     background: linear-gradient(135deg, #2a2a1a, #3a3a2a) !important;
     color: #ffcc02 !important;
     border-color: #f57f17 !important;
-  }
+  } */
 }

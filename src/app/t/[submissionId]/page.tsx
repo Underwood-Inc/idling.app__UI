@@ -1,23 +1,8 @@
-'use client';
-
-import { useAtom } from 'jotai';
-import { useSession } from 'next-auth/react';
-import { notFound, useRouter } from 'next/navigation';
-import { Suspense, useEffect, useState } from 'react';
-import { CONTEXT_IDS } from '../../../lib/context-ids';
-import { SpacingThemeProvider } from '../../../lib/context/SpacingThemeContext';
-import { getSubmissionsFiltersAtom } from '../../../lib/state/atoms';
-import { Card } from '../../components/card/Card';
-import FadeIn from '../../components/fade-in/FadeIn';
-import Loader from '../../components/loader/Loader';
-import { PageAside } from '../../components/page-aside/PageAside';
-import { PageContainer } from '../../components/page-container/PageContainer';
-import PageContent from '../../components/page-content/PageContent';
-import PageHeader from '../../components/page-header/PageHeader';
+import { Metadata } from 'next';
+import { notFound } from 'next/navigation';
+import { Submission } from '../../components/submission-forms/schema';
 import { getSubmissionThread } from '../../components/thread/actions';
-import Thread from '../../components/thread/Thread';
-import ThreadTags from '../../components/thread/ThreadTags';
-import styles from './page.module.css';
+import ThreadPageClient from './ThreadPageClient';
 
 interface ThreadPageProps {
   params: {
@@ -26,243 +11,158 @@ interface ThreadPageProps {
 }
 
 interface ThreadData {
-  parent: any;
-  replies: any[];
+  parent: Submission | null;
+  replies: Submission[];
 }
 
-export default function ThreadPage({ params }: ThreadPageProps) {
-  const { data: session } = useSession();
-  const router = useRouter();
-  const [threadData, setThreadData] = useState<ThreadData | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  // Use global filter state management
-  const contextId = CONTEXT_IDS.THREAD.toString();
-  const [filtersState, setFiltersState] = useAtom(
-    getSubmissionsFiltersAtom(contextId)
-  );
-
+// Generate metadata for the thread page including initial post content
+export async function generateMetadata({
+  params
+}: ThreadPageProps): Promise<Metadata> {
   const submissionId = parseInt(params.submissionId);
 
-  useEffect(() => {
-    if (isNaN(submissionId)) {
-      notFound();
-      return;
+  if (isNaN(submissionId)) {
+    return {
+      title: 'Thread Not Found',
+      description: 'The requested thread could not be found.'
+    };
+  }
+
+  try {
+    const threadData = await getSubmissionThread(submissionId);
+
+    if (!threadData.parent) {
+      return {
+        title: 'Thread Not Found',
+        description: 'The requested thread could not be found.'
+      };
     }
 
-    const loadThreadData = async () => {
-      try {
-        const data = await getSubmissionThread(submissionId);
-        if (!data.parent) {
-          notFound();
-          return;
-        }
-        setThreadData(data);
-      } catch (error) {
-        console.error('Error loading thread:', error);
-        notFound();
-      } finally {
-        setLoading(false);
-      }
+    const parent = threadData.parent;
+    const title = parent.submission_title || parent.submission_name;
+    const content = parent.submission_name;
+    const author = parent.author || 'Anonymous';
+    const replyCount = threadData.replies.length;
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://idling.app';
+
+    // Truncate content for description (150 chars max for optimal social sharing)
+    const description =
+      content.length > 150 ? content.substring(0, 147) + '...' : content;
+
+    // Enhanced metadata with thread-specific information
+    const metaTitle =
+      replyCount > 0
+        ? `${title} (${replyCount} ${replyCount === 1 ? 'reply' : 'replies'}) - Thread Discussion | Idling.app`
+        : `${title} - Thread Discussion | Idling.app`;
+
+    // Generate JSON-LD structured data
+    const jsonLd = {
+      '@context': 'https://schema.org',
+      '@type': 'DiscussionForumPosting',
+      headline: title,
+      text: content,
+      author: {
+        '@type': 'Person',
+        name: author
+      },
+      datePublished: parent.submission_datetime.toISOString(),
+      url: `${baseUrl}/t/${submissionId}`,
+      interactionStatistic: {
+        '@type': 'InteractionCounter',
+        interactionType: 'https://schema.org/ReplyAction',
+        userInteractionCount: replyCount
+      },
+      mainEntityOfPage: {
+        '@type': 'WebPage',
+        '@id': `${baseUrl}/t/${submissionId}`
+      },
+      publisher: {
+        '@type': 'Organization',
+        name: 'Idling.app',
+        url: baseUrl
+      },
+      ...(parent.tags.length > 0 && {
+        keywords: parent.tags.join(', ')
+      })
     };
 
-    loadThreadData();
-  }, [submissionId]);
-
-  const handleHashtagClick = (hashtag: string) => {
-    // Ensure hashtag value includes # prefix for proper filtering
-    const hashtagValue = hashtag.startsWith('#') ? hashtag : `#${hashtag}`;
-
-    setFiltersState((prev) => {
-      const newFilters = [...prev.filters];
-      const tagsIndex = newFilters.findIndex((f) => f.name === 'tags');
-
-      if (tagsIndex >= 0) {
-        // Update existing tags filter
-        const currentTags = newFilters[tagsIndex].value
-          .split(',')
-          .map((tag) => tag.trim())
-          .filter(Boolean);
-
-        const isTagActive = currentTags.includes(hashtagValue);
-        const updatedTags = isTagActive
-          ? currentTags.filter((tag) => tag !== hashtagValue)
-          : [...currentTags, hashtagValue];
-
-        if (updatedTags.length > 0) {
-          newFilters[tagsIndex] = {
-            name: 'tags',
-            value: updatedTags.join(',')
-          };
-        } else {
-          // Remove tags filter if no tags left
-          return {
-            ...prev,
-            filters: newFilters.filter(
-              (f) => f.name !== 'tags' && f.name !== 'tagLogic'
-            )
-          };
+    return {
+      title: metaTitle,
+      description: description,
+      keywords: [
+        'thread',
+        'discussion',
+        'community',
+        'forum',
+        ...parent.tags,
+        author
+      ]
+        .filter(Boolean)
+        .join(', '),
+      authors: [{ name: author }],
+      openGraph: {
+        title: title,
+        description: description,
+        type: 'article',
+        authors: [author],
+        publishedTime: parent.submission_datetime.toISOString(),
+        tags: parent.tags,
+        siteName: 'Idling.app',
+        url: `${baseUrl}/t/${submissionId}`
+      },
+      twitter: {
+        card: 'summary_large_image',
+        title: title,
+        description: description,
+        creator: `@${author}`
+      },
+      robots: {
+        index: true,
+        follow: true,
+        googleBot: {
+          index: true,
+          follow: true,
+          'max-video-preview': -1,
+          'max-image-preview': 'large',
+          'max-snippet': -1
         }
-      } else {
-        // Add new tags filter
-        newFilters.push({ name: 'tags', value: hashtagValue });
+      },
+      other: {
+        'application-ld+json': JSON.stringify(jsonLd)
       }
+    };
+  } catch (error) {
+    console.error('Error generating thread metadata:', error);
+    return {
+      title: 'Thread - Idling.app',
+      description: 'Join the discussion on Idling.app'
+    };
+  }
+}
 
-      return {
-        ...prev,
-        filters: newFilters,
-        page: 1
-      };
-    });
-  };
+export default async function ThreadPage({ params }: ThreadPageProps) {
+  const submissionId = parseInt(params.submissionId);
 
-  const handleMentionClick = async (mentionValue: string) => {
-    // ContentWithPills now ONLY passes user IDs, never usernames
-    // We can directly use the mentionValue as the author ID for filtering
-    setFiltersState((prev) => {
-      const newFilters = [...prev.filters];
-      const authorIndex = newFilters.findIndex((f) => f.name === 'author');
-
-      if (authorIndex >= 0) {
-        // Toggle author filter
-        const currentAuthor = newFilters[authorIndex].value;
-        if (currentAuthor === mentionValue) {
-          // Remove author filter if same mention clicked
-          return {
-            ...prev,
-            filters: newFilters.filter((f) => f.name !== 'author')
-          };
-        } else {
-          // Update author filter
-          newFilters[authorIndex] = { name: 'author', value: mentionValue };
-        }
-      } else {
-        // Add new author filter
-        newFilters.push({ name: 'author', value: mentionValue });
-      }
-
-      return {
-        ...prev,
-        filters: newFilters,
-        page: 1
-      };
-    });
-  };
-
-  const clearFilters = () => {
-    setFiltersState((prev) => ({
-      ...prev,
-      filters: [],
-      page: 1
-    }));
-  };
-
-  if (loading) {
-    return <Loader />;
+  if (isNaN(submissionId)) {
+    notFound();
   }
 
-  if (!threadData) {
-    return notFound();
+  // Pre-fetch thread data for SSR
+  let initialThreadData: ThreadData | null = null;
+  try {
+    initialThreadData = await getSubmissionThread(submissionId);
+    if (!initialThreadData.parent) {
+      notFound();
+    }
+  } catch (error) {
+    console.error('Error loading thread data:', error);
+    notFound();
   }
-
-  const providerAccountId = session?.user?.id || '';
-
-  // Extract active filters from global state
-  const activeHashtags =
-    filtersState.filters
-      .find((f) => f.name === 'tags')
-      ?.value?.split(',')
-      ?.map((tag) => tag.trim())
-      ?.filter(Boolean) || [];
-
-  const authorFilter = filtersState.filters.find((f) => f.name === 'author');
-  const activeMentions = authorFilter?.value ? [authorFilter.value] : [];
-
-  const hasActiveFilters =
-    activeHashtags.length > 0 || activeMentions.length > 0;
-
-  // Convert to format expected by Thread component
-  const activeFilters = {
-    hashtags: activeHashtags,
-    mentions: activeMentions
-  };
 
   return (
-    <SpacingThemeProvider>
-      <PageContainer>
-        <PageHeader>
-          <FadeIn>
-            <div className={styles.thread__header}>
-              <h2>Thread Discussion</h2>
-              {hasActiveFilters && (
-                <div className={styles.thread__filters}>
-                  <span className={styles.thread__filters_label}>
-                    Active Filters:
-                  </span>
-                  {activeHashtags.map((hashtag) => (
-                    <button
-                      key={hashtag}
-                      className={styles.thread__filter_pill}
-                      onClick={() => handleHashtagClick(hashtag)}
-                      title="Click to remove filter"
-                    >
-                      #{hashtag} ×
-                    </button>
-                  ))}
-                  {activeMentions.map((mention) => (
-                    <button
-                      key={mention}
-                      className={styles.thread__filter_pill}
-                      onClick={() => handleMentionClick(mention)}
-                      title="Click to remove filter"
-                    >
-                      @{mention} ×
-                    </button>
-                  ))}
-                  <button
-                    className={styles.thread__clear_filters}
-                    onClick={clearFilters}
-                    title="Clear all filters"
-                  >
-                    Clear All
-                  </button>
-                </div>
-              )}
-            </div>
-          </FadeIn>
-        </PageHeader>
-        <PageContent>
-          <article className={styles.thread__container}>
-            <FadeIn className={styles.thread__fade}>
-              <Card width="full" className={styles.thread__item}>
-                <Suspense fallback={<Loader />}>
-                  <Thread
-                    submissionId={submissionId}
-                    providerAccountId={providerAccountId}
-                    onHashtagClick={handleHashtagClick}
-                    onMentionClick={handleMentionClick}
-                    activeFilters={activeFilters}
-                    contextId={contextId}
-                  />
-                </Suspense>
-              </Card>
-            </FadeIn>
-          </article>
-        </PageContent>
-
-        <PageAside className={styles.thread_aside} bottomMargin={10}>
-          <FadeIn>
-            <Card width="full">
-              <Suspense fallback={<Loader />}>
-                <ThreadTags
-                  submissionId={submissionId}
-                  contextId={CONTEXT_IDS.THREAD.toString()}
-                />
-              </Suspense>
-            </Card>
-          </FadeIn>
-        </PageAside>
-      </PageContainer>
-    </SpacingThemeProvider>
+    <ThreadPageClient
+      submissionId={submissionId}
+      initialThreadData={initialThreadData}
+    />
   );
 }
