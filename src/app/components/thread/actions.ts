@@ -14,6 +14,7 @@ export async function getSubmissionThread(
       s.submission_datetime,
       s.user_id,
       u.name as author,
+      s.author_provider_account_id,
       COALESCE(s.tags, ARRAY[]::text[]) as tags,
       s.thread_parent_id
     FROM submissions s
@@ -29,6 +30,7 @@ export async function getSubmissionThread(
       s.submission_datetime,
       s.user_id,
       u.name as author,
+      s.author_provider_account_id,
       COALESCE(s.tags, ARRAY[]::text[]) as tags,
       s.thread_parent_id
     FROM submissions s
@@ -45,6 +47,7 @@ export async function getSubmissionThread(
     submission_datetime: new Date(row.submission_datetime),
     user_id: Number(row.user_id),
     author: row.author,
+    author_provider_account_id: row.author_provider_account_id,
     tags: Array.isArray(row.tags) ? row.tags : [],
     thread_parent_id: row.thread_parent_id ? Number(row.thread_parent_id) : null
   });

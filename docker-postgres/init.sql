@@ -21,10 +21,12 @@ $$;
 \echo '\033[35mcreating submissions table...\033[0m'
 CREATE TABLE submissions (
   submission_id SERIAL NOT NULL PRIMARY KEY,
-  submission_name VARCHAR(255) NOT NULL,
+  submission_name TEXT NOT NULL,
+  submission_title VARCHAR(500),
+  submission_url TEXT,
   submission_datetime TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  author_id VARCHAR(255) NOT NULL,
-  author VARCHAR(255) NOT NULL,
+  user_id INTEGER NOT NULL,
+  author_provider_account_id VARCHAR(255) NOT NULL,
   tags TEXT[],
   thread_parent_id INTEGER,
   CONSTRAINT fk_thread_parent FOREIGN KEY (thread_parent_id) REFERENCES submissions(submission_id)
@@ -75,9 +77,13 @@ CREATE TABLE users
 (
   id SERIAL,
   name VARCHAR(255),
-  email VARCHAR(255),
+  email VARCHAR(255) UNIQUE,
   "emailVerified" TIMESTAMPTZ,
   image TEXT,
+  profile_public BOOLEAN DEFAULT true,
+  bio TEXT,
+  location VARCHAR(255),
+  created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
  
   PRIMARY KEY (id)
 );

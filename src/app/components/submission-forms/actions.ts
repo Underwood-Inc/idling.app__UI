@@ -145,6 +145,7 @@ export async function createSubmissionAction(
         submission_title, 
         submission_datetime, 
         user_id, 
+        author_provider_account_id,
         tags, 
         thread_parent_id
       )
@@ -153,6 +154,7 @@ export async function createSubmissionAction(
         ${data.submission_title},
         ${data.submission_datetime},
         (SELECT u.id FROM users u JOIN accounts a ON u.id = a."userId" WHERE a."providerAccountId" = ${session?.user.providerAccountId} LIMIT 1),
+        ${session?.user.providerAccountId},
         ${allTags},
         ${threadParentId ? parseInt(threadParentId as string) : null}
       )
@@ -229,7 +231,7 @@ export async function deleteSubmissionAction(
       SELECT submission_id, submission_title 
       FROM submissions 
       WHERE submission_id = ${sqlSubmissionId}
-      AND user_id = (SELECT u.id FROM users u JOIN accounts a ON u.id = a."userId" WHERE a."providerAccountId" = ${session?.user?.providerAccountId!} LIMIT 1)
+      AND author_provider_account_id = ${session?.user?.providerAccountId!}
     `;
 
     if (submissionCheck.length === 0) {
@@ -243,7 +245,7 @@ export async function deleteSubmissionAction(
     await sql`
       DELETE FROM submissions
       WHERE submission_id = ${sqlSubmissionId}
-      AND user_id = (SELECT u.id FROM users u JOIN accounts a ON u.id = a."userId" WHERE a."providerAccountId" = ${session?.user?.providerAccountId!} LIMIT 1)
+      AND author_provider_account_id = ${session?.user?.providerAccountId!}
     `;
 
     revalidatePath('/');
@@ -350,7 +352,7 @@ export async function editSubmissionAction(
         submission_name = ${data.submission_name},
         tags = ${allTags}
       WHERE submission_id = ${data.submission_id}
-      AND user_id = (SELECT u.id FROM users u JOIN accounts a ON u.id = a."userId" WHERE a."providerAccountId" = ${session?.user?.providerAccountId} LIMIT 1)
+      AND author_provider_account_id = ${session?.user?.providerAccountId}
       RETURNING *;
     `;
 
@@ -409,7 +411,7 @@ export async function canDeleteSubmission(
       SELECT submission_id 
       FROM submissions 
       WHERE submission_id = ${submissionId.toString()}
-      AND user_id = (SELECT u.id FROM users u JOIN accounts a ON u.id = a."userId" WHERE a."providerAccountId" = ${authorId} LIMIT 1)
+      AND author_provider_account_id = ${authorId}
     `;
 
     if (submissionCheck.length === 0) {

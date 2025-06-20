@@ -618,8 +618,8 @@ async function createMainPosts(users, count) {
       posts.push([
         content, // submission_name
         `Post ${postIndex + 1}`, // submission_title
-        user.author_id, // author_id
-        user.author, // author
+        user.user_id, // user_id (database ID)
+        user.author_id, // author_provider_account_id
         tags, // tags
         null, // thread_parent_id
         timestamp // submission_datetime
@@ -632,7 +632,7 @@ async function createMainPosts(users, count) {
     // True batch insert using postgres multi-row VALUES
     await sql`
       INSERT INTO submissions (
-        submission_name, submission_title, author_id, author, tags, thread_parent_id, submission_datetime
+        submission_name, submission_title, user_id, author_provider_account_id, tags, thread_parent_id, submission_datetime
       ) VALUES ${sql(posts)}
     `;
 
@@ -706,8 +706,8 @@ async function createReplies(users, parentPostIds, count, startingMaxId) {
       replies.push([
         content, // submission_name
         `Reply ${replyIndex + 1}`, // submission_title
-        user.author_id, // author_id
-        user.author, // author
+        user.user_id, // user_id (database ID)
+        user.author_id, // author_provider_account_id
         tags, // tags
         parentId, // thread_parent_id
         timestamp // submission_datetime
@@ -720,7 +720,7 @@ async function createReplies(users, parentPostIds, count, startingMaxId) {
     // Single batch insert - no queries during loop
     await sql`
       INSERT INTO submissions (
-        submission_name, submission_title, author_id, author, tags, thread_parent_id, submission_datetime
+        submission_name, submission_title, user_id, author_provider_account_id, tags, thread_parent_id, submission_datetime
       ) VALUES ${sql(replies)}
     `;
 
@@ -811,8 +811,8 @@ async function createNestedReplies(users, replyIds, count, startingMaxId) {
       nestedReplies.push([
         content, // submission_name
         `Nested Reply ${replyIndex + 1}`, // submission_title
-        user.author_id, // author_id
-        user.author, // author
+        user.user_id, // user_id (database ID)
+        user.author_id, // author_provider_account_id
         tags, // tags
         parentId, // thread_parent_id
         timestamp // submission_datetime
@@ -822,7 +822,7 @@ async function createNestedReplies(users, replyIds, count, startingMaxId) {
     // Single batch insert - no queries during loop
     await sql`
       INSERT INTO submissions (
-        submission_name, submission_title, author_id, author, tags, thread_parent_id, submission_datetime
+        submission_name, submission_title, user_id, author_provider_account_id, tags, thread_parent_id, submission_datetime
       ) VALUES ${sql(nestedReplies)}
     `;
 

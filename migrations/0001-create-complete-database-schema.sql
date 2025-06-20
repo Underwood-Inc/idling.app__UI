@@ -52,13 +52,14 @@ CREATE TABLE IF NOT EXISTS verification_token (
   PRIMARY KEY (identifier, token)
 );
 
--- Submissions table (modern schema with user_id foreign key)
+-- Submissions table (modern schema with providerAccountId for direct auth matching)
 CREATE TABLE IF NOT EXISTS submissions (
   submission_id SERIAL PRIMARY KEY,
   submission_name TEXT NOT NULL,
   submission_title VARCHAR(500),
   submission_url TEXT,
   user_id INTEGER NOT NULL,
+  author_provider_account_id VARCHAR(255) NOT NULL,
   tags TEXT[],
   thread_parent_id INTEGER,
   submission_datetime TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL
@@ -123,6 +124,22 @@ DO $$
 DECLARE
   first_user_id INTEGER;
 BEGIN
+  -- Add submission_title if missing
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.columns 
+    WHERE table_name = 'submissions' AND column_name = 'submission_title'
+  ) THEN
+    ALTER TABLE submissions ADD COLUMN submission_title VARCHAR(500);
+  END IF;
+
+  -- Add submission_url if missing
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.columns 
+    WHERE table_name = 'submissions' AND column_name = 'submission_url'
+  ) THEN
+    ALTER TABLE submissions ADD COLUMN submission_url TEXT;
+  END IF;
+
   -- Add tags if missing
   IF NOT EXISTS (
     SELECT 1 FROM information_schema.columns 
@@ -170,6 +187,27 @@ BEGIN
     
     -- Make the column NOT NULL after updating existing data
     ALTER TABLE submissions ALTER COLUMN user_id SET NOT NULL;
+  END IF;
+
+  -- Add author_provider_account_id if missing
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.columns 
+    WHERE table_name = 'submissions' AND column_name = 'author_provider_account_id'
+  ) THEN
+    -- Add author_provider_account_id column as nullable first
+    ALTER TABLE submissions ADD COLUMN author_provider_account_id VARCHAR(255);
+    
+    -- Update existing submissions to get providerAccountId from linked accounts
+    UPDATE submissions SET author_provider_account_id = (
+      SELECT a."providerAccountId" 
+      FROM users u 
+      JOIN accounts a ON u.id = a."userId" 
+      WHERE u.id = submissions.user_id 
+      LIMIT 1
+    ) WHERE author_provider_account_id IS NULL;
+    
+    -- Make the column NOT NULL after updating existing data
+    ALTER TABLE submissions ALTER COLUMN author_provider_account_id SET NOT NULL;
   END IF;
 END $$;
 
@@ -253,6 +291,7 @@ CREATE INDEX IF NOT EXISTS idx_sessions_token ON sessions("sessionToken");
 
 -- Submission indexes
 CREATE INDEX IF NOT EXISTS idx_submissions_user_id ON submissions(user_id);
+CREATE INDEX IF NOT EXISTS idx_submissions_author_provider_account_id ON submissions(author_provider_account_id);
 CREATE INDEX IF NOT EXISTS idx_submissions_datetime ON submissions(submission_datetime DESC);
 CREATE INDEX IF NOT EXISTS idx_submissions_thread_parent ON submissions(thread_parent_id);
 CREATE INDEX IF NOT EXISTS idx_submissions_title ON submissions(submission_title);
@@ -317,6 +356,7 @@ COMMENT ON TABLE sessions IS 'NextAuth active sessions';
 COMMENT ON TABLE submissions IS 'User submissions/posts with modern foreign key relationships';
 
 COMMENT ON COLUMN submissions.user_id IS 'Foreign key to users table (modern approach)';
+COMMENT ON COLUMN submissions.author_provider_account_id IS 'OAuth provider account ID for direct session matching';
 
 -- ================================
 -- FINAL SETUP
