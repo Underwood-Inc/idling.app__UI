@@ -77,7 +77,7 @@ export const URL_PILL_DOMAINS: URLPillDomain[] = [
     icon: '📺',
     enabled: true,
     behaviors: youtubeBehaviors,
-    defaultBehavior: 'modal',
+    defaultBehavior: 'embed',
     regex:
       /(?:https?:\/\/)?(?:www\.)?(youtube\.com|youtu\.be)\/[\w\-._~:/?#[\]@!$&'()*+,;=%]*/i,
     extractId: extractYouTubeId
@@ -89,7 +89,7 @@ export const URL_PILL_DOMAINS: URLPillDomain[] = [
     icon: '📺',
     enabled: true,
     behaviors: youtubeBehaviors,
-    defaultBehavior: 'modal',
+    defaultBehavior: 'embed',
     regex:
       /(?:https?:\/\/)?(?:www\.)?(youtube\.com|youtu\.be)\/[\w\-._~:/?#[\]@!$&'()*+,;=%]*/i,
     extractId: extractYouTubeId
@@ -254,7 +254,7 @@ export const detectURLsInText = (
       // For embed behavior, include default width setting
       const pillFormat =
         domain.defaultBehavior === 'embed'
-          ? `![${domain.defaultBehavior}|full](${url})`
+          ? `![${domain.defaultBehavior}|medium](${url})`
           : `![${domain.defaultBehavior}](${url})`;
 
       detectedUrls.push({

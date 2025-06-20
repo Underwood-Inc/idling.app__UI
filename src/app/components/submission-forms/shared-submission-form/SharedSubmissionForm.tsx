@@ -71,24 +71,55 @@ const FormPillInput: React.FC<{
   );
 
   const handleInputChange = (newValue: string) => {
-    setInputValue(newValue);
-
     // Combine existing pills with new text
     const existingPillText = pillSegments
       .map((seg: ContentSegment) => seg.rawFormat || seg.value)
       .join(' ');
-    let combinedValue =
-      existingPillText + (existingPillText && newValue ? ' ' : '') + newValue;
 
-    // Auto-detect and convert URLs when user types a space
+    // Auto-detect and convert URLs when user types a space (manual typing only)
     if (newValue.endsWith(' ') && hasConvertibleURLs(newValue)) {
       const convertedInput = convertURLsToPills(newValue);
       setInputValue(''); // Clear input since URLs became pills
-      combinedValue =
+      const combinedValue =
         existingPillText + (existingPillText ? ' ' : '') + convertedInput;
+      onChange(combinedValue);
+    } else {
+      // Normal case - no URL conversion
+      setInputValue(newValue);
+      const combinedValue =
+        existingPillText + (existingPillText && newValue ? ' ' : '') + newValue;
+      onChange(combinedValue);
     }
+  };
 
-    onChange(combinedValue);
+  const handlePaste = (e: React.ClipboardEvent) => {
+    e.preventDefault(); // Prevent default paste behavior
+
+    const pastedText = e.clipboardData.getData('text');
+    const existingPillText = pillSegments
+      .map((seg: ContentSegment) => seg.rawFormat || seg.value)
+      .join(' ');
+
+    // Combine current input with pasted text
+    const newText = inputValue + pastedText;
+
+    // Check if pasted content contains URLs and convert immediately
+    if (hasConvertibleURLs(pastedText)) {
+      const convertedPaste = convertURLsToPills(pastedText);
+      setInputValue(''); // Clear input since URLs became pills
+      const combinedValue =
+        existingPillText +
+        (existingPillText ? ' ' : '') +
+        (inputValue ? inputValue + ' ' : '') +
+        convertedPaste;
+      onChange(combinedValue);
+    } else {
+      // Normal paste - no URLs to convert
+      setInputValue(newText);
+      const combinedValue =
+        existingPillText + (existingPillText && newText ? ' ' : '') + newText;
+      onChange(combinedValue);
+    }
   };
 
   const handlePillRemove = (pillIndex: number) => {
@@ -148,6 +179,7 @@ const FormPillInput: React.FC<{
         <SmartInput
           value={inputValue}
           onChange={handleInputChange}
+          onPaste={handlePaste}
           placeholder={pillSegments.length > 0 ? 'Add more...' : placeholder}
           className="form-pill-input__input"
           disabled={disabled}
@@ -260,24 +292,16 @@ export function SharedSubmissionForm({
       : 'Creating Post...';
 
   const handleInputChange = (field: keyof typeof formData, value: string) => {
-    // Auto-detect and convert URLs for title and content fields
-    let processedValue = value;
-
-    if ((field === 'title' || field === 'content') && value.endsWith(' ')) {
-      // Check if the text contains convertible URLs
-      if (hasConvertibleURLs(value)) {
-        processedValue = convertURLsToPills(value);
-      }
-    }
-
+    // For title and content fields, FormPillInput already handles URL conversion
+    // So we just save the value directly
     setFormData((prev) => ({
       ...prev,
-      [field]: processedValue
+      [field]: value
     }));
 
     // Validate tags if tags field changed
     if (field === 'tags') {
-      const validationErrors = validateTagsInput(processedValue);
+      const validationErrors = validateTagsInput(value);
       setTagErrors(validationErrors);
     }
   };
