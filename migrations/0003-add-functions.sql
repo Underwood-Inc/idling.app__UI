@@ -2,6 +2,13 @@
 -- This migration adds the required database functions for materialized view management
 -- Using simple function syntax to avoid migration tool parsing issues
 
+-- Drop existing functions first to avoid return type conflicts
+DROP FUNCTION IF EXISTS refresh_user_stats();
+DROP FUNCTION IF EXISTS refresh_tag_statistics();
+DROP FUNCTION IF EXISTS refresh_trending_posts();
+DROP FUNCTION IF EXISTS refresh_daily_stats();
+DROP FUNCTION IF EXISTS refresh_user_submission_stats();
+
 -- Function to refresh user stats (simplified version)
 CREATE OR REPLACE FUNCTION refresh_user_stats()
 RETURNS void
