@@ -4,6 +4,7 @@ import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
 import { useOverlay } from '../../../lib/context/OverlayContext';
+import { ensureUserSlug } from '../../../lib/utils/user-slug';
 import { Avatar, AvatarPropSizes } from '../avatar/Avatar';
 import { InteractiveTooltip } from '../tooltip/InteractiveTooltip';
 import { UserProfile, UserProfileData } from '../user-profile/UserProfile';
@@ -214,8 +215,10 @@ export const Author: React.FC<AuthorProps> = ({
   const { openOverlay, closeOverlay } = useOverlay();
 
   const displayName = showFullName ? authorName : `@${authorName}`;
-  const profileUrl = userProfile?.slug
-    ? `/profile/${userProfile.slug}`
+
+  // Generate profile URL with guaranteed slug
+  const profileUrl = userProfile
+    ? `/profile/${ensureUserSlug(userProfile)}`
     : `/profile/${encodeURIComponent(authorName)}`;
 
   // Fetch user profile for tooltip via API route

@@ -30,3 +30,30 @@ export function parseUserSlug(
   const [, username, userId] = match;
   return { username, userId };
 }
+
+/**
+ * Ensure any user data has a slug field populated
+ * This is useful for components that receive user data from various sources
+ */
+export function ensureUserSlug(user: {
+  id?: string | number;
+  name?: string;
+  username?: string;
+  slug?: string;
+}): string {
+  // If slug already exists, use it
+  if (user.slug) {
+    return user.slug;
+  }
+
+  // Generate slug from available data
+  const userId = user.id;
+  const username = user.name || user.username || 'user';
+
+  if (!userId) {
+    // Fallback to username if no ID available
+    return encodeURIComponent(username);
+  }
+
+  return generateUserSlug(username, userId);
+}

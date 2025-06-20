@@ -1966,13 +1966,13 @@ class FakerContentGenerator {
 
     // Add mentions naturally to the content
     const mentionTemplates = [
-      `Thanks @{username} for the insights!`,
-      `@{username} what do you think about this?`,
-      `As @{username} mentioned earlier,`,
-      `Great point @{username}!`,
-      `@{username} might have experience with this.`,
-      `Similar to what @{username} suggested,`,
-      `@{username} @{username2} thoughts?`
+      `Thanks {username} for the insights!`,
+      `{username} what do you think about this?`,
+      `As {username} mentioned earlier,`,
+      `Great point {username}!`,
+      `{username} might have experience with this.`,
+      `Similar to what {username} suggested,`,
+      `{username} {username2} thoughts?`
     ];
 
     const template = faker.helpers.arrayElement(mentionTemplates);
@@ -1987,7 +1987,7 @@ class FakerContentGenerator {
     });
 
     // Remove any unused placeholders
-    mentionText = mentionText.replace(/@\{username\d*\}/g, '').trim();
+    mentionText = mentionText.replace(/\{username\d*\}/g, '').trim();
 
     // Add mention to content (50% at start, 50% at end)
     if (Math.random() < 0.5) {
