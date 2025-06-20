@@ -13,12 +13,18 @@ export async function getSubmissionThread(
       s.submission_title,
       s.submission_datetime,
       s.user_id,
-      u.name as author,
+      COALESCE(u.name, fallback_u.name) as author,
       s.author_provider_account_id,
+      COALESCE(u.bio, fallback_u.bio) as author_bio,
       COALESCE(s.tags, ARRAY[]::text[]) as tags,
       s.thread_parent_id
     FROM submissions s
     LEFT JOIN users u ON s.user_id = u.id
+    LEFT JOIN (
+      SELECT u2.*, a."providerAccountId"
+      FROM users u2 
+      LEFT JOIN accounts a ON u2.id = a."userId"
+    ) fallback_u ON s.author_provider_account_id = fallback_u."providerAccountId"
     WHERE s.submission_id = ${submissionId}
   `;
 
@@ -29,12 +35,18 @@ export async function getSubmissionThread(
       s.submission_title,
       s.submission_datetime,
       s.user_id,
-      u.name as author,
+      COALESCE(u.name, fallback_u.name) as author,
       s.author_provider_account_id,
+      COALESCE(u.bio, fallback_u.bio) as author_bio,
       COALESCE(s.tags, ARRAY[]::text[]) as tags,
       s.thread_parent_id
     FROM submissions s
     LEFT JOIN users u ON s.user_id = u.id
+    LEFT JOIN (
+      SELECT u2.*, a."providerAccountId"
+      FROM users u2 
+      LEFT JOIN accounts a ON u2.id = a."userId"
+    ) fallback_u ON s.author_provider_account_id = fallback_u."providerAccountId"
     WHERE s.thread_parent_id = ${submissionId}
     ORDER BY s.submission_datetime ASC
   `;
@@ -48,6 +60,7 @@ export async function getSubmissionThread(
     user_id: Number(row.user_id),
     author: row.author,
     author_provider_account_id: row.author_provider_account_id,
+    author_bio: row.author_bio || null,
     tags: Array.isArray(row.tags) ? row.tags : [],
     thread_parent_id: row.thread_parent_id ? Number(row.thread_parent_id) : null
   });

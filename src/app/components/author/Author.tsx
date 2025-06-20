@@ -18,6 +18,7 @@ export interface AuthorProps {
   onClick?: (authorId: string) => void;
   className?: string;
   enableTooltip?: boolean;
+  bio?: string | null; // Optional bio data to avoid API call
 }
 
 // Enhanced User Profile Modal Component
@@ -208,7 +209,8 @@ export const Author: React.FC<AuthorProps> = ({
   showFullName = true,
   onClick,
   className = '',
-  enableTooltip = true
+  enableTooltip = true,
+  bio
 }) => {
   const [userProfile, setUserProfile] = useState<UserProfileData | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -224,6 +226,28 @@ export const Author: React.FC<AuthorProps> = ({
   // Fetch user profile for tooltip via API route
   useEffect(() => {
     if (enableTooltip && authorName) {
+      // If bio is provided, create a minimal profile object to avoid API call
+      if (bio !== undefined) {
+        setUserProfile({
+          id: authorId,
+          username: authorName,
+          name: authorName,
+          bio: bio || undefined,
+          location: undefined,
+          email: undefined,
+          image: undefined,
+          created_at: undefined,
+          profile_public: true,
+          total_submissions: 0,
+          posts_count: 0,
+          replies_count: 0,
+          last_activity: null,
+          slug: undefined
+        });
+        setIsLoading(false);
+        return;
+      }
+
       setIsLoading(true);
 
       fetch(`/api/profile/${encodeURIComponent(authorName)}`)
@@ -244,7 +268,7 @@ export const Author: React.FC<AuthorProps> = ({
           setIsLoading(false);
         });
     }
-  }, [authorName, enableTooltip]);
+  }, [authorName, enableTooltip, bio, authorId]);
 
   const handleClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
     // Handle Ctrl+Click for modal
