@@ -339,6 +339,72 @@
   border: none;
 }
 
+/* Lazy loading placeholder */
+.youtube-embed__placeholder {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: linear-gradient(135deg, var(--light-background--secondary) 0%, var(--light-background--tertiary) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px dashed var(--light-border--primary);
+  border-radius: 8px;
+  position: relative;
+  overflow: hidden;
+}
+
+.youtube-embed__placeholder::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg,
+      transparent 0%,
+      rgba(0, 0, 0, 0.05) 50%,
+      transparent 100%);
+  animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    left: -100%;
+  }
+
+  100% {
+    left: 100%;
+  }
+}
+
+.youtube-embed__placeholder-content {
+  text-align: center;
+  color: var(--light-bg__text-color--primary);
+  z-index: 1;
+}
+
+.youtube-embed__placeholder-icon {
+  font-size: 48px;
+  margin-bottom: 12px;
+  opacity: 0.8;
+}
+
+.youtube-embed__placeholder-text {
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 8px;
+  color: var(--light-bg__text-color--secondary);
+}
+
+.youtube-embed__placeholder-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--light-bg__text-color--primary);
+  max-width: 300px;
+  word-wrap: break-word;
+  line-height: 1.4;
+}
+
 .url-pill-embed-container {
   display: block;
   margin: 8px 0;
@@ -397,6 +463,22 @@
     font-size: 10px;
     min-width: 35px;
   }
+
+  /* Responsive placeholder styles */
+  .youtube-embed__placeholder-icon {
+    font-size: 36px;
+    margin-bottom: 8px;
+  }
+
+  .youtube-embed__placeholder-text {
+    font-size: 12px;
+    margin-bottom: 6px;
+  }
+
+  .youtube-embed__placeholder-title {
+    font-size: 14px;
+    max-width: 250px;
+  }
 }
 
 /* Dark mode support for embed controls */
@@ -431,6 +513,31 @@
   .youtube-embed__width-button--active:hover {
     background: var(--brand-secondary);
     border-color: var(--brand-secondary);
+  }
+
+  /* Dark mode placeholder styles */
+  .youtube-embed__placeholder {
+    background: linear-gradient(135deg, var(--dark-background--primary) 0%, var(--dark-background--secondary) 100%);
+    border-color: var(--dark-border--primary);
+  }
+
+  .youtube-embed__placeholder::before {
+    background: linear-gradient(90deg,
+        transparent 0%,
+        rgba(255, 255, 255, 0.05) 50%,
+        transparent 100%);
+  }
+
+  .youtube-embed__placeholder-content {
+    color: var(--dark-bg__text-color--primary);
+  }
+
+  .youtube-embed__placeholder-text {
+    color: var(--dark-bg__text-color--secondary);
+  }
+
+  .youtube-embed__placeholder-title {
+    color: var(--dark-bg__text-color--primary);
   }
 }
 
