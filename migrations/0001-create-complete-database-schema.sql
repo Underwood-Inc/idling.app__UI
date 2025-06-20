@@ -141,51 +141,9 @@ CREATE UNIQUE INDEX IF NOT EXISTS idx_user_stats_user_id ON user_stats(user_id);
 CREATE INDEX IF NOT EXISTS idx_user_stats_submission_count ON user_stats(submission_count DESC);
 
 -- ================================
--- FUNCTIONS FOR MAINTENANCE
+-- FUNCTIONS MOVED TO SEPARATE MIGRATION
 -- ================================
-
--- Function to refresh user stats
-CREATE OR REPLACE FUNCTION refresh_user_stats()
-RETURNS void AS $$
-BEGIN
-  REFRESH MATERIALIZED VIEW CONCURRENTLY user_stats;
-END;
-$$ LANGUAGE plpgsql;
-
--- Additional materialized view functions that are called by the application
--- These are stubs that prevent errors until proper materialized views are implemented
-
-CREATE OR REPLACE FUNCTION refresh_tag_statistics()
-RETURNS void AS $$
-BEGIN
-  -- Placeholder function - implement proper tag statistics materialized view when needed
-  RAISE NOTICE 'refresh_tag_statistics() called - implement proper materialized view';
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE OR REPLACE FUNCTION refresh_trending_posts()
-RETURNS void AS $$
-BEGIN
-  -- Placeholder function - implement proper trending posts materialized view when needed
-  RAISE NOTICE 'refresh_trending_posts() called - implement proper materialized view';
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE OR REPLACE FUNCTION refresh_daily_stats()
-RETURNS void AS $$
-BEGIN
-  -- Placeholder function - implement proper daily stats materialized view when needed
-  RAISE NOTICE 'refresh_daily_stats() called - implement proper materialized view';
-END;
-$$ LANGUAGE plpgsql;
-
--- Alias for compatibility with seed scripts
-CREATE OR REPLACE FUNCTION refresh_user_submission_stats()
-RETURNS void AS $$
-BEGIN
-  PERFORM refresh_user_stats();
-END;
-$$ LANGUAGE plpgsql;
+-- Database functions are now in migration 0003-add-functions.sql
 
 -- ================================
 -- COMMENTS FOR DOCUMENTATION
