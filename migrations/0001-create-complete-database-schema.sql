@@ -1,6 +1,6 @@
--- Complete Database Schema Migration (Simplified)
+-- Complete Database Schema Migration (Flat Version)
 -- This migration creates all necessary tables, indexes, and functions for the idling.app application
--- Simplified version that avoids complex PL/pgSQL blocks for better compatibility
+-- Completely flat version with no PL/pgSQL blocks for maximum compatibility
 
 -- ================================
 -- CORE TABLES
@@ -64,7 +64,7 @@ CREATE TABLE IF NOT EXISTS submissions (
 -- ADD MISSING COLUMNS (Safe Operations)
 -- ================================
 
--- Users table columns
+-- Users table columns (these will be ignored if columns already exist)
 ALTER TABLE users ADD COLUMN IF NOT EXISTS "emailVerified" TIMESTAMPTZ;
 ALTER TABLE users ADD COLUMN IF NOT EXISTS image TEXT;
 ALTER TABLE users ADD COLUMN IF NOT EXISTS profile_public BOOLEAN DEFAULT true;
@@ -72,7 +72,7 @@ ALTER TABLE users ADD COLUMN IF NOT EXISTS bio TEXT;
 ALTER TABLE users ADD COLUMN IF NOT EXISTS location VARCHAR(255);
 ALTER TABLE users ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP;
 
--- Submissions table columns
+-- Submissions table columns (these will be ignored if columns already exist)  
 ALTER TABLE submissions ADD COLUMN IF NOT EXISTS submission_title VARCHAR(500);
 ALTER TABLE submissions ADD COLUMN IF NOT EXISTS submission_url TEXT;
 ALTER TABLE submissions ADD COLUMN IF NOT EXISTS tags TEXT[];
@@ -80,69 +80,6 @@ ALTER TABLE submissions ADD COLUMN IF NOT EXISTS thread_parent_id INTEGER;
 ALTER TABLE submissions ADD COLUMN IF NOT EXISTS submission_datetime TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP;
 ALTER TABLE submissions ADD COLUMN IF NOT EXISTS user_id INTEGER;
 ALTER TABLE submissions ADD COLUMN IF NOT EXISTS author_provider_account_id VARCHAR(255);
-
--- ================================
--- FOREIGN KEY CONSTRAINTS
--- ================================
-
--- Add foreign key constraints (these will error if they already exist, but that's OK)
--- The migration tool will continue with other statements
-
--- Accounts to users relationship
-DO $$ 
-BEGIN
-  IF NOT EXISTS (
-    SELECT 1 FROM information_schema.table_constraints 
-    WHERE constraint_name = 'fk_accounts_user' AND table_name = 'accounts'
-  ) THEN
-    ALTER TABLE accounts ADD CONSTRAINT fk_accounts_user 
-      FOREIGN KEY ("userId") REFERENCES users(id) ON DELETE CASCADE;
-  END IF;
-EXCEPTION WHEN OTHERS THEN
-  NULL; -- Ignore errors if constraint already exists
-END $$;
-
--- Sessions to users relationship
-DO $$ 
-BEGIN
-  IF NOT EXISTS (
-    SELECT 1 FROM information_schema.table_constraints 
-    WHERE constraint_name = 'fk_sessions_user' AND table_name = 'sessions'
-  ) THEN
-    ALTER TABLE sessions ADD CONSTRAINT fk_sessions_user 
-      FOREIGN KEY ("userId") REFERENCES users(id) ON DELETE CASCADE;
-  END IF;
-EXCEPTION WHEN OTHERS THEN
-  NULL; -- Ignore errors if constraint already exists
-END $$;
-
--- Submissions to users relationship
-DO $$ 
-BEGIN
-  IF NOT EXISTS (
-    SELECT 1 FROM information_schema.table_constraints 
-    WHERE constraint_name = 'fk_submissions_user' AND table_name = 'submissions'
-  ) THEN
-    ALTER TABLE submissions ADD CONSTRAINT fk_submissions_user 
-      FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL;
-  END IF;
-EXCEPTION WHEN OTHERS THEN
-  NULL; -- Ignore errors if constraint already exists
-END $$;
-
--- Thread parent relationship
-DO $$ 
-BEGIN
-  IF NOT EXISTS (
-    SELECT 1 FROM information_schema.table_constraints 
-    WHERE constraint_name = 'fk_thread_parent' AND table_name = 'submissions'
-  ) THEN
-    ALTER TABLE submissions ADD CONSTRAINT fk_thread_parent 
-      FOREIGN KEY (thread_parent_id) REFERENCES submissions(submission_id);
-  END IF;
-EXCEPTION WHEN OTHERS THEN
-  NULL; -- Ignore errors if constraint already exists
-END $$;
 
 -- ================================
 -- INDEXES FOR PERFORMANCE
@@ -273,4 +210,4 @@ ANALYZE sessions;
 ANALYZE submissions;
 
 -- Success message
-SELECT 'Complete database schema created successfully (simplified version)' as result; 
+SELECT 'Complete database schema created successfully (flat version)' as result; 
