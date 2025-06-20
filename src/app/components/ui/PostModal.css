@@ -60,7 +60,47 @@
 .post-modal__content {
   flex: 1;
   overflow-y: auto;
+  overflow-x: hidden;
   padding: 1.5rem;
+}
+
+/* Constrain YouTube embeds within modal */
+.post-modal__content .youtube-embed {
+  max-width: 100% !important;
+  width: 100% !important;
+}
+
+.post-modal__content .youtube-embed--small,
+.post-modal__content .youtube-embed--medium,
+.post-modal__content .youtube-embed--large,
+.post-modal__content .youtube-embed--full {
+  max-width: 100% !important;
+  width: 100% !important;
+}
+
+/* Ensure form pill input containers don't overflow */
+.post-modal__content .form-pill-input__container {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+.post-modal__content .form-pill-input__container--has-embeds {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+/* Adjust remove button positioning for modal context */
+.post-modal__content .form-pill-input__container--has-embeds .form-pill-input__pill-wrapper:has(.youtube-embed--small) .form-pill-input__pill-remove,
+.post-modal__content .form-pill-input__container--has-embeds .form-pill-input__pill-wrapper:has(.youtube-embed--medium) .form-pill-input__pill-remove,
+.post-modal__content .form-pill-input__container--has-embeds .form-pill-input__pill-wrapper:has(.youtube-embed--large) .form-pill-input__pill-remove {
+  position: absolute;
+  top: 8px;
+  right: 16px;
+  left: auto;
+  z-index: 25;
+  background: rgba(239, 68, 68, 0.95);
+  border: 2px solid white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
 /* Override form styles within the modal */
@@ -114,6 +154,11 @@
   .post-modal__content {
     padding: 1rem;
   }
+
+  /* Ensure YouTube embeds are fully responsive on mobile */
+  .post-modal__content .youtube-embed {
+    margin: 8px 0;
+  }
 }
 
 @media (max-width: 480px) {
@@ -127,6 +172,11 @@
 
   .post-modal__content {
     padding: 0.75rem;
+  }
+
+  /* Extra small screens - ensure embeds don't overflow */
+  .post-modal__content .youtube-embed {
+    margin: 6px 0;
   }
 }
 
