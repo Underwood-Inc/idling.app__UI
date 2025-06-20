@@ -107,6 +107,16 @@ export async function createSubmissionAction(
     return { status: -1, error: errors };
   }
 
+  // Debug session data
+  console.log('Session debug:', {
+    hasSession: !!session,
+    hasUser: !!session?.user,
+    userName: session?.user?.name,
+    hasProviderAccountId: !!session?.user?.providerAccountId,
+    providerAccountId: session?.user?.providerAccountId,
+    userKeys: session?.user ? Object.keys(session.user) : 'no user'
+  });
+
   if (!session || !session?.user?.name || !session.user.providerAccountId) {
     return { status: -1, error: 'Authentication error.' };
   }
