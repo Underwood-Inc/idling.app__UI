@@ -346,6 +346,41 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+-- Additional materialized view functions that are called by the application
+-- These are stubs that prevent errors until proper materialized views are implemented
+
+CREATE OR REPLACE FUNCTION refresh_tag_statistics()
+RETURNS void AS $$
+BEGIN
+  -- Placeholder function - implement proper tag statistics materialized view when needed
+  RAISE NOTICE 'refresh_tag_statistics() called - implement proper materialized view';
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION refresh_trending_posts()
+RETURNS void AS $$
+BEGIN
+  -- Placeholder function - implement proper trending posts materialized view when needed
+  RAISE NOTICE 'refresh_trending_posts() called - implement proper materialized view';
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION refresh_daily_stats()
+RETURNS void AS $$
+BEGIN
+  -- Placeholder function - implement proper daily stats materialized view when needed
+  RAISE NOTICE 'refresh_daily_stats() called - implement proper materialized view';
+END;
+$$ LANGUAGE plpgsql;
+
+-- Alias for compatibility with seed scripts
+CREATE OR REPLACE FUNCTION refresh_user_submission_stats()
+RETURNS void AS $$
+BEGIN
+  PERFORM refresh_user_stats();
+END;
+$$ LANGUAGE plpgsql;
+
 -- ================================
 -- COMMENTS FOR DOCUMENTATION
 -- ================================
