@@ -200,11 +200,11 @@ export class FallbackURLParser {
       content: text.substring(urlData.start, urlData.end),
       start: urlData.start,
       end: urlData.end,
-      type: 'url' as SegmentType,
+      type: 'url' as const,
       data: {
         url: urlData.url,
         domain: urlData.domain,
-        replacementPill: urlData.replacementPill
+        behavior: urlData.behavior
       }
     }));
   }
@@ -212,14 +212,10 @@ export class FallbackURLParser {
   static parseMatch(match: ParsedMatch): ContentSegment | null {
     if (!match.data) return null;
 
-    const urlPillData = parseURLPill(match.data.replacementPill);
-    if (!urlPillData) return null;
-
     return {
       type: 'url',
-      value: urlPillData.url,
-      rawFormat: match.data.replacementPill,
-      behavior: urlPillData.behavior,
+      value: match.data.url,
+      behavior: match.data.behavior,
       start: match.start,
       end: match.end
     };
@@ -227,55 +223,68 @@ export class FallbackURLParser {
 }
 
 /**
- * Main Content Parser that orchestrates all individual parsers
+ * Main ContentParser class that orchestrates all parsers
  */
 export class ContentParser {
   /**
    * Parse content with strict precedence:
    * 1. Structured URL Pills (highest priority)
-   * 2. Hashtags
-   * 3. Mentions
-   * 4. Fallback URLs (lowest priority, only in remaining text)
+   * 2. Hashtags and Mentions (equal priority)
+   * 3. Fallback URLs (lowest priority, only in remaining text)
    */
   static parse(text: string): ContentSegment[] {
     const segments: ContentSegment[] = [];
+    let processedRanges: Array<{ start: number; end: number }> = [];
 
-    // Step 1: Find all structured content (high priority)
-    const structuredMatches = [
-      ...StructuredURLPillParser.findMatches(text),
-      ...HashtagParser.findMatches(text),
-      ...MentionParser.findMatches(text)
-    ];
-
-    // Sort by position to process in order
-    structuredMatches.sort((a, b) => a.start - b.start);
-
-    // Step 2: Process structured content and text between them
-    let lastIndex = 0;
-
+    // Step 1: Parse structured URL pills first (highest priority)
+    const structuredMatches = StructuredURLPillParser.findMatches(text);
     for (const match of structuredMatches) {
-      // Add text before this match (check for fallback URLs)
-      if (match.start > lastIndex) {
-        const textBefore = text.slice(lastIndex, match.start);
-        this.addTextWithFallbackURLs(textBefore, segments, lastIndex);
-      }
-
-      // Add the structured content
-      const segment = this.parseStructuredMatch(match);
+      const segment = StructuredURLPillParser.parseMatch(match);
       if (segment) {
         segments.push(segment);
+        processedRanges.push({ start: match.start, end: match.end });
       }
-
-      lastIndex = match.end;
     }
 
-    // Step 3: Add remaining text with fallback URL detection
-    if (lastIndex < text.length) {
-      const remainingText = text.slice(lastIndex);
-      this.addTextWithFallbackURLs(remainingText, segments, lastIndex);
+    // Step 2: Parse hashtags and mentions in remaining text
+    const remainingText = this.extractUnprocessedText(text, processedRanges);
+    for (const textChunk of remainingText) {
+      // Find hashtags and mentions in this chunk
+      const hashtagMatches = HashtagParser.findMatches(textChunk.text);
+      const mentionMatches = MentionParser.findMatches(textChunk.text);
+
+      // Combine and sort by position
+      const allMatches = [
+        ...hashtagMatches.map((m) => ({
+          ...m,
+          start: m.start + textChunk.offset,
+          end: m.end + textChunk.offset
+        })),
+        ...mentionMatches.map((m) => ({
+          ...m,
+          start: m.start + textChunk.offset,
+          end: m.end + textChunk.offset
+        }))
+      ].sort((a, b) => a.start - b.start);
+
+      // Process matches
+      for (const match of allMatches) {
+        const segment = this.parseStructuredMatch(match);
+        if (segment) {
+          segments.push(segment);
+          processedRanges.push({ start: match.start, end: match.end });
+        }
+      }
     }
 
-    return segments;
+    // Step 3: Add fallback URLs in remaining text
+    this.addTextWithFallbackURLs(text, segments, processedRanges);
+
+    // Step 4: Add remaining text segments
+    this.addTextSegments(text, segments, processedRanges);
+
+    // Sort all segments by position
+    return segments.sort((a, b) => (a.start || 0) - (b.start || 0));
   }
 
   private static parseStructuredMatch(
@@ -286,8 +295,6 @@ export class ContentParser {
         return HashtagParser.parseMatch(match);
       case 'mention':
         return MentionParser.parseMatch(match);
-      case 'url':
-        return StructuredURLPillParser.parseMatch(match);
       default:
         return null;
     }
@@ -296,63 +303,174 @@ export class ContentParser {
   private static addTextWithFallbackURLs(
     text: string,
     segments: ContentSegment[],
-    baseOffset: number = 0
+    processedRanges: Array<{ start: number; end: number }>
   ) {
-    if (!text) return;
+    const remainingText = this.extractUnprocessedText(text, processedRanges);
 
-    const fallbackURLs = FallbackURLParser.findMatches(text);
+    for (const textChunk of remainingText) {
+      const urlMatches = FallbackURLParser.findMatches(textChunk.text);
 
-    if (fallbackURLs.length === 0) {
-      // No URLs found, add as plain text
-      segments.push({
-        type: 'text',
-        value: text,
-        start: baseOffset,
-        end: baseOffset + text.length
-      });
-      return;
-    }
+      for (const match of urlMatches) {
+        const segment = FallbackURLParser.parseMatch({
+          ...match,
+          start: match.start + textChunk.offset,
+          end: match.end + textChunk.offset
+        });
 
-    // Process text with fallback URLs
-    let lastUrlEnd = 0;
-
-    for (const urlMatch of fallbackURLs) {
-      // Add text before URL
-      if (urlMatch.start > lastUrlEnd) {
-        const textBefore = text.slice(lastUrlEnd, urlMatch.start);
-        if (textBefore) {
-          segments.push({
-            type: 'text',
-            value: textBefore,
-            start: baseOffset + lastUrlEnd,
-            end: baseOffset + urlMatch.start
+        if (segment) {
+          segments.push(segment);
+          processedRanges.push({
+            start: segment.start || 0,
+            end: segment.end || 0
           });
         }
       }
-
-      // Add URL as pill
-      const urlSegment = FallbackURLParser.parseMatch(urlMatch);
-      if (urlSegment) {
-        // Adjust positions relative to base offset
-        urlSegment.start = baseOffset + urlMatch.start;
-        urlSegment.end = baseOffset + urlMatch.end;
-        segments.push(urlSegment);
-      }
-
-      lastUrlEnd = urlMatch.end;
     }
+  }
 
-    // Add remaining text after last URL
-    if (lastUrlEnd < text.length) {
-      const remainingText = text.slice(lastUrlEnd);
-      if (remainingText) {
+  private static addTextSegments(
+    text: string,
+    segments: ContentSegment[],
+    processedRanges: Array<{ start: number; end: number }>
+  ) {
+    const textChunks = this.extractUnprocessedText(text, processedRanges);
+
+    for (const chunk of textChunks) {
+      if (chunk.text.trim()) {
         segments.push({
           type: 'text',
-          value: remainingText,
-          start: baseOffset + lastUrlEnd,
-          end: baseOffset + text.length
+          value: chunk.text,
+          start: chunk.offset,
+          end: chunk.offset + chunk.text.length
         });
       }
     }
+  }
+
+  private static extractUnprocessedText(
+    text: string,
+    processedRanges: Array<{ start: number; end: number }>
+  ): Array<{ text: string; offset: number }> {
+    const chunks: Array<{ text: string; offset: number }> = [];
+    const sortedRanges = [...processedRanges].sort((a, b) => a.start - b.start);
+
+    let currentIndex = 0;
+
+    for (const range of sortedRanges) {
+      if (currentIndex < range.start) {
+        chunks.push({
+          text: text.slice(currentIndex, range.start),
+          offset: currentIndex
+        });
+      }
+      currentIndex = range.end;
+    }
+
+    // Add remaining text
+    if (currentIndex < text.length) {
+      chunks.push({
+        text: text.slice(currentIndex),
+        offset: currentIndex
+      });
+    }
+
+    return chunks;
+  }
+
+  /**
+   * Enhanced parse method with rich text support
+   * Integrates with the new rich text parser system
+   */
+  static parseWithRichText(
+    text: string,
+    options: {
+      enableMarkdown?: boolean;
+      enableEmojis?: boolean;
+      enableImages?: boolean;
+    } = {}
+  ): ContentSegment[] {
+    // Import rich text parser dynamically to avoid circular dependencies
+    const segments = this.parse(text);
+
+    // If rich text features are disabled, return basic segments
+    if (
+      !options.enableMarkdown &&
+      !options.enableEmojis &&
+      !options.enableImages
+    ) {
+      return segments;
+    }
+
+    // Add metadata for rich text processing
+    return segments.map((segment) => ({
+      ...segment,
+      richTextEnabled: true,
+      richTextOptions: options
+    }));
+  }
+}
+
+/**
+ * Helper function to render content with pills
+ */
+export function renderContentWithPills(content: string): string {
+  const segments = ContentParser.parse(content);
+
+  return segments
+    .map((segment) => {
+      switch (segment.type) {
+        case 'hashtag':
+          return `<span class="content-pill content-pill--hashtag">#${segment.value}</span>`;
+        case 'mention':
+          return `<span class="content-pill content-pill--mention">@${segment.displayName || segment.value}</span>`;
+        case 'url':
+          if (segment.behavior === 'embed') {
+            return `<div class="url-embed" data-url="${segment.value}">${segment.value}</div>`;
+          }
+          return `<a href="${segment.value}" target="_blank" rel="noopener noreferrer">${segment.value}</a>`;
+        case 'text':
+        default:
+          return segment.value;
+      }
+    })
+    .join('');
+}
+
+/**
+ * Helper function to render content with rich text support
+ */
+export function renderRichContent(
+  content: string,
+  options: {
+    enableMarkdown?: boolean;
+    enableEmojis?: boolean;
+    enableImages?: boolean;
+    enableHashtags?: boolean;
+    enableMentions?: boolean;
+    enableUrls?: boolean;
+  } = {}
+): string {
+  // Import rich text parser dynamically
+  try {
+    const { richTextParser } = require('./parsers/rich-text-parser');
+    const parser = richTextParser;
+
+    // Update parser config
+    parser.updateConfig({
+      enableMarkdown: options.enableMarkdown,
+      enableEmojis: options.enableEmojis,
+      enableImages: options.enableImages,
+      enableHashtags: options.enableHashtags,
+      enableMentions: options.enableMentions,
+      enableUrls: options.enableUrls
+    });
+
+    return parser.replaceWithHtml(content);
+  } catch (error) {
+    console.warn(
+      'Rich text parser not available, falling back to basic parsing:',
+      error
+    );
+    return renderContentWithPills(content);
   }
 }
