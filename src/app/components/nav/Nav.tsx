@@ -1,16 +1,21 @@
 /* eslint-disable custom-rules/enforce-link-target-blank */
+import { unstable_noStore as noStore } from 'next/cache';
 import Link from 'next/link';
 import { NAV_SELECTORS } from 'src/lib/test-selectors/components/nav.selectors';
 import { auth } from '../../../lib/auth';
+import { requireAdmin } from '../../../lib/permissions/permissions';
 import { NAV_PATHS } from '../../../lib/routes';
-import { generateUserSlug } from '../../../lib/utils/user-slug';
-import { SignOut } from '../auth-buttons/AuthButtons';
 import { Navbar } from '../navbar/Navbar';
 import './Nav.css';
+import { NavAuth } from './NavAuth';
 import { NavPaths } from './NavPaths';
 
 export default async function Nav() {
+  // Prevent caching to ensure fresh permission checks
+  noStore();
+
   const session = await auth();
+  const hasAdminAccess = await requireAdmin();
 
   return (
     <Navbar>
@@ -32,30 +37,7 @@ export default async function Nav() {
 
         <Navbar.Content justify="end" className="nav--as-flex-end">
           <Navbar.Item className="nav__auth">
-            {session?.user?.id && (
-              <Link
-                href={`/profile/${generateUserSlug(session.user.name || 'user', session.user.id)}`}
-                className="nav__profile-link"
-              >
-                <p
-                  className="header__user-name"
-                  data-testid={NAV_SELECTORS.USER_NAME}
-                >
-                  {session.user.name}
-                </p>
-              </Link>
-            )}
-
-            {session ? (
-              <SignOut data-testid={NAV_SELECTORS.SIGN_OUT_BUTTON} />
-            ) : (
-              <Link
-                href={NAV_PATHS.SIGNIN}
-                data-testid={NAV_SELECTORS.SIGN_IN_LINK}
-              >
-                <button type="button">Sign In</button>
-              </Link>
-            )}
+            <NavAuth hasAdminAccess={hasAdminAccess} />
           </Navbar.Item>
         </Navbar.Content>
       </Navbar.Body>
