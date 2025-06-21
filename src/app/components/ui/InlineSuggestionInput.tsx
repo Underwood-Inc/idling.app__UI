@@ -95,20 +95,36 @@ export const InlineSuggestionInput: React.FC<InlineSuggestionInputProps> = ({
 
     // For @ mentions, continue searching until we find a closing bracket or end of meaningful content
     if (trigger === '@') {
-      // If we already have a complete mention @[username|userId], don't trigger search
-      const completeStructuredMention = text
-        .substring(lastTriggerIndex)
-        .match(/^@\[[^\]]+\]/);
-      if (
-        completeStructuredMention &&
-        lastTriggerIndex + completeStructuredMention[0].length <= position
-      ) {
+      // Check if we're inside or after a complete structured mention @[username|userId|author]
+      const textFromTrigger = text.substring(lastTriggerIndex);
+      const completeStructuredMention = textFromTrigger.match(/^@\[[^\]]+\]/);
+
+      if (completeStructuredMention) {
+        const mentionEnd =
+          lastTriggerIndex + completeStructuredMention[0].length;
+
+        // If cursor is inside the structured mention or right after it (including space), don't trigger
+        if (position <= mentionEnd + 1) {
+          // +1 to account for space after mention
+          return { trigger: null, query: '', startIndex: -1 };
+        }
+      }
+
+      // Check if we have a partial structured mention that's not complete
+      const partialStructuredMention = textFromTrigger.match(/^@\[[^\]]*$/);
+      if (partialStructuredMention) {
+        // We're in the middle of typing a structured mention, don't trigger search
         return { trigger: null, query: '', startIndex: -1 };
       }
 
       // For @ mentions, allow spaces in the query until we hit certain terminating characters
       const terminatingChars = /[.,!?;:\n\r\t]/;
       if (terminatingChars.test(afterTrigger)) {
+        return { trigger: null, query: '', startIndex: -1 };
+      }
+
+      // Only trigger if we have a simple @ followed by text (not structured format)
+      if (afterTrigger.includes('[')) {
         return { trigger: null, query: '', startIndex: -1 };
       }
 
@@ -283,7 +299,9 @@ export const InlineSuggestionInput: React.FC<InlineSuggestionInputProps> = ({
       case 'Tab':
         if (selectedIndex >= 0 && selectedIndex < suggestions.length) {
           e.preventDefault();
+          e.stopPropagation();
           insertSuggestion(suggestions[selectedIndex]);
+          return; // Prevent any further processing
         }
         break;
       case 'Escape':
@@ -305,6 +323,15 @@ export const InlineSuggestionInput: React.FC<InlineSuggestionInputProps> = ({
   // Insert selected suggestion
   const insertSuggestion = (suggestion: SuggestionItem) => {
     if (triggerStartIndex === -1) return;
+
+    // Clear suggestions immediately to prevent re-triggering
+    setShowSuggestions(false);
+    setSuggestions([]);
+    setSelectedIndex(-1);
+    setHasMore(false);
+    setTotalResults(0);
+    setCurrentTrigger(null);
+    setCurrentQuery('');
 
     const before = value.substring(0, triggerStartIndex);
     const after = value.substring(cursorPosition);
@@ -350,12 +377,6 @@ export const InlineSuggestionInput: React.FC<InlineSuggestionInputProps> = ({
         );
       }
     }, 0);
-
-    setShowSuggestions(false);
-    setSuggestions([]);
-    setSelectedIndex(-1);
-    setHasMore(false);
-    setTotalResults(0);
   };
 
   // Handle clicking on suggestions

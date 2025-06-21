@@ -12,7 +12,7 @@
   font-family: inherit;
   line-height: 1.5;
   background: var(--light-bg__color--primary);
-  color: var(--light-bg__text-color--primary);
+  color: var(--dark-bg__text-color--secondary);
   transition: all 0.2s ease;
   resize: vertical;
 }
@@ -51,7 +51,7 @@
   left: 0;
   right: 0;
   z-index: 1000;
-  background: var(--light-bg__color--primary);
+  background: rgba(var(--light-background--primary-rgb), 0.5);
   backdrop-filter: blur(8px);
   border: 2px solid var(--brand-primary);
   border-top: 1px solid var(--brand-primary);

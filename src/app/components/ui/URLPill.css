@@ -185,19 +185,242 @@
   position: relative;
 }
 
+/* Image Embed Styling (for inline rich embeds) */
+.image-embed {
+  margin: 16px 0;
+  border-radius: var(--border-radius);
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  background: var(--light-background--secondary);
+  position: relative;
+  display: inline-block;
+}
+
+/* Remove hover transform for image embeds - override all possible scale transforms */
+.url-pill.image-pill:hover,
+.url-pill.temp-image-pill:hover,
+.image-embed:hover,
+.image-embed .image-embed__image:hover,
+.image-embed .image-embed__video:hover,
+.image-embed .image-embed__image-container:hover {
+  transform: none !important;
+}
+
+/* But allow control buttons to still scale */
+.image-embed .image-embed__mode-button:hover,
+.image-embed .image-embed__width-button:hover,
+.image-embed .image-embed__remove-button-inline:hover {
+  transform: scale(1.1) !important;
+}
+
+/* Width variants for images */
+.image-embed--s,
+.image-embed--small {
+  max-width: 400px;
+}
+
+.image-embed--m,
+.image-embed--medium {
+  max-width: 600px;
+}
+
+.image-embed--l,
+.image-embed--large {
+  max-width: 800px;
+}
+
+.image-embed--f,
+.image-embed--full {
+  max-width: 100%;
+  width: 100%;
+}
+
+/* Image controls */
+.image-embed__controls {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  background: rgba(0, 0, 0, 0.8);
+  border-radius: 6px;
+  padding: 6px;
+  z-index: 10;
+  backdrop-filter: blur(4px);
+}
+
+.image-embed__mode-section,
+.image-embed__width-section {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.image-embed__controls-label {
+  font-size: 10px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.7);
+  margin-right: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.image-embed__mode-button,
+.image-embed__width-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 10px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-transform: uppercase;
+}
+
+.image-embed__mode-button:hover,
+.image-embed__width-button:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.6);
+  color: white;
+  transform: scale(1.1);
+}
+
+.image-embed__mode-button--active,
+.image-embed__width-button--active {
+  background: var(--brand-primary);
+  border-color: var(--brand-primary);
+  color: white;
+  box-shadow: 0 0 8px rgba(var(--brand-primary-rgb), 0.4);
+}
+
+.image-embed__mode-button--active:hover,
+.image-embed__width-button--active:hover {
+  background: var(--brand-secondary);
+  border-color: var(--brand-secondary);
+  transform: scale(1.1);
+}
+
+/* Image container */
+.image-embed__image-container {
+  position: relative;
+  width: 100%;
+  background: var(--light-background--secondary);
+}
+
+.image-embed__image {
+  width: 100%;
+  height: auto;
+  display: block;
+  border: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.image-embed__image--loaded {
+  opacity: 1;
+}
+
+/* Video styles */
+.image-embed__video {
+  width: 100%;
+  height: auto;
+  display: block;
+  border: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  border-radius: 4px;
+}
+
+.image-embed__video--loaded {
+  opacity: 1;
+}
+
+/* Remove button positioning - now handled inline within controls */
+
+/* Temporary image indicator - using CSS ::after for better styling */
+
+.image-embed__image-container--temp::after {
+  content: 'TEMPORARY UNTIL UPLOADED';
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  background: rgba(255, 193, 7, 0.5);
+  color: var(--dark-bg__text-color--primary);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  z-index: 5;
+  backdrop-filter: blur(2px);
+}
+
+/* Error state */
+.image-embed__error {
+  width: 100%;
+  min-height: 200px;
+  background: linear-gradient(135deg, var(--light-background--secondary) 0%, var(--light-background--tertiary) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px dashed var(--light-border--primary);
+  border-radius: 8px;
+  position: relative;
+  overflow: hidden;
+}
+
+.image-embed__error-content {
+  text-align: center;
+  color: var(--light-bg__text-color--primary);
+  z-index: 1;
+}
+
+.image-embed__error-icon {
+  font-size: 48px;
+  margin-bottom: 12px;
+  opacity: 0.6;
+}
+
+.image-embed__error-text {
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 8px;
+  color: var(--light-bg__text-color--secondary);
+}
+
+.image-embed__error-url {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--light-bg__text-color--tertiary);
+  max-width: 300px;
+  word-wrap: break-word;
+  line-height: 1.4;
+}
+
 /* Width variants */
+.youtube-embed--s,
 .youtube-embed--small {
   max-width: 400px;
 }
 
+.youtube-embed--m,
 .youtube-embed--medium {
   max-width: 600px;
 }
 
+.youtube-embed--l,
 .youtube-embed--large {
   max-width: 800px;
 }
 
+.youtube-embed--f,
 .youtube-embed--full {
   max-width: 100%;
   width: 100%;
@@ -411,8 +634,6 @@
   position: relative;
 }
 
-
-
 /* Responsive embed sizing */
 @media (max-width: 768px) {
   .youtube-embed {
@@ -438,6 +659,34 @@
   }
 
   .youtube-embed__width-button {
+    padding: 3px 8px;
+    font-size: 11px;
+    min-width: 40px;
+  }
+
+  /* Image embed responsive styles */
+  .image-embed {
+    margin: 12px 0;
+  }
+
+  .image-embed--small {
+    max-width: min(400px, 100%);
+  }
+
+  .image-embed--medium {
+    max-width: min(600px, 100%);
+  }
+
+  .image-embed--large {
+    max-width: min(800px, 100%);
+  }
+
+  .image-embed__controls {
+    padding: 8px 12px;
+    gap: 6px;
+  }
+
+  .image-embed__width-button {
     padding: 3px 8px;
     font-size: 11px;
     min-width: 40px;
@@ -477,6 +726,41 @@
 
   .youtube-embed__placeholder-title {
     font-size: 14px;
+    max-width: 250px;
+  }
+
+  /* Image embed mobile styles */
+  .image-embed {
+    margin: 8px 0;
+  }
+
+  .image-embed__controls {
+    padding: 6px 8px;
+    gap: 4px;
+  }
+
+  .image-embed__controls-label {
+    font-size: 12px;
+  }
+
+  .image-embed__width-button {
+    padding: 2px 6px;
+    font-size: 10px;
+    min-width: 35px;
+  }
+
+  .image-embed__error-icon {
+    font-size: 36px;
+    margin-bottom: 8px;
+  }
+
+  .image-embed__error-text {
+    font-size: 12px;
+    margin-bottom: 6px;
+  }
+
+  .image-embed__error-url {
+    font-size: 11px;
     max-width: 250px;
   }
 }
@@ -538,6 +822,69 @@
 
   .youtube-embed__placeholder-title {
     color: var(--dark-bg__text-color--primary);
+  }
+
+  /* Dark mode support for image embeds */
+  .image-embed {
+    background: var(--dark-background--secondary);
+  }
+
+  .image-embed__image-container {
+    background: var(--dark-background--secondary);
+  }
+
+  .image-embed__controls {
+    background: var(--dark-background--secondary);
+    border-bottom-color: var(--dark-border--primary);
+  }
+
+  .image-embed__controls-label {
+    color: var(--dark-bg__text-color--secondary);
+  }
+
+  .image-embed__width-button,
+  .image-embed__mode-button {
+    background: var(--dark-background--primary);
+    border-color: var(--dark-border--primary);
+    color: var(--dark-bg__text-color--secondary);
+  }
+
+  .image-embed__width-button:hover,
+  .image-embed__mode-button:hover {
+    background: var(--dark-background--tertiary);
+    border-color: var(--brand-primary);
+    color: var(--dark-bg__text-color--primary);
+  }
+
+  .image-embed__width-button--active,
+  .image-embed__mode-button--active {
+    background: var(--brand-primary);
+    border-color: var(--brand-primary);
+    color: white;
+  }
+
+  .image-embed__width-button--active:hover,
+  .image-embed__mode-button--active:hover {
+    background: var(--brand-secondary);
+    border-color: var(--brand-secondary);
+  }
+
+  /* Dark mode error state */
+  .image-embed__error {
+    background: linear-gradient(135deg, var(--dark-background--primary) 0%, var(--dark-background--secondary) 100%);
+    border-color: var(--dark-border--primary);
+  }
+
+  .image-embed__error-content {
+    color: var(--dark-bg__text-color--primary);
+  }
+
+  .image-embed__error-text {
+    color: var(--dark-bg__text-color--secondary);
+  }
+
+  .image-embed__error-url {
+    color: var(--dark-bg__text-color--tertiary);
   }
 }
 
@@ -822,7 +1169,7 @@
   align-items: center;
   gap: 8px;
   width: 100%;
-  padding: 8px 12px;
+  padding: var(--spacing-xs-compact) var(--spacing-xs);
   background: linear-gradient(135deg, #ffebee, #ffcdd2);
   color: #d32f2f;
   border: 1px solid #f44336;
@@ -839,4 +1186,40 @@
   color: #b71c1c;
   transform: translateY(-1px);
   box-shadow: 0 2px 4px rgba(244, 67, 54, 0.2);
+}
+
+.image-embed__remove-section {
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 10;
+}
+
+.image-embed__remove-button-inline {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(220, 53, 69, 0.9);
+  color: white;
+  font-size: var(--font-size-sm);
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(4px);
+}
+
+.image-embed__remove-button-inline:hover {
+  background: rgba(220, 53, 69, 1);
+  transform: scale(1.1);
+}
+
+.image-embed__mode-section,
+.image-embed__width-section {
+  display: flex;
+  align-items: center;
+  gap: 2px;
 }

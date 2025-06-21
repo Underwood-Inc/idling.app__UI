@@ -1,3 +1,4 @@
+/* eslint-disable custom-rules/enforce-link-target-blank */
 'use client';
 
 import Link from 'next/link';
@@ -18,6 +19,7 @@ interface ContentWithPillsProps {
   onMentionClick?: (mention: string, filterType: 'author' | 'mentions') => void;
   onURLClick?: (url: string, behavior: string) => void;
   onURLBehaviorChange?: (oldContent: string, newContent: string) => void;
+  onURLRemove?: () => void;
   className?: string;
   contextId: string;
   isFilterBarContext?: boolean;
@@ -31,6 +33,7 @@ export function ContentWithPills({
   onMentionClick,
   onURLClick,
   onURLBehaviorChange,
+  onURLRemove,
   className = '',
   contextId,
   isFilterBarContext = false,
@@ -298,19 +301,106 @@ export function ContentWithPills({
 
           // Handle URL pills separately from other pill types
           if (segment.type === 'url') {
+            // Extract URL and behavior from the segment
+            const url = segment.value;
+            const behavior = segment.behavior as 'embed' | 'link' | undefined;
+
+            // Extract width from rawFormat if it exists (format: ![behavior|width](url))
+            let width: 'small' | 'medium' | 'large' | 'full' = 'medium'; // Default width
+            if (segment.rawFormat) {
+              const pillData = segment.rawFormat.match(
+                /!\[([^|]+)(?:\|([^|]+))?\]\([^)]+\)/
+              );
+              if (pillData && pillData[2]) {
+                const extractedWidth = pillData[2].toLowerCase();
+                if (
+                  [
+                    's',
+                    'm',
+                    'l',
+                    'f',
+                    'small',
+                    'medium',
+                    'large',
+                    'full'
+                  ].includes(extractedWidth)
+                ) {
+                  // Map legacy short names to full names
+                  switch (extractedWidth) {
+                    case 's':
+                      width = 'small';
+                      break;
+                    case 'm':
+                      width = 'medium';
+                      break;
+                    case 'l':
+                      width = 'large';
+                      break;
+                    case 'f':
+                      width = 'full';
+                      break;
+                    case 'small':
+                    case 'medium':
+                    case 'large':
+                    case 'full':
+                      width = extractedWidth as
+                        | 'small'
+                        | 'medium'
+                        | 'large'
+                        | 'full';
+                      break;
+                  }
+                }
+              }
+            }
+
+            // Create change handlers for width and mode
+            const handleWidthChange = (
+              newWidth: 'small' | 'medium' | 'large' | 'full'
+            ) => {
+              if (onURLBehaviorChange && segment.rawFormat) {
+                // Update the width in the pill format: ![behavior|width](url)
+                const currentFormat = segment.rawFormat;
+                const pillMatch = currentFormat.match(
+                  /!\[([^|]+)(?:\|([^|]+))?\]\(([^)]+)\)/
+                );
+                if (pillMatch) {
+                  const [, currentBehavior, , currentUrl] = pillMatch;
+                  const newFormat = `![${currentBehavior}|${newWidth}](${currentUrl})`;
+                  onURLBehaviorChange(currentFormat, newFormat);
+                }
+              }
+            };
+
+            const handleModeChange = (newMode: 'embed' | 'link') => {
+              if (onURLBehaviorChange && segment.rawFormat) {
+                // Update the behavior in the pill format: ![behavior|width](url)
+                const currentFormat = segment.rawFormat;
+                const pillMatch = currentFormat.match(
+                  /!\[([^|]+)(?:\|([^|]+))?\]\(([^)]+)\)/
+                );
+                if (pillMatch) {
+                  const [, , currentWidth, currentUrl] = pillMatch;
+                  const newFormat = currentWidth
+                    ? `![${newMode}|${currentWidth}](${currentUrl})`
+                    : `![${newMode}](${currentUrl})`;
+                  onURLBehaviorChange(currentFormat, newFormat);
+                }
+              }
+            };
+
             return (
               <URLPill
                 key={index}
-                content={segment.rawFormat || ''}
-                onURLClick={onURLClick}
-                onBehaviorChange={(newContent) => {
-                  if (onURLBehaviorChange) {
-                    onURLBehaviorChange(segment.rawFormat || '', newContent);
-                  }
-                }}
-                isEditMode={isEditMode}
-                contextId={contextId}
+                url={url}
+                behavior={behavior}
+                width={width}
                 className="content-pill--url"
+                isEditMode={isEditMode}
+                onBehaviorChange={onURLBehaviorChange}
+                onWidthChange={handleWidthChange}
+                onModeChange={handleModeChange}
+                onRemove={onURLRemove}
               />
             );
           }
