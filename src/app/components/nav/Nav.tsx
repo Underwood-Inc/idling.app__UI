@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { NAV_SELECTORS } from 'src/lib/test-selectors/components/nav.selectors';
 import { auth } from '../../../lib/auth';
 import { NAV_PATHS } from '../../../lib/routes';
+import { generateUserSlug } from '../../../lib/utils/user-slug';
 import { SignOut } from '../auth-buttons/AuthButtons';
 import { Navbar } from '../navbar/Navbar';
 import './Nav.css';
@@ -31,9 +32,9 @@ export default async function Nav() {
 
         <Navbar.Content justify="end" className="nav--as-flex-end">
           <Navbar.Item className="nav__auth">
-            {session?.user && (
+            {session?.user?.id && (
               <Link
-                href={`/profile/${encodeURIComponent(session.user.name || session.user.email || '')}`}
+                href={`/profile/${generateUserSlug(session.user.name || 'user', session.user.id)}`}
                 className="nav__profile-link"
               >
                 <p
