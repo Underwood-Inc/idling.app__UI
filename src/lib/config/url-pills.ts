@@ -97,8 +97,11 @@ const youtubeDomainsConfig: URLPillDomain[] = YOUTUBE_DOMAINS.map((domain) => ({
   enabled: true,
   behaviors: youtubeBehaviors,
   defaultBehavior: 'embed',
-  regex:
-    /(?:https?:\/\/)?(?:www\.)?(youtube\.com|youtu\.be)\/[\w\-._~:/?#[\]@!$&'()*+,;=%]*/i,
+  regex: new RegExp(
+    '(?:https?:\\/\\/)?(?:www\\.)?(youtube\\.com|youtu\\.be)\\/' +
+      "[\\w\\-._~:/?#[\\]@!$&'()*+,;=%]*",
+    'i'
+  ),
   extractId: extractYouTubeId
 }));
 
@@ -113,8 +116,11 @@ const imageDomainsConfig: URLPillDomain[] = [
     enabled: true,
     behaviors: imageBehaviors,
     defaultBehavior: 'embed',
-    regex:
-      /(?:https?:\/\/)?i\.imgur\.com\/[\w\-._~:/?#[\]@!$&'()*+,;=%]*\.(jpg|jpeg|png|gif|webp|svg|bmp|ico|mp4|webm|ogg|avi|mov)/i,
+    regex: new RegExp(
+      "(?:https?:\\/\\/)?i\\.imgur\\.com\\/[\\w\\-._~:/?#[\\]@!$&'()*+,;=%]*\\." +
+        '(jpg|jpeg|png|gif|webp|svg|bmp|ico|mp4|webm|ogg|avi|mov)',
+      'i'
+    ),
     extractId: extractImageInfo
   },
 
@@ -144,8 +150,11 @@ const imageDomainsConfig: URLPillDomain[] = [
     enabled: true,
     behaviors: imageBehaviors,
     defaultBehavior: 'embed',
-    regex:
-      /(?:https?:\/\/)?(?:media\d*\.)?giphy\.com\/[\w\-._~:/?#[\]@!$&'()*+,;=%]*/i,
+    regex: new RegExp(
+      '(?:https?:\\/\\/)?(?:media\\d*\\.)?giphy\\.com\\/' +
+        "[\\w\\-._~:/?#[\\]@!$&'()*+,;=%]*",
+      'i'
+    ),
     extractId: (url: string) => {
       const match = url.match(
         /giphy\.com\/(?:media\/)?(?:v1\.Y2lkPTc5MGI3NjEx[\w\-._~]*\/)?(?:gifs\/)?([^/?#]+)/
@@ -163,8 +172,13 @@ const imageDomainsConfig: URLPillDomain[] = [
     enabled: true,
     behaviors: imageBehaviors,
     defaultBehavior: 'embed',
-    regex:
-      /(?:https?:\/\/)?(?:raw\.githubusercontent\.com|user-images\.githubusercontent\.com|github\.com)\/[\w\-._~:/?#[\]@!$&'()*+,;=%]*\.(jpg|jpeg|png|gif|webp|svg|bmp|ico|mp4|webm|ogg|avi|mov)/i,
+    regex: new RegExp(
+      '(?:https?:\\/\\/)?(?:raw\\.githubusercontent\\.com|' +
+        'user-images\\.githubusercontent\\.com|github\\.com)\\/' +
+        "[\\w\\-._~:/?#[\\]@!$&'()*+,;=%]*\\." +
+        '(jpg|jpeg|png|gif|webp|svg|bmp|ico|mp4|webm|ogg|avi|mov)',
+      'i'
+    ),
     extractId: extractImageInfo
   },
 
@@ -177,8 +191,11 @@ const imageDomainsConfig: URLPillDomain[] = [
     enabled: true,
     behaviors: imageBehaviors,
     defaultBehavior: 'embed',
-    regex:
-      /(?:https?:\/\/)?(?:images\.)?unsplash\.com\/[\w\-._~:/?#[\]@!$&'()*+,;=%]*/i,
+    regex: new RegExp(
+      '(?:https?:\\/\\/)?(?:images\\.)?unsplash\\.com\\/' +
+        "[\\w\\-._~:/?#[\\]@!$&'()*+,;=%]*",
+      'i'
+    ),
     extractId: (url: string) => {
       const match = url.match(/unsplash\.com\/(?:photo-)?([^/?#]+)/);
       return match ? match[1] : null;
@@ -194,8 +211,10 @@ const imageDomainsConfig: URLPillDomain[] = [
     enabled: true,
     behaviors: imageBehaviors,
     defaultBehavior: 'embed',
-    regex:
-      /data:temp-image;name=[^;]*;data:image\/[^;]*;base64,[A-Za-z0-9+/=]+/i,
+    regex: new RegExp(
+      'data:temp-image;name=[^;]*;data:image\\/[^;]*;base64,[A-Za-z0-9+/=]+',
+      'i'
+    ),
     extractId: (url: string) => {
       const match = url.match(/name=([^;]*)/);
       return match ? decodeURIComponent(match[1]) : 'temp-image';
@@ -211,8 +230,11 @@ const imageDomainsConfig: URLPillDomain[] = [
     enabled: true,
     behaviors: imageBehaviors,
     defaultBehavior: 'embed',
-    regex:
-      /^\/uploads\/images\/[\w\-._]+\.(jpg|jpeg|png|gif|webp|svg|bmp|ico|mp4|webm|ogg|avi|mov)$/i,
+    regex: new RegExp(
+      '^\\/uploads\\/images\\/[\\w\\-._]+\\.' +
+        '(jpg|jpeg|png|gif|webp|svg|bmp|ico|mp4|webm|ogg|avi|mov)$',
+      'i'
+    ),
     extractId: extractImageInfo
   },
 

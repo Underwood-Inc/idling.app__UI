@@ -4,8 +4,7 @@ import { PAGINATION_SELECTORS } from 'src/lib/test-selectors/components/paginati
 
 type PageSizeSelectorProps = {
   pageSize: PageSize;
-  // eslint-disable-next-line no-unused-vars
-  onPageSizeChange: (newPageSize: PageSize) => void;
+  onPageSizeChange: (_newPageSize: PageSize) => void;
 };
 
 const PageSizeSelector: React.FC<PageSizeSelectorProps> = ({
