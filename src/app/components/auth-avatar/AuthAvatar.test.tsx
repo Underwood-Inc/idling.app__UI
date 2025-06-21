@@ -1,4 +1,5 @@
 import { render, screen } from '@testing-library/react';
+import { useAtom } from 'jotai';
 import { useSession } from 'next-auth/react';
 import { AVATAR_SELECTORS } from '../../../lib/test-selectors/components/avatar.selectors';
 import { AuthAvatar } from './AuthAvatar';
@@ -6,6 +7,11 @@ import { AuthAvatar } from './AuthAvatar';
 // Mock next-auth/react
 jest.mock('next-auth/react', () => ({
   useSession: jest.fn()
+}));
+
+// Mock jotai
+jest.mock('jotai', () => ({
+  useAtom: jest.fn()
 }));
 
 // Mock the Avatar component
@@ -21,10 +27,13 @@ jest.mock('../avatar/Avatar', () => {
 });
 
 const mockUseSession = useSession as jest.Mock;
+const mockUseAtom = useAtom as jest.Mock;
 
 describe('AuthAvatar', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    // Mock avatar cache atom
+    mockUseAtom.mockReturnValue([{}, jest.fn()]);
   });
 
   it('renders Avatar with user ID as seed when session exists', () => {
@@ -77,14 +86,15 @@ describe('AuthAvatar', () => {
     );
   });
 
-  it('renders Avatar with anonymous seed when no session exists', () => {
+  it('renders Avatar with random guest seed when no session exists', () => {
     mockUseSession.mockReturnValue({ data: null });
 
     render(<AuthAvatar size="xs" />);
 
     const avatarElement = screen.getByTestId(AVATAR_SELECTORS.CONTAINER);
     expect(avatarElement).toBeInTheDocument();
-    expect(avatarElement).toHaveTextContent('Mock Avatar: anonymous, xs');
+    // Should contain "guest-" prefix but the rest is random
+    expect(avatarElement.textContent).toMatch(/Mock Avatar: guest-.+, xs/);
   });
 
   it('passes through props correctly', () => {
