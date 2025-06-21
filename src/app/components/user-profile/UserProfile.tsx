@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { UserProfileData } from '../../../lib/types/profile';
+import { getEffectiveCharacterCount } from '../../../lib/utils/string';
 import { Avatar } from '../avatar/Avatar';
 import { ContentWithPills } from '../ui/ContentWithPills';
 import { SmartInput } from '../ui/SmartInput';
@@ -78,27 +79,28 @@ export function UserProfile({
             <Avatar seed={user.id} size="md" />
           </div>
           <div className="user-profile__header-info">
-            <h4 className="user-profile__name">{displayName}</h4>
-            {user.location && (
-              <p className="user-profile__location">📍 {user.location}</p>
-            )}
+            <div className="user-profile__header-top">
+              <h4 className="user-profile__name">{displayName}</h4>
+              {isOwnProfile && !isEditingBio && (
+                <button
+                  className="user-profile__edit-bio-btn user-profile__edit-bio-btn--header"
+                  onClick={() => setIsEditingBio(true)}
+                  title="Edit bio"
+                >
+                  Edit Bio
+                </button>
+              )}
+            </div>
             {joinDate && (
               <span className="user-profile__join-date">Joined {joinDate}</span>
+            )}
+            {user.location && (
+              <p className="user-profile__location">📍 {user.location}</p>
             )}
           </div>
         </div>
 
         <div className="user-profile__bio">
-          {isOwnProfile && !isEditingBio && (
-            <button
-              className="user-profile__edit-bio-btn user-profile__edit-bio-btn--compact"
-              onClick={() => setIsEditingBio(true)}
-              title="Edit bio"
-            >
-              ✏️ Edit Bio
-            </button>
-          )}
-
           {isEditingBio ? (
             <div className="user-profile__bio-editor">
               <SmartInput
@@ -109,8 +111,8 @@ export function UserProfile({
                 as="textarea"
                 rows={3}
                 disabled={isDisabled}
-                enableHashtags={true}
-                enableUserMentions={true}
+                enableHashtags
+                enableUserMentions
               />
               <div className="user-profile__bio-actions">
                 <button
@@ -129,7 +131,7 @@ export function UserProfile({
                 </button>
               </div>
               <div className="user-profile__bio-counter">
-                {bioText.length}/500 characters
+                {getEffectiveCharacterCount(bioText)}/500 characters
               </div>
             </div>
           ) : (
@@ -262,7 +264,7 @@ export function UserProfile({
               </button>
             </div>
             <div className="user-profile__bio-counter">
-              {bioText.length}/500 characters
+              {getEffectiveCharacterCount(bioText)}/500 characters
             </div>
           </div>
         ) : (

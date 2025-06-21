@@ -73,6 +73,7 @@
   --font-color--secondary: #e8d4d7;
 
   --light-background--primary: #fff8e1;
+  --light-background--primary-rgb: 255, 248, 225;
   --light-background--secondary: #ffe4b5;
   --light-background--tertiary: #ffdab9;
   --light-background--quaternary: #ffefd5;

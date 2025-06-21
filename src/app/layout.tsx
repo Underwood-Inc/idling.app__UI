@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { SessionProvider } from 'next-auth/react';
 import { Inter } from 'next/font/google';
 import { Suspense } from 'react';
@@ -23,17 +23,18 @@ export const metadata: Metadata = {
   title: 'Idling.app',
   description: 'Revisit often to see the latest changes and play!',
   manifest: '/manifest.json',
-  themeColor: '#ff6b35',
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
     title: 'Idling App'
-  },
-  viewport: {
-    width: 'device-width',
-    initialScale: 1,
-    viewportFit: 'cover'
   }
+};
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  viewportFit: 'cover',
+  themeColor: '#ff6b35'
 };
 
 export default function RootLayout({

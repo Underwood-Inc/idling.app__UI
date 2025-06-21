@@ -18,17 +18,9 @@ export default async function AdminPage() {
   // Check admin permissions
   const hasAccess = await requireAdmin();
 
-  // eslint-disable-next-line no-console
-  console.log('🔐 Admin page - hasAccess:', hasAccess);
-
   if (!hasAccess) {
-    // eslint-disable-next-line no-console
-    console.log('❌ Admin access denied, redirecting to home');
     redirect('/');
   }
-
-  // eslint-disable-next-line no-console
-  console.log('✅ Admin access granted, rendering dashboard');
 
   return (
     <div className="admin-page">

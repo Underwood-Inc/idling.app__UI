@@ -130,6 +130,14 @@
   overflow: hidden;
 }
 
+/* Override base tooltip padding for author tooltips */
+.link-tooltip.author-tooltip-wrapper {
+  padding: 0 !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
 .author-tooltip__content {
   padding: 1rem;
 }

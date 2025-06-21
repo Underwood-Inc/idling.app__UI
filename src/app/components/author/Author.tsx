@@ -32,14 +32,9 @@ const UserProfileModal: React.FC<{
     // Check if this matches the current user
     if (session?.user) {
       const currentUserId = session.user.id;
-      const currentUserName = session.user.name;
-      const currentUserEmail = session.user.email;
 
-      const isOwner =
-        currentUserId === user.id ||
-        (currentUserName && currentUserName === user.username) ||
-        (currentUserName && currentUserName === user.name) ||
-        (currentUserEmail && currentUserEmail === user.email);
+      // Convert both IDs to strings for proper comparison
+      const isOwner = currentUserId?.toString() === user.id?.toString();
 
       setIsOwnProfile(Boolean(isOwner));
     } else {
@@ -47,38 +42,27 @@ const UserProfileModal: React.FC<{
     }
   }, [user, session]);
 
-  const handleBioUpdate = async (newBio: string) => {
+  const handleBioUpdate = async (newBio: string): Promise<void> => {
     try {
-      // Get the session token for authorization
-      const sessionToken = await fetch('/api/auth/session')
-        .then((res) => res.json())
-        .then((session) => session?.accessToken);
-
-      const response = await fetch(
-        `/api/profile/${encodeURIComponent(user.username || user.name || user.id)}`,
-        {
-          method: 'PATCH',
-          headers: {
-            'Content-Type': 'application/json',
-            // Include authorization header if we have a token
-            ...(sessionToken && { Authorization: `Bearer ${sessionToken}` })
-          },
-          body: JSON.stringify({ bio: newBio })
-        }
+      // Use the same server action as the profile page for consistency
+      const { updateBioAction } = await import(
+        '../../../lib/actions/profile.actions'
       );
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to update bio');
+      // Use the user's identifier (slug, username, name, or id)
+      const identifier = user.slug || user.username || user.name || user.id;
+
+      const result = await updateBioAction(newBio, identifier);
+
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to update bio');
       }
 
-      const result = await response.json();
-
-      // Update the user object locally
+      // Update the user object locally for immediate UI feedback
       user.bio = newBio;
 
-      // Success - bio updated
-      return result;
+      // Success - bio updated (no return value needed)
+      // Note: Profile page cache is invalidated by the server action
     } catch (error) {
       console.error('Error updating bio:', error);
       throw error;
@@ -343,7 +327,11 @@ export const Author: React.FC<AuthorProps> = ({
 
   // Return element wrapped in enhanced tooltip
   return (
-    <InteractiveTooltip content={tooltipContent} delay={500}>
+    <InteractiveTooltip
+      content={tooltipContent}
+      delay={500}
+      className="author-tooltip-wrapper"
+    >
       {authorElement}
     </InteractiveTooltip>
   );

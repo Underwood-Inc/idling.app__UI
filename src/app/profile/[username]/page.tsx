@@ -39,7 +39,9 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
   }
 
   // Check if this is the user's own profile
-  const isOwnProfile = session?.user?.id === userProfile.id;
+  // Convert both IDs to strings for proper comparison
+  const isOwnProfile =
+    session?.user?.id?.toString() === userProfile.id?.toString();
 
   const joinDate = userProfile.created_at
     ? new Date(userProfile.created_at).toLocaleDateString('en-US', {
@@ -65,7 +67,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
             <Card width="full" className="profile-page__main-card">
               <ProfilePageClient
                 userProfile={userProfile}
-                isOwnProfile={!!isOwnProfile}
+                isOwnProfile={isOwnProfile}
               />
             </Card>
           </FadeIn>

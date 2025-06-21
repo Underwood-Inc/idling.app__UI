@@ -46,6 +46,14 @@
   min-width: 0;
 }
 
+.user-profile__header-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-sm, 0.75rem);
+  margin-bottom: var(--spacing-xs, 0.25rem);
+}
+
 .user-profile__meta-row {
   display: flex;
   flex-direction: column;
@@ -126,6 +134,21 @@
   align-self: flex-start;
 }
 
+.user-profile__edit-bio-btn--header {
+  font-size: var(--font-size-sm, 0.875rem);
+  padding: 0.25rem 0.5rem;
+  background: var(--brand-secondary);
+  color: var(--light-bg__text-color--primary);
+  border: 1px solid var(--brand-secondary--dark);
+  flex-shrink: 0;
+}
+
+.user-profile__edit-bio-btn--header:hover {
+  background: var(--brand-secondary--dark);
+  color: white;
+  transform: translateY(-1px);
+}
+
 .user-profile__bio-content p {
   font-size: var(--font-size-md, 1rem);
   color: var(--light-bg__text-color--secondary);
@@ -193,7 +216,6 @@
 /* Bio Pills Display */
 .user-profile__bio-pills {
   font-size: var(--font-size-md, 1rem);
-  color: var(--light-bg__text-color--secondary);
   line-height: 1.6;
   word-wrap: break-word;
   background: var(--light-background--tertiary);
@@ -481,6 +503,15 @@
     font-size: var(--font-size-xs, 0.75rem);
     padding: 0.4rem 0.6rem;
   }
+
+  .user-profile__edit-bio-btn--header {
+    font-size: var(--font-size-xs, 0.75rem);
+    padding: 0.2rem 0.4rem;
+  }
+
+  .user-profile__header-top {
+    gap: var(--spacing-xs, 0.5rem);
+  }
 }
 
 /* Dark Mode Support */
@@ -518,7 +549,7 @@
   .user-profile__bio-content p,
   .user-profile__bio-pills {
     background: var(--dark-background--tertiary);
-    color: var(--dark-bg__text-color--secondary);
+    /* color: var(--dark-bg__text-color--primary); */
     border-left-color: var(--brand-primary--light);
   }
 

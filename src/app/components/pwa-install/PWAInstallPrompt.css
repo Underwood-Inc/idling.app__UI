@@ -1,16 +1,31 @@
 .pwa-install-prompt {
   position: fixed;
-  z-index: 150;
-  /* Higher than sticky pagination (z-index: 100) */
+  z-index: 1001;
+  /* Higher than timeout banner (z-index: 1000) and other fixed elements */
   opacity: 0;
-  /* Desktop positioning */
+  /* Desktop positioning - explicit values to ensure proper positioning */
   top: var(--spacing-cozy);
   right: var(--spacing-cozy);
   left: auto;
   bottom: auto;
   max-width: 280px;
+  width: auto;
   transform: translateY(-20px);
   animation: slideInFromTop 0.5s ease-out 0.5s forwards;
+  /* Ensure no margin/padding interference */
+  margin: 0;
+  padding: 0;
+  /* Prevent any potential box-sizing issues */
+  box-sizing: border-box;
+  /* Ensure proper stacking and isolation */
+  isolation: isolate;
+  /* Prevent any transform or filter inheritance */
+  transform-style: flat;
+  /* Ensure proper containment */
+  contain: layout style;
+  /* Ensure it's always positioned relative to viewport */
+  inset-inline-end: var(--spacing-cozy);
+  inset-block-start: var(--spacing-cozy);
 }
 
 @keyframes slideInFromTop {
@@ -171,6 +186,20 @@
   .pwa-install-prompt__install-btn {
     padding: 3px 6px;
     font-size: 11px;
+  }
+}
+
+/* Desktop-specific positioning to ensure proper right alignment */
+@media (min-width: 769px) {
+  .pwa-install-prompt {
+    /* Ensure proper right alignment on desktop */
+    right: max(var(--spacing-cozy), 12px);
+    /* Account for potential scrollbar */
+    top: var(--spacing-cozy);
+    left: auto;
+    bottom: auto;
+    /* Ensure it doesn't extend beyond viewport */
+    max-width: min(280px, calc(100vw - 24px));
   }
 }
 

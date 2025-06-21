@@ -10,6 +10,7 @@ interface InteractiveTooltipProps {
   isInsideParagraph?: boolean;
   disabled?: boolean;
   delay?: number; // Delay before showing tooltip in milliseconds
+  className?: string; // Additional CSS class for tooltip wrapper
 }
 
 export const InteractiveTooltip: React.FC<InteractiveTooltipProps> = ({
@@ -17,7 +18,8 @@ export const InteractiveTooltip: React.FC<InteractiveTooltipProps> = ({
   children,
   isInsideParagraph = false,
   disabled = false,
-  delay = 300
+  delay = 300,
+  className = ''
 }) => {
   const [showTooltip, setShowTooltip] = useState(false);
   const [position, setPosition] = useState({ top: 0, left: 0 });
@@ -186,7 +188,7 @@ export const InteractiveTooltip: React.FC<InteractiveTooltipProps> = ({
         createPortal(
           <div
             ref={tooltipContentRef}
-            className={`link-tooltip interactive-tooltip ${showTooltip ? 'visible' : ''}`}
+            className={`link-tooltip interactive-tooltip ${className} ${showTooltip ? 'visible' : ''}`}
             onMouseEnter={handleTooltipMouseEnter}
             onMouseLeave={handleTooltipMouseLeave}
             style={{
