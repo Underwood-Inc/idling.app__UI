@@ -54,9 +54,9 @@ export function SubmissionItem({
     Record<number, boolean>
   >({});
 
-  const isCurrentUserPost = (authorProviderAccountId: string) => {
-    // Direct comparison of providerAccountId from session to submission
-    return session?.user?.id === authorProviderAccountId;
+  const isCurrentUserPost = (authorUserId: number) => {
+    // Direct comparison of internal database user ID
+    return parseInt(session?.user?.id || '') === authorUserId;
   };
 
   const handleTagClick = (tag: string) => {
@@ -138,9 +138,7 @@ export function SubmissionItem({
 
   const canReply = session?.user?.id && depth < maxDepth;
   const hasReplies = submission.replies && submission.replies.length > 0;
-  const hasOwnerActions = isCurrentUserPost(
-    submission.author_provider_account_id || ''
-  );
+  const hasOwnerActions = isCurrentUserPost(submission.user_id || 0);
 
   // Check if this is a reply post (has a parent)
   const isReplyPost = submission.thread_parent_id !== null;

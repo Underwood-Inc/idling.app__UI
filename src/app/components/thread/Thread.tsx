@@ -16,7 +16,7 @@ import './Thread.css';
 
 interface ThreadProps {
   submissionId: number;
-  providerAccountId: string;
+  userId: string; // Internal database user ID
   onHashtagClick?: (hashtag: string) => void;
   onMentionClick?: (mention: string, filterType: 'author' | 'mentions') => void;
   activeFilters?: {
@@ -33,7 +33,7 @@ interface ThreadData {
 
 export default function Thread({
   submissionId,
-  providerAccountId,
+  userId,
   onHashtagClick,
   onMentionClick,
   activeFilters,
@@ -204,8 +204,8 @@ export default function Thread({
         <DeleteSubmissionForm
           id={submission.submission_id}
           name={submission.submission_name}
-          isAuthorized={!!providerAccountId}
-          {...(providerAccountId && { authorId: providerAccountId })}
+          isAuthorized={!!userId}
+          {...(userId && { authorId: userId })}
         />
       </div>
     );

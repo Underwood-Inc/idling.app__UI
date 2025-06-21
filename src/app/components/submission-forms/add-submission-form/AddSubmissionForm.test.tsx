@@ -35,7 +35,7 @@ jest.mock('react-dom', () => ({
 // Mock next-auth
 jest.mock('next-auth/react', () => ({
   useSession: jest.fn(() => ({
-    data: { user: { providerAccountId: 'test-user' } },
+    data: { user: { id: 'test-user' } },
     status: 'authenticated'
   }))
 }));

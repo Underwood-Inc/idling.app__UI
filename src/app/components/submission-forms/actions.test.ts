@@ -131,7 +131,7 @@ describe('Submission Form Actions', () => {
   describe('createSubmissionAction', () => {
     it('should create a submission successfully', async () => {
       (auth as jest.Mock).mockResolvedValue({
-        user: { name: 'Test User', providerAccountId: '123' }
+        user: { name: 'Test User', id: '123' }
       });
       (sql as unknown as jest.Mock).mockResolvedValue({});
 
@@ -172,7 +172,7 @@ describe('Submission Form Actions', () => {
 
     it('should return an error when SQL insert fails', async () => {
       (auth as jest.Mock).mockResolvedValue({
-        user: { name: 'Test User', providerAccountId: '123' }
+        user: { name: 'Test User', id: '123' }
       });
       (sql as unknown as jest.Mock).mockRejectedValue(new Error('SQL error'));
 
@@ -188,7 +188,7 @@ describe('Submission Form Actions', () => {
 
     it('should extract tags from submission title', async () => {
       (auth as jest.Mock).mockResolvedValue({
-        user: { name: 'Test User', providerAccountId: '123' }
+        user: { name: 'Test User', id: '123' }
       });
       const mockSql = jest.fn().mockResolvedValue({});
       (sql as unknown as jest.Mock).mockImplementation(mockSql);
@@ -213,7 +213,7 @@ describe('Submission Form Actions', () => {
 
     it('should handle submission without tags', async () => {
       (auth as jest.Mock).mockResolvedValue({
-        user: { name: 'Test User', providerAccountId: '123' }
+        user: { name: 'Test User', id: '123' }
       });
       const mockSql = jest.fn().mockResolvedValue({ rowCount: 1 });
       (sql as unknown as jest.Mock).mockImplementation(mockSql);
@@ -241,7 +241,22 @@ describe('Submission Form Actions', () => {
 
     it('should return an error when session or user information is incomplete', async () => {
       (auth as jest.Mock).mockResolvedValue({
-        user: { name: 'Test User' } // Missing providerAccountId
+        user: { name: 'Test User' } // Missing id
+      });
+
+      const formData = new FormData();
+      formData.append('submission_title', 'New Title');
+      formData.append('submission_name', 'New Submission');
+
+      const result = await createSubmissionAction({ status: 0 }, formData);
+
+      expect(result.status).toBe(-1);
+      expect(result.error).toBe('Authentication error.');
+    });
+
+    it('should return an error when session is present but id is missing', async () => {
+      (auth as jest.Mock).mockResolvedValue({
+        user: { name: 'Test User' } // Missing id
       });
 
       const formData = new FormData();
@@ -258,7 +273,7 @@ describe('Submission Form Actions', () => {
   describe('deleteSubmissionAction', () => {
     it('should delete a submission successfully', async () => {
       (auth as jest.Mock).mockResolvedValue({
-        user: { providerAccountId: '123' }
+        user: { id: '123' }
       });
 
       // Mock the SQL calls for delete action
@@ -292,7 +307,7 @@ describe('Submission Form Actions', () => {
 
     it('should return an error when SQL delete fails', async () => {
       (auth as jest.Mock).mockResolvedValue({
-        user: { providerAccountId: '123' }
+        user: { id: '123' }
       });
       (sql as unknown as jest.Mock).mockRejectedValue(new Error('SQL error'));
 
@@ -319,9 +334,9 @@ describe('Submission Form Actions', () => {
       expect(result.error).toBeDefined();
     });
 
-    it('should return an error when session is present but providerAccountId is missing', async () => {
+    it('should return an error when session is present but id is missing', async () => {
       (auth as jest.Mock).mockResolvedValue({
-        user: { name: 'Test User' } // Missing providerAccountId
+        user: { name: 'Test User' } // Missing id
       });
 
       const formData = new FormData();
@@ -336,7 +351,7 @@ describe('Submission Form Actions', () => {
 
     it('should return an error when parseDeleteSubmission fails', async () => {
       (auth as jest.Mock).mockResolvedValue({
-        user: { providerAccountId: '123' }
+        user: { id: '123' }
       });
 
       const formData = new FormData();
