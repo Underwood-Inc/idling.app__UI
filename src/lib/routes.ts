@@ -32,7 +32,8 @@ export const HEADER_NAV_PATHS: Record<
 > = {
   GALAXY,
   POSTS,
-  MY_POSTS
+  MY_POSTS,
+  ADMIN
 };
 
 export type ROUTES = keyof typeof NAV_PATHS;
