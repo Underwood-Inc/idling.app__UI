@@ -1,8 +1,10 @@
 'use server';
 
+import { revalidatePath } from 'next/cache';
 import { auth } from '../auth';
 import sql from '../db';
 import { UserProfileData } from '../types/profile';
+import { getEffectiveCharacterCount } from '../utils/string';
 import { generateUserSlug, parseUserSlug } from '../utils/user-slug';
 
 export interface ProfileFilters {
@@ -458,7 +460,7 @@ export async function updateUserBioAction(formData: FormData): Promise<{
     const username = formData.get('username') as string;
 
     // Validate bio length
-    if (bio && bio.length > 500) {
+    if (bio && getEffectiveCharacterCount(bio) > 500) {
       return {
         success: false,
         error: 'Bio must be 500 characters or less'
@@ -476,7 +478,8 @@ export async function updateUserBioAction(formData: FormData): Promise<{
       }
 
       // Simple and secure: only check authenticated user ID
-      const canEdit = userProfile.id === session.user.id;
+      // Convert both to strings to handle type mismatch
+      const canEdit = userProfile.id.toString() === session.user.id.toString();
 
       if (!canEdit) {
         return {
@@ -500,6 +503,18 @@ export async function updateUserBioAction(formData: FormData): Promise<{
 
     // Get the complete profile with stats
     const completeProfile = await getUserProfileById(session.user.id);
+
+    // Invalidate cache for all profile-related paths
+    if (username) {
+      const userProfile = await getUserProfile(username);
+      if (userProfile) {
+        revalidatePath(`/profile/${username}`); // Username/slug path
+        revalidatePath(`/profile/${userProfile.slug}`); // Canonical slug path
+      }
+    }
+    revalidatePath(`/profile/${session.user.id}`); // User ID path (if used)
+    revalidatePath('/profile'); // Profile listing pages
+    revalidatePath('/', 'layout'); // Revalidate layout cache for any user data in headers/nav
 
     return {
       success: true,
@@ -536,7 +551,7 @@ export async function updateBioAction(
     }
 
     // Validate bio length
-    if (bio && bio.length > 500) {
+    if (bio && getEffectiveCharacterCount(bio) > 500) {
       return {
         success: false,
         error: 'Bio must be 500 characters or less'
@@ -553,7 +568,7 @@ export async function updateBioAction(
     }
 
     // Simple and secure: only check authenticated user ID
-    const canEdit = userProfile.id === session.user.id;
+    const canEdit = userProfile.id.toString() === session.user.id.toString();
 
     if (!canEdit) {
       return {
@@ -576,6 +591,13 @@ export async function updateBioAction(
 
     // Get the complete profile with stats
     const completeProfile = await getUserProfileById(session.user.id);
+
+    // Invalidate cache for all profile-related paths
+    revalidatePath(`/profile/${username}`); // Username/slug path
+    revalidatePath(`/profile/${userProfile.slug}`); // Canonical slug path
+    revalidatePath(`/profile/${session.user.id}`); // User ID path (if used)
+    revalidatePath('/profile'); // Profile listing pages
+    revalidatePath('/', 'layout'); // Revalidate layout cache for any user data in headers/nav
 
     return {
       success: true,

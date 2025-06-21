@@ -32,6 +32,7 @@ export interface UserWithProviderAccountId extends User {
 }
 
 export interface JWTWithProviderAccountId extends JWT {
+  databaseId?: string;
   providerAccountId?: string;
 }
 
@@ -82,21 +83,26 @@ export const authConfig: NextAuthConfig = {
       return true;
     },
     async jwt({ token, account, user }) {
-      // Simple JWT callback - just store providerAccountId from account or user
+      // Store both database ID and providerAccountId from user/account
+      if (user) {
+        // Store database internal ID as primary identifier
+        token.databaseId = user.id;
+        token.providerAccountId =
+          (user as any).providerAccountId || account?.providerAccountId;
+      }
+
+      // Update providerAccountId from account during sign-in
       if (account?.providerAccountId) {
         (token as JWTWithProviderAccountId).providerAccountId =
           account.providerAccountId;
-      } else if (user?.providerAccountId) {
-        (token as JWTWithProviderAccountId).providerAccountId =
-          user.providerAccountId;
       }
 
       return token;
     },
     async session({ session, token }) {
-      // Use providerAccountId as the primary ID for consistency
-      if (token.providerAccountId) {
-        session.user.id = token.providerAccountId as string;
+      // Use database internal ID as the primary ID for all app operations
+      if (token.databaseId) {
+        session.user.id = token.databaseId as string;
         session.user.providerAccountId = token.providerAccountId as string;
       }
 

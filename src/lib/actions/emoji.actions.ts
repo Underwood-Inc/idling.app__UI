@@ -25,39 +25,47 @@ export async function getOSEmojis(
   const userId = parseInt(session.user.id);
 
   // Build the query based on OS
-  const tableName = userOS === 'mac' ? 'mac_emojis' : 'windows_emojis';
+  const tableName = userOS === 'mac' ? 'emojis_mac' : 'emojis_windows';
 
   let whereClause = sql`WHERE 1=1`;
 
   if (category) {
-    whereClause = sql`${whereClause} AND category = ${category}`;
+    whereClause = sql`${whereClause} AND category_id = ${category}`;
   }
 
   if (search) {
     const searchTerm = `%${search.toLowerCase()}%`;
     whereClause = sql`${whereClause} AND (
       LOWER(name) LIKE ${searchTerm} OR 
-      LOWER(display_name) LIKE ${searchTerm} OR
-      LOWER(aliases::text) LIKE ${searchTerm}
+      LOWER(aliases::text) LIKE ${searchTerm} OR
+      LOWER(keywords::text) LIKE ${searchTerm}
     )`;
   }
 
+  // Get usage counts from emoji_usage table
   const result = await sql<
     {
       id: number;
       name: string;
-      display_name: string;
       unicode_char: string;
-      category: string;
+      category_id: number;
       aliases: string[];
       usage_count: number;
     }[]
   >`
     SELECT 
-      id, name, display_name, unicode_char, category, aliases, usage_count
-    FROM ${sql(tableName)}
+      e.id, 
+      e.name, 
+      e.unicode_char, 
+      e.category_id, 
+      e.aliases,
+      COALESCE(u.usage_count, 0) as usage_count
+    FROM ${sql(tableName)} e
+    LEFT JOIN emoji_usage u ON u.emoji_id = e.emoji_id::text 
+      AND u.emoji_type = ${userOS} 
+      AND u.user_id = ${userId}
     ${whereClause}
-    ORDER BY usage_count DESC, name ASC
+    ORDER BY usage_count DESC, e.name ASC
     LIMIT ${limit} OFFSET ${offset}
   `;
 
@@ -85,7 +93,7 @@ export async function getCustomEmojis(
     const searchTerm = `%${search.toLowerCase()}%`;
     whereClause = sql`${whereClause} AND (
       LOWER(name) LIKE ${searchTerm} OR 
-      LOWER(display_name) LIKE ${searchTerm}
+      LOWER(tags::text) LIKE ${searchTerm}
     )`;
   }
 
@@ -93,19 +101,25 @@ export async function getCustomEmojis(
     {
       id: number;
       name: string;
-      display_name: string;
       encrypted_image_data: string;
-      category: string;
+      category_id: number;
       usage_count: number;
-      created_by: number;
+      user_id: number;
     }[]
   >`
     SELECT 
-      id, name, display_name, encrypted_image_data, category, 
-      usage_count, created_by
-    FROM custom_emojis
+      c.id, 
+      c.name, 
+      c.encrypted_image_data, 
+      c.category_id, 
+      COALESCE(u.usage_count, 0) as usage_count,
+      c.user_id
+    FROM custom_emojis c
+    LEFT JOIN emoji_usage u ON u.emoji_id = c.emoji_id::text 
+      AND u.emoji_type = 'custom' 
+      AND u.user_id = ${userId}
     ${whereClause}
-    ORDER BY usage_count DESC, name ASC
+    ORDER BY usage_count DESC, c.name ASC
     LIMIT ${limit} OFFSET ${offset}
   `;
 
@@ -119,7 +133,7 @@ export async function getCustomEmojis(
               ...JSON.parse(emoji.encrypted_image_data),
               context: 'emoji' as const
             },
-            userId
+            emoji.user_id
           );
         return {
           ...emoji,
@@ -145,7 +159,7 @@ export async function uploadCustomEmoji(
   name: string,
   displayName: string,
   imageData: string,
-  category: string = 'custom'
+  categoryId: number = 9 // Default to 'custom' category ID
 ) {
   const session = await auth();
   if (!session?.user?.id) {
@@ -173,12 +187,17 @@ export async function uploadCustomEmoji(
     userId
   );
 
+  // Generate a unique emoji_id
+  const emojiId = `custom_${name.toLowerCase().replace(/[^a-z0-9]/g, '_')}_${Date.now()}`;
+
   // Insert the custom emoji (pending approval)
   await sql`
     INSERT INTO custom_emojis (
-      name, display_name, encrypted_image_data, category, created_by
+      emoji_id, name, description, encrypted_image_data, category_id, user_id,
+      image_format, image_size_bytes, encryption_type
     ) VALUES (
-      ${name}, ${displayName}, ${JSON.stringify(encryptedData)}, ${category}, ${userId}
+      ${emojiId}, ${name}, ${displayName}, ${JSON.stringify(encryptedData)}, 
+      ${categoryId}, ${userId}, ${format}, ${imageBuffer.length}, 'personal'
     )
   `;
 
@@ -293,8 +312,8 @@ export async function deleteCustomEmoji(emojiId: number, reason: string) {
   }
 
   // Get emoji info for audit log
-  const emojiResult = await sql<{ name: string; created_by: number }[]>`
-    SELECT name, created_by FROM custom_emojis WHERE id = ${emojiId}
+  const emojiResult = await sql<{ name: string; user_id: number }[]>`
+    SELECT name, user_id FROM custom_emojis WHERE id = ${emojiId}
   `;
 
   if (emojiResult.length === 0) {
@@ -411,7 +430,7 @@ export async function trackEmojiUsage(
         WHERE id = ${emojiId}
       `;
     } else {
-      const tableName = emojiType === 'mac' ? 'mac_emojis' : 'windows_emojis';
+      const tableName = emojiType === 'mac' ? 'emojis_mac' : 'emojis_windows';
       await sql`
         UPDATE ${sql(tableName)} 
         SET usage_count = usage_count + 1 
@@ -439,22 +458,25 @@ export async function trackEmojiUsage(
 export async function getEmojiCategories(
   userOS: 'windows' | 'mac' = 'windows'
 ) {
-  const tableName = userOS === 'mac' ? 'mac_emojis' : 'windows_emojis';
+  const tableName = userOS === 'mac' ? 'emojis_mac' : 'emojis_windows';
 
-  const result = await sql<{ category: string; count: number }[]>`
-    SELECT category, COUNT(*) as count
-    FROM ${sql(tableName)}
-    GROUP BY category
-    ORDER BY category
+  const result = await sql<{ category_name: string; count: number }[]>`
+    SELECT ec.name as category_name, COUNT(e.*) as count
+    FROM ${sql(tableName)} e
+    JOIN emoji_categories ec ON e.category_id = ec.id
+    WHERE e.is_active = true
+    GROUP BY ec.name, ec.sort_order
+    ORDER BY ec.sort_order, ec.name
   `;
 
   // Also get custom emoji categories
-  const customResult = await sql<{ category: string; count: number }[]>`
-    SELECT category, COUNT(*) as count
-    FROM custom_emojis
-    WHERE is_approved = true
-    GROUP BY category
-    ORDER BY category
+  const customResult = await sql<{ category_name: string; count: number }[]>`
+    SELECT ec.name as category_name, COUNT(c.*) as count
+    FROM custom_emojis c
+    JOIN emoji_categories ec ON c.category_id = ec.id
+    WHERE c.is_approved = true AND c.is_active = true
+    GROUP BY ec.name, ec.sort_order
+    ORDER BY ec.sort_order, ec.name
   `;
 
   return {

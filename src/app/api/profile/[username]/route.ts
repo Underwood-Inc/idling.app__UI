@@ -4,6 +4,7 @@ import {
   updateBioAction
 } from '../../../../lib/actions/profile.actions';
 import { auth } from '../../../../lib/auth';
+import { getEffectiveCharacterCount } from '../../../../lib/utils/string';
 
 export async function GET(
   request: NextRequest,
@@ -69,7 +70,7 @@ export async function PATCH(
       );
     }
 
-    if (bio.length > 500) {
+    if (getEffectiveCharacterCount(bio) > 500) {
       return NextResponse.json(
         { error: 'Bio must be 500 characters or less' },
         { status: 400 }

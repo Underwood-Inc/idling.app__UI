@@ -86,10 +86,18 @@ export async function GET(request: NextRequest) {
 
     const offset = (page - 1) * perPage;
 
+    // Convert category name to category ID if provided
+    let categoryId: number | undefined;
+    if (category) {
+      // For now, we'll pass the category as-is and let the server action handle it
+      // In a production app, you'd want to map category names to IDs
+      categoryId = parseInt(category) || undefined;
+    }
+
     // Fetch OS-specific emojis using server action
     const osEmojis = await getOSEmojis(
       userOS,
-      category,
+      categoryId?.toString(),
       search,
       perPage,
       offset
@@ -111,11 +119,11 @@ export async function GET(request: NextRequest) {
           emoji_id: emoji.name,
           unicode_char: emoji.unicode_char,
           name: emoji.name,
-          description: emoji.display_name,
+          description: emoji.name,
           category: {
-            id: 0,
-            name: emoji.category,
-            display_name: emoji.category
+            id: emoji.category_id,
+            name: `category_${emoji.category_id}`,
+            display_name: `Category ${emoji.category_id}`
           },
           tags: [],
           aliases: emoji.aliases || [],
@@ -126,11 +134,11 @@ export async function GET(request: NextRequest) {
           id: emoji.id,
           emoji_id: emoji.name,
           name: emoji.name,
-          description: emoji.display_name,
+          description: emoji.name,
           category: {
-            id: 0,
-            name: emoji.category,
-            display_name: emoji.category
+            id: emoji.category_id,
+            name: `category_${emoji.category_id}`,
+            display_name: `Category ${emoji.category_id}`
           },
           tags: [],
           aliases: [],
@@ -144,14 +152,14 @@ export async function GET(request: NextRequest) {
       categories: [
         ...categories.builtin.map((cat) => ({
           id: 0,
-          name: cat.category,
-          display_name: cat.category,
+          name: cat.category_name,
+          display_name: cat.category_name,
           emoji_count: cat.count
         })),
         ...categories.custom.map((cat) => ({
           id: 0,
-          name: cat.category,
-          display_name: cat.category,
+          name: cat.category_name,
+          display_name: cat.category_name,
           emoji_count: cat.count
         }))
       ],
@@ -197,8 +205,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Convert category to category ID (default to 9 for 'custom' category)
+    const categoryId = category ? parseInt(category) || 9 : 9;
+
     // Upload custom emoji using server action
-    await uploadCustomEmoji(name, displayName, imageData, category);
+    await uploadCustomEmoji(name, displayName, imageData, categoryId);
 
     return NextResponse.json({
       success: true,

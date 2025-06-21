@@ -11,15 +11,7 @@ const { auth } = NextAuth({
 export default auth((req) => {
   const { nextUrl, auth: session } = req;
 
-  // Debug logging for admin routes
-  if (nextUrl.pathname.startsWith('/admin')) {
-    // eslint-disable-next-line no-console
-    console.log('🔍 Middleware - Admin route accessed:', nextUrl.pathname);
-    // eslint-disable-next-line no-console
-    console.log('🔍 Middleware - Session exists:', !!session);
-    // eslint-disable-next-line no-console
-    console.log('🔍 Middleware - User ID:', session?.user?.id || 'No user ID');
-  }
+  // Admin routes are protected by the requireAdmin() check in the page component
 
   // Handle API route authentication
   if (nextUrl.pathname.startsWith('/api/')) {

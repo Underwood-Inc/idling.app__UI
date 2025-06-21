@@ -32,8 +32,9 @@ export const nextAuth = NextAuth({
       if (token) {
         session.user = {
           ...session.user,
-          // Use database internal ID for consistency with submissions
+          // Use database internal ID as the primary identifier for all app operations
           id: (token.databaseId || token.sub || '') as string,
+          // Keep providerAccountId for OAuth purposes only
           providerAccountId: token.providerAccountId as string
         };
       }
@@ -46,11 +47,21 @@ export const nextAuth = NextAuth({
         token.databaseId = user.id;
         token.providerAccountId =
           user.providerAccountId || account?.providerAccountId;
+
+        console.info('✅ JWT callback - User created/found:', {
+          databaseId: user.id,
+          name: user.name,
+          providerAccountId:
+            user.providerAccountId || account?.providerAccountId
+        });
       }
 
       // Capture providerAccountId from account during sign-in
       if (account?.providerAccountId) {
-        console.info('account.providerAccountId', account.providerAccountId);
+        console.info('✅ JWT callback - Account linked:', {
+          provider: account.provider,
+          providerAccountId: account.providerAccountId
+        });
         token.providerAccountId = account.providerAccountId;
       }
 
