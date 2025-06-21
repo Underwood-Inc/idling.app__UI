@@ -100,7 +100,8 @@ export async function getUserProfile(
     }
 
     return {
-      id: user.providerAccountId || user.id.toString(), // Use providerAccountId as primary ID
+      id: user.id.toString(), // Use database internal ID for consistency with submissions
+      providerAccountId: user.providerAccountId, // Keep OAuth provider ID separate
       username: user.name, // Use name as username for display
       name: user.name,
       email: user.email,
@@ -174,7 +175,8 @@ export async function getUserProfileById(
     }
 
     return {
-      id: user.providerAccountId || user.id.toString(), // Use providerAccountId as primary ID
+      id: user.id.toString(), // Use database internal ID for consistency with submissions
+      providerAccountId: user.providerAccountId, // Keep OAuth provider ID separate
       username: user.name, // Use name as username for display
       name: user.name,
       email: user.email,
@@ -274,8 +276,9 @@ export async function updateUserProfile(
     const userRow = userWithAccount[0] || updatedUser;
 
     return {
-      id: userRow.providerAccountId || userRow.id.toString(),
-      username: userRow.name,
+      id: userRow.id.toString(), // Use database internal ID for consistency with submissions
+      providerAccountId: userRow.providerAccountId, // Keep OAuth provider ID separate
+      username: userRow.name, // Use name as username for display
       name: userRow.name,
       email: userRow.email,
       bio: userRow.bio,

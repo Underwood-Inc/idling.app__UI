@@ -32,8 +32,8 @@ export const nextAuth = NextAuth({
       if (token) {
         session.user = {
           ...session.user,
-          // Use providerAccountId as the primary ID for consistency
-          id: (token.providerAccountId || token.sub || '') as string,
+          // Use database internal ID (token.sub) for consistency with submissions
+          id: (token.sub || '') as string,
           providerAccountId: token.providerAccountId as string
         };
       }
@@ -42,8 +42,10 @@ export const nextAuth = NextAuth({
     jwt: async ({ token, user, account }) => {
       // Capture providerAccountId from account during sign-in
       if (account?.providerAccountId) {
+        console.info('account.providerAccountId', account.providerAccountId);
         token.providerAccountId = account.providerAccountId;
       } else if (user?.providerAccountId) {
+        console.info('user.providerAccountId', user.providerAccountId);
         token.providerAccountId = user.providerAccountId;
       }
       return token;

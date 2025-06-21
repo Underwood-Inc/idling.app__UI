@@ -520,6 +520,7 @@ export async function exit(isTest = false) {
 // Provides options to:
 // 1. Run all pending migrations
 // 2. Create a new migration
+// 3. Re-run a specific migration
 // See MIGRATIONS.README.md for detailed usage instructions
 export async function main(isTest = false) {
   await ensureMigrationsDir();
@@ -529,6 +530,7 @@ export async function main(isTest = false) {
   console.info(chalk.dim('------------------------'));
   console.info(chalk.cyan('1.'), 'Run all migrations');
   console.info(chalk.cyan('2.'), 'Create new migration');
+  console.info(chalk.cyan('3.'), 'Re-run a specific migration');
 
   const rl = createReadlineInterface();
   rl.question(chalk.blue('\n? Select an option: '), async (answer) => {
@@ -540,6 +542,9 @@ export async function main(isTest = false) {
         case '2':
           await createNewMigration();
           break;
+        case '3':
+          await rerunMigration();
+          break;
         default:
           console.info(chalk.yellow('⚠'), 'Invalid option');
       }
@@ -549,6 +554,105 @@ export async function main(isTest = false) {
       rl.close();
       await exit(isTest);
     }
+  });
+}
+
+// Re-runs a specific migration after user selection
+// Lists all available migrations and prompts for selection
+async function rerunMigration(): Promise<void> {
+  const files = readdirSync(MIGRATIONS_DIR)
+    .filter((f) => /^\d{4}-.*\.sql$/.test(f))
+    .sort();
+
+  if (files.length === 0) {
+    console.info(chalk.yellow('⚠'), 'No migration files found');
+    return;
+  }
+
+  console.info(chalk.bold('\n📋 Available Migrations:'));
+  console.info(chalk.dim('------------------------'));
+
+  files.forEach((file, index) => {
+    console.info(chalk.cyan(`${index + 1}.`), formatFileName(file));
+  });
+
+  return new Promise((resolve) => {
+    const rl = createReadlineInterface();
+    rl.question(
+      chalk.blue('\n? Select migration number to re-run: '),
+      async (answer) => {
+        const selection = parseInt(answer, 10);
+
+        if (isNaN(selection) || selection < 1 || selection > files.length) {
+          console.info(chalk.red('✖'), 'Invalid selection');
+          rl.close();
+          resolve();
+          return;
+        }
+
+        const selectedFile = files[selection - 1];
+        const filePath = path.join(MIGRATIONS_DIR, selectedFile);
+
+        console.info(
+          chalk.yellow('\n⚠ Warning:'),
+          `You are about to re-run migration: ${chalk.cyan(selectedFile)}`
+        );
+        console.info(
+          chalk.dim(
+            'This will remove the existing migration record and re-execute it.'
+          )
+        );
+
+        rl.question(chalk.blue('? Are you sure? (y/N): '), async (confirm) => {
+          if (
+            confirm.toLowerCase() === 'y' ||
+            confirm.toLowerCase() === 'yes'
+          ) {
+            try {
+              // Remove existing migration record to allow re-execution
+              await sql`
+                  DELETE FROM migrations WHERE filename = ${selectedFile}
+                `;
+
+              console.info(
+                chalk.dim(
+                  `Removed existing record for: ${chalk.cyan(selectedFile)}`
+                )
+              );
+
+              // Re-run the migration
+              const result = await runMigration(filePath, selectedFile);
+
+              if (result === 'success') {
+                console.info(
+                  chalk.green('✓'),
+                  `Successfully re-ran migration: ${chalk.cyan(selectedFile)}`
+                );
+              } else {
+                console.info(
+                  chalk.yellow('⚠'),
+                  `Migration re-run completed with status: ${result}`
+                );
+              }
+            } catch (error) {
+              console.error(
+                chalk.red('✖'),
+                `Failed to re-run migration: ${selectedFile}`
+              );
+              console.error(
+                chalk.red('Error:'),
+                error instanceof Error ? error.message : error
+              );
+            }
+          } else {
+            console.info(chalk.dim('Operation cancelled'));
+          }
+
+          rl.close();
+          resolve();
+        });
+      }
+    );
   });
 }
 

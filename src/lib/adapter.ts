@@ -185,6 +185,18 @@ export default function CustomPostgresAdapter(client: Pool): Adapter {
 
       const result = await client.query(sql, params);
 
+      // Also update the users table with the provider_account_id for quick access
+      const updateUserSql = `
+        UPDATE users 
+        SET provider_account_id = $1 
+        WHERE id = $2 AND provider_account_id IS NULL
+      `;
+
+      await client.query(updateUserSql, [
+        account.providerAccountId,
+        account.userId
+      ]);
+
       return mapExpiresAt(result.rows[0]);
     },
     async createSession({ sessionToken, userId, expires }) {

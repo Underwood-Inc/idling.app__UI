@@ -1,5 +1,6 @@
 export interface UserProfileData {
   id: string;
+  providerAccountId?: string;
   username?: string;
   name?: string;
   bio?: string;
