@@ -1,0 +1,119 @@
+.admin-dashboard {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.admin-dashboard__header {
+  margin-bottom: 2rem;
+}
+
+.admin-dashboard__title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--light-bg__text-color--primary);
+  margin-bottom: 1rem;
+}
+
+.admin-dashboard__tabs {
+  display: flex;
+  gap: 0.5rem;
+  border-bottom: 2px solid var(--brand-tertiary--dark);
+  margin-bottom: 2rem;
+}
+
+.admin-dashboard__tab {
+  background: none;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--light-bg__text-color--secondary);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s ease;
+  position: relative;
+  top: 2px;
+}
+
+.admin-dashboard__tab:hover {
+  color: var(--brand-primary);
+  background: var(--light-background--tertiary);
+}
+
+.admin-dashboard__tab--active {
+  color: var(--brand-primary);
+  border-bottom-color: var(--brand-primary);
+  background: var(--light-background--tertiary);
+}
+
+.admin-dashboard__content {
+  min-height: 60vh;
+}
+
+.admin-dashboard__placeholder {
+  text-align: center;
+  padding: 4rem 2rem;
+  color: var(--light-bg__text-color--secondary);
+}
+
+.admin-dashboard__placeholder h2 {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  color: var(--light-bg__text-color--primary);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .admin-dashboard {
+    padding: 1rem;
+  }
+
+  .admin-dashboard__title {
+    font-size: 1.5rem;
+  }
+
+  .admin-dashboard__tabs {
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .admin-dashboard__tab {
+    padding: 0.5rem 1rem;
+    border-bottom: 1px solid var(--brand-tertiary--dark);
+    border-radius: 0;
+    top: 0;
+  }
+
+  .admin-dashboard__tab--active {
+    border-bottom-color: var(--brand-primary);
+  }
+
+  .admin-dashboard__placeholder {
+    padding: 2rem 1rem;
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .admin-dashboard__title {
+    color: var(--dark-bg__text-color--primary);
+  }
+
+  .admin-dashboard__tab {
+    color: var(--dark-bg__text-color--secondary);
+  }
+
+  .admin-dashboard__tab:hover,
+  .admin-dashboard__tab--active {
+    background: var(--dark-background--tertiary);
+  }
+
+  .admin-dashboard__placeholder {
+    color: var(--dark-bg__text-color--secondary);
+  }
+
+  .admin-dashboard__placeholder h2 {
+    color: var(--dark-bg__text-color--primary);
+  }
+}

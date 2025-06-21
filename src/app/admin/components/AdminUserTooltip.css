@@ -1,0 +1,286 @@
+.admin-user-tooltip {
+  position: relative;
+  display: inline-block;
+}
+
+.admin-user-tooltip__trigger {
+  background: var(--brand-primary);
+  color: white;
+  border: none;
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--border-radius);
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.admin-user-tooltip__trigger:hover {
+  background: var(--brand-primary--dark);
+  transform: translateY(-1px);
+}
+
+.admin-user-tooltip__content {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  z-index: 100;
+  background: var(--light-background--quinary);
+  border: 1px solid var(--brand-tertiary--dark);
+  border-radius: var(--border-radius);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  padding: 1rem;
+  min-width: 280px;
+  max-width: 320px;
+  margin-top: 0.5rem;
+  animation: tooltipFadeIn 0.2s ease-out;
+}
+
+.admin-user-tooltip__content::before {
+  content: '';
+  position: absolute;
+  top: -6px;
+  right: 12px;
+  width: 12px;
+  height: 12px;
+  background: var(--light-background--quinary);
+  border: 1px solid var(--brand-tertiary--dark);
+  border-bottom: none;
+  border-right: none;
+  transform: rotate(45deg);
+}
+
+.admin-user-tooltip__header {
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--brand-tertiary--dark);
+}
+
+.admin-user-tooltip__header strong {
+  color: var(--light-bg__text-color--primary);
+  font-size: 0.9rem;
+}
+
+.admin-user-tooltip__info {
+  margin-bottom: 0.75rem;
+}
+
+.admin-user-tooltip__status {
+  font-size: 0.85rem;
+}
+
+.admin-user-tooltip__status-normal {
+  color: #10b981;
+  font-weight: 500;
+}
+
+.admin-user-tooltip__timeout-active {
+  color: #ef4444;
+}
+
+.admin-user-tooltip__timeout-indicator {
+  font-weight: 600;
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.admin-user-tooltip__timeout-details {
+  font-size: 0.8rem;
+  color: var(--light-bg__text-color--secondary);
+  line-height: 1.4;
+}
+
+.admin-user-tooltip__timeout-details div {
+  margin-bottom: 0.25rem;
+}
+
+.admin-user-tooltip__actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.admin-user-tooltip__timeout-btn {
+  background: #ef4444;
+  color: white;
+  border: none;
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--border-radius);
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  width: 100%;
+}
+
+.admin-user-tooltip__timeout-btn:hover:not(:disabled) {
+  background: #dc2626;
+}
+
+.admin-user-tooltip__timeout-btn:disabled {
+  background: var(--light-bg__text-color--tertiary);
+  cursor: not-allowed;
+}
+
+.admin-user-tooltip__timeout-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.admin-user-tooltip__form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.admin-user-tooltip__form-field label {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--light-bg__text-color--primary);
+}
+
+.admin-user-tooltip__form-field select,
+.admin-user-tooltip__form-field input,
+.admin-user-tooltip__form-field textarea {
+  padding: 0.5rem;
+  border: 1px solid var(--brand-tertiary--dark);
+  border-radius: var(--border-radius);
+  background: var(--light-background--quaternary);
+  color: var(--light-bg__text-color--primary);
+  font-size: 0.8rem;
+}
+
+.admin-user-tooltip__form-field textarea {
+  resize: vertical;
+  min-height: 60px;
+}
+
+.admin-user-tooltip__form-field input:focus,
+.admin-user-tooltip__form-field select:focus,
+.admin-user-tooltip__form-field textarea:focus {
+  outline: none;
+  border-color: var(--brand-primary);
+  box-shadow: 0 0 0 2px rgba(var(--brand-primary-rgb), 0.2);
+}
+
+.admin-user-tooltip__form-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.admin-user-tooltip__submit,
+.admin-user-tooltip__cancel {
+  flex: 1;
+  padding: 0.5rem;
+  border: none;
+  border-radius: var(--border-radius);
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.admin-user-tooltip__submit {
+  background: #ef4444;
+  color: white;
+}
+
+.admin-user-tooltip__submit:hover {
+  background: #dc2626;
+}
+
+.admin-user-tooltip__cancel {
+  background: var(--light-background--tertiary);
+  color: var(--light-bg__text-color--primary);
+  border: 1px solid var(--brand-tertiary--dark);
+}
+
+.admin-user-tooltip__cancel:hover {
+  background: var(--light-background--secondary);
+}
+
+@keyframes tooltipFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .admin-user-tooltip__content {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    right: auto;
+    transform: translate(-50%, -50%);
+    margin: 0;
+    max-width: 90vw;
+    max-height: 80vh;
+    overflow-y: auto;
+  }
+
+  .admin-user-tooltip__content::before {
+    display: none;
+  }
+
+  .admin-user-tooltip__form-actions {
+    flex-direction: column;
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .admin-user-tooltip__content {
+    background: var(--dark-background--quinary);
+    border-color: var(--dark-brand-tertiary--dark);
+  }
+
+  .admin-user-tooltip__content::before {
+    background: var(--dark-background--quinary);
+    border-color: var(--dark-brand-tertiary--dark);
+  }
+
+  .admin-user-tooltip__header strong {
+    color: var(--dark-bg__text-color--primary);
+  }
+
+  .admin-user-tooltip__timeout-details {
+    color: var(--dark-bg__text-color--secondary);
+  }
+
+  .admin-user-tooltip__form-field label {
+    color: var(--dark-bg__text-color--primary);
+  }
+
+  .admin-user-tooltip__form-field select,
+  .admin-user-tooltip__form-field input,
+  .admin-user-tooltip__form-field textarea {
+    background: var(--dark-background--quaternary);
+    color: var(--dark-bg__text-color--primary);
+    border-color: var(--dark-brand-tertiary--dark);
+  }
+
+  .admin-user-tooltip__cancel {
+    background: var(--dark-background--tertiary);
+    color: var(--dark-bg__text-color--primary);
+    border-color: var(--dark-brand-tertiary--dark);
+  }
+
+  .admin-user-tooltip__cancel:hover {
+    background: var(--dark-background--secondary);
+  }
+
+  .admin-user-tooltip__timeout-btn:disabled {
+    background: var(--dark-bg__text-color--tertiary);
+  }
+}
