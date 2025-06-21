@@ -71,18 +71,9 @@ export class PermissionsService {
     // Prevent caching of auth checks
     noStore();
 
-    // eslint-disable-next-line no-console
-    console.log('🔍 hasPermission() called for:', permissionName);
     const session = await auth();
-    // eslint-disable-next-line no-console
-    console.log(
-      '🔍 Session:',
-      session?.user?.id ? `User ID: ${session.user.id}` : 'No session'
-    );
 
     if (!session?.user?.id) {
-      // eslint-disable-next-line no-console
-      console.log('❌ No session or user ID, returning false');
       return false;
     }
 
@@ -90,8 +81,6 @@ export class PermissionsService {
       parseInt(session.user.id),
       permissionName
     );
-    // eslint-disable-next-line no-console
-    console.log('🔍 userHasPermission result:', result);
     return result;
   }
 
@@ -561,11 +550,8 @@ export async function requireAdmin(): Promise<boolean> {
   // Prevent caching of admin checks
   noStore();
 
-  // eslint-disable-next-line no-console
-  console.log('🔍 requireAdmin() called');
   const result = await PermissionsService.hasPermission('admin.access');
-  // eslint-disable-next-line no-console
-  console.log('🔍 requireAdmin() result:', result);
+
   return result;
 }
 

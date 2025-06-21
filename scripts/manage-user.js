@@ -241,139 +241,174 @@ async function displayUserInfo(userId) {
     console.table(user[0]);
 
     // Account connections (OAuth providers)
-    const accounts = await sql`
-      SELECT 
-        id,
-        type,
-        provider,
-        "providerAccountId",
-        refresh_token IS NOT NULL as has_refresh_token,
-        access_token IS NOT NULL as has_access_token,
-        expires_at,
-        token_type,
-        scope
-      FROM accounts 
-      WHERE "userId" = ${userId}
-      ORDER BY provider
-    `;
+    try {
+      const accounts = await sql`
+        SELECT 
+          id,
+          type,
+          provider,
+          "providerAccountId", -- OAuth provider ID (for reference only)
+          refresh_token IS NOT NULL as has_refresh_token,
+          access_token IS NOT NULL as has_access_token,
+          expires_at,
+          token_type,
+          scope
+        FROM accounts 
+        WHERE "userId" = ${userId}
+        ORDER BY provider
+      `;
 
-    if (accounts.length > 0) {
-      console.log(chalk.green('\n🔗 Account Connections:'));
-      console.table(accounts);
+      if (accounts.length > 0) {
+        console.log(chalk.green('\n🔗 Account Connections:'));
+        console.table(accounts);
+      }
+    } catch (error) {
+      console.error(chalk.red('❌ Error fetching accounts:'), error.message);
     }
 
     // Active sessions
-    const sessions = await sql`
-      SELECT 
-        id,
-        "sessionToken",
-        expires
-      FROM sessions 
-      WHERE "userId" = ${userId}
-      AND expires > CURRENT_TIMESTAMP
-      ORDER BY expires DESC
-    `;
+    try {
+      const sessions = await sql`
+        SELECT 
+          id,
+          "sessionToken",
+          expires
+        FROM sessions 
+        WHERE "userId" = ${userId}
+        AND expires > CURRENT_TIMESTAMP
+        ORDER BY expires DESC
+      `;
 
-    if (sessions.length > 0) {
-      console.log(chalk.green('\n🔓 Active Sessions:'));
-      console.table(sessions);
+      if (sessions.length > 0) {
+        console.log(chalk.green('\n🔓 Active Sessions:'));
+        console.table(sessions);
+      }
+    } catch (error) {
+      console.error(chalk.red('❌ Error fetching sessions:'), error.message);
     }
 
     // User activity statistics
-    const activityStats = await sql`
-      SELECT 
-        (SELECT COUNT(*) FROM posts WHERE author_id = ${userId}) as posts_count,
-        (SELECT COUNT(*) FROM comments WHERE author_id = ${userId}) as comments_count,
-        (SELECT COUNT(*) FROM votes WHERE user_id = ${userId}) as votes_count,
-        (SELECT COUNT(*) FROM submissions WHERE user_id = ${userId}) as submissions_count,
-        (SELECT COUNT(*) FROM custom_emojis WHERE user_id = ${userId}) as custom_emojis_count,
-        (SELECT MAX(created_at) FROM posts WHERE author_id = ${userId}) as last_post_date,
-        (SELECT MAX(created_at) FROM comments WHERE author_id = ${userId}) as last_comment_date
-    `;
+    try {
+      const activityStats = await sql`
+        SELECT 
+          (SELECT COUNT(*) FROM posts WHERE author_id = ${userId}) as posts_count,
+          (SELECT COUNT(*) FROM comments WHERE author_id = ${userId}) as comments_count,
+          (SELECT COUNT(*) FROM votes WHERE user_id = ${userId}) as votes_count,
+          (SELECT COUNT(*) FROM submissions WHERE user_id = ${userId}) as submissions_count,
+          (SELECT COUNT(*) FROM custom_emojis WHERE user_id = ${userId}) as custom_emojis_count,
+          (SELECT MAX(created_at) FROM posts WHERE author_id = ${userId}) as last_post_date,
+          (SELECT MAX(created_at) FROM comments WHERE author_id = ${userId}) as last_comment_date
+      `;
 
-    if (activityStats.length > 0) {
-      console.log(chalk.green('\n📊 Activity Statistics:'));
-      console.table(activityStats[0]);
+      if (activityStats.length > 0) {
+        console.log(chalk.green('\n📊 Activity Statistics:'));
+        console.table(activityStats[0]);
+      }
+    } catch (error) {
+      console.error(
+        chalk.red('❌ Error fetching activity stats:'),
+        error.message
+      );
     }
 
     // User roles with detailed permissions
-    const roles = await sql`
-      SELECT 
-        ura.id, 
-        ur.name as role_name, 
-        ur.display_name,
-        ur.description,
-        ura.assigned_at,
-        ura.expires_at,
-        ura.is_active,
-        u.name as assigned_by_name,
-        u.email as assigned_by_email
-      FROM user_role_assignments ura
-      JOIN user_roles ur ON ura.role_id = ur.id
-      LEFT JOIN users u ON ura.assigned_by = u.id
-      WHERE ura.user_id = ${userId}
-      ORDER BY ura.assigned_at DESC
-    `;
+    try {
+      const roles = await sql`
+        SELECT 
+          ura.id, 
+          ur.name as role_name, 
+          ur.display_name,
+          ur.description,
+          ura.assigned_at,
+          ura.expires_at,
+          ura.is_active,
+          u.name as assigned_by_name,
+          u.email as assigned_by_email
+        FROM user_role_assignments ura
+        JOIN user_roles ur ON ura.role_id = ur.id
+        LEFT JOIN users u ON ura.assigned_by = u.id
+        WHERE ura.user_id = ${userId}
+        ORDER BY ura.assigned_at DESC
+      `;
 
-    if (roles.length > 0) {
-      console.log(chalk.green('\n🔐 User Roles:'));
-      console.table(roles);
+      if (roles.length > 0) {
+        console.log(chalk.green('\n🔐 User Roles:'));
+        console.table(roles);
 
-      // For each role, show what permissions it grants
-      for (const role of roles) {
-        // Get the role ID dynamically
-        const roleRecord =
-          await sql`SELECT id FROM user_roles WHERE name = ${role.role_name}`;
-        if (roleRecord.length === 0) continue;
+        // For each role, show what permissions it grants
+        for (const role of roles) {
+          try {
+            // Get the role ID dynamically
+            const roleRecord =
+              await sql`SELECT id FROM user_roles WHERE name = ${role.role_name}`;
+            if (roleRecord.length === 0) continue;
 
-        const rolePermissions = await sql`
-          SELECT 
-            p.name as permission_name,
-            p.display_name,
-            p.description,
-            p.category,
-            p.is_inheritable
-          FROM role_permissions rp
-          JOIN permissions p ON rp.permission_id = p.id
-          WHERE rp.role_id = ${roleRecord[0].id}
-          ORDER BY p.category, p.name
-        `;
+            const rolePermissions = await sql`
+              SELECT 
+                p.name as permission_name,
+                p.display_name,
+                p.description,
+                p.category,
+                p.is_inheritable
+              FROM role_permissions rp
+              JOIN permissions p ON rp.permission_id = p.id
+              WHERE rp.role_id = ${roleRecord[0].id}
+              ORDER BY p.category, p.name
+            `;
 
-        if (rolePermissions.length > 0) {
-          console.log(
-            chalk.yellow(
-              `\n  📋 Permissions granted by "${role.display_name}" role:`
-            )
-          );
-          console.table(rolePermissions);
+            if (rolePermissions.length > 0) {
+              console.log(
+                chalk.yellow(
+                  `\n  📋 Permissions granted by "${role.display_name}" role:`
+                )
+              );
+              console.table(rolePermissions);
+            }
+          } catch (error) {
+            console.error(
+              chalk.red(
+                `❌ Error fetching permissions for role ${role.role_name}:`
+              ),
+              error.message
+            );
+          }
         }
       }
+    } catch (error) {
+      console.error(chalk.red('❌ Error fetching user roles:'), error.message);
     }
 
     // User permissions (direct overrides)
-    const permissions = await sql`
-      SELECT 
-        up.id,
-        p.name as permission_name,
-        p.display_name,
-        p.description,
-        p.category,
-        up.granted,
-        up.granted_at,
-        up.expires_at,
-        up.reason,
-        u.name as granted_by_name,
-        u.email as granted_by_email
-      FROM user_permissions up
-      JOIN permissions p ON up.permission_id = p.id
-      LEFT JOIN users u ON up.granted_by = u.id
-      WHERE up.user_id = ${userId}
-      ORDER BY up.granted_at DESC
-    `;
+    try {
+      const permissions = await sql`
+        SELECT 
+          up.id,
+          p.name as permission_name,
+          p.display_name,
+          p.description,
+          p.category,
+          up.granted,
+          up.granted_at,
+          up.expires_at,
+          up.reason,
+          u.name as granted_by_name,
+          u.email as granted_by_email
+        FROM user_permissions up
+        JOIN permissions p ON up.permission_id = p.id
+        LEFT JOIN users u ON up.granted_by = u.id
+        WHERE up.user_id = ${userId}
+        ORDER BY up.granted_at DESC
+      `;
 
-    if (permissions.length > 0) {
-      console.log(chalk.green('\n⚡ Direct Permission Overrides:'));
-      console.table(permissions);
+      if (permissions.length > 0) {
+        console.log(chalk.green('\n⚡ Direct Permission Overrides:'));
+        console.table(permissions);
+      }
+    } catch (error) {
+      console.error(
+        chalk.red('❌ Error fetching user permissions:'),
+        error.message
+      );
     }
 
     // User timeouts

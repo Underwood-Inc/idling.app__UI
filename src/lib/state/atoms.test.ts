@@ -152,7 +152,7 @@ describe('Jotai Atoms', () => {
 
       expect(state).toEqual({
         onlyMine: false,
-        providerAccountId: '',
+        userId: '',
         filters: [],
         page: 1,
         pageSize: 10,
@@ -213,7 +213,7 @@ describe('Jotai Atoms', () => {
 
       expect(result).toEqual({
         onlyMine: true,
-        providerAccountId: 'user123',
+        userId: 'user123',
         filters: [{ name: 'tags', value: '#test-tag,#another-tag' }],
         page: 2,
         pageSize: 50,

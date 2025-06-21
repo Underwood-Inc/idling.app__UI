@@ -1,23 +1,30 @@
 #!/usr/bin/env node
 
+/* eslint-disable no-console */
+
 /**
  * Populate Emoji Database Script
  * Populates the database with Windows and Mac emoji data
  */
 
-const { Pool } = require('pg');
+// Load environment variables FIRST, before any other imports
+require('dotenv').config({ path: '.env.local' });
 
-// Database connection
-const pool = new Pool({
-  host: process.env.POSTGRES_HOST || 'localhost',
-  user: process.env.POSTGRES_USER || 'postgres',
-  password: process.env.POSTGRES_PASSWORD || 'password',
-  database: process.env.POSTGRES_DB || 'idling_app',
-  port: Number(process.env.POSTGRES_PORT) || 5432,
-  ssl:
-    process.env.NODE_ENV === 'production'
-      ? { rejectUnauthorized: false }
-      : false
+const postgres = require('postgres');
+
+// Create database connection AFTER environment variables are loaded
+const sql = postgres({
+  host: process.env.POSTGRES_HOST,
+  user: process.env.POSTGRES_USER,
+  database: process.env.POSTGRES_DB,
+  password: process.env.POSTGRES_PASSWORD,
+  port: process.env.POSTGRES_PORT,
+  ssl: 'prefer',
+  onnotice: () => {}, // Ignore NOTICE statements - they're not errors
+  max: 10,
+  idle_timeout: 20,
+  connect_timeout: 10,
+  prepare: false
 });
 
 // Sample emoji data for Windows
@@ -833,17 +840,15 @@ const macEmojis = windowsEmojis.map((emoji) => ({
 }));
 
 async function populateEmojiData() {
-  const client = await pool.connect();
-
   try {
     console.log('Starting emoji data population...');
 
     // Get category IDs
-    const categoryResult = await client.query(
-      'SELECT id, name FROM emoji_categories'
-    );
+    const categoryResult = await sql`
+      SELECT id, name FROM emoji_categories
+    `;
     const categoryMap = {};
-    categoryResult.rows.forEach((row) => {
+    categoryResult.forEach((row) => {
       categoryMap[row.name] = row.id;
     });
 
@@ -861,12 +866,15 @@ async function populateEmojiData() {
       }
 
       try {
-        await client.query(
-          `
+        await sql`
           INSERT INTO emojis_windows (
             emoji_id, unicode_codepoint, unicode_char, name, description,
             category_id, tags, aliases, keywords, windows_version_min
-          ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+          ) VALUES (
+            ${emoji.emoji_id}, ${emoji.unicode_codepoint}, ${emoji.unicode_char}, 
+            ${emoji.name}, ${emoji.description}, ${categoryId}, ${emoji.tags}, 
+            ${emoji.aliases}, ${emoji.keywords}, ${emoji.windows_version_min}
+          )
           ON CONFLICT (emoji_id) DO UPDATE SET
             unicode_codepoint = EXCLUDED.unicode_codepoint,
             unicode_char = EXCLUDED.unicode_char,
@@ -878,20 +886,7 @@ async function populateEmojiData() {
             keywords = EXCLUDED.keywords,
             windows_version_min = EXCLUDED.windows_version_min,
             updated_at = CURRENT_TIMESTAMP
-        `,
-          [
-            emoji.emoji_id,
-            emoji.unicode_codepoint,
-            emoji.unicode_char,
-            emoji.name,
-            emoji.description,
-            categoryId,
-            emoji.tags,
-            emoji.aliases,
-            emoji.keywords,
-            emoji.windows_version_min
-          ]
-        );
+        `;
 
         console.log(`✓ Inserted Windows emoji: ${emoji.name}`);
       } catch (error) {
@@ -914,12 +909,15 @@ async function populateEmojiData() {
       }
 
       try {
-        await client.query(
-          `
+        await sql`
           INSERT INTO emojis_mac (
             emoji_id, unicode_codepoint, unicode_char, name, description,
             category_id, tags, aliases, keywords, macos_version_min
-          ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+          ) VALUES (
+            ${emoji.emoji_id}, ${emoji.unicode_codepoint}, ${emoji.unicode_char}, 
+            ${emoji.name}, ${emoji.description}, ${categoryId}, ${emoji.tags}, 
+            ${emoji.aliases}, ${emoji.keywords}, ${emoji.macos_version_min}
+          )
           ON CONFLICT (emoji_id) DO UPDATE SET
             unicode_codepoint = EXCLUDED.unicode_codepoint,
             unicode_char = EXCLUDED.unicode_char,
@@ -931,20 +929,7 @@ async function populateEmojiData() {
             keywords = EXCLUDED.keywords,
             macos_version_min = EXCLUDED.macos_version_min,
             updated_at = CURRENT_TIMESTAMP
-        `,
-          [
-            emoji.emoji_id,
-            emoji.unicode_codepoint,
-            emoji.unicode_char,
-            emoji.name,
-            emoji.description,
-            categoryId,
-            emoji.tags,
-            emoji.aliases,
-            emoji.keywords,
-            emoji.macos_version_min
-          ]
-        );
+        `;
 
         console.log(`✓ Inserted Mac emoji: ${emoji.name}`);
       } catch (error) {
@@ -956,22 +941,24 @@ async function populateEmojiData() {
     }
 
     // Get counts
-    const windowsCount = await client.query(
-      'SELECT COUNT(*) FROM emojis_windows WHERE is_active = true'
-    );
-    const macCount = await client.query(
-      'SELECT COUNT(*) FROM emojis_mac WHERE is_active = true'
-    );
+    const windowsCount = await sql`
+      SELECT COUNT(*) as count FROM emojis_windows WHERE is_active = true
+    `;
+    const macCount = await sql`
+      SELECT COUNT(*) as count FROM emojis_mac WHERE is_active = true
+    `;
 
-    console.log('\n=== Population Complete ===');
-    console.log(`Windows emojis: ${windowsCount.rows[0].count}`);
-    console.log(`Mac emojis: ${macCount.rows[0].count}`);
-    console.log('✅ Emoji data population successful!');
+    console.log(`\n✅ Emoji data population completed!`);
+    console.log(`📊 Windows emojis: ${windowsCount[0].count}`);
+    console.log(`📊 Mac emojis: ${macCount[0].count}`);
+    console.log(
+      `📊 Total emojis: ${parseInt(windowsCount[0].count) + parseInt(macCount[0].count)}`
+    );
   } catch (error) {
     console.error('❌ Error populating emoji data:', error);
     throw error;
   } finally {
-    client.release();
+    await sql.end();
   }
 }
 

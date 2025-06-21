@@ -2410,8 +2410,7 @@ async function createPosts(users, config, generator) {
       posts.push({
         submission_name: contentData.content,
         submission_title: title,
-        user_id: user.id, // Use NextAuth user ID
-        author_provider_account_id: user.providerAccountId, // OAuth provider account ID
+        user_id: user.id, // Internal database user ID (primary identifier)
         tags: contentData.hashtags,
         thread_parent_id: null,
         submission_datetime: timestamp,
@@ -2423,11 +2422,11 @@ async function createPosts(users, config, generator) {
     for (const post of posts) {
       const result = await sql`
         INSERT INTO submissions (
-          submission_name, submission_title, user_id, author_provider_account_id, tags, 
+          submission_name, submission_title, user_id, tags, 
           thread_parent_id, submission_datetime
         ) VALUES (
           ${post.submission_name}, ${post.submission_title}, 
-          ${post.user_id}, ${post.author_provider_account_id}, ${post.tags}, 
+          ${post.user_id}, ${post.tags}, 
           ${post.thread_parent_id}, ${post.submission_datetime}
         ) RETURNING submission_id
       `;
@@ -2539,8 +2538,7 @@ async function createReplies(users, posts, config, generator) {
               const reply = {
                 submission_name: replyContent,
                 submission_title: generateReplyTitle(parent, depth),
-                user_id: replyUser.id, // Use NextAuth user ID
-                author_provider_account_id: replyUser.providerAccountId, // OAuth provider account ID
+                user_id: replyUser.id, // Internal database user ID (primary identifier)
                 tags: tags,
                 thread_parent_id: parent.submission_id,
                 submission_datetime: replyTime,
@@ -2564,11 +2562,11 @@ async function createReplies(users, posts, config, generator) {
           try {
             const result = await sql`
               INSERT INTO submissions (
-                submission_name, submission_title, user_id, author_provider_account_id, tags, 
+                submission_name, submission_title, user_id, tags, 
                 thread_parent_id, submission_datetime
               ) VALUES (
                 ${reply.submission_name}, ${reply.submission_title}, 
-                ${reply.user_id}, ${reply.author_provider_account_id}, ${reply.tags}, 
+                ${reply.user_id}, ${reply.tags}, 
                 ${reply.thread_parent_id}, ${reply.submission_datetime}
               ) RETURNING submission_id
             `;
