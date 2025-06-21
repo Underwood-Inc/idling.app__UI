@@ -2,10 +2,8 @@ import { redirect } from 'next/navigation';
 import { PageContainer } from 'src/app/components/page-container/PageContainer';
 import { auth } from '../../../lib/auth';
 import { NAV_PATHS } from '../../../lib/routes';
-import {
-  SignIn,
-  SignInProviders
-} from '../../components/auth-buttons/AuthButtons';
+import { ClientSignIn } from '../../components/auth-buttons/ClientAuthButtons';
+import { SignInProviders } from '../../components/auth-buttons/types';
 import './page.css';
 
 export default async function Page({
@@ -15,6 +13,7 @@ export default async function Page({
 }) {
   const session = await auth();
   let providers: SignInProviders[] = ['twitch', 'google'];
+  const redirectTo = searchParams.redirect || NAV_PATHS.ROOT;
 
   if (session && searchParams.redirect) {
     redirect(searchParams.redirect);
@@ -26,7 +25,11 @@ export default async function Page({
     <PageContainer>
       <article className="signin__container">
         {providers.map((provider) => (
-          <SignIn key={provider} provider={provider} />
+          <ClientSignIn
+            key={provider}
+            provider={provider}
+            redirectTo={redirectTo}
+          />
         ))}
       </article>
     </PageContainer>
