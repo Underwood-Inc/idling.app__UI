@@ -5,6 +5,7 @@ const MY_POSTS = '/my-posts';
 const COINS = '/coins';
 const GAME = '/game';
 const SIGNIN = '/auth/signin';
+const ADMIN = '/admin';
 
 // Thread routes for Reddit-style navigation
 const THREAD_BASE = '/t';
@@ -17,7 +18,8 @@ export const NAV_PATHS = {
   COINS,
   GAME,
   SIGNIN,
-  THREAD_BASE
+  THREAD_BASE,
+  ADMIN
 };
 
 // Helper function to build thread URLs
@@ -43,13 +45,10 @@ export const NAV_PATH_LABELS: Record<ROUTES, string> = {
   COINS: 'Coins',
   GAME: 'Game',
   SIGNIN: 'Sign In',
-  THREAD_BASE: 'Thread'
+  THREAD_BASE: 'Thread',
+  ADMIN: 'Admin'
 };
 
 export const DISABLED_PATHS = [NAV_PATHS.GAME];
-export const PUBLIC_ROUTES = [
-  NAV_PATHS.ROOT,
-  NAV_PATHS.SIGNIN,
-  NAV_PATHS.POSTS
-];
-export const DEFAULT_REDIRECT = '/posts';
+export const PUBLIC_ROUTES = [NAV_PATHS.ROOT, NAV_PATHS.SIGNIN];
+export const DEFAULT_REDIRECT = '/';
