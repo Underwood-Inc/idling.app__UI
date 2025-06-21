@@ -3,6 +3,8 @@
 import { useEffect, useState } from 'react';
 import { UserProfileData } from '../../../lib/types/profile';
 import { Avatar } from '../avatar/Avatar';
+import { ContentWithPills } from '../ui/ContentWithPills';
+import { SmartInput } from '../ui/SmartInput';
 
 import './UserProfile.css';
 
@@ -99,14 +101,16 @@ export function UserProfile({
 
           {isEditingBio ? (
             <div className="user-profile__bio-editor">
-              <textarea
-                className="user-profile__bio-textarea"
+              <SmartInput
                 value={bioText}
-                onChange={(e) => setBioText(e.target.value)}
-                placeholder="Tell us about yourself..."
-                maxLength={500}
+                onChange={setBioText}
+                placeholder="Tell us about yourself... Use #hashtags, @mentions, and paste URLs!"
+                className="user-profile__bio-smart-input"
+                as="textarea"
                 rows={3}
                 disabled={isDisabled}
+                enableHashtags={true}
+                enableUserMentions={true}
               />
               <div className="user-profile__bio-actions">
                 <button
@@ -131,7 +135,11 @@ export function UserProfile({
           ) : (
             <div className="user-profile__bio-content">
               {user.bio ? (
-                <p>{user.bio}</p>
+                <ContentWithPills
+                  content={user.bio}
+                  contextId={`user-profile-bio-${user.id}`}
+                  className="user-profile__bio-pills"
+                />
               ) : isOwnProfile ? (
                 <p className="user-profile__bio-placeholder">
                   Click &quot;Edit Bio&quot; to add your bio and tell others
@@ -226,14 +234,16 @@ export function UserProfile({
 
         {isEditingBio ? (
           <div className="user-profile__bio-editor">
-            <textarea
-              className="user-profile__bio-textarea"
+            <SmartInput
               value={bioText}
-              onChange={(e) => setBioText(e.target.value)}
-              placeholder="Tell us about yourself..."
-              maxLength={500}
+              onChange={setBioText}
+              placeholder="Tell us about yourself... Use #hashtags, @mentions, and paste URLs!"
+              className="user-profile__bio-smart-input"
+              as="textarea"
               rows={4}
               disabled={isDisabled}
+              enableHashtags={true}
+              enableUserMentions={true}
             />
             <div className="user-profile__bio-actions">
               <button
@@ -258,7 +268,11 @@ export function UserProfile({
         ) : (
           <div className="user-profile__bio-content">
             {user.bio ? (
-              <p>{user.bio}</p>
+              <ContentWithPills
+                content={user.bio}
+                contextId={`user-profile-bio-${user.id}`}
+                className="user-profile__bio-pills"
+              />
             ) : isOwnProfile ? (
               <p className="user-profile__bio-placeholder">
                 Click &quot;Edit&quot; to add your bio and tell others about
