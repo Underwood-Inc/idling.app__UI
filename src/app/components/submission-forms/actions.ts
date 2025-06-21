@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 'use server';
 import { revalidatePath } from 'next/cache';
 import { CustomSession } from '../../../auth.config';
@@ -103,15 +104,27 @@ export async function createSubmissionAction(
   const { data, errors } = await validateCreateSubmissionForm(formData);
   const session = (await auth()) as CustomSession;
 
+  console.log('🔍 createSubmissionAction - Session:', session);
+  console.log('🔍 createSubmissionAction - User:', session?.user);
+  console.log(
+    '🔍 createSubmissionAction - ProviderAccountId:',
+    session?.user?.providerAccountId
+  );
+
   if (!data) {
     return { status: -1, error: errors };
   }
 
   // Authentication check - session must have user name and providerAccountId
-
   if (!session || !session?.user?.name || !session.user.providerAccountId) {
+    console.log('❌ createSubmissionAction - Authentication failed');
+    console.log('❌ Session exists:', !!session);
+    console.log('❌ User name:', session?.user?.name);
+    console.log('❌ Provider account ID:', session?.user?.providerAccountId);
     return { status: -1, error: 'Authentication error.' };
   }
+
+  console.log('✅ createSubmissionAction - Authentication passed');
 
   // Extract tags from title and content (these come without # prefix)
   const titleTags = extractTagsFromText(data.submission_title);
@@ -139,6 +152,11 @@ export async function createSubmissionAction(
   ];
 
   const threadParentId = formData.get('thread_parent_id');
+
+  console.log(
+    '🔍 createSubmissionAction - About to insert with providerAccountId:',
+    session?.user.providerAccountId
+  );
 
   try {
     const result = await sql`
@@ -173,7 +191,7 @@ export async function createSubmissionAction(
       submission: newSubmission
     };
   } catch (e) {
-    console.error(e);
+    console.error('❌ createSubmissionAction - SQL Error:', e);
     return { status: -1, error: `Failed to create post.` };
   }
 }

@@ -91,7 +91,7 @@ const PostsManager = React.memo(function PostsManager({
   } = useSubmissionsManager({
     contextId,
     onlyMine,
-    providerAccountId: session?.user?.id || '',
+    providerAccountId: session?.user?.providerAccountId || '',
     includeThreadReplies: shouldIncludeReplies,
     infiniteScroll: infiniteScrollMode
   });
