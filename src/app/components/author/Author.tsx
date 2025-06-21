@@ -4,7 +4,7 @@ import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
 import { useOverlay } from '../../../lib/context/OverlayContext';
-import { ensureUserSlug } from '../../../lib/utils/user-slug';
+import { ensureUserSlug, generateUserSlug } from '../../../lib/utils/user-slug';
 import { Avatar, AvatarPropSizes } from '../avatar/Avatar';
 import { InteractiveTooltip } from '../tooltip/InteractiveTooltip';
 import { UserProfile, UserProfileData } from '../user-profile/UserProfile';
@@ -216,20 +216,36 @@ export const Author: React.FC<AuthorProps> = ({
 
   const displayName = showFullName ? authorName : `@${authorName}`;
 
-  // Generate profile URL with guaranteed slug
+  // Generate profile URL with guaranteed slug using authorId (database ID)
   const profileUrl = userProfile
     ? `/profile/${ensureUserSlug(userProfile)}`
-    : `/profile/${encodeURIComponent(authorName)}`;
+    : `/profile/${generateUserSlug(authorName, authorId)}`;
 
-  // Fetch user profile for tooltip via API route
+  // Fetch user profile for tooltip via API route using database ID for more reliable lookup
   useEffect(() => {
-    if (enableTooltip && authorName) {
+    if (enableTooltip && authorId && authorName) {
       setIsLoading(true);
 
-      fetch(`/api/profile/${encodeURIComponent(authorName)}`)
+      // Try to fetch by database ID first (most reliable), fallback to name
+      const fetchUrl = authorId
+        ? `/api/profile/id/${encodeURIComponent(authorId)}`
+        : `/api/profile/${encodeURIComponent(authorName)}`;
+
+      fetch(fetchUrl)
         .then((response) => {
           if (response.ok) {
             return response.json();
+          }
+          // If ID lookup fails, try name lookup as fallback
+          if (authorId && fetchUrl.includes('/id/')) {
+            return fetch(`/api/profile/${encodeURIComponent(authorName)}`).then(
+              (fallbackResponse) => {
+                if (fallbackResponse.ok) {
+                  return fallbackResponse.json();
+                }
+                throw new Error('Failed to fetch profile');
+              }
+            );
           }
           throw new Error('Failed to fetch profile');
         })
@@ -244,7 +260,7 @@ export const Author: React.FC<AuthorProps> = ({
           setIsLoading(false);
         });
     }
-  }, [authorName, enableTooltip]);
+  }, [authorId, authorName, enableTooltip]);
 
   const handleClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
     // Handle Ctrl+Click for modal

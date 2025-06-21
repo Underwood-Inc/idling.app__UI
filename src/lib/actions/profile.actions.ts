@@ -124,13 +124,96 @@ export async function getUserProfile(
 }
 
 /**
+ * Get user profile by database ID (internal ID)
+ */
+export async function getUserProfileByDatabaseId(
+  databaseId: string | number
+): Promise<UserProfileData | null> {
+  try {
+    const userResult = await sql`
+      SELECT 
+        u.id,
+        u.name,
+        u.email,
+        u.bio,
+        u.location,
+        u.image,
+        u.created_at,
+        u.profile_public,
+        a."providerAccountId"
+      FROM users u 
+      LEFT JOIN accounts a ON u.id = a."userId"
+      WHERE u.id = ${parseInt(databaseId.toString())}
+      LIMIT 1
+    `;
+
+    if (userResult.length === 0) {
+      return null;
+    }
+
+    const user = userResult[0];
+
+    // Get submission statistics
+    let stats = null;
+    try {
+      const submissionStats = await sql`
+        SELECT 
+          COUNT(*) as total_submissions,
+          COUNT(CASE WHEN thread_parent_id IS NULL THEN 1 END) as posts_count,
+          COUNT(CASE WHEN thread_parent_id IS NOT NULL THEN 1 END) as replies_count,
+          MAX(submission_datetime) as last_activity
+        FROM submissions 
+        WHERE user_id = ${user.id}
+      `;
+
+      if (submissionStats.length > 0) {
+        stats = submissionStats[0];
+      }
+    } catch (statsError) {
+      // Stats not available, continue without them
+    }
+
+    return {
+      id: user.id.toString(), // Use database internal ID for consistency
+      providerAccountId: user.providerAccountId, // Keep OAuth provider ID separate
+      username: user.name, // Use name as username for display
+      name: user.name,
+      email: user.email,
+      bio: user.bio,
+      location: user.location,
+      image: user.image,
+      created_at: user.created_at,
+      profile_public: user.profile_public,
+      total_submissions: stats ? parseInt(stats.total_submissions) : 0,
+      posts_count: stats ? parseInt(stats.posts_count) : 0,
+      replies_count: stats ? parseInt(stats.replies_count) : 0,
+      last_activity: stats?.last_activity || null,
+      // Add slug for URL generation
+      slug: generateUserSlug(user.name || 'user', user.id)
+    };
+  } catch (error) {
+    console.error('Error fetching user profile by database ID:', error);
+    return null;
+  }
+}
+
+/**
  * Get user profile by user ID (for authenticated user's own profile)
+ * This function handles both provider account IDs and database IDs
  */
 export async function getUserProfileById(
   userId: string
 ): Promise<UserProfileData | null> {
   try {
-    // Find user by providerAccountId first (most reliable), then by database ID
+    // First try as database ID (numeric)
+    if (/^\d+$/.test(userId)) {
+      const result = await getUserProfileByDatabaseId(userId);
+      if (result) {
+        return result;
+      }
+    }
+
+    // Fallback to provider account ID lookup
     const result = await sql`
       SELECT 
         u.id,
@@ -144,7 +227,7 @@ export async function getUserProfileById(
         a."providerAccountId"
       FROM users u 
       LEFT JOIN accounts a ON u.id = a."userId"
-      WHERE a."providerAccountId" = ${userId} OR u.id::text = ${userId}
+      WHERE a."providerAccountId" = ${userId}
       LIMIT 1
     `;
 
@@ -154,7 +237,7 @@ export async function getUserProfileById(
 
     const user = result[0];
 
-    // Get submission statistics if they exist
+    // Get submission statistics
     let stats = null;
     try {
       const submissionStats = await sql`
@@ -164,7 +247,7 @@ export async function getUserProfileById(
           COUNT(CASE WHEN thread_parent_id IS NOT NULL THEN 1 END) as replies_count,
           MAX(submission_datetime) as last_activity
         FROM submissions 
-        WHERE user_id = (SELECT u.id FROM users u LEFT JOIN accounts a ON u.id = a."userId" WHERE a."providerAccountId" = ${userId} OR u.id::text = ${userId} LIMIT 1)
+        WHERE user_id = ${user.id}
       `;
 
       if (submissionStats.length > 0) {
