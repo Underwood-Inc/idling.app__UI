@@ -27,6 +27,7 @@
     "lint-staged": "lint-staged",
     "lint": "next lint",
     "migrations": "tsx scripts/migrations.ts main",
+    "manage-user": "node scripts/manage-user.js",
     "prepare": "husky",
     "prettier": "prettier --write .",
     "release": "release-it",

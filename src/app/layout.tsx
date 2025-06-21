@@ -13,6 +13,7 @@ import Loader from './components/loader/Loader';
 import MessageTickerWithInterval from './components/message-ticker/MessageTickerWithInterval';
 import PWAInstallPrompt from './components/pwa-install/PWAInstallPrompt';
 import { ServiceWorkerRegistration } from './components/service-worker/ServiceWorkerRegistration';
+import TimeoutBanner from './components/timeout-banner/TimeoutBanner';
 import { OverlayRenderer } from './components/ui/OverlayRenderer';
 import './globals.css';
 
@@ -114,6 +115,7 @@ export default function RootLayout({
         <ServiceWorkerRegistration />
         <SessionProvider>
           <OverlayProvider>
+            <TimeoutBanner />
             <main>
               <AvatarsBackground />
 

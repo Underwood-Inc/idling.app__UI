@@ -1,6 +1,8 @@
 import dynamic from 'next/dynamic';
 import { Suspense } from 'react';
 import { CONTEXT_IDS } from 'src/lib/context-ids';
+import { CustomSession } from '../../auth.config';
+import { auth } from '../../lib/auth';
 import { SpacingThemeProvider } from '../../lib/context/SpacingThemeContext';
 import { Card } from '../components/card/Card';
 import FadeIn from '../components/fade-in/FadeIn';
@@ -23,6 +25,8 @@ const LazyPostsManager = dynamic(
 );
 
 export default async function Posts() {
+  const session = (await auth()) as CustomSession | null;
+
   return (
     <SpacingThemeProvider>
       <PageContainer>
@@ -36,7 +40,9 @@ export default async function Posts() {
             <FadeIn className={styles.posts__container_fade}>
               <Card width="full" className={styles.posts__container_item}>
                 <Suspense fallback={<Loader />}>
-                  <PostsPageClient contextId={CONTEXT_IDS.POSTS.toString()} />
+                  {session?.user?.id && (
+                    <PostsPageClient contextId={CONTEXT_IDS.POSTS.toString()} />
+                  )}
                 </Suspense>
               </Card>
             </FadeIn>
