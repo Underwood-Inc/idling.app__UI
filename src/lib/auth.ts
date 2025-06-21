@@ -32,22 +32,28 @@ export const nextAuth = NextAuth({
       if (token) {
         session.user = {
           ...session.user,
-          // Use database internal ID (token.sub) for consistency with submissions
-          id: (token.sub || '') as string,
+          // Use database internal ID for consistency with submissions
+          id: (token.databaseId || token.sub || '') as string,
           providerAccountId: token.providerAccountId as string
         };
       }
       return session;
     },
     jwt: async ({ token, user, account }) => {
+      // During sign-in, capture both database ID and provider account ID
+      if (user) {
+        // user.id is the database internal ID from the adapter
+        token.databaseId = user.id;
+        token.providerAccountId =
+          user.providerAccountId || account?.providerAccountId;
+      }
+
       // Capture providerAccountId from account during sign-in
       if (account?.providerAccountId) {
         console.info('account.providerAccountId', account.providerAccountId);
         token.providerAccountId = account.providerAccountId;
-      } else if (user?.providerAccountId) {
-        console.info('user.providerAccountId', user.providerAccountId);
-        token.providerAccountId = user.providerAccountId;
       }
+
       return token;
     }
   }
