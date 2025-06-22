@@ -729,29 +729,35 @@ function calculateCharacterPositionInToken(
     const tokenText = textNode.textContent;
     const tokenLength = tokenText.length;
 
-    // Use browser's caretPositionFromPoint for precise positioning
-    if (document.caretPositionFromPoint) {
-      const tokenRect = tokenElement.getBoundingClientRect();
-      const absoluteX = tokenRect.left + clickXInToken;
-      const absoluteY = tokenRect.top + tokenRect.height / 2;
+    // Use browser's caretPositionFromPoint for precise positioning (if available)
+    const documentWithCaret = document as any;
+    if (documentWithCaret.caretPositionFromPoint) {
+      try {
+        const tokenRect = tokenElement.getBoundingClientRect();
+        const absoluteX = tokenRect.left + clickXInToken;
+        const absoluteY = tokenRect.top + tokenRect.height / 2;
 
-      const caretPosition = document.caretPositionFromPoint(
-        absoluteX,
-        absoluteY
-      );
-      if (caretPosition && tokenElement.contains(caretPosition.offsetNode)) {
-        const offset = caretPosition.offset;
-        const charIndex = tokenStart + Math.min(offset, tokenLength);
+        const caretPosition = documentWithCaret.caretPositionFromPoint(
+          absoluteX,
+          absoluteY
+        );
+        if (caretPosition && tokenElement.contains(caretPosition.offsetNode)) {
+          const offset = caretPosition.offset;
+          const charIndex = tokenStart + Math.min(offset, tokenLength);
 
-        richTextLogger.logInfo('Calculated character position in token', {
-          clickXInToken,
-          caretOffset: offset,
-          calculatedIndex: charIndex,
-          tokenText:
-            tokenText.substring(0, 20) + (tokenText.length > 20 ? '...' : '')
-        });
+          richTextLogger.logInfo('Calculated character position in token', {
+            clickXInToken,
+            caretOffset: offset,
+            calculatedIndex: charIndex,
+            tokenText:
+              tokenText.substring(0, 20) + (tokenText.length > 20 ? '...' : '')
+          });
 
-        return charIndex;
+          return charIndex;
+        }
+      } catch (error) {
+        console.warn('Error using caretPositionFromPoint:', error);
+        // Fall through to proportional positioning
       }
     }
 
