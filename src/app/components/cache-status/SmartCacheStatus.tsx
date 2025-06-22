@@ -168,9 +168,11 @@ const SmartCacheStatus: React.FC = () => {
           // Silent error handling
         }
 
+        const timestamp = new Date();
         const newCacheInfo = {
           isCached: hasServiceWorker || cacheCount > 0 || localStorageSize > 0,
-          cacheTimestamp: new Date(),
+          cacheTimestamp: timestamp,
+          cacheAge: formatTimeAgo(timestamp.getTime()),
           details: {
             serviceWorker: hasServiceWorker,
             cacheCount,
@@ -328,8 +330,9 @@ const SmartCacheStatus: React.FC = () => {
 
   const getCacheStatusText = () => {
     if (!cacheInfo.isCached) return 'Live';
-    if (cacheInfo.isStale) return `Stale ${cacheInfo.cacheAge}`;
-    return `Cached ${cacheInfo.cacheAge}`;
+    const ageText = cacheInfo.cacheAge || '0s ago';
+    if (cacheInfo.isStale) return `Stale ${ageText}`;
+    return `Cached ${ageText}`;
   };
 
   return (
