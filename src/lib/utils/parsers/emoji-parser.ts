@@ -379,6 +379,14 @@ export class EmojiParser {
     let match;
     while ((match = pattern.exec(text)) !== null) {
       const emojiName = match[1];
+      const matchStart = match.index;
+      const matchEnd = match.index + match[0].length;
+
+      // Skip if this appears to be part of a URL
+      if (this.isPartOfURL(text, matchStart, matchEnd)) {
+        continue;
+      }
+
       const emoji = this.registry.getEmoji(emojiName);
 
       if (emoji) {
@@ -388,14 +396,71 @@ export class EmojiParser {
           name: emoji.name,
           unicode: emoji.unicode,
           imageUrl: emoji.imageUrl,
-          start: match.index,
-          end: match.index + match[0].length,
+          start: matchStart,
+          end: matchEnd,
           rawText: match[0]
         });
       }
     }
 
     return tokens;
+  }
+
+  /**
+   * Check if a potential emoji match is actually part of a URL
+   */
+  private isPartOfURL(text: string, start: number, end: number): boolean {
+    // Look for URL patterns around the match
+    const beforeMatch = text.substring(Math.max(0, start - 20), start);
+    const afterMatch = text.substring(end, Math.min(text.length, end + 20));
+
+    // Check for common URL patterns before the match
+    const urlPrefixes = ['http://', 'https://', 'ftp://', 'www.', '://'];
+
+    // Check for URL-like patterns
+    const hasUrlPrefix = urlPrefixes.some((prefix) =>
+      beforeMatch.toLowerCase().includes(prefix)
+    );
+
+    // Check for port numbers (like :80, :443, :8080)
+    const portPattern = /:\d+$/;
+    if (portPattern.test(beforeMatch)) {
+      return true;
+    }
+
+    // Check if we're in the middle of a domain or URL path
+    const domainPattern = /[a-zA-Z0-9.-]+$/;
+    const pathPattern = /^[a-zA-Z0-9._~:/?#[\]@!$&'()*+,;=%\-]+/;
+
+    if (
+      hasUrlPrefix &&
+      (domainPattern.test(beforeMatch) || pathPattern.test(afterMatch))
+    ) {
+      return true;
+    }
+
+    // Check for specific URL patterns that commonly contain colons
+    const urlLikeContext =
+      /(?:https?:\/\/|www\.|[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/i;
+    const contextBefore = text.substring(Math.max(0, start - 50), start);
+    const contextAfter = text.substring(end, Math.min(text.length, end + 50));
+
+    if (
+      urlLikeContext.test(contextBefore) ||
+      urlLikeContext.test(contextAfter)
+    ) {
+      // Additional check: if the text between colons is numeric or URL-like, skip it
+      const matchContent = text.substring(start + 1, end - 1);
+      if (
+        /^\d+$/.test(matchContent) || // Port numbers like :80:
+        /^[a-zA-Z0-9._~/?#[\]@!$&'()*+,;=%\-]+$/.test(matchContent)
+      ) {
+        // URL components
+        return true;
+      }
+    }
+
+    return false;
   }
 
   /**
