@@ -1,5 +1,5 @@
 // Smart Caching Service Worker with Version-Based Cache Busting
-const CACHE_VERSION = '0.60.0'; // Will be replaced with package.json version during build
+const CACHE_VERSION = '0.66.0'; // Will be replaced with package.json version during build
 const CACHE_NAME = `idling-app-cache-${CACHE_VERSION}`;
 const CACHE_METADATA_NAME = `idling-app-cache-metadata-${CACHE_VERSION}`;
 
@@ -114,6 +114,9 @@ async function storeCacheMetadata(url, timestamp, version) {
 self.addEventListener('install', (event) => {
   event.waitUntil(
     (async () => {
+      console.group('🔧 Service Worker Install');
+      console.log(`Installing service worker version ${CACHE_VERSION}`);
+      
       const cache = await caches.open(CACHE_NAME);
       const appVersion = await getAppVersion();
       
@@ -131,9 +134,10 @@ self.addEventListener('install', (event) => {
           await cache.put(url, timestampedResponse);
           await storeCacheMetadata(url, Date.now(), appVersion);
           
+          console.log(`✅ Cached: ${url}`);
           return Promise.resolve();
         } catch (error) {
-          console.warn(`Failed to cache ${url}:`, error);
+          console.warn(`❌ Failed to cache ${url}:`, error);
           return Promise.resolve(); // Don't fail installation
         }
       });
@@ -146,7 +150,16 @@ self.addEventListener('install', (event) => {
         name.startsWith('idling-app-cache-') && name !== CACHE_NAME
       );
       
-      await Promise.all(oldCaches.map(name => caches.delete(name)));
+      if (oldCaches.length > 0) {
+        console.log(`🗑️ Cleaning up ${oldCaches.length} old cache versions`);
+        await Promise.all(oldCaches.map(name => {
+          console.log(`🗑️ Deleting old cache: ${name}`);
+          return caches.delete(name);
+        }));
+      }
+      
+      console.log('✅ Service worker installation complete');
+      console.groupEnd();
       
       // Skip waiting to activate immediately
       self.skipWaiting();
@@ -158,6 +171,9 @@ self.addEventListener('install', (event) => {
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     (async () => {
+      console.group('🚀 Service Worker Activate');
+      console.log(`Activating service worker version ${CACHE_VERSION}`);
+      
       // Clean up old caches
       const cacheNames = await caches.keys();
       const oldCaches = cacheNames.filter(name => 
@@ -165,10 +181,21 @@ self.addEventListener('activate', (event) => {
         (name.startsWith('idling-app-cache-metadata-') && name !== CACHE_METADATA_NAME)
       );
       
-      await Promise.all(oldCaches.map(name => caches.delete(name)));
+      if (oldCaches.length > 0) {
+        console.log(`🗑️ Cleaning up ${oldCaches.length} old caches during activation`);
+        await Promise.all(oldCaches.map(name => {
+          console.log(`🗑️ Deleting cache: ${name}`);
+          return caches.delete(name);
+        }));
+      }
       
-      // Take control of all clients
-      return self.clients.claim();
+      console.log('👑 Taking control of all clients');
+      const result = await self.clients.claim();
+      
+      console.log('✅ Service worker activation complete');
+      console.groupEnd();
+      
+      return result;
     })()
   );
 });
@@ -206,13 +233,18 @@ self.addEventListener('fetch', (event) => {
             const cachedVersion = cachedResponse.headers.get('X-App-Version');
             
             if (currentVersion && cachedVersion && currentVersion !== cachedVersion) {
+              console.group('🔄 Service Worker Cache Update');
+              console.log(`Version mismatch for ${event.request.url}: ${cachedVersion} → ${currentVersion}`);
+              
               // Version mismatch, fetch fresh
               const freshResponse = await fetch(event.request);
               if (freshResponse.ok) {
                 const responseToCache = createResponseWithMetadata(freshResponse.clone(), ttl);
                 await cache.put(event.request, responseToCache);
                 await storeCacheMetadata(event.request.url, Date.now(), currentVersion);
+                console.log('✅ Cache updated with fresh content');
               }
+              console.groupEnd();
               return freshResponse;
             }
           } catch {
@@ -241,13 +273,19 @@ self.addEventListener('fetch', (event) => {
 
         return response;
       } catch (error) {
+        console.group('⚠️ Service Worker Fetch Error');
         console.warn('Fetch failed:', error);
+        console.log(`URL: ${event.request.url}`);
         
         // Return cached response even if expired, or offline page
         if (cachedResponse) {
+          console.log('📦 Returning stale cached response');
+          console.groupEnd();
           return cachedResponse;
         }
         
+        console.log('📴 Returning offline page');
+        console.groupEnd();
         return caches.match('/offline.html') || new Response('Offline', { status: 503 });
       }
     })()
@@ -256,9 +294,21 @@ self.addEventListener('fetch', (event) => {
 
 // Message listener for cache management
 self.addEventListener('message', (event) => {
+  // Handle skip waiting message
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    console.group('⏩ Service Worker Skip Waiting');
+    console.log('Skipping waiting and activating immediately');
+    self.skipWaiting();
+    console.groupEnd();
+    return;
+  }
+  
   if (event.data && event.data.type === 'REFRESH_CACHE') {
     event.waitUntil(
       (async () => {
+        console.group('🔄 Service Worker Cache Refresh');
+        console.log(`Refreshing cache for: ${event.data.url || 'all URLs'}`);
+        
         try {
           const cache = await caches.open(CACHE_NAME);
           const metadataCache = await caches.open(CACHE_METADATA_NAME);
@@ -293,13 +343,18 @@ self.addEventListener('message', (event) => {
             }
           }
           
+          console.log('✅ Cache refresh completed successfully');
+          console.groupEnd();
+          
           event.ports[0].postMessage({ 
             success: true, 
             timestamp: Date.now(),
             version: CACHE_VERSION
           });
         } catch (error) {
-          console.error('Cache refresh failed:', error);
+          console.error('❌ Cache refresh failed:', error);
+          console.groupEnd();
+          
           event.ports[0].postMessage({ 
             success: false, 
             error: error.message 
@@ -313,6 +368,9 @@ self.addEventListener('message', (event) => {
   if (event.data && event.data.type === 'GET_CACHE_INFO') {
     event.waitUntil(
       (async () => {
+        console.group('📊 Service Worker Cache Info');
+        console.log('Gathering cache information for UI');
+        
         try {
           const cache = await caches.open(CACHE_NAME);
           const keys = await cache.keys();
@@ -325,11 +383,19 @@ self.addEventListener('message', (event) => {
             timestamp: Date.now()
           };
           
+          console.log(`Cache entries: ${keys.length}`);
+          console.log(`Cache version: ${CACHE_VERSION}`);
+          console.log('✅ Cache info gathered successfully');
+          console.groupEnd();
+          
           event.ports[0].postMessage({ 
             success: true, 
             cacheInfo 
           });
         } catch (error) {
+          console.error('❌ Failed to get cache info:', error);
+          console.groupEnd();
+          
           event.ports[0].postMessage({ 
             success: false, 
             error: error.message 
