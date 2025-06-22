@@ -129,6 +129,43 @@
   padding: 2rem 1rem;
   color: var(--light-bg__text-color--secondary);
   font-size: 0.875rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.emoji-picker__loading-spinner {
+  width: 24px;
+  height: 24px;
+  border: 2px solid var(--light-background--tertiary);
+  border-top: 2px solid var(--brand-primary);
+  border-radius: 50%;
+  animation: emojiPickerSpin 1s linear infinite;
+}
+
+@keyframes emojiPickerSpin {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.emoji-picker__grid--loading {
+  opacity: 0.6;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+
+.emoji-picker__category:disabled,
+.emoji-picker__emoji:disabled,
+.emoji-picker__search:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  pointer-events: none;
 }
 
 .emoji-picker__error {

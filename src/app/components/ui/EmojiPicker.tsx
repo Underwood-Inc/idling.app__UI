@@ -11,6 +11,7 @@ export interface EmojiPickerProps {
   isOpen: boolean;
   onClose: () => void;
   onEmojiSelect: (emoji: EmojiData) => void;
+  position?: { x: number; y: number };
   searchQuery?: string;
   maxResults?: number;
   className?: string;
@@ -28,6 +29,7 @@ export const EmojiPicker: React.FC<EmojiPickerProps> = ({
   isOpen,
   onClose,
   onEmojiSelect,
+  position,
   searchQuery = '',
   maxResults = 24,
   className = ''
@@ -39,7 +41,8 @@ export const EmojiPicker: React.FC<EmojiPickerProps> = ({
     error,
     searchEmojis,
     selectCategory,
-    trackEmojiUsage
+    trackEmojiUsage,
+    filters
   } = useEmojis({
     autoFetch: true,
     defaultFilters: {
@@ -49,29 +52,27 @@ export const EmojiPicker: React.FC<EmojiPickerProps> = ({
   });
 
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [isChangingCategory, setIsChangingCategory] = useState(false);
   const [localSearchQuery, setLocalSearchQuery] = useState(searchQuery);
+
+  // Sync selected category with the filters from useEmojis hook
+  useEffect(() => {
+    if (!filters.category) {
+      setSelectedCategory('all');
+    } else {
+      setSelectedCategory(filters.category);
+    }
+  }, [filters.category]);
 
   // Update local search when prop changes
   useEffect(() => {
     setLocalSearchQuery(searchQuery);
   }, [searchQuery]);
 
-  // Filter emojis based on search or category - FIXED: Show all emojis by default
+  // Use emojis directly from API - no client-side filtering needed
   const filteredEmojis = useMemo(() => {
-    if (localSearchQuery.trim()) {
-      // If there's a search query, show search results regardless of category
-      return emojis.slice(0, maxResults);
-    }
-
-    if (selectedCategory === 'all') {
-      return emojis.slice(0, maxResults);
-    }
-
-    // Filter by specific category
-    return emojis
-      .filter((emoji: EmojiData) => emoji.category.name === selectedCategory)
-      .slice(0, maxResults);
-  }, [emojis, selectedCategory, localSearchQuery, maxResults]);
+    return emojis.slice(0, maxResults);
+  }, [emojis, maxResults]);
 
   // Handle emoji selection
   const handleEmojiClick = useCallback(
@@ -86,17 +87,29 @@ export const EmojiPicker: React.FC<EmojiPickerProps> = ({
     [onEmojiSelect, trackEmojiUsage]
   );
 
-  // Handle category selection
+  // Handle category selection with loading state
   const handleCategorySelect = useCallback(
-    (category: string) => {
+    async (category: string) => {
+      // Prevent rapid category changes
+      if (isChangingCategory) return;
+
+      setIsChangingCategory(true);
       setSelectedCategory(category);
-      if (category === 'all') {
-        selectCategory(null); // Clear category filter to show all
-      } else {
-        selectCategory(category);
+      setLocalSearchQuery(''); // Clear search when selecting category
+
+      try {
+        if (category === 'all') {
+          selectCategory(null); // Clear category filter to show all
+        } else {
+          selectCategory(category);
+        }
+        // Add slight delay to prevent flickering
+        await new Promise((resolve) => setTimeout(resolve, 100));
+      } finally {
+        setIsChangingCategory(false);
       }
     },
-    [selectCategory]
+    [selectCategory, isChangingCategory]
   );
 
   // Handle search input - FIXED: Trigger search properly
@@ -157,8 +170,25 @@ export const EmojiPicker: React.FC<EmojiPickerProps> = ({
 
   if (!isOpen) return null;
 
+  // Determine if we should show loading state
+  const showLoadingState = loading || isChangingCategory;
+  const showContent = !loading && !error && filteredEmojis.length > 0;
+  const showEmptyState = !loading && !error && filteredEmojis.length === 0;
+
   const content = (
-    <div className={`emoji-picker ${className}`}>
+    <div
+      className={`emoji-picker ${className}`}
+      style={
+        position
+          ? {
+              position: 'fixed',
+              left: position.x,
+              top: position.y,
+              zIndex: 10000
+            }
+          : undefined
+      }
+    >
       <div className="emoji-picker__header">
         <input
           type="text"
@@ -167,6 +197,7 @@ export const EmojiPicker: React.FC<EmojiPickerProps> = ({
           onChange={handleSearchChange}
           className="emoji-picker__search"
           autoFocus
+          disabled={isChangingCategory}
         />
         <button onClick={onClose} className="emoji-picker__close" title="Close">
           ×
@@ -178,6 +209,7 @@ export const EmojiPicker: React.FC<EmojiPickerProps> = ({
           className={`emoji-picker__category ${selectedCategory === 'all' ? 'emoji-picker__category--active' : ''}`}
           onClick={() => handleCategorySelect('all')}
           title="All emojis"
+          disabled={isChangingCategory}
         >
           🌟
         </button>
@@ -187,6 +219,7 @@ export const EmojiPicker: React.FC<EmojiPickerProps> = ({
             className={`emoji-picker__category ${selectedCategory === category.name ? 'emoji-picker__category--active' : ''}`}
             onClick={() => handleCategorySelect(category.name)}
             title={category.display_name}
+            disabled={isChangingCategory}
           >
             {getCategoryIcon(category.name)}
           </button>
@@ -194,28 +227,38 @@ export const EmojiPicker: React.FC<EmojiPickerProps> = ({
       </div>
 
       <div className="emoji-picker__content">
-        {loading && (
-          <div className="emoji-picker__loading">Loading emojis...</div>
+        {showLoadingState && (
+          <div className="emoji-picker__loading">
+            <div className="emoji-picker__loading-spinner"></div>
+            <span>
+              {isChangingCategory
+                ? 'Switching category...'
+                : 'Loading emojis...'}
+            </span>
+          </div>
         )}
 
-        {error && (
+        {error && !isChangingCategory && (
           <div className="emoji-picker__error">Error loading emojis</div>
         )}
 
-        {!loading && !error && filteredEmojis.length === 0 && (
+        {showEmptyState && !isChangingCategory && (
           <div className="emoji-picker__empty">
             {localSearchQuery ? 'No emojis found' : 'No emojis available'}
           </div>
         )}
 
-        {!loading && !error && filteredEmojis.length > 0 && (
-          <div className="emoji-picker__grid">
+        {showContent && (
+          <div
+            className={`emoji-picker__grid ${isChangingCategory ? 'emoji-picker__grid--loading' : ''}`}
+          >
             {filteredEmojis.map((emoji: EmojiData, index: number) => (
               <button
                 key={`${emoji.emoji_id}-${index}`}
                 className="emoji-picker__emoji"
                 onClick={() => handleEmojiClick(emoji)}
                 title={`:${emoji.emoji_id}:`}
+                disabled={isChangingCategory}
               >
                 {emoji.is_custom && emoji.custom_image_url ? (
                   <img
@@ -235,7 +278,7 @@ export const EmojiPicker: React.FC<EmojiPickerProps> = ({
         )}
       </div>
 
-      {filteredEmojis.length > 0 && (
+      {filteredEmojis.length > 0 && !isChangingCategory && (
         <div className="emoji-picker__footer">
           <span className="emoji-picker__count">
             {filteredEmojis.length} emoji
