@@ -6,6 +6,7 @@
 import type { RichInputPosition } from '../types';
 import { getFirstTextNode } from './cursorCalculations';
 import { richTextLogger } from './logger';
+import { findLastTextPosition } from './navigationUtils';
 
 /**
  * Calculate click position with character-level precision
@@ -123,20 +124,60 @@ export function calculateEnhancedClickPosition(
               rawText.length.toString()
           );
 
-          // If click is to the right of all tokens, position at end of line
-          const clickedIndex =
-            clickX > lineRelativeRect.width / 2 ? lineEnd : lineStart;
+          // Position at end of line content (excluding trailing whitespace)
+          const lineText = rawText.substring(lineStart, lineEnd);
+          const trimmedLineText = lineText.trimEnd();
+          const lineEndPosition = lineStart + trimmedLineText.length;
 
           richTextLogger.logInfo('🎯 Click within line but outside tokens', {
             lineIndex,
             lineStart,
             lineEnd,
-            clickedIndex
+            lineText: JSON.stringify(lineText),
+            trimmedLineText: JSON.stringify(trimmedLineText),
+            lineEndPosition,
+            clickXPosition: clickX,
+            lineWidth: lineRelativeRect.width
           });
 
           return {
-            index: Math.max(0, Math.min(clickedIndex, rawText.length))
+            index: Math.max(0, Math.min(lineEndPosition, rawText.length))
           };
+        }
+      }
+
+      // Click is outside all lines - determine if above first line or below last line
+      const firstLineElement = lineElements[0];
+      const lastLineElement = lineElements[lineElements.length - 1];
+
+      if (firstLineElement && lastLineElement) {
+        const firstLineRect = firstLineElement.getBoundingClientRect();
+        const lastLineRect = lastLineElement.getBoundingClientRect();
+        const firstLineTop = firstLineRect.top - rect.top;
+        const lastLineBottom = lastLineRect.bottom - rect.top;
+
+        if (clickY < firstLineTop) {
+          // Click above first line - position at beginning of document
+          richTextLogger.logInfo(
+            '🎯 Click above first line - positioning at start',
+            {
+              clickY,
+              firstLineTop
+            }
+          );
+          return { index: 0 };
+        } else if (clickY > lastLineBottom) {
+          // Click below last line - position at end of document
+          const lastTextPosition = findLastTextPosition(rawText);
+          richTextLogger.logInfo(
+            '🎯 Click below last line - positioning at end',
+            {
+              clickY,
+              lastLineBottom,
+              lastTextPosition
+            }
+          );
+          return { index: lastTextPosition };
         }
       }
     } else {

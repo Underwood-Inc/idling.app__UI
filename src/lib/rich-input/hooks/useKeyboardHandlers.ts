@@ -5,7 +5,10 @@ import type {
   RichInputEventHandlers,
   RichInputState
 } from '../types';
-import { getWordBoundaries } from '../utils/enhancedCursorPositioning';
+import {
+  findLastTextPosition,
+  getWordBoundaries
+} from '../utils/navigationUtils';
 
 export function useKeyboardHandlers(
   engine: RichInputEngine,
@@ -80,8 +83,9 @@ export function useKeyboardHandlers(
         case 'End':
           e.preventDefault();
           if (cmdKey) {
-            // Move to end of document
-            engine.setCursor({ index: state.rawText.length });
+            // Move to end of document (after last text or atomic group)
+            const lastTextPosition = findLastTextPosition(state.rawText);
+            engine.setCursor({ index: lastTextPosition });
           } else {
             // Move to end of line
             const lineEnd = getLineEnd(state.cursorPosition, state.rawText);

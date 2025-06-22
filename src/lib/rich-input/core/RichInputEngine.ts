@@ -17,6 +17,7 @@ import type {
   RichInputState
 } from '../types';
 import { logParsing, richTextLogger } from '../utils/logger';
+import { navigateDownLine, navigateUpLine } from '../utils/navigationUtils';
 
 export class RichInputEngine implements RichInputAPI {
   private state: RichInputState;
@@ -494,43 +495,15 @@ export class RichInputEngine implements RichInputAPI {
     direction: number
   ): RichInputPosition {
     const { rawText } = this.state;
-    const lines = rawText.split('\n');
 
-    // Calculate current line and column
-    let currentLine = 0;
-    let currentColumn = position.index;
-    let lineStart = 0;
-
-    for (let i = 0; i < lines.length; i++) {
-      const lineEnd = lineStart + lines[i].length;
-      if (position.index <= lineEnd) {
-        currentLine = i;
-        currentColumn = position.index - lineStart;
-        break;
-      }
-      lineStart = lineEnd + 1; // +1 for newline character
+    // Use the enhanced navigation utilities that handle edge cases
+    if (direction < 0) {
+      // Moving up - use navigateUpLine which handles first line edge case
+      return navigateUpLine(position, rawText);
+    } else {
+      // Moving down - use navigateDownLine which handles last line edge case
+      return navigateDownLine(position, rawText);
     }
-
-    // Calculate new line
-    const newLine = Math.max(
-      0,
-      Math.min(lines.length - 1, currentLine + direction)
-    );
-    const newLineText = lines[newLine];
-    const newColumn = Math.min(currentColumn, newLineText.length);
-
-    // Calculate new index
-    let newIndex = 0;
-    for (let i = 0; i < newLine; i++) {
-      newIndex += lines[i].length + 1; // +1 for newline
-    }
-    newIndex += newColumn;
-
-    return {
-      index: newIndex,
-      line: newLine,
-      column: newColumn
-    };
   }
 
   private registerBuiltInParsers(): void {

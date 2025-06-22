@@ -160,6 +160,7 @@ export function navigateToLineEnd(
 
 /**
  * Navigate up one line while preserving column position
+ * Enhanced to handle first line edge case
  */
 export function navigateUpLine(
   position: RichInputPosition,
@@ -169,7 +170,7 @@ export function navigateUpLine(
   const columnPosition = position.index - currentLineStart;
 
   if (currentLineStart === 0) {
-    // Already at first line, move to beginning
+    // Already at first line, move to very beginning (position 0)
     return { index: 0 };
   }
 
@@ -184,6 +185,7 @@ export function navigateUpLine(
 
 /**
  * Navigate down one line while preserving column position
+ * Enhanced to handle last line edge case
  */
 export function navigateDownLine(
   position: RichInputPosition,
@@ -194,8 +196,8 @@ export function navigateDownLine(
 
   const nextLineStart = findNextNewline(rawText, position.index);
   if (nextLineStart >= rawText.length) {
-    // Already at last line, move to end
-    return { index: rawText.length };
+    // Already at last line, move to end of content (after last text or atomic group)
+    return { index: findLastTextPosition(rawText) };
   }
 
   const nextLineEnd = findNextNewline(rawText, nextLineStart + 1);
@@ -204,4 +206,41 @@ export function navigateDownLine(
   // Position cursor at same column or end of line if shorter
   const targetColumn = Math.min(columnPosition, nextLineLength);
   return { index: nextLineStart + 1 + targetColumn };
+}
+
+/**
+ * Find the last meaningful text position in the content
+ * This includes text and atomic units (pills, images, etc.) but skips trailing whitespace
+ */
+export function findLastTextPosition(rawText: string): number {
+  // Trim trailing whitespace to find the last meaningful content
+  const trimmedText = rawText.trimEnd();
+  return trimmedText.length;
+}
+
+/**
+ * Find the end position of a specific line
+ * Enhanced to handle atomic units properly
+ */
+export function findLineEndPosition(
+  lineIndex: number,
+  rawText: string
+): number {
+  const lines = rawText.split('\n');
+
+  if (lineIndex >= lines.length) {
+    return rawText.length;
+  }
+
+  // Calculate the start position of the target line
+  let lineStartPosition = 0;
+  for (let i = 0; i < lineIndex; i++) {
+    lineStartPosition += lines[i].length + 1; // +1 for newline
+  }
+
+  // Find the end of the line (excluding trailing whitespace on that line)
+  const lineText = lines[lineIndex];
+  const trimmedLineText = lineText.trimEnd();
+
+  return lineStartPosition + trimmedLineText.length;
 }
