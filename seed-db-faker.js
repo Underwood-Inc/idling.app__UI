@@ -2790,7 +2790,6 @@ async function validateDatabaseSchema() {
         'submission_name',
         'submission_title',
         'user_id',
-        'author_provider_account_id',
         'tags',
         'thread_parent_id',
         'submission_datetime'
