@@ -13,6 +13,12 @@ interface RichInputContentProps {
   config: RichInputConfig;
   renderer: RichInputRenderer;
   cursorCoordinates: { x: number; y: number } | null;
+  cursorAtomicContext?: {
+    isNearAtomic: boolean;
+    isOverAtomic: boolean;
+    isAtomicBoundary: boolean;
+    type: string;
+  };
   selectionCoordinates: Array<{
     x: number;
     y: number;
@@ -41,6 +47,7 @@ export const RichInputContent = React.forwardRef<
       config,
       renderer,
       cursorCoordinates,
+      cursorAtomicContext,
       selectionCoordinates,
       onTokenClick,
       onTokenHover,
@@ -119,6 +126,7 @@ export const RichInputContent = React.forwardRef<
         <RichInputCursor
           coordinates={cursorCoordinates}
           isFocused={state.isFocused}
+          atomicContext={cursorAtomicContext}
         />
 
         {/* Custom children */}

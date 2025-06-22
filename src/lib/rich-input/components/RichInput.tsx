@@ -31,6 +31,7 @@ import type {
 } from '../types';
 import {
   calculateEnhancedCursorCoordinates,
+  calculateEnhancedCursorPosition,
   calculateEnhancedSelectionCoordinates
 } from '../utils/enhancedCursorPositioning';
 import { richTextLogger } from '../utils/logger';
@@ -184,6 +185,15 @@ export const RichInput = forwardRef<RichInputRef, RichInputProps>(
       x: number;
       y: number;
     } | null>(null);
+    const [cursorAtomicContext, setCursorAtomicContext] = useState<
+      | {
+          isNearAtomic: boolean;
+          isOverAtomic: boolean;
+          isAtomicBoundary: boolean;
+          type: string;
+        }
+      | undefined
+    >(undefined);
     const [selectionCoordinates, setSelectionCoordinates] = useState<
       Array<{ x: number; y: number; width: number; height: number }>
     >([]);
@@ -192,13 +202,30 @@ export const RichInput = forwardRef<RichInputRef, RichInputProps>(
     useEffect(() => {
       if (!contentRef.current || !measureRef.current) return;
 
-      // Calculate cursor coordinates using enhanced positioning
-      const cursorCoords = calculateEnhancedCursorCoordinates(
-        state.cursorPosition,
+      // Calculate enhanced cursor coordinates with atomic context
+      const enhancedCursorResult = calculateEnhancedCursorPosition(
+        contentRef.current,
         state.rawText,
-        contentRef.current
+        state.cursorPosition.index,
+        enableDebugLogging ? richTextLogger : undefined
       );
-      setCursorCoordinates(cursorCoords);
+
+      if (enhancedCursorResult) {
+        setCursorCoordinates({
+          x: enhancedCursorResult.x,
+          y: enhancedCursorResult.y
+        });
+        setCursorAtomicContext(enhancedCursorResult.atomicContext);
+      } else {
+        // Fallback to original calculation
+        const cursorCoords = calculateEnhancedCursorCoordinates(
+          state.cursorPosition,
+          state.rawText,
+          contentRef.current
+        );
+        setCursorCoordinates(cursorCoords);
+        setCursorAtomicContext(undefined);
+      }
 
       // Calculate selection coordinates using enhanced positioning
       const selectionCoords = calculateEnhancedSelectionCoordinates(
@@ -207,7 +234,12 @@ export const RichInput = forwardRef<RichInputRef, RichInputProps>(
         contentRef.current
       );
       setSelectionCoordinates(selectionCoords);
-    }, [state.cursorPosition, state.selection, state.rawText]);
+    }, [
+      state.cursorPosition,
+      state.selection,
+      state.rawText,
+      enableDebugLogging
+    ]);
 
     // Auto focus
     useEffect(() => {
@@ -502,6 +534,7 @@ export const RichInput = forwardRef<RichInputRef, RichInputProps>(
             config={mergedConfig}
             renderer={renderer}
             cursorCoordinates={cursorCoordinates}
+            cursorAtomicContext={cursorAtomicContext}
             selectionCoordinates={selectionCoordinates}
             onTokenClick={handleTokenClick}
             onTokenHover={handleTokenHover}

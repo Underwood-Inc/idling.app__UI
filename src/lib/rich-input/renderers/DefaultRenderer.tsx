@@ -225,23 +225,93 @@ export class DefaultRenderer implements RichInputRenderer {
   ): React.ReactNode {
     if (!state.isFocused) return null;
 
+    // Detect if cursor is near or over atomic units (pills, images, etc.)
+    const atomicContext = this.detectAtomicContext(position, state);
+
+    // Build CSS classes based on atomic context
+    let cursorClasses = 'rich-input-cursor';
+    if (atomicContext.isNearAtomic) {
+      cursorClasses += ' rich-input-cursor--near-atomic';
+    }
+    if (atomicContext.isOverAtomic) {
+      cursorClasses += ' rich-input-cursor--over-atomic';
+    }
+    if (atomicContext.isAtomicBoundary) {
+      cursorClasses += ' rich-input-cursor--atomic';
+    }
+
     return (
       <span
-        className="rich-input-cursor"
+        className={cursorClasses}
         data-cursor-index={position.index}
         data-cursor-line={position.line}
         data-cursor-column={position.column}
+        data-atomic-context={atomicContext.type}
         style={{
           position: 'absolute',
-          width: '2px',
-          height: '1.2em',
-          backgroundColor: 'var(--brand-primary, #edae49)',
-          animation: 'rich-input-cursor-blink 1s infinite',
           pointerEvents: 'none',
-          zIndex: 10
+          zIndex: 15
         }}
       />
     );
+  }
+
+  /**
+   * Detects if cursor is near, over, or at the boundary of atomic units
+   */
+  private detectAtomicContext(
+    position: RichInputPosition,
+    state: RichInputState
+  ): {
+    isNearAtomic: boolean;
+    isOverAtomic: boolean;
+    isAtomicBoundary: boolean;
+    type: string;
+    atomicToken?: RichContentToken;
+  } {
+    const { tokens } = state;
+    const proximityRange = 3; // Characters to consider "near"
+
+    // Find atomic tokens (non-text tokens or newlines)
+    const atomicTokens = tokens.filter(
+      (token) => token.type !== 'text' || token.metadata?.isNewline
+    );
+
+    // Check if cursor is directly over an atomic token
+    const overAtomicToken = atomicTokens.find(
+      (token) => position.index >= token.start && position.index <= token.end
+    );
+
+    // Check if cursor is at the exact boundary of an atomic token
+    const atBoundaryToken = atomicTokens.find(
+      (token) => position.index === token.start || position.index === token.end
+    );
+
+    // Check if cursor is near an atomic token
+    const nearAtomicToken = atomicTokens.find(
+      (token) =>
+        Math.abs(position.index - token.start) <= proximityRange ||
+        Math.abs(position.index - token.end) <= proximityRange
+    );
+
+    // Determine atomic context type
+    let type = 'text';
+    const relevantToken = overAtomicToken || atBoundaryToken || nearAtomicToken;
+    if (relevantToken) {
+      if (relevantToken.metadata?.isNewline) {
+        type = 'newline';
+      } else {
+        type = relevantToken.type; // hashtag, mention, url, emoji, etc.
+      }
+    }
+
+    return {
+      isNearAtomic: !!nearAtomicToken,
+      isOverAtomic: !!overAtomicToken,
+      isAtomicBoundary: !!atBoundaryToken,
+      type,
+      atomicToken: relevantToken
+    };
   }
 
   renderSelection(
