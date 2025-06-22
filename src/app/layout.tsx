@@ -15,6 +15,7 @@ import PWAInstallPrompt from './components/pwa-install/PWAInstallPrompt';
 import { ServiceWorkerRegistration } from './components/service-worker/ServiceWorkerRegistration';
 import TimeoutBanner from './components/timeout-banner/TimeoutBanner';
 import { OverlayRenderer } from './components/ui/OverlayRenderer';
+import './fonts.css';
 import './globals.css';
 
 const inter = Inter({ subsets: ['latin'] });
@@ -37,6 +38,84 @@ export const viewport: Viewport = {
   themeColor: '#ff6b35'
 };
 
+// Global console silencer for production
+const ConsoleProductionSilencer = () => {
+  if (process.env.NODE_ENV === 'production') {
+    return (
+      <script
+        dangerouslySetInnerHTML={{
+          __html: `
+            (function() {
+              if (typeof window !== 'undefined' && window.console) {
+                // Store original console methods for potential debugging
+                window.__originalConsole = {
+                  log: console.log,
+                  info: console.info,
+                  warn: console.warn,
+                  error: console.error,
+                  debug: console.debug,
+                  trace: console.trace,
+                  group: console.group,
+                  groupCollapsed: console.groupCollapsed,
+                  groupEnd: console.groupEnd
+                };
+                
+                // Replace console methods with no-ops
+                console.log = function() {};
+                console.info = function() {};
+                console.warn = function() {};
+                console.error = function() {};
+                console.debug = function() {};
+                console.trace = function() {};
+                console.group = function() {};
+                console.groupCollapsed = function() {};
+                console.groupEnd = function() {};
+                
+                // Also silence console methods that might be called from iframes
+                const originalPostMessage = window.postMessage;
+                window.postMessage = function(message, targetOrigin, transfer) {
+                  // Filter out console-related messages if needed
+                  if (typeof message === 'object' && message && message.type === 'console') {
+                    return; // Silently ignore console messages
+                  }
+                  return originalPostMessage.call(this, message, targetOrigin, transfer);
+                };
+                
+                // Override iframe console access
+                const originalCreateElement = document.createElement;
+                document.createElement = function(tagName) {
+                  const element = originalCreateElement.call(this, tagName);
+                  if (tagName.toLowerCase() === 'iframe') {
+                    element.addEventListener('load', function() {
+                      try {
+                        if (this.contentWindow && this.contentWindow.console) {
+                          this.contentWindow.console.log = function() {};
+                          this.contentWindow.console.info = function() {};
+                          this.contentWindow.console.warn = function() {};
+                          this.contentWindow.console.error = function() {};
+                          this.contentWindow.console.debug = function() {};
+                          this.contentWindow.console.trace = function() {};
+                          this.contentWindow.console.group = function() {};
+                          this.contentWindow.console.groupCollapsed = function() {};
+                          this.contentWindow.console.groupEnd = function() {};
+                        }
+                      } catch (e) {
+                        // Cross-origin iframe, can't access console
+                      }
+                    });
+                  }
+                  return element;
+                };
+              }
+            })();
+          `
+        }}
+      />
+    );
+  }
+  return null;
+};
+
 export default function RootLayout({
   children
 }: Readonly<{
@@ -45,6 +124,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
+        <ConsoleProductionSilencer />
         {/* Standard favicon */}
         <link
           rel="icon"
