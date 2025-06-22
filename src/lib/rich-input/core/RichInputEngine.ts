@@ -362,18 +362,28 @@ export class RichInputEngine implements RichInputAPI {
 
     for (const segment of contentSegments) {
       if (segment.type === 'text') {
-        // For text segments, create single tokens that preserve whitespace
-        tokens.push({
-          type: 'text',
-          content: segment.value,
-          rawText: segment.value,
-          start: segment.start || 0,
-          end: segment.end || segment.value.length,
-          metadata: {
-            isWhitespace: /^\s+$/.test(segment.value),
-            hasNewlines: segment.value.includes('\n')
-          }
-        });
+        // For text segments, split on newlines to create separate tokens
+        const textValue = segment.value;
+        const segmentStart = segment.start || 0;
+
+        if (textValue.includes('\n')) {
+          // For text with newlines, create line-aware tokens for better cursor positioning
+          this.createLineAwareTokens(textValue, segmentStart, tokens);
+        } else {
+          // For text segments without newlines, create single tokens that preserve whitespace
+          tokens.push({
+            type: 'text',
+            content: textValue,
+            rawText: textValue,
+            start: segmentStart,
+            end: segment.end || segmentStart + textValue.length,
+            metadata: {
+              isWhitespace: /^\s+$/.test(textValue),
+              isNewline: false,
+              hasNewlines: false
+            }
+          });
+        }
       } else {
         // Generate display format for rawText
         let displayText = segment.value;
@@ -400,7 +410,9 @@ export class RichInputEngine implements RichInputAPI {
             href: segment.type === 'url' ? segment.value : undefined,
             behavior: segment.behavior as any,
             originalFormat: segment.rawFormat,
-            isWhitespace: false
+            isWhitespace: false,
+            isNewline: false,
+            hasNewlines: false
           }
         });
       }
@@ -531,86 +543,90 @@ export class RichInputEngine implements RichInputAPI {
   }
 
   /**
-   * Snaps cursor position to pill boundaries
-   * If cursor is inside a pill, moves it to the closest boundary
+   * Snaps cursor position to pill and newline boundaries
+   * If cursor is inside a pill or newline, moves it to the closest boundary
    */
   private snapCursorToPillBoundary(
     position: RichInputPosition
   ): RichInputPosition {
     const { tokens } = this.state;
 
-    // Find if cursor is inside a pill token (not at boundaries)
-    const pillToken = tokens.find(
+    // Find if cursor is inside a pill or newline token (not at boundaries)
+    const atomicToken = tokens.find(
       (token) =>
-        token.type !== 'text' &&
+        (token.type !== 'text' || token.metadata?.isNewline) &&
         position.index > token.start &&
         position.index < token.end
     );
 
-    if (pillToken) {
-      // Cursor is inside a pill - snap to closest boundary
-      const distanceToStart = position.index - pillToken.start;
-      const distanceToEnd = pillToken.end - position.index;
+    if (atomicToken) {
+      // Cursor is inside a pill or newline - snap to closest boundary
+      const distanceToStart = position.index - atomicToken.start;
+      const distanceToEnd = atomicToken.end - position.index;
 
       // Snap to the closest boundary
       const snapToStart = distanceToStart <= distanceToEnd;
       return {
-        index: snapToStart ? pillToken.start : pillToken.end,
+        index: snapToStart ? atomicToken.start : atomicToken.end,
         line: position.line,
         column: position.column
       };
     }
 
-    // Check if cursor is exactly at a pill boundary - don't snap
-    const atPillBoundary = tokens.some(
+    // Check if cursor is exactly at a pill or newline boundary - don't snap
+    const atAtomicBoundary = tokens.some(
       (token) =>
-        token.type !== 'text' &&
+        (token.type !== 'text' || token.metadata?.isNewline) &&
         (position.index === token.start || position.index === token.end)
     );
 
-    if (atPillBoundary) {
-      // Cursor is exactly at a pill boundary, keep it there
+    if (atAtomicBoundary) {
+      // Cursor is exactly at a pill or newline boundary, keep it there
       return position;
     }
 
-    // Cursor is not inside or at a pill boundary, return as-is
+    // Cursor is not inside or at a pill/newline boundary, return as-is
     return position;
   }
 
   /**
-   * Moves cursor left with pill awareness
-   * Skips over entire pills instead of moving character by character
+   * Moves cursor left with pill and newline awareness
+   * Skips over entire pills and newlines instead of moving character by character
    */
   private moveCursorLeftWithPillAwareness(
     position: RichInputPosition
   ): RichInputPosition {
     const { tokens } = this.state;
 
-    // Find the pill that ends at current position
-    const pillAtCursor = tokens.find(
-      (token) => token.type !== 'text' && token.end === position.index
+    // Find the token that ends at current position (pill or newline)
+    const tokenAtCursor = tokens.find(
+      (token) =>
+        (token.type !== 'text' || token.metadata?.isNewline) &&
+        token.end === position.index
     );
 
-    if (pillAtCursor) {
-      // If we're at the end of a pill, jump to its start
+    if (tokenAtCursor) {
+      // If we're at the end of a pill or newline, jump to its start
       return {
-        index: pillAtCursor.start,
+        index: tokenAtCursor.start,
         line: position.line,
         column: position.column
       };
     }
 
-    // Find the pill that would be to the left
+    // Find the token that would be to the left (pill or newline)
     const newIndex = Math.max(0, position.index - 1);
-    const pillToLeft = tokens.find(
+    const tokenToLeft = tokens.find(
       (token) =>
-        token.type !== 'text' && newIndex > token.start && newIndex <= token.end
+        (token.type !== 'text' || token.metadata?.isNewline) &&
+        newIndex > token.start &&
+        newIndex <= token.end
     );
 
-    if (pillToLeft) {
-      // If moving left would put us inside a pill, jump to its start
+    if (tokenToLeft) {
+      // If moving left would put us inside a pill or newline, jump to its start
       return {
-        index: pillToLeft.start,
+        index: tokenToLeft.start,
         line: position.line,
         column: position.column
       };
@@ -625,39 +641,43 @@ export class RichInputEngine implements RichInputAPI {
   }
 
   /**
-   * Moves cursor right with pill awareness
-   * Skips over entire pills instead of moving character by character
+   * Moves cursor right with pill and newline awareness
+   * Skips over entire pills and newlines instead of moving character by character
    */
   private moveCursorRightWithPillAwareness(
     position: RichInputPosition
   ): RichInputPosition {
     const { tokens, rawText } = this.state;
 
-    // Find the pill that starts at current position
-    const pillAtCursor = tokens.find(
-      (token) => token.type !== 'text' && token.start === position.index
+    // Find the token that starts at current position (pill or newline)
+    const tokenAtCursor = tokens.find(
+      (token) =>
+        (token.type !== 'text' || token.metadata?.isNewline) &&
+        token.start === position.index
     );
 
-    if (pillAtCursor) {
-      // If we're at the start of a pill, jump to its end
+    if (tokenAtCursor) {
+      // If we're at the start of a pill or newline, jump to its end
       return {
-        index: pillAtCursor.end,
+        index: tokenAtCursor.end,
         line: position.line,
         column: position.column
       };
     }
 
-    // Find the pill that would be to the right
+    // Find the token that would be to the right (pill or newline)
     const newIndex = Math.min(rawText.length, position.index + 1);
-    const pillToRight = tokens.find(
+    const tokenToRight = tokens.find(
       (token) =>
-        token.type !== 'text' && newIndex >= token.start && newIndex < token.end
+        (token.type !== 'text' || token.metadata?.isNewline) &&
+        newIndex >= token.start &&
+        newIndex < token.end
     );
 
-    if (pillToRight) {
-      // If moving right would put us inside a pill, jump to its end
+    if (tokenToRight) {
+      // If moving right would put us inside a pill or newline, jump to its end
       return {
-        index: pillToRight.end,
+        index: tokenToRight.end,
         line: position.line,
         column: position.column
       };
@@ -669,5 +689,68 @@ export class RichInputEngine implements RichInputAPI {
       line: position.line,
       column: position.column
     };
+  }
+
+  /**
+   * Create line-aware tokens for multiline text content
+   * This improves cursor positioning accuracy by creating separate tokens for each line
+   */
+  private createLineAwareTokens(
+    textValue: string,
+    segmentStart: number,
+    tokens: RichContentToken[]
+  ): void {
+    const lines = textValue.split('\n');
+    let currentOffset = segmentStart;
+
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
+      const isLastLine = i === lines.length - 1;
+
+      // Create a token for the line content (if not empty)
+      if (line.length > 0) {
+        tokens.push({
+          type: 'text',
+          content: line,
+          rawText: line,
+          start: currentOffset,
+          end: currentOffset + line.length,
+          metadata: {
+            isWhitespace: /^\s+$/.test(line),
+            isNewline: false,
+            hasNewlines: false,
+            customData: {
+              lineIndex: i,
+              isLineStart: true,
+              isLineEnd: !isLastLine // Not line end if there's a newline after
+            }
+          }
+        });
+      }
+
+      currentOffset += line.length;
+
+      // Create a newline token (except after the last line)
+      if (!isLastLine) {
+        tokens.push({
+          type: 'text',
+          content: '\n',
+          rawText: '\n',
+          start: currentOffset,
+          end: currentOffset + 1,
+          metadata: {
+            isWhitespace: true,
+            isNewline: true,
+            hasNewlines: false,
+            customData: {
+              lineIndex: i,
+              isLineStart: false,
+              isLineEnd: true
+            }
+          }
+        });
+        currentOffset += 1; // Move past the newline character
+      }
+    }
   }
 }

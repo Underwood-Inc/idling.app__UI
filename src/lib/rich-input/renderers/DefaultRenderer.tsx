@@ -75,10 +75,22 @@ export class DefaultRenderer implements RichInputRenderer {
 
       case 'emoji':
         if (token.metadata?.emojiUnicode) {
+          // Detect ASCII emojis and apply appropriate class
+          const isAsciiEmoji =
+            token.metadata?.customData?.unicode_codepoint === 'ASCII' ||
+            token.content.includes('ascii') ||
+            /^[()\/\\|\-_:;><3PDO*yn¯°□╯︵┻━ツʕᴥʔ͡ʖ͜ಠ╥﹏☆≧▽≦｡.:*]/.test(
+              token.metadata.emojiUnicode
+            );
+
+          const emojiClass = isAsciiEmoji
+            ? 'emoji emoji--ascii'
+            : 'emoji emoji--unicode';
+
           return (
             <span
               key={`emoji-${index}`}
-              className="emoji"
+              className={emojiClass}
               data-token-type="emoji"
               data-token-index={index}
               data-token-start={token.start}
@@ -159,13 +171,36 @@ export class DefaultRenderer implements RichInputRenderer {
               data-token-end={token.end}
               data-token-content={token.content}
               data-is-whitespace="true"
-              style={{ whiteSpace: 'pre' }}
+              data-is-newline="false"
+              data-has-newlines={token.metadata?.hasNewlines ? 'true' : 'false'}
+              style={{ whiteSpace: 'pre-wrap' }}
             >
               {token.rawText}
             </span>
           );
         }
 
+        // Handle newline tokens specially - render as line breaks
+        if (token.metadata?.isNewline) {
+          return (
+            <span
+              key={`newline-${index}`}
+              className="rich-input-newline"
+              data-token-type="text"
+              data-token-index={index}
+              data-token-start={token.start}
+              data-token-end={token.end}
+              data-token-content={token.content}
+              data-is-newline="true"
+              data-is-whitespace="true"
+              data-has-newlines="false"
+            >
+              <br />
+            </span>
+          );
+        }
+
+        // Regular text tokens
         return (
           <span
             key={`text-${index}`}
@@ -175,6 +210,8 @@ export class DefaultRenderer implements RichInputRenderer {
             data-token-end={token.end}
             data-token-content={token.content}
             data-is-whitespace="false"
+            data-is-newline="false"
+            data-has-newlines="false"
           >
             {token.rawText}
           </span>
@@ -198,7 +235,7 @@ export class DefaultRenderer implements RichInputRenderer {
           position: 'absolute',
           width: '2px',
           height: '1.2em',
-          backgroundColor: 'var(--brand-primary, #333)',
+          backgroundColor: 'var(--brand-primary, #edae49)',
           animation: 'rich-input-cursor-blink 1s infinite',
           pointerEvents: 'none',
           zIndex: 10
@@ -382,10 +419,21 @@ export class DefaultRenderer implements RichInputRenderer {
       }
 
       case 'emoji':
-        element.className = 'emoji';
         if (token.metadata?.emojiUnicode) {
+          // Detect ASCII emojis and apply appropriate class
+          const isAsciiEmoji =
+            token.metadata?.customData?.unicode_codepoint === 'ASCII' ||
+            token.content.includes('ascii') ||
+            /^[()\/\\|\-_:;><3PDO*yn¯°□╯︵┻━ツʕᴥʔ͡ʖ͜ಠ╥﹏☆≧▽≦｡.:*]/.test(
+              token.metadata.emojiUnicode
+            );
+
+          element.className = isAsciiEmoji
+            ? 'emoji emoji--ascii'
+            : 'emoji emoji--unicode';
           element.textContent = token.metadata.emojiUnicode;
         } else if (token.metadata?.emojiImageUrl) {
+          element.className = 'emoji emoji--custom';
           const img = document.createElement('img');
           img.src = token.metadata.emojiImageUrl;
           img.alt = `:${token.content}:`;
@@ -393,6 +441,7 @@ export class DefaultRenderer implements RichInputRenderer {
           img.style.height = '1.2em';
           element.appendChild(img);
         } else {
+          element.className = 'emoji';
           element.textContent = token.rawText;
         }
         break;
@@ -409,6 +458,107 @@ export class DefaultRenderer implements RichInputRenderer {
     }
 
     return element;
+  }
+
+  renderContent(
+    tokens: RichContentToken[],
+    state: RichInputState
+  ): React.ReactNode {
+    if (tokens.length === 0) {
+      return null;
+    }
+
+    // For multiline mode, group tokens by lines and wrap in row elements
+    if (state.isMultiline) {
+      const lines: RichContentToken[][] = [];
+      const linePositions: { start: number; end: number }[] = [];
+      let currentLine: RichContentToken[] = [];
+      let currentLineStart = 0;
+      let currentTextPosition = 0;
+
+      for (let i = 0; i < tokens.length; i++) {
+        const token = tokens[i];
+
+        if (token.type === 'text' && token.metadata?.isNewline) {
+          // End current line and start new one
+          const lineEnd =
+            currentLine.length > 0
+              ? currentLine[currentLine.length - 1].end
+              : currentLineStart;
+
+          linePositions.push({
+            start: currentLineStart,
+            end: lineEnd
+          });
+
+          lines.push([...currentLine]);
+          currentLine = [];
+
+          // Next line starts after this newline token
+          currentLineStart = token.end;
+          currentTextPosition = token.end;
+        } else {
+          // Add token to current line
+          currentLine.push(token);
+          currentTextPosition = token.end;
+        }
+      }
+
+      // Add the last line if it has content
+      if (currentLine.length > 0) {
+        linePositions.push({
+          start: currentLineStart,
+          end: currentLine[currentLine.length - 1].end
+        });
+        lines.push(currentLine);
+      }
+
+      // If no lines, create empty line for cursor positioning
+      if (lines.length === 0) {
+        lines.push([]);
+        linePositions.push({ start: 0, end: 0 });
+      }
+
+      return (
+        <>
+          {lines.map((lineTokens, lineIndex) => {
+            // Use the pre-calculated line boundaries
+            const lineStart = linePositions[lineIndex]?.start || 0;
+            const lineEnd = linePositions[lineIndex]?.end || lineStart;
+
+            return (
+              <div
+                key={`line-${lineIndex}`}
+                className="rich-input-line"
+                data-line-index={lineIndex}
+                data-line-token-count={lineTokens.length}
+                data-line-start={lineStart}
+                data-line-end={lineEnd}
+              >
+                {lineTokens.length === 0 ? (
+                  // Empty line - render invisible character for cursor positioning
+                  <span
+                    className="rich-input-empty-line"
+                    data-token-type="empty-line"
+                    data-token-start={lineStart}
+                    data-token-end={lineEnd}
+                  >
+                    &nbsp;
+                  </span>
+                ) : (
+                  lineTokens.map((token, tokenIndex) =>
+                    this.renderToken(token, tokenIndex, state)
+                  )
+                )}
+              </div>
+            );
+          })}
+        </>
+      );
+    }
+
+    // For single-line mode, render tokens normally
+    return tokens.map((token, index) => this.renderToken(token, index, state));
   }
 }
 

@@ -74,6 +74,7 @@ export interface RichContentToken {
 
     // Whitespace and text properties
     isWhitespace?: boolean;
+    isNewline?: boolean;
     hasNewlines?: boolean;
   };
 
@@ -235,6 +236,12 @@ export interface RichInputRenderer {
   ) => React.ReactNode;
   renderPlaceholder: (
     placeholder: string,
+    state: RichInputState
+  ) => React.ReactNode;
+
+  // Line-based content rendering for multiline support
+  renderContent?: (
+    tokens: RichContentToken[],
     state: RichInputState
   ) => React.ReactNode;
 
