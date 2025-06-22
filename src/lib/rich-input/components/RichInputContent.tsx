@@ -50,19 +50,53 @@ export const RichInputContent = React.forwardRef<
   ) => {
     // Render tokens
     const renderTokens = () => {
-      return state.tokens.map((token, index) => (
-        <span
-          key={`token-${index}-${token.start}-${token.end}`}
-          onClick={(e) => onTokenClick(e, token)}
-          onMouseEnter={() => onTokenHover(token)}
-          style={{ position: 'relative' }}
-          data-token-index={index}
-          data-token-start={token.start}
-          data-token-end={token.end}
-        >
-          {renderer.renderToken(token, index, state)}
-        </span>
-      ));
+      // Use the renderer's renderContent method if available (for line-based rendering)
+      if (typeof renderer.renderContent === 'function') {
+        return renderer.renderContent(state.tokens, state);
+      }
+
+      // Fallback to individual token rendering for backward compatibility
+      return state.tokens.map((token, index) => {
+        const renderedToken = renderer.renderToken(token, index, state);
+
+        // For newline tokens, render directly without wrapper since they're <br /> elements
+        if (token.metadata?.isNewline) {
+          // Clone the rendered element to add event handlers and data attributes
+          if (React.isValidElement(renderedToken)) {
+            return React.cloneElement(
+              renderedToken as React.ReactElement<any>,
+              {
+                key: `token-${index}-${token.start}-${token.end}`,
+                onClick: (e: React.MouseEvent) => onTokenClick(e, token),
+                onMouseEnter: () => onTokenHover(token),
+                'data-token-index': index,
+                'data-token-start': token.start,
+                'data-token-end': token.end,
+                // Preserve existing data attributes from renderer
+                ...((renderedToken as React.ReactElement<any>).props || {})
+              }
+            );
+          }
+
+          // Fallback if not a valid React element
+          return renderedToken;
+        }
+
+        // For other tokens, use positioned wrapper for cursor positioning
+        return (
+          <span
+            key={`token-${index}-${token.start}-${token.end}`}
+            onClick={(e) => onTokenClick(e, token)}
+            onMouseEnter={() => onTokenHover(token)}
+            style={{ position: 'relative' }}
+            data-token-index={index}
+            data-token-start={token.start}
+            data-token-end={token.end}
+          >
+            {renderedToken}
+          </span>
+        );
+      });
     };
 
     return (

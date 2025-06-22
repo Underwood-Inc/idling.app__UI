@@ -127,8 +127,8 @@
 /* Hidden measurement element */
 .rich-input-measure {
   position: absolute;
-  left: -9999px;
-  top: -9999px;
+  top: 2rem;
+  right: 2rem;
   visibility: hidden;
   white-space: nowrap;
   word-break: break-word;
@@ -155,8 +155,78 @@
 }
 
 .rich-input-content--multiline {
-  white-space: pre-wrap;
+  white-space: pre-wrap !important;
   overflow: auto;
+}
+
+/* Line-based rendering for multiline mode */
+.rich-input-line {
+  display: block;
+  min-height: 1.4em;
+  line-height: 1.4;
+  width: 100%;
+  word-break: break-word;
+  white-space: nowrap;
+}
+
+/* Multiline lines should wrap */
+.rich-input-content--multiline .rich-input-line {
+  white-space: pre-wrap;
+}
+
+/* Empty line handling */
+.rich-input-empty-line {
+  display: inline-block;
+  width: 1px;
+  height: 1.4em;
+  line-height: 1.4;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Ensure proper line break handling in content */
+.rich-input-content span {
+  white-space: inherit;
+}
+
+.rich-input-content .rich-input-whitespace {
+  white-space: pre-wrap !important;
+}
+
+.rich-input-content .rich-input-newline {
+  display: block !important;
+  cursor: text !important;
+  width: 100% !important;
+  height: 0 !important;
+  min-height: 0 !important;
+  line-height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: none !important;
+  /* Force line break behavior */
+  clear: both !important;
+}
+
+.rich-input-content .rich-input-newline br {
+  display: block !important;
+}
+
+/* Ensure newlines are visible and clickable in multiline mode */
+.rich-input-content--multiline .rich-input-newline {
+  display: block !important;
+  cursor: text !important;
+  width: 100% !important;
+  height: 0 !important;
+  min-height: 0 !important;
+  line-height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: none !important;
+  clear: both !important;
+}
+
+.rich-input-content--multiline .rich-input-newline br {
+  display: block !important;
 }
 
 /* Selection highlights */
@@ -172,7 +242,7 @@
   position: absolute;
   width: 2px;
   height: 1.2em;
-  background-color: var(--cursor-color, #333);
+  background-color: var(--brand-primary, #edae49);
   animation: rich-input-cursor-blink 1s infinite;
   pointer-events: none;
   z-index: 10;
