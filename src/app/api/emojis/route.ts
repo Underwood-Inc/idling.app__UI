@@ -5,6 +5,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import {
+  getCategoryMapping,
   getCustomEmojis,
   getEmojiCategories,
   getOSEmojis,
@@ -86,18 +87,35 @@ export async function GET(request: NextRequest) {
 
     const offset = (page - 1) * perPage;
 
-    // Convert category name to category ID if provided
-    let categoryId: number | undefined;
+    // Get category mapping from database and convert category name to ID if provided
+    let categoryId: string | undefined;
     if (category) {
-      // For now, we'll pass the category as-is and let the server action handle it
-      // In a production app, you'd want to map category names to IDs
-      categoryId = parseInt(category) || undefined;
+      const categoryMapping = await getCategoryMapping();
+      const mappedId = categoryMapping[category.toLowerCase()];
+      if (mappedId) {
+        categoryId = mappedId.toString();
+      }
     }
+
+    // Get categories first to build category lookup
+    const categories = await getEmojiCategories(userOS);
+    const categoryLookup = new Map<
+      number,
+      { name: string; display_name: string }
+    >();
+
+    // Build category lookup from both builtin and custom categories
+    [...categories.builtin, ...categories.custom].forEach((cat) => {
+      categoryLookup.set(cat.category_id, {
+        name: cat.category_name,
+        display_name: cat.display_name
+      });
+    });
 
     // Fetch OS-specific emojis using server action
     const osEmojis = await getOSEmojis(
       userOS,
-      categoryId?.toString(),
+      categoryId,
       search,
       perPage,
       offset
@@ -109,57 +127,66 @@ export async function GET(request: NextRequest) {
       customEmojis = await getCustomEmojis(search, perPage, 0);
     }
 
-    // Get categories
-    const categories = await getEmojiCategories(userOS);
-
     const response: EmojiListResponse = {
       emojis: [
-        ...osEmojis.map((emoji) => ({
-          id: emoji.id,
-          emoji_id: emoji.name,
-          unicode_char: emoji.unicode_char,
-          name: emoji.name,
-          description: emoji.name,
-          category: {
-            id: emoji.category_id,
-            name: `category_${emoji.category_id}`,
-            display_name: `Category ${emoji.category_id}`
-          },
-          tags: [],
-          aliases: emoji.aliases || [],
-          is_custom: false,
-          usage_count: emoji.usage_count
-        })),
-        ...customEmojis.map((emoji) => ({
-          id: emoji.id,
-          emoji_id: emoji.name,
-          name: emoji.name,
-          description: emoji.name,
-          category: {
-            id: emoji.category_id,
-            name: `category_${emoji.category_id}`,
-            display_name: `Category ${emoji.category_id}`
-          },
-          tags: [],
-          aliases: [],
-          is_custom: true,
-          custom_image_url: emoji.image_data
-            ? `data:image/png;base64,${emoji.image_data}`
-            : undefined,
-          usage_count: emoji.usage_count
-        }))
+        ...osEmojis.map((emoji) => {
+          const categoryInfo = categoryLookup.get(emoji.category_id) || {
+            name: 'unknown',
+            display_name: 'Unknown'
+          };
+          return {
+            id: emoji.id,
+            emoji_id: emoji.name,
+            unicode_char: emoji.unicode_char,
+            name: emoji.name,
+            description: emoji.name,
+            category: {
+              id: emoji.category_id,
+              name: categoryInfo.name,
+              display_name: categoryInfo.display_name
+            },
+            tags: [],
+            aliases: emoji.aliases || [],
+            is_custom: false,
+            usage_count: emoji.usage_count
+          };
+        }),
+        ...customEmojis.map((emoji) => {
+          const categoryInfo = categoryLookup.get(emoji.category_id) || {
+            name: 'custom',
+            display_name: 'Custom'
+          };
+          return {
+            id: emoji.id,
+            emoji_id: emoji.name,
+            name: emoji.name,
+            description: emoji.name,
+            category: {
+              id: emoji.category_id,
+              name: categoryInfo.name,
+              display_name: categoryInfo.display_name
+            },
+            tags: [],
+            aliases: [],
+            is_custom: true,
+            custom_image_url: emoji.image_data
+              ? `data:image/png;base64,${emoji.image_data}`
+              : undefined,
+            usage_count: emoji.usage_count
+          };
+        })
       ],
       categories: [
         ...categories.builtin.map((cat) => ({
-          id: 0,
+          id: cat.category_id,
           name: cat.category_name,
-          display_name: cat.category_name,
+          display_name: cat.display_name,
           emoji_count: cat.count
         })),
         ...categories.custom.map((cat) => ({
-          id: 0,
+          id: cat.category_id,
           name: cat.category_name,
-          display_name: cat.category_name,
+          display_name: cat.display_name,
           emoji_count: cat.count
         }))
       ],

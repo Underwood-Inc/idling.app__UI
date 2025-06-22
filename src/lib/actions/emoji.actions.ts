@@ -460,22 +460,44 @@ export async function getEmojiCategories(
 ) {
   const tableName = userOS === 'mac' ? 'emojis_mac' : 'emojis_windows';
 
-  const result = await sql<{ category_name: string; count: number }[]>`
-    SELECT ec.name as category_name, COUNT(e.*) as count
+  const result = await sql<
+    {
+      category_id: number;
+      category_name: string;
+      display_name: string;
+      count: number;
+    }[]
+  >`
+    SELECT 
+      ec.id as category_id,
+      ec.name as category_name, 
+      ec.display_name,
+      COUNT(e.*) as count
     FROM ${sql(tableName)} e
     JOIN emoji_categories ec ON e.category_id = ec.id
     WHERE e.is_active = true
-    GROUP BY ec.name, ec.sort_order
+    GROUP BY ec.id, ec.name, ec.display_name, ec.sort_order
     ORDER BY ec.sort_order, ec.name
   `;
 
   // Also get custom emoji categories
-  const customResult = await sql<{ category_name: string; count: number }[]>`
-    SELECT ec.name as category_name, COUNT(c.*) as count
+  const customResult = await sql<
+    {
+      category_id: number;
+      category_name: string;
+      display_name: string;
+      count: number;
+    }[]
+  >`
+    SELECT 
+      ec.id as category_id,
+      ec.name as category_name, 
+      ec.display_name,
+      COUNT(c.*) as count
     FROM custom_emojis c
     JOIN emoji_categories ec ON c.category_id = ec.id
     WHERE c.is_approved = true AND c.is_active = true
-    GROUP BY ec.name, ec.sort_order
+    GROUP BY ec.id, ec.name, ec.display_name, ec.sort_order
     ORDER BY ec.sort_order, ec.name
   `;
 
@@ -483,4 +505,21 @@ export async function getEmojiCategories(
     builtin: result,
     custom: customResult
   };
+}
+
+/**
+ * Server action to get category name to ID mapping
+ */
+export async function getCategoryMapping(): Promise<Record<string, number>> {
+  const result = await sql<{ id: number; name: string }[]>`
+    SELECT id, name FROM emoji_categories
+    ORDER BY id
+  `;
+
+  const mapping: Record<string, number> = {};
+  result.forEach((category) => {
+    mapping[category.name.toLowerCase()] = category.id;
+  });
+
+  return mapping;
 }
