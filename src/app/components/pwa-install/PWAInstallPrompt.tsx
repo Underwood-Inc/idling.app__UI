@@ -19,6 +19,9 @@ const PWAInstallPrompt: React.FC = () => {
   const [isInstalled, setIsInstalled] = useState(false);
   const [isSupported, setIsSupported] = useState(false);
 
+  // Note: Removed route-specific positioning logic as PWA prompt now uses
+  // consistent top: 2rem; right: 2rem positioning regardless of route
+
   useEffect(() => {
     // Check if PWA is already installed
     const checkIfInstalled = () => {

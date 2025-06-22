@@ -104,7 +104,7 @@
 }
 
 /* Override form styles within the modal */
-.post-modal__content .submission__form {
+.post-modal__content .shared-submission-form {
   background: transparent;
   border: none;
   padding: 0;
@@ -112,27 +112,120 @@
   box-shadow: none;
 }
 
-.post-modal__content .submission__title-label,
-.post-modal__content .submission__tags-label {
-  margin-bottom: 1rem;
+/* Style the form labels */
+.post-modal__content .shared-submission-form__label {
+  color: var(--dark-bg__text-color--primary);
+  margin-bottom: 0.5rem;
 }
 
-.post-modal__content .submission__title-input,
-.post-modal__content .submission__tags-input {
+/* Style the RichTextEditor and SmartInput components */
+.post-modal__content .form-pill-input__container {
   background-color: var(--dark-background--tertiary);
   border: 1px solid var(--brand-tertiary--dark);
-  color: var(--dark-bg__text-color--primary);
-  padding: 0.75rem;
-  border-radius: 0.5rem;
-  font-size: 0.95rem;
-  transition: all 0.2s ease-in-out;
+  border-radius: var(--border-radius);
 }
 
-.post-modal__content .submission__title-input:focus,
-.post-modal__content .submission__tags-input:focus {
-  outline: none;
+.post-modal__content .form-pill-input__container:focus-within {
   border-color: var(--brand-primary);
   box-shadow: 0 0 0 2px rgba(237, 174, 73, 0.2);
+}
+
+/* Style the input text inside rich text editor */
+.post-modal__content .form-pill-input__input,
+.post-modal__content .form-pill-input__raw-input,
+.post-modal__content .inline-suggestion-input,
+.post-modal__content .rich-input,
+.post-modal__content .rich-input-content,
+.post-modal__content .rich-input-adapter,
+.post-modal__content .rich-input-adapter-raw {
+  background: transparent !important;
+  color: var(--dark-bg__text-color--primary) !important;
+  border: none !important;
+  padding: 0.75rem !important;
+  font-size: 0.95rem !important;
+}
+
+.post-modal__content .form-pill-input__input::placeholder,
+.post-modal__content .form-pill-input__raw-input::placeholder,
+.post-modal__content .inline-suggestion-input::placeholder,
+.post-modal__content .rich-input-placeholder {
+  color: var(--dark-bg__text-color--secondary) !important;
+}
+
+/* Ensure all text tokens in rich input have proper color */
+.post-modal__content .rich-input-content span,
+.post-modal__content .rich-input-content .rich-input-token,
+.post-modal__content .rich-input-content .rich-input-whitespace {
+  color: var(--dark-bg__text-color--primary) !important;
+}
+
+/* Ensure proper multiline handling in rich input */
+.post-modal__content .rich-input-adapter--multiline,
+.post-modal__content .rich-input-adapter--multiline .rich-input,
+.post-modal__content .rich-input-adapter--multiline .rich-input-content {
+  white-space: pre-wrap !important;
+  word-wrap: break-word !important;
+  overflow-wrap: break-word !important;
+}
+
+.post-modal__content .rich-input-adapter--multiline .rich-input-content span {
+  white-space: pre-wrap !important;
+}
+
+/* Style the character count */
+.post-modal__content .shared-submission-form__char-count span {
+  color: var(--dark-bg__text-color--secondary);
+}
+
+.post-modal__content .shared-submission-form__char-count--error span {
+  color: var(--error);
+}
+
+/* Style the help text */
+.post-modal__content .shared-submission-form__help-text {
+  color: var(--dark-bg__text-color--secondary);
+}
+
+/* Style the submit button */
+.post-modal__content .shared-submission-form__submit {
+  background-color: var(--brand-primary);
+  color: var(--font-color--primary);
+  border: 1px solid var(--brand-primary--dark);
+}
+
+.post-modal__content .shared-submission-form__submit:hover:not(:disabled) {
+  background-color: var(--brand-primary--dark);
+}
+
+/* Style the view toggle buttons */
+.post-modal__content .shared-submission-form__toggle-btn {
+  background: var(--dark-background--secondary);
+  color: var(--dark-bg__text-color--secondary);
+  border-color: var(--brand-tertiary--dark);
+}
+
+.post-modal__content .shared-submission-form__toggle-btn:hover:not(:disabled) {
+  background: var(--dark-background--tertiary);
+  color: var(--dark-bg__text-color--primary);
+}
+
+.post-modal__content .shared-submission-form__toggle-btn--active {
+  background: var(--brand-primary);
+  color: white;
+}
+
+/* Ensure proper cursor color in modal */
+.post-modal__content .rich-input-cursor,
+.post-modal__content .rich-input .rich-input-cursor {
+  background-color: var(--brand-primary, #edae49) !important;
+}
+
+.post-modal__content input,
+.post-modal__content textarea,
+.post-modal__content [contenteditable],
+.post-modal__content .rich-input,
+.post-modal__content .rich-input-content {
+  caret-color: var(--brand-primary, #edae49) !important;
 }
 
 /* Responsive Design */

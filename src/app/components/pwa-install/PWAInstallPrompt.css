@@ -3,14 +3,14 @@
   z-index: 1001;
   /* Higher than timeout banner (z-index: 1000) and other fixed elements */
   opacity: 0;
-  /* Desktop positioning - explicit values to ensure proper positioning */
-  top: var(--spacing-cozy);
-  right: var(--spacing-cozy);
+  /* Consistent positioning - always 2rem from top and right regardless of route */
+  top: 2rem;
+  right: 2rem;
   left: auto;
   bottom: auto;
-  max-width: 280px;
+  /* max-width: 280px; */
   width: auto;
-  transform: translateY(-20px);
+  /* transform: translateY(-20px); */
   animation: slideInFromTop 0.5s ease-out 0.5s forwards;
   /* Ensure no margin/padding interference */
   margin: 0;
@@ -23,9 +23,6 @@
   transform-style: flat;
   /* Ensure proper containment */
   contain: layout style;
-  /* Ensure it's always positioned relative to viewport */
-  inset-inline-end: var(--spacing-cozy);
-  inset-block-start: var(--spacing-cozy);
 }
 
 @keyframes slideInFromTop {
@@ -155,15 +152,12 @@
 /* Mobile responsiveness */
 @media (max-width: 768px) {
   .pwa-install-prompt {
-    /* Force override desktop positioning */
-    top: 2.5rem !important;
-    bottom: auto !important;
-    left: 1rem !important;
-    right: 1rem !important;
-    max-width: none !important;
+    /* Mobile positioning - centered horizontally with top margin */
+    top: 1rem;
+    right: 1rem;
+    max-width: none;
     /* Keep same animation */
-    transform: translateY(-20px) !important;
-    animation: slideInFromTop 0.5s ease-out 0.5s forwards !important;
+    animation: slideInFromTop 0.5s ease-out 0.5s forwards;
   }
 
   .pwa-install-prompt__content {
@@ -193,9 +187,9 @@
 @media (min-width: 769px) {
   .pwa-install-prompt {
     /* Ensure proper right alignment on desktop */
-    right: max(var(--spacing-cozy), 12px);
+    right: 1rem;
     /* Account for potential scrollbar */
-    top: var(--spacing-cozy);
+    top: 1rem;
     left: auto;
     bottom: auto;
     /* Ensure it doesn't extend beyond viewport */
@@ -206,9 +200,8 @@
 @media (max-width: 480px) {
   .pwa-install-prompt {
     /* Smaller margins on very small screens */
-    top: 2.5rem !important;
-    left: 0.5rem !important;
-    right: 0.5rem !important;
+    top: 1rem !important;
+    right: 1rem !important;
   }
 }
 

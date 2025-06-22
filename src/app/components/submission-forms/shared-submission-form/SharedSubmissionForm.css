@@ -946,7 +946,6 @@
 .shared-submission-form__form-input.shared-submission-form__input--error .form-pill-input__container,
 .shared-submission-form__form-input.shared-submission-form__textarea--error .form-pill-input__container {
   border-color: var(--error);
-  background: var(--light-background--primary);
 }
 
 @keyframes url-pill-pulse {
@@ -1302,7 +1301,7 @@
   display: inline-block;
   width: 1px;
   height: 1.2em;
-  background-color: var(--brand-primary);
+  background-color: var(--brand-primary, #edae49);
   animation: cursor-blink 1s infinite;
   margin: 0;
   vertical-align: text-bottom;
@@ -1377,4 +1376,28 @@
   .suggestion-list .suggestion-item.selected .suggestion-label {
     color: var(--dark-bg__text-color--primary);
   }
+}
+
+/* Ensure proper multiline handling in rich input */
+.shared-submission-form .rich-input-adapter--multiline,
+.shared-submission-form .rich-input-adapter--multiline .rich-input,
+.shared-submission-form .rich-input-adapter--multiline .rich-input-content {
+  white-space: pre-wrap !important;
+  word-wrap: break-word !important;
+  overflow-wrap: break-word !important;
+}
+
+.shared-submission-form .rich-input-adapter--multiline .rich-input-content span {
+  white-space: pre-wrap !important;
+}
+
+/* Ensure newlines and whitespace are preserved */
+.shared-submission-form .rich-input-content .rich-input-newline,
+.shared-submission-form .rich-input-content .rich-input-whitespace {
+  white-space: pre-wrap !important;
+}
+
+/* Ensure text tokens preserve newlines */
+.shared-submission-form .rich-input-content span[data-has-newlines="true"] {
+  white-space: pre-wrap !important;
 }
