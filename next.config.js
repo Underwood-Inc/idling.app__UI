@@ -86,7 +86,7 @@ const nextConfig = {
     // Use version + timestamp for unique build IDs
     return `${version}-${Date.now()}`;
   },
-  webpack: (config, { webpack, dev }) => {
+  webpack: (config, { webpack, dev, isServer }) => {
     // In production builds, exclude dev tools entirely
     if (!dev) {
       config.plugins.push(
@@ -95,7 +95,47 @@ const nextConfig = {
           contextRegExp: /src\/app\/components/
         })
       );
+
+      // Remove console statements in production
+      if (config.optimization.minimizer) {
+        config.optimization.minimizer.forEach((minimizer) => {
+          if (minimizer.constructor.name === 'TerserPlugin') {
+            minimizer.options.terserOptions = {
+              ...minimizer.options.terserOptions,
+              compress: {
+                ...minimizer.options.terserOptions?.compress,
+                drop_console: true,
+                drop_debugger: true,
+                pure_funcs: [
+                  'console.log',
+                  'console.info',
+                  'console.warn',
+                  'console.error',
+                  'console.debug',
+                  'console.trace'
+                ]
+              }
+            };
+          }
+        });
+      }
+
+      // Add DefinePlugin to replace console methods with no-ops in production
+      config.plugins.push(
+        new webpack.DefinePlugin({
+          'console.log': JSON.stringify(() => {}),
+          'console.info': JSON.stringify(() => {}),
+          'console.warn': JSON.stringify(() => {}),
+          'console.error': JSON.stringify(() => {}),
+          'console.debug': JSON.stringify(() => {}),
+          'console.trace': JSON.stringify(() => {}),
+          'console.group': JSON.stringify(() => {}),
+          'console.groupCollapsed': JSON.stringify(() => {}),
+          'console.groupEnd': JSON.stringify(() => {})
+        })
+      );
     }
+
     config.plugins.push(
       new webpack.ProvidePlugin({
         Buffer: ['buffer', 'Buffer']

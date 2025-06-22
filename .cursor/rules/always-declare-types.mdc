@@ -1,0 +1,50 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+whenever types are being defined for something, always declare them as a interface or type and never inline. then use that declaration instead of the inline.
+i.e.
+instead of
+```ts
+
+/**
+ * Server action to get category name to ID mapping
+ */
+export async function getCategoryMapping(): Promise<Record<string, number>> {
+  const result = await sql<{ id: number; name: string }[]>`
+    SELECT id, name FROM emoji_categories
+    ORDER BY id
+  `;
+
+  const mapping: Record<string, number> = {};
+  result.forEach((category) => {
+    mapping[category.name.toLowerCase()] = category.id;
+  });
+
+  return mapping;
+}
+```
+
+do
+
+```ts
+export interface GetCategoryMappingRecord { id: number; name: string }
+
+/**
+ * Server action to get category name to ID mapping
+ */
+export async function getCategoryMapping(): Promise<GetCategoryMappingRecord> {
+  const result = await sql<GetCategoryMappingRecord[]>`
+    SELECT id, name FROM emoji_categories
+    ORDER BY id
+  `;
+
+  const mapping: Record<string, number> = {};
+  result.forEach((category) => {
+    mapping[category.name.toLowerCase()] = category.id;
+  });
+
+  return mapping;
+}
+```
