@@ -579,7 +579,7 @@ export const RichInputAdapter: React.FC<RichInputAdapterProps> = ({
           spellCheck: true
         }}
         styling={{
-          className: `rich-input-adapter ${className}`,
+          className: `rich-input-adapter ${className} ${multiline ? 'rich-input-adapter--multiline' : 'rich-input-adapter--single-line'}`,
           style: {
             minHeight: multiline ? '60px' : '40px',
             maxHeight: multiline ? '200px' : '40px',
@@ -706,7 +706,7 @@ export const RichInputAdapter: React.FC<RichInputAdapterProps> = ({
 
         /* Style the cursor */
         .rich-input-adapter .rich-input-cursor {
-          background-color: #333 !important;
+          background-color: var(--brand-primary, #edae49) !important;
           width: 2px !important;
           height: 1.2em !important;
         }

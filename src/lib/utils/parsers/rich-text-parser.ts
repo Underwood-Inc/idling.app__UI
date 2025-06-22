@@ -219,8 +219,11 @@ export class RichTextParser {
    */
   private tokenToHtml(token: RichTextToken): string {
     switch (token.type) {
-      case 'text':
-        return this.escapeHtml(token.content);
+      case 'text': {
+        // Handle newlines in text content by converting them to <br /> tags
+        const escapedContent = this.escapeHtml(token.content);
+        return escapedContent.replace(/\n/g, '<br />');
+      }
 
       case 'hashtag':
         return `<span class="content-pill content-pill--hashtag">#${this.escapeHtml(token.content)}</span>`;
