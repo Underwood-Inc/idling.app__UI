@@ -51,7 +51,7 @@
 
 .timeout-banner__timer {
   font-weight: 500;
-  font-family: 'Courier New', monospace;
+
   background: rgba(255, 255, 255, 0.2);
   padding: 0.2rem 0.4rem;
   border-radius: 4px;

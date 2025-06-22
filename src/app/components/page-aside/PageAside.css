@@ -12,3 +12,10 @@
   top: 0;
   right: 0;
 }
+
+/* Ensure page aside is completely hidden at smaller viewport widths */
+@media (max-width: 1024px) {
+  .page-aside__container {
+    display: none !important;
+  }
+}

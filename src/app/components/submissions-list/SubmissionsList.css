@@ -311,6 +311,38 @@
   .submission__meta {
     flex-direction: column;
     align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  /* Ensure owner actions are properly positioned and accessible on mobile */
+  .submission__owner-actions {
+    align-self: flex-end;
+    margin-top: 0.25rem;
+  }
+
+  /* Improve touch targets for mobile while maintaining visual consistency */
+  .submission__edit-btn,
+  .submission__delete-btn {
+    /* Keep original visual styling but ensure minimum touch target */
+    min-height: 44px;
+    /* Maintain original padding and font size for visual consistency */
+    padding: 0.25rem 0.75rem;
+    font-size: var(--font-size-md);
+    /* Ensure adequate touch area with transparent padding if needed */
+    position: relative;
+  }
+
+  /* Add invisible touch area if the button is smaller than 44px */
+  .submission__edit-btn::before,
+  .submission__delete-btn::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    min-width: 44px;
+    min-height: 44px;
+    z-index: -1;
   }
 
   .submission__title {
@@ -515,7 +547,7 @@
   border-radius: 4px;
   font-size: 12px;
   z-index: 1000;
-  font-family: monospace;
+
   line-height: 1.4;
 }
 

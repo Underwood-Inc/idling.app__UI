@@ -7,7 +7,6 @@
 .author.clickable {
   cursor: pointer;
   border-radius: var(--border-radius);
-  padding: 0.25rem 0.5rem;
   transition: all 0.2s ease;
   /* Remove negative margins that cause alignment issues */
 }
