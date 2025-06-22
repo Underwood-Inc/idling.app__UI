@@ -72,12 +72,21 @@ export class WidthMeasurementUtility {
     token: RichContentToken,
     context: MeasurementContext
   ): number {
+    // Return fallback width on server side
+    if (typeof window === 'undefined' || typeof document === 'undefined') {
+      return token.rawText.length * 8; // Fallback: ~8px per character
+    }
+
     if (!this.measurementContainer) {
       this.ensureMeasurementContainer();
     }
 
+    if (!this.measurementContainer) {
+      return token.rawText.length * 8; // Fallback if container creation failed
+    }
+
     const element = this.createTokenElement(token, context);
-    this.measurementContainer!.appendChild(element);
+    this.measurementContainer.appendChild(element);
 
     // Force layout calculation
     element.offsetHeight;
@@ -97,6 +106,11 @@ export class WidthMeasurementUtility {
     token: RichContentToken,
     context: MeasurementContext
   ): HTMLElement {
+    // This should only be called on client side, but add safety check
+    if (typeof document === 'undefined') {
+      throw new Error('createTokenElement called on server side');
+    }
+
     const element = document.createElement('span');
 
     // Apply base styles
@@ -226,6 +240,11 @@ export class WidthMeasurementUtility {
    * Ensure measurement container exists
    */
   private ensureMeasurementContainer(): void {
+    // Only create measurement container on client side
+    if (typeof window === 'undefined' || typeof document === 'undefined') {
+      return;
+    }
+
     if (!this.measurementContainer) {
       this.measurementContainer = document.createElement('div');
       this.measurementContainer.style.position = 'absolute';

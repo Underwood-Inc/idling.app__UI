@@ -98,7 +98,64 @@ export class PermissionsService {
 
       return result[0]?.has_permission || false;
     } catch (error) {
+      // If database function doesn't exist, fallback to basic check
+      if (
+        error &&
+        typeof error === 'object' &&
+        'code' in error &&
+        error.code === '42883'
+      ) {
+        console.warn(
+          'Permission function not found, using fallback logic for permission:',
+          permissionName
+        );
+        return this.fallbackPermissionCheck(userId, permissionName);
+      }
       console.error('Error checking user permission:', error);
+      return false;
+    }
+  }
+
+  /**
+   * Fallback permission check when database functions are not available
+   */
+  private static async fallbackPermissionCheck(
+    userId: number,
+    permissionName: string
+  ): Promise<boolean> {
+    try {
+      // Basic content permissions for logged-in users
+      const basicPermissions = [
+        'content.create.post',
+        'content.edit.own',
+        'content.delete.own',
+        'content.comment',
+        'emoji.use.standard',
+        'emoji.use.custom',
+        'emoji.create.custom',
+        'emoji.use.own'
+      ];
+
+      if (basicPermissions.includes(permissionName)) {
+        return true;
+      }
+
+      // Admin permissions - only for user ID 1 (first user)
+      const adminPermissions = [
+        'admin.access',
+        'admin.emoji.approve',
+        'admin.users.view',
+        'admin.users.timeout',
+        'admin.posts.moderate'
+      ];
+
+      if (adminPermissions.includes(permissionName) && userId === 1) {
+        return true;
+      }
+
+      return false;
+    } catch (error) {
+      console.error('Error in fallback permission check:', error);
       return false;
     }
   }
@@ -190,6 +247,19 @@ export class PermissionsService {
         reason: row.reason
       };
     } catch (error) {
+      // If database function doesn't exist, fallback to no timeout
+      if (
+        error &&
+        typeof error === 'object' &&
+        'code' in error &&
+        error.code === '42883'
+      ) {
+        console.warn(
+          'Timeout function not found, assuming no timeout for user:',
+          userId
+        );
+        return { is_timed_out: false };
+      }
       console.error('Error checking user timeout:', error);
       return { is_timed_out: false };
     }
