@@ -1,0 +1,193 @@
+/* Rich Input Component Styles */
+.rich-input {
+  position: relative;
+  min-height: 40px;
+  padding: 8px 12px;
+  border: 1px solid var(--border-color, #ccc);
+  border-radius: 4px;
+  background-color: var(--background-color, #fff);
+  cursor: text;
+  outline: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  font-family: 'Fira Code', monospace;
+  font-size: 14px;
+  letter-spacing: 0px;
+  line-height: 1.4;
+}
+
+.rich-input--multiline {
+  min-height: 60px;
+}
+
+.rich-input--single-line {
+  min-height: 40px;
+}
+
+.rich-input--focused {
+  border-color: var(--focus-color, #007bff);
+  box-shadow: 0 0 0 2px var(--focus-shadow, rgba(0, 123, 255, 0.25));
+}
+
+.rich-input-container {
+  font-size: 14px;
+  letter-spacing: 0px;
+  line-height: 1.4;
+}
+
+/* Pill styles for hashtags, mentions, and URLs */
+.rich-input-hashtag,
+.rich-input-mention,
+.rich-input-url {
+  display: inline-block;
+  padding: 2px 6px;
+  margin: 0 1px;
+  border-radius: 4px;
+  font-family: inherit;
+  font-size: inherit;
+  letter-spacing: inherit;
+  white-space: nowrap;
+  vertical-align: baseline;
+}
+
+.rich-input-hashtag {
+  background-color: #e1f5fe;
+  color: #0277bd;
+  border: 1px solid #b3e5fc;
+}
+
+.rich-input-mention {
+  background-color: #f3e5f5;
+  color: #7b1fa2;
+  border: 1px solid #e1bee7;
+}
+
+.rich-input-url {
+  background-color: #e8f5e8;
+  color: #2e7d32;
+  border: 1px solid #c8e6c9;
+}
+
+/* Hover states */
+.rich-input-hashtag:hover {
+  background-color: #b3e5fc;
+  border-color: #81d4fa;
+}
+
+.rich-input-mention:hover {
+  background-color: #e1bee7;
+  border-color: #ce93d8;
+}
+
+.rich-input-url:hover {
+  background-color: #c8e6c9;
+  border-color: #a5d6a7;
+}
+
+/* Focus/selected states */
+.rich-input-hashtag:focus,
+.rich-input-hashtag.selected {
+  background-color: #81d4fa;
+  border-color: #4fc3f7;
+  outline: none;
+}
+
+.rich-input-mention:focus,
+.rich-input-mention.selected {
+  background-color: #ce93d8;
+  border-color: #ba68c8;
+  outline: none;
+}
+
+.rich-input-url:focus,
+.rich-input-url.selected {
+  background-color: #a5d6a7;
+  border-color: #81c784;
+  outline: none;
+}
+
+/* Hidden native input for form integration */
+.rich-input-hidden-input {
+  position: absolute;
+  left: -9999px;
+  opacity: 0;
+  pointer-events: none;
+  width: 1px;
+  height: 1px;
+  border: none;
+  padding: 0;
+  margin: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+}
+
+/* Hidden measurement element */
+.rich-input-measure {
+  position: absolute;
+  left: -9999px;
+  top: -9999px;
+  visibility: hidden;
+  white-space: nowrap;
+  word-break: break-word;
+  font-size: inherit;
+  font-family: inherit;
+  line-height: 1.4;
+  padding: 0;
+  margin: 0;
+  border: none;
+}
+
+.rich-input-measure--multiline {
+  white-space: pre-wrap;
+}
+
+/* Content layer */
+.rich-input-content {
+  position: relative;
+  min-height: 1.2em;
+  line-height: 1.4;
+  white-space: nowrap;
+  word-break: break-word;
+  overflow: hidden;
+}
+
+.rich-input-content--multiline {
+  white-space: pre-wrap;
+  overflow: auto;
+}
+
+/* Selection highlights */
+.rich-input-selection {
+  position: absolute;
+  background-color: var(--selection-color, rgba(0, 123, 255, 0.25));
+  pointer-events: none;
+  z-index: 5;
+}
+
+/* Cursor */
+.rich-input-cursor {
+  position: absolute;
+  width: 2px;
+  height: 1.2em;
+  background-color: var(--cursor-color, #333);
+  animation: rich-input-cursor-blink 1s infinite;
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* Cursor animation */
+@keyframes rich-input-cursor-blink {
+
+  0%,
+  50% {
+    opacity: 1;
+  }
+
+  51%,
+  100% {
+    opacity: 0;
+  }
+}
