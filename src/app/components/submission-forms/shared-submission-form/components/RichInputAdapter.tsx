@@ -244,6 +244,93 @@ export const RichInputAdapter: React.FC<RichInputAdapterProps> = ({
     [onChange, detectTriggerAndShowOverlay]
   );
 
+  // Enhanced value change handler with URL detection and auto-conversion
+  const handleValueChangeWithURLDetection = useCallback(
+    (newValue: string, previousValue?: string) => {
+      // First call the original handler
+      handleValueChange(newValue);
+
+      // Only check for URL conversion if we just added a space or newline
+      const prevValue = previousValue || value || '';
+      if (newValue.length <= prevValue.length) {
+        return; // Don't convert on deletion
+      }
+
+      const lastChar = newValue[newValue.length - 1];
+      if (lastChar !== ' ' && lastChar !== '\n') {
+        return; // Only convert when space or newline is added
+      }
+
+      // Get cursor position from rich input
+      if (richInputRef.current) {
+        const richInput = richInputRef.current;
+        const cursorPosition =
+          richInput.getCursorPosition?.()?.index || newValue.length;
+
+        // Look for the word before the space/newline
+        const beforeCursor = newValue.slice(0, cursorPosition - 1); // Exclude the trigger char
+        const words = beforeCursor.split(/[\s\n]+/);
+        const lastWord = words[words.length - 1];
+
+        // Check if the last word is a URL
+        if (lastWord) {
+          const urlRegex = /^https?:\/\/[^\s<>"{}|\\^`[\]]+$/;
+          if (urlRegex.test(lastWord)) {
+            const url = lastWord;
+
+            // Import URL detection utilities and convert
+            import('../../../../../lib/config/url-pills')
+              .then(({ findDomainConfig, createURLPill }) => {
+                const domainConfig = findDomainConfig(url);
+                if (domainConfig) {
+                  // Convert URL to structured pill format
+                  const pillFormat = createURLPill(
+                    url,
+                    domainConfig.defaultBehavior
+                  );
+
+                  // Replace the URL with the pill format
+                  const beforeUrl = beforeCursor.slice(
+                    0,
+                    beforeCursor.lastIndexOf(lastWord)
+                  );
+                  const afterCursor = newValue.slice(cursorPosition);
+                  const newContent =
+                    beforeUrl + pillFormat + lastChar + afterCursor;
+
+                  // Update the content
+                  onChange(newContent);
+
+                  // Set cursor position after the pill using rich input API
+                  setTimeout(() => {
+                    if (richInputRef.current) {
+                      const newCursorPosition =
+                        beforeUrl.length + pillFormat.length + 1;
+                      richInput.setCursorPosition?.(newCursorPosition);
+                      richInput.focus?.();
+                    }
+                  }, 0);
+                }
+              })
+              .catch((error) => {
+                console.error('Failed to load URL pill utilities:', error);
+              });
+          }
+        }
+      }
+    },
+    [handleValueChange, onChange, value]
+  );
+
+  // Enhanced value change wrapper that tracks previous value
+  const handleValueChangeWrapper = useCallback(
+    (newValue: string) => {
+      const prevValue = value;
+      handleValueChangeWithURLDetection(newValue, prevValue);
+    },
+    [handleValueChangeWithURLDetection, value]
+  );
+
   // Handle search result selection
   const handleSearchResultSelect = useCallback(
     (item: any) => {
@@ -561,7 +648,7 @@ export const RichInputAdapter: React.FC<RichInputAdapterProps> = ({
       <RichInput
         ref={richInputRef}
         value={value}
-        onChange={handleValueChange}
+        onChange={handleValueChangeWrapper}
         multiline={multiline}
         placeholder={placeholder}
         disabled={disabled}
