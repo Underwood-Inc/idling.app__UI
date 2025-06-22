@@ -188,9 +188,7 @@ export class DefaultRenderer implements RichInputRenderer {
           const isAsciiEmoji =
             token.metadata?.customData?.unicode_codepoint === 'ASCII' ||
             token.content.includes('ascii') ||
-            /^[()\/\\|\-_:;><3PDO*yn¯°□╯︵┻━ツʕᴥʔ͡ʖ͜ಠ╥﹏☆≧▽≦｡.:*]/.test(
-              token.metadata.emojiUnicode
-            );
+            /^[()\\|\-_:;><3PDO*yn]/.test(token.metadata.emojiUnicode);
 
           const emojiClass = isAsciiEmoji
             ? 'emoji emoji--ascii'
@@ -639,9 +637,7 @@ export class DefaultRenderer implements RichInputRenderer {
           const isAsciiEmoji =
             token.metadata?.customData?.unicode_codepoint === 'ASCII' ||
             token.content.includes('ascii') ||
-            /^[()\/\\|\-_:;><3PDO*yn¯°□╯︵┻━ツʕᴥʔ͡ʖ͜ಠ╥﹏☆≧▽≦｡.:*]/.test(
-              token.metadata.emojiUnicode
-            );
+            /^[()\\|\-_:;><3PDO*yn]/.test(token.metadata.emojiUnicode);
 
           element.className = isAsciiEmoji
             ? 'emoji emoji--ascii'

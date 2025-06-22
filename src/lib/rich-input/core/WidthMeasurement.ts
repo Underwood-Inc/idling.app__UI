@@ -161,9 +161,7 @@ export class WidthMeasurementUtility {
           const isAsciiEmoji =
             token.metadata?.customData?.unicode_codepoint === 'ASCII' ||
             token.content.includes('ascii') ||
-            /^[()\/\\|\-_:;><3PDO*yn¯°□╯︵┻━ツʕᴥʔ͡ʖ͜ಠ╥﹏☆≧▽≦｡.:*]/.test(
-              token.metadata.emojiUnicode
-            );
+            /^[()\\|\-_:;><3PDO*yn]/.test(token.metadata.emojiUnicode);
 
           element.className = isAsciiEmoji
             ? 'rich-input-token rich-input-token--emoji emoji emoji--ascii'

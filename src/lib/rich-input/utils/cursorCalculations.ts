@@ -7,6 +7,8 @@ import type { RichInputPosition } from '../types';
 import { richTextLogger } from './logger';
 import type { TokenPosition } from './tokenPositioning';
 
+// Use Element[] instead of NodeListOf to avoid type issues
+
 /**
  * Calculate cursor position with line-aware system support
  * This combines line-based structure with token-level precision
@@ -25,7 +27,7 @@ export function calculateLineAwareCursorPosition(
       position,
       contentElement,
       rawText,
-      lineElements
+      Array.from(lineElements)
     );
   } else {
     // Fallback to token-based positioning for single-line mode
@@ -44,7 +46,7 @@ function calculateCursorInLineBasedStructure(
   position: RichInputPosition,
   contentElement: HTMLElement,
   rawText: string,
-  lineElements: NodeListOf<Element>
+  lineElements: Element[]
 ): { x: number; y: number } | null {
   const containerRect = contentElement.getBoundingClientRect();
   const textIndex = position.index;
