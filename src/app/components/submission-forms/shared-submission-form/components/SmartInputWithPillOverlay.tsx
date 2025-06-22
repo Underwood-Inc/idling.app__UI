@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { ContentWithPills } from '../../../ui/ContentWithPills';
 import { SmartInput } from '../../../ui/SmartInput';
 import { FloatingToolbar } from './FloatingToolbar';
@@ -41,6 +41,83 @@ export const SmartInputWithPillOverlay: React.FC<
   const overlayRef = useRef<HTMLDivElement>(null);
   const [isFocused, setIsFocused] = useState(false);
   const [showToolbar, setShowToolbar] = useState(false);
+  const [visualCursorPosition, setVisualCursorPosition] = useState<{
+    x: number;
+    y: number;
+  } | null>(null);
+  const [isSelecting, setIsSelecting] = useState(false);
+  const [selectionStart, setSelectionStart] = useState<number | null>(null);
+
+  // Smart pill selection functions
+  const findPillAt = useCallback(
+    (
+      position: number
+    ): { start: number; end: number; type: 'hashtag' | 'mention' } | null => {
+      if (!value) return null;
+
+      const pillRegex = /(#\w+)|(@\[[^\]]+\])/g;
+      let match;
+
+      while ((match = pillRegex.exec(value)) !== null) {
+        const start = match.index;
+        const end = match.index + match[0].length;
+
+        if (position >= start && position <= end) {
+          return {
+            start,
+            end,
+            type: match[1] ? 'hashtag' : 'mention'
+          };
+        }
+      }
+
+      return null;
+    },
+    [value]
+  );
+
+  const expandSelectionToPills = useCallback(
+    (startPos: number, endPos: number): { start: number; end: number } => {
+      if (!value) return { start: startPos, end: endPos };
+
+      let expandedStart = startPos;
+      let expandedEnd = endPos;
+
+      // Find pill containing start position
+      const startPill = findPillAt(startPos);
+      if (startPill) {
+        expandedStart = startPill.start;
+      }
+
+      // Find pill containing end position
+      const endPill = findPillAt(endPos);
+      if (endPill) {
+        expandedEnd = endPill.end;
+      }
+
+      // If we're selecting across multiple pills, include all pills in between
+      const pillRegex = /(#\w+)|(@\[[^\]]+\])/g;
+      let match;
+
+      while ((match = pillRegex.exec(value)) !== null) {
+        const pillStart = match.index;
+        const pillEnd = match.index + match[0].length;
+
+        // If this pill overlaps with our expanded selection, include it
+        if (
+          (pillStart >= expandedStart && pillStart <= expandedEnd) ||
+          (pillEnd >= expandedStart && pillEnd <= expandedEnd) ||
+          (pillStart <= expandedStart && pillEnd >= expandedEnd)
+        ) {
+          expandedStart = Math.min(expandedStart, pillStart);
+          expandedEnd = Math.max(expandedEnd, pillEnd);
+        }
+      }
+
+      return { start: expandedStart, end: expandedEnd };
+    },
+    [value, findPillAt]
+  );
 
   // Handle URL behavior changes from pill edit controls
   const handleURLBehaviorChange = (oldContent: string, newContent: string) => {
@@ -53,6 +130,14 @@ export const SmartInputWithPillOverlay: React.FC<
   const handleFocus = () => {
     setIsFocused(true);
     setShowToolbar(true);
+
+    // Update visual cursor on focus
+    setTimeout(() => {
+      if (smartInputRef.current) {
+        const cursorPos = smartInputRef.current.selectionStart || 0;
+        updateVisualCursor(cursorPos);
+      }
+    }, 0);
   };
 
   const handleBlur = (e: React.FocusEvent) => {
@@ -98,58 +183,510 @@ export const SmartInputWithPillOverlay: React.FC<
     }, 300); // Increased delay for better stability with portals
   };
 
-  // Cursor position mapping - improved to handle visual to text position properly
+  // Calculate visual cursor position from raw text position
+  const calculateVisualCursorPosition = useCallback(
+    (rawPosition: number): { x: number; y: number } | null => {
+      if (!overlayRef.current || !value) return null;
+
+      try {
+        // Create a range to measure visual position
+        const range = document.createRange();
+        const walker = document.createTreeWalker(
+          overlayRef.current,
+          NodeFilter.SHOW_TEXT
+        );
+
+        let currentRawPosition = 0;
+        let currentNode;
+
+        while ((currentNode = walker.nextNode())) {
+          const textContent = currentNode.textContent || '';
+          const parent = currentNode.parentElement;
+
+          if (parent?.classList.contains('content-pill')) {
+            // This is a pill - figure out its raw text length
+            const remainingValue = value.slice(currentRawPosition);
+            const hashtagMatch = remainingValue.match(/^#\w+/);
+            const mentionMatch = remainingValue.match(/^@\[[^\]]+\]/);
+
+            let rawPillLength = 0;
+            if (hashtagMatch) {
+              rawPillLength = hashtagMatch[0].length;
+            } else if (mentionMatch) {
+              rawPillLength = mentionMatch[0].length;
+            } else {
+              rawPillLength = textContent.length;
+            }
+
+            if (
+              rawPosition >= currentRawPosition &&
+              rawPosition <= currentRawPosition + rawPillLength
+            ) {
+              // Cursor is within this pill - position at the end of the visual pill
+              range.selectNodeContents(parent);
+              range.collapse(false); // Collapse to end
+              const rect = range.getBoundingClientRect();
+              const overlayRect = overlayRef.current.getBoundingClientRect();
+
+              return {
+                x: rect.right - overlayRect.left,
+                y: rect.top - overlayRect.top + rect.height / 2
+              };
+            }
+
+            currentRawPosition += rawPillLength;
+          } else {
+            // Regular text
+            if (
+              rawPosition >= currentRawPosition &&
+              rawPosition <= currentRawPosition + textContent.length
+            ) {
+              // Cursor is within this text node
+              const offsetInNode = rawPosition - currentRawPosition;
+              range.setStart(currentNode, offsetInNode);
+              range.setEnd(currentNode, offsetInNode);
+
+              const rect = range.getBoundingClientRect();
+              const overlayRect = overlayRef.current.getBoundingClientRect();
+
+              return {
+                x: rect.left - overlayRect.left,
+                y: rect.top - overlayRect.top + rect.height / 2
+              };
+            }
+
+            currentRawPosition += textContent.length;
+          }
+        }
+
+        // If we're at the very end, position after the last content
+        if (rawPosition >= value.length) {
+          range.selectNodeContents(overlayRef.current);
+          range.collapse(false);
+          const rect = range.getBoundingClientRect();
+          const overlayRect = overlayRef.current.getBoundingClientRect();
+
+          return {
+            x: rect.right - overlayRect.left,
+            y: rect.top - overlayRect.top + rect.height / 2
+          };
+        }
+      } catch (e) {
+        // Fallback - position at the end
+        if (overlayRef.current) {
+          const overlayRect = overlayRef.current.getBoundingClientRect();
+          return {
+            x: overlayRect.width - 12,
+            y: 20
+          };
+        }
+      }
+
+      return null;
+    },
+    [value]
+  );
+
+  // Update visual cursor when raw cursor changes
+  const updateVisualCursor = useCallback(
+    (newRawPosition: number) => {
+      const visualPos = calculateVisualCursorPosition(newRawPosition);
+      setVisualCursorPosition(visualPos);
+    },
+    [calculateVisualCursorPosition]
+  );
+
+  // Monitor cursor position changes in the hidden input with smart pill selection
+  useEffect(() => {
+    if (!smartInputRef.current) return;
+
+    const input = smartInputRef.current;
+
+    const handleSelectionChange = () => {
+      if (document.activeElement === input) {
+        const cursorPos = input.selectionStart || 0;
+        const selectionEnd = input.selectionEnd || 0;
+
+        // If there's a selection (not just cursor), check if we need to expand it for pills
+        if (cursorPos !== selectionEnd) {
+          const expanded = expandSelectionToPills(cursorPos, selectionEnd);
+          if (expanded.start !== cursorPos || expanded.end !== selectionEnd) {
+            // Need to expand selection to include full pills
+            input.setSelectionRange(expanded.start, expanded.end);
+            return; // This will trigger another selection change event
+          }
+        }
+
+        updateVisualCursor(cursorPos);
+      }
+    };
+
+    const handleMouseDown = () => {
+      setIsSelecting(true);
+      if (smartInputRef.current) {
+        setSelectionStart(smartInputRef.current.selectionStart || 0);
+      }
+    };
+
+    const handleMouseUp = () => {
+      setIsSelecting(false);
+      setSelectionStart(null);
+      handleSelectionChange();
+    };
+
+    const handleKeyDown = (e: Event) => {
+      const keyEvent = e as KeyboardEvent;
+      // Handle selection operations with smart pill expansion
+      if (
+        keyEvent.shiftKey &&
+        (keyEvent.key === 'ArrowLeft' ||
+          keyEvent.key === 'ArrowRight' ||
+          keyEvent.key === 'Home' ||
+          keyEvent.key === 'End')
+      ) {
+        // Let the default behavior happen first, then expand selection
+        setTimeout(() => {
+          if (document.activeElement === input) {
+            const cursorPos = input.selectionStart || 0;
+            const selectionEnd = input.selectionEnd || 0;
+
+            if (cursorPos !== selectionEnd) {
+              const expanded = expandSelectionToPills(cursorPos, selectionEnd);
+              if (
+                expanded.start !== cursorPos ||
+                expanded.end !== selectionEnd
+              ) {
+                input.setSelectionRange(expanded.start, expanded.end);
+              }
+            }
+          }
+        }, 0);
+      }
+    };
+
+    input.addEventListener('keyup', handleSelectionChange);
+    input.addEventListener('keydown', handleKeyDown);
+    input.addEventListener('mouseup', handleMouseUp);
+    input.addEventListener('mousedown', handleMouseDown);
+    input.addEventListener('focus', handleSelectionChange);
+
+    return () => {
+      input.removeEventListener('keyup', handleSelectionChange);
+      input.removeEventListener('keydown', handleKeyDown);
+      input.removeEventListener('mouseup', handleMouseUp);
+      input.removeEventListener('mousedown', handleMouseDown);
+      input.removeEventListener('focus', handleSelectionChange);
+    };
+  }, [updateVisualCursor, expandSelectionToPills]);
+
+  // Handle clicks specifically on pill elements
+  const handlePillClick = useCallback(
+    (pillElement: Element): number => {
+      if (!overlayRef.current || !value) return 0;
+
+      // Get all pill elements in the overlay
+      const allPills = Array.from(
+        overlayRef.current.querySelectorAll('.content-pill')
+      );
+      const pillIndex = allPills.indexOf(pillElement);
+
+      if (pillIndex === -1) return 0;
+
+      // Parse the value to find pill positions
+      let foundPills = 0;
+      const pillRegex = /(#\w+)|(@\[[^\]]+\])/g;
+      let match;
+
+      while ((match = pillRegex.exec(value)) !== null) {
+        if (foundPills === pillIndex) {
+          // This is the pill we clicked on
+          const clickPosition = match.index;
+          const pillLength = match[0].length;
+
+          // Position cursor at the end of the pill for easier editing
+          return clickPosition + pillLength;
+        }
+        foundPills++;
+      }
+
+      // If we couldn't find the pill, use fallback approach
+      return 0;
+    },
+    [value]
+  );
+
+  // Enhanced text position calculation for non-pill clicks
+  const calculateAccurateTextPosition = useCallback(
+    (
+      clickX: number,
+      clickY: number,
+      relativeX: number,
+      relativeY: number
+    ): number => {
+      // Try browser APIs first for accurate positioning
+      if (document.caretPositionFromPoint) {
+        const caretPosition = document.caretPositionFromPoint(clickX, clickY);
+        if (caretPosition && caretPosition.offsetNode) {
+          return getTextPositionFromVisualNode(
+            caretPosition.offsetNode,
+            caretPosition.offset
+          );
+        }
+      } else if (document.caretRangeFromPoint) {
+        const range = document.caretRangeFromPoint(clickX, clickY);
+        if (range) {
+          return getTextPositionFromVisualNode(
+            range.startContainer,
+            range.startOffset
+          );
+        }
+      }
+
+      // Fallback to measurement-based positioning
+      return calculateFallbackPosition(relativeX, relativeY);
+    },
+    [value]
+  );
+
+  // Helper to map visual DOM nodes to raw text positions
+  const getTextPositionFromVisualNode = useCallback(
+    (node: Node, offset: number): number => {
+      if (!overlayRef.current || !value) return 0;
+
+      let textPosition = 0;
+      let currentPillIndex = 0;
+
+      // Create a list of pills from the raw text
+      const rawPills: Array<{ start: number; end: number; content: string }> =
+        [];
+      const pillRegex = /(#\w+)|(@\[[^\]]+\])/g;
+      let match;
+
+      while ((match = pillRegex.exec(value)) !== null) {
+        rawPills.push({
+          start: match.index,
+          end: match.index + match[0].length,
+          content: match[0]
+        });
+      }
+
+      // Walk through the visual DOM to find our position
+      const walker = document.createTreeWalker(
+        overlayRef.current,
+        NodeFilter.SHOW_ALL
+      );
+
+      let currentNode;
+      while ((currentNode = walker.nextNode())) {
+        if (currentNode === node) {
+          // Found our target node
+          if (currentNode.nodeType === Node.TEXT_NODE) {
+            return textPosition + offset;
+          } else {
+            return textPosition;
+          }
+        }
+
+        if (currentNode.nodeType === Node.TEXT_NODE) {
+          const textContent = currentNode.textContent || '';
+          const parent = currentNode.parentElement;
+
+          if (parent?.classList.contains('content-pill')) {
+            // This text is inside a pill - map to the raw pill
+            if (currentPillIndex < rawPills.length) {
+              const rawPill = rawPills[currentPillIndex];
+              textPosition = rawPill.end; // Move to end of raw pill
+              currentPillIndex++;
+            } else {
+              // Fallback if pills don't match
+              textPosition += textContent.length;
+            }
+          } else {
+            // Regular text
+            textPosition += textContent.length;
+          }
+        } else if (currentNode.nodeType === Node.ELEMENT_NODE) {
+          const element = currentNode as Element;
+          if (element.classList.contains('content-pill')) {
+            // Skip - we'll handle this when we hit the text inside
+          }
+        }
+      }
+
+      return Math.min(textPosition, value.length);
+    },
+    [value]
+  );
+
+  // Advanced cursor position mapping that accounts for pills and visual content
   const mapVisualPositionToTextPosition = useCallback(
     (clickX: number, clickY: number): number => {
       if (!overlayRef.current || !value) return value.length;
 
       const overlay = overlayRef.current;
       const rect = overlay.getBoundingClientRect();
-      const relativeX = clickX - rect.left - 12; // Account for padding
-      const relativeY = clickY - rect.top - 8; // Account for padding
+      const relativeX = clickX - rect.left;
+      const relativeY = clickY - rect.top;
 
-      // For very simple cases
+      // Boundary checks
       if (relativeX < 0 || relativeY < 0) return 0;
-      if (relativeX > rect.width - 24) return value.length;
+      if (relativeX > rect.width || relativeY > rect.height)
+        return value.length;
 
-      if (multiline) {
-        // For multiline, estimate line and position
-        const lineHeight = 22;
-        const targetLine = Math.floor(relativeY / lineHeight);
-        const lines = value.split('\n');
-
-        if (targetLine >= lines.length) return value.length;
-        if (targetLine < 0) return 0;
-
-        // Get position at start of target line
-        let lineStartPosition = 0;
-        for (let i = 0; i < targetLine; i++) {
-          lineStartPosition += lines[i].length + 1; // +1 for newline
+      try {
+        // First, check if we clicked directly on a pill
+        const clickedElement = document.elementFromPoint(clickX, clickY);
+        if (clickedElement) {
+          const pillElement = clickedElement.closest('.content-pill');
+          if (pillElement) {
+            return handlePillClick(pillElement);
+          }
         }
 
-        // Estimate character position within line (rough approximation)
-        const targetLineText = lines[targetLine];
-        const avgCharWidth = 8; // Approximate character width
-        const charIndex = Math.min(
-          Math.floor(relativeX / avgCharWidth),
-          targetLineText.length
+        // If not on a pill, use accurate text position mapping
+        return calculateAccurateTextPosition(
+          clickX,
+          clickY,
+          relativeX,
+          relativeY
         );
-
-        return lineStartPosition + charIndex;
-      } else {
-        // For single line, estimate character position
-        const avgCharWidth = 8;
-        const charIndex = Math.min(
-          Math.floor(relativeX / avgCharWidth),
-          value.length
-        );
-        return charIndex;
+      } catch (e) {
+        // Fallback on any error
+        return calculateFallbackPosition(relativeX, relativeY);
       }
     },
     [value, multiline]
   );
 
-  // Handle clicks on the pill overlay with FIXED cursor positioning
+  // Helper function to get text position from DOM node
+  const getTextPositionFromNode = (node: Node, offset: number): number => {
+    if (!overlayRef.current || !value) return 0;
+
+    // Walk through the overlay content to find the text position
+    let textPosition = 0;
+    const walker = document.createTreeWalker(
+      overlayRef.current,
+      NodeFilter.SHOW_TEXT
+    );
+
+    let currentNode;
+    while ((currentNode = walker.nextNode())) {
+      if (currentNode === node) {
+        return textPosition + offset;
+      }
+
+      // Add the length of this text node
+      const textContent = currentNode.textContent || '';
+
+      // Check if this text node corresponds to raw text or is part of a pill
+      const parent = currentNode.parentElement;
+      if (parent?.classList.contains('content-pill')) {
+        // This is a pill - we need to find the corresponding raw text
+        const pillText = parent.textContent || '';
+
+        // Try to find the pill in the raw value
+        const remainingValue = value.slice(textPosition);
+
+        // Look for hashtag or mention patterns
+        const hashtagMatch = remainingValue.match(/^#\w+/);
+        const mentionMatch = remainingValue.match(/^@\[[^\]]+\]/);
+
+        if (hashtagMatch && pillText.includes(hashtagMatch[0])) {
+          textPosition += hashtagMatch[0].length;
+        } else if (
+          mentionMatch &&
+          pillText.includes(mentionMatch[0].split('|')[0])
+        ) {
+          textPosition += mentionMatch[0].length;
+        } else {
+          // Fallback - add the visible text length
+          textPosition += pillText.length;
+        }
+      } else {
+        // Regular text
+        textPosition += textContent.length;
+      }
+    }
+
+    return textPosition;
+  };
+
+  // Fallback position calculation for browsers without caret positioning
+  const calculateFallbackPosition = (
+    relativeX: number,
+    relativeY: number
+  ): number => {
+    if (multiline) {
+      const lineHeight = 24; // More accurate line height
+      const targetLine = Math.floor(relativeY / lineHeight);
+      const lines = value.split('\n');
+
+      if (targetLine >= lines.length) return value.length;
+      if (targetLine < 0) return 0;
+
+      // Get position at start of target line
+      let lineStartPosition = 0;
+      for (let i = 0; i < targetLine; i++) {
+        lineStartPosition += lines[i].length + 1; // +1 for newline
+      }
+
+      // For the target line, we need to be smarter about character positioning
+      const targetLineText = lines[targetLine];
+
+      // Create a temporary element to measure text width more accurately
+      const measurer = document.createElement('span');
+      measurer.style.visibility = 'hidden';
+      measurer.style.position = 'absolute';
+      measurer.style.whiteSpace = 'nowrap';
+      measurer.style.font = window.getComputedStyle(overlayRef.current!).font;
+      document.body.appendChild(measurer);
+
+      let bestPosition = 0;
+      let minDistance = Infinity;
+
+      // Test each character position to find the closest one
+      for (let i = 0; i <= targetLineText.length; i++) {
+        measurer.textContent = targetLineText.slice(0, i);
+        const charX = measurer.offsetWidth + 12; // Add padding
+        const distance = Math.abs(charX - relativeX);
+
+        if (distance < minDistance) {
+          minDistance = distance;
+          bestPosition = i;
+        }
+      }
+
+      document.body.removeChild(measurer);
+      return lineStartPosition + bestPosition;
+    } else {
+      // Single line - similar approach
+      const measurer = document.createElement('span');
+      measurer.style.visibility = 'hidden';
+      measurer.style.position = 'absolute';
+      measurer.style.whiteSpace = 'nowrap';
+      measurer.style.font = window.getComputedStyle(overlayRef.current!).font;
+      document.body.appendChild(measurer);
+
+      let bestPosition = 0;
+      let minDistance = Infinity;
+
+      for (let i = 0; i <= value.length; i++) {
+        measurer.textContent = value.slice(0, i);
+        const charX = measurer.offsetWidth + 12; // Add padding
+        const distance = Math.abs(charX - relativeX);
+
+        if (distance < minDistance) {
+          minDistance = distance;
+          bestPosition = i;
+        }
+      }
+
+      document.body.removeChild(measurer);
+      return bestPosition;
+    }
+  };
+
+  // Handle clicks on the pill overlay with visual cursor and smart pill selection
   const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
     e.preventDefault();
     e.stopPropagation();
@@ -162,11 +699,25 @@ export const SmartInputWithPillOverlay: React.FC<
     // Map visual click position to text cursor position
     const textPosition = mapVisualPositionToTextPosition(e.clientX, e.clientY);
 
-    setTimeout(() => {
-      if (smartInputRef.current) {
-        smartInputRef.current.setSelectionRange(textPosition, textPosition);
-      }
-    }, 0);
+    // Check if we clicked on a pill - if so, select the entire pill
+    const pill = findPillAt(textPosition);
+    if (pill) {
+      // Select the entire pill
+      setTimeout(() => {
+        if (smartInputRef.current) {
+          smartInputRef.current.setSelectionRange(pill.start, pill.end);
+          updateVisualCursor(pill.start);
+        }
+      }, 0);
+    } else {
+      // Normal cursor positioning
+      setTimeout(() => {
+        if (smartInputRef.current) {
+          smartInputRef.current.setSelectionRange(textPosition, textPosition);
+          updateVisualCursor(textPosition);
+        }
+      }, 0);
+    }
   };
 
   // Handle toolbar insertions - ROBUST version that handles ref issues
@@ -322,6 +873,24 @@ export const SmartInputWithPillOverlay: React.FC<
         ) : (
           <span className="pill-overlay-placeholder">{placeholder}</span>
         )}
+
+        {/* Custom visual cursor */}
+        {visualCursorPosition && isFocused && (
+          <div
+            className="visual-cursor"
+            style={{
+              position: 'absolute',
+              left: visualCursorPosition.x,
+              top: visualCursorPosition.y - 10,
+              width: '2px',
+              height: '20px',
+              backgroundColor: 'var(--brand-primary)',
+              animation: 'cursor-blink 1s infinite',
+              pointerEvents: 'none',
+              zIndex: 10
+            }}
+          />
+        )}
       </div>
 
       {/* SmartInput with transparent text - keeps all functionality including emoji detection */}
@@ -408,7 +977,7 @@ export const SmartInputWithPillOverlay: React.FC<
           border: none !important;
           box-shadow: none !important;
           color: transparent !important;
-          caret-color: var(--brand-primary) !important;
+          caret-color: transparent !important; /* Hide native cursor */
           min-height: ${multiline ? '60px' : '40px'};
           max-height: ${multiline ? '200px' : '40px'};
         }
@@ -530,6 +1099,57 @@ export const SmartInputWithPillOverlay: React.FC<
         .smart-input-wrapper :global(.emoji-picker__emoji:hover) {
           background: var(--light-background--secondary) !important;
           border-color: var(--brand-primary) !important;
+        }
+
+        /* Custom cursor animation */
+        @keyframes cursor-blink {
+          0%,
+          50% {
+            opacity: 1;
+          }
+          51%,
+          100% {
+            opacity: 0;
+          }
+        }
+
+        .visual-cursor {
+          position: absolute;
+          width: 2px;
+          height: 20px;
+          background-color: var(--brand-primary);
+          animation: cursor-blink 1s infinite;
+          pointer-events: none;
+          z-index: 10;
+        }
+
+        /* Enhanced pill selection visual feedback */
+        .pill-overlay :global(.content-pill) {
+          position: relative;
+          transition: background-color 0.15s ease;
+        }
+
+        .pill-overlay :global(.content-pill:hover) {
+          background-color: rgba(255, 107, 53, 0.1) !important;
+          cursor: pointer;
+        }
+
+        /* Indicate that pills are selectable as atomic units */
+        .pill-overlay :global(.content-pill::before) {
+          content: '';
+          position: absolute;
+          top: -2px;
+          left: -2px;
+          right: -2px;
+          bottom: -2px;
+          border: 1px solid transparent;
+          border-radius: 4px;
+          pointer-events: none;
+          transition: border-color 0.15s ease;
+        }
+
+        .pill-overlay :global(.content-pill:hover::before) {
+          border-color: rgba(255, 107, 53, 0.3);
         }
       `}</style>
     </div>
