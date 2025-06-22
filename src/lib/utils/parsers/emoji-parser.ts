@@ -252,36 +252,118 @@ export class EmojiRegistry {
   }
 
   /**
-   * Register a new emoji (standard or custom)
+   * Register a single emoji with validation
    */
   registerEmoji(emoji: EmojiDefinition): void {
-    // Validate emoji definition
-    if (!emoji.id || !emoji.name || !emoji.category) {
-      throw new Error(
-        'Invalid emoji definition: id, name, and category are required'
+    // Validate emoji name structure
+    if (!this.isValidEmojiName(emoji.name)) {
+      console.warn(
+        `Invalid emoji name "${emoji.name}" - skipping registration. ` +
+          `Emoji names must start with a letter, contain only letters/numbers/underscores, and be 1-32 characters long.`
       );
+      return;
     }
 
-    // Security: Sanitize custom image URLs
+    // Validate emoji ID structure
+    if (!this.isValidEmojiName(emoji.id)) {
+      console.warn(
+        `Invalid emoji ID "${emoji.id}" - skipping registration. Emoji IDs must follow the same naming rules as names.`
+      );
+      return;
+    }
+
+    // Sanitize image URL if present
     if (emoji.imageUrl) {
       emoji.imageUrl = this.sanitizeImageUrl(emoji.imageUrl);
+      if (!emoji.imageUrl) {
+        console.warn(
+          `Invalid image URL for emoji "${emoji.name}" - skipping registration.`
+        );
+        return;
+      }
     }
 
     this.emojis.set(emoji.id, emoji);
 
-    // Register aliases
-    for (const alias of emoji.aliases) {
-      this.aliases.set(alias.toLowerCase(), emoji.id);
-    }
+    // Register aliases with validation
+    emoji.aliases.forEach((alias) => {
+      if (this.isValidEmojiName(alias)) {
+        this.aliases.set(alias, emoji.id);
+      } else {
+        console.warn(
+          `Invalid emoji alias "${alias}" for emoji "${emoji.name}" - skipping alias.`
+        );
+      }
+    });
   }
 
   /**
-   * Bulk register multiple emojis
+   * Register multiple emojis with validation
    */
   registerEmojis(emojis: EmojiDefinition[]): void {
-    for (const emoji of emojis) {
-      this.registerEmoji(emoji);
+    emojis.forEach((emoji) => this.registerEmoji(emoji));
+  }
+
+  /**
+   * Validate emoji name structure (same rules as parser)
+   */
+  private isValidEmojiName(name: string): boolean {
+    if (!name || name.length === 0 || name.length > 32) {
+      return false;
     }
+
+    // Must start with a letter
+    if (!/^[a-zA-Z]/.test(name)) {
+      return false;
+    }
+
+    // Can only contain letters, numbers, and underscores
+    if (!/^[a-zA-Z0-9_]+$/.test(name)) {
+      return false;
+    }
+
+    // Cannot be pure numbers
+    if (/^\d+$/.test(name)) {
+      return false;
+    }
+
+    // Blacklist common URL components
+    const urlComponentBlacklist = [
+      'http',
+      'https',
+      'ftp',
+      'www',
+      'com',
+      'org',
+      'net',
+      'edu',
+      'gov',
+      'localhost',
+      'port',
+      'ssl',
+      'tls',
+      'api',
+      'cdn',
+      'static',
+      '80',
+      '443',
+      '8080',
+      '3000',
+      '5000',
+      '8000',
+      '9000'
+    ];
+
+    if (urlComponentBlacklist.includes(name.toLowerCase())) {
+      return false;
+    }
+
+    // Avoid single character names
+    if (name.length === 1) {
+      return false;
+    }
+
+    return true;
   }
 
   /**
@@ -362,7 +444,11 @@ export class EmojiRegistry {
 }
 
 export class EmojiParser {
-  private static readonly EMOJI_PATTERN = /:([a-zA-Z0-9_+-]+):/g;
+  // More structured emoji pattern with stricter rules
+  private static readonly EMOJI_PATTERN =
+    /(?:^|[\s\n\r]|[^\w:])(:[a-zA-Z][a-zA-Z0-9_]{0,31}:)(?=[\s\n\r]|[^\w:]|$)/g;
+  private static readonly SIMPLE_EMOJI_PATTERN =
+    /:([a-zA-Z][a-zA-Z0-9_]{0,31}):/g;
   private registry: EmojiRegistry;
 
   constructor() {
@@ -370,25 +456,37 @@ export class EmojiParser {
   }
 
   /**
-   * Parse text and find emoji tokens
+   * Parse text and find emoji tokens with structured validation
    */
   parse(text: string): EmojiToken[] {
     const tokens: EmojiToken[] = [];
+
+    // Use the stricter pattern for better detection
     const pattern = new RegExp(EmojiParser.EMOJI_PATTERN);
 
     let match;
     while ((match = pattern.exec(text)) !== null) {
-      const emojiName = match[1];
-      const matchStart = match.index;
-      const matchEnd = match.index + match[0].length;
+      // Extract the emoji name from the capture group
+      const fullMatch = match[1]; // :emoji_name:
+      const emojiName = fullMatch.slice(1, -1); // Remove colons
 
-      // Skip if this appears to be part of a URL
+      // Calculate actual positions accounting for the prefix
+      const prefixLength = match[0].length - fullMatch.length;
+      const matchStart = match.index + prefixLength;
+      const matchEnd = matchStart + fullMatch.length;
+
+      // Validate emoji name structure
+      if (!this.isValidEmojiName(emojiName)) {
+        continue;
+      }
+
+      // Skip if this appears to be part of a URL (additional safety check)
       if (this.isPartOfURL(text, matchStart, matchEnd)) {
         continue;
       }
 
+      // Check if emoji exists in registry
       const emoji = this.registry.getEmoji(emojiName);
-
       if (emoji) {
         tokens.push({
           type: 'emoji',
@@ -398,7 +496,7 @@ export class EmojiParser {
           imageUrl: emoji.imageUrl,
           start: matchStart,
           end: matchEnd,
-          rawText: match[0]
+          rawText: fullMatch
         });
       }
     }
@@ -407,60 +505,172 @@ export class EmojiParser {
   }
 
   /**
-   * Check if a potential emoji match is actually part of a URL
+   * Validate emoji name against structured rules
+   */
+  private isValidEmojiName(name: string): boolean {
+    // Emoji name validation rules:
+    // 1. Must start with a letter (not number or special char)
+    // 2. Can contain letters, numbers, and underscores only
+    // 3. Must be 1-32 characters long
+    // 4. Cannot be pure numbers (like port numbers)
+    // 5. Cannot match common URL components
+
+    if (!name || name.length === 0 || name.length > 32) {
+      return false;
+    }
+
+    // Must start with a letter
+    if (!/^[a-zA-Z]/.test(name)) {
+      return false;
+    }
+
+    // Can only contain letters, numbers, and underscores
+    if (!/^[a-zA-Z0-9_]+$/.test(name)) {
+      return false;
+    }
+
+    // Cannot be pure numbers (port numbers, etc.)
+    if (/^\d+$/.test(name)) {
+      return false;
+    }
+
+    // Blacklist common URL components that might appear in colons
+    const urlComponentBlacklist = [
+      'http',
+      'https',
+      'ftp',
+      'www',
+      'com',
+      'org',
+      'net',
+      'edu',
+      'gov',
+      'localhost',
+      'port',
+      'ssl',
+      'tls',
+      'api',
+      'cdn',
+      'static',
+      '80',
+      '443',
+      '8080',
+      '3000',
+      '5000',
+      '8000',
+      '9000'
+    ];
+
+    if (urlComponentBlacklist.includes(name.toLowerCase())) {
+      return false;
+    }
+
+    // Additional check: avoid single character names that could be URL components
+    if (name.length === 1) {
+      return false;
+    }
+
+    return true;
+  }
+
+  /**
+   * Enhanced URL detection with more precise context analysis
    */
   private isPartOfURL(text: string, start: number, end: number): boolean {
-    // Look for URL patterns around the match
-    const beforeMatch = text.substring(Math.max(0, start - 20), start);
-    const afterMatch = text.substring(end, Math.min(text.length, end + 20));
-
-    // Check for common URL patterns before the match
-    const urlPrefixes = ['http://', 'https://', 'ftp://', 'www.', '://'];
-
-    // Check for URL-like patterns
-    const hasUrlPrefix = urlPrefixes.some((prefix) =>
-      beforeMatch.toLowerCase().includes(prefix)
+    // Expand context for better URL detection
+    const contextRadius = 100;
+    const beforeContext = text.substring(
+      Math.max(0, start - contextRadius),
+      start
+    );
+    const afterContext = text.substring(
+      end,
+      Math.min(text.length, end + contextRadius)
     );
 
-    // Check for port numbers (like :80, :443, :8080)
-    const portPattern = /:\d+$/;
-    if (portPattern.test(beforeMatch)) {
-      return true;
-    }
+    // More comprehensive URL patterns
+    const urlPatterns = [
+      /https?:\/\/[^\s]*$/i, // URL prefix
+      /ftp:\/\/[^\s]*$/i, // FTP prefix
+      /www\.[^\s]*$/i, // www prefix
+      /[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}[^\s]*$/i, // Domain pattern
+      /\/\/[^\s]*$/, // Protocol-relative URLs
+      /:\/\/[^\s]*$/ // Any protocol
+    ];
 
-    // Check if we're in the middle of a domain or URL path
-    const domainPattern = /[a-zA-Z0-9.-]+$/;
-    const pathPattern = /^[a-zA-Z0-9._~:/?#[\]@!$&'()*+,;=%\-]+/;
-
-    if (
-      hasUrlPrefix &&
-      (domainPattern.test(beforeMatch) || pathPattern.test(afterMatch))
-    ) {
-      return true;
-    }
-
-    // Check for specific URL patterns that commonly contain colons
-    const urlLikeContext =
-      /(?:https?:\/\/|www\.|[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/i;
-    const contextBefore = text.substring(Math.max(0, start - 50), start);
-    const contextAfter = text.substring(end, Math.min(text.length, end + 50));
-
-    if (
-      urlLikeContext.test(contextBefore) ||
-      urlLikeContext.test(contextAfter)
-    ) {
-      // Additional check: if the text between colons is numeric or URL-like, skip it
-      const matchContent = text.substring(start + 1, end - 1);
-      if (
-        /^\d+$/.test(matchContent) || // Port numbers like :80:
-        /^[a-zA-Z0-9._~/?#[\]@!$&'()*+,;=%\-]+$/.test(matchContent)
-      ) {
-        // URL components
+    // Check if we're inside a URL
+    for (const pattern of urlPatterns) {
+      if (pattern.test(beforeContext)) {
         return true;
       }
     }
 
+    // Check for URL continuation patterns after the match
+    const urlContinuationPatterns = [
+      /^[a-zA-Z0-9._~:/?#[\]@!$&'()*+,;=%-]/, // URL characters
+      /^\/[^\s]*/, // Path continuation
+      /^\?[^\s]*/, // Query parameters
+      /^#[^\s]*/ // Fragment
+    ];
+
+    for (const pattern of urlContinuationPatterns) {
+      if (pattern.test(afterContext)) {
+        // Double-check we're actually in a URL context
+        if (this.hasUrlContext(beforeContext)) {
+          return true;
+        }
+      }
+    }
+
     return false;
+  }
+
+  /**
+   * Check if the context suggests we're in a URL
+   */
+  private hasUrlContext(context: string): boolean {
+    const urlIndicators = [
+      /https?:\/\//i,
+      /ftp:\/\//i,
+      /www\./i,
+      /[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/i,
+      /\/\//
+    ];
+
+    return urlIndicators.some((pattern) => pattern.test(context));
+  }
+
+  /**
+   * Fallback method for simple emoji parsing (for backward compatibility)
+   */
+  parseSimple(text: string): EmojiToken[] {
+    const tokens: EmojiToken[] = [];
+    const pattern = new RegExp(EmojiParser.SIMPLE_EMOJI_PATTERN);
+
+    let match;
+    while ((match = pattern.exec(text)) !== null) {
+      const emojiName = match[1];
+
+      if (!this.isValidEmojiName(emojiName)) {
+        continue;
+      }
+
+      const emoji = this.registry.getEmoji(emojiName);
+      if (emoji) {
+        tokens.push({
+          type: 'emoji',
+          id: emoji.id,
+          name: emoji.name,
+          unicode: emoji.unicode,
+          imageUrl: emoji.imageUrl,
+          start: match.index,
+          end: match.index + match[0].length,
+          rawText: match[0]
+        });
+      }
+    }
+
+    return tokens;
   }
 
   /**
