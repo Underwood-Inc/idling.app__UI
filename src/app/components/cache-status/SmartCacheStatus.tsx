@@ -1,5 +1,6 @@
 'use client';
 
+import { signOut } from 'next-auth/react';
 import React, { useEffect, useState } from 'react';
 import './CacheStatus.css';
 
@@ -17,26 +18,27 @@ interface ServiceWorkerCacheInfo {
   version: string;
   totalEntries: number;
   ttls: {
-    static: number;
-    dynamic: number;
     api: number;
+    dynamic: number;
+    static: number;
     images: number;
   };
-  timestamp: number;
 }
 
-const formatTimeAgo = (timestamp: number): string => {
+function formatTimeAgo(timestamp: number): string {
   const now = Date.now();
   const diff = now - timestamp;
-  const minutes = Math.floor(diff / 60000);
-  const hours = Math.floor(diff / 3600000);
-  const days = Math.floor(diff / 86400000);
+
+  const seconds = Math.floor(diff / 1000);
+  const minutes = Math.floor(seconds / 60);
+  const hours = Math.floor(minutes / 60);
+  const days = Math.floor(hours / 24);
 
   if (days > 0) return `${days}d ago`;
   if (hours > 0) return `${hours}h ago`;
   if (minutes > 0) return `${minutes}m ago`;
-  return 'just now';
-};
+  return `${seconds}s ago`;
+}
 
 const SmartCacheStatus: React.FC = () => {
   const [cacheInfo, setCacheInfo] = useState<CacheInfo>({ isCached: false });
@@ -44,6 +46,7 @@ const SmartCacheStatus: React.FC = () => {
     null
   );
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isClearingAll, setIsClearingAll] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
 
   const getCacheMetadata = async (url: string) => {
@@ -149,12 +152,28 @@ const SmartCacheStatus: React.FC = () => {
     }
   };
 
-  const refreshCache = async (clearAll = false) => {
+  /**
+   * Refresh current page cache - equivalent to "Empty cache and hard refresh"
+   */
+  const refreshPageCache = async () => {
     if (isRefreshing) return;
 
     setIsRefreshing(true);
+    console.log('🔄 Performing hard refresh (empty cache and reload)...');
 
     try {
+      // Clear cache for current page
+      if ('caches' in window) {
+        const cacheNames = await caches.keys();
+        for (const cacheName of cacheNames) {
+          const cache = await caches.open(cacheName);
+          await cache.delete(window.location.href);
+          await cache.delete(window.location.pathname);
+          console.log(`🗑️ Cleared current page from cache: ${cacheName}`);
+        }
+      }
+
+      // Clear service worker cache for current page
       if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
         const messageChannel = new MessageChannel();
 
@@ -171,42 +190,175 @@ const SmartCacheStatus: React.FC = () => {
         navigator.serviceWorker.controller.postMessage(
           {
             type: 'REFRESH_CACHE',
-            url: clearAll ? undefined : window.location.href
+            url: window.location.href
           },
           [messageChannel.port2]
         );
 
         await refreshPromise;
-
-        // Wait a moment for cache to be updated
-        setTimeout(async () => {
-          await checkCacheStatus();
-          // Dispatch event to notify other components
-          window.dispatchEvent(new CustomEvent('cache-updated'));
-        }, 200);
-      } else {
-        // Fallback: manual refresh with cache busting
-        const response = await fetch(window.location.href, {
-          cache: 'no-cache',
-          headers: {
-            'Cache-Control': 'no-cache, no-store, must-revalidate'
-          }
-        });
-
-        if (response.ok) {
-          // Wait a moment for cache to be updated
-          setTimeout(async () => {
-            await checkCacheStatus();
-            window.dispatchEvent(new CustomEvent('cache-updated'));
-          }, 200);
-        }
       }
+
+      console.log('✅ Page cache cleared, performing hard refresh...');
+
+      // Perform hard refresh with cache bypass
+      window.location.reload();
     } catch (error) {
-      console.error('Failed to refresh cache:', error);
-      // Fallback: hard reload
+      console.error('❌ Failed to refresh page cache:', error);
+      // Fallback: force hard reload anyway
       window.location.reload();
     } finally {
       setIsRefreshing(false);
+    }
+  };
+
+  /**
+   * Clear all cache - logout user, unregister service workers, clear all caches, and re-register
+   */
+  const clearAllCache = async () => {
+    if (isClearingAll) return;
+
+    setIsClearingAll(true);
+    console.log(
+      '🧹 Clearing ALL caches, logging out user, and restarting service workers...'
+    );
+
+    try {
+      // Step 1: Logout user properly (server + client + JWT + cookies)
+      console.log('🚪 Logging out user...');
+      try {
+        await signOut({
+          redirect: false, // Don't redirect, we'll handle the refresh manually
+          callbackUrl: '/' // Set callback URL for after refresh
+        });
+        console.log('✅ User logged out from NextAuth');
+      } catch (error) {
+        console.warn(
+          '⚠️ NextAuth logout failed, continuing with cache clear:',
+          error
+        );
+      }
+
+      // Step 2: Unregister all service workers
+      if ('serviceWorker' in navigator) {
+        const registrations = await navigator.serviceWorker.getRegistrations();
+        for (let registration of registrations) {
+          await registration.unregister();
+          console.log('✅ Service worker unregistered');
+        }
+      }
+
+      // Step 3: Clear all cache storage
+      if ('caches' in window) {
+        const cacheNames = await caches.keys();
+        await Promise.all(
+          cacheNames.map((cacheName) => {
+            console.log(`🗑️ Deleting cache: ${cacheName}`);
+            return caches.delete(cacheName);
+          })
+        );
+        console.log('✅ All cache storage cleared');
+      }
+
+      // Step 4: Clear ALL application storage (including auth data)
+      console.log('🗑️ Clearing ALL application storage...');
+
+      // Clear localStorage completely (including auth tokens)
+      localStorage.clear();
+      console.log('✅ localStorage cleared completely');
+
+      // Clear sessionStorage completely
+      sessionStorage.clear();
+      console.log('✅ sessionStorage cleared');
+
+      // Step 5: Clear all cookies (auth-related and others)
+      if (typeof document !== 'undefined') {
+        const cookies = document.cookie.split(';');
+        for (let cookie of cookies) {
+          const eqPos = cookie.indexOf('=');
+          const name =
+            eqPos > -1 ? cookie.substr(0, eqPos).trim() : cookie.trim();
+          // Clear cookie for current domain and all possible paths
+          document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/`;
+          document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;domain=${window.location.hostname}`;
+          document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;domain=.${window.location.hostname}`;
+        }
+        console.log('✅ All cookies cleared');
+      }
+
+      // Step 6: Clear IndexedDB completely
+      if ('indexedDB' in window) {
+        try {
+          const databases = await indexedDB.databases();
+          await Promise.all(
+            databases.map((db) => {
+              if (db.name) {
+                return new Promise((resolve, reject) => {
+                  const deleteReq = indexedDB.deleteDatabase(db.name!);
+                  deleteReq.onsuccess = () => {
+                    console.log(`✅ IndexedDB ${db.name} cleared`);
+                    resolve(undefined);
+                  };
+                  deleteReq.onerror = () => reject(deleteReq.error);
+                });
+              }
+              return Promise.resolve();
+            })
+          );
+        } catch (e) {
+          console.log(
+            'ℹ️ IndexedDB clearing not supported or no databases found'
+          );
+        }
+      }
+
+      console.log(
+        '🎉 All caches and user session cleared! Re-registering service worker...'
+      );
+
+      // Step 7: Re-register service worker
+      if ('serviceWorker' in navigator) {
+        try {
+          const registration = await navigator.serviceWorker.register(
+            '/sw.js',
+            {
+              scope: '/'
+            }
+          );
+          console.log('✅ Service worker re-registered:', registration.scope);
+
+          // Wait for the new service worker to be ready
+          await new Promise((resolve) => {
+            if (registration.active) {
+              resolve(undefined);
+            } else {
+              registration.addEventListener('statechange', () => {
+                if (registration.active) {
+                  resolve(undefined);
+                }
+              });
+            }
+          });
+        } catch (error) {
+          console.warn('⚠️ Failed to re-register service worker:', error);
+        }
+      }
+
+      // Step 8: Perform hard refresh to complete logout and restart
+      setTimeout(() => {
+        console.log(
+          '🔄 Performing final hard refresh with complete session reset...'
+        );
+        // Use replace to avoid back button issues and ensure clean state
+        window.location.replace('/');
+      }, 1000);
+    } catch (error) {
+      console.error('❌ Error during complete cache and session clear:', error);
+      // Fallback: force hard refresh to home page anyway
+      setTimeout(() => {
+        window.location.replace('/');
+      }, 1000);
+    } finally {
+      setIsClearingAll(false);
     }
   };
 
@@ -264,23 +416,23 @@ const SmartCacheStatus: React.FC = () => {
 
       <button
         className="cache-status__refresh"
-        onClick={() => refreshCache(false)}
-        disabled={isRefreshing}
-        title="Refresh current page cache"
-        aria-label="Refresh current page cache"
+        onClick={refreshPageCache}
+        disabled={isRefreshing || isClearingAll}
+        title="Refresh current page cache (hard refresh)"
+        aria-label="Empty cache and hard refresh current page"
       >
         {isRefreshing ? '⟳' : '↻'}
       </button>
 
       <button
         className="cache-status__refresh"
-        onClick={() => refreshCache(true)}
-        disabled={isRefreshing}
-        title="Clear all cache"
-        aria-label="Clear all cache"
+        onClick={clearAllCache}
+        disabled={isRefreshing || isClearingAll}
+        title="Logout user, clear all cache, and restart service workers"
+        aria-label="Complete logout and clear all application data"
         style={{ marginLeft: '4px' }}
       >
-        {isRefreshing ? '⟳' : '🧹'}
+        {isClearingAll ? '⟳' : '🧹'}
       </button>
 
       {showDetails && (cacheInfo.isCached || swCacheInfo) && (
@@ -310,6 +462,12 @@ const SmartCacheStatus: React.FC = () => {
               </div>
             </div>
           )}
+
+          <div className="cache-status__detail-item">
+            <strong>Actions:</strong>
+            <div>↻ Hard refresh current page</div>
+            <div>🧹 Logout + clear all + restart SW</div>
+          </div>
         </div>
       )}
     </div>
