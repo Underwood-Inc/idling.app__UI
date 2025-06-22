@@ -96,7 +96,7 @@ const nextConfig = {
         })
       );
 
-      // Remove console statements in production
+      // Enhanced code obfuscation and optimization
       if (config.optimization.minimizer) {
         config.optimization.minimizer.forEach((minimizer) => {
           if (minimizer.constructor.name === 'TerserPlugin') {
@@ -104,21 +104,116 @@ const nextConfig = {
               ...minimizer.options.terserOptions,
               compress: {
                 ...minimizer.options.terserOptions?.compress,
+                // Remove console statements
                 drop_console: true,
                 drop_debugger: true,
+                // Advanced compression options
+                passes: 3, // Multiple compression passes
+                unsafe: true,
+                unsafe_comps: true,
+                unsafe_Function: true,
+                unsafe_math: true,
+                unsafe_symbols: true,
+                unsafe_methods: true,
+                unsafe_proto: true,
+                unsafe_regexp: true,
+                unsafe_undefined: true,
+                // Remove dead code
+                dead_code: true,
+                // Inline functions
+                inline: 3,
+                // Remove unused variables
+                unused: true,
+                // Evaluate constant expressions
+                evaluate: true,
+                // Collapse single-use variables
+                collapse_vars: true,
+                // Reduce variables
+                reduce_vars: true,
+                // Join consecutive variable declarations
+                join_vars: true,
+                // Remove empty statements
+                sequences: true,
+                // Remove pure functions
                 pure_funcs: [
                   'console.log',
                   'console.info',
                   'console.warn',
                   'console.error',
                   'console.debug',
-                  'console.trace'
+                  'console.trace',
+                  'console.group',
+                  'console.groupCollapsed',
+                  'console.groupEnd'
                 ]
+              },
+              mangle: {
+                ...minimizer.options.terserOptions?.mangle,
+                // Mangle property names for better obfuscation
+                properties: {
+                  regex: /^_/, // Only mangle properties starting with underscore
+                  reserved: ['__typename', '__esModule'] // Preserve these
+                },
+                // Mangle top-level names
+                toplevel: true,
+                // Keep function names for debugging (set to false for max obfuscation)
+                keep_fnames: false,
+                // Keep class names for debugging (set to false for max obfuscation)
+                keep_classnames: false,
+                // Use shorter variable names
+                safari10: true
+              },
+              format: {
+                ...minimizer.options.terserOptions?.format,
+                // Remove comments
+                comments: false,
+                // Use ASCII only
+                ascii_only: true,
+                // Remove whitespace
+                beautify: false,
+                // Use shortest possible syntax
+                ecma: 2020
               }
             };
           }
         });
       }
+
+      // Enhanced chunking strategy for better obfuscation
+      config.optimization = {
+        ...config.optimization,
+        splitChunks: {
+          ...config.optimization.splitChunks,
+          chunks: 'all',
+          minSize: 20000,
+          maxSize: 244000,
+          cacheGroups: {
+            default: {
+              minChunks: 2,
+              priority: -20,
+              reuseExistingChunk: true,
+              name: false // Use hashed names
+            },
+            vendor: {
+              test: /[\\/]node_modules[\\/]/,
+              name: false, // Use hashed names instead of 'vendor'
+              priority: -10,
+              chunks: 'all',
+              reuseExistingChunk: true
+            },
+            common: {
+              name: false, // Use hashed names
+              minChunks: 2,
+              priority: -5,
+              chunks: 'all',
+              reuseExistingChunk: true
+            }
+          }
+        },
+        // Use deterministic module IDs for better caching
+        moduleIds: 'deterministic',
+        chunkIds: 'deterministic'
+      };
 
       // Add DefinePlugin to replace console methods with no-ops in production
       config.plugins.push(
@@ -134,6 +229,74 @@ const nextConfig = {
           'console.groupEnd': JSON.stringify(() => {})
         })
       );
+
+      // Add banner to obfuscated files to deter reverse engineering
+      config.plugins.push(
+        new webpack.BannerPlugin({
+          banner: `/*! Idling.app v${version} - Proprietary Software - Unauthorized copying, modification, or distribution is strictly prohibited */`,
+          raw: false,
+          entryOnly: false
+        })
+      );
+
+      // Remove source maps in production for security
+      config.devtool = false;
+
+      // Additional obfuscation: randomize chunk names
+      config.output = {
+        ...config.output,
+        chunkFilename: 'static/chunks/[contenthash].js',
+        filename: 'static/chunks/[contenthash].js'
+      };
+
+      // Add additional minification for CSS
+      if (config.optimization.minimizer) {
+        // Find CSS minimizer and enhance it
+        config.optimization.minimizer.forEach((minimizer) => {
+          if (minimizer.constructor.name === 'CssMinimizerPlugin') {
+            minimizer.options = {
+              ...minimizer.options,
+              minimizerOptions: {
+                ...minimizer.options?.minimizerOptions,
+                preset: [
+                  'default',
+                  {
+                    discardComments: { removeAll: true },
+                    normalizeWhitespace: true,
+                    colormin: true,
+                    convertValues: true,
+                    discardDuplicates: true,
+                    discardEmpty: true,
+                    discardOverridden: true,
+                    discardUnused: true,
+                    mergeIdents: true,
+                    mergeLonghand: true,
+                    mergeRules: true,
+                    minifyFontValues: true,
+                    minifyGradients: true,
+                    minifyParams: true,
+                    minifySelectors: true,
+                    normalizeCharset: true,
+                    normalizeDisplayValues: true,
+                    normalizePositions: true,
+                    normalizeRepeatStyle: true,
+                    normalizeString: true,
+                    normalizeTimingFunctions: true,
+                    normalizeUnicode: true,
+                    normalizeUrl: true,
+                    orderedValues: true,
+                    reduceIdents: true,
+                    reduceInitial: true,
+                    reduceTransforms: true,
+                    svgo: true,
+                    uniqueSelectors: true
+                  }
+                ]
+              }
+            };
+          }
+        });
+      }
     }
 
     config.plugins.push(
