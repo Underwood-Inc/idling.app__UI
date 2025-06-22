@@ -63,12 +63,18 @@ export const SmartInputWithPillOverlay: React.FC<
     // 1. Something within our container
     // 2. A portal tooltip (has portal-tooltip class)
     // 3. Any element with toolbar-related classes
+    // 4. InteractiveTooltip content
+    // 5. EmojiPicker content
     if (
       relatedTarget &&
       (containerRef.current?.contains(relatedTarget) ||
         relatedTarget.closest('.portal-tooltip') ||
         relatedTarget.closest('.toolbar-tooltip-panel') ||
-        relatedTarget.closest('.floating-toolbar'))
+        relatedTarget.closest('.floating-toolbar') ||
+        relatedTarget.closest('.interactive-tooltip') ||
+        relatedTarget.closest('.link-tooltip') ||
+        relatedTarget.closest('.emoji-picker') ||
+        relatedTarget.closest('.toolbar-emoji-picker'))
     ) {
       return;
     }
@@ -80,12 +86,16 @@ export const SmartInputWithPillOverlay: React.FC<
         !containerRef.current?.contains(activeElement) &&
         !activeElement?.closest('.portal-tooltip') &&
         !activeElement?.closest('.toolbar-tooltip-panel') &&
-        !activeElement?.closest('.floating-toolbar')
+        !activeElement?.closest('.floating-toolbar') &&
+        !activeElement?.closest('.interactive-tooltip') &&
+        !activeElement?.closest('.link-tooltip') &&
+        !activeElement?.closest('.emoji-picker') &&
+        !activeElement?.closest('.toolbar-emoji-picker')
       ) {
         setIsFocused(false);
         setShowToolbar(false);
       }
-    }, 150);
+    }, 300); // Increased delay for better stability with portals
   };
 
   // Cursor position mapping - improved to handle visual to text position properly
@@ -159,17 +169,61 @@ export const SmartInputWithPillOverlay: React.FC<
     }, 0);
   };
 
-  // Handle toolbar insertions - FIXED to work with transparent input
+  // Handle toolbar insertions - ROBUST version that handles ref issues
   const handleInsertAtCursor = (text: string) => {
-    if (!smartInputRef.current) return;
+    // Use a more robust approach to get the input element
+    const getInputElement = () => {
+      // First try the ref
+      if (smartInputRef.current) {
+        return smartInputRef.current;
+      }
 
-    // Get the actual input element (could be input or textarea)
-    const inputElement = smartInputRef.current;
+      // If ref is lost, try to find the input in the container
+      if (containerRef.current) {
+        const input = containerRef.current.querySelector('input, textarea') as
+          | HTMLInputElement
+          | HTMLTextAreaElement;
+        if (input) {
+          return input;
+        }
+      }
+
+      return null;
+    };
+
+    const inputElement = getInputElement();
+
+    if (!inputElement) {
+      // If we still can't find the input, just append to the end
+      const newValue = value + text;
+      onChange(newValue);
+
+      // Try to refocus after the DOM updates
+      setTimeout(() => {
+        const retryElement = getInputElement();
+        if (retryElement) {
+          retryElement.focus();
+          const newPosition = newValue.length;
+          try {
+            retryElement.setSelectionRange(newPosition, newPosition);
+          } catch (e) {
+            // Ignore selection range errors
+          }
+        }
+      }, 100);
+      return;
+    }
 
     // Try to get cursor position, fallback to end of text
     let cursorPosition = 0;
     try {
-      cursorPosition = inputElement.selectionStart || value.length;
+      // For transparent inputs, we need to be more careful about selection
+      if (document.activeElement === inputElement) {
+        cursorPosition = inputElement.selectionStart || 0;
+      } else {
+        // If input is not focused, default to end of text
+        cursorPosition = value.length;
+      }
     } catch (e) {
       cursorPosition = value.length;
     }
@@ -182,18 +236,21 @@ export const SmartInputWithPillOverlay: React.FC<
     // Update the value
     onChange(newValue);
 
-    // Focus and set cursor position with proper timing
-    setTimeout(() => {
-      if (inputElement) {
+    // Focus and set cursor position with proper timing and retries
+    const setFocusAndCursor = (attempts = 0) => {
+      const element = getInputElement();
+      if (element && attempts < 3) {
         try {
-          inputElement.focus();
-          inputElement.setSelectionRange(newCursorPosition, newCursorPosition);
+          element.focus();
+          element.setSelectionRange(newCursorPosition, newCursorPosition);
         } catch (e) {
-          // Fallback: just focus
-          inputElement.focus();
+          // If this fails, try again with a longer delay
+          setTimeout(() => setFocusAndCursor(attempts + 1), 50);
         }
       }
-    }, 20); // Longer delay to ensure DOM update
+    };
+
+    setTimeout(() => setFocusAndCursor(), 50);
   };
 
   // Raw mode: just show SmartInput directly

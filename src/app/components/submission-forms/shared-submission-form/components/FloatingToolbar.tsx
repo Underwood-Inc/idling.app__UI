@@ -43,8 +43,7 @@ export const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
       : `#${hashtag.value}`;
     onHashtagInsert(hashtagText + ' ');
     setHashtagQuery('');
-    // Focus with longer delay to ensure proper handling
-    setTimeout(() => inputRef.current?.focus(), 100);
+    // Don't try to focus here - let the SmartInputWithPillOverlay handle it
   };
 
   // Insert mention
@@ -52,16 +51,14 @@ export const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
     const mentionText = `@[${user.displayName || user.label}|${user.value}|author] `;
     onMentionInsert(mentionText);
     setMentionQuery('');
-    // Focus with longer delay to ensure proper handling
-    setTimeout(() => inputRef.current?.focus(), 100);
+    // Don't try to focus here - let the SmartInputWithPillOverlay handle it
   };
 
   // Insert emoji
   const handleEmojiSelect = (emoji: EmojiData) => {
     const emojiText = formatEmojiForText(emoji);
     onEmojiInsert(emojiText);
-    // Focus with longer delay to ensure proper handling
-    setTimeout(() => inputRef.current?.focus(), 100);
+    // Don't try to focus here - let the SmartInputWithPillOverlay handle it
   };
 
   // Prevent mouse down events from propagating to prevent blur, but only on toolbar buttons
