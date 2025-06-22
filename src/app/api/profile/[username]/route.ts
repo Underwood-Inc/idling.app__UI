@@ -6,6 +6,9 @@ import {
 import { auth } from '../../../../lib/auth';
 import { getEffectiveCharacterCount } from '../../../../lib/utils/string';
 
+// This route uses dynamic features (auth/headers) and should not be pre-rendered
+export const dynamic = 'force-dynamic';
+
 export async function GET(
   request: NextRequest,
   { params }: { params: { username: string } }

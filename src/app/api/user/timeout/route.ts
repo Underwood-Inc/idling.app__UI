@@ -10,6 +10,9 @@ import {
   TIMEOUT_TYPES
 } from '../../../../lib/permissions/permissions';
 
+// This route uses dynamic features (auth/headers) and should not be pre-rendered
+export const dynamic = 'force-dynamic';
+
 // GET /api/user/timeout - Get current user's timeout status
 export async function GET(request: NextRequest) {
   try {

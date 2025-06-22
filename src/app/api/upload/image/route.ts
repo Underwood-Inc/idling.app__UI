@@ -9,6 +9,9 @@ import {
   validateMimeType
 } from '../../../../lib/config/media-domains';
 
+// This route uses dynamic features (auth/headers) and should not be pre-rendered
+export const dynamic = 'force-dynamic';
+
 // Allowed image types and sizes
 const ALLOWED_TYPES = [
   'image/jpeg',

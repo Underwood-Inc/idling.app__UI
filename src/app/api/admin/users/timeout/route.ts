@@ -12,6 +12,9 @@ import {
   TIMEOUT_TYPES
 } from '../../../../../lib/permissions/permissions';
 
+// This route uses dynamic features (auth/headers) and should not be pre-rendered
+export const dynamic = 'force-dynamic';
+
 // POST /api/admin/users/timeout - Issue timeout to user
 export async function POST(request: NextRequest) {
   try {

@@ -9,6 +9,9 @@ import {
   requireAdmin
 } from '../../../../lib/permissions/permissions';
 
+// This route uses dynamic features (auth/headers) and should not be pre-rendered
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
   try {
     const session = await auth();
