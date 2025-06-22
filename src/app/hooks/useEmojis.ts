@@ -113,7 +113,7 @@ export function useEmojis(options: UseEmojisOptions = {}): UseEmojisReturn {
     ...defaultFilters
   });
 
-  // Fetch emojis from API
+  // Fetch emojis from API - FIXED: Remove filters from dependencies to prevent infinite loop
   const fetchEmojis = useCallback(
     async (newFilters?: EmojiFilters, page: number = 1) => {
       try {
@@ -170,7 +170,7 @@ export function useEmojis(options: UseEmojisOptions = {}): UseEmojisReturn {
         setLoading(false);
       }
     },
-    [filters, pageSize]
+    [pageSize] // FIXED: Only depend on pageSize, not filters
   );
 
   // Load more emojis (pagination)
@@ -179,37 +179,57 @@ export function useEmojis(options: UseEmojisOptions = {}): UseEmojisReturn {
     await fetchEmojis(filters, currentPage + 1);
   }, [fetchEmojis, filters, currentPage, hasMore, loading]);
 
-  // Set filters and refetch
+  // Set filters and refetch - FIXED: Use current filters from state
   const setFilters = useCallback(
     (newFilters: EmojiFilters) => {
-      const mergedFilters = { ...filters, ...newFilters };
-      setCurrentPage(1);
-      fetchEmojis(mergedFilters, 1);
+      setFiltersState((currentFilters) => {
+        const mergedFilters = { ...currentFilters, ...newFilters };
+        setCurrentPage(1);
+        fetchEmojis(mergedFilters, 1);
+        return mergedFilters;
+      });
     },
-    [filters, fetchEmojis]
+    [fetchEmojis]
   );
 
-  // Search emojis
+  // Search emojis - FIXED: Use current filters from state
   const searchEmojis = useCallback(
     (query: string) => {
-      setFilters({ search: query || undefined });
+      setFiltersState((currentFilters) => {
+        const searchFilters = { ...currentFilters, search: query || undefined };
+        setCurrentPage(1);
+        fetchEmojis(searchFilters, 1);
+        return searchFilters;
+      });
     },
-    [setFilters]
+    [fetchEmojis]
   );
 
-  // Select category
+  // Select category - FIXED: Use current filters from state
   const selectCategory = useCallback(
     (category: string | null) => {
-      setFilters({ category: category || undefined });
+      setFiltersState((currentFilters) => {
+        const categoryFilters = {
+          ...currentFilters,
+          category: category || undefined
+        };
+        setCurrentPage(1);
+        fetchEmojis(categoryFilters, 1);
+        return categoryFilters;
+      });
     },
-    [setFilters]
+    [fetchEmojis]
   );
 
-  // Refresh emojis
+  // Refresh emojis - FIXED: Use current filters from state
   const refreshEmojis = useCallback(async () => {
     setCurrentPage(1);
-    await fetchEmojis(filters, 1);
-  }, [fetchEmojis, filters]);
+    // Use current filters from state
+    setFiltersState((currentFilters) => {
+      fetchEmojis(currentFilters, 1);
+      return currentFilters;
+    });
+  }, [fetchEmojis]);
 
   // Track emoji usage
   const trackEmojiUsage = useCallback(
@@ -238,12 +258,12 @@ export function useEmojis(options: UseEmojisOptions = {}): UseEmojisReturn {
     [filters.includeUsage, refreshEmojis]
   );
 
-  // Auto-fetch on mount if enabled
+  // Auto-fetch on mount if enabled - FIXED: Only run once on mount
   useEffect(() => {
     if (autoFetch && osInfo.isSupported) {
       fetchEmojis();
     }
-  }, [autoFetch, osInfo.isSupported, fetchEmojis]);
+  }, [autoFetch, osInfo.isSupported]); // FIXED: Remove fetchEmojis from dependencies
 
   return {
     emojis,

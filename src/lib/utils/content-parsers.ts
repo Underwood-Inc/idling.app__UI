@@ -216,6 +216,7 @@ export class FallbackURLParser {
       type: 'url',
       value: match.data.url,
       behavior: match.data.behavior,
+      rawFormat: match.content, // Add rawFormat so edit controls work
       start: match.start,
       end: match.end
     };
@@ -336,7 +337,8 @@ export class ContentParser {
     const textChunks = this.extractUnprocessedText(text, processedRanges);
 
     for (const chunk of textChunks) {
-      if (chunk.text.trim()) {
+      // Include text chunks that have content OR contain newlines (preserve whitespace structure)
+      if (chunk.text.trim() || chunk.text.includes('\n')) {
         segments.push({
           type: 'text',
           value: chunk.text,

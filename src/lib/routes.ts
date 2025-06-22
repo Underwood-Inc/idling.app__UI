@@ -27,13 +27,15 @@ export const buildThreadUrl = (submissionId: number) =>
   `${THREAD_BASE}/${submissionId}`;
 
 export const HEADER_NAV_PATHS: Record<
-  Exclude<ROUTES, 'ROOT' | 'SIGNIN' | 'COINS' | 'GAME' | 'THREAD_BASE'>,
+  Exclude<
+    ROUTES,
+    'ROOT' | 'SIGNIN' | 'COINS' | 'GAME' | 'THREAD_BASE' | 'ADMIN'
+  >,
   string
 > = {
   GALAXY,
   POSTS,
-  MY_POSTS,
-  ADMIN
+  MY_POSTS
 };
 
 export type ROUTES = keyof typeof NAV_PATHS;
@@ -50,6 +52,11 @@ export const NAV_PATH_LABELS: Record<ROUTES, string> = {
   ADMIN: 'Admin'
 };
 
-export const DISABLED_PATHS = [NAV_PATHS.GAME];
+export const DISABLED_PATHS = [NAV_PATHS.GAME, NAV_PATHS.COINS];
 export const PUBLIC_ROUTES = [NAV_PATHS.ROOT, NAV_PATHS.SIGNIN];
+export const PRIVATE_ROUTES = [
+  NAV_PATHS.ADMIN,
+  NAV_PATHS.MY_POSTS,
+  NAV_PATHS.POSTS
+];
 export const DEFAULT_REDIRECT = '/';
