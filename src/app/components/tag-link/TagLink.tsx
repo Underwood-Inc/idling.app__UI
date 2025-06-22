@@ -2,6 +2,7 @@
 import { useAtom } from 'jotai';
 import Link from 'next/link';
 import { usePathname, useSearchParams } from 'next/navigation';
+import { Suspense } from 'react';
 import { NAV_PATHS } from '../../../lib/routes';
 import { getSubmissionsFiltersAtom } from '../../../lib/state/atoms';
 import './TagLink.css';
@@ -14,10 +15,9 @@ interface TagLinkProps {
 }
 
 /**
- * A component that returns a Next.js Link component that navigates with a filter applied
- * @example <TagLink value="bacon" /> => a link that navigates to current route with tags=bacon filter
+ * Internal TagLink component that uses useSearchParams
  */
-export function TagLink({
+function TagLinkInternal({
   value,
   contextId,
   appendSearchParam = false,
@@ -111,5 +111,17 @@ export function TagLink({
     >
       {value}
     </Link>
+  );
+}
+
+/**
+ * A component that returns a Next.js Link component that navigates with a filter applied
+ * @example <TagLink value="bacon" /> => a link that navigates to current route with tags=bacon filter
+ */
+export function TagLink(props: TagLinkProps) {
+  return (
+    <Suspense fallback={<span className="tag-link">{props.value}</span>}>
+      <TagLinkInternal {...props} />
+    </Suspense>
   );
 }

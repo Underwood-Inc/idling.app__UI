@@ -3,7 +3,7 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import React, { useCallback, useMemo } from 'react';
+import React, { Suspense, useCallback, useMemo } from 'react';
 import { NAV_PATHS } from '../../../lib/routes';
 import {
   ContentParser,
@@ -27,7 +27,10 @@ interface ContentWithPillsProps {
   isEditMode?: boolean;
 }
 
-export function ContentWithPills({
+/**
+ * Internal ContentWithPills component that uses useSearchParams
+ */
+function ContentWithPillsInternal({
   content,
   onHashtagClick,
   onMentionClick,
@@ -597,6 +600,17 @@ export function ContentWithPills({
       </span>
     );
   }
+}
+
+/**
+ * Main ContentWithPills component with Suspense wrapper
+ */
+export function ContentWithPills(props: ContentWithPillsProps) {
+  return (
+    <Suspense fallback={<div className={props.className}>{props.content}</div>}>
+      <ContentWithPillsInternal {...props} />
+    </Suspense>
+  );
 }
 
 /**

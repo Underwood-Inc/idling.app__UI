@@ -4,16 +4,12 @@
 
 import { useSession } from 'next-auth/react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useRef } from 'react';
+import { Suspense, useEffect, useRef } from 'react';
 
 /**
- * SessionRefreshHandler - Handles OAuth callback session refresh
- *
- * This component detects when a user returns from OAuth provider
- * and forces a session refresh to ensure the UI reflects the new
- * authentication state without requiring a hard refresh.
+ * Internal SessionRefreshHandler that uses useSearchParams
  */
-export function SessionRefreshHandler() {
+function SessionRefreshHandlerInternal() {
   const { data: session, status, update } = useSession();
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -104,4 +100,19 @@ export function SessionRefreshHandler() {
 
   // This component doesn't render anything
   return null;
+}
+
+/**
+ * SessionRefreshHandler - Handles OAuth callback session refresh
+ *
+ * This component detects when a user returns from OAuth provider
+ * and forces a session refresh to ensure the UI reflects the new
+ * authentication state without requiring a hard refresh.
+ */
+export function SessionRefreshHandler() {
+  return (
+    <Suspense fallback={null}>
+      <SessionRefreshHandlerInternal />
+    </Suspense>
+  );
 }
