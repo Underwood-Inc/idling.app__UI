@@ -8,6 +8,8 @@ interface RichInputCursorProps {
     isOverAtomic: boolean;
     isAtomicBoundary: boolean;
     type: string;
+    proximity?: 'immediate' | 'close' | 'near';
+    distance?: number;
   };
   height?: number;
 }
@@ -33,6 +35,15 @@ export const RichInputCursor: React.FC<RichInputCursorProps> = ({
   if (atomicContext) {
     if (atomicContext.isNearAtomic) {
       cursorClasses += ' rich-input-cursor--near-atomic';
+
+      // Add proximity-specific classes for progressive orange intensity
+      if (atomicContext.proximity === 'immediate') {
+        cursorClasses += ' rich-input-cursor--immediate';
+      } else if (atomicContext.proximity === 'close') {
+        cursorClasses += ' rich-input-cursor--close';
+      } else if (atomicContext.proximity === 'near') {
+        cursorClasses += ' rich-input-cursor--far';
+      }
     }
     if (atomicContext.isOverAtomic) {
       cursorClasses += ' rich-input-cursor--over-atomic';
@@ -46,6 +57,8 @@ export const RichInputCursor: React.FC<RichInputCursorProps> = ({
     <div
       className={cursorClasses}
       data-atomic-context={atomicContext?.type || 'text'}
+      data-atomic-proximity={atomicContext?.proximity || 'none'}
+      data-atomic-distance={atomicContext?.distance || 0}
       data-is-near-atomic={atomicContext?.isNearAtomic || false}
       data-is-over-atomic={atomicContext?.isOverAtomic || false}
       data-is-atomic-boundary={atomicContext?.isAtomicBoundary || false}

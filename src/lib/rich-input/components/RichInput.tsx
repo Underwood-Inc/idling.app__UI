@@ -191,6 +191,8 @@ export const RichInput = forwardRef<RichInputRef, RichInputProps>(
           isOverAtomic: boolean;
           isAtomicBoundary: boolean;
           type: string;
+          proximity?: 'immediate' | 'close' | 'near';
+          distance?: number;
         }
       | undefined
     >(undefined);

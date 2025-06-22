@@ -67,6 +67,8 @@ export interface EnhancedCursorPosition {
     isOverAtomic: boolean;
     isAtomicBoundary: boolean;
     type: string;
+    proximity?: 'immediate' | 'close' | 'near';
+    distance?: number;
   };
 }
 
@@ -135,6 +137,8 @@ function detectAtomicContextFromDOM(
   isOverAtomic: boolean;
   isAtomicBoundary: boolean;
   type: string;
+  proximity?: 'immediate' | 'close' | 'near';
+  distance?: number;
 } {
   const proximityRange = 3;
 
@@ -147,6 +151,8 @@ function detectAtomicContextFromDOM(
   let isOverAtomic = false;
   let isAtomicBoundary = false;
   let type = 'text';
+  let proximity: 'immediate' | 'close' | 'near' | undefined;
+  let minDistance = Infinity;
 
   for (const element of atomicElements) {
     const tokenStart = parseInt(
@@ -155,10 +161,17 @@ function detectAtomicContextFromDOM(
     const tokenEnd = parseInt(element.getAttribute('data-token-end') || '0');
     const tokenType = element.getAttribute('data-token-type') || 'unknown';
 
+    // Calculate distance to this atomic element
+    const distanceToStart = Math.abs(cursorIndex - tokenStart);
+    const distanceToEnd = Math.abs(cursorIndex - tokenEnd);
+    const distance = Math.min(distanceToStart, distanceToEnd);
+
     // Check if cursor is over the atomic element
     if (cursorIndex >= tokenStart && cursorIndex <= tokenEnd) {
       isOverAtomic = true;
       type = tokenType;
+      proximity = 'immediate';
+      minDistance = 0;
 
       // Check if at exact boundary
       if (cursorIndex === tokenStart || cursorIndex === tokenEnd) {
@@ -167,14 +180,22 @@ function detectAtomicContextFromDOM(
     }
 
     // Check if cursor is near the atomic element
-    if (
-      Math.abs(cursorIndex - tokenStart) <= proximityRange ||
-      Math.abs(cursorIndex - tokenEnd) <= proximityRange
-    ) {
+    if (distance <= proximityRange) {
       isNearAtomic = true;
       if (type === 'text') {
         type = tokenType;
       }
+
+      // Determine proximity level
+      if (distance === 0) {
+        proximity = 'immediate';
+      } else if (distance === 1) {
+        proximity = 'close';
+      } else {
+        proximity = 'near';
+      }
+
+      minDistance = Math.min(minDistance, distance);
     }
   }
 
@@ -185,6 +206,8 @@ function detectAtomicContextFromDOM(
       isOverAtomic,
       isAtomicBoundary,
       type,
+      proximity,
+      distance: minDistance,
       atomicElementsCount: atomicElements.length
     });
   }
@@ -193,7 +216,9 @@ function detectAtomicContextFromDOM(
     isNearAtomic,
     isOverAtomic,
     isAtomicBoundary,
-    type
+    type,
+    proximity,
+    distance: minDistance === Infinity ? undefined : minDistance
   };
 }
 

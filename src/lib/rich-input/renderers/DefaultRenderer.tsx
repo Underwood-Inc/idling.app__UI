@@ -228,14 +228,26 @@ export class DefaultRenderer implements RichInputRenderer {
     // Detect if cursor is near or over atomic units (pills, images, etc.)
     const atomicContext = this.detectAtomicContext(position, state);
 
-    // Build CSS classes based on atomic context
+    // Build CSS classes based on atomic context with proximity levels
     let cursorClasses = 'rich-input-cursor';
+
     if (atomicContext.isNearAtomic) {
       cursorClasses += ' rich-input-cursor--near-atomic';
+
+      // Add proximity-specific classes for progressive orange intensity
+      if (atomicContext.proximity === 'immediate') {
+        cursorClasses += ' rich-input-cursor--immediate';
+      } else if (atomicContext.proximity === 'close') {
+        cursorClasses += ' rich-input-cursor--close';
+      } else if (atomicContext.proximity === 'near') {
+        cursorClasses += ' rich-input-cursor--far';
+      }
     }
+
     if (atomicContext.isOverAtomic) {
       cursorClasses += ' rich-input-cursor--over-atomic';
     }
+
     if (atomicContext.isAtomicBoundary) {
       cursorClasses += ' rich-input-cursor--atomic';
     }
@@ -247,6 +259,8 @@ export class DefaultRenderer implements RichInputRenderer {
         data-cursor-line={position.line}
         data-cursor-column={position.column}
         data-atomic-context={atomicContext.type}
+        data-atomic-proximity={atomicContext.proximity || 'none'}
+        data-atomic-distance={atomicContext.distance || 0}
         style={{
           position: 'absolute',
           pointerEvents: 'none',
@@ -267,6 +281,8 @@ export class DefaultRenderer implements RichInputRenderer {
     isOverAtomic: boolean;
     isAtomicBoundary: boolean;
     type: string;
+    proximity?: 'immediate' | 'close' | 'near';
+    distance?: number;
     atomicToken?: RichContentToken;
   } {
     const { tokens } = state;
@@ -287,12 +303,30 @@ export class DefaultRenderer implements RichInputRenderer {
       (token) => position.index === token.start || position.index === token.end
     );
 
-    // Check if cursor is near an atomic token
-    const nearAtomicToken = atomicTokens.find(
-      (token) =>
-        Math.abs(position.index - token.start) <= proximityRange ||
-        Math.abs(position.index - token.end) <= proximityRange
-    );
+    // Find the closest atomic token and calculate distance
+    let nearAtomicToken: RichContentToken | undefined;
+    let minDistance = Infinity;
+    let proximity: 'immediate' | 'close' | 'near' | undefined;
+
+    for (const token of atomicTokens) {
+      const distanceToStart = Math.abs(position.index - token.start);
+      const distanceToEnd = Math.abs(position.index - token.end);
+      const distance = Math.min(distanceToStart, distanceToEnd);
+
+      if (distance <= proximityRange && distance < minDistance) {
+        nearAtomicToken = token;
+        minDistance = distance;
+
+        // Determine proximity level
+        if (distance === 0) {
+          proximity = 'immediate';
+        } else if (distance === 1) {
+          proximity = 'close';
+        } else {
+          proximity = 'near';
+        }
+      }
+    }
 
     // Determine atomic context type
     let type = 'text';
@@ -310,6 +344,8 @@ export class DefaultRenderer implements RichInputRenderer {
       isOverAtomic: !!overAtomicToken,
       isAtomicBoundary: !!atBoundaryToken,
       type,
+      proximity,
+      distance: minDistance === Infinity ? undefined : minDistance,
       atomicToken: relevantToken
     };
   }

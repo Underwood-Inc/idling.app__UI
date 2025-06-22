@@ -18,6 +18,8 @@ interface RichInputContentProps {
     isOverAtomic: boolean;
     isAtomicBoundary: boolean;
     type: string;
+    proximity?: 'immediate' | 'close' | 'near';
+    distance?: number;
   };
   selectionCoordinates: Array<{
     x: number;
