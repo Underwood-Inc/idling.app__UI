@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { createPortal } from 'react-dom';
 import { EmojiData, useEmojis } from '../../hooks/useEmojis';
 import './EmojiPicker.css';
 
@@ -12,7 +11,6 @@ export interface EmojiPickerProps {
   isOpen: boolean;
   onClose: () => void;
   onEmojiSelect: (emoji: EmojiData) => void;
-  position: { x: number; y: number };
   searchQuery?: string;
   maxResults?: number;
   className?: string;
@@ -30,7 +28,6 @@ export const EmojiPicker: React.FC<EmojiPickerProps> = ({
   isOpen,
   onClose,
   onEmojiSelect,
-  position,
   searchQuery = '',
   maxResults = 24,
   className = ''
@@ -51,7 +48,7 @@ export const EmojiPicker: React.FC<EmojiPickerProps> = ({
     }
   });
 
-  const [selectedCategory, setSelectedCategory] = useState<string>('faces');
+  const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [localSearchQuery, setLocalSearchQuery] = useState(searchQuery);
 
   // Update local search when prop changes
@@ -59,23 +56,22 @@ export const EmojiPicker: React.FC<EmojiPickerProps> = ({
     setLocalSearchQuery(searchQuery);
   }, [searchQuery]);
 
-  // Filter emojis based on search or category
+  // Filter emojis based on search or category - FIXED: Show all emojis by default
   const filteredEmojis = useMemo(() => {
     if (localSearchQuery.trim()) {
-      const searchResults = searchEmojis(localSearchQuery.trim());
-      return Array.isArray(searchResults)
-        ? searchResults.slice(0, maxResults)
-        : [];
+      // If there's a search query, show search results regardless of category
+      return emojis.slice(0, maxResults);
     }
 
     if (selectedCategory === 'all') {
       return emojis.slice(0, maxResults);
     }
 
+    // Filter by specific category
     return emojis
       .filter((emoji: EmojiData) => emoji.category.name === selectedCategory)
       .slice(0, maxResults);
-  }, [emojis, localSearchQuery, selectedCategory, maxResults, searchEmojis]);
+  }, [emojis, selectedCategory, localSearchQuery, maxResults]);
 
   // Handle emoji selection
   const handleEmojiClick = useCallback(
@@ -86,30 +82,41 @@ export const EmojiPicker: React.FC<EmojiPickerProps> = ({
 
       // Call the parent handler
       onEmojiSelect(emoji);
-      onClose();
     },
-    [onEmojiSelect, onClose, trackEmojiUsage]
+    [onEmojiSelect, trackEmojiUsage]
   );
 
   // Handle category selection
   const handleCategorySelect = useCallback(
     (category: string) => {
       setSelectedCategory(category);
-      selectCategory(category === 'all' ? null : category);
+      if (category === 'all') {
+        selectCategory(null); // Clear category filter to show all
+      } else {
+        selectCategory(category);
+      }
     },
     [selectCategory]
   );
 
-  // Handle search input
+  // Handle search input - FIXED: Trigger search properly
   const handleSearchChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const query = e.target.value;
       setLocalSearchQuery(query);
       if (query.trim()) {
-        searchEmojis(query);
+        searchEmojis(query.trim());
+        setSelectedCategory('all'); // Switch to 'all' when searching
+      } else {
+        // Clear search by selecting current category or 'all'
+        if (selectedCategory !== 'all') {
+          selectCategory(selectedCategory);
+        } else {
+          selectCategory(null);
+        }
       }
     },
-    [searchEmojis]
+    [searchEmojis, selectCategory, selectedCategory]
   );
 
   // Handle escape key
@@ -151,15 +158,7 @@ export const EmojiPicker: React.FC<EmojiPickerProps> = ({
   if (!isOpen) return null;
 
   const content = (
-    <div
-      className={`emoji-picker ${className}`}
-      style={{
-        position: 'fixed',
-        left: position.x,
-        top: position.y,
-        zIndex: 1000
-      }}
-    >
+    <div className={`emoji-picker ${className}`}>
       <div className="emoji-picker__header">
         <input
           type="text"
@@ -247,10 +246,8 @@ export const EmojiPicker: React.FC<EmojiPickerProps> = ({
     </div>
   );
 
-  // Render in portal for proper z-index handling
-  return typeof window !== 'undefined'
-    ? createPortal(content, document.body)
-    : null;
+  // Render content directly - no portal needed
+  return content;
 };
 
 // Helper function to get category icons

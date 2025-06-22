@@ -24,6 +24,7 @@ export interface SmartInputProps
   enableHashtags?: boolean;
   enableUserMentions?: boolean;
   enableEmojis?: boolean;
+  enableImagePaste?: boolean;
   existingHashtags?: string[]; // Hashtags to exclude from search results
   existingUserIds?: string[]; // User IDs to exclude from search results
 }
@@ -37,6 +38,7 @@ export const SmartInput = forwardRef<
       enableHashtags = true,
       enableUserMentions = true,
       enableEmojis = true,
+      enableImagePaste = true,
       existingHashtags = [],
       existingUserIds = [],
       value,
@@ -173,6 +175,12 @@ export const SmartInput = forwardRef<
     // Enhanced onChange to detect colon trigger for emojis
     const handleChange = useCallback(
       (newValue: string) => {
+        // eslint-disable-next-line no-console
+        console.log('SmartInput handleChange calling onChange:', {
+          oldValue: value,
+          newValue,
+          hasNewlines: newValue.includes('\n')
+        });
         // First call the original onChange
         onChange(newValue);
 
@@ -212,12 +220,175 @@ export const SmartInput = forwardRef<
       [onChange, enableEmojis, emojiPicker]
     );
 
+    // Enhanced onChange with URL detection and auto-conversion
+    const handleChangeWithURLDetection = useCallback(
+      (newValue: string, previousValue?: string) => {
+        // First call the emoji detection
+        handleChange(newValue);
+
+        // Only check for URL conversion if we just added a space
+        const prevValue = previousValue || value || '';
+        if (newValue.length <= prevValue.length) {
+          return; // Don't convert on deletion
+        }
+
+        const lastChar = newValue[newValue.length - 1];
+        if (lastChar !== ' ') {
+          return; // Only convert when space is added
+        }
+
+        if (internalRef.current) {
+          const input = internalRef.current;
+          const cursorPosition = input.selectionStart || 0;
+
+          // Look for the word before the space
+          const beforeCursor = newValue.slice(0, cursorPosition - 1); // Exclude the space
+          const words = beforeCursor.split(/\s+/);
+          const lastWord = words[words.length - 1];
+
+          // Check if the last word is a URL
+          if (lastWord) {
+            const urlRegex = /^https?:\/\/[^\s<>"{}|\\^`[\]]+$/;
+            if (urlRegex.test(lastWord)) {
+              const url = lastWord;
+
+              // Import URL detection utilities
+              import('../../../lib/config/url-pills')
+                .then(({ findDomainConfig, createURLPill }) => {
+                  const domainConfig = findDomainConfig(url);
+                  if (domainConfig) {
+                    // Convert URL to pill format
+                    const pillFormat = createURLPill(
+                      url,
+                      domainConfig.defaultBehavior
+                    );
+
+                    // Replace the URL with the pill format
+                    const beforeUrl = beforeCursor.slice(
+                      0,
+                      beforeCursor.lastIndexOf(lastWord)
+                    );
+                    const afterCursor = newValue.slice(cursorPosition);
+                    const newContent =
+                      beforeUrl + pillFormat + ' ' + afterCursor;
+
+                    // Update the content
+                    onChange(newContent);
+
+                    // Set cursor position after the pill
+                    setTimeout(() => {
+                      const newCursorPosition =
+                        beforeUrl.length + pillFormat.length + 1;
+                      input.setSelectionRange(
+                        newCursorPosition,
+                        newCursorPosition
+                      );
+                      input.focus();
+                    }, 0);
+                  }
+                })
+                .catch((error) => {
+                  console.error('Failed to load URL pill utilities:', error);
+                });
+            }
+          }
+        }
+      },
+      [handleChange, onChange, value]
+    );
+
+    // Enhanced onChange wrapper that tracks previous value
+    const handleChangeWrapper = useCallback(
+      (newValue: string) => {
+        // eslint-disable-next-line no-console
+        console.log('SmartInput handleChangeWrapper:', {
+          oldValue: value,
+          newValue,
+          hasNewlines: newValue.includes('\n')
+        });
+        const prevValue = value;
+        handleChangeWithURLDetection(newValue, prevValue);
+      },
+      [handleChangeWithURLDetection, value]
+    );
+
+    // Handle clipboard paste events
+    const handlePaste = useCallback(
+      async (e: React.ClipboardEvent) => {
+        if (!enableImagePaste) return;
+
+        const clipboardData = e.clipboardData;
+        if (!clipboardData) return;
+
+        // Check if there are files in the clipboard
+        const files = Array.from(clipboardData.files);
+        const imageFiles = files.filter((file) =>
+          file.type.startsWith('image/')
+        );
+
+        if (imageFiles.length === 0) return;
+
+        // Prevent default paste behavior for images
+        e.preventDefault();
+
+        try {
+          // Process each image file
+          for (const file of imageFiles) {
+            // Convert file to data URL for temporary storage
+            const dataURL = await fileToDataURL(file);
+
+            // Create temporary image pill format
+            const tempImagePill = `![embed](data:temp-image;name=${encodeURIComponent(file.name)};${dataURL})`;
+
+            // Insert at current cursor position
+            if (internalRef.current) {
+              const input = internalRef.current;
+              const currentValue = value || '';
+              const cursorPosition = input.selectionStart || 0;
+
+              const before = currentValue.slice(0, cursorPosition);
+              const after = currentValue.slice(cursorPosition);
+
+              // Add spacing around the pill
+              const spacing =
+                before.length > 0 && !before.endsWith(' ') ? ' ' : '';
+              const newValue = before + spacing + tempImagePill + ' ' + after;
+
+              onChange(newValue);
+
+              // Set cursor position after the inserted pill
+              setTimeout(() => {
+                const newCursorPosition =
+                  before.length + spacing.length + tempImagePill.length + 1;
+                input.setSelectionRange(newCursorPosition, newCursorPosition);
+                input.focus();
+              }, 0);
+            }
+          }
+        } catch (error) {
+          console.error('Failed to process pasted image:', error);
+        }
+      },
+      [enableImagePaste, value, onChange]
+    );
+
+    // Helper function to convert file to data URL
+    const fileToDataURL = (file: File): Promise<string> => {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    };
+
     return (
       <>
         <InlineSuggestionInput
           {...props}
           value={value}
-          onChange={handleChange}
+          onChange={handleChangeWrapper}
+          onPaste={handlePaste}
           onHashtagSearch={enableHashtags ? handleHashtagSearch : undefined}
           onUserSearch={enableUserMentions ? handleUserSearch : undefined}
         />

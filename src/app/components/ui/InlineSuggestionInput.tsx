@@ -222,6 +222,14 @@ export const InlineSuggestionInput: React.FC<InlineSuggestionInputProps> = ({
     const newValue = e.target.value;
     const newCursorPosition = e.target.selectionStart || 0;
 
+    // eslint-disable-next-line no-console
+    console.log('InlineSuggestionInput handleInputChange:', {
+      oldValue: value,
+      newValue,
+      hasNewlines: newValue.includes('\n'),
+      cursorPosition: newCursorPosition
+    });
+
     onChange(newValue);
     setCursorPosition(newCursorPosition);
 
@@ -275,6 +283,19 @@ export const InlineSuggestionInput: React.FC<InlineSuggestionInputProps> = ({
   const handleKeyDown = (
     e: KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
+    // Debug logging for Enter key
+    if (e.key === 'Enter') {
+      // eslint-disable-next-line no-console
+      console.log('InlineSuggestionInput handleKeyDown Enter pressed:', {
+        showSuggestions,
+        suggestionsLength: suggestions.length,
+        selectedIndex,
+        as,
+        willReturn: !showSuggestions || suggestions.length === 0
+      });
+    }
+
+    // Only handle special keys when suggestions are visible
     if (!showSuggestions || suggestions.length === 0) return;
 
     switch (e.key) {
@@ -297,14 +318,18 @@ export const InlineSuggestionInput: React.FC<InlineSuggestionInputProps> = ({
         break;
       case 'Enter':
       case 'Tab':
+        // Only handle Enter/Tab if a suggestion is actually selected
         if (selectedIndex >= 0 && selectedIndex < suggestions.length) {
           e.preventDefault();
           e.stopPropagation();
           insertSuggestion(suggestions[selectedIndex]);
           return; // Prevent any further processing
         }
+        // If no suggestion is selected, allow normal Enter/Tab behavior
+        // by NOT preventing default - this allows newlines in textarea
         break;
       case 'Escape':
+        e.preventDefault();
         setShowSuggestions(false);
         setSuggestions([]);
         setSelectedIndex(-1);
