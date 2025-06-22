@@ -12,7 +12,7 @@
   -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
-  font-family: 'Fira Code', monospace;
+  font-family: var(--app-font-family);
   font-size: 14px;
   letter-spacing: 0px;
   line-height: 1.4;

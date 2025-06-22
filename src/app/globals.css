@@ -150,6 +150,9 @@
   --border-radius: 0.5rem;
   --font-mono: 'Fira Code', monospace;
 
+  /* App font family - can be changed by FontPicker component */
+  --app-font-family: 'Fira Code', 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', 'Segoe UI Symbol', monospace;
+
   /* Font size variables - much smaller for better scaling */
   --font-size-xs: 0.75rem;
   --font-size-base: 1.1rem;
@@ -372,7 +375,7 @@
   padding: 0;
   margin: 0;
   font-size: var(--font-size-md);
-  font-family: 'Fira Code', 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', 'Segoe UI Symbol', monospace;
+  font-family: var(--app-font-family);
 }
 
 /* Global font and style reset */
@@ -384,7 +387,7 @@
 .floating-toolbar *,
 .tooltip *,
 .interactive-tooltip * {
-  font-family: 'Fira Code', 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', 'Segoe UI Symbol', monospace !important;
+  font-family: var(--app-font-family) !important;
   font-style: normal !important;
 }
 
@@ -527,6 +530,7 @@ body {
   background-color: var(--dark-background--primary);
   overflow: auto;
   font-size: var(--font-size-base);
+  font-family: var(--app-font-family);
 }
 
 article,
