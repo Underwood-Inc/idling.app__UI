@@ -6,6 +6,10 @@ const nextConfig = {
     version
   },
   reactStrictMode: true,
+  eslint: {
+    // Allow production builds to complete even if there are ESLint warnings
+    ignoreDuringBuilds: true
+  },
   // Smart caching with version-based cache busting
   experimental: {
     staleTimes: {

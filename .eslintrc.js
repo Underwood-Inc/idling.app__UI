@@ -1,6 +1,6 @@
 module.exports = {
   extends: ['next', 'next/core-web-vitals', 'prettier', 'eslint:recommended'],
-  plugins: ['prettier', 'jest', 'custom-rules'],
+  plugins: ['prettier', 'jest', 'custom-rules', '@typescript-eslint'],
   globals: {
     React: 'readonly'
   },
@@ -10,13 +10,29 @@ module.exports = {
   overrides: [
     {
       files: ['*.stories.@(ts|tsx|js|jsx|mjs|cjs)']
+    },
+    {
+      files: ['*.ts', '*.tsx'],
+      rules: {
+        'no-unused-vars': 'off',
+        '@typescript-eslint/no-unused-vars': [
+          'warn',
+          {
+            varsIgnorePattern: '^[A-Z][A-Za-z]*$|^_',
+            argsIgnorePattern: '^_',
+            ignoreRestSiblings: true
+          }
+        ]
+      }
     }
   ],
   rules: {
     'no-unused-vars': [
       'warn',
       {
-        varsIgnorePattern: '^[A-Z][A-Za-z]*$'
+        varsIgnorePattern: '^[A-Z][A-Za-z]*$|^_',
+        argsIgnorePattern: '^_',
+        ignoreRestSiblings: true
       }
     ],
     'custom-rules/enforce-link-target-blank': 'warn',
