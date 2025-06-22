@@ -1,6 +1,6 @@
 {
   "name": "idling.app",
-  "version": "0.60.0",
+  "version": "0.61.0",
   "private": true,
   "engines": {
     "node": ">=20.x"
@@ -25,7 +25,7 @@
     "e2e": "yarn playwright test --ui",
     "gen:secret": "openssl rand -base64 32",
     "lint-staged": "lint-staged",
-    "lint": "next lint",
+    "lint": "npx tsc --noemit --project tsconfig.json",
     "migrations": "tsx scripts/migrations.ts main",
     "manage-user": "node scripts/manage-user.js",
     "prepare": "husky",
@@ -38,7 +38,9 @@
     "version:bump": "node scripts/version-bump.js",
     "version:test": "node scripts/version-bump-from-msg.js --test",
     "version:demo": "node scripts/version-bump-from-msg.js --test \"feat: example feature for demo\"",
-    "version:help": "node scripts/version-bump-from-msg.js --test \"help\""
+    "version:help": "node scripts/version-bump-from-msg.js --test \"help\"",
+    "debug:parser": "node debug-content-parser.js",
+    "debug:parser:interactive": "node debug-content-parser.js --interactive"
   },
   "dependencies": {
     "@auth/pg-adapter": "^1.4.2",
