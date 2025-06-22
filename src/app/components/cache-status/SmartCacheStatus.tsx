@@ -1,7 +1,7 @@
 'use client';
 
 import { signOut } from 'next-auth/react';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import './CacheStatus.css';
 
 interface CacheInfo {
@@ -12,6 +12,12 @@ interface CacheInfo {
   cacheVersion?: string;
   isStale?: boolean;
   ttl?: number;
+  details?: {
+    serviceWorker: boolean;
+    cacheCount: number;
+    cacheSize: number;
+    localStorageSize: number;
+  };
 }
 
 interface ServiceWorkerCacheInfo {
@@ -46,7 +52,7 @@ const SmartCacheStatus: React.FC = () => {
     null
   );
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [isClearingAll, setIsClearingAll] = useState(false);
+  const [isClearing, setIsClearing] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
 
   const getCacheMetadata = async (url: string) => {
@@ -125,87 +131,71 @@ const SmartCacheStatus: React.FC = () => {
       return null;
     };
 
-  const checkCacheStatus = async () => {
+  const checkCacheStatus = useCallback(async () => {
     try {
-      const url = window.location.pathname;
-      const metadata = await getCacheMetadata(url);
-      const swInfo = await getServiceWorkerCacheInfo();
+      // Check if service worker is available
+      if ('serviceWorker' in navigator) {
+        const registration = await navigator.serviceWorker.getRegistration();
+        const hasServiceWorker = !!registration;
 
-      setSwCacheInfo(swInfo);
+        // Check cache storage
+        let cacheSize = 0;
+        let cacheCount = 0;
+        if ('caches' in window) {
+          try {
+            const cacheNames = await caches.keys();
+            cacheCount = cacheNames.length;
 
-      if (metadata) {
-        setCacheInfo({
-          isCached: true,
-          cacheTimestamp: metadata.timestamp,
-          cacheAge: formatTimeAgo(metadata.timestamp.getTime()),
-          version: metadata.version,
-          cacheVersion: metadata.cacheVersion,
-          isStale: metadata.isStale,
-          ttl: metadata.ttl
-        });
-      } else {
-        setCacheInfo({ isCached: false });
+            for (const cacheName of cacheNames) {
+              const cache = await caches.open(cacheName);
+              const requests = await cache.keys();
+              cacheSize += requests.length;
+            }
+          } catch (e) {
+            // Silent error handling
+          }
+        }
+
+        // Check localStorage size
+        let localStorageSize = 0;
+        try {
+          for (const key in localStorage) {
+            if (Object.prototype.hasOwnProperty.call(localStorage, key)) {
+              localStorageSize += localStorage[key].length + key.length;
+            }
+          }
+        } catch (e) {
+          // Silent error handling
+        }
+
+        const newCacheInfo = {
+          isCached: hasServiceWorker || cacheCount > 0 || localStorageSize > 0,
+          cacheTimestamp: new Date(),
+          details: {
+            serviceWorker: hasServiceWorker,
+            cacheCount,
+            cacheSize,
+            localStorageSize: Math.round(localStorageSize / 1024) // KB
+          }
+        };
+
+        setCacheInfo(newCacheInfo);
       }
     } catch (error) {
-      console.warn('Failed to check cache status:', error);
-      setCacheInfo({ isCached: false });
+      // Silent error handling
     }
-  };
+  }, []);
 
   /**
    * Refresh current page cache - equivalent to "Empty cache and hard refresh"
    */
-  const refreshPageCache = async () => {
-    if (isRefreshing) return;
-
+  const handleRefreshCurrentPage = async () => {
     setIsRefreshing(true);
-    console.log('🔄 Performing hard refresh (empty cache and reload)...');
-
     try {
-      // Clear cache for current page
-      if ('caches' in window) {
-        const cacheNames = await caches.keys();
-        for (const cacheName of cacheNames) {
-          const cache = await caches.open(cacheName);
-          await cache.delete(window.location.href);
-          await cache.delete(window.location.pathname);
-          console.log(`🗑️ Cleared current page from cache: ${cacheName}`);
-        }
-      }
-
-      // Clear service worker cache for current page
-      if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
-        const messageChannel = new MessageChannel();
-
-        const refreshPromise = new Promise((resolve, reject) => {
-          messageChannel.port1.onmessage = (event) => {
-            if (event.data.success) {
-              resolve(event.data);
-            } else {
-              reject(new Error(event.data.error));
-            }
-          };
-        });
-
-        navigator.serviceWorker.controller.postMessage(
-          {
-            type: 'REFRESH_CACHE',
-            url: window.location.href
-          },
-          [messageChannel.port2]
-        );
-
-        await refreshPromise;
-      }
-
-      console.log('✅ Page cache cleared, performing hard refresh...');
-
-      // Perform hard refresh with cache bypass
+      // Force a hard refresh of the current page
       window.location.reload();
     } catch (error) {
-      console.error('❌ Failed to refresh page cache:', error);
-      // Fallback: force hard reload anyway
-      window.location.reload();
+      // Silent error handling
     } finally {
       setIsRefreshing(false);
     }
@@ -214,114 +204,42 @@ const SmartCacheStatus: React.FC = () => {
   /**
    * Clear all cache - logout user, unregister service workers, clear all caches, and re-register
    */
-  const clearAllCache = async () => {
-    if (isClearingAll) return;
-
-    setIsClearingAll(true);
-    console.log(
-      '🧹 Clearing ALL site data, logging out user, and restarting service workers...'
-    );
-
+  const handleClearAllCache = async () => {
+    setIsClearing(true);
     try {
-      // Step 1: Logout user properly (server + client + JWT + cookies)
-      console.log('🚪 Logging out user...');
+      // 1. Sign out from NextAuth
+      await signOut({ redirect: false });
+
+      // 2. Clear all storage
       try {
-        await signOut({
-          redirect: false, // Don't redirect, we'll handle the refresh manually
-          callbackUrl: '/' // Set callback URL for after refresh
-        });
-        console.log('✅ User logged out from NextAuth');
-      } catch (error) {
-        console.warn(
-          '⚠️ NextAuth logout failed, continuing with cache clear:',
-          error
-        );
+        localStorage.clear();
+      } catch (e) {
+        // Silent error handling
       }
 
-      // Step 2: Get storage estimate before clearing (for logging)
-      let storageBeforeClear = null;
-      if ('storage' in navigator && 'estimate' in navigator.storage) {
-        try {
-          storageBeforeClear = await navigator.storage.estimate();
-          console.log(
-            `📊 Storage before clear: ${Math.round(((storageBeforeClear.usage || 0) / 1024 / 1024) * 100) / 100}MB used of ${Math.round(((storageBeforeClear.quota || 0) / 1024 / 1024) * 100) / 100}MB available`
-          );
-        } catch (e) {
-          console.log('ℹ️ Could not get storage estimate');
-        }
+      try {
+        sessionStorage.clear();
+      } catch (e) {
+        // Silent error handling
       }
 
-      // Step 3: Clear site data using modern Storage API (if available)
-      if ('storage' in navigator && 'persist' in navigator.storage) {
-        try {
-          // Request persistent storage (helps with clearing)
-          await navigator.storage.persist();
-          console.log('✅ Storage persistence requested');
-        } catch (e) {
-          console.log('ℹ️ Storage persistence not available');
-        }
-      }
+      // 3. Clear cookies
+      document.cookie.split(';').forEach((cookie) => {
+        const eqPos = cookie.indexOf('=');
+        const name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie;
+        document.cookie = `${name.trim()}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/`;
+      });
 
-      // Step 4: Unregister all service workers
-      if ('serviceWorker' in navigator) {
-        const registrations = await navigator.serviceWorker.getRegistrations();
-        for (let registration of registrations) {
-          await registration.unregister();
-          console.log('✅ Service worker unregistered');
-        }
-      }
-
-      // Step 5: Clear all cache storage
-      if ('caches' in window) {
-        const cacheNames = await caches.keys();
-        await Promise.all(
-          cacheNames.map((cacheName) => {
-            console.log(`🗑️ Deleting cache: ${cacheName}`);
-            return caches.delete(cacheName);
-          })
-        );
-        console.log('✅ All cache storage cleared');
-      }
-
-      // Step 6: Clear ALL application storage (including auth data)
-      console.log('🗑️ Clearing ALL application storage...');
-
-      // Clear localStorage completely (including auth tokens)
-      localStorage.clear();
-      console.log('✅ localStorage cleared completely');
-
-      // Clear sessionStorage completely
-      sessionStorage.clear();
-      console.log('✅ sessionStorage cleared');
-
-      // Step 7: Clear all cookies (auth-related and others)
-      if (typeof document !== 'undefined') {
-        const cookies = document.cookie.split(';');
-        for (let cookie of cookies) {
-          const eqPos = cookie.indexOf('=');
-          const name =
-            eqPos > -1 ? cookie.substr(0, eqPos).trim() : cookie.trim();
-          // Clear cookie for current domain and all possible paths
-          document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/`;
-          document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;domain=${window.location.hostname}`;
-          document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;domain=.${window.location.hostname}`;
-        }
-        console.log('✅ All cookies cleared');
-      }
-
-      // Step 8: Clear IndexedDB completely
+      // 4. Clear IndexedDB
       if ('indexedDB' in window) {
         try {
           const databases = await indexedDB.databases();
           await Promise.all(
             databases.map((db) => {
               if (db.name) {
+                const deleteReq = indexedDB.deleteDatabase(db.name);
                 return new Promise((resolve, reject) => {
-                  const deleteReq = indexedDB.deleteDatabase(db.name!);
-                  deleteReq.onsuccess = () => {
-                    console.log(`✅ IndexedDB ${db.name} cleared`);
-                    resolve(undefined);
-                  };
+                  deleteReq.onsuccess = () => resolve(undefined);
                   deleteReq.onerror = () => reject(deleteReq.error);
                 });
               }
@@ -329,134 +247,50 @@ const SmartCacheStatus: React.FC = () => {
             })
           );
         } catch (e) {
-          console.log(
-            'ℹ️ IndexedDB clearing not supported or no databases found'
-          );
+          // Silent error handling
         }
       }
 
-      // Step 9: Clear WebSQL (if supported - deprecated but still present in some browsers)
-      if ('webkitStorageInfo' in window) {
-        try {
-          // @ts-ignore - WebSQL is deprecated but may still exist
-          const webkitStorageInfo = (window as any).webkitStorageInfo;
-          if (webkitStorageInfo && webkitStorageInfo.requestQuota) {
-            console.log('🗑️ Attempting to clear WebSQL...');
-            webkitStorageInfo.requestQuota(
-              0,
-              0,
-              () => {
-                console.log('✅ WebSQL cleared');
-              },
-              () => {
-                console.log('ℹ️ WebSQL clearing failed or not supported');
-              }
-            );
-          }
-        } catch (e) {
-          console.log('ℹ️ WebSQL not available');
-        }
-      }
-
-      // Step 10: Clear Application Cache (if supported - deprecated but still present)
-      if ('applicationCache' in window && window.applicationCache) {
-        try {
-          (window.applicationCache as any).update();
-          console.log('✅ Application cache updated');
-        } catch (e) {
-          console.log('ℹ️ Application cache not available');
-        }
-      }
-
-      console.log(
-        '🎉 All site data and user session cleared! Re-registering service worker...'
-      );
-
-      // Step 11: Re-register service worker with better error handling
+      // 5. Unregister service worker
       if ('serviceWorker' in navigator) {
         try {
-          // Clear any existing service worker controller
-          if (navigator.serviceWorker.controller) {
-            navigator.serviceWorker.controller.postMessage({
-              type: 'SKIP_WAITING'
-            });
-          }
-
-          const registration = await navigator.serviceWorker.register(
-            '/sw.js',
-            {
-              scope: '/',
-              updateViaCache: 'none' // Ensure fresh service worker
-            }
+          const registrations =
+            await navigator.serviceWorker.getRegistrations();
+          await Promise.all(
+            registrations.map((registration) => registration.unregister())
           );
-          console.log('✅ Service worker re-registered:', registration.scope);
-
-          // Wait for the new service worker to be ready
-          await new Promise((resolve) => {
-            if (registration.active) {
-              resolve(undefined);
-            } else {
-              registration.addEventListener('statechange', () => {
-                if (registration.active) {
-                  resolve(undefined);
-                }
-              });
-            }
-          });
-        } catch (error) {
-          console.warn('⚠️ Failed to re-register service worker:', error);
-          console.log(
-            'ℹ️ This may be due to redirect issues - will continue with refresh'
-          );
-        }
-      }
-
-      // Step 12: Get storage estimate after clearing (for verification)
-      if ('storage' in navigator && 'estimate' in navigator.storage) {
-        try {
-          const storageAfterClear = await navigator.storage.estimate();
-          console.log(
-            `📊 Storage after clear: ${Math.round(((storageAfterClear.usage || 0) / 1024 / 1024) * 100) / 100}MB used of ${Math.round(((storageAfterClear.quota || 0) / 1024 / 1024) * 100) / 100}MB available`
-          );
-
-          if (
-            storageBeforeClear &&
-            storageAfterClear.usage !== undefined &&
-            storageBeforeClear.usage !== undefined
-          ) {
-            const clearedMB =
-              Math.round(
-                ((storageBeforeClear.usage - storageAfterClear.usage) /
-                  1024 /
-                  1024) *
-                  100
-              ) / 100;
-            console.log(`🗑️ Successfully cleared ${clearedMB}MB of site data`);
-          }
         } catch (e) {
-          console.log('ℹ️ Could not verify storage clearing');
+          // Silent error handling
         }
       }
 
-      // Step 13: Perform hard refresh to complete logout and restart
-      setTimeout(() => {
-        console.log(
-          '🔄 Performing final hard refresh with complete session reset...'
-        );
-        // Use replace to avoid back button issues and ensure clean state
-        window.location.replace('/');
-      }, 1000);
+      // 6. Clear browser caches if available
+      if ('caches' in window) {
+        try {
+          const cacheNames = await caches.keys();
+          await Promise.all(
+            cacheNames.map((cacheName) => caches.delete(cacheName))
+          );
+        } catch (e) {
+          // Silent error handling
+        }
+      }
+
+      // 7. Re-register service worker
+      if ('serviceWorker' in navigator) {
+        try {
+          await navigator.serviceWorker.register('/sw.js');
+        } catch (e) {
+          // Silent error handling
+        }
+      }
+
+      // 8. Force page reload to complete the reset
+      window.location.href = '/';
     } catch (error) {
-      console.error(
-        '❌ Error during complete site data and session clear:',
-        error
-      );
-      // Fallback: force hard refresh to home page anyway
-      setTimeout(() => {
-        window.location.replace('/');
-      }, 1000);
+      // Silent error handling
     } finally {
-      setIsClearingAll(false);
+      setIsClearing(false);
     }
   };
 
@@ -514,8 +348,8 @@ const SmartCacheStatus: React.FC = () => {
 
       <button
         className="cache-status__refresh"
-        onClick={refreshPageCache}
-        disabled={isRefreshing || isClearingAll}
+        onClick={handleRefreshCurrentPage}
+        disabled={isRefreshing || isClearing}
         title="Refresh current page cache (hard refresh)"
         aria-label="Empty cache and hard refresh current page"
       >
@@ -524,13 +358,13 @@ const SmartCacheStatus: React.FC = () => {
 
       <button
         className="cache-status__refresh"
-        onClick={clearAllCache}
-        disabled={isRefreshing || isClearingAll}
+        onClick={handleClearAllCache}
+        disabled={isRefreshing || isClearing}
         title="Logout user, clear all site data (cache, storage, cookies), and restart service workers"
         aria-label="Complete logout and clear all site data"
         style={{ marginLeft: '4px' }}
       >
-        {isClearingAll ? '⟳' : '🧹'}
+        {isClearing ? '⟳' : '��'}
       </button>
 
       {showDetails && (cacheInfo.isCached || swCacheInfo) && (
