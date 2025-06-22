@@ -4,16 +4,17 @@ import { getMediaType } from '../../../lib/config/media-domains';
 import { getURLPillType, shouldEmbedURL } from '../../../lib/config/url-pills';
 import { ImageEmbed } from './ImageEmbed';
 import './URLPill.css';
+import { YouTubeEmbed } from './YouTubeEmbed';
 
 interface URLPillProps {
   url: string;
-  behavior?: 'embed' | 'link';
+  behavior?: 'embed' | 'link' | 'modal';
   width?: 'small' | 'medium' | 'large' | 'full';
   customId?: string;
   className?: string;
   isEditMode?: boolean;
   onWidthChange?: (newWidth: 'small' | 'medium' | 'large' | 'full') => void;
-  onModeChange?: (newMode: 'embed' | 'link') => void;
+  onModeChange?: (newMode: 'embed' | 'link' | 'modal') => void;
   onBehaviorChange?: (oldContent: string, newContent: string) => void;
   onRemove?: () => void;
 }
@@ -43,8 +44,6 @@ export function URLPill({
   // Determine the media type and behavior
   const mediaType = getMediaType(url);
   const pillType = getURLPillType(url);
-  const shouldEmbed =
-    behavior === 'embed' || (behavior === undefined && shouldEmbedURL(url));
 
   // Handle temporary images specially
   if (url.startsWith('data:temp-image;')) {
@@ -63,21 +62,190 @@ export function URLPill({
     );
   }
 
-  // Handle different media types
-  if (shouldEmbed) {
+  // Handle different behaviors
+  if (behavior === 'embed' || (behavior === undefined && shouldEmbedURL(url))) {
+    // Embed behavior
     switch (mediaType) {
       case 'youtube':
-        // Temporarily render as link until YouTubeEmbed is fixed
-        return (
-          <a
-            href={url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className={`url-pill youtube-pill ${className}`}
-          >
-            📺 {customId || url}
-          </a>
-        );
+        if (isEditMode && (onModeChange || onWidthChange)) {
+          // In edit mode, wrap YouTube embed with controls
+          return (
+            <div className={`url-pill youtube-pill-wrapper ${className}`}>
+              <YouTubeEmbed
+                url={url}
+                width={
+                  width === 'small'
+                    ? 'S'
+                    : width === 'medium'
+                      ? 'M'
+                      : width === 'large'
+                        ? 'L'
+                        : width === 'full'
+                          ? 'F'
+                          : 'M'
+                }
+                className="url-pill youtube-pill"
+                title={customId || 'YouTube video'}
+              />
+              <div className="url-pill__behavior-toggles">
+                {onModeChange && (
+                  <>
+                    <button
+                      className={`url-pill__behavior-toggle url-pill__behavior-toggle--embed ${
+                        behavior === 'embed' || behavior === undefined
+                          ? 'url-pill__behavior-toggle--active'
+                          : ''
+                      }`}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        onModeChange('embed');
+                      }}
+                      onMouseDown={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                      }}
+                      title="Embed video player"
+                    >
+                      📺 Embed
+                    </button>
+                    <button
+                      className="url-pill__behavior-toggle url-pill__behavior-toggle--link"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        onModeChange('link');
+                      }}
+                      onMouseDown={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                      }}
+                      title="Show as clickable link"
+                    >
+                      🔗 Link
+                    </button>
+                    <button
+                      className="url-pill__behavior-toggle url-pill__behavior-toggle--modal"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        onModeChange('modal');
+                      }}
+                      onMouseDown={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                      }}
+                      title="Open in modal popup"
+                    >
+                      ⧉ Modal
+                    </button>
+                  </>
+                )}
+
+                {onWidthChange && (
+                  <div className="url-pill__width-controls">
+                    <button
+                      className={`url-pill__behavior-toggle ${
+                        width === 'small'
+                          ? 'url-pill__behavior-toggle--active'
+                          : ''
+                      }`}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        onWidthChange('small');
+                      }}
+                      onMouseDown={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                      }}
+                      title="Small size (320px)"
+                    >
+                      📱 Small
+                    </button>
+                    <button
+                      className={`url-pill__behavior-toggle ${
+                        width === 'medium'
+                          ? 'url-pill__behavior-toggle--active'
+                          : ''
+                      }`}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        onWidthChange('medium');
+                      }}
+                      onMouseDown={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                      }}
+                      title="Medium size (560px)"
+                    >
+                      💻 Medium
+                    </button>
+                    <button
+                      className={`url-pill__behavior-toggle ${
+                        width === 'large'
+                          ? 'url-pill__behavior-toggle--active'
+                          : ''
+                      }`}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        onWidthChange('large');
+                      }}
+                      onMouseDown={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                      }}
+                      title="Large size (800px)"
+                    >
+                      🖥️ Large
+                    </button>
+                    <button
+                      className={`url-pill__behavior-toggle ${
+                        width === 'full'
+                          ? 'url-pill__behavior-toggle--active'
+                          : ''
+                      }`}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        onWidthChange('full');
+                      }}
+                      onMouseDown={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                      }}
+                      title="Full width (100%)"
+                    >
+                      📺 Full
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+          );
+        } else {
+          // Normal mode, just render the embed
+          return (
+            <YouTubeEmbed
+              url={url}
+              width={
+                width === 'small'
+                  ? 'S'
+                  : width === 'medium'
+                    ? 'M'
+                    : width === 'large'
+                      ? 'L'
+                      : width === 'full'
+                        ? 'F'
+                        : 'M'
+              }
+              className={`url-pill youtube-pill ${className}`}
+              title={customId || 'YouTube video'}
+            />
+          );
+        }
 
       case 'image':
         return (
@@ -94,29 +262,159 @@ export function URLPill({
         );
 
       default:
-        // Unknown media type - render as link
+        // Unknown media type - render as enhanced link pill with controls
         return (
-          <a
-            href={url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className={`url-pill link-pill ${className}`}
-          >
-            {customId || url}
-          </a>
+          <div className={`url-pill url-pill--unknown ${className}`}>
+            <a
+              href={url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="url-pill__link"
+            >
+              <span className="url-pill__icon">🔗</span>
+              <span className="url-pill__domain">
+                {new URL(url).hostname.replace('www.', '')}
+              </span>
+            </a>
+
+            {isEditMode && (onModeChange || onWidthChange) && (
+              <div className="url-pill__behavior-toggles">
+                {onModeChange && (
+                  <>
+                    <button
+                      className={`url-pill__behavior-toggle url-pill__behavior-toggle--embed ${
+                        behavior === 'embed' || behavior === undefined
+                          ? 'url-pill__behavior-toggle--active'
+                          : ''
+                      }`}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        onModeChange('embed');
+                      }}
+                      onMouseDown={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                      }}
+                      title="Show as embed"
+                    >
+                      E
+                    </button>
+                    <button
+                      className="url-pill__behavior-toggle url-pill__behavior-toggle--link"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        onModeChange('link');
+                      }}
+                      onMouseDown={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                      }}
+                      title="Show as link"
+                    >
+                      L
+                    </button>
+                    <button
+                      className="url-pill__behavior-toggle url-pill__behavior-toggle--modal"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        onModeChange('modal');
+                      }}
+                      onMouseDown={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                      }}
+                      title="Show in modal"
+                    >
+                      M
+                    </button>
+                  </>
+                )}
+              </div>
+            )}
+          </div>
         );
     }
   }
 
-  // Render as link
+  // Render as enhanced link pill with domain info (for 'link', 'modal', or other behaviors)
+  const domain = new URL(url).hostname.replace('www.', '');
+  const isYouTube = domain.includes('youtube') || domain.includes('youtu.be');
+  const isImage = /\.(jpg|jpeg|png|gif|webp|svg|bmp|ico|avif|tiff|tif)$/i.test(
+    url
+  );
+  const isVideo = /\.(mp4|webm|ogg|avi|mov|wmv|flv|m4v|mkv|3gp|ogv)$/i.test(
+    url
+  );
+
   return (
-    <a
-      href={url}
-      target="_blank"
-      rel="noopener noreferrer"
-      className={`url-pill link-pill ${className}`}
+    <div
+      className={`url-pill url-pill--link ${className} ${
+        isYouTube ? 'url-pill--youtube-com' : ''
+      }`}
     >
-      {customId || url}
-    </a>
+      <a
+        href={url}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="url-pill__link"
+      >
+        <span className="url-pill__icon">
+          {isYouTube ? '📺' : isImage ? '🖼️' : isVideo ? '🎥' : '🔗'}
+        </span>
+        <span className="url-pill__domain">{domain}</span>
+        {behavior && (
+          <span className="url-pill__behavior-icon">
+            {behavior === 'modal' ? '⧉' : '↗'}
+          </span>
+        )}
+      </a>
+
+      {isEditMode && (onModeChange || onWidthChange) && (
+        <div className="url-pill__behavior-toggles">
+          {onModeChange && (
+            <>
+              <button
+                className={`url-pill__behavior-toggle url-pill__behavior-toggle--embed`}
+                onClick={() => onModeChange('embed')}
+                title="Show as embed"
+              >
+                📺 Embed
+              </button>
+              <button
+                className={`url-pill__behavior-toggle url-pill__behavior-toggle--link ${
+                  behavior === 'link' ? 'url-pill__behavior-toggle--active' : ''
+                }`}
+                onClick={() => onModeChange('link')}
+                title="Show as link"
+              >
+                🔗 Link
+              </button>
+              {isYouTube && (
+                <button
+                  className={`url-pill__behavior-toggle url-pill__behavior-toggle--modal ${
+                    behavior === 'modal'
+                      ? 'url-pill__behavior-toggle--active'
+                      : ''
+                  }`}
+                  onClick={() => onModeChange('modal')}
+                  title="Show in modal"
+                >
+                  ⧉ Modal
+                </button>
+              )}
+            </>
+          )}
+
+          {onWidthChange && (
+            <div className="url-pill__width-note">
+              Width controls available in embed mode
+            </div>
+          )}
+        </div>
+      )}
+    </div>
   );
 }

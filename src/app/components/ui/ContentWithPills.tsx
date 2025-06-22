@@ -296,6 +296,7 @@ export function ContentWithPills({
       >
         {segments.map((segment, index) => {
           if (segment.type === 'text') {
+            // Let CSS handle newlines with white-space: pre-wrap
             return <span key={index}>{segment.value}</span>;
           }
 
@@ -359,31 +360,54 @@ export function ContentWithPills({
               newWidth: 'small' | 'medium' | 'large' | 'full'
             ) => {
               if (onURLBehaviorChange && segment.rawFormat) {
-                // Update the width in the pill format: ![behavior|width](url)
                 const currentFormat = segment.rawFormat;
+                // Width change debug info
+                // console.log('Width change:', { newWidth, currentFormat, url, behavior, width });
+
+                // Check if it's already in pill format
                 const pillMatch = currentFormat.match(
                   /!\[([^|]+)(?:\|([^|]+))?\]\(([^)]+)\)/
                 );
+
                 if (pillMatch) {
+                  // It's already a pill, update the width
                   const [, currentBehavior, , currentUrl] = pillMatch;
                   const newFormat = `![${currentBehavior}|${newWidth}](${currentUrl})`;
+                  // console.log('Updating pill format:', { currentFormat, newFormat });
+                  onURLBehaviorChange(currentFormat, newFormat);
+                } else {
+                  // It's a raw URL, convert to pill with width
+                  const newFormat = `![${behavior || 'embed'}|${newWidth}](${currentFormat})`;
+                  // console.log('Converting to pill format:', { currentFormat, newFormat });
                   onURLBehaviorChange(currentFormat, newFormat);
                 }
+              } else {
+                // console.log('Width change failed:', { onURLBehaviorChange: !!onURLBehaviorChange, rawFormat: segment.rawFormat });
               }
             };
 
-            const handleModeChange = (newMode: 'embed' | 'link') => {
+            const handleModeChange = (newMode: 'embed' | 'link' | 'modal') => {
               if (onURLBehaviorChange && segment.rawFormat) {
-                // Update the behavior in the pill format: ![behavior|width](url)
                 const currentFormat = segment.rawFormat;
+
+                // Check if it's already in pill format
                 const pillMatch = currentFormat.match(
                   /!\[([^|]+)(?:\|([^|]+))?\]\(([^)]+)\)/
                 );
+
                 if (pillMatch) {
+                  // It's already a pill, update the behavior
                   const [, , currentWidth, currentUrl] = pillMatch;
                   const newFormat = currentWidth
                     ? `![${newMode}|${currentWidth}](${currentUrl})`
                     : `![${newMode}](${currentUrl})`;
+                  onURLBehaviorChange(currentFormat, newFormat);
+                } else {
+                  // It's a raw URL, convert to pill with behavior
+                  const newFormat =
+                    width && width !== 'medium'
+                      ? `![${newMode}|${width}](${currentFormat})`
+                      : `![${newMode}](${currentFormat})`;
                   onURLBehaviorChange(currentFormat, newFormat);
                 }
               }

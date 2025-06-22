@@ -1,6 +1,18 @@
 .content-with-pills {
   display: inline;
   line-height: inherit;
+  white-space: inherit;
+  /* Inherit white-space from parent */
+}
+
+/* Ensure text segments preserve whitespace */
+.content-with-pills span {
+  white-space: inherit;
+}
+
+/* Specifically ensure text content preserves newlines */
+.content-with-pills span:not(.content-pill) {
+  white-space: pre-wrap;
 }
 
 /* Allow content-with-pills to expand for URL embeds */

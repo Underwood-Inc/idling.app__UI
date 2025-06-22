@@ -104,75 +104,60 @@
 /* URL pill behavior toggle buttons */
 .url-pill__behavior-toggles {
   display: inline-flex;
-  gap: 2px;
+  flex-direction: column;
+  gap: 3px;
   margin-left: 8px;
+  position: relative;
+  z-index: 100;
+  background: rgba(0, 0, 0, 0.8);
+  border-radius: 4px;
+  padding: 4px;
+  backdrop-filter: blur(4px);
+  min-width: 80px;
 }
 
 .url-pill__behavior-toggle {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
-  height: 18px;
+  justify-content: flex-start;
+  height: 20px;
   border: none;
-  border-radius: 10px;
+  border-radius: 3px;
   font-size: 9px;
-  font-weight: 700;
+  font-weight: 600;
   cursor: pointer;
-  padding: 0 6px;
+  padding: 2px 4px;
   transition: all 0.2s ease;
   flex-shrink: 0;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  min-width: 24px;
+  text-transform: none;
+  letter-spacing: normal;
+  min-width: auto;
   position: relative;
-  z-index: 2;
-}
-
-.url-pill__behavior-toggle--modal {
-  background: linear-gradient(135deg, #e3f2fd, #bbdefb);
-  color: #1976d2;
-  border: 1px solid #64b5f6;
-}
-
-.url-pill__behavior-toggle--link {
-  background: linear-gradient(135deg, #c8e6c9, #a5d6a7);
-  color: #1b5e20;
-  border: 1px solid #66bb6a;
-}
-
-.url-pill__behavior-toggle--embed {
-  background: linear-gradient(135deg, #fff9c4, #fff59d);
-  color: #f57f17;
-  border: 1px solid #ffcc02;
-}
-
-.url-pill__behavior-toggle--active {
-  transform: scale(1.1);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-  font-weight: 800;
+  z-index: 101;
+  pointer-events: auto;
+  background: rgba(255, 255, 255, 0.9);
+  color: #333;
+  border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
 .url-pill__behavior-toggle:hover {
-  transform: scale(1.05);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+  background: rgba(255, 255, 255, 1);
+  color: #000;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
-.url-pill__behavior-toggle--modal:hover {
-  background: linear-gradient(135deg, #bbdefb, #90caf9);
-  color: #0d47a1;
-  border-color: #42a5f5;
+.url-pill__behavior-toggle--active {
+  background: var(--brand-primary);
+  color: white;
+  border-color: var(--brand-primary);
+  box-shadow: 0 2px 4px rgba(255, 107, 53, 0.3);
 }
 
-.url-pill__behavior-toggle--link:hover {
-  background: linear-gradient(135deg, #a5d6a7, #81c784);
-  color: #1b5e20;
-  border-color: #4caf50;
-}
-
-.url-pill__behavior-toggle--embed:hover {
-  background: linear-gradient(135deg, #fff59d, #fff176);
-  color: #e65100;
-  border-color: #ffc107;
+.url-pill__behavior-toggle--active:hover {
+  background: var(--brand-primary);
+  color: white;
+  filter: brightness(1.1);
 }
 
 /* YouTube Embed Styling (for inline rich embeds) */
@@ -1222,4 +1207,116 @@
   display: flex;
   align-items: center;
   gap: 2px;
+}
+
+/* Width note for when width controls are not available */
+.url-pill__width-note {
+  font-size: 10px;
+  color: var(--light-bg__text-color--secondary);
+  font-style: italic;
+  padding: 2px 6px;
+  opacity: 0.7;
+}
+
+/* YouTube pill wrapper for edit mode */
+.youtube-pill-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.youtube-pill-wrapper .url-pill__behavior-toggles {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: rgba(0, 0, 0, 0.85);
+  border-radius: 6px;
+  padding: 6px;
+  z-index: 10;
+  backdrop-filter: blur(6px);
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 90px;
+}
+
+.youtube-pill-wrapper .url-pill__behavior-toggle {
+  margin: 0;
+  background: rgba(255, 255, 255, 0.9);
+  color: #333;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 3px;
+  padding: 3px 6px;
+  font-size: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 20px;
+}
+
+.youtube-pill-wrapper .url-pill__behavior-toggle::after {
+  content: attr(title);
+  font-size: 8px;
+  opacity: 0.7;
+  margin-left: 4px;
+}
+
+.youtube-pill-wrapper .url-pill__behavior-toggle:hover {
+  background: rgba(255, 255, 255, 1);
+  color: #000;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.youtube-pill-wrapper .url-pill__behavior-toggle--active {
+  background: var(--brand-primary);
+  color: white;
+  border-color: var(--brand-primary);
+  box-shadow: 0 2px 4px rgba(255, 107, 53, 0.3);
+}
+
+.youtube-pill-wrapper .url-pill__behavior-toggle--active:hover {
+  background: var(--brand-primary);
+  color: white;
+  filter: brightness(1.1);
+}
+
+/* Behavior section separator */
+.youtube-pill-wrapper .url-pill__behavior-toggles::before {
+  content: "View Mode";
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 8px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 2px;
+  padding-bottom: 3px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Width section (when applicable) */
+.youtube-pill-wrapper .url-pill__width-controls {
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  padding-top: 3px;
+  margin-top: 3px;
+}
+
+.youtube-pill-wrapper .url-pill__width-controls::before {
+  content: "Size";
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 8px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  display: block;
+  margin-bottom: 3px;
+}
+
+.youtube-pill-wrapper .url-pill__width-controls .url-pill__behavior-toggle {
+  font-size: 9px;
+  min-height: 18px;
+  padding: 2px 4px;
 }
