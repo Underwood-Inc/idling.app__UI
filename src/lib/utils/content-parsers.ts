@@ -242,7 +242,7 @@ export class FallbackURLParser {
       data: {
         url: urlData.url,
         domain: urlData.domain,
-        behavior: urlData.behavior
+        behavior: urlData.domain.defaultBehavior
       }
     }));
   }
