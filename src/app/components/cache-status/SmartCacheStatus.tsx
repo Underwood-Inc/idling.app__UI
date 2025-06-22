@@ -364,7 +364,7 @@ const SmartCacheStatus: React.FC = () => {
         aria-label="Complete logout and clear all site data"
         style={{ marginLeft: '4px' }}
       >
-        {isClearing ? '⟳' : '��'}
+        {isClearing ? '⟳' : '🧹'}
       </button>
 
       {showDetails && (cacheInfo.isCached || swCacheInfo) && (

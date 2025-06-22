@@ -4,7 +4,7 @@ import { redirect } from 'next/navigation';
 import { NAV_SELECTORS } from 'src/lib/test-selectors/components/nav.selectors';
 import { auth } from '../../../lib/auth';
 import { NAV_PATHS } from '../../../lib/routes';
-import { ClientSignOut } from '../auth-buttons/ClientAuthButtons';
+import { SignOut } from '../auth-buttons/AuthButtons';
 import { FontPicker } from '../font-picker/FontPicker';
 
 interface NavAuthProps {
@@ -56,7 +56,7 @@ export async function NavAuth({ hasAdminAccess }: NavAuthProps) {
       <div className="nav__font-picker">
         <FontPicker />
       </div>
-      <ClientSignOut data-testid={NAV_SELECTORS.SIGN_OUT_BUTTON} />
+      <SignOut data-testid={NAV_SELECTORS.SIGN_OUT_BUTTON} />
     </div>
   );
 }

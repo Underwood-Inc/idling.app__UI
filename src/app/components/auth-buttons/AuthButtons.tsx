@@ -26,10 +26,17 @@ export function SignIn({
   );
 }
 
-export function SignOut() {
+export function SignOut({
+  'data-testid': dataTestId
+}: {
+  'data-testid'?: string;
+} = {}) {
   return (
     <form action={signOutAction}>
-      <button type="submit" data-testid={AUTH_BUTTON_SELECTORS.SIGN_OUT}>
+      <button
+        type="submit"
+        data-testid={dataTestId || AUTH_BUTTON_SELECTORS.SIGN_OUT}
+      >
         Sign Out
       </button>
     </form>
