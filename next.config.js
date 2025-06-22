@@ -192,25 +192,49 @@ const nextConfig = {
               minChunks: 2,
               priority: -20,
               reuseExistingChunk: true,
-              name: false // Use hashed names
+              name: (module, chunks, cacheGroupKey) => {
+                // Generate hashed name for default chunks
+                const hash = require('crypto')
+                  .createHash('md5')
+                  .update(chunks.map((c) => c.name).join())
+                  .digest('hex')
+                  .substring(0, 8);
+                return `${cacheGroupKey}-${hash}`;
+              }
             },
             vendor: {
               test: /[\\/]node_modules[\\/]/,
-              name: false, // Use hashed names instead of 'vendor'
               priority: -10,
               chunks: 'all',
-              reuseExistingChunk: true
+              reuseExistingChunk: true,
+              name: (module, chunks, cacheGroupKey) => {
+                // Generate hashed name for vendor chunks
+                const hash = require('crypto')
+                  .createHash('md5')
+                  .update(chunks.map((c) => c.name).join())
+                  .digest('hex')
+                  .substring(0, 8);
+                return `vendor-${hash}`;
+              }
             },
             common: {
-              name: false, // Use hashed names
               minChunks: 2,
               priority: -5,
               chunks: 'all',
-              reuseExistingChunk: true
+              reuseExistingChunk: true,
+              name: (module, chunks, cacheGroupKey) => {
+                // Generate hashed name for common chunks
+                const hash = require('crypto')
+                  .createHash('md5')
+                  .update(chunks.map((c) => c.name).join())
+                  .digest('hex')
+                  .substring(0, 8);
+                return `common-${hash}`;
+              }
             }
           }
         },
-        // Use deterministic module IDs for better caching
+        // Use deterministic IDs but let Next.js handle the specifics
         moduleIds: 'deterministic',
         chunkIds: 'deterministic'
       };
@@ -242,12 +266,13 @@ const nextConfig = {
       // Remove source maps in production for security
       config.devtool = false;
 
-      // Additional obfuscation: randomize chunk names
-      config.output = {
-        ...config.output,
-        chunkFilename: 'static/chunks/[contenthash].js',
-        filename: 'static/chunks/[contenthash].js'
-      };
+      // Enhanced obfuscation: use hashed chunk names while maintaining compatibility
+      if (!isServer) {
+        config.output = {
+          ...config.output,
+          chunkFilename: 'static/chunks/[contenthash:16].js'
+        };
+      }
 
       // Add additional minification for CSS
       if (config.optimization.minimizer) {
