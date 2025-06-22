@@ -5,6 +5,7 @@ import { NAV_SELECTORS } from 'src/lib/test-selectors/components/nav.selectors';
 import { auth } from '../../../lib/auth';
 import { NAV_PATHS } from '../../../lib/routes';
 import { ClientSignOut } from '../auth-buttons/ClientAuthButtons';
+import { FontPicker } from '../font-picker/FontPicker';
 
 interface NavAuthProps {
   hasAdminAccess: boolean;
@@ -52,6 +53,9 @@ export async function NavAuth({ hasAdminAccess }: NavAuthProps) {
           <span className="nav__admin-text">ADMIN</span>
         </Link>
       )}
+      <div className="nav__font-picker">
+        <FontPicker />
+      </div>
       <ClientSignOut data-testid={NAV_SELECTORS.SIGN_OUT_BUTTON} />
     </div>
   );
