@@ -16,6 +16,8 @@ interface FloatingToolbarProps {
   onMentionInsert: (text: string) => void;
   onEmojiInsert: (text: string) => void;
   disabled?: boolean;
+  onToolbarInteractionStart?: () => void;
+  onToolbarInteractionEnd?: () => void;
 }
 
 export const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
@@ -23,7 +25,9 @@ export const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
   onHashtagInsert,
   onMentionInsert,
   onEmojiInsert,
-  disabled = false
+  disabled = false,
+  onToolbarInteractionStart,
+  onToolbarInteractionEnd
 }) => {
   const {
     hashtagQuery,
@@ -43,7 +47,7 @@ export const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
       : `#${hashtag.value}`;
     onHashtagInsert(hashtagText + ' ');
     setHashtagQuery('');
-    // Don't try to focus here - let the SmartInputWithPillOverlay handle it
+    // Don't try to focus here - let the RichInputAdapter handle it
   };
 
   // Insert mention
@@ -51,14 +55,14 @@ export const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
     const mentionText = `@[${user.displayName || user.label}|${user.value}|author] `;
     onMentionInsert(mentionText);
     setMentionQuery('');
-    // Don't try to focus here - let the SmartInputWithPillOverlay handle it
+    // Don't try to focus here - let the RichInputAdapter handle it
   };
 
   // Insert emoji
   const handleEmojiSelect = (emoji: EmojiData) => {
     const emojiText = formatEmojiForText(emoji);
     onEmojiInsert(emojiText);
-    // Don't try to focus here - let the SmartInputWithPillOverlay handle it
+    // Don't try to focus here - let the RichInputAdapter handle it
   };
 
   // Prevent mouse down events from propagating to prevent blur, but only on toolbar buttons
@@ -177,11 +181,15 @@ export const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
         delay={0}
         className="toolbar-tooltip"
         triggerOnClick={true}
+        onClose={() => onToolbarInteractionEnd?.()}
       >
         <button
           type="button"
           className="toolbar-button"
-          onMouseDown={handleToolbarMouseDown}
+          onMouseDown={(e) => {
+            handleToolbarMouseDown(e);
+            onToolbarInteractionStart?.();
+          }}
           title="Insert hashtag"
           disabled={disabled}
         >
@@ -195,11 +203,15 @@ export const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
         delay={0}
         className="toolbar-tooltip"
         triggerOnClick={true}
+        onClose={() => onToolbarInteractionEnd?.()}
       >
         <button
           type="button"
           className="toolbar-button"
-          onMouseDown={handleToolbarMouseDown}
+          onMouseDown={(e) => {
+            handleToolbarMouseDown(e);
+            onToolbarInteractionStart?.();
+          }}
           title="Insert mention"
           disabled={disabled}
         >
@@ -213,11 +225,15 @@ export const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
         delay={0}
         className="toolbar-tooltip toolbar-tooltip--wide"
         triggerOnClick={true}
+        onClose={() => onToolbarInteractionEnd?.()}
       >
         <button
           type="button"
           className="toolbar-button"
-          onMouseDown={handleToolbarMouseDown}
+          onMouseDown={(e) => {
+            handleToolbarMouseDown(e);
+            onToolbarInteractionStart?.();
+          }}
           title="Insert emoji"
           disabled={disabled}
         >

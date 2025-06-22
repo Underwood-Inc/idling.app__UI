@@ -7,7 +7,7 @@ import { Submission } from '../schema';
 import './SharedSubmissionForm.css';
 
 // Import the new components and hooks
-import { SmartInputWithPillOverlay } from './components/SmartInputWithPillOverlay';
+import { RichTextEditor } from '@rich-text-editor';
 import { useSubmissionForm } from './hooks/useSubmissionForm';
 
 interface SharedSubmissionFormProps {
@@ -103,9 +103,10 @@ export function SharedSubmissionForm({
       {/* Title Field */}
       <div className="shared-submission-form__field">
         <label className="shared-submission-form__label">{titleLabel} *</label>
-        <SmartInputWithPillOverlay
+        <RichTextEditor
+          key={`title-${mode}`}
           value={formData.title}
-          onChange={(value) => handleInputChange('title', value)}
+          onChange={(value: string) => handleInputChange('title', value)}
           placeholder={`Enter a ${isReply ? 'reply' : isEdit ? 'post' : 'post'} title... Use #hashtags, @mentions, and paste URLs!`}
           className={`shared-submission-form__form-input ${
             titleCharsRemaining < 0
@@ -167,9 +168,10 @@ export function SharedSubmissionForm({
             </button>
           </div>
         </div>
-        <SmartInputWithPillOverlay
+        <RichTextEditor
+          key={`content-${mode}-${contentViewMode}`}
           value={formData.content}
-          onChange={(value) => handleInputChange('content', value)}
+          onChange={(value: string) => handleInputChange('content', value)}
           placeholder={
             contentViewMode === 'preview'
               ? `Write your ${isReply ? 'reply' : isEdit ? 'post' : 'post'} content... Use #hashtags, @mentions, and paste URLs!`
