@@ -156,10 +156,22 @@ export class WidthMeasurementUtility {
         break;
 
       case 'emoji':
-        element.className = 'rich-input-token rich-input-token--emoji emoji';
         if (token.metadata?.emojiUnicode) {
+          // Detect ASCII emojis and apply appropriate class
+          const isAsciiEmoji =
+            token.metadata?.customData?.unicode_codepoint === 'ASCII' ||
+            token.content.includes('ascii') ||
+            /^[()\/\\|\-_:;><3PDO*yn¯°□╯︵┻━ツʕᴥʔ͡ʖ͜ಠ╥﹏☆≧▽≦｡.:*]/.test(
+              token.metadata.emojiUnicode
+            );
+
+          element.className = isAsciiEmoji
+            ? 'rich-input-token rich-input-token--emoji emoji emoji--ascii'
+            : 'rich-input-token rich-input-token--emoji emoji emoji--unicode';
           element.textContent = token.metadata.emojiUnicode;
         } else if (token.metadata?.emojiImageUrl) {
+          element.className =
+            'rich-input-token rich-input-token--emoji emoji emoji--custom';
           const img = document.createElement('img');
           img.src = token.metadata.emojiImageUrl;
           img.alt = `:${token.content}:`;
@@ -167,6 +179,7 @@ export class WidthMeasurementUtility {
           img.style.height = '1.2em';
           element.appendChild(img);
         } else {
+          element.className = 'rich-input-token rich-input-token--emoji emoji';
           element.textContent = token.rawText;
         }
         break;

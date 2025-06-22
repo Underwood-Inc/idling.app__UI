@@ -116,11 +116,28 @@ export function useKeyboardHandlers(
               )
             });
           } else if (state.cursorPosition.index > 0) {
-            // Delete single character
-            engine.deleteText({
-              start: state.cursorPosition.index - 1,
-              end: state.cursorPosition.index
-            });
+            // Check if we're at the end of an atomic token (pill or newline)
+            const atomicTokenBeforeCursor = findAtomicTokenAt(
+              state.tokens,
+              state.cursorPosition.index - 1
+            );
+
+            if (
+              atomicTokenBeforeCursor &&
+              atomicTokenBeforeCursor.end === state.cursorPosition.index
+            ) {
+              // Delete entire atomic token
+              engine.deleteText({
+                start: atomicTokenBeforeCursor.start,
+                end: atomicTokenBeforeCursor.end
+              });
+            } else {
+              // Delete single character
+              engine.deleteText({
+                start: state.cursorPosition.index - 1,
+                end: state.cursorPosition.index
+              });
+            }
           }
           break;
 
@@ -151,11 +168,28 @@ export function useKeyboardHandlers(
               )
             });
           } else if (state.cursorPosition.index < state.rawText.length) {
-            // Delete single character
-            engine.deleteText({
-              start: state.cursorPosition.index,
-              end: state.cursorPosition.index + 1
-            });
+            // Check if we're at the start of an atomic token (pill or newline)
+            const atomicTokenAtCursor = findAtomicTokenAt(
+              state.tokens,
+              state.cursorPosition.index
+            );
+
+            if (
+              atomicTokenAtCursor &&
+              atomicTokenAtCursor.start === state.cursorPosition.index
+            ) {
+              // Delete entire atomic token
+              engine.deleteText({
+                start: atomicTokenAtCursor.start,
+                end: atomicTokenAtCursor.end
+              });
+            } else {
+              // Delete single character
+              engine.deleteText({
+                start: state.cursorPosition.index,
+                end: state.cursorPosition.index + 1
+              });
+            }
           }
           break;
 
@@ -179,33 +213,30 @@ export function useKeyboardHandlers(
           break;
         }
 
-        case 'a':
-          if (cmdKey) {
-            e.preventDefault();
-            engine.selectAll();
-          }
-          break;
-
-        case 'z':
-          if (cmdKey && !shiftKey) {
-            e.preventDefault();
-            engine.undo();
-          } else if (cmdKey && shiftKey) {
-            e.preventDefault();
-            engine.redo();
-          }
-          break;
-
-        case 'y':
-          if (cmdKey) {
-            e.preventDefault();
-            engine.redo();
-          }
-          break;
-
         default:
-          // Handle regular character input
-          if (!cmdKey && !altKey && key.length === 1) {
+          // Handle keyboard shortcuts first
+          if (cmdKey) {
+            switch (key) {
+              case 'a':
+                e.preventDefault();
+                engine.selectAll();
+                break;
+              case 'z':
+                if (!shiftKey) {
+                  e.preventDefault();
+                  engine.undo();
+                } else {
+                  e.preventDefault();
+                  engine.redo();
+                }
+                break;
+              case 'y':
+                e.preventDefault();
+                engine.redo();
+                break;
+            }
+          } else if (!altKey && key.length === 1) {
+            // Handle regular character input (including a, z, y when not Cmd+key)
             e.preventDefault();
 
             // If there's a selection, replace it
@@ -287,4 +318,16 @@ function getLineEnd(position: { index: number }, text: string): number {
   return nextNewlineIndex === -1
     ? text.length
     : position.index + nextNewlineIndex;
+}
+
+// Helper function to find atomic tokens (pills and newlines) at a position
+function findAtomicTokenAt(tokens: any[], position: number): any | null {
+  return (
+    tokens.find(
+      (token) =>
+        (token.type !== 'text' || token.metadata?.isNewline) &&
+        position >= token.start &&
+        position < token.end
+    ) || null
+  );
 }

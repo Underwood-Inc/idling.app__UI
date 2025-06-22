@@ -100,7 +100,11 @@ export const RichInput = forwardRef<RichInputRef, RichInputProps>(
       children,
       config = {},
       enableDebugLogging = process.env.NODE_ENV === 'development',
-      contextId = ''
+      contextId = '',
+      multiline = false,
+      placeholder,
+      maxLength,
+      disabled = false
     },
     ref
   ) => {
@@ -111,17 +115,21 @@ export const RichInput = forwardRef<RichInputRef, RichInputProps>(
     const measureRef = useRef<HTMLDivElement>(null);
     const engineRef = useRef<RichInputEngine | null>(null);
 
+    // Create merged config that includes top-level props
+    const mergedConfig = {
+      multiline: multiline,
+      placeholder: placeholder || config.placeholder,
+      maxLength: maxLength || config.maxLength,
+      disabled: disabled,
+      ...config,
+      styling: {
+        ...config.styling,
+        className: contextId || config.styling?.className
+      }
+    };
+
     // Engine and state
     const [state, setState] = useState<RichInputState>(() => {
-      const mergedConfig = {
-        ...config,
-        disabled: false,
-        styling: {
-          ...config.styling,
-          className: contextId || config.styling?.className
-        }
-      };
-
       const engine = new RichInputEngine(mergedConfig);
       engineRef.current = engine;
 
@@ -215,7 +223,7 @@ export const RichInput = forwardRef<RichInputRef, RichInputProps>(
       }
     }, [value, state.rawText]);
 
-    // Event handlers using hooks
+    // Event handlers using hooks with merged config
     const {
       handleClick,
       handleMouseDown,
@@ -225,7 +233,7 @@ export const RichInput = forwardRef<RichInputRef, RichInputProps>(
     } = useMouseHandlers(
       engineRef.current!,
       state,
-      config,
+      mergedConfig,
       handlers,
       containerRef
     );
@@ -233,7 +241,7 @@ export const RichInput = forwardRef<RichInputRef, RichInputProps>(
     const { handleKeyDown, handlePaste } = useKeyboardHandlers(
       engineRef.current!,
       state,
-      config,
+      mergedConfig,
       handlers,
       containerRef
     );
@@ -418,7 +426,7 @@ export const RichInput = forwardRef<RichInputRef, RichInputProps>(
 
     // Create hidden native input for form integration
     const createHiddenInput = useCallback(() => {
-      const InputElement = config.multiline ? 'textarea' : 'input';
+      const InputElement = mergedConfig.multiline ? 'textarea' : 'input';
       return (
         <InputElement
           ref={hiddenInputRef as any}
@@ -432,7 +440,7 @@ export const RichInput = forwardRef<RichInputRef, RichInputProps>(
           aria-hidden="true"
         />
       );
-    }, [config.multiline, state.rawText, name, id, required]);
+    }, [mergedConfig.multiline, state.rawText, name, id, required]);
 
     // Create measurement element
     const createMeasureElement = useCallback(() => {
@@ -440,17 +448,17 @@ export const RichInput = forwardRef<RichInputRef, RichInputProps>(
         <div
           ref={measureRef}
           className={`rich-input-measure ${
-            config.multiline ? 'rich-input-measure--multiline' : ''
+            mergedConfig.multiline ? 'rich-input-measure--multiline' : ''
           }`}
           aria-hidden="true"
         />
       );
-    }, [config.multiline]);
+    }, [mergedConfig.multiline]);
 
     if (!state || !engineRef.current) {
       return (
         <div
-          className={`rich-input rich-input--loading ${config.styling?.className || ''}`}
+          className={`rich-input rich-input--loading ${mergedConfig.styling?.className || ''}`}
           ref={containerRef}
         >
           Loading...
@@ -461,10 +469,10 @@ export const RichInput = forwardRef<RichInputRef, RichInputProps>(
     return (
       <div
         ref={containerRef}
-        className={`rich-input ${config.multiline ? 'rich-input--multiline' : 'rich-input--single-line'} ${
+        className={`rich-input ${mergedConfig.multiline ? 'rich-input--multiline' : 'rich-input--single-line'} ${
           state.isFocused ? 'rich-input--focused' : ''
-        } ${config.styling?.className || ''}`}
-        style={config.styling?.style}
+        } ${mergedConfig.styling?.className || ''}`}
+        style={mergedConfig.styling?.style}
         tabIndex={tabIndex}
         onFocus={handleFocus}
         onBlur={handleBlur}
@@ -474,8 +482,8 @@ export const RichInput = forwardRef<RichInputRef, RichInputProps>(
         role="textbox"
         aria-label={ariaLabel}
         aria-describedby={ariaDescribedBy}
-        aria-multiline={config.multiline}
-        aria-readonly={config.disabled}
+        aria-multiline={mergedConfig.multiline}
+        aria-readonly={mergedConfig.disabled}
         aria-required={required}
         data-testid="rich-input"
         data-rich-input-context={contextId}
@@ -491,7 +499,7 @@ export const RichInput = forwardRef<RichInputRef, RichInputProps>(
           <RichInputContent
             ref={contentRef}
             state={state}
-            config={config}
+            config={mergedConfig}
             renderer={renderer}
             cursorCoordinates={cursorCoordinates}
             selectionCoordinates={selectionCoordinates}
