@@ -126,7 +126,7 @@
   color: var(--text-code, #d63384);
   padding: 2px 4px;
   border-radius: 4px;
-  font-family: 'Monaco', 'Consolas', 'Courier New', monospace;
+
   font-size: 0.9em;
 }
 

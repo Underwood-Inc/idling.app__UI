@@ -506,7 +506,7 @@
   border: 1px solid var(--light-border--primary);
   border-radius: var(--border-radius);
   font-size: var(--font-size-base);
-  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+
   line-height: 1.5;
   background: var(--light-background--primary);
   color: var(--light-bg__text-color--primary);
@@ -1167,7 +1167,7 @@
   line-height: 1.5;
   background: var(--light-background--primary);
   color: var(--light-bg__text-color--primary);
-  font-family: 'Courier New', Consolas, monospace;
+
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
   resize: vertical;
 }

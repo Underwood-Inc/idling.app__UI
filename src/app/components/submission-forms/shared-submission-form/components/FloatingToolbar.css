@@ -54,6 +54,9 @@
   border-radius: var(--border-radius);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   overflow: hidden;
+  /* Remove extra padding/margin that creates card-like appearance */
+  margin: 0;
+  padding: 0;
 }
 
 .toolbar-tooltip-panel--wide {

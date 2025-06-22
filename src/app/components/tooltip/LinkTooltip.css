@@ -768,7 +768,8 @@ body.modal-open .link-preview-modal {
   border: 1px solid var(--brand-tertiary--dark);
   border-radius: var(--border-radius);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  padding: 16px;
+  /* NEVER add opinionated spacing to the tooltip */
+  /* padding: 16px; */
   min-width: 280px;
   max-width: min(90vw, 400px);
   max-height: min(90vh, 500px);
