@@ -3,6 +3,9 @@ import { signInAction, signOutAction } from './actions';
 import './AuthButtons.css';
 import { SignInProviders } from './types';
 
+// Export SignInProviders for use in tests
+export type { SignInProviders } from './types';
+
 export function SignIn({
   provider,
   redirectTo
