@@ -1209,6 +1209,8 @@
   color: var(--light-bg__text-color--primary);
 }
 
+
+
 .form-pill-input__placeholder {
   color: var(--light-bg__text-color--secondary);
   font-style: italic;
@@ -1220,23 +1222,30 @@
 
 .form-pill-input__smart-overlay {
   position: absolute;
-  top: -9999px;
-  left: -9999px;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0.1;
   pointer-events: auto;
-  /* Completely hide the input off-screen but keep it functional */
+  z-index: 2;
+  background: rgba(255, 0, 0, 0.1);
+  /* Temporarily make visible for debugging */
 }
 
-.form-pill-input__hidden-input input,
-.form-pill-input__hidden-input textarea {
-  /* Input is now completely hidden off-screen, no need for transparency tricks */
+.form-pill-input__smart-overlay input,
+.form-pill-input__smart-overlay textarea {
+  /* Input is now hidden with opacity but positioned correctly */
   width: 100%;
   height: 100%;
   border: none;
   background: transparent;
   outline: none;
+  opacity: 0;
+  pointer-events: auto;
+  /* Input should be able to receive focus and keyboard events */
 }
 
 /* Ensure suggestion dropdown appears above everything and positioned relative to visible area */

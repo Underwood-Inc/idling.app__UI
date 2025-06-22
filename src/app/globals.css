@@ -782,3 +782,22 @@ section:not(:last-of-type) {
   background: var(--brand-primary);
   border-radius: var(--border-radius);
 }
+
+/* Portal Tooltip Styles */
+.portal-tooltip {
+  background: var(--light-background--primary);
+  border: 1px solid var(--light-border--primary);
+  border-radius: var(--border-radius);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  font-family: inherit;
+  user-select: none;
+  backdrop-filter: blur(8px);
+}
+
+.portal-tooltip--wide {
+  min-width: 320px;
+}
+
+.portal-tooltip--narrow {
+  min-width: 200px;
+}
