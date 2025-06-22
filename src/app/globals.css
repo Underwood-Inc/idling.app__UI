@@ -818,3 +818,23 @@ section:not(:last-of-type) {
 .portal-tooltip--narrow {
   min-width: 200px;
 }
+
+/* Application-wide cursor/caret styling */
+input,
+textarea,
+[contenteditable],
+.rich-input,
+.rich-input-content {
+  caret-color: var(--brand-primary, #edae49) !important;
+}
+
+/* Ensure cursor color is consistent across all text input elements */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="search"],
+input[type="url"],
+textarea,
+[contenteditable="true"] {
+  caret-color: var(--brand-primary, #edae49) !important;
+}

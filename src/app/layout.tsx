@@ -4,6 +4,7 @@ import { Inter } from 'next/font/google';
 import { Suspense } from 'react';
 import { OverlayProvider } from '../lib/context/OverlayContext';
 import { JotaiProvider } from '../lib/state/JotaiProvider';
+import { SessionRefreshHandler } from './components/auth-buttons/SessionRefreshHandler';
 import { AvatarsBackground } from './components/avatars-background/AvatarsBackground';
 import { NotFoundErrorBoundary } from './components/error-boundary/NotFoundErrorBoundary';
 import FadeIn from './components/fade-in/FadeIn';
@@ -195,6 +196,7 @@ export default function RootLayout({
       <body className={inter.className}>
         <ServiceWorkerRegistration />
         <SessionProvider>
+          <SessionRefreshHandler />
           <OverlayProvider>
             <TimeoutBanner />
             <main>

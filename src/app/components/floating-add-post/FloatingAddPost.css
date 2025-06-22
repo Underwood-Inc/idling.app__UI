@@ -57,13 +57,16 @@
   transform: rotate(-5deg) scale(1.1);
 }
 
-/* Modal Content Styles - used within overlay system */
+/* Modal Content Styles - Dark theme to match PostModal */
 .floating-add-post__modal-content {
   width: 100%;
   max-width: 500px;
   padding: 1.5rem;
   overflow-x: hidden;
-  /* Prevent horizontal scrollbars */
+  background-color: var(--dark-background--primary);
+  color: var(--dark-bg__text-color--primary);
+  border-radius: var(--border-radius);
+  border: 1px solid var(--brand-tertiary--dark);
 }
 
 /* Constrain YouTube embeds within floating add post modal */
@@ -108,7 +111,11 @@
 .floating-add-post__header {
   margin-bottom: 1.5rem;
   padding-bottom: 0.75rem;
-  border-bottom: 1px solid var(--brand-tertiary);
+  border-bottom: 1px solid var(--brand-tertiary--dark);
+  background-color: var(--dark-background--secondary);
+  margin: -1.5rem -1.5rem 1.5rem -1.5rem;
+  padding: 1.5rem 1.5rem 1rem 1.5rem;
+  border-radius: var(--border-radius) var(--border-radius) 0 0;
 }
 
 .floating-add-post__title {
@@ -118,8 +125,8 @@
   margin: 0;
 }
 
-/* Form styling within modal */
-.floating-add-post__modal-content .submission__form {
+/* Form styling within modal - Dark theme */
+.floating-add-post__modal-content .shared-submission-form {
   background: transparent !important;
   border: none !important;
   padding: 0 !important;
@@ -129,97 +136,194 @@
   max-height: none !important;
 }
 
-.floating-add-post__modal-content .submission__title-input,
-.floating-add-post__modal-content .submission__content-input,
-.floating-add-post__modal-content .submission__tags-input {
-  background: var(--light-bg__color--primary) !important;
-  border: 1px solid var(--brand-primary--light) !important;
-  color: var(--light-bg__text-color--primary) !important;
-  padding: 0.75rem !important;
-  border-radius: var(--border-radius) !important;
-  font-size: 1rem !important;
-  transition: all 0.2s ease !important;
-  width: 100% !important;
-  font-family: inherit !important;
-  resize: vertical !important;
-  min-height: 60px !important;
+/* Style the form labels - Dark theme */
+.floating-add-post__modal-content .shared-submission-form__label {
+  color: var(--dark-bg__text-color--primary) !important;
+  margin-bottom: 0.5rem;
 }
 
-.floating-add-post__modal-content .submission__content-input {
-  min-height: 120px !important;
+/* Style the RichTextEditor and SmartInput components - Dark theme */
+.floating-add-post__modal-content .form-pill-input__container,
+.floating-add-post__modal-content .rich-input-adapter-container,
+.floating-add-post__modal-content .inline-suggestion-container {
+  background-color: var(--dark-background--tertiary) !important;
+  border: 1px solid var(--brand-tertiary--dark) !important;
+  border-radius: var(--border-radius) !important;
+}
+
+.floating-add-post__modal-content .form-pill-input__container:focus-within,
+.floating-add-post__modal-content .rich-input-adapter-container:focus-within,
+.floating-add-post__modal-content .inline-suggestion-container:focus-within {
+  border-color: var(--brand-primary) !important;
+  box-shadow: 0 0 0 2px rgba(237, 174, 73, 0.2) !important;
+}
+
+/* Style the input text inside rich text editor - Dark theme */
+.floating-add-post__modal-content .form-pill-input__input,
+.floating-add-post__modal-content .form-pill-input__raw-input,
+.floating-add-post__modal-content .inline-suggestion-input,
+.floating-add-post__modal-content .rich-input,
+.floating-add-post__modal-content .rich-input-content,
+.floating-add-post__modal-content .rich-input-adapter,
+.floating-add-post__modal-content .rich-input-adapter-raw {
+  background: transparent !important;
+  color: var(--dark-bg__text-color--primary) !important;
+  border: none !important;
+  padding: 0.75rem !important;
+  font-size: 0.95rem !important;
+  font-family: inherit !important;
+  min-height: 60px !important;
   line-height: 1.5 !important;
 }
 
-.floating-add-post__modal-content .submission__title-input:focus,
-.floating-add-post__modal-content .submission__content-input:focus,
-.floating-add-post__modal-content .submission__tags-input:focus {
-  outline: none !important;
-  border-color: var(--brand-primary) !important;
-  background: var(--light-bg__color--primary) !important;
-  box-shadow: 0 0 0 3px rgba(237, 174, 73, 0.1) !important;
+.floating-add-post__modal-content .form-pill-input__input::placeholder,
+.floating-add-post__modal-content .form-pill-input__raw-input::placeholder,
+.floating-add-post__modal-content .inline-suggestion-input::placeholder {
+  color: var(--dark-bg__text-color--secondary) !important;
 }
 
-.floating-add-post__modal-content .submission__submit-button {
-  background: var(--brand-primary) !important;
+.floating-add-post__modal-content .rich-input-placeholder {
+  color: var(--dark-bg__text-color--secondary) !important;
+}
+
+/* Ensure all text tokens in rich input have proper color - Dark theme */
+.floating-add-post__modal-content .rich-input-content span,
+.floating-add-post__modal-content .rich-input-content .rich-input-token,
+.floating-add-post__modal-content .rich-input-content .rich-input-whitespace,
+.floating-add-post__modal-content .rich-input-content .rich-input-newline {
+  color: var(--dark-bg__text-color--primary) !important;
+}
+
+/* Ensure proper multiline handling in rich input */
+.floating-add-post__modal-content .rich-input-adapter--multiline,
+.floating-add-post__modal-content .rich-input-adapter--multiline .rich-input,
+.floating-add-post__modal-content .rich-input-adapter--multiline .rich-input-content {
+  white-space: pre-wrap !important;
+  word-wrap: break-word !important;
+  overflow-wrap: break-word !important;
+}
+
+.floating-add-post__modal-content .rich-input-adapter--multiline .rich-input-content span {
+  white-space: pre-wrap !important;
+}
+
+/* Style the character count - Dark theme */
+.floating-add-post__modal-content .shared-submission-form__char-count span {
+  color: var(--dark-bg__text-color--secondary) !important;
+}
+
+.floating-add-post__modal-content .shared-submission-form__char-count--error span {
+  color: var(--error) !important;
+}
+
+/* Style the help text - Dark theme */
+.floating-add-post__modal-content .shared-submission-form__help-text {
+  color: var(--dark-bg__text-color--secondary) !important;
+}
+
+/* Style the submit button - Dark theme */
+.floating-add-post__modal-content .shared-submission-form__submit {
+  background-color: var(--brand-primary) !important;
   color: var(--font-color--primary) !important;
   border: 1px solid var(--brand-primary--dark) !important;
   padding: 0.75rem 1.5rem !important;
   border-radius: var(--border-radius) !important;
-  font-weight: 500 !important;
+  font-weight: 600 !important;
   cursor: pointer !important;
-  transition: all 0.2s ease !important;
-  width: 100% !important;
-  margin-top: 0.5rem !important;
-  font-size: var(--font-size-xs) !important;
-  font-family: inherit !important;
+  transition: all 0.2s ease-in-out !important;
 }
 
-.floating-add-post__modal-content .submission__submit-button:hover:not(:disabled) {
-  background: var(--brand-primary--dark) !important;
+.floating-add-post__modal-content .shared-submission-form__submit:hover:not(:disabled) {
+  background-color: var(--brand-primary--dark) !important;
   transform: translateY(-1px) !important;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2) !important;
 }
 
-.floating-add-post__modal-content .submission__submit-button:disabled {
-  background: var(--light-bg__color--tertiary) !important;
-  color: var(--light-bg__text-color--secondary) !important;
-  border-color: var(--light-bg__color--tertiary) !important;
+/* Style the view toggle buttons - Dark theme */
+.floating-add-post__modal-content .shared-submission-form__toggle-btn {
+  background-color: var(--dark-background--tertiary) !important;
+  color: var(--dark-bg__text-color--secondary) !important;
+  border: 1px solid var(--brand-tertiary--dark) !important;
+}
+
+.floating-add-post__modal-content .shared-submission-form__toggle-btn:hover:not(:disabled) {
+  background-color: var(--dark-background--secondary) !important;
+  color: var(--dark-bg__text-color--primary) !important;
+}
+
+.floating-add-post__modal-content .shared-submission-form__toggle-btn--active {
+  background-color: var(--brand-primary) !important;
+  color: var(--font-color--primary) !important;
+  border-color: var(--brand-primary--dark) !important;
+}
+
+/* Style disabled submit button - Dark theme */
+.floating-add-post__modal-content .shared-submission-form__submit:disabled {
+  background-color: var(--dark-background--tertiary) !important;
+  color: var(--dark-bg__text-color--secondary) !important;
+  border-color: var(--brand-tertiary--dark) !important;
   cursor: not-allowed !important;
   transform: none !important;
   box-shadow: none !important;
 }
 
-/* Character count and validation messages */
+/* Style toolbar buttons - Dark theme */
+.floating-add-post__modal-content .floating-toolbar .toolbar-button {
+  background-color: var(--dark-background--tertiary) !important;
+  color: var(--dark-bg__text-color--primary) !important;
+  border: 1px solid var(--brand-tertiary--dark) !important;
+}
+
+.floating-add-post__modal-content .floating-toolbar .toolbar-button:hover {
+  background-color: var(--dark-background--secondary) !important;
+  border-color: var(--brand-primary) !important;
+}
+
+/* Alert styling - Dark theme */
 .floating-add-post__modal-content .info,
 .floating-add-post__modal-content .warning,
 .floating-add-post__modal-content .error {
-  font-size: var(--font-size-xs);
-  margin-top: 0.25rem;
+  background-color: var(--dark-background--secondary) !important;
+  border-left: 4px solid var(--brand-primary) !important;
+  color: var(--dark-bg__text-color--primary) !important;
 }
 
 .floating-add-post__modal-content .info {
-  color: var(--light-bg__text-color--secondary);
+  border-left-color: var(--brand-primary) !important;
 }
 
 .floating-add-post__modal-content .warning {
-  color: #f59e0b;
+  border-left-color: var(--warning) !important;
 }
 
 .floating-add-post__modal-content .error {
-  color: #ef4444;
+  border-left-color: var(--error) !important;
 }
 
-/* Responsive design */
+/* Ensure proper cursor color in modal */
+.floating-add-post__modal-content .rich-input-cursor,
+.floating-add-post__modal-content .rich-input .rich-input-cursor {
+  background-color: var(--brand-primary, #edae49) !important;
+}
+
+.floating-add-post__modal-content input,
+.floating-add-post__modal-content textarea,
+.floating-add-post__modal-content [contenteditable],
+.floating-add-post__modal-content .rich-input,
+.floating-add-post__modal-content .rich-input-content {
+  caret-color: var(--brand-primary, #edae49) !important;
+}
+
 @media (max-width: 768px) {
   .floating-add-post__button {
-    bottom: 5rem;
-    right: 1rem;
+    bottom: 3rem;
+    right: 1.5rem;
     width: 3rem;
     height: 3rem;
   }
 
   .floating-add-post__icon {
-    font-size: var(--font-size-base);
+    font-size: 1rem;
   }
 
   .floating-add-post__modal-content {
@@ -228,58 +332,31 @@
   }
 
   .floating-add-post__title {
-    font-size: var(--font-size-xs);
+    font-size: 1.125rem;
   }
 
-  /* Ensure YouTube embeds are fully responsive on mobile */
   .floating-add-post__modal-content .youtube-embed {
-    margin: 8px 0;
+    max-width: 100% !important;
   }
 }
 
 @media (max-width: 480px) {
   .floating-add-post__modal-content {
     padding: 0.75rem;
+    max-width: calc(100vw - 1rem);
   }
 
   .floating-add-post__header {
-    margin-bottom: 0.75rem;
+    margin: -0.75rem -0.75rem 1rem -0.75rem;
+    padding: 1rem 0.75rem 0.75rem 0.75rem;
   }
 
-  /* Extra small screens - ensure embeds don't overflow */
   .floating-add-post__modal-content .youtube-embed {
-    margin: 6px 0;
+    max-width: 100% !important;
+    width: 100% !important;
   }
 }
 
-/* Dark mode support */
-@media (prefers-color-scheme: dark) {
-  .floating-add-post__title {
-    color: var(--dark-bg__text-color--primary);
-  }
-
-  .floating-add-post__modal-content .submission__title-input,
-  .floating-add-post__modal-content .submission__content-input,
-  .floating-add-post__modal-content .submission__tags-input {
-    background: var(--light-bg__color--secondary) !important;
-    border-color: var(--brand-primary--light) !important;
-    color: var(--light-bg__text-color--primary) !important;
-  }
-
-  .floating-add-post__modal-content .submission__title-input:focus,
-  .floating-add-post__modal-content .submission__content-input:focus,
-  .floating-add-post__modal-content .submission__tags-input:focus {
-    background: var(--light-bg__color--secondary) !important;
-    border-color: var(--brand-primary) !important;
-    box-shadow: 0 0 0 3px rgba(237, 174, 73, 0.2) !important;
-  }
-
-  .floating-add-post__modal-content .info {
-    color: var(--light-bg__text-color--secondary);
-  }
-}
-
-/* Accessibility */
 @media (prefers-reduced-motion: reduce) {
 
   .floating-add-post__button,
