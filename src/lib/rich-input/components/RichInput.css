@@ -203,8 +203,7 @@
   margin: 0 !important;
   padding: 0 !important;
   border: none !important;
-  /* Force line break behavior */
-  clear: both !important;
+  /* Remove clear: both to prevent interference with pills */
 }
 
 .rich-input-content .rich-input-newline br {
@@ -222,7 +221,7 @@
   margin: 0 !important;
   padding: 0 !important;
   border: none !important;
-  clear: both !important;
+  /* Remove clear: both to prevent interference with pills */
 }
 
 .rich-input-content--multiline .rich-input-newline br {
