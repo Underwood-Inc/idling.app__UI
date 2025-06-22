@@ -1,65 +1,85 @@
-import NextAuth from 'next-auth';
+import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
-import { authConfig } from './auth.config';
-import { NAV_PATHS, PUBLIC_ROUTES } from './lib/routes';
 
-const { auth } = NextAuth({
-  ...authConfig,
-  basePath: '/api/auth'
-});
+export function middleware(request: NextRequest) {
+  try {
+    const { pathname } = request.nextUrl;
 
-export default auth((req) => {
-  const { nextUrl, auth: session } = req;
-
-  // Admin routes are protected by the requireAdmin() check in the page component
-
-  // Handle API route authentication
-  if (nextUrl.pathname.startsWith('/api/')) {
-    // Protect profile update routes (PATCH, POST, DELETE)
-    if (nextUrl.pathname.startsWith('/api/profile') && req.method !== 'GET') {
-      if (!session) {
-        return NextResponse.json(
-          { error: 'Authentication required' },
-          { status: 401 }
-        );
-      }
+    // Skip middleware for static files and API routes that don't need auth
+    if (
+      pathname.startsWith('/_next/') ||
+      pathname.startsWith('/api/auth/') ||
+      pathname.includes('.') ||
+      pathname === '/favicon.ico'
+    ) {
+      return NextResponse.next();
     }
 
-    // Protect admin routes
-    if (nextUrl.pathname.startsWith('/api/admin')) {
-      if (!session) {
-        return NextResponse.json(
-          { error: 'Authentication required' },
-          { status: 401 }
-        );
+    // Handle API route authentication
+    if (pathname.startsWith('/api/')) {
+      // Get session from cookies (simplified check)
+      const sessionToken =
+        request.cookies.get('next-auth.session-token') ||
+        request.cookies.get('__Secure-next-auth.session-token');
+
+      // Protect profile update routes (PATCH, POST, DELETE)
+      if (pathname.startsWith('/api/profile') && request.method !== 'GET') {
+        if (!sessionToken) {
+          return NextResponse.json(
+            { error: 'Authentication required' },
+            { status: 401 }
+          );
+        }
       }
+
+      // Protect admin routes
+      if (pathname.startsWith('/api/admin')) {
+        if (!sessionToken) {
+          return NextResponse.json(
+            { error: 'Authentication required' },
+            { status: 401 }
+          );
+        }
+      }
+
+      // Allow other API routes to continue
+      return NextResponse.next();
     }
 
-    // Allow other API routes to continue
+    // Handle page route authentication
+    const sessionToken =
+      request.cookies.get('next-auth.session-token') ||
+      request.cookies.get('__Secure-next-auth.session-token');
+    const isAuthenticated = !!sessionToken;
+
+    // Define public routes
+    const publicRoutes = ['/', '/auth/signin'];
+    const isPublicRoute =
+      publicRoutes.includes(pathname) ||
+      pathname.startsWith('/t/') ||
+      pathname.startsWith('/profile/');
+
+    if (isPublicRoute) {
+      return NextResponse.next();
+    }
+
+    if (!isPublicRoute && isAuthenticated) {
+      return NextResponse.next();
+    }
+
+    if (!isPublicRoute && !isAuthenticated) {
+      const url = new URL('/auth/signin', request.url);
+      url.searchParams.append('redirect', pathname);
+      return NextResponse.redirect(url);
+    }
+
+    return NextResponse.next();
+  } catch (error) {
+    console.error('Middleware error:', error);
+    // In case of error, allow the request to continue
     return NextResponse.next();
   }
-
-  // Handle page route authentication (existing logic)
-  const isAuthenticated = !!session;
-  const isPublicRoute =
-    PUBLIC_ROUTES.includes(nextUrl.pathname) ||
-    nextUrl.pathname.startsWith('/t/') ||
-    nextUrl.pathname.startsWith('/profile/');
-
-  if (isPublicRoute) {
-    return;
-  }
-
-  if (!isPublicRoute && isAuthenticated) {
-    return;
-  }
-
-  if (!isPublicRoute && !isAuthenticated) {
-    const url = new URL(NAV_PATHS.SIGNIN, nextUrl);
-    url.searchParams.append('redirect', nextUrl.pathname);
-    return NextResponse.redirect(url);
-  }
-});
+}
 
 export const config = {
   matcher: [
