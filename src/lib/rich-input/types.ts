@@ -96,6 +96,9 @@ export interface RichInputState {
   isFocused: boolean;
   history: RichInputHistoryEntry[];
   historyIndex: number;
+
+  // Callback for content changes from interactive elements like URL pill controls
+  onContentChange?: (newText: string) => void;
 }
 
 export interface RichInputHistoryEntry {

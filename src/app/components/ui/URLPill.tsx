@@ -91,6 +91,7 @@ export function URLPill({
                 {onModeChange && (
                   <>
                     <button
+                      type="button"
                       className={`url-pill__behavior-toggle url-pill__behavior-toggle--embed ${
                         behavior === 'embed' || behavior === undefined
                           ? 'url-pill__behavior-toggle--active'
@@ -107,9 +108,10 @@ export function URLPill({
                       }}
                       title="Embed video player"
                     >
-                      📺 Embed
+                      📺
                     </button>
                     <button
+                      type="button"
                       className="url-pill__behavior-toggle url-pill__behavior-toggle--link"
                       onClick={(e) => {
                         e.preventDefault();
@@ -122,9 +124,10 @@ export function URLPill({
                       }}
                       title="Show as clickable link"
                     >
-                      🔗 Link
+                      🔗
                     </button>
                     <button
+                      type="button"
                       className="url-pill__behavior-toggle url-pill__behavior-toggle--modal"
                       onClick={(e) => {
                         e.preventDefault();
@@ -137,7 +140,7 @@ export function URLPill({
                       }}
                       title="Open in modal popup"
                     >
-                      ⧉ Modal
+                      ⧉
                     </button>
                   </>
                 )}
@@ -145,6 +148,7 @@ export function URLPill({
                 {onWidthChange && (
                   <div className="url-pill__width-controls">
                     <button
+                      type="button"
                       className={`url-pill__behavior-toggle ${
                         width === 'small'
                           ? 'url-pill__behavior-toggle--active'
@@ -161,9 +165,10 @@ export function URLPill({
                       }}
                       title="Small size (320px)"
                     >
-                      📱 Small
+                      📱
                     </button>
                     <button
+                      type="button"
                       className={`url-pill__behavior-toggle ${
                         width === 'medium'
                           ? 'url-pill__behavior-toggle--active'
@@ -180,9 +185,10 @@ export function URLPill({
                       }}
                       title="Medium size (560px)"
                     >
-                      💻 Medium
+                      💻
                     </button>
                     <button
+                      type="button"
                       className={`url-pill__behavior-toggle ${
                         width === 'large'
                           ? 'url-pill__behavior-toggle--active'
@@ -199,9 +205,10 @@ export function URLPill({
                       }}
                       title="Large size (800px)"
                     >
-                      🖥️ Large
+                      🖥️
                     </button>
                     <button
+                      type="button"
                       className={`url-pill__behavior-toggle ${
                         width === 'full'
                           ? 'url-pill__behavior-toggle--active'
@@ -218,7 +225,7 @@ export function URLPill({
                       }}
                       title="Full width (100%)"
                     >
-                      📺 Full
+                      📺
                     </button>
                   </div>
                 )}
@@ -282,6 +289,7 @@ export function URLPill({
                 {onModeChange && (
                   <>
                     <button
+                      type="button"
                       className={`url-pill__behavior-toggle url-pill__behavior-toggle--embed ${
                         behavior === 'embed' || behavior === undefined
                           ? 'url-pill__behavior-toggle--active'
@@ -301,6 +309,7 @@ export function URLPill({
                       E
                     </button>
                     <button
+                      type="button"
                       className="url-pill__behavior-toggle url-pill__behavior-toggle--link"
                       onClick={(e) => {
                         e.preventDefault();
@@ -316,6 +325,7 @@ export function URLPill({
                       L
                     </button>
                     <button
+                      type="button"
                       className="url-pill__behavior-toggle url-pill__behavior-toggle--modal"
                       onClick={(e) => {
                         e.preventDefault();
@@ -377,6 +387,7 @@ export function URLPill({
           {onModeChange && (
             <>
               <button
+                type="button"
                 className={`url-pill__behavior-toggle url-pill__behavior-toggle--embed`}
                 onClick={() => onModeChange('embed')}
                 title="Show as embed"
@@ -384,6 +395,7 @@ export function URLPill({
                 📺 Embed
               </button>
               <button
+                type="button"
                 className={`url-pill__behavior-toggle url-pill__behavior-toggle--link ${
                   behavior === 'link' ? 'url-pill__behavior-toggle--active' : ''
                 }`}
@@ -394,6 +406,7 @@ export function URLPill({
               </button>
               {isYouTube && (
                 <button
+                  type="button"
                   className={`url-pill__behavior-toggle url-pill__behavior-toggle--modal ${
                     behavior === 'modal'
                       ? 'url-pill__behavior-toggle--active'

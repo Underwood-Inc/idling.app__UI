@@ -401,6 +401,19 @@ export const RichInput = forwardRef<RichInputRef, RichInputProps>(
       [state.rawText, state.cursorPosition, enableDebugLogging]
     );
 
+    // Create a content change handler for interactive elements like URL pill controls
+    const handleContentChange = useCallback((newText: string) => {
+      if (engineRef.current) {
+        engineRef.current.setState({ rawText: newText });
+      }
+    }, []);
+
+    // Create enhanced state with content change callback
+    const enhancedState = {
+      ...state,
+      onContentChange: handleContentChange
+    };
+
     // Imperative API
     useImperativeHandle(
       ref,
@@ -532,7 +545,7 @@ export const RichInput = forwardRef<RichInputRef, RichInputProps>(
         <div className="rich-input__content" data-rich-content>
           <RichInputContent
             ref={contentRef}
-            state={state}
+            state={enhancedState}
             config={mergedConfig}
             renderer={renderer}
             cursorCoordinates={cursorCoordinates}

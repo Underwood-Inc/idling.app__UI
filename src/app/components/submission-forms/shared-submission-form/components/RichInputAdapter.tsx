@@ -7,6 +7,10 @@
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
+import {
+  createURLPill,
+  findDomainConfig
+} from '../../../../../lib/config/url-pills';
 import { RichInput } from '../../../../../lib/rich-input';
 import { emojiParser } from '../../../../../lib/utils/parsers/emoji-parser';
 import { useFloatingToolbar } from '../hooks/useFloatingToolbar';
@@ -250,71 +254,102 @@ export const RichInputAdapter: React.FC<RichInputAdapterProps> = ({
       // First call the original handler
       handleValueChange(newValue);
 
-      // Only check for URL conversion if we just added a space or newline
+      // Check for URL conversion in two scenarios:
+      // 1. When we just added a space or newline (typing scenario)
+      // 2. When significant text was added (paste scenario)
       const prevValue = previousValue || value || '';
       if (newValue.length <= prevValue.length) {
         return; // Don't convert on deletion
       }
 
+      const textAdded = newValue.length - prevValue.length;
       const lastChar = newValue[newValue.length - 1];
-      if (lastChar !== ' ' && lastChar !== '\n') {
-        return; // Only convert when space or newline is added
+
+      // Scenario 1: User typed a space or newline after URL
+      const isSpaceOrNewlineTrigger =
+        (lastChar === ' ' || lastChar === '\n') && textAdded === 1;
+
+      // Scenario 2: User pasted content (significant text addition)
+      const isPasteTrigger = textAdded > 5; // Arbitrary threshold for paste detection
+
+      if (!isSpaceOrNewlineTrigger && !isPasteTrigger) {
+        return; // Only convert on space/newline or paste
       }
 
       // Get cursor position from rich input
       if (richInputRef.current) {
         const richInput = richInputRef.current;
-        const cursorPosition =
-          richInput.getCursorPosition?.()?.index || newValue.length;
+        const state = richInput.getState?.();
+        const cursorPosition = state?.cursorPosition?.index || newValue.length;
 
-        // Look for the word before the space/newline
-        const beforeCursor = newValue.slice(0, cursorPosition - 1); // Exclude the trigger char
-        const words = beforeCursor.split(/[\s\n]+/);
+        let textToCheck: string;
+        let searchEndIndex: number;
+
+        if (isSpaceOrNewlineTrigger) {
+          // For space/newline trigger, check the word before the trigger
+          textToCheck = newValue.slice(0, cursorPosition - 1);
+          searchEndIndex = cursorPosition - 1;
+        } else {
+          // For paste trigger, check all the newly added text
+          textToCheck = newValue.slice(0, cursorPosition);
+          searchEndIndex = cursorPosition;
+        }
+
+        // Find URLs in the text to check
+        const words = textToCheck.split(/[\s\n]+/);
         const lastWord = words[words.length - 1];
 
         // Check if the last word is a URL
         if (lastWord) {
           const urlRegex = /^https?:\/\/[^\s<>"{}|\\^`[\]]+$/;
-          if (urlRegex.test(lastWord)) {
+          const isURL = urlRegex.test(lastWord);
+
+          if (isURL) {
             const url = lastWord;
 
             // Import URL detection utilities and convert
-            import('../../../../../lib/config/url-pills')
-              .then(({ findDomainConfig, createURLPill }) => {
-                const domainConfig = findDomainConfig(url);
-                if (domainConfig) {
-                  // Convert URL to structured pill format
-                  const pillFormat = createURLPill(
-                    url,
-                    domainConfig.defaultBehavior
-                  );
+            const domainConfig = findDomainConfig(url);
 
-                  // Replace the URL with the pill format
-                  const beforeUrl = beforeCursor.slice(
-                    0,
-                    beforeCursor.lastIndexOf(lastWord)
-                  );
-                  const afterCursor = newValue.slice(cursorPosition);
-                  const newContent =
-                    beforeUrl + pillFormat + lastChar + afterCursor;
+            if (domainConfig) {
+              // Convert URL to structured pill format
+              const pillFormat = createURLPill(
+                url,
+                domainConfig.defaultBehavior
+              );
 
-                  // Update the content
-                  onChange(newContent);
+              // Find the URL position in the text
+              const urlStartIndex = textToCheck.lastIndexOf(lastWord);
+              const urlEndIndex = urlStartIndex + lastWord.length;
 
-                  // Set cursor position after the pill using rich input API
-                  setTimeout(() => {
-                    if (richInputRef.current) {
-                      const newCursorPosition =
-                        beforeUrl.length + pillFormat.length + 1;
-                      richInput.setCursorPosition?.(newCursorPosition);
-                      richInput.focus?.();
-                    }
-                  }, 0);
+              // Replace the URL with the pill format
+              const beforeUrl = newValue.slice(0, urlStartIndex);
+              const afterUrl = newValue.slice(urlEndIndex);
+
+              let newContent: string;
+              let newCursorPos: number;
+
+              if (isSpaceOrNewlineTrigger) {
+                // Keep the space/newline that triggered the conversion
+                newContent =
+                  beforeUrl + pillFormat + lastChar + afterUrl.slice(1);
+                newCursorPos = beforeUrl.length + pillFormat.length + 1;
+              } else {
+                // For paste, just replace the URL
+                newContent = beforeUrl + pillFormat + afterUrl;
+                newCursorPos = beforeUrl.length + pillFormat.length;
+              }
+
+              // Update the content
+              onChange(newContent);
+
+              // Set cursor position after the pill using rich input API
+              setTimeout(() => {
+                if (richInputRef.current) {
+                  richInput.setCursor?.({ index: newCursorPos });
+                  richInput.focus?.();
                 }
-              })
-              .catch((error) => {
-                console.error('Failed to load URL pill utilities:', error);
-              });
+              }, 0);
+            }
           }
         }
       }

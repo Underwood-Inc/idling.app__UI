@@ -3,7 +3,10 @@
  * Provides basic rendering for all token types
  */
 
+'use client';
+
 import React from 'react';
+import { URLPill } from '../../../app/components/ui/URLPill';
 import {
   widthMeasurement,
   type MeasurementContext
@@ -57,19 +60,125 @@ export class DefaultRenderer implements RichInputRenderer {
 
       case 'url': {
         const behavior = token.metadata?.behavior || 'link';
+        const url = token.content;
+
+        // Extract width from original format if available
+        let width: 'small' | 'medium' | 'large' | 'full' = 'medium';
+        if (token.metadata?.originalFormat) {
+          const pillData = token.metadata.originalFormat.match(
+            /!\[([^|]+)(?:\|([^|]+))?\]\([^)]+\)/
+          );
+          if (pillData && pillData[2]) {
+            const extractedWidth = pillData[2].toLowerCase();
+            if (
+              ['s', 'm', 'l', 'f', 'small', 'medium', 'large', 'full'].includes(
+                extractedWidth
+              )
+            ) {
+              // Map legacy short names to full names
+              switch (extractedWidth) {
+                case 's':
+                  width = 'small';
+                  break;
+                case 'm':
+                  width = 'medium';
+                  break;
+                case 'l':
+                  width = 'large';
+                  break;
+                case 'f':
+                  width = 'full';
+                  break;
+                case 'small':
+                case 'medium':
+                case 'large':
+                case 'full':
+                  width = extractedWidth as
+                    | 'small'
+                    | 'medium'
+                    | 'large'
+                    | 'full';
+                  break;
+              }
+            }
+          }
+        }
+
+        // Create callback functions to update the raw text when URL pill controls are used
+        const handleModeChange = (newBehavior: 'embed' | 'link' | 'modal') => {
+          if (state.onContentChange) {
+            const currentText = state.rawText;
+            const tokenStart = token.start;
+            const tokenEnd = token.end;
+
+            // Create new pill format with updated behavior
+            const newPillFormat = `![${newBehavior}](${url})`;
+
+            // Replace the token in the raw text
+            const newText =
+              currentText.substring(0, tokenStart) +
+              newPillFormat +
+              currentText.substring(tokenEnd);
+
+            // Update the content
+            state.onContentChange(newText);
+          }
+        };
+
+        const handleWidthChange = (
+          newWidth: 'small' | 'medium' | 'large' | 'full'
+        ) => {
+          if (state.onContentChange) {
+            const currentText = state.rawText;
+            const tokenStart = token.start;
+            const tokenEnd = token.end;
+
+            // Create new pill format with updated width
+            // Only include width parameter if it's not the default 'medium'
+            const newPillFormat =
+              newWidth === 'medium'
+                ? `![${behavior}](${url})`
+                : `![${behavior}|${newWidth}](${url})`;
+
+            // Replace the token in the raw text
+            const newText =
+              currentText.substring(0, tokenStart) +
+              newPillFormat +
+              currentText.substring(tokenEnd);
+
+            // Update the content
+            state.onContentChange(newText);
+          }
+        };
+
+        const handleRemove = () => {
+          if (state.onContentChange) {
+            const currentText = state.rawText;
+            const tokenStart = token.start;
+            const tokenEnd = token.end;
+
+            // Remove the token from the raw text
+            const newText =
+              currentText.substring(0, tokenStart) +
+              currentText.substring(tokenEnd);
+
+            // Update the content
+            state.onContentChange(newText);
+          }
+        };
+
         return (
-          <span
+          <URLPill
             key={`url-${index}`}
-            className={`content-pill content-pill--url content-pill--edit-mode content-pill--${behavior}`}
-            data-token-type="url"
-            data-token-index={index}
-            data-token-start={token.start}
-            data-token-end={token.end}
-            data-token-content={token.content}
-            data-token-behavior={behavior}
-          >
-            {token.content}
-          </span>
+            url={url}
+            behavior={behavior as 'embed' | 'link' | 'modal'}
+            width={width}
+            className="content-pill--url"
+            isEditMode={true} // Enable full edit mode with controls
+            onModeChange={handleModeChange}
+            onWidthChange={handleWidthChange}
+            onRemove={handleRemove}
+          />
         );
       }
 

@@ -151,12 +151,34 @@
   line-height: 1.4;
   white-space: nowrap;
   word-break: break-word;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .rich-input-content--multiline {
   white-space: pre-wrap !important;
-  overflow: auto;
+  overflow: visible;
+}
+
+/* Special handling for full-width YouTube embeds in rich input */
+.rich-input-content .youtube-embed--f,
+.rich-input-content .youtube-embed--full {
+  width: 100%;
+  max-width: none;
+  border-radius: 0;
+  /* Remove border radius when full width */
+}
+
+/* Ensure YouTube embeds in rich input don't break layout */
+.rich-input-content .youtube-embed {
+  display: block;
+  margin: 8px 0;
+}
+
+/* Override container constraints for full-width embeds */
+.rich-input-content .youtube-embed--f .youtube-embed__video-container,
+.rich-input-content .youtube-embed--full .youtube-embed__video-container {
+  position: relative;
+  z-index: 1;
 }
 
 /* Line-based rendering for multiline mode */
@@ -167,6 +189,16 @@
   width: 100%;
   word-break: break-word;
   white-space: nowrap;
+}
+
+/* Lines containing full-width embeds should expand */
+.rich-input-line:has(.youtube-embed--f),
+.rich-input-line:has(.youtube-embed--full) {
+  width: calc(100% + 24px);
+  /* Expand beyond container padding */
+  margin-left: -12px;
+  /* Center the expansion */
+  margin-right: -12px;
 }
 
 /* Multiline lines should wrap */
