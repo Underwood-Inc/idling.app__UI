@@ -2,9 +2,11 @@
 
 import { getMediaType } from '../../../lib/config/media-domains';
 import { getURLPillType, shouldEmbedURL } from '../../../lib/config/url-pills';
+import { useOverlay } from '../../../lib/context/OverlayContext';
 import { ImageEmbed } from './ImageEmbed';
 import './URLPill.css';
 import { YouTubeEmbed } from './YouTubeEmbed';
+import { YouTubeModal } from './YouTubeModal';
 
 interface URLPillProps {
   url: string;
@@ -31,6 +33,8 @@ export function URLPill({
   onBehaviorChange,
   onRemove
 }: URLPillProps) {
+  const { openOverlay, closeOverlay } = useOverlay();
+
   // Validate URL prop
   if (!url || typeof url !== 'string') {
     console.warn('URLPill: Invalid or missing URL prop:', url);
@@ -359,6 +363,28 @@ export function URLPill({
     url
   );
 
+  // Handle link click - open modal for modal behavior, otherwise normal link
+  const handleLinkClick = (e: React.MouseEvent) => {
+    if (behavior === 'modal' && isYouTube) {
+      e.preventDefault();
+      e.stopPropagation();
+
+      const modalId = `youtube-modal-${url}`;
+
+      openOverlay({
+        id: modalId,
+        type: 'modal',
+        component: YouTubeModal,
+        props: {
+          url,
+          title: customId || 'YouTube Video',
+          onClose: () => closeOverlay(modalId)
+        }
+      });
+    }
+    // For non-modal behavior, let the link work normally
+  };
+
   return (
     <div
       className={`url-pill url-pill--link ${className} ${
@@ -366,10 +392,11 @@ export function URLPill({
       }`}
     >
       <a
-        href={url}
-        target="_blank"
-        rel="noopener noreferrer"
+        href={behavior === 'modal' ? '#' : url}
+        target={behavior === 'modal' ? undefined : '_blank'}
+        rel={behavior === 'modal' ? undefined : 'noopener noreferrer'}
         className="url-pill__link"
+        onClick={handleLinkClick}
       >
         <span className="url-pill__icon">
           {isYouTube ? '📺' : isImage ? '🖼️' : isVideo ? '🎥' : '🔗'}
