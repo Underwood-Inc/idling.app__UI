@@ -1,6 +1,6 @@
 {
   "name": "idling.app",
-  "version": "0.52.1",
+  "version": "0.53.0",
   "private": true,
   "engines": {
     "node": ">=20.x"
@@ -34,7 +34,11 @@
     "start": "next start",
     "test:ci": "jest --ci",
     "test:coverage": "jest --ci --coverage",
-    "test": "jest --watchAll=false"
+    "test": "jest --watchAll=false",
+    "version:bump": "node scripts/version-bump.js",
+    "version:test": "node scripts/version-bump-from-msg.js --test",
+    "version:demo": "node scripts/version-bump-from-msg.js --test \"feat: example feature for demo\"",
+    "version:help": "node scripts/version-bump-from-msg.js --test \"help\""
   },
   "dependencies": {
     "@auth/pg-adapter": "^1.4.2",
