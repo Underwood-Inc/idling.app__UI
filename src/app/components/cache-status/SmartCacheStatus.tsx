@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useCallback, useEffect, useState } from 'react';
+import { TimestampWithTooltip } from '../ui/TimestampWithTooltip';
 import './CacheStatus.css';
 
 interface CacheInfo {
@@ -132,6 +133,13 @@ const SmartCacheStatus: React.FC = () => {
 
   const checkCacheStatus = useCallback(async () => {
     try {
+      // Check current page cache metadata
+      const pageMetadata = await getCacheMetadata(window.location.href);
+
+      // Get service worker cache info
+      const swInfo = await getServiceWorkerCacheInfo();
+      setSwCacheInfo(swInfo);
+
       // Check if service worker is available
       if ('serviceWorker' in navigator) {
         const registration = await navigator.serviceWorker.getRegistration();
@@ -140,18 +148,33 @@ const SmartCacheStatus: React.FC = () => {
         // Check cache storage
         let cacheSize = 0;
         let cacheCount = 0;
+        let appVersion = 'unknown';
+        let cacheVersion = 'unknown';
+
         if ('caches' in window) {
           try {
             const cacheNames = await caches.keys();
             cacheCount = cacheNames.length;
 
+            // Get app version from cached responses
             for (const cacheName of cacheNames) {
               const cache = await caches.open(cacheName);
               const requests = await cache.keys();
               cacheSize += requests.length;
+
+              // Try to get version info from any cached response
+              if (requests.length > 0) {
+                const response = await cache.match(requests[0]);
+                if (response) {
+                  appVersion =
+                    response.headers.get('X-App-Version') || appVersion;
+                  cacheVersion =
+                    response.headers.get('SW-Cache-Version') || cacheVersion;
+                }
+              }
             }
           } catch (e) {
-            // Silent error handling
+            console.warn('Error checking cache storage:', e);
           }
         }
 
@@ -164,14 +187,19 @@ const SmartCacheStatus: React.FC = () => {
             }
           }
         } catch (e) {
-          // Silent error handling
+          console.warn('Error checking localStorage:', e);
         }
 
-        const timestamp = new Date();
         const newCacheInfo = {
           isCached: hasServiceWorker || cacheCount > 0 || localStorageSize > 0,
-          cacheTimestamp: timestamp,
-          cacheAge: formatTimeAgo(timestamp.getTime()),
+          cacheTimestamp: pageMetadata?.timestamp || new Date(),
+          cacheAge: pageMetadata
+            ? formatTimeAgo(pageMetadata.timestamp.getTime())
+            : '0s ago',
+          version: appVersion,
+          cacheVersion,
+          isStale: pageMetadata?.isStale || false,
+          ttl: pageMetadata?.ttl || 300000, // 5 min default
           details: {
             serviceWorker: hasServiceWorker,
             cacheCount,
@@ -183,7 +211,14 @@ const SmartCacheStatus: React.FC = () => {
         setCacheInfo(newCacheInfo);
       }
     } catch (error) {
-      // Silent error handling
+      console.warn('Failed to check cache status:', error);
+      // Set fallback cache info
+      setCacheInfo({
+        isCached: false,
+        version: 'unknown',
+        cacheVersion: 'unknown',
+        ttl: 300000
+      });
     }
   }, []);
 
@@ -401,19 +436,22 @@ const SmartCacheStatus: React.FC = () => {
 
       {showDetails && (cacheInfo.isCached || swCacheInfo) && (
         <div className="cache-status__details">
-          {cacheInfo.isCached && (
-            <div className="cache-status__detail-item">
-              <strong>Page Cache:</strong>
-              <div>Version: {cacheInfo.version || 'unknown'}</div>
-              <div>Cache Version: {cacheInfo.cacheVersion || 'unknown'}</div>
-              <div>
-                TTL:{' '}
-                {cacheInfo.ttl ? Math.round(cacheInfo.ttl / 1000 / 60) : '?'}{' '}
-                min
-              </div>
-              <div>Status: {cacheInfo.isStale ? '⚠️ Stale' : '✅ Fresh'}</div>
+          <div className="cache-status__detail-item">
+            <strong>Page Cache:</strong>
+            <div>Version: {cacheInfo.version || 'unknown'}</div>
+            <div>Cache Version: {cacheInfo.cacheVersion || 'unknown'}</div>
+            <div>
+              TTL: {cacheInfo.ttl ? Math.round(cacheInfo.ttl / 1000 / 60) : '?'}{' '}
+              min
             </div>
-          )}
+            <div>Status: {cacheInfo.isStale ? '⚠️ Stale' : '✅ Fresh'}</div>
+            {cacheInfo.cacheTimestamp && (
+              <div>
+                Last cached:{' '}
+                <TimestampWithTooltip date={cacheInfo.cacheTimestamp} />
+              </div>
+            )}
+          </div>
 
           {swCacheInfo && (
             <div className="cache-status__detail-item">
@@ -423,6 +461,19 @@ const SmartCacheStatus: React.FC = () => {
               <div>
                 TTLs: API {Math.round(swCacheInfo.ttls.api / 1000 / 60)}m,
                 Dynamic {Math.round(swCacheInfo.ttls.dynamic / 1000 / 60)}m
+              </div>
+            </div>
+          )}
+
+          {cacheInfo.details && (
+            <div className="cache-status__detail-item">
+              <strong>Storage Details:</strong>
+              <div>Cache Count: {cacheInfo.details.cacheCount}</div>
+              <div>Cache Size: {cacheInfo.details.cacheSize} entries</div>
+              <div>LocalStorage: {cacheInfo.details.localStorageSize} KB</div>
+              <div>
+                Service Worker:{' '}
+                {cacheInfo.details.serviceWorker ? '✅ Active' : '❌ Inactive'}
               </div>
             </div>
           )}
