@@ -1,4 +1,6 @@
+import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import { buildThreadUrl } from '../../../../../lib/routes';
 import { getEffectiveCharacterCount } from '../../../../../lib/utils/string';
 import { validateTagsInput } from '../../../../../lib/utils/string/tag-regex';
 import { createSubmissionAction, editSubmissionAction } from '../../actions';
@@ -24,6 +26,7 @@ export const useSubmissionForm = ({
   parentId,
   onSuccess
 }: UseSubmissionFormProps) => {
+  const router = useRouter();
   const [formData, setFormData] = useState({
     title: '',
     content: '',
@@ -267,6 +270,15 @@ export const useSubmissionForm = ({
           }
         }
         setTagErrors([]);
+
+        // Handle redirect for reply mode - redirect to thread page
+        if (mode === 'reply' && parentId) {
+          // Use setTimeout to allow the success callback to run first
+          setTimeout(() => {
+            // Always redirect to the parent thread page after successful reply
+            router.push(buildThreadUrl(parentId));
+          }, 100);
+        }
 
         // Call success callback
         if (onSuccess) {

@@ -197,7 +197,12 @@ export default function Thread({
         {submission.tags && submission.tags.length > 0 && (
           <div className="submission__tags">
             {submission.tags.map((tag) => (
-              <TagLink key={tag} value={tag} contextId="thread" />
+              <TagLink
+                key={tag}
+                value={tag}
+                contextId={contextId || 'thread'}
+                onTagClick={onHashtagClick}
+              />
             ))}
           </div>
         )}
