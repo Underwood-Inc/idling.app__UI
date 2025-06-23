@@ -10,32 +10,25 @@
 // Load environment variables FIRST, before any other imports
 require('dotenv').config({ path: '.env.local' });
 
-const postgres = require('postgres');
+const sql = require('../src/lib/db');
 
 // Import comprehensive emoji data
 const { getAllEmojis } = require('./emoji-data-comprehensive');
 const { getAllNewEmojis } = require('./emoji-data-comprehensive-part2');
-
-// Create database connection AFTER environment variables are loaded
-const sql = postgres({
-  host: process.env.POSTGRES_HOST,
-  user: process.env.POSTGRES_USER,
-  database: process.env.POSTGRES_DB,
-  password: process.env.POSTGRES_PASSWORD,
-  port: process.env.POSTGRES_PORT,
-  ssl: 'prefer',
-  onnotice: () => {}, // Ignore NOTICE statements - they're not errors
-  max: 10,
-  idle_timeout: 20,
-  connect_timeout: 10,
-  prepare: false
-});
+const { getAllAsciiEmojis } = require('./emoji-data-ascii');
 
 // Combine all emoji data
-const windowsEmojis = [...getAllEmojis(), ...getAllNewEmojis()];
+const allEmojis = [...getAllEmojis(), ...getAllNewEmojis()];
+const allAsciiEmojis = getAllAsciiEmojis();
+
+console.log(`Total Unicode emojis: ${allEmojis.length}`);
+console.log(`Total ASCII emojis: ${allAsciiEmojis.length}`);
+console.log(
+  `Total emojis to populate: ${allEmojis.length + allAsciiEmojis.length}`
+);
 
 // Comprehensive emoji data for Mac (similar to Windows but with different version requirements)
-const macEmojis = windowsEmojis.map((emoji) => ({
+const macEmojis = allEmojis.map((emoji) => ({
   ...emoji,
   macos_version_min: '10.15', // Catalina and above
   windows_version_min: undefined
@@ -58,7 +51,7 @@ async function populateEmojiData() {
 
     // Insert Windows emojis
     console.log('Inserting Windows emojis...');
-    for (const emoji of windowsEmojis) {
+    for (const emoji of allEmojis) {
       const categoryId = categoryMap[emoji.category];
       if (!categoryId) {
         console.warn(
@@ -142,6 +135,92 @@ async function populateEmojiData() {
       }
     }
 
+    // Insert ASCII emojis for Windows
+    console.log('Inserting ASCII emojis for Windows...');
+    for (const ascii of allAsciiEmojis) {
+      const categoryId = categoryMap[ascii.category];
+      if (!categoryId) {
+        console.warn(
+          `Category '${ascii.category}' not found for ASCII emoji '${ascii.name}'`
+        );
+        continue;
+      }
+
+      try {
+        await sql`
+          INSERT INTO emojis_windows (
+            emoji_id, unicode_codepoint, unicode_char, name, description,
+            category_id, tags, aliases, keywords, windows_version_min
+          ) VALUES (
+            ${ascii.emoji_id}, ${ascii.unicode_codepoint}, ${ascii.unicode_char}, 
+            ${ascii.name}, ${ascii.description}, ${categoryId}, ${ascii.tags}, 
+            ${ascii.aliases}, ${ascii.keywords}, ${ascii.windows_version_min}
+          )
+          ON CONFLICT (emoji_id) DO UPDATE SET
+            unicode_codepoint = EXCLUDED.unicode_codepoint,
+            unicode_char = EXCLUDED.unicode_char,
+            name = EXCLUDED.name,
+            description = EXCLUDED.description,
+            category_id = EXCLUDED.category_id,
+            tags = EXCLUDED.tags,
+            aliases = EXCLUDED.aliases,
+            keywords = EXCLUDED.keywords,
+            windows_version_min = EXCLUDED.windows_version_min,
+            updated_at = CURRENT_TIMESTAMP
+        `;
+
+        console.log(`✓ Inserted Windows ASCII emoji: ${ascii.name}`);
+      } catch (error) {
+        console.error(
+          `✗ Failed to insert Windows ASCII emoji '${ascii.name}':`,
+          error.message
+        );
+      }
+    }
+
+    // Insert ASCII emojis for Mac
+    console.log('Inserting ASCII emojis for Mac...');
+    for (const ascii of allAsciiEmojis) {
+      const categoryId = categoryMap[ascii.category];
+      if (!categoryId) {
+        console.warn(
+          `Category '${ascii.category}' not found for ASCII emoji '${ascii.name}'`
+        );
+        continue;
+      }
+
+      try {
+        await sql`
+          INSERT INTO emojis_mac (
+            emoji_id, unicode_codepoint, unicode_char, name, description,
+            category_id, tags, aliases, keywords, macos_version_min
+          ) VALUES (
+            ${ascii.emoji_id}, ${ascii.unicode_codepoint}, ${ascii.unicode_char}, 
+            ${ascii.name}, ${ascii.description}, ${categoryId}, ${ascii.tags}, 
+            ${ascii.aliases}, ${ascii.keywords}, ${'1.0'}
+          )
+          ON CONFLICT (emoji_id) DO UPDATE SET
+            unicode_codepoint = EXCLUDED.unicode_codepoint,
+            unicode_char = EXCLUDED.unicode_char,
+            name = EXCLUDED.name,
+            description = EXCLUDED.description,
+            category_id = EXCLUDED.category_id,
+            tags = EXCLUDED.tags,
+            aliases = EXCLUDED.aliases,
+            keywords = EXCLUDED.keywords,
+            macos_version_min = EXCLUDED.macos_version_min,
+            updated_at = CURRENT_TIMESTAMP
+        `;
+
+        console.log(`✓ Inserted Mac ASCII emoji: ${ascii.name}`);
+      } catch (error) {
+        console.error(
+          `✗ Failed to insert Mac ASCII emoji '${ascii.name}':`,
+          error.message
+        );
+      }
+    }
+
     // Get counts
     const windowsCount = await sql`
       SELECT COUNT(*) as count FROM emojis_windows WHERE is_active = true
@@ -156,6 +235,17 @@ async function populateEmojiData() {
     console.log(
       `📊 Total emojis: ${parseInt(windowsCount[0].count) + parseInt(macCount[0].count)}`
     );
+
+    // Show ASCII emoji counts
+    const windowsAsciiCount = await sql`
+      SELECT COUNT(*) as count FROM emojis_windows WHERE category_id = (SELECT id FROM emoji_categories WHERE name = 'ascii') AND is_active = true
+    `;
+    const macAsciiCount = await sql`
+      SELECT COUNT(*) as count FROM emojis_mac WHERE category_id = (SELECT id FROM emoji_categories WHERE name = 'ascii') AND is_active = true
+    `;
+
+    console.log(`📊 Windows ASCII emojis: ${windowsAsciiCount[0].count}`);
+    console.log(`📊 Mac ASCII emojis: ${macAsciiCount[0].count}`);
   } catch (error) {
     console.error('❌ Error populating emoji data:', error);
     throw error;

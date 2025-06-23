@@ -23,9 +23,10 @@
 }
 
 .emoji--ascii {
-  font-size: 1em;
+  font-family: 'Fira Code', 'Courier New', 'Monaco', 'Menlo', monospace;
+  font-size: 1.1em;
   line-height: 1.2;
-  font-family: 'Courier New', 'Monaco', 'Menlo', monospace;
+  font-weight: 500;
   white-space: nowrap;
   letter-spacing: 0;
   word-spacing: 0;
@@ -33,6 +34,43 @@
   min-width: max-content;
   display: inline-block;
   vertical-align: middle;
+  padding: 0.1em 0.2em;
+  margin: 0 0.1em;
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 3px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+}
+
+.emoji--ascii:hover {
+  background: rgba(0, 0, 0, 0.1);
+  transform: scale(1.05);
+}
+
+/* ASCII emoji size variants */
+.emoji--ascii.emoji--small {
+  font-size: 0.9em;
+  padding: 0.05em 0.15em;
+}
+
+.emoji--ascii.emoji--medium {
+  font-size: 1.1em;
+  padding: 0.1em 0.2em;
+}
+
+.emoji--ascii.emoji--large {
+  font-size: 1.3em;
+  padding: 0.15em 0.25em;
+}
+
+/* Special handling for complex ASCII emojis */
+.emoji--ascii.emoji--complex {
+  font-size: 0.9em;
+  padding: 0.2em 0.3em;
+  min-width: 2em;
+  text-align: center;
+  word-break: keep-all;
+  overflow-wrap: normal;
 }
 
 /* Emoji Size Variants */
@@ -78,6 +116,55 @@
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(40px, 1fr));
   gap: 4px;
+}
+
+/* ASCII emoji specific grid layout */
+.emoji-grid--ascii {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+  gap: 8px;
+  padding: 8px;
+}
+
+.emoji-grid--ascii .emoji-button {
+  min-width: 80px;
+  min-height: 50px;
+  padding: 8px 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  border: 2px solid var(--border-color, #e0e0e0);
+  border-radius: 8px;
+  background: var(--bg-surface, #fff);
+  transition: all 0.2s ease;
+}
+
+.emoji-grid--ascii .emoji-button:hover {
+  border-color: var(--accent-color, #007bff);
+  background-color: var(--bg-hover, #f8f9fa);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.emoji-grid--ascii .emoji-button .emoji--ascii {
+  font-size: 1.2em;
+  margin-bottom: 4px;
+  background: transparent;
+  border: none;
+  padding: 0;
+}
+
+.emoji-grid--ascii .emoji-button::after {
+  content: attr(title);
+  font-size: 0.7em;
+  color: var(--text-secondary, #666);
+  margin-top: 2px;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .emoji-button {
@@ -288,6 +375,32 @@
     color: var(--pill-mention-text-dark, #b794f6);
     border-color: var(--pill-mention-border-dark, #553c9a);
   }
+
+  /* ASCII emoji dark mode styles */
+  .emoji--ascii {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
+    color: var(--dark-bg__text-color--primary);
+  }
+
+  .emoji--ascii:hover {
+    background: rgba(255, 255, 255, 0.15);
+  }
+
+  .emoji-grid--ascii .emoji-button {
+    background: var(--dark-background--secondary);
+    border-color: var(--dark-brand-tertiary--dark);
+    color: var(--dark-bg__text-color--primary);
+  }
+
+  .emoji-grid--ascii .emoji-button:hover {
+    background: var(--dark-background--tertiary);
+    border-color: var(--brand-primary--light);
+  }
+
+  .emoji-grid--ascii .emoji-button::after {
+    color: var(--dark-bg__text-color--secondary);
+  }
 }
 
 /* Mobile responsive adjustments */
@@ -316,8 +429,30 @@
   }
 
   .emoji--ascii {
-    font-size: 0.9em;
-    /* Slightly smaller on mobile but still readable */
+    font-size: 1em;
+    /* Maintain readability on mobile */
+    padding: 0.08em 0.15em;
+    margin: 0 0.05em;
+  }
+
+  .emoji-grid--ascii {
+    grid-template-columns: repeat(auto-fit, minmax(70px, 1fr));
+    gap: 6px;
+    padding: 6px;
+  }
+
+  .emoji-grid--ascii .emoji-button {
+    min-width: 70px;
+    min-height: 45px;
+    padding: 6px 8px;
+  }
+
+  .emoji-grid--ascii .emoji-button .emoji--ascii {
+    font-size: 1.1em;
+  }
+
+  .emoji-grid--ascii .emoji-button::after {
+    font-size: 0.65em;
   }
 
   .emoji-grid {
