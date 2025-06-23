@@ -14,6 +14,7 @@ import Header from './components/header/Header';
 import Loader from './components/loader/Loader';
 import MessageTickerWithInterval from './components/message-ticker/MessageTickerWithInterval';
 import PWAInstallPrompt from './components/pwa-install/PWAInstallPrompt';
+import { HardResetManager } from './components/service-worker/HardResetManager';
 import { ServiceWorkerRegistration } from './components/service-worker/ServiceWorkerRegistration';
 import TimeoutBanner from './components/timeout-banner/TimeoutBanner';
 import { NavigationLoadingBar } from './components/ui/NavigationLoadingBar';
@@ -205,10 +206,12 @@ export default function RootLayout({
         {/* Additional PWA optimizations */}
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="application-name" content="Idling App" />
+        <meta name="app-version" content="0.115.0" />
       </head>
 
       <body className={inter.className}>
         <ServiceWorkerRegistration />
+        <HardResetManager />
         <SessionProvider>
           <NavigationLoadingProvider>
             <NavigationLoadingBar />
