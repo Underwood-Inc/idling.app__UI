@@ -252,3 +252,298 @@
     transform: none;
   }
 }
+
+/* User Not Found Styles */
+.user-not-found {
+  text-align: center;
+  padding: 3rem 2rem;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.user-not-found__icon {
+  font-size: 4rem;
+  margin-bottom: 1.5rem;
+  opacity: 0.7;
+}
+
+.user-not-found__title {
+  font-size: var(--font-size-3xl);
+  font-weight: 700;
+  color: var(--light-bg__text-color--primary);
+  margin: 0 0 1rem 0;
+  line-height: 1.2;
+}
+
+.user-not-found__message {
+  font-size: var(--font-size-lg);
+  color: var(--light-bg__text-color--secondary);
+  margin: 0 0 1.5rem 0;
+  line-height: 1.5;
+}
+
+.user-not-found__reasons {
+  text-align: left;
+  margin: 0 0 2rem 0;
+  padding: 1.5rem;
+  background: rgba(var(--brand-tertiary), 0.1);
+  border: 1px solid rgba(var(--brand-tertiary--dark), 0.2);
+  border-radius: var(--border-radius);
+  list-style: none;
+}
+
+.user-not-found__reasons li {
+  position: relative;
+  padding-left: 1.5rem;
+  margin-bottom: 0.75rem;
+  color: var(--light-bg__text-color--secondary);
+  font-size: var(--font-size-base);
+  line-height: 1.4;
+}
+
+.user-not-found__reasons li:last-child {
+  margin-bottom: 0;
+}
+
+.user-not-found__reasons li::before {
+  content: '•';
+  position: absolute;
+  left: 0;
+  color: var(--brand-primary);
+  font-weight: bold;
+}
+
+.user-not-found__actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin: 2rem 0;
+  flex-wrap: wrap;
+}
+
+.user-not-found__action {
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--border-radius);
+  font-size: var(--font-size-base);
+  font-weight: 500;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 120px;
+}
+
+.user-not-found__action--primary {
+  background: var(--brand-primary);
+  color: var(--font-color--primary);
+  border: 1px solid var(--brand-primary);
+}
+
+.user-not-found__action--primary:hover {
+  background: var(--brand-primary--dark);
+  border-color: var(--brand-primary--dark);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.user-not-found__action--secondary {
+  background: rgba(var(--light-background--tertiary), 0.5);
+  color: var(--light-bg__text-color--primary);
+  border: 1px solid rgba(var(--brand-tertiary--dark), 0.3);
+}
+
+.user-not-found__action--secondary:hover {
+  background: rgba(var(--brand-primary), 0.1);
+  border-color: rgba(var(--brand-primary), 0.3);
+  color: var(--brand-primary);
+}
+
+.user-not-found__suggestion {
+  margin-top: 2rem;
+  padding: 1.5rem;
+  background: rgba(var(--brand-primary--light), 0.1);
+  border: 1px solid rgba(var(--brand-primary), 0.2);
+  border-radius: var(--border-radius);
+}
+
+.user-not-found__suggestion p {
+  margin: 0;
+  color: var(--light-bg__text-color--secondary);
+  font-size: var(--font-size-base);
+  line-height: 1.5;
+}
+
+.user-not-found__suggestion strong {
+  color: var(--light-bg__text-color--primary);
+}
+
+/* Help section styles */
+.user-not-found__help {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.user-not-found__help-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  background: rgba(var(--light-background--tertiary), 0.3);
+  border: 1px solid rgba(var(--brand-tertiary--dark), 0.2);
+  border-radius: var(--border-radius);
+  transition: all 0.2s ease;
+}
+
+.user-not-found__help-item:hover {
+  background: rgba(var(--brand-primary--light), 0.1);
+  border-color: rgba(var(--brand-primary), 0.3);
+}
+
+.user-not-found__help-icon {
+  font-size: var(--font-size-lg);
+  flex-shrink: 0;
+  margin-top: 0.125rem;
+}
+
+.user-not-found__help-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  flex: 1;
+}
+
+.user-not-found__help-label {
+  font-size: var(--font-size-base);
+  font-weight: 600;
+  color: var(--light-bg__text-color--primary);
+  line-height: 1.2;
+}
+
+.user-not-found__help-description {
+  font-size: var(--font-size-sm);
+  color: var(--light-bg__text-color--secondary);
+  line-height: 1.4;
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .user-not-found__title {
+    color: var(--dark-bg__text-color--primary);
+  }
+
+  .user-not-found__message {
+    color: var(--dark-bg__text-color--secondary);
+  }
+
+  .user-not-found__reasons {
+    background: rgba(var(--brand-tertiary), 0.15);
+    border-color: rgba(var(--brand-tertiary--dark), 0.3);
+  }
+
+  .user-not-found__reasons li {
+    color: var(--dark-bg__text-color--secondary);
+  }
+
+  .user-not-found__action--secondary {
+    background: rgba(var(--dark-background--tertiary), 0.6);
+    color: var(--dark-bg__text-color--primary);
+    border-color: rgba(var(--dark-border--secondary), 0.5);
+  }
+
+  .user-not-found__action--secondary:hover {
+    background: rgba(var(--brand-primary), 0.15);
+    border-color: rgba(var(--brand-primary), 0.4);
+    color: var(--brand-primary--light);
+  }
+
+  .user-not-found__suggestion {
+    background: rgba(var(--brand-primary--light), 0.15);
+    border-color: rgba(var(--brand-primary), 0.3);
+  }
+
+  .user-not-found__suggestion p {
+    color: var(--dark-bg__text-color--secondary);
+  }
+
+  .user-not-found__suggestion strong {
+    color: var(--dark-bg__text-color--primary);
+  }
+
+  .user-not-found__help-item {
+    background: rgba(var(--dark-background--tertiary), 0.4);
+    border-color: rgba(var(--dark-border--secondary), 0.3);
+  }
+
+  .user-not-found__help-item:hover {
+    background: rgba(var(--brand-primary--light), 0.15);
+    border-color: rgba(var(--brand-primary), 0.4);
+  }
+
+  .user-not-found__help-label {
+    color: var(--dark-bg__text-color--primary);
+  }
+
+  .user-not-found__help-description {
+    color: var(--dark-bg__text-color--secondary);
+  }
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .user-not-found {
+    padding: 2rem 1rem;
+  }
+
+  .user-not-found__icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+  }
+
+  .user-not-found__title {
+    font-size: var(--font-size-2xl);
+  }
+
+  .user-not-found__message {
+    font-size: var(--font-size-base);
+  }
+
+  .user-not-found__actions {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .user-not-found__action {
+    width: 100%;
+    max-width: 200px;
+  }
+
+  .user-not-found__reasons,
+  .user-not-found__suggestion {
+    padding: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .user-not-found {
+    padding: 1.5rem 0.75rem;
+  }
+
+  .user-not-found__icon {
+    font-size: 2.5rem;
+  }
+
+  .user-not-found__title {
+    font-size: var(--font-size-xl);
+  }
+
+  .user-not-found__reasons,
+  .user-not-found__suggestion {
+    padding: 0.75rem;
+  }
+
+  .user-not-found__help-item {
+    padding: 0.5rem;
+  }
+}
