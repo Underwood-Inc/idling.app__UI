@@ -227,12 +227,8 @@ function convertValue(value, column) {
 
 // Display user information from all relevant tables
 async function displayUserInfo(userId) {
-  console.groupCollapsed(
-    chalk.blue.bold(`👤 USER INFORMATION - ID: ${userId}`)
-  );
-  console.log(chalk.gray('Fetching comprehensive user data...'));
-  console.groupEnd();
-  console.log('');
+  console.log(chalk.blue(`👤 USER INFORMATION - ID: ${userId}`));
+  console.log(chalk.gray('Fetching comprehensive user data...\n'));
 
   try {
     // Basic user info
@@ -241,9 +237,8 @@ async function displayUserInfo(userId) {
       throw new Error(`User with ID ${userId} not found`);
     }
 
-    console.groupCollapsed(chalk.green('👤 BASIC USER INFO'));
+    console.log(chalk.green('👤 BASIC USER INFO'));
     console.table(user[0]);
-    console.groupEnd();
 
     // Account connections (OAuth providers)
     try {
@@ -264,9 +259,8 @@ async function displayUserInfo(userId) {
       `;
 
       if (accounts.length > 0) {
-        console.groupCollapsed(chalk.green('🔗 ACCOUNT CONNECTIONS'));
+        console.log(chalk.green('\n🔗 ACCOUNT CONNECTIONS'));
         console.table(accounts);
-        console.groupEnd();
       }
     } catch (error) {
       console.error(chalk.red('❌ Error fetching accounts:'), error.message);
@@ -286,36 +280,38 @@ async function displayUserInfo(userId) {
       `;
 
       if (sessions.length > 0) {
-        console.groupCollapsed(chalk.green('🔓 ACTIVE SESSIONS'));
+        console.log(chalk.green('\n🔓 ACTIVE SESSIONS'));
         console.table(sessions);
-        console.groupEnd();
       }
     } catch (error) {
       console.error(chalk.red('❌ Error fetching sessions:'), error.message);
     }
 
-    // User activity statistics
+    // Activity statistics (handle permission errors gracefully)
     try {
       const activityStats = await sql`
         SELECT 
-          (SELECT COUNT(*) FROM posts WHERE author_id = ${userId}) as posts_count,
-          (SELECT COUNT(*) FROM comments WHERE author_id = ${userId}) as comments_count,
-          (SELECT COUNT(*) FROM votes WHERE user_id = ${userId}) as votes_count,
-          (SELECT COUNT(*) FROM submissions WHERE user_id = ${userId}) as submissions_count,
-          (SELECT COUNT(*) FROM custom_emojis WHERE user_id = ${userId}) as custom_emojis_count,
-          (SELECT MAX(created_at) FROM posts WHERE author_id = ${userId}) as last_post_date,
-          (SELECT MAX(created_at) FROM comments WHERE author_id = ${userId}) as last_comment_date
+          COALESCE(COUNT(DISTINCT s.submission_id), 0) as total_submissions,
+          COALESCE(COUNT(DISTINCT p.id), 0) as total_posts,
+          COALESCE(COUNT(DISTINCT c.id), 0) as total_comments,
+          COALESCE(MAX(s.submission_datetime), NULL) as latest_submission_date,
+          COALESCE(MAX(p.created_at), NULL) as latest_post_date,
+          COALESCE(MAX(c.created_at), NULL) as latest_comment_date
+        FROM users u
+        LEFT JOIN submissions s ON u.id = s.user_id
+        LEFT JOIN posts p ON u.id = p.author_id  
+        LEFT JOIN comments c ON u.id = c.author_id
+        WHERE u.id = ${userId}
+        GROUP BY u.id
       `;
 
       if (activityStats.length > 0) {
-        console.groupCollapsed(chalk.green('📊 ACTIVITY STATISTICS'));
-        console.table(activityStats[0]);
-        console.groupEnd();
+        console.log(chalk.green('\n📊 ACTIVITY STATISTICS'));
+        console.table(activityStats);
       }
     } catch (error) {
-      console.error(
-        chalk.red('❌ Error fetching activity stats:'),
-        error.message
+      console.log(
+        chalk.yellow('⚠️ Activity stats unavailable (insufficient permissions)')
       );
     }
 
@@ -340,9 +336,8 @@ async function displayUserInfo(userId) {
       `;
 
       if (roles.length > 0) {
-        console.groupCollapsed(chalk.green('🔐 USER ROLES'));
+        console.log(chalk.green('\n🔐 USER ROLES'));
         console.table(roles);
-        console.groupEnd();
 
         // For each role, show what permissions it grants
         for (const role of roles) {
@@ -366,11 +361,10 @@ async function displayUserInfo(userId) {
             `;
 
             if (rolePermissions.length > 0) {
-              console.groupCollapsed(
-                chalk.yellow(`📋 PERMISSIONS - "${role.display_name}" ROLE`)
+              console.log(
+                chalk.yellow(`\n📋 PERMISSIONS - "${role.display_name}" ROLE`)
               );
               console.table(rolePermissions);
-              console.groupEnd();
             }
           } catch (error) {
             console.error(
@@ -409,9 +403,8 @@ async function displayUserInfo(userId) {
       `;
 
       if (permissions.length > 0) {
-        console.groupCollapsed(chalk.green('⚡ DIRECT PERMISSION OVERRIDES'));
+        console.log(chalk.green('\n⚡ DIRECT PERMISSION OVERRIDES'));
         console.table(permissions);
-        console.groupEnd();
       }
     } catch (error) {
       console.error(
@@ -516,67 +509,91 @@ async function displayUserInfo(userId) {
       console.groupEnd();
     }
 
-    // Recent posts (if any)
-    const recentPosts = await sql`
-      SELECT 
-        id,
-        title,
-        subthread,
-        score,
-        comment_count,
-        created_at
-      FROM posts 
-      WHERE author_id = ${userId}
-      ORDER BY created_at DESC
-      LIMIT 5
-    `;
+    // Recent posts (if any) - use correct column name (subthread)
+    try {
+      const recentPosts = await sql`
+        SELECT 
+          id,
+          title,
+          subthread,
+          score,
+          comment_count,
+          created_at
+        FROM posts 
+        WHERE author_id = ${userId}
+        ORDER BY created_at DESC
+        LIMIT 5
+      `;
 
-    if (recentPosts.length > 0) {
-      console.groupCollapsed(chalk.green('📝 RECENT POSTS (LATEST 5)'));
-      console.table(recentPosts);
-      console.groupEnd();
+      if (recentPosts.length > 0) {
+        console.groupCollapsed(chalk.green('📝 RECENT POSTS (LATEST 5)'));
+        console.table(recentPosts);
+        console.groupEnd();
+      }
+    } catch (error) {
+      console.log(
+        chalk.yellow(
+          '⚠️ Recent posts unavailable (table may not exist or insufficient permissions)'
+        )
+      );
     }
 
     // Recent comments (if any)
-    const recentComments = await sql`
-      SELECT 
-        c.id,
-        LEFT(c.content, 100) as content_preview,
-        p.title as post_title,
-        c.score,
-        c.created_at
-      FROM comments c
-      LEFT JOIN posts p ON c.post_id = p.id
-      WHERE c.author_id = ${userId}
-      ORDER BY c.created_at DESC
-      LIMIT 5
-    `;
+    try {
+      const recentComments = await sql`
+        SELECT 
+          c.id,
+          LEFT(c.content, 100) as content_preview,
+          p.title as post_title,
+          c.score,
+          c.created_at
+        FROM comments c
+        LEFT JOIN posts p ON c.post_id = p.id
+        WHERE c.author_id = ${userId}
+        ORDER BY c.created_at DESC
+        LIMIT 5
+      `;
 
-    if (recentComments.length > 0) {
-      console.groupCollapsed(chalk.green('💬 RECENT COMMENTS (LATEST 5)'));
-      console.table(recentComments);
-      console.groupEnd();
+      if (recentComments.length > 0) {
+        console.groupCollapsed(chalk.green('💬 RECENT COMMENTS (LATEST 5)'));
+        console.table(recentComments);
+        console.groupEnd();
+      }
+    } catch (error) {
+      console.log(
+        chalk.yellow(
+          '⚠️ Recent comments unavailable (table may not exist or insufficient permissions)'
+        )
+      );
     }
 
     // Recent submissions (if any)
-    const recentSubmissions = await sql`
-      SELECT 
-        submission_id,
-        submission_name,
-        submission_title,
-        submission_url,
-        tags,
-        submission_datetime
-      FROM submissions 
-      WHERE user_id = ${userId}
-      ORDER BY submission_datetime DESC
-      LIMIT 5
-    `;
+    try {
+      const recentSubmissions = await sql`
+        SELECT 
+          submission_id,
+          submission_name,
+          submission_title,
+          submission_url,
+          tags,
+          submission_datetime
+        FROM submissions 
+        WHERE user_id = ${userId}
+        ORDER BY submission_datetime DESC
+        LIMIT 5
+      `;
 
-    if (recentSubmissions.length > 0) {
-      console.groupCollapsed(chalk.green('📄 RECENT SUBMISSIONS (LATEST 5)'));
-      console.table(recentSubmissions);
-      console.groupEnd();
+      if (recentSubmissions.length > 0) {
+        console.groupCollapsed(chalk.green('📄 RECENT SUBMISSIONS (LATEST 5)'));
+        console.table(recentSubmissions);
+        console.groupEnd();
+      }
+    } catch (error) {
+      console.log(
+        chalk.yellow(
+          '⚠️ Recent submissions unavailable (insufficient permissions)'
+        )
+      );
     }
 
     return user[0];
@@ -661,24 +678,23 @@ async function lookupUserByUsername(username) {
   console.log(
     chalk.yellow(`\n🔍 Found ${users.length} users matching "${username}":`)
   );
-  console.log(chalk.blue('='.repeat(60)));
 
   users.forEach((user, index) => {
     const displayName = user.name || 'No name';
     const email = user.email || 'No email';
     const createdDate = new Date(user.created_at).toLocaleDateString();
 
-    console.log(chalk.cyan(`${index + 1}. ID: ${user.id}`));
-    console.log(`   Name: ${displayName}`);
-    console.log(`   Email: ${email}`);
-    console.log(`   Created: ${createdDate}`);
-    console.log('');
+    console.log(
+      chalk.cyan(
+        `${index + 1}. ID: ${user.id} - ${displayName} (${email}) - Created: ${createdDate}`
+      )
+    );
   });
 
   // eslint-disable-next-line no-constant-condition
   while (true) {
     const choice = await prompt(
-      chalk.yellow(`Select user (1-${users.length}) or 'cancel': `)
+      chalk.yellow(`\nSelect user (1-${users.length}) or 'cancel': `)
     );
 
     if (choice.toLowerCase() === 'cancel') {
@@ -1294,10 +1310,8 @@ async function getUserId(cmdLineArg = null) {
 // Main user management function
 async function manageUser() {
   try {
-    console.groupCollapsed(chalk.blue.bold('👤 USER MANAGEMENT TOOL'));
-    console.log(chalk.gray('Comprehensive user administration interface'));
-    console.groupEnd();
-    console.log('');
+    console.log(chalk.blue('👤 USER MANAGEMENT TOOL'));
+    console.log(chalk.gray('Comprehensive user administration interface\n'));
 
     // Get command line argument if provided
     const cmdLineArg = process.argv[2];
@@ -1313,10 +1327,8 @@ async function manageUser() {
     const user = await displayUserInfo(parseInt(userId));
 
     // Step 3: Show user management options
-    console.groupCollapsed(chalk.blue.bold('🛠️  USER MANAGEMENT OPTIONS'));
-    console.log(chalk.gray('Select what you would like to update or manage'));
-    console.groupEnd();
-    console.log('');
+    console.log(chalk.blue('\n🛠️  USER MANAGEMENT OPTIONS'));
+    console.log(chalk.gray('Select what you would like to update or manage\n'));
 
     const updateOptions = {
       1: {
@@ -1351,16 +1363,11 @@ async function manageUser() {
       }
     };
 
-    const optionsTable = Object.entries(updateOptions).map(([key, option]) => {
-      return {
-        Option: key,
-        Category: `${option.icon} ${option.name}`,
-        Description: option.description,
-        'Database Table': option.table || 'Multiple'
-      };
+    // Display options as simple colored text
+    Object.entries(updateOptions).forEach(([key, option]) => {
+      console.log(chalk.cyan(`${key}. ${option.icon} ${option.name}`));
+      console.log(chalk.gray(`   ${option.description}`));
     });
-
-    console.table(optionsTable);
 
     const choice = await prompt(chalk.yellow('\nSelect option (1-5): '));
 
@@ -1377,14 +1384,12 @@ async function manageUser() {
       return;
     }
 
-    console.groupCollapsed(
-      chalk.green.bold(
-        `✅ SELECTED: ${selectedOption.icon} ${selectedOption.name.toUpperCase()}`
+    console.log(
+      chalk.green(
+        `\n✅ SELECTED: ${selectedOption.icon} ${selectedOption.name.toUpperCase()}`
       )
     );
-    console.log(chalk.gray(selectedOption.description));
-    console.groupEnd();
-    console.log('');
+    console.log(chalk.gray(selectedOption.description + '\n'));
 
     // Handle each update type with smart workflows
     switch (choice) {
