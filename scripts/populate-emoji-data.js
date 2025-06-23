@@ -4,7 +4,16 @@
 
 /**
  * Populate Emoji Database Script
- * Populates the database with Windows and Mac emoji data
+ * Populates the database with Windows and Mac system emoji data
+ *
+ * IMPORTANT: This script ONLY affects system emojis in emojis_windows and emojis_mac tables.
+ * User-uploaded custom emojis in the custom_emojis table are COMPLETELY PROTECTED and
+ * will never be deleted or modified by this script.
+ *
+ * Data Safety:
+ * ✅ custom_emojis table - PROTECTED (user uploads preserved)
+ * 🔄 emojis_windows table - REFRESHED (system data only)
+ * 🔄 emojis_mac table - REFRESHED (system data only)
  */
 
 // Load environment variables FIRST, before any other imports
@@ -115,8 +124,10 @@ async function validateEmojiIds() {
   }
 }
 
-async function clearAllEmojiData() {
-  console.log('🧹 Clearing all existing emoji data...');
+async function clearSystemEmojiData() {
+  console.log(
+    '🧹 Clearing SYSTEM emoji data (preserving user custom emojis)...'
+  );
 
   try {
     // Get counts before deletion
@@ -124,18 +135,31 @@ async function clearAllEmojiData() {
       await sql`SELECT COUNT(*) as count FROM emojis_windows`;
     const beforeMac = await sql`SELECT COUNT(*) as count FROM emojis_mac`;
 
-    console.log(`Found ${beforeWindows[0].count} existing Windows emojis`);
-    console.log(`Found ${beforeMac[0].count} existing Mac emojis`);
+    // Check for custom emojis to reassure user they're safe
+    const customCount =
+      await sql`SELECT COUNT(*) as count FROM custom_emojis WHERE is_active = true`;
 
-    // Clear all emoji data from both tables
+    console.log(
+      `Found ${beforeWindows[0].count} existing Windows system emojis`
+    );
+    console.log(`Found ${beforeMac[0].count} existing Mac system emojis`);
+    console.log(
+      `Found ${customCount[0].count} user custom emojis (will be preserved)`
+    );
+
+    // Clear ONLY system emoji data from both tables
+    // custom_emojis table is NOT touched - user data is preserved
     const windowsDeleted = await sql`DELETE FROM emojis_windows`;
     const macDeleted = await sql`DELETE FROM emojis_mac`;
 
-    console.log(`✓ Cleared ${beforeWindows[0].count} Windows emojis`);
-    console.log(`✓ Cleared ${beforeMac[0].count} Mac emojis`);
-    console.log('✅ All existing emoji data cleared successfully');
+    console.log(`✓ Cleared ${beforeWindows[0].count} Windows system emojis`);
+    console.log(`✓ Cleared ${beforeMac[0].count} Mac system emojis`);
+    console.log(
+      `✅ Preserved ${customCount[0].count} user custom emojis in custom_emojis table`
+    );
+    console.log('✅ System emoji data cleared successfully');
   } catch (error) {
-    console.error('❌ Error clearing emoji data:', error);
+    console.error('❌ Error clearing system emoji data:', error);
     throw error;
   }
 }
@@ -148,8 +172,8 @@ async function populateEmojiData() {
     // Step 1: Validate emoji data integrity
     await validateEmojiIds();
 
-    // Step 2: Clear all existing data
-    await clearAllEmojiData();
+    // Step 2: Clear system emoji data (preserve user custom emojis)
+    await clearSystemEmojiData();
 
     // Step 3: Get category IDs
     console.log('\n📂 Loading emoji categories...');
@@ -367,12 +391,20 @@ async function populateEmojiData() {
     console.log('\n🎯 Final verification and summary...');
     console.log('=====================================');
 
-    // Get detailed counts
+    // Get detailed counts for system emojis
     const windowsCount = await sql`
       SELECT COUNT(*) as count FROM emojis_windows WHERE is_active = true
     `;
     const macCount = await sql`
       SELECT COUNT(*) as count FROM emojis_mac WHERE is_active = true
+    `;
+
+    // Get custom emoji counts (preserved from deletion)
+    const customEmojiCount = await sql`
+      SELECT COUNT(*) as count FROM custom_emojis WHERE is_active = true
+    `;
+    const approvedCustomCount = await sql`
+      SELECT COUNT(*) as count FROM custom_emojis WHERE is_active = true AND is_approved = true
     `;
 
     // Get ASCII emoji counts specifically
@@ -387,36 +419,47 @@ async function populateEmojiData() {
       AND is_active = true
     `;
 
-    // Get category breakdown
+    // Get category breakdown including custom emojis
     const categoryBreakdown = await sql`
       SELECT 
         ec.name as category,
         COUNT(ew.id) as windows_count,
-        COUNT(em.id) as mac_count
+        COUNT(em.id) as mac_count,
+        COUNT(ce.id) as custom_count
       FROM emoji_categories ec
       LEFT JOIN emojis_windows ew ON ec.id = ew.category_id AND ew.is_active = true
       LEFT JOIN emojis_mac em ON ec.id = em.category_id AND em.is_active = true
+      LEFT JOIN custom_emojis ce ON ec.id = ce.category_id AND ce.is_active = true
       GROUP BY ec.name
       ORDER BY ec.name
     `;
 
     console.log(`\n✅ EMOJI DATA POPULATION COMPLETED!`);
     console.log(`==========================================`);
-    console.log(`📊 Total Results:`);
+    console.log(`📊 System Emoji Results:`);
     console.log(`   🪟 Windows emojis: ${windowsCount[0].count}`);
     console.log(`   🍎 Mac emojis: ${macCount[0].count}`);
     console.log(
-      `   📱 Total emojis: ${parseInt(windowsCount[0].count) + parseInt(macCount[0].count)}`
+      `   📱 Total system emojis: ${parseInt(windowsCount[0].count) + parseInt(macCount[0].count)}`
     );
 
     console.log(`\n🔤 ASCII Emoji Results:`);
     console.log(`   🪟 Windows ASCII emojis: ${windowsAsciiCount[0].count}`);
     console.log(`   🍎 Mac ASCII emojis: ${macAsciiCount[0].count}`);
 
+    console.log(`\n👤 Custom User Emojis (Preserved):`);
+    console.log(`   📁 Total custom emojis: ${customEmojiCount[0].count}`);
+    console.log(
+      `   ✅ Approved custom emojis: ${approvedCustomCount[0].count}`
+    );
+    console.log(
+      `   ⏳ Pending approval: ${parseInt(customEmojiCount[0].count) - parseInt(approvedCustomCount[0].count)}`
+    );
+
     console.log(`\n📂 Category Breakdown:`);
     categoryBreakdown.forEach((cat) => {
       console.log(
-        `   ${cat.category}: Windows(${cat.windows_count}) | Mac(${cat.mac_count})`
+        `   ${cat.category}: Windows(${cat.windows_count}) | Mac(${cat.mac_count}) | Custom(${cat.custom_count})`
       );
     });
 
@@ -427,17 +470,39 @@ async function populateEmojiData() {
     console.log(`   Actual Windows ASCII: ${windowsAsciiCount[0].count}`);
     console.log(`   Actual Mac ASCII: ${macAsciiCount[0].count}`);
 
-    const expectedTotal = allEmojis.length * 2 + allAsciiEmojis.length * 2; // Unicode for both platforms + ASCII for both platforms
-    const actualTotal =
+    const expectedSystemTotal =
+      allEmojis.length * 2 + allAsciiEmojis.length * 2; // Unicode for both platforms + ASCII for both platforms
+    const actualSystemTotal =
       parseInt(windowsCount[0].count) + parseInt(macCount[0].count);
+    const totalAllEmojis =
+      actualSystemTotal + parseInt(customEmojiCount[0].count);
 
-    console.log(`   Expected total emojis: ${expectedTotal}`);
-    console.log(`   Actual total emojis: ${actualTotal}`);
+    console.log(`   Expected system emojis: ${expectedSystemTotal}`);
+    console.log(`   Actual system emojis: ${actualSystemTotal}`);
+    console.log(`   Total emojis (including custom): ${totalAllEmojis}`);
 
-    if (actualTotal === expectedTotal) {
-      console.log(`   ✅ All emojis inserted successfully!`);
+    if (actualSystemTotal === expectedSystemTotal) {
+      console.log(`   ✅ All system emojis inserted successfully!`);
     } else {
-      console.log(`   ⚠️  Emoji count mismatch! Check for errors above.`);
+      console.log(
+        `   ⚠️  System emoji count mismatch! Check for errors above.`
+      );
+    }
+
+    console.log(`\n🔒 Data Protection Summary:`);
+    console.log(
+      `   ✅ User custom emojis preserved: ${customEmojiCount[0].count}`
+    );
+    console.log(`   🔄 System emojis refreshed: ${actualSystemTotal}`);
+    console.log(`   🛡️  No user data was lost during system emoji refresh`);
+
+    if (parseInt(customEmojiCount[0].count) > 0) {
+      console.log(
+        `\n💡 Note: Custom emojis are stored in the 'custom_emojis' table`
+      );
+      console.log(
+        `   and are completely protected from system emoji refreshes.`
+      );
     }
   } catch (error) {
     console.error('❌ Error populating emoji data:', error);
