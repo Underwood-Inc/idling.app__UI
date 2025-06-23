@@ -21,6 +21,8 @@ import { NavigationLoadingBar } from './components/ui/NavigationLoadingBar';
 import { OverlayRenderer } from './components/ui/OverlayRenderer';
 import './fonts.css';
 import './globals.css';
+// Import service worker cleanup utilities to make them globally available
+import '../lib/utils/service-worker-cleanup';
 
 const inter = Inter({ subsets: ['latin'] });
 

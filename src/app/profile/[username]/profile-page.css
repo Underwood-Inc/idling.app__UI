@@ -200,7 +200,7 @@
 
   .profile-page__info-item {
     background: var(--dark-background--tertiary);
-    border-color: var(--brand-secondary);
+    border-color: var(--dark-brand-secondary--dark);
   }
 
   .profile-page__info-item span.profile-page__info-icon {
@@ -213,15 +213,99 @@
   }
 
   .profile-page__info-value {
-    color: var(--brand-primary);
+    color: var(--brand-primary--light);
   }
 
   .profile-page__owner-note {
     background: var(--dark-background--quaternary);
-    border-color: var(--brand-secondary);
+    border-color: var(--dark-brand-secondary--dark);
   }
 
   .profile-page__owner-note p {
+    color: var(--dark-bg__text-color--secondary);
+  }
+
+  /* User not found dark mode */
+  .user-not-found-page {
+    background: var(--dark-background--primary);
+  }
+
+  .user-not-found-main,
+  .user-not-found-aside {
+    background: var(--dark-background--primary);
+    border-color: var(--brand-primary);
+  }
+
+  .user-not-found-main:hover {
+    border-color: var(--brand-primary--dark);
+  }
+
+  .user-not-found-aside:hover {
+    border-color: var(--brand-secondary--dark);
+  }
+
+  .user-not-found-help-card {
+    background: var(--dark-background--secondary);
+  }
+
+  .user-not-found-help-title,
+  .user-not-found__title {
+    color: var(--dark-bg__text-color--primary);
+  }
+
+  .user-not-found__message {
+    color: var(--dark-bg__text-color--secondary);
+  }
+
+  .user-not-found__reasons {
+    background: rgba(var(--brand-tertiary), 0.1);
+    border-color: rgba(var(--brand-tertiary--dark), 0.2);
+  }
+
+  .user-not-found__reasons li {
+    color: var(--dark-bg__text-color--secondary);
+  }
+
+  .user-not-found__action--secondary {
+    background: var(--dark-background--tertiary);
+    color: var(--dark-bg__text-color--primary);
+    border-color: rgba(var(--brand-tertiary--dark), 0.4);
+  }
+
+  .user-not-found__action--secondary:hover {
+    background: rgba(var(--brand-primary), 0.15);
+    border-color: rgba(var(--brand-primary), 0.5);
+    color: var(--brand-primary--light);
+  }
+
+  .user-not-found__suggestion {
+    background: rgba(var(--brand-primary--light), 0.1);
+    border-color: rgba(var(--brand-primary), 0.2);
+  }
+
+  .user-not-found__suggestion p {
+    color: var(--dark-bg__text-color--secondary);
+  }
+
+  .user-not-found__suggestion strong {
+    color: var(--dark-bg__text-color--primary);
+  }
+
+  .user-not-found__help-item {
+    background: rgba(var(--dark-background--tertiary), 0.7);
+    border-color: rgba(var(--brand-tertiary--dark), 0.3);
+  }
+
+  .user-not-found__help-item:hover {
+    background: rgba(var(--brand-primary--light), 0.15);
+    border-color: rgba(var(--brand-primary), 0.4);
+  }
+
+  .user-not-found__help-label {
+    color: var(--dark-bg__text-color--primary);
+  }
+
+  .user-not-found__help-description {
     color: var(--dark-bg__text-color--secondary);
   }
 }
@@ -273,24 +357,39 @@
 }
 
 .user-not-found-main {
-  background: var(--light-background--secondary);
-  border: 1px solid var(--brand-tertiary--light);
+  background: var(--light-background--primary);
+  border: 2px solid var(--brand-primary);
   border-radius: var(--border-radius);
   padding: 0;
   overflow: hidden;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 8px 25px rgba(200, 130, 20, 0.15);
+  transition: all 0.2s ease-in-out;
+}
+
+.user-not-found-main:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 35px rgba(200, 130, 20, 0.2);
+  border-color: var(--brand-primary--dark);
 }
 
 .user-not-found-aside {
-  background: var(--light-background--secondary);
-  border: 1px solid var(--brand-tertiary--light);
+  background: var(--light-background--primary);
+  border: 2px solid var(--brand-secondary);
   border-radius: var(--border-radius);
   overflow: hidden;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 8px 25px rgba(200, 130, 20, 0.1);
+  transition: all 0.2s ease-in-out;
+}
+
+.user-not-found-aside:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 35px rgba(200, 130, 20, 0.15);
+  border-color: var(--brand-secondary--dark);
 }
 
 .user-not-found-help-card {
-  padding: 1.5rem;
+  padding: 2rem;
+  background: var(--light-background--secondary);
 }
 
 .user-not-found-help-title {
@@ -487,80 +586,6 @@
   font-size: var(--font-size-sm);
   color: var(--light-bg__text-color--secondary);
   line-height: 1.4;
-}
-
-/* Dark mode support */
-@media (prefers-color-scheme: dark) {
-  .user-not-found-page {
-    background: var(--dark-background--primary);
-  }
-
-  .user-not-found-main,
-  .user-not-found-aside {
-    background: var(--dark-background--secondary);
-    border-color: rgba(var(--dark-border--secondary), 0.5);
-  }
-
-  .user-not-found-help-title,
-  .user-not-found__title {
-    color: var(--dark-bg__text-color--primary);
-  }
-
-  .user-not-found__message {
-    color: var(--dark-bg__text-color--secondary);
-  }
-
-  .user-not-found__reasons {
-    background: rgba(var(--brand-tertiary), 0.12);
-    border-color: rgba(var(--brand-tertiary--dark), 0.25);
-  }
-
-  .user-not-found__reasons li {
-    color: var(--dark-bg__text-color--secondary);
-  }
-
-  .user-not-found__action--secondary {
-    background: rgba(var(--dark-background--tertiary), 0.8);
-    color: var(--dark-bg__text-color--primary);
-    border-color: rgba(var(--dark-border--secondary), 0.5);
-  }
-
-  .user-not-found__action--secondary:hover {
-    background: rgba(var(--brand-primary), 0.15);
-    border-color: rgba(var(--brand-primary), 0.4);
-    color: var(--brand-primary--light);
-  }
-
-  .user-not-found__suggestion {
-    background: rgba(var(--brand-primary--light), 0.12);
-    border-color: rgba(var(--brand-primary), 0.25);
-  }
-
-  .user-not-found__suggestion p {
-    color: var(--dark-bg__text-color--secondary);
-  }
-
-  .user-not-found__suggestion strong {
-    color: var(--dark-bg__text-color--primary);
-  }
-
-  .user-not-found__help-item {
-    background: rgba(var(--dark-background--tertiary), 0.6);
-    border-color: rgba(var(--dark-border--secondary), 0.4);
-  }
-
-  .user-not-found__help-item:hover {
-    background: rgba(var(--brand-primary--light), 0.15);
-    border-color: rgba(var(--brand-primary), 0.4);
-  }
-
-  .user-not-found__help-label {
-    color: var(--dark-bg__text-color--primary);
-  }
-
-  .user-not-found__help-description {
-    color: var(--dark-bg__text-color--secondary);
-  }
 }
 
 /* Responsive design */

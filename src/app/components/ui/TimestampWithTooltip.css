@@ -6,6 +6,17 @@
   transition: color 0.2s ease;
 }
 
+/* Abbreviated timestamp for compact display (like footer) */
+.timestamp-with-tooltip.abbreviated {
+  display: inline-block;
+  min-width: 2.5rem;
+  /* Ensure consistent width for short times like "1s", "2m", etc. */
+  text-align: left;
+  font-family: var(--font-mono, 'Courier New', monospace);
+  font-variant-numeric: tabular-nums;
+  /* Use tabular numbers for consistent digit width */
+}
+
 .timestamp-with-tooltip:hover {
   color: var(--brand-primary);
   text-decoration-color: var(--brand-primary);

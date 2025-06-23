@@ -11,6 +11,7 @@ interface TimestampWithTooltipProps {
   className?: string;
   showSeconds?: boolean;
   updateInterval?: number; // milliseconds, default 60000 (1 minute)
+  abbreviated?: boolean; // New prop for compact display
 }
 
 interface TimeUnit {
@@ -22,7 +23,8 @@ export const TimestampWithTooltip: React.FC<TimestampWithTooltipProps> = ({
   date,
   className = '',
   showSeconds = false,
-  updateInterval = 60000
+  updateInterval = 60000,
+  abbreviated = false
 }) => {
   const [currentTime, setCurrentTime] = useState(Date.now());
   const [userTimezone, setUserTimezone] = useState<string>('UTC');
@@ -92,6 +94,40 @@ export const TimestampWithTooltip: React.FC<TimestampWithTooltipProps> = ({
     return units.filter((unit) => unit.value > 0);
   };
 
+  // Format abbreviated time with fixed width for footer
+  const formatAbbreviatedTime = (date: Date): string => {
+    const units = getTimeUnits(date);
+
+    if (units.length === 0) {
+      return 'now';
+    }
+
+    // Take only the largest unit for abbreviated display
+    const largestUnit = units[0];
+    const value = largestUnit.value;
+    const unit = largestUnit.unit;
+
+    // Use consistent abbreviations with fixed character width
+    switch (unit) {
+      case 'years':
+        return `${value}y`;
+      case 'months':
+        return `${value}mo`;
+      case 'weeks':
+        return `${value}w`;
+      case 'days':
+        return `${value}d`;
+      case 'hours':
+        return `${value}h`;
+      case 'minutes':
+        return `${value}m`;
+      case 'seconds':
+        return `${value}s`;
+      default:
+        return 'now';
+    }
+  };
+
   // Format relative time with two precision units
   const formatRelativeTime = (date: Date): string => {
     const units = getTimeUnits(date);
@@ -131,7 +167,7 @@ export const TimestampWithTooltip: React.FC<TimestampWithTooltipProps> = ({
 
   // Create tooltip content
   const tooltipContent = (
-    <div style={{ minWidth: '280px', maxWidth: '350px' }}>
+    <div style={{ minWidth: '300px', maxWidth: '350px' }}>
       <div
         style={{
           padding: '12px 16px',
@@ -153,7 +189,8 @@ export const TimestampWithTooltip: React.FC<TimestampWithTooltipProps> = ({
         <div
           style={{
             fontSize: '13px',
-            color: 'rgba(255, 255, 255, 0.8)'
+            color: 'rgba(255, 255, 255, 0.8)',
+            wordWrap: 'break-word'
           }}
         >
           {formatFullTimestamp(parsedDate)}
@@ -175,7 +212,8 @@ export const TimestampWithTooltip: React.FC<TimestampWithTooltipProps> = ({
           style={{
             fontSize: '13px',
             color: 'rgba(255, 255, 255, 0.8)',
-            fontFamily: 'var(--font-mono, monospace)'
+            fontFamily: 'var(--font-mono, monospace)',
+            wordWrap: 'break-word'
           }}
         >
           {formatInTimeZone(parsedDate, 'UTC', 'yyyy-MM-dd HH:mm:ss')} UTC
@@ -197,7 +235,8 @@ export const TimestampWithTooltip: React.FC<TimestampWithTooltipProps> = ({
           style={{
             fontSize: '13px',
             color: 'rgba(255, 255, 255, 0.8)',
-            fontFamily: 'var(--font-mono, monospace)'
+            fontFamily: 'var(--font-mono, monospace)',
+            wordWrap: 'break-word'
           }}
         >
           {formatInTimeZone(
@@ -210,7 +249,9 @@ export const TimestampWithTooltip: React.FC<TimestampWithTooltipProps> = ({
     </div>
   );
 
-  const relativeTime = formatRelativeTime(parsedDate);
+  const relativeTime = abbreviated
+    ? formatAbbreviatedTime(parsedDate)
+    : formatRelativeTime(parsedDate);
 
   return (
     <InteractiveTooltip
@@ -220,7 +261,7 @@ export const TimestampWithTooltip: React.FC<TimestampWithTooltipProps> = ({
       className="timestamp-tooltip"
     >
       <span
-        className={`timestamp-with-tooltip ${className}`}
+        className={`timestamp-with-tooltip ${abbreviated ? 'abbreviated' : ''} ${className}`}
         style={{
           cursor: 'help',
           textDecoration: 'underline',

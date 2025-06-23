@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
+import { enforceOneServiceWorker } from '../../../lib/utils/service-worker-cleanup';
 
 /* eslint-disable no-console */
 
@@ -11,31 +12,9 @@ export function ServiceWorkerRegistration() {
         try {
           console.groupCollapsed('🔧 Service Worker Registration');
 
-          // Step 1: Clean up ALL existing service workers first
-          console.log('🧹 Cleaning up existing service workers...');
-          const existingRegistrations =
-            await navigator.serviceWorker.getRegistrations();
-
-          if (existingRegistrations.length > 0) {
-            console.log(
-              `Found ${existingRegistrations.length} existing service worker(s)`
-            );
-
-            // Unregister all existing service workers
-            await Promise.all(
-              existingRegistrations.map(async (registration) => {
-                try {
-                  await registration.unregister();
-                  console.log('✅ Unregistered old service worker');
-                } catch (e) {
-                  console.warn('⚠️ Failed to unregister service worker:', e);
-                }
-              })
-            );
-
-            // Wait a moment for cleanup to complete
-            await new Promise((resolve) => setTimeout(resolve, 100));
-          }
+          // Step 1: IMMEDIATE cleanup - enforce single service worker
+          console.log('🧹 Enforcing single service worker...');
+          await enforceOneServiceWorker();
 
           // Step 2: Clear all caches before registering new service worker
           console.log('🗑️ Clearing all caches...');
@@ -64,7 +43,10 @@ export function ServiceWorkerRegistration() {
             });
           }
 
-          // Step 4: Register new service worker with aggressive cache control
+          // Step 4: Final check before registration
+          await enforceOneServiceWorker();
+
+          // Step 5: Register new service worker with aggressive cache control
           console.log('📝 Registering new service worker...');
           const registration = await navigator.serviceWorker.register(
             '/sw.js',
@@ -79,7 +61,7 @@ export function ServiceWorkerRegistration() {
             registration.scope
           );
 
-          // Step 5: Handle service worker updates
+          // Step 6: Handle service worker updates
           registration.addEventListener('updatefound', () => {
             const newWorker = registration.installing;
             if (newWorker) {
@@ -105,14 +87,14 @@ export function ServiceWorkerRegistration() {
 
                 if (newWorker.state === 'activated') {
                   console.log('✅ New service worker activated');
-                  // Reload page to use new service worker
-                  window.location.reload();
+                  // Enforce single service worker after activation
+                  setTimeout(() => enforceOneServiceWorker(), 1000);
                 }
               });
             }
           });
 
-          // Step 6: Listen for service worker messages
+          // Step 7: Listen for service worker messages
           navigator.serviceWorker.addEventListener('message', (event) => {
             if (event.data && event.data.type === 'SW_UPDATED') {
               console.log(
@@ -122,159 +104,63 @@ export function ServiceWorkerRegistration() {
             }
           });
 
-          // Step 7: Handle service worker controller changes
+          // Step 8: Handle service worker controller changes
           navigator.serviceWorker.addEventListener('controllerchange', () => {
             console.log('👑 Service worker controller changed');
-            // Reload to ensure we're using the new service worker
-            window.location.reload();
+            // Enforce single service worker on controller change
+            setTimeout(() => enforceOneServiceWorker(), 500);
           });
 
-          // Step 8: Periodic cleanup check (every hour)
+          // Step 9: Aggressive periodic cleanup (every 5 minutes instead of 1 hour)
           const cleanupInterval = setInterval(
             async () => {
-              try {
-                const registrations =
-                  await navigator.serviceWorker.getRegistrations();
-                if (registrations.length > 1) {
-                  console.log(
-                    '🧹 Multiple service workers detected, cleaning up...'
-                  );
-
-                  // Keep only the most recent registration
-                  const sortedRegistrations = [...registrations].sort(
-                    (
-                      a: ServiceWorkerRegistration,
-                      b: ServiceWorkerRegistration
-                    ) => {
-                      const aTime =
-                        a.installing?.scriptURL ||
-                        a.waiting?.scriptURL ||
-                        a.active?.scriptURL ||
-                        '';
-                      const bTime =
-                        b.installing?.scriptURL ||
-                        b.waiting?.scriptURL ||
-                        b.active?.scriptURL ||
-                        '';
-                      return bTime.localeCompare(aTime);
-                    }
-                  );
-
-                  // Unregister all but the first (most recent)
-                  for (let i = 1; i < sortedRegistrations.length; i++) {
-                    try {
-                      await sortedRegistrations[i].unregister();
-                      console.log('✅ Cleaned up old service worker');
-                    } catch (e) {
-                      console.warn(
-                        '⚠️ Failed to cleanup old service worker:',
-                        e
-                      );
-                    }
-                  }
-                }
-              } catch (e) {
-                console.warn('⚠️ Periodic cleanup failed:', e);
-              }
+              await enforceOneServiceWorker();
             },
-            60 * 60 * 1000
-          ); // Every hour
+            5 * 60 * 1000
+          ); // Every 5 minutes
 
-          // Cleanup interval on component unmount
+          // Step 10: Cleanup on visibility change (when user returns to tab)
+          const handleVisibilityChange = async () => {
+            if (document.visibilityState === 'visible') {
+              console.log(
+                '🔍 Tab visible: checking for multiple service workers...'
+              );
+              await enforceOneServiceWorker();
+            }
+          };
+
+          document.addEventListener('visibilitychange', handleVisibilityChange);
+
+          // Step 11: Cleanup on page focus (when user clicks on window)
+          const handleFocus = async () => {
+            console.log(
+              '🔍 Page focused: checking for multiple service workers...'
+            );
+            await enforceOneServiceWorker();
+          };
+
+          window.addEventListener('focus', handleFocus);
+
+          // Cleanup all listeners on component unmount
           return () => {
             clearInterval(cleanupInterval);
+            document.removeEventListener(
+              'visibilitychange',
+              handleVisibilityChange
+            );
+            window.removeEventListener('focus', handleFocus);
           };
         } catch (err) {
           console.error('❌ Service worker registration failed:', err);
-
-          // Enhanced fallback registration attempts
-          if (err instanceof Error) {
-            console.log(
-              '🔄 Attempting fallback service worker registration...'
-            );
-
-            try {
-              // Try with minimal options
-              const fallbackRegistration =
-                await navigator.serviceWorker.register('/sw.js', {
-                  updateViaCache: 'none'
-                });
-              console.log(
-                '✅ Fallback service worker registration successful:',
-                fallbackRegistration.scope
-              );
-            } catch (fallbackErr) {
-              console.error(
-                '❌ Fallback service worker registration also failed:',
-                fallbackErr
-              );
-
-              // Last resort: try with no options
-              try {
-                const lastResortRegistration =
-                  await navigator.serviceWorker.register('/sw.js');
-                console.log(
-                  '✅ Last resort service worker registration successful:',
-                  lastResortRegistration.scope
-                );
-              } catch (lastResortErr) {
-                console.error(
-                  '❌ All service worker registration attempts failed:',
-                  lastResortErr
-                );
-              }
-            }
-          }
-        } finally {
           console.groupEnd();
         }
       };
 
-      // Start registration process
+      // Start registration process immediately
       registerServiceWorker();
 
-      // Listen for page visibility changes to trigger cleanup
-      const handleVisibilityChange = async () => {
-        if (document.visibilityState === 'visible') {
-          // Check for multiple registrations when page becomes visible
-          try {
-            const registrations =
-              await navigator.serviceWorker.getRegistrations();
-            if (registrations.length > 1) {
-              console.log(
-                '🧹 Page visible: cleaning up multiple service workers...'
-              );
-
-              // Unregister all but the most recent
-              for (let i = 1; i < registrations.length; i++) {
-                try {
-                  await registrations[i].unregister();
-                  console.log(
-                    '✅ Cleaned up old service worker on visibility change'
-                  );
-                } catch (e) {
-                  console.warn(
-                    '⚠️ Failed to cleanup service worker on visibility change:',
-                    e
-                  );
-                }
-              }
-            }
-          } catch (e) {
-            console.warn('⚠️ Visibility change cleanup failed:', e);
-          }
-        }
-      };
-
-      document.addEventListener('visibilitychange', handleVisibilityChange);
-
-      // Cleanup on component unmount
-      return () => {
-        document.removeEventListener(
-          'visibilitychange',
-          handleVisibilityChange
-        );
-      };
+      // Also run immediate cleanup on component mount
+      enforceOneServiceWorker();
     }
   }, []);
 
