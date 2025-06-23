@@ -1,5 +1,10 @@
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
+import {
+  cleanContentForSocialSharing,
+  extractEmbedUrls,
+  getFirstYouTubeUrl
+} from '../../../lib/utils/social-sharing';
 import { Submission } from '../../components/submission-forms/schema';
 import { getSubmissionThread } from '../../components/thread/actions';
 import ThreadPageClient from './ThreadPageClient';
@@ -45,22 +50,100 @@ export async function generateMetadata({
     const replyCount = threadData.replies.length;
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://idling.app';
 
-    // Truncate content for description (150 chars max for optimal social sharing)
-    const description =
-      content.length > 150 ? content.substring(0, 147) + '...' : content;
+    // Clean title and content for social media sharing
+    const cleanTitle = cleanContentForSocialSharing(title, {
+      convertEmbedsToUrls: true,
+      maxLength: 100 // Shorter for titles
+    });
+
+    const cleanContent = cleanContentForSocialSharing(content, {
+      convertEmbedsToUrls: true,
+      maxLength: 150 // Optimal for social sharing descriptions
+    });
+
+    // Check for YouTube URLs and other embeds in the title for enhanced social sharing
+    const youtubeUrl = getFirstYouTubeUrl(title);
+    const embedUrls = extractEmbedUrls(title);
 
     // Enhanced metadata with thread-specific information
     const metaTitle =
       replyCount > 0
-        ? `${title} (${replyCount} ${replyCount === 1 ? 'reply' : 'replies'}) - Thread Discussion | Idling.app`
-        : `${title} - Thread Discussion | Idling.app`;
+        ? `${cleanTitle} (${replyCount} ${replyCount === 1 ? 'reply' : 'replies'}) - Thread Discussion | Idling.app`
+        : `${cleanTitle} - Thread Discussion | Idling.app`;
+
+    // Base Open Graph metadata
+    const openGraphMetadata: any = {
+      title: cleanTitle,
+      description: cleanContent,
+      type: 'article',
+      authors: [author],
+      publishedTime: parent.submission_datetime.toISOString(),
+      tags: parent.tags,
+      siteName: 'Idling.app',
+      url: `${baseUrl}/t/${submissionId}`
+    };
+
+    // Base Twitter Card metadata
+    const twitterMetadata: any = {
+      card: 'summary_large_image',
+      title: cleanTitle,
+      description: cleanContent,
+      creator: `@${author}`,
+      site: '@idlingapp' // Update with your actual Twitter handle
+    };
+
+    // Enhanced metadata for YouTube embeds in thread title
+    if (youtubeUrl) {
+      const videoId = extractYouTubeVideoId(youtubeUrl);
+
+      if (videoId) {
+        // Use video player card for Twitter
+        twitterMetadata.card = 'player';
+        twitterMetadata.player = `https://www.youtube.com/embed/${videoId}`;
+        twitterMetadata.playerWidth = 560;
+        twitterMetadata.playerHeight = 315;
+
+        // Add video-specific Open Graph metadata
+        openGraphMetadata.type = 'video.other';
+        openGraphMetadata.video = `https://www.youtube.com/embed/${videoId}`;
+        openGraphMetadata.videoSecureUrl = `https://www.youtube.com/embed/${videoId}`;
+        openGraphMetadata.videoType = 'text/html';
+        openGraphMetadata.videoWidth = 560;
+        openGraphMetadata.videoHeight = 315;
+
+        // Add YouTube thumbnail as image
+        openGraphMetadata.images = [
+          {
+            url: `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`,
+            width: 1280,
+            height: 720,
+            alt: `YouTube video: ${cleanTitle}`
+          }
+        ];
+
+        twitterMetadata.image = `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
+      }
+    } else if (embedUrls.length > 0) {
+      // If there are other embed URLs (images, etc.), use the first one as the preview image
+      const firstUrl = embedUrls[0];
+      if (isImageUrl(firstUrl)) {
+        openGraphMetadata.images = [
+          {
+            url: firstUrl,
+            alt: `Image from thread: ${cleanTitle}`
+          }
+        ];
+        twitterMetadata.card = 'summary_large_image';
+        twitterMetadata.image = firstUrl;
+      }
+    }
 
     // Generate JSON-LD structured data
     const jsonLd = {
       '@context': 'https://schema.org',
       '@type': 'DiscussionForumPosting',
-      headline: title,
-      text: content,
+      headline: cleanTitle,
+      text: cleanContent,
       author: {
         '@type': 'Person',
         name: author
@@ -83,12 +166,23 @@ export async function generateMetadata({
       },
       ...(parent.tags.length > 0 && {
         keywords: parent.tags.join(', ')
+      }),
+      // Add video metadata to structured data if YouTube video is present
+      ...(youtubeUrl && {
+        video: {
+          '@type': 'VideoObject',
+          name: cleanTitle,
+          description: cleanContent,
+          embedUrl: `https://www.youtube.com/embed/${extractYouTubeVideoId(youtubeUrl)}`,
+          thumbnailUrl: `https://img.youtube.com/vi/${extractYouTubeVideoId(youtubeUrl)}/maxresdefault.jpg`,
+          uploadDate: parent.submission_datetime.toISOString()
+        }
       })
     };
 
     return {
       title: metaTitle,
-      description: description,
+      description: cleanContent,
       keywords: [
         'thread',
         'discussion',
@@ -100,22 +194,8 @@ export async function generateMetadata({
         .filter(Boolean)
         .join(', '),
       authors: [{ name: author }],
-      openGraph: {
-        title: title,
-        description: description,
-        type: 'article',
-        authors: [author],
-        publishedTime: parent.submission_datetime.toISOString(),
-        tags: parent.tags,
-        siteName: 'Idling.app',
-        url: `${baseUrl}/t/${submissionId}`
-      },
-      twitter: {
-        card: 'summary_large_image',
-        title: title,
-        description: description,
-        creator: `@${author}`
-      },
+      openGraph: openGraphMetadata,
+      twitter: twitterMetadata,
       robots: {
         index: true,
         follow: true,
@@ -138,6 +218,32 @@ export async function generateMetadata({
       description: 'Join the discussion on Idling.app'
     };
   }
+}
+
+/**
+ * Extract YouTube video ID from various YouTube URL formats
+ */
+function extractYouTubeVideoId(url: string): string | null {
+  const patterns = [
+    /(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\n?#]+)/,
+    /youtube\.com\/embed\/([^&\n?#]+)/,
+    /youtube\.com\/v\/([^&\n?#]+)/
+  ];
+
+  for (const pattern of patterns) {
+    const match = url.match(pattern);
+    if (match) return match[1];
+  }
+  return null;
+}
+
+/**
+ * Check if URL is likely an image
+ */
+function isImageUrl(url: string): boolean {
+  return /\.(jpg|jpeg|png|gif|webp|svg|bmp|ico|avif|tiff|tif)(\?.*)?$/i.test(
+    url
+  );
 }
 
 export default async function ThreadPage({ params }: ThreadPageProps) {
