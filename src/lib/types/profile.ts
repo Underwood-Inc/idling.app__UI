@@ -13,5 +13,4 @@ export interface UserProfileData {
   posts_count?: number;
   replies_count?: number;
   last_activity?: Date | null;
-  slug?: string;
 }
