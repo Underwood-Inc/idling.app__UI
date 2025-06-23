@@ -169,6 +169,9 @@ export const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
           if (closeTooltip) closeTooltip();
         }}
         className="toolbar-emoji-picker"
+        enablePagination={true}
+        itemsPerPage={18}
+        maxResults={200}
       />
     </div>
   );

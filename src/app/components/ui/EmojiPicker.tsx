@@ -4,6 +4,25 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { EmojiData, useEmojis } from '../../hooks/useEmojis';
 import './EmojiPicker.css';
 
+/**
+ * EmojiPicker Component with Pagination Support
+ *
+ * Features:
+ * - Search functionality across all emojis
+ * - Category filtering
+ * - Pagination support for large emoji sets
+ * - Keyboard navigation (Escape to close)
+ * - Click-outside-to-close behavior
+ * - Responsive design with mobile support
+ * - Dark mode support
+ *
+ * Pagination:
+ * - Enable with `enablePagination={true}`
+ * - Set items per page with `itemsPerPage` prop
+ * - Pagination resets when changing categories or searching
+ * - Shows current page info and navigation controls
+ */
+
 // Re-export EmojiData for use in other components
 export type { EmojiData } from '../../hooks/useEmojis';
 
@@ -15,6 +34,9 @@ export interface EmojiPickerProps {
   searchQuery?: string;
   maxResults?: number;
   className?: string;
+  // Pagination props
+  enablePagination?: boolean;
+  itemsPerPage?: number;
 }
 
 export interface EmojiPickerTriggerProps {
@@ -32,7 +54,9 @@ export const EmojiPicker: React.FC<EmojiPickerProps> = ({
   position,
   searchQuery = '',
   maxResults = 24,
-  className = ''
+  className = '',
+  enablePagination = false,
+  itemsPerPage = 24
 }) => {
   const {
     emojis,
@@ -55,6 +79,10 @@ export const EmojiPicker: React.FC<EmojiPickerProps> = ({
   const [isChangingCategory, setIsChangingCategory] = useState(false);
   const [localSearchQuery, setLocalSearchQuery] = useState(searchQuery);
 
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalEmojis, setTotalEmojis] = useState(0);
+
   // Sync selected category with the filters from useEmojis hook
   useEffect(() => {
     if (!filters.category) {
@@ -69,10 +97,33 @@ export const EmojiPicker: React.FC<EmojiPickerProps> = ({
     setLocalSearchQuery(searchQuery);
   }, [searchQuery]);
 
-  // Use emojis directly from API - no client-side filtering needed
+  // Update total emojis count
+  useEffect(() => {
+    setTotalEmojis(emojis.length);
+  }, [emojis]);
+
+  // Reset pagination when category or search changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [selectedCategory, localSearchQuery]);
+
+  // Use emojis directly from API with pagination support
   const filteredEmojis = useMemo(() => {
-    return emojis.slice(0, maxResults);
-  }, [emojis, maxResults]);
+    if (!enablePagination) {
+      return emojis.slice(0, maxResults);
+    }
+
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    return emojis.slice(startIndex, endIndex);
+  }, [emojis, maxResults, enablePagination, currentPage, itemsPerPage]);
+
+  // Calculate pagination info
+  const totalPages = enablePagination
+    ? Math.ceil(totalEmojis / itemsPerPage)
+    : 1;
+  const hasNextPage = currentPage < totalPages;
+  const hasPrevPage = currentPage > 1;
 
   // Handle emoji selection
   const handleEmojiClick = useCallback(
@@ -87,6 +138,28 @@ export const EmojiPicker: React.FC<EmojiPickerProps> = ({
     [onEmojiSelect, trackEmojiUsage]
   );
 
+  // Pagination handlers
+  const handleNextPage = useCallback(() => {
+    if (hasNextPage) {
+      setCurrentPage((prev) => prev + 1);
+    }
+  }, [hasNextPage]);
+
+  const handlePrevPage = useCallback(() => {
+    if (hasPrevPage) {
+      setCurrentPage((prev) => prev - 1);
+    }
+  }, [hasPrevPage]);
+
+  const handlePageChange = useCallback(
+    (page: number) => {
+      if (page >= 1 && page <= totalPages) {
+        setCurrentPage(page);
+      }
+    },
+    [totalPages]
+  );
+
   // Handle category selection with loading state
   const handleCategorySelect = useCallback(
     async (category: string) => {
@@ -96,6 +169,7 @@ export const EmojiPicker: React.FC<EmojiPickerProps> = ({
       setIsChangingCategory(true);
       setSelectedCategory(category);
       setLocalSearchQuery(''); // Clear search when selecting category
+      setCurrentPage(1); // Reset pagination when changing category
 
       try {
         if (category === 'all') {
@@ -117,6 +191,7 @@ export const EmojiPicker: React.FC<EmojiPickerProps> = ({
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const query = e.target.value;
       setLocalSearchQuery(query);
+      setCurrentPage(1); // Reset pagination when searching
       if (query.trim()) {
         searchEmojis(query.trim());
         setSelectedCategory('all'); // Switch to 'all' when searching
@@ -249,40 +324,85 @@ export const EmojiPicker: React.FC<EmojiPickerProps> = ({
         )}
 
         {showContent && (
-          <div
-            className={`emoji-picker__grid ${isChangingCategory ? 'emoji-picker__grid--loading' : ''}`}
-          >
-            {filteredEmojis.map((emoji: EmojiData, index: number) => (
-              <button
-                key={`${emoji.emoji_id}-${index}`}
-                className="emoji-picker__emoji"
-                onClick={() => handleEmojiClick(emoji)}
-                title={`:${emoji.emoji_id}:`}
-                disabled={isChangingCategory}
-              >
-                {emoji.is_custom && emoji.custom_image_url ? (
-                  <img
-                    src={emoji.custom_image_url}
-                    alt={`:${emoji.emoji_id}:`}
-                    className="emoji-picker__emoji-image"
-                    loading="lazy"
-                  />
-                ) : (
-                  <span className="emoji-picker__emoji-char">
-                    {emoji.unicode_char || `:${emoji.emoji_id}:`}
+          <>
+            <div
+              className={`emoji-picker__grid ${isChangingCategory ? 'emoji-picker__grid--loading' : ''}`}
+            >
+              {filteredEmojis.map((emoji: EmojiData, index: number) => (
+                <button
+                  key={`${emoji.emoji_id}-${index}`}
+                  className="emoji-picker__emoji"
+                  onClick={() => handleEmojiClick(emoji)}
+                  title={`:${emoji.emoji_id}:`}
+                  disabled={isChangingCategory}
+                >
+                  {emoji.is_custom && emoji.custom_image_url ? (
+                    <img
+                      src={emoji.custom_image_url}
+                      alt={`:${emoji.emoji_id}:`}
+                      className="emoji-picker__emoji-image"
+                      loading="lazy"
+                    />
+                  ) : (
+                    <span className="emoji-picker__emoji-char">
+                      {emoji.unicode_char || `:${emoji.emoji_id}:`}
+                    </span>
+                  )}
+                </button>
+              ))}
+            </div>
+
+            {enablePagination && totalPages > 1 && (
+              <div className="emoji-picker__pagination">
+                <button
+                  className="emoji-picker__pagination-btn emoji-picker__pagination-btn--prev"
+                  onClick={handlePrevPage}
+                  disabled={!hasPrevPage || isChangingCategory}
+                  title="Previous page"
+                >
+                  ‹
+                </button>
+
+                <div className="emoji-picker__pagination-info">
+                  <span className="emoji-picker__pagination-current">
+                    {currentPage}
                   </span>
-                )}
-              </button>
-            ))}
-          </div>
+                  <span className="emoji-picker__pagination-separator">/</span>
+                  <span className="emoji-picker__pagination-total">
+                    {totalPages}
+                  </span>
+                </div>
+
+                <button
+                  className="emoji-picker__pagination-btn emoji-picker__pagination-btn--next"
+                  onClick={handleNextPage}
+                  disabled={!hasNextPage || isChangingCategory}
+                  title="Next page"
+                >
+                  ›
+                </button>
+              </div>
+            )}
+          </>
         )}
       </div>
 
       {filteredEmojis.length > 0 && !isChangingCategory && (
         <div className="emoji-picker__footer">
           <span className="emoji-picker__count">
-            {filteredEmojis.length} emoji
-            {filteredEmojis.length !== 1 ? 's' : ''}
+            {enablePagination ? (
+              <>
+                Showing {(currentPage - 1) * itemsPerPage + 1}-
+                {Math.min(currentPage * itemsPerPage, totalEmojis)} of{' '}
+                {totalEmojis} emoji
+                {totalEmojis !== 1 ? 's' : ''}
+              </>
+            ) : (
+              <>
+                {filteredEmojis.length} emoji
+                {filteredEmojis.length !== 1 ? 's' : ''}
+              </>
+            )}
           </span>
         </div>
       )}
@@ -320,7 +440,10 @@ export function formatEmojiForText(emoji: EmojiData): string {
 }
 
 // Hook for managing emoji picker state
-export function useEmojiPicker() {
+export function useEmojiPicker(options?: {
+  enablePagination?: boolean;
+  itemsPerPage?: number;
+}) {
   const [isOpen, setIsOpen] = useState(false);
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [searchQuery, setSearchQuery] = useState('');
@@ -341,6 +464,9 @@ export function useEmojiPicker() {
     position,
     searchQuery,
     openAt,
-    close
+    close,
+    // Pass pagination options through to component
+    enablePagination: options?.enablePagination ?? false,
+    itemsPerPage: options?.itemsPerPage ?? 24
   };
 }
