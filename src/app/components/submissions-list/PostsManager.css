@@ -263,7 +263,6 @@
 }
 
 .posts-manager__filter-toggle--has-filters:not(.posts-manager__filter-toggle--active)::after {
-  content: '';
   position: absolute;
   top: 4px;
   right: 4px;

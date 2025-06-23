@@ -656,8 +656,8 @@ body.modal-open .link-preview-modal {
 
 /* Mention tooltip content - used inside InteractiveTooltip */
 .mention-tooltip-content {
-  background: var(--light-background--quaternary);
-  border: 1px solid var(--light-border--primary);
+  background: var(--dark-background--secondary);
+  border: 1px solid var(--dark-border--primary);
   border-radius: var(--border-radius);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   padding: 0;
@@ -672,7 +672,7 @@ body.modal-open .link-preview-modal {
   font-weight: 600;
   font-size: var(--font-size-sm);
   color: var(--light-bg__text-color--primary);
-  background: var(--light-background--tertiary);
+  background: var(--dark-background--secondary);
   border-radius: var(--border-radius) var(--border-radius) 0 0;
 }
 
