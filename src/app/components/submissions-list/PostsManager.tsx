@@ -199,85 +199,41 @@ const PostsManager = React.memo(function PostsManager({
     const restoreKey = sessionStorage.getItem('restore-scroll-key');
     const restorePosition = sessionStorage.getItem('restore-scroll-position');
 
-    // Also check for localStorage data (from normal scroll position storage)
-    const shouldTryLocalStorage = !restoreKey && !restorePosition;
-
-    if (
-      (restoreKey && restorePosition && !isLoading && submissions.length > 0) ||
-      (shouldTryLocalStorage && !isLoading && submissions.length > 0)
-    ) {
+    // Only proceed if we have sessionStorage data (indicating back navigation)
+    // Skip localStorage-based restoration to avoid unwanted scroll jumps
+    if (restoreKey && restorePosition && !isLoading && submissions.length > 0) {
       try {
-        let position: any = null;
-
-        if (restoreKey && restorePosition) {
-          // Use sessionStorage data (from BackButton)
-          position = JSON.parse(restorePosition);
-        } else {
-          // Try to find matching localStorage data
-          const currentPath = window.location.pathname;
-          const currentParams = new URLSearchParams(window.location.search);
-          const currentPage = parseInt(currentParams.get('page') || '1');
-
-          // Generate possible scroll keys to check
-          const possibleKey = `${currentPath}?page=${currentPage}`;
-          const stored = localStorage.getItem('app-scroll-positions');
-
-          if (stored) {
-            const positions = JSON.parse(stored);
-            const matchingKey = Object.keys(positions).find(
-              (key) =>
-                key.includes(currentPath) &&
-                (key.includes(`page=${currentPage}`) ||
-                  (!key.includes('page=') && currentPage === 1))
-            );
-
-            if (matchingKey) {
-              position = positions[matchingKey];
-              // eslint-disable-next-line no-console
-              console.log(
-                '📄 PostsManager: Found localStorage scroll position',
-                {
-                  matchingKey,
-                  position
-                }
-              );
-            }
-          }
-        }
-
-        // Skip if no position found
-        if (!position) {
-          return;
-        }
+        const position = JSON.parse(restorePosition);
 
         // Check if we're on the correct page
         const expectedPage = position.currentPage || 1;
         const currentPage = pagination.currentPage;
 
         // eslint-disable-next-line no-console
-        console.log('📄 PostsManager: Checking scroll restoration', {
-          restoreKey,
-          position,
-          expectedPage,
-          currentPage,
-          submissionsCount: submissions.length,
-          isLoading,
-          currentFilters: filters
-        });
+        console.log(
+          '📄 PostsManager: Checking scroll restoration from back navigation',
+          {
+            restoreKey,
+            position,
+            expectedPage,
+            currentPage,
+            submissionsCount: submissions.length,
+            isLoading,
+            currentFilters: filters
+          }
+        );
 
         // Only restore scroll if we're on the expected page and have data
         if (currentPage === expectedPage && submissions.length > 0) {
           // eslint-disable-next-line no-console
           console.log(
-            '📄 PostsManager: Restoring scroll position',
+            '📄 PostsManager: Restoring scroll position from back navigation',
             position.scrollY
           );
 
-          // Clean up session storage if it was used
-          if (restoreKey && restorePosition) {
-            sessionStorage.removeItem('restore-scroll-key');
-            sessionStorage.removeItem('restore-scroll-position');
-          }
+          // Clean up session storage immediately to prevent re-restoration
+          sessionStorage.removeItem('restore-scroll-key');
+          sessionStorage.removeItem('restore-scroll-position');
 
           // Wait for virtual scrolling system to be ready and then restore scroll
           const attemptScrollRestore = (attempts = 0, maxAttempts = 15) => {
@@ -332,12 +288,7 @@ const PostsManager = React.memo(function PostsManager({
               } else {
                 // eslint-disable-next-line no-console
                 console.warn(
-                  '📄 PostsManager: Virtual content not ready after max attempts',
-                  {
-                    hasContent: !!hasContent,
-                    hasItems,
-                    submissionItemsCount: submissionItems.length
-                  }
+                  '📄 PostsManager: Virtual content not ready after max attempts'
                 );
               }
               return;
@@ -394,6 +345,35 @@ const PostsManager = React.memo(function PostsManager({
                   targetScrollY: position.scrollY
                 }
               );
+
+              // Clear the stored scroll position for this key to prevent future unwanted restorations
+              // This ensures that if the user directly navigates to this page later, it won't scroll
+              const scrollKey = generateScrollKey(window.location.pathname, {
+                page: position.currentPage,
+                filters: position.filters,
+                searchParams: new URLSearchParams(window.location.search)
+              });
+
+              // eslint-disable-next-line no-console
+              console.log(
+                '🧹 PostsManager: Clearing stored scroll position to prevent future unwanted restorations',
+                scrollKey
+              );
+
+              // Clear from localStorage after successful restoration
+              try {
+                const stored = localStorage.getItem('app-scroll-positions');
+                if (stored) {
+                  const positions = JSON.parse(stored);
+                  delete positions[scrollKey];
+                  localStorage.setItem(
+                    'app-scroll-positions',
+                    JSON.stringify(positions)
+                  );
+                }
+              } catch (error) {
+                console.warn('Failed to clear stored scroll position:', error);
+              }
             }
           };
 
@@ -407,6 +387,17 @@ const PostsManager = React.memo(function PostsManager({
         sessionStorage.removeItem('restore-scroll-key');
         sessionStorage.removeItem('restore-scroll-position');
       }
+    } else {
+      // eslint-disable-next-line no-console
+      console.log(
+        '📄 PostsManager: No back navigation detected, skipping scroll restoration',
+        {
+          hasRestoreKey: !!restoreKey,
+          hasRestorePosition: !!restorePosition,
+          isLoading,
+          submissionsLength: submissions.length
+        }
+      );
     }
   }, [isLoading, submissions.length, pagination.currentPage, filters]); // Also depend on filter state
 
@@ -421,8 +412,13 @@ const PostsManager = React.memo(function PostsManager({
     }
 
     let scrollTimeout: ReturnType<typeof setTimeout>;
+    let isUserScrolling = false;
+    let hasRestoredScroll = false;
 
     const handleScroll = () => {
+      // Mark that user is actively scrolling
+      isUserScrolling = true;
+
       // Debounce scroll updates to avoid excessive localStorage writes
       clearTimeout(scrollTimeout);
       scrollTimeout = setTimeout(() => {
@@ -446,7 +442,39 @@ const PostsManager = React.memo(function PostsManager({
             searchParams: new URLSearchParams(window.location.search)
           });
 
-          // Update stored scroll position
+          // If user has manually scrolled after initial load, we should reset stored positions
+          // to prevent unwanted scroll restoration on future direct visits to this page
+          if (isUserScrolling && !hasRestoredScroll) {
+            // eslint-disable-next-line no-console
+            console.log(
+              '👆 PostsManager: User manually scrolled - resetting stored scroll positions to prevent unwanted restoration'
+            );
+
+            // Clear any stored scroll position for this page to prevent future unwanted restorations
+            try {
+              const stored = localStorage.getItem('app-scroll-positions');
+              if (stored) {
+                const positions = JSON.parse(stored);
+                // Clear all positions for this pathname to be thorough
+                Object.keys(positions).forEach((key) => {
+                  if (key.includes(window.location.pathname)) {
+                    delete positions[key];
+                  }
+                });
+                localStorage.setItem(
+                  'app-scroll-positions',
+                  JSON.stringify(positions)
+                );
+              }
+            } catch (error) {
+              console.warn('Failed to clear stored scroll positions:', error);
+            }
+
+            // Mark that we've handled the user scroll reset
+            hasRestoredScroll = true;
+          }
+
+          // Update stored scroll position for future back navigation
           storeOrUpdateScrollPosition(
             scrollKey,
             {
@@ -462,6 +490,11 @@ const PostsManager = React.memo(function PostsManager({
             scrollY
           );
         }
+
+        // Reset the scrolling flag after a delay
+        setTimeout(() => {
+          isUserScrolling = false;
+        }, 1000);
       }, 250); // 250ms debounce
     };
 
