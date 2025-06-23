@@ -55,26 +55,57 @@
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease-in-out;
+  text-decoration: none;
 }
 
-.posts-manager__new-post-button:hover:not(:disabled) {
+.posts-manager__new-post-button:hover:not([aria-disabled="true"]) {
   background-color: var(--brand-primary--dark);
   transform: translateY(-1px);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.posts-manager__new-post-button:disabled {
+.posts-manager__new-post-button[aria-disabled="true"] {
   background-color: var(--light-bg__text-color--tertiary);
   color: var(--light-bg__text-color--secondary);
   cursor: not-allowed;
   opacity: 0.6;
   transform: none;
   box-shadow: none;
+  pointer-events: none;
 }
 
 .posts-manager__new-post-button svg {
   width: 1rem;
   height: 1rem;
+  flex-shrink: 0;
+}
+
+/* Override InstantLink styles for button appearance */
+.posts-manager__new-post-button.instant-link--button {
+  background-color: var(--brand-primary);
+  color: var(--font-color--primary);
+  border: 1px solid var(--brand-primary--dark);
+}
+
+.posts-manager__new-post-button.instant-link--button:hover:not([aria-disabled="true"]) {
+  background-color: var(--brand-primary--dark);
+  color: var(--font-color--primary);
+  opacity: 1;
+}
+
+.posts-manager__new-post-button.instant-link--button[aria-disabled="true"] {
+  background-color: var(--light-bg__text-color--tertiary);
+  color: var(--light-bg__text-color--secondary);
+  border-color: var(--light-bg__text-color--tertiary);
+}
+
+/* Ensure spinner aligns properly in button */
+.posts-manager__new-post-button .instant-link__loader {
+  margin-left: 0.25rem;
+}
+
+.posts-manager__new-post-button .instant-link__spinner {
+  color: var(--font-color--primary);
 }
 
 /* Responsive design for new post button and results count */

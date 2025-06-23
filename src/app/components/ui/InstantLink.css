@@ -1,0 +1,352 @@
+.instant-link {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  text-decoration: none;
+  transition: all 0.15s ease-out;
+  cursor: pointer;
+  border-radius: 0.25rem;
+}
+
+.instant-link:hover {
+  opacity: 0.8;
+}
+
+.instant-link--disabled {
+  pointer-events: none;
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.instant-link--active {
+  font-weight: 600;
+}
+
+.instant-link--loading {
+  opacity: 0.7;
+  transform: scale(0.98);
+  transition: all 0.1s ease-out;
+}
+
+.instant-link__content {
+  transition: opacity 0.15s ease-out;
+  display: flex;
+  align-items: center;
+}
+
+.instant-link--loading .instant-link__content {
+  opacity: 0.8;
+}
+
+.instant-link__loader {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  opacity: 0;
+  animation: loader-fade-in 0.2s ease-out forwards;
+  flex-shrink: 0;
+}
+
+.instant-link__spinner {
+  animation: spin 1s linear infinite;
+  color: var(--brand-primary);
+  width: 16px;
+  height: 16px;
+}
+
+/* For nav links - keep loader inline */
+.instant-link--nav {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.instant-link--nav .instant-link__loader {
+  margin-left: 0.25rem;
+}
+
+/* For button-style links */
+.instant-link--button {
+  padding: 0.5rem 1rem;
+  background: var(--brand-primary);
+  color: white;
+  border-radius: 0.375rem;
+  font-weight: 500;
+  gap: 0.5rem;
+}
+
+.instant-link--button:hover {
+  background: var(--brand-primary--dark);
+  opacity: 1;
+}
+
+.instant-link--button .instant-link__loader {
+  margin-left: 0;
+}
+
+.instant-link--button .instant-link__spinner {
+  color: white;
+}
+
+/* Thread links styling */
+.thread__back-link.instant-link {
+  color: var(--brand-primary);
+  font-weight: 500;
+  text-decoration: none;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.375rem;
+  transition: all 0.2s ease;
+}
+
+.thread__back-link.instant-link:hover {
+  background: var(--brand-tertiary);
+  opacity: 1;
+  transform: translateX(-2px);
+}
+
+/* Submission title links */
+.submission__title-link.instant-link {
+  color: inherit;
+  text-decoration: none;
+}
+
+.submission__title-link.instant-link:hover {
+  color: var(--brand-primary);
+  opacity: 1;
+}
+
+/* Submission thread links */
+.submission__thread-link.instant-link {
+  color: var(--brand-primary);
+  font-weight: 500;
+  text-decoration: none;
+  padding: 0.375rem 0.75rem;
+  border-radius: 0.375rem;
+  background: var(--brand-tertiary);
+  transition: all 0.2s ease;
+}
+
+.submission__thread-link.instant-link:hover {
+  background: var(--brand-primary);
+  color: white;
+  opacity: 1;
+}
+
+/* Author links */
+.author.instant-link {
+  text-decoration: none;
+  color: inherit;
+}
+
+.author.instant-link:hover {
+  opacity: 1;
+}
+
+/* Nav header link */
+.nav__header {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* Auth links */
+.nav__auth-links .instant-link {
+  color: var(--light-bg__text-color--primary);
+  text-decoration: none;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.375rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.nav__auth-links .instant-link:hover {
+  background: var(--brand-tertiary);
+  opacity: 1;
+}
+
+/* Tag links */
+.tag-link.instant-link {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.5rem;
+  background: var(--brand-tertiary);
+  color: var(--brand-primary);
+  border-radius: 0.375rem;
+  text-decoration: none;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.tag-link.instant-link:hover {
+  background: var(--brand-primary);
+  color: white;
+  opacity: 1;
+}
+
+.tag-link.instant-link.active {
+  background: var(--brand-primary);
+  color: white;
+}
+
+/* Content pills */
+.content-pill.instant-link {
+  text-decoration: none;
+  color: inherit;
+}
+
+/* Callback page buttons */
+.callback__button.instant-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  min-width: 140px;
+}
+
+.callback__button--primary.instant-link {
+  background: var(--brand-primary);
+  color: white;
+}
+
+.callback__button--primary.instant-link:hover {
+  background: var(--brand-primary--dark);
+  opacity: 1;
+}
+
+.callback__button--secondary.instant-link {
+  background: var(--light-background--tertiary);
+  color: var(--light-bg__text-color--primary);
+  border: 1px solid var(--brand-tertiary--dark);
+}
+
+.callback__button--secondary.instant-link:hover {
+  background: var(--brand-tertiary);
+  opacity: 1;
+}
+
+/* Animations */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes loader-fade-in {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .instant-link__loader {
+    width: 14px;
+    height: 14px;
+  }
+
+  .instant-link__spinner {
+    width: 14px;
+    height: 14px;
+  }
+
+  .instant-link--nav {
+    gap: 0.25rem;
+  }
+
+  .instant-link--nav .instant-link__loader {
+    margin-left: 0.125rem;
+  }
+
+  .callback__button.instant-link {
+    padding: 0.625rem 1.25rem;
+    min-width: 120px;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .instant-link--loading {
+    outline: 2px solid var(--brand-primary);
+    outline-offset: 2px;
+  }
+
+  .instant-link__spinner {
+    stroke-width: 3;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+
+  .instant-link,
+  .instant-link__content,
+  .instant-link__loader {
+    transition: none;
+  }
+
+  .instant-link__spinner {
+    animation: none;
+  }
+
+  .instant-link--loading {
+    transform: none;
+  }
+
+  @keyframes loader-fade-in {
+    from {
+      opacity: 0;
+    }
+
+    to {
+      opacity: 1;
+    }
+  }
+}
+
+/* Focus states for accessibility */
+.instant-link:focus-visible {
+  outline: 2px solid var(--brand-primary);
+  outline-offset: 2px;
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .instant-link--button {
+    background: var(--brand-primary);
+  }
+
+  .instant-link--button:hover {
+    background: var(--brand-primary--dark);
+  }
+
+  .nav__auth-links .instant-link {
+    color: var(--dark-bg__text-color--primary);
+  }
+
+  .callback__button--secondary.instant-link {
+    background: var(--dark-background--tertiary);
+    color: var(--dark-bg__text-color--primary);
+    border-color: var(--dark-brand-tertiary--dark);
+  }
+
+  .callback__button--secondary.instant-link:hover {
+    background: var(--dark-brand-tertiary);
+  }
+}

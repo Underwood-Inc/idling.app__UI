@@ -1,7 +1,6 @@
 'use client';
 
 import { useSession } from 'next-auth/react';
-import Link from 'next/link';
 import { useState } from 'react';
 import { buildThreadUrl } from '../../../lib/routes';
 import { Author } from '../author/Author';
@@ -11,6 +10,7 @@ import { Submission } from '../submission-forms/schema';
 import { TagLink } from '../tag-link/TagLink';
 import { ReplyForm } from '../thread/ReplyForm';
 import { ContentWithPills } from '../ui/ContentWithPills';
+import { InstantLink } from '../ui/InstantLink';
 import { SubmissionWithReplies } from './actions';
 
 interface SubmissionItemProps {
@@ -209,7 +209,7 @@ export function SubmissionItem({
               >
                 {hasReplies && !isReply ? (
                   // eslint-disable-next-line custom-rules/enforce-link-target-blank
-                  <Link
+                  <InstantLink
                     href={buildThreadUrl(submission.submission_id)}
                     className="submission__title-link"
                     title="View thread"
@@ -220,7 +220,7 @@ export function SubmissionItem({
                       onMentionClick={onMentionClick}
                       contextId={contextId || 'submission-item'}
                     />
-                  </Link>
+                  </InstantLink>
                 ) : (
                   <ContentWithPills
                     content={submission.submission_title}
@@ -278,13 +278,13 @@ export function SubmissionItem({
         {/* Thread view link for posts with replies */}
         {hasReplies && !isReply && (
           // eslint-disable-next-line custom-rules/enforce-link-target-blank
-          <Link
+          <InstantLink
             href={buildThreadUrl(submission.submission_id)}
             className="submission__thread-link"
             title="View full thread"
           >
             💬 View Thread
-          </Link>
+          </InstantLink>
         )}
       </div>
 

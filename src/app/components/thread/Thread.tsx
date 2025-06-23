@@ -1,6 +1,5 @@
 'use client';
 
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { NAV_PATHS } from '../../../lib/routes';
@@ -10,6 +9,7 @@ import { DeleteSubmissionForm } from '../submission-forms/delete-submission-form
 import { Submission } from '../submission-forms/schema';
 import { TagLink } from '../tag-link/TagLink';
 import { ContentWithPills } from '../ui/ContentWithPills';
+import { InstantLink } from '../ui/InstantLink';
 import { getSubmissionThread } from './actions';
 import { ReplyForm } from './ReplyForm';
 import './Thread.css';
@@ -101,9 +101,9 @@ export default function Thread({
           The post you&apos;re looking for doesn&apos;t exist or has been
           deleted.
         </p>
-        <Link href={NAV_PATHS.POSTS} className="thread__back-link">
+        <InstantLink href={NAV_PATHS.POSTS} className="thread__back-link">
           ← Back to Posts
-        </Link>
+        </InstantLink>
       </div>
     );
   }
@@ -215,9 +215,9 @@ export default function Thread({
   return (
     <div className="thread__container">
       <nav className="thread__navigation">
-        <Link href={NAV_PATHS.POSTS} className="thread__back-link">
+        <InstantLink href={NAV_PATHS.POSTS} className="thread__back-link">
           ← Back to Posts
-        </Link>
+        </InstantLink>
         <span className="thread__breadcrumb">Thread Discussion</span>
       </nav>
 

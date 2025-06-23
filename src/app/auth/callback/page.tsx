@@ -1,10 +1,10 @@
-import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { Suspense } from 'react';
 import { auth } from '../../../lib/auth';
 import { NAV_PATHS } from '../../../lib/routes';
 import Loader from '../../components/loader/Loader';
 import { PageContainer } from '../../components/page-container/PageContainer';
+import { InstantLink } from '../../components/ui/InstantLink';
 import './callback.css';
 
 interface CallbackSearchParams {
@@ -53,22 +53,18 @@ function CallbackContent({
           ].includes(error) && 'An unexpected authentication error occurred.'}
         </p>
         <div className="callback__actions">
-          {/* eslint-disable-next-line custom-rules/enforce-link-target-blank */}
-          <Link
+          <InstantLink
             href={NAV_PATHS.SIGNIN}
-            prefetch={false}
             className="callback__button callback__button--primary"
           >
             Try Again
-          </Link>
-          {/* eslint-disable-next-line custom-rules/enforce-link-target-blank */}
-          <Link
+          </InstantLink>
+          <InstantLink
             href={NAV_PATHS.ROOT}
-            prefetch={false}
             className="callback__button callback__button--secondary"
           >
             Go Home
-          </Link>
+          </InstantLink>
         </div>
       </div>
     );

@@ -12,6 +12,7 @@ import Pagination from '../pagination/Pagination';
 import { StickyPagination } from '../pagination/StickyPagination';
 import { SpacingThemeToggle } from '../spacing-theme-toggle/SpacingThemeToggle';
 import { Submission } from '../submission-forms/schema';
+import { InstantLink } from '../ui/InstantLink';
 import { SubmissionWithReplies } from './actions';
 
 import './PostsManager.css';
@@ -306,10 +307,14 @@ const PostsManager = React.memo(function PostsManager({
           )}
 
           {onNewPostClick && (
-            <button
-              className="posts-manager__new-post-button"
-              onClick={handleNewPostClick}
-              disabled={!isAuthorized}
+            <InstantLink
+              href="#"
+              onClick={(e) => {
+                e.preventDefault();
+                handleNewPostClick();
+              }}
+              className="posts-manager__new-post-button instant-link--button"
+              aria-disabled={!isAuthorized}
               title={
                 isAuthorized ? 'Create a new post' : 'Login to create posts'
               }
@@ -328,7 +333,7 @@ const PostsManager = React.memo(function PostsManager({
                 <line x1="5" y1="12" x2="19" y2="12" />
               </svg>
               New Post
-            </button>
+            </InstantLink>
           )}
         </div>
 

@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next';
 import { SessionProvider } from 'next-auth/react';
 import { Inter } from 'next/font/google';
 import { Suspense } from 'react';
+import { NavigationLoadingProvider } from '../lib/context/NavigationLoadingContext';
 import { OverlayProvider } from '../lib/context/OverlayContext';
 import { JotaiProvider } from '../lib/state/JotaiProvider';
 import { SessionRefreshHandler } from './components/auth-buttons/SessionRefreshHandler';
@@ -15,6 +16,7 @@ import MessageTickerWithInterval from './components/message-ticker/MessageTicker
 import PWAInstallPrompt from './components/pwa-install/PWAInstallPrompt';
 import { ServiceWorkerRegistration } from './components/service-worker/ServiceWorkerRegistration';
 import TimeoutBanner from './components/timeout-banner/TimeoutBanner';
+import { NavigationLoadingBar } from './components/ui/NavigationLoadingBar';
 import { OverlayRenderer } from './components/ui/OverlayRenderer';
 import './fonts.css';
 import './globals.css';
@@ -208,28 +210,31 @@ export default function RootLayout({
       <body className={inter.className}>
         <ServiceWorkerRegistration />
         <SessionProvider>
-          <SessionRefreshHandler />
-          <OverlayProvider>
-            <TimeoutBanner />
-            <main>
-              <AvatarsBackground />
+          <NavigationLoadingProvider>
+            <NavigationLoadingBar />
+            <SessionRefreshHandler />
+            <OverlayProvider>
+              <TimeoutBanner />
+              <main>
+                <AvatarsBackground />
 
-              <Header />
+                <Header />
 
-              <MessageTickerWithInterval />
+                <MessageTickerWithInterval />
 
-              <Suspense fallback={<Loader />}>
-                <JotaiProvider>
-                  <NotFoundErrorBoundary>
-                    <FadeIn>{children}</FadeIn>
-                  </NotFoundErrorBoundary>
-                </JotaiProvider>
-              </Suspense>
-              <Footer />
-            </main>
-            <OverlayRenderer />
-            <PWAInstallPrompt />
-          </OverlayProvider>
+                <Suspense fallback={<Loader />}>
+                  <JotaiProvider>
+                    <NotFoundErrorBoundary>
+                      <FadeIn>{children}</FadeIn>
+                    </NotFoundErrorBoundary>
+                  </JotaiProvider>
+                </Suspense>
+                <Footer />
+              </main>
+              <OverlayRenderer />
+              <PWAInstallPrompt />
+            </OverlayProvider>
+          </NavigationLoadingProvider>
         </SessionProvider>
       </body>
     </html>

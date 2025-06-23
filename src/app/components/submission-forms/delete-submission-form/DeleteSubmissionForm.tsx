@@ -27,20 +27,18 @@ function DeleteButton({
 }) {
   const { pending } = useFormStatus();
 
-  // Default to false until permission is explicitly checked
-  const canDelete = isAuthorized && deletePermission?.canDelete === true;
-  const isDisabled = pending || !canDelete;
-
-  let tooltipText = '';
+  // Don't show button at all if user is not authorized
   if (!isAuthorized) {
-    tooltipText = 'Login to manage posts.';
-  } else if (
-    deletePermission &&
-    !deletePermission.canDelete &&
-    deletePermission.reason
-  ) {
-    tooltipText = deletePermission.reason;
+    return null;
   }
+
+  // Don't show button until permission is checked
+  if (!deletePermission) {
+    return null;
+  }
+
+  const canDelete = deletePermission.canDelete === true;
+  const isDisabled = pending || !canDelete;
 
   const button = (
     <button
@@ -53,11 +51,11 @@ function DeleteButton({
     </button>
   );
 
-  // Wrap in tooltip if there's a reason the button is disabled
-  if (tooltipText) {
+  // Show tooltip only for non-permission reasons (like replies existing)
+  if (!canDelete && deletePermission.reason) {
     return (
       <InteractiveTooltip
-        content={tooltipText}
+        content={deletePermission.reason}
         isInsideParagraph={true}
         delay={200}
       >

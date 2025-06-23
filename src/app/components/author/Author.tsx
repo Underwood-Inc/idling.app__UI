@@ -1,12 +1,12 @@
 'use client';
 
 import { useSession } from 'next-auth/react';
-import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
 import { useOverlay } from '../../../lib/context/OverlayContext';
 import { ensureUserSlug, generateUserSlug } from '../../../lib/utils/user-slug';
 import { Avatar, AvatarPropSizes } from '../avatar/Avatar';
 import { InteractiveTooltip } from '../tooltip/InteractiveTooltip';
+import { InstantLink } from '../ui/InstantLink';
 import { UserProfile, UserProfileData } from '../user-profile/UserProfile';
 import './Author.css';
 
@@ -290,7 +290,7 @@ export const Author: React.FC<AuthorProps> = ({
   const containerClass = `author ${size} clickable ${className}`;
 
   const authorElement = (
-    <Link
+    <InstantLink
       href={profileUrl}
       className={containerClass}
       onClick={handleClick}
@@ -305,7 +305,7 @@ export const Author: React.FC<AuthorProps> = ({
         />
         <span>{displayName}</span>
       </div>
-    </Link>
+    </InstantLink>
   );
 
   // If tooltip is disabled, return plain element

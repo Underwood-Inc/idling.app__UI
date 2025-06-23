@@ -1,10 +1,10 @@
 'use client';
 import { useAtom } from 'jotai';
-import Link from 'next/link';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { Suspense } from 'react';
 import { NAV_PATHS } from '../../../lib/routes';
 import { getSubmissionsFiltersAtom } from '../../../lib/state/atoms';
+import { InstantLink } from '../ui/InstantLink';
 import './TagLink.css';
 
 interface TagLinkProps {
@@ -103,14 +103,14 @@ function TagLinkInternal({
   const tagUrl = generateTagUrl();
 
   return (
-    <Link
+    <InstantLink
       href={tagUrl}
-      onClick={handleClick}
       className={`tag-link ${isActive ? 'active' : ''}`}
+      onClick={handleClick}
       title={`Filter by tag: ${value}`}
     >
       {value}
-    </Link>
+    </InstantLink>
   );
 }
 

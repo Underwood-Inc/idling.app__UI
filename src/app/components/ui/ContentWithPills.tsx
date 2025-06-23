@@ -1,7 +1,6 @@
 /* eslint-disable custom-rules/enforce-link-target-blank */
 'use client';
 
-import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import React, { Suspense, useCallback, useMemo } from 'react';
 import { NAV_PATHS } from '../../../lib/routes';
@@ -11,6 +10,7 @@ import {
 } from '../../../lib/utils/content-parsers';
 import { InteractiveTooltip } from '../tooltip/InteractiveTooltip';
 import './ContentWithPills.css';
+import { InstantLink } from './InstantLink';
 import { URLPill } from './URLPill';
 
 interface ContentWithPillsProps {
@@ -532,7 +532,7 @@ function ContentWithPillsInternal({
         segment.type === 'mention' && !isFilterBarContext && !isEditMode; // Don't show tooltip in edit mode
 
       const pillElement = (
-        <Link
+        <InstantLink
           key={key}
           href={pillUrl}
           className={`content-pill content-pill--${segment.type} content-pill--clickable ${
@@ -566,7 +566,7 @@ function ContentWithPillsInternal({
         >
           {segment.type === 'hashtag' ? '#' : '@'}
           {segment.value}
-        </Link>
+        </InstantLink>
       );
 
       // Show tooltip for mentions in non-filter contexts (not edit mode)

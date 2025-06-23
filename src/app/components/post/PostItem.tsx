@@ -1,5 +1,5 @@
-import Link from 'next/link';
 import { Post } from 'src/lib/schemas/post.schemas';
+import { InstantLink } from '../ui/InstantLink';
 import './PostItem.css';
 
 interface PostItemProps {
@@ -11,10 +11,9 @@ export default function PostItem({ post }: PostItemProps) {
     <li className="post-item">
       <div className="post-item__content">
         <h2 className="post-item__title">
-          {/* eslint-disable-next-line custom-rules/enforce-link-target-blank */}
-          <Link href={`/t/${post.subthread}/comments/${post.id}`}>
+          <InstantLink href={`/t/${post.subthread}/comments/${post.id}`}>
             {post.title}
-          </Link>
+          </InstantLink>
         </h2>
         <p className="post-item__meta">
           Posted by {post.authorId} in {post.subthread} •&nbsp;
