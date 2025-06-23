@@ -3,6 +3,7 @@
 import { useAtom } from 'jotai';
 import { useSession } from 'next-auth/react';
 import React, { useCallback, useMemo, useRef, useState } from 'react';
+import { useSpacingTheme } from '../../../lib/context/SpacingThemeContext';
 import { shouldUpdateAtom } from '../../../lib/state/atoms';
 import { useSubmissionsManager } from '../../../lib/state/useSubmissionsManager';
 import { CustomFilterInput } from '../filter-bar/CustomFilterInput';
@@ -53,8 +54,16 @@ const PostsManager = React.memo(function PostsManager({
   renderSubmissionItem
 }: PostsManagerProps) {
   const { data: session } = useSession();
+  const { theme } = useSpacingTheme();
   const [includeThreadReplies, setIncludeThreadReplies] = useState(false);
   const [infiniteScrollMode, setInfiniteScrollMode] = useState(false);
+
+  // Set default filter visibility based on spacing theme
+  const getDefaultFilterVisibility = () => {
+    return theme === 'cozy'; // Show filters by default in cozy mode, hide in compact mode
+  };
+
+  const [showFilters, setShowFilters] = useState(getDefaultFilterVisibility);
   const [, setShouldUpdate] = useAtom(shouldUpdateAtom);
 
   // For my-posts page, always include replies and hide the toggle
@@ -88,6 +97,20 @@ const PostsManager = React.memo(function PostsManager({
     infiniteScroll: infiniteScrollMode
   });
 
+  // Set initial filter visibility based on theme (only on mount)
+  React.useEffect(() => {
+    const defaultVisibility = getDefaultFilterVisibility();
+    setShowFilters(defaultVisibility);
+  }, []); // Empty dependency array - only run on mount
+
+  // Update default when theme changes, but only if no filters exist
+  React.useEffect(() => {
+    if (filters.length === 0) {
+      const defaultVisibility = getDefaultFilterVisibility();
+      setShowFilters(defaultVisibility);
+    }
+  }, [theme, getDefaultFilterVisibility, filters.length]);
+
   // Memoize authorization check
   const isAuthorized = useMemo(() => !!session?.user?.id, [session?.user?.id]);
 
@@ -101,14 +124,29 @@ const PostsManager = React.memo(function PostsManager({
   const addFilterRef = useRef(addFilter);
   addFilterRef.current = addFilter;
 
+  // Filter handlers without automatic expansion
+  const handleAddFilter = useCallback(
+    (filter: any) => {
+      addFilter(filter);
+    },
+    [addFilter]
+  );
+
+  const handleAddFilters = useCallback(
+    (filterList: any[]) => {
+      addFilters(filterList);
+    },
+    [addFilters]
+  );
+
   // Optimize callbacks with useCallback to prevent child re-renders
   const handleTagClick = useCallback(
     (tag: string) => {
       // Ensure consistent formatting with # prefix to match handleHashtagClick
       const formattedTag = tag.startsWith('#') ? tag : `#${tag}`;
-      addFilterRef.current({ name: 'tags', value: formattedTag });
+      addFilter({ name: 'tags', value: formattedTag });
     },
-    [] // Empty dependency array for stable reference
+    [addFilter]
   );
 
   const handleHashtagClick = useCallback(
@@ -117,19 +155,19 @@ const PostsManager = React.memo(function PostsManager({
       const formattedHashtag = hashtag.startsWith('#')
         ? hashtag
         : `#${hashtag}`;
-      addFilterRef.current({ name: 'tags', value: formattedHashtag });
+      addFilter({ name: 'tags', value: formattedHashtag });
     },
-    [] // Empty dependency array for stable reference
+    [addFilter]
   );
 
   const handleMentionClick = useCallback(
     (mention: string, filterType: 'author' | 'mentions') => {
-      addFilterRef.current({
+      addFilter({
         name: filterType,
         value: mention.replace('@', '')
       });
     },
-    [] // Empty dependency array for stable reference
+    [addFilter]
   );
 
   const handleToggleThreadReplies = useCallback(
@@ -182,6 +220,53 @@ const PostsManager = React.memo(function PostsManager({
         <div className="posts-manager__top-controls">
           <div className="posts-manager__display-controls">
             <SpacingThemeToggle />
+
+            {/* Filter Toggle Button */}
+            <button
+              className={`posts-manager__filter-toggle ${
+                showFilters ? 'posts-manager__filter-toggle--active' : ''
+              } ${
+                filters.length > 0
+                  ? 'posts-manager__filter-toggle--has-filters'
+                  : ''
+              }`}
+              onClick={() => setShowFilters(!showFilters)}
+              aria-expanded={showFilters}
+              title={showFilters ? 'Hide filters' : 'Show filters'}
+            >
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className={`posts-manager__filter-icon ${showFilters ? 'posts-manager__filter-icon--rotated' : ''}`}
+              >
+                <polygon points="22,3 2,3 10,12.46 10,19 14,21 14,12.46" />
+              </svg>
+              Filters
+              {filters.length > 0 && (
+                <span className="posts-manager__filter-count">
+                  {filters.length}
+                </span>
+              )}
+              <svg
+                width="12"
+                height="12"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className={`posts-manager__chevron ${showFilters ? 'posts-manager__chevron--up' : 'posts-manager__chevron--down'}`}
+              >
+                <polyline points="6,9 12,15 18,9" />
+              </svg>
+            </button>
 
             {/* Pagination Mode Toggle */}
             <div className="posts-manager__pagination-toggle">
@@ -255,50 +340,58 @@ const PostsManager = React.memo(function PostsManager({
           )}
         </div>
 
-        <FilterBar
-          filterId={contextId}
-          filters={filters as any}
-          onRemoveFilter={removeFilter}
-          onRemoveTag={removeTag}
-          onClearFilters={clearFilters}
-          onUpdateFilter={handleUpdateFilter}
-        />
+        {/* Collapsible Filter Section */}
+        <div
+          className={`posts-manager__filter-section ${showFilters ? 'posts-manager__filter-section--expanded' : 'posts-manager__filter-section--collapsed'}`}
+          aria-hidden={!showFilters}
+        >
+          <div className="posts-manager__filter-content">
+            <FilterBar
+              filterId={contextId}
+              filters={filters as any}
+              onRemoveFilter={removeFilter}
+              onRemoveTag={removeTag}
+              onClearFilters={clearFilters}
+              onUpdateFilter={handleUpdateFilter}
+            />
 
-        {/* Custom Filter Input */}
-        <CustomFilterInput
-          contextId={contextId}
-          onAddFilter={addFilter}
-          onAddFilters={addFilters}
-          onFilterSuccess={handleFilterSuccess}
-          className="posts-manager__custom-filter"
-        />
+            {/* Custom Filter Input */}
+            <CustomFilterInput
+              contextId={contextId}
+              onAddFilter={addFilter}
+              onAddFilters={addFilters}
+              onFilterSuccess={handleFilterSuccess}
+              className="posts-manager__custom-filter"
+            />
 
-        {/* Thread Reply Toggle - Compact */}
-        {showThreadToggle && (
-          <div className="posts-manager__thread-controls">
-            <label className="posts-manager__toggle posts-manager__toggle--compact">
-              <input
-                type="checkbox"
-                checked={includeThreadReplies}
-                onChange={handleToggleThreadReplies}
-                className="posts-manager__checkbox"
-              />
-              <span className="posts-manager__toggle-text">
-                Include thread replies in filters
-              </span>
-              <span
-                className="posts-manager__toggle-hint"
-                title={
-                  includeThreadReplies
-                    ? 'Filters apply to both main posts and their replies'
-                    : 'Filters only apply to main posts (replies shown when expanded)'
-                }
-              >
-                ?
-              </span>
-            </label>
+            {/* Thread Reply Toggle - Compact */}
+            {showThreadToggle && (
+              <div className="posts-manager__thread-controls">
+                <label className="posts-manager__toggle posts-manager__toggle--compact">
+                  <input
+                    type="checkbox"
+                    checked={includeThreadReplies}
+                    onChange={handleToggleThreadReplies}
+                    className="posts-manager__checkbox"
+                  />
+                  <span className="posts-manager__toggle-text">
+                    Include thread replies in filters
+                  </span>
+                  <span
+                    className="posts-manager__toggle-hint"
+                    title={
+                      includeThreadReplies
+                        ? 'Filters apply to both main posts and their replies'
+                        : 'Filters only apply to main posts (replies shown when expanded)'
+                    }
+                  >
+                    ?
+                  </span>
+                </label>
+              </div>
+            )}
           </div>
-        )}
+        </div>
       </div>
 
       {error && (
