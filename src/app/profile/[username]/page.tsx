@@ -1,7 +1,11 @@
 import { notFound } from 'next/navigation';
 import { getUserProfileByDatabaseId } from '../../../lib/actions/profile.actions';
 import { auth } from '../../../lib/auth';
-import { cleanContentForSocialSharing } from '../../../lib/utils/social-sharing';
+import {
+  cleanContentForSocialSharing,
+  extractEmbedUrls,
+  getFirstYouTubeUrl
+} from '../../../lib/utils/social-sharing';
 import { Card } from '../../components/card/Card';
 import FadeIn from '../../components/fade-in/FadeIn';
 import { PageAside } from '../../components/page-aside/PageAside';
@@ -205,23 +209,90 @@ export async function generateMetadata({ params }: ProfilePageProps) {
 
     const fallbackDescription = `View ${displayName}'s profile, activity stats, and contributions on Idling.app.`;
 
-    return {
+    // Check for YouTube URLs in the bio for enhanced social sharing
+    const youtubeUrl = userProfile.bio
+      ? getFirstYouTubeUrl(userProfile.bio)
+      : null;
+    const embedUrls = userProfile.bio ? extractEmbedUrls(userProfile.bio) : [];
+
+    // Base metadata
+    const baseMetadata = {
       title: `${displayName} - User Profile | Idling.app`,
-      description: cleanBioForSocial || fallbackDescription,
-      openGraph: {
-        title: `${displayName} - Profile`,
-        description:
-          cleanBioForSocial ||
-          `View ${displayName}'s profile and activity on Idling.app.`,
-        type: 'profile'
-      },
-      twitter: {
-        card: 'summary',
-        title: `${displayName} - Profile`,
-        description:
-          cleanBioForSocial ||
-          `View ${displayName}'s profile and activity on Idling.app.`
+      description: cleanBioForSocial || fallbackDescription
+    };
+
+    // Enhanced Open Graph metadata
+    const openGraphMetadata: any = {
+      title: `${displayName} - Profile`,
+      description:
+        cleanBioForSocial ||
+        `View ${displayName}'s profile and activity on Idling.app.`,
+      type: 'profile',
+      siteName: 'Idling.app',
+      url: `https://idling.app/profile/${decodedUsername}`
+    };
+
+    // Enhanced Twitter Card metadata
+    const twitterMetadata: any = {
+      card: 'summary',
+      title: `${displayName} - Profile`,
+      description:
+        cleanBioForSocial ||
+        `View ${displayName}'s profile and activity on Idling.app.`,
+      site: '@idlingapp' // Update with your actual Twitter handle
+    };
+
+    // If there's a YouTube URL, enhance the metadata for rich video embeds
+    if (youtubeUrl) {
+      // Extract video ID for enhanced metadata
+      const videoId = extractYouTubeVideoId(youtubeUrl);
+
+      if (videoId) {
+        // Use larger card type for video content
+        twitterMetadata.card = 'player';
+        twitterMetadata.player = `https://www.youtube.com/embed/${videoId}`;
+        twitterMetadata.playerWidth = 560;
+        twitterMetadata.playerHeight = 315;
+
+        // Add video-specific Open Graph metadata
+        openGraphMetadata.type = 'video.other';
+        openGraphMetadata.video = `https://www.youtube.com/embed/${videoId}`;
+        openGraphMetadata.videoSecureUrl = `https://www.youtube.com/embed/${videoId}`;
+        openGraphMetadata.videoType = 'text/html';
+        openGraphMetadata.videoWidth = 560;
+        openGraphMetadata.videoHeight = 315;
+
+        // Add YouTube thumbnail as image
+        openGraphMetadata.images = [
+          {
+            url: `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`,
+            width: 1280,
+            height: 720,
+            alt: `YouTube video from ${displayName}'s profile`
+          }
+        ];
+
+        twitterMetadata.image = `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
       }
+    } else if (embedUrls.length > 0) {
+      // If there are other embed URLs (images, etc.), use the first one as the preview image
+      const firstUrl = embedUrls[0];
+      if (isImageUrl(firstUrl)) {
+        openGraphMetadata.images = [
+          {
+            url: firstUrl,
+            alt: `Image from ${displayName}'s profile`
+          }
+        ];
+        twitterMetadata.card = 'summary_large_image';
+        twitterMetadata.image = firstUrl;
+      }
+    }
+
+    return {
+      ...baseMetadata,
+      openGraph: openGraphMetadata,
+      twitter: twitterMetadata
     };
   } catch (error) {
     console.error('Error generating metadata for profile page:', error);
@@ -233,4 +304,30 @@ export async function generateMetadata({ params }: ProfilePageProps) {
       robots: 'noindex, nofollow' // Don't index error pages
     };
   }
+}
+
+/**
+ * Extract YouTube video ID from various YouTube URL formats
+ */
+function extractYouTubeVideoId(url: string): string | null {
+  const patterns = [
+    /(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\n?#]+)/,
+    /youtube\.com\/embed\/([^&\n?#]+)/,
+    /youtube\.com\/v\/([^&\n?#]+)/
+  ];
+
+  for (const pattern of patterns) {
+    const match = url.match(pattern);
+    if (match) return match[1];
+  }
+  return null;
+}
+
+/**
+ * Check if URL is likely an image
+ */
+function isImageUrl(url: string): boolean {
+  return /\.(jpg|jpeg|png|gif|webp|svg|bmp|ico|avif|tiff|tif)(\?.*)?$/i.test(
+    url
+  );
 }
