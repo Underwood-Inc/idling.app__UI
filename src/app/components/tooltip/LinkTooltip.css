@@ -194,7 +194,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 9999;
+  z-index: 10002;
   backdrop-filter: blur(2px);
   -webkit-backdrop-filter: blur(2px);
   pointer-events: auto;
@@ -553,7 +553,7 @@ body.modal-open .link-preview-modal {
 /* MentionTooltip styles with protected glass background */
 .mention-tooltip {
   position: fixed;
-  z-index: 10000;
+  z-index: 10001;
   max-width: 320px;
   min-width: 280px;
   background: var(--tooltip-glass-bg) !important;
@@ -781,7 +781,7 @@ body.modal-open .link-preview-modal {
 /* Base link tooltip styles with protected glass background */
 .link-tooltip {
   position: fixed;
-  z-index: 10000;
+  z-index: 10001;
   max-width: 400px;
   min-width: 320px;
   background: var(--tooltip-glass-bg) !important;

@@ -251,7 +251,7 @@ export const InteractiveTooltip: React.FC<InteractiveTooltipProps> = ({
               position: 'fixed',
               top: position.top,
               left: position.left,
-              zIndex: 10000,
+              zIndex: 10001,
               // Protected background styles - components cannot override these
               background: 'var(--tooltip-glass-bg) !important',
               backdropFilter: 'var(--tooltip-glass-blur) !important',
