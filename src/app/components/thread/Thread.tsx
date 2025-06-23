@@ -161,6 +161,7 @@ export default function Thread({
             }
             size="sm"
             showFullName={true}
+            bio={submission.author_bio}
           />
           <span className="submission__datetime">
             {new Date(submission.submission_datetime).toLocaleDateString()}

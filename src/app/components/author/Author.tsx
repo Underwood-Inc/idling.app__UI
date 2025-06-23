@@ -18,6 +18,7 @@ export interface AuthorProps {
   onClick?: (authorId: string) => void;
   className?: string;
   enableTooltip?: boolean;
+  bio?: string | null; // Optional bio data to avoid API call
 }
 
 // Enhanced User Profile Modal Component
@@ -192,7 +193,8 @@ export const Author: React.FC<AuthorProps> = ({
   showFullName = true,
   onClick,
   className = '',
-  enableTooltip = true
+  enableTooltip = true,
+  bio
 }) => {
   const [userProfile, setUserProfile] = useState<UserProfileData | null>(null);
   const [isLoading, setIsLoading] = useState(false);
