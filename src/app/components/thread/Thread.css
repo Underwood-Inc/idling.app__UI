@@ -1,6 +1,13 @@
 /* Thread component styles matching the application design system */
 
 .thread__container {
+  max-width: 100%;
+  margin: 0 auto;
+  padding: 1rem;
+  background: var(--light-background--primary);
+  border-radius: var(--border-radius);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  min-height: 60vh;
   width: 100%;
   display: flex;
   flex-direction: column;
@@ -13,66 +20,76 @@
 .thread__navigation {
   display: flex;
   align-items: center;
-  gap: 1rem;
-  margin-bottom: 1rem;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
   padding-bottom: 1rem;
-  border-bottom: 1px solid #e5e5e5;
+  border-bottom: 1px solid var(--light-border--secondary);
 }
 
-.thread__back-link {
-  color: var(--anchor__light-bg--primary);
-  text-decoration: none;
-  font-size: var(--font-size-base);
+.thread__back-button {
+  background: none;
+  border: none;
+  color: var(--brand-primary);
+  font-size: var(--font-size-md);
   font-weight: 500;
-  padding: 0.5rem 1rem;
-  border: 1px solid #e0e0e0;
-  border-radius: var(--border-radius);
-  transition: all 0.2s ease-in-out;
+  cursor: pointer;
+  padding: 0.5rem 0;
+  transition: color 0.2s ease;
+  text-decoration: none;
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  background: #f8f8f8;
 }
 
-.thread__back-link:hover {
-  background-color: var(--brand-primary);
-  color: var(--font-color--primary);
-  border-color: var(--brand-primary);
-  text-decoration: none;
-  transform: translateY(-1px);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+.thread__back-button:hover {
+  color: var(--brand-primary--dark);
+  text-decoration: underline;
+}
+
+.thread__back-button:focus {
+  outline: 2px solid var(--brand-primary);
+  outline-offset: 2px;
+  border-radius: var(--border-radius);
 }
 
 .thread__breadcrumb {
   color: var(--light-bg__text-color--secondary);
-  font-size: var(--font-size-base);
-  font-weight: 500;
+  font-size: var(--font-size-sm);
+}
+
+/* Loading State */
+.thread__loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 3rem;
+  min-height: 200px;
 }
 
 /* Main Post Container */
 .thread__parent {
+  margin-bottom: 2rem;
   background: #fefefe;
   border: 1px solid #e5e5e5;
   border-radius: var(--border-radius);
-  padding: 1.2rem;
-  margin-bottom: 1rem;
+  /* padding: 1.2rem; */
 }
 
 .thread__main-title {
-  font-size: var(--font-size-lg);
-  font-weight: 600;
+  font-size: var(--font-size-xl);
+  font-weight: 700;
   margin: 0 0 1rem 0;
   color: var(--light-bg__text-color--primary);
-  line-height: 1.4;
+  line-height: 1.3;
 }
 
 /* Reply Section */
 .thread__reply-section {
-  background: #fefefe;
-  border: 1px solid #e5e5e5;
+  margin: 2rem 0;
+  padding: 1.5rem;
+  background: var(--light-background--secondary);
+  border: 1px solid var(--brand-tertiary--light);
   border-radius: var(--border-radius);
-  padding: 1.2rem;
-  margin-bottom: 1rem;
 }
 
 .thread__reply-section h3 {
@@ -84,7 +101,7 @@
 
 /* Replies Section */
 .thread__replies {
-  margin-top: 1rem;
+  margin-top: 2rem;
 }
 
 .thread__replies-title {
@@ -100,6 +117,13 @@
   display: flex;
   flex-direction: column;
   gap: 1rem;
+}
+
+/* Nested Replies */
+.thread__nested-replies {
+  margin-top: 1rem;
+  border-left: 2px solid var(--brand-tertiary--light);
+  padding-left: 0;
 }
 
 /* Not Found State */
@@ -131,8 +155,9 @@
   border: 1px solid #e5e5e5;
   border-radius: var(--border-radius);
   padding: 1rem;
-  margin-bottom: 1rem;
+  /* margin-bottom: 1rem; */
   transition: box-shadow 0.2s ease-in-out, background-color 0.2s ease-in-out;
+  position: relative;
 }
 
 .thread__container .submission__wrapper:hover {
@@ -141,9 +166,20 @@
 }
 
 .thread__container .submission__wrapper--reply {
-  margin-left: 2rem;
   background: #f9f9f9;
   border-left: 3px solid var(--brand-primary);
+  position: relative;
+}
+
+/* Visual threading lines for nested replies */
+.thread__container .submission__wrapper--reply::before {
+  content: '';
+  position: absolute;
+  left: -1.5rem;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--brand-tertiary--light);
 }
 
 .thread__container .submission__meta {
@@ -151,7 +187,7 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 0.5rem;
-  font-size: --font-size-base;
+  font-size: var(--font-size-sm);
   color: var(--light-bg__text-color--secondary);
 }
 
@@ -162,6 +198,37 @@
 
 .thread__container .submission__datetime {
   color: var(--light-bg__text-color--tertiary);
+  font-size: var(--font-size-xs);
+}
+
+.thread__container .submission__owner-actions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.thread__container .submission__edit-btn {
+  background: none;
+  border: 1px solid var(--brand-primary);
+  color: var(--brand-primary);
+  /* padding: 0.25rem 0.75rem; */
+  border-radius: 0.375rem;
+  font-size: var(--font-size-md);
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  font-weight: 500;
+  min-width: 60px;
+  text-align: center;
+}
+
+.thread__container .submission__edit-btn:hover {
+  background-color: var(--brand-primary);
+  color: var(--font-color--primary);
+  transform: scale(1.02);
+  transform-origin: center;
+  box-shadow: inset 0 -2px 4px rgba(0, 0, 0, 0.1);
+  position: relative;
+  z-index: 10;
 }
 
 .thread__container .submission__content {
@@ -190,10 +257,42 @@
   margin-top: 1rem;
 }
 
+.thread__container .submission__edit-form {
+  margin-top: 1rem;
+  padding: 1rem;
+  background: var(--light-background--tertiary);
+  border: 1px solid var(--brand-tertiary--light);
+  border-radius: var(--border-radius);
+}
+
+/* Reply depth styling - progressive indentation and visual cues */
+.thread__container .submission__wrapper[style*="margin-left"] {
+  border-left-width: 2px;
+  border-left-color: var(--brand-primary);
+  position: relative;
+}
+
+/* Different colors for different depths */
+.thread__container .submission__wrapper[style*="1.5rem"] {
+  border-left-color: var(--brand-primary);
+}
+
+.thread__container .submission__wrapper[style*="3rem"] {
+  border-left-color: var(--brand-secondary);
+}
+
+.thread__container .submission__wrapper[style*="4.5rem"] {
+  border-left-color: var(--brand-tertiary--dark);
+}
+
+.thread__container .submission__wrapper[style*="6rem"] {
+  border-left-color: var(--brand-tertiary);
+}
+
 /* Responsive design */
 @media (max-width: 961px) {
   .thread__container .submission__wrapper--reply {
-    margin-left: 1rem;
+    margin-left: 1rem !important;
   }
 
   .thread__main-title {
@@ -202,13 +301,18 @@
 
   .thread__parent,
   .thread__reply-section {
-    padding: 1rem;
+    /* padding: 1rem; */
+  }
+
+  /* Reduce indentation on smaller screens */
+  .thread__container .submission__wrapper[style*="margin-left"] {
+    margin-left: 1rem !important;
   }
 }
 
 @media (max-width: 700px) {
   .thread__container .submission__wrapper--reply {
-    margin-left: 0.5rem;
+    margin-left: 0.5rem !important;
   }
 
   .thread__main-title {
@@ -223,6 +327,21 @@
 
   .thread__parent,
   .thread__reply-section {
-    padding: 0.8rem;
+    /* padding: 0.8rem; */
+  }
+
+  /* Minimal indentation on mobile */
+  .thread__container .submission__wrapper[style*="margin-left"] {
+    margin-left: 0.5rem !important;
+  }
+
+  .thread__container .submission__meta {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .thread__container .submission__owner-actions {
+    align-self: flex-end;
   }
 }

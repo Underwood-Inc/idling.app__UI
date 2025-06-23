@@ -271,13 +271,19 @@ export const useSubmissionForm = ({
         }
         setTagErrors([]);
 
-        // Handle redirect for reply mode - redirect to thread page
+        // Handle redirect for reply mode - only redirect if not already on thread page
         if (mode === 'reply' && parentId) {
-          // Use setTimeout to allow the success callback to run first
-          setTimeout(() => {
-            // Always redirect to the parent thread page after successful reply
-            router.push(buildThreadUrl(parentId));
-          }, 100);
+          // Check if we're already on the thread page
+          const currentPath = window.location.pathname;
+          const threadPath = buildThreadUrl(parentId);
+
+          // Only redirect if we're not already on the thread page
+          if (!currentPath.includes(`/t/${parentId}`)) {
+            // Use setTimeout to allow the success callback to run first
+            setTimeout(() => {
+              router.push(threadPath);
+            }, 100);
+          }
         }
 
         // Call success callback

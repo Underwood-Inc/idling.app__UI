@@ -17,7 +17,10 @@
   margin: 1rem 0;
   padding: 0.75rem 1rem;
   background-color: var(--light-background--secondary);
-  border: 1px solid var(--brand-tertiary--light);
+  /* Apply glass border effect */
+  backdrop-filter: var(--glass-blur-light);
+  -webkit-backdrop-filter: var(--glass-blur-light);
+  border: 1px solid var(--glass-border-overlay-light, var(--brand-tertiary--light));
   border-radius: var(--border-radius);
   gap: 1rem;
 }
@@ -167,7 +170,10 @@
   margin-top: 1rem;
   padding: 0.75rem 1rem;
   background-color: var(--light-background--tertiary);
-  border: 1px solid var(--brand-tertiary--dark);
+  /* Apply glass border effect */
+  backdrop-filter: var(--glass-blur-light);
+  -webkit-backdrop-filter: var(--glass-blur-light);
+  border: 1px solid var(--glass-border-overlay-light, var(--brand-tertiary--dark));
   border-radius: var(--border-radius);
 }
 
@@ -353,7 +359,10 @@
 .posts-manager__filter-section {
   transition: all 0.3s ease-in-out;
   background-color: var(--light-background--tertiary);
-  border: 1px solid var(--brand-tertiary--light);
+  /* Apply glass border effect */
+  backdrop-filter: var(--glass-blur-light);
+  -webkit-backdrop-filter: var(--glass-blur-light);
+  border: 1px solid var(--glass-border-overlay-light, var(--brand-tertiary--light));
   border-radius: var(--border-radius);
   margin-top: 0.75rem;
 }

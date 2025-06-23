@@ -17,7 +17,7 @@ const layoutPath = path.join(__dirname, '../src/app/layout.tsx');
 const args = process.argv.slice(2);
 const isRestore = args.includes('--restore');
 
-console.group(chalk.blue.bold('🔧 SERVICE WORKER VERSION MANAGER'));
+console.groupCollapsed(chalk.blue.bold('🔧 SERVICE WORKER VERSION MANAGER'));
 console.log(chalk.gray(`Current package.json version: ${version}`));
 console.log(chalk.gray(`Service worker path: ${swPath}`));
 console.log(chalk.gray(`Layout path: ${layoutPath}`));
@@ -111,7 +111,7 @@ function updateLayoutVersion(targetVersion, isRestore) {
 }
 
 if (isRestore) {
-  console.group(chalk.yellow.bold('🔄 RESTORE MODE'));
+  console.groupCollapsed(chalk.yellow.bold('🔄 RESTORE MODE'));
   console.log('Restoring version placeholders...');
 
   const swResult = updateServiceWorkerVersion(version, true);
@@ -146,7 +146,7 @@ if (isRestore) {
     process.exit(1);
   }
 } else {
-  console.group(chalk.green.bold('📦 UPDATE MODE'));
+  console.groupCollapsed(chalk.green.bold('📦 UPDATE MODE'));
   console.log(`Updating versions to: ${version}`);
 
   const swResult = updateServiceWorkerVersion(version, false);

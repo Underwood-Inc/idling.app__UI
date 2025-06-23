@@ -345,7 +345,7 @@ export async function performHardReset(
   const previousVersion = getStoredResetVersion();
   const errors: string[] = [];
 
-  console.group('🔄 HARD RESET INITIATED');
+  console.groupCollapsed('🔄 HARD RESET INITIATED');
   console.log(`Reset Version: ${config.resetVersion}`);
   console.log(`Current Version: ${currentVersion}`);
   console.log(`Previous Version: ${previousVersion}`);

@@ -6,7 +6,7 @@ import { ReplyForm } from './ReplyForm';
 
 interface CollapsibleReplyFormProps {
   parentId: number;
-  onSuccess: () => void;
+  onSuccess: (result?: any) => void;
   replyToAuthor: string;
 }
 
@@ -63,8 +63,8 @@ export default function CollapsibleReplyForm({
         <div className="collapsible-reply-form__form">
           <ReplyForm
             parentId={parentId}
-            onSuccess={() => {
-              onSuccess();
+            onSuccess={(result) => {
+              onSuccess(result);
               // Optionally collapse after successful submission
               setIsExpanded(false);
             }}

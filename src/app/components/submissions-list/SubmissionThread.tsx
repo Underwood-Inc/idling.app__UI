@@ -1,6 +1,7 @@
 'use client';
 
 import { ReplyForm } from '../thread/ReplyForm';
+import { TimestampWithTooltip } from '../ui/TimestampWithTooltip';
 import { SubmissionWithReplies } from './actions';
 import './SubmissionThread.css';
 
@@ -45,7 +46,7 @@ export function SubmissionThread({
             {submission.submission_name}
           </h3>
           <p className="submission-thread__datetime">
-            {new Date(submission.submission_datetime).toLocaleString()}
+            <TimestampWithTooltip date={submission.submission_datetime} />
           </p>
           {submission.tags && submission.tags.length > 0 && (
             <div className="submission-thread__tags">

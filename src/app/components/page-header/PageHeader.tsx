@@ -1,7 +1,7 @@
 import React from 'react';
 import './PageHeader.css';
 
-export default async function PageHeader({
+export default function PageHeader({
   children
 }: {
   children: React.ReactNode;

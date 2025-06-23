@@ -37,6 +37,9 @@ export interface SubmissionsListProps {
     updatedSubmission: any
   ) => void;
   optimisticRemoveSubmission?: (submissionId: number) => void;
+  // Scroll position context
+  currentPage?: number;
+  currentFilters?: Record<string, any>;
   // Custom renderer
   children?: (props: {
     submission: any;
@@ -54,6 +57,9 @@ export interface SubmissionsListProps {
       updatedSubmission: any
     ) => void;
     optimisticRemoveSubmission?: (submissionId: number) => void;
+    // Scroll position context
+    currentPage?: number;
+    currentFilters?: Record<string, any>;
   }) => React.ReactNode;
 }
 
@@ -71,6 +77,8 @@ const SubmissionsList = React.memo(function SubmissionsList({
   onLoadMore,
   optimisticUpdateSubmission,
   optimisticRemoveSubmission,
+  currentPage,
+  currentFilters,
   children
 }: SubmissionsListProps) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -379,7 +387,9 @@ const SubmissionsList = React.memo(function SubmissionsList({
                   onSubmissionUpdate: onRefresh,
                   contextId,
                   optimisticUpdateSubmission,
-                  optimisticRemoveSubmission
+                  optimisticRemoveSubmission,
+                  currentPage,
+                  currentFilters
                 })
               ) : (
                 <SubmissionItem
@@ -391,6 +401,8 @@ const SubmissionsList = React.memo(function SubmissionsList({
                   contextId={contextId}
                   optimisticUpdateSubmission={optimisticUpdateSubmission}
                   optimisticRemoveSubmission={optimisticRemoveSubmission}
+                  currentPage={currentPage}
+                  currentFilters={currentFilters}
                 />
               )}
             </div>

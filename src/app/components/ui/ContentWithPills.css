@@ -431,10 +431,12 @@
 
 .mention-tooltip-content {
   padding: 12px;
-  background: var(--dark-background--secondary);
+  background: var(--tooltip-glass-bg) !important;
+  border: 1px solid var(--tooltip-glass-border) !important;
   border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  border: 1px solid #e0e0e0;
+  backdrop-filter: var(--tooltip-glass-blur) !important;
+  -webkit-backdrop-filter: var(--tooltip-glass-blur) !important;
+  box-shadow: var(--tooltip-glass-shadow) !important;
 }
 
 .mention-tooltip__header {

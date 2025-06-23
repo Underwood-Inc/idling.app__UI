@@ -9,7 +9,7 @@ export function ServiceWorkerRegistration() {
     if ('serviceWorker' in navigator) {
       const registerServiceWorker = async () => {
         try {
-          console.group('🔧 Service Worker Registration');
+          console.groupCollapsed('🔧 Service Worker Registration');
 
           // Step 1: Clean up ALL existing service workers first
           console.log('🧹 Cleaning up existing service workers...');

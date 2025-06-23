@@ -190,7 +190,7 @@ async function confirmVersionBump(
   bumpType,
   commitMessage
 ) {
-  console.group(chalk.yellow.bold('⚠️  CONFIRMATION REQUIRED'));
+  console.groupCollapsed(chalk.yellow.bold('⚠️  CONFIRMATION REQUIRED'));
   console.log(chalk.white('You are about to modify package.json in LIVE mode'));
   console.groupEnd();
   console.log('');
@@ -220,7 +220,7 @@ async function confirmVersionBump(
 async function main() {
   try {
     if (isTestMode) {
-      console.group(chalk.magenta.bold('🧪 TEST MODE'));
+      console.groupCollapsed(chalk.magenta.bold('🧪 TEST MODE'));
       console.log(chalk.gray('No files will be modified during this run'));
       console.groupEnd();
       console.log('');
@@ -262,7 +262,7 @@ async function main() {
       return;
     }
 
-    console.group(chalk.blue('🔍 COMMIT ANALYSIS'));
+    console.groupCollapsed(chalk.blue('🔍 COMMIT ANALYSIS'));
     console.log(
       chalk.blue('Message: ') + chalk.white(`"${commitMessage.split('\n')[0]}"`)
     );
@@ -314,7 +314,7 @@ async function main() {
     }
 
     // Show version change
-    console.group(chalk.blue('📦 VERSION UPDATE'));
+    console.groupCollapsed(chalk.blue('📦 VERSION UPDATE'));
     console.log(
       chalk.white('  ') +
         chalk.cyan(currentVersion) +

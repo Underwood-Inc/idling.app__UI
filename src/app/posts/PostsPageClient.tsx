@@ -54,7 +54,9 @@ export default function PostsPageClient({ contextId }: PostsPageClientProps) {
     onSubmissionUpdate,
     contextId,
     optimisticUpdateSubmission,
-    optimisticRemoveSubmission
+    optimisticRemoveSubmission,
+    currentPage,
+    currentFilters
   }: {
     submission: SubmissionWithReplies;
     onTagClick: (_tag: string) => void;
@@ -70,6 +72,8 @@ export default function PostsPageClient({ contextId }: PostsPageClientProps) {
       _updatedSubmission: Submission
     ) => void;
     optimisticRemoveSubmission?: (_submissionId: number) => void;
+    currentPage?: number;
+    currentFilters?: Record<string, any>;
   }) => (
     <SubmissionItem
       submission={submission}
@@ -80,6 +84,8 @@ export default function PostsPageClient({ contextId }: PostsPageClientProps) {
       contextId={contextId}
       optimisticUpdateSubmission={optimisticUpdateSubmission}
       optimisticRemoveSubmission={optimisticRemoveSubmission}
+      currentPage={currentPage}
+      currentFilters={currentFilters}
     />
   );
 

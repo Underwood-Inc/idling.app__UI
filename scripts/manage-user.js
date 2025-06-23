@@ -227,7 +227,9 @@ function convertValue(value, column) {
 
 // Display user information from all relevant tables
 async function displayUserInfo(userId) {
-  console.group(chalk.blue.bold(`👤 USER INFORMATION - ID: ${userId}`));
+  console.groupCollapsed(
+    chalk.blue.bold(`👤 USER INFORMATION - ID: ${userId}`)
+  );
   console.log(chalk.gray('Fetching comprehensive user data...'));
   console.groupEnd();
   console.log('');
@@ -239,7 +241,7 @@ async function displayUserInfo(userId) {
       throw new Error(`User with ID ${userId} not found`);
     }
 
-    console.group(chalk.green('👤 BASIC USER INFO'));
+    console.groupCollapsed(chalk.green('👤 BASIC USER INFO'));
     console.table(user[0]);
     console.groupEnd();
 
@@ -262,7 +264,7 @@ async function displayUserInfo(userId) {
       `;
 
       if (accounts.length > 0) {
-        console.group(chalk.green('🔗 ACCOUNT CONNECTIONS'));
+        console.groupCollapsed(chalk.green('🔗 ACCOUNT CONNECTIONS'));
         console.table(accounts);
         console.groupEnd();
       }
@@ -284,7 +286,7 @@ async function displayUserInfo(userId) {
       `;
 
       if (sessions.length > 0) {
-        console.group(chalk.green('🔓 ACTIVE SESSIONS'));
+        console.groupCollapsed(chalk.green('🔓 ACTIVE SESSIONS'));
         console.table(sessions);
         console.groupEnd();
       }
@@ -306,7 +308,7 @@ async function displayUserInfo(userId) {
       `;
 
       if (activityStats.length > 0) {
-        console.group(chalk.green('📊 ACTIVITY STATISTICS'));
+        console.groupCollapsed(chalk.green('📊 ACTIVITY STATISTICS'));
         console.table(activityStats[0]);
         console.groupEnd();
       }
@@ -338,7 +340,7 @@ async function displayUserInfo(userId) {
       `;
 
       if (roles.length > 0) {
-        console.group(chalk.green('🔐 USER ROLES'));
+        console.groupCollapsed(chalk.green('🔐 USER ROLES'));
         console.table(roles);
         console.groupEnd();
 
@@ -364,7 +366,7 @@ async function displayUserInfo(userId) {
             `;
 
             if (rolePermissions.length > 0) {
-              console.group(
+              console.groupCollapsed(
                 chalk.yellow(`📋 PERMISSIONS - "${role.display_name}" ROLE`)
               );
               console.table(rolePermissions);
@@ -407,7 +409,7 @@ async function displayUserInfo(userId) {
       `;
 
       if (permissions.length > 0) {
-        console.group(chalk.green('⚡ DIRECT PERMISSION OVERRIDES'));
+        console.groupCollapsed(chalk.green('⚡ DIRECT PERMISSION OVERRIDES'));
         console.table(permissions);
         console.groupEnd();
       }
@@ -440,7 +442,7 @@ async function displayUserInfo(userId) {
     `;
 
     if (timeouts.length > 0) {
-      console.group(chalk.green('⏰ USER TIMEOUTS'));
+      console.groupCollapsed(chalk.green('⏰ USER TIMEOUTS'));
       console.table(timeouts);
       console.groupEnd();
     }
@@ -474,7 +476,7 @@ async function displayUserInfo(userId) {
     `;
 
     if (emojis.length > 0) {
-      console.group(chalk.green('😀 CUSTOM EMOJIS'));
+      console.groupCollapsed(chalk.green('😀 CUSTOM EMOJIS'));
       console.table(emojis);
       console.groupEnd();
     }
@@ -493,7 +495,7 @@ async function displayUserInfo(userId) {
     `;
 
     if (emojiUsage.length > 0) {
-      console.group(chalk.green('📈 TOP 10 EMOJI USAGE'));
+      console.groupCollapsed(chalk.green('📈 TOP 10 EMOJI USAGE'));
       console.table(emojiUsage);
       console.groupEnd();
     }
@@ -509,7 +511,7 @@ async function displayUserInfo(userId) {
     `;
 
     if (encryptionKeys.length > 0) {
-      console.group(chalk.green('🔐 ENCRYPTION KEYS'));
+      console.groupCollapsed(chalk.green('🔐 ENCRYPTION KEYS'));
       console.table(encryptionKeys);
       console.groupEnd();
     }
@@ -530,7 +532,7 @@ async function displayUserInfo(userId) {
     `;
 
     if (recentPosts.length > 0) {
-      console.group(chalk.green('📝 RECENT POSTS (LATEST 5)'));
+      console.groupCollapsed(chalk.green('📝 RECENT POSTS (LATEST 5)'));
       console.table(recentPosts);
       console.groupEnd();
     }
@@ -551,7 +553,7 @@ async function displayUserInfo(userId) {
     `;
 
     if (recentComments.length > 0) {
-      console.group(chalk.green('💬 RECENT COMMENTS (LATEST 5)'));
+      console.groupCollapsed(chalk.green('💬 RECENT COMMENTS (LATEST 5)'));
       console.table(recentComments);
       console.groupEnd();
     }
@@ -572,7 +574,7 @@ async function displayUserInfo(userId) {
     `;
 
     if (recentSubmissions.length > 0) {
-      console.group(chalk.green('📄 RECENT SUBMISSIONS (LATEST 5)'));
+      console.groupCollapsed(chalk.green('📄 RECENT SUBMISSIONS (LATEST 5)'));
       console.table(recentSubmissions);
       console.groupEnd();
     }
@@ -586,13 +588,13 @@ async function displayUserInfo(userId) {
 
 // Show available tables and columns
 function showAvailableOptions() {
-  console.group(chalk.blue.bold('📚 AVAILABLE TABLES AND COLUMNS'));
+  console.groupCollapsed(chalk.blue.bold('📚 AVAILABLE TABLES AND COLUMNS'));
   console.log(chalk.gray('Database schema reference for manual operations'));
   console.groupEnd();
   console.log('');
 
   Object.entries(TABLE_CONFIGS).forEach(([tableName, config]) => {
-    console.group(
+    console.groupCollapsed(
       chalk.yellow(`🗂️  ${config.name.toUpperCase()} (${tableName})`)
     );
 
@@ -618,7 +620,7 @@ function showAvailableOptions() {
 
 // Show reference data (roles, permissions)
 async function showReferenceData() {
-  console.group(chalk.blue.bold('📖 REFERENCE DATA'));
+  console.groupCollapsed(chalk.blue.bold('📖 REFERENCE DATA'));
   console.log(chalk.gray('Available roles and permissions in the system'));
   console.groupEnd();
   console.log('');
@@ -626,13 +628,13 @@ async function showReferenceData() {
   // Show roles
   const roles =
     await sql`SELECT id, name, display_name FROM user_roles ORDER BY name`;
-  console.group(chalk.green('🔐 AVAILABLE ROLES'));
+  console.groupCollapsed(chalk.green('🔐 AVAILABLE ROLES'));
   console.table(roles);
 
   // Show permissions
   const permissions =
     await sql`SELECT id, name, display_name, category FROM permissions ORDER BY category, name`;
-  console.group(chalk.green('⚡ AVAILABLE PERMISSIONS'));
+  console.groupCollapsed(chalk.green('⚡ AVAILABLE PERMISSIONS'));
   console.table(permissions);
   console.groupEnd();
 }
@@ -1292,7 +1294,7 @@ async function getUserId(cmdLineArg = null) {
 // Main user management function
 async function manageUser() {
   try {
-    console.group(chalk.blue.bold('👤 USER MANAGEMENT TOOL'));
+    console.groupCollapsed(chalk.blue.bold('👤 USER MANAGEMENT TOOL'));
     console.log(chalk.gray('Comprehensive user administration interface'));
     console.groupEnd();
     console.log('');
@@ -1311,7 +1313,7 @@ async function manageUser() {
     const user = await displayUserInfo(parseInt(userId));
 
     // Step 3: Show user management options
-    console.group(chalk.blue.bold('🛠️  USER MANAGEMENT OPTIONS'));
+    console.groupCollapsed(chalk.blue.bold('🛠️  USER MANAGEMENT OPTIONS'));
     console.log(chalk.gray('Select what you would like to update or manage'));
     console.groupEnd();
     console.log('');
@@ -1375,7 +1377,7 @@ async function manageUser() {
       return;
     }
 
-    console.group(
+    console.groupCollapsed(
       chalk.green.bold(
         `✅ SELECTED: ${selectedOption.icon} ${selectedOption.name.toUpperCase()}`
       )

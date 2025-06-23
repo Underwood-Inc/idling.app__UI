@@ -166,7 +166,7 @@ export default function ThreadPageClient({
     return <div>Thread not found</div>;
   }
 
-  const userId = session?.user?.id || '';
+  const userId = session?.user?.id?.toString() || '';
 
   // Extract active filters from global state
   const activeHashtags =

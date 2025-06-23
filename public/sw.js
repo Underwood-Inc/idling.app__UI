@@ -1,5 +1,5 @@
 // Enhanced Service Worker with Aggressive Cache Management and Registration Cleanup
-const CACHE_VERSION = '__VERSION__'; // Will be replaced with package.json version during build
+const CACHE_VERSION = '0.124.0'; // Will be replaced with package.json version during build
 const CACHE_NAME = `idling-app-cache-${CACHE_VERSION}`;
 const CACHE_METADATA_NAME = `idling-app-cache-metadata-${CACHE_VERSION}`;
 
@@ -138,7 +138,7 @@ function isCacheValid(cachedResponse, ttl) {
 // Aggressive cleanup of old service workers and caches
 async function cleanupOldServiceWorkers() {
   try {
-    console.group('🧹 Service Worker Cleanup');
+    console.groupCollapsed('🧹 Service Worker Cleanup');
     
     // Get all registrations
     const registrations = await self.registration.scope ? 
@@ -206,7 +206,9 @@ async function storeCacheMetadata(url, timestamp, version) {
       }
     });
     
-    await metadataCache.put(`metadata-${url}`, response);
+    // Use a simple string key to avoid URL scheme issues
+    const cacheKey = `metadata-cache-${btoa(url).replace(/[+/=]/g, '')}`;
+    await metadataCache.put(new Request(cacheKey), response);
   } catch (error) {
     console.warn('Failed to store cache metadata:', error);
   }
@@ -216,7 +218,7 @@ async function storeCacheMetadata(url, timestamp, version) {
 self.addEventListener('install', (event) => {
   event.waitUntil(
     (async () => {
-      console.group('🔧 Service Worker Install');
+      console.groupCollapsed('🔧 Service Worker Install');
       console.log(`Installing service worker version ${CACHE_VERSION}`);
       
       // Immediately clean up old service workers and caches
@@ -278,7 +280,7 @@ self.addEventListener('install', (event) => {
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     (async () => {
-      console.group('🚀 Service Worker Activate');
+      console.groupCollapsed('🚀 Service Worker Activate');
       console.log(`Activating service worker version ${CACHE_VERSION}`);
       
       // Perform another cleanup during activation
@@ -409,7 +411,7 @@ self.addEventListener('message', (event) => {
   if (event.data && event.data.type === 'REFRESH_CACHE') {
     event.waitUntil(
       (async () => {
-        console.group('🔄 Service Worker Cache Refresh');
+        console.groupCollapsed('🔄 Service Worker Cache Refresh');
         
         try {
           const cache = await caches.open(CACHE_NAME);

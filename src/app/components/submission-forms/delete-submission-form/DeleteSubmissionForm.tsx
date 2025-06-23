@@ -53,9 +53,24 @@ function DeleteButton({
 
   // Show tooltip only for non-permission reasons (like replies existing)
   if (!canDelete && deletePermission.reason) {
+    const tooltipContent = (
+      <div
+        style={{
+          padding: '8px 12px',
+          fontSize: '14px',
+          lineHeight: '1.4',
+          color: 'white',
+          textAlign: 'center',
+          wordWrap: 'break-word'
+        }}
+      >
+        {deletePermission.reason}
+      </div>
+    );
+
     return (
       <InteractiveTooltip
-        content={deletePermission.reason}
+        content={tooltipContent}
         isInsideParagraph={true}
         delay={200}
       >

@@ -6,6 +6,11 @@ export function generateUserSlug(
   username: string,
   userId: string | number
 ): string {
+  // Handle undefined or null username
+  if (!username || typeof username !== 'string') {
+    username = 'user';
+  }
+
   // Sanitize username for URL safety
   const sanitizedUsername = username
     .toLowerCase()

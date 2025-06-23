@@ -12,7 +12,7 @@ export function HardResetManager() {
   useEffect(() => {
     const initializeHardResetSystem = async () => {
       try {
-        console.group('🔄 Hard Reset System Initialization');
+        console.groupCollapsed('🔄 Hard Reset System Initialization');
 
         // Get current app version from meta tag
         const metaVersion = document

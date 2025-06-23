@@ -3,6 +3,10 @@
 import { useSession } from 'next-auth/react';
 import { useState } from 'react';
 import { buildThreadUrl } from '../../../lib/routes';
+import {
+  generateScrollKey,
+  storeScrollPosition
+} from '../../../lib/utils/scroll-position';
 import { Author } from '../author/Author';
 import { DeleteSubmissionForm } from '../submission-forms/delete-submission-form/DeleteSubmissionForm';
 import { EditSubmissionForm } from '../submission-forms/edit-submission-form/EditSubmissionForm';
@@ -11,6 +15,7 @@ import { TagLink } from '../tag-link/TagLink';
 import { ReplyForm } from '../thread/ReplyForm';
 import { ContentWithPills } from '../ui/ContentWithPills';
 import { InstantLink } from '../ui/InstantLink';
+import { TimestampWithTooltip } from '../ui/TimestampWithTooltip';
 import { SubmissionWithReplies } from './actions';
 
 interface SubmissionItemProps {
@@ -29,6 +34,9 @@ interface SubmissionItemProps {
     updatedSubmission: Submission
   ) => void;
   optimisticRemoveSubmission?: (submissionId: number) => void;
+  // Scroll position context
+  currentPage?: number;
+  currentFilters?: Record<string, any>;
 }
 
 export function SubmissionItem({
@@ -42,7 +50,9 @@ export function SubmissionItem({
   onSubmissionUpdate,
   contextId,
   optimisticUpdateSubmission,
-  optimisticRemoveSubmission
+  optimisticRemoveSubmission,
+  currentPage,
+  currentFilters
 }: SubmissionItemProps) {
   const { data: session } = useSession();
 
@@ -56,11 +66,62 @@ export function SubmissionItem({
 
   const isCurrentUserPost = (authorUserId: number) => {
     // Direct comparison of internal database user ID
-    return parseInt(session?.user?.id || '') === authorUserId;
+    const currentUserId = session?.user?.id;
+    if (!currentUserId) return false;
+
+    // Handle both string and number types for session.user.id
+    const userIdNumber =
+      typeof currentUserId === 'string'
+        ? parseInt(currentUserId)
+        : currentUserId;
+    return userIdNumber === authorUserId;
   };
 
   const handleTagClick = (tag: string) => {
     onTagClick(tag);
+  };
+
+  const handleThreadNavigation = () => {
+    // Store current scroll position before navigating to thread
+    if (typeof window !== 'undefined') {
+      const scrollKey = generateScrollKey(window.location.pathname, {
+        page: currentPage,
+        filters: currentFilters,
+        searchParams: new URLSearchParams(window.location.search)
+      });
+
+      // Get scroll position from the submissions list container, not the window
+      const submissionsContainer = document.querySelector(
+        '.submissions-list--virtual'
+      ) as HTMLElement;
+
+      const scrollY = submissionsContainer
+        ? submissionsContainer.scrollTop
+        : window.scrollY;
+
+      // eslint-disable-next-line no-console
+      console.log(
+        '🔗 SubmissionItem: Storing scroll position for thread navigation',
+        {
+          scrollKey,
+          currentPage,
+          currentFilters,
+          scrollY,
+          containerFound: !!submissionsContainer,
+          pathname: window.location.pathname
+        }
+      );
+
+      storeScrollPosition(
+        scrollKey,
+        {
+          currentPage,
+          filters: currentFilters,
+          infiniteMode: false // You can adjust this based on your pagination mode
+        },
+        scrollY
+      );
+    }
   };
 
   const toggleReplyForm = () => {
@@ -147,6 +208,7 @@ export function SubmissionItem({
     <div
       className={`submission__wrapper ${isReply ? 'submission__wrapper--reply' : ''}`}
       style={{ marginLeft: isReply ? `${depth * 1.5}rem` : 0 }}
+      data-testid={`submission-item-${submission.submission_id}`}
     >
       <div
         className={`submission__meta ${!hasOwnerActions ? 'submission__meta--no-actions' : ''}`}
@@ -157,9 +219,10 @@ export function SubmissionItem({
           showFullName={true}
           bio={submission.author_bio}
         />
-        <span className="submission__datetime">
-          {submission.submission_datetime.toLocaleString()}
-        </span>
+        <TimestampWithTooltip
+          date={submission.submission_datetime}
+          className="submission__datetime"
+        />
 
         {/* Edit/Delete buttons */}
         <div className="submission__owner-actions">
@@ -176,7 +239,7 @@ export function SubmissionItem({
                 id={submission.submission_id}
                 name={submission.submission_name}
                 isAuthorized={true}
-                authorId={session?.user?.id}
+                authorId={session?.user?.id?.toString()}
                 onDeleteSuccess={onDeleteSuccess}
               />
             </>
@@ -213,6 +276,7 @@ export function SubmissionItem({
                     href={buildThreadUrl(submission.submission_id)}
                     className="submission__title-link"
                     title="View thread"
+                    onClick={handleThreadNavigation}
                   >
                     <ContentWithPills
                       content={submission.submission_title}
@@ -282,6 +346,7 @@ export function SubmissionItem({
             href={buildThreadUrl(submission.submission_id)}
             className="submission__thread-link"
             title="View full thread"
+            onClick={handleThreadNavigation}
           >
             💬 View Thread
           </InstantLink>

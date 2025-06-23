@@ -257,7 +257,9 @@ export class RichTextLogger {
     }
 
     // Original console formatting
-    console.group(`🖱️ ${this.getContextPrefix()}Rich Text Click Debug`);
+    console.groupCollapsed(
+      `🖱️ ${this.getContextPrefix()}Rich Text Click Debug`
+    );
 
     // Basic click info
     console.info('📍 Click Position:', {
@@ -341,7 +343,9 @@ export class RichTextLogger {
   logCursor(info: CursorDebugInfo): void {
     if (!this.isEnabled) return;
 
-    console.group(`📍 ${this.getContextPrefix()}Cursor Position Debug`);
+    console.groupCollapsed(
+      `📍 ${this.getContextPrefix()}Cursor Position Debug`
+    );
 
     console.info('Cursor Details:', {
       position: info.position,
@@ -374,7 +378,7 @@ export class RichTextLogger {
   logSelection(info: SelectionDebugInfo): void {
     if (!this.isEnabled) return;
 
-    console.group(`🎯 ${this.getContextPrefix()}Selection Debug`);
+    console.groupCollapsed(`🎯 ${this.getContextPrefix()}Selection Debug`);
 
     console.info('Selection Details:', {
       range: `${info.start}-${info.end}`,
@@ -435,7 +439,9 @@ export class RichTextLogger {
     }
 
     // Original console formatting
-    console.group(`🔍 ${this.getContextPrefix()}Content Parsing Debug`);
+    console.groupCollapsed(
+      `🔍 ${this.getContextPrefix()}Content Parsing Debug`
+    );
 
     console.info('Text Analysis:', {
       originalText: text,
@@ -621,7 +627,9 @@ export class RichTextLogger {
     }
 
     // Original console formatting
-    console.group(`🎯 ${this.getContextPrefix()}Cursor Positioning Debug`);
+    console.groupCollapsed(
+      `🎯 ${this.getContextPrefix()}Cursor Positioning Debug`
+    );
 
     if (data.clickCoordinates) {
       console.info('📍 Click Info:', {

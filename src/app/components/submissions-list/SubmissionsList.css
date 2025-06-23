@@ -204,9 +204,7 @@
 }
 
 .submission__reply-form {
-  margin-top: 1rem;
   border-top: 1px solid var(--brand-tertiary--dark);
-  padding-top: 1rem;
 }
 
 /* Thread Replies Styles */
@@ -326,7 +324,7 @@
     /* Keep original visual styling but ensure minimum touch target */
     min-height: 44px;
     /* Maintain original padding and font size for visual consistency */
-    padding: 0.25rem 0.75rem;
+    /* padding: 0.25rem 0.75rem; */
     font-size: var(--font-size-md);
     /* Ensure adequate touch area with transparent padding if needed */
     position: relative;
@@ -389,7 +387,7 @@
   background: var(--brand-primary);
   color: var(--font-color--primary);
   border: none;
-  padding: 0.25rem 0.5rem;
+  /* padding: 0.25rem 0.5rem; */
   border-radius: 0.25rem;
   font-size: var(--font-size-md);
   cursor: pointer;
@@ -541,13 +539,15 @@
   position: fixed;
   top: 10px;
   right: 10px;
-  background: rgba(0, 0, 0, 0.8);
+  background: var(--tooltip-glass-bg);
   color: white;
   padding: 8px;
   border-radius: 4px;
   font-size: 12px;
   z-index: 1000;
-
+  backdrop-filter: var(--tooltip-glass-blur);
+  -webkit-backdrop-filter: var(--tooltip-glass-blur);
+  border: 1px solid var(--tooltip-glass-border);
   line-height: 1.4;
 }
 

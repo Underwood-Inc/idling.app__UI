@@ -49,11 +49,11 @@
   min-width: 200px;
   max-width: 300px;
   max-height: 300px;
-  /* Apply glass effect */
+  /* Apply composable glass effect */
   backdrop-filter: var(--glass-blur-medium);
   -webkit-backdrop-filter: var(--glass-blur-medium);
-  background: var(--glass-bg-medium);
-  border: 1px solid var(--glass-border-medium);
+  background: var(--glass-overlay-medium, var(--glass-bg-medium));
+  border: 1px solid var(--glass-border-overlay-medium, var(--glass-border-medium));
   box-shadow: var(--glass-shadow-heavy);
   border-radius: var(--border-radius);
   overflow: hidden;

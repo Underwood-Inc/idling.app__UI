@@ -154,6 +154,16 @@ function ContentWithPillsInternal({
         // Always use userId for author filtering
         onMentionClick(segment.userId, 'author');
       } else if (
+        type === 'hashtag' &&
+        pathname.startsWith('/t/') &&
+        !onHashtagClick
+      ) {
+        // For thread pages without callback, navigate to posts with filter
+        const params = new URLSearchParams();
+        params.set('tags', value);
+        params.set('page', '1');
+        router.push(`${NAV_PATHS.POSTS}?${params.toString()}`);
+      } else if (
         type === 'mention' &&
         pathname === NAV_PATHS.POSTS &&
         segment?.userId
@@ -249,13 +259,21 @@ function ContentWithPillsInternal({
     (segment: ContentSegment) => {
       const username = segment.displayName || segment.value;
 
-      return (
+      // Create a component that accepts closeTooltip prop
+      const MentionTooltipContent = ({
+        closeTooltip
+      }: {
+        closeTooltip?: () => void;
+      }) => (
         <div className="mention-tooltip-content">
           <div className="mention-tooltip__header">Filter by @{username}</div>
           <div className="mention-tooltip__options">
             <button
               className="mention-tooltip__option mention-tooltip__option--primary"
-              onClick={createFilterHandler(segment, 'author')}
+              onClick={() => {
+                createFilterHandler(segment, 'author')();
+                closeTooltip?.();
+              }}
               title="Show posts authored by this user"
             >
               <span className="mention-tooltip__icon">👤</span>
@@ -268,7 +286,10 @@ function ContentWithPillsInternal({
             </button>
             <button
               className="mention-tooltip__option"
-              onClick={createFilterHandler(segment, 'mentions')}
+              onClick={() => {
+                createFilterHandler(segment, 'mentions')();
+                closeTooltip?.();
+              }}
               title="Show posts that mention this user"
             >
               <span className="mention-tooltip__icon">💬</span>
@@ -282,6 +303,8 @@ function ContentWithPillsInternal({
           </div>
         </div>
       );
+
+      return <MentionTooltipContent />;
     },
     [createFilterHandler]
   );
