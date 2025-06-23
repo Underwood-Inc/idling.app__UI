@@ -10,7 +10,22 @@
 // Load environment variables FIRST, before any other imports
 require('dotenv').config({ path: '.env.local' });
 
-const sql = require('../src/lib/db');
+const postgres = require('postgres');
+
+// Create database connection AFTER environment variables are loaded
+const sql = postgres({
+  host: process.env.POSTGRES_HOST,
+  user: process.env.POSTGRES_USER,
+  database: process.env.POSTGRES_DB,
+  password: process.env.POSTGRES_PASSWORD,
+  port: process.env.POSTGRES_PORT,
+  ssl: 'prefer',
+  onnotice: () => {}, // Ignore NOTICE statements - they're not errors
+  max: 10,
+  idle_timeout: 20,
+  connect_timeout: 10,
+  prepare: false
+});
 
 // Import comprehensive emoji data
 const { getAllEmojis } = require('./emoji-data-comprehensive');
