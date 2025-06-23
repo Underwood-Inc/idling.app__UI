@@ -1251,7 +1251,7 @@
 .form-pill-input__smart-overlay .inline-suggestion-input__suggestions,
 .form-pill-input__smart-overlay .suggestion-list {
   position: fixed !important;
-  z-index: 10000 !important;
+  z-index: 15000 !important;
   /* We'll position this dynamically via JavaScript */
 }
 

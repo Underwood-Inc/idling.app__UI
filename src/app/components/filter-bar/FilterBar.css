@@ -62,7 +62,7 @@
   border-color: #ffcc02;
   /* Ensure element doesn't affect surrounding layout */
   position: relative;
-  z-index: 10;
+  z-index: 5;
 }
 
 .filter-bar__filter-remove {
@@ -113,7 +113,7 @@
   transform-origin: center;
   /* Ensure element doesn't affect surrounding layout */
   position: relative;
-  z-index: 10;
+  z-index: 5;
 }
 
 @media (max-width: 961px) {
@@ -360,7 +360,7 @@
   transform-origin: center;
   /* Ensure element doesn't affect surrounding layout */
   position: relative;
-  z-index: 10;
+  z-index: 5;
 }
 
 .filter-bar__logic-button--active {
@@ -378,7 +378,7 @@
   transform-origin: center;
   /* Ensure element doesn't affect surrounding layout */
   position: relative;
-  z-index: 10;
+  z-index: 5;
 }
 
 .filter-bar__logic-button:focus {
@@ -442,7 +442,7 @@
   transform-origin: center;
   /* Ensure element doesn't affect surrounding layout */
   position: relative;
-  z-index: 10;
+  z-index: 5;
 }
 
 /* Inline tags logic toggle styling */

@@ -64,6 +64,7 @@
   background: transparent !important;
   padding: 0.25rem 0.5rem;
   font-size: inherit;
+  color: var(--light-bg__text-color--primary);
 }
 
 .smart-pill-input__smart-input .inline-suggestion-input:focus {
@@ -79,7 +80,7 @@
   top: 100%;
   left: 0;
   right: 0;
-  z-index: 1001;
+  z-index: 10001;
   margin-top: 0.25rem;
   border-radius: var(--border-radius);
   border: 2px solid var(--brand-primary);
