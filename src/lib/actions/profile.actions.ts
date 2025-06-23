@@ -439,102 +439,11 @@ export async function searchUsers(
 }
 
 /**
- * Server action to update user bio
- */
-export async function updateUserBioAction(formData: FormData): Promise<{
-  success: boolean;
-  error?: string;
-  profile?: UserProfileData;
-}> {
-  try {
-    const session = await auth();
-
-    if (!session?.user?.id) {
-      return {
-        success: false,
-        error: 'Authentication required'
-      };
-    }
-
-    const bio = formData.get('bio') as string;
-    const username = formData.get('username') as string;
-
-    // Validate bio length
-    if (bio && getEffectiveCharacterCount(bio) > 500) {
-      return {
-        success: false,
-        error: 'Bio must be 500 characters or less'
-      };
-    }
-
-    // Verify the user is updating their own profile
-    if (username) {
-      const userProfile = await getUserProfile(username);
-      if (!userProfile) {
-        return {
-          success: false,
-          error: 'User not found'
-        };
-      }
-
-      // Simple and secure: only check authenticated user ID
-      // Convert both to strings to handle type mismatch
-      const canEdit = userProfile.id.toString() === session.user.id.toString();
-
-      if (!canEdit) {
-        return {
-          success: false,
-          error: 'You can only edit your own profile'
-        };
-      }
-    }
-
-    // Update the profile
-    const updatedProfile = await updateUserProfile(session.user.id, {
-      bio: bio || undefined
-    });
-
-    if (!updatedProfile) {
-      return {
-        success: false,
-        error: 'Failed to update profile'
-      };
-    }
-
-    // Get the complete profile with stats
-    const completeProfile = await getUserProfileById(session.user.id);
-
-    // Invalidate cache for all profile-related paths
-    if (username) {
-      const userProfile = await getUserProfile(username);
-      if (userProfile) {
-        revalidatePath(`/profile/${username}`); // Username/slug path
-        revalidatePath(`/profile/${userProfile.slug}`); // Canonical slug path
-      }
-    }
-    revalidatePath(`/profile/${session.user.id}`); // User ID path (if used)
-    revalidatePath('/profile'); // Profile listing pages
-    revalidatePath('/', 'layout'); // Revalidate layout cache for any user data in headers/nav
-
-    return {
-      success: true,
-      profile: completeProfile || updatedProfile
-    };
-  } catch (error) {
-    console.error('Error updating user bio:', error);
-    return {
-      success: false,
-      error: 'Internal server error'
-    };
-  }
-}
-
-/**
- * Alternative server action using direct bio and username parameters
+ * Server action to update user bio (database ID only after migration 0010)
  */
 export async function updateBioAction(
   bio: string,
-  username: string
+  identifier: string
 ): Promise<{
   success: boolean;
   error?: string;
@@ -558,8 +467,18 @@ export async function updateBioAction(
       };
     }
 
-    // Verify the user is updating their own profile
-    const userProfile = await getUserProfile(username);
+    // ✅ CRITICAL: Only database ID supported after migration 0010
+    // Username-based lookups are no longer supported for maximum reliability
+    if (!/^\d+$/.test(identifier)) {
+      return {
+        success: false,
+        error: 'Invalid profile identifier. Only database IDs are supported.'
+      };
+    }
+
+    // Direct database ID lookup - only supported method
+    const userProfile = await getUserProfileByDatabaseId(identifier);
+
     if (!userProfile) {
       return {
         success: false,
@@ -577,7 +496,7 @@ export async function updateBioAction(
       };
     }
 
-    // Update the profile
+    // Update the profile using database ID
     const updatedProfile = await updateUserProfile(session.user.id, {
       bio: bio || undefined
     });
@@ -592,10 +511,8 @@ export async function updateBioAction(
     // Get the complete profile with stats
     const completeProfile = await getUserProfileById(session.user.id);
 
-    // Invalidate cache for all profile-related paths
-    revalidatePath(`/profile/${username}`); // Username/slug path
-    revalidatePath(`/profile/${userProfile.slug}`); // Canonical slug path
-    revalidatePath(`/profile/${session.user.id}`); // User ID path (if used)
+    // Invalidate cache for database ID path only
+    revalidatePath(`/profile/${userProfile.id}`); // Database ID path (only supported)
     revalidatePath('/profile'); // Profile listing pages
     revalidatePath('/', 'layout'); // Revalidate layout cache for any user data in headers/nav
 

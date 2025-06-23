@@ -121,6 +121,10 @@ export default function CustomPostgresAdapter(client: Pool): Adapter {
       };
 
       const { id, name, email, emailVerified, image } = newUser;
+
+      // ✅ CRITICAL: Sync username changes from OAuth providers
+      // This ensures that when users relogin with updated provider usernames,
+      // our database stays synchronized for reliable profile URL generation
       const updateSql = `
         UPDATE users set
         name = $2, email = $3, "emailVerified" = $4, image = $5
@@ -134,6 +138,16 @@ export default function CustomPostgresAdapter(client: Pool): Adapter {
         emailVerified,
         image
       ]);
+
+      // Log username changes for monitoring
+      if (oldUser.name !== name) {
+        console.info('🔄 Username synced from provider:', {
+          userId: id,
+          oldUsername: oldUser.name,
+          newUsername: name,
+          provider: 'oauth'
+        });
+      }
 
       return query2.rows[0];
     },
