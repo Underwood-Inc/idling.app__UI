@@ -5,7 +5,6 @@ import { auth } from '../auth';
 import sql from '../db';
 import { UserProfileData } from '../types/profile';
 import { getEffectiveCharacterCount } from '../utils/string';
-import { parseUserSlug } from '../utils/user-slug';
 
 export interface ProfileFilters {
   username?: string;
@@ -14,113 +13,23 @@ export interface ProfileFilters {
 }
 
 /**
- * Get user profile by username OR slug
- * Supports both legacy username format and new slug format
+ * @deprecated After migration 0011, use getUserProfileByDatabaseId() instead
+ * This function is kept for backward compatibility but should not be used in new code
  */
 export async function getUserProfile(
-  usernameOrSlug: string
+  identifier: string
 ): Promise<UserProfileData | null> {
-  try {
-    // Check if this looks like a slug (contains a hyphen followed by numbers at the end)
-    const slugParsed = parseUserSlug(usernameOrSlug);
+  console.warn(
+    'getUserProfile() is deprecated. Use getUserProfileByDatabaseId() instead.'
+  );
 
-    let userResult: any[];
-
-    if (slugParsed) {
-      // It's a slug format - look up by ID primarily, with username verification
-      const userIdNum = parseInt(slugParsed.userId);
-      const expectedUsername = slugParsed.username.replace(/-/g, ' '); // Convert hyphens back to spaces
-
-      userResult = await sql`
-        SELECT 
-          u.id,
-          u.name,
-          u.email,
-          u.bio,
-          u.location,
-          u.image,
-          u.created_at,
-          u.profile_public,
-          a."providerAccountId"
-        FROM users u 
-        LEFT JOIN accounts a ON u.id = a."userId"
-        WHERE (u.id = ${userIdNum} OR a."providerAccountId" = ${slugParsed.userId})
-        AND LOWER(u.name) = LOWER(${expectedUsername})
-        LIMIT 1
-      `;
-    } else {
-      // Legacy format - look up by username/providerAccountId only
-      userResult = await sql`
-        SELECT 
-          u.id,
-          u.name,
-          u.email,
-          u.bio,
-          u.location,
-          u.image,
-          u.created_at,
-          u.profile_public,
-          a."providerAccountId"
-        FROM users u 
-        LEFT JOIN accounts a ON u.id = a."userId"
-        WHERE a."providerAccountId" = ${usernameOrSlug}
-           OR LOWER(u.name) = LOWER(${usernameOrSlug})
-        ORDER BY 
-          CASE 
-            WHEN a."providerAccountId" = ${usernameOrSlug} THEN 1
-            WHEN LOWER(u.name) = LOWER(${usernameOrSlug}) THEN 2
-            ELSE 3
-          END
-        LIMIT 1
-      `;
-    }
-
-    if (userResult.length === 0) {
-      return null;
-    }
-
-    const user = userResult[0];
-
-    // Get submission statistics if they exist
-    let stats = null;
-    try {
-      const submissionStats = await sql`
-        SELECT 
-          COUNT(*) as total_submissions,
-          COUNT(CASE WHEN thread_parent_id IS NULL THEN 1 END) as posts_count,
-          COUNT(CASE WHEN thread_parent_id IS NOT NULL THEN 1 END) as replies_count,
-          MAX(submission_datetime) as last_activity
-        FROM submissions 
-        WHERE user_id = ${user.id}
-      `;
-
-      if (submissionStats.length > 0) {
-        stats = submissionStats[0];
-      }
-    } catch (statsError) {
-      // Stats not available, continue without them
-    }
-
-    return {
-      id: user.id.toString(), // Use database internal ID for consistency with submissions
-      providerAccountId: user.providerAccountId, // Keep OAuth provider ID separate
-      username: user.name, // Use name as username for display
-      name: user.name,
-      email: user.email,
-      bio: user.bio,
-      location: user.location,
-      image: user.image,
-      created_at: user.created_at,
-      profile_public: user.profile_public,
-      total_submissions: stats ? parseInt(stats.total_submissions) : 0,
-      posts_count: stats ? parseInt(stats.posts_count) : 0,
-      replies_count: stats ? parseInt(stats.replies_count) : 0,
-      last_activity: stats?.last_activity || null
-    };
-  } catch (error) {
-    console.error('Error fetching user profile:', error);
-    return null;
+  // If it's a numeric ID, use the proper function
+  if (/^\d+$/.test(identifier)) {
+    return getUserProfileByDatabaseId(identifier);
   }
+
+  // For non-numeric identifiers, return null (no longer supported)
+  return null;
 }
 
 /**
