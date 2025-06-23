@@ -1,0 +1,85 @@
+/* Timestamp with Tooltip Styling */
+.timestamp-with-tooltip {
+  color: var(--light-bg__text-color--tertiary);
+  font-size: var(--font-size-sm);
+  font-weight: 400;
+  transition: color 0.2s ease;
+}
+
+.timestamp-with-tooltip:hover {
+  color: var(--brand-primary);
+  text-decoration-color: var(--brand-primary);
+}
+
+/* Specific styling for thread pages with light backgrounds */
+.thread__container .timestamp-with-tooltip,
+.submission__wrapper .timestamp-with-tooltip {
+  color: var(--light-bg__text-color--tertiary);
+  font-weight: 500;
+}
+
+.thread__container .timestamp-with-tooltip:hover,
+.submission__wrapper .timestamp-with-tooltip:hover {
+  color: var(--brand-primary--dark);
+}
+
+/* Tooltip content styling */
+.timestamp-tooltip {
+  /* Apply protected tooltip glass effect */
+  backdrop-filter: var(--tooltip-glass-blur) !important;
+  -webkit-backdrop-filter: var(--tooltip-glass-blur) !important;
+  background: var(--tooltip-glass-bg) !important;
+  border: 1px solid var(--tooltip-glass-border) !important;
+  box-shadow: var(--tooltip-glass-shadow) !important;
+  border-radius: var(--border-radius);
+}
+
+.timestamp-tooltip .link-tooltip-content {
+  padding: 0 !important;
+  /* Remove default padding since we handle it internally */
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .timestamp-with-tooltip {
+    color: var(--dark-bg__text-color--primary);
+  }
+
+  .timestamp-with-tooltip:hover {
+    color: var(--dark-bg__text-color--quaternary);
+    text-decoration-color: var(--brand-primary--light);
+  }
+
+  .timestamp-tooltip {
+    background: var(--tooltip-glass-bg) !important;
+    border: 1px solid var(--tooltip-glass-border) !important;
+    box-shadow: var(--tooltip-glass-shadow) !important;
+  }
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .timestamp-with-tooltip {
+    font-size: var(--font-size-xs);
+  }
+}
+
+/* High contrast support */
+@media (prefers-contrast: high) {
+  .timestamp-with-tooltip {
+    text-decoration-style: solid;
+    text-decoration-thickness: 2px;
+  }
+
+  .timestamp-tooltip {
+    border-width: 2px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .timestamp-with-tooltip {
+    transition: none;
+  }
+}

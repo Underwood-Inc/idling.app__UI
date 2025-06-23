@@ -122,24 +122,6 @@ export const LinkTooltip: React.FC<LinkTooltipProps> = ({
   };
 
   useEffect(() => {
-    if (lastUpdated) {
-      // Update immediately
-      setTimeAgo(formatLastUpdated(lastUpdated.getTime()));
-
-      // Then update every second for more precise timing
-      timerRef.current = setInterval(() => {
-        setTimeAgo(formatLastUpdated(lastUpdated.getTime()));
-      }, 1000); // Update every second
-    }
-
-    return () => {
-      if (timerRef.current) {
-        clearInterval(timerRef.current);
-      }
-    };
-  }, [lastUpdated]);
-
-  useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
         showTooltip &&
@@ -334,7 +316,18 @@ export const LinkTooltip: React.FC<LinkTooltipProps> = ({
   };
 
   const handleClick = (e: React.MouseEvent) => {
+    // On mobile (touch devices), prioritize modal/tooltip over direct link opening
+    const isMobile = window.matchMedia(
+      '(hover: none) and (pointer: coarse)'
+    ).matches;
+
     if (enableCtrlClick && (e.ctrlKey || e.metaKey)) {
+      e.preventDefault();
+      setShowTooltip(false);
+      setShowLargePreview(false);
+      setShowModal(true);
+    } else if (isMobile && enableCtrlClick) {
+      // On mobile, first click shows modal instead of opening link directly
       e.preventDefault();
       setShowTooltip(false);
       setShowLargePreview(false);
