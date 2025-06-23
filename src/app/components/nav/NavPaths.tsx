@@ -3,7 +3,7 @@
 
 import Link from 'next/link';
 import { usePathname, useSearchParams } from 'next/navigation';
-import { useEffect, useRef, useState } from 'react';
+import { Suspense, useEffect, useRef, useState } from 'react';
 import {
   HEADER_NAV_PATHS,
   NAV_PATH_LABELS,
@@ -12,7 +12,10 @@ import {
 } from '../../../lib/routes';
 import { Navbar } from '../navbar/Navbar';
 
-export function NavPaths() {
+/**
+ * Internal NavPaths component that uses useSearchParams
+ */
+function NavPathsInternal() {
   const [lastPath, setLastPath] = useState('');
   const currentPath = usePathname();
   const searchParams = useSearchParams();
@@ -57,5 +60,28 @@ export function NavPaths() {
         );
       })}
     </>
+  );
+}
+
+/**
+ * Main NavPaths component with Suspense wrapper
+ */
+export function NavPaths() {
+  return (
+    <Suspense
+      fallback={
+        <>
+          {Object.entries(HEADER_NAV_PATHS).map(([key, value]) => (
+            <Navbar.Item key={`path--${key}`} isDisabled={key === 'GAME'}>
+              <Link href={value} aria-disabled={key === 'GAME'}>
+                {NAV_PATH_LABELS[key as ROUTES]}
+              </Link>
+            </Navbar.Item>
+          ))}
+        </>
+      }
+    >
+      <NavPathsInternal />
+    </Suspense>
   );
 }

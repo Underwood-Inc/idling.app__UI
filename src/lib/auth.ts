@@ -32,20 +32,39 @@ export const nextAuth = NextAuth({
       if (token) {
         session.user = {
           ...session.user,
-          // Use providerAccountId as the primary ID for consistency
-          id: (token.providerAccountId || token.sub || '') as string,
+          // Use database internal ID as the primary identifier for all app operations
+          id: (token.databaseId || token.sub || '') as string,
+          // Keep providerAccountId for OAuth purposes only
           providerAccountId: token.providerAccountId as string
         };
       }
       return session;
     },
     jwt: async ({ token, user, account }) => {
+      // During sign-in, capture both database ID and provider account ID
+      if (user) {
+        // user.id is the database internal ID from the adapter
+        token.databaseId = user.id;
+        token.providerAccountId =
+          user.providerAccountId || account?.providerAccountId;
+
+        console.info('✅ JWT callback - User created/found:', {
+          databaseId: user.id,
+          name: user.name,
+          providerAccountId:
+            user.providerAccountId || account?.providerAccountId
+        });
+      }
+
       // Capture providerAccountId from account during sign-in
       if (account?.providerAccountId) {
+        console.info('✅ JWT callback - Account linked:', {
+          provider: account.provider,
+          providerAccountId: account.providerAccountId
+        });
         token.providerAccountId = account.providerAccountId;
-      } else if (user?.providerAccountId) {
-        token.providerAccountId = user.providerAccountId;
       }
+
       return token;
     }
   }

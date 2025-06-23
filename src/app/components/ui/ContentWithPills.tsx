@@ -1,8 +1,9 @@
+/* eslint-disable custom-rules/enforce-link-target-blank */
 'use client';
 
 import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import React, { useCallback, useMemo } from 'react';
+import React, { Suspense, useCallback, useMemo } from 'react';
 import { NAV_PATHS } from '../../../lib/routes';
 import {
   ContentParser,
@@ -18,6 +19,7 @@ interface ContentWithPillsProps {
   onMentionClick?: (mention: string, filterType: 'author' | 'mentions') => void;
   onURLClick?: (url: string, behavior: string) => void;
   onURLBehaviorChange?: (oldContent: string, newContent: string) => void;
+  onURLRemove?: () => void;
   className?: string;
   contextId: string;
   isFilterBarContext?: boolean;
@@ -25,12 +27,16 @@ interface ContentWithPillsProps {
   isEditMode?: boolean;
 }
 
-export function ContentWithPills({
+/**
+ * Internal ContentWithPills component that uses useSearchParams
+ */
+function ContentWithPillsInternal({
   content,
   onHashtagClick,
   onMentionClick,
   onURLClick,
   onURLBehaviorChange,
+  onURLRemove,
   className = '',
   contextId,
   isFilterBarContext = false,
@@ -291,124 +297,319 @@ export function ContentWithPills({
         className={`content-with-pills ${hasEmbeds ? 'content-with-pills--has-embeds' : ''} ${className}`}
         data-context-id={contextId}
       >
-        {segments.map((segment, index) => {
-          if (segment.type === 'text') {
-            return <span key={index}>{segment.value}</span>;
-          }
-
-          // Handle URL pills separately from other pill types
-          if (segment.type === 'url') {
-            return (
-              <URLPill
-                key={index}
-                content={segment.rawFormat || ''}
-                onURLClick={onURLClick}
-                onBehaviorChange={(newContent) => {
-                  if (onURLBehaviorChange) {
-                    onURLBehaviorChange(segment.rawFormat || '', newContent);
-                  }
-                }}
-                isEditMode={isEditMode}
-                contextId={contextId}
-                className="content-pill--url"
-              />
-            );
-          }
-
-          // Existing logic for hashtag and mention pills (unchanged)
-          const isActiveFilter_ = isActiveFilter(
-            segment.type as 'hashtag' | 'mention',
-            segment.value,
-            segment
-          );
-
-          const pillUrl = generatePillUrl(
-            segment.type as 'hashtag' | 'mention',
-            segment.value,
-            segment
-          );
-
-          // All pills are clickable now - simplified logic
-          const isClickable = true;
-
-          if (isClickable) {
-            const shouldShowTooltip =
-              segment.type === 'mention' && !isFilterBarContext && !isEditMode; // Don't show tooltip in edit mode
-
-            const pillElement = (
-              <Link
-                key={index}
-                href={pillUrl}
-                className={`content-pill content-pill--${segment.type} content-pill--clickable ${
-                  isActiveFilter_ ? 'content-pill--active' : ''
-                } ${isFilterBarContext ? 'content-pill--filter-context' : ''} ${
-                  isEditMode ? 'content-pill--edit-mode' : ''
-                }`}
-                onClick={(event) => {
-                  // In edit mode for mention pills, prevent all click behavior
-                  if (isEditMode && segment.type === 'mention') {
-                    event.preventDefault();
-                    return;
-                  }
-
-                  handlePillClick(
-                    segment.type as 'hashtag' | 'mention',
-                    segment.value,
-                    event,
-                    segment
-                  );
-                }}
-                title={
-                  isFilterBarContext || shouldShowTooltip
-                    ? undefined // No title tooltip when InfoTooltip is used or in filter context
-                    : isEditMode && segment.type === 'mention'
-                      ? 'Use remove button to delete' // Helpful hint in edit mode
-                      : segment.type === 'hashtag'
-                        ? `Filter by hashtag: ${segment.value}`
-                        : `Filter by user: ${segment.value}`
-                }
-              >
-                {segment.type === 'hashtag' ? '#' : '@'}
-                {segment.value}
-              </Link>
-            );
-
-            // Wrap mention pills with InteractiveTooltip for interactive content
-            if (shouldShowTooltip) {
-              return (
-                <InteractiveTooltip
-                  key={index}
-                  content={createMentionTooltipContent(segment)}
-                  isInsideParagraph={true}
-                  delay={500}
-                >
-                  {pillElement}
-                </InteractiveTooltip>
-              );
-            }
-
-            return pillElement;
-          }
-
-          return (
-            <span
-              key={index}
-              className={`content-pill content-pill--${segment.type}`}
-              title={
-                isFilterBarContext
-                  ? undefined // No tooltip in filter input context
-                  : segment.type === 'hashtag'
-                    ? `Hashtag: ${segment.value}`
-                    : `Mention: ${segment.value}`
-              }
-            >
-              {segment.type === 'hashtag' ? '#' : '@'}
-              {segment.value}
-            </span>
-          );
-        })}
+        {renderSegmentsWithLineBreaks(segments)}
       </span>
     </>
+  );
+
+  /**
+   * Enhanced rendering function that handles line breaks properly
+   * Uses the same approach as the rich text editor's DefaultRenderer
+   */
+  function renderSegmentsWithLineBreaks(
+    segments: ContentSegment[]
+  ): React.ReactNode {
+    if (segments.length === 0) {
+      return null;
+    }
+
+    // Check if content has newlines - if not, use simple rendering
+    const hasNewlines = segments.some(
+      (segment) => segment.type === 'text' && segment.value.includes('\n')
+    );
+
+    if (!hasNewlines) {
+      // Simple rendering for single-line content
+      return segments.map((segment, index) => renderSegment(segment, index));
+    }
+
+    // Line-based rendering for multi-line content
+    const lines: ContentSegment[][] = [];
+    let currentLine: ContentSegment[] = [];
+
+    for (const segment of segments) {
+      if (segment.type === 'text' && segment.value.includes('\n')) {
+        // Split text segments containing newlines
+        const textParts = segment.value.split('\n');
+
+        for (let i = 0; i < textParts.length; i++) {
+          const part = textParts[i];
+
+          // Add text part to current line if not empty
+          if (part.length > 0) {
+            currentLine.push({
+              ...segment,
+              value: part,
+              type: 'text'
+            });
+          }
+
+          // End current line (except for the last part)
+          if (i < textParts.length - 1) {
+            lines.push([...currentLine]);
+            currentLine = [];
+          }
+        }
+      } else {
+        // Add non-text segments or text without newlines to current line
+        currentLine.push(segment);
+      }
+    }
+
+    // Add the last line if it has content
+    if (currentLine.length > 0) {
+      lines.push(currentLine);
+    }
+
+    // Render lines with proper structure
+    return lines.map((lineSegments, lineIndex) => (
+      <div
+        key={`line-${lineIndex}`}
+        className="content-with-pills__line"
+        data-line-index={lineIndex}
+        data-line-segment-count={lineSegments.length}
+      >
+        {lineSegments.length === 0 ? (
+          // Empty line - render invisible character for proper spacing
+          <span className="content-with-pills__empty-line">&nbsp;</span>
+        ) : (
+          lineSegments.map((segment, segmentIndex) =>
+            renderSegment(segment, `${lineIndex}-${segmentIndex}`)
+          )
+        )}
+      </div>
+    ));
+  }
+
+  /**
+   * Render individual segment (pill or text)
+   */
+  function renderSegment(
+    segment: ContentSegment,
+    key: string | number
+  ): React.ReactNode {
+    if (segment.type === 'text') {
+      // Simple text rendering - no newlines should be present at this point
+      return <span key={key}>{segment.value}</span>;
+    }
+
+    // Handle URL pills separately from other pill types
+    if (segment.type === 'url') {
+      // Extract URL and behavior from the segment
+      const url = segment.value;
+      const behavior = segment.behavior as 'embed' | 'link' | undefined;
+
+      // Extract width from rawFormat if it exists (format: ![behavior|width](url))
+      let width: 'small' | 'medium' | 'large' | 'full' = 'medium'; // Default width
+      if (segment.rawFormat) {
+        const pillData = segment.rawFormat.match(
+          /!\[([^|]+)(?:\|([^|]+))?\]\([^)]+\)/
+        );
+        if (pillData && pillData[2]) {
+          const extractedWidth = pillData[2].toLowerCase();
+          if (
+            ['s', 'm', 'l', 'f', 'small', 'medium', 'large', 'full'].includes(
+              extractedWidth
+            )
+          ) {
+            // Map legacy short names to full names
+            switch (extractedWidth) {
+              case 's':
+                width = 'small';
+                break;
+              case 'm':
+                width = 'medium';
+                break;
+              case 'l':
+                width = 'large';
+                break;
+              case 'f':
+                width = 'full';
+                break;
+              case 'small':
+              case 'medium':
+              case 'large':
+              case 'full':
+                width = extractedWidth as 'small' | 'medium' | 'large' | 'full';
+                break;
+            }
+          }
+        }
+      }
+
+      // Create change handlers for width and mode
+      const handleWidthChange = (
+        newWidth: 'small' | 'medium' | 'large' | 'full'
+      ) => {
+        if (onURLBehaviorChange && segment.rawFormat) {
+          const currentFormat = segment.rawFormat;
+          // Width change debug info
+          // console.log('Width change:', { newWidth, currentFormat, url, behavior, width });
+
+          // Check if it's already in pill format
+          const pillMatch = currentFormat.match(
+            /!\[([^|]+)(?:\|([^|]+))?\]\(([^)]+)\)/
+          );
+
+          if (pillMatch) {
+            // It's already a pill, update the width
+            const [, currentBehavior, , currentUrl] = pillMatch;
+            const newFormat = `![${currentBehavior}|${newWidth}](${currentUrl})`;
+            // console.log('Updating pill format:', { currentFormat, newFormat });
+            onURLBehaviorChange(currentFormat, newFormat);
+          } else {
+            // It's a raw URL, convert to pill with width
+            const newFormat = `![${behavior || 'embed'}|${newWidth}](${currentFormat})`;
+            // console.log('Converting to pill format:', { currentFormat, newFormat });
+            onURLBehaviorChange(currentFormat, newFormat);
+          }
+        } else {
+          // console.log('Width change failed:', { onURLBehaviorChange: !!onURLBehaviorChange, rawFormat: segment.rawFormat });
+        }
+      };
+
+      const handleModeChange = (newMode: 'embed' | 'link' | 'modal') => {
+        if (onURLBehaviorChange && segment.rawFormat) {
+          const currentFormat = segment.rawFormat;
+
+          // Check if it's already in pill format
+          const pillMatch = currentFormat.match(
+            /!\[([^|]+)(?:\|([^|]+))?\]\(([^)]+)\)/
+          );
+
+          if (pillMatch) {
+            // It's already a pill, update the behavior
+            const [, , currentWidth, currentUrl] = pillMatch;
+            const newFormat = currentWidth
+              ? `![${newMode}|${currentWidth}](${currentUrl})`
+              : `![${newMode}](${currentUrl})`;
+            onURLBehaviorChange(currentFormat, newFormat);
+          } else {
+            // It's a raw URL, convert to pill with behavior
+            const newFormat =
+              width && width !== 'medium'
+                ? `![${newMode}|${width}](${currentFormat})`
+                : `![${newMode}](${currentFormat})`;
+            onURLBehaviorChange(currentFormat, newFormat);
+          }
+        }
+      };
+
+      return (
+        <URLPill
+          key={key}
+          url={url}
+          behavior={behavior}
+          width={width}
+          className="content-pill--url"
+          isEditMode={isEditMode}
+          onBehaviorChange={onURLBehaviorChange}
+          onWidthChange={handleWidthChange}
+          onModeChange={handleModeChange}
+          onRemove={onURLRemove}
+        />
+      );
+    }
+
+    // Existing logic for hashtag and mention pills (unchanged)
+    const isActiveFilter_ = isActiveFilter(
+      segment.type as 'hashtag' | 'mention',
+      segment.value,
+      segment
+    );
+
+    const pillUrl = generatePillUrl(
+      segment.type as 'hashtag' | 'mention',
+      segment.value,
+      segment
+    );
+
+    // All pills are clickable now - simplified logic
+    const isClickable = true;
+
+    if (isClickable) {
+      const shouldShowTooltip =
+        segment.type === 'mention' && !isFilterBarContext && !isEditMode; // Don't show tooltip in edit mode
+
+      const pillElement = (
+        <Link
+          key={key}
+          href={pillUrl}
+          className={`content-pill content-pill--${segment.type} content-pill--clickable ${
+            isActiveFilter_ ? 'content-pill--active' : ''
+          } ${isFilterBarContext ? 'content-pill--filter-context' : ''} ${
+            isEditMode ? 'content-pill--edit-mode' : ''
+          }`}
+          onClick={(event) => {
+            // In edit mode for mention pills, prevent all click behavior
+            if (isEditMode && segment.type === 'mention') {
+              event.preventDefault();
+              return;
+            }
+
+            handlePillClick(
+              segment.type as 'hashtag' | 'mention',
+              segment.value,
+              event,
+              segment
+            );
+          }}
+          title={
+            isFilterBarContext || shouldShowTooltip
+              ? undefined // No title tooltip when InfoTooltip is used or in filter context
+              : isEditMode && segment.type === 'mention'
+                ? 'Use remove button to delete' // Helpful hint in edit mode
+                : segment.type === 'hashtag'
+                  ? `Filter by hashtag: ${segment.value}`
+                  : `Filter by user: ${segment.value}`
+          }
+        >
+          {segment.type === 'hashtag' ? '#' : '@'}
+          {segment.value}
+        </Link>
+      );
+
+      // Show tooltip for mentions in non-filter contexts (not edit mode)
+      if (shouldShowTooltip) {
+        return (
+          <InteractiveTooltip
+            key={key}
+            content={createMentionTooltipContent(segment)}
+            isInsideParagraph={true}
+            delay={500}
+            className="content-pill-tooltip"
+          >
+            {pillElement}
+          </InteractiveTooltip>
+        );
+      }
+
+      return pillElement;
+    }
+
+    // Non-clickable pills (fallback)
+    return (
+      <span
+        key={key}
+        className={`content-pill content-pill--${segment.type} ${
+          isActiveFilter_ ? 'content-pill--active' : ''
+        }`}
+      >
+        {segment.type === 'hashtag' ? '#' : '@'}
+        {segment.value}
+      </span>
+    );
+  }
+}
+
+/**
+ * Main ContentWithPills component with Suspense wrapper
+ */
+export function ContentWithPills(props: ContentWithPillsProps) {
+  return (
+    <Suspense fallback={<div className={props.className}>{props.content}</div>}>
+      <ContentWithPillsInternal {...props} />
+    </Suspense>
   );
 }
 

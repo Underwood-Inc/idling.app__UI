@@ -13,10 +13,7 @@ export function PageAside({
   className?: string;
 }) {
   return (
-    <div
-      className="page-aside__container"
-      data-testid={PAGE_ASIDE_SELECTORS.CONTAINER}
-    >
+    <div className="page-aside__container" data-testid="page-aside-container">
       <aside className={className} data-testid={PAGE_ASIDE_SELECTORS.ASIDE}>
         {children}
       </aside>

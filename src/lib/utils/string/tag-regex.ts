@@ -62,22 +62,37 @@ export function extractTagsFromText(text: string): string[] {
 }
 
 /**
- * Parses a comma-separated string of tags and normalizes them
- * @param tagsString - Comma-separated tags like "tag1, #tag2, tag3"
+ * Parses a comma-separated or space-separated string of tags and normalizes them
+ * @param tagsString - Tags like "tag1, #tag2, tag3" or "#tag1 #tag2 #tag3"
  * @returns string[] - array of normalized tags with # prefix
  */
 export function parseTagsInput(tagsString: string): string[] {
   if (!tagsString || typeof tagsString !== 'string') return [];
 
-  return tagsString
+  // First try to split by commas (preferred format)
+  let rawTags = tagsString
     .split(',')
+    .map((tag) => tag.trim())
+    .filter(Boolean);
+
+  // If no commas found, try space-separated hashtags
+  if (rawTags.length === 1 && rawTags[0].includes(' ')) {
+    // Split by spaces and filter for hashtag-like strings
+    const spaceSplit = rawTags[0].split(/\s+/).filter(Boolean);
+    // Only use space-split if all parts look like hashtags
+    if (spaceSplit.every((part) => part.startsWith('#'))) {
+      rawTags = spaceSplit;
+    }
+  }
+
+  return rawTags
     .map((tag) => normalizeTag(tag.trim()))
     .filter((tag) => tag.length > 0);
 }
 
 /**
  * Validates a tags input string and returns errors if any
- * @param tagsString - The tags input to validate
+ * @param tagsString - The tags input to validate (supports both comma and space separation)
  * @returns string[] - array of error messages, empty if valid
  */
 export function validateTagsInput(tagsString: string): string[] {
@@ -87,10 +102,20 @@ export function validateTagsInput(tagsString: string): string[] {
     return errors; // Empty is valid
   }
 
-  const rawTags = tagsString
+  // Use the same parsing logic as parseTagsInput
+  let rawTags = tagsString
     .split(',')
     .map((tag) => tag.trim())
     .filter(Boolean);
+
+  // If no commas found, try space-separated hashtags
+  if (rawTags.length === 1 && rawTags[0].includes(' ')) {
+    const spaceSplit = rawTags[0].split(/\s+/).filter(Boolean);
+    // Only use space-split if all parts look like hashtags
+    if (spaceSplit.every((part) => part.startsWith('#'))) {
+      rawTags = spaceSplit;
+    }
+  }
 
   if (rawTags.length === 0) return errors;
 

@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useFormState, useFormStatus } from 'react-dom';
 import { shouldUpdateAtom } from '../../../../lib/state/atoms';
 import { ADD_SUBMISSION_FORM_SELECTORS } from '../../../../lib/test-selectors/components/add-submission-form.selectors';
+import { getEffectiveCharacterCount } from '../../../../lib/utils/string';
 import { validateTagsInput } from '../../../../lib/utils/string/tag-regex';
 import { SmartInput } from '../../ui/SmartInput';
 import {
@@ -100,7 +101,7 @@ export function AddSubmissionForm({
 
   const handleTitleChange = async (value: string) => {
     setTitleValue(value);
-    setTitleLength(value.trim().length);
+    setTitleLength(getEffectiveCharacterCount(value.trim()));
 
     // Validate title on change instead of blur
     if (value.trim().length > 0) {
@@ -112,7 +113,7 @@ export function AddSubmissionForm({
 
   const handleContentChange = (value: string) => {
     setContentValue(value);
-    setContentLength(value.trim().length);
+    setContentLength(getEffectiveCharacterCount(value.trim()));
   };
 
   const handleTagsChange = (value: string) => {
@@ -124,7 +125,7 @@ export function AddSubmissionForm({
   const handleTitleBlur = async () => {
     const formData = new FormData();
     formData.append('submission_title', titleValue);
-    setTitleLength(titleValue.trim().length);
+    setTitleLength(getEffectiveCharacterCount(titleValue.trim()));
     await handleFormValidateAction(formData);
   };
 

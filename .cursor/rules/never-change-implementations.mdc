@@ -1,0 +1,6 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+NEVER change business logic or implementation patterns that fundamentally change how a component or class work or behave unless specifically instructed to. ESPECIALLY when doing refactor work or bug fixing, NEVER.

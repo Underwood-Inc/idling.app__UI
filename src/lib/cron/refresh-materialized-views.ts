@@ -195,9 +195,13 @@ class MaterializedViewRefresher {
 // Singleton instance
 export const materializedViewRefresher = new MaterializedViewRefresher();
 
-// Auto-start in production and development
-if (typeof window === 'undefined') {
-  // Server-side only
+// Auto-start in production and development (but not during build)
+if (
+  typeof window === 'undefined' &&
+  !process.env.NEXT_PHASE &&
+  process.env.NODE_ENV !== 'test'
+) {
+  // Server-side only, and not during Next.js build phase
   // Start the refresher when the module loads
   materializedViewRefresher.start().catch((error) => {
     serverLogger.error('Failed to start materialized view refresher', error);

@@ -7,6 +7,7 @@ import React, {
   useRef,
   useState
 } from 'react';
+import { createPortal } from 'react-dom';
 import './InlineSuggestionInput.css';
 
 export interface SuggestionItem {
@@ -72,9 +73,92 @@ export const InlineSuggestionInput: React.FC<InlineSuggestionInputProps> = ({
   const [currentPage, setCurrentPage] = useState(1);
   const [totalResults, setTotalResults] = useState(0);
   const [triggerStartIndex, setTriggerStartIndex] = useState(-1);
+  const [dropdownPosition, setDropdownPosition] = useState({
+    top: 100,
+    left: 100,
+    width: 300
+  });
 
   const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null);
   const suggestionListRef = useRef<HTMLDivElement>(null);
+
+  // Calculate dropdown position based on input position
+  const calculateDropdownPosition = () => {
+    if (!inputRef.current) return;
+
+    const inputRect = inputRef.current.getBoundingClientRect();
+    const viewportHeight = window.innerHeight;
+    const viewportWidth = window.innerWidth;
+    const scrollY = window.scrollY || document.documentElement.scrollTop;
+    const scrollX = window.scrollX || document.documentElement.scrollLeft;
+
+    // Calculate initial position
+    let top = inputRect.bottom + scrollY + 2; // Add small gap
+    let left = inputRect.left + scrollX;
+    const width = Math.max(inputRect.width, 300); // Minimum width for readability
+
+    // Check if dropdown would go off-screen vertically
+    const dropdownHeight = 300; // Max height from CSS
+    if (inputRect.bottom + dropdownHeight > viewportHeight) {
+      // Position above the input instead
+      top = inputRect.top + scrollY - dropdownHeight - 2;
+    }
+
+    // Check if dropdown would go off-screen horizontally
+    if (left + width > viewportWidth) {
+      // Align to right edge of viewport
+      left = viewportWidth - width - 10;
+    }
+
+    // Ensure dropdown doesn't go off left edge
+    if (left < 10) {
+      left = 10;
+    }
+
+    // Ensure all values are valid numbers
+    const finalTop = isNaN(top) ? 100 : Math.max(10, top);
+    const finalLeft = isNaN(left) ? 100 : Math.max(10, left);
+    const finalWidth = isNaN(width) ? 300 : Math.max(200, width);
+
+    setDropdownPosition({
+      top: finalTop,
+      left: finalLeft,
+      width: finalWidth
+    });
+  };
+
+  // Update dropdown position when suggestions show/hide or on scroll/resize
+  useEffect(() => {
+    if (showSuggestions) {
+      // Use requestAnimationFrame to ensure DOM is updated
+      requestAnimationFrame(() => {
+        calculateDropdownPosition();
+      });
+
+      const handlePositionUpdate = () => {
+        requestAnimationFrame(() => {
+          calculateDropdownPosition();
+        });
+      };
+
+      window.addEventListener('scroll', handlePositionUpdate, true);
+      window.addEventListener('resize', handlePositionUpdate);
+
+      return () => {
+        window.removeEventListener('scroll', handlePositionUpdate, true);
+        window.removeEventListener('resize', handlePositionUpdate);
+      };
+    }
+  }, [showSuggestions]);
+
+  // Recalculate position when suggestions change
+  useEffect(() => {
+    if (showSuggestions && suggestions.length > 0) {
+      requestAnimationFrame(() => {
+        calculateDropdownPosition();
+      });
+    }
+  }, [suggestions.length, showSuggestions]);
 
   // Enhanced trigger detection that persists through spaces
   const detectTriggerAndQuery = (text: string, position: number) => {
@@ -95,20 +179,36 @@ export const InlineSuggestionInput: React.FC<InlineSuggestionInputProps> = ({
 
     // For @ mentions, continue searching until we find a closing bracket or end of meaningful content
     if (trigger === '@') {
-      // If we already have a complete mention @[username|userId], don't trigger search
-      const completeStructuredMention = text
-        .substring(lastTriggerIndex)
-        .match(/^@\[[^\]]+\]/);
-      if (
-        completeStructuredMention &&
-        lastTriggerIndex + completeStructuredMention[0].length <= position
-      ) {
+      // Check if we're inside or after a complete structured mention @[username|userId|author]
+      const textFromTrigger = text.substring(lastTriggerIndex);
+      const completeStructuredMention = textFromTrigger.match(/^@\[[^\]]+\]/);
+
+      if (completeStructuredMention) {
+        const mentionEnd =
+          lastTriggerIndex + completeStructuredMention[0].length;
+
+        // If cursor is inside the structured mention or right after it (including space), don't trigger
+        if (position <= mentionEnd + 1) {
+          // +1 to account for space after mention
+          return { trigger: null, query: '', startIndex: -1 };
+        }
+      }
+
+      // Check if we have a partial structured mention that's not complete
+      const partialStructuredMention = textFromTrigger.match(/^@\[[^\]]*$/);
+      if (partialStructuredMention) {
+        // We're in the middle of typing a structured mention, don't trigger search
         return { trigger: null, query: '', startIndex: -1 };
       }
 
       // For @ mentions, allow spaces in the query until we hit certain terminating characters
       const terminatingChars = /[.,!?;:\n\r\t]/;
       if (terminatingChars.test(afterTrigger)) {
+        return { trigger: null, query: '', startIndex: -1 };
+      }
+
+      // Only trigger if we have a simple @ followed by text (not structured format)
+      if (afterTrigger.includes('[')) {
         return { trigger: null, query: '', startIndex: -1 };
       }
 
@@ -206,6 +306,14 @@ export const InlineSuggestionInput: React.FC<InlineSuggestionInputProps> = ({
     const newValue = e.target.value;
     const newCursorPosition = e.target.selectionStart || 0;
 
+    // eslint-disable-next-line no-console
+    console.log('InlineSuggestionInput handleInputChange:', {
+      oldValue: value,
+      newValue,
+      hasNewlines: newValue.includes('\n'),
+      cursorPosition: newCursorPosition
+    });
+
     onChange(newValue);
     setCursorPosition(newCursorPosition);
 
@@ -259,6 +367,19 @@ export const InlineSuggestionInput: React.FC<InlineSuggestionInputProps> = ({
   const handleKeyDown = (
     e: KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
+    // Debug logging for Enter key
+    if (e.key === 'Enter') {
+      // eslint-disable-next-line no-console
+      console.log('InlineSuggestionInput handleKeyDown Enter pressed:', {
+        showSuggestions,
+        suggestionsLength: suggestions.length,
+        selectedIndex,
+        as,
+        willReturn: !showSuggestions || suggestions.length === 0
+      });
+    }
+
+    // Only handle special keys when suggestions are visible
     if (!showSuggestions || suggestions.length === 0) return;
 
     switch (e.key) {
@@ -281,12 +402,18 @@ export const InlineSuggestionInput: React.FC<InlineSuggestionInputProps> = ({
         break;
       case 'Enter':
       case 'Tab':
+        // Only handle Enter/Tab if a suggestion is actually selected
         if (selectedIndex >= 0 && selectedIndex < suggestions.length) {
           e.preventDefault();
+          e.stopPropagation();
           insertSuggestion(suggestions[selectedIndex]);
+          return; // Prevent any further processing
         }
+        // If no suggestion is selected, allow normal Enter/Tab behavior
+        // by NOT preventing default - this allows newlines in textarea
         break;
       case 'Escape':
+        e.preventDefault();
         setShowSuggestions(false);
         setSuggestions([]);
         setSelectedIndex(-1);
@@ -305,6 +432,15 @@ export const InlineSuggestionInput: React.FC<InlineSuggestionInputProps> = ({
   // Insert selected suggestion
   const insertSuggestion = (suggestion: SuggestionItem) => {
     if (triggerStartIndex === -1) return;
+
+    // Clear suggestions immediately to prevent re-triggering
+    setShowSuggestions(false);
+    setSuggestions([]);
+    setSelectedIndex(-1);
+    setHasMore(false);
+    setTotalResults(0);
+    setCurrentTrigger(null);
+    setCurrentQuery('');
 
     const before = value.substring(0, triggerStartIndex);
     const after = value.substring(cursorPosition);
@@ -350,12 +486,6 @@ export const InlineSuggestionInput: React.FC<InlineSuggestionInputProps> = ({
         );
       }
     }, 0);
-
-    setShowSuggestions(false);
-    setSuggestions([]);
-    setSelectedIndex(-1);
-    setHasMore(false);
-    setTotalResults(0);
   };
 
   // Handle clicking on suggestions
@@ -380,14 +510,31 @@ export const InlineSuggestionInput: React.FC<InlineSuggestionInputProps> = ({
   // Close suggestions when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Node;
+
+      // Check if click is inside input
+      if (inputRef.current && inputRef.current.contains(target)) {
+        return;
+      }
+
+      // Check if click is inside suggestion list
       if (
         suggestionListRef.current &&
-        !suggestionListRef.current.contains(event.target as Node) &&
-        inputRef.current &&
-        !inputRef.current.contains(event.target as Node)
+        suggestionListRef.current.contains(target)
       ) {
-        setShowSuggestions(false);
+        return;
       }
+
+      // Check if click is inside any portal container (for nested portals)
+      const portalContainer = document.querySelector(
+        '.suggestion-portal-container'
+      );
+      if (portalContainer && portalContainer.contains(target)) {
+        return;
+      }
+
+      // Click is outside, close suggestions
+      setShowSuggestions(false);
     };
 
     document.addEventListener('mousedown', handleClickOutside);
@@ -396,26 +543,22 @@ export const InlineSuggestionInput: React.FC<InlineSuggestionInputProps> = ({
 
   const InputComponent = as === 'textarea' ? 'textarea' : 'input';
 
-  return (
-    <div className="inline-suggestion-container">
-      <InputComponent
-        ref={inputRef as any}
-        value={value}
-        onChange={handleInputChange}
-        onPaste={onPaste}
-        onSelect={handleCursorPositionChange}
-        onKeyDown={handleKeyDown}
-        placeholder={placeholder}
-        className={`inline-suggestion-input ${
-          showSuggestions && suggestions.length > 0
-            ? 'inline-suggestion-input--with-suggestions'
-            : ''
-        } ${className}`}
-        disabled={disabled}
-        rows={as === 'textarea' ? rows : undefined}
-      />
+  // Render suggestions dropdown
+  const renderSuggestionsDropdown = () => {
+    if (!showSuggestions || (!suggestions.length && !isLoading)) return null;
 
-      {showSuggestions && (suggestions.length > 0 || isLoading) && (
+    return (
+      <div
+        className="suggestion-portal-container"
+        style={{
+          position: 'fixed',
+          top: `${dropdownPosition.top}px`,
+          left: `${dropdownPosition.left}px`,
+          width: `${dropdownPosition.width}px`,
+          zIndex: 10000,
+          pointerEvents: 'auto'
+        }}
+      >
         <div
           ref={suggestionListRef}
           className="suggestion-list"
@@ -481,7 +624,32 @@ export const InlineSuggestionInput: React.FC<InlineSuggestionInputProps> = ({
             </div>
           )}
         </div>
-      )}
+      </div>
+    );
+  };
+
+  return (
+    <div className="inline-suggestion-container">
+      <InputComponent
+        ref={inputRef as any}
+        value={value}
+        onChange={handleInputChange}
+        onPaste={onPaste}
+        onSelect={handleCursorPositionChange}
+        onKeyDown={handleKeyDown}
+        placeholder={placeholder}
+        className={`inline-suggestion-input ${
+          showSuggestions && suggestions.length > 0
+            ? 'inline-suggestion-input--with-suggestions'
+            : ''
+        } ${className}`}
+        disabled={disabled}
+        rows={as === 'textarea' ? rows : undefined}
+      />
+
+      {/* Render suggestions dropdown as portal */}
+      {typeof window !== 'undefined' &&
+        createPortal(renderSuggestionsDropdown(), document.body)}
     </div>
   );
 };

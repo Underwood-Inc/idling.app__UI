@@ -166,7 +166,7 @@ export default function ThreadPageClient({
     return <div>Thread not found</div>;
   }
 
-  const providerAccountId = session?.user?.id || '';
+  const userId = session?.user?.id || '';
 
   // Extract active filters from global state
   const activeHashtags =
@@ -239,7 +239,7 @@ export default function ThreadPageClient({
                 <Suspense fallback={<Loader />}>
                   <Thread
                     submissionId={submissionId}
-                    providerAccountId={providerAccountId}
+                    userId={userId}
                     onHashtagClick={handleHashtagClick}
                     onMentionClick={handleMentionClick}
                     activeFilters={activeFilters}

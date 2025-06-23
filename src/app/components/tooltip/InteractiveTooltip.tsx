@@ -10,6 +10,9 @@ interface InteractiveTooltipProps {
   isInsideParagraph?: boolean;
   disabled?: boolean;
   delay?: number; // Delay before showing tooltip in milliseconds
+  className?: string; // Additional CSS class for tooltip wrapper
+  triggerOnClick?: boolean; // If true, tooltip shows/hides on click instead of hover
+  onClose?: () => void; // Callback when tooltip closes
 }
 
 export const InteractiveTooltip: React.FC<InteractiveTooltipProps> = ({
@@ -17,7 +20,10 @@ export const InteractiveTooltip: React.FC<InteractiveTooltipProps> = ({
   children,
   isInsideParagraph = false,
   disabled = false,
-  delay = 300
+  delay = 300,
+  className = '',
+  triggerOnClick = false,
+  onClose
 }) => {
   const [showTooltip, setShowTooltip] = useState(false);
   const [position, setPosition] = useState({ top: 0, left: 0 });
@@ -26,6 +32,14 @@ export const InteractiveTooltip: React.FC<InteractiveTooltipProps> = ({
   const tooltipContentRef = useRef<HTMLDivElement>(null);
   const hideTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isHoveringRef = useRef(false);
+
+  // Function to close tooltip programmatically
+  const closeTooltip = () => {
+    setShowTooltip(false);
+    if (onClose) {
+      onClose();
+    }
+  };
 
   // Ensure component is mounted before rendering portal
   useEffect(() => {
@@ -109,7 +123,7 @@ export const InteractiveTooltip: React.FC<InteractiveTooltipProps> = ({
         tooltipRef.current &&
         !tooltipRef.current.contains(event.target as Node)
       ) {
-        setShowTooltip(false);
+        closeTooltip();
       }
     };
 
@@ -117,10 +131,10 @@ export const InteractiveTooltip: React.FC<InteractiveTooltipProps> = ({
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [showTooltip]);
+  }, [showTooltip, onClose]);
 
   const handleMouseEnter = () => {
-    if (disabled) return;
+    if (disabled || triggerOnClick) return; // Don't trigger on hover if click mode is enabled
 
     isHoveringRef.current = true;
     if (hideTimeoutRef.current) {
@@ -135,6 +149,8 @@ export const InteractiveTooltip: React.FC<InteractiveTooltipProps> = ({
   };
 
   const handleMouseLeave = () => {
+    if (triggerOnClick) return; // Don't hide on mouse leave if click mode is enabled
+
     isHoveringRef.current = false;
     if (hideTimeoutRef.current) {
       clearTimeout(hideTimeoutRef.current);
@@ -147,7 +163,23 @@ export const InteractiveTooltip: React.FC<InteractiveTooltipProps> = ({
     hideTimeoutRef.current = timeout;
   };
 
+  const handleClick = () => {
+    if (disabled || !triggerOnClick) return;
+
+    const newShowState = !showTooltip;
+    setShowTooltip(newShowState);
+
+    if (newShowState) {
+      // Update position after a short delay to ensure content is rendered
+      setTimeout(updatePosition, 0);
+    } else if (onClose) {
+      onClose();
+    }
+  };
+
   const handleTooltipMouseEnter = () => {
+    if (triggerOnClick) return; // Don't use hover logic in click mode
+
     isHoveringRef.current = true;
     if (hideTimeoutRef.current) {
       clearTimeout(hideTimeoutRef.current);
@@ -155,6 +187,8 @@ export const InteractiveTooltip: React.FC<InteractiveTooltipProps> = ({
   };
 
   const handleTooltipMouseLeave = () => {
+    if (triggerOnClick) return; // Don't use hover logic in click mode
+
     isHoveringRef.current = false;
     handleMouseLeave();
   };
@@ -168,6 +202,11 @@ export const InteractiveTooltip: React.FC<InteractiveTooltipProps> = ({
     };
   }, []);
 
+  // Clone content and pass closeTooltip function if it's a React element
+  const enhancedContent = React.isValidElement(content)
+    ? React.cloneElement(content as React.ReactElement<any>, { closeTooltip })
+    : content;
+
   const Wrapper = isInsideParagraph ? 'span' : 'div';
 
   return (
@@ -176,6 +215,7 @@ export const InteractiveTooltip: React.FC<InteractiveTooltipProps> = ({
         ref={tooltipRef}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
+        onClick={handleClick}
         style={{ display: 'inline-block' }}
       >
         {children}
@@ -186,7 +226,7 @@ export const InteractiveTooltip: React.FC<InteractiveTooltipProps> = ({
         createPortal(
           <div
             ref={tooltipContentRef}
-            className={`link-tooltip interactive-tooltip ${showTooltip ? 'visible' : ''}`}
+            className={`link-tooltip interactive-tooltip ${className} ${showTooltip ? 'visible' : ''}`}
             onMouseEnter={handleTooltipMouseEnter}
             onMouseLeave={handleTooltipMouseLeave}
             style={{
@@ -197,7 +237,7 @@ export const InteractiveTooltip: React.FC<InteractiveTooltipProps> = ({
             }}
             data-testid="interactive-tooltip"
           >
-            {content}
+            {enhancedContent}
           </div>,
           document.body
         )}

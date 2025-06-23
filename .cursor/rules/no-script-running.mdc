@@ -1,0 +1,6 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+never run commands like yarn dev or yarn start or npm run thing unless told to or permission has been granted to do so, always assume the project is already running in docker.

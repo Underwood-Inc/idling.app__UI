@@ -399,6 +399,130 @@
   width: 100%;
 }
 
+/* Inline mode styles - True inline editor */
+.form-pill-input--inline {
+  border: 1px solid var(--light-border--primary);
+  border-radius: var(--border-radius);
+  background: var(--light-background--primary);
+  min-height: 120px;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.form-pill-input--inline:focus-within {
+  border-color: var(--brand-primary);
+  box-shadow: 0 0 0 2px rgba(237, 174, 73, 0.1);
+}
+
+.form-pill-input__inline-container {
+  position: relative;
+  min-height: 100%;
+  padding: var(--spacing-cozy);
+}
+
+.form-pill-input__inline-editor {
+  min-height: 80px;
+}
+
+.form-pill-input__editor-content {
+  min-height: 80px;
+  line-height: 1.5;
+  font-size: var(--font-size-base);
+  color: var(--light-bg__text-color--primary);
+  word-wrap: break-word;
+  white-space: pre-wrap;
+  outline: none;
+  border: none;
+  background: transparent;
+  font-family: inherit;
+}
+
+.form-pill-input__editor-content--focused {
+  /* Add any focused styles if needed */
+}
+
+.form-pill-input__editor-content[data-placeholder]:empty::before {
+  content: attr(data-placeholder);
+  color: var(--light-bg__text-color--secondary);
+  font-style: italic;
+  pointer-events: none;
+}
+
+/* Inline pill styles */
+.inline-pill {
+  display: inline-flex;
+  align-items: center;
+  background: var(--brand-primary);
+  color: var(--light-background--primary);
+  border-radius: var(--border-radius-sm);
+  padding: 2px 8px;
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  margin: 0 2px;
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.2s ease;
+}
+
+.inline-pill:hover {
+  background: var(--brand-primary-hover);
+  transform: translateY(-1px);
+}
+
+.inline-pill--media {
+  background: var(--accent-secondary);
+  display: inline-block;
+  margin: var(--spacing-xs-compact) 0;
+}
+
+.inline-pill--media:hover {
+  background: var(--accent-secondary-hover);
+}
+
+/* Content line styles */
+.form-pill-input__content-lines {
+  line-height: 1.5;
+}
+
+.form-pill-input__content-line {
+  min-height: 1.5em;
+  margin: 0;
+}
+
+.form-pill-input__line-content {
+  display: inline;
+}
+
+.form-pill-input__placeholder {
+  color: var(--light-bg__text-color--secondary);
+  font-style: italic;
+  pointer-events: none;
+}
+
+/* Raw input styles */
+.form-pill-input__raw-input {
+  width: 100%;
+  padding: var(--spacing-cozy);
+  border: 1px solid var(--light-border--primary);
+  border-radius: var(--border-radius);
+  font-size: var(--font-size-base);
+
+  line-height: 1.5;
+  background: var(--light-background--primary);
+  color: var(--light-bg__text-color--primary);
+  transition: all 0.2s ease;
+  resize: vertical;
+  box-sizing: border-box;
+  min-height: 120px;
+}
+
+.form-pill-input__raw-input:focus {
+  outline: none;
+  border-color: var(--brand-primary);
+  background: var(--light-background--primary);
+  box-shadow: 0 0 0 2px rgba(237, 174, 73, 0.1);
+}
+
 /* Allow URL embeds in edit mode to break out of form constraints */
 .form-pill-input__container:has(.url-pill-embed-container),
 .form-pill-input__container--has-embeds {
@@ -449,6 +573,18 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
+/* Image embed remove button positioning */
+.form-pill-input__container--has-embeds .form-pill-input__pill-wrapper:has(.image-embed--small) .form-pill-input__pill-remove {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  left: auto;
+  z-index: 25;
+  background: rgba(239, 68, 68, 0.95);
+  border: 2px solid white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
 /* Medium embeds (600px) */
 .form-pill-input__container--has-embeds .form-pill-input__pill-wrapper:has(.youtube-embed--medium) .form-pill-input__pill-remove {
   position: absolute;
@@ -456,6 +592,17 @@
   left: 576px;
   /* 600px - 24px */
   right: auto;
+  z-index: 25;
+  background: rgba(239, 68, 68, 0.95);
+  border: 2px solid white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.form-pill-input__container--has-embeds .form-pill-input__pill-wrapper:has(.image-embed--medium) .form-pill-input__pill-remove {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  left: auto;
   z-index: 25;
   background: rgba(239, 68, 68, 0.95);
   border: 2px solid white;
@@ -475,8 +622,31 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
+.form-pill-input__container--has-embeds .form-pill-input__pill-wrapper:has(.image-embed--large) .form-pill-input__pill-remove {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  left: auto;
+  z-index: 25;
+  background: rgba(239, 68, 68, 0.95);
+  border: 2px solid white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
 /* Full width embeds */
 .form-pill-input__container--has-embeds .form-pill-input__pill-wrapper:has(.youtube-embed--full) .form-pill-input__pill-remove {
+  position: absolute;
+  top: 8px;
+  right: 1rem;
+  /* Moved 5px to the right (was 16px) */
+  left: auto;
+  z-index: 25;
+  background: rgba(239, 68, 68, 0.95);
+  border: 2px solid white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.form-pill-input__container--has-embeds .form-pill-input__pill-wrapper:has(.image-embed--full) .form-pill-input__pill-remove {
   position: absolute;
   top: 8px;
   right: 1rem;
@@ -587,7 +757,7 @@
   border: none !important;
   background: transparent !important;
   box-shadow: none !important;
-  padding: var(--spacing-xs-compact) 0 !important;
+  padding: var(--spacing-xs-compact) !important;
   margin: 0 !important;
   flex-grow: 1;
   min-width: 200px;
@@ -611,7 +781,7 @@
   font-weight: 600 !important;
   box-shadow: inset 0 -1px 2px rgba(108, 117, 125, 0.2);
   border-radius: 16px;
-  padding: 6px 12px;
+  /* padding: 6px 12px; */
   font-size: 13px;
   position: relative;
   display: inline-flex;
@@ -620,7 +790,6 @@
   text-decoration: none;
   transition: all 0.2s ease;
   margin: 0;
-  /* Remove margin since wrapper handles spacing */
 }
 
 /* YouTube specific styling for form pills */
@@ -735,7 +904,6 @@
   gap: 4px;
   transition: all 0.2s ease;
   margin: 0;
-  /* Remove margin since wrapper handles spacing */
 }
 
 /* Hashtag specific styling in form pills */
@@ -778,7 +946,6 @@
 .shared-submission-form__form-input.shared-submission-form__input--error .form-pill-input__container,
 .shared-submission-form__form-input.shared-submission-form__textarea--error .form-pill-input__container {
   border-color: var(--error);
-  background: var(--light-background--primary);
 }
 
 @keyframes url-pill-pulse {
@@ -846,4 +1013,391 @@
     color: #ffcc02 !important;
     border-color: #f57f17 !important;
   } */
+}
+
+/* Special positioning for remove buttons on large embeds to prevent clipping */
+.form-pill-input__pill-wrapper:has(.image-embed--l) .form-pill-input__pill-remove,
+.form-pill-input__pill-wrapper:has(.image-embed--f) .form-pill-input__pill-remove,
+.form-pill-input__pill-wrapper:has(.youtube-embed--l) .form-pill-input__pill-remove,
+.form-pill-input__pill-wrapper:has(.youtube-embed--f) .form-pill-input__pill-remove {
+  position: absolute;
+  top: 16px;
+  /* Position inside the embed instead of outside */
+  right: 16px;
+  z-index: 20;
+  /* Higher z-index to appear above embed controls */
+}
+
+/* For medium embeds, adjust positioning slightly */
+.form-pill-input__pill-wrapper:has(.image-embed--m) .form-pill-input__pill-remove,
+.form-pill-input__pill-wrapper:has(.youtube-embed--m) .form-pill-input__pill-remove {
+  position: absolute;
+  top: 8px;
+  /* Position just inside the embed */
+  right: 8px;
+  z-index: 20;
+}
+
+/* Keep normal positioning for small embeds and text pills */
+.form-pill-input__pill-wrapper:has(.image-embed--s) .form-pill-input__pill-remove,
+.form-pill-input__pill-wrapper:has(.youtube-embed--s) .form-pill-input__pill-remove,
+.form-pill-input__pill-wrapper:has(.content-pill) .form-pill-input__pill-remove {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  z-index: 15;
+}
+
+/* Smart input integration for FormPillInput */
+.form-pill-input--smart {
+  display: block;
+  width: 100%;
+}
+
+.form-pill-input__smart-input {
+  width: 100%;
+}
+
+.form-pill-input__smart-input .inline-suggestion-input {
+  width: 100%;
+  padding: var(--spacing-cozy);
+  border: 1px solid var(--light-border--primary);
+  border-radius: var(--border-radius);
+  font-size: var(--font-size-base);
+  line-height: 1.5;
+  background: var(--light-background--primary);
+  color: var(--light-bg__text-color--primary);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.form-pill-input__smart-input .inline-suggestion-input:focus {
+  border-color: var(--brand-primary);
+  box-shadow: 0 0 0 2px rgba(255, 107, 53, 0.1);
+  outline: none;
+}
+
+.form-pill-input__smart-input .inline-suggestion-input--textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+/* Preview mode FormPillInput styles */
+.form-pill-input--preview {
+  position: relative;
+  display: block;
+  width: 100%;
+}
+
+.form-pill-input__container {
+  position: relative;
+  border: 1px solid var(--light-border--primary);
+  border-radius: var(--border-radius);
+  background: var(--light-background--primary);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  min-height: 2.5rem;
+}
+
+.form-pill-input__container:focus-within {
+  border-color: var(--brand-primary);
+  box-shadow: 0 0 0 2px rgba(255, 107, 53, 0.1);
+}
+
+.form-pill-input__display {
+  padding: var(--spacing-cozy);
+  min-height: 2.5rem;
+  display: flex;
+  align-items: flex-start;
+  cursor: text;
+}
+
+.form-pill-input__content {
+  width: 100%;
+  line-height: 1.5;
+  word-wrap: break-word;
+  white-space: pre-wrap;
+}
+
+.form-pill-input__placeholder {
+  color: var(--light-bg__text-color--secondary);
+  font-style: italic;
+  pointer-events: none;
+}
+
+/* Hidden SmartInput for functionality */
+.form-pill-input__smart-input--hidden {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  pointer-events: none;
+  z-index: -1;
+}
+
+.form-pill-input__smart-input--hidden .inline-suggestion-input {
+  border: none;
+  background: transparent;
+  padding: var(--spacing-cozy);
+  height: 100%;
+  resize: none;
+}
+
+/* Make SmartInput visible when focused for typing */
+.form-pill-input__container:focus-within .form-pill-input__smart-input--hidden {
+  opacity: 1;
+  pointer-events: all;
+  z-index: 10;
+  background: var(--light-background--primary);
+  border-radius: var(--border-radius);
+}
+
+.form-pill-input__container:focus-within .form-pill-input__display {
+  opacity: 0.3;
+}
+
+/* Raw input styles */
+.form-pill-input__raw-input {
+  width: 100%;
+  padding: var(--spacing-cozy);
+  border: 1px solid var(--light-border--primary);
+  border-radius: var(--border-radius);
+  font-size: var(--font-size-base);
+  line-height: 1.5;
+  background: var(--light-background--primary);
+  color: var(--light-bg__text-color--primary);
+
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  resize: vertical;
+}
+
+.form-pill-input__raw-input:focus {
+  border-color: var(--brand-primary);
+  box-shadow: 0 0 0 2px rgba(255, 107, 53, 0.1);
+  outline: none;
+}
+
+/* Hybrid FormPillInput styles */
+.form-pill-input--hybrid {
+  position: relative;
+  display: block;
+  width: 100%;
+  min-height: 2.5rem;
+  border: 1px solid var(--light-border--primary);
+  border-radius: var(--border-radius);
+  background: var(--light-background--primary);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.form-pill-input--hybrid:focus-within {
+  border-color: var(--brand-primary);
+  box-shadow: 0 0 0 2px rgba(255, 107, 53, 0.1);
+}
+
+.form-pill-input__display-overlay {
+  position: relative;
+  z-index: 1;
+  padding: var(--spacing-cozy);
+  min-height: 2.5rem;
+  display: flex;
+  align-items: center;
+  cursor: text;
+  /* Make it clickable to focus the hidden input */
+  font-size: var(--font-size-base);
+  line-height: 1.5;
+  color: var(--light-bg__text-color--primary);
+}
+
+
+
+.form-pill-input__placeholder {
+  color: var(--light-bg__text-color--secondary);
+  font-style: italic;
+}
+
+.form-pill-input__content {
+  width: 100%;
+}
+
+.form-pill-input__smart-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0.1;
+  pointer-events: auto;
+  z-index: 2;
+  background: rgba(255, 0, 0, 0.1);
+  /* Temporarily make visible for debugging */
+}
+
+.form-pill-input__smart-overlay input,
+.form-pill-input__smart-overlay textarea {
+  /* Input is now hidden with opacity but positioned correctly */
+  width: 100%;
+  height: 100%;
+  border: none;
+  background: transparent;
+  outline: none;
+  opacity: 0;
+  pointer-events: auto;
+  /* Input should be able to receive focus and keyboard events */
+}
+
+/* Ensure suggestion dropdown appears above everything and positioned relative to visible area */
+.form-pill-input__smart-overlay .inline-suggestion-input__suggestions,
+.form-pill-input__smart-overlay .suggestion-list {
+  position: fixed !important;
+  z-index: 15000 !important;
+  /* We'll position this dynamically via JavaScript */
+}
+
+/* Override the hidden input positioning when suggestions are active */
+.form-pill-input--hybrid.form-pill-input--with-suggestions .form-pill-input__smart-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: auto;
+  height: auto;
+  overflow: visible;
+  pointer-events: auto;
+  /* Make visible when suggestions are shown */
+}
+
+.form-pill-input--hybrid.form-pill-input--with-suggestions .form-pill-input__smart-overlay input,
+.form-pill-input--hybrid.form-pill-input--with-suggestions .form-pill-input__smart-overlay textarea {
+  opacity: 0;
+  /* Keep input invisible but allow keyboard events */
+  pointer-events: auto;
+  /* Keep input invisible but in correct position for suggestion positioning */
+}
+
+/* Focus styles */
+.form-pill-input--focused {
+  border-color: var(--brand-primary);
+  box-shadow: 0 0 0 2px rgba(255, 107, 53, 0.1);
+}
+
+.form-pill-input--focused .form-pill-input__display-overlay {
+  background: rgba(255, 107, 53, 0.02);
+}
+
+/* Cursor and selection visualization */
+.content-with-cursor {
+  position: relative;
+  display: inline;
+}
+
+.content-part {
+  display: inline;
+}
+
+.text-cursor {
+  display: inline-block;
+  width: 1px;
+  height: 1.2em;
+  background-color: var(--brand-primary, #edae49);
+  animation: cursor-blink 1s infinite;
+  margin: 0;
+  vertical-align: text-bottom;
+}
+
+.text-selection {
+  background-color: rgba(255, 107, 53, 0.3);
+  color: inherit;
+}
+
+@keyframes cursor-blink {
+
+  0%,
+  50% {
+    opacity: 1;
+  }
+
+  51%,
+  100% {
+    opacity: 0;
+  }
+}
+
+/* Portal suggestion styles */
+.suggestion-list .suggestion-item {
+  padding: 0.5rem 0.75rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: background-color 0.15s ease;
+  border: none;
+  background: transparent;
+}
+
+.suggestion-list .suggestion-item:hover,
+.suggestion-list .suggestion-item.hovered {
+  background-color: rgba(255, 107, 53, 0.1);
+}
+
+.suggestion-list .suggestion-item.selected {
+  background-color: rgba(255, 107, 53, 0.2);
+  font-weight: 500;
+}
+
+.suggestion-list .suggestion-item.selected:hover,
+.suggestion-list .suggestion-item.selected.hovered {
+  background-color: rgba(255, 107, 53, 0.25);
+}
+
+.suggestion-list .suggestion-trigger {
+  font-weight: 600;
+  color: var(--brand-primary);
+}
+
+.suggestion-list .suggestion-label {
+  color: var(--text-primary) !important;
+  font-weight: 500 !important;
+}
+
+.suggestion-list .suggestion-item.selected .suggestion-label {
+  color: var(--text-primary) !important;
+  font-weight: 600 !important;
+}
+
+/* Dark mode support for portal suggestions */
+@media (prefers-color-scheme: dark) {
+  .suggestion-list .suggestion-label {
+    color: var(--dark-bg__text-color--secondary);
+  }
+
+  .suggestion-list .suggestion-item.selected .suggestion-label {
+    color: var(--dark-bg__text-color--primary);
+  }
+}
+
+/* Ensure proper multiline handling in rich input */
+.shared-submission-form .rich-input-adapter--multiline,
+.shared-submission-form .rich-input-adapter--multiline .rich-input,
+.shared-submission-form .rich-input-adapter--multiline .rich-input-content {
+  white-space: pre-wrap !important;
+  word-wrap: break-word !important;
+  overflow-wrap: break-word !important;
+}
+
+.shared-submission-form .rich-input-adapter--multiline .rich-input-content span {
+  white-space: pre-wrap !important;
+}
+
+/* Ensure newlines and whitespace are preserved */
+.shared-submission-form .rich-input-content .rich-input-newline,
+.shared-submission-form .rich-input-content .rich-input-whitespace {
+  white-space: pre-wrap !important;
+}
+
+/* Ensure text tokens preserve newlines */
+.shared-submission-form .rich-input-content span[data-has-newlines="true"] {
+  white-space: pre-wrap !important;
 }

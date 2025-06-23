@@ -31,7 +31,8 @@ CREATE TABLE IF NOT EXISTS users (
   profile_public BOOLEAN DEFAULT true,
   bio TEXT,
   location VARCHAR(255),
-  created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+  created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+  provider_account_id VARCHAR(255)
 );
 
 CREATE TABLE IF NOT EXISTS sessions (
@@ -71,6 +72,7 @@ ALTER TABLE users ADD COLUMN IF NOT EXISTS profile_public BOOLEAN DEFAULT true;
 ALTER TABLE users ADD COLUMN IF NOT EXISTS bio TEXT;
 ALTER TABLE users ADD COLUMN IF NOT EXISTS location VARCHAR(255);
 ALTER TABLE users ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS provider_account_id VARCHAR(255);
 
 -- Submissions table columns (these will be ignored if columns already exist)  
 ALTER TABLE submissions ADD COLUMN IF NOT EXISTS submission_title VARCHAR(500);
@@ -88,6 +90,7 @@ ALTER TABLE submissions ADD COLUMN IF NOT EXISTS author_provider_account_id VARC
 -- User indexes
 CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
 CREATE INDEX IF NOT EXISTS idx_users_created_at ON users(created_at);
+CREATE INDEX IF NOT EXISTS idx_users_provider_account_id ON users(provider_account_id);
 
 -- Account indexes
 CREATE INDEX IF NOT EXISTS idx_accounts_user_id ON accounts("userId");
@@ -156,6 +159,7 @@ COMMENT ON TABLE submissions IS 'User submissions/posts with modern foreign key 
 
 COMMENT ON COLUMN submissions.user_id IS 'Foreign key to users table (modern approach)';
 COMMENT ON COLUMN submissions.author_provider_account_id IS 'OAuth provider account ID for direct session matching';
+COMMENT ON COLUMN users.provider_account_id IS 'OAuth provider account ID stored directly in users table for quick access';
 
 -- ================================
 -- FINAL SETUP

@@ -3,5 +3,7 @@ export const NAV_SELECTORS = {
   NAV_PATHS: 'nav__paths',
   SIGN_IN_LINK: 'nav__sign-in-link',
   USER_NAME: 'nav__user-name',
-  SIGN_OUT_BUTTON: 'nav__sign-out-button'
+  SIGN_OUT_BUTTON: 'nav__sign-out-button',
+  ADMIN_LINK: 'nav__admin-link',
+  PROFILE_LINK: 'nav__profile-link'
 };

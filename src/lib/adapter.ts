@@ -185,6 +185,9 @@ export default function CustomPostgresAdapter(client: Pool): Adapter {
 
       const result = await client.query(sql, params);
 
+      // Note: We no longer store provider_account_id in users table
+      // OAuth provider ID is only stored in accounts table
+
       return mapExpiresAt(result.rows[0]);
     },
     async createSession({ sessionToken, userId, expires }) {

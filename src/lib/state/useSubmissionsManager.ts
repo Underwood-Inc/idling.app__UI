@@ -18,7 +18,7 @@ interface UseSubmissionsManagerProps {
   contextId: string;
   onlyMine?: boolean;
   initialFilters?: Filter<PostFilters>[];
-  providerAccountId?: string;
+  userId?: string; // Internal database user ID only
   includeThreadReplies?: boolean;
   infiniteScroll?: boolean;
 }
@@ -27,7 +27,7 @@ export function useSubmissionsManager({
   contextId,
   onlyMine = false,
   initialFilters = [],
-  providerAccountId: initialProviderAccountId,
+  userId: initialUserId,
   includeThreadReplies = false,
   infiniteScroll = false
 }: UseSubmissionsManagerProps) {
@@ -57,10 +57,10 @@ export function useSubmissionsManager({
   const isFetching = useRef(false);
   const lastFetchKey = useRef<string>('');
 
-  // Provider account ID with session fallback
-  const providerAccountId = useMemo(() => {
-    return initialProviderAccountId || session?.user?.providerAccountId || '';
-  }, [initialProviderAccountId, session?.user?.providerAccountId]);
+  // User ID with session fallback (internal database ID)
+  const userId = useMemo(() => {
+    return initialUserId || session?.user?.id || '';
+  }, [initialUserId, session?.user?.id]);
 
   // Simple fetch function
   const fetchSubmissions = useCallback(async () => {
@@ -72,7 +72,7 @@ export function useSubmissionsManager({
       page: filtersState.page,
       pageSize: filtersState.pageSize,
       onlyMine,
-      providerAccountId,
+      userId,
       includeThreadReplies
     });
 
@@ -113,7 +113,7 @@ export function useSubmissionsManager({
         page: filtersState.page,
         pageSize: filtersState.pageSize,
         onlyMine,
-        providerAccountId,
+        userId,
         includeThreadReplies
       });
 
@@ -161,7 +161,7 @@ export function useSubmissionsManager({
     filtersState.pageSize,
     filtersState.initialized,
     onlyMine,
-    providerAccountId,
+    userId,
     includeThreadReplies,
     infiniteScroll,
     setSubmissionsState
@@ -251,7 +251,7 @@ export function useSubmissionsManager({
     // Set filters state once
     setFiltersState({
       onlyMine,
-      providerAccountId,
+      userId,
       filters: urlFilters as Filter[],
       page,
       pageSize,
@@ -259,13 +259,7 @@ export function useSubmissionsManager({
     });
 
     isInitialized.current = true;
-  }, [
-    searchParams,
-    setFiltersState,
-    onlyMine,
-    providerAccountId,
-    initialFilters
-  ]);
+  }, [searchParams, setFiltersState, onlyMine, userId, initialFilters]);
 
   // Fetch when filters change (with debouncing and coordination)
   useEffect(() => {
@@ -510,7 +504,7 @@ export function useSubmissionsManager({
         page: nextPage,
         pageSize: filtersState.pageSize,
         onlyMine,
-        providerAccountId,
+        userId,
         includeThreadReplies
       });
 
@@ -536,7 +530,7 @@ export function useSubmissionsManager({
     filtersState.filters,
     filtersState.pageSize,
     onlyMine,
-    providerAccountId,
+    userId,
     includeThreadReplies
   ]);
 

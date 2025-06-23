@@ -1,4 +1,12 @@
 .auth-button {
-  margin-bottom: 1rem;
-  margin-right: 1rem;
+  padding: 0.5rem 1rem;
+  background-color: var(--brand-primary);
+  border: 1px solid currentColor;
+  border-radius: 4px;
+  color: var(--text-primary);
+  text-decoration: none;
+  cursor: pointer;
+  display: inline-block;
+  font-family: inherit;
+  font-size: inherit;
 }

@@ -7,7 +7,6 @@
 .author.clickable {
   cursor: pointer;
   border-radius: var(--border-radius);
-  padding: 0.25rem 0.5rem;
   transition: all 0.2s ease;
   /* Remove negative margins that cause alignment issues */
 }
@@ -128,6 +127,14 @@
   border-radius: var(--border-radius);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
   overflow: hidden;
+}
+
+/* Override base tooltip padding for author tooltips */
+.link-tooltip.author-tooltip-wrapper {
+  padding: 0 !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
 }
 
 .author-tooltip__content {

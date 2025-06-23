@@ -1,2 +1,2 @@
 #!/bin/sh
-/home/devcontainers/.nvm/versions/node/v22.16.0/bin/node ./node_modules/.bin/lint-staged
+npx lint-staged

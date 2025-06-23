@@ -1,0 +1,46 @@
+#!/bin/sh
+
+# Get the last commit hash to create a unique lock
+LAST_COMMIT_HASH=$(git log -1 --pretty=%H)
+LOCK_FILE=".git/version-bump-lock-$LAST_COMMIT_HASH"
+
+# Check if we've already processed this commit
+if [ -f "$LOCK_FILE" ]; then
+  # Already processed this commit, exit
+  exit 0
+fi
+
+# Create lock file
+touch "$LOCK_FILE"
+
+# Get the last commit message
+LAST_COMMIT_MSG=$(git log -1 --pretty=%B)
+
+# Check if this commit is already a version bump commit (to prevent infinite loop)
+if echo "$LAST_COMMIT_MSG" | grep -q "chore: bump version to"; then
+  # This is already a version bump commit, don't create another one
+  rm "$LOCK_FILE"
+  exit 0
+fi
+
+# Run version bump script with the commit message
+echo "$LAST_COMMIT_MSG" | node scripts/version-bump-from-msg.js
+
+# Check if package.json was modified by the version bump
+if [ -n "$(git status --porcelain package.json)" ]; then
+  # Get the new version from package.json
+  NEW_VERSION=$(node -p "require('./package.json').version")
+  
+  # Stage and commit the version bump
+  git add package.json
+  git commit -m "chore: bump version to $NEW_VERSION
+
+- Automatic version increment based on previous commit
+- This commit will not trigger further version bumps"
+fi
+
+# Clean up old lock files (keep only the last 5)
+find .git -name "version-bump-lock-*" -type f | head -n -5 | xargs rm -f 2>/dev/null || true
+
+# Remove current lock file
+rm "$LOCK_FILE" 

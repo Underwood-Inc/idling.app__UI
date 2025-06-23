@@ -21,13 +21,17 @@ export async function AuthAvatarServer({
 }: AuthAvatarServerProps) {
   const session = await auth();
 
+  // Generate a random seed for unauthenticated users
+  const randomSeed = `guest-${Math.random().toString(36).substring(2, 15)}-${Date.now()}`;
+
   // Use user ID as the primary seed for consistency
-  // Fallback to name/email if ID is not available (shouldn't happen with proper auth)
-  const seed =
-    session?.user?.id ||
-    session?.user?.name ||
-    session?.user?.email ||
-    'anonymous';
+  // For unauthenticated users, use a random seed
+  const seed = session?.user?.id
+    ? session.user.id ||
+      session.user.name ||
+      session.user.email ||
+      'authenticated-fallback'
+    : randomSeed;
 
   return (
     <div className={className}>

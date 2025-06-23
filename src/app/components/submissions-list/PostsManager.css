@@ -4,6 +4,12 @@
   z-index: 1;
 }
 
+/* Ensure filter section doesn't interfere with dropdowns */
+.posts-manager__filter-section {
+  position: relative;
+  z-index: 1;
+}
+
 .posts-manager__top-controls {
   display: flex;
   justify-content: space-between;
@@ -115,6 +121,15 @@
     justify-content: center;
     align-self: stretch;
   }
+
+  .posts-manager__filter-toggle {
+    padding: 0.5rem;
+    font-size: var(--font-size-md);
+  }
+
+  .posts-manager__filter-section--expanded {
+    padding: 0.5rem;
+  }
 }
 
 .posts-manager__thread-controls {
@@ -209,6 +224,140 @@
   display: flex;
   align-items: center;
   gap: 1rem;
+}
+
+/* Filter toggle button */
+.posts-manager__filter-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  background-color: var(--light-background--secondary);
+  color: var(--light-bg__text-color--primary);
+  border: 1px solid var(--brand-tertiary--light);
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  font-size: var(--font-size-md);
+  font-weight: 500;
+  transition: all 0.2s ease-in-out;
+}
+
+.posts-manager__filter-toggle:hover {
+  background-color: var(--brand-tertiary);
+  border-color: var(--brand-tertiary--dark);
+  color: var(--light-bg__text-color--primary);
+}
+
+.posts-manager__filter-toggle--active {
+  background-color: var(--brand-primary);
+  color: var(--font-color--primary);
+  border-color: var(--brand-primary--dark);
+}
+
+.posts-manager__filter-toggle--active:hover {
+  background-color: var(--brand-primary--dark);
+}
+
+.posts-manager__filter-toggle--has-filters {
+  position: relative;
+}
+
+.posts-manager__filter-toggle--has-filters:not(.posts-manager__filter-toggle--active)::after {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 8px;
+  height: 8px;
+  background-color: var(--brand-secondary);
+  border: 2px solid var(--light-background--secondary);
+  border-radius: 50%;
+}
+
+.posts-manager__filter-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.8rem;
+  height: 1.8rem;
+  text-align: center;
+  align-content: center;
+  padding: 0 0.25rem;
+  background-color: var(--brand-primary);
+  color: white;
+  border: 2px solid white;
+  border-radius: 0.625rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 1;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.posts-manager__filter-toggle--active .posts-manager__filter-count {
+  background-color: white;
+  color: var(--brand-primary);
+  border-color: var(--brand-primary);
+}
+
+.posts-manager__filter-icon {
+  transition: transform 0.2s ease-in-out;
+}
+
+.posts-manager__filter-icon--rotated {
+  transform: rotate(180deg);
+}
+
+.posts-manager__chevron {
+  transition: transform 0.2s ease-in-out;
+}
+
+.posts-manager__chevron--up {
+  transform: rotate(180deg);
+}
+
+.posts-manager__chevron--down {
+  transform: rotate(0deg);
+}
+
+/* Collapsible filter section */
+.posts-manager__filter-section {
+  transition: all 0.3s ease-in-out;
+  background-color: var(--light-background--tertiary);
+  border: 1px solid var(--brand-tertiary--light);
+  border-radius: var(--border-radius);
+  margin-top: 0.75rem;
+}
+
+.posts-manager__filter-section--collapsed {
+  max-height: 0;
+  opacity: 0;
+  margin-top: 0;
+  border-width: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+.posts-manager__filter-section--expanded {
+  max-height: 1000px;
+  /* Large enough to accommodate content */
+  opacity: 1;
+  padding: 1rem;
+  overflow: visible;
+}
+
+.posts-manager__filter-content {
+  transition: opacity 0.2s ease-in-out;
+}
+
+.posts-manager__filter-section--collapsed .posts-manager__filter-content {
+  opacity: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.posts-manager__filter-section--expanded .posts-manager__filter-content {
+  opacity: 1;
+  pointer-events: auto;
+  overflow: visible;
 }
 
 /* Pagination mode toggle - matching spacing toggle style */
@@ -354,6 +503,17 @@
   .posts-manager__pagination-button {
     padding: 0.5rem 0.75rem;
     font-size: 1rem;
+  }
+
+  .posts-manager__filter-toggle {
+    align-self: stretch;
+    justify-content: center;
+    padding: 0.75rem;
+    font-size: 1rem;
+  }
+
+  .posts-manager__filter-section--expanded {
+    padding: 0.75rem;
   }
 }
 

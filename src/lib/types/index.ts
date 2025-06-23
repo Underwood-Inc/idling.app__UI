@@ -39,8 +39,7 @@ export type { Comment, CreateComment } from '../schemas/comment.schemas';
 // === TYPE UTILITIES ===
 export type {
   GetSubmissionsActionArguments,
-  GetSubmissionsActionResponse,
-  PaginatedResponse
+  GetSubmissionsActionResponse
 } from '../../app/components/submissions-list/actions';
 
 // === UI TYPES ===

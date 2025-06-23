@@ -16,7 +16,7 @@ jest.mock('next/navigation', () => ({
 // Mock next-auth completely
 jest.mock('next-auth/react', () => ({
   useSession: jest.fn(() => ({
-    data: { user: { providerAccountId: 'test-user' } },
+    data: { user: { id: 'test-user' } },
     status: 'authenticated'
   }))
 }));
@@ -30,7 +30,7 @@ jest.mock('next-auth', () => ({
 // Mock the auth module
 jest.mock('../../../lib/auth', () => ({
   auth: jest.fn().mockResolvedValue({
-    user: { providerAccountId: 'test-user' }
+    user: { id: 'test-user' }
   })
 }));
 

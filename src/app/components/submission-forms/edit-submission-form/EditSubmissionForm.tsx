@@ -45,17 +45,6 @@ export function EditSubmissionForm({
         onSuccess={handleSuccess}
         className="edit-submission-form__shared-form"
       />
-      {onCancel && (
-        <div className="edit-submission-form__actions">
-          <button
-            type="button"
-            onClick={onCancel}
-            className="edit-submission-form__cancel"
-          >
-            Cancel
-          </button>
-        </div>
-      )}
     </div>
   );
 }

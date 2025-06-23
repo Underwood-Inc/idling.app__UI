@@ -1,7 +1,7 @@
 'use client';
 import { Provider, useSetAtom } from 'jotai';
 import { usePathname, useSearchParams } from 'next/navigation';
-import React, { useEffect } from 'react';
+import React, { Suspense, useEffect } from 'react';
 import { CONTEXT_IDS } from '../context-ids';
 import { NAV_PATHS } from '../routes';
 import { initializePaginationFromUrl, paginationStateAtom } from './atoms';
@@ -49,7 +49,9 @@ function PaginationInitializer() {
 export function JotaiProvider({ children }: { children: React.ReactNode }) {
   return (
     <Provider>
-      <PaginationInitializer />
+      <Suspense fallback={null}>
+        <PaginationInitializer />
+      </Suspense>
       {children}
     </Provider>
   );

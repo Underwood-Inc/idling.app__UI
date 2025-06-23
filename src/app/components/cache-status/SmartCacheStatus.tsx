@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import { signOut } from 'next-auth/react';
+import React, { useCallback, useEffect, useState } from 'react';
 import './CacheStatus.css';
 
 interface CacheInfo {
@@ -11,32 +12,39 @@ interface CacheInfo {
   cacheVersion?: string;
   isStale?: boolean;
   ttl?: number;
+  details?: {
+    serviceWorker: boolean;
+    cacheCount: number;
+    cacheSize: number;
+    localStorageSize: number;
+  };
 }
 
 interface ServiceWorkerCacheInfo {
   version: string;
   totalEntries: number;
   ttls: {
-    static: number;
-    dynamic: number;
     api: number;
+    dynamic: number;
+    static: number;
     images: number;
   };
-  timestamp: number;
 }
 
-const formatTimeAgo = (timestamp: number): string => {
+function formatTimeAgo(timestamp: number): string {
   const now = Date.now();
   const diff = now - timestamp;
-  const minutes = Math.floor(diff / 60000);
-  const hours = Math.floor(diff / 3600000);
-  const days = Math.floor(diff / 86400000);
+
+  const seconds = Math.floor(diff / 1000);
+  const minutes = Math.floor(seconds / 60);
+  const hours = Math.floor(minutes / 60);
+  const days = Math.floor(hours / 24);
 
   if (days > 0) return `${days}d ago`;
   if (hours > 0) return `${hours}h ago`;
   if (minutes > 0) return `${minutes}m ago`;
-  return 'just now';
-};
+  return `${seconds}s ago`;
+}
 
 const SmartCacheStatus: React.FC = () => {
   const [cacheInfo, setCacheInfo] = useState<CacheInfo>({ isCached: false });
@@ -44,6 +52,7 @@ const SmartCacheStatus: React.FC = () => {
     null
   );
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isClearing, setIsClearing] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
 
   const getCacheMetadata = async (url: string) => {
@@ -122,91 +131,168 @@ const SmartCacheStatus: React.FC = () => {
       return null;
     };
 
-  const checkCacheStatus = async () => {
+  const checkCacheStatus = useCallback(async () => {
     try {
-      const url = window.location.pathname;
-      const metadata = await getCacheMetadata(url);
-      const swInfo = await getServiceWorkerCacheInfo();
+      // Check if service worker is available
+      if ('serviceWorker' in navigator) {
+        const registration = await navigator.serviceWorker.getRegistration();
+        const hasServiceWorker = !!registration;
 
-      setSwCacheInfo(swInfo);
+        // Check cache storage
+        let cacheSize = 0;
+        let cacheCount = 0;
+        if ('caches' in window) {
+          try {
+            const cacheNames = await caches.keys();
+            cacheCount = cacheNames.length;
 
-      if (metadata) {
-        setCacheInfo({
-          isCached: true,
-          cacheTimestamp: metadata.timestamp,
-          cacheAge: formatTimeAgo(metadata.timestamp.getTime()),
-          version: metadata.version,
-          cacheVersion: metadata.cacheVersion,
-          isStale: metadata.isStale,
-          ttl: metadata.ttl
-        });
-      } else {
-        setCacheInfo({ isCached: false });
+            for (const cacheName of cacheNames) {
+              const cache = await caches.open(cacheName);
+              const requests = await cache.keys();
+              cacheSize += requests.length;
+            }
+          } catch (e) {
+            // Silent error handling
+          }
+        }
+
+        // Check localStorage size
+        let localStorageSize = 0;
+        try {
+          for (const key in localStorage) {
+            if (Object.prototype.hasOwnProperty.call(localStorage, key)) {
+              localStorageSize += localStorage[key].length + key.length;
+            }
+          }
+        } catch (e) {
+          // Silent error handling
+        }
+
+        const timestamp = new Date();
+        const newCacheInfo = {
+          isCached: hasServiceWorker || cacheCount > 0 || localStorageSize > 0,
+          cacheTimestamp: timestamp,
+          cacheAge: formatTimeAgo(timestamp.getTime()),
+          details: {
+            serviceWorker: hasServiceWorker,
+            cacheCount,
+            cacheSize,
+            localStorageSize: Math.round(localStorageSize / 1024) // KB
+          }
+        };
+
+        setCacheInfo(newCacheInfo);
       }
     } catch (error) {
-      console.warn('Failed to check cache status:', error);
-      setCacheInfo({ isCached: false });
+      // Silent error handling
+    }
+  }, []);
+
+  /**
+   * Refresh current page cache - equivalent to "Empty cache and hard refresh"
+   */
+  const handleRefreshCurrentPage = async () => {
+    setIsRefreshing(true);
+    try {
+      // Force a hard refresh of the current page
+      window.location.reload();
+    } catch (error) {
+      // Silent error handling
+    } finally {
+      setIsRefreshing(false);
     }
   };
 
-  const refreshCache = async (clearAll = false) => {
-    if (isRefreshing) return;
-
-    setIsRefreshing(true);
-
+  /**
+   * Clear all cache - logout user, unregister service workers, clear all caches, and re-register
+   */
+  const handleClearAllCache = async () => {
+    setIsClearing(true);
     try {
-      if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
-        const messageChannel = new MessageChannel();
+      // 1. Sign out from NextAuth
+      await signOut({ redirect: false });
 
-        const refreshPromise = new Promise((resolve, reject) => {
-          messageChannel.port1.onmessage = (event) => {
-            if (event.data.success) {
-              resolve(event.data);
-            } else {
-              reject(new Error(event.data.error));
-            }
-          };
-        });
+      // 2. Clear all storage
+      try {
+        localStorage.clear();
+      } catch (e) {
+        // Silent error handling
+      }
 
-        navigator.serviceWorker.controller.postMessage(
-          {
-            type: 'REFRESH_CACHE',
-            url: clearAll ? undefined : window.location.href
-          },
-          [messageChannel.port2]
-        );
+      try {
+        sessionStorage.clear();
+      } catch (e) {
+        // Silent error handling
+      }
 
-        await refreshPromise;
+      // 3. Clear cookies
+      document.cookie.split(';').forEach((cookie) => {
+        const eqPos = cookie.indexOf('=');
+        const name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie;
+        document.cookie = `${name.trim()}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/`;
+      });
 
-        // Wait a moment for cache to be updated
-        setTimeout(async () => {
-          await checkCacheStatus();
-          // Dispatch event to notify other components
-          window.dispatchEvent(new CustomEvent('cache-updated'));
-        }, 200);
-      } else {
-        // Fallback: manual refresh with cache busting
-        const response = await fetch(window.location.href, {
-          cache: 'no-cache',
-          headers: {
-            'Cache-Control': 'no-cache, no-store, must-revalidate'
-          }
-        });
-
-        if (response.ok) {
-          // Wait a moment for cache to be updated
-          setTimeout(async () => {
-            await checkCacheStatus();
-            window.dispatchEvent(new CustomEvent('cache-updated'));
-          }, 200);
+      // 4. Clear IndexedDB
+      if ('indexedDB' in window) {
+        try {
+          const databases = await indexedDB.databases();
+          await Promise.all(
+            databases.map((db) => {
+              if (db.name) {
+                const deleteReq = indexedDB.deleteDatabase(db.name);
+                return new Promise((resolve, reject) => {
+                  deleteReq.onsuccess = () => resolve(undefined);
+                  deleteReq.onerror = () => reject(deleteReq.error);
+                });
+              }
+              return Promise.resolve();
+            })
+          );
+        } catch (e) {
+          // Silent error handling
         }
       }
+
+      // 5. Unregister service worker
+      if ('serviceWorker' in navigator) {
+        try {
+          const registrations =
+            await navigator.serviceWorker.getRegistrations();
+          await Promise.all(
+            registrations.map((registration) => registration.unregister())
+          );
+        } catch (e) {
+          // Silent error handling
+        }
+      }
+
+      // 6. Clear browser caches if available
+      if ('caches' in window) {
+        try {
+          const cacheNames = await caches.keys();
+          await Promise.all(
+            cacheNames.map((cacheName) => caches.delete(cacheName))
+          );
+        } catch (e) {
+          // Silent error handling
+        }
+      }
+
+      // 7. Re-register service worker
+      if ('serviceWorker' in navigator) {
+        try {
+          await navigator.serviceWorker.register('/sw.js');
+        } catch (e) {
+          // Silent error handling
+        }
+      }
+
+      // 8. Force page reload to complete the reset
+      window.location.href = '/';
     } catch (error) {
-      console.error('Failed to refresh cache:', error);
-      // Fallback: hard reload
-      window.location.reload();
+      // Silent error handling
     } finally {
-      setIsRefreshing(false);
+      setIsClearing(false);
     }
   };
 
@@ -244,8 +330,9 @@ const SmartCacheStatus: React.FC = () => {
 
   const getCacheStatusText = () => {
     if (!cacheInfo.isCached) return 'Live';
-    if (cacheInfo.isStale) return `Stale ${cacheInfo.cacheAge}`;
-    return `Cached ${cacheInfo.cacheAge}`;
+    const ageText = cacheInfo.cacheAge || '0s ago';
+    if (cacheInfo.isStale) return `Stale ${ageText}`;
+    return `Cached ${ageText}`;
   };
 
   return (
@@ -264,23 +351,23 @@ const SmartCacheStatus: React.FC = () => {
 
       <button
         className="cache-status__refresh"
-        onClick={() => refreshCache(false)}
-        disabled={isRefreshing}
-        title="Refresh current page cache"
-        aria-label="Refresh current page cache"
+        onClick={handleRefreshCurrentPage}
+        disabled={isRefreshing || isClearing}
+        title="Refresh current page cache (hard refresh)"
+        aria-label="Empty cache and hard refresh current page"
       >
         {isRefreshing ? '⟳' : '↻'}
       </button>
 
       <button
         className="cache-status__refresh"
-        onClick={() => refreshCache(true)}
-        disabled={isRefreshing}
-        title="Clear all cache"
-        aria-label="Clear all cache"
+        onClick={handleClearAllCache}
+        disabled={isRefreshing || isClearing}
+        title="Logout user, clear all site data (cache, storage, cookies), and restart service workers"
+        aria-label="Complete logout and clear all site data"
         style={{ marginLeft: '4px' }}
       >
-        {isRefreshing ? '⟳' : '🧹'}
+        {isClearing ? '⟳' : '🧹'}
       </button>
 
       {showDetails && (cacheInfo.isCached || swCacheInfo) && (
@@ -310,6 +397,12 @@ const SmartCacheStatus: React.FC = () => {
               </div>
             </div>
           )}
+
+          <div className="cache-status__detail-item">
+            <strong>Actions:</strong>
+            <div>↻ Hard refresh current page</div>
+            <div>🧹 Logout + clear all + restart SW</div>
+          </div>
         </div>
       )}
     </div>

@@ -64,7 +64,7 @@ export interface Filter<T extends string = string> {
 
 export interface SubmissionsFilters {
   onlyMine: boolean;
-  providerAccountId: string;
+  userId: string;
   filters: Filter[];
   page: number;
   pageSize: number;
@@ -250,7 +250,7 @@ class SubmissionsFiltersAtomRegistry {
         contextId,
         atom<SubmissionsFilters>({
           onlyMine: false,
-          providerAccountId: '',
+          userId: '',
           filters: [],
           page: 1,
           pageSize: 10,
@@ -437,7 +437,7 @@ export const initializeFiltersFromUrl = (
   contextId: string,
   searchParams: URLSearchParams,
   onlyMine: boolean,
-  providerAccountId: string,
+  userId: string,
   initialFilters: Filter[] = []
 ) => {
   const pageParam = searchParams.get('page');
@@ -482,7 +482,7 @@ export const initializeFiltersFromUrl = (
 
   return {
     onlyMine,
-    providerAccountId,
+    userId,
     filters: finalFilters,
     page: pageParam ? Math.max(1, parseInt(pageParam)) : 1,
     pageSize: pageSizeParam ? Math.max(10, parseInt(pageSizeParam)) : 10,
@@ -639,7 +639,7 @@ export const triggerFetchAtom = atom(
         pageSize: number
       ) => Promise<any>;
       onlyMine?: boolean;
-      providerAccountId?: string;
+      userId?: string;
       includeThreadReplies?: boolean;
     }
   ) => {
@@ -795,7 +795,7 @@ export const batchedFilterUpdateAtom = atom(
 export interface SubmissionsConfig {
   contextId: string;
   onlyMine: boolean;
-  providerAccountId: string;
+  userId: string;
   includeThreadReplies: boolean;
   infiniteScroll: boolean;
   fetchFn: (
@@ -1144,7 +1144,7 @@ export const createFilterActionsAtom = (contextId: string) => {
 export const createWritableFiltersAtom = (contextId: string) => {
   return atom<SubmissionsFilters>({
     onlyMine: false,
-    providerAccountId: '',
+    userId: '',
     filters: [],
     page: 1,
     pageSize: 10,
@@ -1175,7 +1175,7 @@ export const createCombinedFiltersAtom = (contextId: string) => {
       if (!config) {
         return {
           onlyMine: false,
-          providerAccountId: '',
+          userId: '',
           filters: [],
           page: 1,
           pageSize: 100,
@@ -1185,7 +1185,7 @@ export const createCombinedFiltersAtom = (contextId: string) => {
 
       return {
         onlyMine: config.onlyMine,
-        providerAccountId: config.providerAccountId,
+        userId: config.userId,
         filters: urlFilters as Filter[],
         page: urlPagination.page,
         pageSize: urlPagination.pageSize,

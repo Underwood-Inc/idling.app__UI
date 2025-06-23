@@ -57,27 +57,19 @@ export default function PostsPageClient({ contextId }: PostsPageClientProps) {
     optimisticRemoveSubmission
   }: {
     submission: SubmissionWithReplies;
-    // eslint-disable-next-line no-unused-vars
-    onTagClick: (tag: string) => void;
-    // eslint-disable-next-line no-unused-vars
-    onHashtagClick?: (hashtag: string) => void;
+    onTagClick: (_tag: string) => void;
+    onHashtagClick?: (_hashtag: string) => void;
     onMentionClick?: (
-      // eslint-disable-next-line no-unused-vars
-      mention: string,
-      // eslint-disable-next-line no-unused-vars
-      filterType: 'author' | 'mentions'
+      _mention: string,
+      _filterType: 'author' | 'mentions'
     ) => void;
-    // eslint-disable-next-line no-unused-vars
     onSubmissionUpdate?: () => void;
     contextId: string;
     optimisticUpdateSubmission?: (
-      // eslint-disable-next-line no-unused-vars
-      submissionId: number,
-      // eslint-disable-next-line no-unused-vars
-      updatedSubmission: Submission
+      _submissionId: number,
+      _updatedSubmission: Submission
     ) => void;
-    // eslint-disable-next-line no-unused-vars
-    optimisticRemoveSubmission?: (submissionId: number) => void;
+    optimisticRemoveSubmission?: (_submissionId: number) => void;
   }) => (
     <SubmissionItem
       submission={submission}

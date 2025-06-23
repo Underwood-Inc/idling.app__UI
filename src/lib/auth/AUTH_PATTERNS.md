@@ -72,10 +72,10 @@ const isOwnProfile = session?.user && (
 );
 ```
 
-### Using `providerAccountId`
-```tsx
-// ❌ WRONG - Legacy pattern, should use session.user.id
-const isOwner = session?.user?.providerAccountId === authorId;
+### Using `session.user.id` (Database ID)
+
+```typescript
+const isOwner = session?.user?.id === authorId;
 ```
 
 ### Inconsistent Checks
@@ -152,7 +152,7 @@ interface Session {
     name?: string;        // Display name
     email?: string;       // User email
     image?: string;       // Profile image URL
-    providerAccountId?: string; // ❌ Legacy, don't use
+    providerAccountId?: string; // ⚠️ OAuth only, don't use for app logic
   };
 }
 ```

@@ -1,0 +1,381 @@
+/* ASCII Emoji Grid Component Styles */
+
+.ascii-emoji-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding: 1rem;
+  justify-content: flex-start;
+  align-items: flex-start;
+  background: var(--light-background--primary);
+  border-radius: var(--border-radius);
+  border: 1px solid var(--brand-tertiary--dark);
+}
+
+.ascii-emoji-grid--fluid {
+  /* Fluid grid that automatically adjusts to container width */
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 1.5rem;
+  padding: 1.5rem;
+  justify-items: center;
+  align-items: center;
+}
+
+/* ASCII Emoji Items */
+.ascii-emoji-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: var(--light-background--secondary);
+  border: 2px solid var(--brand-tertiary--dark);
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 100px;
+  min-height: 80px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.ascii-emoji-item:hover {
+  background: var(--light-background--tertiary);
+  border-color: var(--brand-primary);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.ascii-emoji-item:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* ASCII Emoji Character Display */
+.ascii-emoji-char {
+  font-family: 'Fira Code', 'Courier New', 'Monaco', 'Menlo', monospace;
+  font-size: 1.8rem;
+  line-height: 1.2;
+  font-weight: 500;
+  color: var(--light-bg__text-color--primary);
+  white-space: nowrap;
+  letter-spacing: 0;
+  word-spacing: 0;
+  margin-bottom: 0.5rem;
+  min-height: 2.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* Ensure ASCII emojis have enough space */
+  padding: 0.25rem 0.5rem;
+  background: var(--light-background--primary);
+  border-radius: 4px;
+  border: 1px solid var(--brand-tertiary--dark);
+}
+
+/* Large ASCII emojis like table flip, shrug, etc. */
+.ascii-emoji-char--large {
+  font-size: 1.4rem;
+  padding: 0.5rem;
+  min-width: 80px;
+  text-align: center;
+  word-break: keep-all;
+  overflow-wrap: normal;
+}
+
+/* Very large ASCII art emojis */
+.ascii-emoji-char--extra-large {
+  font-size: 1.2rem;
+  padding: 0.75rem;
+  min-width: 100px;
+  max-width: 150px;
+  line-height: 1.1;
+}
+
+/* ASCII Emoji Labels */
+.ascii-emoji-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--light-bg__text-color--secondary);
+  text-align: center;
+  margin-top: 0.25rem;
+  line-height: 1.2;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ascii-emoji-item:hover .ascii-emoji-label {
+  color: var(--light-bg__text-color--primary);
+}
+
+/* Category Headers */
+.ascii-emoji-category {
+  grid-column: 1 / -1;
+  width: 100%;
+  margin: 1.5rem 0 1rem 0;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid var(--brand-primary);
+}
+
+.ascii-emoji-category-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--brand-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 0;
+}
+
+.ascii-emoji-category-subtitle {
+  font-size: 0.875rem;
+  color: var(--light-bg__text-color--secondary);
+  margin-top: 0.25rem;
+  font-style: italic;
+}
+
+/* Subcategory Grouping */
+.ascii-emoji-subcategory {
+  display: contents;
+}
+
+.ascii-emoji-subcategory-divider {
+  grid-column: 1 / -1;
+  width: 100%;
+  height: 1px;
+  background: var(--brand-tertiary--dark);
+  margin: 1rem 0;
+  opacity: 0.5;
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+  .ascii-emoji-grid--fluid {
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    gap: 1.25rem;
+    padding: 1.25rem;
+  }
+
+  .ascii-emoji-char {
+    font-size: 1.6rem;
+  }
+
+  .ascii-emoji-char--large {
+    font-size: 1.3rem;
+  }
+
+  .ascii-emoji-char--extra-large {
+    font-size: 1.1rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .ascii-emoji-grid--fluid {
+    grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
+    gap: 1rem;
+    padding: 1rem;
+  }
+
+  .ascii-emoji-item {
+    min-width: 80px;
+    min-height: 70px;
+    padding: 0.75rem;
+  }
+
+  .ascii-emoji-char {
+    font-size: 1.4rem;
+    min-height: 2rem;
+  }
+
+  .ascii-emoji-char--large {
+    font-size: 1.2rem;
+    min-width: 70px;
+  }
+
+  .ascii-emoji-char--extra-large {
+    font-size: 1rem;
+    min-width: 80px;
+    max-width: 120px;
+  }
+
+  .ascii-emoji-label {
+    font-size: 0.7rem;
+  }
+
+  .ascii-emoji-category-title {
+    font-size: 1.1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .ascii-emoji-grid--fluid {
+    grid-template-columns: repeat(auto-fit, minmax(75px, 1fr));
+    gap: 0.75rem;
+    padding: 0.75rem;
+  }
+
+  .ascii-emoji-item {
+    min-width: 70px;
+    min-height: 60px;
+    padding: 0.5rem;
+  }
+
+  .ascii-emoji-char {
+    font-size: 1.2rem;
+    min-height: 1.8rem;
+    padding: 0.2rem 0.4rem;
+  }
+
+  .ascii-emoji-char--large {
+    font-size: 1rem;
+    min-width: 60px;
+  }
+
+  .ascii-emoji-char--extra-large {
+    font-size: 0.9rem;
+    min-width: 70px;
+    max-width: 100px;
+  }
+
+  .ascii-emoji-label {
+    font-size: 0.65rem;
+  }
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+  .ascii-emoji-grid {
+    background: var(--dark-background--primary);
+    border-color: var(--dark-brand-tertiary--dark);
+  }
+
+  .ascii-emoji-item {
+    background: var(--dark-background--secondary);
+    border-color: var(--dark-brand-tertiary--dark);
+  }
+
+  .ascii-emoji-item:hover {
+    background: var(--dark-background--tertiary);
+    border-color: var(--brand-primary--light);
+  }
+
+  .ascii-emoji-char {
+    color: var(--dark-bg__text-color--primary);
+    background: var(--dark-background--primary);
+    border-color: var(--dark-brand-tertiary--dark);
+  }
+
+  .ascii-emoji-label {
+    color: var(--dark-bg__text-color--secondary);
+  }
+
+  .ascii-emoji-item:hover .ascii-emoji-label {
+    color: var(--dark-bg__text-color--primary);
+  }
+
+  .ascii-emoji-category-title {
+    color: var(--brand-primary--light);
+  }
+
+  .ascii-emoji-category-subtitle {
+    color: var(--dark-bg__text-color--secondary);
+  }
+
+  .ascii-emoji-subcategory-divider {
+    background: var(--dark-brand-tertiary--dark);
+  }
+}
+
+/* High Contrast Mode */
+@media (prefers-contrast: high) {
+  .ascii-emoji-item {
+    border-width: 3px;
+    border-color: #000;
+  }
+
+  .ascii-emoji-item:hover {
+    border-color: #000;
+    background: #f0f0f0;
+  }
+
+  .ascii-emoji-char {
+    border-width: 2px;
+    border-color: #000;
+    color: #000;
+    background: #fff;
+  }
+
+  .ascii-emoji-category {
+    border-bottom-width: 3px;
+    border-bottom-color: #000;
+  }
+
+  .ascii-emoji-category-title {
+    color: #000;
+  }
+}
+
+/* Animation for loading/appearing */
+@keyframes asciiEmojiAppear {
+  from {
+    opacity: 0;
+    transform: scale(0.8) translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.ascii-emoji-item {
+  animation: asciiEmojiAppear 0.3s ease-out;
+}
+
+.ascii-emoji-item:nth-child(even) {
+  animation-delay: 0.05s;
+}
+
+.ascii-emoji-item:nth-child(3n) {
+  animation-delay: 0.1s;
+}
+
+/* Focus states for accessibility */
+.ascii-emoji-item:focus {
+  outline: 3px solid var(--brand-primary);
+  outline-offset: 2px;
+}
+
+.ascii-emoji-item:focus:not(:focus-visible) {
+  outline: none;
+}
+
+.ascii-emoji-item:focus-visible {
+  outline: 3px solid var(--brand-primary);
+  outline-offset: 2px;
+}
+
+/* Print styles */
+@media print {
+  .ascii-emoji-grid--fluid {
+    display: block;
+    columns: 3;
+    column-gap: 2rem;
+  }
+
+  .ascii-emoji-item {
+    break-inside: avoid;
+    margin-bottom: 1rem;
+    box-shadow: none;
+    border: 1px solid #000;
+  }
+
+  .ascii-emoji-char {
+    background: none;
+    border: none;
+    color: #000;
+  }
+}

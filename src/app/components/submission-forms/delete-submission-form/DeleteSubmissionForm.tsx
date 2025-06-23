@@ -3,7 +3,7 @@ import { useAtom } from 'jotai';
 import { useEffect, useRef, useState } from 'react';
 import { useFormState, useFormStatus } from 'react-dom';
 import { shouldUpdateAtom } from '../../../../lib/state/atoms';
-import { InfoTooltip } from '../../tooltip/InfoTooltip';
+import { InteractiveTooltip } from '../../tooltip/InteractiveTooltip';
 import { canDeleteSubmission, deleteSubmissionAction } from '../actions';
 import './DeleteSubmissionForm.css';
 
@@ -55,7 +55,15 @@ function DeleteButton({
 
   // Wrap in tooltip if there's a reason the button is disabled
   if (tooltipText) {
-    return <InfoTooltip content={tooltipText}>{button}</InfoTooltip>;
+    return (
+      <InteractiveTooltip
+        content={tooltipText}
+        isInsideParagraph={true}
+        delay={200}
+      >
+        {button}
+      </InteractiveTooltip>
+    );
   }
 
   return button;

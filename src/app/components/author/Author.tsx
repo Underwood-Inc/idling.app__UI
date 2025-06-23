@@ -4,7 +4,7 @@ import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
 import { useOverlay } from '../../../lib/context/OverlayContext';
-import { ensureUserSlug } from '../../../lib/utils/user-slug';
+import { ensureUserSlug, generateUserSlug } from '../../../lib/utils/user-slug';
 import { Avatar, AvatarPropSizes } from '../avatar/Avatar';
 import { InteractiveTooltip } from '../tooltip/InteractiveTooltip';
 import { UserProfile, UserProfileData } from '../user-profile/UserProfile';
@@ -33,14 +33,9 @@ const UserProfileModal: React.FC<{
     // Check if this matches the current user
     if (session?.user) {
       const currentUserId = session.user.id;
-      const currentUserName = session.user.name;
-      const currentUserEmail = session.user.email;
 
-      const isOwner =
-        currentUserId === user.id ||
-        (currentUserName && currentUserName === user.username) ||
-        (currentUserName && currentUserName === user.name) ||
-        (currentUserEmail && currentUserEmail === user.email);
+      // Convert both IDs to strings for proper comparison
+      const isOwner = currentUserId?.toString() === user.id?.toString();
 
       setIsOwnProfile(Boolean(isOwner));
     } else {
@@ -48,38 +43,27 @@ const UserProfileModal: React.FC<{
     }
   }, [user, session]);
 
-  const handleBioUpdate = async (newBio: string) => {
+  const handleBioUpdate = async (newBio: string): Promise<void> => {
     try {
-      // Get the session token for authorization
-      const sessionToken = await fetch('/api/auth/session')
-        .then((res) => res.json())
-        .then((session) => session?.accessToken);
-
-      const response = await fetch(
-        `/api/profile/${encodeURIComponent(user.username || user.name || user.id)}`,
-        {
-          method: 'PATCH',
-          headers: {
-            'Content-Type': 'application/json',
-            // Include authorization header if we have a token
-            ...(sessionToken && { Authorization: `Bearer ${sessionToken}` })
-          },
-          body: JSON.stringify({ bio: newBio })
-        }
+      // Use the same server action as the profile page for consistency
+      const { updateBioAction } = await import(
+        '../../../lib/actions/profile.actions'
       );
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to update bio');
+      // Use the user's identifier (slug, username, name, or id)
+      const identifier = user.slug || user.username || user.name || user.id;
+
+      const result = await updateBioAction(newBio, identifier);
+
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to update bio');
       }
 
-      const result = await response.json();
-
-      // Update the user object locally
+      // Update the user object locally for immediate UI feedback
       user.bio = newBio;
 
-      // Success - bio updated
-      return result;
+      // Success - bio updated (no return value needed)
+      // Note: Profile page cache is invalidated by the server action
     } catch (error) {
       console.error('Error updating bio:', error);
       throw error;
@@ -218,42 +202,36 @@ export const Author: React.FC<AuthorProps> = ({
 
   const displayName = showFullName ? authorName : `@${authorName}`;
 
-  // Generate profile URL with guaranteed slug
+  // Generate profile URL with guaranteed slug using authorId (database ID)
   const profileUrl = userProfile
     ? `/profile/${ensureUserSlug(userProfile)}`
-    : `/profile/${encodeURIComponent(authorName)}`;
+    : `/profile/${generateUserSlug(authorName, authorId)}`;
 
-  // Fetch user profile for tooltip via API route
+  // Fetch user profile for tooltip via API route using database ID for more reliable lookup
   useEffect(() => {
-    if (enableTooltip && authorName) {
-      // If bio is provided, create a minimal profile object to avoid API call
-      if (bio !== undefined) {
-        setUserProfile({
-          id: authorId,
-          username: authorName,
-          name: authorName,
-          bio: bio || undefined,
-          location: undefined,
-          email: undefined,
-          image: undefined,
-          created_at: undefined,
-          profile_public: true,
-          total_submissions: 0,
-          posts_count: 0,
-          replies_count: 0,
-          last_activity: null,
-          slug: undefined
-        });
-        setIsLoading(false);
-        return;
-      }
-
+    if (enableTooltip && authorId && authorName) {
       setIsLoading(true);
 
-      fetch(`/api/profile/${encodeURIComponent(authorName)}`)
+      // Try to fetch by database ID first (most reliable), fallback to name
+      const fetchUrl = authorId
+        ? `/api/profile/id/${encodeURIComponent(authorId)}`
+        : `/api/profile/${encodeURIComponent(authorName)}`;
+
+      fetch(fetchUrl)
         .then((response) => {
           if (response.ok) {
             return response.json();
+          }
+          // If ID lookup fails, try name lookup as fallback
+          if (authorId && fetchUrl.includes('/id/')) {
+            return fetch(`/api/profile/${encodeURIComponent(authorName)}`).then(
+              (fallbackResponse) => {
+                if (fallbackResponse.ok) {
+                  return fallbackResponse.json();
+                }
+                throw new Error('Failed to fetch profile');
+              }
+            );
           }
           throw new Error('Failed to fetch profile');
         })
@@ -268,7 +246,7 @@ export const Author: React.FC<AuthorProps> = ({
           setIsLoading(false);
         });
     }
-  }, [authorName, enableTooltip, bio, authorId]);
+  }, [authorId, authorName, enableTooltip]);
 
   const handleClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
     // Handle Ctrl+Click for modal
@@ -351,7 +329,11 @@ export const Author: React.FC<AuthorProps> = ({
 
   // Return element wrapped in enhanced tooltip
   return (
-    <InteractiveTooltip content={tooltipContent} delay={500}>
+    <InteractiveTooltip
+      content={tooltipContent}
+      delay={500}
+      className="author-tooltip-wrapper"
+    >
       {authorElement}
     </InteractiveTooltip>
   );

@@ -1,0 +1,185 @@
+.floating-toolbar {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: flex;
+  gap: 0.25rem;
+  padding: 0.25rem;
+  background: var(--light-background--secondary);
+  border: 1px solid var(--light-border--primary);
+  border-radius: var(--border-radius);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+}
+
+.toolbar-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--light-border--primary);
+  border-radius: calc(var(--border-radius) / 2);
+  background: var(--light-background--primary);
+  color: var(--light-bg__text-color--primary);
+  font-size: 0.75rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.toolbar-button:hover {
+  background: var(--light-background--tertiary);
+  border-color: var(--brand-primary);
+}
+
+.toolbar-button--active {
+  background: var(--brand-primary);
+  color: white;
+  border-color: var(--brand-primary);
+}
+
+.toolbar-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Tooltip Panel Styles */
+.toolbar-tooltip-panel {
+  min-width: 200px;
+  max-width: 300px;
+  max-height: 300px;
+  background: var(--light-background--primary);
+  border: 1px solid var(--light-border--primary);
+  border-radius: var(--border-radius);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  overflow: hidden;
+  /* Remove extra padding/margin that creates card-like appearance */
+  margin: 0;
+  padding: 0;
+}
+
+.toolbar-tooltip-panel--wide {
+  min-width: 320px;
+  max-width: 400px;
+  max-height: 400px;
+}
+
+.toolbar-search-header {
+  padding: 0.75rem;
+  border-bottom: 1px solid var(--light-border--primary);
+  background: var(--light-background--secondary);
+}
+
+.toolbar-search-input {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid var(--light-border--primary);
+  border-radius: calc(var(--border-radius) / 2);
+  background: var(--light-background--primary);
+  color: var(--light-bg__text-color--primary);
+  font-size: 0.875rem;
+}
+
+.toolbar-search-input:focus {
+  outline: none;
+  border-color: var(--brand-primary);
+  box-shadow: 0 0 0 2px rgba(255, 107, 53, 0.2);
+}
+
+.toolbar-search-results {
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.toolbar-result-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border: none;
+  background: none;
+  color: var(--light-bg__text-color--primary);
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.toolbar-result-item:hover {
+  background: var(--light-background--secondary);
+}
+
+.toolbar-result-trigger {
+  font-weight: 600;
+  color: var(--brand-primary);
+}
+
+.toolbar-result-label {
+  flex: 1;
+  font-size: 0.875rem;
+}
+
+.toolbar-result-avatar {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.toolbar-loading,
+.toolbar-no-results {
+  padding: 1rem;
+  text-align: center;
+  color: var(--light-bg__text-color--secondary);
+  font-size: 0.875rem;
+}
+
+/* Emoji Picker Integration Styles */
+.toolbar-emoji-picker {
+  border: none;
+  box-shadow: none;
+  background: transparent;
+}
+
+.toolbar-emoji-picker .emoji-picker__header {
+  background: var(--light-background--secondary);
+  border-bottom: 1px solid var(--light-border--primary);
+}
+
+.toolbar-emoji-picker .emoji-picker__search {
+  background: var(--light-background--primary);
+  border: 1px solid var(--light-border--primary);
+  color: var(--light-bg__text-color--primary);
+}
+
+.toolbar-emoji-picker .emoji-picker__content {
+  background: var(--light-background--primary);
+}
+
+.toolbar-emoji-picker .emoji-picker__categories {
+  background: var(--light-background--secondary);
+  border-bottom: 1px solid var(--light-border--primary);
+}
+
+.toolbar-emoji-picker .emoji-picker__category {
+  background: var(--light-background--primary);
+  color: var(--light-bg__text-color--primary);
+  border: 1px solid var(--light-border--primary);
+}
+
+.toolbar-emoji-picker .emoji-picker__category--active {
+  background: var(--brand-primary);
+  color: white;
+}
+
+.toolbar-emoji-picker .emoji-picker__emoji {
+  background: var(--light-background--primary);
+  color: var(--light-bg__text-color--primary);
+  border: 1px solid transparent;
+}
+
+.toolbar-emoji-picker .emoji-picker__emoji:hover {
+  background: var(--light-background--secondary);
+  border-color: var(--brand-primary);
+}

@@ -2,7 +2,7 @@
   position: fixed;
   width: 800px;
   height: 600px;
-  background: white;
+  background: var(--dark-background--secondary);
   border-radius: 8px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
   z-index: 9999;

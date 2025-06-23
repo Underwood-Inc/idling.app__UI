@@ -422,7 +422,7 @@ const SubmissionsList = React.memo(function SubmissionsList({
       )}
 
       {/* Debugging info in development */}
-      {process.env.NODE_ENV === 'development' && (
+      {/* {process.env.NODE_ENV === 'development' && (
         <div
           className="submissions-list__debug"
           style={{
@@ -446,7 +446,7 @@ const SubmissionsList = React.memo(function SubmissionsList({
           <div>Scroll: {Math.round(scrollTop)}px</div>
           <div>Heights Cached: {heightCache.current.size}</div>
         </div>
-      )}
+      )} */}
     </div>
   );
 });

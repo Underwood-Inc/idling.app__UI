@@ -12,7 +12,7 @@
   font-family: inherit;
   line-height: 1.5;
   background: var(--light-bg__color--primary);
-  color: var(--light-bg__text-color--primary);
+  color: var(--dark-bg__text-color--secondary);
   transition: all 0.2s ease;
   resize: vertical;
 }
@@ -50,15 +50,35 @@
   top: 100%;
   left: 0;
   right: 0;
-  z-index: 1000;
-  background: var(--light-bg__color--primary);
-  backdrop-filter: blur(8px);
+  z-index: 10000;
+  background: var(--light-background--primary);
   border: 2px solid var(--brand-primary);
   border-top: 1px solid var(--brand-primary);
   border-radius: 0 0 var(--border-radius) var(--border-radius);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
   max-height: 300px;
   /* Increased for pagination */
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* Portal container for suggestions */
+.suggestion-portal-container {
+  pointer-events: auto;
+}
+
+/* Reset suggestion list positioning when inside portal */
+.suggestion-portal-container .suggestion-list {
+  position: static !important;
+  top: auto !important;
+  left: auto !important;
+  right: auto !important;
+  width: 100% !important;
+  border-radius: var(--border-radius);
+  border: 2px solid var(--brand-primary);
+  background: var(--light-background--primary);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+  max-height: 300px;
   overflow-y: auto;
   overflow-x: hidden;
 }

@@ -1,8 +1,11 @@
 import { AUTH_BUTTON_SELECTORS } from 'src/lib/test-selectors/components/auth-buttons.selectors';
 import { signInAction, signOutAction } from './actions';
 import './AuthButtons.css';
+import { SignInProviders } from './types';
 
-export type SignInProviders = 'twitch' | 'google';
+// Export SignInProviders for use in tests
+export type { SignInProviders } from './types';
+
 export function SignIn({
   provider,
   redirectTo
@@ -11,12 +14,7 @@ export function SignIn({
   redirectTo?: string;
 }>) {
   return (
-    <form
-      action={async () => {
-        'use server';
-        await signInAction(provider, redirectTo);
-      }}
-    >
+    <form action={signInAction.bind(null, provider, redirectTo)}>
       <button
         type="submit"
         className="auth-button"
@@ -28,15 +26,17 @@ export function SignIn({
   );
 }
 
-export function SignOut() {
+export function SignOut({
+  'data-testid': dataTestId
+}: {
+  'data-testid'?: string;
+} = {}) {
   return (
-    <form
-      action={async () => {
-        'use server';
-        await signOutAction();
-      }}
-    >
-      <button type="submit" data-testid={AUTH_BUTTON_SELECTORS.SIGN_OUT}>
+    <form action={signOutAction}>
+      <button
+        type="submit"
+        data-testid={dataTestId || AUTH_BUTTON_SELECTORS.SIGN_OUT}
+      >
         Sign Out
       </button>
     </form>

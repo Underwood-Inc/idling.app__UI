@@ -1,0 +1,227 @@
+.admin-submission-item {
+  position: relative;
+  margin-bottom: 1rem;
+}
+
+.admin-submission-item__content {
+  position: relative;
+}
+
+.admin-submission-item__admin-controls {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  z-index: 10;
+}
+
+/* Timeout Modal Styles */
+.timeout-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.timeout-modal {
+  background: var(--light-background--quinary);
+  border-radius: var(--border-radius);
+  border: 1px solid var(--brand-tertiary--dark);
+  padding: 2rem;
+  max-width: 500px;
+  width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.timeout-modal__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--brand-tertiary--dark);
+}
+
+.timeout-modal__header h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--light-bg__text-color--primary);
+  margin: 0;
+}
+
+.timeout-modal__close {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: var(--light-bg__text-color--secondary);
+  cursor: pointer;
+  padding: 0.25rem;
+  border-radius: 0.25rem;
+  transition: all 0.2s ease;
+}
+
+.timeout-modal__close:hover {
+  background: var(--light-background--tertiary);
+  color: var(--light-bg__text-color--primary);
+}
+
+.timeout-modal__form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.timeout-modal__field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.timeout-modal__field label {
+  font-weight: 500;
+  color: var(--light-bg__text-color--primary);
+  font-size: 0.9rem;
+}
+
+.timeout-modal__field select,
+.timeout-modal__field input,
+.timeout-modal__field textarea {
+  padding: 0.75rem;
+  border: 1px solid var(--brand-tertiary--dark);
+  border-radius: var(--border-radius);
+  background: var(--light-background--quaternary);
+  color: var(--light-bg__text-color--primary);
+  font-size: 0.9rem;
+}
+
+.timeout-modal__field textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.timeout-modal__field input:focus,
+.timeout-modal__field select:focus,
+.timeout-modal__field textarea:focus {
+  outline: none;
+  border-color: var(--brand-primary);
+  box-shadow: 0 0 0 2px rgba(var(--brand-primary-rgb), 0.2);
+}
+
+.timeout-modal__actions {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--brand-tertiary--dark);
+}
+
+.timeout-modal__cancel,
+.timeout-modal__submit {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: var(--border-radius);
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.timeout-modal__cancel {
+  background: var(--light-background--tertiary);
+  color: var(--light-bg__text-color--primary);
+  border: 1px solid var(--brand-tertiary--dark);
+}
+
+.timeout-modal__cancel:hover {
+  background: var(--light-background--secondary);
+}
+
+.timeout-modal__submit {
+  background: #ef4444;
+  color: white;
+}
+
+.timeout-modal__submit:hover {
+  background: #dc2626;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .admin-submission-item__admin-controls {
+    position: static;
+    margin-top: 0.5rem;
+    display: flex;
+    justify-content: center;
+  }
+
+  .timeout-modal {
+    padding: 1.5rem;
+    margin: 1rem;
+    width: calc(100% - 2rem);
+  }
+
+  .timeout-modal__header {
+    flex-direction: column;
+    gap: 1rem;
+    text-align: center;
+  }
+
+  .timeout-modal__actions {
+    flex-direction: column;
+  }
+
+  .timeout-modal__cancel,
+  .timeout-modal__submit {
+    width: 100%;
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .timeout-modal {
+    background: var(--dark-background--quinary);
+    border-color: var(--dark-brand-tertiary--dark);
+  }
+
+  .timeout-modal__header h3 {
+    color: var(--dark-bg__text-color--primary);
+  }
+
+  .timeout-modal__close {
+    color: var(--dark-bg__text-color--secondary);
+  }
+
+  .timeout-modal__close:hover {
+    background: var(--dark-background--tertiary);
+    color: var(--dark-bg__text-color--primary);
+  }
+
+  .timeout-modal__field label {
+    color: var(--dark-bg__text-color--primary);
+  }
+
+  .timeout-modal__field select,
+  .timeout-modal__field input,
+  .timeout-modal__field textarea {
+    background: var(--dark-background--quaternary);
+    color: var(--dark-bg__text-color--primary);
+    border-color: var(--dark-brand-tertiary--dark);
+  }
+
+  .timeout-modal__cancel {
+    background: var(--dark-background--tertiary);
+    color: var(--dark-bg__text-color--primary);
+    border-color: var(--dark-brand-tertiary--dark);
+  }
+
+  .timeout-modal__cancel:hover {
+    background: var(--dark-background--secondary);
+  }
+}

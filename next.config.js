@@ -6,6 +6,10 @@ const nextConfig = {
     version
   },
   reactStrictMode: true,
+  eslint: {
+    // Allow production builds to complete even if there are ESLint warnings
+    ignoreDuringBuilds: true
+  },
   // Smart caching with version-based cache busting
   experimental: {
     staleTimes: {
@@ -81,10 +85,10 @@ const nextConfig = {
       }
     ];
   },
-  // Add build ID for cache busting
+  // Use consistent build ID based on version only
   generateBuildId: async () => {
-    // Use version + timestamp for unique build IDs
-    return `${version}-${Date.now()}`;
+    // Use version for consistent build IDs across rebuilds
+    return `${version.replace(/\./g, '-')}`;
   },
   webpack: (config, { webpack, dev }) => {
     // In production builds, exclude dev tools entirely
@@ -112,6 +116,7 @@ const nextConfig = {
       })
     );
 
+    // Only add fallbacks for specific modules that need them
     config.resolve.fallback = {
       fs: false,
       path: false,

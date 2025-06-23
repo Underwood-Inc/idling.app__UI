@@ -1,8 +1,10 @@
 'use server';
 
+import { revalidatePath } from 'next/cache';
 import { auth } from '../auth';
 import sql from '../db';
 import { UserProfileData } from '../types/profile';
+import { getEffectiveCharacterCount } from '../utils/string';
 import { generateUserSlug, parseUserSlug } from '../utils/user-slug';
 
 export interface ProfileFilters {
@@ -100,7 +102,8 @@ export async function getUserProfile(
     }
 
     return {
-      id: user.providerAccountId || user.id.toString(), // Use providerAccountId as primary ID
+      id: user.id.toString(), // Use database internal ID for consistency with submissions
+      providerAccountId: user.providerAccountId, // Keep OAuth provider ID separate
       username: user.name, // Use name as username for display
       name: user.name,
       email: user.email,
@@ -123,13 +126,96 @@ export async function getUserProfile(
 }
 
 /**
+ * Get user profile by database ID (internal ID)
+ */
+export async function getUserProfileByDatabaseId(
+  databaseId: string | number
+): Promise<UserProfileData | null> {
+  try {
+    const userResult = await sql`
+      SELECT 
+        u.id,
+        u.name,
+        u.email,
+        u.bio,
+        u.location,
+        u.image,
+        u.created_at,
+        u.profile_public,
+        a."providerAccountId"
+      FROM users u 
+      LEFT JOIN accounts a ON u.id = a."userId"
+      WHERE u.id = ${parseInt(databaseId.toString())}
+      LIMIT 1
+    `;
+
+    if (userResult.length === 0) {
+      return null;
+    }
+
+    const user = userResult[0];
+
+    // Get submission statistics
+    let stats = null;
+    try {
+      const submissionStats = await sql`
+        SELECT 
+          COUNT(*) as total_submissions,
+          COUNT(CASE WHEN thread_parent_id IS NULL THEN 1 END) as posts_count,
+          COUNT(CASE WHEN thread_parent_id IS NOT NULL THEN 1 END) as replies_count,
+          MAX(submission_datetime) as last_activity
+        FROM submissions 
+        WHERE user_id = ${user.id}
+      `;
+
+      if (submissionStats.length > 0) {
+        stats = submissionStats[0];
+      }
+    } catch (statsError) {
+      // Stats not available, continue without them
+    }
+
+    return {
+      id: user.id.toString(), // Use database internal ID for consistency
+      providerAccountId: user.providerAccountId, // Keep OAuth provider ID separate
+      username: user.name, // Use name as username for display
+      name: user.name,
+      email: user.email,
+      bio: user.bio,
+      location: user.location,
+      image: user.image,
+      created_at: user.created_at,
+      profile_public: user.profile_public,
+      total_submissions: stats ? parseInt(stats.total_submissions) : 0,
+      posts_count: stats ? parseInt(stats.posts_count) : 0,
+      replies_count: stats ? parseInt(stats.replies_count) : 0,
+      last_activity: stats?.last_activity || null,
+      // Add slug for URL generation
+      slug: generateUserSlug(user.name || 'user', user.id)
+    };
+  } catch (error) {
+    console.error('Error fetching user profile by database ID:', error);
+    return null;
+  }
+}
+
+/**
  * Get user profile by user ID (for authenticated user's own profile)
+ * This function handles both provider account IDs and database IDs
  */
 export async function getUserProfileById(
   userId: string
 ): Promise<UserProfileData | null> {
   try {
-    // Find user by providerAccountId first (most reliable), then by database ID
+    // First try as database ID (numeric)
+    if (/^\d+$/.test(userId)) {
+      const result = await getUserProfileByDatabaseId(userId);
+      if (result) {
+        return result;
+      }
+    }
+
+    // Fallback to provider account ID lookup
     const result = await sql`
       SELECT 
         u.id,
@@ -143,7 +229,7 @@ export async function getUserProfileById(
         a."providerAccountId"
       FROM users u 
       LEFT JOIN accounts a ON u.id = a."userId"
-      WHERE a."providerAccountId" = ${userId} OR u.id::text = ${userId}
+      WHERE a."providerAccountId" = ${userId}
       LIMIT 1
     `;
 
@@ -153,7 +239,7 @@ export async function getUserProfileById(
 
     const user = result[0];
 
-    // Get submission statistics if they exist
+    // Get submission statistics
     let stats = null;
     try {
       const submissionStats = await sql`
@@ -163,7 +249,7 @@ export async function getUserProfileById(
           COUNT(CASE WHEN thread_parent_id IS NOT NULL THEN 1 END) as replies_count,
           MAX(submission_datetime) as last_activity
         FROM submissions 
-        WHERE user_id = (SELECT u.id FROM users u LEFT JOIN accounts a ON u.id = a."userId" WHERE a."providerAccountId" = ${userId} OR u.id::text = ${userId} LIMIT 1)
+        WHERE user_id = ${user.id}
       `;
 
       if (submissionStats.length > 0) {
@@ -174,7 +260,8 @@ export async function getUserProfileById(
     }
 
     return {
-      id: user.providerAccountId || user.id.toString(), // Use providerAccountId as primary ID
+      id: user.id.toString(), // Use database internal ID for consistency with submissions
+      providerAccountId: user.providerAccountId, // Keep OAuth provider ID separate
       username: user.name, // Use name as username for display
       name: user.name,
       email: user.email,
@@ -274,8 +361,9 @@ export async function updateUserProfile(
     const userRow = userWithAccount[0] || updatedUser;
 
     return {
-      id: userRow.providerAccountId || userRow.id.toString(),
-      username: userRow.name,
+      id: userRow.id.toString(), // Use database internal ID for consistency with submissions
+      providerAccountId: userRow.providerAccountId, // Keep OAuth provider ID separate
+      username: userRow.name, // Use name as username for display
       name: userRow.name,
       email: userRow.email,
       bio: userRow.bio,
@@ -372,7 +460,7 @@ export async function updateUserBioAction(formData: FormData): Promise<{
     const username = formData.get('username') as string;
 
     // Validate bio length
-    if (bio && bio.length > 500) {
+    if (bio && getEffectiveCharacterCount(bio) > 500) {
       return {
         success: false,
         error: 'Bio must be 500 characters or less'
@@ -390,7 +478,8 @@ export async function updateUserBioAction(formData: FormData): Promise<{
       }
 
       // Simple and secure: only check authenticated user ID
-      const canEdit = userProfile.id === session.user.id;
+      // Convert both to strings to handle type mismatch
+      const canEdit = userProfile.id.toString() === session.user.id.toString();
 
       if (!canEdit) {
         return {
@@ -414,6 +503,18 @@ export async function updateUserBioAction(formData: FormData): Promise<{
 
     // Get the complete profile with stats
     const completeProfile = await getUserProfileById(session.user.id);
+
+    // Invalidate cache for all profile-related paths
+    if (username) {
+      const userProfile = await getUserProfile(username);
+      if (userProfile) {
+        revalidatePath(`/profile/${username}`); // Username/slug path
+        revalidatePath(`/profile/${userProfile.slug}`); // Canonical slug path
+      }
+    }
+    revalidatePath(`/profile/${session.user.id}`); // User ID path (if used)
+    revalidatePath('/profile'); // Profile listing pages
+    revalidatePath('/', 'layout'); // Revalidate layout cache for any user data in headers/nav
 
     return {
       success: true,
@@ -450,7 +551,7 @@ export async function updateBioAction(
     }
 
     // Validate bio length
-    if (bio && bio.length > 500) {
+    if (bio && getEffectiveCharacterCount(bio) > 500) {
       return {
         success: false,
         error: 'Bio must be 500 characters or less'
@@ -467,7 +568,7 @@ export async function updateBioAction(
     }
 
     // Simple and secure: only check authenticated user ID
-    const canEdit = userProfile.id === session.user.id;
+    const canEdit = userProfile.id.toString() === session.user.id.toString();
 
     if (!canEdit) {
       return {
@@ -490,6 +591,13 @@ export async function updateBioAction(
 
     // Get the complete profile with stats
     const completeProfile = await getUserProfileById(session.user.id);
+
+    // Invalidate cache for all profile-related paths
+    revalidatePath(`/profile/${username}`); // Username/slug path
+    revalidatePath(`/profile/${userProfile.slug}`); // Canonical slug path
+    revalidatePath(`/profile/${session.user.id}`); // User ID path (if used)
+    revalidatePath('/profile'); // Profile listing pages
+    revalidatePath('/', 'layout'); // Revalidate layout cache for any user data in headers/nav
 
     return {
       success: true,

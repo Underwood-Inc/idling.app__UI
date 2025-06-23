@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import './LinkTooltip.css';
 
 interface LinkTooltipProps {
@@ -71,6 +72,7 @@ export const LinkTooltip: React.FC<LinkTooltipProps> = ({
   const [showModal, setShowModal] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [showControls, setShowControls] = useState(true);
+  const [mounted, setMounted] = useState(false);
   const modalContentRef = useRef<HTMLDivElement>(null);
   const [tooltipData, setTooltipData] = useState<any>(null);
   const [loading, setLoading] = useState(false);
@@ -85,6 +87,11 @@ export const LinkTooltip: React.FC<LinkTooltipProps> = ({
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const isHoveringRef = useRef(false);
   const shouldFetchRef = useRef(true);
+
+  // Set mounted state for portal rendering
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const getCacheKey = (url: string) => `${CACHE_KEY_PREFIX}${url}`;
 
@@ -459,31 +466,41 @@ export const LinkTooltip: React.FC<LinkTooltipProps> = ({
   const Wrapper = isInsideParagraph ? 'span' : 'div';
 
   return (
-    <Wrapper
-      ref={tooltipRef}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
-      onClick={handleClick}
-      style={{ display: 'inline-block' }}
-    >
-      {children}
-      {showTooltip && (
-        <div
-          ref={tooltipContentRef}
-          className={`link-tooltip ${showLargePreview ? 'large' : ''} ${showTooltip ? 'visible' : ''}`}
-          onMouseEnter={handleTooltipMouseEnter}
-          onMouseLeave={handleTooltipMouseLeave}
-          style={position}
-          data-testid="link-tooltip"
-        >
-          {enableCtrlClick && (
-            <div className="link-tooltip-ctrl-message">
-              Hold Ctrl and click to open in modal
-            </div>
-          )}
-          {renderTooltipContent()}
-        </div>
-      )}
+    <>
+      <Wrapper
+        ref={tooltipRef}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+        onClick={handleClick}
+        style={{ display: 'inline-block' }}
+      >
+        {children}
+      </Wrapper>
+      {mounted &&
+        showTooltip &&
+        createPortal(
+          <div
+            ref={tooltipContentRef}
+            className={`link-tooltip ${showLargePreview ? 'large' : ''} ${showTooltip ? 'visible' : ''}`}
+            onMouseEnter={handleTooltipMouseEnter}
+            onMouseLeave={handleTooltipMouseLeave}
+            style={{
+              position: 'fixed',
+              top: position.top,
+              left: position.left,
+              zIndex: 10000
+            }}
+            data-testid="link-tooltip"
+          >
+            {enableCtrlClick && (
+              <div className="link-tooltip-ctrl-message">
+                Hold Ctrl and click to open in modal
+              </div>
+            )}
+            {renderTooltipContent()}
+          </div>,
+          document.body
+        )}
       {showModal && enableCtrlClick && (
         <div
           className="link-preview-modal"
@@ -597,7 +614,7 @@ export const LinkTooltip: React.FC<LinkTooltipProps> = ({
           </div>
         </div>
       )}
-    </Wrapper>
+    </>
   );
 };
 

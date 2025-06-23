@@ -52,7 +52,7 @@ describe('RecentTags', () => {
   it('calls getRecentTags with correct parameters when authenticated but onlyMine=false', async () => {
     // Mock the auth and getRecentTags functions
     (auth as jest.Mock).mockResolvedValue({
-      user: { providerAccountId: '123' }
+      user: { id: '123' }
     });
     (getRecentTags as jest.Mock).mockResolvedValue({
       tags: ['tag1', 'tag2', 'tag3'],
@@ -111,7 +111,7 @@ describe('RecentTagsClient', () => {
 
   const mockSession = {
     user: {
-      providerAccountId: 'test-user-id'
+      id: 'test-user-id'
     },
     expires: '2024-12-31T23:59:59.999Z'
   } as any;

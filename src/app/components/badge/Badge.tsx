@@ -4,8 +4,7 @@ import './Badge.css';
 interface BadgeWrapperProps {
   badgeContent: React.ReactNode;
   children: React.ReactNode;
-  // eslint-disable-next-line no-unused-vars
-  onClick?: (event: React.MouseEvent<HTMLElement>) => void;
+  onClick?: (_event: React.MouseEvent<HTMLElement>) => void;
   showOnHover: boolean;
 }
 

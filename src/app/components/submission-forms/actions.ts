@@ -1,8 +1,10 @@
+/* eslint-disable no-console */
 'use server';
 import { revalidatePath } from 'next/cache';
 import { CustomSession } from '../../../auth.config';
 import { auth } from '../../../lib/auth';
 import sql from '../../../lib/db';
+import { getEffectiveCharacterCount } from '../../../lib/utils/string';
 import {
   extractTagsFromText,
   parseTagsInput,
@@ -37,12 +39,12 @@ async function validateCreateSubmissionForm(formData: FormData) {
     }
 
     // Validate title length
-    if (submissionTitle.length > 255) {
+    if (getEffectiveCharacterCount(submissionTitle) > 255) {
       return { errors: 'Title must be 255 characters or less' };
     }
 
     // Validate content length
-    if (submissionContent.length > 1000) {
+    if (getEffectiveCharacterCount(submissionContent) > 1000) {
       return { errors: 'Content must be 1000 characters or less' };
     }
 
@@ -103,15 +105,24 @@ export async function createSubmissionAction(
   const { data, errors } = await validateCreateSubmissionForm(formData);
   const session = (await auth()) as CustomSession;
 
+  console.log('🔍 createSubmissionAction - Session:', session);
+  console.log('🔍 createSubmissionAction - User:', session?.user);
+  console.log('🔍 createSubmissionAction - User ID:', session?.user?.id);
+
   if (!data) {
     return { status: -1, error: errors };
   }
 
-  // Authentication check - session must have user name and providerAccountId
-
-  if (!session || !session?.user?.name || !session.user.providerAccountId) {
+  // Authentication check - session must have user name and internal database ID
+  if (!session || !session?.user?.name || !session.user.id) {
+    console.log('❌ createSubmissionAction - Authentication failed');
+    console.log('❌ Session exists:', !!session);
+    console.log('❌ User name:', session?.user?.name);
+    console.log('❌ User ID:', session?.user?.id);
     return { status: -1, error: 'Authentication error.' };
   }
+
+  console.log('✅ createSubmissionAction - Authentication passed');
 
   // Extract tags from title and content (these come without # prefix)
   const titleTags = extractTagsFromText(data.submission_title);
@@ -140,14 +151,57 @@ export async function createSubmissionAction(
 
   const threadParentId = formData.get('thread_parent_id');
 
+  console.log(
+    '🔍 createSubmissionAction - About to insert with user ID:',
+    session?.user.id
+  );
+
   try {
+    // Use the internal database ID from the session as the primary identifier
+    const userId = parseInt(session?.user.id || '');
+
+    if (!userId || isNaN(userId)) {
+      console.error(
+        '❌ createSubmissionAction - Invalid user ID in session:',
+        session?.user.id
+      );
+      return {
+        status: -1,
+        error: 'Invalid user session. Please sign out and sign back in.'
+      };
+    }
+
+    // Verify the user exists in our database (security check)
+    const userExists = await sql`
+      SELECT u.id, u.name
+      FROM users u 
+      WHERE u.id = ${userId}
+      LIMIT 1
+    `;
+
+    if (userExists.length === 0) {
+      console.error(
+        '❌ createSubmissionAction - User not found in database for internal ID:',
+        userId
+      );
+      return {
+        status: -1,
+        error: 'User account not found. Please sign out and sign back in.'
+      };
+    }
+
+    const user = userExists[0];
+    console.log('✅ createSubmissionAction - Verified user:', {
+      id: user.id,
+      name: user.name
+    });
+
     const result = await sql`
-      insert into submissions (
+      INSERT INTO submissions (
         submission_name, 
         submission_title, 
         submission_datetime, 
         user_id, 
-        author_provider_account_id,
         tags, 
         thread_parent_id
       )
@@ -155,8 +209,7 @@ export async function createSubmissionAction(
         ${data.submission_name},
         ${data.submission_title},
         ${data.submission_datetime},
-        (SELECT u.id FROM users u JOIN accounts a ON u.id = a."userId" WHERE a."providerAccountId" = ${session?.user.providerAccountId} LIMIT 1),
-        ${session?.user.providerAccountId},
+        ${userId},
         ${allTags},
         ${threadParentId ? parseInt(threadParentId as string) : null}
       )
@@ -173,7 +226,7 @@ export async function createSubmissionAction(
       submission: newSubmission
     };
   } catch (e) {
-    console.error(e);
+    console.error('❌ createSubmissionAction - SQL Error:', e);
     return { status: -1, error: `Failed to create post.` };
   }
 }
@@ -192,8 +245,13 @@ export async function deleteSubmissionAction(
 ) {
   const session = (await auth()) as CustomSession | null;
 
-  if (!session || !session.user?.providerAccountId) {
+  if (!session || !session.user?.id) {
     return { status: -1, error: 'Authentication error.' };
+  }
+
+  const userId = parseInt(session.user.id);
+  if (!userId || isNaN(userId)) {
+    return { status: -1, error: 'Invalid user session.' };
   }
 
   const { success, data, error } = parseDeleteSubmission({
@@ -233,7 +291,7 @@ export async function deleteSubmissionAction(
       SELECT submission_id, submission_title 
       FROM submissions 
       WHERE submission_id = ${sqlSubmissionId}
-      AND author_provider_account_id = ${session?.user?.providerAccountId!}
+      AND user_id = ${userId}
     `;
 
     if (submissionCheck.length === 0) {
@@ -247,7 +305,7 @@ export async function deleteSubmissionAction(
     await sql`
       DELETE FROM submissions
       WHERE submission_id = ${sqlSubmissionId}
-      AND author_provider_account_id = ${session?.user?.providerAccountId!}
+      AND user_id = ${userId}
     `;
 
     revalidatePath('/');
@@ -280,8 +338,13 @@ export async function editSubmissionAction(
 }> {
   const session = (await auth()) as CustomSession | null;
 
-  if (!session || !session.user?.providerAccountId) {
+  if (!session || !session.user?.id) {
     return { status: -1, error: 'Authentication error.' };
+  }
+
+  const userId = parseInt(session.user.id);
+  if (!userId || isNaN(userId)) {
+    return { status: -1, error: 'Invalid user session.' };
   }
 
   const submissionId = Number.parseInt(formData.get('submission_id') as string);
@@ -295,12 +358,12 @@ export async function editSubmissionAction(
   const submissionName = submissionContent || submissionTitle;
 
   // Validate title length
-  if (submissionTitle.length > 255) {
+  if (getEffectiveCharacterCount(submissionTitle) > 255) {
     return { status: -1, error: 'Title must be 255 characters or less' };
   }
 
   // Validate content length
-  if (submissionContent.length > 1000) {
+  if (getEffectiveCharacterCount(submissionContent) > 1000) {
     return { status: -1, error: 'Content must be 1000 characters or less' };
   }
 
@@ -354,7 +417,7 @@ export async function editSubmissionAction(
         submission_name = ${data.submission_name},
         tags = ${allTags}
       WHERE submission_id = ${data.submission_id}
-      AND author_provider_account_id = ${session?.user?.providerAccountId}
+      AND user_id = ${userId}
       RETURNING *;
     `;
 
@@ -413,7 +476,7 @@ export async function canDeleteSubmission(
       SELECT submission_id 
       FROM submissions 
       WHERE submission_id = ${submissionId.toString()}
-      AND author_provider_account_id = ${authorId}
+      AND user_id = ${parseInt(authorId)}
     `;
 
     if (submissionCheck.length === 0) {
