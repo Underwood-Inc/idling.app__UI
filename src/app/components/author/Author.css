@@ -120,14 +120,14 @@
 
 /* Enhanced Tooltip Styles */
 .author-tooltip {
-  max-width: 300px;
-  min-width: 280px;
-  /* Apply glass effect */
-  backdrop-filter: var(--glass-blur-medium);
-  -webkit-backdrop-filter: var(--glass-blur-medium);
-  background: var(--glass-bg-medium);
-  border: 1px solid var(--glass-border-medium);
-  box-shadow: var(--glass-shadow-heavy);
+  /* max-width: 300px;
+  min-width: 280px; */
+  /* Apply protected tooltip glass effect */
+  backdrop-filter: var(--tooltip-glass-blur) !important;
+  -webkit-backdrop-filter: var(--tooltip-glass-blur) !important;
+  background: var(--tooltip-glass-bg) !important;
+  border: 1px solid var(--tooltip-glass-border) !important;
+  box-shadow: var(--tooltip-glass-shadow) !important;
   border-radius: var(--border-radius);
   overflow: hidden;
 }
@@ -152,6 +152,10 @@
 }
 
 .author-tooltip__header-info {
+  background: var(--dark-background--secondary);
+  border-radius: var(--border-radius);
+  padding: 0.5rem;
+  color: var(--light-bg__text-color--primary);
   flex: 1;
   min-width: 0;
 }
@@ -175,21 +179,24 @@
 
 .author-tooltip__bio {
   margin-top: 0.75rem;
-  background: var(--light-background--secondary);
-  padding: 0.5rem;
-  border-left: 2px solid var(--brand-secondary--dark);
-  border-radius: calc(var(--border-radius) - 2px);
+  padding: 0.75rem;
+  background: rgba(var(--brand-primary--light), 0.1);
+  border: 1px solid rgba(var(--brand-primary), 0.3);
+  border-radius: var(--border-radius);
+  font-style: italic;
 }
 
 .author-tooltip__bio p {
-  font-size: var(--font-size-md);
-  line-height: 1.4;
   margin: 0;
-  color: var(--text-primary);
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
+  font-size: var(--font-size-sm);
+  line-height: 1.4;
+  color: var(--light-bg__text-color--primary);
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  hyphens: auto;
+  /* Allow text to wrap gracefully */
+  white-space: normal;
+  max-width: 100%;
 }
 
 .author-tooltip__stats {
@@ -197,30 +204,29 @@
   gap: 0.5rem;
   margin-top: 0.75rem;
   padding-top: 0.75rem;
-  border-top: 1px solid var(--light-border--secondary);
+  border-top: 1px solid rgba(var(--brand-tertiary--dark), 0.3);
 }
 
 .author-tooltip__stat {
-  text-align: center;
   flex: 1;
-  padding: 0.4rem 0.3rem;
-  background: var(--light-background--tertiary);
-  border-radius: calc(var(--border-radius) - 2px);
-  border: 1px solid var(--light-border--secondary);
-  min-width: 0;
+  padding: 0.5rem;
+  background: rgba(var(--light-background--tertiary), 0.5);
+  border: 1px solid rgba(var(--brand-tertiary--dark), 0.3);
+  border-radius: var(--border-radius);
+  text-align: center;
 }
 
 .author-tooltip__stat-number {
   display: block;
   font-size: var(--font-size-base);
   font-weight: 700;
-  color: var(--text-primary);
+  color: var(--light-bg__text-color--primary);
   margin-bottom: 0.25rem;
 }
 
 .author-tooltip__stat-label {
   font-size: var(--font-size-xs);
-  color: var(--text-secondary);
+  color: var(--light-bg__text-color--secondary);
   text-transform: uppercase;
   letter-spacing: 0.05em;
   font-weight: 500;
@@ -230,59 +236,69 @@
 .author-tooltip__footer {
   margin-top: 0.75rem;
   padding-top: 0.75rem;
-  border-top: 1px solid var(--light-border--secondary);
+  border-top: 1px solid rgba(var(--brand-tertiary--dark), 0.3);
 }
 
 .author-tooltip__join-date {
-  font-size: var(--font-size-xs);
-  color: var(--text-secondary);
-  font-weight: 500;
+  font-size: var(--font-size-sm);
+  color: var(--light-bg__text-color--tertiary);
 }
 
 .author-tooltip__actions {
-  padding: 0.75rem 1rem;
-  border-top: 1px solid var(--light-border--secondary);
-  background: var(--light-background--secondary);
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid rgba(var(--brand-tertiary--dark), 0.3);
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  background: rgba(var(--light-background--secondary), 0.3);
+  padding: 0.75rem;
+  border-radius: var(--border-radius);
+  margin: 0.75rem -1rem -1rem -1rem;
+  /* Extend to edges */
 }
 
 .author-tooltip__action-button {
-  background: var(--brand-primary);
-  color: var(--dark-bg__text-color--primary);
-  border: none;
-  padding: 0.5rem 1rem;
-  border-radius: calc(var(--border-radius) - 2px);
-  font-size: var(--font-size-md);
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--border-radius);
+  border: 1px solid rgba(var(--brand-primary), 0.3);
+  background: rgba(var(--brand-primary), 0.1);
+  color: var(--brand-primary);
+  font-size: var(--font-size-sm);
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
   text-align: center;
+  text-decoration: none;
+  display: block;
 }
 
 .author-tooltip__action-button:hover {
-  background: var(--brand-primary--dark);
-  transform: translateY(-1px);
+  background: rgba(var(--brand-primary), 0.2);
+  border-color: var(--brand-primary);
 }
 
 .author-tooltip__action-button.secondary {
-  background: var(--light-background--primary);
-  color: var(--brand-primary);
-  border: 1px solid var(--brand-primary);
+  background: rgba(var(--light-background--tertiary), 0.5);
+  border-color: rgba(var(--brand-tertiary--dark), 0.5);
+  color: var(--light-bg__text-color--secondary);
 }
 
 .author-tooltip__action-button.secondary:hover {
-  background: var(--brand-primary);
-  color: white;
+  background: rgba(var(--brand-primary), 0.1);
+  border-color: rgba(var(--brand-primary), 0.5);
+  color: var(--brand-primary);
 }
 
 .author-tooltip__hint {
   font-size: var(--font-size-xs);
-  color: var(--text-tertiary);
+  color: var(--light-bg__text-color--tertiary);
   text-align: center;
+  margin-top: 0.5rem;
+  padding: 0.25rem;
+  background: rgba(var(--brand-tertiary), 0.1);
+  border-radius: var(--border-radius);
   font-style: italic;
-  margin-top: 0.25rem;
 }
 
 /* Modal Styles */
@@ -367,9 +383,9 @@
 /* Dark mode support for enhanced elements */
 @media (prefers-color-scheme: dark) {
   .author-tooltip {
-    background: var(--dark-background--primary);
-    border-color: var(--dark-border--primary);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+    background: var(--tooltip-glass-bg) !important;
+    border: 1px solid var(--tooltip-glass-border) !important;
+    box-shadow: var(--tooltip-glass-shadow) !important;
   }
 
   .author-tooltip__name {
@@ -382,8 +398,8 @@
   }
 
   .author-tooltip__bio {
-    background: var(--dark-background--secondary);
-    border-color: var(--brand-primary);
+    background: rgba(var(--brand-primary--light), 0.15);
+    border-color: rgba(var(--brand-primary), 0.4);
   }
 
   .author-tooltip__bio p {
@@ -391,12 +407,12 @@
   }
 
   .author-tooltip__stats {
-    border-color: var(--dark-border--secondary);
+    border-color: rgba(var(--dark-border--secondary), 0.5);
   }
 
   .author-tooltip__stat {
-    background: var(--dark-background--tertiary);
-    border-color: var(--dark-border--secondary);
+    background: rgba(var(--dark-background--tertiary), 0.6);
+    border-color: rgba(var(--dark-border--secondary), 0.5);
   }
 
   .author-tooltip__stat-number {
@@ -408,21 +424,22 @@
   }
 
   .author-tooltip__footer {
-    border-color: var(--dark-border--secondary);
+    border-color: rgba(var(--dark-border--secondary), 0.5);
   }
 
   .author-tooltip__actions {
-    background: var(--dark-background--secondary);
-    border-color: var(--dark-border--secondary);
+    background: rgba(var(--dark-background--secondary), 0.4);
+    border-color: rgba(var(--dark-border--secondary), 0.5);
   }
 
   .author-tooltip__hint {
     color: var(--dark-bg__text-color--tertiary);
+    background: rgba(var(--brand-tertiary), 0.15);
   }
 
   .author-tooltip__action-button.secondary {
-    background: var(--dark-background--primary);
-    border-color: var(--brand-primary);
+    background: rgba(var(--dark-background--primary), 0.5);
+    border-color: rgba(var(--brand-primary), 0.4);
     color: var(--brand-primary--light);
   }
 
