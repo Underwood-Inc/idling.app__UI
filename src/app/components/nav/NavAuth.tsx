@@ -3,9 +3,11 @@ import { redirect } from 'next/navigation';
 import { NAV_SELECTORS } from 'src/lib/test-selectors/components/nav.selectors';
 import { auth } from '../../../lib/auth';
 import { NAV_PATHS } from '../../../lib/routes';
+import { generateUserSlug } from '../../../lib/utils/user-slug';
 import { SignOut } from '../auth-buttons/AuthButtons';
 import { FontPicker } from '../font-picker/FontPicker';
 import { InstantLink } from '../ui/InstantLink';
+import { NavUserProfile } from './NavUserProfile';
 
 interface NavAuthProps {
   hasAdminAccess: boolean;
@@ -32,15 +34,20 @@ export async function NavAuth({ hasAdminAccess }: NavAuthProps) {
     );
   }
 
+  const profileSlug =
+    session.user?.name && session.user?.id
+      ? generateUserSlug(session.user.name, session.user.id.toString())
+      : 'unknown';
+
   return (
     <div className="nav__auth">
       <div className="nav__auth-links">
         <InstantLink
-          href={`/profile/${session.user?.name || 'unknown'}`}
+          href={`/profile/${profileSlug}`}
           data-testid={NAV_SELECTORS.PROFILE_LINK}
         >
           <div className="nav__user-profile">
-            <h3 className="header__user-name">{session.user?.name}</h3>
+            <NavUserProfile />
           </div>
         </InstantLink>
       </div>
