@@ -1,6 +1,7 @@
 // Import batched updater from separate file
 import { atom } from 'jotai';
 import { atomWithStorage } from 'jotai/utils';
+import { CONTEXT_IDS } from '../context-ids';
 import { PostFilters } from '../types/filters';
 
 // ============================================================================
@@ -233,7 +234,7 @@ class SubmissionsFiltersAtomRegistry {
   private static instance: SubmissionsFiltersAtomRegistry;
   private atoms = new Map<
     string,
-    ReturnType<typeof atom<SubmissionsFilters>>
+    ReturnType<typeof atomWithStorage<SubmissionsFilters>>
   >();
 
   static getInstance(): SubmissionsFiltersAtomRegistry {
@@ -244,25 +245,92 @@ class SubmissionsFiltersAtomRegistry {
     return SubmissionsFiltersAtomRegistry.instance;
   }
 
+  private getStorageKey(contextId: string): string {
+    // Create route-scoped storage key based on context ID
+    // This ensures consistent storage keys regardless of when the atom is created
+    const routeMap: Record<string, string> = {
+      [CONTEXT_IDS.POSTS.toString()]: '/posts',
+      [CONTEXT_IDS.MY_POSTS.toString()]: '/my-posts',
+      [CONTEXT_IDS.THREAD.toString()]: '/thread',
+      [CONTEXT_IDS.ADMIN_POSTS.toString()]: '/admin'
+    };
+
+    const route = routeMap[contextId] || '/posts'; // Default to /posts if no mapping
+    const storageKey = `filters-${route}-${contextId}`;
+
+    // Debug logging to help verify the fix
+    if (typeof window !== 'undefined') {
+      console.log('🔑 Filter storage key generated:', {
+        contextId,
+        route,
+        storageKey,
+        currentPath: window.location.pathname,
+        localStorage: localStorage.getItem(storageKey)
+      });
+    }
+
+    return storageKey;
+  }
+
   getAtom(contextId: string) {
     if (!this.atoms.has(contextId)) {
-      this.atoms.set(
-        contextId,
-        atom<SubmissionsFilters>({
-          onlyMine: false,
-          userId: '',
-          filters: [],
-          page: 1,
-          pageSize: 10,
-          initialized: false
-        })
+      const storageKey = this.getStorageKey(contextId);
+      const defaultValue: SubmissionsFilters = {
+        onlyMine: false,
+        userId: '',
+        filters: [],
+        page: 1,
+        pageSize: 10,
+        initialized: false
+      };
+
+      // Create the atom with storage
+      const atom = atomWithStorage<SubmissionsFilters>(
+        storageKey,
+        defaultValue
       );
+
+      // Debug logging for atom creation
+      if (typeof window !== 'undefined') {
+        console.log('🔧 Creating filter atom:', {
+          contextId,
+          storageKey,
+          defaultValue,
+          existingValue: localStorage.getItem(storageKey)
+        });
+      }
+
+      this.atoms.set(contextId, atom);
     }
     return this.atoms.get(contextId)!;
   }
 
   clearAtom(contextId: string) {
+    // Clear from memory
     this.atoms.delete(contextId);
+
+    // Clear from localStorage
+    if (typeof window !== 'undefined') {
+      const storageKey = this.getStorageKey(contextId);
+      localStorage.removeItem(storageKey);
+    }
+  }
+
+  // Clear all route-scoped filters (for logout/cache clearing)
+  clearAllRouteFilters() {
+    if (typeof window !== 'undefined') {
+      const keysToRemove: string[] = [];
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && key.startsWith('filters-')) {
+          keysToRemove.push(key);
+        }
+      }
+      keysToRemove.forEach((key) => localStorage.removeItem(key));
+    }
+
+    // Clear memory atoms
+    this.atoms.clear();
   }
 }
 
@@ -592,6 +660,13 @@ export const clearContextAtoms = (contextId: string) => {
   SubmissionsStateAtomRegistry.getInstance().clearAtom(contextId);
   SubmissionsFiltersAtomRegistry.getInstance().clearAtom(contextId);
   DisplayFiltersAtomRegistry.getInstance().clearAtom(contextId);
+};
+
+/**
+ * Clear all route-scoped filters (for logout/cache clearing)
+ */
+export const clearAllRouteFilters = () => {
+  SubmissionsFiltersAtomRegistry.getInstance().clearAllRouteFilters();
 };
 
 // ============================================================================
@@ -1263,3 +1338,102 @@ export const createAutoFetchAtom = (contextId: string) => {
     }
   });
 };
+
+// ============================================================================
+// DEBUG FUNCTIONS - For testing and debugging
+// ============================================================================
+
+/**
+ * Debug function to inspect filter storage state
+ * Can be called from browser console: window.debugFilters()
+ */
+export const debugFilters = () => {
+  if (typeof window === 'undefined') {
+    console.log('❌ Not in browser environment');
+    return;
+  }
+
+  console.log('🔍 Filter Storage Debug Information:');
+  console.log('=====================================');
+
+  // Show all filter-related localStorage keys
+  const filterKeys: string[] = [];
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    if (key && key.startsWith('filters-')) {
+      filterKeys.push(key);
+    }
+  }
+
+  console.log('📦 Filter keys in localStorage:', filterKeys);
+
+  // Show the content of each filter key
+  filterKeys.forEach((key) => {
+    try {
+      const value = localStorage.getItem(key);
+      const parsed = value ? JSON.parse(value) : null;
+      console.log(`🔑 ${key}:`, parsed);
+    } catch (error) {
+      console.log(`❌ Error parsing ${key}:`, error);
+    }
+  });
+
+  // Show current page context
+  console.log('📍 Current context:', {
+    pathname: window.location.pathname,
+    search: window.location.search,
+    contextIds: CONTEXT_IDS
+  });
+
+  // Show registry state
+  const filtersRegistry = SubmissionsFiltersAtomRegistry.getInstance();
+  console.log('🏗️ Registry state:', {
+    atomsCount: (filtersRegistry as any).atoms.size,
+    atomKeys: Array.from((filtersRegistry as any).atoms.keys())
+  });
+};
+
+// Make debug function available globally
+if (typeof window !== 'undefined') {
+  (window as any).debugFilters = debugFilters;
+  (window as any).clearAllRouteFilters = clearAllRouteFilters;
+
+  // Test function to add sample filters
+  (window as any).testFilterPersistence = (
+    contextId = CONTEXT_IDS.POSTS.toString()
+  ) => {
+    console.log('🧪 Testing filter persistence for context:', contextId);
+
+    const filtersAtom = getSubmissionsFiltersAtom(contextId);
+    const registry = SubmissionsFiltersAtomRegistry.getInstance();
+
+    // Get current storage key
+    const storageKey = (registry as any).getStorageKey(contextId);
+    console.log('🔑 Using storage key:', storageKey);
+
+    // Create test filters
+    const testFilters = [
+      { name: 'tags', value: '#test,#persistence' },
+      { name: 'author', value: 'testuser' }
+    ];
+
+    const testData = {
+      onlyMine: false,
+      userId: '',
+      filters: testFilters,
+      page: 2,
+      pageSize: 20,
+      initialized: true
+    };
+
+    // Store directly in localStorage to test
+    localStorage.setItem(storageKey, JSON.stringify(testData));
+    console.log('💾 Stored test data:', testData);
+
+    // Try to read it back
+    const retrieved = localStorage.getItem(storageKey);
+    console.log('📖 Retrieved data:', retrieved ? JSON.parse(retrieved) : null);
+
+    return { storageKey, testData, retrieved };
+  };
+}

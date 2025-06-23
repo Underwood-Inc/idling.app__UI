@@ -177,6 +177,27 @@ export function useSubmissionsManager({
 
     lastUrlParams.current = currentUrlParams;
 
+    // Check if filters are already initialized from localStorage
+    // If they are, don't override them with URL params unless URL has actual filter params
+    const hasUrlFilters =
+      searchParams.has('tags') ||
+      searchParams.has('author') ||
+      searchParams.has('mentions');
+
+    // If filters are already initialized and URL doesn't have filter params, skip URL initialization
+    if (filtersState.initialized && !hasUrlFilters) {
+      // eslint-disable-next-line no-console
+      console.log(
+        '🔄 Skipping URL initialization - filters already initialized from storage:',
+        {
+          filtersCount: filtersState.filters.length,
+          hasUrlFilters,
+          currentFilters: filtersState.filters
+        }
+      );
+      return;
+    }
+
     const pageParam = searchParams.get('page');
     const tagsParam = searchParams.get('tags');
     const authorParam = searchParams.get('author');
@@ -248,6 +269,15 @@ export function useSubmissionsManager({
       });
     }
 
+    // eslint-disable-next-line no-console
+    console.log('🔄 Initializing from URL:', {
+      hasUrlFilters,
+      urlFilters,
+      page,
+      pageSize,
+      wasAlreadyInitialized: filtersState.initialized
+    });
+
     // Set filters state once
     setFiltersState({
       onlyMine,
@@ -259,7 +289,15 @@ export function useSubmissionsManager({
     });
 
     isInitialized.current = true;
-  }, [searchParams, setFiltersState, onlyMine, userId, initialFilters]);
+  }, [
+    searchParams,
+    setFiltersState,
+    onlyMine,
+    userId,
+    initialFilters,
+    filtersState.initialized,
+    filtersState.filters
+  ]);
 
   // Fetch when filters change (with debouncing and coordination)
   useEffect(() => {

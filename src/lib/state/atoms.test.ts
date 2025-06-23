@@ -1,5 +1,6 @@
 import { createStore } from 'jotai';
 import {
+  clearAllRouteFilters,
   clearContextAtoms,
   getDisplayFiltersAtom,
   getSubmissionsFiltersAtom,
@@ -300,6 +301,72 @@ describe('Jotai Atoms', () => {
       const updatedState = store.get(paginationStateAtom);
       expect(updatedState.posts?.currentPage).toBe(5); // Unchanged
       expect(updatedState.posts?.pageSize).toBe(PageSize.FIFTY);
+    });
+
+    it('should create route-scoped persistent filters', () => {
+      // Test with known context IDs that map to specific routes
+      const postsFiltersAtom1 = getSubmissionsFiltersAtom('1'); // CONTEXT_IDS.POSTS
+      const postsFiltersAtom2 = getSubmissionsFiltersAtom('1'); // Same context
+      const myPostsFiltersAtom = getSubmissionsFiltersAtom('2'); // CONTEXT_IDS.MY_POSTS
+
+      // Same context should return same atom
+      expect(postsFiltersAtom1).toBe(postsFiltersAtom2);
+
+      // Different contexts should return different atoms
+      expect(postsFiltersAtom1).not.toBe(myPostsFiltersAtom);
+
+      // Update filters for posts
+      store.set(postsFiltersAtom1, {
+        onlyMine: false,
+        userId: '',
+        filters: [{ name: 'tags', value: '#test' }],
+        page: 1,
+        pageSize: 10,
+        initialized: true
+      });
+
+      // Posts filters should be persisted
+      const postsState = store.get(postsFiltersAtom2);
+      expect(postsState.filters).toEqual([{ name: 'tags', value: '#test' }]);
+
+      // My posts should have separate state
+      const myPostsState = store.get(myPostsFiltersAtom);
+      expect(myPostsState.filters).toEqual([]);
+    });
+
+    it('should clear all route filters', () => {
+      // Mock localStorage
+      const mockLocalStorage = {
+        removeItem: jest.fn(),
+        key: jest.fn(),
+        length: 2,
+        getItem: jest.fn(),
+        setItem: jest.fn(),
+        clear: jest.fn()
+      };
+
+      mockLocalStorage.key.mockReturnValueOnce('filters-/posts-1');
+      mockLocalStorage.key.mockReturnValueOnce('filters-/my-posts-2');
+
+      const originalLocalStorage = window.localStorage;
+      Object.defineProperty(window, 'localStorage', {
+        value: mockLocalStorage
+      });
+
+      try {
+        clearAllRouteFilters();
+
+        expect(mockLocalStorage.removeItem).toHaveBeenCalledWith(
+          'filters-/posts-1'
+        );
+        expect(mockLocalStorage.removeItem).toHaveBeenCalledWith(
+          'filters-/my-posts-2'
+        );
+      } finally {
+        Object.defineProperty(window, 'localStorage', {
+          value: originalLocalStorage
+        });
+      }
     });
   });
 });

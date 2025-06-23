@@ -197,6 +197,20 @@ export async function cleanupServiceWorkers(): Promise<number> {
 }
 
 /**
+ * Clear route-scoped filters from localStorage
+ */
+export function clearRouteFilters(): void {
+  try {
+    // Import clearAllRouteFilters dynamically to avoid circular dependencies
+    import('../state/atoms').then(({ clearAllRouteFilters }) => {
+      clearAllRouteFilters();
+    });
+  } catch (error) {
+    console.warn('Failed to clear route filters:', error);
+  }
+}
+
+/**
  * Clear all browser storage (localStorage, sessionStorage, IndexedDB, etc.)
  */
 export async function clearAllBrowserStorage(): Promise<void> {
@@ -290,21 +304,25 @@ export async function performCompleteCleanup(): Promise<{
   cachesCleared: number;
   storageCleared: boolean;
 }> {
-  console.group('🧹 Performing Complete Cache Cleanup');
+  console.groupCollapsed('🧹 Performing Complete Cache Cleanup');
 
-  // 1. Clear all browser storage
+  // 1. Clear route-scoped filters first (before clearing all storage)
+  console.log('Clearing route-scoped filters...');
+  clearRouteFilters();
+
+  // 2. Clear all browser storage
   console.log('Clearing browser storage...');
   await clearAllBrowserStorage();
 
-  // 2. Clear all caches
+  // 3. Clear all caches
   console.log('Clearing all caches...');
   const cachesCleared = await clearAllCaches();
 
-  // 3. Cleanup service workers
+  // 4. Cleanup service workers
   console.log('Cleaning up service workers...');
   const serviceWorkersCleanedUp = await cleanupServiceWorkers();
 
-  // 4. Force service worker cache refresh
+  // 5. Force service worker cache refresh
   console.log('Refreshing service worker cache...');
   await refreshCache(); // No URL = clear all
 
@@ -385,7 +403,7 @@ export async function registerServiceWorker(): Promise<ServiceWorkerRegistration
   }
 
   try {
-    console.group('🔧 Service Worker Registration');
+    console.groupCollapsed('🔧 Service Worker Registration');
 
     // 1. Cleanup existing service workers first
     console.log('Cleaning up existing service workers...');

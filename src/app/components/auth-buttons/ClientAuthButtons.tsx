@@ -38,6 +38,14 @@ export function ClientSignOut({
   'data-testid'?: string;
 }) {
   const handleSignOut = async () => {
+    // Clear route-scoped filters before signing out
+    try {
+      const { clearAllRouteFilters } = await import('src/lib/state/atoms');
+      clearAllRouteFilters();
+    } catch (error) {
+      console.warn('Failed to clear route filters on signout:', error);
+    }
+
     await signOut({
       callbackUrl: NAV_PATHS.ROOT,
       redirect: true
