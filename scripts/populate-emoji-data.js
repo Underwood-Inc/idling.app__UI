@@ -40,9 +40,16 @@ const sql = postgres({
 const { getAllEmojis } = require('./emoji-data-comprehensive');
 const { getAllNewEmojis } = require('./emoji-data-comprehensive-part2');
 const { getAllAsciiEmojis } = require('./emoji-data-ascii');
+const {
+  getAllMissingCategoryEmojis
+} = require('./emoji-data-missing-categories');
 
 // Combine all emoji data
-const allEmojis = [...getAllEmojis(), ...getAllNewEmojis()];
+const allEmojis = [
+  ...getAllEmojis(),
+  ...getAllNewEmojis(),
+  ...getAllMissingCategoryEmojis()
+];
 const allAsciiEmojis = getAllAsciiEmojis();
 
 console.log(`Total Unicode emojis: ${allEmojis.length}`);
@@ -50,6 +57,13 @@ console.log(`Total ASCII emojis: ${allAsciiEmojis.length}`);
 console.log(
   `Total emojis to populate: ${allEmojis.length + allAsciiEmojis.length}`
 );
+console.log(
+  `  - Comprehensive emojis: ${getAllEmojis().length + getAllNewEmojis().length}`
+);
+console.log(
+  `  - Missing category emojis: ${getAllMissingCategoryEmojis().length}`
+);
+console.log(`  - ASCII emojis: ${allAsciiEmojis.length}`);
 
 // Validate ASCII emoji data
 console.log('\n🔍 Validating ASCII emoji data...');
