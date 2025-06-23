@@ -7,7 +7,6 @@ import './CacheStatus.css';
 interface CacheInfo {
   isCached: boolean;
   cacheTimestamp?: Date;
-  cacheAge?: string;
   version?: string;
   cacheVersion?: string;
   isStale?: boolean;
@@ -33,7 +32,7 @@ interface ServiceWorkerCacheInfo {
 
 function formatTimeAgo(timestamp: number): string {
   const now = Date.now();
-  const diff = now - timestamp;
+  const diff = Math.max(0, now - timestamp); // Ensure non-negative
 
   const seconds = Math.floor(diff / 1000);
   const minutes = Math.floor(seconds / 60);
@@ -150,17 +149,40 @@ const SmartCacheStatus: React.FC = () => {
         let cacheCount = 0;
         let appVersion = 'unknown';
         let cacheVersion = 'unknown';
+        let currentPageCached = false;
+        let currentPageTimestamp: Date | undefined;
 
         if ('caches' in window) {
           try {
             const cacheNames = await caches.keys();
             cacheCount = cacheNames.length;
 
-            // Get app version from cached responses
+            // Check if current page is cached and get app version info
             for (const cacheName of cacheNames) {
               const cache = await caches.open(cacheName);
               const requests = await cache.keys();
               cacheSize += requests.length;
+
+              // Check if current page URL is in this cache
+              const currentPageResponse = await cache.match(
+                window.location.href
+              );
+              if (currentPageResponse) {
+                currentPageCached = true;
+                // Try to get timestamp from response headers
+                const cacheTimestamp =
+                  currentPageResponse.headers.get('Cache-Timestamp');
+                const cacheDate = currentPageResponse.headers.get('Cache-Date');
+                const responseDate = currentPageResponse.headers.get('date');
+
+                if (cacheTimestamp) {
+                  currentPageTimestamp = new Date(parseInt(cacheTimestamp));
+                } else if (cacheDate) {
+                  currentPageTimestamp = new Date(cacheDate);
+                } else if (responseDate) {
+                  currentPageTimestamp = new Date(responseDate);
+                }
+              }
 
               // Try to get version info from any cached response
               if (requests.length > 0) {
@@ -190,12 +212,21 @@ const SmartCacheStatus: React.FC = () => {
           console.warn('Error checking localStorage:', e);
         }
 
+        // Use page metadata if available, otherwise use detected cache info
+        const finalTimestamp = pageMetadata?.timestamp || currentPageTimestamp;
+
+        // Ensure we have a timestamp for cached content - use current time as fallback
+        const isCachedContent =
+          currentPageCached ||
+          hasServiceWorker ||
+          cacheCount > 0 ||
+          localStorageSize > 0;
+        const cacheTimestamp =
+          finalTimestamp || (isCachedContent ? new Date() : undefined);
+
         const newCacheInfo = {
-          isCached: hasServiceWorker || cacheCount > 0 || localStorageSize > 0,
-          cacheTimestamp: pageMetadata?.timestamp || new Date(),
-          cacheAge: pageMetadata
-            ? formatTimeAgo(pageMetadata.timestamp.getTime())
-            : '0s ago',
+          isCached: isCachedContent,
+          cacheTimestamp: cacheTimestamp,
           version: appVersion,
           cacheVersion,
           isStale: pageMetadata?.isStale || false,
@@ -207,6 +238,19 @@ const SmartCacheStatus: React.FC = () => {
             localStorageSize: Math.round(localStorageSize / 1024) // KB
           }
         };
+
+        // Debug logging to help diagnose timestamp issues
+        if (process.env.NODE_ENV === 'development') {
+          console.log('Cache Status Debug:', {
+            isCachedContent,
+            finalTimestamp,
+            cacheTimestamp,
+            currentPageCached,
+            hasServiceWorker,
+            cacheCount,
+            localStorageSize
+          });
+        }
 
         setCacheInfo(newCacheInfo);
       }
@@ -370,21 +414,10 @@ const SmartCacheStatus: React.FC = () => {
 
     window.addEventListener('cache-updated', handleCacheUpdate);
 
-    // Update cache age every 30 seconds
-    const interval = setInterval(() => {
-      if (cacheInfo.isCached && cacheInfo.cacheTimestamp) {
-        setCacheInfo((prev) => ({
-          ...prev,
-          cacheAge: formatTimeAgo(prev.cacheTimestamp!.getTime())
-        }));
-      }
-    }, 30000);
-
     return () => {
       window.removeEventListener('cache-updated', handleCacheUpdate);
-      clearInterval(interval);
     };
-  }, []);
+  }, []); // Remove checkCacheStatus dependency to prevent infinite loop
 
   const getCacheStatusColor = () => {
     if (!cacheInfo.isCached) return 'cache-status__indicator--live';
@@ -394,9 +427,21 @@ const SmartCacheStatus: React.FC = () => {
 
   const getCacheStatusText = () => {
     if (!cacheInfo.isCached) return 'Live';
-    const ageText = cacheInfo.cacheAge || '0s ago';
-    if (cacheInfo.isStale) return `Stale ${ageText}`;
-    return `Cached ${ageText}`;
+
+    // If we have cache storage but no specific page cache timestamp, show general cache status
+    if (!cacheInfo.cacheTimestamp) {
+      return 'Cached';
+    }
+
+    // Use the abbreviated timestamp component for compact footer display
+    return (
+      <span
+        style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}
+      >
+        Cached{' '}
+        <TimestampWithTooltip date={cacheInfo.cacheTimestamp} abbreviated />
+      </span>
+    );
   };
 
   return (
