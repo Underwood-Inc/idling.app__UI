@@ -7,6 +7,7 @@ import React, {
   useRef,
   useState
 } from 'react';
+import { createPortal } from 'react-dom';
 import './InlineSuggestionInput.css';
 
 export interface SuggestionItem {
@@ -72,9 +73,92 @@ export const InlineSuggestionInput: React.FC<InlineSuggestionInputProps> = ({
   const [currentPage, setCurrentPage] = useState(1);
   const [totalResults, setTotalResults] = useState(0);
   const [triggerStartIndex, setTriggerStartIndex] = useState(-1);
+  const [dropdownPosition, setDropdownPosition] = useState({
+    top: 100,
+    left: 100,
+    width: 300
+  });
 
   const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null);
   const suggestionListRef = useRef<HTMLDivElement>(null);
+
+  // Calculate dropdown position based on input position
+  const calculateDropdownPosition = () => {
+    if (!inputRef.current) return;
+
+    const inputRect = inputRef.current.getBoundingClientRect();
+    const viewportHeight = window.innerHeight;
+    const viewportWidth = window.innerWidth;
+    const scrollY = window.scrollY || document.documentElement.scrollTop;
+    const scrollX = window.scrollX || document.documentElement.scrollLeft;
+
+    // Calculate initial position
+    let top = inputRect.bottom + scrollY + 2; // Add small gap
+    let left = inputRect.left + scrollX;
+    const width = Math.max(inputRect.width, 300); // Minimum width for readability
+
+    // Check if dropdown would go off-screen vertically
+    const dropdownHeight = 300; // Max height from CSS
+    if (inputRect.bottom + dropdownHeight > viewportHeight) {
+      // Position above the input instead
+      top = inputRect.top + scrollY - dropdownHeight - 2;
+    }
+
+    // Check if dropdown would go off-screen horizontally
+    if (left + width > viewportWidth) {
+      // Align to right edge of viewport
+      left = viewportWidth - width - 10;
+    }
+
+    // Ensure dropdown doesn't go off left edge
+    if (left < 10) {
+      left = 10;
+    }
+
+    // Ensure all values are valid numbers
+    const finalTop = isNaN(top) ? 100 : Math.max(10, top);
+    const finalLeft = isNaN(left) ? 100 : Math.max(10, left);
+    const finalWidth = isNaN(width) ? 300 : Math.max(200, width);
+
+    setDropdownPosition({
+      top: finalTop,
+      left: finalLeft,
+      width: finalWidth
+    });
+  };
+
+  // Update dropdown position when suggestions show/hide or on scroll/resize
+  useEffect(() => {
+    if (showSuggestions) {
+      // Use requestAnimationFrame to ensure DOM is updated
+      requestAnimationFrame(() => {
+        calculateDropdownPosition();
+      });
+
+      const handlePositionUpdate = () => {
+        requestAnimationFrame(() => {
+          calculateDropdownPosition();
+        });
+      };
+
+      window.addEventListener('scroll', handlePositionUpdate, true);
+      window.addEventListener('resize', handlePositionUpdate);
+
+      return () => {
+        window.removeEventListener('scroll', handlePositionUpdate, true);
+        window.removeEventListener('resize', handlePositionUpdate);
+      };
+    }
+  }, [showSuggestions]);
+
+  // Recalculate position when suggestions change
+  useEffect(() => {
+    if (showSuggestions && suggestions.length > 0) {
+      requestAnimationFrame(() => {
+        calculateDropdownPosition();
+      });
+    }
+  }, [suggestions.length, showSuggestions]);
 
   // Enhanced trigger detection that persists through spaces
   const detectTriggerAndQuery = (text: string, position: number) => {
@@ -426,14 +510,31 @@ export const InlineSuggestionInput: React.FC<InlineSuggestionInputProps> = ({
   // Close suggestions when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Node;
+
+      // Check if click is inside input
+      if (inputRef.current && inputRef.current.contains(target)) {
+        return;
+      }
+
+      // Check if click is inside suggestion list
       if (
         suggestionListRef.current &&
-        !suggestionListRef.current.contains(event.target as Node) &&
-        inputRef.current &&
-        !inputRef.current.contains(event.target as Node)
+        suggestionListRef.current.contains(target)
       ) {
-        setShowSuggestions(false);
+        return;
       }
+
+      // Check if click is inside any portal container (for nested portals)
+      const portalContainer = document.querySelector(
+        '.suggestion-portal-container'
+      );
+      if (portalContainer && portalContainer.contains(target)) {
+        return;
+      }
+
+      // Click is outside, close suggestions
+      setShowSuggestions(false);
     };
 
     document.addEventListener('mousedown', handleClickOutside);
@@ -442,26 +543,22 @@ export const InlineSuggestionInput: React.FC<InlineSuggestionInputProps> = ({
 
   const InputComponent = as === 'textarea' ? 'textarea' : 'input';
 
-  return (
-    <div className="inline-suggestion-container">
-      <InputComponent
-        ref={inputRef as any}
-        value={value}
-        onChange={handleInputChange}
-        onPaste={onPaste}
-        onSelect={handleCursorPositionChange}
-        onKeyDown={handleKeyDown}
-        placeholder={placeholder}
-        className={`inline-suggestion-input ${
-          showSuggestions && suggestions.length > 0
-            ? 'inline-suggestion-input--with-suggestions'
-            : ''
-        } ${className}`}
-        disabled={disabled}
-        rows={as === 'textarea' ? rows : undefined}
-      />
+  // Render suggestions dropdown
+  const renderSuggestionsDropdown = () => {
+    if (!showSuggestions || (!suggestions.length && !isLoading)) return null;
 
-      {showSuggestions && (suggestions.length > 0 || isLoading) && (
+    return (
+      <div
+        className="suggestion-portal-container"
+        style={{
+          position: 'fixed',
+          top: `${dropdownPosition.top}px`,
+          left: `${dropdownPosition.left}px`,
+          width: `${dropdownPosition.width}px`,
+          zIndex: 10000,
+          pointerEvents: 'auto'
+        }}
+      >
         <div
           ref={suggestionListRef}
           className="suggestion-list"
@@ -527,7 +624,32 @@ export const InlineSuggestionInput: React.FC<InlineSuggestionInputProps> = ({
             </div>
           )}
         </div>
-      )}
+      </div>
+    );
+  };
+
+  return (
+    <div className="inline-suggestion-container">
+      <InputComponent
+        ref={inputRef as any}
+        value={value}
+        onChange={handleInputChange}
+        onPaste={onPaste}
+        onSelect={handleCursorPositionChange}
+        onKeyDown={handleKeyDown}
+        placeholder={placeholder}
+        className={`inline-suggestion-input ${
+          showSuggestions && suggestions.length > 0
+            ? 'inline-suggestion-input--with-suggestions'
+            : ''
+        } ${className}`}
+        disabled={disabled}
+        rows={as === 'textarea' ? rows : undefined}
+      />
+
+      {/* Render suggestions dropdown as portal */}
+      {typeof window !== 'undefined' &&
+        createPortal(renderSuggestionsDropdown(), document.body)}
     </div>
   );
 };
