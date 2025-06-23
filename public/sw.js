@@ -1,14 +1,19 @@
-// Smart Caching Service Worker with Version-Based Cache Busting
+// Enhanced Service Worker with Aggressive Cache Management and Registration Cleanup
 const CACHE_VERSION = '__VERSION__'; // Will be replaced with package.json version during build
 const CACHE_NAME = `idling-app-cache-${CACHE_VERSION}`;
 const CACHE_METADATA_NAME = `idling-app-cache-metadata-${CACHE_VERSION}`;
 
-// Cache TTL configurations (in milliseconds)
+// Maximum cache age - NOTHING can be cached longer than 12 hours
+const MAX_CACHE_AGE = 12 * 60 * 60 * 1000; // 12 hours in milliseconds
+const DAILY_REFRESH_KEY = 'sw-daily-refresh';
+
+// Cache TTL configurations (all limited to MAX_CACHE_AGE)
 const CACHE_TTLS = {
-  static: 24 * 60 * 60 * 1000,    // 24 hours for static assets
-  dynamic: 5 * 60 * 1000,         // 5 minutes for dynamic content
-  api: 1 * 60 * 1000,             // 1 minute for API responses
-  images: 7 * 24 * 60 * 60 * 1000 // 7 days for images
+  static: Math.min(6 * 60 * 60 * 1000, MAX_CACHE_AGE),    // 6 hours for static assets
+  dynamic: Math.min(2 * 60 * 60 * 1000, MAX_CACHE_AGE),   // 2 hours for dynamic content  
+  api: Math.min(30 * 60 * 1000, MAX_CACHE_AGE),           // 30 minutes for API responses
+  images: Math.min(4 * 60 * 60 * 1000, MAX_CACHE_AGE),    // 4 hours for images
+  pages: Math.min(1 * 60 * 60 * 1000, MAX_CACHE_AGE)      // 1 hour for pages
 };
 
 // Static assets to cache on install
@@ -24,13 +29,28 @@ const STATIC_ASSETS = [
   '/favicon-32x32.png'
 ];
 
-// Helper function to get app version from headers or fetch
-async function getAppVersion() {
+// Helper function to check if we need a daily refresh
+function shouldPerformDailyRefresh() {
   try {
-    const response = await fetch('/', { method: 'HEAD' });
-    return response.headers.get('X-App-Version') || 'unknown';
-  } catch {
-    return 'unknown';
+    const lastRefresh = localStorage.getItem(DAILY_REFRESH_KEY);
+    if (!lastRefresh) return true;
+    
+    const lastRefreshTime = parseInt(lastRefresh);
+    const now = Date.now();
+    const oneDayMs = 24 * 60 * 60 * 1000;
+    
+    return (now - lastRefreshTime) > oneDayMs;
+  } catch (e) {
+    return true; // Default to refresh if we can't check
+  }
+}
+
+// Helper function to mark daily refresh as completed
+function markDailyRefreshCompleted() {
+  try {
+    localStorage.setItem(DAILY_REFRESH_KEY, Date.now().toString());
+  } catch (e) {
+    // Silent fail if localStorage unavailable
   }
 }
 
@@ -44,7 +64,7 @@ function getCacheTTL(request) {
     return CACHE_TTLS.static;
   }
   
-  // API routes
+  // API routes (shorter cache for dynamic data)
   if (url.pathname.startsWith('/api/')) {
     return CACHE_TTLS.api;
   }
@@ -54,16 +74,25 @@ function getCacheTTL(request) {
     return CACHE_TTLS.images;
   }
   
-  // Dynamic pages
+  // HTML pages
+  if (url.pathname.endsWith('/') || url.pathname.endsWith('.html') || !url.pathname.includes('.')) {
+    return CACHE_TTLS.pages;
+  }
+  
+  // Default to dynamic content TTL
   return CACHE_TTLS.dynamic;
 }
 
 // Helper function to create response with cache metadata
 function createResponseWithMetadata(response, ttl) {
   const headers = new Headers(response.headers);
-  headers.set('Cache-Timestamp', Date.now().toString());
+  const now = Date.now();
+  
+  headers.set('Cache-Timestamp', now.toString());
   headers.set('Cache-TTL', ttl.toString());
   headers.set('SW-Cache-Version', CACHE_VERSION);
+  headers.set('Cache-Expires', (now + ttl).toString());
+  headers.set('Max-Cache-Age', MAX_CACHE_AGE.toString());
   
   return new Response(response.body, {
     status: response.status,
@@ -72,17 +101,87 @@ function createResponseWithMetadata(response, ttl) {
   });
 }
 
-// Helper function to check if cached response is still valid
+// Enhanced cache validation with strict 12-hour limit
 function isCacheValid(cachedResponse, ttl) {
   const cacheTimestamp = cachedResponse.headers.get('Cache-Timestamp');
   const cacheVersion = cachedResponse.headers.get('SW-Cache-Version');
+  const cacheExpires = cachedResponse.headers.get('Cache-Expires');
   
   if (!cacheTimestamp || cacheVersion !== CACHE_VERSION) {
     return false;
   }
   
-  const age = Date.now() - parseInt(cacheTimestamp);
-  return age < ttl;
+  const now = Date.now();
+  const timestamp = parseInt(cacheTimestamp);
+  const expires = parseInt(cacheExpires || '0');
+  
+  // Check if cache is older than maximum allowed age (12 hours)
+  const age = now - timestamp;
+  if (age > MAX_CACHE_AGE) {
+    console.log(`Cache expired: ${age}ms > ${MAX_CACHE_AGE}ms (12 hours)`);
+    return false;
+  }
+  
+  // Check if cache has exceeded its specific TTL
+  if (age > ttl) {
+    return false;
+  }
+  
+  // Check explicit expiration time
+  if (expires > 0 && now > expires) {
+    return false;
+  }
+  
+  return true;
+}
+
+// Aggressive cleanup of old service workers and caches
+async function cleanupOldServiceWorkers() {
+  try {
+    console.group('🧹 Service Worker Cleanup');
+    
+    // Get all registrations
+    const registrations = await self.registration.scope ? 
+      [self.registration] : 
+      await navigator.serviceWorker?.getRegistrations() || [];
+    
+    console.log(`Found ${registrations.length} service worker registrations`);
+    
+    // Unregister old service workers (keep only current)
+    for (const registration of registrations) {
+      if (registration !== self.registration) {
+        try {
+          await registration.unregister();
+          console.log('✅ Unregistered old service worker');
+        } catch (e) {
+          console.warn('⚠️ Failed to unregister old service worker:', e);
+        }
+      }
+    }
+    
+    // Clean up ALL old caches (be aggressive)
+    const cacheNames = await caches.keys();
+    const currentCaches = [CACHE_NAME, CACHE_METADATA_NAME];
+    const oldCaches = cacheNames.filter(name => !currentCaches.includes(name));
+    
+    if (oldCaches.length > 0) {
+      console.log(`🗑️ Deleting ${oldCaches.length} old caches`);
+      await Promise.all(oldCaches.map(async (name) => {
+        try {
+          await caches.delete(name);
+          console.log(`✅ Deleted cache: ${name}`);
+        } catch (e) {
+          console.warn(`⚠️ Failed to delete cache ${name}:`, e);
+        }
+      }));
+    }
+    
+    console.log('✅ Service worker cleanup completed');
+    console.groupEnd();
+  } catch (error) {
+    console.error('❌ Service worker cleanup failed:', error);
+    console.groupEnd();
+  }
 }
 
 // Store cache metadata for UI display
@@ -94,13 +193,16 @@ async function storeCacheMetadata(url, timestamp, version) {
       timestamp,
       version,
       cachedAt: new Date().toISOString(),
-      cacheVersion: CACHE_VERSION
+      cacheVersion: CACHE_VERSION,
+      maxAge: MAX_CACHE_AGE,
+      expiresAt: new Date(timestamp + MAX_CACHE_AGE).toISOString()
     };
     
     const response = new Response(JSON.stringify(metadata), {
       headers: {
         'Content-Type': 'application/json',
-        'Cache-Timestamp': timestamp.toString()
+        'Cache-Timestamp': timestamp.toString(),
+        'Cache-Expires': (timestamp + MAX_CACHE_AGE).toString()
       }
     });
     
@@ -110,31 +212,50 @@ async function storeCacheMetadata(url, timestamp, version) {
   }
 }
 
-// Install event - cache static assets with version check
+// Install event - cache static assets with aggressive cleanup
 self.addEventListener('install', (event) => {
   event.waitUntil(
     (async () => {
       console.group('🔧 Service Worker Install');
       console.log(`Installing service worker version ${CACHE_VERSION}`);
       
-      const cache = await caches.open(CACHE_NAME);
-      const appVersion = await getAppVersion();
+      // Immediately clean up old service workers and caches
+      await cleanupOldServiceWorkers();
       
-      // Cache static assets
+      const cache = await caches.open(CACHE_NAME);
+      const now = Date.now();
+      
+      // Check if daily refresh is needed
+      const needsDailyRefresh = shouldPerformDailyRefresh();
+      if (needsDailyRefresh) {
+        console.log('🔄 Daily refresh required - clearing all caches');
+        
+        // Clear current cache for fresh start
+        const keys = await cache.keys();
+        await Promise.all(keys.map(key => cache.delete(key)));
+        
+        markDailyRefreshCompleted();
+      }
+      
+      // Cache static assets with timestamp
       const cachePromises = STATIC_ASSETS.map(async (url) => {
         try {
-          const response = await fetch(url, { credentials: 'same-origin' });
+          const response = await fetch(url, { 
+            credentials: 'same-origin',
+            cache: 'no-cache' // Force fresh fetch
+          });
+          
           if (!response.ok) {
-            throw new Error(`Failed to fetch ${url}`);
+            throw new Error(`Failed to fetch ${url}: ${response.status}`);
           }
           
           const ttl = getCacheTTL({ url });
           const timestampedResponse = createResponseWithMetadata(response, ttl);
           
           await cache.put(url, timestampedResponse);
-          await storeCacheMetadata(url, Date.now(), appVersion);
+          await storeCacheMetadata(url, now, CACHE_VERSION);
           
-          console.log(`✅ Cached: ${url}`);
+          console.log(`✅ Cached: ${url} (TTL: ${Math.round(ttl / 1000 / 60)}min)`);
           return Promise.resolve();
         } catch (error) {
           console.warn(`❌ Failed to cache ${url}:`, error);
@@ -144,63 +265,46 @@ self.addEventListener('install', (event) => {
       
       await Promise.all(cachePromises);
       
-      // Clean up old cache versions
-      const cacheNames = await caches.keys();
-      const oldCaches = cacheNames.filter(name => 
-        name.startsWith('idling-app-cache-') && name !== CACHE_NAME
-      );
-      
-      if (oldCaches.length > 0) {
-        console.log(`🗑️ Cleaning up ${oldCaches.length} old cache versions`);
-        await Promise.all(oldCaches.map(name => {
-          console.log(`🗑️ Deleting old cache: ${name}`);
-          return caches.delete(name);
-        }));
-      }
-      
       console.log('✅ Service worker installation complete');
       console.groupEnd();
       
-      // Skip waiting to activate immediately
+      // Skip waiting to activate immediately and take control
       self.skipWaiting();
     })()
   );
 });
 
-// Activate event - clean up old caches
+// Activate event - aggressive cleanup and immediate control
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     (async () => {
       console.group('🚀 Service Worker Activate');
       console.log(`Activating service worker version ${CACHE_VERSION}`);
       
-      // Clean up old caches
-      const cacheNames = await caches.keys();
-      const oldCaches = cacheNames.filter(name => 
-        (name.startsWith('idling-app-cache-') && name !== CACHE_NAME) ||
-        (name.startsWith('idling-app-cache-metadata-') && name !== CACHE_METADATA_NAME)
-      );
+      // Perform another cleanup during activation
+      await cleanupOldServiceWorkers();
       
-      if (oldCaches.length > 0) {
-        console.log(`🗑️ Cleaning up ${oldCaches.length} old caches during activation`);
-        await Promise.all(oldCaches.map(name => {
-          console.log(`🗑️ Deleting cache: ${name}`);
-          return caches.delete(name);
-        }));
-      }
-      
+      // Immediately take control of all clients
       console.log('👑 Taking control of all clients');
-      const result = await self.clients.claim();
+      await self.clients.claim();
+      
+      // Notify all clients of the new service worker
+      const clients = await self.clients.matchAll();
+      clients.forEach(client => {
+        client.postMessage({
+          type: 'SW_UPDATED',
+          version: CACHE_VERSION,
+          timestamp: Date.now()
+        });
+      });
       
       console.log('✅ Service worker activation complete');
       console.groupEnd();
-      
-      return result;
     })()
   );
 });
 
-// Fetch event - smart caching with version awareness
+// Enhanced fetch event with strict cache management
 self.addEventListener('fetch', (event) => {
   // Only handle GET requests
   if (event.request.method !== 'GET') {
@@ -222,29 +326,31 @@ self.addEventListener('fetch', (event) => {
       const cache = await caches.open(CACHE_NAME);
       const cachedResponse = await cache.match(event.request);
       const ttl = getCacheTTL(event.request);
+      const now = Date.now();
       
       // Check if we have a valid cached response
       if (cachedResponse && isCacheValid(cachedResponse, ttl)) {
-        // For API routes (excluding auth routes), also check version header
+        // For critical paths, also verify freshness with HEAD request
         if (event.request.url.includes('/api/') && !event.request.url.includes('/api/auth/')) {
           try {
-            const headResponse = await fetch(event.request.url, { method: 'HEAD' });
+            const headResponse = await fetch(event.request.url, { 
+              method: 'HEAD',
+              cache: 'no-cache'
+            });
+            
             const currentVersion = headResponse.headers.get('X-App-Version');
             const cachedVersion = cachedResponse.headers.get('X-App-Version');
             
             if (currentVersion && cachedVersion && currentVersion !== cachedVersion) {
-              console.group('🔄 Service Worker Cache Update');
-              console.log(`Version mismatch for ${event.request.url}: ${cachedVersion} → ${currentVersion}`);
+              console.log(`🔄 Version mismatch for ${event.request.url}: ${cachedVersion} → ${currentVersion}`);
               
               // Version mismatch, fetch fresh
-              const freshResponse = await fetch(event.request);
+              const freshResponse = await fetch(event.request, { cache: 'no-cache' });
               if (freshResponse.ok) {
                 const responseToCache = createResponseWithMetadata(freshResponse.clone(), ttl);
                 await cache.put(event.request, responseToCache);
-                await storeCacheMetadata(event.request.url, Date.now(), currentVersion);
-                console.log('✅ Cache updated with fresh content');
+                await storeCacheMetadata(event.request.url, now, currentVersion);
               }
-              console.groupEnd();
               return freshResponse;
             }
           } catch {
@@ -257,96 +363,89 @@ self.addEventListener('fetch', (event) => {
 
       // Fetch fresh response
       try {
-        const response = await fetch(event.request);
+        const response = await fetch(event.request, {
+          cache: 'no-cache' // Always fetch fresh for better reliability
+        });
         
         if (!response || response.status !== 200 || response.type !== 'basic') {
           return response;
         }
 
-        // Cache the response
+        // Cache the response with metadata
         const responseToCache = createResponseWithMetadata(response.clone(), ttl);
         await cache.put(event.request, responseToCache);
         
         // Store metadata
-        const version = response.headers.get('X-App-Version') || 'unknown';
-        await storeCacheMetadata(event.request.url, Date.now(), version);
+        const version = response.headers.get('X-App-Version') || CACHE_VERSION;
+        await storeCacheMetadata(event.request.url, now, version);
 
         return response;
       } catch (error) {
-        console.group('⚠️ Service Worker Fetch Error');
         console.warn('Fetch failed:', error);
-        console.log(`URL: ${event.request.url}`);
         
         // Return cached response even if expired, or offline page
         if (cachedResponse) {
-          console.log('📦 Returning stale cached response');
-          console.groupEnd();
+          console.log('📦 Returning stale cached response due to network error');
           return cachedResponse;
         }
         
         console.log('📴 Returning offline page');
-        console.groupEnd();
         return caches.match('/offline.html') || new Response('Offline', { status: 503 });
       }
     })()
   );
 });
 
-// Message listener for cache management
+// Enhanced message listener for cache management
 self.addEventListener('message', (event) => {
   // Handle skip waiting message
   if (event.data && event.data.type === 'SKIP_WAITING') {
-    console.group('⏩ Service Worker Skip Waiting');
-    console.log('Skipping waiting and activating immediately');
+    console.log('⏩ Skipping waiting and activating immediately');
     self.skipWaiting();
-    console.groupEnd();
     return;
   }
   
+  // Handle cache refresh with cleanup
   if (event.data && event.data.type === 'REFRESH_CACHE') {
     event.waitUntil(
       (async () => {
         console.group('🔄 Service Worker Cache Refresh');
-        console.log(`Refreshing cache for: ${event.data.url || 'all URLs'}`);
         
         try {
           const cache = await caches.open(CACHE_NAME);
           const metadataCache = await caches.open(CACHE_METADATA_NAME);
           
-          // Clear specific URL or all cache
           if (event.data.url) {
+            // Refresh specific URL
+            console.log(`Refreshing cache for: ${event.data.url}`);
             await cache.delete(event.data.url);
             await metadataCache.delete(`metadata-${event.data.url}`);
+            
+            // Fetch fresh content
+            const response = await fetch(event.data.url, { cache: 'no-cache' });
+            if (response.ok) {
+              const ttl = getCacheTTL({ url: event.data.url });
+              const timestampedResponse = createResponseWithMetadata(response.clone(), ttl);
+              await cache.put(event.data.url, timestampedResponse);
+              await storeCacheMetadata(event.data.url, Date.now(), CACHE_VERSION);
+            }
           } else {
-            // Clear all cache
+            // Clear all cache and mark for daily refresh
+            console.log('Clearing all cache');
             const keys = await cache.keys();
             await Promise.all(keys.map(key => cache.delete(key)));
             
             const metadataKeys = await metadataCache.keys();
             await Promise.all(metadataKeys.map(key => metadataCache.delete(key)));
-          }
-          
-          // Fetch fresh content if URL specified
-          if (event.data.url) {
-            const response = await fetch(event.data.url, { 
-              cache: 'no-cache',
-              headers: { 'Cache-Control': 'no-cache' }
-            });
             
-            if (response.ok) {
-              const ttl = getCacheTTL({ url: event.data.url });
-              const timestampedResponse = createResponseWithMetadata(response.clone(), ttl);
-              await cache.put(event.data.url, timestampedResponse);
-              
-              const version = response.headers.get('X-App-Version') || 'unknown';
-              await storeCacheMetadata(event.data.url, Date.now(), version);
-            }
+            // Mark daily refresh as completed
+            markDailyRefreshCompleted();
           }
           
-          console.log('✅ Cache refresh completed successfully');
+          console.log('✅ Cache refresh completed');
           console.groupEnd();
           
-          event.ports[0].postMessage({ 
+          event.ports[0]?.postMessage({ 
             success: true, 
             timestamp: Date.now(),
             version: CACHE_VERSION
@@ -355,7 +454,7 @@ self.addEventListener('message', (event) => {
           console.error('❌ Cache refresh failed:', error);
           console.groupEnd();
           
-          event.ports[0].postMessage({ 
+          event.ports[0]?.postMessage({ 
             success: false, 
             error: error.message 
           });
@@ -364,44 +463,59 @@ self.addEventListener('message', (event) => {
     );
   }
   
-  // Get cache info for UI
+  // Get enhanced cache info
   if (event.data && event.data.type === 'GET_CACHE_INFO') {
     event.waitUntil(
       (async () => {
-        console.group('📊 Service Worker Cache Info');
-        console.log('Gathering cache information for UI');
-        
         try {
           const cache = await caches.open(CACHE_NAME);
           const keys = await cache.keys();
-          const metadataCache = await caches.open(CACHE_METADATA_NAME);
+          const now = Date.now();
+          
+          // Calculate cache statistics
+          let expiredCount = 0;
+          let validCount = 0;
+          
+          for (const request of keys) {
+            const response = await cache.match(request);
+            if (response) {
+              const ttl = getCacheTTL(request);
+              if (isCacheValid(response, ttl)) {
+                validCount++;
+              } else {
+                expiredCount++;
+              }
+            }
+          }
           
           const cacheInfo = {
             version: CACHE_VERSION,
             totalEntries: keys.length,
+            validEntries: validCount,
+            expiredEntries: expiredCount,
+            maxCacheAge: MAX_CACHE_AGE,
             ttls: CACHE_TTLS,
-            timestamp: Date.now()
+            timestamp: now,
+            lastDailyRefresh: localStorage.getItem(DAILY_REFRESH_KEY),
+            nextDailyRefresh: shouldPerformDailyRefresh() ? 'Due now' : 'Within 24 hours'
           };
           
-          console.log(`Cache entries: ${keys.length}`);
-          console.log(`Cache version: ${CACHE_VERSION}`);
-          console.log('✅ Cache info gathered successfully');
-          console.groupEnd();
-          
-          event.ports[0].postMessage({ 
+          event.ports[0]?.postMessage({ 
             success: true, 
             cacheInfo 
           });
         } catch (error) {
-          console.error('❌ Failed to get cache info:', error);
-          console.groupEnd();
-          
-          event.ports[0].postMessage({ 
+          event.ports[0]?.postMessage({ 
             success: false, 
             error: error.message 
           });
         }
       })()
     );
+  }
+
+  // Force cleanup of old caches
+  if (event.data && event.data.type === 'CLEANUP_OLD_CACHES') {
+    event.waitUntil(cleanupOldServiceWorkers());
   }
 }); 
