@@ -49,7 +49,7 @@ export const authConfig: NextAuthConfig = {
     })
   ],
   pages: {
-    error: '/',
+    error: '/auth/callback',
     signIn: '/auth/signin',
     signOut: '/'
   },
