@@ -1,6 +1,5 @@
 'use client';
 
-import { signOut } from 'next-auth/react';
 import React, { useCallback, useEffect, useState } from 'react';
 import './CacheStatus.css';
 
@@ -207,41 +206,25 @@ const SmartCacheStatus: React.FC = () => {
    * Clear all cache - logout user, unregister service workers, clear all caches, and re-register
    */
   const handleClearAllCache = async () => {
+    if (isClearing) return;
+
     setIsClearing(true);
+
     try {
-      // 1. Sign out from NextAuth
-      await signOut({ redirect: false });
+      // 1. Clear all browser storage
+      localStorage.clear();
+      sessionStorage.clear();
 
-      // 2. Clear all storage
-      try {
-        localStorage.clear();
-      } catch (e) {
-        // Silent error handling
-      }
-
-      try {
-        sessionStorage.clear();
-      } catch (e) {
-        // Silent error handling
-      }
-
-      // 3. Clear cookies
-      document.cookie.split(';').forEach((cookie) => {
-        const eqPos = cookie.indexOf('=');
-        const name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie;
-        document.cookie = `${name.trim()}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/`;
-      });
-
-      // 4. Clear IndexedDB
+      // 2. Clear IndexedDB
       if ('indexedDB' in window) {
         try {
           const databases = await indexedDB.databases();
           await Promise.all(
             databases.map((db) => {
               if (db.name) {
-                const deleteReq = indexedDB.deleteDatabase(db.name);
-                return new Promise((resolve, reject) => {
-                  deleteReq.onsuccess = () => resolve(undefined);
+                return new Promise<void>((resolve, reject) => {
+                  const deleteReq = indexedDB.deleteDatabase(db.name!);
+                  deleteReq.onsuccess = () => resolve();
                   deleteReq.onerror = () => reject(deleteReq.error);
                 });
               }
@@ -253,7 +236,50 @@ const SmartCacheStatus: React.FC = () => {
         }
       }
 
-      // 5. Unregister service worker
+      // 3. Clear WebSQL (deprecated but still present in some browsers)
+      if ('webkitStorageInfo' in window) {
+        try {
+          const webkitStorageInfo = (window as any).webkitStorageInfo;
+          if (webkitStorageInfo && webkitStorageInfo.requestQuota) {
+            webkitStorageInfo.requestQuota(
+              0,
+              0,
+              () => {},
+              () => {}
+            );
+          }
+        } catch (e) {
+          // Silent error handling
+        }
+      }
+
+      // 4. Send message to service worker to clear all caches
+      if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+        try {
+          const messageChannel = new MessageChannel();
+
+          const clearPromise = new Promise((resolve, reject) => {
+            messageChannel.port1.onmessage = (event) => {
+              if (event.data.success) {
+                resolve(event.data);
+              } else {
+                reject(new Error(event.data.error));
+              }
+            };
+          });
+
+          navigator.serviceWorker.controller.postMessage(
+            { type: 'REFRESH_CACHE' }, // No URL = clear all
+            [messageChannel.port2]
+          );
+
+          await clearPromise;
+        } catch (e) {
+          // Silent error handling
+        }
+      }
+
+      // 5. Unregister ALL service workers
       if ('serviceWorker' in navigator) {
         try {
           const registrations =
@@ -278,16 +304,19 @@ const SmartCacheStatus: React.FC = () => {
         }
       }
 
-      // 7. Re-register service worker
+      // 7. Re-register service worker with fresh state
       if ('serviceWorker' in navigator) {
         try {
-          await navigator.serviceWorker.register('/sw.js');
+          await navigator.serviceWorker.register('/sw.js', {
+            scope: '/',
+            updateViaCache: 'none'
+          });
         } catch (e) {
           // Silent error handling
         }
       }
 
-      // 8. Force page reload to complete the reset
+      // 8. Force hard refresh to complete the reset
       window.location.href = '/';
     } catch (error) {
       // Silent error handling
