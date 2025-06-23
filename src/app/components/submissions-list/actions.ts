@@ -9,6 +9,7 @@ export interface SubmissionWithReplies {
   submission_datetime: Date;
   user_id: number;
   author: string;
+  author_bio?: string;
   tags: string[];
   thread_parent_id: number | null;
   replies?: SubmissionWithReplies[];
@@ -173,6 +174,7 @@ export async function getSubmissionsAction({
         s.tags,
         s.thread_parent_id,
         u.name as author,
+        u.bio as author_bio,
         (
           SELECT COUNT(*)::int
           FROM submissions replies
@@ -187,6 +189,7 @@ export async function getSubmissionsAction({
               'submission_datetime', r.submission_datetime,
               'user_id', r.user_id,
               'author', ru.name,
+              'author_bio', ru.bio,
               'tags', r.tags,
               'thread_parent_id', r.thread_parent_id
             )
@@ -215,6 +218,7 @@ export async function getSubmissionsAction({
       submission_datetime: new Date(row.submission_datetime),
       user_id: row.user_id,
       author: row.author,
+      author_bio: row.author_bio,
       tags: row.tags || [],
       thread_parent_id: row.thread_parent_id,
       replies: row.replies || []
