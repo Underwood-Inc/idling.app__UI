@@ -1,7 +1,6 @@
-import { notFound, redirect } from 'next/navigation';
-import { getUserProfile } from '../../../lib/actions/profile.actions';
+import { notFound } from 'next/navigation';
+import { getUserProfileByDatabaseId } from '../../../lib/actions/profile.actions';
 import { auth } from '../../../lib/auth';
-import { parseUserSlug } from '../../../lib/utils/user-slug';
 import { Card } from '../../components/card/Card';
 import FadeIn from '../../components/fade-in/FadeIn';
 import { PageAside } from '../../components/page-aside/PageAside';
@@ -23,24 +22,19 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
   const decodedUsername = decodeURIComponent(username);
 
   try {
-    const [userProfile, session] = await Promise.all([
-      getUserProfile(decodedUsername),
-      auth()
-    ]);
-
-    if (!userProfile) {
+    // ✅ CRITICAL: Only database ID-based URLs supported after migration 0010
+    // Username-based URLs are no longer supported for maximum reliability
+    if (!/^\d+$/.test(decodedUsername)) {
+      // Not a database ID - return 404 instead of trying username lookup
       notFound();
     }
 
-    // Check if this is a legacy username URL and redirect to canonical slug URL
-    const slugParsed = parseUserSlug(decodedUsername);
-    if (
-      !slugParsed &&
-      userProfile.slug &&
-      userProfile.slug !== decodedUsername
-    ) {
-      // This is a legacy username URL, redirect to the canonical slug URL
-      redirect(`/profile/${userProfile.slug}`);
+    // Direct database ID lookup - only supported method
+    const userProfile = await getUserProfileByDatabaseId(decodedUsername);
+    const session = await auth();
+
+    if (!userProfile) {
+      notFound();
     }
 
     // Check if this is the user's own profile
@@ -176,7 +170,17 @@ export async function generateMetadata({ params }: ProfilePageProps) {
   const decodedUsername = decodeURIComponent(username);
 
   try {
-    const userProfile = await getUserProfile(decodedUsername);
+    // ✅ Only database ID-based URLs supported after migration 0010
+    if (!/^\d+$/.test(decodedUsername)) {
+      return {
+        title: 'Invalid Profile URL | Idling.app',
+        description: 'Profile URLs must use database IDs only.',
+        robots: 'noindex, nofollow'
+      };
+    }
+
+    // Direct database ID lookup
+    const userProfile = await getUserProfileByDatabaseId(decodedUsername);
 
     if (!userProfile) {
       return {

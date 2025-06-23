@@ -3,7 +3,6 @@
 import { useSession } from 'next-auth/react';
 import React, { useEffect, useState } from 'react';
 import { useOverlay } from '../../../lib/context/OverlayContext';
-import { ensureUserSlug, generateUserSlug } from '../../../lib/utils/user-slug';
 import { Avatar, AvatarPropSizes } from '../avatar/Avatar';
 import { InteractiveTooltip } from '../tooltip/InteractiveTooltip';
 import { InstantLink } from '../ui/InstantLink';
@@ -202,36 +201,22 @@ export const Author: React.FC<AuthorProps> = ({
 
   const displayName = showFullName ? authorName : `@${authorName}`;
 
-  // Generate profile URL with guaranteed slug using authorId (database ID)
-  const profileUrl = userProfile
-    ? `/profile/${ensureUserSlug(userProfile)}`
-    : `/profile/${generateUserSlug(authorName, authorId)}`;
+  // ✅ CRITICAL: Always use database ID for profile URLs
+  // This ensures profile URLs remain stable even when OAuth provider usernames change
+  const profileUrl = `/profile/${authorId}`;
 
   // Fetch user profile for tooltip via API route using database ID for more reliable lookup
   useEffect(() => {
     if (enableTooltip && authorId && authorName) {
       setIsLoading(true);
 
-      // Try to fetch by database ID first (most reliable), fallback to name
-      const fetchUrl = authorId
-        ? `/api/profile/id/${encodeURIComponent(authorId)}`
-        : `/api/profile/${encodeURIComponent(authorName)}`;
+      // ✅ Only database ID lookup supported after migration 0010
+      const fetchUrl = `/api/profile/id/${encodeURIComponent(authorId)}`;
 
       fetch(fetchUrl)
         .then((response) => {
           if (response.ok) {
             return response.json();
-          }
-          // If ID lookup fails, try name lookup as fallback
-          if (authorId && fetchUrl.includes('/id/')) {
-            return fetch(`/api/profile/${encodeURIComponent(authorName)}`).then(
-              (fallbackResponse) => {
-                if (fallbackResponse.ok) {
-                  return fallbackResponse.json();
-                }
-                throw new Error('Failed to fetch profile');
-              }
-            );
           }
           throw new Error('Failed to fetch profile');
         })
