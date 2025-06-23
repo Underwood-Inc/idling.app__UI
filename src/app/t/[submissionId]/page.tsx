@@ -50,20 +50,40 @@ export async function generateMetadata({
     const replyCount = threadData.replies.length;
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://idling.app';
 
+    // Combine title and content for comprehensive rich media detection
+    const fullContent = `${title} ${content}`.trim();
+
     // Clean title and content for social media sharing
     const cleanTitle = cleanContentForSocialSharing(title, {
       convertEmbedsToUrls: true,
       maxLength: 100 // Shorter for titles
     });
 
-    const cleanContent = cleanContentForSocialSharing(content, {
-      convertEmbedsToUrls: true,
-      maxLength: 150 // Optimal for social sharing descriptions
-    });
+    // Check for YouTube URLs and other embeds in ALL content (title + post content)
+    const youtubeUrl = getFirstYouTubeUrl(fullContent);
+    const embedUrls = extractEmbedUrls(fullContent);
 
-    // Check for YouTube URLs and other embeds in the title for enhanced social sharing
-    const youtubeUrl = getFirstYouTubeUrl(title);
-    const embedUrls = extractEmbedUrls(title);
+    // Determine the best description based on available rich media
+    let cleanContent: string;
+    let hasRichMedia = false;
+
+    if (
+      youtubeUrl ||
+      (embedUrls.length > 0 && embedUrls.some((url) => isImageUrl(url)))
+    ) {
+      // If we have rich media, strip embeds from description to avoid redundancy
+      cleanContent = cleanContentForSocialSharing(content, {
+        removeEmbeds: true, // Remove embeds since we're showing them as rich media
+        maxLength: 150
+      });
+      hasRichMedia = true;
+    } else {
+      // No rich media, convert embeds to URLs for readable descriptions
+      cleanContent = cleanContentForSocialSharing(content, {
+        convertEmbedsToUrls: true,
+        maxLength: 150
+      });
+    }
 
     // Enhanced metadata with thread-specific information
     const metaTitle =
@@ -92,7 +112,7 @@ export async function generateMetadata({
       site: '@idlingapp' // Update with your actual Twitter handle
     };
 
-    // Enhanced metadata for YouTube embeds in thread title
+    // Enhanced metadata for YouTube embeds found anywhere in the thread
     if (youtubeUrl) {
       const videoId = extractYouTubeVideoId(youtubeUrl);
 
@@ -124,17 +144,19 @@ export async function generateMetadata({
         twitterMetadata.image = `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
       }
     } else if (embedUrls.length > 0) {
-      // If there are other embed URLs (images, etc.), use the first one as the preview image
-      const firstUrl = embedUrls[0];
-      if (isImageUrl(firstUrl)) {
+      // Check for image embeds in order of preference
+      const imageUrls = embedUrls.filter((url) => isImageUrl(url));
+
+      if (imageUrls.length > 0) {
+        const firstImageUrl = imageUrls[0];
         openGraphMetadata.images = [
           {
-            url: firstUrl,
+            url: firstImageUrl,
             alt: `Image from thread: ${cleanTitle}`
           }
         ];
         twitterMetadata.card = 'summary_large_image';
-        twitterMetadata.image = firstUrl;
+        twitterMetadata.image = firstImageUrl;
       }
     }
 

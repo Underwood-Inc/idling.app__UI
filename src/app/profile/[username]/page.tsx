@@ -198,22 +198,37 @@ export async function generateMetadata({ params }: ProfilePageProps) {
     const displayName =
       userProfile.username || userProfile.name || 'Anonymous User';
 
-    // Clean bio content for social media sharing
-    // Convert embed pills like ![embed](https://youtube.com/watch?v=abc) to clean URLs
-    const cleanBioForSocial = userProfile.bio
-      ? cleanContentForSocialSharing(userProfile.bio, {
-          convertEmbedsToUrls: true, // Convert ![embed](url) to just url
-          maxLength: 160
-        })
-      : null;
-
-    const fallbackDescription = `View ${displayName}'s profile, activity stats, and contributions on Idling.app.`;
-
-    // Check for YouTube URLs in the bio for enhanced social sharing
+    // Check for YouTube URLs and other embeds in the bio for enhanced social sharing
     const youtubeUrl = userProfile.bio
       ? getFirstYouTubeUrl(userProfile.bio)
       : null;
     const embedUrls = userProfile.bio ? extractEmbedUrls(userProfile.bio) : [];
+
+    // Determine the best description based on available rich media
+    let cleanBioForSocial: string | null = null;
+    let hasRichMedia = false;
+
+    if (userProfile.bio) {
+      if (
+        youtubeUrl ||
+        (embedUrls.length > 0 && embedUrls.some((url) => isImageUrl(url)))
+      ) {
+        // If we have rich media, strip embeds from description to avoid redundancy
+        cleanBioForSocial = cleanContentForSocialSharing(userProfile.bio, {
+          removeEmbeds: true, // Remove embeds since we're showing them as rich media
+          maxLength: 160
+        });
+        hasRichMedia = true;
+      } else {
+        // No rich media, convert embeds to URLs for readable descriptions
+        cleanBioForSocial = cleanContentForSocialSharing(userProfile.bio, {
+          convertEmbedsToUrls: true, // Convert ![embed](url) to just url
+          maxLength: 160
+        });
+      }
+    }
+
+    const fallbackDescription = `View ${displayName}'s profile, activity stats, and contributions on Idling.app.`;
 
     // Base metadata
     const baseMetadata = {
@@ -275,17 +290,19 @@ export async function generateMetadata({ params }: ProfilePageProps) {
         twitterMetadata.image = `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
       }
     } else if (embedUrls.length > 0) {
-      // If there are other embed URLs (images, etc.), use the first one as the preview image
-      const firstUrl = embedUrls[0];
-      if (isImageUrl(firstUrl)) {
+      // Check for image embeds in order of preference
+      const imageUrls = embedUrls.filter((url) => isImageUrl(url));
+
+      if (imageUrls.length > 0) {
+        const firstImageUrl = imageUrls[0];
         openGraphMetadata.images = [
           {
-            url: firstUrl,
+            url: firstImageUrl,
             alt: `Image from ${displayName}'s profile`
           }
         ];
         twitterMetadata.card = 'summary_large_image';
-        twitterMetadata.image = firstUrl;
+        twitterMetadata.image = firstImageUrl;
       }
     }
 
