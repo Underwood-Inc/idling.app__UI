@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import {
-  getUserProfile,
+  getUserProfileByDatabaseId,
   updateBioAction
 } from '../../../../lib/actions/profile.actions';
 import { auth } from '../../../../lib/auth';
@@ -23,7 +23,19 @@ export async function GET(
       );
     }
 
-    const userProfile = await getUserProfile(username);
+    // ✅ CRITICAL: Only database ID supported after migration 0010
+    // Username-based lookups are no longer supported for maximum reliability
+    if (!/^\d+$/.test(username)) {
+      return NextResponse.json(
+        {
+          error: 'Invalid profile identifier. Only database IDs are supported.'
+        },
+        { status: 400 }
+      );
+    }
+
+    // Direct database ID lookup - only supported method
+    const userProfile = await getUserProfileByDatabaseId(username);
 
     if (!userProfile) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
@@ -80,8 +92,18 @@ export async function PATCH(
       );
     }
 
-    // Get the target user profile to verify ownership
-    const targetProfile = await getUserProfile(username);
+    // ✅ CRITICAL: Only database ID supported after migration 0010
+    if (!/^\d+$/.test(username)) {
+      return NextResponse.json(
+        {
+          error: 'Invalid profile identifier. Only database IDs are supported.'
+        },
+        { status: 400 }
+      );
+    }
+
+    // Direct database ID lookup - only supported method
+    const targetProfile = await getUserProfileByDatabaseId(username);
 
     if (!targetProfile) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
@@ -95,7 +117,7 @@ export async function PATCH(
       );
     }
 
-    // Call the secure server action with proper validation
+    // Call the secure server action with proper validation (using database ID)
     const result = await updateBioAction(bio, username);
 
     if (!result.success) {
