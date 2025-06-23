@@ -80,7 +80,6 @@ export async function getSubmissionThread(
     submission_datetime: new Date(row.submission_datetime),
     user_id: Number(row.user_id),
     author: row.author,
-    author_provider_account_id: null, // Column was removed in migration, set to null for compatibility
     author_bio: row.author_bio || null,
     tags: Array.isArray(row.tags) ? row.tags : [],
     thread_parent_id: row.thread_parent_id
