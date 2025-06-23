@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation';
 import { getUserProfileByDatabaseId } from '../../../lib/actions/profile.actions';
 import { auth } from '../../../lib/auth';
+import { cleanContentForSocialSharing } from '../../../lib/utils/social-sharing';
 import { Card } from '../../components/card/Card';
 import FadeIn from '../../components/fade-in/FadeIn';
 import { PageAside } from '../../components/page-aside/PageAside';
@@ -193,15 +194,24 @@ export async function generateMetadata({ params }: ProfilePageProps) {
     const displayName =
       userProfile.username || userProfile.name || 'Anonymous User';
 
+    // Clean bio content for social media sharing
+    // Convert embed pills like ![embed](https://youtube.com/watch?v=abc) to clean URLs
+    const cleanBioForSocial = userProfile.bio
+      ? cleanContentForSocialSharing(userProfile.bio, {
+          convertEmbedsToUrls: true, // Convert ![embed](url) to just url
+          maxLength: 160
+        })
+      : null;
+
+    const fallbackDescription = `View ${displayName}'s profile, activity stats, and contributions on Idling.app.`;
+
     return {
       title: `${displayName} - User Profile | Idling.app`,
-      description: userProfile.bio
-        ? `${userProfile.bio.substring(0, 160)}${userProfile.bio.length > 160 ? '...' : ''}`
-        : `View ${displayName}'s profile, activity stats, and contributions on Idling.app.`,
+      description: cleanBioForSocial || fallbackDescription,
       openGraph: {
         title: `${displayName} - Profile`,
         description:
-          userProfile.bio ||
+          cleanBioForSocial ||
           `View ${displayName}'s profile and activity on Idling.app.`,
         type: 'profile'
       },
@@ -209,7 +219,7 @@ export async function generateMetadata({ params }: ProfilePageProps) {
         card: 'summary',
         title: `${displayName} - Profile`,
         description:
-          userProfile.bio ||
+          cleanBioForSocial ||
           `View ${displayName}'s profile and activity on Idling.app.`
       }
     };
