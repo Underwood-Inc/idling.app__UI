@@ -49,10 +49,13 @@
   min-width: 200px;
   max-width: 300px;
   max-height: 300px;
-  background: var(--light-background--primary);
-  border: 1px solid var(--light-border--primary);
+  /* Apply glass effect */
+  backdrop-filter: var(--glass-blur-medium);
+  -webkit-backdrop-filter: var(--glass-blur-medium);
+  background: var(--glass-bg-medium);
+  border: 1px solid var(--glass-border-medium);
+  box-shadow: var(--glass-shadow-heavy);
   border-radius: var(--border-radius);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   overflow: hidden;
   /* Remove extra padding/margin that creates card-like appearance */
   margin: 0;

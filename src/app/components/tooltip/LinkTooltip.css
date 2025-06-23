@@ -500,9 +500,13 @@ body.modal-open .link-preview-modal {
   min-width: 200px;
   max-width: min(400px, 90vw);
   padding: 12px;
-  background: var(--light-background--quaternary);
+  /* Apply glass effect */
+  backdrop-filter: var(--glass-blur-medium);
+  -webkit-backdrop-filter: var(--glass-blur-medium);
+  background: var(--glass-bg-medium);
+  border: 1px solid var(--glass-border-medium);
+  box-shadow: var(--glass-shadow-medium);
   color: var(--light-bg__text-color--primary);
-  border: 1px solid var(--brand-tertiary--dark);
 }
 
 .info-tooltip-content {
@@ -542,10 +546,13 @@ body.modal-open .link-preview-modal {
 
 /* MentionTooltip styles */
 .mention-tooltip {
-  background: var(--light-background--quaternary);
-  border: 1px solid var(--light-border--primary);
+  /* Apply glass effect */
+  backdrop-filter: var(--glass-blur-medium);
+  -webkit-backdrop-filter: var(--glass-blur-medium);
+  background: var(--glass-bg-medium);
+  border: 1px solid var(--glass-border-medium);
+  box-shadow: var(--glass-shadow-heavy);
   border-radius: var(--border-radius);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   padding: 0;
   min-width: 240px;
   max-width: 300px;
@@ -656,10 +663,13 @@ body.modal-open .link-preview-modal {
 
 /* Mention tooltip content - used inside InteractiveTooltip */
 .mention-tooltip-content {
-  background: var(--dark-background--secondary);
-  border: 1px solid var(--dark-border--primary);
+  /* Apply glass effect */
+  backdrop-filter: var(--glass-blur-medium);
+  -webkit-backdrop-filter: var(--glass-blur-medium);
+  background: var(--glass-bg-medium);
+  border: 1px solid var(--glass-border-medium);
+  box-shadow: var(--glass-shadow-heavy);
   border-radius: var(--border-radius);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   padding: 0;
   min-width: 240px;
   max-width: 300px;
@@ -764,10 +774,13 @@ body.modal-open .link-preview-modal {
 .link-tooltip {
   position: fixed;
   z-index: 10000;
-  background-color: var(--light-background--quaternary);
-  border: 1px solid var(--brand-tertiary--dark);
+  /* Apply glass effect instead of solid background */
+  backdrop-filter: var(--glass-blur-medium);
+  -webkit-backdrop-filter: var(--glass-blur-medium);
+  background: var(--glass-bg-medium);
+  border: 1px solid var(--glass-border-medium);
+  box-shadow: var(--glass-shadow-heavy);
   border-radius: var(--border-radius);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   /* NEVER add opinionated spacing to the tooltip */
   /* padding: 16px; */
   min-width: 280px;

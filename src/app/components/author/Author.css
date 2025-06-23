@@ -122,10 +122,13 @@
 .author-tooltip {
   max-width: 300px;
   min-width: 280px;
-  background: var(--light-background--primary);
-  border: 1px solid var(--light-border--primary);
+  /* Apply glass effect */
+  backdrop-filter: var(--glass-blur-medium);
+  -webkit-backdrop-filter: var(--glass-blur-medium);
+  background: var(--glass-bg-medium);
+  border: 1px solid var(--glass-border-medium);
+  box-shadow: var(--glass-shadow-heavy);
   border-radius: var(--border-radius);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
   overflow: hidden;
 }
 

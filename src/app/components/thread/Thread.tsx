@@ -11,7 +11,7 @@ import { TagLink } from '../tag-link/TagLink';
 import { ContentWithPills } from '../ui/ContentWithPills';
 import { InstantLink } from '../ui/InstantLink';
 import { getSubmissionThread } from './actions';
-import { ReplyForm } from './ReplyForm';
+import CollapsibleReplyForm from './CollapsibleReplyForm';
 import './Thread.css';
 
 interface ThreadProps {
@@ -233,8 +233,7 @@ export default function Thread({
 
       {/* Reply Form */}
       <div className="thread__reply-section">
-        <h3>Add a Reply</h3>
-        <ReplyForm
+        <CollapsibleReplyForm
           parentId={submissionId}
           onSuccess={handleReplyAdded}
           replyToAuthor={

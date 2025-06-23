@@ -28,10 +28,13 @@
   top: 100%;
   right: 0;
   z-index: 100;
-  background: var(--light-background--quinary);
-  border: 1px solid var(--brand-tertiary--dark);
+  /* Apply glass effect */
+  backdrop-filter: var(--glass-blur-medium);
+  -webkit-backdrop-filter: var(--glass-blur-medium);
+  background: var(--glass-bg-medium);
+  border: 1px solid var(--glass-border-medium);
+  box-shadow: var(--glass-shadow-heavy);
   border-radius: var(--border-radius);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   padding: 1rem;
   min-width: 280px;
   max-width: 320px;

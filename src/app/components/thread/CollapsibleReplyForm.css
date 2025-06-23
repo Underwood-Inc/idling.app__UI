@@ -1,0 +1,224 @@
+/* Collapsible Reply Form */
+.collapsible-reply-form {
+  width: 100%;
+  margin: 1.5rem 0;
+}
+
+/* Toggle Button */
+.collapsible-reply-form__toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 1rem 1.25rem;
+  /* Apply glass border effect */
+  background: var(--light-background--secondary);
+  border: 1px solid var(--glass-border-medium);
+  box-shadow: var(--glass-shadow-light);
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  font-size: var(--font-size-md);
+  font-weight: 600;
+  color: var(--light-bg__text-color--primary);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.collapsible-reply-form__toggle:hover {
+  background: var(--brand-tertiary);
+  border-color: var(--glass-border-heavy);
+  box-shadow: var(--glass-shadow-medium);
+  color: var(--light-bg__text-color--primary);
+  transform: translateY(-1px);
+}
+
+.collapsible-reply-form__toggle:active {
+  transform: translateY(0);
+  box-shadow: var(--glass-shadow-light);
+}
+
+.collapsible-reply-form__toggle[aria-expanded="true"] {
+  background: var(--brand-primary);
+  color: var(--font-color--primary);
+  border-color: var(--glass-border-heavy);
+  box-shadow: var(--glass-shadow-medium);
+}
+
+.collapsible-reply-form__toggle[aria-expanded="true"]:hover {
+  background: var(--brand-primary--dark);
+  box-shadow: var(--glass-shadow-heavy);
+}
+
+.collapsible-reply-form__toggle-text {
+  flex: 1;
+  text-align: left;
+}
+
+/* Chevron Icon */
+.collapsible-reply-form__chevron {
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  flex-shrink: 0;
+  margin-left: 0.5rem;
+}
+
+.collapsible-reply-form__chevron--up {
+  transform: rotate(180deg);
+}
+
+.collapsible-reply-form__chevron--down {
+  transform: rotate(0deg);
+}
+
+/* Collapsible Content */
+.collapsible-reply-form__content {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+  /* Apply glass border effect */
+  border-left: 1px solid var(--glass-border-light);
+  border-right: 1px solid var(--glass-border-light);
+  border-bottom: 1px solid var(--glass-border-light);
+  border-top: none;
+  border-radius: 0 0 var(--border-radius) var(--border-radius);
+  background: var(--light-background--tertiary);
+}
+
+.collapsible-reply-form__content--collapsed {
+  max-height: 0;
+  opacity: 0;
+  margin-top: 0;
+  border-width: 0;
+  padding: 0;
+}
+
+.collapsible-reply-form__content--expanded {
+  max-height: 1000px;
+  /* Large enough to accommodate form */
+  opacity: 1;
+  margin-top: -1px;
+  /* Connect to toggle button */
+  padding: 1.5rem;
+  box-shadow: var(--glass-shadow-light);
+}
+
+/* Form Container */
+.collapsible-reply-form__form {
+  transition: opacity 0.2s ease-in-out;
+}
+
+.collapsible-reply-form__content--collapsed .collapsible-reply-form__form {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.collapsible-reply-form__content--expanded .collapsible-reply-form__form {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Animation Enhancement */
+@keyframes slideDown {
+  from {
+    max-height: 0;
+    opacity: 0;
+  }
+
+  to {
+    max-height: 1000px;
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    max-height: 1000px;
+    opacity: 1;
+  }
+
+  to {
+    max-height: 0;
+    opacity: 0;
+  }
+}
+
+.collapsible-reply-form__content--expanded {
+  animation: slideDown 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .collapsible-reply-form__toggle {
+    padding: 0.875rem 1rem;
+    font-size: var(--font-size-sm);
+  }
+
+  .collapsible-reply-form__content--expanded {
+    padding: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .collapsible-reply-form__toggle {
+    padding: 0.75rem;
+    font-size: var(--font-size-sm);
+  }
+
+  .collapsible-reply-form__content--expanded {
+    padding: 0.75rem;
+  }
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+  .collapsible-reply-form__toggle {
+    background: var(--dark-background--secondary);
+    color: var(--dark-bg__text-color--primary);
+  }
+
+  .collapsible-reply-form__toggle:hover {
+    background: var(--dark-background--tertiary);
+    color: var(--dark-bg__text-color--primary);
+  }
+
+  .collapsible-reply-form__toggle[aria-expanded="true"] {
+    background: var(--brand-primary);
+    color: var(--font-color--primary);
+  }
+
+  .collapsible-reply-form__toggle[aria-expanded="true"]:hover {
+    background: var(--brand-primary--dark);
+  }
+
+  .collapsible-reply-form__content {
+    background: var(--dark-background--tertiary);
+  }
+}
+
+/* High Contrast Mode */
+@media (prefers-contrast: high) {
+  .collapsible-reply-form__toggle {
+    border-width: 2px;
+    border-color: var(--brand-primary);
+  }
+
+  .collapsible-reply-form__content {
+    border-width: 2px;
+  }
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+
+  .collapsible-reply-form__toggle,
+  .collapsible-reply-form__content,
+  .collapsible-reply-form__chevron,
+  .collapsible-reply-form__form {
+    transition: none;
+    animation: none;
+  }
+
+  .collapsible-reply-form__toggle:hover,
+  .collapsible-reply-form__toggle:active {
+    transform: none;
+  }
+}

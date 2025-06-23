@@ -1,4 +1,5 @@
 @import url('./fonts.css');
+@import url('./styles/glass-effects.css');
 
 :root {
   /* START PALATTES REGION */
@@ -148,7 +149,8 @@
 
   --max-width: 1100px;
   --border-radius: 0.5rem;
-  --font-mono: 'Fira Code', monospace;
+  --font-mono: 'Fira Code', 'Fira Mono', Monaco, 'Cascadia Code', 'Roboto Mono',
+    Consolas, 'Courier New', monospace;
 
   /* App font family - can be changed by FontPicker component */
   --app-font-family: 'Fira Code', 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', 'Segoe UI Symbol', monospace;
@@ -802,13 +804,15 @@ section:not(:last-of-type) {
 
 /* Portal Tooltip Styles */
 .portal-tooltip {
-  background: var(--light-background--primary);
-  border: 1px solid var(--light-border--primary);
+  /* Apply glass effect */
+  backdrop-filter: var(--glass-blur-medium);
+  -webkit-backdrop-filter: var(--glass-blur-medium);
+  background: var(--glass-bg-medium);
+  border: 1px solid var(--glass-border-medium);
+  box-shadow: var(--glass-shadow-heavy);
   border-radius: var(--border-radius);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   font-family: inherit;
   user-select: none;
-  backdrop-filter: blur(8px);
 }
 
 .portal-tooltip--wide {
