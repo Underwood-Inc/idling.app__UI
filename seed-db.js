@@ -566,14 +566,78 @@ async function restoreDatabaseSettings() {
 }
 
 /**
+ * Create users in the database and return them with database IDs
+ */
+async function createUsers(users) {
+  console.log(`👥 Creating ${users.length} users in the database...`);
+
+  const batches = Math.ceil(users.length / BATCH_SIZE);
+  let totalCreated = 0;
+  const createdUsers = [];
+
+  for (let batch = 0; batch < batches; batch++) {
+    const batchStart = batch * BATCH_SIZE;
+    const batchSize = Math.min(BATCH_SIZE, users.length - batchStart);
+    const batchUsers = users.slice(batchStart, batchStart + batchSize);
+
+    // Prepare user records for database insertion
+    const userRecords = batchUsers.map((user) => [
+      user.author, // name
+      user.email, // email
+      null, // emailVerified
+      null, // image
+      true, // profile_public
+      null, // bio
+      null, // location
+      user.created_at, // created_at
+      user.author_id // provider_account_id
+    ]);
+
+    // Insert users and get their database IDs
+    const insertedUsers = await sql`
+      INSERT INTO users (name, email, "emailVerified", image, profile_public, bio, location, created_at, provider_account_id)
+      VALUES ${sql(userRecords)}
+      RETURNING id, name, email, provider_account_id
+    `;
+
+    // Combine generated user data with database IDs
+    for (let i = 0; i < insertedUsers.length; i++) {
+      const insertedUser = insertedUsers[i];
+      const originalUser = batchUsers[i];
+
+      createdUsers.push({
+        user_id: insertedUser.id, // Database ID
+        author_id: insertedUser.provider_account_id, // Provider account ID
+        author: insertedUser.name, // Username
+        email: insertedUser.email,
+        created_at: originalUser.created_at
+      });
+    }
+
+    totalCreated += batchSize;
+    console.log(`  Created ${totalCreated}/${users.length} users...`);
+  }
+
+  console.log(`✅ Created ${totalCreated} users in database`);
+  return createdUsers;
+}
+
+/**
  * Clear existing data
  */
 async function clearDatabase() {
   console.log('🧹 Clearing existing data...');
 
   try {
+    // Clear in proper order to respect foreign key constraints
     await sql`DELETE FROM submissions`;
+    await sql`DELETE FROM accounts`;
+    await sql`DELETE FROM users`;
+
+    // Reset sequences
     await sql`ALTER SEQUENCE submissions_submission_id_seq RESTART WITH 1`;
+    await sql`ALTER SEQUENCE users_id_seq RESTART WITH 1`;
+
     console.log('✅ Database cleared');
   } catch (error) {
     console.error('❌ Error clearing database:', error);
@@ -970,35 +1034,38 @@ async function main() {
     // Step 3: Generate unique users
     const users = generateUniqueUsers(SEED_USERS_COUNT);
 
-    // Step 4: Create main posts
-    const mainPostIds = await createMainPosts(users, SEED_POSTS_COUNT);
+    // Step 4: Create users in the database
+    const dbUsers = await createUsers(users);
+
+    // Step 5: Create main posts
+    const mainPostIds = await createMainPosts(dbUsers, SEED_POSTS_COUNT);
     const mainPostMaxId = mainPostIds[mainPostIds.length - 1] || 0; // Get the highest ID from main posts
 
-    // Step 5: Create replies
+    // Step 6: Create replies
     const replies = await createReplies(
-      users,
+      dbUsers,
       mainPostIds,
       SEED_REPLIES_COUNT,
       mainPostMaxId
     );
 
-    // Step 6: Create nested replies
+    // Step 7: Create nested replies
     await createNestedReplies(
-      users,
+      dbUsers,
       replies.replyIds,
       SEED_NESTED_REPLIES_COUNT,
       replies.nextMaxId
     );
 
-    // Step 7: Refresh materialized view
+    // Step 8: Refresh materialized view
     if (!SKIP_MATERIALIZED_VIEW) {
       await refreshMaterializedView();
     }
 
-    // Step 8: Restore database settings
+    // Step 9: Restore database settings
     await restoreDatabaseSettings();
 
-    // Step 9: Display statistics
+    // Step 10: Display statistics
     await displayStatistics();
 
     const endTime = Date.now();
