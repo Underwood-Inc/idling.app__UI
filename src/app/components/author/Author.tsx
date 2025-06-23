@@ -49,8 +49,9 @@ const UserProfileModal: React.FC<{
         '../../../lib/actions/profile.actions'
       );
 
-      // Use the user's identifier (slug, username, name, or id)
-      const identifier = user.slug || user.username || user.name || user.id;
+      // ✅ CRITICAL: Use database ID only for bio updates (after migration 0011)
+      // This ensures bio updates work reliably regardless of username changes
+      const identifier = user.id;
 
       const result = await updateBioAction(newBio, identifier);
 
