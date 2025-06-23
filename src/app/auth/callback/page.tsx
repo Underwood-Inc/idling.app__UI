@@ -5,6 +5,7 @@ import { NAV_PATHS } from '../../../lib/routes';
 import Loader from '../../components/loader/Loader';
 import { PageContainer } from '../../components/page-container/PageContainer';
 import { InstantLink } from '../../components/ui/InstantLink';
+import { AutoRedirect } from './AutoRedirect';
 import './callback.css';
 
 interface CallbackSearchParams {
@@ -71,25 +72,30 @@ function CallbackContent({
   }
 
   return (
-    <div className="callback__success">
-      <div className="callback__icon callback__icon--success">
-        <div className="callback__spinner"></div>
-      </div>
-      <h2 className="callback__title">
-        {provider
-          ? `Signing in with ${provider.charAt(0).toUpperCase() + provider.slice(1)}...`
-          : 'Completing sign-in...'}
-      </h2>
-      <p className="callback__message">
-        Please wait while we finish setting up your account.
-      </p>
-      <div className="callback__progress">
-        <div className="callback__progress-bar">
-          <div className="callback__progress-fill"></div>
+    <>
+      <AutoRedirect redirectTo={redirectTo || NAV_PATHS.ROOT} />
+      <div className="callback__success">
+        <div className="callback__icon callback__icon--success">
+          <div className="callback__spinner"></div>
         </div>
-        <span className="callback__progress-text">Authenticating...</span>
+        <h2 className="callback__title">
+          {provider
+            ? `Signing in with ${provider.charAt(0).toUpperCase() + provider.slice(1)}...`
+            : 'Completing sign-in...'}
+        </h2>
+        <p className="callback__message">
+          Please wait while we finish setting up your account.
+        </p>
+        <div className="callback__progress">
+          <div className="callback__progress-bar">
+            <div className="callback__progress-fill"></div>
+          </div>
+          <span className="callback__progress-text">
+            Redirecting you shortly...
+          </span>
+        </div>
       </div>
-    </div>
+    </>
   );
 }
 
@@ -100,7 +106,7 @@ export default async function CallbackPage({
 }) {
   const session = await auth();
 
-  // If user is already authenticated, redirect them
+  // If user is already authenticated, redirect them immediately
   if (session) {
     const redirectTo = searchParams.redirect || NAV_PATHS.ROOT;
     redirect(redirectTo);
