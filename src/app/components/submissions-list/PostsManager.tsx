@@ -2,10 +2,22 @@
 
 import { useAtom } from 'jotai';
 import { useSession } from 'next-auth/react';
-import React, { useCallback, useMemo, useRef, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState
+} from 'react';
 import { useSpacingTheme } from '../../../lib/context/SpacingThemeContext';
 import { shouldUpdateAtom } from '../../../lib/state/atoms';
 import { useSubmissionsManager } from '../../../lib/state/useSubmissionsManager';
+import { highlightScrollTarget } from '../../../lib/utils/scroll-highlight';
+import '../../../lib/utils/scroll-highlight-demo'; // Import for global test function
+import {
+  generateScrollKey,
+  storeOrUpdateScrollPosition
+} from '../../../lib/utils/scroll-position';
 import { CustomFilterInput } from '../filter-bar/CustomFilterInput';
 import FilterBar from '../filter-bar/FilterBar';
 import Pagination from '../pagination/Pagination';
@@ -39,6 +51,8 @@ interface PostsManagerProps {
       _updatedSubmission: Submission
     ) => void;
     optimisticRemoveSubmission?: (_submissionId: number) => void;
+    currentPage?: number;
+    currentFilters?: Record<string, any>;
   }) => React.ReactNode;
 }
 
@@ -59,8 +73,13 @@ const PostsManager = React.memo(function PostsManager({
   const [includeThreadReplies, setIncludeThreadReplies] = useState(false);
   const [infiniteScrollMode, setInfiniteScrollMode] = useState(false);
 
-  // Set default filter visibility based on spacing theme
+  // Set default filter visibility based on spacing theme and localStorage
   const getDefaultFilterVisibility = () => {
+    // Check localStorage first, fallback to theme-based default
+    const saved = localStorage.getItem('posts-manager-filters-expanded');
+    if (saved !== null) {
+      return saved === 'true';
+    }
     return theme === 'cozy'; // Show filters by default in cozy mode, hide in compact mode
   };
 
@@ -74,10 +93,10 @@ const PostsManager = React.memo(function PostsManager({
   // Memoize the submissions manager call
   const {
     submissions,
+    pagination,
+    filters,
     isLoading,
     error,
-    filters,
-    pagination,
     addFilter,
     addFilters,
     removeFilter,
@@ -93,7 +112,7 @@ const PostsManager = React.memo(function PostsManager({
   } = useSubmissionsManager({
     contextId,
     onlyMine,
-    userId: session?.user?.id || '',
+    userId: session?.user?.id?.toString() || '',
     includeThreadReplies: shouldIncludeReplies,
     infiniteScroll: infiniteScrollMode
   });
@@ -102,7 +121,303 @@ const PostsManager = React.memo(function PostsManager({
   React.useEffect(() => {
     const defaultVisibility = getDefaultFilterVisibility();
     setShowFilters(defaultVisibility);
-  }, []); // Empty dependency array - only run on mount
+  }, []);
+
+  // Save filter visibility to localStorage when it changes
+  useEffect(() => {
+    localStorage.setItem(
+      'posts-manager-filters-expanded',
+      showFilters.toString()
+    );
+  }, [showFilters]); // Empty dependency array - only run on mount
+
+  // Handle scroll restoration from thread navigation
+  useEffect(() => {
+    // First check for sessionStorage data (from BackButton navigation)
+    const restoreKey = sessionStorage.getItem('restore-scroll-key');
+    const restorePosition = sessionStorage.getItem('restore-scroll-position');
+
+    // Also check for localStorage data (from normal scroll position storage)
+    const shouldTryLocalStorage = !restoreKey && !restorePosition;
+
+    if (
+      (restoreKey && restorePosition && !isLoading && submissions.length > 0) ||
+      (shouldTryLocalStorage && !isLoading && submissions.length > 0)
+    ) {
+      try {
+        let position: any = null;
+
+        if (restoreKey && restorePosition) {
+          // Use sessionStorage data (from BackButton)
+          position = JSON.parse(restorePosition);
+        } else {
+          // Try to find matching localStorage data
+          const currentPath = window.location.pathname;
+          const currentParams = new URLSearchParams(window.location.search);
+          const currentPage = parseInt(currentParams.get('page') || '1');
+
+          // Generate possible scroll keys to check
+          const possibleKey = `${currentPath}?page=${currentPage}`;
+          const stored = localStorage.getItem('app-scroll-positions');
+
+          if (stored) {
+            const positions = JSON.parse(stored);
+            const matchingKey = Object.keys(positions).find(
+              (key) =>
+                key.includes(currentPath) &&
+                (key.includes(`page=${currentPage}`) ||
+                  (!key.includes('page=') && currentPage === 1))
+            );
+
+            if (matchingKey) {
+              position = positions[matchingKey];
+              // eslint-disable-next-line no-console
+              console.log(
+                '📄 PostsManager: Found localStorage scroll position',
+                {
+                  matchingKey,
+                  position
+                }
+              );
+            }
+          }
+        }
+
+        // Skip if no position found
+        if (!position) {
+          return;
+        }
+
+        // Check if we're on the correct page
+        const expectedPage = position.currentPage || 1;
+        const currentPage = pagination.currentPage;
+
+        // eslint-disable-next-line no-console
+        console.log('📄 PostsManager: Checking scroll restoration', {
+          restoreKey,
+          position,
+          expectedPage,
+          currentPage,
+          submissionsCount: submissions.length,
+          isLoading,
+          currentFilters: filters
+        });
+
+        // Only restore scroll if we're on the expected page and have data
+        if (currentPage === expectedPage && submissions.length > 0) {
+          // eslint-disable-next-line no-console
+          console.log(
+            '📄 PostsManager: Restoring scroll position',
+            position.scrollY
+          );
+
+          // Clean up session storage if it was used
+          if (restoreKey && restorePosition) {
+            sessionStorage.removeItem('restore-scroll-key');
+            sessionStorage.removeItem('restore-scroll-position');
+          }
+
+          // Wait for virtual scrolling system to be ready and then restore scroll
+          const attemptScrollRestore = (attempts = 0, maxAttempts = 15) => {
+            const submissionsContainer = document.querySelector(
+              '.submissions-list--virtual'
+            ) as HTMLElement;
+
+            if (!submissionsContainer) {
+              if (attempts < maxAttempts) {
+                setTimeout(
+                  () => attemptScrollRestore(attempts + 1, maxAttempts),
+                  150
+                );
+              } else {
+                // eslint-disable-next-line no-console
+                console.warn(
+                  '📄 PostsManager: Submissions container not found after max attempts'
+                );
+              }
+              return;
+            }
+
+            // Check if virtual scrolling has rendered content
+            const hasContent = submissionsContainer.querySelector(
+              '.submissions-list__content'
+            );
+            const hasItems =
+              submissionsContainer.querySelectorAll('.submissions-list__item')
+                .length > 0;
+
+            // Also check for actual submission items with test IDs
+            const submissionItems = submissionsContainer.querySelectorAll(
+              '[data-testid*="submission-item"]'
+            );
+
+            if (!hasContent || (!hasItems && submissionItems.length === 0)) {
+              if (attempts < maxAttempts) {
+                // eslint-disable-next-line no-console
+                console.log(
+                  '📄 PostsManager: Waiting for virtual content to render, attempt',
+                  attempts + 1,
+                  {
+                    hasContent: !!hasContent,
+                    hasItems,
+                    submissionItemsCount: submissionItems.length
+                  }
+                );
+                setTimeout(
+                  () => attemptScrollRestore(attempts + 1, maxAttempts),
+                  250
+                );
+              } else {
+                // eslint-disable-next-line no-console
+                console.warn(
+                  '📄 PostsManager: Virtual content not ready after max attempts',
+                  {
+                    hasContent: !!hasContent,
+                    hasItems,
+                    submissionItemsCount: submissionItems.length
+                  }
+                );
+              }
+              return;
+            }
+
+            // Virtual scrolling is ready, now scroll
+            if (position.scrollY) {
+              // Set scrollTop directly for more reliable scrolling
+              submissionsContainer.scrollTop = position.scrollY;
+
+              // Also try smooth scrolling as a fallback
+              submissionsContainer.scrollTo({
+                top: position.scrollY,
+                behavior: 'smooth'
+              });
+
+              // Apply highlight animation to the element at the scroll position
+              setTimeout(() => {
+                const highlighted = highlightScrollTarget(
+                  submissionsContainer,
+                  position.scrollY,
+                  {
+                    duration: 3500,
+                    offset: 150,
+                    intensity: 'normal',
+                    speed: 'normal',
+                    enablePulse: true,
+                    enableScale: true
+                  }
+                );
+
+                if (highlighted) {
+                  // eslint-disable-next-line no-console
+                  console.log(
+                    '🎯 PostsManager: Applied scroll restoration highlight'
+                  );
+                } else {
+                  // eslint-disable-next-line no-console
+                  console.warn(
+                    '🎯 PostsManager: Failed to find element to highlight'
+                  );
+                }
+              }, 200); // Small delay to ensure scroll is complete
+
+              // eslint-disable-next-line no-console
+              console.log(
+                '📄 PostsManager: Successfully scrolled submissions container to',
+                position.scrollY,
+                'after',
+                attempts + 1,
+                'attempts',
+                {
+                  actualScrollTop: submissionsContainer.scrollTop,
+                  targetScrollY: position.scrollY
+                }
+              );
+            }
+          };
+
+          // Start the scroll restoration process with a longer initial delay
+          setTimeout(() => attemptScrollRestore(), 300);
+        }
+      } catch (error) {
+        // eslint-disable-next-line no-console
+        console.warn('Failed to restore scroll position:', error);
+        // Clean up invalid data
+        sessionStorage.removeItem('restore-scroll-key');
+        sessionStorage.removeItem('restore-scroll-position');
+      }
+    }
+  }, [isLoading, submissions.length, pagination.currentPage, filters]); // Also depend on filter state
+
+  // Track scroll position for navigation restoration
+  useEffect(() => {
+    if (
+      typeof window === 'undefined' ||
+      isLoading ||
+      submissions.length === 0
+    ) {
+      return;
+    }
+
+    let scrollTimeout: ReturnType<typeof setTimeout>;
+
+    const handleScroll = () => {
+      // Debounce scroll updates to avoid excessive localStorage writes
+      clearTimeout(scrollTimeout);
+      scrollTimeout = setTimeout(() => {
+        const submissionsContainer = document.querySelector(
+          '.submissions-list--virtual'
+        ) as HTMLElement;
+
+        if (submissionsContainer) {
+          const scrollY = submissionsContainer.scrollTop;
+
+          // Generate scroll key for current state
+          const scrollKey = generateScrollKey(window.location.pathname, {
+            page: pagination.currentPage,
+            filters: filters.reduce(
+              (acc, filter) => {
+                acc[filter.name] = filter.value;
+                return acc;
+              },
+              {} as Record<string, any>
+            ),
+            searchParams: new URLSearchParams(window.location.search)
+          });
+
+          // Update stored scroll position
+          storeOrUpdateScrollPosition(
+            scrollKey,
+            {
+              currentPage: pagination.currentPage,
+              filters: filters.reduce(
+                (acc, filter) => {
+                  acc[filter.name] = filter.value;
+                  return acc;
+                },
+                {} as Record<string, any>
+              )
+            },
+            scrollY
+          );
+        }
+      }, 250); // 250ms debounce
+    };
+
+    const submissionsContainer = document.querySelector(
+      '.submissions-list--virtual'
+    ) as HTMLElement;
+
+    if (submissionsContainer) {
+      submissionsContainer.addEventListener('scroll', handleScroll, {
+        passive: true
+      });
+
+      return () => {
+        clearTimeout(scrollTimeout);
+        submissionsContainer.removeEventListener('scroll', handleScroll);
+      };
+    }
+  }, [isLoading, submissions.length, pagination.currentPage, filters]);
 
   // Memoize authorization check
   const isAuthorized = useMemo(() => !!session?.user?.id, [session?.user?.id]);
@@ -412,6 +727,8 @@ const PostsManager = React.memo(function PostsManager({
         onLoadMore={loadMore}
         optimisticUpdateSubmission={optimisticUpdateSubmission}
         optimisticRemoveSubmission={optimisticRemoveSubmission}
+        currentPage={pagination.currentPage}
+        currentFilters={filters}
       >
         {renderSubmissionItem}
       </SubmissionsList>
