@@ -103,14 +103,6 @@ const PostsManager = React.memo(function PostsManager({
     setShowFilters(defaultVisibility);
   }, []); // Empty dependency array - only run on mount
 
-  // Update default when theme changes, but only if no filters exist
-  React.useEffect(() => {
-    if (filters.length === 0) {
-      const defaultVisibility = getDefaultFilterVisibility();
-      setShowFilters(defaultVisibility);
-    }
-  }, [theme, getDefaultFilterVisibility, filters.length]);
-
   // Memoize authorization check
   const isAuthorized = useMemo(() => !!session?.user?.id, [session?.user?.id]);
 
