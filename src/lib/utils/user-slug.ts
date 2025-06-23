@@ -1,4 +1,5 @@
 /**
+ * @deprecated After migration 0010, all profile URLs use database IDs only
  * Generate a unique user slug combining username and ID
  * Format: username-id (e.g., "johndoe-123")
  */
@@ -22,21 +23,28 @@ export function generateUserSlug(
 }
 
 /**
- * Parse a user slug to extract username and ID
- * Returns null if the slug format is invalid
+ * @deprecated After migration 0010, all profile URLs use database IDs only
+ * Parse a user slug back into username and user ID
+ * Returns null if the string doesn't match the expected slug format
  */
 export function parseUserSlug(
   slug: string
 ): { username: string; userId: string } | null {
-  // Match pattern: anything followed by dash and number at the end
+  // Match pattern: anything-followed-by-numbers
   const match = slug.match(/^(.+)-(\d+)$/);
-  if (!match) return null;
 
-  const [, username, userId] = match;
-  return { username, userId };
+  if (!match) {
+    return null;
+  }
+
+  return {
+    username: match[1],
+    userId: match[2]
+  };
 }
 
 /**
+ * @deprecated After migration 0010, all profile URLs use database IDs only
  * Ensure any user data has a slug field populated
  * This is useful for components that receive user data from various sources
  */
