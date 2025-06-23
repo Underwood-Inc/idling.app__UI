@@ -423,14 +423,28 @@ async function populateEmojiData() {
     const categoryBreakdown = await sql`
       SELECT 
         ec.name as category,
-        COUNT(ew.id) as windows_count,
-        COUNT(em.id) as mac_count,
-        COUNT(ce.id) as custom_count
+        COALESCE(windows_counts.count, 0) as windows_count,
+        COALESCE(mac_counts.count, 0) as mac_count,
+        COALESCE(custom_counts.count, 0) as custom_count
       FROM emoji_categories ec
-      LEFT JOIN emojis_windows ew ON ec.id = ew.category_id AND ew.is_active = true
-      LEFT JOIN emojis_mac em ON ec.id = em.category_id AND em.is_active = true
-      LEFT JOIN custom_emojis ce ON ec.id = ce.category_id AND ce.is_active = true
-      GROUP BY ec.name
+      LEFT JOIN (
+        SELECT category_id, COUNT(*) as count 
+        FROM emojis_windows 
+        WHERE is_active = true 
+        GROUP BY category_id
+      ) windows_counts ON ec.id = windows_counts.category_id
+      LEFT JOIN (
+        SELECT category_id, COUNT(*) as count 
+        FROM emojis_mac 
+        WHERE is_active = true 
+        GROUP BY category_id
+      ) mac_counts ON ec.id = mac_counts.category_id
+      LEFT JOIN (
+        SELECT category_id, COUNT(*) as count 
+        FROM custom_emojis 
+        WHERE is_active = true 
+        GROUP BY category_id
+      ) custom_counts ON ec.id = custom_counts.category_id
       ORDER BY ec.name
     `;
 
