@@ -253,52 +253,104 @@
   }
 }
 
-/* User Not Found Styles */
+/* User Not Found Page Layout */
+.user-not-found-page {
+  min-height: 100vh;
+  background: var(--light-background--primary);
+  padding: 2rem 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.user-not-found-container {
+  width: 100%;
+  max-width: 1200px;
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  gap: 2rem;
+  align-items: start;
+}
+
+.user-not-found-main {
+  background: var(--light-background--secondary);
+  border: 1px solid var(--brand-tertiary--light);
+  border-radius: var(--border-radius);
+  padding: 0;
+  overflow: hidden;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+.user-not-found-aside {
+  background: var(--light-background--secondary);
+  border: 1px solid var(--brand-tertiary--light);
+  border-radius: var(--border-radius);
+  overflow: hidden;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+.user-not-found-help-card {
+  padding: 1.5rem;
+}
+
+.user-not-found-help-title {
+  margin: 0 0 1rem 0;
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+  color: var(--light-bg__text-color--primary);
+}
+
+/* User Not Found Content Styles */
 .user-not-found {
   text-align: center;
-  padding: 3rem 2rem;
+  padding: 4rem 3rem;
   max-width: 600px;
   margin: 0 auto;
 }
 
 .user-not-found__icon {
-  font-size: 4rem;
-  margin-bottom: 1.5rem;
-  opacity: 0.7;
+  font-size: 5rem;
+  margin-bottom: 2rem;
+  opacity: 0.8;
+  display: block;
 }
 
 .user-not-found__title {
-  font-size: var(--font-size-3xl);
+  font-size: var(--font-size-4xl);
   font-weight: 700;
   color: var(--light-bg__text-color--primary);
-  margin: 0 0 1rem 0;
+  margin: 0 0 1.5rem 0;
   line-height: 1.2;
 }
 
 .user-not-found__message {
   font-size: var(--font-size-lg);
   color: var(--light-bg__text-color--secondary);
-  margin: 0 0 1.5rem 0;
-  line-height: 1.5;
+  margin: 0 0 2rem 0;
+  line-height: 1.6;
 }
 
 .user-not-found__reasons {
   text-align: left;
-  margin: 0 0 2rem 0;
-  padding: 1.5rem;
-  background: rgba(var(--brand-tertiary), 0.1);
-  border: 1px solid rgba(var(--brand-tertiary--dark), 0.2);
+  margin: 0 0 3rem 0;
+  padding: 2rem;
+  background: rgba(var(--brand-tertiary), 0.08);
+  border: 1px solid rgba(var(--brand-tertiary--dark), 0.15);
   border-radius: var(--border-radius);
   list-style: none;
+  max-width: 400px;
+  margin-left: auto;
+  margin-right: auto;
+  margin-bottom: 3rem;
 }
 
 .user-not-found__reasons li {
   position: relative;
-  padding-left: 1.5rem;
-  margin-bottom: 0.75rem;
+  padding-left: 2rem;
+  margin-bottom: 1rem;
   color: var(--light-bg__text-color--secondary);
   font-size: var(--font-size-base);
-  line-height: 1.4;
+  line-height: 1.5;
 }
 
 .user-not-found__reasons li:last-child {
@@ -308,74 +360,82 @@
 .user-not-found__reasons li::before {
   content: '•';
   position: absolute;
-  left: 0;
+  left: 0.5rem;
   color: var(--brand-primary);
   font-weight: bold;
+  font-size: 1.2em;
 }
 
 .user-not-found__actions {
   display: flex;
-  gap: 1rem;
+  gap: 1.5rem;
   justify-content: center;
-  margin: 2rem 0;
+  margin: 3rem 0;
   flex-wrap: wrap;
 }
 
 .user-not-found__action {
-  padding: 0.75rem 1.5rem;
+  padding: 1rem 2rem;
   border-radius: var(--border-radius);
   font-size: var(--font-size-base);
-  font-weight: 500;
+  font-weight: 600;
   text-decoration: none;
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 120px;
+  min-width: 140px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .user-not-found__action--primary {
   background: var(--brand-primary);
   color: var(--font-color--primary);
-  border: 1px solid var(--brand-primary);
+  border: 1px solid var(--brand-primary--dark);
 }
 
 .user-not-found__action--primary:hover {
   background: var(--brand-primary--dark);
   border-color: var(--brand-primary--dark);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
 }
 
 .user-not-found__action--secondary {
-  background: rgba(var(--light-background--tertiary), 0.5);
+  background: var(--light-background--tertiary);
   color: var(--light-bg__text-color--primary);
   border: 1px solid rgba(var(--brand-tertiary--dark), 0.3);
 }
 
 .user-not-found__action--secondary:hover {
   background: rgba(var(--brand-primary), 0.1);
-  border-color: rgba(var(--brand-primary), 0.3);
+  border-color: rgba(var(--brand-primary), 0.4);
   color: var(--brand-primary);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
 }
 
 .user-not-found__suggestion {
-  margin-top: 2rem;
-  padding: 1.5rem;
-  background: rgba(var(--brand-primary--light), 0.1);
-  border: 1px solid rgba(var(--brand-primary), 0.2);
+  margin-top: 3rem;
+  padding: 2rem;
+  background: rgba(var(--brand-primary--light), 0.08);
+  border: 1px solid rgba(var(--brand-primary), 0.15);
   border-radius: var(--border-radius);
+  max-width: 500px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .user-not-found__suggestion p {
   margin: 0;
   color: var(--light-bg__text-color--secondary);
   font-size: var(--font-size-base);
-  line-height: 1.5;
+  line-height: 1.6;
 }
 
 .user-not-found__suggestion strong {
   color: var(--light-bg__text-color--primary);
+  font-weight: 600;
 }
 
 /* Help section styles */
@@ -388,9 +448,9 @@
 .user-not-found__help-item {
   display: flex;
   align-items: flex-start;
-  gap: 0.75rem;
-  padding: 0.75rem;
-  background: rgba(var(--light-background--tertiary), 0.3);
+  gap: 1rem;
+  padding: 1rem;
+  background: rgba(var(--light-background--tertiary), 0.5);
   border: 1px solid rgba(var(--brand-tertiary--dark), 0.2);
   border-radius: var(--border-radius);
   transition: all 0.2s ease;
@@ -399,10 +459,12 @@
 .user-not-found__help-item:hover {
   background: rgba(var(--brand-primary--light), 0.1);
   border-color: rgba(var(--brand-primary), 0.3);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
 .user-not-found__help-icon {
-  font-size: var(--font-size-lg);
+  font-size: var(--font-size-xl);
   flex-shrink: 0;
   margin-top: 0.125rem;
 }
@@ -418,7 +480,7 @@
   font-size: var(--font-size-base);
   font-weight: 600;
   color: var(--light-bg__text-color--primary);
-  line-height: 1.2;
+  line-height: 1.3;
 }
 
 .user-not-found__help-description {
@@ -429,6 +491,17 @@
 
 /* Dark mode support */
 @media (prefers-color-scheme: dark) {
+  .user-not-found-page {
+    background: var(--dark-background--primary);
+  }
+
+  .user-not-found-main,
+  .user-not-found-aside {
+    background: var(--dark-background--secondary);
+    border-color: rgba(var(--dark-border--secondary), 0.5);
+  }
+
+  .user-not-found-help-title,
   .user-not-found__title {
     color: var(--dark-bg__text-color--primary);
   }
@@ -438,8 +511,8 @@
   }
 
   .user-not-found__reasons {
-    background: rgba(var(--brand-tertiary), 0.15);
-    border-color: rgba(var(--brand-tertiary--dark), 0.3);
+    background: rgba(var(--brand-tertiary), 0.12);
+    border-color: rgba(var(--brand-tertiary--dark), 0.25);
   }
 
   .user-not-found__reasons li {
@@ -447,7 +520,7 @@
   }
 
   .user-not-found__action--secondary {
-    background: rgba(var(--dark-background--tertiary), 0.6);
+    background: rgba(var(--dark-background--tertiary), 0.8);
     color: var(--dark-bg__text-color--primary);
     border-color: rgba(var(--dark-border--secondary), 0.5);
   }
@@ -459,8 +532,8 @@
   }
 
   .user-not-found__suggestion {
-    background: rgba(var(--brand-primary--light), 0.15);
-    border-color: rgba(var(--brand-primary), 0.3);
+    background: rgba(var(--brand-primary--light), 0.12);
+    border-color: rgba(var(--brand-primary), 0.25);
   }
 
   .user-not-found__suggestion p {
@@ -472,8 +545,8 @@
   }
 
   .user-not-found__help-item {
-    background: rgba(var(--dark-background--tertiary), 0.4);
-    border-color: rgba(var(--dark-border--secondary), 0.3);
+    background: rgba(var(--dark-background--tertiary), 0.6);
+    border-color: rgba(var(--dark-border--secondary), 0.4);
   }
 
   .user-not-found__help-item:hover {
@@ -491,18 +564,33 @@
 }
 
 /* Responsive design */
+@media (max-width: 968px) {
+  .user-not-found-container {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .user-not-found-aside {
+    order: -1;
+  }
+}
+
 @media (max-width: 768px) {
+  .user-not-found-page {
+    padding: 1rem;
+  }
+
   .user-not-found {
-    padding: 2rem 1rem;
+    padding: 3rem 2rem;
   }
 
   .user-not-found__icon {
-    font-size: 3rem;
-    margin-bottom: 1rem;
+    font-size: 4rem;
+    margin-bottom: 1.5rem;
   }
 
   .user-not-found__title {
-    font-size: var(--font-size-2xl);
+    font-size: var(--font-size-3xl);
   }
 
   .user-not-found__message {
@@ -516,34 +604,38 @@
 
   .user-not-found__action {
     width: 100%;
-    max-width: 200px;
+    max-width: 250px;
   }
 
   .user-not-found__reasons,
   .user-not-found__suggestion {
+    padding: 1.5rem;
+  }
+
+  .user-not-found-help-card {
     padding: 1rem;
   }
 }
 
 @media (max-width: 480px) {
   .user-not-found {
-    padding: 1.5rem 0.75rem;
+    padding: 2rem 1rem;
   }
 
   .user-not-found__icon {
-    font-size: 2.5rem;
+    font-size: 3rem;
   }
 
   .user-not-found__title {
-    font-size: var(--font-size-xl);
+    font-size: var(--font-size-2xl);
   }
 
   .user-not-found__reasons,
   .user-not-found__suggestion {
-    padding: 0.75rem;
+    padding: 1rem;
   }
 
   .user-not-found__help-item {
-    padding: 0.5rem;
+    padding: 0.75rem;
   }
 }

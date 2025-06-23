@@ -1,70 +1,57 @@
-import Link from 'next/link';
-import { Card } from '../../components/card/Card';
-import FadeIn from '../../components/fade-in/FadeIn';
-import { PageAside } from '../../components/page-aside/PageAside';
-import { PageContainer } from '../../components/page-container/PageContainer';
-import PageContent from '../../components/page-content/PageContent';
-
 export default function UserNotFound() {
   return (
-    <PageContainer>
-      <PageContent>
-        <article className="profile-page">
-          <FadeIn className="profile-page__fade">
-            <Card width="full" className="profile-page__main-card">
-              <div className="user-not-found">
-                <div className="user-not-found__icon">
-                  <span role="img" aria-label="User not found">
-                    👤❓
-                  </span>
-                </div>
+    <div className="user-not-found-page">
+      <div className="user-not-found-container">
+        <main className="user-not-found-main">
+          <div className="user-not-found">
+            <div className="user-not-found__icon">
+              <span role="img" aria-label="User not found">
+                👤❓
+              </span>
+            </div>
 
-                <h1 className="user-not-found__title">User Not Found</h1>
+            <h1 className="user-not-found__title">User Not Found</h1>
 
-                <p className="user-not-found__message">
-                  Sorry, we couldn't find the user profile you're looking for.
-                  This could happen if:
-                </p>
+            <p className="user-not-found__message">
+              Sorry, we couldn't find the user profile you're looking for. This
+              could happen if:
+            </p>
 
-                <ul className="user-not-found__reasons">
-                  <li>The username doesn't exist</li>
-                  <li>The user has deleted their account</li>
-                  <li>The profile URL is incorrect</li>
-                  <li>The user's profile is set to private</li>
-                </ul>
+            <ul className="user-not-found__reasons">
+              <li>The username doesn't exist</li>
+              <li>The user has deleted their account</li>
+              <li>The profile URL is incorrect</li>
+              <li>The user's profile is set to private</li>
+            </ul>
 
-                <div className="user-not-found__actions">
-                  <Link
-                    href="/posts"
-                    className="user-not-found__action user-not-found__action--primary"
-                  >
-                    Browse Posts
-                  </Link>
+            <div className="user-not-found__actions">
+              <a
+                href="/posts"
+                className="user-not-found__action user-not-found__action--primary"
+              >
+                Browse Posts
+              </a>
 
-                  <Link
-                    href="/"
-                    className="user-not-found__action user-not-found__action--secondary"
-                  >
-                    Go Home
-                  </Link>
-                </div>
+              <a
+                href="/"
+                className="user-not-found__action user-not-found__action--secondary"
+              >
+                Go Home
+              </a>
+            </div>
 
-                <div className="user-not-found__suggestion">
-                  <p>
-                    <strong>Looking for someone specific?</strong> Try searching
-                    for them using the search functionality in the navigation.
-                  </p>
-                </div>
-              </div>
-            </Card>
-          </FadeIn>
-        </article>
-      </PageContent>
+            <div className="user-not-found__suggestion">
+              <p>
+                <strong>Looking for someone specific?</strong> Try searching for
+                them using the search functionality in the navigation.
+              </p>
+            </div>
+          </div>
+        </main>
 
-      <PageAside className="profile-page__aside" bottomMargin={10}>
-        <FadeIn>
-          <Card width="full">
-            <h3 className="profile-page__aside-title">Help</h3>
+        <aside className="user-not-found-aside">
+          <div className="user-not-found-help-card">
+            <h3 className="user-not-found-help-title">Help</h3>
             <div className="user-not-found__help">
               <div className="user-not-found__help-item">
                 <span className="user-not-found__help-icon">🔍</span>
@@ -98,9 +85,9 @@ export default function UserNotFound() {
                 </div>
               </div>
             </div>
-          </Card>
-        </FadeIn>
-      </PageAside>
-    </PageContainer>
+          </div>
+        </aside>
+      </div>
+    </div>
   );
 }
