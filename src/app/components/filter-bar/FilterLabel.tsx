@@ -71,13 +71,19 @@ export function FilterLabel({
 
   const handleTagClick = (tagValue: string) => {
     // For hashtag filters in tag lists, remove the specific tag
-    onRemoveTag(tagValue);
+    // Use the original label value, not the clicked pill display value
+    if (name === 'tags') {
+      onRemoveTag(label);
+    } else {
+      onRemoveTag(tagValue);
+    }
   };
 
   const handleMentionClick = (
     mentionValue: string,
     filterType?: 'author' | 'mentions'
   ) => {
+    // Always use the original label value for removal, not the display pill text
     if (name === 'author' && onRemoveFilter) {
       onRemoveFilter('author', label);
     } else if (name === 'mentions' && onRemoveFilter) {

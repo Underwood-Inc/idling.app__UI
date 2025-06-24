@@ -67,31 +67,49 @@ const RecentTagsClientComponent = ({
   }, [tagState.currentTags, tagState.currentTagLogic]);
 
   // Ensure tagLogic filter exists when multiple tags are present
-  useEffect(() => {
-    if (
-      tagState.currentTags.length > 1 &&
-      !tagState.tagLogicFilter &&
-      filtersState.initialized
-    ) {
-      // Add default tagLogic filter when multiple tags exist but no logic filter is present
-      setFiltersState((prev) => {
-        const newFilters = [...prev.filters];
-        newFilters.push({
-          name: 'tagLogic',
-          value: 'OR' // Default to OR logic
-        });
-        return {
-          ...prev,
-          filters: newFilters
-        };
-      });
-    }
-  }, [
-    tagState.currentTags.length,
-    tagState.tagLogicFilter,
-    filtersState.initialized,
-    setFiltersState
-  ]);
+  // But avoid race conditions by only adding default logic if there are multiple tags
+  // and no logic filter has been explicitly set recently
+  // DISABLED: This is causing race conditions with FilterBar updates
+  // useEffect(() => {
+  //   if (
+  //     tagState.currentTags.length > 1 &&
+  //     !tagState.tagLogicFilter &&
+  //     filtersState.initialized
+  //   ) {
+  //     // Only add default tagLogic if we're sure no other component is managing it
+  //     // Check if there's a very recent change to avoid race conditions
+  //     const timeoutId = setTimeout(() => {
+  //       setFiltersState((current) => {
+  //         // Double-check that we still need to add the logic filter
+  //         const currentTagLogicFilter = current.filters.find((f) => f.name === 'tagLogic');
+  //         const currentTagsFilter = current.filters.find((f) => f.name === 'tags');
+  //
+  //         if (currentTagsFilter && !currentTagLogicFilter) {
+  //           const currentTagsArray = getTagsFromSearchParams(currentTagsFilter.value);
+  //           if (currentTagsArray.length > 1) {
+  //             const newFilters = [...current.filters];
+  //             newFilters.push({
+  //               name: 'tagLogic',
+  //               value: 'OR' // Default to OR logic
+  //             });
+  //             return {
+  //               ...current,
+  //               filters: newFilters
+  //             };
+  //           }
+  //         }
+  //         return current;
+  //       });
+  //     }, 100); // Small delay to avoid race conditions with FilterBar updates
+
+  //     return () => clearTimeout(timeoutId);
+  //   }
+  // }, [
+  //   tagState.currentTags.length,
+  //   tagState.tagLogicFilter,
+  //   filtersState.initialized,
+  //   setFiltersState
+  // ]);
 
   // Fetch recent tags
   useEffect(() => {
@@ -146,14 +164,16 @@ const RecentTagsClientComponent = ({
         if (newTags.length > 1) {
           const logicIndex = newFilters.findIndex((f) => f.name === 'tagLogic');
           if (logicIndex >= 0) {
-            newFilters[logicIndex] = {
-              name: 'tagLogic',
-              value: tagState.currentTagLogic
-            };
+            // Don't override existing tagLogic - just preserve whatever is there
+            // This prevents race conditions with FilterBar updates
+            // The existing value is already correct
           } else {
+            // Only add new tagLogic if none exists, and use current state
+            const currentLogic =
+              prev.filters.find((f) => f.name === 'tagLogic')?.value || 'OR';
             newFilters.push({
               name: 'tagLogic',
-              value: tagState.currentTagLogic
+              value: currentLogic
             });
           }
         } else {

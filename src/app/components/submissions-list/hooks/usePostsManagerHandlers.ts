@@ -114,10 +114,12 @@ export function usePostsManagerHandlers({
 
   const handleUpdateFilter = useCallback(
     (name: string, value: string) => {
-      // Add or update a filter with the new value
-      addFilterRef.current({ name: name as any, value });
+      // Simple approach: remove existing filter, then add new one
+      // This should work now that RecentTagsClient interference is disabled
+      removeFilter(name as PostFilters);
+      addFilter({ name: name as any, value });
     },
-    [] // Empty dependency array for stable reference
+    [removeFilter, addFilter]
   );
 
   const handleTextSearch = useCallback(
