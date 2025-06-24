@@ -1,9 +1,17 @@
 'use server';
 
+import { createLogger } from '@/lib/logging';
 import { revalidatePath } from 'next/cache';
 import { auth } from '../auth';
 import sql from '../db';
 import { PERMISSIONS } from '../permissions/permissions';
+
+// Create component-specific logger
+const logger = createLogger({
+  context: {
+    component: 'PermissionActions'
+  }
+});
 
 /**
  * Server action to assign a role to a user
@@ -24,8 +32,16 @@ export async function assignUserRole(
   // CRITICAL SECURITY: Prevent admin and moderator role assignment through API/UI
   const protectedRoles = ['admin', 'moderator'];
   if (protectedRoles.includes(roleName)) {
-    console.error(
-      `SECURITY VIOLATION: Attempt to assign protected role '${roleName}' to user ${userId} by user ${assignedBy}`
+    logger.error(
+      'SECURITY VIOLATION: Attempt to assign protected role',
+      undefined,
+      {
+        roleName,
+        userId,
+        assignedBy,
+        action: 'SECURITY_VIOLATION',
+        audit: true
+      }
     );
     throw new Error(
       `${roleName} roles can only be assigned through direct database access`
@@ -38,8 +54,16 @@ export async function assignUserRole(
     PERMISSIONS.ADMIN.ROLES_MANAGE
   );
   if (!hasPermission) {
-    console.error(
-      `SECURITY VIOLATION: User ${assignedBy} attempted to assign role ${roleName} without permission`
+    logger.error(
+      'SECURITY VIOLATION: User attempted to assign role without permission',
+      undefined,
+      {
+        assignedBy,
+        roleName,
+        userId,
+        action: 'SECURITY_VIOLATION',
+        audit: true
+      }
     );
     throw new Error('Insufficient permissions to assign roles');
   }
@@ -56,8 +80,16 @@ export async function assignUserRole(
 
   // Double-check: Ensure we're not somehow assigning protected roles
   if (protectedRoles.includes(roleResult[0].name)) {
-    console.error(
-      `SECURITY VIOLATION: Double-check failed - protected role '${roleResult[0].name}' assignment blocked`
+    logger.error(
+      'SECURITY VIOLATION: Double-check failed - protected role assignment blocked',
+      undefined,
+      {
+        roleName: roleResult[0].name,
+        userId,
+        assignedBy,
+        action: 'SECURITY_VIOLATION',
+        audit: true
+      }
     );
     throw new Error(
       `${roleResult[0].name} roles can only be assigned through direct database access`
@@ -75,9 +107,13 @@ export async function assignUserRole(
       is_active = true
   `;
 
-  console.error(
-    `AUDIT: Role '${roleName}' assigned to user ${userId} by user ${assignedBy}`
-  );
+  logger.error('AUDIT: Role assigned to user', undefined, {
+    roleName,
+    userId,
+    assignedBy,
+    action: 'ROLE_ASSIGNED',
+    audit: true
+  });
 
   revalidatePath('/admin');
   return true;
@@ -98,8 +134,16 @@ export async function removeUserRole(userId: number, roleName: string) {
   // CRITICAL SECURITY: Prevent admin and moderator role removal through API/UI
   const protectedRoles = ['admin', 'moderator'];
   if (protectedRoles.includes(roleName)) {
-    console.error(
-      `SECURITY VIOLATION: Attempt to remove protected role '${roleName}' from user ${userId} by user ${removedBy}`
+    logger.error(
+      'SECURITY VIOLATION: Attempt to remove protected role',
+      undefined,
+      {
+        roleName,
+        userId,
+        removedBy,
+        action: 'SECURITY_VIOLATION',
+        audit: true
+      }
     );
     throw new Error(
       `${roleName} roles can only be removed through direct database access`
@@ -112,8 +156,16 @@ export async function removeUserRole(userId: number, roleName: string) {
     PERMISSIONS.ADMIN.ROLES_MANAGE
   );
   if (!hasPermission) {
-    console.error(
-      `SECURITY VIOLATION: User ${removedBy} attempted to remove role ${roleName} without permission`
+    logger.error(
+      'SECURITY VIOLATION: User attempted to remove role without permission',
+      undefined,
+      {
+        removedBy,
+        roleName,
+        userId,
+        action: 'SECURITY_VIOLATION',
+        audit: true
+      }
     );
     throw new Error('Insufficient permissions to remove roles');
   }
@@ -125,9 +177,13 @@ export async function removeUserRole(userId: number, roleName: string) {
     AND role_id = (SELECT id FROM user_roles WHERE name = ${roleName})
   `;
 
-  console.error(
-    `AUDIT: Role '${roleName}' removed from user ${userId} by user ${removedBy}`
-  );
+  logger.error('AUDIT: Role removed from user', undefined, {
+    roleName,
+    userId,
+    removedBy,
+    action: 'ROLE_REMOVED',
+    audit: true
+  });
 
   revalidatePath('/admin');
   return true;
@@ -171,7 +227,10 @@ export async function checkUserPermission(
 
     return rolePermissionResult.length > 0;
   } catch (error) {
-    console.error('Error checking user permission:', error);
+    logger.error('Error checking user permission', error as Error, {
+      userId,
+      permissionName
+    });
     return false;
   }
 }
@@ -239,8 +298,18 @@ export async function issueUserTimeout(
     PERMISSIONS.ADMIN.USERS_TIMEOUT
   );
   if (!hasPermission) {
-    console.error(
-      `SECURITY VIOLATION: User ${issuedBy} attempted to issue timeout without permission`
+    logger.error(
+      'SECURITY VIOLATION: User attempted to issue timeout without permission',
+      undefined,
+      {
+        issuedBy,
+        userId,
+        timeoutType,
+        reason,
+        durationHours,
+        action: 'SECURITY_VIOLATION',
+        audit: true
+      }
     );
     throw new Error('Insufficient permissions to issue timeouts');
   }
@@ -256,9 +325,16 @@ export async function issueUserTimeout(
     )
   `;
 
-  console.error(
-    `AUDIT: Timeout issued to user ${userId} by user ${issuedBy} for ${durationHours} hours. Reason: ${reason}`
-  );
+  logger.error('AUDIT: Timeout issued to user', undefined, {
+    userId,
+    issuedBy,
+    timeoutType,
+    reason,
+    durationHours,
+    expiresAt: expiresAt.toISOString(),
+    action: 'TIMEOUT_ISSUED',
+    audit: true
+  });
 
   revalidatePath('/admin');
   return true;

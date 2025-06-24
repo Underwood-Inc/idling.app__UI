@@ -1,10 +1,18 @@
 'use server';
 
+import { createLogger } from '@/lib/logging';
 import { revalidatePath } from 'next/cache';
 import { CustomSession } from 'src/auth.config';
 import { auth } from '../auth';
 import sql from '../db';
 import { CreatePost, Post, PostSchema } from '../schemas/post.schemas';
+
+// Create component-specific logger
+const logger = createLogger({
+  context: {
+    component: 'PostActions'
+  }
+});
 
 export async function createPost(data: Omit<CreatePost, 'authorId'>) {
   const session = (await auth()) as CustomSession;
@@ -13,13 +21,23 @@ export async function createPost(data: Omit<CreatePost, 'authorId'>) {
   }
 
   const { title, content, subthread } = data;
-  console.info('*-*-*-*-session:', session);
+
+  logger.group('createPost');
+  logger.info('Creating post', {
+    title,
+    subthread,
+    userEmail: session.user.email,
+    contentLength: content.length
+  });
+
   // First, get the user's id from the users table
   const userResult = await sql<{ id: string }[]>`
     SELECT id FROM users WHERE email = ${session.user.email!}
   `;
 
   if (userResult.length === 0) {
+    logger.error('User not found', undefined, { email: session.user.email });
+    logger.groupEnd();
     throw new Error('User not found'); // logout and login again to resolve
   }
 
@@ -31,7 +49,14 @@ export async function createPost(data: Omit<CreatePost, 'authorId'>) {
     RETURNING *
   `;
 
-  console.info('*-*-*-result:', result);
+  logger.info('Post created successfully', {
+    postId: result[0].id,
+    userId,
+    title,
+    subthread
+  });
+  logger.groupEnd();
+
   const post = PostSchema.parse(result[0]);
 
   revalidatePath(`/t/${subthread}`);

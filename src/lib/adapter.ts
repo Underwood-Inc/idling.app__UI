@@ -1,3 +1,4 @@
+import { createLogger } from '@/lib/logging';
 import type {
   Adapter,
   AdapterSession,
@@ -5,6 +6,11 @@ import type {
   VerificationToken
 } from '@auth/core/adapters';
 import type { Pool } from 'pg';
+
+const logger = createLogger({
+  component: 'Adapter',
+  module: 'lib'
+});
 
 export function mapExpiresAt(account: any): any {
   const expires_at: number = parseInt(account.expires_at);
@@ -141,7 +147,7 @@ export default function CustomPostgresAdapter(client: Pool): Adapter {
 
       // Log username changes for monitoring
       if (oldUser.name !== name) {
-        console.info('🔄 Username synced from provider:', {
+        logger.info('Username synced from provider', {
           userId: id,
           oldUsername: oldUser.name,
           newUsername: name,

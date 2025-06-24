@@ -1,10 +1,16 @@
 'use server';
 
+import { createLogger } from '@/lib/logging';
 import { revalidatePath } from 'next/cache';
 import { auth } from '../auth';
 import sql from '../db';
 import { UserProfileData } from '../types/profile';
 import { getEffectiveCharacterCount } from '../utils/string';
+
+const logger = createLogger({
+  component: 'ProfileActions',
+  module: 'actions'
+});
 
 export interface ProfileFilters {
   username?: string;
@@ -19,7 +25,7 @@ export interface ProfileFilters {
 export async function getUserProfile(
   identifier: string
 ): Promise<UserProfileData | null> {
-  console.warn(
+  logger.warn(
     'getUserProfile() is deprecated. Use getUserProfileByDatabaseId() instead.'
   );
 
@@ -99,7 +105,9 @@ export async function getUserProfileByDatabaseId(
       last_activity: stats?.last_activity || null
     };
   } catch (error) {
-    console.error('Error fetching user profile by database ID:', error);
+    logger.error('Error fetching user profile by database ID', error, {
+      id: databaseId
+    });
     return null;
   }
 }
@@ -181,7 +189,7 @@ export async function getUserProfileById(
       last_activity: stats?.last_activity || null
     };
   } catch (error) {
-    console.error('Error fetching user profile by ID:', error);
+    logger.error('Error fetching user profile by ID', error, { id: userId });
     return null;
   }
 }
@@ -276,7 +284,7 @@ export async function updateUserProfile(
       profile_public: userRow.profile_public
     };
   } catch (error) {
-    console.error('Error updating user profile:', error);
+    logger.error('Error updating user profile', error, { userId, updates });
     return null;
   }
 }
@@ -332,7 +340,7 @@ export async function searchUsers(
       profile_public: row.profile_public
     }));
   } catch (error) {
-    console.error('Error searching users:', error);
+    logger.error('Error searching users', error, { query, limit });
     return [];
   }
 }
@@ -420,7 +428,7 @@ export async function updateBioAction(
       profile: completeProfile || updatedProfile
     };
   } catch (error) {
-    console.error('Error updating user bio:', error);
+    logger.error('Error updating user bio', error, { bioLength: bio?.length });
     return {
       success: false,
       error: 'Internal server error'

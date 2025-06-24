@@ -2,7 +2,15 @@
 import { atom } from 'jotai';
 import { atomWithStorage } from 'jotai/utils';
 import { CONTEXT_IDS } from '../context-ids';
+import { createLogger } from '../logging';
 import { PostFilters } from '../types/filters';
+
+// Create logger for atoms state management
+const logger = createLogger({
+  context: {
+    module: 'atoms'
+  }
+});
 
 // ============================================================================
 // CORE TYPES - Following existing patterns exactly
@@ -260,7 +268,7 @@ class SubmissionsFiltersAtomRegistry {
 
     // Debug logging to help verify the fix
     if (typeof window !== 'undefined') {
-      console.log('🔑 Filter storage key generated:', {
+      logger.debug('Filter storage key generated', {
         contextId,
         route,
         storageKey,
@@ -292,7 +300,7 @@ class SubmissionsFiltersAtomRegistry {
 
       // Debug logging for atom creation
       if (typeof window !== 'undefined') {
-        console.log('🔧 Creating filter atom:', {
+        logger.debug('Creating filter atom', {
           contextId,
           storageKey,
           defaultValue,
@@ -763,7 +771,10 @@ export const triggerFetchAtom = atom(
         });
       }
     } catch (error: any) {
-      console.error('Fetch error:', error);
+      logger.error('Fetch error in triggerFetchAtom', {
+        contextId: params.contextId,
+        error: error instanceof Error ? error.message : String(error)
+      });
       set(getSubmissionsStateAtom(params.contextId), {
         loading: false,
         data: undefined,
@@ -1327,7 +1338,10 @@ export const createAutoFetchAtom = (contextId: string) => {
         });
       }
     } catch (error: any) {
-      console.error('Fetch error:', error);
+      logger.error('Fetch error in autoFetchAtom', {
+        contextId,
+        error: error instanceof Error ? error.message : String(error)
+      });
       set(getSubmissionsStateAtom(contextId), {
         loading: false,
         data: undefined,
@@ -1349,12 +1363,12 @@ export const createAutoFetchAtom = (contextId: string) => {
  */
 export const debugFilters = () => {
   if (typeof window === 'undefined') {
-    console.log('❌ Not in browser environment');
+    logger.warn('Debug filters called in non-browser environment');
     return;
   }
 
-  console.log('🔍 Filter Storage Debug Information:');
-  console.log('=====================================');
+  logger.group('filterStorageDebug');
+  logger.debug('Filter Storage Debug Information');
 
   // Show all filter-related localStorage keys
   const filterKeys: string[] = [];
@@ -1365,21 +1379,24 @@ export const debugFilters = () => {
     }
   }
 
-  console.log('📦 Filter keys in localStorage:', filterKeys);
+  logger.debug('Filter keys in localStorage', { filterKeys });
 
   // Show the content of each filter key
   filterKeys.forEach((key) => {
     try {
       const value = localStorage.getItem(key);
       const parsed = value ? JSON.parse(value) : null;
-      console.log(`🔑 ${key}:`, parsed);
+      logger.debug('Filter key content', { key, parsed });
     } catch (error) {
-      console.log(`❌ Error parsing ${key}:`, error);
+      logger.warn('Error parsing filter key', {
+        key,
+        error: error instanceof Error ? error.message : String(error)
+      });
     }
   });
 
   // Show current page context
-  console.log('📍 Current context:', {
+  logger.debug('Current context', {
     pathname: window.location.pathname,
     search: window.location.search,
     contextIds: CONTEXT_IDS
@@ -1387,10 +1404,12 @@ export const debugFilters = () => {
 
   // Show registry state
   const filtersRegistry = SubmissionsFiltersAtomRegistry.getInstance();
-  console.log('🏗️ Registry state:', {
+  logger.debug('Registry state', {
     atomsCount: (filtersRegistry as any).atoms.size,
     atomKeys: Array.from((filtersRegistry as any).atoms.keys())
   });
+
+  logger.groupEnd();
 };
 
 // Make debug function available globally
@@ -1402,14 +1421,14 @@ if (typeof window !== 'undefined') {
   (window as any).testFilterPersistence = (
     contextId = CONTEXT_IDS.POSTS.toString()
   ) => {
-    console.log('🧪 Testing filter persistence for context:', contextId);
+    logger.debug('Testing filter persistence for context', { contextId });
 
     const filtersAtom = getSubmissionsFiltersAtom(contextId);
     const registry = SubmissionsFiltersAtomRegistry.getInstance();
 
     // Get current storage key
     const storageKey = (registry as any).getStorageKey(contextId);
-    console.log('🔑 Using storage key:', storageKey);
+    logger.debug('Using storage key', { storageKey });
 
     // Create test filters
     const testFilters = [
@@ -1428,11 +1447,13 @@ if (typeof window !== 'undefined') {
 
     // Store directly in localStorage to test
     localStorage.setItem(storageKey, JSON.stringify(testData));
-    console.log('💾 Stored test data:', testData);
+    logger.debug('Stored test data', { testData });
 
     // Try to read it back
     const retrieved = localStorage.getItem(storageKey);
-    console.log('📖 Retrieved data:', retrieved ? JSON.parse(retrieved) : null);
+    logger.debug('Retrieved data', {
+      retrieved: retrieved ? JSON.parse(retrieved) : null
+    });
 
     return { storageKey, testData, retrieved };
   };

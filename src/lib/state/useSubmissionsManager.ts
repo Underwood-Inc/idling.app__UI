@@ -1,3 +1,4 @@
+import { createLogger } from '@/lib/logging';
 import { useAtom } from 'jotai';
 import { useSession } from 'next-auth/react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
@@ -13,6 +14,13 @@ import {
   getSubmissionsStateAtom,
   shouldUpdateAtom
 } from './atoms';
+
+// Create component-specific logger
+const logger = createLogger({
+  context: {
+    component: 'useSubmissionsManager'
+  }
+});
 
 interface UseSubmissionsManagerProps {
   contextId: string;
@@ -64,9 +72,10 @@ export function useSubmissionsManager({
 
   // Simple fetch function
   const fetchSubmissions = useCallback(async () => {
-    if (isFetching.current || !filtersState.initialized) return;
+    if (!filtersState.initialized) {
+      return;
+    }
 
-    // Create a unique key for this fetch request
     const fetchKey = JSON.stringify({
       filters: filtersState.filters,
       page: filtersState.page,
@@ -76,8 +85,8 @@ export function useSubmissionsManager({
       includeThreadReplies
     });
 
-    // eslint-disable-next-line no-console
-    console.log('🚀 [DEBUG] fetchSubmissions called:', {
+    logger.group('fetchSubmissions');
+    logger.debug('fetchSubmissions called', {
       fetchKey: fetchKey.substring(0, 100) + '...',
       lastFetchKey: lastFetchKey.current.substring(0, 100) + '...',
       isSameFetch: lastFetchKey.current === fetchKey,
@@ -87,19 +96,19 @@ export function useSubmissionsManager({
 
     // Skip if this exact same fetch was already done
     if (lastFetchKey.current === fetchKey) {
-      // eslint-disable-next-line no-console
-      console.log('⏭️ [DEBUG] Skipping duplicate fetch');
+      logger.debug('Skipping duplicate fetch');
+      logger.groupEnd();
       return;
     }
 
     lastFetchKey.current = fetchKey;
     isFetching.current = true;
 
-    // eslint-disable-next-line no-console
-    console.log(
-      '📡 [DEBUG] Starting fetch with filters:',
-      filtersState.filters
-    );
+    logger.debug('Starting fetch with filters', {
+      filters: filtersState.filters,
+      page: filtersState.page,
+      pageSize: filtersState.pageSize
+    });
 
     setSubmissionsState((prev) => ({
       ...prev,
@@ -144,14 +153,21 @@ export function useSubmissionsManager({
           error: result.error || 'Failed to fetch submissions'
         });
       }
+      logger.groupEnd();
     } catch (error: unknown) {
-      console.error('Error in useSubmissionsManager:', error);
+      logger.error('Error in useSubmissionsManager', error as Error, {
+        filters: filtersState.filters,
+        page: filtersState.page,
+        onlyMine,
+        userId
+      });
       setSubmissionsState((prevState) => ({
         ...prevState,
         loading: false,
         error:
           error instanceof Error ? error.message : 'Failed to fetch submissions'
       }));
+      logger.groupEnd();
     } finally {
       isFetching.current = false;
     }
@@ -186,118 +202,74 @@ export function useSubmissionsManager({
 
     // If filters are already initialized and URL doesn't have filter params, skip URL initialization
     if (filtersState.initialized && !hasUrlFilters) {
-      // eslint-disable-next-line no-console
-      console.log(
-        '🔄 Skipping URL initialization - filters already initialized from storage:',
-        {
-          filtersCount: filtersState.filters.length,
-          hasUrlFilters,
-          currentFilters: filtersState.filters
-        }
-      );
+      logger.group('initializeFromURL');
+      logger.debug('Filters already initialized, skipping URL initialization', {
+        hasUrlFilters,
+        filtersCount: filtersState.filters.length
+      });
+      logger.groupEnd();
       return;
     }
 
-    const pageParam = searchParams.get('page');
+    // Parse URL parameters into filters
+    const urlFilters: Filter<PostFilters>[] = [];
+
+    // Tags filter
     const tagsParam = searchParams.get('tags');
-    const authorParam = searchParams.get('author');
-    const mentionsParam = searchParams.get('mentions');
-    const tagLogicParam = searchParams.get('tagLogic');
-    const globalLogicParam = searchParams.get('globalLogic');
-    const pageSizeParam = searchParams.get('pageSize');
-
-    const page = pageParam ? Math.max(1, parseInt(pageParam)) : 1;
-    const pageSize = pageSizeParam ? Math.max(10, parseInt(pageSizeParam)) : 10;
-
-    // Build filters array from URL
-    const urlFilters: Filter<PostFilters>[] = [...initialFilters];
-
     if (tagsParam) {
-      const cleanTags = tagsParam
-        .split(',')
-        .map((tag) => tag.trim())
-        .map((tag) => (tag.startsWith('#') ? tag : `#${tag}`))
-        .filter(Boolean);
-      if (cleanTags.length > 0) {
+      const tags = tagsParam.split(',').filter(Boolean);
+      if (tags.length > 0) {
         urlFilters.push({
-          name: 'tags' as PostFilters,
-          value: cleanTags.join(',')
+          name: 'tags',
+          value: tags.join(',') // Convert array back to comma-separated string
         });
-
-        if (cleanTags.length > 1 && !tagLogicParam) {
-          urlFilters.push({
-            name: 'tagLogic' as PostFilters,
-            value: 'OR'
-          });
-        }
       }
     }
 
+    // Author filter
+    const authorParam = searchParams.get('author');
     if (authorParam) {
-      authorParam.split(',').forEach((value) => {
-        if (value.trim()) {
-          urlFilters.push({
-            name: 'author' as PostFilters,
-            value: value.trim()
-          });
-        }
+      urlFilters.push({
+        name: 'author',
+        value: authorParam
       });
     }
 
+    // Mentions filter
+    const mentionsParam = searchParams.get('mentions');
     if (mentionsParam) {
-      mentionsParam.split(',').forEach((value) => {
-        if (value.trim()) {
-          urlFilters.push({
-            name: 'mentions' as PostFilters,
-            value: value.trim()
-          });
-        }
-      });
-    }
-
-    if (tagLogicParam) {
       urlFilters.push({
-        name: 'tagLogic' as PostFilters,
-        value: tagLogicParam
+        name: 'mentions',
+        value: mentionsParam
       });
     }
 
-    if (globalLogicParam) {
-      urlFilters.push({
-        name: 'globalLogic' as PostFilters,
-        value: globalLogicParam
-      });
-    }
+    // Page parameter
+    const pageParam = searchParams.get('page');
+    const page = pageParam ? parseInt(pageParam, 10) : 1;
 
-    // eslint-disable-next-line no-console
-    console.log('🔄 Initializing from URL:', {
-      hasUrlFilters,
+    // Initialize filters with URL params or initial filters
+    const finalFilters = urlFilters.length > 0 ? urlFilters : initialFilters;
+
+    logger.group('initializeFromURL');
+    logger.debug('Initializing from URL', {
+      urlParams: currentUrlParams,
       urlFilters,
+      finalFilters,
       page,
-      pageSize,
-      wasAlreadyInitialized: filtersState.initialized
+      hasUrlFilters
     });
+    logger.groupEnd();
 
-    // Set filters state once
-    setFiltersState({
-      onlyMine,
-      userId,
-      filters: urlFilters as Filter[],
+    setFiltersState((prevState) => ({
+      ...prevState,
+      filters: finalFilters,
       page,
-      pageSize,
       initialized: true
-    });
+    }));
 
     isInitialized.current = true;
-  }, [
-    searchParams,
-    setFiltersState,
-    onlyMine,
-    userId,
-    initialFilters,
-    filtersState.initialized,
-    filtersState.filters
-  ]);
+  }, [searchParams, initialFilters, filtersState.initialized, setFiltersState]);
 
   // Fetch when filters change (with debouncing and coordination)
   useEffect(() => {
@@ -399,105 +371,115 @@ export function useSubmissionsManager({
   // Simple action functions
   const addFilter = useCallback(
     (filter: Filter<PostFilters>) => {
-      // eslint-disable-next-line no-console
-      console.log('🔧 [DEBUG] addFilter called:', filter);
-      setFiltersState((prev) => ({
-        ...prev,
-        filters: [...prev.filters, filter] as Filter[],
+      logger.group('addFilter');
+      logger.debug('addFilter called', { filter });
+
+      setFiltersState((prevState) => ({
+        ...prevState,
+        filters: [...prevState.filters, filter],
         page: 1
       }));
+      logger.groupEnd();
     },
     [setFiltersState]
   );
 
   const addFilters = useCallback(
     (filters: Filter<PostFilters>[]) => {
-      // eslint-disable-next-line no-console
-      console.log('🔧 [DEBUG] addFilters called:', filters);
-      setFiltersState((prev) => ({
-        ...prev,
-        filters: [...prev.filters, ...filters] as Filter[],
+      logger.group('addFilters');
+      logger.debug('addFilters called', { filters });
+
+      setFiltersState((prevState) => ({
+        ...prevState,
+        filters: [...prevState.filters, ...filters],
         page: 1
       }));
+      logger.groupEnd();
     },
     [setFiltersState]
   );
 
   const removeFilter = useCallback(
     (filterName: PostFilters, filterValue?: string) => {
-      // eslint-disable-next-line no-console
-      console.log('🔧 [DEBUG] removeFilter called:', filterName, filterValue);
-      setFiltersState((prev) => {
-        const newFilters = filterValue
-          ? prev.filters.filter(
-              (f) => !(f.name === filterName && f.value === filterValue)
-            )
-          : prev.filters.filter((f) => f.name !== filterName);
+      logger.group('removeFilter');
+      logger.debug('removeFilter called', { filterName, filterValue });
 
-        // eslint-disable-next-line no-console
-        console.log('🔧 [DEBUG] removeFilter result:', {
-          oldFilters: prev.filters,
-          newFilters,
-          filterName,
-          filterValue
+      setFiltersState((prevState) => {
+        const newFilters = prevState.filters.filter((filter) => {
+          if (filterValue) {
+            return !(
+              filter.name === filterName && filter.value === filterValue
+            );
+          }
+          return filter.name !== filterName;
+        });
+
+        logger.debug('removeFilter result', {
+          originalCount: prevState.filters.length,
+          newCount: newFilters.length,
+          removed: prevState.filters.length - newFilters.length
         });
 
         return {
-          ...prev,
+          ...prevState,
           filters: newFilters,
           page: 1
         };
       });
+      logger.groupEnd();
     },
     [setFiltersState]
   );
 
   const removeTag = useCallback(
     (tagToRemove: string) => {
-      // eslint-disable-next-line no-console
-      console.log('🔧 [DEBUG] removeTag called:', tagToRemove);
-      setFiltersState((prev) => {
-        const tagsFilter = prev.filters.find((f) => f.name === 'tags');
-        if (!tagsFilter) return prev;
+      logger.group('removeTag');
+      logger.debug('removeTag called', { tagToRemove });
 
-        const currentTags = tagsFilter.value
-          .split(',')
-          .map((tag) => tag.trim())
-          .filter(Boolean);
+      setFiltersState((prevState) => {
+        const newFilters = prevState.filters
+          .map((filter) => {
+            if (filter.name === 'tags') {
+              const currentTags = filter.value
+                .split(',')
+                .map((tag) => tag.trim())
+                .filter(Boolean);
 
-        const newTags = currentTags.filter((tag) => tag !== tagToRemove);
+              const cleanTagToRemove = tagToRemove.startsWith('#')
+                ? tagToRemove
+                : `#${tagToRemove}`;
 
-        let newFilters = [...prev.filters];
+              const updatedTags = currentTags.filter(
+                (tag) => tag !== cleanTagToRemove
+              );
 
-        if (newTags.length === 0) {
-          newFilters = newFilters.filter(
-            (f) => f.name !== 'tags' && f.name !== 'tagLogic'
-          );
-        } else {
-          newFilters = newFilters.map((f) =>
-            f.name === 'tags' ? { ...f, value: newTags.join(',') } : f
-          );
+              if (updatedTags.length === 0) {
+                return null; // Remove the entire filter
+              }
 
-          if (newTags.length === 1) {
-            newFilters = newFilters.filter((f) => f.name !== 'tagLogic');
-          }
-        }
+              return {
+                ...filter,
+                value: updatedTags.join(',')
+              };
+            }
+            return filter;
+          })
+          .filter((filter): filter is Filter<PostFilters> => filter !== null);
 
-        // eslint-disable-next-line no-console
-        console.log('🔧 [DEBUG] removeTag result:', {
+        logger.debug('removeTag result', {
+          originalCount: prevState.filters.length,
+          newCount: newFilters.length,
           tagToRemove,
-          oldFilters: prev.filters,
-          newFilters,
-          currentTags,
-          newTags
+          newFilters
         });
 
         return {
-          ...prev,
+          ...prevState,
           filters: newFilters,
           page: 1
         };
       });
+      logger.groupEnd();
     },
     [setFiltersState]
   );
@@ -555,7 +537,17 @@ export function useSubmissionsManager({
         setHasMore(false);
       }
     } catch (error) {
-      console.error('Error loading more submissions:', error);
+      logger.error('Error loading more submissions', error, {
+        isLoadingMore,
+        hasMore,
+        submissionsStateLoading: submissionsState.loading,
+        infinitePage,
+        filtersStateFilters: filtersState.filters,
+        filtersStatePageSize: filtersState.pageSize,
+        onlyMine,
+        userId,
+        includeThreadReplies
+      });
       setHasMore(false);
     } finally {
       setIsLoadingMore(false);

@@ -1,3 +1,4 @@
+import { createLogger } from '@/lib/logging';
 import NextAuth from 'next-auth';
 import { Pool } from 'pg';
 import { authConfig } from '../auth.config';
@@ -16,6 +17,11 @@ const pool = new Pool({
     process.env.NODE_ENV === 'production'
       ? { rejectUnauthorized: false }
       : false
+});
+
+const logger = createLogger({
+  component: 'Auth',
+  module: 'lib'
 });
 
 export const nextAuth = NextAuth({
@@ -48,17 +54,20 @@ export const nextAuth = NextAuth({
         token.providerAccountId =
           user.providerAccountId || account?.providerAccountId;
 
-        console.info('✅ JWT callback - User created/found:', {
-          databaseId: user.id,
+        // Log user creation/update
+        logger.info('JWT callback - User created/found', {
+          id: user.id,
+          email: user.email,
           name: user.name,
-          providerAccountId:
-            user.providerAccountId || account?.providerAccountId
+          provider: account?.provider
         });
       }
 
       // Capture providerAccountId from account during sign-in
       if (account?.providerAccountId) {
-        console.info('✅ JWT callback - Account linked:', {
+        // Log account linking
+        logger.info('JWT callback - Account linked', {
+          userId: user.id,
           provider: account.provider,
           providerAccountId: account.providerAccountId
         });

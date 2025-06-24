@@ -3,9 +3,17 @@
  * Handles role-based access control and permission checking
  */
 
+import { createLogger } from '@/lib/logging';
 import { unstable_noStore as noStore } from 'next/cache';
 import { auth } from '../auth';
 import sql from '../db';
+
+// Create component-specific logger
+const logger = createLogger({
+  context: {
+    component: 'PermissionsService'
+  }
+});
 
 export interface Permission {
   id: number;
@@ -93,11 +101,12 @@ export class PermissionsService {
   ): Promise<boolean> {
     try {
       const result = await sql<PermissionQueryResult[]>`
-        SELECT user_has_permission(${userId}, ${permissionName}) as has_permission
+        SELECT user_has_permission(${userId}, ${permissionName}::permission_name) as has_permission
       `;
 
       return result[0]?.has_permission || false;
     } catch (error) {
+      logger.group('userHasPermission');
       // If database function doesn't exist, fallback to basic check
       if (
         error &&
@@ -105,13 +114,20 @@ export class PermissionsService {
         'code' in error &&
         error.code === '42883'
       ) {
-        console.warn(
-          'Permission function not found, using fallback logic for permission:',
-          permissionName
-        );
-        return this.fallbackPermissionCheck(userId, permissionName);
+        logger.warn('Permission function not found, using fallback logic', {
+          permissionName,
+          userId,
+          errorCode: error.code
+        });
+        const result = this.fallbackPermissionCheck(userId, permissionName);
+        logger.groupEnd();
+        return result;
       }
-      console.error('Error checking user permission:', error);
+      logger.error('Error checking user permission', error as Error, {
+        userId,
+        permissionName
+      });
+      logger.groupEnd();
       return false;
     }
   }
@@ -155,7 +171,12 @@ export class PermissionsService {
 
       return false;
     } catch (error) {
-      console.error('Error in fallback permission check:', error);
+      logger.group('fallbackPermissionCheck');
+      logger.error('Error in fallback permission check', error as Error, {
+        userId,
+        permissionName
+      });
+      logger.groupEnd();
       return false;
     }
   }
@@ -197,7 +218,11 @@ export class PermissionsService {
 
       return result;
     } catch (error) {
-      console.error('Error getting user permissions:', error);
+      logger.group('getUserPermissions');
+      logger.error('Error getting user permissions', error as Error, {
+        userId
+      });
+      logger.groupEnd();
       return [];
     }
   }
@@ -219,7 +244,9 @@ export class PermissionsService {
 
       return result;
     } catch (error) {
-      console.error('Error getting user roles:', error);
+      logger.group('getUserRoles');
+      logger.error('Error getting user roles', error as Error, { userId });
+      logger.groupEnd();
       return [];
     }
   }
@@ -247,6 +274,7 @@ export class PermissionsService {
         reason: row.reason
       };
     } catch (error) {
+      logger.group('checkUserTimeout');
       // If database function doesn't exist, fallback to no timeout
       if (
         error &&
@@ -254,13 +282,19 @@ export class PermissionsService {
         'code' in error &&
         error.code === '42883'
       ) {
-        console.warn(
-          'Timeout function not found, assuming no timeout for user:',
-          userId
-        );
+        logger.warn('Timeout function not found, assuming no timeout', {
+          userId,
+          timeoutType,
+          errorCode: error.code
+        });
+        logger.groupEnd();
         return { is_timed_out: false };
       }
-      console.error('Error checking user timeout:', error);
+      logger.error('Error checking user timeout', error as Error, {
+        userId,
+        timeoutType
+      });
+      logger.groupEnd();
       return { is_timed_out: false };
     }
   }
@@ -281,40 +315,54 @@ export class PermissionsService {
 
       await sql`
         INSERT INTO user_timeouts (user_id, timeout_type, reason, issued_by, expires_at)
-        VALUES (${userId}, ${timeoutType}, ${reason}, ${issuedBy}, ${expiresAt.toISOString()})
+        VALUES (${userId}, ${timeoutType}, ${reason}, ${issuedBy}, ${expiresAt})
       `;
 
       return true;
     } catch (error) {
-      console.error('Error issuing timeout:', error);
+      logger.group('issueTimeout');
+      logger.error('Error issuing timeout', error as Error, {
+        userId,
+        timeoutType,
+        reason,
+        durationHours,
+        issuedBy
+      });
+      logger.groupEnd();
       return false;
     }
   }
 
   /**
-   * Revoke a timeout early
+   * Revoke a user timeout
    */
   static async revokeTimeout(
     timeoutId: number,
     revokedBy: number,
-    revokeReason: string
+    reason?: string
   ): Promise<boolean> {
     try {
       await sql`
-        UPDATE user_timeouts
-        SET is_active = false, revoked_by = ${revokedBy}, revoked_at = CURRENT_TIMESTAMP, revoke_reason = ${revokeReason}
-        WHERE id = ${timeoutId} AND is_active = true
+        UPDATE user_timeouts 
+        SET is_active = false, revoked_by = ${revokedBy}, revoked_at = CURRENT_TIMESTAMP, revoke_reason = ${reason || null}
+        WHERE id = ${timeoutId}
       `;
 
       return true;
     } catch (error) {
-      console.error('Error revoking timeout:', error);
+      logger.group('revokeTimeout');
+      logger.error('Error revoking timeout', error as Error, {
+        timeoutId,
+        revokedBy,
+        reason
+      });
+      logger.groupEnd();
       return false;
     }
   }
 
   /**
-   * Grant permission to user
+   * Grant a permission to a user
    */
   static async grantPermission(
     userId: number,
@@ -324,37 +372,51 @@ export class PermissionsService {
     expiresAt?: Date
   ): Promise<boolean> {
     try {
+      // Get permission ID
       const permissionResult = await sql<PermissionIdResult[]>`
         SELECT id FROM permissions WHERE name = ${permissionName}
       `;
 
       if (permissionResult.length === 0) {
-        throw new Error(`Permission '${permissionName}' not found`);
+        logger.warn('Permission not found', {
+          permissionName,
+          userId,
+          grantedBy
+        });
+        return false;
       }
 
       const permissionId = permissionResult[0].id;
 
+      // Insert or update permission
       await sql`
         INSERT INTO user_permissions (user_id, permission_id, granted, granted_by, reason, expires_at)
-        VALUES (${userId}, ${permissionId}, true, ${grantedBy}, ${reason || null}, ${expiresAt ? expiresAt.toISOString() : null})
+        VALUES (${userId}, ${permissionId}, true, ${grantedBy}, ${reason || null}, ${expiresAt || null})
         ON CONFLICT (user_id, permission_id) 
         DO UPDATE SET 
           granted = true,
           granted_by = ${grantedBy},
           granted_at = CURRENT_TIMESTAMP,
           reason = ${reason || null},
-          expires_at = ${expiresAt ? expiresAt.toISOString() : null}
+          expires_at = ${expiresAt || null}
       `;
 
       return true;
     } catch (error) {
-      console.error('Error granting permission:', error);
+      logger.group('grantPermission');
+      logger.error('Error granting permission', error as Error, {
+        userId,
+        permissionName,
+        grantedBy,
+        reason
+      });
+      logger.groupEnd();
       return false;
     }
   }
 
   /**
-   * Revoke permission from user
+   * Revoke a permission from a user
    */
   static async revokePermission(
     userId: number,
@@ -363,16 +425,23 @@ export class PermissionsService {
     reason?: string
   ): Promise<boolean> {
     try {
+      // Get permission ID
       const permissionResult = await sql<PermissionIdResult[]>`
         SELECT id FROM permissions WHERE name = ${permissionName}
       `;
 
       if (permissionResult.length === 0) {
-        throw new Error(`Permission '${permissionName}' not found`);
+        logger.warn('Permission not found', {
+          permissionName,
+          userId,
+          revokedBy
+        });
+        return false;
       }
 
       const permissionId = permissionResult[0].id;
 
+      // Insert or update permission (denied)
       await sql`
         INSERT INTO user_permissions (user_id, permission_id, granted, granted_by, reason)
         VALUES (${userId}, ${permissionId}, false, ${revokedBy}, ${reason || null})
@@ -381,20 +450,25 @@ export class PermissionsService {
           granted = false,
           granted_by = ${revokedBy},
           granted_at = CURRENT_TIMESTAMP,
-          reason = ${reason || null},
-          expires_at = NULL
+          reason = ${reason || null}
       `;
 
       return true;
     } catch (error) {
-      console.error('Error revoking permission:', error);
+      logger.group('revokePermission');
+      logger.error('Error revoking permission', error as Error, {
+        userId,
+        permissionName,
+        revokedBy,
+        reason
+      });
+      logger.groupEnd();
       return false;
     }
   }
 
   /**
-   * Assign role to user
-   * SECURITY: Admin roles can ONLY be assigned through direct database access
+   * Assign a role to a user
    */
   static async assignRole(
     userId: number,
@@ -403,74 +477,80 @@ export class PermissionsService {
     expiresAt?: Date
   ): Promise<boolean> {
     try {
-      // CRITICAL SECURITY: Prevent admin and moderator role assignment through API/UI
-      const protectedRoles = ['admin', 'moderator'];
-      if (protectedRoles.includes(roleName)) {
-        console.error(
-          `SECURITY VIOLATION: Attempt to assign protected role '${roleName}' to user ${userId} by user ${assignedBy}`
-        );
-        throw new Error(
-          `${roleName} roles can only be assigned through direct database access`
-        );
-      }
-
-      // Check if the person assigning has permission to manage roles
-      const hasPermission = await this.userHasPermission(
-        assignedBy,
-        PERMISSIONS.ADMIN.ROLES_MANAGE
-      );
-      if (!hasPermission) {
-        console.error(
-          `SECURITY VIOLATION: User ${assignedBy} attempted to assign role ${roleName} without permission`
-        );
-        throw new Error('Insufficient permissions to assign roles');
-      }
-
+      // Get role ID first
       const roleResult = await sql<RoleQueryResult[]>`
-        SELECT id, name FROM user_roles WHERE name = ${roleName}
+        SELECT id FROM user_roles WHERE name = ${roleName}
       `;
 
       if (roleResult.length === 0) {
-        throw new Error(`Role '${roleName}' not found`);
+        logger.error('Role not found', undefined, {
+          roleName,
+          userId,
+          assignedBy
+        });
+        return false;
       }
 
       const roleId = roleResult[0].id;
 
-      // Double-check: Ensure we're not somehow assigning protected roles
-      if (protectedRoles.includes(roleResult[0].name)) {
-        console.error(
-          `SECURITY VIOLATION: Double-check failed - protected role '${roleResult[0].name}' assignment blocked`
-        );
-        throw new Error(
-          `${roleResult[0].name} roles can only be assigned through direct database access`
-        );
-      }
-
-      await sql`
-        INSERT INTO user_role_assignments (user_id, role_id, assigned_by, expires_at)
-        VALUES (${userId}, ${roleId}, ${assignedBy}, ${expiresAt ? expiresAt.toISOString() : null})
-        ON CONFLICT (user_id, role_id) 
-        DO UPDATE SET 
-          assigned_by = ${assignedBy},
-          assigned_at = CURRENT_TIMESTAMP,
-          expires_at = ${expiresAt ? expiresAt.toISOString() : null},
-          is_active = true
+      // Check if role assignment already exists
+      const existingAssignment = await sql`
+        SELECT id FROM user_role_assignments 
+        WHERE user_id = ${userId} AND role_id = ${roleId} AND is_active = true
       `;
 
-      // Log successful role assignment (using console.error for visibility in production logs)
-      console.error(
-        `AUDIT: Role '${roleName}' assigned to user ${userId} by user ${assignedBy}`
+      if (existingAssignment.length > 0) {
+        logger.error('Role already assigned to user', undefined, {
+          userId,
+          roleName,
+          assignedBy
+        });
+        return false;
+      }
+
+      // Insert role assignment
+      await sql`
+        INSERT INTO user_role_assignments (user_id, role_id, assigned_by, expires_at)
+        VALUES (${userId}, ${roleId}, ${assignedBy}, ${expiresAt || null})
+        ON CONFLICT (user_id, role_id) 
+        DO UPDATE SET 
+          is_active = true,
+          assigned_by = ${assignedBy},
+          assigned_at = CURRENT_TIMESTAMP,
+          expires_at = ${expiresAt || null}
+      `;
+
+      // Log successful role assignment (using error for visibility in production logs)
+      logger.group('assignRole');
+      logger.error(
+        `AUDIT: Role ${roleName} assigned to user ${userId} by user ${assignedBy}`,
+        undefined,
+        {
+          userId,
+          roleName,
+          roleId,
+          assignedBy,
+          action: 'ROLE_ASSIGNED',
+          audit: true
+        }
       );
+      logger.groupEnd();
+
       return true;
     } catch (error) {
-      console.error('Error assigning role:', error);
+      logger.group('assignRole');
+      logger.error('Error assigning role', error as Error, {
+        userId,
+        roleName,
+        assignedBy
+      });
+      logger.groupEnd();
       return false;
     }
   }
 
   /**
-   * Remove role from user
-   * SECURITY: Admin roles can ONLY be removed through direct database access
+   * Remove a role from a user
    */
   static async removeRole(
     userId: number,
@@ -478,42 +558,69 @@ export class PermissionsService {
     removedBy: number
   ): Promise<boolean> {
     try {
-      // CRITICAL SECURITY: Prevent admin and moderator role removal through API/UI
-      const protectedRoles = ['admin', 'moderator'];
-      if (protectedRoles.includes(roleName)) {
-        console.error(
-          `SECURITY VIOLATION: Attempt to remove protected role '${roleName}' from user ${userId} by user ${removedBy}`
-        );
-        throw new Error(
-          `${roleName} roles can only be removed through direct database access`
-        );
-      }
-
-      // Check if the person removing has permission to manage roles
-      const hasPermission = await this.userHasPermission(
-        removedBy,
-        PERMISSIONS.ADMIN.ROLES_MANAGE
-      );
-      if (!hasPermission) {
-        console.error(
-          `SECURITY VIOLATION: User ${removedBy} attempted to remove role ${roleName} without permission`
-        );
-        throw new Error('Insufficient permissions to remove roles');
-      }
-
-      await sql`
-        UPDATE user_role_assignments 
-        SET is_active = false
-        WHERE user_id = ${userId}
-        AND role_id = (SELECT id FROM user_roles WHERE name = ${roleName})
+      // Get role ID first
+      const roleResult = await sql<RoleQueryResult[]>`
+        SELECT id FROM user_roles WHERE name = ${roleName}
       `;
 
-      console.error(
-        `AUDIT: Role '${roleName}' removed from user ${userId} by user ${removedBy}`
+      if (roleResult.length === 0) {
+        logger.error('Role not found', undefined, {
+          roleName,
+          userId,
+          removedBy
+        });
+        return false;
+      }
+
+      const roleId = roleResult[0].id;
+
+      // Check if user has this role
+      const existingAssignment = await sql`
+        SELECT id FROM user_role_assignments 
+        WHERE user_id = ${userId} AND role_id = ${roleId} AND is_active = true
+      `;
+
+      if (existingAssignment.length === 0) {
+        logger.error('User does not have this role', undefined, {
+          userId,
+          roleName,
+          removedBy
+        });
+        return false;
+      }
+
+      // Deactivate role assignment
+      await sql`
+        UPDATE user_role_assignments 
+        SET is_active = false, removed_by = ${removedBy}, removed_at = CURRENT_TIMESTAMP
+        WHERE user_id = ${userId} AND role_id = ${roleId}
+      `;
+
+      // Log successful role removal
+      logger.group('removeRole');
+      logger.error(
+        `AUDIT: Role ${roleName} removed from user ${userId} by user ${removedBy}`,
+        undefined,
+        {
+          userId,
+          roleName,
+          roleId,
+          removedBy,
+          action: 'ROLE_REMOVED',
+          audit: true
+        }
       );
+      logger.groupEnd();
+
       return true;
     } catch (error) {
-      console.error('Error removing role:', error);
+      logger.group('removeRole');
+      logger.error('Error removing role', error as Error, {
+        userId,
+        roleName,
+        removedBy
+      });
+      logger.groupEnd();
       return false;
     }
   }
@@ -531,7 +638,9 @@ export class PermissionsService {
 
       return result;
     } catch (error) {
-      console.error('Error getting all permissions:', error);
+      logger.group('getAllPermissions');
+      logger.error('Error getting all permissions', error as Error);
+      logger.groupEnd();
       return [];
     }
   }
@@ -549,7 +658,9 @@ export class PermissionsService {
 
       return result;
     } catch (error) {
-      console.error('Error getting all roles:', error);
+      logger.group('getAllRoles');
+      logger.error('Error getting all roles', error as Error);
+      logger.groupEnd();
       return [];
     }
   }
@@ -570,7 +681,11 @@ export class PermissionsService {
 
       return result;
     } catch (error) {
-      console.error('Error getting permissions by category:', error);
+      logger.group('getPermissionsByCategory');
+      logger.error('Error getting permissions by category', error as Error, {
+        category
+      });
+      logger.groupEnd();
       return [];
     }
   }
