@@ -831,6 +831,10 @@ export const urlSyncAtom = atom(
         }
       } else if (name === 'tagLogic' && filterGroups.tags) {
         urlParams.set('tagLogic', values[0]);
+      } else if (name === 'authorLogic' && filterGroups.author) {
+        urlParams.set('authorLogic', values[0]);
+      } else if (name === 'mentionsLogic' && filterGroups.mentions) {
+        urlParams.set('mentionsLogic', values[0]);
       } else if (name === 'globalLogic') {
         urlParams.set('globalLogic', values[0]);
       }
@@ -937,6 +941,8 @@ export const filtersFromUrlAtom = atom((get) => {
   const authorParam = urlParams.get('author');
   const mentionsParam = urlParams.get('mentions');
   const tagLogicParam = urlParams.get('tagLogic');
+  const authorLogicParam = urlParams.get('authorLogic');
+  const mentionsLogicParam = urlParams.get('mentionsLogic');
   const globalLogicParam = urlParams.get('globalLogic');
 
   if (tagsParam) {
@@ -992,6 +998,20 @@ export const filtersFromUrlAtom = atom((get) => {
     filters.push({
       name: 'tagLogic' as PostFilters,
       value: tagLogicParam
+    });
+  }
+
+  if (authorLogicParam) {
+    filters.push({
+      name: 'authorLogic' as PostFilters,
+      value: authorLogicParam
+    });
+  }
+
+  if (mentionsLogicParam) {
+    filters.push({
+      name: 'mentionsLogic' as PostFilters,
+      value: mentionsLogicParam
     });
   }
 
@@ -1056,6 +1076,10 @@ export const createAutoUrlSyncAtom = (contextId: string) => {
         }
       } else if (name === 'tagLogic' && filterGroups.tags) {
         urlParams.set('tagLogic', values[0]);
+      } else if (name === 'authorLogic' && filterGroups.author) {
+        urlParams.set('authorLogic', values[0]);
+      } else if (name === 'mentionsLogic' && filterGroups.mentions) {
+        urlParams.set('mentionsLogic', values[0]);
       } else if (name === 'globalLogic') {
         urlParams.set('globalLogic', values[0]);
       }

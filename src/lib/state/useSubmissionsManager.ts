@@ -245,6 +245,39 @@ export function useSubmissionsManager({
       });
     }
 
+    // Logic filters
+    const tagLogicParam = searchParams.get('tagLogic');
+    if (tagLogicParam) {
+      urlFilters.push({
+        name: 'tagLogic',
+        value: tagLogicParam
+      });
+    }
+
+    const authorLogicParam = searchParams.get('authorLogic');
+    if (authorLogicParam) {
+      urlFilters.push({
+        name: 'authorLogic',
+        value: authorLogicParam
+      });
+    }
+
+    const mentionsLogicParam = searchParams.get('mentionsLogic');
+    if (mentionsLogicParam) {
+      urlFilters.push({
+        name: 'mentionsLogic',
+        value: mentionsLogicParam
+      });
+    }
+
+    const globalLogicParam = searchParams.get('globalLogic');
+    if (globalLogicParam) {
+      urlFilters.push({
+        name: 'globalLogic',
+        value: globalLogicParam
+      });
+    }
+
     // Page parameter
     const pageParam = searchParams.get('page');
     const page = pageParam ? parseInt(pageParam, 10) : 1;
@@ -337,6 +370,10 @@ export function useSubmissionsManager({
           }
         } else if (name === 'tagLogic' && filterGroups.tags) {
           urlParams.set('tagLogic', values[0]);
+        } else if (name === 'authorLogic' && filterGroups.author) {
+          urlParams.set('authorLogic', values[0]);
+        } else if (name === 'mentionsLogic' && filterGroups.mentions) {
+          urlParams.set('mentionsLogic', values[0]);
         } else if (name === 'globalLogic') {
           urlParams.set('globalLogic', values[0]);
         }
