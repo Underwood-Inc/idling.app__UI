@@ -1,18 +1,24 @@
 'use client';
 
+import { createLogger } from '@/lib/logging';
 import { useEffect } from 'react';
 import {
   checkAndPerformHardReset,
   getResetStats
 } from '../../../lib/utils/hard-reset-manager';
 
-/* eslint-disable no-console */
+// Create component-specific logger
+const logger = createLogger({
+  context: {
+    component: 'HardResetManager'
+  }
+});
 
 export function HardResetManager() {
   useEffect(() => {
     const initializeHardResetSystem = async () => {
       try {
-        console.groupCollapsed('🔄 Hard Reset System Initialization');
+        logger.group('hardResetInitialization');
 
         // Get current app version from meta tag
         const metaVersion = document
@@ -20,11 +26,14 @@ export function HardResetManager() {
           ?.getAttribute('content');
         const appVersion = metaVersion || '0.115.0'; // Fallback to current version
 
-        console.log(`Current App Version: ${appVersion}`);
+        logger.debug('Current app version detected', {
+          appVersion,
+          metaVersion
+        });
 
         // Get reset statistics
         const resetStats = getResetStats();
-        console.log('Reset Statistics:', resetStats);
+        logger.debug('Reset statistics retrieved', { resetStats });
 
         // Check if hard reset is needed for this version
         const resetResult = await checkAndPerformHardReset({
@@ -33,11 +42,11 @@ export function HardResetManager() {
           showNotification: true
         });
 
-        console.log('Hard Reset Result:', resetResult);
+        logger.debug('Hard reset check completed', { resetResult });
 
         if (resetResult.resetPerformed) {
-          console.log(
-            '🎉 Hard reset completed - user will experience fresh app state'
+          logger.info(
+            'Hard reset completed - user will experience fresh app state'
           );
 
           // Optional: Reload page after reset to ensure clean state
@@ -45,14 +54,14 @@ export function HardResetManager() {
             window.location.reload();
           }, 2000);
         } else {
-          console.log(
-            '✅ No hard reset needed - continuing with normal startup'
-          );
+          logger.debug('No hard reset needed - continuing with normal startup');
         }
 
-        console.groupEnd();
+        logger.groupEnd();
       } catch (error) {
-        console.error('❌ Hard reset system initialization failed:', error);
+        logger.error('Hard reset system initialization failed', {
+          error: error instanceof Error ? error.message : String(error)
+        });
       }
     };
 
@@ -66,14 +75,17 @@ export function HardResetManager() {
         customEvent.detail &&
         customEvent.detail.trigger === 'manual-hard-reset'
       ) {
-        console.log('🔧 Manual hard reset triggered');
+        logger.debug('Manual hard reset triggered', {
+          reason: customEvent.detail.reason
+        });
+
         checkAndPerformHardReset({
           resetVersion: Date.now().toString(),
           forceReset: true,
           resetReason: customEvent.detail.reason || 'Manual reset triggered',
           showNotification: true
         }).then((result) => {
-          console.log('Manual reset result:', result);
+          logger.debug('Manual reset completed', { result });
           if (result.resetPerformed) {
             setTimeout(() => {
               window.location.reload();

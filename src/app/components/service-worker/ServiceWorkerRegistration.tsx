@@ -1,23 +1,29 @@
 'use client';
 
+import { createLogger } from '@/lib/logging';
 import { useEffect } from 'react';
 import { enforceOneServiceWorker } from '../../../lib/utils/service-worker-cleanup';
 
-/* eslint-disable no-console */
+// Create component-specific logger
+const logger = createLogger({
+  context: {
+    component: 'ServiceWorkerRegistration'
+  }
+});
 
 export function ServiceWorkerRegistration() {
   useEffect(() => {
     if ('serviceWorker' in navigator) {
       const registerServiceWorker = async () => {
         try {
-          console.groupCollapsed('🔧 Service Worker Registration');
+          logger.group('serviceWorkerRegistration');
 
           // Step 1: IMMEDIATE cleanup - enforce single service worker
-          console.log('🧹 Enforcing single service worker...');
+          logger.debug('Enforcing single service worker');
           await enforceOneServiceWorker();
 
           // Step 2: Clear all caches before registering new service worker
-          console.log('🗑️ Clearing all caches...');
+          logger.debug('Clearing all caches');
           if ('caches' in window) {
             try {
               const cacheNames = await caches.keys();
@@ -25,14 +31,19 @@ export function ServiceWorkerRegistration() {
                 cacheNames.map(async (cacheName) => {
                   try {
                     await caches.delete(cacheName);
-                    console.log(`✅ Deleted cache: ${cacheName}`);
+                    logger.debug('Cache deleted successfully', { cacheName });
                   } catch (e) {
-                    console.warn(`⚠️ Failed to delete cache ${cacheName}:`, e);
+                    logger.warn('Failed to delete cache', {
+                      cacheName,
+                      error: e instanceof Error ? e.message : String(e)
+                    });
                   }
                 })
               );
             } catch (e) {
-              console.warn('⚠️ Failed to clear caches:', e);
+              logger.warn('Failed to clear caches', {
+                error: e instanceof Error ? e.message : String(e)
+              });
             }
           }
 
@@ -47,7 +58,7 @@ export function ServiceWorkerRegistration() {
           await enforceOneServiceWorker();
 
           // Step 5: Register new service worker with aggressive cache control
-          console.log('📝 Registering new service worker...');
+          logger.debug('Registering new service worker');
           const registration = await navigator.serviceWorker.register(
             '/sw.js',
             {
@@ -56,37 +67,36 @@ export function ServiceWorkerRegistration() {
             }
           );
 
-          console.log(
-            '✅ Service worker registration successful:',
-            registration.scope
-          );
+          logger.info('Service worker registration successful', {
+            scope: registration.scope
+          });
 
           // Step 6: Handle service worker updates
           registration.addEventListener('updatefound', () => {
             const newWorker = registration.installing;
             if (newWorker) {
-              console.log('🔄 New service worker found, installing...');
+              logger.debug('New service worker found, installing');
 
               newWorker.addEventListener('statechange', () => {
-                console.log(`Service worker state: ${newWorker.state}`);
+                logger.debug('Service worker state changed', {
+                  state: newWorker.state
+                });
 
                 if (newWorker.state === 'installed') {
                   if (navigator.serviceWorker.controller) {
                     // New service worker is available, activate immediately
-                    console.log(
-                      '🚀 New service worker available, activating immediately...'
+                    logger.debug(
+                      'New service worker available, activating immediately'
                     );
                     newWorker.postMessage({ type: 'SKIP_WAITING' });
                   } else {
                     // First time installation
-                    console.log(
-                      '✅ Service worker installed for the first time'
-                    );
+                    logger.debug('Service worker installed for the first time');
                   }
                 }
 
                 if (newWorker.state === 'activated') {
-                  console.log('✅ New service worker activated');
+                  logger.debug('New service worker activated');
                   // Enforce single service worker after activation
                   setTimeout(() => enforceOneServiceWorker(), 1000);
                 }
@@ -97,16 +107,16 @@ export function ServiceWorkerRegistration() {
           // Step 7: Listen for service worker messages
           navigator.serviceWorker.addEventListener('message', (event) => {
             if (event.data && event.data.type === 'SW_UPDATED') {
-              console.log(
-                `🔄 Service worker updated to version ${event.data.version}`
-              );
+              logger.debug('Service worker updated', {
+                version: event.data.version
+              });
               // Optionally show user notification about update
             }
           });
 
           // Step 8: Handle service worker controller changes
           navigator.serviceWorker.addEventListener('controllerchange', () => {
-            console.log('👑 Service worker controller changed');
+            logger.debug('Service worker controller changed');
             // Enforce single service worker on controller change
             setTimeout(() => enforceOneServiceWorker(), 500);
           });
@@ -122,8 +132,8 @@ export function ServiceWorkerRegistration() {
           // Step 10: Cleanup on visibility change (when user returns to tab)
           const handleVisibilityChange = async () => {
             if (document.visibilityState === 'visible') {
-              console.log(
-                '🔍 Tab visible: checking for multiple service workers...'
+              logger.debug(
+                'Tab visible: checking for multiple service workers'
               );
               await enforceOneServiceWorker();
             }
@@ -133,13 +143,14 @@ export function ServiceWorkerRegistration() {
 
           // Step 11: Cleanup on page focus (when user clicks on window)
           const handleFocus = async () => {
-            console.log(
-              '🔍 Page focused: checking for multiple service workers...'
-            );
+            logger.debug('Page focused: checking for multiple service workers');
             await enforceOneServiceWorker();
           };
 
           window.addEventListener('focus', handleFocus);
+
+          // Close the logger group before returning cleanup function
+          logger.groupEnd();
 
           // Cleanup all listeners on component unmount
           return () => {
@@ -151,8 +162,11 @@ export function ServiceWorkerRegistration() {
             window.removeEventListener('focus', handleFocus);
           };
         } catch (err) {
-          console.error('❌ Service worker registration failed:', err);
-          console.groupEnd();
+          logger.error('Service worker registration failed', {
+            error: err instanceof Error ? err.message : String(err)
+          });
+          // Close the logger group in error case too
+          logger.groupEnd();
         }
       };
 

@@ -1,11 +1,164 @@
 // Enhanced Service Worker with Aggressive Cache Management and Registration Cleanup
-const CACHE_VERSION = '__VERSION__'; // Will be replaced with package.json version during build
+const CACHE_VERSION = '0.157.0'; // Will be replaced with package.json version during build
 const CACHE_NAME = `idling-app-cache-${CACHE_VERSION}`;
 const CACHE_METADATA_NAME = `idling-app-cache-metadata-${CACHE_VERSION}`;
 
 // Maximum cache age - NOTHING can be cached longer than 12 hours
 const MAX_CACHE_AGE = 12 * 60 * 60 * 1000; // 12 hours in milliseconds
 const DAILY_REFRESH_KEY = 'sw-daily-refresh';
+
+// ServiceWorker Logger - Embedded for standalone operation
+class ServiceWorkerLogger {
+  constructor(config = {}) {
+    this.config = {
+      enabled: true,
+      level: 'INFO',
+      context: 'ServiceWorker',
+      version: CACHE_VERSION,
+      ...config
+    };
+    this.activeGroups = [];
+  }
+
+  shouldLog(level) {
+    if (!this.config.enabled) return false;
+    
+    const levels = ['DEBUG', 'INFO', 'WARN', 'ERROR'];
+    const currentLevelIndex = levels.indexOf(this.config.level);
+    const logLevelIndex = levels.indexOf(level);
+    
+    return logLevelIndex >= currentLevelIndex;
+  }
+
+  getPrefix() {
+    return `🔧 ${this.config.context} v${this.config.version}`;
+  }
+
+  formatMessage(level, message) {
+    const timestamp = new Date().toISOString().slice(11, 23);
+    const emoji = {
+      'DEBUG': '🔍',
+      'INFO': 'ℹ️',
+      'WARN': '⚠️',
+      'ERROR': '❌'
+    }[level] || 'ℹ️';
+    
+    return `${emoji} [${timestamp}] ${this.getPrefix()} ${message}`;
+  }
+
+  debug(message, data) {
+    if (!this.shouldLog('DEBUG')) return;
+    
+    const formatted = this.formatMessage('DEBUG', message);
+    if (data) {
+      console.info(formatted, data);
+    } else {
+      console.info(formatted);
+    }
+  }
+
+  info(message, data) {
+    if (!this.shouldLog('INFO')) return;
+    
+    const formatted = this.formatMessage('INFO', message);
+    if (data) {
+      console.info(formatted, data);
+    } else {
+      console.info(formatted);
+    }
+  }
+
+  warn(message, data) {
+    if (!this.shouldLog('WARN')) return;
+    
+    const formatted = this.formatMessage('WARN', message);
+    if (data) {
+      console.warn(formatted, data);
+    } else {
+      console.warn(formatted);
+    }
+  }
+
+  error(message, error, data) {
+    if (!this.shouldLog('ERROR')) return;
+    
+    const formatted = this.formatMessage('ERROR', message);
+    const logData = {
+      ...(data || {}),
+      ...(error ? { error: this.serializeError(error) } : {})
+    };
+    
+    if (Object.keys(logData).length > 0) {
+      console.error(formatted, logData);
+    } else {
+      console.error(formatted);
+    }
+  }
+
+  group(title) {
+    if (!this.config.enabled) return;
+    
+    this.activeGroups.push(title);
+    const formatted = `${this.getPrefix()} ${title}`;
+    
+    // Always use collapsed groups by default for cleaner output
+    if (console.groupCollapsed) {
+      console.groupCollapsed(formatted);
+    } else if (console.group) {
+      console.group(formatted);
+    }
+  }
+
+  groupEnd() {
+    if (!this.config.enabled || this.activeGroups.length === 0) return;
+    
+    this.activeGroups.pop();
+    
+    // Always call groupEnd to properly close groups and prevent nesting
+    if (console.groupEnd) {
+      console.groupEnd();
+    }
+  }
+
+  serializeError(error) {
+    if (error instanceof Error) {
+      return {
+        name: error.name,
+        message: error.message,
+        stack: error.stack
+      };
+    }
+    return error;
+  }
+
+  // Cache-specific logging methods
+  cacheExpired(url, age, maxAge) {
+    this.info('Cache expired', { 
+      url, 
+      age: `${age}ms`, 
+      maxAge: `${maxAge}ms`,
+      expired: age > maxAge
+    });
+  }
+
+  cacheStored(url, ttl) {
+    this.debug('Cache stored', { 
+      url, 
+      ttl: `${Math.round(ttl / 1000 / 60)}min` 
+    });
+  }
+
+  cleanup(operation, count) {
+    this.info(`Cleanup: ${operation}`, { count });
+  }
+
+  registration(event, details) {
+    this.info(`Registration: ${event}`, details);
+  }
+}
+
+// Initialize logger
+const logger = new ServiceWorkerLogger();
 
 // Cache TTL configurations (all limited to MAX_CACHE_AGE)
 const CACHE_TTLS = {
@@ -118,7 +271,7 @@ function isCacheValid(cachedResponse, ttl) {
   // Check if cache is older than maximum allowed age (12 hours)
   const age = now - timestamp;
   if (age > MAX_CACHE_AGE) {
-    console.log(`Cache expired: ${age}ms > ${MAX_CACHE_AGE}ms (12 hours)`);
+    logger.cacheExpired('cache entry', age, MAX_CACHE_AGE);
     return false;
   }
   
@@ -138,23 +291,23 @@ function isCacheValid(cachedResponse, ttl) {
 // Aggressive cleanup of old service workers and caches
 async function cleanupOldServiceWorkers() {
   try {
-    console.groupCollapsed('🧹 Service Worker Cleanup');
+    logger.group('Service Worker Cleanup');
     
     // Get all registrations
     const registrations = await self.registration.scope ? 
       [self.registration] : 
       await navigator.serviceWorker?.getRegistrations() || [];
     
-    console.log(`Found ${registrations.length} service worker registrations`);
+    logger.info('Found service worker registrations', { count: registrations.length });
     
     // Unregister old service workers (keep only current)
     for (const registration of registrations) {
       if (registration !== self.registration) {
         try {
           await registration.unregister();
-          console.log('✅ Unregistered old service worker');
+          logger.info('Unregistered old service worker');
         } catch (e) {
-          console.warn('⚠️ Failed to unregister old service worker:', e);
+          logger.warn('Failed to unregister old service worker', { error: e });
         }
       }
     }
@@ -165,22 +318,22 @@ async function cleanupOldServiceWorkers() {
     const oldCaches = cacheNames.filter(name => !currentCaches.includes(name));
     
     if (oldCaches.length > 0) {
-      console.log(`🗑️ Deleting ${oldCaches.length} old caches`);
+      logger.cleanup('old caches', oldCaches.length);
       await Promise.all(oldCaches.map(async (name) => {
         try {
           await caches.delete(name);
-          console.log(`✅ Deleted cache: ${name}`);
+          logger.debug('Deleted cache', { name });
         } catch (e) {
-          console.warn(`⚠️ Failed to delete cache ${name}:`, e);
+          logger.warn('Failed to delete cache', { name, error: e });
         }
       }));
     }
     
-    console.log('✅ Service worker cleanup completed');
-    console.groupEnd();
+    logger.info('Service worker cleanup completed');
+    logger.groupEnd();
   } catch (error) {
-    console.error('❌ Service worker cleanup failed:', error);
-    console.groupEnd();
+    logger.error('Service worker cleanup failed', error);
+    logger.groupEnd();
   }
 }
 
@@ -210,7 +363,7 @@ async function storeCacheMetadata(url, timestamp, version) {
     const cacheKey = `metadata-cache-${btoa(url).replace(/[+/=]/g, '')}`;
     await metadataCache.put(new Request(cacheKey), response);
   } catch (error) {
-    console.warn('Failed to store cache metadata:', error);
+    logger.warn('Failed to store cache metadata', { error });
   }
 }
 
@@ -218,8 +371,8 @@ async function storeCacheMetadata(url, timestamp, version) {
 self.addEventListener('install', (event) => {
   event.waitUntil(
     (async () => {
-      console.groupCollapsed('🔧 Service Worker Install');
-      console.log(`Installing service worker version ${CACHE_VERSION}`);
+      logger.group('Service Worker Install');
+      logger.registration('install', { version: CACHE_VERSION });
       
       // Immediately clean up old service workers and caches
       await cleanupOldServiceWorkers();
@@ -230,7 +383,7 @@ self.addEventListener('install', (event) => {
       // Check if daily refresh is needed
       const needsDailyRefresh = shouldPerformDailyRefresh();
       if (needsDailyRefresh) {
-        console.log('🔄 Daily refresh required - clearing all caches');
+        logger.info('Daily refresh required - clearing all caches');
         
         // Clear current cache for fresh start
         const keys = await cache.keys();
@@ -257,18 +410,18 @@ self.addEventListener('install', (event) => {
           await cache.put(url, timestampedResponse);
           await storeCacheMetadata(url, now, CACHE_VERSION);
           
-          console.log(`✅ Cached: ${url} (TTL: ${Math.round(ttl / 1000 / 60)}min)`);
+          logger.cacheStored(url, ttl);
           return Promise.resolve();
         } catch (error) {
-          console.warn(`❌ Failed to cache ${url}:`, error);
+          logger.warn('Failed to cache asset', { url, error });
           return Promise.resolve(); // Don't fail installation
         }
       });
       
       await Promise.all(cachePromises);
       
-      console.log('✅ Service worker installation complete');
-      console.groupEnd();
+      logger.info('Service worker installation complete');
+      logger.groupEnd();
       
       // Skip waiting to activate immediately and take control
       self.skipWaiting();
@@ -280,14 +433,14 @@ self.addEventListener('install', (event) => {
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     (async () => {
-      console.groupCollapsed('🚀 Service Worker Activate');
-      console.log(`Activating service worker version ${CACHE_VERSION}`);
+      logger.group('Service Worker Activate');
+      logger.registration('activate', { version: CACHE_VERSION });
       
       // Perform another cleanup during activation
       await cleanupOldServiceWorkers();
       
       // Immediately take control of all clients
-      console.log('👑 Taking control of all clients');
+      logger.info('Taking control of all clients');
       await self.clients.claim();
       
       // Notify all clients of the new service worker
@@ -300,8 +453,8 @@ self.addEventListener('activate', (event) => {
         });
       });
       
-      console.log('✅ Service worker activation complete');
-      console.groupEnd();
+      logger.info('Service worker activation complete');
+      logger.groupEnd();
     })()
   );
 });
@@ -344,7 +497,11 @@ self.addEventListener('fetch', (event) => {
             const cachedVersion = cachedResponse.headers.get('X-App-Version');
             
             if (currentVersion && cachedVersion && currentVersion !== cachedVersion) {
-              console.log(`🔄 Version mismatch for ${event.request.url}: ${cachedVersion} → ${currentVersion}`);
+              logger.info('Version mismatch detected', { 
+                url: event.request.url,
+                cached: cachedVersion,
+                current: currentVersion
+              });
               
               // Version mismatch, fetch fresh
               const freshResponse = await fetch(event.request, { cache: 'no-cache' });
@@ -383,15 +540,15 @@ self.addEventListener('fetch', (event) => {
 
         return response;
       } catch (error) {
-        console.warn('Fetch failed:', error);
+        logger.warn('Fetch failed', { url: event.request.url, error });
         
         // Return cached response even if expired, or offline page
         if (cachedResponse) {
-          console.log('📦 Returning stale cached response due to network error');
+          logger.info('Returning stale cached response due to network error');
           return cachedResponse;
         }
         
-        console.log('📴 Returning offline page');
+        logger.info('Returning offline page');
         return caches.match('/offline.html') || new Response('Offline', { status: 503 });
       }
     })()
@@ -402,7 +559,7 @@ self.addEventListener('fetch', (event) => {
 self.addEventListener('message', (event) => {
   // Handle skip waiting message
   if (event.data && event.data.type === 'SKIP_WAITING') {
-    console.log('⏩ Skipping waiting and activating immediately');
+    logger.info('Skipping waiting and activating immediately');
     self.skipWaiting();
     return;
   }
@@ -411,7 +568,7 @@ self.addEventListener('message', (event) => {
   if (event.data && event.data.type === 'REFRESH_CACHE') {
     event.waitUntil(
       (async () => {
-        console.groupCollapsed('🔄 Service Worker Cache Refresh');
+        logger.group('Service Worker Cache Refresh');
         
         try {
           const cache = await caches.open(CACHE_NAME);
@@ -419,7 +576,7 @@ self.addEventListener('message', (event) => {
           
           if (event.data.url) {
             // Refresh specific URL
-            console.log(`Refreshing cache for: ${event.data.url}`);
+            logger.info('Refreshing cache for specific URL', { url: event.data.url });
             await cache.delete(event.data.url);
             await metadataCache.delete(`metadata-${event.data.url}`);
             
@@ -433,7 +590,7 @@ self.addEventListener('message', (event) => {
             }
           } else {
             // Clear all cache and mark for daily refresh
-            console.log('Clearing all cache');
+            logger.info('Clearing all cache');
             const keys = await cache.keys();
             await Promise.all(keys.map(key => cache.delete(key)));
             
@@ -444,8 +601,8 @@ self.addEventListener('message', (event) => {
             markDailyRefreshCompleted();
           }
           
-          console.log('✅ Cache refresh completed');
-          console.groupEnd();
+          logger.info('Cache refresh completed');
+          logger.groupEnd();
           
           event.ports[0]?.postMessage({ 
             success: true, 
@@ -453,8 +610,8 @@ self.addEventListener('message', (event) => {
             version: CACHE_VERSION
           });
         } catch (error) {
-          console.error('❌ Cache refresh failed:', error);
-          console.groupEnd();
+          logger.error('Cache refresh failed', error);
+          logger.groupEnd();
           
           event.ports[0]?.postMessage({ 
             success: false, 
