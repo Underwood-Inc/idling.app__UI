@@ -8,6 +8,10 @@ import '../../../lib/utils/scroll-highlight-demo'; // Import for global test fun
 import { Submission } from '../submission-forms/schema';
 import { SubmissionWithReplies } from './actions';
 
+import { Filter } from '@/lib/state/atoms';
+import { PostFilters } from '@/lib/types/filters';
+import { usePaginationPreRequest } from '../../hooks/usePaginationPreRequest';
+import { IntelligentSkeletonWrapper } from '../skeleton/IntelligentSkeletonWrapper';
 import { PostsManagerControls } from './components/PostsManagerControls';
 import { PostsManagerFilters } from './components/PostsManagerFilters';
 import { PostsManagerPagination } from './components/PostsManagerPagination';
@@ -21,7 +25,8 @@ import SubmissionsList from './SubmissionsList';
 // Create component-specific logger
 const logger = createLogger({
   context: {
-    component: 'PostsManager'
+    component: 'PostsManager',
+    module: 'components/submissions-list'
   }
 });
 
@@ -67,6 +72,7 @@ const PostsManager = React.memo(function PostsManager({
 
   // Use custom hooks for state management
   const {
+    spacingTheme,
     includeThreadReplies,
     setIncludeThreadReplies,
     isMobile,
@@ -107,6 +113,20 @@ const PostsManager = React.memo(function PostsManager({
     infiniteScroll: infiniteScrollMode
   });
 
+  // Pagination pre-request for intelligent skeleton loading
+  const {
+    data: preRequestData,
+    isLoading: isPreRequestLoading,
+    error: preRequestError
+  } = usePaginationPreRequest({
+    onlyMine,
+    userId: session?.user?.id?.toString() || '',
+    filters: filters as Filter<PostFilters>[],
+    pageSize: pagination.pageSize,
+    includeThreadReplies: shouldIncludeReplies,
+    enabled: true // Always enabled for skeleton optimization
+  });
+
   // Use scroll restoration hook
   useScrollRestoration({
     isLoading,
@@ -127,10 +147,12 @@ const PostsManager = React.memo(function PostsManager({
     handleNewPostClick,
     handleRefresh,
     handleFilterSuccess,
-    handleUpdateFilter
+    handleUpdateFilter,
+    handleTextSearch
   } = usePostsManagerHandlers({
     addFilter,
     addFilters,
+    removeFilter,
     setIncludeThreadReplies,
     onNewPostClick
   });
@@ -144,6 +166,15 @@ const PostsManager = React.memo(function PostsManager({
     [pagination.totalRecords, pagination.pageSize]
   );
 
+  // Calculate expected skeleton items based on pre-request data
+  const expectedSkeletonItems = useMemo(() => {
+    if (preRequestData?.expectedItems) {
+      return preRequestData.expectedItems;
+    }
+    // Fallback to pagination page size or default
+    return Math.min(pagination.pageSize || 10, 10);
+  }, [preRequestData?.expectedItems, pagination.pageSize]);
+
   // Debug logging for render state
   logger.group('renderState');
   logger.debug('Rendering with state', {
@@ -154,26 +185,27 @@ const PostsManager = React.memo(function PostsManager({
     currentPage: pagination.currentPage,
     totalPages: Math.ceil(pagination.totalRecords / pagination.pageSize),
     infiniteScrollMode,
-    showFilters
+    showFilters,
+    expectedSkeletonItems,
+    preRequestData
   });
   logger.groupEnd();
 
   return (
     <>
       <div className="posts-manager__controls">
-        {/* Top controls row with spacing toggle, pagination toggle, results count, and new post button */}
+        {/* Top controls row with filters and new post button */}
         <PostsManagerControls
           isMobile={isMobile}
           showFilters={showFilters}
           onToggleFilters={() => setShowFilters(!showFilters)}
           filtersCount={filters.length}
-          infiniteScrollMode={infiniteScrollMode}
-          onTogglePaginationMode={setInfiniteScrollMode}
           totalRecords={pagination.totalRecords}
           isLoading={isLoading}
           error={error || null}
-          onNewPostClick={onNewPostClick ? handleNewPostClick : undefined}
+          onNewPostClick={handleNewPostClick}
           isAuthorized={isAuthorized}
+          compactMode={spacingTheme === 'compact'}
         />
 
         {/* Collapsible Filter Section */}
@@ -190,51 +222,66 @@ const PostsManager = React.memo(function PostsManager({
           onAddFilter={addFilter}
           onAddFilters={addFilters}
           onFilterSuccess={handleFilterSuccess}
-          showThreadToggle={showThreadToggle}
-          includeThreadReplies={includeThreadReplies}
-          onToggleThreadReplies={handleToggleThreadReplies}
+          onTextSearch={handleTextSearch}
+        />
+
+        {/* Sticky Controls - appears when main controls are out of view */}
+        <StickyPostsControls
+          showFilters={showFilters}
+          onToggleFilters={() => setShowFilters(!showFilters)}
+          filtersCount={filters.length}
+          infiniteScrollMode={infiniteScrollMode}
+          onTogglePaginationMode={setInfiniteScrollMode}
+          totalRecords={pagination.totalRecords}
+          isLoading={isLoading}
+          hasFilters={filters.length > 0}
+          onNewPostClick={handleNewPostClick}
         />
       </div>
 
-      {/* Sticky Controls - appears when main controls are out of view */}
-      <StickyPostsControls
-        showFilters={showFilters}
-        onToggleFilters={() => setShowFilters(!showFilters)}
-        filtersCount={filters.length}
-        infiniteScrollMode={infiniteScrollMode}
-        onTogglePaginationMode={setInfiniteScrollMode}
-        totalRecords={pagination.totalRecords}
+      {/* Intelligent Skeleton Wrapper for SubmissionsList */}
+      <IntelligentSkeletonWrapper
         isLoading={isLoading}
-        hasFilters={filters.length > 0}
-        onNewPostClick={onNewPostClick ? handleNewPostClick : undefined}
-      />
-
-      {error && (
-        <div className="posts-manager__error">
-          <p>Error loading posts: {error}</p>
-          <button onClick={handleRefresh}>Try Again</button>
-        </div>
-      )}
-
-      <SubmissionsList
-        posts={submissions}
-        onTagClick={handleTagClick}
-        onHashtagClick={handleHashtagClick}
-        onMentionClick={handleMentionClick}
-        showSkeletons={isLoading}
-        onRefresh={handleRefresh}
-        contextId={contextId}
-        infiniteScrollMode={infiniteScrollMode}
-        hasMore={hasMore}
-        isLoadingMore={isLoadingMore}
-        onLoadMore={loadMore}
-        optimisticUpdateSubmission={optimisticUpdateSubmission}
-        optimisticRemoveSubmission={optimisticRemoveSubmission}
+        className="posts-manager__submissions-wrapper"
+        preserveExactHeight={true}
+        expectedItemCount={expectedSkeletonItems}
+        expectedTotalRecords={pagination.totalRecords}
+        hasPagination={!infiniteScrollMode}
+        hasInfiniteScroll={infiniteScrollMode}
         currentPage={pagination.currentPage}
-        currentFilters={filters}
+        pageSize={pagination.pageSize}
+        onStructureCaptured={(config) => {
+          logger.debug('Skeleton structure captured', {
+            elementCount: config.rootElement ? 1 : 0,
+            containerDimensions: config.containerDimensions,
+            captureTime: config.captureTime,
+            expectedItems: config.metadata.expectedItemCount,
+            hasPagination: config.metadata.hasPagination,
+            hasInfiniteScroll: config.metadata.hasInfiniteScroll
+          });
+        }}
       >
-        {renderSubmissionItem}
-      </SubmissionsList>
+        <SubmissionsList
+          posts={submissions}
+          onTagClick={handleTagClick}
+          onHashtagClick={handleHashtagClick}
+          onMentionClick={handleMentionClick}
+          showSkeletons={false} // Handled by IntelligentSkeletonWrapper
+          onRefresh={handleRefresh}
+          contextId={contextId}
+          infiniteScrollMode={infiniteScrollMode}
+          hasMore={hasMore}
+          isLoadingMore={isLoadingMore}
+          onLoadMore={loadMore}
+          optimisticUpdateSubmission={optimisticUpdateSubmission}
+          optimisticRemoveSubmission={optimisticRemoveSubmission}
+          currentPage={pagination.currentPage}
+          currentFilters={filters}
+          error={error}
+        >
+          {renderSubmissionItem}
+        </SubmissionsList>
+      </IntelligentSkeletonWrapper>
 
       {/* Pagination */}
       <PostsManagerPagination

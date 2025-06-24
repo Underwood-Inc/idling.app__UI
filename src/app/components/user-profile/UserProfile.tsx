@@ -5,6 +5,7 @@ import { UserProfileData } from '../../../lib/types/profile';
 import { getEffectiveCharacterCount } from '../../../lib/utils/string';
 import { Avatar } from '../avatar/Avatar';
 import { ContentWithPills } from '../ui/ContentWithPills';
+import { InstantLink } from '../ui/InstantLink';
 import { SmartInput } from '../ui/SmartInput';
 
 import './UserProfile.css';
@@ -223,15 +224,26 @@ export function UserProfile({
       <div className="user-profile__bio">
         <div className="user-profile__bio-header">
           <h3>About</h3>
-          {isOwnProfile && !isEditingBio && (
-            <button
-              className="user-profile__edit-bio-btn"
-              onClick={() => setIsEditingBio(true)}
-              title="Edit bio"
-            >
-              ✏️ Edit
-            </button>
-          )}
+          <div className="user-profile__bio-actions">
+            {isOwnProfile && !isEditingBio && (
+              <button
+                className="user-profile__edit-bio-btn"
+                onClick={() => setIsEditingBio(true)}
+                title="Edit bio"
+              >
+                ✏️ Edit
+              </button>
+            )}
+            {isOwnProfile && (
+              <InstantLink
+                href="/settings"
+                className="user-profile__settings-link"
+                title="User settings"
+              >
+                ⚙️ Settings
+              </InstantLink>
+            )}
+          </div>
         </div>
 
         {isEditingBio ? (

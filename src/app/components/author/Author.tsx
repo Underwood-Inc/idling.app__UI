@@ -186,6 +186,177 @@ const UserProfileTooltipContent: React.FC<{
   );
 };
 
+// Loading state component that matches the actual tooltip structure
+const UserProfileTooltipLoading: React.FC = () => {
+  return (
+    <div className="author-tooltip">
+      <div className="author-tooltip__content">
+        <div className="author-tooltip__header">
+          <div>
+            {/* Avatar skeleton */}
+            <div
+              className="skeleton skeleton--avatar"
+              style={{
+                width: '32px',
+                height: '32px',
+                borderRadius: '50%',
+                backgroundColor: 'var(--light-background--secondary, #e0e0e0)'
+              }}
+            />
+          </div>
+          <div className="author-tooltip__header-info">
+            {/* Name skeleton */}
+            <div
+              className="skeleton skeleton--text"
+              style={{
+                width: '120px',
+                height: '18px',
+                marginBottom: '4px',
+                backgroundColor: 'var(--light-background--secondary, #e0e0e0)'
+              }}
+            />
+            {/* Location skeleton */}
+            <div
+              className="skeleton skeleton--text"
+              style={{
+                width: '80px',
+                height: '14px',
+                marginBottom: '4px',
+                backgroundColor: 'var(--light-background--secondary, #e0e0e0)'
+              }}
+            />
+            <div className="author-tooltip__footer">
+              {/* Join date skeleton */}
+              <div
+                className="skeleton skeleton--text"
+                style={{
+                  width: '100px',
+                  height: '12px',
+                  backgroundColor: 'var(--light-background--secondary, #e0e0e0)'
+                }}
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Bio skeleton */}
+        <div className="author-tooltip__bio">
+          <div
+            className="skeleton skeleton--text"
+            style={{
+              width: '100%',
+              height: '14px',
+              marginBottom: '6px',
+              backgroundColor: 'var(--light-background--secondary, #e0e0e0)'
+            }}
+          />
+          <div
+            className="skeleton skeleton--text"
+            style={{
+              width: '75%',
+              height: '14px',
+              backgroundColor: 'var(--light-background--secondary, #e0e0e0)'
+            }}
+          />
+        </div>
+
+        {/* Stats skeleton */}
+        <div className="author-tooltip__stats">
+          <div className="author-tooltip__stat">
+            <div
+              className="skeleton skeleton--text"
+              style={{
+                width: '24px',
+                height: '20px',
+                marginBottom: '4px',
+                backgroundColor: 'var(--light-background--secondary, #e0e0e0)'
+              }}
+            />
+            <div
+              className="skeleton skeleton--text"
+              style={{
+                width: '36px',
+                height: '12px',
+                backgroundColor: 'var(--light-background--secondary, #e0e0e0)'
+              }}
+            />
+          </div>
+          <div className="author-tooltip__stat">
+            <div
+              className="skeleton skeleton--text"
+              style={{
+                width: '24px',
+                height: '20px',
+                marginBottom: '4px',
+                backgroundColor: 'var(--light-background--secondary, #e0e0e0)'
+              }}
+            />
+            <div
+              className="skeleton skeleton--text"
+              style={{
+                width: '42px',
+                height: '12px',
+                backgroundColor: 'var(--light-background--secondary, #e0e0e0)'
+              }}
+            />
+          </div>
+          <div className="author-tooltip__stat">
+            <div
+              className="skeleton skeleton--text"
+              style={{
+                width: '24px',
+                height: '20px',
+                marginBottom: '4px',
+                backgroundColor: 'var(--light-background--secondary, #e0e0e0)'
+              }}
+            />
+            <div
+              className="skeleton skeleton--text"
+              style={{
+                width: '30px',
+                height: '12px',
+                backgroundColor: 'var(--light-background--secondary, #e0e0e0)'
+              }}
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Action buttons skeleton */}
+      <div className="author-tooltip__actions">
+        <div
+          className="skeleton skeleton--button"
+          style={{
+            width: '100px',
+            height: '32px',
+            borderRadius: '6px',
+            backgroundColor: 'var(--light-background--secondary, #e0e0e0)'
+          }}
+        />
+        <div
+          className="skeleton skeleton--button"
+          style={{
+            width: '120px',
+            height: '32px',
+            borderRadius: '6px',
+            backgroundColor: 'var(--light-background--secondary, #e0e0e0)'
+          }}
+        />
+        <div className="author-tooltip__hint">
+          <div
+            className="skeleton skeleton--text"
+            style={{
+              width: '200px',
+              height: '12px',
+              backgroundColor: 'var(--light-background--secondary, #e0e0e0)'
+            }}
+          />
+        </div>
+      </div>
+    </div>
+  );
+};
+
 export const Author: React.FC<AuthorProps> = ({
   authorId,
   authorName,
@@ -198,6 +369,7 @@ export const Author: React.FC<AuthorProps> = ({
 }) => {
   const [userProfile, setUserProfile] = useState<UserProfileData | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [hasAttemptedFetch, setHasAttemptedFetch] = useState(false);
   const { openOverlay, closeOverlay } = useOverlay();
 
   const displayName = showFullName ? authorName : `@${authorName}`;
@@ -206,33 +378,31 @@ export const Author: React.FC<AuthorProps> = ({
   // This ensures profile URLs remain stable even when OAuth provider usernames change
   const profileUrl = `/profile/${authorId}`;
 
-  // Fetch user profile for tooltip via API route using database ID for more reliable lookup
-  useEffect(() => {
-    if (enableTooltip && authorId && authorName) {
-      setIsLoading(true);
+  // Fetch user profile for tooltip - only when tooltip is triggered
+  const fetchUserProfile = async () => {
+    if (hasAttemptedFetch || isLoading) return;
 
+    setIsLoading(true);
+    setHasAttemptedFetch(true);
+
+    try {
       // ✅ Only database ID lookup supported after migration 0010
       const fetchUrl = `/api/profile/id/${encodeURIComponent(authorId)}`;
 
-      fetch(fetchUrl)
-        .then((response) => {
-          if (response.ok) {
-            return response.json();
-          }
-          throw new Error('Failed to fetch profile');
-        })
-        .then((profile: UserProfileData) => {
-          setUserProfile(profile);
-        })
-        .catch((error) => {
-          console.error('Error fetching user profile:', error);
-          setUserProfile(null);
-        })
-        .finally(() => {
-          setIsLoading(false);
-        });
+      const response = await fetch(fetchUrl);
+      if (response.ok) {
+        const profile: UserProfileData = await response.json();
+        setUserProfile(profile);
+      } else {
+        throw new Error('Failed to fetch profile');
+      }
+    } catch (error) {
+      console.error('Error fetching user profile:', error);
+      setUserProfile(null);
+    } finally {
+      setIsLoading(false);
     }
-  }, [authorId, authorName, enableTooltip]);
+  };
 
   const handleClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
     // Handle Ctrl+Click for modal
@@ -240,6 +410,13 @@ export const Author: React.FC<AuthorProps> = ({
       event.preventDefault();
       if (userProfile) {
         openModal();
+      } else {
+        // Fetch profile first, then open modal
+        fetchUserProfile().then(() => {
+          if (userProfile) {
+            openModal();
+          }
+        });
       }
       return;
     }
@@ -299,26 +476,28 @@ export const Author: React.FC<AuthorProps> = ({
     return authorElement;
   }
 
-  // If loading or no profile found, return plain element without tooltip
-  if (isLoading || !userProfile) {
-    return authorElement;
-  }
-
   // Create tooltip content with profile preview and actions
-  const tooltipContent = (
+  const tooltipContent = userProfile ? (
     <UserProfileTooltipContent
       user={userProfile}
       onViewProfile={handleViewProfile}
       onViewInModal={openModal}
     />
+  ) : isLoading ? (
+    <UserProfileTooltipLoading />
+  ) : (
+    <div className="author-tooltip__error">
+      <p>Unable to load profile</p>
+    </div>
   );
 
-  // Return element wrapped in enhanced tooltip
+  // Return element wrapped in enhanced tooltip with lazy loading
   return (
     <InteractiveTooltip
       content={tooltipContent}
       delay={500}
       className="author-tooltip-wrapper"
+      onShow={fetchUserProfile} // Trigger fetch when tooltip is about to show
     >
       {authorElement}
     </InteractiveTooltip>

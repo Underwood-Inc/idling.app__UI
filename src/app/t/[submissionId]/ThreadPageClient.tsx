@@ -5,7 +5,6 @@ import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { Suspense, useEffect, useState } from 'react';
 import { CONTEXT_IDS } from '../../../lib/context-ids';
-import { SpacingThemeProvider } from '../../../lib/context/SpacingThemeContext';
 import { getSubmissionsFiltersAtom } from '../../../lib/state/atoms';
 import { Card } from '../../components/card/Card';
 import FadeIn from '../../components/fade-in/FadeIn';
@@ -189,81 +188,79 @@ export default function ThreadPageClient({
   };
 
   return (
-    <SpacingThemeProvider>
-      <PageContainer>
-        <PageHeader>
-          <FadeIn>
-            <div className={styles.thread__header}>
-              <h2>Thread Discussion</h2>
-              {hasActiveFilters && (
-                <div className={styles.thread__filters}>
-                  <span className={styles.thread__filters_label}>
-                    Active Filters:
-                  </span>
-                  {activeHashtags.map((hashtag) => (
-                    <button
-                      key={hashtag}
-                      className={styles.thread__filter_pill}
-                      onClick={() => handleHashtagClick(hashtag)}
-                      title="Click to remove filter"
-                    >
-                      #{hashtag} ×
-                    </button>
-                  ))}
-                  {activeMentions.map((mention) => (
-                    <button
-                      key={mention}
-                      className={styles.thread__filter_pill}
-                      onClick={() => handleMentionClick(mention)}
-                      title="Click to remove filter"
-                    >
-                      @{mention} ×
-                    </button>
-                  ))}
+    <PageContainer>
+      <PageHeader>
+        <FadeIn>
+          <div className={styles.thread__header}>
+            <h2>Thread Discussion</h2>
+            {hasActiveFilters && (
+              <div className={styles.thread__filters}>
+                <span className={styles.thread__filters_label}>
+                  Active Filters:
+                </span>
+                {activeHashtags.map((hashtag) => (
                   <button
-                    className={styles.thread__clear_filters}
-                    onClick={clearFilters}
-                    title="Clear all filters"
+                    key={hashtag}
+                    className={styles.thread__filter_pill}
+                    onClick={() => handleHashtagClick(hashtag)}
+                    title="Click to remove filter"
                   >
-                    Clear All
+                    #{hashtag} ×
                   </button>
-                </div>
-              )}
-            </div>
-          </FadeIn>
-        </PageHeader>
-        <PageContent>
-          <article className={styles.thread__container}>
-            <FadeIn className={styles.thread__fade}>
-              <Card width="full" className={styles.thread__item}>
-                <Suspense fallback={<Loader />}>
-                  <Thread
-                    submissionId={submissionId}
-                    userId={userId}
-                    onHashtagClick={handleHashtagClick}
-                    onMentionClick={handleMentionClick}
-                    activeFilters={activeFilters}
-                    contextId={contextId}
-                  />
-                </Suspense>
-              </Card>
-            </FadeIn>
-          </article>
-        </PageContent>
-
-        <PageAside className={styles.thread_aside} bottomMargin={10}>
-          <FadeIn>
-            <Card width="full">
+                ))}
+                {activeMentions.map((mention) => (
+                  <button
+                    key={mention}
+                    className={styles.thread__filter_pill}
+                    onClick={() => handleMentionClick(mention)}
+                    title="Click to remove filter"
+                  >
+                    @{mention} ×
+                  </button>
+                ))}
+                <button
+                  className={styles.thread__clear_filters}
+                  onClick={clearFilters}
+                  title="Clear all filters"
+                >
+                  Clear All
+                </button>
+              </div>
+            )}
+          </div>
+        </FadeIn>
+      </PageHeader>
+      <PageContent>
+        <article className={styles.thread__container}>
+          <FadeIn className={styles.thread__fade}>
+            <Card width="full" className={styles.thread__item}>
               <Suspense fallback={<Loader />}>
-                <ThreadTags
+                <Thread
                   submissionId={submissionId}
-                  contextId={CONTEXT_IDS.THREAD.toString()}
+                  userId={userId}
+                  onHashtagClick={handleHashtagClick}
+                  onMentionClick={handleMentionClick}
+                  activeFilters={activeFilters}
+                  contextId={contextId}
                 />
               </Suspense>
             </Card>
           </FadeIn>
-        </PageAside>
-      </PageContainer>
-    </SpacingThemeProvider>
+        </article>
+      </PageContent>
+
+      <PageAside className={styles.thread_aside} bottomMargin={10}>
+        <FadeIn>
+          <Card width="full">
+            <Suspense fallback={<Loader />}>
+              <ThreadTags
+                submissionId={submissionId}
+                contextId={CONTEXT_IDS.THREAD.toString()}
+              />
+            </Suspense>
+          </Card>
+        </FadeIn>
+      </PageAside>
+    </PageContainer>
   );
 }

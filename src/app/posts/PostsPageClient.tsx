@@ -3,6 +3,7 @@
 import dynamic from 'next/dynamic';
 import { useState } from 'react';
 import FloatingAddPost from '../components/floating-add-post/FloatingAddPost';
+import { IntelligentSkeletonWrapper } from '../components/skeleton/IntelligentSkeletonWrapper';
 import { Submission } from '../components/submission-forms/schema';
 import { SubmissionItem } from '../components/submissions-list/SubmissionItem';
 import { SubmissionWithReplies } from '../components/submissions-list/actions';
@@ -18,8 +19,20 @@ if (process.env.NODE_ENV === 'development') {
 const LazyPostsManager = dynamic(
   () => import('../components/submissions-list/PostsManager'),
   {
-    ssr: false
-    // Remove the Loader fallback so PostsManager/SubmissionsList can handle loading with smart skeleton
+    ssr: false,
+    loading: () => (
+      <IntelligentSkeletonWrapper
+        isLoading={true}
+        className="posts-page-loading"
+        preserveExactHeight={true}
+        expectedItemCount={10}
+        hasPagination={true}
+        hasInfiniteScroll={false}
+        fallbackMinHeight="400px"
+      >
+        <div style={{ minHeight: '400px' }} />
+      </IntelligentSkeletonWrapper>
+    )
   }
 );
 
@@ -28,11 +41,10 @@ interface PostsPageClientProps {
 }
 
 export default function PostsPageClient({ contextId }: PostsPageClientProps) {
-  const [triggerModal, setTriggerModal] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [triggerModal, setTriggerModal] = useState(false);
 
   const handleNewPostClick = () => {
-    // Trigger the floating add post modal
     setTriggerModal(true);
   };
 
@@ -41,11 +53,11 @@ export default function PostsPageClient({ contextId }: PostsPageClientProps) {
   };
 
   const handleModalClose = () => {
-    // Modal closed, force refresh the posts list
+    setTriggerModal(false);
+    // Refresh posts list when a new post is created
     setRefreshKey((prev) => prev + 1);
   };
 
-  // Default renderer for regular posts page - no reply indicators
   const renderPostItem = ({
     submission,
     onTagClick,

@@ -4,6 +4,7 @@ import { Inter } from 'next/font/google';
 import { Suspense } from 'react';
 import { NavigationLoadingProvider } from '../lib/context/NavigationLoadingContext';
 import { OverlayProvider } from '../lib/context/OverlayContext';
+import { UserPreferencesProvider } from '../lib/context/UserPreferencesContext';
 import { JotaiProvider } from '../lib/state/JotaiProvider';
 import { SessionRefreshHandler } from './components/auth-buttons/SessionRefreshHandler';
 import { AvatarsBackground } from './components/avatars-background/AvatarsBackground';
@@ -208,38 +209,40 @@ export default function RootLayout({
         {/* Additional PWA optimizations */}
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="application-name" content="Idling App" />
-        <meta name="app-version" content="0.157.0" />
+        <meta name="app-version" content="__VERSION__" />
       </head>
 
       <body className={inter.className}>
         <ServiceWorkerRegistration />
         <HardResetManager />
         <SessionProvider>
-          <NavigationLoadingProvider>
-            <NavigationLoadingBar />
-            <SessionRefreshHandler />
-            <OverlayProvider>
-              <TimeoutBanner />
-              <main>
-                <AvatarsBackground />
+          <UserPreferencesProvider>
+            <NavigationLoadingProvider>
+              <NavigationLoadingBar />
+              <SessionRefreshHandler />
+              <OverlayProvider>
+                <TimeoutBanner />
+                <main>
+                  <AvatarsBackground />
 
-                <Header />
+                  <Header />
 
-                <MessageTickerWithInterval />
+                  <MessageTickerWithInterval />
 
-                <Suspense fallback={<Loader />}>
-                  <JotaiProvider>
-                    <NotFoundErrorBoundary>
-                      <FadeIn>{children}</FadeIn>
-                    </NotFoundErrorBoundary>
-                  </JotaiProvider>
-                </Suspense>
-                <Footer />
-              </main>
-              <OverlayRenderer />
-              <PWAInstallPrompt />
-            </OverlayProvider>
-          </NavigationLoadingProvider>
+                  <Suspense fallback={<Loader />}>
+                    <JotaiProvider>
+                      <NotFoundErrorBoundary>
+                        <FadeIn>{children}</FadeIn>
+                      </NotFoundErrorBoundary>
+                    </JotaiProvider>
+                  </Suspense>
+                  <Footer />
+                </main>
+                <OverlayRenderer />
+                <PWAInstallPrompt />
+              </OverlayProvider>
+            </NavigationLoadingProvider>
+          </UserPreferencesProvider>
         </SessionProvider>
       </body>
     </html>

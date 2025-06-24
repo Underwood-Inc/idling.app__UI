@@ -36,6 +36,169 @@ export type GetSubmissionsActionResponse = {
   error?: string;
 };
 
+export interface GetSubmissionsPaginationCountResponse {
+  data?: {
+    totalRecords: number;
+    expectedItems: number; // Items expected for current page size
+  };
+  error?: string;
+}
+
+/**
+ * Pre-request to get pagination count for skeleton loader optimization
+ * This allows us to show the exact number of skeleton items that will be loaded
+ */
+export async function getSubmissionsPaginationCount({
+  onlyMine,
+  userId,
+  filters = [],
+  pageSize = 10,
+  includeThreadReplies = false
+}: Omit<
+  GetSubmissionsActionArguments,
+  'page'
+>): Promise<GetSubmissionsPaginationCountResponse> {
+  if (onlyMine && !userId) {
+    return {
+      error: 'User ID is required for user-specific queries'
+    };
+  }
+
+  const userIdNum = userId ? parseInt(userId) : null;
+
+  try {
+    let whereClause = 'WHERE 1=1';
+    const queryParams: any[] = [];
+    let paramIndex = 1;
+
+    // Handle thread replies filter
+    if (!includeThreadReplies) {
+      whereClause += ` AND s.thread_parent_id IS NULL`;
+    }
+
+    // Handle user filter (only mine)
+    if (onlyMine && userIdNum) {
+      whereClause += ` AND s.user_id = $${paramIndex}`;
+      queryParams.push(userIdNum);
+      paramIndex++;
+    }
+
+    // Handle filters
+    for (const filter of filters) {
+      switch (filter.name) {
+        case 'tags': {
+          const tags = filter.value
+            .split(',')
+            .map((tag) => tag.trim())
+            .filter(Boolean);
+
+          if (tags.length > 0) {
+            const tagConditions = tags.map(() => {
+              const condition = `$${paramIndex} = ANY(s.tags)`;
+              queryParams.push(tags[paramIndex - 1]);
+              paramIndex++;
+              return condition;
+            });
+            whereClause += ` AND (${tagConditions.join(' OR ')})`;
+          }
+          break;
+        }
+
+        case 'author': {
+          whereClause += ` AND u.name ILIKE $${paramIndex}`;
+          queryParams.push(`%${filter.value}%`);
+          paramIndex++;
+          break;
+        }
+
+        case 'title': {
+          whereClause += ` AND s.submission_title ILIKE $${paramIndex}`;
+          queryParams.push(`%${filter.value}%`);
+          paramIndex++;
+          break;
+        }
+
+        case 'content': {
+          whereClause += ` AND s.submission_name ILIKE $${paramIndex}`;
+          queryParams.push(`%${filter.value}%`);
+          paramIndex++;
+          break;
+        }
+
+        case 'url': {
+          whereClause += ` AND s.submission_url ILIKE $${paramIndex}`;
+          queryParams.push(`%${filter.value}%`);
+          paramIndex++;
+          break;
+        }
+
+        case 'dateFrom': {
+          whereClause += ` AND s.submission_datetime >= $${paramIndex}`;
+          queryParams.push(filter.value);
+          paramIndex++;
+          break;
+        }
+
+        case 'dateTo': {
+          whereClause += ` AND s.submission_datetime <= $${paramIndex}`;
+          queryParams.push(filter.value);
+          paramIndex++;
+          break;
+        }
+
+        case 'search': {
+          // Multi-word text search with OR logic
+          const searchTerms = filter.value
+            .trim()
+            .split(/\s+/)
+            .filter((term) => term.length >= 2) // Minimum 2 characters per term
+            .map((term) => term.toLowerCase());
+
+          if (searchTerms.length > 0) {
+            const searchConditions = searchTerms.map((term) => {
+              const condition = `(
+                LOWER(s.submission_name) LIKE $${paramIndex} OR 
+                LOWER(s.submission_title) LIKE $${paramIndex}
+              )`;
+              queryParams.push(`%${term}%`);
+              paramIndex++;
+              return condition;
+            });
+            whereClause += ` AND (${searchConditions.join(' OR ')})`;
+          }
+          break;
+        }
+      }
+    }
+
+    // Count total records
+    const countQuery = `
+      SELECT COUNT(*) as total
+      FROM submissions s
+      JOIN users u ON s.user_id = u.id
+      ${whereClause}
+    `;
+
+    const countResult = await sql.unsafe(countQuery, queryParams);
+    const totalRecords = parseInt(countResult[0]?.total || '0');
+
+    // Calculate expected items for current page (will be pageSize or less if on last page)
+    const expectedItems = Math.min(totalRecords, pageSize);
+
+    return {
+      data: {
+        totalRecords,
+        expectedItems
+      }
+    };
+  } catch (error) {
+    console.error('getSubmissionsPaginationCount error:', error);
+    return {
+      error: 'Failed to fetch pagination count'
+    };
+  }
+}
+
 export async function getSubmissionsAction({
   onlyMine,
   userId,
@@ -143,6 +306,29 @@ export async function getSubmissionsAction({
           whereClause += ` AND s.submission_datetime <= $${paramIndex}`;
           queryParams.push(filter.value);
           paramIndex++;
+          break;
+        }
+
+        case 'search': {
+          // Multi-word text search with OR logic
+          const searchTerms = filter.value
+            .trim()
+            .split(/\s+/)
+            .filter((term) => term.length >= 2) // Minimum 2 characters per term
+            .map((term) => term.toLowerCase());
+
+          if (searchTerms.length > 0) {
+            const searchConditions = searchTerms.map((term) => {
+              const condition = `(
+                LOWER(s.submission_name) LIKE $${paramIndex} OR 
+                LOWER(s.submission_title) LIKE $${paramIndex}
+              )`;
+              queryParams.push(`%${term}%`);
+              paramIndex++;
+              return condition;
+            });
+            whereClause += ` AND (${searchConditions.join(' OR ')})`;
+          }
           break;
         }
       }

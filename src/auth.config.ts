@@ -13,15 +13,21 @@ declare module 'next-auth' {
       email?: string | null;
       image?: string | null;
       providerAccountId?: string;
+      spacing_theme?: 'cozy' | 'compact';
+      pagination_mode?: 'traditional' | 'infinite';
     };
   }
 
   interface User {
     providerAccountId?: string;
+    spacing_theme?: 'cozy' | 'compact';
+    pagination_mode?: 'traditional' | 'infinite';
   }
 
   interface JWT {
     providerAccountId?: string;
+    spacing_theme?: 'cozy' | 'compact';
+    pagination_mode?: 'traditional' | 'infinite';
   }
 }
 
@@ -34,6 +40,8 @@ export interface UserWithProviderAccountId extends User {
 export interface JWTWithProviderAccountId extends JWT {
   databaseId?: string;
   providerAccountId?: string;
+  spacing_theme?: 'cozy' | 'compact';
+  pagination_mode?: 'traditional' | 'infinite';
 }
 
 // Notice this is only an object, not a full Auth.js instance

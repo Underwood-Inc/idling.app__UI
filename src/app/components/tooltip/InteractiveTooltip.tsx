@@ -13,6 +13,7 @@ interface InteractiveTooltipProps {
   className?: string; // Additional CSS class for tooltip wrapper
   triggerOnClick?: boolean; // If true, tooltip shows/hides on click instead of hover
   onClose?: () => void; // Callback when tooltip closes
+  onShow?: () => void; // Callback when tooltip is about to show
 }
 
 // Utility function to detect mobile devices
@@ -31,7 +32,8 @@ export const InteractiveTooltip: React.FC<InteractiveTooltipProps> = ({
   delay = 300,
   className = '',
   triggerOnClick = false,
-  onClose
+  onClose,
+  onShow
 }) => {
   const [showTooltip, setShowTooltip] = useState(false);
   const [position, setPosition] = useState({ top: 0, left: 0 });
@@ -151,6 +153,9 @@ export const InteractiveTooltip: React.FC<InteractiveTooltipProps> = ({
       clearTimeout(hideTimeoutRef.current);
     }
     const timeout = setTimeout(() => {
+      if (onShow) {
+        onShow(); // Call onShow callback before showing tooltip
+      }
       setShowTooltip(true);
       // Update position after a short delay to ensure content is rendered
       setTimeout(updatePosition, 0);
@@ -184,6 +189,11 @@ export const InteractiveTooltip: React.FC<InteractiveTooltipProps> = ({
     if (!triggerOnClick && !isMobile) return;
 
     const newShowState = !showTooltip;
+
+    if (newShowState && onShow) {
+      onShow(); // Call onShow callback before showing tooltip
+    }
+
     setShowTooltip(newShowState);
 
     if (newShowState) {

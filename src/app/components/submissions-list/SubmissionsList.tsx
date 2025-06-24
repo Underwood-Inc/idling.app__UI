@@ -61,6 +61,7 @@ export interface SubmissionsListProps {
     currentPage?: number;
     currentFilters?: Record<string, any>;
   }) => React.ReactNode;
+  error?: string;
 }
 
 const SubmissionsList = React.memo(function SubmissionsList({
@@ -79,7 +80,8 @@ const SubmissionsList = React.memo(function SubmissionsList({
   optimisticRemoveSubmission,
   currentPage,
   currentFilters,
-  children
+  children,
+  error
 }: SubmissionsListProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const itemRefs = useRef<Map<number, HTMLDivElement>>(new Map());
@@ -298,7 +300,28 @@ const SubmissionsList = React.memo(function SubmissionsList({
     []
   );
 
-  // Skeleton loading
+  // Handle error state
+  if (error) {
+    return (
+      <div
+        className="submissions-list submissions-list--error"
+        data-testid="submissions-list"
+      >
+        <div className="submissions-list__error-message">
+          <p>Error loading posts: {error}</p>
+          <button
+            onClick={onRefresh}
+            className="submissions-list__retry-button"
+          >
+            Try Again
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // Skeleton loading - only show if explicitly requested (for backwards compatibility)
+  // The new IntelligentSkeletonWrapper handles most skeleton loading
   if (showSkeletons) {
     return (
       <div className="submissions-list" data-testid="submissions-list">

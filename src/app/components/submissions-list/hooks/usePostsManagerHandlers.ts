@@ -3,6 +3,7 @@
 import { useAtom } from 'jotai';
 import { useCallback, useRef } from 'react';
 import { shouldUpdateAtom } from '../../../../lib/state/atoms';
+import { PostFilters } from '../../../../lib/types/filters';
 
 export interface PostsManagerHandlers {
   handleAddFilter: (filter: any) => void;
@@ -18,11 +19,13 @@ export interface PostsManagerHandlers {
   handleRefresh: () => void;
   handleFilterSuccess: () => void;
   handleUpdateFilter: (name: string, value: string) => void;
+  handleTextSearch: (searchText: string) => void;
 }
 
 export interface PostsManagerHandlersOptions {
   addFilter: (filter: any) => void;
   addFilters: (filters: any[]) => void;
+  removeFilter: (filterName: PostFilters, filterValue?: string) => void;
   setIncludeThreadReplies: (value: boolean) => void;
   onNewPostClick?: () => void;
 }
@@ -30,6 +33,7 @@ export interface PostsManagerHandlersOptions {
 export function usePostsManagerHandlers({
   addFilter,
   addFilters,
+  removeFilter,
   setIncludeThreadReplies,
   onNewPostClick
 }: PostsManagerHandlersOptions): PostsManagerHandlers {
@@ -116,6 +120,19 @@ export function usePostsManagerHandlers({
     [] // Empty dependency array for stable reference
   );
 
+  const handleTextSearch = useCallback(
+    (searchText: string) => {
+      // Remove existing search filter first
+      removeFilter('search' as PostFilters);
+
+      // Add new search filter if text is provided
+      if (searchText.trim().length > 0) {
+        addFilter({ name: 'search', value: searchText.trim() });
+      }
+    },
+    [addFilter, removeFilter]
+  );
+
   return {
     handleAddFilter,
     handleAddFilters,
@@ -126,6 +143,7 @@ export function usePostsManagerHandlers({
     handleNewPostClick,
     handleRefresh,
     handleFilterSuccess,
-    handleUpdateFilter
+    handleUpdateFilter,
+    handleTextSearch
   };
 }

@@ -8,8 +8,10 @@ import { UserProfileData } from '../types/profile';
 import { getEffectiveCharacterCount } from '../utils/string';
 
 const logger = createLogger({
-  component: 'ProfileActions',
-  module: 'actions'
+  context: {
+    component: 'ProfileActions',
+    module: 'actions'
+  }
 });
 
 export interface ProfileFilters {
@@ -55,6 +57,8 @@ export async function getUserProfileByDatabaseId(
         u.image,
         u.created_at,
         u.profile_public,
+        u.spacing_theme,
+        u.pagination_mode,
         a."providerAccountId"
       FROM users u 
       LEFT JOIN accounts a ON u.id = a."userId"
@@ -99,13 +103,15 @@ export async function getUserProfileByDatabaseId(
       image: user.image,
       created_at: user.created_at,
       profile_public: user.profile_public,
+      spacing_theme: user.spacing_theme || 'cozy',
+      pagination_mode: user.pagination_mode || 'traditional',
       total_submissions: stats ? parseInt(stats.total_submissions) : 0,
       posts_count: stats ? parseInt(stats.posts_count) : 0,
       replies_count: stats ? parseInt(stats.replies_count) : 0,
       last_activity: stats?.last_activity || null
     };
   } catch (error) {
-    logger.error('Error fetching user profile by database ID', error, {
+    logger.error('Error fetching user profile by database ID', error as Error, {
       id: databaseId
     });
     return null;
@@ -139,6 +145,8 @@ export async function getUserProfileById(
         u.image,
         u.created_at,
         u.profile_public,
+        u.spacing_theme,
+        u.pagination_mode,
         a."providerAccountId"
       FROM users u 
       LEFT JOIN accounts a ON u.id = a."userId"
@@ -183,13 +191,17 @@ export async function getUserProfileById(
       image: user.image,
       created_at: user.created_at,
       profile_public: user.profile_public,
+      spacing_theme: user.spacing_theme || 'cozy',
+      pagination_mode: user.pagination_mode || 'traditional',
       total_submissions: stats ? parseInt(stats.total_submissions) : 0,
       posts_count: stats ? parseInt(stats.posts_count) : 0,
       replies_count: stats ? parseInt(stats.replies_count) : 0,
       last_activity: stats?.last_activity || null
     };
   } catch (error) {
-    logger.error('Error fetching user profile by ID', error, { id: userId });
+    logger.error('Error fetching user profile by ID', error as Error, {
+      id: userId
+    });
     return null;
   }
 }
@@ -203,6 +215,8 @@ export async function updateUserProfile(
     bio: string;
     location: string;
     profile_public: boolean;
+    spacing_theme: 'cozy' | 'compact';
+    pagination_mode: 'traditional' | 'infinite';
   }>
 ): Promise<UserProfileData | null> {
   try {
@@ -227,6 +241,14 @@ export async function updateUserProfile(
       setClauses.push(`profile_public = $${paramIndex++}`);
       values.push(updates.profile_public);
     }
+    if (updates.spacing_theme !== undefined) {
+      setClauses.push(`spacing_theme = $${paramIndex++}`);
+      values.push(updates.spacing_theme);
+    }
+    if (updates.pagination_mode !== undefined) {
+      setClauses.push(`pagination_mode = $${paramIndex++}`);
+      values.push(updates.pagination_mode);
+    }
 
     if (setClauses.length === 0) {
       return getUserProfileById(userId);
@@ -249,7 +271,9 @@ export async function updateUserProfile(
         location,
         image,
         created_at,
-        profile_public
+        profile_public,
+        spacing_theme,
+        pagination_mode
     `;
 
     const result = await sql.unsafe(queryText, [...values, userId]);
@@ -281,10 +305,15 @@ export async function updateUserProfile(
       location: userRow.location,
       image: userRow.image,
       created_at: userRow.created_at,
-      profile_public: userRow.profile_public
+      profile_public: userRow.profile_public,
+      spacing_theme: userRow.spacing_theme || 'cozy',
+      pagination_mode: userRow.pagination_mode || 'traditional'
     };
   } catch (error) {
-    logger.error('Error updating user profile', error, { userId, updates });
+    logger.error('Error updating user profile', error as Error, {
+      userId,
+      updates
+    });
     return null;
   }
 }
@@ -340,7 +369,7 @@ export async function searchUsers(
       profile_public: row.profile_public
     }));
   } catch (error) {
-    logger.error('Error searching users', error, { query, limit });
+    logger.error('Error searching users', error as Error, { query, limit });
     return [];
   }
 }
@@ -348,6 +377,43 @@ export async function searchUsers(
 /**
  * Server action to update user bio (database ID only after migration 0010)
  */
+export async function updateUserPreferencesAction(
+  userId: string,
+  preferences: {
+    spacing_theme?: 'cozy' | 'compact';
+    pagination_mode?: 'traditional' | 'infinite';
+  }
+): Promise<{
+  success: boolean;
+  error?: string;
+  profile?: UserProfileData;
+}> {
+  try {
+    const updatedProfile = await updateUserProfile(userId, preferences);
+
+    if (!updatedProfile) {
+      return {
+        success: false,
+        error: 'Failed to update user preferences'
+      };
+    }
+
+    return {
+      success: true,
+      profile: updatedProfile
+    };
+  } catch (error) {
+    logger.error('Error updating user preferences', error as Error, {
+      userId,
+      preferences
+    });
+    return {
+      success: false,
+      error: 'An error occurred while updating preferences'
+    };
+  }
+}
+
 export async function updateBioAction(
   bio: string,
   identifier: string
@@ -428,7 +494,9 @@ export async function updateBioAction(
       profile: completeProfile || updatedProfile
     };
   } catch (error) {
-    logger.error('Error updating user bio', error, { bioLength: bio?.length });
+    logger.error('Error updating user bio', error as Error, {
+      bioLength: bio?.length
+    });
     return {
       success: false,
       error: 'Internal server error'

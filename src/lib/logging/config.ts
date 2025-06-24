@@ -42,6 +42,7 @@ export const ContextEmojis: Record<string, string> = {
   useSubmissionsManager: '🚀',
   RichTextLogger: '📝',
   ServiceWorker: '⚙️',
+  TextSearchInput: '🔎',
 
   // Generic categories
   auth: '🔑',

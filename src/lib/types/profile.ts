@@ -13,4 +13,7 @@ export interface UserProfileData {
   posts_count?: number;
   replies_count?: number;
   last_activity?: Date | null;
+  // User preferences
+  spacing_theme?: 'cozy' | 'compact';
+  pagination_mode?: 'traditional' | 'infinite';
 }

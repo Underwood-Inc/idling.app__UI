@@ -538,3 +538,106 @@
   min-width: 0;
   flex: 1;
 }
+
+/* Author tooltip loading state */
+.author-tooltip__loading {
+  padding: 1rem;
+  text-align: center;
+  min-width: 200px;
+}
+
+.author-tooltip__skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+/* Author tooltip error state */
+.author-tooltip__error {
+  padding: 1rem;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.875rem;
+  min-width: 150px;
+}
+
+.author-tooltip__error p {
+  margin: 0;
+}
+
+/* Enhanced skeleton loading styles for author tooltip */
+.skeleton--avatar,
+.skeleton--text,
+.skeleton--button {
+  background: linear-gradient(90deg,
+      var(--light-background--secondary, #e0e0e0) 25%,
+      var(--light-background--tertiary, #f0f0f0) 50%,
+      var(--light-background--secondary, #e0e0e0) 75%);
+  background-size: 200% 100%;
+  /* Subtle pulse animation instead of shimmer to avoid motion sickness */
+  animation: skeleton-pulse 2s ease-in-out infinite;
+  border-radius: 4px;
+}
+
+.skeleton--avatar {
+  border-radius: 50% !important;
+}
+
+.skeleton--button {
+  border-radius: 6px !important;
+}
+
+/* Subtle pulse animation for skeleton elements */
+@keyframes skeleton-pulse {
+  0% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.7;
+  }
+
+  100% {
+    opacity: 1;
+  }
+}
+
+/* Loading state specific styles */
+.author-tooltip__loading {
+  padding: 1rem;
+  text-align: center;
+  min-width: 200px;
+}
+
+.author-tooltip__skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+/* Dark mode skeleton styles */
+@media (prefers-color-scheme: dark) {
+
+  .skeleton--avatar,
+  .skeleton--text,
+  .skeleton--button {
+    background: linear-gradient(90deg,
+        var(--dark-background--secondary, #2a2a2a) 25%,
+        var(--dark-background--tertiary, #3a3a3a) 50%,
+        var(--dark-background--secondary, #2a2a2a) 75%);
+    background-size: 200% 100%;
+  }
+}
+
+/* Author tooltip error state */
+.author-tooltip__error {
+  padding: 1rem;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.875rem;
+  min-width: 150px;
+}
+
+.author-tooltip__error p {
+  margin: 0;
+}
