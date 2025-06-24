@@ -2,7 +2,7 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import './LinkTooltip.css';
+import './InteractiveTooltip.css';
 
 interface InteractiveTooltipProps {
   content: React.ReactNode;
@@ -14,6 +14,14 @@ interface InteractiveTooltipProps {
   triggerOnClick?: boolean; // If true, tooltip shows/hides on click instead of hover
   onClose?: () => void; // Callback when tooltip closes
 }
+
+// Utility function to detect mobile devices
+const isMobileDevice = () => {
+  return (
+    typeof window !== 'undefined' &&
+    window.matchMedia('(hover: none) and (pointer: coarse)').matches
+  );
+};
 
 export const InteractiveTooltip: React.FC<InteractiveTooltipProps> = ({
   content,
@@ -135,9 +143,7 @@ export const InteractiveTooltip: React.FC<InteractiveTooltipProps> = ({
 
   const handleMouseEnter = () => {
     // On mobile, don't trigger hover events
-    const isMobile = window.matchMedia(
-      '(hover: none) and (pointer: coarse)'
-    ).matches;
+    const isMobile = isMobileDevice();
     if (disabled || triggerOnClick || isMobile) return;
 
     isHoveringRef.current = true;
@@ -154,9 +160,7 @@ export const InteractiveTooltip: React.FC<InteractiveTooltipProps> = ({
 
   const handleMouseLeave = () => {
     // On mobile, don't trigger mouse leave events
-    const isMobile = window.matchMedia(
-      '(hover: none) and (pointer: coarse)'
-    ).matches;
+    const isMobile = isMobileDevice();
     if (triggerOnClick || isMobile) return;
 
     isHoveringRef.current = false;
@@ -175,9 +179,7 @@ export const InteractiveTooltip: React.FC<InteractiveTooltipProps> = ({
     if (disabled) return;
 
     // On mobile, always use click mode regardless of triggerOnClick setting
-    const isMobile = window.matchMedia(
-      '(hover: none) and (pointer: coarse)'
-    ).matches;
+    const isMobile = isMobileDevice();
 
     if (!triggerOnClick && !isMobile) return;
 
@@ -193,7 +195,7 @@ export const InteractiveTooltip: React.FC<InteractiveTooltipProps> = ({
   };
 
   const handleTooltipMouseEnter = () => {
-    if (triggerOnClick) return; // Don't use hover logic in click mode
+    if (triggerOnClick || isMobileDevice()) return; // Don't use hover logic in click mode or on mobile
 
     isHoveringRef.current = true;
     if (hideTimeoutRef.current) {
@@ -202,7 +204,7 @@ export const InteractiveTooltip: React.FC<InteractiveTooltipProps> = ({
   };
 
   const handleTooltipMouseLeave = () => {
-    if (triggerOnClick) return; // Don't use hover logic in click mode
+    if (triggerOnClick || isMobileDevice()) return; // Don't use hover logic in click mode or on mobile
 
     isHoveringRef.current = false;
     handleMouseLeave();

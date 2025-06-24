@@ -1,6 +1,7 @@
 /* eslint-disable custom-rules/enforce-link-target-blank */
 'use client';
 
+import { createLogger } from '@/lib/logging';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import React, { Suspense, useCallback, useMemo } from 'react';
 import { NAV_PATHS } from '../../../lib/routes';
@@ -12,6 +13,13 @@ import { InteractiveTooltip } from '../tooltip/InteractiveTooltip';
 import './ContentWithPills.css';
 import { InstantLink } from './InstantLink';
 import { URLPill } from './URLPill';
+
+// Create component-specific logger
+const logger = createLogger({
+  context: {
+    component: 'ContentWithPills'
+  }
+});
 
 interface ContentWithPillsProps {
   content: string;
@@ -467,7 +475,7 @@ function ContentWithPillsInternal({
         if (onURLBehaviorChange && segment.rawFormat) {
           const currentFormat = segment.rawFormat;
           // Width change debug info
-          // console.log('Width change:', { newWidth, currentFormat, url, behavior, width });
+          // logger.debug('Width change', { newWidth, currentFormat, url, behavior, width });
 
           // Check if it's already in pill format
           const pillMatch = currentFormat.match(
@@ -478,16 +486,16 @@ function ContentWithPillsInternal({
             // It's already a pill, update the width
             const [, currentBehavior, , currentUrl] = pillMatch;
             const newFormat = `![${currentBehavior}|${newWidth}](${currentUrl})`;
-            // console.log('Updating pill format:', { currentFormat, newFormat });
+            // logger.debug('Updating pill format', { currentFormat, newFormat });
             onURLBehaviorChange(currentFormat, newFormat);
           } else {
             // It's a raw URL, convert to pill with width
             const newFormat = `![${behavior || 'embed'}|${newWidth}](${currentFormat})`;
-            // console.log('Converting to pill format:', { currentFormat, newFormat });
+            // logger.debug('Converting to pill format', { currentFormat, newFormat });
             onURLBehaviorChange(currentFormat, newFormat);
           }
         } else {
-          // console.log('Width change failed:', { onURLBehaviorChange: !!onURLBehaviorChange, rawFormat: segment.rawFormat });
+          // logger.debug('Width change failed', { onURLBehaviorChange: !!onURLBehaviorChange, rawFormat: segment.rawFormat });
         }
       };
 
@@ -676,7 +684,10 @@ export const convertLegacyMention = async (
         return createRobustMention(username, userId);
       }
     } catch (error) {
-      console.error('Error converting legacy mention:', error);
+      logger.error('Error converting legacy mention', {
+        legacyMention,
+        error: error instanceof Error ? error.message : String(error)
+      });
     }
   }
   return legacyMention;

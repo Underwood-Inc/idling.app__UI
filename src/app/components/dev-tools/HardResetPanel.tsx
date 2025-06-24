@@ -1,11 +1,17 @@
 'use client';
 
+import { createLogger } from '@/lib/logging';
 import React, { useEffect, useState } from 'react';
 import {
   getResetStats,
   HardResetResult,
   triggerManualHardReset
 } from '../../../lib/utils/hard-reset-manager';
+
+const logger = createLogger({
+  component: 'HardResetPanel',
+  module: 'dev-tools'
+});
 
 const HardResetPanel: React.FC = () => {
   const [resetStats, setResetStats] = useState<any>(null);
@@ -47,7 +53,7 @@ const HardResetPanel: React.FC = () => {
         }
       }, 1000);
     } catch (error) {
-      console.error('Manual reset failed:', error);
+      logger.error('Manual reset failed', error);
       setIsResetting(false);
     }
   };

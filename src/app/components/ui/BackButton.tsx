@@ -1,9 +1,17 @@
 'use client';
 
+import { createLogger } from '@/lib/logging';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { getStoredScrollPosition } from '../../../lib/utils/scroll-position';
+
+// Create component-specific logger
+const logger = createLogger({
+  context: {
+    component: 'BackButton'
+  }
+});
 
 interface BackButtonProps {
   className?: string;
@@ -61,16 +69,12 @@ export function BackButton({
 
     // Handle scroll restoration for navigation
     if (scrollRestoreKey && scrollPosition) {
-      // eslint-disable-next-line no-console
-      console.log(
-        '🔙 BackButton: Preparing scroll restoration for navigation',
-        {
-          scrollRestoreKey,
-          scrollPosition,
-          currentPage: scrollPosition.currentPage,
-          targetHref
-        }
-      );
+      logger.debug('Preparing scroll restoration for navigation', {
+        scrollRestoreKey,
+        scrollPosition,
+        currentPage: scrollPosition.currentPage,
+        targetHref
+      });
 
       // Store the scroll restoration info in sessionStorage for the target page
       // This ensures PostsManager can pick it up after navigation

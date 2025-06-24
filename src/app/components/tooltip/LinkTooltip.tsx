@@ -1,182 +1,56 @@
 'use client';
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
+import { useTooltipCache } from '../../hooks/useTooltipCache';
+import { useTooltipHandlers } from '../../hooks/useTooltipHandlers';
+import { useTooltipPosition } from '../../hooks/useTooltipPosition';
+import { useTooltipState } from '../../hooks/useTooltipState';
 import './LinkTooltip.css';
+import { TooltipContent } from './TooltipContent';
+import { TooltipModal } from './TooltipModal';
 
 interface LinkTooltipProps {
   url: string;
   children: React.ReactNode;
   enableExtendedPreview?: boolean;
   enableCtrlClick?: boolean;
-  cacheDuration?: number; // Duration in milliseconds, default 1 hour
+  cacheDuration?: number;
   isInsideParagraph?: boolean;
 }
-
-interface CachedData {
-  data: any;
-  timestamp: number;
-}
-
-const CACHE_KEY_PREFIX = 'link_tooltip_cache_';
-const DEFAULT_CACHE_DURATION = 60 * 60 * 1000; // 1 hour in milliseconds
-
-export const formatLastUpdated = (timestamp: number) => {
-  const now = Date.now();
-  if (timestamp > now) return '0s ago';
-
-  let remaining = now - timestamp;
-
-  const years = Math.floor(remaining / (365 * 24 * 60 * 60 * 1000));
-  remaining -= years * 365 * 24 * 60 * 60 * 1000;
-
-  const months = Math.floor(remaining / (30 * 24 * 60 * 60 * 1000));
-  remaining -= months * 30 * 24 * 60 * 60 * 1000;
-
-  const weeks = Math.floor(remaining / (7 * 24 * 60 * 60 * 1000));
-  remaining -= weeks * 7 * 24 * 60 * 60 * 1000;
-
-  const days = Math.floor(remaining / (24 * 60 * 60 * 1000));
-  remaining -= days * 24 * 60 * 60 * 1000;
-
-  const hours = Math.floor(remaining / (60 * 60 * 1000));
-  remaining -= hours * 60 * 60 * 1000;
-
-  const minutes = Math.floor(remaining / (60 * 1000));
-  remaining -= minutes * 60 * 1000;
-
-  const seconds = Math.floor(remaining / 1000);
-
-  const parts: string[] = [];
-  if (years) parts.push(`${years}y`);
-  if (months) parts.push(`${months}mo`);
-  if (weeks) parts.push(`${weeks}w`);
-  if (days) parts.push(`${days}d`);
-  if (hours) parts.push(`${hours}h`);
-  if (minutes) parts.push(`${minutes}m`);
-  if (seconds || parts.length === 0) parts.push(`${seconds}s`);
-
-  return parts.join(' ') + ' ago';
-};
 
 export const LinkTooltip: React.FC<LinkTooltipProps> = ({
   url,
   children,
   enableExtendedPreview = false,
   enableCtrlClick = false,
-  cacheDuration = DEFAULT_CACHE_DURATION,
+  cacheDuration,
   isInsideParagraph = false
 }) => {
-  const [showTooltip, setShowTooltip] = useState(false);
-  const [showLargePreview, setShowLargePreview] = useState(false);
-  const [showModal, setShowModal] = useState(false);
-  const [isFullscreen, setIsFullscreen] = useState(false);
-  const [showControls, setShowControls] = useState(true);
-  const [mounted, setMounted] = useState(false);
-  const modalContentRef = useRef<HTMLDivElement>(null);
-  const [tooltipData, setTooltipData] = useState<any>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [isCached, setIsCached] = useState(false);
-  const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
-  const [timeAgo, setTimeAgo] = useState<string>('');
-  const [position, setPosition] = useState({ top: 0, left: 0 });
   const tooltipRef = useRef<HTMLDivElement>(null);
   const tooltipContentRef = useRef<HTMLDivElement>(null);
-  const hideTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const isHoveringRef = useRef(false);
-  const shouldFetchRef = useRef(true);
+  const modalContentRef = useRef<HTMLDivElement>(null);
 
-  // Set mounted state for portal rendering
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  const state = useTooltipState();
+  const cache = useTooltipCache(url, cacheDuration);
+  const { position, updatePosition } = useTooltipPosition(
+    tooltipRef,
+    tooltipContentRef
+  );
 
-  const getCacheKey = (url: string) => `${CACHE_KEY_PREFIX}${url}`;
+  const fetchPreview = useCallback(async () => {
+    if (!state.shouldFetchRef.current) return;
+    state.shouldFetchRef.current = false;
 
-  const getCachedData = (url: string): CachedData | null => {
-    const cacheKey = getCacheKey(url);
-    const cached = localStorage.getItem(cacheKey);
-    if (!cached) return null;
+    state.setLoading(true);
+    state.setError(null);
 
-    const { data, timestamp } = JSON.parse(cached);
-    const now = Date.now();
-
-    // Check if cache is still valid
-    if (now - timestamp > cacheDuration) {
-      localStorage.removeItem(cacheKey);
-      return null;
-    }
-
-    return { data, timestamp };
-  };
-
-  const setCachedData = (url: string, data: any) => {
-    const cacheKey = getCacheKey(url);
-    const cacheData: CachedData = {
-      data,
-      timestamp: Date.now()
-    };
-    localStorage.setItem(cacheKey, JSON.stringify(cacheData));
-  };
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        showTooltip &&
-        tooltipContentRef.current &&
-        !tooltipContentRef.current.contains(event.target as Node) &&
-        tooltipRef.current &&
-        !tooltipRef.current.contains(event.target as Node)
-      ) {
-        setShowTooltip(false);
-        setShowLargePreview(false);
-        shouldFetchRef.current = true;
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [showTooltip]);
-
-  const handleRefresh = async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const response = await fetch(
-        `/api/link-preview?url=${encodeURIComponent(url)}`
-      );
-      if (!response.ok) throw new Error('Failed to fetch preview');
-      const data = await response.json();
-      const now = new Date();
-      setTooltipData(data);
-      setCachedData(url, data);
-      setIsCached(true);
-      setLastUpdated(now);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load preview');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const fetchPreview = async () => {
-    if (!shouldFetchRef.current) return;
-    shouldFetchRef.current = false;
-
-    setLoading(true);
-    setError(null);
-
-    // Check cache first
-    const cached = getCachedData(url);
+    const cached = cache.getCachedData(url);
     if (cached) {
-      setTooltipData(cached.data);
-      setIsCached(true);
-      setLastUpdated(new Date(cached.timestamp));
-      setLoading(false);
+      state.setTooltipData(cached.data);
+      cache.setIsCached(true);
+      cache.setLastUpdated(new Date(cached.timestamp));
+      state.setLoading(false);
       return;
     }
 
@@ -186,80 +60,88 @@ export const LinkTooltip: React.FC<LinkTooltipProps> = ({
       );
       if (!response.ok) throw new Error('Failed to fetch preview');
       const data = await response.json();
-      setTooltipData(data);
-      setCachedData(url, data);
-      setIsCached(false);
-      setLastUpdated(new Date());
+      state.setTooltipData(data);
+      cache.setCachedData(url, data);
+      cache.setIsCached(false);
+      cache.setLastUpdated(new Date());
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load preview');
+      state.setError(
+        err instanceof Error ? err.message : 'Failed to load preview'
+      );
     } finally {
-      setLoading(false);
+      state.setLoading(false);
     }
-  };
+  }, [url, cache, state]);
+
+  const handleRefresh = useCallback(async () => {
+    state.setLoading(true);
+    state.setError(null);
+    try {
+      const response = await fetch(
+        `/api/link-preview?url=${encodeURIComponent(url)}`
+      );
+      if (!response.ok) throw new Error('Failed to fetch preview');
+      const data = await response.json();
+      state.setTooltipData(data);
+      cache.setCachedData(url, data);
+    } catch (err) {
+      state.setError(
+        err instanceof Error ? err.message : 'Failed to load preview'
+      );
+    } finally {
+      state.setLoading(false);
+    }
+  }, [url, cache, state]);
+
+  const handlers = useTooltipHandlers({
+    showTooltip: state.showTooltip,
+    setShowTooltip: state.setShowTooltip,
+    setShowModal: state.setShowModal,
+    setIsFullscreen: state.setIsFullscreen,
+    setShowControls: state.setShowControls,
+    isFullscreen: state.isFullscreen,
+    showControls: state.showControls,
+    hideTimeoutRef: state.hideTimeoutRef,
+    isHoveringRef: state.isHoveringRef,
+    shouldFetchRef: state.shouldFetchRef,
+    updatePosition,
+    fetchPreview,
+    url,
+    enableCtrlClick
+  });
 
   useEffect(() => {
-    if (showTooltip) {
+    state.setMounted(true);
+  }, [state]);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        state.showTooltip &&
+        tooltipContentRef.current &&
+        !tooltipContentRef.current.contains(event.target as Node) &&
+        tooltipRef.current &&
+        !tooltipRef.current.contains(event.target as Node)
+      ) {
+        state.setShowTooltip(false);
+        state.shouldFetchRef.current = true;
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [state.showTooltip, state]);
+
+  useEffect(() => {
+    if (state.showTooltip) {
       fetchPreview();
     }
-  }, [showTooltip]);
-
-  const updatePosition = () => {
-    if (!tooltipRef.current || !tooltipContentRef.current) return;
-
-    const triggerRect = tooltipRef.current.getBoundingClientRect();
-    const tooltipRect = tooltipContentRef.current.getBoundingClientRect();
-    const viewportHeight = window.innerHeight;
-    const viewportWidth = window.innerWidth;
-
-    // Calculate available space
-    const spaceAbove = triggerRect.top;
-    const spaceBelow = viewportHeight - triggerRect.bottom;
-    const spaceLeft = triggerRect.left;
-    const spaceRight = viewportWidth - triggerRect.right;
-
-    // Determine vertical position
-    let top: number;
-    if (spaceBelow >= tooltipRect.height || spaceBelow >= spaceAbove) {
-      // Position below if there's more space below or equal space
-      top = triggerRect.bottom + 8;
-    } else {
-      // Position above if there's more space above
-      top = triggerRect.top - tooltipRect.height - 8;
-    }
-
-    // Ensure tooltip stays within viewport vertically
-    top = Math.max(8, Math.min(top, viewportHeight - tooltipRect.height - 8));
-
-    // Determine horizontal position
-    let left: number;
-    if (
-      spaceRight >= tooltipRect.width / 2 &&
-      spaceLeft >= tooltipRect.width / 2
-    ) {
-      // Center if enough space on both sides
-      left = triggerRect.left + (triggerRect.width - tooltipRect.width) / 2;
-    } else if (spaceRight >= tooltipRect.width) {
-      // Align to left if more space on right
-      left = triggerRect.left;
-    } else if (spaceLeft >= tooltipRect.width) {
-      // Align to right if more space on left
-      left = triggerRect.right - tooltipRect.width;
-    } else {
-      // Center if no space on either side
-      left = Math.max(
-        8,
-        Math.min(
-          triggerRect.left + (triggerRect.width - tooltipRect.width) / 2,
-          viewportWidth - tooltipRect.width - 8
-        )
-      );
-    }
-
-    setPosition({ top, left });
-  };
+  }, [state.showTooltip, fetchPreview]);
 
   useEffect(() => {
-    if (showTooltip) {
+    if (state.showTooltip) {
       updatePosition();
       window.addEventListener('scroll', updatePosition);
       window.addEventListener('resize', updatePosition);
@@ -269,92 +151,13 @@ export const LinkTooltip: React.FC<LinkTooltipProps> = ({
       window.removeEventListener('scroll', updatePosition);
       window.removeEventListener('resize', updatePosition);
     };
-  }, [showTooltip]);
+  }, [state.showTooltip, updatePosition]);
 
-  const handleMouseEnter = () => {
-    if (showModal) return; // Don't show tooltip if modal is open
-    isHoveringRef.current = true;
-    if (hideTimeoutRef.current) {
-      clearTimeout(hideTimeoutRef.current);
-    }
-    const timeout = setTimeout(() => {
-      setShowTooltip(true);
-      if (enableExtendedPreview) {
-        setShowLargePreview(true);
-      }
-      // Update position after a short delay to ensure content is rendered
-      setTimeout(updatePosition, 0);
-    }, 500);
-    hideTimeoutRef.current = timeout;
-  };
-
-  const handleMouseLeave = () => {
-    isHoveringRef.current = false;
-    if (hideTimeoutRef.current) {
-      clearTimeout(hideTimeoutRef.current);
-    }
-    const timeout = setTimeout(() => {
-      if (!isHoveringRef.current) {
-        setShowTooltip(false);
-        setShowLargePreview(false);
-        shouldFetchRef.current = true;
-      }
-    }, 1500);
-    hideTimeoutRef.current = timeout;
-  };
-
-  const handleTooltipMouseEnter = () => {
-    if (showModal) return; // Don't handle tooltip mouse events if modal is open
-    if (hideTimeoutRef.current) {
-      clearTimeout(hideTimeoutRef.current);
-    }
-  };
-
-  const handleTooltipMouseLeave = () => {
-    if (showModal) return; // Don't handle tooltip mouse events if modal is open
-    handleMouseLeave();
-  };
-
-  const handleClick = (e: React.MouseEvent) => {
-    // On mobile (touch devices), prioritize modal/tooltip over direct link opening
-    const isMobile = window.matchMedia(
-      '(hover: none) and (pointer: coarse)'
-    ).matches;
-
-    if (enableCtrlClick && (e.ctrlKey || e.metaKey)) {
-      e.preventDefault();
-      setShowTooltip(false);
-      setShowLargePreview(false);
-      setShowModal(true);
-    } else if (isMobile && enableCtrlClick) {
-      // On mobile, first click shows modal instead of opening link directly
-      e.preventDefault();
-      setShowTooltip(false);
-      setShowLargePreview(false);
-      setShowModal(true);
-    } else {
-      e.preventDefault();
-      window.open(url, '_blank');
-    }
-  };
-
-  const handleModalClose = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setShowModal(false);
-  };
-
-  const handleModalContentClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-  };
-
-  // Add effect to manage body class when modal is open
   useEffect(() => {
-    if (showModal) {
+    if (state.showModal) {
       document.body.classList.add('modal-open');
-      setShowTooltip(false);
-      setShowLargePreview(false);
-      shouldFetchRef.current = true;
+      state.setShowTooltip(false);
+      state.shouldFetchRef.current = true;
     } else {
       document.body.classList.remove('modal-open');
     }
@@ -362,125 +165,50 @@ export const LinkTooltip: React.FC<LinkTooltipProps> = ({
     return () => {
       document.body.classList.remove('modal-open');
     };
-  }, [showModal]);
-
-  const handleFullscreenToggle = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsFullscreen(!isFullscreen);
-  };
-
-  const handleControlsToggle = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setShowControls(!showControls);
-  };
-
-  const renderTooltipContent = () => {
-    if (loading) {
-      return <div className="link-tooltip-loading">Loading preview...</div>;
-    }
-
-    if (error) {
-      return <div className="link-tooltip-error">{error}</div>;
-    }
-
-    if (!tooltipData) {
-      return null;
-    }
-
-    const renderCacheInfo = () => (
-      <div className="tooltip-cache-info">
-        <span>Cached content</span>
-        {lastUpdated && (
-          <span className="tooltip-cache-time">Last updated: {timeAgo}</span>
-        )}
-        <button
-          className="tooltip-refresh-button"
-          onClick={(e) => {
-            e.stopPropagation();
-            handleRefresh();
-          }}
-        >
-          Refresh
-        </button>
-      </div>
-    );
-
-    if (showLargePreview) {
-      return (
-        <div className="tooltip-content" onClick={handleClick}>
-          {isCached && renderCacheInfo()}
-          <div className="tooltip-header">
-            {tooltipData.image && (
-              <img src={tooltipData.image} alt={tooltipData.title} />
-            )}
-            <h3 className="tooltip-title">{tooltipData.title}</h3>
-          </div>
-          {tooltipData.description && (
-            <p className="tooltip-description">{tooltipData.description}</p>
-          )}
-          <iframe
-            src={url}
-            className="tooltip-iframe"
-            sandbox="allow-same-origin allow-scripts"
-          />
-          <div className="tooltip-footer">
-            {tooltipData.favicon && (
-              <img src={tooltipData.favicon} alt="Site favicon" />
-            )}
-            <span>{tooltipData.url}</span>
-          </div>
-        </div>
-      );
-    }
-
-    return (
-      <div className="link-tooltip-content" onClick={handleClick}>
-        {isCached && renderCacheInfo()}
-        {tooltipData.image && (
-          <div className="link-tooltip-image">
-            <img src={tooltipData.image} alt={tooltipData.title} />
-          </div>
-        )}
-        <div className="link-tooltip-text">
-          <div className="link-tooltip-title">{tooltipData.title}</div>
-          {tooltipData.description && (
-            <div className="link-tooltip-description">
-              {tooltipData.description}
-            </div>
-          )}
-        </div>
-        <div className="link-tooltip-url">{tooltipData.url}</div>
-      </div>
-    );
-  };
+  }, [state.showModal, state]);
 
   const Wrapper = isInsideParagraph ? 'span' : 'div';
+
+  // Handle mobile click behavior on the wrapper
+  const handleWrapperClick = (e: React.MouseEvent) => {
+    const isMobile = window.matchMedia(
+      '(hover: none) and (pointer: coarse)'
+    ).matches;
+
+    if (isMobile) {
+      // On mobile, prevent any default link behavior from child elements
+      e.preventDefault();
+      e.stopPropagation();
+    }
+
+    // Call the tooltip handler
+    handlers.handleClick(e);
+  };
 
   return (
     <>
       <Wrapper
         ref={tooltipRef}
-        onMouseEnter={handleMouseEnter}
-        onMouseLeave={handleMouseLeave}
-        onClick={handleClick}
+        onMouseEnter={handlers.handleMouseEnter}
+        onMouseLeave={handlers.handleMouseLeave}
+        onClick={handleWrapperClick}
         style={{ display: 'inline-block' }}
       >
         {children}
       </Wrapper>
-      {mounted &&
-        showTooltip &&
+      {state.mounted &&
+        state.showTooltip &&
         createPortal(
           <div
             ref={tooltipContentRef}
-            className={`link-tooltip ${showLargePreview ? 'large' : ''} ${showTooltip ? 'visible' : ''}`}
-            onMouseEnter={handleTooltipMouseEnter}
-            onMouseLeave={handleTooltipMouseLeave}
+            className={`link-tooltip ${enableExtendedPreview ? 'large' : ''} ${state.showTooltip ? 'visible' : ''}`}
+            onMouseEnter={handlers.handleTooltipMouseEnter}
+            onMouseLeave={handlers.handleTooltipMouseLeave}
             style={{
               position: 'fixed',
               top: position.top,
               left: position.left,
+              padding: 'var(--spacing-cozy)',
               zIndex: 10000
             }}
             data-testid="link-tooltip"
@@ -490,212 +218,33 @@ export const LinkTooltip: React.FC<LinkTooltipProps> = ({
                 Hold Ctrl and click to open in modal
               </div>
             )}
-            {renderTooltipContent()}
+            <TooltipContent
+              loading={state.loading}
+              error={state.error}
+              tooltipData={state.tooltipData}
+              enableExtendedPreview={enableExtendedPreview}
+              isCached={cache.isCached}
+              lastUpdated={cache.lastUpdated}
+              timeAgo={state.timeAgo}
+              url={url}
+              onRefresh={handleRefresh}
+              onClick={handlers.handleClick}
+            />
           </div>,
           document.body
         )}
-      {showModal && enableCtrlClick && (
-        <div
-          className="link-preview-modal"
-          data-testid="link-preview-modal"
-          onMouseDown={(e) => e.preventDefault()}
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-          }}
-        >
-          <div
-            ref={modalContentRef}
-            className={`link-preview-modal-content ${isFullscreen ? 'fullscreen' : ''}`}
-            onClick={handleModalContentClick}
-          >
-            <div
-              className={`modal-controls ${showControls ? 'visible' : 'hidden'}`}
-            >
-              <div className="modal-controls-buttons">
-                <button
-                  className="modal-control-button fullscreen-toggle"
-                  onClick={handleFullscreenToggle}
-                  aria-label={
-                    isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'
-                  }
-                >
-                  {isFullscreen ? (
-                    <svg
-                      width="16"
-                      height="16"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3" />
-                    </svg>
-                  ) : (
-                    <svg
-                      width="16"
-                      height="16"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" />
-                    </svg>
-                  )}
-                </button>
-                <button
-                  className="modal-control-button close-button"
-                  onClick={handleModalClose}
-                  aria-label="Close modal"
-                >
-                  ×
-                </button>
-                <button
-                  className="modal-control-button toggle-button"
-                  onClick={handleControlsToggle}
-                  aria-label="Hide controls"
-                >
-                  <svg
-                    width="14"
-                    height="14"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    style={{
-                      transform: 'rotate(180deg)',
-                      transition: 'transform 0.2s ease'
-                    }}
-                  >
-                    <path d="M18 15l-6-6-6 6" />
-                  </svg>
-                </button>
-              </div>
-            </div>
-            {!showControls && (
-              <button
-                className="modal-control-button toggle-button restore-button"
-                onClick={handleControlsToggle}
-                aria-label="Show controls"
-              >
-                <svg
-                  width="14"
-                  height="14"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <path d="M18 15l-6-6-6 6" />
-                </svg>
-              </button>
-            )}
-            <iframe
-              src={url}
-              style={{ width: '100%', height: '100%', border: 'none' }}
-              sandbox="allow-same-origin allow-scripts"
-            />
-          </div>
-        </div>
-      )}
+      <TooltipModal
+        showModal={state.showModal}
+        enableCtrlClick={enableCtrlClick}
+        isFullscreen={state.isFullscreen}
+        showControls={state.showControls}
+        url={url}
+        modalContentRef={modalContentRef}
+        onModalClose={handlers.handleModalClose}
+        onModalContentClick={handlers.handleModalContentClick}
+        onFullscreenToggle={handlers.handleFullscreenToggle}
+        onControlsToggle={handlers.handleControlsToggle}
+      />
     </>
   );
 };
-
-interface MentionTooltipProps {
-  username: string;
-  onFilterByAuthor: () => void;
-  onFilterByContent: () => void;
-  onClose: () => void;
-  onHover?: () => void;
-  onLeave?: () => void;
-  position: { x: number; y: number };
-}
-
-export function MentionTooltip({
-  username,
-  onFilterByAuthor,
-  onFilterByContent,
-  onClose,
-  onHover,
-  onLeave,
-  position
-}: MentionTooltipProps) {
-  const tooltipRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        tooltipRef.current &&
-        !tooltipRef.current.contains(event.target as Node)
-      ) {
-        onClose();
-      }
-    };
-
-    const handleEscape = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        onClose();
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    document.addEventListener('keydown', handleEscape);
-
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-      document.removeEventListener('keydown', handleEscape);
-    };
-  }, [onClose]);
-
-  return (
-    <div
-      ref={tooltipRef}
-      className="mention-tooltip"
-      onMouseEnter={onHover}
-      onMouseLeave={onLeave}
-      style={{
-        position: 'fixed',
-        left: position.x,
-        top: position.y,
-        zIndex: 10000,
-        display: 'block'
-      }}
-    >
-      <div className="mention-tooltip__header">Filter by @{username}</div>
-      <div className="mention-tooltip__options">
-        <button
-          className="mention-tooltip__option mention-tooltip__option--primary"
-          onClick={onFilterByAuthor}
-          title="Show posts authored by this user"
-        >
-          <span className="mention-tooltip__icon">👤</span>
-          Filter by Author
-          <span className="mention-tooltip__description">
-            Posts by this user
-          </span>
-        </button>
-        <button
-          className="mention-tooltip__option"
-          onClick={onFilterByContent}
-          title="Show posts that mention this user"
-        >
-          <span className="mention-tooltip__icon">💬</span>
-          Filter by Mentions
-          <span className="mention-tooltip__description">
-            Posts mentioning this user
-          </span>
-        </button>
-      </div>
-    </div>
-  );
-}
