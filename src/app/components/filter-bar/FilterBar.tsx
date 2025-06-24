@@ -1,6 +1,7 @@
 'use client';
 
-import { Filter } from '../../../lib/state/atoms';
+import { useAtom } from 'jotai';
+import { Filter, getSubmissionsFiltersAtom } from '../../../lib/state/atoms';
 import { PostFilters } from '../../../lib/types/filters';
 import './FilterBar.css';
 import { FilterLabel } from './FilterLabel';
@@ -27,6 +28,11 @@ export default function FilterBar({
   onClearFilters,
   onUpdateFilter
 }: FilterBarProps) {
+  // Add direct Jotai access for debugging
+  const [filtersState, setFiltersState] = useAtom(
+    getSubmissionsFiltersAtom(filterId)
+  );
+
   // Add null check for filters
   const safeFilters = filters || [];
 
@@ -65,6 +71,8 @@ export default function FilterBar({
       safeFilters.find((f) => f.name === filterType)?.value ||
       (filterType === 'globalLogic' ? 'AND' : 'OR');
     const newValue = currentValue === 'AND' ? 'OR' : 'AND';
+
+    // Use consistent update mechanism for all filter types
     onUpdateFilter(filterType, newValue);
   };
 
