@@ -10,8 +10,10 @@ import { richTextLogger } from './logger';
 import { findLastTextPosition } from './navigationUtils';
 
 const logger = createLogger({
-  component: 'ClickPositioning',
-  module: 'rich-input'
+  context: {
+    component: 'ClickPositioning',
+    module: 'rich-input/utils'
+  }
 });
 
 /**
@@ -740,7 +742,9 @@ function calculateCharacterPositionInMultilineToken(
           return charIndex;
         }
       } catch (error) {
-        logger.warn('Error using caretPositionFromPoint for multiline:', error);
+        logger.warn('Error using caretPositionFromPoint for multiline:', {
+          error
+        });
       }
     }
 
@@ -794,10 +798,9 @@ function calculateCharacterPositionInMultilineToken(
     // Final fallback: return start of token
     return tokenStart;
   } catch (error) {
-    logger.warn(
-      'Error calculating character position in multiline token:',
+    logger.warn('Error calculating character position in multiline token:', {
       error
-    );
+    });
     return tokenStart;
   }
 }

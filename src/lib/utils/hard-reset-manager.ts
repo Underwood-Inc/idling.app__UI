@@ -496,9 +496,7 @@ export async function performHardReset(
       logger.warn('Some errors occurred during reset', { errors });
     }
   } catch (error) {
-    logger.error('Hard reset failed', {
-      error: error instanceof Error ? error.message : String(error)
-    });
+    logger.error('Hard reset failed', error as Error);
     errors.push(`General: ${error}`);
   }
 

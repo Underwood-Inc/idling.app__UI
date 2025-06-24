@@ -11,7 +11,8 @@ import { checkUserPermission } from './permissions.actions';
 // Create component-specific logger
 const logger = createLogger({
   context: {
-    component: 'EmojiActions'
+    component: 'EmojiActions',
+    module: 'actions'
   }
 });
 

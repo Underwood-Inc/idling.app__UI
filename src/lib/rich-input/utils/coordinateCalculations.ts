@@ -6,8 +6,10 @@ import type {
 } from '../types';
 
 const logger = createLogger({
-  component: 'CoordinateCalculations',
-  module: 'rich-input'
+  context: {
+    component: 'CoordinateCalculations',
+    module: 'rich-input/utils'
+  }
 });
 
 // Helper functions for coordinate calculations

@@ -8,8 +8,10 @@ import type {
 import type { Pool } from 'pg';
 
 const logger = createLogger({
-  component: 'Adapter',
-  module: 'lib'
+  context: {
+    component: 'Adapter',
+    module: 'lib'
+  }
 });
 
 export function mapExpiresAt(account: any): any {
@@ -77,7 +79,12 @@ export default function CustomPostgresAdapter(client: Pool): Adapter {
       return result.rows[0];
     },
     async getUser(id) {
-      const sql = `select * from users where id = $1`;
+      const sql = `
+        SELECT 
+          id, name, email, "emailVerified", image, profile_public, 
+          created_at, spacing_theme, pagination_mode
+        FROM users 
+        WHERE id = $1`;
       try {
         const result = await client.query(sql, [id]);
 
@@ -87,7 +94,12 @@ export default function CustomPostgresAdapter(client: Pool): Adapter {
       }
     },
     async getUserByEmail(email) {
-      const sql = `select * from users where email = $1`;
+      const sql = `
+        SELECT 
+          id, name, email, "emailVerified", image, profile_public, 
+          created_at, spacing_theme, pagination_mode
+        FROM users 
+        WHERE email = $1`;
       const result = await client.query(sql, [email]);
 
       return result.rowCount !== 0 ? result.rows[0] : null;
@@ -96,25 +108,64 @@ export default function CustomPostgresAdapter(client: Pool): Adapter {
       providerAccountId,
       provider
     }): Promise<AdapterUser | null> {
-      const sql = `
-          select u.*, a."providerAccountId" from users u join accounts a on u.id = a."userId"
-          where 
-          a.provider = $1 
-          and 
-          a."providerAccountId" = $2`;
+      // First, check if the user preference columns exist
+      let sql = `
+        SELECT 
+          u.id, u.name, u.email, u."emailVerified", u.image, u.profile_public, 
+          u.created_at,
+          a."providerAccountId" 
+        FROM users u 
+        JOIN accounts a ON u.id = a."userId"
+        WHERE a.provider = $1 AND a."providerAccountId" = $2`;
 
-      const result = await client.query(sql, [provider, providerAccountId]);
+      try {
+        // Try to include user preference columns if they exist
+        const columnCheckSql = `
+          SELECT column_name 
+          FROM information_schema.columns 
+          WHERE table_name = 'users' 
+          AND column_name IN ('spacing_theme', 'pagination_mode')`;
 
-      if (result.rowCount === 0) {
+        const columnCheck = await client.query(columnCheckSql);
+        const hasPreferenceColumns = columnCheck.rowCount === 2;
+
+        if (hasPreferenceColumns) {
+          sql = `
+            SELECT 
+              u.id, u.name, u.email, u."emailVerified", u.image, u.profile_public, 
+              u.created_at, u.spacing_theme, u.pagination_mode,
+              a."providerAccountId" 
+            FROM users u 
+            JOIN accounts a ON u.id = a."userId"
+            WHERE a.provider = $1 AND a."providerAccountId" = $2`;
+        }
+
+        const result = await client.query(sql, [provider, providerAccountId]);
+
+        if (result.rowCount === 0) {
+          return null;
+        }
+
+        const user = result.rows[0];
+
+        // Set default values for preference columns if they don't exist
+        if (!hasPreferenceColumns) {
+          user.spacing_theme = 'cozy';
+          user.pagination_mode = 'traditional';
+        }
+
+        // Attach providerAccountId to the user object for JWT callback
+        return {
+          ...user,
+          providerAccountId: user.providerAccountId
+        };
+      } catch (error) {
+        logger.error('Error in getUserByAccount', error as Error, {
+          provider,
+          providerAccountId
+        });
         return null;
       }
-
-      const user = result.rows[0];
-      // Attach providerAccountId to the user object for JWT callback
-      return {
-        ...user,
-        providerAccountId: user.providerAccountId
-      };
     },
     async updateUser(user: Partial<AdapterUser>): Promise<AdapterUser> {
       const fetchSql = `select * from users where id = $1`;

@@ -8,8 +8,10 @@ import { createLogger } from '@/lib/logging';
 
 // Create logger for service worker cleanup
 const logger = createLogger({
-  component: 'ServiceWorkerCleanup',
-  module: 'utils'
+  context: {
+    component: 'ServiceWorkerCleanup',
+    module: 'utils'
+  }
 });
 
 /**

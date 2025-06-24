@@ -9,8 +9,10 @@ import { createLogger } from '@/lib/logging';
 
 // Create logger for cache management
 const logger = createLogger({
-  component: 'CacheManager',
-  module: 'utils'
+  context: {
+    component: 'CacheManager',
+    module: 'utils'
+  }
 });
 
 export interface CacheInfo {
@@ -442,7 +444,7 @@ export async function registerServiceWorker(): Promise<ServiceWorkerRegistration
 
     return registration;
   } catch (error) {
-    logger.error('Service worker registration failed', error);
+    logger.error('Service worker registration failed', error as Error);
     logger.groupEnd();
     return null;
   }

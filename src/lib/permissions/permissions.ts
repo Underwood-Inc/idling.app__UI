@@ -11,7 +11,8 @@ import sql from '../db';
 // Create component-specific logger
 const logger = createLogger({
   context: {
-    component: 'PermissionsService'
+    component: 'PermissionsService',
+    module: 'permissions'
   }
 });
 
@@ -101,7 +102,7 @@ export class PermissionsService {
   ): Promise<boolean> {
     try {
       const result = await sql<PermissionQueryResult[]>`
-        SELECT user_has_permission(${userId}, ${permissionName}::permission_name) as has_permission
+        SELECT user_has_permission(${userId}, ${permissionName}) as has_permission
       `;
 
       return result[0]?.has_permission || false;

@@ -9,8 +9,10 @@ import { sql } from '@vercel/postgres';
 import crypto from 'crypto';
 
 const logger = createLogger({
-  component: 'BaseEncryption',
-  module: 'encryption'
+  context: {
+    component: 'BaseEncryption',
+    module: 'encryption'
+  }
 });
 
 export type EncryptionScope = 'personal' | 'global';
@@ -190,7 +192,7 @@ export class BaseEncryptionService {
       this.keyCache.set(keyId, key);
       return key;
     } catch (error) {
-      logger.error('Error retrieving global encryption key', error, {
+      logger.error('Error retrieving global encryption key', error as Error, {
         context,
         operation: 'getGlobalKey'
       });
@@ -254,7 +256,7 @@ export class BaseEncryptionService {
       this.keyCache.set(keyId, key);
       return key;
     } catch (error) {
-      logger.error('Error retrieving personal encryption key', error, {
+      logger.error('Error retrieving personal encryption key', error as Error, {
         userId,
         context,
         operation: 'getPersonalKey'

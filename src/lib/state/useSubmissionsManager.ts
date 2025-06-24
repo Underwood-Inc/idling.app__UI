@@ -18,7 +18,8 @@ import {
 // Create component-specific logger
 const logger = createLogger({
   context: {
-    component: 'useSubmissionsManager'
+    component: 'useSubmissionsManager',
+    module: 'state'
   }
 });
 
@@ -537,7 +538,7 @@ export function useSubmissionsManager({
         setHasMore(false);
       }
     } catch (error) {
-      logger.error('Error loading more submissions', error, {
+      logger.error('Error loading more submissions', error as Error, {
         isLoadingMore,
         hasMore,
         submissionsStateLoading: submissionsState.loading,

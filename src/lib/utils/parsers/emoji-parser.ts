@@ -6,8 +6,10 @@
 import { createLogger } from '@/lib/logging';
 
 const logger = createLogger({
-  component: 'EmojiParser',
-  module: 'parsers'
+  context: {
+    component: 'EmojiParser',
+    module: 'parsers'
+  }
 });
 
 export interface EmojiDefinition {
@@ -772,7 +774,7 @@ export class EmojiParser {
 
       this.registry.registerEmojis(apiEmojis);
     } catch (error) {
-      logger.error('Failed to load emojis from API', error);
+      logger.error('Failed to load emojis from API', error as Error);
       // Continue with built-in emojis if API fails
     }
   }

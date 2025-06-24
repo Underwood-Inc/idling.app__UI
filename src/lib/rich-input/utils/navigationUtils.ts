@@ -8,8 +8,10 @@ import { ContentParser } from '../../utils/content-parsers';
 import type { RichInputPosition } from '../types';
 
 const logger = createLogger({
-  component: 'NavigationUtils',
-  module: 'rich-input'
+  context: {
+    component: 'NavigationUtils',
+    module: 'rich-input/utils'
+  }
 });
 
 /**

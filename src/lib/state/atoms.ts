@@ -771,9 +771,8 @@ export const triggerFetchAtom = atom(
         });
       }
     } catch (error: any) {
-      logger.error('Fetch error in triggerFetchAtom', {
-        contextId: params.contextId,
-        error: error instanceof Error ? error.message : String(error)
+      logger.error('Fetch error in triggerFetchAtom', error as Error, {
+        contextId: params.contextId
       });
       set(getSubmissionsStateAtom(params.contextId), {
         loading: false,
@@ -1338,9 +1337,8 @@ export const createAutoFetchAtom = (contextId: string) => {
         });
       }
     } catch (error: any) {
-      logger.error('Fetch error in autoFetchAtom', {
-        contextId,
-        error: error instanceof Error ? error.message : String(error)
+      logger.error('Fetch error in autoFetchAtom', error as Error, {
+        contextId
       });
       set(getSubmissionsStateAtom(contextId), {
         loading: false,

@@ -10,7 +10,8 @@ import { CreatePost, Post, PostSchema } from '../schemas/post.schemas';
 // Create component-specific logger
 const logger = createLogger({
   context: {
-    component: 'PostActions'
+    component: 'PostActions',
+    module: 'actions'
   }
 });
 

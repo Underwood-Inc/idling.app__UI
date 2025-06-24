@@ -20,8 +20,10 @@ const pool = new Pool({
 });
 
 const logger = createLogger({
-  component: 'Auth',
-  module: 'lib'
+  context: {
+    component: 'Auth',
+    module: 'lib'
+  }
 });
 
 export const nextAuth = NextAuth({
@@ -41,7 +43,10 @@ export const nextAuth = NextAuth({
           // Use database internal ID as the primary identifier for all app operations
           id: (token.databaseId || token.sub || '') as string,
           // Keep providerAccountId for OAuth purposes only
-          providerAccountId: token.providerAccountId as string
+          providerAccountId: token.providerAccountId as string,
+          // Include user preferences
+          spacing_theme: token.spacing_theme as 'cozy' | 'compact',
+          pagination_mode: token.pagination_mode as 'traditional' | 'infinite'
         };
       }
       return session;
@@ -54,12 +59,18 @@ export const nextAuth = NextAuth({
         token.providerAccountId =
           user.providerAccountId || account?.providerAccountId;
 
+        // Include user preferences in token
+        token.spacing_theme = user.spacing_theme || 'cozy';
+        token.pagination_mode = user.pagination_mode || 'traditional';
+
         // Log user creation/update
         logger.info('JWT callback - User created/found', {
           id: user.id,
           email: user.email,
           name: user.name,
-          provider: account?.provider
+          provider: account?.provider,
+          spacing_theme: token.spacing_theme,
+          pagination_mode: token.pagination_mode
         });
       }
 
@@ -67,7 +78,7 @@ export const nextAuth = NextAuth({
       if (account?.providerAccountId) {
         // Log account linking
         logger.info('JWT callback - Account linked', {
-          userId: user.id,
+          userId: user?.id,
           provider: account.provider,
           providerAccountId: account.providerAccountId
         });

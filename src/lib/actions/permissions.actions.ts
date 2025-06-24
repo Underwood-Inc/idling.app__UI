@@ -9,7 +9,8 @@ import { PERMISSIONS } from '../permissions/permissions';
 // Create component-specific logger
 const logger = createLogger({
   context: {
-    component: 'PermissionActions'
+    component: 'PermissionActions',
+    module: 'actions'
   }
 });
 

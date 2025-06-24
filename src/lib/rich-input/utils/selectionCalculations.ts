@@ -9,8 +9,10 @@ import { getFirstTextNode } from './cursorCalculations';
 import { findTokenAtPosition, type TokenPosition } from './tokenPositioning';
 
 const logger = createLogger({
-  component: 'SelectionCalculations',
-  module: 'rich-input'
+  context: {
+    component: 'SelectionCalculations',
+    module: 'rich-input/utils'
+  }
 });
 
 /**

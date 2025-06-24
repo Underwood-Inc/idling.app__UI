@@ -21,8 +21,10 @@ import { calculateEnhancedSelectionCoordinates } from './selectionCalculations';
 import { findTokenAtPosition } from './tokenPositioning';
 
 const logger = createLogger({
-  component: 'EnhancedCursorPositioning',
-  module: 'rich-input'
+  context: {
+    component: 'EnhancedCursorPositioning',
+    module: 'rich-input/utils'
+  }
 });
 
 /**

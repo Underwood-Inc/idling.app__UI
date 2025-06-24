@@ -15,8 +15,10 @@ import {
 
 // Create logger for scroll highlight demo
 const logger = createLogger({
-  component: 'ScrollHighlightDemo',
-  module: 'utils'
+  context: {
+    component: 'ScrollHighlightDemo',
+    module: 'utils'
+  }
 });
 
 /**

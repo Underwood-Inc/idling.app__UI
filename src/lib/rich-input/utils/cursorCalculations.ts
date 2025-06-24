@@ -9,8 +9,10 @@ import { richTextLogger } from './logger';
 import type { TokenPosition } from './tokenPositioning';
 
 const logger = createLogger({
-  component: 'CursorCalculations',
-  module: 'rich-input'
+  context: {
+    component: 'CursorCalculations',
+    module: 'rich-input/utils'
+  }
 });
 
 // Use Element[] instead of NodeListOf to avoid type issues
