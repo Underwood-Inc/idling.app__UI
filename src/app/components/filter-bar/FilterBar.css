@@ -387,6 +387,18 @@
   z-index: 1;
 }
 
+.filter-bar__logic-button--disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.filter-bar__logic-button--disabled:hover {
+  background-color: var(--brand-tertiary);
+  color: var(--light-bg__text-color--secondary);
+  transform: none;
+}
+
 /* Compact filter layout */
 .filter-bar__filters-compact {
   display: flex;

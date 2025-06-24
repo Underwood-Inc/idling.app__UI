@@ -145,14 +145,21 @@ export default function FilterBar({
             }
 
             const hasMultipleValues = values.length > 1;
-            const currentLogic =
-              filter.name === 'tags'
-                ? tagLogic
-                : filter.name === 'author'
-                  ? authorLogic
-                  : filter.name === 'mentions'
-                    ? mentionsLogic
-                    : 'OR';
+
+            // When globalLogic is AND, force all individual filters to AND
+            // When globalLogic is OR, use individual filter logic settings
+            const effectiveLogic =
+              globalLogic === 'AND'
+                ? 'AND'
+                : filter.name === 'tags'
+                  ? tagLogic
+                  : filter.name === 'author'
+                    ? authorLogic
+                    : filter.name === 'mentions'
+                      ? mentionsLogic
+                      : 'OR';
+
+            const currentLogic = effectiveLogic;
 
             return (
               <div
@@ -173,19 +180,27 @@ export default function FilterBar({
                             currentLogic === 'AND'
                               ? 'filter-bar__logic-button--active'
                               : ''
-                          }`}
+                          } ${globalLogic === 'AND' ? 'filter-bar__logic-button--disabled' : ''}`}
                           onClick={() => {
-                            const logicType =
-                              filter.name === 'tags'
-                                ? 'tagLogic'
-                                : filter.name === 'author'
-                                  ? 'authorLogic'
-                                  : filter.name === 'mentions'
-                                    ? 'mentionsLogic'
-                                    : 'tagLogic';
-                            onUpdateFilter(logicType, 'AND');
+                            // Only allow changes when globalLogic is OR
+                            if (globalLogic === 'OR') {
+                              const logicType =
+                                filter.name === 'tags'
+                                  ? 'tagLogic'
+                                  : filter.name === 'author'
+                                    ? 'authorLogic'
+                                    : filter.name === 'mentions'
+                                      ? 'mentionsLogic'
+                                      : 'tagLogic';
+                              onUpdateFilter(logicType, 'AND');
+                            }
                           }}
-                          title={`Must have ALL selected ${filter.name}`}
+                          disabled={globalLogic === 'AND'}
+                          title={
+                            globalLogic === 'AND'
+                              ? `Controlled by Groups setting - set Groups to ANY to change`
+                              : `Must have ALL selected ${filter.name}`
+                          }
                         >
                           ALL
                         </button>
@@ -194,19 +209,27 @@ export default function FilterBar({
                             currentLogic === 'OR'
                               ? 'filter-bar__logic-button--active'
                               : ''
-                          }`}
+                          } ${globalLogic === 'AND' ? 'filter-bar__logic-button--disabled' : ''}`}
                           onClick={() => {
-                            const logicType =
-                              filter.name === 'tags'
-                                ? 'tagLogic'
-                                : filter.name === 'author'
-                                  ? 'authorLogic'
-                                  : filter.name === 'mentions'
-                                    ? 'mentionsLogic'
-                                    : 'tagLogic';
-                            onUpdateFilter(logicType, 'OR');
+                            // Only allow changes when globalLogic is OR
+                            if (globalLogic === 'OR') {
+                              const logicType =
+                                filter.name === 'tags'
+                                  ? 'tagLogic'
+                                  : filter.name === 'author'
+                                    ? 'authorLogic'
+                                    : filter.name === 'mentions'
+                                      ? 'mentionsLogic'
+                                      : 'tagLogic';
+                              onUpdateFilter(logicType, 'OR');
+                            }
                           }}
-                          title={`Must have ANY selected ${filter.name}`}
+                          disabled={globalLogic === 'AND'}
+                          title={
+                            globalLogic === 'AND'
+                              ? `Controlled by Groups setting - set Groups to ANY to change`
+                              : `Must have ANY selected ${filter.name}`
+                          }
                         >
                           ANY
                         </button>

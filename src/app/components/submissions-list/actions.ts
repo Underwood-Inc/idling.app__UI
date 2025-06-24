@@ -103,7 +103,9 @@ export async function getSubmissionsPaginationCount({
             const authorLogicFilter = filters.find(
               (f) => f.name === 'authorLogic'
             );
-            const authorLogic = authorLogicFilter?.value || 'OR';
+            // When globalLogic is AND, force all individual filters to AND
+            const authorLogic =
+              globalLogic === 'AND' ? 'AND' : authorLogicFilter?.value || 'OR';
 
             if (authorLogic === 'AND') {
               // All authors must match (posts from all specified authors)
@@ -132,7 +134,9 @@ export async function getSubmissionsPaginationCount({
 
           if (tags.length > 0) {
             const tagLogicFilter = filters.find((f) => f.name === 'tagLogic');
-            const tagLogic = tagLogicFilter?.value || 'OR';
+            // When globalLogic is AND, force all individual filters to AND
+            const tagLogic =
+              globalLogic === 'AND' ? 'AND' : tagLogicFilter?.value || 'OR';
 
             if (tagLogic === 'AND') {
               // All tags must be present
@@ -171,7 +175,11 @@ export async function getSubmissionsPaginationCount({
             const mentionsLogicFilter = filters.find(
               (f) => f.name === 'mentionsLogic'
             );
-            const mentionsLogic = mentionsLogicFilter?.value || 'OR';
+            // When globalLogic is AND, force all individual filters to AND
+            const mentionsLogic =
+              globalLogic === 'AND'
+                ? 'AND'
+                : mentionsLogicFilter?.value || 'OR';
 
             if (mentionsLogic === 'AND') {
               // All mentions must be present
@@ -380,7 +388,9 @@ export async function getSubmissionsAction({
             const authorLogicFilter = filters.find(
               (f) => f.name === 'authorLogic'
             );
-            const authorLogic = authorLogicFilter?.value || 'OR';
+            // When globalLogic is AND, force all individual filters to AND
+            const authorLogic =
+              globalLogic === 'AND' ? 'AND' : authorLogicFilter?.value || 'OR';
 
             if (authorLogic === 'AND') {
               // All authors must match (posts from all specified authors)
@@ -409,7 +419,9 @@ export async function getSubmissionsAction({
 
           if (tags.length > 0) {
             const tagLogicFilter = filters.find((f) => f.name === 'tagLogic');
-            const tagLogic = tagLogicFilter?.value || 'OR';
+            // When globalLogic is AND, force all individual filters to AND
+            const tagLogic =
+              globalLogic === 'AND' ? 'AND' : tagLogicFilter?.value || 'OR';
 
             if (tagLogic === 'AND') {
               // All tags must be present
@@ -448,7 +460,11 @@ export async function getSubmissionsAction({
             const mentionsLogicFilter = filters.find(
               (f) => f.name === 'mentionsLogic'
             );
-            const mentionsLogic = mentionsLogicFilter?.value || 'OR';
+            // When globalLogic is AND, force all individual filters to AND
+            const mentionsLogic =
+              globalLogic === 'AND'
+                ? 'AND'
+                : mentionsLogicFilter?.value || 'OR';
 
             if (mentionsLogic === 'AND') {
               // All mentions must be present
