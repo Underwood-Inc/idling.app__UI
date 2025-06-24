@@ -17,7 +17,8 @@ import { URLPill } from './URLPill';
 // Create component-specific logger
 const logger = createLogger({
   context: {
-    component: 'ContentWithPills'
+    component: 'ContentWithPills',
+    module: 'components/ui'
   }
 });
 
@@ -684,9 +685,8 @@ export const convertLegacyMention = async (
         return createRobustMention(username, userId);
       }
     } catch (error) {
-      logger.error('Error converting legacy mention', {
-        legacyMention,
-        error: error instanceof Error ? error.message : String(error)
+      logger.error('Error converting legacy mention', error as Error, {
+        legacyMention
       });
     }
   }

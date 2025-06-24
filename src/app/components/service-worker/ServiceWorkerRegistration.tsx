@@ -7,7 +7,8 @@ import { enforceOneServiceWorker } from '../../../lib/utils/service-worker-clean
 // Create component-specific logger
 const logger = createLogger({
   context: {
-    component: 'ServiceWorkerRegistration'
+    component: 'ServiceWorkerRegistration',
+    module: 'components/service-worker'
   }
 });
 
@@ -35,14 +36,14 @@ export function ServiceWorkerRegistration() {
                   } catch (e) {
                     logger.warn('Failed to delete cache', {
                       cacheName,
-                      error: e instanceof Error ? e.message : String(e)
+                      errorMessage: e instanceof Error ? e.message : String(e)
                     });
                   }
                 })
               );
             } catch (e) {
               logger.warn('Failed to clear caches', {
-                error: e instanceof Error ? e.message : String(e)
+                errorMessage: e instanceof Error ? e.message : String(e)
               });
             }
           }
@@ -162,9 +163,7 @@ export function ServiceWorkerRegistration() {
             window.removeEventListener('focus', handleFocus);
           };
         } catch (err) {
-          logger.error('Service worker registration failed', {
-            error: err instanceof Error ? err.message : String(err)
-          });
+          logger.error('Service worker registration failed', err as Error);
           // Close the logger group in error case too
           logger.groupEnd();
         }

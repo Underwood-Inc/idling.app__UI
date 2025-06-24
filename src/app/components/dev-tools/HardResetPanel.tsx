@@ -9,8 +9,10 @@ import {
 } from '../../../lib/utils/hard-reset-manager';
 
 const logger = createLogger({
-  component: 'HardResetPanel',
-  module: 'dev-tools'
+  context: {
+    component: 'HardResetPanel',
+    module: 'components/dev-tools'
+  }
 });
 
 const HardResetPanel: React.FC = () => {
@@ -53,7 +55,7 @@ const HardResetPanel: React.FC = () => {
         }
       }, 1000);
     } catch (error) {
-      logger.error('Manual reset failed', error);
+      logger.error('Manual reset failed', error as Error);
       setIsResetting(false);
     }
   };

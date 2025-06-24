@@ -12,7 +12,8 @@ import {
 // Create hook-specific logger
 const logger = createLogger({
   context: {
-    component: 'useScrollRestoration'
+    component: 'useScrollRestoration',
+    module: 'components/submissions-list/hooks'
   }
 });
 

@@ -8,7 +8,8 @@ import './CacheStatus.css';
 // Create component-specific logger
 const logger = createLogger({
   context: {
-    component: 'SmartCacheStatus'
+    component: 'SmartCacheStatus',
+    module: 'components/cache-status'
   }
 });
 

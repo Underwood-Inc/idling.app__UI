@@ -8,7 +8,8 @@ import './CreatePostForm.css';
 // Create component-specific logger
 const logger = createLogger({
   context: {
-    component: 'CreatePostForm'
+    component: 'CreatePostForm',
+    module: 'components/post'
   }
 });
 

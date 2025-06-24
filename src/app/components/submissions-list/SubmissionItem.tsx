@@ -22,7 +22,8 @@ import { SubmissionWithReplies } from './actions';
 // Create component-specific logger
 const logger = createLogger({
   context: {
-    component: 'SubmissionItem'
+    component: 'SubmissionItem',
+    module: 'components/submissions-list'
   }
 });
 

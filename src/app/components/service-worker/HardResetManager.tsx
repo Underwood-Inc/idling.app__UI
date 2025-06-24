@@ -10,7 +10,8 @@ import {
 // Create component-specific logger
 const logger = createLogger({
   context: {
-    component: 'HardResetManager'
+    component: 'HardResetManager',
+    module: 'components/service-worker'
   }
 });
 
@@ -59,9 +60,7 @@ export function HardResetManager() {
 
         logger.groupEnd();
       } catch (error) {
-        logger.error('Hard reset system initialization failed', {
-          error: error instanceof Error ? error.message : String(error)
-        });
+        logger.error('Hard reset system initialization failed', error as Error);
       }
     };
 

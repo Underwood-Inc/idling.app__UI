@@ -9,7 +9,8 @@ import { getStoredScrollPosition } from '../../../lib/utils/scroll-position';
 // Create component-specific logger
 const logger = createLogger({
   context: {
-    component: 'BackButton'
+    component: 'BackButton',
+    module: 'components/ui'
   }
 });
 

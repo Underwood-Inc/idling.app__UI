@@ -16,8 +16,10 @@ import {
 import { OSDetection } from '../../../lib/utils/os-detection';
 
 const logger = createLogger({
-  component: 'EmojisAPI',
-  module: 'api'
+  context: {
+    component: 'EmojisAPI',
+    module: 'api'
+  }
 });
 
 export interface EmojiResponse {
@@ -214,7 +216,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(response);
   } catch (error) {
-    logger.error('Error fetching emojis', error);
+    logger.error('Error fetching emojis', error as Error);
     return NextResponse.json(
       { error: 'Failed to fetch emojis' },
       { status: 500 }
@@ -249,7 +251,7 @@ export async function POST(request: NextRequest) {
       message: 'Custom emoji uploaded successfully and is pending approval'
     });
   } catch (error) {
-    logger.error('Error uploading custom emoji', error);
+    logger.error('Error uploading custom emoji', error as Error);
     return NextResponse.json(
       { error: 'Failed to upload emoji' },
       { status: 500 }
@@ -278,7 +280,7 @@ export async function PUT(request: NextRequest) {
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    logger.error('Error tracking emoji usage', error);
+    logger.error('Error tracking emoji usage', error as Error);
     return NextResponse.json(
       { error: 'Failed to track usage' },
       { status: 500 }
