@@ -3,6 +3,15 @@
  * Provides functionality to visually highlight elements after scroll restoration
  */
 
+import { createLogger } from '../logging';
+
+// Create logger for scroll highlight utilities
+const logger = createLogger({
+  context: {
+    module: 'scroll-highlight'
+  }
+});
+
 export interface ScrollHighlightOptions {
   duration?: number;
   offset?: number;
@@ -86,8 +95,7 @@ export function findElementToHighlight(
   );
 
   // Debug logging
-  // eslint-disable-next-line no-console
-  console.log('🎯 findElementToHighlight debug:', {
+  logger.debug('findElementToHighlight debug', {
     scrollPosition,
     offset,
     submissionItemsCount: submissionItems.length,
@@ -100,8 +108,7 @@ export function findElementToHighlight(
   });
 
   if (submissionItems.length === 0) {
-    // eslint-disable-next-line no-console
-    console.warn('🎯 No submission items found in container');
+    logger.warn('No submission items found in container');
     return null;
   }
 
@@ -148,8 +155,7 @@ export function findElementToHighlight(
   // Debug logging for result
   if (closestElement) {
     const element = closestElement as HTMLElement;
-    // eslint-disable-next-line no-console
-    console.log('🎯 Found element to highlight:', {
+    logger.debug('Found element to highlight', {
       element: element.tagName,
       className: element.className,
       testId: element.getAttribute('data-testid'),
@@ -158,8 +164,7 @@ export function findElementToHighlight(
       distance: closestDistance
     });
   } else {
-    // eslint-disable-next-line no-console
-    console.warn('🎯 No suitable element found for highlighting');
+    logger.warn('No suitable element found for highlighting');
   }
 
   return closestElement;
@@ -194,13 +199,11 @@ export function highlightElement(
     cssClasses.forEach((className) => element.classList.remove(className));
     // Reset custom duration
     element.style.removeProperty('--scroll-highlight-duration');
-    // eslint-disable-next-line no-console
-    console.log('🎯 Scroll highlight animation completed, classes removed');
+    logger.debug('Scroll highlight animation completed, classes removed');
   }, duration);
 
   // Log for debugging
-  // eslint-disable-next-line no-console
-  console.log('🎯 Scroll highlight applied to element:', {
+  logger.debug('Scroll highlight applied to element', {
     element: element.tagName,
     className: element.className,
     testId: element.getAttribute('data-testid'),
@@ -228,10 +231,9 @@ export function highlightScrollTarget(
   );
 
   if (!targetElement) {
-    console.warn(
-      '🎯 No element found to highlight for scroll position:',
+    logger.warn('No element found to highlight for scroll position', {
       scrollPosition
-    );
+    });
     return false;
   }
 

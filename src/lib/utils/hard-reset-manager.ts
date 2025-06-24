@@ -1,5 +1,3 @@
-/* eslint-disable no-console */
-
 /**
  * Hard Reset Manager
  *
@@ -7,6 +5,15 @@
  * clear all application data, making it appear as if the user is visiting
  * for the first time. This is agnostic and reusable for future deployments.
  */
+
+import { createLogger } from '../logging';
+
+// Create logger for hard reset management
+const logger = createLogger({
+  context: {
+    module: 'hard-reset-manager'
+  }
+});
 
 export interface HardResetConfig {
   // Version that triggers the reset
@@ -71,7 +78,7 @@ function getStoredResetVersion(): string | null {
   try {
     return localStorage.getItem(RESET_STORAGE_KEYS.LAST_RESET_VERSION);
   } catch (error) {
-    console.warn('Failed to get stored reset version:', error);
+    logger.warn('Failed to get stored reset version:', { error });
     return null;
   }
 }
@@ -88,7 +95,7 @@ function storeResetMetadata(version: string, resetCount: number): void {
     );
     localStorage.setItem(RESET_STORAGE_KEYS.RESET_COUNT, resetCount.toString());
   } catch (error) {
-    console.warn('Failed to store reset metadata:', error);
+    logger.warn('Failed to store reset metadata:', { error });
   }
 }
 
@@ -154,11 +161,11 @@ async function clearAllCookies(): Promise<number> {
           cookiesCleared++;
         }
       } catch (error) {
-        console.warn('Failed to clear cookies via Cookie Store API:', error);
+        logger.warn('Failed to clear cookies via Cookie Store API:', { error });
       }
     }
   } catch (error) {
-    console.warn('Failed to clear cookies:', error);
+    logger.warn('Failed to clear cookies:', { error });
   }
 
   return cookiesCleared;
@@ -197,7 +204,7 @@ async function clearLocalStorage(): Promise<boolean> {
 
     return true;
   } catch (error) {
-    console.warn('Failed to clear localStorage:', error);
+    logger.warn('Failed to clear localStorage:', { error });
     return false;
   }
 }
@@ -210,7 +217,7 @@ async function clearSessionStorage(): Promise<boolean> {
     sessionStorage.clear();
     return true;
   } catch (error) {
-    console.warn('Failed to clear sessionStorage:', error);
+    logger.warn('Failed to clear sessionStorage:', { error });
     return false;
   }
 }
@@ -234,7 +241,7 @@ async function clearIndexedDB(): Promise<boolean> {
             deleteReq.onsuccess = () => resolve();
             deleteReq.onerror = () => reject(deleteReq.error);
             deleteReq.onblocked = () => {
-              console.warn(`IndexedDB deletion blocked for: ${db.name}`);
+              logger.warn(`IndexedDB deletion blocked for: ${db.name}`);
               resolve(); // Don't fail the entire process
             };
           });
@@ -245,7 +252,7 @@ async function clearIndexedDB(): Promise<boolean> {
 
     return true;
   } catch (error) {
-    console.warn('Failed to clear IndexedDB:', error);
+    logger.warn('Failed to clear IndexedDB:', { error });
     return false;
   }
 }
@@ -270,7 +277,7 @@ async function clearWebSQL(): Promise<boolean> {
     }
     return false;
   } catch (error) {
-    console.warn('Failed to clear WebSQL:', error);
+    logger.warn('Failed to clear WebSQL:', { error });
     return false;
   }
 }
@@ -289,10 +296,10 @@ async function clearAllCaches(): Promise<number> {
     const deletePromises = cacheNames.map(async (cacheName) => {
       try {
         await caches.delete(cacheName);
-        console.log(`✅ Deleted cache: ${cacheName}`);
+        logger.info(`✅ Deleted cache: ${cacheName}`);
         return true;
       } catch (error) {
-        console.warn(`⚠️ Failed to delete cache ${cacheName}:`, error);
+        logger.warn(`⚠️ Failed to delete cache ${cacheName}:`, { error });
         return false;
       }
     });
@@ -300,7 +307,7 @@ async function clearAllCaches(): Promise<number> {
     const results = await Promise.all(deletePromises);
     return results.filter((success) => success).length;
   } catch (error) {
-    console.warn('Failed to clear caches:', error);
+    logger.warn('Failed to clear caches:', { error });
     return 0;
   }
 }
@@ -319,10 +326,10 @@ async function unregisterAllServiceWorkers(): Promise<number> {
     const unregisterPromises = registrations.map(async (registration) => {
       try {
         await registration.unregister();
-        console.log('✅ Unregistered service worker');
+        logger.info('✅ Unregistered service worker');
         return true;
       } catch (error) {
-        console.warn('⚠️ Failed to unregister service worker:', error);
+        logger.warn('⚠️ Failed to unregister service worker:', { error });
         return false;
       }
     });
@@ -330,7 +337,7 @@ async function unregisterAllServiceWorkers(): Promise<number> {
     const results = await Promise.all(unregisterPromises);
     return results.filter((success) => success).length;
   } catch (error) {
-    console.warn('Failed to unregister service workers:', error);
+    logger.warn('Failed to unregister service workers:', { error });
     return 0;
   }
 }
@@ -345,12 +352,14 @@ export async function performHardReset(
   const previousVersion = getStoredResetVersion();
   const errors: string[] = [];
 
-  console.groupCollapsed('🔄 HARD RESET INITIATED');
-  console.log(`Reset Version: ${config.resetVersion}`);
-  console.log(`Current Version: ${currentVersion}`);
-  console.log(`Previous Version: ${previousVersion}`);
-  console.log(`Force Reset: ${config.forceReset || false}`);
-  console.log(`Reason: ${config.resetReason || 'Version change'}`);
+  logger.group('hardReset');
+  logger.info('Hard reset initiated', {
+    resetVersion: config.resetVersion,
+    currentVersion,
+    previousVersion,
+    forceReset: config.forceReset || false,
+    reason: config.resetReason || 'Version change'
+  });
 
   const result: HardResetResult = {
     wasResetNeeded: isHardResetNeeded(config),
@@ -370,95 +379,130 @@ export async function performHardReset(
   };
 
   if (!result.wasResetNeeded && !config.forceReset) {
-    console.log('✅ No reset needed');
-    console.groupEnd();
+    logger.debug('No reset needed');
+    logger.groupEnd();
     return result;
   }
 
-  console.log('🧹 Starting comprehensive cleanup...');
+  logger.debug('Starting comprehensive cleanup');
 
   try {
     // 1. Unregister all service workers
-    console.log('1. Unregistering service workers...');
+    logger.debug('Step 1: Unregistering service workers');
     try {
       result.itemsCleared.serviceWorkers = await unregisterAllServiceWorkers();
     } catch (error) {
-      errors.push(`Service workers: ${error}`);
+      const errorMsg = `Service workers: ${error}`;
+      errors.push(errorMsg);
+      logger.warn('Failed to unregister service workers', {
+        error: error instanceof Error ? error.message : String(error)
+      });
     }
 
     // 2. Clear all caches
-    console.log('2. Clearing caches...');
+    logger.debug('Step 2: Clearing caches');
     try {
       result.itemsCleared.caches = await clearAllCaches();
     } catch (error) {
-      errors.push(`Caches: ${error}`);
+      const errorMsg = `Caches: ${error}`;
+      errors.push(errorMsg);
+      logger.warn('Failed to clear caches', {
+        error: error instanceof Error ? error.message : String(error)
+      });
     }
 
     // 3. Clear localStorage (preserving reset tracking)
-    console.log('3. Clearing localStorage...');
+    logger.debug('Step 3: Clearing localStorage');
     try {
       result.itemsCleared.localStorage = await clearLocalStorage();
     } catch (error) {
-      errors.push(`localStorage: ${error}`);
+      const errorMsg = `localStorage: ${error}`;
+      errors.push(errorMsg);
+      logger.warn('Failed to clear localStorage', {
+        error: error instanceof Error ? error.message : String(error)
+      });
     }
 
     // 4. Clear sessionStorage
-    console.log('4. Clearing sessionStorage...');
+    logger.debug('Step 4: Clearing sessionStorage');
     try {
       result.itemsCleared.sessionStorage = await clearSessionStorage();
     } catch (error) {
-      errors.push(`sessionStorage: ${error}`);
+      const errorMsg = `sessionStorage: ${error}`;
+      errors.push(errorMsg);
+      logger.warn('Failed to clear sessionStorage', {
+        error: error instanceof Error ? error.message : String(error)
+      });
     }
 
     // 5. Clear IndexedDB
-    console.log('5. Clearing IndexedDB...');
+    logger.debug('Step 5: Clearing IndexedDB');
     try {
       result.itemsCleared.indexedDB = await clearIndexedDB();
     } catch (error) {
-      errors.push(`IndexedDB: ${error}`);
+      const errorMsg = `IndexedDB: ${error}`;
+      errors.push(errorMsg);
+      logger.warn('Failed to clear IndexedDB', {
+        error: error instanceof Error ? error.message : String(error)
+      });
     }
 
     // 6. Clear cookies
-    console.log('6. Clearing cookies...');
+    logger.debug('Step 6: Clearing cookies');
     try {
       result.itemsCleared.cookies = await clearAllCookies();
     } catch (error) {
-      errors.push(`Cookies: ${error}`);
+      const errorMsg = `Cookies: ${error}`;
+      errors.push(errorMsg);
+      logger.warn('Failed to clear cookies', {
+        error: error instanceof Error ? error.message : String(error)
+      });
     }
 
     // 7. Clear WebSQL
-    console.log('7. Clearing WebSQL...');
+    logger.debug('Step 7: Clearing WebSQL');
     try {
       result.itemsCleared.webSQL = await clearWebSQL();
     } catch (error) {
-      errors.push(`WebSQL: ${error}`);
+      const errorMsg = `WebSQL: ${error}`;
+      errors.push(errorMsg);
+      logger.warn('Failed to clear WebSQL', {
+        error: error instanceof Error ? error.message : String(error)
+      });
     }
 
     // 8. Update reset tracking
-    console.log('8. Updating reset tracking...');
+    logger.debug('Step 8: Updating reset tracking');
     try {
       const currentResetCount = parseInt(
         localStorage.getItem(RESET_STORAGE_KEYS.RESET_COUNT) || '0'
       );
       storeResetMetadata(config.resetVersion, currentResetCount + 1);
     } catch (error) {
-      errors.push(`Reset tracking: ${error}`);
+      const errorMsg = `Reset tracking: ${error}`;
+      errors.push(errorMsg);
+      logger.warn('Failed to update reset tracking', {
+        error: error instanceof Error ? error.message : String(error)
+      });
     }
 
     result.resetPerformed = true;
 
-    console.log('✅ Hard reset completed successfully');
-    console.log('📊 Items cleared:', result.itemsCleared);
+    logger.info('Hard reset completed successfully', {
+      itemsCleared: result.itemsCleared
+    });
 
     if (errors.length > 0) {
-      console.warn('⚠️ Some errors occurred:', errors);
+      logger.warn('Some errors occurred during reset', { errors });
     }
   } catch (error) {
-    console.error('❌ Hard reset failed:', error);
+    logger.error('Hard reset failed', {
+      error: error instanceof Error ? error.message : String(error)
+    });
     errors.push(`General: ${error}`);
   }
 
-  console.groupEnd();
+  logger.groupEnd();
 
   return result;
 }
@@ -504,7 +548,7 @@ export async function checkAndPerformHardReset(
         }
       }, 5000);
     } catch (error) {
-      console.warn('Failed to show reset notification:', error);
+      logger.warn('Failed to show reset notification:', { error });
     }
   }
 

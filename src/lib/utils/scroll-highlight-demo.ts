@@ -6,11 +6,18 @@
  * configurable duration, intensity, colors, and behaviors.
  */
 
+import { createLogger } from '@/lib/logging';
 import {
   applyScrollHighlight,
   HIGHLIGHT_PRESETS,
   type ScrollHighlightOptions
 } from './scroll-highlight';
+
+// Create logger for scroll highlight demo
+const logger = createLogger({
+  component: 'ScrollHighlightDemo',
+  module: 'utils'
+});
 
 /**
  * Example usage functions that can be called from anywhere in the app
@@ -65,7 +72,7 @@ export function highlightElementBySelector(
 ): boolean {
   const element = document.querySelector(selector) as HTMLElement;
   if (!element) {
-    console.warn(`Element not found for selector: ${selector}`);
+    logger.warn('Element not found for selector', { selector });
     return false;
   }
 
@@ -120,8 +127,7 @@ export function testScrollHighlight(): void {
     '.submissions-list--virtual'
   ) as HTMLElement;
   if (!container) {
-    // eslint-disable-next-line no-console
-    console.warn('🎯 Test: No submissions container found');
+    logger.warn('Test: No submissions container found');
     return;
   }
 
@@ -130,14 +136,12 @@ export function testScrollHighlight(): void {
   );
 
   if (submissionItems.length === 0) {
-    // eslint-disable-next-line no-console
-    console.warn('🎯 Test: No submission items found');
+    logger.warn('Test: No submission items found');
     return;
   }
 
   const firstItem = submissionItems[0] as HTMLElement;
-  // eslint-disable-next-line no-console
-  console.log('🎯 Test: Applying highlight to first submission item:', {
+  logger.debug('Test: Applying highlight to first submission item', {
     element: firstItem.tagName,
     className: firstItem.className,
     testId: firstItem.getAttribute('data-testid')
@@ -163,15 +167,15 @@ export function testCSSAnimation(): void {
   ) as HTMLElement;
 
   if (!testElement) {
-    // eslint-disable-next-line no-console
-    console.warn('🎯 CSS Test: No suitable element found for testing');
+    logger.warn('CSS Test: No suitable element found for testing');
     return;
   }
 
-  // eslint-disable-next-line no-console
-  console.log('🎯 CSS Test: Applying scroll-restore-highlight class to:', {
+  logger.info('CSS Test: Applying scroll-restore-highlight class to:', {
     element: testElement.tagName,
-    className: testElement.className
+    id: testElement.id,
+    className: testElement.className,
+    text: testElement.textContent?.substring(0, 50)
   });
 
   // Add the CSS class directly
@@ -180,9 +184,8 @@ export function testCSSAnimation(): void {
   // Remove it after the animation duration
   setTimeout(() => {
     testElement.classList.remove('scroll-restore-highlight');
-    // eslint-disable-next-line no-console
-    console.log('🎯 CSS Test: Animation completed, class removed');
-  }, 3500);
+    logger.info('CSS Test: Animation completed, class removed');
+  }, 2000);
 }
 
 /**
@@ -195,20 +198,15 @@ export function testHighVisibilityAnimation(): void {
   ) as HTMLElement;
 
   if (!testElement) {
-    // eslint-disable-next-line no-console
-    console.warn('🎯 Visibility Test: No suitable element found for testing');
+    logger.warn('Visibility Test: No suitable element found for testing');
     return;
   }
 
-  // eslint-disable-next-line no-console
-  console.log('🎯 Visibility Test: Applying enhanced animation to:', {
+  logger.info('Visibility Test: Applying enhanced animation to:', {
     element: testElement.tagName,
+    id: testElement.id,
     className: testElement.className,
-    computedStyle: {
-      position: getComputedStyle(testElement).position,
-      zIndex: getComputedStyle(testElement).zIndex,
-      overflow: getComputedStyle(testElement).overflow
-    }
+    text: testElement.textContent?.substring(0, 50)
   });
 
   // Apply inline styles for maximum visibility
@@ -229,6 +227,8 @@ export function testHighVisibilityAnimation(): void {
   // Add the CSS class
   testElement.classList.add('scroll-restore-highlight');
 
+  logger.info('Visibility Test: Starting animation with enhanced styles');
+
   // eslint-disable-next-line no-console
   console.log(
     '🎯 Visibility Test: Applied styles and class. Element should now have red expanding border.'
@@ -245,8 +245,7 @@ export function testHighVisibilityAnimation(): void {
     testElement.style.removeProperty('--scroll-highlight-duration');
     testElement.style.removeProperty('--scroll-highlight-primary-color');
     testElement.style.removeProperty('--scroll-highlight-primary-rgb');
-    // eslint-disable-next-line no-console
-    console.log('🎯 Visibility Test: Animation completed, styles restored');
+    logger.info('Visibility Test: Animation completed, styles restored');
   }, 5000);
 }
 
@@ -260,18 +259,15 @@ export function testAnimationDiagnostics(): void {
   ) as HTMLElement;
 
   if (!testElement) {
-    // eslint-disable-next-line no-console
-    console.warn('🎯 Diagnostics: No suitable element found for testing');
+    logger.warn('Diagnostics: No suitable element found for testing');
     return;
   }
 
-  // eslint-disable-next-line no-console
-  console.log('🎯 Diagnostics: Starting comprehensive animation test');
+  logger.info('Diagnostics: Starting comprehensive animation test');
 
   // Get initial computed styles
   const initialStyles = getComputedStyle(testElement);
-  // eslint-disable-next-line no-console
-  console.log('🎯 Diagnostics: Initial styles:', {
+  logger.info('Diagnostics: Initial styles:', {
     position: initialStyles.position,
     zIndex: initialStyles.zIndex,
     contain: initialStyles.contain,
@@ -292,8 +288,7 @@ export function testAnimationDiagnostics(): void {
   // Force a very visible box-shadow before adding the class
   testElement.style.boxShadow = '0 0 0 10px red';
 
-  // eslint-disable-next-line no-console
-  console.log('🎯 Diagnostics: Applied forced red box-shadow. Can you see it?');
+  logger.info('Diagnostics: Applied forced red box-shadow. Can you see it?');
 
   setTimeout(() => {
     // Remove forced shadow and add animation class
@@ -302,8 +297,7 @@ export function testAnimationDiagnostics(): void {
 
     // Check computed styles after adding class
     const animatedStyles = getComputedStyle(testElement);
-    // eslint-disable-next-line no-console
-    console.log('🎯 Diagnostics: Styles after adding animation class:', {
+    logger.info('Diagnostics: Styles after adding animation class:', {
       animation: animatedStyles.animation,
       animationName: animatedStyles.animationName,
       animationDuration: animatedStyles.animationDuration,
@@ -317,8 +311,7 @@ export function testAnimationDiagnostics(): void {
     // Check if the animation is actually running
     setTimeout(() => {
       const runningStyles = getComputedStyle(testElement);
-      // eslint-disable-next-line no-console
-      console.log('🎯 Diagnostics: Styles 1 second into animation:', {
+      logger.info('Diagnostics: Styles 1 second into animation:', {
         boxShadow: runningStyles.boxShadow,
         transform: runningStyles.transform
       });
@@ -334,8 +327,7 @@ export function testAnimationDiagnostics(): void {
       testElement.style.removeProperty('--scroll-highlight-primary-color');
       testElement.style.removeProperty('--scroll-highlight-primary-rgb');
       testElement.style.removeProperty('--scroll-highlight-scale-max');
-      // eslint-disable-next-line no-console
-      console.log('🎯 Diagnostics: Test completed, styles restored');
+      logger.info('Diagnostics: Test completed, styles restored');
     }, 8000);
   }, 2000);
 }
@@ -350,13 +342,11 @@ export function testHardcodedAnimation(): void {
   ) as HTMLElement;
 
   if (!testElement) {
-    // eslint-disable-next-line no-console
-    console.warn('🎯 Hardcoded Test: No suitable element found for testing');
+    logger.warn('Hardcoded Test: No suitable element found for testing');
     return;
   }
 
-  // eslint-disable-next-line no-console
-  console.log('🎯 Hardcoded Test: Applying direct CSS animation');
+  logger.info('Hardcoded Test: Applying direct CSS animation');
 
   // Apply hardcoded animation directly via style attribute
   testElement.style.position = 'relative';
@@ -375,6 +365,8 @@ export function testHardcodedAnimation(): void {
   // Also add the class for good measure
   testElement.classList.add('scroll-restore-highlight');
 
+  logger.info('Hardcoded Test: Starting hardcoded animation sequence');
+
   // eslint-disable-next-line no-console
   console.log(
     '🎯 Hardcoded Test: Animation applied. Element should now animate with hardcoded values.'
@@ -389,8 +381,7 @@ export function testHardcodedAnimation(): void {
     testElement.style.animation = '';
     testElement.style.removeProperty('--scroll-highlight-primary-color');
     testElement.style.removeProperty('--scroll-highlight-primary-rgb');
-    // eslint-disable-next-line no-console
-    console.log('🎯 Hardcoded Test: Animation completed, styles restored');
+    logger.info('Hardcoded Test: Animation completed, styles restored');
   }, 4000);
 }
 
@@ -404,13 +395,11 @@ export function testManualAnimation(): void {
   ) as HTMLElement;
 
   if (!testElement) {
-    // eslint-disable-next-line no-console
-    console.warn('🎯 Manual Test: No suitable element found for testing');
+    logger.warn('Manual Test: No suitable element found for testing');
     return;
   }
 
-  // eslint-disable-next-line no-console
-  console.log('🎯 Manual Test: Starting step-by-step animation demonstration');
+  logger.info('Manual Test: Starting step-by-step animation demonstration');
 
   // Store original styles
   const originalStyles = {
@@ -469,6 +458,8 @@ export function testManualAnimation(): void {
       '🎯 Manual Test: Test completed, styles restored. Did you see the expanding border effect?'
     );
   }, 6000);
+
+  logger.info('Manual Test: Step-by-step animation completed');
 }
 
 // Make all test functions available globally

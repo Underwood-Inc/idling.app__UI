@@ -1,11 +1,17 @@
-/* eslint-disable no-console */
-
 /**
  * Comprehensive Cache Management Utility
  *
  * Provides centralized control over service workers, browser caches,
  * and enforces the 12-hour maximum cache policy across the application.
  */
+
+import { createLogger } from '@/lib/logging';
+
+// Create logger for cache management
+const logger = createLogger({
+  component: 'CacheManager',
+  module: 'utils'
+});
 
 export interface CacheInfo {
   version: string;
@@ -92,7 +98,9 @@ export async function getCacheInfo(): Promise<CacheInfo | null> {
     const response = await sendServiceWorkerMessage({ type: 'GET_CACHE_INFO' });
     return response.success ? response.cacheInfo || null : null;
   } catch (error) {
-    console.warn('Failed to get cache info:', error);
+    logger.warn('Failed to get cache info', {
+      error: error instanceof Error ? error.message : String(error)
+    });
     return null;
   }
 }
@@ -108,7 +116,10 @@ export async function refreshCache(url?: string): Promise<boolean> {
     });
     return response.success;
   } catch (error) {
-    console.warn('Failed to refresh cache:', error);
+    logger.warn('Failed to refresh cache', {
+      url,
+      error: error instanceof Error ? error.message : String(error)
+    });
     return false;
   }
 }
@@ -123,7 +134,9 @@ export async function cleanupOldCaches(): Promise<boolean> {
     });
     return response.success;
   } catch (error) {
-    console.warn('Failed to cleanup old caches:', error);
+    logger.warn('Failed to cleanup old caches', {
+      error: error instanceof Error ? error.message : String(error)
+    });
     return false;
   }
 }
@@ -148,7 +161,9 @@ export async function getServiceWorkerRegistrations(): Promise<
   try {
     return await navigator.serviceWorker.getRegistrations();
   } catch (error) {
-    console.warn('Failed to get service worker registrations:', error);
+    logger.warn('Failed to get service worker registrations', {
+      error: error instanceof Error ? error.message : String(error)
+    });
     return [];
   }
 }
@@ -186,9 +201,11 @@ export async function cleanupServiceWorkers(): Promise<number> {
       try {
         await registration.unregister();
         cleanedCount++;
-        console.log('✅ Cleaned up old service worker');
+        logger.debug('Cleaned up old service worker');
       } catch (error) {
-        console.warn('⚠️ Failed to cleanup service worker:', error);
+        logger.warn('Failed to cleanup service worker', {
+          error: error instanceof Error ? error.message : String(error)
+        });
       }
     });
 
@@ -206,7 +223,7 @@ export function clearRouteFilters(): void {
       clearAllRouteFilters();
     });
   } catch (error) {
-    console.warn('Failed to clear route filters:', error);
+    logger.warn('Failed to clear route filters', { error });
   }
 }
 
@@ -218,14 +235,14 @@ export async function clearAllBrowserStorage(): Promise<void> {
   try {
     localStorage.clear();
   } catch (error) {
-    console.warn('Failed to clear localStorage:', error);
+    logger.warn('Failed to clear localStorage', { error });
   }
 
   // Clear sessionStorage
   try {
     sessionStorage.clear();
   } catch (error) {
-    console.warn('Failed to clear sessionStorage:', error);
+    logger.warn('Failed to clear sessionStorage', { error });
   }
 
   // Clear IndexedDB
@@ -245,7 +262,7 @@ export async function clearAllBrowserStorage(): Promise<void> {
         })
       );
     } catch (error) {
-      console.warn('Failed to clear IndexedDB:', error);
+      logger.warn('Failed to clear IndexedDB', { error });
     }
   }
 
@@ -262,7 +279,7 @@ export async function clearAllBrowserStorage(): Promise<void> {
         );
       }
     } catch (error) {
-      console.warn('Failed to clear WebSQL:', error);
+      logger.warn('Failed to clear WebSQL', { error });
     }
   }
 }
@@ -280,10 +297,10 @@ export async function clearAllCaches(): Promise<number> {
     const deletePromises = cacheNames.map(async (cacheName) => {
       try {
         await caches.delete(cacheName);
-        console.log(`✅ Deleted cache: ${cacheName}`);
+        logger.info('Deleted cache', { cacheName });
         return true;
       } catch (error) {
-        console.warn(`⚠️ Failed to delete cache ${cacheName}:`, error);
+        logger.warn('Failed to delete cache', { cacheName, error });
         return false;
       }
     });
@@ -291,7 +308,7 @@ export async function clearAllCaches(): Promise<number> {
     const results = await Promise.all(deletePromises);
     return results.filter((success) => success).length;
   } catch (error) {
-    console.warn('Failed to clear caches:', error);
+    logger.warn('Failed to clear caches', { error });
     return 0;
   }
 }
@@ -304,26 +321,26 @@ export async function performCompleteCleanup(): Promise<{
   cachesCleared: number;
   storageCleared: boolean;
 }> {
-  console.groupCollapsed('🧹 Performing Complete Cache Cleanup');
+  logger.group('completeCleanup');
 
   // 1. Clear route-scoped filters first (before clearing all storage)
-  console.log('Clearing route-scoped filters...');
+  logger.debug('Clearing route-scoped filters');
   clearRouteFilters();
 
   // 2. Clear all browser storage
-  console.log('Clearing browser storage...');
+  logger.debug('Clearing browser storage');
   await clearAllBrowserStorage();
 
   // 3. Clear all caches
-  console.log('Clearing all caches...');
+  logger.debug('Clearing all caches');
   const cachesCleared = await clearAllCaches();
 
   // 4. Cleanup service workers
-  console.log('Cleaning up service workers...');
+  logger.debug('Cleaning up service workers');
   const serviceWorkersCleanedUp = await cleanupServiceWorkers();
 
   // 5. Force service worker cache refresh
-  console.log('Refreshing service worker cache...');
+  logger.debug('Refreshing service worker cache');
   await refreshCache(); // No URL = clear all
 
   const result = {
@@ -332,8 +349,8 @@ export async function performCompleteCleanup(): Promise<{
     storageCleared: true
   };
 
-  console.log('✅ Complete cleanup finished:', result);
-  console.groupEnd();
+  logger.info('Complete cleanup finished', { result });
+  logger.groupEnd();
 
   return result;
 }
@@ -363,7 +380,7 @@ export function markDailyRefreshCompleted(): void {
   try {
     localStorage.setItem('sw-daily-refresh', Date.now().toString());
   } catch (error) {
-    console.warn('Failed to mark daily refresh as completed:', error);
+    logger.warn('Failed to mark daily refresh as completed', { error });
   }
 }
 
@@ -398,35 +415,35 @@ export function isCacheExpired(timestamp: number): boolean {
  */
 export async function registerServiceWorker(): Promise<ServiceWorkerRegistration | null> {
   if (!('serviceWorker' in navigator)) {
-    console.warn('Service workers not supported');
+    logger.warn('Service workers not supported');
     return null;
   }
 
   try {
-    console.groupCollapsed('🔧 Service Worker Registration');
+    logger.group('Service Worker Registration');
 
     // 1. Cleanup existing service workers first
-    console.log('Cleaning up existing service workers...');
+    logger.info('Cleaning up existing service workers...');
     await cleanupServiceWorkers();
 
     // 2. Clear old caches
-    console.log('Clearing old caches...');
+    logger.info('Clearing old caches...');
     await clearAllCaches();
 
     // 3. Register new service worker
-    console.log('Registering new service worker...');
+    logger.info('Registering new service worker...');
     const registration = await navigator.serviceWorker.register('/sw.js', {
       scope: '/',
       updateViaCache: 'none'
     });
 
-    console.log('✅ Service worker registered successfully');
-    console.groupEnd();
+    logger.info('Service worker registered successfully');
+    logger.groupEnd();
 
     return registration;
   } catch (error) {
-    console.error('❌ Service worker registration failed:', error);
-    console.groupEnd();
+    logger.error('Service worker registration failed', error);
+    logger.groupEnd();
     return null;
   }
 }

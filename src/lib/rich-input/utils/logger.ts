@@ -334,6 +334,7 @@ export class RichTextLogger {
     // Text context (show surrounding characters)
     this.logTextContext(info.fullText, info.textIndex);
 
+    // Always properly close the group
     console.groupEnd();
   }
 
@@ -369,6 +370,7 @@ export class RichTextLogger {
       console.info('Nearby Pills:', info.nearbyPills);
     }
 
+    // Always properly close the group
     console.groupEnd();
   }
 
@@ -400,6 +402,7 @@ export class RichTextLogger {
       );
     }
 
+    // Always properly close the group
     console.groupEnd();
   }
 
@@ -474,6 +477,7 @@ export class RichTextLogger {
       }))
     );
 
+    // Always properly close the group
     console.groupEnd();
   }
 
@@ -678,6 +682,7 @@ export class RichTextLogger {
       console.info('📐 Calculated Position:', data.calculatedPosition);
     }
 
+    // Always properly close the group
     console.groupEnd();
   }
 }

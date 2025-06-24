@@ -3,6 +3,13 @@
  * Scalable and secure solution for parsing standard and custom emojis
  */
 
+import { createLogger } from '@/lib/logging';
+
+const logger = createLogger({
+  component: 'EmojiParser',
+  module: 'parsers'
+});
+
 export interface EmojiDefinition {
   id: string;
   name: string;
@@ -257,7 +264,7 @@ export class EmojiRegistry {
   registerEmoji(emoji: EmojiDefinition): void {
     // Validate emoji name structure
     if (!this.isValidEmojiName(emoji.name)) {
-      console.warn(
+      logger.warn(
         `Invalid emoji name "${emoji.name}" - skipping registration. ` +
           `Emoji names must start with a letter, contain only letters/numbers/underscores, and be 1-32 characters long.`
       );
@@ -266,7 +273,7 @@ export class EmojiRegistry {
 
     // Validate emoji ID structure
     if (!this.isValidEmojiName(emoji.id)) {
-      console.warn(
+      logger.warn(
         `Invalid emoji ID "${emoji.id}" - skipping registration. Emoji IDs must follow the same naming rules as names.`
       );
       return;
@@ -276,7 +283,7 @@ export class EmojiRegistry {
     if (emoji.imageUrl) {
       emoji.imageUrl = this.sanitizeImageUrl(emoji.imageUrl);
       if (!emoji.imageUrl) {
-        console.warn(
+        logger.warn(
           `Invalid image URL for emoji "${emoji.name}" - skipping registration.`
         );
         return;
@@ -290,7 +297,7 @@ export class EmojiRegistry {
       if (this.isValidEmojiName(alias)) {
         this.aliases.set(alias, emoji.id);
       } else {
-        console.warn(
+        logger.warn(
           `Invalid emoji alias "${alias}" for emoji "${emoji.name}" - skipping alias.`
         );
       }
@@ -437,7 +444,7 @@ export class EmojiRegistry {
 
       return url;
     } catch (error) {
-      console.warn('Invalid custom emoji URL:', url, error);
+      logger.warn('Invalid custom emoji URL', { url, error });
       return ''; // Return empty string for invalid URLs
     }
   }
@@ -765,7 +772,7 @@ export class EmojiParser {
 
       this.registry.registerEmojis(apiEmojis);
     } catch (error) {
-      console.error('Failed to load emojis from API:', error);
+      logger.error('Failed to load emojis from API', error);
       // Continue with built-in emojis if API fails
     }
   }

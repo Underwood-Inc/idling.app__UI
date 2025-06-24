@@ -3,6 +3,7 @@
  * Maps cursor positions to specific rendered tokens for accurate positioning
  */
 
+import { createLogger } from '@/lib/logging';
 import type { RichInputPosition } from '../types';
 import {
   calculateEnhancedClickPosition,
@@ -18,6 +19,11 @@ import { RichTextLogger } from './logger';
 import { getWordBoundaries, smartCursorSnap } from './navigationUtils';
 import { calculateEnhancedSelectionCoordinates } from './selectionCalculations';
 import { findTokenAtPosition } from './tokenPositioning';
+
+const logger = createLogger({
+  component: 'EnhancedCursorPositioning',
+  module: 'rich-input'
+});
 
 /**
  * Calculate cursor coordinates with line-aware token precision
@@ -53,7 +59,7 @@ export function calculateEnhancedCursorCoordinates(
     // Calculate cursor position within the specific token
     return calculateCursorWithinToken(tokenPosition, contentElement, rawText);
   } catch (error) {
-    console.warn('Error in enhanced cursor positioning:', error);
+    logger.warn('Error in enhanced cursor positioning', { error });
     return fallbackCursorPosition(position, contentElement);
   }
 }

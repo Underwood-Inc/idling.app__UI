@@ -493,10 +493,18 @@ export class DefaultRenderer implements RichInputRenderer {
           position: 'absolute',
           top: 0,
           left: 0,
+          right: 0,
           color: 'var(--placeholder-color, #999)',
           fontStyle: 'italic',
           pointerEvents: 'none',
-          userSelect: 'none'
+          userSelect: 'none',
+          whiteSpace: state.isMultiline ? 'pre-wrap' : 'normal',
+          wordWrap: 'break-word',
+          overflowWrap: 'break-word',
+          lineHeight: 'inherit',
+          padding: 'inherit',
+          fontSize: 'inherit',
+          fontFamily: 'inherit'
         }}
       >
         {placeholder}

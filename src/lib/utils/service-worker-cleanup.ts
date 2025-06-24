@@ -1,9 +1,16 @@
 /* eslint-disable no-console */
-
 /**
  * Service Worker Cleanup Utilities
  * Use these functions to manually clean up multiple service workers
  */
+
+import { createLogger } from '@/lib/logging';
+
+// Create logger for service worker cleanup
+const logger = createLogger({
+  component: 'ServiceWorkerCleanup',
+  module: 'utils'
+});
 
 /**
  * Display available console functions in big text
@@ -87,19 +94,21 @@ Available functions in your browser console:
  */
 export async function nukeAllServiceWorkers(): Promise<void> {
   if (!('serviceWorker' in navigator)) {
-    console.warn('Service workers not supported in this browser');
+    logger.warn('Service workers not supported in this browser');
     return;
   }
 
   try {
-    console.group('🧨 NUKING ALL SERVICE WORKERS');
+    logger.group('🧨 NUKING ALL SERVICE WORKERS');
 
     const registrations = await navigator.serviceWorker.getRegistrations();
-    console.log(`Found ${registrations.length} service worker registrations`);
+    logger.info('Found service worker registrations', {
+      count: registrations.length
+    });
 
     if (registrations.length === 0) {
       console.log('✅ No service workers to clean up');
-      console.groupEnd();
+      logger.groupEnd();
       return;
     }
 
@@ -141,11 +150,11 @@ export async function nukeAllServiceWorkers(): Promise<void> {
       }
     }
 
-    console.groupEnd();
+    logger.groupEnd();
     console.log('🔄 Refresh the page to start fresh');
   } catch (error) {
     console.error('❌ Failed to nuke service workers:', error);
-    console.groupEnd();
+    logger.groupEnd();
   }
 }
 
@@ -161,36 +170,44 @@ export async function inspectServiceWorkers(): Promise<void> {
   try {
     const registrations = await navigator.serviceWorker.getRegistrations();
 
-    console.group(
+    logger.group(
       `🔍 SERVICE WORKER INSPECTION (${registrations.length} found)`
     );
 
     if (registrations.length === 0) {
       console.log('✅ No service workers registered');
-      console.groupEnd();
+      logger.groupEnd();
       return;
     }
 
     registrations.forEach((registration, index) => {
-      console.group(`📋 Service Worker ${index + 1}`);
-      console.log('Scope:', registration.scope);
-      console.log('Installing:', registration.installing?.scriptURL || 'None');
-      console.log('Waiting:', registration.waiting?.scriptURL || 'None');
-      console.log('Active:', registration.active?.scriptURL || 'None');
-      console.log('Update via cache:', registration.updateViaCache);
+      logger.group(`📋 Service Worker ${index + 1}`);
+      logger.info('Scope', { scope: registration.scope });
+      logger.info('Installing', {
+        scriptURL: registration.installing?.scriptURL || 'None'
+      });
+      logger.info('Waiting', {
+        scriptURL: registration.waiting?.scriptURL || 'None'
+      });
+      logger.info('Active', {
+        scriptURL: registration.active?.scriptURL || 'None'
+      });
+      logger.info('Update via cache', {
+        updateViaCache: registration.updateViaCache
+      });
 
       if (registration.active) {
-        console.log('State:', registration.active.state);
-        console.log('Script URL:', registration.active.scriptURL);
+        logger.info('State', { state: registration.active.state });
+        logger.info('Script URL', { scriptURL: registration.active.scriptURL });
       }
 
-      console.groupEnd();
+      logger.groupEnd();
     });
 
-    console.groupEnd();
+    logger.groupEnd();
 
     if (registrations.length > 1) {
-      console.warn(
+      logger.warn(
         `⚠️ Multiple service workers detected! Run nukeAllServiceWorkers() to clean up.`
       );
     }
@@ -216,7 +233,7 @@ export async function enforceOneServiceWorker(): Promise<void> {
       return;
     }
 
-    console.group(
+    logger.group(
       `🎯 ENFORCING SINGLE SERVICE WORKER (${registrations.length} found)`
     );
 
@@ -235,7 +252,9 @@ export async function enforceOneServiceWorker(): Promise<void> {
       return bTime.localeCompare(aTime);
     });
 
-    console.log('🏆 Keeping most recent:', sortedRegistrations[0].scope);
+    logger.info('🏆 Keeping most recent:', {
+      scope: sortedRegistrations[0].scope
+    });
 
     // Unregister all but the first (most recent)
     const cleanupPromises = sortedRegistrations
@@ -258,7 +277,7 @@ export async function enforceOneServiceWorker(): Promise<void> {
     const cleanedCount = results.filter((success) => success).length;
 
     console.log(`🎯 Enforcement complete: kept 1, removed ${cleanedCount}`);
-    console.groupEnd();
+    logger.groupEnd();
   } catch (error) {
     console.error('❌ Failed to enforce single service worker:', error);
   }
@@ -275,12 +294,14 @@ export async function advancedServiceWorkerCleanup(): Promise<void> {
   }
 
   try {
-    console.group('🔧 ADVANCED SERVICE WORKER CLEANUP');
+    logger.group('🔧 ADVANCED SERVICE WORKER CLEANUP');
 
     // Step 1: Standard cleanup
-    console.log('📋 Step 1: Standard registration cleanup...');
+    logger.info('📋 Step 1: Standard registration cleanup...');
     const registrations = await navigator.serviceWorker.getRegistrations();
-    console.log(`Found ${registrations.length} standard registrations`);
+    logger.info('Found standard registrations', {
+      count: registrations.length
+    });
 
     for (const registration of registrations) {
       try {
@@ -292,7 +313,7 @@ export async function advancedServiceWorkerCleanup(): Promise<void> {
     }
 
     // Step 2: Force unregister all scopes (common PWA scopes)
-    console.log('🎯 Step 2: Force unregistering common scopes...');
+    logger.info('🎯 Step 2: Force unregistering common scopes...');
     const commonScopes = [
       '/',
       '/sw.js',
@@ -319,7 +340,7 @@ export async function advancedServiceWorkerCleanup(): Promise<void> {
     }
 
     // Step 3: Clear service worker controller
-    console.log('👑 Step 3: Clearing service worker controller...');
+    logger.info('👑 Step 3: Clearing service worker controller...');
     if (navigator.serviceWorker.controller) {
       try {
         navigator.serviceWorker.controller.postMessage({
@@ -332,10 +353,10 @@ export async function advancedServiceWorkerCleanup(): Promise<void> {
     }
 
     // Step 4: Clear all caches aggressively
-    console.log('🗑️ Step 4: Aggressive cache clearing...');
+    logger.info('🗑️ Step 4: Aggressive cache clearing...');
     if ('caches' in window) {
       const cacheNames = await caches.keys();
-      console.log(`Found ${cacheNames.length} caches to clear`);
+      logger.info('Found caches to clear', { count: cacheNames.length });
 
       for (const cacheName of cacheNames) {
         try {
@@ -348,7 +369,7 @@ export async function advancedServiceWorkerCleanup(): Promise<void> {
     }
 
     // Step 5: Clear storage that might be holding SW references
-    console.log('💾 Step 5: Clearing related storage...');
+    logger.info('💾 Step 5: Clearing related storage...');
     try {
       // Clear localStorage items that might reference service workers
       const swKeys = Object.keys(localStorage).filter(
@@ -382,9 +403,9 @@ export async function advancedServiceWorkerCleanup(): Promise<void> {
     }
 
     // Step 6: Force reload to ensure clean state
-    console.log('🔄 Step 6: Preparing for clean reload...');
+    logger.info('🔄 Step 6: Preparing for clean reload...');
     console.log('✅ Advanced cleanup complete!');
-    console.groupEnd();
+    logger.groupEnd();
 
     console.log(`
 🎯 ADVANCED CLEANUP COMPLETE!
@@ -407,7 +428,7 @@ This should remove the stuck "trying to install" registrations.
     `);
   } catch (error) {
     console.error('❌ Advanced cleanup failed:', error);
-    console.groupEnd();
+    logger.groupEnd();
   }
 }
 
@@ -415,97 +436,99 @@ This should remove the stuck "trying to install" registrations.
  * Diagnose service worker issues and provide specific guidance
  */
 export async function diagnoseServiceWorkerIssues(): Promise<void> {
-  console.group('🔍 SERVICE WORKER DIAGNOSTIC');
+  logger.group('🔍 SERVICE WORKER DIAGNOSTIC');
 
   try {
     // Check standard registrations
     const registrations = await navigator.serviceWorker.getRegistrations();
-    console.log(`📊 Standard registrations found: ${registrations.length}`);
+    logger.info('Found standard registrations', {
+      count: registrations.length
+    });
 
     // Check controller
     const hasController = !!navigator.serviceWorker.controller;
-    console.log(`👑 Has active controller: ${hasController}`);
+    logger.info('Has active controller', { hasController });
 
     if (hasController) {
-      console.log(
-        `📍 Controller scope: ${navigator.serviceWorker.controller?.scriptURL}`
-      );
+      logger.info('Controller scope', {
+        scriptURL: navigator.serviceWorker.controller?.scriptURL
+      });
     }
 
     // Check ready state
     try {
       const ready = await navigator.serviceWorker.ready;
-      console.log(
-        `✅ ServiceWorker ready state: ${ready.active?.state || 'none'}`
-      );
+      logger.info('ServiceWorker ready state', {
+        state: ready.active?.state || 'none'
+      });
     } catch (error) {
-      console.log(
-        `❌ ServiceWorker ready state: failed (${error instanceof Error ? error.message : String(error)})`
-      );
+      logger.info('ServiceWorker ready state', {
+        error: error instanceof Error ? error.message : String(error)
+      });
     }
 
     // Check common issues
-    console.log('\n🚨 COMMON ISSUES DETECTED:');
+    logger.info('\n🚨 COMMON ISSUES DETECTED:');
 
     if (registrations.length === 0) {
-      console.log(
+      logger.info(
         '⚠️ No standard registrations found, but you see them in DevTools'
       );
-      console.log('   → This indicates STUCK/FAILED registrations');
-      console.log('   → Run: advancedServiceWorkerCleanup()');
+      logger.info('   → This indicates STUCK/FAILED registrations');
+      logger.info('   → Run: advancedServiceWorkerCleanup()');
     }
 
     if (registrations.length > 1) {
-      console.log('⚠️ Multiple registrations detected');
-      console.log('   → This can cause conflicts');
-      console.log('   → Run: enforceOneServiceWorker()');
+      logger.info('⚠️ Multiple registrations detected');
+      logger.info('   → This can cause conflicts');
+      logger.info('   → Run: enforceOneServiceWorker()');
     }
 
     // Check for DevTools test messages
-    console.log('\n🧪 DEVTOOLS TEST DETECTION:');
-    console.log(
+    logger.info('\n🧪 DEVTOOLS TEST DETECTION:');
+    logger.info(
       'If you see "Test push message from DevTools" in Application tab:'
     );
-    console.log('   → These are created by DevTools Push Messaging testing');
-    console.log('   → They can get stuck in "trying to install" state');
-    console.log(
+    logger.info('   → These are created by DevTools Push Messaging testing');
+    logger.info('   → They can get stuck in "trying to install" state');
+    logger.info(
       '   → Solution: advancedServiceWorkerCleanup() + close all tabs'
     );
 
-    console.log('\n💡 RECOMMENDED ACTION:');
+    logger.info('\n💡 RECOMMENDED ACTION:');
     if (registrations.length === 0) {
-      console.log('🎯 Run: advancedServiceWorkerCleanup()');
+      logger.info('🎯 Run: advancedServiceWorkerCleanup()');
     } else if (registrations.length > 1) {
-      console.log('🎯 Run: enforceOneServiceWorker()');
+      logger.info('🎯 Run: enforceOneServiceWorker()');
     } else {
-      console.log('🎯 Everything looks normal');
+      logger.info('🎯 Everything looks normal');
     }
   } catch (error) {
     console.error('❌ Diagnostic failed:', error);
   }
 
-  console.groupEnd();
+  logger.groupEnd();
 }
 
 /**
  * Nuclear option: Complete browser state reset for service workers
  */
 export async function nuclearServiceWorkerReset(): Promise<void> {
-  console.group('☢️ NUCLEAR SERVICE WORKER RESET');
-  console.warn('⚠️ This will clear EVERYTHING related to service workers!');
+  logger.group('☢️ NUCLEAR SERVICE WORKER RESET');
+  logger.warn('⚠️ This will clear EVERYTHING related to service workers!');
 
   try {
     // Run advanced cleanup first
     await advancedServiceWorkerCleanup();
 
     // Additional nuclear options
-    console.log('💣 Additional nuclear cleanup...');
+    logger.info('💣 Additional nuclear cleanup...');
 
     // Try to clear IndexedDB (some PWAs store SW data here)
     if ('indexedDB' in window) {
       try {
         // This is a bit aggressive but necessary for stuck SWs
-        console.log('🗃️ Attempting IndexedDB cleanup...');
+        logger.info('🗃️ Attempting IndexedDB cleanup...');
 
         // Get all databases (this is experimental)
         if ('databases' in indexedDB) {
@@ -524,7 +547,7 @@ export async function nuclearServiceWorkerReset(): Promise<void> {
       }
     }
 
-    console.log('☢️ Nuclear reset complete!');
+    logger.info('☢️ Nuclear reset complete!');
     console.log(`
 🎯 NUCLEAR RESET COMPLETE!
 
@@ -542,7 +565,30 @@ This should eliminate ALL stuck service worker registrations.
     console.error('❌ Nuclear reset failed:', error);
   }
 
-  console.groupEnd();
+  logger.groupEnd();
+}
+
+export function displayServiceWorkerNukeInstructions() {
+  // Keep console display functions intentionally for debugging tools
+  // eslint-disable-next-line no-console
+  console.log(`
+🧨 NUCLEAR SERVICE WORKER CLEANUP 🧨
+=====================================
+
+This will COMPLETELY destroy all service workers and caches.
+Use this when the normal cleanup isn't working.
+
+To execute the nuclear option, run:
+nukeAllServiceWorkers()
+
+WARNING: This will:
+- Unregister ALL service workers on this domain
+- Delete ALL caches
+- Force refresh the page
+- May cause temporary loading issues
+
+Only use if normal cache refresh isn't working!
+`);
 }
 
 // Make functions available globally for console use

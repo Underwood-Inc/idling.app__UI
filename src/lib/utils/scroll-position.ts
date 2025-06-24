@@ -2,6 +2,15 @@
  * Scroll position management utilities for navigation between paginated lists and thread pages
  */
 
+import { createLogger } from '../logging';
+
+// Create logger for scroll position utilities
+const logger = createLogger({
+  context: {
+    module: 'scroll-position'
+  }
+});
+
 export interface ScrollPositionData {
   scrollY: number;
   timestamp: number;
@@ -71,7 +80,9 @@ export function storeScrollPosition(
       localStorage.setItem(SCROLL_STORAGE_KEY, JSON.stringify(positions));
     }
   } catch (error) {
-    console.warn('Failed to store scroll position:', error);
+    logger.warn('Failed to store scroll position', {
+      error: error instanceof Error ? error.message : String(error)
+    });
   }
 }
 
@@ -102,7 +113,9 @@ export function getStoredScrollPosition(
 
     return position;
   } catch (error) {
-    console.warn('Failed to retrieve scroll position:', error);
+    logger.warn('Failed to retrieve scroll position', {
+      error: error instanceof Error ? error.message : String(error)
+    });
     return null;
   }
 }
@@ -176,7 +189,9 @@ export function clearScrollPositions(): void {
   try {
     localStorage.removeItem(SCROLL_STORAGE_KEY);
   } catch (error) {
-    console.warn('Failed to clear scroll positions:', error);
+    logger.warn('Failed to clear scroll positions', {
+      error: error instanceof Error ? error.message : String(error)
+    });
   }
 }
 
@@ -194,7 +209,9 @@ export function clearScrollPosition(referrerKey: string): void {
     delete positions[referrerKey];
     localStorage.setItem(SCROLL_STORAGE_KEY, JSON.stringify(positions));
   } catch (error) {
-    console.warn('Failed to clear scroll position:', error);
+    logger.warn('Failed to clear scroll position', {
+      error: error instanceof Error ? error.message : String(error)
+    });
   }
 }
 
@@ -231,7 +248,7 @@ export function updateScrollPosition(
 
     localStorage.setItem(SCROLL_STORAGE_KEY, JSON.stringify(positions));
 
-    console.log('📍 Updated scroll position:', {
+    logger.debug('Updated scroll position', {
       referrerKey,
       newScrollY: scrollY,
       previousScrollY: existingPosition.scrollY,
@@ -240,7 +257,9 @@ export function updateScrollPosition(
 
     return true;
   } catch (error) {
-    console.warn('Failed to update scroll position:', error);
+    logger.warn('Failed to update scroll position', {
+      error: error instanceof Error ? error.message : String(error)
+    });
     return false;
   }
 }
