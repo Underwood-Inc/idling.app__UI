@@ -1,5 +1,6 @@
 'use client';
 
+import { createLogger } from '@/lib/logging';
 import { useSession } from 'next-auth/react';
 import { useState } from 'react';
 import { buildThreadUrl } from '../../../lib/routes';
@@ -17,6 +18,13 @@ import { ContentWithPills } from '../ui/ContentWithPills';
 import { InstantLink } from '../ui/InstantLink';
 import { TimestampWithTooltip } from '../ui/TimestampWithTooltip';
 import { SubmissionWithReplies } from './actions';
+
+// Create component-specific logger
+const logger = createLogger({
+  context: {
+    component: 'SubmissionItem'
+  }
+});
 
 interface SubmissionItemProps {
   submission: SubmissionWithReplies;
@@ -99,18 +107,14 @@ export function SubmissionItem({
         ? submissionsContainer.scrollTop
         : window.scrollY;
 
-      // eslint-disable-next-line no-console
-      console.log(
-        '🔗 SubmissionItem: Storing scroll position for thread navigation',
-        {
-          scrollKey,
-          currentPage,
-          currentFilters,
-          scrollY,
-          containerFound: !!submissionsContainer,
-          pathname: window.location.pathname
-        }
-      );
+      logger.debug('Storing scroll position for thread navigation', {
+        scrollKey,
+        currentPage,
+        currentFilters,
+        scrollY,
+        containerFound: !!submissionsContainer,
+        pathname: window.location.pathname
+      });
 
       storeScrollPosition(
         scrollKey,

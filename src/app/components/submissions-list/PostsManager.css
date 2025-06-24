@@ -120,6 +120,12 @@
     padding: 0.5rem 0.75rem;
   }
 
+  .posts-manager__display-controls {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.5rem;
+  }
+
   .posts-manager__results-count {
     order: 1;
     justify-content: center;
@@ -127,20 +133,42 @@
 
   .posts-manager__new-post-button {
     order: 3;
-    align-self: flex-end;
-    padding: 0.375rem 0.75rem;
-    font-size: var(--font-size-xs);
-    /* Increased from 0.8rem to ensure minimum 12px */
+    align-self: stretch;
+    justify-content: center;
+    padding: 0.75rem;
+    font-size: var(--font-size-sm);
   }
 
   .posts-manager__new-post-button svg {
-    width: --font-size-base;
-    height: --font-size-base;
+    width: var(--font-size-base);
+    height: var(--font-size-base);
   }
 
   .posts-manager__results-text {
-    font-size: var(--font-size-xs);
-    /* Increased from 1rem to ensure minimum 12px */
+    font-size: var(--font-size-sm);
+  }
+
+  /* Make filter toggle and pagination full width on mobile */
+  .posts-manager__filter-toggle {
+    align-self: stretch;
+    justify-content: center;
+    padding: 0.75rem;
+    font-size: var(--font-size-sm);
+  }
+
+  .posts-manager__pagination-toggle {
+    align-self: stretch;
+  }
+
+  .posts-manager__pagination-label {
+    font-size: var(--font-size-sm);
+  }
+
+  .posts-manager__pagination-button {
+    flex: 1;
+    padding: 0.75rem;
+    font-size: var(--font-size-sm);
+    justify-content: center;
   }
 }
 
@@ -150,19 +178,150 @@
     padding: 0.5rem;
   }
 
+  .posts-manager__display-controls {
+    gap: 0.375rem;
+  }
+
   .posts-manager__new-post-button {
-    width: 100%;
-    justify-content: center;
-    align-self: stretch;
+    padding: 0.625rem;
+    font-size: var(--font-size-xs);
   }
 
   .posts-manager__filter-toggle {
-    padding: 0.5rem;
-    font-size: var(--font-size-md);
+    padding: 0.625rem;
+    font-size: var(--font-size-xs);
+  }
+
+  .posts-manager__pagination-button {
+    padding: 0.625rem;
+    font-size: var(--font-size-xs);
   }
 
   .posts-manager__filter-section--expanded {
     padding: 0.5rem;
+  }
+
+  /* Use minimal layout for very small screens */
+  .posts-manager__top-controls {
+    /* Hide some elements to save space */
+  }
+
+  .posts-manager__pagination-label {
+    display: none;
+    /* Hide "Pages:" label on small screens */
+  }
+
+  .posts-manager__results-text {
+    font-size: var(--font-size-xs);
+  }
+}
+
+/* Minimal variant for mobile - applied when sticky controls are active */
+@media (max-width: 768px) {
+  .posts-manager__top-controls--minimal {
+    flex-direction: row;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+  }
+
+  .posts-manager__top-controls--minimal .posts-manager__display-controls {
+    flex-direction: row;
+    align-items: center;
+    gap: 0.75rem;
+    flex: 1;
+  }
+
+  .posts-manager__top-controls--minimal .posts-manager__filter-toggle {
+    padding: 0.5rem 0.75rem;
+    font-size: var(--font-size-sm);
+    min-height: 36px;
+    gap: 0.5rem;
+  }
+
+  .posts-manager__top-controls--minimal .posts-manager__pagination-toggle {
+    align-self: auto;
+  }
+
+  .posts-manager__top-controls--minimal .posts-manager__pagination-label {
+    display: inline-block;
+    font-size: var(--font-size-sm);
+    margin-right: 0.25rem;
+  }
+
+  .posts-manager__top-controls--minimal .posts-manager__pagination-button {
+    padding: 0.5rem 0.75rem;
+    font-size: var(--font-size-sm);
+    min-width: 36px;
+    min-height: 36px;
+    flex: none;
+  }
+
+  .posts-manager__top-controls--minimal .posts-manager__results-count {
+    flex: 1;
+    justify-content: center;
+  }
+
+  .posts-manager__top-controls--minimal .posts-manager__results-text {
+    font-size: var(--font-size-sm);
+  }
+
+  .posts-manager__top-controls--minimal .posts-manager__results-text::before {
+    content: "Posts: ";
+    color: var(--light-bg__text-color--secondary);
+    font-weight: 400;
+  }
+
+  .posts-manager__top-controls--minimal .posts-manager__new-post-button {
+    padding: 0.5rem 0.75rem;
+    min-width: 36px;
+    min-height: 36px;
+    order: initial;
+    align-self: auto;
+    gap: 0.5rem;
+  }
+
+  .posts-manager__top-controls--minimal .posts-manager__new-post-button svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  /* Show abbreviated text instead of hiding completely */
+  .posts-manager__top-controls--minimal .posts-manager__new-post-button .instant-link__content {
+    display: inline;
+  }
+
+  .posts-manager__top-controls--minimal .posts-manager__new-post-button .instant-link__content::after {
+    content: "New";
+  }
+}
+
+/* Hide spacing theme toggle on mobile to save space */
+@media (max-width: 768px) {
+  .posts-manager__display-controls .spacing-theme-toggle {
+    display: none;
+  }
+}
+
+/* Extra responsive adjustments */
+@media (max-width: 360px) {
+  .posts-manager__top-controls {
+    padding: 0.375rem;
+  }
+
+  .posts-manager__filter-toggle {
+    padding: 0.5rem;
+    font-size: var(--font-size-xs);
+  }
+
+  .posts-manager__pagination-button {
+    padding: 0.5rem 0.375rem;
+    font-size: var(--font-size-xs);
+  }
+
+  .posts-manager__new-post-button {
+    padding: 0.5rem;
+    font-size: var(--font-size-xs);
   }
 }
 
@@ -521,39 +680,6 @@
 
   to {
     transform: rotate(360deg);
-  }
-}
-
-/* Responsive adjustments */
-@media (max-width: 768px) {
-  .posts-manager__display-controls {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.75rem;
-  }
-
-  .posts-manager__pagination-toggle {
-    align-self: stretch;
-  }
-
-  .posts-manager__pagination-label {
-    font-size: 1rem;
-  }
-
-  .posts-manager__pagination-button {
-    padding: 0.5rem 0.75rem;
-    font-size: 1rem;
-  }
-
-  .posts-manager__filter-toggle {
-    align-self: stretch;
-    justify-content: center;
-    padding: 0.75rem;
-    font-size: 1rem;
-  }
-
-  .posts-manager__filter-section--expanded {
-    padding: 0.75rem;
   }
 }
 
