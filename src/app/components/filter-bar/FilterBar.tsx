@@ -5,7 +5,6 @@ import { Filter, getSubmissionsFiltersAtom } from '../../../lib/state/atoms';
 import { PostFilters } from '../../../lib/types/filters';
 import './FilterBar.css';
 import { FilterLabel } from './FilterLabel';
-import { getTagsFromSearchParams } from './utils/get-tags';
 
 function dedupeStringArray(arr: string[]): string[] {
   return [...new Set(arr)];
@@ -58,9 +57,26 @@ export default function FilterBar({
   const hasTagsFilter = safeFilters.some((f) => f.name === 'tags');
   const hasAuthorFilter = safeFilters.some((f) => f.name === 'author');
   const hasMentionsFilter = safeFilters.some((f) => f.name === 'mentions');
-  const hasMultipleFilterTypes =
-    [hasTagsFilter, hasAuthorFilter, hasMentionsFilter].filter(Boolean).length >
-    1;
+  const filterTypeCount = [
+    hasTagsFilter,
+    hasAuthorFilter,
+    hasMentionsFilter
+  ].filter(Boolean).length;
+  const hasMultipleFilterTypes = filterTypeCount > 1;
+
+  // Auto-switch global logic to OR when there's only one filter type
+  // This prevents the confusing state where global=ALL but there's only one group
+  const effectiveGlobalLogic = hasMultipleFilterTypes ? globalLogic : 'OR';
+
+  // If we need to update the stored global logic to match the effective logic
+  if (
+    onUpdateFilter &&
+    globalLogic !== effectiveGlobalLogic &&
+    !hasMultipleFilterTypes
+  ) {
+    // Automatically switch to OR when there's only one filter type
+    setTimeout(() => onUpdateFilter('globalLogic', 'OR'), 0);
+  }
 
   const handleLogicToggle = (
     filterType: 'tagLogic' | 'authorLogic' | 'mentionsLogic' | 'globalLogic'
@@ -86,14 +102,14 @@ export default function FilterBar({
             <span className="filter-bar__logic-label">Groups:</span>
             <div className="filter-bar__logic-button-group">
               <button
-                className={`filter-bar__logic-button ${globalLogic === 'AND' ? 'filter-bar__logic-button--active' : ''}`}
+                className={`filter-bar__logic-button ${effectiveGlobalLogic === 'AND' ? 'filter-bar__logic-button--active' : ''}`}
                 onClick={() => onUpdateFilter('globalLogic', 'AND')}
                 title="All filter groups must match"
               >
                 ALL
               </button>
               <button
-                className={`filter-bar__logic-button ${globalLogic === 'OR' ? 'filter-bar__logic-button--active' : ''}`}
+                className={`filter-bar__logic-button ${effectiveGlobalLogic === 'OR' ? 'filter-bar__logic-button--active' : ''}`}
                 onClick={() => onUpdateFilter('globalLogic', 'OR')}
                 title="Any filter group can match"
               >
@@ -130,15 +146,12 @@ export default function FilterBar({
             }
 
             // Handle comma-separated values for all filter types
-            const values =
-              filter.name === 'tags'
-                ? dedupeStringArray(getTagsFromSearchParams(filter.value))
-                : dedupeStringArray(
-                    filter.value
-                      .split(',')
-                      .map((v) => v.trim())
-                      .filter((v) => v)
-                  );
+            const values = dedupeStringArray(
+              filter.value
+                .split(',')
+                .map((v) => v.trim())
+                .filter((v) => v)
+            );
 
             if (values.length === 0) {
               return null;
@@ -149,7 +162,7 @@ export default function FilterBar({
             // When globalLogic is AND, force all individual filters to AND
             // When globalLogic is OR, use individual filter logic settings
             const effectiveLogic =
-              globalLogic === 'AND'
+              effectiveGlobalLogic === 'AND'
                 ? 'AND'
                 : filter.name === 'tags'
                   ? tagLogic
@@ -180,10 +193,10 @@ export default function FilterBar({
                             currentLogic === 'AND'
                               ? 'filter-bar__logic-button--active'
                               : ''
-                          } ${globalLogic === 'AND' ? 'filter-bar__logic-button--disabled' : ''}`}
+                          } ${effectiveGlobalLogic === 'AND' ? 'filter-bar__logic-button--disabled' : ''}`}
                           onClick={() => {
                             // Only allow changes when globalLogic is OR
-                            if (globalLogic === 'OR') {
+                            if (effectiveGlobalLogic === 'OR') {
                               const logicType =
                                 filter.name === 'tags'
                                   ? 'tagLogic'
@@ -195,9 +208,9 @@ export default function FilterBar({
                               onUpdateFilter(logicType, 'AND');
                             }
                           }}
-                          disabled={globalLogic === 'AND'}
+                          disabled={effectiveGlobalLogic === 'AND'}
                           title={
-                            globalLogic === 'AND'
+                            effectiveGlobalLogic === 'AND'
                               ? `Controlled by Groups setting - set Groups to ANY to change`
                               : `Must have ALL selected ${filter.name}`
                           }
@@ -209,10 +222,10 @@ export default function FilterBar({
                             currentLogic === 'OR'
                               ? 'filter-bar__logic-button--active'
                               : ''
-                          } ${globalLogic === 'AND' ? 'filter-bar__logic-button--disabled' : ''}`}
+                          } ${effectiveGlobalLogic === 'AND' ? 'filter-bar__logic-button--disabled' : ''}`}
                           onClick={() => {
                             // Only allow changes when globalLogic is OR
-                            if (globalLogic === 'OR') {
+                            if (effectiveGlobalLogic === 'OR') {
                               const logicType =
                                 filter.name === 'tags'
                                   ? 'tagLogic'
@@ -224,9 +237,9 @@ export default function FilterBar({
                               onUpdateFilter(logicType, 'OR');
                             }
                           }}
-                          disabled={globalLogic === 'AND'}
+                          disabled={effectiveGlobalLogic === 'AND'}
                           title={
-                            globalLogic === 'AND'
+                            effectiveGlobalLogic === 'AND'
                               ? `Controlled by Groups setting - set Groups to ANY to change`
                               : `Must have ANY selected ${filter.name}`
                           }

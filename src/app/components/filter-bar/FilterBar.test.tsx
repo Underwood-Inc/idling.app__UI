@@ -10,6 +10,10 @@ jest.mock('../../../lib/state/atoms', () => ({
   getDisplayFiltersAtom: jest.fn().mockReturnValue({
     read: jest.fn(),
     write: jest.fn()
+  }),
+  getSubmissionsFiltersAtom: jest.fn().mockReturnValue({
+    read: jest.fn(),
+    write: jest.fn()
   })
 }));
 
@@ -163,10 +167,10 @@ describe('FilterBar Component', () => {
 
       expect(screen.getByText('Groups:')).toBeInTheDocument();
       expect(
-        screen.getByRole('button', { name: 'All filter groups must match' })
+        screen.getByTitle('All filter groups must match')
       ).toBeInTheDocument();
       expect(
-        screen.getByRole('button', { name: 'Any filter group can match' })
+        screen.getByTitle('Any filter group can match')
       ).toBeInTheDocument();
     });
 
@@ -189,12 +193,8 @@ describe('FilterBar Component', () => {
 
       renderFilterBar(filters);
 
-      const allButton = screen.getByRole('button', {
-        name: 'All filter groups must match'
-      });
-      const anyButton = screen.getByRole('button', {
-        name: 'Any filter group can match'
-      });
+      const allButton = screen.getByTitle('All filter groups must match');
+      const anyButton = screen.getByTitle('Any filter group can match');
 
       expect(allButton).not.toHaveClass('filter-bar__logic-button--active');
       expect(anyButton).toHaveClass('filter-bar__logic-button--active');
@@ -209,10 +209,10 @@ describe('FilterBar Component', () => {
       renderFilterBar(filters);
 
       expect(
-        screen.getByRole('button', { name: 'Must have ALL selected tags' })
+        screen.getByTitle('Must have ALL selected tags')
       ).toBeInTheDocument();
       expect(
-        screen.getByRole('button', { name: 'Must have ANY selected tags' })
+        screen.getByTitle('Must have ANY selected tags')
       ).toBeInTheDocument();
     });
 
@@ -257,9 +257,7 @@ describe('FilterBar Component', () => {
 
       renderFilterBar(filters);
 
-      const orButton = screen.getByRole('button', {
-        name: 'Any filter group can match'
-      });
+      const orButton = screen.getByTitle('Any filter group can match');
       fireEvent.click(orButton);
 
       expect(mockOnUpdateFilter).toHaveBeenCalledWith('globalLogic', 'OR');
@@ -273,9 +271,7 @@ describe('FilterBar Component', () => {
 
       renderFilterBar(filters);
 
-      const allButton = screen.getByRole('button', {
-        name: 'Must have ALL selected tags'
-      });
+      const allButton = screen.getByTitle('Must have ALL selected tags');
       fireEvent.click(allButton);
 
       expect(mockOnUpdateFilter).toHaveBeenCalledWith('tagLogic', 'AND');
@@ -289,9 +285,7 @@ describe('FilterBar Component', () => {
 
       renderFilterBar(filters);
 
-      const allButton = screen.getByRole('button', {
-        name: 'Must have ALL selected author'
-      });
+      const allButton = screen.getByTitle('Must have ALL selected author');
       fireEvent.click(allButton);
 
       expect(mockOnUpdateFilter).toHaveBeenCalledWith('authorLogic', 'AND');
@@ -305,9 +299,7 @@ describe('FilterBar Component', () => {
 
       renderFilterBar(filters);
 
-      const allButton = screen.getByRole('button', {
-        name: 'Must have ALL selected mentions'
-      });
+      const allButton = screen.getByTitle('Must have ALL selected mentions');
       fireEvent.click(allButton);
 
       expect(mockOnUpdateFilter).toHaveBeenCalledWith('mentionsLogic', 'AND');
@@ -436,7 +428,7 @@ describe('FilterBar Component', () => {
   describe('Logic Value Extraction', () => {
     it('should extract correct logic values with defaults', () => {
       const filters: Filter<PostFilters>[] = [
-        { name: 'tags', value: '#react' },
+        { name: 'tags', value: '#react,#typescript' }, // Multiple tags to show logic buttons
         { name: 'tagLogic', value: 'AND' },
         { name: 'author', value: '123' }
         // No authorLogic, mentionsLogic, or globalLogic
@@ -445,9 +437,7 @@ describe('FilterBar Component', () => {
       renderFilterBar(filters);
 
       // This tests the internal logic extraction - we can verify through button states
-      const tagAllButton = screen.getByRole('button', {
-        name: 'Must have ALL selected tags'
-      });
+      const tagAllButton = screen.getByTitle('Must have ALL selected tags');
       expect(tagAllButton).toHaveClass('filter-bar__logic-button--active');
     });
 
@@ -460,9 +450,7 @@ describe('FilterBar Component', () => {
       renderFilterBar(filters);
 
       // Should default to OR
-      const anyButton = screen.getByRole('button', {
-        name: 'Must have ANY selected tags'
-      });
+      const anyButton = screen.getByTitle('Must have ANY selected tags');
       expect(anyButton).toHaveClass('filter-bar__logic-button--active');
     });
   });
@@ -490,18 +478,18 @@ describe('FilterBar Component', () => {
       expect(screen.getByText('Groups:')).toBeInTheDocument();
 
       // Should show correct active states for logic buttons
-      expect(
-        screen.getByRole('button', { name: 'Must have ALL selected tags' })
-      ).toHaveClass('filter-bar__logic-button--active');
-      expect(
-        screen.getByRole('button', { name: 'Must have ANY selected author' })
-      ).toHaveClass('filter-bar__logic-button--active');
-      expect(
-        screen.getByRole('button', { name: 'Must have ALL selected mentions' })
-      ).toHaveClass('filter-bar__logic-button--active');
-      expect(
-        screen.getByRole('button', { name: 'Any filter group can match' })
-      ).toHaveClass('filter-bar__logic-button--active');
+      expect(screen.getByTitle('Must have ALL selected tags')).toHaveClass(
+        'filter-bar__logic-button--active'
+      );
+      expect(screen.getByTitle('Must have ANY selected author')).toHaveClass(
+        'filter-bar__logic-button--active'
+      );
+      expect(screen.getByTitle('Must have ALL selected mentions')).toHaveClass(
+        'filter-bar__logic-button--active'
+      );
+      expect(screen.getByTitle('Any filter group can match')).toHaveClass(
+        'filter-bar__logic-button--active'
+      );
     });
 
     it('should handle rapid filter updates', async () => {
@@ -514,12 +502,8 @@ describe('FilterBar Component', () => {
       renderFilterBar(filters);
 
       // Rapidly click different logic buttons
-      const globalOrButton = screen.getByRole('button', {
-        name: 'Any filter group can match'
-      });
-      const tagAndButton = screen.getByRole('button', {
-        name: 'Must have ALL selected tags'
-      });
+      const globalOrButton = screen.getByTitle('Any filter group can match');
+      const tagAndButton = screen.getByTitle('Must have ALL selected tags');
 
       fireEvent.click(globalOrButton);
       fireEvent.click(tagAndButton);
@@ -590,18 +574,22 @@ describe('FilterBar Component', () => {
 
       renderFilterBar(filters);
 
-      expect(
-        screen.getByRole('button', { name: 'All filter groups must match' })
-      ).toHaveAttribute('title', 'All filter groups must match');
-      expect(
-        screen.getByRole('button', { name: 'Any filter group can match' })
-      ).toHaveAttribute('title', 'Any filter group can match');
-      expect(
-        screen.getByRole('button', { name: 'Must have ALL selected tags' })
-      ).toHaveAttribute('title', 'Must have ALL selected tags');
-      expect(
-        screen.getByRole('button', { name: 'Must have ANY selected tags' })
-      ).toHaveAttribute('title', 'Must have ANY selected tags');
+      expect(screen.getByTitle('All filter groups must match')).toHaveAttribute(
+        'title',
+        'All filter groups must match'
+      );
+      expect(screen.getByTitle('Any filter group can match')).toHaveAttribute(
+        'title',
+        'Any filter group can match'
+      );
+      expect(screen.getByTitle('Must have ALL selected tags')).toHaveAttribute(
+        'title',
+        'Must have ALL selected tags'
+      );
+      expect(screen.getByTitle('Must have ANY selected tags')).toHaveAttribute(
+        'title',
+        'Must have ANY selected tags'
+      );
     });
   });
 });
