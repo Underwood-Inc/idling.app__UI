@@ -1,17 +1,12 @@
-import { act, render, screen } from '@testing-library/react';
-import { usePathname, useSearchParams } from 'next/navigation';
 import {
   HEADER_NAV_PATHS,
   NAV_PATH_LABELS,
   NAV_PATHS
 } from '../../../lib/routes';
+import { act, render, screen } from '../../../test-utils';
 import { NavPaths } from './NavPaths';
 
 jest.mock('next/config');
-jest.mock('next/navigation', () => ({
-  usePathname: jest.fn(),
-  useSearchParams: jest.fn(() => ({ get: jest.fn() }))
-}));
 
 jest.mock('next/link', () => {
   const MockLink = ({ children, ...props }: any) => (
@@ -29,13 +24,36 @@ jest.mock('../navbar/Navbar', () => ({
   }
 }));
 
+// Get the mocked functions
+const mockUsePathname = jest.fn();
+const mockUseSearchParams = jest.fn();
+
+// Mock next/navigation locally
+jest.mock('next/navigation', () => ({
+  useRouter: () => ({
+    push: jest.fn(),
+    replace: jest.fn(),
+    prefetch: jest.fn(),
+    back: jest.fn(),
+    forward: jest.fn(),
+    refresh: jest.fn()
+  }),
+  usePathname: () => mockUsePathname(),
+  useSearchParams: () => mockUseSearchParams()
+}));
+
 describe('NavPaths', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockUsePathname.mockClear();
+    mockUseSearchParams.mockClear();
   });
 
   it('renders all navigation paths', () => {
-    (usePathname as jest.Mock).mockReturnValue('/');
+    mockUsePathname.mockReturnValue('/');
+    mockUseSearchParams.mockReturnValue({
+      get: jest.fn().mockReturnValue(null)
+    });
     render(<NavPaths />);
 
     Object.entries(HEADER_NAV_PATHS).forEach(([key, path]) => {
@@ -48,17 +66,22 @@ describe('NavPaths', () => {
   });
 
   it('marks the current path as active', () => {
-    (usePathname as jest.Mock).mockReturnValue(NAV_PATHS.POSTS);
+    mockUsePathname.mockReturnValue(NAV_PATHS.POSTS);
+    mockUseSearchParams.mockReturnValue({
+      get: jest.fn().mockReturnValue(null)
+    });
     render(<NavPaths />);
 
-    const activeLink = screen.getByText(NAV_PATH_LABELS.POSTS);
+    const activeLink = screen.getByRole('link', {
+      name: NAV_PATH_LABELS.POSTS
+    });
     expect(activeLink).toHaveClass('active');
   });
 
   it('appends tags to supported routes', async () => {
-    (usePathname as jest.Mock).mockReturnValue(NAV_PATHS.POSTS);
+    mockUsePathname.mockReturnValue(NAV_PATHS.POSTS);
     const mockGet = jest.fn().mockReturnValue('tag1,tag2');
-    (useSearchParams as jest.Mock).mockReturnValue({ get: mockGet });
+    mockUseSearchParams.mockReturnValue({ get: mockGet });
 
     await act(async () => {
       render(<NavPaths />);
@@ -83,10 +106,10 @@ describe('NavPaths', () => {
 
   it('updates path when pathname changes, with and without tags', async () => {
     let mockGet = jest.fn().mockReturnValue('tag1,tag2');
-    (useSearchParams as jest.Mock).mockReturnValue({ get: mockGet });
+    mockUseSearchParams.mockReturnValue({ get: mockGet });
 
     // Initial render with POSTS path and tags
-    (usePathname as jest.Mock).mockReturnValue(NAV_PATHS.POSTS);
+    mockUsePathname.mockReturnValue(NAV_PATHS.POSTS);
     const { rerender } = render(<NavPaths />);
 
     let postsLink = screen.getByRole('link', { name: NAV_PATH_LABELS.POSTS });
@@ -104,7 +127,7 @@ describe('NavPaths', () => {
     );
 
     // Simulate pathname change to MY_POSTS, still with tags
-    (usePathname as jest.Mock).mockReturnValue(NAV_PATHS.MY_POSTS);
+    mockUsePathname.mockReturnValue(NAV_PATHS.MY_POSTS);
     await act(async () => {
       rerender(<NavPaths />);
     });
@@ -120,10 +143,10 @@ describe('NavPaths', () => {
 
     // Now simulate no tags
     mockGet = jest.fn().mockReturnValue(null);
-    (useSearchParams as jest.Mock).mockReturnValue({ get: mockGet });
+    mockUseSearchParams.mockReturnValue({ get: mockGet });
 
     // Change pathname back to POSTS with no tags
-    (usePathname as jest.Mock).mockReturnValue(NAV_PATHS.POSTS);
+    mockUsePathname.mockReturnValue(NAV_PATHS.POSTS);
     await act(async () => {
       rerender(<NavPaths />);
     });

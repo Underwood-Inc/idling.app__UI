@@ -1,5 +1,5 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { formatLastUpdated } from '../../../../lib/utils/time-utils';
+import { fireEvent, render, screen, waitFor } from '../../../../test-utils';
 import { LinkTooltip } from '../LinkTooltip';
 
 // Mock Date.now() to return a fixed timestamp

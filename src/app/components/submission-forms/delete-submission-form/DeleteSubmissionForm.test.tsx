@@ -1,5 +1,5 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { Provider } from 'jotai';
+import { fireEvent, render, screen, waitFor } from '../../../../test-utils';
 import { DeleteSubmissionForm } from './DeleteSubmissionForm';
 
 // Mock Jotai atoms instead of old context hooks

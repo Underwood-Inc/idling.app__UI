@@ -1,5 +1,6 @@
 import '@testing-library/jest-dom';
 import { fireEvent, render, screen } from '@testing-library/react';
+import { NavigationLoadingProvider } from '../../../lib/context/NavigationLoadingContext';
 import { SmartPillInput } from './SmartPillInput';
 
 // Mock Next.js navigation
@@ -39,17 +40,26 @@ describe('SmartPillInput', () => {
     placeholder: 'Type something...'
   };
 
+  // Helper function to render with required providers
+  const renderWithProviders = (props = defaultProps) => {
+    return render(
+      <NavigationLoadingProvider>
+        <SmartPillInput {...props} />
+      </NavigationLoadingProvider>
+    );
+  };
+
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
   it('renders placeholder when empty', () => {
-    render(<SmartPillInput {...defaultProps} />);
+    renderWithProviders();
     expect(screen.getByText('Type something...')).toBeInTheDocument();
   });
 
   it('enters edit mode when clicked', () => {
-    render(<SmartPillInput {...defaultProps} />);
+    renderWithProviders();
 
     const container = screen.getByText('Type something...').closest('div');
     fireEvent.click(container!);
@@ -59,7 +69,7 @@ describe('SmartPillInput', () => {
   });
 
   it('renders hashtag pills in display mode', () => {
-    render(<SmartPillInput {...defaultProps} value="#javascript #react" />);
+    renderWithProviders({ ...defaultProps, value: '#javascript #react' });
 
     // Should render the hashtags as pills
     expect(screen.getByText('#javascript')).toBeInTheDocument();
@@ -67,7 +77,7 @@ describe('SmartPillInput', () => {
   });
 
   it('renders mention pills in display mode', () => {
-    render(<SmartPillInput {...defaultProps} value="@[testuser|user123]" />);
+    renderWithProviders({ ...defaultProps, value: '@[testuser|user123]' });
 
     // Should render the mention as a styled pill
     const pillLink = screen.getByRole('link');
@@ -79,9 +89,11 @@ describe('SmartPillInput', () => {
 
   it('commits changes when commit button is clicked', async () => {
     const onChange = jest.fn();
-    render(
-      <SmartPillInput {...defaultProps} onChange={onChange} value="#existing" />
-    );
+    renderWithProviders({
+      ...defaultProps,
+      onChange,
+      value: '#existing'
+    });
 
     // Enter edit mode
     const container = screen.getByText('#existing').closest('div');
@@ -100,9 +112,11 @@ describe('SmartPillInput', () => {
 
   it('cancels changes when clicking outside without typing', () => {
     const onChange = jest.fn();
-    render(
-      <SmartPillInput {...defaultProps} onChange={onChange} value="#original" />
-    );
+    renderWithProviders({
+      ...defaultProps,
+      onChange,
+      value: '#original'
+    });
 
     // Enter edit mode
     const container = screen.getByText('#original').closest('div');
@@ -120,13 +134,11 @@ describe('SmartPillInput', () => {
 
   it('shows existing pills in edit mode and allows removal', () => {
     const onChange = jest.fn();
-    render(
-      <SmartPillInput
-        {...defaultProps}
-        onChange={onChange}
-        value="#existing #test"
-      />
-    );
+    renderWithProviders({
+      ...defaultProps,
+      onChange,
+      value: '#existing #test'
+    });
 
     // Enter edit mode
     const container = screen.getByText('#existing').closest('div');
@@ -149,13 +161,11 @@ describe('SmartPillInput', () => {
 
   it('removes pills immediately when clicked in display mode', () => {
     const onChange = jest.fn();
-    render(
-      <SmartPillInput
-        {...defaultProps}
-        onChange={onChange}
-        value="#keep #remove"
-      />
-    );
+    renderWithProviders({
+      ...defaultProps,
+      onChange,
+      value: '#keep #remove'
+    });
 
     // Click on a pill to remove it
     const removePill = screen.getByText('#remove');
@@ -167,9 +177,11 @@ describe('SmartPillInput', () => {
 
   it('prevents duplicate hashtags from being added', () => {
     const onChange = jest.fn();
-    render(
-      <SmartPillInput {...defaultProps} onChange={onChange} value="#existing" />
-    );
+    renderWithProviders({
+      ...defaultProps,
+      onChange,
+      value: '#existing'
+    });
 
     // Enter edit mode
     const container = screen.getByText('#existing').closest('div');
@@ -188,13 +200,11 @@ describe('SmartPillInput', () => {
 
   it('prevents duplicate mentions from being added', () => {
     const onChange = jest.fn();
-    render(
-      <SmartPillInput
-        {...defaultProps}
-        onChange={onChange}
-        value="@[testuser|user123]"
-      />
-    );
+    renderWithProviders({
+      ...defaultProps,
+      onChange,
+      value: '@[testuser|user123]'
+    });
 
     // Enter edit mode
     const container = screen.getByText('@testuser').closest('div');

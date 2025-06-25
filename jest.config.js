@@ -1,28 +1,32 @@
 const nextJest = require('next/jest');
 
 const createJestConfig = nextJest({
-  // Provide the path to your Next.js app to load next.config.js and .env files in your test environment
+  // Provide the path to your Next.js app to load next.config.js and .env files
   dir: './'
 });
 
-// Add any custom config to be passed to Jest
+// Custom Jest configuration
 const customJestConfig = {
-  testPathIgnorePatterns: [
-    '<rootDir>/e2e',
-    '<rootDir>/custom-eslint-rules',
-    '\\.spec\\.ts$'
-  ],
-  setupFilesAfterEnv: ['jest-chain', '<rootDir>/jest.setup.js'],
+  setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
+  testEnvironment: 'jsdom',
   moduleNameMapper: {
-    '^next/navigation$': '<rootDir>/__mocks__/next/navigation.ts',
-    '^@dicebear/(.*)$': '<rootDir>/__mocks__/@dicebear/$1',
-    '^next-auth/react$': '<rootDir>/__mocks__/next-auth/react.ts'
+    '^@/(.*)$': '<rootDir>/src/$1',
+    '^@/components/(.*)$': '<rootDir>/src/components/$1',
+    '^@/lib/(.*)$': '<rootDir>/src/lib/$1',
+    '^@/app/(.*)$': '<rootDir>/src/app/$1'
   },
-  transformIgnorePatterns: [
-    '/node_modules/(?!(@dicebear|@babel/runtime|next-auth)/)'
+  testPathIgnorePatterns: ['<rootDir>/.next/', '<rootDir>/node_modules/'],
+  transformIgnorePatterns: ['node_modules/(?!(next-auth|@auth/core))'],
+  collectCoverageFrom: [
+    'src/**/*.{js,jsx,ts,tsx}',
+    '!src/**/*.d.ts',
+    '!src/**/*.stories.tsx',
+    '!src/**/index.ts'
   ],
-  testEnvironment: 'jest-environment-jsdom'
+  coverageReporters: ['json', 'lcov', 'text', 'clover'],
+  testTimeout: 10000,
+  maxWorkers: 1
 };
 
-// createJestConfig is exported this way to ensure that next/jest can load the Next.js config which is async
+// Export the configuration
 module.exports = createJestConfig(customJestConfig);

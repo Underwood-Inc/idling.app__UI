@@ -1,5 +1,5 @@
-import { fireEvent, render, screen } from '@testing-library/react';
 import { Provider } from 'jotai';
+import { fireEvent, render, screen } from '../../../test-utils';
 import { TagLink } from './TagLink';
 
 // Mock Next.js navigation

@@ -133,7 +133,12 @@ describe('Submission Form Actions', () => {
       (auth as jest.Mock).mockResolvedValue({
         user: { name: 'Test User', id: '123' }
       });
-      (sql as unknown as jest.Mock).mockResolvedValue({});
+      // Mock the user lookup first, then successful insert
+      const mockSql = jest
+        .fn()
+        .mockResolvedValueOnce([{ id: 123, name: 'Test User' }]) // User lookup
+        .mockResolvedValueOnce({ rowCount: 1 }); // Insert submission
+      (sql as unknown as jest.Mock).mockImplementation(mockSql);
 
       const formData = new FormData();
       formData.append('submission_title', 'New Title');
@@ -190,7 +195,11 @@ describe('Submission Form Actions', () => {
       (auth as jest.Mock).mockResolvedValue({
         user: { name: 'Test User', id: '123' }
       });
-      const mockSql = jest.fn().mockResolvedValue({});
+      // Mock the user lookup query first
+      const mockSql = jest
+        .fn()
+        .mockResolvedValueOnce([{ id: 123, name: 'Test User' }]) // User lookup
+        .mockResolvedValueOnce({ rowCount: 1 }); // Insert submission
       (sql as unknown as jest.Mock).mockImplementation(mockSql);
 
       const formData = new FormData();
@@ -199,12 +208,14 @@ describe('Submission Form Actions', () => {
 
       await createSubmissionAction({ status: 0 }, formData);
 
-      expect(mockSql).toHaveBeenCalledTimes(1);
-      const sqlArgs = mockSql.mock.calls[0];
-      expect(sqlArgs[0][0]).toContain('insert into submissions');
+      expect(mockSql).toHaveBeenCalledTimes(2);
+      // Check the second call (insert submission) contains the insert query (case insensitive)
+      const insertCall = mockSql.mock.calls[1];
+      expect(insertCall[0][0].toLowerCase()).toContain(
+        'insert into submissions'
+      );
       // Check that tags were extracted from title - they should be in the SQL parameters array
-      // Let's check all the parameters to find where tags are located
-      const allParams = sqlArgs.slice(1); // Skip the query string
+      const allParams = insertCall.slice(1); // Skip the query string
       const tagsParam = allParams.find(
         (param: any) => Array.isArray(param) && param.length === 2
       );
@@ -215,7 +226,11 @@ describe('Submission Form Actions', () => {
       (auth as jest.Mock).mockResolvedValue({
         user: { name: 'Test User', id: '123' }
       });
-      const mockSql = jest.fn().mockResolvedValue({ rowCount: 1 });
+      // Mock the user lookup query first, then successful insert
+      const mockSql = jest
+        .fn()
+        .mockResolvedValueOnce([{ id: 123, name: 'Test User' }]) // User lookup
+        .mockResolvedValueOnce({ rowCount: 1 }); // Insert submission
       (sql as unknown as jest.Mock).mockImplementation(mockSql);
 
       const formData = new FormData();
@@ -228,11 +243,13 @@ describe('Submission Form Actions', () => {
       expect(result.message).toContain('Added post');
 
       // Split assertions for mockSql arguments
-      expect(mockSql).toHaveBeenCalledTimes(1);
-      const sqlArgs = mockSql.mock.calls[0];
-      expect(sqlArgs[0][0]).toContain('insert into submissions');
+      expect(mockSql).toHaveBeenCalledTimes(2);
+      const insertCall = mockSql.mock.calls[1];
+      expect(insertCall[0][0].toLowerCase()).toContain(
+        'insert into submissions'
+      );
       // Check for empty tags array in the parameters
-      const allParams = sqlArgs.slice(1);
+      const allParams = insertCall.slice(1);
       const tagsParam = allParams.find((param: any) => Array.isArray(param));
       expect(tagsParam).toEqual([]); // tags should be empty array
 

@@ -3,35 +3,41 @@ import { createStore, Provider } from 'jotai';
 import { useSession } from 'next-auth/react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import React from 'react';
+import { logger } from '../logging';
 import { getSubmissionsFiltersAtom } from './atoms';
 import { useSubmissionsManager } from './useSubmissionsManager';
 
+// Mock the logger first
+jest.mock('../logging', () => ({
+  logger: {
+    log: jest.fn(),
+    error: jest.fn()
+  }
+}));
+
 // Mock next-auth
-jest.mock('next-auth/react');
-const mockUseSession = useSession as jest.MockedFunction<typeof useSession>;
+jest.mock('next-auth/react', () => ({
+  useSession: jest.fn()
+}));
 
 // Mock Next.js navigation
-jest.mock('next/navigation');
-const mockUseRouter = useRouter as jest.MockedFunction<typeof useRouter>;
-const mockUseSearchParams = useSearchParams as jest.MockedFunction<
-  typeof useSearchParams
->;
-const mockUsePathname = usePathname as jest.MockedFunction<typeof usePathname>;
+jest.mock('next/navigation', () => ({
+  useRouter: jest.fn(),
+  useSearchParams: jest.fn(),
+  usePathname: jest.fn()
+}));
 
-// Mock the submissions actions
+// Get mocked functions
+const mockUseSession = jest.mocked(useSession);
+const mockUseRouter = jest.mocked(useRouter);
+const mockUseSearchParams = jest.mocked(useSearchParams);
+const mockUsePathname = jest.mocked(usePathname);
+const mockLogger = jest.mocked(logger);
+
+// Mock the actions
 const mockGetSubmissionsWithReplies = jest.fn();
 jest.mock('../../app/components/submissions-list/actions', () => ({
   getSubmissionsWithReplies: mockGetSubmissionsWithReplies
-}));
-
-// Mock the logger
-jest.mock('../../lib/logging', () => ({
-  createLogger: () => ({
-    group: jest.fn(),
-    debug: jest.fn(),
-    error: jest.fn(),
-    groupEnd: jest.fn()
-  })
 }));
 
 describe('useSubmissionsManager', () => {
@@ -57,11 +63,12 @@ describe('useSubmissionsManager', () => {
     mockUseSession.mockReturnValue({
       data: { user: { id: '123' } },
       status: 'authenticated'
-    } as any);
+    });
 
     mockGetSubmissionsWithReplies.mockClear();
     mockRouter.push.mockClear();
     mockRouter.replace.mockClear();
+    mockLogger.mockClear();
   });
 
   const renderUseSubmissionsManager = (props: any = {}) => {
@@ -573,7 +580,7 @@ describe('useSubmissionsManager', () => {
       mockUseSession.mockReturnValue({
         data: null,
         status: 'unauthenticated'
-      } as any);
+      });
 
       const { result } = renderUseSubmissionsManager();
 
