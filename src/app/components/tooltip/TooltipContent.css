@@ -133,6 +133,17 @@
   color: var(--light-bg__text-color--secondary);
 }
 
+/* Ensure TimestampWithTooltip has proper contrast in tooltip cache info */
+.tooltip-cache-info .timestamp-with-tooltip {
+  color: var(--light-bg__text-color--secondary);
+  text-decoration-color: var(--light-bg__text-color--secondary);
+}
+
+.tooltip-cache-info .timestamp-with-tooltip:hover {
+  color: var(--brand-primary--dark);
+  text-decoration-color: var(--brand-primary--dark);
+}
+
 .tooltip-cache-time {
   flex: 1;
   white-space: nowrap;
