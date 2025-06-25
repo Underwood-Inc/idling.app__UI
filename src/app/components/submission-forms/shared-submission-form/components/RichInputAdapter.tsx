@@ -5,7 +5,13 @@
 
 'use client';
 
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState
+} from 'react';
 import { createPortal } from 'react-dom';
 import {
   createURLPill,
@@ -67,7 +73,44 @@ export const RichInputAdapter: React.FC<RichInputAdapterProps> = ({
   const focusTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const searchDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Use existing hooks for search functionality
+  // Extract existing hashtags from current value
+  const extractExistingHashtags = useCallback((): string[] => {
+    const hashtags: string[] = [];
+    const hashtagRegex = /#\w+/g;
+    let match;
+
+    while ((match = hashtagRegex.exec(value)) !== null) {
+      hashtags.push(match[0]);
+    }
+
+    return hashtags;
+  }, [value]);
+
+  // Extract existing user IDs from current value
+  const extractExistingUserIds = useCallback((): string[] => {
+    const userIds: string[] = [];
+    const mentionRegex = /@\[([^|]+)\|([^|]+)(?:\|([^|]+))?\]/g;
+    let match;
+
+    while ((match = mentionRegex.exec(value)) !== null) {
+      // match[1] is username, match[2] is userId, match[3] is filterType (optional)
+      userIds.push(match[2]);
+    }
+
+    return userIds;
+  }, [value]);
+
+  // Memoize extracted values to prevent unnecessary re-renders
+  const existingHashtags = useMemo(
+    () => extractExistingHashtags(),
+    [extractExistingHashtags]
+  );
+  const existingUserIds = useMemo(
+    () => extractExistingUserIds(),
+    [extractExistingUserIds]
+  );
+
+  // Use existing hooks for search functionality with stable parameters
   const {
     hashtagQuery,
     setHashtagQuery,
@@ -77,7 +120,7 @@ export const RichInputAdapter: React.FC<RichInputAdapterProps> = ({
     mentionResults,
     loadingHashtags,
     loadingMentions
-  } = useFloatingToolbar();
+  } = useFloatingToolbar(existingHashtags, existingUserIds);
 
   const [emojiResults, setEmojiResults] = useState<any[]>([]);
 
@@ -369,6 +412,11 @@ export const RichInputAdapter: React.FC<RichInputAdapterProps> = ({
   // Handle search result selection
   const handleSearchResultSelect = useCallback(
     (item: any) => {
+      // Don't allow selecting disabled items
+      if (item.disabled) {
+        return;
+      }
+
       if (!richInputRef.current || searchOverlay.triggerIndex < 0) return;
 
       const currentState = richInputRef.current.getState();
@@ -384,8 +432,8 @@ export const RichInputAdapter: React.FC<RichInputAdapterProps> = ({
       } else if (searchOverlay.type === 'mention') {
         insertText = `@[${item.displayName || item.label}|${item.value}|author] `;
       } else if (searchOverlay.type === 'emoji') {
-        // Handle emoji parser result format
-        insertText = item.unicode || `:${item.name}:`;
+        // Always use colon syntax for emojis to ensure proper tokenization
+        insertText = `:${item.name}:`;
       }
 
       // Replace the trigger and query with the selected item
@@ -394,13 +442,27 @@ export const RichInputAdapter: React.FC<RichInputAdapterProps> = ({
         insertText +
         currentText.substring(searchOverlay.triggerIndex + replaceLength);
 
+      // Calculate new cursor position (at the end of inserted text)
+      const newCursorPosition = searchOverlay.triggerIndex + insertText.length;
+
       onChange(newText);
       setSearchOverlay((prev) => ({ ...prev, visible: false }));
 
-      // Focus back to input
+      // Focus back to input and set cursor position
       setTimeout(() => {
-        if (richInputRef.current && richInputRef.current.focus) {
-          richInputRef.current.focus();
+        if (richInputRef.current) {
+          if (richInputRef.current.focus) {
+            richInputRef.current.focus();
+          }
+          // Set cursor position if the method exists
+          if (richInputRef.current.setCursorPosition) {
+            richInputRef.current.setCursorPosition(newCursorPosition);
+          } else if (richInputRef.current.setSelection) {
+            richInputRef.current.setSelection({
+              start: newCursorPosition,
+              end: newCursorPosition
+            });
+          }
         }
       }, 0);
     },
@@ -411,10 +473,60 @@ export const RichInputAdapter: React.FC<RichInputAdapterProps> = ({
   const handleInsertAtCursor = useCallback(
     (text: string) => {
       if (richInputRef.current && richInputRef.current.insertText) {
+        // Use the rich input's native insertText method for proper cursor positioning
         richInputRef.current.insertText(text);
+
+        // Ensure focus is maintained
+        setTimeout(() => {
+          if (richInputRef.current && richInputRef.current.focus) {
+            richInputRef.current.focus();
+          }
+        }, 0);
+      } else if (richInputRef.current && richInputRef.current.getState) {
+        // Enhanced fallback: insert at current cursor position
+        const currentState = richInputRef.current.getState();
+        const currentText = currentState.rawText;
+        const cursorPosition = currentState.cursorPosition.index;
+
+        const newText =
+          currentText.substring(0, cursorPosition) +
+          text +
+          currentText.substring(cursorPosition);
+
+        const newCursorPosition = cursorPosition + text.length;
+
+        onChange(newText);
+
+        // Set cursor position after insertion using rich input's methods
+        setTimeout(() => {
+          if (richInputRef.current) {
+            if (richInputRef.current.focus) {
+              richInputRef.current.focus();
+            }
+            // Use setCursor method if available (preferred over setSelection)
+            if (richInputRef.current.setCursor) {
+              richInputRef.current.setCursor({ index: newCursorPosition });
+            } else if (richInputRef.current.setCursorPosition) {
+              richInputRef.current.setCursorPosition(newCursorPosition);
+            } else if (richInputRef.current.setSelection) {
+              richInputRef.current.setSelection({
+                start: { index: newCursorPosition },
+                end: { index: newCursorPosition },
+                direction: 'none'
+              });
+            }
+          }
+        }, 0);
       } else {
-        // Fallback: append to current value
+        // Final fallback: append to current value
         onChange(value + text);
+
+        // Try to focus the input
+        setTimeout(() => {
+          if (richInputRef.current && richInputRef.current.focus) {
+            richInputRef.current.focus();
+          }
+        }, 0);
       }
     },
     [value, onChange]
@@ -515,6 +627,8 @@ export const RichInputAdapter: React.FC<RichInputAdapterProps> = ({
             <button
               key={item.id || index}
               onClick={() => handleSearchResultSelect(item)}
+              disabled={item.disabled}
+              title={item.disabled ? 'Already selected' : undefined}
               style={{
                 display: 'flex',
                 alignItems: 'center',
@@ -523,17 +637,24 @@ export const RichInputAdapter: React.FC<RichInputAdapterProps> = ({
                 padding: '8px 12px',
                 border: 'none',
                 background: 'none',
-                color: 'var(--light-bg__text-color--primary)',
+                color: item.disabled
+                  ? 'var(--light-bg__text-color--secondary)'
+                  : 'var(--light-bg__text-color--primary)',
                 textAlign: 'left',
-                cursor: 'pointer',
-                fontSize: '0.875rem'
+                cursor: item.disabled ? 'not-allowed' : 'pointer',
+                fontSize: '0.875rem',
+                opacity: item.disabled ? 0.6 : 1
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.background =
-                  'var(--light-background--secondary)';
+                if (!item.disabled) {
+                  e.currentTarget.style.background =
+                    'var(--light-background--secondary)';
+                }
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.background = 'none';
+                if (!item.disabled) {
+                  e.currentTarget.style.background = 'none';
+                }
               }}
             >
               {searchOverlay.type === 'hashtag' && (
@@ -543,7 +664,19 @@ export const RichInputAdapter: React.FC<RichInputAdapterProps> = ({
                   >
                     #
                   </span>
-                  <span>{item.label}</span>
+                  <span style={{ flex: 1 }}>{item.label}</span>
+                  {item.disabled && (
+                    <span
+                      style={{
+                        color: '#28a745',
+                        fontWeight: 'bold',
+                        fontSize: '1.1em',
+                        marginLeft: 'auto'
+                      }}
+                    >
+                      ✓
+                    </span>
+                  )}
                 </>
               )}
 
@@ -566,7 +699,19 @@ export const RichInputAdapter: React.FC<RichInputAdapterProps> = ({
                   >
                     @
                   </span>
-                  <span>{item.label}</span>
+                  <span style={{ flex: 1 }}>{item.label}</span>
+                  {item.disabled && (
+                    <span
+                      style={{
+                        color: '#28a745',
+                        fontWeight: 'bold',
+                        fontSize: '1.1em',
+                        marginLeft: 'auto'
+                      }}
+                    >
+                      ✓
+                    </span>
+                  )}
                 </>
               )}
 
@@ -582,12 +727,48 @@ export const RichInputAdapter: React.FC<RichInputAdapterProps> = ({
                         objectFit: 'contain'
                       }}
                     />
+                  ) : item.unicode ? (
+                    <span
+                      style={{
+                        fontSize: '16px',
+                        width: '20px',
+                        height: '20px',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        justifyContent: 'center'
+                      }}
+                    >
+                      {item.unicode}
+                    </span>
                   ) : (
-                    <span style={{ fontSize: '16px' }}>
-                      {item.unicode || `:${item.name}:`}
+                    <span
+                      style={{
+                        fontSize: '16px',
+                        width: '20px',
+                        height: '20px',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        justifyContent: 'center'
+                      }}
+                    >
+                      📝
                     </span>
                   )}
-                  <span>:{item.name}:</span>
+                  <span style={{ flex: 1, fontSize: '11px' }}>
+                    :{item.name}:
+                  </span>
+                  {item.disabled && (
+                    <span
+                      style={{
+                        color: '#28a745',
+                        fontWeight: 'bold',
+                        fontSize: '1.1em',
+                        marginLeft: 'auto'
+                      }}
+                    >
+                      ✓
+                    </span>
+                  )}
                 </>
               )}
             </button>

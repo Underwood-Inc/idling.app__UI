@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
   HashtagResult,
   searchHashtags,
@@ -6,13 +6,26 @@ import {
   UserResult
 } from '../../../../../lib/actions/search.actions';
 
-export const useFloatingToolbar = () => {
+export const useFloatingToolbar = (
+  existingHashtags: string[] = [],
+  existingUserIds: string[] = []
+) => {
   const [hashtagQuery, setHashtagQuery] = useState('');
   const [mentionQuery, setMentionQuery] = useState('');
   const [hashtagResults, setHashtagResults] = useState<any[]>([]);
   const [mentionResults, setMentionResults] = useState<any[]>([]);
   const [loadingHashtags, setLoadingHashtags] = useState(false);
   const [loadingMentions, setLoadingMentions] = useState(false);
+
+  // Create stable string representations for dependency comparison
+  const existingHashtagsKey = useMemo(
+    () => existingHashtags.sort().join(','),
+    [existingHashtags]
+  );
+  const existingUserIdsKey = useMemo(
+    () => existingUserIds.sort().join(','),
+    [existingUserIds]
+  );
 
   // Search hashtags using real server action
   useEffect(() => {
@@ -24,28 +37,40 @@ export const useFloatingToolbar = () => {
         try {
           const result = await searchHashtags(hashtagQuery, 1, 10);
 
-          // Transform the server action response to match expected format
+          // Transform the server action response to match expected format and mark disabled
           const transformedResults = result.items.map(
-            (hashtag: HashtagResult) => ({
-              id: hashtag.id,
-              label: hashtag.label,
-              value: hashtag.value,
-              count: hashtag.count
-            })
+            (hashtag: HashtagResult) => {
+              const hashtagValue = hashtag.value.startsWith('#')
+                ? hashtag.value
+                : `#${hashtag.value}`;
+              const isDisabled = existingHashtags.includes(hashtagValue);
+
+              return {
+                id: hashtag.id,
+                label: hashtag.label,
+                value: hashtag.value,
+                count: hashtag.count,
+                disabled: isDisabled
+              };
+            }
           );
 
           setHashtagResults(transformedResults);
         } catch (error) {
           console.warn('Error searching hashtags:', error);
           // Fallback to simple suggestion
+          const fallbackValue = hashtagQuery.startsWith('#')
+            ? hashtagQuery
+            : `#${hashtagQuery}`;
+          const isDisabled = existingHashtags.includes(fallbackValue);
+
           setHashtagResults([
             {
               id: `${hashtagQuery}-1`,
               label: hashtagQuery,
-              value: hashtagQuery.startsWith('#')
-                ? hashtagQuery
-                : `#${hashtagQuery}`,
-              count: 0
+              value: fallbackValue,
+              count: 0,
+              disabled: isDisabled
             }
           ]);
         } finally {
@@ -54,12 +79,16 @@ export const useFloatingToolbar = () => {
       };
 
       const timeoutId = setTimeout(searchHashtagsAsync, 300); // Debounce
-      return () => clearTimeout(timeoutId);
+      return () => {
+        clearTimeout(timeoutId);
+        // Ensure loading state is cleared if component unmounts or query changes
+        setLoadingHashtags(false);
+      };
     } else {
       setHashtagResults([]);
       setLoadingHashtags(false);
     }
-  }, [hashtagQuery]);
+  }, [hashtagQuery, existingHashtagsKey, existingHashtags]);
 
   // Search mentions using real server action
   useEffect(() => {
@@ -71,28 +100,37 @@ export const useFloatingToolbar = () => {
         try {
           const result = await searchUsers(mentionQuery, 1, 10);
 
-          // Transform the server action response to match expected format
-          const transformedResults = result.items.map((user: UserResult) => ({
-            id: user.id,
-            label: user.label,
-            value: user.value,
-            displayName: user.displayName,
-            avatar: user.avatar,
-            isAuthor: false
-          }));
+          // Transform the server action response to match expected format and mark disabled
+          const transformedResults = result.items.map((user: UserResult) => {
+            const isDisabled = existingUserIds.includes(user.value);
+
+            return {
+              id: user.id,
+              label: user.label,
+              value: user.value,
+              displayName: user.displayName,
+              avatar: user.avatar,
+              isAuthor: false,
+              disabled: isDisabled
+            };
+          });
 
           setMentionResults(transformedResults);
         } catch (error) {
           console.warn('Error searching users:', error);
           // Fallback to simple suggestion
+          const fallbackValue = `${mentionQuery}-id`;
+          const isDisabled = existingUserIds.includes(fallbackValue);
+
           setMentionResults([
             {
               id: `${mentionQuery}-user`,
               label: `${mentionQuery}`,
-              value: `${mentionQuery}-id`,
+              value: fallbackValue,
               displayName: `${mentionQuery}`,
               avatar: null,
-              isAuthor: false
+              isAuthor: false,
+              disabled: isDisabled
             }
           ]);
         } finally {
@@ -101,12 +139,16 @@ export const useFloatingToolbar = () => {
       };
 
       const timeoutId = setTimeout(searchUsersAsync, 300); // Debounce
-      return () => clearTimeout(timeoutId);
+      return () => {
+        clearTimeout(timeoutId);
+        // Ensure loading state is cleared if component unmounts or query changes
+        setLoadingMentions(false);
+      };
     } else {
       setMentionResults([]);
       setLoadingMentions(false);
     }
-  }, [mentionQuery]);
+  }, [mentionQuery, existingUserIdsKey, existingUserIds]);
 
   return {
     hashtagQuery,

@@ -16,13 +16,13 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
+  width: 36px;
+  height: 36px;
   border: 1px solid var(--light-border--primary);
   border-radius: calc(var(--border-radius) / 2);
   background: var(--light-background--primary);
   color: var(--light-bg__text-color--primary);
-  font-size: 0.75rem;
+  font-size: 0.975rem;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -53,9 +53,10 @@
 }
 
 .toolbar-tooltip-panel--wide {
-  min-width: 320px;
+  min-width: 340px;
+  max-width: 360px;
   padding: 0;
-  /* Remove padding for emoji picker */
+  /* Remove padding for emoji picker and ensure proper sizing */
 }
 
 .toolbar-search-header {
@@ -99,8 +100,24 @@
   transition: background-color 0.2s ease;
 }
 
-.toolbar-result-item:hover {
+.toolbar-result-item:hover:not(:disabled) {
   background: var(--light-background--secondary);
+}
+
+.toolbar-result-item--disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.toolbar-result-item--disabled:hover {
+  background: none !important;
+}
+
+.toolbar-result-indicator {
+  margin-left: auto;
+  color: var(--brand-primary);
+  font-weight: 600;
+  font-size: 0.75rem;
 }
 
 .toolbar-result-trigger {
@@ -133,6 +150,8 @@
   border: none !important;
   box-shadow: none !important;
   background: transparent !important;
+  width: 100% !important;
+  max-width: 340px !important;
   /* Force glass effects for all emoji picker elements */
   backdrop-filter: var(--tooltip-glass-blur) !important;
   -webkit-backdrop-filter: var(--tooltip-glass-blur) !important;
@@ -158,13 +177,9 @@
   box-shadow: 0 0 0 2px rgba(237, 174, 73, 0.3) !important;
 }
 
+/* Hide the close button when emoji picker is in toolbar tooltip */
 .toolbar-emoji-picker .emoji-picker__close {
-  color: rgba(255, 255, 255, 0.8) !important;
-}
-
-.toolbar-emoji-picker .emoji-picker__close:hover {
-  background: rgba(255, 255, 255, 0.1) !important;
-  color: white !important;
+  display: none !important;
 }
 
 .toolbar-emoji-picker .emoji-picker__content {
@@ -259,7 +274,8 @@
 /* Override any conflicting styles for emoji picker within tooltip */
 .toolbar-tooltip .toolbar-emoji-picker,
 .toolbar-tooltip--wide .toolbar-emoji-picker {
-  width: 320px !important;
+  width: 100% !important;
+  max-width: 340px !important;
   max-height: 400px !important;
   background: transparent !important;
   border: none !important;

@@ -891,7 +891,7 @@
 /* Compact form pill styles for hashtags and mentions - matching smart filter size */
 .form-pill-input__pill .content-pill {
   background: linear-gradient(135deg, #f8f9fa, #e9ecef) !important;
-  color: #495057 !important;
+  color: var(--light-bg__text-color--primary) !important;
   border: 1px solid #6c757d !important;
   font-weight: 600 !important;
   box-shadow: inset 0 -1px 2px rgba(108, 117, 125, 0.2);
@@ -909,7 +909,7 @@
 /* Hashtag specific styling in form pills */
 .form-pill-input__pill .content-pill--hashtag {
   background: linear-gradient(135deg, #e3f2fd, #bbdefb) !important;
-  color: #1565c0 !important;
+  color: var(--light-bg__text-color--primary) !important;
   border: 1px solid #42a5f5 !important;
   box-shadow: inset 0 -1px 2px rgba(66, 165, 245, 0.25);
 }
@@ -917,7 +917,7 @@
 /* Mention specific styling in form pills */
 .form-pill-input__pill .content-pill--mention {
   background: linear-gradient(135deg, #e8f5e8, #c8e6c9) !important;
-  color: #2e7d32 !important;
+  color: var(--light-bg__text-color--primary) !important;
   border: 1px solid #66bb6a !important;
   box-shadow: inset 0 -1px 2px rgba(102, 187, 106, 0.25);
 }
