@@ -70,19 +70,25 @@ export function FilterLabel({
   }, [name, label]);
 
   const handleTagClick = (tagValue: string) => {
-    // For hashtag filters in tag lists, remove the specific tag
-    onRemoveTag(tagValue);
+    // FilterBar now preserves the correct format, so use the label directly
+    onRemoveTag(label);
   };
 
   const handleMentionClick = (
     mentionValue: string,
     filterType?: 'author' | 'mentions'
   ) => {
+    // Always use the original label for removal since that's what's actually stored
+    // The label contains the exact value that was used to create the filter
+
     if (name === 'author' && onRemoveFilter) {
+      // For author filters, label is the userId that was stored
       onRemoveFilter('author', label);
     } else if (name === 'mentions' && onRemoveFilter) {
+      // For mentions filters, label is the username that was stored
       onRemoveFilter('mentions', label);
     } else {
+      // Fallback to tag removal with original label
       onRemoveTag(label);
     }
   };

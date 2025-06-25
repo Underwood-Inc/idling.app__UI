@@ -349,6 +349,22 @@ export function CustomFilterInput({
 
   return (
     <div className={`custom-filter-input ${className}`}>
+      {/* Dynamic Help Text */}
+      <div className="custom-filter-input__help">
+        <p className="custom-filter-input__help-text">
+          {!(currentEditValue || inputValue) &&
+            'Type # for hashtags or @ for users...'}
+          {(currentEditValue || inputValue).startsWith('#') &&
+            'Filtering by hashtag - select from suggestions, add space to complete, or click Add'}
+          {(currentEditValue || inputValue).startsWith('@') &&
+            'Filtering by user - select from suggestions or use inline controls on pills'}
+          {(currentEditValue || inputValue) &&
+            !(currentEditValue || inputValue).startsWith('#') &&
+            !(currentEditValue || inputValue).startsWith('@') &&
+            'Will be treated as hashtag when added'}
+        </p>
+      </div>
+
       <form onSubmit={handleSubmit} className="custom-filter-input__form">
         {/* Smart Pill Input with Mode Indicator */}
         <div className="custom-filter-input__input-container">
@@ -377,22 +393,6 @@ export function CustomFilterInput({
           </button>
         </div>
       </form>
-
-      {/* Dynamic Help Text */}
-      <div className="custom-filter-input__help">
-        <p className="custom-filter-input__help-text">
-          {!(currentEditValue || inputValue) &&
-            'Type # for hashtags or @ for users...'}
-          {(currentEditValue || inputValue).startsWith('#') &&
-            'Filtering by hashtag - select from suggestions, add space to complete, or click Add'}
-          {(currentEditValue || inputValue).startsWith('@') &&
-            'Filtering by user - select from suggestions or use inline controls on pills'}
-          {(currentEditValue || inputValue) &&
-            !(currentEditValue || inputValue).startsWith('#') &&
-            !(currentEditValue || inputValue).startsWith('@') &&
-            'Will be treated as hashtag when added'}
-        </p>
-      </div>
     </div>
   );
 }

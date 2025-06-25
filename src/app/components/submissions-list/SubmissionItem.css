@@ -63,7 +63,7 @@
   background: none;
   border: 1px solid var(--brand-primary);
   color: var(--brand-primary);
-  padding: 0.25rem 0.75rem;
+  /* padding: 0.25rem 0.75rem; */
   border-radius: 0.375rem;
   font-size: var(--font-size-md);
   cursor: pointer;
@@ -230,16 +230,12 @@
 .submission__edit-form,
 .submission__reply-form,
 .submission__nested-reply-form {
-  margin-top: 1rem;
-  padding: 1rem;
   background-color: #fefefe;
   border-radius: var(--border-radius);
   border: 1px solid #e5e5e5;
 }
 
 .submission__nested-reply-form {
-  margin-top: 0.75rem;
-  padding: 0.75rem;
   background-color: #fefefe;
 }
 
@@ -277,7 +273,7 @@
     /* Keep original visual styling but ensure minimum touch target */
     min-height: 44px;
     /* Maintain original padding and font size for visual consistency */
-    padding: 0.25rem 0.75rem;
+    /* padding: 0.25rem 0.75rem; */
     font-size: var(--font-size-md);
     /* Ensure adequate touch area with transparent padding if needed */
     position: relative;

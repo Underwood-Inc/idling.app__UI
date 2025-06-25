@@ -1,11 +1,20 @@
 'use server';
 
+import { createLogger } from '@/lib/logging';
 import { revalidatePath } from 'next/cache';
 import { auth } from '../auth';
 import sql from '../db';
 import { EmojiEncryptionService } from '../encryption/emoji-encryption';
 import { PERMISSIONS } from '../permissions/permissions';
 import { checkUserPermission } from './permissions.actions';
+
+// Create component-specific logger
+const logger = createLogger({
+  context: {
+    component: 'EmojiActions',
+    module: 'actions'
+  }
+});
 
 /**
  * Server action to get OS-specific emojis for the current user
@@ -46,6 +55,7 @@ export async function getOSEmojis(
   const result = await sql<
     {
       id: number;
+      emoji_id: string;
       name: string;
       unicode_char: string;
       category_id: number;
@@ -55,6 +65,7 @@ export async function getOSEmojis(
   >`
     SELECT 
       e.id, 
+      e.emoji_id,
       e.name, 
       e.unicode_char, 
       e.category_id, 
@@ -100,6 +111,7 @@ export async function getCustomEmojis(
   const result = await sql<
     {
       id: number;
+      emoji_id: string;
       name: string;
       encrypted_image_data: string;
       category_id: number;
@@ -109,6 +121,7 @@ export async function getCustomEmojis(
   >`
     SELECT 
       c.id, 
+      c.emoji_id,
       c.name, 
       c.encrypted_image_data, 
       c.category_id, 
@@ -140,7 +153,13 @@ export async function getCustomEmojis(
           image_data: decryptedImageData.toString('base64')
         };
       } catch (error) {
-        console.error(`Failed to decrypt emoji ${emoji.name}:`, error);
+        logger.group('getCustomEmojis');
+        logger.error('Failed to decrypt emoji', error as Error, {
+          emojiName: emoji.name,
+          emojiId: emoji.id,
+          userId: emoji.user_id
+        });
+        logger.groupEnd();
         return {
           ...emoji,
           image_data: null
@@ -201,9 +220,19 @@ export async function uploadCustomEmoji(
     )
   `;
 
-  console.error(
-    `AUDIT: Custom emoji '${name}' uploaded by user ${userId} - pending approval`
+  logger.group('uploadCustomEmoji');
+  logger.error(
+    `AUDIT: Custom emoji '${name}' uploaded by user ${userId} - pending approval`,
+    undefined,
+    {
+      emojiName: name,
+      userId,
+      categoryId,
+      action: 'EMOJI_UPLOADED',
+      audit: true
+    }
   );
+  logger.groupEnd();
 
   return true;
 }
@@ -225,13 +254,23 @@ export async function approveCustomEmoji(emojiId: number, reason?: string) {
     PERMISSIONS.ADMIN.EMOJI_APPROVE
   );
   if (!hasPermission) {
-    console.error(
-      `SECURITY VIOLATION: User ${userId} attempted to approve emoji without permission`
+    logger.group('approveEmoji');
+    logger.error(
+      'SECURITY VIOLATION: User attempted to approve emoji without permission',
+      undefined,
+      {
+        userId,
+        emojiId,
+        action: 'SECURITY_VIOLATION',
+        audit: true
+      }
     );
+    logger.groupEnd();
     throw new Error('Insufficient permissions to approve emojis');
   }
 
-  await sql`
+  try {
+    await sql`
     UPDATE custom_emojis 
     SET 
       is_approved = true,
@@ -241,10 +280,30 @@ export async function approveCustomEmoji(emojiId: number, reason?: string) {
     WHERE id = ${emojiId}
   `;
 
-  console.error(`AUDIT: Custom emoji ${emojiId} approved by user ${userId}`);
-
-  revalidatePath('/admin');
-  return true;
+    revalidatePath('/admin');
+    logger.group('approveEmoji');
+    logger.error(
+      `AUDIT: Custom emoji ${emojiId} approved by user ${userId}`,
+      undefined,
+      {
+        emojiId,
+        userId,
+        reason,
+        action: 'EMOJI_APPROVED',
+        audit: true
+      }
+    );
+    logger.groupEnd();
+    return true;
+  } catch (error) {
+    logger.group('approveEmoji');
+    logger.error('Error approving emoji', error as Error, {
+      emojiId,
+      userId
+    });
+    logger.groupEnd();
+    throw new Error('Failed to approve emoji');
+  }
 }
 
 /**
@@ -264,13 +323,23 @@ export async function rejectCustomEmoji(emojiId: number, reason: string) {
     PERMISSIONS.ADMIN.EMOJI_APPROVE
   );
   if (!hasPermission) {
-    console.error(
-      `SECURITY VIOLATION: User ${userId} attempted to reject emoji without permission`
+    logger.group('rejectEmoji');
+    logger.error(
+      'SECURITY VIOLATION: User attempted to reject emoji without permission',
+      undefined,
+      {
+        userId,
+        emojiId,
+        action: 'SECURITY_VIOLATION',
+        audit: true
+      }
     );
+    logger.groupEnd();
     throw new Error('Insufficient permissions to reject emojis');
   }
 
-  await sql`
+  try {
+    await sql`
     UPDATE custom_emojis 
     SET 
       is_approved = false,
@@ -280,12 +349,31 @@ export async function rejectCustomEmoji(emojiId: number, reason: string) {
     WHERE id = ${emojiId}
   `;
 
-  console.error(
-    `AUDIT: Custom emoji ${emojiId} rejected by user ${userId}. Reason: ${reason}`
-  );
-
-  revalidatePath('/admin');
-  return true;
+    revalidatePath('/admin');
+    logger.group('rejectEmoji');
+    logger.error(
+      `AUDIT: Custom emoji ${emojiId} rejected by user ${userId}`,
+      undefined,
+      {
+        emojiId,
+        userId,
+        reason,
+        action: 'EMOJI_REJECTED',
+        audit: true
+      }
+    );
+    logger.groupEnd();
+    return true;
+  } catch (error) {
+    logger.group('rejectEmoji');
+    logger.error('Error rejecting emoji', error as Error, {
+      emojiId,
+      userId,
+      reason
+    });
+    logger.groupEnd();
+    throw new Error('Failed to reject emoji');
+  }
 }
 
 /**
@@ -305,9 +393,18 @@ export async function deleteCustomEmoji(emojiId: number, reason: string) {
     PERMISSIONS.ADMIN.EMOJI_MANAGE
   );
   if (!hasPermission) {
-    console.error(
-      `SECURITY VIOLATION: User ${userId} attempted to delete emoji without permission`
+    logger.group('deleteEmoji');
+    logger.error(
+      'SECURITY VIOLATION: User attempted to delete emoji without permission',
+      undefined,
+      {
+        userId,
+        emojiId,
+        action: 'SECURITY_VIOLATION',
+        audit: true
+      }
     );
+    logger.groupEnd();
     throw new Error('Insufficient permissions to delete emojis');
   }
 
@@ -320,16 +417,38 @@ export async function deleteCustomEmoji(emojiId: number, reason: string) {
     throw new Error('Emoji not found');
   }
 
-  await sql`
+  try {
+    await sql`
     DELETE FROM custom_emojis WHERE id = ${emojiId}
   `;
 
-  console.error(
-    `AUDIT: Custom emoji '${emojiResult[0].name}' (ID: ${emojiId}) deleted by user ${userId}. Reason: ${reason}`
-  );
-
-  revalidatePath('/admin');
-  return true;
+    logger.group('deleteEmoji');
+    logger.error(
+      `AUDIT: Custom emoji '${emojiResult[0].name}' deleted by user ${userId}`,
+      undefined,
+      {
+        emojiId,
+        emojiName: emojiResult[0].name,
+        emojiOwnerId: emojiResult[0].user_id,
+        userId,
+        reason,
+        action: 'EMOJI_DELETED',
+        audit: true
+      }
+    );
+    logger.groupEnd();
+    revalidatePath('/admin');
+    return true;
+  } catch (error) {
+    logger.group('deleteEmoji');
+    logger.error('Error deleting emoji', error as Error, {
+      emojiId,
+      userId,
+      reason
+    });
+    logger.groupEnd();
+    throw new Error('Failed to delete emoji');
+  }
 }
 
 /**
@@ -395,7 +514,13 @@ export async function getPendingCustomEmojis(
           image_data: decryptedImageData.toString('base64')
         };
       } catch (error) {
-        console.error(`Failed to decrypt pending emoji ${emoji.name}:`, error);
+        logger.group('getPendingEmojis');
+        logger.error('Failed to decrypt pending emoji', error as Error, {
+          emojiName: emoji.name,
+          emojiId: emoji.id,
+          createdBy: emoji.created_by
+        });
+        logger.groupEnd();
         return {
           ...emoji,
           image_data: null
@@ -447,8 +572,13 @@ export async function trackEmojiUsage(
       )
     `;
   } catch (error) {
-    // Don't throw error for usage tracking failures
-    console.error('Failed to track emoji usage:', error);
+    logger.group('trackEmojiUsage');
+    logger.error('Failed to track emoji usage', error as Error, {
+      emojiType,
+      emojiId,
+      userId
+    });
+    logger.groupEnd();
   }
 }
 

@@ -3,10 +3,18 @@
  * Handles converting mouse clicks to cursor positions with token awareness
  */
 
+import { createLogger } from '@/lib/logging';
 import type { RichInputPosition } from '../types';
 import { getFirstTextNode } from './cursorCalculations';
 import { richTextLogger } from './logger';
 import { findLastTextPosition } from './navigationUtils';
+
+const logger = createLogger({
+  context: {
+    component: 'ClickPositioning',
+    module: 'rich-input/utils'
+  }
+});
 
 /**
  * Calculate click position with character-level precision
@@ -328,6 +336,17 @@ export function calculateTokenAwareClickPosition(
       }
     });
 
+    // Special handling for empty input with dummy token
+    if (rawText.length === 0 && tokenElements.length === 1) {
+      const dummyElement = tokenElements[0] as HTMLElement;
+      if (dummyElement.getAttribute('data-is-dummy') === 'true') {
+        richTextLogger.logInfo('Click on dummy token in empty input', {
+          clickCoordinates: { x: clickX, y: clickY }
+        });
+        return { index: 0 };
+      }
+    }
+
     // Find the token element that was clicked
     for (let i = 0; i < tokenElements.length; i++) {
       const tokenElement = tokenElements[i] as HTMLElement;
@@ -563,8 +582,7 @@ export function calculateTokenAwareClickPosition(
 
     return { index: rawText.length };
   } catch (error) {
-    console.warn('Error in token-aware click positioning:', error);
-    richTextLogger.logError('Token-aware click positioning failed', error);
+    logger.warn('Error in token-aware click positioning', { error });
     return { index: 0 };
   }
 }
@@ -634,7 +652,7 @@ export function calculateCharacterPositionInToken(
           return charIndex;
         }
       } catch (error) {
-        console.warn('Error using caretPositionFromPoint:', error);
+        logger.warn('Error using caretPositionFromPoint', { error });
         // Fall through to proportional positioning
       }
     }
@@ -674,7 +692,7 @@ export function calculateCharacterPositionInToken(
 
     return charIndex;
   } catch (error) {
-    console.warn('Error calculating character position in token:', error);
+    logger.warn('Error calculating character position in token', { error });
     return tokenStart;
   }
 }
@@ -735,10 +753,9 @@ function calculateCharacterPositionInMultilineToken(
           return charIndex;
         }
       } catch (error) {
-        console.warn(
-          'Error using caretPositionFromPoint for multiline:',
+        logger.warn('Error using caretPositionFromPoint for multiline:', {
           error
-        );
+        });
       }
     }
 
@@ -792,10 +809,9 @@ function calculateCharacterPositionInMultilineToken(
     // Final fallback: return start of token
     return tokenStart;
   } catch (error) {
-    console.warn(
-      'Error calculating character position in multiline token:',
+    logger.warn('Error calculating character position in multiline token:', {
       error
-    );
+    });
     return tokenStart;
   }
 }
@@ -836,7 +852,7 @@ function mapDOMPositionToRawText(
     // If we didn't find the target node, return the current offset
     return rawTextOffset;
   } catch (error) {
-    console.warn('Error mapping DOM position to raw text:', error);
+    logger.warn('Error mapping DOM position to raw text', { error });
     return 0;
   }
 }

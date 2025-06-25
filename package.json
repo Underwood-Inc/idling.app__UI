@@ -1,6 +1,6 @@
 {
   "name": "idling.app",
-  "version": "0.111.0",
+  "version": "0.188.1",
   "private": true,
   "engines": {
     "node": ">=20.x"
@@ -40,7 +40,8 @@
     "version:demo": "node scripts/version-bump-from-msg.js --test \"feat: example feature for demo\"",
     "version:help": "node scripts/version-bump-from-msg.js --test \"help\"",
     "debug:parser": "node debug-content-parser.js",
-    "debug:parser:interactive": "node debug-content-parser.js --interactive"
+    "debug:parser:interactive": "node debug-content-parser.js --interactive",
+    "debrief": "node scripts/generate-feature-debrief.js"
   },
   "dependencies": {
     "@auth/pg-adapter": "^1.4.2",
@@ -50,7 +51,6 @@
     "@release-it/conventional-changelog": "^7.0.0",
     "@vercel/postgres": "^0.10.0",
     "buffer": "^6.0.3",
-    "chalk": "^4.1.2",
     "date-fns": "^4.1.0",
     "date-fns-tz": "^3.2.0",
     "dotenv": "^16.4.5",
@@ -84,6 +84,8 @@
     "@types/pg": "8.10.0",
     "@types/react": "^18.3.4",
     "@types/react-dom": "^18.3.0",
+    "auto-changelog": "^2.5.0",
+    "chalk": "^5.4.1",
     "eslint": "^8.57.0",
     "eslint-config-next": "^14.2.6",
     "eslint-plugin-custom-rules": "file:custom-eslint-rules",
@@ -95,6 +97,7 @@
     "lint-staged": "^6.1.1",
     "playwright-core": "^1.46.1",
     "prettier": "^3.3.3",
+    "prompts": "^2.4.2",
     "release-it": "^17.6.0",
     "ts-jest": "^29.2.5",
     "ts-node": "^10.9.2",

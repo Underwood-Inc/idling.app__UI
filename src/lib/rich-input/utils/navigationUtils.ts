@@ -3,8 +3,16 @@
  * Handles word boundaries, cursor snapping, and smart navigation
  */
 
+import { createLogger } from '@/lib/logging';
 import { ContentParser } from '../../utils/content-parsers';
 import type { RichInputPosition } from '../types';
+
+const logger = createLogger({
+  context: {
+    component: 'NavigationUtils',
+    module: 'rich-input/utils'
+  }
+});
 
 /**
  * Smart cursor snapping that respects pill boundaries while allowing character-level precision
@@ -34,7 +42,7 @@ export function smartCursorSnap(
 
     return position;
   } catch (error) {
-    console.warn('Error in smart cursor snapping:', error);
+    logger.warn('Error in smart cursor snapping', { error });
     return position;
   }
 }
@@ -77,7 +85,7 @@ export function getWordBoundaries(
       currentWordEnd
     };
   } catch (error) {
-    console.warn('Error getting word boundaries:', error);
+    logger.warn('Error getting word boundaries', { error });
     return {
       previousWord: 0,
       nextWord: rawText.length,

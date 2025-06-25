@@ -35,11 +35,9 @@ export function ProfilePageClient({
 
     startTransition(async () => {
       try {
-        const identifier =
-          userProfile.slug ||
-          userProfile.username ||
-          userProfile.name ||
-          userProfile.id;
+        // ✅ CRITICAL: Use database ID for bio updates
+        // This ensures bio updates work reliably even if usernames change from OAuth providers
+        const identifier = userProfile.id; // Always use database ID
 
         const result = await updateBioAction(newBio, identifier);
 

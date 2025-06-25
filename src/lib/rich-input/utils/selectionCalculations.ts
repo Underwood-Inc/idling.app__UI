@@ -3,9 +3,17 @@
  * Handles multi-token selections and selection rendering coordinates
  */
 
+import { createLogger } from '@/lib/logging';
 import type { RichInputSelection } from '../types';
 import { getFirstTextNode } from './cursorCalculations';
 import { findTokenAtPosition, type TokenPosition } from './tokenPositioning';
+
+const logger = createLogger({
+  context: {
+    component: 'SelectionCalculations',
+    module: 'rich-input/utils'
+  }
+});
 
 /**
  * Calculate selection coordinates with token-aware multi-line support
@@ -113,7 +121,7 @@ export function calculateEnhancedSelectionCoordinates(
 
     return selectionRects;
   } catch (error) {
-    console.warn('Error calculating enhanced selection coordinates:', error);
+    logger.warn('Error calculating enhanced selection coordinates', { error });
     return [];
   }
 }
@@ -146,7 +154,10 @@ export function calculateSelectionWithinToken(
 
     return range.getBoundingClientRect();
   } catch (error) {
-    console.warn('Error calculating selection within token:', error);
+    logger.warn('Error calculating selection within token', {
+      error,
+      tokenIndex: startPos.tokenIndex
+    });
     return null;
   }
 }
@@ -182,7 +193,7 @@ export function calculatePartialSelectionInToken(
 
     return range.getBoundingClientRect();
   } catch (error) {
-    console.warn('Error calculating partial selection in token:', error);
+    logger.warn('Error calculating partial selection in token', { error });
     return null;
   }
 }

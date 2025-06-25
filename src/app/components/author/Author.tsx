@@ -1,12 +1,11 @@
 'use client';
 
 import { useSession } from 'next-auth/react';
-import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
 import { useOverlay } from '../../../lib/context/OverlayContext';
-import { ensureUserSlug, generateUserSlug } from '../../../lib/utils/user-slug';
 import { Avatar, AvatarPropSizes } from '../avatar/Avatar';
 import { InteractiveTooltip } from '../tooltip/InteractiveTooltip';
+import { InstantLink } from '../ui/InstantLink';
 import { UserProfile, UserProfileData } from '../user-profile/UserProfile';
 import './Author.css';
 
@@ -50,8 +49,9 @@ const UserProfileModal: React.FC<{
         '../../../lib/actions/profile.actions'
       );
 
-      // Use the user's identifier (slug, username, name, or id)
-      const identifier = user.slug || user.username || user.name || user.id;
+      // ✅ CRITICAL: Use database ID only for bio updates (after migration 0011)
+      // This ensures bio updates work reliably regardless of username changes
+      const identifier = user.id;
 
       const result = await updateBioAction(newBio, identifier);
 
@@ -186,6 +186,208 @@ const UserProfileTooltipContent: React.FC<{
   );
 };
 
+// Private Profile Tooltip Component - matches regular tooltip styling
+const UserProfileTooltipPrivate: React.FC<{
+  authorName: string;
+  onViewProfile: () => void;
+}> = ({ authorName, onViewProfile }) => {
+  return (
+    <div className="author-tooltip">
+      <div className="author-tooltip__content">
+        <div className="author-tooltip__header">
+          <div>
+            <div className="author-tooltip__private-icon">🔒</div>
+          </div>
+          <div className="author-tooltip__header-info">
+            <h4 className="author-tooltip__name">{authorName}</h4>
+            <p className="author-tooltip__private-status">Private Profile</p>
+          </div>
+        </div>
+
+        <div className="author-tooltip__private-message">
+          <p>
+            This user has set their profile to private. Only they can view their
+            profile information.
+          </p>
+        </div>
+      </div>
+
+      {/* No actions section for private profiles - removed View Profile Page button */}
+    </div>
+  );
+};
+
+// Loading state component that matches the actual tooltip structure
+const UserProfileTooltipLoading: React.FC = () => {
+  return (
+    <div className="author-tooltip">
+      <div className="author-tooltip__content">
+        <div className="author-tooltip__header">
+          <div>
+            {/* Avatar skeleton */}
+            <div
+              className="skeleton skeleton--avatar"
+              style={{
+                width: '32px',
+                height: '32px',
+                borderRadius: '50%',
+                backgroundColor: 'var(--light-background--secondary, #e0e0e0)'
+              }}
+            />
+          </div>
+          <div className="author-tooltip__header-info">
+            {/* Name skeleton */}
+            <div
+              className="skeleton skeleton--text"
+              style={{
+                width: '120px',
+                height: '18px',
+                marginBottom: '4px',
+                backgroundColor: 'var(--light-background--secondary, #e0e0e0)'
+              }}
+            />
+            {/* Location skeleton */}
+            <div
+              className="skeleton skeleton--text"
+              style={{
+                width: '80px',
+                height: '14px',
+                marginBottom: '4px',
+                backgroundColor: 'var(--light-background--secondary, #e0e0e0)'
+              }}
+            />
+            <div className="author-tooltip__footer">
+              {/* Join date skeleton */}
+              <div
+                className="skeleton skeleton--text"
+                style={{
+                  width: '100px',
+                  height: '12px',
+                  backgroundColor: 'var(--light-background--secondary, #e0e0e0)'
+                }}
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Bio skeleton */}
+        <div className="author-tooltip__bio">
+          <div
+            className="skeleton skeleton--text"
+            style={{
+              width: '100%',
+              height: '14px',
+              marginBottom: '6px',
+              backgroundColor: 'var(--light-background--secondary, #e0e0e0)'
+            }}
+          />
+          <div
+            className="skeleton skeleton--text"
+            style={{
+              width: '75%',
+              height: '14px',
+              backgroundColor: 'var(--light-background--secondary, #e0e0e0)'
+            }}
+          />
+        </div>
+
+        {/* Stats skeleton */}
+        <div className="author-tooltip__stats">
+          <div className="author-tooltip__stat">
+            <div
+              className="skeleton skeleton--text"
+              style={{
+                width: '24px',
+                height: '20px',
+                marginBottom: '4px',
+                backgroundColor: 'var(--light-background--secondary, #e0e0e0)'
+              }}
+            />
+            <div
+              className="skeleton skeleton--text"
+              style={{
+                width: '36px',
+                height: '12px',
+                backgroundColor: 'var(--light-background--secondary, #e0e0e0)'
+              }}
+            />
+          </div>
+          <div className="author-tooltip__stat">
+            <div
+              className="skeleton skeleton--text"
+              style={{
+                width: '24px',
+                height: '20px',
+                marginBottom: '4px',
+                backgroundColor: 'var(--light-background--secondary, #e0e0e0)'
+              }}
+            />
+            <div
+              className="skeleton skeleton--text"
+              style={{
+                width: '42px',
+                height: '12px',
+                backgroundColor: 'var(--light-background--secondary, #e0e0e0)'
+              }}
+            />
+          </div>
+          <div className="author-tooltip__stat">
+            <div
+              className="skeleton skeleton--text"
+              style={{
+                width: '24px',
+                height: '20px',
+                marginBottom: '4px',
+                backgroundColor: 'var(--light-background--secondary, #e0e0e0)'
+              }}
+            />
+            <div
+              className="skeleton skeleton--text"
+              style={{
+                width: '30px',
+                height: '12px',
+                backgroundColor: 'var(--light-background--secondary, #e0e0e0)'
+              }}
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Action buttons skeleton */}
+      <div className="author-tooltip__actions">
+        <div
+          className="skeleton skeleton--button"
+          style={{
+            width: '100px',
+            height: '32px',
+            borderRadius: '6px',
+            backgroundColor: 'var(--light-background--secondary, #e0e0e0)'
+          }}
+        />
+        <div
+          className="skeleton skeleton--button"
+          style={{
+            width: '120px',
+            height: '32px',
+            borderRadius: '6px',
+            backgroundColor: 'var(--light-background--secondary, #e0e0e0)'
+          }}
+        />
+        <div className="author-tooltip__hint">
+          <div
+            className="skeleton skeleton--text"
+            style={{
+              width: '200px',
+              height: '12px',
+              backgroundColor: 'var(--light-background--secondary, #e0e0e0)'
+            }}
+          />
+        </div>
+      </div>
+    </div>
+  );
+};
+
 export const Author: React.FC<AuthorProps> = ({
   authorId,
   authorName,
@@ -198,55 +400,54 @@ export const Author: React.FC<AuthorProps> = ({
 }) => {
   const [userProfile, setUserProfile] = useState<UserProfileData | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [hasAttemptedFetch, setHasAttemptedFetch] = useState(false);
+  const [isPrivateProfile, setIsPrivateProfile] = useState(false);
+  const [fetchError, setFetchError] = useState<string | null>(null);
   const { openOverlay, closeOverlay } = useOverlay();
 
   const displayName = showFullName ? authorName : `@${authorName}`;
 
-  // Generate profile URL with guaranteed slug using authorId (database ID)
-  const profileUrl = userProfile
-    ? `/profile/${ensureUserSlug(userProfile)}`
-    : `/profile/${generateUserSlug(authorName, authorId)}`;
+  // ✅ CRITICAL: Always use database ID for profile URLs
+  // This ensures profile URLs remain stable even when OAuth provider usernames change
+  const profileUrl = `/profile/${authorId}`;
 
-  // Fetch user profile for tooltip via API route using database ID for more reliable lookup
-  useEffect(() => {
-    if (enableTooltip && authorId && authorName) {
-      setIsLoading(true);
+  // Fetch user profile for tooltip - only when tooltip is triggered
+  const fetchUserProfile = async () => {
+    if (hasAttemptedFetch || isLoading) return;
 
-      // Try to fetch by database ID first (most reliable), fallback to name
-      const fetchUrl = authorId
-        ? `/api/profile/id/${encodeURIComponent(authorId)}`
-        : `/api/profile/${encodeURIComponent(authorName)}`;
+    setIsLoading(true);
+    setHasAttemptedFetch(true);
+    setFetchError(null);
+    setIsPrivateProfile(false);
 
-      fetch(fetchUrl)
-        .then((response) => {
-          if (response.ok) {
-            return response.json();
-          }
-          // If ID lookup fails, try name lookup as fallback
-          if (authorId && fetchUrl.includes('/id/')) {
-            return fetch(`/api/profile/${encodeURIComponent(authorName)}`).then(
-              (fallbackResponse) => {
-                if (fallbackResponse.ok) {
-                  return fallbackResponse.json();
-                }
-                throw new Error('Failed to fetch profile');
-              }
-            );
-          }
-          throw new Error('Failed to fetch profile');
-        })
-        .then((profile: UserProfileData) => {
-          setUserProfile(profile);
-        })
-        .catch((error) => {
-          console.error('Error fetching user profile:', error);
-          setUserProfile(null);
-        })
-        .finally(() => {
-          setIsLoading(false);
-        });
+    try {
+      // ✅ Only database ID lookup supported after migration 0010
+      const fetchUrl = `/api/profile/id/${encodeURIComponent(authorId)}`;
+
+      const response = await fetch(fetchUrl);
+      if (response.ok) {
+        const profile: UserProfileData = await response.json();
+        setUserProfile(profile);
+      } else if (response.status === 403) {
+        // Profile is private
+        const errorData = await response.json();
+        if (errorData.error === 'This profile is private') {
+          setIsPrivateProfile(true);
+        } else {
+          setFetchError(errorData.error || 'Access denied');
+        }
+      } else if (response.status === 404) {
+        setFetchError('User not found');
+      } else {
+        setFetchError('Failed to fetch profile');
+      }
+    } catch (error) {
+      console.error('Error fetching user profile:', error);
+      setFetchError('Unable to load profile');
+    } finally {
+      setIsLoading(false);
     }
-  }, [authorId, authorName, enableTooltip]);
+  };
 
   const handleClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
     // Handle Ctrl+Click for modal
@@ -254,6 +455,13 @@ export const Author: React.FC<AuthorProps> = ({
       event.preventDefault();
       if (userProfile) {
         openModal();
+      } else {
+        // Fetch profile first, then open modal
+        fetchUserProfile().then(() => {
+          if (userProfile) {
+            openModal();
+          }
+        });
       }
       return;
     }
@@ -290,7 +498,7 @@ export const Author: React.FC<AuthorProps> = ({
   const containerClass = `author ${size} clickable ${className}`;
 
   const authorElement = (
-    <Link
+    <InstantLink
       href={profileUrl}
       className={containerClass}
       onClick={handleClick}
@@ -305,7 +513,7 @@ export const Author: React.FC<AuthorProps> = ({
         />
         <span>{displayName}</span>
       </div>
-    </Link>
+    </InstantLink>
   );
 
   // If tooltip is disabled, return plain element
@@ -313,26 +521,33 @@ export const Author: React.FC<AuthorProps> = ({
     return authorElement;
   }
 
-  // If loading or no profile found, return plain element without tooltip
-  if (isLoading || !userProfile) {
-    return authorElement;
-  }
-
   // Create tooltip content with profile preview and actions
-  const tooltipContent = (
+  const tooltipContent = userProfile ? (
     <UserProfileTooltipContent
       user={userProfile}
       onViewProfile={handleViewProfile}
       onViewInModal={openModal}
     />
+  ) : isLoading ? (
+    <UserProfileTooltipLoading />
+  ) : isPrivateProfile ? (
+    <UserProfileTooltipPrivate
+      authorName={authorName}
+      onViewProfile={handleViewProfile}
+    />
+  ) : (
+    <div className="author-tooltip__error">
+      <p>{fetchError || 'Unable to load profile'}</p>
+    </div>
   );
 
-  // Return element wrapped in enhanced tooltip
+  // Return element wrapped in enhanced tooltip with lazy loading
   return (
     <InteractiveTooltip
       content={tooltipContent}
       delay={500}
       className="author-tooltip-wrapper"
+      onShow={fetchUserProfile} // Trigger fetch when tooltip is about to show
     >
       {authorElement}
     </InteractiveTooltip>

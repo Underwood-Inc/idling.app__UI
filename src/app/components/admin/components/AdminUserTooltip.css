@@ -1,0 +1,19 @@
+.admin-user-tooltip__content {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  z-index: 100;
+  /* Apply protected tooltip glass effect */
+  backdrop-filter: var(--tooltip-glass-blur) !important;
+  -webkit-backdrop-filter: var(--tooltip-glass-blur) !important;
+  background: var(--tooltip-glass-bg) !important;
+  border: 1px solid var(--tooltip-glass-border) !important;
+  box-shadow: var(--tooltip-glass-shadow) !important;
+  border-radius: var(--border-radius);
+  padding: 1rem;
+  min-width: 280px;
+  max-width: 320px;
+  margin-top: 0.5rem;
+  animation: tooltipFadeIn 0.2s ease-out;
+  color: white;
+}

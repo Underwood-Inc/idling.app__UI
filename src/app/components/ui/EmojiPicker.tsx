@@ -37,6 +37,8 @@ export interface EmojiPickerProps {
   // Pagination props
   enablePagination?: boolean;
   itemsPerPage?: number;
+  // Control automatic fetching
+  autoFetch?: boolean;
 }
 
 export interface EmojiPickerTriggerProps {
@@ -56,7 +58,8 @@ export const EmojiPicker: React.FC<EmojiPickerProps> = ({
   maxResults = 24,
   className = '',
   enablePagination = false,
-  itemsPerPage = 24
+  itemsPerPage = 24,
+  autoFetch = true
 }) => {
   const {
     emojis,
@@ -66,9 +69,10 @@ export const EmojiPicker: React.FC<EmojiPickerProps> = ({
     searchEmojis,
     selectCategory,
     trackEmojiUsage,
-    filters
+    filters,
+    fetchEmojis
   } = useEmojis({
-    autoFetch: true,
+    autoFetch: autoFetch,
     defaultFilters: {
       includeCustom: true,
       includeUsage: true
@@ -82,6 +86,13 @@ export const EmojiPicker: React.FC<EmojiPickerProps> = ({
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const [totalEmojis, setTotalEmojis] = useState(0);
+
+  // If autoFetch is false, manually fetch emojis when the picker opens
+  useEffect(() => {
+    if (isOpen && !autoFetch && emojis.length === 0 && !loading) {
+      fetchEmojis();
+    }
+  }, [isOpen, autoFetch, emojis.length, loading]); // Remove fetchEmojis from dependencies
 
   // Sync selected category with the filters from useEmojis hook
   useEffect(() => {
@@ -107,7 +118,7 @@ export const EmojiPicker: React.FC<EmojiPickerProps> = ({
     setCurrentPage(1);
   }, [selectedCategory, localSearchQuery]);
 
-  // Use emojis directly from API with pagination support
+  // Memoize filtered emojis to prevent unnecessary recalculations
   const filteredEmojis = useMemo(() => {
     if (!enablePagination) {
       return emojis.slice(0, maxResults);
@@ -118,22 +129,29 @@ export const EmojiPicker: React.FC<EmojiPickerProps> = ({
     return emojis.slice(startIndex, endIndex);
   }, [emojis, maxResults, enablePagination, currentPage, itemsPerPage]);
 
-  // Calculate pagination info
-  const totalPages = enablePagination
-    ? Math.ceil(totalEmojis / itemsPerPage)
-    : 1;
-  const hasNextPage = currentPage < totalPages;
-  const hasPrevPage = currentPage > 1;
+  // Memoize pagination info to prevent recalculation
+  const paginationInfo = useMemo(() => {
+    const totalPages = enablePagination
+      ? Math.ceil(totalEmojis / itemsPerPage)
+      : 1;
+    return {
+      totalPages,
+      hasNextPage: currentPage < totalPages,
+      hasPrevPage: currentPage > 1
+    };
+  }, [totalEmojis, itemsPerPage, enablePagination, currentPage]);
+
+  const { totalPages, hasNextPage, hasPrevPage } = paginationInfo;
 
   // Handle emoji selection
   const handleEmojiClick = useCallback(
     (emoji: EmojiData) => {
-      // Track usage
+      // Call the parent handler first
+      onEmojiSelect(emoji);
+
+      // Track usage asynchronously to avoid blocking UI
       const emojiType = emoji.is_custom ? 'custom' : 'mac'; // Default to mac for standard emojis
       trackEmojiUsage(emoji.emoji_id, emojiType);
-
-      // Call the parent handler
-      onEmojiSelect(emoji);
     },
     [onEmojiSelect, trackEmojiUsage]
   );
@@ -433,10 +451,9 @@ function getCategoryIcon(categoryName: string): string {
 
 // Format emoji for text insertion
 export function formatEmojiForText(emoji: EmojiData): string {
-  if (emoji.is_custom) {
-    return `:${emoji.emoji_id}:`; // Custom emoji syntax
-  }
-  return emoji.unicode_char || `:${emoji.emoji_id}:`;
+  // Always use colon syntax for both custom and standard emojis
+  // This ensures they are properly tokenized by the RichTextParser
+  return `:${emoji.emoji_id}:`;
 }
 
 // Hook for managing emoji picker state

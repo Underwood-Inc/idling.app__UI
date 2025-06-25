@@ -1,11 +1,18 @@
 'use server';
 
+import { createLogger } from '@/lib/logging';
 import { revalidatePath } from 'next/cache';
 import { auth } from '../auth';
 import sql from '../db';
 import { UserProfileData } from '../types/profile';
 import { getEffectiveCharacterCount } from '../utils/string';
-import { generateUserSlug, parseUserSlug } from '../utils/user-slug';
+
+const logger = createLogger({
+  context: {
+    component: 'ProfileActions',
+    module: 'actions'
+  }
+});
 
 export interface ProfileFilters {
   username?: string;
@@ -14,115 +21,23 @@ export interface ProfileFilters {
 }
 
 /**
- * Get user profile by username OR slug
- * Supports both legacy username format and new slug format
+ * @deprecated After migration 0011, use getUserProfileByDatabaseId() instead
+ * This function is kept for backward compatibility but should not be used in new code
  */
 export async function getUserProfile(
-  usernameOrSlug: string
+  identifier: string
 ): Promise<UserProfileData | null> {
-  try {
-    // Check if this looks like a slug (contains a hyphen followed by numbers at the end)
-    const slugParsed = parseUserSlug(usernameOrSlug);
+  logger.warn(
+    'getUserProfile() is deprecated. Use getUserProfileByDatabaseId() instead.'
+  );
 
-    let userResult: any[];
-
-    if (slugParsed) {
-      // It's a slug format - look up by ID primarily, with username verification
-      const userIdNum = parseInt(slugParsed.userId);
-      const expectedUsername = slugParsed.username.replace(/-/g, ' '); // Convert hyphens back to spaces
-
-      userResult = await sql`
-        SELECT 
-          u.id,
-          u.name,
-          u.email,
-          u.bio,
-          u.location,
-          u.image,
-          u.created_at,
-          u.profile_public,
-          a."providerAccountId"
-        FROM users u 
-        LEFT JOIN accounts a ON u.id = a."userId"
-        WHERE (u.id = ${userIdNum} OR a."providerAccountId" = ${slugParsed.userId})
-        AND LOWER(u.name) = LOWER(${expectedUsername})
-        LIMIT 1
-      `;
-    } else {
-      // Legacy format - look up by username/providerAccountId only
-      userResult = await sql`
-        SELECT 
-          u.id,
-          u.name,
-          u.email,
-          u.bio,
-          u.location,
-          u.image,
-          u.created_at,
-          u.profile_public,
-          a."providerAccountId"
-        FROM users u 
-        LEFT JOIN accounts a ON u.id = a."userId"
-        WHERE a."providerAccountId" = ${usernameOrSlug}
-           OR LOWER(u.name) = LOWER(${usernameOrSlug})
-        ORDER BY 
-          CASE 
-            WHEN a."providerAccountId" = ${usernameOrSlug} THEN 1
-            WHEN LOWER(u.name) = LOWER(${usernameOrSlug}) THEN 2
-            ELSE 3
-          END
-        LIMIT 1
-      `;
-    }
-
-    if (userResult.length === 0) {
-      return null;
-    }
-
-    const user = userResult[0];
-
-    // Get submission statistics if they exist
-    let stats = null;
-    try {
-      const submissionStats = await sql`
-        SELECT 
-          COUNT(*) as total_submissions,
-          COUNT(CASE WHEN thread_parent_id IS NULL THEN 1 END) as posts_count,
-          COUNT(CASE WHEN thread_parent_id IS NOT NULL THEN 1 END) as replies_count,
-          MAX(submission_datetime) as last_activity
-        FROM submissions 
-        WHERE user_id = ${user.id}
-      `;
-
-      if (submissionStats.length > 0) {
-        stats = submissionStats[0];
-      }
-    } catch (statsError) {
-      // Stats not available, continue without them
-    }
-
-    return {
-      id: user.id.toString(), // Use database internal ID for consistency with submissions
-      providerAccountId: user.providerAccountId, // Keep OAuth provider ID separate
-      username: user.name, // Use name as username for display
-      name: user.name,
-      email: user.email,
-      bio: user.bio,
-      location: user.location,
-      image: user.image,
-      created_at: user.created_at,
-      profile_public: user.profile_public,
-      total_submissions: stats ? parseInt(stats.total_submissions) : 0,
-      posts_count: stats ? parseInt(stats.posts_count) : 0,
-      replies_count: stats ? parseInt(stats.replies_count) : 0,
-      last_activity: stats?.last_activity || null,
-      // Add slug for URL generation
-      slug: generateUserSlug(user.name || 'user', user.id)
-    };
-  } catch (error) {
-    console.error('Error fetching user profile:', error);
-    return null;
+  // If it's a numeric ID, use the proper function
+  if (/^\d+$/.test(identifier)) {
+    return getUserProfileByDatabaseId(identifier);
   }
+
+  // For non-numeric identifiers, return null (no longer supported)
+  return null;
 }
 
 /**
@@ -142,6 +57,10 @@ export async function getUserProfileByDatabaseId(
         u.image,
         u.created_at,
         u.profile_public,
+        u.spacing_theme,
+        u.pagination_mode,
+        u.emoji_panel_behavior,
+        u.font_preference,
         a."providerAccountId"
       FROM users u 
       LEFT JOIN accounts a ON u.id = a."userId"
@@ -186,15 +105,19 @@ export async function getUserProfileByDatabaseId(
       image: user.image,
       created_at: user.created_at,
       profile_public: user.profile_public,
+      spacing_theme: user.spacing_theme || 'cozy',
+      pagination_mode: user.pagination_mode || 'traditional',
+      emoji_panel_behavior: user.emoji_panel_behavior || 'close_after_select',
+      font_preference: user.font_preference || 'default',
       total_submissions: stats ? parseInt(stats.total_submissions) : 0,
       posts_count: stats ? parseInt(stats.posts_count) : 0,
       replies_count: stats ? parseInt(stats.replies_count) : 0,
-      last_activity: stats?.last_activity || null,
-      // Add slug for URL generation
-      slug: generateUserSlug(user.name || 'user', user.id)
+      last_activity: stats?.last_activity || null
     };
   } catch (error) {
-    console.error('Error fetching user profile by database ID:', error);
+    logger.error('Error fetching user profile by database ID', error as Error, {
+      id: databaseId
+    });
     return null;
   }
 }
@@ -226,6 +149,10 @@ export async function getUserProfileById(
         u.image,
         u.created_at,
         u.profile_public,
+        u.spacing_theme,
+        u.pagination_mode,
+        u.emoji_panel_behavior,
+        u.font_preference,
         a."providerAccountId"
       FROM users u 
       LEFT JOIN accounts a ON u.id = a."userId"
@@ -270,15 +197,19 @@ export async function getUserProfileById(
       image: user.image,
       created_at: user.created_at,
       profile_public: user.profile_public,
+      spacing_theme: user.spacing_theme || 'cozy',
+      pagination_mode: user.pagination_mode || 'traditional',
+      emoji_panel_behavior: user.emoji_panel_behavior || 'close_after_select',
+      font_preference: user.font_preference || 'default',
       total_submissions: stats ? parseInt(stats.total_submissions) : 0,
       posts_count: stats ? parseInt(stats.posts_count) : 0,
       replies_count: stats ? parseInt(stats.replies_count) : 0,
-      last_activity: stats?.last_activity || null,
-      // Add slug for URL generation
-      slug: generateUserSlug(user.name || 'user', user.id)
+      last_activity: stats?.last_activity || null
     };
   } catch (error) {
-    console.error('Error fetching user profile by ID:', error);
+    logger.error('Error fetching user profile by ID', error as Error, {
+      id: userId
+    });
     return null;
   }
 }
@@ -292,6 +223,10 @@ export async function updateUserProfile(
     bio: string;
     location: string;
     profile_public: boolean;
+    spacing_theme: 'cozy' | 'compact';
+    pagination_mode: 'traditional' | 'infinite';
+    emoji_panel_behavior: 'close_after_select' | 'stay_open';
+    font_preference: 'monospace' | 'default';
   }>
 ): Promise<UserProfileData | null> {
   try {
@@ -316,6 +251,22 @@ export async function updateUserProfile(
       setClauses.push(`profile_public = $${paramIndex++}`);
       values.push(updates.profile_public);
     }
+    if (updates.spacing_theme !== undefined) {
+      setClauses.push(`spacing_theme = $${paramIndex++}`);
+      values.push(updates.spacing_theme);
+    }
+    if (updates.pagination_mode !== undefined) {
+      setClauses.push(`pagination_mode = $${paramIndex++}`);
+      values.push(updates.pagination_mode);
+    }
+    if (updates.emoji_panel_behavior !== undefined) {
+      setClauses.push(`emoji_panel_behavior = $${paramIndex++}`);
+      values.push(updates.emoji_panel_behavior);
+    }
+    if (updates.font_preference !== undefined) {
+      setClauses.push(`font_preference = $${paramIndex++}`);
+      values.push(updates.font_preference);
+    }
 
     if (setClauses.length === 0) {
       return getUserProfileById(userId);
@@ -338,7 +289,11 @@ export async function updateUserProfile(
         location,
         image,
         created_at,
-        profile_public
+        profile_public,
+        spacing_theme,
+        pagination_mode,
+        emoji_panel_behavior,
+        font_preference
     `;
 
     const result = await sql.unsafe(queryText, [...values, userId]);
@@ -371,11 +326,17 @@ export async function updateUserProfile(
       image: userRow.image,
       created_at: userRow.created_at,
       profile_public: userRow.profile_public,
-      // Add slug for URL generation
-      slug: generateUserSlug(userRow.name || 'user', userRow.id)
+      spacing_theme: userRow.spacing_theme || 'cozy',
+      pagination_mode: userRow.pagination_mode || 'traditional',
+      emoji_panel_behavior:
+        userRow.emoji_panel_behavior || 'close_after_select',
+      font_preference: userRow.font_preference || 'default'
     };
   } catch (error) {
-    console.error('Error updating user profile:', error);
+    logger.error('Error updating user profile', error as Error, {
+      userId,
+      updates
+    });
     return null;
   }
 }
@@ -428,113 +389,60 @@ export async function searchUsers(
       location: row.location,
       image: row.image,
       created_at: row.created_at,
-      profile_public: row.profile_public,
-      // Add slug for URL generation
-      slug: generateUserSlug(row.name || row.username || 'user', row.id)
+      profile_public: row.profile_public
     }));
   } catch (error) {
-    console.error('Error searching users:', error);
+    logger.error('Error searching users', error as Error, { query, limit });
     return [];
   }
 }
 
 /**
- * Server action to update user bio
+ * Server action to update user bio (database ID only after migration 0010)
  */
-export async function updateUserBioAction(formData: FormData): Promise<{
+export async function updateUserPreferencesAction(
+  userId: string,
+  preferences: {
+    spacing_theme?: 'cozy' | 'compact';
+    pagination_mode?: 'traditional' | 'infinite';
+    emoji_panel_behavior?: 'close_after_select' | 'stay_open';
+    font_preference?: 'monospace' | 'default';
+    profile_public?: boolean;
+  }
+): Promise<{
   success: boolean;
   error?: string;
   profile?: UserProfileData;
 }> {
   try {
-    const session = await auth();
-
-    if (!session?.user?.id) {
-      return {
-        success: false,
-        error: 'Authentication required'
-      };
-    }
-
-    const bio = formData.get('bio') as string;
-    const username = formData.get('username') as string;
-
-    // Validate bio length
-    if (bio && getEffectiveCharacterCount(bio) > 500) {
-      return {
-        success: false,
-        error: 'Bio must be 500 characters or less'
-      };
-    }
-
-    // Verify the user is updating their own profile
-    if (username) {
-      const userProfile = await getUserProfile(username);
-      if (!userProfile) {
-        return {
-          success: false,
-          error: 'User not found'
-        };
-      }
-
-      // Simple and secure: only check authenticated user ID
-      // Convert both to strings to handle type mismatch
-      const canEdit = userProfile.id.toString() === session.user.id.toString();
-
-      if (!canEdit) {
-        return {
-          success: false,
-          error: 'You can only edit your own profile'
-        };
-      }
-    }
-
-    // Update the profile
-    const updatedProfile = await updateUserProfile(session.user.id, {
-      bio: bio || undefined
-    });
+    const updatedProfile = await updateUserProfile(userId, preferences);
 
     if (!updatedProfile) {
       return {
         success: false,
-        error: 'Failed to update profile'
+        error: 'Failed to update user preferences'
       };
     }
 
-    // Get the complete profile with stats
-    const completeProfile = await getUserProfileById(session.user.id);
-
-    // Invalidate cache for all profile-related paths
-    if (username) {
-      const userProfile = await getUserProfile(username);
-      if (userProfile) {
-        revalidatePath(`/profile/${username}`); // Username/slug path
-        revalidatePath(`/profile/${userProfile.slug}`); // Canonical slug path
-      }
-    }
-    revalidatePath(`/profile/${session.user.id}`); // User ID path (if used)
-    revalidatePath('/profile'); // Profile listing pages
-    revalidatePath('/', 'layout'); // Revalidate layout cache for any user data in headers/nav
-
     return {
       success: true,
-      profile: completeProfile || updatedProfile
+      profile: updatedProfile
     };
   } catch (error) {
-    console.error('Error updating user bio:', error);
+    logger.error('Error updating user preferences', error as Error, {
+      userId,
+      preferences
+    });
     return {
       success: false,
-      error: 'Internal server error'
+      error: 'An error occurred while updating preferences'
     };
   }
 }
 
-/**
- * Alternative server action using direct bio and username parameters
- */
 export async function updateBioAction(
   bio: string,
-  username: string
+  identifier: string
 ): Promise<{
   success: boolean;
   error?: string;
@@ -558,8 +466,18 @@ export async function updateBioAction(
       };
     }
 
-    // Verify the user is updating their own profile
-    const userProfile = await getUserProfile(username);
+    // ✅ CRITICAL: Only database ID supported after migration 0010
+    // Username-based lookups are no longer supported for maximum reliability
+    if (!/^\d+$/.test(identifier)) {
+      return {
+        success: false,
+        error: 'Invalid profile identifier. Only database IDs are supported.'
+      };
+    }
+
+    // Direct database ID lookup - only supported method
+    const userProfile = await getUserProfileByDatabaseId(identifier);
+
     if (!userProfile) {
       return {
         success: false,
@@ -577,7 +495,7 @@ export async function updateBioAction(
       };
     }
 
-    // Update the profile
+    // Update the profile using database ID
     const updatedProfile = await updateUserProfile(session.user.id, {
       bio: bio || undefined
     });
@@ -592,10 +510,8 @@ export async function updateBioAction(
     // Get the complete profile with stats
     const completeProfile = await getUserProfileById(session.user.id);
 
-    // Invalidate cache for all profile-related paths
-    revalidatePath(`/profile/${username}`); // Username/slug path
-    revalidatePath(`/profile/${userProfile.slug}`); // Canonical slug path
-    revalidatePath(`/profile/${session.user.id}`); // User ID path (if used)
+    // Invalidate cache for database ID path only
+    revalidatePath(`/profile/${userProfile.id}`); // Database ID path (only supported)
     revalidatePath('/profile'); // Profile listing pages
     revalidatePath('/', 'layout'); // Revalidate layout cache for any user data in headers/nav
 
@@ -604,7 +520,9 @@ export async function updateBioAction(
       profile: completeProfile || updatedProfile
     };
   } catch (error) {
-    console.error('Error updating user bio:', error);
+    logger.error('Error updating user bio', error as Error, {
+      bioLength: bio?.length
+    });
     return {
       success: false,
       error: 'Internal server error'

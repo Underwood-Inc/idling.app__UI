@@ -1,9 +1,9 @@
-import Link from 'next/link';
 import { NAV_PATHS } from '../../../lib/routes';
 import { ABOUT_PAGE_SELECTORS } from '../../../lib/test-selectors/pages/about.selectors';
 import { DiscordLink } from '../discord-link/DiscordLink';
 import { GalaxyLink } from '../galaxy-link/GalaxyLink';
 import { LinkTooltip } from '../tooltip/LinkTooltip';
+import { InstantLink } from '../ui/InstantLink';
 
 export function About() {
   return (
@@ -11,12 +11,12 @@ export function About() {
       <p>
         <LinkTooltip url={NAV_PATHS.ROOT} isInsideParagraph>
           {/* eslint-disable-next-line custom-rules/enforce-link-target-blank */}
-          <Link
+          <InstantLink
             data-testid={ABOUT_PAGE_SELECTORS.ROOT_LINK}
             href={NAV_PATHS.ROOT}
           >
             idling.app
-          </Link>
+          </InstantLink>
         </LinkTooltip>
         &nbsp;serves as the central hub for my professional portfolio and
         personal projects, showcasing my expertise in front-end web development

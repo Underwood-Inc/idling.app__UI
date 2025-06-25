@@ -67,6 +67,80 @@ export function URLPill({
   }
 
   // Handle different behaviors
+  if (behavior === 'modal' && mediaType === 'youtube') {
+    // Modal behavior for YouTube - render as clickable link that opens modal
+    const domain = new URL(url).hostname.replace('www.', '');
+
+    const handleModalClick = (e: React.MouseEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+
+      const modalId = `youtube-modal-${url}`;
+
+      openOverlay({
+        id: modalId,
+        type: 'modal',
+        component: YouTubeModal,
+        props: {
+          url,
+          title: customId || 'YouTube Video',
+          onClose: () => closeOverlay(modalId)
+        }
+      });
+    };
+
+    return (
+      <div
+        className={`url-pill url-pill--modal ${className} url-pill--youtube-com`}
+      >
+        <a href="#" className="url-pill__link" onClick={handleModalClick}>
+          <span className="url-pill__icon">📺</span>
+          <span className="url-pill__domain">{domain}</span>
+          <span className="url-pill__behavior-icon">⧉</span>
+        </a>
+
+        {isEditMode && (onModeChange || onWidthChange) && (
+          <div className="url-pill__behavior-toggles">
+            {onModeChange && (
+              <>
+                <button
+                  type="button"
+                  className="url-pill__behavior-toggle url-pill__behavior-toggle--embed"
+                  onClick={() => onModeChange('embed')}
+                  title="Show as embed"
+                >
+                  📺 Embed
+                </button>
+                <button
+                  type="button"
+                  className="url-pill__behavior-toggle url-pill__behavior-toggle--link"
+                  onClick={() => onModeChange('link')}
+                  title="Show as link"
+                >
+                  🔗 Link
+                </button>
+                <button
+                  type="button"
+                  className="url-pill__behavior-toggle url-pill__behavior-toggle--modal url-pill__behavior-toggle--active"
+                  onClick={() => onModeChange('modal')}
+                  title="Show in modal"
+                >
+                  ⧉ Modal
+                </button>
+              </>
+            )}
+
+            {onWidthChange && (
+              <div className="url-pill__width-note">
+                Width controls available in embed mode
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+    );
+  }
+
   if (behavior === 'embed' || (behavior === undefined && shouldEmbedURL(url))) {
     // Embed behavior
     switch (mediaType) {

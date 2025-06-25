@@ -2,16 +2,20 @@ import { render } from '@testing-library/react';
 import PageHeader from './PageHeader';
 
 describe('PageHeader', () => {
-  it('renders children correctly', async () => {
+  it('renders children correctly', () => {
     const { getByText } = render(
-      await PageHeader({ children: <div>Test Content</div> })
+      <PageHeader>
+        <div>Test Content</div>
+      </PageHeader>
     );
     expect(getByText('Test Content')).toBeInTheDocument();
   });
 
-  it('has the correct CSS class', async () => {
+  it('has the correct CSS class', () => {
     const { container } = render(
-      await PageHeader({ children: <div>Test Content</div> })
+      <PageHeader>
+        <div>Test Content</div>
+      </PageHeader>
     );
     expect(container.firstChild).toHaveClass('page-header__section');
   });

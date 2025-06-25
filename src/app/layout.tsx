@@ -2,7 +2,9 @@ import type { Metadata, Viewport } from 'next';
 import { SessionProvider } from 'next-auth/react';
 import { Inter } from 'next/font/google';
 import { Suspense } from 'react';
+import { NavigationLoadingProvider } from '../lib/context/NavigationLoadingContext';
 import { OverlayProvider } from '../lib/context/OverlayContext';
+import { UserPreferencesProvider } from '../lib/context/UserPreferencesContext';
 import { JotaiProvider } from '../lib/state/JotaiProvider';
 import { SessionRefreshHandler } from './components/auth-buttons/SessionRefreshHandler';
 import { AvatarsBackground } from './components/avatars-background/AvatarsBackground';
@@ -13,11 +15,15 @@ import Header from './components/header/Header';
 import Loader from './components/loader/Loader';
 import MessageTickerWithInterval from './components/message-ticker/MessageTickerWithInterval';
 import PWAInstallPrompt from './components/pwa-install/PWAInstallPrompt';
+import { HardResetManager } from './components/service-worker/HardResetManager';
 import { ServiceWorkerRegistration } from './components/service-worker/ServiceWorkerRegistration';
 import TimeoutBanner from './components/timeout-banner/TimeoutBanner';
+import { NavigationLoadingBar } from './components/ui/NavigationLoadingBar';
 import { OverlayRenderer } from './components/ui/OverlayRenderer';
 import './fonts.css';
 import './globals.css';
+// Import service worker cleanup utilities to make them globally available
+import '../lib/utils/service-worker-cleanup';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -72,14 +78,26 @@ const ConsoleProductionSilencer = () => {
                 console.groupCollapsed = function() {};
                 console.groupEnd = function() {};
                 
-                // Also silence console methods that might be called from iframes
+                // Handle postMessage safely without breaking normal operations
                 const originalPostMessage = window.postMessage;
                 window.postMessage = function(message, targetOrigin, transfer) {
-                  // Filter out console-related messages if needed
+                  // Only filter out console-related messages, let everything else pass through normally
                   if (typeof message === 'object' && message && message.type === 'console') {
                     return; // Silently ignore console messages
                   }
-                  return originalPostMessage.call(this, message, targetOrigin, transfer);
+                  
+                  // For all other messages, call original postMessage with proper error handling
+                  try {
+                    return originalPostMessage.call(this, message, targetOrigin, transfer);
+                  } catch (error) {
+                    // If targetOrigin is undefined/null, use window.location.origin as fallback
+                    if (error.message && error.message.includes('Invalid target origin')) {
+                      const safeTargetOrigin = targetOrigin || window.location.origin;
+                      return originalPostMessage.call(this, message, safeTargetOrigin, transfer);
+                    }
+                    // Re-throw other errors
+                    throw error;
+                  }
                 };
                 
                 // Override iframe console access
@@ -191,33 +209,40 @@ export default function RootLayout({
         {/* Additional PWA optimizations */}
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="application-name" content="Idling App" />
+        <meta name="app-version" content="__VERSION__" />
       </head>
 
       <body className={inter.className}>
         <ServiceWorkerRegistration />
+        <HardResetManager />
         <SessionProvider>
-          <SessionRefreshHandler />
-          <OverlayProvider>
-            <TimeoutBanner />
-            <main>
-              <AvatarsBackground />
+          <UserPreferencesProvider>
+            <NavigationLoadingProvider>
+              <NavigationLoadingBar />
+              <SessionRefreshHandler />
+              <OverlayProvider>
+                <TimeoutBanner />
+                <main>
+                  <AvatarsBackground />
 
-              <Header />
+                  <Header />
 
-              <MessageTickerWithInterval />
+                  <MessageTickerWithInterval />
 
-              <Suspense fallback={<Loader />}>
-                <JotaiProvider>
-                  <NotFoundErrorBoundary>
-                    <FadeIn>{children}</FadeIn>
-                  </NotFoundErrorBoundary>
-                </JotaiProvider>
-              </Suspense>
-              <Footer />
-            </main>
-            <OverlayRenderer />
-            <PWAInstallPrompt />
-          </OverlayProvider>
+                  <Suspense fallback={<Loader />}>
+                    <JotaiProvider>
+                      <NotFoundErrorBoundary>
+                        <FadeIn>{children}</FadeIn>
+                      </NotFoundErrorBoundary>
+                    </JotaiProvider>
+                  </Suspense>
+                  <Footer />
+                </main>
+                <OverlayRenderer />
+                <PWAInstallPrompt />
+              </OverlayProvider>
+            </NavigationLoadingProvider>
+          </UserPreferencesProvider>
         </SessionProvider>
       </body>
     </html>

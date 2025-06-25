@@ -113,7 +113,11 @@ export const InfoTooltip: React.FC<InfoTooltipProps> = ({
   }, [showTooltip]);
 
   const handleMouseEnter = () => {
-    if (disabled) return;
+    // Don't trigger hover events on mobile devices
+    const isMobile = window.matchMedia(
+      '(hover: none) and (pointer: coarse)'
+    ).matches;
+    if (disabled || isMobile) return;
 
     isHoveringRef.current = true;
     if (hideTimeoutRef.current) {
@@ -128,6 +132,12 @@ export const InfoTooltip: React.FC<InfoTooltipProps> = ({
   };
 
   const handleMouseLeave = () => {
+    // Don't trigger hover events on mobile devices
+    const isMobile = window.matchMedia(
+      '(hover: none) and (pointer: coarse)'
+    ).matches;
+    if (isMobile) return;
+
     isHoveringRef.current = false;
     if (hideTimeoutRef.current) {
       clearTimeout(hideTimeoutRef.current);
@@ -140,13 +150,40 @@ export const InfoTooltip: React.FC<InfoTooltipProps> = ({
     hideTimeoutRef.current = timeout;
   };
 
+  const handleClick = () => {
+    // On mobile, toggle tooltip on click
+    const isMobile = window.matchMedia(
+      '(hover: none) and (pointer: coarse)'
+    ).matches;
+    if (!isMobile) return;
+
+    const newShowState = !showTooltip;
+    setShowTooltip(newShowState);
+
+    if (newShowState) {
+      setTimeout(updatePosition, 0);
+    }
+  };
+
   const handleTooltipMouseEnter = () => {
+    // Don't trigger hover events on mobile devices
+    const isMobile = window.matchMedia(
+      '(hover: none) and (pointer: coarse)'
+    ).matches;
+    if (isMobile) return;
+
     if (hideTimeoutRef.current) {
       clearTimeout(hideTimeoutRef.current);
     }
   };
 
   const handleTooltipMouseLeave = () => {
+    // Don't trigger hover events on mobile devices
+    const isMobile = window.matchMedia(
+      '(hover: none) and (pointer: coarse)'
+    ).matches;
+    if (isMobile) return;
+
     handleMouseLeave();
   };
 
@@ -166,6 +203,7 @@ export const InfoTooltip: React.FC<InfoTooltipProps> = ({
       ref={tooltipRef}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
+      onClick={handleClick}
       style={{ display: 'inline-block' }}
     >
       {children}

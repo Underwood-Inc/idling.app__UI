@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getUserProfileById } from '../../../../../lib/actions/profile.actions';
+import { withProfilePrivacy } from '../../../../../lib/utils/privacy';
 
 export async function GET(
   request: NextRequest,
@@ -18,14 +18,19 @@ export async function GET(
     // Convert to string if it's a number
     const userId = id.toString();
 
-    const userProfile = await getUserProfileById(userId);
+    // Use privacy protection utility
+    const { response, profile } = await withProfilePrivacy(userId, true);
 
-    if (!userProfile) {
-      return NextResponse.json({ error: 'User not found' }, { status: 404 });
+    if (response) {
+      // Privacy check failed, return the error response
+      return new NextResponse(response.body, {
+        status: response.status,
+        headers: response.headers
+      });
     }
 
-    // Return public profile data
-    return NextResponse.json(userProfile);
+    // Return profile data
+    return NextResponse.json(profile);
   } catch (error) {
     console.error('Error fetching user profile by ID:', error);
     return NextResponse.json(

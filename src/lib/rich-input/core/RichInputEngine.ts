@@ -46,6 +46,14 @@ export class RichInputEngine implements RichInputAPI {
       enableMarkdown: config.parsers?.markdown !== false
     });
 
+    // Load emojis from API if emoji parsing is enabled
+    if (config.parsers?.emojis !== false) {
+      // Load emojis asynchronously to avoid blocking initialization
+      this.loadEmojisFromAPI().catch((error) => {
+        richTextLogger.logWarning('Failed to initialize emoji loading:', error);
+      });
+    }
+
     // Initialize state
     this.state = {
       rawText: '',
@@ -95,6 +103,27 @@ export class RichInputEngine implements RichInputAPI {
   insertText(text: string, position?: RichInputPosition): void {
     const insertPos = position || this.state.cursorPosition;
     const { rawText } = this.state;
+
+    // If we're inserting into an empty input (with dummy token), replace entirely
+    if (
+      rawText.length === 0 &&
+      this.state.tokens.length === 1 &&
+      this.state.tokens[0].metadata?.isDummy
+    ) {
+      const newCursorPos = { index: text.length };
+
+      this.saveHistoryEntry();
+      this.setState({
+        rawText: text,
+        cursorPosition: newCursorPos,
+        selection: {
+          start: newCursorPos,
+          end: newCursorPos,
+          direction: 'none'
+        }
+      });
+      return;
+    }
 
     const newText =
       rawText.slice(0, insertPos.index) + text + rawText.slice(insertPos.index);
@@ -358,14 +387,33 @@ export class RichInputEngine implements RichInputAPI {
   private parseText(text: string): RichContentToken[] {
     const tokens: RichContentToken[] = [];
 
-    // Use existing content parser to get segments
-    const contentSegments = ContentParser.parse(text);
+    // If text is empty, create a dummy token for cursor positioning
+    if (text.length === 0) {
+      tokens.push({
+        type: 'text',
+        content: '',
+        rawText: '',
+        start: 0,
+        end: 0,
+        metadata: {
+          isWhitespace: false,
+          isNewline: false,
+          hasNewlines: false,
+          isDummy: true // Mark as dummy token for special handling
+        }
+      });
+      return tokens;
+    }
 
-    for (const segment of contentSegments) {
-      if (segment.type === 'text') {
-        // For text segments, split on newlines to create separate tokens
-        const textValue = segment.value;
-        const segmentStart = segment.start || 0;
+    // Use the rich text parser to get all tokens including emojis
+    const richTextTokens = this.richTextParser.parse(text);
+
+    // Convert RichTextTokens to RichContentTokens
+    for (const richToken of richTextTokens) {
+      if (richToken.type === 'text') {
+        // For text tokens, split on newlines to create separate tokens
+        const textValue = richToken.content;
+        const segmentStart = richToken.start;
 
         if (textValue.includes('\n')) {
           // For text with newlines, create line-aware tokens for better cursor positioning
@@ -377,7 +425,7 @@ export class RichInputEngine implements RichInputAPI {
             content: textValue,
             rawText: textValue,
             start: segmentStart,
-            end: segment.end || segmentStart + textValue.length,
+            end: richToken.end,
             metadata: {
               isWhitespace: /^\s+$/.test(textValue),
               isNewline: false,
@@ -386,36 +434,54 @@ export class RichInputEngine implements RichInputAPI {
           });
         }
       } else {
-        // Generate display format for rawText
-        let displayText = segment.value;
-        if (segment.type === 'hashtag') {
-          displayText = `#${segment.value}`;
-        } else if (segment.type === 'mention') {
-          displayText = `@${segment.displayName || segment.value}`;
-        } else if (segment.type === 'url') {
-          displayText = segment.value;
+        // Convert rich text token to rich content token
+        const richContentToken: RichContentToken = {
+          type: richToken.type as any,
+          content: richToken.content,
+          rawText: richToken.rawText,
+          start: richToken.start,
+          end: richToken.end,
+          metadata: {}
+        };
+
+        // Add type-specific metadata
+        switch (richToken.type) {
+          case 'hashtag':
+            richContentToken.metadata!.hashtag = richToken.content;
+            break;
+          case 'mention':
+            richContentToken.metadata!.userId = richToken.userId;
+            richContentToken.metadata!.username = richToken.displayName;
+            richContentToken.metadata!.displayName = richToken.displayName;
+            richContentToken.metadata!.filterType = richToken.filterType as any;
+            break;
+          case 'url':
+            richContentToken.metadata!.href = richToken.href;
+            richContentToken.metadata!.behavior = richToken.behavior as any;
+            richContentToken.metadata!.originalFormat = richToken.rawText;
+            break;
+          case 'emoji':
+            richContentToken.metadata!.emojiId = richToken.emojiId;
+            richContentToken.metadata!.emojiUnicode = richToken.emojiUnicode;
+            richContentToken.metadata!.emojiImageUrl = richToken.emojiImageUrl;
+            break;
+          case 'markdown':
+            richContentToken.metadata!.markdownType = richToken.markdownType;
+            richContentToken.metadata!.href = richToken.href;
+            break;
+          case 'image':
+            richContentToken.metadata!.imageSrc = richToken.imageSrc;
+            richContentToken.metadata!.imageAlt = richToken.imageAlt;
+            richContentToken.metadata!.imageTitle = richToken.imageTitle;
+            break;
         }
 
-        tokens.push({
-          type: segment.type as any,
-          content: segment.value,
-          rawText: displayText,
-          start: segment.start || 0,
-          end: segment.end || displayText.length,
-          metadata: {
-            hashtag: segment.type === 'hashtag' ? segment.value : undefined,
-            userId: segment.userId,
-            username: segment.displayName,
-            displayName: segment.displayName,
-            filterType: segment.filterType,
-            href: segment.type === 'url' ? segment.value : undefined,
-            behavior: segment.behavior as any,
-            originalFormat: segment.rawFormat,
-            isWhitespace: false,
-            isNewline: false,
-            hasNewlines: false
-          }
-        });
+        // Set common metadata
+        richContentToken.metadata!.isWhitespace = false;
+        richContentToken.metadata!.isNewline = false;
+        richContentToken.metadata!.hasNewlines = false;
+
+        tokens.push(richContentToken);
       }
     }
 
@@ -724,6 +790,50 @@ export class RichInputEngine implements RichInputAPI {
         });
         currentOffset += 1; // Move past the newline character
       }
+    }
+  }
+
+  private async loadEmojisFromAPI(): Promise<void> {
+    // Only load emojis in browser environment
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    try {
+      // Fetch emojis from the API
+      const response = await fetch(
+        '/api/emojis?per_page=1000&include_custom=true'
+      );
+      if (!response.ok) {
+        throw new Error('Failed to load emojis from API');
+      }
+
+      const data = await response.json();
+
+      // Convert API emoji data to EmojiDefinition format and add to parser
+      const apiEmojis = data.emojis.map((emoji: any) => ({
+        id: emoji.emoji_id, // Use emoji_id as the primary ID (e.g., "beaming_face_with_smiling_eyes")
+        name: emoji.emoji_id, // Use emoji_id as name for consistency
+        imageUrl: emoji.custom_image_url,
+        unicode: emoji.unicode_char,
+        category: emoji.category.name,
+        tags: emoji.tags || [],
+        aliases: [
+          emoji.emoji_id, // Primary alias: "beaming_face_with_smiling_eyes"
+          ...(emoji.aliases || []), // Existing aliases from API
+          ...(emoji.name ? [emoji.name.toLowerCase().replace(/\s+/g, '_')] : []) // Convert human name to underscore format
+        ]
+      }));
+
+      // Add emojis to the rich text parser using the public API
+      for (const emoji of apiEmojis) {
+        this.richTextParser.addCustomEmoji(emoji);
+      }
+
+      richTextLogger.logInfo(`Loaded ${apiEmojis.length} emojis from API`);
+    } catch (error) {
+      richTextLogger.logWarning('Failed to load emojis from API:', error);
+      // Continue with built-in emojis if API fails
     }
   }
 }

@@ -1,22 +1,26 @@
 'use client';
 
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { NAV_PATHS } from '../../../lib/routes';
+import { generateScrollKey } from '../../../lib/utils/scroll-position';
 import { Author } from '../author/Author';
 import Loader from '../loader/Loader';
 import { DeleteSubmissionForm } from '../submission-forms/delete-submission-form/DeleteSubmissionForm';
+import { EditSubmissionForm } from '../submission-forms/edit-submission-form/EditSubmissionForm';
 import { Submission } from '../submission-forms/schema';
 import { TagLink } from '../tag-link/TagLink';
+import { BackButton } from '../ui/BackButton';
 import { ContentWithPills } from '../ui/ContentWithPills';
-import { getSubmissionThread } from './actions';
-import { ReplyForm } from './ReplyForm';
+import { InstantLink } from '../ui/InstantLink';
+import { TimestampWithTooltip } from '../ui/TimestampWithTooltip';
+import { getSubmissionThread, NestedSubmission } from './actions';
+import CollapsibleReplyForm from './CollapsibleReplyForm';
 import './Thread.css';
 
 interface ThreadProps {
   submissionId: number;
-  userId: string; // Internal database user ID
+  userId?: string;
   onHashtagClick?: (hashtag: string) => void;
   onMentionClick?: (mention: string, filterType: 'author' | 'mentions') => void;
   activeFilters?: {
@@ -27,8 +31,8 @@ interface ThreadProps {
 }
 
 interface ThreadData {
-  parent: Submission | null;
-  replies: Submission[];
+  parent: NestedSubmission | null;
+  replies: NestedSubmission[];
 }
 
 export default function Thread({
@@ -41,10 +45,12 @@ export default function Thread({
 }: ThreadProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
-  const [parentSubmission, setParentSubmission] = useState<Submission | null>(
-    null
+  const [parentSubmission, setParentSubmission] =
+    useState<NestedSubmission | null>(null);
+  const [replies, setReplies] = useState<NestedSubmission[]>([]);
+  const [editingSubmissions, setEditingSubmissions] = useState<Set<number>>(
+    new Set()
   );
-  const [replies, setReplies] = useState<Submission[]>([]);
 
   useEffect(() => {
     const loadThread = async () => {
@@ -69,13 +75,26 @@ export default function Thread({
     loadThread();
   }, [submissionId]);
 
-  const handleReplyAdded = async () => {
-    // Refresh the thread data when a new reply is added
-    try {
-      const threadData: ThreadData = await getSubmissionThread(submissionId);
-      setReplies(threadData.replies || []);
-    } catch (error) {
-      console.error('Error refreshing replies:', error);
+  const handleReplyAdded = async (result?: any) => {
+    // Use optimistic update if we have the new reply data, otherwise refresh
+    if (result && result.submission) {
+      // Optimistically add the new reply to the current state
+      const newReply: NestedSubmission = {
+        ...result.submission,
+        replies: [],
+        depth: 1,
+        author: userId || 'You', // Use current user as author
+        author_bio: null
+      };
+      setReplies((prevReplies) => [...prevReplies, newReply]);
+    } else {
+      // Fallback: refresh the thread data when a new reply is added
+      try {
+        const threadData: ThreadData = await getSubmissionThread(submissionId);
+        setReplies(threadData.replies || []);
+      } catch (error) {
+        console.error('Error refreshing replies:', error);
+      }
     }
   };
 
@@ -84,170 +103,347 @@ export default function Thread({
       // Parent was deleted, redirect to posts
       router.push(NAV_PATHS.POSTS);
     } else {
-      // A reply was deleted, remove it from the list
-      setReplies(replies.filter((reply) => reply.submission_id !== deletedId));
+      // A reply was deleted, refresh the thread
+      handleReplyAdded();
     }
   };
 
-  if (loading) {
-    return <Loader />;
-  }
-
-  if (!parentSubmission) {
-    return (
-      <div className="thread__not-found">
-        <h2>Thread not found</h2>
-        <p>
-          The post you&apos;re looking for doesn&apos;t exist or has been
-          deleted.
-        </p>
-        <Link href={NAV_PATHS.POSTS} className="thread__back-link">
-          ← Back to Posts
-        </Link>
-      </div>
-    );
-  }
-
-  const shouldShowSubmission = (submission: Submission): boolean => {
-    if (
-      !activeFilters ||
-      (activeFilters.hashtags.length === 0 &&
-        activeFilters.mentions.length === 0)
-    ) {
-      return true; // No filters active, show everything
+  const handleSubmissionUpdated = async (updatedSubmission?: Submission) => {
+    // Refresh the thread data when a submission is updated
+    try {
+      const threadData: ThreadData = await getSubmissionThread(submissionId);
+      setParentSubmission(threadData.parent);
+      setReplies(threadData.replies || []);
+      // Close edit mode for the updated submission
+      if (updatedSubmission) {
+        setEditingSubmissions((prev) => {
+          const newSet = new Set(prev);
+          newSet.delete(updatedSubmission.submission_id);
+          return newSet;
+        });
+      }
+    } catch (error) {
+      console.error('Error refreshing thread after update:', error);
     }
-
-    const content =
-      `${submission.submission_title} ${submission.submission_name}`.toLowerCase();
-
-    // Check if content matches hashtag filters
-    const hashtagMatches =
-      activeFilters.hashtags.length === 0 ||
-      activeFilters.hashtags.some((hashtag) =>
-        content.includes(`#${hashtag.toLowerCase()}`)
-      );
-
-    // Check if content matches mention filters
-    const mentionMatches =
-      activeFilters.mentions.length === 0 ||
-      activeFilters.mentions.some(
-        (mention) =>
-          content.includes(`@${mention.toLowerCase()}`) ||
-          submission.user_id?.toString() === mention ||
-          submission.author?.toLowerCase() === mention.toLowerCase()
-      );
-
-    // Show if matches any filter (OR logic)
-    return hashtagMatches || mentionMatches;
   };
 
-  const renderSubmission = (submission: Submission, isReply = false) => {
-    const shouldShow = shouldShowSubmission(submission);
+  const toggleEdit = (submissionId: number) => {
+    setEditingSubmissions((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(submissionId)) {
+        newSet.delete(submissionId);
+      } else {
+        newSet.add(submissionId);
+      }
+      return newSet;
+    });
+  };
 
-    if (!shouldShow) {
-      return null; // Hide filtered out submissions
+  // Filter function to check if a submission matches the active filters
+  const submissionMatchesFilters = (submission: NestedSubmission): boolean => {
+    if (!activeFilters) return true;
+
+    const { hashtags, mentions } = activeFilters;
+
+    // If no filters are active, show all submissions
+    if (hashtags.length === 0 && mentions.length === 0) {
+      return true;
     }
+
+    let matchesHashtags = true;
+    let matchesMentions = true;
+
+    // Check hashtag filters
+    if (hashtags.length > 0) {
+      const submissionContent = `${submission.submission_title} ${submission.submission_name || ''}`;
+      const submissionTags = submission.tags || [];
+
+      // Check if content contains any of the filtered hashtags
+      matchesHashtags = hashtags.some((hashtag) => {
+        const cleanHashtag = hashtag.replace('#', '');
+        return (
+          submissionContent
+            .toLowerCase()
+            .includes(`#${cleanHashtag.toLowerCase()}`) ||
+          submissionTags.some((tag) =>
+            tag.toLowerCase().includes(cleanHashtag.toLowerCase())
+          )
+        );
+      });
+    }
+
+    // Check mention filters (author filter)
+    if (mentions.length > 0) {
+      matchesMentions = mentions.some((mentionUserId) => {
+        return submission.user_id?.toString() === mentionUserId;
+      });
+    }
+
+    // For multiple filter types, use AND logic (both must match)
+    if (hashtags.length > 0 && mentions.length > 0) {
+      return matchesHashtags && matchesMentions;
+    }
+
+    // For single filter type, return the result
+    return matchesHashtags && matchesMentions;
+  };
+
+  // Recursive function to filter nested submissions
+  const filterNestedSubmissions = (
+    submissions: NestedSubmission[]
+  ): NestedSubmission[] => {
+    return submissions.filter(submissionMatchesFilters).map((submission) => ({
+      ...submission,
+      replies: submission.replies
+        ? filterNestedSubmissions(submission.replies)
+        : []
+    }));
+  };
+
+  // Render a single submission (parent or reply)
+  const renderSubmission = (
+    submission: NestedSubmission,
+    isReply: boolean = false,
+    depth: number = 0
+  ) => {
+    const isEditing = editingSubmissions.has(submission.submission_id);
+    // More robust author check with string comparison
+    const isAuthor = userId && submission.user_id?.toString() === userId;
+    const maxDepth = 5; // Maximum nesting depth
 
     return (
       <div
         key={submission.submission_id}
         className={`submission__wrapper ${isReply ? 'submission__wrapper--reply' : ''}`}
+        style={{ marginLeft: isReply ? `${depth * 1.5}rem` : '0' }}
       >
         <div className="submission__meta">
           <Author
             authorId={submission.user_id?.toString() || ''}
-            authorName={
-              submission.author || submission.user_id?.toString() || ''
-            }
+            authorName={submission.author || 'Unknown'}
+            bio={submission.author_bio}
             size="sm"
             showFullName={true}
-            bio={submission.author_bio}
           />
           <span className="submission__datetime">
-            {new Date(submission.submission_datetime).toLocaleDateString()}
+            <TimestampWithTooltip date={submission.submission_datetime} />
           </span>
+
+          {/* Edit/Delete buttons for post authors */}
+          {isAuthor && (
+            <div className="submission__owner-actions">
+              <button
+                onClick={() => toggleEdit(submission.submission_id)}
+                className="submission__edit-btn"
+                aria-label={isEditing ? 'Cancel edit' : 'Edit submission'}
+              >
+                {isEditing ? '✕' : '✏️'}
+              </button>
+
+              <DeleteSubmissionForm
+                id={submission.submission_id}
+                name={submission.submission_name}
+                isAuthorized={true}
+                authorId={userId}
+                onDeleteSuccess={() =>
+                  handleSubmissionDeleted(submission.submission_id)
+                }
+              />
+            </div>
+          )}
         </div>
 
-        <div className="submission__content">
-          <h3
-            className={
-              isReply ? 'submission__title--reply' : 'thread__main-title'
-            }
-          >
-            <ContentWithPills
-              content={submission.submission_title}
-              onHashtagClick={onHashtagClick}
-              onMentionClick={onMentionClick}
-              contextId={contextId || 'thread'}
+        {/* Show edit form or regular content */}
+        {isEditing ? (
+          <div className="submission__edit-form">
+            <EditSubmissionForm
+              submission={{
+                submission_id: submission.submission_id,
+                submission_title: submission.submission_title,
+                submission_name: submission.submission_name,
+                tags: submission.tags || []
+              }}
+              onSuccess={handleSubmissionUpdated}
+              onCancel={() => toggleEdit(submission.submission_id)}
             />
-          </h3>
-          {submission.submission_name &&
-            submission.submission_name !== submission.submission_title && (
-              <p className="submission__description">
+          </div>
+        ) : (
+          <>
+            <div className="submission__content">
+              <h3
+                className={
+                  isReply ? 'submission__title--reply' : 'thread__main-title'
+                }
+              >
                 <ContentWithPills
-                  content={submission.submission_name}
+                  content={submission.submission_title}
                   onHashtagClick={onHashtagClick}
                   onMentionClick={onMentionClick}
                   contextId={contextId || 'thread'}
                 />
-              </p>
-            )}
-        </div>
+              </h3>
+              {submission.submission_name &&
+                submission.submission_name !== submission.submission_title && (
+                  <p className="submission__description">
+                    <ContentWithPills
+                      content={submission.submission_name}
+                      onHashtagClick={onHashtagClick}
+                      onMentionClick={onMentionClick}
+                      contextId={contextId || 'thread'}
+                    />
+                  </p>
+                )}
+            </div>
 
-        {submission.tags && submission.tags.length > 0 && (
-          <div className="submission__tags">
-            {submission.tags.map((tag) => (
-              <TagLink key={tag} value={tag} contextId="thread" />
-            ))}
+            {/* Tags */}
+            {submission.tags && submission.tags.length > 0 && (
+              <div className="submission__tags">
+                {submission.tags.map((tag, index) => (
+                  <TagLink
+                    key={`${tag}-${index}`}
+                    value={tag}
+                    contextId={contextId || 'thread'}
+                    onTagClick={(clickedTag) => {
+                      if (onHashtagClick) {
+                        onHashtagClick(clickedTag);
+                      }
+                    }}
+                  />
+                ))}
+              </div>
+            )}
+          </>
+        )}
+
+        {/* Nested replies */}
+        {submission.replies && submission.replies.length > 0 && (
+          <div className="thread__nested-replies">
+            {submission.replies.map((reply) =>
+              renderSubmission(reply, true, depth + 1)
+            )}
           </div>
         )}
 
-        <DeleteSubmissionForm
-          id={submission.submission_id}
-          name={submission.submission_name}
-          isAuthorized={!!userId}
-          {...(userId && { authorId: userId })}
-        />
+        {/* Reply form for this specific submission (only if not too deep) */}
+        {userId && depth < maxDepth && (
+          <div
+            style={{
+              marginTop: '1rem'
+              // No additional left margin since the form is already inside the indented submission
+            }}
+          >
+            <CollapsibleReplyForm
+              parentId={submission.submission_id}
+              onSuccess={handleReplyAdded}
+              replyToAuthor={submission.author}
+            />
+          </div>
+        )}
       </div>
     );
   };
 
+  if (loading) {
+    return (
+      <div className="thread__loading">
+        <Loader />
+      </div>
+    );
+  }
+
+  if (!parentSubmission) {
+    return (
+      <div className="thread__not-found">
+        <h2>Thread Not Found</h2>
+        <p>The requested thread could not be found or may have been deleted.</p>
+        <InstantLink href={NAV_PATHS.POSTS}>← Back to Posts</InstantLink>
+      </div>
+    );
+  }
+
   return (
     <div className="thread__container">
-      <nav className="thread__navigation">
-        <Link href={NAV_PATHS.POSTS} className="thread__back-link">
-          ← Back to Posts
-        </Link>
-        <span className="thread__breadcrumb">Thread Discussion</span>
-      </nav>
+      {/* Navigation */}
+      <div className="thread__navigation">
+        <BackButton
+          className="thread__back-button"
+          fallbackHref={NAV_PATHS.POSTS}
+          scrollRestoreKey={
+            typeof window !== 'undefined'
+              ? (() => {
+                  // Try to reconstruct the scroll key from stored data or URL params
+                  const urlParams = new URLSearchParams(window.location.search);
+                  const page = urlParams.get('page')
+                    ? parseInt(urlParams.get('page')!)
+                    : undefined;
 
-      {/* Parent Post */}
-      <div className="thread__parent">
-        {parentSubmission && renderSubmission(parentSubmission)}
-      </div>
+                  // Try to get stored scroll position to extract the original key
+                  const stored = localStorage.getItem('app-scroll-positions');
+                  if (stored) {
+                    try {
+                      const positions = JSON.parse(stored);
+                      // Find the most recent posts page key
+                      const postsKeys = Object.keys(positions).filter((key) =>
+                        key.startsWith(NAV_PATHS.POSTS)
+                      );
+                      if (postsKeys.length > 0) {
+                        // Use the most recent one
+                        const mostRecent = postsKeys.reduce(
+                          (latest, current) =>
+                            positions[current].timestamp >
+                            positions[latest].timestamp
+                              ? current
+                              : latest
+                        );
+                        return mostRecent;
+                      }
+                    } catch (e) {
+                      console.warn('Failed to parse stored positions:', e);
+                    }
+                  }
 
-      {/* Reply Form */}
-      <div className="thread__reply-section">
-        <h3>Add a Reply</h3>
-        <ReplyForm
-          parentId={submissionId}
-          onSuccess={handleReplyAdded}
-          replyToAuthor={
-            parentSubmission?.author ||
-            parentSubmission?.user_id?.toString() ||
-            ''
+                  // Fallback: generate basic key
+                  return generateScrollKey(NAV_PATHS.POSTS, {
+                    page,
+                    searchParams: urlParams
+                  });
+                })()
+              : undefined
           }
-        />
+        >
+          ← Back to Posts
+        </BackButton>
       </div>
 
-      {/* Replies */}
+      {/* Parent submission - always show, but indicate if it matches filters */}
+      <div className="thread__parent">
+        {renderSubmission(parentSubmission, false, 0)}
+      </div>
+
+      {/* Direct replies */}
       {replies.length > 0 && (
         <div className="thread__replies">
-          <h3 className="thread__replies-title">Replies ({replies.length})</h3>
+          <h4 className="thread__replies-title">
+            {(() => {
+              const filteredReplies = filterNestedSubmissions(replies);
+              const count = filteredReplies.length;
+              const totalReplies = replies.length;
+              const hasActiveFilters =
+                activeFilters &&
+                (activeFilters.hashtags.length > 0 ||
+                  activeFilters.mentions.length > 0);
+
+              if (hasActiveFilters && count !== totalReplies) {
+                return `${count} of ${totalReplies} ${totalReplies === 1 ? 'Reply' : 'Replies'} (filtered)`;
+              }
+
+              return `${count} ${count === 1 ? 'Reply' : 'Replies'}`;
+            })()}
+          </h4>
           <div className="thread__replies-list">
-            {replies
-              .map((reply) => renderSubmission(reply, true))
-              .filter(Boolean)}
+            {filterNestedSubmissions(replies).map((reply) =>
+              renderSubmission(reply, true, 1)
+            )}
           </div>
         </div>
       )}

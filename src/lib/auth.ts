@@ -1,3 +1,4 @@
+import { createLogger } from '@/lib/logging';
 import NextAuth from 'next-auth';
 import { Pool } from 'pg';
 import { authConfig } from '../auth.config';
@@ -18,6 +19,13 @@ const pool = new Pool({
       : false
 });
 
+const logger = createLogger({
+  context: {
+    component: 'Auth',
+    module: 'lib'
+  }
+});
+
 export const nextAuth = NextAuth({
   adapter: CustomPostgresAdapter(pool),
   ...authConfig,
@@ -35,7 +43,10 @@ export const nextAuth = NextAuth({
           // Use database internal ID as the primary identifier for all app operations
           id: (token.databaseId || token.sub || '') as string,
           // Keep providerAccountId for OAuth purposes only
-          providerAccountId: token.providerAccountId as string
+          providerAccountId: token.providerAccountId as string,
+          // Include user preferences
+          spacing_theme: token.spacing_theme as 'cozy' | 'compact',
+          pagination_mode: token.pagination_mode as 'traditional' | 'infinite'
         };
       }
       return session;
@@ -48,17 +59,26 @@ export const nextAuth = NextAuth({
         token.providerAccountId =
           user.providerAccountId || account?.providerAccountId;
 
-        console.info('✅ JWT callback - User created/found:', {
-          databaseId: user.id,
+        // Include user preferences in token
+        token.spacing_theme = user.spacing_theme || 'cozy';
+        token.pagination_mode = user.pagination_mode || 'traditional';
+
+        // Log user creation/update
+        logger.info('JWT callback - User created/found', {
+          id: user.id,
+          email: user.email,
           name: user.name,
-          providerAccountId:
-            user.providerAccountId || account?.providerAccountId
+          provider: account?.provider,
+          spacing_theme: token.spacing_theme,
+          pagination_mode: token.pagination_mode
         });
       }
 
       // Capture providerAccountId from account during sign-in
       if (account?.providerAccountId) {
-        console.info('✅ JWT callback - Account linked:', {
+        // Log account linking
+        logger.info('JWT callback - Account linked', {
+          userId: user?.id,
           provider: account.provider,
           providerAccountId: account.providerAccountId
         });

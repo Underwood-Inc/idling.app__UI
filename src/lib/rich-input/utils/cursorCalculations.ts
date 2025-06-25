@@ -3,9 +3,17 @@
  * Handles cursor positioning within tokens and coordinate calculations
  */
 
+import { createLogger } from '@/lib/logging';
 import type { RichInputPosition } from '../types';
 import { richTextLogger } from './logger';
 import type { TokenPosition } from './tokenPositioning';
+
+const logger = createLogger({
+  context: {
+    component: 'CursorCalculations',
+    module: 'rich-input/utils'
+  }
+});
 
 // Use Element[] instead of NodeListOf to avoid type issues
 
@@ -254,6 +262,18 @@ function calculateCursorInTokenBasedStructure(
   const containerRect = contentElement.getBoundingClientRect();
   const textIndex = position.index;
 
+  // Special handling for empty input with dummy token
+  if (rawText.length === 0 && tokenElements.length === 1) {
+    const dummyElement = tokenElements[0];
+    if (dummyElement.getAttribute('data-is-dummy') === 'true') {
+      const tokenRect = dummyElement.getBoundingClientRect();
+      return {
+        x: tokenRect.left - containerRect.left,
+        y: tokenRect.top - containerRect.top
+      };
+    }
+  }
+
   for (const tokenElement of tokenElements) {
     const tokenStart = parseInt(
       tokenElement.getAttribute('data-token-start') || '0'
@@ -345,8 +365,7 @@ function calculatePreciseCursorInToken(
       y: rangeRect.top
     };
   } catch (error) {
-    console.warn('Error calculating precise cursor position:', error);
-
+    logger.warn('Error calculating precise cursor position', { error });
     // Fallback to proportional positioning
     const tokenRect = tokenElement.getBoundingClientRect();
     const proportionalX =
@@ -445,8 +464,10 @@ export function calculateCursorWithinToken(
       y: tokenRect.top - containerRect.top
     };
   } catch (error) {
-    console.warn('Error calculating cursor within token:', error);
-
+    logger.warn('Error calculating cursor within token', {
+      error,
+      tokenIndex: tokenPosition.tokenIndex
+    });
     // Fallback to proportional positioning within token
     const tokenWidth = tokenRect.width;
     const tokenLength = tokenPosition.token.rawText.length;
@@ -526,7 +547,7 @@ export function calculateCursorPositionWithRange(
       y: rangeRect.top
     };
   } catch (error) {
-    console.warn('Error in calculateCursorPositionWithRange:', error);
+    logger.warn('Error in calculateCursorPositionWithRange', { error });
     return null;
   }
 }
@@ -601,7 +622,7 @@ function calculateCursorPositionInMultilineToken(
       y: rangeRect.top
     };
   } catch (error) {
-    console.warn('Error in calculateCursorPositionInMultilineToken:', error);
+    logger.warn('Error in calculateCursorPositionInMultilineToken', { error });
     return null;
   }
 }

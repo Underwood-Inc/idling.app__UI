@@ -61,15 +61,21 @@
 /* Behavior-specific styling */
 .url-pill--modal {
   border-style: solid;
+  margin: 2px 0;
+  vertical-align: middle;
 }
 
 .url-pill--link {
   border-style: dashed;
+  margin: 2px 0;
+  vertical-align: middle;
 }
 
 .url-pill--embed {
   border-style: double;
   border-width: 2px;
+  margin: 2px 0;
+  vertical-align: middle;
 }
 
 /* Edit mode styling */
@@ -109,7 +115,7 @@
   margin-left: 6px;
   position: relative;
   z-index: 100;
-  background: rgba(0, 0, 0, 0.85);
+  background: rgba(0, 0, 0, 0.95);
   border-radius: 3px;
   padding: 3px;
   backdrop-filter: blur(4px);
@@ -165,7 +171,7 @@
 
 /* YouTube Embed Styling (for inline rich embeds) */
 .youtube-embed {
-  margin: 16px 0;
+  margin: 8px 0;
   border-radius: var(--border-radius);
   overflow: hidden;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
@@ -231,7 +237,7 @@
   display: flex;
   flex-direction: column;
   gap: 4px;
-  background: rgba(0, 0, 0, 0.8);
+  background: rgba(0, 0, 0, 0.95);
   border-radius: 6px;
   padding: 6px;
   z-index: 10;
@@ -425,7 +431,7 @@
   display: flex;
   flex-direction: column;
   gap: 4px;
-  background: rgba(0, 0, 0, 0.8);
+  background: rgba(0, 0, 0, 0.95);
   border-radius: 6px;
   padding: 6px;
   z-index: 10;

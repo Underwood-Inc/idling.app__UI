@@ -232,6 +232,35 @@
   border-top: 1px solid var(--light-bg__color--tertiary);
 }
 
+/* Disabled suggestion styling */
+.suggestion-item.disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background: var(--light-bg__color--tertiary);
+  color: var(--light-bg__text-color--secondary);
+}
+
+.suggestion-item.disabled:hover {
+  background: var(--light-bg__color--tertiary) !important;
+  color: var(--light-bg__text-color--secondary) !important;
+  cursor: not-allowed !important;
+}
+
+.suggestion-item.disabled .suggestion-trigger {
+  color: var(--light-bg__text-color--secondary);
+}
+
+.suggestion-item.disabled .suggestion-label {
+  color: var(--light-bg__text-color--secondary);
+}
+
+.suggestion-disabled-indicator {
+  margin-left: auto;
+  color: #28a745;
+  font-weight: bold;
+  font-size: 1.1em;
+}
+
 /* Responsive design */
 @media (max-width: 768px) {
   .inline-suggestion-input {
@@ -278,6 +307,24 @@
   .suggestion-no-results {
     padding: 0.75rem;
     font-size: var(--font-size-xs);
+  }
+}
+
+/* Dark mode support for disabled suggestions */
+@media (prefers-color-scheme: dark) {
+  .suggestion-item.disabled {
+    background: var(--dark-bg__color--tertiary);
+    color: var(--dark-bg__text-color--secondary);
+  }
+
+  .suggestion-item.disabled:hover {
+    background: var(--dark-bg__color--tertiary) !important;
+    color: var(--dark-bg__text-color--secondary) !important;
+  }
+
+  .suggestion-item.disabled .suggestion-trigger,
+  .suggestion-item.disabled .suggestion-label {
+    color: var(--dark-bg__text-color--secondary);
   }
 }
 

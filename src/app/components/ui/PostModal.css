@@ -1,14 +1,17 @@
 /* Post Modal Styles */
 .post-modal {
-  background-color: var(--dark-background--primary);
+  /* Apply glass effect with dark theme */
+  background: var(--glass-overlay-heavy, var(--glass-bg-heavy));
+  backdrop-filter: var(--glass-blur-heavy);
+  -webkit-backdrop-filter: var(--glass-blur-heavy);
+  border: 1px solid var(--glass-border-overlay-heavy, var(--glass-border-heavy));
+  box-shadow: var(--glass-shadow-heavy);
   border-radius: var(--border-radius) var(--border-radius) 0 0;
   width: 100%;
   max-width: 600px;
   max-height: 80vh;
-  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.3);
   display: flex;
   flex-direction: column;
-  border: 1px solid var(--brand-tertiary--dark);
 }
 
 /* Modal Header */
@@ -17,8 +20,11 @@
   align-items: center;
   justify-content: space-between;
   padding: 1.5rem 1.5rem 1rem 1.5rem;
-  border-bottom: 1px solid var(--brand-tertiary--dark);
-  background-color: var(--dark-background--secondary);
+  border-bottom: 1px solid var(--glass-border-overlay-medium, var(--glass-border-medium));
+  /* Apply glass effect for header */
+  background: var(--glass-overlay-medium, var(--glass-bg-medium));
+  backdrop-filter: var(--glass-blur-medium);
+  -webkit-backdrop-filter: var(--glass-blur-medium);
   border-radius: var(--border-radius) var(--border-radius) 0 0;
 }
 
@@ -34,9 +40,12 @@
   width: 2rem;
   height: 2rem;
   border-radius: 50%;
-  background-color: transparent;
+  /* Apply glass interactive effect */
+  background: var(--glass-overlay-light, var(--glass-bg-light));
+  backdrop-filter: var(--glass-blur-light);
+  -webkit-backdrop-filter: var(--glass-blur-light);
   color: var(--dark-bg__text-color--secondary);
-  border: 1px solid var(--brand-tertiary--dark);
+  border: 1px solid var(--glass-border-overlay-light, var(--glass-border-light));
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -46,9 +55,13 @@
 }
 
 .post-modal__close:hover {
-  background-color: var(--brand-tertiary);
+  background: var(--glass-overlay-heavy, var(--glass-bg-heavy));
+  backdrop-filter: var(--glass-blur-heavy);
+  -webkit-backdrop-filter: var(--glass-blur-heavy);
   color: var(--dark-bg__text-color--primary);
   border-color: var(--brand-primary);
+  transform: translateY(-1px);
+  box-shadow: var(--glass-shadow-medium);
 }
 
 .post-modal__close svg {

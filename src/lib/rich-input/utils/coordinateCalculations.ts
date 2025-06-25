@@ -1,8 +1,16 @@
+import { createLogger } from '@/lib/logging';
 import type {
   RichContentToken,
   RichInputPosition,
   RichInputSelection
 } from '../types';
+
+const logger = createLogger({
+  context: {
+    component: 'CoordinateCalculations',
+    module: 'rich-input/utils'
+  }
+});
 
 // Helper functions for coordinate calculations
 export function calculateCursorCoordinates(
@@ -17,7 +25,7 @@ export function calculateCursorCoordinates(
     // Use the new rendered-content-based measurement system
     return calculateCursorFromRenderedContent(position, contentElement);
   } catch (error) {
-    console.warn('Error calculating cursor coordinates:', error);
+    logger.warn('Error calculating cursor coordinates', { error });
     return null;
   }
 }
@@ -101,7 +109,7 @@ export function calculateCursorFromRenderedContent(
 
     return { x: 0, y: 0 };
   } catch (error) {
-    console.warn('Error in rendered content cursor calculation:', error);
+    logger.warn('Error in rendered content cursor calculation', { error });
     return null;
   }
 }
@@ -149,7 +157,7 @@ export function calculateSelectionCoordinates(
 
     return selectionRects;
   } catch (error) {
-    console.warn('Error calculating selection coordinates:', error);
+    logger.warn('Error calculating selection coordinates', { error });
     return [];
   }
 }
@@ -254,7 +262,7 @@ export function calculateClickPositionFromRenderedContent(
     const allText = contentElement.textContent || '';
     return createPositionFromIndex(allText.length, allText);
   } catch (error) {
-    console.warn('Error in rendered content click calculation:', error);
+    logger.warn('Error in rendered content click calculation', { error });
     return null;
   }
 }

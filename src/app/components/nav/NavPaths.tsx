@@ -1,7 +1,6 @@
 /* eslint-disable custom-rules/enforce-link-target-blank */
 'use client';
 
-import Link from 'next/link';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { Suspense, useEffect, useRef, useState } from 'react';
 import {
@@ -11,6 +10,7 @@ import {
   ROUTES
 } from '../../../lib/routes';
 import { Navbar } from '../navbar/Navbar';
+import { InstantLink } from '../ui/InstantLink';
 
 /**
  * Internal NavPaths component that uses useSearchParams
@@ -49,13 +49,13 @@ function NavPathsInternal() {
 
         return (
           <Navbar.Item key={`path--${key}`} isDisabled={isDisabled}>
-            <Link
+            <InstantLink
               href={path}
-              className={isActive ? 'active' : ''}
+              className={`instant-link--nav ${isActive ? 'active' : ''}`}
               aria-disabled={isDisabled}
             >
               {NAV_PATH_LABELS[key]}
-            </Link>
+            </InstantLink>
           </Navbar.Item>
         );
       })}
@@ -73,9 +73,13 @@ export function NavPaths() {
         <>
           {Object.entries(HEADER_NAV_PATHS).map(([key, value]) => (
             <Navbar.Item key={`path--${key}`} isDisabled={key === 'GAME'}>
-              <Link href={value} aria-disabled={key === 'GAME'}>
+              <InstantLink
+                href={value}
+                aria-disabled={key === 'GAME'}
+                className="instant-link--nav"
+              >
                 {NAV_PATH_LABELS[key as ROUTES]}
-              </Link>
+              </InstantLink>
             </Navbar.Item>
           ))}
         </>

@@ -266,6 +266,36 @@ export class DefaultRenderer implements RichInputRenderer {
 
       case 'text':
       default:
+        // Handle dummy tokens specially for empty state cursor positioning
+        if (token.metadata?.isDummy) {
+          return (
+            <span
+              key={`dummy-${index}`}
+              className="rich-input-dummy"
+              data-token-type="text"
+              data-token-index={index}
+              data-token-start={token.start}
+              data-token-end={token.end}
+              data-token-content={token.content}
+              data-is-dummy="true"
+              data-is-whitespace="false"
+              data-is-newline="false"
+              data-has-newlines="false"
+              style={{
+                display: 'inline',
+                width: 0,
+                height: '1em',
+                position: 'relative'
+              }}
+            >
+              {/* Invisible character for cursor positioning */}
+              <span style={{ opacity: 0, fontSize: 0, lineHeight: 0 }}>
+                &nbsp;
+              </span>
+            </span>
+          );
+        }
+
         // Handle whitespace tokens specially for proper rendering
         if (token.metadata?.isWhitespace) {
           return (
@@ -493,10 +523,18 @@ export class DefaultRenderer implements RichInputRenderer {
           position: 'absolute',
           top: 0,
           left: 0,
+          right: 0,
           color: 'var(--placeholder-color, #999)',
           fontStyle: 'italic',
           pointerEvents: 'none',
-          userSelect: 'none'
+          userSelect: 'none',
+          whiteSpace: state.isMultiline ? 'pre-wrap' : 'normal',
+          wordWrap: 'break-word',
+          overflowWrap: 'break-word',
+          lineHeight: 'inherit',
+          padding: 'inherit',
+          fontSize: 'inherit',
+          fontFamily: 'inherit'
         }}
       >
         {placeholder}

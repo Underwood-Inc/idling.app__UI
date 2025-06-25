@@ -1,6 +1,6 @@
-import Link from 'next/link';
 import { NAV_PATHS } from 'src/lib/routes';
 import { LinkTooltip } from '../tooltip/LinkTooltip';
+import { InstantLink } from '../ui/InstantLink';
 
 export const GalaxyLink = () => (
   <LinkTooltip
@@ -9,8 +9,8 @@ export const GalaxyLink = () => (
     enableCtrlClick
     isInsideParagraph
   >
-    <Link target="_blank" href={NAV_PATHS.GALAXY}>
+    <InstantLink target="_blank" href={NAV_PATHS.GALAXY}>
       Galaxy
-    </Link>
+    </InstantLink>
   </LinkTooltip>
 );

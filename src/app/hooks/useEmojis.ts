@@ -3,7 +3,7 @@
  * React hook for fetching and managing emojis with OS detection
  */
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useOSDetection } from '../../lib/utils/os-detection';
 
 export interface EmojiData {
@@ -91,6 +91,20 @@ export interface UseEmojisReturn {
   ) => Promise<void>;
 }
 
+// Global cache to prevent duplicate API requests
+interface EmojiCache {
+  data: EmojiResponse | null;
+  timestamp: number;
+  promise: Promise<EmojiResponse> | null;
+}
+
+const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+let globalEmojiCache: EmojiCache = {
+  data: null,
+  timestamp: 0,
+  promise: null
+};
+
 export function useEmojis(options: UseEmojisOptions = {}): UseEmojisReturn {
   const { autoFetch = true, defaultFilters = {}, pageSize = 50 } = options;
 
@@ -113,14 +127,75 @@ export function useEmojis(options: UseEmojisOptions = {}): UseEmojisReturn {
     ...defaultFilters
   });
 
-  // Fetch emojis from API - FIXED: Remove filters from dependencies to prevent infinite loop
+  // Memoize filters to prevent unnecessary re-renders of fetchEmojis
+  const memoizedFilters = useMemo(
+    () => filters,
+    [
+      filters.category,
+      filters.search,
+      filters.includeCustom,
+      filters.includeUsage
+    ]
+  );
+
+  // Check if cache is valid
+  const isCacheValid = useCallback(() => {
+    return (
+      globalEmojiCache.data &&
+      Date.now() - globalEmojiCache.timestamp < CACHE_DURATION
+    );
+  }, []);
+
+  // Fetch emojis from API with caching - Remove filters dependency to prevent re-renders
   const fetchEmojis = useCallback(
     async (newFilters?: EmojiFilters, page: number = 1) => {
       try {
         setLoading(true);
         setError(null);
 
-        const activeFilters = newFilters || filters;
+        // Use memoized filters to prevent re-renders
+        const activeFilters = newFilters || memoizedFilters;
+
+        // For initial fetch without filters, use cache
+        if (page === 1 && !activeFilters.category && !activeFilters.search) {
+          if (isCacheValid()) {
+            const cachedData = globalEmojiCache.data!;
+            setEmojis(cachedData.emojis);
+            setCategories(cachedData.categories);
+            setApiOsInfo(cachedData.os_info);
+            setCurrentPage(page);
+            setTotalCount(cachedData.total_count);
+            setHasMore(
+              cachedData.emojis.length === pageSize &&
+                cachedData.emojis.length < cachedData.total_count
+            );
+            if (newFilters) {
+              setFiltersState(newFilters);
+            }
+            setLoading(false);
+            return;
+          }
+
+          // If there's already a pending request, wait for it
+          if (globalEmojiCache.promise) {
+            const cachedData = await globalEmojiCache.promise;
+            setEmojis(cachedData.emojis);
+            setCategories(cachedData.categories);
+            setApiOsInfo(cachedData.os_info);
+            setCurrentPage(page);
+            setTotalCount(cachedData.total_count);
+            setHasMore(
+              cachedData.emojis.length === pageSize &&
+                cachedData.emojis.length < cachedData.total_count
+            );
+            if (newFilters) {
+              setFiltersState(newFilters);
+            }
+            setLoading(false);
+            return;
+          }
+        }
+
         const params = new URLSearchParams({
           page: page.toString(),
           per_page: pageSize.toString(),
@@ -134,14 +209,30 @@ export function useEmojis(options: UseEmojisOptions = {}): UseEmojisReturn {
           })
         });
 
-        const response = await fetch(`/api/emojis?${params}`);
+        // Create the fetch promise
+        const fetchPromise = fetch(`/api/emojis?${params}`).then(
+          async (response) => {
+            if (!response.ok) {
+              const errorData = await response.json();
+              throw new Error(errorData.error || 'Failed to fetch emojis');
+            }
+            return response.json() as Promise<EmojiResponse>;
+          }
+        );
 
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.error || 'Failed to fetch emojis');
+        // Cache the promise for initial requests
+        if (page === 1 && !activeFilters.category && !activeFilters.search) {
+          globalEmojiCache.promise = fetchPromise;
         }
 
-        const data: EmojiResponse = await response.json();
+        const data = await fetchPromise;
+
+        // Cache the result for initial requests
+        if (page === 1 && !activeFilters.category && !activeFilters.search) {
+          globalEmojiCache.data = data;
+          globalEmojiCache.timestamp = Date.now();
+          globalEmojiCache.promise = null;
+        }
 
         if (page === 1) {
           setEmojis(data.emojis);
@@ -166,18 +257,23 @@ export function useEmojis(options: UseEmojisOptions = {}): UseEmojisReturn {
           err instanceof Error ? err.message : 'Unknown error occurred';
         setError(errorMessage);
         console.error('Error fetching emojis:', err);
+
+        // Clear cache on error
+        if (globalEmojiCache.promise) {
+          globalEmojiCache.promise = null;
+        }
       } finally {
         setLoading(false);
       }
     },
-    [pageSize] // FIXED: Only depend on pageSize, not filters
+    [pageSize, isCacheValid, memoizedFilters]
   );
 
   // Load more emojis (pagination)
   const loadMore = useCallback(async () => {
     if (!hasMore || loading) return;
-    await fetchEmojis(filters, currentPage + 1);
-  }, [fetchEmojis, filters, currentPage, hasMore, loading]);
+    await fetchEmojis(memoizedFilters, currentPage + 1);
+  }, [fetchEmojis, memoizedFilters, currentPage, hasMore, loading]);
 
   // Set filters and refetch - FIXED: Use current filters from state
   const setFilters = useCallback(
@@ -223,6 +319,11 @@ export function useEmojis(options: UseEmojisOptions = {}): UseEmojisReturn {
 
   // Refresh emojis - FIXED: Use current filters from state
   const refreshEmojis = useCallback(async () => {
+    // Clear cache on refresh
+    globalEmojiCache.data = null;
+    globalEmojiCache.timestamp = 0;
+    globalEmojiCache.promise = null;
+
     setCurrentPage(1);
     // Use current filters from state
     setFiltersState((currentFilters) => {
@@ -246,16 +347,14 @@ export function useEmojis(options: UseEmojisOptions = {}): UseEmojisReturn {
           })
         });
 
-        // Optionally refresh emojis to update usage counts
-        if (filters.includeUsage) {
-          await refreshEmojis();
-        }
+        // Don't refresh emojis immediately to avoid double renders
+        // Usage counts will be updated on next natural refresh
       } catch (err) {
         console.error('Error tracking emoji usage:', err);
         // Don't throw error for usage tracking failures
       }
     },
-    [filters.includeUsage, refreshEmojis]
+    [filters.includeUsage] // Remove refreshEmojis dependency to prevent re-renders
   );
 
   // Auto-fetch on mount if enabled - FIXED: Only run once on mount
@@ -263,7 +362,7 @@ export function useEmojis(options: UseEmojisOptions = {}): UseEmojisReturn {
     if (autoFetch && osInfo.isSupported) {
       fetchEmojis();
     }
-  }, [autoFetch, osInfo.isSupported]); // FIXED: Remove fetchEmojis from dependencies
+  }, [autoFetch, osInfo.isSupported, fetchEmojis]);
 
   return {
     emojis,
@@ -366,8 +465,7 @@ export function getEmojiDisplay(emoji: EmojiData): string {
 
 // Helper function to format emoji for text insertion
 export function formatEmojiForText(emoji: EmojiData): string {
-  if (emoji.is_custom) {
-    return `:${emoji.emoji_id}:`; // Custom emoji syntax
-  }
-  return emoji.unicode_char || `:${emoji.emoji_id}:`;
+  // Always use colon syntax for both custom and standard emojis
+  // This ensures they are properly tokenized by the RichTextParser
+  return `:${emoji.emoji_id}:`;
 }

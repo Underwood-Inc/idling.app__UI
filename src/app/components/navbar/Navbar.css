@@ -1,3 +1,51 @@
+/* Navbar Brand Avatar Styles */
+.navbar-brand__avatar {
+  margin-bottom: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.navbar-brand__avatar:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.navbar-brand__avatar--default:hover {
+  background-color: var(--brand-primary--dark) !important;
+  border-color: var(--brand-primary) !important;
+}
+
+/* Pulse animation for loading state */
+@keyframes pulse {
+  0% {
+    opacity: 0.4;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 0.6;
+    transform: scale(1.02);
+  }
+
+  100% {
+    opacity: 0.4;
+    transform: scale(1);
+  }
+}
+
+.navbar-brand__avatar--placeholder {
+  animation: pulse 2s infinite;
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .navbar-brand__avatar--placeholder {
+    background-color: var(--dark-background--tertiary) !important;
+    border-color: var(--dark-border--secondary) !important;
+  }
+}
+
+/* Existing navbar styles */
 .navbar__container {
   display: flex;
   flex-direction: column;
@@ -21,6 +69,10 @@
     min-width: auto;
     margin-right: 0.5rem;
   }
+
+  .navbar-brand__avatar {
+    margin-bottom: 0.25rem;
+  }
 }
 
 @media (max-width: 480px) {
@@ -30,5 +82,9 @@
 
   .navbar__item {
     font-size: 0.9rem;
+  }
+
+  .navbar-brand__avatar {
+    margin-bottom: 0.25rem;
   }
 }

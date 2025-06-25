@@ -1,0 +1,217 @@
+/**
+ * Scroll Restoration Highlight Animation
+ * 
+ * Reusable animation system for highlighting elements after scroll restoration.
+ * Can be applied to any element with configurable duration via CSS custom properties.
+ * 
+ * Usage:
+ * 1. Add class: scroll-restore-highlight
+ * 2. Optionally set duration: --scroll-highlight-duration: 2000ms;
+ * 3. Animation will auto-remove after completion
+ */
+
+/* CSS Custom Properties for configuration */
+:root {
+  --scroll-highlight-duration: 3500ms;
+  /* Default duration */
+  --scroll-highlight-primary-color: var(--brand-primary, #edae49);
+  --scroll-highlight-primary-rgb: 237, 174, 73;
+  /* RGB values for rgba() */
+  --scroll-highlight-easing: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --scroll-highlight-scale-max: 1.02;
+  --scroll-highlight-border-radius: var(--border-radius, 0.5rem);
+}
+
+/* Main highlight animation keyframes */
+@keyframes scroll-restore-highlight {
+  0% {
+    box-shadow:
+      0 0 0 2px var(--scroll-highlight-primary-color),
+      0 0 0 4px rgba(var(--scroll-highlight-primary-rgb), 0.3),
+      0 0 0 8px rgba(var(--scroll-highlight-primary-rgb), 0.2),
+      0 0 0 16px rgba(var(--scroll-highlight-primary-rgb), 0.1);
+    transform: scale(1);
+  }
+
+  50% {
+    box-shadow:
+      0 0 0 4px var(--scroll-highlight-primary-color),
+      0 0 0 12px rgba(var(--scroll-highlight-primary-rgb), 0.4),
+      0 0 0 24px rgba(var(--scroll-highlight-primary-rgb), 0.3),
+      0 0 0 48px rgba(var(--scroll-highlight-primary-rgb), 0.1);
+    transform: scale(var(--scroll-highlight-scale-max));
+  }
+
+  100% {
+    box-shadow:
+      0 0 0 0px var(--scroll-highlight-primary-color),
+      0 0 0 0px rgba(var(--scroll-highlight-primary-rgb), 0),
+      0 0 0 0px rgba(var(--scroll-highlight-primary-rgb), 0),
+      0 0 0 0px rgba(var(--scroll-highlight-primary-rgb), 0);
+    transform: scale(1);
+  }
+}
+
+/* Pulse animation for additional emphasis */
+@keyframes scroll-restore-pulse {
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.8;
+  }
+}
+
+/* Simplified animation for reduced motion preference */
+@keyframes scroll-restore-pulse-simple {
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.7;
+  }
+}
+
+/* Main highlight class */
+.scroll-restore-highlight {
+  animation:
+    scroll-restore-highlight var(--scroll-highlight-duration) var(--scroll-highlight-easing) forwards,
+    scroll-restore-pulse calc(var(--scroll-highlight-duration) * 0.23) ease-in-out 2 alternate;
+  border-radius: var(--scroll-highlight-border-radius);
+  position: relative;
+  z-index: 100;
+
+  /* Ensure the element maintains its original styling */
+  animation-fill-mode: forwards;
+
+  /* Custom property for duration override */
+  --scroll-highlight-duration: var(--scroll-highlight-duration, 3500ms);
+
+  /* Override any containment that might prevent box-shadow expansion */
+  contain: none !important;
+}
+
+/* Variant classes for different durations */
+.scroll-restore-highlight--fast {
+  --scroll-highlight-duration: 2000ms;
+}
+
+.scroll-restore-highlight--slow {
+  --scroll-highlight-duration: 5000ms;
+}
+
+.scroll-restore-highlight--instant {
+  --scroll-highlight-duration: 1500ms;
+}
+
+/* Variant classes for different intensities */
+.scroll-restore-highlight--subtle {
+  --scroll-highlight-scale-max: 1.01;
+}
+
+.scroll-restore-highlight--intense {
+  --scroll-highlight-scale-max: 1.05;
+}
+
+/* Color variant classes */
+.scroll-restore-highlight--success {
+  --scroll-highlight-primary-color: var(--color-quinary, #008585);
+  --scroll-highlight-primary-rgb: 0, 133, 133;
+}
+
+.scroll-restore-highlight--warning {
+  --scroll-highlight-primary-color: var(--warning, #f5c60c);
+  --scroll-highlight-primary-rgb: 245, 198, 12;
+}
+
+.scroll-restore-highlight--error {
+  --scroll-highlight-primary-color: var(--error, #ea2b1f);
+  --scroll-highlight-primary-rgb: 234, 43, 31;
+}
+
+/* Specific element type optimizations */
+.submission__wrapper.scroll-restore-highlight {
+  /* Ensure submission wrappers maintain their layout */
+  animation:
+    scroll-restore-highlight var(--scroll-highlight-duration) var(--scroll-highlight-easing) forwards,
+    scroll-restore-pulse calc(var(--scroll-highlight-duration) * 0.23) ease-in-out 2 alternate;
+}
+
+.submissions-list__item.scroll-restore-highlight {
+  /* Ensure list items maintain their layout */
+  animation:
+    scroll-restore-highlight var(--scroll-highlight-duration) var(--scroll-highlight-easing) forwards,
+    scroll-restore-pulse calc(var(--scroll-highlight-duration) * 0.23) ease-in-out 2 alternate;
+
+  /* Override containment to allow box-shadow to expand beyond bounds */
+  contain: none !important;
+
+  /* Ensure the element is positioned to allow z-index stacking */
+  position: relative;
+  z-index: 100;
+}
+
+/* Card-like elements */
+.card.scroll-restore-highlight,
+.post-item.scroll-restore-highlight,
+.comment-item.scroll-restore-highlight {
+  animation:
+    scroll-restore-highlight var(--scroll-highlight-duration) var(--scroll-highlight-easing) forwards,
+    scroll-restore-pulse calc(var(--scroll-highlight-duration) * 0.23) ease-in-out 2 alternate;
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+
+  .scroll-restore-highlight,
+  .submission__wrapper.scroll-restore-highlight,
+  .submissions-list__item.scroll-restore-highlight,
+  .card.scroll-restore-highlight,
+  .post-item.scroll-restore-highlight,
+  .comment-item.scroll-restore-highlight {
+    /* Simplified animation that respects reduced motion preference */
+    animation: scroll-restore-pulse-simple calc(var(--scroll-highlight-duration) * 0.3) ease-in-out 1;
+    box-shadow: 0 0 0 2px var(--scroll-highlight-primary-color);
+    transform: none;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+
+  .scroll-restore-highlight,
+  .submission__wrapper.scroll-restore-highlight,
+  .submissions-list__item.scroll-restore-highlight {
+    /* Enhanced visibility for high contrast mode */
+    --scroll-highlight-primary-color: currentColor;
+    border: 2px solid currentColor;
+  }
+}
+
+/* Dark mode adjustments */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --scroll-highlight-primary-color: var(--brand-primary-light, #f9df74);
+    --scroll-highlight-primary-rgb: 249, 223, 116;
+  }
+}
+
+/* Utility classes for manual control */
+.scroll-restore-highlight--no-scale {
+  --scroll-highlight-scale-max: 1;
+}
+
+.scroll-restore-highlight--no-pulse {
+  animation: scroll-restore-highlight var(--scroll-highlight-duration) var(--scroll-highlight-easing) forwards;
+}
+
+.scroll-restore-highlight--pulse-only {
+  animation: scroll-restore-pulse calc(var(--scroll-highlight-duration) * 0.5) ease-in-out infinite alternate;
+  box-shadow: 0 0 0 2px var(--scroll-highlight-primary-color);
+}

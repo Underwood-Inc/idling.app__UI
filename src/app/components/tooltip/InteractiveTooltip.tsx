@@ -2,7 +2,7 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import './LinkTooltip.css';
+import './InteractiveTooltip.css';
 
 interface InteractiveTooltipProps {
   content: React.ReactNode;
@@ -13,7 +13,16 @@ interface InteractiveTooltipProps {
   className?: string; // Additional CSS class for tooltip wrapper
   triggerOnClick?: boolean; // If true, tooltip shows/hides on click instead of hover
   onClose?: () => void; // Callback when tooltip closes
+  onShow?: () => void; // Callback when tooltip is about to show
 }
+
+// Utility function to detect mobile devices
+const isMobileDevice = () => {
+  return (
+    typeof window !== 'undefined' &&
+    window.matchMedia('(hover: none) and (pointer: coarse)').matches
+  );
+};
 
 export const InteractiveTooltip: React.FC<InteractiveTooltipProps> = ({
   content,
@@ -23,7 +32,8 @@ export const InteractiveTooltip: React.FC<InteractiveTooltipProps> = ({
   delay = 300,
   className = '',
   triggerOnClick = false,
-  onClose
+  onClose,
+  onShow
 }) => {
   const [showTooltip, setShowTooltip] = useState(false);
   const [position, setPosition] = useState({ top: 0, left: 0 });
@@ -134,13 +144,18 @@ export const InteractiveTooltip: React.FC<InteractiveTooltipProps> = ({
   }, [showTooltip, onClose]);
 
   const handleMouseEnter = () => {
-    if (disabled || triggerOnClick) return; // Don't trigger on hover if click mode is enabled
+    // On mobile, don't trigger hover events
+    const isMobile = isMobileDevice();
+    if (disabled || triggerOnClick || isMobile) return;
 
     isHoveringRef.current = true;
     if (hideTimeoutRef.current) {
       clearTimeout(hideTimeoutRef.current);
     }
     const timeout = setTimeout(() => {
+      if (onShow) {
+        onShow(); // Call onShow callback before showing tooltip
+      }
       setShowTooltip(true);
       // Update position after a short delay to ensure content is rendered
       setTimeout(updatePosition, 0);
@@ -149,7 +164,9 @@ export const InteractiveTooltip: React.FC<InteractiveTooltipProps> = ({
   };
 
   const handleMouseLeave = () => {
-    if (triggerOnClick) return; // Don't hide on mouse leave if click mode is enabled
+    // On mobile, don't trigger mouse leave events
+    const isMobile = isMobileDevice();
+    if (triggerOnClick || isMobile) return;
 
     isHoveringRef.current = false;
     if (hideTimeoutRef.current) {
@@ -164,9 +181,19 @@ export const InteractiveTooltip: React.FC<InteractiveTooltipProps> = ({
   };
 
   const handleClick = () => {
-    if (disabled || !triggerOnClick) return;
+    if (disabled) return;
+
+    // On mobile, always use click mode regardless of triggerOnClick setting
+    const isMobile = isMobileDevice();
+
+    if (!triggerOnClick && !isMobile) return;
 
     const newShowState = !showTooltip;
+
+    if (newShowState && onShow) {
+      onShow(); // Call onShow callback before showing tooltip
+    }
+
     setShowTooltip(newShowState);
 
     if (newShowState) {
@@ -178,7 +205,7 @@ export const InteractiveTooltip: React.FC<InteractiveTooltipProps> = ({
   };
 
   const handleTooltipMouseEnter = () => {
-    if (triggerOnClick) return; // Don't use hover logic in click mode
+    if (triggerOnClick || isMobileDevice()) return; // Don't use hover logic in click mode or on mobile
 
     isHoveringRef.current = true;
     if (hideTimeoutRef.current) {
@@ -187,7 +214,7 @@ export const InteractiveTooltip: React.FC<InteractiveTooltipProps> = ({
   };
 
   const handleTooltipMouseLeave = () => {
-    if (triggerOnClick) return; // Don't use hover logic in click mode
+    if (triggerOnClick || isMobileDevice()) return; // Don't use hover logic in click mode or on mobile
 
     isHoveringRef.current = false;
     handleMouseLeave();
@@ -204,7 +231,10 @@ export const InteractiveTooltip: React.FC<InteractiveTooltipProps> = ({
 
   // Clone content and pass closeTooltip function if it's a React element
   const enhancedContent = React.isValidElement(content)
-    ? React.cloneElement(content as React.ReactElement<any>, { closeTooltip })
+    ? React.cloneElement(content as React.ReactElement<any>, {
+        // Only pass closeTooltip to React components, not DOM elements
+        ...(typeof (content as any).type === 'function' ? { closeTooltip } : {})
+      })
     : content;
 
   const Wrapper = isInsideParagraph ? 'span' : 'div';
@@ -226,14 +256,28 @@ export const InteractiveTooltip: React.FC<InteractiveTooltipProps> = ({
         createPortal(
           <div
             ref={tooltipContentRef}
-            className={`link-tooltip interactive-tooltip ${className} ${showTooltip ? 'visible' : ''}`}
+            className={`link-tooltip interactive-tooltip glass-border-heavy ${className} ${showTooltip ? 'visible' : ''}`}
             onMouseEnter={handleTooltipMouseEnter}
             onMouseLeave={handleTooltipMouseLeave}
             style={{
               position: 'fixed',
               top: position.top,
               left: position.left,
-              zIndex: 10000
+              zIndex: 10001,
+              // Protected background styles - components cannot override these
+              background: 'var(--tooltip-glass-bg) !important',
+              backdropFilter: 'var(--tooltip-glass-blur) !important',
+              WebkitBackdropFilter: 'var(--tooltip-glass-blur) !important',
+              border: '1px solid var(--tooltip-glass-border) !important',
+              boxShadow: 'var(--tooltip-glass-shadow) !important',
+              // Only allow transparent background for author-tooltip-wrapper
+              ...(className === 'author-tooltip-wrapper' && {
+                background: 'transparent !important',
+                backdropFilter: 'none !important',
+                WebkitBackdropFilter: 'none !important',
+                border: 'none !important',
+                boxShadow: 'none !important'
+              })
             }}
             data-testid="interactive-tooltip"
           >

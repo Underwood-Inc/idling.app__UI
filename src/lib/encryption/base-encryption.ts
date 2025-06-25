@@ -4,8 +4,16 @@
  * Supports both personal (per-user) and global (application-level) encryption
  */
 
+import { createLogger } from '@/lib/logging';
 import { sql } from '@vercel/postgres';
 import crypto from 'crypto';
+
+const logger = createLogger({
+  context: {
+    component: 'BaseEncryption',
+    module: 'encryption'
+  }
+});
 
 export type EncryptionScope = 'personal' | 'global';
 export type EncryptionContext = string; // e.g., 'emoji', 'message', 'file', etc.
@@ -184,10 +192,10 @@ export class BaseEncryptionService {
       this.keyCache.set(keyId, key);
       return key;
     } catch (error) {
-      console.error(
-        `Error retrieving global encryption key for context '${context}':`,
-        error
-      );
+      logger.error('Error retrieving global encryption key', error as Error, {
+        context,
+        operation: 'getGlobalKey'
+      });
       throw new Error(
         `Failed to retrieve global encryption key for ${context}`
       );
@@ -248,10 +256,11 @@ export class BaseEncryptionService {
       this.keyCache.set(keyId, key);
       return key;
     } catch (error) {
-      console.error(
-        `Error retrieving personal encryption key for user ${userId} and context '${context}':`,
-        error
-      );
+      logger.error('Error retrieving personal encryption key', error as Error, {
+        userId,
+        context,
+        operation: 'getPersonalKey'
+      });
       throw new Error(
         `Failed to retrieve personal encryption key for ${context}`
       );
