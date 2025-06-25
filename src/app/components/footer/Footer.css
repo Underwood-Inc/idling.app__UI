@@ -3,7 +3,8 @@
   left: 0;
   right: 0;
   position: fixed;
-  background-color: #222;
+  background-color: var(--dark-background--primary);
+  border-top: 2px solid var(--dark-background--quinary);
   align-items: center;
   max-height: 10rem;
   height: 4.5rem;

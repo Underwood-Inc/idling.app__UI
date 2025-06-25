@@ -1,5 +1,6 @@
 .header {
-  background-color: #222;
+  background-color: var(--dark-background--primary);
+  border-bottom: 2px solid var(--dark-background--quinary);
   padding: 0.5rem 2rem 0;
   color: var(--brand-primary);
   display: flex;
