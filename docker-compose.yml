@@ -16,7 +16,7 @@ services:
       retries: 5
 
   nextjs:
-    image: node:latest
+    build: .
     container_name: nextjs
     working_dir: /app
     volumes:
@@ -24,6 +24,7 @@ services:
       - /app/node_modules
     ports:
       - '0.0.0.0:3000:3000'
+      - '0.0.0.0:4000:4000' # Add Jekyll docs port
     env_file:
       - ./.env.local
     environment:
@@ -33,7 +34,8 @@ services:
       # By defining this here, we override the value defined in ./.env.local
       POSTGRES_HOST: postgres
       IS_DOCKERIZED: true
-    command: sh -c "npm install --legacy-peer-deps && npm run dev -- -H 0.0.0.0"
+      SHELL: /usr/bin/zsh # Ensure zsh is used
+    command: zsh -c "npm install --legacy-peer-deps && npm run dev -- -H 0.0.0.0"
     depends_on:
       postgres:
         condition: service_healthy
