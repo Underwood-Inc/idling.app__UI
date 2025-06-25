@@ -24,13 +24,21 @@ export default async function Page({
   return (
     <PageContainer>
       <article className="signin__container">
-        {providers.map((provider) => (
-          <ClientSignIn
-            key={provider}
-            provider={provider}
-            redirectTo={redirectTo}
-          />
-        ))}
+        <div className="signin__header">
+          <h1 className="signin__title">Welcome to Idling App</h1>
+          <p className="signin__subtitle">
+            Choose your preferred sign-in method to continue
+          </p>
+        </div>
+        <div className="signin__providers">
+          {providers.map((provider) => (
+            <ClientSignIn
+              key={provider}
+              provider={provider}
+              redirectTo={redirectTo}
+            />
+          ))}
+        </div>
       </article>
     </PageContainer>
   );

@@ -17,6 +17,7 @@ export interface SuggestionItem {
   displayName?: string; // For users, this is the author name for display
   avatar?: string;
   type: 'hashtag' | 'user';
+  disabled?: boolean; // Whether this option is already selected and should be disabled
 }
 
 export interface InlineSuggestionInputProps {
@@ -267,7 +268,15 @@ export const InlineSuggestionInput: React.FC<InlineSuggestionInputProps> = ({
         setSuggestions((prev) => [...prev, ...result.items]);
       } else {
         setSuggestions(result.items);
-        setSelectedIndex(-1);
+        // Set selected index to first non-disabled item
+        let firstEnabledIndex = -1;
+        for (let i = 0; i < result.items.length; i++) {
+          if (!result.items[i].disabled) {
+            firstEnabledIndex = i;
+            break;
+          }
+        }
+        setSelectedIndex(firstEnabledIndex);
       }
 
       setHasMore(result.hasMore);
@@ -386,30 +395,94 @@ export const InlineSuggestionInput: React.FC<InlineSuggestionInputProps> = ({
       case 'ArrowDown':
         e.preventDefault();
         if (selectedIndex < suggestions.length - 1) {
-          setSelectedIndex(selectedIndex + 1);
+          let nextIndex = selectedIndex + 1;
+          // Skip disabled items
+          while (
+            nextIndex < suggestions.length &&
+            suggestions[nextIndex]?.disabled
+          ) {
+            nextIndex++;
+          }
+          if (nextIndex < suggestions.length) {
+            setSelectedIndex(nextIndex);
+          } else if (hasMore && !isLoading) {
+            // Load more when reaching the end
+            loadMore();
+          } else {
+            // Wrap to beginning, finding first non-disabled item
+            let wrapIndex = 0;
+            while (
+              wrapIndex < suggestions.length &&
+              suggestions[wrapIndex]?.disabled
+            ) {
+              wrapIndex++;
+            }
+            if (wrapIndex < suggestions.length) {
+              setSelectedIndex(wrapIndex);
+            }
+          }
         } else if (hasMore && !isLoading) {
           // Load more when reaching the end
           loadMore();
         } else {
-          setSelectedIndex(0);
+          // Wrap to beginning, finding first non-disabled item
+          let wrapIndex = 0;
+          while (
+            wrapIndex < suggestions.length &&
+            suggestions[wrapIndex]?.disabled
+          ) {
+            wrapIndex++;
+          }
+          if (wrapIndex < suggestions.length) {
+            setSelectedIndex(wrapIndex);
+          }
         }
         break;
       case 'ArrowUp':
         e.preventDefault();
-        setSelectedIndex((prev) =>
-          prev > 0 ? prev - 1 : suggestions.length - 1
-        );
+        if (selectedIndex > 0) {
+          let prevIndex = selectedIndex - 1;
+          // Skip disabled items
+          while (prevIndex >= 0 && suggestions[prevIndex]?.disabled) {
+            prevIndex--;
+          }
+          if (prevIndex >= 0) {
+            setSelectedIndex(prevIndex);
+          } else {
+            // Wrap to end, finding last non-disabled item
+            let wrapIndex = suggestions.length - 1;
+            while (wrapIndex >= 0 && suggestions[wrapIndex]?.disabled) {
+              wrapIndex--;
+            }
+            if (wrapIndex >= 0) {
+              setSelectedIndex(wrapIndex);
+            }
+          }
+        } else {
+          // Wrap to end, finding last non-disabled item
+          let wrapIndex = suggestions.length - 1;
+          while (wrapIndex >= 0 && suggestions[wrapIndex]?.disabled) {
+            wrapIndex--;
+          }
+          if (wrapIndex >= 0) {
+            setSelectedIndex(wrapIndex);
+          }
+        }
         break;
       case 'Enter':
       case 'Tab':
-        // Only handle Enter/Tab if a suggestion is actually selected
-        if (selectedIndex >= 0 && selectedIndex < suggestions.length) {
+        // Only handle Enter/Tab if a suggestion is actually selected and not disabled
+        if (
+          selectedIndex >= 0 &&
+          selectedIndex < suggestions.length &&
+          !suggestions[selectedIndex]?.disabled
+        ) {
           e.preventDefault();
           e.stopPropagation();
           insertSuggestion(suggestions[selectedIndex]);
           return; // Prevent any further processing
         }
-        // If no suggestion is selected, allow normal Enter/Tab behavior
+        // If no suggestion is selected or it's disabled, allow normal Enter/Tab behavior
         // by NOT preventing default - this allows newlines in textarea
         break;
       case 'Escape':
@@ -490,6 +563,10 @@ export const InlineSuggestionInput: React.FC<InlineSuggestionInputProps> = ({
 
   // Handle clicking on suggestions
   const handleSuggestionClick = (suggestion: SuggestionItem) => {
+    // Don't allow selecting disabled suggestions
+    if (suggestion.disabled) {
+      return;
+    }
     insertSuggestion(suggestion);
   };
 
@@ -578,8 +655,9 @@ export const InlineSuggestionInput: React.FC<InlineSuggestionInputProps> = ({
           {suggestions.map((suggestion, index) => (
             <div
               key={suggestion.id}
-              className={`suggestion-item ${index === selectedIndex ? 'selected' : ''}`}
+              className={`suggestion-item ${index === selectedIndex ? 'selected' : ''} ${suggestion.disabled ? 'disabled' : ''}`}
               onClick={() => handleSuggestionClick(suggestion)}
+              title={suggestion.disabled ? 'Already selected' : undefined}
             >
               {suggestion.type === 'user' && suggestion.avatar && (
                 <img
@@ -592,6 +670,9 @@ export const InlineSuggestionInput: React.FC<InlineSuggestionInputProps> = ({
                 {suggestion.type === 'hashtag' ? '#' : '@'}
               </span>
               <span className="suggestion-label">{suggestion.label}</span>
+              {suggestion.disabled && (
+                <span className="suggestion-disabled-indicator">✓</span>
+              )}
             </div>
           ))}
 

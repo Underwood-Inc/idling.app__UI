@@ -1,5 +1,5 @@
 import React from 'react';
-import { GitLabLink } from '../gitlab-link/GitLabLink';
+import { DiscordLink } from '../discord-link/DiscordLink';
 import './FooterNav.css';
 
 const FooterNav = (): React.JSX.Element => {
@@ -7,7 +7,7 @@ const FooterNav = (): React.JSX.Element => {
     <div className="footer-nav__container">
       <ul className="footer-nav__list">
         <li>
-          <GitLabLink />
+          <DiscordLink />
         </li>
       </ul>
     </div>

@@ -1,7 +1,7 @@
 /* eslint-disable custom-rules/enforce-link-target-blank */
 'use client';
 
-import Link from 'next/link';
+import { createLogger } from '@/lib/logging';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import React, { Suspense, useCallback, useMemo } from 'react';
 import { NAV_PATHS } from '../../../lib/routes';
@@ -11,7 +11,16 @@ import {
 } from '../../../lib/utils/content-parsers';
 import { InteractiveTooltip } from '../tooltip/InteractiveTooltip';
 import './ContentWithPills.css';
+import { InstantLink } from './InstantLink';
 import { URLPill } from './URLPill';
+
+// Create component-specific logger
+const logger = createLogger({
+  context: {
+    component: 'ContentWithPills',
+    module: 'components/ui'
+  }
+});
 
 interface ContentWithPillsProps {
   content: string;
@@ -137,12 +146,12 @@ function ContentWithPillsInternal({
 
       if (isFilterBarContext) {
         // Filter bar context - trigger removal
+        // The FilterLabel component will handle using the correct stored values
         if (type === 'hashtag' && onHashtagClick) {
           onHashtagClick(`#${value}`);
         } else if (type === 'mention' && onMentionClick) {
-          // Pass the full pill text for removal instead of just userId
-          const fullPillText = segment?.rawFormat || `@${value}`;
-          onMentionClick(fullPillText, segment?.filterType || 'author');
+          // Just trigger the callback - FilterLabel will use the stored values
+          onMentionClick(value, segment?.filterType || 'author');
         }
         return;
       }
@@ -153,6 +162,16 @@ function ContentWithPillsInternal({
       } else if (type === 'mention' && onMentionClick && segment?.userId) {
         // Always use userId for author filtering
         onMentionClick(segment.userId, 'author');
+      } else if (
+        type === 'hashtag' &&
+        pathname.startsWith('/t/') &&
+        !onHashtagClick
+      ) {
+        // For thread pages without callback, navigate to posts with filter
+        const params = new URLSearchParams();
+        params.set('tags', value);
+        params.set('page', '1');
+        router.push(`${NAV_PATHS.POSTS}?${params.toString()}`);
       } else if (
         type === 'mention' &&
         pathname === NAV_PATHS.POSTS &&
@@ -249,13 +268,21 @@ function ContentWithPillsInternal({
     (segment: ContentSegment) => {
       const username = segment.displayName || segment.value;
 
-      return (
+      // Create a component that accepts closeTooltip prop
+      const MentionTooltipContent = ({
+        closeTooltip
+      }: {
+        closeTooltip?: () => void;
+      }) => (
         <div className="mention-tooltip-content">
           <div className="mention-tooltip__header">Filter by @{username}</div>
           <div className="mention-tooltip__options">
             <button
               className="mention-tooltip__option mention-tooltip__option--primary"
-              onClick={createFilterHandler(segment, 'author')}
+              onClick={() => {
+                createFilterHandler(segment, 'author')();
+                closeTooltip?.();
+              }}
               title="Show posts authored by this user"
             >
               <span className="mention-tooltip__icon">👤</span>
@@ -268,7 +295,10 @@ function ContentWithPillsInternal({
             </button>
             <button
               className="mention-tooltip__option"
-              onClick={createFilterHandler(segment, 'mentions')}
+              onClick={() => {
+                createFilterHandler(segment, 'mentions')();
+                closeTooltip?.();
+              }}
               title="Show posts that mention this user"
             >
               <span className="mention-tooltip__icon">💬</span>
@@ -282,6 +312,8 @@ function ContentWithPillsInternal({
           </div>
         </div>
       );
+
+      return <MentionTooltipContent />;
     },
     [createFilterHandler]
   );
@@ -444,7 +476,7 @@ function ContentWithPillsInternal({
         if (onURLBehaviorChange && segment.rawFormat) {
           const currentFormat = segment.rawFormat;
           // Width change debug info
-          // console.log('Width change:', { newWidth, currentFormat, url, behavior, width });
+          // logger.debug('Width change', { newWidth, currentFormat, url, behavior, width });
 
           // Check if it's already in pill format
           const pillMatch = currentFormat.match(
@@ -455,16 +487,16 @@ function ContentWithPillsInternal({
             // It's already a pill, update the width
             const [, currentBehavior, , currentUrl] = pillMatch;
             const newFormat = `![${currentBehavior}|${newWidth}](${currentUrl})`;
-            // console.log('Updating pill format:', { currentFormat, newFormat });
+            // logger.debug('Updating pill format', { currentFormat, newFormat });
             onURLBehaviorChange(currentFormat, newFormat);
           } else {
             // It's a raw URL, convert to pill with width
             const newFormat = `![${behavior || 'embed'}|${newWidth}](${currentFormat})`;
-            // console.log('Converting to pill format:', { currentFormat, newFormat });
+            // logger.debug('Converting to pill format', { currentFormat, newFormat });
             onURLBehaviorChange(currentFormat, newFormat);
           }
         } else {
-          // console.log('Width change failed:', { onURLBehaviorChange: !!onURLBehaviorChange, rawFormat: segment.rawFormat });
+          // logger.debug('Width change failed', { onURLBehaviorChange: !!onURLBehaviorChange, rawFormat: segment.rawFormat });
         }
       };
 
@@ -532,7 +564,7 @@ function ContentWithPillsInternal({
         segment.type === 'mention' && !isFilterBarContext && !isEditMode; // Don't show tooltip in edit mode
 
       const pillElement = (
-        <Link
+        <InstantLink
           key={key}
           href={pillUrl}
           className={`content-pill content-pill--${segment.type} content-pill--clickable ${
@@ -566,7 +598,7 @@ function ContentWithPillsInternal({
         >
           {segment.type === 'hashtag' ? '#' : '@'}
           {segment.value}
-        </Link>
+        </InstantLink>
       );
 
       // Show tooltip for mentions in non-filter contexts (not edit mode)
@@ -653,7 +685,9 @@ export const convertLegacyMention = async (
         return createRobustMention(username, userId);
       }
     } catch (error) {
-      console.error('Error converting legacy mention:', error);
+      logger.error('Error converting legacy mention', error as Error, {
+        legacyMention
+      });
     }
   }
   return legacyMention;

@@ -2,6 +2,8 @@ import { z, ZodError } from 'zod';
 
 export const SUBMISSION_NAME_MAX_LENGTH = 255;
 
+// ✅ Post-migration 0010: Submissions now use only user_id for user identification
+// OAuth provider IDs are no longer used for lookups, ensuring stability across username changes
 export const submissionSchema = z.object({
   submission_id: z.number(),
   submission_name: z.string(),
@@ -10,9 +12,8 @@ export const submissionSchema = z.object({
     .min(1, 'Title is required')
     .max(255, 'Title must be 255 characters or less'),
   submission_datetime: z.date(),
-  user_id: z.number().min(1),
-  author: z.string(), // User's display name from users table
-  author_provider_account_id: z.string().nullable(), // OAuth provider account ID for direct session matching (can be null for legacy submissions)
+  user_id: z.number().min(1), // Only user identifier after migration 0010
+  author: z.string(), // User's display name from users table (for display only)
   author_bio: z.string().nullable().optional(), // User's bio from users table
   tags: z.array(z.string()),
   thread_parent_id: z.number().nullable()

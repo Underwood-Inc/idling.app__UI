@@ -1,14 +1,74 @@
 'use client';
 
 import * as React from 'react';
+import {
+  HashtagResult,
+  searchHashtags,
+  searchUsers,
+  UserResult
+} from '../../../../../lib/actions/search.actions';
+import { useUserPreferences } from '../../../../../lib/context/UserPreferencesContext';
 import { InteractiveTooltip } from '../../../tooltip/InteractiveTooltip';
 import {
   EmojiData,
   EmojiPicker,
   formatEmojiForText
 } from '../../../ui/EmojiPicker';
-import { useFloatingToolbar } from '../hooks/useFloatingToolbar';
 import './FloatingToolbar.css';
+
+// Emoji panel component that accepts closeTooltip prop from InteractiveTooltip
+const EmojiPanelContent: React.FC<{
+  closeTooltip?: () => void;
+  handleEmojiSelect: (emoji: EmojiData) => void;
+  emojiPanelBehavior: 'close_after_select' | 'stay_open';
+  emojiPickerConfig: {
+    enablePagination: boolean;
+    itemsPerPage?: number;
+    maxResults: number;
+  };
+}> = React.memo(
+  ({
+    closeTooltip: tooltipClose,
+    handleEmojiSelect,
+    emojiPanelBehavior,
+    emojiPickerConfig
+  }) => (
+    <div className="toolbar-tooltip-panel toolbar-tooltip-panel--wide">
+      <EmojiPicker
+        isOpen={true}
+        onClose={() => {}}
+        onEmojiSelect={(emoji) => {
+          handleEmojiSelect(emoji);
+          // Close tooltip based on user preference
+          if (emojiPanelBehavior === 'close_after_select' && tooltipClose) {
+            // Close the tooltip after a short delay to allow the emoji to be inserted
+            setTimeout(() => {
+              tooltipClose();
+            }, 100);
+          }
+        }}
+        className="toolbar-emoji-picker"
+        autoFetch={true}
+        enablePagination={emojiPickerConfig.enablePagination}
+        itemsPerPage={emojiPickerConfig.itemsPerPage}
+        maxResults={emojiPickerConfig.maxResults}
+      />
+    </div>
+  )
+);
+EmojiPanelContent.displayName = 'EmojiPanelContent';
+
+// Wrapper function component to receive closeTooltip from InteractiveTooltip
+const EmojiPanelWrapper = (props: {
+  closeTooltip?: () => void;
+  handleEmojiSelect: (emoji: EmojiData) => void;
+  emojiPanelBehavior: 'close_after_select' | 'stay_open';
+  emojiPickerConfig: {
+    enablePagination: boolean;
+    itemsPerPage?: number;
+    maxResults: number;
+  };
+}) => <EmojiPanelContent {...props} />;
 
 interface FloatingToolbarProps {
   inputRef: React.RefObject<HTMLInputElement | HTMLTextAreaElement>;
@@ -18,6 +78,7 @@ interface FloatingToolbarProps {
   disabled?: boolean;
   onToolbarInteractionStart?: () => void;
   onToolbarInteractionEnd?: () => void;
+  closeTooltip?: () => void; // Passed by InteractiveTooltip
 }
 
 export const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
@@ -27,18 +88,112 @@ export const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
   onEmojiInsert,
   disabled = false,
   onToolbarInteractionStart,
-  onToolbarInteractionEnd
+  onToolbarInteractionEnd,
+  closeTooltip
 }) => {
-  const {
-    hashtagQuery,
-    setHashtagQuery,
-    mentionQuery,
-    setMentionQuery,
-    hashtagResults,
-    mentionResults,
-    loadingHashtags,
-    loadingMentions
-  } = useFloatingToolbar();
+  const { paginationMode, emojiPanelBehavior } = useUserPreferences();
+
+  // State for search functionality within the toolbar tooltips
+  const [hashtagQuery, setHashtagQuery] = React.useState('');
+  const [mentionQuery, setMentionQuery] = React.useState('');
+  const [hashtagResults, setHashtagResults] = React.useState<any[]>([]);
+  const [mentionResults, setMentionResults] = React.useState<any[]>([]);
+  const [loadingHashtags, setLoadingHashtags] = React.useState(false);
+  const [loadingMentions, setLoadingMentions] = React.useState(false);
+
+  // Search hashtags
+  React.useEffect(() => {
+    if (hashtagQuery.length >= 2) {
+      setLoadingHashtags(true);
+
+      const searchHashtagsAsync = async () => {
+        try {
+          const result = await searchHashtags(hashtagQuery, 1, 10);
+          const transformedResults = result.items.map(
+            (hashtag: HashtagResult) => ({
+              id: hashtag.id,
+              label: hashtag.label,
+              value: hashtag.value,
+              count: hashtag.count,
+              disabled: false // No existing hashtags to check against in toolbar
+            })
+          );
+          setHashtagResults(transformedResults);
+        } catch (error) {
+          console.warn('Error searching hashtags:', error);
+          setHashtagResults([
+            {
+              id: `${hashtagQuery}-1`,
+              label: hashtagQuery,
+              value: hashtagQuery.startsWith('#')
+                ? hashtagQuery
+                : `#${hashtagQuery}`,
+              count: 0,
+              disabled: false
+            }
+          ]);
+        } finally {
+          setLoadingHashtags(false);
+        }
+      };
+
+      const timeoutId = setTimeout(searchHashtagsAsync, 300);
+      return () => {
+        clearTimeout(timeoutId);
+        setLoadingHashtags(false);
+      };
+    } else {
+      setHashtagResults([]);
+      setLoadingHashtags(false);
+    }
+  }, [hashtagQuery]);
+
+  // Search mentions
+  React.useEffect(() => {
+    if (mentionQuery.length >= 2) {
+      setLoadingMentions(true);
+
+      const searchUsersAsync = async () => {
+        try {
+          const result = await searchUsers(mentionQuery, 1, 10);
+          const transformedResults = result.items.map((user: UserResult) => ({
+            id: user.id,
+            label: user.label,
+            value: user.value,
+            displayName: user.displayName,
+            avatar: user.avatar,
+            isAuthor: false,
+            disabled: false // No existing users to check against in toolbar
+          }));
+          setMentionResults(transformedResults);
+        } catch (error) {
+          console.warn('Error searching users:', error);
+          setMentionResults([
+            {
+              id: `${mentionQuery}-user`,
+              label: mentionQuery,
+              value: `${mentionQuery}-id`,
+              displayName: mentionQuery,
+              avatar: null,
+              isAuthor: false,
+              disabled: false
+            }
+          ]);
+        } finally {
+          setLoadingMentions(false);
+        }
+      };
+
+      const timeoutId = setTimeout(searchUsersAsync, 300);
+      return () => {
+        clearTimeout(timeoutId);
+        setLoadingMentions(false);
+      };
+    } else {
+      setMentionResults([]);
+      setLoadingMentions(false);
+    }
+  }, [mentionQuery]);
 
   // Insert hashtag
   const handleHashtagSelect = (hashtag: any) => {
@@ -59,11 +214,14 @@ export const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
   };
 
   // Insert emoji
-  const handleEmojiSelect = (emoji: EmojiData) => {
-    const emojiText = formatEmojiForText(emoji);
-    onEmojiInsert(emojiText);
-    // Don't try to focus here - let the RichInputAdapter handle it
-  };
+  const handleEmojiSelect = React.useCallback(
+    (emoji: EmojiData) => {
+      const emojiText = formatEmojiForText(emoji);
+      onEmojiInsert(emojiText + ' '); // Add space after emoji for proper separation
+      // Don't try to focus here - let the RichInputAdapter handle it
+    },
+    [onEmojiInsert]
+  );
 
   // Prevent mouse down events from propagating to prevent blur, but only on toolbar buttons
   const handleToolbarMouseDown = (e: React.MouseEvent) => {
@@ -72,6 +230,20 @@ export const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
   };
 
   if (disabled) return null;
+
+  // Determine emoji picker configuration based on user preference
+  const useInfiniteScroll = paginationMode === 'infinite';
+  const emojiPickerConfig = useInfiniteScroll
+    ? {
+        enablePagination: false,
+        maxResults: 500, // Show more emojis for infinite scroll
+        itemsPerPage: undefined
+      }
+    : {
+        enablePagination: true,
+        itemsPerPage: 18,
+        maxResults: 200
+      };
 
   // Hashtag search panel content
   const HashtagContent: React.FC<{ closeTooltip?: () => void }> = ({
@@ -98,14 +270,21 @@ export const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
         {hashtagResults.map((hashtag, index) => (
           <button
             key={hashtag.id || index}
-            className="toolbar-result-item"
+            className={`toolbar-result-item ${hashtag.disabled ? 'toolbar-result-item--disabled' : ''}`}
             onClick={() => {
-              handleHashtagSelect(hashtag);
-              if (closeTooltip) closeTooltip();
+              if (!hashtag.disabled) {
+                handleHashtagSelect(hashtag);
+                if (closeTooltip) closeTooltip();
+              }
             }}
+            disabled={hashtag.disabled}
+            title={hashtag.disabled ? 'Already selected' : undefined}
           >
             <span className="toolbar-result-trigger">#</span>
             <span className="toolbar-result-label">{hashtag.label}</span>
+            {hashtag.disabled && (
+              <span className="toolbar-result-indicator">✓</span>
+            )}
           </button>
         ))}
       </div>
@@ -137,42 +316,27 @@ export const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
         {mentionResults.map((user, index) => (
           <button
             key={user.id || index}
-            className="toolbar-result-item"
+            className={`toolbar-result-item ${user.disabled ? 'toolbar-result-item--disabled' : ''}`}
             onClick={() => {
-              handleMentionSelect(user);
-              if (closeTooltip) closeTooltip();
+              if (!user.disabled) {
+                handleMentionSelect(user);
+                if (closeTooltip) closeTooltip();
+              }
             }}
+            disabled={user.disabled}
+            title={user.disabled ? 'Already selected' : undefined}
           >
             {user.avatar && (
               <img src={user.avatar} alt="" className="toolbar-result-avatar" />
             )}
             <span className="toolbar-result-trigger">@</span>
             <span className="toolbar-result-label">{user.label}</span>
+            {user.disabled && (
+              <span className="toolbar-result-indicator">✓</span>
+            )}
           </button>
         ))}
       </div>
-    </div>
-  );
-
-  // Emoji picker content
-  const EmojiContent: React.FC<{ closeTooltip?: () => void }> = ({
-    closeTooltip
-  }) => (
-    <div className="toolbar-tooltip-panel toolbar-tooltip-panel--wide">
-      <EmojiPicker
-        isOpen={true}
-        onClose={() => {
-          if (closeTooltip) closeTooltip();
-        }}
-        onEmojiSelect={(emoji) => {
-          handleEmojiSelect(emoji);
-          if (closeTooltip) closeTooltip();
-        }}
-        className="toolbar-emoji-picker"
-        enablePagination={true}
-        itemsPerPage={18}
-        maxResults={200}
-      />
     </div>
   );
 
@@ -224,19 +388,26 @@ export const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
 
       {/* Emoji Button with Interactive Tooltip */}
       <InteractiveTooltip
-        content={<EmojiContent />}
-        delay={0}
-        className="toolbar-tooltip toolbar-tooltip--wide"
+        content={
+          <EmojiPanelWrapper
+            handleEmojiSelect={handleEmojiSelect}
+            emojiPanelBehavior={emojiPanelBehavior}
+            emojiPickerConfig={emojiPickerConfig}
+          />
+        }
         triggerOnClick={true}
         onClose={() => onToolbarInteractionEnd?.()}
+        onShow={() => onToolbarInteractionStart?.()}
+        className="interactive-tooltip--emoji"
       >
         <button
-          type="button"
           className="toolbar-button"
           onMouseDown={(e) => {
             handleToolbarMouseDown(e);
             onToolbarInteractionStart?.();
           }}
+          type="button"
+          aria-label="Insert emoji"
           title="Insert emoji"
           disabled={disabled}
         >

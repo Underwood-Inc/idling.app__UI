@@ -1,7 +1,7 @@
 .message-ticker__container {
   overflow: hidden;
   white-space: nowrap;
-  background-color: #222;
+  background-color: var(--dark-background--primary);
   color: var(--dark-bg__text-color--secondary);
   width: 100%;
   min-width: 23rem;
@@ -33,6 +33,7 @@
   0% {
     transform: translateX(0);
   }
+
   100% {
     transform: translateX(-50%);
   }

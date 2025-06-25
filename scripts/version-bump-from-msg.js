@@ -379,7 +379,7 @@ function updatePackageVersion(newVersion, testMode = false) {
 }
 
 function showVersionBumpRules() {
-  console.group(chalk.blue.bold('📋 VERSION BUMP RULES'));
+  console.groupCollapsed(chalk.blue.bold('📋 VERSION BUMP RULES'));
 
   console.log(
     chalk.green.bold('🟢 Minor Version Bump') +
@@ -405,7 +405,7 @@ function showVersionBumpRules() {
 }
 
 async function runInteractiveMode() {
-  console.group(chalk.magenta.bold('🧪 INTERACTIVE TEST MODE'));
+  console.groupCollapsed(chalk.magenta.bold('🧪 INTERACTIVE TEST MODE'));
   console.log(chalk.gray('No files will be modified during this session'));
   console.groupEnd();
   console.log('');
@@ -478,7 +478,7 @@ async function processCommitMessage(commitMessage, testMode) {
     return false;
   }
 
-  console.group(chalk.blue('🔍 COMMIT ANALYSIS'));
+  console.groupCollapsed(chalk.blue('🔍 COMMIT ANALYSIS'));
   console.log(
     chalk.blue('Message: ') + chalk.white(`"${commitMessage.split('\n')[0]}"`)
   );
@@ -541,7 +541,7 @@ async function processCommitMessage(commitMessage, testMode) {
   }
 
   // Show version change
-  console.group(chalk.blue('📦 VERSION UPDATE'));
+  console.groupCollapsed(chalk.blue('📦 VERSION UPDATE'));
   console.log(
     chalk.white('  ') +
       chalk.cyan(currentVersion) +

@@ -11,7 +11,7 @@ jobs:
   generate-debrief:
     if: github.event_name == 'push' || (github.event.pull_request.merged == true)
     runs-on: ubuntu-latest
-    
+
     permissions:
       contents: write
       pull-requests: write

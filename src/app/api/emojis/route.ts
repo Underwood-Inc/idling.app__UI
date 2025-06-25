@@ -3,6 +3,7 @@
  * Handles fetching OS-specific emojis using server actions
  */
 
+import { createLogger } from '@/lib/logging';
 import { NextRequest, NextResponse } from 'next/server';
 import {
   getCategoryMapping,
@@ -13,6 +14,13 @@ import {
   uploadCustomEmoji
 } from '../../../lib/actions/emoji.actions';
 import { OSDetection } from '../../../lib/utils/os-detection';
+
+const logger = createLogger({
+  context: {
+    component: 'EmojisAPI',
+    module: 'api'
+  }
+});
 
 export interface EmojiResponse {
   id: number;
@@ -136,7 +144,7 @@ export async function GET(request: NextRequest) {
           };
           return {
             id: emoji.id,
-            emoji_id: emoji.name,
+            emoji_id: emoji.emoji_id,
             unicode_char: emoji.unicode_char,
             name: emoji.name,
             description: emoji.name,
@@ -158,7 +166,7 @@ export async function GET(request: NextRequest) {
           };
           return {
             id: emoji.id,
-            emoji_id: emoji.name,
+            emoji_id: emoji.emoji_id,
             name: emoji.name,
             description: emoji.name,
             category: {
@@ -208,7 +216,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(response);
   } catch (error) {
-    console.error('Error fetching emojis:', error);
+    logger.error('Error fetching emojis', error as Error);
     return NextResponse.json(
       { error: 'Failed to fetch emojis' },
       { status: 500 }
@@ -243,11 +251,9 @@ export async function POST(request: NextRequest) {
       message: 'Custom emoji uploaded successfully and is pending approval'
     });
   } catch (error) {
-    console.error('Error uploading custom emoji:', error);
+    logger.error('Error uploading custom emoji', error as Error);
     return NextResponse.json(
-      {
-        error: error instanceof Error ? error.message : 'Failed to upload emoji'
-      },
+      { error: 'Failed to upload emoji' },
       { status: 500 }
     );
   }
@@ -274,9 +280,9 @@ export async function PUT(request: NextRequest) {
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error('Error tracking emoji usage:', error);
+    logger.error('Error tracking emoji usage', error as Error);
     return NextResponse.json(
-      { error: 'Failed to track emoji usage' },
+      { error: 'Failed to track usage' },
       { status: 500 }
     );
   }

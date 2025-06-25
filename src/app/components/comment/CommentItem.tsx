@@ -1,4 +1,5 @@
-import { Comment } from 'src/lib/schemas/comment.schemas';
+import { Comment } from '../../../lib/types';
+import { TimestampWithTooltip } from '../ui/TimestampWithTooltip';
 import './CommentItem.css';
 
 interface CommentItemProps {
@@ -11,7 +12,7 @@ export default function CommentItem({ comment }: CommentItemProps) {
       <div className="comment-item__content">
         <p className="comment-item__meta">
           Posted by u/{comment.authorId} •{' '}
-          {new Date(comment.createdAt).toLocaleString()}
+          <TimestampWithTooltip date={comment.createdAt} />
         </p>
         <p className="comment-item__text">{comment.content}</p>
       </div>

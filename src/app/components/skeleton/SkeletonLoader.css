@@ -1,23 +1,21 @@
 /* Base skeleton styles */
 .skeleton {
-  background: linear-gradient(90deg,
-      var(--light-background--tertiary, #f0f0f0) 25%,
-      var(--light-background--secondary, #e0e0e0) 50%,
-      var(--light-background--tertiary, #f0f0f0) 75%);
-  background-size: 200% 100%;
+  background: var(--light-background--secondary, #e0e0e0);
   border-radius: var(--border-radius, 4px);
-  animation: skeleton-shimmer 1.5s ease-in-out infinite;
+  /* animation: shimmer 1.5s ease-in-out infinite; */
   position: relative;
   overflow: hidden;
 }
 
 @keyframes skeleton-shimmer {
-  0% {
-    background-position: 200% 0;
+
+  0%,
+  100% {
+    opacity: 1;
   }
 
-  100% {
-    background-position: -200% 0;
+  50% {
+    opacity: 0.8;
   }
 }
 
@@ -60,20 +58,12 @@
 }
 
 .skeleton--button-auto {
-  background: linear-gradient(90deg,
-      var(--brand-tertiary, #e5e5e5) 25%,
-      var(--brand-secondary, #d0d0d0) 50%,
-      var(--brand-tertiary, #e5e5e5) 75%);
-  background-size: 200% 100%;
+  background: var(--light-background--tertiary, #d0d0d0);
 }
 
 .skeleton--input-auto {
   border: 1px solid var(--brand-tertiary--dark, #ddd);
-  background: linear-gradient(90deg,
-      var(--light-background--quinary, #fafafa) 25%,
-      var(--light-background--quaternary, #f5f5f5) 50%,
-      var(--light-background--quinary, #fafafa) 75%);
-  background-size: 200% 100%;
+  background: var(--light-background--secondary, #e0e0e0);
 }
 
 /* Skeleton replica system - preserves exact DOM structure */
@@ -207,19 +197,11 @@
   }
 
   .skeleton--button-auto {
-    background: linear-gradient(90deg,
-        var(--dark-background--tertiary, #2a2a2a) 25%,
-        var(--dark-background--secondary, #3a3a3a) 50%,
-        var(--dark-background--tertiary, #2a2a2a) 75%);
-    background-size: 200% 100%;
+    background: var(--dark-background--tertiary, #2a2a2a);
   }
 
   .skeleton--input-auto {
-    background: linear-gradient(90deg,
-        var(--dark-background--secondary, #3a3a3a) 25%,
-        var(--dark-background--tertiary, #2a2a2a) 50%,
-        var(--dark-background--secondary, #3a3a3a) 75%);
-    background-size: 200% 100%;
+    background: var(--dark-background--secondary, #3a3a3a);
   }
 }
 
@@ -332,4 +314,508 @@
       opacity: 1;
     }
   }
+}
+
+/* Intelligent Skeleton Wrapper */
+.posts-manager__submissions-wrapper {
+  min-height: 200px;
+  width: 100%;
+}
+
+.posts-page-loading {
+  width: 100%;
+  min-height: 400px;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.posts-manager__loading-fallback {
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.submissions-list__error-message {
+  text-align: center;
+  padding: 2rem;
+  color: var(--light-bg__text-color--secondary);
+}
+
+.submissions-list__retry-button {
+  margin-top: 1rem;
+  padding: 0.5rem 1rem;
+  background: var(--brand-primary);
+  color: white;
+  border: none;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.submissions-list__retry-button:hover {
+  background: var(--brand-primary--dark);
+}
+
+/* Enhanced skeleton variations for intelligent wrapper */
+.skeleton--smart-text {
+  background: var(--dark-background--tertiary, #2a2a2a);
+}
+
+.skeleton--smart-button {
+  background: var(--dark-background--secondary, #3a3a3a);
+}
+
+.skeleton--smart-container {
+  background: transparent;
+  border: 1px solid var(--light-background--secondary, #e0e0e0);
+  border-radius: var(--border-radius);
+  padding: 1rem;
+}
+
+/* Smart skeleton item variations */
+.skeleton-item--post {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1rem;
+  border: 1px solid var(--brand-tertiary--dark);
+  border-radius: var(--border-radius);
+  background: var(--light-background--quinary);
+  margin-bottom: 1rem;
+}
+
+.skeleton-item--post-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.skeleton-item--post-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.skeleton-item--post-footer {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+/* Responsive adjustments for intelligent skeleton */
+@media (max-width: 768px) {
+  .posts-page-loading {
+    padding: 0.5rem;
+    gap: 0.75rem;
+  }
+
+  .posts-manager__loading-fallback {
+    padding: 0.75rem;
+    gap: 0.75rem;
+  }
+
+  .skeleton-item--post {
+    padding: 0.75rem;
+    margin-bottom: 0.75rem;
+  }
+}
+
+/* Dark mode support for intelligent skeleton */
+@media (prefers-color-scheme: dark) {
+  .skeleton--smart-text {
+    background: var(--dark-background--tertiary, #2a2a2a);
+    /* animation: shimmer 1.5s infinite; */
+    border-radius: 4px;
+  }
+
+  .skeleton--smart-button {
+    background: var(--dark-background--secondary, #3a3a3a);
+    /* animation: shimmer 1.5s infinite; */
+    border-radius: 6px;
+  }
+
+  .skeleton--smart-container {
+    border-color: var(--dark-background--secondary, #3a3a3a);
+  }
+
+  .skeleton-item--post {
+    background: var(--dark-background--secondary);
+    border-color: var(--dark-background--primary);
+  }
+}
+
+/* Base skeleton animations */
+@keyframes shimmer {
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.8;
+  }
+}
+
+@keyframes pulse {
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.7;
+  }
+}
+
+/* Skeleton container styles */
+.skeleton-container {
+  display: block;
+  width: 100%;
+}
+
+.skeleton-container--intelligent {
+  /* Preserve the original layout structure */
+  display: block;
+}
+
+.skeleton-container--fallback {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.skeleton-container--default {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 1rem;
+}
+
+/* Skeleton element styles */
+.skeleton-element {
+  display: block;
+  border-radius: 4px;
+  background: var(--light-background--secondary, #e0e0e0);
+  /* animation: shimmer 1.5s infinite; */
+}
+
+.skeleton-element--text {
+  min-height: 16px;
+  border-radius: 4px;
+}
+
+.skeleton-element--button {
+  min-height: 32px;
+  border-radius: 6px;
+  background: var(--light-background--tertiary, #d0d0d0);
+}
+
+.skeleton-element--input {
+  min-height: 36px;
+  border-radius: 4px;
+  border: 1px solid var(--light-background--tertiary, #d0d0d0);
+}
+
+.skeleton-element--image {
+  min-height: 40px;
+  min-width: 40px;
+  border-radius: 4px;
+}
+
+.skeleton-element--icon {
+  min-height: 20px;
+  min-width: 20px;
+  border-radius: 4px;
+}
+
+.skeleton-element--link {
+  min-height: 16px;
+  border-radius: 4px;
+  background: var(--brand-primary-light, #e3f2fd);
+}
+
+/* Default fallback skeleton styles */
+.skeleton-item--post {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1.5rem;
+  border: 1px solid var(--light-background--secondary, #e0e0e0);
+  border-radius: 8px;
+  background: var(--light-background--primary, #ffffff);
+}
+
+.skeleton-item--post-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.skeleton-item--post-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.skeleton-item--post-footer {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+
+/* Legacy skeleton classes for backward compatibility */
+.skeleton {
+  display: block;
+  border-radius: 4px;
+  background: var(--light-background--secondary, #e0e0e0);
+  /* animation: shimmer 1.5s infinite; */
+}
+
+.skeleton--text {
+  height: 1rem;
+  border-radius: 4px;
+}
+
+.skeleton--title {
+  height: 1.5rem;
+  border-radius: 4px;
+}
+
+.skeleton--button {
+  height: 2.5rem;
+  border-radius: 6px;
+  background: var(--light-background--tertiary, #d0d0d0);
+}
+
+.skeleton--button-auto {
+  min-height: 2rem;
+  border-radius: 6px;
+  background: var(--light-background--tertiary, #d0d0d0);
+}
+
+.skeleton--input {
+  height: 2.5rem;
+  border-radius: 4px;
+  border: 1px solid var(--light-background--tertiary, #d0d0d0);
+}
+
+.skeleton--input-auto {
+  min-height: 2rem;
+  border-radius: 4px;
+  border: 1px solid var(--light-background--tertiary, #d0d0d0);
+}
+
+.skeleton--circle {
+  border-radius: 50%;
+  aspect-ratio: 1;
+}
+
+.skeleton--box {
+  min-height: 3rem;
+  border-radius: 8px;
+}
+
+.skeleton--avatar {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+}
+
+.skeleton--card {
+  height: 8rem;
+  border-radius: 8px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .skeleton-container--default {
+    padding: 0.5rem;
+    gap: 1rem;
+  }
+
+  .skeleton-item--post {
+    padding: 1rem;
+    gap: 0.75rem;
+  }
+
+  .skeleton-item--post-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .skeleton-item--post-footer {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+
+  .skeleton-element,
+  .skeleton {
+    background: linear-gradient(90deg,
+        var(--dark-background--secondary, #2a2a2a) 25%,
+        var(--dark-background--primary, #3a3a3a) 50%,
+        var(--dark-background--secondary, #2a2a2a) 75%);
+  }
+
+  .skeleton-element--button,
+  .skeleton--button,
+  .skeleton--button-auto {
+    background: linear-gradient(90deg,
+        var(--dark-background--tertiary, #1a1a1a) 25%,
+        var(--dark-background--secondary, #2a2a2a) 50%,
+        var(--dark-background--tertiary, #1a1a1a) 75%);
+  }
+
+  .skeleton-element--link {
+    background: linear-gradient(90deg,
+        var(--brand-primary-dark, #1e3a8a) 25%,
+        var(--brand-primary-darker, #1e40af) 50%,
+        var(--brand-primary-dark, #1e3a8a) 75%);
+  }
+
+  .skeleton-item--post {
+    border-color: var(--dark-background--secondary, #2a2a2a);
+    background: var(--dark-background--primary, #1a1a1a);
+  }
+
+  .skeleton-element--input,
+  .skeleton--input,
+  .skeleton--input-auto {
+    border-color: var(--dark-background--tertiary, #1a1a1a);
+  }
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+
+  .skeleton-element,
+  .skeleton {
+    background: #ccc;
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  .skeleton-element--button,
+  .skeleton--button,
+  .skeleton--button-auto {
+    background: #999;
+  }
+
+  .skeleton-element--input,
+  .skeleton--input,
+  .skeleton--input-auto {
+    border: 2px solid #666;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+
+  .skeleton-element,
+  .skeleton,
+  .skeleton-container {
+    animation: none;
+  }
+
+  .skeleton-element,
+  .skeleton {
+    background: var(--light-background--secondary, #e0e0e0);
+  }
+
+  @media (prefers-color-scheme: dark) {
+
+    .skeleton-element,
+    .skeleton {
+      background: var(--dark-background--secondary, #2a2a2a);
+    }
+  }
+}
+
+/* Auto-generated skeleton elements - preserves exact layout */
+.skeleton--auto {
+  background: var(--light-background--secondary, #e0e0e0);
+  border-radius: 4px;
+  position: relative;
+  overflow: hidden;
+  /* Inherit all layout properties from captured styles */
+}
+
+/* Skeleton containers - preserve layout structure */
+.skeleton-container {
+  /* Inherits all layout styles from captured element */
+  position: relative;
+}
+
+/* Intelligent skeleton container - exact DOM replication */
+.skeleton-container--intelligent {
+  /* Preserves exact layout from captured DOM structure */
+  position: relative;
+}
+
+/* Fallback skeleton container - used before DOM capture */
+.skeleton-container--fallback {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1rem;
+}
+
+/* Individual fallback skeleton items */
+.skeleton-item-fallback {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1rem;
+  border: 1px solid var(--light-background--tertiary, #f0f0f0);
+  border-radius: 8px;
+  background: var(--light-background--primary, #ffffff);
+}
+
+/* Skeleton wrapper for intelligent skeletons with pagination */
+.skeleton-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* Skeleton pagination container */
+.skeleton-pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem;
+  border-top: 1px solid var(--light-background--tertiary, #f0f0f0);
+}
+
+/* Auto-generated skeleton variants - inherit from captured elements */
+.skeleton--auto.skeleton--text {
+  /* Text skeleton styling is handled via inline styles from capture */
+}
+
+.skeleton--auto.skeleton--button {
+  /* Button skeleton styling is handled via inline styles from capture */
+}
+
+.skeleton--auto.skeleton--input {
+  /* Input skeleton styling is handled via inline styles from capture */
+}
+
+.skeleton--auto.skeleton--image {
+  /* Image skeleton styling is handled via inline styles from capture */
+}
+
+.skeleton--auto.skeleton--container {
+  /* Container skeleton styling is handled via inline styles from capture */
+  background: transparent;
 }

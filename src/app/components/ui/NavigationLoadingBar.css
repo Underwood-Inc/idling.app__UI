@@ -1,0 +1,141 @@
+.navigation-loading-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: transparent;
+  z-index: 10000;
+  pointer-events: none;
+}
+
+.navigation-loading-bar__progress {
+  height: 100%;
+  background: linear-gradient(90deg,
+      var(--brand-primary) 0%,
+      var(--brand-secondary) 50%,
+      var(--brand-primary) 100%);
+  background-size: 200% 100%;
+  animation: progress-shimmer 1.5s ease-in-out infinite;
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 0 2px 2px 0;
+  box-shadow: 0 0 8px rgba(199, 82, 42, 0.3);
+  position: relative;
+  overflow: hidden;
+}
+
+.navigation-loading-bar__glow {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 100px;
+  background: linear-gradient(90deg,
+      transparent,
+      rgba(255, 255, 255, 0.3),
+      transparent);
+  animation: glow-slide 1s ease-in-out infinite;
+}
+
+.navigation-loading-bar__info {
+  position: absolute;
+  top: 100%;
+  left: 16px;
+  padding: 8px 12px;
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  border-radius: 0 0 4px 4px;
+  font-size: 12px;
+  font-weight: 500;
+  opacity: 0;
+  animation: info-fade-in 0.3s ease-out 0.2s forwards;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+.navigation-loading-bar__text {
+  white-space: nowrap;
+}
+
+/* Animations */
+@keyframes progress-shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@keyframes glow-slide {
+  0% {
+    transform: translateX(-100px);
+    opacity: 0;
+  }
+
+  50% {
+    opacity: 1;
+  }
+
+  100% {
+    transform: translateX(100px);
+    opacity: 0;
+  }
+}
+
+@keyframes info-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .navigation-loading-bar__progress {
+    box-shadow: 0 0 8px rgba(237, 174, 73, 0.4);
+  }
+
+  .navigation-loading-bar__info {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .navigation-loading-bar__progress {
+    animation: none;
+    background: var(--brand-primary);
+  }
+
+  .navigation-loading-bar__glow {
+    animation: none;
+    opacity: 0;
+  }
+
+  .navigation-loading-bar__info {
+    animation: none;
+    opacity: 1;
+  }
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+  .navigation-loading-bar__progress {
+    background: #000;
+    box-shadow: none;
+  }
+
+  .navigation-loading-bar__info {
+    background: #000;
+    color: #fff;
+    border: 2px solid #fff;
+  }
+}

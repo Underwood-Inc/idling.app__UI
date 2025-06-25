@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useFontPreference } from '../../../lib/context/UserPreferencesContext';
 import './FontPicker.css';
 
 export type FontOption = 'monospace' | 'default';
@@ -27,13 +28,15 @@ const FONT_OPTIONS = {
   }
 } as const;
 
-const STORAGE_KEY = 'idling-app-font-preference';
-
 export const FontPicker: React.FC<FontPickerProps> = ({
   className = '',
   onChange
 }) => {
-  const [selectedFont, setSelectedFont] = useState<FontOption>('monospace');
+  const {
+    preference: selectedFont,
+    setPreference,
+    isUpdating
+  } = useFontPreference();
   const [isOpen, setIsOpen] = useState(false);
   const [isClient, setIsClient] = useState(false);
 
@@ -42,90 +45,19 @@ export const FontPicker: React.FC<FontPickerProps> = ({
     setIsClient(true);
   }, []);
 
-  const applyFont = useCallback((fontValue: string) => {
-    try {
-      const root = document.documentElement;
-
-      if (fontValue === 'code') {
-        root.style.setProperty(
-          '--app-font-family',
-          "'Fira Code', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji', monospace"
-        );
-      } else {
-        root.style.setProperty(
-          '--app-font-family',
-          "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji'"
-        );
-      }
-
-      // Store the preference
-      if (typeof window !== 'undefined') {
-        try {
-          localStorage.setItem('font-preference', fontValue);
-        } catch (e) {
-          // Silent error handling for localStorage
-        }
-      }
-    } catch (error) {
-      // Silent error handling
-    }
-  }, []);
-
-  // Load saved font preference and ensure font is applied
-  useEffect(() => {
-    if (!isClient) return;
-
-    try {
-      const savedFont = localStorage.getItem(STORAGE_KEY) as FontOption;
-      if (savedFont && savedFont in FONT_OPTIONS) {
-        setSelectedFont(savedFont);
-        const fontValue = savedFont === 'monospace' ? 'code' : 'reading';
-        applyFont(fontValue);
-      } else {
-        // Default to monospace (current app default)
-        setSelectedFont('monospace');
-        applyFont('code');
-      }
-    } catch (error) {
-      // Silent error handling
-      setSelectedFont('monospace');
-      applyFont('code');
-    }
-  }, [isClient, applyFont]);
-
-  // Additional effect to ensure font is applied after component mount
-  useEffect(() => {
-    if (!isClient) return;
-
-    // Small delay to ensure DOM is fully ready
-    const timeoutId = setTimeout(() => {
-      const fontValue = selectedFont === 'monospace' ? 'code' : 'reading';
-      applyFont(fontValue);
-    }, 100);
-
-    return () => clearTimeout(timeoutId);
-  }, [isClient, selectedFont, applyFont]);
-
-  const handleFontChange = (font: FontOption) => {
-    setSelectedFont(font);
+  const handleFontChange = async (font: FontOption) => {
     setIsOpen(false);
 
     try {
-      // Save preference
-      if (isClient) {
-        localStorage.setItem(STORAGE_KEY, font);
-      }
-
-      // Apply font - convert FontOption to string value
-      const fontValue = font === 'monospace' ? 'code' : 'reading';
-      applyFont(fontValue);
+      await setPreference(font);
 
       // Notify parent component
       if (onChange) {
         onChange(font);
       }
     } catch (error) {
-      // Silent error handling
+      // Error handling is managed by the context
+      console.error('Failed to update font preference:', error);
     }
   };
 
@@ -184,6 +116,7 @@ export const FontPicker: React.FC<FontPickerProps> = ({
         aria-expanded={isOpen}
         aria-label="Select application font"
         title="Change application font family"
+        disabled={isUpdating}
       >
         <span className="font-picker__icon">🔤</span>
         <span className="font-picker__label">

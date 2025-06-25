@@ -1,7 +1,7 @@
 import React from 'react';
 import './PageContent.css';
 
-export default async function PageContent({
+export default function PageContent({
   children
 }: {
   children: React.ReactNode;

@@ -1,4 +1,6 @@
 @import url('./fonts.css');
+@import url('./styles/glass-effects.css');
+@import url('./styles/scroll-restore-animation.css');
 
 :root {
   /* START PALATTES REGION */
@@ -148,7 +150,8 @@
 
   --max-width: 1100px;
   --border-radius: 0.5rem;
-  --font-mono: 'Fira Code', monospace;
+  --font-mono: 'Fira Code', 'Fira Mono', Monaco, 'Cascadia Code', 'Roboto Mono',
+    Consolas, 'Courier New', monospace;
 
   /* App font family - can be changed by FontPicker component */
   --app-font-family: 'Fira Code', 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', 'Segoe UI Symbol', monospace;
@@ -224,12 +227,12 @@
 
 .spacing-theme-cozy .submission__wrapper {
   padding: var(--current-spacing);
-  margin-bottom: var(--current-spacing);
+  /* margin-bottom: var(--current-spacing); */
 }
 
 .spacing-theme-compact .submission__wrapper {
   padding: var(--current-spacing);
-  margin-bottom: var(--current-spacing);
+  /* margin-bottom: var(--current-spacing); */
 }
 
 .spacing-theme-cozy .submission__meta {
@@ -802,13 +805,16 @@ section:not(:last-of-type) {
 
 /* Portal Tooltip Styles */
 .portal-tooltip {
-  background: var(--light-background--primary);
-  border: 1px solid var(--light-border--primary);
+  /* Apply protected tooltip glass effect */
+  backdrop-filter: var(--tooltip-glass-blur) !important;
+  -webkit-backdrop-filter: var(--tooltip-glass-blur) !important;
+  background: var(--tooltip-glass-bg) !important;
+  border: 1px solid var(--tooltip-glass-border) !important;
+  box-shadow: var(--tooltip-glass-shadow) !important;
   border-radius: var(--border-radius);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   font-family: inherit;
   user-select: none;
-  backdrop-filter: blur(8px);
+  color: white;
 }
 
 .portal-tooltip--wide {
@@ -837,4 +843,171 @@ input[type="url"],
 textarea,
 [contenteditable="true"] {
   caret-color: var(--brand-primary, #edae49) !important;
+}
+
+/* Mobile Touch Support for Tooltips and Interactive Elements */
+@media (hover: none) and (pointer: coarse) {
+
+  /* Mobile devices - enable touch interactions for tooltip triggers */
+  .author.clickable,
+  .content-pill,
+  .content-pill--hashtag,
+  .content-pill--mention,
+  .timestamp-with-tooltip,
+  [data-tooltip],
+  .tooltip-trigger {
+    /* Ensure touch targets are large enough */
+    min-height: 44px;
+    min-width: 44px;
+    /* Add subtle visual feedback for touch */
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);
+    /* Prevent text selection on touch */
+    -webkit-user-select: none;
+    user-select: none;
+    /* Ensure elements are touchable */
+    touch-action: manipulation;
+    /* Add a subtle touch indication */
+    position: relative;
+  }
+
+  /* Touch feedback animation */
+  .author.clickable:active,
+  .content-pill:active,
+  .content-pill--hashtag:active,
+  .content-pill--mention:active,
+  .timestamp-with-tooltip:active,
+  [data-tooltip]:active,
+  .tooltip-trigger:active {
+    transform: scale(0.98);
+    transition: transform 0.1s ease;
+  }
+
+  /* Ensure tooltips can be triggered by touch */
+  .link-tooltip,
+  .interactive-tooltip,
+  .author-tooltip,
+  .mention-tooltip {
+    /* Allow touch events to pass through to trigger elements */
+    pointer-events: auto;
+  }
+
+  /* Make sure modal triggers work properly on mobile */
+  .youtube-modal,
+  .link-preview-modal {
+    /* Ensure modals are touchable */
+    touch-action: manipulation;
+  }
+
+  /* Improve button touch targets */
+  button,
+  .button,
+  .btn {
+    min-height: 44px;
+    min-width: 44px;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);
+  }
+
+  /* Special handling for small interactive elements */
+  .submission__edit-btn,
+  .submission__delete-btn,
+  .submission__reply-btn {
+    min-height: 44px;
+    min-width: 44px;
+    /* padding: 0.5rem; */
+    touch-action: manipulation;
+  }
+}
+
+/* Desktop hover support - maintain existing behavior */
+@media (hover: hover) and (pointer: fine) {
+
+  /* Desktop devices - maintain hover interactions */
+  .author.clickable:hover,
+  .content-pill:hover,
+  .content-pill--hashtag:hover,
+  .content-pill--mention:hover,
+  .timestamp-with-tooltip:hover {
+    /* Existing hover styles are preserved */
+  }
+}
+
+/* Universal accessibility improvements */
+.author.clickable,
+.content-pill,
+.content-pill--hashtag,
+.content-pill--mention,
+.timestamp-with-tooltip,
+[data-tooltip],
+.tooltip-trigger {
+  /* Ensure keyboard navigation works */
+  outline: none;
+  border-radius: var(--border-radius, 4px);
+}
+
+.author.clickable:focus,
+.content-pill:focus,
+.content-pill--hashtag:focus,
+.content-pill--mention:focus,
+.timestamp-with-tooltip:focus,
+[data-tooltip]:focus,
+.tooltip-trigger:focus {
+  /* Visible focus indicator for keyboard navigation */
+  outline: 2px solid var(--brand-primary, #007bff);
+  outline-offset: 2px;
+}
+
+/* Ensure tooltips don't interfere with scrolling on mobile */
+@media (max-width: 768px) {
+
+  .link-tooltip,
+  .interactive-tooltip,
+  .author-tooltip,
+  .mention-tooltip {
+    /* Prevent tooltips from blocking scroll */
+    max-width: 90vw;
+    max-height: 50vh;
+    overflow-y: auto;
+    /* Ensure tooltips are above other content but not too high */
+    z-index: 9999;
+  }
+
+  /* Adjust tooltip positioning for mobile */
+  .link-tooltip,
+  .interactive-tooltip {
+    /* Add some margin from screen edges */
+    margin: 8px;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+
+  .author.clickable,
+  .content-pill,
+  .timestamp-with-tooltip,
+  [data-tooltip],
+  .tooltip-trigger {
+    border: 2px solid currentColor;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+
+  .author.clickable,
+  .content-pill,
+  .timestamp-with-tooltip,
+  [data-tooltip],
+  .tooltip-trigger {
+    transition: none;
+  }
+
+  .author.clickable:active,
+  .content-pill:active,
+  .timestamp-with-tooltip:active,
+  [data-tooltip]:active,
+  .tooltip-trigger:active {
+    transform: none;
+  }
 }

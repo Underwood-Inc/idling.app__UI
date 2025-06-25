@@ -6,7 +6,7 @@ This document outlines the visual and UX improvements made to all CLI scripts in
 
 ### 1. `version-bump.js` - Git Commit Version Bumping
 **Enhancements:**
-- ✅ `console.group()` for organized sections (TEST MODE, COMMIT ANALYSIS, VERSION UPDATE)
+- ✅ `console.groupCollapsed()` for organized sections (TEST MODE, COMMIT ANALYSIS, VERSION UPDATE)
 - ✅ `console.table()` for version change summary
 - ✅ Color-coded commit types and bump types
 - ✅ Structured information flow with clear visual hierarchy
@@ -32,7 +32,7 @@ This document outlines the visual and UX improvements made to all CLI scripts in
 
 ### 2. `version-bump-from-msg.js` - Interactive Version Testing
 **Enhancements:**
-- ✅ `console.group()` for interactive mode sections
+- ✅ `console.groupCollapsed()` for interactive mode sections
 - ✅ `console.table()` for version bump rules display
 - ✅ Enhanced example selection menu with 14 predefined examples
 - ✅ Color-coded bump type indicators in examples
@@ -55,7 +55,7 @@ This document outlines the visual and UX improvements made to all CLI scripts in
 
 ### 3. `update-sw-version.js` - Service Worker Version Manager
 **Enhancements:**
-- ✅ `console.group()` for operation modes (RESTORE MODE, UPDATE MODE)
+- ✅ `console.groupCollapsed()` for operation modes (RESTORE MODE, UPDATE MODE)
 - ✅ `console.table()` for before/after version changes
 - ✅ Color-coded status indicators
 - ✅ Clear operation summary with change tracking
@@ -78,7 +78,7 @@ This document outlines the visual and UX improvements made to all CLI scripts in
 
 ### 4. `manage-user.js` - User Management Interface
 **Enhancements:**
-- ✅ `console.group()` for all major sections (USER INFORMATION, database sections)
+- ✅ `console.groupCollapsed()` for all major sections (USER INFORMATION, database sections)
 - ✅ `console.table()` for all data displays (user info, roles, permissions, etc.)
 - ✅ Organized data presentation with clear section headers
 - ✅ Structured option selection with tabular format
@@ -113,7 +113,7 @@ This document outlines the visual and UX improvements made to all CLI scripts in
 ## Key CLI Enhancement Features Used
 
 ### Console Methods
-- **`console.group(title)`** - Creates collapsible sections with clear headers
+- **`console.groupCollapsed(title)`** - Creates collapsible sections with clear headers
 - **`console.groupEnd()`** - Closes grouped sections
 - **`console.table(data)`** - Displays structured data in tabular format
 - **`console.log()`** - Enhanced with chalk colors and emojis

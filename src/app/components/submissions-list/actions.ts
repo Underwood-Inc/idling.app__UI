@@ -36,6 +36,305 @@ export type GetSubmissionsActionResponse = {
   error?: string;
 };
 
+export interface GetSubmissionsPaginationCountResponse {
+  data?: {
+    totalRecords: number;
+    expectedItems: number; // Items expected for current page size
+  };
+  error?: string;
+}
+
+/**
+ * Pre-request to get pagination count for skeleton loader optimization
+ * This allows us to show the exact number of skeleton items that will be loaded
+ */
+export async function getSubmissionsPaginationCount({
+  onlyMine,
+  userId,
+  filters = [],
+  pageSize = 10,
+  includeThreadReplies = false
+}: Omit<
+  GetSubmissionsActionArguments,
+  'page'
+>): Promise<GetSubmissionsPaginationCountResponse> {
+  if (onlyMine && !userId) {
+    return {
+      error: 'User ID is required for user-specific queries'
+    };
+  }
+
+  const userIdNum = userId ? parseInt(userId) : null;
+
+  try {
+    let whereClause = 'WHERE 1=1';
+    const queryParams: any[] = [];
+    let paramIndex = 1;
+
+    // Handle thread replies filter
+    if (!includeThreadReplies) {
+      whereClause += ` AND s.thread_parent_id IS NULL`;
+    }
+
+    // Handle user filter (only mine)
+    if (onlyMine && userIdNum) {
+      whereClause += ` AND s.user_id = $${paramIndex}`;
+      queryParams.push(userIdNum);
+      paramIndex++;
+    }
+
+    // Handle dynamic filters with global logic support
+    const filterGroups: string[] = [];
+    const globalLogicFilter = filters.find((f) => f.name === 'globalLogic');
+    const globalLogic = globalLogicFilter?.value || 'AND';
+
+    for (const filter of filters) {
+      let groupCondition = '';
+
+      switch (filter.name) {
+        case 'author': {
+          // Handle multiple authors with logic
+          const authors = filter.value
+            .split(',')
+            .map((author) => author.trim())
+            .filter(Boolean);
+
+          if (authors.length > 0) {
+            const authorLogicFilter = filters.find(
+              (f) => f.name === 'authorLogic'
+            );
+            // When globalLogic is AND, force all individual filters to AND
+            const authorLogic =
+              globalLogic === 'AND' ? 'AND' : authorLogicFilter?.value || 'OR';
+
+            if (authorLogic === 'AND') {
+              // All authors must match (posts from all specified authors)
+              // This would require posts to be from multiple authors, which is impossible
+              // So we'll treat AND as requiring exact author match
+              groupCondition = `s.user_id IN (${authors.map(() => `$${paramIndex++}`).join(',')})`;
+              queryParams.push(...authors.map((author) => parseInt(author)));
+            } else {
+              // Any author can match (OR logic)
+              groupCondition = `s.user_id IN (${authors.map(() => `$${paramIndex++}`).join(',')})`;
+              queryParams.push(...authors.map((author) => parseInt(author)));
+            }
+
+            if (groupCondition) {
+              filterGroups.push(`(${groupCondition})`);
+            }
+          }
+          break;
+        }
+
+        case 'tags': {
+          const tags = filter.value
+            .split(',')
+            .map((tag) => tag.trim())
+            .filter(Boolean);
+
+          if (tags.length > 0) {
+            const tagLogicFilter = filters.find((f) => f.name === 'tagLogic');
+            // When globalLogic is AND, force all individual filters to AND
+            const tagLogic =
+              globalLogic === 'AND' ? 'AND' : tagLogicFilter?.value || 'OR';
+
+            if (tagLogic === 'AND') {
+              // All tags must be present
+              const tagConditions: string[] = [];
+              for (const tag of tags) {
+                tagConditions.push(`$${paramIndex} = ANY(s.tags)`);
+                queryParams.push(tag.startsWith('#') ? tag.slice(1) : tag);
+                paramIndex++;
+              }
+              groupCondition = tagConditions.join(' AND ');
+            } else {
+              // Any tag can be present (OR logic)
+              const tagPlaceholders = tags
+                .map(() => `$${paramIndex++}`)
+                .join(',');
+              groupCondition = `s.tags && ARRAY[${tagPlaceholders}]`;
+              queryParams.push(
+                ...tags.map((tag) => (tag.startsWith('#') ? tag.slice(1) : tag))
+              );
+            }
+
+            if (groupCondition) {
+              filterGroups.push(`(${groupCondition})`);
+            }
+          }
+          break;
+        }
+
+        case 'mentions': {
+          const mentions = filter.value
+            .split(',')
+            .map((mention) => mention.trim())
+            .filter(Boolean);
+
+          if (mentions.length > 0) {
+            const mentionsLogicFilter = filters.find(
+              (f) => f.name === 'mentionsLogic'
+            );
+            // When globalLogic is AND, force all individual filters to AND
+            const mentionsLogic =
+              globalLogic === 'AND'
+                ? 'AND'
+                : mentionsLogicFilter?.value || 'OR';
+
+            if (mentionsLogic === 'AND') {
+              // All mentions must be present
+              const mentionConditions: string[] = [];
+              for (const mention of mentions) {
+                mentionConditions.push(
+                  `(s.submission_name ILIKE $${paramIndex} OR s.submission_title ILIKE $${paramIndex})`
+                );
+                queryParams.push(`%${mention}%`);
+                paramIndex++;
+              }
+              groupCondition = mentionConditions.join(' AND ');
+            } else {
+              // Any mention can be present (OR logic)
+              const mentionConditions = mentions.map((mention) => {
+                const condition = `(s.submission_name ILIKE $${paramIndex} OR s.submission_title ILIKE $${paramIndex})`;
+                queryParams.push(`%${mention}%`);
+                paramIndex++;
+                return condition;
+              });
+              groupCondition = mentionConditions.join(' OR ');
+            }
+
+            if (groupCondition) {
+              filterGroups.push(`(${groupCondition})`);
+            }
+          }
+          break;
+        }
+
+        case 'content': {
+          groupCondition = `(s.submission_title ILIKE $${paramIndex} OR s.submission_name ILIKE $${paramIndex})`;
+          queryParams.push(`%${filter.value}%`);
+          paramIndex++;
+
+          if (groupCondition) {
+            filterGroups.push(`(${groupCondition})`);
+          }
+          break;
+        }
+
+        case 'title': {
+          groupCondition = `s.submission_title ILIKE $${paramIndex}`;
+          queryParams.push(`%${filter.value}%`);
+          paramIndex++;
+
+          if (groupCondition) {
+            filterGroups.push(`(${groupCondition})`);
+          }
+          break;
+        }
+
+        case 'url': {
+          groupCondition = `s.submission_url ILIKE $${paramIndex}`;
+          queryParams.push(`%${filter.value}%`);
+          paramIndex++;
+
+          if (groupCondition) {
+            filterGroups.push(`(${groupCondition})`);
+          }
+          break;
+        }
+
+        case 'dateFrom': {
+          groupCondition = `s.submission_datetime >= $${paramIndex}`;
+          queryParams.push(filter.value);
+          paramIndex++;
+
+          if (groupCondition) {
+            filterGroups.push(`(${groupCondition})`);
+          }
+          break;
+        }
+
+        case 'dateTo': {
+          groupCondition = `s.submission_datetime <= $${paramIndex}`;
+          queryParams.push(filter.value);
+          paramIndex++;
+
+          if (groupCondition) {
+            filterGroups.push(`(${groupCondition})`);
+          }
+          break;
+        }
+
+        case 'search': {
+          // Multi-word text search with OR logic
+          const searchTerms = filter.value
+            .trim()
+            .split(/\s+/)
+            .filter((term) => term.length >= 2) // Minimum 2 characters per term
+            .map((term) => term.toLowerCase());
+
+          if (searchTerms.length > 0) {
+            const searchConditions = searchTerms.map((term) => {
+              const condition = `(
+                LOWER(s.submission_name) LIKE $${paramIndex} OR 
+                LOWER(s.submission_title) LIKE $${paramIndex}
+              )`;
+              queryParams.push(`%${term}%`);
+              paramIndex++;
+              return condition;
+            });
+            groupCondition = searchConditions.join(' OR ');
+
+            if (groupCondition) {
+              filterGroups.push(`(${groupCondition})`);
+            }
+          }
+          break;
+        }
+
+        // Skip logic filters as they're handled above
+        case 'tagLogic':
+        case 'authorLogic':
+        case 'mentionsLogic':
+        case 'globalLogic':
+          break;
+      }
+    }
+
+    // Apply global logic to combine filter groups
+    if (filterGroups.length > 0) {
+      const globalOperator = globalLogic === 'OR' ? ' OR ' : ' AND ';
+      whereClause += ` AND (${filterGroups.join(globalOperator)})`;
+    }
+
+    // Count total records
+    const countQuery = `
+      SELECT COUNT(*) as total
+      FROM submissions s
+      JOIN users u ON s.user_id = u.id
+      ${whereClause}
+    `;
+
+    const countResult = await sql.unsafe(countQuery, queryParams);
+    const totalRecords = parseInt(countResult[0]?.total || '0');
+
+    // Calculate expected items for current page (will be pageSize or less if on last page)
+    const expectedItems = Math.min(totalRecords, pageSize);
+
+    return {
+      data: {
+        totalRecords,
+        expectedItems
+      }
+    };
+  } catch (error) {
+    console.error('getSubmissionsPaginationCount error:', error);
+    return {
+      error: 'Failed to fetch pagination count'
+    };
+  }
+}
+
 export async function getSubmissionsAction({
   onlyMine,
   userId,
@@ -69,14 +368,46 @@ export async function getSubmissionsAction({
       paramIndex++;
     }
 
-    // Handle dynamic filters
+    // Handle dynamic filters with global logic support
+    const filterGroups: string[] = [];
+    const globalLogicFilter = filters.find((f) => f.name === 'globalLogic');
+    const globalLogic = globalLogicFilter?.value || 'AND';
+
     for (const filter of filters) {
+      let groupCondition = '';
+
       switch (filter.name) {
         case 'author': {
-          // Filter by internal database user ID
-          whereClause += ` AND s.user_id = $${paramIndex}`;
-          queryParams.push(parseInt(filter.value));
-          paramIndex++;
+          // Handle multiple authors with logic
+          const authors = filter.value
+            .split(',')
+            .map((author) => author.trim())
+            .filter(Boolean);
+
+          if (authors.length > 0) {
+            const authorLogicFilter = filters.find(
+              (f) => f.name === 'authorLogic'
+            );
+            // When globalLogic is AND, force all individual filters to AND
+            const authorLogic =
+              globalLogic === 'AND' ? 'AND' : authorLogicFilter?.value || 'OR';
+
+            if (authorLogic === 'AND') {
+              // All authors must match (posts from all specified authors)
+              // This would require posts to be from multiple authors, which is impossible
+              // So we'll treat AND as requiring exact author match
+              groupCondition = `s.user_id IN (${authors.map(() => `$${paramIndex++}`).join(',')})`;
+              queryParams.push(...authors.map((author) => parseInt(author)));
+            } else {
+              // Any author can match (OR logic)
+              groupCondition = `s.user_id IN (${authors.map(() => `$${paramIndex++}`).join(',')})`;
+              queryParams.push(...authors.map((author) => parseInt(author)));
+            }
+
+            if (groupCondition) {
+              filterGroups.push(`(${groupCondition})`);
+            }
+          }
           break;
         }
 
@@ -88,64 +419,177 @@ export async function getSubmissionsAction({
 
           if (tags.length > 0) {
             const tagLogicFilter = filters.find((f) => f.name === 'tagLogic');
-            const tagLogic = tagLogicFilter?.value || 'OR';
+            // When globalLogic is AND, force all individual filters to AND
+            const tagLogic =
+              globalLogic === 'AND' ? 'AND' : tagLogicFilter?.value || 'OR';
 
             if (tagLogic === 'AND') {
               // All tags must be present
+              const tagConditions: string[] = [];
               for (const tag of tags) {
-                whereClause += ` AND $${paramIndex} = ANY(s.tags)`;
+                tagConditions.push(`$${paramIndex} = ANY(s.tags)`);
                 queryParams.push(tag.startsWith('#') ? tag.slice(1) : tag);
                 paramIndex++;
               }
+              groupCondition = tagConditions.join(' AND ');
             } else {
               // Any tag can be present (OR logic)
               const tagPlaceholders = tags
                 .map(() => `$${paramIndex++}`)
                 .join(',');
-              whereClause += ` AND s.tags && ARRAY[${tagPlaceholders}]`;
+              groupCondition = `s.tags && ARRAY[${tagPlaceholders}]`;
               queryParams.push(
                 ...tags.map((tag) => (tag.startsWith('#') ? tag.slice(1) : tag))
               );
+            }
+
+            if (groupCondition) {
+              filterGroups.push(`(${groupCondition})`);
+            }
+          }
+          break;
+        }
+
+        case 'mentions': {
+          const mentions = filter.value
+            .split(',')
+            .map((mention) => mention.trim())
+            .filter(Boolean);
+
+          if (mentions.length > 0) {
+            const mentionsLogicFilter = filters.find(
+              (f) => f.name === 'mentionsLogic'
+            );
+            // When globalLogic is AND, force all individual filters to AND
+            const mentionsLogic =
+              globalLogic === 'AND'
+                ? 'AND'
+                : mentionsLogicFilter?.value || 'OR';
+
+            if (mentionsLogic === 'AND') {
+              // All mentions must be present
+              const mentionConditions: string[] = [];
+              for (const mention of mentions) {
+                mentionConditions.push(
+                  `(s.submission_name ILIKE $${paramIndex} OR s.submission_title ILIKE $${paramIndex})`
+                );
+                queryParams.push(`%${mention}%`);
+                paramIndex++;
+              }
+              groupCondition = mentionConditions.join(' AND ');
+            } else {
+              // Any mention can be present (OR logic)
+              const mentionConditions = mentions.map((mention) => {
+                const condition = `(s.submission_name ILIKE $${paramIndex} OR s.submission_title ILIKE $${paramIndex})`;
+                queryParams.push(`%${mention}%`);
+                paramIndex++;
+                return condition;
+              });
+              groupCondition = mentionConditions.join(' OR ');
+            }
+
+            if (groupCondition) {
+              filterGroups.push(`(${groupCondition})`);
             }
           }
           break;
         }
 
         case 'content': {
-          whereClause += ` AND (s.submission_title ILIKE $${paramIndex} OR s.submission_name ILIKE $${paramIndex})`;
+          groupCondition = `(s.submission_title ILIKE $${paramIndex} OR s.submission_name ILIKE $${paramIndex})`;
           queryParams.push(`%${filter.value}%`);
           paramIndex++;
+
+          if (groupCondition) {
+            filterGroups.push(`(${groupCondition})`);
+          }
           break;
         }
 
         case 'title': {
-          whereClause += ` AND s.submission_title ILIKE $${paramIndex}`;
+          groupCondition = `s.submission_title ILIKE $${paramIndex}`;
           queryParams.push(`%${filter.value}%`);
           paramIndex++;
+
+          if (groupCondition) {
+            filterGroups.push(`(${groupCondition})`);
+          }
           break;
         }
 
         case 'url': {
-          whereClause += ` AND s.submission_url ILIKE $${paramIndex}`;
+          groupCondition = `s.submission_url ILIKE $${paramIndex}`;
           queryParams.push(`%${filter.value}%`);
           paramIndex++;
+
+          if (groupCondition) {
+            filterGroups.push(`(${groupCondition})`);
+          }
           break;
         }
 
         case 'dateFrom': {
-          whereClause += ` AND s.submission_datetime >= $${paramIndex}`;
+          groupCondition = `s.submission_datetime >= $${paramIndex}`;
           queryParams.push(filter.value);
           paramIndex++;
+
+          if (groupCondition) {
+            filterGroups.push(`(${groupCondition})`);
+          }
           break;
         }
 
         case 'dateTo': {
-          whereClause += ` AND s.submission_datetime <= $${paramIndex}`;
+          groupCondition = `s.submission_datetime <= $${paramIndex}`;
           queryParams.push(filter.value);
           paramIndex++;
+
+          if (groupCondition) {
+            filterGroups.push(`(${groupCondition})`);
+          }
           break;
         }
+
+        case 'search': {
+          // Multi-word text search with OR logic
+          const searchTerms = filter.value
+            .trim()
+            .split(/\s+/)
+            .filter((term) => term.length >= 2) // Minimum 2 characters per term
+            .map((term) => term.toLowerCase());
+
+          if (searchTerms.length > 0) {
+            const searchConditions = searchTerms.map((term) => {
+              const condition = `(
+                LOWER(s.submission_name) LIKE $${paramIndex} OR 
+                LOWER(s.submission_title) LIKE $${paramIndex}
+              )`;
+              queryParams.push(`%${term}%`);
+              paramIndex++;
+              return condition;
+            });
+            groupCondition = searchConditions.join(' OR ');
+
+            if (groupCondition) {
+              filterGroups.push(`(${groupCondition})`);
+            }
+          }
+          break;
+        }
+
+        // Skip logic filters as they're handled above
+        case 'tagLogic':
+        case 'authorLogic':
+        case 'mentionsLogic':
+        case 'globalLogic':
+          break;
       }
+    }
+
+    // Apply global logic to combine filter groups
+    if (filterGroups.length > 0) {
+      const globalOperator = globalLogic === 'OR' ? ' OR ' : ' AND ';
+      whereClause += ` AND (${filterGroups.join(globalOperator)})`;
     }
 
     // Count total records

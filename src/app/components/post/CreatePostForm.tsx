@@ -1,8 +1,17 @@
 'use client';
+import { createLogger } from '@/lib/logging';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { createPost } from 'src/lib/actions/post.actions';
 import './CreatePostForm.css';
+
+// Create component-specific logger
+const logger = createLogger({
+  context: {
+    component: 'CreatePostForm',
+    module: 'components/post'
+  }
+});
 
 export default function CreatePostForm({ subthread }: { subthread: string }) {
   const [title, setTitle] = useState('');
@@ -22,7 +31,11 @@ export default function CreatePostForm({ subthread }: { subthread: string }) {
       });
       router.push(`/t/${post.subthread}/comments/${post.id}`);
     } catch (error) {
-      console.error('Error creating post:', error);
+      logger.error('Error creating post', error as Error, {
+        title,
+        subthread: subthread ?? subThread,
+        contentLength: content.length
+      });
       setError(
         error instanceof Error
           ? error.message

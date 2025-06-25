@@ -59,14 +59,18 @@
 
 /* Modal Content Styles - Dark theme to match PostModal */
 .floating-add-post__modal-content {
-  width: 100%;
-  max-width: 500px;
-  padding: 1.5rem;
-  overflow-x: hidden;
-  background-color: var(--dark-background--primary);
-  color: var(--dark-bg__text-color--primary);
+  /* Apply glass effect for modal content */
+  background: var(--glass-overlay-heavy, var(--glass-bg-heavy));
+  backdrop-filter: var(--glass-blur-heavy);
+  -webkit-backdrop-filter: var(--glass-blur-heavy);
+  border: 1px solid var(--glass-border-overlay-heavy, var(--glass-border-heavy));
+  box-shadow: var(--glass-shadow-heavy);
   border-radius: var(--border-radius);
-  border: 1px solid var(--brand-tertiary--dark);
+  padding: 2rem;
+  width: 100%;
+  max-width: 600px;
+  max-height: 80vh;
+  overflow-y: auto;
 }
 
 /* Constrain YouTube embeds within floating add post modal */
@@ -110,19 +114,16 @@
 
 .floating-add-post__header {
   margin-bottom: 1.5rem;
-  padding-bottom: 0.75rem;
-  border-bottom: 1px solid var(--brand-tertiary--dark);
-  background-color: var(--dark-background--secondary);
-  margin: -1.5rem -1.5rem 1.5rem -1.5rem;
-  padding: 1.5rem 1.5rem 1rem 1.5rem;
-  border-radius: var(--border-radius) var(--border-radius) 0 0;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--glass-border-overlay-medium, var(--glass-border-medium));
 }
 
 .floating-add-post__title {
-  font-size: 1.25rem;
+  margin: 0;
+  font-size: var(--font-size-xl);
   font-weight: 600;
   color: var(--dark-bg__text-color--primary);
-  margin: 0;
+  text-align: center;
 }
 
 /* Form styling within modal - Dark theme */

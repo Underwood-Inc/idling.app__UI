@@ -1,13 +1,21 @@
 'use client';
 
-import { signOut } from 'next-auth/react';
+import { createLogger } from '@/lib/logging';
 import React, { useCallback, useEffect, useState } from 'react';
+import { TimestampWithTooltip } from '../ui/TimestampWithTooltip';
 import './CacheStatus.css';
+
+// Create component-specific logger
+const logger = createLogger({
+  context: {
+    component: 'SmartCacheStatus',
+    module: 'components/cache-status'
+  }
+});
 
 interface CacheInfo {
   isCached: boolean;
   cacheTimestamp?: Date;
-  cacheAge?: string;
   version?: string;
   cacheVersion?: string;
   isStale?: boolean;
@@ -31,9 +39,17 @@ interface ServiceWorkerCacheInfo {
   };
 }
 
+interface CacheMetadata {
+  timestamp: Date;
+  version?: string;
+  cacheVersion?: string;
+  isStale: boolean;
+  ttl: number;
+}
+
 function formatTimeAgo(timestamp: number): string {
   const now = Date.now();
-  const diff = now - timestamp;
+  const diff = Math.max(0, now - timestamp); // Ensure non-negative
 
   const seconds = Math.floor(diff / 1000);
   const minutes = Math.floor(seconds / 60);
@@ -55,50 +71,44 @@ const SmartCacheStatus: React.FC = () => {
   const [isClearing, setIsClearing] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
 
-  const getCacheMetadata = async (url: string) => {
+  const getCacheMetadata = useCallback(async () => {
     try {
-      if ('caches' in window) {
-        const cacheNames = await caches.keys();
-        const currentCache = cacheNames.find((name) =>
-          name.includes('idling-app-cache-v')
+      if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+        const messageChannel = new MessageChannel();
+
+        const metadataPromise = new Promise<CacheMetadata>(
+          (resolve, reject) => {
+            messageChannel.port1.onmessage = (event) => {
+              if (event.data.success) {
+                resolve(event.data.metadata);
+              } else {
+                reject(new Error(event.data.error));
+              }
+            };
+          }
         );
 
-        if (currentCache) {
-          const cache = await caches.open(currentCache);
-          const cachedResponse = await cache.match(url);
+        navigator.serviceWorker.controller.postMessage(
+          { type: 'GET_CACHE_METADATA', url: window.location.href },
+          [messageChannel.port2]
+        );
 
-          if (cachedResponse) {
-            const cacheTimestamp =
-              cachedResponse.headers.get('Cache-Timestamp');
-            const cacheTTL = cachedResponse.headers.get('Cache-TTL');
-            const cacheVersion = cachedResponse.headers.get('SW-Cache-Version');
-            const appVersion = cachedResponse.headers.get('X-App-Version');
-
-            if (cacheTimestamp) {
-              const timestamp = new Date(parseInt(cacheTimestamp));
-              const ttl = cacheTTL ? parseInt(cacheTTL) : 300000; // 5 min default
-              const age = Date.now() - timestamp.getTime();
-              const isStale = age > ttl;
-
-              return {
-                timestamp,
-                version: appVersion || undefined,
-                cacheVersion: cacheVersion || undefined,
-                isStale,
-                ttl
-              };
-            }
-          }
-        }
+        return await metadataPromise;
       }
     } catch (error) {
-      console.warn('Failed to get cache metadata:', error);
+      logger.group('getCacheMetadata');
+      logger.warn('Failed to get cache metadata', {
+        error: error instanceof Error ? error.message : String(error),
+        hasServiceWorker: 'serviceWorker' in navigator,
+        hasController: navigator.serviceWorker?.controller !== null
+      });
+      logger.groupEnd();
+      return null;
     }
-    return null;
-  };
+  }, []);
 
   const getServiceWorkerCacheInfo =
-    async (): Promise<ServiceWorkerCacheInfo | null> => {
+    useCallback(async (): Promise<ServiceWorkerCacheInfo | null> => {
       try {
         if (
           'serviceWorker' in navigator &&
@@ -106,33 +116,41 @@ const SmartCacheStatus: React.FC = () => {
         ) {
           const messageChannel = new MessageChannel();
 
-          const infoPromise = new Promise<ServiceWorkerCacheInfo>(
-            (resolve, reject) => {
-              messageChannel.port1.onmessage = (event) => {
-                if (event.data.success) {
-                  resolve(event.data.cacheInfo);
-                } else {
-                  reject(new Error(event.data.error));
-                }
-              };
-            }
-          );
+          return new Promise((resolve) => {
+            messageChannel.port1.onmessage = (event) => {
+              resolve(event.data);
+            };
 
-          navigator.serviceWorker.controller.postMessage(
-            { type: 'GET_CACHE_INFO' },
-            [messageChannel.port2]
-          );
+            navigator.serviceWorker.controller!.postMessage(
+              { type: 'GET_CACHE_INFO' },
+              [messageChannel.port2]
+            );
 
-          return await infoPromise;
+            // Timeout after 2 seconds
+            setTimeout(() => resolve(null), 2000);
+          });
         }
+        return null;
       } catch (error) {
-        console.warn('Failed to get service worker cache info:', error);
+        logger.group('getServiceWorkerCacheInfo');
+        logger.warn('Failed to get service worker cache info', {
+          error: error instanceof Error ? error.message : String(error),
+          hasCaches: 'caches' in window
+        });
+        logger.groupEnd();
+        return null;
       }
-      return null;
-    };
+    }, []);
 
   const checkCacheStatus = useCallback(async () => {
     try {
+      // Check current page cache metadata
+      const pageMetadata = await getCacheMetadata();
+
+      // Get service worker cache info
+      const swInfo = await getServiceWorkerCacheInfo();
+      setSwCacheInfo(swInfo);
+
       // Check if service worker is available
       if ('serviceWorker' in navigator) {
         const registration = await navigator.serviceWorker.getRegistration();
@@ -141,18 +159,58 @@ const SmartCacheStatus: React.FC = () => {
         // Check cache storage
         let cacheSize = 0;
         let cacheCount = 0;
+        let appVersion = 'unknown';
+        let cacheVersion = 'unknown';
+        let currentPageCached = false;
+        let currentPageTimestamp: Date | undefined;
+
         if ('caches' in window) {
           try {
             const cacheNames = await caches.keys();
             cacheCount = cacheNames.length;
 
+            // Check if current page is cached and get app version info
             for (const cacheName of cacheNames) {
               const cache = await caches.open(cacheName);
               const requests = await cache.keys();
               cacheSize += requests.length;
+
+              // Check if current page URL is in this cache
+              const currentPageResponse = await cache.match(
+                window.location.href
+              );
+              if (currentPageResponse) {
+                currentPageCached = true;
+                // Try to get timestamp from response headers
+                const cacheTimestamp =
+                  currentPageResponse.headers.get('Cache-Timestamp');
+                const cacheDate = currentPageResponse.headers.get('Cache-Date');
+                const responseDate = currentPageResponse.headers.get('date');
+
+                if (cacheTimestamp) {
+                  currentPageTimestamp = new Date(parseInt(cacheTimestamp));
+                } else if (cacheDate) {
+                  currentPageTimestamp = new Date(cacheDate);
+                } else if (responseDate) {
+                  currentPageTimestamp = new Date(responseDate);
+                }
+              }
+
+              // Try to get version info from any cached response
+              if (requests.length > 0) {
+                const response = await cache.match(requests[0]);
+                if (response) {
+                  appVersion =
+                    response.headers.get('X-App-Version') || appVersion;
+                  cacheVersion =
+                    response.headers.get('SW-Cache-Version') || cacheVersion;
+                }
+              }
             }
           } catch (e) {
-            // Silent error handling
+            logger.warn('Error checking cache storage', {
+              error: e instanceof Error ? e.message : String(e)
+            });
           }
         }
 
@@ -165,14 +223,30 @@ const SmartCacheStatus: React.FC = () => {
             }
           }
         } catch (e) {
-          // Silent error handling
+          logger.warn('Error checking localStorage', {
+            error: e instanceof Error ? e.message : String(e)
+          });
         }
 
-        const timestamp = new Date();
+        // Use page metadata if available, otherwise use detected cache info
+        const finalTimestamp = pageMetadata?.timestamp || currentPageTimestamp;
+
+        // Ensure we have a timestamp for cached content - use current time as fallback
+        const isCachedContent =
+          currentPageCached ||
+          hasServiceWorker ||
+          cacheCount > 0 ||
+          localStorageSize > 0;
+        const cacheTimestamp =
+          finalTimestamp || (isCachedContent ? new Date() : undefined);
+
         const newCacheInfo = {
-          isCached: hasServiceWorker || cacheCount > 0 || localStorageSize > 0,
-          cacheTimestamp: timestamp,
-          cacheAge: formatTimeAgo(timestamp.getTime()),
+          isCached: isCachedContent,
+          cacheTimestamp: cacheTimestamp,
+          version: appVersion,
+          cacheVersion,
+          isStale: pageMetadata?.isStale || false,
+          ttl: pageMetadata?.ttl || 300000, // 5 min default
           details: {
             serviceWorker: hasServiceWorker,
             cacheCount,
@@ -181,12 +255,38 @@ const SmartCacheStatus: React.FC = () => {
           }
         };
 
+        // Debug logging to help diagnose timestamp issues
+        if (process.env.NODE_ENV === 'development') {
+          logger.group('checkCacheStatus');
+          logger.debug('Cache Status Debug', {
+            isCachedContent,
+            finalTimestamp,
+            cacheTimestamp,
+            currentPageCached,
+            hasServiceWorker,
+            cacheCount,
+            localStorageSize
+          });
+          logger.groupEnd();
+        }
+
         setCacheInfo(newCacheInfo);
       }
     } catch (error) {
-      // Silent error handling
+      logger.group('checkCacheStatus');
+      logger.warn('Failed to check cache status', {
+        error: error instanceof Error ? error.message : String(error)
+      });
+      logger.groupEnd();
+      // Set fallback cache info
+      setCacheInfo({
+        isCached: false,
+        version: 'unknown',
+        cacheVersion: 'unknown',
+        ttl: 300000
+      });
     }
-  }, []);
+  }, [getCacheMetadata, getServiceWorkerCacheInfo]);
 
   /**
    * Refresh current page cache - equivalent to "Empty cache and hard refresh"
@@ -207,41 +307,25 @@ const SmartCacheStatus: React.FC = () => {
    * Clear all cache - logout user, unregister service workers, clear all caches, and re-register
    */
   const handleClearAllCache = async () => {
+    if (isClearing) return;
+
     setIsClearing(true);
+
     try {
-      // 1. Sign out from NextAuth
-      await signOut({ redirect: false });
+      // 1. Clear all browser storage
+      localStorage.clear();
+      sessionStorage.clear();
 
-      // 2. Clear all storage
-      try {
-        localStorage.clear();
-      } catch (e) {
-        // Silent error handling
-      }
-
-      try {
-        sessionStorage.clear();
-      } catch (e) {
-        // Silent error handling
-      }
-
-      // 3. Clear cookies
-      document.cookie.split(';').forEach((cookie) => {
-        const eqPos = cookie.indexOf('=');
-        const name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie;
-        document.cookie = `${name.trim()}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/`;
-      });
-
-      // 4. Clear IndexedDB
+      // 2. Clear IndexedDB
       if ('indexedDB' in window) {
         try {
           const databases = await indexedDB.databases();
           await Promise.all(
             databases.map((db) => {
               if (db.name) {
-                const deleteReq = indexedDB.deleteDatabase(db.name);
-                return new Promise((resolve, reject) => {
-                  deleteReq.onsuccess = () => resolve(undefined);
+                return new Promise<void>((resolve, reject) => {
+                  const deleteReq = indexedDB.deleteDatabase(db.name!);
+                  deleteReq.onsuccess = () => resolve();
                   deleteReq.onerror = () => reject(deleteReq.error);
                 });
               }
@@ -253,7 +337,50 @@ const SmartCacheStatus: React.FC = () => {
         }
       }
 
-      // 5. Unregister service worker
+      // 3. Clear WebSQL (deprecated but still present in some browsers)
+      if ('webkitStorageInfo' in window) {
+        try {
+          const webkitStorageInfo = (window as any).webkitStorageInfo;
+          if (webkitStorageInfo && webkitStorageInfo.requestQuota) {
+            webkitStorageInfo.requestQuota(
+              0,
+              0,
+              () => {},
+              () => {}
+            );
+          }
+        } catch (e) {
+          // Silent error handling
+        }
+      }
+
+      // 4. Send message to service worker to clear all caches
+      if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+        try {
+          const messageChannel = new MessageChannel();
+
+          const clearPromise = new Promise((resolve, reject) => {
+            messageChannel.port1.onmessage = (event) => {
+              if (event.data.success) {
+                resolve(event.data);
+              } else {
+                reject(new Error(event.data.error));
+              }
+            };
+          });
+
+          navigator.serviceWorker.controller.postMessage(
+            { type: 'REFRESH_CACHE' }, // No URL = clear all
+            [messageChannel.port2]
+          );
+
+          await clearPromise;
+        } catch (e) {
+          // Silent error handling
+        }
+      }
+
+      // 5. Unregister ALL service workers
       if ('serviceWorker' in navigator) {
         try {
           const registrations =
@@ -278,16 +405,19 @@ const SmartCacheStatus: React.FC = () => {
         }
       }
 
-      // 7. Re-register service worker
+      // 7. Re-register service worker with fresh state
       if ('serviceWorker' in navigator) {
         try {
-          await navigator.serviceWorker.register('/sw.js');
+          await navigator.serviceWorker.register('/sw.js', {
+            scope: '/',
+            updateViaCache: 'none'
+          });
         } catch (e) {
           // Silent error handling
         }
       }
 
-      // 8. Force page reload to complete the reset
+      // 8. Force hard refresh to complete the reset
       window.location.href = '/';
     } catch (error) {
       // Silent error handling
@@ -306,21 +436,10 @@ const SmartCacheStatus: React.FC = () => {
 
     window.addEventListener('cache-updated', handleCacheUpdate);
 
-    // Update cache age every 30 seconds
-    const interval = setInterval(() => {
-      if (cacheInfo.isCached && cacheInfo.cacheTimestamp) {
-        setCacheInfo((prev) => ({
-          ...prev,
-          cacheAge: formatTimeAgo(prev.cacheTimestamp!.getTime())
-        }));
-      }
-    }, 30000);
-
     return () => {
       window.removeEventListener('cache-updated', handleCacheUpdate);
-      clearInterval(interval);
     };
-  }, []);
+  }, []); // Remove checkCacheStatus dependency to prevent infinite loop
 
   const getCacheStatusColor = () => {
     if (!cacheInfo.isCached) return 'cache-status__indicator--live';
@@ -330,9 +449,21 @@ const SmartCacheStatus: React.FC = () => {
 
   const getCacheStatusText = () => {
     if (!cacheInfo.isCached) return 'Live';
-    const ageText = cacheInfo.cacheAge || '0s ago';
-    if (cacheInfo.isStale) return `Stale ${ageText}`;
-    return `Cached ${ageText}`;
+
+    // If we have cache storage but no specific page cache timestamp, show general cache status
+    if (!cacheInfo.cacheTimestamp) {
+      return 'Cached';
+    }
+
+    // Use the abbreviated timestamp component for compact footer display
+    return (
+      <span
+        style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}
+      >
+        Cached{' '}
+        <TimestampWithTooltip date={cacheInfo.cacheTimestamp} abbreviated />
+      </span>
+    );
   };
 
   return (
@@ -372,19 +503,22 @@ const SmartCacheStatus: React.FC = () => {
 
       {showDetails && (cacheInfo.isCached || swCacheInfo) && (
         <div className="cache-status__details">
-          {cacheInfo.isCached && (
-            <div className="cache-status__detail-item">
-              <strong>Page Cache:</strong>
-              <div>Version: {cacheInfo.version || 'unknown'}</div>
-              <div>Cache Version: {cacheInfo.cacheVersion || 'unknown'}</div>
-              <div>
-                TTL:{' '}
-                {cacheInfo.ttl ? Math.round(cacheInfo.ttl / 1000 / 60) : '?'}{' '}
-                min
-              </div>
-              <div>Status: {cacheInfo.isStale ? '⚠️ Stale' : '✅ Fresh'}</div>
+          <div className="cache-status__detail-item">
+            <strong>Page Cache:</strong>
+            <div>Version: {cacheInfo.version || 'unknown'}</div>
+            <div>Cache Version: {cacheInfo.cacheVersion || 'unknown'}</div>
+            <div>
+              TTL: {cacheInfo.ttl ? Math.round(cacheInfo.ttl / 1000 / 60) : '?'}{' '}
+              min
             </div>
-          )}
+            <div>Status: {cacheInfo.isStale ? '⚠️ Stale' : '✅ Fresh'}</div>
+            {cacheInfo.cacheTimestamp && (
+              <div>
+                Last cached:{' '}
+                <TimestampWithTooltip date={cacheInfo.cacheTimestamp} />
+              </div>
+            )}
+          </div>
 
           {swCacheInfo && (
             <div className="cache-status__detail-item">
@@ -394,6 +528,19 @@ const SmartCacheStatus: React.FC = () => {
               <div>
                 TTLs: API {Math.round(swCacheInfo.ttls.api / 1000 / 60)}m,
                 Dynamic {Math.round(swCacheInfo.ttls.dynamic / 1000 / 60)}m
+              </div>
+            </div>
+          )}
+
+          {cacheInfo.details && (
+            <div className="cache-status__detail-item">
+              <strong>Storage Details:</strong>
+              <div>Cache Count: {cacheInfo.details.cacheCount}</div>
+              <div>Cache Size: {cacheInfo.details.cacheSize} entries</div>
+              <div>LocalStorage: {cacheInfo.details.localStorageSize} KB</div>
+              <div>
+                Service Worker:{' '}
+                {cacheInfo.details.serviceWorker ? '✅ Active' : '❌ Inactive'}
               </div>
             </div>
           )}

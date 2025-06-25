@@ -4,7 +4,7 @@ import { SharedSubmissionForm } from '../submission-forms/shared-submission-form
 
 interface ReplyFormProps {
   parentId: number;
-  onSuccess?: () => void;
+  onSuccess?: (newReply?: any) => void;
   replyToAuthor?: string; // Author name of the post being replied to
 }
 

@@ -171,7 +171,7 @@ function main() {
       return;
     }
 
-    console.group(chalk.blue('🔍 PRE-COMMIT VERSION ANALYSIS'));
+    console.groupCollapsed(chalk.blue('🔍 PRE-COMMIT VERSION ANALYSIS'));
     console.log(
       chalk.blue('Message: ') + chalk.white(`"${commitMessage.split('\n')[0]}"`)
     );
@@ -223,7 +223,7 @@ function main() {
     }
 
     // Show version change
-    console.group(chalk.blue('📦 VERSION UPDATE'));
+    console.groupCollapsed(chalk.blue('📦 VERSION UPDATE'));
     console.log(
       chalk.white('  ') +
         chalk.cyan(currentVersion) +

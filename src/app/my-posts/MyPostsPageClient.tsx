@@ -3,6 +3,7 @@
 import dynamic from 'next/dynamic';
 import { useState } from 'react';
 import FloatingAddPost from '../components/floating-add-post/FloatingAddPost';
+import { IntelligentSkeletonWrapper } from '../components/skeleton/IntelligentSkeletonWrapper';
 import { Submission } from '../components/submission-forms/schema';
 import { SubmissionItem } from '../components/submissions-list/SubmissionItem';
 import { SubmissionWithReplies } from '../components/submissions-list/actions';
@@ -18,8 +19,20 @@ if (process.env.NODE_ENV === 'development') {
 const LazyPostsManager = dynamic(
   () => import('../components/submissions-list/PostsManager'),
   {
-    ssr: false
-    // Remove the Loader fallback so PostsManager/SubmissionsList can handle loading with smart skeleton
+    ssr: false,
+    loading: () => (
+      <IntelligentSkeletonWrapper
+        isLoading={true}
+        className="posts-page-loading"
+        preserveExactHeight={true}
+        expectedItemCount={10}
+        hasPagination={true}
+        hasInfiniteScroll={false}
+        fallbackMinHeight="400px"
+      >
+        <div style={{ minHeight: '400px' }} />
+      </IntelligentSkeletonWrapper>
+    )
   }
 );
 
@@ -30,11 +43,10 @@ interface MyPostsPageClientProps {
 export default function MyPostsPageClient({
   contextId
 }: MyPostsPageClientProps) {
-  const [triggerModal, setTriggerModal] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [triggerModal, setTriggerModal] = useState(false);
 
   const handleNewPostClick = () => {
-    // Trigger the floating add post modal
     setTriggerModal(true);
   };
 
@@ -43,11 +55,11 @@ export default function MyPostsPageClient({
   };
 
   const handleModalClose = () => {
-    // Modal closed, force refresh the posts list
+    setTriggerModal(false);
+    // Refresh posts list when a new post is created
     setRefreshKey((prev) => prev + 1);
   };
 
-  // Custom renderer for my-posts page - shows reply indicators
   const renderMyPostItem = ({
     submission,
     onTagClick,
@@ -56,7 +68,9 @@ export default function MyPostsPageClient({
     onSubmissionUpdate,
     contextId,
     optimisticUpdateSubmission,
-    optimisticRemoveSubmission
+    optimisticRemoveSubmission,
+    currentPage,
+    currentFilters
   }: {
     submission: SubmissionWithReplies;
     onTagClick: (_tag: string) => void;
@@ -72,6 +86,8 @@ export default function MyPostsPageClient({
       _updatedSubmission: Submission
     ) => void;
     optimisticRemoveSubmission?: (_submissionId: number) => void;
+    currentPage?: number;
+    currentFilters?: Record<string, any>;
   }) => {
     const isReplyPost = submission.thread_parent_id !== null;
 
@@ -100,6 +116,8 @@ export default function MyPostsPageClient({
           contextId={contextId}
           optimisticUpdateSubmission={optimisticUpdateSubmission}
           optimisticRemoveSubmission={optimisticRemoveSubmission}
+          currentPage={currentPage}
+          currentFilters={currentFilters}
         />
       </div>
     );

@@ -1,0 +1,92 @@
+/* Info tooltip styles with protected glass background */
+.info-tooltip {
+  min-width: 200px;
+  max-width: min(400px, 90vw);
+  padding: 12px;
+  background: var(--tooltip-glass-bg) !important;
+  border: 1px solid var(--tooltip-glass-border) !important;
+  border-radius: var(--border-radius);
+  backdrop-filter: var(--tooltip-glass-blur) !important;
+  -webkit-backdrop-filter: var(--tooltip-glass-blur) !important;
+  box-shadow: var(--tooltip-glass-shadow) !important;
+  color: white;
+}
+
+.info-tooltip-content {
+  font-size: 14px;
+  line-height: 1.4;
+  color: white;
+  text-align: left;
+  word-wrap: break-word;
+}
+
+/* Dark mode support for info tooltip */
+@media (prefers-color-scheme: dark) {
+  .info-tooltip {
+    background: var(--tooltip-glass-bg) !important;
+    border: 1px solid var(--tooltip-glass-border) !important;
+    color: white;
+  }
+
+  .info-tooltip .info-tooltip-content {
+    color: white;
+  }
+}
+
+/* High contrast mode for info tooltip */
+@media (prefers-contrast: high) {
+  .info-tooltip {
+    border-width: 2px;
+    background: var(--tooltip-glass-bg) !important;
+    color: white;
+    border-color: var(--tooltip-glass-border) !important;
+  }
+
+  .info-tooltip-content {
+    color: white;
+  }
+}
+
+/* Interactive tooltip styles - extends the base link-tooltip styles */
+.interactive-tooltip {
+  min-width: 240px;
+  max-width: 300px;
+  padding: 0;
+}
+
+/* Special sizing for emoji tooltips */
+.interactive-tooltip--emoji {
+  min-width: 340px;
+  max-width: 360px;
+  padding: 0;
+}
+
+/* Mobile-specific styles for interactive tooltips */
+@media (hover: none) and (pointer: coarse) {
+  .interactive-tooltip {
+    max-width: 90vw;
+    min-width: 260px;
+    /* Add some margin from screen edges */
+    margin: 8px;
+  }
+
+  .interactive-tooltip--emoji {
+    max-width: 90vw;
+    min-width: 320px;
+    /* Add some margin from screen edges */
+    margin: 8px;
+  }
+
+  /* Ensure interactive tooltip content is touch-friendly */
+  .interactive-tooltip .info-tooltip-content {
+    /* Remove hover effects on mobile */
+    cursor: default;
+  }
+
+  /* Make buttons and interactive elements more touch-friendly */
+  .interactive-tooltip button {
+    min-height: 44px;
+    min-width: 44px;
+    touch-action: manipulation;
+  }
+}

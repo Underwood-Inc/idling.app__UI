@@ -11,7 +11,13 @@ jest.mock('next-auth/react', () => ({
 
 // Mock jotai
 jest.mock('jotai', () => ({
-  useAtom: jest.fn()
+  useAtom: jest.fn(),
+  atom: jest.fn()
+}));
+
+// Mock the atoms module to avoid import issues
+jest.mock('../../../lib/state/atoms', () => ({
+  avatarCacheAtom: {}
 }));
 
 // Mock the Avatar component
@@ -53,11 +59,12 @@ describe('AuthAvatar', () => {
     expect(avatarElement).toHaveTextContent('Mock Avatar: user-123, md');
   });
 
-  it('renders Avatar with name fallback when ID is not available', () => {
+  it('renders Avatar with guest seed when ID is not available', () => {
     const mockSession = {
       user: {
         name: 'Test User',
         email: 'test@example.com'
+        // No ID provided
       }
     };
     mockUseSession.mockReturnValue({ data: mockSession });
@@ -66,13 +73,15 @@ describe('AuthAvatar', () => {
 
     const avatarElement = screen.getByTestId(AVATAR_SELECTORS.CONTAINER);
     expect(avatarElement).toBeInTheDocument();
-    expect(avatarElement).toHaveTextContent('Mock Avatar: Test User, sm');
+    // When there's no user ID, it defaults to 'guest-user'
+    expect(avatarElement).toHaveTextContent('Mock Avatar: guest-user, sm');
   });
 
-  it('renders Avatar with email fallback when ID and name are not available', () => {
+  it('renders Avatar with guest seed when ID and name are not available', () => {
     const mockSession = {
       user: {
         email: 'test@example.com'
+        // No ID or name provided
       }
     };
     mockUseSession.mockReturnValue({ data: mockSession });
@@ -81,9 +90,8 @@ describe('AuthAvatar', () => {
 
     const avatarElement = screen.getByTestId(AVATAR_SELECTORS.CONTAINER);
     expect(avatarElement).toBeInTheDocument();
-    expect(avatarElement).toHaveTextContent(
-      'Mock Avatar: test@example.com, lg'
-    );
+    // When there's no user ID, it defaults to 'guest-user'
+    expect(avatarElement).toHaveTextContent('Mock Avatar: guest-user, lg');
   });
 
   it('renders Avatar with random guest seed when no session exists', () => {
@@ -95,6 +103,24 @@ describe('AuthAvatar', () => {
     expect(avatarElement).toBeInTheDocument();
     // Should contain "guest-" prefix but the rest is random
     expect(avatarElement.textContent).toMatch(/Mock Avatar: guest-.+, xs/);
+  });
+
+  it('renders Avatar with guest seed when ID is empty string', () => {
+    const mockSession = {
+      user: {
+        id: '', // Empty ID (falsy)
+        name: 'Test User',
+        email: 'test@example.com'
+      }
+    };
+    mockUseSession.mockReturnValue({ data: mockSession });
+
+    render(<AuthAvatar size="md" />);
+
+    const avatarElement = screen.getByTestId(AVATAR_SELECTORS.CONTAINER);
+    expect(avatarElement).toBeInTheDocument();
+    // When ID is empty string (falsy), it defaults to 'guest-user'
+    expect(avatarElement).toHaveTextContent('Mock Avatar: guest-user, md');
   });
 
   it('passes through props correctly', () => {
