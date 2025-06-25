@@ -15,7 +15,12 @@ const customJestConfig = {
     '^@/lib/(.*)$': '<rootDir>/src/lib/$1',
     '^@/app/(.*)$': '<rootDir>/src/app/$1'
   },
-  testPathIgnorePatterns: ['<rootDir>/.next/', '<rootDir>/node_modules/'],
+  testPathIgnorePatterns: [
+    '<rootDir>/.next/', 
+    '<rootDir>/node_modules/',
+    '<rootDir>/e2e/',
+    '\\.spec\\.(ts|tsx)$'
+  ],
   transformIgnorePatterns: ['node_modules/(?!(next-auth|@auth/core))'],
   collectCoverageFrom: [
     'src/**/*.{js,jsx,ts,tsx}',
