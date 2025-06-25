@@ -11,6 +11,8 @@
     "prebuild": "node scripts/update-sw-version.js",
     "postbuild": "node scripts/update-sw-version.js --restore",
     "dev:docker": "./scripts/docker-dev.sh",
+    "dev:docker:up": "docker-compose -f docker-compose.yml -f docker-compose.dev.yml up --build",
+    "dev:docker:down": "docker-compose -f docker-compose.yml -f docker-compose.dev.yml down",
     "dev:seed": "node seed-db-faker.js",
     "dev": "next dev",
     "sw:update": "node scripts/update-sw-version.js",

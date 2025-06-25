@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  nextjs:
+    # Development-specific overrides
+    environment:
+      - NODE_ENV=development
+      - JEKYLL_ENV=development
+      - CHOKIDAR_USEPOLLING=true # Better file watching in Docker
+    volumes:
+      # Additional development volumes
+      - ./logs:/app/logs
+      - ./coverage:/app/coverage
+      - ./test-results:/app/test-results
+    # Development-specific labels
+    labels:
+      - 'traefik.enable=true'
+      - 'traefik.http.routers.nextjs.rule=Host(`localhost`)'
+      - 'traefik.http.routers.nextjs.entrypoints=web'
+      - 'traefik.http.services.nextjs.loadbalancer.server.port=3000'
+      - 'traefik.http.routers.docs.rule=Host(`docs.localhost`)'
+      - 'traefik.http.routers.docs.entrypoints=web'
+      - 'traefik.http.services.docs.loadbalancer.server.port=4000'
