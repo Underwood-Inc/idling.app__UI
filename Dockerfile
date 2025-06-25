@@ -13,8 +13,8 @@ RUN apt-get update && apt-get install -y \
   && rm -rf /var/lib/apt/lists/*
 
 # Set Ruby environment variables
-ENV PATH="/usr/local/bin:$PATH"
 ENV GEM_HOME="/usr/local/bundle"
+ENV PATH="$GEM_HOME/bin:/usr/local/bin:$PATH"
 ENV BUNDLE_SILENCE_ROOT_WARNING=1
 ENV BUNDLE_APP_CONFIG="$GEM_HOME"
 
