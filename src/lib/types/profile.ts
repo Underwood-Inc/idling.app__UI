@@ -16,4 +16,6 @@ export interface UserProfileData {
   // User preferences
   spacing_theme?: 'cozy' | 'compact';
   pagination_mode?: 'traditional' | 'infinite';
+  emoji_panel_behavior?: 'close_after_select' | 'stay_open';
+  font_preference?: 'monospace' | 'default';
 }

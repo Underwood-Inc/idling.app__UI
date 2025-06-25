@@ -23,6 +23,30 @@ export default auth((req) => {
       }
     }
 
+    // Protect emoji usage tracking and modification routes
+    if (nextUrl.pathname.startsWith('/api/emojis') && req.method !== 'GET') {
+      if (!session) {
+        return NextResponse.json(
+          { error: 'Authentication required' },
+          { status: 401 }
+        );
+      }
+    }
+
+    // Protect upload routes
+    if (nextUrl.pathname.startsWith('/api/upload') && req.method !== 'GET') {
+      if (!session) {
+        return NextResponse.json(
+          { error: 'Authentication required' },
+          { status: 401 }
+        );
+      }
+    }
+
+    // Note: Profile privacy protection is handled at the endpoint level
+    // using the privacy utility in /lib/utils/privacy.ts for better performance
+    // and to avoid database queries in middleware
+
     // Protect admin routes
     if (nextUrl.pathname.startsWith('/api/admin')) {
       if (!session) {

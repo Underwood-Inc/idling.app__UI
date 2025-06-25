@@ -13,7 +13,7 @@ import styles from './page.module.css';
 
 export default async function Home() {
   return (
-    <>
+    <div style={{ position: 'relative', width: '100%' }}>
       <PageContainer>
         <PageHeader>
           <FadeIn>
@@ -50,6 +50,6 @@ export default async function Home() {
           </FancyBorder>
         </FadeIn>
       </PageAside>
-    </>
+    </div>
   );
 }

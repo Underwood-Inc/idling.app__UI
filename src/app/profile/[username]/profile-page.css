@@ -664,3 +664,98 @@
     padding: 0.75rem;
   }
 }
+
+/* Private Profile Notice Styles */
+.profile-page__private-notice {
+  text-align: center;
+  padding: 3rem 2rem;
+  background: var(--light-background--secondary);
+  border-radius: var(--border-radius);
+}
+
+.profile-page__private-icon {
+  font-size: 4rem;
+  margin-bottom: 1.5rem;
+  opacity: 0.8;
+}
+
+.profile-page__private-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--light-bg__text-color--primary);
+  margin: 0 0 1rem 0;
+}
+
+.profile-page__private-message {
+  font-size: 1.1rem;
+  color: var(--light-bg__text-color--secondary);
+  line-height: 1.6;
+  margin: 0 0 2rem 0;
+  max-width: 400px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.profile-page__private-actions {
+  margin-top: 2rem;
+}
+
+.profile-page__private-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background: var(--brand-primary);
+  color: white;
+  text-decoration: none;
+  border-radius: var(--border-radius);
+  font-weight: 600;
+  transition: all 0.2s ease-in-out;
+}
+
+.profile-page__private-link:hover {
+  background: var(--brand-primary--dark);
+  transform: translateY(-1px);
+  text-decoration: none;
+  color: white;
+}
+
+/* Dark mode support for private profile notice */
+@media (prefers-color-scheme: dark) {
+  .profile-page__private-notice {
+    background: var(--dark-background--secondary);
+  }
+
+  .profile-page__private-title {
+    color: var(--dark-bg__text-color--primary);
+  }
+
+  .profile-page__private-message {
+    color: var(--dark-bg__text-color--secondary);
+  }
+}
+
+/* Mobile responsive for private profile notice */
+@media (max-width: 768px) {
+  .profile-page__private-notice {
+    padding: 2rem 1rem;
+  }
+
+  .profile-page__private-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+  }
+
+  .profile-page__private-title {
+    font-size: 1.5rem;
+  }
+
+  .profile-page__private-message {
+    font-size: 1rem;
+  }
+
+  .profile-page__private-link {
+    padding: 0.6rem 1.2rem;
+    font-size: 0.9rem;
+  }
+}

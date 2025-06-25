@@ -1,7 +1,10 @@
 'use client';
 
 import { useSession } from 'next-auth/react';
-import { useUserPreferences } from '../../lib/context/UserPreferencesContext';
+import {
+  useProfileVisibility,
+  useUserPreferences
+} from '../../lib/context/UserPreferencesContext';
 import './settings.css';
 
 export default function SettingsPage() {
@@ -11,11 +14,26 @@ export default function SettingsPage() {
     setSpacingTheme,
     paginationMode,
     setPaginationMode,
+    emojiPanelBehavior,
+    setEmojiPanelBehavior,
+    fontPreference,
+    setFontPreference,
     isUpdatingSpacingTheme,
     isUpdatingPaginationMode,
+    isUpdatingEmojiPanelBehavior,
+    isUpdatingFontPreference,
     spacingThemeError,
-    paginationModeError
+    paginationModeError,
+    emojiPanelBehaviorError,
+    fontPreferenceError
   } = useUserPreferences();
+
+  const {
+    visibility: profileVisibility,
+    setVisibility: setProfileVisibility,
+    isUpdating: isUpdatingProfileVisibility,
+    error: profileVisibilityError
+  } = useProfileVisibility();
 
   if (status === 'loading') {
     return (
@@ -36,6 +54,49 @@ export default function SettingsPage() {
         </div>
 
         <div className="settings-page__content">
+          {/* Font Preference Section */}
+          <div className="settings-group">
+            <div className="settings-group__header">
+              <h2 className="settings-group__title">Font Family</h2>
+              <span className="settings-group__current">
+                Current:{' '}
+                <strong>
+                  {fontPreference === 'monospace' ? 'Code' : 'Reading'}
+                </strong>
+              </span>
+            </div>
+
+            <div className="settings-options">
+              <button
+                className={`settings-option settings-option--monospace ${fontPreference === 'monospace' ? 'settings-option--active' : ''}`}
+                onClick={() => setFontPreference('monospace')}
+                disabled={isUpdatingFontPreference}
+                aria-pressed={fontPreference === 'monospace'}
+              >
+                <span className="settings-option__icon">🔤</span>
+                <span className="settings-option__label">Code</span>
+                <span className="settings-option__desc">
+                  Fira Code - Perfect for coding
+                </span>
+              </button>
+              <button
+                className={`settings-option settings-option--default ${fontPreference === 'default' ? 'settings-option--active' : ''}`}
+                onClick={() => setFontPreference('default')}
+                disabled={isUpdatingFontPreference}
+                aria-pressed={fontPreference === 'default'}
+              >
+                <span className="settings-option__icon">📖</span>
+                <span className="settings-option__label">Reading</span>
+                <span className="settings-option__desc">
+                  System fonts - Easy on the eyes
+                </span>
+              </button>
+            </div>
+            {fontPreferenceError && (
+              <div className="settings-error">{fontPreferenceError}</div>
+            )}
+          </div>
+
           {/* Spacing Theme Section */}
           <div className="settings-group">
             <div className="settings-group__header">
@@ -121,6 +182,98 @@ export default function SettingsPage() {
               <div className="settings-error">{paginationModeError}</div>
             )}
           </div>
+
+          {/* Emoji Panel Behavior Section */}
+          <div className="settings-group">
+            <div className="settings-group__header">
+              <h2 className="settings-group__title">Emoji Panel Behavior</h2>
+              <span className="settings-group__current">
+                Current:{' '}
+                <strong>
+                  {emojiPanelBehavior === 'close_after_select'
+                    ? 'Close After Select'
+                    : 'Stay Open'}
+                </strong>
+              </span>
+            </div>
+
+            <div className="settings-options">
+              <button
+                className={`settings-option settings-option--close-after ${emojiPanelBehavior === 'close_after_select' ? 'settings-option--active' : ''}`}
+                onClick={() => setEmojiPanelBehavior('close_after_select')}
+                disabled={isUpdatingEmojiPanelBehavior}
+                aria-pressed={emojiPanelBehavior === 'close_after_select'}
+              >
+                <span className="settings-option__icon">🎯</span>
+                <span className="settings-option__label">
+                  Close After Select
+                </span>
+                <span className="settings-option__desc">
+                  Panel closes after picking one emoji
+                </span>
+              </button>
+              <button
+                className={`settings-option settings-option--stay-open ${emojiPanelBehavior === 'stay_open' ? 'settings-option--active' : ''}`}
+                onClick={() => setEmojiPanelBehavior('stay_open')}
+                disabled={isUpdatingEmojiPanelBehavior}
+                aria-pressed={emojiPanelBehavior === 'stay_open'}
+              >
+                <span className="settings-option__icon">📌</span>
+                <span className="settings-option__label">Stay Open</span>
+                <span className="settings-option__desc">
+                  Pick multiple emojis before closing
+                </span>
+              </button>
+            </div>
+            {emojiPanelBehaviorError && (
+              <div className="settings-error">{emojiPanelBehaviorError}</div>
+            )}
+          </div>
+
+          {/* Profile Visibility Section - Only show for authenticated users */}
+          {session?.user && (
+            <div className="settings-group">
+              <div className="settings-group__header">
+                <h2 className="settings-group__title">Profile Visibility</h2>
+                <span className="settings-group__current">
+                  Current:{' '}
+                  <strong>
+                    {profileVisibility === 'public' ? 'Public' : 'Private'}
+                  </strong>
+                </span>
+              </div>
+
+              <div className="settings-options">
+                <button
+                  className={`settings-option settings-option--public ${profileVisibility === 'public' ? 'settings-option--active' : ''}`}
+                  onClick={() => setProfileVisibility('public')}
+                  disabled={isUpdatingProfileVisibility}
+                  aria-pressed={profileVisibility === 'public'}
+                >
+                  <span className="settings-option__icon">🌐</span>
+                  <span className="settings-option__label">Public</span>
+                  <span className="settings-option__desc">
+                    Profile visible to everyone
+                  </span>
+                </button>
+                <button
+                  className={`settings-option settings-option--private ${profileVisibility === 'private' ? 'settings-option--active' : ''}`}
+                  onClick={() => setProfileVisibility('private')}
+                  disabled={isUpdatingProfileVisibility}
+                  aria-pressed={profileVisibility === 'private'}
+                >
+                  <span className="settings-option__icon">🔒</span>
+                  <span className="settings-option__label">Private</span>
+                  <span className="settings-option__desc">
+                    Profile hidden from others
+                  </span>
+                </button>
+              </div>
+              {profileVisibilityError && (
+                <div className="settings-error">{profileVisibilityError}</div>
+              )}
+            </div>
+          )}
 
           {/* Account Status */}
           <div className="settings-group settings-group--info">
