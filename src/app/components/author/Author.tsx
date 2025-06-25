@@ -186,6 +186,37 @@ const UserProfileTooltipContent: React.FC<{
   );
 };
 
+// Private Profile Tooltip Component - matches regular tooltip styling
+const UserProfileTooltipPrivate: React.FC<{
+  authorName: string;
+  onViewProfile: () => void;
+}> = ({ authorName, onViewProfile }) => {
+  return (
+    <div className="author-tooltip">
+      <div className="author-tooltip__content">
+        <div className="author-tooltip__header">
+          <div>
+            <div className="author-tooltip__private-icon">🔒</div>
+          </div>
+          <div className="author-tooltip__header-info">
+            <h4 className="author-tooltip__name">{authorName}</h4>
+            <p className="author-tooltip__private-status">Private Profile</p>
+          </div>
+        </div>
+
+        <div className="author-tooltip__private-message">
+          <p>
+            This user has set their profile to private. Only they can view their
+            profile information.
+          </p>
+        </div>
+      </div>
+
+      {/* No actions section for private profiles - removed View Profile Page button */}
+    </div>
+  );
+};
+
 // Loading state component that matches the actual tooltip structure
 const UserProfileTooltipLoading: React.FC = () => {
   return (
@@ -370,6 +401,8 @@ export const Author: React.FC<AuthorProps> = ({
   const [userProfile, setUserProfile] = useState<UserProfileData | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [hasAttemptedFetch, setHasAttemptedFetch] = useState(false);
+  const [isPrivateProfile, setIsPrivateProfile] = useState(false);
+  const [fetchError, setFetchError] = useState<string | null>(null);
   const { openOverlay, closeOverlay } = useOverlay();
 
   const displayName = showFullName ? authorName : `@${authorName}`;
@@ -384,6 +417,8 @@ export const Author: React.FC<AuthorProps> = ({
 
     setIsLoading(true);
     setHasAttemptedFetch(true);
+    setFetchError(null);
+    setIsPrivateProfile(false);
 
     try {
       // ✅ Only database ID lookup supported after migration 0010
@@ -393,12 +428,22 @@ export const Author: React.FC<AuthorProps> = ({
       if (response.ok) {
         const profile: UserProfileData = await response.json();
         setUserProfile(profile);
+      } else if (response.status === 403) {
+        // Profile is private
+        const errorData = await response.json();
+        if (errorData.error === 'This profile is private') {
+          setIsPrivateProfile(true);
+        } else {
+          setFetchError(errorData.error || 'Access denied');
+        }
+      } else if (response.status === 404) {
+        setFetchError('User not found');
       } else {
-        throw new Error('Failed to fetch profile');
+        setFetchError('Failed to fetch profile');
       }
     } catch (error) {
       console.error('Error fetching user profile:', error);
-      setUserProfile(null);
+      setFetchError('Unable to load profile');
     } finally {
       setIsLoading(false);
     }
@@ -485,9 +530,14 @@ export const Author: React.FC<AuthorProps> = ({
     />
   ) : isLoading ? (
     <UserProfileTooltipLoading />
+  ) : isPrivateProfile ? (
+    <UserProfileTooltipPrivate
+      authorName={authorName}
+      onViewProfile={handleViewProfile}
+    />
   ) : (
     <div className="author-tooltip__error">
-      <p>Unable to load profile</p>
+      <p>{fetchError || 'Unable to load profile'}</p>
     </div>
   );
 
