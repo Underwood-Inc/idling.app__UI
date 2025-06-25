@@ -7,7 +7,56 @@ const fs = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
 const readline = require('readline');
-const chalk = require('chalk');
+
+// Initialize chalk with ESM/CommonJS compatibility
+let chalk;
+
+function initializeChalk() {
+  try {
+    // Try CommonJS first (chalk v4)
+    chalk = require('chalk');
+
+    // Verify chalk is actually working
+    if (!chalk || typeof chalk.red !== 'function') {
+      throw new Error('Chalk loaded but red function not available');
+    }
+  } catch (chalkError) {
+    // Fallback to no-color functions for chalk v5+ ESM compatibility
+    const noColorFn = (str) => str;
+
+    // Create simple method chaining support without recursion
+    const createChainableMethod = () => {
+      const fn = (str) => str;
+      fn.bold = noColorFn;
+      fn.green = noColorFn;
+      fn.yellow = noColorFn;
+      fn.cyan = noColorFn;
+      fn.red = noColorFn;
+      fn.blue = noColorFn;
+      fn.magenta = noColorFn;
+      fn.gray = noColorFn;
+      fn.white = noColorFn;
+      fn.dim = noColorFn;
+      return fn;
+    };
+
+    chalk = {
+      red: createChainableMethod(),
+      green: createChainableMethod(),
+      yellow: createChainableMethod(),
+      blue: createChainableMethod(),
+      cyan: createChainableMethod(),
+      magenta: createChainableMethod(),
+      white: createChainableMethod(),
+      gray: createChainableMethod(),
+      dim: createChainableMethod(),
+      bold: createChainableMethod()
+    };
+  }
+}
+
+// Initialize chalk immediately
+initializeChalk();
 
 /**
  * Auto-increment package.json version based on commit message type

@@ -205,14 +205,14 @@
   background: var(--light-background--tertiary);
   padding: 0.75rem;
   border-radius: var(--border-radius);
-  border-left: 3px solid var(--brand-primary);
+  border-inline-start: 3px solid var(--brand-primary);
 }
 
 .user-profile__bio-placeholder {
   font-style: italic;
   color: var(--light-bg__text-color--tertiary) !important;
   background: var(--light-background--quaternary) !important;
-  border-left-color: var(--brand-secondary--dark) !important;
+  border-inline-start-color: var(--brand-secondary--dark) !important;
   border-style: solid !important;
 }
 
@@ -356,15 +356,15 @@
 .user-profile__bio-counter {
   font-size: var(--font-size-xs, 0.75rem);
   color: var(--light-bg__text-color--tertiary);
-  text-align: right;
-  margin-top: -0.25rem;
+  text-align: end;
+  margin-block-start: -0.25rem;
 }
 
 /* Footer Section */
 .user-profile__footer {
-  margin-top: var(--spacing-md, 1rem);
-  padding-top: var(--spacing-sm, 0.75rem);
-  border-top: 1px solid var(--brand-tertiary--dark);
+  margin-block-start: var(--spacing-md, 1rem);
+  padding-block-start: var(--spacing-sm, 0.75rem);
+  border-block-start: 1px solid var(--brand-tertiary--dark);
 }
 
 .user-profile__footer .user-profile__join-date {
@@ -386,7 +386,7 @@
 }
 
 .user-profile--full .user-profile__header {
-  margin-bottom: 2rem;
+  margin-block-end: 2rem;
   align-items: center;
   gap: 1.5rem;
 }
@@ -399,8 +399,8 @@
   width: 32px;
   height: 32px;
   font-size: 1rem;
-  bottom: -4px;
-  right: -4px;
+  inset-block-end: -4px;
+  inset-inline-end: -4px;
   border-width: 3px;
 }
 
@@ -408,7 +408,7 @@
   font-size: var(--font-size-xl, 1.5rem);
   color: var(--brand-primary--dark);
   font-weight: 700;
-  margin-bottom: 0.75rem;
+  margin-block-end: 0.75rem;
 }
 
 .user-profile--full .user-profile__meta-row {
@@ -418,7 +418,7 @@
 }
 
 .user-profile--full .user-profile__bio {
-  margin-top: var(--spacing-lg, 1.5rem);
+  margin-block-start: var(--spacing-lg, 1.5rem);
 }
 
 .user-profile--full .user-profile__bio h3 {
@@ -427,7 +427,7 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  margin-bottom: 1rem;
+  margin-block-end: 1rem;
 }
 
 .user-profile--full .user-profile__bio h3::before {
@@ -439,14 +439,14 @@
   font-size: var(--font-size-md, 1rem);
   padding: 1rem;
   background: var(--light-background--secondary);
-  border-left: 4px solid var(--brand-primary);
+  border-inline-start: 4px solid var(--brand-primary);
 }
 
 .user-profile--full .user-profile__bio-pills {
   font-size: var(--font-size-md, 1rem);
   padding: 1rem;
   background: var(--light-background--secondary);
-  border-left: 4px solid var(--brand-primary);
+  border-inline-start: 4px solid var(--brand-primary);
 }
 
 /* Stats Section */
@@ -454,8 +454,8 @@
   display: flex;
   justify-content: space-around;
   padding: var(--spacing-md, 1rem) 0;
-  margin-top: var(--spacing-md, 1rem);
-  border-top: 1px solid var(--brand-tertiary--dark);
+  margin-block-start: var(--spacing-md, 1rem);
+  border-block-start: 1px solid var(--brand-tertiary--dark);
 }
 
 .user-profile__stat {
@@ -469,7 +469,7 @@
   font-size: var(--font-size-lg, 1.25rem);
   font-weight: var(--font-weight-bold, 700);
   color: var(--brand-primary--dark);
-  margin-bottom: 0.25rem;
+  margin-block-end: 0.25rem;
 }
 
 .user-profile__stat-label {

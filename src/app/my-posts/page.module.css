@@ -17,5 +17,5 @@
 }
 
 .tags_aside {
-  top: 21rem;
+  inset-block-start: 21rem;
 }

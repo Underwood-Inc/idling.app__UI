@@ -11,7 +11,7 @@
 }
 
 .home__container_fade:last-child {
-  margin-right: 0;
+  margin-inline-end: 0;
 }
 
 /* Primary column */
@@ -19,6 +19,7 @@
   flex: 1 1 65%;
   min-height: min-content;
 }
+
 /* Secondary column */
 .home__container_item:nth-child(2) {
   flex: 1 1 34%;
@@ -29,7 +30,7 @@
   min-height: 60rem;
 }
 
-.discord_aside > div::before,
-.discord_aside > div::after {
-  margin-bottom: 0.2rem;
+.discord_aside>div::before,
+.discord_aside>div::after {
+  margin-block-end: 0.2rem;
 }

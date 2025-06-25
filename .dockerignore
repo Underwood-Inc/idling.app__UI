@@ -1,0 +1,59 @@
+# Dependencies
+node_modules/
+yarn-error.log
+npm-debug.log*
+yarn-debug.log*
+
+# Build outputs
+.next/
+out/
+build/
+dist/
+
+# Environment files
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Testing
+coverage/
+test-results/
+playwright-report/
+test-debrief.md
+
+# Development files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Documentation build files
+DOCS/_site/
+DOCS/.sass-cache/
+DOCS/.jekyll-cache/
+DOCS/vendor/
+DOCS/Gemfile.lock
+
+# Git files
+.git/
+.gitignore
+
+# Temporary files
+*.tmp
+*.temp
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/
+*.log
+
+# Runtime files
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# Reports and analysis
+reports/ 

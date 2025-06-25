@@ -1,0 +1,167 @@
+<!-- Search Component -->
+<div class="search-container">
+  <div class="search-wrapper">
+    <input
+      type="text"
+      id="search-input"
+      placeholder="Search documentation... (Ctrl+K)"
+      autocomplete="off"
+    />
+    <div id="search-results" class="search-results"></div>
+  </div>
+</div>
+
+<script>
+  (function () {
+    // Search functionality
+    var searchInput = document.getElementById('search-input');
+    var searchResults = document.getElementById('search-results');
+    var searchIndex;
+    var searchData;
+
+    // Load search index
+    function loadSearchIndex() {
+      if (searchIndex) return Promise.resolve();
+
+      return fetch('{{ site.baseurl }}/search.json')
+        .then(function (response) {
+          return response.json();
+        })
+        .then(function (data) {
+          searchData = data;
+          searchIndex = lunr(function () {
+            this.ref('id');
+            this.field('title', { boost: 10 });
+            this.field('content');
+            this.field('url');
+
+            data.forEach(function (doc, idx) {
+              doc.id = idx;
+              this.add(doc);
+            }, this);
+          });
+        });
+    }
+
+    // Perform search
+    function performSearch(query) {
+      if (!query || query.length < 3) {
+        searchResults.innerHTML = '';
+        searchResults.classList.remove('show');
+        return;
+      }
+
+      loadSearchIndex().then(function () {
+        var results = searchIndex.search(query);
+        displayResults(results, query);
+      });
+    }
+
+    // Display search results
+    function displayResults(results, query) {
+      console.log('Displaying results:', results.length, 'for query:', query); // Debug log
+
+      if (results.length === 0) {
+        searchResults.innerHTML =
+          '<div class="search-no-results">No results found for "' +
+          query +
+          '"</div>';
+      } else {
+        var html = results
+          .slice(0, 8)
+          .map(function (result) {
+            var doc = searchData[result.ref];
+            var title = doc.title || 'Untitled';
+            var url = '{{ site.baseurl }}' + doc.url;
+            var excerpt = doc.content
+              ? doc.content.substring(0, 150) + '...'
+              : '';
+
+            return (
+              '<div class="search-result-item">' +
+              '<a href="' +
+              url +
+              '" class="search-result-link">' +
+              '<div class="search-result-title">' +
+              title +
+              '</div>' +
+              '<div class="search-result-excerpt">' +
+              excerpt +
+              '</div>' +
+              '</a></div>'
+            );
+          })
+          .join('');
+
+        searchResults.innerHTML = html;
+      }
+
+      searchResults.classList.add('show');
+      console.log('Search results element:', searchResults); // Debug log
+      console.log('Search results classes:', searchResults.className); // Debug log
+      console.log(
+        'Search results computed style:',
+        window.getComputedStyle(searchResults)
+      ); // Debug log
+    }
+
+    // Event listeners
+    if (searchInput) {
+      searchInput.addEventListener('input', function (e) {
+        performSearch(e.target.value);
+      });
+
+      searchInput.addEventListener('focus', function () {
+        if (searchInput.value.length >= 3) {
+          searchResults.classList.add('show');
+        }
+      });
+
+      // Hide results when clicking outside
+      document.addEventListener('click', function (e) {
+        if (!e.target.closest('.search-wrapper')) {
+          searchResults.classList.remove('show');
+        }
+      });
+
+      // Keyboard navigation
+      searchInput.addEventListener('keydown', function (e) {
+        var items = searchResults.querySelectorAll('.search-result-item');
+        var current = searchResults.querySelector('.search-result-item.active');
+        var currentIndex = current ? Array.from(items).indexOf(current) : -1;
+
+        if (e.key === 'ArrowDown') {
+          e.preventDefault();
+          if (current) current.classList.remove('active');
+          var next = items[currentIndex + 1] || items[0];
+          if (next) next.classList.add('active');
+        } else if (e.key === 'ArrowUp') {
+          e.preventDefault();
+          if (current) current.classList.remove('active');
+          var prev = items[currentIndex - 1] || items[items.length - 1];
+          if (prev) prev.classList.add('active');
+        } else if (e.key === 'Enter') {
+          e.preventDefault();
+          var activeItem = searchResults.querySelector(
+            '.search-result-item.active a'
+          );
+          if (activeItem) {
+            window.location.href = activeItem.href;
+          }
+        } else if (e.key === 'Escape') {
+          searchResults.classList.remove('show');
+          searchInput.blur();
+        }
+      });
+
+      // Global keyboard shortcut (Ctrl+K or Cmd+K)
+      document.addEventListener('keydown', function (e) {
+        if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+          e.preventDefault();
+          searchInput.focus();
+          searchInput.select();
+        }
+      });
+    }
+  })();
+</script>

@@ -1,6 +1,6 @@
 {
   "name": "idling.app",
-  "version": "0.188.1",
+  "version": "0.189.0",
   "private": true,
   "engines": {
     "node": ">=20.x"
@@ -15,9 +15,9 @@
     "dev": "next dev",
     "sw:update": "node scripts/update-sw-version.js",
     "sw:restore": "node scripts/update-sw-version.js --restore",
-    "docs:dev": "cd DOCS && (bundle exec jekyll serve --livereload --host=0.0.0.0 --port=4000 || echo 'Error: Ruby/Jekyll not installed. Please install Ruby and run: gem install bundler jekyll')",
-    "docs:build": "cd DOCS && (bundle exec jekyll build || echo 'Error: Ruby/Jekyll not installed. Please install Ruby and run: gem install bundler jekyll')",
-    "docs:install": "cd DOCS && (bundle install || echo 'Error: Ruby/Bundler not installed. Please install Ruby first: sudo apt update && sudo apt install ruby-full build-essential zlib1g-dev && gem install bundler')",
+    "docs:dev": "cd DOCS && PAGES_REPO_NWO=Underwood-Inc/idling.app__UI bundle exec jekyll serve --config _config.yml,_config_dev.yml --host=0.0.0.0 --port=4000",
+    "docs:build": "cd DOCS && PAGES_REPO_NWO=Underwood-Inc/idling.app__UI bundle exec jekyll build",
+    "docs:install": "cd DOCS && bundle config set --local path 'vendor/bundle' && bundle install",
     "e2e:gen": "yarn playwright codegen",
     "e2e:headed": "yarn playwright test --headed",
     "e2e:headless": "yarn playwright test",

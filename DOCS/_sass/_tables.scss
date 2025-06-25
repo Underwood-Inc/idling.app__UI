@@ -1,0 +1,82 @@
+// Tables
+// Enhanced table styling with better contrast
+
+// Enhanced tables with better contrast
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: var(--space-xl) 0;
+  background-color: var(--dark-bg-secondary) !important;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-lg);
+  
+  th, td {
+    padding: var(--space-lg);
+    text-align: start;
+    border-block-end: 1px solid var(--border-secondary);
+    vertical-align: top;
+  }
+  
+  th {
+    background-color: var(--dark-bg-quaternary) !important;
+    color: var(--jasmine) !important;
+    font-weight: 600;
+    font-size: var(--text-sm);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-block-end: 2px solid var(--hunyadi-yellow);
+  }
+  
+  // Default row styling
+  tbody tr {
+    background-color: var(--dark-bg-secondary) !important;
+    
+    td {
+      color: var(--text-primary) !important;
+    }
+  }
+  
+  // Alternating row colors with better contrast
+  tbody tr:nth-child(even) {
+    background-color: var(--dark-bg-tertiary) !important;
+    
+    td {
+      color: var(--text-primary) !important;
+    }
+  }
+  
+  // Hover state with high contrast
+  tbody tr:hover {
+    background-color: var(--dark-bg-quaternary) !important;
+    
+    td {
+      color: var(--jasmine) !important;
+    }
+  }
+  
+  tr:last-child td {
+    border-block-end: none;
+  }
+  
+  // Ensure links in tables are highly visible
+  a {
+    color: var(--hunyadi-yellow) !important;
+    font-weight: 500;
+    text-decoration: none;
+    
+    &:hover {
+      color: var(--jasmine) !important;
+      text-decoration: underline;
+    }
+  }
+  
+  // Code in tables
+  code {
+    background-color: var(--dark-bg-code) !important;
+    color: var(--text-code) !important;
+    padding: var(--space-xs) var(--space-sm);
+    border-radius: var(--radius-sm);
+    font-size: 0.9em;
+  }
+} 

@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="{{ page.lang | default: site.lang | default: "en" }}">
+
+  {%- include head.html -%}
+
+  <body>
+    <!-- Navigation Progress Loader -->
+    {%- include navigation-loader.html -%}
+
+    {%- include header.html -%}
+
+    <!-- Search Section -->
+    <section class="search-section" aria-label="Search Documentation">
+      <div class="wrapper">
+        {%- include search.html -%}
+      </div>
+    </section>
+
+    <main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        
+        <!-- Breadcrumb navigation -->
+        {% if page.url != "/" %}
+        <nav class="breadcrumb">
+          <a href="{{ "/" | relative_url }}">Home</a>
+          {% assign crumbs = page.url | remove:'/index.html' | split: '/' %}
+          {% for crumb in crumbs offset: 1 %}
+            {% unless forloop.last %}
+              {% if crumb != '' %}
+                <span class="breadcrumb-separator">›</span>
+                <a href="{% assign crumb_limit = forloop.index | plus: 1 %}{% for crumb in crumbs limit: crumb_limit %}{{ crumb | append: '/' }}{% endfor %}">{{ crumb | replace:'-',' ' | remove:'.html' | capitalize }}</a>
+              {% endif %}
+            {% else %}
+              <span class="breadcrumb-separator">›</span>
+              <span class="breadcrumb-current">{{ crumb | replace:'-',' ' | remove:'.html' | capitalize }}</span>
+            {% endunless %}
+          {% endfor %}
+        </nav>
+        {% endif %}
+
+        <!-- Page content -->
+        <article class="post">
+          <header class="post-header">
+            <h1 class="post-title">{{ page.title | escape }}</h1>
+            {% if page.description %}
+              <p class="post-description">{{ page.description }}</p>
+            {% endif %}
+          </header>
+
+          <div class="post-content">
+            {{ content }}
+          </div>
+        </article>
+
+        <!-- Navigation between pages -->
+        {% if site.navigation %}
+        <nav class="post-nav">
+          {% assign current_found = false %}
+          {% assign prev_page = null %}
+          {% assign next_page = null %}
+          
+          {% for nav_item in site.navigation %}
+            {% if nav_item.subnav %}
+              {% for sub_item in nav_item.subnav %}
+                {% if current_found and next_page == null %}
+                  {% assign next_page = sub_item %}
+                {% endif %}
+                {% if sub_item.url == page.url %}
+                  {% assign current_found = true %}
+                {% endif %}
+                {% unless current_found %}
+                  {% assign prev_page = sub_item %}
+                {% endunless %}
+              {% endfor %}
+            {% else %}
+              {% if current_found and next_page == null %}
+                {% assign next_page = nav_item %}
+              {% endif %}
+              {% if nav_item.url == page.url %}
+                {% assign current_found = true %}
+              {% endif %}
+              {% unless current_found %}
+                {% assign prev_page = nav_item %}
+              {% endunless %}
+            {% endif %}
+          {% endfor %}
+
+          {% if prev_page %}
+            <a href="{{ prev_page.url | relative_url }}" class="prev-page">← {{ prev_page.title }}</a>
+          {% endif %}
+          {% if next_page %}
+            <a href="{{ next_page.url | relative_url }}" class="next-page">{{ next_page.title }} →</a>
+          {% endif %}
+        </nav>
+        {% endif %}
+
+      </div>
+    </main>
+
+    {%- include footer.html -%}
+
+  </body>
+
+</html> 

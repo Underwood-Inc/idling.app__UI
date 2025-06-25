@@ -9,11 +9,14 @@ markdown: kramdown
 highlighter: rouge
 theme: minima
 
-# Plugins
+# Plugins (GitHub Pages whitelisted)
 plugins:
   - jekyll-feed
   - jekyll-sitemap
   - jekyll-seo-tag
+  - jekyll-paginate
+  - jekyll-gist
+  - jemoji
 
 # Navigation
 navigation:
@@ -33,6 +36,12 @@ navigation:
   - title: "Development"
     url: "/development/"
     subnav:
+      - title: "Docker Setup"
+        url: "/development/docker-setup"
+      - title: "Environment Variables"
+        url: "/development/environment-variables"
+      - title: "Chalk Dependency Fixes"
+        url: "/development/chalk-dependency-fix"
       - title: "Smart Filters"
         url: "/development/smart-filters"
       - title: "Caching"
@@ -42,8 +51,12 @@ navigation:
   - title: "Deployment"
     url: "/deployment/"
     subnav:
+      - title: "GitHub Pages"
+        url: "/deployment/github-pages"
       - title: "Cache Management"
         url: "/deployment/cache-management"
+      - title: "Production"
+        url: "/deployment/production"
       - title: "Releases"
         url: "/deployment/releases"
   - title: "Project"
@@ -105,5 +118,6 @@ social:
 google_analytics: # Add GA tracking ID if needed
 
 # GitHub Pages settings
+repository: "Underwood-Inc/idling.app__UI"
 github:
   repository_url: "https://github.com/Underwood-Inc/idling.app__UI" 

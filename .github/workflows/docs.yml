@@ -3,15 +3,14 @@ name: Build and Deploy Documentation
 # Trigger on pushes to main branch and changes to documentation
 on:
   push:
-    branches: [main, master]
+    branches: [master, main]
     paths:
       - 'DOCS/**'
       - '.github/workflows/docs.yml'
   pull_request:
-    branches: [main, master]
+    branches: [master, main]
     paths:
       - 'DOCS/**'
-      - '.github/workflows/docs.yml'
   # Manual trigger
   workflow_dispatch:
 
@@ -30,6 +29,9 @@ jobs:
   # Build documentation
   build:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./DOCS
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -39,12 +41,13 @@ jobs:
       - name: Setup Ruby
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: '3.1'
+          ruby-version: '3.3.4'
           bundler-cache: true
+          working-directory: './DOCS'
 
       - name: Setup Pages
         id: pages
-        uses: actions/configure-pages@v3
+        uses: actions/configure-pages@v4
 
       - name: Create Gemfile for Jekyll
         run: |
@@ -64,16 +67,15 @@ jobs:
           bundle install
 
       - name: Build Jekyll site
-        run: |
-          cd DOCS
-          bundle exec jekyll build --baseurl "${{ steps.pages.outputs.base_path }}"
+        run: bundle exec jekyll build --baseurl "${{ steps.pages.outputs.base_path }}"
         env:
           JEKYLL_ENV: production
 
       - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v2
+        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+        uses: actions/upload-pages-artifact@v3
         with:
-          path: DOCS/_site
+          path: ./DOCS/_site/
 
   # Deploy to GitHub Pages (only on main/master branch)
   deploy:
@@ -86,7 +88,7 @@ jobs:
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v2
+        uses: actions/deploy-pages@v4
 
   # Build check for PRs (no deployment)
   build-check:

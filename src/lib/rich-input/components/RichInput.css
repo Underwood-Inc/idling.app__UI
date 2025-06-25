@@ -111,7 +111,7 @@
 /* Hidden native input for form integration */
 .rich-input-hidden-input {
   position: absolute;
-  left: -9999px;
+  inset-inline-start: -9999px;
   opacity: 0;
   pointer-events: none;
   width: 1px;
@@ -127,8 +127,8 @@
 /* Hidden measurement element */
 .rich-input-measure {
   position: absolute;
-  top: 2rem;
-  right: 2rem;
+  inset-block-start: 2rem;
+  inset-inline-end: 2rem;
   visibility: hidden;
   white-space: nowrap;
   word-break: break-word;
@@ -196,9 +196,9 @@
 .rich-input-line:has(.youtube-embed--full) {
   width: calc(100% + 24px);
   /* Expand beyond container padding */
-  margin-left: -12px;
+  margin-inline-start: -12px;
   /* Center the expansion */
-  margin-right: -12px;
+  margin-inline-end: -12px;
 }
 
 /* Multiline lines should wrap */
@@ -298,8 +298,8 @@
 .rich-input-cursor::before {
   content: '';
   position: absolute;
-  top: -2px;
-  left: -4px;
+  inset-block-start: -2px;
+  inset-inline-start: -4px;
   width: 10px;
   height: calc(100% + 4px);
   background: rgba(237, 174, 73, 0.15);
@@ -357,7 +357,7 @@
 /* Enhanced backdrop for atomic boundaries - intense orange glow */
 .rich-input-cursor--atomic::before {
   width: 14px;
-  left: -6px;
+  inset-inline-start: -6px;
   background: rgba(237, 174, 73, 0.6);
   backdrop-filter: invert(0.5) contrast(1.6) brightness(1.3) hue-rotate(20deg);
   -webkit-backdrop-filter: invert(0.5) contrast(1.6) brightness(1.3) hue-rotate(20deg);
