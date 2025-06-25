@@ -56,8 +56,8 @@ export const TooltipContent: React.FC<TooltipContentProps> = ({
       <span>Cached content</span>
       {lastUpdated && (
         <span className="tooltip-cache-time">
-          Last updated:{' '}
-          <TimestampWithTooltip date={lastUpdated} abbreviated={true} />
+          Last updated:&nbsp;
+          <TimestampWithTooltip date={lastUpdated} abbreviated />
         </span>
       )}
       <button

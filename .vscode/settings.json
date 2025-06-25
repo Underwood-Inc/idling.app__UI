@@ -32,5 +32,12 @@
   "[jsonc]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
-  "editor.renderWhitespace": "boundary"
+  "editor.renderWhitespace": "boundary",
+  "terminal.integrated.env.linux": {
+    "PATH": "${env:PATH}:/usr/local/bin:/usr/bin:/home/devcontainers/.nvm/versions/node/v22.16.0/bin"
+  },
+  "terminal.integrated.env.windows": {
+    "PATH": "${env:PATH};C:\\Program Files\\nodejs;C:\\Program Files (x86)\\nodejs"
+  },
+  "git.terminalAuthentication": false
 }
