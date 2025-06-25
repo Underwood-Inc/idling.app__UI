@@ -1,2 +1,10 @@
 #!/bin/sh
-npx lint-staged
+
+# Ensure we're in the correct directory
+cd "$(dirname "$0")/.."
+
+# Source common environment setup
+. "$(dirname "$0")/_/setup-env.sh"
+
+# Run lint-staged
+exec npx lint-staged
