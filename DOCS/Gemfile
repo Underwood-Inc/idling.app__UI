@@ -1,17 +1,17 @@
 source "https://rubygems.org"
 
-# GitHub Pages compatible Jekyll version
-gem "jekyll", "~> 4.3.0"
-
-# GitHub Pages gem (includes jekyll-feed, jekyll-sitemap, etc.)
+# GitHub Pages compatible Jekyll version (Jekyll 3.10.0)
+# This ensures compatibility with GitHub Pages deployment
 gem "github-pages", group: :jekyll_plugins
 
-# Additional plugins
+# Additional plugins (these are already included in github-pages gem)
 group :jekyll_plugins do
-  gem "jekyll-feed", "~> 0.12"
-  gem "jekyll-sitemap"
-  gem "jekyll-seo-tag"
-  gem "jekyll-paginate"
+  gem "jekyll-feed", "~> 0.17"
+  gem "jekyll-sitemap", "~> 1.4"
+  gem "jekyll-seo-tag", "~> 2.8"
+  gem "jekyll-paginate", "~> 1.1"
+  gem "jekyll-gist", "~> 1.5"
+  gem "jemoji", "~> 0.13"
 end
 
 # Windows and JRuby does not include zoneinfo files, so bundle the tzinfo-data gem
@@ -28,5 +28,5 @@ gem "wdm", "~> 0.1.1", :platforms => [:mingw, :x64_mingw, :mswin]
 # do not have a Java counterpart.
 gem "http_parser.rb", "~> 0.6.0", :platforms => [:jruby]
 
-# For live reload during development
-gem "jekyll-livereload", group: :jekyll_plugins 
+# Live reload functionality removed to avoid compatibility issues
+# You can still use 'bundle exec jekyll serve --livereload' for auto-refresh 

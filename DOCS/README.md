@@ -1,6 +1,104 @@
-# 📚 Idling.app Documentation
+# Idling.app Documentation
 
-This directory contains the complete documentation for the Idling.app project, organized for GitHub Pages deployment.
+This directory contains the Jekyll-based documentation site for the Idling.app project.
+
+## 🏗️ Setup
+
+### Prerequisites
+- Ruby 3.3.4 (matches GitHub Pages)
+- Bundler 2.5+
+
+### Local Development
+
+1. **Install dependencies:**
+   ```bash
+   yarn docs:install
+   # or manually:
+   cd DOCS && bundle install
+   ```
+
+2. **Start the development server:**
+   ```bash
+   yarn docs:dev
+   # or manually:
+   cd DOCS && bundle exec jekyll serve --livereload --port=4000
+   ```
+
+3. **Visit:** http://localhost:4000
+
+### Building for Production
+
+```bash
+yarn docs:build
+# or manually:
+cd DOCS && bundle exec jekyll build
+```
+
+## 🚀 Deployment
+
+The documentation is automatically deployed to GitHub Pages via GitHub Actions when changes are pushed to the `master` branch.
+
+### GitHub Pages Configuration
+- **Jekyll Version:** 3.10.0 (GitHub Pages compatible)
+- **Ruby Version:** 3.3.4
+- **Deployment:** Automatic via `.github/workflows/docs.yml`
+- **URL:** https://underwood-inc.github.io/idling.app__UI
+
+### Manual Deployment
+If needed, you can also enable automatic GitHub Pages deployment:
+1. Go to repository Settings → Pages
+2. Set Source to "Deploy from a branch"
+3. Select branch: `master` and folder: `/DOCS`
+
+## 📁 Structure
+
+```
+DOCS/
+├── _config.yml          # Jekyll configuration
+├── _includes/           # Reusable components
+├── _layouts/            # Page templates
+├── _sass/               # SCSS stylesheets
+├── _site/               # Generated site (ignored)
+├── api/                 # API documentation
+├── database/            # Database docs
+├── deployment/          # Deployment guides
+├── development/         # Development guides
+├── project/             # Project information
+├── Gemfile              # Ruby dependencies
+├── index.md             # Homepage
+└── README.md            # This file
+```
+
+## 🔧 Configuration
+
+The site is configured for GitHub Pages compatibility:
+- Uses `github-pages` gem for dependency management
+- Jekyll 3.10.0 (latest supported by GitHub Pages)
+- GitHub Pages whitelisted plugins only
+- Proper baseurl configuration for repository pages
+
+## 📝 Writing Documentation
+
+- Use Markdown files with `.md` extension
+- Add front matter for page metadata
+- Follow existing structure and navigation patterns
+- Test locally before committing
+
+## 🐛 Troubleshooting
+
+### Bundle Install Issues
+```bash
+# Clear cache and reinstall
+cd DOCS
+bundle clean --force
+bundle install
+```
+
+### Jekyll Version Conflicts
+The site uses Jekyll 3.10.0 for GitHub Pages compatibility. If you need Jekyll 4.x features locally, you'll need to use GitHub Actions deployment instead of automatic GitHub Pages.
+
+### Docker Development
+The main Dockerfile includes Jekyll setup for development in containers.
 
 ## 🏗️ Documentation Structure
 
