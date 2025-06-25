@@ -225,7 +225,6 @@ export const LinkTooltip: React.FC<LinkTooltipProps> = ({
               enableExtendedPreview={enableExtendedPreview}
               isCached={cache.isCached}
               lastUpdated={cache.lastUpdated}
-              timeAgo={state.timeAgo}
               url={url}
               onRefresh={handleRefresh}
               onClick={handlers.handleClick}

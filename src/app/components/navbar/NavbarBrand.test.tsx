@@ -1,12 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import { NavbarBrand } from './NavbarBrand';
 
-// Mock the auth module
-jest.mock('../../../lib/auth', () => ({
-  auth: jest.fn()
-}));
-
-// Mock the AuthAvatar component (correct component name)
+// Mock the AuthAvatar component
 jest.mock('../auth-avatar', () => ({
   AuthAvatar: jest.fn(({ size }) => (
     <div data-testid="auth-avatar">Mock AuthAvatar: {size}</div>
@@ -14,11 +9,11 @@ jest.mock('../auth-avatar', () => ({
 }));
 
 describe('NavbarBrand', () => {
-  it('renders AuthAvatar with correct size', () => {
+  it('renders default avatar when unauthenticated', () => {
     render(<NavbarBrand />);
 
-    const avatarElement = screen.getByTestId('auth-avatar');
+    const avatarElement = screen.getByLabelText('Default user avatar');
     expect(avatarElement).toBeInTheDocument();
-    expect(avatarElement).toHaveTextContent('Mock AuthAvatar: sm');
+    expect(avatarElement).toHaveClass('navbar-brand__avatar--default');
   });
 });

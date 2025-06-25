@@ -1,9 +1,13 @@
 import { render, screen } from '@testing-library/react';
 import FooterNav from './FooterNav';
 
-// Mock the GitLabLink component
-jest.mock('../gitlab-link/GitLabLink', () => ({
-  GitLabLink: () => <div data-testid="mock-gitlab-link">GitLab Link</div>
+// Mock the components
+jest.mock('../docs-link/DocsLink', () => ({
+  DocsLink: () => <div data-testid="mock-docs-link">Docs Link</div>
+}));
+
+jest.mock('../discord-link/DiscordLink', () => ({
+  DiscordLink: () => <div data-testid="mock-discord-link">Discord Link</div>
 }));
 
 describe('FooterNav', () => {
@@ -17,10 +21,11 @@ describe('FooterNav', () => {
 
     expect(screen.getByRole('list')).toHaveClass('footer-nav__list');
     expect(container).toHaveClass('footer-nav__container');
-    expect(listItems).toHaveLength(1);
+    expect(listItems).toHaveLength(2);
   });
 
-  it('renders the GitLabLink component', () => {
-    expect(screen.getByTestId('mock-gitlab-link')).toBeInTheDocument();
+  it('renders the DocsLink and DiscordLink components', () => {
+    expect(screen.getByTestId('mock-docs-link')).toBeInTheDocument();
+    expect(screen.getByTestId('mock-discord-link')).toBeInTheDocument();
   });
 });

@@ -1,0 +1,2810 @@
+yarn run v1.22.22
+$ jest --watchAll=false --passWithNoTests --maxWorkers=1
+FAIL src/app/components/filter-bar/FilterBar.test.tsx
+  ● FilterBar Component › Rendering › should render consolidated filters
+
+    TestingLibraryElementError: Unable to find an element by: [data-testid="filter-label-tags-react"]
+
+    Ignored nodes: comments, script, style
+    [36m<body>[39m
+      [36m<div>[39m
+        [36m<article[39m
+          [33mclass[39m=[32m"filter-bar__container"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"filter-bar__filters-compact"[39m
+          [36m>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"filter-bar__global-logic-inline"[39m
+            [36m>[39m
+              [36m<span[39m
+                [33mclass[39m=[32m"filter-bar__logic-label"[39m
+              [36m>[39m
+                [0mGroups:[0m
+              [36m</span>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"filter-bar__logic-button-group"[39m
+              [36m>[39m
+                [36m<button[39m
+                  [33mclass[39m=[32m"filter-bar__logic-button filter-bar__logic-button--active"[39m
+                  [33mtitle[39m=[32m"All filter groups must match"[39m
+                [36m>[39m
+                  [0mALL[0m
+                [36m</button>[39m
+                [36m<button[39m
+                  [33mclass[39m=[32m"filter-bar__logic-button "[39m
+                  [33mtitle[39m=[32m"Any filter group can match"[39m
+                [36m>[39m
+                  [0mANY[0m
+                [36m</button>[39m
+              [36m</div>[39m
+            [36m</div>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"filter-bar__filter-compact"[39m
+            [36m>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"filter-bar__filter-inline"[39m
+              [36m>[39m
+                [36m<span[39m
+                  [33mclass[39m=[32m"filter-bar__filter-label"[39m
+                [36m>[39m
+                  [0mtags[0m
+                  [0m:[0m
+                [36m</span>[39m
+                [36m<div[39m
+                  [33mclass[39m=[32m"filter-bar__logic-toggle-inline"[39m
+                [36m>[39m
+                  [36m<div[39m
+                    [33mclass[39m=[32m"filter-bar__logic-button-group"[39m
+                  [36m>[39m
+                    [36m<button[39m
+                      [33mclass[39m=[32m"filter-bar__logic-button filter-bar__logic-button--active filter-bar__logic-button--disabled"[39m
+                      [33mdisabled[39m=[32m""[39m
+                      [33mtitle[39m=[32m"Controlled by Groups setting - set Groups to ANY to change"[39m
+                    [36m>[39m
+                      [0mALL[0m
+                    [36m</button>[39m
+                    [36m<button[39m
+                      [33mclass[39m=[32m"filter-bar__logic-button  filter-bar__logic-button--disabled"[39m
+                      [33mdisabled[39m=[32m""[39m
+                      [33mtitle[39m=[32m"Controlled by Groups setting - set Groups to ANY to change"[39m
+                    [36m>[39m
+                      [0mANY[0m
+                    [36m</button>[39m
+                  [36m</div>[39m
+                [36m</div>[39m
+                [36m<div[39m
+                  [33mclass[39m=[32m"filter-bar__filter-values-inline"[39m
+                [36m>[39m
+                  [36m<div[39m
+                    [33mclass[39m=[32m"filter-bar__filter-value-container"[39m
+                  [36m>[39m
+                    [36m<div[39m
+                      [33mdata-testid[39m=[32m"filter-label-tags-#react"[39m
+                    [36m>[39m
+                      [36m<span>[39m
+                        [0mtags[0m
+                        [0m: [0m
+                        [0m#react[0m
+                      [36m</span>[39m
+                      [36m<button[39m
+                        [33mdata-testid[39m=[32m"remove-filter-tags-#react"[39m
+                      [36m>[39m
+                        [0mRemove[0m
+                      [36m</button>[39m
+                      [36m<button[39m
+                        [33mdata-testid[39m=[32m"remove-tag-#react"[39m
+                      [36m>[39m
+                        [0mRemove Tag[0m
+                      [36m</button>[39m
+                    [36m</div>[39m
+                  [36m</div>[39m
+                  [36m<div[39m
+                    [33mclass[39m=[32m"filter-bar__filter-value-container"[39m
+                  [36m>[39m
+                    [36m<div[39m
+                      [33mdata-testid[39m=[32m"filter-label-tags-#typescript"[39m
+                    [36m>[39m
+                      [36m<span>[39m
+                        [0mtags[0m
+                        [0m: [0m
+                        [0m#typescript[0m
+                      [36m</span>[39m
+                      [36m<button[39m
+                        [33mdata-testid[39m=[32m"remove-filter-tags-#typescript"[39m
+                      [36m>[39m
+                        [0mRemove[0m
+                      [36m</button>[39m
+                      [36m<button[39m
+                        [33mdata-testid[39m=[32m"remove-tag-#typescript"[39m
+                      [36m>[39m
+                        [0mRemove Tag[0m
+                      [36m</button>[39m
+                    [36m</div>[39m
+                  [36m</div>[39m
+                [36m</div>[39m
+              [36m</div>[39m
+            [36m</div>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"filter-bar__filter-compact"[39m
+            [36m>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"filter-bar__filter-inline"[39m
+              [36m>[39m
+                [36m<span[39m
+                  [33mclass[39m=[32m"filter-bar__filter-label"[39m
+                [36m>[39m
+                  [0mauthor[0m
+                  [0m:[0m
+                [36m</span>[39m
+                [36m<div[39m
+                  [33mclass[39m=[32m"filter-bar__logic-toggle-inline"[39m
+                [36m>[39m
+                  [36m<div[39m
+                    [33mclass[39m=[32m"filter-bar__logic-button-group"[39m
+                  [36m>[39m
+                    [36m<button[39m
+                      [33mclass[39m=[32m"filter-bar__logic-button filter-bar__logic-button--active filter-bar__logic-button--disabled"[39m
+                      [33mdisabled[39m=[32m""[39m
+                      [33mtitle[39m=[32m"Controlled by Groups setting - set Groups to ANY to change"[39m
+                    [36m>[39m
+                      [0mALL[0m
+                    [36m</button>[39m
+                    [36m<button[39m
+                      [33mclass[39m=[32m"filter-bar__logic-button  filter-bar__logic-button--disabled"[39m
+                      [33mdisabled[39m=[32m""[39m
+                      [33mtitle[39m=[32m"Controlled by Groups setting - set Groups to ANY to change"[39m
+                    [36m>[39m
+                      [0mANY[0m
+                    [36m</button>[39m
+                  [36m</div>[39m
+                [36m</div>[39m
+                [36m<div[39m
+                  [33mclass[39m=[32m"filter-bar__filter-values-inline"[39m
+                [36m>[39m
+                  [36m<div[39m
+                    [33mclass[39m=[32m"filter-bar__filter-value-container"[39m
+                  [36m>[39m
+                    [36m<div[39m
+                      [33mdata-testid[39m=[32m"filter-label-author-123"[39m
+                    [36m>[39m
+                      [36m<span>[39m
+                        [0mauthor[0m
+                        [0m: [0m
+                        [0m123[0m
+                      [36m</span>[39m
+                      [36m<button[39m
+                        [33mdata-testid[39m=[32m"remove-filter-author-123"[39m
+                      [36m>[39m
+                        [0mRemove[0m
+                      [36m</button>[39m
+                      [36m<button[39m
+                        [33mdata-testid[39m=[32m"remove-tag-123"[39m
+                      [36m>[39m
+                        [0mRemove Tag[0m
+                      [36m</button>[39m
+                    [36m</div>[39m
+                  [36m</div>[39m
+                  [36m<div[39m
+                    [33mclass[39m=[32m"filter-bar__filter-value-container"[39m
+                  [36m>[39m
+                    [36m<div[39m
+                      [33mdata-testid[39m=[32m"filter-label-author-456"[39m
+                    [36m>[39m
+                      [36m<span>[39m
+                        [0mauthor[0m
+                        [0m: [0m
+                        [0m456[0m
+                      [36m</span>[39m
+                      [36m<button[39m
+                        [33mdata-testid[39m=[32m"remove-filter-author-456"[39m
+                      [36m>[39m
+                        [0mRemove[0m
+                      [36m</button>[39m
+                      [36m<button[39m
+                        [33mdata-testid[39m=[32m"remove-tag-456"[39m
+                      [36m>[39m
+                        [0mRemove Tag[0m
+                      [36m</button>[39m
+                    [36m</div>[39m
+                  [36m</div>[39m
+                [36m</div>[39m
+              [36m</div>[39m
+            [36m</div>[39m
+            [36m<button[39m
+              [33maria-label[39m=[32m"Clear all filters"[39m
+              [33mclass[39m=[32m"filter-bar__clear-all-button-compact"[39m
+              [33mtitle[39m=[32m"Clear all filters"[39m
+            [36m>[39m
+              [0mClear[0m
+            [36m</button>[39m
+          [36m</div>[39m
+        [36m</article>[39m
+      [36m</div>[39m
+    [36m</body>[39m
+
+      147 |
+      148 |       // Should consolidate multiple filters of the same type
+    > 149 |       expect(screen.getByTestId('filter-label-tags-react')).toBeInTheDocument();
+          |                     ^
+      150 |       expect(
+      151 |         screen.getByTestId('filter-label-tags-typescript')
+      152 |       ).toBeInTheDocument();
+
+      at Object.getElementError (node_modules/@testing-library/dom/dist/config.js:37:19)
+      at node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+      at node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+      at node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+      at Object.getByTestId (src/app/components/filter-bar/FilterBar.test.tsx:149:21)
+
+  ● FilterBar Component › Filter Value Processing › should handle comma-separated tag values
+
+    TestingLibraryElementError: Unable to find an element by: [data-testid="filter-label-tags-react"]
+
+    Ignored nodes: comments, script, style
+    [36m<body>[39m
+      [36m<div>[39m
+        [36m<article[39m
+          [33mclass[39m=[32m"filter-bar__container"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"filter-bar__filters-compact"[39m
+          [36m>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"filter-bar__filter-compact"[39m
+            [36m>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"filter-bar__filter-inline"[39m
+              [36m>[39m
+                [36m<span[39m
+                  [33mclass[39m=[32m"filter-bar__filter-label"[39m
+                [36m>[39m
+                  [0mtags[0m
+                  [0m:[0m
+                [36m</span>[39m
+                [36m<div[39m
+                  [33mclass[39m=[32m"filter-bar__logic-toggle-inline"[39m
+                [36m>[39m
+                  [36m<div[39m
+                    [33mclass[39m=[32m"filter-bar__logic-button-group"[39m
+                  [36m>[39m
+                    [36m<button[39m
+                      [33mclass[39m=[32m"filter-bar__logic-button  "[39m
+                      [33mtitle[39m=[32m"Must have ALL selected tags"[39m
+                    [36m>[39m
+                      [0mALL[0m
+                    [36m</button>[39m
+                    [36m<button[39m
+                      [33mclass[39m=[32m"filter-bar__logic-button filter-bar__logic-button--active "[39m
+                      [33mtitle[39m=[32m"Must have ANY selected tags"[39m
+                    [36m>[39m
+                      [0mANY[0m
+                    [36m</button>[39m
+                  [36m</div>[39m
+                [36m</div>[39m
+                [36m<div[39m
+                  [33mclass[39m=[32m"filter-bar__filter-values-inline"[39m
+                [36m>[39m
+                  [36m<div[39m
+                    [33mclass[39m=[32m"filter-bar__filter-value-container"[39m
+                  [36m>[39m
+                    [36m<div[39m
+                      [33mdata-testid[39m=[32m"filter-label-tags-#react"[39m
+                    [36m>[39m
+                      [36m<span>[39m
+                        [0mtags[0m
+                        [0m: [0m
+                        [0m#react[0m
+                      [36m</span>[39m
+                      [36m<button[39m
+                        [33mdata-testid[39m=[32m"remove-filter-tags-#react"[39m
+                      [36m>[39m
+                        [0mRemove[0m
+                      [36m</button>[39m
+                      [36m<button[39m
+                        [33mdata-testid[39m=[32m"remove-tag-#react"[39m
+                      [36m>[39m
+                        [0mRemove Tag[0m
+                      [36m</button>[39m
+                    [36m</div>[39m
+                  [36m</div>[39m
+                  [36m<div[39m
+                    [33mclass[39m=[32m"filter-bar__filter-value-container"[39m
+                  [36m>[39m
+                    [36m<div[39m
+                      [33mdata-testid[39m=[32m"filter-label-tags-#typescript"[39m
+                    [36m>[39m
+                      [36m<span>[39m
+                        [0mtags[0m
+                        [0m: [0m
+                        [0m#typescript[0m
+                      [36m</span>[39m
+                      [36m<button[39m
+                        [33mdata-testid[39m=[32m"remove-filter-tags-#typescript"[39m
+                      [36m>[39m
+                        [0mRemove[0m
+                      [36m</button>[39m
+                      [36m<button[39m
+                        [33mdata-testid[39m=[32m"remove-tag-#typescript"[39m
+                      [36m>[39m
+                        [0mRemove Tag[0m
+                      [36m</button>[39m
+                    [36m</div>[39m
+                  [36m</div>[39m
+                  [36m<div[39m
+                    [33mclass[39m=[32m"filter-bar__filter-value-container"[39m
+                  [36m>[39m
+                    [36m<div[39m
+                      [33mdata-testid[39m=[32m"filter-label-tags-#javascript"[39m
+                    [36m>[39m
+                      [36m<span>[39m
+                        [0mtags[0m
+                        [0m: [0m
+                        [0m#javascript[0m
+                      [36m</span>[39m
+                      [36m<button[39m
+                        [33mdata-testid[39m=[32m"remove-filter-tags-#javascript"[39m
+                      [36m>[39m
+                        [0mRemove[0m
+                      [36m</button>[39m
+                      [36m<button[39m
+                        [33mdata-testid[39m=[32m"remove-tag-#javascript"[39m
+                      [36m>[39m
+                        [0mRemove Tag[0m
+                      [36m</button>[39m
+                    [36m</div>[39m
+                  [36m</div>[39m
+                [36m</div>[39m
+              [36m</div>[39m
+            [36m</div>[39m
+            [36m<button[39m
+              [33maria-label[39m=[32m"Clear all filters"[39m
+              [33mclass[39m=[32m"filter-bar__clear-all-button-compact"[39m
+              [33mtitle[39m=[32m"Clear all filters"[39m
+            [36m>[39m
+              [0mClear[0m
+            [36m</button>[39m
+          [36m</div>[39m
+        [36m</article>[39m
+      [36m</div>[39m
+    [36m</body>[39m
+
+      338 |       renderFilterBar(filters);
+      339 |
+    > 340 |       expect(screen.getByTestId('filter-label-tags-react')).toBeInTheDocument();
+          |                     ^
+      341 |       expect(
+      342 |         screen.getByTestId('filter-label-tags-typescript')
+      343 |       ).toBeInTheDocument();
+
+      at Object.getElementError (node_modules/@testing-library/dom/dist/config.js:37:19)
+      at node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+      at node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+      at node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+      at Object.getByTestId (src/app/components/filter-bar/FilterBar.test.tsx:340:21)
+
+  ● FilterBar Component › Filter Value Processing › should deduplicate values
+
+    TestingLibraryElementError: Unable to find an element by: [data-testid="filter-label-tags-react"]
+
+    Ignored nodes: comments, script, style
+    [36m<body>[39m
+      [36m<div>[39m
+        [36m<article[39m
+          [33mclass[39m=[32m"filter-bar__container"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"filter-bar__filters-compact"[39m
+          [36m>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"filter-bar__filter-compact"[39m
+            [36m>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"filter-bar__filter-inline"[39m
+              [36m>[39m
+                [36m<span[39m
+                  [33mclass[39m=[32m"filter-bar__filter-label"[39m
+                [36m>[39m
+                  [0mtags[0m
+                  [0m:[0m
+                [36m</span>[39m
+                [36m<div[39m
+                  [33mclass[39m=[32m"filter-bar__logic-toggle-inline"[39m
+                [36m>[39m
+                  [36m<div[39m
+                    [33mclass[39m=[32m"filter-bar__logic-button-group"[39m
+                  [36m>[39m
+                    [36m<button[39m
+                      [33mclass[39m=[32m"filter-bar__logic-button  "[39m
+                      [33mtitle[39m=[32m"Must have ALL selected tags"[39m
+                    [36m>[39m
+                      [0mALL[0m
+                    [36m</button>[39m
+                    [36m<button[39m
+                      [33mclass[39m=[32m"filter-bar__logic-button filter-bar__logic-button--active "[39m
+                      [33mtitle[39m=[32m"Must have ANY selected tags"[39m
+                    [36m>[39m
+                      [0mANY[0m
+                    [36m</button>[39m
+                  [36m</div>[39m
+                [36m</div>[39m
+                [36m<div[39m
+                  [33mclass[39m=[32m"filter-bar__filter-values-inline"[39m
+                [36m>[39m
+                  [36m<div[39m
+                    [33mclass[39m=[32m"filter-bar__filter-value-container"[39m
+                  [36m>[39m
+                    [36m<div[39m
+                      [33mdata-testid[39m=[32m"filter-label-tags-#react"[39m
+                    [36m>[39m
+                      [36m<span>[39m
+                        [0mtags[0m
+                        [0m: [0m
+                        [0m#react[0m
+                      [36m</span>[39m
+                      [36m<button[39m
+                        [33mdata-testid[39m=[32m"remove-filter-tags-#react"[39m
+                      [36m>[39m
+                        [0mRemove[0m
+                      [36m</button>[39m
+                      [36m<button[39m
+                        [33mdata-testid[39m=[32m"remove-tag-#react"[39m
+                      [36m>[39m
+                        [0mRemove Tag[0m
+                      [36m</button>[39m
+                    [36m</div>[39m
+                  [36m</div>[39m
+                  [36m<div[39m
+                    [33mclass[39m=[32m"filter-bar__filter-value-container"[39m
+                  [36m>[39m
+                    [36m<div[39m
+                      [33mdata-testid[39m=[32m"filter-label-tags-#typescript"[39m
+                    [36m>[39m
+                      [36m<span>[39m
+                        [0mtags[0m
+                        [0m: [0m
+                        [0m#typescript[0m
+                      [36m</span>[39m
+                      [36m<button[39m
+                        [33mdata-testid[39m=[32m"remove-filter-tags-#typescript"[39m
+                      [36m>[39m
+                        [0mRemove[0m
+                      [36m</button>[39m
+                      [36m<button[39m
+                        [33mdata-testid[39m=[32m"remove-tag-#typescript"[39m
+                      [36m>[39m
+                        [0mRemove Tag[0m
+                      [36m</button>[39m
+                    [36m</div>[39m
+                  [36m</div>[39m
+                [36m</div>[39m
+              [36m</div>[39m
+            [36m</div>[39m
+            [36m<button[39m
+              [33maria-label[39m=[32m"Clear all filters"[39m
+              [33mclass[39m=[32m"filter-bar__clear-all-button-compact"[39m
+              [33mtitle[39m=[32m"Clear all filters"[39m
+            [36m>[39m
+              [0mClear[0m
+            [36m</button>[39m
+          [36m</div>[39m
+        [36m</article>[39m
+      [36m</div>[39m
+    [36m</body>[39m
+
+      385 |
+      386 |       // Should only show unique values
+    > 387 |       const reactElements = screen.getAllByTestId('filter-label-tags-react');
+          |                                    ^
+      388 |       expect(reactElements).toHaveLength(1);
+      389 |       expect(
+      390 |         screen.getByTestId('filter-label-tags-typescript')
+
+      at Object.getElementError (node_modules/@testing-library/dom/dist/config.js:37:19)
+      at node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+      at node_modules/@testing-library/dom/dist/query-helpers.js:109:15
+      at Object.getAllByTestId (src/app/components/filter-bar/FilterBar.test.tsx:387:36)
+
+  ● FilterBar Component › Complex Scenarios › should handle rapid filter updates
+
+    expect(jest.fn()).toHaveBeenCalledTimes(expected)
+
+    Expected number of calls: 3
+    Received number of calls: 2
+
+    Ignored nodes: comments, script, style
+    [36m<html>[39m
+      [36m<head />[39m
+      [36m<body>[39m
+        [36m<div>[39m
+          [36m<article[39m
+            [33mclass[39m=[32m"filter-bar__container"[39m
+          [36m>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"filter-bar__filters-compact"[39m
+            [36m>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"filter-bar__global-logic-inline"[39m
+              [36m>[39m
+                [36m<span[39m
+                  [33mclass[39m=[32m"filter-bar__logic-label"[39m
+                [36m>[39m
+                  [0mGroups:[0m
+                [36m</span>[39m
+                [36m<div[39m
+                  [33mclass[39m=[32m"filter-bar__logic-button-group"[39m
+                [36m>[39m
+                  [36m<button[39m
+                    [33mclass[39m=[32m"filter-bar__logic-button filter-bar__logic-button--active"[39m
+                    [33mtitle[39m=[32m"All filter groups must match"[39m
+                  [36m>[39m
+                    [0mALL[0m
+                  [36m</button>[39m
+                  [36m<button[39m
+                    [33mclass[39m=[32m"filter-bar__logic-button "[39m
+                    [33mtitle[39m=[32m"Any filter group can match"[39m
+                  [36m>[39m
+                    [0mANY[0m
+                  [36m</button>[39m
+                [36m</div>[39m
+              [36m</div>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"filter-bar__filter-compact"[39m
+              [36m>[39m
+                [36m<div[39m
+                  [33mclass[39m=[32m"filter-bar__filter-inline"[39m
+                [36m>[39m
+                  [36m<span[39m
+                    [33mclass[39m=[32m"filter-bar__filter-label"[39m
+                  [36m>[39m
+                    [0mtags[0m
+                    [0m:[0m
+                  [36m</span>[39m
+                  [36m<div[39m
+                    [33mclass[39m=[32m"filter-bar__logic-toggle-inline"[39m
+                  [36m>[39m
+                    [36m<div[39m
+                      [33mclass[39m=[32m"filter-bar__logic-button-group"[39m
+                    [36m>[39m
+                      [36m<button[39m
+                        [33mclass[39m=[32m"filter-bar__logic-button filter-bar__logic-button--active filter-bar__logic-button--disabled"[39m
+                        [33mdisabled[39m=[32m""[39m
+                        [33mtitle[39m=[32m"Controlled by Groups setting - set Groups to ANY to change"[39m
+                      [36m>[39m
+                        [0mALL[0m
+                      [36m</button>[39m
+                      [36m<button[39m
+                        [33mclass[39m=[32m"filter-bar__logic-button  filter-bar__logic-button--disabled"[39m
+                        [33mdisabled[39m=[32m""[39m
+                        [33mtitle[39m=[32m"Controlled by Groups setting - set Groups to ANY to change"[39m
+                      [36m>[39m
+                        [0mANY[0m
+                      [36m</button>[39m
+                    [36m</div>[39m
+                  [36m</div>[39m
+                  [36m<div[39m
+                    [33mclass[39m=[32m"filter-bar__filter-values-inline"[39m
+                  [36m>[39m
+                    [36m<div[39m
+                      [33mclass[39m=[32m"filter-bar__filter-value-container"[39m
+                    [36m>[39m
+                      [36m<div[39m
+                        [33mdata-testid[39m=[32m"filter-label-tags-#react"[39m
+                      [36m>[39m
+                        [36m<span>[39m
+                          [0mtags[0m
+                          [0m: [0m
+                          [0m#react[0m
+                        [36m</span>[39m
+                        [36m<button[39m
+                          [33mdata-testid[39m=[32m"remove-filter-tags-#react"[39m
+                        [36m>[39m
+                          [0mRemove[0m
+                        [36m</button>[39m
+                        [36m<button[39m
+                          [33mdata-testid[39m=[32m"remove-tag-#react"[39m
+                        [36m>[39m
+                          [0mRemove Tag[0m
+                        [36m</button>[39m
+                      [36m</div>[39m
+                    [36m</div>[39m
+                    [36m<div[39m
+                      [33mclass[39m=[32m"filter-bar__filter-value-container"[39m
+                    [36m>[39m
+                      [36m<div[39m
+                        [33mdata-testid[39m=[32m"filter-label-tags-#typescript"[39m
+                      [36m>[39m
+                        [36m<span>[39m
+                          [0mtags[0m
+                          [0m: [0m
+                          [0m#typescript[0m
+                        [36m</span>[39m
+                        [36m<button[39m
+                          [33mdata-testid[39m=[32m"remove-filter-tags-#typescript"[39m
+                        [36m>[39m
+                          [0mRemove[0m
+                        [36m</button>[39m
+                        [36m<button[39m
+                          [33mdata-testid[39m=[32m"remove-tag-#typescript"[39m
+                        [36m>[39m
+                          [0mRemove Tag[0m
+                        [36m</button>[39m
+                      [36m</div>[39m
+                    [36m</div>[39m
+                  [36m</div>[39m
+                [36m</div>[39m
+              [36m</div>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"filter-bar__filter-compact"[39m
+              [36m>[39m
+                [36m<div[39m
+                  [33mclass[39m=[32m"filter-bar__filter-inline"[39m
+                [36m>[39m
+                  [36m<span[39m
+                    [33mclass[39m=[32m"filter-bar__filter-label"[39m
+                  [36m>[39m
+                    [0mauthor[0m
+                    [0m:[0m
+                  [36m</span>[39m
+                  [36m<div[39m
+                    [33mclass[39m=[32m"filter-bar__filter-values-inline"[39m
+                  [36m>[39m
+                    [36m<div[39m
+                      [33mclass[39m=[32m"filter-bar__filter-value-container"[39m
+                    [36m>[39m
+                      [36m<div[39m
+                        [33mdata-testid[39m=[32m"filter-label-author-123"[39m
+                      [36m>[39m
+                        [36m<span>[39m
+                          [0mauthor[0m
+                          [0m: [0m
+                          [0m123[0m
+                        [36m</span>[39m
+                        [36m<button[39m
+                          [33mdata-testid[39m=[32m"remove-filter-author-123"[39m
+                        [36m>[39m
+                          [0mRemove[0m
+                        [36m</button>[39m
+                        [36m<button[39m
+                          [33mdata-testid[39m=[32m"remove-tag-123"[39m
+                        [36m>[39m
+                          [0mRemove Tag[0m
+                        [36m</button>[39m
+                      [36m</div>[39m
+                    [36m</div>[39m
+                  [36m</div>[39m
+                [36m</div>[39m
+              [36m</div>[39m
+              [36m<button[39m
+                [33maria-label[39m=[32m"Clear all filters"[39m
+                [33mclass[39m=[32m"filter-bar__clear-all-button-compact"[39m
+                [33mtitle[39m=[32m"Clear all filters"[39m
+              [36m>[39m
+                [0mClear[0m
+              [36m</button>[39m
+            [36m</div>[39m
+          [36m</article>[39m
+        [36m</div>[39m
+      [36m</body>[39m
+    [36m</html>[39m
+
+      511 |
+      512 |       await waitFor(() => {
+    > 513 |         expect(mockOnUpdateFilter).toHaveBeenCalledTimes(3);
+          |                                    ^
+      514 |       });
+      515 |
+      516 |       expect(mockOnUpdateFilter).toHaveBeenNthCalledWith(
+
+      at toHaveBeenCalledTimes (src/app/components/filter-bar/FilterBar.test.tsx:513:36)
+      at runWithExpensiveErrorDiagnosticsDisabled (node_modules/@testing-library/dom/dist/config.js:47:12)
+      at checkCallback (node_modules/@testing-library/dom/dist/wait-for.js:124:77)
+      at checkRealTimersCallback (node_modules/@testing-library/dom/dist/wait-for.js:118:16)
+      at Timeout.task [as _onTimeout] (node_modules/jsdom/lib/jsdom/browser/Window.js:520:19)
+
+FAIL src/app/components/submissions-list/actions.test.ts
+  ● Console
+
+    console.error
+      getSubmissionsAction error: Error: Database connection failed
+          at Object.<anonymous> (/home/devcontainers/code/idling.app__UI/src/app/components/submissions-list/actions.test.ts:570:9)
+          at Promise.then.completed (/home/devcontainers/code/idling.app__UI/node_modules/jest-circus/build/utils.js:298:28)
+          at new Promise (<anonymous>)
+          at callAsyncCircusFn (/home/devcontainers/code/idling.app__UI/node_modules/jest-circus/build/utils.js:231:10)
+          at _callCircusTest (/home/devcontainers/code/idling.app__UI/node_modules/jest-circus/build/run.js:316:40)
+          at _runTest (/home/devcontainers/code/idling.app__UI/node_modules/jest-circus/build/run.js:252:3)
+          at _runTestsForDescribeBlock (/home/devcontainers/code/idling.app__UI/node_modules/jest-circus/build/run.js:126:9)
+          at _runTestsForDescribeBlock (/home/devcontainers/code/idling.app__UI/node_modules/jest-circus/build/run.js:121:9)
+          at _runTestsForDescribeBlock (/home/devcontainers/code/idling.app__UI/node_modules/jest-circus/build/run.js:121:9)
+          at run (/home/devcontainers/code/idling.app__UI/node_modules/jest-circus/build/run.js:71:3)
+          at runAndTransformResultsToJestFormat (/home/devcontainers/code/idling.app__UI/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapterInit.js:122:21)
+          at jestAdapter (/home/devcontainers/code/idling.app__UI/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapter.js:79:19)
+          at runTestInternal (/home/devcontainers/code/idling.app__UI/node_modules/jest-runner/build/runTest.js:367:16)
+          at runTest (/home/devcontainers/code/idling.app__UI/node_modules/jest-runner/build/runTest.js:444:34)
+
+      101 |       return;
+      102 |     }
+    > 103 |     originalError.call(console, ...args);
+          |                   ^
+      104 |   };
+      105 |
+      106 |   console.warn = (...args) => {
+
+      at console.call [as error] (jest.setup.js:103:19)
+      at error (src/app/components/submissions-list/actions.ts:682:13)
+      at Object.<anonymous> (src/app/components/submissions-list/actions.test.ts:573:22)
+
+    console.error
+      getSubmissionsAction error: Error: Count query failed
+          at Object.<anonymous> (/home/devcontainers/code/idling.app__UI/src/app/components/submissions-list/actions.test.ts:588:33)
+          at /home/devcontainers/code/idling.app__UI/node_modules/jest-mock/build/index.js:397:39
+          at Object.<anonymous> (/home/devcontainers/code/idling.app__UI/node_modules/jest-mock/build/index.js:404:13)
+          at Object.mockConstructor [as unsafe] (/home/devcontainers/code/idling.app__UI/node_modules/jest-mock/build/index.js:148:19)
+          at unsafe (/home/devcontainers/code/idling.app__UI/src/app/components/submissions-list/actions.ts:603:35)
+          at Object.<anonymous> (/home/devcontainers/code/idling.app__UI/src/app/components/submissions-list/actions.test.ts:593:48)
+          at Promise.then.completed (/home/devcontainers/code/idling.app__UI/node_modules/jest-circus/build/utils.js:298:28)
+          at new Promise (<anonymous>)
+          at callAsyncCircusFn (/home/devcontainers/code/idling.app__UI/node_modules/jest-circus/build/utils.js:231:10)
+          at _callCircusTest (/home/devcontainers/code/idling.app__UI/node_modules/jest-circus/build/run.js:316:40)
+          at _runTest (/home/devcontainers/code/idling.app__UI/node_modules/jest-circus/build/run.js:252:3)
+          at _runTestsForDescribeBlock (/home/devcontainers/code/idling.app__UI/node_modules/jest-circus/build/run.js:126:9)
+          at _runTestsForDescribeBlock (/home/devcontainers/code/idling.app__UI/node_modules/jest-circus/build/run.js:121:9)
+          at _runTestsForDescribeBlock (/home/devcontainers/code/idling.app__UI/node_modules/jest-circus/build/run.js:121:9)
+          at run (/home/devcontainers/code/idling.app__UI/node_modules/jest-circus/build/run.js:71:3)
+          at runAndTransformResultsToJestFormat (/home/devcontainers/code/idling.app__UI/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapterInit.js:122:21)
+          at jestAdapter (/home/devcontainers/code/idling.app__UI/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapter.js:79:19)
+          at runTestInternal (/home/devcontainers/code/idling.app__UI/node_modules/jest-runner/build/runTest.js:367:16)
+          at runTest (/home/devcontainers/code/idling.app__UI/node_modules/jest-runner/build/runTest.js:444:34)
+
+      101 |       return;
+      102 |     }
+    > 103 |     originalError.call(console, ...args);
+          |                   ^
+      104 |   };
+      105 |
+      106 |   console.warn = (...args) => {
+
+      at console.call [as error] (jest.setup.js:103:19)
+      at error (src/app/components/submissions-list/actions.ts:682:13)
+      at Object.<anonymous> (src/app/components/submissions-list/actions.test.ts:593:22)
+
+  ● getSubmissionsAction › should return paginated submissions for onlyMine=true
+
+    expect(received).toMatchObject(expected)
+
+    - Expected  - 3
+    + Received  + 3
+
+      Object {
+    -   "author": "Test Author",
+    -   "submission_id": 1,
+    -   "submission_title": "Test Submission",
+    +   "author": undefined,
+    +   "submission_id": undefined,
+    +   "submission_title": undefined,
+      }
+
+      55 |
+      56 |     expect(result.data?.data).toHaveLength(1);
+    > 57 |     expect(result.data?.data[0]).toMatchObject({
+         |                                  ^
+      58 |       submission_id: 1,
+      59 |       submission_title: 'Test Submission',
+      60 |       author: 'Test Author'
+
+      at Object.toMatchObject (src/app/components/submissions-list/actions.test.ts:57:34)
+
+  ● getSubmissionsAction › should return paginated submissions for onlyMine=false
+
+    expect(received).toMatchObject(expected)
+
+    - Expected  - 3
+    + Received  + 3
+
+      Object {
+    -   "author": "Test Author",
+    -   "submission_id": 1,
+    -   "submission_title": "Test Submission",
+    +   "author": undefined,
+    +   "submission_id": undefined,
+    +   "submission_title": undefined,
+      }
+
+      83 |
+      84 |     expect(result.data?.data).toHaveLength(1);
+    > 85 |     expect(result.data?.data[0]).toMatchObject({
+         |                                  ^
+      86 |       submission_id: 1,
+      87 |       submission_title: 'Test Submission',
+      88 |       author: 'Test Author'
+
+      at Object.toMatchObject (src/app/components/submissions-list/actions.test.ts:85:34)
+
+  ● getSubmissionsAction › should handle tag filters
+
+    expect(received).toMatchObject(expected)
+
+    - Expected  - 5
+    + Received  + 3
+
+      Object {
+    -   "submission_id": 1,
+    -   "submission_title": "Test Submission",
+    -   "tags": Array [
+    -     "test",
+    -   ],
+    +   "submission_id": undefined,
+    +   "submission_title": undefined,
+    +   "tags": Array [],
+      }
+
+      115 |
+      116 |     expect(result.data?.data).toHaveLength(1);
+    > 117 |     expect(result.data?.data[0]).toMatchObject({
+          |                                  ^
+      118 |       submission_id: 1,
+      119 |       submission_title: 'Test Submission',
+      120 |       tags: ['test']
+
+      at Object.toMatchObject (src/app/components/submissions-list/actions.test.ts:117:34)
+
+  ● getSubmissionsAction › should handle page < 1
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 1
+    Received: 0
+
+      142 |     });
+      143 |
+    > 144 |     expect(result.data?.pagination.currentPage).toBe(1);
+          |                                                 ^
+      145 |     expect(result.error).toBeUndefined();
+      146 |   });
+      147 |
+
+      at Object.toBe (src/app/components/submissions-list/actions.test.ts:144:49)
+
+  ● getSubmissionsAction › should handle multiple tag filters
+
+    expect(received).toMatchObject(expected)
+
+    - Expected  - 6
+    + Received  + 3
+
+      Object {
+    -   "submission_id": 1,
+    -   "submission_title": "Test Submission",
+    -   "tags": Array [
+    -     "test",
+    -     "multiple",
+    -   ],
+    +   "submission_id": undefined,
+    +   "submission_title": undefined,
+    +   "tags": Array [],
+      }
+
+      182 |
+      183 |     expect(result.data?.data).toHaveLength(1);
+    > 184 |     expect(result.data?.data[0]).toMatchObject({
+          |                                  ^
+      185 |       submission_id: 1,
+      186 |       submission_title: 'Test Submission',
+      187 |       tags: ['test', 'multiple']
+
+      at Object.toMatchObject (src/app/components/submissions-list/actions.test.ts:184:34)
+
+  ● getSubmissionsAction › should handle empty tag filters
+
+    expect(received).toMatchObject(expected)
+
+    - Expected  - 2
+    + Received  + 2
+
+      Object {
+    -   "submission_id": 1,
+    -   "submission_title": "Test Submission",
+    +   "submission_id": undefined,
+    +   "submission_title": undefined,
+      }
+
+      210 |
+      211 |     expect(result.data?.data).toHaveLength(1);
+    > 212 |     expect(result.data?.data[0]).toMatchObject({
+          |                                  ^
+      213 |       submission_id: 1,
+      214 |       submission_title: 'Test Submission'
+      215 |     });
+
+      at Object.toMatchObject (src/app/components/submissions-list/actions.test.ts:212:34)
+
+  ● getSubmissionsAction › Advanced Filter Logic › should handle tag filters with OR logic
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 4
+    + Received  + 1
+
+    - Array [
+    -   "react",
+    -   "vue",
+    - ]
+    + Array []
+
+      291 |
+      292 |       expect(result.data?.data).toHaveLength(1);
+    > 293 |       expect(result.data?.data[0].tags).toEqual(['react', 'vue']);
+          |                                         ^
+      294 |       expect(result.error).toBeUndefined();
+      295 |
+      296 |       // Check that the SQL was called with the expected query structure
+
+      at Object.toEqual (src/app/components/submissions-list/actions.test.ts:293:41)
+
+  ● getSubmissionsAction › Pagination Edge Cases › should handle large page numbers
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 14
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "author": undefined,
+    +     "author_bio": undefined,
+    +     "replies": Array [],
+    +     "submission_datetime": Date { NaN },
+    +     "submission_id": undefined,
+    +     "submission_name": undefined,
+    +     "submission_title": undefined,
+    +     "tags": Array [],
+    +     "thread_parent_id": undefined,
+    +     "user_id": undefined,
+    +   },
+    + ]
+
+      667 |
+      668 |       expect(result.data?.pagination.currentPage).toBe(1000);
+    > 669 |       expect(result.data?.data).toEqual([]); // Should be empty array
+          |                                 ^
+      670 |     });
+      671 |
+      672 |     it('should handle large page sizes', async () => {
+
+      at Object.toEqual (src/app/components/submissions-list/actions.test.ts:669:33)
+
+  ● getSubmissionsAction › Pagination Edge Cases › should handle zero page size
+
+    expect(received).toBeGreaterThan(expected)
+
+    Expected: > 0
+    Received:   0
+
+      712 |       // Should use default page size of 10 - but let's check what the actual implementation does
+      713 |       // The test might be wrong about the expected behavior
+    > 714 |       expect(result.data?.pagination.pageSize).toBeGreaterThan(0);
+          |                                                ^
+      715 |     });
+      716 |
+      717 |     it('should handle negative page numbers', async () => {
+
+      at Object.toBeGreaterThan (src/app/components/submissions-list/actions.test.ts:714:48)
+
+  ● getSubmissionsAction › Pagination Edge Cases › should handle negative page numbers
+
+    expect(received).toBeGreaterThan(expected)
+
+    Expected: > 0
+    Received:   -5
+
+      734 |
+      735 |       // Should clamp to page 1 - but let's check what the actual implementation does
+    > 736 |       expect(result.data?.pagination.currentPage).toBeGreaterThan(0);
+          |                                                   ^
+      737 |     });
+      738 |   });
+      739 | });
+
+      at Object.toBeGreaterThan (src/app/components/submissions-list/actions.test.ts:736:51)
+
+PASS src/app/components/tooltip/__tests__/LinkTooltip.test.tsx
+PASS src/app/components/filter-bar/CustomFilterInput.test.tsx
+  ● Console
+
+    console.log
+      InlineSuggestionInput handleInputChange: {
+        oldValue: '',
+        newValue: '#javascript',
+        hasNewlines: false,
+        cursorPosition: 11
+      }
+
+      at log (src/app/components/ui/InlineSuggestionInput.tsx:319:13)
+
+    console.log
+      SmartInput handleChangeWrapper: { oldValue: '', newValue: '#javascript', hasNewlines: false }
+
+      at log (src/app/components/ui/SmartInput.tsx:306:17)
+
+    console.log
+      SmartInput handleChange calling onChange: { oldValue: '', newValue: '#javascript', hasNewlines: false }
+
+      at log (src/app/components/ui/SmartInput.tsx:181:17)
+
+    console.log
+      InlineSuggestionInput handleInputChange: {
+        oldValue: '',
+        newValue: '@user',
+        hasNewlines: false,
+        cursorPosition: 5
+      }
+
+      at log (src/app/components/ui/InlineSuggestionInput.tsx:319:13)
+
+    console.log
+      SmartInput handleChangeWrapper: { oldValue: '', newValue: '@user', hasNewlines: false }
+
+      at log (src/app/components/ui/SmartInput.tsx:306:17)
+
+    console.log
+      SmartInput handleChange calling onChange: { oldValue: '', newValue: '@user', hasNewlines: false }
+
+      at log (src/app/components/ui/SmartInput.tsx:181:17)
+
+    console.log
+      InlineSuggestionInput handleInputChange: {
+        oldValue: '',
+        newValue: '#javascript',
+        hasNewlines: false,
+        cursorPosition: 11
+      }
+
+      at log (src/app/components/ui/InlineSuggestionInput.tsx:319:13)
+
+    console.log
+      SmartInput handleChangeWrapper: { oldValue: '', newValue: '#javascript', hasNewlines: false }
+
+      at log (src/app/components/ui/SmartInput.tsx:306:17)
+
+    console.log
+      SmartInput handleChange calling onChange: { oldValue: '', newValue: '#javascript', hasNewlines: false }
+
+      at log (src/app/components/ui/SmartInput.tsx:181:17)
+
+    console.log
+      InlineSuggestionInput handleInputChange: {
+        oldValue: '',
+        newValue: '@[testuser|123]',
+        hasNewlines: false,
+        cursorPosition: 15
+      }
+
+      at log (src/app/components/ui/InlineSuggestionInput.tsx:319:13)
+
+    console.log
+      SmartInput handleChangeWrapper: { oldValue: '', newValue: '@[testuser|123]', hasNewlines: false }
+
+      at log (src/app/components/ui/SmartInput.tsx:306:17)
+
+    console.log
+      SmartInput handleChange calling onChange: { oldValue: '', newValue: '@[testuser|123]', hasNewlines: false }
+
+      at log (src/app/components/ui/SmartInput.tsx:181:17)
+
+    console.log
+      InlineSuggestionInput handleInputChange: {
+        oldValue: '',
+        newValue: '@[testuser|user123]',
+        hasNewlines: false,
+        cursorPosition: 19
+      }
+
+      at log (src/app/components/ui/InlineSuggestionInput.tsx:319:13)
+
+    console.log
+      SmartInput handleChangeWrapper: { oldValue: '', newValue: '@[testuser|user123]', hasNewlines: false }
+
+      at log (src/app/components/ui/SmartInput.tsx:306:17)
+
+    console.log
+      SmartInput handleChange calling onChange: { oldValue: '', newValue: '@[testuser|user123]', hasNewlines: false }
+
+      at log (src/app/components/ui/SmartInput.tsx:181:17)
+
+    console.log
+      InlineSuggestionInput handleInputChange: {
+        oldValue: '',
+        newValue: '#test',
+        hasNewlines: false,
+        cursorPosition: 5
+      }
+
+      at log (src/app/components/ui/InlineSuggestionInput.tsx:319:13)
+
+    console.log
+      SmartInput handleChangeWrapper: { oldValue: '', newValue: '#test', hasNewlines: false }
+
+      at log (src/app/components/ui/SmartInput.tsx:306:17)
+
+    console.log
+      SmartInput handleChange calling onChange: { oldValue: '', newValue: '#test', hasNewlines: false }
+
+      at log (src/app/components/ui/SmartInput.tsx:181:17)
+
+    console.log
+      InlineSuggestionInput handleInputChange: {
+        oldValue: '',
+        newValue: '#javascript',
+        hasNewlines: false,
+        cursorPosition: 11
+      }
+
+      at log (src/app/components/ui/InlineSuggestionInput.tsx:319:13)
+
+    console.log
+      SmartInput handleChangeWrapper: { oldValue: '', newValue: '#javascript', hasNewlines: false }
+
+      at log (src/app/components/ui/SmartInput.tsx:306:17)
+
+    console.log
+      SmartInput handleChange calling onChange: { oldValue: '', newValue: '#javascript', hasNewlines: false }
+
+      at log (src/app/components/ui/SmartInput.tsx:181:17)
+
+    console.log
+      InlineSuggestionInput handleInputChange: {
+        oldValue: '',
+        newValue: '#javascript #react #typescript',
+        hasNewlines: false,
+        cursorPosition: 30
+      }
+
+      at log (src/app/components/ui/InlineSuggestionInput.tsx:319:13)
+
+    console.log
+      SmartInput handleChangeWrapper: {
+        oldValue: '',
+        newValue: '#javascript #react #typescript',
+        hasNewlines: false
+      }
+
+      at log (src/app/components/ui/SmartInput.tsx:306:17)
+
+    console.log
+      SmartInput handleChange calling onChange: {
+        oldValue: '',
+        newValue: '#javascript #react #typescript',
+        hasNewlines: false
+      }
+
+      at log (src/app/components/ui/SmartInput.tsx:181:17)
+
+    console.log
+      InlineSuggestionInput handleInputChange: {
+        oldValue: '',
+        newValue: '@[user1|id1] [user2|id2]',
+        hasNewlines: false,
+        cursorPosition: 24
+      }
+
+      at log (src/app/components/ui/InlineSuggestionInput.tsx:319:13)
+
+    console.log
+      SmartInput handleChangeWrapper: {
+        oldValue: '',
+        newValue: '@[user1|id1] [user2|id2]',
+        hasNewlines: false
+      }
+
+      at log (src/app/components/ui/SmartInput.tsx:306:17)
+
+    console.log
+      SmartInput handleChange calling onChange: {
+        oldValue: '',
+        newValue: '@[user1|id1] [user2|id2]',
+        hasNewlines: false
+      }
+
+      at log (src/app/components/ui/SmartInput.tsx:181:17)
+
+PASS src/app/components/pagination/Pagination.test.tsx
+PASS src/app/components/recent-tags/RecentTags.test.tsx
+PASS src/app/components/ui/ContentWithPills.test.tsx
+PASS src/app/components/filter-bar/FilterLabel.test.tsx
+PASS src/app/components/ui/SmartPillInput.test.tsx
+  ● Console
+
+    console.log
+      InlineSuggestionInput handleInputChange: {
+        oldValue: '',
+        newValue: '#test',
+        hasNewlines: false,
+        cursorPosition: 5
+      }
+
+      at log (src/app/components/ui/InlineSuggestionInput.tsx:319:13)
+
+    console.log
+      SmartInput handleChangeWrapper: { oldValue: '', newValue: '#test', hasNewlines: false }
+
+      at log (src/app/components/ui/SmartInput.tsx:306:17)
+
+    console.log
+      SmartInput handleChange calling onChange: { oldValue: '', newValue: '#test', hasNewlines: false }
+
+      at log (src/app/components/ui/SmartInput.tsx:181:17)
+
+    console.error
+      Error searching hashtags: TypeError: Cannot read properties of undefined (reading 'map')
+          at map (/home/devcontainers/code/idling.app__UI/src/app/components/ui/SmartInput.tsx:74:44)
+          at searchSuggestions (/home/devcontainers/code/idling.app__UI/src/app/components/ui/InlineSuggestionInput.tsx:262:18)
+
+      101 |       return;
+      102 |     }
+    > 103 |     originalError.call(console, ...args);
+          |                   ^
+      104 |   };
+      105 |
+      106 |   console.warn = (...args) => {
+
+      at console.call [as error] (jest.setup.js:103:19)
+      at error (src/app/components/ui/SmartInput.tsx:96:17)
+      at searchSuggestions (src/app/components/ui/InlineSuggestionInput.tsx:262:18)
+
+    console.log
+      InlineSuggestionInput handleInputChange: {
+        oldValue: '',
+        newValue: '#existing ',
+        hasNewlines: false,
+        cursorPosition: 10
+      }
+
+      at log (src/app/components/ui/InlineSuggestionInput.tsx:319:13)
+
+    console.log
+      SmartInput handleChangeWrapper: { oldValue: '', newValue: '#existing ', hasNewlines: false }
+
+      at log (src/app/components/ui/SmartInput.tsx:306:17)
+
+    console.log
+      SmartInput handleChange calling onChange: { oldValue: '', newValue: '#existing ', hasNewlines: false }
+
+      at log (src/app/components/ui/SmartInput.tsx:181:17)
+
+    console.log
+      InlineSuggestionInput handleInputChange: {
+        oldValue: '',
+        newValue: '@[testuser|user123] ',
+        hasNewlines: false,
+        cursorPosition: 20
+      }
+
+      at log (src/app/components/ui/InlineSuggestionInput.tsx:319:13)
+
+    console.log
+      SmartInput handleChangeWrapper: { oldValue: '', newValue: '@[testuser|user123] ', hasNewlines: false }
+
+      at log (src/app/components/ui/SmartInput.tsx:306:17)
+
+    console.log
+      SmartInput handleChange calling onChange: { oldValue: '', newValue: '@[testuser|user123] ', hasNewlines: false }
+
+      at log (src/app/components/ui/SmartInput.tsx:181:17)
+
+PASS src/app/components/submission-forms/add-submission-form/AddSubmissionForm.test.tsx
+PASS src/app/components/cache-status/CacheStatus.test.tsx
+PASS src/app/components/card/Card.test.tsx
+PASS src/app/components/navbar/Navbar.test.tsx
+PASS src/app/components/nav/NavPaths.test.tsx
+  ● Console
+
+    console.error
+      Received `true` for a non-boolean attribute `prefetch`.
+      
+      If you want to write it to the DOM, pass a string instead: prefetch="true" or prefetch={value.toString()}.
+
+      101 |       return;
+      102 |     }
+    > 103 |     originalError.call(console, ...args);
+          |                   ^
+      104 |   };
+      105 |
+      106 |   console.warn = (...args) => {
+
+      at console.call [as error] (jest.setup.js:103:19)
+      at validateProperty (node_modules/react-dom/cjs/react-dom-client.development.js:3078:27)
+      at warnUnknownProperties (node_modules/react-dom/cjs/react-dom-client.development.js:3154:9)
+      at validatePropertiesInDevelopment (node_modules/react-dom/cjs/react-dom-client.development.js:17117:9)
+      at setInitialProperties (node_modules/react-dom/cjs/react-dom-client.development.js:17741:7)
+      at completeWork (node_modules/react-dom/cjs/react-dom-client.development.js:11391:18)
+      at runWithFiberInDEV (node_modules/react-dom/cjs/react-dom-client.development.js:1522:13)
+      at completeUnitOfWork (node_modules/react-dom/cjs/react-dom-client.development.js:15268:19)
+      at performUnitOfWork (node_modules/react-dom/cjs/react-dom-client.development.js:15149:11)
+      at workLoopSync (node_modules/react-dom/cjs/react-dom-client.development.js:14956:41)
+      at renderRootSync (node_modules/react-dom/cjs/react-dom-client.development.js:14936:11)
+      at performWorkOnRoot (node_modules/react-dom/cjs/react-dom-client.development.js:14419:13)
+      at performWorkOnRootViaSchedulerTask (node_modules/react-dom/cjs/react-dom-client.development.js:16216:7)
+      at flushActQueue (node_modules/react/cjs/react.development.js:566:34)
+      at Object.<anonymous>.process.env.NODE_ENV.exports.act (node_modules/react/cjs/react.development.js:859:10)
+      at node_modules/@testing-library/react/dist/act-compat.js:47:25
+      at renderRoot (node_modules/@testing-library/react/dist/pure.js:180:26)
+      at render (node_modules/@testing-library/react/dist/pure.js:271:10)
+      at customRender (src/test-utils.tsx:13:12)
+      at Object.<anonymous> (src/app/components/nav/NavPaths.test.tsx:57:11)
+
+PASS src/app/components/submission-forms/actions.test.ts
+  ● Console
+
+    console.log
+      🔍 createSubmissionAction - Session: { user: { name: 'Test User', id: '123' } }
+
+      at log (src/app/components/submission-forms/actions.ts:108:11)
+
+    console.log
+      🔍 createSubmissionAction - User: { name: 'Test User', id: '123' }
+
+      at log (src/app/components/submission-forms/actions.ts:109:11)
+
+    console.log
+      🔍 createSubmissionAction - User ID: 123
+
+      at log (src/app/components/submission-forms/actions.ts:110:11)
+
+    console.log
+      ✅ createSubmissionAction - Authentication passed
+
+      at log (src/app/components/submission-forms/actions.ts:125:11)
+
+    console.log
+      🔍 createSubmissionAction - About to insert with user ID: 123
+
+      at log (src/app/components/submission-forms/actions.ts:154:11)
+
+    console.log
+      ✅ createSubmissionAction - Verified user: { id: 123, name: 'Test User' }
+
+      at log (src/app/components/submission-forms/actions.ts:194:13)
+
+    console.log
+      🔍 createSubmissionAction - Session: undefined
+
+      at log (src/app/components/submission-forms/actions.ts:108:11)
+
+    console.log
+      🔍 createSubmissionAction - User: undefined
+
+      at log (src/app/components/submission-forms/actions.ts:109:11)
+
+    console.log
+      🔍 createSubmissionAction - User ID: undefined
+
+      at log (src/app/components/submission-forms/actions.ts:110:11)
+
+    console.log
+      🔍 createSubmissionAction - Session: null
+
+      at log (src/app/components/submission-forms/actions.ts:108:11)
+
+    console.log
+      🔍 createSubmissionAction - User: undefined
+
+      at log (src/app/components/submission-forms/actions.ts:109:11)
+
+    console.log
+      🔍 createSubmissionAction - User ID: undefined
+
+      at log (src/app/components/submission-forms/actions.ts:110:11)
+
+    console.log
+      🔍 createSubmissionAction - Session: { user: { name: 'Test User', id: '123' } }
+
+      at log (src/app/components/submission-forms/actions.ts:108:11)
+
+    console.log
+      🔍 createSubmissionAction - User: { name: 'Test User', id: '123' }
+
+      at log (src/app/components/submission-forms/actions.ts:109:11)
+
+    console.log
+      🔍 createSubmissionAction - User ID: 123
+
+      at log (src/app/components/submission-forms/actions.ts:110:11)
+
+    console.log
+      ✅ createSubmissionAction - Authentication passed
+
+      at log (src/app/components/submission-forms/actions.ts:125:11)
+
+    console.log
+      🔍 createSubmissionAction - About to insert with user ID: 123
+
+      at log (src/app/components/submission-forms/actions.ts:154:11)
+
+    console.log
+      🔍 createSubmissionAction - Session: { user: { name: 'Test User', id: '123' } }
+
+      at log (src/app/components/submission-forms/actions.ts:108:11)
+
+    console.log
+      🔍 createSubmissionAction - User: { name: 'Test User', id: '123' }
+
+      at log (src/app/components/submission-forms/actions.ts:109:11)
+
+    console.log
+      🔍 createSubmissionAction - User ID: 123
+
+      at log (src/app/components/submission-forms/actions.ts:110:11)
+
+    console.log
+      ✅ createSubmissionAction - Authentication passed
+
+      at log (src/app/components/submission-forms/actions.ts:125:11)
+
+    console.log
+      🔍 createSubmissionAction - About to insert with user ID: 123
+
+      at log (src/app/components/submission-forms/actions.ts:154:11)
+
+    console.log
+      ✅ createSubmissionAction - Verified user: { id: 123, name: 'Test User' }
+
+      at log (src/app/components/submission-forms/actions.ts:194:13)
+
+    console.log
+      🔍 createSubmissionAction - Session: { user: { name: 'Test User', id: '123' } }
+
+      at log (src/app/components/submission-forms/actions.ts:108:11)
+
+    console.log
+      🔍 createSubmissionAction - User: { name: 'Test User', id: '123' }
+
+      at log (src/app/components/submission-forms/actions.ts:109:11)
+
+    console.log
+      🔍 createSubmissionAction - User ID: 123
+
+      at log (src/app/components/submission-forms/actions.ts:110:11)
+
+    console.log
+      ✅ createSubmissionAction - Authentication passed
+
+      at log (src/app/components/submission-forms/actions.ts:125:11)
+
+    console.log
+      🔍 createSubmissionAction - About to insert with user ID: 123
+
+      at log (src/app/components/submission-forms/actions.ts:154:11)
+
+    console.log
+      ✅ createSubmissionAction - Verified user: { id: 123, name: 'Test User' }
+
+      at log (src/app/components/submission-forms/actions.ts:194:13)
+
+    console.log
+      🔍 createSubmissionAction - Session: { user: { name: 'Test User' } }
+
+      at log (src/app/components/submission-forms/actions.ts:108:11)
+
+    console.log
+      🔍 createSubmissionAction - User: { name: 'Test User' }
+
+      at log (src/app/components/submission-forms/actions.ts:109:11)
+
+    console.log
+      🔍 createSubmissionAction - User ID: undefined
+
+      at log (src/app/components/submission-forms/actions.ts:110:11)
+
+    console.log
+      ❌ createSubmissionAction - Authentication failed
+
+      at log (src/app/components/submission-forms/actions.ts:118:13)
+
+    console.log
+      ❌ Session exists: true
+
+      at log (src/app/components/submission-forms/actions.ts:119:13)
+
+    console.log
+      ❌ User name: Test User
+
+      at log (src/app/components/submission-forms/actions.ts:120:13)
+
+    console.log
+      ❌ User ID: undefined
+
+      at log (src/app/components/submission-forms/actions.ts:121:13)
+
+    console.log
+      🔍 createSubmissionAction - Session: { user: { name: 'Test User' } }
+
+      at log (src/app/components/submission-forms/actions.ts:108:11)
+
+    console.log
+      🔍 createSubmissionAction - User: { name: 'Test User' }
+
+      at log (src/app/components/submission-forms/actions.ts:109:11)
+
+    console.log
+      🔍 createSubmissionAction - User ID: undefined
+
+      at log (src/app/components/submission-forms/actions.ts:110:11)
+
+    console.log
+      ❌ createSubmissionAction - Authentication failed
+
+      at log (src/app/components/submission-forms/actions.ts:118:13)
+
+    console.log
+      ❌ Session exists: true
+
+      at log (src/app/components/submission-forms/actions.ts:119:13)
+
+    console.log
+      ❌ User name: Test User
+
+      at log (src/app/components/submission-forms/actions.ts:120:13)
+
+    console.log
+      ❌ User ID: undefined
+
+      at log (src/app/components/submission-forms/actions.ts:121:13)
+
+PASS src/lib/state/filters.test.ts
+  ● Console
+
+    console.warn
+      Failed to save to localStorage: Error: Storage quota exceeded
+          at safeSetItem (/home/devcontainers/code/idling.app__UI/src/lib/state/filters.test.ts:301:19)
+          at Object.safeSetItem (/home/devcontainers/code/idling.app__UI/src/lib/state/filters.test.ts:316:27)
+          at Promise.then.completed (/home/devcontainers/code/idling.app__UI/node_modules/jest-circus/build/utils.js:298:28)
+          at new Promise (<anonymous>)
+          at callAsyncCircusFn (/home/devcontainers/code/idling.app__UI/node_modules/jest-circus/build/utils.js:231:10)
+          at _callCircusTest (/home/devcontainers/code/idling.app__UI/node_modules/jest-circus/build/run.js:316:40)
+          at _runTest (/home/devcontainers/code/idling.app__UI/node_modules/jest-circus/build/run.js:252:3)
+          at _runTestsForDescribeBlock (/home/devcontainers/code/idling.app__UI/node_modules/jest-circus/build/run.js:126:9)
+          at _runTestsForDescribeBlock (/home/devcontainers/code/idling.app__UI/node_modules/jest-circus/build/run.js:121:9)
+          at _runTestsForDescribeBlock (/home/devcontainers/code/idling.app__UI/node_modules/jest-circus/build/run.js:121:9)
+          at run (/home/devcontainers/code/idling.app__UI/node_modules/jest-circus/build/run.js:71:3)
+          at runAndTransformResultsToJestFormat (/home/devcontainers/code/idling.app__UI/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapterInit.js:122:21)
+          at jestAdapter (/home/devcontainers/code/idling.app__UI/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapter.js:79:19)
+          at runTestInternal (/home/devcontainers/code/idling.app__UI/node_modules/jest-runner/build/runTest.js:367:16)
+          at runTest (/home/devcontainers/code/idling.app__UI/node_modules/jest-runner/build/runTest.js:444:34)
+
+      112 |       return;
+      113 |     }
+    > 114 |     originalWarn.call(console, ...args);
+          |                  ^
+      115 |   };
+      116 | });
+      117 |
+
+      at console.call (jest.setup.js:114:18)
+      at warn (src/lib/state/filters.test.ts:306:19)
+      at Object.safeSetItem (src/lib/state/filters.test.ts:316:27)
+
+PASS src/app/components/submission-forms/delete-submission-form/DeleteSubmissionForm.test.tsx
+PASS src/app/page.test.tsx
+PASS src/app/components/tag-link/TagLink.test.tsx
+PASS src/lib/state/atoms.test.ts
+PASS src/app/components/about/About.test.tsx
+PASS src/app/components/submissions-list/SubmissionsList.test.tsx
+PASS src/app/components/footer/Footer.test.tsx
+PASS src/app/components/discord-link/DiscordLink.test.tsx
+PASS src/app/components/avatars-background/AvatarsBackground.test.tsx
+PASS src/app/components/page-container/PageContainer.test.tsx
+PASS src/app/components/docs-link/DocsLink.test.tsx
+PASS src/app/components/page-aside/PageAside.test.tsx
+PASS src/app/components/coin/Coin.test.tsx
+PASS src/app/components/pagination/PageSizeSelector.test.tsx
+PASS src/app/components/fade-in/FadeIn.test.tsx
+PASS src/app/components/auth-buttons/AuthButtons.test.tsx
+PASS src/app/components/badge/Badge.test.tsx
+PASS src/app/components/nav/Nav.test.tsx
+PASS src/app/components/game/GameWrapper.test.tsx
+PASS src/app/components/footer-nav/FooterNav.test.tsx
+PASS src/app/components/docs-link/Docs.test.tsx
+PASS src/app/components/discord-link/Discord.test.tsx
+PASS src/app/components/discord-embed/DiscordEmbed.test.tsx
+PASS src/app/components/navbar/NavbarBody.test.tsx
+PASS src/app/components/header/Header.test.tsx
+PASS src/app/components/page-content/PageContent.test.tsx
+PASS src/app/components/empty/Empty.test.tsx
+PASS src/app/components/app-version/AppVersion.test.tsx
+PASS src/app/components/loader/Loader.test.tsx
+PASS src/app/components/page-header/PageHeader.test.tsx
+PASS src/app/components/navbar/NavbarContent.test.tsx
+PASS src/app/components/gitlab-link/GitLabLink.test.tsx
+PASS src/app/components/fancy-border/FancyBorder.test.tsx
+PASS src/app/components/avatar/Avatar.test.tsx
+PASS src/app/components/navbar/NavbarBrand.test.tsx
+PASS src/app/components/navbar/NavbarItem.test.tsx
+PASS src/app/components/auth-avatar/AuthAvatar.test.tsx
+  ● Console
+
+    console.log
+      🧹 Clearing avatar cache - no session detected
+
+      at log (src/app/components/auth-avatar/AuthAvatar.tsx:51:15)
+
+FAIL src/app/components/thread/ReplyForm.test.tsx
+  ● Test suite failed to run
+
+    Jest encountered an unexpected token
+
+    Jest failed to parse a file. This happens e.g. when your code or its dependencies use non-standard JavaScript syntax, or when Jest is not configured to support such syntax.
+
+    Out of the box Jest supports Babel, which will be used to transform your files into valid JS based on your Babel configuration.
+
+    By default "node_modules" folder is ignored by transformers.
+
+    Here's what you can do:
+     • If you are trying to use ECMAScript Modules, see https://jestjs.io/docs/ecmascript-modules for how to enable it.
+     • If you are trying to use TypeScript, see https://jestjs.io/docs/getting-started#using-typescript
+     • To have some of your "node_modules" files transformed, you can specify a custom "transformIgnorePatterns" in your config.
+     • If you need a custom transformation specify a "transform" option in your config.
+     • If you simply want to mock your non-JS modules (e.g. binary assets) you can stub them out with the "moduleNameMapper" config option.
+
+    You'll find more details and examples of these config options in the docs:
+    https://jestjs.io/docs/configuration
+    For information about custom transformations, see:
+    https://jestjs.io/docs/code-transformation
+
+    Details:
+
+    /home/devcontainers/code/idling.app__UI/node_modules/next-auth/providers/twitch.js:1
+    ({"Object.<anonymous>":function(module,exports,require,__dirname,__filename,jest){export * from "@auth/core/providers/twitch";
+                                                                                      ^^^^^^
+
+    SyntaxError: Unexpected token 'export'
+
+      10 |     user: {
+      11 |       id?: string;
+    > 12 |       name?: string | null;
+         |                            ^
+      13 |       email?: string | null;
+      14 |       image?: string | null;
+      15 |       providerAccountId?: string;
+
+      at Runtime.createScriptFromCode (node_modules/jest-runtime/build/index.js:1505:14)
+      at Object.<anonymous> (src/auth.config.ts:12:56)
+      at Object.<anonymous> (src/lib/auth.ts:34:21)
+      at Object.<anonymous> (src/lib/actions/profile.actions.ts:37:15)
+      at Object.<anonymous> (src/lib/context/UserPreferencesContext.tsx:38:25)
+      at Object.<anonymous> (src/app/components/submission-forms/shared-submission-form/components/FloatingToolbar.tsx:15:33)
+      at Object.<anonymous> (src/app/components/submission-forms/shared-submission-form/components/RichInputAdapter.tsx:23:26)
+      at Object.<anonymous> (src/components/rich-text-editor/index.ts:42:27)
+      at Object.<anonymous> (src/app/components/submission-forms/shared-submission-form/SharedSubmissionForm.tsx:17:25)
+      at Object.<anonymous> (src/app/components/thread/ReplyForm.tsx:13:31)
+      at Object.<anonymous> (src/app/components/thread/ReplyForm.test.tsx:38:20)
+
+FAIL src/lib/state/useSubmissionsManager.test.ts
+  ● Test suite failed to run
+
+    ReferenceError: Cannot access 'mockLog' before initialization
+
+      28 | jest.mock('../logging', () => ({
+      29 |   logger: {
+    > 30 |     log: mockLog,
+         |          ^
+      31 |     error: mockError
+      32 |   }
+      33 | }));
+
+      at mockLog (src/lib/state/useSubmissionsManager.test.ts:30:10)
+      at Object.<anonymous> (src/lib/state/atoms.ts:122:18)
+      at Object.<anonymous> (src/lib/state/useSubmissionsManager.test.ts:26:16)
+
+FAIL e2e/root.spec.ts
+  ● Test suite failed to run
+
+    Playwright Test did not expect test.beforeEach() to be called here.
+    Most common reasons include:
+    - You are calling test.beforeEach() in a configuration file.
+    - You are calling test.beforeEach() in a file that is imported by the configuration file.
+    - You have two different versions of @playwright/test. This usually happens
+      when one of the dependencies in your package.json depends on @playwright/test.
+
+       5 | import { checkA11y } from './utils/check-a11y';
+       6 |
+    >  7 | test.beforeEach(async ({ page }) => {
+         |      ^
+       8 |   await page.goto('/');
+       9 |
+      10 |   // Wait for a specific duration to ensure all fade-in animations are complete
+
+      at TestTypeImpl._currentSuite (node_modules/playwright/lib/common/testType.js:74:13)
+      at TestTypeImpl._hook (node_modules/playwright/lib/common/testType.js:159:24)
+      at Function.beforeEach (node_modules/playwright/lib/transform/transform.js:275:12)
+      at Object.beforeEach (e2e/root.spec.ts:7:6)
+
+FAIL e2e/posts.spec.ts
+  ● Test suite failed to run
+
+    Playwright Test did not expect test.beforeEach() to be called here.
+    Most common reasons include:
+    - You are calling test.beforeEach() in a configuration file.
+    - You are calling test.beforeEach() in a file that is imported by the configuration file.
+    - You have two different versions of @playwright/test. This usually happens
+      when one of the dependencies in your package.json depends on @playwright/test.
+
+       5 | import { testWithFakeAuth } from './utils/with-fake-auth';
+       6 |
+    >  7 | testWithFakeAuth.beforeEach(async ({ page }) => {
+         |                  ^
+       8 |   await page.goto('/posts');
+       9 |
+      10 |   // Wait for a specific duration to ensure all fade-in animations are complete
+
+      at TestTypeImpl._currentSuite (node_modules/playwright/lib/common/testType.js:74:13)
+      at TestTypeImpl._hook (node_modules/playwright/lib/common/testType.js:159:24)
+      at Function.beforeEach (node_modules/playwright/lib/transform/transform.js:275:12)
+      at Object.beforeEach (e2e/posts.spec.ts:7:18)
+
+Summary of all failing tests
+FAIL src/app/components/filter-bar/FilterBar.test.tsx
+  ● FilterBar Component › Rendering › should render consolidated filters
+
+    TestingLibraryElementError: Unable to find an element by: [data-testid="filter-label-tags-react"]
+
+    Ignored nodes: comments, script, style
+    [36m<body>[39m
+      [36m<div>[39m
+        [36m<article[39m
+          [33mclass[39m=[32m"filter-bar__container"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"filter-bar__filters-compact"[39m
+          [36m>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"filter-bar__global-logic-inline"[39m
+            [36m>[39m
+              [36m<span[39m
+                [33mclass[39m=[32m"filter-bar__logic-label"[39m
+              [36m>[39m
+                [0mGroups:[0m
+              [36m</span>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"filter-bar__logic-button-group"[39m
+              [36m>[39m
+                [36m<button[39m
+                  [33mclass[39m=[32m"filter-bar__logic-button filter-bar__logic-button--active"[39m
+                  [33mtitle[39m=[32m"All filter groups must match"[39m
+                [36m>[39m
+                  [0mALL[0m
+                [36m</button>[39m
+                [36m<button[39m
+                  [33mclass[39m=[32m"filter-bar__logic-button "[39m
+                  [33mtitle[39m=[32m"Any filter group can match"[39m
+                [36m>[39m
+                  [0mANY[0m
+                [36m</button>[39m
+              [36m</div>[39m
+            [36m</div>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"filter-bar__filter-compact"[39m
+            [36m>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"filter-bar__filter-inline"[39m
+              [36m>[39m
+                [36m<span[39m
+                  [33mclass[39m=[32m"filter-bar__filter-label"[39m
+                [36m>[39m
+                  [0mtags[0m
+                  [0m:[0m
+                [36m</span>[39m
+                [36m<div[39m
+                  [33mclass[39m=[32m"filter-bar__logic-toggle-inline"[39m
+                [36m>[39m
+                  [36m<div[39m
+                    [33mclass[39m=[32m"filter-bar__logic-button-group"[39m
+                  [36m>[39m
+                    [36m<button[39m
+                      [33mclass[39m=[32m"filter-bar__logic-button filter-bar__logic-button--active filter-bar__logic-button--disabled"[39m
+                      [33mdisabled[39m=[32m""[39m
+                      [33mtitle[39m=[32m"Controlled by Groups setting - set Groups to ANY to change"[39m
+                    [36m>[39m
+                      [0mALL[0m
+                    [36m</button>[39m
+                    [36m<button[39m
+                      [33mclass[39m=[32m"filter-bar__logic-button  filter-bar__logic-button--disabled"[39m
+                      [33mdisabled[39m=[32m""[39m
+                      [33mtitle[39m=[32m"Controlled by Groups setting - set Groups to ANY to change"[39m
+                    [36m>[39m
+                      [0mANY[0m
+                    [36m</button>[39m
+                  [36m</div>[39m
+                [36m</div>[39m
+                [36m<div[39m
+                  [33mclass[39m=[32m"filter-bar__filter-values-inline"[39m
+                [36m>[39m
+                  [36m<div[39m
+                    [33mclass[39m=[32m"filter-bar__filter-value-container"[39m
+                  [36m>[39m
+                    [36m<div[39m
+                      [33mdata-testid[39m=[32m"filter-label-tags-#react"[39m
+                    [36m>[39m
+                      [36m<span>[39m
+                        [0mtags[0m
+                        [0m: [0m
+                        [0m#react[0m
+                      [36m</span>[39m
+                      [36m<button[39m
+                        [33mdata-testid[39m=[32m"remove-filter-tags-#react"[39m
+                      [36m>[39m
+                        [0mRemove[0m
+                      [36m</button>[39m
+                      [36m<button[39m
+                        [33mdata-testid[39m=[32m"remove-tag-#react"[39m
+                      [36m>[39m
+                        [0mRemove Tag[0m
+                      [36m</button>[39m
+                    [36m</div>[39m
+                  [36m</div>[39m
+                  [36m<div[39m
+                    [33mclass[39m=[32m"filter-bar__filter-value-container"[39m
+                  [36m>[39m
+                    [36m<div[39m
+                      [33mdata-testid[39m=[32m"filter-label-tags-#typescript"[39m
+                    [36m>[39m
+                      [36m<span>[39m
+                        [0mtags[0m
+                        [0m: [0m
+                        [0m#typescript[0m
+                      [36m</span>[39m
+                      [36m<button[39m
+                        [33mdata-testid[39m=[32m"remove-filter-tags-#typescript"[39m
+                      [36m>[39m
+                        [0mRemove[0m
+                      [36m</button>[39m
+                      [36m<button[39m
+                        [33mdata-testid[39m=[32m"remove-tag-#typescript"[39m
+                      [36m>[39m
+                        [0mRemove Tag[0m
+                      [36m</button>[39m
+                    [36m</div>[39m
+                  [36m</div>[39m
+                [36m</div>[39m
+              [36m</div>[39m
+            [36m</div>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"filter-bar__filter-compact"[39m
+            [36m>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"filter-bar__filter-inline"[39m
+              [36m>[39m
+                [36m<span[39m
+                  [33mclass[39m=[32m"filter-bar__filter-label"[39m
+                [36m>[39m
+                  [0mauthor[0m
+                  [0m:[0m
+                [36m</span>[39m
+                [36m<div[39m
+                  [33mclass[39m=[32m"filter-bar__logic-toggle-inline"[39m
+                [36m>[39m
+                  [36m<div[39m
+                    [33mclass[39m=[32m"filter-bar__logic-button-group"[39m
+                  [36m>[39m
+                    [36m<button[39m
+                      [33mclass[39m=[32m"filter-bar__logic-button filter-bar__logic-button--active filter-bar__logic-button--disabled"[39m
+                      [33mdisabled[39m=[32m""[39m
+                      [33mtitle[39m=[32m"Controlled by Groups setting - set Groups to ANY to change"[39m
+                    [36m>[39m
+                      [0mALL[0m
+                    [36m</button>[39m
+                    [36m<button[39m
+                      [33mclass[39m=[32m"filter-bar__logic-button  filter-bar__logic-button--disabled"[39m
+                      [33mdisabled[39m=[32m""[39m
+                      [33mtitle[39m=[32m"Controlled by Groups setting - set Groups to ANY to change"[39m
+                    [36m>[39m
+                      [0mANY[0m
+                    [36m</button>[39m
+                  [36m</div>[39m
+                [36m</div>[39m
+                [36m<div[39m
+                  [33mclass[39m=[32m"filter-bar__filter-values-inline"[39m
+                [36m>[39m
+                  [36m<div[39m
+                    [33mclass[39m=[32m"filter-bar__filter-value-container"[39m
+                  [36m>[39m
+                    [36m<div[39m
+                      [33mdata-testid[39m=[32m"filter-label-author-123"[39m
+                    [36m>[39m
+                      [36m<span>[39m
+                        [0mauthor[0m
+                        [0m: [0m
+                        [0m123[0m
+                      [36m</span>[39m
+                      [36m<button[39m
+                        [33mdata-testid[39m=[32m"remove-filter-author-123"[39m
+                      [36m>[39m
+                        [0mRemove[0m
+                      [36m</button>[39m
+                      [36m<button[39m
+                        [33mdata-testid[39m=[32m"remove-tag-123"[39m
+                      [36m>[39m
+                        [0mRemove Tag[0m
+                      [36m</button>[39m
+                    [36m</div>[39m
+                  [36m</div>[39m
+                  [36m<div[39m
+                    [33mclass[39m=[32m"filter-bar__filter-value-container"[39m
+                  [36m>[39m
+                    [36m<div[39m
+                      [33mdata-testid[39m=[32m"filter-label-author-456"[39m
+                    [36m>[39m
+                      [36m<span>[39m
+                        [0mauthor[0m
+                        [0m: [0m
+                        [0m456[0m
+                      [36m</span>[39m
+                      [36m<button[39m
+                        [33mdata-testid[39m=[32m"remove-filter-author-456"[39m
+                      [36m>[39m
+                        [0mRemove[0m
+                      [36m</button>[39m
+                      [36m<button[39m
+                        [33mdata-testid[39m=[32m"remove-tag-456"[39m
+                      [36m>[39m
+                        [0mRemove Tag[0m
+                      [36m</button>[39m
+                    [36m</div>[39m
+                  [36m</div>[39m
+                [36m</div>[39m
+              [36m</div>[39m
+            [36m</div>[39m
+            [36m<button[39m
+              [33maria-label[39m=[32m"Clear all filters"[39m
+              [33mclass[39m=[32m"filter-bar__clear-all-button-compact"[39m
+              [33mtitle[39m=[32m"Clear all filters"[39m
+            [36m>[39m
+              [0mClear[0m
+            [36m</button>[39m
+          [36m</div>[39m
+        [36m</article>[39m
+      [36m</div>[39m
+    [36m</body>[39m
+
+      147 |
+      148 |       // Should consolidate multiple filters of the same type
+    > 149 |       expect(screen.getByTestId('filter-label-tags-react')).toBeInTheDocument();
+          |                     ^
+      150 |       expect(
+      151 |         screen.getByTestId('filter-label-tags-typescript')
+      152 |       ).toBeInTheDocument();
+
+      at Object.getElementError (node_modules/@testing-library/dom/dist/config.js:37:19)
+      at node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+      at node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+      at node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+      at Object.getByTestId (src/app/components/filter-bar/FilterBar.test.tsx:149:21)
+
+  ● FilterBar Component › Filter Value Processing › should handle comma-separated tag values
+
+    TestingLibraryElementError: Unable to find an element by: [data-testid="filter-label-tags-react"]
+
+    Ignored nodes: comments, script, style
+    [36m<body>[39m
+      [36m<div>[39m
+        [36m<article[39m
+          [33mclass[39m=[32m"filter-bar__container"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"filter-bar__filters-compact"[39m
+          [36m>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"filter-bar__filter-compact"[39m
+            [36m>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"filter-bar__filter-inline"[39m
+              [36m>[39m
+                [36m<span[39m
+                  [33mclass[39m=[32m"filter-bar__filter-label"[39m
+                [36m>[39m
+                  [0mtags[0m
+                  [0m:[0m
+                [36m</span>[39m
+                [36m<div[39m
+                  [33mclass[39m=[32m"filter-bar__logic-toggle-inline"[39m
+                [36m>[39m
+                  [36m<div[39m
+                    [33mclass[39m=[32m"filter-bar__logic-button-group"[39m
+                  [36m>[39m
+                    [36m<button[39m
+                      [33mclass[39m=[32m"filter-bar__logic-button  "[39m
+                      [33mtitle[39m=[32m"Must have ALL selected tags"[39m
+                    [36m>[39m
+                      [0mALL[0m
+                    [36m</button>[39m
+                    [36m<button[39m
+                      [33mclass[39m=[32m"filter-bar__logic-button filter-bar__logic-button--active "[39m
+                      [33mtitle[39m=[32m"Must have ANY selected tags"[39m
+                    [36m>[39m
+                      [0mANY[0m
+                    [36m</button>[39m
+                  [36m</div>[39m
+                [36m</div>[39m
+                [36m<div[39m
+                  [33mclass[39m=[32m"filter-bar__filter-values-inline"[39m
+                [36m>[39m
+                  [36m<div[39m
+                    [33mclass[39m=[32m"filter-bar__filter-value-container"[39m
+                  [36m>[39m
+                    [36m<div[39m
+                      [33mdata-testid[39m=[32m"filter-label-tags-#react"[39m
+                    [36m>[39m
+                      [36m<span>[39m
+                        [0mtags[0m
+                        [0m: [0m
+                        [0m#react[0m
+                      [36m</span>[39m
+                      [36m<button[39m
+                        [33mdata-testid[39m=[32m"remove-filter-tags-#react"[39m
+                      [36m>[39m
+                        [0mRemove[0m
+                      [36m</button>[39m
+                      [36m<button[39m
+                        [33mdata-testid[39m=[32m"remove-tag-#react"[39m
+                      [36m>[39m
+                        [0mRemove Tag[0m
+                      [36m</button>[39m
+                    [36m</div>[39m
+                  [36m</div>[39m
+                  [36m<div[39m
+                    [33mclass[39m=[32m"filter-bar__filter-value-container"[39m
+                  [36m>[39m
+                    [36m<div[39m
+                      [33mdata-testid[39m=[32m"filter-label-tags-#typescript"[39m
+                    [36m>[39m
+                      [36m<span>[39m
+                        [0mtags[0m
+                        [0m: [0m
+                        [0m#typescript[0m
+                      [36m</span>[39m
+                      [36m<button[39m
+                        [33mdata-testid[39m=[32m"remove-filter-tags-#typescript"[39m
+                      [36m>[39m
+                        [0mRemove[0m
+                      [36m</button>[39m
+                      [36m<button[39m
+                        [33mdata-testid[39m=[32m"remove-tag-#typescript"[39m
+                      [36m>[39m
+                        [0mRemove Tag[0m
+                      [36m</button>[39m
+                    [36m</div>[39m
+                  [36m</div>[39m
+                  [36m<div[39m
+                    [33mclass[39m=[32m"filter-bar__filter-value-container"[39m
+                  [36m>[39m
+                    [36m<div[39m
+                      [33mdata-testid[39m=[32m"filter-label-tags-#javascript"[39m
+                    [36m>[39m
+                      [36m<span>[39m
+                        [0mtags[0m
+                        [0m: [0m
+                        [0m#javascript[0m
+                      [36m</span>[39m
+                      [36m<button[39m
+                        [33mdata-testid[39m=[32m"remove-filter-tags-#javascript"[39m
+                      [36m>[39m
+                        [0mRemove[0m
+                      [36m</button>[39m
+                      [36m<button[39m
+                        [33mdata-testid[39m=[32m"remove-tag-#javascript"[39m
+                      [36m>[39m
+                        [0mRemove Tag[0m
+                      [36m</button>[39m
+                    [36m</div>[39m
+                  [36m</div>[39m
+                [36m</div>[39m
+              [36m</div>[39m
+            [36m</div>[39m
+            [36m<button[39m
+              [33maria-label[39m=[32m"Clear all filters"[39m
+              [33mclass[39m=[32m"filter-bar__clear-all-button-compact"[39m
+              [33mtitle[39m=[32m"Clear all filters"[39m
+            [36m>[39m
+              [0mClear[0m
+            [36m</button>[39m
+          [36m</div>[39m
+        [36m</article>[39m
+      [36m</div>[39m
+    [36m</body>[39m
+
+      338 |       renderFilterBar(filters);
+      339 |
+    > 340 |       expect(screen.getByTestId('filter-label-tags-react')).toBeInTheDocument();
+          |                     ^
+      341 |       expect(
+      342 |         screen.getByTestId('filter-label-tags-typescript')
+      343 |       ).toBeInTheDocument();
+
+      at Object.getElementError (node_modules/@testing-library/dom/dist/config.js:37:19)
+      at node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+      at node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+      at node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+      at Object.getByTestId (src/app/components/filter-bar/FilterBar.test.tsx:340:21)
+
+  ● FilterBar Component › Filter Value Processing › should deduplicate values
+
+    TestingLibraryElementError: Unable to find an element by: [data-testid="filter-label-tags-react"]
+
+    Ignored nodes: comments, script, style
+    [36m<body>[39m
+      [36m<div>[39m
+        [36m<article[39m
+          [33mclass[39m=[32m"filter-bar__container"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"filter-bar__filters-compact"[39m
+          [36m>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"filter-bar__filter-compact"[39m
+            [36m>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"filter-bar__filter-inline"[39m
+              [36m>[39m
+                [36m<span[39m
+                  [33mclass[39m=[32m"filter-bar__filter-label"[39m
+                [36m>[39m
+                  [0mtags[0m
+                  [0m:[0m
+                [36m</span>[39m
+                [36m<div[39m
+                  [33mclass[39m=[32m"filter-bar__logic-toggle-inline"[39m
+                [36m>[39m
+                  [36m<div[39m
+                    [33mclass[39m=[32m"filter-bar__logic-button-group"[39m
+                  [36m>[39m
+                    [36m<button[39m
+                      [33mclass[39m=[32m"filter-bar__logic-button  "[39m
+                      [33mtitle[39m=[32m"Must have ALL selected tags"[39m
+                    [36m>[39m
+                      [0mALL[0m
+                    [36m</button>[39m
+                    [36m<button[39m
+                      [33mclass[39m=[32m"filter-bar__logic-button filter-bar__logic-button--active "[39m
+                      [33mtitle[39m=[32m"Must have ANY selected tags"[39m
+                    [36m>[39m
+                      [0mANY[0m
+                    [36m</button>[39m
+                  [36m</div>[39m
+                [36m</div>[39m
+                [36m<div[39m
+                  [33mclass[39m=[32m"filter-bar__filter-values-inline"[39m
+                [36m>[39m
+                  [36m<div[39m
+                    [33mclass[39m=[32m"filter-bar__filter-value-container"[39m
+                  [36m>[39m
+                    [36m<div[39m
+                      [33mdata-testid[39m=[32m"filter-label-tags-#react"[39m
+                    [36m>[39m
+                      [36m<span>[39m
+                        [0mtags[0m
+                        [0m: [0m
+                        [0m#react[0m
+                      [36m</span>[39m
+                      [36m<button[39m
+                        [33mdata-testid[39m=[32m"remove-filter-tags-#react"[39m
+                      [36m>[39m
+                        [0mRemove[0m
+                      [36m</button>[39m
+                      [36m<button[39m
+                        [33mdata-testid[39m=[32m"remove-tag-#react"[39m
+                      [36m>[39m
+                        [0mRemove Tag[0m
+                      [36m</button>[39m
+                    [36m</div>[39m
+                  [36m</div>[39m
+                  [36m<div[39m
+                    [33mclass[39m=[32m"filter-bar__filter-value-container"[39m
+                  [36m>[39m
+                    [36m<div[39m
+                      [33mdata-testid[39m=[32m"filter-label-tags-#typescript"[39m
+                    [36m>[39m
+                      [36m<span>[39m
+                        [0mtags[0m
+                        [0m: [0m
+                        [0m#typescript[0m
+                      [36m</span>[39m
+                      [36m<button[39m
+                        [33mdata-testid[39m=[32m"remove-filter-tags-#typescript"[39m
+                      [36m>[39m
+                        [0mRemove[0m
+                      [36m</button>[39m
+                      [36m<button[39m
+                        [33mdata-testid[39m=[32m"remove-tag-#typescript"[39m
+                      [36m>[39m
+                        [0mRemove Tag[0m
+                      [36m</button>[39m
+                    [36m</div>[39m
+                  [36m</div>[39m
+                [36m</div>[39m
+              [36m</div>[39m
+            [36m</div>[39m
+            [36m<button[39m
+              [33maria-label[39m=[32m"Clear all filters"[39m
+              [33mclass[39m=[32m"filter-bar__clear-all-button-compact"[39m
+              [33mtitle[39m=[32m"Clear all filters"[39m
+            [36m>[39m
+              [0mClear[0m
+            [36m</button>[39m
+          [36m</div>[39m
+        [36m</article>[39m
+      [36m</div>[39m
+    [36m</body>[39m
+
+      385 |
+      386 |       // Should only show unique values
+    > 387 |       const reactElements = screen.getAllByTestId('filter-label-tags-react');
+          |                                    ^
+      388 |       expect(reactElements).toHaveLength(1);
+      389 |       expect(
+      390 |         screen.getByTestId('filter-label-tags-typescript')
+
+      at Object.getElementError (node_modules/@testing-library/dom/dist/config.js:37:19)
+      at node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+      at node_modules/@testing-library/dom/dist/query-helpers.js:109:15
+      at Object.getAllByTestId (src/app/components/filter-bar/FilterBar.test.tsx:387:36)
+
+  ● FilterBar Component › Complex Scenarios › should handle rapid filter updates
+
+    expect(jest.fn()).toHaveBeenCalledTimes(expected)
+
+    Expected number of calls: 3
+    Received number of calls: 2
+
+    Ignored nodes: comments, script, style
+    [36m<html>[39m
+      [36m<head />[39m
+      [36m<body>[39m
+        [36m<div>[39m
+          [36m<article[39m
+            [33mclass[39m=[32m"filter-bar__container"[39m
+          [36m>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"filter-bar__filters-compact"[39m
+            [36m>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"filter-bar__global-logic-inline"[39m
+              [36m>[39m
+                [36m<span[39m
+                  [33mclass[39m=[32m"filter-bar__logic-label"[39m
+                [36m>[39m
+                  [0mGroups:[0m
+                [36m</span>[39m
+                [36m<div[39m
+                  [33mclass[39m=[32m"filter-bar__logic-button-group"[39m
+                [36m>[39m
+                  [36m<button[39m
+                    [33mclass[39m=[32m"filter-bar__logic-button filter-bar__logic-button--active"[39m
+                    [33mtitle[39m=[32m"All filter groups must match"[39m
+                  [36m>[39m
+                    [0mALL[0m
+                  [36m</button>[39m
+                  [36m<button[39m
+                    [33mclass[39m=[32m"filter-bar__logic-button "[39m
+                    [33mtitle[39m=[32m"Any filter group can match"[39m
+                  [36m>[39m
+                    [0mANY[0m
+                  [36m</button>[39m
+                [36m</div>[39m
+              [36m</div>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"filter-bar__filter-compact"[39m
+              [36m>[39m
+                [36m<div[39m
+                  [33mclass[39m=[32m"filter-bar__filter-inline"[39m
+                [36m>[39m
+                  [36m<span[39m
+                    [33mclass[39m=[32m"filter-bar__filter-label"[39m
+                  [36m>[39m
+                    [0mtags[0m
+                    [0m:[0m
+                  [36m</span>[39m
+                  [36m<div[39m
+                    [33mclass[39m=[32m"filter-bar__logic-toggle-inline"[39m
+                  [36m>[39m
+                    [36m<div[39m
+                      [33mclass[39m=[32m"filter-bar__logic-button-group"[39m
+                    [36m>[39m
+                      [36m<button[39m
+                        [33mclass[39m=[32m"filter-bar__logic-button filter-bar__logic-button--active filter-bar__logic-button--disabled"[39m
+                        [33mdisabled[39m=[32m""[39m
+                        [33mtitle[39m=[32m"Controlled by Groups setting - set Groups to ANY to change"[39m
+                      [36m>[39m
+                        [0mALL[0m
+                      [36m</button>[39m
+                      [36m<button[39m
+                        [33mclass[39m=[32m"filter-bar__logic-button  filter-bar__logic-button--disabled"[39m
+                        [33mdisabled[39m=[32m""[39m
+                        [33mtitle[39m=[32m"Controlled by Groups setting - set Groups to ANY to change"[39m
+                      [36m>[39m
+                        [0mANY[0m
+                      [36m</button>[39m
+                    [36m</div>[39m
+                  [36m</div>[39m
+                  [36m<div[39m
+                    [33mclass[39m=[32m"filter-bar__filter-values-inline"[39m
+                  [36m>[39m
+                    [36m<div[39m
+                      [33mclass[39m=[32m"filter-bar__filter-value-container"[39m
+                    [36m>[39m
+                      [36m<div[39m
+                        [33mdata-testid[39m=[32m"filter-label-tags-#react"[39m
+                      [36m>[39m
+                        [36m<span>[39m
+                          [0mtags[0m
+                          [0m: [0m
+                          [0m#react[0m
+                        [36m</span>[39m
+                        [36m<button[39m
+                          [33mdata-testid[39m=[32m"remove-filter-tags-#react"[39m
+                        [36m>[39m
+                          [0mRemove[0m
+                        [36m</button>[39m
+                        [36m<button[39m
+                          [33mdata-testid[39m=[32m"remove-tag-#react"[39m
+                        [36m>[39m
+                          [0mRemove Tag[0m
+                        [36m</button>[39m
+                      [36m</div>[39m
+                    [36m</div>[39m
+                    [36m<div[39m
+                      [33mclass[39m=[32m"filter-bar__filter-value-container"[39m
+                    [36m>[39m
+                      [36m<div[39m
+                        [33mdata-testid[39m=[32m"filter-label-tags-#typescript"[39m
+                      [36m>[39m
+                        [36m<span>[39m
+                          [0mtags[0m
+                          [0m: [0m
+                          [0m#typescript[0m
+                        [36m</span>[39m
+                        [36m<button[39m
+                          [33mdata-testid[39m=[32m"remove-filter-tags-#typescript"[39m
+                        [36m>[39m
+                          [0mRemove[0m
+                        [36m</button>[39m
+                        [36m<button[39m
+                          [33mdata-testid[39m=[32m"remove-tag-#typescript"[39m
+                        [36m>[39m
+                          [0mRemove Tag[0m
+                        [36m</button>[39m
+                      [36m</div>[39m
+                    [36m</div>[39m
+                  [36m</div>[39m
+                [36m</div>[39m
+              [36m</div>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"filter-bar__filter-compact"[39m
+              [36m>[39m
+                [36m<div[39m
+                  [33mclass[39m=[32m"filter-bar__filter-inline"[39m
+                [36m>[39m
+                  [36m<span[39m
+                    [33mclass[39m=[32m"filter-bar__filter-label"[39m
+                  [36m>[39m
+                    [0mauthor[0m
+                    [0m:[0m
+                  [36m</span>[39m
+                  [36m<div[39m
+                    [33mclass[39m=[32m"filter-bar__filter-values-inline"[39m
+                  [36m>[39m
+                    [36m<div[39m
+                      [33mclass[39m=[32m"filter-bar__filter-value-container"[39m
+                    [36m>[39m
+                      [36m<div[39m
+                        [33mdata-testid[39m=[32m"filter-label-author-123"[39m
+                      [36m>[39m
+                        [36m<span>[39m
+                          [0mauthor[0m
+                          [0m: [0m
+                          [0m123[0m
+                        [36m</span>[39m
+                        [36m<button[39m
+                          [33mdata-testid[39m=[32m"remove-filter-author-123"[39m
+                        [36m>[39m
+                          [0mRemove[0m
+                        [36m</button>[39m
+                        [36m<button[39m
+                          [33mdata-testid[39m=[32m"remove-tag-123"[39m
+                        [36m>[39m
+                          [0mRemove Tag[0m
+                        [36m</button>[39m
+                      [36m</div>[39m
+                    [36m</div>[39m
+                  [36m</div>[39m
+                [36m</div>[39m
+              [36m</div>[39m
+              [36m<button[39m
+                [33maria-label[39m=[32m"Clear all filters"[39m
+                [33mclass[39m=[32m"filter-bar__clear-all-button-compact"[39m
+                [33mtitle[39m=[32m"Clear all filters"[39m
+              [36m>[39m
+                [0mClear[0m
+              [36m</button>[39m
+            [36m</div>[39m
+          [36m</article>[39m
+        [36m</div>[39m
+      [36m</body>[39m
+    [36m</html>[39m
+
+      511 |
+      512 |       await waitFor(() => {
+    > 513 |         expect(mockOnUpdateFilter).toHaveBeenCalledTimes(3);
+          |                                    ^
+      514 |       });
+      515 |
+      516 |       expect(mockOnUpdateFilter).toHaveBeenNthCalledWith(
+
+      at toHaveBeenCalledTimes (src/app/components/filter-bar/FilterBar.test.tsx:513:36)
+      at runWithExpensiveErrorDiagnosticsDisabled (node_modules/@testing-library/dom/dist/config.js:47:12)
+      at checkCallback (node_modules/@testing-library/dom/dist/wait-for.js:124:77)
+      at checkRealTimersCallback (node_modules/@testing-library/dom/dist/wait-for.js:118:16)
+      at Timeout.task [as _onTimeout] (node_modules/jsdom/lib/jsdom/browser/Window.js:520:19)
+
+FAIL src/app/components/submissions-list/actions.test.ts
+  ● getSubmissionsAction › should return paginated submissions for onlyMine=true
+
+    expect(received).toMatchObject(expected)
+
+    - Expected  - 3
+    + Received  + 3
+
+      Object {
+    -   "author": "Test Author",
+    -   "submission_id": 1,
+    -   "submission_title": "Test Submission",
+    +   "author": undefined,
+    +   "submission_id": undefined,
+    +   "submission_title": undefined,
+      }
+
+      55 |
+      56 |     expect(result.data?.data).toHaveLength(1);
+    > 57 |     expect(result.data?.data[0]).toMatchObject({
+         |                                  ^
+      58 |       submission_id: 1,
+      59 |       submission_title: 'Test Submission',
+      60 |       author: 'Test Author'
+
+      at Object.toMatchObject (src/app/components/submissions-list/actions.test.ts:57:34)
+
+  ● getSubmissionsAction › should return paginated submissions for onlyMine=false
+
+    expect(received).toMatchObject(expected)
+
+    - Expected  - 3
+    + Received  + 3
+
+      Object {
+    -   "author": "Test Author",
+    -   "submission_id": 1,
+    -   "submission_title": "Test Submission",
+    +   "author": undefined,
+    +   "submission_id": undefined,
+    +   "submission_title": undefined,
+      }
+
+      83 |
+      84 |     expect(result.data?.data).toHaveLength(1);
+    > 85 |     expect(result.data?.data[0]).toMatchObject({
+         |                                  ^
+      86 |       submission_id: 1,
+      87 |       submission_title: 'Test Submission',
+      88 |       author: 'Test Author'
+
+      at Object.toMatchObject (src/app/components/submissions-list/actions.test.ts:85:34)
+
+  ● getSubmissionsAction › should handle tag filters
+
+    expect(received).toMatchObject(expected)
+
+    - Expected  - 5
+    + Received  + 3
+
+      Object {
+    -   "submission_id": 1,
+    -   "submission_title": "Test Submission",
+    -   "tags": Array [
+    -     "test",
+    -   ],
+    +   "submission_id": undefined,
+    +   "submission_title": undefined,
+    +   "tags": Array [],
+      }
+
+      115 |
+      116 |     expect(result.data?.data).toHaveLength(1);
+    > 117 |     expect(result.data?.data[0]).toMatchObject({
+          |                                  ^
+      118 |       submission_id: 1,
+      119 |       submission_title: 'Test Submission',
+      120 |       tags: ['test']
+
+      at Object.toMatchObject (src/app/components/submissions-list/actions.test.ts:117:34)
+
+  ● getSubmissionsAction › should handle page < 1
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 1
+    Received: 0
+
+      142 |     });
+      143 |
+    > 144 |     expect(result.data?.pagination.currentPage).toBe(1);
+          |                                                 ^
+      145 |     expect(result.error).toBeUndefined();
+      146 |   });
+      147 |
+
+      at Object.toBe (src/app/components/submissions-list/actions.test.ts:144:49)
+
+  ● getSubmissionsAction › should handle multiple tag filters
+
+    expect(received).toMatchObject(expected)
+
+    - Expected  - 6
+    + Received  + 3
+
+      Object {
+    -   "submission_id": 1,
+    -   "submission_title": "Test Submission",
+    -   "tags": Array [
+    -     "test",
+    -     "multiple",
+    -   ],
+    +   "submission_id": undefined,
+    +   "submission_title": undefined,
+    +   "tags": Array [],
+      }
+
+      182 |
+      183 |     expect(result.data?.data).toHaveLength(1);
+    > 184 |     expect(result.data?.data[0]).toMatchObject({
+          |                                  ^
+      185 |       submission_id: 1,
+      186 |       submission_title: 'Test Submission',
+      187 |       tags: ['test', 'multiple']
+
+      at Object.toMatchObject (src/app/components/submissions-list/actions.test.ts:184:34)
+
+  ● getSubmissionsAction › should handle empty tag filters
+
+    expect(received).toMatchObject(expected)
+
+    - Expected  - 2
+    + Received  + 2
+
+      Object {
+    -   "submission_id": 1,
+    -   "submission_title": "Test Submission",
+    +   "submission_id": undefined,
+    +   "submission_title": undefined,
+      }
+
+      210 |
+      211 |     expect(result.data?.data).toHaveLength(1);
+    > 212 |     expect(result.data?.data[0]).toMatchObject({
+          |                                  ^
+      213 |       submission_id: 1,
+      214 |       submission_title: 'Test Submission'
+      215 |     });
+
+      at Object.toMatchObject (src/app/components/submissions-list/actions.test.ts:212:34)
+
+  ● getSubmissionsAction › Advanced Filter Logic › should handle tag filters with OR logic
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 4
+    + Received  + 1
+
+    - Array [
+    -   "react",
+    -   "vue",
+    - ]
+    + Array []
+
+      291 |
+      292 |       expect(result.data?.data).toHaveLength(1);
+    > 293 |       expect(result.data?.data[0].tags).toEqual(['react', 'vue']);
+          |                                         ^
+      294 |       expect(result.error).toBeUndefined();
+      295 |
+      296 |       // Check that the SQL was called with the expected query structure
+
+      at Object.toEqual (src/app/components/submissions-list/actions.test.ts:293:41)
+
+  ● getSubmissionsAction › Pagination Edge Cases › should handle large page numbers
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 14
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "author": undefined,
+    +     "author_bio": undefined,
+    +     "replies": Array [],
+    +     "submission_datetime": Date { NaN },
+    +     "submission_id": undefined,
+    +     "submission_name": undefined,
+    +     "submission_title": undefined,
+    +     "tags": Array [],
+    +     "thread_parent_id": undefined,
+    +     "user_id": undefined,
+    +   },
+    + ]
+
+      667 |
+      668 |       expect(result.data?.pagination.currentPage).toBe(1000);
+    > 669 |       expect(result.data?.data).toEqual([]); // Should be empty array
+          |                                 ^
+      670 |     });
+      671 |
+      672 |     it('should handle large page sizes', async () => {
+
+      at Object.toEqual (src/app/components/submissions-list/actions.test.ts:669:33)
+
+  ● getSubmissionsAction › Pagination Edge Cases › should handle zero page size
+
+    expect(received).toBeGreaterThan(expected)
+
+    Expected: > 0
+    Received:   0
+
+      712 |       // Should use default page size of 10 - but let's check what the actual implementation does
+      713 |       // The test might be wrong about the expected behavior
+    > 714 |       expect(result.data?.pagination.pageSize).toBeGreaterThan(0);
+          |                                                ^
+      715 |     });
+      716 |
+      717 |     it('should handle negative page numbers', async () => {
+
+      at Object.toBeGreaterThan (src/app/components/submissions-list/actions.test.ts:714:48)
+
+  ● getSubmissionsAction › Pagination Edge Cases › should handle negative page numbers
+
+    expect(received).toBeGreaterThan(expected)
+
+    Expected: > 0
+    Received:   -5
+
+      734 |
+      735 |       // Should clamp to page 1 - but let's check what the actual implementation does
+    > 736 |       expect(result.data?.pagination.currentPage).toBeGreaterThan(0);
+          |                                                   ^
+      737 |     });
+      738 |   });
+      739 | });
+
+      at Object.toBeGreaterThan (src/app/components/submissions-list/actions.test.ts:736:51)
+
+FAIL src/app/components/thread/ReplyForm.test.tsx
+  ● Test suite failed to run
+
+    Jest encountered an unexpected token
+
+    Jest failed to parse a file. This happens e.g. when your code or its dependencies use non-standard JavaScript syntax, or when Jest is not configured to support such syntax.
+
+    Out of the box Jest supports Babel, which will be used to transform your files into valid JS based on your Babel configuration.
+
+    By default "node_modules" folder is ignored by transformers.
+
+    Here's what you can do:
+     • If you are trying to use ECMAScript Modules, see https://jestjs.io/docs/ecmascript-modules for how to enable it.
+     • If you are trying to use TypeScript, see https://jestjs.io/docs/getting-started#using-typescript
+     • To have some of your "node_modules" files transformed, you can specify a custom "transformIgnorePatterns" in your config.
+     • If you need a custom transformation specify a "transform" option in your config.
+     • If you simply want to mock your non-JS modules (e.g. binary assets) you can stub them out with the "moduleNameMapper" config option.
+
+    You'll find more details and examples of these config options in the docs:
+    https://jestjs.io/docs/configuration
+    For information about custom transformations, see:
+    https://jestjs.io/docs/code-transformation
+
+    Details:
+
+    /home/devcontainers/code/idling.app__UI/node_modules/next-auth/providers/twitch.js:1
+    ({"Object.<anonymous>":function(module,exports,require,__dirname,__filename,jest){export * from "@auth/core/providers/twitch";
+                                                                                      ^^^^^^
+
+    SyntaxError: Unexpected token 'export'
+
+      10 |     user: {
+      11 |       id?: string;
+    > 12 |       name?: string | null;
+         |                            ^
+      13 |       email?: string | null;
+      14 |       image?: string | null;
+      15 |       providerAccountId?: string;
+
+      at Runtime.createScriptFromCode (node_modules/jest-runtime/build/index.js:1505:14)
+      at Object.<anonymous> (src/auth.config.ts:12:56)
+      at Object.<anonymous> (src/lib/auth.ts:34:21)
+      at Object.<anonymous> (src/lib/actions/profile.actions.ts:37:15)
+      at Object.<anonymous> (src/lib/context/UserPreferencesContext.tsx:38:25)
+      at Object.<anonymous> (src/app/components/submission-forms/shared-submission-form/components/FloatingToolbar.tsx:15:33)
+      at Object.<anonymous> (src/app/components/submission-forms/shared-submission-form/components/RichInputAdapter.tsx:23:26)
+      at Object.<anonymous> (src/components/rich-text-editor/index.ts:42:27)
+      at Object.<anonymous> (src/app/components/submission-forms/shared-submission-form/SharedSubmissionForm.tsx:17:25)
+      at Object.<anonymous> (src/app/components/thread/ReplyForm.tsx:13:31)
+      at Object.<anonymous> (src/app/components/thread/ReplyForm.test.tsx:38:20)
+
+FAIL src/lib/state/useSubmissionsManager.test.ts
+  ● Test suite failed to run
+
+    ReferenceError: Cannot access 'mockLog' before initialization
+
+      28 | jest.mock('../logging', () => ({
+      29 |   logger: {
+    > 30 |     log: mockLog,
+         |          ^
+      31 |     error: mockError
+      32 |   }
+      33 | }));
+
+      at mockLog (src/lib/state/useSubmissionsManager.test.ts:30:10)
+      at Object.<anonymous> (src/lib/state/atoms.ts:122:18)
+      at Object.<anonymous> (src/lib/state/useSubmissionsManager.test.ts:26:16)
+
+FAIL e2e/root.spec.ts
+  ● Test suite failed to run
+
+    Playwright Test did not expect test.beforeEach() to be called here.
+    Most common reasons include:
+    - You are calling test.beforeEach() in a configuration file.
+    - You are calling test.beforeEach() in a file that is imported by the configuration file.
+    - You have two different versions of @playwright/test. This usually happens
+      when one of the dependencies in your package.json depends on @playwright/test.
+
+       5 | import { checkA11y } from './utils/check-a11y';
+       6 |
+    >  7 | test.beforeEach(async ({ page }) => {
+         |      ^
+       8 |   await page.goto('/');
+       9 |
+      10 |   // Wait for a specific duration to ensure all fade-in animations are complete
+
+      at TestTypeImpl._currentSuite (node_modules/playwright/lib/common/testType.js:74:13)
+      at TestTypeImpl._hook (node_modules/playwright/lib/common/testType.js:159:24)
+      at Function.beforeEach (node_modules/playwright/lib/transform/transform.js:275:12)
+      at Object.beforeEach (e2e/root.spec.ts:7:6)
+
+FAIL e2e/posts.spec.ts
+  ● Test suite failed to run
+
+    Playwright Test did not expect test.beforeEach() to be called here.
+    Most common reasons include:
+    - You are calling test.beforeEach() in a configuration file.
+    - You are calling test.beforeEach() in a file that is imported by the configuration file.
+    - You have two different versions of @playwright/test. This usually happens
+      when one of the dependencies in your package.json depends on @playwright/test.
+
+       5 | import { testWithFakeAuth } from './utils/with-fake-auth';
+       6 |
+    >  7 | testWithFakeAuth.beforeEach(async ({ page }) => {
+         |                  ^
+       8 |   await page.goto('/posts');
+       9 |
+      10 |   // Wait for a specific duration to ensure all fade-in animations are complete
+
+      at TestTypeImpl._currentSuite (node_modules/playwright/lib/common/testType.js:74:13)
+      at TestTypeImpl._hook (node_modules/playwright/lib/common/testType.js:159:24)
+      at Function.beforeEach (node_modules/playwright/lib/transform/transform.js:275:12)
+      at Object.beforeEach (e2e/posts.spec.ts:7:18)
+
+
+Test Suites: 6 failed, 51 passed, 57 total
+Tests:       14 failed, 378 passed, 392 total
+Snapshots:   0 total
+Time:        23.451 s
+Ran all test suites.
+error Command failed with exit code 1.
+info Visit https://yarnpkg.com/en/docs/cli/run for documentation about this command.

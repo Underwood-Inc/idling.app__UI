@@ -1,5 +1,11 @@
 #!/bin/sh
 
+# Ensure we're in the correct directory
+cd "$(dirname "$0")/.."
+
+# Source common environment setup
+. "$(dirname "$0")/_/setup-env.sh"
+
 # Get the last commit hash to create a unique lock
 LAST_COMMIT_HASH=$(git log -1 --pretty=%H)
 LOCK_FILE=".git/version-bump-lock-$LAST_COMMIT_HASH"
@@ -19,7 +25,7 @@ LAST_COMMIT_MSG=$(git log -1 --pretty=%B)
 # Check if this commit is already a version bump commit (to prevent infinite loop)
 if echo "$LAST_COMMIT_MSG" | grep -q "chore: bump version to"; then
   # This is already a version bump commit, don't create another one
-  rm "$LOCK_FILE"
+  rm "$LOCK_FILE" 2>/dev/null || true
   exit 0
 fi
 
@@ -43,4 +49,4 @@ fi
 find .git -name "version-bump-lock-*" -type f | head -n -5 | xargs rm -f 2>/dev/null || true
 
 # Remove current lock file
-rm "$LOCK_FILE" 
+rm "$LOCK_FILE" 2>/dev/null || true 

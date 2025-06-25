@@ -1,5 +1,11 @@
 import '@testing-library/jest-dom';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import {
+  act,
+  fireEvent,
+  render,
+  screen,
+  waitFor
+} from '@testing-library/react';
 import { FilterLabel } from './FilterLabel';
 
 // Mock the ContentWithPills component
@@ -103,9 +109,11 @@ describe('FilterLabel Component', () => {
     it('should resolve author userId to username', async () => {
       mockResolveUserIdToUsername.mockResolvedValue('johndoe');
 
-      renderFilterLabel({
-        name: 'author',
-        label: '123'
+      await act(async () => {
+        renderFilterLabel({
+          name: 'author',
+          label: '123'
+        });
       });
 
       await waitFor(() => {
@@ -120,9 +128,11 @@ describe('FilterLabel Component', () => {
     it('should handle author resolution failure', async () => {
       mockResolveUserIdToUsername.mockResolvedValue(null);
 
-      renderFilterLabel({
-        name: 'author',
-        label: '123'
+      await act(async () => {
+        renderFilterLabel({
+          name: 'author',
+          label: '123'
+        });
       });
 
       await waitFor(() => {
@@ -134,9 +144,11 @@ describe('FilterLabel Component', () => {
       mockResolveUserIdToUsername.mockRejectedValue(new Error('Network error'));
       const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
 
-      renderFilterLabel({
-        name: 'author',
-        label: '123'
+      await act(async () => {
+        renderFilterLabel({
+          name: 'author',
+          label: '123'
+        });
       });
 
       await waitFor(() => {
@@ -154,9 +166,11 @@ describe('FilterLabel Component', () => {
     });
 
     it('should not resolve author if label already starts with @', async () => {
-      renderFilterLabel({
-        name: 'author',
-        label: '@johndoe'
+      await act(async () => {
+        renderFilterLabel({
+          name: 'author',
+          label: '@johndoe'
+        });
       });
 
       // Should not call resolution
@@ -167,9 +181,11 @@ describe('FilterLabel Component', () => {
     it('should handle author removal via mention click', async () => {
       mockResolveUserIdToUsername.mockResolvedValue('johndoe');
 
-      renderFilterLabel({
-        name: 'author',
-        label: '123'
+      await act(async () => {
+        renderFilterLabel({
+          name: 'author',
+          label: '123'
+        });
       });
 
       await waitFor(() => {
@@ -190,9 +206,11 @@ describe('FilterLabel Component', () => {
         userId: '123'
       });
 
-      renderFilterLabel({
-        name: 'mentions',
-        label: 'johndoe'
+      await act(async () => {
+        renderFilterLabel({
+          name: 'mentions',
+          label: 'johndoe'
+        });
       });
 
       await waitFor(() => {

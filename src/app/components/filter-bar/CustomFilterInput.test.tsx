@@ -1,11 +1,5 @@
 import '@testing-library/jest-dom';
-import {
-  act,
-  fireEvent,
-  render,
-  screen,
-  waitFor
-} from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '../../../test-utils';
 import { CustomFilterInput } from './CustomFilterInput';
 
 // Mock the search actions with better structure

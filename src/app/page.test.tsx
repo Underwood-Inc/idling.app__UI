@@ -1,6 +1,6 @@
-import { render, screen } from '@testing-library/react';
 import { DISCORD_LINK_SELECTORS } from 'src/lib/test-selectors/components/discord-link.selectors';
 import { PAGE_ASIDE_SELECTORS } from 'src/lib/test-selectors/components/page-aside.selectors';
+import { render, screen } from '../test-utils';
 import Page from './page';
 
 // Keep original simple mocks

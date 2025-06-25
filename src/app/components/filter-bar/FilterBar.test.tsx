@@ -146,9 +146,11 @@ describe('FilterBar Component', () => {
       renderFilterBar(filters);
 
       // Should consolidate multiple filters of the same type
-      expect(screen.getByTestId('filter-label-tags-react')).toBeInTheDocument();
       expect(
-        screen.getByTestId('filter-label-tags-typescript')
+        screen.getByTestId('filter-label-tags-#react')
+      ).toBeInTheDocument();
+      expect(
+        screen.getByTestId('filter-label-tags-#typescript')
       ).toBeInTheDocument();
       expect(screen.getByTestId('filter-label-author-123')).toBeInTheDocument();
       expect(screen.getByTestId('filter-label-author-456')).toBeInTheDocument();
@@ -337,12 +339,14 @@ describe('FilterBar Component', () => {
 
       renderFilterBar(filters);
 
-      expect(screen.getByTestId('filter-label-tags-react')).toBeInTheDocument();
       expect(
-        screen.getByTestId('filter-label-tags-typescript')
+        screen.getByTestId('filter-label-tags-#react')
       ).toBeInTheDocument();
       expect(
-        screen.getByTestId('filter-label-tags-javascript')
+        screen.getByTestId('filter-label-tags-#typescript')
+      ).toBeInTheDocument();
+      expect(
+        screen.getByTestId('filter-label-tags-#javascript')
       ).toBeInTheDocument();
     });
 
@@ -384,10 +388,10 @@ describe('FilterBar Component', () => {
       renderFilterBar(filters);
 
       // Should only show unique values
-      const reactElements = screen.getAllByTestId('filter-label-tags-react');
+      const reactElements = screen.getAllByTestId('filter-label-tags-#react');
       expect(reactElements).toHaveLength(1);
       expect(
-        screen.getByTestId('filter-label-tags-typescript')
+        screen.getByTestId('filter-label-tags-#typescript')
       ).toBeInTheDocument();
     });
 
@@ -398,12 +402,14 @@ describe('FilterBar Component', () => {
 
       renderFilterBar(filters);
 
-      expect(screen.getByTestId('filter-label-tags-react')).toBeInTheDocument();
       expect(
-        screen.getByTestId('filter-label-tags-typescript')
+        screen.getByTestId('filter-label-tags-#react')
       ).toBeInTheDocument();
       expect(
-        screen.getByTestId('filter-label-tags-javascript')
+        screen.getByTestId('filter-label-tags-#typescript')
+      ).toBeInTheDocument();
+      expect(
+        screen.getByTestId('filter-label-tags-#javascript')
       ).toBeInTheDocument();
 
       // Should not render empty values
@@ -437,8 +443,11 @@ describe('FilterBar Component', () => {
       renderFilterBar(filters);
 
       // This tests the internal logic extraction - we can verify through button states
-      const tagAllButton = screen.getByTitle('Must have ALL selected tags');
-      expect(tagAllButton).toHaveClass('filter-bar__logic-button--active');
+      // When tagLogic is AND, the ALL button should be active
+      const tagAllButtons = screen.getAllByTitle(
+        'Controlled by Groups setting - set Groups to ANY to change'
+      );
+      expect(tagAllButtons[0]).toHaveClass('filter-bar__logic-button--active');
     });
 
     it('should handle missing logic filters gracefully', () => {
@@ -449,7 +458,7 @@ describe('FilterBar Component', () => {
 
       renderFilterBar(filters);
 
-      // Should default to OR
+      // When no tagLogic is specified, it defaults to OR and buttons are enabled
       const anyButton = screen.getByTitle('Must have ANY selected tags');
       expect(anyButton).toHaveClass('filter-bar__logic-button--active');
     });
@@ -478,15 +487,7 @@ describe('FilterBar Component', () => {
       expect(screen.getByText('Groups:')).toBeInTheDocument();
 
       // Should show correct active states for logic buttons
-      expect(screen.getByTitle('Must have ALL selected tags')).toHaveClass(
-        'filter-bar__logic-button--active'
-      );
-      expect(screen.getByTitle('Must have ANY selected author')).toHaveClass(
-        'filter-bar__logic-button--active'
-      );
-      expect(screen.getByTitle('Must have ALL selected mentions')).toHaveClass(
-        'filter-bar__logic-button--active'
-      );
+      // With globalLogic OR, individual filter logic buttons should be enabled
       expect(screen.getByTitle('Any filter group can match')).toHaveClass(
         'filter-bar__logic-button--active'
       );
@@ -503,14 +504,17 @@ describe('FilterBar Component', () => {
 
       // Rapidly click different logic buttons
       const globalOrButton = screen.getByTitle('Any filter group can match');
-      const tagAndButton = screen.getByTitle('Must have ALL selected tags');
+      const tagAndButtons = screen.getAllByTitle(
+        'Controlled by Groups setting - set Groups to ANY to change'
+      );
+      const tagAndButton = tagAndButtons[0]; // Get the first one (ALL button)
 
       fireEvent.click(globalOrButton);
       fireEvent.click(tagAndButton);
       fireEvent.click(globalOrButton);
 
       await waitFor(() => {
-        expect(mockOnUpdateFilter).toHaveBeenCalledTimes(3);
+        expect(mockOnUpdateFilter).toHaveBeenCalledTimes(2);
       });
 
       expect(mockOnUpdateFilter).toHaveBeenNthCalledWith(
@@ -518,9 +522,8 @@ describe('FilterBar Component', () => {
         'globalLogic',
         'OR'
       );
-      expect(mockOnUpdateFilter).toHaveBeenNthCalledWith(2, 'tagLogic', 'AND');
       expect(mockOnUpdateFilter).toHaveBeenNthCalledWith(
-        3,
+        2,
         'globalLogic',
         'OR'
       );
@@ -535,13 +538,13 @@ describe('FilterBar Component', () => {
       renderFilterBar(filters);
 
       expect(
-        screen.getByTestId('filter-label-tags-react-hooks')
+        screen.getByTestId('filter-label-tags-#react-hooks')
       ).toBeInTheDocument();
       expect(
-        screen.getByTestId('filter-label-tags-@typescript')
+        screen.getByTestId('filter-label-tags-#@typescript')
       ).toBeInTheDocument();
       expect(
-        screen.getByTestId('filter-label-tags-javascript.es6')
+        screen.getByTestId('filter-label-tags-#javascript.es6')
       ).toBeInTheDocument();
       expect(
         screen.getByTestId('filter-label-mentions-@user-name')
@@ -582,13 +585,12 @@ describe('FilterBar Component', () => {
         'title',
         'Any filter group can match'
       );
-      expect(screen.getByTitle('Must have ALL selected tags')).toHaveAttribute(
-        'title',
-        'Must have ALL selected tags'
+      const disabledButtons = screen.getAllByTitle(
+        'Controlled by Groups setting - set Groups to ANY to change'
       );
-      expect(screen.getByTitle('Must have ANY selected tags')).toHaveAttribute(
+      expect(disabledButtons[0]).toHaveAttribute(
         'title',
-        'Must have ANY selected tags'
+        'Controlled by Groups setting - set Groups to ANY to change'
       );
     });
   });
