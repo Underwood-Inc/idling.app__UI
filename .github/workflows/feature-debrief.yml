@@ -1,0 +1,256 @@
+name: 📊 Feature Debrief Report
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    types: [closed]
+    branches: [main, master]
+
+jobs:
+  generate-debrief:
+    if: github.event_name == 'push' || (github.event.pull_request.merged == true)
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - name: 🔄 Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Fetch full history for git analysis
+
+      - name: 📦 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: 🔧 Install dependencies
+        run: |
+          npm ci
+          npm install auto-changelog chalk prompts --save-dev
+
+      - name: 📊 Generate PR-specific debrief report
+        if: github.event_name == 'pull_request'
+        env:
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          PR_AUTHOR: ${{ github.event.pull_request.user.login }}
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "🔍 Analyzing ALL commits in PR #$PR_NUMBER: $PR_TITLE"
+          echo "📊 Commit range: $PR_BASE_SHA..$PR_HEAD_SHA"
+
+          # Create a simple PR analysis script inline
+          cat > analyze-pr.js << 'EOF'
+          const { execSync } = require('child_process');
+          const fs = require('fs');
+
+          const prNumber = process.env.PR_NUMBER;
+          const prTitle = process.env.PR_TITLE;
+          const baseSha = process.env.PR_BASE_SHA;
+          const headSha = process.env.PR_HEAD_SHA;
+          const prAuthor = process.env.PR_AUTHOR;
+          const prUrl = process.env.PR_URL;
+
+          console.log(`🔍 Analyzing PR #${prNumber}: ${prTitle}`);
+          console.log(`📊 Range: ${baseSha.substring(0,7)}..${headSha.substring(0,7)}`);
+
+          // Get ALL commits from the PR
+          const gitCmd = `git log --oneline --pretty=format:"%h|%ad|%s|%an" --date=short ${baseSha}..${headSha}`;
+          console.log(`Running: ${gitCmd}`);
+
+          try {
+            const output = execSync(gitCmd, { encoding: 'utf8' });
+            const commits = output.split('\n').filter(line => line.trim()).map(line => {
+              const cleanLine = line.replace(/^"/, '').replace(/"$/, '');
+              const [hash, date, subject, author] = cleanLine.split('|');
+              return { hash, date, subject, author };
+            });
+            
+            console.log(`✅ Found ${commits.length} commits in PR`);
+            
+            // Analyze commit types
+            const commitsByType = {};
+            const commitsByAuthor = {};
+            
+            commits.forEach(commit => {
+              // Extract commit type
+              const match = commit.subject.match(/^(\w+)(\(.+\))?:/);
+              const type = match ? match[1].toLowerCase() : 'other';
+              commitsByType[type] = (commitsByType[type] || 0) + 1;
+              commitsByAuthor[commit.author] = (commitsByAuthor[commit.author] || 0) + 1;
+            });
+            
+            // Generate report
+            const now = new Date();
+            const report = `# 📊 PR Feature Debrief Report
+          ## *Pull Request #${prNumber} Analysis*
+
+          ---
+
+          ### �� **PR Information**
+          **PR Number:** [#${prNumber}](${prUrl})  
+          **Title:** ${prTitle}  
+          **Author:** ${prAuthor}  
+          **Generated:** ${now.toLocaleDateString()} at ${now.toLocaleTimeString()}  
+          **Total Commits:** ${commits.length}
+
+          ---
+
+          ## 🎯 **Executive Summary**
+
+          This pull request contains **${commits.length} commits** with the following changes:
+
+          ### 🚀 **Commit Types**
+          ${Object.entries(commitsByType).map(([type, count]) => {
+            const percentage = ((count / commits.length) * 100).toFixed(1);
+            return `- **${type}**: ${count} commits (${percentage}%)`;
+          }).join('\n')}
+
+          ### 👥 **Contributors**
+          ${Object.entries(commitsByAuthor).map(([author, count]) => {
+            const percentage = ((count / commits.length) * 100).toFixed(1);
+            return `- **${author}**: ${count} commits (${percentage}%)`;
+          }).join('\n')}
+
+          ---
+
+          ## 📋 **All Commits in this PR**
+
+          ${commits.map(commit => {
+            const match = commit.subject.match(/^(\w+)(\(.+\))?:/);
+            const type = match ? match[1] : 'other';
+            return `- \`${commit.hash}\` **[${type}]** ${commit.subject} *(${commit.author}, ${commit.date})*`;
+          }).join('\n')}
+
+          ---
+
+          **Report Generated by:** PR Debrief Bot 🤖  
+          **Analysis Date:** ${now.toISOString()}  
+          **PR Link:** ${prUrl}
+          `;
+            
+            // Save report
+            if (!fs.existsSync('reports')) {
+              fs.mkdirSync('reports', { recursive: true });
+            }
+            
+            const filename = `pr-${prNumber}-debrief-${now.toISOString().split('T')[0]}.md`;
+            fs.writeFileSync(`reports/${filename}`, report);
+            
+            console.log(`✅ Report saved: reports/${filename}`);
+            
+            // Also save a summary for the PR comment
+            const summary = `## 🎯 **Executive Summary**
+
+          This pull request contains **${commits.length} commits** with the following changes:
+
+          ### 🚀 **Commit Types**
+          ${Object.entries(commitsByType).map(([type, count]) => {
+            const percentage = ((count / commits.length) * 100).toFixed(1);
+            return `- **${type}**: ${count} commits (${percentage}%)`;
+          }).join('\n')}`;
+            
+            fs.writeFileSync('pr-summary.txt', summary);
+            
+          } catch (error) {
+            console.error('❌ Error analyzing PR:', error.message);
+            process.exit(1);
+          }
+          EOF
+
+          node analyze-pr.js
+
+      - name: 📊 Generate weekly debrief report
+        if: github.event_name == 'push'
+        run: |
+          echo "📈 Generating weekly development summary"
+          # Use the existing script with 7-day timeframe
+          node -e "
+          const FeatureDebriefGenerator = require('./scripts/generate-feature-debrief.js');
+          const generator = new FeatureDebriefGenerator();
+          generator.getOptions = async () => ({
+            timeRange: '7days',
+            reportStyle: 'comprehensive', 
+            includeTypes: ['feat', 'fix', 'perf', 'refactor', 'style', 'chore', 'docs', 'test'],
+            outputFile: 'weekly-debrief-' + new Date().toISOString().split('T')[0] + '.md',
+            includeMetrics: true,
+            includeTrends: true
+          });
+          generator.run();
+          "
+
+      - name: 📤 Upload debrief reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: feature-debrief-reports-${{ github.run_number }}
+          path: reports/
+          retention-days: 30
+
+      - name: 💬 Comment on PR with debrief
+        if: github.event_name == 'pull_request' && github.event.pull_request.merged == true
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+
+            try {
+              const summary = fs.readFileSync('pr-summary.txt', 'utf8');
+              
+              const comment = `## 📊 Feature Debrief Report - PR #${{ github.event.pull_request.number }}
+              
+              ${summary}
+              
+              📄 **Full Report**: [Download from Actions Artifacts](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+              
+              ---
+              *Generated automatically by Feature Debrief Bot* 🤖`;
+              
+              await github.rest.issues.createComment({
+                issue_number: ${{ github.event.pull_request.number }},
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: comment
+              });
+              
+              console.log('✅ Posted debrief comment to PR');
+            } catch (error) {
+              console.log('⚠️ Could not post PR comment:', error.message);
+            }
+
+      - name: 🔄 Commit weekly reports to repository
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+
+          # Create reports directory if it doesn't exist
+          mkdir -p docs/reports
+
+          # Copy reports to docs directory for GitHub Pages
+          cp reports/weekly-*.md docs/reports/ 2>/dev/null || true
+
+          # Check if there are changes to commit
+          if [[ -n $(git status --porcelain) ]]; then
+            git add docs/reports/
+            git commit -m "docs: add automated weekly feature debrief report [skip ci]"
+            git push
+          else
+            echo "No new reports to commit"
+          fi
+
+      - name: 📧 Send Slack notification (optional)
+        if: github.event_name == 'push' && env.SLACK_WEBHOOK_URL != ''
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        run: |
+          if [ -f "reports/weekly-summary.json" ]; then
+            node scripts/send-slack-notification.js
+          fi
