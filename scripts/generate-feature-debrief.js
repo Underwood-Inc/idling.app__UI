@@ -14,23 +14,23 @@ try {
     throw new Error('Chalk functions not available');
   }
 } catch (error) {
-  // Fallback to no-color functions
+  // Create a complete fallback chalk object
+  const noColor = (text) => text;
   chalk = {
-    bold: {
-      cyan: (text) => text,
-      yellow: (text) => text
-    },
-    green: (text) => text,
-    yellow: (text) => text,
-    red: (text) => text,
-    blue: (text) => text,
-    magenta: (text) => text,
-    gray: (text) => text,
-    underline: { blue: (text) => text }
+    bold: Object.assign(noColor, {
+      cyan: noColor,
+      yellow: noColor
+    }),
+    green: noColor,
+    yellow: noColor,
+    red: noColor,
+    blue: noColor,
+    magenta: noColor,
+    gray: noColor,
+    underline: {
+      blue: noColor
+    }
   };
-
-  // Add missing bold function
-  chalk.bold = (text) => text;
 }
 
 /* eslint-disable no-console */
