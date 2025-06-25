@@ -49,22 +49,8 @@ jobs:
         id: pages
         uses: actions/configure-pages@v4
 
-      - name: Create Gemfile for Jekyll
-        run: |
-          cat > DOCS/Gemfile << EOF
-          source "https://rubygems.org"
-
-          gem "github-pages", group: :jekyll_plugins
-          gem "jekyll-feed"
-          gem "jekyll-sitemap"
-          gem "jekyll-seo-tag"
-          gem "webrick"
-          EOF
-
       - name: Install Jekyll dependencies
-        run: |
-          cd DOCS
-          bundle install
+        run: bundle install
 
       - name: Build Jekyll site
         run: bundle exec jekyll build --baseurl "${{ steps.pages.outputs.base_path }}"
@@ -94,6 +80,9 @@ jobs:
   build-check:
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./DOCS
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -101,58 +90,48 @@ jobs:
       - name: Setup Ruby
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: '3.1'
-
-      - name: Create Gemfile for Jekyll
-        run: |
-          cat > DOCS/Gemfile << EOF
-          source "https://rubygems.org"
-
-          gem "github-pages", group: :jekyll_plugins
-          gem "jekyll-feed"
-          gem "jekyll-sitemap"  
-          gem "jekyll-seo-tag"
-          gem "webrick"
-          EOF
+          ruby-version: '3.3.4'
+          bundler-cache: true
+          working-directory: './DOCS'
 
       - name: Install Jekyll dependencies
-        run: |
-          cd DOCS
-          bundle install
+        run: bundle install
 
       - name: Build Jekyll site (PR check)
-        run: |
-          cd DOCS
-          bundle exec jekyll build --baseurl "/idling.app__UI"
+        run: bundle exec jekyll build --baseurl "/idling.app__UI"
         env:
           JEKYLL_ENV: production
 
       - name: Check for build errors
         run: |
-          if [ ! -d "DOCS/_site" ]; then
+          if [ ! -d "_site" ]; then
             echo "❌ Jekyll build failed - _site directory not created"
             exit 1
           fi
 
-          if [ ! -f "DOCS/_site/index.html" ]; then
+          if [ ! -f "_site/index.html" ]; then
             echo "❌ Jekyll build failed - index.html not generated"
             exit 1
           fi
 
           echo "✅ Jekyll build successful"
           echo "📊 Generated files:"
-          find DOCS/_site -name "*.html" | head -10
+          find _site -name "*.html" | head -10
 
       - name: Comment on PR
         if: github.event_name == 'pull_request'
         uses: actions/github-script@v6
+        env:
+          WORKING_DIR: ./DOCS
         with:
           script: |
+            const workingDir = process.env.WORKING_DIR || '.';
+            process.chdir(workingDir);
             const fs = require('fs');
             const path = require('path');
 
             // Count generated files
-            const siteDir = 'DOCS/_site';
+            const siteDir = '_site';
             const htmlFiles = [];
 
             function findHtmlFiles(dir) {
@@ -163,7 +142,7 @@ jobs:
                 if (stat.isDirectory()) {
                   findHtmlFiles(filePath);
                 } else if (file.endsWith('.html')) {
-                  htmlFiles.push(filePath.replace('DOCS/_site/', ''));
+                  htmlFiles.push(filePath.replace('_site/', ''));
                 }
               });
             }
