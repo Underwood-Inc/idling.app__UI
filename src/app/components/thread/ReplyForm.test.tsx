@@ -2,20 +2,18 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { Provider } from 'jotai';
 import { ReplyForm } from './ReplyForm';
 
-// Mock Next.js router
-const mockReplace = jest.fn();
-const mockRefresh = jest.fn();
-jest.mock('next/navigation', () => ({
-  useRouter: () => ({
-    replace: mockReplace,
-    refresh: mockRefresh
-  })
-}));
-
 // Mock jotai
 jest.mock('jotai', () => ({
-  ...jest.requireActual('jotai'),
-  useAtom: jest.fn().mockReturnValue([false, jest.fn()])
+  useAtom: jest.fn(),
+  atom: jest.fn()
+}));
+
+// Mock useRouter
+jest.mock('next/navigation', () => ({
+  useRouter: () => ({
+    push: jest.fn(),
+    refresh: jest.fn()
+  })
 }));
 
 // Mock SmartInput component
@@ -72,10 +70,10 @@ describe('ReplyForm', () => {
     renderReplyForm();
 
     expect(
-      screen.getByPlaceholderText(/Enter a reply title/)
+      screen.getByText(/Enter a reply title.*Use #hashtags/)
     ).toBeInTheDocument();
     expect(
-      screen.getByPlaceholderText(/Write your reply content/)
+      screen.getByText(/Write your reply content.*Use #hashtags/)
     ).toBeInTheDocument();
     expect(
       screen.getByRole('button', { name: /Submit Reply/ })
@@ -92,7 +90,7 @@ describe('ReplyForm', () => {
   it('updates character count as user types', () => {
     renderReplyForm();
 
-    const titleInput = screen.getByPlaceholderText(/Enter a reply title/);
+    const titleInput = screen.getAllByTestId('rich-input')[0];
     fireEvent.change(titleInput, { target: { value: 'Test title' } });
 
     expect(screen.getByText('245 characters remaining')).toBeInTheDocument();
@@ -108,10 +106,8 @@ describe('ReplyForm', () => {
   it('enables submit button when both fields have content', () => {
     renderReplyForm();
 
-    const titleInput = screen.getByPlaceholderText(/Enter a reply title/);
-    const contentInput = screen.getByPlaceholderText(
-      /Write your reply content/
-    );
+    const titleInput = screen.getAllByTestId('rich-input')[0];
+    const contentInput = screen.getAllByTestId('rich-input')[1];
     const submitButton = screen.getByRole('button', { name: /Submit Reply/ });
 
     fireEvent.change(titleInput, { target: { value: 'Test title' } });
@@ -123,10 +119,8 @@ describe('ReplyForm', () => {
   it('submits form with correct data', async () => {
     renderReplyForm();
 
-    const titleInput = screen.getByPlaceholderText(/Enter a reply title/);
-    const contentInput = screen.getByPlaceholderText(
-      /Write your reply content/
-    );
+    const titleInput = screen.getAllByTestId('rich-input')[0];
+    const contentInput = screen.getAllByTestId('rich-input')[1];
     const submitButton = screen.getByRole('button', { name: /Submit Reply/ });
 
     fireEvent.change(titleInput, { target: { value: 'Test Reply Title' } });
@@ -150,10 +144,8 @@ describe('ReplyForm', () => {
   it('calls onSuccess callback after successful submission', async () => {
     renderReplyForm();
 
-    const titleInput = screen.getByPlaceholderText(/Enter a reply title/);
-    const contentInput = screen.getByPlaceholderText(
-      /Write your reply content/
-    );
+    const titleInput = screen.getAllByTestId('rich-input')[0];
+    const contentInput = screen.getAllByTestId('rich-input')[1];
     const submitButton = screen.getByRole('button', { name: /Submit Reply/ });
 
     fireEvent.change(titleInput, { target: { value: 'Test Reply Title' } });
@@ -172,10 +164,8 @@ describe('ReplyForm', () => {
     });
     renderReplyForm();
 
-    const titleInput = screen.getByPlaceholderText(/Enter a reply title/);
-    const contentInput = screen.getByPlaceholderText(
-      /Write your reply content/
-    );
+    const titleInput = screen.getAllByTestId('rich-input')[0];
+    const contentInput = screen.getAllByTestId('rich-input')[1];
     const submitButton = screen.getByRole('button', { name: /Submit Reply/ });
 
     fireEvent.change(titleInput, { target: { value: 'Test Reply Title' } });
@@ -198,10 +188,8 @@ describe('ReplyForm', () => {
       </Provider>
     );
 
-    const titleInput = screen.getByPlaceholderText(/Enter a reply title/);
-    const contentInput = screen.getByPlaceholderText(
-      /Write your reply content/
-    );
+    const titleInput = screen.getAllByTestId('rich-input')[0];
+    const contentInput = screen.getAllByTestId('rich-input')[1];
     const submitButton = screen.getByRole('button', { name: /Submit Reply/ });
 
     fireEvent.change(titleInput, { target: { value: 'Test Reply Title' } });

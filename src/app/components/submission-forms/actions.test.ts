@@ -206,7 +206,7 @@ describe('Submission Form Actions', () => {
       formData.append('submission_title', 'New Title #tag1 #tag2');
       formData.append('submission_name', 'New Submission');
 
-      await createSubmissionAction({ status: 0 }, formData);
+      const result = await createSubmissionAction({ status: 0 }, formData);
 
       expect(mockSql).toHaveBeenCalledTimes(2);
       // Check the second call (insert submission) contains the insert query (case insensitive)
