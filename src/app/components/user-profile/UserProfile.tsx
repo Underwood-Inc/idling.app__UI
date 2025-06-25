@@ -1,5 +1,6 @@
 'use client';
 
+import { useSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
 import { UserProfileData } from '../../../lib/types/profile';
 import { getEffectiveCharacterCount } from '../../../lib/utils/string';
@@ -35,11 +36,36 @@ export function UserProfile({
   const [isEditingBio, setIsEditingBio] = useState(false);
   const [bioText, setBioText] = useState(user.bio || '');
   const [isSaving, setIsSaving] = useState(false);
+  const [hasAdminAccess, setHasAdminAccess] = useState(false);
+  const { data: session } = useSession();
 
   // Sync bioText when user profile changes
   useEffect(() => {
     setBioText(user.bio || '');
   }, [user.bio]);
+
+  // Check admin access for current user
+  useEffect(() => {
+    async function checkAdminAccess() {
+      if (!session?.user?.id) {
+        setHasAdminAccess(false);
+        return;
+      }
+
+      try {
+        const response = await fetch('/api/test/admin-check');
+        if (response.ok) {
+          const data = await response.json();
+          setHasAdminAccess(data.hasAdminAccess);
+        }
+      } catch (error) {
+        console.error('Error checking admin access:', error);
+        setHasAdminAccess(false);
+      }
+    }
+
+    checkAdminAccess();
+  }, [session]);
 
   const displayName = user.username || user.name || 'Anonymous';
   const joinDate = user.created_at
@@ -241,6 +267,15 @@ export function UserProfile({
                 title="User settings"
               >
                 ⚙️ Settings
+              </InstantLink>
+            )}
+            {hasAdminAccess && (
+              <InstantLink
+                href="/admin"
+                className="user-profile__admin-link"
+                title="Admin Dashboard"
+              >
+                🛡️ Admin
               </InstantLink>
             )}
           </div>
