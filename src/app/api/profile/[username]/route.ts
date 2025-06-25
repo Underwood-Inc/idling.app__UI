@@ -1,9 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import {
-  getUserProfileByDatabaseId,
-  updateBioAction
-} from '../../../../lib/actions/profile.actions';
+import { updateBioAction } from '../../../../lib/actions/profile.actions';
 import { auth } from '../../../../lib/auth';
+import { withProfilePrivacy } from '../../../../lib/utils/privacy';
 import { getEffectiveCharacterCount } from '../../../../lib/utils/string';
 
 // This route uses dynamic features (auth/headers) and should not be pre-rendered
@@ -34,15 +32,19 @@ export async function GET(
       );
     }
 
-    // Direct database ID lookup - only supported method
-    const userProfile = await getUserProfileByDatabaseId(username);
+    // Use privacy protection utility
+    const { response, profile } = await withProfilePrivacy(username, false);
 
-    if (!userProfile) {
-      return NextResponse.json({ error: 'User not found' }, { status: 404 });
+    if (response) {
+      // Privacy check failed, return the error response
+      return new NextResponse(response.body, {
+        status: response.status,
+        headers: response.headers
+      });
     }
 
-    // Return public profile data
-    return NextResponse.json(userProfile);
+    // Return profile data
+    return NextResponse.json(profile);
   } catch (error) {
     console.error('Error fetching user profile:', error);
     return NextResponse.json(
@@ -102,15 +104,20 @@ export async function PATCH(
       );
     }
 
-    // Direct database ID lookup - only supported method
-    const targetProfile = await getUserProfileByDatabaseId(username);
+    // Use privacy protection utility - this will also verify the profile exists
+    const { response: privacyResponse, profile: targetProfile } =
+      await withProfilePrivacy(username, false);
 
-    if (!targetProfile) {
-      return NextResponse.json({ error: 'User not found' }, { status: 404 });
+    if (privacyResponse) {
+      // Privacy check failed, return the error response
+      return new NextResponse(privacyResponse.body, {
+        status: privacyResponse.status,
+        headers: privacyResponse.headers
+      });
     }
 
     // Simple and secure: only allow users to edit their own profile
-    if (session.user.id !== targetProfile.id) {
+    if (session.user.id !== targetProfile!.id) {
       return NextResponse.json(
         { error: 'Forbidden. You can only update your own profile.' },
         { status: 403 }

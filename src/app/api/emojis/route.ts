@@ -144,7 +144,7 @@ export async function GET(request: NextRequest) {
           };
           return {
             id: emoji.id,
-            emoji_id: emoji.name,
+            emoji_id: emoji.emoji_id,
             unicode_char: emoji.unicode_char,
             name: emoji.name,
             description: emoji.name,
@@ -166,7 +166,7 @@ export async function GET(request: NextRequest) {
           };
           return {
             id: emoji.id,
-            emoji_id: emoji.name,
+            emoji_id: emoji.emoji_id,
             name: emoji.name,
             description: emoji.name,
             category: {
