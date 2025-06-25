@@ -1,5 +1,6 @@
 import React from 'react';
 import { InstantLink } from '../ui/InstantLink';
+import { TimestampWithTooltip } from '../ui/TimestampWithTooltip';
 import './TooltipContent.css';
 
 interface TooltipContentProps {
@@ -9,7 +10,6 @@ interface TooltipContentProps {
   enableExtendedPreview: boolean;
   isCached: boolean;
   lastUpdated: Date | null;
-  timeAgo: string;
   url: string;
   onRefresh: () => void;
   onClick: (e: React.MouseEvent) => void;
@@ -30,7 +30,6 @@ export const TooltipContent: React.FC<TooltipContentProps> = ({
   enableExtendedPreview,
   isCached,
   lastUpdated,
-  timeAgo,
   url,
   onRefresh,
   onClick
@@ -56,7 +55,10 @@ export const TooltipContent: React.FC<TooltipContentProps> = ({
     <div className="tooltip-cache-info">
       <span>Cached content</span>
       {lastUpdated && (
-        <span className="tooltip-cache-time">Last updated: {timeAgo}</span>
+        <span className="tooltip-cache-time">
+          Last updated:{' '}
+          <TimestampWithTooltip date={lastUpdated} abbreviated={true} />
+        </span>
       )}
       <button
         className="tooltip-refresh-button"
