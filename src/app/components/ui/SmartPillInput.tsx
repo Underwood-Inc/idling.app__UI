@@ -408,11 +408,14 @@ export const SmartPillInput: React.FC<SmartPillInputProps> = ({
       if (segment.type === 'hashtag') {
         hashtags.push(segment.content);
       } else if (segment.type === 'mention') {
-        // Extract user ID from structured mention format @[username|userId]
+        // Extract user ID from structured mention format @[username|userId|filterType]
         if (segment.raw && segment.raw.includes('|')) {
-          const userIdMatch = segment.raw.match(/@\[[^|]+\|([^\]]+)\]/);
+          const userIdMatch = segment.raw.match(
+            /@\[([^|]+)\|([^|]+)(?:\|([^|]+))?\]/
+          );
           if (userIdMatch) {
-            userIds.push(userIdMatch[1]);
+            // userIdMatch[1] is username, userIdMatch[2] is userId, userIdMatch[3] is filterType (optional)
+            userIds.push(userIdMatch[2]);
           }
         }
       }

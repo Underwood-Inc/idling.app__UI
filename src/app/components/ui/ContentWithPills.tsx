@@ -146,12 +146,12 @@ function ContentWithPillsInternal({
 
       if (isFilterBarContext) {
         // Filter bar context - trigger removal
+        // The FilterLabel component will handle using the correct stored values
         if (type === 'hashtag' && onHashtagClick) {
           onHashtagClick(`#${value}`);
         } else if (type === 'mention' && onMentionClick) {
-          // Pass the full pill text for removal instead of just userId
-          const fullPillText = segment?.rawFormat || `@${value}`;
-          onMentionClick(fullPillText, segment?.filterType || 'author');
+          // Just trigger the callback - FilterLabel will use the stored values
+          onMentionClick(value, segment?.filterType || 'author');
         }
         return;
       }

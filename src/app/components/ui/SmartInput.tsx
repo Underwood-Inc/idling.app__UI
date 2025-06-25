@@ -25,8 +25,8 @@ export interface SmartInputProps
   enableUserMentions?: boolean;
   enableEmojis?: boolean;
   enableImagePaste?: boolean;
-  existingHashtags?: string[]; // Hashtags to exclude from search results
-  existingUserIds?: string[]; // User IDs to exclude from search results
+  existingHashtags?: string[]; // Hashtags to mark as disabled in search results
+  existingUserIds?: string[]; // User IDs to mark as disabled in search results
 }
 
 export const SmartInput = forwardRef<
@@ -71,23 +71,24 @@ export const SmartInput = forwardRef<
           query,
           page
         );
-        const filteredResults = result.items
-          .filter((hashtagResult) => {
-            // Exclude hashtags that are already added
-            const hashtagValue = hashtagResult.value.startsWith('#')
-              ? hashtagResult.value
-              : `#${hashtagResult.value}`;
-            return !existingHashtags.includes(hashtagValue);
-          })
-          .map((hashtagResult) => ({
+        const mappedResults = result.items.map((hashtagResult) => {
+          // Check if hashtag is already added
+          const hashtagValue = hashtagResult.value.startsWith('#')
+            ? hashtagResult.value
+            : `#${hashtagResult.value}`;
+          const isDisabled = existingHashtags.includes(hashtagValue);
+
+          return {
             id: hashtagResult.id,
             value: hashtagResult.value,
             label: hashtagResult.label,
-            type: 'hashtag' as const
-          }));
+            type: 'hashtag' as const,
+            disabled: isDisabled
+          };
+        });
 
         return {
-          items: filteredResults,
+          items: mappedResults,
           hasMore: result.hasMore,
           total: result.total
         };
@@ -112,22 +113,23 @@ export const SmartInput = forwardRef<
 
       try {
         const result: PaginatedUserResult = await searchUsers(query, page);
-        const filteredResults = result.items
-          .filter((userResult) => {
-            // Exclude users that are already added (by user ID)
-            return !existingUserIds.includes(userResult.value);
-          })
-          .map((userResult) => ({
+        const mappedResults = result.items.map((userResult) => {
+          // Check if user is already added (by user ID)
+          const isDisabled = existingUserIds.includes(userResult.value);
+
+          return {
             id: userResult.id,
             value: userResult.value, // author_id for filtering
             label: userResult.label,
             displayName: userResult.displayName, // author name for display
             avatar: userResult.avatar,
-            type: 'user' as const
-          }));
+            type: 'user' as const,
+            disabled: isDisabled
+          };
+        });
 
         return {
-          items: filteredResults,
+          items: mappedResults,
           hasMore: result.hasMore,
           total: result.total
         };

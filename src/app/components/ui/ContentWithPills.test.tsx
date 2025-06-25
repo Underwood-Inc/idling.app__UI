@@ -1,6 +1,22 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import { Provider } from 'jotai';
+import { NavigationLoadingProvider } from '../../../lib/context/NavigationLoadingContext';
 import { ContentWithPills } from './ContentWithPills';
+
+// Mock window.matchMedia
+Object.defineProperty(window, 'matchMedia', {
+  writable: true,
+  value: jest.fn().mockImplementation((query) => ({
+    matches: false,
+    media: query,
+    onchange: null,
+    addListener: jest.fn(), // deprecated
+    removeListener: jest.fn(), // deprecated
+    addEventListener: jest.fn(),
+    removeEventListener: jest.fn(),
+    dispatchEvent: jest.fn()
+  }))
+});
 
 // Mock the Jotai useAtom hook with proper return values
 const mockSetFiltersState = jest.fn();
@@ -56,6 +72,15 @@ jest.mock('../tooltip/LinkTooltip', () => ({
   MentionTooltip: ({ children }: any) => <div>{children}</div>
 }));
 
+// Helper function to render with all required providers
+const renderWithProviders = (children: React.ReactNode) => {
+  return render(
+    <NavigationLoadingProvider>
+      <Provider>{children}</Provider>
+    </NavigationLoadingProvider>
+  );
+};
+
 describe('ContentWithPills', () => {
   beforeEach(() => {
     jest.clearAllMocks();
@@ -63,13 +88,11 @@ describe('ContentWithPills', () => {
 
   describe('Basic hashtag detection', () => {
     it('should detect single hashtag', () => {
-      render(
-        <Provider>
-          <ContentWithPills
-            content="This is a post with #hashtag"
-            contextId="test"
-          />
-        </Provider>
+      renderWithProviders(
+        <ContentWithPills
+          content="This is a post with #hashtag"
+          contextId="test"
+        />
       );
 
       // Check that the hashtag link exists
@@ -81,13 +104,11 @@ describe('ContentWithPills', () => {
     });
 
     it('should detect multiple hashtags', () => {
-      render(
-        <Provider>
-          <ContentWithPills
-            content="Post with #first and #second hashtags"
-            contextId="test"
-          />
-        </Provider>
+      renderWithProviders(
+        <ContentWithPills
+          content="Post with #first and #second hashtags"
+          contextId="test"
+        />
       );
 
       // Check text content exists
@@ -102,13 +123,11 @@ describe('ContentWithPills', () => {
     });
 
     it('should detect hashtag at beginning of text', () => {
-      render(
-        <Provider>
-          <ContentWithPills
-            content="#start is at the beginning"
-            contextId="test"
-          />
-        </Provider>
+      renderWithProviders(
+        <ContentWithPills
+          content="#start is at the beginning"
+          contextId="test"
+        />
       );
 
       const hashtagLink = screen.getByRole('link');
@@ -117,10 +136,8 @@ describe('ContentWithPills', () => {
     });
 
     it('should detect hashtag at end of text', () => {
-      render(
-        <Provider>
-          <ContentWithPills content="This ends with #end" contextId="test" />
-        </Provider>
+      renderWithProviders(
+        <ContentWithPills content="This ends with #end" contextId="test" />
       );
 
       const hashtagLink = screen.getByRole('link');
@@ -131,10 +148,8 @@ describe('ContentWithPills', () => {
 
   describe('Chained hashtag detection', () => {
     it('should detect chained hashtags without spaces', () => {
-      render(
-        <Provider>
-          <ContentWithPills content="#ademptio#testimonium" contextId="test" />
-        </Provider>
+      renderWithProviders(
+        <ContentWithPills content="#ademptio#testimonium" contextId="test" />
       );
 
       const links = screen.getAllByRole('link');
@@ -144,13 +159,11 @@ describe('ContentWithPills', () => {
     });
 
     it('should detect multiple chained hashtags', () => {
-      render(
-        <Provider>
-          <ContentWithPills
-            content="#first#second#third#fourth"
-            contextId="test"
-          />
-        </Provider>
+      renderWithProviders(
+        <ContentWithPills
+          content="#first#second#third#fourth"
+          contextId="test"
+        />
       );
 
       const links = screen.getAllByRole('link');
@@ -162,13 +175,11 @@ describe('ContentWithPills', () => {
     });
 
     it('should detect chained hashtags mixed with text', () => {
-      render(
-        <Provider>
-          <ContentWithPills
-            content="Check out #react#javascript for web dev"
-            contextId="test"
-          />
-        </Provider>
+      renderWithProviders(
+        <ContentWithPills
+          content="Check out #react#javascript for web dev"
+          contextId="test"
+        />
       );
 
       expect(screen.getByText(/Check out/)).toBeInTheDocument();
@@ -183,13 +194,11 @@ describe('ContentWithPills', () => {
 
   describe('Basic mention detection', () => {
     it('should detect single structured mention', () => {
-      render(
-        <Provider>
-          <ContentWithPills
-            content="Hello @[username|user123], how are you?"
-            contextId="test"
-          />
-        </Provider>
+      renderWithProviders(
+        <ContentWithPills
+          content="Hello @[username|user123], how are you?"
+          contextId="test"
+        />
       );
 
       expect(screen.getByText(/Hello/)).toBeInTheDocument();
@@ -200,13 +209,11 @@ describe('ContentWithPills', () => {
     });
 
     it('should detect multiple structured mentions', () => {
-      render(
-        <Provider>
-          <ContentWithPills
-            content="Hey @[alice|user1] and @[bob|user2]!"
-            contextId="test"
-          />
-        </Provider>
+      renderWithProviders(
+        <ContentWithPills
+          content="Hey @[alice|user1] and @[bob|user2]!"
+          contextId="test"
+        />
       );
 
       const links = screen.getAllByRole('link');
@@ -218,13 +225,11 @@ describe('ContentWithPills', () => {
 
   describe('Mixed hashtags and mentions', () => {
     it('should detect both hashtags and mentions in same text', () => {
-      render(
-        <Provider>
-          <ContentWithPills
-            content="Hey @[user|123] check out #react"
-            contextId="test"
-          />
-        </Provider>
+      renderWithProviders(
+        <ContentWithPills
+          content="Hey @[user|123] check out #react"
+          contextId="test"
+        />
       );
 
       const links = screen.getAllByRole('link');
@@ -238,13 +243,11 @@ describe('ContentWithPills', () => {
     });
 
     it('should detect chained mixed hashtags and mentions', () => {
-      render(
-        <Provider>
-          <ContentWithPills
-            content="#react@[developer|123]#javascript@[coder|456]"
-            contextId="test"
-          />
-        </Provider>
+      renderWithProviders(
+        <ContentWithPills
+          content="#react@[developer|123]#javascript@[coder|456]"
+          contextId="test"
+        />
       );
 
       const links = screen.getAllByRole('link');
@@ -258,35 +261,27 @@ describe('ContentWithPills', () => {
 
   describe('Edge cases', () => {
     it('should handle empty content', () => {
-      render(
-        <Provider>
-          <ContentWithPills content="" contextId="test" />
-        </Provider>
-      );
+      renderWithProviders(<ContentWithPills content="" contextId="test" />);
       expect(screen.queryByRole('link')).not.toBeInTheDocument();
     });
 
     it('should handle content with no hashtags or mentions', () => {
-      render(
-        <Provider>
-          <ContentWithPills
-            content="This is just regular text."
-            contextId="test"
-          />
-        </Provider>
+      renderWithProviders(
+        <ContentWithPills
+          content="This is just regular text."
+          contextId="test"
+        />
       );
       expect(screen.queryByRole('link')).not.toBeInTheDocument();
       expect(screen.getByText(/This is just regular text/)).toBeInTheDocument();
     });
 
     it('should handle hashtag with numbers and underscores', () => {
-      render(
-        <Provider>
-          <ContentWithPills
-            content="Check out #react_18 and #web3_dev"
-            contextId="test"
-          />
-        </Provider>
+      renderWithProviders(
+        <ContentWithPills
+          content="Check out #react_18 and #web3_dev"
+          contextId="test"
+        />
       );
 
       const links = screen.getAllByRole('link');
@@ -296,13 +291,11 @@ describe('ContentWithPills', () => {
     });
 
     it('should handle mention with special characters in username', () => {
-      render(
-        <Provider>
-          <ContentWithPills
-            content="Hello @[user_name|123] and @[dev-ops|456]"
-            contextId="test"
-          />
-        </Provider>
+      renderWithProviders(
+        <ContentWithPills
+          content="Hello @[user_name|123] and @[dev-ops|456]"
+          contextId="test"
+        />
       );
 
       const links = screen.getAllByRole('link');
@@ -312,13 +305,11 @@ describe('ContentWithPills', () => {
     });
 
     it('should NOT parse simple mention format to prevent false positives', () => {
-      render(
-        <Provider>
-          <ContentWithPills
-            content="Hello @username this should be parsed"
-            contextId="test"
-          />
-        </Provider>
+      renderWithProviders(
+        <ContentWithPills
+          content="Hello @username this should be parsed"
+          contextId="test"
+        />
       );
 
       // Simple @username format should NOT create links to prevent false positives
@@ -332,13 +323,11 @@ describe('ContentWithPills', () => {
     });
 
     it('should handle special characters adjacent to hashtags/mentions', () => {
-      render(
-        <Provider>
-          <ContentWithPills
-            content="Amazing! #react is great. @[user|123], what do you think?"
-            contextId="test"
-          />
-        </Provider>
+      renderWithProviders(
+        <ContentWithPills
+          content="Amazing! #react is great. @[user|123], what do you think?"
+          contextId="test"
+        />
       );
 
       const links = screen.getAllByRole('link');
@@ -352,14 +341,12 @@ describe('ContentWithPills', () => {
     it('should call onHashtagClick when hashtag is clicked', () => {
       const mockOnHashtagClick = jest.fn();
 
-      render(
-        <Provider>
-          <ContentWithPills
-            content="Check out #react"
-            contextId="test"
-            onHashtagClick={mockOnHashtagClick}
-          />
-        </Provider>
+      renderWithProviders(
+        <ContentWithPills
+          content="Check out #react"
+          contextId="test"
+          onHashtagClick={mockOnHashtagClick}
+        />
       );
 
       const hashtagLink = screen.getByRole('link');
@@ -371,14 +358,12 @@ describe('ContentWithPills', () => {
     it('should call onMentionClick when mention is clicked', () => {
       const mockOnMentionClick = jest.fn();
 
-      render(
-        <Provider>
-          <ContentWithPills
-            content="Hello @[john|123]"
-            contextId="test"
-            onMentionClick={mockOnMentionClick}
-          />
-        </Provider>
+      renderWithProviders(
+        <ContentWithPills
+          content="Hello @[john|123]"
+          contextId="test"
+          onMentionClick={mockOnMentionClick}
+        />
       );
 
       const mentionLink = screen.getByRole('link');
@@ -388,13 +373,11 @@ describe('ContentWithPills', () => {
     });
 
     it('should use global filter state when contextId is provided', () => {
-      render(
-        <Provider>
-          <ContentWithPills
-            content="Check out #react and @[john|123]"
-            contextId="test"
-          />
-        </Provider>
+      renderWithProviders(
+        <ContentWithPills
+          content="Check out #react and @[john|123]"
+          contextId="test"
+        />
       );
 
       const links = screen.getAllByRole('link');
@@ -404,14 +387,12 @@ describe('ContentWithPills', () => {
     it('should prioritize custom callbacks over global filter state', () => {
       const mockOnHashtagClick = jest.fn();
 
-      render(
-        <Provider>
-          <ContentWithPills
-            content="Check out #react"
-            contextId="test"
-            onHashtagClick={mockOnHashtagClick}
-          />
-        </Provider>
+      renderWithProviders(
+        <ContentWithPills
+          content="Check out #react"
+          contextId="test"
+          onHashtagClick={mockOnHashtagClick}
+        />
       );
 
       const hashtagLink = screen.getByRole('link');
@@ -425,14 +406,12 @@ describe('ContentWithPills', () => {
     it('should have proper link attributes', () => {
       const mockOnHashtagClick = jest.fn();
 
-      render(
-        <Provider>
-          <ContentWithPills
-            content="Check out #react and @[john|123]"
-            contextId="test"
-            onHashtagClick={mockOnHashtagClick}
-          />
-        </Provider>
+      renderWithProviders(
+        <ContentWithPills
+          content="Check out #react and @[john|123]"
+          contextId="test"
+          onHashtagClick={mockOnHashtagClick}
+        />
       );
 
       const links = screen.getAllByRole('link');
@@ -446,13 +425,11 @@ describe('ContentWithPills', () => {
     });
 
     it('should have non-clickable spans when no callbacks or contextId', () => {
-      render(
-        <Provider>
-          <ContentWithPills
-            content="Check out #react and @[john|123]"
-            contextId="test"
-          />
-        </Provider>
+      renderWithProviders(
+        <ContentWithPills
+          content="Check out #react and @[john|123]"
+          contextId="test"
+        />
       );
 
       // Should still render as links due to contextId
@@ -461,13 +438,11 @@ describe('ContentWithPills', () => {
     });
 
     it('should have appropriate titles for hashtags and mentions when available', () => {
-      render(
-        <Provider>
-          <ContentWithPills
-            content="Check out #react and @[john|123]"
-            contextId="test"
-          />
-        </Provider>
+      renderWithProviders(
+        <ContentWithPills
+          content="Check out #react and @[john|123]"
+          contextId="test"
+        />
       );
 
       const links = screen.getAllByRole('link');
@@ -500,18 +475,16 @@ describe('ContentWithPills', () => {
       const mockOnHashtagClick = jest.fn();
       const mockOnMentionClick = jest.fn();
 
-      render(
-        <Provider>
-          <ContentWithPills
-            content={
-              'Amazing progress on #webdev! Thanks to @[alice|123] and @[bob|456] for the help. ' +
-              'Looking forward to #react2024 conference. #javascript #typescript'
-            }
-            contextId="test"
-            onHashtagClick={mockOnHashtagClick}
-            onMentionClick={mockOnMentionClick}
-          />
-        </Provider>
+      renderWithProviders(
+        <ContentWithPills
+          content={
+            'Amazing progress on #webdev! Thanks to @[alice|123] and @[bob|456] for the help. ' +
+            'Looking forward to #react2024 conference. #javascript #typescript'
+          }
+          contextId="test"
+          onHashtagClick={mockOnHashtagClick}
+          onMentionClick={mockOnMentionClick}
+        />
       );
 
       const links = screen.getAllByRole('link');
@@ -543,13 +516,11 @@ describe('ContentWithPills', () => {
     });
 
     it('should handle post with no pills', () => {
-      render(
-        <Provider>
-          <ContentWithPills
-            content="This is just regular text with no special tags."
-            contextId="test"
-          />
-        </Provider>
+      renderWithProviders(
+        <ContentWithPills
+          content="This is just regular text with no special tags."
+          contextId="test"
+        />
       );
 
       expect(screen.queryByRole('link')).not.toBeInTheDocument();
@@ -557,10 +528,8 @@ describe('ContentWithPills', () => {
     });
 
     it('should handle the original failing case', () => {
-      render(
-        <Provider>
-          <ContentWithPills content="#ademptio#testimonium" contextId="test" />
-        </Provider>
+      renderWithProviders(
+        <ContentWithPills content="#ademptio#testimonium" contextId="test" />
       );
 
       const links = screen.getAllByRole('link');
