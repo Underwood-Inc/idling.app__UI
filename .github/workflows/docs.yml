@@ -14,11 +14,13 @@ on:
   # Manual trigger
   workflow_dispatch:
 
-# Required permissions for GitHub Pages deployment
+# Required permissions for GitHub Pages deployment and PR comments
 permissions:
   contents: read
   pages: write
   id-token: write
+  issues: write
+  pull-requests: write
 
 # Concurrency group to prevent concurrent deployments
 concurrency:
@@ -80,6 +82,10 @@ jobs:
   build-check:
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+      pull-requests: write
     defaults:
       run:
         working-directory: ./DOCS
@@ -120,6 +126,7 @@ jobs:
 
       - name: Comment on PR
         if: github.event_name == 'pull_request'
+        continue-on-error: true
         uses: actions/github-script@v6
         env:
           WORKING_DIR: ./DOCS
