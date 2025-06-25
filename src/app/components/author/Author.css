@@ -641,3 +641,70 @@
 .author-tooltip__error p {
   margin: 0;
 }
+
+/* Private Profile Tooltip Styles */
+.author-tooltip__private-icon {
+  width: 32px;
+  height: 32px;
+  background: rgba(var(--brand-secondary), 0.2);
+  border: 2px solid rgba(var(--brand-secondary), 0.4);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  flex-shrink: 0;
+}
+
+.author-tooltip__private-status {
+  font-size: var(--font-size-sm);
+  color: var(--brand-secondary);
+  margin: 0;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.author-tooltip__private-message {
+  margin-top: 0.75rem;
+  padding: 0.75rem;
+  background: rgba(var(--brand-secondary), 0.1);
+  border: 1px solid rgba(var(--brand-secondary), 0.3);
+  border-radius: var(--border-radius);
+  border-left: 3px solid var(--brand-secondary);
+}
+
+.author-tooltip__private-message p {
+  margin: 0;
+  font-size: var(--font-size-sm);
+  line-height: 1.4;
+  color: var(--light-bg__text-color--primary);
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  hyphens: auto;
+  white-space: normal;
+  max-width: 100%;
+}
+
+/* Dark mode support for private profile tooltip */
+@media (prefers-color-scheme: dark) {
+  .author-tooltip__private-icon {
+    background: rgba(var(--brand-secondary), 0.25);
+    border-color: rgba(var(--brand-secondary), 0.5);
+  }
+
+  .author-tooltip__private-status {
+    color: var(--brand-secondary--light);
+  }
+
+  .author-tooltip__private-message {
+    background: rgba(var(--brand-secondary), 0.15);
+    border-color: rgba(var(--brand-secondary), 0.4);
+    border-left-color: var(--brand-secondary--light);
+  }
+
+  .author-tooltip__private-message p {
+    color: var(--dark-bg__text-color--primary);
+  }
+}

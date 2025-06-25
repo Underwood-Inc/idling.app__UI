@@ -54,11 +54,25 @@
   padding: 0;
 }
 
+/* Special sizing for emoji tooltips */
+.interactive-tooltip--emoji {
+  min-width: 340px;
+  max-width: 360px;
+  padding: 0;
+}
+
 /* Mobile-specific styles for interactive tooltips */
 @media (hover: none) and (pointer: coarse) {
   .interactive-tooltip {
     max-width: 90vw;
     min-width: 260px;
+    /* Add some margin from screen edges */
+    margin: 8px;
+  }
+
+  .interactive-tooltip--emoji {
+    max-width: 90vw;
+    min-width: 320px;
     /* Add some margin from screen edges */
     margin: 8px;
   }

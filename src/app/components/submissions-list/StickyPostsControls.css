@@ -165,6 +165,12 @@
   min-height: 32px;
 }
 
+.sticky-posts-controls__new-post svg {
+  display: block;
+  width: 16px;
+  height: 16px;
+}
+
 .sticky-posts-controls__new-post:hover:not([aria-disabled="true"]) {
   background-color: var(--brand-primary--dark);
   color: var(--font-color--primary);
