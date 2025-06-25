@@ -336,6 +336,17 @@ export function calculateTokenAwareClickPosition(
       }
     });
 
+    // Special handling for empty input with dummy token
+    if (rawText.length === 0 && tokenElements.length === 1) {
+      const dummyElement = tokenElements[0] as HTMLElement;
+      if (dummyElement.getAttribute('data-is-dummy') === 'true') {
+        richTextLogger.logInfo('Click on dummy token in empty input', {
+          clickCoordinates: { x: clickX, y: clickY }
+        });
+        return { index: 0 };
+      }
+    }
+
     // Find the token element that was clicked
     for (let i = 0; i < tokenElements.length; i++) {
       const tokenElement = tokenElements[i] as HTMLElement;

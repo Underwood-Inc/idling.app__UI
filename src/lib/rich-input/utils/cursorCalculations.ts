@@ -262,6 +262,18 @@ function calculateCursorInTokenBasedStructure(
   const containerRect = contentElement.getBoundingClientRect();
   const textIndex = position.index;
 
+  // Special handling for empty input with dummy token
+  if (rawText.length === 0 && tokenElements.length === 1) {
+    const dummyElement = tokenElements[0];
+    if (dummyElement.getAttribute('data-is-dummy') === 'true') {
+      const tokenRect = dummyElement.getBoundingClientRect();
+      return {
+        x: tokenRect.left - containerRect.left,
+        y: tokenRect.top - containerRect.top
+      };
+    }
+  }
+
   for (const tokenElement of tokenElements) {
     const tokenStart = parseInt(
       tokenElement.getAttribute('data-token-start') || '0'

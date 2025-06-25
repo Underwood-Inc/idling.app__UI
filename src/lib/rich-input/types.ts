@@ -76,6 +76,7 @@ export interface RichContentToken {
     isWhitespace?: boolean;
     isNewline?: boolean;
     hasNewlines?: boolean;
+    isDummy?: boolean; // Mark as dummy token for empty state cursor positioning
   };
 
   // Width measurement for accurate cursor positioning
