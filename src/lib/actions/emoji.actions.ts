@@ -55,6 +55,7 @@ export async function getOSEmojis(
   const result = await sql<
     {
       id: number;
+      emoji_id: string;
       name: string;
       unicode_char: string;
       category_id: number;
@@ -64,6 +65,7 @@ export async function getOSEmojis(
   >`
     SELECT 
       e.id, 
+      e.emoji_id,
       e.name, 
       e.unicode_char, 
       e.category_id, 
@@ -109,6 +111,7 @@ export async function getCustomEmojis(
   const result = await sql<
     {
       id: number;
+      emoji_id: string;
       name: string;
       encrypted_image_data: string;
       category_id: number;
@@ -118,6 +121,7 @@ export async function getCustomEmojis(
   >`
     SELECT 
       c.id, 
+      c.emoji_id,
       c.name, 
       c.encrypted_image_data, 
       c.category_id, 

@@ -59,6 +59,8 @@ export async function getUserProfileByDatabaseId(
         u.profile_public,
         u.spacing_theme,
         u.pagination_mode,
+        u.emoji_panel_behavior,
+        u.font_preference,
         a."providerAccountId"
       FROM users u 
       LEFT JOIN accounts a ON u.id = a."userId"
@@ -105,6 +107,8 @@ export async function getUserProfileByDatabaseId(
       profile_public: user.profile_public,
       spacing_theme: user.spacing_theme || 'cozy',
       pagination_mode: user.pagination_mode || 'traditional',
+      emoji_panel_behavior: user.emoji_panel_behavior || 'close_after_select',
+      font_preference: user.font_preference || 'default',
       total_submissions: stats ? parseInt(stats.total_submissions) : 0,
       posts_count: stats ? parseInt(stats.posts_count) : 0,
       replies_count: stats ? parseInt(stats.replies_count) : 0,
@@ -147,6 +151,8 @@ export async function getUserProfileById(
         u.profile_public,
         u.spacing_theme,
         u.pagination_mode,
+        u.emoji_panel_behavior,
+        u.font_preference,
         a."providerAccountId"
       FROM users u 
       LEFT JOIN accounts a ON u.id = a."userId"
@@ -193,6 +199,8 @@ export async function getUserProfileById(
       profile_public: user.profile_public,
       spacing_theme: user.spacing_theme || 'cozy',
       pagination_mode: user.pagination_mode || 'traditional',
+      emoji_panel_behavior: user.emoji_panel_behavior || 'close_after_select',
+      font_preference: user.font_preference || 'default',
       total_submissions: stats ? parseInt(stats.total_submissions) : 0,
       posts_count: stats ? parseInt(stats.posts_count) : 0,
       replies_count: stats ? parseInt(stats.replies_count) : 0,
@@ -217,6 +225,8 @@ export async function updateUserProfile(
     profile_public: boolean;
     spacing_theme: 'cozy' | 'compact';
     pagination_mode: 'traditional' | 'infinite';
+    emoji_panel_behavior: 'close_after_select' | 'stay_open';
+    font_preference: 'monospace' | 'default';
   }>
 ): Promise<UserProfileData | null> {
   try {
@@ -249,6 +259,14 @@ export async function updateUserProfile(
       setClauses.push(`pagination_mode = $${paramIndex++}`);
       values.push(updates.pagination_mode);
     }
+    if (updates.emoji_panel_behavior !== undefined) {
+      setClauses.push(`emoji_panel_behavior = $${paramIndex++}`);
+      values.push(updates.emoji_panel_behavior);
+    }
+    if (updates.font_preference !== undefined) {
+      setClauses.push(`font_preference = $${paramIndex++}`);
+      values.push(updates.font_preference);
+    }
 
     if (setClauses.length === 0) {
       return getUserProfileById(userId);
@@ -273,7 +291,9 @@ export async function updateUserProfile(
         created_at,
         profile_public,
         spacing_theme,
-        pagination_mode
+        pagination_mode,
+        emoji_panel_behavior,
+        font_preference
     `;
 
     const result = await sql.unsafe(queryText, [...values, userId]);
@@ -307,7 +327,10 @@ export async function updateUserProfile(
       created_at: userRow.created_at,
       profile_public: userRow.profile_public,
       spacing_theme: userRow.spacing_theme || 'cozy',
-      pagination_mode: userRow.pagination_mode || 'traditional'
+      pagination_mode: userRow.pagination_mode || 'traditional',
+      emoji_panel_behavior:
+        userRow.emoji_panel_behavior || 'close_after_select',
+      font_preference: userRow.font_preference || 'default'
     };
   } catch (error) {
     logger.error('Error updating user profile', error as Error, {
@@ -382,6 +405,9 @@ export async function updateUserPreferencesAction(
   preferences: {
     spacing_theme?: 'cozy' | 'compact';
     pagination_mode?: 'traditional' | 'infinite';
+    emoji_panel_behavior?: 'close_after_select' | 'stay_open';
+    font_preference?: 'monospace' | 'default';
+    profile_public?: boolean;
   }
 ): Promise<{
   success: boolean;
