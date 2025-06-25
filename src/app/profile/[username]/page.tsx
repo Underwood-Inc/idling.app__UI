@@ -47,6 +47,55 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
     const isOwnProfile =
       session?.user?.id?.toString() === userProfile.id?.toString();
 
+    // Check if profile is private and user is not the owner
+    const isPrivateProfile = userProfile.profile_public === false;
+    const canViewProfile = isOwnProfile || !isPrivateProfile;
+
+    // If profile is private and user is not the owner, show private profile message
+    if (!canViewProfile) {
+      return (
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            minHeight: '70vh',
+            padding: '2rem',
+            width: '100%'
+          }}
+        >
+          <div
+            style={{
+              maxWidth: '600px',
+              width: '100%'
+            }}
+          >
+            <article className="profile-page">
+              <FadeIn className="profile-page__fade">
+                <Card width="full" className="profile-page__main-card">
+                  <div className="profile-page__private-notice">
+                    <div className="profile-page__private-icon">🔒</div>
+                    <h2 className="profile-page__private-title">
+                      Private Profile
+                    </h2>
+                    <p className="profile-page__private-message">
+                      This user has set their profile to private. Only they can
+                      view their profile information.
+                    </p>
+                    <div className="profile-page__private-actions">
+                      <a href="/posts" className="profile-page__private-link">
+                        ← Browse Posts
+                      </a>
+                    </div>
+                  </div>
+                </Card>
+              </FadeIn>
+            </article>
+          </div>
+        </div>
+      );
+    }
+
     const joinDate = userProfile.created_at
       ? new Date(userProfile.created_at).toLocaleDateString('en-US', {
           year: 'numeric',
@@ -192,6 +241,17 @@ export async function generateMetadata({ params }: ProfilePageProps) {
         title: 'User Not Found | Idling.app',
         description: 'The requested user profile could not be found.',
         robots: 'noindex, nofollow' // Don't index not found pages
+      };
+    }
+
+    // Check if profile is private
+    const isPrivateProfile = userProfile.profile_public === false;
+
+    if (isPrivateProfile) {
+      return {
+        title: 'Private Profile | Idling.app',
+        description: 'This user has set their profile to private.',
+        robots: 'noindex, nofollow' // Don't index private profiles
       };
     }
 
