@@ -21,6 +21,9 @@ const logger = createLogger({
 
 export type SpacingTheme = 'cozy' | 'compact';
 export type PaginationMode = 'traditional' | 'infinite';
+export type EmojiPanelBehavior = 'close_after_select' | 'stay_open';
+export type FontOption = 'monospace' | 'default';
+export type ProfileVisibility = 'public' | 'private';
 
 interface UserPreferencesContextType {
   // Spacing theme
@@ -31,13 +34,31 @@ interface UserPreferencesContextType {
   paginationMode: PaginationMode;
   setPaginationMode: (mode: PaginationMode) => Promise<void>;
 
+  // Emoji panel behavior
+  emojiPanelBehavior: EmojiPanelBehavior;
+  setEmojiPanelBehavior: (behavior: EmojiPanelBehavior) => Promise<void>;
+
+  // Font preference
+  fontPreference: FontOption;
+  setFontPreference: (font: FontOption) => Promise<void>;
+
+  // Profile visibility
+  profileVisibility: ProfileVisibility;
+  setProfileVisibility: (visibility: ProfileVisibility) => Promise<void>;
+
   // Loading states
   isUpdatingSpacingTheme: boolean;
   isUpdatingPaginationMode: boolean;
+  isUpdatingEmojiPanelBehavior: boolean;
+  isUpdatingFontPreference: boolean;
+  isUpdatingProfileVisibility: boolean;
 
   // Error states
   spacingThemeError: string | null;
   paginationModeError: string | null;
+  emojiPanelBehaviorError: string | null;
+  fontPreferenceError: string | null;
+  profileVisibilityError: string | null;
 }
 
 const UserPreferencesContext = createContext<
@@ -51,10 +72,22 @@ export function UserPreferencesProvider({ children }: { children: ReactNode }) {
   const [spacingTheme, setSpacingThemeState] = useState<SpacingTheme>('cozy');
   const [paginationMode, setPaginationModeState] =
     useState<PaginationMode>('traditional');
+  const [emojiPanelBehavior, setEmojiPanelBehaviorState] =
+    useState<EmojiPanelBehavior>('close_after_select');
+  const [fontPreference, setFontPreferenceState] =
+    useState<FontOption>('default');
+  const [profileVisibility, setProfileVisibilityState] =
+    useState<ProfileVisibility>('public');
 
   // Loading states
   const [isUpdatingSpacingTheme, setIsUpdatingSpacingTheme] = useState(false);
   const [isUpdatingPaginationMode, setIsUpdatingPaginationMode] =
+    useState(false);
+  const [isUpdatingEmojiPanelBehavior, setIsUpdatingEmojiPanelBehavior] =
+    useState(false);
+  const [isUpdatingFontPreference, setIsUpdatingFontPreference] =
+    useState(false);
+  const [isUpdatingProfileVisibility, setIsUpdatingProfileVisibility] =
     useState(false);
 
   // Error states
@@ -64,6 +97,45 @@ export function UserPreferencesProvider({ children }: { children: ReactNode }) {
   const [paginationModeError, setPaginationModeError] = useState<string | null>(
     null
   );
+  const [emojiPanelBehaviorError, setEmojiPanelBehaviorError] = useState<
+    string | null
+  >(null);
+  const [fontPreferenceError, setFontPreferenceError] = useState<string | null>(
+    null
+  );
+  const [profileVisibilityError, setProfileVisibilityError] = useState<
+    string | null
+  >(null);
+
+  // Apply font preference to document
+  const applyFont = useCallback((font: FontOption) => {
+    if (typeof window === 'undefined') return;
+
+    try {
+      const root = document.documentElement;
+
+      if (font === 'monospace') {
+        root.style.setProperty(
+          '--app-font-family',
+          "'Fira Code', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji', monospace"
+        );
+      } else {
+        root.style.setProperty(
+          '--app-font-family',
+          "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji'"
+        );
+      }
+
+      logger.debug('Applied font preference', { font });
+    } catch (error) {
+      logger.error('Failed to apply font preference', error as Error, { font });
+    }
+  }, []);
+
+  // Apply font preference whenever it changes
+  useEffect(() => {
+    applyFont(fontPreference);
+  }, [fontPreference, applyFont]);
 
   // Initialize preferences from user profile or localStorage
   useEffect(() => {
@@ -81,10 +153,28 @@ export function UserPreferencesProvider({ children }: { children: ReactNode }) {
         setPaginationModeState(userProfile.pagination_mode);
       }
 
+      if (userProfile.emoji_panel_behavior) {
+        setEmojiPanelBehaviorState(userProfile.emoji_panel_behavior);
+      }
+
+      if (userProfile.font_preference) {
+        setFontPreferenceState(userProfile.font_preference);
+      }
+
+      if (userProfile.profile_public !== undefined) {
+        setProfileVisibilityState(
+          userProfile.profile_public ? 'public' : 'private'
+        );
+      }
+
       logger.debug('Loaded user preferences from profile', {
         userId: session.user.id,
         spacingTheme: userProfile.spacing_theme || 'cozy',
-        paginationMode: userProfile.pagination_mode || 'traditional'
+        paginationMode: userProfile.pagination_mode || 'traditional',
+        emojiPanelBehavior:
+          userProfile.emoji_panel_behavior || 'close_after_select',
+        fontPreference: userProfile.font_preference || 'default',
+        profileVisibility: userProfile.profile_public ? 'public' : 'private'
       });
     } else {
       // User is not authenticated - use localStorage
@@ -104,9 +194,31 @@ export function UserPreferencesProvider({ children }: { children: ReactNode }) {
           setPaginationModeState('traditional');
         }
 
+        const savedEmojiPanelBehavior = localStorage.getItem(
+          'emoji-panel-behavior-global'
+        );
+        if (
+          savedEmojiPanelBehavior === 'stay_open' ||
+          savedEmojiPanelBehavior === 'close_after_select'
+        ) {
+          setEmojiPanelBehaviorState(savedEmojiPanelBehavior);
+        }
+
+        const savedFontPreference = localStorage.getItem(
+          'font-preference-global'
+        );
+        if (
+          savedFontPreference === 'monospace' ||
+          savedFontPreference === 'default'
+        ) {
+          setFontPreferenceState(savedFontPreference);
+        }
+
         logger.debug('Loaded preferences from localStorage', {
           spacingTheme: savedSpacingTheme || 'cozy',
-          paginationMode: savedPaginationMode || 'traditional'
+          paginationMode: savedPaginationMode || 'traditional',
+          emojiPanelBehavior: savedEmojiPanelBehavior || 'close_after_select',
+          fontPreference: savedFontPreference || 'default'
         });
       }
     }
@@ -234,6 +346,151 @@ export function UserPreferencesProvider({ children }: { children: ReactNode }) {
     [session]
   );
 
+  // Function to update emoji panel behavior
+  const setEmojiPanelBehavior = useCallback(
+    async (newBehavior: EmojiPanelBehavior) => {
+      setIsUpdatingEmojiPanelBehavior(true);
+      setEmojiPanelBehaviorError(null);
+
+      try {
+        if (session?.user?.id) {
+          // Update in database for authenticated user
+          const result = await updateUserPreferencesAction(session.user.id, {
+            emoji_panel_behavior: newBehavior
+          });
+
+          if (!result.success) {
+            throw new Error(
+              result.error || 'Failed to update emoji panel behavior'
+            );
+          }
+
+          logger.debug('Updated emoji panel behavior in database', {
+            userId: session.user.id,
+            newBehavior
+          });
+        } else {
+          // Update in localStorage for anonymous user
+          if (typeof window !== 'undefined') {
+            localStorage.setItem('emoji-panel-behavior-global', newBehavior);
+
+            logger.debug('Updated emoji panel behavior in localStorage', {
+              newBehavior
+            });
+          }
+        }
+
+        setEmojiPanelBehaviorState(newBehavior);
+      } catch (error) {
+        logger.error('Failed to update emoji panel behavior', error as Error, {
+          userId: session?.user?.id,
+          newBehavior
+        });
+        setEmojiPanelBehaviorError(
+          error instanceof Error
+            ? error.message
+            : 'Failed to update emoji panel behavior'
+        );
+      } finally {
+        setIsUpdatingEmojiPanelBehavior(false);
+      }
+    },
+    [session]
+  );
+
+  // Function to update font preference
+  const setFontPreference = useCallback(
+    async (newFont: FontOption) => {
+      setIsUpdatingFontPreference(true);
+      setFontPreferenceError(null);
+
+      try {
+        if (session?.user?.id) {
+          // Update in database for authenticated user
+          const result = await updateUserPreferencesAction(session.user.id, {
+            font_preference: newFont
+          });
+
+          if (!result.success) {
+            throw new Error(result.error || 'Failed to update font preference');
+          }
+
+          logger.debug('Updated font preference in database', {
+            userId: session.user.id,
+            newFont
+          });
+        } else {
+          // Update in localStorage for anonymous user
+          if (typeof window !== 'undefined') {
+            localStorage.setItem('font-preference-global', newFont);
+
+            logger.debug('Updated font preference in localStorage', {
+              newFont
+            });
+          }
+        }
+
+        setFontPreferenceState(newFont);
+      } catch (error) {
+        logger.error('Failed to update font preference', error as Error, {
+          userId: session?.user?.id,
+          newFont
+        });
+        setFontPreferenceError(
+          error instanceof Error
+            ? error.message
+            : 'Failed to update font preference'
+        );
+      } finally {
+        setIsUpdatingFontPreference(false);
+      }
+    },
+    [session]
+  );
+
+  // Function to update profile visibility
+  const setProfileVisibility = useCallback(
+    async (newVisibility: ProfileVisibility) => {
+      setIsUpdatingProfileVisibility(true);
+      setProfileVisibilityError(null);
+
+      try {
+        if (session?.user?.id) {
+          // Update in database for authenticated user
+          const result = await updateUserPreferencesAction(session.user.id, {
+            profile_public: newVisibility === 'public'
+          });
+
+          if (!result.success) {
+            throw new Error(
+              result.error || 'Failed to update profile visibility'
+            );
+          }
+
+          logger.debug('Updated profile visibility in database', {
+            userId: session.user.id,
+            newVisibility
+          });
+        }
+
+        setProfileVisibilityState(newVisibility);
+      } catch (error) {
+        logger.error('Failed to update profile visibility', error as Error, {
+          userId: session?.user?.id,
+          newVisibility
+        });
+        setProfileVisibilityError(
+          error instanceof Error
+            ? error.message
+            : 'Failed to update profile visibility'
+        );
+      } finally {
+        setIsUpdatingProfileVisibility(false);
+      }
+    },
+    [session]
+  );
+
   return (
     <UserPreferencesContext.Provider
       value={{
@@ -241,10 +498,22 @@ export function UserPreferencesProvider({ children }: { children: ReactNode }) {
         setSpacingTheme,
         paginationMode,
         setPaginationMode,
+        emojiPanelBehavior,
+        setEmojiPanelBehavior,
+        fontPreference,
+        setFontPreference,
+        profileVisibility,
+        setProfileVisibility,
         isUpdatingSpacingTheme,
         isUpdatingPaginationMode,
+        isUpdatingEmojiPanelBehavior,
+        isUpdatingFontPreference,
+        isUpdatingProfileVisibility,
         spacingThemeError,
-        paginationModeError
+        paginationModeError,
+        emojiPanelBehaviorError,
+        fontPreferenceError,
+        profileVisibilityError
       }}
     >
       <div className={`spacing-theme-${spacingTheme}`}>{children}</div>
@@ -290,5 +559,50 @@ export function usePaginationMode() {
     setMode: setPaginationMode,
     isUpdating: isUpdatingPaginationMode,
     error: paginationModeError
+  };
+}
+
+export function useEmojiPanelBehavior() {
+  const {
+    emojiPanelBehavior,
+    setEmojiPanelBehavior,
+    isUpdatingEmojiPanelBehavior,
+    emojiPanelBehaviorError
+  } = useUserPreferences();
+  return {
+    behavior: emojiPanelBehavior,
+    setBehavior: setEmojiPanelBehavior,
+    isUpdating: isUpdatingEmojiPanelBehavior,
+    error: emojiPanelBehaviorError
+  };
+}
+
+export function useFontPreference() {
+  const {
+    fontPreference,
+    setFontPreference,
+    isUpdatingFontPreference,
+    fontPreferenceError
+  } = useUserPreferences();
+  return {
+    preference: fontPreference,
+    setPreference: setFontPreference,
+    isUpdating: isUpdatingFontPreference,
+    error: fontPreferenceError
+  };
+}
+
+export function useProfileVisibility() {
+  const {
+    profileVisibility,
+    setProfileVisibility,
+    isUpdatingProfileVisibility,
+    profileVisibilityError
+  } = useUserPreferences();
+  return {
+    visibility: profileVisibility,
+    setVisibility: setProfileVisibility,
+    isUpdating: isUpdatingProfileVisibility,
+    error: profileVisibilityError
   };
 }

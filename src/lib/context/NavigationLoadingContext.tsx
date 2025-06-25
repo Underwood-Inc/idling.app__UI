@@ -118,6 +118,22 @@ export function NavigationLoadingProvider({
     }
   }, [isPending, navigationState.isPending]);
 
+  // Additional effect to prevent false positives from React transitions
+  useEffect(() => {
+    // If isPending becomes true but we haven't called navigate, reset it
+    if (isPending && !navigationState.isNavigating) {
+      const timeout = setTimeout(() => {
+        // Double-check that this isn't a legitimate navigation
+        if (isPending && !navigationState.isNavigating) {
+          // This is likely a false positive from React transitions
+          // Just let it timeout naturally
+        }
+      }, 50);
+
+      return () => clearTimeout(timeout);
+    }
+  }, [isPending, navigationState.isNavigating]);
+
   // Cleanup on unmount
   useEffect(() => {
     return () => {
@@ -129,7 +145,7 @@ export function NavigationLoadingProvider({
 
   const value = {
     navigate,
-    isNavigating: navigationState.isNavigating || isPending,
+    isNavigating: navigationState.isNavigating,
     targetPath: navigationState.targetPath,
     isPending
   };

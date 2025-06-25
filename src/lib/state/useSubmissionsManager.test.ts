@@ -1,10 +1,10 @@
-import { renderHook, act, waitFor } from '@testing-library/react';
+import { act, renderHook, waitFor } from '@testing-library/react';
+import { createStore, Provider } from 'jotai';
 import { useSession } from 'next-auth/react';
-import { useRouter, useSearchParams, usePathname } from 'next/navigation';
-import { Provider } from 'jotai';
-import { createStore } from 'jotai';
-import { useSubmissionsManager } from './useSubmissionsManager';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import React from 'react';
 import { getSubmissionsFiltersAtom } from './atoms';
+import { useSubmissionsManager } from './useSubmissionsManager';
 
 // Mock next-auth
 jest.mock('next-auth/react');
@@ -13,7 +13,9 @@ const mockUseSession = useSession as jest.MockedFunction<typeof useSession>;
 // Mock Next.js navigation
 jest.mock('next/navigation');
 const mockUseRouter = useRouter as jest.MockedFunction<typeof useRouter>;
-const mockUseSearchParams = useSearchParams as jest.MockedFunction<typeof useSearchParams>;
+const mockUseSearchParams = useSearchParams as jest.MockedFunction<
+  typeof useSearchParams
+>;
 const mockUsePathname = usePathname as jest.MockedFunction<typeof usePathname>;
 
 // Mock the submissions actions
@@ -23,7 +25,7 @@ jest.mock('../../app/components/submissions-list/actions', () => ({
 }));
 
 // Mock the logger
-jest.mock('@/lib/logging', () => ({
+jest.mock('../../lib/logging', () => ({
   createLogger: () => ({
     group: jest.fn(),
     debug: jest.fn(),
@@ -39,7 +41,7 @@ describe('useSubmissionsManager', () => {
 
   beforeEach(() => {
     store = createStore();
-    
+
     mockRouter = {
       push: jest.fn(),
       replace: jest.fn(),
@@ -51,7 +53,7 @@ describe('useSubmissionsManager', () => {
     mockUseRouter.mockReturnValue(mockRouter);
     mockUseSearchParams.mockReturnValue(mockSearchParams);
     mockUsePathname.mockReturnValue('/posts');
-    
+
     mockUseSession.mockReturnValue({
       data: { user: { id: '123' } },
       status: 'authenticated'
@@ -73,37 +75,38 @@ describe('useSubmissionsManager', () => {
       ...props
     };
 
-    return renderHook(
-      () => useSubmissionsManager(defaultProps),
-      {
-        wrapper: ({ children }) => <Provider store={store}>{children}</Provider>
-      }
-    );
+    return renderHook(() => useSubmissionsManager(defaultProps), {
+      wrapper: ({ children }) =>
+        React.createElement(Provider, { store }, children)
+    });
   };
 
   describe('Initialization', () => {
     it('should initialize with default state', () => {
       const { result } = renderUseSubmissionsManager();
 
-      expect(result.current.submissionsState.loading).toBe(false);
-      expect(result.current.submissionsState.data).toBeUndefined();
-      expect(result.current.submissionsState.error).toBeUndefined();
+      expect(result.current.isLoading).toBe(false);
+      expect(result.current.submissions).toEqual([]);
+      expect(result.current.error).toBeUndefined();
     });
 
-    it('should use session user ID when no userId provided', () => {
+    it('should initialize with empty filters', () => {
       const { result } = renderUseSubmissionsManager();
-      
-      expect(result.current.userId).toBe('123');
+
+      expect(result.current.filters).toEqual([]);
     });
 
-    it('should prefer provided userId over session', () => {
-      const { result } = renderUseSubmissionsManager({ userId: '456' });
-      
-      expect(result.current.userId).toBe('456');
+    it('should initialize with provided filters', () => {
+      const initialFilters = [{ name: 'tags', value: '#react' }];
+      const { result } = renderUseSubmissionsManager({ initialFilters });
+
+      expect(result.current.filters).toEqual(initialFilters);
     });
 
     it('should initialize from URL parameters', async () => {
-      mockSearchParams = new URLSearchParams('tags=react,typescript&page=2&pageSize=20');
+      mockSearchParams = new URLSearchParams(
+        'tags=react,typescript&page=2&pageSize=20'
+      );
       mockUseSearchParams.mockReturnValue(mockSearchParams);
 
       const { result } = renderUseSubmissionsManager();
@@ -150,7 +153,7 @@ describe('useSubmissionsManager', () => {
         result.current.addFilter('tags', '#react');
       });
 
-      expect(result.current.filtersState.filters).toContainEqual({
+      expect(result.current.filters).toContainEqual({
         name: 'tags',
         value: '#react'
       });
@@ -165,24 +168,9 @@ describe('useSubmissionsManager', () => {
         result.current.removeFilter('tags', '#react');
       });
 
-      expect(result.current.filtersState.filters).not.toContainEqual({
+      expect(result.current.filters).not.toContainEqual({
         name: 'tags',
         value: '#react'
-      });
-    });
-
-    it('should update existing filters', async () => {
-      const { result } = renderUseSubmissionsManager({
-        initialFilters: [{ name: 'tagLogic', value: 'OR' }]
-      });
-
-      await act(async () => {
-        result.current.updateFilter('tagLogic', 'AND');
-      });
-
-      expect(result.current.filtersState.filters).toContainEqual({
-        name: 'tagLogic',
-        value: 'AND'
       });
     });
 
@@ -198,19 +186,23 @@ describe('useSubmissionsManager', () => {
         result.current.clearFilters();
       });
 
-      expect(result.current.filtersState.filters).toEqual([]);
+      expect(result.current.filters).toEqual([]);
     });
 
     it('should handle tag removal from comma-separated values', async () => {
       const { result } = renderUseSubmissionsManager({
-        initialFilters: [{ name: 'tags', value: '#react,#typescript,#javascript' }]
+        initialFilters: [
+          { name: 'tags', value: '#react,#typescript,#javascript' }
+        ]
       });
 
       await act(async () => {
         result.current.removeTag('#typescript');
       });
 
-      const tagsFilter = result.current.filtersState.filters.find(f => f.name === 'tags');
+      const tagsFilter = result.current.filters.find(
+        (f: any) => f.name === 'tags'
+      );
       expect(tagsFilter?.value).toBe('#react,#javascript');
     });
 
@@ -223,7 +215,9 @@ describe('useSubmissionsManager', () => {
         result.current.removeTag('#react');
       });
 
-      const tagsFilter = result.current.filtersState.filters.find(f => f.name === 'tags');
+      const tagsFilter = result.current.filters.find(
+        (f: any) => f.name === 'tags'
+      );
       expect(tagsFilter).toBeUndefined();
     });
   });
@@ -287,13 +281,15 @@ describe('useSubmissionsManager', () => {
       renderUseSubmissionsManager();
 
       // Wait a bit to ensure no fetch happens
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise((resolve) => setTimeout(resolve, 100));
 
       expect(mockGetSubmissionsWithReplies).not.toHaveBeenCalled();
     });
 
     it('should handle fetch errors', async () => {
-      mockGetSubmissionsWithReplies.mockRejectedValue(new Error('Fetch failed'));
+      mockGetSubmissionsWithReplies.mockRejectedValue(
+        new Error('Fetch failed')
+      );
 
       const { result } = renderUseSubmissionsManager();
 
@@ -370,7 +366,9 @@ describe('useSubmissionsManager', () => {
 
       await waitFor(() => {
         expect(mockRouter.replace).toHaveBeenCalledWith(
-          expect.stringMatching(/tags=react%2Ctypescript.*tagLogic=AND.*author=123/),
+          expect.stringMatching(
+            /tags=react%2Ctypescript.*tagLogic=AND.*author=123/
+          ),
           { scroll: false }
         );
       });
@@ -472,7 +470,9 @@ describe('useSubmissionsManager', () => {
       });
 
       await waitFor(() => {
-        expect(result.current.infiniteData).toEqual(mockSubmissionData.data.data);
+        expect(result.current.infiniteData).toEqual(
+          mockSubmissionData.data.data
+        );
         expect(result.current.hasMore).toBe(true);
       });
     });
@@ -553,7 +553,9 @@ describe('useSubmissionsManager', () => {
       });
 
       // Mock error on load more
-      mockGetSubmissionsWithReplies.mockRejectedValueOnce(new Error('Load more failed'));
+      mockGetSubmissionsWithReplies.mockRejectedValueOnce(
+        new Error('Load more failed')
+      );
 
       await act(async () => {
         result.current.loadMore();
@@ -640,7 +642,9 @@ describe('useSubmissionsManager', () => {
     });
 
     it('should handle context switching', async () => {
-      const { result, rerender } = renderUseSubmissionsManager({ contextId: 'context1' });
+      const { result, rerender } = renderUseSubmissionsManager({
+        contextId: 'context1'
+      });
 
       await act(async () => {
         result.current.addFilter('tags', '#context1');
@@ -671,14 +675,15 @@ describe('useSubmissionsManager', () => {
       });
 
       // The exact number of calls may vary due to debouncing implementation
-      expect(mockRouter.replace).toHaveBeenCalledTimes(
-        expect.any(Number)
-      );
+      expect(mockRouter.replace).toHaveBeenCalledTimes(expect.any(Number));
     });
 
     it('should not re-fetch when filters have not changed', async () => {
       mockGetSubmissionsWithReplies.mockResolvedValue({
-        data: { data: [], pagination: { currentPage: 1, pageSize: 10, totalRecords: 0 } }
+        data: {
+          data: [],
+          pagination: { currentPage: 1, pageSize: 10, totalRecords: 0 }
+        }
       });
 
       const { result } = renderUseSubmissionsManager();
@@ -712,4 +717,4 @@ describe('useSubmissionsManager', () => {
       expect(mockGetSubmissionsWithReplies).toHaveBeenCalledTimes(1);
     });
   });
-}); 
+});

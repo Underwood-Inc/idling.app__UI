@@ -443,19 +443,48 @@ export function useSubmissionsManager({
       logger.debug('removeFilter called', { filterName, filterValue });
 
       setFiltersState((prevState) => {
-        const newFilters = prevState.filters.filter((filter) => {
-          if (filterValue) {
-            return !(
-              filter.name === filterName && filter.value === filterValue
-            );
-          }
-          return filter.name !== filterName;
-        });
+        const newFilters = prevState.filters
+          .map((filter) => {
+            if (filter.name === filterName) {
+              if (!filterValue) {
+                // Remove entire filter if no specific value provided
+                return null;
+              }
+
+              // Handle comma-separated values for author/mentions filters
+              if (filterName === 'author' || filterName === 'mentions') {
+                const currentValues = filter.value
+                  .split(',')
+                  .map((value) => value.trim())
+                  .filter(Boolean);
+
+                const updatedValues = currentValues.filter(
+                  (value) => value !== filterValue
+                );
+
+                if (updatedValues.length === 0) {
+                  return null; // Remove the entire filter
+                }
+
+                return {
+                  ...filter,
+                  value: updatedValues.join(',')
+                };
+              } else {
+                // For other filter types, use exact match
+                return filter.value === filterValue ? null : filter;
+              }
+            }
+            return filter;
+          })
+          .filter((filter): filter is Filter<PostFilters> => filter !== null);
 
         logger.debug('removeFilter result', {
           originalCount: prevState.filters.length,
           newCount: newFilters.length,
-          removed: prevState.filters.length - newFilters.length
+          removed: prevState.filters.length - newFilters.length,
+          filterName,
+          filterValue
         });
 
         return {
@@ -483,12 +512,17 @@ export function useSubmissionsManager({
                 .map((tag) => tag.trim())
                 .filter(Boolean);
 
-              const cleanTagToRemove = tagToRemove.startsWith('#')
-                ? tagToRemove
-                : `#${tagToRemove}`;
+              // Handle both formats: with and without # prefix
+              // Try to match the tag as-is first, then try with/without # prefix
+              const tagVariants = [
+                tagToRemove,
+                tagToRemove.startsWith('#')
+                  ? tagToRemove.slice(1)
+                  : `#${tagToRemove}`
+              ];
 
               const updatedTags = currentTags.filter(
-                (tag) => tag !== cleanTagToRemove
+                (tag) => !tagVariants.includes(tag)
               );
 
               if (updatedTags.length === 0) {
