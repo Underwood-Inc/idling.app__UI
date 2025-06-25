@@ -1,23 +1,12 @@
 /* eslint-disable custom-rules/enforce-link-target-blank */
-import { redirect } from 'next/navigation';
 import { NAV_SELECTORS } from 'src/lib/test-selectors/components/nav.selectors';
 import { auth } from '../../../lib/auth';
 import { NAV_PATHS } from '../../../lib/routes';
 import { SignOut } from '../auth-buttons/AuthButtons';
-import { FontPicker } from '../font-picker/FontPicker';
 import { InstantLink } from '../ui/InstantLink';
 import { NavUserProfile } from './NavUserProfile';
 
-interface NavAuthProps {
-  hasAdminAccess: boolean;
-}
-
-async function redirectToSignIn() {
-  'use server';
-  redirect(NAV_PATHS.SIGNIN);
-}
-
-export async function NavAuth({ hasAdminAccess }: NavAuthProps) {
+export async function NavAuth() {
   const session = await auth();
 
   if (!session) {
@@ -46,19 +35,7 @@ export async function NavAuth({ hasAdminAccess }: NavAuthProps) {
           </div>
         </InstantLink>
       </div>
-      {hasAdminAccess && (
-        <div className="nav__auth-links">
-          <InstantLink
-            href={NAV_PATHS.ADMIN}
-            data-testid={NAV_SELECTORS.ADMIN_LINK}
-          >
-            <span className="nav__admin-text">ADMIN</span>
-          </InstantLink>
-        </div>
-      )}
-      <div className="nav__font-picker">
-        <FontPicker />
-      </div>
+
       <SignOut data-testid={NAV_SELECTORS.SIGN_OUT_BUTTON} />
     </div>
   );

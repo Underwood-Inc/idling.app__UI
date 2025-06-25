@@ -1,8 +1,6 @@
 /* eslint-disable custom-rules/enforce-link-target-blank */
 import { unstable_noStore as noStore } from 'next/cache';
 import { NAV_SELECTORS } from 'src/lib/test-selectors/components/nav.selectors';
-import { auth } from '../../../lib/auth';
-import { requireAdmin } from '../../../lib/permissions/permissions';
 import { NAV_PATHS } from '../../../lib/routes';
 import { Navbar } from '../navbar/Navbar';
 import { InstantLink } from '../ui/InstantLink';
@@ -13,9 +11,6 @@ import { NavPaths } from './NavPaths';
 export default async function Nav() {
   // Prevent caching to ensure fresh permission checks
   noStore();
-
-  const session = await auth();
-  const hasAdminAccess = await requireAdmin();
 
   return (
     <Navbar>
@@ -40,7 +35,7 @@ export default async function Nav() {
 
         <Navbar.Content justify="end" className="nav--as-flex-end">
           <Navbar.Item className="nav__auth">
-            <NavAuth hasAdminAccess={hasAdminAccess} />
+            <NavAuth />
           </Navbar.Item>
         </Navbar.Content>
       </Navbar.Body>
