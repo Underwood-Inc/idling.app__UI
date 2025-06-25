@@ -148,15 +148,118 @@ const {
   workerData
 } = require('worker_threads');
 
-// Import faker and chalk
+// Import faker and initialize chalk synchronously
 let faker, chalk;
-try {
-  faker = require('@faker-js/faker').faker;
-  chalk = require('chalk');
-} catch (error) {
-  console.error('❌ Missing dependencies. Please install:');
-  console.error('npm install @faker-js/faker chalk');
-  process.exit(1);
+
+// Initialize chalk immediately with comprehensive fallback
+function initializeChalk() {
+  // Since chalk v5 is ESM-only, we need fallback functions
+  console.log('Setting up chalk fallback functions for ESM compatibility');
+  const noColorFn = (str) => str;
+
+  // Create a comprehensive chalk fallback object
+  const chalkFallback = {
+    red: noColorFn,
+    green: noColorFn,
+    yellow: noColorFn,
+    blue: noColorFn,
+    cyan: noColorFn,
+    magenta: noColorFn,
+    white: noColorFn,
+    gray: noColorFn,
+    dim: noColorFn,
+    bold: Object.assign(noColorFn, {
+      green: noColorFn,
+      yellow: noColorFn,
+      cyan: noColorFn,
+      red: noColorFn,
+      blue: noColorFn,
+      magenta: noColorFn,
+      gray: noColorFn,
+      white: noColorFn
+    })
+  };
+
+  // Try CommonJS first, but expect it to fail with chalk v5
+  try {
+    chalk = require('chalk');
+    console.log('✅ Using CommonJS chalk (v4 or earlier)');
+  } catch (chalkError) {
+    console.log('📝 Using chalk fallback functions (chalk v5+ ESM detected)');
+    chalk = chalkFallback;
+  }
+}
+
+// Initialize chalk immediately
+initializeChalk();
+
+async function initializeDependencies() {
+  console.log('🔧 Initializing dependencies...');
+
+  try {
+    // Import faker with proper error handling
+    try {
+      const fakerModule = require('@faker-js/faker');
+      faker = fakerModule.faker || fakerModule;
+      console.log('✅ Faker.js loaded successfully');
+    } catch (fakerError) {
+      console.error('❌ Could not load @faker-js/faker:', fakerError.message);
+      console.error('Please install: npm install @faker-js/faker');
+      process.exit(1);
+    }
+
+    // Check if chalk is working properly and try to upgrade if needed
+    try {
+      // Test if chalk.red is actually a function
+      if (typeof chalk.red === 'function') {
+        console.log('✅ Chalk is working properly');
+      } else {
+        throw new Error('chalk.red is not a function');
+      }
+    } catch (chalkTestError) {
+      console.log('📝 Chalk not working properly, trying ESM import...');
+      try {
+        const chalkModule = await import('chalk');
+        chalk = chalkModule.default || chalkModule;
+        console.log('✅ Upgraded to ESM chalk');
+
+        // Test again
+        if (typeof chalk.red !== 'function') {
+          throw new Error('ESM chalk also not working');
+        }
+      } catch (importError) {
+        console.log('📝 ESM chalk failed, reverting to fallback functions');
+        // Revert to fallback
+        const noColorFn = (str) => str;
+        chalk = {
+          red: noColorFn,
+          green: noColorFn,
+          yellow: noColorFn,
+          blue: noColorFn,
+          cyan: noColorFn,
+          magenta: noColorFn,
+          white: noColorFn,
+          gray: noColorFn,
+          dim: noColorFn,
+          bold: Object.assign(noColorFn, {
+            green: noColorFn,
+            yellow: noColorFn,
+            cyan: noColorFn,
+            red: noColorFn,
+            blue: noColorFn,
+            magenta: noColorFn,
+            gray: noColorFn,
+            white: noColorFn
+          })
+        };
+      }
+    }
+
+    console.log('✅ All dependencies initialized');
+  } catch (error) {
+    console.error('❌ Dependency initialization failed:', error.message);
+    process.exit(1);
+  }
 }
 
 // ================================
@@ -2846,6 +2949,9 @@ async function main() {
   const startTime = Date.now();
 
   try {
+    // Initialize dependencies first
+    await initializeDependencies();
+
     // Validate database schema before proceeding
     await validateDatabaseSchema();
 
