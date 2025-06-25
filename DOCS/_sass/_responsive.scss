@@ -1,0 +1,33 @@
+// Responsive Design
+// Media queries and responsive styling
+
+// Responsive design
+@media (max-width: 768px) {
+  h1 {
+    font-size: var(--text-3xl);
+  }
+  
+  h2 {
+    font-size: var(--text-2xl);
+  }
+  
+  pre {
+    padding: var(--space-lg) !important;
+    margin: var(--space-lg) 0 !important;
+  }
+  
+  table {
+    font-size: var(--text-sm);
+    
+    th, td {
+      padding: var(--space-md);
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  pre {
+    padding: var(--space-md) !important;
+    border-radius: var(--radius-md) !important;
+  }
+} 

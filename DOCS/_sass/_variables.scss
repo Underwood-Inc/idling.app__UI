@@ -1,0 +1,81 @@
+// Variables and Color Definitions
+// Enhanced dark theme for Idling.app Documentation
+
+// Color Variables - Matching main app EXACTLY
+:root {
+  // Exact colors from main app globals.css
+  --hunyadi-yellow: #edae49;
+  --dark-goldenrod: #c68214;
+  --jasmine: #f9df74;
+  --jonquil: #f5c60c;
+  --cornflower-blue: #748ef9;
+  --han-purple: #0c3bf5;
+  --cornsilk: #f9edcc;
+  --saffron: #ebc253;
+  --chili-red: #ea2b1f;
+  --rufous: #aa1a10;
+  --seal-brown: #61210f;
+  --black-bean: #44170b;
+  --sea-of-stars: #0b3844;
+  
+  // Enhanced dark theme backgrounds
+  --dark-bg-primary: #1a1611;
+  --dark-bg-secondary: #252017;
+  --dark-bg-tertiary: #2f2a1d;
+  --dark-bg-quaternary: #3a3323;
+  --dark-bg-quinary: #443d29;
+  --dark-bg-code: #1e1b16;
+  --dark-bg-code-light: #2a2520;
+  
+  // Enhanced text colors
+  --text-primary: #ffffff;
+  --text-secondary: #e6e6e6;
+  --text-tertiary: #cccccc;
+  --text-muted: #999999;
+  --text-code: #f8f8f2;
+  
+  // Enhanced border colors
+  --border-primary: #4a4a4a;
+  --border-secondary: #333333;
+  --border-code: #555555;
+  --border-accent: var(--hunyadi-yellow);
+  
+  // Enhanced link colors
+  --link-primary: var(--hunyadi-yellow);
+  --link-hover: var(--jasmine);
+  --link-visited: var(--saffron);
+  
+  // Font stacks with Fira Code VF support
+  --font-family-base: 'Fira Code VF', 'Fira Code', 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
+  --font-family-headings: var(--font-family-base);
+  --font-family-code: 'Fira Code VF', 'Fira Code', 'SF Mono', 'Monaco', 'Consolas', 'Liberation Mono', 'Courier New', monospace;
+  
+  // Spacing scale
+  --space-xs: 0.25rem;
+  --space-sm: 0.5rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2rem;
+  --space-xxl: 3rem;
+  
+  // Typography scale
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.25rem;
+  --text-2xl: 1.5rem;
+  --text-3xl: 1.875rem;
+  --text-4xl: 2.25rem;
+  
+  // Border radius
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  
+  // Shadows
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+} 

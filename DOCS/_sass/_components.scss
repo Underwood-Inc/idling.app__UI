@@ -1,0 +1,234 @@
+// Components
+// Navigation loader and search functionality
+
+// NAVIGATION PROGRESS LOADER - matches main app styling
+.nav-progress {
+  position: fixed;
+  inset-block-start: 0;
+  inset-inline-start: 0;
+  inset-inline-end: 0;
+  height: 3px;
+  z-index: 9999;
+  background: transparent;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s ease, visibility 0.2s ease;
+}
+
+.nav-progress--active {
+  opacity: 1;
+  visibility: visible;
+}
+
+.nav-progress__bar {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, var(--hunyadi-yellow), var(--jasmine), var(--cornflower-blue));
+  background-size: 200% 100%;
+  animation: nav-progress-shimmer 1.5s ease-in-out infinite;
+  transition: width 0.3s ease;
+  border-radius: 0 3px 3px 0;
+  box-shadow: 0 0 10px rgba(237, 174, 73, 0.6);
+}
+
+.nav-progress__spinner {
+  position: absolute;
+  inset-block-start: 50%;
+  inset-inline-end: 10px;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.nav-progress--active .nav-progress__spinner {
+  opacity: 1;
+}
+
+.nav-progress__spinner-icon {
+  color: var(--hunyadi-yellow);
+  animation: nav-progress-spin 1s linear infinite;
+  filter: drop-shadow(0 0 4px rgba(237, 174, 73, 0.4));
+}
+
+@keyframes nav-progress-shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes nav-progress-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+// Enhanced progress bar for different loading states
+.nav-progress__bar--fast {
+  animation: nav-progress-shimmer 0.8s ease-in-out infinite;
+}
+
+.nav-progress__bar--slow {
+  animation: nav-progress-shimmer 2s ease-in-out infinite;
+}
+
+// SEARCH SECTION STYLING
+.search-section {
+  background: linear-gradient(135deg, var(--dark-bg-secondary) 0%, var(--dark-bg-tertiary) 100%) !important;
+  border-block-end: 1px solid var(--border-secondary);
+  padding: 0;
+  position: relative;
+  overflow: visible; /* Changed from hidden to visible */
+  z-index: 1000; /* Added explicit z-index for the section */
+  
+  // Subtle background pattern
+  &::before {
+    content: '';
+    position: absolute;
+    inset-block-start: 0;
+    inset-inline-start: 0;
+    inset-inline-end: 0;
+    inset-block-end: 0;
+    background: radial-gradient(circle at 20% 80%, rgba(237, 174, 73, 0.03) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(116, 142, 249, 0.03) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: -1; /* Put background behind content */
+  }
+  
+  .wrapper {
+    position: relative;
+    z-index: 1001; /* Higher than section */
+  }
+}
+
+// SEARCH COMPONENT STYLING
+.search-container {
+  position: relative;
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: var(--space-sm) 0;
+  z-index: 1002; /* Ensure container is above everything */
+}
+
+.search-wrapper {
+  position: relative;
+  z-index: 1003; /* Wrapper needs to be even higher */
+}
+
+#search-input {
+  width: 100%;
+  padding: var(--space-md) var(--space-lg);
+  background-color: var(--dark-bg-primary) !important;
+  border: 2px solid var(--border-primary);
+  border-radius: var(--radius-md);
+  color: var(--text-primary) !important;
+  font-family: var(--font-family-code);
+  font-size: var(--text-base);
+  line-height: 1.4;
+  transition: all 0.3s ease;
+  box-shadow: var(--shadow-sm);
+  
+  &::placeholder {
+    color: var(--text-muted) !important;
+    font-style: italic;
+  }
+  
+  &:focus {
+    outline: none;
+    border-color: var(--hunyadi-yellow);
+    box-shadow: 0 0 0 3px rgba(237, 174, 73, 0.15), var(--shadow-md);
+    background-color: var(--dark-bg-secondary) !important;
+    transform: translateY(-1px);
+  }
+  
+  &:hover:not(:focus) {
+    border-color: var(--border-accent);
+    background-color: var(--dark-bg-secondary) !important;
+    box-shadow: var(--shadow-md);
+  }
+}
+
+.search-results {
+  position: absolute !important;
+  inset-block-start: 100% !important;
+  inset-inline-start: 0 !important;
+  inset-inline-end: 0 !important;
+  background-color: var(--dark-bg-secondary) !important;
+  border: 2px solid var(--hunyadi-yellow) !important; /* Made border more visible for debugging */
+  border-block-start: none !important;
+  border-radius: 0 0 var(--radius-lg) var(--radius-lg) !important;
+  max-height: 400px !important;
+  overflow-y: auto !important;
+  z-index: 99999 !important; /* Extremely high z-index */
+  display: none !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important; /* More prominent shadow */
+  
+  &.show {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
+  
+  // Custom scrollbar for search results
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: var(--dark-bg-tertiary);
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: var(--hunyadi-yellow);
+    border-radius: var(--radius-sm);
+  }
+}
+
+.search-result-item {
+  border-block-end: 1px solid var(--border-secondary);
+  
+  &:last-child {
+    border-block-end: none;
+  }
+  
+  &.active {
+    background-color: var(--dark-bg-tertiary) !important;
+  }
+}
+
+.search-result-link {
+  display: block;
+  padding: var(--space-lg);
+  color: var(--text-primary) !important;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    background-color: var(--dark-bg-tertiary) !important;
+    color: var(--hunyadi-yellow) !important;
+  }
+}
+
+.search-result-title {
+  font-weight: 600;
+  font-size: var(--text-base);
+  color: var(--hunyadi-yellow) !important;
+  margin-block-end: var(--space-xs);
+  font-family: var(--font-family-code);
+}
+
+.search-result-excerpt {
+  font-size: var(--text-sm);
+  color: var(--text-secondary) !important;
+  line-height: 1.5;
+  font-family: var(--font-family-code);
+}
+
+.search-no-results {
+  padding: var(--space-lg);
+  text-align: center;
+  color: var(--text-muted) !important;
+  font-style: italic;
+  font-family: var(--font-family-code);
+} 
