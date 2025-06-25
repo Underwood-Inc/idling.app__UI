@@ -52,6 +52,9 @@ WORKDIR /app
 # Copy package.json and yarn.lock first for better caching
 COPY package*.json yarn.lock ./
 
+# Copy custom eslint rules (needed for local package reference)
+COPY custom-eslint-rules/ ./custom-eslint-rules/
+
 # Install Node.js dependencies
 RUN yarn install --frozen-lockfile
 
