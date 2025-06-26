@@ -17,6 +17,7 @@ interface LinkTooltipProps {
   enableCtrlClick?: boolean;
   cacheDuration?: number;
   isInsideParagraph?: boolean;
+  className?: string;
 }
 
 export const LinkTooltip: React.FC<LinkTooltipProps> = ({
@@ -25,7 +26,8 @@ export const LinkTooltip: React.FC<LinkTooltipProps> = ({
   enableExtendedPreview = false,
   enableCtrlClick = false,
   cacheDuration,
-  isInsideParagraph = false
+  isInsideParagraph = false,
+  className
 }) => {
   const tooltipRef = useRef<HTMLDivElement>(null);
   const tooltipContentRef = useRef<HTMLDivElement>(null);
@@ -192,7 +194,7 @@ export const LinkTooltip: React.FC<LinkTooltipProps> = ({
         onMouseEnter={handlers.handleMouseEnter}
         onMouseLeave={handlers.handleMouseLeave}
         onClick={handleWrapperClick}
-        style={{ display: 'inline-block' }}
+        className={`${className} ${isInsideParagraph ? 'inline-block' : ''}`}
       >
         {children}
       </Wrapper>

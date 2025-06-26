@@ -12,7 +12,8 @@ const logger = createLogger({
   context: {
     component: 'HardResetManager',
     module: 'components/service-worker'
-  }
+  },
+  enabled: false
 });
 
 export function HardResetManager() {

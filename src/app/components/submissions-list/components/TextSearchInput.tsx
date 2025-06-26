@@ -1,216 +1,128 @@
 'use client';
 
-import { createLogger } from '@/lib/logging';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React from 'react';
+import { useFilterStatus, type FilterCounts } from './hooks/useFilterStatus';
+import { useTextSearchInput } from './hooks/useTextSearchInput';
+import { SearchInputContainer } from './SearchInputContainer';
+import { SearchStatus } from './SearchStatus';
 import './TextSearchInput.css';
-
-const logger = createLogger({
-  context: { component: 'TextSearchInput' }
-});
 
 export interface TextSearchInputProps {
   onSearch: (searchText: string) => void;
+  contextId?: string;
   placeholder?: string;
-  debounceMs?: number;
   minLength?: number;
   className?: string;
   initialValue?: string;
+  value?: string; // Controlled value
+  onChange?: (value: string) => void; // Controlled change handler
+  // Thread replies toggle
+  showThreadToggle?: boolean;
+  includeThreadReplies?: boolean;
+  onToggleThreadReplies?: (checked: boolean) => void;
+  isLoading?: boolean;
+  // Smart input features
+  enableSmartInput?: boolean;
+  onMentionClick?: (
+    mention: string,
+    filterType?: 'author' | 'mentions'
+  ) => void;
+  onPillClick?: (pill: string) => void;
+  // Filter management callbacks for smart input
+  onAddFilter?: (filter: any) => void;
+  onAddFilters?: (filters: any[]) => void;
+  onRemoveFilter?: (name: any, value?: any) => void;
+  onFilterSuccess?: () => void;
+  onClearFilters?: () => void;
+  // Enhanced filter information
+  filterCounts?: FilterCounts;
+  totalActiveFilters?: number;
 }
 
 export const TextSearchInput: React.FC<TextSearchInputProps> = ({
   onSearch,
-  placeholder = 'Search posts content...',
-  debounceMs = 300,
+  contextId,
+  placeholder = 'Search posts content... (or use @user #tag for filters)',
   minLength = 2,
   className = '',
-  initialValue = ''
+  initialValue = '',
+  value,
+  onChange,
+  showThreadToggle = false,
+  includeThreadReplies = false,
+  onToggleThreadReplies,
+  isLoading = false,
+  enableSmartInput = false,
+  onMentionClick,
+  onPillClick,
+  onAddFilter,
+  onAddFilters,
+  onRemoveFilter,
+  onFilterSuccess,
+  onClearFilters,
+  filterCounts,
+  totalActiveFilters
 }) => {
-  const [inputValue, setInputValue] = useState(initialValue);
-  const [isSearching, setIsSearching] = useState(false);
-  const [searchTerms, setSearchTerms] = useState<string[]>([]);
-  const debounceRef = useRef<ReturnType<typeof setTimeout>>();
-  const inputRef = useRef<HTMLInputElement>(null);
+  // Use custom hooks for logic
+  const searchInput = useTextSearchInput({
+    initialValue,
+    value,
+    onChange,
+    onSearch,
+    minLength
+  });
 
-  // Parse search terms from input
-  const parseSearchTerms = useCallback(
-    (text: string): string[] => {
-      return text
-        .trim()
-        .split(/\s+/)
-        .filter((term) => term.length >= minLength)
-        .map((term) => term.toLowerCase());
-    },
-    [minLength]
-  );
+  const filterStatus = useFilterStatus({
+    filterCounts,
+    totalActiveFilters,
+    hasValidSearch: searchInput.hasValidSearch,
+    searchTerms: searchInput.searchTerms
+  });
 
-  // Debounced search function
-  const debouncedSearch = useCallback(
-    (searchText: string) => {
-      if (debounceRef.current) {
-        clearTimeout(debounceRef.current);
-      }
+  // Create custom clear handler for smart input mode
+  const handleClear =
+    enableSmartInput && onClearFilters
+      ? onClearFilters // Clear all filters in smart mode
+      : searchInput.handleClear; // Clear only search in regular mode
 
-      debounceRef.current = setTimeout(() => {
-        const terms = parseSearchTerms(searchText);
-        setSearchTerms(terms);
-        setIsSearching(false);
-
-        logger.debug('Text search executed', {
-          searchText,
-          terms,
-          termCount: terms.length
-        });
-
-        onSearch(searchText);
-      }, debounceMs);
-    },
-    [onSearch, debounceMs, parseSearchTerms]
-  );
-
-  // Handle input change
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setInputValue(value);
-
-    if (value.trim().length === 0) {
-      // Clear search immediately when input is empty
-      if (debounceRef.current) {
-        clearTimeout(debounceRef.current);
-      }
-      setSearchTerms([]);
-      setIsSearching(false);
-      onSearch('');
-      return;
-    }
-
-    if (value.trim().length >= minLength) {
-      setIsSearching(true);
-      debouncedSearch(value);
-    }
-  };
-
-  // Handle clear button
-  const handleClear = () => {
-    setInputValue('');
-    setSearchTerms([]);
-    setIsSearching(false);
-    onSearch('');
-    inputRef.current?.focus();
-  };
-
-  // Handle keyboard shortcuts
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Escape') {
-      handleClear();
-    } else if (e.key === 'Enter') {
-      // Trigger immediate search on Enter
-      if (debounceRef.current) {
-        clearTimeout(debounceRef.current);
-      }
-      const terms = parseSearchTerms(inputValue);
-      setSearchTerms(terms);
-      setIsSearching(false);
-      onSearch(inputValue);
-    }
-  };
-
-  // Cleanup timeout on unmount
-  useEffect(() => {
-    return () => {
-      if (debounceRef.current) {
-        clearTimeout(debounceRef.current);
-      }
-    };
-  }, []);
-
-  const hasValue = inputValue.length > 0;
-  const hasValidSearch = searchTerms.length > 0;
+  // Determine container class
+  const containerClass = [
+    'text-search-input',
+    enableSmartInput && contextId ? 'text-search-input--smart' : '',
+    showThreadToggle ? 'text-search-input--with-thread-toggle' : '',
+    className
+  ]
+    .filter(Boolean)
+    .join(' ');
 
   return (
-    <div className={`text-search-input ${className}`}>
-      <div className="text-search-input__container">
-        {/* Search Icon */}
-        <div className="text-search-input__icon">
-          {isSearching ? (
-            <div className="text-search-input__spinner" />
-          ) : (
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <circle cx="11" cy="11" r="8" />
-              <path d="m21 21-4.35-4.35" />
-            </svg>
-          )}
-        </div>
+    <div className={containerClass}>
+      <SearchInputContainer
+        enableSmartInput={enableSmartInput}
+        contextId={contextId}
+        currentValue={searchInput.currentValue}
+        onSmartInputChange={searchInput.handleSmartInputChange}
+        onMentionClick={onMentionClick}
+        onPillClick={onPillClick}
+        onAddFilter={onAddFilter}
+        onAddFilters={onAddFilters}
+        onRemoveFilter={onRemoveFilter}
+        onFilterSuccess={onFilterSuccess}
+        onSearch={onSearch}
+        inputRef={searchInput.inputRef}
+        onInputChange={searchInput.handleInputChange}
+        onKeyDown={searchInput.handleKeyDown}
+        placeholder={placeholder}
+        isLoading={isLoading}
+        hasValue={searchInput.hasValue}
+        onClear={handleClear}
+        showThreadToggle={Boolean(showThreadToggle)}
+        includeThreadReplies={Boolean(includeThreadReplies)}
+        onToggleThreadReplies={onToggleThreadReplies}
+      />
 
-        {/* Input Field */}
-        <input
-          ref={inputRef}
-          type="text"
-          value={inputValue}
-          onChange={handleInputChange}
-          onKeyDown={handleKeyDown}
-          placeholder={placeholder}
-          className="text-search-input__field"
-          autoComplete="off"
-          spellCheck="false"
-        />
-
-        {/* Clear Button */}
-        {hasValue && (
-          <button
-            type="button"
-            onClick={handleClear}
-            className="text-search-input__clear"
-            aria-label="Clear search"
-            title="Clear search (Esc)"
-          >
-            <svg
-              width="14"
-              height="14"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <line x1="18" y1="6" x2="6" y2="18" />
-              <line x1="6" y1="6" x2="18" y2="18" />
-            </svg>
-          </button>
-        )}
-      </div>
-
-      {/* Search Terms Display */}
-      {hasValidSearch && (
-        <div className="text-search-input__terms">
-          <span className="text-search-input__terms-label">Searching for:</span>
-          <div className="text-search-input__terms-list">
-            {searchTerms.map((term, index) => (
-              <span key={index} className="text-search-input__term">
-                {term}
-              </span>
-            ))}
-          </div>
-          <span className="text-search-input__terms-logic">(any match)</span>
-        </div>
-      )}
-
-      {/* Search Help */}
-      {hasValue && !hasValidSearch && (
-        <div className="text-search-input__help">
-          <span className="text-search-input__help-text">
-            Type at least {minLength} characters to search
-          </span>
-        </div>
+      {filterStatus.statusText && Boolean(filterStatus.shouldShowStatus) && (
+        <SearchStatus>{filterStatus.statusText}</SearchStatus>
       )}
     </div>
   );

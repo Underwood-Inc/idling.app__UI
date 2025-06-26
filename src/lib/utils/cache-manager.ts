@@ -12,7 +12,8 @@ const logger = createLogger({
   context: {
     component: 'CacheManager',
     module: 'utils'
-  }
+  },
+  enabled: false
 });
 
 export interface CacheInfo {
@@ -449,3 +450,50 @@ export async function registerServiceWorker(): Promise<ServiceWorkerRegistration
     return null;
   }
 }
+
+/**
+ * Clear old avatar cache entries to free up storage space
+ */
+export const clearOldAvatarCache = () => {
+  try {
+    const keys = Object.keys(localStorage);
+    const avatarCacheKeys = keys.filter(key => key.startsWith('avatar-cache-'));
+    
+    // Remove old avatar cache versions
+    avatarCacheKeys.forEach(key => {
+      if (key !== 'avatar-cache-v3-adventurer') {
+        localStorage.removeItem(key);
+        console.log(`Cleared old avatar cache: ${key}`);
+      }
+    });
+  } catch (error) {
+    console.warn('Failed to clear old avatar cache:', error);
+  }
+};
+
+/**
+ * Get avatar cache size in bytes
+ */
+export const getAvatarCacheSize = (): number => {
+  try {
+    const cached = localStorage.getItem('avatar-cache-v3-adventurer');
+    if (!cached) return 0;
+    return new Blob([cached]).size;
+  } catch (error) {
+    console.warn('Failed to get avatar cache size:', error);
+    return 0;
+  }
+};
+
+/**
+ * Check if avatar cache is approaching quota limit
+ */
+export const isAvatarCacheNearQuota = (): boolean => {
+  try {
+    const size = getAvatarCacheSize();
+    // Assume 5MB limit, warn at 4MB
+    return size > 4 * 1024 * 1024;
+  } catch (error) {
+    return false;
+  }
+};

@@ -19,7 +19,8 @@ const logger = createLogger({
   context: {
     component: 'EmojisAPI',
     module: 'api'
-  }
+  },
+  enabled: false
 });
 
 export interface EmojiResponse {

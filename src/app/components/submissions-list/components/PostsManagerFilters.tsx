@@ -1,8 +1,7 @@
 'use client';
 
-import { CustomFilterInput } from '../../filter-bar/CustomFilterInput';
 import FilterBar from '../../filter-bar/FilterBar';
-import { TextSearchInput } from './TextSearchInput';
+import { SmartTextSearchInput } from './SmartTextSearchInput';
 
 export interface PostsManagerFiltersProps {
   showFilters: boolean;
@@ -16,6 +15,11 @@ export interface PostsManagerFiltersProps {
   onAddFilters: (filters: any[]) => void;
   onFilterSuccess: () => void;
   onTextSearch: (searchText: string) => void;
+  // Thread replies toggle
+  showThreadToggle?: boolean;
+  includeThreadReplies?: boolean;
+  onToggleThreadReplies?: (checked: boolean) => void;
+  isLoading?: boolean;
 }
 
 export function PostsManagerFilters({
@@ -29,7 +33,11 @@ export function PostsManagerFilters({
   onAddFilter,
   onAddFilters,
   onFilterSuccess,
-  onTextSearch
+  onTextSearch,
+  showThreadToggle = false,
+  includeThreadReplies = false,
+  onToggleThreadReplies,
+  isLoading = false
 }: PostsManagerFiltersProps) {
   // Get current search value from filters
   const searchFilter = filters.find((f) => f.name === 'search');
@@ -41,12 +49,21 @@ export function PostsManagerFilters({
       aria-hidden={!showFilters}
     >
       <div className="posts-manager__filter-content">
-        {/* Text Search Input - Prominently placed at top */}
-        <TextSearchInput
+        {/* Enhanced Text Search Input with Smart Filters */}
+        <SmartTextSearchInput
           onSearch={onTextSearch}
-          placeholder="Search posts content... (e.g., 'march fire jacob')"
-          initialValue={currentSearchValue}
+          onAddFilter={onAddFilter}
+          onAddFilters={onAddFilters}
+          onRemoveFilter={onRemoveFilter}
+          onFilterSuccess={onFilterSuccess}
+          onClearFilters={onClearFilters}
+          contextId={contextId}
+          placeholder="Search posts content... (or use @user #tag for filters)"
           className="posts-manager__text-search"
+          showThreadToggle={showThreadToggle}
+          includeThreadReplies={includeThreadReplies}
+          onToggleThreadReplies={onToggleThreadReplies}
+          isLoading={isLoading}
         />
 
         <FilterBar
@@ -57,18 +74,6 @@ export function PostsManagerFilters({
           onClearFilters={onClearFilters}
           onUpdateFilter={onUpdateFilter}
         />
-
-        {/* Combined Filter Input and Thread Controls Row */}
-        <div className="posts-manager__filter-bottom-row">
-          {/* Custom Filter Input */}
-          <CustomFilterInput
-            contextId={contextId}
-            onAddFilter={onAddFilter}
-            onAddFilters={onAddFilters}
-            onFilterSuccess={onFilterSuccess}
-            className="posts-manager__custom-filter"
-          />
-        </div>
       </div>
     </div>
   );

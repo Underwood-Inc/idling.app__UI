@@ -10,7 +10,8 @@ const logger = createLogger({
   context: {
     component: 'SmartCacheStatus',
     module: 'components/cache-status'
-  }
+  },
+  enabled: false
 });
 
 interface CacheInfo {

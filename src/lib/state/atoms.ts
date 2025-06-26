@@ -117,13 +117,71 @@ export const shouldUpdateAtom = atom<boolean>(false);
  */
 export const sessionCacheAtom = atomWithStorage<any>('session-cache', null);
 
+// Custom storage for avatar cache with size limits and error handling
+const createAvatarCacheStorage = () => {
+  const STORAGE_KEY = 'avatar-cache-v3-adventurer';
+  const MAX_CACHE_SIZE = 100;
+
+  return {
+    getItem: (key: string): Record<string, string> => {
+      try {
+        const stored = localStorage.getItem(STORAGE_KEY);
+        if (!stored) return {};
+        
+        const parsed = JSON.parse(stored);
+        return typeof parsed === 'object' && parsed !== null ? parsed : {};
+      } catch (error) {
+        console.warn('Failed to load avatar cache, clearing:', error);
+        localStorage.removeItem(STORAGE_KEY);
+        return {};
+      }
+    },
+    setItem: (key: string, value: Record<string, string>): void => {
+      try {
+        // Limit cache size to prevent quota exceeded errors
+        const entries = Object.entries(value);
+        if (entries.length > MAX_CACHE_SIZE) {
+          // Keep only the most recent entries
+          const limitedEntries = entries.slice(-MAX_CACHE_SIZE);
+          value = Object.fromEntries(limitedEntries);
+        }
+        
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(value));
+      } catch (error) {
+        if (error instanceof Error && error.name === 'QuotaExceededError') {
+          console.warn('Avatar cache quota exceeded, clearing old entries');
+          // Clear the cache and try to store just the current value
+          try {
+            localStorage.removeItem(STORAGE_KEY);
+            const entries = Object.entries(value);
+            if (entries.length > 10) {
+              // If still too large, keep only 10 most recent
+              const limitedEntries = entries.slice(-10);
+              value = Object.fromEntries(limitedEntries);
+            }
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(value));
+          } catch (retryError) {
+            console.error('Failed to store avatar cache even after cleanup:', retryError);
+          }
+        } else {
+          console.error('Failed to store avatar cache:', error);
+        }
+      }
+    },
+    removeItem: (key: string): void => {
+      localStorage.removeItem(STORAGE_KEY);
+    }
+  };
+};
+
 /**
  * Avatar cache atom - stores generated avatar SVGs to prevent regeneration
- * v2: Changed from lorelei to adventurer style - cache key updated to force regeneration
+ * v3: Added size limits and cleanup to prevent quota exceeded errors
  */
 export const avatarCacheAtom = atomWithStorage<Record<string, string>>(
-  'avatar-cache-v2-adventurer',
-  {}
+  'avatar-cache-v3-adventurer',
+  {},
+  createAvatarCacheStorage()
 );
 
 // ============================================================================
@@ -519,6 +577,7 @@ export const initializeFiltersFromUrl = (
   const pageParam = searchParams.get('page');
   const tagsParam = searchParams.get('tags');
   const authorParam = searchParams.get('author');
+  const searchParam = searchParams.get('search');
   const pageSizeParam = searchParams.get('pageSize');
 
   // Validate and sanitize tags parameter using unified utilities
@@ -542,15 +601,32 @@ export const initializeFiltersFromUrl = (
     ? authorParam.trim().slice(0, 100) // Limit length and trim
     : '';
 
-  // Build filters array
+  // Validate and sanitize search parameter
+  const sanitizedSearch = searchParam
+    ? searchParam.trim().slice(0, 200) // Limit length and trim
+    : '';
+
+  // Build filters array - create individual filter entries, not comma-separated
   const filters: Filter[] = [];
 
   if (sanitizedTags) {
-    filters.push({ name: 'tags', value: sanitizedTags });
+    // Split comma-separated tags into individual filter entries
+    const tags = sanitizedTags.split(',').map(tag => tag.trim()).filter(Boolean);
+    tags.forEach(tag => {
+      filters.push({ name: 'tags', value: tag });
+    });
   }
 
   if (sanitizedAuthor) {
-    filters.push({ name: 'author', value: sanitizedAuthor });
+    // Split comma-separated authors into individual filter entries
+    const authors = sanitizedAuthor.split(',').map(author => author.trim()).filter(Boolean);
+    authors.forEach(author => {
+      filters.push({ name: 'author', value: author });
+    });
+  }
+
+  if (sanitizedSearch) {
+    filters.push({ name: 'search', value: sanitizedSearch });
   }
 
   // If no filters from URL, use initial filters
@@ -814,7 +890,7 @@ export const urlSyncAtom = atom(
     );
 
     Object.entries(filterGroups).forEach(([name, values]) => {
-      if (name === 'tags' || name === 'author' || name === 'mentions') {
+      if (name === 'tags' || name === 'author' || name === 'mentions' || name === 'search') {
         // Strip # prefix from tags for cleaner URLs
         if (name === 'tags') {
           const cleanValues = values.map((value) =>
@@ -835,6 +911,8 @@ export const urlSyncAtom = atom(
         urlParams.set('authorLogic', values[0]);
       } else if (name === 'mentionsLogic' && filterGroups.mentions) {
         urlParams.set('mentionsLogic', values[0]);
+      } else if (name === 'searchLogic' && filterGroups.search) {
+        urlParams.set('searchLogic', values[0]);
       } else if (name === 'globalLogic') {
         urlParams.set('globalLogic', values[0]);
       }
@@ -940,9 +1018,11 @@ export const filtersFromUrlAtom = atom((get) => {
   const tagsParam = urlParams.get('tags');
   const authorParam = urlParams.get('author');
   const mentionsParam = urlParams.get('mentions');
+  const searchParam = urlParams.get('search');
   const tagLogicParam = urlParams.get('tagLogic');
   const authorLogicParam = urlParams.get('authorLogic');
   const mentionsLogicParam = urlParams.get('mentionsLogic');
+  const searchLogicParam = urlParams.get('searchLogic');
   const globalLogicParam = urlParams.get('globalLogic');
 
   if (tagsParam) {
@@ -958,9 +1038,12 @@ export const filtersFromUrlAtom = atom((get) => {
       })
       .filter(Boolean);
     if (cleanTags.length > 0) {
-      filters.push({
-        name: 'tags' as PostFilters,
-        value: cleanTags.join(',')
+      // Create separate filter entries for each tag instead of comma-separated value
+      cleanTags.forEach((tagValue) => {
+        filters.push({
+          name: 'tags' as PostFilters,
+          value: tagValue
+        });
       });
 
       if (cleanTags.length > 1 && !tagLogicParam) {
@@ -973,25 +1056,41 @@ export const filtersFromUrlAtom = atom((get) => {
   }
 
   if (authorParam) {
-    authorParam.split(',').forEach((value) => {
-      if (value.trim()) {
-        filters.push({
-          name: 'author' as PostFilters,
-          value: value.trim()
-        });
-      }
+    const cleanAuthors = authorParam
+      .split(',')
+      .map((value) => value.trim())
+      .filter(Boolean);
+    // Create separate filter entries for each author instead of comma-separated value
+    cleanAuthors.forEach((authorValue) => {
+      filters.push({
+        name: 'author' as PostFilters,
+        value: authorValue
+      });
     });
   }
 
   if (mentionsParam) {
-    mentionsParam.split(',').forEach((value) => {
-      if (value.trim()) {
-        filters.push({
-          name: 'mentions' as PostFilters,
-          value: value.trim()
-        });
-      }
+    const cleanMentions = mentionsParam
+      .split(',')
+      .map((value) => value.trim())
+      .filter(Boolean);
+    // Create separate filter entries for each mention instead of comma-separated value
+    cleanMentions.forEach((mentionValue) => {
+      filters.push({
+        name: 'mentions' as PostFilters,
+        value: mentionValue
+      });
     });
+  }
+
+  if (searchParam) {
+    const cleanSearch = searchParam.trim();
+    if (cleanSearch) {
+      filters.push({
+        name: 'search' as PostFilters,
+        value: cleanSearch
+      });
+    }
   }
 
   if (tagLogicParam) {
@@ -1012,6 +1111,13 @@ export const filtersFromUrlAtom = atom((get) => {
     filters.push({
       name: 'mentionsLogic' as PostFilters,
       value: mentionsLogicParam
+    });
+  }
+
+  if (searchLogicParam) {
+    filters.push({
+      name: 'searchLogic' as PostFilters,
+      value: searchLogicParam
     });
   }
 
@@ -1064,7 +1170,7 @@ export const createAutoUrlSyncAtom = (contextId: string) => {
     );
 
     Object.entries(filterGroups).forEach(([name, values]) => {
-      if (name === 'tags' || name === 'author' || name === 'mentions') {
+      if (name === 'tags' || name === 'author' || name === 'mentions' || name === 'search') {
         if (name === 'tags') {
           const { formatTagsForUrl } = require('../utils/string/tag-utils');
           const allTags = values.flatMap((value) =>
@@ -1080,6 +1186,8 @@ export const createAutoUrlSyncAtom = (contextId: string) => {
         urlParams.set('authorLogic', values[0]);
       } else if (name === 'mentionsLogic' && filterGroups.mentions) {
         urlParams.set('mentionsLogic', values[0]);
+      } else if (name === 'searchLogic' && filterGroups.search) {
+        urlParams.set('searchLogic', values[0]);
       } else if (name === 'globalLogic') {
         urlParams.set('globalLogic', values[0]);
       }

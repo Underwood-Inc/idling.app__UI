@@ -11,7 +11,8 @@ const logger = createLogger({
   context: {
     component: 'PermissionActions',
     module: 'actions'
-  }
+  },
+  enabled: false
 });
 
 /**

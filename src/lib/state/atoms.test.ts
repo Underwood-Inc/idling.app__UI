@@ -1,19 +1,19 @@
 import { createStore } from 'jotai';
 import {
-  clearAllRouteFilters,
-  clearContextAtoms,
-  getDisplayFiltersAtom,
-  getSubmissionsFiltersAtom,
-  getSubmissionsStateAtom,
-  initializeFiltersFromUrl,
-  initializePaginationFromUrl,
-  PageSize,
-  PaginationAction,
-  paginationActionAtom,
-  paginationStateAtom,
-  ShouldUpdateAction,
-  shouldUpdateActionAtom,
-  shouldUpdateAtom
+    clearAllRouteFilters,
+    clearContextAtoms,
+    getDisplayFiltersAtom,
+    getSubmissionsFiltersAtom,
+    getSubmissionsStateAtom,
+    initializeFiltersFromUrl,
+    initializePaginationFromUrl,
+    PageSize,
+    PaginationAction,
+    paginationActionAtom,
+    paginationStateAtom,
+    ShouldUpdateAction,
+    shouldUpdateActionAtom,
+    shouldUpdateAtom
 } from './atoms';
 
 describe('Jotai Atoms', () => {
@@ -215,7 +215,10 @@ describe('Jotai Atoms', () => {
       expect(result).toEqual({
         onlyMine: true,
         userId: 'user123',
-        filters: [{ name: 'tags', value: '#test-tag,#another-tag' }],
+        filters: [
+          { name: 'tags', value: '#test-tag' },
+          { name: 'tags', value: '#another-tag' }
+        ],
         page: 2,
         pageSize: 50,
         initialized: true

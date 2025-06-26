@@ -55,19 +55,17 @@ describe('CustomFilterInput', () => {
 
   // Helper function to get the input element
   const getInput = async () => {
-    // Click on the placeholder to enter edit mode and get the actual input
-    const placeholder = screen.getByText('Add filter: @user or #tag...');
-    await act(async () => {
-      fireEvent.click(placeholder);
-    });
-    return screen.getByRole('textbox');
+    // The input is now directly accessible via the SmartPillInput component
+    // We can find it by its placeholder attribute
+    const input = screen.getByPlaceholderText('Add filter: @user or #tag...');
+    return input;
   };
 
   it('renders with default placeholder', () => {
     render(<CustomFilterInput {...defaultProps} />);
 
     expect(
-      screen.getByText('Add filter: @user or #tag...')
+      screen.getByPlaceholderText('Add filter: @user or #tag...')
     ).toBeInTheDocument();
   });
 

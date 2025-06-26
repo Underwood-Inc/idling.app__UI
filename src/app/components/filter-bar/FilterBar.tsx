@@ -51,16 +51,20 @@ export default function FilterBar({
     safeFilters.find((f) => f.name === 'authorLogic')?.value || 'OR';
   const mentionsLogic =
     safeFilters.find((f) => f.name === 'mentionsLogic')?.value || 'OR';
+  const searchLogic =
+    safeFilters.find((f) => f.name === 'searchLogic')?.value || 'OR';
   const globalLogic =
     safeFilters.find((f) => f.name === 'globalLogic')?.value || 'AND';
 
   const hasTagsFilter = safeFilters.some((f) => f.name === 'tags');
   const hasAuthorFilter = safeFilters.some((f) => f.name === 'author');
   const hasMentionsFilter = safeFilters.some((f) => f.name === 'mentions');
+  const hasSearchFilter = safeFilters.some((f) => f.name === 'search');
   const filterTypeCount = [
     hasTagsFilter,
     hasAuthorFilter,
-    hasMentionsFilter
+    hasMentionsFilter,
+    hasSearchFilter
   ].filter(Boolean).length;
   const hasMultipleFilterTypes = filterTypeCount > 1;
 
@@ -126,38 +130,70 @@ export default function FilterBar({
                 'tagLogic',
                 'authorLogic',
                 'mentionsLogic',
+                'searchLogic',
                 'globalLogic'
               ].includes(filter.name)
           )
           // Group filters by name to consolidate multiple values
+          // Exception: author and mentions filters should remain separate instances
           .reduce((acc, filter) => {
-            const existingFilter = acc.find((f) => f.name === filter.name);
-            if (existingFilter) {
-              // Consolidate values with comma separation
-              existingFilter.value = existingFilter.value + ',' + filter.value;
-            } else {
+            if (filter.name === 'author' || filter.name === 'mentions') {
+              // Keep user filters as separate instances
               acc.push({ ...filter });
+            } else {
+              // Consolidate other filter types (tags, search)
+              const existingFilter = acc.find((f) => f.name === filter.name);
+              if (existingFilter) {
+                // Consolidate values with comma separation
+                existingFilter.value =
+                  existingFilter.value + ',' + filter.value;
+              } else {
+                acc.push({ ...filter });
+              }
             }
             return acc;
           }, [] as Filter<PostFilters>[])
-          .map((filter) => {
+          .map((filter, filterIndex) => {
             if (!filter.value) {
               return null;
             }
 
             // Handle comma-separated values for all filter types
-            const values = dedupeStringArray(
-              filter.value
-                .split(',')
-                .map((v) => v.trim())
-                .filter((v) => v)
-            );
+            let values: string[];
+            let hasMultipleValues: boolean;
+
+            if (filter.name === 'search') {
+              // For search filters, parse the search text to find individual terms
+              const searchTerms: string[] = [];
+              const regex = /"([^"]+)"|(\S+)/g;
+              let match;
+
+              while ((match = regex.exec(filter.value)) !== null) {
+                const quotedTerm = match[1]; // Captured quoted content
+                const unquotedTerm = match[2]; // Captured unquoted content
+
+                const term = quotedTerm || unquotedTerm;
+                if (term && term.length >= 1) {
+                  searchTerms.push(term);
+                }
+              }
+
+              values = searchTerms;
+              hasMultipleValues = searchTerms.length > 1;
+            } else {
+              // For other filter types, use comma separation
+              values = dedupeStringArray(
+                filter.value
+                  .split(',')
+                  .map((v) => v.trim())
+                  .filter((v) => v)
+              );
+              hasMultipleValues = values.length > 1;
+            }
 
             if (values.length === 0) {
               return null;
             }
-
-            const hasMultipleValues = values.length > 1;
 
             // When globalLogic is AND, force all individual filters to AND
             // When globalLogic is OR, use individual filter logic settings
@@ -170,13 +206,15 @@ export default function FilterBar({
                     ? authorLogic
                     : filter.name === 'mentions'
                       ? mentionsLogic
-                      : 'OR';
+                      : filter.name === 'search'
+                        ? searchLogic
+                        : 'OR';
 
             const currentLogic = effectiveLogic;
 
             return (
               <div
-                key={`${filter.name}-consolidated`}
+                key={`${filter.name}-${filter.value}-${filterIndex}-consolidated`}
                 className="filter-bar__filter-compact"
               >
                 <div className="filter-bar__filter-inline">
@@ -204,7 +242,9 @@ export default function FilterBar({
                                     ? 'authorLogic'
                                     : filter.name === 'mentions'
                                       ? 'mentionsLogic'
-                                      : 'tagLogic';
+                                      : filter.name === 'search'
+                                        ? 'searchLogic'
+                                        : 'tagLogic';
                               onUpdateFilter(logicType, 'AND');
                             }
                           }}
@@ -233,7 +273,9 @@ export default function FilterBar({
                                     ? 'authorLogic'
                                     : filter.name === 'mentions'
                                       ? 'mentionsLogic'
-                                      : 'tagLogic';
+                                      : filter.name === 'search'
+                                        ? 'searchLogic'
+                                        : 'tagLogic';
                               onUpdateFilter(logicType, 'OR');
                             }
                           }}

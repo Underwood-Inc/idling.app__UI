@@ -9,7 +9,8 @@ const logger = createLogger({
   context: {
     component: 'EmojiParser',
     module: 'parsers'
-  }
+  },
+  enabled: false
 });
 
 export interface EmojiDefinition {

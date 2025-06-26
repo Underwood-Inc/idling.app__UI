@@ -12,7 +12,8 @@ import { createLogger } from '../logging';
 const logger = createLogger({
   context: {
     module: 'hard-reset-manager'
-  }
+  },
+  enabled: false
 });
 
 export interface HardResetConfig {

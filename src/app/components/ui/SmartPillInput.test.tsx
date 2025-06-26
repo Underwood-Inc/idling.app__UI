@@ -55,14 +55,16 @@ describe('SmartPillInput', () => {
 
   it('renders placeholder when empty', () => {
     renderWithProviders();
-    expect(screen.getByText('Type something...')).toBeInTheDocument();
+    expect(
+      screen.getByPlaceholderText('Type something...')
+    ).toBeInTheDocument();
   });
 
   it('enters edit mode when clicked', () => {
     renderWithProviders();
 
-    const container = screen.getByText('Type something...').closest('div');
-    fireEvent.click(container!);
+    const input = screen.getByPlaceholderText('Type something...');
+    fireEvent.click(input);
 
     // Should show the input field in edit mode
     expect(screen.getByRole('textbox')).toBeInTheDocument();

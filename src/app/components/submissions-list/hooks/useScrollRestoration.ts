@@ -5,8 +5,8 @@ import { usePathname } from 'next/navigation';
 import { useEffect } from 'react';
 import { highlightScrollTarget } from '../../../../lib/utils/scroll-highlight';
 import {
-  generateScrollKey,
-  storeOrUpdateScrollPosition
+    generateScrollKey,
+    storeOrUpdateScrollPosition
 } from '../../../../lib/utils/scroll-position';
 
 // Create hook-specific logger
@@ -14,7 +14,8 @@ const logger = createLogger({
   context: {
     component: 'useScrollRestoration',
     module: 'components/submissions-list/hooks'
-  }
+  },
+  enabled: false // Temporarily disable scroll restoration logging
 });
 
 export interface ScrollRestorationOptions {
@@ -129,7 +130,7 @@ export function useScrollRestoration({
             }
 
             // Virtual scrolling is ready, now scroll
-            if (position.scrollY) {
+            if (position.scrollY && position.scrollY > 0) {
               // Set scrollTop directly for more reliable scrolling
               submissionsContainer.scrollTop = position.scrollY;
 
@@ -370,47 +371,58 @@ export function useScrollRestoration({
       const attemptScrollRestore = (attempts = 0, maxAttempts = 15) => {
         try {
           const storedPosition = localStorage.getItem(scrollKey);
+          
+          // Early exit if no stored position - don't retry
+          if (!storedPosition) {
+            if (attempts === 0) {
+              logger.debug('No stored scroll position found, skipping restoration', {
+                scrollKey,
+                attempts,
+                maxAttempts
+              });
+            }
+            return; // Exit immediately, don't retry
+          }
+
           logger.debug('Stored scroll position', {
             storedPosition,
             attempts,
             maxAttempts
           });
 
-          if (storedPosition) {
-            const position = parseInt(storedPosition, 10);
-            if (!isNaN(position) && position > 0) {
-              // Check if we can scroll to this position
-              const maxScroll = Math.max(
-                0,
-                document.documentElement.scrollHeight - window.innerHeight
-              );
+          const position = parseInt(storedPosition, 10);
+          if (!isNaN(position) && position > 0) {
+            // Check if we can scroll to this position
+            const maxScroll = Math.max(
+              0,
+              document.documentElement.scrollHeight - window.innerHeight
+            );
 
-              if (position <= maxScroll + 100) {
-                // Allow some tolerance
-                window.scrollTo({
-                  top: position,
-                  behavior: 'auto' // Instant scroll for restoration
+            if (position <= maxScroll + 100) {
+              // Allow some tolerance
+              window.scrollTo({
+                top: position,
+                behavior: 'auto' // Instant scroll for restoration
+              });
+
+              logger.debug('Scroll restored successfully', {
+                position,
+                maxScroll,
+                attempts
+              });
+
+              // Clear the stored position after successful restoration
+              try {
+                localStorage.removeItem(scrollKey);
+              } catch (error) {
+                logger.warn('Failed to clear stored scroll position', {
+                  scrollKey,
+                  error:
+                    error instanceof Error ? error.message : String(error)
                 });
-
-                logger.debug('Scroll restored successfully', {
-                  position,
-                  maxScroll,
-                  attempts
-                });
-
-                // Clear the stored position after successful restoration
-                try {
-                  localStorage.removeItem(scrollKey);
-                } catch (error) {
-                  logger.warn('Failed to clear stored scroll position', {
-                    scrollKey,
-                    error:
-                      error instanceof Error ? error.message : String(error)
-                  });
-                }
-
-                return; // Success, exit
               }
+
+              return; // Success, exit
             }
           }
 

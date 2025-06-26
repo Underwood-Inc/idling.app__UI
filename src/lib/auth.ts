@@ -23,7 +23,8 @@ const logger = createLogger({
   context: {
     component: 'Auth',
     module: 'lib'
-  }
+  },
+  enabled: false
 });
 
 export const nextAuth = NextAuth({

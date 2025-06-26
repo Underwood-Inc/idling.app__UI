@@ -24,6 +24,7 @@ import './fonts.css';
 import './globals.css';
 // Import service worker cleanup utilities to make them globally available
 import '../lib/utils/service-worker-cleanup';
+import { GrammarlyCleanup } from './components/ui/GrammarlyCleanup';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -209,10 +210,11 @@ export default function RootLayout({
         {/* Additional PWA optimizations */}
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="application-name" content="Idling App" />
-        <meta name="app-version" content="__VERSION__" />
+        <meta name="app-version" content="0.196.10" />
       </head>
 
       <body className={inter.className}>
+        <GrammarlyCleanup />
         <ServiceWorkerRegistration />
         <HardResetManager />
         <SessionProvider>

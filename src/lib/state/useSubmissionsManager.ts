@@ -20,7 +20,8 @@ const logger = createLogger({
   context: {
     component: 'useSubmissionsManager',
     module: 'state'
-  }
+  },
+  enabled: false
 });
 
 interface UseSubmissionsManagerProps {
@@ -199,7 +200,8 @@ export function useSubmissionsManager({
     const hasUrlFilters =
       searchParams.has('tags') ||
       searchParams.has('author') ||
-      searchParams.has('mentions');
+      searchParams.has('mentions') ||
+      searchParams.has('search');
 
     // If filters are already initialized and URL doesn't have filter params, skip URL initialization
     if (filtersState.initialized && !hasUrlFilters) {
@@ -242,6 +244,15 @@ export function useSubmissionsManager({
       urlFilters.push({
         name: 'mentions',
         value: mentionsParam
+      });
+    }
+
+    // Search filter
+    const searchParam = searchParams.get('search');
+    if (searchParam) {
+      urlFilters.push({
+        name: 'search',
+        value: searchParam
       });
     }
 
@@ -354,7 +365,7 @@ export function useSubmissionsManager({
       );
 
       Object.entries(filterGroups).forEach(([name, values]) => {
-        if (name === 'tags' || name === 'author' || name === 'mentions') {
+        if (['tags', 'author', 'mentions', 'search'].includes(name)) {
           if (name === 'tags') {
             const cleanValues = values.map((value) =>
               value
@@ -502,6 +513,41 @@ export function useSubmissionsManager({
     (tagToRemove: string) => {
       logger.group('removeTag');
       logger.debug('removeTag called', { tagToRemove });
+
+      // Check if this is a special search text removal format: "search:removedTerm:newSearchText"
+      if (tagToRemove.startsWith('search:')) {
+        const parts = tagToRemove.split(':');
+        if (parts.length === 3) {
+          const [, removedTerm, newSearchText] = parts;
+          
+          setFiltersState((prevState) => {
+            const newFilters = prevState.filters.map((filter) => {
+              if (filter.name === 'search') {
+                return {
+                  ...filter,
+                  value: newSearchText
+                };
+              }
+              return filter;
+            });
+
+            logger.debug('removeTag search term result', {
+              removedTerm,
+              newSearchText,
+              originalCount: prevState.filters.length,
+              newCount: newFilters.length
+            });
+
+            return {
+              ...prevState,
+              filters: newFilters,
+              page: 1
+            };
+          });
+          logger.groupEnd();
+          return;
+        }
+      }
 
       setFiltersState((prevState) => {
         const newFilters = prevState.filters

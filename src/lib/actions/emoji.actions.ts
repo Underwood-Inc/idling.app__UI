@@ -13,7 +13,8 @@ const logger = createLogger({
   context: {
     component: 'EmojiActions',
     module: 'actions'
-  }
+  },
+  enabled: false
 });
 
 /**

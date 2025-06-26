@@ -12,7 +12,8 @@ const logger = createLogger({
   context: {
     component: 'BaseEncryption',
     module: 'encryption'
-  }
+  },
+  enabled: false
 });
 
 export type EncryptionScope = 'personal' | 'global';

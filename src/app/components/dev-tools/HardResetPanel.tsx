@@ -12,7 +12,8 @@ const logger = createLogger({
   context: {
     component: 'HardResetPanel',
     module: 'components/dev-tools'
-  }
+  },
+  enabled: false
 });
 
 const HardResetPanel: React.FC = () => {

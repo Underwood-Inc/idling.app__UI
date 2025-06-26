@@ -13,7 +13,8 @@ const logger = createLogger({
   context: {
     component: 'PermissionsService',
     module: 'permissions'
-  }
+  },
+  enabled: false
 });
 
 export interface Permission {

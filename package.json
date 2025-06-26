@@ -1,6 +1,6 @@
 {
   "name": "idling.app",
-  "version": "0.196.10",
+  "version": "0.204.1",
   "private": true,
   "engines": {
     "node": ">=20.x"
@@ -37,6 +37,7 @@
     "test:ci": "jest --ci",
     "test:coverage": "jest --ci --coverage",
     "test": "jest --watchAll=false",
+    "test:to-file": "jest --watchAll=false --outputFile=test-results.xml",
     "version:bump": "node scripts/version-bump.js",
     "version:test": "node scripts/version-bump-from-msg.js --test",
     "version:demo": "node scripts/version-bump-from-msg.js --test \"feat: example feature for demo\"",

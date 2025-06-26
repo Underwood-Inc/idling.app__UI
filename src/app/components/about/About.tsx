@@ -41,9 +41,10 @@ export function About() {
       <p>
         All publicly available projects can be accessed through the
         website&apos;s navigation, while active development discussions and
-        updates are hosted on the idling.app <DiscordLink /> server. For
-        detailed technical documentation, release notes, and contribution
-        guidelines, please refer to the project&apos;s&nbsp;
+        updates are hosted on the idling.app{' '}
+        <DiscordLink isInsideParagraph={true} /> server. For detailed technical
+        documentation, release notes, and contribution guidelines, please refer
+        to the project&apos;s&nbsp;
         <a
           href="https://gitlab.com/idling.app"
           target="_blank"

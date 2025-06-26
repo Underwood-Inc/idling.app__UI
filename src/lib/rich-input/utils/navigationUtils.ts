@@ -11,7 +11,8 @@ const logger = createLogger({
   context: {
     component: 'NavigationUtils',
     module: 'rich-input/utils'
-  }
+  },
+  enabled: false
 });
 
 /**

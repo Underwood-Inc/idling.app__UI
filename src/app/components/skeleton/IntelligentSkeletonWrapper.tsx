@@ -5,7 +5,8 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import './SkeletonLoader.css';
 
 const logger = createLogger({
-  context: { component: 'IntelligentSkeletonWrapper' }
+  context: { component: 'IntelligentSkeletonWrapper' },
+  enabled: false
 });
 
 interface CapturedElement {

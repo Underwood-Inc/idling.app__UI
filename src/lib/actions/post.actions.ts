@@ -12,7 +12,8 @@ const logger = createLogger({
   context: {
     component: 'PostActions',
     module: 'actions'
-  }
+  },
+  enabled: false
 });
 
 export async function createPost(data: Omit<CreatePost, 'authorId'>) {

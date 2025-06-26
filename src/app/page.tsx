@@ -1,13 +1,13 @@
 import { About } from './components/about/About';
 import { Card } from './components/card/Card';
 import { DiscordEmbed } from './components/discord-embed/DiscordEmbed';
-import { DiscordLink } from './components/discord-link/DiscordLink';
 import FadeIn from './components/fade-in/FadeIn';
 import FancyBorder from './components/fancy-border/FancyBorder';
 import { PageAside } from './components/page-aside/PageAside';
 import { PageContainer } from './components/page-container/PageContainer';
 import PageContent from './components/page-content/PageContent';
 import PageHeader from './components/page-header/PageHeader';
+import { TwitchChat } from './components/twitch-chat';
 import './globals.css';
 import styles from './page.module.css';
 
@@ -23,20 +23,18 @@ export default async function Home() {
         <PageContent>
           <article className={styles.home__container}>
             <FadeIn className={styles.home__container_fade}>
-              <Card className={styles.home__container_item}>
+              <Card className={styles.home__container_item_full}>
                 <About />
               </Card>
 
-              <Card className={styles.home__container_item}>
-                <p>
-                  Join our <DiscordLink /> to get the latest news and
-                  occasionally view development via screen share events.
-                </p>
-                <p>
-                  See a bug? Report it in <DiscordLink /> and refer to the
-                  current site version located in the bottom right of the
-                  website footer.
-                </p>
+              <Card className={styles.home__container_item_full}>
+                <TwitchChat
+                  username="strixun"
+                  height="500px"
+                  className={styles.home__twitch_chat}
+                  minimal
+                  hideHeader
+                />
               </Card>
             </FadeIn>
           </article>

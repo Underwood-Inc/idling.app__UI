@@ -47,7 +47,12 @@ export async function searchHashtags(
 ): Promise<PaginatedHashtagResult> {
   const startTime = performance.now();
 
+  // eslint-disable-next-line no-console
+  console.log('searchHashtags called:', { query, page, pageSize });
+
   if (!query || query.length < 2) {
+    // eslint-disable-next-line no-console
+    console.log('searchHashtags: query too short or empty');
     return { items: [], hasMore: false, total: 0, page, pageSize };
   }
 
@@ -106,6 +111,9 @@ export async function searchHashtags(
       type: 'hashtag' as const
     }));
 
+    // eslint-disable-next-line no-console
+    console.log('searchHashtags results:', { items, hasMore: offset + results.length < total, total });
+
     return {
       items,
       hasMore: offset + results.length < total,
@@ -114,6 +122,8 @@ export async function searchHashtags(
       pageSize
     };
   } catch (error) {
+    // eslint-disable-next-line no-console
+    console.error('searchHashtags error:', error);
     serverLogger.error('searchHashtags failed', error, {
       query,
       page,

@@ -11,7 +11,8 @@ const logger = createLogger({
   context: {
     component: 'BackButton',
     module: 'components/ui'
-  }
+  },
+  enabled: false
 });
 
 interface BackButtonProps {
