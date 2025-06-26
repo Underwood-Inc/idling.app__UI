@@ -240,7 +240,22 @@ export const InlineSuggestionInput: React.FC<InlineSuggestionInputProps> = ({
     page: number = 1,
     append: boolean = false
   ) => {
+    // eslint-disable-next-line no-console
+    console.log('InlineSuggestionInput searchSuggestions called:', {
+      trigger,
+      query,
+      page,
+      minQueryLength
+    });
+
     if (query.length < minQueryLength) {
+      // eslint-disable-next-line no-console
+      console.log(
+        'InlineSuggestionInput query too short:',
+        query.length,
+        '<',
+        minQueryLength
+      );
       setSuggestions([]);
       setShowSuggestions(false);
       setHasMore(false);
@@ -259,9 +274,20 @@ export const InlineSuggestionInput: React.FC<InlineSuggestionInputProps> = ({
         };
 
       if (trigger === '#' && onHashtagSearch) {
+        // eslint-disable-next-line no-console
+        console.log('InlineSuggestionInput calling onHashtagSearch');
         result = await onHashtagSearch(query, page);
       } else if (trigger === '@' && onUserSearch) {
+        // eslint-disable-next-line no-console
+        console.log('InlineSuggestionInput calling onUserSearch');
         result = await onUserSearch(query, page);
+      } else {
+        // eslint-disable-next-line no-console
+        console.log('InlineSuggestionInput no search function available:', {
+          trigger,
+          hasHashtagSearch: !!onHashtagSearch,
+          hasUserSearch: !!onUserSearch
+        });
       }
 
       if (append) {
@@ -281,8 +307,16 @@ export const InlineSuggestionInput: React.FC<InlineSuggestionInputProps> = ({
 
       setHasMore(result.hasMore);
       setTotalResults(result.total);
-      setShowSuggestions(result.items.length > 0);
+      setShowSuggestions(true); // Always show dropdown when we have a search query
       setCurrentPage(page);
+
+      // eslint-disable-next-line no-console
+      console.log('InlineSuggestionInput search completed:', {
+        resultCount: result.items.length,
+        total: result.total,
+        hasMore: result.hasMore,
+        showSuggestions: true
+      });
     } catch (error) {
       console.error('Error searching suggestions:', error);
       if (!append) {
@@ -331,19 +365,43 @@ export const InlineSuggestionInput: React.FC<InlineSuggestionInputProps> = ({
       newCursorPosition
     );
 
+    // eslint-disable-next-line no-console
+    console.log('InlineSuggestionInput detected trigger and query:', {
+      trigger,
+      query,
+      startIndex,
+      currentQuery
+    });
+
     setCurrentTrigger(trigger);
     setCurrentQuery(query);
     setTriggerStartIndex(startIndex);
 
     if (trigger && query !== currentQuery) {
+      // eslint-disable-next-line no-console
+      console.log('InlineSuggestionInput triggering search:', {
+        trigger,
+        query
+      });
       // Reset pagination when query changes
       setCurrentPage(1);
       searchSuggestions(trigger, query, 1, false);
     } else if (!trigger) {
+      // eslint-disable-next-line no-console
+      console.log(
+        'InlineSuggestionInput no trigger detected, hiding suggestions'
+      );
       setShowSuggestions(false);
       setSuggestions([]);
       setHasMore(false);
       setTotalResults(0);
+    } else {
+      // eslint-disable-next-line no-console
+      console.log('InlineSuggestionInput query unchanged, not searching:', {
+        trigger,
+        query,
+        currentQuery
+      });
     }
   };
 
@@ -622,7 +680,14 @@ export const InlineSuggestionInput: React.FC<InlineSuggestionInputProps> = ({
 
   // Render suggestions dropdown
   const renderSuggestionsDropdown = () => {
-    if (!showSuggestions || (!suggestions.length && !isLoading)) return null;
+    // Show dropdown if:
+    // 1. showSuggestions is true AND
+    // 2. (we have suggestions OR we're loading OR we have a query to show "no results" for)
+    if (
+      !showSuggestions ||
+      (!suggestions.length && !isLoading && !currentQuery)
+    )
+      return null;
 
     return (
       <div

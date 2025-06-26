@@ -177,12 +177,6 @@ export const SmartInput = forwardRef<
     // Enhanced onChange to detect colon trigger for emojis
     const handleChange = useCallback(
       (newValue: string) => {
-        // eslint-disable-next-line no-console
-        console.log('SmartInput handleChange calling onChange:', {
-          oldValue: value,
-          newValue,
-          hasNewlines: newValue.includes('\n')
-        });
         // First call the original onChange
         onChange(newValue);
 
@@ -302,12 +296,6 @@ export const SmartInput = forwardRef<
     // Enhanced onChange wrapper that tracks previous value
     const handleChangeWrapper = useCallback(
       (newValue: string) => {
-        // eslint-disable-next-line no-console
-        console.log('SmartInput handleChangeWrapper:', {
-          oldValue: value,
-          newValue,
-          hasNewlines: newValue.includes('\n')
-        });
         const prevValue = value;
         handleChangeWithURLDetection(newValue, prevValue);
       },

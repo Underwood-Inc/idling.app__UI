@@ -64,7 +64,9 @@
   background: transparent !important;
   padding: 0.25rem 0.5rem;
   font-size: inherit;
-  color: var(--light-bg__text-color--primary);
+  color: var(--text-muted, #9ca3af);
+  height: 100%;
+  min-height: 44px;
 }
 
 .smart-pill-input__smart-input .inline-suggestion-input:focus {
@@ -160,13 +162,15 @@
 }
 
 .smart-pill-input__text {
-  color: var(--light-bg__text-color--primary);
+  color: var(--light-bg__text-color--primary, #1f2937);
   white-space: pre-wrap;
+  font-weight: 500;
+  opacity: 1;
 }
 
 .smart-pill-input__pill {
   display: inline-block;
-  margin: 2px 4px 2px 0;
+  margin: 2px 2px 2px 0;
   transition: all 0.2s ease;
 }
 
@@ -178,9 +182,9 @@
   font-weight: 600 !important;
   /* Use inset shadow to prevent layout changes */
   box-shadow: inset 0 -1px 2px rgba(108, 117, 125, 0.2);
-  border-radius: 16px;
-  padding: 6px 12px;
-  font-size: 13px;
+  border-radius: 12px;
+  padding: 3px 8px;
+  font-size: 12px;
   position: relative;
 }
 
@@ -190,6 +194,9 @@
   color: #1565c0 !important;
   border: 1px solid #42a5f5 !important;
   box-shadow: inset 0 -1px 2px rgba(66, 165, 245, 0.25);
+  border-radius: 12px;
+  padding: 3px 8px;
+  font-size: 12px;
 }
 
 /* Mention specific styling in smart filter input */
@@ -198,6 +205,9 @@
   color: #2e7d32 !important;
   border: 1px solid #66bb6a !important;
   box-shadow: inset 0 -1px 2px rgba(102, 187, 106, 0.25);
+  border-radius: 12px;
+  padding: 3px 8px;
+  font-size: 12px;
 }
 
 /* Remove indicator - X symbol */
@@ -238,19 +248,19 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  height: 20px;
+  height: 16px;
   border: none;
-  border-radius: 12px;
-  font-size: 10px;
+  border-radius: 10px;
+  font-size: 9px;
   font-weight: 600;
   cursor: pointer;
-  margin-left: 8px;
-  padding: 0 8px;
+  margin-left: 6px;
+  padding: 0 6px;
   transition: all 0.2s ease;
   flex-shrink: 0;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  min-width: 28px;
+  min-width: 24px;
 }
 
 .smart-pill-input__pill .content-pill__filter-toggle--author {
@@ -437,11 +447,11 @@
 .smart-pill-input__mention-pill {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 0;
   background: linear-gradient(135deg, #e8f5e8, #c8e6c9);
   border: 1px solid #66bb6a;
   border-radius: 16px;
-  padding: 4px 8px 4px 0;
+  padding-inline-end: 2px;
   transition: all 0.2s ease;
   /* Use inset shadow to prevent layout changes */
   box-shadow: inset 0 -1px 2px rgba(102, 187, 106, 0.25);
@@ -465,18 +475,18 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  height: 22px;
+  height: 18px;
   border: none;
-  border-radius: 12px;
-  font-size: 10px;
+  border-radius: 10px;
+  font-size: 9px;
   font-weight: 600;
   cursor: pointer;
-  padding: 0 8px;
+  padding: 0 6px;
   transition: all 0.2s ease;
   flex-shrink: 0;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  min-width: 32px;
+  min-width: 28px;
 }
 
 .smart-pill-input__filter-type-toggle:hover {
@@ -519,15 +529,15 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  height: 22px;
-  border-radius: 12px;
-  font-size: 10px;
+  height: 18px;
+  border-radius: 10px;
+  font-size: 9px;
   font-weight: 600;
-  padding: 0 8px;
+  padding: 0 6px;
   flex-shrink: 0;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  min-width: 32px;
+  min-width: 28px;
   opacity: 0.8;
 }
 
