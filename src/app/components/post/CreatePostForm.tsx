@@ -10,7 +10,8 @@ const logger = createLogger({
   context: {
     component: 'CreatePostForm',
     module: 'components/post'
-  }
+  },
+  enabled: false
 });
 
 export default function CreatePostForm({ subthread }: { subthread: string }) {

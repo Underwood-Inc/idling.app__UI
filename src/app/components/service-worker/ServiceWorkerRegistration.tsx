@@ -9,7 +9,8 @@ const logger = createLogger({
   context: {
     component: 'ServiceWorkerRegistration',
     module: 'components/service-worker'
-  }
+  },
+  enabled: false
 });
 
 export function ServiceWorkerRegistration() {
