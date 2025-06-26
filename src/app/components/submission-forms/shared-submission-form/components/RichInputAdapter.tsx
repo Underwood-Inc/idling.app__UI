@@ -35,6 +35,7 @@ interface RichInputAdapterProps {
   enableUserMentions?: boolean;
   enableEmojis?: boolean;
   enableImagePaste?: boolean;
+  mentionFilterType?: 'author' | 'mentions'; // Controls what filter type mentions should use
 }
 
 interface SearchOverlayState {
@@ -57,12 +58,15 @@ export const RichInputAdapter: React.FC<RichInputAdapterProps> = ({
   enableHashtags = true,
   enableUserMentions = true,
   enableEmojis = true,
-  enableImagePaste = true
+  enableImagePaste = true,
+  mentionFilterType = 'author' // Default to author for backward compatibility
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const richInputRef = useRef<any>(null);
   const [isFocused, setIsFocused] = useState(false);
   const [toolbarInteracting, setToolbarInteracting] = useState(false);
+  const [searchOverlayInteracting, setSearchOverlayInteracting] =
+    useState(false);
   const [searchOverlay, setSearchOverlay] = useState<SearchOverlayState>({
     visible: false,
     type: null,
@@ -71,7 +75,6 @@ export const RichInputAdapter: React.FC<RichInputAdapterProps> = ({
     triggerIndex: -1
   });
   const focusTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const searchDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Extract existing hashtags from current value
   const extractExistingHashtags = useCallback((): string[] => {
@@ -130,9 +133,6 @@ export const RichInputAdapter: React.FC<RichInputAdapterProps> = ({
       if (focusTimeoutRef.current) {
         clearTimeout(focusTimeoutRef.current);
       }
-      if (searchDebounceRef.current) {
-        clearTimeout(searchDebounceRef.current);
-      }
     };
   }, []);
 
@@ -181,6 +181,10 @@ export const RichInputAdapter: React.FC<RichInputAdapterProps> = ({
           /^[a-zA-Z0-9_-]+\s/.test(query)
         ) {
           setSearchOverlay((prev) => ({ ...prev, visible: false }));
+          // eslint-disable-next-line no-console
+          console.log(
+            '🔍 OVERLAY: Hiding hashtag overlay - query contains space or completed'
+          );
           return;
         }
 
@@ -231,6 +235,9 @@ export const RichInputAdapter: React.FC<RichInputAdapterProps> = ({
         return;
       }
 
+      // Always show overlay for valid queries, even if results are empty
+      // This ensures the overlay stays open while results are loading
+
       // Calculate position for overlay
       const container = containerRef.current;
       if (!container) return;
@@ -259,6 +266,13 @@ export const RichInputAdapter: React.FC<RichInputAdapterProps> = ({
         position,
         triggerIndex: lastTrigger.index
       });
+
+      // eslint-disable-next-line no-console
+      console.log('🔍 OVERLAY: Search overlay set to visible:', {
+        type: lastTrigger.type,
+        query,
+        triggerIndex: lastTrigger.index
+      });
     },
     [
       enableHashtags,
@@ -269,24 +283,17 @@ export const RichInputAdapter: React.FC<RichInputAdapterProps> = ({
     ]
   );
 
-  // Handle value changes to detect triggers with debouncing
+  // Handle value changes to detect triggers immediately
   const handleValueChange = useCallback(
     (newValue: string) => {
+      // Call onChange immediately for responsive UI
       onChange(newValue);
 
-      // Clear any existing debounce
-      if (searchDebounceRef.current) {
-        clearTimeout(searchDebounceRef.current);
+      // Get cursor position from rich input immediately
+      if (richInputRef.current && richInputRef.current.getState) {
+        const state = richInputRef.current.getState();
+        detectTriggerAndShowOverlay(newValue, state.cursorPosition.index);
       }
-
-      // Debounce the trigger detection to prevent flickering
-      searchDebounceRef.current = setTimeout(() => {
-        // Get cursor position from rich input
-        if (richInputRef.current && richInputRef.current.getState) {
-          const state = richInputRef.current.getState();
-          detectTriggerAndShowOverlay(newValue, state.cursorPosition.index);
-        }
-      }, 100); // 100ms debounce
     },
     [onChange, detectTriggerAndShowOverlay]
   );
@@ -412,61 +419,143 @@ export const RichInputAdapter: React.FC<RichInputAdapterProps> = ({
   // Handle search result selection
   const handleSearchResultSelect = useCallback(
     (item: any) => {
+      // Add debugging to see what item we're getting
+      // eslint-disable-next-line no-console
+      console.log(
+        '🔍 SELECTION: handleSearchResultSelect called with item:',
+        item
+      );
+
       // Don't allow selecting disabled items
       if (item.disabled) {
+        // eslint-disable-next-line no-console
+        console.log('🔍 SELECTION: Item is disabled, ignoring selection');
         return;
       }
 
-      if (!richInputRef.current || searchOverlay.triggerIndex < 0) return;
+      if (!richInputRef.current || searchOverlay.triggerIndex < 0) {
+        // eslint-disable-next-line no-console
+        console.log('🔍 SELECTION: No richInputRef or invalid triggerIndex:', {
+          hasRichInputRef: !!richInputRef.current,
+          triggerIndex: searchOverlay.triggerIndex
+        });
+        return;
+      }
 
       const currentState = richInputRef.current.getState();
       const currentText = currentState.rawText;
 
       let insertText = '';
-      let replaceLength = searchOverlay.query.length + 1; // +1 for trigger character
+
+      // Find the end of the current partial mention/hashtag to replace
+      let replaceEndIndex = searchOverlay.triggerIndex + 1; // Start after trigger character
+
+      // For mentions, find the end of the current partial mention
+      if (searchOverlay.type === 'mention') {
+        // Find the next space or end of text after the trigger
+        const afterTrigger = currentText.substring(
+          searchOverlay.triggerIndex + 1
+        );
+        const spaceIndex = afterTrigger.search(/[\s\n]/);
+        if (spaceIndex >= 0) {
+          replaceEndIndex = searchOverlay.triggerIndex + 1 + spaceIndex;
+        } else {
+          replaceEndIndex = currentText.length;
+        }
+      } else if (searchOverlay.type === 'hashtag') {
+        // For hashtags, find the next space or end of text after the trigger
+        const afterTrigger = currentText.substring(
+          searchOverlay.triggerIndex + 1
+        );
+        const spaceIndex = afterTrigger.search(/[\s\n]/);
+        if (spaceIndex >= 0) {
+          replaceEndIndex = searchOverlay.triggerIndex + 1 + spaceIndex;
+        } else {
+          replaceEndIndex = currentText.length;
+        }
+      }
 
       if (searchOverlay.type === 'hashtag') {
         insertText = item.value.startsWith('#')
           ? `${item.value} `
           : `#${item.value} `;
       } else if (searchOverlay.type === 'mention') {
-        insertText = `@[${item.displayName || item.label}|${item.value}|author] `;
+        insertText = `@[${item.displayName || item.label}|${item.value}|${mentionFilterType}] `;
+        // eslint-disable-next-line no-console
+        console.log('🔍 SELECTION: Generated mention insertText:', insertText);
       } else if (searchOverlay.type === 'emoji') {
         // Always use colon syntax for emojis to ensure proper tokenization
         insertText = `:${item.name}:`;
       }
 
-      // Replace the trigger and query with the selected item
+      // Replace from trigger character to the end of the partial mention/hashtag
       const newText =
         currentText.substring(0, searchOverlay.triggerIndex) +
         insertText +
-        currentText.substring(searchOverlay.triggerIndex + replaceLength);
+        currentText.substring(replaceEndIndex);
 
       // Calculate new cursor position (at the end of inserted text)
       const newCursorPosition = searchOverlay.triggerIndex + insertText.length;
 
-      onChange(newText);
-      setSearchOverlay((prev) => ({ ...prev, visible: false }));
+      // eslint-disable-next-line no-console
+      console.log('🔍 SELECTION: Text replacement details:', {
+        currentText,
+        triggerIndex: searchOverlay.triggerIndex,
+        replaceEndIndex,
+        insertText,
+        newText
+      });
 
-      // Focus back to input and set cursor position
+      console.log(
+        '🔍 SELECTION: About to call onChange with newText:',
+        newText
+      );
+      onChange(newText);
+
+      // Move cursor to the end of the newly inserted structured mention
       setTimeout(() => {
         if (richInputRef.current) {
-          if (richInputRef.current.focus) {
-            richInputRef.current.focus();
+          // Get the current state to understand the visual structure
+          if (richInputRef.current.getState) {
+            const state = richInputRef.current.getState();
+            // eslint-disable-next-line no-console
+            console.log('🔍 CLICK: Current rich input state:', state);
           }
-          // Set cursor position if the method exists
-          if (richInputRef.current.setCursorPosition) {
+
+          // Try to position cursor at the end of the new value
+          const newCursorPosition = newText.length;
+
+          // Try different cursor positioning methods that might exist
+          if (richInputRef.current.setCursor) {
+            richInputRef.current.setCursor({ index: newCursorPosition });
+          } else if (richInputRef.current.setCursorPosition) {
             richInputRef.current.setCursorPosition(newCursorPosition);
           } else if (richInputRef.current.setSelection) {
             richInputRef.current.setSelection({
-              start: newCursorPosition,
-              end: newCursorPosition
+              start: { index: newCursorPosition },
+              end: { index: newCursorPosition },
+              direction: 'none'
             });
           }
+
+          // Ensure focus is maintained
+          if (richInputRef.current.focus) {
+            richInputRef.current.focus();
+          }
+
+          // eslint-disable-next-line no-console
+          console.log(
+            '🔍 CLICK: Attempted to move cursor to end of new value:',
+            newCursorPosition
+          );
         }
-      }, 0);
+      }, 50); // Longer timeout to ensure rich input has finished rendering
+
+      // Hide overlay
+      setSearchOverlay((prev) => ({ ...prev, visible: false }));
+      setSearchOverlayInteracting(false);
     },
-    [searchOverlay, onChange]
+    [searchOverlay, onChange, mentionFilterType]
   );
 
   // Handle toolbar insertions
@@ -537,18 +626,29 @@ export const RichInputAdapter: React.FC<RichInputAdapterProps> = ({
     if (!searchOverlay.visible) return;
 
     const handleClickOutside = (e: MouseEvent) => {
+      // Don't close if we're interacting with the search overlay
+      if (searchOverlayInteracting) {
+        // eslint-disable-next-line no-console
+        console.log(
+          '🔍 OVERLAY: Preventing outside click - interaction in progress'
+        );
+        return;
+      }
+
       const target = e.target as Element;
       if (
         !target.closest('.search-overlay') &&
         !target.closest('.rich-input-adapter-container')
       ) {
+        // eslint-disable-next-line no-console
+        console.log('🔍 OVERLAY: Hiding overlay due to outside click');
         setSearchOverlay((prev) => ({ ...prev, visible: false }));
       }
     };
 
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [searchOverlay.visible]);
+  }, [searchOverlay.visible, searchOverlayInteracting]);
 
   // Render search overlay
   const renderSearchOverlay = () => {
@@ -566,11 +666,21 @@ export const RichInputAdapter: React.FC<RichInputAdapterProps> = ({
       results = mentionResults;
       loading = loadingMentions;
       noResultsMessage = 'No users found';
+      // eslint-disable-next-line no-console
+      console.log('🔍 SEARCH: Rendering mention results:', mentionResults);
     } else if (searchOverlay.type === 'emoji') {
       results = emojiResults;
       loading = false;
       noResultsMessage = 'No emojis found';
     }
+
+    // eslint-disable-next-line no-console
+    console.log('🔍 OVERLAY: Rendering search overlay with results:', {
+      visible: searchOverlay.visible,
+      type: searchOverlay.type,
+      resultsCount: results.length,
+      position: searchOverlay.position
+    });
 
     return createPortal(
       <div
@@ -589,6 +699,8 @@ export const RichInputAdapter: React.FC<RichInputAdapterProps> = ({
           boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
           overflow: 'hidden'
         }}
+        onMouseEnter={() => setSearchOverlayInteracting(true)}
+        onMouseLeave={() => setSearchOverlayInteracting(false)}
       >
         <div
           style={{
@@ -597,6 +709,19 @@ export const RichInputAdapter: React.FC<RichInputAdapterProps> = ({
             padding: '4px 0'
           }}
         >
+          {/* Debug indicator */}
+          <div
+            style={{
+              padding: '4px 8px',
+              fontSize: '10px',
+              color: 'red',
+              background: 'yellow',
+              borderBottom: '1px solid #ccc'
+            }}
+          >
+            DEBUG: {results.length} results, type: {searchOverlay.type}
+          </div>
+
           {loading && (
             <div
               style={{
@@ -626,7 +751,100 @@ export const RichInputAdapter: React.FC<RichInputAdapterProps> = ({
           {results.map((item, index) => (
             <button
               key={item.id || index}
-              onClick={() => handleSearchResultSelect(item)}
+              onMouseDown={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                setSearchOverlayInteracting(true);
+
+                // eslint-disable-next-line no-console
+                console.log('🔍 CLICK: Search result button clicked:', {
+                  item,
+                  index,
+                  eventType: e.type,
+                  target: e.target,
+                  currentTarget: e.currentTarget
+                });
+
+                // Replace only the partial mention, not the entire input
+                // Get the current input value and replace from trigger to end of query
+                const currentValue = value || '';
+                const triggerIndex = searchOverlay.triggerIndex;
+                const queryLength = searchOverlay.query.length;
+                const replaceEndIndex = triggerIndex + 1 + queryLength; // +1 for trigger character
+
+                // Generate the structured mention
+                let insertText = '';
+                if (searchOverlay.type === 'mention') {
+                  insertText = `@[${item.displayName || item.label}|${item.value}|${mentionFilterType}] `;
+                } else if (searchOverlay.type === 'hashtag') {
+                  insertText = item.value.startsWith('#')
+                    ? `${item.value} `
+                    : `#${item.value} `;
+                }
+
+                const beforeTrigger = currentValue.substring(0, triggerIndex);
+                const afterQuery = currentValue.substring(replaceEndIndex);
+                const newValue = beforeTrigger + insertText + afterQuery;
+
+                // eslint-disable-next-line no-console
+                console.log('🔍 CLICK: Replacing partial mention:', {
+                  currentValue,
+                  triggerIndex,
+                  queryLength,
+                  replaceEndIndex,
+                  beforeTrigger,
+                  afterQuery,
+                  newValue
+                });
+
+                // Call onChange with the properly replaced value
+                onChange(newValue);
+
+                // Move cursor to the end of the newly inserted structured mention
+                setTimeout(() => {
+                  if (richInputRef.current) {
+                    // Get the current state to understand the visual structure
+                    if (richInputRef.current.getState) {
+                      const state = richInputRef.current.getState();
+                      // eslint-disable-next-line no-console
+                      console.log('🔍 CLICK: Current rich input state:', state);
+                    }
+
+                    // Try to position cursor at the end of the new value
+                    const newCursorPosition = newValue.length;
+
+                    // Try different cursor positioning methods that might exist
+                    if (richInputRef.current.setCursor) {
+                      richInputRef.current.setCursor({
+                        index: newCursorPosition
+                      });
+                    } else if (richInputRef.current.setCursorPosition) {
+                      richInputRef.current.setCursorPosition(newCursorPosition);
+                    } else if (richInputRef.current.setSelection) {
+                      richInputRef.current.setSelection({
+                        start: { index: newCursorPosition },
+                        end: { index: newCursorPosition },
+                        direction: 'none'
+                      });
+                    }
+
+                    // Ensure focus is maintained
+                    if (richInputRef.current.focus) {
+                      richInputRef.current.focus();
+                    }
+
+                    // eslint-disable-next-line no-console
+                    console.log(
+                      '🔍 CLICK: Attempted to move cursor to end of new value:',
+                      newCursorPosition
+                    );
+                  }
+                }, 50); // Longer timeout to ensure rich input has finished rendering
+
+                // Hide overlay
+                setSearchOverlay((prev) => ({ ...prev, visible: false }));
+                setSearchOverlayInteracting(false);
+              }}
               disabled={item.disabled}
               title={item.disabled ? 'Already selected' : undefined}
               style={{
@@ -915,9 +1133,9 @@ export const RichInputAdapter: React.FC<RichInputAdapterProps> = ({
             }
 
             focusTimeoutRef.current = setTimeout(() => {
-              // Only lose focus if we're not interacting with toolbar
+              // Only lose focus if we're not interacting with toolbar or search overlay
               // and focus has truly left the component
-              if (!toolbarInteracting) {
+              if (!toolbarInteracting && !searchOverlayInteracting) {
                 const activeElement = document.activeElement;
                 const container = containerRef.current;
 
@@ -929,6 +1147,15 @@ export const RichInputAdapter: React.FC<RichInputAdapterProps> = ({
                 ) {
                   setIsFocused(false);
                 }
+              } else {
+                // eslint-disable-next-line no-console
+                console.log(
+                  '🔍 OVERLAY: Preventing blur - interaction in progress:',
+                  {
+                    toolbarInteracting,
+                    searchOverlayInteracting
+                  }
+                );
               }
             }, 150);
           }
