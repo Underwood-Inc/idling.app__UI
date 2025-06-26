@@ -13,6 +13,13 @@ interface TooltipContentProps {
   url: string;
   onRefresh: () => void;
   onClick: (e: React.MouseEvent) => void;
+  cacheStats?: {
+    entryCount: number;
+    totalSizeMB: string;
+    maxEntries: number;
+    maxSizeMB: string;
+  } | null;
+  onClearCache?: () => void;
 }
 
 // Utility function to detect mobile devices
@@ -32,7 +39,9 @@ export const TooltipContent: React.FC<TooltipContentProps> = ({
   lastUpdated,
   url,
   onRefresh,
-  onClick
+  onClick,
+  cacheStats,
+  onClearCache
 }) => {
   if (loading) {
     return (
@@ -69,6 +78,26 @@ export const TooltipContent: React.FC<TooltipContentProps> = ({
       >
         Refresh
       </button>
+      {cacheStats && (
+        <div className="tooltip-cache-stats">
+          <small>
+            Cache: {cacheStats.entryCount}/{cacheStats.maxEntries} items (
+            {cacheStats.totalSizeMB}MB/{cacheStats.maxSizeMB}MB)
+          </small>
+          {onClearCache && (
+            <button
+              className="tooltip-clear-cache-button"
+              onClick={(e) => {
+                e.stopPropagation();
+                onClearCache();
+              }}
+              title="Clear all cached tooltips"
+            >
+              Clear
+            </button>
+          )}
+        </div>
+      )}
     </div>
   );
 

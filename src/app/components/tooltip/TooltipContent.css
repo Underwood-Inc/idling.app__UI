@@ -131,6 +131,7 @@
   margin-top: 8px;
   font-size: var(--font-size-xs);
   color: var(--light-bg__text-color--secondary);
+  flex-wrap: wrap;
 }
 
 /* Ensure TimestampWithTooltip has proper contrast in tooltip cache info */
@@ -148,6 +149,38 @@
   flex: 1;
   white-space: nowrap;
   cursor: help;
+}
+
+.tooltip-cache-stats {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  margin-top: 4px;
+  padding-top: 4px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.tooltip-clear-cache-button {
+  padding: 2px 6px;
+  background: var(--light-background--quaternary);
+  border: 1px solid var(--brand-tertiary--dark);
+  border-radius: calc(var(--border-radius) / 2);
+  color: var(--light-bg__text-color--primary);
+  font-size: var(--font-size-xs);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  margin-left: auto;
+}
+
+.tooltip-clear-cache-button:hover {
+  background: var(--brand-tertiary--dark);
+  color: var(--light-bg__text-color--primary);
+}
+
+.tooltip-clear-cache-button:active {
+  transform: translateY(1px);
 }
 
 .timezone-select {
