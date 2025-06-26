@@ -26,7 +26,8 @@ describe('Filter System Tests', () => {
 
       // Current implementation only supports tags and author
       expect(result.filters).toEqual([
-        { name: 'tags', value: '#tag1,#tag2' },
+        { name: 'tags', value: '#tag1' },
+        { name: 'tags', value: '#tag2' },
         { name: 'author', value: '123' }
         // mentions is not supported in current implementation
       ]);
@@ -45,7 +46,8 @@ describe('Filter System Tests', () => {
 
       // Current implementation doesn't support logic filters
       const expectedFilters = [
-        { name: 'tags', value: '#tag1,#tag2' }
+        { name: 'tags', value: '#tag1' },
+        { name: 'tags', value: '#tag2' }
         // Logic filters are not supported in current implementation
       ];
 
@@ -355,8 +357,13 @@ describe('Filter System Tests', () => {
       expect(result.filters).toEqual([
         {
           name: 'tags',
-          value: '#tag-with-dashes,#tag_with_underscores' // dots might be filtered out
+          value: '#tag-with-dashes'
+        },
+        {
+          name: 'tags',
+          value: '#tag_with_underscores'
         }
+        // dots might be filtered out
       ]);
     });
 

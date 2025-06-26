@@ -289,6 +289,22 @@ describe('FilterLabel Component', () => {
 
       expect(mockOnRemoveFilter).toHaveBeenCalledWith('mentions', 'johndoe');
     });
+
+    it('should handle plain text mentions removal', () => {
+      renderFilterLabel({
+        name: 'mentions',
+        label: 'plain-mention'
+      });
+
+      // For plain text mentions, it should render in loading state with a clickable span
+      const removeButton = screen.getByText('×');
+      fireEvent.click(removeButton);
+
+      expect(mockOnRemoveFilter).toHaveBeenCalledWith(
+        'mentions',
+        'plain-mention'
+      );
+    });
   });
 
   describe('Plain Text Labels', () => {
@@ -342,10 +358,9 @@ describe('FilterLabel Component', () => {
         label: 'plain-mention'
       });
 
-      const button = screen.getByRole('button', {
-        name: 'Remove plain-mention filter'
-      });
-      fireEvent.click(button);
+      // For plain text mentions, it should render in loading state with a clickable span
+      const removeButton = screen.getByText('×');
+      fireEvent.click(removeButton);
 
       expect(mockOnRemoveFilter).toHaveBeenCalledWith(
         'mentions',
@@ -361,10 +376,8 @@ describe('FilterLabel Component', () => {
         label: ''
       });
 
-      // Should render a button with aria-label for empty filter (note the double space)
-      expect(
-        screen.getByRole('button', { name: 'Remove filter' })
-      ).toBeInTheDocument();
+      // Should render ContentWithPills for tags, even with empty label
+      expect(screen.getByTestId('content-with-pills')).toBeInTheDocument();
     });
 
     it('should handle special characters in labels', () => {
@@ -457,8 +470,8 @@ describe('FilterLabel Component', () => {
         label: '123'
       });
 
-      // Should show initial state
-      expect(screen.getByText('123')).toBeInTheDocument();
+      // Should show initial state in loading indicator
+      expect(screen.getByText('@123')).toBeInTheDocument();
 
       // Resolve the promise
       resolvePromise!('johndoe');

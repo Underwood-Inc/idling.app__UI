@@ -45,20 +45,18 @@ describe('Home Page', () => {
     const cards = article?.querySelectorAll('.card');
     expect(cards).toHaveLength(2);
 
-    const discordCard = cards?.[1];
-    const paragraphs = discordCard?.querySelectorAll('p');
-    expect(paragraphs).toHaveLength(2);
-    expect(paragraphs?.[0]).toHaveTextContent(/Join our.*Discord/);
-    expect(paragraphs?.[1]).toHaveTextContent(/See a bug\?.*Discord/);
-
+    // Discord content is now in the aside, not in the main cards
     expect(
       screen.getByTestId(PAGE_ASIDE_SELECTORS.CONTAINER)
     ).toBeInTheDocument();
     expect(screen.getByTestId(PAGE_ASIDE_SELECTORS.ASIDE)).toBeInTheDocument();
 
+    // Check Discord embed in aside
+    expect(screen.getByTestId('discord-embed-iframe')).toBeInTheDocument();
+
     // Check Discord links
     const discordLinks = screen.getAllByTestId(DISCORD_LINK_SELECTORS.LINK);
-    expect(discordLinks).toHaveLength(3);
+    expect(discordLinks).toHaveLength(1);
     expect(discordLinks[0]).toHaveAttribute(
       'href',
       'https://discord.gg/mpThbx67J7'

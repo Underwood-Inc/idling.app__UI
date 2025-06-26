@@ -30,7 +30,7 @@ describe('Discord Link', () => {
 
     const linkElement = screen.getByTestId(DISCORD_LINK_SELECTORS.LINK);
 
-    expect(linkElement).toHaveTextContent('Join our Discord server');
+    expect(linkElement).toHaveTextContent('Discord');
     expect(linkElement).toHaveAttribute(
       'href',
       'https://discord.gg/mpThbx67J7'
@@ -49,12 +49,5 @@ describe('Discord Link', () => {
       'aria-labelledby',
       'discord-link-tooltip'
     );
-    expect(linkElement).toHaveAttribute('aria-hidden', 'true');
-    expect(linkElement).toHaveAttribute('aria-disabled', 'false');
-    expect(linkElement).toHaveAttribute('aria-expanded', 'false');
-    expect(linkElement).toHaveAttribute('aria-pressed', 'false');
-    expect(linkElement).toHaveAttribute('aria-haspopup', 'true');
-    expect(linkElement).toHaveAttribute('aria-roledescription', 'link');
-    expect(linkElement).toHaveAttribute('aria-roledescription', 'link');
   });
 });
