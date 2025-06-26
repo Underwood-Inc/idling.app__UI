@@ -22,6 +22,8 @@ export interface ScrollPositionData {
   totalPages?: number;
   // For filtering
   filters?: Record<string, any>;
+  // For thread navigation - target submission to scroll to
+  targetSubmissionId?: number;
 }
 
 const SCROLL_STORAGE_KEY = 'app-scroll-positions';
