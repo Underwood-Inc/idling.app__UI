@@ -101,7 +101,7 @@ export function SharedSubmissionForm({
       className={`shared-submission-form ${className}`}
     >
       {/* Title Field */}
-      <div className="shared-submission-form__field">
+      <div className="shared-submission-form__field" data-testid="title-field">
         <label className="shared-submission-form__label">{titleLabel} *</label>
         <RichTextEditor
           key={`title-${mode}`}

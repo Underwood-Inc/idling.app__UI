@@ -7,7 +7,7 @@ import { IntelligentSkeletonWrapper } from '../components/skeleton/IntelligentSk
 import { Submission } from '../components/submission-forms/schema';
 import { SubmissionItem } from '../components/submissions-list/SubmissionItem';
 import { SubmissionWithReplies } from '../components/submissions-list/actions';
-import styles from '../styles/MyPostsPageClient.module.css';
+import styles from './page.module.css';
 
 // Development-only import that gets tree-shaken in production
 let DevSkeletonToggle: React.ComponentType | null = null;
