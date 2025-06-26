@@ -210,7 +210,7 @@ export default function RootLayout({
         {/* Additional PWA optimizations */}
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="application-name" content="Idling App" />
-        <meta name="app-version" content="0.196.10" />
+        <meta name="app-version" content="__VERSION__" />
       </head>
 
       <body className={inter.className}>

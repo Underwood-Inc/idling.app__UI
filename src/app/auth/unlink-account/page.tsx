@@ -162,7 +162,7 @@ export default async function UnlinkAccountPage({
           <UnlinkAccountForm
             provider={provider}
             redirectTo={redirectTo || NAV_PATHS.ROOT}
-            currentUserEmail={session.user.email}
+            currentUserEmail={session.user.email ?? null}
           />
         </div>
 

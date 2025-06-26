@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
-import { version } from '../../../../package.json';
 
 export async function GET() {
-  return NextResponse.json({ version });
+  // Read version from package.json using require to avoid import warnings
+  const packageJson = require('../../../../package.json');
+  return NextResponse.json({ version: packageJson.version });
 } 
