@@ -220,7 +220,7 @@ export class Logger implements LoggerInstance {
   }
 
   group(title: string): void {
-    if (!this.config.grouping.enabled) return;
+    if (!this.config.grouping.enabled || !this.config.enabled) return;
 
     this.activeGroups.push(title);
     const prefix = this.getContextPrefix();

@@ -16,7 +16,8 @@ import { createLogger } from '../logging';
 const logger = createLogger({
   context: {
     module: 'UserPreferencesContext'
-  }
+  },
+  enabled: false
 });
 
 export type SpacingTheme = 'cozy' | 'compact';

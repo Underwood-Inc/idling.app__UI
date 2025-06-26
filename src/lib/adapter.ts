@@ -11,7 +11,8 @@ const logger = createLogger({
   context: {
     component: 'Adapter',
     module: 'lib'
-  }
+  },
+  enabled: false
 });
 
 export function mapExpiresAt(account: any): any {
