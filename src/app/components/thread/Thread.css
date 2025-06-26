@@ -184,11 +184,12 @@
 
 .thread__container .submission__meta {
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  gap: 0.75rem;
   margin-bottom: 0.5rem;
   font-size: var(--font-size-sm);
   color: var(--light-bg__text-color--secondary);
+  flex-wrap: wrap;
 }
 
 .thread__container .submission__author {
@@ -205,6 +206,7 @@
   display: flex;
   gap: 0.5rem;
   align-items: center;
+  margin-left: auto;
 }
 
 .thread__container .submission__edit-btn {
