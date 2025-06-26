@@ -17,12 +17,127 @@ export function FilterLabel({
   onRemoveFilter?: (filterName: string, filterValue?: string) => void;
 }) {
   const [displayLabel, setDisplayLabel] = useState(label);
+  const [isLoading, setIsLoading] = useState(false);
 
   // Simplified display logic - resolve userId to username for display
   useEffect(() => {
     const resolveUserDisplay = async () => {
-      if (name === 'author' && label && !label.startsWith('@')) {
-        // Author filter: label is always a userId, resolve to username for display
+      // Check if this looks like a user ID that needs resolution (numeric or UUID-like)
+      const isUserIdFormat = (value: string) => {
+        return (
+          /^\d+$/.test(value) || // Numeric ID
+          /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+            value
+          )
+        ); // UUID
+      };
+
+      // Check if this looks like a valid username (alphanumeric, underscore, hyphen)
+      const isUsernameFormat = (value: string) => {
+        return /^[a-zA-Z0-9_-]+$/.test(value) && value.length >= 2;
+      };
+
+      // Check if this is the new combined format (username|userId)
+      const isCombinedFormat = (value: string) => {
+        return value.includes('|') && value.split('|').length === 2;
+      };
+
+      // Handle tags filter - ensure # prefix
+      if (name === 'tags') {
+        const tagValue = label.startsWith('#') ? label : `#${label}`;
+        setDisplayLabel(tagValue);
+        setIsLoading(false);
+        return;
+      }
+
+      // Handle search filter - split unquoted words but keep quoted text atomic
+      if (name === 'search') {
+        setDisplayLabel(label); // Keep as-is, will be handled in rendering
+        setIsLoading(false);
+        return;
+      }
+
+      // For user filters, check if we can avoid re-resolution
+      if (
+        (name === 'author' || name === 'mentions') &&
+        label &&
+        !label.startsWith('@')
+      ) {
+        // If the new label is in combined format, we can use it directly without fetching
+        if (isCombinedFormat(label)) {
+          const [username, userId] = label.split('|');
+          const newDisplayLabel = `@[${username}|${userId}]`;
+
+          // Check if we already have this exact display - avoid unnecessary updates
+          if (displayLabel !== newDisplayLabel) {
+            setDisplayLabel(newDisplayLabel);
+          }
+          setIsLoading(false);
+          return;
+        }
+
+        // Check if we already have a resolved display label that contains the same user
+        if (displayLabel.startsWith('@[')) {
+          const existingMatch = displayLabel.match(/^@\[([^|]+)\|([^|]+)\]$/);
+          if (existingMatch) {
+            const [, existingUsername, existingUserId] = existingMatch;
+
+            // If the new label is just a userId and matches our existing userId, don't re-fetch
+            if (
+              name === 'author' &&
+              isUserIdFormat(label) &&
+              label === existingUserId
+            ) {
+              setIsLoading(false);
+              return;
+            }
+
+            // If the new label is just a username and matches our existing username, don't re-fetch
+            if (
+              name === 'mentions' &&
+              isUsernameFormat(label) &&
+              label === existingUsername
+            ) {
+              setIsLoading(false);
+              return;
+            }
+          }
+        }
+      }
+
+      // Check if this filter needs user resolution
+      // Only set loading if we actually need to fetch data
+      let needsAsyncResolution = false;
+
+      if (
+        name === 'author' &&
+        label &&
+        !label.startsWith('@') &&
+        isUserIdFormat(label)
+      ) {
+        needsAsyncResolution = true;
+      } else if (
+        name === 'mentions' &&
+        label &&
+        !label.startsWith('@') &&
+        isUsernameFormat(label) &&
+        !isCombinedFormat(label)
+      ) {
+        // Only need async resolution for mentions if it's a plain username (not combined format)
+        needsAsyncResolution = true;
+      }
+
+      if (needsAsyncResolution) {
+        setIsLoading(true);
+      }
+
+      if (
+        name === 'author' &&
+        label &&
+        !label.startsWith('@') &&
+        isUserIdFormat(label)
+      ) {
+        // Author filter: label is a userId, resolve to username for display
         try {
           const { resolveUserIdToUsername } = await import(
             '../../../lib/actions/search.actions'
@@ -38,36 +153,53 @@ export function FilterLabel({
         } catch (error) {
           console.error('Error resolving user ID to username:', error);
           setDisplayLabel(`@${label}`);
+        } finally {
+          setIsLoading(false);
         }
       } else if (name === 'mentions' && label && !label.startsWith('@')) {
-        // Mentions filter: label is username, need to get userId for display consistency
-        try {
-          const { getUserInfo } = await import(
-            '../../../lib/actions/search.actions'
-          );
-          const userInfo = await getUserInfo(label);
-          if (userInfo && userInfo.userId) {
-            // Display format: @[username|userID] (structured format for ContentWithPills)
-            setDisplayLabel(`@[${userInfo.username}|${userInfo.userId}]`);
-          } else {
-            // Fallback: show username with @ prefix
+        // Handle both old username format and new combined format
+        if (isCombinedFormat(label)) {
+          // New combined format: username|userId - NO ASYNC RESOLUTION NEEDED
+          const [username, userId] = label.split('|');
+          setDisplayLabel(`@[${username}|${userId}]`);
+          setIsLoading(false);
+        } else if (isUsernameFormat(label)) {
+          // Old username-only format: need to get userId for display consistency
+          try {
+            const { getUserInfo } = await import(
+              '../../../lib/actions/search.actions'
+            );
+            const userInfo = await getUserInfo(label);
+            if (userInfo && userInfo.userId) {
+              // Display format: @[username|userID] (structured format for ContentWithPills)
+              setDisplayLabel(`@[${userInfo.username}|${userInfo.userId}]`);
+            } else {
+              // Fallback: show username with @ prefix
+              setDisplayLabel(`@${label}`);
+            }
+          } catch (error) {
+            console.error(
+              'Error resolving username to user ID for display:',
+              error
+            );
             setDisplayLabel(`@${label}`);
+          } finally {
+            setIsLoading(false);
           }
-        } catch (error) {
-          console.error(
-            'Error resolving username to user ID for display:',
-            error
-          );
-          setDisplayLabel(`@${label}`);
+        } else {
+          // Not a recognized format, show as-is
+          setDisplayLabel(label);
+          setIsLoading(false);
         }
       } else {
-        // Already formatted or other types
+        // Already formatted, plain text, or other types - no loading needed
         setDisplayLabel(label);
+        setIsLoading(false);
       }
     };
 
     resolveUserDisplay();
-  }, [name, label]);
+  }, [name, label, displayLabel]);
 
   const handleTagClick = (tagValue: string) => {
     // FilterBar now preserves the correct format, so use the label directly
@@ -92,6 +224,135 @@ export function FilterLabel({
       onRemoveTag(label);
     }
   };
+
+  // Handle search text removal
+  const handleSearchTextClick = (searchText: string) => {
+    if (onRemoveFilter) {
+      // Parse the current search text to get all parts
+      const searchParts = parseSearchText(displayLabel);
+
+      // Remove the specific clicked part
+      const remainingParts = searchParts.filter((part) => {
+        // For quoted parts, the button shows "text" but part.text is just text
+        // For unquoted parts, both should match exactly
+        let partDisplay;
+
+        if (part.isQuoted) {
+          partDisplay = `"${part.text}"`;
+        } else {
+          partDisplay = part.text;
+        }
+
+        // The clicked text should match exactly what we display
+        const clickedDisplay = searchText;
+
+        return partDisplay !== clickedDisplay;
+      });
+
+      if (remainingParts.length > 0) {
+        // Reconstruct the search text with remaining parts
+        const newSearchText = remainingParts
+          .map((part) => (part.isQuoted ? `"${part.text}"` : part.text))
+          .join(' ');
+
+        // Use special format to signal partial removal - this handles both removal and update
+        onRemoveTag(`search:${searchText}:${newSearchText}`);
+      } else {
+        // No remaining parts, remove the entire search filter
+        onRemoveFilter('search', label);
+      }
+    } else {
+      onRemoveTag(label);
+    }
+  };
+
+  // Parse search text to handle quoted vs unquoted content
+  const parseSearchText = (text: string) => {
+    const parts: Array<{ text: string; isQuoted: boolean }> = [];
+    const regex = /"([^"]+)"|(\S+)/g;
+    let match;
+
+    while ((match = regex.exec(text)) !== null) {
+      const quotedText = match[1]; // Captured quoted content
+      const unquotedText = match[2]; // Captured unquoted content
+
+      if (quotedText) {
+        // Quoted text - keep as atomic unit
+        parts.push({ text: quotedText, isQuoted: true });
+      } else if (unquotedText) {
+        // Unquoted text - can be split
+        parts.push({ text: unquotedText, isQuoted: false });
+      }
+    }
+
+    return parts;
+  };
+
+  // Show loading state for user mention filters while resolving (only for those that need resolution)
+  if (isLoading) {
+    return (
+      <div className="filter-bar__filter-value filter-bar__filter-value--loading">
+        <span className="filter-bar__filter-loading-indicator">
+          <span className="filter-bar__filter-loading-spinner"></span>
+          {name === 'tags'
+            ? '#'
+            : name === 'author' || name === 'mentions'
+              ? '@'
+              : ''}
+          {label}
+        </span>
+        <span
+          className="filter-bar__filter-remove"
+          aria-hidden="true"
+          onClick={() => {
+            if (name === 'author' && onRemoveFilter) {
+              onRemoveFilter('author', label);
+            } else if (name === 'mentions' && onRemoveFilter) {
+              onRemoveFilter('mentions', label);
+            } else {
+              onRemoveTag(label);
+            }
+          }}
+          style={{ cursor: 'pointer' }}
+        >
+          ×
+        </span>
+      </div>
+    );
+  }
+
+  // Special handling for search filters
+  if (name === 'search') {
+    const searchParts = parseSearchText(displayLabel);
+
+    return (
+      <div className="filter-bar__search-terms">
+        {searchParts.map((part, index) => {
+          // Calculate the display format that matches what handleSearchTextClick expects
+          const displayFormat = part.isQuoted ? `"${part.text}"` : part.text;
+
+          return (
+            <button
+              key={`search-${index}-${part.text}`}
+              className={`filter-bar__filter-value ${part.isQuoted ? 'filter-bar__filter-value--quoted' : 'filter-bar__filter-value--word'}`}
+              onClick={() => handleSearchTextClick(displayFormat)}
+              aria-label={`Remove search term: ${part.text}`}
+              title={
+                part.isQuoted
+                  ? `Quoted search: "${part.text}"`
+                  : `Search word: ${part.text}`
+              }
+            >
+              {part.isQuoted ? `"${part.text}"` : part.text}
+              <span className="filter-bar__filter-remove" aria-hidden="true">
+                ×
+              </span>
+            </button>
+          );
+        })}
+      </div>
+    );
+  }
 
   // If the display label starts with # or @, use ContentWithPills for proper styling
   if (displayLabel.startsWith('#') || displayLabel.startsWith('@')) {
