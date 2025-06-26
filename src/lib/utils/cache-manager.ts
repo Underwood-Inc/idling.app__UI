@@ -12,7 +12,8 @@ const logger = createLogger({
   context: {
     component: 'CacheManager',
     module: 'utils'
-  }
+  },
+  enabled: false
 });
 
 export interface CacheInfo {

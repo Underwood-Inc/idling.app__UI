@@ -9,7 +9,8 @@ import { createLogger } from '../logging';
 const logger = createLogger({
   context: {
     module: 'scroll-highlight'
-  }
+  },
+  enabled: false
 });
 
 export interface ScrollHighlightOptions {

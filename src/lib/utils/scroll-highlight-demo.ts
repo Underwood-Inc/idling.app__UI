@@ -18,7 +18,8 @@ const logger = createLogger({
   context: {
     component: 'ScrollHighlightDemo',
     module: 'utils'
-  }
+  },
+  enabled: false
 });
 
 /**
