@@ -26,6 +26,22 @@
   min-height: 0;
 }
 
+/* Twitch chat - full width below other cards */
+.home__container_item:nth-child(3) {
+  flex: 1 1 100%;
+  min-height: 0;
+}
+
+/* Full-width items for stacked layout */
+.home__container_item_full {
+  flex: 1 1 100%;
+  min-height: 0;
+}
+
+.home__twitch_chat {
+  width: 100%;
+}
+
 .discord_aside {
   min-height: 60rem;
 }
@@ -33,4 +49,17 @@
 .discord_aside>div::before,
 .discord_aside>div::after {
   margin-block-end: 0.2rem;
+}
+
+/* Mobile responsiveness for Twitch chat */
+@media (max-width: 768px) {
+  .home__container_item:nth-child(1),
+  .home__container_item:nth-child(2),
+  .home__container_item:nth-child(3) {
+    flex: 1 1 100%;
+  }
+  
+  .home__twitch_chat {
+    height: 400px;
+  }
 }
