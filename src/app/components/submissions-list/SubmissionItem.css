@@ -27,19 +27,25 @@
 .submission__meta {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  justify-content: space-between;
   margin-bottom: 0.75rem;
   flex-wrap: wrap;
   font-size: var(--font-size-sm);
   color: var(--light-bg__text-color--secondary);
+  position: relative;
 }
 
 .submission__meta--no-actions {
-  justify-content: flex-start;
+  justify-content: space-between;
 }
 
 .submission__datetime {
   white-space: nowrap;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1;
 }
 
 .submission__author {
@@ -256,6 +262,14 @@
     flex-direction: column;
     align-items: flex-start;
     gap: 0.5rem;
+    justify-content: flex-start;
+  }
+
+  .submission__datetime {
+    position: static;
+    transform: none;
+    align-self: center;
+    margin-top: 0.25rem;
   }
 
   /* Ensure owner actions are properly positioned and accessible on mobile */
