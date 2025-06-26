@@ -1,10 +1,18 @@
 'use server';
 
 import sql from '../../../lib/db';
-import { Submission } from '../submission-forms/schema';
 
-export interface NestedSubmission extends Submission {
-  replies?: NestedSubmission[];
+export interface NestedSubmission {
+  submission_id: number;
+  submission_name: string;
+  submission_title: string;
+  submission_datetime: Date;
+  user_id: number;
+  author: string;
+  author_bio: string | null;
+  tags: string[];
+  thread_parent_id: number | null;
+  replies: NestedSubmission[];
   depth?: number;
 }
 
