@@ -3,7 +3,10 @@
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { NAV_PATHS } from '../../../lib/routes';
-import { generateScrollKey } from '../../../lib/utils/scroll-position';
+import {
+  generateScrollKey,
+  getStoredScrollPosition
+} from '../../../lib/utils/scroll-position';
 import { Author } from '../author/Author';
 import Loader from '../loader/Loader';
 import { DeleteSubmissionForm } from '../submission-forms/delete-submission-form/DeleteSubmissionForm';
@@ -74,6 +77,50 @@ export default function Thread({
 
     loadThread();
   }, [submissionId]);
+
+  // Handle scrolling to target submission when returning from parent thread
+  useEffect(() => {
+    if (!loading && typeof window !== 'undefined') {
+      const scrollKey = generateScrollKey(window.location.pathname, {
+        searchParams: new URLSearchParams(window.location.search)
+      });
+
+      const storedPosition = getStoredScrollPosition(scrollKey);
+      if (storedPosition?.targetSubmissionId) {
+        // Use a more reliable approach with multiple attempts
+        const attemptScroll = (attempts = 0) => {
+          const targetElement = document.querySelector(
+            `[data-testid="submission-item-${storedPosition.targetSubmissionId}"]`
+          ) as HTMLElement;
+
+          if (targetElement) {
+            // Scroll to the target element
+            targetElement.scrollIntoView({
+              behavior: 'smooth',
+              block: 'center'
+            });
+
+            // Add a highlight effect
+            targetElement.style.backgroundColor = 'var(--brand-tertiary)';
+            setTimeout(() => {
+              targetElement.style.backgroundColor = '';
+            }, 2000);
+          } else if (attempts < 10) {
+            // Retry after a short delay if element not found
+            setTimeout(() => attemptScroll(attempts + 1), 100);
+          } else {
+            console.warn(
+              'Target submission element not found after multiple attempts:',
+              storedPosition.targetSubmissionId
+            );
+          }
+        };
+
+        // Start the scroll attempt process
+        attemptScroll();
+      }
+    }
+  }, [loading, parentSubmission, replies]);
 
   const handleReplyAdded = async (result?: any) => {
     // Use optimistic update if we have the new reply data, otherwise refresh
@@ -216,6 +263,7 @@ export default function Thread({
         key={submission.submission_id}
         className={`submission__wrapper ${isReply ? 'submission__wrapper--reply' : ''}`}
         style={{ marginLeft: isReply ? `${depth * 1.5}rem` : '0' }}
+        data-testid={`submission-item-${submission.submission_id}`}
       >
         <div className="submission__meta">
           <Author
