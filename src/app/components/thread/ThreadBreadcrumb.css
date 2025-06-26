@@ -1,0 +1,103 @@
+.thread-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  background: var(--light-background--secondary);
+  border: 1px solid var(--light-border--secondary);
+  border-radius: var(--border-radius);
+  font-size: var(--font-size-sm);
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.thread-breadcrumb__label {
+  color: var(--light-bg__text-color--secondary);
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.thread-breadcrumb__items {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.thread-breadcrumb__item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.thread-breadcrumb__link {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  color: var(--brand-primary);
+  text-decoration: none;
+  transition: color 0.2s ease;
+  padding: 0.25rem 0.5rem;
+  border-radius: var(--border-radius);
+  background: var(--light-background--primary);
+  border: 1px solid var(--light-border--primary);
+}
+
+.thread-breadcrumb__link:hover {
+  color: var(--brand-primary--dark);
+  background: var(--light-background--tertiary);
+  text-decoration: none;
+}
+
+.thread-breadcrumb__title {
+  font-weight: 500;
+  max-width: 150px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.thread-breadcrumb__author {
+  color: var(--light-bg__text-color--secondary);
+  font-size: var(--font-size-xs);
+  white-space: nowrap;
+}
+
+.thread-breadcrumb__separator {
+  color: var(--light-bg__text-color--secondary);
+  font-weight: 500;
+}
+
+.thread-breadcrumb__loading {
+  color: var(--light-bg__text-color--secondary);
+  font-style: italic;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .thread-breadcrumb {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .thread-breadcrumb__items {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+  }
+
+  .thread-breadcrumb__item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+  }
+
+  .thread-breadcrumb__title {
+    max-width: 200px;
+  }
+
+  .thread-breadcrumb__separator {
+    display: none;
+  }
+} 
