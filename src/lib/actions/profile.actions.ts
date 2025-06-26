@@ -11,7 +11,8 @@ const logger = createLogger({
   context: {
     component: 'ProfileActions',
     module: 'actions'
-  }
+  },
+  enabled: false
 });
 
 export interface ProfileFilters {
