@@ -167,19 +167,19 @@ export const TimestampWithTooltip: React.FC<TimestampWithTooltipProps> = ({
 
   // Create tooltip content
   const tooltipContent = (
-    <div style={{ minWidth: '300px', maxWidth: '350px' }}>
+    <div>
       <div
         style={{
-          padding: '12px 16px',
+          padding: '10px 12px',
           borderBottom:
             '1px solid var(--glass-border-overlay-light, var(--brand-tertiary--light))',
-          marginBottom: '8px'
+          marginBottom: '6px'
         }}
       >
         <h4
           style={{
-            margin: '0 0 8px 0',
-            fontSize: '14px',
+            margin: '0 0 6px 0',
+            fontSize: '13px',
             fontWeight: '600',
             color: 'white'
           }}
@@ -188,7 +188,7 @@ export const TimestampWithTooltip: React.FC<TimestampWithTooltipProps> = ({
         </h4>
         <div
           style={{
-            fontSize: '13px',
+            fontSize: '12px',
             color: 'rgba(255, 255, 255, 0.8)',
             wordWrap: 'break-word'
           }}
@@ -197,11 +197,11 @@ export const TimestampWithTooltip: React.FC<TimestampWithTooltipProps> = ({
         </div>
       </div>
 
-      <div style={{ padding: '0 16px 12px' }}>
+      <div style={{ padding: '0 12px 10px' }}>
         <div
           style={{
-            marginBottom: '8px',
-            fontSize: '12px',
+            marginBottom: '6px',
+            fontSize: '11px',
             fontWeight: '500',
             color: 'white'
           }}
@@ -210,7 +210,7 @@ export const TimestampWithTooltip: React.FC<TimestampWithTooltipProps> = ({
         </div>
         <div
           style={{
-            fontSize: '13px',
+            fontSize: '12px',
             color: 'rgba(255, 255, 255, 0.8)',
             fontFamily: 'var(--font-mono, monospace)',
             wordWrap: 'break-word'
@@ -220,11 +220,11 @@ export const TimestampWithTooltip: React.FC<TimestampWithTooltipProps> = ({
         </div>
       </div>
 
-      <div style={{ padding: '0 16px 12px' }}>
+      <div style={{ padding: '0 12px 10px' }}>
         <div
           style={{
-            marginBottom: '8px',
-            fontSize: '12px',
+            marginBottom: '6px',
+            fontSize: '11px',
             fontWeight: '500',
             color: 'white'
           }}
@@ -233,7 +233,7 @@ export const TimestampWithTooltip: React.FC<TimestampWithTooltipProps> = ({
         </div>
         <div
           style={{
-            fontSize: '13px',
+            fontSize: '12px',
             color: 'rgba(255, 255, 255, 0.8)',
             fontFamily: 'var(--font-mono, monospace)',
             wordWrap: 'break-word'
@@ -258,7 +258,7 @@ export const TimestampWithTooltip: React.FC<TimestampWithTooltipProps> = ({
       content={tooltipContent}
       isInsideParagraph={true}
       delay={200}
-      className="timestamp-tooltip"
+      className="timestamp-tooltip timestamp-tooltip-wrapper"
     >
       <span
         className={`timestamp-with-tooltip ${abbreviated ? 'abbreviated' : ''} ${className}`}

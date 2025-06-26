@@ -33,19 +33,37 @@
   font-size: var(--font-size-sm);
   color: var(--light-bg__text-color--secondary);
   position: relative;
+  gap: 0.5rem;
 }
 
 .submission__meta--no-actions {
   justify-content: space-between;
 }
 
+/* Target the span that contains the timestamp (the InteractiveTooltip wrapper) */
+.submission__meta > span:has(.submission__datetime),
+.submission__meta > span:has(.timestamp-with-tooltip) {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  text-align: center;
+}
+
+/* Fallback for browsers that don't support :has() */
+.submission__meta > span[style*="display: inline-block"] {
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  text-align: center;
+}
+
 .submission__datetime {
   white-space: nowrap;
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  z-index: 1;
+  /* Ensure the timestamp text itself is properly styled */
+  display: inline-block;
+  text-align: center;
 }
 
 .submission__author {
