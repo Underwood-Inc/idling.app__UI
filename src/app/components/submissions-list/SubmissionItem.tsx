@@ -47,6 +47,8 @@ interface SubmissionItemProps {
   // Scroll position context
   currentPage?: number;
   currentFilters?: Record<string, any>;
+  // Control parent link display
+  showParentLinkForFirstLevel?: boolean;
 }
 
 export function SubmissionItem({
@@ -62,7 +64,8 @@ export function SubmissionItem({
   optimisticUpdateSubmission,
   optimisticRemoveSubmission,
   currentPage,
-  currentFilters
+  currentFilters,
+  showParentLinkForFirstLevel = true
 }: SubmissionItemProps) {
   const { data: session } = useSession();
 
@@ -385,6 +388,7 @@ export function SubmissionItem({
                 maxDepth={maxDepth}
                 onSubmissionUpdate={onSubmissionUpdate}
                 contextId={contextId || 'submission-item'}
+                showParentLinkForFirstLevel={false}
               />
 
               {/* Nested reply form for this specific reply */}
