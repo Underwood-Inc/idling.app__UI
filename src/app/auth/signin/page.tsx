@@ -4,6 +4,7 @@ import { auth } from '../../../lib/auth';
 import { NAV_PATHS } from '../../../lib/routes';
 import { ClientSignIn } from '../../components/auth-buttons/ClientAuthButtons';
 import { SignInProviders } from '../../components/auth-buttons/types';
+import { OAuthAccountConflictHandler } from './OAuthAccountConflictHandler';
 import './page.css';
 
 export default async function Page({
@@ -14,6 +15,19 @@ export default async function Page({
   const session = await auth();
   let providers: SignInProviders[] = ['twitch', 'google'];
   const redirectTo = searchParams.redirect || NAV_PATHS.ROOT;
+  const error = searchParams.error;
+  const provider = searchParams.provider;
+
+  // Handle OAuth account linking conflicts
+  if (error === 'OAuthAccountNotLinked') {
+    return (
+      <PageContainer>
+        <div className="signin__container">
+          <OAuthAccountConflictHandler provider={provider} />
+        </div>
+      </PageContainer>
+    );
+  }
 
   if (session && searchParams.redirect) {
     redirect(searchParams.redirect);

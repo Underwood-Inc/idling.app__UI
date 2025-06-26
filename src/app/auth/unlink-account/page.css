@@ -1,0 +1,257 @@
+.unlink-account__container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.unlink-account__header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.unlink-account__icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.unlink-account__title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--light-bg__text-color--primary);
+  margin: 0 0 0.5rem 0;
+}
+
+.unlink-account__subtitle {
+  font-size: 1.1rem;
+  color: var(--light-bg__text-color--secondary);
+  margin: 0;
+}
+
+.unlink-account__content {
+  background: var(--light-background--secondary);
+  border: 1px solid var(--brand-tertiary--dark);
+  border-radius: var(--border-radius);
+  padding: 2rem;
+  margin-bottom: 2rem;
+}
+
+.unlink-account__info {
+  margin-bottom: 2rem;
+}
+
+.unlink-account__info h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--light-bg__text-color--primary);
+  margin: 0 0 1rem 0;
+}
+
+.unlink-account__info p {
+  font-size: 1rem;
+  color: var(--light-bg__text-color--secondary);
+  line-height: 1.6;
+  margin: 0 0 1.5rem 0;
+}
+
+.unlink-account__steps {
+  background: var(--light-background--primary);
+  border: 1px solid var(--brand-tertiary--dark);
+  border-radius: var(--border-radius);
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.unlink-account__steps h3 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--light-bg__text-color--primary);
+  margin: 0 0 1rem 0;
+}
+
+.unlink-account__steps ol {
+  margin: 0;
+  padding-left: 1.5rem;
+}
+
+.unlink-account__steps li {
+  font-size: 1rem;
+  color: var(--light-bg__text-color--secondary);
+  line-height: 1.6;
+  margin-bottom: 0.5rem;
+}
+
+.unlink-account__warning {
+  background: var(--brand-secondary);
+  border: 1px solid var(--brand-secondary--dark);
+  border-radius: var(--border-radius);
+  padding: 1.5rem;
+}
+
+.unlink-account__warning h3 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--light-bg__text-color--primary);
+  margin: 0 0 1rem 0;
+}
+
+.unlink-account__warning ul {
+  margin: 0;
+  padding-left: 1.5rem;
+}
+
+.unlink-account__warning li {
+  font-size: 1rem;
+  color: var(--light-bg__text-color--secondary);
+  line-height: 1.6;
+  margin-bottom: 0.5rem;
+}
+
+.unlink-account__actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.unlink-account__button {
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--border-radius);
+  font-size: 1rem;
+  font-weight: 500;
+  text-decoration: none;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+  min-width: 120px;
+}
+
+.unlink-account__button--primary {
+  background: var(--brand-primary);
+  color: white;
+  border-color: var(--brand-primary);
+}
+
+.unlink-account__button--primary:hover {
+  background: var(--brand-primary--dark);
+  border-color: var(--brand-primary--dark);
+}
+
+.unlink-account__button--secondary {
+  background: var(--light-background--tertiary);
+  color: var(--light-bg__text-color--primary);
+  border-color: var(--brand-tertiary--dark);
+}
+
+.unlink-account__button--secondary:hover {
+  background: var(--brand-tertiary--dark);
+  color: var(--light-bg__text-color--primary);
+}
+
+.unlink-account__button--tertiary {
+  background: var(--light-background--quaternary);
+  color: var(--light-bg__text-color--primary);
+  border-color: var(--brand-tertiary--dark);
+}
+
+.unlink-account__button--tertiary:hover {
+  background: var(--brand-tertiary--dark);
+  color: var(--light-bg__text-color--primary);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .unlink-account__container {
+    padding: 1rem;
+  }
+  
+  .unlink-account__content {
+    padding: 1.5rem;
+  }
+  
+  .unlink-account__title {
+    font-size: 1.5rem;
+  }
+  
+  .unlink-account__actions {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .unlink-account__button {
+    width: 100%;
+    max-width: 300px;
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .unlink-account__title {
+    color: var(--dark-bg__text-color--primary);
+  }
+  
+  .unlink-account__subtitle {
+    color: var(--dark-bg__text-color--secondary);
+  }
+  
+  .unlink-account__content {
+    background: var(--dark-background--secondary);
+    border-color: var(--dark-brand-tertiary--dark);
+  }
+  
+  .unlink-account__info h2 {
+    color: var(--dark-bg__text-color--primary);
+  }
+  
+  .unlink-account__info p {
+    color: var(--dark-bg__text-color--secondary);
+  }
+  
+  .unlink-account__steps {
+    background: var(--dark-background--primary);
+    border-color: var(--dark-brand-tertiary--dark);
+  }
+  
+  .unlink-account__steps h3 {
+    color: var(--dark-bg__text-color--primary);
+  }
+  
+  .unlink-account__steps li {
+    color: var(--dark-bg__text-color--secondary);
+  }
+  
+  .unlink-account__warning {
+    background: var(--dark-background--tertiary);
+    border-color: var(--dark-brand-secondary--dark);
+  }
+  
+  .unlink-account__warning h3 {
+    color: var(--dark-bg__text-color--primary);
+  }
+  
+  .unlink-account__warning li {
+    color: var(--dark-bg__text-color--secondary);
+  }
+  
+  .unlink-account__button--secondary {
+    background: var(--dark-background--tertiary);
+    color: var(--dark-bg__text-color--primary);
+    border-color: var(--dark-brand-tertiary--dark);
+  }
+  
+  .unlink-account__button--secondary:hover {
+    background: var(--dark-brand-tertiary--dark);
+    color: var(--dark-bg__text-color--primary);
+  }
+  
+  .unlink-account__button--tertiary {
+    background: var(--dark-background--quaternary);
+    color: var(--dark-bg__text-color--primary);
+    border-color: var(--dark-brand-tertiary--dark);
+  }
+  
+  .unlink-account__button--tertiary:hover {
+    background: var(--dark-brand-tertiary--dark);
+    color: var(--dark-bg__text-color--primary);
+  }
+} 

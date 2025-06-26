@@ -4,6 +4,8 @@
   font-size: var(--font-size-sm);
   font-weight: 400;
   transition: color 0.2s ease;
+  /* Ensure proper positioning for tooltip alignment */
+  display: inline-block;
 }
 
 /* Abbreviated timestamp for compact display (like footer) */

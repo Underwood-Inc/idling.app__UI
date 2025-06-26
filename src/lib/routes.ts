@@ -5,6 +5,7 @@ const MY_POSTS = '/my-posts';
 const COINS = '/coins';
 const GAME = '/game';
 const SIGNIN = '/auth/signin';
+const CALLBACK = '/auth/callback';
 const ADMIN = '/admin';
 
 // Thread routes for Reddit-style navigation
@@ -18,6 +19,7 @@ export const NAV_PATHS = {
   COINS,
   GAME,
   SIGNIN,
+  CALLBACK,
   THREAD_BASE,
   ADMIN
 };
@@ -29,7 +31,7 @@ export const buildThreadUrl = (submissionId: number) =>
 export const HEADER_NAV_PATHS: Record<
   Exclude<
     ROUTES,
-    'ROOT' | 'SIGNIN' | 'COINS' | 'GAME' | 'THREAD_BASE' | 'ADMIN'
+    'ROOT' | 'SIGNIN' | 'COINS' | 'GAME' | 'THREAD_BASE' | 'ADMIN' | 'CALLBACK'
   >,
   string
 > = {
@@ -48,12 +50,13 @@ export const NAV_PATH_LABELS: Record<ROUTES, string> = {
   COINS: 'Coins',
   GAME: 'Game',
   SIGNIN: 'Sign In',
+  CALLBACK: 'Callback',
   THREAD_BASE: 'Thread',
   ADMIN: 'Admin'
 };
 
 export const DISABLED_PATHS = [NAV_PATHS.GAME, NAV_PATHS.COINS];
-export const PUBLIC_ROUTES = [NAV_PATHS.ROOT, NAV_PATHS.SIGNIN];
+export const PUBLIC_ROUTES = [NAV_PATHS.ROOT, NAV_PATHS.SIGNIN, '/auth/unlink-account'];
 export const PRIVATE_ROUTES = [
   NAV_PATHS.ADMIN,
   NAV_PATHS.MY_POSTS,

@@ -15,6 +15,86 @@ interface CallbackSearchParams {
   state?: string;
 }
 
+// Component for handling OAuth account linking conflicts
+function OAuthAccountConflictHandler({ provider }: { provider?: string }) {
+  const providerName = provider
+    ? provider.charAt(0).toUpperCase() + provider.slice(1)
+    : 'OAuth';
+
+  return (
+    <div className="callback__error callback__error--account-conflict">
+      <div className="callback__icon callback__icon--error">🔗</div>
+      <h2 className="callback__title">Account Already Linked</h2>
+      <div className="callback__message">
+        <p>
+          The {providerName} account you&apos;re trying to sign in with is
+          already linked to another user account.
+        </p>
+        <p>
+          This usually happens when you&apos;ve previously signed in with a
+          different email address or account.
+        </p>
+      </div>
+
+      <div className="callback__solutions">
+        <h3>What would you like to do?</h3>
+
+        <div className="callback__solution-options">
+          <div className="callback__solution-option">
+            <h4>Option 1: Sign in with your existing account</h4>
+            <p>
+              If you remember your other account, sign in with that instead.
+            </p>
+            <InstantLink
+              href={NAV_PATHS.SIGNIN}
+              className="callback__button callback__button--primary"
+            >
+              Sign in with different account
+            </InstantLink>
+          </div>
+
+          <div className="callback__solution-option">
+            <h4>Option 2: Unlink and relink this account</h4>
+            <p>
+              We can help you unlink this {providerName} account from the other
+              user and link it to your current account.
+            </p>
+            <InstantLink
+              href={`/auth/unlink-account?provider=${provider || 'oauth'}`}
+              className="callback__button callback__button--secondary"
+            >
+              Unlink and relink account
+            </InstantLink>
+          </div>
+
+          <div className="callback__solution-option">
+            <h4>Option 3: Contact support</h4>
+            <p>
+              If you need help resolving this issue, our support team can assist
+              you.
+            </p>
+            <InstantLink
+              href="/support"
+              className="callback__button callback__button--tertiary"
+            >
+              Contact Support
+            </InstantLink>
+          </div>
+        </div>
+      </div>
+
+      <div className="callback__actions">
+        <InstantLink
+          href={NAV_PATHS.ROOT}
+          className="callback__button callback__button--secondary"
+        >
+          Go Home
+        </InstantLink>
+      </div>
+    </div>
+  );
+}
+
 function CallbackContent({
   searchParams
 }: {
@@ -23,6 +103,11 @@ function CallbackContent({
   const { redirect: redirectTo, error, provider } = searchParams;
 
   if (error) {
+    // Special handling for OAuth account linking conflicts
+    if (error === 'OAuthAccountNotLinked') {
+      return <OAuthAccountConflictHandler provider={provider} />;
+    }
+
     return (
       <div className="callback__error">
         <div className="callback__icon callback__icon--error">⚠️</div>
@@ -36,8 +121,6 @@ function CallbackContent({
           {error === 'EmailCreateAccount' && 'Could not create email account.'}
           {error === 'Callback' &&
             'There was an error in the callback handler.'}
-          {error === 'OAuthAccountNotLinked' &&
-            'This account is already linked to another user.'}
           {error === 'EmailSignin' && 'Check your email for the sign-in link.'}
           {error === 'CredentialsSignin' && 'Invalid credentials provided.'}
           {error === 'SessionRequired' && 'Please sign in to access this page.'}
