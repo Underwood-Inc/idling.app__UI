@@ -5,7 +5,6 @@ services:
     # Development-specific overrides
     environment:
       - NODE_ENV=development
-      - JEKYLL_ENV=development
       - CHOKIDAR_USEPOLLING=true # Better file watching in Docker
     volumes:
       # Additional development volumes
@@ -18,6 +17,14 @@ services:
       - 'traefik.http.routers.nextjs.rule=Host(`localhost`)'
       - 'traefik.http.routers.nextjs.entrypoints=web'
       - 'traefik.http.services.nextjs.loadbalancer.server.port=3000'
+
+  docs:
+    # Development-specific overrides for docs service
+    environment:
+      - JEKYLL_ENV=development
+    # Development-specific labels
+    labels:
+      - 'traefik.enable=true'
       - 'traefik.http.routers.docs.rule=Host(`docs.localhost`)'
       - 'traefik.http.routers.docs.entrypoints=web'
       - 'traefik.http.services.docs.loadbalancer.server.port=4000'

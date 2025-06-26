@@ -1,0 +1,43 @@
+# Use the official Ruby image for Jekyll
+FROM ruby:3.2
+
+# Install Jekyll dependencies
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    zlib1g-dev \
+    git \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Set Ruby environment variables
+ENV GEM_HOME="/usr/local/bundle"
+ENV PATH="$GEM_HOME/bin:/usr/local/bin:$PATH"
+ENV BUNDLE_SILENCE_ROOT_WARNING=1
+ENV BUNDLE_APP_CONFIG="$GEM_HOME"
+
+# Install Bundler and Jekyll (GitHub Pages compatible versions)
+RUN gem install bundler:2.5.23 && \
+    gem install jekyll:3.10.0 && \
+    gem cleanup
+
+# Set the working directory to DOCS
+WORKDIR /app/DOCS
+
+# Copy the DOCS directory
+COPY DOCS/ ./
+
+# Expose Jekyll port
+EXPOSE 4000
+
+# Create a startup script that installs dependencies and starts Jekyll
+RUN echo '#!/bin/bash\n\
+    set -e\n\
+    echo "Installing Jekyll dependencies..."\n\
+    bundle config set --local path "vendor/bundle"\n\
+    bundle install --retry 3\n\
+    echo "Starting Jekyll server..."\n\
+    bundle exec jekyll serve --config "_config.yml,_config_dev.yml" --host=0.0.0.0 --port=4000' > /start.sh && \
+    chmod +x /start.sh
+
+# Start Jekyll server via startup script
+CMD ["/start.sh"] 

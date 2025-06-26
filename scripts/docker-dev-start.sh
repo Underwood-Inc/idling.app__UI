@@ -4,6 +4,9 @@ set -e
 
 echo "🚀 Starting Idling.app development environment..."
 
+# Make sure we're in the correct directory
+cd /app
+
 # Function to handle cleanup on exit
 cleanup() {
     echo "🛑 Shutting down services..."
@@ -19,9 +22,12 @@ npm install --legacy-peer-deps
 echo "📚 Installing Jekyll documentation dependencies..."
 npm run docs:install
 
+# Ensure proper permissions
+chmod +x ./scripts/*.sh
+
 # Start Next.js server in background
 echo "🔄 Starting Next.js development server on port 3000..."
-npm run dev -- -H 0.0.0.0 &
+npm run dev -- --hostname 0.0.0.0 &
 NEXTJS_PID=$!
 
 # Wait a moment for Next.js to start
