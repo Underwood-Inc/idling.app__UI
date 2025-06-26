@@ -3,7 +3,10 @@
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { NAV_PATHS } from '../../../lib/routes';
-import { generateScrollKey } from '../../../lib/utils/scroll-position';
+import {
+  generateScrollKey,
+  getStoredScrollPosition
+} from '../../../lib/utils/scroll-position';
 import { Author } from '../author/Author';
 import Loader from '../loader/Loader';
 import { DeleteSubmissionForm } from '../submission-forms/delete-submission-form/DeleteSubmissionForm';
@@ -15,7 +18,7 @@ import { ContentWithPills } from '../ui/ContentWithPills';
 import { InstantLink } from '../ui/InstantLink';
 import { TimestampWithTooltip } from '../ui/TimestampWithTooltip';
 import { getSubmissionThread, NestedSubmission } from './actions';
-import CollapsibleReplyForm from './CollapsibleReplyForm';
+import { ReplyForm } from './ReplyForm';
 import './Thread.css';
 
 interface ThreadProps {
@@ -51,6 +54,9 @@ export default function Thread({
   const [editingSubmissions, setEditingSubmissions] = useState<Set<number>>(
     new Set()
   );
+  const [showingReplyForms, setShowingReplyForms] = useState<Set<number>>(
+    new Set()
+  );
 
   useEffect(() => {
     const loadThread = async () => {
@@ -75,6 +81,50 @@ export default function Thread({
     loadThread();
   }, [submissionId]);
 
+  // Handle scrolling to target submission when returning from parent thread
+  useEffect(() => {
+    if (!loading && typeof window !== 'undefined') {
+      const scrollKey = generateScrollKey(window.location.pathname, {
+        searchParams: new URLSearchParams(window.location.search)
+      });
+
+      const storedPosition = getStoredScrollPosition(scrollKey);
+      if (storedPosition?.targetSubmissionId) {
+        // Use a more reliable approach with multiple attempts
+        const attemptScroll = (attempts = 0) => {
+          const targetElement = document.querySelector(
+            `[data-testid="submission-item-${storedPosition.targetSubmissionId}"]`
+          ) as HTMLElement;
+
+          if (targetElement) {
+            // Scroll to the target element
+            targetElement.scrollIntoView({
+              behavior: 'smooth',
+              block: 'center'
+            });
+
+            // Add a highlight effect
+            targetElement.style.backgroundColor = 'var(--brand-tertiary)';
+            setTimeout(() => {
+              targetElement.style.backgroundColor = '';
+            }, 2000);
+          } else if (attempts < 10) {
+            // Retry after a short delay if element not found
+            setTimeout(() => attemptScroll(attempts + 1), 100);
+          } else {
+            console.warn(
+              'Target submission element not found after multiple attempts:',
+              storedPosition.targetSubmissionId
+            );
+          }
+        };
+
+        // Start the scroll attempt process
+        attemptScroll();
+      }
+    }
+  }, [loading, parentSubmission, replies]);
+
   const handleReplyAdded = async (result?: any) => {
     // Use optimistic update if we have the new reply data, otherwise refresh
     if (result && result.submission) {
@@ -87,6 +137,15 @@ export default function Thread({
         author_bio: null
       };
       setReplies((prevReplies) => [...prevReplies, newReply]);
+
+      // Hide the reply form after successful submission
+      if (result.submission.thread_parent_id) {
+        setShowingReplyForms((prev) => {
+          const newSet = new Set(prev);
+          newSet.delete(result.submission.thread_parent_id);
+          return newSet;
+        });
+      }
     } else {
       // Fallback: refresh the thread data when a new reply is added
       try {
@@ -134,6 +193,46 @@ export default function Thread({
         newSet.delete(submissionId);
       } else {
         newSet.add(submissionId);
+      }
+      return newSet;
+    });
+  };
+
+  const toggleReplyForm = (submissionId: number) => {
+    setShowingReplyForms((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(submissionId)) {
+        newSet.delete(submissionId);
+      } else {
+        newSet.add(submissionId);
+        // Scroll to the reply form after a short delay to ensure it's rendered
+        setTimeout(() => {
+          const formElement = document.querySelector(
+            `[data-testid="reply-form-${submissionId}"]`
+          ) as HTMLElement;
+          if (formElement) {
+            formElement.scrollIntoView({
+              behavior: 'smooth',
+              block: 'center'
+            });
+            // Focus the title field using the RichTextEditor API
+            const titleField = formElement.querySelector(
+              '[data-testid="title-field"]'
+            ) as HTMLElement;
+            if (titleField) {
+              // Find the RichTextEditor within the title field and focus it
+              const richTextEditor = titleField.querySelector(
+                '[data-rich-text-editor]'
+              ) as HTMLElement;
+              if (richTextEditor) {
+                richTextEditor.focus();
+              } else {
+                // Fallback: focus the title field container
+                titleField.focus();
+              }
+            }
+          }
+        }, 100);
       }
       return newSet;
     });
@@ -216,6 +315,7 @@ export default function Thread({
         key={submission.submission_id}
         className={`submission__wrapper ${isReply ? 'submission__wrapper--reply' : ''}`}
         style={{ marginLeft: isReply ? `${depth * 1.5}rem` : '0' }}
+        data-testid={`submission-item-${submission.submission_id}`}
       >
         <div className="submission__meta">
           <Author
@@ -225,9 +325,35 @@ export default function Thread({
             size="sm"
             showFullName={true}
           />
+
           <span className="submission__datetime">
             <TimestampWithTooltip date={submission.submission_datetime} />
           </span>
+
+          {/* Reply button for authenticated users */}
+          {userId && depth < maxDepth && (
+            <button
+              onClick={() => toggleReplyForm(submission.submission_id)}
+              className="submission__reply-btn"
+              aria-label="Reply to this post"
+              title="Reply to this post"
+            >
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <polyline points="9 17 4 12 9 7" />
+                <path d="M20 18v-2a4 4 0 0 0-4-4H4" />
+              </svg>
+              Reply
+            </button>
+          )}
 
           {/* Edit/Delete buttons for post authors */}
           {isAuthor && (
@@ -325,20 +451,23 @@ export default function Thread({
         )}
 
         {/* Reply form for this specific submission (only if not too deep) */}
-        {userId && depth < maxDepth && (
-          <div
-            style={{
-              marginTop: '1rem'
-              // No additional left margin since the form is already inside the indented submission
-            }}
-          >
-            <CollapsibleReplyForm
-              parentId={submission.submission_id}
-              onSuccess={handleReplyAdded}
-              replyToAuthor={submission.author}
-            />
-          </div>
-        )}
+        {userId &&
+          depth < maxDepth &&
+          showingReplyForms.has(submission.submission_id) && (
+            <div
+              data-testid={`reply-form-${submission.submission_id}`}
+              style={{
+                marginTop: '1rem'
+                // No additional left margin since the form is already inside the indented submission
+              }}
+            >
+              <ReplyForm
+                parentId={submission.submission_id}
+                onSuccess={handleReplyAdded}
+                replyToAuthor={submission.author}
+              />
+            </div>
+          )}
       </div>
     );
   };

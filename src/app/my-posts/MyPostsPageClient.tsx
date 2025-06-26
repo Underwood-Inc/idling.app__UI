@@ -7,6 +7,7 @@ import { IntelligentSkeletonWrapper } from '../components/skeleton/IntelligentSk
 import { Submission } from '../components/submission-forms/schema';
 import { SubmissionItem } from '../components/submissions-list/SubmissionItem';
 import { SubmissionWithReplies } from '../components/submissions-list/actions';
+import styles from './page.module.css';
 
 // Development-only import that gets tree-shaken in production
 let DevSkeletonToggle: React.ComponentType | null = null;
@@ -93,16 +94,16 @@ export default function MyPostsPageClient({
 
     return (
       <div
-        className={`submission__wrapper ${isReplyPost ? 'submission__wrapper--is-reply' : ''}`}
+        className={`submission__wrapper ${isReplyPost ? styles['submission__wrapper--is-reply'] : ''}`}
       >
         {/* Reply indicator for posts that are replies */}
         {isReplyPost && (
           <div className="submission__meta">
             <span
-              className="submission__reply-indicator"
+              className={styles['submission__reply-indicator']}
               title="This is a reply to another post"
             >
-              💬 Reply
+              💬 Reply to parent post
             </span>
           </div>
         )}

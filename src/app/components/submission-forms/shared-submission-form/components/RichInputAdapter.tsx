@@ -989,7 +989,11 @@ export const RichInputAdapter: React.FC<RichInputAdapterProps> = ({
 
   // Preview mode: use rich input
   return (
-    <div ref={containerRef} className="rich-input-adapter-container">
+    <div
+      ref={containerRef}
+      className="rich-input-adapter-container"
+      data-rich-text-editor
+    >
       <RichInput
         ref={richInputRef}
         value={value}

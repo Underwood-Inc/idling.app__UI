@@ -184,11 +184,14 @@
 
 .thread__container .submission__meta {
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  gap: 0.75rem;
   margin-bottom: 0.5rem;
   font-size: var(--font-size-sm);
   color: var(--light-bg__text-color--secondary);
+  flex-wrap: wrap;
+  position: relative;
+  justify-content: space-between;
 }
 
 .thread__container .submission__author {
@@ -199,12 +202,15 @@
 .thread__container .submission__datetime {
   color: var(--light-bg__text-color--tertiary);
   font-size: var(--font-size-xs);
+  flex: 1;
+  text-align: center;
 }
 
 .thread__container .submission__owner-actions {
   display: flex;
   gap: 0.5rem;
   align-items: center;
+  margin-left: auto;
 }
 
 .thread__container .submission__edit-btn {
@@ -341,7 +347,49 @@
     gap: 0.5rem;
   }
 
+  .thread__container .submission__datetime {
+    position: static;
+    transform: none;
+    text-align: center;
+    margin-top: 0.5rem;
+  }
+
   .thread__container .submission__owner-actions {
     align-self: flex-end;
   }
+}
+
+.thread__container .submission__edit-btn:hover {
+  background: var(--brand-primary--dark);
+  color: white;
+}
+
+.thread__container .submission__reply-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  background: var(--brand-primary);
+  color: white;
+  border: none;
+  border-radius: var(--border-radius);
+  padding: 0.25rem 0.5rem;
+  font-size: var(--font-size-xs);
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+  text-decoration: none;
+}
+
+.thread__container .submission__reply-btn:hover {
+  background: var(--brand-primary--dark);
+  transform: translateY(-1px);
+}
+
+.thread__container .submission__reply-btn:active {
+  transform: translateY(0);
+}
+
+.thread__container .submission__reply-btn svg {
+  width: 12px;
+  height: 12px;
 }

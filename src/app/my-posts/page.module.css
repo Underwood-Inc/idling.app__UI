@@ -19,3 +19,22 @@
 .tags_aside {
   inset-block-start: 21rem;
 }
+
+.submission__reply-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.5rem;
+  background: var(--light-background--secondary);
+  border: 1px solid var(--light-border--secondary);
+  border-radius: var(--border-radius);
+  font-size: var(--font-size-xs);
+  color: var(--light-bg__text-color--secondary);
+  font-weight: 500;
+}
+
+.submission__wrapper--is-reply {
+  border-left: 3px solid var(--brand-primary);
+  padding-left: 1rem;
+  margin-left: 0.5rem;
+}

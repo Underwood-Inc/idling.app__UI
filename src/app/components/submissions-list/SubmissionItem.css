@@ -26,20 +26,26 @@
 
 .submission__meta {
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  justify-content: space-between;
   margin-bottom: 0.75rem;
-  font-size: --font-size-base;
+  flex-wrap: wrap;
+  font-size: var(--font-size-sm);
   color: var(--light-bg__text-color--secondary);
+  position: relative;
 }
 
 .submission__meta--no-actions {
-  /* When no edit/delete actions are present, move datetime to far right */
   justify-content: space-between;
 }
 
-.submission__meta--no-actions .submission__datetime {
-  margin-left: auto;
+.submission__datetime {
+  white-space: nowrap;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1;
 }
 
 .submission__author {
@@ -47,14 +53,11 @@
   color: var(--light-bg__text-color--primary);
 }
 
-.submission__datetime {
-  color: var(--light-bg__text-color--tertiary);
-}
-
 .submission__owner-actions {
   display: flex;
-  gap: 0.5rem;
   align-items: center;
+  gap: 0.5rem;
+  margin-left: auto;
 }
 
 /* Consistent button styling for edit and delete */
@@ -259,6 +262,14 @@
     flex-direction: column;
     align-items: flex-start;
     gap: 0.5rem;
+    justify-content: flex-start;
+  }
+
+  .submission__datetime {
+    position: static;
+    transform: none;
+    align-self: center;
+    margin-top: 0.25rem;
   }
 
   /* Ensure owner actions are properly positioned and accessible on mobile */
