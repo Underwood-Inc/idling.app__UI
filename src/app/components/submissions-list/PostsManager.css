@@ -758,45 +758,7 @@
   box-shadow: 0 0 0 3px var(--accent-primary-alpha, rgba(0, 123, 255, 0.1));
 }
 
-/* Combined Filter Bottom Row - Space Saving Layout */
-.posts-manager__filter-bottom-row {
-  display: flex;
-  align-items: flex-start;
-  gap: 1rem;
-  flex-wrap: wrap;
-}
-
-/* Inline Custom Filter Input */
-.posts-manager__custom-filter--inline {
-  flex: 1;
-  min-width: 300px;
-  /* Minimum width for usability */
-}
-
-/* Inline Thread Controls */
-.posts-manager__thread-controls--inline {
-  flex-shrink: 0;
-  align-self: flex-end;
-  /* Align to bottom to match input height */
-}
-
-.posts-manager__toggle--inline {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 14px;
-  white-space: nowrap;
-  padding: 8px 12px;
-  background: var(--light-background--secondary, #f8f9fa);
-  border: 1px solid var(--light-background--tertiary, #e0e0e0);
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.posts-manager__toggle--inline:hover {
-  background: var(--light-background--tertiary, #e9ecef);
-}
+/* Enhanced Text Search with Smart Filters */
 
 .posts-manager__toggle-text--compact {
   font-size: 13px;
@@ -909,25 +871,7 @@
   display: none;
 }
 
-/* Responsive adjustments for bottom row */
-@media (max-width: 768px) {
-  .posts-manager__filter-bottom-row {
-    flex-direction: column;
-    gap: 0.75rem;
-  }
-
-  .posts-manager__custom-filter--inline {
-    min-width: unset;
-  }
-
-  .posts-manager__thread-controls--inline {
-    align-self: stretch;
-  }
-
-  .posts-manager__toggle--inline {
-    justify-content: center;
-  }
-}
+/* Responsive adjustments for smart text search */
 
 /* Dark mode support for text search in posts manager */
 @media (prefers-color-scheme: dark) {
@@ -941,13 +885,5 @@
     box-shadow: 0 0 0 3px var(--accent-primary-alpha, rgba(59, 130, 246, 0.1));
   }
 
-  .posts-manager__toggle--inline {
-    background: var(--dark-background--secondary, #374151);
-    border-color: var(--dark-background--tertiary, #4b5563);
-    color: var(--dark-text-primary, #f9fafb);
-  }
 
-  .posts-manager__toggle--inline:hover {
-    background: var(--dark-background--tertiary, #4b5563);
-  }
 }

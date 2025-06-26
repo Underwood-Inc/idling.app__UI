@@ -266,27 +266,49 @@ export async function getSubmissionsPaginationCount({
         }
 
         case 'search': {
-          // Multi-word text search with OR logic
-          const searchTerms = filter.value
-            .trim()
-            .split(/\s+/)
-            .filter((term) => term.length >= 2) // Minimum 2 characters per term
-            .map((term) => term.toLowerCase());
+          // Enhanced search with quote support for exact phrases
+          const searchValue = filter.value.trim();
+          
+          if (searchValue.length >= 2) {
+            // Parse search with quote support - same logic as TextSearchInput
+            const terms: string[] = [];
+            const regex = /"([^"]+)"|(\S+)/g;
+            let match;
 
-          if (searchTerms.length > 0) {
-            const searchConditions = searchTerms.map((term) => {
-              const condition = `(
-                LOWER(s.submission_name) LIKE $${paramIndex} OR 
-                LOWER(s.submission_title) LIKE $${paramIndex}
-              )`;
-              queryParams.push(`%${term}%`);
-              paramIndex++;
-              return condition;
-            });
-            groupCondition = searchConditions.join(' OR ');
+            while ((match = regex.exec(searchValue)) !== null) {
+              const quotedTerm = match[1]; // Captured quoted content (exact phrase)
+              const unquotedTerm = match[2]; // Captured unquoted term (split by word)
+              
+              const term = quotedTerm || unquotedTerm;
+              if (term && term.length >= 2) {
+                terms.push(term.toLowerCase());
+              }
+            }
 
-            if (groupCondition) {
-              filterGroups.push(`(${groupCondition})`);
+            if (terms.length > 0) {
+              const searchLogicFilter = filters.find(
+                (f) => f.name === 'searchLogic'
+              );
+              // When globalLogic is AND, force all individual filters to AND
+              const searchLogic =
+                globalLogic === 'AND' ? 'AND' : searchLogicFilter?.value || 'OR';
+
+              const searchConditions = terms.map((term) => {
+                const condition = `(
+                  LOWER(s.submission_name) LIKE $${paramIndex} OR 
+                  LOWER(s.submission_title) LIKE $${paramIndex}
+                )`;
+                queryParams.push(`%${term}%`);
+                paramIndex++;
+                return condition;
+              });
+              
+              const searchOperator = searchLogic === 'AND' ? ' AND ' : ' OR ';
+              groupCondition = searchConditions.join(searchOperator);
+
+              if (groupCondition) {
+                filterGroups.push(`(${groupCondition})`);
+              }
             }
           }
           break;
@@ -296,6 +318,7 @@ export async function getSubmissionsPaginationCount({
         case 'tagLogic':
         case 'authorLogic':
         case 'mentionsLogic':
+        case 'searchLogic':
         case 'globalLogic':
           break;
       }
@@ -551,27 +574,49 @@ export async function getSubmissionsAction({
         }
 
         case 'search': {
-          // Multi-word text search with OR logic
-          const searchTerms = filter.value
-            .trim()
-            .split(/\s+/)
-            .filter((term) => term.length >= 2) // Minimum 2 characters per term
-            .map((term) => term.toLowerCase());
+          // Enhanced search with quote support for exact phrases
+          const searchValue = filter.value.trim();
+          
+          if (searchValue.length >= 2) {
+            // Parse search with quote support - same logic as TextSearchInput
+            const terms: string[] = [];
+            const regex = /"([^"]+)"|(\S+)/g;
+            let match;
 
-          if (searchTerms.length > 0) {
-            const searchConditions = searchTerms.map((term) => {
-              const condition = `(
-                LOWER(s.submission_name) LIKE $${paramIndex} OR 
-                LOWER(s.submission_title) LIKE $${paramIndex}
-              )`;
-              queryParams.push(`%${term}%`);
-              paramIndex++;
-              return condition;
-            });
-            groupCondition = searchConditions.join(' OR ');
+            while ((match = regex.exec(searchValue)) !== null) {
+              const quotedTerm = match[1]; // Captured quoted content (exact phrase)
+              const unquotedTerm = match[2]; // Captured unquoted term (split by word)
+              
+              const term = quotedTerm || unquotedTerm;
+              if (term && term.length >= 2) {
+                terms.push(term.toLowerCase());
+              }
+            }
 
-            if (groupCondition) {
-              filterGroups.push(`(${groupCondition})`);
+            if (terms.length > 0) {
+              const searchLogicFilter = filters.find(
+                (f) => f.name === 'searchLogic'
+              );
+              // When globalLogic is AND, force all individual filters to AND
+              const searchLogic =
+                globalLogic === 'AND' ? 'AND' : searchLogicFilter?.value || 'OR';
+
+              const searchConditions = terms.map((term) => {
+                const condition = `(
+                  LOWER(s.submission_name) LIKE $${paramIndex} OR 
+                  LOWER(s.submission_title) LIKE $${paramIndex}
+                )`;
+                queryParams.push(`%${term}%`);
+                paramIndex++;
+                return condition;
+              });
+              
+              const searchOperator = searchLogic === 'AND' ? ' AND ' : ' OR ';
+              groupCondition = searchConditions.join(searchOperator);
+
+              if (groupCondition) {
+                filterGroups.push(`(${groupCondition})`);
+              }
             }
           }
           break;
@@ -581,6 +626,7 @@ export async function getSubmissionsAction({
         case 'tagLogic':
         case 'authorLogic':
         case 'mentionsLogic':
+        case 'searchLogic':
         case 'globalLogic':
           break;
       }

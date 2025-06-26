@@ -24,7 +24,8 @@ const logger = createLogger({
   context: {
     component: 'SubmissionItem',
     module: 'components/submissions-list'
-  }
+  },
+  enabled: false
 });
 
 interface SubmissionItemProps {

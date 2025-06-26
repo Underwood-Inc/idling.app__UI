@@ -2,7 +2,7 @@
 
 import { createLogger } from '@/lib/logging';
 import { useSession } from 'next-auth/react';
-import React, { useMemo } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { useSubmissionsManager } from '../../../lib/state/useSubmissionsManager';
 import '../../../lib/utils/scroll-highlight-demo'; // Import for global test function
 import { Submission } from '../submission-forms/schema';
@@ -27,7 +27,8 @@ const logger = createLogger({
   context: {
     component: 'PostsManager',
     module: 'components/submissions-list'
-  }
+  },
+  enabled: false
 });
 
 interface PostsManagerProps {
@@ -157,6 +158,14 @@ const PostsManager = React.memo(function PostsManager({
     onNewPostClick
   });
 
+  // Wrapper function for thread toggle that accepts boolean
+  const handleThreadToggle = useCallback(
+    (checked: boolean) => {
+      setIncludeThreadReplies(checked);
+    },
+    [setIncludeThreadReplies]
+  );
+
   // Memoize authorization check
   const isAuthorized = useMemo(() => !!session?.user?.id, [session?.user?.id]);
 
@@ -175,13 +184,23 @@ const PostsManager = React.memo(function PostsManager({
     return Math.min(pagination.pageSize || 10, 10);
   }, [preRequestData?.expectedItems, pagination.pageSize]);
 
+  // Calculate actual filter count (excluding logic-only filters)
+  const actualFiltersCount = useMemo(() => {
+    return filters.filter(
+      (filter) =>
+        !['tagLogic', 'authorLogic', 'mentionsLogic', 'globalLogic'].includes(
+          filter.name
+        )
+    ).length;
+  }, [filters]);
+
   // Debug logging for render state
   logger.group('renderState');
   logger.debug('Rendering with state', {
     isLoading,
     hasSubmissions: submissions.length > 0,
     error,
-    filtersCount: filters.length,
+    filtersCount: actualFiltersCount,
     currentPage: pagination.currentPage,
     totalPages: Math.ceil(pagination.totalRecords / pagination.pageSize),
     infiniteScrollMode,
@@ -199,7 +218,7 @@ const PostsManager = React.memo(function PostsManager({
           isMobile={isMobile}
           showFilters={showFilters}
           onToggleFilters={() => setShowFilters(!showFilters)}
-          filtersCount={filters.length}
+          filtersCount={actualFiltersCount}
           totalRecords={pagination.totalRecords}
           isLoading={isLoading}
           error={error || null}
@@ -223,18 +242,22 @@ const PostsManager = React.memo(function PostsManager({
           onAddFilters={addFilters}
           onFilterSuccess={handleFilterSuccess}
           onTextSearch={handleTextSearch}
+          showThreadToggle={showThreadToggle}
+          includeThreadReplies={includeThreadReplies}
+          onToggleThreadReplies={handleThreadToggle}
+          isLoading={isLoading}
         />
 
         {/* Sticky Controls - appears when main controls are out of view */}
         <StickyPostsControls
           showFilters={showFilters}
           onToggleFilters={() => setShowFilters(!showFilters)}
-          filtersCount={filters.length}
+          filtersCount={actualFiltersCount}
           infiniteScrollMode={infiniteScrollMode}
           onTogglePaginationMode={setInfiniteScrollMode}
           totalRecords={pagination.totalRecords}
           isLoading={isLoading}
-          hasFilters={filters.length > 0}
+          hasFilters={actualFiltersCount > 0}
           onNewPostClick={handleNewPostClick}
         />
       </div>
