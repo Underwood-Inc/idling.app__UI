@@ -117,13 +117,71 @@ export const shouldUpdateAtom = atom<boolean>(false);
  */
 export const sessionCacheAtom = atomWithStorage<any>('session-cache', null);
 
+// Custom storage for avatar cache with size limits and error handling
+const createAvatarCacheStorage = () => {
+  const STORAGE_KEY = 'avatar-cache-v3-adventurer';
+  const MAX_CACHE_SIZE = 100;
+
+  return {
+    getItem: (key: string): Record<string, string> => {
+      try {
+        const stored = localStorage.getItem(STORAGE_KEY);
+        if (!stored) return {};
+        
+        const parsed = JSON.parse(stored);
+        return typeof parsed === 'object' && parsed !== null ? parsed : {};
+      } catch (error) {
+        console.warn('Failed to load avatar cache, clearing:', error);
+        localStorage.removeItem(STORAGE_KEY);
+        return {};
+      }
+    },
+    setItem: (key: string, value: Record<string, string>): void => {
+      try {
+        // Limit cache size to prevent quota exceeded errors
+        const entries = Object.entries(value);
+        if (entries.length > MAX_CACHE_SIZE) {
+          // Keep only the most recent entries
+          const limitedEntries = entries.slice(-MAX_CACHE_SIZE);
+          value = Object.fromEntries(limitedEntries);
+        }
+        
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(value));
+      } catch (error) {
+        if (error instanceof Error && error.name === 'QuotaExceededError') {
+          console.warn('Avatar cache quota exceeded, clearing old entries');
+          // Clear the cache and try to store just the current value
+          try {
+            localStorage.removeItem(STORAGE_KEY);
+            const entries = Object.entries(value);
+            if (entries.length > 10) {
+              // If still too large, keep only 10 most recent
+              const limitedEntries = entries.slice(-10);
+              value = Object.fromEntries(limitedEntries);
+            }
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(value));
+          } catch (retryError) {
+            console.error('Failed to store avatar cache even after cleanup:', retryError);
+          }
+        } else {
+          console.error('Failed to store avatar cache:', error);
+        }
+      }
+    },
+    removeItem: (key: string): void => {
+      localStorage.removeItem(STORAGE_KEY);
+    }
+  };
+};
+
 /**
  * Avatar cache atom - stores generated avatar SVGs to prevent regeneration
- * v2: Changed from lorelei to adventurer style - cache key updated to force regeneration
+ * v3: Added size limits and cleanup to prevent quota exceeded errors
  */
 export const avatarCacheAtom = atomWithStorage<Record<string, string>>(
-  'avatar-cache-v2-adventurer',
-  {}
+  'avatar-cache-v3-adventurer',
+  {},
+  createAvatarCacheStorage()
 );
 
 // ============================================================================

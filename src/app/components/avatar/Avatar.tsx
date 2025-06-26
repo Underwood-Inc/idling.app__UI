@@ -56,10 +56,18 @@ const Avatar = memo(
     // Cache the generated avatar
     const cacheAvatar = useCallback(() => {
       if (avatarDataUri && !avatarCache[stableSeed]) {
-        setAvatarCache((prev: Record<string, string>) => ({
-          ...prev,
-          [stableSeed]: avatarDataUri
-        }));
+        try {
+          setAvatarCache((prev: Record<string, string>) => ({
+            ...prev,
+            [stableSeed]: avatarDataUri
+          }));
+        } catch (error) {
+          // Gracefully handle cache storage failures
+          console.warn(
+            'Failed to cache avatar, continuing without cache:',
+            error
+          );
+        }
       }
     }, [avatarDataUri, stableSeed, avatarCache, setAvatarCache]);
 

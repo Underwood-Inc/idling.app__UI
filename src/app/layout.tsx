@@ -24,6 +24,7 @@ import './fonts.css';
 import './globals.css';
 // Import service worker cleanup utilities to make them globally available
 import '../lib/utils/service-worker-cleanup';
+import { GrammarlyCleanup } from './components/ui/GrammarlyCleanup';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -213,6 +214,7 @@ export default function RootLayout({
       </head>
 
       <body className={inter.className}>
+        <GrammarlyCleanup />
         <ServiceWorkerRegistration />
         <HardResetManager />
         <SessionProvider>
