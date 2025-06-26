@@ -54,7 +54,6 @@
   margin: 0;
   font-size: var(--font-size-lg);
   line-height: 1.5;
-  max-width: 100ch;
   width: 100%;
   text-wrap: wrap;
   word-break: break-word;
