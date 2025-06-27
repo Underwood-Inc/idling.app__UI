@@ -53,6 +53,15 @@
   gap: 0.5rem;
   position: relative;
   transition: box-shadow 0.2s ease-in-out, background-color 0.2s ease-in-out;
+  /* Main post pattern: subtle horizontal lines */
+  background-image: 
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 19px,
+      color-mix(in srgb, var(--brand-primary) 2%, transparent) 20px,
+      color-mix(in srgb, var(--brand-primary) 2%, transparent) 21px
+    );
 }
 
 .submission__wrapper a,
@@ -68,8 +77,15 @@
 }
 
 .submission__wrapper:hover {
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  background-color: var(--light-background--tertiary);
+  /* Very subtle horizontal pattern on hover */
+  background-image: 
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 22px,
+      color-mix(in srgb, var(--brand-primary) 8%, transparent) 24px,
+      color-mix(in srgb, var(--brand-primary) 8%, transparent) 26px
+    );
 }
 
 .submission__meta {
@@ -79,6 +95,26 @@
   margin-bottom: 0.5rem;
   font-size: var(--font-size-xs);
   color: var(--light-bg__text-color--secondary);
+}
+
+.submission__meta-left {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 1;
+}
+
+.submission__meta-left > span:has(.submission__datetime),
+.submission__meta-left > span:has(.timestamp-with-tooltip) {
+  display: flex;
+  align-items: center;
+  margin-left: 0.5rem;
+}
+
+.submission__meta-left > span[style*="display: inline-block"] {
+  display: flex !important;
+  align-items: center;
+  margin-left: 0.5rem;
 }
 
 .submission__author {
@@ -167,9 +203,10 @@
 
 .submission__reply-button:hover,
 .submission__expand-button:hover {
-  background-color: var(--brand-tertiary);
   color: var(--anchor__light-bg--primary-hover);
-  border-color: var(--brand-primary);
+  background: none !important;
+  transform: none !important;
+  box-shadow: none !important;
 }
 
 .submission__thread-link {
@@ -214,16 +251,39 @@
   padding-top: 1rem;
 }
 
+.submission__wrapper.submission__wrapper--reply,
 .submission__reply {
+  background-color: var(--light-background--quinary);
   border-left: 3px solid var(--brand-primary);
   margin-left: 1rem;
   margin-bottom: 1rem;
   padding-left: 1rem;
-  background-color: var(--light-background--tertiary);
   border-radius: 0 var(--border-radius) var(--border-radius) 0;
   padding: 0.75rem;
   border: 1px solid var(--brand-tertiary--dark);
   border-left: 3px solid var(--brand-primary);
+  /* Reply post pattern: diagonal lines - higher specificity */
+  background-image: 
+    repeating-linear-gradient(
+      45deg,
+      transparent,
+      transparent 14px,
+      color-mix(in srgb, var(--brand-primary) 2.5%, transparent) 15px,
+      color-mix(in srgb, var(--brand-primary) 2.5%, transparent) 16px
+    ) !important;
+}
+
+.submission__wrapper.submission__wrapper--reply:hover,
+.submission__reply:hover {
+  /* Very subtle diagonal pattern on hover - higher specificity */
+  background-image: 
+    repeating-linear-gradient(
+      45deg,
+      transparent,
+      transparent 18px,
+      color-mix(in srgb, var(--brand-primary) 8%, transparent) 20px,
+      color-mix(in srgb, var(--brand-primary) 8%, transparent) 22px
+    ) !important;
 }
 
 .submission__reply:last-child {
@@ -264,7 +324,6 @@
 }
 
 .submission__reply .submission__reply {
-  background-color: var(--light-background--secondary);
   border-left-color: var(--brand-secondary);
   margin-left: 0;
 }
@@ -308,14 +367,25 @@
 
   .submission__meta {
     flex-direction: column;
-    align-items: flex-start;
+    align-items: stretch;
     gap: 0.5rem;
+  }
+
+  .submission__meta-left {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+  }
+
+  .submission__meta-left > span:has(.submission__datetime),
+  .submission__meta-left > span:has(.timestamp-with-tooltip),
+  .submission__meta-left > span[style*="display: inline-block"] {
+    margin-left: 0 !important;
   }
 
   /* Ensure owner actions are properly positioned and accessible on mobile */
   .submission__owner-actions {
     align-self: flex-end;
-    margin-top: 0.25rem;
   }
 
   /* Improve touch targets for mobile while maintaining visual consistency */
@@ -368,7 +438,15 @@
 
 @media (hover: hover) {
   .submission__wrapper:hover {
-    background-color: var(--light-background--tertiary);
+    /* Very subtle horizontal pattern on hover */
+    background-image: 
+      repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 22px,
+        color-mix(in srgb, var(--brand-primary) 8%, transparent) 24px,
+        color-mix(in srgb, var(--brand-primary) 8%, transparent) 26px
+      );
   }
 
   .submission__wrapper:hover .submission__delete-btn {
@@ -381,6 +459,7 @@
   display: flex;
   gap: 0.5rem;
   align-items: center;
+  flex-shrink: 0;
 }
 
 .submission__edit-btn {
@@ -469,6 +548,56 @@
   .skeleton-tag {
     background: linear-gradient(90deg, #374151 25%, #4b5563 50%, #374151 75%);
     background-size: 200% 100%;
+  }
+
+  .submission__wrapper {
+    /* Dark mode main post pattern: subtle horizontal lines */
+    background-image: 
+      repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 19px,
+        color-mix(in srgb, var(--brand-primary) 3%, transparent) 20px,
+        color-mix(in srgb, var(--brand-primary) 3%, transparent) 21px
+      );
+  }
+
+  .submission__wrapper:hover {
+    /* Very subtle horizontal pattern on hover in dark mode */
+    background-image: 
+      repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 22px,
+        color-mix(in srgb, var(--brand-primary) 8%, transparent) 24px,
+        color-mix(in srgb, var(--brand-primary) 8%, transparent) 26px
+      );
+  }
+
+  .submission__wrapper.submission__wrapper--reply,
+  .submission__reply {
+    /* Dark mode reply post pattern: diagonal lines - higher specificity */
+    background-image: 
+      repeating-linear-gradient(
+        45deg,
+        transparent,
+        transparent 14px,
+        color-mix(in srgb, var(--brand-primary) 3.5%, transparent) 15px,
+        color-mix(in srgb, var(--brand-primary) 3.5%, transparent) 16px
+      ) !important;
+  }
+
+  .submission__wrapper.submission__wrapper--reply:hover,
+  .submission__reply:hover {
+    /* Very subtle diagonal pattern on hover in dark mode - higher specificity */
+    background-image: 
+      repeating-linear-gradient(
+        45deg,
+        transparent,
+        transparent 18px,
+        color-mix(in srgb, var(--brand-primary) 8%, transparent) 20px,
+        color-mix(in srgb, var(--brand-primary) 8%, transparent) 22px
+      ) !important;
   }
 }
 
@@ -568,8 +697,7 @@
 
 /* Accessibility improvements */
 .submissions-list--virtual:focus-within {
-  outline: 2px solid var(--brand-primary);
-  outline-offset: 2px;
+  outline: none;
 }
 
 /* Infinite scroll trigger inside virtual container */
@@ -617,4 +745,25 @@
 .submission__wrapper--is-reply .submission__meta {
   padding-bottom: 0.5rem;
   border-bottom: 1px solid rgba(var(--brand-secondary-rgb), 0.15);
+}
+
+/* Spacing theme support for SubmissionsList */
+.spacing-theme-cozy .submission__list {
+  gap: var(--current-spacing);
+  padding: var(--current-spacing);
+}
+
+.spacing-theme-compact .submission__list {
+  gap: var(--current-spacing-sm);
+  padding: var(--current-spacing-sm);
+}
+
+.spacing-theme-cozy .submissions-list__pagination {
+  padding: var(--current-spacing);
+  margin-top: var(--current-spacing-xl);
+}
+
+.spacing-theme-compact .submissions-list__pagination {
+  padding: var(--current-spacing-sm);
+  margin-top: var(--current-spacing);
 }

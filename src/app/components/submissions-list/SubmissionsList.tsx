@@ -37,6 +37,11 @@ export interface SubmissionsListProps {
     updatedSubmission: any
   ) => void;
   optimisticRemoveSubmission?: (submissionId: number) => void;
+  // Refresh functionality
+  onRefreshSubmission?: (
+    submissionId: number,
+    refreshedSubmission: any
+  ) => void;
   // Scroll position context
   currentPage?: number;
   currentFilters?: Record<string, any>;
@@ -57,6 +62,11 @@ export interface SubmissionsListProps {
       updatedSubmission: any
     ) => void;
     optimisticRemoveSubmission?: (submissionId: number) => void;
+    // Refresh functionality
+    onRefreshSubmission?: (
+      submissionId: number,
+      refreshedSubmission: any
+    ) => void;
     // Scroll position context
     currentPage?: number;
     currentFilters?: Record<string, any>;
@@ -78,6 +88,7 @@ const SubmissionsList = React.memo(function SubmissionsList({
   onLoadMore,
   optimisticUpdateSubmission,
   optimisticRemoveSubmission,
+  onRefreshSubmission,
   currentPage,
   currentFilters,
   children,
@@ -411,6 +422,7 @@ const SubmissionsList = React.memo(function SubmissionsList({
                   contextId,
                   optimisticUpdateSubmission,
                   optimisticRemoveSubmission,
+                  onRefreshSubmission,
                   currentPage,
                   currentFilters
                 })
@@ -424,6 +436,7 @@ const SubmissionsList = React.memo(function SubmissionsList({
                   contextId={contextId}
                   optimisticUpdateSubmission={optimisticUpdateSubmission}
                   optimisticRemoveSubmission={optimisticRemoveSubmission}
+                  onRefreshSubmission={onRefreshSubmission}
                   currentPage={currentPage}
                   currentFilters={currentFilters}
                 />
