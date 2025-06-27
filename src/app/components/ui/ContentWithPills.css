@@ -495,3 +495,102 @@
   color: #666;
   margin-top: 2px;
 }
+
+/* Mobile Touch Support for Content Pills */
+@media (hover: none) and (pointer: coarse) {
+  /* Mobile devices - enable touch interactions for content pills */
+  .content-pill,
+  .content-pill--hashtag,
+  .content-pill--mention {
+    /* Ensure touch targets are large enough */
+    min-height: 44px;
+    min-width: 44px;
+    /* Add subtle visual feedback for touch */
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);
+    /* Prevent text selection on touch */
+    -webkit-user-select: none;
+    user-select: none;
+    /* Ensure elements are touchable */
+    touch-action: manipulation;
+    /* Add a subtle touch indication */
+    position: relative;
+  }
+
+  /* Touch feedback animation */
+  .content-pill:active,
+  .content-pill--hashtag:active,
+  .content-pill--mention:active {
+    transform: scale(0.98);
+    transition: transform 0.1s ease;
+  }
+
+  /* Ensure content pill tooltips can be triggered by touch */
+  .content-pill-tooltip,
+  .mention-tooltip {
+    /* Allow touch events to pass through to trigger elements */
+    pointer-events: auto;
+  }
+}
+
+/* Desktop hover support - maintain existing behavior */
+@media (hover: hover) and (pointer: fine) {
+  /* Desktop devices - maintain hover interactions */
+  .content-pill:hover,
+  .content-pill--hashtag:hover,
+  .content-pill--mention:hover {
+    /* Existing hover styles are preserved */
+  }
+}
+
+/* Universal accessibility improvements */
+.content-pill,
+.content-pill--hashtag,
+.content-pill--mention {
+  /* Ensure keyboard navigation works */
+  outline: none;
+  border-radius: var(--border-radius, 4px);
+}
+
+.content-pill:focus,
+.content-pill--hashtag:focus,
+.content-pill--mention:focus {
+  /* Remove focus outline for clean visual UX */
+  outline: none;
+}
+
+/* Ensure content pill tooltips don't interfere with scrolling on mobile */
+@media (max-width: 768px) {
+  .content-pill-tooltip,
+  .mention-tooltip {
+    /* Prevent tooltips from blocking scroll */
+    max-width: 90vw;
+    max-height: 50vh;
+    overflow-y: auto;
+    /* Ensure tooltips are above other content but not too high */
+    z-index: 9999;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .content-pill,
+  .content-pill--hashtag,
+  .content-pill--mention {
+    border: 2px solid currentColor;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .content-pill,
+  .content-pill--hashtag,
+  .content-pill--mention {
+    transition: none;
+  }
+
+  .content-pill:active,
+  .content-pill--hashtag:active,
+  .content-pill--mention:active {
+    transform: none;
+  }
+}

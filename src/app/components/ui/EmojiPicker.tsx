@@ -274,7 +274,7 @@ export const EmojiPicker: React.FC<EmojiPickerProps> = ({
       style={
         position
           ? {
-              position: 'fixed',
+              position: 'absolute',
               left: position.x,
               top: position.y,
               zIndex: 10000

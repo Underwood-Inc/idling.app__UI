@@ -7,7 +7,7 @@ import { InteractiveTooltip } from '../tooltip/InteractiveTooltip';
 import './TimestampWithTooltip.css';
 
 interface TimestampWithTooltipProps {
-  date: Date | string;
+  date: Date | string | null;
   className?: string;
   showSeconds?: boolean;
   updateInterval?: number; // milliseconds, default 60000 (1 minute)
@@ -17,6 +17,7 @@ interface TimestampWithTooltipProps {
 interface TimeUnit {
   value: number;
   unit: string;
+  isFuture?: boolean;
 }
 
 export const TimestampWithTooltip: React.FC<TimestampWithTooltipProps> = ({
@@ -30,7 +31,11 @@ export const TimestampWithTooltip: React.FC<TimestampWithTooltipProps> = ({
   const [userTimezone, setUserTimezone] = useState<string>('UTC');
 
   // Parse the date to ensure we have a Date object
-  const parsedDate = typeof date === 'string' ? parseISO(date) : date;
+  const parsedDate = date
+    ? typeof date === 'string'
+      ? parseISO(date)
+      : date
+    : null;
 
   // Get user's timezone
   useEffect(() => {
@@ -53,45 +58,102 @@ export const TimestampWithTooltip: React.FC<TimestampWithTooltipProps> = ({
     return () => clearInterval(interval);
   }, []);
 
+  // Handle null dates after hooks
+  if (!parsedDate) {
+    return (
+      <span className={`timestamp-with-tooltip ${className}`}>
+        Unknown time
+      </span>
+    );
+  }
+
+  // Debug logging for invalid dates
+  if (isNaN(parsedDate.getTime())) {
+    // eslint-disable-next-line no-console
+    console.error('TimestampWithTooltip: Invalid date received', {
+      originalDate: date,
+      parsedDate,
+      isValidDate: parsedDate instanceof Date && !isNaN(parsedDate.getTime()),
+      getTime: parsedDate?.getTime(),
+      stack: new Error().stack?.split('\n').slice(0, 5).join('\n')
+    });
+
+    return (
+      <span className={`timestamp-with-tooltip ${className}`}>
+        Invalid time
+      </span>
+    );
+  }
+
   // Calculate time difference in various units
   const getTimeUnits = (date: Date): TimeUnit[] => {
     const now = currentTime;
     const diff = now - date.getTime();
+    const absDiff = Math.abs(diff);
+    const isFuture = diff < 0;
 
-    if (diff < 0) return [{ value: 0, unit: 'seconds' }];
+    // Debug logging for suspicious time calculations
+    if (absDiff <= 1000) {
+      // Less than 1 second difference
+      // eslint-disable-next-line no-console
+      console.warn(
+        'TimestampWithTooltip: Very recent or future timestamp detected',
+        {
+          now,
+          dateTime: date.getTime(),
+          diff,
+          dateString: date.toISOString(),
+          isNaN: isNaN(date.getTime()),
+          isFuture,
+          stack: new Error().stack?.split('\n').slice(0, 3).join('\n')
+        }
+      );
+    }
+
+    // For very small differences (less than 1 second), treat as "now"
+    if (absDiff < 1000) return [{ value: 0, unit: 'seconds', isFuture }];
 
     const units = [
-      { value: Math.floor(diff / (365 * 24 * 60 * 60 * 1000)), unit: 'years' },
+      {
+        value: Math.floor(absDiff / (365 * 24 * 60 * 60 * 1000)),
+        unit: 'years'
+      },
       {
         value: Math.floor(
-          (diff % (365 * 24 * 60 * 60 * 1000)) / (30 * 24 * 60 * 60 * 1000)
+          (absDiff % (365 * 24 * 60 * 60 * 1000)) / (30 * 24 * 60 * 60 * 1000)
         ),
         unit: 'months'
       },
       {
         value: Math.floor(
-          (diff % (30 * 24 * 60 * 60 * 1000)) / (7 * 24 * 60 * 60 * 1000)
+          (absDiff % (30 * 24 * 60 * 60 * 1000)) / (7 * 24 * 60 * 60 * 1000)
         ),
         unit: 'weeks'
       },
       {
         value: Math.floor(
-          (diff % (7 * 24 * 60 * 60 * 1000)) / (24 * 60 * 60 * 1000)
+          (absDiff % (7 * 24 * 60 * 60 * 1000)) / (24 * 60 * 60 * 1000)
         ),
         unit: 'days'
       },
       {
-        value: Math.floor((diff % (24 * 60 * 60 * 1000)) / (60 * 60 * 1000)),
+        value: Math.floor((absDiff % (24 * 60 * 60 * 1000)) / (60 * 60 * 1000)),
         unit: 'hours'
       },
       {
-        value: Math.floor((diff % (60 * 60 * 1000)) / (60 * 1000)),
+        value: Math.floor((absDiff % (60 * 60 * 1000)) / (60 * 1000)),
         unit: 'minutes'
       },
-      { value: Math.floor((diff % (60 * 1000)) / 1000), unit: 'seconds' }
+      { value: Math.floor((absDiff % (60 * 1000)) / 1000), unit: 'seconds' }
     ];
 
-    return units.filter((unit) => unit.value > 0);
+    const nonZeroUnits = units.filter((unit) => unit.value > 0);
+
+    // Mark units as future if the timestamp is in the future
+    return nonZeroUnits.map((unit) => ({
+      ...unit,
+      isFuture
+    }));
   };
 
   // Format abbreviated time with fixed width for footer
@@ -106,26 +168,37 @@ export const TimestampWithTooltip: React.FC<TimestampWithTooltipProps> = ({
     const largestUnit = units[0];
     const value = largestUnit.value;
     const unit = largestUnit.unit;
+    const isFuture = largestUnit.isFuture;
 
     // Use consistent abbreviations with fixed character width
+    let timeStr = '';
     switch (unit) {
       case 'years':
-        return `${value}y`;
+        timeStr = `${value}y`;
+        break;
       case 'months':
-        return `${value}mo`;
+        timeStr = `${value}mo`;
+        break;
       case 'weeks':
-        return `${value}w`;
+        timeStr = `${value}w`;
+        break;
       case 'days':
-        return `${value}d`;
+        timeStr = `${value}d`;
+        break;
       case 'hours':
-        return `${value}h`;
+        timeStr = `${value}h`;
+        break;
       case 'minutes':
-        return `${value}m`;
+        timeStr = `${value}m`;
+        break;
       case 'seconds':
-        return `${value}s`;
+        timeStr = `${value}s`;
+        break;
       default:
         return 'now';
     }
+
+    return isFuture ? `in ${timeStr}` : timeStr;
   };
 
   // Format relative time with two precision units
@@ -138,6 +211,7 @@ export const TimestampWithTooltip: React.FC<TimestampWithTooltipProps> = ({
 
     // Take first two non-zero units for precision
     const significantUnits = units.slice(0, 2);
+    const isFuture = significantUnits[0]?.isFuture;
 
     const parts = significantUnits.map((unit) => {
       const value = unit.value;
@@ -145,7 +219,8 @@ export const TimestampWithTooltip: React.FC<TimestampWithTooltipProps> = ({
       return `${value} ${unitName}`;
     });
 
-    return parts.join(' and ') + ' ago';
+    const timeStr = parts.join(' and ');
+    return isFuture ? `in ${timeStr}` : `${timeStr} ago`;
   };
 
   // Format full timestamp for tooltip
@@ -156,13 +231,16 @@ export const TimestampWithTooltip: React.FC<TimestampWithTooltipProps> = ({
       return 'just now';
     }
 
+    const isFuture = units[0]?.isFuture;
+
     const parts = units.map((unit) => {
       const value = unit.value;
       const unitName = value === 1 ? unit.unit.slice(0, -1) : unit.unit;
       return `${value} ${unitName}`;
     });
 
-    return parts.join(', ') + ' ago';
+    const timeStr = parts.join(', ');
+    return isFuture ? `in ${timeStr}` : `${timeStr} ago`;
   };
 
   // Create tooltip content

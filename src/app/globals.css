@@ -225,151 +225,13 @@
   --current-spacing-xl: var(--spacing-xl-compact);
 }
 
-.spacing-theme-cozy .submission__wrapper {
-  padding: var(--current-spacing);
-  /* margin-bottom: var(--current-spacing); */
-}
 
-.spacing-theme-compact .submission__wrapper {
-  padding: var(--current-spacing);
-  /* margin-bottom: var(--current-spacing); */
-}
 
-.spacing-theme-cozy .submission__meta {
-  margin-bottom: var(--current-spacing-sm);
-}
 
-.spacing-theme-compact .submission__meta {
-  margin-bottom: var(--current-spacing-xs);
-}
 
-.spacing-theme-cozy .submission__content {
-  margin-bottom: var(--current-spacing);
-}
 
-.spacing-theme-compact .submission__content {
-  margin-bottom: var(--current-spacing-sm);
-}
 
-.spacing-theme-cozy .posts-manager__controls {
-  margin-bottom: var(--current-spacing-lg);
-}
 
-.spacing-theme-compact .posts-manager__controls {
-  margin-bottom: var(--current-spacing);
-}
-
-.spacing-theme-cozy .posts-manager__thread-controls {
-  margin-top: var(--current-spacing);
-  padding: var(--current-spacing);
-}
-
-.spacing-theme-compact .posts-manager__thread-controls {
-  margin-top: var(--current-spacing-sm);
-  padding: var(--current-spacing-sm);
-}
-
-.spacing-theme-cozy .posts-manager__results-count {
-  margin: var(--current-spacing) 0;
-  padding: var(--current-spacing-sm) var(--current-spacing);
-}
-
-.spacing-theme-compact .posts-manager__results-count {
-  margin: var(--current-spacing-sm) 0;
-  padding: var(--current-spacing-xs) var(--current-spacing-sm);
-}
-
-/* Additional submission spacing */
-.spacing-theme-cozy .submission__list {
-  gap: var(--current-spacing);
-  padding: var(--current-spacing);
-}
-
-.spacing-theme-compact .submission__list {
-  gap: var(--current-spacing-sm);
-  padding: var(--current-spacing-sm);
-}
-
-.spacing-theme-cozy .submission__tags {
-  gap: var(--current-spacing-sm);
-  margin-bottom: var(--current-spacing-sm);
-}
-
-.spacing-theme-compact .submission__tags {
-  gap: var(--current-spacing-xs);
-  margin-bottom: var(--current-spacing-xs);
-}
-
-.spacing-theme-cozy .submission__actions {
-  gap: var(--current-spacing-sm);
-  margin-bottom: var(--current-spacing-sm);
-}
-
-.spacing-theme-compact .submission__actions {
-  gap: var(--current-spacing-xs);
-  margin-bottom: var(--current-spacing-xs);
-}
-
-.spacing-theme-cozy .submission__replies {
-  margin-top: var(--current-spacing);
-  padding-top: var(--current-spacing);
-}
-
-.spacing-theme-compact .submission__replies {
-  margin-top: var(--current-spacing-sm);
-  padding-top: var(--current-spacing-sm);
-}
-
-.spacing-theme-cozy .submission__reply {
-  margin-bottom: var(--current-spacing);
-  padding: var(--current-spacing);
-}
-
-.spacing-theme-compact .submission__reply {
-  margin-bottom: var(--current-spacing-sm);
-  padding: var(--current-spacing-sm);
-}
-
-.spacing-theme-cozy .submission__title {
-  margin-bottom: var(--current-spacing-sm);
-}
-
-.spacing-theme-compact .submission__title {
-  margin-bottom: var(--current-spacing-xs);
-}
-
-.spacing-theme-cozy .submissions-list__pagination {
-  padding: var(--current-spacing);
-  margin-top: var(--current-spacing-xl);
-}
-
-.spacing-theme-compact .submissions-list__pagination {
-  padding: var(--current-spacing-sm);
-  margin-top: var(--current-spacing);
-}
-
-.spacing-theme-compact .submission__title {
-  font-size: var(--font-size-sm);
-  line-height: 1.3;
-}
-
-.spacing-theme-compact .submission__description {
-  font-size: var(--font-size-sm);
-  line-height: 1.4;
-}
-
-.spacing-theme-compact .submission__meta {
-  font-size: var(--font-size-sm);
-}
-
-.spacing-theme-compact .submission__tag {
-  font-size: var(--font-size-sm);
-  padding: 0.2rem 0.4rem;
-}
-
-.spacing-theme-compact .submission__url {
-  font-size: var(--font-size-sm);
-}
 
 /* END SPACING THEMES */
 
@@ -379,6 +241,50 @@
   margin: 0;
   font-size: var(--font-size-md);
   font-family: var(--app-font-family);
+  /* Remove all focus outlines for clean visual UX */
+  outline: none !important;
+}
+
+/* Accessibility focus styles - only applied when enabled */
+.accessibility-focus-enabled * {
+  outline: revert !important;
+}
+
+.accessibility-focus-enabled button:focus {
+  outline: 2px solid var(--brand-primary--dark) !important;
+  outline-offset: 2px !important;
+}
+
+.accessibility-focus-enabled a:focus {
+  outline: 2px solid var(--anchor__light-bg--primary) !important;
+  outline-offset: 2px !important;
+}
+
+.accessibility-focus-enabled .author.clickable:focus,
+.accessibility-focus-enabled .content-pill:focus,
+.accessibility-focus-enabled .content-pill--hashtag:focus,
+.accessibility-focus-enabled .content-pill--mention:focus,
+.accessibility-focus-enabled .timestamp-with-tooltip:focus,
+.accessibility-focus-enabled [data-tooltip]:focus,
+.accessibility-focus-enabled .tooltip-trigger:focus {
+  outline: 2px solid var(--brand-primary, #007bff) !important;
+  outline-offset: 2px !important;
+}
+
+.accessibility-focus-enabled .submissions-list--virtual:focus-within {
+  outline: 2px solid var(--brand-primary) !important;
+  outline-offset: 2px !important;
+}
+
+.accessibility-focus-enabled .thread__back-button:focus {
+  outline: 2px solid var(--brand-primary) !important;
+  outline-offset: 2px !important;
+  border-radius: var(--border-radius) !important;
+}
+
+.accessibility-focus-enabled .tag-link:focus {
+  outline: 2px solid rgba(237, 174, 73, 0.3) !important;
+  outline-offset: 1px !important;
 }
 
 /* Global font and style reset */
@@ -479,8 +385,7 @@ button:hover:not(:disabled) {
 }
 
 button:focus {
-  outline: 2px solid var(--brand-primary--dark);
-  outline-offset: 2px;
+  outline: none;
 }
 
 sup p,
@@ -505,8 +410,7 @@ a:hover {
 }
 
 a:focus {
-  outline: 2px solid var(--anchor__light-bg--primary);
-  outline-offset: 2px;
+  outline: none;
 }
 
 a h1,
@@ -803,27 +707,7 @@ section:not(:last-of-type) {
   border-radius: var(--border-radius);
 }
 
-/* Portal Tooltip Styles */
-.portal-tooltip {
-  /* Apply protected tooltip glass effect */
-  backdrop-filter: var(--tooltip-glass-blur) !important;
-  -webkit-backdrop-filter: var(--tooltip-glass-blur) !important;
-  background: var(--tooltip-glass-bg) !important;
-  border: 1px solid var(--tooltip-glass-border) !important;
-  box-shadow: var(--tooltip-glass-shadow) !important;
-  border-radius: var(--border-radius);
-  font-family: inherit;
-  user-select: none;
-  color: white;
-}
 
-.portal-tooltip--wide {
-  min-width: 320px;
-}
-
-.portal-tooltip--narrow {
-  min-width: 200px;
-}
 
 /* Application-wide cursor/caret styling */
 input,
@@ -845,169 +729,5 @@ textarea,
   caret-color: var(--brand-primary, #edae49) !important;
 }
 
-/* Mobile Touch Support for Tooltips and Interactive Elements */
-@media (hover: none) and (pointer: coarse) {
 
-  /* Mobile devices - enable touch interactions for tooltip triggers */
-  .author.clickable,
-  .content-pill,
-  .content-pill--hashtag,
-  .content-pill--mention,
-  .timestamp-with-tooltip,
-  [data-tooltip],
-  .tooltip-trigger {
-    /* Ensure touch targets are large enough */
-    min-height: 44px;
-    min-width: 44px;
-    /* Add subtle visual feedback for touch */
-    -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);
-    /* Prevent text selection on touch */
-    -webkit-user-select: none;
-    user-select: none;
-    /* Ensure elements are touchable */
-    touch-action: manipulation;
-    /* Add a subtle touch indication */
-    position: relative;
-  }
 
-  /* Touch feedback animation */
-  .author.clickable:active,
-  .content-pill:active,
-  .content-pill--hashtag:active,
-  .content-pill--mention:active,
-  .timestamp-with-tooltip:active,
-  [data-tooltip]:active,
-  .tooltip-trigger:active {
-    transform: scale(0.98);
-    transition: transform 0.1s ease;
-  }
-
-  /* Ensure tooltips can be triggered by touch */
-  .link-tooltip,
-  .interactive-tooltip,
-  .author-tooltip,
-  .mention-tooltip {
-    /* Allow touch events to pass through to trigger elements */
-    pointer-events: auto;
-  }
-
-  /* Make sure modal triggers work properly on mobile */
-  .youtube-modal,
-  .link-preview-modal {
-    /* Ensure modals are touchable */
-    touch-action: manipulation;
-  }
-
-  /* Improve button touch targets */
-  button,
-  .button,
-  .btn {
-    min-height: 44px;
-    min-width: 44px;
-    touch-action: manipulation;
-    -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);
-  }
-
-  /* Special handling for small interactive elements */
-  .submission__edit-btn,
-  .submission__delete-btn,
-  .submission__reply-btn {
-    min-height: 44px;
-    min-width: 44px;
-    /* padding: 0.5rem; */
-    touch-action: manipulation;
-  }
-}
-
-/* Desktop hover support - maintain existing behavior */
-@media (hover: hover) and (pointer: fine) {
-
-  /* Desktop devices - maintain hover interactions */
-  .author.clickable:hover,
-  .content-pill:hover,
-  .content-pill--hashtag:hover,
-  .content-pill--mention:hover,
-  .timestamp-with-tooltip:hover {
-    /* Existing hover styles are preserved */
-  }
-}
-
-/* Universal accessibility improvements */
-.author.clickable,
-.content-pill,
-.content-pill--hashtag,
-.content-pill--mention,
-.timestamp-with-tooltip,
-[data-tooltip],
-.tooltip-trigger {
-  /* Ensure keyboard navigation works */
-  outline: none;
-  border-radius: var(--border-radius, 4px);
-}
-
-.author.clickable:focus,
-.content-pill:focus,
-.content-pill--hashtag:focus,
-.content-pill--mention:focus,
-.timestamp-with-tooltip:focus,
-[data-tooltip]:focus,
-.tooltip-trigger:focus {
-  /* Visible focus indicator for keyboard navigation */
-  outline: 2px solid var(--brand-primary, #007bff);
-  outline-offset: 2px;
-}
-
-/* Ensure tooltips don't interfere with scrolling on mobile */
-@media (max-width: 768px) {
-
-  .link-tooltip,
-  .interactive-tooltip,
-  .author-tooltip,
-  .mention-tooltip {
-    /* Prevent tooltips from blocking scroll */
-    max-width: 90vw;
-    max-height: 50vh;
-    overflow-y: auto;
-    /* Ensure tooltips are above other content but not too high */
-    z-index: 9999;
-  }
-
-  /* Adjust tooltip positioning for mobile */
-  .link-tooltip,
-  .interactive-tooltip {
-    /* Add some margin from screen edges */
-    margin: 8px;
-  }
-}
-
-/* High contrast mode support */
-@media (prefers-contrast: high) {
-
-  .author.clickable,
-  .content-pill,
-  .timestamp-with-tooltip,
-  [data-tooltip],
-  .tooltip-trigger {
-    border: 2px solid currentColor;
-  }
-}
-
-/* Reduced motion support */
-@media (prefers-reduced-motion: reduce) {
-
-  .author.clickable,
-  .content-pill,
-  .timestamp-with-tooltip,
-  [data-tooltip],
-  .tooltip-trigger {
-    transition: none;
-  }
-
-  .author.clickable:active,
-  .content-pill:active,
-  .timestamp-with-tooltip:active,
-  [data-tooltip]:active,
-  .tooltip-trigger:active {
-    transform: none;
-  }
-}

@@ -195,18 +195,22 @@ export const SmartInput = forwardRef<
           const [, searchQuery] = colonMatch;
           const colonPosition = beforeCursor.lastIndexOf(':');
 
-          // Get position for emoji picker
+          // Get position for emoji picker (relative to document, not viewport)
           const rect = input.getBoundingClientRect();
           const style = window.getComputedStyle(input);
           const fontSize = parseFloat(style.fontSize);
+          const scrollX =
+            window.pageXOffset || document.documentElement.scrollLeft;
+          const scrollY =
+            window.pageYOffset || document.documentElement.scrollTop;
 
           // Estimate character width (rough approximation)
           const charWidth = fontSize * 0.6;
           const x = Math.min(
-            rect.left + colonPosition * charWidth,
-            window.innerWidth - 320
+            rect.left + scrollX + colonPosition * charWidth,
+            window.innerWidth + scrollX - 320
           );
-          const y = rect.bottom + 5;
+          const y = rect.bottom + scrollY + 5;
 
           emojiPicker.openAt(x, y, searchQuery);
         } else {
