@@ -86,15 +86,16 @@ export default function FilterBar({
   // This prevents the confusing state where global=ALL but there's only one group
   const effectiveGlobalLogic = hasMultipleFilterTypes ? globalLogic : 'OR';
 
-  // If we need to update the stored global logic to match the effective logic
-  if (
-    onUpdateFilter &&
-    globalLogic !== effectiveGlobalLogic &&
-    !hasMultipleFilterTypes
-  ) {
-    // Automatically switch to OR when there's only one filter type
-    setTimeout(() => onUpdateFilter('globalLogic', 'OR'), 0);
-  }
+  // DISABLED: Auto-switch global logic to prevent double fetches
+  // The tag/hashtag click handlers now add globalLogic atomically
+  // if (
+  //   onUpdateFilter &&
+  //   globalLogic !== effectiveGlobalLogic &&
+  //   !hasMultipleFilterTypes
+  // ) {
+  //   // Automatically switch to OR when there's only one filter type
+  //   setTimeout(() => onUpdateFilter('globalLogic', 'OR'), 0);
+  // }
 
   const handleLogicToggle = (
     filterType: 'tagLogic' | 'authorLogic' | 'mentionsLogic' | 'globalLogic'
