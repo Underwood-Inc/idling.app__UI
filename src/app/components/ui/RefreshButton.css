@@ -1,0 +1,44 @@
+.refresh-button {
+  background: transparent;
+  border: none;
+  color: var(--brand-primary);
+  cursor: pointer;
+  padding: 0.25rem;
+  border-radius: var(--border-radius);
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  font-size: var(--font-size-sm);
+  line-height: 1;
+}
+
+.refresh-button:hover {
+  color: var(--brand-primary--dark);
+  background-color: var(--light-background--tertiary);
+}
+
+.refresh-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.refresh-button--refreshing {
+  color: var(--brand-secondary);
+}
+
+.refresh-button__icon {
+  flex-shrink: 0;
+  transition: transform 0.2s ease;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .refresh-button {
+    padding: 0.375rem;
+    min-height: 44px;
+    min-width: 44px;
+    justify-content: center;
+  }
+} 
