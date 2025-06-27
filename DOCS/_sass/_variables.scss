@@ -1,9 +1,10 @@
 // Variables and Color Definitions
 // Enhanced dark theme for Idling.app Documentation
 
-// Color Variables - Matching main app EXACTLY
+// Design System Variables - Aligned with Main Application
+// Color Palettes
 :root {
-  // Exact colors from main app globals.css
+  // Brand Colors (from main app)
   --hunyadi-yellow: #edae49;
   --dark-goldenrod: #c68214;
   --jasmine: #f9df74;
@@ -17,7 +18,95 @@
   --seal-brown: #61210f;
   --black-bean: #44170b;
   --sea-of-stars: #0b3844;
-  
+
+  // Brand System
+  --brand-primary: var(--hunyadi-yellow);
+  --brand-primary--dark: var(--dark-goldenrod);
+  --brand-primary--light: var(--jasmine);
+  --brand-secondary: var(--jasmine);
+  --brand-secondary--dark: var(--jonquil);
+  --brand-tertiary: var(--cornsilk);
+  --brand-tertiary--dark: var(--saffron);
+  --brand-quaternary: var(--chili-red);
+  --brand-quaternary--dark: var(--rufous);
+
+  // Background Colors
+  --light-background--primary: #fff8e1;
+  --light-background--secondary: #ffe4b5;
+  --light-background--tertiary: #ffdab9;
+  --light-background--quaternary: #ffefd5;
+  --light-background--quinary: #fff5ee;
+
+  --dark-background--primary: #1a1611;
+  --dark-background--secondary: #252017;
+  --dark-background--tertiary: #2f2a1d;
+  --dark-background--quaternary: #3a3323;
+  --dark-background--quinary: #443d29;
+
+  // Text Colors
+  --light-bg__text-color--primary: #2a2a2a;
+  --light-bg__text-color--secondary: #8b4513;
+  --light-bg__text-color--tertiary: #a0522d;
+  --dark-bg__text-color--primary: #ffffff;
+  --dark-bg__text-color--secondary: #fff8e1;
+  --dark-bg__text-color--tertiary: #ffe4b5;
+
+  // Border Colors
+  --light-border--primary: #e2e8f0;
+  --light-border--secondary: #cbd5e0;
+  --dark-border--primary: #4a5568;
+  --dark-border--secondary: #2d3748;
+
+  // Glass Effects
+  --glass-overlay-light: rgba(255, 255, 255, 0.1);
+  --glass-overlay-medium: rgba(255, 255, 255, 0.15);
+  --glass-overlay-heavy: rgba(255, 255, 255, 0.25);
+  --glass-overlay-ultra: rgba(255, 255, 255, 0.35);
+
+  --glass-bg-light: rgba(255, 255, 255, 0.1);
+  --glass-bg-medium: rgba(255, 255, 255, 0.15);
+  --glass-bg-heavy: rgba(255, 255, 255, 0.25);
+  --glass-bg-ultra: rgba(255, 255, 255, 0.35);
+
+  --glass-border-light: rgba(255, 255, 255, 0.2);
+  --glass-border-medium: rgba(255, 255, 255, 0.3);
+  --glass-border-heavy: rgba(255, 255, 255, 0.4);
+
+  --glass-shadow-light: 0 4px 6px rgba(0, 0, 0, 0.1);
+  --glass-shadow-medium: 0 8px 32px rgba(0, 0, 0, 0.12);
+  --glass-shadow-heavy: 0 16px 64px rgba(0, 0, 0, 0.15);
+
+  --glass-blur-light: blur(8px);
+  --glass-blur-medium: blur(12px);
+  --glass-blur-heavy: blur(16px);
+  --glass-blur-ultra: blur(24px);
+
+  // Spacing System
+  --border-radius: 8px;
+  --spacing-xs: 0.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.5rem;
+  --spacing-xl: 2rem;
+  --spacing-2xl: 3rem;
+  --spacing-3xl: 4rem;
+
+  // Font System
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.875rem;
+  --font-size-base: 1rem;
+  --font-size-lg: 1.125rem;
+  --font-size-xl: 1.25rem;
+  --font-size-2xl: 1.5rem;
+  --font-size-3xl: 1.875rem;
+  --font-size-4xl: 2.25rem;
+
+  // Z-index System
+  --z-header: 1000;
+  --z-footer: 1000;
+  --z-modal: 2000;
+  --z-tooltip: 3000;
+
   // Enhanced dark theme backgrounds
   --dark-bg-primary: #1a1611;
   --dark-bg-secondary: #252017;
@@ -26,30 +115,30 @@
   --dark-bg-quinary: #443d29;
   --dark-bg-code: #1e1b16;
   --dark-bg-code-light: #2a2520;
-  
+
   // Enhanced text colors
   --text-primary: #ffffff;
   --text-secondary: #e6e6e6;
   --text-tertiary: #cccccc;
   --text-muted: #999999;
   --text-code: #f8f8f2;
-  
+
   // Enhanced border colors
   --border-primary: #4a4a4a;
   --border-secondary: #333333;
   --border-code: #555555;
   --border-accent: var(--hunyadi-yellow);
-  
+
   // Enhanced link colors
   --link-primary: var(--hunyadi-yellow);
   --link-hover: var(--jasmine);
   --link-visited: var(--saffron);
-  
+
   // Font stacks with Fira Code VF support
   --font-family-base: 'Fira Code VF', 'Fira Code', 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
   --font-family-headings: var(--font-family-base);
   --font-family-code: 'Fira Code VF', 'Fira Code', 'SF Mono', 'Monaco', 'Consolas', 'Liberation Mono', 'Courier New', monospace;
-  
+
   // Spacing scale
   --space-xs: 0.25rem;
   --space-sm: 0.5rem;
@@ -57,7 +146,7 @@
   --space-lg: 1.5rem;
   --space-xl: 2rem;
   --space-xxl: 3rem;
-  
+
   // Typography scale
   --text-xs: 0.75rem;
   --text-sm: 0.875rem;
@@ -67,15 +156,82 @@
   --text-2xl: 1.5rem;
   --text-3xl: 1.875rem;
   --text-4xl: 2.25rem;
-  
+
   // Border radius
   --radius-sm: 0.25rem;
   --radius-md: 0.5rem;
   --radius-lg: 0.75rem;
   --radius-xl: 1rem;
-  
+
   // Shadows
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
   --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-} 
+}
+
+// Dark Mode Overrides
+@media (prefers-color-scheme: dark) {
+  :root {
+    --glass-overlay-light: rgba(255, 255, 255, 0.08);
+    --glass-overlay-medium: rgba(255, 255, 255, 0.12);
+    --glass-overlay-heavy: rgba(255, 255, 255, 0.18);
+    --glass-overlay-ultra: rgba(255, 255, 255, 0.25);
+
+    --glass-bg-light: rgba(0, 0, 0, 0.1);
+    --glass-bg-medium: rgba(0, 0, 0, 0.15);
+    --glass-bg-heavy: rgba(0, 0, 0, 0.25);
+    --glass-bg-ultra: rgba(0, 0, 0, 0.35);
+
+    --glass-border-light: rgba(255, 255, 255, 0.1);
+    --glass-border-medium: rgba(255, 255, 255, 0.15);
+    --glass-border-heavy: rgba(255, 255, 255, 0.2);
+
+    --glass-shadow-light: 0 4px 6px rgba(0, 0, 0, 0.3);
+    --glass-shadow-medium: 0 8px 32px rgba(0, 0, 0, 0.4);
+    --glass-shadow-heavy: 0 16px 64px rgba(0, 0, 0, 0.5);
+  }
+}
+
+// SCSS Variables for use in stylesheets
+$brand-primary: var(--brand-primary);
+$brand-primary-dark: var(--brand-primary--dark);
+$brand-primary-light: var(--brand-primary--light);
+$brand-secondary: var(--brand-secondary);
+$brand-tertiary: var(--brand-tertiary);
+
+$dark-bg-primary: var(--dark-background--primary);
+$dark-bg-secondary: var(--dark-background--secondary);
+$dark-bg-tertiary: var(--dark-background--tertiary);
+$dark-bg-quaternary: var(--dark-background--quaternary);
+
+$light-bg-primary: var(--light-background--primary);
+$light-bg-secondary: var(--light-background--secondary);
+$light-bg-tertiary: var(--light-background--tertiary);
+
+$text-primary-light: var(--light-bg__text-color--primary);
+$text-secondary-light: var(--light-bg__text-color--secondary);
+$text-primary-dark: var(--dark-bg__text-color--primary);
+$text-secondary-dark: var(--dark-bg__text-color--secondary);
+
+$border-primary-light: var(--light-border--primary);
+$border-secondary-light: var(--light-border--secondary);
+$border-primary-dark: var(--dark-border--primary);
+$border-secondary-dark: var(--dark-border--secondary);
+
+$border-radius: var(--border-radius);
+$spacing-sm: var(--spacing-sm);
+$spacing-md: var(--spacing-md);
+$spacing-lg: var(--spacing-lg);
+$spacing-xl: var(--spacing-xl);
+
+$font-size-sm: var(--font-size-sm);
+$font-size-base: var(--font-size-base);
+$font-size-lg: var(--font-size-lg);
+$font-size-xl: var(--font-size-xl);
+$font-size-2xl: var(--font-size-2xl);
+$font-size-3xl: var(--font-size-3xl);
+
+$z-header: var(--z-header);
+$z-footer: var(--z-footer);
+$z-modal: var(--z-modal);
+$z-tooltip: var(--z-tooltip); 
