@@ -846,19 +846,39 @@ jobs:
               
               let body = pr.body || '';
               
+              // Create badges section
+              const badgesSection = [
+                '<!-- status-badges-start -->',
+                '## Status Badges',
+                'Status badges for the current branch:',
+                '',
+                badges,
+                '',
+                '<!-- status-badges-end -->'
+              ].join('\n');
+              
               // Check if badges section already exists
-              if (!body.includes('<!-- status-badges-start -->')) {
-                // Create badges section
-                const badgesSection = [
-                  '<!-- status-badges-start -->',
-                  '## Status Badges',
-                  'Status badges for the current branch:',
-                  '',
-                  badges,
-                  '',
-                  '<!-- status-badges-end -->'
-                ].join('\n');
+              if (body.includes('<!-- status-badges-start -->')) {
+                // Replace existing badges section
+                const startMarker = '<!-- status-badges-start -->';
+                const endMarker = '<!-- status-badges-end -->';
                 
+                const startIndex = body.indexOf(startMarker);
+                const endIndex = body.indexOf(endMarker);
+                
+                if (startIndex !== -1 && endIndex !== -1) {
+                  // Replace the entire section between markers
+                  const beforeBadges = body.substring(0, startIndex);
+                  const afterBadges = body.substring(endIndex + endMarker.length);
+                  
+                  body = beforeBadges + badgesSection + afterBadges;
+                  console.log('Successfully updated existing status badges in PR description');
+                } else {
+                  console.log('Badges markers found but incomplete - skipping update');
+                  return;
+                }
+              } else {
+                // Add badges section for the first time
                 // Find position after first header
                 const firstHeaderMatch = body.match(/^#\s+.*$/m);
                 if (firstHeaderMatch) {
@@ -873,19 +893,16 @@ jobs:
                   // If no header found, prepend badges section
                   body = badgesSection + '\n\n' + body;
                 }
-                
-                // Update PR description
-                await github.rest.pulls.update({
-                  owner,
-                  repo,
-                  pull_number: context.issue.number,
-                  body
-                });
-                
                 console.log('Successfully added status badges to PR description');
-              } else {
-                console.log('Status badges section already exists in PR description');
               }
+              
+              // Update PR description
+              await github.rest.pulls.update({
+                owner,
+                repo,
+                pull_number: context.issue.number,
+                body
+              });
             } catch (error) {
               console.error('Error updating PR description:', error);
               core.setFailed(error.message);
