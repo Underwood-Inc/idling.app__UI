@@ -143,10 +143,13 @@ jobs:
             ~/.cache/playwright
             ~/.cache/ms-playwright
           key: ${{ runner.os }}-deps-browsers-${{ hashFiles('**/yarn.lock', '**/package.json') }}
-          fail-on-cache-miss: true
+          restore-keys: |
+            ${{ runner.os }}-deps-browsers-
+            ${{ runner.os }}-deps-
+          fail-on-cache-miss: false
 
-      # Only install dependencies if cache miss (shouldn't happen with fail-on-cache-miss)
-      - name: Install dependencies (fallback)
+      # Install dependencies if cache miss (first run or cache eviction)
+      - name: Install dependencies and browsers
         if: steps.cache-restore.outputs.cache-hit != 'true'
         run: |
           yarn install --frozen-lockfile
@@ -373,10 +376,13 @@ jobs:
             ~/.cache/playwright
             ~/.cache/ms-playwright
           key: ${{ runner.os }}-deps-browsers-${{ hashFiles('**/yarn.lock', '**/package.json') }}
-          fail-on-cache-miss: true
+          restore-keys: |
+            ${{ runner.os }}-deps-browsers-
+            ${{ runner.os }}-deps-
+          fail-on-cache-miss: false
 
-      # Only install dependencies if cache miss (shouldn't happen with fail-on-cache-miss)
-      - name: Install dependencies (fallback)
+      # Install dependencies if cache miss (first run or cache eviction)
+      - name: Install dependencies
         if: steps.cache-restore.outputs.cache-hit != 'true'
         run: yarn install --frozen-lockfile
 
@@ -606,10 +612,13 @@ jobs:
             ~/.cache/playwright
             ~/.cache/ms-playwright
           key: ${{ runner.os }}-deps-browsers-${{ hashFiles('**/yarn.lock', '**/package.json') }}
+          restore-keys: |
+            ${{ runner.os }}-deps-browsers-
+            ${{ runner.os }}-deps-
           fail-on-cache-miss: false
 
       # Install dependencies if not cached
-      - name: Install dependencies (fallback)
+      - name: Install dependencies
         if: steps.cache-restore.outputs.cache-hit != 'true'
         run: yarn install --frozen-lockfile
 
@@ -690,10 +699,13 @@ jobs:
             ~/.cache/playwright
             ~/.cache/ms-playwright
           key: ${{ runner.os }}-deps-browsers-${{ hashFiles('**/yarn.lock', '**/package.json') }}
+          restore-keys: |
+            ${{ runner.os }}-deps-browsers-
+            ${{ runner.os }}-deps-
           fail-on-cache-miss: false
 
       # Install dependencies if not cached
-      - name: Install dependencies (fallback)
+      - name: Install dependencies
         if: steps.cache-restore.outputs.cache-hit != 'true'
         run: yarn install --frozen-lockfile
 
