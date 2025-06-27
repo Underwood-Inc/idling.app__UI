@@ -278,8 +278,8 @@ const captureElementStructure = (
 
   const captured: CapturedElement = {
     tagName: element.tagName.toLowerCase(),
-    className: element.className || '',
-    id: element.id || '',
+    className: String(element.className || ''),
+    id: String(element.id || ''),
     rect: {
       width: rect.width,
       height: rect.height,
@@ -370,11 +370,16 @@ const findItemPattern = (element: CapturedElement): CapturedElement | null => {
     'row'
   ];
 
+  // Safely handle className and id - ensure they're strings
+  const className =
+    typeof element.className === 'string' ? element.className : '';
+  const id = typeof element.id === 'string' ? element.id : '';
+
   // Check if this element looks like a list item
   const isListItem = itemSelectors.some(
     (selector) =>
-      element.className.toLowerCase().includes(selector) ||
-      element.id.toLowerCase().includes(selector)
+      className.toLowerCase().includes(selector) ||
+      id.toLowerCase().includes(selector)
   );
 
   // Also check for common structural patterns
@@ -387,7 +392,7 @@ const findItemPattern = (element: CapturedElement): CapturedElement | null => {
       element.tagName === 'li');
 
   logger.debug('Checking element for item pattern', {
-    className: element.className,
+    className,
     tagName: element.tagName,
     isListItem,
     hasItemStructure,
@@ -398,7 +403,7 @@ const findItemPattern = (element: CapturedElement): CapturedElement | null => {
 
   if (isListItem || hasItemStructure) {
     logger.debug('Found potential item pattern', {
-      className: element.className,
+      className,
       tagName: element.tagName,
       reason: isListItem ? 'matching selector' : 'structural pattern'
     });
@@ -419,7 +424,10 @@ const findItemPattern = (element: CapturedElement): CapturedElement | null => {
   if (potentialItems.length > 0) {
     logger.debug('Found item pattern in children', {
       count: potentialItems.length,
-      firstItemClass: potentialItems[0].className
+      firstItemClass:
+        typeof potentialItems[0].className === 'string'
+          ? potentialItems[0].className
+          : ''
     });
     return potentialItems[0];
   }
@@ -433,8 +441,12 @@ const findPaginationPattern = (
   // Look for pagination patterns
   const paginationSelectors = ['pagination', 'page', 'nav'];
 
+  // Safely handle className - ensure it's a string
+  const className =
+    typeof element.className === 'string' ? element.className : '';
+
   const isPagination = paginationSelectors.some((selector) =>
-    element.className.toLowerCase().includes(selector)
+    className.toLowerCase().includes(selector)
   );
 
   if (isPagination) {
