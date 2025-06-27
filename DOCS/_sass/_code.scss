@@ -127,6 +127,97 @@ pre table {
   margin: 0 !important;
 }
 
+// JEKYLL ROUGE SYNTAX HIGHLIGHTER FIXES
+// Handle the extra wrapper elements that Jekyll/Rouge creates
+.highlighter-rouge {
+  margin: var(--space-xl) 0 !important;
+  
+  // Remove default styling from the outer wrapper
+  background: none !important;
+  border: none !important;
+  padding: 0 !important;
+  border-radius: 0 !important;
+  
+  // The inner .highlight div should be transparent
+  .highlight {
+    background: none !important;
+    border: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border-radius: 0 !important;
+    
+    // The pre element is where our styling should be applied
+    pre {
+      background-color: var(--dark-bg-code) !important;
+      color: var(--text-code) !important;
+      padding: var(--space-md) !important;
+      border-radius: var(--radius-lg) !important;
+      border: 1px solid var(--border-code) !important;
+      margin: 0 !important;
+      overflow-x: auto;
+      box-shadow: var(--shadow-lg);
+      position: relative;
+      
+      // Ensure code inside pre has no extra styling
+      code {
+        background: none !important;
+        border: none !important;
+        padding: 0 !important;
+        color: inherit !important;
+        font-size: inherit !important;
+        white-space: pre;
+        border-radius: 0 !important;
+      }
+      
+      // Add subtle left border accent
+      &::before {
+        content: '';
+        position: absolute;
+        inset-inline-start: 0;
+        inset-block-start: 0;
+        inset-block-end: 0;
+        width: 4px;
+        background: linear-gradient(
+          to bottom,
+          var(--hunyadi-yellow),
+          var(--jasmine),
+          var(--hunyadi-yellow)
+        );
+        border-radius: var(--radius-lg) 0 0 var(--radius-lg);
+      }
+    }
+  }
+  
+  // Special styling for shell/terminal code blocks
+  &.language-bash,
+  &.language-shell,
+  &.language-zsh,
+  &.language-powershell {
+    .highlight pre {
+      &::before {
+        background: linear-gradient(
+          to bottom,
+          var(--cornflower-blue),
+          var(--hunyadi-yellow),
+          var(--cornflower-blue)
+        ) !important;
+      }
+      
+      // Add terminal-like header
+      &::after {
+        content: '\2022 \2022 \2022';
+        position: absolute;
+        top: 8px;
+        right: 12px;
+        color: rgba(255, 255, 255, 0.3);
+        font-size: 8px;
+        letter-spacing: 2px;
+        pointer-events: none;
+      }
+    }
+  }
+}
+
 // ENHANCED MONOKAI THEME FOR ROUGE
 // Additional Monokai-inspired syntax highlighting tokens
 .highlight {
@@ -232,18 +323,25 @@ main pre {
 }
 
 // Syntax highlighting improvements - Override Rouge/Shiki defaults
-.highlight {
+// Only apply to standalone .highlight divs, not those inside .highlighter-rouge
+.highlight:not(.highlighter-rouge .highlight) {
   background-color: var(--dark-bg-code) !important;
   border-radius: var(--radius-lg);
   margin: var(--space-md) 0;
+  padding: var(--space-md);
+  border: 1px solid var(--border-code) !important;
   
   pre {
     margin: 0;
-    border: 1px solid var(--border-code) !important;
-    background-color: var(--dark-bg-code) !important;
+    padding: 0;
+    border: none !important;
+    background: none !important;
+    border-radius: 0;
   }
-  
-  // Enhanced syntax highlighting colors (Monokai-inspired)
+}
+
+// Enhanced syntax highlighting colors (Monokai-inspired) - Apply globally to .highlight
+.highlight {
   .c { color: #75715e !important; } // Comment
   .err { color: #960050 !important; background-color: #1e0010 !important; } // Error
   .k { color: #66d9ef !important; } // Keyword
@@ -307,24 +405,24 @@ main pre {
   .il { color: #ae81ff !important; } // Literal.Number.Integer.Long
 }
 
-// Additional Rouge syntax highlighting classes
-.language-javascript, .language-js {
+// Additional Rouge syntax highlighting classes - Only apply to standalone highlights
+.language-javascript:not(.highlighter-rouge), .language-js:not(.highlighter-rouge) {
   .highlight { background-color: var(--dark-bg-code) !important; }
 }
 
-.language-typescript, .language-ts {
+.language-typescript:not(.highlighter-rouge), .language-ts:not(.highlighter-rouge) {
   .highlight { background-color: var(--dark-bg-code) !important; }
 }
 
-.language-python, .language-py {
+.language-python:not(.highlighter-rouge), .language-py:not(.highlighter-rouge) {
   .highlight { background-color: var(--dark-bg-code) !important; }
 }
 
-.language-sql {
+.language-sql:not(.highlighter-rouge) {
   .highlight { background-color: var(--dark-bg-code) !important; }
 }
 
-.language-bash, .language-shell {
+.language-bash:not(.highlighter-rouge), .language-shell:not(.highlighter-rouge) {
   .highlight { background-color: var(--dark-bg-code) !important; }
 }
 
@@ -386,7 +484,8 @@ main pre {
 
 // POWERLEVEL10K-INSPIRED SHELL HIGHLIGHTING
 // Enhanced bash/shell syntax highlighting with PowerShell-like styling
-.language-bash, .language-shell, .language-zsh, .language-powershell {
+// Only apply to standalone highlights, not those inside .highlighter-rouge
+.language-bash:not(.highlighter-rouge), .language-shell:not(.highlighter-rouge), .language-zsh:not(.highlighter-rouge), .language-powershell:not(.highlighter-rouge) {
   .highlight {
     background-color: #1e1e2e !important; // Darker background like PowerShell
     border-inline-start: 4px solid var(--cornflower-blue) !important; // Blue accent like PowerShell
@@ -501,7 +600,8 @@ main pre {
 
 // ENHANCED SHELL COMMAND STYLING
 // Make common shell commands look more prominent
-.language-bash, .language-shell, .language-zsh {
+// Only apply to standalone highlights, not those inside .highlighter-rouge
+.language-bash:not(.highlighter-rouge), .language-shell:not(.highlighter-rouge), .language-zsh:not(.highlighter-rouge) {
   .highlight {
     // Common shell commands with special styling
     .nb {
