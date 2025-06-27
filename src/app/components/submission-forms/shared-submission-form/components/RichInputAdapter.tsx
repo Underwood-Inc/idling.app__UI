@@ -12,13 +12,14 @@ import React, {
   useRef,
   useState
 } from 'react';
-import { createPortal } from 'react-dom';
+import ReactDOM from 'react-dom';
 import {
   createURLPill,
   findDomainConfig
 } from '../../../../../lib/config/url-pills';
 import { RichInput } from '../../../../../lib/rich-input';
 import { emojiParser } from '../../../../../lib/utils/parsers/emoji-parser';
+import { InteractiveTooltip } from '../../../tooltip/InteractiveTooltip';
 import { useFloatingToolbar } from '../hooks/useFloatingToolbar';
 import { FloatingToolbar } from './FloatingToolbar';
 
@@ -64,6 +65,7 @@ export const RichInputAdapter: React.FC<RichInputAdapterProps> = ({
   const containerRef = useRef<HTMLDivElement>(null);
   const richInputRef = useRef<any>(null);
   const [isFocused, setIsFocused] = useState(false);
+  const [isInitialized, setIsInitialized] = useState(false);
   const [toolbarInteracting, setToolbarInteracting] = useState(false);
   const [searchOverlayInteracting, setSearchOverlayInteracting] =
     useState(false);
@@ -75,6 +77,15 @@ export const RichInputAdapter: React.FC<RichInputAdapterProps> = ({
     triggerIndex: -1
   });
   const focusTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Mark as initialized after a short delay to ensure rich input is ready
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsInitialized(true);
+    }, 500); // Wait 500ms for initialization
+
+    return () => clearTimeout(timer);
+  }, []);
 
   // Extract existing hashtags from current value
   const extractExistingHashtags = useCallback((): string[] => {
@@ -127,20 +138,215 @@ export const RichInputAdapter: React.FC<RichInputAdapterProps> = ({
 
   const [emojiResults, setEmojiResults] = useState<any[]>([]);
 
-  // Cleanup timeout on unmount
-  useEffect(() => {
-    return () => {
-      if (focusTimeoutRef.current) {
-        clearTimeout(focusTimeoutRef.current);
-      }
-    };
+  // State for managing interactive tooltip content
+  const [tooltipContent, setTooltipContent] = useState<React.ReactNode>(null);
+  const [tooltipVisible, setTooltipVisible] = useState(false);
+  const [tooltipTriggerRef, setTooltipTriggerRef] =
+    useState<HTMLElement | null>(null);
+
+  // Create a virtual trigger element for positioning the tooltip
+  const createVirtualTrigger = useCallback((x: number, y: number) => {
+    const uniqueId = `rich-input-virtual-trigger-${contextId}`;
+
+    // Remove any existing virtual trigger for this instance
+    const existing = document.getElementById(uniqueId);
+    if (existing) {
+      existing.remove();
+    }
+
+    // Create a new virtual trigger element
+    const trigger = document.createElement('div');
+    trigger.id = uniqueId;
+    trigger.style.position = 'absolute';
+    trigger.style.left = `${x}px`;
+    trigger.style.top = `${y}px`;
+    trigger.style.width = '1px';
+    trigger.style.height = '1px';
+    trigger.style.pointerEvents = 'none';
+    trigger.style.zIndex = '9999';
+    document.body.appendChild(trigger);
+
+    return trigger;
   }, []);
 
-  // Detect trigger characters and show search overlay
+  // Handle search result selection
+  const handleSearchResultSelect = useCallback(
+    (item: any) => {
+      // Replace only the partial mention, not the entire input
+      // Get the current input value and replace from trigger to end of query
+      const currentValue = value || '';
+      const triggerIndex = searchOverlay.triggerIndex;
+      const queryLength = searchOverlay.query.length;
+      const replaceEndIndex = triggerIndex + 1 + queryLength; // +1 for trigger character
+
+      // Generate the structured mention
+      let insertText = '';
+      if (searchOverlay.type === 'mention') {
+        insertText = `@[${item.displayName || item.label}|${item.value}|${mentionFilterType}] `;
+      } else if (searchOverlay.type === 'hashtag') {
+        insertText = item.value.startsWith('#')
+          ? `${item.value} `
+          : `#${item.value} `;
+      } else if (searchOverlay.type === 'emoji') {
+        insertText = item.unicode || `:${item.name}:`;
+      }
+
+      const beforeTrigger = currentValue.substring(0, triggerIndex);
+      const afterQuery = currentValue.substring(replaceEndIndex);
+      const newValue = beforeTrigger + insertText + afterQuery;
+
+      // Call onChange with the properly replaced value
+      onChange(newValue);
+
+      // Move cursor to the end of the newly inserted structured mention
+      setTimeout(() => {
+        if (richInputRef.current) {
+          // Get the current state to understand the visual structure
+          if (richInputRef.current.getState) {
+            const state = richInputRef.current.getState();
+          }
+
+          // Try to position cursor at the end of the new value
+          const newCursorPosition = newValue.length;
+
+          // Try different cursor positioning methods that might exist
+          if (richInputRef.current.setCursor) {
+            richInputRef.current.setCursor({
+              index: newCursorPosition
+            });
+          } else if (richInputRef.current.setCursorPosition) {
+            richInputRef.current.setCursorPosition(newCursorPosition);
+          } else if (richInputRef.current.setSelection) {
+            richInputRef.current.setSelection({
+              start: { index: newCursorPosition },
+              end: { index: newCursorPosition },
+              direction: 'none'
+            });
+          }
+
+          // Ensure focus is maintained
+          if (richInputRef.current.focus) {
+            richInputRef.current.focus();
+          }
+        }
+      }, 50); // Longer timeout to ensure rich input has finished rendering
+
+      // Hide overlay
+      setSearchOverlay((prev) => ({ ...prev, visible: false }));
+    },
+    [value, searchOverlay, onChange, mentionFilterType]
+  );
+
+  // Update search overlay to use InteractiveTooltip
+  const showSearchTooltip = useCallback(
+    (
+      type: 'hashtag' | 'mention' | 'emoji',
+      query: string,
+      position: { x: number; y: number }
+    ) => {
+      let results: any[] = [];
+      let loading = false;
+      let noResultsMessage = '';
+
+      if (type === 'hashtag') {
+        results = hashtagResults;
+        loading = loadingHashtags;
+        noResultsMessage = 'No hashtags found';
+      } else if (type === 'mention') {
+        results = mentionResults;
+        loading = loadingMentions;
+        noResultsMessage = 'No users found';
+      } else if (type === 'emoji') {
+        results = emojiResults;
+        loading = false;
+        noResultsMessage = 'No emojis found';
+      }
+
+      // eslint-disable-next-line no-console
+      console.log('🔍 showSearchTooltip:', { type, query, results, loading });
+
+      const content = (
+        <div className="search-overlay-content">
+          {loading && (
+            <div className="search-overlay-loading">Searching...</div>
+          )}
+          {!loading && results.length === 0 && query.length >= 2 && (
+            <div className="search-overlay-no-results">{noResultsMessage}</div>
+          )}
+          {results.map((item, index) => (
+            <button
+              key={item.id || index}
+              className={`search-overlay-item ${item.disabled ? 'search-overlay-item--disabled' : ''}`}
+              onMouseDown={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                if (!item.disabled) {
+                  handleSearchResultSelect(item);
+                  setTooltipVisible(false);
+                }
+              }}
+              disabled={item.disabled}
+              title={item.disabled ? 'Already selected' : undefined}
+            >
+              {type === 'hashtag' && (
+                <span className="search-overlay-trigger">#</span>
+              )}
+              {type === 'mention' && (
+                <span className="search-overlay-trigger">@</span>
+              )}
+              {type === 'emoji' && (
+                <span className="search-overlay-trigger">:</span>
+              )}
+              <span className="search-overlay-label">
+                {type === 'emoji' && item.unicode && (
+                  <span className="search-overlay-emoji">{item.unicode}</span>
+                )}
+                {item.label || item.name}
+              </span>
+              {item.disabled && (
+                <span className="search-overlay-indicator">✓</span>
+              )}
+            </button>
+          ))}
+        </div>
+      );
+
+      // Create virtual trigger element for positioning
+      const trigger = createVirtualTrigger(position.x, position.y);
+      setTooltipTriggerRef(trigger);
+      setTooltipContent(content);
+      setTooltipVisible(true);
+    },
+    [
+      hashtagResults,
+      mentionResults,
+      emojiResults,
+      loadingHashtags,
+      loadingMentions,
+      handleSearchResultSelect,
+      createVirtualTrigger
+    ]
+  );
+
+  // Hide search tooltip
+  const hideSearchTooltip = useCallback(() => {
+    setTooltipVisible(false);
+    setTooltipContent(null);
+
+    // Clean up virtual trigger for this instance
+    const uniqueId = `rich-input-virtual-trigger-${contextId}`;
+    const existing = document.getElementById(uniqueId);
+    if (existing) {
+      existing.remove();
+    }
+    setTooltipTriggerRef(null);
+  }, []);
+
+  // Update the detectTriggerAndShowOverlay function to use the new tooltip system
   const detectTriggerAndShowOverlay = useCallback(
     (text: string, cursorPosition: number) => {
       if (!text || cursorPosition < 0) {
-        setSearchOverlay((prev) => ({ ...prev, visible: false }));
+        hideSearchTooltip();
         return;
       }
 
@@ -158,7 +364,7 @@ export const RichInputAdapter: React.FC<RichInputAdapterProps> = ({
       ].filter((t) => t.index >= 0);
 
       if (triggers.length === 0) {
-        setSearchOverlay((prev) => ({ ...prev, visible: false }));
+        hideSearchTooltip();
         return;
       }
 
@@ -171,45 +377,34 @@ export const RichInputAdapter: React.FC<RichInputAdapterProps> = ({
 
       // Enhanced termination conditions for different trigger types
       if (lastTrigger.type === 'hashtag') {
-        // For hashtags, terminate if:
-        // 1. Query contains spaces
-        // 2. Query is empty and cursor is right after a completed hashtag (ends with space)
-        // 3. Query looks like a completed hashtag followed by space
         if (
           query.includes(' ') ||
           (query === '' && beforeCursor.endsWith('# ')) ||
           /^[a-zA-Z0-9_-]+\s/.test(query)
         ) {
-          setSearchOverlay((prev) => ({ ...prev, visible: false }));
-          // eslint-disable-next-line no-console
-          console.log(
-            '🔍 OVERLAY: Hiding hashtag overlay - query contains space or completed'
-          );
+          hideSearchTooltip();
           return;
         }
 
-        // Also check if we're immediately after a completed hashtag
         const textAfterTrigger = text.substring(lastTrigger.index);
         const hashtagMatch = textAfterTrigger.match(/^#([a-zA-Z0-9_-]+)\s/);
         if (
           hashtagMatch &&
           cursorPosition === lastTrigger.index + hashtagMatch[0].length
         ) {
-          setSearchOverlay((prev) => ({ ...prev, visible: false }));
+          hideSearchTooltip();
           return;
         }
       } else if (lastTrigger.type === 'mention') {
-        // For mentions, check if we're in a structured format or completed mention
         if (
           query.includes('[') ||
           query.includes(']') ||
           /^[a-zA-Z0-9_-]+\]\s/.test(query)
         ) {
-          setSearchOverlay((prev) => ({ ...prev, visible: false }));
+          hideSearchTooltip();
           return;
         }
 
-        // Check for completed structured mentions like @[username|id|author]
         const textAfterTrigger = text.substring(lastTrigger.index);
         const mentionMatch = textAfterTrigger.match(
           /^@\[[^|\]]+\|[^|\]]+\|[^|\]]+\]\s/
@@ -218,64 +413,188 @@ export const RichInputAdapter: React.FC<RichInputAdapterProps> = ({
           mentionMatch &&
           cursorPosition === lastTrigger.index + mentionMatch[0].length
         ) {
-          setSearchOverlay((prev) => ({ ...prev, visible: false }));
+          hideSearchTooltip();
           return;
         }
       } else if (lastTrigger.type === 'emoji') {
-        // For emojis, terminate if query contains spaces or ends with :
         if (query.includes(' ') || query.endsWith(':')) {
-          setSearchOverlay((prev) => ({ ...prev, visible: false }));
+          hideSearchTooltip();
           return;
         }
       }
 
-      // Don't show overlay for very short queries (less than 1 character)
-      if (query.length < 1) {
-        setSearchOverlay((prev) => ({ ...prev, visible: false }));
+      // Don't show overlay for very short queries (but allow 1 character for emoji)
+      const minQueryLength = lastTrigger.type === 'emoji' ? 1 : 2;
+      if (query.length < minQueryLength) {
+        hideSearchTooltip();
         return;
       }
 
-      // Always show overlay for valid queries, even if results are empty
-      // This ensures the overlay stays open while results are loading
-
-      // Calculate position for overlay
+      // Calculate position for tooltip (relative to document)
       const container = containerRef.current;
       if (!container) return;
 
       const rect = container.getBoundingClientRect();
+      const scrollX = window.pageXOffset || document.documentElement.scrollLeft;
+      const scrollY = window.pageYOffset || document.documentElement.scrollTop;
+
+      // Position the tooltip much closer to the input
       const position = {
-        x: rect.left + 10, // Simple positioning for now
-        y: rect.bottom + 5
+        x: rect.left + scrollX + 10,
+        y: rect.top + scrollY + rect.height + 2
       };
 
       // Update search queries based on type
       if (lastTrigger.type === 'hashtag' && enableHashtags) {
+        // eslint-disable-next-line no-console
+        console.log('🔍 Setting hashtag query:', query);
         setHashtagQuery(query);
       } else if (lastTrigger.type === 'mention' && enableUserMentions) {
+        // eslint-disable-next-line no-console
+        console.log('🔍 Setting mention query:', query);
         setMentionQuery(query);
       } else if (lastTrigger.type === 'emoji' && enableEmojis) {
-        // Search emojis using emoji parser
-        const results = emojiParser.getSuggestions(query, 10);
-        setEmojiResults(results);
+        // eslint-disable-next-line no-console
+        console.log('🔍 Setting emoji query:', query);
+        // Use emojiParser to get emoji suggestions
+        try {
+          const results = emojiParser.getSuggestions(query, 10);
+          // eslint-disable-next-line no-console
+          console.log('🔍 Emoji results:', results);
+          setEmojiResults(results);
+        } catch (error) {
+          console.warn('Error getting emoji suggestions:', error);
+          setEmojiResults([]);
+        }
       }
 
-      setSearchOverlay((prev) => ({
-        ...prev,
+      // Store search overlay state for the handleSearchResultSelect function
+      setSearchOverlay({
         visible: true,
-        type: 'hashtag',
+        type: lastTrigger.type,
         query: query,
         position: position,
         triggerIndex: lastTrigger.index
-      }));
+      });
+
+      // For emoji, show tooltip immediately since results are synchronous
+      if (lastTrigger.type === 'emoji') {
+        showSearchTooltip(lastTrigger.type, query, position);
+      }
+      // For hashtags and mentions, the tooltip will be shown when results are available
+      // via the useEffect hooks below
     },
     [
       enableHashtags,
       enableUserMentions,
       enableEmojis,
       setHashtagQuery,
-      setMentionQuery
+      setMentionQuery,
+      hideSearchTooltip,
+      showSearchTooltip
     ]
   );
+
+  // Show tooltip when hashtag results are available
+  useEffect(() => {
+    if (
+      searchOverlay.visible &&
+      searchOverlay.type === 'hashtag' &&
+      hashtagResults.length > 0
+    ) {
+      showSearchTooltip(
+        searchOverlay.type,
+        searchOverlay.query,
+        searchOverlay.position
+      );
+    }
+  }, [hashtagResults, searchOverlay, showSearchTooltip]);
+
+  // Show tooltip when mention results are available
+  useEffect(() => {
+    if (
+      searchOverlay.visible &&
+      searchOverlay.type === 'mention' &&
+      mentionResults.length > 0
+    ) {
+      showSearchTooltip(
+        searchOverlay.type,
+        searchOverlay.query,
+        searchOverlay.position
+      );
+    }
+  }, [mentionResults, searchOverlay, showSearchTooltip]);
+
+  // Show tooltip when loading states change (to show "Searching..." message)
+  useEffect(() => {
+    if (
+      searchOverlay.visible &&
+      searchOverlay.type === 'hashtag' &&
+      loadingHashtags
+    ) {
+      showSearchTooltip(
+        searchOverlay.type,
+        searchOverlay.query,
+        searchOverlay.position
+      );
+    }
+  }, [loadingHashtags, searchOverlay, showSearchTooltip]);
+
+  useEffect(() => {
+    if (
+      searchOverlay.visible &&
+      searchOverlay.type === 'mention' &&
+      loadingMentions
+    ) {
+      showSearchTooltip(
+        searchOverlay.type,
+        searchOverlay.query,
+        searchOverlay.position
+      );
+    }
+  }, [loadingMentions, searchOverlay, showSearchTooltip]);
+
+  // Show tooltip for "no results" case when search is complete
+  useEffect(() => {
+    if (
+      searchOverlay.visible &&
+      searchOverlay.type === 'hashtag' &&
+      !loadingHashtags &&
+      hashtagResults.length === 0 &&
+      searchOverlay.query.length >= 2
+    ) {
+      showSearchTooltip(
+        searchOverlay.type,
+        searchOverlay.query,
+        searchOverlay.position
+      );
+    }
+  }, [hashtagResults, loadingHashtags, searchOverlay, showSearchTooltip]);
+
+  useEffect(() => {
+    if (
+      searchOverlay.visible &&
+      searchOverlay.type === 'mention' &&
+      !loadingMentions &&
+      mentionResults.length === 0 &&
+      searchOverlay.query.length >= 2
+    ) {
+      showSearchTooltip(
+        searchOverlay.type,
+        searchOverlay.query,
+        searchOverlay.position
+      );
+    }
+  }, [mentionResults, loadingMentions, searchOverlay, showSearchTooltip]);
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (focusTimeoutRef.current) {
+        clearTimeout(focusTimeoutRef.current);
+      }
+    };
+  }, []);
 
   // Handle value changes to detect triggers immediately
   const handleValueChange = useCallback(
@@ -410,122 +729,6 @@ export const RichInputAdapter: React.FC<RichInputAdapterProps> = ({
     [handleValueChangeWithURLDetection, value]
   );
 
-  // Handle search result selection
-  const handleSearchResultSelect = useCallback(
-    (item: any) => {
-      // Add debugging to see what item we're getting
-      // eslint-disable-next-line no-console
-      console.log(
-        '🔍 SELECTION: handleSearchResultSelect called with item:',
-        item
-      );
-
-      // Don't allow selecting disabled items
-      if (item.disabled) {
-        return;
-      }
-
-      if (!richInputRef.current || searchOverlay.triggerIndex < 0) {
-        return;
-      }
-
-      const currentState = richInputRef.current.getState();
-      const currentText = currentState.rawText;
-
-      let insertText = '';
-
-      // Find the end of the current partial mention/hashtag to replace
-      let replaceEndIndex = searchOverlay.triggerIndex + 1; // Start after trigger character
-
-      // For mentions, find the end of the current partial mention
-      if (searchOverlay.type === 'mention') {
-        // Find the next space or end of text after the trigger
-        const afterTrigger = currentText.substring(
-          searchOverlay.triggerIndex + 1
-        );
-        const spaceIndex = afterTrigger.search(/[\s\n]/);
-        if (spaceIndex >= 0) {
-          replaceEndIndex = searchOverlay.triggerIndex + 1 + spaceIndex;
-        } else {
-          replaceEndIndex = currentText.length;
-        }
-      } else if (searchOverlay.type === 'hashtag') {
-        // For hashtags, find the next space or end of text after the trigger
-        const afterTrigger = currentText.substring(
-          searchOverlay.triggerIndex + 1
-        );
-        const spaceIndex = afterTrigger.search(/[\s\n]/);
-        if (spaceIndex >= 0) {
-          replaceEndIndex = searchOverlay.triggerIndex + 1 + spaceIndex;
-        } else {
-          replaceEndIndex = currentText.length;
-        }
-      }
-
-      if (searchOverlay.type === 'hashtag') {
-        insertText = item.value.startsWith('#')
-          ? `${item.value} `
-          : `#${item.value} `;
-      } else if (searchOverlay.type === 'mention') {
-        insertText = `@[${item.displayName || item.label}|${item.value}|${mentionFilterType}] `;
-      } else if (searchOverlay.type === 'emoji') {
-        // Always use colon syntax for emojis to ensure proper tokenization
-        insertText = `:${item.name}:`;
-      }
-
-      // Replace from trigger character to the end of the partial mention/hashtag
-      const beforeTrigger = currentText.substring(
-        0,
-        searchOverlay.triggerIndex
-      );
-      const afterQuery = currentText.substring(replaceEndIndex);
-      const newText = beforeTrigger + insertText + afterQuery;
-
-      // Calculate new cursor position (at the end of inserted text)
-      const newCursorPosition = searchOverlay.triggerIndex + insertText.length;
-
-      onChange(newText);
-
-      // Move cursor to the end of the newly inserted structured mention
-      setTimeout(() => {
-        if (richInputRef.current) {
-          // Get the current state to understand the visual structure
-          if (richInputRef.current.getState) {
-            const state = richInputRef.current.getState();
-          }
-
-          // Try to position cursor at the end of the new value
-          const newCursorPosition = newText.length;
-
-          // Try different cursor positioning methods that might exist
-          if (richInputRef.current.setCursor) {
-            richInputRef.current.setCursor({
-              index: newCursorPosition
-            });
-          } else if (richInputRef.current.setCursorPosition) {
-            richInputRef.current.setCursorPosition(newCursorPosition);
-          } else if (richInputRef.current.setSelection) {
-            richInputRef.current.setSelection({
-              start: { index: newCursorPosition },
-              end: { index: newCursorPosition },
-              direction: 'none'
-            });
-          }
-
-          // Ensure focus is maintained
-          if (richInputRef.current.focus) {
-            richInputRef.current.focus();
-          }
-        }
-      }, 50); // Longer timeout to ensure rich input has finished rendering
-
-      // Hide overlay
-      setSearchOverlay((prev) => ({ ...prev, visible: false }));
-      setSearchOverlayInteracting(false);
-    },
-    [searchOverlay, onChange, mentionFilterType]
-  );
-
   // Handle toolbar insertions
   const handleInsertAtCursor = useCallback(
     (text: string) => {
@@ -612,302 +815,6 @@ export const RichInputAdapter: React.FC<RichInputAdapterProps> = ({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [searchOverlay.visible, searchOverlayInteracting]);
 
-  // Render search overlay
-  const renderSearchOverlay = () => {
-    if (!searchOverlay.visible || !searchOverlay.type) return null;
-
-    let results: any[] = [];
-    let loading = false;
-    let noResultsMessage = '';
-
-    if (searchOverlay.type === 'hashtag') {
-      results = hashtagResults;
-      loading = loadingHashtags;
-      noResultsMessage = 'No hashtags found';
-    } else if (searchOverlay.type === 'mention') {
-      results = mentionResults;
-      loading = loadingMentions;
-      noResultsMessage = 'No users found';
-    } else if (searchOverlay.type === 'emoji') {
-      results = emojiResults;
-      loading = false;
-      noResultsMessage = 'No emojis found';
-    }
-
-    return createPortal(
-      <div
-        className="search-overlay"
-        style={{
-          position: 'fixed',
-          left: searchOverlay.position.x,
-          top: searchOverlay.position.y,
-          zIndex: 10000,
-          minWidth: '200px',
-          maxWidth: '300px',
-          maxHeight: '200px',
-          background: 'var(--light-background--primary)',
-          border: '1px solid var(--light-border--primary)',
-          borderRadius: 'var(--border-radius)',
-          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
-          overflow: 'hidden'
-        }}
-        onMouseEnter={() => setSearchOverlayInteracting(true)}
-        onMouseLeave={() => setSearchOverlayInteracting(false)}
-      >
-        <div
-          style={{
-            maxHeight: '200px',
-            overflowY: 'auto',
-            padding: '4px 0'
-          }}
-        >
-          {loading && (
-            <div
-              style={{
-                padding: '8px 12px',
-                color: 'var(--light-bg__text-color--secondary)',
-                fontSize: '0.875rem'
-              }}
-            >
-              Searching...
-            </div>
-          )}
-
-          {!loading &&
-            results.length === 0 &&
-            searchOverlay.query.length >= 2 && (
-              <div
-                style={{
-                  padding: '8px 12px',
-                  color: 'var(--light-bg__text-color--secondary)',
-                  fontSize: '0.875rem'
-                }}
-              >
-                {noResultsMessage}
-              </div>
-            )}
-
-          {results.map((item, index) => (
-            <button
-              key={item.id || index}
-              onMouseDown={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                setSearchOverlayInteracting(true);
-
-                // Replace only the partial mention, not the entire input
-                // Get the current input value and replace from trigger to end of query
-                const currentValue = value || '';
-                const triggerIndex = searchOverlay.triggerIndex;
-                const queryLength = searchOverlay.query.length;
-                const replaceEndIndex = triggerIndex + 1 + queryLength; // +1 for trigger character
-
-                // Generate the structured mention
-                let insertText = '';
-                if (searchOverlay.type === 'mention') {
-                  insertText = `@[${item.displayName || item.label}|${item.value}|${mentionFilterType}] `;
-                } else if (searchOverlay.type === 'hashtag') {
-                  insertText = item.value.startsWith('#')
-                    ? `${item.value} `
-                    : `#${item.value} `;
-                }
-
-                const beforeTrigger = currentValue.substring(0, triggerIndex);
-                const afterQuery = currentValue.substring(replaceEndIndex);
-                const newValue = beforeTrigger + insertText + afterQuery;
-
-                // Call onChange with the properly replaced value
-                onChange(newValue);
-
-                // Move cursor to the end of the newly inserted structured mention
-                setTimeout(() => {
-                  if (richInputRef.current) {
-                    // Get the current state to understand the visual structure
-                    if (richInputRef.current.getState) {
-                      const state = richInputRef.current.getState();
-                    }
-
-                    // Try to position cursor at the end of the new value
-                    const newCursorPosition = newValue.length;
-
-                    // Try different cursor positioning methods that might exist
-                    if (richInputRef.current.setCursor) {
-                      richInputRef.current.setCursor({
-                        index: newCursorPosition
-                      });
-                    } else if (richInputRef.current.setCursorPosition) {
-                      richInputRef.current.setCursorPosition(newCursorPosition);
-                    } else if (richInputRef.current.setSelection) {
-                      richInputRef.current.setSelection({
-                        start: { index: newCursorPosition },
-                        end: { index: newCursorPosition },
-                        direction: 'none'
-                      });
-                    }
-
-                    // Ensure focus is maintained
-                    if (richInputRef.current.focus) {
-                      richInputRef.current.focus();
-                    }
-                  }
-                }, 50); // Longer timeout to ensure rich input has finished rendering
-
-                // Hide overlay
-                setSearchOverlay((prev) => ({ ...prev, visible: false }));
-                setSearchOverlayInteracting(false);
-              }}
-              disabled={item.disabled}
-              title={item.disabled ? 'Already selected' : undefined}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-                width: '100%',
-                padding: '8px 12px',
-                border: 'none',
-                background: 'none',
-                color: item.disabled
-                  ? 'var(--light-bg__text-color--secondary)'
-                  : 'var(--light-bg__text-color--primary)',
-                textAlign: 'left',
-                cursor: item.disabled ? 'not-allowed' : 'pointer',
-                fontSize: '0.875rem',
-                opacity: item.disabled ? 0.6 : 1
-              }}
-              onMouseEnter={(e) => {
-                if (!item.disabled) {
-                  e.currentTarget.style.background =
-                    'var(--light-background--secondary)';
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (!item.disabled) {
-                  e.currentTarget.style.background = 'none';
-                }
-              }}
-            >
-              {searchOverlay.type === 'hashtag' && (
-                <>
-                  <span
-                    style={{ color: 'var(--brand-primary)', fontWeight: '600' }}
-                  >
-                    #
-                  </span>
-                  <span style={{ flex: 1 }}>{item.label}</span>
-                  {item.disabled && (
-                    <span
-                      style={{
-                        color: '#28a745',
-                        fontWeight: 'bold',
-                        fontSize: '1.1em',
-                        marginLeft: 'auto'
-                      }}
-                    >
-                      ✓
-                    </span>
-                  )}
-                </>
-              )}
-
-              {searchOverlay.type === 'mention' && (
-                <>
-                  {item.avatar && (
-                    <img
-                      src={item.avatar}
-                      alt=""
-                      style={{
-                        width: '20px',
-                        height: '20px',
-                        borderRadius: '50%',
-                        objectFit: 'cover'
-                      }}
-                    />
-                  )}
-                  <span
-                    style={{ color: 'var(--brand-primary)', fontWeight: '600' }}
-                  >
-                    @
-                  </span>
-                  <span style={{ flex: 1 }}>{item.label}</span>
-                  {item.disabled && (
-                    <span
-                      style={{
-                        color: '#28a745',
-                        fontWeight: 'bold',
-                        fontSize: '1.1em',
-                        marginLeft: 'auto'
-                      }}
-                    >
-                      ✓
-                    </span>
-                  )}
-                </>
-              )}
-
-              {searchOverlay.type === 'emoji' && (
-                <>
-                  {item.imageUrl ? (
-                    <img
-                      src={item.imageUrl}
-                      alt={`:${item.name}:`}
-                      style={{
-                        width: '20px',
-                        height: '20px',
-                        objectFit: 'contain'
-                      }}
-                    />
-                  ) : item.unicode ? (
-                    <span
-                      style={{
-                        fontSize: '16px',
-                        width: '20px',
-                        height: '20px',
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        justifyContent: 'center'
-                      }}
-                    >
-                      {item.unicode}
-                    </span>
-                  ) : (
-                    <span
-                      style={{
-                        fontSize: '16px',
-                        width: '20px',
-                        height: '20px',
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        justifyContent: 'center'
-                      }}
-                    >
-                      📝
-                    </span>
-                  )}
-                  <span style={{ flex: 1, fontSize: '11px' }}>
-                    :{item.name}:
-                  </span>
-                  {item.disabled && (
-                    <span
-                      style={{
-                        color: '#28a745',
-                        fontWeight: 'bold',
-                        fontSize: '1.1em',
-                        marginLeft: 'auto'
-                      }}
-                    >
-                      ✓
-                    </span>
-                  )}
-                </>
-              )}
-            </button>
-          ))}
-        </div>
-      </div>,
-      document.body
-    );
-  };
-
   // Raw mode: show simple textarea/input
   if (viewMode === 'raw') {
     return (
@@ -982,7 +889,28 @@ export const RichInputAdapter: React.FC<RichInputAdapterProps> = ({
           />
         )}
 
-        {renderSearchOverlay()}
+        {tooltipVisible &&
+          tooltipTriggerRef &&
+          ReactDOM.createPortal(
+            <InteractiveTooltip
+              content={tooltipContent}
+              triggerOnClick={false}
+              className="search-overlay-tooltip"
+              disabled={false}
+            >
+              <div
+                style={{
+                  position: 'absolute',
+                  left: tooltipTriggerRef.style.left,
+                  top: tooltipTriggerRef.style.top,
+                  width: '1px',
+                  height: '1px',
+                  pointerEvents: 'none'
+                }}
+              />
+            </InteractiveTooltip>,
+            document.body
+          )}
       </div>
     );
   }
@@ -1095,7 +1023,27 @@ export const RichInputAdapter: React.FC<RichInputAdapterProps> = ({
         />
       )}
 
-      {renderSearchOverlay()}
+      {tooltipVisible &&
+        tooltipTriggerRef &&
+        ReactDOM.createPortal(
+          <InteractiveTooltip
+            content={tooltipContent}
+            triggerOnClick={false}
+            disabled={false}
+          >
+            <div
+              style={{
+                position: 'absolute',
+                left: tooltipTriggerRef.style.left,
+                top: tooltipTriggerRef.style.top,
+                width: '1px',
+                height: '1px',
+                pointerEvents: 'none'
+              }}
+            />
+          </InteractiveTooltip>,
+          document.body
+        )}
 
       <style jsx>{`
         .rich-input-adapter-container {
@@ -1217,6 +1165,97 @@ export const RichInputAdapter: React.FC<RichInputAdapterProps> = ({
           width: 1.2em;
           height: 1.2em;
           object-fit: contain;
+        }
+
+        .search-overlay-content {
+          max-height: 200px;
+          overflow-y: auto;
+          padding: 4px 0;
+        }
+
+        .search-overlay-loading,
+        .search-overlay-no-results {
+          padding: 8px 12px;
+          color: var(--light-bg__text-color--secondary);
+          font-size: 0.875rem;
+        }
+
+        .search-overlay-item {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          width: 100%;
+          padding: 8px 12px;
+          border: none;
+          background: none;
+          color: var(--light-bg__text-color--primary);
+          text-align: left;
+          cursor: pointer;
+          font-size: 0.875rem;
+          transition: background-color 0.15s ease;
+        }
+
+        .search-overlay-item:hover:not(:disabled) {
+          background: var(--light-background--secondary);
+        }
+
+        .search-overlay-item--disabled {
+          color: var(--light-bg__text-color--secondary);
+          cursor: not-allowed;
+          opacity: 0.6;
+        }
+
+        .search-overlay-trigger {
+          color: var(--brand-primary);
+          font-weight: 600;
+        }
+
+        .search-overlay-label {
+          flex: 1;
+        }
+
+        .search-overlay-indicator {
+          color: #28a745;
+          font-weight: bold;
+          font-size: 1.1em;
+          margin-left: auto;
+        }
+
+        .search-overlay {
+          background: var(--light-background--primary);
+          border: 1px solid var(--light-border--primary);
+          border-radius: var(--border-radius);
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+          min-width: 200px;
+          max-width: 300px;
+          max-height: 200px;
+          overflow: hidden;
+          z-index: 10000;
+        }
+
+        @media (prefers-color-scheme: dark) {
+          .search-overlay {
+            background: var(--dark-background--primary);
+            border-color: var(--dark-border--primary);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+          }
+
+          .search-overlay-loading,
+          .search-overlay-no-results {
+            color: var(--dark-bg__text-color--secondary);
+          }
+
+          .search-overlay-item {
+            color: var(--dark-bg__text-color--primary);
+          }
+
+          .search-overlay-item:hover:not(:disabled) {
+            background: var(--dark-background--secondary);
+          }
+
+          .search-overlay-item--disabled {
+            color: var(--dark-bg__text-color--secondary);
+          }
         }
       `}</style>
     </div>

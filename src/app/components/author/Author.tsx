@@ -270,74 +270,35 @@ const UserProfileTooltipLoading: React.FC = () => {
           </div>
         </div>
 
-        {/* Bio skeleton */}
-        <div className="author-tooltip__bio">
-          <div
-            className="skeleton skeleton--text"
-            style={{
-              width: '100%',
-              height: '14px',
-              marginBottom: '6px',
-              backgroundColor: 'var(--light-background--secondary, #e0e0e0)'
-            }}
-          />
-          <div
-            className="skeleton skeleton--text"
-            style={{
-              width: '75%',
-              height: '14px',
-              backgroundColor: 'var(--light-background--secondary, #e0e0e0)'
-            }}
-          />
-        </div>
+        {/* Compact bio skeleton - only 2 lines instead of full bio section */}
+        <div
+          className="skeleton skeleton--text"
+          style={{
+            width: '100%',
+            height: '14px',
+            marginBottom: '6px',
+            marginTop: '8px',
+            backgroundColor: 'var(--light-background--secondary, #e0e0e0)'
+          }}
+        />
+        <div
+          className="skeleton skeleton--text"
+          style={{
+            width: '75%',
+            height: '14px',
+            backgroundColor: 'var(--light-background--secondary, #e0e0e0)'
+          }}
+        />
 
-        {/* Stats skeleton */}
+        {/* Compact stats skeleton - smaller and more compact */}
         <div className="author-tooltip__stats">
           <div className="author-tooltip__stat">
             <div
               className="skeleton skeleton--text"
               style={{
-                width: '24px',
-                height: '20px',
-                marginBottom: '4px',
-                backgroundColor: 'var(--light-background--secondary, #e0e0e0)'
-              }}
-            />
-            <div
-              className="skeleton skeleton--text"
-              style={{
-                width: '36px',
-                height: '12px',
-                backgroundColor: 'var(--light-background--secondary, #e0e0e0)'
-              }}
-            />
-          </div>
-          <div className="author-tooltip__stat">
-            <div
-              className="skeleton skeleton--text"
-              style={{
-                width: '24px',
-                height: '20px',
-                marginBottom: '4px',
-                backgroundColor: 'var(--light-background--secondary, #e0e0e0)'
-              }}
-            />
-            <div
-              className="skeleton skeleton--text"
-              style={{
-                width: '42px',
-                height: '12px',
-                backgroundColor: 'var(--light-background--secondary, #e0e0e0)'
-              }}
-            />
-          </div>
-          <div className="author-tooltip__stat">
-            <div
-              className="skeleton skeleton--text"
-              style={{
-                width: '24px',
-                height: '20px',
-                marginBottom: '4px',
+                width: '20px',
+                height: '16px',
+                marginBottom: '2px',
                 backgroundColor: 'var(--light-background--secondary, #e0e0e0)'
               }}
             />
@@ -345,7 +306,45 @@ const UserProfileTooltipLoading: React.FC = () => {
               className="skeleton skeleton--text"
               style={{
                 width: '30px',
-                height: '12px',
+                height: '10px',
+                backgroundColor: 'var(--light-background--secondary, #e0e0e0)'
+              }}
+            />
+          </div>
+          <div className="author-tooltip__stat">
+            <div
+              className="skeleton skeleton--text"
+              style={{
+                width: '20px',
+                height: '16px',
+                marginBottom: '2px',
+                backgroundColor: 'var(--light-background--secondary, #e0e0e0)'
+              }}
+            />
+            <div
+              className="skeleton skeleton--text"
+              style={{
+                width: '35px',
+                height: '10px',
+                backgroundColor: 'var(--light-background--secondary, #e0e0e0)'
+              }}
+            />
+          </div>
+          <div className="author-tooltip__stat">
+            <div
+              className="skeleton skeleton--text"
+              style={{
+                width: '20px',
+                height: '16px',
+                marginBottom: '2px',
+                backgroundColor: 'var(--light-background--secondary, #e0e0e0)'
+              }}
+            />
+            <div
+              className="skeleton skeleton--text"
+              style={{
+                width: '25px',
+                height: '10px',
                 backgroundColor: 'var(--light-background--secondary, #e0e0e0)'
               }}
             />
@@ -353,13 +352,13 @@ const UserProfileTooltipLoading: React.FC = () => {
         </div>
       </div>
 
-      {/* Action buttons skeleton */}
+      {/* Compact action buttons skeleton - smaller and better spaced */}
       <div className="author-tooltip__actions">
         <div
           className="skeleton skeleton--button"
           style={{
-            width: '100px',
-            height: '32px',
+            width: '90px',
+            height: '28px',
             borderRadius: '6px',
             backgroundColor: 'var(--light-background--secondary, #e0e0e0)'
           }}
@@ -367,8 +366,8 @@ const UserProfileTooltipLoading: React.FC = () => {
         <div
           className="skeleton skeleton--button"
           style={{
-            width: '120px',
-            height: '32px',
+            width: '110px',
+            height: '28px',
             borderRadius: '6px',
             backgroundColor: 'var(--light-background--secondary, #e0e0e0)'
           }}
@@ -377,8 +376,8 @@ const UserProfileTooltipLoading: React.FC = () => {
           <div
             className="skeleton skeleton--text"
             style={{
-              width: '200px',
-              height: '12px',
+              width: '180px',
+              height: '10px',
               backgroundColor: 'var(--light-background--secondary, #e0e0e0)'
             }}
           />

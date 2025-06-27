@@ -12,10 +12,12 @@ import Loader from '../loader/Loader';
 import { DeleteSubmissionForm } from '../submission-forms/delete-submission-form/DeleteSubmissionForm';
 import { EditSubmissionForm } from '../submission-forms/edit-submission-form/EditSubmissionForm';
 import { Submission } from '../submission-forms/schema';
+import { getSubmissionById } from '../submissions-list/actions';
 import { TagLink } from '../tag-link/TagLink';
 import { BackButton } from '../ui/BackButton';
 import { ContentWithPills } from '../ui/ContentWithPills';
 import { InstantLink } from '../ui/InstantLink';
+import { RefreshButton } from '../ui/RefreshButton';
 import { TimestampWithTooltip } from '../ui/TimestampWithTooltip';
 import { getSubmissionThread, NestedSubmission } from './actions';
 import { ReplyForm } from './ReplyForm';
@@ -186,6 +188,60 @@ export default function Thread({
     }
   };
 
+  const handleRefreshSubmission = async (refreshSubmissionId: number) => {
+    try {
+      const result = await getSubmissionById(refreshSubmissionId);
+
+      if (result.data) {
+        // Close any active reply forms for this submission
+        setShowingReplyForms((prev) => {
+          const newSet = new Set(prev);
+          newSet.delete(refreshSubmissionId);
+          return newSet;
+        });
+
+        // Close edit mode if active
+        setEditingSubmissions((prev) => {
+          const newSet = new Set(prev);
+          newSet.delete(refreshSubmissionId);
+          return newSet;
+        });
+
+        // Update the submission in place
+        if (refreshSubmissionId === submissionId) {
+          // Refreshing the parent submission
+          setParentSubmission(result.data as NestedSubmission);
+        } else {
+          // Refreshing a reply - update the replies array
+          setReplies((prevReplies) => {
+            const updateNestedReplies = (
+              replies: NestedSubmission[]
+            ): NestedSubmission[] => {
+              return replies.map((reply) => {
+                if (reply.submission_id === refreshSubmissionId) {
+                  return {
+                    ...result.data!,
+                    replies: reply.replies // Keep existing nested replies structure
+                  } as NestedSubmission;
+                }
+                return {
+                  ...reply,
+                  replies: updateNestedReplies(reply.replies)
+                };
+              });
+            };
+
+            return updateNestedReplies(prevReplies);
+          });
+        }
+      } else {
+        console.error('Failed to refresh submission:', result.error);
+      }
+    } catch (error) {
+      console.error('Error refreshing submission:', error);
+    }
+  };
+
   const toggleEdit = (submissionId: number) => {
     setEditingSubmissions((prev) => {
       const newSet = new Set(prev);
@@ -318,65 +374,85 @@ export default function Thread({
         data-testid={`submission-item-${submission.submission_id}`}
       >
         <div className="submission__meta">
-          <Author
-            authorId={submission.user_id?.toString() || ''}
-            authorName={submission.author || 'Unknown'}
-            bio={submission.author_bio}
-            size="sm"
-            showFullName={true}
-          />
+          <div className="submission__meta-left">
+            <Author
+              authorId={submission.user_id?.toString() || ''}
+              authorName={submission.author || 'Unknown'}
+              bio={submission.author_bio}
+              size="sm"
+              showFullName={true}
+            />
+          </div>
 
-          <span className="submission__datetime">
-            <TimestampWithTooltip date={submission.submission_datetime} />
-          </span>
-
-          {/* Reply button for authenticated users */}
-          {userId && depth < maxDepth && (
-            <button
-              onClick={() => toggleReplyForm(submission.submission_id)}
-              className="submission__reply-btn"
-              aria-label="Reply to this post"
-              title="Reply to this post"
-            >
-              <svg
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <polyline points="9 17 4 12 9 7" />
-                <path d="M20 18v-2a4 4 0 0 0-4-4H4" />
-              </svg>
-              Reply
-            </button>
-          )}
-
-          {/* Edit/Delete buttons for post authors */}
-          {isAuthor && (
-            <div className="submission__owner-actions">
-              <button
-                onClick={() => toggleEdit(submission.submission_id)}
-                className="submission__edit-btn"
-                aria-label={isEditing ? 'Cancel edit' : 'Edit submission'}
-              >
-                {isEditing ? '✕' : '✏️'}
-              </button>
-
-              <DeleteSubmissionForm
-                id={submission.submission_id}
-                name={submission.submission_name}
-                isAuthorized={true}
-                authorId={userId}
-                onDeleteSuccess={() =>
-                  handleSubmissionDeleted(submission.submission_id)
-                }
+          <div className="submission__meta-center">
+            <span style={{ display: 'inline-block' }}>
+              <TimestampWithTooltip
+                date={submission.submission_datetime}
+                className="submission__datetime"
               />
+            </span>
+          </div>
+
+          <div className="submission__owner-actions">
+            <div className="submission__actions-right">
+              {/* Reply button for authenticated users */}
+              {userId && depth < maxDepth && (
+                <button
+                  onClick={() => toggleReplyForm(submission.submission_id)}
+                  className="submission__reply-btn"
+                  aria-label="Reply to this post"
+                  title="Reply to this post"
+                >
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <polyline points="9 17 4 12 9 7" />
+                    <path d="M20 18v-2a4 4 0 0 0-4-4H4" />
+                  </svg>
+                  Reply
+                </button>
+              )}
+
+              {/* Refresh button for thread pages */}
+              <RefreshButton
+                onRefresh={() =>
+                  handleRefreshSubmission(submission.submission_id)
+                }
+                className="submission__refresh-btn"
+                title="Refresh this post and collapse replies"
+              />
+
+              {/* Edit/Delete buttons for post authors */}
+              {isAuthor && (
+                <>
+                  <button
+                    onClick={() => toggleEdit(submission.submission_id)}
+                    className="submission__edit-btn"
+                    aria-label={isEditing ? 'Cancel edit' : 'Edit submission'}
+                  >
+                    {isEditing ? '✕' : '✏️'}
+                  </button>
+
+                  <DeleteSubmissionForm
+                    id={submission.submission_id}
+                    name={submission.submission_name}
+                    isAuthorized={true}
+                    authorId={userId}
+                    onDeleteSuccess={() =>
+                      handleSubmissionDeleted(submission.submission_id)
+                    }
+                  />
+                </>
+              )}
             </div>
-          )}
+          </div>
         </div>
 
         {/* Show edit form or regular content */}
@@ -448,6 +524,17 @@ export default function Thread({
               renderSubmission(reply, true, depth + 1)
             )}
           </div>
+        )}
+
+        {/* View Parent button for replies */}
+        {isReply && submission.thread_parent_id && (
+          <InstantLink
+            href={`/thread/${submission.thread_parent_id}`}
+            className="submission__parent-link submission__text-link"
+            title="View parent post"
+          >
+            View Parent
+          </InstantLink>
         )}
 
         {/* Reply form for this specific submission (only if not too deep) */}

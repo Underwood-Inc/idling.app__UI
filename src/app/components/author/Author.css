@@ -254,8 +254,10 @@
   background: rgba(var(--light-background--secondary), 0.3);
   padding: 0.75rem;
   border-radius: var(--border-radius);
-  margin: 0.75rem -1rem -1rem -1rem;
-  /* Extend to edges */
+  /* Remove negative margins that cause spacing issues */
+  margin-left: 0;
+  margin-right: 0;
+  margin-bottom: 0;
 }
 
 .author-tooltip__action-button {
@@ -706,5 +708,86 @@
 
   .author-tooltip__private-message p {
     color: var(--dark-bg__text-color--primary);
+  }
+}
+
+/* Mobile Touch Support for Author Elements */
+@media (hover: none) and (pointer: coarse) {
+  /* Mobile devices - enable touch interactions for author elements */
+  .author.clickable {
+    /* Ensure touch targets are large enough */
+    min-height: 44px;
+    min-width: 44px;
+    /* Add subtle visual feedback for touch */
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);
+    /* Prevent text selection on touch */
+    -webkit-user-select: none;
+    user-select: none;
+    /* Ensure elements are touchable */
+    touch-action: manipulation;
+    /* Add a subtle touch indication */
+    position: relative;
+  }
+
+  /* Touch feedback animation */
+  .author.clickable:active {
+    transform: scale(0.98);
+    transition: transform 0.1s ease;
+  }
+
+  /* Ensure author tooltips can be triggered by touch */
+  .author-tooltip {
+    /* Allow touch events to pass through to trigger elements */
+    pointer-events: auto;
+  }
+}
+
+/* Desktop hover support - maintain existing behavior */
+@media (hover: hover) and (pointer: fine) {
+  /* Desktop devices - maintain hover interactions */
+  .author.clickable:hover {
+    /* Existing hover styles are preserved */
+  }
+}
+
+/* Universal accessibility improvements */
+.author.clickable {
+  /* Ensure keyboard navigation works */
+  outline: none;
+  border-radius: var(--border-radius, 4px);
+}
+
+.author.clickable:focus {
+  /* Remove focus outline for clean visual UX */
+  outline: none;
+}
+
+/* Ensure author tooltips don't interfere with scrolling on mobile */
+@media (max-width: 768px) {
+  .author-tooltip {
+    /* Prevent tooltips from blocking scroll */
+    max-width: 90vw;
+    max-height: 50vh;
+    overflow-y: auto;
+    /* Ensure tooltips are above other content but not too high */
+    z-index: 9999;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .author.clickable {
+    border: 2px solid currentColor;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .author.clickable {
+    transition: none;
+  }
+
+  .author.clickable:active {
+    transform: none;
   }
 }

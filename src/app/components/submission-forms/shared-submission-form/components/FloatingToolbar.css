@@ -94,14 +94,14 @@
   padding: 0.5rem 0.75rem;
   border: none;
   background: none;
-  color: var(--light-bg__text-color--primary);
+  color: white;
   text-align: left;
   cursor: pointer;
   transition: background-color 0.2s ease;
 }
 
 .toolbar-result-item:hover:not(:disabled) {
-  background: var(--light-background--secondary);
+  background: rgba(255, 255, 255, 0.1);
 }
 
 .toolbar-result-item--disabled {
@@ -141,7 +141,7 @@
 .toolbar-no-results {
   padding: 1rem;
   text-align: center;
-  color: var(--light-bg__text-color--secondary);
+  color: rgba(255, 255, 255, 0.7);
   font-size: 0.875rem;
 }
 
