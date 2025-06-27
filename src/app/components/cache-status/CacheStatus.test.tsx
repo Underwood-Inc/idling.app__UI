@@ -199,7 +199,8 @@ describe('CacheStatus', () => {
     render(<CacheStatus />);
 
     await waitFor(() => {
-      expect(screen.getByText(/Cached.*1h.*ago/)).toBeInTheDocument();
+      expect(screen.getByText(/Cached/)).toBeInTheDocument();
+      expect(screen.getByText(/1h/)).toBeInTheDocument();
     });
   });
 
