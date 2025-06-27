@@ -2629,14 +2629,22 @@ async function createReplies(users, posts, config, generator) {
               const tags = hashtagMatches.map((tag) => tag.substring(1));
 
               const parentTime = new Date(parent.submission_datetime).getTime();
-              const baseDelayHours = depth * 8; // Reduced delay
-              const maxDelayHours = baseDelayHours + 24; // Shorter max delay
-              const replyDelay =
-                baseDelayHours +
-                Math.random() * (maxDelayHours - baseDelayHours);
-              const replyTime = new Date(
-                parentTime + replyDelay * 60 * 60 * 1000
-              );
+              const now = Date.now();
+              
+              // Ensure reply is after parent but before now
+              const minDelayHours = 1; // At least 1 hour after parent
+              const maxDelayHours = Math.min(24, (now - parentTime) / (1000 * 60 * 60)); // Max 24 hours or time until now
+              
+              let replyTime;
+              if (maxDelayHours <= minDelayHours) {
+                // If parent is too recent, use a small delay
+                const tempReplyTime = new Date(parentTime + (minDelayHours * 60 * 60 * 1000));
+                // But ensure it's not in the future
+                replyTime = tempReplyTime.getTime() > now ? new Date(now - (60 * 60 * 1000)) : tempReplyTime;
+              } else {
+                const replyDelay = minDelayHours + Math.random() * (maxDelayHours - minDelayHours);
+                replyTime = new Date(parentTime + replyDelay * 60 * 60 * 1000);
+              }
 
               const reply = {
                 submission_name: replyContent,
