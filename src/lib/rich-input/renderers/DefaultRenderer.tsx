@@ -41,7 +41,18 @@ export class DefaultRenderer implements RichInputRenderer {
           </span>
         );
 
-      case 'mention':
+      case 'mention': {
+        // Extract username from structured mention format @[username|userId|filterType]
+        let displayText = token.metadata?.displayName || token.content;
+
+        // If we have rawText, try to extract username from structured format
+        if (token.rawText && token.rawText.startsWith('@[')) {
+          const mentionMatch = token.rawText.match(/^@\[([^|]+)\|/);
+          if (mentionMatch) {
+            displayText = mentionMatch[1]; // Extract username part
+          }
+        }
+
         return (
           <span
             key={`mention-${index}`}
@@ -51,12 +62,13 @@ export class DefaultRenderer implements RichInputRenderer {
             data-token-start={token.start}
             data-token-end={token.end}
             data-token-content={token.content}
-            data-token-display-name={token.metadata?.displayName}
+            data-token-display-name={displayText}
             data-token-user-id={token.metadata?.userId}
           >
-            @{token.metadata?.displayName || token.content}
+            @{displayText}
           </span>
         );
+      }
 
       case 'url': {
         const behavior = token.metadata?.behavior || 'link';
@@ -656,11 +668,24 @@ export class DefaultRenderer implements RichInputRenderer {
         element.textContent = `#${token.content}`;
         break;
 
-      case 'mention':
+      case 'mention': {
         element.className =
           'content-pill content-pill--mention content-pill--edit-mode';
-        element.textContent = `@${token.metadata?.displayName || token.content}`;
+
+        // Extract username from structured mention format @[username|userId|filterType]
+        let displayText = token.metadata?.displayName || token.content;
+
+        // If we have rawText, try to extract username from structured format
+        if (token.rawText && token.rawText.startsWith('@[')) {
+          const mentionMatch = token.rawText.match(/^@\[([^|]+)\|/);
+          if (mentionMatch) {
+            displayText = mentionMatch[1]; // Extract username part
+          }
+        }
+
+        element.textContent = `@${displayText}`;
         break;
+      }
 
       case 'url': {
         const behavior = token.metadata?.behavior || 'link';
