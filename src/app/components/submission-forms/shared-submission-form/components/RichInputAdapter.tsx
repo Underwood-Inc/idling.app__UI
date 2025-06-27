@@ -145,29 +145,37 @@ export const RichInputAdapter: React.FC<RichInputAdapterProps> = ({
     useState<HTMLElement | null>(null);
 
   // Create a virtual trigger element for positioning the tooltip
-  const createVirtualTrigger = useCallback((x: number, y: number) => {
-    const uniqueId = `rich-input-virtual-trigger-${contextId}`;
+  const createVirtualTrigger = useCallback(
+    (x: number, y: number) => {
+      const uniqueId = `rich-input-virtual-trigger-${contextId}`;
 
-    // Remove any existing virtual trigger for this instance
-    const existing = document.getElementById(uniqueId);
-    if (existing) {
-      existing.remove();
-    }
+      // Remove any existing virtual trigger for this instance
+      const existing = document.getElementById(uniqueId);
+      if (existing) {
+        existing.remove();
+      }
 
-    // Create a new virtual trigger element
-    const trigger = document.createElement('div');
-    trigger.id = uniqueId;
-    trigger.style.position = 'absolute';
-    trigger.style.left = `${x}px`;
-    trigger.style.top = `${y}px`;
-    trigger.style.width = '1px';
-    trigger.style.height = '1px';
-    trigger.style.pointerEvents = 'none';
-    trigger.style.zIndex = '9999';
-    document.body.appendChild(trigger);
+      // Create a new virtual trigger element
+      const trigger = document.createElement('div');
+      trigger.id = uniqueId;
+      trigger.style.position = 'fixed'; // Use fixed instead of absolute
+      trigger.style.left = `${x}px`;
+      trigger.style.top = `${y}px`;
+      trigger.style.width = '1px';
+      trigger.style.height = '1px';
+      trigger.style.pointerEvents = 'none';
+      trigger.style.zIndex = '-1';
+      trigger.style.visibility = 'hidden';
 
-    return trigger;
-  }, []);
+      // Add a data attribute to identify this as our virtual trigger
+      trigger.setAttribute('data-rich-input-trigger', 'true');
+      trigger.setAttribute('data-context-id', contextId);
+
+      document.body.appendChild(trigger);
+      return trigger;
+    },
+    [contextId]
+  );
 
   // Handle search result selection
   const handleSearchResultSelect = useCallback(
@@ -332,15 +340,17 @@ export const RichInputAdapter: React.FC<RichInputAdapterProps> = ({
   const hideSearchTooltip = useCallback(() => {
     setTooltipVisible(false);
     setTooltipContent(null);
-
-    // Clean up virtual trigger for this instance
-    const uniqueId = `rich-input-virtual-trigger-${contextId}`;
-    const existing = document.getElementById(uniqueId);
-    if (existing) {
-      existing.remove();
-    }
     setTooltipTriggerRef(null);
-  }, []);
+
+    // Delay cleanup of virtual trigger to allow tooltip to finish positioning
+    setTimeout(() => {
+      const uniqueId = `rich-input-virtual-trigger-${contextId}`;
+      const existing = document.getElementById(uniqueId);
+      if (existing) {
+        existing.remove();
+      }
+    }, 200); // Small delay to prevent positioning issues
+  }, [contextId]);
 
   // Update the detectTriggerAndShowOverlay function to use the new tooltip system
   const detectTriggerAndShowOverlay = useCallback(
@@ -430,18 +440,17 @@ export const RichInputAdapter: React.FC<RichInputAdapterProps> = ({
         return;
       }
 
-      // Calculate position for tooltip (relative to document)
+      // Calculate position for tooltip (relative to viewport using fixed positioning)
       const container = containerRef.current;
       if (!container) return;
 
       const rect = container.getBoundingClientRect();
-      const scrollX = window.pageXOffset || document.documentElement.scrollLeft;
-      const scrollY = window.pageYOffset || document.documentElement.scrollTop;
 
-      // Position the tooltip much closer to the input
+      // Use fixed positioning relative to viewport instead of absolute
+      // Position the tooltip below the input field
       const position = {
-        x: rect.left + scrollX + 10,
-        y: rect.top + scrollY + rect.height + 2
+        x: rect.left + 10, // Small offset from left edge
+        y: rect.bottom + 5 // Position below the input with small gap
       };
 
       // Update search queries based on type

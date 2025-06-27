@@ -74,8 +74,8 @@ export const InteractiveTooltip: React.FC<InteractiveTooltipProps> = ({
 
     const viewportHeight = window.innerHeight;
     const viewportWidth = window.innerWidth;
-    const scrollX = window.pageXOffset || document.documentElement.scrollLeft;
-    const scrollY = window.pageYOffset || document.documentElement.scrollTop;
+    // Removed scroll offset calculations since we're using fixed positioning
+    // which positions relative to the viewport, not the document
 
     // Calculate available space with padding
     const padding = 12;
@@ -149,76 +149,33 @@ export const InteractiveTooltip: React.FC<InteractiveTooltipProps> = ({
 
   useEffect(() => {
     if (showTooltip && tooltipContentRef.current) {
-      // Initial position update
+      // Initial position update only
       updatePosition();
 
-      // Add event listeners for external changes
-      window.addEventListener('scroll', updatePosition);
-      window.addEventListener('resize', updatePosition);
+      // Disable all automatic position updates to prevent repositioning
+      // Only allow manual repositioning on scroll/resize if absolutely necessary
+      const handleScroll = () => {
+        // Only reposition if the trigger element is a virtual trigger from rich input
+        if (tooltipRef.current?.getAttribute('data-rich-input-trigger')) {
+          // For virtual triggers, don't reposition on scroll since they're fixed positioned
+          return;
+        }
+        updatePosition();
+      };
 
-      // Set up ResizeObserver to watch for content size changes
-      if ('ResizeObserver' in window && tooltipContentRef.current) {
-        resizeObserverRef.current = new ResizeObserver((entries) => {
-          // Debounce position updates to avoid excessive calls
-          setTimeout(updatePosition, 10);
-        });
-        resizeObserverRef.current.observe(tooltipContentRef.current);
-      }
+      const handleResize = () => {
+        updatePosition();
+      };
 
-      // Set up MutationObserver to watch for content changes (like images loading)
-      if (tooltipContentRef.current) {
-        mutationObserverRef.current = new MutationObserver((mutations) => {
-          let shouldUpdate = false;
-          mutations.forEach((mutation) => {
-            // Check for added/removed nodes or attribute changes that might affect size
-            if (
-              mutation.type === 'childList' ||
-              (mutation.type === 'attributes' &&
-                ['style', 'class', 'width', 'height'].includes(
-                  mutation.attributeName || ''
-                ))
-            ) {
-              shouldUpdate = true;
-            }
-          });
+      window.addEventListener('scroll', handleScroll);
+      window.addEventListener('resize', handleResize);
 
-          if (shouldUpdate) {
-            // Delay to allow for layout changes to complete
-            setTimeout(updatePosition, 50);
-          }
-        });
-
-        mutationObserverRef.current.observe(tooltipContentRef.current, {
-          childList: true,
-          subtree: true,
-          attributes: true,
-          attributeFilter: ['style', 'class', 'width', 'height', 'src']
-        });
-      }
-
-      // Additional position updates for dynamic content
-      const intervals = [100, 250, 500, 1000]; // Check at these intervals
-      const timeouts = intervals.map((delay) =>
-        setTimeout(updatePosition, delay)
-      );
+      // Remove all observers and timers that cause repositioning
+      // This prevents the tooltip from moving after initial correct positioning
 
       return () => {
-        window.removeEventListener('scroll', updatePosition);
-        window.removeEventListener('resize', updatePosition);
-
-        // Clean up observers
-        if (resizeObserverRef.current) {
-          resizeObserverRef.current.disconnect();
-          resizeObserverRef.current = null;
-        }
-
-        if (mutationObserverRef.current) {
-          mutationObserverRef.current.disconnect();
-          mutationObserverRef.current = null;
-        }
-
-        // Clear timeouts
-        timeouts.forEach(clearTimeout);
+        window.removeEventListener('scroll', handleScroll);
+        window.removeEventListener('resize', handleResize);
       };
     }
 
