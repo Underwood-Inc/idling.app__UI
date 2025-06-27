@@ -15,14 +15,16 @@ Our project documentation helps you understand how idling.app is organized, how 
 ### 🏢 Project Overview
 
 **Project Information:**
+
 - **Name**: idling.app
 - **Type**: Open-source social platform
 - **License**: MIT License
 - **Language**: TypeScript/JavaScript
 - **Framework**: Next.js 14
-- **Community**: Discord-based with GitHub collaboration
+- **Community**: GitHub-based collaboration
 
 **Project Goals:**
+
 - **User Experience** - Create an engaging, accessible social platform
 - **Performance** - Maintain fast, responsive application performance
 - **Community** - Foster an inclusive, collaborative development community
@@ -32,9 +34,8 @@ Our project documentation helps you understand how idling.app is organized, how 
 ## 📚 Complete Project Guide Library
 
 ### 💬 **Community & Communication**
-**[Discord Community Guide](./discord)** - *Connect with the community*
 
-Join our vibrant Discord community and stay connected:
+Connect with the community through GitHub discussions and issues.
 
 - **💬 Community Channels** - General discussion, development, and support
 - **🚀 Release Announcements** - Stay updated on new features and releases
@@ -48,11 +49,10 @@ Join our vibrant Discord community and stay connected:
 ---
 
 ### 📢 **Release Management**
-**[Discord Release Announcements](./discord-releases)** - *Stay updated on releases*
 
-Automated release notifications and community updates:
+Stay updated on releases through GitHub releases and changelog.
 
-- **🚀 Automated Announcements** - New releases automatically posted to Discord
+- **🚀 Automated Announcements** - New releases automatically published
 - **📋 Release Notes** - Detailed information about new features and fixes
 - **🔄 Update Instructions** - How to update to the latest version
 - **🐛 Bug Reports** - Report issues with new releases
@@ -64,7 +64,8 @@ Automated release notifications and community updates:
 ---
 
 ### 📊 **Development History**
-**[Commit History Guide](./commits)** - *Track project development*
+
+**[Commit History Guide](./commits)** - _Track project development_
 
 Understand project development history and contribution patterns:
 
@@ -80,7 +81,8 @@ Understand project development history and contribution patterns:
 ---
 
 ### 🛠️ **Project Management**
-**[Project Standards](./standards)** - *Code quality and best practices*
+
+**[Project Standards](./standards)** - _Code quality and best practices_
 
 Maintain high code quality and consistent development practices:
 
@@ -96,40 +98,44 @@ Maintain high code quality and consistent development practices:
 ## 🚀 Quick Start Paths
 
 ### 🆕 **For New Community Members**
-1. **Start here**: [Discord Community](./discord) - Join the community and introduce yourself
-2. **Then read**: [Discord Releases](./discord-releases) - Stay updated on project updates
+
+1. **Start here**: [Project Standards](./standards) - Understand our development practices
+2. **Then read**: [Commit History](./commits) - Learn about project development
 3. **Next**: [Project Standards](./standards) - Understand our quality standards
 4. **Finally**: [Commit History](./commits) - Learn about the project's development
 
 ### 🤝 **For New Contributors**
+
 1. **Start here**: [Project Standards](./standards) - Understand our development practices
-2. **Then join**: [Discord Community](./discord) - Connect with other contributors
+2. **Then read**: [Commit History](./commits) - Learn contribution patterns
 3. **Next**: [Commit History](./commits) - See how contributions are made
-4. **Finally**: [Discord Releases](./discord-releases) - Follow release processes
+4. **Finally**: [Project Standards](./standards) - Understand quality practices
 
 ### 🔧 **For Project Maintainers**
+
 1. **Start here**: [Project Standards](./standards) - Enforce quality standards
-2. **Then manage**: [Discord Releases](./discord-releases) - Handle release communications
+2. **Then manage**: [Commit History](./commits) - Track development progress
 3. **Next**: [Commit History](./commits) - Track development progress
-4. **Finally**: [Discord Community](./discord) - Engage with the community
+4. **Finally**: [Project Standards](./standards) - Review quality practices
 
 ### 📊 **For Project Stakeholders**
+
 1. **Start here**: [Commit History](./commits) - Track project development
-2. **Then follow**: [Discord Releases](./discord-releases) - Stay updated on releases
-3. **Next**: [Discord Community](./discord) - Understand community engagement
-4. **Finally**: [Project Standards](./standards) - Review quality practices
+2. **Then review**: [Project Standards](./standards) - Understand quality measures
+3. **Finally**: [Project Standards](./standards) - Review quality practices
 
 ## 📋 Project Quick Reference
 
 ### Community Links
-| Platform | Purpose | Link |
-|----------|---------|------|
-| Discord | Community discussion and support | [Join Discord](https://discord.gg/idling-app) |
-| GitHub | Code repository and issue tracking | [GitHub Repository](https://github.com/your-org/idling.app) |
-| Documentation | Project documentation | [docs.idling.app](https://docs.idling.app) |
-| Production | Live application | [idling.app](https://idling.app) |
+
+| Platform      | Purpose                            | Link                                                        |
+| ------------- | ---------------------------------- | ----------------------------------------------------------- |
+| GitHub        | Code repository and issue tracking | [GitHub Repository](https://github.com/your-org/idling.app) |
+| Documentation | Project documentation              | [docs.idling.app](https://docs.idling.app)                  |
+| Production    | Live application                   | [idling.app](https://idling.app)                            |
 
 ### Project Statistics
+
 ```bash
 # Repository statistics (example)
 Total Lines of Code: ~50,000
@@ -141,6 +147,7 @@ Pull Requests: 300+
 ```
 
 ### Release Schedule
+
 - **Major Releases**: Monthly (new features, breaking changes)
 - **Minor Releases**: Bi-weekly (features, improvements)
 - **Patch Releases**: As needed (bug fixes, security updates)
@@ -149,6 +156,7 @@ Pull Requests: 300+
 ## 🎯 Project Roadmap
 
 ### Current Focus Areas
+
 - **🚀 Performance Optimization** - Improve application speed and efficiency
 - **♿ Accessibility Improvements** - Make the app accessible to all users
 - **🔐 Security Enhancements** - Strengthen security and privacy features
@@ -156,6 +164,7 @@ Pull Requests: 300+
 - **🌐 Internationalization** - Support multiple languages
 
 ### Upcoming Features
+
 - **🎨 Enhanced UI/UX** - Modern, intuitive user interface
 - **🔍 Advanced Search** - Powerful search and filtering capabilities
 - **📊 Analytics Dashboard** - User and content analytics
@@ -163,6 +172,7 @@ Pull Requests: 300+
 - **🔗 API Expansion** - Extended API capabilities
 
 ### Long-term Goals
+
 - **📈 Scalability** - Support for millions of users
 - **🌍 Global Reach** - International expansion
 - **🔧 Plugin System** - Extensible architecture
@@ -172,6 +182,7 @@ Pull Requests: 300+
 ## 🤝 Contributing to idling.app
 
 ### How to Contribute
+
 1. **🍴 Fork the repository** on GitHub
 2. **🌿 Create a feature branch** for your changes
 3. **💻 Make your changes** following our standards
@@ -180,6 +191,7 @@ Pull Requests: 300+
 6. **🔄 Submit a pull request** with clear description
 
 ### Types of Contributions
+
 - **🐛 Bug Fixes** - Fix issues and improve stability
 - **✨ New Features** - Add new functionality
 - **📚 Documentation** - Improve guides and documentation
@@ -188,6 +200,7 @@ Pull Requests: 300+
 - **🧪 Testing** - Add or improve tests
 
 ### Contribution Guidelines
+
 - **Follow code standards** outlined in our style guide
 - **Write clear commit messages** using conventional commits
 - **Include tests** for new features and bug fixes
@@ -198,6 +211,7 @@ Pull Requests: 300+
 ## 📊 Project Metrics & Health
 
 ### Code Quality Metrics
+
 - **Test Coverage**: > 80% for critical components
 - **TypeScript Coverage**: > 95% of codebase
 - **Linting**: 100% compliance with ESLint rules
@@ -205,6 +219,7 @@ Pull Requests: 300+
 - **Performance**: Lighthouse scores > 90
 
 ### Community Health
+
 - **Response Time**: < 24 hours for community questions
 - **Issue Resolution**: < 7 days for bugs, < 30 days for features
 - **Pull Request Review**: < 48 hours for initial review
@@ -212,6 +227,7 @@ Pull Requests: 300+
 - **Community Growth**: Steady increase in active members
 
 ### Project Sustainability
+
 - **Maintainer Diversity**: Multiple active maintainers
 - **Financial Sustainability**: Sustainable funding model
 - **Knowledge Sharing**: Comprehensive documentation
@@ -221,7 +237,8 @@ Pull Requests: 300+
 ## 🛡️ Project Governance
 
 ### Decision Making Process
-1. **Community Discussion** - Discuss proposals in Discord
+
+1. **Community Discussion** - Discuss proposals in GitHub discussions
 2. **RFC Process** - Formal Request for Comments for major changes
 3. **Maintainer Review** - Core team reviews proposals
 4. **Community Feedback** - Gather input from users and contributors
@@ -229,6 +246,7 @@ Pull Requests: 300+
 6. **Documentation** - Update documentation and communicate changes
 
 ### Roles and Responsibilities
+
 - **Project Lead** - Overall project direction and major decisions
 - **Core Maintainers** - Code review, release management, community moderation
 - **Contributors** - Code contributions, bug reports, feature requests
@@ -236,9 +254,11 @@ Pull Requests: 300+
 - **Moderators** - Community management and conflict resolution
 
 ### Code of Conduct
+
 We are committed to providing a welcoming and inclusive environment for all community members. Our code of conduct outlines expected behavior and consequences for unacceptable behavior.
 
 **Core Values:**
+
 - **Respect** - Treat all community members with respect and kindness
 - **Inclusivity** - Welcome people of all backgrounds and experience levels
 - **Collaboration** - Work together constructively to improve the project
@@ -248,13 +268,15 @@ We are committed to providing a welcoming and inclusive environment for all comm
 ## 📞 Getting Help & Support
 
 ### Community Support
-- **Discord Community** - Real-time help and discussion
+
+- **GitHub Discussions** - Community help and discussion
 - **GitHub Issues** - Bug reports and feature requests
 - **Documentation** - Comprehensive guides and references
 - **Stack Overflow** - Technical questions and solutions
 - **Community Forums** - Long-form discussions and help
 
 ### Maintainer Support
+
 - **Code Reviews** - Detailed feedback on contributions
 - **Mentorship** - Guidance for new contributors
 - **Technical Support** - Help with complex technical issues
@@ -262,6 +284,7 @@ We are committed to providing a welcoming and inclusive environment for all comm
 - **Community Management** - Moderation and conflict resolution
 
 ### Resources for Learning
+
 - **Getting Started Guide** - Step-by-step setup instructions
 - **Code Examples** - Working examples of common patterns
 - **Video Tutorials** - Visual learning resources
@@ -279,4 +302,4 @@ We are committed to providing a welcoming and inclusive environment for all comm
 
 ---
 
-*idling.app is built by an amazing community of contributors. We welcome everyone to join us in creating something great together.* 
+_idling.app is built by an amazing community of contributors. We welcome everyone to join us in creating something great together._

@@ -5,12 +5,14 @@ This directory contains the Jekyll-based documentation site for the Idling.app p
 ## 🏗️ Setup
 
 ### Prerequisites
+
 - Ruby 3.3.4 (matches GitHub Pages)
 - Bundler 2.5+
 
 ### Local Development
 
 1. **Install dependencies:**
+
    ```bash
    yarn docs:install
    # or manually:
@@ -18,6 +20,7 @@ This directory contains the Jekyll-based documentation site for the Idling.app p
    ```
 
 2. **Start the development server:**
+
    ```bash
    yarn docs:dev
    # or manually:
@@ -39,13 +42,16 @@ cd DOCS && bundle exec jekyll build
 The documentation is automatically deployed to GitHub Pages via GitHub Actions when changes are pushed to the `master` branch.
 
 ### GitHub Pages Configuration
+
 - **Jekyll Version:** 3.10.0 (GitHub Pages compatible)
 - **Ruby Version:** 3.3.4
 - **Deployment:** Automatic via `.github/workflows/docs.yml`
 - **URL:** https://underwood-inc.github.io/idling.app__UI
 
 ### Manual Deployment
+
 If needed, you can also enable automatic GitHub Pages deployment:
+
 1. Go to repository Settings → Pages
 2. Set Source to "Deploy from a branch"
 3. Select branch: `master` and folder: `/DOCS`
@@ -72,6 +78,7 @@ DOCS/
 ## 🔧 Configuration
 
 The site is configured for GitHub Pages compatibility:
+
 - Uses `github-pages` gem for dependency management
 - Jekyll 3.10.0 (latest supported by GitHub Pages)
 - GitHub Pages whitelisted plugins only
@@ -87,6 +94,7 @@ The site is configured for GitHub Pages compatibility:
 ## 🐛 Troubleshooting
 
 ### Bundle Install Issues
+
 ```bash
 # Clear cache and reinstall
 cd DOCS
@@ -95,9 +103,11 @@ bundle install
 ```
 
 ### Jekyll Version Conflicts
+
 The site uses Jekyll 3.10.0 for GitHub Pages compatibility. If you need Jekyll 4.x features locally, you'll need to use GitHub Actions deployment instead of automatic GitHub Pages.
 
 ### Docker Development
+
 The main Dockerfile includes Jekyll setup for development in containers.
 
 ## 🏗️ Documentation Structure
@@ -126,7 +136,7 @@ DOCS/
 └── project/                   # Project Management
     ├── commits.md             # Git commit standards
     ├── updates.md             # Latest project updates
-    └── discord.md             # Discord integration and releases
+    └── releases.md           # Release management documentation
 ```
 
 ## 🚀 GitHub Pages Deployment
@@ -194,10 +204,9 @@ All documentation files must include Jekyll front matter:
 ```yaml
 ---
 layout: default
-title: "Page Title"
-description: "SEO-friendly description"
+title: 'Page Title'
+description: 'SEO-friendly description'
 ---
-
 # Your Content Here
 ```
 
@@ -243,11 +252,13 @@ Current documentation includes:
 The documentation workflow (`.github/workflows/docs.yml`) provides:
 
 ### For Pull Requests:
+
 - ✅ **Build validation** - Ensures Jekyll builds successfully
 - ✅ **PR comments** - Shows generated pages and preview links
 - ✅ **Error detection** - Catches broken links and build issues
 
 ### For Main Branch:
+
 - ✅ **Automatic deployment** - Builds and deploys to GitHub Pages
 - ✅ **Build artifacts** - Preserves generated site for debugging
 - ✅ **Deployment status** - Shows live site URL
@@ -255,6 +266,7 @@ The documentation workflow (`.github/workflows/docs.yml`) provides:
 ## 🎯 Content Guidelines
 
 ### Documentation Standards:
+
 1. **Clear structure** with logical hierarchy
 2. **Practical examples** with code snippets
 3. **Visual elements** (emojis, tables, diagrams)
@@ -262,6 +274,7 @@ The documentation workflow (`.github/workflows/docs.yml`) provides:
 5. **SEO optimization** with proper meta data
 
 ### Update Process:
+
 1. Edit Markdown files in `DOCS/` directory
 2. Test locally with Jekyll if needed
 3. Commit changes to feature branch
@@ -277,4 +290,4 @@ The documentation workflow (`.github/workflows/docs.yml`) provides:
 
 ---
 
-> **Contributing**: To add new documentation, create Markdown files with proper front matter and update the navigation in `_config.yml` if needed. 
+> **Contributing**: To add new documentation, create Markdown files with proper front matter and update the navigation in `_config.yml` if needed.

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="{{ page.lang | default: site.lang | default: "en" }}">
+<html lang="{{ page.lang | default: site.lang | default: 'en' }}">
 
   {%- include head.html -%}
 
@@ -9,91 +9,48 @@
 
     {%- include header.html -%}
 
-    <!-- Search Section -->
-    <section class="search-section" aria-label="Search Documentation">
-      <div class="wrapper">
-        {%- include search.html -%}
-      </div>
-    </section>
-
     <main class="page-content" aria-label="Content">
       <div class="wrapper">
-        
-        <!-- Breadcrumb navigation -->
-        {% if page.url != "/" %}
-        <nav class="breadcrumb">
-          <a href="{{ "/" | relative_url }}">Home</a>
-          {% assign crumbs = page.url | remove:'/index.html' | split: '/' %}
-          {% for crumb in crumbs offset: 1 %}
-            {% unless forloop.last %}
-              {% if crumb != '' %}
-                <span class="breadcrumb-separator">›</span>
-                <a href="{% assign crumb_limit = forloop.index | plus: 1 %}{% for crumb in crumbs limit: crumb_limit %}{{ crumb | append: '/' }}{% endfor %}">{{ crumb | replace:'-',' ' | remove:'.html' | capitalize }}</a>
+        <div class="content-grid">
+          <article class="main-content-card">
+            {% if page.title %}
+            <header class="card-header">
+              <h1>{{ page.title | escape }}</h1>
+              {% if page.description %}
+              <p class="page-description">{{ page.description }}</p>
               {% endif %}
-            {% else %}
-              <span class="breadcrumb-separator">›</span>
-              <span class="breadcrumb-current">{{ crumb | replace:'-',' ' | remove:'.html' | capitalize }}</span>
-            {% endunless %}
-          {% endfor %}
-        </nav>
-        {% endif %}
-
-        <!-- Page content -->
-        <article class="post">
-          <header class="post-header">
-            <h1 class="post-title">{{ page.title | escape }}</h1>
-            {% if page.description %}
-              <p class="post-description">{{ page.description }}</p>
+            </header>
             {% endif %}
-          </header>
-
-          <div class="post-content">
-            {{ content }}
-          </div>
-        </article>
-
-        <!-- Navigation between pages -->
-        {% if site.navigation %}
-        <nav class="post-nav">
-          {% assign current_found = false %}
-          {% assign prev_page = null %}
-          {% assign next_page = null %}
+            
+            <div class="card-content">
+              {{ content }}
+            </div>
+            
+            {% if page.date or page.author or page.last_modified_at %}
+            <footer class="card-footer">
+              <div class="page-meta">
+                {% if page.date %}
+                <span class="badge">{{ page.date | date: "%B %d, %Y" }}</span>
+                {% endif %}
+                {% if page.author %}
+                <span class="badge badge--secondary">{{ page.author }}</span>
+                {% endif %}
+              </div>
+              {% if page.last_modified_at %}
+              <div class="page-updated">
+                <small>Last updated: {{ page.last_modified_at | date: "%B %d, %Y" }}</small>
+              </div>
+              {% endif %}
+            </footer>
+            {% endif %}
+          </article>
           
-          {% for nav_item in site.navigation %}
-            {% if nav_item.subnav %}
-              {% for sub_item in nav_item.subnav %}
-                {% if current_found and next_page == null %}
-                  {% assign next_page = sub_item %}
-                {% endif %}
-                {% if sub_item.url == page.url %}
-                  {% assign current_found = true %}
-                {% endif %}
-                {% unless current_found %}
-                  {% assign prev_page = sub_item %}
-                {% endunless %}
-              {% endfor %}
-            {% else %}
-              {% if current_found and next_page == null %}
-                {% assign next_page = nav_item %}
-              {% endif %}
-              {% if nav_item.url == page.url %}
-                {% assign current_found = true %}
-              {% endif %}
-              {% unless current_found %}
-                {% assign prev_page = nav_item %}
-              {% endunless %}
-            {% endif %}
-          {% endfor %}
-
-          {% if prev_page %}
-            <a href="{{ prev_page.url | relative_url }}" class="prev-page">← {{ prev_page.title }}</a>
+          {% if page.sidebar != false %}
+          <aside class="sidebar">
+            {% include sidebar.html %}
+          </aside>
           {% endif %}
-          {% if next_page %}
-            <a href="{{ next_page.url | relative_url }}" class="next-page">{{ next_page.title }} →</a>
-          {% endif %}
-        </nav>
-        {% endif %}
-
+        </div>
       </div>
     </main>
 

@@ -11,9 +11,9 @@ This guide will help you set up your development environment for **Idling.app**,
 ## 📊 Project Status
 
 ![React](https://img.shields.io/badge/React-19.0.0--alpha-61DAFB?style=flat&logo=react&logoColor=white)
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=Underwood-Inc_idling.app__UI&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=Underwood-Inc_idling.app__UI) 
-[![Bugs](https://sonarcloud.io/api/project_badges/measure?project=Underwood-Inc_idling.app__UI&metric=bugs)](https://sonarcloud.io/summary/new_code?id=Underwood-Inc_idling.app__UI) 
-[![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=Underwood-Inc_idling.app__UI&metric=code_smells)](https://sonarcloud.io/summary/new_code?id=Underwood-Inc_idling.app__UI) 
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=Underwood-Inc_idling.app__UI&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=Underwood-Inc_idling.app__UI)
+[![Bugs](https://sonarcloud.io/api/project_badges/measure?project=Underwood-Inc_idling.app__UI&metric=bugs)](https://sonarcloud.io/summary/new_code?id=Underwood-Inc_idling.app__UI)
+[![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=Underwood-Inc_idling.app__UI&metric=code_smells)](https://sonarcloud.io/summary/new_code?id=Underwood-Inc_idling.app__UI)
 [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=Underwood-Inc_idling.app__UI&metric=coverage)](https://sonarcloud.io/summary/new_code?id=Underwood-Inc_idling.app__UI)
 
 ## 🛠️ Technology Stack
@@ -42,12 +42,14 @@ Choose your preferred development environment:
 ### Option 1: Docker Development (Recommended)
 
 **Advantages:**
+
 - ✅ Isolated environment
 - ✅ Consistent across all machines
 - ✅ No local PostgreSQL setup required
 - ✅ Easy database reset/seeding
 
 **Setup:**
+
 ```bash
 # Install Docker (Ubuntu example)
 # See: https://docs.docker.com/engine/install/ubuntu/
@@ -62,11 +64,12 @@ yarn dev:docker
 ```
 
 **Common Docker Commands:**
+
 ```bash
 # Start containers
 yarn dev:docker # → option 1
 
-# Stop containers  
+# Stop containers
 yarn dev:docker # → option 2
 
 # Reset database
@@ -79,10 +82,12 @@ docker exec -it nextjs sh
 ### Option 2: Local Development
 
 **Prerequisites:**
+
 - Local PostgreSQL server running
 - `.env.local` file configured
 
 **Setup:**
+
 ```bash
 # Clone repository
 git clone <repository-url>
@@ -104,12 +109,14 @@ yarn dev
 ### Initialize Database
 
 **With Docker:**
+
 ```bash
 # Database is automatically initialized
 # Check docker-postgres/init.sql for schema
 ```
 
 **Without Docker:**
+
 ```bash
 # Run initialization script
 psql -U your_user -d your_database -f src/lib/scripts/000-init.sql
@@ -133,7 +140,7 @@ yarn dev:seed
 
 # This creates:
 # - 5,000 unique users
-# - 200,000 main posts  
+# - 200,000 main posts
 # - 800,000 replies
 # - Realistic hashtags and content
 ```
@@ -169,12 +176,16 @@ This project uses **true BEM CSS** without preprocessors:
 
 ```css
 /* ✅ Good - BEM with separate classes for props */
-.button { }
-.button--primary { }
-.button.md { }  /* For size props */
+.button {
+}
+.button--primary {
+}
+.button.md {
+} /* For size props */
 
 /* ❌ Avoid - Don't use BEM modifiers for prop-based styles */
-.button--md { }
+.button--md {
+}
 ```
 
 ### 2. Git Workflow
@@ -200,6 +211,7 @@ yarn migrations # → option 2
 ### PostgreSQL Connection Issues
 
 **Docker Environment:**
+
 ```bash
 # Stop conflicting local PostgreSQL
 sudo service postgresql stop
@@ -209,6 +221,7 @@ docker ps
 ```
 
 **Local Environment:**
+
 ```bash
 # Start PostgreSQL service
 sudo service postgresql start
@@ -254,7 +267,7 @@ rm -rf ~/.cache/playwright
 Once your environment is set up:
 
 1. **[Read Migration Guide](../database/migrations)** - Understand database management
-2. **[Check Testing Guide](../development/testing)** - Learn our testing practices  
+2. **[Check Testing Guide](../development/testing)** - Learn our testing practices
 3. **[Review Commit Guidelines](../project/commits)** - Follow our standards
 4. **[Explore Smart Filters](../development/smart-filters)** - Advanced features
 
@@ -263,10 +276,10 @@ Once your environment is set up:
 - **[Database Documentation](../database/)** - Migration system, optimization
 - **[Development Guides](../development/)** - Testing, caching, smart filters
 - **[Deployment Docs](../deployment/)** - Production deployment guide
-- **[Project Standards](../project/)** - Commits, updates, Discord integration
+- **[Project Standards](../project/)** - Commits, updates, and project standards
 
 ---
 
 > **Need Help?** Check our [troubleshooting section](#-common-troubleshooting) or reach out to the development team.
 
-*This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).* 
+_This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app)._
