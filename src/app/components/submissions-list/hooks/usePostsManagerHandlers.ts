@@ -1,9 +1,18 @@
 'use client';
 
+import { createLogger } from '@/lib/logging';
 import { useAtom } from 'jotai';
 import { useCallback, useRef } from 'react';
 import { shouldUpdateAtom } from '../../../../lib/state/atoms';
 import { PostFilters } from '../../../../lib/types/filters';
+
+const logger = createLogger({
+  context: {
+    component: 'usePostsManagerHandlers',
+    module: 'hooks'
+  },
+  enabled: true
+});
 
 export interface PostsManagerHandlers {
   handleAddFilter: (filter: any) => void;
@@ -26,16 +35,20 @@ export interface PostsManagerHandlersOptions {
   addFilter: (filter: any) => void;
   addFilters: (filters: any[]) => void;
   removeFilter: (filterName: PostFilters, filterValue?: string) => void;
+  updateFilter: (filterName: PostFilters, newValue: string) => void;
   setIncludeThreadReplies: (value: boolean) => void;
   onNewPostClick?: () => void;
+  currentFilters?: any[]; // Add current filters to check existing tag count
 }
 
 export function usePostsManagerHandlers({
   addFilter,
   addFilters,
   removeFilter,
+  updateFilter,
   setIncludeThreadReplies,
-  onNewPostClick
+  onNewPostClick,
+  currentFilters = []
 }: PostsManagerHandlersOptions): PostsManagerHandlers {
   const [, setShouldUpdate] = useAtom(shouldUpdateAtom);
 
@@ -53,6 +66,7 @@ export function usePostsManagerHandlers({
 
   const handleAddFilters = useCallback(
     (filterList: any[]) => {
+      logger.debug('[RACE_FIX] ➕ ADD_FILTERS: Adding filters', { filterList });
       addFilters(filterList);
     },
     [addFilters]
@@ -61,22 +75,63 @@ export function usePostsManagerHandlers({
   // Optimize callbacks with useCallback to prevent child re-renders
   const handleTagClick = useCallback(
     (tag: string) => {
-      // Ensure consistent formatting with # prefix to match handleHashtagClick
-      const formattedTag = tag.startsWith('#') ? tag : `#${tag}`;
-      addFilter({ name: 'tags', value: formattedTag });
+      // Store tags without # prefix to match URL format and prevent normalization conflicts
+      const normalizedTag = tag.startsWith('#') ? tag.slice(1) : tag;
+      
+      // Check if there are already tag filters
+      const existingTagFilters = currentFilters.filter(f => f.name === 'tags');
+      const willHaveMultipleTags = existingTagFilters.length >= 1; // Will have multiple after adding this one
+      
+      // Debug logging
+      logger.debug('[RACE_FIX] 🏷️ TAG_CLICK: Tag click handler called', {
+        tag,
+        normalizedTag,
+        existingTagFilters,
+        willHaveMultipleTags,
+        currentFilters
+      });
+      
+      // Prepare filters to add
+      const filtersToAdd = [
+        { name: 'tags', value: normalizedTag }
+      ];
+      
+      // Add tagLogic if we'll have multiple tags
+      if (willHaveMultipleTags) {
+        filtersToAdd.push({ name: 'tagLogic', value: 'OR' });
+      }
+      
+      logger.debug('[RACE_FIX] 🏷️ TAG_CLICK: Filters to add', { filtersToAdd });
+      
+      // Add all filters atomically to prevent double fetches
+      addFilters(filtersToAdd);
     },
-    [addFilter]
+    [addFilters, currentFilters]
   );
 
   const handleHashtagClick = useCallback(
     (hashtag: string) => {
-      // Ensure hashtag has # prefix for consistency with other components
-      const formattedHashtag = hashtag.startsWith('#')
-        ? hashtag
-        : `#${hashtag}`;
-      addFilter({ name: 'tags', value: formattedHashtag });
+      // Store tags without # prefix to match URL format and prevent normalization conflicts
+      const normalizedHashtag = hashtag.startsWith('#') ? hashtag.slice(1) : hashtag;
+      
+      // Check if there are already tag filters
+      const existingTagFilters = currentFilters.filter(f => f.name === 'tags');
+      const willHaveMultipleTags = existingTagFilters.length >= 1; // Will have multiple after adding this one
+      
+      // Prepare filters to add
+      const filtersToAdd = [
+        { name: 'tags', value: normalizedHashtag }
+      ];
+      
+      // Add tagLogic if we'll have multiple tags
+      if (willHaveMultipleTags) {
+        filtersToAdd.push({ name: 'tagLogic', value: 'OR' });
+      }
+        
+      // Add all filters atomically to prevent double fetches
+      addFilters(filtersToAdd);
     },
-    [addFilter]
+    [addFilters, currentFilters]
   );
 
   const handleMentionClick = useCallback(
@@ -114,12 +169,10 @@ export function usePostsManagerHandlers({
 
   const handleUpdateFilter = useCallback(
     (name: string, value: string) => {
-      // Simple approach: remove existing filter, then add new one
-      // This should work now that RecentTagsClient interference is disabled
-      removeFilter(name as PostFilters);
-      addFilter({ name: name as any, value });
+      // Use single updateFilter operation instead of remove + add
+      updateFilter(name as PostFilters, value);
     },
-    [removeFilter, addFilter]
+    [updateFilter]
   );
 
   const handleTextSearch = useCallback(
