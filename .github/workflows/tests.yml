@@ -846,17 +846,17 @@ jobs:
               
               let body = pr.body || '';
               
-              // Create badges section
-              const badgesSection = [
-                '<!-- status-badges-start -->',
-                '## Status Badges',
-                'Status badges for the current branch:',
-                '',
-                badges,
-                '',
-                '<!-- status-badges-end -->'
-              ].join('\n');
-              
+                // Create badges section
+                const badgesSection = [
+                  '<!-- status-badges-start -->',
+                  '## Status Badges',
+                  'Status badges for the current branch:',
+                  '',
+                  badges,
+                  '',
+                  '<!-- status-badges-end -->'
+                ].join('\n');
+                
               // Check if badges section already exists
               if (body.includes('<!-- status-badges-start -->')) {
                 // Replace existing badges section
@@ -894,15 +894,15 @@ jobs:
                   body = badgesSection + '\n\n' + body;
                 }
                 console.log('Successfully added status badges to PR description');
-              }
-              
-              // Update PR description
-              await github.rest.pulls.update({
-                owner,
-                repo,
-                pull_number: context.issue.number,
-                body
-              });
+                }
+                
+                // Update PR description
+                await github.rest.pulls.update({
+                  owner,
+                  repo,
+                  pull_number: context.issue.number,
+                  body
+                });
             } catch (error) {
               console.error('Error updating PR description:', error);
               core.setFailed(error.message);
