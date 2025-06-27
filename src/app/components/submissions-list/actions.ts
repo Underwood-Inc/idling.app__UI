@@ -92,10 +92,52 @@ export async function getSubmissionsPaginationCount({
     const globalLogicFilter = filters.find((f) => f.name === 'globalLogic');
     const globalLogic = globalLogicFilter?.value || 'AND';
 
+    // Handle multiple tag filters as a single group
+    const tagFilters = filters.filter((f) => f.name === 'tags');
+    if (tagFilters.length > 0) {
+      const tagLogicFilter = filters.find((f) => f.name === 'tagLogic');
+      const tagLogic = tagLogicFilter?.value || 'OR';
+      
+      const allTags = tagFilters.flatMap(f => 
+        f.value.split(',').map(tag => tag.trim()).filter(Boolean)
+      );
+
+      if (allTags.length > 0) {
+        let tagGroupCondition = '';
+        
+        if (tagLogic === 'AND') {
+          // All tags must be present
+          const tagConditions: string[] = [];
+          for (const tag of allTags) {
+            tagConditions.push(`$${paramIndex} = ANY(s.tags)`);
+            queryParams.push(tag.startsWith('#') ? tag.slice(1) : tag);
+            paramIndex++;
+          }
+          tagGroupCondition = tagConditions.join(' AND ');
+        } else {
+          // Any tag can be present (OR logic)
+          const tagPlaceholders = allTags
+            .map(() => `$${paramIndex++}`)
+            .join(',');
+          tagGroupCondition = `s.tags && ARRAY[${tagPlaceholders}]`;
+          queryParams.push(
+            ...allTags.map((tag) => (tag.startsWith('#') ? tag.slice(1) : tag))
+          );
+        }
+
+        if (tagGroupCondition) {
+          filterGroups.push(`(${tagGroupCondition})`);
+        }
+      }
+    }
+
     for (const filter of filters) {
       let groupCondition = '';
 
       switch (filter.name) {
+        case 'tags':
+          // Skip - already handled above
+          break;
         case 'author': {
           // Handle multiple authors with logic
           const authors = filter.value
@@ -121,45 +163,6 @@ export async function getSubmissionsPaginationCount({
               // Any author can match (OR logic)
               groupCondition = `s.user_id IN (${authors.map(() => `$${paramIndex++}`).join(',')})`;
               queryParams.push(...authors.map((author) => parseInt(author)));
-            }
-
-            if (groupCondition) {
-              filterGroups.push(`(${groupCondition})`);
-            }
-          }
-          break;
-        }
-
-        case 'tags': {
-          const tags = filter.value
-            .split(',')
-            .map((tag) => tag.trim())
-            .filter(Boolean);
-
-          if (tags.length > 0) {
-            const tagLogicFilter = filters.find((f) => f.name === 'tagLogic');
-            // When globalLogic is AND, force all individual filters to AND
-            const tagLogic =
-              globalLogic === 'AND' ? 'AND' : tagLogicFilter?.value || 'OR';
-
-            if (tagLogic === 'AND') {
-              // All tags must be present
-              const tagConditions: string[] = [];
-              for (const tag of tags) {
-                tagConditions.push(`$${paramIndex} = ANY(s.tags)`);
-                queryParams.push(tag.startsWith('#') ? tag.slice(1) : tag);
-                paramIndex++;
-              }
-              groupCondition = tagConditions.join(' AND ');
-            } else {
-              // Any tag can be present (OR logic)
-              const tagPlaceholders = tags
-                .map(() => `$${paramIndex++}`)
-                .join(',');
-              groupCondition = `s.tags && ARRAY[${tagPlaceholders}]`;
-              queryParams.push(
-                ...tags.map((tag) => (tag.startsWith('#') ? tag.slice(1) : tag))
-              );
             }
 
             if (groupCondition) {
@@ -370,10 +373,52 @@ export async function getSubmissionsAction({
     const globalLogicFilter = filters.find((f) => f.name === 'globalLogic');
     const globalLogic = globalLogicFilter?.value || 'AND';
 
+    // Handle multiple tag filters as a single group
+    const tagFilters = filters.filter((f) => f.name === 'tags');
+    if (tagFilters.length > 0) {
+      const tagLogicFilter = filters.find((f) => f.name === 'tagLogic');
+      const tagLogic = tagLogicFilter?.value || 'OR';
+      
+      const allTags = tagFilters.flatMap(f => 
+        f.value.split(',').map(tag => tag.trim()).filter(Boolean)
+      );
+
+      if (allTags.length > 0) {
+        let tagGroupCondition = '';
+        
+        if (tagLogic === 'AND') {
+          // All tags must be present
+          const tagConditions: string[] = [];
+          for (const tag of allTags) {
+            tagConditions.push(`$${paramIndex} = ANY(s.tags)`);
+            queryParams.push(tag.startsWith('#') ? tag.slice(1) : tag);
+            paramIndex++;
+          }
+          tagGroupCondition = tagConditions.join(' AND ');
+        } else {
+          // Any tag can be present (OR logic)
+          const tagPlaceholders = allTags
+            .map(() => `$${paramIndex++}`)
+            .join(',');
+          tagGroupCondition = `s.tags && ARRAY[${tagPlaceholders}]`;
+          queryParams.push(
+            ...allTags.map((tag) => (tag.startsWith('#') ? tag.slice(1) : tag))
+          );
+        }
+
+        if (tagGroupCondition) {
+          filterGroups.push(`(${tagGroupCondition})`);
+        }
+      }
+    }
+
     for (const filter of filters) {
       let groupCondition = '';
 
       switch (filter.name) {
+        case 'tags':
+          // Skip - already handled above
+          break;
         case 'author': {
           // Handle multiple authors with logic
           const authors = filter.value
@@ -399,45 +444,6 @@ export async function getSubmissionsAction({
               // Any author can match (OR logic)
               groupCondition = `s.user_id IN (${authors.map(() => `$${paramIndex++}`).join(',')})`;
               queryParams.push(...authors.map((author) => parseInt(author)));
-            }
-
-            if (groupCondition) {
-              filterGroups.push(`(${groupCondition})`);
-            }
-          }
-          break;
-        }
-
-        case 'tags': {
-          const tags = filter.value
-            .split(',')
-            .map((tag) => tag.trim())
-            .filter(Boolean);
-
-          if (tags.length > 0) {
-            const tagLogicFilter = filters.find((f) => f.name === 'tagLogic');
-            // When globalLogic is AND, force all individual filters to AND
-            const tagLogic =
-              globalLogic === 'AND' ? 'AND' : tagLogicFilter?.value || 'OR';
-
-            if (tagLogic === 'AND') {
-              // All tags must be present
-              const tagConditions: string[] = [];
-              for (const tag of tags) {
-                tagConditions.push(`$${paramIndex} = ANY(s.tags)`);
-                queryParams.push(tag.startsWith('#') ? tag.slice(1) : tag);
-                paramIndex++;
-              }
-              groupCondition = tagConditions.join(' AND ');
-            } else {
-              // Any tag can be present (OR logic)
-              const tagPlaceholders = tags
-                .map(() => `$${paramIndex++}`)
-                .join(',');
-              groupCondition = `s.tags && ARRAY[${tagPlaceholders}]`;
-              queryParams.push(
-                ...tags.map((tag) => (tag.startsWith('#') ? tag.slice(1) : tag))
-              );
             }
 
             if (groupCondition) {
