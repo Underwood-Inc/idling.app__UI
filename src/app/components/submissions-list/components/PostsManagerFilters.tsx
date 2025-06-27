@@ -15,10 +15,12 @@ export interface PostsManagerFiltersProps {
   onAddFilters: (filters: any[]) => void;
   onFilterSuccess: () => void;
   onTextSearch: (searchText: string) => void;
-  // Thread replies toggle
-  showThreadToggle?: boolean;
+  // Combined replies filter
+  showRepliesFilter?: boolean;
   includeThreadReplies?: boolean;
+  onlyReplies?: boolean;
   onToggleThreadReplies?: (checked: boolean) => void;
+  onToggleOnlyReplies?: (checked: boolean) => void;
   isLoading?: boolean;
 }
 
@@ -34,9 +36,11 @@ export function PostsManagerFilters({
   onAddFilters,
   onFilterSuccess,
   onTextSearch,
-  showThreadToggle = false,
+  showRepliesFilter = false,
   includeThreadReplies = false,
+  onlyReplies = false,
   onToggleThreadReplies,
+  onToggleOnlyReplies,
   isLoading = false
 }: PostsManagerFiltersProps) {
   // Get current search value from filters
@@ -60,9 +64,11 @@ export function PostsManagerFilters({
           contextId={contextId}
           placeholder="Search posts content... (or use @user #tag for filters)"
           className="posts-manager__text-search"
-          showThreadToggle={showThreadToggle}
+          showRepliesFilter={showRepliesFilter}
           includeThreadReplies={includeThreadReplies}
           onToggleThreadReplies={onToggleThreadReplies}
+          onToggleOnlyReplies={onToggleOnlyReplies}
+          onlyReplies={onlyReplies}
           isLoading={isLoading}
         />
 

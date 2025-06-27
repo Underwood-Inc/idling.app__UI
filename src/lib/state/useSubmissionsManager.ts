@@ -4,15 +4,15 @@ import { useSession } from 'next-auth/react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
-  getSubmissionsWithReplies,
-  SubmissionWithReplies
+    getSubmissionsWithReplies,
+    SubmissionWithReplies
 } from '../../app/components/submissions-list/actions';
 import { PostFilters } from '../types/filters';
 import {
-  Filter,
-  getSubmissionsFiltersAtom,
-  getSubmissionsStateAtom,
-  shouldUpdateAtom
+    Filter,
+    getSubmissionsFiltersAtom,
+    getSubmissionsStateAtom,
+    shouldUpdateAtom
 } from './atoms';
 
 // Create component-specific logger
@@ -253,6 +253,15 @@ export function useSubmissionsManager({
       urlFilters.push({
         name: 'search',
         value: searchParam
+      });
+    }
+
+    // Only replies filter
+    const onlyRepliesParam = searchParams.get('onlyReplies');
+    if (onlyRepliesParam && onlyRepliesParam.toLowerCase() === 'true') {
+      urlFilters.push({
+        name: 'onlyReplies',
+        value: 'true'
       });
     }
 

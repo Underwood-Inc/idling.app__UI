@@ -1,4 +1,7 @@
+'use client';
+
 import React, { useCallback, useState } from 'react';
+import { InteractiveTooltip } from '../../tooltip/InteractiveTooltip';
 import { SmartFilterInput } from './SmartFilterInput';
 
 interface SearchInputContainerProps {
@@ -30,10 +33,12 @@ interface SearchInputContainerProps {
   hasValue: boolean;
   onClear: () => void;
 
-  // Thread toggle
-  showThreadToggle?: boolean;
+  // Combined replies filter
+  showRepliesFilter?: boolean;
   includeThreadReplies?: boolean;
+  onlyReplies?: boolean;
   onToggleThreadReplies?: (checked: boolean) => void;
+  onToggleOnlyReplies?: (checked: boolean) => void;
 }
 
 export const SearchInputContainer: React.FC<SearchInputContainerProps> = ({
@@ -55,9 +60,11 @@ export const SearchInputContainer: React.FC<SearchInputContainerProps> = ({
   isLoading,
   hasValue,
   onClear,
-  showThreadToggle,
-  includeThreadReplies,
-  onToggleThreadReplies
+  showRepliesFilter = false,
+  includeThreadReplies = false,
+  onlyReplies = false,
+  onToggleThreadReplies,
+  onToggleOnlyReplies
 }) => {
   const shouldUseSmartInput = enableSmartInput && contextId;
   const [smartInputValue, setSmartInputValue] = useState('');
@@ -78,6 +85,86 @@ export const SearchInputContainer: React.FC<SearchInputContainerProps> = ({
   const actualHasValue = shouldUseSmartInput
     ? smartInputValue.length > 0
     : hasValue;
+
+  // Determine replies filter state and styling
+  const getRepliesFilterState = () => {
+    if (onlyReplies) return 'only-replies';
+    if (includeThreadReplies) return 'active';
+    return 'inactive';
+  };
+
+  const getRepliesFilterLabel = () => {
+    if (onlyReplies) return 'Only Replies';
+    if (includeThreadReplies) return 'With Replies';
+    return 'Replies';
+  };
+
+  const getRepliesFilterIcon = () => {
+    if (onlyReplies) return '💬';
+    if (includeThreadReplies) return '💬';
+    return '💬';
+  };
+
+  const handleRepliesOptionClick = (option: 'none' | 'thread' | 'only') => {
+    switch (option) {
+      case 'none':
+        onToggleThreadReplies?.(false);
+        onToggleOnlyReplies?.(false);
+        break;
+      case 'thread':
+        onToggleThreadReplies?.(true);
+        onToggleOnlyReplies?.(false);
+        break;
+      case 'only':
+        onToggleThreadReplies?.(false);
+        onToggleOnlyReplies?.(true);
+        break;
+    }
+  };
+
+  // Create the dropdown content for the InteractiveTooltip
+  const repliesDropdownContent = (
+    <div className="text-search-input__replies-dropdown-content">
+      <div
+        className={`text-search-input__replies-option ${!includeThreadReplies && !onlyReplies ? 'text-search-input__replies-option--active' : ''}`}
+        onClick={() => handleRepliesOptionClick('none')}
+      >
+        <div className="text-search-input__replies-option-icon">📝</div>
+        <div className="text-search-input__replies-option-text">
+          <div>Main Posts Only</div>
+          <div className="text-search-input__replies-option-description">
+            Show only original posts
+          </div>
+        </div>
+      </div>
+
+      <div
+        className={`text-search-input__replies-option ${includeThreadReplies && !onlyReplies ? 'text-search-input__replies-option--active' : ''}`}
+        onClick={() => handleRepliesOptionClick('thread')}
+      >
+        <div className="text-search-input__replies-option-icon">💬</div>
+        <div className="text-search-input__replies-option-text">
+          <div>With Replies</div>
+          <div className="text-search-input__replies-option-description">
+            Show posts with their replies
+          </div>
+        </div>
+      </div>
+
+      <div
+        className={`text-search-input__replies-option ${onlyReplies ? 'text-search-input__replies-option--active' : ''}`}
+        onClick={() => handleRepliesOptionClick('only')}
+      >
+        <div className="text-search-input__replies-option-icon">↩️</div>
+        <div className="text-search-input__replies-option-text">
+          <div>Only Replies</div>
+          <div className="text-search-input__replies-option-description">
+            Show only reply posts
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 
   return (
     <div className="text-search-input__container">
@@ -134,18 +221,25 @@ export const SearchInputContainer: React.FC<SearchInputContainerProps> = ({
         />
       )}
 
-      {/* Thread Toggle Overlay */}
-      {showThreadToggle && onToggleThreadReplies && (
-        <div
-          className={`text-search-input__thread-toggle ${includeThreadReplies ? 'text-search-input__thread-toggle--active' : ''}`}
-          onClick={() => onToggleThreadReplies(!includeThreadReplies)}
-          title={`${includeThreadReplies ? 'Disable' : 'Enable'} thread replies in search results`}
+      {/* Combined Replies Filter with InteractiveTooltip */}
+      {showRepliesFilter && (
+        <InteractiveTooltip
+          content={repliesDropdownContent}
+          triggerOnClick={true}
+          className="text-search-input__replies-tooltip"
         >
           <div
-            className={`text-search-input__thread-switch ${includeThreadReplies ? 'text-search-input__thread-switch--active' : ''}`}
-          />
-          <span className="text-search-input__thread-label">Replies</span>
-        </div>
+            className={`text-search-input__replies-filter text-search-input__replies-filter--${getRepliesFilterState()}`}
+            title="Configure reply filtering options"
+          >
+            <div className="text-search-input__replies-icon">
+              {getRepliesFilterIcon()}
+            </div>
+            <span className="text-search-input__replies-label">
+              {getRepliesFilterLabel()}
+            </span>
+          </div>
+        </InteractiveTooltip>
       )}
 
       {/* Clear Button */}

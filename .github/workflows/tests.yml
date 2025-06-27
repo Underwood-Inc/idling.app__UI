@@ -5,6 +5,11 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
+# PERFORMANCE OPTIMIZATION:
+# This workflow uses a shared setup job to install dependencies and browsers once,
+# then caches them for reuse across all matrix jobs. This significantly reduces
+# build time and resource usage compared to each matrix job installing dependencies separately.
+
 on:
   push:
     branches: [main, master]
@@ -49,30 +54,45 @@ jobs:
     name: Setup Environment
     runs-on: ubuntu-latest
     environment: actions
+    outputs:
+      cache-key: ${{ steps.cache.outputs.cache-hit }}
+      node-version: ${{ steps.node-version.outputs.version }}
     steps:
       # Checkout code with full git history for proper versioning
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      # Setup Node.js using LTS version
+      # Setup Node.js using LTS version and output version for reuse
       - uses: actions/setup-node@v4
+        id: setup-node
         with:
           node-version: lts/*
           cache: 'yarn' # Enable built-in yarn caching
 
+      # Output Node.js version for other jobs
+      - name: Get Node.js version
+        id: node-version
+        run: echo "version=$(node --version)" >> $GITHUB_OUTPUT
+
       # Install project dependencies
       - name: Install dependencies
-        run: npm install -g yarn && yarn
+        run: npm install -g yarn && yarn install --frozen-lockfile
 
-      # Cache dependencies to speed up future runs
-      - name: Cache dependencies
-        uses: actions/cache@v4
+      # Install Playwright browsers for caching
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps
+
+      # Cache dependencies and browsers to speed up future runs
+      - name: Cache dependencies and browsers
+        id: cache
+        uses: actions/cache/save@v4
         with:
           path: |
             node_modules
             ~/.cache/playwright
-          key: ${{ runner.os }}-deps-${{ hashFiles('**/yarn.lock') }}
+            ~/.cache/ms-playwright
+          key: ${{ runner.os }}-deps-browsers-${{ hashFiles('**/yarn.lock', '**/package.json') }}
 
   playwright:
     name: Playwright Tests
@@ -106,68 +126,33 @@ jobs:
           - 5432:5432
     steps:
       - uses: actions/checkout@v4
+
+      # Use the same Node.js version as setup job
       - uses: actions/setup-node@v4
         with:
           node-version: lts/*
           cache: 'yarn'
 
-      # Restore cached dependencies
-      - name: Restore cache
-        id: cache-deps
-        uses: actions/cache@v4
+      # Restore cached dependencies and browsers from setup job
+      - name: Restore dependencies and browsers cache
+        id: cache-restore
+        uses: actions/cache/restore@v4
         with:
           path: |
             node_modules
             ~/.cache/playwright
-          key: ${{ runner.os }}-deps-${{ hashFiles('**/yarn.lock', '**/package.json') }}
+            ~/.cache/ms-playwright
+          key: ${{ runner.os }}-deps-browsers-${{ hashFiles('**/yarn.lock', '**/package.json') }}
           restore-keys: |
+            ${{ runner.os }}-deps-browsers-
             ${{ runner.os }}-deps-
-            ${{ runner.os }}-
+          fail-on-cache-miss: false
 
-      # Install dependencies with offline preference
-      - name: Install dependencies
-        run: yarn install --prefer-offline --frozen-lockfile
-
-      # Install browser dependencies using Playwright's official script
-      - name: Install browser dependencies
+      # Install dependencies if cache miss (first run or cache eviction)
+      - name: Install dependencies and browsers
+        if: steps.cache-restore.outputs.cache-hit != 'true'
         run: |
-          # Update package lists
-          sudo apt-get update
-
-          # Install common dependencies
-          sudo apt-get install -y --no-install-recommends \
-            libwoff1 \
-            libopus0 \
-            libwebp7 \
-            libwebpdemux2 \
-            libenchant-2-2 \
-            libgudev-1.0-0 \
-            libsecret-1-0 \
-            libhyphen0 \
-            libgdk-pixbuf2.0-0 \
-            libegl1 \
-            libnotify4 \
-            libxslt1.1 \
-            libevent-2.1-7 \
-            libgles2 \
-            libvpx9 \
-            libharfbuzz-icu0
-
-          # Install WebKit-specific dependencies
-          sudo apt-get install -y --no-install-recommends \
-            libgstreamer-plugins-base1.0-0 \
-            libgstreamer-gl1.0-0 \
-            libgstreamer-plugins-bad1.0-0 \
-            libopenjp2-7 \
-            libharfbuzz0b \
-            libmanette-0.2-0 \
-            libharfbuzz-icu0 \
-            libgstreamer1.0-0 \
-            gstreamer1.0-plugins-base \
-            gstreamer1.0-plugins-good \
-            libwoff1
-
-          # Install Playwright browsers with system dependencies
+          yarn install --frozen-lockfile
           npx playwright install --with-deps
 
       # Setup test database
@@ -374,27 +359,32 @@ jobs:
         shard: [1, 2, 3] # Run tests in 3 parallel shards
     steps:
       - uses: actions/checkout@v4
+
+      # Use the same Node.js version as setup job
       - uses: actions/setup-node@v4
         with:
           node-version: lts/*
           cache: 'yarn'
 
-      # Restore cached dependencies
-      - name: Restore cache
-        id: cache-deps
-        uses: actions/cache@v4
+      # Restore cached dependencies from setup job
+      - name: Restore dependencies cache
+        id: cache-restore
+        uses: actions/cache/restore@v4
         with:
           path: |
             node_modules
-            coverage
-          key: ${{ runner.os }}-deps-${{ hashFiles('**/yarn.lock', '**/package.json') }}
+            ~/.cache/playwright
+            ~/.cache/ms-playwright
+          key: ${{ runner.os }}-deps-browsers-${{ hashFiles('**/yarn.lock', '**/package.json') }}
           restore-keys: |
+            ${{ runner.os }}-deps-browsers-
             ${{ runner.os }}-deps-
-            ${{ runner.os }}-
+          fail-on-cache-miss: false
 
-      # Install dependencies with offline preference
+      # Install dependencies if cache miss (first run or cache eviction)
       - name: Install dependencies
-        run: yarn install --prefer-offline --frozen-lockfile
+        if: steps.cache-restore.outputs.cache-hit != 'true'
+        run: yarn install --frozen-lockfile
 
       # Run unit tests with sharding
       - name: Run Jest tests
@@ -402,16 +392,6 @@ jobs:
           echo "::group::Running Jest Tests (Shard ${{ matrix.shard }}/3)"
           FORCE_COLOR=1 yarn test:coverage --ci --colors --json --shard=${{ matrix.shard }}/3 --testLocationInResults --outputFile="$GITHUB_WORKSPACE/jest-results-${{ matrix.shard }}.json"
           echo "::endgroup::"
-
-      # Save cache after installing dependencies
-      - name: Save cache
-        if: ${{ !cancelled() }}
-        uses: actions/cache@v4
-        with:
-          path: |
-            node_modules
-            coverage
-          key: ${{ runner.os }}-deps-${{ hashFiles('**/yarn.lock', '**/package.json') }}
 
       # Upload coverage reports for each shard
       - name: Upload Jest coverage
@@ -610,15 +590,37 @@ jobs:
 
   combine-coverage:
     name: Combine Coverage Reports
-    needs: jest
+    needs: [setup, jest]
     runs-on: ubuntu-latest
     if: ${{ !cancelled() }}
     steps:
       - uses: actions/checkout@v4
+
+      # Use the same Node.js version as setup job
       - uses: actions/setup-node@v4
         with:
           node-version: lts/*
           cache: 'yarn'
+
+      # Restore cached dependencies from setup job
+      - name: Restore dependencies cache
+        id: cache-restore
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            node_modules
+            ~/.cache/playwright
+            ~/.cache/ms-playwright
+          key: ${{ runner.os }}-deps-browsers-${{ hashFiles('**/yarn.lock', '**/package.json') }}
+          restore-keys: |
+            ${{ runner.os }}-deps-browsers-
+            ${{ runner.os }}-deps-
+          fail-on-cache-miss: false
+
+      # Install dependencies if not cached
+      - name: Install dependencies
+        if: steps.cache-restore.outputs.cache-hit != 'true'
+        run: yarn install --frozen-lockfile
 
       # Download all coverage artifacts
       - name: Download coverage artifacts
@@ -675,19 +677,37 @@ jobs:
 
   combine-playwright:
     name: Combine Playwright Reports
-    needs: playwright
+    needs: [setup, playwright]
     runs-on: ubuntu-latest
     if: ${{ !cancelled() }}
     steps:
       - uses: actions/checkout@v4
+
+      # Use the same Node.js version as setup job
       - uses: actions/setup-node@v4
         with:
           node-version: lts/*
           cache: 'yarn'
 
-      # Install dependencies with offline preference
+      # Restore cached dependencies from setup job
+      - name: Restore dependencies cache
+        id: cache-restore
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            node_modules
+            ~/.cache/playwright
+            ~/.cache/ms-playwright
+          key: ${{ runner.os }}-deps-browsers-${{ hashFiles('**/yarn.lock', '**/package.json') }}
+          restore-keys: |
+            ${{ runner.os }}-deps-browsers-
+            ${{ runner.os }}-deps-
+          fail-on-cache-miss: false
+
+      # Install dependencies if not cached
       - name: Install dependencies
-        run: yarn install --prefer-offline --frozen-lockfile
+        if: steps.cache-restore.outputs.cache-hit != 'true'
+        run: yarn install --frozen-lockfile
 
       # Download all Playwright results
       - name: Download Playwright results

@@ -168,6 +168,13 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
                       {userProfile.total_submissions || 0}
                     </span>
                   </div>
+                  <a
+                    href={`/posts?author=${userProfile.id}`}
+                    className="profile-page__info-link"
+                    title="View all posts by this user"
+                  >
+                    View All →
+                  </a>
                 </div>
 
                 <div className="profile-page__info-item">
@@ -178,6 +185,13 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
                       {userProfile.replies_count || 0}
                     </span>
                   </div>
+                  <a
+                    href={`/posts?author=${userProfile.id}&onlyReplies=true`}
+                    className="profile-page__info-link"
+                    title="View only replies by this user"
+                  >
+                    View Replies →
+                  </a>
                 </div>
 
                 <div className="profile-page__info-item">

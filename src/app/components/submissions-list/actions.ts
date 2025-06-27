@@ -6,7 +6,7 @@ export interface SubmissionWithReplies {
   submission_id: number;
   submission_name: string;
   submission_title: string;
-  submission_datetime: Date;
+  submission_datetime: Date | null;
   user_id: number;
   author: string;
   author_bio?: string;
@@ -71,8 +71,12 @@ export async function getSubmissionsPaginationCount({
     const queryParams: any[] = [];
     let paramIndex = 1;
 
-    // Handle thread replies filter
-    if (!includeThreadReplies) {
+    // Check if onlyReplies filter is active
+    const onlyRepliesFilter = filters.find((f) => f.name === 'onlyReplies');
+    const isOnlyReplies = onlyRepliesFilter?.value === 'true';
+
+    // Handle thread replies filter - but skip if onlyReplies is active
+    if (!includeThreadReplies && !isOnlyReplies) {
       whereClause += ` AND s.thread_parent_id IS NULL`;
     }
 
@@ -210,61 +214,6 @@ export async function getSubmissionsPaginationCount({
           break;
         }
 
-        case 'content': {
-          groupCondition = `(s.submission_title ILIKE $${paramIndex} OR s.submission_name ILIKE $${paramIndex})`;
-          queryParams.push(`%${filter.value}%`);
-          paramIndex++;
-
-          if (groupCondition) {
-            filterGroups.push(`(${groupCondition})`);
-          }
-          break;
-        }
-
-        case 'title': {
-          groupCondition = `s.submission_title ILIKE $${paramIndex}`;
-          queryParams.push(`%${filter.value}%`);
-          paramIndex++;
-
-          if (groupCondition) {
-            filterGroups.push(`(${groupCondition})`);
-          }
-          break;
-        }
-
-        case 'url': {
-          groupCondition = `s.submission_url ILIKE $${paramIndex}`;
-          queryParams.push(`%${filter.value}%`);
-          paramIndex++;
-
-          if (groupCondition) {
-            filterGroups.push(`(${groupCondition})`);
-          }
-          break;
-        }
-
-        case 'dateFrom': {
-          groupCondition = `s.submission_datetime >= $${paramIndex}`;
-          queryParams.push(filter.value);
-          paramIndex++;
-
-          if (groupCondition) {
-            filterGroups.push(`(${groupCondition})`);
-          }
-          break;
-        }
-
-        case 'dateTo': {
-          groupCondition = `s.submission_datetime <= $${paramIndex}`;
-          queryParams.push(filter.value);
-          paramIndex++;
-
-          if (groupCondition) {
-            filterGroups.push(`(${groupCondition})`);
-          }
-          break;
-        }
-
         case 'search': {
           // Enhanced search with quote support for exact phrases
           const searchValue = filter.value.trim();
@@ -314,6 +263,17 @@ export async function getSubmissionsPaginationCount({
           break;
         }
 
+        case 'onlyReplies': {
+          // Filter to show only replies (posts with thread_parent_id)
+          if (filter.value === 'true') {
+            groupCondition = `s.thread_parent_id IS NOT NULL`;
+            if (groupCondition) {
+              filterGroups.push(`(${groupCondition})`);
+            }
+          }
+          break;
+        }
+
         // Skip logic filters as they're handled above
         case 'tagLogic':
         case 'authorLogic':
@@ -340,6 +300,16 @@ export async function getSubmissionsPaginationCount({
 
     const countResult = await sql.unsafe(countQuery, queryParams);
     const totalRecords = parseInt(countResult[0]?.total || '0');
+
+    // Debug logging for pagination count
+    // eslint-disable-next-line no-console
+    console.log('Pagination count debug:', {
+      isOnlyReplies,
+      includeThreadReplies,
+      totalRecords,
+      whereClause,
+      queryParams
+    });
 
     // Calculate expected items for current page (will be pageSize or less if on last page)
     const expectedItems = Math.min(totalRecords, pageSize);
@@ -379,8 +349,12 @@ export async function getSubmissionsAction({
     const queryParams: any[] = [];
     let paramIndex = 1;
 
-    // Handle thread replies filter
-    if (!includeThreadReplies) {
+    // Check if onlyReplies filter is active
+    const onlyRepliesFilter = filters.find((f) => f.name === 'onlyReplies');
+    const isOnlyReplies = onlyRepliesFilter?.value === 'true';
+
+    // Handle thread replies filter - but skip if onlyReplies is active
+    if (!includeThreadReplies && !isOnlyReplies) {
       whereClause += ` AND s.thread_parent_id IS NULL`;
     }
 
@@ -622,6 +596,17 @@ export async function getSubmissionsAction({
           break;
         }
 
+        case 'onlyReplies': {
+          // Filter to show only replies (posts with thread_parent_id)
+          if (filter.value === 'true') {
+            groupCondition = `s.thread_parent_id IS NOT NULL`;
+            if (groupCondition) {
+              filterGroups.push(`(${groupCondition})`);
+            }
+          }
+          break;
+        }
+
         // Skip logic filters as they're handled above
         case 'tagLogic':
         case 'authorLogic':
@@ -652,8 +637,34 @@ export async function getSubmissionsAction({
     // Calculate pagination
     const offset = (page - 1) * pageSize;
 
-    // Main query with pagination
-    const mainQuery = `
+    // Main query with pagination - different structure for replies vs posts
+    let mainQuery: string;
+    
+    if (isOnlyReplies) {
+      // Simplified query for only replies - no nested replies subquery needed
+      mainQuery = `
+        SELECT 
+          s.submission_id,
+          s.submission_name,
+          s.submission_title,
+          s.submission_url,
+          s.submission_datetime,
+          s.user_id,
+          s.tags,
+          s.thread_parent_id,
+          u.name as author,
+          u.bio as author_bio,
+          0 as reply_count,
+          NULL as replies
+        FROM submissions s
+        JOIN users u ON s.user_id = u.id
+        ${whereClause}
+        ORDER BY s.submission_datetime DESC
+        LIMIT $${paramIndex} OFFSET $${paramIndex + 1}
+      `;
+    } else {
+      // Full query with nested replies for posts
+      mainQuery = `
       SELECT 
         s.submission_id,
         s.submission_name,
@@ -695,24 +706,117 @@ export async function getSubmissionsAction({
       ORDER BY s.submission_datetime DESC
       LIMIT $${paramIndex} OFFSET $${paramIndex + 1}
     `;
+    }
 
     queryParams.push(pageSize, offset);
 
     const result = await sql.unsafe(mainQuery, queryParams);
 
-    // Process results
-    const processedData: SubmissionWithReplies[] = result.map((row: any) => ({
+    // Debug logging for the first few results to understand timestamp issues
+    if (result.length > 0) {
+      // eslint-disable-next-line no-console
+      console.log('First few results from database:', {
+        isOnlyReplies,
+        count: result.length,
+        firstResult: {
+          submission_id: result[0]?.submission_id,
+          raw_submission_datetime: result[0]?.submission_datetime,
+          typeof_datetime: typeof result[0]?.submission_datetime,
+          thread_parent_id: result[0]?.thread_parent_id
+        },
+        secondResult: result[1] ? {
+          submission_id: result[1]?.submission_id,
+          raw_submission_datetime: result[1]?.submission_datetime,
+          typeof_datetime: typeof result[1]?.submission_datetime,
+          thread_parent_id: result[1]?.thread_parent_id
+        } : null
+      });
+    }
+
+    // Process results with debug logging
+    const processedData: SubmissionWithReplies[] = result.map((row: any) => {
+      let mainDate: Date | null = null;
+      
+      try {
+        const d = new Date(row.submission_datetime);
+        if (!isNaN(d.getTime()) && d.getTime() > 0) {
+          mainDate = d;
+        } else {
+          // eslint-disable-next-line no-console
+          console.error('Invalid main submission_datetime (invalid date):', {
+            submission_id: row.submission_id,
+            raw_datetime: row.submission_datetime,
+            parsed_time: d.getTime(),
+            isOnlyReplies,
+            thread_parent_id: row.thread_parent_id
+          });
+        }
+      } catch (error) {
+        // eslint-disable-next-line no-console
+        console.error('Invalid main submission_datetime (parse error):', {
+          submission_id: row.submission_id,
+          raw_datetime: row.submission_datetime,
+          error: error instanceof Error ? error.message : String(error),
+          isOnlyReplies,
+          thread_parent_id: row.thread_parent_id
+        });
+      }
+
+      return {
       submission_id: row.submission_id,
       submission_name: row.submission_name,
       submission_title: row.submission_title,
-      submission_datetime: new Date(row.submission_datetime),
+        submission_datetime: mainDate,
       user_id: row.user_id,
       author: row.author,
       author_bio: row.author_bio,
       tags: row.tags || [],
       thread_parent_id: row.thread_parent_id,
-      replies: row.replies || []
-    }));
+        replies: Array.isArray(row.replies)
+          ? row.replies.map((reply: any) => {
+              let dateValue = reply.submission_datetime;
+              let parsedDate: Date | null = null;
+              
+              if (dateValue && dateValue !== 0 && dateValue !== '0') {
+                try {
+                  const d = new Date(dateValue);
+                  if (!isNaN(d.getTime()) && d.getTime() > 0) {
+                    parsedDate = d;
+                  } else {
+                    // eslint-disable-next-line no-console
+                    console.error('Invalid nested reply submission_datetime (invalid date):', {
+                      reply_id: reply.submission_id,
+                      raw_datetime: dateValue,
+                      parsed_time: d.getTime(),
+                      parent_id: row.submission_id
+                    });
+                  }
+                } catch (error) {
+                  // eslint-disable-next-line no-console
+                  console.error('Invalid nested reply submission_datetime (parse error):', {
+                    reply_id: reply.submission_id,
+                    raw_datetime: dateValue,
+                    error: error instanceof Error ? error.message : String(error),
+                    parent_id: row.submission_id
+                  });
+                }
+              } else {
+                // eslint-disable-next-line no-console
+                console.warn('Missing or zero nested reply submission_datetime:', {
+                  reply_id: reply.submission_id,
+                  raw_datetime: dateValue,
+                  parent_id: row.submission_id
+                });
+              }
+              
+              return {
+                ...reply,
+                submission_datetime: parsedDate
+              };
+            })
+          : []
+      };
+    });
 
     return {
       data: {
@@ -756,4 +860,143 @@ export async function getSubmissionsWithReplies({
     pageSize,
     includeThreadReplies
   });
+}
+
+/**
+ * Get a single submission by ID with all its replies
+ * Used for refreshing individual posts
+ */
+export async function getSubmissionById(
+  submissionId: number
+): Promise<{ data?: SubmissionWithReplies; error?: string }> {
+  try {
+    // Get the main submission
+    const mainQuery = `
+      SELECT 
+        s.submission_id,
+        s.submission_name,
+        s.submission_title,
+        s.submission_url,
+        s.submission_datetime,
+        s.user_id,
+        s.tags,
+        s.thread_parent_id,
+        u.name as author,
+        u.bio as author_bio,
+        (
+          SELECT COUNT(*)::int
+          FROM submissions replies
+          WHERE replies.thread_parent_id = s.submission_id
+        ) as reply_count,
+        (
+          SELECT json_agg(
+            json_build_object(
+              'submission_id', r.submission_id,
+              'submission_name', r.submission_name,
+              'submission_title', r.submission_title,
+              'submission_datetime', r.submission_datetime,
+              'user_id', r.user_id,
+              'author', ru.name,
+              'author_bio', ru.bio,
+              'tags', r.tags,
+              'thread_parent_id', r.thread_parent_id
+            )
+            ORDER BY r.submission_datetime ASC
+          )
+          FROM submissions r
+          JOIN users ru ON r.user_id = ru.id
+          WHERE r.thread_parent_id = s.submission_id
+        ) as replies
+      FROM submissions s
+      JOIN users u ON s.user_id = u.id
+      WHERE s.submission_id = $1
+    `;
+
+    const result = await sql.unsafe(mainQuery, [submissionId]);
+
+    if (result.length === 0) {
+      return { error: 'Submission not found' };
+    }
+
+    const row = result[0];
+
+    // Process the result with the same logic as getSubmissionsAction
+    let mainDate: Date | null = null;
+    
+    try {
+      const d = new Date(row.submission_datetime);
+      if (!isNaN(d.getTime()) && d.getTime() > 0) {
+        mainDate = d;
+      } else {
+        console.error('Invalid submission_datetime (invalid date):', {
+          submission_id: row.submission_id,
+          raw_datetime: row.submission_datetime,
+          parsed_time: d.getTime()
+        });
+      }
+    } catch (error) {
+      console.error('Invalid submission_datetime (parse error):', {
+        submission_id: row.submission_id,
+        raw_datetime: row.submission_datetime,
+        error: error instanceof Error ? error.message : String(error)
+      });
+    }
+
+    const processedSubmission: SubmissionWithReplies = {
+      submission_id: row.submission_id,
+      submission_name: row.submission_name,
+      submission_title: row.submission_title,
+      submission_datetime: mainDate,
+      user_id: row.user_id,
+      author: row.author,
+      author_bio: row.author_bio,
+      tags: row.tags || [],
+      thread_parent_id: row.thread_parent_id,
+      replies: Array.isArray(row.replies)
+        ? row.replies.map((reply: any) => {
+            let dateValue = reply.submission_datetime;
+            let parsedDate: Date | null = null;
+            
+            if (dateValue && dateValue !== 0 && dateValue !== '0') {
+              try {
+                const d = new Date(dateValue);
+                if (!isNaN(d.getTime()) && d.getTime() > 0) {
+                  parsedDate = d;
+                } else {
+                  console.error('Invalid reply submission_datetime (invalid date):', {
+                    reply_id: reply.submission_id,
+                    raw_datetime: dateValue,
+                    parsed_time: d.getTime(),
+                    parent_id: row.submission_id
+                  });
+                }
+              } catch (error) {
+                console.error('Invalid reply submission_datetime (parse error):', {
+                  reply_id: reply.submission_id,
+                  raw_datetime: dateValue,
+                  error: error instanceof Error ? error.message : String(error),
+                  parent_id: row.submission_id
+                });
+              }
+            } else {
+              console.warn('Missing or zero reply submission_datetime:', {
+                reply_id: reply.submission_id,
+                raw_datetime: dateValue,
+                parent_id: row.submission_id
+              });
+            }
+            
+            return {
+              ...reply,
+              submission_datetime: parsedDate
+            };
+          })
+        : []
+    };
+
+    return { data: processedSubmission };
+  } catch (error) {
+    console.error('getSubmissionById error:', error);
+    return { error: 'Failed to fetch submission' };
+  }
 }

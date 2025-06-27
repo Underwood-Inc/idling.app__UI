@@ -11,6 +11,7 @@ This document outlines the coding standards, development practices, and quality 
 ## 🎯 Overview
 
 Our project standards are designed to:
+
 - **Maintain consistency** across all code contributions
 - **Ensure high quality** through proven best practices
 - **Enable collaboration** with clear, readable code
@@ -22,6 +23,7 @@ Our project standards are designed to:
 ### TypeScript Guidelines
 
 **Interface and Type Definitions**
+
 ```typescript
 // ✅ Good - Always define interfaces/types separately
 interface UserProfile {
@@ -47,6 +49,7 @@ export async function getUserProfile(id: string): Promise<{
 ```
 
 **Error Handling**
+
 ```typescript
 // ✅ Good - Proper error handling with types
 interface ApiError {
@@ -58,7 +61,7 @@ interface ApiError {
 export async function fetchUserData(id: string): Promise<UserProfile> {
   try {
     const response = await fetch(`/api/users/${id}`);
-    
+
     if (!response.ok) {
       throw new ApiError({
         message: 'Failed to fetch user data',
@@ -66,7 +69,7 @@ export async function fetchUserData(id: string): Promise<UserProfile> {
         statusCode: response.status
       });
     }
-    
+
     return await response.json();
   } catch (error) {
     console.error('User fetch error:', error);
@@ -82,6 +85,7 @@ export async function fetchUserData(id: string) {
 ```
 
 **Function Documentation**
+
 ```typescript
 // ✅ Good - Clear JSDoc comments
 /**
@@ -98,6 +102,7 @@ export async function getUserProfile(userId: string): Promise<UserProfile> {
 ### React Component Standards
 
 **Component Structure**
+
 ```typescript
 // ✅ Good - Consistent component structure
 interface UserCardProps {
@@ -106,10 +111,10 @@ interface UserCardProps {
   onUserClick?: (userId: string) => void;
 }
 
-export default function UserCard({ 
-  user, 
-  showEmail = false, 
-  onUserClick 
+export default function UserCard({
+  user,
+  showEmail = false,
+  onUserClick
 }: UserCardProps) {
   const handleClick = () => {
     onUserClick?.(user.id);
@@ -125,6 +130,7 @@ export default function UserCard({
 ```
 
 **Hooks Usage**
+
 ```typescript
 // ✅ Good - Custom hooks for reusable logic
 interface UseUserDataReturn {
@@ -163,6 +169,7 @@ export function useUserData(userId: string): UseUserDataReturn {
 ### CSS and Styling Standards
 
 **CSS Modules**
+
 ```css
 /* ✅ Good - Descriptive class names with BEM-like structure */
 .userCard {
@@ -201,6 +208,7 @@ export function useUserData(userId: string): UseUserDataReturn {
 ```
 
 **CSS Variables Usage**
+
 ```css
 /* ✅ Good - Use CSS custom properties for consistency */
 .button {
@@ -231,6 +239,7 @@ export function useUserData(userId: string): UseUserDataReturn {
 ## 🧪 Testing Standards
 
 ### Test Structure
+
 ```typescript
 // ✅ Good - Descriptive test structure
 describe('UserProfile Component', () => {
@@ -266,7 +275,7 @@ describe('UserProfile Component', () => {
     it('should call onUserClick with correct user ID', () => {
       const mockOnClick = jest.fn();
       render(<UserProfile user={mockUser} onUserClick={mockOnClick} />);
-      
+
       fireEvent.click(screen.getByRole('button'));
       expect(mockOnClick).toHaveBeenCalledWith('user-123');
     });
@@ -275,6 +284,7 @@ describe('UserProfile Component', () => {
 ```
 
 ### E2E Testing Standards
+
 ```typescript
 // ✅ Good - Page Object Model pattern
 class UserProfilePage {
@@ -306,7 +316,7 @@ test.describe('User Profile Page', () => {
 
   test('should display user information correctly', async () => {
     await userProfilePage.navigateToProfile('test-user-id');
-    
+
     const username = await userProfilePage.getUsernameText();
     expect(username).toBe('testuser');
   });
@@ -316,31 +326,37 @@ test.describe('User Profile Page', () => {
 ## 🔍 Code Review Standards
 
 ### Review Checklist
+
 **Functionality**
+
 - [ ] Code works as intended
 - [ ] Edge cases are handled
 - [ ] Error handling is appropriate
 - [ ] Performance considerations addressed
 
 **Code Quality**
+
 - [ ] Follows TypeScript/React best practices
 - [ ] Consistent naming conventions
 - [ ] Appropriate comments and documentation
 - [ ] No code duplication
 
 **Testing**
+
 - [ ] Unit tests cover new functionality
 - [ ] E2E tests for user-facing features
 - [ ] Tests are meaningful and maintainable
 - [ ] Test coverage is adequate
 
 **Security**
+
 - [ ] Input validation is present
 - [ ] No sensitive data exposed
 - [ ] Authentication/authorization handled
 - [ ] SQL injection prevention
 
 ### Review Process
+
 1. **Self-Review** - Review your own code before requesting review
 2. **Automated Checks** - Ensure CI/CD passes (tests, linting, type checking)
 3. **Peer Review** - At least one team member reviews the code
@@ -350,20 +366,21 @@ test.describe('User Profile Page', () => {
 ## 📝 Documentation Standards
 
 ### Code Documentation
-```typescript
+
+````typescript
 // ✅ Good - Comprehensive function documentation
 /**
  * Processes user upload and validates file constraints
- * 
+ *
  * @param file - The file to be uploaded
  * @param options - Upload configuration options
  * @param options.maxSize - Maximum file size in bytes (default: 5MB)
  * @param options.allowedTypes - Array of allowed MIME types
  * @returns Promise resolving to upload result with file URL and metadata
- * 
+ *
  * @throws {ValidationError} When file doesn't meet size or type constraints
  * @throws {UploadError} When upload to storage service fails
- * 
+ *
  * @example
  * ```typescript
  * const result = await processUpload(file, {
@@ -379,10 +396,12 @@ export async function processUpload(
 ): Promise<UploadResult> {
   // Implementation
 }
-```
+````
 
 ### README Standards
+
 Each major component/feature should have clear documentation:
+
 - **Purpose** - What the component/feature does
 - **Usage** - How to use it with examples
 - **Configuration** - Available options and settings
@@ -392,46 +411,57 @@ Each major component/feature should have clear documentation:
 ## 🔐 Security Standards
 
 ### Input Validation
+
 ```typescript
 // ✅ Good - Comprehensive input validation
 import { z } from 'zod';
 
 const CreateUserSchema = z.object({
-  username: z.string()
+  username: z
+    .string()
     .min(3, 'Username must be at least 3 characters')
     .max(20, 'Username must be less than 20 characters')
-    .regex(/^[a-zA-Z0-9_]+$/, 'Username can only contain letters, numbers, and underscores'),
-  email: z.string()
+    .regex(
+      /^[a-zA-Z0-9_]+$/,
+      'Username can only contain letters, numbers, and underscores'
+    ),
+  email: z
+    .string()
     .email('Invalid email format')
     .max(100, 'Email must be less than 100 characters'),
-  password: z.string()
+  password: z
+    .string()
     .min(8, 'Password must be at least 8 characters')
-    .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/, 'Password must contain uppercase, lowercase, and number')
+    .regex(
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
+      'Password must contain uppercase, lowercase, and number'
+    )
 });
 
 export async function createUser(data: unknown) {
   // Validate input
   const validatedData = CreateUserSchema.parse(data);
-  
+
   // Process with validated data
   return await userService.create(validatedData);
 }
 ```
 
 ### Authentication & Authorization
+
 ```typescript
 // ✅ Good - Proper auth checking
 export async function getProtectedData(request: Request) {
   const session = await getSession(request);
-  
+
   if (!session?.user) {
     throw new AuthenticationError('User not authenticated');
   }
-  
+
   if (!hasPermission(session.user, 'READ_PROTECTED_DATA')) {
     throw new AuthorizationError('Insufficient permissions');
   }
-  
+
   return await fetchProtectedData(session.user.id);
 }
 ```
@@ -439,18 +469,23 @@ export async function getProtectedData(request: Request) {
 ## ♿ Accessibility Standards
 
 ### Semantic HTML
+
 ```tsx
 // ✅ Good - Semantic, accessible markup
 export function UserCard({ user, onEdit }: UserCardProps) {
   return (
-    <article className="user-card" role="article" aria-labelledby={`user-${user.id}-name`}>
+    <article
+      className="user-card"
+      role="article"
+      aria-labelledby={`user-${user.id}-name`}
+    >
       <header>
         <h3 id={`user-${user.id}-name`}>{user.username}</h3>
         <p className="user-card__meta">
           Member since {formatDate(user.createdAt)}
         </p>
       </header>
-      
+
       <div className="user-card__actions">
         <button
           type="button"
@@ -477,6 +512,7 @@ export function UserCard({ user, onEdit }: UserCardProps) {
 ```
 
 ### ARIA Labels and Roles
+
 ```tsx
 // ✅ Good - Proper ARIA usage
 <nav role="navigation" aria-label="Main navigation">
@@ -512,6 +548,7 @@ export function UserCard({ user, onEdit }: UserCardProps) {
 ## 📊 Performance Standards
 
 ### Code Splitting
+
 ```typescript
 // ✅ Good - Lazy loading for large components
 const AdminDashboard = lazy(() => import('./AdminDashboard'));
@@ -532,6 +569,7 @@ export function App() {
 ```
 
 ### Database Queries
+
 ```typescript
 // ✅ Good - Optimized database queries
 export async function getUsersWithPosts(limit: number = 10) {
@@ -545,17 +583,17 @@ export async function getUsersWithPosts(limit: number = 10) {
         select: {
           id: true,
           title: true,
-          createdAt: true,
+          createdAt: true
         },
         orderBy: {
-          createdAt: 'desc',
+          createdAt: 'desc'
         },
-        take: 5, // Limit posts per user
-      },
+        take: 5 // Limit posts per user
+      }
     },
     orderBy: {
-      createdAt: 'desc',
-    },
+      createdAt: 'desc'
+    }
   });
 }
 
@@ -563,8 +601,8 @@ export async function getUsersWithPosts(limit: number = 10) {
 export async function getUsersWithPosts() {
   const users = await prisma.user.findMany({
     include: {
-      posts: true, // Includes all fields and all posts
-    },
+      posts: true // Includes all fields and all posts
+    }
   });
   return users;
 }
@@ -573,6 +611,7 @@ export async function getUsersWithPosts() {
 ## 🚀 Deployment Standards
 
 ### Environment Configuration
+
 ```bash
 # ✅ Good - Clear environment variable documentation
 # Database Configuration
@@ -593,16 +632,17 @@ CACHE_TTL=3600  # 1 hour in seconds
 ```
 
 ### Build Optimization
+
 ```javascript
 // next.config.js - ✅ Good production configuration
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   experimental: {
-    optimizeCss: true,
+    optimizeCss: true
   },
   images: {
     domains: ['cdn.idling.app'],
-    formats: ['image/webp', 'image/avif'],
+    formats: ['image/webp', 'image/avif']
   },
   compress: true,
   poweredByHeader: false,
@@ -612,7 +652,7 @@ const nextConfig = {
       config.optimization.splitChunks.chunks = 'all';
     }
     return config;
-  },
+  }
 };
 
 module.exports = nextConfig;
@@ -621,6 +661,7 @@ module.exports = nextConfig;
 ## 📋 Commit Standards
 
 ### Commit Message Format
+
 ```bash
 # ✅ Good - Conventional commit format
 feat(auth): add OAuth2 integration with Google
@@ -639,6 +680,7 @@ wip
 ```
 
 ### Commit Guidelines
+
 - **Use conventional commits** for clear history
 - **Keep commits atomic** - one logical change per commit
 - **Write descriptive messages** explaining what and why
@@ -648,6 +690,7 @@ wip
 ## 🎯 Quality Metrics
 
 ### Code Quality Targets
+
 - **Test Coverage**: > 80% for critical components
 - **TypeScript Coverage**: > 95% of codebase
 - **ESLint Compliance**: 100% (no warnings or errors)
@@ -655,6 +698,7 @@ wip
 - **Accessibility**: WCAG 2.1 AA compliance
 
 ### Monitoring Standards
+
 - **Error Rate**: < 1% of requests
 - **Response Time**: < 200ms for API endpoints
 - **Uptime**: > 99.9% monthly
@@ -664,13 +708,15 @@ wip
 ## 📞 Getting Help
 
 ### When You Need Support
-- **Code Standards Questions**: Ask in Discord #development channel
+
+- **Code Standards Questions**: Ask in GitHub discussions
 - **Review Process**: Tag maintainers for complex reviews
 - **Best Practices**: Check existing code for patterns
 - **Performance Issues**: Consult performance optimization guides
 - **Security Concerns**: Contact maintainers privately
 
 ### Resources
+
 - **ESLint Configuration**: Automated code style checking
 - **Prettier Configuration**: Automated code formatting
 - **TypeScript Config**: Strict type checking enabled
@@ -684,8 +730,8 @@ wip
 - **[Development Setup](../development/getting-started)** - Set up your development environment
 - **[Testing Guide](../development/testing)** - Comprehensive testing strategies
 - **[Commit Guidelines](./commits)** - Git commit standards and practices
-- **[Discord Community](./discord)** - Join our development community
+- **[GitHub Discussions](https://github.com/Underwood-Inc/idling.app__UI/discussions)** - Join our development community
 
 ---
 
-*These standards ensure that idling.app maintains high quality, consistency, and maintainability as it grows. Every contribution following these guidelines makes the project better for everyone.* 
+_These standards ensure that idling.app maintains high quality, consistency, and maintainability as it grows. Every contribution following these guidelines makes the project better for everyone._

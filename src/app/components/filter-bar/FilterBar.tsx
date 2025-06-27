@@ -68,6 +68,20 @@ export default function FilterBar({
   ].filter(Boolean).length;
   const hasMultipleFilterTypes = filterTypeCount > 1;
 
+  // Check if there are any actual content filters (not logic filters) with values
+  const hasContentFilters = safeFilters.some((filter) => {
+    // Only count non-logic filters that have actual values
+    const isLogicFilter = [
+      'tagLogic',
+      'authorLogic',
+      'mentionsLogic',
+      'searchLogic',
+      'globalLogic'
+    ].includes(filter.name);
+
+    return !isLogicFilter && filter.value && filter.value.trim() !== '';
+  });
+
   // Auto-switch global logic to OR when there's only one filter type
   // This prevents the confusing state where global=ALL but there's only one group
   const effectiveGlobalLogic = hasMultipleFilterTypes ? globalLogic : 'OR';
@@ -319,7 +333,7 @@ export default function FilterBar({
             );
           })}
 
-        {safeFilters.length > 0 && (
+        {hasContentFilters && (
           <button
             className="filter-bar__clear-all-button-compact"
             onClick={handleClearFilters}

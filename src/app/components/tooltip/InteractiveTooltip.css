@@ -90,3 +90,25 @@
     touch-action: manipulation;
   }
 }
+
+/* Portal Tooltip Styles */
+.portal-tooltip {
+  /* Apply protected tooltip glass effect */
+  backdrop-filter: var(--tooltip-glass-blur) !important;
+  -webkit-backdrop-filter: var(--tooltip-glass-blur) !important;
+  background: var(--tooltip-glass-bg) !important;
+  border: 1px solid var(--tooltip-glass-border) !important;
+  box-shadow: var(--tooltip-glass-shadow) !important;
+  border-radius: var(--border-radius);
+  font-family: inherit;
+  user-select: none;
+  color: white;
+}
+
+.portal-tooltip--wide {
+  min-width: 320px;
+}
+
+.portal-tooltip--narrow {
+  min-width: 200px;
+}

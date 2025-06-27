@@ -1,23 +1,31 @@
 <header class="site-header" role="banner">
-
   <div class="wrapper">
-    {%- assign default_paths = site.pages | map: "path" -%}
-    {%- assign page_paths = site.header_pages | default: default_paths -%}
-    
     <div class="site-header-content">
-      <a class="site-title" rel="author" href="{{ "/" | relative_url }}">
-        {{ site.title | escape }}
-      </a>
-      
-      <div class="site-description">
-        {{ site.description | escape }}
+      <div class="site-branding">
+        <a class="site-title" rel="author" href="{{ "/" | relative_url }}">
+          {{ site.title | escape }}
+        </a>
+        <div class="site-description project-badges">
+          <img src="https://img.shields.io/badge/React-19.0.0--alpha-61DAFB?style=flat&logo=react&logoColor=white" alt="React Version" />
+          <a href="https://sonarcloud.io/summary/new_code?id=Underwood-Inc_idling.app__UI" target="_blank" rel="noopener">
+            <img src="https://sonarcloud.io/api/project_badges/measure?project=Underwood-Inc_idling.app__UI&metric=alert_status" alt="Quality Gate Status" />
+          </a>
+          <a href="https://sonarcloud.io/summary/new_code?id=Underwood-Inc_idling.app__UI" target="_blank" rel="noopener">
+            <img src="https://sonarcloud.io/api/project_badges/measure?project=Underwood-Inc_idling.app__UI&metric=bugs" alt="Bugs" />
+          </a>
+          <a href="https://sonarcloud.io/summary/new_code?id=Underwood-Inc_idling.app__UI" target="_blank" rel="noopener">
+            <img src="https://sonarcloud.io/api/project_badges/measure?project=Underwood-Inc_idling.app__UI&metric=code_smells" alt="Code Smells" />
+          </a>
+          <a href="https://sonarcloud.io/summary/new_code?id=Underwood-Inc_idling.app__UI" target="_blank" rel="noopener">
+            <img src="https://sonarcloud.io/api/project_badges/measure?project=Underwood-Inc_idling.app__UI&metric=coverage" alt="Coverage" />
+          </a>
+        </div>
       </div>
-    </div>
 
-    {%- if site.navigation -%}
+      {%- if site.navigation -%}
       <nav class="site-nav">
         <input type="checkbox" id="nav-trigger" class="nav-trigger" />
-        <label for="nav-trigger">
+        <label for="nav-trigger" class="nav-trigger-label">
           <span class="menu-icon">
             <svg viewBox="0 0 18 15" width="18px" height="15px">
               <path d="m18,1.484c0,0.82-0.665,1.484-1.484,1.484h-15.032c-0.819,0-1.484-0.665-1.484-1.484s0.665-1.484,1.484-1.484h15.032c0.819,0,1.484,0.665,1.484,1.484zm0,6.016c0,0.82-0.665,1.484-1.484,1.484h-15.032c-0.819,0-1.484-0.665-1.484-1.484s0.665-1.484,1.484-1.484h15.032c0.819,0,1.484,0.665,1.484,1.484zm0,6.016c0,0.82-0.665,1.484-1.484,1.484h-15.032c-0.819,0-1.484-0.665-1.484-1.484s0.665-1.484,1.484-1.484h15.032c0.819,0,1.484,0.665,1.484,1.484z"/>
@@ -27,11 +35,165 @@
 
         <div class="trigger">
           {%- for nav_item in site.navigation -%}
-            <a class="page-link" href="{{ nav_item.url | relative_url }}">{{ nav_item.title | escape }}</a>
+            <a class="page-link" href="{{ nav_item.url | relative_url }}"
+               {% if page.url == nav_item.url or (nav_item.url != "/" and page.url contains nav_item.url) %}aria-current="page"{% endif %}>
+              {{ nav_item.title | escape }}
+            </a>
           {%- endfor -%}
+          
+          <!-- External Links -->
+          <a class="page-link page-link--external" href="https://github.com/Underwood-Inc/idling.app__UI" target="_blank" rel="noopener">
+            GitHub
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M14,3V5H17.59L7.76,14.83L9.17,16.24L19,6.41V10H21V3M19,19H5V5H12V3H5C3.89,3 3,3.9 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V12H19V19Z"/>
+            </svg>
+          </a>
+          <a class="page-link page-link--external" href="https://github.com/Underwood-Inc/idling.app__UI/discussions" target="_blank" rel="noopener">
+            Discussions
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M14,3V5H17.59L7.76,14.83L9.17,16.24L19,6.41V10H21V3M19,19H5V5H12V3H5C3.89,3 3,3.9 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V12H19V19Z"/>
+            </svg>
+          </a>
         </div>
       </nav>
-    {%- endif -%}
+      {%- endif -%}
+    </div>
   </div>
+  
+  <!-- Sticky Search Bar -->
+  <div class="search-header">
+    <div class="wrapper">
+      <div class="search-container">
+        <div class="search-box">
+          <input type="text" id="search-input" placeholder="Search documentation..." autocomplete="off">
+          <div class="search-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+            </svg>
+          </div>
+        </div>
+        <div id="search-results" class="search-results"></div>
+        
+        <!-- Mobile Navigation -->
+        <div class="mobile-nav">
+          <input type="checkbox" id="mobile-nav-trigger" class="nav-trigger" />
+          <label for="mobile-nav-trigger" class="nav-trigger-label">
+            <span class="menu-icon">
+              <svg viewBox="0 0 18 15" width="18px" height="15px">
+                <path d="m18,1.484c0,0.82-0.665,1.484-1.484,1.484h-15.032c-0.819,0-1.484-0.665-1.484-1.484s0.665-1.484,1.484-1.484h15.032c0.819,0,1.484,0.665,1.484,1.484zm0,6.016c0,0.82-0.665,1.484-1.484,1.484h-15.032c-0.819,0-1.484-0.665-1.484-1.484s0.665-1.484,1.484-1.484h15.032c0.819,0,1.484,0.665,1.484,1.484zm0,6.016c0,0.82-0.665,1.484-1.484,1.484h-15.032c-0.819,0-1.484-0.665-1.484-1.484s0.665-1.484,1.484-1.484h15.032c0.819,0,1.484,0.665,1.484,1.484z"/>
+              </svg>
+            </span>
+          </label>
+          
+          <div class="mobile-trigger">
+            {%- for nav_item in site.navigation -%}
+              <a class="page-link" href="{{ nav_item.url | relative_url }}"
+                 {% if page.url == nav_item.url or (nav_item.url != "/" and page.url contains nav_item.url) %}aria-current="page"{% endif %}>
+                {{ nav_item.title | escape }}
+              </a>
+            {%- endfor -%}
+            
+            <!-- External Links -->
+            <a class="page-link page-link--external" href="https://github.com/Underwood-Inc/idling.app__UI" target="_blank" rel="noopener">
+              GitHub
+            </a>
+            <a class="page-link page-link--external" href="https://github.com/Underwood-Inc/idling.app__UI/discussions" target="_blank" rel="noopener">
+              Discussions
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
 
-</header> 
+<script>
+// Search functionality
+document.addEventListener('DOMContentLoaded', function() {
+  const searchInput = document.getElementById('search-input');
+  const searchResults = document.getElementById('search-results');
+  let searchIndex;
+  let searchData;
+
+  // Initialize search index
+  fetch('{{ "/assets/js/search-data.json" | relative_url }}')
+    .then(response => response.json())
+    .then(data => {
+      searchData = data;
+      searchIndex = lunr(function() {
+        this.ref('id');
+        this.field('title', { boost: 10 });
+        this.field('content');
+        this.field('url');
+        
+        data.forEach(function(doc, index) {
+          doc.id = index;
+          this.add(doc);
+        }, this);
+      });
+    })
+    .catch(error => {
+      console.log('Search index not available');
+    });
+
+  // Search input handler
+  searchInput.addEventListener('input', function() {
+    const query = this.value.trim();
+    
+    if (query.length < 2) {
+      searchResults.style.display = 'none';
+      return;
+    }
+
+    if (!searchIndex) {
+      searchResults.innerHTML = '<div class="search-result-item">Search index loading...</div>';
+      searchResults.style.display = 'block';
+      return;
+    }
+
+    try {
+      const results = searchIndex.search(query);
+      displaySearchResults(results.slice(0, 8)); // Limit to 8 results
+    } catch (error) {
+      console.log('Search error:', error);
+    }
+  });
+
+  // Display search results
+  function displaySearchResults(results) {
+    if (results.length === 0) {
+      searchResults.innerHTML = '<div class="search-result-item search-no-results">No results found</div>';
+    } else {
+      const resultsHTML = results.map(result => {
+        const item = searchData[result.ref];
+        const snippet = item.content.substring(0, 150) + '...';
+        
+        return `
+          <a href="${item.url}" class="search-result-item">
+            <div class="search-result-title">${item.title}</div>
+            <div class="search-result-snippet">${snippet}</div>
+          </a>
+        `;
+      }).join('');
+      
+      searchResults.innerHTML = resultsHTML;
+    }
+    
+    searchResults.style.display = 'block';
+  }
+
+  // Hide search results when clicking outside
+  document.addEventListener('click', function(event) {
+    if (!event.target.closest('.search-container')) {
+      searchResults.style.display = 'none';
+    }
+  });
+
+  // Show results when focusing on search input
+  searchInput.addEventListener('focus', function() {
+    if (this.value.trim().length >= 2 && searchResults.innerHTML.trim()) {
+      searchResults.style.display = 'block';
+    }
+  });
+});
+</script> 

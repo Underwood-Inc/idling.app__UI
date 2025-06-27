@@ -16,10 +16,12 @@ export interface TextSearchInputProps {
   initialValue?: string;
   value?: string; // Controlled value
   onChange?: (value: string) => void; // Controlled change handler
-  // Thread replies toggle
-  showThreadToggle?: boolean;
+  // Combined replies filter
+  showRepliesFilter?: boolean;
   includeThreadReplies?: boolean;
+  onlyReplies?: boolean;
   onToggleThreadReplies?: (checked: boolean) => void;
+  onToggleOnlyReplies?: (checked: boolean) => void;
   isLoading?: boolean;
   // Smart input features
   enableSmartInput?: boolean;
@@ -48,9 +50,11 @@ export const TextSearchInput: React.FC<TextSearchInputProps> = ({
   initialValue = '',
   value,
   onChange,
-  showThreadToggle = false,
+  showRepliesFilter = false,
   includeThreadReplies = false,
+  onlyReplies = false,
   onToggleThreadReplies,
+  onToggleOnlyReplies,
   isLoading = false,
   enableSmartInput = false,
   onMentionClick,
@@ -89,7 +93,7 @@ export const TextSearchInput: React.FC<TextSearchInputProps> = ({
   const containerClass = [
     'text-search-input',
     enableSmartInput && contextId ? 'text-search-input--smart' : '',
-    showThreadToggle ? 'text-search-input--with-thread-toggle' : '',
+    showRepliesFilter ? 'text-search-input--with-replies-filter' : '',
     className
   ]
     .filter(Boolean)
@@ -116,9 +120,11 @@ export const TextSearchInput: React.FC<TextSearchInputProps> = ({
         isLoading={isLoading}
         hasValue={searchInput.hasValue}
         onClear={handleClear}
-        showThreadToggle={Boolean(showThreadToggle)}
+        showRepliesFilter={Boolean(showRepliesFilter)}
         includeThreadReplies={Boolean(includeThreadReplies)}
+        onlyReplies={Boolean(onlyReplies)}
         onToggleThreadReplies={onToggleThreadReplies}
+        onToggleOnlyReplies={onToggleOnlyReplies}
       />
 
       {filterStatus.statusText && Boolean(filterStatus.shouldShowStatus) && (

@@ -98,10 +98,12 @@ export interface SmartTextSearchInputProps {
   placeholder?: string;
   minLength?: number;
   className?: string;
-  // Thread replies toggle
-  showThreadToggle?: boolean;
+  // Combined replies filter
+  showRepliesFilter?: boolean;
   includeThreadReplies?: boolean;
+  onlyReplies?: boolean;
   onToggleThreadReplies?: (checked: boolean) => void;
+  onToggleOnlyReplies?: (checked: boolean) => void;
   isLoading?: boolean;
 }
 
@@ -116,9 +118,11 @@ export const SmartTextSearchInput: React.FC<SmartTextSearchInputProps> = ({
   placeholder = 'Search posts content... (or use @user #tag for filters)',
   minLength = 2,
   className = '',
-  showThreadToggle = false,
+  showRepliesFilter = false,
   includeThreadReplies = false,
+  onlyReplies = false,
   onToggleThreadReplies,
+  onToggleOnlyReplies,
   isLoading = false
 }) => {
   // Read filter state from Jotai
@@ -545,9 +549,11 @@ export const SmartTextSearchInput: React.FC<SmartTextSearchInputProps> = ({
       className={className}
       value={resolvedValue}
       onChange={handleInputChange}
-      showThreadToggle={showThreadToggle}
+      showRepliesFilter={showRepliesFilter}
       includeThreadReplies={includeThreadReplies}
+      onlyReplies={onlyReplies}
       onToggleThreadReplies={onToggleThreadReplies}
+      onToggleOnlyReplies={onToggleOnlyReplies}
       isLoading={isLoading}
       enableSmartInput={true}
       onMentionClick={handleMentionClick}

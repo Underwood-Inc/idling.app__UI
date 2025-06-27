@@ -266,11 +266,7 @@
     font-size: var(--font-size-sm);
   }
 
-  .posts-manager__top-controls--minimal .posts-manager__results-text::before {
-    content: "Posts: ";
-    color: var(--light-bg__text-color--secondary);
-    font-weight: 400;
-  }
+  /* Remove duplicate "Posts:" prefix since it's already in the text */
 
   .posts-manager__top-controls--minimal .posts-manager__new-post-button {
     padding: 0.5rem 0.75rem;
@@ -291,9 +287,7 @@
     display: inline;
   }
 
-  .posts-manager__top-controls--minimal .posts-manager__new-post-button .instant-link__content::after {
-    content: "New";
-  }
+  /* Remove the ::after content that was duplicating "New" text */
 }
 
 /* Hide spacing theme toggle on mobile to save space */
@@ -884,6 +878,33 @@
     border-color: var(--accent-primary, #3b82f6);
     box-shadow: 0 0 0 3px var(--accent-primary-alpha, rgba(59, 130, 246, 0.1));
   }
+}
 
+/* Spacing theme support */
+.spacing-theme-cozy .posts-manager__controls {
+  margin-bottom: var(--current-spacing-lg);
+}
 
+.spacing-theme-compact .posts-manager__controls {
+  margin-bottom: var(--current-spacing);
+}
+
+.spacing-theme-cozy .posts-manager__thread-controls {
+  margin-top: var(--current-spacing);
+  padding: var(--current-spacing);
+}
+
+.spacing-theme-compact .posts-manager__thread-controls {
+  margin-top: var(--current-spacing-sm);
+  padding: var(--current-spacing-sm);
+}
+
+.spacing-theme-cozy .posts-manager__results-count {
+  margin: var(--current-spacing) 0;
+  padding: var(--current-spacing-sm) var(--current-spacing);
+}
+
+.spacing-theme-compact .posts-manager__results-count {
+  margin: var(--current-spacing-sm) 0;
+  padding: var(--current-spacing-xs) var(--current-spacing-sm);
 }

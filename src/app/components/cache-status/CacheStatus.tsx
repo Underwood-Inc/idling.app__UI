@@ -1,12 +1,21 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+import { TimestampWithTooltip } from '../ui/TimestampWithTooltip';
 import './CacheStatus.css';
 
 interface CacheInfo {
   isCached: boolean;
   cacheTimestamp?: Date;
   cacheAge?: string;
+  version?: string;
+  cacheVersion?: string;
+  details?: {
+    serviceWorker: boolean;
+    cacheCount: number;
+    cacheSize: number;
+    localStorageSize: number;
+  };
 }
 
 const formatTimeAgo = (timestamp: Date): string => {
@@ -51,6 +60,7 @@ const formatTimeAgo = (timestamp: Date): string => {
 const CacheStatus: React.FC = () => {
   const [cacheInfo, setCacheInfo] = useState<CacheInfo>({ isCached: false });
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [showDetails, setShowDetails] = useState(false);
 
   const getCacheMetadata = async (url: string) => {
     try {
@@ -102,10 +112,69 @@ const CacheStatus: React.FC = () => {
             }
           }
 
+          // Get additional cache details
+          let cacheCount = 0;
+          let cacheSize = 0;
+          let appVersion = 'unknown';
+          let cacheVersion = 'unknown';
+          let hasServiceWorker = false;
+
+          try {
+            // Check service worker status
+            if ('serviceWorker' in navigator) {
+              const registration =
+                await navigator.serviceWorker.getRegistration();
+              hasServiceWorker = !!registration;
+            }
+
+            // Get cache storage info
+            const cacheNames = await caches.keys();
+            cacheCount = cacheNames.length;
+
+            for (const cacheName of cacheNames) {
+              const cache = await caches.open(cacheName);
+              const requests = await cache.keys();
+              cacheSize += requests.length;
+
+              // Try to get version info from any cached response
+              if (requests.length > 0) {
+                const response = await cache.match(requests[0]);
+                if (response) {
+                  appVersion =
+                    response.headers.get('X-App-Version') || appVersion;
+                  cacheVersion =
+                    response.headers.get('SW-Cache-Version') || cacheVersion;
+                }
+              }
+            }
+          } catch (e) {
+            console.warn('Error getting cache details:', e);
+          }
+
+          // Check localStorage size
+          let localStorageSize = 0;
+          try {
+            for (const key in localStorage) {
+              if (Object.prototype.hasOwnProperty.call(localStorage, key)) {
+                localStorageSize += localStorage[key].length + key.length;
+              }
+            }
+          } catch (e) {
+            console.warn('Error checking localStorage:', e);
+          }
+
           setCacheInfo({
             isCached: true,
             cacheTimestamp: timestamp,
-            cacheAge: formatTimeAgo(timestamp)
+            cacheAge: formatTimeAgo(timestamp),
+            version: appVersion,
+            cacheVersion,
+            details: {
+              serviceWorker: hasServiceWorker,
+              cacheCount,
+              cacheSize,
+              localStorageSize: Math.round(localStorageSize / 1024) // KB
+            }
           });
         } else {
           setCacheInfo({ isCached: false });
@@ -217,6 +286,25 @@ const CacheStatus: React.FC = () => {
     return () => clearInterval(interval);
   }, [cacheInfo.isCached, cacheInfo.cacheTimestamp]);
 
+  const getCacheStatusText = () => {
+    if (!cacheInfo.isCached) return 'Live';
+
+    // If we have cache storage but no specific page cache timestamp, show general cache status
+    if (!cacheInfo.cacheTimestamp) {
+      return 'Cached';
+    }
+
+    // Use the abbreviated timestamp component for compact footer display
+    return (
+      <span
+        style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}
+      >
+        Cached{' '}
+        <TimestampWithTooltip date={cacheInfo.cacheTimestamp} abbreviated />
+      </span>
+    );
+  };
+
   if (!cacheInfo.isCached) {
     return (
       <div className="cache-status">
@@ -233,7 +321,14 @@ const CacheStatus: React.FC = () => {
       <span className="cache-status__indicator cache-status__indicator--cached">
         ●
       </span>
-      <span className="cache-status__text">Cached {cacheInfo.cacheAge}</span>
+      <span
+        className="cache-status__text"
+        onClick={() => setShowDetails(!showDetails)}
+        style={{ cursor: 'pointer' }}
+        title="Click for cache details"
+      >
+        {getCacheStatusText()}
+      </span>
       <button
         className="cache-status__refresh"
         onClick={refreshCache}
@@ -243,6 +338,40 @@ const CacheStatus: React.FC = () => {
       >
         {isRefreshing ? '⟳' : '↻'}
       </button>
+
+      {showDetails && cacheInfo.isCached && (
+        <div className="cache-status__details">
+          <div className="cache-status__detail-item">
+            <strong>Page Cache:</strong>
+            <div>Version: {cacheInfo.version || 'unknown'}</div>
+            <div>Cache Version: {cacheInfo.cacheVersion || 'unknown'}</div>
+            {cacheInfo.cacheTimestamp && (
+              <div>
+                Last cached:{' '}
+                <TimestampWithTooltip date={cacheInfo.cacheTimestamp} />
+              </div>
+            )}
+          </div>
+
+          {cacheInfo.details && (
+            <div className="cache-status__detail-item">
+              <strong>Storage Details:</strong>
+              <div>Cache Count: {cacheInfo.details.cacheCount}</div>
+              <div>Cache Size: {cacheInfo.details.cacheSize} entries</div>
+              <div>LocalStorage: {cacheInfo.details.localStorageSize} KB</div>
+              <div>
+                Service Worker:{' '}
+                {cacheInfo.details.serviceWorker ? '✅ Active' : '❌ Inactive'}
+              </div>
+            </div>
+          )}
+
+          <div className="cache-status__detail-item">
+            <strong>Actions:</strong>
+            <div>↻ Refresh to latest version</div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

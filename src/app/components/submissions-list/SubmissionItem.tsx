@@ -16,8 +16,9 @@ import { TagLink } from '../tag-link/TagLink';
 import { ReplyForm } from '../thread/ReplyForm';
 import { ContentWithPills } from '../ui/ContentWithPills';
 import { InstantLink } from '../ui/InstantLink';
+import { RefreshButton } from '../ui/RefreshButton';
 import { TimestampWithTooltip } from '../ui/TimestampWithTooltip';
-import { SubmissionWithReplies } from './actions';
+import { getSubmissionById, SubmissionWithReplies } from './actions';
 
 // Create component-specific logger
 const logger = createLogger({
@@ -49,6 +50,13 @@ interface SubmissionItemProps {
   currentFilters?: Record<string, any>;
   // Control parent link display
   showParentLinkForFirstLevel?: boolean;
+  // Refresh functionality
+  onRefreshSubmission?: (
+    submissionId: number,
+    refreshedSubmission: SubmissionWithReplies
+  ) => void;
+  // Context for determining button positioning
+  isThreadPage?: boolean;
 }
 
 export function SubmissionItem({
@@ -65,7 +73,9 @@ export function SubmissionItem({
   optimisticRemoveSubmission,
   currentPage,
   currentFilters,
-  showParentLinkForFirstLevel = true
+  showParentLinkForFirstLevel = true,
+  onRefreshSubmission,
+  isThreadPage = false
 }: SubmissionItemProps) {
   const { data: session } = useSession();
 
@@ -189,6 +199,45 @@ export function SubmissionItem({
     }
   };
 
+  const handleRefresh = async () => {
+    try {
+      const result = await getSubmissionById(submission.submission_id);
+
+      if (result.data) {
+        // Collapse replies when refreshing
+        setShowReplies(false);
+        setShowReplyForm(false);
+        setShowNestedReplyForms({});
+
+        // Use optimistic update if available
+        if (onRefreshSubmission) {
+          onRefreshSubmission(submission.submission_id, result.data);
+        } else if (optimisticUpdateSubmission) {
+          // Convert SubmissionWithReplies to Submission type for optimistic update
+          const submissionData: Submission = {
+            submission_id: result.data.submission_id,
+            submission_title: result.data.submission_title,
+            submission_name: result.data.submission_name,
+            submission_datetime: result.data.submission_datetime || new Date(),
+            user_id: result.data.user_id,
+            author: result.data.author,
+            author_bio: result.data.author_bio,
+            tags: result.data.tags,
+            thread_parent_id: result.data.thread_parent_id
+          };
+          optimisticUpdateSubmission(submission.submission_id, submissionData);
+        } else {
+          // Fallback to refresh mechanism
+          onSubmissionUpdate?.();
+        }
+      } else {
+        console.error('Failed to refresh submission:', result.error);
+      }
+    } catch (error) {
+      console.error('Error refreshing submission:', error);
+    }
+  };
+
   const renderTags = (tags: string[]) => {
     if (!tags || tags.length === 0) return null;
 
@@ -211,27 +260,52 @@ export function SubmissionItem({
   const hasOwnerActions = isCurrentUserPost(submission.user_id || 0);
 
   // Check if this is a reply post (has a parent)
-  const isReplyPost = submission.thread_parent_id !== null;
+  const isReplyPost = !!submission.thread_parent_id;
 
   return (
     <div
-      className={`submission__wrapper ${isReply ? 'submission__wrapper--reply' : ''}`}
-      style={{ marginLeft: isReply ? `${depth * 1.5}rem` : 0 }}
+      className={`submission__wrapper${
+        isReplyPost ? ' submission__wrapper--reply' : ''
+      } ${isReply ? 'submission__wrapper--reply-nested' : ''} ${
+        isReplyPost ? 'submission__wrapper--is-reply' : ''
+      }`}
+      style={{
+        marginLeft: isReply ? `${depth * 1.5}rem` : 0,
+        position: 'relative'
+      }}
       data-testid={`submission-item-${submission.submission_id}`}
     >
+      {isReplyPost && (
+        <span
+          className="reply-dot-indicator"
+          title="Reply"
+          aria-label="Reply"
+          style={{
+            position: 'absolute',
+            top: '0.25rem',
+            left: '0.25rem',
+            zIndex: 2
+          }}
+        />
+      )}
       <div
         className={`submission__meta ${!hasOwnerActions ? 'submission__meta--no-actions' : ''}`}
       >
-        <Author
-          authorId={submission.user_id?.toString() || ''}
-          authorName={submission.author}
-          showFullName={true}
-          bio={submission.author_bio}
-        />
-        <TimestampWithTooltip
-          date={submission.submission_datetime}
-          className="submission__datetime"
-        />
+        <div className="submission__meta-left">
+          <Author
+            authorId={submission.user_id?.toString() || ''}
+            authorName={submission.author}
+            showFullName={true}
+            bio={submission.author_bio}
+          />
+        </div>
+
+        <div className="submission__meta-center">
+          <TimestampWithTooltip
+            date={submission.submission_datetime}
+            className="submission__datetime"
+          />
+        </div>
 
         {/* Edit/Delete buttons */}
         <div className="submission__owner-actions">
@@ -334,32 +408,54 @@ export function SubmissionItem({
 
       {/* Action buttons */}
       <div className="submission__actions">
-        {canReply && (
-          <button className="submission__reply-btn" onClick={toggleReplyForm}>
-            {showReplyForm ? 'Cancel' : 'Reply'}
-          </button>
-        )}
+        <div className="submission__actions-left">
+          {canReply && (
+            <button className="submission__reply-btn" onClick={toggleReplyForm}>
+              {showReplyForm ? 'Cancel' : 'Reply'}
+            </button>
+          )}
 
-        {hasReplies && (
-          <button className="submission__expand-btn" onClick={toggleReplies}>
-            {showReplies
-              ? `Hide ${submission.replies!.length} Replies`
-              : `Show ${submission.replies!.length} Replies`}
-          </button>
-        )}
+          {hasReplies && (
+            <button className="submission__expand-btn" onClick={toggleReplies}>
+              {showReplies
+                ? `Hide ${submission.replies!.length} Replies`
+                : `Show ${submission.replies!.length} Replies`}
+            </button>
+          )}
+        </div>
 
-        {/* Thread view link for posts with replies */}
-        {hasReplies && !isReply && (
-          // eslint-disable-next-line custom-rules/enforce-link-target-blank
-          <InstantLink
-            href={buildThreadUrl(submission.submission_id)}
-            className="submission__thread-link"
-            title="View full thread"
-            onClick={handleThreadNavigation}
-          >
-            💬 View Thread
-          </InstantLink>
-        )}
+        <div className="submission__actions-right">
+          {/* Refresh button */}
+          <RefreshButton
+            onRefresh={handleRefresh}
+            className="submission__refresh-btn"
+            title="Refresh post and collapse replies"
+          />
+
+          {/* View Parent button for replies */}
+          {isReplyPost && submission.thread_parent_id && (
+            <InstantLink
+              href={buildThreadUrl(submission.thread_parent_id)}
+              className="submission__parent-link submission__text-link"
+              title="View parent post"
+            >
+              View Parent
+            </InstantLink>
+          )}
+
+          {/* View Thread link for posts with replies */}
+          {hasReplies && !isReply && (
+            // eslint-disable-next-line custom-rules/enforce-link-target-blank
+            <InstantLink
+              href={buildThreadUrl(submission.submission_id)}
+              className="submission__thread-link submission__text-link"
+              title="View full thread"
+              onClick={handleThreadNavigation}
+            >
+              View Thread
+            </InstantLink>
+          )}
+        </div>
       </div>
 
       {/* Reply form */}
@@ -402,23 +498,6 @@ export function SubmissionItem({
                     onSuccess={() => onNestedReplySuccess(reply.submission_id)}
                     replyToAuthor={reply.author}
                   />
-                </div>
-              )}
-
-              {/* Reply to reply button */}
-              {session?.user?.id && depth + 1 < maxDepth && (
-                <div
-                  className="submission__nested-actions"
-                  style={{ marginLeft: `${(depth + 1) * 1.5}rem` }}
-                >
-                  <button
-                    className="submission__nested-reply-btn"
-                    onClick={() => toggleNestedReplyForm(reply.submission_id)}
-                  >
-                    {showNestedReplyForms[reply.submission_id]
-                      ? 'Cancel'
-                      : 'Reply'}
-                  </button>
                 </div>
               )}
             </div>

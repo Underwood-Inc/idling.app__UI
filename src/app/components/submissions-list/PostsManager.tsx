@@ -85,7 +85,7 @@ const PostsManager = React.memo(function PostsManager({
 
   // For my-posts page, always include replies and hide the toggle
   const shouldIncludeReplies = onlyMine || includeThreadReplies;
-  const showThreadToggle = !onlyMine; // Hide toggle for my-posts page
+  const showRepliesFilter = true; // Always show the combined filter
 
   // Memoize the submissions manager call
   const {
@@ -113,6 +113,12 @@ const PostsManager = React.memo(function PostsManager({
     includeThreadReplies: shouldIncludeReplies,
     infiniteScroll: infiniteScrollMode
   });
+
+  // Check if onlyReplies filter is active
+  const onlyRepliesFilter = filters.find(
+    (filter) => filter.name === 'onlyReplies'
+  );
+  const onlyReplies = onlyRepliesFilter?.value === 'true';
 
   // Pagination pre-request for intelligent skeleton loading
   const {
@@ -164,6 +170,18 @@ const PostsManager = React.memo(function PostsManager({
       setIncludeThreadReplies(checked);
     },
     [setIncludeThreadReplies]
+  );
+
+  // Handler for only replies toggle
+  const handleOnlyRepliesToggle = useCallback(
+    (checked: boolean) => {
+      if (checked) {
+        addFilter({ name: 'onlyReplies', value: 'true' });
+      } else {
+        removeFilter('onlyReplies');
+      }
+    },
+    [addFilter, removeFilter]
   );
 
   // Memoize authorization check
@@ -242,9 +260,11 @@ const PostsManager = React.memo(function PostsManager({
           onAddFilters={addFilters}
           onFilterSuccess={handleFilterSuccess}
           onTextSearch={handleTextSearch}
-          showThreadToggle={showThreadToggle}
+          showRepliesFilter={showRepliesFilter}
           includeThreadReplies={includeThreadReplies}
+          onlyReplies={onlyReplies}
           onToggleThreadReplies={handleThreadToggle}
+          onToggleOnlyReplies={handleOnlyRepliesToggle}
           isLoading={isLoading}
         />
 

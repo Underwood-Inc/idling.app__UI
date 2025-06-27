@@ -75,6 +75,7 @@
   border-radius: var(--border-radius);
   border: 1px solid var(--brand-secondary--dark);
   transition: all 0.2s ease-in-out;
+  position: relative;
 }
 
 .profile-page__info-item:hover {
@@ -122,6 +123,26 @@
   font-weight: 600;
   color: var(--brand-primary--dark);
   word-wrap: break-word;
+}
+
+.profile-page__info-link {
+  margin-left: auto;
+  padding: 0.25rem 0.5rem;
+  background: var(--brand-primary);
+  color: white;
+  text-decoration: none;
+  border-radius: var(--border-radius);
+  font-size: var(--font-size-xs);
+  font-weight: 500;
+  transition: all 0.2s ease-in-out;
+  opacity: 0.8;
+}
+
+.profile-page__info-link:hover {
+  opacity: 1;
+  background: var(--brand-primary--dark);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .profile-page__owner-actions {

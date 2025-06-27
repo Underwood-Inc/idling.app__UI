@@ -891,19 +891,19 @@ export const urlSyncAtom = atom(
 
     Object.entries(filterGroups).forEach(([name, values]) => {
       if (name === 'tags' || name === 'author' || name === 'mentions' || name === 'search') {
-        // Strip # prefix from tags for cleaner URLs
         if (name === 'tags') {
-          const cleanValues = values.map((value) =>
-            value
-              .split(',')
-              .map((tag) =>
-                tag.trim().startsWith('#') ? tag.substring(1) : tag
-              )
-              .join(',')
+          const { formatTagsForUrl } = require('../utils/string/tag-utils');
+          const allTags = values.flatMap((value) =>
+            value.split(',').map((tag) => tag.trim())
           );
-          urlParams.set(name, cleanValues.join(','));
+          urlParams.set(name, formatTagsForUrl(allTags));
         } else {
           urlParams.set(name, values.join(','));
+        }
+      } else if (name === 'onlyReplies') {
+        // Handle onlyReplies filter
+        if (values[0] === 'true') {
+          urlParams.set('onlyReplies', 'true');
         }
       } else if (name === 'tagLogic' && filterGroups.tags) {
         urlParams.set('tagLogic', values[0]);
@@ -1019,6 +1019,7 @@ export const filtersFromUrlAtom = atom((get) => {
   const authorParam = urlParams.get('author');
   const mentionsParam = urlParams.get('mentions');
   const searchParam = urlParams.get('search');
+  const onlyRepliesParam = urlParams.get('onlyReplies');
   const tagLogicParam = urlParams.get('tagLogic');
   const authorLogicParam = urlParams.get('authorLogic');
   const mentionsLogicParam = urlParams.get('mentionsLogic');
@@ -1089,6 +1090,16 @@ export const filtersFromUrlAtom = atom((get) => {
       filters.push({
         name: 'search' as PostFilters,
         value: cleanSearch
+      });
+    }
+  }
+
+  if (onlyRepliesParam) {
+    const onlyReplies = onlyRepliesParam.trim().toLowerCase();
+    if (onlyReplies === 'true' || onlyReplies === '1') {
+      filters.push({
+        name: 'onlyReplies' as PostFilters,
+        value: 'true'
       });
     }
   }
@@ -1179,6 +1190,11 @@ export const createAutoUrlSyncAtom = (contextId: string) => {
           urlParams.set(name, formatTagsForUrl(allTags));
         } else {
           urlParams.set(name, values.join(','));
+        }
+      } else if (name === 'onlyReplies') {
+        // Handle onlyReplies filter
+        if (values[0] === 'true') {
+          urlParams.set('onlyReplies', 'true');
         }
       } else if (name === 'tagLogic' && filterGroups.tags) {
         urlParams.set('tagLogic', values[0]);

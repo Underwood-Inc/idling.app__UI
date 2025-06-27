@@ -25,6 +25,7 @@ export type PaginationMode = 'traditional' | 'infinite';
 export type EmojiPanelBehavior = 'close_after_select' | 'stay_open';
 export type FontOption = 'monospace' | 'default';
 export type ProfileVisibility = 'public' | 'private';
+export type AccessibilityFocusMode = 'disabled' | 'enabled';
 
 interface UserPreferencesContextType {
   // Spacing theme
@@ -47,12 +48,17 @@ interface UserPreferencesContextType {
   profileVisibility: ProfileVisibility;
   setProfileVisibility: (visibility: ProfileVisibility) => Promise<void>;
 
+  // Accessibility focus mode
+  accessibilityFocusMode: AccessibilityFocusMode;
+  setAccessibilityFocusMode: (mode: AccessibilityFocusMode) => Promise<void>;
+
   // Loading states
   isUpdatingSpacingTheme: boolean;
   isUpdatingPaginationMode: boolean;
   isUpdatingEmojiPanelBehavior: boolean;
   isUpdatingFontPreference: boolean;
   isUpdatingProfileVisibility: boolean;
+  isUpdatingAccessibilityFocusMode: boolean;
 
   // Error states
   spacingThemeError: string | null;
@@ -60,6 +66,7 @@ interface UserPreferencesContextType {
   emojiPanelBehaviorError: string | null;
   fontPreferenceError: string | null;
   profileVisibilityError: string | null;
+  accessibilityFocusModeError: string | null;
 }
 
 const UserPreferencesContext = createContext<
@@ -79,6 +86,8 @@ export function UserPreferencesProvider({ children }: { children: ReactNode }) {
     useState<FontOption>('default');
   const [profileVisibility, setProfileVisibilityState] =
     useState<ProfileVisibility>('public');
+  const [accessibilityFocusMode, setAccessibilityFocusModeState] =
+    useState<AccessibilityFocusMode>('disabled');
 
   // Loading states
   const [isUpdatingSpacingTheme, setIsUpdatingSpacingTheme] = useState(false);
@@ -90,6 +99,10 @@ export function UserPreferencesProvider({ children }: { children: ReactNode }) {
     useState(false);
   const [isUpdatingProfileVisibility, setIsUpdatingProfileVisibility] =
     useState(false);
+  const [
+    isUpdatingAccessibilityFocusMode,
+    setIsUpdatingAccessibilityFocusMode
+  ] = useState(false);
 
   // Error states
   const [spacingThemeError, setSpacingThemeError] = useState<string | null>(
@@ -107,6 +120,8 @@ export function UserPreferencesProvider({ children }: { children: ReactNode }) {
   const [profileVisibilityError, setProfileVisibilityError] = useState<
     string | null
   >(null);
+  const [accessibilityFocusModeError, setAccessibilityFocusModeError] =
+    useState<string | null>(null);
 
   // Apply font preference to document
   const applyFont = useCallback((font: FontOption) => {
@@ -138,90 +153,149 @@ export function UserPreferencesProvider({ children }: { children: ReactNode }) {
     applyFont(fontPreference);
   }, [fontPreference, applyFont]);
 
-  // Initialize preferences from user profile or localStorage
+  // Apply accessibility focus mode whenever it changes
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const root = document.documentElement;
+    if (accessibilityFocusMode === 'enabled') {
+      root.classList.add('accessibility-focus-enabled');
+    } else {
+      root.classList.remove('accessibility-focus-enabled');
+    }
+
+    logger.debug('Applied accessibility focus mode', {
+      accessibilityFocusMode
+    });
+  }, [accessibilityFocusMode]);
+
+  // Initialize preferences from user profile and localStorage
   useEffect(() => {
     if (status === 'loading') return;
 
+    if (typeof window !== 'undefined') {
+      // Always load from localStorage first for immediate UI update
+      const savedSpacingTheme = localStorage.getItem('spacing-theme-global');
+      const savedPaginationMode = localStorage.getItem(
+        'pagination-mode-global'
+      );
+      const savedEmojiPanelBehavior = localStorage.getItem(
+        'emoji-panel-behavior-global'
+      );
+      const savedFontPreference = localStorage.getItem(
+        'font-preference-global'
+      );
+      const savedAccessibilityFocusMode = localStorage.getItem(
+        'accessibility-focus-mode-global'
+      );
+
+      // Set from localStorage immediately
+      if (savedSpacingTheme === 'cozy' || savedSpacingTheme === 'compact') {
+        setSpacingThemeState(savedSpacingTheme);
+      }
+      if (
+        savedPaginationMode === 'infinite' ||
+        savedPaginationMode === 'traditional'
+      ) {
+        setPaginationModeState(savedPaginationMode);
+      }
+      if (
+        savedEmojiPanelBehavior === 'stay_open' ||
+        savedEmojiPanelBehavior === 'close_after_select'
+      ) {
+        setEmojiPanelBehaviorState(savedEmojiPanelBehavior);
+      }
+      if (
+        savedFontPreference === 'monospace' ||
+        savedFontPreference === 'default'
+      ) {
+        setFontPreferenceState(savedFontPreference);
+      }
+      if (
+        savedAccessibilityFocusMode === 'enabled' ||
+        savedAccessibilityFocusMode === 'disabled'
+      ) {
+        setAccessibilityFocusModeState(savedAccessibilityFocusMode);
+      }
+    }
+
     if (session?.user?.id) {
-      // User is authenticated - use their profile preferences
+      // User is authenticated - sync with their profile preferences if different from localStorage
       const userProfile = session.user as any; // Type assertion for extended user object
 
-      if (userProfile.spacing_theme) {
+      // Check and sync each preference
+      if (
+        userProfile.spacing_theme &&
+        userProfile.spacing_theme !== spacingTheme
+      ) {
         setSpacingThemeState(userProfile.spacing_theme);
+        // Update localStorage to match server
+        if (typeof window !== 'undefined') {
+          localStorage.setItem(
+            'spacing-theme-global',
+            userProfile.spacing_theme
+          );
+        }
       }
 
-      if (userProfile.pagination_mode) {
+      if (
+        userProfile.pagination_mode &&
+        userProfile.pagination_mode !== paginationMode
+      ) {
         setPaginationModeState(userProfile.pagination_mode);
+        // Update localStorage to match server
+        if (typeof window !== 'undefined') {
+          localStorage.setItem(
+            'pagination-mode-global',
+            userProfile.pagination_mode
+          );
+        }
       }
 
-      if (userProfile.emoji_panel_behavior) {
+      if (
+        userProfile.emoji_panel_behavior &&
+        userProfile.emoji_panel_behavior !== emojiPanelBehavior
+      ) {
         setEmojiPanelBehaviorState(userProfile.emoji_panel_behavior);
+        // Update localStorage to match server
+        if (typeof window !== 'undefined') {
+          localStorage.setItem(
+            'emoji-panel-behavior-global',
+            userProfile.emoji_panel_behavior
+          );
+        }
       }
 
-      if (userProfile.font_preference) {
+      if (
+        userProfile.font_preference &&
+        userProfile.font_preference !== fontPreference
+      ) {
         setFontPreferenceState(userProfile.font_preference);
+        // Update localStorage to match server
+        if (typeof window !== 'undefined') {
+          localStorage.setItem(
+            'font-preference-global',
+            userProfile.font_preference
+          );
+        }
       }
 
       if (userProfile.profile_public !== undefined) {
-        setProfileVisibilityState(
-          userProfile.profile_public ? 'public' : 'private'
-        );
+        const serverVisibility = userProfile.profile_public
+          ? 'public'
+          : 'private';
+        setProfileVisibilityState(serverVisibility);
       }
 
-      logger.debug('Loaded user preferences from profile', {
+      logger.debug('Loaded and synced user preferences from profile', {
         userId: session.user.id,
-        spacingTheme: userProfile.spacing_theme || 'cozy',
-        paginationMode: userProfile.pagination_mode || 'traditional',
+        spacingTheme: userProfile.spacing_theme || spacingTheme,
+        paginationMode: userProfile.pagination_mode || paginationMode,
         emojiPanelBehavior:
-          userProfile.emoji_panel_behavior || 'close_after_select',
-        fontPreference: userProfile.font_preference || 'default',
+          userProfile.emoji_panel_behavior || emojiPanelBehavior,
+        fontPreference: userProfile.font_preference || fontPreference,
         profileVisibility: userProfile.profile_public ? 'public' : 'private'
       });
-    } else {
-      // User is not authenticated - use localStorage
-      if (typeof window !== 'undefined') {
-        const savedSpacingTheme = localStorage.getItem('spacing-theme-global');
-        const savedPaginationMode = localStorage.getItem(
-          'pagination-mode-global'
-        );
-
-        if (savedSpacingTheme === 'cozy' || savedSpacingTheme === 'compact') {
-          setSpacingThemeState(savedSpacingTheme);
-        }
-
-        if (savedPaginationMode === 'infinite') {
-          setPaginationModeState('infinite');
-        } else if (savedPaginationMode === 'traditional') {
-          setPaginationModeState('traditional');
-        }
-
-        const savedEmojiPanelBehavior = localStorage.getItem(
-          'emoji-panel-behavior-global'
-        );
-        if (
-          savedEmojiPanelBehavior === 'stay_open' ||
-          savedEmojiPanelBehavior === 'close_after_select'
-        ) {
-          setEmojiPanelBehaviorState(savedEmojiPanelBehavior);
-        }
-
-        const savedFontPreference = localStorage.getItem(
-          'font-preference-global'
-        );
-        if (
-          savedFontPreference === 'monospace' ||
-          savedFontPreference === 'default'
-        ) {
-          setFontPreferenceState(savedFontPreference);
-        }
-
-        logger.debug('Loaded preferences from localStorage', {
-          spacingTheme: savedSpacingTheme || 'cozy',
-          paginationMode: savedPaginationMode || 'traditional',
-          emojiPanelBehavior: savedEmojiPanelBehavior || 'close_after_select',
-          fontPreference: savedFontPreference || 'default'
-        });
-      }
     }
   }, [session, status]);
 
@@ -232,8 +306,31 @@ export function UserPreferencesProvider({ children }: { children: ReactNode }) {
       setSpacingThemeError(null);
 
       try {
+        // Always update localStorage first for immediate UI response
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('spacing-theme-global', newTheme);
+
+          // Clean up old per-route storage
+          const keysToRemove = [];
+          for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            if (key && key.startsWith('spacing-theme-/')) {
+              keysToRemove.push(key);
+            }
+          }
+          keysToRemove.forEach((key) => localStorage.removeItem(key));
+
+          logger.debug('Updated spacing theme in localStorage', {
+            newTheme,
+            cleanedUpKeys: keysToRemove.length
+          });
+        }
+
+        // Update state immediately
+        setSpacingThemeState(newTheme);
+
+        // If authenticated, also update database
         if (session?.user?.id) {
-          // Update in database for authenticated user
           const result = await updateUserPreferencesAction(session.user.id, {
             spacing_theme: newTheme
           });
@@ -246,29 +343,7 @@ export function UserPreferencesProvider({ children }: { children: ReactNode }) {
             userId: session.user.id,
             newTheme
           });
-        } else {
-          // Update in localStorage for anonymous user
-          if (typeof window !== 'undefined') {
-            localStorage.setItem('spacing-theme-global', newTheme);
-
-            // Clean up old per-route storage
-            const keysToRemove = [];
-            for (let i = 0; i < localStorage.length; i++) {
-              const key = localStorage.key(i);
-              if (key && key.startsWith('spacing-theme-/')) {
-                keysToRemove.push(key);
-              }
-            }
-            keysToRemove.forEach((key) => localStorage.removeItem(key));
-
-            logger.debug('Updated spacing theme in localStorage', {
-              newTheme,
-              cleanedUpKeys: keysToRemove.length
-            });
-          }
         }
-
-        setSpacingThemeState(newTheme);
       } catch (error) {
         logger.error('Failed to update spacing theme', error as Error, {
           userId: session?.user?.id,
@@ -293,8 +368,31 @@ export function UserPreferencesProvider({ children }: { children: ReactNode }) {
       setPaginationModeError(null);
 
       try {
+        // Always update localStorage first for immediate UI response
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('pagination-mode-global', newMode);
+
+          // Clean up old per-route storage
+          const keysToRemove = [];
+          for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            if (key && key.startsWith('pagination-mode-/')) {
+              keysToRemove.push(key);
+            }
+          }
+          keysToRemove.forEach((key) => localStorage.removeItem(key));
+
+          logger.debug('Updated pagination mode in localStorage', {
+            newMode,
+            cleanedUpKeys: keysToRemove.length
+          });
+        }
+
+        // Update state immediately
+        setPaginationModeState(newMode);
+
+        // If authenticated, also update database
         if (session?.user?.id) {
-          // Update in database for authenticated user
           const result = await updateUserPreferencesAction(session.user.id, {
             pagination_mode: newMode
           });
@@ -307,29 +405,7 @@ export function UserPreferencesProvider({ children }: { children: ReactNode }) {
             userId: session.user.id,
             newMode
           });
-        } else {
-          // Update in localStorage for anonymous user
-          if (typeof window !== 'undefined') {
-            localStorage.setItem('pagination-mode-global', newMode);
-
-            // Clean up old per-route storage
-            const keysToRemove = [];
-            for (let i = 0; i < localStorage.length; i++) {
-              const key = localStorage.key(i);
-              if (key && key.startsWith('pagination-mode-/')) {
-                keysToRemove.push(key);
-              }
-            }
-            keysToRemove.forEach((key) => localStorage.removeItem(key));
-
-            logger.debug('Updated pagination mode in localStorage', {
-              newMode,
-              cleanedUpKeys: keysToRemove.length
-            });
-          }
         }
-
-        setPaginationModeState(newMode);
       } catch (error) {
         logger.error('Failed to update pagination mode', error as Error, {
           userId: session?.user?.id,
@@ -354,8 +430,20 @@ export function UserPreferencesProvider({ children }: { children: ReactNode }) {
       setEmojiPanelBehaviorError(null);
 
       try {
+        // Always update localStorage first for immediate UI response
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('emoji-panel-behavior-global', newBehavior);
+
+          logger.debug('Updated emoji panel behavior in localStorage', {
+            newBehavior
+          });
+        }
+
+        // Update state immediately
+        setEmojiPanelBehaviorState(newBehavior);
+
+        // If authenticated, also update database
         if (session?.user?.id) {
-          // Update in database for authenticated user
           const result = await updateUserPreferencesAction(session.user.id, {
             emoji_panel_behavior: newBehavior
           });
@@ -370,18 +458,7 @@ export function UserPreferencesProvider({ children }: { children: ReactNode }) {
             userId: session.user.id,
             newBehavior
           });
-        } else {
-          // Update in localStorage for anonymous user
-          if (typeof window !== 'undefined') {
-            localStorage.setItem('emoji-panel-behavior-global', newBehavior);
-
-            logger.debug('Updated emoji panel behavior in localStorage', {
-              newBehavior
-            });
-          }
         }
-
-        setEmojiPanelBehaviorState(newBehavior);
       } catch (error) {
         logger.error('Failed to update emoji panel behavior', error as Error, {
           userId: session?.user?.id,
@@ -406,8 +483,20 @@ export function UserPreferencesProvider({ children }: { children: ReactNode }) {
       setFontPreferenceError(null);
 
       try {
+        // Always update localStorage first for immediate UI response
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('font-preference-global', newFont);
+
+          logger.debug('Updated font preference in localStorage', {
+            newFont
+          });
+        }
+
+        // Update state immediately
+        setFontPreferenceState(newFont);
+
+        // If authenticated, also update database
         if (session?.user?.id) {
-          // Update in database for authenticated user
           const result = await updateUserPreferencesAction(session.user.id, {
             font_preference: newFont
           });
@@ -420,18 +509,7 @@ export function UserPreferencesProvider({ children }: { children: ReactNode }) {
             userId: session.user.id,
             newFont
           });
-        } else {
-          // Update in localStorage for anonymous user
-          if (typeof window !== 'undefined') {
-            localStorage.setItem('font-preference-global', newFont);
-
-            logger.debug('Updated font preference in localStorage', {
-              newFont
-            });
-          }
         }
-
-        setFontPreferenceState(newFont);
       } catch (error) {
         logger.error('Failed to update font preference', error as Error, {
           userId: session?.user?.id,
@@ -492,6 +570,70 @@ export function UserPreferencesProvider({ children }: { children: ReactNode }) {
     [session]
   );
 
+  // Function to update accessibility focus mode
+  const setAccessibilityFocusMode = useCallback(
+    async (newMode: AccessibilityFocusMode) => {
+      setIsUpdatingAccessibilityFocusMode(true);
+      setAccessibilityFocusModeError(null);
+
+      try {
+        if (session?.user?.id) {
+          // TODO: Update database action to support accessibility_focus_mode
+          // For now, just store in localStorage for authenticated users too
+          if (typeof window !== 'undefined') {
+            localStorage.setItem('accessibility-focus-mode-global', newMode);
+          }
+
+          logger.debug(
+            'Updated accessibility focus mode in localStorage (authenticated)',
+            {
+              userId: session.user.id,
+              newMode
+            }
+          );
+        } else {
+          // Update in localStorage for anonymous user
+          if (typeof window !== 'undefined') {
+            localStorage.setItem('accessibility-focus-mode-global', newMode);
+
+            logger.debug('Updated accessibility focus mode in localStorage', {
+              newMode
+            });
+          }
+        }
+
+        setAccessibilityFocusModeState(newMode);
+
+        // Apply accessibility focus mode to document
+        if (typeof window !== 'undefined') {
+          const root = document.documentElement;
+          if (newMode === 'enabled') {
+            root.classList.add('accessibility-focus-enabled');
+          } else {
+            root.classList.remove('accessibility-focus-enabled');
+          }
+        }
+      } catch (error) {
+        logger.error(
+          'Failed to update accessibility focus mode',
+          error as Error,
+          {
+            userId: session?.user?.id,
+            newMode
+          }
+        );
+        setAccessibilityFocusModeError(
+          error instanceof Error
+            ? error.message
+            : 'Failed to update accessibility focus mode'
+        );
+      } finally {
+        setIsUpdatingAccessibilityFocusMode(false);
+      }
+    },
+    [session]
+  );
+
   return (
     <UserPreferencesContext.Provider
       value={{
@@ -505,19 +647,27 @@ export function UserPreferencesProvider({ children }: { children: ReactNode }) {
         setFontPreference,
         profileVisibility,
         setProfileVisibility,
+        accessibilityFocusMode,
+        setAccessibilityFocusMode,
         isUpdatingSpacingTheme,
         isUpdatingPaginationMode,
         isUpdatingEmojiPanelBehavior,
         isUpdatingFontPreference,
         isUpdatingProfileVisibility,
+        isUpdatingAccessibilityFocusMode,
         spacingThemeError,
         paginationModeError,
         emojiPanelBehaviorError,
         fontPreferenceError,
-        profileVisibilityError
+        profileVisibilityError,
+        accessibilityFocusModeError
       }}
     >
-      <div className={`spacing-theme-${spacingTheme}`}>{children}</div>
+      <div
+        className={`spacing-theme-${spacingTheme} ${accessibilityFocusMode === 'enabled' ? 'accessibility-focus-enabled' : ''}`}
+      >
+        {children}
+      </div>
     </UserPreferencesContext.Provider>
   );
 }
@@ -605,5 +755,20 @@ export function useProfileVisibility() {
     setVisibility: setProfileVisibility,
     isUpdating: isUpdatingProfileVisibility,
     error: profileVisibilityError
+  };
+}
+
+export function useAccessibilityFocusMode() {
+  const {
+    accessibilityFocusMode,
+    setAccessibilityFocusMode,
+    isUpdatingAccessibilityFocusMode,
+    accessibilityFocusModeError
+  } = useUserPreferences();
+  return {
+    mode: accessibilityFocusMode,
+    setMode: setAccessibilityFocusMode,
+    isUpdating: isUpdatingAccessibilityFocusMode,
+    error: accessibilityFocusModeError
   };
 }

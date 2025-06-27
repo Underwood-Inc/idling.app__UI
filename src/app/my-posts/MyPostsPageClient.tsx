@@ -96,18 +96,6 @@ export default function MyPostsPageClient({
       <div
         className={`submission__wrapper ${isReplyPost ? styles['submission__wrapper--is-reply'] : ''}`}
       >
-        {/* Reply indicator for posts that are replies */}
-        {isReplyPost && (
-          <div className="submission__meta">
-            <span
-              className={styles['submission__reply-indicator']}
-              title="This is a reply to another post"
-            >
-              💬 Reply to parent post
-            </span>
-          </div>
-        )}
-
         <SubmissionItem
           submission={submission}
           onTagClick={onTagClick}

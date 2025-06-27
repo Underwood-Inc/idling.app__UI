@@ -25,7 +25,7 @@ DOCS/
 │
 ├── deployment/                 # Deployment & Operations
 │   ├── cache-management.md    # Cache management (from CACHE_DISABLING_GUIDE.md)
-│   └── releases.md            # Release notes (from DISCORD_RELEASE_NOTES.md)
+│   └── releases.md            # Release notes and deployment guide
 │
 └── project/                    # Project Management
     ├── commits.md             # Git standards (from COMMITS.README.md)
@@ -36,6 +36,7 @@ DOCS/
 ## ✅ Files Processed and Organized
 
 ### Root Documentation Files Moved:
+
 - ✅ `README.md` → `DOCS/getting-started.md` (enhanced with GitHub Pages front matter)
 - ✅ `MIGRATIONS.README.md` → `DOCS/database/migrations.md`
 - ✅ `DATABASE_OPTIMIZATION_GUIDE.md` → `DOCS/database/optimization.md`
@@ -44,11 +45,12 @@ DOCS/
 - ✅ `PRODUCTION_CACHE_STRATEGY.md` → `DOCS/development/caching.md`
 - ✅ `CI_TESTS.README.md` → `DOCS/development/testing.md`
 - ✅ `CACHE_DISABLING_GUIDE.md` → `DOCS/deployment/cache-management.md`
-- ✅ `DISCORD_RELEASE_NOTES.md` → `DOCS/deployment/releases.md` + `DOCS/project/discord.md`
+- ✅ Release documentation → `DOCS/deployment/releases.md`
 - ✅ `COMMITS.README.md` → `DOCS/project/commits.md`
 - ✅ `RECENT_UPDATES_POST.md` → `DOCS/project/updates.md`
 
 ### New Files Created:
+
 - ✅ `DOCS/index.md` - Main documentation homepage with navigation
 - ✅ `DOCS/_config.yml` - Jekyll configuration for GitHub Pages
 - ✅ `DOCS/README.md` - Documentation structure and usage guide
@@ -57,6 +59,7 @@ DOCS/
 ## 🚀 GitHub Pages Integration
 
 ### Jekyll Configuration (`_config.yml`):
+
 - ✅ **Theme**: `minima` (GitHub Pages compatible)
 - ✅ **Plugins**: SEO, sitemap, feed generation
 - ✅ **Navigation**: Structured menu system
@@ -64,12 +67,14 @@ DOCS/
 - ✅ **Build Settings**: Kramdown markdown, Rouge highlighting
 
 ### GitHub Pages Front Matter:
+
 All documentation files now include proper Jekyll front matter:
+
 ```yaml
 ---
 layout: default
-title: "Page Title"
-description: "SEO-friendly description"
+title: 'Page Title'
+description: 'SEO-friendly description'
 ---
 ```
 
@@ -78,6 +83,7 @@ description: "SEO-friendly description"
 Created comprehensive documentation workflow (`.github/workflows/docs.yml`):
 
 ### Features:
+
 - ✅ **Automatic Deployment**: Triggers on pushes to main/master with DOCS changes
 - ✅ **PR Build Validation**: Tests Jekyll builds on pull requests
 - ✅ **Manual Deployment**: Workflow dispatch for manual triggers
@@ -85,12 +91,14 @@ Created comprehensive documentation workflow (`.github/workflows/docs.yml`):
 - ✅ **PR Comments**: Automatic feedback on documentation changes
 
 ### Leveraged Existing Logic:
+
 - ✅ **Ruby Setup**: Reused pattern from existing workflows
 - ✅ **Checkout Actions**: Used same actions/checkout@v4 as tests.yml
 - ✅ **Permissions**: Followed existing permission patterns
 - ✅ **Concurrency**: Applied same concurrency management approach
 
 ### Jobs Created:
+
 1. **Build Job**: Builds Jekyll site for all triggers
 2. **Deploy Job**: Deploys to GitHub Pages (main/master only)
 3. **Build Check Job**: Validates builds on PRs with detailed feedback
@@ -98,6 +106,7 @@ Created comprehensive documentation workflow (`.github/workflows/docs.yml`):
 ## 📊 Documentation Metrics
 
 ### Content Organized:
+
 - ✅ **15 documentation files** properly organized
 - ✅ **4 main categories** (Database, Development, Deployment, Project)
 - ✅ **12 comprehensive guides** covering all project aspects
@@ -105,6 +114,7 @@ Created comprehensive documentation workflow (`.github/workflows/docs.yml`):
 - ✅ **Cross-linked** for easy navigation
 
 ### GitHub Pages Features:
+
 - ✅ **Mobile responsive** with clean Minima theme
 - ✅ **Search engine friendly** with sitemaps and SEO tags
 - ✅ **RSS feed** for updates
@@ -114,11 +124,13 @@ Created comprehensive documentation workflow (`.github/workflows/docs.yml`):
 ## 🔗 Deployment Information
 
 ### Live Documentation URL:
+
 ```
 https://underwood-inc.github.io/idling.app__UI/
 ```
 
 ### Local Development:
+
 ```bash
 cd DOCS
 bundle install
@@ -127,6 +139,7 @@ bundle exec jekyll serve --baseurl "/idling.app__UI"
 ```
 
 ### Manual Deployment:
+
 ```bash
 gh workflow run docs.yml
 ```
@@ -134,24 +147,28 @@ gh workflow run docs.yml
 ## 🎯 Key Achievements
 
 ### 1. Complete Organization:
+
 - ✅ All scattered README files consolidated
 - ✅ Logical categorization by function
 - ✅ Consistent naming convention
 - ✅ Clear navigation structure
 
 ### 2. GitHub Pages Compatibility:
+
 - ✅ Jekyll configuration optimized
 - ✅ All files have proper front matter
 - ✅ Theme and plugins configured
 - ✅ SEO and social media ready
 
 ### 3. Automated Deployment:
+
 - ✅ GitHub Actions workflow created
 - ✅ Leveraged existing workflow patterns
 - ✅ PR validation and feedback
 - ✅ Automatic deployment on merge
 
 ### 4. Developer Experience:
+
 - ✅ Clear documentation structure
 - ✅ Easy local development setup
 - ✅ Automated build validation
@@ -170,12 +187,14 @@ The documentation system is now ready for:
 ## 📋 Maintenance Notes
 
 ### Adding New Documentation:
+
 1. Create Markdown file in appropriate `DOCS/` subdirectory
 2. Add Jekyll front matter with title and description
 3. Update navigation in `_config.yml` if needed
 4. Commit changes - automatic deployment will handle the rest
 
 ### Updating Existing Documentation:
+
 1. Edit the Markdown file in `DOCS/` directory
 2. Commit changes to feature branch
 3. Create PR - automatic build validation
@@ -193,4 +212,4 @@ Successfully transformed scattered documentation into a professional, automated,
 - ✅ **Maintainable** with clear structure and processes
 - ✅ **Accessible** via GitHub Pages URL
 
-**Live Documentation**: https://underwood-inc.github.io/idling.app__UI/ 
+**Live Documentation**: https://underwood-inc.github.io/idling.app__UI/

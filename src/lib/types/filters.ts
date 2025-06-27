@@ -7,7 +7,8 @@ export type PostFilters =
   | 'mentionsLogic'
   | 'globalLogic'
   | 'search'
-  | 'searchLogic';
+  | 'searchLogic'
+  | 'onlyReplies';
 
 export type FilterLogic = 'AND' | 'OR';
 
