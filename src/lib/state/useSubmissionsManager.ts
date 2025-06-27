@@ -21,7 +21,7 @@ const logger = createLogger({
     component: 'useSubmissionsManager',
     module: 'state'
   },
-  enabled: false
+  enabled: true // Enabled to debug race condition
 });
 
 interface UseSubmissionsManagerProps {
@@ -66,6 +66,8 @@ export function useSubmissionsManager({
   const lastUrlParams = useRef<string>('');
   const isFetching = useRef(false);
   const lastFetchKey = useRef<string>('');
+  const isUpdatingUrl = useRef(false); // Flag to prevent circular URL updates
+  const fetchEffectCount = useRef(0); // Counter to track fetch effect runs
 
   // User ID with session fallback (internal database ID)
   const userId = useMemo(() => {
@@ -103,6 +105,13 @@ export function useSubmissionsManager({
       return;
     }
 
+    // Skip if already fetching the same request
+    if (isFetching.current && lastFetchKey.current === fetchKey) {
+      logger.debug('Already fetching this request');
+      logger.groupEnd();
+      return;
+    }
+
     lastFetchKey.current = fetchKey;
     isFetching.current = true;
 
@@ -112,11 +121,8 @@ export function useSubmissionsManager({
       pageSize: filtersState.pageSize
     });
 
-    setSubmissionsState((prev) => ({
-      ...prev,
-      loading: true,
-      error: undefined
-    }));
+    // Loading state is now set by the useEffect, not here
+    // This prevents double loading state updates
 
     try {
       const result = await getSubmissionsWithReplies({
@@ -186,134 +192,38 @@ export function useSubmissionsManager({
   ]);
 
   // Initialize from URL once
+  // Initialize filters from URL ONCE on mount only
   useEffect(() => {
-    const currentUrlParams = searchParams.toString();
-
-    if (lastUrlParams.current === currentUrlParams && isInitialized.current) {
+    if (filtersState.initialized) {
       return;
     }
 
-    lastUrlParams.current = currentUrlParams;
-
-    // Check if filters are already initialized from localStorage
-    // If they are, don't override them with URL params unless URL has actual filter params
-    const hasUrlFilters =
-      searchParams.has('tags') ||
-      searchParams.has('author') ||
-      searchParams.has('mentions') ||
-      searchParams.has('search');
-
-    // If filters are already initialized and URL doesn't have filter params, skip URL initialization
-    if (filtersState.initialized && !hasUrlFilters) {
-      logger.group('initializeFromURL');
-      logger.debug('Filters already initialized, skipping URL initialization', {
-        hasUrlFilters,
-        filtersCount: filtersState.filters.length
-      });
-      logger.groupEnd();
-      return;
-    }
-
-    // Parse URL parameters into filters
+    // Parse URL parameters into filters (one-time only)
     const urlFilters: Filter<PostFilters>[] = [];
 
-    // Tags filter
+    // Parse tags - create separate filters for each tag
     const tagsParam = searchParams.get('tags');
     if (tagsParam) {
       const tags = tagsParam.split(',').filter(Boolean);
-      if (tags.length > 0) {
-        urlFilters.push({
-          name: 'tags',
-          value: tags.join(',') // Convert array back to comma-separated string
-        });
-      }
+      tags.forEach(tag => {
+        urlFilters.push({ name: 'tags', value: tag.trim() });
+      });
     }
 
-    // Author filter
+    // Parse other filters
     const authorParam = searchParams.get('author');
-    if (authorParam) {
-      urlFilters.push({
-        name: 'author',
-        value: authorParam
-      });
-    }
-
-    // Mentions filter
-    const mentionsParam = searchParams.get('mentions');
-    if (mentionsParam) {
-      urlFilters.push({
-        name: 'mentions',
-        value: mentionsParam
-      });
-    }
-
-    // Search filter
-    const searchParam = searchParams.get('search');
-    if (searchParam) {
-      urlFilters.push({
-        name: 'search',
-        value: searchParam
-      });
-    }
-
-    // Only replies filter
-    const onlyRepliesParam = searchParams.get('onlyReplies');
-    if (onlyRepliesParam && onlyRepliesParam.toLowerCase() === 'true') {
-      urlFilters.push({
-        name: 'onlyReplies',
-        value: 'true'
-      });
-    }
-
-    // Logic filters
-    const tagLogicParam = searchParams.get('tagLogic');
-    if (tagLogicParam) {
-      urlFilters.push({
-        name: 'tagLogic',
-        value: tagLogicParam
-      });
-    }
-
-    const authorLogicParam = searchParams.get('authorLogic');
-    if (authorLogicParam) {
-      urlFilters.push({
-        name: 'authorLogic',
-        value: authorLogicParam
-      });
-    }
-
-    const mentionsLogicParam = searchParams.get('mentionsLogic');
-    if (mentionsLogicParam) {
-      urlFilters.push({
-        name: 'mentionsLogic',
-        value: mentionsLogicParam
-      });
-    }
+    if (authorParam) urlFilters.push({ name: 'author', value: authorParam });
 
     const globalLogicParam = searchParams.get('globalLogic');
-    if (globalLogicParam) {
-      urlFilters.push({
-        name: 'globalLogic',
-        value: globalLogicParam
-      });
-    }
+    if (globalLogicParam) urlFilters.push({ name: 'globalLogic', value: globalLogicParam });
 
-    // Page parameter
+    const tagLogicParam = searchParams.get('tagLogic');
+    if (tagLogicParam) urlFilters.push({ name: 'tagLogic', value: tagLogicParam });
+
+    // Use URL filters if available, otherwise use initial filters
+    const finalFilters = urlFilters.length > 0 ? urlFilters : initialFilters;
     const pageParam = searchParams.get('page');
     const page = pageParam ? parseInt(pageParam, 10) : 1;
-
-    // Initialize filters with URL params or initial filters
-    const finalFilters = urlFilters.length > 0 ? urlFilters : initialFilters;
-
-    logger.group('initializeFromURL');
-    logger.debug('Initializing from URL', {
-      urlParams: currentUrlParams,
-      urlFilters,
-      finalFilters,
-      page,
-      hasUrlFilters
-    });
-    logger.groupEnd();
 
     setFiltersState((prevState) => ({
       ...prevState,
@@ -323,24 +233,16 @@ export function useSubmissionsManager({
     }));
 
     isInitialized.current = true;
-  }, [searchParams, initialFilters, filtersState.initialized, setFiltersState]);
+  }, [filtersState.initialized, initialFilters, searchParams, setFiltersState]);
 
-  // Fetch when filters change (with debouncing and coordination)
+  // Simple fetch when filters change
   useEffect(() => {
-    if (!filtersState.initialized) return;
+    if (!filtersState.initialized || isFetching.current) {
+      return;
+    }
 
-    const timeoutId = setTimeout(() => {
-      fetchSubmissions();
-    }, 150); // Slightly longer delay to coordinate with URL sync
-
-    return () => clearTimeout(timeoutId);
-  }, [
-    filtersState.filters,
-    filtersState.page,
-    filtersState.pageSize,
-    filtersState.initialized,
-    fetchSubmissions
-  ]);
+    fetchSubmissions();
+  }, [filtersState.filters, filtersState.page, filtersState.initialized]);
 
   // Listen for shouldUpdate changes (edit/delete operations)
   useEffect(() => {
@@ -356,112 +258,86 @@ export function useSubmissionsManager({
     }
   }, [shouldUpdate, setShouldUpdate, fetchSubmissions]);
 
-  // Update URL when filters change (debounced and coordinated)
+  // One-way URL sync: filters → URL (never URL → filters after init)
   useEffect(() => {
     if (!filtersState.initialized || infiniteScroll) return;
 
-    const timeoutId = setTimeout(() => {
-      const urlParams = new URLSearchParams();
+    // Build URL params from current filters
+    const params = new URLSearchParams();
 
-      // Add filters to URL
-      const filterGroups = filtersState.filters.reduce(
-        (acc, filter) => {
-          if (!acc[filter.name]) acc[filter.name] = [];
-          acc[filter.name].push(filter.value);
-          return acc;
-        },
-        {} as Record<string, string[]>
+    // Group filters by type
+    const filterGroups: Record<string, string[]> = {};
+    filtersState.filters.forEach((filter) => {
+      if (!filterGroups[filter.name]) {
+        filterGroups[filter.name] = [];
+      }
+      filterGroups[filter.name].push(filter.value);
+    });
+
+    // Add tags (combine multiple tag filters, remove # prefix)
+    if (filterGroups.tags && filterGroups.tags.length > 0) {
+      const tagsForUrl = filterGroups.tags.map(tag => 
+        tag.startsWith('#') ? tag.slice(1) : tag
       );
+      params.set('tags', tagsForUrl.join(','));
+    }
 
-      Object.entries(filterGroups).forEach(([name, values]) => {
-        if (['tags', 'author', 'mentions', 'search'].includes(name)) {
-          if (name === 'tags') {
-            const cleanValues = values.map((value) =>
-              value
-                .split(',')
-                .map((tag) =>
-                  tag.trim().startsWith('#') ? tag.substring(1) : tag
-                )
-                .join(',')
-            );
-            urlParams.set(name, cleanValues.join(','));
-          } else {
-            urlParams.set(name, values.join(','));
-          }
-        } else if (name === 'tagLogic' && filterGroups.tags) {
-          urlParams.set('tagLogic', values[0]);
-        } else if (name === 'authorLogic' && filterGroups.author) {
-          urlParams.set('authorLogic', values[0]);
-        } else if (name === 'mentionsLogic' && filterGroups.mentions) {
-          urlParams.set('mentionsLogic', values[0]);
-        } else if (name === 'globalLogic') {
-          urlParams.set('globalLogic', values[0]);
-        }
-      });
-
-      // Add pagination
-      if (filtersState.page > 1) {
-        urlParams.set('page', filtersState.page.toString());
+    // Add other filters
+    Object.entries(filterGroups).forEach(([name, values]) => {
+      if (name === 'tags') return; // Already handled
+      if (values.length > 0) {
+        params.set(name, values[0]); // Use first value for logic filters
       }
-      if (filtersState.pageSize !== 10) {
-        urlParams.set('pageSize', filtersState.pageSize.toString());
-      }
+    });
 
-      const newUrl = `${pathname}${urlParams.toString() ? `?${urlParams.toString()}` : ''}`;
+    // Add page if not 1
+    if (filtersState.page > 1) {
+      params.set('page', filtersState.page.toString());
+    }
 
-      // Only update if URL actually changed
-      if (newUrl !== window.location.pathname + window.location.search) {
-        router.push(newUrl, { scroll: false });
-      }
-    }, 100); // Shorter delay than fetch to ensure URL updates first
+    // Build new URL
+    const newUrl = `${pathname}${params.toString() ? `?${params.toString()}` : ''}`;
+    const currentUrl = `${pathname}${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;
 
-    return () => clearTimeout(timeoutId);
+    // Only update URL if it changed
+    if (newUrl !== currentUrl) {
+      router.replace(newUrl); // Use replace to avoid history pollution
+    }
   }, [
     filtersState.filters,
     filtersState.page,
-    filtersState.pageSize,
     filtersState.initialized,
-    router,
     pathname,
+    router,
+    searchParams,
     infiniteScroll
   ]);
 
   // Simple action functions
   const addFilter = useCallback(
     (filter: Filter<PostFilters>) => {
-      logger.group('addFilter');
-      logger.debug('addFilter called', { filter });
-
       setFiltersState((prevState) => ({
         ...prevState,
         filters: [...prevState.filters, filter],
         page: 1
       }));
-      logger.groupEnd();
     },
     [setFiltersState]
   );
 
   const addFilters = useCallback(
     (filters: Filter<PostFilters>[]) => {
-      logger.group('addFilters');
-      logger.debug('addFilters called', { filters });
-
       setFiltersState((prevState) => ({
         ...prevState,
         filters: [...prevState.filters, ...filters],
         page: 1
       }));
-      logger.groupEnd();
     },
     [setFiltersState]
   );
 
   const removeFilter = useCallback(
     (filterName: PostFilters, filterValue?: string) => {
-      logger.group('removeFilter');
-      logger.debug('removeFilter called', { filterName, filterValue });
-
       setFiltersState((prevState) => {
         const newFilters = prevState.filters
           .map((filter) => {
@@ -499,30 +375,18 @@ export function useSubmissionsManager({
           })
           .filter((filter): filter is Filter<PostFilters> => filter !== null);
 
-        logger.debug('removeFilter result', {
-          originalCount: prevState.filters.length,
-          newCount: newFilters.length,
-          removed: prevState.filters.length - newFilters.length,
-          filterName,
-          filterValue
-        });
-
         return {
           ...prevState,
           filters: newFilters,
           page: 1
         };
       });
-      logger.groupEnd();
     },
     [setFiltersState]
   );
 
   const removeTag = useCallback(
     (tagToRemove: string) => {
-      logger.group('removeTag');
-      logger.debug('removeTag called', { tagToRemove });
-
       // Check if this is a special search text removal format: "search:removedTerm:newSearchText"
       if (tagToRemove.startsWith('search:')) {
         const parts = tagToRemove.split(':');
@@ -540,20 +404,12 @@ export function useSubmissionsManager({
               return filter;
             });
 
-            logger.debug('removeTag search term result', {
-              removedTerm,
-              newSearchText,
-              originalCount: prevState.filters.length,
-              newCount: newFilters.length
-            });
-
             return {
               ...prevState,
               filters: newFilters,
               page: 1
             };
           });
-          logger.groupEnd();
           return;
         }
       }
@@ -593,41 +449,40 @@ export function useSubmissionsManager({
           })
           .filter((filter): filter is Filter<PostFilters> => filter !== null);
 
-        logger.debug('removeTag result', {
-          originalCount: prevState.filters.length,
-          newCount: newFilters.length,
-          tagToRemove,
-          newFilters
-        });
-
         return {
           ...prevState,
           filters: newFilters,
           page: 1
         };
       });
-      logger.groupEnd();
     },
     [setFiltersState]
   );
 
   const setPage = useCallback(
     (page: number) => {
-      setFiltersState((prev) => ({ ...prev, page }));
+      setFiltersState((prevState) => ({
+        ...prevState,
+        page
+      }));
     },
     [setFiltersState]
   );
 
   const setPageSize = useCallback(
     (pageSize: number) => {
-      setFiltersState((prev) => ({ ...prev, pageSize, page: 1 }));
+      setFiltersState((prevState) => ({
+        ...prevState,
+        pageSize,
+        page: 1
+      }));
     },
     [setFiltersState]
   );
 
   const clearFilters = useCallback(() => {
-    setFiltersState((prev) => ({
-      ...prev,
+    setFiltersState((prevState) => ({
+      ...prevState,
       filters: [],
       page: 1
     }));
@@ -793,6 +648,31 @@ export function useSubmissionsManager({
     [submissionsState, setSubmissionsState, infiniteScroll]
   );
 
+  const updateFilter = useCallback(
+    (filterName: PostFilters, newValue: string) => {
+      setFiltersState((prevState) => {
+        const newFilters = prevState.filters.map((filter) => {
+          if (filter.name === filterName) {
+            return { ...filter, value: newValue };
+          }
+          return filter;
+        });
+
+        // If filter doesn't exist, add it
+        const filterExists = prevState.filters.some(f => f.name === filterName);
+        if (!filterExists) {
+          newFilters.push({ name: filterName, value: newValue });
+        }
+
+        return {
+          ...prevState,
+          filters: newFilters
+        };
+      });
+    },
+    [setFiltersState]
+  );
+
   return {
     // State - return correct data based on mode
     submissions: infiniteScroll
@@ -826,6 +706,9 @@ export function useSubmissionsManager({
     // Computed values
     totalFilters: filtersState.filters.length,
     currentPage: filtersState.page,
-    pageSize: filtersState.pageSize
+    pageSize: filtersState.pageSize,
+
+    // New updateFilter function
+    updateFilter
   };
 }
