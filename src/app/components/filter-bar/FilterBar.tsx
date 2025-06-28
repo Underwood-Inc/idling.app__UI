@@ -213,7 +213,7 @@ export default function FilterBar({
             let hasMultipleValues: boolean;
 
             if (filter.name === 'search') {
-              // For search filters, parse the search text to find individual terms
+              // For search filters, parse the search text to preserve quoted phrases
               const searchTerms: string[] = [];
               const regex = /"([^"]+)"|(\S+)/g;
               let match;
@@ -222,9 +222,12 @@ export default function FilterBar({
                 const quotedTerm = match[1]; // Captured quoted content
                 const unquotedTerm = match[2]; // Captured unquoted content
 
-                const term = quotedTerm || unquotedTerm;
-                if (term && term.length >= 1) {
-                  searchTerms.push(term);
+                if (quotedTerm && quotedTerm.length >= 1) {
+                  // Preserve quotes for atomic phrases
+                  searchTerms.push(`"${quotedTerm}"`);
+                } else if (unquotedTerm && unquotedTerm.length >= 1) {
+                  // Individual words without quotes
+                  searchTerms.push(unquotedTerm);
                 }
               }
 

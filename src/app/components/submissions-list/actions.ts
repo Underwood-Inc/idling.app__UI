@@ -59,6 +59,31 @@ function extractUserIdsFromAuthorFilters(authors: string[]): number[] {
     .filter((authorId) => !isNaN(authorId) && authorId > 0);
 }
 
+// Helper function to parse search terms with proper phrase vs word handling
+function parseSearchTermsForDatabase(searchValue: string): Array<{
+  term: string;
+  isPhrase: boolean;
+}> {
+  const results: Array<{ term: string; isPhrase: boolean }> = [];
+  const regex = /"([^"]+)"|(\S+)/g;
+  let match;
+
+  while ((match = regex.exec(searchValue)) !== null) {
+    const quotedTerm = match[1]; // Phrase search (exact phrase)
+    const unquotedTerm = match[2]; // Word search (individual word)
+    
+    if (quotedTerm && quotedTerm.length >= 2) {
+      // Quoted phrase - search for exact phrase
+      results.push({ term: quotedTerm.toLowerCase(), isPhrase: true });
+    } else if (unquotedTerm && unquotedTerm.length >= 2) {
+      // Individual word
+      results.push({ term: unquotedTerm.toLowerCase(), isPhrase: false });
+    }
+  }
+
+  return results;
+}
+
 /**
  * Pre-request to get pagination count for skeleton loader optimization
  * This allows us to show the exact number of skeleton items that will be loaded
