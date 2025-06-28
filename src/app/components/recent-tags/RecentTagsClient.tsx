@@ -10,7 +10,6 @@ import { RECENT_TAGS_SELECTORS } from '../../../lib/test-selectors/components/re
 import { Card } from '../card/Card';
 import Empty from '../empty/Empty';
 import FancyBorder from '../fancy-border/FancyBorder';
-import { getTagsFromSearchParams } from '../filter-bar/utils/get-tags';
 import Loader from '../loader/Loader';
 import { getRecentTags } from './actions';
 import './RecentTags.css';
@@ -39,11 +38,17 @@ const RecentTagsClientComponent = ({
 
   // Extract current tags and logic from shared filters with null checks
   const filters = filtersState?.filters || [];
-  const tagsFilter = filters.find((f) => f.name === 'tags');
+
+  // Get all tag filters (each tag is now a separate filter entry)
+  const tagFilters = filters.filter((f) => f.name === 'tags');
   const tagLogicFilter = filters.find((f) => f.name === 'tagLogic');
-  const currentTags = tagsFilter
-    ? getTagsFromSearchParams(tagsFilter.value)
-    : [];
+
+  // Extract current tags from individual filter entries
+  const currentTags = tagFilters.map((filter) => {
+    const tag = filter.value;
+    return tag.startsWith('#') ? tag : `#${tag}`;
+  });
+
   const currentTagLogic = tagLogicFilter?.value || 'OR';
 
   // Memoize tag-related state to prevent unnecessary re-renders
@@ -51,7 +56,7 @@ const RecentTagsClientComponent = ({
     () => ({
       currentTags,
       currentTagLogic,
-      tagsFilter,
+      tagFilters,
       tagLogicFilter
     }),
     [currentTags.join(','), currentTagLogic]
@@ -104,40 +109,33 @@ const RecentTagsClientComponent = ({
     }));
 
     if (isSelected) {
-      // Remove tag - simple filter update
+      // Remove tag - remove the specific tag filter entry
       setFiltersState((prevState) => {
-        const newFilters = prevState.filters
-          .filter((filter) => {
-            if (filter.name === 'tags') {
-              const currentTags = filter.value
-                .split(',')
-                .map((t) => t.trim())
-                .filter(Boolean);
-              const updatedTags = currentTags.filter((t) => t !== formattedTag);
-              return updatedTags.length > 0;
-            }
-            return true;
-          })
-          .map((filter) => {
-            if (filter.name === 'tags') {
-              const currentTags = filter.value
-                .split(',')
-                .map((t) => t.trim())
-                .filter(Boolean);
-              const updatedTags = currentTags.filter((t) => t !== formattedTag);
-              return { ...filter, value: updatedTags.join(',') };
-            }
-            return filter;
-          });
+        const newFilters = prevState.filters.filter((filter) => {
+          if (filter.name === 'tags') {
+            const filterTag = filter.value.startsWith('#')
+              ? filter.value
+              : `#${filter.value}`;
+            return filterTag !== formattedTag;
+          }
+          return true;
+        });
+
+        // If no tag filters remain, also remove tagLogic
+        const remainingTagFilters = newFilters.filter((f) => f.name === 'tags');
+        const finalFilters =
+          remainingTagFilters.length > 0
+            ? newFilters
+            : newFilters.filter((f) => f.name !== 'tagLogic');
 
         return {
           ...prevState,
-          filters: newFilters,
+          filters: finalFilters,
           page: 1
         };
       });
     } else {
-      // Add tag - with automatic tagLogic for multiple tags
+      // Add tag - add a new tag filter entry
       setFiltersState((prevState) => {
         // Check if there are already tag filters
         const existingTagFilters = prevState.filters.filter(
@@ -147,8 +145,11 @@ const RecentTagsClientComponent = ({
 
         const filtersToAdd = [{ name: 'tags', value: formattedTag }];
 
-        // Add tagLogic if we'll have multiple tags
-        if (willHaveMultipleTags) {
+        // Add tagLogic if we'll have multiple tags and no tagLogic exists
+        if (
+          willHaveMultipleTags &&
+          !prevState.filters.find((f) => f.name === 'tagLogic')
+        ) {
           filtersToAdd.push({ name: 'tagLogic', value: 'OR' });
         }
 
@@ -172,13 +173,38 @@ const RecentTagsClientComponent = ({
         loading: true
       }));
 
-      setFiltersState((prevState) => ({
-        ...prevState,
-        filters: [...prevState.filters, { name: 'tagLogic', value: newLogic }],
-        page: 1
-      }));
+      setFiltersState((prevState) => {
+        // Remove existing tagLogic filter and add new one
+        const newFilters = prevState.filters.filter(
+          (f) => f.name !== 'tagLogic'
+        );
+        return {
+          ...prevState,
+          filters: [...newFilters, { name: 'tagLogic', value: newLogic }],
+          page: 1
+        };
+      });
     }
   };
+
+  // Sort tags so selected ones appear at the top
+  const sortedTags = useMemo(() => {
+    const selectedTags: string[] = [];
+    const unselectedTags: string[] = [];
+
+    recentTags.tags.forEach((tag) => {
+      const formattedTag = tag.startsWith('#') ? tag : `#${tag}`;
+      const isActive = tagState.currentTags.includes(formattedTag);
+
+      if (isActive) {
+        selectedTags.push(tag);
+      } else {
+        unselectedTags.push(tag);
+      }
+    });
+
+    return [...selectedTags, ...unselectedTags];
+  }, [recentTags.tags, tagState.currentTags]);
 
   if (loading) {
     return <RecentTagsLoader />;
@@ -242,9 +268,9 @@ const RecentTagsClientComponent = ({
             </div>
 
             <div className="recent-tags__content">
-              {recentTags.tags.length > 0 && (
+              {sortedTags.length > 0 && (
                 <ol className="recent-tags__list">
-                  {recentTags.tags.map((tag) => {
+                  {sortedTags.map((tag) => {
                     const formattedTag = tag.startsWith('#') ? tag : `#${tag}`;
                     const isActive =
                       tagState.currentTags.includes(formattedTag);
@@ -269,7 +295,7 @@ const RecentTagsClientComponent = ({
                 </ol>
               )}
 
-              {!recentTags.tags.length && <Empty label="No recent tags" />}
+              {!sortedTags.length && <Empty label="No recent tags" />}
             </div>
           </div>
         </FancyBorder>

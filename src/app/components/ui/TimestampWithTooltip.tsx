@@ -96,18 +96,18 @@ export const TimestampWithTooltip: React.FC<TimestampWithTooltipProps> = ({
     if (absDiff <= 1000) {
       // Less than 1 second difference
       // eslint-disable-next-line no-console
-      console.warn(
-        'TimestampWithTooltip: Very recent or future timestamp detected',
-        {
-          now,
-          dateTime: date.getTime(),
-          diff,
-          dateString: date.toISOString(),
-          isNaN: isNaN(date.getTime()),
-          isFuture,
-          stack: new Error().stack?.split('\n').slice(0, 3).join('\n')
-        }
-      );
+      // console.warn(
+      //   'TimestampWithTooltip: Very recent or future timestamp detected',
+      //   {
+      //     now,
+      //     dateTime: date.getTime(),
+      //     diff,
+      //     dateString: date.toISOString(),
+      //     isNaN: isNaN(date.getTime()),
+      //     isFuture,
+      //     stack: new Error().stack?.split('\n').slice(0, 3).join('\n')
+      //   }
+      // );
     }
 
     // For very small differences (less than 1 second), treat as "now"

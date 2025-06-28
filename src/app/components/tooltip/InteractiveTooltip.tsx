@@ -368,6 +368,12 @@ export const InteractiveTooltip: React.FC<InteractiveTooltipProps> = ({
               WebkitBackdropFilter: 'var(--tooltip-glass-blur) !important',
               border: '1px solid var(--tooltip-glass-border) !important',
               boxShadow: 'var(--tooltip-glass-shadow) !important',
+              // Search overlay specific styles
+              ...(className.includes('search-overlay-tooltip') && {
+                maxHeight: '200px',
+                overflowY: 'auto' as const,
+                overflowX: 'hidden' as const
+              }),
               // Only allow transparent background for author-tooltip-wrapper
               ...(className === 'author-tooltip-wrapper' && {
                 background: 'transparent !important',

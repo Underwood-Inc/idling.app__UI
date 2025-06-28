@@ -52,9 +52,12 @@ export function usePostsManagerHandlers({
 }: PostsManagerHandlersOptions): PostsManagerHandlers {
   const [, setShouldUpdate] = useAtom(shouldUpdateAtom);
 
-  // Use refs for stable function references
+  // Use refs for stable function references and current values
   const addFilterRef = useRef(addFilter);
   addFilterRef.current = addFilter;
+  
+  const currentFiltersRef = useRef(currentFilters);
+  currentFiltersRef.current = currentFilters;
 
   // Filter handlers without automatic expansion
   const handleAddFilter = useCallback(
@@ -78,8 +81,8 @@ export function usePostsManagerHandlers({
       // Store tags without # prefix to match URL format and prevent normalization conflicts
       const normalizedTag = tag.startsWith('#') ? tag.slice(1) : tag;
       
-      // Check if there are already tag filters
-      const existingTagFilters = currentFilters.filter(f => f.name === 'tags');
+      // Get current filters at time of execution to avoid stale dependencies
+      const existingTagFilters = currentFiltersRef.current.filter(f => f.name === 'tags');
       const willHaveMultipleTags = existingTagFilters.length >= 1; // Will have multiple after adding this one
       
       // Debug logging
@@ -88,7 +91,7 @@ export function usePostsManagerHandlers({
         normalizedTag,
         existingTagFilters,
         willHaveMultipleTags,
-        currentFilters
+        currentFiltersLength: currentFiltersRef.current.length
       });
       
       // Prepare filters to add
@@ -106,7 +109,7 @@ export function usePostsManagerHandlers({
       // Add all filters atomically to prevent double fetches
       addFilters(filtersToAdd);
     },
-    [addFilters, currentFilters]
+    [addFilters] // Remove currentFilters dependency
   );
 
   const handleHashtagClick = useCallback(
@@ -114,8 +117,8 @@ export function usePostsManagerHandlers({
       // Store tags without # prefix to match URL format and prevent normalization conflicts
       const normalizedHashtag = hashtag.startsWith('#') ? hashtag.slice(1) : hashtag;
       
-      // Check if there are already tag filters
-      const existingTagFilters = currentFilters.filter(f => f.name === 'tags');
+      // Get current filters at time of execution to avoid stale dependencies
+      const existingTagFilters = currentFiltersRef.current.filter(f => f.name === 'tags');
       const willHaveMultipleTags = existingTagFilters.length >= 1; // Will have multiple after adding this one
       
       // Prepare filters to add
@@ -131,7 +134,7 @@ export function usePostsManagerHandlers({
       // Add all filters atomically to prevent double fetches
       addFilters(filtersToAdd);
     },
-    [addFilters, currentFilters]
+    [addFilters] // Remove currentFilters dependency
   );
 
   const handleMentionClick = useCallback(

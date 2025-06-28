@@ -48,11 +48,11 @@ export async function searchHashtags(
   const startTime = performance.now();
 
   // eslint-disable-next-line no-console
-  console.log('searchHashtags called:', { query, page, pageSize });
+  // console.log('searchHashtags called:', { query, page, pageSize });
 
   if (!query || query.length < 2) {
     // eslint-disable-next-line no-console
-    console.log('searchHashtags: query too short or empty');
+    // console.log('searchHashtags: query too short or empty');
     return { items: [], hasMore: false, total: 0, page, pageSize };
   }
 
@@ -112,7 +112,7 @@ export async function searchHashtags(
     }));
 
     // eslint-disable-next-line no-console
-    console.log('searchHashtags results:', { items, hasMore: offset + results.length < total, total });
+    // console.log('searchHashtags results:', { items, hasMore: offset + results.length < total, total });
 
     return {
       items,

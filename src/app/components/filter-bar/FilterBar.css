@@ -550,3 +550,85 @@
     transform: rotate(360deg);
   }
 }
+
+/* Filter type toggle styles for user mention pills */
+.filter-bar__mention-pill-wrapper {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  position: relative;
+}
+
+.filter-bar__filter-type-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  height: 24px;
+  padding: 0.2rem 0.4rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  border: 1px solid;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  background: var(--light-bg);
+  position: relative;
+  z-index: 10;
+}
+
+.filter-bar__filter-type-toggle--author {
+  color: #1976d2;
+  border-color: #1976d2;
+  background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+}
+
+.filter-bar__filter-type-toggle--author:hover {
+  color: #0d47a1;
+  border-color: #0d47a1;
+  background: linear-gradient(135deg, #bbdefb, #90caf9);
+  transform: scale(1.05);
+}
+
+.filter-bar__filter-type-toggle--mentions {
+  color: #7b1fa2;
+  border-color: #7b1fa2;
+  background: linear-gradient(135deg, #f3e5f5, #e1bee7);
+}
+
+.filter-bar__filter-type-toggle--mentions:hover {
+  color: #4a148c;
+  border-color: #4a148c;
+  background: linear-gradient(135deg, #e1bee7, #ce93d8);
+  transform: scale(1.05);
+}
+
+.filter-bar__filter-type-toggle:focus {
+  outline: 2px solid var(--brand-primary);
+  outline-offset: 2px;
+}
+
+/* Mobile responsive adjustments for filter type toggles */
+@media (max-width: 768px) {
+  .filter-bar__filter-type-toggle {
+    min-width: 26px;
+    height: 22px;
+    font-size: 0.65rem;
+    padding: 0.15rem 0.3rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .filter-bar__mention-pill-wrapper {
+    gap: 0.2rem;
+  }
+  
+  .filter-bar__filter-type-toggle {
+    min-width: 24px;
+    height: 20px;
+    font-size: 0.6rem;
+    padding: 0.1rem 0.25rem;
+  }
+}

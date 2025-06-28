@@ -1,6 +1,7 @@
 'use client';
 
 import { useAtom } from 'jotai';
+import { useEffect } from 'react';
 import { Filter, getSubmissionsFiltersAtom } from '../../../lib/state/atoms';
 import { PostFilters } from '../../../lib/types/filters';
 import './FilterBar.css';
@@ -31,6 +32,32 @@ export default function FilterBar({
   const [filtersState, setFiltersState] = useAtom(
     getSubmissionsFiltersAtom(filterId)
   );
+
+  // Handle filter type change events from FilterLabel components
+  useEffect(() => {
+    const handleFilterTypeChange = (event: Event) => {
+      const customEvent = event as CustomEvent;
+      const { filterType, value, oldFilterType, oldValue } = customEvent.detail;
+
+      // Remove the old filter
+      onRemoveFilter(oldFilterType as PostFilters, oldValue);
+
+      // Add the new filter by updating the filter state directly
+      setTimeout(() => {
+        setFiltersState((prevState) => ({
+          ...prevState,
+          filters: [...prevState.filters, { name: filterType, value: value }],
+          page: 1
+        }));
+      }, 10);
+    };
+
+    window.addEventListener('filterTypeChange', handleFilterTypeChange);
+
+    return () => {
+      window.removeEventListener('filterTypeChange', handleFilterTypeChange);
+    };
+  }, [onRemoveFilter, setFiltersState]);
 
   // Add null check for filters
   const safeFilters = filters || [];

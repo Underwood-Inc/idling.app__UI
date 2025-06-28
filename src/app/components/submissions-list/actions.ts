@@ -98,9 +98,8 @@ export async function getSubmissionsPaginationCount({
       const tagLogicFilter = filters.find((f) => f.name === 'tagLogic');
       const tagLogic = tagLogicFilter?.value || 'OR';
       
-      const allTags = tagFilters.flatMap(f => 
-        f.value.split(',').map(tag => tag.trim()).filter(Boolean)
-      );
+      // Each tag filter is now a separate entry, not comma-separated
+      const allTags = tagFilters.map(f => f.value.trim()).filter(Boolean);
 
       if (allTags.length > 0) {
         let tagGroupCondition = '';
@@ -131,137 +130,180 @@ export async function getSubmissionsPaginationCount({
       }
     }
 
+    // Process other filters - collect multiple entries of same type
+    const authorFilters = filters.filter((f) => f.name === 'author');
+    const mentionFilters = filters.filter((f) => f.name === 'mentions');
+    const searchFilters = filters.filter((f) => f.name === 'search');
+    
+    // Handle author filters
+    if (authorFilters.length > 0) {
+      const authors = authorFilters.map((f) => f.value.trim()).filter(Boolean);
+      
+      if (authors.length > 0) {
+        const authorLogicFilter = filters.find((f) => f.name === 'authorLogic');
+        const authorLogic = globalLogic === 'AND' ? 'AND' : authorLogicFilter?.value || 'OR';
+
+        const groupCondition = `s.user_id IN (${authors.map(() => `$${paramIndex++}`).join(',')})`;
+        queryParams.push(...authors.map((author) => parseInt(author)));
+        
+        if (groupCondition) {
+          filterGroups.push(`(${groupCondition})`);
+        }
+      }
+    }
+
+    // Handle mention filters
+    if (mentionFilters.length > 0) {
+      const mentions = mentionFilters.map((f) => f.value.trim()).filter(Boolean);
+      
+      if (mentions.length > 0) {
+        const mentionsLogicFilter = filters.find((f) => f.name === 'mentionsLogic');
+        const mentionsLogic = globalLogic === 'AND' ? 'AND' : mentionsLogicFilter?.value || 'OR';
+
+        if (mentionsLogic === 'AND') {
+          // All mentions must be present
+          const mentionConditions: string[] = [];
+          for (const mention of mentions) {
+            const username = mention.includes('|') ? mention.split('|')[0] : mention;
+            mentionConditions.push(
+              `(s.submission_name ILIKE $${paramIndex} OR s.submission_title ILIKE $${paramIndex})`
+            );
+            queryParams.push(`%${username}%`);
+            paramIndex++;
+          }
+          const groupCondition = mentionConditions.join(' AND ');
+          if (groupCondition) {
+            filterGroups.push(`(${groupCondition})`);
+          }
+        } else {
+          // Any mention can be present (OR logic)
+          const mentionConditions = mentions.map((mention) => {
+            const username = mention.includes('|') ? mention.split('|')[0] : mention;
+            const condition = `(s.submission_name ILIKE $${paramIndex} OR s.submission_title ILIKE $${paramIndex})`;
+            queryParams.push(`%${username}%`);
+            paramIndex++;
+            return condition;
+          });
+          const groupCondition = mentionConditions.join(' OR ');
+          if (groupCondition) {
+            filterGroups.push(`(${groupCondition})`);
+          }
+        }
+      }
+    }
+
+    // Handle search filters
+    if (searchFilters.length > 0) {
+      const searchValues = searchFilters.map((f) => f.value.trim()).filter((v) => v.length >= 2);
+      
+      if (searchValues.length > 0) {
+        const searchLogicFilter = filters.find((f) => f.name === 'searchLogic');
+        const searchLogic = globalLogic === 'AND' ? 'AND' : searchLogicFilter?.value || 'OR';
+
+        const allSearchConditions: string[] = [];
+        
+        for (const searchValue of searchValues) {
+          // Parse search with quote support
+          const terms: string[] = [];
+          const regex = /"([^"]+)"|(\S+)/g;
+          let match;
+
+          while ((match = regex.exec(searchValue)) !== null) {
+            const quotedTerm = match[1];
+            const unquotedTerm = match[2];
+            const term = quotedTerm || unquotedTerm;
+            if (term && term.length >= 2) {
+              terms.push(term.toLowerCase());
+            }
+          }
+
+          if (terms.length > 0) {
+            const searchConditions = terms.map((term) => {
+              const condition = `(
+                LOWER(s.submission_name) LIKE $${paramIndex} OR 
+                LOWER(s.submission_title) LIKE $${paramIndex}
+              )`;
+              queryParams.push(`%${term}%`);
+              paramIndex++;
+              return condition;
+            });
+            
+            const termOperator = searchLogic === 'AND' ? ' AND ' : ' OR ';
+            allSearchConditions.push(`(${searchConditions.join(termOperator)})`);
+          }
+        }
+        
+        if (allSearchConditions.length > 0) {
+          const searchOperator = searchLogic === 'AND' ? ' AND ' : ' OR ';
+          const groupCondition = allSearchConditions.join(searchOperator);
+          filterGroups.push(`(${groupCondition})`);
+        }
+      }
+    }
+
+    // Handle remaining single-value filters
     for (const filter of filters) {
       let groupCondition = '';
 
       switch (filter.name) {
         case 'tags':
+        case 'author':
+        case 'mentions':
+        case 'search':
           // Skip - already handled above
           break;
-        case 'author': {
-          // Handle multiple authors with logic
-          const authors = filter.value
-            .split(',')
-            .map((author) => author.trim())
-            .filter(Boolean);
-
-          if (authors.length > 0) {
-            const authorLogicFilter = filters.find(
-              (f) => f.name === 'authorLogic'
-            );
-            // When globalLogic is AND, force all individual filters to AND
-            const authorLogic =
-              globalLogic === 'AND' ? 'AND' : authorLogicFilter?.value || 'OR';
-
-            if (authorLogic === 'AND') {
-              // All authors must match (posts from all specified authors)
-              // This would require posts to be from multiple authors, which is impossible
-              // So we'll treat AND as requiring exact author match
-              groupCondition = `s.user_id IN (${authors.map(() => `$${paramIndex++}`).join(',')})`;
-              queryParams.push(...authors.map((author) => parseInt(author)));
-            } else {
-              // Any author can match (OR logic)
-              groupCondition = `s.user_id IN (${authors.map(() => `$${paramIndex++}`).join(',')})`;
-              queryParams.push(...authors.map((author) => parseInt(author)));
-            }
-
-            if (groupCondition) {
-              filterGroups.push(`(${groupCondition})`);
-            }
-          }
-          break;
-        }
-
-        case 'mentions': {
-          const mentions = filter.value
-            .split(',')
-            .map((mention) => mention.trim())
-            .filter(Boolean);
-
-          if (mentions.length > 0) {
-            const mentionsLogicFilter = filters.find(
-              (f) => f.name === 'mentionsLogic'
-            );
-            // When globalLogic is AND, force all individual filters to AND
-            const mentionsLogic =
-              globalLogic === 'AND'
-                ? 'AND'
-                : mentionsLogicFilter?.value || 'OR';
-
-            if (mentionsLogic === 'AND') {
-              // All mentions must be present
-              const mentionConditions: string[] = [];
-              for (const mention of mentions) {
-                mentionConditions.push(
-                  `(s.submission_name ILIKE $${paramIndex} OR s.submission_title ILIKE $${paramIndex})`
-                );
-                queryParams.push(`%${mention}%`);
-                paramIndex++;
-              }
-              groupCondition = mentionConditions.join(' AND ');
-            } else {
-              // Any mention can be present (OR logic)
-              const mentionConditions = mentions.map((mention) => {
-                const condition = `(s.submission_name ILIKE $${paramIndex} OR s.submission_title ILIKE $${paramIndex})`;
-                queryParams.push(`%${mention}%`);
-                paramIndex++;
-                return condition;
-              });
-              groupCondition = mentionConditions.join(' OR ');
-            }
-
-            if (groupCondition) {
-              filterGroups.push(`(${groupCondition})`);
-            }
-          }
-          break;
-        }
-
-        case 'search': {
-          // Enhanced search with quote support for exact phrases
-          const searchValue = filter.value.trim();
           
-          if (searchValue.length >= 2) {
-            // Parse search with quote support - same logic as TextSearchInput
-            const terms: string[] = [];
-            const regex = /"([^"]+)"|(\S+)/g;
-            let match;
+        case 'content': {
+          groupCondition = `(s.submission_title ILIKE $${paramIndex} OR s.submission_name ILIKE $${paramIndex})`;
+          queryParams.push(`%${filter.value}%`);
+          paramIndex++;
 
-            while ((match = regex.exec(searchValue)) !== null) {
-              const quotedTerm = match[1]; // Captured quoted content (exact phrase)
-              const unquotedTerm = match[2]; // Captured unquoted term (split by word)
-              
-              const term = quotedTerm || unquotedTerm;
-              if (term && term.length >= 2) {
-                terms.push(term.toLowerCase());
-              }
-            }
+          if (groupCondition) {
+            filterGroups.push(`(${groupCondition})`);
+          }
+          break;
+        }
 
-            if (terms.length > 0) {
-              const searchLogicFilter = filters.find(
-                (f) => f.name === 'searchLogic'
-              );
-              // When globalLogic is AND, force all individual filters to AND
-              const searchLogic =
-                globalLogic === 'AND' ? 'AND' : searchLogicFilter?.value || 'OR';
+        case 'title': {
+          groupCondition = `s.submission_title ILIKE $${paramIndex}`;
+          queryParams.push(`%${filter.value}%`);
+          paramIndex++;
 
-              const searchConditions = terms.map((term) => {
-                const condition = `(
-                  LOWER(s.submission_name) LIKE $${paramIndex} OR 
-                  LOWER(s.submission_title) LIKE $${paramIndex}
-                )`;
-                queryParams.push(`%${term}%`);
-                paramIndex++;
-                return condition;
-              });
-              
-              const searchOperator = searchLogic === 'AND' ? ' AND ' : ' OR ';
-              groupCondition = searchConditions.join(searchOperator);
+          if (groupCondition) {
+            filterGroups.push(`(${groupCondition})`);
+          }
+          break;
+        }
 
-              if (groupCondition) {
-                filterGroups.push(`(${groupCondition})`);
-              }
-            }
+        case 'url': {
+          groupCondition = `s.submission_url ILIKE $${paramIndex}`;
+          queryParams.push(`%${filter.value}%`);
+          paramIndex++;
+
+          if (groupCondition) {
+            filterGroups.push(`(${groupCondition})`);
+          }
+          break;
+        }
+
+        case 'dateFrom': {
+          groupCondition = `s.submission_datetime >= $${paramIndex}`;
+          queryParams.push(filter.value);
+          paramIndex++;
+
+          if (groupCondition) {
+            filterGroups.push(`(${groupCondition})`);
+          }
+          break;
+        }
+
+        case 'dateTo': {
+          groupCondition = `s.submission_datetime <= $${paramIndex}`;
+          queryParams.push(filter.value);
+          paramIndex++;
+
+          if (groupCondition) {
+            filterGroups.push(`(${groupCondition})`);
           }
           break;
         }
@@ -379,9 +421,8 @@ export async function getSubmissionsAction({
       const tagLogicFilter = filters.find((f) => f.name === 'tagLogic');
       const tagLogic = tagLogicFilter?.value || 'OR';
       
-      const allTags = tagFilters.flatMap(f => 
-        f.value.split(',').map(tag => tag.trim()).filter(Boolean)
-      );
+      // Each tag filter is now a separate entry, not comma-separated
+      const allTags = tagFilters.map(f => f.value.trim()).filter(Boolean);
 
       if (allTags.length > 0) {
         let tagGroupCondition = '';
@@ -412,92 +453,129 @@ export async function getSubmissionsAction({
       }
     }
 
+    // Process other filters - collect multiple entries of same type
+    const authorFilters = filters.filter((f) => f.name === 'author');
+    const mentionFilters = filters.filter((f) => f.name === 'mentions');
+    const searchFilters = filters.filter((f) => f.name === 'search');
+    
+    // Handle author filters
+    if (authorFilters.length > 0) {
+      const authors = authorFilters.map((f) => f.value.trim()).filter(Boolean);
+      
+      if (authors.length > 0) {
+        const authorLogicFilter = filters.find((f) => f.name === 'authorLogic');
+        const authorLogic = globalLogic === 'AND' ? 'AND' : authorLogicFilter?.value || 'OR';
+
+        const groupCondition = `s.user_id IN (${authors.map(() => `$${paramIndex++}`).join(',')})`;
+        queryParams.push(...authors.map((author) => parseInt(author)));
+        
+        if (groupCondition) {
+          filterGroups.push(`(${groupCondition})`);
+        }
+      }
+    }
+
+    // Handle mention filters
+    if (mentionFilters.length > 0) {
+      const mentions = mentionFilters.map((f) => f.value.trim()).filter(Boolean);
+      
+      if (mentions.length > 0) {
+        const mentionsLogicFilter = filters.find((f) => f.name === 'mentionsLogic');
+        const mentionsLogic = globalLogic === 'AND' ? 'AND' : mentionsLogicFilter?.value || 'OR';
+
+        if (mentionsLogic === 'AND') {
+          // All mentions must be present
+          const mentionConditions: string[] = [];
+          for (const mention of mentions) {
+            const username = mention.includes('|') ? mention.split('|')[0] : mention;
+            mentionConditions.push(
+              `(s.submission_name ILIKE $${paramIndex} OR s.submission_title ILIKE $${paramIndex})`
+            );
+            queryParams.push(`%${username}%`);
+            paramIndex++;
+          }
+          const groupCondition = mentionConditions.join(' AND ');
+          if (groupCondition) {
+            filterGroups.push(`(${groupCondition})`);
+          }
+        } else {
+          // Any mention can be present (OR logic)
+          const mentionConditions = mentions.map((mention) => {
+            const username = mention.includes('|') ? mention.split('|')[0] : mention;
+            const condition = `(s.submission_name ILIKE $${paramIndex} OR s.submission_title ILIKE $${paramIndex})`;
+            queryParams.push(`%${username}%`);
+            paramIndex++;
+            return condition;
+          });
+          const groupCondition = mentionConditions.join(' OR ');
+          if (groupCondition) {
+            filterGroups.push(`(${groupCondition})`);
+          }
+        }
+      }
+    }
+
+    // Handle search filters
+    if (searchFilters.length > 0) {
+      const searchValues = searchFilters.map((f) => f.value.trim()).filter((v) => v.length >= 2);
+      
+      if (searchValues.length > 0) {
+        const searchLogicFilter = filters.find((f) => f.name === 'searchLogic');
+        const searchLogic = globalLogic === 'AND' ? 'AND' : searchLogicFilter?.value || 'OR';
+
+        const allSearchConditions: string[] = [];
+        
+        for (const searchValue of searchValues) {
+          // Parse search with quote support
+          const terms: string[] = [];
+          const regex = /"([^"]+)"|(\S+)/g;
+          let match;
+
+          while ((match = regex.exec(searchValue)) !== null) {
+            const quotedTerm = match[1];
+            const unquotedTerm = match[2];
+            const term = quotedTerm || unquotedTerm;
+            if (term && term.length >= 2) {
+              terms.push(term.toLowerCase());
+            }
+          }
+
+          if (terms.length > 0) {
+            const searchConditions = terms.map((term) => {
+              const condition = `(
+                LOWER(s.submission_name) LIKE $${paramIndex} OR 
+                LOWER(s.submission_title) LIKE $${paramIndex}
+              )`;
+              queryParams.push(`%${term}%`);
+              paramIndex++;
+              return condition;
+            });
+            
+            const termOperator = searchLogic === 'AND' ? ' AND ' : ' OR ';
+            allSearchConditions.push(`(${searchConditions.join(termOperator)})`);
+          }
+        }
+        
+        if (allSearchConditions.length > 0) {
+          const searchOperator = searchLogic === 'AND' ? ' AND ' : ' OR ';
+          const groupCondition = allSearchConditions.join(searchOperator);
+          filterGroups.push(`(${groupCondition})`);
+        }
+      }
+    }
+
+    // Handle remaining single-value filters
     for (const filter of filters) {
       let groupCondition = '';
 
       switch (filter.name) {
         case 'tags':
+        case 'author':
+        case 'mentions':
+        case 'search':
           // Skip - already handled above
           break;
-        case 'author': {
-          // Handle multiple authors with logic
-          const authors = filter.value
-            .split(',')
-            .map((author) => author.trim())
-            .filter(Boolean);
-
-          if (authors.length > 0) {
-            const authorLogicFilter = filters.find(
-              (f) => f.name === 'authorLogic'
-            );
-            // When globalLogic is AND, force all individual filters to AND
-            const authorLogic =
-              globalLogic === 'AND' ? 'AND' : authorLogicFilter?.value || 'OR';
-
-            if (authorLogic === 'AND') {
-              // All authors must match (posts from all specified authors)
-              // This would require posts to be from multiple authors, which is impossible
-              // So we'll treat AND as requiring exact author match
-              groupCondition = `s.user_id IN (${authors.map(() => `$${paramIndex++}`).join(',')})`;
-              queryParams.push(...authors.map((author) => parseInt(author)));
-            } else {
-              // Any author can match (OR logic)
-              groupCondition = `s.user_id IN (${authors.map(() => `$${paramIndex++}`).join(',')})`;
-              queryParams.push(...authors.map((author) => parseInt(author)));
-            }
-
-            if (groupCondition) {
-              filterGroups.push(`(${groupCondition})`);
-            }
-          }
-          break;
-        }
-
-        case 'mentions': {
-          const mentions = filter.value
-            .split(',')
-            .map((mention) => mention.trim())
-            .filter(Boolean);
-
-          if (mentions.length > 0) {
-            const mentionsLogicFilter = filters.find(
-              (f) => f.name === 'mentionsLogic'
-            );
-            // When globalLogic is AND, force all individual filters to AND
-            const mentionsLogic =
-              globalLogic === 'AND'
-                ? 'AND'
-                : mentionsLogicFilter?.value || 'OR';
-
-            if (mentionsLogic === 'AND') {
-              // All mentions must be present
-              const mentionConditions: string[] = [];
-              for (const mention of mentions) {
-                mentionConditions.push(
-                  `(s.submission_name ILIKE $${paramIndex} OR s.submission_title ILIKE $${paramIndex})`
-                );
-                queryParams.push(`%${mention}%`);
-                paramIndex++;
-              }
-              groupCondition = mentionConditions.join(' AND ');
-            } else {
-              // Any mention can be present (OR logic)
-              const mentionConditions = mentions.map((mention) => {
-                const condition = `(s.submission_name ILIKE $${paramIndex} OR s.submission_title ILIKE $${paramIndex})`;
-                queryParams.push(`%${mention}%`);
-                paramIndex++;
-                return condition;
-              });
-              groupCondition = mentionConditions.join(' OR ');
-            }
-
-            if (groupCondition) {
-              filterGroups.push(`(${groupCondition})`);
-            }
-          }
-          break;
-        }
-
+          
         case 'content': {
           groupCondition = `(s.submission_title ILIKE $${paramIndex} OR s.submission_name ILIKE $${paramIndex})`;
           queryParams.push(`%${filter.value}%`);
@@ -549,55 +627,6 @@ export async function getSubmissionsAction({
 
           if (groupCondition) {
             filterGroups.push(`(${groupCondition})`);
-          }
-          break;
-        }
-
-        case 'search': {
-          // Enhanced search with quote support for exact phrases
-          const searchValue = filter.value.trim();
-          
-          if (searchValue.length >= 2) {
-            // Parse search with quote support - same logic as TextSearchInput
-            const terms: string[] = [];
-            const regex = /"([^"]+)"|(\S+)/g;
-            let match;
-
-            while ((match = regex.exec(searchValue)) !== null) {
-              const quotedTerm = match[1]; // Captured quoted content (exact phrase)
-              const unquotedTerm = match[2]; // Captured unquoted term (split by word)
-              
-              const term = quotedTerm || unquotedTerm;
-              if (term && term.length >= 2) {
-                terms.push(term.toLowerCase());
-              }
-            }
-
-            if (terms.length > 0) {
-              const searchLogicFilter = filters.find(
-                (f) => f.name === 'searchLogic'
-              );
-              // When globalLogic is AND, force all individual filters to AND
-              const searchLogic =
-                globalLogic === 'AND' ? 'AND' : searchLogicFilter?.value || 'OR';
-
-              const searchConditions = terms.map((term) => {
-                const condition = `(
-                  LOWER(s.submission_name) LIKE $${paramIndex} OR 
-                  LOWER(s.submission_title) LIKE $${paramIndex}
-                )`;
-                queryParams.push(`%${term}%`);
-                paramIndex++;
-                return condition;
-              });
-              
-              const searchOperator = searchLogic === 'AND' ? ' AND ' : ' OR ';
-              groupCondition = searchConditions.join(searchOperator);
-
-              if (groupCondition) {
-                filterGroups.push(`(${groupCondition})`);
-              }
-            }
           }
           break;
         }

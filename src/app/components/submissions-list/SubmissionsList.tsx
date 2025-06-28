@@ -7,7 +7,6 @@ import React, {
   useRef,
   useState
 } from 'react';
-import InfiniteScrollTrigger from '../infinite-scroll-trigger/InfiniteScrollTrigger';
 import { SubmissionItem } from './SubmissionItem';
 import './SubmissionItem.css';
 import './SubmissionsList.css';
@@ -283,6 +282,17 @@ const SubmissionsList = React.memo(function SubmissionsList({
     }
   }, [posts.length, calculateVisibleRange]);
 
+  // Force recalculation when container becomes available
+  useEffect(() => {
+    if (containerRef.current && posts.length > 0) {
+      const containerHeight = containerRef.current.clientHeight;
+      if (containerHeight > 0) {
+        const newRange = calculateVisibleRange(0, containerHeight);
+        setVisibleRange(newRange);
+      }
+    }
+  }, [posts.length, calculateVisibleRange]);
+
   // Get visible posts to render
   const visiblePosts = useMemo(() => {
     return posts.slice(visibleRange.start, visibleRange.end);
@@ -379,122 +389,61 @@ const SubmissionsList = React.memo(function SubmissionsList({
   return (
     <div
       ref={containerRef}
-      className="submissions-list submissions-list--virtual"
+      className="submissions-list submissions-list--simple"
       data-testid="submissions-list"
-      onScroll={handleScroll}
       style={{
-        height: '70vh', // Fixed height for virtual scrolling
+        maxHeight: '70vh',
         overflowY: 'auto',
         position: 'relative'
       }}
     >
-      {/* Top spacer for virtual scrolling */}
-      {topSpacer > 0 && (
-        <div
-          className="submissions-list__spacer"
-          style={{ height: topSpacer }}
-          aria-hidden="true"
-        />
-      )}
-
-      {/* Render visible posts */}
+      {/* Render ALL posts directly (no virtual scrolling) */}
       <div className="submissions-list__content">
-        {visiblePosts.map((post, index) => {
-          const actualIndex = visibleRange.start + index;
-          return (
-            <div
-              key={post.submission_id}
-              ref={(el) => setItemRef(actualIndex, el)}
-              className="submissions-list__item"
-              style={
-                {
-                  '--item-index': actualIndex
-                } as React.CSSProperties & { '--item-index': number }
-              }
-            >
-              {children ? (
-                children({
-                  submission: post,
-                  onTagClick,
-                  onHashtagClick,
-                  onMentionClick,
-                  onSubmissionUpdate: onRefresh,
-                  contextId,
-                  optimisticUpdateSubmission,
-                  optimisticRemoveSubmission,
-                  onRefreshSubmission,
-                  currentPage,
-                  currentFilters
-                })
-              ) : (
-                <SubmissionItem
-                  submission={post}
-                  onTagClick={onTagClick}
-                  onHashtagClick={onHashtagClick}
-                  onMentionClick={onMentionClick}
-                  onSubmissionUpdate={onRefresh}
-                  contextId={contextId}
-                  optimisticUpdateSubmission={optimisticUpdateSubmission}
-                  optimisticRemoveSubmission={optimisticRemoveSubmission}
-                  onRefreshSubmission={onRefreshSubmission}
-                  currentPage={currentPage}
-                  currentFilters={currentFilters}
-                />
-              )}
-            </div>
-          );
-        })}
-
-        {/* Infinite scroll trigger - only show when in infinite mode and at the end */}
-        {infiniteScrollMode &&
-          hasMore &&
-          onLoadMore &&
-          visibleRange.end >= posts.length && (
-            <div className="submissions-list__infinite-trigger">
-              <InfiniteScrollTrigger
-                onLoadMore={onLoadMore}
-                isLoading={isLoadingMore}
-                className="submissions-list__trigger"
+        {posts.map((post, index) => (
+          <div key={post.submission_id} className="submissions-list__item">
+            {children ? (
+              children({
+                submission: post,
+                onTagClick,
+                onHashtagClick,
+                onMentionClick,
+                onSubmissionUpdate: onRefresh,
+                contextId,
+                optimisticUpdateSubmission,
+                optimisticRemoveSubmission,
+                onRefreshSubmission,
+                currentPage,
+                currentFilters
+              })
+            ) : (
+              <SubmissionItem
+                submission={post}
+                onTagClick={onTagClick}
+                onHashtagClick={onHashtagClick}
+                onMentionClick={onMentionClick}
+                onSubmissionUpdate={onRefresh}
+                contextId={contextId}
+                optimisticUpdateSubmission={optimisticUpdateSubmission}
+                optimisticRemoveSubmission={optimisticRemoveSubmission}
+                onRefreshSubmission={onRefreshSubmission}
+                currentPage={currentPage}
+                currentFilters={currentFilters}
               />
-            </div>
-          )}
-      </div>
-
-      {/* Bottom spacer for virtual scrolling */}
-      {bottomSpacer > 0 && (
-        <div
-          className="submissions-list__spacer"
-          style={{ height: bottomSpacer }}
-          aria-hidden="true"
-        />
-      )}
-
-      {/* Debugging info in development */}
-      {/* {process.env.NODE_ENV === 'development' && (
-        <div
-          className="submissions-list__debug"
-          style={{
-            position: 'fixed',
-            top: '10px',
-            right: '10px',
-            background: 'rgba(0,0,0,0.8)',
-            color: 'white',
-            padding: '8px',
-            borderRadius: '4px',
-            fontSize: '12px',
-            zIndex: 1000,
-            fontFamily: 'monospace'
-          }}
-        >
-          <div>Total: {posts.length}</div>
-          <div>
-            Visible: {visibleRange.start}-{visibleRange.end}
+            )}
           </div>
-          <div>Rendered: {visiblePosts.length}</div>
-          <div>Scroll: {Math.round(scrollTop)}px</div>
-          <div>Heights Cached: {heightCache.current.size}</div>
-        </div>
-      )} */}
+        ))}
+
+        {/* Infinite scroll trigger - only show when in infinite mode */}
+        {infiniteScrollMode && hasMore && onLoadMore && (
+          <div className="submissions-list__infinite-trigger">
+            <InfiniteScrollTrigger
+              onLoadMore={onLoadMore}
+              isLoading={isLoadingMore}
+              className="submissions-list__trigger"
+            />
+          </div>
+        )}
+      </div>
     </div>
   );
 });
