@@ -2,7 +2,7 @@
 
 import { createLogger } from '@/lib/logging';
 import { useSession } from 'next-auth/react';
-import React, { useCallback, useMemo, useRef } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useSubmissionsManager } from '../../../lib/state/useSubmissionsManager';
 import '../../../lib/utils/scroll-highlight-demo'; // Import for global test function
 import { Submission } from '../submission-forms/schema';
@@ -183,28 +183,62 @@ const PostsManager = React.memo(function PostsManager({
     currentFilters: filters
   });
 
-  // Wrapper function for thread toggle that accepts boolean
-  const handleThreadToggle = useCallback(
-    (checked: boolean) => {
-      setIncludeThreadReplies(checked);
-    },
-    [setIncludeThreadReplies]
-  );
-
   // Handler for only replies toggle
   const handleOnlyRepliesToggle = useCallback(
     (checked: boolean) => {
+      if (process.env.NODE_ENV === 'development') {
+        // eslint-disable-next-line no-console
+        console.log('🔍 PostsManager: onlyReplies toggle', {
+          checked,
+          currentOnlyReplies: onlyReplies
+        });
+      }
       if (checked) {
         addFilter({ name: 'onlyReplies', value: 'true' });
       } else {
         removeFilter('onlyReplies');
       }
     },
-    [addFilter, removeFilter]
+    [addFilter, removeFilter, onlyReplies]
+  );
+
+  // Wrapper function for thread toggle that accepts boolean
+  const handleThreadToggle = useCallback(
+    (checked: boolean) => {
+      if (process.env.NODE_ENV === 'development') {
+        // eslint-disable-next-line no-console
+        console.log('🔍 PostsManager: includeThreadReplies toggle', {
+          checked,
+          currentIncludeThreadReplies: includeThreadReplies
+        });
+      }
+      setIncludeThreadReplies(checked);
+    },
+    [setIncludeThreadReplies, includeThreadReplies]
   );
 
   // Memoize authorization check
   const isAuthorized = useMemo(() => !!session?.user?.id, [session?.user?.id]);
+
+  // Handle filter type change events from FilterBar
+  useEffect(() => {
+    const handleAddFilterFromToggle = (event: Event) => {
+      const customEvent = event as CustomEvent;
+      const { filterType, value } = customEvent.detail;
+
+      // Add the new filter
+      addFilter({ name: filterType, value });
+    };
+
+    window.addEventListener('addFilterFromToggle', handleAddFilterFromToggle);
+
+    return () => {
+      window.removeEventListener(
+        'addFilterFromToggle',
+        handleAddFilterFromToggle
+      );
+    };
+  }, [addFilter]);
 
   // Memoize total pages calculation
   const totalPages = useMemo(
