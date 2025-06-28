@@ -200,12 +200,7 @@ describe('FilterLabel Component', () => {
   });
 
   describe('Mentions Filters', () => {
-    it('should resolve mentions username to userId for display', async () => {
-      mockGetUserInfo.mockResolvedValue({
-        username: 'johndoe',
-        userId: '123'
-      });
-
+    it('should resolve mentions username to display format', async () => {
       await act(async () => {
         renderFilterLabel({
           name: 'mentions',
@@ -213,12 +208,10 @@ describe('FilterLabel Component', () => {
         });
       });
 
+      // For mentions filters with plain usernames, no async resolution is needed
+      // It just adds @ prefix
       await waitFor(() => {
-        expect(mockGetUserInfo).toHaveBeenCalledWith('johndoe');
-      });
-
-      await waitFor(() => {
-        expect(screen.getByText('@[johndoe|123]')).toBeInTheDocument();
+        expect(screen.getByText('@johndoe')).toBeInTheDocument();
       });
     });
 
@@ -235,27 +228,16 @@ describe('FilterLabel Component', () => {
       });
     });
 
-    it('should handle mentions resolution error', async () => {
-      mockGetUserInfo.mockRejectedValue(new Error('Network error'));
-      const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
-
+    it('should handle mentions display correctly', async () => {
       renderFilterLabel({
         name: 'mentions',
         label: 'johndoe'
       });
 
-      await waitFor(() => {
-        expect(consoleSpy).toHaveBeenCalledWith(
-          'Error resolving username to user ID for display:',
-          expect.any(Error)
-        );
-      });
-
+      // For mentions filters with plain usernames, no async resolution is needed
       await waitFor(() => {
         expect(screen.getByText('@johndoe')).toBeInTheDocument();
       });
-
-      consoleSpy.mockRestore();
     });
 
     it('should not resolve mentions if label already starts with @', async () => {
@@ -270,18 +252,13 @@ describe('FilterLabel Component', () => {
     });
 
     it('should handle mentions removal via mention click', async () => {
-      mockGetUserInfo.mockResolvedValue({
-        username: 'johndoe',
-        userId: '123'
-      });
-
       renderFilterLabel({
         name: 'mentions',
         label: 'johndoe'
       });
 
       await waitFor(() => {
-        expect(screen.getByText('@[johndoe|123]')).toBeInTheDocument();
+        expect(screen.getByText('@johndoe')).toBeInTheDocument();
       });
 
       const mentionButton = screen.getByTestId('mention-click');
@@ -296,9 +273,9 @@ describe('FilterLabel Component', () => {
         label: 'plain-mention'
       });
 
-      // For plain text mentions, it should render in loading state with a clickable span
-      const removeButton = screen.getByText('×');
-      fireEvent.click(removeButton);
+      // For plain text mentions, displayLabel becomes @plain-mention and renders via ContentWithPills
+      const mentionButton = screen.getByTestId('mention-click');
+      fireEvent.click(mentionButton);
 
       expect(mockOnRemoveFilter).toHaveBeenCalledWith(
         'mentions',
@@ -358,9 +335,9 @@ describe('FilterLabel Component', () => {
         label: 'plain-mention'
       });
 
-      // For plain text mentions, it should render in loading state with a clickable span
-      const removeButton = screen.getByText('×');
-      fireEvent.click(removeButton);
+      // For plain text mentions, displayLabel becomes @plain-mention and renders via ContentWithPills
+      const mentionButton = screen.getByTestId('mention-click');
+      fireEvent.click(mentionButton);
 
       expect(mockOnRemoveFilter).toHaveBeenCalledWith(
         'mentions',

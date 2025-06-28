@@ -149,7 +149,7 @@ describe('CustomFilterInput', () => {
       () => {
         expect(mockOnAddFilter).toHaveBeenCalledWith({
           name: 'author',
-          value: '123' // Should use userId for author filter
+          value: 'testuser|123' // Should use username|userId format
         });
       },
       { timeout: 3000 }
@@ -172,10 +172,10 @@ describe('CustomFilterInput', () => {
       fireEvent.submit(form);
     });
 
-    // Should call onAddFilter with the userId from structured format
+    // Should call onAddFilter with the username|userId format
     expect(mockOnAddFilter).toHaveBeenCalledWith({
       name: 'author',
-      value: 'user123'
+      value: 'testuser|user123'
     });
   });
 
@@ -297,13 +297,13 @@ describe('CustomFilterInput', () => {
     // First call should be for the first valid mention
     expect(mockOnAddFilter).toHaveBeenNthCalledWith(1, {
       name: 'author',
-      value: 'id1'
+      value: 'user1|id1'
     });
 
     // Second call should be for the fixed malformed mention
     expect(mockOnAddFilter).toHaveBeenNthCalledWith(2, {
       name: 'author',
-      value: 'id2'
+      value: 'user2|id2'
     });
   });
 });

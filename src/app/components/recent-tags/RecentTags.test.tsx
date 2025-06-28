@@ -206,10 +206,13 @@ describe('RecentTagsClient', () => {
   });
 
   it('shows AND/OR toggle with multiple tags selected', async () => {
-    // Mock state with multiple tags
+    // Mock state with multiple tags - separate filter entries for each tag
     const multiTagFiltersState = {
       ...mockFiltersState,
-      filters: [{ name: 'tags', value: 'javascript,react' }]
+      filters: [
+        { name: 'tags', value: '#javascript' },
+        { name: 'tags', value: '#react' }
+      ]
     };
     const { useAtom } = require('jotai');
     (useAtom as jest.Mock).mockReturnValue([
@@ -295,11 +298,12 @@ describe('RecentTagsClient', () => {
   });
 
   it('handles AND/OR logic toggle correctly', async () => {
-    // Mock state with multiple tags and OR logic
+    // Mock state with multiple tags and OR logic - separate filter entries
     const multiTagFiltersState = {
       ...mockFiltersState,
       filters: [
-        { name: 'tags', value: 'javascript,react' },
+        { name: 'tags', value: '#javascript' },
+        { name: 'tags', value: '#react' },
         { name: 'tagLogic', value: 'OR' }
       ]
     };
@@ -335,11 +339,12 @@ describe('RecentTagsClient', () => {
   });
 
   it('updates smart title based on selected tags and logic', async () => {
-    // Mock state with multiple tags and AND logic
+    // Mock state with multiple tags and AND logic - separate filter entries
     const multiTagAndFiltersState = {
       ...mockFiltersState,
       filters: [
-        { name: 'tags', value: 'javascript,react' },
+        { name: 'tags', value: '#javascript' },
+        { name: 'tags', value: '#react' },
         { name: 'tagLogic', value: 'AND' }
       ]
     };
@@ -364,16 +369,17 @@ describe('RecentTagsClient', () => {
 
     // Should show smart title with "all of"
     expect(
-      screen.getByText(/Posts with all of: javascript, react/)
+      screen.getByText(/Posts with all of: #javascript, #react/)
     ).toBeInTheDocument();
   });
 
   it('updates smart title for OR logic', async () => {
-    // Mock state with multiple tags and OR logic
+    // Mock state with multiple tags and OR logic - separate filter entries
     const multiTagOrFiltersState = {
       ...mockFiltersState,
       filters: [
-        { name: 'tags', value: 'javascript,react' },
+        { name: 'tags', value: '#javascript' },
+        { name: 'tags', value: '#react' },
         { name: 'tagLogic', value: 'OR' }
       ]
     };
@@ -398,15 +404,18 @@ describe('RecentTagsClient', () => {
 
     // Should show smart title with "any of"
     expect(
-      screen.getByText(/Posts with any of: javascript, react/)
+      screen.getByText(/Posts with any of: #javascript, #react/)
     ).toBeInTheDocument();
   });
 
   it('handles tag removal correctly', async () => {
-    // Mock state with multiple tags
+    // Mock state with multiple tags - separate filter entries
     const multiTagFiltersState = {
       ...mockFiltersState,
-      filters: [{ name: 'tags', value: 'javascript,react' }]
+      filters: [
+        { name: 'tags', value: '#javascript' },
+        { name: 'tags', value: '#react' }
+      ]
     };
     const { useAtom } = require('jotai');
     (useAtom as jest.Mock).mockReturnValue([
@@ -507,10 +516,13 @@ describe('RecentTagsClient', () => {
   });
 
   it('shows active state for selected tags', async () => {
-    // Mock state with some selected tags
+    // Mock state with some selected tags - separate filter entries
     const selectedTagsFiltersState = {
       ...mockFiltersState,
-      filters: [{ name: 'tags', value: 'javascript,react' }]
+      filters: [
+        { name: 'tags', value: '#javascript' },
+        { name: 'tags', value: '#react' }
+      ]
     };
     const { useAtom } = require('jotai');
     (useAtom as jest.Mock).mockReturnValue([

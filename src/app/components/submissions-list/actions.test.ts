@@ -276,7 +276,8 @@ describe('getSubmissionsAction', () => {
         onlyMine: false,
         userId: '',
         filters: [
-          { name: 'tags', value: 'react,typescript' },
+          { name: 'tags', value: 'react' },
+          { name: 'tags', value: 'typescript' },
           { name: 'tagLogic', value: 'AND' }
         ],
         page: 1,
@@ -321,7 +322,8 @@ describe('getSubmissionsAction', () => {
         onlyMine: false,
         userId: '',
         filters: [
-          { name: 'author', value: '123,456' },
+          { name: 'author', value: '123' },
+          { name: 'author', value: '456' },
           { name: 'authorLogic', value: 'OR' }
         ],
         page: 1,
@@ -340,7 +342,8 @@ describe('getSubmissionsAction', () => {
         onlyMine: false,
         userId: '',
         filters: [
-          { name: 'mentions', value: 'user1,user2' },
+          { name: 'mentions', value: 'user1' },
+          { name: 'mentions', value: 'user2' },
           { name: 'mentionsLogic', value: 'AND' }
         ],
         page: 1,
@@ -359,7 +362,8 @@ describe('getSubmissionsAction', () => {
         onlyMine: false,
         userId: '',
         filters: [
-          { name: 'mentions', value: 'user1,user2' },
+          { name: 'mentions', value: 'user1' },
+          { name: 'mentions', value: 'user2' },
           { name: 'mentionsLogic', value: 'OR' }
         ],
         page: 1,
@@ -418,9 +422,11 @@ describe('getSubmissionsAction', () => {
         onlyMine: false,
         userId: '',
         filters: [
-          { name: 'tags', value: 'react,typescript' },
+          { name: 'tags', value: 'react' },
+          { name: 'tags', value: 'typescript' },
           { name: 'tagLogic', value: 'AND' },
-          { name: 'author', value: '123,456' },
+          { name: 'author', value: '123' },
+          { name: 'author', value: '456' },
           { name: 'authorLogic', value: 'OR' },
           { name: 'mentions', value: 'user1' },
           { name: 'mentionsLogic', value: 'OR' },
@@ -449,7 +455,8 @@ describe('getSubmissionsAction', () => {
         onlyMine: false,
         userId: '',
         filters: [
-          { name: 'tags', value: '#react,#typescript' },
+          { name: 'tags', value: '#react' },
+          { name: 'tags', value: '#typescript' },
           { name: 'tagLogic', value: 'AND' }
         ],
         page: 1,
@@ -470,7 +477,8 @@ describe('getSubmissionsAction', () => {
         filters: [
           { name: 'tags', value: '' },
           { name: 'author', value: ' ' },
-          { name: 'mentions', value: 'user1,,user2' },
+          { name: 'mentions', value: 'user1' },
+          { name: 'mentions', value: 'user2' },
           { name: 'mentionsLogic', value: 'AND' }
         ],
         page: 1,
@@ -489,9 +497,11 @@ describe('getSubmissionsAction', () => {
         onlyMine: false,
         userId: '',
         filters: [
-          { name: 'tags', value: 'react, , ,typescript' },
-          { name: 'author', value: '123, ,456' },
-          { name: 'mentions', value: ' , user1 , ' },
+          { name: 'tags', value: 'react' },
+          { name: 'tags', value: 'typescript' },
+          { name: 'author', value: '123' },
+          { name: 'author', value: '456' },
+          { name: 'mentions', value: 'user1' },
           { name: 'globalLogic', value: 'OR' }
         ],
         page: 1,
@@ -517,8 +527,10 @@ describe('getSubmissionsAction', () => {
         onlyMine: false,
         userId: '',
         filters: [
-          { name: 'tags', value: 'react-native,vue.js' },
-          { name: 'mentions', value: 'user@domain,user_name' },
+          { name: 'tags', value: 'react-native' },
+          { name: 'tags', value: 'vue.js' },
+          { name: 'mentions', value: 'user@domain' },
+          { name: 'mentions', value: 'user_name' },
           { name: 'globalLogic', value: 'AND' }
         ],
         page: 1,
