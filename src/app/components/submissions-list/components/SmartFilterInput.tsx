@@ -144,16 +144,6 @@ export const SmartFilterInput: React.FC<SmartFilterInputProps> = ({
       !isUserTyping &&
       filtersToDisplayValue !== localInputValue
     ) {
-      // eslint-disable-next-line no-console
-      console.log('🔍 SYNC: Syncing input with filter state:', {
-        currentFilterCount,
-        lastFilterStateLength,
-        isUserTyping,
-        isUpdatingFromFilters,
-        filtersToDisplayValue,
-        localInputValue,
-        willUpdate: true
-      });
       setLocalInputValue(filtersToDisplayValue);
       setIsUserTyping(false);
     }
@@ -268,67 +258,16 @@ export const SmartFilterInput: React.FC<SmartFilterInputProps> = ({
         return;
       }
 
-      // Add debugging to understand what's happening
-      // eslint-disable-next-line no-console
-      console.log('🔍 INPUT: handleInputChange called:', {
-        newValue,
-        localInputValue,
-        isUpdatingFromFilters,
-        isUserTyping
-      });
-
-      // Check if this change adds a complete structured mention or hashtag
-      // This indicates a search result selection that should be applied immediately
-      const prevValue = lastInputValue; // Use the actual previous input value, not localInputValue
-
-      // Detect if structured content was added (selection from autocomplete)
-      const hasStructuredMention = /@\[[^\]]+\]/.test(newValue);
-      const prevHadStructuredMention = /@\[[^\]]+\]/.test(prevValue);
-      const addedStructuredMention =
-        hasStructuredMention && !prevHadStructuredMention;
-
-      // Detect if the change significantly increased the length (likely a selection)
-      const lengthIncrease = newValue.length - prevValue.length;
-      const significantIncrease = lengthIncrease > 5; // More than just typing a few chars
-
-      // Detect if we went from partial mention to structured mention
-      const hadPartialMention = /@\w*$/.test(prevValue.trim());
-      const nowHasStructured = /@\[[^\]]+\]/.test(newValue);
-      const mentionCompleted = hadPartialMention && nowHasStructured;
-
-      // Also detect if we went from simple mention (@username) to structured mention
-      const hadSimpleMention = /@\w+$/.test(prevValue.trim());
-      const nowHasStructuredFromSimple =
-        hadSimpleMention && hasStructuredMention;
-      const mentionUpgraded = nowHasStructuredFromSimple;
-
-      // Also detect hashtag completions
-      const hasHashtag = /#\w+\s/.test(newValue);
-      const prevHadHashtag = /#\w+\s/.test(prevValue);
-      const addedHashtag = hasHashtag && !prevHadHashtag;
-
-      // eslint-disable-next-line no-console
-      console.log('🔍 INPUT: Selection analysis:', {
-        prevValue,
-        newValue,
-        addedStructuredMention,
-        significantIncrease,
-        mentionCompleted,
-        mentionUpgraded,
-        addedHashtag,
-        lengthIncrease
-      });
-
       // Always update local state immediately for responsive typing
       setLocalInputValue(newValue);
 
-      // Mark that user is actively typing (regardless of whether it's a selection or typing)
+      // Mark that user is actively typing
       setIsUserTyping(true);
 
-      // Always update the last input value for comparison in next call
+      // Update the last input value for comparison in next call
       setLastInputValue(newValue);
     },
-    [isUpdatingFromFilters, lastInputValue]
+    [isUpdatingFromFilters]
   );
 
   // Handle Enter key to apply filters
@@ -382,6 +321,7 @@ export const SmartFilterInput: React.FC<SmartFilterInputProps> = ({
         enableEmojis={false}
         enableImagePaste={false}
         mentionFilterType="mentions"
+        enableDebugLogging={false}
       />
     </div>
   );
