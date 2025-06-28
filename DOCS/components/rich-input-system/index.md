@@ -1,9 +1,11 @@
 ---
 layout: default
-title: 'Rich Input System - Business Requirements'
-description: 'Comprehensive business requirements for the Rich Input text editing system used throughout the application'
+title: 'Rich Input System'
+description: 'Comprehensive documentation for the Rich Input text editing component used throughout the application'
+permalink: /components/rich-input-system/
+parent: Components
 date: 2025-01-28
-categories: [business-requirements, text-editing, user-interface]
+categories: [components, text-editing, user-interface]
 tags:
   [rich-input, text-editor, hashtags, mentions, emojis, url-conversion, forms]
 mermaid: true

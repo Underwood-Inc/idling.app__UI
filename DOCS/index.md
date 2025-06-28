@@ -16,9 +16,9 @@ Welcome to the comprehensive documentation for **Idling.app** - a modern social 
 
 ## 📖 Documentation Sections
 
-### 📋 Business Requirements
+### 🧩 Components
 
-- **[Rich Input System](./business-requirements/rich-input-system)** - Comprehensive business requirements for the intelligent text editing system
+- **[Rich Input System](./components/rich-input-system/)** - Comprehensive documentation for the intelligent text editing component
 
 ### 🗄️ Database & Migrations
 
