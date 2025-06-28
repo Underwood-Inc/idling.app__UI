@@ -35,7 +35,7 @@ export const InteractiveTooltip: React.FC<InteractiveTooltipProps> = ({
   triggerOnClick = false,
   onClose,
   onShow,
-  show = false
+  show
 }) => {
   const [showTooltip, setShowTooltip] = useState(false);
   const [position, setPosition] = useState({ top: 0, left: 0 });
