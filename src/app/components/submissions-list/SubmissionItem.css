@@ -344,8 +344,8 @@
   margin-left: auto;
 }
 
-.submission__text-link {
-  /* color: var(--brand-primary); */
+.submission__text-link, .submission__parent-link {
+  color: var(--brand-primary)!important;
   text-decoration: none;
   font-size: var(--font-size-sm);
   font-weight: 500;
@@ -357,7 +357,7 @@
   box-shadow: none !important;
 }
 
-.submission__text-link:hover {
+.submission__text-link:hover, .submission__parent-link:hover {
   color: var(--brand-primary--dark)!important;
   text-decoration: underline;
   background: none !important;
