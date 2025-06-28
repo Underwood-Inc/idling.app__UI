@@ -2,17 +2,102 @@ import NextAuth from 'next-auth';
 import { NextResponse } from 'next/server';
 import { authConfig } from './auth.config';
 import { NAV_PATHS, PUBLIC_ROUTES } from './lib/routes';
+import rateLimiter from './lib/utils/rateLimiter';
+import { getRateLimitType, getRequestIdentifier } from './lib/utils/requestIdentifier';
 
 const { auth } = NextAuth({
   ...authConfig,
   basePath: '/api/auth'
 });
 
+/**
+ * Create rate limit response with appropriate headers
+ */
+function createRateLimitResponse(result: any, isAttack: boolean = false) {
+  const status = isAttack ? 429 : 429; // Too Many Requests
+  const message = isAttack 
+    ? 'Suspicious activity detected. Access temporarily restricted.'
+    : 'Too many requests. Please slow down.';
+
+  const response = NextResponse.json(
+    { 
+      error: message,
+      retryAfter: result.retryAfter,
+      penaltyLevel: result.penaltyLevel
+    },
+    { status }
+  );
+
+  // Add standard rate limit headers
+  response.headers.set('X-RateLimit-Limit', '100'); // Will be dynamic in production
+  response.headers.set('X-RateLimit-Remaining', result.remaining.toString());
+  response.headers.set('X-RateLimit-Reset', new Date(result.resetTime).toISOString());
+  
+  if (result.retryAfter) {
+    response.headers.set('Retry-After', result.retryAfter.toString());
+  }
+
+  // Add security headers for attacks
+  if (isAttack) {
+    response.headers.set('X-Security-Warning', 'Rate limit violation detected');
+  }
+
+  return response;
+}
+
 export default auth((req) => {
   const { nextUrl, auth: session } = req;
 
-  // Handle API route authentication
+  // Handle API route rate limiting and authentication
   if (nextUrl.pathname.startsWith('/api/')) {
+    // Get request identifier for rate limiting
+    const identifier = getRequestIdentifier(req, session);
+    const rateLimitType = getRateLimitType(nextUrl.pathname);
+    
+    // Apply rate limiting based on endpoint type
+    const rateLimitResult = rateLimiter.checkRateLimit(
+      identifier.composite, 
+      rateLimitType
+    );
+
+    // Check if request should be blocked due to rate limiting
+    if (!rateLimitResult.allowed) {
+      console.warn(`Rate limit exceeded for ${identifier.composite} on ${nextUrl.pathname}`, {
+        penaltyLevel: rateLimitResult.penaltyLevel,
+        isAttack: rateLimitResult.isAttack,
+        retryAfter: rateLimitResult.retryAfter
+      });
+      
+      return createRateLimitResponse(rateLimitResult, rateLimitResult.isAttack);
+    }
+
+    // Additional strict rate limiting for authenticated endpoints
+    if (session?.user?.id) {
+      const userRateLimitResult = rateLimiter.checkRateLimit(
+        identifier.user!,
+        rateLimitType
+      );
+      
+      if (!userRateLimitResult.allowed) {
+        console.warn(`User rate limit exceeded for ${identifier.user} on ${nextUrl.pathname}`, {
+          penaltyLevel: userRateLimitResult.penaltyLevel,
+          isAttack: userRateLimitResult.isAttack
+        });
+        
+        return createRateLimitResponse(userRateLimitResult, userRateLimitResult.isAttack);
+      }
+    }
+
+    // Log suspicious activity
+    if (rateLimitResult.penaltyLevel >= 2) {
+      console.warn(`Elevated penalty level detected`, {
+        identifier: identifier.composite,
+        penaltyLevel: rateLimitResult.penaltyLevel,
+        endpoint: nextUrl.pathname,
+        userAgent: req.headers.get('user-agent')
+      });
+    }
+
     // Protect profile update routes (PATCH, POST, DELETE)
     if (nextUrl.pathname.startsWith('/api/profile') && req.method !== 'GET') {
       if (!session) {
@@ -57,8 +142,12 @@ export default auth((req) => {
       }
     }
 
-    // Allow other API routes to continue
-    return NextResponse.next();
+    // Add rate limit headers to successful responses
+    const response = NextResponse.next();
+    response.headers.set('X-RateLimit-Remaining', rateLimitResult.remaining.toString());
+    response.headers.set('X-RateLimit-Reset', new Date(rateLimitResult.resetTime).toISOString());
+    
+    return response;
   }
 
   // Handle page route authentication (existing logic)
@@ -87,6 +176,7 @@ export const config = {
   matcher: [
     '/api/profile/:path*',
     '/api/admin/:path*',
+    '/api/:path*', // Add all API routes for rate limiting
     '/((?!api|_next/static|_next/image|favicon.ico).*)'
   ]
 };
