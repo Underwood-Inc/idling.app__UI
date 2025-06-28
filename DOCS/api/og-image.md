@@ -30,7 +30,7 @@ GET /api/og-image
 - **Bot/Crawler requests:** Direct image response (PNG by default, SVG with `?type=svg`)
 - **Direct API access:** Use `?direct=true` to bypass browser redirect
 
-**Cache:** 1 hour (3600 seconds)
+**Cache:** No caching - fresh content every request
 
 ## 🔧 Parameters
 
@@ -179,7 +179,7 @@ document.querySelector('meta[property="og:image"]').content = ogImageUrl;
 
 **Status:** `200 OK`
 
-**Cache-Control:** `public, max-age=3600`
+**Cache-Control:** `no-cache, no-store, must-revalidate`
 
 The response is a complete SVG image with:
 
@@ -230,7 +230,7 @@ Get a free API key at [api-ninjas.com/api/quotes](https://api-ninjas.com/api/quo
 
 - **Edge Runtime** - Fast response times globally
 - **SVG Format** - Lightweight, scalable images
-- **1 Hour Cache** - Reduces API calls and improves performance
+- **No Caching** - Fresh, dynamic content every request
 - **Fallback System** - Always returns a valid image
 
 ## 🎨 Customization

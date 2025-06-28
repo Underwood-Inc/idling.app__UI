@@ -50,9 +50,31 @@ const nextConfig = {
           }
         ]
       },
-      // API routes with short cache
+      // OG Image API - no caching for dynamic content
       {
-        source: '/api/:path*',
+        source: '/api/og-image',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'no-cache, no-store, must-revalidate'
+          },
+          {
+            key: 'Pragma',
+            value: 'no-cache'
+          },
+          {
+            key: 'Expires',
+            value: '0'
+          },
+          {
+            key: 'X-App-Version',
+            value: version
+          }
+        ]
+      },
+      // API routes with short cache (excluding og-image)
+      {
+        source: '/api/((?!og-image).*)',
         headers: [
           {
             key: 'Cache-Control',
