@@ -126,7 +126,7 @@ const PostsManager = React.memo(function PostsManager({
   } = useSubmissionsManager({
     contextId,
     onlyMine,
-    userId: session?.user?.id?.toString() || '',
+    initialUserId: session?.user?.id?.toString() || '',
     includeThreadReplies: shouldIncludeReplies,
     infiniteScroll: infiniteScrollMode
   });
@@ -215,18 +215,6 @@ const PostsManager = React.memo(function PostsManager({
       setIncludeThreadReplies(checked);
     },
     [setIncludeThreadReplies, includeThreadReplies]
-  );
-
-  // Handler for only replies toggle
-  const handleOnlyRepliesToggle = useCallback(
-    (checked: boolean) => {
-      if (checked) {
-        addFilter({ name: 'onlyReplies', value: 'true' });
-      } else {
-        removeFilter('onlyReplies');
-      }
-    },
-    [addFilter, removeFilter]
   );
 
   // Memoize authorization check
