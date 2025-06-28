@@ -492,7 +492,7 @@ body {
 .wrapper {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0 var(--spacing-lg);
+  padding: 0 var(--spacing-md);
   background: transparent !important;
   
   @media (max-width: 768px) {
@@ -503,11 +503,11 @@ body {
 // Main content area - simplified without card styling
 .main-content-card {
   background: transparent;
-  padding: var(--spacing-xl);
+  padding: var(--spacing-xl) 0;
   margin-bottom: var(--spacing-xl);
   
   @media (max-width: 768px) {
-    padding: var(--spacing-lg);
+    padding: var(--spacing-lg) 0;
     margin-bottom: var(--spacing-lg);
   }
 }
@@ -639,7 +639,7 @@ body {
   backdrop-filter: var(--glass-blur-medium);
   -webkit-backdrop-filter: var(--glass-blur-medium);
   box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.12);
-  padding: var(--spacing-lg) var(--spacing-xl) !important;
+  padding: var(--spacing-lg) var(--spacing-md) !important;
   color: var(--dark-bg__text-color--secondary) !important;
   margin-top: auto;
   
@@ -726,7 +726,7 @@ body {
   }
   
   .site-footer {
-    padding: var(--spacing-md) var(--spacing-lg) !important;
+    padding: var(--spacing-md) var(--spacing-md) !important;
     
     .footer-links {
       flex-wrap: wrap;
