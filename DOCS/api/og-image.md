@@ -24,7 +24,11 @@ Open Graph images are the preview images you see when sharing links on:
 GET /api/og-image
 ```
 
-**Response Format:** SVG image (image/svg+xml)
+**Response Format:**
+
+- **Browser requests:** Redirects to interactive viewer (`/og-image-viewer`)
+- **Bot/Crawler requests:** Direct image response (PNG by default, SVG with `?type=svg`)
+- **Direct API access:** Use `?direct=true` to bypass browser redirect
 
 **Cache:** 1 hour (3600 seconds)
 
@@ -40,6 +44,8 @@ All parameters are optional. If not provided, the API will generate random conte
 | `quote`   | string | Custom quote text                 | `quote=Hello%20World` |
 | `author`  | string | Custom quote author               | `author=Jane%20Doe`   |
 | `random`  | string | Force randomization (true/false)  | `random=true`         |
+| `type`    | string | Image format (png/svg)            | `type=svg`            |
+| `direct`  | string | Bypass browser redirect           | `direct=true`         |
 
 ## 🎨 Features
 
@@ -75,14 +81,40 @@ Each image features a unique procedural background with:
 - **Glass background effect** - Dark semi-transparent background with blur
 - **Responsive layout** - Text positioning adapts to content
 
+## 🖥️ Interactive Viewer
+
+When you access the OG Image API from a browser, you'll be redirected to an interactive viewer at `/og-image-viewer`. This viewer provides:
+
+- **Visual preview** of the generated image
+- **Right-click context menu** with save options
+- **Download buttons** for PNG and SVG formats
+- **Client-side SVG-to-PNG conversion** for perfect quality
+- **Responsive design** that works on all devices
+
+### Features of the Interactive Viewer
+
+- **Context Menu**: Right-click on the image to save as PNG or SVG
+- **Fallback Buttons**: Click the download buttons if right-click doesn't work
+- **High Quality**: Client-side conversion preserves all details and patterns
+- **Fast Performance**: No server-side processing for downloads
+- **Mobile Friendly**: Touch-friendly interface for mobile devices
+
 ## 📖 Usage Examples
 
-### Basic Usage
+### Browser Usage
 
-Generate a random OG image:
+Open in your browser for interactive viewer:
+
+```
+https://idling.app/api/og-image
+```
+
+### Basic API Usage
+
+Generate a random OG image (direct API):
 
 ```bash
-curl https://idling.app/api/og-image
+curl https://idling.app/api/og-image?direct=true
 ```
 
 ### Custom Quote

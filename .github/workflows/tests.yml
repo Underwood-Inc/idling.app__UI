@@ -736,15 +736,15 @@ jobs:
           # Check if we have any results to merge
           if [ -d "downloaded-results" ] && [ "$(find downloaded-results -type f | wc -l)" -gt 0 ]; then
             echo "Found Playwright results to merge"
-            echo "Full directory structure:"
-            find downloaded-results -type f
+          echo "Full directory structure:"
+          find downloaded-results -type f
 
-            # Generate HTML report from merged results
-            echo "Generating HTML report..."
-            npx playwright merge-reports --reporter html downloaded-results
+          # Generate HTML report from merged results
+          echo "Generating HTML report..."
+          npx playwright merge-reports --reporter html downloaded-results
 
-            echo "Final report contents:"
-            ls -la playwright-report/
+          echo "Final report contents:"
+          ls -la playwright-report/
           else
             echo "No Playwright results found - creating placeholder report"
             echo "<html><body><h1>Playwright Tests Skipped</h1><p>No test results available - tests may have failed or been skipped.</p></body></html>" > playwright-report/index.html

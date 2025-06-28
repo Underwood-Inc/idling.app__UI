@@ -1,4 +1,5 @@
 const ROOT = '/';
+const CARD_GENERATOR = '/card-generator';
 const GALAXY = 'https://galaxy.idling.app/';
 const POSTS = '/posts';
 const MY_POSTS = '/my-posts';
@@ -13,6 +14,7 @@ const THREAD_BASE = '/t';
 
 export const NAV_PATHS = {
   ROOT,
+  CARD_GENERATOR,
   GALAXY,
   POSTS,
   MY_POSTS,
@@ -35,6 +37,7 @@ export const HEADER_NAV_PATHS: Record<
   >,
   string
 > = {
+  CARD_GENERATOR,
   GALAXY,
   POSTS,
   MY_POSTS
@@ -44,6 +47,7 @@ export type ROUTES = keyof typeof NAV_PATHS;
 
 export const NAV_PATH_LABELS: Record<ROUTES, string> = {
   ROOT: 'Home',
+  CARD_GENERATOR: 'Card Generator',
   GALAXY: 'Galaxy',
   POSTS: 'Posts',
   MY_POSTS: 'My Posts',

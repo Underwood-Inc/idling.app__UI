@@ -12,6 +12,7 @@ interface InteractiveTooltipProps {
   delay?: number; // Delay before showing tooltip in milliseconds
   className?: string; // Additional CSS class for tooltip wrapper
   triggerOnClick?: boolean; // If true, tooltip shows/hides on click instead of hover
+  triggerOnRightClick?: boolean; // If true, tooltip shows on right-click (context menu style)
   onClose?: () => void; // Callback when tooltip closes
   onShow?: () => void; // Callback when tooltip is about to show
   show?: boolean; // If provided, controls tooltip visibility programmatically
@@ -33,6 +34,7 @@ export const InteractiveTooltip: React.FC<InteractiveTooltipProps> = ({
   delay = 300,
   className = '',
   triggerOnClick = false,
+  triggerOnRightClick = false,
   onClose,
   onShow,
   show
@@ -282,7 +284,7 @@ export const InteractiveTooltip: React.FC<InteractiveTooltipProps> = ({
     // On mobile, always use click mode regardless of triggerOnClick setting
     const isMobile = isMobileDevice();
 
-    if (!triggerOnClick && !isMobile) return;
+    if (!triggerOnClick && !triggerOnRightClick && !isMobile) return;
 
     const newShowState = !showTooltip;
 
@@ -298,6 +300,22 @@ export const InteractiveTooltip: React.FC<InteractiveTooltipProps> = ({
     } else if (onClose) {
       onClose();
     }
+  };
+
+  const handleContextMenu = (event: React.MouseEvent) => {
+    // Don't handle context menu if controlled by show prop or not enabled
+    if (show !== undefined || !triggerOnRightClick || disabled) return;
+
+    event.preventDefault();
+
+    if (onShow) {
+      onShow(); // Call onShow callback before showing tooltip
+    }
+
+    setShowTooltip(true);
+
+    // Update position after a short delay to ensure content is rendered
+    setTimeout(updatePosition, 0);
   };
 
   const handleTooltipMouseEnter = () => {
@@ -342,6 +360,7 @@ export const InteractiveTooltip: React.FC<InteractiveTooltipProps> = ({
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
         onClick={handleClick}
+        onContextMenu={handleContextMenu}
         style={{ display: 'inline-block' }}
       >
         {children}

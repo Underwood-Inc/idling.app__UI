@@ -1,0 +1,186 @@
+.header__content {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 2rem;
+  width: 100%;
+}
+
+.header__text {
+  flex: 1;
+}
+
+.header__buttons {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.header__button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  background-color: var(--brand-primary);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.header__button:hover {
+  background-color: var(--brand-primary--dark);
+  transform: translateY(-1px);
+}
+
+.header__button:first-child {
+  background-color: #3b82f6;
+}
+
+.header__button:first-child:hover {
+  background-color: #2563eb;
+}
+
+.header__button:last-child {
+  background-color: #10b981;
+}
+
+.header__button:last-child:hover {
+  background-color: #059669;
+}
+
+.viewer__container {
+  width: 100%;
+}
+
+.viewer__container_fade {
+  width: 100%;
+}
+
+.image__wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+.og__image {
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.og__image svg {
+  width: 100%;
+  height: auto;
+  display: block;
+  /* Ensure SVG scales properly with viewBox */
+  max-width: 100%;
+  max-height: 100%;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .header__content {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .header__buttons {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .header__button {
+    padding: 0.625rem 1rem;
+    font-size: 0.9rem;
+  }
+}
+
+.url__link {
+  display: block;
+  width: 100%;
+  padding: 1rem;
+  background-color: var(--color-background-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  font-family: 'Courier New', monospace;
+  font-size: 0.875rem;
+  color: var(--color-primary);
+  word-break: break-all;
+  overflow-wrap: break-word;
+  margin-top: 0.75rem;
+  line-height: 1.4;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.url__link:hover {
+  background-color: var(--color-primary);
+  color: white;
+  border-color: var(--color-primary);
+}
+
+/* When aside wraps, make it full width */
+@media (max-width: 680px) {
+  .viewer__container {
+    flex-direction: column;
+  }
+  
+  .download_aside {
+    flex: none;
+    width: 100%;
+  }
+}
+
+/* General responsive adjustments */
+@media (max-width: 768px) {
+  .image__wrapper {
+    padding: 1rem;
+  }
+  
+  .og__image {
+    max-width: 100%;
+  }
+  
+  .download__buttons {
+    gap: 0.75rem;
+    flex-direction: row;
+  }
+  
+  .download__button {
+    padding: 0.875rem 1rem;
+    font-size: 1rem;
+    flex: 1;
+  }
+  
+  .download__info p,
+  .url__info p {
+    font-size: 0.875rem;
+  }
+  
+  .url__link {
+    padding: 0.75rem;
+    font-size: 0.75rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .download__buttons {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  
+  .download__button {
+    flex: none;
+    width: 100%;
+  }
+} 
