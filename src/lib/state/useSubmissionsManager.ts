@@ -117,10 +117,12 @@ export function useSubmissionsManager({
       return;
     }
 
-    // Skip if already fetching the same request
-    if (isFetching.current && lastFetchKey.current === fetchKey) {
-      logger.debug('Already fetching this request');
+    // If already fetching a different request, wait for it to complete
+    if (isFetching.current) {
+      logger.debug('Already fetching different request, will retry');
       logger.groupEnd();
+      // Schedule retry after current fetch completes
+      setTimeout(() => fetchSubmissions(), 100);
       return;
     }
 
@@ -138,6 +140,22 @@ export function useSubmissionsManager({
       ...prevState,
       loading: true
     }));
+
+    // Safety timeout to prevent stuck loading state
+    const loadingTimeout = setTimeout(() => {
+      if (isFetching.current) {
+        logger.warn('Fetch timeout - resetting loading state', {
+          fetchKey: fetchKey.substring(0, 100) + '...',
+          filters: filtersState.filters
+        });
+        setSubmissionsState(prevState => ({
+          ...prevState,
+          loading: false,
+          error: 'Request timed out. Please try again.'
+        }));
+        isFetching.current = false;
+      }
+    }, 30000); // 30 second timeout
 
     try {
       const result = await getSubmissionsWithReplies({
@@ -210,6 +228,7 @@ export function useSubmissionsManager({
       }));
       logger.groupEnd();
     } finally {
+      clearTimeout(loadingTimeout);
       isFetching.current = false;
     }
   }, [
@@ -268,13 +287,12 @@ export function useSubmissionsManager({
 
   // Simple fetch when filters change - use stable fetchKey
   useEffect(() => {
-    if (!filtersState.initialized || isFetching.current) {
+    if (!filtersState.initialized) {
       // Debug logging for skipped fetch
       if (process.env.NODE_ENV === 'development') {
         // eslint-disable-next-line no-console
-        console.log('🔍 Fetch Skipped:', {
+        console.log('🔍 Fetch Skipped - Not Initialized:', {
           initialized: filtersState.initialized,
-          isFetching: isFetching.current,
           fetchKey: fetchKey.substring(0, 100) + '...'
         });
       }
@@ -287,10 +305,12 @@ export function useSubmissionsManager({
       console.log('🔍 Triggering Fetch:', {
         fetchKey: fetchKey.substring(0, 100) + '...',
         filters: filtersState.filters,
-        page: filtersState.page
+        page: filtersState.page,
+        isFetching: isFetching.current
       });
     }
 
+    // Always try to fetch - fetchSubmissions handles race conditions internally
     fetchSubmissions();
   }, [fetchKey, fetchSubmissions]);
 
