@@ -11,12 +11,14 @@ This guide walks you through deploying the idling.app to a production server. We
 ## 📋 What You'll Need Before Starting
 
 ### Required Tools
+
 - **A server** (like DigitalOcean, AWS, or any VPS)
 - **SSH access** to your server (like a key to log into your server remotely)
 - **A domain name** (like yoursite.com)
 - **Basic command line knowledge** (don't worry, we'll explain each command)
 
 ### Required Information
+
 - Your server's IP address
 - Your server's username and password (or SSH key)
 - Your domain name
@@ -47,6 +49,7 @@ sudo apt install nginx
 ```
 
 **What each tool does:**
+
 - **Node.js**: Runs our JavaScript application
 - **PM2**: Keeps the app running even if it crashes
 - **PostgreSQL**: Stores all our data (posts, users, etc.)
@@ -68,6 +71,7 @@ GRANT ALL PRIVILEGES ON DATABASE mydatabase TO myuser;
 ```
 
 **What this does:**
+
 - Creates a new database called `mydatabase`
 - Creates a user called `myuser` with a password
 - Gives the user permission to use the database
@@ -148,6 +152,7 @@ NODE_ENV="production"
 ```
 
 **How to generate secure secrets:**
+
 ```bash
 # Run this command to generate a random secret
 openssl rand -base64 32
@@ -200,6 +205,7 @@ server {
 ```
 
 **What this does:**
+
 - Listens for web requests on port 80
 - Forwards all requests to our app running on port 3000
 - Handles all the technical details of web traffic
@@ -234,6 +240,7 @@ pm2 save
 ```
 
 **What PM2 does:**
+
 - Keeps your app running 24/7
 - Restarts it if it crashes
 - Starts it automatically when the server reboots
@@ -265,6 +272,7 @@ sudo certbot --nginx -d yourdomain.com -d www.yourdomain.com
 ```
 
 **Follow the prompts:**
+
 1. Enter your email address
 2. Agree to terms of service
 3. Choose whether to share your email (optional)
@@ -337,11 +345,13 @@ sudo certbot renew
 ### App Won't Start
 
 **Check the logs:**
+
 ```bash
 pm2 logs idling-app
 ```
 
 **Common fixes:**
+
 - Make sure the database is running: `sudo systemctl status postgresql`
 - Check environment variables are correct: `cat .env.local`
 - Verify the build was successful: `ls -la .next/`
@@ -349,11 +359,13 @@ pm2 logs idling-app
 ### Can't Connect to Database
 
 **Check database status:**
+
 ```bash
 sudo systemctl status postgresql
 ```
 
 **Test database connection:**
+
 ```bash
 psql -h localhost -d mydatabase -U myuser
 ```
@@ -361,11 +373,13 @@ psql -h localhost -d mydatabase -U myuser
 ### Website Shows Error
 
 **Check Nginx status:**
+
 ```bash
 sudo systemctl status nginx
 ```
 
 **Check Nginx configuration:**
+
 ```bash
 sudo nginx -t
 ```
@@ -435,4 +449,4 @@ Remember: Every production deployment is unique. Don't hesitate to adapt these i
 
 ---
 
-*This guide covers a standard deployment. For advanced setups (Docker, Kubernetes, etc.), see our [advanced deployment guide](./advanced-deployment).* 
+_This guide covers a standard deployment. For advanced setups (Docker, Kubernetes, etc.), see our [advanced deployment guide](./advanced-deployment)._

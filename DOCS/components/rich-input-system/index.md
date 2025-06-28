@@ -8,7 +8,7 @@ date: 2025-01-28
 categories: [components, text-editing, user-interface]
 tags:
   [rich-input, text-editor, hashtags, mentions, emojis, url-conversion, forms]
-mermaid: true
+
 toc: true
 ---
 

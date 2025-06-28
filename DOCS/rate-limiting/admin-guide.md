@@ -4,7 +4,6 @@ title: '⚡ Admin Guide'
 permalink: /rate-limiting/admin-guide/
 parent: '🛡️ Rate Limiting Documentation'
 nav_order: 5
-mermaid: true
 ---
 
 This guide provides administrators with comprehensive tools and procedures for managing the rate limiting system. From monitoring and configuration to emergency response, you'll find everything needed to maintain optimal system performance.

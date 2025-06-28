@@ -409,3 +409,93 @@
   global.MermaidConfig.CONFIG = CONFIG;
 
 })(window); 
+// Mermaid Configuration for Responsive Diagrams
+window.mermaidConfig = {
+  theme: 'default',
+  startOnLoad: false,
+  securityLevel: 'loose',
+  fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif',
+  fontSize: 14,
+  
+  // Responsive configuration
+  maxWidth: '100%',
+  useMaxWidth: true,
+  
+  // Flowchart configuration
+  flowchart: {
+    useMaxWidth: true,
+    htmlLabels: true,
+    curve: 'basis',
+    padding: 10
+  },
+  
+  // Sequence diagram configuration
+  sequence: {
+    useMaxWidth: true,
+    wrap: true,
+    width: 150,
+    height: 65,
+    boxMargin: 10,
+    boxTextMargin: 5,
+    noteMargin: 10,
+    messageMargin: 35
+  },
+  
+  // Gantt configuration
+  gantt: {
+    useMaxWidth: true,
+    leftPadding: 75,
+    gridLineStartPadding: 35,
+    fontSize: 11,
+    sectionFontSize: 11,
+    numberSectionStyles: 4
+  },
+  
+  // Git graph configuration
+  gitGraph: {
+    useMaxWidth: true,
+    mainBranchName: 'main'
+  },
+  
+  // Pie chart configuration
+  pie: {
+    useMaxWidth: true,
+    textPosition: 0.75
+  },
+  
+  // Class diagram configuration
+  class: {
+    useMaxWidth: true
+  },
+  
+  // State diagram configuration
+  state: {
+    useMaxWidth: true
+  },
+  
+  // Journey diagram configuration
+  journey: {
+    useMaxWidth: true,
+    diagramMarginX: 50,
+    diagramMarginY: 10,
+    leftMargin: 150,
+    width: 150,
+    height: 50,
+    boxMargin: 10,
+    boxTextMargin: 5,
+    noteMargin: 10,
+    messageMargin: 35
+  },
+  
+  // Timeline configuration
+  timeline: {
+    useMaxWidth: true,
+    padding: 5,
+    useWidth: undefined
+  }
+};
+
+// Initialize Mermaid with responsive configuration
+if (typeof mermaid !== 'undefined') {
+  mermaid.initialize(window.mermaidConfig);
+} 
