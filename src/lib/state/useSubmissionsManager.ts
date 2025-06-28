@@ -74,20 +74,32 @@ export function useSubmissionsManager({
     return initialUserId || session?.user?.id || '';
   }, [initialUserId, session?.user?.id]);
 
-  // Simple fetch function
-  const fetchSubmissions = useCallback(async () => {
-    if (!filtersState.initialized) {
-      return;
-    }
-
-    const fetchKey = JSON.stringify({
+  // Create a stable fetch key to prevent unnecessary re-renders
+  const fetchKey = useMemo(() => {
+    return JSON.stringify({
       filters: filtersState.filters,
       page: filtersState.page,
       pageSize: filtersState.pageSize,
       onlyMine,
       userId,
-      includeThreadReplies
+      includeThreadReplies,
+      initialized: filtersState.initialized
     });
+  }, [
+    filtersState.filters,
+    filtersState.page,
+    filtersState.pageSize,
+    filtersState.initialized,
+    onlyMine,
+    userId,
+    includeThreadReplies
+  ]);
+
+  // Simple fetch function with stable dependencies
+  const fetchSubmissions = useCallback(async () => {
+    if (!filtersState.initialized) {
+      return;
+    }
 
     logger.group('fetchSubmissions');
     logger.debug('fetchSubmissions called', {
@@ -121,8 +133,11 @@ export function useSubmissionsManager({
       pageSize: filtersState.pageSize
     });
 
-    // Loading state is now set by the useEffect, not here
-    // This prevents double loading state updates
+    // Set loading state at the start of fetch
+    setSubmissionsState(prevState => ({
+      ...prevState,
+      loading: true
+    }));
 
     try {
       const result = await getSubmissionsWithReplies({
@@ -135,10 +150,28 @@ export function useSubmissionsManager({
       });
 
       if (result.data) {
+        const submissionsData = result.data.data || [];
+        
+        // Debug logging for search results issue
+        if (process.env.NODE_ENV === 'development') {
+          // eslint-disable-next-line no-console
+          console.log('🔍 useSubmissionsManager - Fetch Result:', {
+            submissionsCount: submissionsData.length,
+            totalRecords: result.data.pagination?.totalRecords || 0,
+            filters: filtersState.filters,
+            page: filtersState.page,
+            firstSubmission: submissionsData[0] ? {
+              id: submissionsData[0].submission_id,
+              title: submissionsData[0].submission_title,
+              author: submissionsData[0].author
+            } : null
+          });
+        }
+        
         setSubmissionsState({
           loading: false,
           data: {
-            submissions: result.data.data || [],
+            submissions: submissionsData,
             pagination: result.data.pagination || {
               currentPage: filtersState.page,
               pageSize: filtersState.pageSize,
@@ -180,13 +213,11 @@ export function useSubmissionsManager({
       isFetching.current = false;
     }
   }, [
+    fetchKey,
     filtersState.filters,
     filtersState.page,
     filtersState.pageSize,
     filtersState.initialized,
-    onlyMine,
-    userId,
-    includeThreadReplies,
     infiniteScroll,
     setSubmissionsState
   ]);
@@ -235,14 +266,33 @@ export function useSubmissionsManager({
     isInitialized.current = true;
   }, [filtersState.initialized, initialFilters, searchParams, setFiltersState]);
 
-  // Simple fetch when filters change
+  // Simple fetch when filters change - use stable fetchKey
   useEffect(() => {
     if (!filtersState.initialized || isFetching.current) {
+      // Debug logging for skipped fetch
+      if (process.env.NODE_ENV === 'development') {
+        // eslint-disable-next-line no-console
+        console.log('🔍 Fetch Skipped:', {
+          initialized: filtersState.initialized,
+          isFetching: isFetching.current,
+          fetchKey: fetchKey.substring(0, 100) + '...'
+        });
+      }
       return;
     }
 
+    // Debug logging for triggered fetch
+    if (process.env.NODE_ENV === 'development') {
+      // eslint-disable-next-line no-console
+      console.log('🔍 Triggering Fetch:', {
+        fetchKey: fetchKey.substring(0, 100) + '...',
+        filters: filtersState.filters,
+        page: filtersState.page
+      });
+    }
+
     fetchSubmissions();
-  }, [filtersState.filters, filtersState.page, filtersState.initialized]);
+  }, [fetchKey, fetchSubmissions]);
 
   // Listen for shouldUpdate changes (edit/delete operations)
   useEffect(() => {
@@ -258,11 +308,10 @@ export function useSubmissionsManager({
     }
   }, [shouldUpdate, setShouldUpdate, fetchSubmissions]);
 
-  // One-way URL sync: filters → URL (never URL → filters after init)
-  useEffect(() => {
-    if (!filtersState.initialized || infiniteScroll) return;
+  // Memoize URL params to prevent unnecessary URL updates
+  const urlParams = useMemo(() => {
+    if (!filtersState.initialized || infiniteScroll) return null;
 
-    // Build URL params from current filters
     const params = new URLSearchParams();
 
     // Group filters by type
@@ -295,23 +344,27 @@ export function useSubmissionsManager({
       params.set('page', filtersState.page.toString());
     }
 
+    return params.toString();
+  }, [
+    filtersState.filters,
+    filtersState.page,
+    filtersState.initialized,
+    infiniteScroll
+  ]);
+
+  // One-way URL sync: filters → URL (never URL → filters after init)
+  useEffect(() => {
+    if (urlParams === null) return;
+
     // Build new URL
-    const newUrl = `${pathname}${params.toString() ? `?${params.toString()}` : ''}`;
+    const newUrl = `${pathname}${urlParams ? `?${urlParams}` : ''}`;
     const currentUrl = `${pathname}${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;
 
     // Only update URL if it changed
     if (newUrl !== currentUrl) {
       router.replace(newUrl); // Use replace to avoid history pollution
     }
-  }, [
-    filtersState.filters,
-    filtersState.page,
-    filtersState.initialized,
-    pathname,
-    router,
-    searchParams,
-    infiniteScroll
-  ]);
+  }, [urlParams, pathname, router, searchParams]);
 
   // Simple action functions
   const addFilter = useCallback(

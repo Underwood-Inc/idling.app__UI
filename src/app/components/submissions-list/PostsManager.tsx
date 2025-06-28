@@ -270,6 +270,26 @@ const PostsManager = React.memo(function PostsManager({
         }
       : null
   });
+
+  // Additional debug logging for search results issue
+  if (process.env.NODE_ENV === 'development') {
+    // eslint-disable-next-line no-console
+    console.log('🔍 PostsManager Debug - Search Results Issue:', {
+      submissionsLength: submissions.length,
+      isLoading,
+      error,
+      totalRecords: pagination.totalRecords,
+      filters: filters.map((f) => ({ name: f.name, value: f.value })),
+      firstSubmission: submissions[0]
+        ? {
+            id: submissions[0].submission_id,
+            title: submissions[0].submission_title,
+            author: submissions[0].author
+          }
+        : null
+    });
+  }
+
   logger.groupEnd();
 
   return (
