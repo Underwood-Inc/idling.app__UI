@@ -518,10 +518,10 @@ function generateSVG(
   const borderOpacity = 0.7; // Fixed opacity for cleaner look
 
   // Dynamic font sizing
-  let fontSize = 28;
-  if (quote.text.length > 100) fontSize = 24;
-  else if (quote.text.length > 150) fontSize = 20;
-  else if (quote.text.length > 200) fontSize = 18;
+  let fontSize = 36;
+  if (quote.text.length > 100) fontSize = 32;
+  else if (quote.text.length > 150) fontSize = 28;
+  else if (quote.text.length > 200) fontSize = 24;
 
   // Wrap text
   const quoteText = `"${quote.text}" — ${quote.author}`;
@@ -559,7 +559,7 @@ function generateSVG(
 
   // We'll embed the full avatar SVG as a data URL
 
-  return `<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
+  return `<svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" xmlns="http://www.w3.org/2000/svg">
   <defs>
     <!-- Radial gradient mask for avatar fade effect -->
     <radialGradient id="avatarFade" cx="50%" cy="50%" r="35%">
@@ -628,11 +628,14 @@ function generateSVG(
            fill="white" 
            font-family="system-ui, -apple-system, sans-serif" 
            font-size="${fontSize}px"
-           style="text-shadow: 0 2px 4px rgba(0,0,0,0.8);">${escapeXml(line)}</text>`
+           style="font-size: ${fontSize}px !important; text-shadow: 0 2px 4px rgba(0,0,0,0.8);">${escapeXml(line)}</text>`
     )
     .join('\n  ')}
 </svg>`;
 }
+
+// Generate PNG using ImageResponse - with avatar and patterns
+// PNG generation removed - handled client-side in /card-generator
 
 export async function GET(request: NextRequest) {
   try {
@@ -643,14 +646,9 @@ export async function GET(request: NextRequest) {
     const customQuote = searchParams.get('quote');
     const customAuthor = searchParams.get('author');
     const _randomize = searchParams.get('random') === 'true';
-
     // Generate seeds - random by default, unless custom seed provided
     const avatarSeed = customSeed || `random-${Date.now()}-${Math.random()}`;
     const patternSeed = `pattern-${Date.now()}-${Math.random()}`;
-
-    // Generate avatar SVG
-    const avatar = createAvatar(adventurer, { seed: avatarSeed });
-    const avatarSvg = avatar.toString();
 
     // Fetch quote or use custom quote
     let quote = { text: '', author: '' };
@@ -667,9 +665,12 @@ export async function GET(request: NextRequest) {
       };
     }
 
-    // Generate SVG
-    const svgContent = generateSVG(avatarSvg, quote, patternSeed);
+    // Generate avatar
+    const avatar = createAvatar(adventurer, { seed: avatarSeed });
+    const avatarSvg = avatar.toString();
 
+    // Always return SVG - PNG conversion handled client-side
+    const svgContent = generateSVG(avatarSvg, quote, patternSeed);
     return new Response(svgContent, {
       headers: {
         'Content-Type': 'image/svg+xml',
@@ -679,13 +680,15 @@ export async function GET(request: NextRequest) {
       }
     });
   } catch {
-    // Return simple fallback SVG with basic pattern
+    // Return simple SVG fallback
     const fallbackResult = generateBackgroundPattern('fallback-pattern');
-    const fallbackSvg = `<svg width="1200" height="630" xmlns="http://www.w3.org/2000/svg">
+    const fallbackSvg = `<svg width="1200" height="630" viewBox="0 0 1200 630" xmlns="http://www.w3.org/2000/svg">
   <rect width="1200" height="630" fill="#0a0a0a"/>
   ${fallbackResult.patterns}
-  <text x="600" y="280" text-anchor="middle" fill="white" font-family="system-ui, sans-serif" font-size="48px">Idling.app</text>
-  <text x="600" y="350" text-anchor="middle" fill="rgba(255,255,255,0.8)" font-family="system-ui, sans-serif" font-size="24px">Wisdom &amp; Community</text>
+  <text x="600" y="280" text-anchor="middle" fill="white" font-family="system-ui, sans-serif" 
+        font-size="60px" style="font-size: 60px !important;">Idling.app</text>
+  <text x="600" y="350" text-anchor="middle" fill="rgba(255,255,255,0.8)" font-family="system-ui, sans-serif" 
+        font-size="32px" style="font-size: 32px !important;">Wisdom &amp; Community</text>
 </svg>`;
 
     return new Response(fallbackSvg, {
