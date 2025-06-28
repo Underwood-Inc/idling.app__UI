@@ -364,6 +364,17 @@ export async function getSubmissionsPaginationCount({
           break;
         }
 
+        case 'onlyReplies': {
+          // Filter to show only replies (posts with thread_parent_id)
+          if (filter.value === 'true') {
+            groupCondition = `s.thread_parent_id IS NOT NULL`;
+            if (groupCondition) {
+              filterGroups.push(`(${groupCondition})`);
+            }
+          }
+          break;
+        }
+
         // Skip logic filters as they're handled above
         case 'tagLogic':
         case 'authorLogic':
@@ -677,6 +688,17 @@ export async function getSubmissionsAction({
 
           if (groupCondition) {
             filterGroups.push(`(${groupCondition})`);
+          }
+          break;
+        }
+
+        case 'onlyReplies': {
+          // Filter to show only replies (posts with thread_parent_id)
+          if (filter.value === 'true') {
+            groupCondition = `s.thread_parent_id IS NOT NULL`;
+            if (groupCondition) {
+              filterGroups.push(`(${groupCondition})`);
+            }
           }
           break;
         }

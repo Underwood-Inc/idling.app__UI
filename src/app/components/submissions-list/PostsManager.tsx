@@ -217,6 +217,18 @@ const PostsManager = React.memo(function PostsManager({
     [setIncludeThreadReplies, includeThreadReplies]
   );
 
+  // Handler for only replies toggle
+  const handleOnlyRepliesToggle = useCallback(
+    (checked: boolean) => {
+      if (checked) {
+        addFilter({ name: 'onlyReplies', value: 'true' });
+      } else {
+        removeFilter('onlyReplies');
+      }
+    },
+    [addFilter, removeFilter]
+  );
+
   // Memoize authorization check
   const isAuthorized = useMemo(() => !!session?.user?.id, [session?.user?.id]);
 
