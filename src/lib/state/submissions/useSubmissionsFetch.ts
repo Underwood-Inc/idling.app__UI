@@ -14,7 +14,7 @@ const logger = createLogger({
 
 interface UseSubmissionsFetchProps {
   filtersState: SubmissionsFilters;
-  setSubmissionsState: (state: SubmissionsState) => void;
+  setSubmissionsState: (stateOrUpdater: SubmissionsState | ((prevState: SubmissionsState) => SubmissionsState)) => void;
   onlyMine: boolean;
   userId: string;
   includeThreadReplies: boolean;
@@ -72,17 +72,28 @@ export function useSubmissionsFetch({
       return;
     }
 
+    // Create fetch key at execution time to avoid dependency issues
+    const executionFetchKey = JSON.stringify({
+      filters: currentFilters.filters,
+      page: currentFilters.page,
+      pageSize: currentFilters.pageSize,
+      onlyMine,
+      userId,
+      includeThreadReplies,
+      initialized: currentFilters.initialized
+    });
+
     logger.group('fetchSubmissions');
     logger.debug('fetchSubmissions called', {
-      fetchKey: fetchKey.substring(0, 100) + '...',
+      fetchKey: executionFetchKey.substring(0, 100) + '...',
       lastFetchKey: lastFetchKey.current.substring(0, 100) + '...',
-      isSameFetch: lastFetchKey.current === fetchKey,
+      isSameFetch: lastFetchKey.current === executionFetchKey,
       filtersCount: currentFilters.filters.length,
       page: currentFilters.page
     });
 
     // Skip if this exact same fetch was already done
-    if (lastFetchKey.current === fetchKey) {
+    if (lastFetchKey.current === executionFetchKey) {
       logger.debug('Skipping duplicate fetch');
       logger.groupEnd();
       return;
@@ -97,7 +108,7 @@ export function useSubmissionsFetch({
       return;
     }
 
-    lastFetchKey.current = fetchKey;
+    lastFetchKey.current = executionFetchKey;
     isFetching.current = true;
 
     logger.debug('Starting fetch with filters', {
@@ -107,7 +118,7 @@ export function useSubmissionsFetch({
     });
 
     // Set loading state at the start of fetch
-    setSubmissionsState(prevState => ({
+    setSubmissionsState((prevState: SubmissionsState) => ({
       ...prevState,
       loading: true
     }));
@@ -116,10 +127,10 @@ export function useSubmissionsFetch({
     const loadingTimeout = setTimeout(() => {
       if (isFetching.current) {
         logger.warn('Fetch timeout - resetting loading state', {
-          fetchKey: fetchKey.substring(0, 100) + '...',
+          fetchKey: executionFetchKey.substring(0, 100) + '...',
           filters: currentFilters.filters
         });
-        setSubmissionsState(prevState => ({
+        setSubmissionsState((prevState: SubmissionsState) => ({
           ...prevState,
           loading: false,
           error: 'Request timed out. Please try again.'
@@ -191,7 +202,7 @@ export function useSubmissionsFetch({
         onlyMine,
         userId
       });
-      setSubmissionsState((prevState) => ({
+      setSubmissionsState((prevState: SubmissionsState) => ({
         ...prevState,
         loading: false,
         error:
@@ -203,7 +214,7 @@ export function useSubmissionsFetch({
       isFetching.current = false;
     }
   }, [
-    filtersState.initialized,
+    // Remove fetchKey from dependencies - calculate it at execution time instead
     onlyMine,
     userId,
     includeThreadReplies,
@@ -211,8 +222,7 @@ export function useSubmissionsFetch({
     setSubmissionsState,
     setInfiniteData,
     setInfinitePage,
-    setHasMore,
-    fetchKey
+    setHasMore
   ]);
 
   // Simple fetch when filters change - use stable fetchKey

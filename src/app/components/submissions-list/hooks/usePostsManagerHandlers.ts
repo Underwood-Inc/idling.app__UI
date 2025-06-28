@@ -3,7 +3,7 @@
 import { createLogger } from '@/lib/logging';
 import { useAtom } from 'jotai';
 import { useCallback, useRef } from 'react';
-import { shouldUpdateAtom } from '../../../../lib/state/atoms';
+import { getSubmissionsFiltersAtom, shouldUpdateAtom } from '../../../../lib/state/atoms';
 import { PostFilters } from '../../../../lib/types/filters';
 
 const logger = createLogger({
@@ -38,7 +38,7 @@ export interface PostsManagerHandlersOptions {
   updateFilter: (filterName: PostFilters, newValue: string) => void;
   setIncludeThreadReplies: (value: boolean) => void;
   onNewPostClick?: () => void;
-  currentFilters?: any[]; // Add current filters to check existing tag count
+  contextId: string; // Add contextId to access filters from atom
 }
 
 export function usePostsManagerHandlers({
@@ -48,16 +48,14 @@ export function usePostsManagerHandlers({
   updateFilter,
   setIncludeThreadReplies,
   onNewPostClick,
-  currentFilters = []
+  contextId
 }: PostsManagerHandlersOptions): PostsManagerHandlers {
   const [, setShouldUpdate] = useAtom(shouldUpdateAtom);
+  const [filtersState] = useAtom(getSubmissionsFiltersAtom(contextId));
 
-  // Use refs for stable function references and current values
+  // Use refs for stable function references
   const addFilterRef = useRef(addFilter);
   addFilterRef.current = addFilter;
-  
-  const currentFiltersRef = useRef(currentFilters);
-  currentFiltersRef.current = currentFilters;
 
   // Filter handlers without automatic expansion
   const handleAddFilter = useCallback(
@@ -81,8 +79,9 @@ export function usePostsManagerHandlers({
       // Store tags without # prefix to match URL format and prevent normalization conflicts
       const normalizedTag = tag.startsWith('#') ? tag.slice(1) : tag;
       
-      // Get current filters at time of execution to avoid stale dependencies
-      const existingTagFilters = currentFiltersRef.current.filter(f => f.name === 'tags');
+      // Get current filters at execution time from atom (not from dependencies)
+      const currentFilters = filtersState.filters;
+      const existingTagFilters = currentFilters.filter(f => f.name === 'tags');
       const willHaveMultipleTags = existingTagFilters.length >= 1; // Will have multiple after adding this one
       
       // Debug logging
@@ -91,7 +90,7 @@ export function usePostsManagerHandlers({
         normalizedTag,
         existingTagFilters,
         willHaveMultipleTags,
-        currentFiltersLength: currentFiltersRef.current.length
+        currentFiltersLength: currentFilters.length
       });
       
       // Prepare filters to add
@@ -109,7 +108,7 @@ export function usePostsManagerHandlers({
       // Add all filters atomically to prevent double fetches
       addFilters(filtersToAdd);
     },
-    [addFilters] // Remove currentFilters dependency
+    [addFilters] // Remove filtersState.filters from dependencies
   );
 
   const handleHashtagClick = useCallback(
@@ -117,8 +116,9 @@ export function usePostsManagerHandlers({
       // Store tags without # prefix to match URL format and prevent normalization conflicts
       const normalizedHashtag = hashtag.startsWith('#') ? hashtag.slice(1) : hashtag;
       
-      // Get current filters at time of execution to avoid stale dependencies
-      const existingTagFilters = currentFiltersRef.current.filter(f => f.name === 'tags');
+      // Get current filters at execution time from atom (not from dependencies)
+      const currentFilters = filtersState.filters;
+      const existingTagFilters = currentFilters.filter(f => f.name === 'tags');
       const willHaveMultipleTags = existingTagFilters.length >= 1; // Will have multiple after adding this one
       
       // Prepare filters to add
@@ -134,7 +134,7 @@ export function usePostsManagerHandlers({
       // Add all filters atomically to prevent double fetches
       addFilters(filtersToAdd);
     },
-    [addFilters] // Remove currentFilters dependency
+    [addFilters] // Remove filtersState.filters from dependencies
   );
 
   const handleMentionClick = useCallback(

@@ -29,6 +29,21 @@ export function PostsManagerControls({
 }: PostsManagerControlsProps) {
   const isCompact = compactMode || isMobile;
 
+  // Debug logging for totalRecords
+  if (process.env.NODE_ENV === 'development') {
+    // Only log when there are actual issues or significant changes
+    if (totalRecords === 0 && !isLoading && !error) {
+      // eslint-disable-next-line no-console
+      console.log('🔍 PostsManagerControls - totalRecords debug:', {
+        totalRecords,
+        isLoading,
+        error,
+        filtersCount,
+        isCompact
+      });
+    }
+  }
+
   return (
     <div
       className={`posts-manager__top-controls ${isMobile ? 'posts-manager__top-controls--minimal' : ''} ${compactMode ? 'posts-manager__top-controls--compact' : ''}`}
@@ -81,8 +96,8 @@ export function PostsManagerControls({
         </button>
       </div>
 
-      {/* Results count display */}
-      {!isLoading && !error && (
+      {/* Results count display - show when we have data or when not loading */}
+      {(!isLoading || totalRecords > 0) && !error && (
         <div
           className={`posts-manager__results-count ${isCompact ? 'posts-manager__results-count--compact' : ''}`}
         >

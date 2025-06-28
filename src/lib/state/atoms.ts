@@ -1077,9 +1077,29 @@ export const filtersFromUrlAtom = atom((get) => {
       .filter(Boolean);
     // Create separate filter entries for each mention instead of comma-separated value
     cleanMentions.forEach((mentionValue) => {
+      // Handle different mention formats from URL:
+      // 1. Plain username: "shaun_beatty"
+      // 2. Combined format: "shaun_beatty|122"
+      // 3. User ID only: "122"
+      
+      let filterValue = mentionValue;
+      
+      // If it's already in combined format (username|userId), use as-is
+      if (mentionValue.includes('|')) {
+        filterValue = mentionValue;
+      } else if (/^\d+$/.test(mentionValue)) {
+        // If it's a pure user ID, we need to resolve it to username|userId format
+        // For now, store as-is and let the display layer handle resolution
+        filterValue = mentionValue;
+      } else {
+        // If it's a plain username, we need to resolve it to username|userId format
+        // For now, store as username|username and let the system resolve the user ID later
+        filterValue = `${mentionValue}|${mentionValue}`;
+      }
+      
       filters.push({
         name: 'mentions' as PostFilters,
-        value: mentionValue
+        value: filterValue
       });
     });
   }

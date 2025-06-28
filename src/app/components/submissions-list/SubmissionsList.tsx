@@ -7,6 +7,7 @@ import React, {
   useRef,
   useState
 } from 'react';
+import InfiniteScrollTrigger from '../infinite-scroll-trigger/InfiniteScrollTrigger';
 import { SubmissionItem } from './SubmissionItem';
 import './SubmissionItem.css';
 import './SubmissionsList.css';

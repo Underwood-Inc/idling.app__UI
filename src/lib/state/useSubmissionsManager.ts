@@ -135,7 +135,7 @@ export function useSubmissionsManager({
       pageSize: filtersState.pageSize,
       totalRecords: submissionsState.data?.pagination?.totalRecords || 0
     }),
-    [filtersState.page, filtersState.pageSize]
+    [filtersState.page, filtersState.pageSize, submissionsState.data?.pagination?.totalRecords]
   );
 
   return {

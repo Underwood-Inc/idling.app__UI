@@ -180,7 +180,7 @@ const PostsManager = React.memo(function PostsManager({
     updateFilter,
     setIncludeThreadReplies,
     onNewPostClick,
-    currentFilters: filters
+    contextId
   });
 
   // Handler for only replies toggle
@@ -199,7 +199,7 @@ const PostsManager = React.memo(function PostsManager({
         removeFilter('onlyReplies');
       }
     },
-    [addFilter, removeFilter, onlyReplies]
+    [addFilter, removeFilter]
   );
 
   // Wrapper function for thread toggle that accepts boolean
@@ -214,7 +214,7 @@ const PostsManager = React.memo(function PostsManager({
       }
       setIncludeThreadReplies(checked);
     },
-    [setIncludeThreadReplies, includeThreadReplies]
+    [setIncludeThreadReplies]
   );
 
   // Memoize authorization check
@@ -307,24 +307,39 @@ const PostsManager = React.memo(function PostsManager({
 
   // Additional debug logging for search results issue
   if (process.env.NODE_ENV === 'development') {
-    // eslint-disable-next-line no-console
-    console.log('🔍 PostsManager Debug - Search Results Issue:', {
-      submissionsLength: submissions.length,
-      isLoading,
-      error,
-      totalRecords: pagination.totalRecords,
-      filters: filters.map((f) => ({ name: f.name, value: f.value })),
-      firstSubmission: submissions[0]
-        ? {
-            id: submissions[0].submission_id,
-            title: submissions[0].submission_title,
-            author: submissions[0].author
-          }
-        : null
-    });
+    // Only log when there are actual issues, not on every render
+    if (renderCount.current === 1 || renderCount.current % 10 === 0) {
+      // eslint-disable-next-line no-console
+      console.log('🔍 PostsManager Debug - Search Results Issue:', {
+        submissionsLength: submissions.length,
+        isLoading,
+        error,
+        totalRecords: pagination.totalRecords,
+        renderCount: renderCount.current,
+        filters: filters.map((f) => ({ name: f.name, value: f.value })),
+        firstSubmission: submissions[0]
+          ? {
+              id: submissions[0].submission_id,
+              title: submissions[0].submission_title,
+              author: submissions[0].author
+            }
+          : null
+      });
+    }
   }
 
   logger.groupEnd();
+
+  // Memoize filter toggle function
+  const handleToggleFilters = useCallback(() => {
+    setShowFilters(!showFilters);
+  }, [showFilters, setShowFilters]);
+
+  // Memoize remove filter function
+  const handleRemoveFilter = useCallback(
+    (name: string, value?: any) => removeFilter(name as any, value),
+    [removeFilter]
+  );
 
   return (
     <>
@@ -333,7 +348,7 @@ const PostsManager = React.memo(function PostsManager({
         <PostsManagerControls
           isMobile={isMobile}
           showFilters={showFilters}
-          onToggleFilters={() => setShowFilters(!showFilters)}
+          onToggleFilters={handleToggleFilters}
           filtersCount={actualFiltersCount}
           totalRecords={pagination.totalRecords}
           isLoading={isLoading}
@@ -348,9 +363,7 @@ const PostsManager = React.memo(function PostsManager({
           showFilters={showFilters}
           contextId={contextId}
           filters={filters}
-          onRemoveFilter={(name: string, value?: any) =>
-            removeFilter(name as any, value)
-          }
+          onRemoveFilter={handleRemoveFilter}
           onRemoveTag={removeTag}
           onClearFilters={clearFilters}
           onUpdateFilter={handleUpdateFilter}
@@ -369,7 +382,7 @@ const PostsManager = React.memo(function PostsManager({
         {/* Sticky Controls - appears when main controls are out of view */}
         <StickyPostsControls
           showFilters={showFilters}
-          onToggleFilters={() => setShowFilters(!showFilters)}
+          onToggleFilters={handleToggleFilters}
           filtersCount={actualFiltersCount}
           infiniteScrollMode={infiniteScrollMode}
           onTogglePaginationMode={setInfiniteScrollMode}
