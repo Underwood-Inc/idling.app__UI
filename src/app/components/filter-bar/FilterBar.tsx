@@ -177,11 +177,19 @@ export default function FilterBar({
               ].includes(filter.name)
           )
           // Group filters by name to consolidate multiple values
-          // Exception: author and mentions filters should remain separate instances
+          // For author and mentions: keep as separate instances but group them for display
+          // For tags and search: consolidate values with comma separation
           .reduce((acc, filter) => {
             if (filter.name === 'author' || filter.name === 'mentions') {
-              // Keep user filters as separate instances
-              acc.push({ ...filter });
+              // For user filters, group all values under a single consolidated entry
+              const existingFilter = acc.find((f) => f.name === filter.name);
+              if (existingFilter) {
+                // Combine values with comma separation for display purposes only
+                existingFilter.value =
+                  existingFilter.value + ',' + filter.value;
+              } else {
+                acc.push({ ...filter });
+              }
             } else {
               // Consolidate other filter types (tags, search)
               const existingFilter = acc.find((f) => f.name === filter.name);
