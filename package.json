@@ -1,6 +1,6 @@
 {
   "name": "idling.app",
-  "version": "0.256.1",
+  "version": "0.257.0",
   "private": true,
   "engines": {
     "node": ">=20.x"
@@ -51,9 +51,12 @@
     "@axe-core/playwright": "^4.10.0",
     "@dicebear/collection": "9.2.2",
     "@dicebear/core": "9.2.2",
+    "@napi-rs/canvas": "^0.1.72",
     "@release-it/conventional-changelog": "^7.0.0",
+    "@vercel/og": "^0.6.8",
     "@vercel/postgres": "^0.10.0",
     "buffer": "^6.0.3",
+    "canvas": "^3.1.2",
     "date-fns": "^4.1.0",
     "date-fns-tz": "^3.2.0",
     "dotenv": "^16.4.5",
