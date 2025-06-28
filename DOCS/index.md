@@ -16,6 +16,10 @@ Welcome to the comprehensive documentation for **Idling.app** - a modern social 
 
 ## 📖 Documentation Sections
 
+### 📋 Business Requirements
+
+- **[Rich Input System](./business-requirements/rich-input-system)** - Comprehensive business requirements for the intelligent text editing system
+
 ### 🗄️ Database & Migrations
 
 - **[Migration System Guide](./database/migrations)** - Complete migration system documentation
