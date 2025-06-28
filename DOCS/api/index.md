@@ -60,10 +60,18 @@ Handle file uploads and media
 
 - **[Upload APIs](./upload)** - Image and file uploads
 
+### 🖼️ Image Generation APIs
+
+Dynamic image and avatar generation
+
+- **[OG Image API](./og-image)** - Dynamic Open Graph images with quotes and avatars
+- **[Avatar Image API](./avatar-image)** - Unique avatar generation using @dicebear
+
 ### ⚙️ System APIs
 
 System administration and monitoring
 
+- **Version API** - Application version information _(documentation coming soon)_
 - **Admin System APIs** - System management (admin only) _(documentation coming soon)_
 - **Test APIs** - Testing and debugging _(documentation coming soon)_
 
@@ -254,6 +262,8 @@ curl -H "Cookie: your-session-cookie" \
 | ------------------ | ------ | ------------------------- | ------------- |
 | Get emojis         | GET    | `/api/emojis`             | No            |
 | Upload image       | POST   | `/api/upload/image`       | Yes           |
+| Generate OG image  | GET    | `/api/og-image`           | No            |
+| Generate avatar    | GET    | `/api/avatar-image`       | No            |
 | Check user profile | GET    | `/api/profile/[username]` | No            |
 | Check login status | GET    | `/api/test/admin-check`   | No            |
 | Track emoji usage  | POST   | `/api/emojis/usage`       | No            |
@@ -303,6 +313,8 @@ curl -H "Cookie: your-session-cookie" \
 
 ## 🔗 Detailed API Guides
 
+- **[OG Image API](./og-image)** - Dynamic Open Graph images with quotes and avatars
+- **[Avatar Image API](./avatar-image)** - Unique avatar generation using @dicebear
 - **[Emoji APIs](./emojis)** - Browse and use emojis
 - **[Upload APIs](./upload)** - File and image uploads
 - **Authentication APIs** - Login and session management _(coming soon)_
