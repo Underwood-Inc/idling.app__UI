@@ -24,7 +24,7 @@ Welcome to the comprehensive documentation for **Idling.app** - a modern social 
 
 - **[Migration System Guide](./database/migrations)** - Complete migration system documentation
 - **[Database Optimization](./database/optimization)** - Performance optimization strategies
-- **[Massive Seed Data](./database/seeding)** - Generate test data for development
+- **[Massive Seed Data](./database/massive-seed)** - Generate test data for development
 
 ### 🔧 Development
 
@@ -51,13 +51,11 @@ Welcome to the comprehensive documentation for **Idling.app** - a modern social 
 ### 🏗️ Architecture
 
 - **[System Architecture](./architecture/)** - High-level system design and patterns
-- **[User Identification](./architecture/user-identification-architecture)** - Authentication system design
+- **[User Identification](./architecture/USER_IDENTIFICATION_ARCHITECTURE)** - Authentication system design
 
 ### 📦 Components
 
 - **[Component Library](./components/)** - UI component documentation and patterns
-- **[Filter Bar](./components/filter-bar)** - Advanced filtering interface
-- **[Rich Text Editor](./components/rich-text-editor)** - WYSIWYG editor implementation
 
 ### 📚 Libraries
 

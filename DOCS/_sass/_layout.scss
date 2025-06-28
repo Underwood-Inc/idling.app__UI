@@ -41,7 +41,7 @@ body {
     display: flex;
     flex-direction: column;
     gap: var(--spacing-lg);
-    padding: 0 var(--spacing-md);
+    padding: 0!important;
     border-bottom: 1px solid var(--glass-border-overlay-light, var(--glass-border-light));
     
     @media (min-width: 768px) {
@@ -123,6 +123,7 @@ body {
   
   .site-nav {
     margin-block-end: 1rem!important;
+    margin-inline: 0!important;
 
     .nav-trigger {
       display: none;
