@@ -22,7 +22,8 @@ This workflow runs various tests to ensure code quality and functionality.
 
 - Sets up a PostgreSQL service container
 - Runs database migrations
-- Executes Playwright and Jest tests in parallel shards
+- Executes Playwright (E2E) and Jest (Unit/Integration) tests in parallel shards
+- **Playwright tests are optional** - they provide feedback but don't block the workflow
 - Combines test reports and coverage
 - Performs SonarCloud analysis
 - Uploads test reports as artifacts
@@ -34,8 +35,8 @@ This workflow runs various tests to ensure code quality and functionality.
 3. Sets up Node.js with yarn caching
 4. Runs database migrations
 5. Installs dependencies and Playwright browsers
-6. Runs Playwright tests in 3 parallel shards
-7. Runs Jest tests in 3 parallel shards
+6. Runs Playwright tests in 3 parallel shards (**optional - won't fail workflow**)
+7. Runs Jest tests in 3 parallel shards (**required**)
 8. Combines test reports and coverage
 9. Performs SonarCloud scan
 10. Uploads test reports as artifacts
@@ -45,25 +46,29 @@ This workflow runs various tests to ensure code quality and functionality.
 When running tests through GitHub Actions (on PRs or pushes to main/master), the workflow automatically generates separate test report comments:
 
 - **Unit Test Results**: Shows combined Jest test outcomes from all shards
+
   - Pass/Fail/Skip counts
   - Test duration
   - Detailed failure messages in collapsible sections
 
-- **E2E Test Results**: Shows combined Playwright test outcomes from all shards
+- **E2E Test Results**: Shows combined Playwright test outcomes from all shards (**optional**)
   - Pass/Fail/Skip counts
   - Test duration
   - Detailed failure messages in collapsible sections
+  - **Note**: E2E test failures won't prevent PR merging
 
 Comments are recreated on each test run to maintain visibility in the PR activity feed.
 
 #### Test Artifacts
 
 The following test artifacts are preserved:
-- Playwright reports (per shard and combined, 30 days retention)
-- Playwright failure traces (per shard, 7 days retention)
-- Jest coverage reports (per shard and combined, 30 days retention)
+
+- Playwright reports (per shard and combined, 30 days retention) - **optional**
+- Playwright failure traces (per shard, 7 days retention) - **optional**
+- Jest coverage reports (per shard and combined, 30 days retention) - **required**
 
 To access these artifacts:
+
 1. Go to the GitHub Actions run
 2. Scroll to the bottom
 3. Look for the "Artifacts" section
@@ -205,11 +210,13 @@ This project uses Jekyll for documentation hosted on GitHub Pages. The documenta
 ### Prerequisites
 
 To develop documentation locally, you need:
+
 - Ruby (version 2.7 or higher)
 - Bundler gem
 - Jekyll gem
 
 Install Ruby and Bundler:
+
 ```bash
 # On Ubuntu/Debian
 sudo apt-get install ruby-full build-essential zlib1g-dev
@@ -221,17 +228,21 @@ gem install bundler
 ### DOCS Development
 
 1. **Install dependencies** (first time only):
+
 ```bash
 yarn docs:install
 ```
 
 2. **Start local development server**:
+
 ```bash
 yarn docs:dev
 ```
+
 This will start Jekyll with live reload at [http://localhost:4000](http://localhost:4000)
 
 3. **Build documentation** (for testing):
+
 ```bash
 yarn docs:build
 ```
@@ -241,6 +252,7 @@ yarn docs:build
 Documentation is automatically deployed to GitHub Pages via GitHub Actions when changes are pushed to the `main` branch. The workflow is defined in `.github/workflows/docs.yml`.
 
 **Manual deployment** (if needed):
+
 - Push changes to the `main` branch
 - GitHub Actions will automatically build and deploy to GitHub Pages
 - Documentation will be available at your GitHub Pages URL
@@ -271,13 +283,14 @@ The project uses PostgreSQL running in a Docker container. Here's how to interac
 
 1. **Connecting to the Database**
 
-     ```bash
-     docker exec -it postgres psql -U postgres -d idling
-     ```
+   ```bash
+   docker exec -it postgres psql -U postgres -d idling
+   ```
 
-     This connects you to the PostgreSQL interactive terminal where you can run SQL commands directly.
+   This connects you to the PostgreSQL interactive terminal where you can run SQL commands directly.
 
 Common PSQL commands:
+
 - `\l` - List all databases
 - `\dt` - List all tables in current database
 - `\d table_name` - Describe a specific table
@@ -287,10 +300,12 @@ Common PSQL commands:
 #### Database Initialization
 
 The database is initialized using two key files:
+
 - `docker-postgres/init.sql`: Runs when the Docker container first starts
 - `src/lib/scripts/000-init.sql`: Used for local development initialization
 
 These files create the base tables required for:
+
 - NextAuth authentication
 - Database migration tracking
 - Core application functionality
@@ -301,16 +316,17 @@ The project uses a numbered migration system to track and apply database changes
 
 1. **Running Migrations**
 
-     ```bash
-     yarn migrations
-     # select option 1 to run all pending migrations
-     ```
+   ```bash
+   yarn migrations
+   # select option 1 to run all pending migrations
+   ```
 
-     Migration files follow the pattern: `0000-description.sql` where:
-     - First 4 digits are an incrementing ID (e.g., 0000, 0001, 0002)
-     - Followed by a descriptive name of what the migration does
+   Migration files follow the pattern: `0000-description.sql` where:
 
-     Each migration runs in isolation and is tracked in the `migrations` table to prevent duplicate runs.
+   - First 4 digits are an incrementing ID (e.g., 0000, 0001, 0002)
+   - Followed by a descriptive name of what the migration does
+
+   Each migration runs in isolation and is tracked in the `migrations` table to prevent duplicate runs.
 
 #### Database Management
 
@@ -325,6 +341,7 @@ For detailed information about our migration system and how to use it, please se
 Modern web applications require a comprehensive testing strategy to ensure reliability, maintainability, and confidence in deployments. Each testing layer serves a specific purpose:
 
 ##### 🔍 Unit Tests
+
 - Test individual functions and utilities in isolation
 - Fastest to run and easiest to maintain
 - Catch logic errors early in development
@@ -332,6 +349,7 @@ Modern web applications require a comprehensive testing strategy to ensure relia
 - Example: Testing a date formatting utility
 
 ##### 🧩 Component Tests
+
 - Verify individual UI components work correctly
 - Test component props, states, and user interactions
 - Ensure accessibility standards are met
@@ -339,12 +357,14 @@ Modern web applications require a comprehensive testing strategy to ensure relia
 - Example: Testing a button component's different states
 
 ##### 🔄 Integration Tests
+
 - Test how multiple components work together
 - Verify data flow between components
 - Catch interface mismatches
 - Example: Testing a form submission flow
 
 ##### 🌐 End-to-End (E2E) Tests
+
 - Test complete user journeys
 - Verify application works in real browser environments
 - Catch deployment and environment issues
@@ -368,6 +388,7 @@ Modern web applications require a comprehensive testing strategy to ensure relia
  /       Unit        \
 /---------------------\
 ```
+
 All code that can be tested via jest tests should be. Playwright will expand what is testable when added.
 
 Opt for existing selectors for static content testing such as `getBy**` and `queryAllBy**`. For dynamic content, adding a `data-testid` to the markup being tested and then using the appropriate `**byTestId` selector method(s). Refer to the following excerpt from the [React Testing Library documentation regarding test IDs](https://testing-library.com/docs/queries/bytestid/):
@@ -417,11 +438,11 @@ When it comes to accessibility testing, `@axe-core/playwright` has been added. T
 
 Scripts you may need for first time setup:
 
-| script |
-|---|
-| `yarn playwright install` |
-| `yarn playwright install chromium` |
-| `yarn playwright install-deps --legacy-peer-deps` |
+| script                                                      |
+| ----------------------------------------------------------- |
+| `yarn playwright install`                                   |
+| `yarn playwright install chromium`                          |
+| `yarn playwright install-deps --legacy-peer-deps`           |
 | `npm install -D @playwright/test@latest --legacy-peer-deps` |
 
 You can run playwright test with a few different scripts:
@@ -493,11 +514,13 @@ This project uses Jekyll for documentation hosted on GitHub Pages. The documenta
 ### Prerequisites
 
 To develop documentation locally, you need:
+
 - Ruby (version 2.7 or higher)
 - Bundler gem
 - Jekyll gem
 
 Install Ruby and Bundler:
+
 ```bash
 # On Ubuntu/Debian
 sudo apt-get install ruby-full build-essential zlib1g-dev
@@ -509,17 +532,21 @@ gem install bundler
 ### DOCS Development
 
 1. **Install dependencies** (first time only):
+
 ```bash
 yarn docs:install
 ```
 
 2. **Start local development server**:
+
 ```bash
 yarn docs:dev
 ```
+
 This will start Jekyll with live reload at [http://localhost:4000](http://localhost:4000)
 
 3. **Build documentation** (for testing):
+
 ```bash
 yarn docs:build
 ```
@@ -529,6 +556,7 @@ yarn docs:build
 Documentation is automatically deployed to GitHub Pages via GitHub Actions when changes are pushed to the `main` branch. The workflow is defined in `.github/workflows/docs.yml`.
 
 **Manual deployment** (if needed):
+
 - Push changes to the `main` branch
 - GitHub Actions will automatically build and deploy to GitHub Pages
 - Documentation will be available at your GitHub Pages URL

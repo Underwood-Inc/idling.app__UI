@@ -14,7 +14,7 @@ This document provides detailed information about our CI testing pipeline implem
 Our testing pipeline consists of five main jobs that run in parallel where possible:
 
 1. Setup Environment
-2. Playwright Tests (E2E)
+2. Playwright Tests (E2E) - **Optional**
 3. Jest Tests (Unit/Integration) - 3 parallel shards
 4. Combine Coverage Reports
 5. SonarCloud Analysis
@@ -29,6 +29,7 @@ The diagram above shows how our CI jobs depend on each other:
 - Jest tests run in parallel shards to optimize execution time
 - Report combination jobs depend on their respective test jobs
 - SonarCloud analysis runs only after all reports are combined
+- **Playwright tests are optional and won't fail the workflow if they encounter issues**
 
 ## Detailed Job Descriptions
 
@@ -42,10 +43,11 @@ The diagram above shows how our CI jobs depend on each other:
   - Caches dependencies for faster subsequent runs
 - **Outputs**: Cached `node_modules` and Playwright browser binaries
 
-### 2. Playwright Tests (E2E)
+### 2. Playwright Tests (E2E) - **Optional**
 
 - **Purpose**: Runs end-to-end tests using Playwright
 - **Dependencies**: Setup job
+- **Status**: **Optional - workflow continues even if these tests fail**
 - **Environment**:
   - PostgreSQL service container
   - Node.js runtime
@@ -59,6 +61,8 @@ The diagram above shows how our CI jobs depend on each other:
   - Test traces (on failure) in `test-results/`
 
 > **Note on Test Sharding**: Unlike Jest tests, Playwright tests are not sharded. This is intentional due to the complexity of managing browser-specific dependencies in CI environments. Sharding Playwright tests can lead to inconsistent behavior and failures, particularly with browsers like WebKit that require specific system libraries. Running tests sequentially ensures more reliable cross-browser testing.
+
+> **Note on Optional Status**: Playwright tests are configured as optional (`continue-on-error: true`) to prevent E2E test failures from blocking PRs. This allows development to continue while still providing valuable feedback about browser compatibility and user experience.
 
 ### 3. Jest Tests
 
