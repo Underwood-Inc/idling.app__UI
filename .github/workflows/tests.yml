@@ -77,7 +77,7 @@ jobs:
 
       # Install project dependencies
       - name: Install dependencies
-        run: npm install -g yarn && yarn install --frozen-lockfile
+        run: npm install -g yarn && yarn install --check-files
 
       # Install Playwright browsers for caching
       - name: Install Playwright browsers
@@ -152,7 +152,7 @@ jobs:
       - name: Install dependencies and browsers
         if: steps.cache-restore.outputs.cache-hit != 'true'
         run: |
-          yarn install --frozen-lockfile
+          yarn install --check-files
           npx playwright install --with-deps
 
       # Setup test database
@@ -384,7 +384,7 @@ jobs:
       # Install dependencies if cache miss (first run or cache eviction)
       - name: Install dependencies
         if: steps.cache-restore.outputs.cache-hit != 'true'
-        run: yarn install --frozen-lockfile
+        run: yarn install --check-files
 
       # Run unit tests with sharding
       - name: Run Jest tests
@@ -620,7 +620,7 @@ jobs:
       # Install dependencies if not cached
       - name: Install dependencies
         if: steps.cache-restore.outputs.cache-hit != 'true'
-        run: yarn install --frozen-lockfile
+        run: yarn install --check-files
 
       # Download all coverage artifacts
       - name: Download coverage artifacts
@@ -707,7 +707,7 @@ jobs:
       # Install dependencies if not cached
       - name: Install dependencies
         if: steps.cache-restore.outputs.cache-hit != 'true'
-        run: yarn install --frozen-lockfile
+        run: yarn install --check-files
 
       # Download all Playwright results
       - name: Download Playwright results

@@ -59,7 +59,7 @@ jobs:
           cache: 'yarn'
 
       - name: 🔧 Install dependencies
-        run: yarn install --frozen-lockfile
+        run: yarn install --check-files
 
       - name: 📊 Generate comprehensive debrief report (PR)
         if: github.event_name == 'pull_request'
