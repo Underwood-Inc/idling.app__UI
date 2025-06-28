@@ -32,6 +32,26 @@ export const metadata: Metadata = {
   title: 'Idling.app',
   description: 'Revisit often to see the latest changes and play!',
   manifest: '/manifest.json',
+  openGraph: {
+    title: 'Idling.app',
+    description: 'Revisit often to see the latest changes and play!',
+    type: 'website',
+    siteName: 'Idling.app',
+    images: [
+      {
+        url: '/api/og-image',
+        width: 1200,
+        height: 630,
+        alt: 'Idling.app - Wisdom & Community'
+      }
+    ]
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Idling.app',
+    description: 'Revisit often to see the latest changes and play!',
+    images: ['/api/og-image']
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
@@ -147,18 +167,21 @@ export default function RootLayout({
         <ConsoleProductionSilencer />
         {/* Standard favicon */}
         <link
+          key="favicon-ico"
           rel="icon"
           href="/favicon.ico"
           type="image/x-icon"
           sizes="16x16"
         />
         <link
+          key="favicon-16x16"
           rel="icon"
           href="/favicon-16x16.png"
           type="image/png"
           sizes="16x16"
         />
         <link
+          key="favicon-32x32"
           rel="icon"
           href="/favicon-32x32.png"
           type="image/png"
@@ -167,6 +190,7 @@ export default function RootLayout({
 
         {/* Apple touch icons */}
         <link
+          key="apple-touch-icon"
           rel="apple-touch-icon"
           href="/apple-touch-icon.png"
           sizes="180x180"
@@ -174,12 +198,14 @@ export default function RootLayout({
 
         {/* Android chrome icons */}
         <link
+          key="android-chrome-192"
           rel="icon"
           href="/android-chrome-192x192.png"
           type="image/png"
           sizes="192x192"
         />
         <link
+          key="android-chrome-512"
           rel="icon"
           href="/android-chrome-512x512.png"
           type="image/png"
@@ -187,30 +213,59 @@ export default function RootLayout({
         />
 
         {/* PWA manifest */}
-        <link rel="manifest" href="/manifest.json" />
+        <link key="manifest" rel="manifest" href="/manifest.json" />
 
         {/* PWA meta tags */}
-        <meta name="theme-color" content="#ff6b35" />
-        <meta name="background-color" content="#000000" />
-        <meta name="display" content="standalone" />
-        <meta name="orientation" content="portrait-primary" />
+        <meta key="theme-color" name="theme-color" content="#ff6b35" />
+        <meta
+          key="background-color"
+          name="background-color"
+          content="#000000"
+        />
+        <meta key="display" name="display" content="standalone" />
+        <meta key="orientation" name="orientation" content="portrait-primary" />
 
         {/* Apple PWA meta tags */}
-        <meta name="apple-mobile-web-app-capable" content="yes" />
-        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-        <meta name="apple-mobile-web-app-title" content="Idling App" />
+        <meta
+          key="apple-mobile-web-app-capable"
+          name="apple-mobile-web-app-capable"
+          content="yes"
+        />
+        <meta
+          key="apple-mobile-web-app-status-bar-style"
+          name="apple-mobile-web-app-status-bar-style"
+          content="default"
+        />
+        <meta
+          key="apple-mobile-web-app-title"
+          name="apple-mobile-web-app-title"
+          content="Idling App"
+        />
 
         {/* Microsoft PWA meta tags */}
-        <meta name="msapplication-TileColor" content="#ff6b35" />
         <meta
+          key="msapplication-tile-color"
+          name="msapplication-TileColor"
+          content="#ff6b35"
+        />
+        <meta
+          key="msapplication-tile-image"
           name="msapplication-TileImage"
           content="/android-chrome-192x192.png"
         />
 
         {/* Additional PWA optimizations */}
-        <meta name="mobile-web-app-capable" content="yes" />
-        <meta name="application-name" content="Idling App" />
-        <meta name="app-version" content="0.234.0" />
+        <meta
+          key="mobile-web-app-capable"
+          name="mobile-web-app-capable"
+          content="yes"
+        />
+        <meta
+          key="application-name"
+          name="application-name"
+          content="Idling App"
+        />
+        <meta key="app-version" name="app-version" content="0.256.1" />
       </head>
 
       <body className={inter.className}>
