@@ -68,6 +68,12 @@ export function useSubmissionsManager({
   const lastFetchKey = useRef<string>('');
   const isUpdatingUrl = useRef(false); // Flag to prevent circular URL updates
   const fetchEffectCount = useRef(0); // Counter to track fetch effect runs
+  const currentFiltersStateRef = useRef(filtersState);
+
+  // Update ref when filtersState changes
+  useEffect(() => {
+    currentFiltersStateRef.current = filtersState;
+  }, [filtersState]);
 
   // User ID with session fallback (internal database ID)
   const userId = useMemo(() => {
@@ -97,7 +103,8 @@ export function useSubmissionsManager({
 
   // Simple fetch function with stable dependencies
   const fetchSubmissions = useCallback(async () => {
-    if (!filtersState.initialized) {
+    const currentFilters = currentFiltersStateRef.current;
+    if (!currentFilters.initialized) {
       return;
     }
 
@@ -106,8 +113,8 @@ export function useSubmissionsManager({
       fetchKey: fetchKey.substring(0, 100) + '...',
       lastFetchKey: lastFetchKey.current.substring(0, 100) + '...',
       isSameFetch: lastFetchKey.current === fetchKey,
-      filtersCount: filtersState.filters.length,
-      page: filtersState.page
+      filtersCount: currentFilters.filters.length,
+      page: currentFilters.page
     });
 
     // Skip if this exact same fetch was already done
@@ -130,9 +137,9 @@ export function useSubmissionsManager({
     isFetching.current = true;
 
     logger.debug('Starting fetch with filters', {
-      filters: filtersState.filters,
-      page: filtersState.page,
-      pageSize: filtersState.pageSize
+      filters: currentFilters.filters,
+      page: currentFilters.page,
+      pageSize: currentFilters.pageSize
     });
 
     // Set loading state at the start of fetch
@@ -146,7 +153,7 @@ export function useSubmissionsManager({
       if (isFetching.current) {
         logger.warn('Fetch timeout - resetting loading state', {
           fetchKey: fetchKey.substring(0, 100) + '...',
-          filters: filtersState.filters
+          filters: currentFilters.filters
         });
         setSubmissionsState(prevState => ({
           ...prevState,
@@ -159,9 +166,9 @@ export function useSubmissionsManager({
 
     try {
       const result = await getSubmissionsWithReplies({
-        filters: filtersState.filters as Filter<PostFilters>[],
-        page: filtersState.page,
-        pageSize: filtersState.pageSize,
+        filters: currentFilters.filters as Filter<PostFilters>[],
+        page: currentFilters.page,
+        pageSize: currentFilters.pageSize,
         onlyMine,
         userId,
         includeThreadReplies
@@ -176,8 +183,8 @@ export function useSubmissionsManager({
           console.log('🔍 useSubmissionsManager - Fetch Result:', {
             submissionsCount: submissionsData.length,
             totalRecords: result.data.pagination?.totalRecords || 0,
-            filters: filtersState.filters,
-            page: filtersState.page,
+            filters: currentFilters.filters,
+            page: currentFilters.page,
             firstSubmission: submissionsData[0] ? {
               id: submissionsData[0].submission_id,
               title: submissionsData[0].submission_title,
@@ -191,8 +198,8 @@ export function useSubmissionsManager({
           data: {
             submissions: submissionsData,
             pagination: result.data.pagination || {
-              currentPage: filtersState.page,
-              pageSize: filtersState.pageSize,
+              currentPage: currentFilters.page,
+              pageSize: currentFilters.pageSize,
               totalRecords: 0
             }
           },
@@ -200,10 +207,10 @@ export function useSubmissionsManager({
         });
 
         // Initialize infinite scroll data on first load
-        if (infiniteScroll && filtersState.page === 1) {
+        if (infiniteScroll && currentFilters.page === 1) {
           setInfiniteData(result.data.data || []);
           setInfinitePage(1);
-          setHasMore((result.data.data?.length || 0) === filtersState.pageSize);
+          setHasMore((result.data.data?.length || 0) === currentFilters.pageSize);
         }
       } else {
         setSubmissionsState({
@@ -215,8 +222,8 @@ export function useSubmissionsManager({
       logger.groupEnd();
     } catch (error: unknown) {
       logger.error('Error in useSubmissionsManager', error as Error, {
-        filters: filtersState.filters,
-        page: filtersState.page,
+        filters: currentFilters.filters,
+        page: currentFilters.page,
         onlyMine,
         userId
       });
@@ -232,11 +239,10 @@ export function useSubmissionsManager({
       isFetching.current = false;
     }
   }, [
-    fetchKey,
-    filtersState.filters,
-    filtersState.page,
-    filtersState.pageSize,
     filtersState.initialized,
+    onlyMine,
+    userId,
+    includeThreadReplies,
     infiniteScroll,
     setSubmissionsState
   ]);
