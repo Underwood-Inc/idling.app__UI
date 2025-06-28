@@ -48,7 +48,12 @@
   text-transform: none;
 }
 
-
+/* Specific hover style for the main header link - only change underline color */
+a .nav__header:hover,
+a:hover .nav__header {
+  color: inherit; /* Keep the original text color */
+  text-decoration-color: var(--brand-primary--dark); /* Only change underline color */
+}
 
 /* Profile navigation styles */
 .nav__profile-link {
@@ -94,8 +99,6 @@
   .nav__header {
     font-size: 1.2rem;
   }
-
-
 
   .nav__profile-link {
     margin-right: 0.5rem;
@@ -157,8 +160,6 @@
     font-size: var(--font-size-xs);
     padding: 0.25rem 0.5rem;
   }
-
-
 
   .nav__profile-link {
     margin-right: 0.25rem;

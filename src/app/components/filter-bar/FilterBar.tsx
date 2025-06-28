@@ -39,17 +39,21 @@ export default function FilterBar({
       const customEvent = event as CustomEvent;
       const { filterType, value, oldFilterType, oldValue } = customEvent.detail;
 
-      // Remove the old filter
+      // Remove the old filter first
       onRemoveFilter(oldFilterType as PostFilters, oldValue);
 
-      // Add the new filter by updating the filter state directly
+      // Add the new filter using the proper function
+      // We need to access the addFilter function from the parent component
+      // Since we don't have direct access, we'll dispatch another event that the parent can listen to
       setTimeout(() => {
-        setFiltersState((prevState) => ({
-          ...prevState,
-          filters: [...prevState.filters, { name: filterType, value: value }],
-          page: 1
-        }));
-      }, 10);
+        const addFilterEvent = new CustomEvent('addFilterFromToggle', {
+          detail: {
+            filterType,
+            value
+          }
+        });
+        window.dispatchEvent(addFilterEvent);
+      }, 50); // Increased delay to ensure removal completes first
     };
 
     window.addEventListener('filterTypeChange', handleFilterTypeChange);
@@ -57,7 +61,7 @@ export default function FilterBar({
     return () => {
       window.removeEventListener('filterTypeChange', handleFilterTypeChange);
     };
-  }, [onRemoveFilter, setFiltersState]);
+  }, [onRemoveFilter]);
 
   // Add null check for filters
   const safeFilters = filters || [];

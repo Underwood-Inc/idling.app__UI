@@ -337,18 +337,18 @@ export function FilterLabel({
     displayLabel.startsWith('@')
   ) {
     return (
-      <div className="filter-bar__mention-pill-wrapper">
+      <div className="filter-bar__mention-pill-integrated">
         <ContentWithPills
           content={displayLabel}
           contextId={filterId}
           isFilterBarContext={true}
           onHashtagClick={handleTagClick}
           onMentionClick={handleMentionClick}
-          className="filter-bar__filter-pill"
+          className="filter-bar__filter-pill filter-bar__filter-pill--with-controls"
         />
         <button
           type="button"
-          className={`filter-bar__filter-type-toggle filter-bar__filter-type-toggle--${name}`}
+          className={`filter-bar__filter-type-toggle filter-bar__filter-type-toggle--${name} filter-bar__filter-type-toggle--integrated`}
           onClick={handleFilterTypeToggle}
           title={`Current: ${name === 'author' ? 'Author' : 'Mentions'} filter. Click to toggle.`}
         >

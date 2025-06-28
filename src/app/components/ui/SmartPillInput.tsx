@@ -602,53 +602,52 @@ export const SmartPillInput: React.FC<SmartPillInputProps> = ({
                   return (
                     <div
                       key={index}
-                      className="smart-pill-input__mention-pill-wrapper"
+                      className="smart-pill-input__mention-pill-integrated"
                     >
-                      <div className="smart-pill-input__mention-pill">
-                        <ContentWithPills
-                          content={contentForPills}
-                          contextId={contextId}
-                          onHashtagClick={(hashtag) => {
-                            // // console.log(
-                            //   'DEBUG: SmartPillInput hashtag clicked:',
-                            //   hashtag,
-                            //   'contentForPills:',
-                            //   contentForPills
-                            // );
-                            handlePillClick(contentForPills);
-                          }}
-                          onMentionClick={(mention, filterType) => {
-                            // // console.log(
-                            //   'DEBUG: SmartPillInput mention clicked:',
-                            //   mention,
-                            //   'filterType:',
-                            //   filterType,
-                            //   'contentForPills:',
-                            //   contentForPills
-                            // );
-                            handlePillClick(contentForPills);
-                          }}
-                          className="smart-pill-input__pill"
-                          isFilterBarContext={true}
-                          enableInlineFilterControl={false}
-                        />
-                        {/* External filter type toggle button */}
-                        <button
-                          type="button"
-                          className={
-                            `smart-pill-input__filter-type-toggle ` +
-                            `smart-pill-input__filter-type-toggle--${segment.filterType}`
-                          }
-                          onClick={() => handleFilterTypeToggle(index, segment)}
-                          title={`Current: ${
-                            segment.filterType === 'author'
-                              ? 'Author'
-                              : 'Mentions'
-                          } filter. Click to toggle.`}
-                        >
-                          {segment.filterType === 'author' ? 'BY' : 'IN'}
-                        </button>
-                      </div>
+                      <ContentWithPills
+                        content={contentForPills}
+                        contextId={contextId}
+                        onHashtagClick={(hashtag) => {
+                          // // console.log(
+                          //   'DEBUG: SmartPillInput hashtag clicked:',
+                          //   hashtag,
+                          //   'contentForPills:',
+                          //   contentForPills
+                          // );
+                          handlePillClick(contentForPills);
+                        }}
+                        onMentionClick={(mention, filterType) => {
+                          // // console.log(
+                          //   'DEBUG: SmartPillInput mention clicked:',
+                          //   mention,
+                          //   'filterType:',
+                          //   filterType,
+                          //   'contentForPills:',
+                          //   contentForPills
+                          // );
+                          handlePillClick(contentForPills);
+                        }}
+                        className="smart-pill-input__pill smart-pill-input__pill--with-controls"
+                        isFilterBarContext={true}
+                        enableInlineFilterControl={false}
+                      />
+                      {/* Integrated filter type toggle button */}
+                      <button
+                        type="button"
+                        className={
+                          `smart-pill-input__filter-type-toggle ` +
+                          `smart-pill-input__filter-type-toggle--${segment.filterType} ` +
+                          `smart-pill-input__filter-type-toggle--integrated`
+                        }
+                        onClick={() => handleFilterTypeToggle(index, segment)}
+                        title={`Current: ${
+                          segment.filterType === 'author'
+                            ? 'Author'
+                            : 'Mentions'
+                        } filter. Click to toggle.`}
+                      >
+                        {segment.filterType === 'author' ? 'BY' : 'IN'}
+                      </button>
                     </div>
                   );
                 } else {
@@ -725,56 +724,55 @@ export const SmartPillInput: React.FC<SmartPillInputProps> = ({
                   return (
                     <div
                       key={index}
-                      className="smart-pill-input__mention-pill-wrapper"
+                      className="smart-pill-input__mention-pill-integrated"
                     >
-                      <div className="smart-pill-input__mention-pill">
-                        <ContentWithPills
-                          content={contentForPills}
-                          contextId={contextId}
-                          onHashtagClick={(hashtag) => {
-                            // // console.log(
-                            //   'DEBUG: SmartPillInput hashtag clicked:',
-                            //   hashtag,
-                            //   'contentForPills:',
-                            //   contentForPills
-                            // );
-                            handlePillClick(contentForPills);
-                          }}
-                          onMentionClick={(mention, filterType) => {
-                            // // console.log(
-                            //   'DEBUG: SmartPillInput mention clicked:',
-                            //   mention,
-                            //   'filterType:',
-                            //   filterType,
-                            //   'contentForPills:',
-                            //   contentForPills
-                            // );
-                            handlePillClick(contentForPills);
-                          }}
-                          className="smart-pill-input__pill"
-                          isFilterBarContext={true}
-                          enableInlineFilterControl={false}
-                        />
-                        {/* Clickable filter type toggle in display mode */}
-                        <button
-                          type="button"
-                          className={
-                            `smart-pill-input__filter-type-toggle ` +
-                            `smart-pill-input__filter-type-toggle--${segment.filterType}`
-                          }
-                          onClick={(e) => {
-                            e.stopPropagation(); // Prevent triggering container click
-                            handleFilterTypeToggle(index, segment);
-                          }}
-                          title={`Current: ${
-                            segment.filterType === 'author'
-                              ? 'Author'
-                              : 'Mentions'
-                          } filter. Click to toggle.`}
-                        >
-                          {segment.filterType === 'author' ? 'BY' : 'IN'}
-                        </button>
-                      </div>
+                      <ContentWithPills
+                        content={contentForPills}
+                        contextId={contextId}
+                        onHashtagClick={(hashtag) => {
+                          // // console.log(
+                          //   'DEBUG: SmartPillInput hashtag clicked:',
+                          //   hashtag,
+                          //   'contentForPills:',
+                          //   contentForPills
+                          // );
+                          handlePillClick(contentForPills);
+                        }}
+                        onMentionClick={(mention, filterType) => {
+                          // // console.log(
+                          //   'DEBUG: SmartPillInput mention clicked:',
+                          //   mention,
+                          //   'filterType:',
+                          //   filterType,
+                          //   'contentForPills:',
+                          //   contentForPills
+                          // );
+                          handlePillClick(contentForPills);
+                        }}
+                        className="smart-pill-input__pill smart-pill-input__pill--with-controls"
+                        isFilterBarContext={true}
+                        enableInlineFilterControl={false}
+                      />
+                      {/* Clickable filter type toggle in display mode */}
+                      <button
+                        type="button"
+                        className={
+                          `smart-pill-input__filter-type-toggle ` +
+                          `smart-pill-input__filter-type-toggle--${segment.filterType} ` +
+                          `smart-pill-input__filter-type-toggle--integrated`
+                        }
+                        onClick={(e) => {
+                          e.stopPropagation(); // Prevent triggering container click
+                          handleFilterTypeToggle(index, segment);
+                        }}
+                        title={`Current: ${
+                          segment.filterType === 'author'
+                            ? 'Author'
+                            : 'Mentions'
+                        } filter. Click to toggle.`}
+                      >
+                        {segment.filterType === 'author' ? 'BY' : 'IN'}
+                      </button>
                     </div>
                   );
                 } else {
