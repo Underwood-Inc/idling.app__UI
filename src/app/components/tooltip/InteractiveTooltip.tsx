@@ -14,6 +14,7 @@ interface InteractiveTooltipProps {
   triggerOnClick?: boolean; // If true, tooltip shows/hides on click instead of hover
   onClose?: () => void; // Callback when tooltip closes
   onShow?: () => void; // Callback when tooltip is about to show
+  show?: boolean; // If provided, controls tooltip visibility programmatically
 }
 
 // Utility function to detect mobile devices
@@ -33,7 +34,8 @@ export const InteractiveTooltip: React.FC<InteractiveTooltipProps> = ({
   className = '',
   triggerOnClick = false,
   onClose,
-  onShow
+  onShow,
+  show = false
 }) => {
   const [showTooltip, setShowTooltip] = useState(false);
   const [position, setPosition] = useState({ top: 0, left: 0 });
@@ -45,11 +47,35 @@ export const InteractiveTooltip: React.FC<InteractiveTooltipProps> = ({
   const resizeObserverRef = useRef<ResizeObserver | null>(null);
   const mutationObserverRef = useRef<MutationObserver | null>(null);
 
+  // Store latest callbacks in refs to avoid dependency issues
+  const onShowRef = useRef(onShow);
+  const onCloseRef = useRef(onClose);
+
+  useEffect(() => {
+    onShowRef.current = onShow;
+    onCloseRef.current = onClose;
+  });
+
+  // Sync external show prop with internal state
+  useEffect(() => {
+    if (show !== undefined) {
+      setShowTooltip(show);
+      if (show && onShowRef.current) {
+        onShowRef.current();
+      } else if (!show && onCloseRef.current) {
+        onCloseRef.current();
+      }
+    }
+  }, [show]);
+
   // Function to close tooltip programmatically
   const closeTooltip = () => {
-    setShowTooltip(false);
-    if (onClose) {
-      onClose();
+    if (show === undefined) {
+      // Only control internal state if not controlled by show prop
+      setShowTooltip(false);
+    }
+    if (onCloseRef.current) {
+      onCloseRef.current();
     }
   };
 
@@ -202,9 +228,12 @@ export const InteractiveTooltip: React.FC<InteractiveTooltipProps> = ({
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [showTooltip, onClose]);
+  }, [showTooltip]);
 
   const handleMouseEnter = () => {
+    // Don't handle mouse events if controlled by show prop
+    if (show !== undefined) return;
+
     // On mobile, don't trigger hover events
     const isMobile = isMobileDevice();
     if (disabled || triggerOnClick || isMobile) return;
@@ -214,8 +243,8 @@ export const InteractiveTooltip: React.FC<InteractiveTooltipProps> = ({
       clearTimeout(hideTimeoutRef.current);
     }
     const timeout = setTimeout(() => {
-      if (onShow) {
-        onShow(); // Call onShow callback before showing tooltip
+      if (onShowRef.current) {
+        onShowRef.current(); // Call onShow callback before showing tooltip
       }
       setShowTooltip(true);
       // Update position after a short delay to ensure content is rendered
@@ -225,6 +254,9 @@ export const InteractiveTooltip: React.FC<InteractiveTooltipProps> = ({
   };
 
   const handleMouseLeave = () => {
+    // Don't handle mouse events if controlled by show prop
+    if (show !== undefined) return;
+
     // On mobile, don't trigger mouse leave events
     const isMobile = isMobileDevice();
     if (triggerOnClick || isMobile) return;
@@ -242,6 +274,9 @@ export const InteractiveTooltip: React.FC<InteractiveTooltipProps> = ({
   };
 
   const handleClick = () => {
+    // Don't handle click events if controlled by show prop
+    if (show !== undefined) return;
+
     if (disabled) return;
 
     // On mobile, always use click mode regardless of triggerOnClick setting
@@ -312,7 +347,7 @@ export const InteractiveTooltip: React.FC<InteractiveTooltipProps> = ({
         {children}
       </Wrapper>
       {mounted &&
-        showTooltip &&
+        (show !== undefined ? show : showTooltip) &&
         content &&
         createPortal(
           <div
