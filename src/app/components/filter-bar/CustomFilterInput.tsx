@@ -185,7 +185,8 @@ export function CustomFilterInput({
 
     // Create filter based on the determined filter type
     const filterName: PostFilters = filterType;
-    const filterValue = filterType === 'author' ? userId : username;
+    // Both author and mentions filters use the same username|userId format
+    const filterValue = `${username}|${userId}`;
 
     return {
       name: filterName,
@@ -339,7 +340,8 @@ export function CustomFilterInput({
 
     // Create filter based on specified type
     const filterName: PostFilters = filterType;
-    const filterValue = filterType === 'author' ? userId : username;
+    // Both author and mentions filters use the same username|userId format
+    const filterValue = `${username}|${userId}`;
 
     return {
       name: filterName,

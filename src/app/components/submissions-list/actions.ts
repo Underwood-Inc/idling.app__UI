@@ -44,6 +44,21 @@ export interface GetSubmissionsPaginationCountResponse {
   error?: string;
 }
 
+// Helper function to extract user IDs from author filter values
+function extractUserIdsFromAuthorFilters(authors: string[]): number[] {
+  return authors
+    .map((author) => {
+      // Handle username|userId format
+      if (author.includes('|')) {
+        const [, userId] = author.split('|');
+        return parseInt(userId);
+      }
+      // Handle legacy numeric-only format
+      return parseInt(author);
+    })
+    .filter((authorId) => !isNaN(authorId) && authorId > 0);
+}
+
 /**
  * Pre-request to get pagination count for skeleton loader optimization
  * This allows us to show the exact number of skeleton items that will be loaded
@@ -143,10 +158,8 @@ export async function getSubmissionsPaginationCount({
         const authorLogicFilter = filters.find((f) => f.name === 'authorLogic');
         const authorLogic = globalLogic === 'AND' ? 'AND' : authorLogicFilter?.value || 'OR';
 
-        // Filter out invalid author values (non-numeric) to prevent NaN errors
-        const validAuthorIds = authors
-          .map((author) => parseInt(author))
-          .filter((authorId) => !isNaN(authorId) && authorId > 0);
+        // Extract user IDs from username|userId format
+        const validAuthorIds = extractUserIdsFromAuthorFilters(authors);
 
         if (validAuthorIds.length > 0) {
           const groupCondition = `s.user_id IN (${validAuthorIds.map(() => `$${paramIndex++}`).join(',')})`;
@@ -473,10 +486,8 @@ export async function getSubmissionsAction({
         const authorLogicFilter = filters.find((f) => f.name === 'authorLogic');
         const authorLogic = globalLogic === 'AND' ? 'AND' : authorLogicFilter?.value || 'OR';
 
-        // Filter out invalid author values (non-numeric) to prevent NaN errors
-        const validAuthorIds = authors
-          .map((author) => parseInt(author))
-          .filter((authorId) => !isNaN(authorId) && authorId > 0);
+        // Extract user IDs from username|userId format
+        const validAuthorIds = extractUserIdsFromAuthorFilters(authors);
 
         if (validAuthorIds.length > 0) {
           const groupCondition = `s.user_id IN (${validAuthorIds.map(() => `$${paramIndex++}`).join(',')})`;
