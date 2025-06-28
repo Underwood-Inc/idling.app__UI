@@ -1,0 +1,80 @@
+// =============================================================================
+// Mermaid Modal Button Styles
+// =============================================================================
+// Reusable button components for mermaid modal system
+
+@import 'mermaid-variables';
+
+// -----------------------------------------------------------------------------
+// Button Styles
+// -----------------------------------------------------------------------------
+
+.mermaid-modal__btn {
+  @include button-base;
+  @include glass-effect($bg-button-default, $blur-medium, var(--glass-border-medium));
+  color: var(--text-primary);
+  padding: var(--spacing-md) var(--spacing-lg);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  box-shadow: 
+    0 2px 8px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 var(--glass-overlay-light);
+  @include hover-lift();
+  
+  @include respond-to(tablet) {
+    padding: var(--spacing-sm) var(--spacing-md);
+    font-size: 14px;
+  }
+  
+  @include respond-to(mobile) {
+    padding: var(--spacing-xs) var(--spacing-sm);
+    font-size: 12px;
+  }
+  
+  // Button variants
+  &--zoom {
+    &:hover:not(:disabled) {
+      background: rgba(var(--brand-primary), 0.9);
+      color: #000;
+    }
+  }
+  
+  &--reset {
+    &:hover:not(:disabled) {
+      background: rgba(var(--brand-primary), 0.9);
+      color: #000;
+    }
+  }
+  
+  &--close {
+    @include glass-effect($bg-button-danger, $blur-medium, var(--glass-border-light));
+    font-size: 16px;
+    font-weight: bold;
+    @include hover-lift($color-danger);
+    
+    &:hover:not(:disabled) {
+      background: rgba($color-danger-dark, 0.9);
+    }
+    
+    @include respond-to(tablet) {
+      font-size: 14px;
+    }
+    
+    @include respond-to(mobile) {
+      font-size: 14px;
+      padding: var(--spacing-sm);
+    }
+  }
+  
+  // Button content
+  &-icon {
+    font-size: 1.1em;
+    line-height: 1;
+  }
+  
+  &-text {
+    @include respond-to(mobile) {
+      display: none;
+    }
+  }
+} 
