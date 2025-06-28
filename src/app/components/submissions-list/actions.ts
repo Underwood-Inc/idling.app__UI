@@ -143,11 +143,18 @@ export async function getSubmissionsPaginationCount({
         const authorLogicFilter = filters.find((f) => f.name === 'authorLogic');
         const authorLogic = globalLogic === 'AND' ? 'AND' : authorLogicFilter?.value || 'OR';
 
-        const groupCondition = `s.user_id IN (${authors.map(() => `$${paramIndex++}`).join(',')})`;
-        queryParams.push(...authors.map((author) => parseInt(author)));
-        
-        if (groupCondition) {
-          filterGroups.push(`(${groupCondition})`);
+        // Filter out invalid author values (non-numeric) to prevent NaN errors
+        const validAuthorIds = authors
+          .map((author) => parseInt(author))
+          .filter((authorId) => !isNaN(authorId) && authorId > 0);
+
+        if (validAuthorIds.length > 0) {
+          const groupCondition = `s.user_id IN (${validAuthorIds.map(() => `$${paramIndex++}`).join(',')})`;
+          queryParams.push(...validAuthorIds);
+          
+          if (groupCondition) {
+            filterGroups.push(`(${groupCondition})`);
+          }
         }
       }
     }
@@ -466,11 +473,18 @@ export async function getSubmissionsAction({
         const authorLogicFilter = filters.find((f) => f.name === 'authorLogic');
         const authorLogic = globalLogic === 'AND' ? 'AND' : authorLogicFilter?.value || 'OR';
 
-        const groupCondition = `s.user_id IN (${authors.map(() => `$${paramIndex++}`).join(',')})`;
-        queryParams.push(...authors.map((author) => parseInt(author)));
-        
-        if (groupCondition) {
-          filterGroups.push(`(${groupCondition})`);
+        // Filter out invalid author values (non-numeric) to prevent NaN errors
+        const validAuthorIds = authors
+          .map((author) => parseInt(author))
+          .filter((authorId) => !isNaN(authorId) && authorId > 0);
+
+        if (validAuthorIds.length > 0) {
+          const groupCondition = `s.user_id IN (${validAuthorIds.map(() => `$${paramIndex++}`).join(',')})`;
+          queryParams.push(...validAuthorIds);
+          
+          if (groupCondition) {
+            filterGroups.push(`(${groupCondition})`);
+          }
         }
       }
     }
