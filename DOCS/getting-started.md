@@ -168,6 +168,12 @@ IS_CI=1 yarn test
 IS_CI=1 yarn test:e2e
 ```
 
+**CI Test Requirements:**
+
+- **Jest (Unit/Integration)**: Required - must pass for PR approval
+- **Playwright (E2E)**: Optional - provides feedback but won't block merging
+- **Coverage**: Must meet SonarCloud quality gate thresholds
+
 ## 🏗️ Development Workflow
 
 ### 1. Code Style

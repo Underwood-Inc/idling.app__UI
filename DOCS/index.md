@@ -12,21 +12,34 @@ Welcome to the comprehensive documentation for **Idling.app** - a modern social 
 
 - **[Getting Started](./getting-started)** - Set up your development environment
 - **[Database Setup](./database/migrations)** - Migration system and database management
+- **[Rate Limiting](./rate-limiting/)** - Security and performance protection system
 - **[Deployment Guide](./deployment)** - Production deployment instructions
 
 ## 📖 Documentation Sections
+
+### 🧩 Components
+
+- **[Rich Input System](./components/rich-input-system/)** - Comprehensive documentation for the intelligent text editing component
 
 ### 🗄️ Database & Migrations
 
 - **[Migration System Guide](./database/migrations)** - Complete migration system documentation
 - **[Database Optimization](./database/optimization)** - Performance optimization strategies
-- **[Massive Seed Data](./database/seeding)** - Generate test data for development
+- **[Massive Seed Data](./database/massive-seed)** - Generate test data for development
 
 ### 🔧 Development
 
 - **[Smart Filters](./development/smart-filters)** - Advanced filtering system
 - **[Cache Strategy](./development/caching)** - Production caching implementation
 - **[CI/CD Tests](./development/testing)** - Continuous integration setup
+
+### 🛡️ Security & Rate Limiting
+
+- **[Rate Limiting System](./rate-limiting/)** - Comprehensive rate limiting and security documentation
+- **[System Overview](./rate-limiting/overview/)** - How the rate limiting system works
+- **[User Guide](./rate-limiting/user-guide/)** - Best practices for working with rate limits
+- **[Troubleshooting](./rate-limiting/troubleshooting/)** - Diagnosing and resolving rate limit issues
+- **[Admin Guide](./rate-limiting/admin-guide/)** - Administrative tools and procedures
 
 ### 🚀 Deployment & Operations
 
@@ -47,13 +60,11 @@ Welcome to the comprehensive documentation for **Idling.app** - a modern social 
 ### 🏗️ Architecture
 
 - **[System Architecture](./architecture/)** - High-level system design and patterns
-- **[User Identification](./architecture/user-identification-architecture)** - Authentication system design
+- **[User Identification](./architecture/USER_IDENTIFICATION_ARCHITECTURE)** - Authentication system design
 
 ### 📦 Components
 
 - **[Component Library](./components/)** - UI component documentation and patterns
-- **[Filter Bar](./components/filter-bar)** - Advanced filtering interface
-- **[Rich Text Editor](./components/rich-text-editor)** - WYSIWYG editor implementation
 
 ### 📚 Libraries
 
@@ -86,6 +97,7 @@ Welcome to the comprehensive documentation for **Idling.app** - a modern social 
 
 - **Frontend**: Next.js 14, React, TypeScript
 - **Backend**: Node.js, PostgreSQL, Prisma
+- **Security**: Advanced rate limiting with progressive penalties
 - **Testing**: Playwright, Jest
 - **Deployment**: Docker, PM2, GitHub Actions
 - **Monitoring**: SonarQube, Custom analytics
@@ -102,6 +114,7 @@ This project follows strict development standards:
 
 - ✅ **Migration System**: Fully automated with rollback protection
 - ✅ **Smart Filtering**: Advanced search with millions of records
+- ✅ **Rate Limiting**: Comprehensive security and performance protection
 - ✅ **Production Ready**: Deployed with comprehensive monitoring
 - ✅ **Test Coverage**: E2E and unit tests with CI/CD
 
@@ -111,6 +124,7 @@ This project follows strict development standards:
 | -------------------- | -------------------------------- | ----------------------------------- |
 | **Main README**      | Project overview and setup       | [View](./getting-started)           |
 | **Migration Guide**  | Database migration system        | [View](./database/migrations)       |
+| **Rate Limiting**    | Security and performance system  | [View](./rate-limiting/)            |
 | **Smart Filters**    | Advanced filtering documentation | [View](./development/smart-filters) |
 | **Production Guide** | Deployment and operations        | [View](./deployment/production)     |
 

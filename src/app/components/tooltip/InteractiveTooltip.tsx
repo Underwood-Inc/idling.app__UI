@@ -14,6 +14,7 @@ interface InteractiveTooltipProps {
   triggerOnClick?: boolean; // If true, tooltip shows/hides on click instead of hover
   onClose?: () => void; // Callback when tooltip closes
   onShow?: () => void; // Callback when tooltip is about to show
+  show?: boolean; // If provided, controls tooltip visibility programmatically
 }
 
 // Utility function to detect mobile devices
@@ -33,7 +34,8 @@ export const InteractiveTooltip: React.FC<InteractiveTooltipProps> = ({
   className = '',
   triggerOnClick = false,
   onClose,
-  onShow
+  onShow,
+  show
 }) => {
   const [showTooltip, setShowTooltip] = useState(false);
   const [position, setPosition] = useState({ top: 0, left: 0 });
@@ -45,11 +47,35 @@ export const InteractiveTooltip: React.FC<InteractiveTooltipProps> = ({
   const resizeObserverRef = useRef<ResizeObserver | null>(null);
   const mutationObserverRef = useRef<MutationObserver | null>(null);
 
+  // Store latest callbacks in refs to avoid dependency issues
+  const onShowRef = useRef(onShow);
+  const onCloseRef = useRef(onClose);
+
+  useEffect(() => {
+    onShowRef.current = onShow;
+    onCloseRef.current = onClose;
+  });
+
+  // Sync external show prop with internal state
+  useEffect(() => {
+    if (show !== undefined) {
+      setShowTooltip(show);
+      if (show && onShowRef.current) {
+        onShowRef.current();
+      } else if (!show && onCloseRef.current) {
+        onCloseRef.current();
+      }
+    }
+  }, [show]);
+
   // Function to close tooltip programmatically
   const closeTooltip = () => {
-    setShowTooltip(false);
-    if (onClose) {
-      onClose();
+    if (show === undefined) {
+      // Only control internal state if not controlled by show prop
+      setShowTooltip(false);
+    }
+    if (onCloseRef.current) {
+      onCloseRef.current();
     }
   };
 
@@ -74,8 +100,8 @@ export const InteractiveTooltip: React.FC<InteractiveTooltipProps> = ({
 
     const viewportHeight = window.innerHeight;
     const viewportWidth = window.innerWidth;
-    const scrollX = window.pageXOffset || document.documentElement.scrollLeft;
-    const scrollY = window.pageYOffset || document.documentElement.scrollTop;
+    // Removed scroll offset calculations since we're using fixed positioning
+    // which positions relative to the viewport, not the document
 
     // Calculate available space with padding
     const padding = 12;
@@ -149,76 +175,33 @@ export const InteractiveTooltip: React.FC<InteractiveTooltipProps> = ({
 
   useEffect(() => {
     if (showTooltip && tooltipContentRef.current) {
-      // Initial position update
+      // Initial position update only
       updatePosition();
 
-      // Add event listeners for external changes
-      window.addEventListener('scroll', updatePosition);
-      window.addEventListener('resize', updatePosition);
+      // Disable all automatic position updates to prevent repositioning
+      // Only allow manual repositioning on scroll/resize if absolutely necessary
+      const handleScroll = () => {
+        // Only reposition if the trigger element is a virtual trigger from rich input
+        if (tooltipRef.current?.getAttribute('data-rich-input-trigger')) {
+          // For virtual triggers, don't reposition on scroll since they're fixed positioned
+          return;
+        }
+        updatePosition();
+      };
 
-      // Set up ResizeObserver to watch for content size changes
-      if ('ResizeObserver' in window && tooltipContentRef.current) {
-        resizeObserverRef.current = new ResizeObserver((entries) => {
-          // Debounce position updates to avoid excessive calls
-          setTimeout(updatePosition, 10);
-        });
-        resizeObserverRef.current.observe(tooltipContentRef.current);
-      }
+      const handleResize = () => {
+        updatePosition();
+      };
 
-      // Set up MutationObserver to watch for content changes (like images loading)
-      if (tooltipContentRef.current) {
-        mutationObserverRef.current = new MutationObserver((mutations) => {
-          let shouldUpdate = false;
-          mutations.forEach((mutation) => {
-            // Check for added/removed nodes or attribute changes that might affect size
-            if (
-              mutation.type === 'childList' ||
-              (mutation.type === 'attributes' &&
-                ['style', 'class', 'width', 'height'].includes(
-                  mutation.attributeName || ''
-                ))
-            ) {
-              shouldUpdate = true;
-            }
-          });
+      window.addEventListener('scroll', handleScroll);
+      window.addEventListener('resize', handleResize);
 
-          if (shouldUpdate) {
-            // Delay to allow for layout changes to complete
-            setTimeout(updatePosition, 50);
-          }
-        });
-
-        mutationObserverRef.current.observe(tooltipContentRef.current, {
-          childList: true,
-          subtree: true,
-          attributes: true,
-          attributeFilter: ['style', 'class', 'width', 'height', 'src']
-        });
-      }
-
-      // Additional position updates for dynamic content
-      const intervals = [100, 250, 500, 1000]; // Check at these intervals
-      const timeouts = intervals.map((delay) =>
-        setTimeout(updatePosition, delay)
-      );
+      // Remove all observers and timers that cause repositioning
+      // This prevents the tooltip from moving after initial correct positioning
 
       return () => {
-        window.removeEventListener('scroll', updatePosition);
-        window.removeEventListener('resize', updatePosition);
-
-        // Clean up observers
-        if (resizeObserverRef.current) {
-          resizeObserverRef.current.disconnect();
-          resizeObserverRef.current = null;
-        }
-
-        if (mutationObserverRef.current) {
-          mutationObserverRef.current.disconnect();
-          mutationObserverRef.current = null;
-        }
-
-        // Clear timeouts
-        timeouts.forEach(clearTimeout);
+        window.removeEventListener('scroll', handleScroll);
+        window.removeEventListener('resize', handleResize);
       };
     }
 
@@ -245,9 +228,12 @@ export const InteractiveTooltip: React.FC<InteractiveTooltipProps> = ({
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [showTooltip, onClose]);
+  }, [showTooltip]);
 
   const handleMouseEnter = () => {
+    // Don't handle mouse events if controlled by show prop
+    if (show !== undefined) return;
+
     // On mobile, don't trigger hover events
     const isMobile = isMobileDevice();
     if (disabled || triggerOnClick || isMobile) return;
@@ -257,8 +243,8 @@ export const InteractiveTooltip: React.FC<InteractiveTooltipProps> = ({
       clearTimeout(hideTimeoutRef.current);
     }
     const timeout = setTimeout(() => {
-      if (onShow) {
-        onShow(); // Call onShow callback before showing tooltip
+      if (onShowRef.current) {
+        onShowRef.current(); // Call onShow callback before showing tooltip
       }
       setShowTooltip(true);
       // Update position after a short delay to ensure content is rendered
@@ -268,6 +254,9 @@ export const InteractiveTooltip: React.FC<InteractiveTooltipProps> = ({
   };
 
   const handleMouseLeave = () => {
+    // Don't handle mouse events if controlled by show prop
+    if (show !== undefined) return;
+
     // On mobile, don't trigger mouse leave events
     const isMobile = isMobileDevice();
     if (triggerOnClick || isMobile) return;
@@ -285,6 +274,9 @@ export const InteractiveTooltip: React.FC<InteractiveTooltipProps> = ({
   };
 
   const handleClick = () => {
+    // Don't handle click events if controlled by show prop
+    if (show !== undefined) return;
+
     if (disabled) return;
 
     // On mobile, always use click mode regardless of triggerOnClick setting
@@ -355,7 +347,7 @@ export const InteractiveTooltip: React.FC<InteractiveTooltipProps> = ({
         {children}
       </Wrapper>
       {mounted &&
-        showTooltip &&
+        (show !== undefined ? show : showTooltip) &&
         content &&
         createPortal(
           <div
@@ -376,6 +368,12 @@ export const InteractiveTooltip: React.FC<InteractiveTooltipProps> = ({
               WebkitBackdropFilter: 'var(--tooltip-glass-blur) !important',
               border: '1px solid var(--tooltip-glass-border) !important',
               boxShadow: 'var(--tooltip-glass-shadow) !important',
+              // Search overlay specific styles
+              ...(className.includes('search-overlay-tooltip') && {
+                maxHeight: '200px',
+                overflowY: 'auto' as const,
+                overflowX: 'hidden' as const
+              }),
               // Only allow transparent background for author-tooltip-wrapper
               ...(className === 'author-tooltip-wrapper' && {
                 background: 'transparent !important',

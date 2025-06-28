@@ -105,9 +105,9 @@ export async function createSubmissionAction(
   const { data, errors } = await validateCreateSubmissionForm(formData);
   const session = (await auth()) as CustomSession;
 
-  console.log('🔍 createSubmissionAction - Session:', session);
-  console.log('🔍 createSubmissionAction - User:', session?.user);
-  console.log('🔍 createSubmissionAction - User ID:', session?.user?.id);
+  // console.log('🔍 createSubmissionAction - Session:', session);
+  // console.log('🔍 createSubmissionAction - User:', session?.user);
+  // console.log('🔍 createSubmissionAction - User ID:', session?.user?.id);
 
   if (!data) {
     return { status: -1, error: errors };
@@ -115,14 +115,14 @@ export async function createSubmissionAction(
 
   // Authentication check - session must have user name and internal database ID
   if (!session || !session?.user?.name || !session.user.id) {
-    console.log('❌ createSubmissionAction - Authentication failed');
-    console.log('❌ Session exists:', !!session);
-    console.log('❌ User name:', session?.user?.name);
-    console.log('❌ User ID:', session?.user?.id);
+    // console.log('❌ createSubmissionAction - Authentication failed');
+    // console.log('❌ Session exists:', !!session);
+    // console.log('❌ User name:', session?.user?.name);
+    // console.log('❌ User ID:', session?.user?.id);
     return { status: -1, error: 'Authentication error.' };
   }
 
-  console.log('✅ createSubmissionAction - Authentication passed');
+  // console.log('✅ createSubmissionAction - Authentication passed');
 
   // Extract tags from title and content (these come without # prefix)
   const titleTags = extractTagsFromText(data.submission_title);
@@ -151,10 +151,10 @@ export async function createSubmissionAction(
 
   const threadParentId = formData.get('thread_parent_id');
 
-  console.log(
-    '🔍 createSubmissionAction - About to insert with user ID:',
-    session?.user.id
-  );
+  // console.log(
+  //   '🔍 createSubmissionAction - About to insert with user ID:',
+  //   session?.user.id
+  // );
 
   try {
     // Use the internal database ID from the session as the primary identifier
@@ -191,10 +191,10 @@ export async function createSubmissionAction(
     }
 
     const user = userExists[0];
-    console.log('✅ createSubmissionAction - Verified user:', {
-      id: user.id,
-      name: user.name
-    });
+    // console.log('✅ createSubmissionAction - Verified user:', {
+    //   id: user.id,
+    //   name: user.name
+    // });
 
     const result = await sql`
       INSERT INTO submissions (

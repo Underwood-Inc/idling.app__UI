@@ -420,6 +420,55 @@
   overflow-x: auto;
 }
 
+// Mermaid diagram styling
+.mermaid {
+  background: transparent !important;
+  border: 1px solid var(--glass-border-overlay-medium, var(--glass-border-medium)) !important;
+  border-radius: var(--border-radius) !important;
+  padding: var(--spacing-lg) !important;
+  margin: var(--spacing-lg) 0 !important;
+  overflow: hidden !important;
+  max-width: 100% !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+  backdrop-filter: var(--glass-blur-light);
+  -webkit-backdrop-filter: var(--glass-blur-light);
+  
+  svg {
+    max-width: 100% !important;
+    width: 100% !important;
+    height: auto !important;
+    display: block !important;
+    margin: 0 auto !important;
+    box-sizing: border-box !important;
+  }
+  
+  // Fix text contrast
+  text, .label, .nodeLabel, .edgeLabel, .titleText, .sectionTitle {
+    fill: var(--dark-bg__text-color--primary) !important;
+    color: var(--dark-bg__text-color--primary) !important;
+    font-weight: 500 !important;
+    font-size: 14px !important;
+  }
+  
+  // Node styling
+  .node rect, .node circle, .node ellipse, .node polygon {
+    fill: var(--glass-overlay-medium, var(--glass-bg-medium)) !important;
+    stroke: var(--brand-primary) !important;
+    stroke-width: 2px !important;
+  }
+  
+  // Link styling
+  .flowchart-link, .messageLine0, .messageLine1 {
+    stroke: var(--dark-bg__text-color--secondary) !important;
+    stroke-width: 2px !important;
+  }
+  
+  .arrowheadPath {
+    fill: var(--dark-bg__text-color--secondary) !important;
+  }
+}
+
 // Responsive utilities
 @media (max-width: 768px) {
   .card {
@@ -445,6 +494,16 @@
       min-width: 36px;
       height: 36px;
       font-size: var(--font-size-sm);
+    }
+  }
+  
+  .mermaid {
+    overflow-x: auto !important;
+    margin: var(--spacing-md) -var(--spacing-md) !important;
+    border-radius: 0 !important;
+    
+    svg {
+      min-width: 300px !important;
     }
   }
 } 

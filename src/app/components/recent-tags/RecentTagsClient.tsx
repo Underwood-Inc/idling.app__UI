@@ -1,13 +1,15 @@
 'use client';
 import { useAtom } from 'jotai';
-import React, { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { CustomSession } from '../../../auth.config';
-import { getSubmissionsFiltersAtom } from '../../../lib/state/atoms';
+import {
+  getSubmissionsFiltersAtom,
+  getSubmissionsStateAtom
+} from '../../../lib/state/atoms';
 import { RECENT_TAGS_SELECTORS } from '../../../lib/test-selectors/components/recent-tags.selectors';
 import { Card } from '../card/Card';
 import Empty from '../empty/Empty';
 import FancyBorder from '../fancy-border/FancyBorder';
-import { getTagsFromSearchParams } from '../filter-bar/utils/get-tags';
 import Loader from '../loader/Loader';
 import { getRecentTags } from './actions';
 import './RecentTags.css';
@@ -31,13 +33,22 @@ const RecentTagsClientComponent = ({
     getSubmissionsFiltersAtom(contextId)
   );
 
+  // We also need access to the submissions state to set loading immediately
+  const [, setSubmissionsState] = useAtom(getSubmissionsStateAtom(contextId));
+
   // Extract current tags and logic from shared filters with null checks
   const filters = filtersState?.filters || [];
-  const tagsFilter = filters.find((f) => f.name === 'tags');
+
+  // Get all tag filters (each tag is now a separate filter entry)
+  const tagFilters = filters.filter((f) => f.name === 'tags');
   const tagLogicFilter = filters.find((f) => f.name === 'tagLogic');
-  const currentTags = tagsFilter
-    ? getTagsFromSearchParams(tagsFilter.value)
-    : [];
+
+  // Extract current tags from individual filter entries
+  const currentTags = tagFilters.map((filter) => {
+    const tag = filter.value;
+    return tag.startsWith('#') ? tag : `#${tag}`;
+  });
+
   const currentTagLogic = tagLogicFilter?.value || 'OR';
 
   // Memoize tag-related state to prevent unnecessary re-renders
@@ -45,7 +56,7 @@ const RecentTagsClientComponent = ({
     () => ({
       currentTags,
       currentTagLogic,
-      tagsFilter,
+      tagFilters,
       tagLogicFilter
     }),
     [currentTags.join(','), currentTagLogic]
@@ -65,51 +76,6 @@ const RecentTagsClientComponent = ({
     const tagList = tagState.currentTags.join(', ');
     return `Posts with ${logicText}: ${tagList}`;
   }, [tagState.currentTags, tagState.currentTagLogic]);
-
-  // Ensure tagLogic filter exists when multiple tags are present
-  // But avoid race conditions by only adding default logic if there are multiple tags
-  // and no logic filter has been explicitly set recently
-  // DISABLED: This is causing race conditions with FilterBar updates
-  // useEffect(() => {
-  //   if (
-  //     tagState.currentTags.length > 1 &&
-  //     !tagState.tagLogicFilter &&
-  //     filtersState.initialized
-  //   ) {
-  //     // Only add default tagLogic if we're sure no other component is managing it
-  //     // Check if there's a very recent change to avoid race conditions
-  //     const timeoutId = setTimeout(() => {
-  //       setFiltersState((current) => {
-  //         // Double-check that we still need to add the logic filter
-  //         const currentTagLogicFilter = current.filters.find((f) => f.name === 'tagLogic');
-  //         const currentTagsFilter = current.filters.find((f) => f.name === 'tags');
-  //
-  //         if (currentTagsFilter && !currentTagLogicFilter) {
-  //           const currentTagsArray = getTagsFromSearchParams(currentTagsFilter.value);
-  //           if (currentTagsArray.length > 1) {
-  //             const newFilters = [...current.filters];
-  //             newFilters.push({
-  //               name: 'tagLogic',
-  //               value: 'OR' // Default to OR logic
-  //             });
-  //             return {
-  //               ...current,
-  //               filters: newFilters
-  //             };
-  //           }
-  //         }
-  //         return current;
-  //       });
-  //     }, 100); // Small delay to avoid race conditions with FilterBar updates
-
-  //     return () => clearTimeout(timeoutId);
-  //   }
-  // }, [
-  //   tagState.currentTags.length,
-  //   tagState.tagLogicFilter,
-  //   filtersState.initialized,
-  //   setFiltersState
-  // ]);
 
   // Fetch recent tags
   useEffect(() => {
@@ -132,67 +98,68 @@ const RecentTagsClientComponent = ({
   }, [onlyMine, session]);
 
   const handleTagClick = (tag: string) => {
-    // Ensure consistent formatting with # prefix
+    // Simple approach: just update the filters and let useSubmissionsManager handle the rest
     const formattedTag = tag.startsWith('#') ? tag : `#${tag}`;
     const isSelected = tagState.currentTags.includes(formattedTag);
-    let newTags: string[];
+
+    // Set loading state immediately when filter changes - this is the key fix!
+    setSubmissionsState((prev) => ({
+      ...prev,
+      loading: true
+    }));
 
     if (isSelected) {
-      // Remove tag
-      newTags = tagState.currentTags.filter((t) => t !== formattedTag);
-    } else {
-      // Add tag
-      newTags = [...tagState.currentTags, formattedTag];
-    }
-
-    // Update shared atom state directly
-    setFiltersState((prev) => {
-      let newFilters = [...prev.filters];
-
-      if (newTags.length > 0) {
-        const tagsValue = newTags.join(',');
-
-        // Update or add tags filter
-        const tagsIndex = newFilters.findIndex((f) => f.name === 'tags');
-        if (tagsIndex >= 0) {
-          newFilters[tagsIndex] = { name: 'tags', value: tagsValue };
-        } else {
-          newFilters.push({ name: 'tags', value: tagsValue });
-        }
-
-        // Handle tagLogic filter
-        if (newTags.length > 1) {
-          const logicIndex = newFilters.findIndex((f) => f.name === 'tagLogic');
-          if (logicIndex >= 0) {
-            // Don't override existing tagLogic - just preserve whatever is there
-            // This prevents race conditions with FilterBar updates
-            // The existing value is already correct
-          } else {
-            // Only add new tagLogic if none exists, and use current state
-            const currentLogic =
-              prev.filters.find((f) => f.name === 'tagLogic')?.value || 'OR';
-            newFilters.push({
-              name: 'tagLogic',
-              value: currentLogic
-            });
+      // Remove tag - remove the specific tag filter entry
+      setFiltersState((prevState) => {
+        const newFilters = prevState.filters.filter((filter) => {
+          if (filter.name === 'tags') {
+            const filterTag = filter.value.startsWith('#')
+              ? filter.value
+              : `#${filter.value}`;
+            return filterTag !== formattedTag;
           }
-        } else {
-          // Remove tagLogic for single tag
-          newFilters = newFilters.filter((f) => f.name !== 'tagLogic');
-        }
-      } else {
-        // Remove both tags and tagLogic filters
-        newFilters = newFilters.filter(
-          (f) => f.name !== 'tags' && f.name !== 'tagLogic'
-        );
-      }
+          return true;
+        });
 
-      return {
-        ...prev,
-        filters: newFilters,
-        page: 1 // Reset to first page
-      };
-    });
+        // If no tag filters remain, also remove tagLogic
+        const remainingTagFilters = newFilters.filter((f) => f.name === 'tags');
+        const finalFilters =
+          remainingTagFilters.length > 0
+            ? newFilters
+            : newFilters.filter((f) => f.name !== 'tagLogic');
+
+        return {
+          ...prevState,
+          filters: finalFilters,
+          page: 1
+        };
+      });
+    } else {
+      // Add tag - add a new tag filter entry
+      setFiltersState((prevState) => {
+        // Check if there are already tag filters
+        const existingTagFilters = prevState.filters.filter(
+          (f) => f.name === 'tags'
+        );
+        const willHaveMultipleTags = existingTagFilters.length >= 1; // Will have multiple after adding this one
+
+        const filtersToAdd = [{ name: 'tags', value: formattedTag }];
+
+        // Add tagLogic if we'll have multiple tags and no tagLogic exists
+        if (
+          willHaveMultipleTags &&
+          !prevState.filters.find((f) => f.name === 'tagLogic')
+        ) {
+          filtersToAdd.push({ name: 'tagLogic', value: 'OR' });
+        }
+
+        return {
+          ...prevState,
+          filters: [...prevState.filters, ...filtersToAdd],
+          page: 1
+        };
+      });
+    }
   };
 
   const handleLogicToggle = () => {
@@ -200,23 +167,44 @@ const RecentTagsClientComponent = ({
 
     // Update logic filter directly if we have multiple tags
     if (tagState.currentTags.length > 1) {
-      setFiltersState((prev) => {
-        const newFilters = [...prev.filters];
-        const logicIndex = newFilters.findIndex((f) => f.name === 'tagLogic');
+      // Set loading state immediately when filter changes
+      setSubmissionsState((prev) => ({
+        ...prev,
+        loading: true
+      }));
 
-        if (logicIndex >= 0) {
-          newFilters[logicIndex] = { name: 'tagLogic', value: newLogic };
-        } else {
-          newFilters.push({ name: 'tagLogic', value: newLogic });
-        }
-
+      setFiltersState((prevState) => {
+        // Remove existing tagLogic filter and add new one
+        const newFilters = prevState.filters.filter(
+          (f) => f.name !== 'tagLogic'
+        );
         return {
-          ...prev,
-          filters: newFilters
+          ...prevState,
+          filters: [...newFilters, { name: 'tagLogic', value: newLogic }],
+          page: 1
         };
       });
     }
   };
+
+  // Sort tags so selected ones appear at the top
+  const sortedTags = useMemo(() => {
+    const selectedTags: string[] = [];
+    const unselectedTags: string[] = [];
+
+    recentTags.tags.forEach((tag) => {
+      const formattedTag = tag.startsWith('#') ? tag : `#${tag}`;
+      const isActive = tagState.currentTags.includes(formattedTag);
+
+      if (isActive) {
+        selectedTags.push(tag);
+      } else {
+        unselectedTags.push(tag);
+      }
+    });
+
+    return [...selectedTags, ...unselectedTags];
+  }, [recentTags.tags, tagState.currentTags]);
 
   if (loading) {
     return <RecentTagsLoader />;
@@ -280,12 +268,13 @@ const RecentTagsClientComponent = ({
             </div>
 
             <div className="recent-tags__content">
-              {recentTags.tags.length > 0 && (
+              {sortedTags.length > 0 && (
                 <ol className="recent-tags__list">
-                  {recentTags.tags.map((tag) => {
+                  {sortedTags.map((tag) => {
                     const formattedTag = tag.startsWith('#') ? tag : `#${tag}`;
                     const isActive =
                       tagState.currentTags.includes(formattedTag);
+
                     return (
                       <li key={tag} className="recent-tags__list-item">
                         <button
@@ -306,7 +295,7 @@ const RecentTagsClientComponent = ({
                 </ol>
               )}
 
-              {!recentTags.tags.length && <Empty label="No recent tags" />}
+              {!sortedTags.length && <Empty label="No recent tags" />}
             </div>
           </div>
         </FancyBorder>
@@ -316,20 +305,22 @@ const RecentTagsClientComponent = ({
 };
 
 // Memoize the component to prevent unnecessary re-renders when parent components change due to pagination
-export const RecentTagsClient = React.memo(
-  RecentTagsClientComponent,
-  (prevProps, nextProps) => {
-    // Only re-render if contextId, onlyMine, or session changes
-    // Don't re-render for pagination or other state changes
-    return (
-      prevProps.contextId === nextProps.contextId &&
-      prevProps.onlyMine === nextProps.onlyMine &&
-      prevProps.session?.user?.id === nextProps.session?.user?.id &&
-      prevProps.initialRecentTags.tags.length ===
-        nextProps.initialRecentTags.tags.length
-    );
-  }
-);
+export const RecentTagsClient = RecentTagsClientComponent;
+// Temporarily disabled memo for debugging
+// export const RecentTagsClient = React.memo(
+//   RecentTagsClientComponent,
+//   (prevProps, nextProps) => {
+//     // Only re-render if contextId, onlyMine, or session changes
+//     // Don't re-render for pagination or other state changes
+//     return (
+//       prevProps.contextId === nextProps.contextId &&
+//       prevProps.onlyMine === nextProps.onlyMine &&
+//       prevProps.session?.user?.id === nextProps.session?.user?.id &&
+//       prevProps.initialRecentTags.tags.length ===
+//         nextProps.initialRecentTags.tags.length
+//     );
+//   }
+// );
 
 export function RecentTagsLoader() {
   return (

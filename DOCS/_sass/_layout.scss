@@ -40,8 +40,8 @@ body {
   .site-header-content {
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-lg);
-    padding: 0 var(--spacing-md);
+    gap: 0!important;
+    padding: 0 var(--spacing-md)!important;
     border-bottom: 1px solid var(--glass-border-overlay-light, var(--glass-border-light));
     
     @media (min-width: 768px) {
@@ -122,6 +122,9 @@ body {
   }
   
   .site-nav {
+    margin-block-end: 1rem!important;
+    margin-inline: 0!important;
+
     .nav-trigger {
       display: none;
     }
@@ -484,7 +487,7 @@ body {
 // Enhanced main content with cards
 .page-content {
   background: var(--dark-background--primary) !important;
-  // padding: var(--spacing-xl) var(--spacing-lg);
+  padding: 1rem;
   min-height: calc(100vh - 240px); // Adjusted for sticky header + search
   position: relative;
 }
@@ -492,7 +495,7 @@ body {
 .wrapper {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0 var(--spacing-lg);
+  padding: 0 var(--spacing-md);
   background: transparent !important;
   
   @media (max-width: 768px) {
@@ -503,11 +506,11 @@ body {
 // Main content area - simplified without card styling
 .main-content-card {
   background: transparent;
-  padding: var(--spacing-xl);
+  padding: var(--spacing-xl) 0;
   margin-bottom: var(--spacing-xl);
   
   @media (max-width: 768px) {
-    padding: var(--spacing-lg);
+    padding: var(--spacing-lg) 0;
     margin-bottom: var(--spacing-lg);
   }
 }
@@ -639,7 +642,7 @@ body {
   backdrop-filter: var(--glass-blur-medium);
   -webkit-backdrop-filter: var(--glass-blur-medium);
   box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.12);
-  padding: var(--spacing-lg) var(--spacing-xl) !important;
+  padding: var(--spacing-lg) var(--spacing-md) !important;
   color: var(--dark-bg__text-color--secondary) !important;
   margin-top: auto;
   
@@ -726,7 +729,7 @@ body {
   }
   
   .site-footer {
-    padding: var(--spacing-md) var(--spacing-lg) !important;
+    padding: var(--spacing-md) var(--spacing-md) !important;
     
     .footer-links {
       flex-wrap: wrap;

@@ -15,6 +15,7 @@ Our development documentation covers the entire development lifecycle - from set
 ### 🛠️ Technology Stack
 
 **Frontend:**
+
 - **Framework**: Next.js 14 with App Router
 - **Language**: TypeScript for type safety
 - **Styling**: CSS Modules + Global CSS
@@ -22,6 +23,7 @@ Our development documentation covers the entire development lifecycle - from set
 - **State Management**: React hooks + Context API
 
 **Backend:**
+
 - **Runtime**: Node.js 18+
 - **Database**: PostgreSQL with Prisma ORM
 - **Authentication**: NextAuth.js
@@ -29,7 +31,8 @@ Our development documentation covers the entire development lifecycle - from set
 - **File Uploads**: Custom upload system
 
 **Development Tools:**
-- **Testing**: Playwright (E2E) + Jest (Unit)
+
+- **Testing**: Playwright (E2E - optional in CI) + Jest (Unit - required in CI)
 - **Code Quality**: ESLint + Prettier
 - **CI/CD**: GitHub Actions
 - **Monitoring**: Custom analytics + SonarQube
@@ -37,7 +40,8 @@ Our development documentation covers the entire development lifecycle - from set
 ## 📚 Complete Developer Guide Library
 
 ### 🚀 **Getting Started**
-**[Development Setup Guide](./getting-started)** - *Start here if you're new*
+
+**[Development Setup Guide](./getting-started)** - _Start here if you're new_
 
 Set up your development environment from scratch:
 
@@ -52,7 +56,8 @@ Set up your development environment from scratch:
 ---
 
 ### 🐳 **Docker Development Environment**
-**[Docker Setup Guide](./docker-setup)** - *Complete containerized development*
+
+**[Docker Setup Guide](./docker-setup)** - _Complete containerized development_
 
 Master Docker-based development for consistent environments:
 
@@ -67,7 +72,8 @@ Master Docker-based development for consistent environments:
 ---
 
 ### 🔧 **Environment Configuration**
-**[Environment Variables Guide](./environment-variables)** - *Critical for all environments*
+
+**[Environment Variables Guide](./environment-variables)** - _Critical for all environments_
 
 Master application configuration and environment management:
 
@@ -82,7 +88,8 @@ Master application configuration and environment management:
 ---
 
 ### ⚡ **Performance Optimization**
-**[Performance Optimization Guide](./optimization)** - *Essential for production*
+
+**[Performance Optimization Guide](./optimization)** - _Essential for production_
 
 Make your application lightning fast and efficient:
 
@@ -97,7 +104,8 @@ Make your application lightning fast and efficient:
 ---
 
 ### 🧪 **Testing & Quality Assurance**
-**[CI/CD Testing Guide](./testing)** - *Critical for code quality*
+
+**[CI/CD Testing Guide](./testing)** - _Critical for code quality_
 
 Ensure code quality with comprehensive testing strategies:
 
@@ -112,7 +120,8 @@ Ensure code quality with comprehensive testing strategies:
 ---
 
 ### 🔍 **Troubleshooting**
-**[Troubleshooting Guide](./troubleshooting)** - *When things go wrong*
+
+**[Troubleshooting Guide](./troubleshooting)** - _When things go wrong_
 
 Solve common development problems quickly:
 
@@ -127,7 +136,8 @@ Solve common development problems quickly:
 ---
 
 ### 📝 **Advanced Development Topics**
-**[Smart Filters System](./smart-filters)** - *Advanced feature guide*
+
+**[Smart Filters System](./smart-filters)** - _Advanced feature guide_
 
 Master our advanced filtering and search system:
 
@@ -142,7 +152,8 @@ Master our advanced filtering and search system:
 ---
 
 ### 💾 **Caching Strategies**
-**[Cache Strategy Guide](./caching)** - *Production performance*
+
+**[Cache Strategy Guide](./caching)** - _Production performance_
 
 Implement effective caching for better performance:
 
@@ -157,7 +168,8 @@ Implement effective caching for better performance:
 ---
 
 ### 🎨 **Documentation & Styling**
-**[PowerShell-Style Syntax Highlighting](./powershell-syntax-demo)** - *Beautiful code documentation*
+
+**[PowerShell-Style Syntax Highlighting](./powershell-syntax-demo)** - _Beautiful code documentation_
 
 Experience our enhanced syntax highlighting that brings PowerShell and Powerlevel10k aesthetics to documentation:
 
@@ -172,24 +184,28 @@ Experience our enhanced syntax highlighting that brings PowerShell and Powerleve
 ## 🚀 Quick Start Paths
 
 ### 👨‍💻 **For New Developers**
+
 1. **Start here**: [Development Setup](./getting-started) - Get your environment running
 2. **Then read**: [Environment Variables](./environment-variables) - Understand configuration
 3. **Next**: [Testing Guide](./testing) - Learn our testing practices
 4. **Finally**: [Troubleshooting](./troubleshooting) - Know how to fix issues
 
 ### 🏗️ **For Senior Developers**
+
 1. **Start here**: [Performance Optimization](./optimization) - Advanced performance techniques
 2. **Then read**: [Smart Filters](./smart-filters) - Complex feature architecture
 3. **Next**: [Caching Strategies](./caching) - Production optimization
 4. **Finally**: [Testing](./testing) - Quality assurance practices
 
 ### 🧪 **For QA Engineers**
+
 1. **Start here**: [Testing Guide](./testing) - Comprehensive testing strategies
 2. **Then read**: [Development Setup](./getting-started) - Understand the development environment
 3. **Next**: [Troubleshooting](./troubleshooting) - Debug common issues
 4. **Finally**: [Performance Optimization](./optimization) - Performance testing
 
 ### 🚀 **For DevOps/Infrastructure**
+
 1. **Start here**: [Environment Variables](./environment-variables) - Critical configuration
 2. **Then read**: [Performance Optimization](./optimization) - Production tuning
 3. **Next**: [Caching Strategies](./caching) - Infrastructure optimization
@@ -198,6 +214,7 @@ Experience our enhanced syntax highlighting that brings PowerShell and Powerleve
 ## 📋 Development Quick Reference
 
 ### Essential Commands
+
 ```bash
 # Start development server
 yarn dev
@@ -225,16 +242,18 @@ yarn seed
 ```
 
 ### Key Directories
-| Directory | Purpose | Key Files |
-|-----------|---------|-----------|
-| `src/app/` | Next.js App Router pages | `layout.tsx`, `page.tsx` |
-| `src/components/` | Reusable UI components | Component modules |
-| `src/lib/` | Shared utilities and logic | Actions, utilities, types |
-| `e2e/` | End-to-end tests | Playwright test files |
-| `migrations/` | Database schema changes | SQL migration files |
-| `public/` | Static assets | Images, fonts, icons |
+
+| Directory         | Purpose                    | Key Files                 |
+| ----------------- | -------------------------- | ------------------------- |
+| `src/app/`        | Next.js App Router pages   | `layout.tsx`, `page.tsx`  |
+| `src/components/` | Reusable UI components     | Component modules         |
+| `src/lib/`        | Shared utilities and logic | Actions, utilities, types |
+| `e2e/`            | End-to-end tests           | Playwright test files     |
+| `migrations/`     | Database schema changes    | SQL migration files       |
+| `public/`         | Static assets              | Images, fonts, icons      |
 
 ### Environment Files
+
 ```bash
 .env.local          # Local development settings
 .env.example        # Example configuration
@@ -244,6 +263,7 @@ yarn seed
 ## 🛠️ Development Workflow
 
 ### 1. **Daily Development**
+
 ```bash
 # Pull latest changes
 git pull origin master
@@ -262,6 +282,7 @@ yarn test
 ```
 
 ### 2. **Feature Development**
+
 ```bash
 # Create feature branch
 git checkout -b feature/new-feature
@@ -277,6 +298,7 @@ git push origin feature/new-feature
 ```
 
 ### 3. **Code Quality Checks**
+
 ```bash
 # Check TypeScript types
 yarn type-check
@@ -294,21 +316,30 @@ yarn test:all
 yarn test:coverage
 ```
 
+**CI Test Status:**
+
+- **Jest tests**: Required for PR approval
+- **Playwright tests**: Optional - provide feedback but won't block PRs
+- **Coverage**: Must meet quality thresholds
+
 ## 🚨 Critical Development Information
 
 ### ⚠️ **Before Making Changes**
+
 - **Create a branch** for each feature or fix
 - **Run tests** before committing
 - **Follow commit conventions** for clear history
 - **Update documentation** for new features
 
 ### 🔒 **Security Considerations**
+
 - **Never commit secrets** to version control
 - **Use environment variables** for configuration
 - **Validate all inputs** on both client and server
 - **Follow authentication best practices**
 
 ### 📊 **Performance Guidelines**
+
 - **Bundle size**: Keep JavaScript bundles under 250KB
 - **Page load time**: Target under 3 seconds
 - **Database queries**: Optimize for under 100ms
@@ -317,6 +348,7 @@ yarn test:coverage
 ## 🎯 Code Standards
 
 ### TypeScript Best Practices
+
 ```typescript
 // Use interfaces for object shapes
 interface UserProfile {
@@ -336,6 +368,7 @@ try {
 ```
 
 ### Component Structure
+
 ```typescript
 // Consistent component structure
 interface ComponentProps {
@@ -354,6 +387,7 @@ export default function Component({ title, children }: ComponentProps) {
 ```
 
 ### API Route Pattern
+
 ```typescript
 // Consistent API route structure
 export async function GET(request: Request) {
@@ -371,6 +405,7 @@ export async function GET(request: Request) {
 ## 📞 Getting Help
 
 ### Common Issues
+
 - **Setup problems**: Check [Development Setup](./getting-started)
 - **Configuration issues**: See [Environment Variables](./environment-variables)
 - **Performance problems**: Review [Optimization Guide](./optimization)
@@ -378,12 +413,14 @@ export async function GET(request: Request) {
 - **General debugging**: Use [Troubleshooting Guide](./troubleshooting)
 
 ### Support Resources
+
 - **Documentation**: Comprehensive guides for all scenarios
 - **Code examples**: Working examples for common patterns
 - **Best practices**: Proven approaches for common tasks
 - **Community knowledge**: Shared solutions and patterns
 
 ### Development Tools
+
 - **VS Code Extensions**: TypeScript, Prettier, ESLint
 - **Browser DevTools**: React DevTools, Network tab
 - **Database Tools**: pgAdmin, Prisma Studio
@@ -400,4 +437,4 @@ export async function GET(request: Request) {
 
 ---
 
-*Our development environment is designed to be productive, maintainable, and enjoyable. These guides will help you become an expert idling.app developer.* 
+_Our development environment is designed to be productive, maintainable, and enjoyable. These guides will help you become an expert idling.app developer._

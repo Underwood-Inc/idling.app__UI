@@ -135,20 +135,17 @@ export const SmartTextSearchInput: React.FC<SmartTextSearchInputProps> = ({
   const constructedValue = useMemo(() => {
     const filterParts: string[] = [];
 
-    // Add tag filters as hashtags
+    // Add tag filters as hashtags (each tag is now a separate filter entry)
     filtersState.filters
       .filter((f: Filter) => f.name === 'tags')
       .forEach((f: Filter) => {
         if (typeof f.value === 'string') {
-          // Split comma-separated tags
-          const tags = f.value.split(',').map((tag: string) => tag.trim());
-          tags.forEach((tag: string) => {
-            if (tag && !tag.startsWith('#')) {
-              filterParts.push(`#${tag}`);
-            } else if (tag) {
-              filterParts.push(tag);
-            }
-          });
+          const tag = f.value.trim();
+          if (tag && !tag.startsWith('#')) {
+            filterParts.push(`#${tag}`);
+          } else if (tag) {
+            filterParts.push(tag);
+          }
         }
       });
 
@@ -283,10 +280,12 @@ export const SmartTextSearchInput: React.FC<SmartTextSearchInputProps> = ({
       if (hashtags.length > 0) {
         // Remove existing tags filter
         filtersToRemove.push({ name: 'tags' });
-        // Add new tags filter
-        filters.push({
-          name: 'tags',
-          value: hashtags.map((tag) => `#${tag}`).join(',')
+        // Add individual tag filter entries (new system)
+        hashtags.forEach((tag) => {
+          filters.push({
+            name: 'tags',
+            value: `#${tag}`
+          });
         });
       } else {
         // No hashtags found, remove tags filter
@@ -401,12 +400,8 @@ export const SmartTextSearchInput: React.FC<SmartTextSearchInputProps> = ({
     filtersState.filters.forEach((filter: Filter) => {
       switch (filter.name) {
         case 'tags':
-          if (filter.value) {
-            // Count comma-separated tags
-            counts.tags = filter.value
-              .split(',')
-              .filter((tag) => tag.trim()).length;
-          }
+          // Count individual tag filter entries (new system)
+          counts.tags++;
           break;
         case 'author':
           counts.authors++;
@@ -491,31 +486,10 @@ export const SmartTextSearchInput: React.FC<SmartTextSearchInputProps> = ({
 
       // Parse the pill to determine what filter to remove
       if (pillText.startsWith('#')) {
-        // Remove specific tag from tags filter
+        // Remove specific tag filter entry (new system)
         const tag = pillText.substring(1);
-        const tagsFilter = filtersState.filters.find(
-          (f: Filter) => f.name === 'tags'
-        );
-        if (tagsFilter) {
-          const currentTags = tagsFilter.value
-            .split(',')
-            .map((t: string) => t.trim().replace(/^#/, ''));
-          const newTags = currentTags.filter((t: string) => t !== tag);
-
-          if (newTags.length > 0) {
-            // Update tags filter with remaining tags
-            if (onAddFilter) {
-              onRemoveFilter('tags');
-              onAddFilter({
-                name: 'tags',
-                value: newTags.map((t: string) => `#${t}`).join(',')
-              });
-            }
-          } else {
-            // Remove tags filter entirely
-            onRemoveFilter('tags');
-          }
-        }
+        // Remove the specific tag filter entry by its exact value
+        onRemoveFilter('tags', `#${tag}`);
       } else if (pillText.startsWith('@')) {
         // Parse mention format to determine removal
         const enhancedMatch = pillText.match(

@@ -42,9 +42,9 @@ function SessionRefreshHandlerInternal() {
       hasProcessedCallback.current = true;
       refreshAttempts.current += 1;
 
-      console.log(
-        `🔄 OAuth callback detected (attempt ${refreshAttempts.current}/${maxRefreshAttempts}), refreshing session...`
-      );
+      // console.log(
+      //   `🔄 OAuth callback detected (attempt ${refreshAttempts.current}/${maxRefreshAttempts}), refreshing session...`
+      // );
 
       // Force session refresh after a short delay to allow NextAuth to process
       const refreshTimer = setTimeout(async () => {
@@ -55,7 +55,7 @@ function SessionRefreshHandlerInternal() {
           setTimeout(() => {
             // Re-check session status after update
             if (updatedSession?.user) {
-              console.log('✅ Session refresh successful after OAuth callback');
+              // console.log('✅ Session refresh successful after OAuth callback');
 
               // Clear URL parameters after successful refresh
               if (typeof window !== 'undefined' && window.location.search) {
@@ -69,9 +69,9 @@ function SessionRefreshHandlerInternal() {
               hasProcessedCallback.current = false;
             } else if (refreshAttempts.current < maxRefreshAttempts) {
               // If still not authenticated, try again
-              console.log(
-                `⚠️ Session still not authenticated after refresh attempt ${refreshAttempts.current}, will retry...`
-              );
+              // console.log(
+              //   `⚠️ Session still not authenticated after refresh attempt ${refreshAttempts.current}, will retry...`
+              // );
               hasProcessedCallback.current = false; // Allow retry
             } else {
               console.warn(

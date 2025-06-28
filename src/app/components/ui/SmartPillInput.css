@@ -552,3 +552,119 @@
   color: #0d47a1;
   border: 1px solid #42a5f5;
 }
+
+/* Integrated mention pill styling for SmartPillInput */
+.smart-pill-input__mention-pill-integrated {
+  display: inline-flex;
+  align-items: center;
+  gap: 0;
+  background: linear-gradient(135deg, #e8f5e8, #c8e6c9);
+  border: 1px solid #66bb6a;
+  border-radius: 16px;
+  padding: 0;
+  margin: 2px 4px 2px 0;
+  transition: all 0.2s ease;
+  box-shadow: inset 0 -1px 2px rgba(102, 187, 106, 0.25);
+  overflow: hidden;
+}
+
+.smart-pill-input__mention-pill-integrated:hover {
+  background: linear-gradient(135deg, #c8e6c9, #a5d6a7);
+  border-color: #4caf50;
+  transform: scale(1.02);
+  transform-origin: center;
+  box-shadow: inset 0 -2px 4px rgba(76, 175, 80, 0.3);
+  position: relative;
+  z-index: 10;
+}
+
+/* Style the pill content within the integrated container */
+.smart-pill-input__pill--with-controls {
+  border: none !important;
+  background: transparent !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  margin: 0 !important;
+  padding: 4px 8px !important;
+}
+
+.smart-pill-input__pill--with-controls .content-pill {
+  border: none !important;
+  background: transparent !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  color: #2e7d32 !important;
+}
+
+/* Remove the X indicator from the integrated pill */
+.smart-pill-input__pill--with-controls .content-pill--filter-context::after {
+  display: none !important;
+}
+
+/* Integrated toggle button styling for SmartPillInput */
+.smart-pill-input__filter-type-toggle--integrated {
+  border: none !important;
+  border-radius: 0 !important;
+  border-left: 1px solid rgba(46, 125, 50, 0.3) !important;
+  background: rgba(255, 255, 255, 0.2) !important;
+  color: #1b5e20 !important;
+  font-size: 9px !important;
+  font-weight: 700 !important;
+  min-width: 28px !important;
+  height: 100% !important;
+  padding: 4px 6px !important;
+  margin: 0 !important;
+  transition: all 0.2s ease !important;
+}
+
+.smart-pill-input__filter-type-toggle--integrated:hover {
+  background: rgba(255, 255, 255, 0.4) !important;
+  color: #1b5e20 !important;
+  transform: none !important;
+}
+
+/* Author filter specific styling for integrated pill */
+.smart-pill-input__mention-pill-integrated:has(.smart-pill-input__filter-type-toggle--author) {
+  background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+  border-color: #42a5f5;
+  box-shadow: inset 0 -1px 2px rgba(66, 165, 245, 0.25);
+}
+
+.smart-pill-input__mention-pill-integrated:has(.smart-pill-input__filter-type-toggle--author):hover {
+  background: linear-gradient(135deg, #bbdefb, #90caf9);
+  border-color: #1976d2;
+  box-shadow: inset 0 -2px 4px rgba(25, 118, 210, 0.3);
+}
+
+.smart-pill-input__filter-type-toggle--author.smart-pill-input__filter-type-toggle--integrated {
+  border-left-color: rgba(25, 118, 210, 0.3) !important;
+  color: #0d47a1 !important;
+}
+
+.smart-pill-input__pill--with-controls:has(+ .smart-pill-input__filter-type-toggle--author) .content-pill {
+  color: #1565c0 !important;
+}
+
+/* Mentions filter specific styling for integrated pill */
+.smart-pill-input__mention-pill-integrated:has(.smart-pill-input__filter-type-toggle--mentions) {
+  background: linear-gradient(135deg, #f3e5f5, #e1bee7);
+  border-color: #ab47bc;
+  box-shadow: inset 0 -1px 2px rgba(171, 71, 188, 0.25);
+}
+
+.smart-pill-input__mention-pill-integrated:has(.smart-pill-input__filter-type-toggle--mentions):hover {
+  background: linear-gradient(135deg, #e1bee7, #ce93d8);
+  border-color: #7b1fa2;
+  box-shadow: inset 0 -2px 4px rgba(123, 31, 162, 0.3);
+}
+
+.smart-pill-input__filter-type-toggle--mentions.smart-pill-input__filter-type-toggle--integrated {
+  border-left-color: rgba(123, 31, 162, 0.3) !important;
+  color: #4a148c !important;
+}
+
+.smart-pill-input__pill--with-controls:has(+ .smart-pill-input__filter-type-toggle--mentions) .content-pill {
+  color: #7b1fa2 !important;
+}

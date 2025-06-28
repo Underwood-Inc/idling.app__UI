@@ -57,56 +57,19 @@ export function FilterLabel({
         return;
       }
 
-      // For user filters, check if we can avoid re-resolution
+      // Handle combined format for mentions (username|userId)
       if (
-        (name === 'author' || name === 'mentions') &&
-        label &&
-        !label.startsWith('@')
+        (name === 'mentions' || name === 'author') &&
+        isCombinedFormat(label)
       ) {
-        // If the new label is in combined format, we can use it directly without fetching
-        if (isCombinedFormat(label)) {
-          const [username, userId] = label.split('|');
-          const newDisplayLabel = `@[${username}|${userId}]`;
-
-          // Check if we already have this exact display - avoid unnecessary updates
-          if (displayLabel !== newDisplayLabel) {
-            setDisplayLabel(newDisplayLabel);
-          }
-          setIsLoading(false);
-          return;
-        }
-
-        // Check if we already have a resolved display label that contains the same user
-        if (displayLabel.startsWith('@[')) {
-          const existingMatch = displayLabel.match(/^@\[([^|]+)\|([^|]+)\]$/);
-          if (existingMatch) {
-            const [, existingUsername, existingUserId] = existingMatch;
-
-            // If the new label is just a userId and matches our existing userId, don't re-fetch
-            if (
-              name === 'author' &&
-              isUserIdFormat(label) &&
-              label === existingUserId
-            ) {
-              setIsLoading(false);
-              return;
-            }
-
-            // If the new label is just a username and matches our existing username, don't re-fetch
-            if (
-              name === 'mentions' &&
-              isUsernameFormat(label) &&
-              label === existingUsername
-            ) {
-              setIsLoading(false);
-              return;
-            }
-          }
-        }
+        const [username, userId] = label.split('|');
+        // Display format: @[username|userID] (structured format for ContentWithPills)
+        setDisplayLabel(`@[${username}|${userId}]`);
+        setIsLoading(false);
+        return;
       }
 
-      // Check if this filter needs user resolution
-      // Only set loading if we actually need to fetch data
+      // Check if we need async resolution for display purposes
       let needsAsyncResolution = false;
 
       if (
@@ -156,41 +119,16 @@ export function FilterLabel({
         } finally {
           setIsLoading(false);
         }
-      } else if (name === 'mentions' && label && !label.startsWith('@')) {
-        // Handle both old username format and new combined format
-        if (isCombinedFormat(label)) {
-          // New combined format: username|userId - NO ASYNC RESOLUTION NEEDED
-          const [username, userId] = label.split('|');
-          setDisplayLabel(`@[${username}|${userId}]`);
-          setIsLoading(false);
-        } else if (isUsernameFormat(label)) {
-          // Old username-only format: need to get userId for display consistency
-          try {
-            const { getUserInfo } = await import(
-              '../../../lib/actions/search.actions'
-            );
-            const userInfo = await getUserInfo(label);
-            if (userInfo && userInfo.userId) {
-              // Display format: @[username|userID] (structured format for ContentWithPills)
-              setDisplayLabel(`@[${userInfo.username}|${userInfo.userId}]`);
-            } else {
-              // Fallback: show username with @ prefix
-              setDisplayLabel(`@${label}`);
-            }
-          } catch (error) {
-            console.error(
-              'Error resolving username to user ID for display:',
-              error
-            );
-            setDisplayLabel(`@${label}`);
-          } finally {
-            setIsLoading(false);
-          }
-        } else {
-          // Not a recognized format, show as-is
-          setDisplayLabel(label);
-          setIsLoading(false);
-        }
+      } else if (
+        name === 'mentions' &&
+        label &&
+        !label.startsWith('@') &&
+        isUsernameFormat(label) &&
+        !isCombinedFormat(label)
+      ) {
+        // Mentions filter: label is a username, use as-is for display
+        setDisplayLabel(`@${label}`);
+        setIsLoading(false);
       } else {
         // Already formatted, plain text, or other types - no loading needed
         setDisplayLabel(label);
@@ -223,6 +161,45 @@ export function FilterLabel({
       // Fallback to tag removal with original label
       onRemoveTag(label);
     }
+  };
+
+  // Handle filter type toggle for user mention pills
+  const handleFilterTypeToggle = () => {
+    if (!onRemoveFilter) return;
+
+    // Parse the display label to get user info
+    const mentionMatch = displayLabel.match(/^@\[([^|]+)\|([^\]]+)\]$/);
+    if (!mentionMatch) return;
+
+    const [, username, userId] = mentionMatch;
+
+    // Determine new filter type
+    const newFilterType = name === 'author' ? 'mentions' : 'author';
+
+    // Remove current filter
+    if (name === 'author') {
+      onRemoveFilter('author', label);
+    } else if (name === 'mentions') {
+      onRemoveFilter('mentions', label);
+    }
+
+    // Add new filter with appropriate value format
+    // We need to import the filter addition function
+    setTimeout(() => {
+      // This is a bit hacky, but we need to trigger the parent to add the new filter
+      // Since we don't have direct access to onAddFilter here, we'll use a custom event
+      const filterChangeEvent = new CustomEvent('filterTypeChange', {
+        detail: {
+          filterType: newFilterType,
+          // For author filters, backend expects just userId
+          // For mentions filters, we store combined format for display consistency
+          value: newFilterType === 'author' ? userId : `${username}|${userId}`,
+          oldFilterType: name,
+          oldValue: label
+        }
+      });
+      window.dispatchEvent(filterChangeEvent);
+    }, 0);
   };
 
   // Handle search text removal
@@ -350,6 +327,33 @@ export function FilterLabel({
             </button>
           );
         })}
+      </div>
+    );
+  }
+
+  // Special handling for user mention pills with filter type controls
+  if (
+    (name === 'author' || name === 'mentions') &&
+    displayLabel.startsWith('@')
+  ) {
+    return (
+      <div className="filter-bar__mention-pill-integrated">
+        <ContentWithPills
+          content={displayLabel}
+          contextId={filterId}
+          isFilterBarContext={true}
+          onHashtagClick={handleTagClick}
+          onMentionClick={handleMentionClick}
+          className="filter-bar__filter-pill filter-bar__filter-pill--with-controls"
+        />
+        <button
+          type="button"
+          className={`filter-bar__filter-type-toggle filter-bar__filter-type-toggle--${name} filter-bar__filter-type-toggle--integrated`}
+          onClick={handleFilterTypeToggle}
+          title={`Current: ${name === 'author' ? 'Author' : 'Mentions'} filter. Click to toggle.`}
+        >
+          {name === 'author' ? 'BY' : 'IN'}
+        </button>
       </div>
     );
   }

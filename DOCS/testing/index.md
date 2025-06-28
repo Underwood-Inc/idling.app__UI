@@ -19,12 +19,14 @@ Our testing approach includes multiple layers:
 - **Coverage**: Component logic, utility functions, API endpoints
 - **Location**: `__tests__` directories alongside source files
 - **Execution**: Parallel shards for faster CI runs
+- **CI Status**: **Required** - must pass for workflow to succeed
 
 ### Integration Tests
 
 - **Framework**: Jest with testing utilities
 - **Coverage**: Component interactions, API integrations
 - **Focus**: Data flow between components and services
+- **CI Status**: **Required** - must pass for workflow to succeed
 
 ### End-to-End Tests
 
@@ -32,6 +34,7 @@ Our testing approach includes multiple layers:
 - **Coverage**: Critical user journeys, browser compatibility
 - **Browsers**: Chromium, Firefox, WebKit
 - **Environment**: Full application stack with test database
+- **CI Status**: **Optional** - provide feedback but don't block PRs
 
 ## Available Guides
 
@@ -72,10 +75,16 @@ npm run test:coverage
 
 Our automated testing runs on every pull request:
 
-- **Jest Tests**: 3 parallel shards for speed
-- **Playwright Tests**: Sequential for reliability
+- **Jest Tests**: 3 parallel shards for speed (**required**)
+- **Playwright Tests**: Sequential for reliability (**optional**)
 - **Coverage Reports**: Combined and analyzed
 - **Quality Gates**: SonarCloud integration
+
+**Test Requirements:**
+
+- **Unit/Integration tests (Jest)**: Must pass for PR approval
+- **E2E tests (Playwright)**: Optional - provide valuable feedback but won't block merging
+- **Coverage thresholds**: Enforced through SonarCloud quality gates
 
 ## Related Documentation
 

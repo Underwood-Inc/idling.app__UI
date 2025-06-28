@@ -131,7 +131,7 @@ Maintain high code quality and consistent development practices:
 | Platform      | Purpose                            | Link                                                        |
 | ------------- | ---------------------------------- | ----------------------------------------------------------- |
 | GitHub        | Code repository and issue tracking | [GitHub Repository](https://github.com/your-org/idling.app) |
-| Documentation | Project documentation              | [docs.idling.app](https://docs.idling.app)                  |
+| Documentation | Project documentation              | [Docs](https://underwood-inc.github.io/idling.app__UI/)     |
 | Production    | Live application                   | [idling.app](https://idling.app)                            |
 
 ### Project Statistics

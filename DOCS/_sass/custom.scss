@@ -26,6 +26,7 @@ body {
 .post-content,
 .page-content .wrapper {
   @extend .main-content-card;
+  padding: 0;
 }
 
 // Navigation styling

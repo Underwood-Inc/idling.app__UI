@@ -11,6 +11,7 @@ This guide explains how to work with emojis in the idling.app through our API en
 ## 🎯 What Are Emoji APIs?
 
 Our emoji system lets users:
+
 - **Browse available emojis** (built-in and custom)
 - **Use emojis in posts** and comments
 - **Upload custom emojis** for approval
@@ -27,11 +28,13 @@ Think of it like a digital sticker collection that everyone can share and use!
 **Who can use it:** Everyone (no login required)
 
 **How to use it:**
+
 ```bash
 curl https://yourdomain.com/api/emojis
 ```
 
 **Query Parameters:**
+
 - `page` - Which page of results (default: 1)
 - `per_page` - How many emojis per page (default: 50, max: 100)
 - `category` - Filter by category (e.g., "smileys", "animals")
@@ -39,6 +42,7 @@ curl https://yourdomain.com/api/emojis
 - `os` - Your operating system ("windows", "mac", "linux") for best compatibility
 
 **Example requests:**
+
 ```bash
 # Get first 20 emojis
 curl "https://yourdomain.com/api/emojis?per_page=20"
@@ -51,6 +55,7 @@ curl "https://yourdomain.com/api/emojis?category=animals&os=windows"
 ```
 
 **Success Response (200):**
+
 ```json
 {
   "emojis": [
@@ -113,6 +118,7 @@ curl "https://yourdomain.com/api/emojis?category=animals&os=windows"
 ```
 
 **What each field means:**
+
 - **emoji_id**: Unique identifier for the emoji
 - **unicode_char**: The actual emoji character (for system emojis)
 - **name**: Human-readable name
@@ -132,6 +138,7 @@ curl "https://yourdomain.com/api/emojis?category=animals&os=windows"
 **Who can use it:** Everyone (no login required)
 
 **How to use it:**
+
 ```bash
 curl -X POST https://yourdomain.com/api/emojis/usage \
   -H "Content-Type: application/json" \
@@ -142,10 +149,12 @@ curl -X POST https://yourdomain.com/api/emojis/usage \
 ```
 
 **Required Data:**
+
 - `emoji_id` - The ID of the emoji that was used
 - `emoji_type` - Type of emoji: "windows", "mac", or "custom"
 
 **Success Response (200):**
+
 ```json
 {
   "success": true,
@@ -156,6 +165,7 @@ curl -X POST https://yourdomain.com/api/emojis/usage \
 **Error Responses:**
 
 **400 Bad Request:**
+
 ```json
 {
   "error": "Missing required fields: emoji_id and emoji_type"
@@ -163,6 +173,7 @@ curl -X POST https://yourdomain.com/api/emojis/usage \
 ```
 
 **400 Bad Request:**
+
 ```json
 {
   "error": "Invalid emoji_type. Must be one of: windows, mac, custom"
@@ -179,17 +190,17 @@ async function loadEmojis() {
   try {
     const response = await fetch('/api/emojis?per_page=100');
     const data = await response.json();
-    
+
     // Group emojis by category
     const emojisByCategory = {};
-    data.emojis.forEach(emoji => {
+    data.emojis.forEach((emoji) => {
       const categoryName = emoji.category.name;
       if (!emojisByCategory[categoryName]) {
         emojisByCategory[categoryName] = [];
       }
       emojisByCategory[categoryName].push(emoji);
     });
-    
+
     return emojisByCategory;
   } catch (error) {
     console.error('Failed to load emojis:', error);
@@ -204,7 +215,9 @@ async function loadEmojis() {
 // Search for emojis as user types
 async function searchEmojis(query) {
   try {
-    const response = await fetch(`/api/emojis?search=${encodeURIComponent(query)}&per_page=20`);
+    const response = await fetch(
+      `/api/emojis?search=${encodeURIComponent(query)}&per_page=20`
+    );
     const data = await response.json();
     return data.emojis;
   } catch (error) {
@@ -260,6 +273,7 @@ async function loadOptimizedEmojis() {
 Our emojis are organized into these categories:
 
 ### System Categories (Unicode Emojis)
+
 - **Smileys & Emotion** - 😀😊😂🥰😍
 - **People & Body** - 👋👍👎🙏💪
 - **Animals & Nature** - 🐶🐱🌳🌸🌟
@@ -271,6 +285,7 @@ Our emojis are organized into these categories:
 - **Flags** - 🇺🇸🇬🇧🇯🇵🇨🇦🇦🇺
 
 ### Custom Categories
+
 - **Community** - User-uploaded emojis approved by moderators
 - **Seasonal** - Holiday and season-specific emojis
 - **Brand** - App-specific and branded emojis
@@ -278,12 +293,14 @@ Our emojis are organized into these categories:
 ## 🔍 Search Tips
 
 ### Effective Search Queries
+
 - **By emotion**: "happy", "sad", "angry", "excited"
 - **By object**: "heart", "star", "car", "house"
 - **By activity**: "dance", "eat", "sleep", "work"
 - **By color**: "red", "blue", "green" (for custom emojis)
 
 ### Search Examples
+
 ```bash
 # Find all heart-related emojis
 curl "https://yourdomain.com/api/emojis?search=heart"
@@ -298,12 +315,15 @@ curl "https://yourdomain.com/api/emojis?category=food"
 ## 📊 Usage Statistics
 
 ### Popular Emojis
+
 The API automatically tracks which emojis are used most frequently. This helps with:
+
 - **Showing popular emojis first** in pickers
 - **Recommending emojis** to users
 - **Understanding community preferences**
 
 ### How Usage Tracking Works
+
 1. **User selects an emoji** in the app
 2. **App calls the usage API** to record it
 3. **Usage count increases** for that emoji
@@ -314,7 +334,8 @@ The API automatically tracks which emojis are used most frequently. This helps w
 ### Emoji Not Displaying Correctly
 
 **Problem:** Emoji shows as a square or question mark
-**Solution:** 
+**Solution:**
+
 - Check if the user's system supports that emoji version
 - Use the OS-specific endpoint to get compatible emojis
 - Provide fallback custom images for newer emojis
@@ -323,6 +344,7 @@ The API automatically tracks which emojis are used most frequently. This helps w
 
 **Problem:** Emoji picker takes too long to load
 **Solution:**
+
 - Use pagination (`per_page` parameter)
 - Cache emoji data in localStorage
 - Load most popular emojis first
@@ -331,6 +353,7 @@ The API automatically tracks which emojis are used most frequently. This helps w
 
 **Problem:** Users can't find the emoji they want
 **Solution:**
+
 - Search in both `name` and `tags` fields
 - Use partial matching (the API handles this automatically)
 - Provide category filtering options
@@ -340,6 +363,7 @@ The API automatically tracks which emojis are used most frequently. This helps w
 ### For App Developers
 
 **Caching:**
+
 ```javascript
 // Cache emojis for better performance
 const EMOJI_CACHE_KEY = 'emojis_cache';
@@ -357,14 +381,18 @@ function getCachedEmojis() {
 }
 
 function setCachedEmojis(emojis) {
-  localStorage.setItem(EMOJI_CACHE_KEY, JSON.stringify({
-    emojis,
-    timestamp: Date.now()
-  }));
+  localStorage.setItem(
+    EMOJI_CACHE_KEY,
+    JSON.stringify({
+      emojis,
+      timestamp: Date.now()
+    })
+  );
 }
 ```
 
 **Error Handling:**
+
 ```javascript
 async function safeEmojiRequest(url) {
   try {
@@ -382,6 +410,7 @@ async function safeEmojiRequest(url) {
 ```
 
 **Performance:**
+
 - Load emojis in chunks (use pagination)
 - Implement virtual scrolling for large lists
 - Preload popular emojis
@@ -390,6 +419,7 @@ async function safeEmojiRequest(url) {
 ### For Users
 
 **Finding the Right Emoji:**
+
 1. **Search by feeling** - "happy", "sad", "excited"
 2. **Search by object** - "heart", "star", "food"
 3. **Browse by category** - Look in the right section
@@ -399,10 +429,10 @@ async function safeEmojiRequest(url) {
 
 ## 🔗 Related Documentation
 
-- **[Admin Emoji APIs](./admin-emojis)** - Managing and approving custom emojis
 - **[Upload APIs](./upload)** - Uploading custom emoji images
-- **[User Guide](../getting-started)** - How to use emojis in the app
+- **[Getting Started Guide](../getting-started)** - How to use emojis in the app
+- **Admin Emoji APIs** - Managing and approving custom emojis _(coming soon)_
 
 ---
 
-*The emoji system makes communication more fun and expressive. These APIs help you build rich emoji experiences for your users!* 
+_The emoji system makes communication more fun and expressive. These APIs help you build rich emoji experiences for your users!_

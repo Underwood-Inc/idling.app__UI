@@ -2,7 +2,7 @@
 
 import { createLogger } from '@/lib/logging';
 import { useSession } from 'next-auth/react';
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useSubmissionsManager } from '../../../lib/state/useSubmissionsManager';
 import '../../../lib/utils/scroll-highlight-demo'; // Import for global test function
 import { Submission } from '../submission-forms/schema';
@@ -11,7 +11,7 @@ import { SubmissionWithReplies } from './actions';
 import { Filter } from '@/lib/state/atoms';
 import { PostFilters } from '@/lib/types/filters';
 import { usePaginationPreRequest } from '../../hooks/usePaginationPreRequest';
-import { IntelligentSkeletonWrapper } from '../skeleton/IntelligentSkeletonWrapper';
+import { SimpleSkeletonWrapper } from '../skeleton/SimpleSkeletonWrapper';
 import { PostsManagerControls } from './components/PostsManagerControls';
 import { PostsManagerFilters } from './components/PostsManagerFilters';
 import { PostsManagerPagination } from './components/PostsManagerPagination';
@@ -28,7 +28,7 @@ const logger = createLogger({
     component: 'PostsManager',
     module: 'components/submissions-list'
   },
-  enabled: false
+  enabled: false // Disabled to reduce log noise
 });
 
 interface PostsManagerProps {
@@ -71,6 +71,22 @@ const PostsManager = React.memo(function PostsManager({
 }: PostsManagerProps) {
   const { data: session } = useSession();
 
+  // Simple render counter for debugging
+  const renderCount = useRef(0);
+  renderCount.current += 1;
+
+  // Only log in development and when there's a potential issue
+  if (process.env.NODE_ENV === 'development' && renderCount.current > 2) {
+    // eslint-disable-next-line no-console
+    console.warn(
+      `PostsManager rendered ${renderCount.current} times for contextId: ${contextId}`
+    );
+  }
+
+  // Track filter operations for debugging
+  const filterOpCount = useRef(0);
+  const lastFilterOp = useRef('');
+
   // Use custom hooks for state management
   const {
     spacingTheme,
@@ -105,11 +121,12 @@ const PostsManager = React.memo(function PostsManager({
     isLoadingMore,
     hasMore,
     optimisticUpdateSubmission,
-    optimisticRemoveSubmission
+    optimisticRemoveSubmission,
+    updateFilter
   } = useSubmissionsManager({
     contextId,
     onlyMine,
-    userId: session?.user?.id?.toString() || '',
+    initialUserId: session?.user?.id?.toString() || '',
     includeThreadReplies: shouldIncludeReplies,
     infiniteScroll: infiniteScrollMode
   });
@@ -160,21 +177,22 @@ const PostsManager = React.memo(function PostsManager({
     addFilter,
     addFilters,
     removeFilter,
+    updateFilter,
     setIncludeThreadReplies,
-    onNewPostClick
+    onNewPostClick,
+    contextId
   });
-
-  // Wrapper function for thread toggle that accepts boolean
-  const handleThreadToggle = useCallback(
-    (checked: boolean) => {
-      setIncludeThreadReplies(checked);
-    },
-    [setIncludeThreadReplies]
-  );
 
   // Handler for only replies toggle
   const handleOnlyRepliesToggle = useCallback(
     (checked: boolean) => {
+      if (process.env.NODE_ENV === 'development') {
+        // eslint-disable-next-line no-console
+        console.log('🔍 PostsManager: onlyReplies toggle', {
+          checked,
+          currentOnlyReplies: onlyReplies
+        });
+      }
       if (checked) {
         addFilter({ name: 'onlyReplies', value: 'true' });
       } else {
@@ -184,8 +202,43 @@ const PostsManager = React.memo(function PostsManager({
     [addFilter, removeFilter]
   );
 
+  // Wrapper function for thread toggle that accepts boolean
+  const handleThreadToggle = useCallback(
+    (checked: boolean) => {
+      if (process.env.NODE_ENV === 'development') {
+        // eslint-disable-next-line no-console
+        console.log('🔍 PostsManager: includeThreadReplies toggle', {
+          checked,
+          currentIncludeThreadReplies: includeThreadReplies
+        });
+      }
+      setIncludeThreadReplies(checked);
+    },
+    [setIncludeThreadReplies]
+  );
+
   // Memoize authorization check
   const isAuthorized = useMemo(() => !!session?.user?.id, [session?.user?.id]);
+
+  // Handle filter type change events from FilterBar
+  useEffect(() => {
+    const handleAddFilterFromToggle = (event: Event) => {
+      const customEvent = event as CustomEvent;
+      const { filterType, value } = customEvent.detail;
+
+      // Add the new filter
+      addFilter({ name: filterType, value });
+    };
+
+    window.addEventListener('addFilterFromToggle', handleAddFilterFromToggle);
+
+    return () => {
+      window.removeEventListener(
+        'addFilterFromToggle',
+        handleAddFilterFromToggle
+      );
+    };
+  }, [addFilter]);
 
   // Memoize total pages calculation
   const totalPages = useMemo(
@@ -212,21 +265,81 @@ const PostsManager = React.memo(function PostsManager({
     ).length;
   }, [filters]);
 
+  // Debug logging for filter operations
+  if (process.env.NODE_ENV === 'development') {
+    const currentFilterString = JSON.stringify(filters);
+    if (
+      filterOpCount.current === 0 ||
+      lastFilterOp.current !== currentFilterString
+    ) {
+      filterOpCount.current += 1;
+      lastFilterOp.current = currentFilterString;
+      // eslint-disable-next-line no-console
+      console.log(`Filter operation #${filterOpCount.current}:`, {
+        filtersCount: filters.length,
+        isLoading,
+        renderCount: renderCount.current
+      });
+    }
+  }
+
   // Debug logging for render state
   logger.group('renderState');
   logger.debug('Rendering with state', {
     isLoading,
     hasSubmissions: submissions.length > 0,
+    submissionsCount: submissions.length,
     error,
     filtersCount: actualFiltersCount,
     currentPage: pagination.currentPage,
     totalPages: Math.ceil(pagination.totalRecords / pagination.pageSize),
+    totalRecords: pagination.totalRecords,
     infiniteScrollMode,
     showFilters,
     expectedSkeletonItems,
-    preRequestData
+    preRequestData: preRequestData
+      ? {
+          expectedItems: preRequestData.expectedItems,
+          isLoading: isPreRequestLoading
+        }
+      : null
   });
+
+  // Additional debug logging for search results issue
+  if (process.env.NODE_ENV === 'development') {
+    // Only log when there are actual issues, not on every render
+    if (renderCount.current === 1 || renderCount.current % 10 === 0) {
+      // eslint-disable-next-line no-console
+      console.log('🔍 PostsManager Debug - Search Results Issue:', {
+        submissionsLength: submissions.length,
+        isLoading,
+        error,
+        totalRecords: pagination.totalRecords,
+        renderCount: renderCount.current,
+        filters: filters.map((f) => ({ name: f.name, value: f.value })),
+        firstSubmission: submissions[0]
+          ? {
+              id: submissions[0].submission_id,
+              title: submissions[0].submission_title,
+              author: submissions[0].author
+            }
+          : null
+      });
+    }
+  }
+
   logger.groupEnd();
+
+  // Memoize filter toggle function
+  const handleToggleFilters = useCallback(() => {
+    setShowFilters(!showFilters);
+  }, [showFilters, setShowFilters]);
+
+  // Memoize remove filter function
+  const handleRemoveFilter = useCallback(
+    (name: string, value?: any) => removeFilter(name as any, value),
+    [removeFilter]
+  );
 
   return (
     <>
@@ -235,7 +348,7 @@ const PostsManager = React.memo(function PostsManager({
         <PostsManagerControls
           isMobile={isMobile}
           showFilters={showFilters}
-          onToggleFilters={() => setShowFilters(!showFilters)}
+          onToggleFilters={handleToggleFilters}
           filtersCount={actualFiltersCount}
           totalRecords={pagination.totalRecords}
           isLoading={isLoading}
@@ -250,9 +363,7 @@ const PostsManager = React.memo(function PostsManager({
           showFilters={showFilters}
           contextId={contextId}
           filters={filters}
-          onRemoveFilter={(name: string, value?: any) =>
-            removeFilter(name as any, value)
-          }
+          onRemoveFilter={handleRemoveFilter}
           onRemoveTag={removeTag}
           onClearFilters={clearFilters}
           onUpdateFilter={handleUpdateFilter}
@@ -271,7 +382,7 @@ const PostsManager = React.memo(function PostsManager({
         {/* Sticky Controls - appears when main controls are out of view */}
         <StickyPostsControls
           showFilters={showFilters}
-          onToggleFilters={() => setShowFilters(!showFilters)}
+          onToggleFilters={handleToggleFilters}
           filtersCount={actualFiltersCount}
           infiniteScrollMode={infiniteScrollMode}
           onTogglePaginationMode={setInfiniteScrollMode}
@@ -282,34 +393,18 @@ const PostsManager = React.memo(function PostsManager({
         />
       </div>
 
-      {/* Intelligent Skeleton Wrapper for SubmissionsList */}
-      <IntelligentSkeletonWrapper
+      {/* Simple Skeleton Wrapper for SubmissionsList */}
+      <SimpleSkeletonWrapper
         isLoading={isLoading}
         className="posts-manager__submissions-wrapper"
-        preserveExactHeight={true}
         expectedItemCount={expectedSkeletonItems}
-        expectedTotalRecords={pagination.totalRecords}
-        hasPagination={!infiniteScrollMode}
-        hasInfiniteScroll={infiniteScrollMode}
-        currentPage={pagination.currentPage}
-        pageSize={pagination.pageSize}
-        onStructureCaptured={(config) => {
-          logger.debug('Skeleton structure captured', {
-            elementCount: config.rootElement ? 1 : 0,
-            containerDimensions: config.containerDimensions,
-            captureTime: config.captureTime,
-            expectedItems: config.metadata.expectedItemCount,
-            hasPagination: config.metadata.hasPagination,
-            hasInfiniteScroll: config.metadata.hasInfiniteScroll
-          });
-        }}
       >
         <SubmissionsList
           posts={submissions}
           onTagClick={handleTagClick}
           onHashtagClick={handleHashtagClick}
           onMentionClick={handleMentionClick}
-          showSkeletons={false} // Handled by IntelligentSkeletonWrapper
+          showSkeletons={false} // Handled by SimpleSkeletonWrapper
           onRefresh={handleRefresh}
           contextId={contextId}
           infiniteScrollMode={infiniteScrollMode}
@@ -324,7 +419,7 @@ const PostsManager = React.memo(function PostsManager({
         >
           {renderSubmissionItem}
         </SubmissionsList>
-      </IntelligentSkeletonWrapper>
+      </SimpleSkeletonWrapper>
 
       {/* Pagination */}
       <PostsManagerPagination

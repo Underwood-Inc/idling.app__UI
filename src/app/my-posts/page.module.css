@@ -23,5 +23,4 @@
 .submission__wrapper--is-reply {
   border-left: 3px solid var(--brand-primary);
   padding-left: 1rem;
-  margin-left: 0.5rem;
 }

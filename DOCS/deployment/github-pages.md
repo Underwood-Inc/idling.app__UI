@@ -1,9 +1,9 @@
 ---
 layout: default
-title: "GitHub Pages Deployment"
-description: "Complete guide to deploying Jekyll documentation to GitHub Pages"
+title: 'GitHub Pages Deployment'
+description: 'Complete guide to deploying Jekyll documentation to GitHub Pages'
 nav_order: 6
-parent: "Deployment"
+parent: 'Deployment'
 ---
 
 # GitHub Pages Deployment
@@ -14,17 +14,19 @@ This guide covers the complete setup and deployment process for the Jekyll docum
 
 The Idling.app documentation is deployed to GitHub Pages using Jekyll, providing a publicly accessible documentation site at:
 
-**🔗 [https://underwood-inc.github.io/idling.app__UI](https://underwood-inc.github.io/idling.app__UI)**
+**🔗 [https://underwood-inc.github.io/idling.app\_\_UI](https://underwood-inc.github.io/idling.app__UI)**
 
 ## 🏗️ Architecture
 
 ### Jekyll Configuration
+
 - **Jekyll Version**: 3.10.0 (GitHub Pages compatible)
 - **Ruby Version**: 3.3.4 (matches GitHub Pages environment)
 - **Theme**: Minima with custom styling
 - **Deployment**: Automated via GitHub Actions
 
 ### Repository Structure
+
 ```
 DOCS/
 ├── _config.yml          # Jekyll configuration
@@ -42,13 +44,14 @@ DOCS/
 
 ## ⚙️ Configuration Files
 
-### Jekyll Configuration (_config.yml)
+### Jekyll Configuration (\_config.yml)
+
 ```yaml
 # Jekyll Configuration for GitHub Pages
-title: "Idling.app Documentation"
-description: "Complete documentation for the Idling.app project"
-url: "https://underwood-inc.github.io"
-baseurl: "/idling.app__UI"
+title: 'Idling.app Documentation'
+description: 'Complete documentation for the Idling.app project'
+url: 'https://underwood-inc.github.io'
+baseurl: '/idling.app__UI'
 
 # Build settings
 markdown: kramdown
@@ -67,6 +70,7 @@ plugins:
 ```
 
 ### Ruby Dependencies (Gemfile)
+
 ```ruby
 source "https://rubygems.org"
 
@@ -96,7 +100,7 @@ name: Build and Deploy Documentation
 
 on:
   push:
-    branches: [ master, main ]
+    branches: [master, main]
     paths:
       - 'DOCS/**'
       - '.github/workflows/docs.yml'
@@ -112,18 +116,18 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        
+
       - name: Setup Ruby
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: '3.3.4'
           bundler-cache: true
           working-directory: './DOCS'
-          
+
       - name: Build with Jekyll
         run: bundle exec jekyll build
         working-directory: ./DOCS
-        
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
@@ -153,11 +157,13 @@ jobs:
 ## 🔧 Local Development
 
 ### Prerequisites
+
 - Ruby 3.3.4
 - Bundler 2.5+
 - Git
 
 ### Setup Commands
+
 ```bash
 # Install dependencies
 yarn docs:install
@@ -176,6 +182,7 @@ cd DOCS && bundle exec jekyll build
 ```
 
 ### Development Workflow
+
 1. **Edit documentation** in `DOCS/` directory
 2. **Test locally** at http://localhost:4000
 3. **Commit changes** to git
@@ -184,15 +191,17 @@ cd DOCS && bundle exec jekyll build
 ## 📊 GitHub Pages Environment
 
 ### Supported Versions
-| Component | Version |
-|-----------|---------|
-| **Jekyll** | 3.10.0 |
-| **Ruby** | 3.3.4 |
-| **Kramdown** | 2.4.0 |
-| **Rouge** | 3.30.0 |
-| **Liquid** | 4.0.4 |
+
+| Component    | Version |
+| ------------ | ------- |
+| **Jekyll**   | 3.10.0  |
+| **Ruby**     | 3.3.4   |
+| **Kramdown** | 2.4.0   |
+| **Rouge**    | 3.30.0  |
+| **Liquid**   | 4.0.4   |
 
 ### Whitelisted Jekyll Plugins
+
 - jekyll-coffeescript
 - jekyll-default-layout
 - jekyll-feed
@@ -214,6 +223,7 @@ cd DOCS && bundle exec jekyll build
 ## 🔍 Search Functionality
 
 ### Search Index (search.json)
+
 Automatically generated search index for client-side search:
 
 ```json
@@ -230,22 +240,23 @@ Automatically generated search index for client-side search:
 ```
 
 ### Navigation Structure
+
 Hierarchical navigation defined in `_config.yml`:
 
 ```yaml
 navigation:
-  - title: "Development"
-    url: "/development/"
+  - title: 'Development'
+    url: '/development/'
     subnav:
-      - title: "Docker Setup"
-        url: "/development/docker-setup"
-      - title: "Environment Variables"
-        url: "/development/environment-variables"
-  - title: "Deployment"
-    url: "/deployment/"
+      - title: 'Docker Setup'
+        url: '/development/docker-setup'
+      - title: 'Environment Variables'
+        url: '/development/environment-variables'
+  - title: 'Deployment'
+    url: '/deployment/'
     subnav:
-      - title: "GitHub Pages"
-        url: "/deployment/github-pages"
+      - title: 'GitHub Pages'
+        url: '/deployment/github-pages'
 ```
 
 ## 🐛 Troubleshooting
@@ -253,6 +264,7 @@ navigation:
 ### Common Issues
 
 **Build Failures:**
+
 ```bash
 # Check Jekyll version compatibility
 bundle exec jekyll --version
@@ -265,6 +277,7 @@ bundle exec jekyll clean
 ```
 
 **Plugin Issues:**
+
 ```bash
 # Check plugin whitelist
 bundle exec github-pages versions
@@ -275,6 +288,7 @@ bundle install
 ```
 
 **Deployment Problems:**
+
 - Check GitHub Actions logs
 - Verify repository permissions
 - Ensure `DOCS/` directory structure is correct
@@ -282,11 +296,13 @@ bundle install
 ### Performance Optimization
 
 **Build Speed:**
+
 - Use incremental builds: `jekyll serve --incremental`
 - Optimize images and assets
 - Minimize plugin usage
 
 **Site Performance:**
+
 - Enable gzip compression
 - Optimize CSS and JavaScript
 - Use CDN for assets (if needed)
@@ -294,12 +310,14 @@ bundle install
 ## 🔄 CI/CD Integration
 
 ### GitHub Actions Benefits
+
 - **Consistent builds** across environments
 - **Custom build processes** beyond GitHub Pages limitations
 - **Advanced caching** for faster builds
 - **Multiple deployment targets** support
 
 ### Deployment Triggers
+
 - **Push to master**: Automatic deployment
 - **Pull requests**: Build validation (no deployment)
 - **Manual trigger**: Via GitHub Actions UI
@@ -307,11 +325,13 @@ bundle install
 ## 📈 Monitoring & Analytics
 
 ### Build Monitoring
+
 - GitHub Actions build status
 - GitHub Pages deployment status
 - Build time optimization
 
 ### Site Analytics
+
 ```yaml
 # Optional: Add to _config.yml
 google_analytics: GA_TRACKING_ID
@@ -320,11 +340,13 @@ google_analytics: GA_TRACKING_ID
 ## 🔒 Security Considerations
 
 ### Repository Settings
+
 - **Branch protection** on master
 - **Required status checks** for PRs
 - **Restrict push access** to maintainers
 
 ### Content Security
+
 - **Sanitize user input** in documentation
 - **Review external links** regularly
 - **Monitor for sensitive data** in commits
@@ -344,4 +366,4 @@ google_analytics: GA_TRACKING_ID
 4. **Optimize for GitHub Pages** limitations
 5. **Monitor build performance** and optimize regularly
 6. **Keep dependencies updated** within GitHub Pages constraints
-7. **Use semantic versioning** for documentation releases 
+7. **Use semantic versioning** for documentation releases

@@ -33,6 +33,17 @@ navigation:
         url: "/database/optimization"
       - title: "Seeding"
         url: "/database/seeding"
+  - title: "Components"
+    url: "/components/"
+    subnav:
+      - title: "Rich Input System"
+        url: "/components/rich-input-system/"
+      - title: "Filter Bar"
+        url: "/components/filter-bar/"
+      - title: "Floating Toolbar"
+        url: "/components/floating-toolbar/"
+      - title: "Search Overlay"
+        url: "/components/search-overlay/"
   - title: "Development"
     url: "/development/"
     subnav:

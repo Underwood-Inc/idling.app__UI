@@ -11,8 +11,9 @@ This document provides detailed information about our CI testing pipeline implem
 ## Overview
 
 Our testing pipeline consists of five main jobs that run in parallel where possible:
+
 1. Setup Environment
-2. Playwright Tests (E2E)
+2. Playwright Tests (E2E) - **Optional**
 3. Jest Tests (Unit/Integration) - 3 parallel shards
 4. Combine Coverage Reports
 5. SonarCloud Analysis
@@ -22,14 +23,17 @@ Our testing pipeline consists of five main jobs that run in parallel where possi
 ![CI Tests Job Dependencies](./docs/assets/ci-tests-job-deps.png)
 
 The diagram above shows how our CI jobs depend on each other:
+
 - Both test jobs (Playwright and Jest) depend on the Setup job
 - Jest tests run in parallel shards to optimize execution time
 - Report combination jobs depend on their respective test jobs
 - SonarCloud analysis runs only after all reports are combined
+- **Playwright tests are optional and won't fail the workflow if they encounter issues**
 
 ## Detailed Job Descriptions
 
 ### 1. Setup Environment
+
 - **Purpose**: Prepares the environment for all subsequent jobs
 - **Key Actions**:
   - Checks out code
@@ -38,9 +42,11 @@ The diagram above shows how our CI jobs depend on each other:
   - Caches dependencies for faster subsequent runs
 - **Outputs**: Cached `node_modules` and Playwright browser binaries
 
-### 2. Playwright Tests (E2E)
+### 2. Playwright Tests (E2E) - **Optional**
+
 - **Purpose**: Runs end-to-end tests using Playwright
 - **Dependencies**: Setup job
+- **Status**: **Optional - workflow continues even if these tests fail**
 - **Environment**:
   - PostgreSQL service container
   - Node.js runtime
@@ -55,7 +61,10 @@ The diagram above shows how our CI jobs depend on each other:
 
 > **Note on Test Sharding**: Unlike Jest tests, Playwright tests are not sharded. This is intentional due to the complexity of managing browser-specific dependencies in CI environments. Sharding Playwright tests can lead to inconsistent behavior and failures, particularly with browsers like WebKit that require specific system libraries. Running tests sequentially ensures more reliable cross-browser testing.
 
+> **Note on Optional Status**: Playwright tests are configured as optional (`continue-on-error: true`) to prevent E2E test failures from blocking PRs. This allows development to continue while still providing valuable feedback about browser compatibility and user experience.
+
 ### 3. Jest Tests
+
 - **Purpose**: Runs unit and integration tests
 - **Dependencies**: Setup job
 - **Parallelization**: 3 shards running concurrently
@@ -68,6 +77,7 @@ The diagram above shows how our CI jobs depend on each other:
   - Test results in `jest-results-[shard].json`
 
 ### 4. Combine Coverage Reports
+
 - **Purpose**: Merges coverage from Jest shards
 - **Dependencies**: Jest Tests
 - **Key Actions**:
@@ -76,6 +86,7 @@ The diagram above shows how our CI jobs depend on each other:
   - Generates combined coverage report
 
 ### 5. SonarCloud Analysis
+
 - **Purpose**: Code quality and security analysis
 - **Dependencies**: Playwright Tests and Coverage Reports
 - **Key Actions**:
@@ -86,9 +97,11 @@ The diagram above shows how our CI jobs depend on each other:
 ## Test Results and Reporting
 
 ### Automated PR Comments
+
 The CI pipeline automatically generates test result comments on pull requests:
 
 - "🎭 E2E Test Results" comment for Playwright tests
+
   - Shows results from all browser tests
   - Includes pass/fail/skip counts
   - Lists any test failures with details
@@ -99,16 +112,20 @@ The CI pipeline automatically generates test result comments on pull requests:
   - Lists any test failures with details
 
 ### Test Results Location
+
 Test results are stored as artifacts:
-- Playwright: 
+
+- Playwright:
   - `playwright-report/`
   - `test-results/` (for traces on failure)
-- Jest: 
+- Jest:
   - Per shard: `jest-coverage-[1-3]/`
   - Combined: `combined-coverage/`
 
 ### Viewing Results
+
 1. **In Pull Requests**:
+
    - Look for the most recent test result comments
    - Each test type has its own separate comment
    - Failed tests include expandable details
@@ -123,10 +140,12 @@ Test results are stored as artifacts:
 ### Common Issues
 
 1. **Database Connection Failures**
+
    - Check PostgreSQL service configuration
    - Verify database credentials in secrets
 
 2. **Test Timeouts**
+
    - Review test logs for slow operations
    - Check for resource constraints
    - Consider adjusting shard count if tests are too slow
@@ -139,6 +158,7 @@ Test results are stored as artifacts:
 ### Debug Steps
 
 1. **For Playwright Issues**:
+
    - Check individual shard results
    - Review test traces in artifacts
    - Verify database migrations
@@ -153,6 +173,7 @@ Test results are stored as artifacts:
 ## Best Practices
 
 1. **Writing Tests**:
+
    - Keep E2E tests focused on critical paths
    - Maintain unit test coverage
    - Use appropriate test selectors
@@ -167,6 +188,7 @@ Test results are stored as artifacts:
 ## Contributing
 
 When modifying the CI pipeline:
+
 1. Test changes in a feature branch
 2. Review workflow run times
 3. Verify all artifacts are generated

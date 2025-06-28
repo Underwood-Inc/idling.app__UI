@@ -697,7 +697,7 @@ export const InlineSuggestionInput: React.FC<InlineSuggestionInputProps> = ({
           top: `${dropdownPosition.top}px`,
           left: `${dropdownPosition.left}px`,
           width: `${dropdownPosition.width}px`,
-          zIndex: 10000,
+          zIndex: 999999,
           pointerEvents: 'auto'
         }}
       >

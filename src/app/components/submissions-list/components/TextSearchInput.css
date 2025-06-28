@@ -350,11 +350,6 @@
     color: var(--text-primary, #ffffff);
   }
 
-  .text-search-input__status {
-    background: var(--dark-background--secondary, #333333);
-    color: var(--text-muted, #9ca3af);
-  }
-
   .text-search-input__terms {
     background: var(--dark-background--secondary, #333333);
     color: var(--text-muted, #9ca3af);

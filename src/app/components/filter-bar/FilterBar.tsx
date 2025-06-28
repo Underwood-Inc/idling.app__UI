@@ -1,6 +1,7 @@
 'use client';
 
 import { useAtom } from 'jotai';
+import { useEffect } from 'react';
 import { Filter, getSubmissionsFiltersAtom } from '../../../lib/state/atoms';
 import { PostFilters } from '../../../lib/types/filters';
 import './FilterBar.css';
@@ -31,6 +32,36 @@ export default function FilterBar({
   const [filtersState, setFiltersState] = useAtom(
     getSubmissionsFiltersAtom(filterId)
   );
+
+  // Handle filter type change events from FilterLabel components
+  useEffect(() => {
+    const handleFilterTypeChange = (event: Event) => {
+      const customEvent = event as CustomEvent;
+      const { filterType, value, oldFilterType, oldValue } = customEvent.detail;
+
+      // Remove the old filter first
+      onRemoveFilter(oldFilterType as PostFilters, oldValue);
+
+      // Add the new filter using the proper function
+      // We need to access the addFilter function from the parent component
+      // Since we don't have direct access, we'll dispatch another event that the parent can listen to
+      setTimeout(() => {
+        const addFilterEvent = new CustomEvent('addFilterFromToggle', {
+          detail: {
+            filterType,
+            value
+          }
+        });
+        window.dispatchEvent(addFilterEvent);
+      }, 50); // Increased delay to ensure removal completes first
+    };
+
+    window.addEventListener('filterTypeChange', handleFilterTypeChange);
+
+    return () => {
+      window.removeEventListener('filterTypeChange', handleFilterTypeChange);
+    };
+  }, [onRemoveFilter]);
 
   // Add null check for filters
   const safeFilters = filters || [];
@@ -86,15 +117,16 @@ export default function FilterBar({
   // This prevents the confusing state where global=ALL but there's only one group
   const effectiveGlobalLogic = hasMultipleFilterTypes ? globalLogic : 'OR';
 
-  // If we need to update the stored global logic to match the effective logic
-  if (
-    onUpdateFilter &&
-    globalLogic !== effectiveGlobalLogic &&
-    !hasMultipleFilterTypes
-  ) {
-    // Automatically switch to OR when there's only one filter type
-    setTimeout(() => onUpdateFilter('globalLogic', 'OR'), 0);
-  }
+  // DISABLED: Auto-switch global logic to prevent double fetches
+  // The tag/hashtag click handlers now add globalLogic atomically
+  // if (
+  //   onUpdateFilter &&
+  //   globalLogic !== effectiveGlobalLogic &&
+  //   !hasMultipleFilterTypes
+  // ) {
+  //   // Automatically switch to OR when there's only one filter type
+  //   setTimeout(() => onUpdateFilter('globalLogic', 'OR'), 0);
+  // }
 
   const handleLogicToggle = (
     filterType: 'tagLogic' | 'authorLogic' | 'mentionsLogic' | 'globalLogic'
@@ -149,11 +181,19 @@ export default function FilterBar({
               ].includes(filter.name)
           )
           // Group filters by name to consolidate multiple values
-          // Exception: author and mentions filters should remain separate instances
+          // For author and mentions: keep as separate instances but group them for display
+          // For tags and search: consolidate values with comma separation
           .reduce((acc, filter) => {
             if (filter.name === 'author' || filter.name === 'mentions') {
-              // Keep user filters as separate instances
-              acc.push({ ...filter });
+              // For user filters, group all values under a single consolidated entry
+              const existingFilter = acc.find((f) => f.name === filter.name);
+              if (existingFilter) {
+                // Combine values with comma separation for display purposes only
+                existingFilter.value =
+                  existingFilter.value + ',' + filter.value;
+              } else {
+                acc.push({ ...filter });
+              }
             } else {
               // Consolidate other filter types (tags, search)
               const existingFilter = acc.find((f) => f.name === filter.name);
@@ -177,7 +217,7 @@ export default function FilterBar({
             let hasMultipleValues: boolean;
 
             if (filter.name === 'search') {
-              // For search filters, parse the search text to find individual terms
+              // For search filters, parse the search text to preserve quoted phrases
               const searchTerms: string[] = [];
               const regex = /"([^"]+)"|(\S+)/g;
               let match;
@@ -186,9 +226,12 @@ export default function FilterBar({
                 const quotedTerm = match[1]; // Captured quoted content
                 const unquotedTerm = match[2]; // Captured unquoted content
 
-                const term = quotedTerm || unquotedTerm;
-                if (term && term.length >= 1) {
-                  searchTerms.push(term);
+                if (quotedTerm && quotedTerm.length >= 1) {
+                  // Preserve quotes for atomic phrases
+                  searchTerms.push(`"${quotedTerm}"`);
+                } else if (unquotedTerm && unquotedTerm.length >= 1) {
+                  // Individual words without quotes
+                  searchTerms.push(unquotedTerm);
                 }
               }
 

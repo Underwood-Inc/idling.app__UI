@@ -11,12 +11,14 @@ Welcome to the idling.app API documentation! This guide explains all the availab
 ## 🎯 What is an API?
 
 Think of an API like a waiter in a restaurant:
+
 - **You (the customer)** make a request ("I'd like a burger")
 - **The waiter (API)** takes your request to the kitchen
 - **The kitchen (server)** prepares your order
 - **The waiter** brings back your food
 
 In our app:
+
 - **Your browser** makes a request ("Show me the latest posts")
 - **The API** processes your request
 - **The database** gets the information
@@ -25,33 +27,53 @@ In our app:
 ## 📚 API Categories
 
 ### 🔐 Authentication APIs
+
 Handle user login, logout, and session management
-- **[Auth Routes](./auth)** - Login and authentication
+
+- **Auth Routes** - Login and authentication _(documentation coming soon)_
 
 ### 👥 User Management APIs
+
 Manage user accounts, profiles, and permissions
-- **[User APIs](./user)** - User profiles and settings
-- **[Profile APIs](./profile)** - Public user profiles
-- **[Admin User APIs](./admin-users)** - User management (admin only)
+
+- **User APIs** - User profiles and settings _(documentation coming soon)_
+- **Profile APIs** - Public user profiles _(documentation coming soon)_
+- **Admin User APIs** - User management (admin only) _(documentation coming soon)_
 
 ### 📝 Content APIs
+
 Handle posts, comments, and user-generated content
-- **[Posts APIs](./posts)** - Create, read, update posts (coming soon)
-- **[Comments APIs](./comments)** - Post comments and replies (coming soon)
+
+- **Posts APIs** - Create, read, update posts _(documentation coming soon)_
+- **Comments APIs** - Post comments and replies _(documentation coming soon)_
 
 ### 😀 Emoji APIs
+
 Manage custom emojis and emoji usage
+
 - **[Emoji APIs](./emojis)** - Browse and use emojis
-- **[Admin Emoji APIs](./admin-emojis)** - Emoji approval (admin only)
+- **Admin Emoji APIs** - Emoji approval (admin only) _(documentation coming soon)_
 
 ### 📁 File Upload APIs
+
 Handle file uploads and media
+
 - **[Upload APIs](./upload)** - Image and file uploads
 
+### 🖼️ Image Generation APIs
+
+Dynamic image and avatar generation
+
+- **[OG Image API](./og-image)** - Dynamic Open Graph images with quotes and avatars
+- **[Avatar Image API](./avatar-image)** - Unique avatar generation using @dicebear
+
 ### ⚙️ System APIs
+
 System administration and monitoring
-- **[Admin System APIs](./admin-system)** - System management (admin only)
-- **[Test APIs](./test)** - Testing and debugging
+
+- **Version API** - Application version information _(documentation coming soon)_
+- **Admin System APIs** - System management (admin only) _(documentation coming soon)_
+- **Test APIs** - Testing and debugging _(documentation coming soon)_
 
 ## 🚀 Quick Start Guide
 
@@ -82,6 +104,7 @@ All our APIs return data in JSON format (JavaScript Object Notation). Here's wha
 ```
 
 **What each part means:**
+
 - **success**: `true` if everything worked, `false` if there was an error
 - **data**: The actual information you requested
 - **timestamp**: When the response was generated
@@ -98,6 +121,7 @@ When something goes wrong, you'll get an error response:
 ```
 
 **Common error codes:**
+
 - **400**: Bad request (you sent invalid data)
 - **401**: Unauthorized (you need to log in)
 - **403**: Forbidden (you don't have permission)
@@ -118,14 +142,17 @@ Most API endpoints require you to be logged in. Here's how it works:
 ### Public vs Protected Endpoints
 
 **Public endpoints** (no login required):
+
 - Browse emojis: `GET /api/emojis`
 - View public profiles: `GET /api/profile/[username]`
 
 **Protected endpoints** (login required):
+
 - Upload images: `POST /api/upload/image`
 - Check timeout status: `GET /api/user/timeout`
 
 **Admin endpoints** (admin privileges required):
+
 - Manage users: `POST /api/admin/users/timeout`
 - Approve emojis: `POST /api/admin/emojis`
 
@@ -134,21 +161,25 @@ Most API endpoints require you to be logged in. Here's how it works:
 Each API endpoint is documented with:
 
 ### Endpoint Format
+
 ```
 METHOD /api/path
 ```
 
 **Examples:**
+
 - `GET /api/emojis` - Get a list of emojis
 - `POST /api/upload/image` - Upload an image
 - `DELETE /api/admin/users/timeout` - Remove a user timeout
 
 ### Request Information
+
 - **URL parameters**: Values in the URL path
 - **Query parameters**: Values after the `?` in the URL
 - **Request body**: Data you send with POST/PUT requests
 
 ### Response Information
+
 - **Success responses**: What you get when everything works
 - **Error responses**: What you get when something goes wrong
 - **Example responses**: Real examples you can expect
@@ -192,16 +223,19 @@ curl -H "Cookie: your-session-cookie" \
 ### For Developers Using Our API
 
 **Rate Limiting:**
+
 - Don't make too many requests too quickly
 - Wait at least 100ms between requests
 - If you get a 429 error, slow down
 
 **Error Handling:**
+
 - Always check the response status
 - Handle errors gracefully
 - Retry failed requests with exponential backoff
 
 **Caching:**
+
 - Cache responses when appropriate
 - Respect cache headers
 - Don't cache user-specific data globally
@@ -209,11 +243,13 @@ curl -H "Cookie: your-session-cookie" \
 ### Data Formats
 
 **Sending Data:**
+
 - Use JSON format for POST/PUT requests
 - Set `Content-Type: application/json` header
 - Validate data before sending
 
 **Receiving Data:**
+
 - All responses are in JSON format
 - Check the `success` field first
 - Handle missing or null fields
@@ -222,40 +258,45 @@ curl -H "Cookie: your-session-cookie" \
 
 ### Most Common Endpoints
 
-| Purpose | Method | Endpoint | Auth Required |
-|---------|--------|----------|---------------|
-| Get emojis | GET | `/api/emojis` | No |
-| Upload image | POST | `/api/upload/image` | Yes |
-| Check user profile | GET | `/api/profile/[username]` | No |
-| Check login status | GET | `/api/test/admin-check` | No |
-| Track emoji usage | POST | `/api/emojis/usage` | No |
+| Purpose            | Method | Endpoint                  | Auth Required |
+| ------------------ | ------ | ------------------------- | ------------- |
+| Get emojis         | GET    | `/api/emojis`             | No            |
+| Upload image       | POST   | `/api/upload/image`       | Yes           |
+| Generate OG image  | GET    | `/api/og-image`           | No            |
+| Generate avatar    | GET    | `/api/avatar-image`       | No            |
+| Check user profile | GET    | `/api/profile/[username]` | No            |
+| Check login status | GET    | `/api/test/admin-check`   | No            |
+| Track emoji usage  | POST   | `/api/emojis/usage`       | No            |
 
 ### Response Status Codes
 
-| Code | Meaning | What to Do |
-|------|---------|------------|
-| 200 | Success | Everything worked |
-| 400 | Bad Request | Check your data format |
-| 401 | Unauthorized | Log in first |
-| 403 | Forbidden | You don't have permission |
-| 404 | Not Found | Check the URL |
-| 500 | Server Error | Try again later |
+| Code | Meaning      | What to Do                |
+| ---- | ------------ | ------------------------- |
+| 200  | Success      | Everything worked         |
+| 400  | Bad Request  | Check your data format    |
+| 401  | Unauthorized | Log in first              |
+| 403  | Forbidden    | You don't have permission |
+| 404  | Not Found    | Check the URL             |
+| 500  | Server Error | Try again later           |
 
 ## 📞 Getting Help
 
 ### Common Issues
 
 **"Unauthorized" errors:**
+
 - Make sure you're logged in
 - Check if your session expired
 - Try logging out and back in
 
 **"Not Found" errors:**
+
 - Check the URL spelling
 - Make sure the endpoint exists
 - Verify the HTTP method (GET vs POST)
 
 **"Bad Request" errors:**
+
 - Validate your JSON format
 - Check required fields
 - Verify data types
@@ -272,12 +313,14 @@ curl -H "Cookie: your-session-cookie" \
 
 ## 🔗 Detailed API Guides
 
-- **[Authentication APIs](./auth)** - Login and session management
-- **[User Management APIs](./user)** - User accounts and profiles
+- **[OG Image API](./og-image)** - Dynamic Open Graph images with quotes and avatars
+- **[Avatar Image API](./avatar-image)** - Unique avatar generation using @dicebear
 - **[Emoji APIs](./emojis)** - Browse and use emojis
 - **[Upload APIs](./upload)** - File and image uploads
-- **[Admin APIs](./admin)** - Administrative functions
+- **Authentication APIs** - Login and session management _(coming soon)_
+- **User Management APIs** - User accounts and profiles _(coming soon)_
+- **Admin APIs** - Administrative functions _(coming soon)_
 
 ---
 
-*This API documentation is designed to be helpful for both technical developers and non-technical users who want to understand how our app works behind the scenes.* 
+_This API documentation is designed to be helpful for both technical developers and non-technical users who want to understand how our app works behind the scenes._

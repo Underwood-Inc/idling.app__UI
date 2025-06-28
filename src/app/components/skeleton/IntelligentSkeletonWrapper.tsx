@@ -4,9 +4,13 @@ import { createLogger } from '@/lib/logging';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import './SkeletonLoader.css';
 
+// Create component-specific logger
 const logger = createLogger({
-  context: { component: 'IntelligentSkeletonWrapper' },
-  enabled: false
+  context: {
+    component: 'IntelligentSkeletonWrapper',
+    module: 'components/skeleton'
+  },
+  enabled: false // Disabled to reduce log noise
 });
 
 interface CapturedElement {
@@ -807,8 +811,21 @@ export const IntelligentSkeletonWrapper: React.FC<
     return () => window.removeEventListener('resize', handleResize);
   }, [isLoading, skeletonConfig.rootElement]);
 
+  // Show skeleton immediately when loading starts
   if (isLoading) {
-    if (skeletonConfig.rootElement) {
+    // Always show fallback skeleton first for immediate feedback
+    // The intelligent skeleton will be used on subsequent loads
+    const shouldShowIntelligent =
+      skeletonConfig.rootElement && skeletonConfig.captureTime > 0;
+
+    if (shouldShowIntelligent) {
+      // Debug: Log when intelligent skeleton is shown
+      logger.debug('Showing INTELLIGENT skeleton', {
+        hasRootElement: !!skeletonConfig.rootElement,
+        captureTime: skeletonConfig.captureTime,
+        containerDimensions: skeletonConfig.containerDimensions
+      });
+
       // Render captured structure as skeleton
       const containerStyle: React.CSSProperties = preserveExactHeight
         ? {
@@ -832,7 +849,14 @@ export const IntelligentSkeletonWrapper: React.FC<
       );
     }
 
-    // Fallback skeleton while structure is being captured
+    // Debug: Log when fallback skeleton is shown
+    logger.debug('Showing FALLBACK skeleton', {
+      hasRootElement: !!skeletonConfig.rootElement,
+      expectedItemCount: expectedItemCount || 5,
+      reason: 'No captured structure available or first load'
+    });
+
+    // Always show fallback skeleton for immediate loading feedback
     return (
       <div
         className={`skeleton-container--fallback ${className}`}
