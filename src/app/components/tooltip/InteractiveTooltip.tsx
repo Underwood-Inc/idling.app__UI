@@ -86,7 +86,22 @@ export const InteractiveTooltip: React.FC<InteractiveTooltipProps> = ({
   }, []);
 
   const updatePosition = () => {
-    if (!tooltipContentRef.current) return;
+    if (!tooltipContentRef.current || !tooltipRef.current) return;
+
+    // Special positioning for search overlay tooltips
+    if (className.includes('search-overlay-tooltip')) {
+      const triggerRect = tooltipRef.current.getBoundingClientRect();
+
+      // Position below the search input
+      const top = triggerRect.bottom + 4;
+      const left = triggerRect.left;
+
+      // Apply position
+      tooltipContentRef.current.style.visibility = 'visible';
+      tooltipContentRef.current.style.width = `${triggerRect.width}px`;
+      setPosition({ top, left });
+      return;
+    }
 
     // Reset positioning to get accurate measurements
     tooltipContentRef.current.style.visibility = 'hidden';

@@ -9,6 +9,9 @@ import sql from '@/lib/db';
 import { PERMISSIONS } from '@/lib/permissions/permissions';
 import { NextRequest, NextResponse } from 'next/server';
 
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
+
 export interface AvailableRole {
   id: number;
   name: string;

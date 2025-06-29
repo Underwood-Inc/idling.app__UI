@@ -88,6 +88,7 @@ interface UserActionsMenuProps {
   onManageSubscription: (user: ManagementUser) => void;
   onExportData: (user: ManagementUser) => void;
   onTimeoutUser: (user: ManagementUser) => void;
+  onRevokeTimeout: (user: ManagementUser) => void;
   closeTooltip?: () => void;
 }
 
@@ -375,6 +376,7 @@ const UserActionsMenu: React.FC<UserActionsMenuProps> = ({
   onManageSubscription,
   onExportData,
   onTimeoutUser,
+  onRevokeTimeout,
   closeTooltip
 }) => (
   <div className="user-actions-menu">
@@ -432,7 +434,7 @@ const UserActionsMenu: React.FC<UserActionsMenuProps> = ({
       <LoadingButton
         className="action-menu-item action-menu-item--danger"
         onClick={() => {
-          onTimeoutUser(user);
+          onRevokeTimeout(user);
           closeTooltip?.();
         }}
         globalLoadingMessage="Revoking timeout..."
@@ -1016,6 +1018,51 @@ export const UserManagementPanel: React.FC<AdminUserManagementPanelProps> = ({
     setShowTimeoutModal(true);
   }, []);
 
+  // Handle timeout revocation
+  const handleRevokeTimeout = useCallback(
+    async (user: ManagementUser) => {
+      if (!user.active_timeout_id) {
+        setError('No active timeout found for this user');
+        return;
+      }
+
+      const confirmed = window.confirm(
+        `Are you sure you want to revoke the timeout for ${user.name || user.email}?\n\nCurrent timeout: ${user.active_timeout_reason}`
+      );
+
+      if (!confirmed) return;
+
+      try {
+        const response = await fetch(`/api/admin/users/timeout/revoke`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            timeoutId: user.active_timeout_id,
+            reason: 'Revoked via admin panel'
+          })
+        });
+
+        if (response.ok) {
+          await loadUsers(currentPage);
+          onUserUpdate?.();
+          setError(''); // Clear any previous errors
+        } else {
+          const errorData = await response.json();
+          console.error('Timeout revocation failed:', errorData);
+          setError(
+            `Failed to revoke timeout: ${errorData.error || 'Unknown error'}`
+          );
+        }
+      } catch (error) {
+        console.error('Error revoking timeout:', error);
+        setError('Failed to revoke timeout');
+      }
+    },
+    [currentPage, loadUsers, onUserUpdate]
+  );
+
   // Handle actual timeout submission
   const handleTimeoutSubmit = useCallback(
     async (userId: string, options: TimeoutOptions) => {
@@ -1547,6 +1594,7 @@ export const UserManagementPanel: React.FC<AdminUserManagementPanelProps> = ({
                           setShowExportModal(true);
                         }}
                         onTimeoutUser={handleTimeoutUser}
+                        onRevokeTimeout={handleRevokeTimeout}
                         closeTooltip={() => {}} // Placeholder for now
                       />
                     }

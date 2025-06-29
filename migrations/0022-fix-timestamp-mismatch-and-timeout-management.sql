@@ -64,7 +64,9 @@ BEGIN
         is_active = false,
         expires_at = CURRENT_TIMESTAMP,
         reason = reason || ' [REVOKED: ' || p_revoke_reason || ']',
-        updated_at = CURRENT_TIMESTAMP
+        revoked_by = p_revoked_by,
+        revoked_at = CURRENT_TIMESTAMP,
+        revoke_reason = p_revoke_reason
     WHERE id = p_timeout_id;
     
     -- Log the revocation (if you have an audit table, add it here)

@@ -42,7 +42,7 @@ COPY package*.json yarn.lock ./
 COPY custom-eslint-rules/ ./custom-eslint-rules/
 
 # Install Node.js dependencies
-RUN yarn install --frozen-lockfile
+RUN yarn install --check-files
 
 # Copy the rest of the application code
 COPY . .

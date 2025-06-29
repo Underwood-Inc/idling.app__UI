@@ -34,7 +34,7 @@ export function QuotaDisplay({
           </div>
         ) : (
           <span className={styles.quota__text}>
-            {remainingGenerations}/1 spell remaining
+            {remainingGenerations}/1 spell remaining (until tomorrow)
           </span>
         )}
         {isQuotaExceeded && (

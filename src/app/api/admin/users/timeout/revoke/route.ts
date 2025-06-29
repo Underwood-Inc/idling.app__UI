@@ -44,14 +44,22 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Timeout ID is required' }, { status: 400 });
     }
 
-    // Use the database function to revoke the timeout
-    const result = await sql<{ revoke_user_timeout: boolean }[]>`
-      SELECT revoke_user_timeout(${timeoutId}, ${userId}, ${reason}) as revoke_user_timeout
+    // Directly update the timeout in the database
+    const result = await sql`
+      UPDATE user_timeouts 
+      SET 
+        is_active = false,
+        expires_at = CURRENT_TIMESTAMP,
+        reason = reason || ' [REVOKED: ' || ${reason} || ']',
+        revoked_by = ${userId},
+        revoked_at = CURRENT_TIMESTAMP,
+        revoke_reason = ${reason}
+      WHERE id = ${timeoutId}
+        AND is_active = true 
+        AND expires_at > CURRENT_TIMESTAMP
     `;
 
-    const success = result[0]?.revoke_user_timeout || false;
-
-    if (!success) {
+    if (result.count === 0) {
       return NextResponse.json({ 
         error: 'Failed to revoke timeout. Timeout may not exist or may already be expired.' 
       }, { status: 400 });
