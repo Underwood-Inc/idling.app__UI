@@ -30,6 +30,7 @@
     "lint": "npx tsc --noemit --project tsconfig.json",
     "migrations": "tsx scripts/migrations.ts main",
     "manage-user": "node scripts/manage-user.js",
+    "explore-db": "node scripts/explore-db.js",
     "prepare": "husky",
     "prettier": "prettier --write .",
     "release": "release-it",
