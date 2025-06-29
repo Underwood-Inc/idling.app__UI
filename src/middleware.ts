@@ -2,7 +2,7 @@ import NextAuth from 'next-auth';
 import { NextResponse } from 'next/server';
 import { authConfig } from './auth.config';
 import { NAV_PATHS, PUBLIC_ROUTES } from './lib/routes';
-import rateLimiter from './lib/utils/rateLimiter';
+import { rateLimitService } from './lib/services/RateLimitService';
 import { getRateLimitType, getRequestIdentifier } from './lib/utils/requestIdentifier';
 
 const { auth } = NextAuth({
@@ -45,7 +45,7 @@ function createRateLimitResponse(result: any, isAttack: boolean = false) {
   return response;
 }
 
-export default auth((req) => {
+export default auth(async (req) => {
   const { nextUrl, auth: session } = req;
 
   // Handle API route rate limiting and authentication
@@ -55,17 +55,19 @@ export default auth((req) => {
     const rateLimitType = getRateLimitType(nextUrl.pathname);
     
     // Apply rate limiting based on endpoint type
-    const rateLimitResult = rateLimiter.checkRateLimit(
-      identifier.composite, 
-      rateLimitType
-    );
+    const rateLimitResult = await rateLimitService.checkRateLimit({
+      identifier: identifier.composite,
+      configType: rateLimitType,
+      bypassDevelopment: true
+    });
 
     // Check if request should be blocked due to rate limiting
     if (!rateLimitResult.allowed) {
       console.warn(`Rate limit exceeded for ${identifier.composite} on ${nextUrl.pathname}`, {
         penaltyLevel: rateLimitResult.penaltyLevel,
         isAttack: rateLimitResult.isAttack,
-        retryAfter: rateLimitResult.retryAfter
+        retryAfter: rateLimitResult.retryAfter,
+        quotaType: rateLimitResult.quotaType
       });
       
       return createRateLimitResponse(rateLimitResult, rateLimitResult.isAttack);
@@ -73,15 +75,17 @@ export default auth((req) => {
 
     // Additional strict rate limiting for authenticated endpoints
     if (session?.user?.id) {
-      const userRateLimitResult = rateLimiter.checkRateLimit(
-        identifier.user!,
-        rateLimitType
-      );
+      const userRateLimitResult = await rateLimitService.checkRateLimit({
+        identifier: identifier.user!,
+        configType: rateLimitType,
+        bypassDevelopment: true
+      });
       
       if (!userRateLimitResult.allowed) {
         console.warn(`User rate limit exceeded for ${identifier.user} on ${nextUrl.pathname}`, {
           penaltyLevel: userRateLimitResult.penaltyLevel,
-          isAttack: userRateLimitResult.isAttack
+          isAttack: userRateLimitResult.isAttack,
+          quotaType: userRateLimitResult.quotaType
         });
         
         return createRateLimitResponse(userRateLimitResult, userRateLimitResult.isAttack);

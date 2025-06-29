@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import rateLimiter from '../../../../lib/utils/rateLimiter';
+import { rateLimitService } from '../../../../lib/services/RateLimitService';
 
 /**
  * GET /api/admin/rate-limit
@@ -8,7 +8,7 @@ import rateLimiter from '../../../../lib/utils/rateLimiter';
  */
 export async function GET(request: NextRequest) {
   try {
-    const stats = rateLimiter.getStats();
+    const stats = rateLimitService.getStats();
     
     return NextResponse.json({
       success: true,
@@ -44,7 +44,7 @@ export async function DELETE(request: NextRequest) {
       );
     }
     
-    rateLimiter.resetRateLimit(identifier, configType || 'api');
+    rateLimitService.resetRateLimit(identifier, configType || 'api');
     
     return NextResponse.json({
       success: true,

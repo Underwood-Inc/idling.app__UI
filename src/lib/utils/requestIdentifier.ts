@@ -70,7 +70,7 @@ export function getRequestIdentifier(request: NextRequest, session: any): {
 /**
  * Determine rate limit configuration type based on endpoint
  */
-export function getRateLimitType(pathname: string): 'api' | 'auth' | 'upload' | 'search' | 'admin' {
+export function getRateLimitType(pathname: string): 'api' | 'auth' | 'upload' | 'search' | 'admin' | 'og-image' {
   if (pathname.startsWith('/api/auth')) {
     return 'auth';
   }
@@ -81,6 +81,11 @@ export function getRateLimitType(pathname: string): 'api' | 'auth' | 'upload' | 
   
   if (pathname.startsWith('/api/admin')) {
     return 'admin';
+  }
+  
+  // OG Image generation endpoints - more generous limits
+  if (pathname.startsWith('/api/og-image')) {
+    return 'og-image';
   }
   
   // Search and filter endpoints
