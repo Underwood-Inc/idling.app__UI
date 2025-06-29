@@ -1,6 +1,6 @@
 {
   "name": "idling.app",
-  "version": "0.267.0",
+  "version": "0.268.0",
   "private": true,
   "engines": {
     "node": ">=20.x"
@@ -29,6 +29,9 @@
     "lint-staged": "lint-staged",
     "lint": "npx tsc --noemit --project tsconfig.json",
     "migrations": "tsx scripts/migrations.ts main",
+    "migrate:og-table": "node scripts/run-migration.js",
+    "test:og-tracking": "node scripts/test-og-tracking.js",
+    "migrate:og-generations": "node scripts/run-migration.js",
     "manage-user": "node scripts/manage-user.js",
     "prepare": "husky",
     "prettier": "prettier --write .",
