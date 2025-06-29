@@ -271,8 +271,7 @@ export default function RootLayout({
         <script
           async
           src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3757286003859686"
-          // @ts-ignore - google adsense
-          crossorigin="anonymous"
+          crossOrigin="anonymous"
         ></script>
       </head>
 
