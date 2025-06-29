@@ -1,0 +1,12 @@
+/* ================================
+   USER MANAGEMENT PANEL STYLES - MODULAR IMPORTS
+   ================================ */
+
+@import './styles/user-management-base.css';
+@import './styles/user-management-header.css';
+@import './styles/user-management-search.css';
+@import './styles/user-management-table.css';
+@import './styles/user-management-buttons.css';
+@import './styles/user-management-modal.css';
+@import './styles/user-management-filters.css';
+@import './styles/user-management-responsive.css';

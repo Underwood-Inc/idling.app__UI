@@ -1,0 +1,327 @@
+/* ================================
+  LOADING BUTTON COMPONENT STYLES
+  ================================ */
+
+.loading-button {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-family: inherit;
+  font-weight: 500;
+  text-decoration: none;
+  border: none;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  white-space: nowrap;
+  overflow: hidden;
+  outline: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.loading-button:focus-visible {
+  outline: 2px solid var(--brand-primary);
+  outline-offset: 2px;
+}
+
+/* ================================
+  SIZE VARIANTS
+  ================================ */
+
+.loading-button--sm {
+  padding: 0.375rem 0.75rem;
+  font-size: var(--font-size-sm);
+  line-height: 1.4;
+  min-height: 32px;
+}
+
+.loading-button--md {
+  padding: 0.5rem 1rem;
+  font-size: var(--font-size-base);
+  line-height: 1.5;
+  min-height: 40px;
+}
+
+.loading-button--lg {
+  padding: 0.75rem 1.5rem;
+  font-size: var(--font-size-lg);
+  line-height: 1.5;
+  min-height: 48px;
+}
+
+/* ================================
+  COLOR VARIANTS
+  ================================ */
+
+/* Primary Button */
+.loading-button--primary {
+  background: var(--brand-primary);
+  color: white;
+  border: 1px solid var(--brand-primary);
+}
+
+.loading-button--primary:hover:not(.loading-button--disabled) {
+  background: var(--brand-primary--dark);
+  border-color: var(--brand-primary--dark);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(199, 82, 42, 0.3);
+}
+
+.loading-button--primary:active:not(.loading-button--disabled) {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(199, 82, 42, 0.2);
+}
+
+/* Secondary Button */
+.loading-button--secondary {
+  background: var(--light-background--tertiary);
+  color: var(--light-bg__text-color--primary);
+  border: 1px solid var(--brand-tertiary--dark);
+}
+
+.loading-button--secondary:hover:not(.loading-button--disabled) {
+  background: var(--brand-tertiary);
+  border-color: var(--brand-tertiary--dark);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.loading-button--secondary:active:not(.loading-button--disabled) {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+/* Danger Button */
+.loading-button--danger {
+  background: var(--error);
+  color: white;
+  border: 1px solid var(--error);
+}
+
+.loading-button--danger:hover:not(.loading-button--disabled) {
+  background: #dc2626;
+  border-color: #dc2626;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(239, 68, 68, 0.3);
+}
+
+.loading-button--danger:active:not(.loading-button--disabled) {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(239, 68, 68, 0.2);
+}
+
+/* Ghost Button */
+.loading-button--ghost {
+  background: transparent;
+  color: var(--brand-primary);
+  border: 1px solid transparent;
+}
+
+.loading-button--ghost:hover:not(.loading-button--disabled) {
+  background: var(--brand-tertiary);
+  color: var(--brand-primary--dark);
+  border-color: var(--brand-tertiary--dark);
+}
+
+.loading-button--ghost:active:not(.loading-button--disabled) {
+  background: var(--brand-tertiary--dark);
+}
+
+/* ================================
+  LOADING STATE
+  ================================ */
+
+.loading-button--loading {
+  pointer-events: none;
+  opacity: 0.8;
+}
+
+.loading-button--loading .loading-button__content {
+  opacity: 0.7;
+}
+
+.loading-button__spinner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.loading-button__spinner svg {
+  animation: loading-button-spin 1s linear infinite;
+}
+
+.loading-button__content {
+  display: flex;
+  align-items: center;
+  transition: opacity 0.2s ease;
+}
+
+/* ================================
+  DISABLED STATE
+  ================================ */
+
+.loading-button--disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.loading-button--disabled:hover {
+  transform: none;
+  box-shadow: none;
+}
+
+/* ================================
+  ANIMATIONS
+  ================================ */
+
+@keyframes loading-button-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Pulse effect for loading state */
+.loading-button--loading::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.1),
+    transparent
+  );
+  animation: loading-button-shimmer 1.5s ease-in-out infinite;
+  border-radius: inherit;
+  pointer-events: none; /* Prevent interference with tooltip positioning */
+  z-index: 1; /* Keep below tooltip content */
+}
+
+@keyframes loading-button-shimmer {
+  0% {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+
+/* ================================
+  DARK MODE SUPPORT
+  ================================ */
+
+@media (prefers-color-scheme: dark) {
+  .loading-button--secondary {
+    background: var(--dark-background--secondary);
+    color: var(--dark-bg__text-color--primary);
+    border-color: var(--dark-background--primary);
+  }
+
+  .loading-button--secondary:hover:not(.loading-button--disabled) {
+    background: var(--dark-background--primary);
+    border-color: var(--brand-primary);
+  }
+
+  .loading-button--ghost {
+    color: var(--brand-secondary);
+  }
+
+  .loading-button--ghost:hover:not(.loading-button--disabled) {
+    background: var(--dark-background--tertiary);
+    color: var(--brand-secondary);
+    border-color: var(--dark-background--primary);
+  }
+}
+
+/* ================================
+  ACCESSIBILITY
+  ================================ */
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+  .loading-button {
+    border-width: 2px;
+  }
+
+  .loading-button--primary {
+    background: #000;
+    color: #fff;
+    border-color: #000;
+  }
+
+  .loading-button--secondary {
+    background: #fff;
+    color: #000;
+    border-color: #000;
+  }
+
+  .loading-button--danger {
+    background: #d00;
+    color: #fff;
+    border-color: #d00;
+  }
+
+  .loading-button--ghost {
+    color: #000;
+    border-color: #000;
+  }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .loading-button {
+    transition: none;
+  }
+
+  .loading-button:hover:not(.loading-button--disabled) {
+    transform: none;
+  }
+
+  .loading-button:active:not(.loading-button--disabled) {
+    transform: none;
+  }
+
+  .loading-button__spinner svg {
+    animation: none;
+  }
+
+  .loading-button--loading::before {
+    animation: none;
+  }
+}
+
+/* ================================
+  RESPONSIVE DESIGN
+  ================================ */
+
+@media (max-width: 768px) {
+  /* Ensure minimum touch target size on mobile */
+  .loading-button--sm {
+    min-height: 44px;
+    padding: 0.5rem 0.75rem;
+  }
+
+  .loading-button--md {
+    min-height: 44px;
+  }
+
+  .loading-button--lg {
+    min-height: 48px;
+  }
+}

@@ -1,0 +1,500 @@
+/* ================================
+  TIMEOUT MODAL STYLES
+  ================================ */
+
+.timeout-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  padding: 1rem;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.timeout-modal {
+  background: var(--dark-background--primary);
+  border: 1px solid var(--dark-border--primary);
+  border-radius: var(--border-radius-lg);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+  max-width: 600px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  animation: slideUp 0.3s ease-out;
+}
+
+.timeout-modal__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem;
+  border-bottom: 1px solid var(--dark-border--primary);
+  background: var(--dark-background--secondary);
+}
+
+.timeout-modal__title {
+  font-size: var(--font-size-xl);
+  font-weight: 600;
+  color: var(--dark-bg__text-color--primary);
+  margin: 0;
+}
+
+.timeout-modal__close {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: var(--dark-bg__text-color--secondary);
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: var(--border-radius);
+  transition: all 0.2s ease;
+  line-height: 1;
+}
+
+.timeout-modal__close:hover:not(:disabled) {
+  background: var(--dark-background--tertiary);
+  color: var(--dark-bg__text-color--primary);
+}
+
+.timeout-modal__close:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.timeout-modal__user-info {
+  padding: 1rem 1.5rem;
+  background: var(--dark-background--tertiary);
+  color: var(--dark-bg__text-color--secondary);
+  font-size: var(--font-size-sm);
+  border-bottom: 1px solid var(--dark-border--primary);
+}
+
+.timeout-modal__form {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* ================================
+  FORM FIELDS
+  ================================ */
+
+.timeout-modal__field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.timeout-modal__label {
+  font-weight: 600;
+  color: var(--dark-bg__text-color--primary);
+  font-size: var(--font-size-sm);
+}
+
+.required {
+  color: var(--error-color, #ef4444);
+}
+
+/* ================================
+  RADIO GROUP (TIMEOUT TYPES)
+  ================================ */
+
+.timeout-modal__radio-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.timeout-modal__radio-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 1rem;
+  border: 1px solid var(--dark-border--primary);
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.timeout-modal__radio-item:hover {
+  border-color: var(--brand-primary);
+  background: var(--dark-background--secondary);
+}
+
+.timeout-modal__radio-item input[type='radio'] {
+  margin: 0;
+  flex-shrink: 0;
+}
+
+.timeout-modal__radio-content {
+  flex: 1;
+}
+
+.timeout-modal__radio-label {
+  font-weight: 600;
+  color: var(--dark-bg__text-color--primary);
+  margin-bottom: 0.25rem;
+}
+
+.timeout-modal__radio-description {
+  font-size: var(--font-size-sm);
+  color: var(--dark-bg__text-color--secondary);
+}
+
+/* ================================
+  DURATION PRESETS
+  ================================ */
+
+.timeout-modal__duration-presets {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 0.5rem;
+}
+
+.timeout-modal__preset {
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--dark-border--primary);
+  border-radius: var(--border-radius);
+  background: var(--dark-background--secondary);
+  color: var(--dark-bg__text-color--secondary);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+}
+
+.timeout-modal__preset:hover:not(:disabled) {
+  border-color: var(--brand-primary);
+  background: var(--dark-background--tertiary);
+  color: var(--dark-bg__text-color--primary);
+}
+
+.timeout-modal__preset.active {
+  border-color: var(--brand-primary);
+  background: var(--brand-primary);
+  color: white;
+}
+
+.timeout-modal__preset:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ================================
+  CUSTOM DURATION
+  ================================ */
+
+.timeout-modal__custom-duration {
+  margin-top: 0.75rem;
+  padding: 1rem;
+  border: 1px solid var(--dark-border--secondary);
+  border-radius: var(--border-radius);
+  background: var(--dark-background--secondary);
+}
+
+.timeout-modal__duration-inputs {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+
+.timeout-modal__duration-input {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.timeout-modal__duration-input label {
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  color: var(--dark-bg__text-color--secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.timeout-modal__duration-input input {
+  padding: 0.5rem;
+  border: 1px solid var(--dark-border--primary);
+  border-radius: var(--border-radius);
+  background: var(--dark-background--primary);
+  color: var(--dark-bg__text-color--primary);
+  font-size: var(--font-size-sm);
+  text-align: center;
+}
+
+.timeout-modal__duration-input input:focus {
+  outline: none;
+  border-color: var(--brand-primary);
+  box-shadow: 0 0 0 2px rgba(var(--brand-primary-rgb, 59, 130, 246), 0.2);
+}
+
+.timeout-modal__duration-preview {
+  margin-top: 1rem;
+  padding: 0.75rem;
+  background: var(--dark-background--tertiary);
+  border-radius: var(--border-radius);
+  font-size: var(--font-size-sm);
+  color: var(--dark-bg__text-color--primary);
+}
+
+.timeout-modal__expires {
+  color: var(--dark-bg__text-color--secondary);
+  font-weight: normal;
+}
+
+/* ================================
+  REASON FIELD
+  ================================ */
+
+.timeout-modal__reason-presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.timeout-modal__reason-preset {
+  padding: 0.375rem 0.75rem;
+  border: 1px solid var(--dark-border--secondary);
+  border-radius: var(--border-radius-full);
+  background: var(--dark-background--secondary);
+  color: var(--dark-bg__text-color--secondary);
+  font-size: var(--font-size-xs);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.timeout-modal__reason-preset:hover:not(:disabled) {
+  border-color: var(--brand-primary);
+  background: var(--brand-primary);
+  color: white;
+}
+
+.timeout-modal__reason-preset:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.timeout-modal__textarea {
+  padding: 0.75rem;
+  border: 1px solid var(--dark-border--primary);
+  border-radius: var(--border-radius);
+  background: var(--dark-background--secondary);
+  color: var(--dark-bg__text-color--primary);
+  font-size: var(--font-size-sm);
+  font-family: inherit;
+  resize: vertical;
+  min-height: 80px;
+}
+
+.timeout-modal__textarea:focus {
+  outline: none;
+  border-color: var(--brand-primary);
+  box-shadow: 0 0 0 2px rgba(var(--brand-primary-rgb, 59, 130, 246), 0.2);
+}
+
+.timeout-modal__textarea:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ================================
+  ERROR STATE
+  ================================ */
+
+.timeout-modal__error {
+  padding: 0.75rem;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: var(--border-radius);
+  color: #ef4444;
+  font-size: var(--font-size-sm);
+}
+
+/* ================================
+  ACTIONS
+  ================================ */
+
+.timeout-modal__actions {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: flex-end;
+  padding-top: 1rem;
+  border-top: 1px solid var(--dark-border--primary);
+}
+
+.timeout-modal__cancel,
+.timeout-modal__submit {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: var(--border-radius);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 120px;
+}
+
+.timeout-modal__cancel {
+  background: var(--dark-background--tertiary);
+  color: var(--dark-bg__text-color--primary);
+  border: 1px solid var(--dark-border--primary);
+}
+
+.timeout-modal__cancel:hover:not(:disabled) {
+  background: var(--dark-background--secondary);
+  border-color: var(--dark-border--secondary);
+}
+
+.timeout-modal__submit {
+  background: #ef4444;
+  color: white;
+}
+
+.timeout-modal__submit:hover:not(:disabled) {
+  background: #dc2626;
+}
+
+.timeout-modal__submit:disabled,
+.timeout-modal__cancel:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ================================
+  ANIMATIONS
+  ================================ */
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* ================================
+  RESPONSIVE DESIGN
+  ================================ */
+
+@media (max-width: 768px) {
+  .timeout-modal {
+    margin: 0.5rem;
+    max-width: none;
+    width: calc(100% - 1rem);
+  }
+
+  .timeout-modal__header {
+    padding: 1rem;
+  }
+
+  .timeout-modal__form {
+    padding: 1rem;
+    gap: 1rem;
+  }
+
+  .timeout-modal__duration-presets {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .timeout-modal__duration-inputs {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+
+  .timeout-modal__actions {
+    flex-direction: column;
+  }
+
+  .timeout-modal__reason-presets {
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .timeout-modal-overlay {
+    padding: 0.5rem;
+  }
+
+  .timeout-modal__duration-presets {
+    grid-template-columns: 1fr;
+  }
+
+  .timeout-modal__reason-presets {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .timeout-modal__reason-preset {
+    text-align: center;
+  }
+}
+
+/* ================================
+  DARK MODE SUPPORT
+  ================================ */
+
+@media (prefers-color-scheme: dark) {
+  .timeout-modal-overlay {
+    background: rgba(0, 0, 0, 0.8);
+  }
+}
+
+/* ================================
+  HIGH CONTRAST MODE
+  ================================ */
+
+@media (prefers-contrast: high) {
+  .timeout-modal {
+    border-width: 2px;
+  }
+
+  .timeout-modal__radio-item,
+  .timeout-modal__preset,
+  .timeout-modal__duration-input input,
+  .timeout-modal__textarea {
+    border-width: 2px;
+  }
+
+  .timeout-modal__submit {
+    background: #d00;
+  }
+}
+
+/* ================================
+  REDUCED MOTION
+  ================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  .timeout-modal-overlay,
+  .timeout-modal,
+  .timeout-modal__close,
+  .timeout-modal__radio-item,
+  .timeout-modal__preset,
+  .timeout-modal__reason-preset,
+  .timeout-modal__cancel,
+  .timeout-modal__submit {
+    animation: none;
+    transition: none;
+  }
+}

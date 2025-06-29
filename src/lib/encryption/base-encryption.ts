@@ -5,8 +5,8 @@
  */
 
 import { createLogger } from '@/lib/logging';
-import { sql } from '@vercel/postgres';
 import crypto from 'crypto';
+import sql from '../db';
 
 const logger = createLogger({
   context: {
@@ -132,8 +132,8 @@ export class BaseEncryptionService {
       let salt: string;
 
       if (
-        result.rows.length === 0 ||
-        result.rows[0].encryption_key_hash ===
+        result.length === 0 ||
+        result[0].encryption_key_hash ===
           'placeholder_hash_will_be_replaced_by_app'
       ) {
         // Generate new global key
@@ -164,8 +164,8 @@ export class BaseEncryptionService {
             updated_at = CURRENT_TIMESTAMP
         `;
       } else {
-        keyHash = result.rows[0].encryption_key_hash;
-        salt = result.rows[0].key_salt;
+        keyHash = result[0].encryption_key_hash;
+        salt = result[0].key_salt;
       }
 
       // Derive the key from master key + context + salt
@@ -225,12 +225,12 @@ export class BaseEncryptionService {
         WHERE user_id = ${userId}
       `;
 
-      if (result.rows.length === 0) {
+      if (result.length === 0) {
         // Generate new key if none exists
         return await this.generatePersonalKey(userId, context);
       }
 
-      const { encryption_key_hash, key_salt } = result.rows[0];
+      const { encryption_key_hash, key_salt } = result[0];
 
       // Derive the key from master key + user ID + context + salt
       const masterKey =

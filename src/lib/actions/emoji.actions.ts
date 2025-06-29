@@ -479,20 +479,20 @@ export async function getPendingCustomEmojis(
     {
       id: number;
       name: string;
-      display_name: string;
+      description: string;
       encrypted_image_data: string;
       category: string;
-      created_by: number;
+      user_id: number;
       created_at: string;
       creator_email: string;
     }[]
   >`
     SELECT 
-      ce.id, ce.name, ce.display_name, ce.encrypted_image_data, 
-      ce.category, ce.created_by, ce.created_at,
+      ce.id, ce.name, ce.description, ce.encrypted_image_data, 
+      ce.category_id::text as category, ce.user_id, ce.created_at,
       u.email as creator_email
     FROM custom_emojis ce
-    JOIN users u ON ce.created_by = u.id
+    JOIN users u ON ce.user_id = u.id
     WHERE ce.is_approved IS NULL
     ORDER BY ce.created_at ASC
     LIMIT ${limit} OFFSET ${offset}
@@ -508,7 +508,7 @@ export async function getPendingCustomEmojis(
               ...JSON.parse(emoji.encrypted_image_data),
               context: 'emoji' as const
             },
-            emoji.created_by
+            emoji.user_id
           );
         return {
           ...emoji,
@@ -519,7 +519,7 @@ export async function getPendingCustomEmojis(
         logger.error('Failed to decrypt pending emoji', error as Error, {
           emojiName: emoji.name,
           emojiId: emoji.id,
-          createdBy: emoji.created_by
+          createdBy: emoji.user_id
         });
         logger.groupEnd();
         return {

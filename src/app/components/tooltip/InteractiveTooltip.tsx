@@ -41,13 +41,12 @@ export const InteractiveTooltip: React.FC<InteractiveTooltipProps> = ({
 }) => {
   const [showTooltip, setShowTooltip] = useState(false);
   const [position, setPosition] = useState({ top: 0, left: 0 });
+  const [anchorPosition, setAnchorPosition] = useState({ x: 0, y: 0 }); // Fixed anchor point
   const [mounted, setMounted] = useState(false);
   const tooltipRef = useRef<HTMLDivElement>(null);
   const tooltipContentRef = useRef<HTMLDivElement>(null);
   const hideTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isHoveringRef = useRef(false);
-  const resizeObserverRef = useRef<ResizeObserver | null>(null);
-  const mutationObserverRef = useRef<MutationObserver | null>(null);
 
   // Store latest callbacks in refs to avoid dependency issues
   const onShowRef = useRef(onShow);
@@ -87,87 +86,152 @@ export const InteractiveTooltip: React.FC<InteractiveTooltipProps> = ({
   }, []);
 
   const updatePosition = () => {
-    if (!tooltipRef.current || !tooltipContentRef.current) return;
+    if (!tooltipContentRef.current || !tooltipRef.current) return;
 
-    const triggerRect = tooltipRef.current.getBoundingClientRect();
+    // Special positioning for search overlay tooltips
+    if (className.includes('search-overlay-tooltip')) {
+      const triggerRect = tooltipRef.current.getBoundingClientRect();
 
-    // Force a reflow to ensure we get the latest dimensions
+      // Position below the search input
+      const top = triggerRect.bottom + 4;
+      const left = triggerRect.left;
+
+      // Apply position
+      tooltipContentRef.current.style.visibility = 'visible';
+      tooltipContentRef.current.style.width = `${triggerRect.width}px`;
+      setPosition({ top, left });
+      return;
+    }
+
+    // Reset positioning to get accurate measurements
     tooltipContentRef.current.style.visibility = 'hidden';
     tooltipContentRef.current.style.position = 'fixed';
     tooltipContentRef.current.style.top = '0px';
     tooltipContentRef.current.style.left = '0px';
+    tooltipContentRef.current.style.transform = 'none';
+    tooltipContentRef.current.style.maxHeight = 'none';
+    tooltipContentRef.current.style.maxWidth = 'none';
 
-    // Get the actual current dimensions after potential content changes
+    // Force reflow and get dimensions
+    tooltipContentRef.current.offsetHeight;
     const tooltipRect = tooltipContentRef.current.getBoundingClientRect();
 
     const viewportHeight = window.innerHeight;
     const viewportWidth = window.innerWidth;
-    // Removed scroll offset calculations since we're using fixed positioning
-    // which positions relative to the viewport, not the document
 
-    // Calculate available space with padding
-    const padding = 12;
-    const spaceAbove = triggerRect.top;
-    const spaceBelow = viewportHeight - triggerRect.bottom;
-    const spaceLeft = triggerRect.left;
-    const spaceRight = viewportWidth - triggerRect.right;
+    // Enhanced padding calculations
+    const basePadding = 12;
+    const minPadding = 8;
+    const cursorOffset = 10; // Offset from cursor to avoid blocking
 
-    // Determine vertical position with better logic
+    // Use fixed anchor position (set when tooltip is first shown)
+    const anchorX = anchorPosition.x;
+    const anchorY = anchorPosition.y;
+
+    // Calculate available space from anchor position
+    const spaceAbove = anchorY;
+    const spaceBelow = viewportHeight - anchorY;
+    const spaceLeft = anchorX;
+    const spaceRight = viewportWidth - anchorX;
+
+    // Determine vertical position with viewport boundary checking
     let top: number;
-    const preferBelow = spaceBelow >= tooltipRect.height + padding;
-    const preferAbove = spaceAbove >= tooltipRect.height + padding;
+    let maxHeight: number | undefined;
 
-    if (preferBelow) {
-      // Position below with padding
-      top = triggerRect.bottom + padding;
-    } else if (preferAbove) {
-      // Position above with padding
-      top = triggerRect.top - tooltipRect.height - padding;
+    // Calculate ideal positions
+    const belowPosition = anchorY + cursorOffset;
+    const abovePosition = anchorY - tooltipRect.height - cursorOffset;
+
+    // Check if tooltip fits below anchor without being cut off
+    if (belowPosition + tooltipRect.height <= viewportHeight - minPadding) {
+      top = belowPosition;
+    }
+    // Check if tooltip fits above anchor without being cut off
+    else if (abovePosition >= minPadding) {
+      top = abovePosition;
+    }
+    // Position in larger space with scrolling if needed, ensuring viewport visibility
+    else if (spaceBelow > spaceAbove) {
+      top = Math.max(minPadding, belowPosition);
+      const availableHeight = viewportHeight - top - minPadding;
+      if (tooltipRect.height > availableHeight) {
+        maxHeight = availableHeight;
+      }
     } else {
-      // Not enough space in either direction, position where there's more space
-      if (spaceBelow >= spaceAbove) {
-        top = triggerRect.bottom + 4;
+      const availableHeight = anchorY - cursorOffset - minPadding;
+      if (tooltipRect.height > availableHeight) {
+        maxHeight = availableHeight;
+        top = minPadding;
       } else {
-        top = triggerRect.top - tooltipRect.height - 4;
+        top = Math.max(minPadding, abovePosition);
       }
     }
 
-    // Ensure tooltip stays within viewport vertically with minimum padding
-    const minPadding = 8;
-    top = Math.max(
-      minPadding,
-      Math.min(top, viewportHeight - tooltipRect.height - minPadding)
-    );
+    // Final viewport boundary check for vertical position
+    if (top + (maxHeight || tooltipRect.height) > viewportHeight - minPadding) {
+      top = viewportHeight - (maxHeight || tooltipRect.height) - minPadding;
+      top = Math.max(minPadding, top);
+    }
 
-    // Determine horizontal position with better centering
+    // Determine horizontal position with viewport boundary checking
     let left: number;
-    const idealCenterLeft =
-      triggerRect.left + (triggerRect.width - tooltipRect.width) / 2;
+    let maxWidth: number | undefined;
 
-    if (
-      idealCenterLeft >= minPadding &&
-      idealCenterLeft + tooltipRect.width <= viewportWidth - minPadding
+    // Calculate ideal positions
+    const rightPosition = anchorX + cursorOffset;
+    const leftPosition = anchorX - tooltipRect.width - cursorOffset;
+    const centerPosition = anchorX - tooltipRect.width / 2;
+
+    // Check if tooltip fits to the right without being cut off
+    if (rightPosition + tooltipRect.width <= viewportWidth - minPadding) {
+      left = rightPosition;
+    }
+    // Check if tooltip fits to the left without being cut off
+    else if (leftPosition >= minPadding) {
+      left = leftPosition;
+    }
+    // Check if centered position fits without being cut off
+    else if (
+      centerPosition >= minPadding &&
+      centerPosition + tooltipRect.width <= viewportWidth - minPadding
     ) {
-      // Center if it fits
-      left = idealCenterLeft;
-    } else if (
-      triggerRect.left + tooltipRect.width <=
-      viewportWidth - minPadding
-    ) {
-      // Align to left edge of trigger if it fits
-      left = triggerRect.left;
-    } else if (triggerRect.right - tooltipRect.width >= minPadding) {
-      // Align to right edge of trigger if it fits
-      left = triggerRect.right - tooltipRect.width;
-    } else {
-      // Force fit within viewport
+      left = centerPosition;
+    }
+    // Force fit within viewport with width constraints if necessary
+    else {
+      // Try to center as much as possible while staying in viewport
       left = Math.max(
         minPadding,
-        Math.min(
-          idealCenterLeft,
-          viewportWidth - tooltipRect.width - minPadding
-        )
+        Math.min(centerPosition, viewportWidth - tooltipRect.width - minPadding)
       );
+
+      // If tooltip is still too wide, constrain width and position at edge
+      if (
+        left < minPadding ||
+        left + tooltipRect.width > viewportWidth - minPadding
+      ) {
+        const availableWidth = viewportWidth - minPadding * 2;
+        if (tooltipRect.width > availableWidth) {
+          maxWidth = availableWidth;
+        }
+        left = minPadding;
+      }
+    }
+
+    // Final viewport boundary check for horizontal position
+    if (left + (maxWidth || tooltipRect.width) > viewportWidth - minPadding) {
+      left = viewportWidth - (maxWidth || tooltipRect.width) - minPadding;
+      left = Math.max(minPadding, left);
+    }
+
+    // Apply constraints if needed
+    if (maxHeight) {
+      tooltipContentRef.current.style.maxHeight = `${maxHeight}px`;
+      tooltipContentRef.current.style.overflowY = 'auto';
+    }
+    if (maxWidth) {
+      tooltipContentRef.current.style.maxWidth = `${maxWidth}px`;
+      tooltipContentRef.current.style.overflowX = 'hidden';
     }
 
     // Restore visibility and set final position
@@ -175,42 +239,27 @@ export const InteractiveTooltip: React.FC<InteractiveTooltipProps> = ({
     setPosition({ top, left });
   };
 
+  // Update position only when tooltip is first shown
   useEffect(() => {
-    if (showTooltip && tooltipContentRef.current) {
-      // Initial position update only
+    if (showTooltip) {
       updatePosition();
+    }
+  }, [showTooltip, anchorPosition]); // Only depend on showTooltip and anchorPosition, not cursor movement
 
-      // Disable all automatic position updates to prevent repositioning
-      // Only allow manual repositioning on scroll/resize if absolutely necessary
-      const handleScroll = () => {
-        // Only reposition if the trigger element is a virtual trigger from rich input
-        if (tooltipRef.current?.getAttribute('data-rich-input-trigger')) {
-          // For virtual triggers, don't reposition on scroll since they're fixed positioned
-          return;
-        }
-        updatePosition();
-      };
-
+  // Handle scroll to keep tooltip in sync with page
+  useEffect(() => {
+    if (showTooltip) {
+      // Only handle resize, not scroll - let tooltip scroll naturally with page
       const handleResize = () => {
         updatePosition();
       };
 
-      window.addEventListener('scroll', handleScroll);
       window.addEventListener('resize', handleResize);
 
-      // Remove all observers and timers that cause repositioning
-      // This prevents the tooltip from moving after initial correct positioning
-
       return () => {
-        window.removeEventListener('scroll', handleScroll);
         window.removeEventListener('resize', handleResize);
       };
     }
-
-    return () => {
-      window.removeEventListener('scroll', updatePosition);
-      window.removeEventListener('resize', updatePosition);
-    };
   }, [showTooltip]);
 
   useEffect(() => {
@@ -232,9 +281,12 @@ export const InteractiveTooltip: React.FC<InteractiveTooltipProps> = ({
     };
   }, [showTooltip]);
 
-  const handleMouseEnter = () => {
+  const handleMouseEnter = (event: React.MouseEvent) => {
     // Don't handle mouse events if controlled by show prop
     if (show !== undefined) return;
+
+    // Update cursor position from the trigger event
+    setAnchorPosition({ x: event.clientX, y: event.clientY });
 
     // On mobile, don't trigger hover events
     const isMobile = isMobileDevice();
@@ -249,8 +301,6 @@ export const InteractiveTooltip: React.FC<InteractiveTooltipProps> = ({
         onShowRef.current(); // Call onShow callback before showing tooltip
       }
       setShowTooltip(true);
-      // Update position after a short delay to ensure content is rendered
-      setTimeout(updatePosition, 0);
     }, delay);
     hideTimeoutRef.current = timeout;
   };
@@ -275,11 +325,14 @@ export const InteractiveTooltip: React.FC<InteractiveTooltipProps> = ({
     hideTimeoutRef.current = timeout;
   };
 
-  const handleClick = () => {
+  const handleClick = (event: React.MouseEvent) => {
     // Don't handle click events if controlled by show prop
     if (show !== undefined) return;
 
     if (disabled) return;
+
+    // Update cursor position from the click event
+    setAnchorPosition({ x: event.clientX, y: event.clientY });
 
     // On mobile, always use click mode regardless of triggerOnClick setting
     const isMobile = isMobileDevice();
@@ -294,10 +347,7 @@ export const InteractiveTooltip: React.FC<InteractiveTooltipProps> = ({
 
     setShowTooltip(newShowState);
 
-    if (newShowState) {
-      // Update position after a short delay to ensure content is rendered
-      setTimeout(updatePosition, 0);
-    } else if (onClose) {
+    if (!newShowState && onClose) {
       onClose();
     }
   };
@@ -308,14 +358,14 @@ export const InteractiveTooltip: React.FC<InteractiveTooltipProps> = ({
 
     event.preventDefault();
 
+    // Update cursor position from the context menu event
+    setAnchorPosition({ x: event.clientX, y: event.clientY });
+
     if (onShow) {
       onShow(); // Call onShow callback before showing tooltip
     }
 
     setShowTooltip(true);
-
-    // Update position after a short delay to ensure content is rendered
-    setTimeout(updatePosition, 0);
   };
 
   const handleTooltipMouseEnter = () => {

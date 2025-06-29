@@ -59,6 +59,10 @@ navigation:
         url: "/development/caching"
       - title: "Testing"
         url: "/development/testing"
+      - title: "Global Loading System"
+        url: "/development/global-loading-system"
+      - title: "User Data Export System"
+        url: "/development/user-data-export-system"
   - title: "Deployment"
     url: "/deployment/"
     subnav:

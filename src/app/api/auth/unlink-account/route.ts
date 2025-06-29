@@ -1,90 +1,75 @@
-import { sql } from '@vercel/postgres';
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '../../../../lib/auth';
+import sql from '../../../../lib/db';
 
-export async function POST(request: NextRequest) {
+export async function DELETE(request: NextRequest) {
   try {
     const session = await auth();
-    
-    // Check if user is authenticated
     if (!session?.user?.id) {
-      return NextResponse.json(
-        { error: 'Authentication required' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { provider, currentUserEmail } = await request.json();
+    const { searchParams } = new URL(request.url);
+    const providerId = searchParams.get('providerId');
 
-    // Validate required fields
-    if (!provider) {
+    if (!providerId) {
       return NextResponse.json(
-        { error: 'Provider is required' },
+        { error: 'Provider ID is required' },
         { status: 400 }
       );
     }
 
-    // Find the account that has this OAuth provider linked
-    const existingAccount = await sql`
-      SELECT 
-        a."userId",
-        a."providerAccountId",
-        u.email as user_email,
-        u.name as user_name
-      FROM accounts a
-      JOIN users u ON a."userId" = u.id
-      WHERE a.provider = ${provider}
-      ORDER BY a."userId" DESC
-      LIMIT 1
+    const userId = parseInt(session.user.id);
+
+    // Check if user has multiple accounts
+    const userAccounts = await sql<{ id: number; provider: string }[]>`
+      SELECT id, provider
+      FROM accounts
+      WHERE "userId" = ${userId}
     `;
 
-    if (existingAccount.rows.length === 0) {
+    if (userAccounts.length <= 1) {
       return NextResponse.json(
-        { error: 'No account found with this OAuth provider' },
+        { error: 'Cannot unlink the only authentication method' },
+        { status: 400 }
+      );
+    }
+
+    // Find the specific account to unlink
+    const accountToUnlink = userAccounts.find(
+      (account) => account.id === parseInt(providerId)
+    );
+
+    if (!accountToUnlink) {
+      return NextResponse.json(
+        { error: 'Account not found' },
         { status: 404 }
       );
     }
 
-    const accountToUnlink = existingAccount.rows[0];
-
-    // Check if the account belongs to the current user
-    if (accountToUnlink.userId === session.user.id) {
-      return NextResponse.json(
-        { error: 'This OAuth account is already linked to your current account' },
-        { status: 400 }
-      );
-    }
-
-    // Check if the current user is trying to unlink their own account
-    if (accountToUnlink.user_email === currentUserEmail) {
-      return NextResponse.json(
-        { error: 'You cannot unlink your own account. Please contact support if you need assistance.' },
-        { status: 400 }
-      );
-    }
-
-    // Unlink the account from the other user
-    await sql`
-      DELETE FROM accounts 
-      WHERE "userId" = ${accountToUnlink.userId} 
-      AND provider = ${provider}
+    // Delete the account
+    const deletedAccounts = await sql<{ id: number }[]>`
+      DELETE FROM accounts
+      WHERE id = ${parseInt(providerId)} AND "userId" = ${userId}
+      RETURNING id
     `;
 
+    if (deletedAccounts.length === 0) {
+      return NextResponse.json(
+        { error: 'Failed to unlink account' },
+        { status: 500 }
+      );
+    }
+
     return NextResponse.json({
-      success: true,
-      message: `Successfully unlinked ${provider} account from user ${accountToUnlink.user_email}`,
-      unlinkedFrom: {
-        userId: accountToUnlink.userId,
-        email: accountToUnlink.user_email,
-        name: accountToUnlink.user_name
-      }
+      message: 'Account unlinked successfully',
+      provider: accountToUnlink.provider
     });
 
   } catch (error) {
-    console.error('Error unlinking OAuth account:', error);
-    
+    console.error('Unlink account error:', error);
     return NextResponse.json(
-      { error: 'Failed to unlink account. Please try again or contact support.' },
+      { error: 'Internal server error' },
       { status: 500 }
     );
   }

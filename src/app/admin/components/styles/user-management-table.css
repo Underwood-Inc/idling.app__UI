@@ -1,0 +1,533 @@
+/* ================================
+  USER MANAGEMENT PANEL - TABLE STYLES
+  ================================ */
+
+.users-table-container {
+  /* Position scrollbar at top when not in viewport */
+  position: relative;
+  overflow: auto; /* Enable horizontal and vertical scrolling */
+  max-height: 70vh; /* Limit height for infinite scroll */
+  min-height: 400px; /* Ensure minimum height so users can see scrollable content */
+  border: 1px solid var(--dark-bg__border-color--primary);
+  border-radius: 8px;
+  background: var(--dark-bg__background-color--secondary);
+  margin-top: 25px; /* Space for scroll hint */
+
+  /* Ensure scrollbars are visible */
+  scrollbar-width: auto;
+  scrollbar-color: var(--brand-primary) var(--dark-background--secondary);
+
+  /* Force scrollbars to always be visible */
+  overflow-x: auto;
+  overflow-y: auto;
+
+  /* Ensure scrollbars are always shown */
+  scrollbar-gutter: stable;
+}
+
+/* Show scrollbar hints on hover */
+.users-table-container:hover {
+  /* Enhance scrollbar visibility on hover */
+  scrollbar-color: var(--brand-primary--dark) var(--dark-background--tertiary);
+}
+
+/* Focus state for keyboard navigation */
+.users-table-container:focus-within {
+  outline: 2px solid var(--brand-primary);
+  outline-offset: 2px;
+  scrollbar-color: var(--brand-primary--light) var(--dark-background--tertiary);
+}
+
+/* Add scroll hint indicator - only show when scrollable */
+.users-table-container::before {
+  content: '← Scroll horizontally to see more columns →';
+  position: absolute;
+  top: -20px;
+  right: 0;
+  font-size: var(--font-size-xs);
+  color: var(--brand-primary);
+  font-weight: 500;
+  opacity: 0.8;
+  pointer-events: none;
+  z-index: 1;
+  padding: 4px 12px;
+  background: var(--dark-background--tertiary);
+  border-radius: 6px;
+  border: 1px solid var(--brand-primary);
+  animation: scrollHintPulse 3s ease-in-out infinite;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+@keyframes scrollHintPulse {
+  0%,
+  100% {
+    opacity: 0.7;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.users-table-container::-webkit-scrollbar {
+  width: 14px;
+  height: 14px;
+}
+
+.users-table-container::-webkit-scrollbar-track {
+  background: var(--dark-background--primary);
+  border-radius: 7px;
+  border: 1px solid var(--dark-border--secondary);
+  box-shadow: inset 0 0 4px rgba(0, 0, 0, 0.3);
+}
+
+.users-table-container::-webkit-scrollbar-thumb {
+  background: var(--brand-primary);
+  border-radius: 7px;
+  border: 2px solid var(--dark-background--secondary);
+  min-height: 20px;
+  box-shadow: inset 0 0 2px rgba(255, 255, 255, 0.1);
+}
+
+.users-table-container::-webkit-scrollbar-thumb:hover {
+  background: var(--brand-primary--dark);
+  border-color: var(--dark-background--primary);
+  box-shadow: inset 0 0 4px rgba(255, 255, 255, 0.2);
+}
+
+.users-table-container::-webkit-scrollbar-thumb:active {
+  background: var(--brand-primary--light);
+  border-color: var(--dark-background--primary);
+  box-shadow: inset 0 0 6px rgba(255, 255, 255, 0.3);
+}
+
+.users-table-container::-webkit-scrollbar-corner {
+  background: var(--dark-background--tertiary);
+  border: 1px solid var(--dark-border--primary);
+}
+
+.users-table {
+  width: 100%;
+  min-width: 1600px !important; /* Increased minimum width to force horizontal scroll */
+  border-collapse: collapse;
+  background: var(--dark-background--secondary);
+  color: var(--dark-bg__text-color--primary);
+  font-size: var(--font-size-sm);
+  table-layout: fixed; /* Force table to respect width constraints */
+
+  /* Remove conflicting scroll properties - let container handle scrolling */
+  display: table !important;
+}
+
+/* Fix table structure for proper table display */
+.users-table thead,
+.users-table tbody {
+  display: table-header-group !important;
+  width: 100% !important;
+  table-layout: fixed !important;
+}
+
+.users-table tbody {
+  display: table-row-group !important;
+}
+
+.users-table tr {
+  display: table-row !important;
+}
+
+.users-table th,
+.users-table td {
+  display: table-cell !important;
+}
+
+.users-table th {
+  background: var(--dark-background--secondary);
+  color: var(--dark-bg__text-color--primary);
+  font-weight: 600;
+  text-align: left;
+  padding: var(--spacing-xl-cozy);
+  border-bottom: 2px solid var(--dark-border--secondary);
+  white-space: nowrap;
+  font-size: var(--font-size-lg); /* Increased from base to lg */
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Sortable header styles */
+.users-table th.sortable-header {
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.users-table th.sortable-header:hover {
+  background: var(--dark-background--tertiary);
+  color: var(--dark-bg__text-color--primary);
+  transform: translateY(-1px);
+}
+
+.users-table th.sortable-header:active {
+  transform: translateY(0);
+}
+
+/* Sort indicators */
+.users-table th.sortable-header::after {
+  content: '';
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 0;
+  height: 0;
+  opacity: 0.3;
+  transition: opacity 0.2s ease;
+}
+
+.users-table th.sortable-header:hover::after {
+  opacity: 0.6;
+}
+
+.users-table td {
+  padding: var(--spacing-xl-cozy);
+  border-bottom: 1px solid var(--dark-border--primary);
+  vertical-align: top;
+  background: var(--dark-background--primary);
+  font-size: var(--font-size-base); /* Ensure consistent sizing */
+}
+
+.user-row:hover {
+  background: var(--dark-background--secondary);
+}
+
+/* User Info Cell with Dual Avatars */
+.user-info-cell {
+  min-width: 160px;
+}
+
+.user-avatars {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.provider-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--dark-border--secondary);
+  flex-shrink: 0;
+}
+
+.user-details {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs-cozy);
+}
+
+.user-name {
+  font-weight: 600;
+  color: var(--dark-bg__text-color--primary);
+  font-size: var(--font-size-base); /* Increased from sm to base */
+}
+
+.user-id {
+  font-size: var(--font-size-sm); /* Increased from xs to sm */
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+}
+
+/* Contact Cell */
+.contact-cell {
+  min-width: 220px;
+}
+
+.user-email {
+  color: var(--dark-bg__text-color--secondary);
+  font-size: var(--font-size-base);
+  word-break: break-word;
+}
+
+/* Provider Cell */
+.provider-cell {
+  min-width: 120px;
+}
+
+.provider-name {
+  color: var(--dark-bg__text-color--secondary);
+  font-size: var(--font-size-base);
+  font-weight: 500;
+  text-transform: capitalize;
+}
+
+/* Roles Cell */
+.roles-cell {
+  min-width: 150px;
+}
+
+.roles-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.role-badge {
+  background: var(--color-quaternary);
+  color: var(--dark-bg__text-color--primary);
+  padding: var(--spacing-xs-compact) var(--spacing-sm-cozy);
+  border-radius: 12px;
+  font-size: var(--font-size-sm); /* Increased from xs to sm */
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.no-roles {
+  color: var(--text-secondary);
+  font-style: italic;
+  font-size: var(--font-size-sm); /* Increased from xs to sm */
+}
+
+/* Status Cell */
+.status-cell {
+  min-width: 100px;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: var(--spacing-xs-compact) var(--spacing-sm-cozy);
+  border-radius: 12px;
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  margin-bottom: var(--spacing-xs-compact);
+}
+
+.status-badge--active {
+  background: var(--color-quaternary);
+  color: var(--dark-bg__text-color--primary);
+}
+
+.status-badge--timeout {
+  background: var(--error);
+  color: var(--dark-bg__text-color--primary);
+}
+
+/* Plans Cell - subscription plans only */
+.plans-cell {
+  min-width: 120px;
+}
+
+.plans-info {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.plan-badge {
+  display: inline-block;
+  padding: var(--spacing-xs-compact) var(--spacing-sm-compact);
+  border-radius: 8px;
+  font-size: var(--font-size-xs);
+  font-weight: 500;
+}
+
+.plan-badge--free {
+  background: var(--dark-background--tertiary);
+  color: var(--dark-bg__text-color--secondary);
+  border: 1px solid var(--dark-border--secondary);
+}
+
+.plan-badge--active {
+  background: var(--color-quaternary);
+  color: var(--dark-bg__text-color--primary);
+}
+
+.plan-badge--expired,
+.plan-badge--cancelled {
+  background: var(--dark-background--tertiary);
+  color: var(--text-secondary);
+  border: 1px solid var(--dark-border--secondary);
+}
+
+/* Date Cell */
+.date-cell {
+  min-width: 120px;
+  color: var(--dark-bg__text-color--secondary);
+  font-size: var(--font-size-base); /* Increased from xs to base */
+}
+
+/* Copy Button Rows */
+.user-name-row,
+.user-id-row,
+.contact-row,
+.provider-row,
+.joined-row,
+.timeout-reason-row,
+.timeout-expires-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.25rem;
+}
+
+.user-id-row:last-child,
+.contact-row:last-child,
+.provider-row:last-child,
+.joined-row:last-child,
+.timeout-reason-row:last-child,
+.timeout-expires-row:last-child {
+  margin-bottom: 0;
+}
+
+.roles-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.roles-container .copy-button {
+  align-self: flex-start;
+}
+
+/* Timeout Details Cell */
+.timeout-details-cell {
+  min-width: 180px;
+  max-width: 250px;
+}
+
+.timeout-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.timeout-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 12px;
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+}
+
+.timeout-status.active {
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.timeout-indicator {
+  font-size: var(--font-size-xs);
+}
+
+.timeout-reason {
+  font-size: var(--font-size-sm);
+  color: var(--dark-bg__text-color--primary);
+  font-weight: 500;
+  word-break: break-word;
+  line-height: 1.3;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.timeout-expires {
+  font-size: var(--font-size-xs);
+  color: var(--dark-bg__text-color--secondary);
+}
+
+.no-timeout {
+  color: var(--text-secondary);
+  font-style: italic;
+  font-size: var(--font-size-sm);
+}
+
+/* Actions Column Header */
+.users-table th:first-child {
+  width: 60px !important;
+  min-width: 60px !important;
+  max-width: 60px !important;
+  padding: 1rem !important;
+  overflow: hidden !important;
+  box-sizing: border-box !important;
+}
+
+/* Actions Cell */
+.actions-cell {
+  width: 50px !important;
+  min-width: 50px !important;
+  max-width: 50px !important;
+  text-align: left;
+  vertical-align: middle;
+  overflow: hidden !important;
+  box-sizing: border-box !important;
+}
+
+/* High contrast support for tables */
+@media (prefers-contrast: high) {
+  .users-table th,
+  .users-table td {
+    border-width: 2px;
+  }
+}
+
+/* Remove old subscription styling from status cell */
+.subscription-info {
+  display: none;
+}
+
+.subscription-badge {
+  display: none;
+}
+
+/* Infinite Scroll Indicators */
+.infinite-scroll-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 20px;
+  background: var(--dark-bg__background-color--tertiary);
+  border-top: 1px solid var(--dark-bg__border-color--primary);
+  color: var(--dark-bg__text-color--secondary);
+  font-size: var(--font-size-sm);
+}
+
+.infinite-scroll-loading .loading-spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--dark-bg__border-color--primary);
+  border-top: 2px solid var(--accent-color--primary);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+.infinite-scroll-end {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: var(--dark-bg__background-color--tertiary);
+  border-top: 1px solid var(--dark-bg__border-color--primary);
+  color: var(--dark-bg__text-color--secondary);
+  font-size: var(--font-size-sm);
+  font-style: italic;
+}
+
+.scroll-hint {
+  color: var(--accent-color--primary) !important;
+  font-weight: 500;
+  font-size: var(--font-size-xs);
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}

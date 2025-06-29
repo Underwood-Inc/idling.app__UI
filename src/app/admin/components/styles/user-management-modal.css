@@ -1,0 +1,313 @@
+/* ================================
+  USER MANAGEMENT PANEL - MODAL STYLES
+  ================================ */
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  padding: 1rem;
+}
+
+.modal-content {
+  background: var(--dark-background--primary);
+  border-radius: var(--border-radius);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+  max-width: 600px;
+  width: 100%;
+  max-height: 90vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--dark-border--primary);
+}
+
+.modal-content--large {
+  max-width: 800px;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--spacing-xl-cozy);
+  border-bottom: 1px solid var(--dark-border--primary);
+  background: var(--dark-background--secondary);
+}
+
+.modal-user-info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.modal-user-avatars {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.modal-provider-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--dark-border--secondary);
+}
+
+.modal-user-details h3 {
+  margin: 0 0 var(--spacing-xs-compact) 0;
+  color: var(--dark-bg__text-color--primary);
+  font-size: var(--font-size-lg);
+}
+
+.modal-user-details p {
+  margin: 0 0 var(--spacing-xs-compact) 0;
+  color: var(--dark-bg__text-color--secondary);
+  font-size: var(--font-size-base);
+}
+
+.user-id-display {
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+}
+
+.modal-close-btn {
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: var(--dark-background--tertiary);
+  color: var(--text-secondary);
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  font-size: var(--font-size-sm);
+}
+
+.modal-close-btn:hover {
+  background: var(--error);
+  color: var(--dark-bg__text-color--primary);
+}
+
+.modal-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1.5rem;
+}
+
+.user-details-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.detail-section {
+  background: var(--dark-background--secondary);
+  border-radius: var(--border-radius);
+  padding: 1rem;
+  border: 1px solid var(--dark-border--primary);
+}
+
+.detail-section h4 {
+  margin: 0 0 1rem 0;
+  color: var(--dark-bg__text-color--primary);
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.detail-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--dark-border--primary);
+}
+
+.detail-item:last-child {
+  border-bottom: none;
+}
+
+.detail-item label {
+  font-weight: 500;
+  color: var(--dark-bg__text-color--secondary);
+  font-size: var(--font-size-base);
+}
+
+.detail-item span {
+  color: var(--dark-bg__text-color--primary);
+  font-size: var(--font-size-base);
+  text-align: right;
+  word-break: break-word;
+}
+
+/* Management Sections */
+.roles-management,
+.subscriptions-management,
+.timeouts-management {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.role-item,
+.subscription-item,
+.timeout-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  background: var(--dark-background--primary);
+  border-radius: 6px;
+  border: 1px solid var(--dark-border--primary);
+}
+
+.role-date,
+.subscription-meta,
+.timeout-details {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: var(--font-size-sm);
+  color: var(--dark-bg__text-color--primary);
+}
+
+.subscription-details {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.subscription-service {
+  font-size: var(--font-size-sm);
+  color: var(--dark-bg__text-color--secondary);
+}
+
+.timeout-reason {
+  font-weight: 500;
+  color: var(--dark-bg__text-color--primary);
+}
+
+.timeout-date {
+  font-size: var(--font-size-sm);
+  color: var(--dark-bg__text-color--primary);
+  font-weight: 500;
+}
+
+.timeout-status {
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+}
+
+.timeout-status.active {
+  background: var(--brand-secondary);
+  color: white;
+}
+
+.timeout-status.expired {
+  background: var(--dark-background--tertiary);
+  color: var(--dark-bg__text-color--secondary);
+}
+
+.no-data {
+  color: var(--dark-bg__text-color--secondary);
+  font-style: italic;
+  text-align: center;
+  padding: 1rem;
+  font-size: var(--font-size-base);
+}
+
+.modal-footer {
+  border-top: 1px solid var(--dark-border--primary);
+  padding: 1rem 1.5rem;
+  background: var(--dark-background--secondary);
+}
+
+.modal-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+}
+
+/* Additional styles for UserDetailsModal */
+.bio-content {
+  padding: 12px;
+  background: var(--dark-background--primary);
+  border-radius: var(--border-radius);
+  border: 1px solid var(--dark-border--primary);
+}
+
+.bio-content p {
+  margin: 0;
+  color: var(--dark-bg__text-color--primary);
+  line-height: 1.5;
+  word-break: break-word;
+}
+
+.status-badge {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+}
+
+.status-badge.active {
+  background: var(--success);
+  color: white;
+}
+
+.subscription-status {
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.subscription-status.active {
+  background: var(--success);
+  color: white;
+}
+
+.subscription-status.expired {
+  background: var(--error);
+  color: white;
+}
+
+.subscription-status.cancelled {
+  background: var(--dark-background--tertiary);
+  color: var(--dark-bg__text-color--secondary);
+}
+
+.subscription-details {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: var(--font-size-sm);
+  color: var(--dark-bg__text-color--secondary);
+  margin-top: 4px;
+}
+
+.timeout-info-detailed {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}

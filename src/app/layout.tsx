@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next';
 import { SessionProvider } from 'next-auth/react';
 import { Inter } from 'next/font/google';
 import { Suspense } from 'react';
+import { GlobalLoadingProvider } from '../lib/context/GlobalLoadingContext';
 import { NavigationLoadingProvider } from '../lib/context/NavigationLoadingContext';
 import { OverlayProvider } from '../lib/context/OverlayContext';
 import { UserPreferencesProvider } from '../lib/context/UserPreferencesContext';
@@ -269,12 +270,7 @@ export default function RootLayout({
 
         {/* Google AdSense */}
         <script
-          async
-          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3757286003859686"
-          crossOrigin="anonymous"
-        ></script>
-
-        <script
+          key="google-adsense"
           async
           src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3757286003859686"
           crossOrigin="anonymous"
@@ -288,29 +284,31 @@ export default function RootLayout({
         <SessionProvider>
           <UserPreferencesProvider>
             <NavigationLoadingProvider>
-              <NavigationLoadingBar />
-              <SessionRefreshHandler />
-              <OverlayProvider>
-                <TimeoutBanner />
-                <main>
-                  <AvatarsBackground />
+              <GlobalLoadingProvider>
+                <NavigationLoadingBar />
+                <SessionRefreshHandler />
+                <OverlayProvider>
+                  <TimeoutBanner />
+                  <main>
+                    <AvatarsBackground />
 
-                  <Header />
+                    <Header />
 
-                  <MessageTickerWithInterval />
+                    <MessageTickerWithInterval />
 
-                  <Suspense fallback={<Loader />}>
-                    <JotaiProvider>
-                      <NotFoundErrorBoundary>
-                        <FadeIn>{children}</FadeIn>
-                      </NotFoundErrorBoundary>
-                    </JotaiProvider>
-                  </Suspense>
-                  <Footer />
-                </main>
-                <OverlayRenderer />
-                <PWAInstallPrompt />
-              </OverlayProvider>
+                    <Suspense fallback={<Loader />}>
+                      <JotaiProvider>
+                        <NotFoundErrorBoundary>
+                          <FadeIn>{children}</FadeIn>
+                        </NotFoundErrorBoundary>
+                      </JotaiProvider>
+                    </Suspense>
+                    <Footer />
+                  </main>
+                  <OverlayRenderer />
+                  <PWAInstallPrompt />
+                </OverlayProvider>
+              </GlobalLoadingProvider>
             </NavigationLoadingProvider>
           </UserPreferencesProvider>
         </SessionProvider>
