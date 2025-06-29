@@ -1,6 +1,7 @@
 @import url('./fonts.css');
 @import url('./styles/glass-effects.css');
 @import url('./styles/scroll-restore-animation.css');
+@import '../styles/global-selects.css';
 
 :root {
   /* START PALATTES REGION */
@@ -150,11 +151,14 @@
 
   --max-width: 1100px;
   --border-radius: 0.5rem;
-  --font-mono: 'Fira Code', 'Fira Mono', Monaco, 'Cascadia Code', 'Roboto Mono',
-    Consolas, 'Courier New', monospace;
+  --font-mono:
+    'Fira Code', 'Fira Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas,
+    'Courier New', monospace;
 
   /* App font family - can be changed by FontPicker component */
-  --app-font-family: 'Fira Code', 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', 'Segoe UI Symbol', monospace;
+  --app-font-family:
+    'Fira Code', 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji',
+    'Segoe UI Symbol', monospace;
 
   /* Font size variables - much smaller for better scaling */
   --font-size-xs: 0.75rem;
@@ -224,14 +228,6 @@
   --current-spacing-lg: var(--spacing-lg-compact);
   --current-spacing-xl: var(--spacing-xl-compact);
 }
-
-
-
-
-
-
-
-
 
 /* END SPACING THEMES */
 
@@ -670,7 +666,6 @@ section:not(:last-of-type) {
 }
 
 @media (max-width: 1024px) {
-
   /* tablet, landscape iPad, lo-res laptops ands desktops */
   aside {
     display: none !important;
@@ -678,7 +673,6 @@ section:not(:last-of-type) {
 }
 
 @media (min-width: 1025px) {
-
   /* big landscape tablets, laptops, and desktops */
   aside {
     display: block;
@@ -707,8 +701,6 @@ section:not(:last-of-type) {
   border-radius: var(--border-radius);
 }
 
-
-
 /* Application-wide cursor/caret styling */
 input,
 textarea,
@@ -719,15 +711,12 @@ textarea,
 }
 
 /* Ensure cursor color is consistent across all text input elements */
-input[type="text"],
-input[type="email"],
-input[type="password"],
-input[type="search"],
-input[type="url"],
+input[type='text'],
+input[type='email'],
+input[type='password'],
+input[type='search'],
+input[type='url'],
 textarea,
-[contenteditable="true"] {
+[contenteditable='true'] {
   caret-color: var(--brand-primary, #edae49) !important;
 }
-
-
-

@@ -1,5 +1,6 @@
 'use client';
 
+import { Card } from '../../components/card/Card';
 import styles from '../page.module.css';
 
 interface GenerationDisplayProps {
@@ -18,17 +19,20 @@ export function GenerationDisplay({
   }
 
   return (
-    <div className={styles.generation__display}>
-      <div className={styles.generation__id}>
-        <span className={styles.id__label}>Generation ID:</span>
-        <code className={styles.id__value}>{generationId}</code>
-        <button
-          onClick={onCopyId}
-          className={styles.copy__button}
-          title="Copy Generation ID"
-        >
-          📋
-        </button>
+    <Card width="full" className={styles.generation__display__container}>
+      <div className={styles.generation__header}>
+        <h4 className={styles.generation__title}>🎨 Generated Image</h4>
+        <div className={styles.generation__id}>
+          <span className={styles.id__label}>ID:</span>
+          <code className={styles.id__value}>{generationId}</code>
+          <button
+            onClick={onCopyId}
+            className={styles.copy__button}
+            title="Copy Generation ID"
+          >
+            📋 Copy
+          </button>
+        </div>
       </div>
 
       <div className={styles.image__wrapper}>
@@ -37,6 +41,6 @@ export function GenerationDisplay({
           dangerouslySetInnerHTML={{ __html: svgContent }}
         />
       </div>
-    </div>
+    </Card>
   );
 }

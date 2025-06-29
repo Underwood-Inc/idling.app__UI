@@ -68,7 +68,7 @@ export class SVGGenerator {
     );
     const finalBorderColor = allCustomOptions?.borderColor ?? backgroundResult.predominantColor;
     const finalBorderOpacity = allCustomOptions?.borderOpacity ?? 0.7;
-    const finalGlassBackground = allCustomOptions?.glassBackground ?? false;
+    const finalGlassBackground = allCustomOptions?.glassBackground ?? true;
 
     // Calculate text positioning with custom styles
     const finalFontSize = allCustomOptions?.fontSize;

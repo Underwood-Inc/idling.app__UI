@@ -46,7 +46,7 @@ export async function GET(request: NextRequest) {
         paymentUrl: `/subscription?tier=${tier}`, // Frontend route
         currentLimits: {
           free: {
-            dailyGenerations: 10,
+            dailyGenerations: 1,
             advancedOptions: false
           }
         }

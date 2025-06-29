@@ -27,25 +27,29 @@ export function AdvancedControls({
   };
 
   return (
-    <div className={styles.advanced__controls}>
-      <h3 className={styles.section__title}>
-        🔮 Advanced Mystical Controls
-        {!isProUser && <span className={styles.pro__badge}>PRO</span>}
-      </h3>
-
+    <div className={styles.advanced__options}>
       {!isProUser && (
-        <div className={styles.pro__notice}>
-          <p>✨ Unlock advanced controls with Pro subscription!</p>
+        <div className={styles.advanced__paywall__notice}>
+          <h4>🚀 Unlock Advanced Magic</h4>
+          <p>
+            Get precise control over avatar positioning, text layout, visual
+            styling, and more with Pro subscription.
+          </p>
+          <a href="/subscription" className={styles.advanced__upgrade__link}>
+            Upgrade to Pro ⚡
+          </a>
         </div>
       )}
 
-      <div className={styles.controls__grid}>
+      <div className={styles.advanced__controls__grid}>
         {/* Positioning Controls */}
-        <div className={styles.control__section}>
-          <h4>📍 Avatar Positioning</h4>
-          <div className={styles.control__row}>
-            <label>
-              Avatar X:
+        <div className={styles.form__subsection}>
+          <h5 className={styles.form__subsection__title}>
+            📍 Avatar Positioning
+          </h5>
+          <div className={styles.form__row}>
+            <label className={styles.form__label}>
+              <span className={styles.label__text}>Avatar X</span>
               <input
                 type="number"
                 value={options.avatarX || ''}
@@ -56,10 +60,11 @@ export function AdvancedControls({
                 placeholder="Auto"
                 min="0"
                 max="2000"
+                className={`${styles.form__input} ${disabled ? styles.form__input__disabled : ''}`}
               />
             </label>
-            <label>
-              Avatar Y:
+            <label className={styles.form__label}>
+              <span className={styles.label__text}>Avatar Y</span>
               <input
                 type="number"
                 value={options.avatarY || ''}
@@ -70,10 +75,11 @@ export function AdvancedControls({
                 placeholder="Auto"
                 min="0"
                 max="2000"
+                className={`${styles.form__input} ${disabled ? styles.form__input__disabled : ''}`}
               />
             </label>
-            <label>
-              Avatar Size:
+            <label className={styles.form__label}>
+              <span className={styles.label__text}>Avatar Size</span>
               <input
                 type="number"
                 value={options.avatarSize || ''}
@@ -87,17 +93,18 @@ export function AdvancedControls({
                 placeholder="Auto"
                 min="50"
                 max="500"
+                className={`${styles.form__input} ${disabled ? styles.form__input__disabled : ''}`}
               />
             </label>
           </div>
         </div>
 
         {/* Text Controls */}
-        <div className={styles.control__section}>
-          <h4>📝 Text Layout</h4>
-          <div className={styles.control__row}>
-            <label>
-              Text Max Width:
+        <div className={styles.form__subsection}>
+          <h5 className={styles.form__subsection__title}>📝 Text Layout</h5>
+          <div className={styles.form__row}>
+            <label className={styles.form__label}>
+              <span className={styles.label__text}>Text Max Width</span>
               <input
                 type="number"
                 value={options.textMaxWidth || ''}
@@ -111,10 +118,11 @@ export function AdvancedControls({
                 placeholder="Auto"
                 min="200"
                 max="1000"
+                className={`${styles.form__input} ${disabled ? styles.form__input__disabled : ''}`}
               />
             </label>
-            <label>
-              Text Start Y:
+            <label className={styles.form__label}>
+              <span className={styles.label__text}>Text Start Y</span>
               <input
                 type="number"
                 value={options.textStartY || ''}
@@ -128,10 +136,11 @@ export function AdvancedControls({
                 placeholder="Auto"
                 min="50"
                 max="800"
+                className={`${styles.form__input} ${disabled ? styles.form__input__disabled : ''}`}
               />
             </label>
-            <label>
-              Text Padding:
+            <label className={styles.form__label}>
+              <span className={styles.label__text}>Text Padding</span>
               <input
                 type="number"
                 value={options.textPadding || ''}
@@ -145,17 +154,18 @@ export function AdvancedControls({
                 placeholder="30"
                 min="10"
                 max="100"
+                className={`${styles.form__input} ${disabled ? styles.form__input__disabled : ''}`}
               />
             </label>
           </div>
         </div>
 
         {/* Visual Controls */}
-        <div className={styles.control__section}>
-          <h4>🎨 Visual Effects</h4>
-          <div className={styles.control__row}>
-            <label>
-              Font Size:
+        <div className={styles.form__subsection}>
+          <h5 className={styles.form__subsection__title}>🎨 Visual Effects</h5>
+          <div className={styles.form__row}>
+            <label className={styles.form__label}>
+              <span className={styles.label__text}>Font Size</span>
               <input
                 type="number"
                 value={options.fontSize || ''}
@@ -169,10 +179,11 @@ export function AdvancedControls({
                 placeholder="Auto"
                 min="12"
                 max="72"
+                className={`${styles.form__input} ${disabled ? styles.form__input__disabled : ''}`}
               />
             </label>
-            <label>
-              Line Height:
+            <label className={styles.form__label}>
+              <span className={styles.label__text}>Line Height</span>
               <input
                 type="number"
                 step="0.1"
@@ -187,10 +198,11 @@ export function AdvancedControls({
                 placeholder="1.4"
                 min="1.0"
                 max="3.0"
+                className={`${styles.form__input} ${disabled ? styles.form__input__disabled : ''}`}
               />
             </label>
-            <label>
-              Border Opacity:
+            <label className={styles.form__label}>
+              <span className={styles.label__text}>Border Opacity</span>
               <input
                 type="number"
                 step="0.1"
@@ -205,26 +217,28 @@ export function AdvancedControls({
                 placeholder="0.7"
                 min="0"
                 max="1"
+                className={`${styles.form__input} ${disabled ? styles.form__input__disabled : ''}`}
               />
             </label>
           </div>
         </div>
 
         {/* Pattern Controls */}
-        <div className={styles.control__section}>
-          <h4>🌟 Pattern Magic</h4>
-          <div className={styles.control__row}>
-            <label>
-              Border Color:
+        <div className={styles.form__subsection}>
+          <h5 className={styles.form__subsection__title}>🌟 Pattern Magic</h5>
+          <div className={styles.form__row}>
+            <label className={styles.form__label}>
+              <span className={styles.label__text}>Border Color</span>
               <input
                 type="color"
                 value={options.borderColor || '#ffffff'}
                 onChange={(e) => handleChange('borderColor', e.target.value)}
                 disabled={disabled}
+                className={`${styles.form__input} ${disabled ? styles.form__input__disabled : ''}`}
               />
             </label>
-            <label>
-              Pattern Seed:
+            <label className={styles.form__label}>
+              <span className={styles.label__text}>Pattern Seed</span>
               <input
                 type="text"
                 value={options.patternSeed || ''}
@@ -233,9 +247,10 @@ export function AdvancedControls({
                 }
                 disabled={disabled}
                 placeholder="Auto-generated"
+                className={`${styles.form__input} ${disabled ? styles.form__input__disabled : ''}`}
               />
             </label>
-            <label className={styles.checkbox__label}>
+            <label className={styles.form__checkbox__label}>
               <input
                 type="checkbox"
                 checked={options.glassBackground || false}
@@ -243,8 +258,11 @@ export function AdvancedControls({
                   handleChange('glassBackground', e.target.checked)
                 }
                 disabled={disabled}
+                className={`${styles.form__checkbox} ${disabled ? styles.form__checkbox : ''}`}
               />
-              Glass Background Effect
+              <span className={styles.label__text}>
+                Glass Background Effect
+              </span>
             </label>
           </div>
         </div>

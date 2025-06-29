@@ -1,0 +1,77 @@
+/* ================================
+  USER MANAGEMENT PANEL - RESPONSIVE DESIGN
+  ================================ */
+
+@media (max-width: 1200px) {
+  .user-details-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .user-management-panel {
+    padding: 1rem;
+  }
+
+  .panel-header {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: stretch;
+  }
+
+  .search-container {
+    min-width: auto;
+    max-width: none;
+  }
+
+  .users-table {
+    min-width: 800px;
+  }
+
+  .modal-content {
+    margin: 1rem;
+    max-height: calc(100vh - 2rem);
+  }
+
+  .modal-actions {
+    justify-content: stretch;
+  }
+
+  .modal-actions .btn {
+    flex: 1;
+    justify-content: center;
+  }
+
+  .action-buttons {
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .action-buttons .btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .user-avatars {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+
+  .provider-avatar {
+    width: 24px;
+    height: 24px;
+  }
+
+  .modal-user-avatars {
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .modal-provider-avatar {
+    width: 32px;
+    height: 32px;
+  }
+}

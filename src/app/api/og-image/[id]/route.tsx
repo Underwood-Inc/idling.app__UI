@@ -2,7 +2,8 @@
 import { NextRequest } from 'next/server';
 import { DatabaseService } from '../services/DatabaseService';
 
-export const runtime = 'edge';
+// Use Node.js runtime for database access
+export const runtime = 'nodejs';
 
 const databaseService = DatabaseService.getInstance();
 
@@ -61,12 +62,17 @@ export async function GET(
           },
           generationOptions: {
             seed: generation.seed,
+            avatarSeed:
+              (generation as any).generation_options?.avatarSeed ||
+              generation.seed,
             aspectRatio: generation.aspect_ratio,
             quoteText: generation.quote_text,
             quoteAuthor: generation.quote_author,
             customWidth: generation.custom_width,
             customHeight: generation.custom_height,
-            shapeCount: generation.shape_count
+            shapeCount: generation.shape_count,
+            // Include all other generation options from the JSONB field
+            ...((generation as any).generation_options || {})
           },
           createdAt: generation.created_at
         }),

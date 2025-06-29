@@ -1,7 +1,8 @@
-import { useSearchParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useCallback, useEffect, useState } from 'react';
 
 export function useWelcomeFlow() {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const [showWelcome, setShowWelcome] = useState<boolean>(true);
   const [loadGenerationId, setLoadGenerationId] = useState<string>('');
@@ -17,7 +18,8 @@ export function useWelcomeFlow() {
   const handleLoadGeneration = () => {
     if (loadGenerationId.trim()) {
       setShowWelcome(false);
-      window.location.href = `/card-generator?id=${loadGenerationId.trim()}`;
+      // Use Next.js router for smooth client-side navigation instead of full page reload
+      router.push(`/card-generator?id=${loadGenerationId.trim()}`);
     }
   };
 
@@ -28,7 +30,15 @@ export function useWelcomeFlow() {
   const returnToWelcome = () => {
     setShowWelcome(true);
     setLoadGenerationId('');
+    // Clear URL parameters by navigating to clean route
+    router.replace('/card-generator');
   };
+
+  // Clear welcome flow state
+  const clearWelcomeFlow = useCallback(() => {
+    setShowWelcome(true);
+    setLoadGenerationId('');
+  }, []);
 
   return {
     showWelcome,
@@ -36,6 +46,7 @@ export function useWelcomeFlow() {
     setLoadGenerationId,
     handleLoadGeneration,
     handleNewGeneration,
-    returnToWelcome
+    returnToWelcome,
+    clearWelcomeFlow
   };
 } 

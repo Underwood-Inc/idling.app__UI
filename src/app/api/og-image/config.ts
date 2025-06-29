@@ -170,7 +170,7 @@ export const FALLBACK_QUOTES = [
 export const GENERATION_LIMITS: GenerationLimits = {
   perMinute: 10,  // 10 generations per minute
   perHour: 100,   // 100 generations per hour  
-  perDay: 10      // 10 generations per day (reduced for quota management)
+  perDay: 1       // 1 generation per day (reduced for quota management)
 };
 
 // Custom dimension limits

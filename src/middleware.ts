@@ -4,6 +4,7 @@ import { authConfig } from './auth.config';
 import { NAV_PATHS, PUBLIC_ROUTES } from './lib/routes';
 import { rateLimitService } from './lib/services/RateLimitService';
 import { getRateLimitType, getRequestIdentifier } from './lib/utils/requestIdentifier';
+import { formatRetryAfter } from './lib/utils/timeFormatting';
 
 const { auth } = NextAuth({
   ...authConfig,
@@ -15,15 +16,23 @@ const { auth } = NextAuth({
  */
 function createRateLimitResponse(result: any, isAttack: boolean = false) {
   const status = isAttack ? 429 : 429; // Too Many Requests
-  const message = isAttack 
-    ? 'Suspicious activity detected. Access temporarily restricted.'
-    : 'Too many requests. Please slow down.';
+  
+  // Create human-readable error message
+  let message = 'Too many requests. Please slow down.';
+  if (result.retryAfter) {
+    const humanTime = formatRetryAfter(result.retryAfter);
+    message = isAttack 
+      ? `Suspicious activity detected. Access temporarily restricted. Try again in ${humanTime}.`
+      : `Rate limit exceeded. Please try again in ${humanTime}.`;
+  }
 
   const response = NextResponse.json(
     { 
       error: message,
       retryAfter: result.retryAfter,
-      penaltyLevel: result.penaltyLevel
+      retryAfterHuman: result.retryAfter ? formatRetryAfter(result.retryAfter) : undefined,
+      penaltyLevel: result.penaltyLevel,
+      quotaType: result.quotaType
     },
     { status }
   );

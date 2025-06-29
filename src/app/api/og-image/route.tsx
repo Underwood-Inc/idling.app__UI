@@ -1,5 +1,6 @@
 import { NextRequest } from 'next/server';
 import { rateLimitService } from '../../../lib/services/RateLimitService';
+import { formatRetryAfter } from '../../../lib/utils/timeFormatting';
 import { OGImageService } from './services/OGImageService';
 
 export const runtime = 'edge';
@@ -20,23 +21,27 @@ export async function GET(request: NextRequest) {
     const remainingGenerations = await ogLimiter.checkDailyQuota(clientIp);
 
     if (remainingGenerations <= 0) {
+      const resetTime = new Date(Date.now() + 86400 * 1000); // 24 hours from now
+      const retryAfterSeconds = 86400; // 24 hours in seconds
+      const humanTime = formatRetryAfter(retryAfterSeconds);
+
       return new Response(
         JSON.stringify({
-          error:
-            'Daily generation limit exceeded. Upgrade to Pro for unlimited generations.',
-          retryAfter: 86400, // 24 hours
-          remainingGenerations: 0
+          error: `Daily generation limit exceeded. Try again in ${humanTime} or upgrade to Pro for unlimited generations.`,
+          retryAfter: retryAfterSeconds,
+          retryAfterHuman: humanTime,
+          remainingGenerations: 0,
+          quotaType: 'daily',
+          upgradeUrl: '/subscription'
         }),
         {
           status: 429,
           headers: {
             'Content-Type': 'application/json',
-            'Retry-After': '86400',
-            'X-RateLimit-Limit': '10',
+            'Retry-After': retryAfterSeconds.toString(),
+            'X-RateLimit-Limit': '1',
             'X-RateLimit-Remaining': '0',
-            'X-RateLimit-Reset': new Date(
-              Date.now() + 86400 * 1000
-            ).toISOString()
+            'X-RateLimit-Reset': resetTime.toISOString()
           }
         }
       );

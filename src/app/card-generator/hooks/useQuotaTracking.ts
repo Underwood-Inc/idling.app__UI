@@ -5,7 +5,7 @@ export function useQuotaTracking(): QuotaState & {
   updateQuota: (remaining: number) => void;
   initializeQuota: () => Promise<void>;
 } {
-  const [remainingGenerations, setRemainingGenerations] = useState<number>(10);
+  const [remainingGenerations, setRemainingGenerations] = useState<number>(1);
   const [hasInitializedQuota, setHasInitializedQuota] = useState<boolean>(false);
 
   const isQuotaExceeded = remainingGenerations <= 0;

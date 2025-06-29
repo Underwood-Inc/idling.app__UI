@@ -7,10 +7,10 @@ import { PageAside } from '../components/page-aside/PageAside';
 import { PageContainer } from '../components/page-container/PageContainer';
 import PageContent from '../components/page-content/PageContent';
 import PageHeader from '../components/page-header/PageHeader';
-import { AspectRatioSelector } from './components/AspectRatioSelector';
 import { GenerationDisplay } from './components/GenerationDisplay';
 import { GenerationForm } from './components/GenerationForm';
 import { QuotaDisplay } from './components/QuotaDisplay';
+import { RegenerationDialog } from './components/RegenerationDialog';
 import { WelcomeInterface } from './components/WelcomeInterface';
 import { ASPECT_RATIO_OPTIONS } from './constants/aspectRatios';
 import { useFormState } from './hooks/useFormState';
@@ -19,6 +19,7 @@ import { useImageGeneration } from './hooks/useImageGeneration';
 import { useQuotaTracking } from './hooks/useQuotaTracking';
 import { useWelcomeFlow } from './hooks/useWelcomeFlow';
 import styles from './page.module.css';
+import { GenerationOptions } from './types/generation';
 import {
   convertSvgToPng,
   downloadFile,
@@ -33,17 +34,29 @@ export default function OgImageViewer() {
   const [selectedRatio, setSelectedRatio] = useState<string>('default');
   const [currentGenerationId, setCurrentGenerationId] = useState<string>('');
   const [error, setError] = useState<string>('');
+  const [isLoadedGeneration, setIsLoadedGeneration] = useState<boolean>(false);
+
+  // Advanced options state for Pro features
+  const [advancedOptions, setAdvancedOptions] = useState<
+    Partial<GenerationOptions>
+  >({});
 
   // Custom hooks for clean separation of concerns
-  const { formState, setFormState, updateField } = useFormState();
-  const [isFormCollapsed, setIsFormCollapsed] = useState(false);
+  const { formState, setFormState, updateField, clearFormState } =
+    useFormState();
+  const [isFormCollapsed, setIsFormCollapsed] = useState(true);
   const quotaState = useQuotaTracking();
   const welcomeFlow = useWelcomeFlow();
   const generationLoader = useGenerationLoader({
     setFormState,
     setSvgContent,
     setSelectedRatio,
-    setError
+    setError,
+    // Callback when generation is loaded - keep form collapsed and mark as loaded
+    onGenerationLoaded: () => {
+      setIsFormCollapsed(true);
+      setIsLoadedGeneration(true);
+    }
   });
 
   // Sync aspect ratio changes with form fields
@@ -58,35 +71,69 @@ export default function OgImageViewer() {
   }, [selectedRatio, updateField]);
 
   // Image generation hook
-  const { isGenerating, generationOptions, handleGenerate, handleRandomize } =
-    useImageGeneration({
-      currentSeed: formState.currentSeed,
-      avatarSeed: formState.avatarSeed,
-      selectedRatio,
-      customQuote: formState.customQuote,
-      customAuthor: formState.customAuthor,
-      customWidth: formState.customWidth,
-      customHeight: formState.customHeight,
-      shapeCount: formState.shapeCount,
-      isQuotaExceeded: quotaState.isQuotaExceeded,
-      setCurrentSeed: (seed) => updateField('currentSeed', seed),
-      setAvatarSeed: (seed) => updateField('avatarSeed', seed),
-      setCustomQuote: (quote) => updateField('customQuote', quote),
-      setCustomAuthor: (author) => updateField('customAuthor', author),
-      setCustomWidth: (width) => updateField('customWidth', width),
-      setCustomHeight: (height) => updateField('customHeight', height),
-      setShapeCount: (count) => updateField('shapeCount', count),
-      setCurrentGenerationId: (id) => {
-        setCurrentGenerationId(id);
-        // Auto-collapse form after successful generation
-        if (id) {
-          setIsFormCollapsed(true);
-        }
-      },
-      setRemainingGenerations: quotaState.updateQuota,
-      setHasInitializedQuota: () => {}, // Handled by quota hook
-      setSvgContent
-    });
+  const {
+    isGenerating,
+    generationOptions,
+    handleGenerate,
+    handleRandomize,
+    clearGeneration,
+    showRegenerationDialog,
+    handleRegenerationChoice,
+    handleCloseRegenerationDialog
+  } = useImageGeneration({
+    currentSeed: formState.currentSeed,
+    avatarSeed: formState.avatarSeed,
+    selectedRatio,
+    customQuote: formState.customQuote,
+    customAuthor: formState.customAuthor,
+    customWidth: formState.customWidth,
+    customHeight: formState.customHeight,
+    shapeCount: formState.shapeCount,
+    isQuotaExceeded: quotaState.isQuotaExceeded,
+    advancedOptions: advancedOptions,
+    setCurrentSeed: (seed) => updateField('currentSeed', seed),
+    setAvatarSeed: (seed) => updateField('avatarSeed', seed),
+    setCustomQuote: (quote) => updateField('customQuote', quote),
+    setCustomAuthor: (author) => updateField('customAuthor', author),
+    setCustomWidth: (width) => updateField('customWidth', width),
+    setCustomHeight: (height) => updateField('customHeight', height),
+    setShapeCount: (count) => updateField('shapeCount', count),
+    setCurrentGenerationId: (id) => {
+      setCurrentGenerationId(id);
+      // Auto-collapse form after successful generation and mark as new generation
+      if (id) {
+        setIsFormCollapsed(true);
+        setIsLoadedGeneration(false); // This is a new generation, not loaded
+      }
+    },
+    setRemainingGenerations: quotaState.updateQuota,
+    setHasInitializedQuota: () => {}, // Handled by quota hook
+    setSvgContent
+  });
+
+  // Expand form when starting new generation
+  const handleNewGeneration = () => {
+    // Reset UI state for new generation flow
+    welcomeFlow.handleNewGeneration();
+    setIsFormCollapsed(false); // Expand form for new generation
+    setIsLoadedGeneration(false); // Clear loaded generation state
+
+    // Clear existing generation display state for fresh start
+    setSvgContent('');
+    setCurrentGenerationId('');
+    setError(''); // Clear any errors
+
+    // Reset form fields to empty state so user starts fresh
+    clearFormState();
+
+    // Reset advanced options to start fresh
+    setAdvancedOptions({});
+
+    // Reset aspect ratio to default
+    setSelectedRatio('default');
+
+    clearGeneration();
+  };
 
   // Handle copy generation ID
   const handleCopyId = () => {
@@ -104,6 +151,23 @@ export default function OgImageViewer() {
       });
     }
   }, [searchParams, currentGenerationId]);
+
+  // Initialize form state on component mount - ensure clean start unless loading generation
+  useEffect(() => {
+    const generationIdFromUrl = searchParams.get('id');
+
+    // Only clear form if we're not loading a specific generation
+    if (!generationIdFromUrl) {
+      clearFormState();
+      setSelectedRatio('default');
+      setAdvancedOptions({});
+      setSvgContent('');
+      setCurrentGenerationId('');
+      setError('');
+      setIsLoadedGeneration(false);
+      clearGeneration(); // Clear generation hook state including lastGenerationParams
+    }
+  }, []); // Run only once on mount
 
   // Download handlers
   const handleSaveAsPng = async () => {
@@ -131,6 +195,35 @@ export default function OgImageViewer() {
     );
   };
 
+  // Clear form and image when returning to welcome or navigating away
+  useEffect(() => {
+    if (welcomeFlow.showWelcome) {
+      // Clear all state when returning to welcome
+      clearFormState();
+      clearGeneration();
+      setSvgContent('');
+      setCurrentGenerationId('');
+      setSelectedRatio('default');
+      setError('');
+      setIsFormCollapsed(true);
+      setIsLoadedGeneration(false);
+      setAdvancedOptions({}); // Also clear advanced options
+    }
+  }, [welcomeFlow.showWelcome, clearFormState, clearGeneration]);
+
+  // Cleanup on component unmount
+  useEffect(() => {
+    return () => {
+      // Clear all state when component unmounts (navigation away from page)
+      clearFormState();
+      clearGeneration();
+      welcomeFlow.clearWelcomeFlow();
+      setSvgContent('');
+      setCurrentGenerationId('');
+      setError('');
+    };
+  }, [clearFormState, clearGeneration, welcomeFlow.clearWelcomeFlow]);
+
   // Loading states
   if (generationLoader.isLoading) {
     return (
@@ -138,9 +231,17 @@ export default function OgImageViewer() {
         <PageHeader>
           <FadeIn>
             <h2>Card Generator</h2>
-            <p>Loading generation...</p>
+            <p>🔮 Loading your mystical creation...</p>
           </FadeIn>
         </PageHeader>
+        <PageContent>
+          <div className={styles.loading__container}>
+            <div className={styles.loading__spinner}>⚡</div>
+            <p className={styles.loading__message}>
+              Summoning your previous generation from the ancient archives...
+            </p>
+          </div>
+        </PageContent>
       </PageContainer>
     );
   }
@@ -182,12 +283,6 @@ export default function OgImageViewer() {
 
             {!welcomeFlow.showWelcome && (
               <div className={styles.header__controls}>
-                <AspectRatioSelector
-                  selectedRatio={selectedRatio}
-                  onRatioChange={setSelectedRatio}
-                  options={ASPECT_RATIO_OPTIONS}
-                  disabled={quotaState.isQuotaExceeded}
-                />
                 <div className={styles.header__buttons}>
                   <button
                     onClick={welcomeFlow.returnToWelcome}
@@ -228,7 +323,7 @@ export default function OgImageViewer() {
               isQuotaExceeded={quotaState.isQuotaExceeded}
               loadGenerationId={welcomeFlow.loadGenerationId}
               setLoadGenerationId={welcomeFlow.setLoadGenerationId}
-              onNewGeneration={welcomeFlow.handleNewGeneration}
+              onNewGeneration={handleNewGeneration}
               onLoadGeneration={welcomeFlow.handleLoadGeneration}
             />
           </FadeIn>
@@ -260,7 +355,17 @@ export default function OgImageViewer() {
                 onRandomize={handleRandomize}
                 isCollapsed={isFormCollapsed}
                 onToggleCollapse={() => setIsFormCollapsed(!isFormCollapsed)}
+                selectedRatio={
+                  ASPECT_RATIO_OPTIONS.find((r) => r.key === selectedRatio) ||
+                  ASPECT_RATIO_OPTIONS[0]
+                }
+                onRatioChange={(ratio) => setSelectedRatio(ratio.key)}
+                aspectRatioOptions={ASPECT_RATIO_OPTIONS}
                 generationOptions={generationOptions}
+                advancedOptions={advancedOptions}
+                onAdvancedOptionsChange={setAdvancedOptions}
+                isProUser={false} // TODO: Connect to actual Pro user status
+                isReadOnly={isLoadedGeneration}
               />
 
               <GenerationDisplay
@@ -350,6 +455,13 @@ export default function OgImageViewer() {
           </div>
         </FadeIn>
       </PageAside>
+
+      {/* Regeneration Dialog */}
+      <RegenerationDialog
+        isOpen={showRegenerationDialog}
+        onChoice={handleRegenerationChoice}
+        onClose={handleCloseRegenerationDialog}
+      />
     </PageContainer>
   );
 }

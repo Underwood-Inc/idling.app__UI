@@ -105,7 +105,7 @@ export class RateLimitService {
     // OG Image generation - DAILY quota with database persistence
     'og-image': {
       windowMs: 24 * 60 * 60 * 1000, // 24 hours (1 day)
-      maxRequests: 10,         // 10 generations per day
+      maxRequests: 1,          // 1 generation per day
       storage: 'database' as const,
       keyPrefix: 'og-daily'
     },
@@ -122,7 +122,7 @@ export class RateLimitService {
   constructor() {
     // Initialize database service for daily quotas
     try {
-      this.databaseService = new DatabaseService();
+      this.databaseService = DatabaseService.getInstance();
     } catch (error) {
       console.warn('Database service unavailable, falling back to memory-only rate limiting');
     }

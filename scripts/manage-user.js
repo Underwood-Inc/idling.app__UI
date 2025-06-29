@@ -2,7 +2,7 @@
 // Load environment variables FIRST, before any other imports
 require('dotenv').config({ path: '.env.local' });
 
-const chalk = require('chalk');
+const chalk = require('chalk').default;
 const postgres = require('postgres');
 const readline = require('readline');
 
@@ -130,6 +130,35 @@ const TABLE_CONFIGS = {
         default: false
       }
     }
+  },
+  user_subscriptions: {
+    name: 'User Subscriptions',
+    columns: {
+      plan_id: { type: 'integer', required: true, validation: 'plan_exists' },
+      status: {
+        type: 'string',
+        required: true,
+        validation: 'enum',
+        enum_values: ['active', 'cancelled', 'expired', 'suspended', 'pending', 'trialing'],
+        default: 'active'
+      },
+      billing_cycle: {
+        type: 'string',
+        required: false,
+        validation: 'enum',
+        enum_values: ['monthly', 'yearly', 'lifetime', 'trial']
+      },
+      expires_at: { type: 'timestamp', required: false },
+      trial_ends_at: { type: 'timestamp', required: false },
+      assigned_by: {
+        type: 'integer',
+        required: false,
+        validation: 'user_exists'
+      },
+      assignment_reason: { type: 'string', required: false },
+      external_subscription_id: { type: 'string', required: false },
+      price_paid_cents: { type: 'integer', required: false }
+    }
   }
 };
 
@@ -202,6 +231,14 @@ async function validateValue(value, column, tableName) {
       await sql`SELECT id FROM permissions WHERE id = ${parseInt(value)}`;
     if (permExists.length === 0) {
       throw new Error(`Permission with ID ${value} does not exist`);
+    }
+  }
+
+  if (column.validation === 'plan_exists') {
+    const planExists =
+      await sql`SELECT id FROM subscription_plans WHERE id = ${parseInt(value)}`;
+    if (planExists.length === 0) {
+      throw new Error(`Subscription plan with ID ${value} does not exist`);
     }
   }
 
@@ -596,6 +633,86 @@ async function displayUserInfo(userId) {
       );
     }
 
+    // User subscriptions
+    try {
+      const subscriptions = await sql`
+        SELECT us.*, sp.name as plan_name, sp.display_name as plan_display_name,
+               sp.plan_type, sp.price_monthly_cents, sp.price_yearly_cents,
+               u.name as assigned_by_name
+        FROM user_subscriptions us
+        JOIN subscription_plans sp ON us.plan_id = sp.id
+        LEFT JOIN users u ON us.assigned_by = u.id
+        WHERE us.user_id = ${userId}
+        AND us.status IN ('active', 'trialing')
+        ORDER BY us.created_at DESC
+      `;
+
+      console.groupCollapsed(chalk.blue('💳 SUBSCRIPTION INFORMATION'));
+      if (subscriptions.length > 0) {
+        subscriptions.forEach((sub) => {
+          const status = sub.status === 'active' ? chalk.green(sub.status.toUpperCase()) : chalk.yellow(sub.status.toUpperCase());
+          const planType = sub.plan_type === 'tier' ? '🎯' : sub.plan_type === 'addon' ? '🔧' : '📦';
+          const expiresAt = sub.expires_at ? new Date(sub.expires_at).toLocaleDateString() : 'Never';
+          const trialEnds = sub.trial_ends_at ? new Date(sub.trial_ends_at).toLocaleDateString() : null;
+          const assignedBy = sub.assigned_by_name ? ` (assigned by: ${sub.assigned_by_name})` : '';
+          
+          console.log(chalk.cyan(`${planType} ${sub.plan_display_name} (${sub.plan_name})`));
+          console.log(`   Status: ${status} | Expires: ${expiresAt}${assignedBy}`);
+          if (trialEnds) {
+            console.log(chalk.yellow(`   Trial ends: ${trialEnds}`));
+          }
+          if (sub.assignment_reason) {
+            console.log(chalk.gray(`   Reason: ${sub.assignment_reason}`));
+          }
+        });
+      } else {
+        console.log(chalk.yellow('⚠️ No active subscriptions found'));
+      }
+      console.groupEnd();
+
+      // Subscription usage summary
+      const usageData = await sql`
+        SELECT ss.name as service_name, ss.display_name as service_display,
+               su.usage_date, su.usage_count, sf.name as feature_name
+        FROM subscription_usage su
+        JOIN subscription_services ss ON su.service_id = ss.id
+        LEFT JOIN subscription_features sf ON su.feature_id = sf.id
+        WHERE su.user_id = ${userId}
+        AND su.usage_date >= CURRENT_DATE - INTERVAL '7 days'
+        ORDER BY su.usage_date DESC, ss.name
+      `;
+
+      if (usageData.length > 0) {
+        console.groupCollapsed(chalk.blue('📊 RECENT USAGE (Last 7 days)'));
+        const usageByService = {};
+        usageData.forEach((usage) => {
+          const service = usage.service_name;
+          if (!usageByService[service]) {
+            usageByService[service] = { display: usage.service_display, total: 0, features: {} };
+          }
+          usageByService[service].total += usage.usage_count;
+          if (usage.feature_name) {
+            usageByService[service].features[usage.feature_name] = 
+              (usageByService[service].features[usage.feature_name] || 0) + usage.usage_count;
+          }
+        });
+
+        Object.entries(usageByService).forEach(([service, data]) => {
+          console.log(chalk.cyan(`🔧 ${data.display}: ${data.total} total uses`));
+          Object.entries(data.features).forEach(([feature, count]) => {
+            console.log(chalk.gray(`   • ${feature}: ${count}`));
+          });
+        });
+        console.groupEnd();
+      }
+    } catch (error) {
+      console.log(
+        chalk.yellow(
+          '⚠️ Subscription information unavailable (tables may not exist yet)'
+        )
+      );
+    }
+
     return user[0];
   } catch (error) {
     console.error(chalk.red('❌ Error fetching user info:'), error.message);
@@ -605,7 +722,7 @@ async function displayUserInfo(userId) {
 
 // Show available tables and columns
 function showAvailableOptions() {
-  console.groupCollapsed(chalk.blue.bold('📚 AVAILABLE TABLES AND COLUMNS'));
+  console.groupCollapsed(chalk.blue('📚 AVAILABLE TABLES AND COLUMNS'));
   console.log(chalk.gray('Database schema reference for manual operations'));
   console.groupEnd();
   console.log('');
@@ -637,7 +754,7 @@ function showAvailableOptions() {
 
 // Show reference data (roles, permissions)
 async function showReferenceData() {
-  console.groupCollapsed(chalk.blue.bold('📖 REFERENCE DATA'));
+  console.groupCollapsed(chalk.blue('📖 REFERENCE DATA'));
   console.log(chalk.gray('Available roles and permissions in the system'));
   console.groupEnd();
   console.log('');
@@ -654,6 +771,28 @@ async function showReferenceData() {
   console.groupCollapsed(chalk.green('⚡ AVAILABLE PERMISSIONS'));
   console.table(permissions);
   console.groupEnd();
+
+  // Show subscription plans
+  try {
+    const plans =
+      await sql`SELECT id, name, display_name, plan_type, price_monthly_cents, price_yearly_cents, is_active FROM subscription_plans ORDER BY sort_order, name`;
+    console.groupCollapsed(chalk.green('💳 AVAILABLE SUBSCRIPTION PLANS'));
+    console.table(plans);
+    console.groupEnd();
+
+    // Show subscription services
+    const services =
+      await sql`SELECT id, name, display_name, category, is_active FROM subscription_services ORDER BY category, name`;
+    console.groupCollapsed(chalk.green('🔧 AVAILABLE SUBSCRIPTION SERVICES'));
+    console.table(services);
+    console.groupEnd();
+  } catch (error) {
+    console.log(
+      chalk.yellow(
+        '⚠️ Subscription data unavailable (tables may not exist yet)'
+      )
+    );
+  }
 }
 
 // Function to lookup user by username
@@ -1254,6 +1393,325 @@ async function deleteEmoji(userId) {
   }
 }
 
+// Smart handler for subscription management
+async function handleSubscriptionManagement(userId, user) {
+  console.log(chalk.blue('\n💳 Subscription Management:'));
+
+  const subscriptionOptions = {
+    1: { action: 'assign', label: 'Assign New Subscription Plan' },
+    2: { action: 'modify', label: 'Modify Existing Subscription' },
+    3: { action: 'view', label: 'View Subscription Details & Usage' },
+    4: { action: 'cancel', label: 'Cancel Subscription' }
+  };
+
+  Object.entries(subscriptionOptions).forEach(([key, option]) => {
+    console.log(chalk.cyan(`${key}. ${option.label}`));
+  });
+
+  const choice = await prompt(chalk.yellow('\nSelect action (1-4): '));
+  const selectedAction = subscriptionOptions[choice];
+
+  if (!selectedAction) {
+    console.error(chalk.red('❌ Invalid choice'));
+    return;
+  }
+
+  switch (selectedAction.action) {
+    case 'assign':
+      await assignSubscriptionPlan(userId);
+      break;
+    case 'modify':
+      await modifySubscription(userId);
+      break;
+    case 'view':
+      await viewSubscriptionDetails(userId);
+      break;
+    case 'cancel':
+      await cancelSubscription(userId);
+      break;
+  }
+}
+
+// Function to assign a subscription plan
+async function assignSubscriptionPlan(userId) {
+  console.log(chalk.blue('\n📋 Available Subscription Plans:'));
+
+  // Show available plans
+  const plans = await sql`
+    SELECT id, name, display_name, plan_type, price_monthly_cents, price_yearly_cents, is_active
+    FROM subscription_plans 
+    WHERE is_active = true
+    ORDER BY sort_order, name
+  `;
+
+  if (plans.length === 0) {
+    console.log(chalk.yellow('⚠️ No subscription plans available'));
+    return;
+  }
+
+  plans.forEach((plan, index) => {
+    const monthlyPrice = plan.price_monthly_cents ? `$${(plan.price_monthly_cents / 100).toFixed(2)}/mo` : 'Free';
+    const yearlyPrice = plan.price_yearly_cents ? `$${(plan.price_yearly_cents / 100).toFixed(2)}/yr` : '';
+    const pricing = yearlyPrice ? `${monthlyPrice} (${yearlyPrice})` : monthlyPrice;
+    
+    console.log(chalk.cyan(`${index + 1}. ${plan.display_name} (${plan.name}) - ${pricing} [${plan.plan_type}]`));
+  });
+
+  const planChoice = await prompt(chalk.yellow(`\nSelect plan (1-${plans.length}): `));
+  const planIndex = parseInt(planChoice) - 1;
+
+  if (planIndex < 0 || planIndex >= plans.length) {
+    console.error(chalk.red('❌ Invalid plan selection'));
+    return;
+  }
+
+  const selectedPlan = plans[planIndex];
+
+  // Get billing cycle
+  let billingCycle = null;
+  if (selectedPlan.price_monthly_cents || selectedPlan.price_yearly_cents) {
+    console.log(chalk.blue('\n💰 Billing Options:'));
+    const billingOptions = [];
+    
+    if (selectedPlan.price_monthly_cents) billingOptions.push('monthly');
+    if (selectedPlan.price_yearly_cents) billingOptions.push('yearly');
+    billingOptions.push('lifetime', 'trial');
+
+    billingOptions.forEach((option, index) => {
+      console.log(chalk.cyan(`${index + 1}. ${option}`));
+    });
+
+    const billingChoice = await prompt(chalk.yellow(`\nSelect billing cycle (1-${billingOptions.length}): `));
+    const billingIndex = parseInt(billingChoice) - 1;
+
+    if (billingIndex >= 0 && billingIndex < billingOptions.length) {
+      billingCycle = billingOptions[billingIndex];
+    }
+  }
+
+  // Get assignment reason
+  const reason = await prompt(chalk.yellow('Assignment reason: '));
+
+  // Get expiration date if needed
+  let expiresAt = null;
+  if (billingCycle && billingCycle !== 'lifetime') {
+    const expirationInput = await prompt(chalk.yellow('Expiration date (YYYY-MM-DD or "never"): '));
+    if (expirationInput && expirationInput !== 'never') {
+      expiresAt = new Date(expirationInput);
+    }
+  }
+
+  // Confirm assignment
+  console.log(chalk.blue('\n📋 Assignment Summary:'));
+  console.log(`Plan: ${selectedPlan.display_name}`);
+  console.log(`Billing: ${billingCycle || 'N/A'}`);
+  console.log(`Expires: ${expiresAt ? expiresAt.toLocaleDateString() : 'Never'}`);
+  console.log(`Reason: ${reason}`);
+
+  const confirm = await prompt(chalk.red('\nConfirm assignment? (yes/no): '));
+  if (confirm.toLowerCase() !== 'yes') {
+    console.log(chalk.yellow('❌ Assignment cancelled'));
+    return;
+  }
+
+  // Get current session user ID for assigned_by
+  const sessionUser = await sql`SELECT id FROM users LIMIT 1`; // In real app, this would be the current admin user
+  const assignedBy = sessionUser[0]?.id;
+
+  // Insert subscription
+  await sql`
+    INSERT INTO user_subscriptions (
+      user_id, plan_id, status, billing_cycle, expires_at, 
+      assigned_by, assignment_reason
+    ) VALUES (
+      ${userId}, ${selectedPlan.id}, 'active', ${billingCycle}, 
+      ${expiresAt}, ${assignedBy}, ${reason}
+    )
+  `;
+
+  console.log(chalk.green('✅ Subscription assigned successfully!'));
+  await displayUserInfo(userId);
+}
+
+// Function to view detailed subscription information
+async function viewSubscriptionDetails(userId) {
+  console.log(chalk.blue('\n📊 Detailed Subscription Information:'));
+
+  // Get all subscriptions (active and inactive)
+  const subscriptions = await sql`
+    SELECT us.*, sp.name as plan_name, sp.display_name as plan_display_name,
+           sp.plan_type, sp.price_monthly_cents, sp.price_yearly_cents,
+           u.name as assigned_by_name
+    FROM user_subscriptions us
+    JOIN subscription_plans sp ON us.plan_id = sp.id
+    LEFT JOIN users u ON us.assigned_by = u.id
+    WHERE us.user_id = ${userId}
+    ORDER BY us.created_at DESC
+  `;
+
+  if (subscriptions.length === 0) {
+    console.log(chalk.yellow('⚠️ No subscriptions found'));
+    return;
+  }
+
+  console.table(subscriptions);
+
+  // Get detailed usage for active subscriptions
+  const activeSubscriptions = subscriptions.filter(s => ['active', 'trialing'].includes(s.status));
+  
+  if (activeSubscriptions.length > 0) {
+    console.log(chalk.blue('\n📈 Usage Details for Active Subscriptions:'));
+    
+    for (const sub of activeSubscriptions) {
+      console.log(chalk.cyan(`\n🎯 ${sub.plan_display_name}:`));
+      
+      // Get usage data
+      const usage = await sql`
+        SELECT ss.display_name as service, sf.display_name as feature,
+               su.usage_date, su.usage_count, su.usage_value
+        FROM subscription_usage su
+        JOIN subscription_services ss ON su.service_id = ss.id
+        LEFT JOIN subscription_features sf ON su.feature_id = sf.id
+        WHERE su.subscription_id = ${sub.id}
+        ORDER BY su.usage_date DESC, ss.name
+        LIMIT 20
+      `;
+
+      if (usage.length > 0) {
+        console.table(usage);
+      } else {
+        console.log(chalk.gray('   No usage data found'));
+      }
+    }
+  }
+}
+
+// Function to modify existing subscription
+async function modifySubscription(userId) {
+  // Get active subscriptions
+  const subscriptions = await sql`
+    SELECT us.*, sp.name as plan_name, sp.display_name as plan_display_name
+    FROM user_subscriptions us
+    JOIN subscription_plans sp ON us.plan_id = sp.id
+    WHERE us.user_id = ${userId}
+    AND us.status IN ('active', 'trialing')
+    ORDER BY us.created_at DESC
+  `;
+
+  if (subscriptions.length === 0) {
+    console.log(chalk.yellow('⚠️ No active subscriptions to modify'));
+    return;
+  }
+
+  console.log(chalk.blue('\n📋 Active Subscriptions:'));
+  subscriptions.forEach((sub, index) => {
+    console.log(chalk.cyan(`${index + 1}. ${sub.plan_display_name} (${sub.status})`));
+  });
+
+  const choice = await prompt(chalk.yellow(`\nSelect subscription to modify (1-${subscriptions.length}): `));
+  const subIndex = parseInt(choice) - 1;
+
+  if (subIndex < 0 || subIndex >= subscriptions.length) {
+    console.error(chalk.red('❌ Invalid subscription selection'));
+    return;
+  }
+
+  const selectedSub = subscriptions[subIndex];
+
+  console.log(chalk.blue('\n🔧 Modification Options:'));
+  console.log('1. Change status');
+  console.log('2. Extend expiration date');
+  console.log('3. Add assignment reason/note');
+
+  const modChoice = await prompt(chalk.yellow('\nSelect modification (1-3): '));
+
+  switch (modChoice) {
+    case '1': {
+      const newStatus = await prompt(chalk.yellow('New status (active/cancelled/expired/suspended/trialing): '));
+      if (['active', 'cancelled', 'expired', 'suspended', 'trialing'].includes(newStatus)) {
+        await sql`UPDATE user_subscriptions SET status = ${newStatus} WHERE id = ${selectedSub.id}`;
+        console.log(chalk.green('✅ Status updated successfully!'));
+      } else {
+        console.error(chalk.red('❌ Invalid status'));
+      }
+      break;
+    }
+    
+    case '2': {
+      const newExpiration = await prompt(chalk.yellow('New expiration date (YYYY-MM-DD or "never"): '));
+      const expiresAt = newExpiration === 'never' ? null : new Date(newExpiration);
+      await sql`UPDATE user_subscriptions SET expires_at = ${expiresAt} WHERE id = ${selectedSub.id}`;
+      console.log(chalk.green('✅ Expiration updated successfully!'));
+      break;
+    }
+    
+    case '3': {
+      const newReason = await prompt(chalk.yellow('Additional reason/note: '));
+      const currentReason = selectedSub.assignment_reason || '';
+      const updatedReason = currentReason ? `${currentReason}\n[Update] ${newReason}` : newReason;
+      await sql`UPDATE user_subscriptions SET assignment_reason = ${updatedReason} WHERE id = ${selectedSub.id}`;
+      console.log(chalk.green('✅ Reason updated successfully!'));
+      break;
+    }
+    
+    default:
+      console.error(chalk.red('❌ Invalid choice'));
+  }
+}
+
+// Function to cancel subscription
+async function cancelSubscription(userId) {
+  // Get active subscriptions
+  const subscriptions = await sql`
+    SELECT us.*, sp.name as plan_name, sp.display_name as plan_display_name
+    FROM user_subscriptions us
+    JOIN subscription_plans sp ON us.plan_id = sp.id
+    WHERE us.user_id = ${userId}
+    AND us.status = 'active'
+    ORDER BY us.created_at DESC
+  `;
+
+  if (subscriptions.length === 0) {
+    console.log(chalk.yellow('⚠️ No active subscriptions to cancel'));
+    return;
+  }
+
+  console.log(chalk.blue('\n📋 Active Subscriptions:'));
+  subscriptions.forEach((sub, index) => {
+    console.log(chalk.cyan(`${index + 1}. ${sub.plan_display_name}`));
+  });
+
+  const choice = await prompt(chalk.yellow(`\nSelect subscription to cancel (1-${subscriptions.length}): `));
+  const subIndex = parseInt(choice) - 1;
+
+  if (subIndex < 0 || subIndex >= subscriptions.length) {
+    console.error(chalk.red('❌ Invalid subscription selection'));
+    return;
+  }
+
+  const selectedSub = subscriptions[subIndex];
+  const reason = await prompt(chalk.yellow('Cancellation reason: '));
+
+  const confirm = await prompt(chalk.red(`\nConfirm cancellation of "${selectedSub.plan_display_name}"? (yes/no): `));
+  
+  if (confirm.toLowerCase() === 'yes') {
+    const currentReason = selectedSub.assignment_reason || '';
+    const updatedReason = currentReason ? `${currentReason}\n[Cancelled] ${reason}` : `[Cancelled] ${reason}`;
+    
+    await sql`
+      UPDATE user_subscriptions 
+      SET status = 'cancelled', 
+          cancelled_at = NOW(),
+          assignment_reason = ${updatedReason}
+      WHERE id = ${selectedSub.id}
+    `;
+    
+    console.log(chalk.green('✅ Subscription cancelled successfully!'));
+  } else {
+    console.log(chalk.yellow('❌ Cancellation aborted'));
+  }
+}
+
 // Function to get user ID (either by ID or username lookup)
 async function getUserId(cmdLineArg = null) {
   // If command line argument provided, auto-determine lookup method
@@ -1356,8 +1814,14 @@ async function manageUser() {
         icon: '😀'
       },
       5: {
+        name: 'Subscription Management',
+        description: 'Manage user subscriptions, plans, and usage',
+        table: 'user_subscriptions',
+        icon: '💳'
+      },
+      6: {
         name: 'View Reference Data',
-        description: 'Show available roles, permissions, and categories',
+        description: 'Show available roles, permissions, plans, and categories',
         table: null,
         icon: '📖'
       }
@@ -1369,17 +1833,17 @@ async function manageUser() {
       console.log(chalk.gray(`   ${option.description}`));
     });
 
-    const choice = await prompt(chalk.yellow('\nSelect option (1-5): '));
+    const choice = await prompt(chalk.yellow('\nSelect option (1-6): '));
 
     if (!updateOptions[choice]) {
-      console.error(chalk.red('❌ Invalid choice. Please select 1-5'));
+      console.error(chalk.red('❌ Invalid choice. Please select 1-6'));
       return;
     }
 
     const selectedOption = updateOptions[choice];
 
     // Handle special case for reference data
-    if (choice === '5') {
+    if (choice === '6') {
       await showReferenceData();
       return;
     }
@@ -1404,6 +1868,9 @@ async function manageUser() {
         break;
       case '4':
         await handleCustomEmojis(userId, user);
+        break;
+      case '5':
+        await handleSubscriptionManagement(userId, user);
         break;
     }
   } catch (error) {

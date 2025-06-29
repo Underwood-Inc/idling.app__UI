@@ -1,0 +1,51 @@
+/* ================================
+  USER MANAGEMENT PANEL - BASE STYLES
+  ================================ */
+
+.user-management-panel {
+  padding: var(--spacing-xl-cozy);
+  background: var(--dark-background--primary);
+  border-radius: var(--border-radius);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  max-width: 100%;
+  overflow: hidden;
+}
+
+/* ================================
+  LOADING & ERROR STATES
+  ================================ */
+
+.loading-state,
+.error-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-xl-cozy);
+  text-align: center;
+  gap: var(--spacing-cozy);
+}
+
+.loading-spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid var(--dark-background--tertiary);
+  border-top: 3px solid var(--brand-primary);
+  border-radius: 50%;
+  animation: loading-spin 1s linear infinite;
+}
+
+@keyframes loading-spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.error-state p {
+  color: var(--error);
+  font-weight: 500;
+  margin-bottom: var(--spacing-cozy);
+}

@@ -48,7 +48,7 @@ export function WelcomeInterface({
           </button>
 
           <button
-            onClick={() => setLoadGenerationId('')}
+            onClick={() => setLoadGenerationId(' ')}
             className={`${styles.path__button__large} ${styles.path__button__load}`}
           >
             <div className={styles.button__icon}>🔍</div>

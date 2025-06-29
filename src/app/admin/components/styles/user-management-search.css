@@ -1,0 +1,157 @@
+/* ================================
+  USER MANAGEMENT PANEL - SEARCH OVERLAY
+ ================================ */
+
+.user-search-overlay-content {
+  background: var(--tooltip-glass-bg) !important;
+  border: 1px solid var(--tooltip-glass-border) !important;
+  border-radius: var(--border-radius);
+  backdrop-filter: var(--tooltip-glass-blur) !important;
+  -webkit-backdrop-filter: var(--tooltip-glass-blur) !important;
+  box-shadow: var(--tooltip-glass-shadow) !important;
+  color: white;
+  min-width: 320px;
+  max-width: 400px;
+  max-height: 300px;
+  overflow: visible;
+  padding: 0;
+}
+
+.search-overlay-loading,
+.search-overlay-no-results {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 16px;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+.search-overlay-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 12px 16px;
+  border: none;
+  background: none;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  color: white;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.search-overlay-item:last-child {
+  border-bottom: none;
+}
+
+.search-overlay-item:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Search Result Avatars */
+.search-result-avatars {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.search-result-provider-avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.search-result-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.search-result-name {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: white;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.search-result-email {
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.7);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.search-result-roles {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  margin-top: 4px;
+}
+
+.role-badge--small {
+  font-size: 0.7rem;
+  padding: 2px 6px;
+  border-radius: 10px;
+}
+
+/* ================================
+   DARK MODE SUPPORT
+   ================================ */
+
+@media (prefers-color-scheme: dark) {
+  .user-search-overlay-content {
+    background: var(--tooltip-glass-bg) !important;
+    border: 1px solid var(--tooltip-glass-border) !important;
+    color: white;
+  }
+
+  .search-overlay-loading,
+  .search-overlay-no-results {
+    color: rgba(255, 255, 255, 0.8);
+  }
+
+  .search-overlay-item {
+    color: white;
+    border-bottom-color: rgba(255, 255, 255, 0.1);
+  }
+
+  .search-overlay-item:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+
+  .search-result-name {
+    color: white;
+  }
+
+  .search-result-email {
+    color: rgba(255, 255, 255, 0.7);
+  }
+}
+
+/* ================================
+  HIGH CONTRAST MODE SUPPORT
+  ================================ */
+
+@media (prefers-contrast: high) {
+  .user-search-overlay-content {
+    border-width: 2px;
+    background: var(--tooltip-glass-bg) !important;
+    border-color: var(--tooltip-glass-border) !important;
+  }
+
+  .search-overlay-item {
+    border-bottom-width: 2px;
+  }
+}

@@ -1,46 +1,155 @@
 /**
  * Admin Emoji Management API
- * Handles emoji approval, rejection, and management using server actions
+ * Handles comprehensive emoji management including approval, rejection, deletion, and filtering
  */
 
+import { checkUserPermission } from '@/lib/actions/permissions.actions';
+import { auth } from '@/lib/auth';
+import sql from '@/lib/db';
+import { PERMISSIONS } from '@/lib/permissions/permissions';
 import { NextRequest, NextResponse } from 'next/server';
 import {
-  approveCustomEmoji,
-  deleteCustomEmoji,
-  getPendingCustomEmojis,
-  rejectCustomEmoji
+    approveCustomEmoji,
+    deleteCustomEmoji,
+    getPendingCustomEmojis,
+    rejectCustomEmoji
 } from '../../../../lib/actions/emoji.actions';
 
 interface CustomEmoji {
   id: number;
   name: string;
-  display_name: string;
+  description: string;
   category: string;
-  created_by: number;
+  user_id: number;
   created_at: string;
   creator_email: string;
   image_data: string | null;
+  approval_status?: 'pending' | 'approved' | 'rejected';
+  reviewed_by?: number;
+  reviewed_at?: string;
+  review_notes?: string;
 }
 
-// GET /api/admin/emojis - Get emojis for admin review
+// GET /api/admin/emojis - Get emojis for admin management
 export async function GET(request: NextRequest) {
   try {
+    const session = await auth();
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const userId = parseInt(session.user.id);
+
+    // Check if user has permission to view emojis
+    const hasPermission = await checkUserPermission(
+      userId,
+      PERMISSIONS.ADMIN.EMOJI_APPROVE
+    );
+    if (!hasPermission) {
+      return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 });
+    }
+
     const { searchParams } = new URL(request.url);
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '20');
+    const status = searchParams.get('status') || 'pending';
+    const search = searchParams.get('search') || '';
     const offset = (page - 1) * limit;
 
-    // Get pending emojis using server action
-    const emojis = await getPendingCustomEmojis(limit, offset);
+    let emojis: CustomEmoji[] = [];
+    let totalCount = 0;
+
+    if (status === 'pending' || status === 'all') {
+      // Get pending emojis using existing server action
+      const pendingEmojis = await getPendingCustomEmojis(limit, offset);
+      emojis = pendingEmojis.map(emoji => ({
+        ...emoji,
+        approval_status: 'pending' as const
+      }));
+    }
+
+    if (status === 'approved' || status === 'rejected' || status === 'all') {
+      // Build where clause for approved/rejected emojis
+      let whereClause = sql`WHERE ce.is_approved IS NOT NULL`;
+      
+      if (status === 'approved') {
+        whereClause = sql`${whereClause} AND ce.is_approved = true`;
+      } else if (status === 'rejected') {
+        whereClause = sql`${whereClause} AND ce.is_approved = false`;
+      }
+
+      if (search) {
+        const searchTerm = `%${search.toLowerCase()}%`;
+        whereClause = sql`${whereClause} AND (
+          LOWER(ce.name) LIKE ${searchTerm} OR 
+          LOWER(ce.description) LIKE ${searchTerm} OR
+          LOWER(u.email) LIKE ${searchTerm}
+        )`;
+      }
+
+      // Get approved/rejected emojis
+      const approvedRejectedEmojis = await sql<CustomEmoji[]>`
+        SELECT 
+          ce.id, ce.name, ce.description, ce.encrypted_image_data,
+          ce.category_id::text as category, ce.user_id, ce.created_at,
+          u.email as creator_email,
+          CASE 
+            WHEN ce.is_approved = true THEN 'approved'
+            WHEN ce.is_approved = false THEN 'rejected'
+            ELSE 'pending'
+          END as approval_status,
+          ce.approved_by as reviewed_by,
+          ce.approved_at as reviewed_at
+        FROM custom_emojis ce
+        JOIN users u ON ce.user_id = u.id
+        ${whereClause}
+        ORDER BY ce.created_at DESC
+        LIMIT ${limit} OFFSET ${offset}
+      `;
+
+      if (status === 'all') {
+        emojis = [...emojis, ...approvedRejectedEmojis];
+      } else {
+        emojis = approvedRejectedEmojis;
+      }
+    }
+
+    // Apply search filter to pending emojis if needed
+    if (search && (status === 'pending' || status === 'all')) {
+      emojis = emojis.filter(emoji => 
+        emoji.name.toLowerCase().includes(search.toLowerCase()) ||
+        emoji.description?.toLowerCase().includes(search.toLowerCase()) ||
+        emoji.creator_email.toLowerCase().includes(search.toLowerCase())
+      );
+    }
+
+    // Get total count for pagination
+    if (status === 'all') {
+      const countResult = await sql<{ count: number }[]>`
+        SELECT COUNT(*) as count FROM custom_emojis
+      `;
+      totalCount = countResult[0]?.count || 0;
+    } else if (status === 'pending') {
+      const countResult = await sql<{ count: number }[]>`
+        SELECT COUNT(*) as count FROM custom_emojis WHERE is_approved IS NULL
+      `;
+      totalCount = countResult[0]?.count || 0;
+    } else {
+      const countResult = await sql<{ count: number }[]>`
+        SELECT COUNT(*) as count FROM custom_emojis 
+        WHERE is_approved = ${status === 'approved'}
+      `;
+      totalCount = countResult[0]?.count || 0;
+    }
 
     return NextResponse.json({
       emojis,
       pagination: {
         page,
         limit,
-        total: emojis.length,
-        totalPages: Math.ceil(emojis.length / limit),
-        hasNext: emojis.length === limit,
+        total: totalCount,
+        totalPages: Math.ceil(totalCount / limit),
+        hasNext: offset + limit < totalCount,
         hasPrev: page > 1
       }
     });

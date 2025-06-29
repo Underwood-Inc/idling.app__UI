@@ -23,18 +23,18 @@ export function QuotaDisplay({
             <div className={styles.quota__bar}>
               <div
                 className={styles.quota__fill}
-                style={{ width: `${(remainingGenerations / 10) * 100}%` }}
+                style={{ width: `${(remainingGenerations / 1) * 100}%` }}
               />
             </div>
             <span className={styles.quota__text}>
               {hasInitializedQuota
-                ? `${remainingGenerations}/10 enchantments today`
+                ? `${remainingGenerations}/1 enchantment today`
                 : 'Channeling energy...'}
             </span>
           </div>
         ) : (
           <span className={styles.quota__text}>
-            {remainingGenerations}/10 spells remaining
+            {remainingGenerations}/1 spell remaining
           </span>
         )}
         {isQuotaExceeded && (
