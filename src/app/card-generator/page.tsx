@@ -3,152 +3,142 @@
 import { useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import FadeIn from '../components/fade-in/FadeIn';
+import { PageAside } from '../components/page-aside/PageAside';
 import { PageContainer } from '../components/page-container/PageContainer';
 import PageContent from '../components/page-content/PageContent';
 import PageHeader from '../components/page-header/PageHeader';
+import { AspectRatioSelector } from './components/AspectRatioSelector';
+import { GenerationDisplay } from './components/GenerationDisplay';
+import { GenerationForm } from './components/GenerationForm';
+import { QuotaDisplay } from './components/QuotaDisplay';
+import { WelcomeInterface } from './components/WelcomeInterface';
+import { ASPECT_RATIO_OPTIONS } from './constants/aspectRatios';
+import { useFormState } from './hooks/useFormState';
+import { useGenerationLoader } from './hooks/useGenerationLoader';
+import { useImageGeneration } from './hooks/useImageGeneration';
+import { useQuotaTracking } from './hooks/useQuotaTracking';
+import { useWelcomeFlow } from './hooks/useWelcomeFlow';
 import styles from './page.module.css';
+import {
+  convertSvgToPng,
+  downloadFile,
+  generateFilename
+} from './utils/fileUtils';
 
 export default function OgImageViewer() {
   const searchParams = useSearchParams();
+
+  // Core state
   const [svgContent, setSvgContent] = useState<string>('');
-  const [isLoading, setIsLoading] = useState(true);
+  const [selectedRatio, setSelectedRatio] = useState<string>('default');
+  const [currentGenerationId, setCurrentGenerationId] = useState<string>('');
   const [error, setError] = useState<string>('');
 
-  // Build API URL with current search params
-  const buildApiUrl = () => {
-    const apiUrl = new URL('/api/og-image', window.location.origin);
-    apiUrl.searchParams.set('direct', 'true'); // Bypass browser redirect
+  // Custom hooks for clean separation of concerns
+  const { formState, setFormState, updateField } = useFormState();
+  const [isFormCollapsed, setIsFormCollapsed] = useState(false);
+  const quotaState = useQuotaTracking();
+  const welcomeFlow = useWelcomeFlow();
+  const generationLoader = useGenerationLoader({
+    setFormState,
+    setSvgContent,
+    setSelectedRatio,
+    setError
+  });
 
-    // Forward all current search params
-    searchParams.forEach((value, key) => {
-      apiUrl.searchParams.set(key, value);
-    });
-
-    return apiUrl.toString();
-  };
-
-  // Fetch SVG content on mount
+  // Sync aspect ratio changes with form fields
   useEffect(() => {
-    const fetchSvg = async () => {
-      try {
-        setIsLoading(true);
-        const response = await fetch(buildApiUrl());
+    const aspectConfig = ASPECT_RATIO_OPTIONS.find(
+      (opt) => opt.key === selectedRatio
+    );
+    if (aspectConfig) {
+      updateField('customWidth', aspectConfig.width.toString());
+      updateField('customHeight', aspectConfig.height.toString());
+    }
+  }, [selectedRatio, updateField]);
 
-        if (!response.ok) {
-          throw new Error(`Failed to fetch SVG: ${response.statusText}`);
+  // Image generation hook
+  const { isGenerating, generationOptions, handleGenerate, handleRandomize } =
+    useImageGeneration({
+      currentSeed: formState.currentSeed,
+      avatarSeed: formState.avatarSeed,
+      selectedRatio,
+      customQuote: formState.customQuote,
+      customAuthor: formState.customAuthor,
+      customWidth: formState.customWidth,
+      customHeight: formState.customHeight,
+      shapeCount: formState.shapeCount,
+      isQuotaExceeded: quotaState.isQuotaExceeded,
+      setCurrentSeed: (seed) => updateField('currentSeed', seed),
+      setAvatarSeed: (seed) => updateField('avatarSeed', seed),
+      setCustomQuote: (quote) => updateField('customQuote', quote),
+      setCustomAuthor: (author) => updateField('customAuthor', author),
+      setCustomWidth: (width) => updateField('customWidth', width),
+      setCustomHeight: (height) => updateField('customHeight', height),
+      setShapeCount: (count) => updateField('shapeCount', count),
+      setCurrentGenerationId: (id) => {
+        setCurrentGenerationId(id);
+        // Auto-collapse form after successful generation
+        if (id) {
+          setIsFormCollapsed(true);
         }
-
-        const svgText = await response.text();
-        setSvgContent(svgText);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to load image');
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchSvg();
-  }, [searchParams]);
-
-  // Convert SVG to PNG using canvas
-  const convertSvgToPng = async (): Promise<Blob> => {
-    return new Promise((resolve, reject) => {
-      if (!svgContent) {
-        reject(new Error('No SVG content available'));
-        return;
-      }
-
-      // Create an image element
-      const img = new Image();
-      const canvas = document.createElement('canvas');
-      const ctx = canvas.getContext('2d');
-
-      if (!ctx) {
-        reject(new Error('Could not get canvas context'));
-        return;
-      }
-
-      img.onload = () => {
-        // Set canvas dimensions to match the SVG
-        canvas.width = 1200;
-        canvas.height = 630;
-
-        // Draw the SVG image onto the canvas
-        ctx.drawImage(img, 0, 0);
-
-        // Convert canvas to blob
-        canvas.toBlob((blob) => {
-          if (blob) {
-            resolve(blob);
-          } else {
-            reject(new Error('Failed to create PNG blob'));
-          }
-        }, 'image/png');
-      };
-
-      img.onerror = () => {
-        reject(new Error('Failed to load SVG as image'));
-      };
-
-      // Convert SVG to data URL
-      const svgBlob = new Blob([svgContent], { type: 'image/svg+xml' });
-      const svgUrl = URL.createObjectURL(svgBlob);
-      img.src = svgUrl;
+      },
+      setRemainingGenerations: quotaState.updateQuota,
+      setHasInitializedQuota: () => {}, // Handled by quota hook
+      setSvgContent
     });
+
+  // Handle copy generation ID
+  const handleCopyId = () => {
+    navigator.clipboard.writeText(currentGenerationId);
   };
 
-  // Download file
-  const downloadFile = (blob: Blob, filename: string) => {
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = filename;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
-  };
+  // Load generation by ID from URL (only for direct links)
+  useEffect(() => {
+    const generationIdFromUrl = searchParams.get('id');
+    if (generationIdFromUrl && generationIdFromUrl !== currentGenerationId) {
+      generationLoader.loadGeneration(generationIdFromUrl).then((id) => {
+        if (id) {
+          setCurrentGenerationId(id);
+        }
+      });
+    }
+  }, [searchParams, currentGenerationId]);
 
-  // Generate filename
-  const generateFilename = (type: 'png' | 'svg') => {
-    const timestamp = new Date()
-      .toISOString()
-      .slice(0, 19)
-      .replace(/[:.]/g, '-');
-    const seed = searchParams.get('seed');
-    const baseName = seed ? `og-image-${seed}` : `og-image-${timestamp}`;
-    return `${baseName}.${type}`;
-  };
-
-  // Handle save as PNG
+  // Download handlers
   const handleSaveAsPng = async () => {
     try {
-      const pngBlob = await convertSvgToPng();
-      downloadFile(pngBlob, generateFilename('png'));
+      const pngBlob = await convertSvgToPng(svgContent);
+      downloadFile(
+        pngBlob,
+        generateFilename('png', formState.currentSeed, selectedRatio)
+      );
     } catch (err) {
-      console.error('Failed to convert to PNG:', err);
-      alert('Failed to save as PNG. Please try again.');
+      setError('Failed to convert to PNG. Please try again.');
     }
   };
 
-  // Handle save as SVG
   const handleSaveAsSvg = () => {
     if (!svgContent) {
-      alert('No SVG content available');
+      setError('No SVG content available');
       return;
     }
 
     const svgBlob = new Blob([svgContent], { type: 'image/svg+xml' });
-    downloadFile(svgBlob, generateFilename('svg'));
+    downloadFile(
+      svgBlob,
+      generateFilename('svg', formState.currentSeed, selectedRatio)
+    );
   };
 
-  if (isLoading) {
+  // Loading states
+  if (generationLoader.isLoading) {
     return (
       <PageContainer>
         <PageHeader>
           <FadeIn>
             <h2>Card Generator</h2>
-            <p>Loading image...</p>
+            <p>Loading generation...</p>
           </FadeIn>
         </PageHeader>
       </PageContainer>
@@ -161,7 +151,13 @@ export default function OgImageViewer() {
         <PageHeader>
           <FadeIn>
             <h2>Card Generator</h2>
-            <p>Error loading image: {error}</p>
+            <p>Error: {error}</p>
+            <button
+              onClick={() => setError('')}
+              className={styles.header__button}
+            >
+              Try Again
+            </button>
           </FadeIn>
         </PageHeader>
       </PageContainer>
@@ -172,45 +168,188 @@ export default function OgImageViewer() {
     <PageContainer>
       <PageHeader>
         <FadeIn>
-          <div className={styles.header__content}>
+          <div
+            className={`${styles.header__content} ${welcomeFlow.showWelcome ? styles.header__centered : ''}`}
+          >
             <div className={styles.header__text}>
-              <h2>Card Generator</h2>
+              <h1>🧙‍♂️ Mystical Card Generator</h1>
               <p>
-                Generate beautiful social media cards with quotes and avatars
+                {welcomeFlow.showWelcome
+                  ? 'Harness ancient wisdom to forge enchanted social media cards'
+                  : 'Channel mystical energies into beautiful social media cards'}
               </p>
             </div>
-            <div className={styles.header__buttons}>
-              <button
-                onClick={handleSaveAsPng}
-                className={styles.header__button}
-                title="PNG - Raster image, best for social media"
-              >
-                📥 PNG
-              </button>
-              <button
-                onClick={handleSaveAsSvg}
-                className={styles.header__button}
-                title="SVG - Vector image, scalable and smaller"
-              >
-                📥 SVG
-              </button>
-            </div>
+
+            {!welcomeFlow.showWelcome && (
+              <div className={styles.header__controls}>
+                <AspectRatioSelector
+                  selectedRatio={selectedRatio}
+                  onRatioChange={setSelectedRatio}
+                  options={ASPECT_RATIO_OPTIONS}
+                  disabled={quotaState.isQuotaExceeded}
+                />
+                <div className={styles.header__buttons}>
+                  <button
+                    onClick={welcomeFlow.returnToWelcome}
+                    className={styles.header__button}
+                    title="Back to welcome"
+                  >
+                    ← Welcome
+                  </button>
+                  <button
+                    onClick={handleSaveAsPng}
+                    className={styles.header__button}
+                    title="PNG - Raster image, best for social media"
+                    disabled={!svgContent}
+                  >
+                    📥 PNG
+                  </button>
+                  <button
+                    onClick={handleSaveAsSvg}
+                    className={styles.header__button}
+                    title="SVG - Vector image, scalable and smaller"
+                    disabled={!svgContent}
+                  >
+                    📥 SVG
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </FadeIn>
       </PageHeader>
 
       <PageContent>
-        <article className={styles.viewer__container}>
-          <FadeIn className={styles.viewer__container_fade}>
-            <div className={styles.image__wrapper}>
-              <div
-                className={styles.og__image}
-                dangerouslySetInnerHTML={{ __html: svgContent }}
-              />
-            </div>
+        {welcomeFlow.showWelcome ? (
+          <FadeIn>
+            <WelcomeInterface
+              remainingGenerations={quotaState.remainingGenerations}
+              hasInitializedQuota={quotaState.hasInitializedQuota}
+              isQuotaExceeded={quotaState.isQuotaExceeded}
+              loadGenerationId={welcomeFlow.loadGenerationId}
+              setLoadGenerationId={welcomeFlow.setLoadGenerationId}
+              onNewGeneration={welcomeFlow.handleNewGeneration}
+              onLoadGeneration={welcomeFlow.handleLoadGeneration}
+            />
           </FadeIn>
-        </article>
+        ) : (
+          <article className={styles.viewer__container}>
+            <FadeIn className={styles.viewer__container_fade}>
+              <GenerationForm
+                currentSeed={formState.currentSeed}
+                setCurrentSeed={(seed) => updateField('currentSeed', seed)}
+                avatarSeed={formState.avatarSeed}
+                setAvatarSeed={(seed) => updateField('avatarSeed', seed)}
+                customQuote={formState.customQuote}
+                setCustomQuote={(quote) => updateField('customQuote', quote)}
+                customAuthor={formState.customAuthor}
+                setCustomAuthor={(author) =>
+                  updateField('customAuthor', author)
+                }
+                customWidth={formState.customWidth}
+                setCustomWidth={(width) => updateField('customWidth', width)}
+                customHeight={formState.customHeight}
+                setCustomHeight={(height) =>
+                  updateField('customHeight', height)
+                }
+                shapeCount={formState.shapeCount}
+                setShapeCount={(count) => updateField('shapeCount', count)}
+                isQuotaExceeded={quotaState.isQuotaExceeded}
+                isGenerating={isGenerating}
+                onGenerate={handleGenerate}
+                onRandomize={handleRandomize}
+                isCollapsed={isFormCollapsed}
+                onToggleCollapse={() => setIsFormCollapsed(!isFormCollapsed)}
+                generationOptions={generationOptions}
+              />
+
+              <GenerationDisplay
+                generationId={currentGenerationId}
+                svgContent={svgContent}
+                onCopyId={handleCopyId}
+              />
+            </FadeIn>
+          </article>
+        )}
       </PageContent>
+
+      <PageAside className={styles.features_aside} bottomMargin={10}>
+        <FadeIn>
+          <QuotaDisplay
+            remainingGenerations={quotaState.remainingGenerations}
+            hasInitializedQuota={quotaState.hasInitializedQuota}
+            isQuotaExceeded={quotaState.isQuotaExceeded}
+            showMeter={welcomeFlow.showWelcome}
+          />
+
+          {/* Mystical Codex */}
+          <div className={styles.features__section}>
+            <h3>📜 Arcane Knowledge</h3>
+            <div className={styles.features__grid}>
+              <div className={styles.feature__card}>
+                <h4>
+                  <span className={styles.feature__icon}>🎯</span>
+                  Pro Tips
+                </h4>
+                <p>
+                  Use custom seeds for reproducible results. Save your
+                  Generation ID to recreate cards later!
+                </p>
+              </div>
+              <div className={styles.feature__card}>
+                <h4>
+                  <span className={styles.feature__icon}>⚙️</span>
+                  Advanced Magic
+                </h4>
+                <p>
+                  Unlock custom quotes, dimensions, and shape counts with Pro
+                  subscription for unlimited creativity.
+                </p>
+              </div>
+              <div className={styles.feature__card}>
+                <h4>
+                  <span className={styles.feature__icon}>📱</span>
+                  Perfect Formats
+                </h4>
+                <p>
+                  Choose from 7+ aspect ratios: Instagram, YouTube, LinkedIn,
+                  Twitter, Facebook, and more!
+                </p>
+              </div>
+              <div className={styles.feature__card}>
+                <h4>
+                  <span className={styles.feature__icon}>💾</span>
+                  Export Options
+                </h4>
+                <p>
+                  Download as PNG for social media or SVG for scalable vector
+                  graphics. Both formats supported!
+                </p>
+              </div>
+              <div className={styles.feature__card}>
+                <h4>
+                  <span className={styles.feature__icon}>🔄</span>
+                  Generation History
+                </h4>
+                <p>
+                  Every creation gets a unique ID. Load previous generations
+                  anytime using the ID lookup feature.
+                </p>
+              </div>
+              <div className={styles.feature__card}>
+                <h4>
+                  <span className={styles.feature__icon}>🎨</span>
+                  Sacred Geometry
+                </h4>
+                <p>
+                  Algorithmically generated patterns based on mathematical
+                  principles and mystical symbolism.
+                </p>
+              </div>
+            </div>
+          </div>
+        </FadeIn>
+      </PageAside>
     </PageContainer>
   );
 }
