@@ -266,6 +266,14 @@ export default function RootLayout({
           content="Idling App"
         />
         <meta key="app-version" name="app-version" content="0.256.1" />
+
+        {/* Google AdSense */}
+        <script
+          async
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3757286003859686"
+          // @ts-ignore - google adsense
+          crossorigin="anonymous"
+        ></script>
       </head>
 
       <body className={inter.className}>
