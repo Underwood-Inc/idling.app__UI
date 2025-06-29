@@ -33,6 +33,7 @@
     "test:og-tracking": "node scripts/test-og-tracking.js",
     "migrate:og-generations": "node scripts/run-migration.js",
     "manage-user": "node scripts/manage-user.js",
+    "explore-db": "node scripts/explore-db.js",
     "prepare": "husky",
     "prettier": "prettier --write .",
     "release": "release-it",
