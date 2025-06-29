@@ -8,7 +8,8 @@ export function useQuotaTracking(): QuotaState & {
   const [remainingGenerations, setRemainingGenerations] = useState<number>(1);
   const [hasInitializedQuota, setHasInitializedQuota] = useState<boolean>(false);
 
-  const isQuotaExceeded = remainingGenerations <= 0;
+  // Don't show quota exceeded until we've actually initialized
+  const isQuotaExceeded = hasInitializedQuota && remainingGenerations <= 0;
 
   const updateQuota = (remaining: number) => {
     setRemainingGenerations(remaining);
@@ -24,10 +25,20 @@ export function useQuotaTracking(): QuotaState & {
         const data = await response.json();
         if (data.remainingGenerations !== undefined) {
           updateQuota(data.remainingGenerations);
+        } else {
+          // If no quota data, assume user has quota available
+          setRemainingGenerations(1);
+          setHasInitializedQuota(true);
         }
+      } else {
+        // If API fails, assume user has quota available
+        setRemainingGenerations(1);
+        setHasInitializedQuota(true);
       }
     } catch (error) {
-      // Continue with default
+      // On error, assume user has quota available
+      console.warn('Failed to initialize quota, assuming quota available:', error);
+      setRemainingGenerations(1);
       setHasInitializedQuota(true);
     }
   };

@@ -1,5 +1,19 @@
 import postgres from 'postgres';
 
+// Disable Cloudflare runtime detection in development
+if (process.env.NODE_ENV !== 'production') {
+  // Remove any Cloudflare-specific globals that might trigger socket detection
+  try {
+    if (typeof global !== 'undefined' && (global as any).navigator) {
+      delete (global as any).navigator;
+    }
+  } catch (e) {
+    // Ignore errors when trying to delete navigator
+  }
+  // Set environment variable to force Node.js networking
+  process.env.POSTGRES_FORCE_NODEJS = 'true';
+}
+
 const sql = postgres({
   host: process.env.POSTGRES_HOST,
   user: process.env.POSTGRES_USER,

@@ -32,6 +32,8 @@ export interface CreateOGGenerationParams {
   width: number;
   height: number;
   generationOptions?: any; // Full generation config object
+  machineFingerprint?: string;
+  fingerprintData?: any; // Full fingerprint data
 }
 
 interface OGGeneration {
@@ -102,9 +104,9 @@ export class DatabaseService {
           ${params.width}, ${params.height}, ${JSON.stringify(params.generationOptions || {})}
         )
         RETURNING id
-      `;
+              `;
 
-      return result[0]?.id || '';
+        return result[0]?.id || '';
     } catch (error) {
       console.error('Failed to record generation:', error);
       throw error;
@@ -146,12 +148,33 @@ export class DatabaseService {
     }
   }
 
-  public async getDailyGenerationCount(ipAddress: string): Promise<number> {
+  public async getDailyGenerationCount(ipAddress: string, machineFingerprint?: string): Promise<number> {
     if (!this.isDatabaseAvailable()) {
       return 0; // If database not available, allow generations
     }
 
     try {
+      // If we have a machine fingerprint, use fuzzy matching
+      if (machineFingerprint) {
+        const result = await sql<{ count: string }[]>`
+          SELECT COUNT(*) as count 
+          FROM og_generations 
+          WHERE (
+            client_ip = ${ipAddress} 
+            OR machine_fingerprint = ${machineFingerprint}
+            OR fingerprint_data->>'ipHash' = (
+              SELECT fingerprint_data->>'ipHash' 
+              FROM og_generations 
+              WHERE machine_fingerprint = ${machineFingerprint} 
+              LIMIT 1
+            )
+          )
+          AND created_at >= CURRENT_DATE
+        `;
+        return parseInt(result[0]?.count || '0', 10);
+      }
+      
+      // Fallback to IP-only checking
       const result = await sql<{ count: string }[]>`
         SELECT COUNT(*) as count 
         FROM og_generations 

@@ -1,51 +1,14 @@
 import { NextRequest } from 'next/server';
-import { rateLimitService } from '../../../lib/services/RateLimitService';
-import { formatRetryAfter } from '../../../lib/utils/timeFormatting';
 import { OGImageService } from './services/OGImageService';
 
-export const runtime = 'edge';
+export const runtime = 'nodejs';
 
 const ogImageService = new OGImageService();
 
 export async function GET(request: NextRequest) {
   try {
-    // Extract client information for database tracking
-    const clientIp =
-      request.headers.get('x-forwarded-for') ||
-      request.headers.get('x-real-ip') ||
-      'unknown';
-    const userAgent = request.headers.get('user-agent') || 'unknown';
-
-    // Check OG Image daily quota first
-    const ogLimiter = rateLimitService.createOGImageLimiter();
-    const remainingGenerations = await ogLimiter.checkDailyQuota(clientIp);
-
-    if (remainingGenerations <= 0) {
-      const resetTime = new Date(Date.now() + 86400 * 1000); // 24 hours from now
-      const retryAfterSeconds = 86400; // 24 hours in seconds
-      const humanTime = formatRetryAfter(retryAfterSeconds);
-
-      return new Response(
-        JSON.stringify({
-          error: `Daily generation limit exceeded. Try again in ${humanTime} or upgrade to Pro for unlimited generations.`,
-          retryAfter: retryAfterSeconds,
-          retryAfterHuman: humanTime,
-          remainingGenerations: 0,
-          quotaType: 'daily',
-          upgradeUrl: '/subscription'
-        }),
-        {
-          status: 429,
-          headers: {
-            'Content-Type': 'application/json',
-            'Retry-After': retryAfterSeconds.toString(),
-            'X-RateLimit-Limit': '1',
-            'X-RateLimit-Remaining': '0',
-            'X-RateLimit-Reset': resetTime.toISOString()
-          }
-        }
-      );
-    }
+    // Use the unified OGImageService which handles all quota checking internally
+    // This eliminates duplicate quota systems and ensures consistency
 
     const { searchParams } = new URL(request.url);
 
@@ -105,11 +68,8 @@ export async function GET(request: NextRequest) {
     // Check if this is a JSON format request
     const wantsJson = searchParams.get('format') === 'json';
 
-    // Generate the image with ALL parameters
+    // Generate the image with ALL parameters - handles quota checking and recording internally
     const result = await ogImageService.generateImage(request);
-
-    // Record successful generation for rate limiting
-    await ogLimiter.recordGeneration(clientIp);
 
     // Return JSON response if requested
     if (wantsJson) {
@@ -134,7 +94,7 @@ export async function GET(request: NextRequest) {
         'X-Generation-ID': result.generationId || '',
         'X-Dimensions': `${result.dimensions.width}x${result.dimensions.height}`,
         'X-Aspect-Ratio': result.aspectRatio,
-        'X-Remaining-Generations': remainingGenerations.toString(),
+        'X-Remaining-Generations': result.remainingGenerations.toString(),
 
         // User controls for frontend prefilling
         'X-Seed': customSeed || '',

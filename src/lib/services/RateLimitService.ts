@@ -120,11 +120,12 @@ export class RateLimitService {
   } as const;
 
   constructor() {
-    // Initialize database service for daily quotas
+    // Initialize database service for daily quotas - with better error handling
     try {
       this.databaseService = DatabaseService.getInstance();
     } catch (error) {
-      console.warn('Database service unavailable, falling back to memory-only rate limiting');
+      console.warn('Database service unavailable, falling back to memory-only rate limiting:', error);
+      this.databaseService = null;
     }
 
     // Clean up old entries every 5 minutes
@@ -259,6 +260,7 @@ export class RateLimitService {
     try {
       if (!this.databaseService) {
         // Fallback to memory if database unavailable
+        console.warn('Database service unavailable for rate limiting, falling back to memory');
         return this.checkMemoryRateLimit(identifier, config);
       }
 
@@ -279,7 +281,7 @@ export class RateLimitService {
         quotaType: 'daily'
       };
     } catch (error) {
-      console.error('Database rate limit check failed:', error);
+      console.warn('Database rate limit check failed, falling back to memory:', error);
       // Graceful fallback to memory-based limiting
       return this.checkMemoryRateLimit(identifier, config);
     }
@@ -305,28 +307,7 @@ export class RateLimitService {
     };
   }
 
-  /**
-   * Create an OG Image specific rate limiter
-   */
-  public createOGImageLimiter() {
-    return {
-      checkDailyQuota: async (ipAddress: string) => {
-        const result = await this.checkRateLimit({
-          identifier: ipAddress,
-          configType: 'og-image',
-          bypassDevelopment: true
-        });
-        return result.remaining;
-      },
-      
-      recordGeneration: async (ipAddress: string) => {
-        if (this.databaseService && process.env.BYPASS_RATE_LIMIT !== 'true') {
-          // Recording is handled by the database service when actual generation occurs
-          // This is just for consistency with the old interface
-        }
-      }
-    };
-  }
+  // Removed createOGImageLimiter - using direct checkRateLimit method for cleaner consolidation
 
   /**
    * Create a standard API rate limiter

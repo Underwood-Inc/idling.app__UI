@@ -1,5 +1,6 @@
 import { NextRequest } from 'next/server';
 import { rateLimitService } from '../../../../lib/services/RateLimitService';
+import { formatRetryAfter } from '../../../../lib/utils/timeFormatting';
 import { ASPECT_RATIOS } from '../config';
 import { AvatarService } from './AvatarService';
 import { DatabaseService } from './DatabaseService';
@@ -50,7 +51,6 @@ export class OGImageService {
   private avatarService = new AvatarService();
   private svgGenerator = new SVGGenerator();
   private databaseService = DatabaseService.getInstance();
-  private ogLimiter = rateLimitService.createOGImageLimiter();
 
   constructor() {
     // DatabaseService now uses singleton pattern
@@ -60,14 +60,22 @@ export class OGImageService {
     const { searchParams } = new URL(request.url);
     const isDryRun = searchParams.get('dry-run') === 'true';
     
-    // Get client IP for rate limiting
+    // Get client IP for unified quota tracking
     const clientIP = this.getClientIP(request);
     
-    // Check rate limit first using unified service
-    const remainingGenerations = await this.ogLimiter.checkDailyQuota(clientIP);
+    // Use unified RateLimitService for all quota checking - single source of truth
+    const rateLimitResult = await rateLimitService.checkRateLimit({
+      identifier: clientIP,
+      configType: 'og-image',
+      bypassDevelopment: true
+    });
     
-    if (!isDryRun && remainingGenerations <= 0) {
-      throw new Error('Daily generation limit exceeded. Upgrade to Pro for unlimited generations.');
+    if (!isDryRun && !rateLimitResult.allowed) {
+      const resetTime = new Date(rateLimitResult.resetTime);
+      const retryAfterSeconds = rateLimitResult.retryAfter || 86400;
+      const humanTime = formatRetryAfter(retryAfterSeconds);
+      
+      throw new Error(`Daily generation limit exceeded. Try again in ${humanTime} or upgrade to Pro for unlimited generations.`);
     }
 
     // If dry run, just return quota info
@@ -78,7 +86,9 @@ export class OGImageService {
         dimensions: { width: 0, height: 0 },
         aspectRatio: 'default',
         generationOptions: this.buildGenerationConfig(searchParams),
-        remainingGenerations
+        remainingGenerations: rateLimitResult.remaining,
+        generationId: '',
+        id: ''
       };
     }
 
@@ -88,7 +98,7 @@ export class OGImageService {
     // Generate the image with actual values
     const result = await this.callGenerationAPI(config);
 
-    // Record generation in database (blocking to get ID)
+    // Record generation in database (this also handles quota tracking)
     let generationId: string | undefined;
     try {
       generationId = await this.databaseService.recordGeneration({
@@ -111,8 +121,7 @@ export class OGImageService {
       console.error('Failed to record generation:', error);
     }
 
-    // Record generation for rate limiting
-    await this.ogLimiter.recordGeneration(clientIP);
+    // No need for separate rate limiting recording - database handles quota tracking
 
     // Build the actual generation options with ALL the values that were used
     const actualGenerationOptions: GenerationConfig = {
@@ -146,9 +155,9 @@ export class OGImageService {
     return {
       ...result,
       generationOptions: actualGenerationOptions,
-      remainingGenerations: remainingGenerations - 1,
-      generationId,
-      id: generationId // For compatibility
+      remainingGenerations: Math.max(0, rateLimitResult.remaining - 1),
+      generationId: generationId || undefined,
+      id: generationId || undefined // For compatibility
     };
   }
 
