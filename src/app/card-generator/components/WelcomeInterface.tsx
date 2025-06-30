@@ -5,6 +5,7 @@ import styles from '../page.module.css';
 
 interface WelcomeInterfaceProps {
   remainingGenerations: number;
+  quotaLimit: number;
   hasInitializedQuota: boolean;
   isQuotaExceeded: boolean;
   loadGenerationId: string;
@@ -15,6 +16,7 @@ interface WelcomeInterfaceProps {
 
 export function WelcomeInterface({
   remainingGenerations,
+  quotaLimit,
   hasInitializedQuota,
   isQuotaExceeded,
   loadGenerationId,

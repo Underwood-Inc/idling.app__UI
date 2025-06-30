@@ -10,6 +10,7 @@ interface QuotaDisplayProps extends QuotaState {
 
 export function QuotaDisplay({
   remainingGenerations,
+  quotaLimit,
   hasInitializedQuota,
   isQuotaExceeded,
   showMeter = false
@@ -23,18 +24,20 @@ export function QuotaDisplay({
             <div className={styles.quota__bar}>
               <div
                 className={styles.quota__fill}
-                style={{ width: `${(remainingGenerations / 1) * 100}%` }}
+                style={{
+                  width: `${Math.min(((quotaLimit - remainingGenerations) / quotaLimit) * 100, 100)}%`
+                }}
               />
             </div>
             <span className={styles.quota__text}>
               {hasInitializedQuota
-                ? `${remainingGenerations}/1 enchantment today`
+                ? `${remainingGenerations}/${quotaLimit} enchantment today`
                 : 'Channeling energy...'}
             </span>
           </div>
         ) : (
           <span className={styles.quota__text}>
-            {remainingGenerations}/1 spell remaining (until tomorrow)
+            {remainingGenerations}/{quotaLimit} spell remaining (until tomorrow)
           </span>
         )}
         {isQuotaExceeded && (

@@ -106,7 +106,8 @@ export default function OgImageViewer() {
         setIsLoadedGeneration(false); // This is a new generation, not loaded
       }
     },
-    setRemainingGenerations: quotaState.updateQuota,
+    setRemainingGenerations: (count: number, limit?: number) =>
+      quotaState.updateQuota(count, limit),
     setHasInitializedQuota: () => {}, // Handled by quota hook
     setSvgContent
   });
@@ -319,6 +320,7 @@ export default function OgImageViewer() {
           <FadeIn>
             <WelcomeInterface
               remainingGenerations={quotaState.remainingGenerations}
+              quotaLimit={quotaState.quotaLimit}
               hasInitializedQuota={quotaState.hasInitializedQuota}
               isQuotaExceeded={quotaState.isQuotaExceeded}
               loadGenerationId={welcomeFlow.loadGenerationId}
@@ -382,6 +384,7 @@ export default function OgImageViewer() {
         <FadeIn>
           <QuotaDisplay
             remainingGenerations={quotaState.remainingGenerations}
+            quotaLimit={quotaState.quotaLimit}
             hasInitializedQuota={quotaState.hasInitializedQuota}
             isQuotaExceeded={quotaState.isQuotaExceeded}
             showMeter={welcomeFlow.showWelcome}
