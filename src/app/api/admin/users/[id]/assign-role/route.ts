@@ -7,7 +7,13 @@ import { checkUserPermission } from '@/lib/actions/permissions.actions';
 import { auth } from '@/lib/auth';
 import sql from '@/lib/db';
 import { PERMISSIONS } from '@/lib/permissions/permissions';
+import {
+  AdminUserRoleAssignmentSchema,
+  AdminUserRoleRemovalParamsSchema,
+  UserIdParamsSchema
+} from '@/lib/schemas/admin-users.schema';
 import { NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
 
 export interface RoleAssignmentRequest {
   roleId: number;
@@ -27,11 +33,20 @@ export async function POST(
     }
 
     const adminUserId = parseInt(session.user.id);
-    const targetUserId = parseInt(params.id);
 
-    if (isNaN(targetUserId)) {
-      return NextResponse.json({ error: 'Invalid user ID' }, { status: 400 });
+    // Validate params
+    const postUserIdValidation = UserIdParamsSchema.safeParse(params);
+    if (!postUserIdValidation.success) {
+      return NextResponse.json(
+        { 
+          error: 'Invalid user ID format',
+          details: postUserIdValidation.error.errors 
+        },
+        { status: 400 }
+      );
     }
+
+    const targetUserId = parseInt(postUserIdValidation.data.id);
 
     // Check if user has permission to assign roles
     const hasPermission = await checkUserPermission(
@@ -42,12 +57,21 @@ export async function POST(
       return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 });
     }
 
-    const body: RoleAssignmentRequest = await request.json();
-    const { roleId, expiresAt, reason } = body;
-
-    if (!roleId) {
-      return NextResponse.json({ error: 'Role ID is required' }, { status: 400 });
+    // Validate request body
+    const body = await request.json();
+    const bodyResult = AdminUserRoleAssignmentSchema.safeParse(body);
+    
+    if (!bodyResult.success) {
+      return NextResponse.json(
+        { 
+          error: 'Invalid request data',
+          details: bodyResult.error.errors 
+        },
+        { status: 400 }
+      );
     }
+
+    const { roleId, expiresAt, reason } = bodyResult.data;
 
     // Verify the role exists
     const roles = await sql<{ id: number; name: string }[]>`
@@ -107,11 +131,20 @@ export async function DELETE(
     }
 
     const adminUserId = parseInt(session.user.id);
-    const targetUserId = parseInt(params.id);
 
-    if (isNaN(targetUserId)) {
-      return NextResponse.json({ error: 'Invalid user ID' }, { status: 400 });
+    // Validate params
+    const deleteUserIdValidation = UserIdParamsSchema.safeParse(params);
+    if (!deleteUserIdValidation.success) {
+      return NextResponse.json(
+        { 
+          error: 'Invalid user ID format',
+          details: deleteUserIdValidation.error.errors 
+        },
+        { status: 400 }
+      );
     }
+
+    const targetUserId = parseInt(deleteUserIdValidation.data.id);
 
     // Check if user has permission to manage roles
     const hasPermission = await checkUserPermission(
@@ -122,18 +155,29 @@ export async function DELETE(
       return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 });
     }
 
+    // Validate query parameters
     const { searchParams } = new URL(request.url);
-    const roleId = searchParams.get('roleId');
+    const queryValidation = AdminUserRoleRemovalParamsSchema.safeParse({
+      roleId: searchParams.get('roleId'),
+    });
 
-    if (!roleId) {
-      return NextResponse.json({ error: 'Role ID is required' }, { status: 400 });
+    if (!queryValidation.success) {
+      return NextResponse.json(
+        { 
+          error: 'Invalid role removal parameters',
+          details: queryValidation.error.errors 
+        },
+        { status: 400 }
+      );
     }
+
+    const { roleId } = queryValidation.data;
 
     // Deactivate the role assignment
     await sql`
       UPDATE user_role_assignments 
       SET is_active = false, updated_at = NOW()
-      WHERE user_id = ${targetUserId} AND role_id = ${parseInt(roleId)} AND is_active = true
+      WHERE user_id = ${targetUserId} AND role_id = ${roleId} AND is_active = true
     `;
 
     return NextResponse.json({ 
@@ -141,6 +185,15 @@ export async function DELETE(
       message: 'Role removed successfully' 
     });
   } catch (error) {
+    console.error('Error removing role:', error);
+    
+    if (error instanceof z.ZodError) {
+      return NextResponse.json(
+        { error: 'Invalid request data', details: error.errors },
+        { status: 400 }
+      );
+    }
+    
     return NextResponse.json(
       { error: 'Failed to remove role' },
       { status: 500 }

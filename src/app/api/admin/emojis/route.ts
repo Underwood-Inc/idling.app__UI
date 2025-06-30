@@ -7,12 +7,13 @@ import { checkUserPermission } from '@/lib/actions/permissions.actions';
 import { auth } from '@/lib/auth';
 import sql from '@/lib/db';
 import { PERMISSIONS } from '@/lib/permissions/permissions';
+import { AdminEmojiActionSchema, AdminEmojiSearchParamsSchema } from '@/lib/schemas/admin-emojis.schema';
 import { NextRequest, NextResponse } from 'next/server';
 import {
-    approveCustomEmoji,
-    deleteCustomEmoji,
-    getPendingCustomEmojis,
-    rejectCustomEmoji
+  approveCustomEmoji,
+  deleteCustomEmoji,
+  getPendingCustomEmojis,
+  rejectCustomEmoji
 } from '../../../../lib/actions/emoji.actions';
 
 interface CustomEmoji {
@@ -49,11 +50,26 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 });
     }
 
+    // Validate query parameters
     const { searchParams } = new URL(request.url);
-    const page = parseInt(searchParams.get('page') || '1');
-    const limit = parseInt(searchParams.get('limit') || '20');
-    const status = searchParams.get('status') || 'pending';
-    const search = searchParams.get('search') || '';
+    const paramsResult = AdminEmojiSearchParamsSchema.safeParse({
+      page: searchParams.get('page'),
+      limit: searchParams.get('limit'),
+      status: searchParams.get('status'),
+      search: searchParams.get('search'),
+    });
+
+    if (!paramsResult.success) {
+      return NextResponse.json(
+        { 
+          error: 'Invalid query parameters',
+          details: paramsResult.error.errors 
+        },
+        { status: 400 }
+      );
+    }
+
+    const { page, limit, status, search } = paramsResult.data;
     const offset = (page - 1) * limit;
 
     let emojis: CustomEmoji[] = [];
@@ -173,11 +189,20 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { emojiId, action, reason } = body;
-
-    if (!emojiId || !['approve', 'reject'].includes(action)) {
-      return NextResponse.json({ error: 'Invalid request' }, { status: 400 });
+    
+    // Validate request body
+    const bodyResult = AdminEmojiActionSchema.safeParse(body);
+    if (!bodyResult.success) {
+      return NextResponse.json(
+        { 
+          error: 'Invalid request data',
+          details: bodyResult.error.errors 
+        },
+        { status: 400 }
+      );
     }
+
+    const { emojiId, action, reason } = bodyResult.data;
 
     if (action === 'approve') {
       await approveCustomEmoji(emojiId, reason);
@@ -186,13 +211,7 @@ export async function POST(request: NextRequest) {
         message: 'Emoji approved successfully'
       });
     } else {
-      if (!reason) {
-        return NextResponse.json(
-          { error: 'Reason is required for rejection' },
-          { status: 400 }
-        );
-      }
-      await rejectCustomEmoji(emojiId, reason);
+      await rejectCustomEmoji(emojiId, reason!); // reason is validated by schema
       return NextResponse.json({
         success: true,
         message: 'Emoji rejected successfully'

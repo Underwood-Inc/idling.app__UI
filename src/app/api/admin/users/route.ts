@@ -8,7 +8,9 @@ import { auth } from '@/lib/auth';
 import sql from '@/lib/db';
 import { createLogger } from '@/lib/logging';
 import { PERMISSIONS } from '@/lib/permissions/permissions';
+import { AdminUserSearchParamsSchema } from '@/lib/schemas/admin-users.schema';
 import { NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -79,13 +81,28 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 });
     }
 
+    // Validate query parameters
     const { searchParams } = new URL(request.url);
-    const page = parseInt(searchParams.get('page') || '1');
-    const limit = parseInt(searchParams.get('limit') || '20');
-    const search = searchParams.get('search') || '';
+    const paramsResult = AdminUserSearchParamsSchema.safeParse({
+      page: searchParams.get('page'),
+      limit: searchParams.get('limit'),
+      search: searchParams.get('search'),
+    });
+
+    if (!paramsResult.success) {
+      return NextResponse.json(
+        { 
+          error: 'Invalid query parameters',
+          details: paramsResult.error.errors 
+        },
+        { status: 400 }
+      );
+    }
+
+    const { page, limit, search } = paramsResult.data;
     const offset = (page - 1) * limit;
 
-    logger.info('Processing query parameters', { page, limit, search, offset });
+    logger.info('Processing validated query parameters', { page, limit, search, offset });
 
     // Build search query
     let whereClause = sql`WHERE 1=1`;
@@ -180,6 +197,14 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(response);
   } catch (error) {
     logger.error('Error fetching admin users', error instanceof Error ? error : new Error(String(error)));
+    
+    if (error instanceof z.ZodError) {
+      return NextResponse.json(
+        { error: 'Invalid request data', details: error.errors },
+        { status: 400 }
+      );
+    }
+    
     return NextResponse.json(
       { error: 'Failed to fetch users', details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }

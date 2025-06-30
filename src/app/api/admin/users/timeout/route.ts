@@ -3,7 +3,9 @@
  * Handles issuing and managing user timeouts
  */
 
+import { AdminTimeoutManagementSchema, AdminTimeoutRevocationParamsSchema, AdminTimeoutStatusParamsSchema } from '@/lib/schemas/admin-users.schema';
 import { NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
 import { auth } from '../../../../../lib/auth';
 import {
   PERMISSIONS,
@@ -31,37 +33,27 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
 
+    // Validate request body
     const body = await request.json();
-    const { userId, timeoutType, reason, durationHours } = body;
-
-    // Validate input
-    if (!userId || !timeoutType || !reason || !durationHours) {
+    const bodyResult = AdminTimeoutManagementSchema.safeParse(body);
+    
+    if (!bodyResult.success) {
       return NextResponse.json(
-        { error: 'Missing required fields' },
+        { 
+          error: 'Invalid request data',
+          details: bodyResult.error.errors 
+        },
         { status: 400 }
       );
     }
 
-    if (!Object.values(TIMEOUT_TYPES).includes(timeoutType)) {
-      return NextResponse.json(
-        { error: 'Invalid timeout type' },
-        { status: 400 }
-      );
-    }
-
-    if (durationHours < 1 || durationHours > 8760) {
-      // Max 1 year
-      return NextResponse.json(
-        { error: 'Invalid duration (1-8760 hours)' },
-        { status: 400 }
-      );
-    }
+    const { userId, timeoutType, reason, durationHours } = bodyResult.data;
 
     const issuedBy = parseInt(session.user.id);
 
     // Issue the timeout
     const success = await PermissionsService.issueTimeout(
-      parseInt(userId),
+      userId,
       timeoutType,
       reason,
       durationHours,
@@ -81,6 +73,14 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     console.error('Error issuing timeout:', error);
+    
+    if (error instanceof z.ZodError) {
+      return NextResponse.json(
+        { error: 'Invalid request data', details: error.errors },
+        { status: 400 }
+      );
+    }
+    
     return NextResponse.json(
       { error: 'Failed to issue timeout' },
       { status: 500 }
@@ -104,22 +104,30 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
 
+    // Validate query parameters
     const { searchParams } = new URL(request.url);
-    const timeoutId = searchParams.get('id');
-    const reason = searchParams.get('reason') || 'Revoked by administrator';
+    const paramsResult = AdminTimeoutRevocationParamsSchema.safeParse({
+      id: searchParams.get('id'),
+      reason: searchParams.get('reason'),
+    });
 
-    if (!timeoutId) {
+    if (!paramsResult.success) {
       return NextResponse.json(
-        { error: 'Timeout ID required' },
+        { 
+          error: 'Invalid revocation parameters',
+          details: paramsResult.error.errors 
+        },
         { status: 400 }
       );
     }
+
+    const { id: timeoutId, reason = 'Revoked by administrator' } = paramsResult.data;
 
     const revokedBy = parseInt(session.user.id);
 
     // Revoke the timeout
     const success = await PermissionsService.revokeTimeout(
-      parseInt(timeoutId),
+      parseInt(timeoutId.toString()),
       revokedBy,
       reason
     );
@@ -137,6 +145,14 @@ export async function DELETE(request: NextRequest) {
     });
   } catch (error) {
     console.error('Error revoking timeout:', error);
+    
+    if (error instanceof z.ZodError) {
+      return NextResponse.json(
+        { error: 'Invalid request data', details: error.errors },
+        { status: 400 }
+      );
+    }
+    
     return NextResponse.json(
       { error: 'Failed to revoke timeout' },
       { status: 500 }
@@ -155,23 +171,42 @@ export async function GET(request: NextRequest) {
       );
     }
 
+    // Validate query parameters
     const { searchParams } = new URL(request.url);
-    const userId = searchParams.get('userId');
-    const timeoutType = searchParams.get('type') || TIMEOUT_TYPES.POST_CREATION;
+    const paramsResult = AdminTimeoutStatusParamsSchema.safeParse({
+      userId: searchParams.get('userId'),
+      type: searchParams.get('type'),
+    });
 
-    if (!userId) {
-      return NextResponse.json({ error: 'User ID required' }, { status: 400 });
+    if (!paramsResult.success) {
+      return NextResponse.json(
+        { 
+          error: 'Invalid status query parameters',
+          details: paramsResult.error.errors 
+        },
+        { status: 400 }
+      );
     }
+
+    const { userId, type: timeoutType = TIMEOUT_TYPES.POST_CREATION } = paramsResult.data;
 
     // Check timeout status
     const timeoutStatus = await PermissionsService.checkUserTimeout(
-      parseInt(userId),
+      userId,
       timeoutType
     );
 
     return NextResponse.json(timeoutStatus);
   } catch (error) {
     console.error('Error checking timeout status:', error);
+    
+    if (error instanceof z.ZodError) {
+      return NextResponse.json(
+        { error: 'Invalid request data', details: error.errors },
+        { status: 400 }
+      );
+    }
+    
     return NextResponse.json(
       { error: 'Failed to check timeout status' },
       { status: 500 }
