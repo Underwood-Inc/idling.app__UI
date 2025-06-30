@@ -1401,14 +1401,15 @@ async function handleSubscriptionManagement(userId, user) {
     1: { action: 'assign', label: 'Assign New Subscription Plan' },
     2: { action: 'modify', label: 'Modify Existing Subscription' },
     3: { action: 'view', label: 'View Subscription Details & Usage' },
-    4: { action: 'cancel', label: 'Cancel Subscription' }
+    4: { action: 'cancel', label: 'Cancel Subscription' },
+    5: { action: 'quota', label: 'Manage Quotas' }
   };
 
   Object.entries(subscriptionOptions).forEach(([key, option]) => {
     console.log(chalk.cyan(`${key}. ${option.label}`));
   });
 
-  const choice = await prompt(chalk.yellow('\nSelect action (1-4): '));
+  const choice = await prompt(chalk.yellow('\nSelect action (1-5): '));
   const selectedAction = subscriptionOptions[choice];
 
   if (!selectedAction) {
@@ -1428,6 +1429,9 @@ async function handleSubscriptionManagement(userId, user) {
       break;
     case 'cancel':
       await cancelSubscription(userId);
+      break;
+    case 'quota':
+      await handleQuotaManagement(userId, user);
       break;
   }
 }
@@ -1824,6 +1828,12 @@ async function manageUser() {
         description: 'Show available roles, permissions, plans, and categories',
         table: null,
         icon: '📖'
+      },
+      7: {
+        name: 'Quota Management',
+        description: 'Manage user quotas',
+        table: null,
+        icon: '📊'
       }
     };
 
@@ -1833,10 +1843,10 @@ async function manageUser() {
       console.log(chalk.gray(`   ${option.description}`));
     });
 
-    const choice = await prompt(chalk.yellow('\nSelect option (1-6): '));
+    const choice = await prompt(chalk.yellow('\nSelect option (1-7): '));
 
     if (!updateOptions[choice]) {
-      console.error(chalk.red('❌ Invalid choice. Please select 1-6'));
+      console.error(chalk.red('❌ Invalid choice. Please select 1-7'));
       return;
     }
 
@@ -1872,6 +1882,9 @@ async function manageUser() {
       case '5':
         await handleSubscriptionManagement(userId, user);
         break;
+      case '7':
+        await handleQuotaManagement(userId, user);
+        break;
     }
   } catch (error) {
     console.error(chalk.red('❌ Error:'), error.message);
@@ -1883,3 +1896,931 @@ async function manageUser() {
 
 // Run the script
 manageUser();
+
+async function handleQuotaManagement(userId, user) {
+  console.log(chalk.cyan('\n📊 === QUOTA MANAGEMENT ==='));
+  console.log(chalk.gray(`Managing quotas for: ${user.name || user.email}`));
+
+  let continueMenu = true;
+  
+  while (continueMenu) {
+    console.log(chalk.yellow('\nQuota Management Options:'));
+    console.log('1. View current quotas');
+    console.log('2. Update quota limit');
+    console.log('3. Reset quota usage');
+    console.log('4. Set unlimited quota');
+    console.log('5. View quota history');
+    console.log('6. Global quota management');
+    console.log('0. Back to main menu');
+
+    const choice = await prompt(chalk.cyan('\nSelect option: '));
+
+    switch (choice) {
+      case '1':
+        await viewUserQuotas(userId);
+        break;
+      case '2':
+        await updateQuotaLimit(userId);
+        break;
+      case '3':
+        await resetQuotaUsage(userId);
+        break;
+      case '4':
+        await setUnlimitedQuota(userId);
+        break;
+      case '5':
+        await viewQuotaHistory(userId);
+        break;
+      case '6':
+        await globalQuotaManagement();
+        break;
+      case '0':
+        continueMenu = false;
+        break;
+      default:
+        console.log(chalk.red('Invalid option. Please try again.'));
+    }
+  }
+}
+
+async function viewUserQuotas(userId) {
+  try {
+    console.log(chalk.cyan('\n📈 Current User Quotas'));
+    
+    // Get user's current subscription and quota data
+    const quotas = await sql`
+      WITH user_subscription AS (
+        SELECT us.*, sp.name as plan_name, sp.display_name as plan_display_name
+        FROM user_subscriptions us
+        JOIN subscription_plans sp ON us.plan_id = sp.id
+        WHERE us.user_id = ${userId}
+        AND us.status IN ('active', 'trialing')
+        AND (us.expires_at IS NULL OR us.expires_at > NOW())
+        ORDER BY sp.sort_order DESC
+        LIMIT 1
+      ),
+      service_features AS (
+        SELECT DISTINCT
+          ss.name as service_name,
+          ss.display_name as service_display_name,
+          sf.name as feature_name,
+          sf.display_name as feature_display_name,
+          COALESCE(pfv.feature_value, sf.default_value) as feature_value,
+          CASE 
+            WHEN pfv.feature_value IS NOT NULL THEN true
+            ELSE false
+          END as is_custom
+        FROM subscription_services ss
+        JOIN subscription_features sf ON ss.id = sf.service_id
+        LEFT JOIN plan_feature_values pfv ON sf.id = pfv.feature_id
+        LEFT JOIN user_subscription us ON pfv.plan_id = us.plan_id
+        WHERE sf.feature_type = 'limit'
+        AND (sf.name LIKE '%_limit%' OR sf.name LIKE '%_generations%' OR sf.name LIKE '%_slots%')
+        AND ss.is_active = true
+      ),
+      current_usage AS (
+        SELECT 
+          ss.name as service_name,
+          COALESCE(su.usage_count, 0) as current_usage,
+          su.usage_date
+        FROM subscription_services ss
+        LEFT JOIN subscription_usage su ON ss.id = su.service_id 
+          AND su.user_id = ${userId}
+          AND su.usage_date = CURRENT_DATE
+        WHERE ss.is_active = true
+      )
+      SELECT 
+        sf.service_name,
+        sf.service_display_name,
+        sf.feature_name,
+        sf.feature_display_name,
+        CASE 
+          WHEN sf.feature_value::text = '-1' THEN -1
+          ELSE GREATEST((sf.feature_value::text)::integer, 0)
+        END as quota_limit,
+        CASE 
+          WHEN sf.feature_value::text = '-1' THEN true
+          ELSE false
+        END as is_unlimited,
+        sf.is_custom,
+        COALESCE(cu.current_usage, 0) as current_usage,
+        (SELECT plan_display_name FROM user_subscription LIMIT 1) as plan_display_name
+      FROM service_features sf
+      LEFT JOIN current_usage cu ON sf.service_name = cu.service_name
+      WHERE sf.service_name IS NOT NULL
+      ORDER BY sf.service_name
+    `;
+
+    if (quotas.length === 0) {
+      console.log(chalk.yellow('No quota data found for this user.'));
+      return;
+    }
+
+    console.log(chalk.green(`\nPlan: ${quotas[0].plan_display_name || 'Unknown'}`));
+    console.log(chalk.gray('─'.repeat(80)));
+
+    quotas.forEach(quota => {
+      const isUnlimited = quota.is_unlimited || quota.quota_limit === -1;
+      const usage = parseInt(quota.current_usage) || 0;
+      const limit = parseInt(quota.quota_limit) || 0;
+      const percentage = isUnlimited ? 0 : Math.min((usage / Math.max(limit, 1)) * 100, 100);
+      
+      console.log(chalk.white(`\n${quota.service_display_name}:`));
+      console.log(`  Feature: ${quota.feature_display_name}`);
+      console.log(`  Usage: ${usage}${isUnlimited ? ' (unlimited)' : ` / ${limit}`}`);
+      console.log(`  Limit: ${isUnlimited ? 'Unlimited' : limit}`);
+      console.log(`  Custom: ${quota.is_custom ? 'Yes' : 'No'}`);
+      
+      if (!isUnlimited) {
+        const progressBar = '█'.repeat(Math.floor(percentage / 5)) + '░'.repeat(20 - Math.floor(percentage / 5));
+        console.log(`  Progress: [${progressBar}] ${percentage.toFixed(1)}%`);
+      }
+    });
+
+  } catch (error) {
+    console.error(chalk.red('Error fetching quota data:'), error.message);
+  }
+}
+
+async function updateQuotaLimit(userId) {
+  try {
+    // Get available services
+    const services = await sql`
+      SELECT name, display_name 
+      FROM subscription_services 
+      WHERE is_active = true 
+      ORDER BY display_name
+    `;
+
+    if (services.length === 0) {
+      console.log(chalk.yellow('No services available.'));
+      return;
+    }
+
+    console.log(chalk.cyan('\nAvailable Services:'));
+    services.forEach((service, index) => {
+      console.log(`${index + 1}. ${service.display_name} (${service.name})`);
+    });
+
+    const serviceChoice = await prompt(chalk.cyan('Select service number: '));
+    const serviceIndex = parseInt(serviceChoice) - 1;
+
+    if (serviceIndex < 0 || serviceIndex >= services.length) {
+      console.log(chalk.red('Invalid service selection.'));
+      return;
+    }
+
+    const selectedService = services[serviceIndex];
+    
+    const newLimit = await prompt(chalk.cyan('Enter new quota limit (or -1 for unlimited): '));
+    const limitValue = parseInt(newLimit);
+
+    if (isNaN(limitValue) || limitValue < -1) {
+      console.log(chalk.red('Invalid limit value. Must be -1 or a positive number.'));
+      return;
+    }
+
+    const reason = await prompt(chalk.cyan('Enter reason for quota change: '));
+    if (!reason.trim()) {
+      console.log(chalk.red('Reason is required.'));
+      return;
+    }
+
+    const isUnlimited = limitValue === -1;
+
+    // Update quota using the same logic as the API
+    await sql.begin(async (sql) => {
+      // Get user's subscription and feature IDs
+      const subscriptionData = await sql`
+        WITH user_subscription AS (
+          SELECT us.id, us.plan_id
+          FROM user_subscriptions us
+          WHERE us.user_id = ${userId}
+            AND us.status IN ('active', 'trialing')
+            AND (us.expires_at IS NULL OR us.expires_at > NOW())
+          ORDER BY (SELECT sort_order FROM subscription_plans WHERE id = us.plan_id) DESC
+          LIMIT 1
+        ),
+        service_feature AS (
+          SELECT sf.id as feature_id
+          FROM subscription_services ss
+          JOIN subscription_features sf ON ss.id = sf.service_id
+          WHERE ss.name = ${selectedService.name}
+            AND sf.feature_type = 'limit'
+            AND (sf.name LIKE '%_limit%' OR sf.name LIKE '%_generations%' OR sf.name LIKE '%_slots%')
+          LIMIT 1
+        )
+        SELECT us.plan_id, sf.feature_id
+        FROM user_subscription us
+        CROSS JOIN service_feature sf
+      `;
+
+      if (subscriptionData.length === 0) {
+        throw new Error('User subscription or service feature not found');
+      }
+
+      const { plan_id, feature_id } = subscriptionData[0];
+      const featureValue = isUnlimited ? '-1' : limitValue.toString();
+
+      // Update or insert the plan feature value
+      await sql`
+        INSERT INTO plan_feature_values (plan_id, feature_id, feature_value, created_at)
+        VALUES (${plan_id}, ${feature_id}, ${featureValue}, NOW())
+        ON CONFLICT (plan_id, feature_id)
+        DO UPDATE SET 
+          feature_value = ${featureValue},
+          created_at = NOW()
+      `;
+
+      // Log the admin action (assuming admin user ID 1 for script)
+      await sql`
+        INSERT INTO admin_actions (
+          admin_user_id,
+          target_user_id,
+          action_type,
+          action_details,
+          reason,
+          created_at
+        ) VALUES (
+          1,
+          ${userId},
+          'quota_update_script',
+          ${JSON.stringify({
+            service_name: selectedService.name,
+            service_display_name: selectedService.display_name,
+            new_quota: isUnlimited ? -1 : limitValue,
+            is_unlimited: isUnlimited
+          })},
+          ${reason},
+          NOW()
+        )
+      `;
+    });
+
+    console.log(chalk.green(`\n✅ Quota updated successfully!`));
+    console.log(chalk.gray(`Service: ${selectedService.display_name}`));
+    console.log(chalk.gray(`New limit: ${isUnlimited ? 'Unlimited' : limitValue}`));
+    console.log(chalk.gray(`Reason: ${reason}`));
+
+  } catch (error) {
+    console.error(chalk.red('Error updating quota:'), error.message);
+  }
+}
+
+async function resetQuotaUsage(userId) {
+  try {
+    // Get available services with current usage
+    const services = await sql`
+      SELECT DISTINCT
+        ss.name,
+        ss.display_name,
+        COALESCE(su.usage_count, 0) as current_usage
+      FROM subscription_services ss
+      LEFT JOIN subscription_usage su ON ss.id = su.service_id 
+        AND su.user_id = ${userId}
+        AND su.usage_date = CURRENT_DATE
+      WHERE ss.is_active = true
+      ORDER BY ss.display_name
+    `;
+
+    if (services.length === 0) {
+      console.log(chalk.yellow('No services available.'));
+      return;
+    }
+
+    console.log(chalk.cyan('\nServices with Current Usage:'));
+    services.forEach((service, index) => {
+      console.log(`${index + 1}. ${service.display_name} (Usage: ${service.current_usage})`);
+    });
+
+    const serviceChoice = await prompt(chalk.cyan('Select service number to reset: '));
+    const serviceIndex = parseInt(serviceChoice) - 1;
+
+    if (serviceIndex < 0 || serviceIndex >= services.length) {
+      console.log(chalk.red('Invalid service selection.'));
+      return;
+    }
+
+    const selectedService = services[serviceIndex];
+
+    if (selectedService.current_usage === 0) {
+      console.log(chalk.yellow('Usage is already 0 for this service.'));
+      return;
+    }
+
+    const reason = await prompt(chalk.cyan('Enter reason for usage reset: '));
+    if (!reason.trim()) {
+      console.log(chalk.red('Reason is required.'));
+      return;
+    }
+
+    // Reset usage count
+    const resetResult = await sql`
+      UPDATE subscription_usage 
+      SET usage_count = 0, updated_at = NOW()
+      WHERE user_id = ${userId}
+      AND service_id = (SELECT id FROM subscription_services WHERE name = ${selectedService.name})
+      AND usage_date = CURRENT_DATE
+    `;
+
+    // Log the action
+    await sql`
+      INSERT INTO admin_actions (
+        admin_user_id,
+        target_user_id,
+        action_type,
+        action_details,
+        reason,
+        created_at
+      ) VALUES (
+        1,
+        ${userId},
+        'quota_reset_script',
+        ${JSON.stringify({
+          service_name: selectedService.name,
+          service_display_name: selectedService.display_name,
+          previous_usage: selectedService.current_usage
+        })},
+        ${reason},
+        NOW()
+      )
+    `;
+
+    console.log(chalk.green(`\n✅ Usage reset successfully!`));
+    console.log(chalk.gray(`Service: ${selectedService.display_name}`));
+    console.log(chalk.gray(`Previous usage: ${selectedService.current_usage}`));
+    console.log(chalk.gray(`New usage: 0`));
+
+  } catch (error) {
+    console.error(chalk.red('Error resetting usage:'), error.message);
+  }
+}
+
+async function setUnlimitedQuota(userId) {
+  try {
+    const services = await sql`
+      SELECT name, display_name 
+      FROM subscription_services 
+      WHERE is_active = true 
+      ORDER BY display_name
+    `;
+
+    console.log(chalk.cyan('\nAvailable Services:'));
+    services.forEach((service, index) => {
+      console.log(`${index + 1}. ${service.display_name}`);
+    });
+
+    const serviceChoice = await prompt(chalk.cyan('Select service number: '));
+    const serviceIndex = parseInt(serviceChoice) - 1;
+
+    if (serviceIndex < 0 || serviceIndex >= services.length) {
+      console.log(chalk.red('Invalid service selection.'));
+      return;
+    }
+
+    const selectedService = services[serviceIndex];
+    const reason = await prompt(chalk.cyan('Enter reason for unlimited quota: '));
+
+    if (!reason.trim()) {
+      console.log(chalk.red('Reason is required.'));
+      return;
+    }
+
+    // Set unlimited quota (-1)
+    await updateQuotaForService(userId, selectedService.name, -1, reason);
+
+    console.log(chalk.green(`\n✅ Unlimited quota set for ${selectedService.display_name}!`));
+
+  } catch (error) {
+    console.error(chalk.red('Error setting unlimited quota:'), error.message);
+  }
+}
+
+async function viewQuotaHistory(userId) {
+  try {
+    console.log(chalk.cyan('\n📚 Quota History'));
+
+    const history = await sql`
+      SELECT 
+        aa.action_type,
+        aa.action_details,
+        aa.reason,
+        aa.created_at,
+        u.name as admin_name,
+        u.email as admin_email
+      FROM admin_actions aa
+      LEFT JOIN users u ON aa.admin_user_id = u.id
+      WHERE aa.target_user_id = ${userId}
+      AND aa.action_type IN ('quota_update', 'quota_reset', 'quota_update_script', 'quota_reset_script')
+      ORDER BY aa.created_at DESC
+      LIMIT 20
+    `;
+
+    if (history.length === 0) {
+      console.log(chalk.yellow('No quota history found.'));
+      return;
+    }
+
+    console.log(chalk.gray('─'.repeat(80)));
+
+    history.forEach(entry => {
+      const details = typeof entry.action_details === 'string' 
+        ? JSON.parse(entry.action_details) 
+        : entry.action_details;
+      
+      console.log(chalk.white(`\n${entry.created_at.toISOString().split('T')[0]} ${entry.created_at.toTimeString().split(' ')[0]}`));
+      console.log(chalk.gray(`Action: ${entry.action_type}`));
+      console.log(chalk.gray(`Admin: ${entry.admin_name || entry.admin_email || 'System'}`));
+      console.log(chalk.gray(`Service: ${details.service_display_name || details.service_name}`));
+      
+      if (entry.action_type.includes('update')) {
+        const quota = details.new_quota === -1 ? 'Unlimited' : details.new_quota;
+        console.log(chalk.gray(`New Quota: ${quota}`));
+      } else if (entry.action_type.includes('reset')) {
+        console.log(chalk.gray(`Previous Usage: ${details.previous_usage || 0}`));
+      }
+      
+      console.log(chalk.gray(`Reason: ${entry.reason}`));
+    });
+
+  } catch (error) {
+    console.error(chalk.red('Error fetching quota history:'), error.message);
+  }
+}
+
+async function globalQuotaManagement() {
+  console.log(chalk.cyan('\n🌍 === GLOBAL QUOTA MANAGEMENT ==='));
+
+  let continueGlobalMenu = true;
+  
+  while (continueGlobalMenu) {
+    console.log(chalk.yellow('\nGlobal Quota Options:'));
+    console.log('1. View global quota settings');
+    console.log('2. Update global quota limits');
+    console.log('3. Bulk update user quotas');
+    console.log('4. Reset all user quotas for a service');
+    console.log('0. Back to quota menu');
+
+    const choice = await prompt(chalk.cyan('\nSelect option: '));
+
+    switch (choice) {
+      case '1':
+        await viewGlobalQuotaSettings();
+        break;
+      case '2':
+        await updateGlobalQuotaLimits();
+        break;
+      case '3':
+        await bulkUpdateUserQuotas();
+        break;
+      case '4':
+        await resetAllUserQuotas();
+        break;
+      case '0':
+        continueGlobalMenu = false;
+        break;
+      default:
+        console.log(chalk.red('Invalid option. Please try again.'));
+    }
+  }
+}
+
+async function viewGlobalQuotaSettings() {
+  try {
+    console.log(chalk.cyan('\n🔧 Global Quota Settings'));
+
+    const settings = await sql`
+      SELECT 
+        sp.name as plan_name,
+        sp.display_name as plan_display_name,
+        ss.name as service_name,
+        ss.display_name as service_display_name,
+        sf.name as feature_name,
+        sf.display_name as feature_display_name,
+        COALESCE(pfv.feature_value, sf.default_value) as feature_value
+      FROM subscription_plans sp
+      JOIN plan_feature_values pfv ON sp.id = pfv.plan_id
+      JOIN subscription_features sf ON pfv.feature_id = sf.id
+      JOIN subscription_services ss ON sf.service_id = ss.id
+      WHERE sf.feature_type = 'limit'
+      AND (sf.name LIKE '%_limit%' OR sf.name LIKE '%_generations%' OR sf.name LIKE '%_slots%')
+      ORDER BY sp.sort_order, ss.display_name
+    `;
+
+    if (settings.length === 0) {
+      console.log(chalk.yellow('No global quota settings found.'));
+      return;
+    }
+
+    let currentPlan = '';
+    settings.forEach(setting => {
+      if (setting.plan_name !== currentPlan) {
+        currentPlan = setting.plan_name;
+        console.log(chalk.green(`\n📋 ${setting.plan_display_name}:`));
+        console.log(chalk.gray('─'.repeat(60)));
+      }
+
+      const quotaValue = setting.feature_value === '-1' ? 'Unlimited' : setting.feature_value;
+      console.log(chalk.white(`  ${setting.service_display_name}: ${quotaValue}`));
+    });
+
+  } catch (error) {
+    console.error(chalk.red('Error fetching global settings:'), error.message);
+  }
+}
+
+async function updateGlobalQuotaLimits() {
+  try {
+    // Get available plans
+    const plans = await sql`
+      SELECT id, name, display_name 
+      FROM subscription_plans 
+      WHERE is_active = true 
+      ORDER BY sort_order
+    `;
+
+    console.log(chalk.cyan('\nAvailable Plans:'));
+    plans.forEach((plan, index) => {
+      console.log(`${index + 1}. ${plan.display_name} (${plan.name})`);
+    });
+
+    const planChoice = await prompt(chalk.cyan('Select plan number: '));
+    const planIndex = parseInt(planChoice) - 1;
+
+    if (planIndex < 0 || planIndex >= plans.length) {
+      console.log(chalk.red('Invalid plan selection.'));
+      return;
+    }
+
+    const selectedPlan = plans[planIndex];
+
+    // Get services
+    const services = await sql`
+      SELECT name, display_name 
+      FROM subscription_services 
+      WHERE is_active = true 
+      ORDER BY display_name
+    `;
+
+    console.log(chalk.cyan('\nAvailable Services:'));
+    services.forEach((service, index) => {
+      console.log(`${index + 1}. ${service.display_name}`);
+    });
+
+    const serviceChoice = await prompt(chalk.cyan('Select service number: '));
+    const serviceIndex = parseInt(serviceChoice) - 1;
+
+    if (serviceIndex < 0 || serviceIndex >= services.length) {
+      console.log(chalk.red('Invalid service selection.'));
+      return;
+    }
+
+    const selectedService = services[serviceIndex];
+    
+    const newLimit = await prompt(chalk.cyan('Enter new global quota limit (-1 for unlimited): '));
+    const limitValue = parseInt(newLimit);
+
+    if (isNaN(limitValue) || limitValue < -1) {
+      console.log(chalk.red('Invalid limit value.'));
+      return;
+    }
+
+    const updateCustom = await prompt(chalk.cyan('Update users with custom quotas? (y/N): '));
+    const shouldUpdateCustom = updateCustom.toLowerCase() === 'y' || updateCustom.toLowerCase() === 'yes';
+
+    const reason = await prompt(chalk.cyan('Enter reason for global quota change: '));
+    if (!reason.trim()) {
+      console.log(chalk.red('Reason is required.'));
+      return;
+    }
+
+    // Update global quota
+    await sql.begin(async (sql) => {
+      // Get the feature ID
+      const feature = await sql`
+        SELECT sf.id as feature_id
+        FROM subscription_services ss
+        JOIN subscription_features sf ON ss.id = sf.service_id
+        WHERE ss.name = ${selectedService.name}
+        AND sf.feature_type = 'limit'
+        AND (sf.name LIKE '%_limit%' OR sf.name LIKE '%_generations%' OR sf.name LIKE '%_slots%')
+        LIMIT 1
+      `;
+
+      if (feature.length === 0) {
+        throw new Error('Feature not found');
+      }
+
+      const featureValue = limitValue === -1 ? '-1' : limitValue.toString();
+
+      // Update the plan feature value
+      await sql`
+        INSERT INTO plan_feature_values (plan_id, feature_id, feature_value, created_at)
+        VALUES (${selectedPlan.id}, ${feature[0].feature_id}, ${featureValue}, NOW())
+        ON CONFLICT (plan_id, feature_id)
+        DO UPDATE SET 
+          feature_value = ${featureValue},
+          created_at = NOW()
+      `;
+
+      // If updating custom quotas, update all users on this plan
+      if (shouldUpdateCustom) {
+        const affectedUsers = await sql`
+          SELECT us.user_id
+          FROM user_subscriptions us
+          WHERE us.plan_id = ${selectedPlan.id}
+          AND us.status IN ('active', 'trialing')
+          AND (us.expires_at IS NULL OR us.expires_at > NOW())
+        `;
+
+        console.log(chalk.yellow(`Updating ${affectedUsers.length} users...`));
+
+        // Log action for each affected user
+        for (const user of affectedUsers) {
+          await sql`
+            INSERT INTO admin_actions (
+              admin_user_id,
+              target_user_id,
+              action_type,
+              action_details,
+              reason,
+              created_at
+            ) VALUES (
+              1,
+              ${user.user_id},
+              'global_quota_update_script',
+              ${JSON.stringify({
+                service_name: selectedService.name,
+                service_display_name: selectedService.display_name,
+                plan_name: selectedPlan.name,
+                plan_display_name: selectedPlan.display_name,
+                new_quota: limitValue === -1 ? -1 : limitValue,
+                is_unlimited: limitValue === -1
+              })},
+              ${reason},
+              NOW()
+            )
+          `;
+        }
+      }
+    });
+
+    console.log(chalk.green(`\n✅ Global quota updated successfully!`));
+    console.log(chalk.gray(`Plan: ${selectedPlan.display_name}`));
+    console.log(chalk.gray(`Service: ${selectedService.display_name}`));
+    console.log(chalk.gray(`New limit: ${limitValue === -1 ? 'Unlimited' : limitValue}`));
+    console.log(chalk.gray(`Updated custom quotas: ${shouldUpdateCustom ? 'Yes' : 'No'}`));
+
+  } catch (error) {
+    console.error(chalk.red('Error updating global quota:'), error.message);
+  }
+}
+
+// Add these functions before the updateQuotaForService function
+
+async function bulkUpdateUserQuotas() {
+  try {
+    console.log(chalk.cyan('\n🔄 Bulk Update User Quotas'));
+
+    // Get available services
+    const services = await sql`
+      SELECT name, display_name 
+      FROM subscription_services 
+      WHERE is_active = true 
+      ORDER BY display_name
+    `;
+
+    console.log(chalk.cyan('\nAvailable Services:'));
+    services.forEach((service, index) => {
+      console.log(`${index + 1}. ${service.display_name}`);
+    });
+
+    const serviceChoice = await prompt(chalk.cyan('Select service number: '));
+    const serviceIndex = parseInt(serviceChoice) - 1;
+
+    if (serviceIndex < 0 || serviceIndex >= services.length) {
+      console.log(chalk.red('Invalid service selection.'));
+      return;
+    }
+
+    const selectedService = services[serviceIndex];
+    
+    const newLimit = await prompt(chalk.cyan('Enter new quota limit (-1 for unlimited): '));
+    const limitValue = parseInt(newLimit);
+
+    if (isNaN(limitValue) || limitValue < -1) {
+      console.log(chalk.red('Invalid limit value.'));
+      return;
+    }
+
+    const reason = await prompt(chalk.cyan('Enter reason for bulk quota update: '));
+    if (!reason.trim()) {
+      console.log(chalk.red('Reason is required.'));
+      return;
+    }
+
+    // Get all active users
+    const users = await sql`
+      SELECT DISTINCT us.user_id, u.email, u.name
+      FROM user_subscriptions us
+      JOIN users u ON us.user_id = u.id
+      WHERE us.status IN ('active', 'trialing')
+      AND (us.expires_at IS NULL OR us.expires_at > NOW())
+    `;
+
+    const confirmMessage = `This will update quotas for ${users.length} users. Continue? (y/N): `;
+    const confirm = await prompt(chalk.yellow(confirmMessage));
+
+    if (confirm.toLowerCase() !== 'y' && confirm.toLowerCase() !== 'yes') {
+      console.log(chalk.gray('Operation cancelled.'));
+      return;
+    }
+
+    console.log(chalk.yellow(`Updating quotas for ${users.length} users...`));
+
+    let updated = 0;
+    for (const user of users) {
+      try {
+        await updateQuotaForService(user.user_id, selectedService.name, limitValue, reason);
+        updated++;
+        if (updated % 10 === 0) {
+          console.log(chalk.gray(`Updated ${updated}/${users.length} users...`));
+        }
+      } catch (error) {
+        console.error(chalk.red(`Failed to update user ${user.email}:`, error.message));
+      }
+    }
+
+    console.log(chalk.green(`\n✅ Bulk update completed! Updated ${updated}/${users.length} users.`));
+
+  } catch (error) {
+    console.error(chalk.red('Error in bulk update:'), error.message);
+  }
+}
+
+async function resetAllUserQuotas() {
+  try {
+    console.log(chalk.cyan('\n🔄 Reset All User Quotas'));
+
+    // Get available services
+    const services = await sql`
+      SELECT name, display_name 
+      FROM subscription_services 
+      WHERE is_active = true 
+      ORDER BY display_name
+    `;
+
+    console.log(chalk.cyan('\nAvailable Services:'));
+    services.forEach((service, index) => {
+      console.log(`${index + 1}. ${service.display_name}`);
+    });
+
+    const serviceChoice = await prompt(chalk.cyan('Select service number: '));
+    const serviceIndex = parseInt(serviceChoice) - 1;
+
+    if (serviceIndex < 0 || serviceIndex >= services.length) {
+      console.log(chalk.red('Invalid service selection.'));
+      return;
+    }
+
+    const selectedService = services[serviceIndex];
+
+    const reason = await prompt(chalk.cyan('Enter reason for resetting all quotas: '));
+    if (!reason.trim()) {
+      console.log(chalk.red('Reason is required.'));
+      return;
+    }
+
+    // Get count of users with usage for this service
+    const usageCount = await sql`
+      SELECT COUNT(*) as count
+      FROM subscription_usage su
+      JOIN subscription_services ss ON su.service_id = ss.id
+      WHERE ss.name = ${selectedService.name}
+      AND su.usage_date = CURRENT_DATE
+      AND su.usage_count > 0
+    `;
+
+    const totalUsers = parseInt(usageCount[0].count) || 0;
+
+    if (totalUsers === 0) {
+      console.log(chalk.yellow('No users have usage for this service today.'));
+      return;
+    }
+
+    const confirmMessage = `This will reset usage for ${totalUsers} users. Continue? (y/N): `;
+    const confirm = await prompt(chalk.yellow(confirmMessage));
+
+    if (confirm.toLowerCase() !== 'y' && confirm.toLowerCase() !== 'yes') {
+      console.log(chalk.gray('Operation cancelled.'));
+      return;
+    }
+
+    // Reset all usage for the service
+    const resetResult = await sql`
+      UPDATE subscription_usage 
+      SET usage_count = 0, updated_at = NOW()
+      FROM subscription_services ss
+      WHERE subscription_usage.service_id = ss.id
+      AND ss.name = ${selectedService.name}
+      AND subscription_usage.usage_date = CURRENT_DATE
+      AND subscription_usage.usage_count > 0
+    `;
+
+    // Log the bulk action
+    await sql`
+      INSERT INTO admin_actions (
+        admin_user_id,
+        target_user_id,
+        action_type,
+        action_details,
+        reason,
+        created_at
+      ) VALUES (
+        1,
+        NULL,
+        'bulk_quota_reset_script',
+        ${JSON.stringify({
+          service_name: selectedService.name,
+          service_display_name: selectedService.display_name,
+          affected_users: totalUsers
+        })},
+        ${reason},
+        NOW()
+      )
+    `;
+
+    console.log(chalk.green(`\n✅ Successfully reset usage for ${totalUsers} users!`));
+    console.log(chalk.gray(`Service: ${selectedService.display_name}`));
+
+  } catch (error) {
+    console.error(chalk.red('Error resetting all quotas:'), error.message);
+  }
+}
+
+// Helper function for updating quota
+async function updateQuotaForService(userId, serviceName, quotaLimit, reason) {
+  await sql.begin(async (sql) => {
+    const subscriptionData = await sql`
+      WITH user_subscription AS (
+        SELECT us.id, us.plan_id
+        FROM user_subscriptions us
+        WHERE us.user_id = ${userId}
+          AND us.status IN ('active', 'trialing')
+          AND (us.expires_at IS NULL OR us.expires_at > NOW())
+        ORDER BY (SELECT sort_order FROM subscription_plans WHERE id = us.plan_id) DESC
+        LIMIT 1
+      ),
+      service_feature AS (
+        SELECT sf.id as feature_id
+        FROM subscription_services ss
+        JOIN subscription_features sf ON ss.id = sf.service_id
+        WHERE ss.name = ${serviceName}
+          AND sf.feature_type = 'limit'
+          AND (sf.name LIKE '%_limit%' OR sf.name LIKE '%_generations%' OR sf.name LIKE '%_slots%')
+        LIMIT 1
+      )
+      SELECT us.plan_id, sf.feature_id
+      FROM user_subscription us
+      CROSS JOIN service_feature sf
+    `;
+
+    if (subscriptionData.length === 0) {
+      throw new Error('User subscription or service feature not found');
+    }
+
+    const { plan_id, feature_id } = subscriptionData[0];
+    const featureValue = quotaLimit === -1 ? '-1' : quotaLimit.toString();
+
+    await sql`
+      INSERT INTO plan_feature_values (plan_id, feature_id, feature_value, created_at)
+      VALUES (${plan_id}, ${feature_id}, ${featureValue}, NOW())
+      ON CONFLICT (plan_id, feature_id)
+      DO UPDATE SET 
+        feature_value = ${featureValue},
+        created_at = NOW()
+    `;
+
+    await sql`
+      INSERT INTO admin_actions (
+        admin_user_id,
+        target_user_id,
+        action_type,
+        action_details,
+        reason,
+        created_at
+      ) VALUES (
+        1,
+        ${userId},
+        'quota_update_script',
+        ${JSON.stringify({
+          service_name: serviceName,
+          new_quota: quotaLimit,
+          is_unlimited: quotaLimit === -1
+        })},
+        ${reason},
+        NOW()
+      )
+    `;
+  });
+}
