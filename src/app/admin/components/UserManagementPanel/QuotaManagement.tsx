@@ -6,6 +6,7 @@
  */
 
 import React, { useEffect, useState } from 'react';
+import { TimestampWithTooltip } from '../../../components/ui/TimestampWithTooltip';
 import type { ManagementUser } from './types';
 
 interface QuotaData {
@@ -52,10 +53,13 @@ export const QuotaManagement: React.FC<QuotaManagementProps> = ({
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch(`/api/admin/users/${user.id}/quotas`);
+      const response = await fetch(`/api/admin/users/${user.id}/quotas`, {
+        credentials: 'include'
+      });
       if (response.ok) {
-        const data = await response.json();
-        setQuotas(data.quotas || []);
+        const result = await response.json();
+        // Handle the nested response structure: result.data.quotas
+        setQuotas(result.data?.quotas || result.quotas || []);
       } else {
         setError('Failed to load user quotas');
       }
@@ -88,6 +92,7 @@ export const QuotaManagement: React.FC<QuotaManagementProps> = ({
       const response = await fetch(`/api/admin/users/${user.id}/quotas`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({
           service_name: serviceName,
           feature_name: featureName,
@@ -124,6 +129,7 @@ export const QuotaManagement: React.FC<QuotaManagementProps> = ({
       const response = await fetch(`/api/admin/users/${user.id}/quotas/reset`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({
           service_name: serviceName,
           feature_name: featureName,
@@ -170,7 +176,10 @@ export const QuotaManagement: React.FC<QuotaManagementProps> = ({
                 <p>No quota data found for this user.</p>
               ) : (
                 quotas.map((quota) => (
-                  <div key={quota.service_name} className="quota-item">
+                  <div
+                    key={`${quota.service_name}-${quota.feature_name}`}
+                    className="quota-item"
+                  >
                     <div className="quota-header">
                       <h4>{quota.display_name}</h4>
                       <div className="quota-badges">
@@ -205,13 +214,18 @@ export const QuotaManagement: React.FC<QuotaManagementProps> = ({
                       <div className="quota-info">
                         <span>
                           Resets:{' '}
-                          {new Date(quota.reset_date).toLocaleDateString()}
+                          <TimestampWithTooltip
+                            date={quota.reset_date}
+                            abbreviated={false}
+                            showSeconds={true}
+                          />
                         </span>
                       </div>
                     </div>
 
                     <div className="quota-actions">
-                      {editingQuota === quota.service_name ? (
+                      {editingQuota ===
+                      `${quota.service_name}.${quota.feature_name}` ? (
                         <div className="edit-form">
                           <div className="form-row">
                             <label>
