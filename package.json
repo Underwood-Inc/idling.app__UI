@@ -1,6 +1,6 @@
 {
   "name": "idling.app",
-  "version": "0.276.0",
+  "version": "0.276.1",
   "private": true,
   "engines": {
     "node": ">=20.x"
@@ -58,7 +58,6 @@
     "@napi-rs/canvas": "^0.1.72",
     "@release-it/conventional-changelog": "^7.0.0",
     "@vercel/og": "^0.6.8",
-    "@vercel/postgres": "^0.10.0",
     "buffer": "^6.0.3",
     "canvas": "^3.1.2",
     "date-fns": "^4.1.0",
@@ -79,7 +78,7 @@
     "react-string-replace": "^1.1.1",
     "stream-browserify": "^3.0.0",
     "utf-8-validate": "^5.0.2",
-    "zod": "3.23.8"
+    "zod": "^3.25.67"
   },
   "devDependencies": {
     "@commitlint/cli": "^19.4.0",
