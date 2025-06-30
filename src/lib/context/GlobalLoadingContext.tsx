@@ -59,14 +59,17 @@ export function GlobalLoadingProvider({
         const method = init?.method || 'GET';
         const requestId = `${method}-${url}-${Date.now()}-${Math.random()}`;
 
-        // Skip SSE requests and specific endpoints
+        // Skip SSE requests, polling endpoints, and specific endpoints
         if (
           url.includes('/api/sse/') ||
           url.includes('/api/auth/session') ||
           url.includes('/_next/') ||
           url.includes('/api/version') ||
           url.includes('/api/link-preview') || // Skip link preview requests
-          url.includes('/api/test/health') // Skip health checks
+          url.includes('/api/test/health') || // Skip health checks
+          url.includes('/api/notifications/poll') || // Skip notification polling
+          url.includes('/api/alerts/active') || // Skip banner system polling
+          url.includes('/api/user/timeout') // Skip timeout checking polling
         ) {
           return originalFetch(input, init);
         }
@@ -288,8 +291,27 @@ function getLoadingMessage(url: string, method: string): string | null {
     return 'Loading user details...';
   }
 
-  if (url.includes('/api/admin/users/') && method === 'POST') {
+  if (
+    url.includes('/api/admin/users/') &&
+    (method === 'POST' || method === 'PATCH')
+  ) {
     return 'Updating user...';
+  }
+
+  if (
+    url.includes('/api/admin/users/') &&
+    url.includes('/quotas') &&
+    method === 'PATCH'
+  ) {
+    return 'Updating quota...';
+  }
+
+  if (
+    url.includes('/api/admin/users/') &&
+    url.includes('/quotas/reset') &&
+    method === 'POST'
+  ) {
+    return 'Resetting quota usage...';
   }
 
   if (url.includes('/api/submissions') || url.includes('/api/posts')) {
@@ -302,6 +324,18 @@ function getLoadingMessage(url: string, method: string): string | null {
 
   if (url.includes('/api/upload')) {
     return 'Uploading file...';
+  }
+
+  if (url.includes('/api/admin/quotas/global') && method === 'POST') {
+    return 'Creating global quota...';
+  }
+
+  if (url.includes('/api/admin/quotas/global') && method === 'PUT') {
+    return 'Updating global quota...';
+  }
+
+  if (url.includes('/api/admin/quotas/global') && method === 'DELETE') {
+    return 'Deleting global quota...';
   }
 
   if (url.includes('/api/admin')) {
