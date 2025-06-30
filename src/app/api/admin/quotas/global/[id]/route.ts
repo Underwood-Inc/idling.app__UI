@@ -59,13 +59,16 @@ interface ErrorResponse {
 async function validateAdminAccess(userId: string): Promise<boolean> {
   try {
     const adminCheck = await sql`
-      SELECT EXISTS(
-        SELECT 1 FROM user_roles ur
-        JOIN roles r ON ur.role_id = r.id
-        WHERE ur.user_id = ${userId} AND r.name = 'admin'
-      ) as is_admin
+      SELECT ura.role_id, ur.name as role_name
+      FROM user_role_assignments ura
+      JOIN user_roles ur ON ura.role_id = ur.id
+      WHERE ura.user_id = ${userId}
+      AND ur.name IN ('admin', 'moderator')
+      AND ura.is_active = true
+      AND (ura.expires_at IS NULL OR ura.expires_at > CURRENT_TIMESTAMP)
+      LIMIT 1
     `;
-    return adminCheck[0]?.is_admin || false;
+    return adminCheck.length > 0;
   } catch (error) {
     console.error('Admin validation error:', error);
     return false;
