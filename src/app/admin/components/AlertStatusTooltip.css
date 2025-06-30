@@ -1,0 +1,229 @@
+.alert-status-tooltip {
+  max-width: 400px;
+  padding: 16px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #ffffff; /* Bright white for primary text */
+}
+
+.alert-status-tooltip__header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.alert-status-tooltip__icon {
+  font-size: 18px;
+}
+
+.alert-status-tooltip__title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #ffffff; /* Bright white for title */
+}
+
+.alert-status-tooltip__description {
+  margin: 0 0 12px 0;
+  color: #e2e8f0; /* Light gray for secondary text */
+  font-style: italic;
+}
+
+.alert-status-tooltip__current {
+  padding: 8px 12px;
+  border-radius: 6px;
+  margin-bottom: 12px;
+  font-size: 13px;
+}
+
+.alert-status-tooltip__current--success {
+  background-color: rgba(34, 197, 94, 0.2);
+  border: 1px solid rgba(34, 197, 94, 0.5);
+  color: #86efac; /* Bright green */
+}
+
+.alert-status-tooltip__current--warning {
+  background-color: rgba(245, 158, 11, 0.2);
+  border: 1px solid rgba(245, 158, 11, 0.5);
+  color: #fbbf24; /* Bright yellow */
+}
+
+.alert-status-tooltip__current--danger {
+  background-color: rgba(239, 68, 68, 0.2);
+  border: 1px solid rgba(239, 68, 68, 0.5);
+  color: #f87171; /* Bright red */
+}
+
+.alert-status-tooltip__current--info {
+  background-color: rgba(59, 130, 246, 0.2);
+  border: 1px solid rgba(59, 130, 246, 0.5);
+  color: #93c5fd; /* Bright blue */
+}
+
+.alert-status-tooltip__meaning {
+  font-size: 12px;
+  opacity: 0.9;
+}
+
+.alert-status-tooltip__purpose {
+  margin-bottom: 12px;
+  padding: 8px;
+  background-color: rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+  font-size: 13px;
+  color: #f1f5f9; /* Light text */
+}
+
+.alert-status-tooltip__examples {
+  margin-bottom: 16px;
+}
+
+.alert-status-tooltip__examples ul {
+  margin: 4px 0 0 0;
+  padding-left: 16px;
+}
+
+.alert-status-tooltip__examples li {
+  margin-bottom: 4px;
+  font-size: 13px;
+  color: #cbd5e1; /* Lighter gray for list items */
+}
+
+.alert-status-tooltip__matrix {
+  margin-bottom: 12px;
+  padding: 12px;
+  background-color: rgba(255, 255, 255, 0.03);
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.alert-status-tooltip__matrix-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin: 8px 0;
+}
+
+.alert-status-tooltip__matrix-item {
+  padding: 8px;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background-color: rgba(255, 255, 255, 0.05);
+  text-align: center;
+  font-size: 12px;
+  transition: all 0.2s ease;
+}
+
+.alert-status-tooltip__matrix-item--current {
+  border-color: #60a5fa;
+  background-color: rgba(96, 165, 250, 0.15);
+  box-shadow: 0 0 0 1px rgba(96, 165, 250, 0.3);
+}
+
+.alert-status-tooltip__matrix-status {
+  display: block;
+  font-size: 14px;
+  margin-bottom: 4px;
+}
+
+.alert-status-tooltip__matrix-label {
+  display: block;
+  font-weight: 500;
+  margin-bottom: 2px;
+  color: #f8fafc; /* Very light for labels */
+}
+
+.alert-status-tooltip__matrix-result {
+  display: block;
+  font-size: 11px;
+  color: #cbd5e1; /* Medium gray for results */
+}
+
+.alert-status-tooltip__matrix-legend {
+  text-align: center;
+  font-size: 11px;
+  color: #94a3b8; /* Lighter gray for legend */
+  margin-top: 8px;
+}
+
+.alert-status-tooltip__key-point {
+  padding: 10px 12px;
+  background: linear-gradient(
+    135deg,
+    rgba(96, 165, 250, 0.15),
+    rgba(168, 85, 247, 0.15)
+  );
+  border: 1px solid rgba(96, 165, 250, 0.3);
+  border-radius: 6px;
+  font-size: 13px;
+  text-align: center;
+  color: #e2e8f0; /* Light text for key point */
+}
+
+/* Integration with existing alert components */
+.status-toggle .alert-status-tooltip-wrapper span,
+.checkbox-label .alert-status-tooltip-wrapper span {
+  cursor: help;
+  text-decoration: underline;
+  text-decoration-style: dotted;
+  text-underline-offset: 2px;
+  transition: color 0.2s ease;
+}
+
+.status-toggle .alert-status-tooltip-wrapper span:hover,
+.checkbox-label .alert-status-tooltip-wrapper span:hover {
+  color: #60a5fa; /* Bright blue on hover */
+}
+
+/* Ensure tooltip doesn't interfere with toggle functionality */
+.status-toggle {
+  position: relative;
+}
+
+.status-toggle input[type='checkbox'] {
+  position: relative;
+  z-index: 1;
+}
+
+.toggle-slider {
+  position: relative;
+  z-index: 1;
+}
+
+/* Dark mode adjustments - make even brighter */
+@media (prefers-color-scheme: dark) {
+  .alert-status-tooltip__current--success {
+    background-color: rgba(34, 197, 94, 0.25);
+    color: #bbf7d0; /* Even brighter green */
+  }
+
+  .alert-status-tooltip__current--warning {
+    background-color: rgba(245, 158, 11, 0.25);
+    color: #fde047; /* Even brighter yellow */
+  }
+
+  .alert-status-tooltip__current--danger {
+    background-color: rgba(239, 68, 68, 0.25);
+    color: #fca5a5; /* Even brighter red */
+  }
+
+  .alert-status-tooltip__current--info {
+    background-color: rgba(59, 130, 246, 0.25);
+    color: #bfdbfe; /* Even brighter blue */
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 480px) {
+  .alert-status-tooltip {
+    max-width: 300px;
+    padding: 12px;
+  }
+
+  .alert-status-tooltip__matrix-grid {
+    grid-template-columns: 1fr;
+  }
+}

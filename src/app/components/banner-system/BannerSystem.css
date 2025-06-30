@@ -1,0 +1,320 @@
+/* ================================
+   BANNER SYSTEM STYLES
+   ================================ */
+
+/* Banner System Container */
+.banner-system {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  pointer-events: none;
+  /* Ensure banners appear below header and message ticker */
+  margin-top: calc(
+    var(--header-height, 60px) + var(--message-ticker-height, 40px)
+  );
+}
+
+.banner-system__container {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  max-width: 100vw;
+  overflow: hidden;
+  /* Ensure banners stack properly in order they are issued */
+  transform: translateZ(
+    0
+  ); /* Force hardware acceleration for smoother stacking */
+}
+
+/* Individual Banner Styles */
+.banner {
+  width: 100%;
+  pointer-events: auto;
+  transition: all 0.3s ease-in-out;
+  transform-origin: top;
+  /* Ensure consistent stacking order */
+  position: relative;
+  z-index: 1;
+}
+
+.banner:not(:last-child) {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Banner entrance animation */
+.banner--entering {
+  opacity: 0;
+  transform: translateY(-100%);
+}
+
+.banner--visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Banner exit animation */
+.banner--exiting {
+  opacity: 0;
+  transform: translateY(-100%);
+  max-height: 0;
+  overflow: hidden;
+}
+
+/* Banner Content */
+.banner__content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-cozy) var(--spacing-xl-cozy);
+  min-height: 48px;
+  gap: var(--spacing-cozy);
+}
+
+.banner__main {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-cozy);
+  flex: 1;
+  min-width: 0; /* Allow text to truncate */
+}
+
+.banner__icon {
+  font-size: 1.2rem;
+  flex-shrink: 0;
+}
+
+.banner__text {
+  flex: 1;
+  min-width: 0;
+}
+
+.banner__title {
+  font-weight: 600;
+  font-size: 0.95rem;
+  margin: 0 0 0.25rem 0;
+  line-height: 1.3;
+}
+
+.banner__message {
+  font-size: 0.85rem;
+  opacity: 0.9;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.banner__details {
+  font-size: 0.8rem;
+  opacity: 0.8;
+  margin: 0.25rem 0 0 0;
+  line-height: 1.3;
+}
+
+.banner__timer {
+  font-size: 0.8rem;
+  opacity: 0.8;
+  font-family: monospace;
+  margin-top: 0.25rem;
+}
+
+.banner__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  flex-shrink: 0;
+}
+
+.banner__action {
+  padding: var(--spacing-xs-cozy) var(--spacing-xs);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: var(--border-radius);
+  background: rgba(255, 255, 255, 0.1);
+  color: inherit;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.banner__action:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+.banner__action--primary {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+.banner__action--danger {
+  background: rgba(255, 0, 0, 0.2);
+  border-color: rgba(255, 0, 0, 0.4);
+}
+
+.banner__dismiss {
+  background: none;
+  border: none;
+  color: inherit;
+  cursor: pointer;
+  padding: var(--spacing-xs-cozy);
+  border-radius: var(--border-radius);
+  opacity: 0.7;
+  transition: opacity 0.2s ease;
+  font-size: 1rem;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.banner__dismiss:hover {
+  opacity: 1;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* Banner Type Styles */
+.banner--rate-limit {
+  background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+  color: white;
+}
+
+.banner--timeout {
+  background: linear-gradient(135deg, #f39c12, #e67e22);
+  color: white;
+}
+
+.banner--maintenance {
+  background: linear-gradient(135deg, #3498db, #2980b9);
+  color: white;
+}
+
+.banner--warning {
+  background: linear-gradient(135deg, #f1c40f, #f39c12);
+  color: #2c3e50;
+}
+
+.banner--info {
+  background: linear-gradient(135deg, #74b9ff, #0984e3);
+  color: white;
+}
+
+.banner--success {
+  background: linear-gradient(135deg, #00b894, #00a085);
+  color: white;
+}
+
+.banner--error {
+  background: linear-gradient(135deg, #e74c3c, #c0392b);
+  color: white;
+}
+
+.banner--custom {
+  background: linear-gradient(
+    135deg,
+    var(--brand-primary),
+    var(--brand-secondary)
+  );
+  color: white;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .banner-system {
+    margin-top: calc(
+      var(--header-height-mobile, 50px) +
+        var(--message-ticker-height-mobile, 35px)
+    );
+  }
+
+  .banner__content {
+    padding: var(--spacing-xs) var(--spacing-cozy);
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-xs);
+  }
+
+  .banner__main {
+    width: 100%;
+  }
+
+  .banner__actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .banner__title {
+    font-size: 0.9rem;
+  }
+
+  .banner__message {
+    font-size: 0.8rem;
+  }
+
+  .banner__details {
+    font-size: 0.75rem;
+  }
+
+  .banner__action {
+    font-size: 0.75rem;
+    padding: var(--spacing-xs-cozy) var(--spacing-xs-cozy);
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .banner {
+    border: 2px solid currentColor;
+  }
+
+  .banner__action {
+    border-width: 2px;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .banner {
+    transition: none;
+  }
+
+  .banner--entering,
+  .banner--exiting {
+    transition: none;
+  }
+}
+
+/* Print styles */
+@media print {
+  .banner-system {
+    display: none;
+  }
+}
+
+/* Focus styles for accessibility */
+.banner__action:focus,
+.banner__dismiss:focus {
+  outline: 2px solid rgba(255, 255, 255, 0.8);
+  outline-offset: 2px;
+}
+
+/* Dark mode adjustments */
+@media (prefers-color-scheme: dark) {
+  .banner__action {
+    border-color: rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.05);
+  }
+
+  .banner__action:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.3);
+  }
+
+  .banner__dismiss:hover {
+    background: rgba(255, 255, 255, 0.05);
+  }
+}
