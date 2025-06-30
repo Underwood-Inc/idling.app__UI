@@ -10,12 +10,15 @@ import type { ManagementUser } from './types';
 
 interface QuotaData {
   service_name: string;
+  feature_name: string;
   display_name: string;
   current_usage: number;
   quota_limit: number;
   is_unlimited: boolean;
   is_custom: boolean;
   reset_date: string;
+  quota_source: string;
+  reset_period: string;
 }
 
 interface QuotaManagementProps {
@@ -66,10 +69,11 @@ export const QuotaManagement: React.FC<QuotaManagementProps> = ({
 
   const handleEditQuota = (
     serviceName: string,
+    featureName: string,
     currentLimit: number,
     unlimited: boolean
   ) => {
-    setEditingQuota(serviceName);
+    setEditingQuota(`${serviceName}.${featureName}`);
     setNewLimit(currentLimit);
     setIsUnlimited(unlimited);
     setReason('');
@@ -78,12 +82,15 @@ export const QuotaManagement: React.FC<QuotaManagementProps> = ({
   const handleSaveQuota = async () => {
     if (!editingQuota) return;
 
+    const [serviceName, featureName] = editingQuota.split('.');
+
     try {
       const response = await fetch(`/api/admin/users/${user.id}/quotas`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          service_name: editingQuota,
+          service_name: serviceName,
+          feature_name: featureName,
           quota_limit: isUnlimited ? -1 : newLimit,
           is_unlimited: isUnlimited,
           reason: reason
@@ -104,7 +111,7 @@ export const QuotaManagement: React.FC<QuotaManagementProps> = ({
     }
   };
 
-  const handleResetQuota = async (serviceName: string) => {
+  const handleResetQuota = async (serviceName: string, featureName: string) => {
     if (
       !confirm(
         `Reset usage for ${serviceName}? This will set current usage to 0.`
@@ -119,6 +126,7 @@ export const QuotaManagement: React.FC<QuotaManagementProps> = ({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           service_name: serviceName,
+          feature_name: featureName,
           reason: `Usage reset by admin for ${user.name || user.email}`
         })
       });
@@ -265,6 +273,7 @@ export const QuotaManagement: React.FC<QuotaManagementProps> = ({
                             onClick={() =>
                               handleEditQuota(
                                 quota.service_name,
+                                quota.feature_name,
                                 quota.quota_limit,
                                 quota.is_unlimited
                               )
@@ -276,7 +285,10 @@ export const QuotaManagement: React.FC<QuotaManagementProps> = ({
                           {quota.current_usage > 0 && (
                             <button
                               onClick={() =>
-                                handleResetQuota(quota.service_name)
+                                handleResetQuota(
+                                  quota.service_name,
+                                  quota.feature_name
+                                )
                               }
                               className="btn btn--small btn--warning"
                             >

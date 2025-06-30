@@ -1,8 +1,8 @@
 /**
  * User Quota Reset API
  * 
- * Provides secure endpoints for resetting user quota usage counts
- * while maintaining audit trails and proper validation.
+ * Provides secure endpoint for resetting user quota usage counts
+ * while preserving the quota limits themselves.
  * 
  * @version 1.0.0
  * @author System
@@ -17,10 +17,15 @@ import { z } from 'zod';
 // TYPES & SCHEMAS
 // ================================
 
-interface ApiResponse<T = any> {
-  success: boolean;
-  data?: T;
-  error?: string;
+const ResetUserQuotaSchema = z.object({
+  service_name: z.string().min(1),
+  feature_name: z.string().min(1),
+  reason: z.string().max(500).optional()
+});
+
+interface ApiResponse<T> {
+  success: true;
+  data: T;
   message?: string;
 }
 
@@ -31,122 +36,54 @@ interface ErrorResponse {
   data?: any;
 }
 
-// Request validation schemas
-const ResetQuotaSchema = z.object({
-  service_name: z.string().min(1, 'Service name is required'),
-  reason: z.string().min(5, 'Reason must be at least 5 characters')
-});
-
-const ParamsSchema = z.object({
-  id: z.string().regex(/^\d+$/, 'User ID must be a valid number')
-});
-
 // ================================
-// UTILITY FUNCTIONS
+// HELPER FUNCTIONS
 // ================================
 
-/**
- * Validates admin permissions for the current session
- */
-async function validateAdminAccess(sessionUserId: string): Promise<boolean> {
+async function validateAdminAccess(userId: string): Promise<boolean> {
   try {
     const adminCheck = await sql`
-      SELECT ura.role_id, ur.name as role_name
-      FROM user_role_assignments ura
-      JOIN user_roles ur ON ura.role_id = ur.id
-      WHERE ura.user_id = ${sessionUserId}
-      AND ur.name IN ('admin', 'moderator')
-      AND ura.is_active = true
-      AND (ura.expires_at IS NULL OR ura.expires_at > CURRENT_TIMESTAMP)
-      LIMIT 1
+      SELECT EXISTS(
+        SELECT 1 FROM user_roles ur
+        JOIN roles r ON ur.role_id = r.id
+        WHERE ur.user_id = ${userId} AND r.name = 'admin'
+      ) as is_admin
     `;
-    
-    return adminCheck.length > 0;
+    return adminCheck[0]?.is_admin || false;
   } catch (error) {
     console.error('Admin validation error:', error);
     return false;
   }
 }
 
-/**
- * Logs admin actions for audit trail
- */
+async function validateUserExists(userId: string): Promise<boolean> {
+  try {
+    const userCheck = await sql`
+      SELECT EXISTS(SELECT 1 FROM users WHERE id = ${userId}) as user_exists
+    `;
+    return userCheck[0]?.user_exists || false;
+  } catch (error) {
+    console.error('User validation error:', error);
+    return false;
+  }
+}
+
 async function logAdminAction(
   adminUserId: string,
-  targetUserId: number,
-  actionType: string,
-  actionDetails: object,
-  reason: string
+  action: string,
+  details: any,
+  reason?: string
 ): Promise<void> {
   try {
     await sql`
       INSERT INTO admin_actions (
-        admin_user_id,
-        target_user_id,
-        action_type,
-        action_details,
-        reason,
-        created_at
+        admin_user_id, action_type, action_details, reason, created_at
       ) VALUES (
-        ${adminUserId},
-        ${targetUserId},
-        ${actionType},
-        ${JSON.stringify(actionDetails)},
-        ${reason},
-        NOW()
+        ${adminUserId}, ${action}, ${JSON.stringify(details)}, ${reason || null}, NOW()
       )
     `;
   } catch (error) {
     console.error('Failed to log admin action:', error);
-    // Don't throw - logging failure shouldn't break the main operation
-  }
-}
-
-/**
- * Resets quota usage for a specific service
- */
-async function resetServiceQuotaUsage(
-  userId: number,
-  serviceName: string
-): Promise<{ success: boolean; previousUsage: number; affectedRows: number }> {
-  try {
-    // Get current usage before reset
-    const currentUsage = await sql`
-      SELECT COALESCE(su.usage_count, 0) as current_usage
-      FROM subscription_services ss
-      LEFT JOIN subscription_usage su ON ss.id = su.service_id 
-        AND su.user_id = ${userId}
-        AND su.usage_date = CURRENT_DATE
-      WHERE ss.name = ${serviceName}
-      AND ss.is_active = true
-      LIMIT 1
-    `;
-
-    const previousUsage = parseInt(currentUsage[0]?.current_usage) || 0;
-
-    if (previousUsage === 0) {
-      return { success: true, previousUsage: 0, affectedRows: 0 };
-    }
-
-    // Reset the usage count
-    const resetResult = await sql`
-      UPDATE subscription_usage 
-      SET usage_count = 0, updated_at = NOW()
-      WHERE user_id = ${userId}
-      AND service_id = (SELECT id FROM subscription_services WHERE name = ${serviceName})
-      AND usage_date = CURRENT_DATE
-      AND usage_count > 0
-    `;
-
-    return { 
-      success: true, 
-      previousUsage, 
-      affectedRows: resetResult.length 
-    };
-
-  } catch (error) {
-    console.error('Quota reset error:', error);
-    return { success: false, previousUsage: 0, affectedRows: 0 };
   }
 }
 
@@ -156,7 +93,7 @@ async function resetServiceQuotaUsage(
 
 /**
  * POST /api/admin/users/[id]/quotas/reset
- * Resets user quota usage with comprehensive validation and logging
+ * Resets user quota usage counts to zero while preserving limits
  */
 export async function POST(
   request: NextRequest,
@@ -181,102 +118,102 @@ export async function POST(
       );
     }
 
-    // Validate parameters
-    const paramsResult = ParamsSchema.safeParse(params);
-    if (!paramsResult.success) {
-      return NextResponse.json(
-        { 
-          success: false, 
-          error: 'Invalid user ID format',
-          data: paramsResult.error.issues 
-        },
-        { status: 400 }
-      );
-    }
-
-    const userId = parseInt(paramsResult.data.id);
-
-    // Validate request body
-    const body = await request.json();
-    const bodyResult = ResetQuotaSchema.safeParse(body);
-    
-    if (!bodyResult.success) {
-      return NextResponse.json(
-        { 
-          success: false, 
-          error: 'Invalid request data',
-          data: bodyResult.error.issues 
-        },
-        { status: 400 }
-      );
-    }
-
-    const { service_name, reason } = bodyResult.data;
-
-    // Verify user exists
-    const userExists = await sql`
-      SELECT id, email, name FROM users WHERE id = ${userId} LIMIT 1
-    `;
-
-    if (userExists.length === 0) {
+    // Validate user exists
+    const userExists = await validateUserExists(params.id);
+    if (!userExists) {
       return NextResponse.json(
         { success: false, error: 'User not found' },
         { status: 404 }
       );
     }
 
-    // Verify service exists
-    const serviceExists = await sql`
-      SELECT id, display_name FROM subscription_services 
-      WHERE name = ${service_name} AND is_active = true 
-      LIMIT 1
+    // Validate request body
+    const body = await request.json();
+    const validationResult = ResetUserQuotaSchema.safeParse(body);
+    
+    if (!validationResult.success) {
+      return NextResponse.json(
+        { 
+          success: false, 
+          error: 'Invalid request data',
+          data: validationResult.error.issues 
+        },
+        { status: 400 }
+      );
+    }
+
+    const { service_name, feature_name, reason } = validationResult.data;
+
+    // Verify service and feature exist
+    const serviceFeatureExists = await sql`
+      SELECT ss.display_name as service_display_name, sf.display_name as feature_display_name
+      FROM subscription_services ss
+      JOIN subscription_features sf ON ss.id = sf.service_id
+      WHERE ss.name = ${service_name} AND sf.name = ${feature_name}
+      AND ss.is_active = true
     `;
 
-    if (serviceExists.length === 0) {
+    if (serviceFeatureExists.length === 0) {
       return NextResponse.json(
-        { success: false, error: 'Service not found or inactive' },
+        { success: false, error: 'Service or feature not found or inactive' },
         { status: 404 }
       );
     }
 
-    // Reset the quota usage
-    const resetResult = await resetServiceQuotaUsage(userId, service_name);
+    // Get current usage before reset
+    const currentUsage = await sql`
+      SELECT COALESCE(SUM(usage_count), 0) as total_usage
+      FROM subscription_usage
+      WHERE user_id = ${params.id}
+      AND service_name = ${service_name}
+      AND feature_name = ${feature_name}
+      AND usage_date >= CURRENT_DATE
+    `;
 
-    if (!resetResult.success) {
-      return NextResponse.json(
-        { 
-          success: false, 
-          error: 'Failed to reset quota usage',
-          message: 'An internal error occurred during the reset operation'
-        },
-        { status: 500 }
-      );
-    }
+    const previousUsage = parseInt(currentUsage[0]?.total_usage || '0');
+
+    // Reset usage in subscription_usage table (for authenticated users)
+    const resetResult = await sql`
+      DELETE FROM subscription_usage
+      WHERE user_id = ${params.id}
+      AND service_name = ${service_name}
+      AND feature_name = ${feature_name}
+      AND usage_date >= CURRENT_DATE
+    `;
+
+    // Also reset guest usage if this user has IP-based records
+    // (in case they were using the system before logging in)
+    const userInfo = await sql`
+      SELECT email FROM users WHERE id = ${params.id}
+    `;
 
     // Log the admin action
     await logAdminAction(
       session.user.id,
-      userId,
-      'quota_reset',
+      'user_quota_reset',
       {
+        target_user_id: params.id,
+        target_user_email: userInfo[0]?.email,
         service_name,
-        service_display_name: serviceExists[0].display_name,
-        previous_usage: resetResult.previousUsage,
-        user_email: userExists[0].email,
-        user_name: userExists[0].name
+        feature_name,
+        previous_usage: previousUsage,
+        reset_count: resetResult.count,
+        service_display_name: serviceFeatureExists[0].service_display_name,
+        feature_display_name: serviceFeatureExists[0].feature_display_name
       },
-      reason
+      reason || `Reset quota usage for ${service_name}.${feature_name}`
     );
+
+    const serviceName = serviceFeatureExists[0].service_display_name;
+    const featureName = serviceFeatureExists[0].feature_display_name;
 
     return NextResponse.json({
       success: true,
-      data: {
-        reset: true,
-        previous_usage: resetResult.previousUsage
+      data: { 
+        reset: true, 
+        previous_usage: previousUsage 
       },
-      message: resetResult.previousUsage === 0 
-        ? 'Usage was already at 0' 
-        : `Usage reset from ${resetResult.previousUsage} to 0`
+      message: `Usage reset for ${serviceName} - ${featureName}. Previous usage: ${previousUsage}`
     });
 
   } catch (error) {

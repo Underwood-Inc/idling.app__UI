@@ -1,8 +1,8 @@
 /**
- * User Quota Management API
+ * Individual User Quota Management API
  * 
- * Provides secure, type-safe endpoints for viewing and managing user quotas
- * within the existing subscription system.
+ * Provides secure endpoints for managing specific user quota settings
+ * with integration to the enhanced quota system.
  * 
  * @version 1.0.0
  * @author System
@@ -10,6 +10,7 @@
 
 import { auth } from '@/lib/auth';
 import sql from '@/lib/db';
+import { EnhancedQuotaService } from '@/lib/services/EnhancedQuotaService';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 
@@ -19,19 +20,50 @@ import { z } from 'zod';
 
 interface UserQuotaData {
   service_name: string;
+  feature_name: string;
   display_name: string;
   current_usage: number;
   quota_limit: number;
   is_unlimited: boolean;
   is_custom: boolean;
   reset_date: string;
-  usage_percentage: number;
+  quota_source: string;
+  reset_period: string;
 }
 
-interface ApiResponse<T = any> {
-  success: boolean;
-  data?: T;
-  error?: string;
+interface UserQuotaOverride {
+  id: number;
+  user_id: number;
+  service_name: string;
+  feature_name: string;
+  quota_limit: number;
+  is_unlimited: boolean;
+  reset_period: string;
+  is_active: boolean;
+  reason: string | null;
+  created_by: number;
+  created_at: string;
+  updated_at: string;
+}
+
+const UpdateUserQuotaSchema = z.object({
+  service_name: z.string().min(1),
+  feature_name: z.string().min(1),
+  quota_limit: z.number().int().min(0).optional(),
+  is_unlimited: z.boolean().default(false),
+  reset_period: z.enum(['hourly', 'daily', 'weekly', 'monthly']).optional(),
+  reason: z.string().max(500).optional()
+});
+
+const ResetUserQuotaSchema = z.object({
+  service_name: z.string().min(1),
+  feature_name: z.string().min(1),
+  reason: z.string().max(500).optional()
+});
+
+interface ApiResponse<T> {
+  success: true;
+  data: T;
   message?: string;
 }
 
@@ -42,235 +74,54 @@ interface ErrorResponse {
   data?: any;
 }
 
-// Request validation schemas
-const UpdateQuotaSchema = z.object({
-  service_name: z.string().min(1, 'Service name is required'),
-  quota_limit: z.number().int().min(0, 'Quota limit must be non-negative').optional(),
-  is_unlimited: z.boolean().default(false),
-  reason: z.string().min(5, 'Reason must be at least 5 characters')
-});
-
-const ParamsSchema = z.object({
-  id: z.string().regex(/^\d+$/, 'User ID must be a valid number')
-});
-
 // ================================
-// UTILITY FUNCTIONS
+// HELPER FUNCTIONS
 // ================================
 
-/**
- * Validates admin permissions for the current session
- */
-async function validateAdminAccess(sessionUserId: string): Promise<boolean> {
+async function validateAdminAccess(userId: string): Promise<boolean> {
   try {
     const adminCheck = await sql`
-      SELECT ura.role_id, ur.name as role_name
-      FROM user_role_assignments ura
-      JOIN user_roles ur ON ura.role_id = ur.id
-      WHERE ura.user_id = ${sessionUserId}
-      AND ur.name IN ('admin', 'moderator')
-      AND ura.is_active = true
-      AND (ura.expires_at IS NULL OR ura.expires_at > CURRENT_TIMESTAMP)
-      LIMIT 1
+      SELECT EXISTS(
+        SELECT 1 FROM user_roles ur
+        JOIN roles r ON ur.role_id = r.id
+        WHERE ur.user_id = ${userId} AND r.name = 'admin'
+      ) as is_admin
     `;
-    
-    return adminCheck.length > 0;
+    return adminCheck[0]?.is_admin || false;
   } catch (error) {
     console.error('Admin validation error:', error);
     return false;
   }
 }
 
-/**
- * Logs admin actions for audit trail
- */
+async function validateUserExists(userId: string): Promise<boolean> {
+  try {
+    const userCheck = await sql`
+      SELECT EXISTS(SELECT 1 FROM users WHERE id = ${userId}) as user_exists
+    `;
+    return userCheck[0]?.user_exists || false;
+  } catch (error) {
+    console.error('User validation error:', error);
+    return false;
+  }
+}
+
 async function logAdminAction(
   adminUserId: string,
-  targetUserId: number,
-  actionType: string,
-  actionDetails: object,
-  reason: string
+  action: string,
+  details: any,
+  reason?: string
 ): Promise<void> {
   try {
     await sql`
       INSERT INTO admin_actions (
-        admin_user_id,
-        target_user_id,
-        action_type,
-        action_details,
-        reason,
-        created_at
+        admin_user_id, action_type, action_details, reason, created_at
       ) VALUES (
-        ${adminUserId},
-        ${targetUserId},
-        ${actionType},
-        ${JSON.stringify(actionDetails)},
-        ${reason},
-        NOW()
+        ${adminUserId}, ${action}, ${JSON.stringify(details)}, ${reason || null}, NOW()
       )
     `;
   } catch (error) {
     console.error('Failed to log admin action:', error);
-    // Don't throw - logging failure shouldn't break the main operation
-  }
-}
-
-/**
- * Fetches user quota data with comprehensive error handling
- */
-async function fetchUserQuotas(userId: number): Promise<UserQuotaData[]> {
-  const quotaQuery = await sql`
-    WITH user_subscription AS (
-      SELECT us.*, sp.name as plan_name, sp.sort_order
-      FROM user_subscriptions us
-      JOIN subscription_plans sp ON us.plan_id = sp.id
-      WHERE us.user_id = ${userId}
-        AND us.status IN ('active', 'trialing')
-        AND (us.expires_at IS NULL OR us.expires_at > NOW())
-      ORDER BY sp.sort_order DESC
-      LIMIT 1
-    ),
-    service_features AS (
-      SELECT DISTINCT
-        ss.name as service_name,
-        ss.display_name as service_display_name,
-        sf.name as feature_name,
-        sf.display_name as feature_display_name,
-        sf.feature_type,
-        COALESCE(pfv.feature_value, sf.default_value) as feature_value,
-        CASE 
-          WHEN pfv.feature_value IS NOT NULL THEN true
-          ELSE false
-        END as is_custom
-      FROM subscription_services ss
-      JOIN subscription_features sf ON ss.id = sf.service_id
-      LEFT JOIN plan_feature_values pfv ON sf.id = pfv.feature_id
-      LEFT JOIN user_subscription us ON pfv.plan_id = us.plan_id
-      WHERE sf.feature_type = 'limit'
-        AND (sf.name LIKE '%_limit%' OR sf.name LIKE '%_generations%' OR sf.name LIKE '%_slots%')
-        AND ss.is_active = true
-    ),
-    current_usage AS (
-      SELECT 
-        ss.name as service_name,
-        sf.name as feature_name,
-        COALESCE(su.usage_count, 0) as current_usage,
-        CASE 
-          WHEN sf.name = 'daily_generations' THEN CURRENT_DATE + INTERVAL '1 day'
-          WHEN sf.name LIKE 'monthly_%' THEN DATE_TRUNC('month', CURRENT_DATE) + INTERVAL '1 month'
-          WHEN sf.name LIKE 'yearly_%' THEN DATE_TRUNC('year', CURRENT_DATE) + INTERVAL '1 year'
-          ELSE CURRENT_DATE + INTERVAL '1 day'
-        END as reset_date
-      FROM subscription_services ss
-      JOIN subscription_features sf ON ss.id = sf.service_id
-      LEFT JOIN subscription_usage su ON ss.id = su.service_id 
-        AND sf.id = su.feature_id 
-        AND su.user_id = ${userId}
-        AND su.usage_date = CURRENT_DATE
-      WHERE sf.feature_type = 'limit'
-        AND ss.is_active = true
-    )
-    SELECT 
-      sf.service_name,
-      sf.service_display_name as display_name,
-      COALESCE(cu.current_usage, 0) as current_usage,
-      CASE 
-        WHEN sf.feature_value::text = '-1' THEN -1
-        ELSE GREATEST((sf.feature_value::text)::integer, 0)
-      END as quota_limit,
-      CASE 
-        WHEN sf.feature_value::text = '-1' THEN true
-        ELSE false
-      END as is_unlimited,
-      sf.is_custom,
-      COALESCE(cu.reset_date::text, (CURRENT_DATE + INTERVAL '1 day')::text) as reset_date
-    FROM service_features sf
-    LEFT JOIN current_usage cu ON sf.service_name = cu.service_name 
-      AND sf.feature_name = cu.feature_name
-    WHERE sf.service_name IS NOT NULL
-    ORDER BY sf.service_name
-  `;
-
-  return quotaQuery.map((row: any): UserQuotaData => {
-    const currentUsage = parseInt(row.current_usage) || 0;
-    const quotaLimit = parseInt(row.quota_limit) || 0;
-    const isUnlimited = row.is_unlimited || quotaLimit === -1;
-    
-    return {
-      service_name: row.service_name,
-      display_name: row.display_name || row.service_name,
-      current_usage: currentUsage,
-      quota_limit: isUnlimited ? -1 : quotaLimit,
-      is_unlimited: isUnlimited,
-      is_custom: row.is_custom || false,
-      reset_date: row.reset_date,
-      usage_percentage: isUnlimited ? 0 : Math.min((currentUsage / Math.max(quotaLimit, 1)) * 100, 100)
-    };
-  });
-}
-
-/**
- * Updates user quota with proper transaction handling
- */
-async function updateUserQuota(
-  userId: number,
-  serviceName: string,
-  quotaLimit: number | undefined,
-  isUnlimited: boolean
-): Promise<{ success: boolean; affectedRows: number }> {
-  try {
-    // Use transaction for data consistency
-    const result = await sql.begin(async (sql) => {
-      // First, get the user's subscription and feature IDs
-      const subscriptionData = await sql`
-        WITH user_subscription AS (
-          SELECT us.id, us.plan_id
-          FROM user_subscriptions us
-          WHERE us.user_id = ${userId}
-            AND us.status IN ('active', 'trialing')
-            AND (us.expires_at IS NULL OR us.expires_at > NOW())
-          ORDER BY (SELECT sort_order FROM subscription_plans WHERE id = us.plan_id) DESC
-          LIMIT 1
-        ),
-        service_feature AS (
-          SELECT sf.id as feature_id, ss.display_name as service_display_name
-          FROM subscription_services ss
-          JOIN subscription_features sf ON ss.id = sf.service_id
-          WHERE ss.name = ${serviceName}
-            AND sf.feature_type = 'limit'
-            AND (sf.name LIKE '%_limit%' OR sf.name LIKE '%_generations%' OR sf.name LIKE '%_slots%')
-            AND ss.is_active = true
-          LIMIT 1
-        )
-        SELECT us.plan_id, sf.feature_id, sf.service_display_name
-        FROM user_subscription us, service_feature sf
-      `;
-
-      if (subscriptionData.length === 0) {
-        throw new Error('User subscription or service feature not found');
-      }
-
-      const { plan_id, feature_id } = subscriptionData[0];
-      const featureValue = isUnlimited ? '-1' : (quotaLimit || 0).toString();
-
-      // Update or insert the plan feature value
-      const updateResult = await sql`
-        INSERT INTO plan_feature_values (plan_id, feature_id, feature_value, created_at)
-        VALUES (${plan_id}, ${feature_id}, ${featureValue}, NOW())
-        ON CONFLICT (plan_id, feature_id)
-        DO UPDATE SET 
-          feature_value = ${featureValue},
-          created_at = NOW()
-        RETURNING *
-      `;
-
-      return { success: true, affectedRows: updateResult.length };
-    });
-
-    return result;
-  } catch (error) {
-    console.error('Quota update error:', error);
-    return { success: false, affectedRows: 0 };
   }
 }
 
@@ -280,7 +131,7 @@ async function updateUserQuota(
 
 /**
  * GET /api/admin/users/[id]/quotas
- * Retrieves user quota information with comprehensive data
+ * Retrieves comprehensive quota information for a specific user
  */
 export async function GET(
   request: NextRequest,
@@ -305,40 +156,68 @@ export async function GET(
       );
     }
 
-    // Validate and parse parameters
-    const paramsResult = ParamsSchema.safeParse(params);
-    if (!paramsResult.success) {
-      return NextResponse.json(
-        { 
-          success: false, 
-          error: 'Invalid user ID format',
-          data: paramsResult.error.issues 
-        },
-        { status: 400 }
-      );
-    }
-
-    const userId = parseInt(paramsResult.data.id);
-
-    // Verify user exists
-    const userExists = await sql`
-      SELECT id FROM users WHERE id = ${userId} LIMIT 1
-    `;
-
-    if (userExists.length === 0) {
+    // Validate user exists
+    const userExists = await validateUserExists(params.id);
+    if (!userExists) {
       return NextResponse.json(
         { success: false, error: 'User not found' },
         { status: 404 }
       );
     }
 
-    // Fetch quota data
-    const quotas = await fetchUserQuotas(userId);
+    // Get comprehensive quota info using EnhancedQuotaService
+    const quotaInfo = await EnhancedQuotaService.getUserQuotaInfo(parseInt(params.id));
+    
+    // Get additional display information
+    const serviceFeatures = await sql`
+      SELECT 
+        ss.name as service_name,
+        sf.name as feature_name,
+        ss.display_name as service_display_name,
+        sf.display_name as feature_display_name
+      FROM subscription_services ss
+      JOIN subscription_features sf ON ss.id = sf.service_id
+      WHERE sf.feature_type = 'limit' AND ss.is_active = true
+    `;
+
+    // Get existing user overrides
+    const userOverrides = await sql`
+      SELECT * FROM user_quota_overrides
+      WHERE user_id = ${params.id} AND is_active = true
+    `;
+
+    // Build comprehensive quota data
+    const quotaData: UserQuotaData[] = [];
+    
+    for (const info of quotaInfo) {
+      const serviceFeature = serviceFeatures.find(
+        sf => sf.service_name === info.service_name && sf.feature_name === info.feature_name
+      );
+      
+      const override = userOverrides.find(
+        uo => uo.service_name === info.service_name && uo.feature_name === info.feature_name
+      );
+
+      quotaData.push({
+        service_name: info.service_name,
+        feature_name: info.feature_name,
+        display_name: serviceFeature ? 
+          `${serviceFeature.service_display_name} - ${serviceFeature.feature_display_name}` : 
+          `${info.service_name} - ${info.feature_name}`,
+        current_usage: info.current_usage,
+        quota_limit: info.quota_limit,
+        is_unlimited: info.is_unlimited,
+        is_custom: !!override,
+        reset_date: info.reset_date?.toISOString() || new Date(Date.now() + 86400000).toISOString(),
+        quota_source: info.quota_source,
+        reset_period: info.reset_period
+      });
+    }
 
     return NextResponse.json({
       success: true,
-      data: { quotas },
-      message: `Retrieved ${quotas.length} quota records`
+      data: { quotas: quotaData },
+      message: `Retrieved ${quotaData.length} quota entries for user`
     });
 
   } catch (error) {
@@ -356,12 +235,12 @@ export async function GET(
 
 /**
  * PATCH /api/admin/users/[id]/quotas
- * Updates user quota limits with comprehensive validation and logging
+ * Updates or creates a user quota override
  */
 export async function PATCH(
   request: NextRequest,
   { params }: { params: { id: string } }
-): Promise<NextResponse<ApiResponse<{ updated: boolean; previous_value?: string }> | ErrorResponse>> {
+): Promise<NextResponse<ApiResponse<{ override: UserQuotaOverride }> | ErrorResponse>> {
   try {
     // Validate session
     const session = await auth();
@@ -381,100 +260,114 @@ export async function PATCH(
       );
     }
 
-    // Validate parameters
-    const paramsResult = ParamsSchema.safeParse(params);
-    if (!paramsResult.success) {
-      return NextResponse.json(
-        { 
-          success: false, 
-          error: 'Invalid user ID format',
-          data: paramsResult.error.issues 
-        },
-        { status: 400 }
-      );
-    }
-
-    const userId = parseInt(paramsResult.data.id);
-
-    // Validate request body
-    const body = await request.json();
-    const bodyResult = UpdateQuotaSchema.safeParse(body);
-    
-    if (!bodyResult.success) {
-      return NextResponse.json(
-        { 
-          success: false, 
-          error: 'Invalid request data',
-          data: bodyResult.error.issues 
-        },
-        { status: 400 }
-      );
-    }
-
-    const { service_name, quota_limit, is_unlimited, reason } = bodyResult.data;
-
-    // Verify user exists
-    const userExists = await sql`
-      SELECT id, email, name FROM users WHERE id = ${userId} LIMIT 1
-    `;
-
-    if (userExists.length === 0) {
+    // Validate user exists
+    const userExists = await validateUserExists(params.id);
+    if (!userExists) {
       return NextResponse.json(
         { success: false, error: 'User not found' },
         { status: 404 }
       );
     }
 
-    // Get current quota value for logging
-    const currentQuotas = await fetchUserQuotas(userId);
-    const currentQuota = currentQuotas.find(q => q.service_name === service_name);
-
-    // Update the quota
-    const updateResult = await updateUserQuota(
-      userId,
-      service_name,
-      quota_limit,
-      is_unlimited
-    );
-
-    if (!updateResult.success) {
+    // Validate request body
+    const body = await request.json();
+    const validationResult = UpdateUserQuotaSchema.safeParse(body);
+    
+    if (!validationResult.success) {
       return NextResponse.json(
         { 
           success: false, 
-          error: 'Failed to update quota',
-          message: 'Service or user subscription not found'
+          error: 'Invalid request data',
+          data: validationResult.error.issues 
         },
         { status: 400 }
       );
     }
 
+    const { service_name, feature_name, quota_limit, is_unlimited, reset_period, reason } = validationResult.data;
+
+    // Verify service and feature exist
+    const serviceFeatureExists = await sql`
+      SELECT ss.display_name as service_display_name, sf.display_name as feature_display_name
+      FROM subscription_services ss
+      JOIN subscription_features sf ON ss.id = sf.service_id
+      WHERE ss.name = ${service_name} AND sf.name = ${feature_name}
+      AND ss.is_active = true
+    `;
+
+    if (serviceFeatureExists.length === 0) {
+      return NextResponse.json(
+        { success: false, error: 'Service or feature not found or inactive' },
+        { status: 404 }
+      );
+    }
+
+    // Calculate final quota limit
+    const finalQuotaLimit = is_unlimited ? -1 : (quota_limit || 1);
+    const finalResetPeriod = reset_period || 'monthly';
+
+    // Check if override already exists
+    const existingOverride = await sql`
+      SELECT id FROM user_quota_overrides
+      WHERE user_id = ${params.id} 
+      AND service_name = ${service_name} 
+      AND feature_name = ${feature_name}
+    `;
+
+    let override;
+    
+    if (existingOverride.length > 0) {
+      // Update existing override
+      override = await sql`
+        UPDATE user_quota_overrides 
+        SET 
+          quota_limit = ${finalQuotaLimit},
+          is_unlimited = ${is_unlimited},
+          reset_period = ${finalResetPeriod},
+          reason = ${reason || null},
+          updated_at = NOW()
+        WHERE id = ${existingOverride[0].id}
+        RETURNING *
+      `;
+    } else {
+      // Create new override
+      override = await sql`
+        INSERT INTO user_quota_overrides (
+          user_id, service_name, feature_name, quota_limit, 
+          is_unlimited, reset_period, reason, created_by, is_active
+        ) VALUES (
+          ${params.id}, ${service_name}, ${feature_name}, ${finalQuotaLimit},
+          ${is_unlimited}, ${finalResetPeriod}, ${reason || null}, ${session.user.id}, true
+        )
+        RETURNING *
+      `;
+    }
+
     // Log the admin action
     await logAdminAction(
       session.user.id,
-      userId,
-      'quota_update',
+      'user_quota_override',
       {
+        target_user_id: params.id,
         service_name,
-        previous_quota: currentQuota?.quota_limit || 0,
-        new_quota: is_unlimited ? -1 : quota_limit,
+        feature_name,
+        quota_limit: finalQuotaLimit,
         is_unlimited,
-        user_email: userExists[0].email,
-        user_name: userExists[0].name
+        reset_period: finalResetPeriod,
+        service_display_name: serviceFeatureExists[0].service_display_name,
+        feature_display_name: serviceFeatureExists[0].feature_display_name
       },
-      reason
+      reason || `Updated quota override for ${service_name}.${feature_name}`
     );
 
-    // SSE notifications removed - admin panel now uses polling for updates
+    const actionType = existingOverride.length > 0 ? 'updated' : 'created';
+    const serviceName = serviceFeatureExists[0].service_display_name;
+    const featureName = serviceFeatureExists[0].feature_display_name;
 
     return NextResponse.json({
       success: true,
-      data: {
-        updated: true,
-        previous_value: currentQuota ? 
-          (currentQuota.is_unlimited ? 'unlimited' : currentQuota.quota_limit.toString()) : 
-          'unknown'
-      },
-      message: `Quota updated successfully for ${service_name}`
+      data: { override: override[0] as unknown as UserQuotaOverride },
+      message: `Quota override ${actionType} for ${serviceName} - ${featureName}`
     });
 
   } catch (error) {
