@@ -6,6 +6,7 @@ import './AdminDashboard.css';
 import AdminPostsList from './components/AdminPostsList';
 import CustomAlertsPanel from './components/CustomAlertsPanel';
 import EmojiApprovalPanel from './components/EmojiApprovalPanel';
+import GlobalGuestQuotaPanel from './components/GlobalGuestQuotaPanel';
 import SubscriptionManagementPanel from './components/SubscriptionManagementPanel';
 import { UserManagementPanel } from './components/UserManagementPanel';
 
@@ -23,6 +24,7 @@ type AdminTab =
   | 'users'
   | 'subscriptions'
   | 'alerts'
+  | 'quotas'
   | 'permissions';
 
 export default function AdminDashboard() {
@@ -41,6 +43,7 @@ export default function AdminDashboard() {
         'users',
         'subscriptions',
         'alerts',
+        'quotas',
         'permissions'
       ].includes(tabFromUrl)
     ) {
@@ -92,6 +95,12 @@ export default function AdminDashboard() {
             Custom Alerts
           </button>
           <button
+            className={`admin-dashboard__tab ${activeTab === 'quotas' ? 'admin-dashboard__tab--active' : ''}`}
+            onClick={() => handleTabChange('quotas')}
+          >
+            Guest Quotas
+          </button>
+          <button
             className={`admin-dashboard__tab ${activeTab === 'permissions' ? 'admin-dashboard__tab--active' : ''}`}
             onClick={() => handleTabChange('permissions')}
           >
@@ -106,6 +115,7 @@ export default function AdminDashboard() {
         {activeTab === 'users' && <UserManagementPanel />}
         {activeTab === 'subscriptions' && <SubscriptionManagementPanel />}
         {activeTab === 'alerts' && <CustomAlertsPanel />}
+        {activeTab === 'quotas' && <GlobalGuestQuotaPanel />}
         {activeTab === 'permissions' && <PermissionManagementPanel />}
       </div>
     </div>
