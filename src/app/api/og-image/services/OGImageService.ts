@@ -67,7 +67,6 @@ export class OGImageService {
     const rateLimitResult = await rateLimitService.checkRateLimit({
       identifier: clientIP,
       configType: 'og-image',
-      bypassDevelopment: true
     });
     
     if (!isDryRun && !rateLimitResult.allowed) {

@@ -71,6 +71,11 @@ export class DatabaseService {
   }
 
   private isDatabaseAvailable(): boolean {
+    // Never connect to database during build time
+    if (process.env.NODE_ENV === 'production' && process.env.NEXT_PHASE === 'phase-production-build') {
+      return false;
+    }
+
     // Skip database in development if specified
     if (process.env.SKIP_DATABASE === 'true') {
       return false;

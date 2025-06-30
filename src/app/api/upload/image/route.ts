@@ -2,15 +2,55 @@ import crypto from 'crypto';
 import { mkdir, writeFile } from 'fs/promises';
 import { NextRequest, NextResponse } from 'next/server';
 import { join } from 'path';
+import { z } from 'zod';
 import { auth } from '../../../../lib/auth';
 import {
-  getMediaConfig,
-  validateFileSize,
-  validateMimeType
+    getMediaConfig,
+    validateFileSize,
+    validateMimeType
 } from '../../../../lib/config/media-domains';
 
 // This route uses dynamic features (auth/headers) and should not be pre-rendered
 export const dynamic = 'force-dynamic';
+
+// ================================
+// VALIDATION SCHEMAS
+// ================================
+
+/**
+ * Schema for image upload form validation
+ */
+const ImageUploadFormSchema = z.object({
+  file: z.instanceof(File),
+}).refine(
+  (data) => {
+    const allowedTypes = [
+      'image/jpeg',
+      'image/jpg',
+      'image/png', 
+      'image/gif',
+      'image/webp'
+    ];
+    return allowedTypes.includes(data.file.type);
+  },
+  {
+    message: 'Invalid file type. Allowed types: JPEG, JPG, PNG, GIF, WebP',
+    path: ['file'],
+  }
+).refine(
+  (data) => {
+    const maxSize = 10 * 1024 * 1024; // 10MB
+    return data.file.size <= maxSize;
+  },
+  {
+    message: 'File too large. Maximum size: 10MB', 
+    path: ['file'],
+  }
+);
+
+// ================================
+// LEGACY CONSTANTS (for backward compatibility)
+// ================================
 
 // Allowed image types and sizes
 const ALLOWED_TYPES = [
@@ -79,6 +119,18 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'No file provided' }, { status: 400 });
     }
 
+    // Validate file with Zod schema
+    const validationResult = ImageUploadFormSchema.safeParse({ file });
+    if (!validationResult.success) {
+      return NextResponse.json(
+        {
+          error: 'File validation failed',
+          details: validationResult.error.errors
+        },
+        { status: 400 }
+      );
+    }
+
     // Validate file type
     if (!validateMimeType(file, 'image')) {
       const config = getMediaConfig('image');
@@ -134,6 +186,14 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     console.error('Image upload error:', error);
+    
+    if (error instanceof z.ZodError) {
+      return NextResponse.json(
+        { error: 'Invalid file data', details: error.errors },
+        { status: 400 }
+      );
+    }
+    
     return NextResponse.json({ error: 'Upload failed' }, { status: 500 });
   }
 }
