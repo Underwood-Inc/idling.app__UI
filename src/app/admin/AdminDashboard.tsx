@@ -4,6 +4,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import './AdminDashboard.css';
 import AdminPostsList from './components/AdminPostsList';
+import CustomAlertsPanel from './components/CustomAlertsPanel';
 import EmojiApprovalPanel from './components/EmojiApprovalPanel';
 import SubscriptionManagementPanel from './components/SubscriptionManagementPanel';
 import { UserManagementPanel } from './components/UserManagementPanel';
@@ -16,7 +17,13 @@ const PermissionManagementPanel = () => (
   </div>
 );
 
-type AdminTab = 'emojis' | 'posts' | 'users' | 'subscriptions' | 'permissions';
+type AdminTab =
+  | 'emojis'
+  | 'posts'
+  | 'users'
+  | 'subscriptions'
+  | 'alerts'
+  | 'permissions';
 
 export default function AdminDashboard() {
   const router = useRouter();
@@ -28,9 +35,14 @@ export default function AdminDashboard() {
     const tabFromUrl = searchParams.get('tab') as AdminTab;
     if (
       tabFromUrl &&
-      ['emojis', 'posts', 'users', 'subscriptions', 'permissions'].includes(
-        tabFromUrl
-      )
+      [
+        'emojis',
+        'posts',
+        'users',
+        'subscriptions',
+        'alerts',
+        'permissions'
+      ].includes(tabFromUrl)
     ) {
       setActiveTab(tabFromUrl);
     }
@@ -74,6 +86,12 @@ export default function AdminDashboard() {
             Subscriptions
           </button>
           <button
+            className={`admin-dashboard__tab ${activeTab === 'alerts' ? 'admin-dashboard__tab--active' : ''}`}
+            onClick={() => handleTabChange('alerts')}
+          >
+            Custom Alerts
+          </button>
+          <button
             className={`admin-dashboard__tab ${activeTab === 'permissions' ? 'admin-dashboard__tab--active' : ''}`}
             onClick={() => handleTabChange('permissions')}
           >
@@ -87,6 +105,7 @@ export default function AdminDashboard() {
         {activeTab === 'posts' && <AdminPostsList />}
         {activeTab === 'users' && <UserManagementPanel />}
         {activeTab === 'subscriptions' && <SubscriptionManagementPanel />}
+        {activeTab === 'alerts' && <CustomAlertsPanel />}
         {activeTab === 'permissions' && <PermissionManagementPanel />}
       </div>
     </div>

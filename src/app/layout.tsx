@@ -9,6 +9,7 @@ import { UserPreferencesProvider } from '../lib/context/UserPreferencesContext';
 import { JotaiProvider } from '../lib/state/JotaiProvider';
 import { SessionRefreshHandler } from './components/auth-buttons/SessionRefreshHandler';
 import { AvatarsBackground } from './components/avatars-background/AvatarsBackground';
+import SimpleBannerSystem from './components/banner-system/SimpleBannerSystem';
 import { NotFoundErrorBoundary } from './components/error-boundary/NotFoundErrorBoundary';
 import FadeIn from './components/fade-in/FadeIn';
 import Footer from './components/footer/Footer';
@@ -288,6 +289,7 @@ export default function RootLayout({
                 <NavigationLoadingBar />
                 <SessionRefreshHandler />
                 <OverlayProvider>
+                  <SimpleBannerSystem />
                   <TimeoutBanner />
                   <main>
                     <AvatarsBackground />
