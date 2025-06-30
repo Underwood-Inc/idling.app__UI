@@ -67,7 +67,7 @@ Authorization: Bearer <admin-token>
     "general": { "limit": 100, "window": 60 },
     "search": { "limit": 200, "window": 60 },
     "upload": { "limit": 5, "window": 60 },
-    "auth": { "limit": 10, "window": 900 },
+    "auth": { "limit": 500, "window": 60 },
     "admin": { "limit": 50, "window": 60 }
   },
   "topBlocked": [
