@@ -56,6 +56,7 @@ export interface GenerationFormState {
 
 export interface QuotaState {
   remainingGenerations: number;
+  quotaLimit: number;
   hasInitializedQuota: boolean;
   isQuotaExceeded: boolean;
 } 

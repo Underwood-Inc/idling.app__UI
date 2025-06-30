@@ -43,6 +43,7 @@ interface GenerationResponse {
   aspectRatio: string;
   generationOptions: GenerationConfig;
   remainingGenerations: number;
+  quotaLimit?: number;
   generationId?: string;
   id?: string;
 }
@@ -114,6 +115,7 @@ export class OGImageService {
         aspectRatio: 'default',
         generationOptions: this.buildGenerationConfig(searchParams),
         remainingGenerations: quotaCheck.remaining === -1 ? 999999 : quotaCheck.remaining,
+        quotaLimit: quotaCheck.quota_limit === -1 ? 999999 : quotaCheck.quota_limit,
         generationId: '',
         id: ''
       };
@@ -214,6 +216,7 @@ export class OGImageService {
       ...result,
       generationOptions: actualGenerationOptions,
       remainingGenerations: quotaCheck.remaining === -1 ? 999999 : Math.max(0, quotaCheck.remaining - 1),
+      quotaLimit: quotaCheck.quota_limit === -1 ? 999999 : quotaCheck.quota_limit,
       generationId: generationId || undefined,
       id: generationId || undefined // For compatibility
     };
