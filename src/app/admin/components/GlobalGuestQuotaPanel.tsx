@@ -53,7 +53,7 @@ interface ApiResponse<T> {
 // MAIN COMPONENT
 // ================================
 
-export default function GlobalGuestQuotaPanel(): JSX.Element {
+export default function GlobalGuestQuotaPanel(): React.JSX.Element {
   // State management
   const [quotas, setQuotas] = useState<GlobalGuestQuota[]>([]);
   const [availableFeatures, setAvailableFeatures] = useState<ServiceFeature[]>(
@@ -253,17 +253,26 @@ export default function GlobalGuestQuotaPanel(): JSX.Element {
   // RENDER METHODS
   // ================================
 
-  const renderCreateForm = (): JSX.Element => (
+  const renderCreateForm = (): React.JSX.Element => (
     <div
       style={{
-        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        background: 'var(--glass-overlay-medium, var(--glass-bg-medium))',
         padding: '20px',
-        borderRadius: '12px',
+        borderRadius: '8px',
         marginBottom: '20px',
-        border: '2px solid rgba(255,255,255,0.1)'
+        border:
+          '1px solid var(--glass-border-overlay-medium, var(--glass-border-medium))',
+        backdropFilter: 'var(--glass-blur-medium)',
+        WebkitBackdropFilter: 'var(--glass-blur-medium)',
+        boxShadow: 'var(--glass-shadow-medium)'
       }}
     >
-      <h3 style={{ color: 'white', marginBottom: '15px' }}>
+      <h3
+        style={{
+          color: 'var(--dark-bg__text-color--primary)',
+          marginBottom: '15px'
+        }}
+      >
         🎯 Create Global Guest Quota
       </h3>
 
@@ -461,7 +470,7 @@ export default function GlobalGuestQuotaPanel(): JSX.Element {
     </div>
   );
 
-  const renderQuotaList = (): JSX.Element => (
+  const renderQuotaList = (): React.JSX.Element => (
     <div>
       <h3 style={{ marginBottom: '15px' }}>📊 Current Global Guest Quotas</h3>
 
@@ -477,11 +486,20 @@ export default function GlobalGuestQuotaPanel(): JSX.Element {
               key={quota.id}
               style={{
                 background: quota.is_active
-                  ? 'linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%)'
-                  : '#f5f5f5',
+                  ? 'var(--glass-overlay-medium, var(--glass-bg-medium))'
+                  : 'var(--glass-overlay-light, var(--glass-bg-light))',
                 padding: '15px',
-                borderRadius: '10px',
-                border: `2px solid ${quota.is_active ? 'rgba(0,0,0,0.1)' : '#ccc'}`
+                borderRadius: '8px',
+                border: `1px solid ${
+                  quota.is_active
+                    ? 'var(--glass-border-overlay-medium, var(--glass-border-medium))'
+                    : 'var(--glass-border-overlay-light, var(--glass-border-light))'
+                }`,
+                backdropFilter: 'var(--glass-blur-medium)',
+                WebkitBackdropFilter: 'var(--glass-blur-medium)',
+                boxShadow: quota.is_active
+                  ? 'var(--glass-shadow-medium)'
+                  : 'var(--glass-shadow-light)'
               }}
             >
               {editingQuota?.id === quota.id ? (
@@ -803,9 +821,13 @@ export default function GlobalGuestQuotaPanel(): JSX.Element {
         style={{
           marginTop: '30px',
           padding: '15px',
-          background: '#f0f8ff',
+          background: 'var(--glass-overlay-light, var(--glass-bg-light))',
           borderRadius: '8px',
-          border: '1px solid #b3d9ff'
+          border:
+            '1px solid var(--glass-border-overlay-light, var(--glass-border-light))',
+          backdropFilter: 'var(--glass-blur-light)',
+          WebkitBackdropFilter: 'var(--glass-blur-light)',
+          boxShadow: 'var(--glass-shadow-light)'
         }}
       >
         <h4 style={{ margin: '0 0 10px 0' }}>
@@ -829,8 +851,8 @@ export default function GlobalGuestQuotaPanel(): JSX.Element {
             monthly reset cycles
           </li>
           <li>
-            <strong>Unlimited:</strong> Check "Unlimited" to remove quota
-            restrictions entirely
+            <strong>Unlimited:</strong> Check &ldquo;Unlimited&rdquo; to remove
+            quota restrictions entirely
           </li>
         </ul>
       </div>
