@@ -165,12 +165,14 @@ export async function POST(
 
     // Get current usage before reset
     const currentUsage = await sql`
-      SELECT COALESCE(SUM(usage_count), 0) as total_usage
-      FROM subscription_usage
-      WHERE user_id = ${params.id}
-      AND service_name = ${service_name}
-      AND feature_name = ${feature_name}
-      AND usage_date >= CURRENT_DATE
+      SELECT COALESCE(SUM(su.usage_count), 0) as total_usage
+      FROM subscription_usage su
+      JOIN subscription_services ss ON su.service_id = ss.id
+      JOIN subscription_features sf ON su.feature_id = sf.id
+      WHERE su.user_id = ${params.id}
+      AND ss.name = ${service_name}
+      AND sf.name = ${feature_name}
+      AND su.usage_date >= CURRENT_DATE
     `;
 
     const previousUsage = parseInt(currentUsage[0]?.total_usage || '0');
@@ -179,8 +181,14 @@ export async function POST(
     const resetResult = await sql`
       DELETE FROM subscription_usage
       WHERE user_id = ${params.id}
-      AND service_name = ${service_name}
-      AND feature_name = ${feature_name}
+      AND service_id IN (
+        SELECT ss.id FROM subscription_services ss WHERE ss.name = ${service_name}
+      )
+      AND feature_id IN (
+        SELECT sf.id FROM subscription_features sf 
+        JOIN subscription_services ss ON sf.service_id = ss.id
+        WHERE ss.name = ${service_name} AND sf.name = ${feature_name}
+      )
       AND usage_date >= CURRENT_DATE
     `;
 
