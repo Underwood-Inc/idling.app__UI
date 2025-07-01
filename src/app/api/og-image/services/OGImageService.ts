@@ -1,3 +1,10 @@
+import {
+  checkGuestQuota,
+  checkUserQuota,
+  recordGuestUsage,
+  recordUserUsage,
+  type QuotaCheck
+} from '@/lib/actions/quota.actions';
 import { auth } from '@/lib/auth';
 import { NextRequest } from 'next/server';
 import { formatRetryAfter } from '../../../../lib/utils/timeFormatting';
@@ -7,44 +14,7 @@ import { DatabaseService } from './DatabaseService';
 import { QuoteService } from './QuoteService';
 import { SVGGenerator } from './SVGGenerator';
 
-// Conditional imports for runtime compatibility
-let EnhancedQuotaService: any = null;
-let EdgeQuotaService: any = null;
-
-// Try to import the appropriate quota service based on runtime
-if (typeof process !== 'undefined' && process.versions?.node) {
-  try {
-    const enhancedModule = require('@/lib/services/EnhancedQuotaService');
-    EnhancedQuotaService = enhancedModule.EnhancedQuotaService;
-  } catch (error) {
-    // Fall back to Edge service if Node.js service unavailable
-    // eslint-disable-next-line no-console
-    console.warn('EnhancedQuotaService unavailable, falling back to EdgeQuotaService');
-  }
-}
-
-// Always import Edge service as fallback
-try {
-  const edgeModule = require('@/lib/services/EdgeQuotaService');
-  EdgeQuotaService = edgeModule.EdgeQuotaService;
-} catch (error) {
-  // eslint-disable-next-line no-console
-  console.error('EdgeQuotaService unavailable');
-}
-
-// Use the available quota service
-const QuotaService = EnhancedQuotaService || EdgeQuotaService;
-
-// Define QuotaCheck interface for compatibility
-interface QuotaCheck {
-  allowed: boolean;
-  remaining: number;
-  quota_limit: number;
-  current_usage: number;
-  is_unlimited: boolean;
-  quota_source: string;
-  reset_date?: Date;
-}
+// Server actions handle all quota operations
 
 interface GenerationConfig {
   // Direct user controls (8)
@@ -113,14 +83,14 @@ export class OGImageService {
     
     if (userId) {
       // Authenticated user - use user quota system
-      quotaCheck = await QuotaService.checkUserQuota(
+      quotaCheck = await checkUserQuota(
         parseInt(userId), 
         'og_generator', 
         'daily_generations'
       );
     } else {
       // Anonymous guest - use global guest quota system
-      quotaCheck = await QuotaService.checkGuestQuota(
+      quotaCheck = await checkGuestQuota(
         { 
           client_ip: clientIP, 
           machine_fingerprint: machineFingerprint,
@@ -169,7 +139,7 @@ export class OGImageService {
     let updatedQuotaCheck: QuotaCheck;
     if (userId) {
       // Record for authenticated user
-      const usageRecord = await QuotaService.recordUserUsage(
+      const usageRecord = await recordUserUsage(
         parseInt(userId),
         'og_generator',
         'daily_generations',
@@ -182,14 +152,14 @@ export class OGImageService {
         }
       );
       // Get updated quota info after recording usage
-      updatedQuotaCheck = await QuotaService.checkUserQuota(
+      updatedQuotaCheck = await checkUserQuota(
         parseInt(userId), 
         'og_generator', 
         'daily_generations'
       );
     } else {
       // Record for guest user
-      const usageRecord = await QuotaService.recordGuestUsage(
+      const usageRecord = await recordGuestUsage(
         {
           client_ip: clientIP,
           machine_fingerprint: machineFingerprint,
@@ -204,7 +174,7 @@ export class OGImageService {
         }
       );
       // Get updated quota info after recording usage
-      updatedQuotaCheck = await QuotaService.checkGuestQuota(
+      updatedQuotaCheck = await checkGuestQuota(
         { 
           client_ip: clientIP, 
           machine_fingerprint: machineFingerprint,
