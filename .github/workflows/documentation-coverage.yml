@@ -2,13 +2,10 @@ name: 📚 Documentation Coverage
 
 on:
   push:
-    branches: [main, develop]
+    branches: [master]
   pull_request:
-    branches: [main, develop]
+    branches: [master]
     types: [opened, synchronize, reopened]
-  schedule:
-    # Run weekly on Sundays at 2 AM UTC
-    - cron: '0 2 * * 0'
 
 permissions:
   contents: read
@@ -66,8 +63,9 @@ jobs:
         run: |
           echo "## 📚 Documentation File Coverage" >> $GITHUB_STEP_SUMMARY
 
-          # Make script executable
+          # Make scripts executable
           chmod +x scripts/check-docs-coverage.py
+          chmod +x scripts/update-pr-description.py
 
           # Run documentation coverage check and capture percentage
           if python scripts/check-docs-coverage.py --fail-under=85 --format=json --output=docs-coverage.json; then
@@ -182,7 +180,7 @@ jobs:
           echo "**Overall Documentation Coverage: ${{ steps.generate-badge.outputs.overall_coverage }}%**" >> $GITHUB_STEP_SUMMARY
 
       - name: 🏷️ Upload coverage badges
-        if: github.ref == 'refs/heads/main'
+        if: github.ref == 'refs/heads/master'
         uses: actions/upload-artifact@v3
         with:
           name: coverage-badges
@@ -263,9 +261,20 @@ jobs:
               body: comment
             });
 
+      - name: 📝 Update README.md with documentation badge
+        if: github.ref == 'refs/heads/master'
+        env:
+          DOC_BADGE_URL: ${{ steps.generate-badge.outputs.badge_url }}
+          OVERALL_COVERAGE: ${{ steps.generate-badge.outputs.overall_coverage }}
+        run: |
+          python scripts/update-readme-badges.py \
+            --badge-type="documentation" \
+            --badge-url="${DOC_BADGE_URL}" \
+            --coverage="${OVERALL_COVERAGE}"
+
       - name: 🚨 Create issue for missing documentation
         if: |
-          github.ref == 'refs/heads/main' && 
+          github.ref == 'refs/heads/master' && 
           (steps.interrogate.outputs.interrogate_passed == 'false' || 
            steps.docs-coverage.outputs.docs_coverage_passed == 'false')
         uses: actions/github-script@v7
