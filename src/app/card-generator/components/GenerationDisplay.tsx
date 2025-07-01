@@ -1,7 +1,7 @@
 'use client';
 
 import { Card } from '../../components/card/Card';
-import styles from '../page.module.css';
+import styles from './GenerationDisplay.module.css';
 
 interface GenerationDisplayProps {
   generationId: string;

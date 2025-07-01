@@ -3,9 +3,9 @@
 import { useState } from 'react';
 import { Card } from '../../components/card/Card';
 import { InstantLink } from '../../components/ui/InstantLink';
-import styles from '../page.module.css';
 import type { GenerationOptions } from '../types/generation';
 import { AdvancedControls } from './AdvancedControls';
+import formStyles from './FormElements.module.css';
 
 export interface AspectRatioOption {
   key: string;
@@ -123,23 +123,23 @@ export function GenerationForm({
   };
 
   return (
-    <Card width="full" className={styles.generation__form__container}>
+    <Card width="full" className={formStyles.generation__form__container}>
       {/* Form Header */}
-      <div className={styles.form__header}>
-        <div className={styles.form__title__container}>
-          <h3 className={styles.form__title}>Configuration</h3>
+      <div className={formStyles.form__header}>
+        <div className={formStyles.form__title__container}>
+          <h3 className={formStyles.form__title}>Configuration</h3>
           {onToggleCollapse && (
             <button
               onClick={onToggleCollapse}
-              className={styles.form__collapse__button}
+              className={formStyles.form__collapse__button}
               title={isCollapsed ? 'Expand form' : 'Collapse form'}
             >
               <span>{isCollapsed ? 'Expand' : 'Collapse'}</span>
               <span
-                className={`${styles.form__collapse__chevron} ${
+                className={`${formStyles.form__collapse__chevron} ${
                   isCollapsed
-                    ? styles['form__collapse__chevron--collapsed']
-                    : styles['form__collapse__chevron--expanded']
+                    ? formStyles['form__collapse__chevron--collapsed']
+                    : formStyles['form__collapse__chevron--expanded']
                 }`}
               >
                 ▼
@@ -151,17 +151,17 @@ export function GenerationForm({
 
       {/* Collapsible Form Content */}
       <div
-        className={`${styles.form__collapsible__content} ${
+        className={`${formStyles.form__collapsible__content} ${
           isCollapsed
-            ? styles['form__collapsible__content--collapsed']
-            : styles['form__collapsible__content--expanded']
+            ? formStyles['form__collapsible__content--collapsed']
+            : formStyles['form__collapsible__content--expanded']
         }`}
       >
         {/* Read-only banner for loaded generations */}
         {isReadOnly && (
-          <div className={styles.form__readonly__banner}>
-            <span className={styles.readonly__icon}>🔒</span>
-            <div className={styles.readonly__text}>
+          <div className={formStyles.form__readonly__banner}>
+            <span className={formStyles.readonly__icon}>🔒</span>
+            <div className={formStyles.readonly__text}>
               <strong>Viewing Loaded Generation</strong>
               <p>
                 This configuration is read-only. Create a new generation to make
@@ -172,50 +172,52 @@ export function GenerationForm({
         )}
 
         {/* Free Configuration Section */}
-        <div className={styles.form__section}>
-          <h4 className={styles.form__section__title}>⚡ Free Configuration</h4>
+        <div className={formStyles.form__section}>
+          <h4 className={formStyles.form__section__title}>
+            ⚡ Free Configuration
+          </h4>
 
           {/* Seeds Section */}
-          <div className={styles.seed__controls__container}>
-            <div className={styles.seed__controls}>
-              <div className={styles.seed__control__group}>
-                <label className={styles.form__label}>
-                  <span className={styles.label__text}>🎲 Main Seed</span>
-                  <div className={styles.seed__display__container}>
+          <div className={formStyles.seed__controls__container}>
+            <div className={formStyles.seed__controls}>
+              <div className={formStyles.seed__control__group}>
+                <label className={formStyles.form__label}>
+                  <span className={formStyles.label__text}>🎲 Main Seed</span>
+                  <div className={formStyles.seed__display__container}>
                     {editingSeed === 'main' ? (
-                      <div className={styles.seed__edit__container}>
+                      <div className={formStyles.seed__edit__container}>
                         <input
                           type="text"
                           value={tempSeed}
                           onChange={(e) => setTempSeed(e.target.value)}
-                          className={styles.seed__input}
+                          className={formStyles.seed__input}
                           placeholder="Enter custom seed..."
                         />
                         <button
                           onClick={handleSeedSave}
-                          className={styles.seed__save}
+                          className={formStyles.seed__save}
                         >
                           ✓
                         </button>
                         <button
                           onClick={handleSeedCancel}
-                          className={styles.seed__cancel}
+                          className={formStyles.seed__cancel}
                         >
                           ✕
                         </button>
                       </div>
                     ) : (
-                      <div className={styles.seed__display}>
+                      <div className={formStyles.seed__display}>
                         <input
                           type="text"
                           value={currentSeed}
                           readOnly
-                          className={styles.seed__display__input}
+                          className={formStyles.seed__display__input}
                           placeholder="Auto-generated seed"
                         />
                         <button
                           onClick={() => handleSeedEdit('main')}
-                          className={styles.seed__edit__btn}
+                          className={formStyles.seed__edit__btn}
                           title="Edit seed"
                           disabled={isReadOnly}
                         >
@@ -227,44 +229,44 @@ export function GenerationForm({
                 </label>
               </div>
 
-              <div className={styles.seed__control__group}>
-                <label className={styles.form__label}>
-                  <span className={styles.label__text}>🧙‍♂️ Avatar Seed</span>
-                  <div className={styles.seed__display__container}>
+              <div className={formStyles.seed__control__group}>
+                <label className={formStyles.form__label}>
+                  <span className={formStyles.label__text}>🧙‍♂️ Avatar Seed</span>
+                  <div className={formStyles.seed__display__container}>
                     {editingSeed === 'avatar' ? (
-                      <div className={styles.seed__edit__container}>
+                      <div className={formStyles.seed__edit__container}>
                         <input
                           type="text"
                           value={tempSeed}
                           onChange={(e) => setTempSeed(e.target.value)}
-                          className={styles.seed__input}
+                          className={formStyles.seed__input}
                           placeholder="Leave empty to use main seed"
                         />
                         <button
                           onClick={handleSeedSave}
-                          className={styles.seed__save}
+                          className={formStyles.seed__save}
                         >
                           ✓
                         </button>
                         <button
                           onClick={handleSeedCancel}
-                          className={styles.seed__cancel}
+                          className={formStyles.seed__cancel}
                         >
                           ✕
                         </button>
                       </div>
                     ) : (
-                      <div className={styles.seed__display}>
+                      <div className={formStyles.seed__display}>
                         <input
                           type="text"
                           value={avatarSeed}
                           readOnly
-                          className={styles.seed__display__input}
+                          className={formStyles.seed__display__input}
                           placeholder="Custom avatar seed (leave empty for random)"
                         />
                         <button
                           onClick={() => handleSeedEdit('avatar')}
-                          className={styles.seed__edit__btn}
+                          className={formStyles.seed__edit__btn}
                           title="Edit avatar seed"
                           disabled={isReadOnly}
                         >
@@ -278,29 +280,26 @@ export function GenerationForm({
             </div>
           </div>
 
-          {/* Quote Section */}
-          <div className={styles.form__row}>
-            <label className={styles.form__label}>
-              <span className={styles.label__text}>💬 Quote</span>
+          {/* Quote and Author Section */}
+          <div className={`${formStyles.form__row} quote__author__row`}>
+            <label className={formStyles.form__label}>
+              <span className={formStyles.label__text}>💬 Quote</span>
               <textarea
                 value={customQuote}
                 onChange={(e) => setCustomQuote(e.target.value)}
-                className={`${styles.quote__input} ${isReadOnly ? styles.form__input__disabled : ''}`}
+                className={`${formStyles.form__textarea} ${isReadOnly ? formStyles.form__input__disabled : ''}`}
                 placeholder="Enter custom quote (leave empty for random quote)"
                 rows={3}
                 disabled={isReadOnly}
               />
             </label>
-          </div>
-
-          <div className={styles.form__row}>
-            <label className={styles.form__label}>
-              <span className={styles.label__text}>👤 Author</span>
+            <label className={formStyles.form__label}>
+              <span className={formStyles.label__text}>👤 Author</span>
               <input
                 type="text"
                 value={customAuthor}
                 onChange={(e) => setCustomAuthor(e.target.value)}
-                className={`${styles.author__input} ${isReadOnly ? styles.form__input__disabled : ''}`}
+                className={`${formStyles.form__input} ${isReadOnly ? formStyles.form__input__disabled : ''}`}
                 placeholder="Quote author (leave empty for random)"
                 disabled={isReadOnly}
               />
@@ -308,9 +307,9 @@ export function GenerationForm({
           </div>
 
           {/* Aspect Ratio Section */}
-          <div className={styles.form__row}>
-            <label className={styles.form__label}>
-              <span className={styles.label__text}>📐 Aspect Ratio</span>
+          <div className={formStyles.form__row}>
+            <label className={formStyles.form__label}>
+              <span className={formStyles.label__text}>📐 Aspect Ratio</span>
               <select
                 value={selectedRatio.key}
                 onChange={(e) => {
@@ -319,7 +318,7 @@ export function GenerationForm({
                   );
                   if (ratio) onRatioChange(ratio);
                 }}
-                className={`${styles.form__input} ${isReadOnly ? styles.form__input__disabled : ''}`}
+                className={`${formStyles.form__input} ${isReadOnly ? formStyles.form__input__disabled : ''}`}
                 disabled={isReadOnly}
               >
                 {aspectRatioOptions.map((ratio) => (
@@ -332,40 +331,40 @@ export function GenerationForm({
           </div>
 
           {/* Dimensions Section */}
-          <div className={styles.form__row}>
-            <label className={styles.form__label}>
-              <span className={styles.label__text}>📏 Width</span>
+          <div className={`${formStyles.form__row} dimensions__row`}>
+            <label className={formStyles.form__label}>
+              <span className={formStyles.label__text}>📏 Width</span>
               <input
                 type="number"
                 value={customWidth}
                 onChange={(e) => setCustomWidth(e.target.value)}
-                className={`${styles.form__input} ${isReadOnly ? styles.form__input__disabled : ''}`}
+                className={`${formStyles.form__input} ${isReadOnly ? formStyles.form__input__disabled : ''}`}
                 placeholder="Auto"
                 min="400"
                 max="2000"
                 disabled={isReadOnly}
               />
             </label>
-            <label className={styles.form__label}>
-              <span className={styles.label__text}>📏 Height</span>
+            <label className={formStyles.form__label}>
+              <span className={formStyles.label__text}>📏 Height</span>
               <input
                 type="number"
                 value={customHeight}
                 onChange={(e) => setCustomHeight(e.target.value)}
-                className={`${styles.form__input} ${isReadOnly ? styles.form__input__disabled : ''}`}
+                className={`${formStyles.form__input} ${isReadOnly ? formStyles.form__input__disabled : ''}`}
                 placeholder="Auto"
                 min="400"
                 max="2000"
                 disabled={isReadOnly}
               />
             </label>
-            <label className={styles.form__label}>
-              <span className={styles.label__text}>🔢 Shape Count</span>
+            <label className={formStyles.form__label}>
+              <span className={formStyles.label__text}>🔢 Shape Count</span>
               <input
                 type="number"
                 value={shapeCount}
                 onChange={(e) => setShapeCount(e.target.value)}
-                className={`${styles.form__input} ${isReadOnly ? styles.form__input__disabled : ''}`}
+                className={`${formStyles.form__input} ${isReadOnly ? formStyles.form__input__disabled : ''}`}
                 placeholder="8"
                 min="0"
                 max="20"
@@ -376,22 +375,22 @@ export function GenerationForm({
         </div>
 
         {/* Pro Configuration Section */}
-        <div className={styles.form__section}>
-          <div className={styles.form__pro__header}>
-            <h4 className={styles.form__section__title}>
+        <div className={formStyles.form__section}>
+          <div className={formStyles.form__pro__header}>
+            <h4 className={formStyles.form__section__title}>
               ⚡ Pro Configuration Options
-              <span className={styles.pro__badge}>PRO</span>
+              <span className={formStyles.pro__badge}>PRO</span>
             </h4>
             <button
               onClick={() => setIsAdvancedOpen(!isAdvancedOpen)}
-              className={styles.form__toggle__button}
+              className={formStyles.form__toggle__button}
             >
               <span>{isAdvancedOpen ? 'Hide Details' : 'Show Details'}</span>
               <span
-                className={`${styles.form__toggle__chevron} ${
+                className={`${formStyles.form__toggle__chevron} ${
                   isAdvancedOpen
-                    ? styles['form__toggle__chevron--expanded']
-                    : styles['form__toggle__chevron--collapsed']
+                    ? formStyles['form__toggle__chevron--expanded']
+                    : formStyles['form__toggle__chevron--collapsed']
                 }`}
               >
                 ▼
@@ -400,10 +399,10 @@ export function GenerationForm({
           </div>
 
           <div
-            className={`${styles.form__advanced__content} ${
+            className={`${formStyles.form__advanced__content} ${
               isAdvancedOpen
-                ? styles['form__advanced__content--expanded']
-                : styles['form__advanced__content--collapsed']
+                ? formStyles['form__advanced__content--expanded']
+                : formStyles['form__advanced__content--collapsed']
             }`}
           >
             <AdvancedControls
@@ -416,10 +415,10 @@ export function GenerationForm({
         </div>
 
         {/* Action Buttons */}
-        <div className={styles.form__buttons}>
+        <div className={formStyles.form__buttons}>
           <button
             onClick={onRandomize}
-            className={`${styles.randomize__button} ${isQuotaExceeded || isReadOnly ? styles.randomize__button__disabled : ''}`}
+            className={`${formStyles.randomize__button} ${isQuotaExceeded || isReadOnly ? formStyles.randomize__button__disabled : ''}`}
             disabled={isQuotaExceeded || isReadOnly}
             title={
               isReadOnly
@@ -432,9 +431,9 @@ export function GenerationForm({
 
           <button
             onClick={onGenerate}
-            className={`${styles.generate__button} ${
+            className={`${formStyles.generate__button} ${
               isQuotaExceeded || isGenerating || isReadOnly
-                ? styles.generate__button__disabled
+                ? formStyles.generate__button__disabled
                 : ''
             }`}
             disabled={isQuotaExceeded || isGenerating || isReadOnly}
@@ -449,14 +448,14 @@ export function GenerationForm({
         </div>
 
         {isQuotaExceeded && (
-          <div className={styles.form__upgrade__notice}>
+          <div className={formStyles.form__upgrade__notice}>
             <h4>⚡ Daily Quota Exceeded</h4>
             <p>
               Upgrade to Pro for unlimited generations and advanced features!
             </p>
             <InstantLink
               href="/subscription"
-              className={styles.form__upgrade__button}
+              className={formStyles.form__upgrade__button}
             >
               Upgrade to Pro 🚀
             </InstantLink>

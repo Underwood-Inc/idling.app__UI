@@ -1,0 +1,287 @@
+/* Generation ID Display */
+.generation__id {
+  margin-top: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.id__label {
+  font-size: 0.8125rem;
+  color: var(--color-text-secondary);
+  font-weight: 500;
+}
+
+.id__value {
+  font-size: 0.75rem;
+  color: var(--brand-primary);
+  background-color: var(--color-background-secondary);
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  border: 1px solid var(--color-border);
+}
+
+.copy__button {
+  background: none;
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  padding: 0.25rem 0.5rem;
+  cursor: pointer;
+  font-size: 0.8rem;
+  color: var(--color-text-secondary);
+  transition: all 0.2s ease;
+}
+
+.copy__button:hover {
+  background-color: var(--color-background-secondary);
+  border-color: var(--brand-primary);
+  transform: translateY(-1px);
+}
+
+.viewer__container {
+  width: 100%;
+}
+
+.viewer__container_fade {
+  width: 100%;
+}
+
+.image__wrapper svg {
+  border: none;
+}
+
+.image__wrapper {
+  padding: 0;
+  margin: 0;
+  border: none;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(12px);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  position: relative;
+  overflow: hidden;
+}
+
+.image__wrapper::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.05) 0%,
+    rgba(255, 255, 255, 0.02) 50%,
+    rgba(0, 0, 0, 0.1) 100%
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+
+.og__image {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  box-shadow:
+    0 4px 20px rgba(0, 0, 0, 0.4),
+    0 0 0 1px rgba(255, 255, 255, 0.1);
+  position: relative;
+  z-index: 2;
+  backdrop-filter: blur(1px);
+}
+
+.og__image svg {
+  width: 100%;
+  height: auto;
+  display: block;
+  /* Ensure SVG scales properly with viewBox */
+  max-width: 100%;
+  max-height: 100%;
+}
+
+.url__link {
+  display: block;
+  width: 100%;
+  padding: 1rem;
+  background-color: var(--color-background-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  font-size: 0.875rem;
+  color: var(--color-primary);
+  word-break: break-all;
+  overflow-wrap: break-word;
+  margin-top: 0.75rem;
+  line-height: 1.4;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.url__link:hover {
+  background-color: var(--color-primary);
+  color: white;
+  border-color: var(--color-primary);
+}
+
+/* Enhanced Generation Display Styles */
+.generation__display__container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+}
+
+.generation__display__container img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+}
+
+.generation__display__container .no__image {
+  padding: 0;
+  margin: 0;
+  border: none;
+}
+
+.generation__display__overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 16px;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  box-shadow:
+    0 12px 40px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15),
+    0 0 0 1px rgba(255, 255, 255, 0.1);
+  z-index: 10;
+}
+
+.generation__display__overlay h3 {
+  color: var(--dark-bg__text-color--primary);
+  font-size: 1.5rem;
+  font-weight: 700;
+  text-align: center;
+  margin: 0;
+}
+
+.generation__display__overlay p {
+  color: var(--dark-bg__text-color--tertiary);
+  text-align: center;
+  margin: 0;
+  line-height: 1.6;
+}
+
+.generation__display__overlay .generation__button {
+  color: var(--brand-primary);
+  background-color: rgba(255, 255, 255, 0.1);
+  padding: 0.875rem 1.5rem;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.generation__display__overlay .generation__button:hover {
+  background: var(--brand-primary);
+  color: var(--dark-bg__text-color--primary);
+}
+
+.generation__display__overlay .generation__button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background: var(--brand-primary);
+}
+
+/* When aside wraps, make it full width */
+@media (max-width: 680px) {
+  .viewer__container {
+    flex-direction: column;
+  }
+
+  .download_aside {
+    flex: none;
+    width: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  .image__wrapper {
+    border-radius: 10px;
+  }
+
+  .og__image {
+    max-width: 100%;
+  }
+
+  .url__link {
+    padding: 0.75rem;
+    font-size: 0.75rem;
+  }
+
+  .generation__header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .generation__id {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .generation__display__container .generation__id {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .generation__display__container .id__value {
+    max-width: 150px;
+  }
+}
+
+@media (max-width: 480px) {
+  .generation__id {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+  }
+
+  .generation__display__container .generation__id {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .generation__display__container .id__value {
+    max-width: 100%;
+  }
+
+  .generation__display__container .copy__button {
+    align-self: flex-start;
+  }
+}

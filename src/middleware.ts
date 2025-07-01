@@ -74,17 +74,23 @@ export default auth(async (req) => {
   // Handle API route rate limiting and authentication
   if (nextUrl.pathname.startsWith('/api/')) {
     // Skip rate limiting for certain endpoints
-    const skipRateLimit = 
-      nextUrl.pathname.includes('/api/auth/session') ||
-      nextUrl.pathname.includes('/api/alerts/active') ||
-      nextUrl.pathname.includes('/api/user/timeout') ||
-      nextUrl.pathname.includes('/api/admin/alerts') ||
-      nextUrl.pathname.includes('/_next/') ||
-      nextUrl.pathname.includes('/api/version') ||
-      nextUrl.pathname.includes('/api/link-preview') ||
-      nextUrl.pathname.includes('/api/test/health') ||
-      nextUrl.pathname.includes('/api/notifications/poll') ||
-      nextUrl.searchParams.get('dry-run') === 'true'; // Skip dry-run requests
+    enum RateLimitExemptPaths {
+      AUTH_SESSION = '/api/auth/session',
+      ALERTS_ACTIVE = '/api/alerts/active',
+      USER_TIMEOUT = '/api/user/timeout',
+      ADMIN_ALERTS = '/api/admin/alerts',
+      NEXT_INTERNAL = '/_next/',
+      VERSION = '/api/version',
+      LINK_PREVIEW = '/api/link-preview',
+      TEST_HEALTH = '/api/test/health',
+      NOTIFICATIONS_POLL = '/api/notifications/poll',
+      BUDDHA_API = 'https://buddha-api.com/api/random'
+    }
+
+    const exemptPaths = Object.values(RateLimitExemptPaths);
+    const isDryRun = nextUrl.searchParams.get('dry-run') === 'true';
+    
+    const skipRateLimit = exemptPaths.some(path => nextUrl.pathname.includes(path)) || isDryRun;
 
     if (skipRateLimit) {
       return NextResponse.next();

@@ -1,11 +1,13 @@
 'use client';
 
 import { InstantLink } from '../../components/ui/InstantLink';
-import styles from '../page.module.css';
 import { QuotaState } from '../types/generation';
+import styles from './QuotaDisplay.module.css';
 
 interface QuotaDisplayProps extends QuotaState {
   showMeter?: boolean;
+  mobile?: boolean;
+  welcome?: boolean;
 }
 
 export function QuotaDisplay({
@@ -13,10 +15,18 @@ export function QuotaDisplay({
   quotaLimit,
   hasInitializedQuota,
   isQuotaExceeded,
-  showMeter = false
+  showMeter = false,
+  mobile = false,
+  welcome = false
 }: QuotaDisplayProps) {
+  const containerClass = welcome
+    ? styles.quota__welcome
+    : mobile
+      ? styles.quota__mobile
+      : styles.quota__section;
+
   return (
-    <div className={styles.quota__section}>
+    <div className={containerClass}>
       <h3>⚡ Mystical Energy</h3>
       <div className={styles.quota__display}>
         {showMeter ? (
@@ -31,7 +41,7 @@ export function QuotaDisplay({
             </div>
             <span className={styles.quota__text}>
               {hasInitializedQuota
-                ? `${remainingGenerations}/${quotaLimit} enchantment today`
+                ? `${remainingGenerations}/${quotaLimit} ${mobile || welcome ? 'enchantment today' : 'enchantment today'}`
                 : 'Channeling energy...'}
             </span>
           </div>
@@ -42,7 +52,7 @@ export function QuotaDisplay({
         )}
         {isQuotaExceeded && (
           <InstantLink href="/subscription" className={styles.quota__upgrade}>
-            Ascend to Archmage 🔮
+            {mobile ? 'Upgrade 🔮' : 'Ascend to Archmage 🔮'}
           </InstantLink>
         )}
       </div>

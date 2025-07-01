@@ -1,0 +1,120 @@
+.header__content {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 2rem;
+  width: 100%;
+}
+
+.header__centered {
+  justify-content: center;
+  text-align: center;
+}
+
+.header__centered .header__text {
+  text-align: center;
+  max-width: 800px;
+}
+
+.header__text {
+  flex: 1;
+}
+
+.header__controls {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  align-items: flex-end;
+  flex-shrink: 0;
+}
+
+.header__buttons {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.header__button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  background-color: var(--brand-primary);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.header__button:hover {
+  background-color: var(--brand-primary--dark);
+  transform: translateY(-1px);
+}
+
+.header__button:first-child {
+  background-color: #3b82f6;
+}
+
+.header__button:first-child:hover {
+  background-color: #2563eb;
+}
+
+.header__button:last-child {
+  background-color: #10b981;
+}
+
+.header__button:last-child:hover {
+  background-color: #059669;
+}
+
+/* Special header styling for wizard mode */
+.header__content.wizard__mode {
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.header__content.wizard__mode .header__text {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.header__content.wizard__mode .quota__display {
+  justify-content: center;
+  margin-top: 1rem;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .header__content {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .header__controls {
+    width: 100%;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .header__buttons {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .header__button {
+    padding: 0.625rem 1rem;
+    font-size: 0.9rem;
+  }
+}

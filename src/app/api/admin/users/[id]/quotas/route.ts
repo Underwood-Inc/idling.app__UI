@@ -8,9 +8,9 @@
  * @author System
  */
 
-import { checkUserQuota } from '@/lib/actions/quota.actions';
 import { auth } from '@/lib/auth';
 import sql from '@/lib/db';
+import { EnhancedQuotaService } from '@/lib/services/EnhancedQuotaService';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 
@@ -177,30 +177,9 @@ export async function GET(
       );
     }
 
-    // Get comprehensive quota info using server actions
-    const services = await sql`
-      SELECT DISTINCT ss.name as service_name, sf.name as feature_name
-      FROM subscription_services ss
-      JOIN subscription_features sf ON ss.id = sf.service_id
-      WHERE sf.feature_type = 'limit' AND ss.is_active = true
-      ORDER BY ss.name, sf.name
-    `;
-
-    const quotaInfo = [];
-    for (const service of services) {
-      const quotaCheck = await checkUserQuota(parseInt(params.id), service.service_name, service.feature_name);
-      quotaInfo.push({
-        service_name: service.service_name,
-        feature_name: service.feature_name,
-        quota_limit: quotaCheck.quota_limit,
-        is_unlimited: quotaCheck.is_unlimited,
-        reset_period: quotaCheck.reset_period,
-        current_usage: quotaCheck.current_usage,
-        reset_date: quotaCheck.reset_date,
-        quota_source: quotaCheck.quota_source
-      });
-    }
-
+    // Get comprehensive quota info using EnhancedQuotaService
+    const quotaInfo = await EnhancedQuotaService.getUserQuotaInfo(parseInt(params.id));
+    
     // Get additional display information
     const serviceFeatures = await sql`
       SELECT 

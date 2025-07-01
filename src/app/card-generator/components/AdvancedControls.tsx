@@ -1,7 +1,7 @@
 'use client';
 
-import styles from '../page.module.css';
 import { GenerationOptions } from '../types/generation';
+import styles from './AdvancedControls.module.css';
 
 interface AdvancedControlsProps {
   options: Partial<GenerationOptions>;

@@ -314,6 +314,17 @@ export default function OgImageViewer() {
                   >
                     📥 SVG
                   </button>
+                  {/* Mobile Quota Display - only visible when aside is hidden */}
+                  <div className={styles.mobile__quota__display}>
+                    <QuotaDisplay
+                      remainingGenerations={quotaState.remainingGenerations}
+                      quotaLimit={quotaState.quotaLimit}
+                      hasInitializedQuota={quotaState.hasInitializedQuota}
+                      isQuotaExceeded={quotaState.isQuotaExceeded}
+                      showMeter
+                      mobile
+                    />
+                  </div>
                 </div>
               </div>
             )}

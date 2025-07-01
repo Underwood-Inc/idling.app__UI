@@ -1,0 +1,325 @@
+/* Advanced Controls Styles */
+.controls__section {
+  margin-bottom: 1.5rem;
+}
+
+.advanced__toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: none;
+  border: 1px solid var(--color-border);
+  color: var(--color-text-primary);
+  padding: 0.75rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  margin: 0 auto;
+  background-color: var(--color-background-secondary);
+}
+
+.advanced__toggle:hover {
+  border-color: var(--brand-primary);
+  background-color: var(--color-background-tertiary);
+}
+
+.advanced__controls {
+  margin-top: 1rem;
+  padding: 1.5rem;
+  background-color: var(--color-background-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+}
+
+.control__group {
+  margin-bottom: 1rem;
+}
+
+.control__group:last-child {
+  margin-bottom: 0;
+}
+
+.control__row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.control__label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+}
+
+.quote__input {
+  padding: 0.75rem;
+  background-color: var(--color-background-primary);
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  font-size: 0.875rem;
+  color: var(--color-text-primary);
+  font-family: inherit;
+  resize: vertical;
+  min-height: 80px;
+}
+
+.quote__input:focus {
+  outline: none;
+  border-color: var(--brand-primary);
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+}
+
+.author__input,
+.dimension__input {
+  padding: 0.5rem 0.75rem;
+  background-color: var(--color-background-primary);
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  font-size: 0.875rem;
+  color: var(--color-text-primary);
+}
+
+.author__input:focus,
+.dimension__input:focus {
+  outline: none;
+  border-color: var(--brand-primary);
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+}
+
+.control__help {
+  margin-top: 1rem;
+  padding: 1rem;
+  background-color: var(--color-background-tertiary);
+  border-radius: 6px;
+  border-left: 3px solid var(--brand-primary);
+}
+
+.control__help p {
+  margin: 0 0 0.5rem 0;
+  font-size: 0.8125rem;
+  color: var(--color-text-secondary);
+  line-height: 1.4;
+}
+
+.control__help p:last-child {
+  margin-bottom: 0;
+}
+
+.control__help strong {
+  color: var(--color-text-primary);
+}
+
+/* Advanced Options Toggle */
+.advanced__toggle {
+  width: 100%;
+  padding: 1rem 1.5rem;
+  background-color: var(--color-background-primary);
+  border: 2px solid var(--color-border);
+  border-radius: 8px;
+  color: var(--color-text-primary);
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  text-align: left;
+}
+
+.advanced__toggle:hover {
+  border-color: var(--brand-primary);
+  background-color: var(--color-background-secondary);
+}
+
+.toggle__badge {
+  background-color: var(--color-background-tertiary);
+  color: var(--color-text-secondary);
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+}
+
+/* Advanced Options Container */
+.advanced__options {
+  background-color: var(--color-background-primary);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-top: 1rem;
+  border-left: 4px solid var(--brand-primary);
+}
+
+.advanced__paywall__notice {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  color: white;
+  padding: 1.5rem;
+  border-radius: 8px;
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.advanced__paywall__notice h4 {
+  margin: 0 0 0.75rem 0;
+  font-size: 1.125rem;
+  font-weight: 700;
+}
+
+.advanced__paywall__notice p {
+  margin: 0 0 1rem 0;
+  line-height: 1.5;
+  opacity: 0.9;
+}
+
+.advanced__upgrade__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background-color: white;
+  color: #d97706;
+  text-decoration: none;
+  border-radius: 6px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.1);
+}
+
+.advanced__upgrade__link:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px -2px rgba(0, 0, 0, 0.2);
+}
+
+/* Advanced controls styling - removed duplicate toggle classes to use FormElements.module.css */
+
+.form__pro__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+
+.form__advanced__content {
+  margin-top: 0.75rem;
+}
+
+.advanced__options {
+  padding-top: 1rem;
+  border-top: 1px solid var(--color-border);
+}
+
+.upgrade__overlay {
+  position: relative;
+  padding: 1.5rem;
+  background: linear-gradient(
+    135deg,
+    rgba(245, 158, 11, 0.1),
+    rgba(251, 191, 36, 0.1)
+  );
+  border: 2px solid var(--brand-primary);
+  border-radius: 12px;
+  text-align: center;
+  margin-top: 1rem;
+}
+
+.upgrade__content h4 {
+  margin: 0 0 0.75rem 0;
+  color: var(--brand-primary);
+  font-size: 1.125rem;
+  font-weight: 700;
+}
+
+.upgrade__content p {
+  margin: 0 0 1rem 0;
+  color: var(--color-text-secondary);
+  line-height: 1.5;
+}
+
+.upgrade__button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background: var(--brand-primary);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.9375rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+}
+
+.upgrade__button:hover {
+  background: var(--brand-primary--dark);
+  transform: translateY(-1px);
+}
+
+/* Advanced controls styling */
+.advanced__controls__grid {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.form__subsection {
+  margin-bottom: 1rem;
+}
+
+.form__subsection:last-child {
+  margin-bottom: 0;
+}
+
+/* Enhanced form element visibility - using CSS variables instead of !important */
+.generation__form__container .form__input,
+.generation__form__container .form__textarea,
+.generation__form__container .form__select {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: var(--dark-bg__text-color--primary);
+  padding: 0.75rem;
+  border-radius: 6px;
+}
+
+.generation__form__container .form__input:focus,
+.generation__form__container .form__textarea:focus,
+.generation__form__container .form__select:focus {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.4);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1);
+}
+
+.generation__form__container .form__input::placeholder,
+.generation__form__container .form__textarea::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .control__row {
+    grid-template-columns: 1fr;
+  }
+
+  .form__pro__header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .form__toggle__button {
+    align-self: flex-end;
+  }
+}
+
+/* Reduced Motion Support - handled in FormElements.module.css */
