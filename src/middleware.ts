@@ -73,6 +73,23 @@ export default auth(async (req) => {
 
   // Handle API route rate limiting and authentication
   if (nextUrl.pathname.startsWith('/api/')) {
+    // Skip rate limiting for certain endpoints
+    const skipRateLimit = 
+      nextUrl.pathname.includes('/api/auth/session') ||
+      nextUrl.pathname.includes('/api/alerts/active') ||
+      nextUrl.pathname.includes('/api/user/timeout') ||
+      nextUrl.pathname.includes('/api/admin/alerts') ||
+      nextUrl.pathname.includes('/_next/') ||
+      nextUrl.pathname.includes('/api/version') ||
+      nextUrl.pathname.includes('/api/link-preview') ||
+      nextUrl.pathname.includes('/api/test/health') ||
+      nextUrl.pathname.includes('/api/notifications/poll') ||
+      nextUrl.searchParams.get('dry-run') === 'true'; // Skip dry-run requests
+
+    if (skipRateLimit) {
+      return NextResponse.next();
+    }
+
     // Get comprehensive request identifiers for flexible rate limiting
     const identifiers = getRequestIdentifier(req, session);
     const rateLimitType = getRateLimitType(nextUrl.pathname);
