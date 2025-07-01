@@ -53,12 +53,6 @@ def update_pr_description(pr_number, repo, token):
 
 ![Documentation Coverage]({badge_url})
 
-| Metric | Coverage | Status |
-|--------|----------|--------|
-| **Overall Documentation** | **{overall_coverage}%** | {overall_status} |
-| Documentation Files | {doc_coverage}% | {docs_status} |
-| Python Docstrings | {docstring_coverage}% | {docstring_status} |
-
 *Updated automatically by Documentation Coverage workflow*
 
 ---
