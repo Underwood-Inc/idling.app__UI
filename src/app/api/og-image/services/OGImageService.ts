@@ -1,5 +1,4 @@
 import { auth } from '@/lib/auth';
-import { EnhancedQuotaService, QuotaCheck } from '@/lib/services/EnhancedQuotaService';
 import { NextRequest } from 'next/server';
 import { formatRetryAfter } from '../../../../lib/utils/timeFormatting';
 import { ASPECT_RATIOS } from '../config';
@@ -7,6 +6,45 @@ import { AvatarService } from './AvatarService';
 import { DatabaseService } from './DatabaseService';
 import { QuoteService } from './QuoteService';
 import { SVGGenerator } from './SVGGenerator';
+
+// Conditional imports for runtime compatibility
+let EnhancedQuotaService: any = null;
+let EdgeQuotaService: any = null;
+
+// Try to import the appropriate quota service based on runtime
+if (typeof process !== 'undefined' && process.versions?.node) {
+  try {
+    const enhancedModule = require('@/lib/services/EnhancedQuotaService');
+    EnhancedQuotaService = enhancedModule.EnhancedQuotaService;
+  } catch (error) {
+    // Fall back to Edge service if Node.js service unavailable
+    // eslint-disable-next-line no-console
+    console.warn('EnhancedQuotaService unavailable, falling back to EdgeQuotaService');
+  }
+}
+
+// Always import Edge service as fallback
+try {
+  const edgeModule = require('@/lib/services/EdgeQuotaService');
+  EdgeQuotaService = edgeModule.EdgeQuotaService;
+} catch (error) {
+  // eslint-disable-next-line no-console
+  console.error('EdgeQuotaService unavailable');
+}
+
+// Use the available quota service
+const QuotaService = EnhancedQuotaService || EdgeQuotaService;
+
+// Define QuotaCheck interface for compatibility
+interface QuotaCheck {
+  allowed: boolean;
+  remaining: number;
+  quota_limit: number;
+  current_usage: number;
+  is_unlimited: boolean;
+  quota_source: string;
+  reset_date?: Date;
+}
 
 interface GenerationConfig {
   // Direct user controls (8)
@@ -75,14 +113,14 @@ export class OGImageService {
     
     if (userId) {
       // Authenticated user - use user quota system
-      quotaCheck = await EnhancedQuotaService.checkUserQuota(
+      quotaCheck = await QuotaService.checkUserQuota(
         parseInt(userId), 
         'og_generator', 
         'daily_generations'
       );
     } else {
       // Anonymous guest - use global guest quota system
-      quotaCheck = await EnhancedQuotaService.checkGuestQuota(
+      quotaCheck = await QuotaService.checkGuestQuota(
         { 
           client_ip: clientIP, 
           machine_fingerprint: machineFingerprint,
@@ -127,10 +165,11 @@ export class OGImageService {
     // Generate the image with actual values
     const result = await this.callGenerationAPI(config);
 
-    // Record usage in the appropriate quota system
+    // Record usage in the appropriate quota system and get updated quota info
+    let updatedQuotaCheck: QuotaCheck;
     if (userId) {
       // Record for authenticated user
-      await EnhancedQuotaService.recordUserUsage(
+      const usageRecord = await QuotaService.recordUserUsage(
         parseInt(userId),
         'og_generator',
         'daily_generations',
@@ -142,9 +181,15 @@ export class OGImageService {
           generation_config: config
         }
       );
+      // Get updated quota info after recording usage
+      updatedQuotaCheck = await QuotaService.checkUserQuota(
+        parseInt(userId), 
+        'og_generator', 
+        'daily_generations'
+      );
     } else {
       // Record for guest user
-      await EnhancedQuotaService.recordGuestUsage(
+      const usageRecord = await QuotaService.recordGuestUsage(
         {
           client_ip: clientIP,
           machine_fingerprint: machineFingerprint,
@@ -157,6 +202,16 @@ export class OGImageService {
           generation_config: config,
           user_agent: userAgent
         }
+      );
+      // Get updated quota info after recording usage
+      updatedQuotaCheck = await QuotaService.checkGuestQuota(
+        { 
+          client_ip: clientIP, 
+          machine_fingerprint: machineFingerprint,
+          user_agent_hash: this.hashUserAgent(userAgent)
+        },
+        'og_generator',
+        'daily_generations'
       );
     }
 
@@ -215,8 +270,8 @@ export class OGImageService {
     return {
       ...result,
       generationOptions: actualGenerationOptions,
-      remainingGenerations: quotaCheck.remaining === -1 ? 999999 : Math.max(0, quotaCheck.remaining - 1),
-      quotaLimit: quotaCheck.quota_limit === -1 ? 999999 : quotaCheck.quota_limit,
+      remainingGenerations: updatedQuotaCheck.remaining === -1 ? 999999 : updatedQuotaCheck.remaining,
+      quotaLimit: updatedQuotaCheck.quota_limit === -1 ? 999999 : updatedQuotaCheck.quota_limit,
       generationId: generationId || undefined,
       id: generationId || undefined // For compatibility
     };

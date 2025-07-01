@@ -40,7 +40,9 @@ export function useGenerationLoader({
       setSelectedRatio('default');
       setLoadedOptions(null);
 
-      const response = await fetch(`/api/og-image/${id}?format=json`);
+      const response = await fetch(`/api/og-image/${id}?format=json`, {
+        credentials: 'include'
+      });
 
       if (!response.ok) {
         throw new Error('Generation not found');

@@ -77,10 +77,37 @@ const areBannersEqual = (prev: BannerData[], next: BannerData[]): boolean => {
   return prevKeys.every((key, index) => key === nextKeys[index]);
 };
 
+// Helper function to clean up old dismissed alerts from localStorage
+const cleanupDismissedAlerts = () => {
+  try {
+    const dismissedAlerts = JSON.parse(
+      localStorage.getItem('dismissedAlerts') || '[]'
+    );
+    const oneWeekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000; // 7 days
+
+    // For now, we'll just limit to 50 most recent dismissals to prevent unbounded growth
+    // In the future, we could store dismissal timestamps and clean by date
+    if (dismissedAlerts.length > 50) {
+      const recentDismissals = dismissedAlerts.slice(-50);
+      localStorage.setItem('dismissedAlerts', JSON.stringify(recentDismissals));
+    }
+  } catch (error) {
+    // If localStorage is corrupted, reset it
+    localStorage.removeItem('dismissedAlerts');
+  }
+};
+
 export function useSimpleBanners() {
   const [banners, setBanners] = useState<BannerData[]>([]);
   const { data: session } = useSession();
   const lastFetchRef = useRef<string>(''); // Track last successful fetch signature
+
+  // Clean up dismissed alerts on component mount
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      cleanupDismissedAlerts();
+    }
+  }, []);
 
   // Check for all types of banners via polling
   useEffect(() => {
@@ -95,7 +122,30 @@ export function useSimpleBanners() {
           if (alertsResponse.ok) {
             const dbAlerts: DatabaseAlert[] = await alertsResponse.json();
 
+            // For anonymous users, filter out dismissed alerts from localStorage
+            let dismissedAlerts: string[] = [];
+            if (!session?.user?.id) {
+              try {
+                dismissedAlerts = JSON.parse(
+                  localStorage.getItem('dismissedAlerts') || '[]'
+                );
+              } catch (error) {
+                forceLog(
+                  'Failed to parse dismissed alerts from localStorage:',
+                  error
+                );
+              }
+            }
+
             dbAlerts.forEach((alert) => {
+              // Skip alerts that anonymous users have dismissed
+              if (
+                !session?.user?.id &&
+                dismissedAlerts.includes(alert.id.toString())
+              ) {
+                return;
+              }
+
               const bannerData = {
                 id: `alert-${alert.id}`,
                 type: alert.alert_type,
@@ -123,7 +173,10 @@ export function useSimpleBanners() {
         if (session?.user?.id) {
           try {
             const timeoutResponse = await fetch(
-              '/api/user/timeout?type=post_creation'
+              '/api/user/timeout?type=post_creation',
+              {
+                credentials: 'include' // Ensure authentication headers are sent
+              }
             );
             if (timeoutResponse.ok) {
               const timeoutInfo = await timeoutResponse.json();
@@ -144,6 +197,13 @@ export function useSimpleBanners() {
                   }
                 });
               }
+            } else if (timeoutResponse.status === 401) {
+              // User session expired, don't log this as an error
+              forceLog(
+                'User session expired, skipping timeout check',
+                null,
+                'debug'
+              );
             }
           } catch (error) {
             forceLog('Failed to fetch timeout info:', error, 'error');
@@ -243,20 +303,43 @@ export function useSimpleBanners() {
     };
   }, [session?.user?.id]);
 
-  const dismissBanner = useCallback((id: string) => {
-    setBanners((prev) => prev.filter((b) => b.id !== id));
+  const dismissBanner = useCallback(
+    (id: string) => {
+      setBanners((prev) => prev.filter((b) => b.id !== id));
 
-    // If dismissing a database alert, record the dismissal
-    if (id.startsWith('alert-')) {
-      const alertId = id.replace('alert-', '');
-      fetch(`/api/alerts/${alertId}/dismiss`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' }
-      }).catch((error) => {
-        forceLog('Failed to record alert dismissal:', error);
-      });
-    }
-  }, []);
+      // If dismissing a database alert, record the dismissal
+      if (id.startsWith('alert-')) {
+        const alertId = id.replace('alert-', '');
+
+        if (session?.user?.id) {
+          // Authenticated user - record dismissal in database
+          fetch(`/api/alerts/${alertId}/dismiss`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+          }).catch((error) => {
+            forceLog('Failed to record alert dismissal:', error);
+          });
+        } else {
+          // Anonymous user - store dismissal in localStorage
+          try {
+            const dismissedAlerts = JSON.parse(
+              localStorage.getItem('dismissedAlerts') || '[]'
+            );
+            if (!dismissedAlerts.includes(alertId)) {
+              dismissedAlerts.push(alertId);
+              localStorage.setItem(
+                'dismissedAlerts',
+                JSON.stringify(dismissedAlerts)
+              );
+            }
+          } catch (error) {
+            forceLog('Failed to store dismissal in localStorage:', error);
+          }
+        }
+      }
+    },
+    [session?.user?.id]
+  );
 
   return {
     banners,
@@ -588,6 +671,7 @@ const Banner = React.memo(function Banner({
 
 export default function SimpleBannerSystem() {
   const { banners, dismissBanner } = useSimpleBanners();
+  const { data: session } = useSession();
 
   // Add global refresh function for testing (but remove debug logging)
   useEffect(() => {
@@ -596,13 +680,23 @@ export default function SimpleBannerSystem() {
     };
 
     (window as any).__bannerDebug = () => {
+      const dismissedAlerts = localStorage.getItem('dismissedAlerts');
       return {
         bannerCount: banners.length,
         banners: banners,
-        isSimpleBannerSystemMounted: true
+        isSimpleBannerSystemMounted: true,
+        dismissedAlerts: dismissedAlerts ? JSON.parse(dismissedAlerts) : [],
+        isAuthenticated: !!session?.user?.id
       };
     };
-  }, [banners]);
+
+    // Debug helper to clear dismissed alerts
+    (window as any).__clearDismissedAlerts = () => {
+      localStorage.removeItem('dismissedAlerts');
+      window.dispatchEvent(new CustomEvent('refresh-alerts'));
+      return 'Dismissed alerts cleared and banners refreshed';
+    };
+  }, [banners, session?.user?.id]);
 
   // Memoize sorted banners to prevent unnecessary re-sorts
   const sortedBanners = useMemo(() => {

@@ -207,20 +207,30 @@ export class EnhancedQuotaService {
     metadata?: any
   ): Promise<UsageRecord> {
     try {
-      // Record in guest_usage_tracking table
+      // Record in guest_usage_tracking table directly
       const result = await sql`
-        SELECT record_guest_usage(
-          ${guestIdentity.client_ip},
-          ${serviceName},
-          ${featureName},
+        INSERT INTO guest_usage_tracking (
+          client_ip, service_name, feature_name, machine_fingerprint, user_agent_hash,
+          usage_date, usage_count, metadata
+        ) VALUES (
+          ${guestIdentity.client_ip}, 
+          ${serviceName}, 
+          ${featureName}, 
           ${guestIdentity.machine_fingerprint || null},
           ${guestIdentity.user_agent_hash || null},
-          ${usageCount},
+          CURRENT_DATE, 
+          ${usageCount}, 
           ${metadata ? JSON.stringify(metadata) : null}
-        ) as success
+        )
+        ON CONFLICT (client_ip, machine_fingerprint, service_name, feature_name, usage_date)
+        DO UPDATE SET 
+          usage_count = guest_usage_tracking.usage_count + ${usageCount},
+          updated_at = NOW(),
+          metadata = COALESCE(${metadata ? JSON.stringify(metadata) : null}, guest_usage_tracking.metadata)
+        RETURNING usage_count
       `;
 
-      if (result[0]?.success) {
+      if (result.length > 0) {
         // Get updated usage info
         const quotaCheck = await this.checkGuestQuota(guestIdentity, serviceName, featureName);
         return {
@@ -383,15 +393,75 @@ export class EnhancedQuotaService {
     resetPeriod: string
   ): Promise<number> {
     try {
-      const result = await sql`
-        SELECT get_guest_usage(
-          ${guestIdentity.client_ip},
-          ${serviceName},
-          ${featureName},
-          ${guestIdentity.machine_fingerprint || null},
-          ${resetPeriod}
-        ) as usage_count
-      `;
+      let result;
+      
+      // Determine date filter based on reset period
+      switch (resetPeriod) {
+        case 'hourly':
+          // Get usage from current hour
+          result = await sql`
+            SELECT COALESCE(SUM(usage_count), 0) as usage_count
+            FROM guest_usage_tracking
+            WHERE client_ip = ${guestIdentity.client_ip}
+            AND (machine_fingerprint = ${guestIdentity.machine_fingerprint || null} OR (machine_fingerprint IS NULL AND ${guestIdentity.machine_fingerprint || null} IS NULL))
+            AND service_name = ${serviceName}
+            AND feature_name = ${featureName}
+            AND created_at >= DATE_TRUNC('hour', NOW())
+          `;
+          break;
+          
+        case 'daily':
+          // Get usage from current day
+          result = await sql`
+            SELECT COALESCE(SUM(usage_count), 0) as usage_count
+            FROM guest_usage_tracking
+            WHERE client_ip = ${guestIdentity.client_ip}
+            AND (machine_fingerprint = ${guestIdentity.machine_fingerprint || null} OR (machine_fingerprint IS NULL AND ${guestIdentity.machine_fingerprint || null} IS NULL))
+            AND service_name = ${serviceName}
+            AND feature_name = ${featureName}
+            AND usage_date = CURRENT_DATE
+          `;
+          break;
+          
+        case 'weekly':
+          // Get usage from current week
+          result = await sql`
+            SELECT COALESCE(SUM(usage_count), 0) as usage_count
+            FROM guest_usage_tracking
+            WHERE client_ip = ${guestIdentity.client_ip}
+            AND (machine_fingerprint = ${guestIdentity.machine_fingerprint || null} OR (machine_fingerprint IS NULL AND ${guestIdentity.machine_fingerprint || null} IS NULL))
+            AND service_name = ${serviceName}
+            AND feature_name = ${featureName}
+            AND usage_date >= DATE_TRUNC('week', CURRENT_DATE)
+          `;
+          break;
+          
+        case 'monthly':
+          // Get usage from current month
+          result = await sql`
+            SELECT COALESCE(SUM(usage_count), 0) as usage_count
+            FROM guest_usage_tracking
+            WHERE client_ip = ${guestIdentity.client_ip}
+            AND (machine_fingerprint = ${guestIdentity.machine_fingerprint || null} OR (machine_fingerprint IS NULL AND ${guestIdentity.machine_fingerprint || null} IS NULL))
+            AND service_name = ${serviceName}
+            AND feature_name = ${featureName}
+            AND usage_date >= DATE_TRUNC('month', CURRENT_DATE)
+          `;
+          break;
+          
+        default:
+          // Default to daily
+          result = await sql`
+            SELECT COALESCE(SUM(usage_count), 0) as usage_count
+            FROM guest_usage_tracking
+            WHERE client_ip = ${guestIdentity.client_ip}
+            AND (machine_fingerprint = ${guestIdentity.machine_fingerprint || null} OR (machine_fingerprint IS NULL AND ${guestIdentity.machine_fingerprint || null} IS NULL))
+            AND service_name = ${serviceName}
+            AND feature_name = ${featureName}
+            AND usage_date = CURRENT_DATE
+          `;
+      }
+      
       return result[0]?.usage_count || 0;
     } catch (error) {
       console.error('Error getting guest usage:', error);

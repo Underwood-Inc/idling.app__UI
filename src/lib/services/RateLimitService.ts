@@ -9,8 +9,35 @@
  * - Attack detection and progressive penalties
  */
 
-import { DatabaseService } from '../../app/api/og-image/services/DatabaseService';
-import { logger } from '../logging/instances';
+// Conditional imports to support both Node.js and Edge Runtime
+let DatabaseService: any = null;
+let logger: any = null;
+
+// Only import Node.js dependencies when running in Node.js runtime
+if (typeof process !== 'undefined' && process.versions?.node) {
+  try {
+    DatabaseService = require('../../app/api/og-image/services/DatabaseService').DatabaseService;
+    logger = require('../logging/instances').logger;
+  } catch (error) {
+    // Fallback for Edge Runtime or when dependencies are unavailable
+    // eslint-disable-next-line no-console
+    console.warn('Node.js dependencies unavailable, using Edge-compatible fallbacks');
+  }
+}
+
+// Fallback logger for Edge Runtime
+if (!logger) {
+  logger = {
+    // eslint-disable-next-line no-console
+    info: console.log,
+    // eslint-disable-next-line no-console
+    warn: console.warn,
+    // eslint-disable-next-line no-console
+    error: console.error,
+    // eslint-disable-next-line no-console
+    debug: console.debug
+  };
+}
 
 // ============================================================================
 // TYPES & INTERFACES
@@ -57,7 +84,7 @@ export interface RateLimitOptions {
 
 export class RateLimitService {
   private memoryStore = new Map<string, RateLimitEntry>();
-  private databaseService: DatabaseService | null = null;
+  private databaseService: any = null;
   private cleanupInterval: ReturnType<typeof setInterval>;
   private static instance: RateLimitService;
 
@@ -131,8 +158,9 @@ export class RateLimitService {
   constructor() {
     // Initialize database service for daily quotas - with better error handling
     try {
-      this.databaseService = DatabaseService.getInstance();
+      this.databaseService = DatabaseService?.getInstance() || null;
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.warn('Database service unavailable, falling back to memory-only rate limiting:', error);
       this.databaseService = null;
     }

@@ -212,8 +212,8 @@ export async function POST(
 
     return NextResponse.json({
       success: true,
-      data: { 
-        reset: true, 
+      data: {
+        reset: true,
         previous_usage: previousUsage 
       },
       message: `Usage reset for ${serviceName} - ${featureName}. Previous usage: ${previousUsage}`

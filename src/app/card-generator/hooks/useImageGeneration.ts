@@ -125,7 +125,9 @@ export function useImageGeneration(props: UseImageGenerationProps) {
       }
       // For forceRandom=true, we only send ratio and format, letting server randomize everything
 
-      const response = await fetch(`/api/og-image?${params.toString()}`);
+      const response = await fetch(`/api/og-image?${params.toString()}`, {
+        credentials: 'include'
+      });
       
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));

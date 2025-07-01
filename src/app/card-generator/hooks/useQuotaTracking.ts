@@ -24,7 +24,9 @@ export function useQuotaTracking(): QuotaState & {
     if (hasInitializedQuota) return;
 
     try {
-      const response = await fetch('/api/og-image?format=json&dry-run=true');
+      const response = await fetch('/api/og-image?format=json&dry-run=true', {
+        credentials: 'include'
+      });
       if (response.ok) {
         const data = await response.json();
         if (data.remainingGenerations !== undefined) {
