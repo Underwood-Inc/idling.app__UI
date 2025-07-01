@@ -167,7 +167,7 @@
 
 .user-profile__admin-link {
   background: var(--brand-primary);
-  color: white;
+  color: white !important;
   border: 1px solid var(--brand-primary--dark);
   border-radius: calc(var(--border-radius) / 2);
   padding: 0.5rem 0.75rem;
@@ -686,7 +686,6 @@
 
 /* Reduced Motion Support */
 @media (prefers-reduced-motion: reduce) {
-
   .user-profile,
   .user-profile__stat {
     transition: none;

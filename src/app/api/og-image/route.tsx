@@ -70,14 +70,29 @@ export async function GET(request: NextRequest) {
     // Generate the image with ALL parameters - handles quota checking and recording internally
     const result = await ogImageService.generateImage(request);
 
+    // Determine if this is a seeded (deterministic) request
+    const isSeededRequest = !!(customSeed || (customQuote && customAuthor));
+
+    // Set appropriate cache headers based on whether content is deterministic
+    const cacheHeaders: Record<string, string> = isSeededRequest
+      ? {
+          'Cache-Control':
+            'public, max-age=86400, s-maxage=86400, stale-while-revalidate=604800', // 1 day cache, 1 week stale
+          'CDN-Cache-Control': 'public, max-age=31536000', // 1 year for CDN
+          'Vercel-CDN-Cache-Control': 'public, max-age=31536000'
+        }
+      : {
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          Pragma: 'no-cache',
+          Expires: '0'
+        };
+
     // Return JSON response if requested
     if (wantsJson) {
       return new Response(JSON.stringify(result), {
         headers: {
           'Content-Type': 'application/json',
-          'Cache-Control': 'no-cache, no-store, must-revalidate',
-          Pragma: 'no-cache',
-          Expires: '0'
+          ...cacheHeaders
         }
       });
     }
@@ -86,7 +101,7 @@ export async function GET(request: NextRequest) {
     return new Response(result.svg, {
       headers: {
         'Content-Type': 'image/svg+xml',
-        'Cache-Control': 'public, max-age=31536000, immutable',
+        ...cacheHeaders,
 
         // Core generation info
         'X-Generated-Seed': result.seed,
@@ -94,6 +109,7 @@ export async function GET(request: NextRequest) {
         'X-Dimensions': `${result.dimensions.width}x${result.dimensions.height}`,
         'X-Aspect-Ratio': result.aspectRatio,
         'X-Remaining-Generations': result.remainingGenerations.toString(),
+        'X-Is-Seeded': isSeededRequest.toString(),
 
         // User controls for frontend prefilling
         'X-Seed': customSeed || '',

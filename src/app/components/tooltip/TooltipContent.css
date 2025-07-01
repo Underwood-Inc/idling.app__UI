@@ -219,7 +219,7 @@
   background: var(--light-background--quaternary);
   border: 1px solid var(--brand-tertiary--dark);
   border-radius: var(--border-radius);
-  color: var(--dark-bg__text-color--primary);
+  color: var(--light-bg__text-color--primary);
   font-size: var(--font-size-xs);
   cursor: pointer;
   transition: all 0.2s ease;

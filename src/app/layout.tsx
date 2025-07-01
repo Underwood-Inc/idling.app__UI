@@ -41,7 +41,7 @@ export const metadata: Metadata = {
     siteName: 'Idling.app',
     images: [
       {
-        url: '/api/og-image',
+        url: '/api/og-image?seed=idling-app-social-share&quote=Revisit%20often%20to%20see%20the%20latest%20changes%20and%20play!&author=Idling.app',
         width: 1200,
         height: 630,
         alt: 'Idling.app - Wisdom & Community'
@@ -52,7 +52,9 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'Idling.app',
     description: 'Revisit often to see the latest changes and play!',
-    images: ['/api/og-image']
+    images: [
+      '/api/og-image?seed=idling-app-social-share&quote=Revisit%20often%20to%20see%20the%20latest%20changes%20and%20play!&author=Idling.app'
+    ]
   },
   appleWebApp: {
     capable: true,
