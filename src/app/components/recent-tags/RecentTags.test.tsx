@@ -170,9 +170,9 @@ describe('RecentTagsClient', () => {
     });
 
     expect(screen.getByText('Recent Tags')).toBeInTheDocument();
-    expect(screen.getByText('javascript')).toBeInTheDocument();
-    expect(screen.getByText('react')).toBeInTheDocument();
-    expect(screen.getByText('typescript')).toBeInTheDocument();
+    expect(screen.getByText('#javascript')).toBeInTheDocument();
+    expect(screen.getByText('#react')).toBeInTheDocument();
+    expect(screen.getByText('#typescript')).toBeInTheDocument();
   });
 
   it('does not show AND/OR toggle with single tag selected', async () => {
@@ -201,6 +201,7 @@ describe('RecentTagsClient', () => {
     });
 
     // Should not show the toggle
+    expect(screen.queryByText('OR')).not.toBeInTheDocument();
     expect(screen.queryByText('ANY')).not.toBeInTheDocument();
     expect(screen.queryByText('ALL')).not.toBeInTheDocument();
   });
@@ -234,8 +235,9 @@ describe('RecentTagsClient', () => {
     });
 
     // Should show the toggle
-    expect(screen.getByText('ANY')).toBeInTheDocument();
-    expect(screen.getByText('ALL')).toBeInTheDocument();
+    expect(screen.getByText('OR')).toBeInTheDocument();
+    expect(screen.queryByText('ANY')).not.toBeInTheDocument();
+    expect(screen.queryByText('ALL')).not.toBeInTheDocument();
   });
 
   it('handles tag selection correctly', async () => {
@@ -253,7 +255,7 @@ describe('RecentTagsClient', () => {
     });
 
     // Click on a tag
-    const tagButton = screen.getByText('javascript');
+    const tagButton = screen.getByText('#javascript');
     fireEvent.click(tagButton);
 
     // Should call setFiltersState to add the tag
@@ -288,7 +290,7 @@ describe('RecentTagsClient', () => {
     });
 
     // Click on another tag
-    const reactButton = screen.getByText('react');
+    const reactButton = screen.getByText('#react');
     fireEvent.click(reactButton);
 
     // Should call setFiltersState to add the second tag
@@ -326,11 +328,11 @@ describe('RecentTagsClient', () => {
       ).not.toBeInTheDocument();
     });
 
-    // Find and click the ALL button to switch from ANY to ALL
-    const allButton = screen.getByRole('button', {
-      name: 'ALL'
+    // Find and click the OR button to switch from OR to AND
+    const orButton = screen.getByRole('button', {
+      name: 'OR'
     });
-    fireEvent.click(allButton);
+    fireEvent.click(orButton);
 
     // Should call setFiltersState to update logic to AND
     await waitFor(() => {
@@ -437,7 +439,7 @@ describe('RecentTagsClient', () => {
     });
 
     // Click on an already selected tag to remove it
-    const tagButton = screen.getByText('javascript');
+    const tagButton = screen.getByText('#javascript');
     fireEvent.click(tagButton);
 
     // Should call setFiltersState to remove the tag
@@ -472,7 +474,7 @@ describe('RecentTagsClient', () => {
     });
 
     // Click on the selected tag to remove it
-    const tagButton = screen.getByText('javascript');
+    const tagButton = screen.getByText('#javascript');
     fireEvent.click(tagButton);
 
     // Should call setFiltersState to clear all filters
@@ -544,9 +546,9 @@ describe('RecentTagsClient', () => {
     });
 
     // Verify the buttons exist and are interactive
-    const jsButton = screen.getByText('javascript').closest('button');
-    const reactButton = screen.getByText('react').closest('button');
-    const tsButton = screen.getByText('typescript').closest('button');
+    const jsButton = screen.getByText('#javascript').closest('button');
+    const reactButton = screen.getByText('#react').closest('button');
+    const tsButton = screen.getByText('#typescript').closest('button');
 
     expect(jsButton).toBeInTheDocument();
     expect(reactButton).toBeInTheDocument();
