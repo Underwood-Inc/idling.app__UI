@@ -159,19 +159,27 @@ export async function checkUserQuota(
       return buildQuotaCheck(override.quota_limit, usage, override.reset_period, override.is_unlimited, 'user_override');
     }
 
-    // 2. Check subscription plan quota
+    // 2. Check subscription plan quota with proper schema (plan_services doesn't have reset_period)
     const subscriptionQuota = await sql`
-      SELECT sf.quota_limit, sf.is_unlimited, 'monthly' as reset_period
+      SELECT 
+        COALESCE(pfv.feature_value::text::integer, sf.default_value::text::integer, 1) as quota_limit,
+        CASE 
+          WHEN COALESCE(pfv.feature_value::text::integer, sf.default_value::text::integer, 1) = -1 THEN true
+          ELSE ps.is_unlimited
+        END as is_unlimited,
+        'daily' as reset_period
       FROM user_subscriptions us
       JOIN subscription_plans sp ON us.plan_id = sp.id
-      JOIN subscription_services ss ON sp.id = ss.plan_id
+      JOIN plan_services ps ON sp.id = ps.plan_id
+      JOIN subscription_services ss ON ps.service_id = ss.id
       JOIN subscription_features sf ON ss.id = sf.service_id
+      LEFT JOIN plan_feature_values pfv ON sp.id = pfv.plan_id AND sf.id = pfv.feature_id
       WHERE us.user_id = ${userId}
-      AND us.is_active = true
-      AND us.expires_at > NOW()
+      AND us.status IN ('active', 'trialing')
+      AND (us.expires_at IS NULL OR us.expires_at > NOW())
       AND ss.name = ${serviceName}
       AND sf.name = ${featureName}
-      ORDER BY sp.tier_level DESC
+      ORDER BY sp.sort_order DESC
       LIMIT 1
     `;
 
@@ -368,14 +376,61 @@ async function getUserUsage(
   resetPeriod: string
 ): Promise<number> {
   try {
+    // Use the same date range logic as EnhancedQuotaService for consistency
+    const { startDate, endDate } = getResetPeriodRange(resetPeriod);
+
     const result = await sql`
-      SELECT get_user_usage(${userId}, ${serviceName}, ${featureName}, ${resetPeriod}) as usage_count
+      SELECT COALESCE(SUM(su.usage_count), 0) as total_usage
+      FROM subscription_usage su
+      JOIN subscription_services ss ON su.service_id = ss.id
+      JOIN subscription_features sf ON su.feature_id = sf.id
+      WHERE su.user_id = ${userId}
+      AND ss.name = ${serviceName}
+      AND sf.name = ${featureName}
+      AND su.usage_date >= ${startDate}
+      AND su.usage_date <= ${endDate}
     `;
-    return result[0]?.usage_count || 0;
+
+    return result[0]?.total_usage || 0;
   } catch (error) {
     console.error('Error getting user usage:', error);
     return 0;
   }
+}
+
+/**
+ * Get the date range for a reset period (matching EnhancedQuotaService logic)
+ */
+function getResetPeriodRange(resetPeriod: string): { startDate: Date; endDate: Date } {
+  const now = new Date();
+  const endDate = new Date(now);
+  let startDate: Date;
+
+  switch (resetPeriod) {
+    case 'hourly':
+      startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), 0, 0, 0);
+      break;
+    
+    case 'daily':
+      startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
+      break;
+    
+    case 'weekly': {
+      const dayOfWeek = now.getDay();
+      startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() - dayOfWeek, 0, 0, 0, 0);
+      break;
+    }
+    
+    case 'monthly':
+      startDate = new Date(now.getFullYear(), now.getMonth(), 1, 0, 0, 0, 0);
+      break;
+    
+    default:
+      startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
+      break;
+  }
+
+  return { startDate, endDate };
 }
 
 function buildQuotaCheck(

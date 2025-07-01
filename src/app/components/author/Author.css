@@ -20,8 +20,12 @@
 .author__name {
   font-size: var(--font-size-base);
   font-weight: 700;
-  color: var(--text-primary);
-  background: linear-gradient(135deg, var(--light-background--primary), var(--light-background--secondary));
+  color: var(--light-bg__text-color--primary);
+  background: linear-gradient(
+    135deg,
+    var(--light-background--primary),
+    var(--light-background--secondary)
+  );
   padding: 0.25rem 0.75rem;
   border-radius: 6px;
   border: 1px solid var(--light-border--primary);
@@ -105,7 +109,11 @@
 
   .author__name {
     color: var(--dark-bg__text-color--primary);
-    background: linear-gradient(135deg, var(--dark-background--secondary), var(--dark-background--tertiary));
+    background: linear-gradient(
+      135deg,
+      var(--dark-background--secondary),
+      var(--dark-background--tertiary)
+    );
     border-color: var(--dark-border--primary);
     text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
     box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
@@ -571,10 +579,12 @@
 .skeleton--avatar,
 .skeleton--text,
 .skeleton--button {
-  background: linear-gradient(90deg,
-      var(--light-background--secondary, #e0e0e0) 25%,
-      var(--light-background--tertiary, #f0f0f0) 50%,
-      var(--light-background--secondary, #e0e0e0) 75%);
+  background: linear-gradient(
+    90deg,
+    var(--light-background--secondary, #e0e0e0) 25%,
+    var(--light-background--tertiary, #f0f0f0) 50%,
+    var(--light-background--secondary, #e0e0e0) 75%
+  );
   background-size: 200% 100%;
   /* Subtle pulse animation instead of shimmer to avoid motion sickness */
   animation: skeleton-pulse 2s ease-in-out infinite;
@@ -619,14 +629,15 @@
 
 /* Dark mode skeleton styles */
 @media (prefers-color-scheme: dark) {
-
   .skeleton--avatar,
   .skeleton--text,
   .skeleton--button {
-    background: linear-gradient(90deg,
-        var(--dark-background--secondary, #2a2a2a) 25%,
-        var(--dark-background--tertiary, #3a3a3a) 50%,
-        var(--dark-background--secondary, #2a2a2a) 75%);
+    background: linear-gradient(
+      90deg,
+      var(--dark-background--secondary, #2a2a2a) 25%,
+      var(--dark-background--tertiary, #3a3a3a) 50%,
+      var(--dark-background--secondary, #2a2a2a) 75%
+    );
     background-size: 200% 100%;
   }
 }

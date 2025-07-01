@@ -451,3 +451,15 @@
   margin: 0;
   font-size: var(--font-size-base);
 }
+
+/* Mobile Quota Display - Hidden by default when aside is visible */
+.mobile__quota__display {
+  display: none;
+}
+
+/* Show mobile quota ONLY on smaller screens where aside is hidden */
+@media (max-width: 1024px) {
+  .mobile__quota__display {
+    display: block;
+  }
+}

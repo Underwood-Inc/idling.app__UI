@@ -3,13 +3,14 @@ import { useEffect, useRef, useState } from 'react';
 import { QuotaState } from '../types/generation';
 
 export function useQuotaTracking(): QuotaState & {
-  updateQuota: (remaining: number, limit?: number) => void;
+  updateQuota: (remaining: number, limit?: number, resetDate?: Date | null) => void;
   initializeQuota: () => Promise<void>;
 } {
   const { data: session, status } = useSession();
   const [remainingGenerations, setRemainingGenerations] = useState<number>(1);
   const [quotaLimit, setQuotaLimit] = useState<number>(1);
   const [hasInitializedQuota, setHasInitializedQuota] = useState<boolean>(false);
+  const [resetDate, setResetDate] = useState<Date | null>(null);
   
   // Track previous auth state to detect changes
   const previousUserIdRef = useRef<string | null>(null);
@@ -17,10 +18,13 @@ export function useQuotaTracking(): QuotaState & {
   // Don't show quota exceeded until we've actually initialized
   const isQuotaExceeded = hasInitializedQuota && remainingGenerations <= 0;
 
-  const updateQuota = (remaining: number, limit?: number) => {
+  const updateQuota = (remaining: number, limit?: number, resetDate?: Date | null) => {
     setRemainingGenerations(remaining);
     if (limit !== undefined) {
       setQuotaLimit(limit);
+    }
+    if (resetDate !== undefined) {
+      setResetDate(resetDate);
     }
     setHasInitializedQuota(true);
   };
@@ -33,19 +37,22 @@ export function useQuotaTracking(): QuotaState & {
       if (response.ok) {
         const data = await response.json();
         if (data.remainingGenerations !== undefined) {
-          // Extract quota limit from the response if available
+          // Extract quota limit and reset date from the response if available
           const limit = data.quotaLimit || data.quota_limit || 1; // Default to 1 if no limit provided
-          updateQuota(data.remainingGenerations, limit);
+          const resetDateValue = data.resetDate || data.reset_date ? new Date(data.resetDate || data.reset_date) : null;
+          updateQuota(data.remainingGenerations, limit, resetDateValue);
         } else {
           // If no quota data, assume user has quota available
           setRemainingGenerations(1);
           setQuotaLimit(1);
+          setResetDate(null);
           setHasInitializedQuota(true);
         }
       } else {
         // If API fails, assume user has quota available
         setRemainingGenerations(1);
         setQuotaLimit(1);
+        setResetDate(null);
         setHasInitializedQuota(true);
       }
     } catch (error) {
@@ -53,6 +60,7 @@ export function useQuotaTracking(): QuotaState & {
       console.warn('Failed to initialize quota, assuming quota available:', error);
       setRemainingGenerations(1);
       setQuotaLimit(1);
+      setResetDate(null);
       setHasInitializedQuota(true);
     }
   };
@@ -78,6 +86,7 @@ export function useQuotaTracking(): QuotaState & {
       setHasInitializedQuota(false);
       setRemainingGenerations(1);
       setQuotaLimit(1);
+      setResetDate(null);
       
       // Reinitialize quota with new auth state
       initializeQuota();
@@ -92,6 +101,7 @@ export function useQuotaTracking(): QuotaState & {
     quotaLimit,
     hasInitializedQuota,
     isQuotaExceeded,
+    resetDate,
     updateQuota,
     initializeQuota
   };

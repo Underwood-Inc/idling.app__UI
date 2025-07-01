@@ -92,7 +92,15 @@ export class EnhancedQuotaService {
             WHEN COALESCE(pfv.feature_value::text::integer, sf.default_value::text::integer, 1) = -1 THEN true
             ELSE ps.is_unlimited
           END as is_unlimited,
-          'monthly' as reset_period
+          -- Use the correct reset period based on feature name
+          CASE 
+            WHEN sf.name = 'daily_generations' THEN 'daily'
+            WHEN sf.name LIKE '%_daily_%' THEN 'daily'
+            WHEN sf.name LIKE '%_weekly_%' THEN 'weekly'
+            WHEN sf.name LIKE '%_monthly_%' THEN 'monthly'
+            WHEN sf.name LIKE '%_hourly_%' THEN 'hourly'
+            ELSE 'daily'
+          END as reset_period
         FROM user_subscriptions us
         JOIN subscription_plans sp ON us.plan_id = sp.id
         JOIN plan_services ps ON sp.id = ps.plan_id

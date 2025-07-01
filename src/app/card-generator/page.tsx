@@ -319,6 +319,7 @@ export default function OgImageViewer() {
                       quotaLimit={quotaState.quotaLimit}
                       hasInitializedQuota={quotaState.hasInitializedQuota}
                       isQuotaExceeded={quotaState.isQuotaExceeded}
+                      resetDate={quotaState.resetDate}
                       showMeter
                       mobile
                     />
@@ -338,6 +339,7 @@ export default function OgImageViewer() {
               quotaLimit={quotaState.quotaLimit}
               hasInitializedQuota={quotaState.hasInitializedQuota}
               isQuotaExceeded={quotaState.isQuotaExceeded}
+              resetDate={quotaState.resetDate}
               loadGenerationId={welcomeFlow.loadGenerationId}
               setLoadGenerationId={welcomeFlow.setLoadGenerationId}
               onNewGeneration={handleNewGeneration}
@@ -402,6 +404,7 @@ export default function OgImageViewer() {
             quotaLimit={quotaState.quotaLimit}
             hasInitializedQuota={quotaState.hasInitializedQuota}
             isQuotaExceeded={quotaState.isQuotaExceeded}
+            resetDate={quotaState.resetDate}
             showMeter
           />
 

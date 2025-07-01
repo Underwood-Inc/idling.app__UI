@@ -2,7 +2,7 @@
   position: absolute;
   top: 0;
   right: 2rem;
-  width: calc(20vw - 2rem);
+  width: calc(30vw - 0rem);
   max-height: calc(100vh - 1rem);
   min-height: 32rem;
   z-index: var(--z-content);
@@ -44,14 +44,14 @@
 /* Refined desktop sizing */
 @media (min-width: 1400px) {
   .page-aside__container {
-    width: calc(18vw - 2rem);
+    width: calc(25vw - 2rem);
     right: 2.5rem;
   }
 }
 
 @media (min-width: 1600px) {
   .page-aside__container {
-    width: calc(16vw - 2rem);
+    width: calc(22vw - 2rem);
     right: 3rem;
   }
 }

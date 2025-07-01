@@ -52,16 +52,17 @@
   flex-direction: column;
   gap: 0.5rem;
   position: relative;
-  transition: box-shadow 0.2s ease-in-out, background-color 0.2s ease-in-out;
+  transition:
+    box-shadow 0.2s ease-in-out,
+    background-color 0.2s ease-in-out;
   /* Main post pattern: subtle horizontal lines */
-  background-image: 
-    repeating-linear-gradient(
-      0deg,
-      transparent,
-      transparent 19px,
-      color-mix(in srgb, var(--brand-primary) 2%, transparent) 20px,
-      color-mix(in srgb, var(--brand-primary) 2%, transparent) 21px
-    );
+  background-image: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 19px,
+    color-mix(in srgb, var(--brand-primary) 2%, transparent) 20px,
+    color-mix(in srgb, var(--brand-primary) 2%, transparent) 21px
+  );
 }
 
 .submission__wrapper a,
@@ -78,14 +79,13 @@
 
 .submission__wrapper:hover {
   /* Very subtle horizontal pattern on hover */
-  background-image: 
-    repeating-linear-gradient(
-      0deg,
-      transparent,
-      transparent 22px,
-      color-mix(in srgb, var(--brand-primary) 8%, transparent) 24px,
-      color-mix(in srgb, var(--brand-primary) 8%, transparent) 26px
-    );
+  background-image: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 22px,
+    color-mix(in srgb, var(--brand-primary) 8%, transparent) 24px,
+    color-mix(in srgb, var(--brand-primary) 8%, transparent) 26px
+  );
 }
 
 .submission__meta {
@@ -111,7 +111,7 @@
   margin-left: 0.5rem;
 }
 
-.submission__meta-left > span[style*="display: inline-block"] {
+.submission__meta-left > span[style*='display: inline-block'] {
   display: flex !important;
   align-items: center;
   margin-left: 0.5rem;
@@ -137,8 +137,8 @@
   margin: 0 0 0.5rem 0;
   font-size: 1.125rem;
   font-weight: 600;
-  color: var(--light-bg__text-color--primary);
   line-height: 1.4;
+  color: black !important;
 }
 
 .submission__url {
@@ -158,7 +158,7 @@
 
 .submission__description {
   margin: 0;
-  color: var(--light-bg__text-color--secondary);
+  color: var(--light-bg__text-color--primary);
   font-size: 0.95rem;
   line-height: 1.5;
 }
@@ -263,27 +263,25 @@
   border: 1px solid var(--brand-tertiary--dark);
   border-left: 3px solid var(--brand-primary);
   /* Reply post pattern: diagonal lines - higher specificity */
-  background-image: 
-    repeating-linear-gradient(
-      45deg,
-      transparent,
-      transparent 14px,
-      color-mix(in srgb, var(--brand-primary) 2.5%, transparent) 15px,
-      color-mix(in srgb, var(--brand-primary) 2.5%, transparent) 16px
-    ) !important;
+  background-image: repeating-linear-gradient(
+    45deg,
+    transparent,
+    transparent 14px,
+    color-mix(in srgb, var(--brand-primary) 2.5%, transparent) 15px,
+    color-mix(in srgb, var(--brand-primary) 2.5%, transparent) 16px
+  ) !important;
 }
 
 .submission__wrapper.submission__wrapper--reply:hover,
 .submission__reply:hover {
   /* Very subtle diagonal pattern on hover - higher specificity */
-  background-image: 
-    repeating-linear-gradient(
-      45deg,
-      transparent,
-      transparent 18px,
-      color-mix(in srgb, var(--brand-primary) 8%, transparent) 20px,
-      color-mix(in srgb, var(--brand-primary) 8%, transparent) 22px
-    ) !important;
+  background-image: repeating-linear-gradient(
+    45deg,
+    transparent,
+    transparent 18px,
+    color-mix(in srgb, var(--brand-primary) 8%, transparent) 20px,
+    color-mix(in srgb, var(--brand-primary) 8%, transparent) 22px
+  ) !important;
 }
 
 .submission__reply:last-child {
@@ -379,7 +377,7 @@
 
   .submission__meta-left > span:has(.submission__datetime),
   .submission__meta-left > span:has(.timestamp-with-tooltip),
-  .submission__meta-left > span[style*="display: inline-block"] {
+  .submission__meta-left > span[style*='display: inline-block'] {
     margin-left: 0 !important;
   }
 
@@ -439,14 +437,13 @@
 @media (hover: hover) {
   .submission__wrapper:hover {
     /* Very subtle horizontal pattern on hover */
-    background-image: 
-      repeating-linear-gradient(
-        0deg,
-        transparent,
-        transparent 22px,
-        color-mix(in srgb, var(--brand-primary) 8%, transparent) 24px,
-        color-mix(in srgb, var(--brand-primary) 8%, transparent) 26px
-      );
+    background-image: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 22px,
+      color-mix(in srgb, var(--brand-primary) 8%, transparent) 24px,
+      color-mix(in srgb, var(--brand-primary) 8%, transparent) 26px
+    );
   }
 
   .submission__wrapper:hover .submission__delete-btn {
@@ -543,7 +540,6 @@
 
 /* Dark mode skeleton styles */
 @media (prefers-color-scheme: dark) {
-
   .skeleton-line,
   .skeleton-tag {
     background: linear-gradient(90deg, #374151 25%, #4b5563 50%, #374151 75%);
@@ -552,52 +548,48 @@
 
   .submission__wrapper {
     /* Dark mode main post pattern: subtle horizontal lines */
-    background-image: 
-      repeating-linear-gradient(
-        0deg,
-        transparent,
-        transparent 19px,
-        color-mix(in srgb, var(--brand-primary) 3%, transparent) 20px,
-        color-mix(in srgb, var(--brand-primary) 3%, transparent) 21px
-      );
+    background-image: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 19px,
+      color-mix(in srgb, var(--brand-primary) 3%, transparent) 20px,
+      color-mix(in srgb, var(--brand-primary) 3%, transparent) 21px
+    );
   }
 
   .submission__wrapper:hover {
     /* Very subtle horizontal pattern on hover in dark mode */
-    background-image: 
-      repeating-linear-gradient(
-        0deg,
-        transparent,
-        transparent 22px,
-        color-mix(in srgb, var(--brand-primary) 8%, transparent) 24px,
-        color-mix(in srgb, var(--brand-primary) 8%, transparent) 26px
-      );
+    background-image: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 22px,
+      color-mix(in srgb, var(--brand-primary) 8%, transparent) 24px,
+      color-mix(in srgb, var(--brand-primary) 8%, transparent) 26px
+    );
   }
 
   .submission__wrapper.submission__wrapper--reply,
   .submission__reply {
     /* Dark mode reply post pattern: diagonal lines - higher specificity */
-    background-image: 
-      repeating-linear-gradient(
-        45deg,
-        transparent,
-        transparent 14px,
-        color-mix(in srgb, var(--brand-primary) 3.5%, transparent) 15px,
-        color-mix(in srgb, var(--brand-primary) 3.5%, transparent) 16px
-      ) !important;
+    background-image: repeating-linear-gradient(
+      45deg,
+      transparent,
+      transparent 14px,
+      color-mix(in srgb, var(--brand-primary) 3.5%, transparent) 15px,
+      color-mix(in srgb, var(--brand-primary) 3.5%, transparent) 16px
+    ) !important;
   }
 
   .submission__wrapper.submission__wrapper--reply:hover,
   .submission__reply:hover {
     /* Very subtle diagonal pattern on hover in dark mode - higher specificity */
-    background-image: 
-      repeating-linear-gradient(
-        45deg,
-        transparent,
-        transparent 18px,
-        color-mix(in srgb, var(--brand-primary) 8%, transparent) 20px,
-        color-mix(in srgb, var(--brand-primary) 8%, transparent) 22px
-      ) !important;
+    background-image: repeating-linear-gradient(
+      45deg,
+      transparent,
+      transparent 18px,
+      color-mix(in srgb, var(--brand-primary) 8%, transparent) 20px,
+      color-mix(in srgb, var(--brand-primary) 8%, transparent) 22px
+    ) !important;
   }
 }
 
@@ -623,11 +615,12 @@
   display: flex;
   flex-direction: column;
   width: 100%;
-  border-bottom: 1px solid var(--light-background--tertiary, #f0f0f0);
+  margin-bottom: 1rem;
 }
 
 .submissions-list__item:last-child {
   border-bottom: none;
+  margin-bottom: 0;
 }
 
 .submissions-list--empty {
