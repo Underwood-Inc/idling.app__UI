@@ -9,6 +9,7 @@ import PageContent from '../components/page-content/PageContent';
 import PageHeader from '../components/page-header/PageHeader';
 import { GenerationDisplay } from './components/GenerationDisplay';
 import { GenerationForm } from './components/GenerationForm';
+import { MysticalLoader } from './components/MysticalLoader';
 import { QuotaDisplay } from './components/QuotaDisplay';
 import { RegenerationDialog } from './components/RegenerationDialog';
 import { WelcomeInterface } from './components/WelcomeInterface';
@@ -237,17 +238,14 @@ export default function OgImageViewer() {
       <PageContainer>
         <PageHeader>
           <FadeIn>
-            <h2>Card Generator</h2>
-            <p>🔮 Loading your mystical creation...</p>
+            <h2>🧙‍♂️ Mystical Card Generator</h2>
+            <p>
+              Retrieving your enchanted creation from the mystical archives...
+            </p>
           </FadeIn>
         </PageHeader>
         <PageContent>
-          <div className={styles.loading__container}>
-            <div className={styles.loading__spinner}>⚡</div>
-            <p className={styles.loading__message}>
-              Summoning your previous generation from the ancient archives...
-            </p>
-          </div>
+          <MysticalLoader message="Summoning your previous generation from the ancient archives..." />
         </PageContent>
       </PageContainer>
     );
@@ -418,7 +416,7 @@ export default function OgImageViewer() {
                 </h4>
                 <p>
                   Use custom seeds for reproducible results. Save your
-                  Generation ID to recreate cards later!
+                  Generation ID to retrieve previous generations!
                 </p>
               </div>
               <div className={styles.feature__card}>
@@ -428,7 +426,7 @@ export default function OgImageViewer() {
                 </h4>
                 <p>
                   Unlock custom quotes, dimensions, and shape counts with Pro
-                  subscription for unlimited creativity.
+                  subscription (coming soon) for unlimited creativity.
                 </p>
               </div>
               <div className={styles.feature__card}>

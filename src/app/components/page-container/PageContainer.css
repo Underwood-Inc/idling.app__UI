@@ -1,6 +1,6 @@
 .page__container {
   position: relative;
-  padding: 0 2rem 7rem 2rem;
+  padding: 0 2rem;
   flex-direction: column;
   margin-top: 2rem;
   height: inherit;

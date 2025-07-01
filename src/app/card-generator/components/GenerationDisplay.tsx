@@ -1,6 +1,5 @@
 'use client';
 
-import { Card } from '../../components/card/Card';
 import styles from './GenerationDisplay.module.css';
 
 interface GenerationDisplayProps {
@@ -20,7 +19,7 @@ export function GenerationDisplay({
   }
 
   return (
-    <Card width="full" className={styles.generation__display__container}>
+    <div className={styles.generation__display__container}>
       <div className={styles.generation__header}>
         <h4 className={styles.generation__title}>🎨 Generated Image</h4>
         {generationId && (
@@ -44,6 +43,6 @@ export function GenerationDisplay({
           dangerouslySetInnerHTML={{ __html: svgContent }}
         />
       </div>
-    </Card>
+    </div>
   );
 }

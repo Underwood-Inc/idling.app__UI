@@ -1,11 +1,10 @@
 .page-content__section {
   flex-direction: column;
   max-width: calc(80vw - 5rem);
-  padding-bottom: 5rem;
+  /* padding-bottom: 5rem; */
 }
 
 @media (max-width: 1024px) {
-
   /* tablet, landscape iPad, lo-res laptops ands desktops */
   .page-content__section {
     max-width: 100%;

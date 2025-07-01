@@ -365,11 +365,12 @@ h6 {
 
 aside {
   position: absolute;
-  top: 16.2rem;
+  top: 0;
   right: 2.3rem;
   width: calc(20vw - 3rem);
-  max-height: calc(100vh / 1.5);
+  max-height: calc(100vh - 5rem);
   min-height: 30rem;
+  /* overflow-y: auto; */
 }
 
 /* Removed global font-size rule to prevent specificity conflicts */
