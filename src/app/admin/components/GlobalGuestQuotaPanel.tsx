@@ -349,36 +349,38 @@ export default function GlobalGuestQuotaPanel(): React.JSX.Element {
           <label
             style={{ color: 'white', display: 'block', marginBottom: '5px' }}
           >
-            <input
-              type="checkbox"
-              checked={formData.is_unlimited}
-              onChange={(e) =>
-                setFormData({ ...formData, is_unlimited: e.target.checked })
-              }
-              style={{ marginRight: '5px' }}
-            />
-            Unlimited
+            Quota Limit:
           </label>
-          {!formData.is_unlimited && (
-            <input
-              type="number"
-              value={formData.quota_limit}
-              onChange={(e) =>
-                setFormData({
-                  ...formData,
-                  quota_limit: parseInt(e.target.value) || 1
-                })
-              }
-              min="1"
-              style={{
-                width: '100%',
-                padding: '8px',
-                borderRadius: '6px',
-                border: 'none'
-              }}
-              placeholder="Quota limit"
-            />
-          )}
+          <input
+            type="number"
+            value={formData.quota_limit}
+            onChange={(e) => {
+              const value = parseInt(e.target.value) || 0;
+              setFormData({
+                ...formData,
+                quota_limit: value,
+                is_unlimited: value === 0
+              });
+            }}
+            min="0"
+            style={{
+              width: '100%',
+              padding: '8px',
+              borderRadius: '6px',
+              border: 'none'
+            }}
+            placeholder="Enter 0 for unlimited"
+          />
+          <small
+            style={{
+              color: '#ccc',
+              fontSize: '12px',
+              marginTop: '2px',
+              display: 'block'
+            }}
+          >
+            💡 Enter 0 for unlimited quota
+          </small>
         </div>
 
         <div>
@@ -526,38 +528,42 @@ export default function GlobalGuestQuotaPanel(): React.JSX.Element {
                           fontWeight: 'bold'
                         }}
                       >
-                        <input
-                          type="checkbox"
-                          checked={editingQuota.is_unlimited}
-                          onChange={(e) =>
-                            setEditingQuota({
-                              ...editingQuota,
-                              is_unlimited: e.target.checked
-                            })
-                          }
-                          style={{ marginRight: '5px' }}
-                        />
-                        Unlimited
+                        Quota Limit:
                       </label>
-                      {!editingQuota.is_unlimited && (
-                        <input
-                          type="number"
-                          value={editingQuota.quota_limit}
-                          onChange={(e) =>
-                            setEditingQuota({
-                              ...editingQuota,
-                              quota_limit: parseInt(e.target.value) || 1
-                            })
-                          }
-                          min="1"
-                          style={{
-                            width: '100%',
-                            padding: '6px',
-                            borderRadius: '4px',
-                            border: '1px solid #ccc'
-                          }}
-                        />
-                      )}
+                      <input
+                        type="number"
+                        value={
+                          editingQuota.quota_limit === -1
+                            ? 0
+                            : editingQuota.quota_limit
+                        }
+                        onChange={(e) => {
+                          const value = parseInt(e.target.value) || 0;
+                          setEditingQuota({
+                            ...editingQuota,
+                            quota_limit: value,
+                            is_unlimited: value === 0
+                          });
+                        }}
+                        min="0"
+                        style={{
+                          width: '100%',
+                          padding: '6px',
+                          borderRadius: '4px',
+                          border: '1px solid #ccc'
+                        }}
+                        placeholder="Enter 0 for unlimited"
+                      />
+                      <small
+                        style={{
+                          color: '#666',
+                          fontSize: '11px',
+                          marginTop: '2px',
+                          display: 'block'
+                        }}
+                      >
+                        💡 Enter 0 for unlimited quota
+                      </small>
                     </div>
 
                     <div>
@@ -736,8 +742,8 @@ export default function GlobalGuestQuotaPanel(): React.JSX.Element {
                   >
                     <div>
                       <strong>Quota:</strong>{' '}
-                      {quota.is_unlimited
-                        ? '♾️ Unlimited'
+                      {quota.is_unlimited || quota.quota_limit === -1
+                        ? '♾️ Unlimited (0)'
                         : `${quota.quota_limit} per ${quota.reset_period}`}
                     </div>
                     {quota.description && (

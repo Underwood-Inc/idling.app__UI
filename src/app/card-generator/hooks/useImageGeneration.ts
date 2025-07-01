@@ -143,7 +143,8 @@ export function useImageGeneration(props: UseImageGenerationProps) {
       // Store generation options for form display
       setGenerationOptions(data.generationOptions);
       
-      // Update form fields with actual used values from the generation
+      // ALWAYS update form fields with actual used values from the generation
+      // This shows the user exactly what was used to create the image
       if (data.generationOptions.seed !== undefined) {
         props.setCurrentSeed(data.generationOptions.seed);
       }

@@ -51,6 +51,15 @@ const CreateGlobalQuotaSchema = z.object({
   reset_period: z.enum(['hourly', 'daily', 'weekly', 'monthly']).default('daily'),
   description: z.string().max(500).optional(),
   is_active: z.boolean().default(true)
+}).transform((data) => {
+  // If quota_limit is 0, treat as unlimited
+  if (data.quota_limit === 0) {
+    return {
+      ...data,
+      is_unlimited: true
+    };
+  }
+  return data;
 });
 
 const UpdateGlobalQuotaSchema = z.object({
@@ -59,6 +68,15 @@ const UpdateGlobalQuotaSchema = z.object({
   reset_period: z.enum(['hourly', 'daily', 'weekly', 'monthly']).optional(),
   description: z.string().max(500).optional(),
   is_active: z.boolean().optional()
+}).transform((data) => {
+  // If quota_limit is 0, treat as unlimited
+  if (data.quota_limit === 0) {
+    return {
+      ...data,
+      is_unlimited: true
+    };
+  }
+  return data;
 });
 
 const ParamsSchema = z.object({
@@ -293,15 +311,16 @@ export async function POST(
       );
     }
 
-    // Create the quota
-    const finalQuotaLimit = is_unlimited ? -1 : (quota_limit || 1);
+    // Create the quota - treat 0 as unlimited
+    const finalQuotaLimit = is_unlimited || quota_limit === 0 ? -1 : (quota_limit || 1);
+    const finalIsUnlimited = is_unlimited || quota_limit === 0;
     
     const newQuota = await sql`
       INSERT INTO global_guest_quotas (
         service_name, feature_name, quota_limit, is_unlimited, 
         reset_period, description, is_active, created_by
       ) VALUES (
-        ${service_name}, ${feature_name}, ${finalQuotaLimit}, ${is_unlimited},
+        ${service_name}, ${feature_name}, ${finalQuotaLimit}, ${finalIsUnlimited},
         ${reset_period}, ${description || null}, ${is_active}, ${session.user.id}
       )
       RETURNING *

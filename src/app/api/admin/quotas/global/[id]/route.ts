@@ -37,6 +37,15 @@ const UpdateGlobalQuotaSchema = z.object({
   reset_period: z.enum(['hourly', 'daily', 'weekly', 'monthly']).optional(),
   description: z.string().max(500).optional(),
   is_active: z.boolean().optional()
+}).transform((data) => {
+  // If quota_limit is 0, treat as unlimited
+  if (data.quota_limit === 0) {
+    return {
+      ...data,
+      is_unlimited: true
+    };
+  }
+  return data;
 });
 
 interface ApiResponse<T> {
@@ -174,18 +183,21 @@ export async function PUT(
     const updateValues: any[] = [];
     let paramIndex = 1;
 
+    // Handle quota_limit and is_unlimited together to support 0 as infinite
+    const isBecomingUnlimited = updates.is_unlimited || updates.quota_limit === 0;
+    
     if (updates.quota_limit !== undefined) {
-      const finalQuotaLimit = updates.is_unlimited ? -1 : updates.quota_limit;
+      const finalQuotaLimit = isBecomingUnlimited ? -1 : updates.quota_limit;
       updateFields.push(`quota_limit = $${paramIndex++}`);
       updateValues.push(finalQuotaLimit);
     }
 
-    if (updates.is_unlimited !== undefined) {
+    if (updates.is_unlimited !== undefined || updates.quota_limit === 0) {
       updateFields.push(`is_unlimited = $${paramIndex++}`);
-      updateValues.push(updates.is_unlimited);
+      updateValues.push(isBecomingUnlimited);
       
-      // If setting to unlimited, also set quota_limit to -1
-      if (updates.is_unlimited && updates.quota_limit === undefined) {
+      // If setting to unlimited but quota_limit wasn't provided, also set quota_limit to -1
+      if (isBecomingUnlimited && updates.quota_limit === undefined) {
         updateFields.push(`quota_limit = $${paramIndex++}`);
         updateValues.push(-1);
       }

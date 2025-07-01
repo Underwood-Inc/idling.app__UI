@@ -53,6 +53,15 @@ const UpdateUserQuotaSchema = z.object({
   is_unlimited: z.boolean().default(false),
   reset_period: z.enum(['hourly', 'daily', 'weekly', 'monthly']).optional(),
   reason: z.string().max(500).optional()
+}).transform((data) => {
+  // If quota_limit is 0, treat as unlimited
+  if (data.quota_limit === 0) {
+    return {
+      ...data,
+      is_unlimited: true
+    };
+  }
+  return data;
 });
 
 const ResetUserQuotaSchema = z.object({
@@ -305,8 +314,9 @@ export async function PATCH(
       );
     }
 
-    // Calculate final quota limit
-    const finalQuotaLimit = is_unlimited ? -1 : (quota_limit || 1);
+    // Calculate final quota limit - treat 0 as unlimited
+    const finalIsUnlimited = is_unlimited || quota_limit === 0;
+    const finalQuotaLimit = finalIsUnlimited ? -1 : (quota_limit || 1);
     const finalResetPeriod = reset_period || 'monthly';
 
     // Check if override already exists
@@ -325,7 +335,7 @@ export async function PATCH(
         UPDATE user_quota_overrides 
         SET 
           quota_limit = ${finalQuotaLimit},
-          is_unlimited = ${is_unlimited},
+          is_unlimited = ${finalIsUnlimited},
           reset_period = ${finalResetPeriod},
           reason = ${reason || null},
           updated_at = NOW()
@@ -340,7 +350,7 @@ export async function PATCH(
           is_unlimited, reset_period, reason, created_by, is_active
         ) VALUES (
           ${params.id}, ${service_name}, ${feature_name}, ${finalQuotaLimit},
-          ${is_unlimited}, ${finalResetPeriod}, ${reason || null}, ${session.user.id}, true
+          ${finalIsUnlimited}, ${finalResetPeriod}, ${reason || null}, ${session.user.id}, true
         )
         RETURNING *
       `;
