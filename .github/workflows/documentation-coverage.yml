@@ -193,7 +193,7 @@ jobs:
           python scripts/check-docs-coverage.py --generate-stubs
 
       - name: 💬 Update PR description with documentation badge
-        if: github.event_name == 'pull_request'
+        if: github.event_name == 'pull_request' && always()
         env:
           DOC_BADGE_URL: ${{ steps.generate-badge.outputs.badge_url }}
           OVERALL_COVERAGE: ${{ steps.generate-badge.outputs.overall_coverage }}
@@ -208,7 +208,7 @@ jobs:
             --token="${{ secrets.GITHUB_TOKEN }}"
 
       - name: 💬 Comment on PR with detailed results
-        if: github.event_name == 'pull_request'
+        if: github.event_name == 'pull_request' && always()
         uses: actions/github-script@v7
         with:
           script: |
