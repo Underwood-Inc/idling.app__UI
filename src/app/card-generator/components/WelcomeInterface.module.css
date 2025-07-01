@@ -94,6 +94,9 @@
   text-align: center;
   position: relative;
   overflow: hidden;
+  /* Enhanced glassmorphism effects */
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
 }
 
 .path__button__large:hover:not(:disabled) {

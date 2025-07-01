@@ -174,6 +174,14 @@
 
   --font-color--primary: var(--black-bean);
   --font-color--secondary: var(--brand-tertiary);
+
+  /* Z-index system */
+  --z-header: 1000;
+  --z-footer: 1000;
+  --z-modal: 2000;
+  --z-tooltip: 3000;
+  --z-overlay: 500;
+  --z-content: 1;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -373,6 +381,7 @@ caption {
   padding: 0.375rem;
   border-radius: var(--border-radius);
   border: transparent;
+  font-size: var(--font-size-base);
 }
 
 input {
@@ -386,6 +395,8 @@ button {
   color: var(--font-color--primary);
   border-radius: 0.5rem;
   transition: all 0.2s ease-in-out;
+  font-size: var(--font-size-base);
+  font-weight: 500;
 }
 
 button:disabled {
@@ -741,11 +752,11 @@ textarea,
 
 /* Global Glassmorphism Button Effects - Subtle and Compatible */
 button:not(.no-glass) {
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
   box-shadow:
     0 2px 8px rgba(0, 0, 0, 0.08),
-    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    inset 0 1px 0 rgba(255, 255, 255, 0.05) !important;
   position: relative;
   overflow: hidden;
 }
@@ -762,7 +773,7 @@ button:not(.no-glass)::before {
     transparent,
     rgba(255, 255, 255, 0.05),
     transparent
-  );
+  ) !important;
   transition: left 0.6s ease;
   pointer-events: none;
 }
@@ -773,16 +784,16 @@ button:not(.no-glass):hover::before {
 
 /* Enhanced hover effects for glassmorphic buttons */
 button:not(.no-glass):hover:not(:disabled) {
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
   box-shadow:
     0 4px 16px rgba(0, 0, 0, 0.12),
-    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
 }
 
 /* Preserve existing disabled button styles */
 button:disabled {
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px) !important;
+  -webkit-backdrop-filter: blur(4px) !important;
   opacity: 0.6;
 }

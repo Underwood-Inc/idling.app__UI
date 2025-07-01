@@ -39,14 +39,13 @@
   flex-wrap: wrap;
 }
 
+/* Base header button styling */
 .header__button {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
   padding: 0.75rem 1.25rem;
-  background-color: var(--brand-primary);
-  color: white;
   border: none;
   border-radius: 8px;
   font-size: 1rem;
@@ -54,17 +53,93 @@
   cursor: pointer;
   transition: all 0.2s ease;
   white-space: nowrap;
+  text-decoration: none;
+  position: relative;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }
 
 .header__button:hover:not(:disabled) {
-  background-color: var(--brand-primary--dark);
-  transform: translateY(-1px);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
 }
 
 .header__button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
   transform: none;
+}
+
+/* Welcome button - Blue styling */
+.header__button--welcome {
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+  color: white;
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  box-shadow: 0 4px 16px rgba(59, 130, 246, 0.2);
+}
+
+.header__button--welcome:hover:not(:disabled) {
+  background: linear-gradient(135deg, #1d4ed8, #1e40af);
+  border-color: rgba(59, 130, 246, 0.5);
+  box-shadow: 0 8px 25px rgba(59, 130, 246, 0.3);
+}
+
+/* PNG button - Green styling for raster images */
+.header__button--png {
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: white;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  box-shadow: 0 4px 16px rgba(16, 185, 129, 0.2);
+}
+
+.header__button--png:hover:not(:disabled) {
+  background: linear-gradient(135deg, #059669, #047857);
+  border-color: rgba(16, 185, 129, 0.5);
+  box-shadow: 0 8px 25px rgba(16, 185, 129, 0.3);
+}
+
+.header__button--png:disabled {
+  background: linear-gradient(135deg, #6b7280, #4b5563);
+  border-color: rgba(107, 114, 128, 0.3);
+  box-shadow: none;
+}
+
+/* SVG button - Purple styling for vector images */
+.header__button--svg {
+  background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+  color: white;
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  box-shadow: 0 4px 16px rgba(139, 92, 246, 0.2);
+}
+
+.header__button--svg:hover:not(:disabled) {
+  background: linear-gradient(135deg, #7c3aed, #6d28d9);
+  border-color: rgba(139, 92, 246, 0.5);
+  box-shadow: 0 8px 25px rgba(139, 92, 246, 0.3);
+}
+
+.header__button--svg:disabled {
+  background: linear-gradient(135deg, #6b7280, #4b5563);
+  border-color: rgba(107, 114, 128, 0.3);
+  box-shadow: none;
+}
+
+/* Default header button (fallback) */
+.header__button:not(.header__button--welcome):not(.header__button--png):not(
+    .header__button--svg
+  ) {
+  background-color: var(--brand-primary);
+  color: white;
+  border: 1px solid rgba(255, 107, 53, 0.3);
+  box-shadow: 0 4px 16px rgba(255, 107, 53, 0.2);
+}
+
+.header__button:not(.header__button--welcome):not(.header__button--png):not(
+    .header__button--svg
+  ):hover:not(:disabled) {
+  background-color: var(--brand-primary--dark);
+  border-color: rgba(255, 107, 53, 0.5);
+  box-shadow: 0 8px 25px rgba(255, 107, 53, 0.3);
 }
 
 /* Loading and error states */
@@ -123,21 +198,29 @@
 
 .download__info p,
 .url__info p {
-  font-size: 0.875rem;
+  font-size: var(--font-size-base);
 }
 
 /* Responsive design for download sections */
 @media (max-width: 768px) {
   .header__content {
     flex-direction: column;
-    align-items: flex-start;
+    align-items: center;
     gap: 1rem;
+  }
+
+  .header__content:not(.header__centered) {
+    align-items: flex-start;
   }
 
   .header__controls {
     width: 100%;
     align-items: flex-start;
     gap: 1rem;
+  }
+
+  .header__centered .header__controls {
+    align-items: center;
   }
 
   .header__buttons {
@@ -147,7 +230,7 @@
 
   .header__button {
     padding: 0.625rem 1rem;
-    font-size: 0.9rem;
+    font-size: var(--font-size-base);
   }
 
   .download__buttons {
@@ -163,7 +246,7 @@
 
   .download__info p,
   .url__info p {
-    font-size: 0.875rem;
+    font-size: var(--font-size-base);
   }
 }
 
@@ -308,7 +391,7 @@
 }
 
 .features__section h3 {
-  font-size: 1.25rem;
+  font-size: var(--font-size-xl);
   margin: 0 0 1rem 0;
   color: var(--color-text-primary);
   text-align: center;
@@ -328,6 +411,13 @@
   border: 1px solid rgba(255, 255, 255, 0.1);
   background: rgba(255, 255, 255, 0.05);
   transition: all 0.2s ease;
+  /* Enhanced glassmorphism effects */
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  position: relative;
 }
 
 .feature__card:hover {
@@ -337,14 +427,14 @@
 }
 
 .feature__icon {
-  font-size: 1.5rem;
+  font-size: 1.75rem;
   margin-right: 0.5rem;
   display: inline;
   vertical-align: middle;
 }
 
 .feature__card h4 {
-  font-size: 1.25rem;
+  font-size: var(--font-size-xl);
   margin: 0 0 0.5rem 0;
   color: var(--color-text-primary);
   font-weight: 600;
@@ -356,5 +446,5 @@
   color: var(--color-text-secondary);
   line-height: 1.5;
   margin: 0;
-  font-size: 1rem;
+  font-size: var(--font-size-base);
 }

@@ -293,14 +293,14 @@ export default function OgImageViewer() {
                 <div className={styles.header__buttons}>
                   <button
                     onClick={welcomeFlow.returnToWelcome}
-                    className={styles.header__button}
+                    className={`${styles.header__button} ${styles['header__button--welcome']}`}
                     title="Back to welcome"
                   >
                     ← Welcome
                   </button>
                   <button
                     onClick={handleSaveAsPng}
-                    className={styles.header__button}
+                    className={`${styles.header__button} ${styles['header__button--png']}`}
                     title="PNG - Raster image, best for social media"
                     disabled={!svgContent}
                   >
@@ -308,7 +308,7 @@ export default function OgImageViewer() {
                   </button>
                   <button
                     onClick={handleSaveAsSvg}
-                    className={styles.header__button}
+                    className={`${styles.header__button} ${styles['header__button--svg']}`}
                     title="SVG - Vector image, scalable and smaller"
                     disabled={!svgContent}
                   >

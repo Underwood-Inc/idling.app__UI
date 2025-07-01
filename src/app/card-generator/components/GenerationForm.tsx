@@ -280,19 +280,8 @@ export function GenerationForm({
             </div>
           </div>
 
-          {/* Quote and Author Section */}
-          <div className={`${formStyles.form__row} quote__author__row`}>
-            <label className={formStyles.form__label}>
-              <span className={formStyles.label__text}>💬 Quote</span>
-              <textarea
-                value={customQuote}
-                onChange={(e) => setCustomQuote(e.target.value)}
-                className={`${formStyles.form__textarea} ${isReadOnly ? formStyles.form__input__disabled : ''}`}
-                placeholder="Enter custom quote (leave empty for random quote)"
-                rows={3}
-                disabled={isReadOnly}
-              />
-            </label>
+          {/* Quote and Author Section - Author first, both full width */}
+          <div className={formStyles.form__section}>
             <label className={formStyles.form__label}>
               <span className={formStyles.label__text}>👤 Author</span>
               <input
@@ -301,6 +290,18 @@ export function GenerationForm({
                 onChange={(e) => setCustomAuthor(e.target.value)}
                 className={`${formStyles.form__input} ${isReadOnly ? formStyles.form__input__disabled : ''}`}
                 placeholder="Quote author (leave empty for random)"
+                disabled={isReadOnly}
+              />
+            </label>
+
+            <label className={formStyles.form__label}>
+              <span className={formStyles.label__text}>💬 Quote</span>
+              <textarea
+                value={customQuote}
+                onChange={(e) => setCustomQuote(e.target.value)}
+                className={`${formStyles.form__textarea} ${isReadOnly ? formStyles.form__input__disabled : ''}`}
+                placeholder="Enter custom quote (leave empty for random quote)"
+                rows={3}
                 disabled={isReadOnly}
               />
             </label>
