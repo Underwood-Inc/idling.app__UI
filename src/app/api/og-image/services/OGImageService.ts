@@ -1,5 +1,11 @@
+import {
+  checkGuestQuota,
+  checkUserQuota,
+  recordGuestUsage,
+  recordUserUsage,
+  type QuotaCheck
+} from '@/lib/actions/quota.actions';
 import { auth } from '@/lib/auth';
-import { EnhancedQuotaService, QuotaCheck } from '@/lib/services/EnhancedQuotaService';
 import { NextRequest } from 'next/server';
 import { formatRetryAfter } from '../../../../lib/utils/timeFormatting';
 import { ASPECT_RATIOS } from '../config';
@@ -7,6 +13,8 @@ import { AvatarService } from './AvatarService';
 import { DatabaseService } from './DatabaseService';
 import { QuoteService } from './QuoteService';
 import { SVGGenerator } from './SVGGenerator';
+
+// Server actions handle all quota operations
 
 interface GenerationConfig {
   // Direct user controls (8)
@@ -75,14 +83,14 @@ export class OGImageService {
     
     if (userId) {
       // Authenticated user - use user quota system
-      quotaCheck = await EnhancedQuotaService.checkUserQuota(
+      quotaCheck = await checkUserQuota(
         parseInt(userId), 
         'og_generator', 
         'daily_generations'
       );
     } else {
       // Anonymous guest - use global guest quota system
-      quotaCheck = await EnhancedQuotaService.checkGuestQuota(
+      quotaCheck = await checkGuestQuota(
         { 
           client_ip: clientIP, 
           machine_fingerprint: machineFingerprint,
@@ -127,10 +135,11 @@ export class OGImageService {
     // Generate the image with actual values
     const result = await this.callGenerationAPI(config);
 
-    // Record usage in the appropriate quota system
+    // Record usage in the appropriate quota system and get updated quota info
+    let updatedQuotaCheck: QuotaCheck;
     if (userId) {
       // Record for authenticated user
-      await EnhancedQuotaService.recordUserUsage(
+      const usageRecord = await recordUserUsage(
         parseInt(userId),
         'og_generator',
         'daily_generations',
@@ -142,9 +151,15 @@ export class OGImageService {
           generation_config: config
         }
       );
+      // Get updated quota info after recording usage
+      updatedQuotaCheck = await checkUserQuota(
+        parseInt(userId), 
+        'og_generator', 
+        'daily_generations'
+      );
     } else {
       // Record for guest user
-      await EnhancedQuotaService.recordGuestUsage(
+      const usageRecord = await recordGuestUsage(
         {
           client_ip: clientIP,
           machine_fingerprint: machineFingerprint,
@@ -157,6 +172,16 @@ export class OGImageService {
           generation_config: config,
           user_agent: userAgent
         }
+      );
+      // Get updated quota info after recording usage
+      updatedQuotaCheck = await checkGuestQuota(
+        { 
+          client_ip: clientIP, 
+          machine_fingerprint: machineFingerprint,
+          user_agent_hash: this.hashUserAgent(userAgent)
+        },
+        'og_generator',
+        'daily_generations'
       );
     }
 
@@ -215,8 +240,8 @@ export class OGImageService {
     return {
       ...result,
       generationOptions: actualGenerationOptions,
-      remainingGenerations: quotaCheck.remaining === -1 ? 999999 : Math.max(0, quotaCheck.remaining - 1),
-      quotaLimit: quotaCheck.quota_limit === -1 ? 999999 : quotaCheck.quota_limit,
+      remainingGenerations: updatedQuotaCheck.remaining === -1 ? 999999 : updatedQuotaCheck.remaining,
+      quotaLimit: updatedQuotaCheck.quota_limit === -1 ? 999999 : updatedQuotaCheck.quota_limit,
       generationId: generationId || undefined,
       id: generationId || undefined // For compatibility
     };

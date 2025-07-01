@@ -34,10 +34,16 @@ export default function TimeoutBanner() {
 
     const checkTimeout = async () => {
       try {
-        const response = await fetch(`/api/user/timeout?type=post_creation`);
+        const response = await fetch(`/api/user/timeout?type=post_creation`, {
+          credentials: 'include' // Ensure authentication headers are sent
+        });
         if (response.ok) {
           const data = await response.json();
           setTimeoutInfo(data);
+        } else if (response.status === 401) {
+          // User session expired, don't log this as an error
+          // eslint-disable-next-line no-console
+          console.debug('User session expired, skipping timeout check');
         }
       } catch (error) {
         console.error('Error checking timeout:', error);

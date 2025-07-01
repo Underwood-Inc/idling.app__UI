@@ -25,7 +25,7 @@ export function QuotaDisplay({
               <div
                 className={styles.quota__fill}
                 style={{
-                  width: `${Math.min(((quotaLimit - remainingGenerations) / quotaLimit) * 100, 100)}%`
+                  width: `${Math.min((remainingGenerations / quotaLimit) * 100, 100)}%`
                 }}
               />
             </div>
@@ -37,7 +37,7 @@ export function QuotaDisplay({
           </div>
         ) : (
           <span className={styles.quota__text}>
-            {remainingGenerations}/{quotaLimit} spell remaining (until tomorrow)
+            {remainingGenerations} spell remaining (until tomorrow)
           </span>
         )}
         {isQuotaExceeded && (

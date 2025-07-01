@@ -393,7 +393,7 @@ export default function OgImageViewer() {
             quotaLimit={quotaState.quotaLimit}
             hasInitializedQuota={quotaState.hasInitializedQuota}
             isQuotaExceeded={quotaState.isQuotaExceeded}
-            showMeter={welcomeFlow.showWelcome}
+            showMeter
           />
 
           {/* Mystical Codex */}

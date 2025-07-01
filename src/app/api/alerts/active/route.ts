@@ -36,8 +36,9 @@ export async function GET() {
     const userId = session?.user?.id ? parseInt(session.user.id) : null;
 
     // Get active alerts for the user (or anonymous if not logged in)
+    // Cast null to INTEGER to match function signature
     const alerts = await sql<CustomAlert[]>`
-      SELECT * FROM get_active_alerts_for_user(${userId})
+      SELECT * FROM get_active_alerts_for_user(${userId}::INTEGER)
     `;
 
     // Update analytics for views (only in runtime, not during build)
