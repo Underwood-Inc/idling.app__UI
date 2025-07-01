@@ -49,6 +49,10 @@ jobs:
             echo "❌ Docstring coverage failed!" >> $GITHUB_STEP_SUMMARY
           fi
 
+          # Extract docstring coverage percentage
+          DOCSTRING_COVERAGE=$(grep -oP 'TOTAL.*?(\K\d+(?=\.\d+%))' interrogate_output.txt || echo "0")
+          echo "docstring_coverage=${DOCSTRING_COVERAGE}" >> $GITHUB_OUTPUT
+
           # Add detailed output to summary
           echo '```' >> $GITHUB_STEP_SUMMARY
           cat interrogate_output.txt >> $GITHUB_STEP_SUMMARY
@@ -63,14 +67,25 @@ jobs:
           # Make script executable
           chmod +x scripts/check-docs-coverage.py
 
-          # Run documentation coverage check
-          if python scripts/check-docs-coverage.py --fail-under=85 --format=markdown --output=docs-coverage-report.md; then
+          # Run documentation coverage check and capture percentage
+          if python scripts/check-docs-coverage.py --fail-under=85 --format=json --output=docs-coverage.json; then
             echo "docs_coverage_passed=true" >> $GITHUB_OUTPUT
             echo "✅ Documentation file coverage passed!" >> $GITHUB_STEP_SUMMARY
           else
             echo "docs_coverage_passed=false" >> $GITHUB_OUTPUT
             echo "❌ Documentation file coverage failed!" >> $GITHUB_STEP_SUMMARY
           fi
+
+          # Extract documentation coverage percentage
+          if [ -f docs-coverage.json ]; then
+            DOC_COVERAGE=$(python -c "import json; data=json.load(open('docs-coverage.json')); print(int(data['coverage_percentage']))")
+            echo "doc_coverage=${DOC_COVERAGE}" >> $GITHUB_OUTPUT
+          else
+            echo "doc_coverage=0" >> $GITHUB_OUTPUT
+          fi
+
+          # Generate markdown report for display
+          python scripts/check-docs-coverage.py --format=markdown --output=docs-coverage-report.md || true
 
           # Add report to summary if it exists
           if [ -f docs-coverage-report.md ]; then
@@ -95,32 +110,74 @@ jobs:
           fi
         continue-on-error: true
 
+      - name: 🎨 Generate documentation coverage badge
+        id: generate-badge
+        run: |
+          # Create badges directory
+          mkdir -p DOCS/badges/
+
+          # Get coverage percentage
+          DOC_COVERAGE="${{ steps.docs-coverage.outputs.doc_coverage }}"
+          DOCSTRING_COVERAGE="${{ steps.interrogate.outputs.docstring_coverage }}"
+
+          # Calculate overall documentation coverage (weighted average)
+          OVERALL_COVERAGE=$(python -c "print(int(($DOC_COVERAGE * 0.6) + ($DOCSTRING_COVERAGE * 0.4)))")
+          echo "overall_coverage=${OVERALL_COVERAGE}" >> $GITHUB_OUTPUT
+
+          # Determine badge color based on coverage
+          if [ "$OVERALL_COVERAGE" -ge 90 ]; then
+            COLOR="brightgreen"
+          elif [ "$OVERALL_COVERAGE" -ge 75 ]; then
+            COLOR="green"
+          elif [ "$OVERALL_COVERAGE" -ge 60 ]; then
+            COLOR="yellow"
+          elif [ "$OVERALL_COVERAGE" -ge 40 ]; then
+            COLOR="orange"
+          else
+            COLOR="red"
+          fi
+
+          # Generate badge URL
+          BADGE_URL="https://img.shields.io/badge/Documentation%20Coverage-${OVERALL_COVERAGE}%25-${COLOR}?style=flat&logo=gitbook&logoColor=white"
+          echo "badge_url=${BADGE_URL}" >> $GITHUB_OUTPUT
+
+          # Save badge URL to file for later use
+          echo "${BADGE_URL}" > DOCS/badges/documentation-coverage-url.txt
+          echo "Generated documentation coverage badge: ${OVERALL_COVERAGE}%"
+
       - name: 📊 Generate comprehensive report
         run: |
           echo "## 📊 Documentation Coverage Summary" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
 
+          # Add badge to summary
+          echo "![Documentation Coverage](${{ steps.generate-badge.outputs.badge_url }})" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
           # Create summary table
-          echo "| Check | Status | Details |" >> $GITHUB_STEP_SUMMARY
-          echo "|-------|--------|---------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Check | Status | Coverage | Details |" >> $GITHUB_STEP_SUMMARY
+          echo "|-------|--------|----------|---------|" >> $GITHUB_STEP_SUMMARY
 
           if [ "${{ steps.interrogate.outputs.interrogate_passed }}" = "true" ]; then
-            echo "| Python Docstrings | ✅ Pass | Coverage meets minimum requirement |" >> $GITHUB_STEP_SUMMARY
+            echo "| Python Docstrings | ✅ Pass | ${{ steps.interrogate.outputs.docstring_coverage }}% | Coverage meets minimum requirement |" >> $GITHUB_STEP_SUMMARY
           else
-            echo "| Python Docstrings | ❌ Fail | Coverage below minimum threshold |" >> $GITHUB_STEP_SUMMARY
+            echo "| Python Docstrings | ❌ Fail | ${{ steps.interrogate.outputs.docstring_coverage }}% | Coverage below minimum threshold |" >> $GITHUB_STEP_SUMMARY
           fi
 
           if [ "${{ steps.docs-coverage.outputs.docs_coverage_passed }}" = "true" ]; then
-            echo "| Documentation Files | ✅ Pass | All code files have documentation |" >> $GITHUB_STEP_SUMMARY
+            echo "| Documentation Files | ✅ Pass | ${{ steps.docs-coverage.outputs.doc_coverage }}% | All code files have documentation |" >> $GITHUB_STEP_SUMMARY
           else
-            echo "| Documentation Files | ❌ Fail | Missing documentation files |" >> $GITHUB_STEP_SUMMARY
+            echo "| Documentation Files | ❌ Fail | ${{ steps.docs-coverage.outputs.doc_coverage }}% | Missing documentation files |" >> $GITHUB_STEP_SUMMARY
           fi
 
           if [ "${{ steps.pydocstyle.outputs.pydocstyle_passed }}" = "true" ]; then
-            echo "| Docstring Style | ✅ Pass | All docstrings follow conventions |" >> $GITHUB_STEP_SUMMARY
+            echo "| Docstring Style | ✅ Pass | N/A | All docstrings follow conventions |" >> $GITHUB_STEP_SUMMARY
           else
-            echo "| Docstring Style | ⚠️ Issues | Style violations found |" >> $GITHUB_STEP_SUMMARY
+            echo "| Docstring Style | ⚠️ Issues | N/A | Style violations found |" >> $GITHUB_STEP_SUMMARY
           fi
+
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Overall Documentation Coverage: ${{ steps.generate-badge.outputs.overall_coverage }}%**" >> $GITHUB_STEP_SUMMARY
 
       - name: 🏷️ Upload coverage badges
         if: github.ref == 'refs/heads/main'
@@ -135,7 +192,62 @@ jobs:
           echo "🚧 Generating documentation stubs for missing files..."
           python scripts/check-docs-coverage.py --generate-stubs
 
-      - name: 💬 Comment on PR with results
+      - name: 💬 Update PR description with documentation badge
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+
+            // Get current PR
+            const { data: pr } = await github.rest.pulls.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number
+            });
+
+            const badgeUrl = '${{ steps.generate-badge.outputs.badge_url }}';
+            const overallCoverage = '${{ steps.generate-badge.outputs.overall_coverage }}';
+            const docCoverage = '${{ steps.docs-coverage.outputs.doc_coverage }}';
+            const docstringCoverage = '${{ steps.interrogate.outputs.docstring_coverage }}';
+
+            // Create documentation status section
+            const docSection = `
+            ## 📚 Documentation Coverage Status
+
+            ![Documentation Coverage](${badgeUrl})
+
+            | Metric | Coverage | Status |
+            |--------|----------|--------|
+                         | **Overall Documentation** | **${overallCoverage}%** | ${parseInt(overallCoverage) >= 75 ? '✅' : '❌'} |
+             | Documentation Files | ${docCoverage}% | ${{ steps.docs-coverage.outputs.docs_coverage_passed == 'true' && '✅' || '❌' }} |
+             | Python Docstrings | ${docstringCoverage}% | ${{ steps.interrogate.outputs.interrogate_passed == 'true' && '✅' || '❌' }} |
+
+            *Updated automatically by Documentation Coverage workflow*
+
+            ---
+            `;
+
+            // Get current description
+            let newDescription = pr.body || '';
+
+            // Remove existing documentation section if present
+            newDescription = newDescription.replace(/## 📚 Documentation Coverage Status[\s\S]*?---\n/g, '');
+
+            // Add new documentation section at the top
+            newDescription = docSection + newDescription;
+
+            // Update PR description
+            await github.rest.pulls.update({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number,
+              body: newDescription
+            });
+
+            console.log('✅ Updated PR description with documentation coverage badge');
+
+      - name: 💬 Comment on PR with detailed results
         if: github.event_name == 'pull_request'
         uses: actions/github-script@v7
         with:
@@ -156,15 +268,18 @@ jobs:
             const interrogatePassed = '${{ steps.interrogate.outputs.interrogate_passed }}' === 'true';
             const docsCoveragePassed = '${{ steps.docs-coverage.outputs.docs_coverage_passed }}' === 'true';
             const pydocstylePassed = '${{ steps.pydocstyle.outputs.pydocstyle_passed }}' === 'true';
+            const badgeUrl = '${{ steps.generate-badge.outputs.badge_url }}';
 
             const overallStatus = interrogatePassed && docsCoveragePassed ? '✅' : '❌';
 
             let comment = `## ${overallStatus} Documentation Coverage Report\n\n`;
-            comment += `| Check | Status |\n`;
-            comment += `|-------|--------|\n`;
-            comment += `| Python Docstrings | ${interrogatePassed ? '✅' : '❌'} |\n`;
-            comment += `| Documentation Files | ${docsCoveragePassed ? '✅' : '❌'} |\n`;
-            comment += `| Docstring Style | ${pydocstylePassed ? '✅' : '⚠️'} |\n\n`;
+            comment += `![Documentation Coverage](${badgeUrl})\n\n`;
+            comment += `| Check | Status | Coverage |\n`;
+            comment += `|-------|--------|---------|\n`;
+            comment += `| Python Docstrings | ${interrogatePassed ? '✅' : '❌'} | ${{ steps.interrogate.outputs.docstring_coverage }}% |\n`;
+            comment += `| Documentation Files | ${docsCoveragePassed ? '✅' : '❌'} | ${{ steps.docs-coverage.outputs.doc_coverage }}% |\n`;
+            comment += `| Docstring Style | ${pydocstylePassed ? '✅' : '⚠️'} | N/A |\n\n`;
+            comment += `**Overall Coverage: ${{ steps.generate-badge.outputs.overall_coverage }}%**\n\n`;
 
             if (!docsCoveragePassed && reportContent) {
               comment += `### Missing Documentation\n\n${reportContent}\n\n`;
@@ -223,13 +338,18 @@ jobs:
               reportContent = 'Unable to read detailed report.';
             }
 
+            const badgeUrl = '${{ steps.generate-badge.outputs.badge_url }}';
+
             const issueBody = `## 📚 Documentation Coverage Below Threshold
+
+            ![Documentation Coverage](${badgeUrl})
 
             The automated documentation coverage check has detected that our documentation coverage has fallen below the required threshold.
 
             ### Current Status
-            - **Python Docstrings**: ${{ steps.interrogate.outputs.interrogate_passed == 'true' && '✅ Passing' || '❌ Failing' }}
-            - **Documentation Files**: ${{ steps.docs-coverage.outputs.docs_coverage_passed == 'true' && '✅ Passing' || '❌ Failing' }}
+            - **Python Docstrings**: ${{ steps.interrogate.outputs.interrogate_passed == 'true' && '✅ Passing' || '❌ Failing' }} (${{ steps.interrogate.outputs.docstring_coverage }}%)
+            - **Documentation Files**: ${{ steps.docs-coverage.outputs.docs_coverage_passed == 'true' && '✅ Passing' || '❌ Failing' }} (${{ steps.docs-coverage.outputs.doc_coverage }}%)
+            - **Overall Coverage**: ${{ steps.generate-badge.outputs.overall_coverage }}%
 
             ### Detailed Report
             ${reportContent}
@@ -250,7 +370,7 @@ jobs:
             \`\`\`
 
             ### Auto-generated Documentation Stubs
-            If documentation stubs were generated, they can be found in the \`docs/\` directory with \`status: draft\` frontmatter. Please review and complete these files.
+            If documentation stubs were generated, they can be found in the \`DOCS/\` directory with \`status: draft\` frontmatter. Please review and complete these files.
 
             ---
             *This issue was automatically created by the Documentation Coverage workflow.*`;
