@@ -1,3 +1,4 @@
+import { withRateLimit } from '@/lib/middleware/withRateLimit';
 import { AdminUserSimpleSearchParamsSchema } from '@/lib/schemas/admin-users.schema';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
@@ -29,7 +30,7 @@ export interface UserSearchResponse {
  * Query Parameters:
  * - q: Search query (minimum 2 characters, alphanumeric + @._- allowed)
  */
-export async function GET(request: NextRequest) {
+async function getHandler(request: NextRequest) {
   try {
     // Authentication check
     const session = await auth();
@@ -128,4 +129,6 @@ export async function GET(request: NextRequest) {
       { status: 500 }
     );
   }
-} 
+}
+
+export const GET = withRateLimit(getHandler); 

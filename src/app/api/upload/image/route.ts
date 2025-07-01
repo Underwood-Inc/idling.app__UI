@@ -1,106 +1,31 @@
+import { auth } from '@/lib/auth';
+import { withRateLimit } from '@/lib/middleware/withRateLimit';
+import { ImageUploadSchema } from '@/lib/schemas/upload.schema';
 import crypto from 'crypto';
 import { mkdir, writeFile } from 'fs/promises';
 import { NextRequest, NextResponse } from 'next/server';
 import { join } from 'path';
 import { z } from 'zod';
-import { auth } from '../../../../lib/auth';
 import {
-    getMediaConfig,
-    validateFileSize,
-    validateMimeType
+  getMediaConfig,
+  validateFileSize,
+  validateMimeType
 } from '../../../../lib/config/media-domains';
 
 // This route uses dynamic features (auth/headers) and should not be pre-rendered
 export const dynamic = 'force-dynamic';
 
-// ================================
-// VALIDATION SCHEMAS
-// ================================
-
-/**
- * Schema for image upload form validation
- */
-const ImageUploadFormSchema = z.object({
-  file: z.instanceof(File),
-}).refine(
-  (data) => {
-    const allowedTypes = [
-      'image/jpeg',
-      'image/jpg',
-      'image/png', 
-      'image/gif',
-      'image/webp'
-    ];
-    return allowedTypes.includes(data.file.type);
-  },
-  {
-    message: 'Invalid file type. Allowed types: JPEG, JPG, PNG, GIF, WebP',
-    path: ['file'],
-  }
-).refine(
-  (data) => {
-    const maxSize = 10 * 1024 * 1024; // 10MB
-    return data.file.size <= maxSize;
-  },
-  {
-    message: 'File too large. Maximum size: 10MB', 
-    path: ['file'],
-  }
-);
-
-// ================================
-// LEGACY CONSTANTS (for backward compatibility)
-// ================================
-
-// Allowed image types and sizes
-const ALLOWED_TYPES = [
-  'image/jpeg',
-  'image/jpg',
-  'image/png',
-  'image/gif',
-  'image/webp'
-];
-
-const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
-const UPLOAD_DIR = join(process.cwd(), 'public', 'uploads', 'images');
-
-// Ensure upload directory exists
-async function ensureUploadDir() {
-  try {
-    await mkdir(UPLOAD_DIR, { recursive: true });
-  } catch (error) {
-    // Directory might already exist, that's fine
-  }
+interface UploadResponse {
+  success: boolean;
+  url?: string;
+  filename?: string;
+  size?: number;
+  type?: string;
+  error?: string;
+  details?: any[];
 }
 
-// Generate secure filename
-function generateSecureFilename(originalName: string): string {
-  const ext = originalName.split('.').pop()?.toLowerCase() || 'jpg';
-  const timestamp = Date.now();
-  const randomBytes = crypto.randomBytes(16).toString('hex');
-  return `${timestamp}_${randomBytes}.${ext}`;
-}
-
-// Validate image file
-function validateImageFile(file: File): { valid: boolean; error?: string } {
-  if (!ALLOWED_TYPES.includes(file.type)) {
-    return {
-      valid: false,
-      error: `Invalid file type. Allowed types: ${ALLOWED_TYPES.join(', ')}`
-    };
-  }
-
-  if (file.size > MAX_FILE_SIZE) {
-    return {
-      valid: false,
-      error: `File too large. Maximum size: ${MAX_FILE_SIZE / 1024 / 1024}MB`
-    };
-  }
-
-  return { valid: true };
-}
-
-export async function POST(request: NextRequest) {
+async function postHandler(request: NextRequest) {
   try {
     // Check authentication
     const session = await auth();
@@ -120,7 +45,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Validate file with Zod schema
-    const validationResult = ImageUploadFormSchema.safeParse({ file });
+    const validationResult = ImageUploadSchema.safeParse({ file });
     if (!validationResult.success) {
       return NextResponse.json(
         {
@@ -197,6 +122,8 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Upload failed' }, { status: 500 });
   }
 }
+
+export const POST = withRateLimit(postHandler);
 
 // Only allow POST requests
 export async function GET() {

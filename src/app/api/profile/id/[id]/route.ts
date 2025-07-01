@@ -1,7 +1,8 @@
+import { withRateLimit } from '@/lib/middleware/withRateLimit';
 import { NextRequest, NextResponse } from 'next/server';
 import { withProfilePrivacy } from '../../../../../lib/utils/privacy';
 
-export async function GET(
+async function getHandler(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
@@ -9,17 +10,21 @@ export async function GET(
     const { id } = params;
 
     if (!id) {
+      return NextResponse.json({ error: 'ID is required' }, { status: 400 });
+    }
+
+    // ✅ CRITICAL: Only database ID supported after migration 0010
+    if (!/^\d+$/.test(id)) {
       return NextResponse.json(
-        { error: 'User ID is required' },
+        {
+          error: 'Invalid profile identifier. Only database IDs are supported.'
+        },
         { status: 400 }
       );
     }
 
-    // Convert to string if it's a number
-    const userId = id.toString();
-
     // Use privacy protection utility
-    const { response, profile } = await withProfilePrivacy(userId, true);
+    const { response, profile } = await withProfilePrivacy(id, false);
 
     if (response) {
       // Privacy check failed, return the error response
@@ -39,3 +44,6 @@ export async function GET(
     );
   }
 }
+
+// Apply rate limiting to handler
+export const GET = withRateLimit(getHandler);

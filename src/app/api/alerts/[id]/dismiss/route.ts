@@ -1,5 +1,6 @@
 import { auth } from '@/lib/auth';
 import sql from '@/lib/db';
+import { withRateLimit } from '@/lib/middleware/withRateLimit';
 import { NextRequest, NextResponse } from 'next/server';
 
 /**
@@ -8,7 +9,7 @@ import { NextRequest, NextResponse } from 'next/server';
  * Records that a user has dismissed a specific alert.
  * This prevents the alert from appearing again for that user.
  */
-export async function POST(
+async function postHandler(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
@@ -62,4 +63,6 @@ export async function POST(
     console.error('Error dismissing alert:', error);
     return NextResponse.json({ error: 'Failed to dismiss alert' }, { status: 500 });
   }
-} 
+}
+
+export const POST = withRateLimit(postHandler); 

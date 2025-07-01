@@ -1,10 +1,11 @@
+import { withRateLimit } from '@/lib/middleware/withRateLimit';
 import { ImageResponse } from 'next/og';
 import { NextRequest } from 'next/server';
 
 // Removed Edge Runtime - using Node.js runtime for better compatibility
 export const dynamic = 'force-dynamic';
 
-export async function GET(request: NextRequest) {
+async function getHandler(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const seed = searchParams.get('seed') || 'default-seed';
@@ -160,3 +161,6 @@ export async function GET(request: NextRequest) {
     );
   }
 }
+
+// Apply rate limiting to handler
+export const GET = withRateLimit(getHandler);

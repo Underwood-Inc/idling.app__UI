@@ -4,14 +4,15 @@
  */
 
 import { createLogger } from '@/lib/logging';
+import { withRateLimit } from '@/lib/middleware/withRateLimit';
 import { NextRequest, NextResponse } from 'next/server';
 import {
-  getCategoryMapping,
-  getCustomEmojis,
-  getEmojiCategories,
-  getOSEmojis,
-  trackEmojiUsage,
-  uploadCustomEmoji
+    getCategoryMapping,
+    getCustomEmojis,
+    getEmojiCategories,
+    getOSEmojis,
+    trackEmojiUsage,
+    uploadCustomEmoji
 } from '../../../lib/actions/emoji.actions';
 import { OSDetection } from '../../../lib/utils/os-detection';
 
@@ -75,7 +76,7 @@ export interface EmojiListResponse {
  * GET /api/emojis
  * Fetch emojis based on user's OS and preferences using server actions
  */
-export async function GET(request: NextRequest) {
+async function getHandler(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
 
@@ -200,14 +201,14 @@ export async function GET(request: NextRequest) {
         }))
       ],
       os_info: {
-        os: osInfo.os,
+        os: userOS,
         version: osInfo.version,
         is_supported: true,
         emoji_support: {
           supports_unicode: true,
           supports_custom: true,
-          max_emoji_version: '15.0',
-          recommended_format: 'unicode'
+          max_emoji_version: userOS === 'mac' ? '15.0' : '11.0',
+          recommended_format: userOS === 'mac' ? 'unicode' : 'image'
         }
       },
       total_count: osEmojis.length + customEmojis.length,
@@ -217,7 +218,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(response);
   } catch (error) {
-    logger.error('Error fetching emojis', error as Error);
+    logger.error('Error fetching emojis:', error as Error);
     return NextResponse.json(
       { error: 'Failed to fetch emojis' },
       { status: 500 }
@@ -229,7 +230,7 @@ export async function GET(request: NextRequest) {
  * POST /api/emojis
  * Create a new custom emoji using server actions
  */
-export async function POST(request: NextRequest) {
+async function postHandler(request: NextRequest) {
   try {
     const body = await request.json();
     const { name, displayName, imageData, category } = body;
@@ -252,7 +253,7 @@ export async function POST(request: NextRequest) {
       message: 'Custom emoji uploaded successfully and is pending approval'
     });
   } catch (error) {
-    logger.error('Error uploading custom emoji', error as Error);
+    logger.error('Error uploading custom emoji:', error as Error);
     return NextResponse.json(
       { error: 'Failed to upload emoji' },
       { status: 500 }
@@ -264,7 +265,7 @@ export async function POST(request: NextRequest) {
  * PUT /api/emojis
  * Track emoji usage using server actions
  */
-export async function PUT(request: NextRequest) {
+async function putHandler(request: NextRequest) {
   try {
     const body = await request.json();
     const { emojiType, emojiId } = body;
@@ -281,10 +282,15 @@ export async function PUT(request: NextRequest) {
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    logger.error('Error tracking emoji usage', error as Error);
+    logger.error('Error tracking emoji usage:', error as Error);
     return NextResponse.json(
       { error: 'Failed to track usage' },
       { status: 500 }
     );
   }
 }
+
+// Apply rate limiting to all handlers
+export const GET = withRateLimit(getHandler);
+export const POST = withRateLimit(postHandler);
+export const PUT = withRateLimit(putHandler);

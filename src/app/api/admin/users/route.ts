@@ -7,6 +7,7 @@ import { checkUserPermission } from '@/lib/actions/permissions.actions';
 import { auth } from '@/lib/auth';
 import sql from '@/lib/db';
 import { createLogger } from '@/lib/logging';
+import { withRateLimit } from '@/lib/middleware/withRateLimit';
 import { PERMISSIONS } from '@/lib/permissions/permissions';
 import { AdminUserSearchParamsSchema } from '@/lib/schemas/admin-users.schema';
 import { NextRequest, NextResponse } from 'next/server';
@@ -59,7 +60,7 @@ export interface AdminUser {
 }
 
 // GET /api/admin/users - Get users for admin management
-export async function GET(request: NextRequest) {
+async function getHandler(request: NextRequest) {
   try {
     const session = await auth();
     if (!session?.user?.id) {
@@ -210,4 +211,7 @@ export async function GET(request: NextRequest) {
       { status: 500 }
     );
   }
-} 
+}
+
+// Apply rate limiting to handlers
+export const GET = withRateLimit(getHandler);

@@ -10,6 +10,7 @@
 
 import { auth } from '@/lib/auth';
 import sql from '@/lib/db';
+import { withRateLimit } from '@/lib/middleware/withRateLimit';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 
@@ -98,7 +99,7 @@ async function logAdminAction(
  * POST /api/admin/users/[id]/quotas/reset
  * Resets user quota usage counts to zero while preserving limits
  */
-export async function POST(
+async function postHandler(
   request: NextRequest,
   { params }: { params: { id: string } }
 ): Promise<NextResponse<ApiResponse<{ reset: boolean; previous_usage: number }> | ErrorResponse>> {
@@ -238,4 +239,7 @@ export async function POST(
       { status: 500 }
     );
   }
-} 
+}
+
+// Apply rate limiting to handler
+export const POST = withRateLimit(postHandler); 
