@@ -9,6 +9,7 @@ interface WelcomeInterfaceProps {
   quotaLimit: number;
   hasInitializedQuota: boolean;
   isQuotaExceeded: boolean;
+  resetDate?: Date | null;
   loadGenerationId: string;
   setLoadGenerationId: (id: string) => void;
   onNewGeneration: () => void;
@@ -20,6 +21,7 @@ export function WelcomeInterface({
   quotaLimit,
   hasInitializedQuota,
   isQuotaExceeded,
+  resetDate,
   loadGenerationId,
   setLoadGenerationId,
   onNewGeneration,
@@ -44,6 +46,7 @@ export function WelcomeInterface({
             quotaLimit={quotaLimit}
             hasInitializedQuota={hasInitializedQuota}
             isQuotaExceeded={isQuotaExceeded}
+            resetDate={resetDate}
             showMeter
             welcome
           />

@@ -1,6 +1,8 @@
 'use client';
 
+import { InteractiveTooltip } from '../../components/tooltip/InteractiveTooltip';
 import { InstantLink } from '../../components/ui/InstantLink';
+import { TimestampWithTooltip } from '../../components/ui/TimestampWithTooltip';
 import { QuotaState } from '../types/generation';
 import styles from './QuotaDisplay.module.css';
 
@@ -15,6 +17,7 @@ export function QuotaDisplay({
   quotaLimit,
   hasInitializedQuota,
   isQuotaExceeded,
+  resetDate,
   showMeter = false,
   mobile = false,
   welcome = false
@@ -24,6 +27,55 @@ export function QuotaDisplay({
     : mobile
       ? styles.quota__mobile
       : styles.quota__section;
+
+  // Helper function to render quota text with optional tooltip
+  const renderQuotaText = (text: string) => {
+    if (!resetDate) {
+      return <span className={styles.quota__text}>{text}</span>;
+    }
+
+    const tooltipContent = (
+      <div style={{ padding: '8px 12px', textAlign: 'center' }}>
+        <div
+          style={{
+            fontSize: '13px',
+            fontWeight: '600',
+            color: 'white',
+            marginBottom: '6px'
+          }}
+        >
+          🔄 Quota Resets
+        </div>
+        <TimestampWithTooltip
+          date={resetDate}
+          abbreviated={false}
+          showSeconds={true}
+        />
+      </div>
+    );
+
+    return (
+      <InteractiveTooltip content={tooltipContent} delay={200}>
+        <span
+          className={styles.quota__text}
+          style={{
+            textDecoration: 'underline',
+            textDecorationStyle: 'dotted',
+            textUnderlineOffset: '2px',
+            cursor: 'help'
+          }}
+        >
+          {text}
+        </span>
+      </InteractiveTooltip>
+    );
+  };
+
+  const quotaText = hasInitializedQuota
+    ? `${remainingGenerations}/${quotaLimit} ${mobile || welcome ? 'enchantment today' : 'enchantment today'}`
+    : 'Channeling energy...';
+
+  const simpleQuotaText = `${remainingGenerations} spell remaining (until tomorrow)`;
 
   return (
     <div className={containerClass}>
@@ -39,17 +91,12 @@ export function QuotaDisplay({
                 }}
               />
             </div>
-            <span className={styles.quota__text}>
-              {hasInitializedQuota
-                ? `${remainingGenerations}/${quotaLimit} ${mobile || welcome ? 'enchantment today' : 'enchantment today'}`
-                : 'Channeling energy...'}
-            </span>
+            {renderQuotaText(quotaText)}
           </div>
         ) : (
-          <span className={styles.quota__text}>
-            {remainingGenerations} spell remaining (until tomorrow)
-          </span>
+          renderQuotaText(simpleQuotaText)
         )}
+
         {isQuotaExceeded && (
           <InstantLink href="/subscription" className={styles.quota__upgrade}>
             {mobile ? 'Upgrade 🔮' : 'Ascend to Archmage 🔮'}

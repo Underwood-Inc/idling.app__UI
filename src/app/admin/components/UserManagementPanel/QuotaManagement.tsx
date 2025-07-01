@@ -41,7 +41,12 @@ export const QuotaManagement: React.FC<QuotaManagementProps> = ({
   const [editingQuota, setEditingQuota] = useState<string | null>(null);
   const [newLimit, setNewLimit] = useState<number>(0);
   const [isUnlimited, setIsUnlimited] = useState(false);
+  const [resetPeriod, setResetPeriod] = useState<
+    'hourly' | 'daily' | 'weekly' | 'monthly'
+  >('daily');
   const [reason, setReason] = useState('');
+  const [resetUsage, setResetUsage] = useState(false);
+  const [savingQuota, setSavingQuota] = useState<string | null>(null);
 
   useEffect(() => {
     if (isOpen && user.id) {
@@ -75,12 +80,17 @@ export const QuotaManagement: React.FC<QuotaManagementProps> = ({
     serviceName: string,
     featureName: string,
     currentLimit: number,
-    unlimited: boolean
+    unlimited: boolean,
+    currentResetPeriod: string = 'daily'
   ) => {
     setEditingQuota(`${serviceName}.${featureName}`);
     // Convert -1 from database to 0 for the form (0 = infinite)
     setNewLimit(currentLimit === -1 ? 0 : currentLimit);
     setIsUnlimited(unlimited);
+    setResetPeriod(
+      currentResetPeriod as 'hourly' | 'daily' | 'weekly' | 'monthly'
+    );
+    setResetUsage(false); // Default to retaining usage
     setReason('');
   };
 
@@ -88,6 +98,32 @@ export const QuotaManagement: React.FC<QuotaManagementProps> = ({
     if (!editingQuota) return;
 
     const [serviceName, featureName] = editingQuota.split('.');
+
+    // Set saving state for this specific quota
+    setSavingQuota(`${serviceName}.${featureName}`);
+
+    // Optimistic update - immediately update the UI (but not reset_date - wait for backend)
+    const optimisticQuotas = quotas.map((quota) => {
+      if (
+        quota.service_name === serviceName &&
+        quota.feature_name === featureName
+      ) {
+        return {
+          ...quota,
+          quota_limit: isUnlimited ? -1 : newLimit,
+          is_unlimited: isUnlimited,
+          reset_period: resetPeriod,
+          current_usage: resetUsage ? 0 : quota.current_usage, // Reset usage if requested
+          // Don't update reset_date optimistically - wait for backend confirmation
+          is_custom: true // Mark as custom since we're overriding
+        };
+      }
+      return quota;
+    });
+
+    // Apply optimistic update immediately
+    setQuotas(optimisticQuotas);
+    setEditingQuota(null); // Close the edit form immediately
 
     try {
       const response = await fetch(`/api/admin/users/${user.id}/quotas`, {
@@ -99,21 +135,57 @@ export const QuotaManagement: React.FC<QuotaManagementProps> = ({
           feature_name: featureName,
           quota_limit: isUnlimited ? 0 : newLimit,
           is_unlimited: isUnlimited,
+          reset_period: resetPeriod,
+          reset_usage: resetUsage,
           reason: reason
         })
       });
 
       if (response.ok) {
-        await loadUserQuotas();
-        setEditingQuota(null);
+        // Success - try to get updated data from response, otherwise reload
+        const responseData = await response.json();
+
+        if (responseData.data?.override) {
+          // Backend returned updated data, use it to update the reset_date
+          const updatedQuotas = quotas.map((quota) => {
+            if (
+              quota.service_name === serviceName &&
+              quota.feature_name === featureName
+            ) {
+              return {
+                ...quota,
+                quota_limit: isUnlimited ? -1 : newLimit,
+                is_unlimited: isUnlimited,
+                reset_period: resetPeriod,
+                current_usage: resetUsage ? 0 : quota.current_usage, // Apply usage reset if requested
+                reset_date: calculateResetDate(resetPeriod), // Now safe to calculate since backend confirmed
+                is_custom: true
+              };
+            }
+            return quota;
+          });
+          setQuotas(updatedQuotas);
+        } else {
+          // Fallback: reload to get accurate data
+          await loadUserQuotas();
+        }
+
         onUpdate?.();
       } else {
+        // Revert optimistic update on failure
         const errorData = await response.json();
         setError(errorData.error || 'Failed to update quota');
+        // Reload actual data to revert optimistic changes
+        await loadUserQuotas();
       }
     } catch (err) {
       setError('Error updating quota');
       console.error('Error updating quota:', err);
+      // Reload actual data to revert optimistic changes
+      await loadUserQuotas();
+    } finally {
+      // Clear saving state
+      setSavingQuota(null);
     }
   };
 
@@ -125,6 +197,23 @@ export const QuotaManagement: React.FC<QuotaManagementProps> = ({
     ) {
       return;
     }
+
+    // Optimistic update - immediately reset usage to 0
+    const optimisticQuotas = quotas.map((quota) => {
+      if (
+        quota.service_name === serviceName &&
+        quota.feature_name === featureName
+      ) {
+        return {
+          ...quota,
+          current_usage: 0
+        };
+      }
+      return quota;
+    });
+
+    // Apply optimistic update immediately
+    setQuotas(optimisticQuotas);
 
     try {
       const response = await fetch(`/api/admin/users/${user.id}/quotas/reset`, {
@@ -139,16 +228,90 @@ export const QuotaManagement: React.FC<QuotaManagementProps> = ({
       });
 
       if (response.ok) {
+        // Success - reload to get the updated reset_date from backend
         await loadUserQuotas();
         onUpdate?.();
       } else {
+        // Revert optimistic update on failure
         const errorData = await response.json();
         setError(errorData.error || 'Failed to reset quota');
+        // Reload actual data to revert optimistic changes
+        await loadUserQuotas();
       }
     } catch (err) {
       setError('Error resetting quota');
       console.error('Error resetting quota:', err);
+      // Reload actual data to revert optimistic changes
+      await loadUserQuotas();
     }
+  };
+
+  // Helper function to calculate reset date based on period
+  const calculateResetDate = (resetPeriod: string): string => {
+    const now = new Date();
+    let resetDate: Date;
+
+    switch (resetPeriod) {
+      case 'hourly':
+        resetDate = new Date(
+          now.getFullYear(),
+          now.getMonth(),
+          now.getDate(),
+          now.getHours() + 1,
+          0,
+          0,
+          0
+        );
+        break;
+      case 'daily':
+        resetDate = new Date(
+          now.getFullYear(),
+          now.getMonth(),
+          now.getDate() + 1,
+          0,
+          0,
+          0,
+          0
+        );
+        break;
+      case 'weekly': {
+        const daysUntilMonday = (8 - now.getDay()) % 7;
+        resetDate = new Date(
+          now.getFullYear(),
+          now.getMonth(),
+          now.getDate() + daysUntilMonday,
+          0,
+          0,
+          0,
+          0
+        );
+        break;
+      }
+      case 'monthly':
+        resetDate = new Date(
+          now.getFullYear(),
+          now.getMonth() + 1,
+          1,
+          0,
+          0,
+          0,
+          0
+        );
+        break;
+      default:
+        resetDate = new Date(
+          now.getFullYear(),
+          now.getMonth(),
+          now.getDate() + 1,
+          0,
+          0,
+          0,
+          0
+        );
+        break;
+    }
+
+    return resetDate.toISOString();
   };
 
   if (!isOpen) return null;
@@ -455,6 +618,19 @@ export const QuotaManagement: React.FC<QuotaManagementProps> = ({
                           showSeconds={true}
                         />
                       </span>
+                      {savingQuota ===
+                        `${quota.service_name}.${quota.feature_name}` && (
+                        <span
+                          style={{
+                            color: 'var(--brand-primary)',
+                            fontSize: '12px',
+                            marginLeft: '8px',
+                            fontWeight: '500'
+                          }}
+                        >
+                          💾 Saving...
+                        </span>
+                      )}
                     </div>
 
                     {/* Actions */}
@@ -514,6 +690,98 @@ export const QuotaManagement: React.FC<QuotaManagementProps> = ({
                               }}
                             >
                               💡 Enter 0 for unlimited quota
+                            </small>
+                          </div>
+
+                          <div style={{ marginBottom: '16px' }}>
+                            <label
+                              style={{
+                                display: 'block',
+                                color: 'var(--dark-bg__text-color--primary)',
+                                fontSize: '14px',
+                                fontWeight: '500',
+                                marginBottom: '8px'
+                              }}
+                            >
+                              Reset Period:
+                            </label>
+                            <select
+                              value={resetPeriod}
+                              onChange={(e) =>
+                                setResetPeriod(
+                                  e.target.value as
+                                    | 'hourly'
+                                    | 'daily'
+                                    | 'weekly'
+                                    | 'monthly'
+                                )
+                              }
+                              style={{
+                                width: '100%',
+                                padding: '12px',
+                                borderRadius: '8px',
+                                border:
+                                  '1px solid var(--glass-border-overlay-light, var(--glass-border-light))',
+                                background:
+                                  'var(--glass-overlay-light, var(--glass-bg-light))',
+                                color: 'var(--dark-bg__text-color--primary)',
+                                fontSize: '14px'
+                              }}
+                            >
+                              <option value="hourly">⏰ Hourly</option>
+                              <option value="daily">📅 Daily</option>
+                              <option value="weekly">🗓️ Weekly</option>
+                              <option value="monthly">📆 Monthly</option>
+                            </select>
+                            <small
+                              style={{
+                                color: 'var(--dark-bg__text-color--secondary)',
+                                fontSize: '12px',
+                                display: 'block',
+                                marginTop: '4px'
+                              }}
+                            >
+                              🔄 How often the quota resets
+                            </small>
+                          </div>
+
+                          <div style={{ marginBottom: '16px' }}>
+                            <label
+                              style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '8px',
+                                color: 'var(--dark-bg__text-color--primary)',
+                                fontSize: '14px',
+                                fontWeight: '500',
+                                cursor: 'pointer'
+                              }}
+                            >
+                              <input
+                                type="checkbox"
+                                checked={resetUsage}
+                                onChange={(e) =>
+                                  setResetUsage(e.target.checked)
+                                }
+                                style={{
+                                  width: '16px',
+                                  height: '16px',
+                                  accentColor: 'var(--brand-primary)'
+                                }}
+                              />
+                              Reset Current Usage to Zero
+                            </label>
+                            <small
+                              style={{
+                                color: 'var(--dark-bg__text-color--secondary)',
+                                fontSize: '12px',
+                                display: 'block',
+                                marginTop: '4px',
+                                marginLeft: '24px'
+                              }}
+                            >
+                              🔄 If checked, current usage will be reset to 0.
+                              Otherwise, usage is retained.
                             </small>
                           </div>
 
@@ -599,7 +867,8 @@ export const QuotaManagement: React.FC<QuotaManagementProps> = ({
                                 quota.service_name,
                                 quota.feature_name,
                                 quota.quota_limit,
-                                quota.is_unlimited
+                                quota.is_unlimited,
+                                quota.reset_period
                               )
                             }
                             style={{

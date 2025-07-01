@@ -53,6 +53,7 @@ const UpdateUserQuotaSchema = z.object({
   quota_limit: z.number().int().min(0).optional(),
   is_unlimited: z.boolean().default(false),
   reset_period: z.enum(['hourly', 'daily', 'weekly', 'monthly']).optional(),
+  reset_usage: z.boolean().default(false),
   reason: z.string().max(500).optional()
 }).transform((data) => {
   // If quota_limit is 0, treat as unlimited
@@ -300,7 +301,7 @@ export async function PATCH(
       );
     }
 
-    const { service_name, feature_name, quota_limit, is_unlimited, reset_period, reason } = validationResult.data;
+    const { service_name, feature_name, quota_limit, is_unlimited, reset_period, reset_usage, reason } = validationResult.data;
 
     // Verify service and feature exist
     const serviceFeatureExists = await sql`
@@ -360,6 +361,22 @@ export async function PATCH(
       `;
     }
 
+    // Reset usage if requested
+    if (reset_usage) {
+      await sql`
+        DELETE FROM subscription_usage
+        WHERE user_id = ${params.id}
+        AND service_id IN (
+          SELECT ss.id FROM subscription_services ss WHERE ss.name = ${service_name}
+        )
+        AND feature_id IN (
+          SELECT sf.id FROM subscription_features sf 
+          JOIN subscription_services ss ON sf.service_id = ss.id
+          WHERE ss.name = ${service_name} AND sf.name = ${feature_name}
+        )
+      `;
+    }
+
     // Log the admin action
     await logAdminAction(
       session.user.id,
@@ -371,10 +388,11 @@ export async function PATCH(
         quota_limit: finalQuotaLimit,
         is_unlimited,
         reset_period: finalResetPeriod,
+        reset_usage,
         service_display_name: serviceFeatureExists[0].service_display_name,
         feature_display_name: serviceFeatureExists[0].feature_display_name
       },
-      reason || `Updated quota override for ${service_name}.${feature_name}`
+      reason || `Updated quota override for ${service_name}.${feature_name}${reset_usage ? ' (usage reset)' : ''}`
     );
 
     const actionType = existingOverride.length > 0 ? 'updated' : 'created';

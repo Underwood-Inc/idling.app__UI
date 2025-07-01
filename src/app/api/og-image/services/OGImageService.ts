@@ -1,11 +1,9 @@
 import {
-    checkGuestQuota,
-    checkUserQuota,
-    recordGuestUsage,
-    recordUserUsage,
-    type QuotaCheck
+  checkGuestQuota,
+  recordGuestUsage
 } from '@/lib/actions/quota.actions';
 import { auth } from '@/lib/auth';
+import { EnhancedQuotaService } from '@/lib/services/EnhancedQuotaService';
 import { NextRequest } from 'next/server';
 import { formatRetryAfter } from '../../../../lib/utils/timeFormatting';
 import { ASPECT_RATIOS } from '../config';
@@ -52,6 +50,7 @@ interface GenerationResponse {
   generationOptions: GenerationConfig;
   remainingGenerations: number;
   quotaLimit?: number;
+  resetDate?: Date | null;
   generationId?: string;
   id?: string;
 }
@@ -63,7 +62,7 @@ export class OGImageService {
   private databaseService = DatabaseService.getInstance();
 
   constructor() {
-    // DatabaseService now uses singleton pattern
+    // Initialize services
   }
 
   async generateImage(request: NextRequest): Promise<GenerationResponse> {
@@ -79,11 +78,11 @@ export class OGImageService {
     const session = await auth();
     const userId = session?.user?.id;
     
-    let quotaCheck: QuotaCheck;
+    let quotaCheck: any;
     
     if (userId) {
-      // Authenticated user - use user quota system
-      quotaCheck = await checkUserQuota(
+      // Authenticated user - use EnhancedQuotaService
+      quotaCheck = await EnhancedQuotaService.checkUserQuota(
         parseInt(userId), 
         'og_generator', 
         'daily_generations'
@@ -124,6 +123,7 @@ export class OGImageService {
         generationOptions: this.buildGenerationConfig(searchParams),
         remainingGenerations: quotaCheck.remaining === -1 ? 999999 : quotaCheck.remaining,
         quotaLimit: quotaCheck.quota_limit === -1 ? 999999 : quotaCheck.quota_limit,
+        resetDate: quotaCheck.reset_date,
         generationId: '',
         id: ''
       };
@@ -136,10 +136,10 @@ export class OGImageService {
     const result = await this.callGenerationAPI(config);
 
     // Record usage in the appropriate quota system and get updated quota info
-    let updatedQuotaCheck: QuotaCheck;
+    let updatedQuotaCheck: any;
     if (userId) {
-      // Record for authenticated user
-      const usageRecord = await recordUserUsage(
+      // Record for authenticated user using EnhancedQuotaService
+      const usageRecord = await EnhancedQuotaService.recordUserUsage(
         parseInt(userId),
         'og_generator',
         'daily_generations',
@@ -152,7 +152,7 @@ export class OGImageService {
         }
       );
       // Get updated quota info after recording usage
-      updatedQuotaCheck = await checkUserQuota(
+      updatedQuotaCheck = await EnhancedQuotaService.checkUserQuota(
         parseInt(userId), 
         'og_generator', 
         'daily_generations'
@@ -242,6 +242,7 @@ export class OGImageService {
       generationOptions: actualGenerationOptions,
       remainingGenerations: updatedQuotaCheck.remaining === -1 ? 999999 : updatedQuotaCheck.remaining,
       quotaLimit: updatedQuotaCheck.quota_limit === -1 ? 999999 : updatedQuotaCheck.quota_limit,
+      resetDate: updatedQuotaCheck.reset_date,
       generationId: generationId || undefined,
       id: generationId || undefined // For compatibility
     };

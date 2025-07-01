@@ -59,4 +59,5 @@ export interface QuotaState {
   quotaLimit: number;
   hasInitializedQuota: boolean;
   isQuotaExceeded: boolean;
+  resetDate?: Date | null;
 } 
