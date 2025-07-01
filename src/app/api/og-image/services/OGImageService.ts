@@ -1,5 +1,6 @@
+import { auth } from '@/lib/auth';
+import { EnhancedQuotaService, QuotaCheck } from '@/lib/services/EnhancedQuotaService';
 import { NextRequest } from 'next/server';
-import { rateLimitService } from '../../../../lib/services/RateLimitService';
 import { formatRetryAfter } from '../../../../lib/utils/timeFormatting';
 import { ASPECT_RATIOS } from '../config';
 import { AvatarService } from './AvatarService';
@@ -42,6 +43,7 @@ interface GenerationResponse {
   aspectRatio: string;
   generationOptions: GenerationConfig;
   remainingGenerations: number;
+  quotaLimit?: number;
   generationId?: string;
   id?: string;
 }
@@ -60,22 +62,48 @@ export class OGImageService {
     const { searchParams } = new URL(request.url);
     const isDryRun = searchParams.get('dry-run') === 'true';
     
-    // Get client IP for unified quota tracking
+    // Get client IP and machine fingerprint for enhanced quota tracking
     const clientIP = this.getClientIP(request);
+    const userAgent = request.headers.get('user-agent') || '';
+    const machineFingerprint = this.generateMachineFingerprint(request);
     
-    // Use unified RateLimitService for all quota checking - single source of truth
-    const rateLimitResult = await rateLimitService.checkRateLimit({
-      identifier: clientIP,
-      configType: 'og-image',
-      bypassDevelopment: true
-    });
+    // Check if user is authenticated
+    const session = await auth();
+    const userId = session?.user?.id;
     
-    if (!isDryRun && !rateLimitResult.allowed) {
-      const resetTime = new Date(rateLimitResult.resetTime);
-      const retryAfterSeconds = rateLimitResult.retryAfter || 86400;
+    let quotaCheck: QuotaCheck;
+    
+    if (userId) {
+      // Authenticated user - use user quota system
+      quotaCheck = await EnhancedQuotaService.checkUserQuota(
+        parseInt(userId), 
+        'og_generator', 
+        'daily_generations'
+      );
+    } else {
+      // Anonymous guest - use global guest quota system
+      quotaCheck = await EnhancedQuotaService.checkGuestQuota(
+        { 
+          client_ip: clientIP, 
+          machine_fingerprint: machineFingerprint,
+          user_agent_hash: this.hashUserAgent(userAgent)
+        },
+        'og_generator',
+        'daily_generations'
+      );
+    }
+    
+    // Check quota limits
+    if (!isDryRun && !quotaCheck.allowed) {
+      const resetTime = quotaCheck.reset_date || new Date(Date.now() + 86400000);
+      const retryAfterSeconds = Math.ceil((resetTime.getTime() - Date.now()) / 1000);
       const humanTime = formatRetryAfter(retryAfterSeconds);
       
-      throw new Error(`Daily generation limit exceeded. Try again in ${humanTime} or upgrade to Pro for unlimited generations.`);
+      const quotaMessage = quotaCheck.is_unlimited 
+        ? 'Unlimited generations available'
+        : `${quotaCheck.current_usage}/${quotaCheck.quota_limit} generations used (${quotaCheck.quota_source})`;
+      
+      throw new Error(`Daily generation limit exceeded. ${quotaMessage}. Try again in ${humanTime} or upgrade to Pro for unlimited generations.`);
     }
 
     // If dry run, just return quota info
@@ -86,7 +114,8 @@ export class OGImageService {
         dimensions: { width: 0, height: 0 },
         aspectRatio: 'default',
         generationOptions: this.buildGenerationConfig(searchParams),
-        remainingGenerations: rateLimitResult.remaining,
+        remainingGenerations: quotaCheck.remaining === -1 ? 999999 : quotaCheck.remaining,
+        quotaLimit: quotaCheck.quota_limit === -1 ? 999999 : quotaCheck.quota_limit,
         generationId: '',
         id: ''
       };
@@ -98,7 +127,40 @@ export class OGImageService {
     // Generate the image with actual values
     const result = await this.callGenerationAPI(config);
 
-    // Record generation in database (this also handles quota tracking)
+    // Record usage in the appropriate quota system
+    if (userId) {
+      // Record for authenticated user
+      await EnhancedQuotaService.recordUserUsage(
+        parseInt(userId),
+        'og_generator',
+        'daily_generations',
+        1,
+        {
+          ip_address: clientIP,
+          user_agent: userAgent,
+          machine_fingerprint: machineFingerprint,
+          generation_config: config
+        }
+      );
+    } else {
+      // Record for guest user
+      await EnhancedQuotaService.recordGuestUsage(
+        {
+          client_ip: clientIP,
+          machine_fingerprint: machineFingerprint,
+          user_agent_hash: this.hashUserAgent(userAgent)
+        },
+        'og_generator',
+        'daily_generations',
+        1,
+        {
+          generation_config: config,
+          user_agent: userAgent
+        }
+      );
+    }
+
+    // Record generation in database (for historical tracking)
     let generationId: string | undefined;
     try {
       generationId = await this.databaseService.recordGeneration({
@@ -120,8 +182,6 @@ export class OGImageService {
       // Database recording failed, continue without ID
       console.error('Failed to record generation:', error);
     }
-
-    // No need for separate rate limiting recording - database handles quota tracking
 
     // Build the actual generation options with ALL the values that were used
     const actualGenerationOptions: GenerationConfig = {
@@ -155,7 +215,8 @@ export class OGImageService {
     return {
       ...result,
       generationOptions: actualGenerationOptions,
-      remainingGenerations: Math.max(0, rateLimitResult.remaining - 1),
+      remainingGenerations: quotaCheck.remaining === -1 ? 999999 : Math.max(0, quotaCheck.remaining - 1),
+      quotaLimit: quotaCheck.quota_limit === -1 ? 999999 : quotaCheck.quota_limit,
       generationId: generationId || undefined,
       id: generationId || undefined // For compatibility
     };
@@ -394,5 +455,35 @@ export class OGImageService {
   <text x="${centerX}" y="${centerY2}" text-anchor="middle" fill="rgba(255,255,255,0.8)" font-family="system-ui, sans-serif" 
         font-size="32px" style="font-size: 32px !important;">Wisdom &amp; Community</text>
 </svg>`;
+  }
+
+  private generateMachineFingerprint(request: NextRequest): string {
+    // Simple machine fingerprinting based on headers
+    const userAgent = request.headers.get('user-agent') || '';
+    const acceptLanguage = request.headers.get('accept-language') || '';
+    const acceptEncoding = request.headers.get('accept-encoding') || '';
+    
+    const fingerprint = `${userAgent}|${acceptLanguage}|${acceptEncoding}`;
+    
+    // Create a simple hash
+    let hash = 0;
+    for (let i = 0; i < fingerprint.length; i++) {
+      const char = fingerprint.charCodeAt(i);
+      hash = ((hash << 5) - hash) + char;
+      hash = hash & hash; // Convert to 32bit integer
+    }
+    
+    return Math.abs(hash).toString(36).substring(0, 32);
+  }
+
+  private hashUserAgent(userAgent: string): string {
+    // Simple hash for user agent
+    let hash = 0;
+    for (let i = 0; i < userAgent.length; i++) {
+      const char = userAgent.charCodeAt(i);
+      hash = ((hash << 5) - hash) + char;
+      hash = hash & hash;
+    }
+    return Math.abs(hash).toString(36).substring(0, 64);
   }
 } 

@@ -404,7 +404,7 @@ graph TB
         E[⚙️ General API: 100/min]
         F[🔍 Search: 200/min]
         G[📤 Upload: 5/min]
-        H[🔐 Auth: 10/15min]
+        H[🔐 Auth: 500/min]
         I[⚡ Admin: 50/min]
     end
 
@@ -443,7 +443,7 @@ interface RateLimitConfig {
   general: { requests: 100; window: 60 };
   search: { requests: 200; window: 60 };
   upload: { requests: 5; window: 60 };
-  auth: { requests: 10; window: 900 };
+  auth: { requests: 500; window: 60 };
   admin: { requests: 50; window: 60 };
 }
 ```

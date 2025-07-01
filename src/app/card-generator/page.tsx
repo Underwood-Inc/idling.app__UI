@@ -100,39 +100,35 @@ export default function OgImageViewer() {
     setShapeCount: (count) => updateField('shapeCount', count),
     setCurrentGenerationId: (id) => {
       setCurrentGenerationId(id);
-      // Auto-collapse form after successful generation and mark as new generation
+      // Auto-collapse form after successful generation
       if (id) {
         setIsFormCollapsed(true);
-        setIsLoadedGeneration(false); // This is a new generation, not loaded
+        setIsLoadedGeneration(false); // Mark as new generation
       }
     },
-    setRemainingGenerations: quotaState.updateQuota,
+    setRemainingGenerations: (count: number, limit?: number) =>
+      quotaState.updateQuota(count, limit),
     setHasInitializedQuota: () => {}, // Handled by quota hook
     setSvgContent
   });
 
-  // Expand form when starting new generation
+  // ALWAYS clear form when starting new generation - no exceptions
   const handleNewGeneration = () => {
-    // Reset UI state for new generation flow
-    welcomeFlow.handleNewGeneration();
-    setIsFormCollapsed(false); // Expand form for new generation
-    setIsLoadedGeneration(false); // Clear loaded generation state
+    // FIRST: Clear ALL form state completely
+    clearFormState();
+    setAdvancedOptions({});
+    setSelectedRatio('default');
+    clearGeneration();
 
-    // Clear existing generation display state for fresh start
+    // SECOND: Clear all generation display state
     setSvgContent('');
     setCurrentGenerationId('');
-    setError(''); // Clear any errors
+    setError('');
 
-    // Reset form fields to empty state so user starts fresh
-    clearFormState();
-
-    // Reset advanced options to start fresh
-    setAdvancedOptions({});
-
-    // Reset aspect ratio to default
-    setSelectedRatio('default');
-
-    clearGeneration();
+    // THIRD: Set UI state for new generation
+    welcomeFlow.handleNewGeneration();
+    setIsFormCollapsed(false);
+    setIsLoadedGeneration(false);
   };
 
   // Handle copy generation ID
@@ -144,9 +140,20 @@ export default function OgImageViewer() {
   useEffect(() => {
     const generationIdFromUrl = searchParams.get('id');
     if (generationIdFromUrl && generationIdFromUrl !== currentGenerationId) {
+      // FIRST: Clear form before loading
+      clearFormState();
+      setAdvancedOptions({});
+      setSelectedRatio('default');
+      clearGeneration();
+      setSvgContent('');
+      setCurrentGenerationId('');
+      setError('');
+
+      // SECOND: Load the generation
       generationLoader.loadGeneration(generationIdFromUrl).then((id) => {
         if (id) {
           setCurrentGenerationId(id);
+          setIsLoadedGeneration(true); // Mark as loaded generation
         }
       });
     }
@@ -195,10 +202,10 @@ export default function OgImageViewer() {
     );
   };
 
-  // Clear form and image when returning to welcome or navigating away
+  // ALWAYS clear form and image when returning to welcome - no exceptions
   useEffect(() => {
     if (welcomeFlow.showWelcome) {
-      // Clear all state when returning to welcome
+      // Force clear ALL state when returning to welcome - no conditions
       clearFormState();
       clearGeneration();
       setSvgContent('');
@@ -207,9 +214,9 @@ export default function OgImageViewer() {
       setError('');
       setIsFormCollapsed(true);
       setIsLoadedGeneration(false);
-      setAdvancedOptions({}); // Also clear advanced options
+      setAdvancedOptions({});
     }
-  }, [welcomeFlow.showWelcome, clearFormState, clearGeneration]);
+  }, [welcomeFlow.showWelcome]);
 
   // Cleanup on component unmount
   useEffect(() => {
@@ -319,6 +326,7 @@ export default function OgImageViewer() {
           <FadeIn>
             <WelcomeInterface
               remainingGenerations={quotaState.remainingGenerations}
+              quotaLimit={quotaState.quotaLimit}
               hasInitializedQuota={quotaState.hasInitializedQuota}
               isQuotaExceeded={quotaState.isQuotaExceeded}
               loadGenerationId={welcomeFlow.loadGenerationId}
@@ -382,6 +390,7 @@ export default function OgImageViewer() {
         <FadeIn>
           <QuotaDisplay
             remainingGenerations={quotaState.remainingGenerations}
+            quotaLimit={quotaState.quotaLimit}
             hasInitializedQuota={quotaState.hasInitializedQuota}
             isQuotaExceeded={quotaState.isQuotaExceeded}
             showMeter={welcomeFlow.showWelcome}

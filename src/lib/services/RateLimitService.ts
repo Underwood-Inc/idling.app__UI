@@ -10,6 +10,7 @@
  */
 
 import { DatabaseService } from '../../app/api/og-image/services/DatabaseService';
+import { logger } from '../logging/instances';
 
 // ============================================================================
 // TYPES & INTERFACES
@@ -72,8 +73,8 @@ export class RateLimitService {
     
     // Authentication endpoints (per IP) - sliding window
     auth: {
-      windowMs: 15 * 60 * 1000, // 15 minutes
-      maxRequests: 10,          // 10 auth attempts per 15 minutes
+      windowMs: 60 * 1000,     // 1 minute
+      maxRequests: 500,        // 500 auth requests per minute (very generous for session checks)
       storage: 'memory' as const,
       keyPrefix: 'auth'
     },
@@ -100,6 +101,14 @@ export class RateLimitService {
       maxRequests: 50,         // 50 admin actions per minute
       storage: 'memory' as const,
       keyPrefix: 'admin'
+    },
+    
+    // SSE endpoints (per IP) - very lenient for persistent connections
+    sse: {
+      windowMs: 60 * 1000,     // 1 minute
+      maxRequests: 1000,       // 1000 requests per minute (very generous for SSE)
+      storage: 'memory' as const,
+      keyPrefix: 'sse'
     },
     
     // OG Image generation - DAILY quota with database persistence
@@ -151,10 +160,10 @@ export class RateLimitService {
    * This is the main method that handles all rate limiting scenarios
    */
   public async checkRateLimit(options: RateLimitOptions): Promise<RateLimitResult> {
-    const { identifier, configType, customConfig, bypassDevelopment = true } = options;
+    const { identifier, configType, customConfig } = options;
 
     // Development bypass - return allowed if bypass is enabled
-    if (bypassDevelopment && process.env.BYPASS_RATE_LIMIT === 'true') {
+    if (process.env.BYPASS_RATE_LIMIT === 'true') {
       return {
         allowed: true,
         remaining: 999,
@@ -172,6 +181,7 @@ export class RateLimitService {
 
     // Route to appropriate rate limiting method based on storage type
     if (config.storage === 'database') {
+      logger.info('Checking database rate limit');
       return await this.checkDatabaseRateLimit(identifier, config);
     } else {
       return this.checkMemoryRateLimit(identifier, config);
@@ -301,7 +311,6 @@ export class RateLimitService {
           identifier,
           configType: 'custom',
           customConfig: config,
-          bypassDevelopment: true
         });
       }
     };
@@ -318,7 +327,6 @@ export class RateLimitService {
         return await this.checkRateLimit({
           identifier,
           configType,
-          bypassDevelopment: true
         });
       }
     };

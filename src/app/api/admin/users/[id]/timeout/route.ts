@@ -7,7 +7,9 @@ import { checkUserPermission } from '@/lib/actions/permissions.actions';
 import { auth } from '@/lib/auth';
 import sql from '@/lib/db';
 import { PERMISSIONS } from '@/lib/permissions/permissions';
+import { AdminUserTimeoutCancelParamsSchema, AdminUserTimeoutRequestSchema, UserIdParamsSchema } from '@/lib/schemas/admin-users.schema';
 import { NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
 
 export interface TimeoutRequest {
   timeoutType: string;
@@ -28,11 +30,20 @@ export async function POST(
     }
 
     const adminUserId = parseInt(session.user.id);
-    const targetUserId = parseInt(params.id);
 
-    if (isNaN(targetUserId)) {
-      return NextResponse.json({ error: 'Invalid user ID' }, { status: 400 });
+    // Validate params
+    const paramsResult = UserIdParamsSchema.safeParse(params);
+    if (!paramsResult.success) {
+      return NextResponse.json(
+        { 
+          error: 'Invalid user ID format',
+          details: paramsResult.error.errors 
+        },
+        { status: 400 }
+      );
     }
+
+    const targetUserId = parseInt(paramsResult.data.id);
 
     // Check if user has permission to issue timeouts
     const hasPermission = await checkUserPermission(
@@ -43,14 +54,21 @@ export async function POST(
       return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 });
     }
 
-    const body: TimeoutRequest = await request.json();
-    const { timeoutType, reason, expiresAt, duration } = body;
-
-    if (!timeoutType || !reason) {
-      return NextResponse.json({ 
-        error: 'Timeout type and reason are required' 
-      }, { status: 400 });
+    // Validate request body
+    const body = await request.json();
+    const bodyResult = AdminUserTimeoutRequestSchema.safeParse(body);
+    
+    if (!bodyResult.success) {
+      return NextResponse.json(
+        { 
+          error: 'Invalid request data',
+          details: bodyResult.error.errors 
+        },
+        { status: 400 }
+      );
     }
+
+    const { timeoutType, reason, expiresAt, duration } = bodyResult.data;
 
     // Calculate expiry if duration is provided instead of explicit date
     let finalExpiresAt = expiresAt;
@@ -136,15 +154,24 @@ export async function DELETE(
       return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 });
     }
 
+    // Validate query parameters
     const { searchParams } = new URL(request.url);
-    const timeoutId = searchParams.get('timeoutId');
-    const timeoutType = searchParams.get('timeoutType');
+    const paramsResult = AdminUserTimeoutCancelParamsSchema.safeParse({
+      timeoutId: searchParams.get('timeoutId'),
+      timeoutType: searchParams.get('timeoutType'),
+    });
 
-    if (!timeoutId && !timeoutType) {
-      return NextResponse.json({ 
-        error: 'Either timeoutId or timeoutType is required' 
-      }, { status: 400 });
+    if (!paramsResult.success) {
+      return NextResponse.json(
+        { 
+          error: 'Invalid cancellation parameters',
+          details: paramsResult.error.errors 
+        },
+        { status: 400 }
+      );
     }
+
+    const { timeoutId, timeoutType } = paramsResult.data;
 
     let query;
     if (timeoutId) {
@@ -152,9 +179,9 @@ export async function DELETE(
       query = sql`
         UPDATE user_timeouts 
         SET is_active = false, updated_at = NOW()
-        WHERE id = ${parseInt(timeoutId)} AND user_id = ${targetUserId}
+        WHERE id = ${parseInt(timeoutId.toString())} AND user_id = ${targetUserId}
       `;
-    } else {
+    } else if (timeoutType) {
       // Cancel all active timeouts of specific type
       query = sql`
         UPDATE user_timeouts 
@@ -163,6 +190,11 @@ export async function DELETE(
           AND timeout_type = ${timeoutType} 
           AND is_active = true
       `;
+    } else {
+      // This should never happen due to schema validation, but be defensive
+      return NextResponse.json({ 
+        error: 'Either timeoutId or timeoutType must be provided' 
+      }, { status: 400 });
     }
 
     await query;
@@ -172,6 +204,15 @@ export async function DELETE(
       message: 'Timeout cancelled successfully' 
     });
   } catch (error) {
+    console.error('Error cancelling timeout:', error);
+    
+    if (error instanceof z.ZodError) {
+      return NextResponse.json(
+        { error: 'Invalid request data', details: error.errors },
+        { status: 400 }
+      );
+    }
+    
     return NextResponse.json(
       { error: 'Failed to cancel timeout' },
       { status: 500 }

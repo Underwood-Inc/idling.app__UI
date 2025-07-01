@@ -22,7 +22,7 @@ interface UseImageGenerationProps {
   setCustomHeight: (height: string) => void;
   setShapeCount: (count: string) => void;
   setCurrentGenerationId: (id: string) => void;
-  setRemainingGenerations: (count: number) => void;
+  setRemainingGenerations: (count: number, limit?: number) => void;
   setHasInitializedQuota: (initialized: boolean) => void;
   setSvgContent: (content: string) => void;
 }
@@ -137,13 +137,14 @@ export function useImageGeneration(props: UseImageGenerationProps) {
       // Update all state with response data
       props.setSvgContent(data.svg);
       props.setCurrentGenerationId(data.id);
-      props.setRemainingGenerations(data.remainingGenerations);
+      props.setRemainingGenerations(data.remainingGenerations, data.quotaLimit);
       props.setHasInitializedQuota(true);
       
       // Store generation options for form display
       setGenerationOptions(data.generationOptions);
       
-      // Update form fields with actual used values from the generation
+      // ALWAYS update form fields with actual used values from the generation
+      // This shows the user exactly what was used to create the image
       if (data.generationOptions.seed !== undefined) {
         props.setCurrentSeed(data.generationOptions.seed);
       }

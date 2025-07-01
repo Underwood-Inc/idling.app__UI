@@ -1,4 +1,6 @@
+import { AdminUserSimpleSearchParamsSchema } from '@/lib/schemas/admin-users.schema';
 import { NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
 import { checkUserPermission } from '../../../../../lib/actions/permissions.actions';
 import { auth } from '../../../../../lib/auth';
 import sql from '../../../../../lib/db';
@@ -7,77 +9,120 @@ import { PERMISSIONS } from '../../../../../lib/permissions/permissions';
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-interface SearchResult {
+export interface UserSearchResult {
   id: string;
   name: string | null;
   email: string | null;
   image: string | null;
-  created_at?: string;
-  profile_public?: boolean;
+  created_at: string;
+  profile_public: boolean;
 }
 
+export interface UserSearchResponse {
+  users: UserSearchResult[];
+  count: number;
+  query: string;
+}
+
+/**
+ * GET /api/admin/users/search - Search users for admin management
+ * Query Parameters:
+ * - q: Search query (minimum 2 characters, alphanumeric + @._- allowed)
+ */
 export async function GET(request: NextRequest) {
   try {
-    // Get session and check admin permissions
+    // Authentication check
     const session = await auth();
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const userId = parseInt(session.user.id);
+    if (isNaN(userId)) {
+      return NextResponse.json({ error: 'Invalid session' }, { status: 401 });
+    }
 
-    // Check if user has permission to view users
+    // Permission check
     const hasPermission = await checkUserPermission(
       userId,
       PERMISSIONS.ADMIN.USERS_VIEW
     );
     if (!hasPermission) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+      return NextResponse.json({ 
+        error: 'Insufficient permissions to search users' 
+      }, { status: 403 });
     }
 
-    // Get search query
+    // Validate search parameters
     const searchParams = request.nextUrl.searchParams;
-    const query = searchParams.get('q');
+    const paramsResult = AdminUserSimpleSearchParamsSchema.safeParse({
+      q: searchParams.get('q'),
+    });
 
-    if (!query || query.trim().length < 2) {
-      return NextResponse.json({ users: [] });
+    if (!paramsResult.success) {
+      return NextResponse.json(
+        { 
+          error: 'Invalid search parameters',
+          details: paramsResult.error.errors 
+        },
+        { status: 400 }
+      );
     }
 
-    const searchTerm = `%${query.trim().toLowerCase()}%`;
+    const { q: query } = paramsResult.data;
 
-    // Search users with basic information only (no admin tables)
-    const searchResults = await sql<SearchResult[]>`
+    // Prepare search pattern with SQL injection protection
+    const searchTerm = `%${query.toLowerCase()}%`;
+
+    // Execute search with parameterized query
+    const searchResults = await sql<UserSearchResult[]>`
       SELECT 
         u.id::text,
         u.name,
         u.email,
         u.image,
         u.created_at::text,
-        u.profile_public
+        COALESCE(u.profile_public, false) as profile_public
       FROM users u
       WHERE (
-        LOWER(u.name) LIKE ${searchTerm} OR
-        LOWER(u.email) LIKE ${searchTerm} OR
+        LOWER(COALESCE(u.name, '')) LIKE ${searchTerm} OR
+        LOWER(COALESCE(u.email, '')) LIKE ${searchTerm} OR
         u.id::text LIKE ${searchTerm}
       )
+      AND u.id IS NOT NULL
       ORDER BY 
         CASE 
-          WHEN LOWER(u.name) LIKE ${searchTerm} THEN 1
-          WHEN LOWER(u.email) LIKE ${searchTerm} THEN 2
+          WHEN LOWER(COALESCE(u.name, '')) LIKE ${searchTerm} THEN 1
+          WHEN LOWER(COALESCE(u.email, '')) LIKE ${searchTerm} THEN 2
           ELSE 3
         END,
         u.name NULLS LAST,
-        u.email
+        u.email NULLS LAST,
+        u.id
       LIMIT 10
     `;
 
-    return NextResponse.json({
+    const response: UserSearchResponse = {
       users: searchResults,
-      count: searchResults.length
-    });
+      count: searchResults.length,
+      query: query
+    };
+
+    return NextResponse.json(response);
 
   } catch (error) {
-    console.error('User search error:', error);
+    console.error('Admin user search error:', error);
+    
+    if (error instanceof z.ZodError) {
+      return NextResponse.json(
+        { 
+          error: 'Invalid request parameters', 
+          details: error.errors 
+        },
+        { status: 400 }
+      );
+    }
+    
     return NextResponse.json(
       { error: 'Failed to search users' },
       { status: 500 }

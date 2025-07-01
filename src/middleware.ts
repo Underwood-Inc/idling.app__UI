@@ -12,6 +12,20 @@ const { auth } = NextAuth({
 });
 
 /**
+ * Send rate limit notification (SSE removed, now relies on sessionStorage)
+ */
+async function sendRateLimitNotification(
+  userId: number | null,
+  rateLimitResult: any,
+  isAttack: boolean = false,
+  endpoint: string
+) {
+  // SSE notifications removed - SimpleBannerSystem now uses polling
+  // Rate limit info is automatically stored in sessionStorage by the fetch interceptor
+  // No additional action needed here
+}
+
+/**
  * Create rate limit response with appropriate headers
  */
 function createRateLimitResponse(result: any, isAttack: boolean = false) {
@@ -59,53 +73,103 @@ export default auth(async (req) => {
 
   // Handle API route rate limiting and authentication
   if (nextUrl.pathname.startsWith('/api/')) {
-    // Get request identifier for rate limiting
-    const identifier = getRequestIdentifier(req, session);
+    // Get comprehensive request identifiers for flexible rate limiting
+    const identifiers = getRequestIdentifier(req, session);
     const rateLimitType = getRateLimitType(nextUrl.pathname);
+    const userId = session?.user?.id ? parseInt(session.user.id) : null;
     
-    // Apply rate limiting based on endpoint type
-    const rateLimitResult = await rateLimitService.checkRateLimit({
-      identifier: identifier.composite,
+    // Multi-layered rate limiting approach:
+    // 1. Primary device-level rate limiting (allows multiple devices per household)
+    const deviceRateLimitResult = await rateLimitService.checkRateLimit({
+      identifier: identifiers.perDevice,
       configType: rateLimitType,
-      bypassDevelopment: true
     });
 
-    // Check if request should be blocked due to rate limiting
-    if (!rateLimitResult.allowed) {
-      console.warn(`Rate limit exceeded for ${identifier.composite} on ${nextUrl.pathname}`, {
-        penaltyLevel: rateLimitResult.penaltyLevel,
-        isAttack: rateLimitResult.isAttack,
-        retryAfter: rateLimitResult.retryAfter,
-        quotaType: rateLimitResult.quotaType
+    // Check if device-level request should be blocked
+    if (!deviceRateLimitResult.allowed) {
+      console.warn(`Device rate limit exceeded for ${identifiers.perDevice} on ${nextUrl.pathname}`, {
+        penaltyLevel: deviceRateLimitResult.penaltyLevel,
+        isAttack: deviceRateLimitResult.isAttack,
+        retryAfter: deviceRateLimitResult.retryAfter,
+        quotaType: deviceRateLimitResult.quotaType
       });
       
-      return createRateLimitResponse(rateLimitResult, rateLimitResult.isAttack);
+      // Send real-time notification via SSE
+      await sendRateLimitNotification(
+        userId,
+        deviceRateLimitResult,
+        deviceRateLimitResult.isAttack,
+        nextUrl.pathname
+      );
+      
+      return createRateLimitResponse(deviceRateLimitResult, deviceRateLimitResult.isAttack);
     }
 
-    // Additional strict rate limiting for authenticated endpoints
+    // 2. Network-level rate limiting (household-wide protection against severe abuse)
+    // Only apply network-level limits if device shows suspicious behavior
+    if (deviceRateLimitResult.penaltyLevel >= 2) {
+      const networkRateLimitResult = await rateLimitService.checkRateLimit({
+        identifier: identifiers.perNetwork,
+        configType: rateLimitType,
+        customConfig: {
+          windowMs: 60 * 1000, // 1 minute
+          maxRequests: 500,    // Much higher limit for network-wide
+          storage: 'memory' as const,
+          keyPrefix: 'network'
+        },
+      });
+
+      if (!networkRateLimitResult.allowed) {
+        console.warn(`Network rate limit exceeded for ${identifiers.perNetwork} due to suspicious device activity`, {
+          devicePenalty: deviceRateLimitResult.penaltyLevel,
+          networkPenalty: networkRateLimitResult.penaltyLevel,
+          endpoint: nextUrl.pathname
+        });
+        
+        // Send real-time security alert via SSE
+        await sendRateLimitNotification(
+          userId,
+          networkRateLimitResult,
+          true, // Always mark network-level blocks as attacks
+          nextUrl.pathname
+        );
+        
+        return createRateLimitResponse(networkRateLimitResult, true); // Mark as attack
+      }
+    }
+
+    // 3. User-specific rate limiting for authenticated requests
     if (session?.user?.id) {
       const userRateLimitResult = await rateLimitService.checkRateLimit({
-        identifier: identifier.user!,
+        identifier: identifiers.perUser,
         configType: rateLimitType,
-        bypassDevelopment: true
       });
       
       if (!userRateLimitResult.allowed) {
-        console.warn(`User rate limit exceeded for ${identifier.user} on ${nextUrl.pathname}`, {
+        console.warn(`User rate limit exceeded for ${identifiers.perUser} on ${nextUrl.pathname}`, {
           penaltyLevel: userRateLimitResult.penaltyLevel,
           isAttack: userRateLimitResult.isAttack,
           quotaType: userRateLimitResult.quotaType
         });
+        
+        // Send real-time notification via SSE
+        await sendRateLimitNotification(
+          userId,
+          userRateLimitResult,
+          userRateLimitResult.isAttack,
+          nextUrl.pathname
+        );
         
         return createRateLimitResponse(userRateLimitResult, userRateLimitResult.isAttack);
       }
     }
 
     // Log suspicious activity
-    if (rateLimitResult.penaltyLevel >= 2) {
+    if (deviceRateLimitResult.penaltyLevel >= 2) {
       console.warn(`Elevated penalty level detected`, {
-        identifier: identifier.composite,
-        penaltyLevel: rateLimitResult.penaltyLevel,
+        deviceIdentifier: identifiers.perDevice,
+        networkIdentifier: identifiers.perNetwork,
+        penaltyLevel: deviceRateLimitResult.penaltyLevel,
         endpoint: nextUrl.pathname,
         userAgent: req.headers.get('user-agent')
       });
@@ -157,8 +221,8 @@ export default auth(async (req) => {
 
     // Add rate limit headers to successful responses
     const response = NextResponse.next();
-    response.headers.set('X-RateLimit-Remaining', rateLimitResult.remaining.toString());
-    response.headers.set('X-RateLimit-Reset', new Date(rateLimitResult.resetTime).toISOString());
+    response.headers.set('X-RateLimit-Remaining', deviceRateLimitResult.remaining.toString());
+    response.headers.set('X-RateLimit-Reset', new Date(deviceRateLimitResult.resetTime).toISOString());
     
     return response;
   }

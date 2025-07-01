@@ -8,6 +8,7 @@ import { auth } from '@/lib/auth';
 import sql from '@/lib/db';
 import { PERMISSIONS } from '@/lib/permissions/permissions';
 import { NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -64,6 +65,14 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(plans);
   } catch (error) {
     console.error('Error fetching subscription plans:', error);
+    
+    if (error instanceof z.ZodError) {
+      return NextResponse.json(
+        { error: 'Invalid request data', details: error.errors },
+        { status: 400 }
+      );
+    }
+    
     return NextResponse.json(
       { error: 'Failed to fetch subscription plans' },
       { status: 500 }

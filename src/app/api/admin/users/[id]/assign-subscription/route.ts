@@ -7,7 +7,9 @@ import { checkUserPermission } from '@/lib/actions/permissions.actions';
 import { auth } from '@/lib/auth';
 import sql from '@/lib/db';
 import { PERMISSIONS } from '@/lib/permissions/permissions';
+import { AdminSubscriptionAssignmentSchema, AdminSubscriptionCancelParamsSchema, AdminSubscriptionUpdateSchema } from '@/lib/schemas/admin-subscriptions.schema';
 import { NextRequest, NextResponse } from 'next/server';
+import z from 'zod';
 
 export interface SubscriptionAssignmentRequest {
   planId: number;
@@ -44,12 +46,21 @@ export async function POST(
       return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 });
     }
 
-    const body: SubscriptionAssignmentRequest = await request.json();
-    const { planId, billingCycle, expiresAt, status, reason } = body;
-
-    if (!planId) {
-      return NextResponse.json({ error: 'Plan ID is required' }, { status: 400 });
+    // Validate request body
+    const body = await request.json();
+    const bodyResult = AdminSubscriptionAssignmentSchema.safeParse(body);
+    
+    if (!bodyResult.success) {
+      return NextResponse.json(
+        { 
+          error: 'Invalid request data',
+          details: bodyResult.error.errors 
+        },
+        { status: 400 }
+      );
     }
+
+    const { planId, billingCycle, expiresAt, status, reason } = bodyResult.data;
 
     // Check if subscription system exists
     let planExists = false;
@@ -126,6 +137,15 @@ export async function POST(
       expiresAt: finalExpiresAt
     });
   } catch (error) {
+    console.error('Error assigning subscription:', error);
+    
+    if (error instanceof z.ZodError) {
+      return NextResponse.json(
+        { error: 'Invalid request data', details: error.errors },
+        { status: 400 }
+      );
+    }
+    
     return NextResponse.json(
       { error: 'Failed to assign subscription' },
       { status: 500 }
@@ -160,20 +180,29 @@ export async function PATCH(
       return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 });
     }
 
+    // Validate request body
     const body = await request.json();
-    const { subscriptionId, status, expiresAt, reason } = body;
-
-    if (!subscriptionId) {
-      return NextResponse.json({ error: 'Subscription ID is required' }, { status: 400 });
+    const bodyResult = AdminSubscriptionUpdateSchema.safeParse(body);
+    
+    if (!bodyResult.success) {
+      return NextResponse.json(
+        { 
+          error: 'Invalid request data',
+          details: bodyResult.error.errors 
+        },
+        { status: 400 }
+      );
     }
+
+    const { subscriptionId, status, expiresAt, reason } = bodyResult.data;
 
     // Update the subscription
     await sql`
       UPDATE user_subscriptions 
       SET 
-        status = COALESCE(${status}, status),
-        expires_at = COALESCE(${expiresAt}, expires_at),
-        notes = COALESCE(${reason}, notes),
+        status = COALESCE(${status || null}, status),
+        expires_at = COALESCE(${expiresAt || null}, expires_at),
+        notes = COALESCE(${reason || null}, notes),
         updated_at = NOW()
       WHERE id = ${subscriptionId} AND user_id = ${targetUserId}
     `;
@@ -217,13 +246,24 @@ export async function DELETE(
       return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 });
     }
 
+    // Validate query parameters
     const { searchParams } = new URL(request.url);
-    const subscriptionId = searchParams.get('subscriptionId');
-    const reason = searchParams.get('reason') || 'Cancelled by admin';
+    const paramsResult = AdminSubscriptionCancelParamsSchema.safeParse({
+      subscriptionId: searchParams.get('subscriptionId'),
+      reason: searchParams.get('reason'),
+    });
 
-    if (!subscriptionId) {
-      return NextResponse.json({ error: 'Subscription ID is required' }, { status: 400 });
+    if (!paramsResult.success) {
+      return NextResponse.json(
+        { 
+          error: 'Invalid cancellation parameters',
+          details: paramsResult.error.errors 
+        },
+        { status: 400 }
+      );
     }
+
+    const { subscriptionId, reason = 'Cancelled by admin' } = paramsResult.data;
 
     // Cancel the subscription
     await sql`
@@ -233,7 +273,7 @@ export async function DELETE(
         expires_at = NOW(),
         notes = ${reason},
         updated_at = NOW()
-      WHERE id = ${parseInt(subscriptionId)} AND user_id = ${targetUserId}
+      WHERE id = ${subscriptionId} AND user_id = ${targetUserId}
     `;
 
     return NextResponse.json({ 

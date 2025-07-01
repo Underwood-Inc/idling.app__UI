@@ -2,6 +2,7 @@ import { NextRequest } from 'next/server';
 import { OGImageService } from './services/OGImageService';
 
 export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
 
 const ogImageService = new OGImageService();
 
@@ -17,8 +18,6 @@ export async function GET(request: NextRequest) {
     const avatarSeed = searchParams.get('avatarSeed');
     const customQuote = searchParams.get('quote');
     const customAuthor = searchParams.get('author');
-    const aspectRatio =
-      searchParams.get('ratio') || searchParams.get('aspect') || 'default';
 
     // Parse custom dimensions and shape count
     const customWidth = searchParams.get('width')

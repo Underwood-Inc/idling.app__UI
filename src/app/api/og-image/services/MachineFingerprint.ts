@@ -1,4 +1,5 @@
-import crypto from 'crypto';
+// Note: This service should only be used in server-side API routes, not middleware
+import { createHash } from 'crypto';
 import { NextRequest } from 'next/server';
 
 export interface MachineFingerprint {
@@ -57,8 +58,7 @@ export class MachineFingerprintService {
       components.timezoneGroup
     ].join('|');
 
-    const fingerprintId = crypto
-      .createHash('sha256')
+    const fingerprintId = createHash('sha256')
       .update(fingerprintData)
       .digest('hex')
       .substring(0, 16); // Use first 16 chars for readability
@@ -89,7 +89,7 @@ export class MachineFingerprintService {
     // IP-based hash (handles dynamic IPs within same ISP/location)
     const ipParts = ipAddress.split('.');
     const ipNetwork = ipParts.length >= 3 ? `${ipParts[0]}.${ipParts[1]}.${ipParts[2]}` : ipAddress;
-    const ipHash = crypto.createHash('md5').update(ipNetwork).digest('hex').substring(0, 8);
+    const ipHash = createHash('md5').update(ipNetwork).digest('hex').substring(0, 8);
 
     // User agent core (stable across minor version updates)
     const userAgentCore = this.extractUserAgentCore(userAgent);

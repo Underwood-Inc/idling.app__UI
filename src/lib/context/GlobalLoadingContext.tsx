@@ -50,104 +50,140 @@ export function GlobalLoadingProvider({
 
   // Install fetch interceptor
   useEffect(() => {
-    if (typeof window === 'undefined' || isInterceptorInstalled) return;
+    if (!isInterceptorInstalled && typeof window !== 'undefined') {
+      isInterceptorInstalled = true;
+      originalFetch = window.fetch;
 
-    originalFetch = window.fetch;
-    isInterceptorInstalled = true;
+      window.fetch = async (input: string | Request | URL, init?: any) => {
+        const url = typeof input === 'string' ? input : input.toString();
+        const method = init?.method || 'GET';
+        const requestId = `${method}-${url}-${Date.now()}-${Math.random()}`;
 
-    window.fetch = async (
-      input: string | Request | URL,
-      init?: any
-    ): Promise<Response> => {
-      const url =
-        typeof input === 'string'
-          ? input
-          : input instanceof URL
-            ? input.href
-            : input.url;
-      const method = init?.method || 'GET';
-
-      // Skip certain requests from global loading
-      const shouldSkip =
-        url.includes('/api/auth/') ||
-        url.includes('_next/') ||
-        url.includes('/favicon') ||
-        url.includes('/manifest') ||
-        url.includes('/sw.js') ||
-        method === 'HEAD' ||
-        (init?.headers as any)?.['x-skip-global-loading'];
-
-      if (shouldSkip) {
-        return originalFetch(input, init);
-      }
-
-      const requestId = `${method}-${url}-${Date.now()}`;
-      const loadingMessage = getLoadingMessage(url, method);
-
-      // Start loading
-      setLoadingState((prev) => ({
-        isLoading: true,
-        activeRequests: new Set([...prev.activeRequests, requestId]),
-        loadingMessage: loadingMessage || prev.loadingMessage
-      }));
-
-      // Set a timeout to prevent stuck loading states
-      const timeout = setTimeout(() => {
-        setLoadingState((prev) => {
-          const newRequests = new Set(prev.activeRequests);
-          newRequests.delete(requestId);
-          return {
-            isLoading: newRequests.size > 0,
-            activeRequests: newRequests,
-            loadingMessage: newRequests.size > 0 ? prev.loadingMessage : null
-          };
-        });
-      }, 30000); // 30 second timeout
-
-      loadingTimeoutRef.current.set(requestId, timeout);
-
-      try {
-        const response = await originalFetch(input, init);
-
-        // Stop loading
-        const timeoutId = loadingTimeoutRef.current.get(requestId);
-        if (timeoutId) {
-          clearTimeout(timeoutId);
-          loadingTimeoutRef.current.delete(requestId);
+        // Skip SSE requests, polling endpoints, and specific endpoints
+        if (
+          url.includes('/api/sse/') ||
+          url.includes('/api/auth/session') ||
+          url.includes('/_next/') ||
+          url.includes('/api/version') ||
+          url.includes('/api/link-preview') || // Skip link preview requests
+          url.includes('/api/test/health') || // Skip health checks
+          url.includes('/api/notifications/poll') || // Skip notification polling
+          url.includes('/api/alerts/active') || // Skip banner system polling
+          url.includes('/api/user/timeout') // Skip timeout checking polling
+        ) {
+          return originalFetch(input, init);
         }
 
-        setLoadingState((prev) => {
-          const newRequests = new Set(prev.activeRequests);
-          newRequests.delete(requestId);
-          return {
-            isLoading: newRequests.size > 0,
-            activeRequests: newRequests,
-            loadingMessage: newRequests.size > 0 ? prev.loadingMessage : null
-          };
+        // Debug: Log all intercepted requests
+        // eslint-disable-next-line no-console
+        console.log('🌐 LOADING: Intercepted request:', {
+          requestId,
+          method,
+          url
         });
 
-        return response;
-      } catch (error) {
-        // Stop loading on error
-        const timeoutId = loadingTimeoutRef.current.get(requestId);
-        if (timeoutId) {
-          clearTimeout(timeoutId);
-          loadingTimeoutRef.current.delete(requestId);
+        const loadingMessage = getLoadingMessage(url, method);
+
+        // Set loading timeout (2 seconds)
+        const timeoutId = setTimeout(() => {
+          setLoadingState((prev) => ({
+            isLoading: true,
+            activeRequests: new Set([...prev.activeRequests, requestId]),
+            loadingMessage: loadingMessage || prev.loadingMessage
+          }));
+        }, 200);
+
+        loadingTimeoutRef.current.set(requestId, timeoutId);
+
+        try {
+          const response = await originalFetch(input, init);
+
+          // Debug: Log completed requests
+          // eslint-disable-next-line no-console
+          console.log('✅ LOADING: Request completed:', {
+            requestId,
+            status: response.status
+          });
+
+          // Handle rate limiting
+          if (response.status === 429) {
+            try {
+              const rateLimitData = await response.clone().json();
+              if (rateLimitData.retryAfter || rateLimitData.error) {
+                sessionStorage.setItem(
+                  'rate-limit-info',
+                  JSON.stringify({
+                    error: rateLimitData.error || 'Rate limit exceeded',
+                    retryAfter: rateLimitData.retryAfter,
+                    quotaType: rateLimitData.quotaType,
+                    penaltyLevel: rateLimitData.penaltyLevel,
+                    timestamp: Date.now()
+                  })
+                );
+              }
+            } catch (error) {
+              // If we can't parse the response, still store basic rate limit info
+              sessionStorage.setItem(
+                'rate-limit-info',
+                JSON.stringify({
+                  error: 'Rate limit exceeded',
+                  retryAfter: 60, // Default 1 minute
+                  quotaType: 'unknown',
+                  timestamp: Date.now()
+                })
+              );
+            }
+          }
+
+          // Stop loading
+          const timeoutId = loadingTimeoutRef.current.get(requestId);
+          if (timeoutId) {
+            clearTimeout(timeoutId);
+            loadingTimeoutRef.current.delete(requestId);
+          }
+
+          setLoadingState((prev) => {
+            const newRequests = new Set(prev.activeRequests);
+            newRequests.delete(requestId);
+            // eslint-disable-next-line no-console
+            console.log('🔄 LOADING: Updated loading state:', {
+              activeRequests: Array.from(newRequests),
+              isLoading: newRequests.size > 0
+            });
+            return {
+              isLoading: newRequests.size > 0,
+              activeRequests: newRequests,
+              loadingMessage: newRequests.size > 0 ? prev.loadingMessage : null
+            };
+          });
+
+          return response;
+        } catch (error) {
+          // Debug: Log failed requests
+          // eslint-disable-next-line no-console
+          console.error('❌ LOADING: Request failed:', { requestId, error });
+
+          // Stop loading on error
+          const timeoutId = loadingTimeoutRef.current.get(requestId);
+          if (timeoutId) {
+            clearTimeout(timeoutId);
+            loadingTimeoutRef.current.delete(requestId);
+          }
+
+          setLoadingState((prev) => {
+            const newRequests = new Set(prev.activeRequests);
+            newRequests.delete(requestId);
+            return {
+              isLoading: newRequests.size > 0,
+              activeRequests: newRequests,
+              loadingMessage: newRequests.size > 0 ? prev.loadingMessage : null
+            };
+          });
+
+          throw error;
         }
-
-        setLoadingState((prev) => {
-          const newRequests = new Set(prev.activeRequests);
-          newRequests.delete(requestId);
-          return {
-            isLoading: newRequests.size > 0,
-            activeRequests: newRequests,
-            loadingMessage: newRequests.size > 0 ? prev.loadingMessage : null
-          };
-        });
-
-        throw error;
-      }
-    };
+      };
+    }
 
     // Cleanup on unmount
     return () => {
@@ -183,6 +219,8 @@ export function GlobalLoadingProvider({
   }, []);
 
   const clearAllLoading = useCallback(() => {
+    // eslint-disable-next-line no-console
+    console.log('🧹 LOADING: Clearing all loading states');
     setLoadingState({
       isLoading: false,
       activeRequests: new Set(),
@@ -193,6 +231,34 @@ export function GlobalLoadingProvider({
     loadingTimeoutRef.current.forEach((timeout) => clearTimeout(timeout));
     loadingTimeoutRef.current.clear();
   }, []);
+
+  // Debug helper - expose to window in development
+  useEffect(() => {
+    if (
+      process.env.NODE_ENV === 'development' &&
+      typeof window !== 'undefined'
+    ) {
+      (window as any).debugLoading = {
+        getActiveRequests: () => Array.from(loadingState.activeRequests),
+        clearAllLoading,
+        getLoadingState: () => loadingState
+      };
+
+      // Auto-clear stuck loading states after 30 seconds
+      const autoClearTimer = setTimeout(() => {
+        if (loadingState.activeRequests.size > 0) {
+          // eslint-disable-next-line no-console
+          console.warn(
+            '🚨 Auto-clearing stuck loading states:',
+            Array.from(loadingState.activeRequests)
+          );
+          clearAllLoading();
+        }
+      }, 30000);
+
+      return () => clearTimeout(autoClearTimer);
+    }
+  }, [loadingState, clearAllLoading]);
 
   const value: GlobalLoadingContextType = {
     isLoading: loadingState.isLoading,
@@ -225,8 +291,27 @@ function getLoadingMessage(url: string, method: string): string | null {
     return 'Loading user details...';
   }
 
-  if (url.includes('/api/admin/users/') && method === 'POST') {
+  if (
+    url.includes('/api/admin/users/') &&
+    (method === 'POST' || method === 'PATCH')
+  ) {
     return 'Updating user...';
+  }
+
+  if (
+    url.includes('/api/admin/users/') &&
+    url.includes('/quotas') &&
+    method === 'PATCH'
+  ) {
+    return 'Updating quota...';
+  }
+
+  if (
+    url.includes('/api/admin/users/') &&
+    url.includes('/quotas/reset') &&
+    method === 'POST'
+  ) {
+    return 'Resetting quota usage...';
   }
 
   if (url.includes('/api/submissions') || url.includes('/api/posts')) {
@@ -239,6 +324,18 @@ function getLoadingMessage(url: string, method: string): string | null {
 
   if (url.includes('/api/upload')) {
     return 'Uploading file...';
+  }
+
+  if (url.includes('/api/admin/quotas/global') && method === 'POST') {
+    return 'Creating global quota...';
+  }
+
+  if (url.includes('/api/admin/quotas/global') && method === 'PUT') {
+    return 'Updating global quota...';
+  }
+
+  if (url.includes('/api/admin/quotas/global') && method === 'DELETE') {
+    return 'Deleting global quota...';
   }
 
   if (url.includes('/api/admin')) {

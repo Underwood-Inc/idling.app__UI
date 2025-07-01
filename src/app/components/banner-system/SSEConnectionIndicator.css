@@ -1,0 +1,151 @@
+/* ================================
+   SSE CONNECTION INDICATOR STYLES
+   ================================ */
+
+.sse-connection-indicator {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 999;
+  pointer-events: none;
+  opacity: 0.8;
+  transition: opacity 0.3s ease;
+}
+
+.sse-connection-indicator:hover {
+  opacity: 1;
+}
+
+.indicator-content {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.status-icon {
+  font-size: 10px;
+  line-height: 1;
+  animation: pulse 2s infinite;
+}
+
+.status-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.status-message {
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.last-update {
+  font-size: 10px;
+  opacity: 0.7;
+  line-height: 1.2;
+}
+
+/* Status-specific styles */
+.sse-connection-indicator.connected .indicator-content {
+  background: rgba(34, 197, 94, 0.9);
+  border-color: rgba(34, 197, 94, 0.3);
+}
+
+.sse-connection-indicator.connecting .indicator-content {
+  background: rgba(251, 191, 36, 0.9);
+  border-color: rgba(251, 191, 36, 0.3);
+  color: rgba(0, 0, 0, 0.8);
+}
+
+.sse-connection-indicator.reconnecting .indicator-content {
+  background: rgba(249, 115, 22, 0.9);
+  border-color: rgba(249, 115, 22, 0.3);
+}
+
+.sse-connection-indicator.error .indicator-content {
+  background: rgba(239, 68, 68, 0.9);
+  border-color: rgba(239, 68, 68, 0.3);
+}
+
+.sse-connection-indicator.disconnected .indicator-content {
+  background: rgba(107, 114, 128, 0.9);
+  border-color: rgba(107, 114, 128, 0.3);
+}
+
+/* Animations */
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.sse-connection-indicator.connecting .status-icon,
+.sse-connection-indicator.reconnecting .status-icon {
+  animation: spin 1.5s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .sse-connection-indicator {
+    bottom: 10px;
+    right: 10px;
+  }
+
+  .indicator-content {
+    padding: 6px 10px;
+    font-size: 11px;
+  }
+
+  .last-update {
+    font-size: 9px;
+  }
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+  .indicator-content {
+    border-width: 2px;
+    background: rgba(0, 0, 0, 0.95);
+  }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .status-icon {
+    animation: none;
+  }
+
+  .sse-connection-indicator {
+    transition: none;
+  }
+}
+
+/* Print styles */
+@media print {
+  .sse-connection-indicator {
+    display: none;
+  }
+}
