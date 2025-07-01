@@ -315,40 +315,11 @@
   transition: width 0.3s ease;
 }
 
-/* Quota Section in Aside - now uses beautiful glassmorphism styling */
+/* Quota Section in Aside - matches Card component styling */
 .quota__section {
-  background: linear-gradient(
-    135deg,
-    rgba(255, 255, 255, 0.1),
-    rgba(255, 255, 255, 0.05)
-  );
-  backdrop-filter: blur(20px);
-  border: 2px solid rgba(255, 255, 255, 0.2);
-  border-radius: 20px;
-  padding: 1.5rem 2rem 1rem 2rem;
-  margin: 0 auto;
-  box-shadow:
-    0 12px 40px rgba(0, 0, 0, 0.3),
-    inset 0 1px 0 rgba(255, 255, 255, 0.2);
-  position: relative;
-  overflow: hidden;
-  max-width: 320px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
   text-align: center;
-}
-
-.quota__section::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 1px;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.4),
-    transparent
-  );
 }
 
 .quota__section h3 {
@@ -449,18 +420,40 @@
 /* Welcome Page Quota Display - Exactly matches welcome intro aesthetic */
 .quota__welcome {
   text-align: center;
-  margin-bottom: 3rem;
-  padding: 3rem 2rem;
+  padding: 3rem;
   background: linear-gradient(
     135deg,
-    var(--color-background-secondary),
-    var(--color-background-tertiary)
+    rgba(255, 255, 255, 0.1),
+    rgba(255, 255, 255, 0.05)
   );
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 20px;
-  border: 1px solid var(--color-border);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
   max-width: 800px;
   margin: 0 auto;
+  position: relative;
+  overflow: hidden;
+  /* Hidden by default - shown only on mobile via media queries */
+  display: none;
+}
+
+.quota__welcome::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.3),
+    transparent
+  );
 }
 
 .quota__welcome h3 {
@@ -553,9 +546,10 @@
   box-shadow: 0 8px 25px rgba(245, 158, 11, 0.4);
 }
 
-/* Mobile responsive for welcome quota */
-@media (max-width: 768px) {
+/* Show welcome quota only when aside is not visible (same breakpoint as PageAside) */
+@media (max-width: 1024px) {
   .quota__welcome {
+    display: block;
     padding: 2rem 1.5rem;
     max-width: 100%;
   }
@@ -579,10 +573,10 @@
   }
 }
 
+/* Responsive adjustments for very small screens */
 @media (max-width: 480px) {
   .quota__welcome {
     padding: 1.5rem 1rem;
-    max-width: 100%;
   }
 
   .quota__welcome h3 {

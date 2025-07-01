@@ -375,7 +375,7 @@ export function GenerationForm({
         </div>
 
         {/* Pro Configuration Section */}
-        <div className={formStyles.form__section}>
+        <div className={formStyles.form__pro__section}>
           <div className={formStyles.form__pro__header}>
             <h4 className={formStyles.form__section__title}>
               ⚡ Pro Configuration Options

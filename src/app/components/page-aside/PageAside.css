@@ -1,21 +1,38 @@
 .page-aside__container {
   position: absolute;
   top: 0;
-  right: 2.3rem;
-  width: calc(20vw - 3rem);
-  max-height: calc(100vh / 1.5);
-  min-height: 30rem;
+  right: 2rem;
+  width: calc(20vw - 2rem);
+  max-height: calc(100vh - 8rem);
+  min-height: 32rem;
+  z-index: 10;
 }
 
 .page-aside__container aside {
-  position: relative;
-  top: 0;
+  position: sticky;
+  top: 2rem;
   right: 0;
+  /* Remove custom glassmorphism - let Card component handle styling */
 }
 
 /* Ensure page aside is completely hidden at smaller viewport widths */
 @media (max-width: 1024px) {
   .page-aside__container {
     display: none;
+  }
+}
+
+/* Refined desktop sizing */
+@media (min-width: 1400px) {
+  .page-aside__container {
+    width: calc(18vw - 2rem);
+    right: 2.5rem;
+  }
+}
+
+@media (min-width: 1600px) {
+  .page-aside__container {
+    width: calc(16vw - 2rem);
+    right: 3rem;
   }
 }

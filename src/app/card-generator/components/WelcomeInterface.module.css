@@ -51,29 +51,16 @@
 
 /* Enhanced Mobile Quota Display - Uses quota__welcome class */
 .welcome__mobile__quota {
-  display: block;
   max-width: 800px;
   width: 100%;
+  /* Hide by default on desktop when aside is visible */
+  display: none;
 }
 
-/* Show welcome mobile quota on ALL screen sizes */
+/* Show welcome quota only when aside is not visible (same breakpoint as PageAside) */
 @media (max-width: 1024px) {
   .welcome__mobile__quota {
     display: block;
-    max-width: 800px;
-  }
-}
-
-/* Enhanced mobile styling */
-@media (max-width: 768px) {
-  .welcome__mobile__quota {
-    max-width: 100%;
-  }
-}
-
-@media (max-width: 480px) {
-  .welcome__mobile__quota {
-    max-width: 100%;
   }
 }
 

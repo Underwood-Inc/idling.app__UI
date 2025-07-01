@@ -247,68 +247,6 @@
   gap: 0.75rem;
 }
 
-/* Pro Configuration Header */
-.form__pro__header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 1rem;
-  padding-bottom: 1rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-/* Pro Toggle Button - Fixed to use correct styles */
-.form__toggle__button {
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 6px;
-  padding: 0.5rem 0.875rem;
-  cursor: pointer;
-  font-size: 0.8125rem;
-  color: rgba(255, 255, 255, 0.8);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  font-weight: 500;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  backdrop-filter: blur(8px);
-}
-
-.form__toggle__button:hover {
-  background: rgba(255, 255, 255, 0.15);
-  border-color: rgba(255, 255, 255, 0.4);
-  color: rgba(255, 255, 255, 1);
-  transform: translateY(-1px);
-}
-
-.form__toggle__button:active {
-  transform: translateY(0);
-}
-
-/* Pro Advanced Content */
-.form__advanced__content {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  overflow: hidden;
-  margin-top: 0;
-}
-
-.form__advanced__content--collapsed {
-  max-height: 0;
-  opacity: 0;
-  margin-top: 0;
-  padding-top: 0;
-  padding-bottom: 0;
-  min-height: 0;
-  overflow: hidden;
-}
-
-.form__advanced__content--expanded {
-  max-height: 2000px;
-  opacity: 1;
-  margin-top: 1rem;
-  min-height: auto;
-}
-
 /* Chevron for pro toggle */
 .form__toggle__chevron {
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -322,91 +260,6 @@
 
 .form__toggle__chevron--expanded {
   transform: rotate(180deg); /* ▲ pointing up when expanded */
-}
-
-/* Form Buttons */
-.form__buttons {
-  display: flex;
-  gap: 1rem;
-  align-items: center;
-  position: relative;
-  z-index: 2;
-  margin-top: 2rem;
-}
-
-.generate__button {
-  flex: 2;
-  padding: 1rem 2rem;
-  background: linear-gradient(135deg, var(--brand-primary), #4f46e5);
-  color: white;
-  border: none;
-  border-radius: 10px;
-  font-size: 1.0625rem;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
-  text-transform: none;
-  height: 56px;
-  min-height: 56px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.75rem;
-}
-
-.generate__button:hover:not(:disabled) {
-  transform: translateY(-3px);
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
-  background: linear-gradient(135deg, #4f46e5, var(--brand-primary));
-}
-
-.generate__button:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-  transform: none;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
-}
-
-.generate__button__disabled {
-  background: linear-gradient(
-    135deg,
-    var(--color-text-tertiary),
-    var(--color-text-secondary)
-  );
-}
-
-.randomize__button {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  padding: 1rem 1.5rem;
-  background-color: #8b5cf6;
-  color: white;
-  border: none;
-  border-radius: 10px;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  white-space: nowrap;
-  height: 56px;
-  min-height: 56px;
-  box-shadow: 0 6px 20px rgba(139, 92, 246, 0.25);
-}
-
-.randomize__button:hover:not(:disabled) {
-  background-color: #7c3aed;
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(139, 92, 246, 0.35);
-}
-
-.randomize__button__disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-  transform: none;
 }
 
 /* Enhanced Form Layout Styles with Dark Glass Background */
@@ -449,45 +302,113 @@
   margin-bottom: 2rem;
 }
 
-/* Enhanced form element visibility */
-.generation__form__container .form__label {
-  color: var(--dark-bg__text-color--secondary);
-  margin-bottom: 0.75rem;
+/* Enhanced Pro Section Styling - Match Production */
+.form__pro__section {
+  position: relative;
+  z-index: 2;
+  margin-bottom: 2rem;
+  padding: 1.5rem 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  background: linear-gradient(
+    135deg,
+    rgba(255, 165, 0, 0.05) 0%,
+    rgba(255, 140, 0, 0.03) 50%,
+    rgba(0, 0, 0, 0.02) 100%
+  );
 }
 
-.generation__form__container .label__text {
-  color: var(--dark-bg__text-color--secondary);
-  font-weight: 600;
+.form__pro__section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 165, 0, 0.1) 0%,
+    transparent 50%,
+    rgba(255, 165, 0, 0.1) 100%
+  );
+  pointer-events: none;
+  z-index: -1;
 }
 
-.generation__form__container .form__input,
-.generation__form__container .form__textarea {
-  background: rgba(255, 255, 255, 0.1);
-  border: 2px solid rgba(255, 255, 255, 0.2);
-  color: var(--dark-bg__text-color--primary);
-  padding: 0.875rem 1rem;
-  border-radius: 8px;
-}
-
-.generation__form__container .form__input:focus,
-.generation__form__container .form__textarea:focus {
-  background: rgba(255, 255, 255, 0.15);
-  border-color: rgba(255, 255, 255, 0.4);
-  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1);
-}
-
-.generation__form__container .form__input::placeholder,
-.generation__form__container .form__textarea::placeholder {
-  color: rgba(255, 255, 255, 0.5);
-}
-
-.generation__form__container .form__section__title {
-  color: var(--dark-bg__text-color--primary);
+/* Pro Header Styling */
+.form__pro__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   margin-bottom: 1.5rem;
+  padding: 0 2rem;
 }
 
-.generation__form__container .form__title {
+.form__pro__header .form__section__title {
   color: var(--dark-bg__text-color--primary);
+  margin-bottom: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 1.125rem;
+  font-weight: 700;
+}
+
+.pro__badge {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  color: white;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.3);
+}
+
+/* Pro Toggle Button */
+.form__toggle__button {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  color: var(--dark-bg__text-color--secondary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.form__toggle__button:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.3);
+  color: var(--dark-bg__text-color--primary);
+  transform: translateY(-1px);
+}
+
+.form__toggle__button:active {
+  transform: translateY(0);
+}
+
+/* Pro Advanced Content */
+.form__advanced__content {
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.form__advanced__content--collapsed {
+  max-height: 0;
+  opacity: 0;
+  padding: 0 2rem;
+}
+
+.form__advanced__content--expanded {
+  max-height: 2000px;
+  opacity: 1;
+  padding: 0 2rem 1.5rem 2rem;
 }
 
 /* Read-only banner for loaded generations */
@@ -612,4 +533,150 @@
   .form__toggle__chevron--expanded {
     transform: none;
   }
+}
+
+/* Enhanced Form Buttons Styling */
+.form__buttons {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  justify-content: center;
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  position: relative;
+  z-index: 2;
+}
+
+.generate__button {
+  flex: 2;
+  padding: 1rem 2rem;
+  background: linear-gradient(135deg, var(--brand-primary), #4f46e5);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 1.0625rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+  text-transform: none;
+  height: 56px;
+  min-height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.generate__button:hover:not(:disabled) {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
+  background: linear-gradient(135deg, #4f46e5, var(--brand-primary));
+}
+
+.generate__button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+
+.generate__button__disabled {
+  background: linear-gradient(
+    135deg,
+    var(--color-text-tertiary),
+    var(--color-text-secondary)
+  );
+}
+
+.randomize__button {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 1rem 1.5rem;
+  background-color: #8b5cf6;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  height: 56px;
+  min-height: 56px;
+  box-shadow: 0 6px 20px rgba(139, 92, 246, 0.25);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.randomize__button:hover:not(:disabled) {
+  background-color: #7c3aed;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(139, 92, 246, 0.35);
+}
+
+.randomize__button__disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Enhanced form element visibility - Match Production */
+.generation__form__container .form__label {
+  color: var(--dark-bg__text-color--secondary);
+  margin-bottom: 0.75rem;
+}
+
+.generation__form__container .label__text {
+  color: var(--dark-bg__text-color--secondary);
+  font-weight: 600;
+  font-size: 0.9375rem;
+}
+
+/* Production-matching form inputs */
+.generation__form__container .form__input,
+.generation__form__container .form__textarea,
+.generation__form__container .form__select {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: var(--dark-bg__text-color--primary);
+  padding: 0.75rem 1rem;
+  border-radius: 6px;
+  font-size: 1rem;
+  transition: all 0.2s ease;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.generation__form__container .form__input:focus,
+.generation__form__container .form__textarea:focus,
+.generation__form__container .form__select:focus {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.4);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1);
+  outline: none;
+}
+
+.generation__form__container .form__input::placeholder,
+.generation__form__container .form__textarea::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.generation__form__container .form__section__title {
+  color: var(--dark-bg__text-color--primary);
+  margin-bottom: 1.5rem;
+  font-size: 1.125rem;
+  font-weight: 700;
+}
+
+.generation__form__container .form__title {
+  color: var(--dark-bg__text-color--primary);
+  font-size: 1.375rem;
+  font-weight: 700;
 }

@@ -187,6 +187,18 @@
   .header__button {
     width: 100%;
   }
+
+  .configuration__form {
+    padding: 1.25rem;
+    margin: 1rem 0;
+  }
+
+  .generation__form__container .form__row,
+  .generation__form__container .seed__controls,
+  .generation__form__container .dimensions__row,
+  .generation__form__container .quote__author__row {
+    gap: 1rem;
+  }
 }
 
 /* Enhanced Configuration Form Container */
@@ -285,16 +297,64 @@
   }
 }
 
-@media (max-width: 480px) {
-  .configuration__form {
-    padding: 1.25rem;
-    margin: 1rem 0;
-  }
+/* Features Section Styles - moved from LoadingSpinner.module.css */
+.features_aside {
+  /* Aside-specific styles handled by PageAside component */
+}
 
-  .generation__form__container .form__row,
-  .generation__form__container .seed__controls,
-  .generation__form__container .dimensions__row,
-  .generation__form__container .quote__author__row {
-    gap: 1rem;
-  }
+.features__section {
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.features__section h3 {
+  font-size: 1.25rem;
+  margin: 0 0 1rem 0;
+  color: var(--color-text-primary);
+  text-align: center;
+  font-weight: 600;
+}
+
+.features__grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.75rem;
+}
+
+.feature__card {
+  padding: 1rem;
+  text-align: left;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.05);
+  transition: all 0.2s ease;
+}
+
+.feature__card:hover {
+  transform: translateY(-1px);
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.feature__icon {
+  font-size: 1.5rem;
+  margin-right: 0.5rem;
+  display: inline;
+  vertical-align: middle;
+}
+
+.feature__card h4 {
+  font-size: 1.25rem;
+  margin: 0 0 0.5rem 0;
+  color: var(--color-text-primary);
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+}
+
+.feature__card p {
+  color: var(--color-text-secondary);
+  line-height: 1.5;
+  margin: 0;
+  font-size: 1rem;
 }
