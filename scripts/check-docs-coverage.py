@@ -64,11 +64,11 @@ class DocumentationCoverageEnforcer:
                 "src/app/**/route.ts"
             ],
             "doc_patterns": [
-                "DOCS/_services/**/*.md",
-                "DOCS/_components/**/*.md",
-                "DOCS/_api/**/*.md",
-                "DOCS/_utils/**/*.md",
-                "DOCS/_hooks/**/*.md"
+                "DOCS/services/**/*.md",
+                "DOCS/components/**/*.md",
+                "DOCS/api/**/*.md",
+                "DOCS/utils/**/*.md",
+                "DOCS/hooks/**/*.md"
             ],
             "exclude_patterns": [
                 "**/test/**",
@@ -82,27 +82,27 @@ class DocumentationCoverageEnforcer:
             "file_type_mapping": {
                 "services": {
                     "pattern": "src/lib/services/**/*.ts",
-                    "doc_path": "DOCS/_services/{name}.md",
+                    "doc_path": "DOCS/services/{name}.md",
                     "priority": "high"
                 },
                 "components": {
                     "pattern": "src/components/**/*.tsx",
-                    "doc_path": "DOCS/_components/{name}.md", 
+                    "doc_path": "DOCS/components/{name}.md", 
                     "priority": "high"
                 },
                 "api_routes": {
                     "pattern": "src/app/api/**/route.ts",
-                    "doc_path": "DOCS/_api/{path}.md",
+                    "doc_path": "DOCS/api/{path}.md",
                     "priority": "high"
                 },
                 "utils": {
                     "pattern": "src/lib/utils/**/*.ts",
-                    "doc_path": "DOCS/_utils/{name}.md",
+                    "doc_path": "DOCS/utils/{name}.md",
                     "priority": "medium"
                 },
                 "hooks": {
                     "pattern": "src/lib/hooks/**/*.ts", 
-                    "doc_path": "DOCS/_hooks/{name}.md",
+                    "doc_path": "DOCS/hooks/{name}.md",
                     "priority": "medium"
                 }
             },
@@ -226,7 +226,7 @@ class DocumentationCoverageEnforcer:
                 return file_type_config["doc_path"].format(name=file_info.name.lower())
         
         # Default fallback
-        return f"DOCS/_{file_info.type}s/{file_info.name.lower()}.md"
+        return f"DOCS/{file_info.type}s/{file_info.name.lower()}.md"
 
     def _get_priority(self, file_info: FileInfo) -> str:
         """Determine priority for missing documentation"""

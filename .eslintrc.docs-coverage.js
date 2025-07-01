@@ -19,10 +19,11 @@ module.exports = {
     // Enforce documentation files for services, components, etc.
     'docs-coverage/require-documentation': ['error', {
       documentationPaths: [
-        'DOCS/_docs/**/*.md',
-        'DOCS/_services/**/*.md', 
-        'DOCS/_components/**/*.md',
-        'DOCS/_api/**/*.md'
+        'DOCS/services/**/*.md', 
+        'DOCS/components/**/*.md',
+        'DOCS/api/**/*.md',
+        'DOCS/utils/**/*.md',
+        'DOCS/hooks/**/*.md'
       ],
       requireDocumentation: {
         services: true,
@@ -140,8 +141,7 @@ module.exports = {
       
       // Jekyll configuration
       jekyllConfig: {
-        collectionsDir: '_docs',
-        categories: ['services', 'components', 'api', 'utils', 'hooks']
+        collections: ['services', 'components', 'api', 'utils', 'hooks']
       },
       
       // Auto-generation settings

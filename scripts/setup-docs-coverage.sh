@@ -67,11 +67,11 @@ print_success "Node.js dependencies installed"
 # Create necessary directories
 print_status "Creating documentation directories..."
 
-mkdir -p DOCS/_docs/services
-mkdir -p DOCS/_docs/components  
-mkdir -p DOCS/_docs/api
-mkdir -p DOCS/_docs/utils
-mkdir -p DOCS/_docs/hooks
+mkdir -p DOCS/services
+mkdir -p DOCS/components  
+mkdir -p DOCS/api
+mkdir -p DOCS/utils
+mkdir -p DOCS/hooks
 mkdir -p DOCS/badges
 mkdir -p scripts
 
@@ -165,7 +165,7 @@ print_success "VS Code settings created"
 # Create a sample documentation file
 print_status "Creating sample documentation..."
 
-cat > DOCS/_docs/services/ratelimitservice.md << 'EOF'
+cat > DOCS/services/ratelimitservice.md << 'EOF'
 ---
 title: RateLimitService
 category: service
@@ -271,7 +271,7 @@ npm run lint:docs-fix
 ### 🎯 **How It Works**
 
 1. **File Analysis**: Scans your codebase for TypeScript/JavaScript files
-2. **Documentation Matching**: Checks for corresponding `.md` files in `DOCS/_docs/`
+2. **Documentation Matching**: Checks for corresponding `.md` files in organized directories (`DOCS/services/`, `DOCS/components/`, etc.)
 3. **JSDoc Validation**: Ensures exported functions/classes have proper JSDoc
 4. **Quality Checks**: Validates JSDoc completeness (params, returns, descriptions)
 5. **Automated Reporting**: Generates detailed reports with actionable suggestions

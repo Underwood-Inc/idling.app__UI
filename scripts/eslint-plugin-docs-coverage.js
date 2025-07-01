@@ -15,10 +15,11 @@ const glob = require('glob');
  */
 const DEFAULT_CONFIG = {
   documentationPaths: [
-    'DOCS/_docs/**/*.md',
-    'DOCS/_services/**/*.md',
-    'DOCS/_components/**/*.md',
-    'DOCS/_api/**/*.md'
+    'DOCS/services/**/*.md',
+    'DOCS/components/**/*.md',
+    'DOCS/api/**/*.md',
+    'DOCS/utils/**/*.md',
+    'DOCS/hooks/**/*.md'
   ],
   requireDocumentation: {
     services: true,
@@ -205,7 +206,7 @@ const requireDocumentationRule = {
       Program(node) {
         // Check for missing documentation file
         if (!hasDocFile) {
-          const suggestedPath = `DOCS/_docs/${fileType}s/${baseName}.md`;
+          const suggestedPath = `DOCS/${fileType}s/${baseName}.md`;
           
           context.report({
             node,

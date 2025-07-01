@@ -1,0 +1,56 @@
+{
+  "code_patterns": [
+    "src/lib/services/**/*.ts",
+    "src/lib/utils/**/*.ts",
+    "src/lib/hooks/**/*.ts",
+    "src/components/**/*.tsx",
+    "src/app/api/**/*.ts",
+    "src/app/**/route.ts"
+  ],
+  "doc_patterns": [
+    "DOCS/services/**/*.md",
+    "DOCS/components/**/*.md",
+    "DOCS/api/**/*.md",
+    "DOCS/utils/**/*.md",
+    "DOCS/hooks/**/*.md"
+  ],
+  "exclude_patterns": [
+    "**/test/**",
+    "**/*.test.*",
+    "**/*.spec.*",
+    "**/node_modules/**",
+    "**/.next/**",
+    "**/build/**",
+    "**/dist/**"
+  ],
+  "file_type_mapping": {
+    "services": {
+      "pattern": "src/lib/services/**/*.ts",
+      "doc_path": "DOCS/services/{name}.md",
+      "priority": "high"
+    },
+    "components": {
+      "pattern": "src/components/**/*.tsx",
+      "doc_path": "DOCS/components/{name}.md",
+      "priority": "high"
+    },
+    "api_routes": {
+      "pattern": "src/app/api/**/route.ts",
+      "doc_path": "DOCS/api/{path}.md",
+      "priority": "high"
+    },
+    "utils": {
+      "pattern": "src/lib/utils/**/*.ts",
+      "doc_path": "DOCS/utils/{name}.md",
+      "priority": "medium"
+    },
+    "hooks": {
+      "pattern": "src/lib/hooks/**/*.ts",
+      "doc_path": "DOCS/hooks/{name}.md",
+      "priority": "medium"
+    }
+  },
+  "minimum_coverage": 85,
+  "fail_on_missing": true,
+  "generate_stubs": true
+}
