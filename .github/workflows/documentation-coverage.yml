@@ -1,0 +1,273 @@
+name: 📚 Documentation Coverage
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+  schedule:
+    # Run weekly on Sundays at 2 AM UTC
+    - cron: '0 2 * * 0'
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
+jobs:
+  documentation-coverage:
+    name: Check Documentation Coverage
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 🔄 Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Need full history for proper analysis
+
+      - name: 🐍 Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: 📦 Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install interrogate docstr-coverage pydocstyle
+
+      - name: 🔍 Check Python docstring coverage with interrogate
+        id: interrogate
+        run: |
+          echo "## 🐍 Python Docstring Coverage" >> $GITHUB_STEP_SUMMARY
+
+          # Run interrogate and capture output
+          if interrogate --fail-under=85 --generate-badge=DOCS/badges/ --badge-format=svg --verbose=2 src/ > interrogate_output.txt 2>&1; then
+            echo "interrogate_passed=true" >> $GITHUB_OUTPUT
+            echo "✅ Docstring coverage passed!" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "interrogate_passed=false" >> $GITHUB_OUTPUT
+            echo "❌ Docstring coverage failed!" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          # Add detailed output to summary
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          cat interrogate_output.txt >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+        continue-on-error: true
+
+      - name: 🔍 Check documentation file coverage
+        id: docs-coverage
+        run: |
+          echo "## 📚 Documentation File Coverage" >> $GITHUB_STEP_SUMMARY
+
+          # Make script executable
+          chmod +x scripts/check-docs-coverage.py
+
+          # Run documentation coverage check
+          if python scripts/check-docs-coverage.py --fail-under=85 --format=markdown --output=docs-coverage-report.md; then
+            echo "docs_coverage_passed=true" >> $GITHUB_OUTPUT
+            echo "✅ Documentation file coverage passed!" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "docs_coverage_passed=false" >> $GITHUB_OUTPUT
+            echo "❌ Documentation file coverage failed!" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          # Add report to summary if it exists
+          if [ -f docs-coverage-report.md ]; then
+            cat docs-coverage-report.md >> $GITHUB_STEP_SUMMARY
+          fi
+        continue-on-error: true
+
+      - name: 🔍 Check Python docstring style with pydocstyle
+        id: pydocstyle
+        run: |
+          echo "## 🎨 Python Docstring Style" >> $GITHUB_STEP_SUMMARY
+
+          if pydocstyle src/ --convention=numpy > pydocstyle_output.txt 2>&1; then
+            echo "pydocstyle_passed=true" >> $GITHUB_OUTPUT
+            echo "✅ Docstring style check passed!" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "pydocstyle_passed=false" >> $GITHUB_OUTPUT
+            echo "❌ Docstring style issues found!" >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            head -20 pydocstyle_output.txt >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+          fi
+        continue-on-error: true
+
+      - name: 📊 Generate comprehensive report
+        run: |
+          echo "## 📊 Documentation Coverage Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          # Create summary table
+          echo "| Check | Status | Details |" >> $GITHUB_STEP_SUMMARY
+          echo "|-------|--------|---------|" >> $GITHUB_STEP_SUMMARY
+
+          if [ "${{ steps.interrogate.outputs.interrogate_passed }}" = "true" ]; then
+            echo "| Python Docstrings | ✅ Pass | Coverage meets minimum requirement |" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "| Python Docstrings | ❌ Fail | Coverage below minimum threshold |" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          if [ "${{ steps.docs-coverage.outputs.docs_coverage_passed }}" = "true" ]; then
+            echo "| Documentation Files | ✅ Pass | All code files have documentation |" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "| Documentation Files | ❌ Fail | Missing documentation files |" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          if [ "${{ steps.pydocstyle.outputs.pydocstyle_passed }}" = "true" ]; then
+            echo "| Docstring Style | ✅ Pass | All docstrings follow conventions |" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "| Docstring Style | ⚠️ Issues | Style violations found |" >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: 🏷️ Upload coverage badges
+        if: github.ref == 'refs/heads/main'
+        uses: actions/upload-artifact@v3
+        with:
+          name: coverage-badges
+          path: DOCS/badges/
+
+      - name: 📝 Generate documentation stubs
+        if: steps.docs-coverage.outputs.docs_coverage_passed == 'false'
+        run: |
+          echo "🚧 Generating documentation stubs for missing files..."
+          python scripts/check-docs-coverage.py --generate-stubs
+
+      - name: 💬 Comment on PR with results
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+
+            // Read the documentation coverage report
+            let reportContent = '';
+            try {
+              if (fs.existsSync('docs-coverage-report.md')) {
+                reportContent = fs.readFileSync('docs-coverage-report.md', 'utf8');
+              }
+            } catch (error) {
+              console.log('No documentation coverage report found');
+            }
+
+            // Create comment body
+            const interrogatePassed = '${{ steps.interrogate.outputs.interrogate_passed }}' === 'true';
+            const docsCoveragePassed = '${{ steps.docs-coverage.outputs.docs_coverage_passed }}' === 'true';
+            const pydocstylePassed = '${{ steps.pydocstyle.outputs.pydocstyle_passed }}' === 'true';
+
+            const overallStatus = interrogatePassed && docsCoveragePassed ? '✅' : '❌';
+
+            let comment = `## ${overallStatus} Documentation Coverage Report\n\n`;
+            comment += `| Check | Status |\n`;
+            comment += `|-------|--------|\n`;
+            comment += `| Python Docstrings | ${interrogatePassed ? '✅' : '❌'} |\n`;
+            comment += `| Documentation Files | ${docsCoveragePassed ? '✅' : '❌'} |\n`;
+            comment += `| Docstring Style | ${pydocstylePassed ? '✅' : '⚠️'} |\n\n`;
+
+            if (!docsCoveragePassed && reportContent) {
+              comment += `### Missing Documentation\n\n${reportContent}\n\n`;
+            }
+
+            if (!interrogatePassed) {
+              comment += `### Docstring Coverage Issues\n`;
+              comment += `Some Python functions, classes, or methods are missing docstrings. `;
+              comment += `Please add docstrings following the [NumPy docstring convention](https://numpydoc.readthedocs.io/en/latest/format.html).\n\n`;
+            }
+
+            comment += `---\n*This comment was automatically generated by the Documentation Coverage workflow.*`;
+
+            // Post comment
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
+
+      - name: 🚨 Create issue for missing documentation
+        if: |
+          github.ref == 'refs/heads/main' && 
+          (steps.interrogate.outputs.interrogate_passed == 'false' || 
+           steps.docs-coverage.outputs.docs_coverage_passed == 'false')
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+
+            // Check if an issue already exists
+            const issues = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              labels: ['documentation'],
+              state: 'open'
+            });
+
+            const existingIssue = issues.data.find(issue => 
+              issue.title.includes('Documentation Coverage Below Threshold')
+            );
+
+            if (existingIssue) {
+              console.log('Documentation coverage issue already exists:', existingIssue.html_url);
+              return;
+            }
+
+            // Read the documentation coverage report
+            let reportContent = '';
+            try {
+              if (fs.existsSync('docs-coverage-report.md')) {
+                reportContent = fs.readFileSync('docs-coverage-report.md', 'utf8');
+              }
+            } catch (error) {
+              reportContent = 'Unable to read detailed report.';
+            }
+
+            const issueBody = `## 📚 Documentation Coverage Below Threshold
+
+            The automated documentation coverage check has detected that our documentation coverage has fallen below the required threshold.
+
+            ### Current Status
+            - **Python Docstrings**: ${{ steps.interrogate.outputs.interrogate_passed == 'true' && '✅ Passing' || '❌ Failing' }}
+            - **Documentation Files**: ${{ steps.docs-coverage.outputs.docs_coverage_passed == 'true' && '✅ Passing' || '❌ Failing' }}
+
+            ### Detailed Report
+            ${reportContent}
+
+            ### Action Required
+            Please review the missing documentation and add the necessary files or docstrings. You can use the following commands to check coverage locally:
+
+            \`\`\`bash
+            # Check Python docstring coverage
+            pip install interrogate
+            interrogate --verbose=2 src/
+
+            # Check documentation file coverage
+            python scripts/check-docs-coverage.py
+
+            # Generate documentation stubs
+            python scripts/check-docs-coverage.py --generate-stubs
+            \`\`\`
+
+            ### Auto-generated Documentation Stubs
+            If documentation stubs were generated, they can be found in the \`docs/\` directory with \`status: draft\` frontmatter. Please review and complete these files.
+
+            ---
+            *This issue was automatically created by the Documentation Coverage workflow.*`;
+
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: '📚 Documentation Coverage Below Threshold',
+              body: issueBody,
+              labels: ['documentation', 'automated', 'priority:medium']
+            });
+
+      - name: ❌ Fail workflow if coverage is insufficient
+        if: |
+          steps.interrogate.outputs.interrogate_passed == 'false' || 
+          steps.docs-coverage.outputs.docs_coverage_passed == 'false'
+        run: |
+          echo "::error::Documentation coverage is below the required threshold"
+          echo "::error::Please add missing documentation before merging"
+          exit 1
