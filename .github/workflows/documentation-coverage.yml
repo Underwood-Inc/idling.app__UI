@@ -5,6 +5,7 @@ on:
     branches: [main, develop]
   pull_request:
     branches: [main, develop]
+    types: [opened, synchronize, reopened]
   schedule:
     # Run weekly on Sundays at 2 AM UTC
     - cron: '0 2 * * 0'
@@ -13,6 +14,7 @@ permissions:
   contents: read
   pull-requests: write
   issues: write
+  repository-projects: read
 
 jobs:
   documentation-coverage:
@@ -33,7 +35,7 @@ jobs:
       - name: 📦 Install Python dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install interrogate docstr-coverage pydocstyle
+          pip install interrogate docstr-coverage pydocstyle requests
 
       - name: 🔍 Check Python docstring coverage with interrogate
         id: interrogate
@@ -194,58 +196,18 @@ jobs:
 
       - name: 💬 Update PR description with documentation badge
         if: github.event_name == 'pull_request'
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const fs = require('fs');
-
-            // Get current PR
-            const { data: pr } = await github.rest.pulls.get({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              pull_number: context.issue.number
-            });
-
-            const badgeUrl = '${{ steps.generate-badge.outputs.badge_url }}';
-            const overallCoverage = '${{ steps.generate-badge.outputs.overall_coverage }}';
-            const docCoverage = '${{ steps.docs-coverage.outputs.doc_coverage }}';
-            const docstringCoverage = '${{ steps.interrogate.outputs.docstring_coverage }}';
-
-            // Create documentation status section
-            const docSection = `
-            ## 📚 Documentation Coverage Status
-
-            ![Documentation Coverage](${badgeUrl})
-
-            | Metric | Coverage | Status |
-            |--------|----------|--------|
-                         | **Overall Documentation** | **${overallCoverage}%** | ${parseInt(overallCoverage) >= 75 ? '✅' : '❌'} |
-             | Documentation Files | ${docCoverage}% | ${{ steps.docs-coverage.outputs.docs_coverage_passed == 'true' && '✅' || '❌' }} |
-             | Python Docstrings | ${docstringCoverage}% | ${{ steps.interrogate.outputs.interrogate_passed == 'true' && '✅' || '❌' }} |
-
-            *Updated automatically by Documentation Coverage workflow*
-
-            ---
-            `;
-
-            // Get current description
-            let newDescription = pr.body || '';
-
-            // Remove existing documentation section if present
-            newDescription = newDescription.replace(/## 📚 Documentation Coverage Status[\s\S]*?---\n/g, '');
-
-            // Add new documentation section at the top
-            newDescription = docSection + newDescription;
-
-            // Update PR description
-            await github.rest.pulls.update({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              pull_number: context.issue.number,
-              body: newDescription
-            });
-
-            console.log('✅ Updated PR description with documentation coverage badge');
+        env:
+          DOC_BADGE_URL: ${{ steps.generate-badge.outputs.badge_url }}
+          OVERALL_COVERAGE: ${{ steps.generate-badge.outputs.overall_coverage }}
+          DOC_COVERAGE: ${{ steps.docs-coverage.outputs.doc_coverage }}
+          DOCSTRING_COVERAGE: ${{ steps.interrogate.outputs.docstring_coverage }}
+          DOCS_PASSED: ${{ steps.docs-coverage.outputs.docs_coverage_passed }}
+          INTERROGATE_PASSED: ${{ steps.interrogate.outputs.interrogate_passed }}
+        run: |
+          python scripts/update-pr-description.py \
+            --pr-number="${{ github.event.number }}" \
+            --repo="${{ github.repository }}" \
+            --token="${{ secrets.GITHUB_TOKEN }}"
 
       - name: 💬 Comment on PR with detailed results
         if: github.event_name == 'pull_request'
