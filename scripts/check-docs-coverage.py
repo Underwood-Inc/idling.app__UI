@@ -64,10 +64,11 @@ class DocumentationCoverageEnforcer:
                 "src/app/**/route.ts"
             ],
             "doc_patterns": [
-                "DOCS/_docs/**/*.md",
                 "DOCS/_services/**/*.md",
                 "DOCS/_components/**/*.md",
-                "DOCS/_api/**/*.md"
+                "DOCS/_api/**/*.md",
+                "DOCS/_utils/**/*.md",
+                "DOCS/_hooks/**/*.md"
             ],
             "exclude_patterns": [
                 "**/test/**",
@@ -81,27 +82,27 @@ class DocumentationCoverageEnforcer:
             "file_type_mapping": {
                 "services": {
                     "pattern": "src/lib/services/**/*.ts",
-                    "doc_path": "DOCS/_docs/services/{name}.md",
+                    "doc_path": "DOCS/_services/{name}.md",
                     "priority": "high"
                 },
                 "components": {
                     "pattern": "src/components/**/*.tsx",
-                    "doc_path": "DOCS/_docs/components/{name}.md", 
+                    "doc_path": "DOCS/_components/{name}.md", 
                     "priority": "high"
                 },
                 "api_routes": {
                     "pattern": "src/app/api/**/route.ts",
-                    "doc_path": "DOCS/_docs/api/{path}.md",
+                    "doc_path": "DOCS/_api/{path}.md",
                     "priority": "high"
                 },
                 "utils": {
                     "pattern": "src/lib/utils/**/*.ts",
-                    "doc_path": "DOCS/_docs/utils/{name}.md",
+                    "doc_path": "DOCS/_utils/{name}.md",
                     "priority": "medium"
                 },
                 "hooks": {
                     "pattern": "src/lib/hooks/**/*.ts", 
-                    "doc_path": "DOCS/_docs/hooks/{name}.md",
+                    "doc_path": "DOCS/_hooks/{name}.md",
                     "priority": "medium"
                 }
             },
@@ -225,7 +226,7 @@ class DocumentationCoverageEnforcer:
                 return file_type_config["doc_path"].format(name=file_info.name.lower())
         
         # Default fallback
-        return f"DOCS/_docs/{file_info.type}s/{file_info.name.lower()}.md"
+        return f"DOCS/_{file_info.type}s/{file_info.name.lower()}.md"
 
     def _get_priority(self, file_info: FileInfo) -> str:
         """Determine priority for missing documentation"""
