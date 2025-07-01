@@ -3,6 +3,7 @@
  * Handles tracking emoji usage statistics
  */
 
+import { withRateLimit } from '@/lib/middleware/withRateLimit';
 import { NextRequest, NextResponse } from 'next/server';
 import { trackEmojiUsage } from '../../../../lib/actions/emoji.actions';
 
@@ -10,7 +11,7 @@ import { trackEmojiUsage } from '../../../../lib/actions/emoji.actions';
  * POST /api/emojis/usage
  * Track emoji usage statistics
  */
-export async function POST(request: NextRequest) {
+async function postHandler(request: NextRequest) {
   try {
     const body = await request.json();
     const { emoji_id, emoji_type } = body;
@@ -46,3 +47,5 @@ export async function POST(request: NextRequest) {
     );
   }
 }
+
+export const POST = withRateLimit(postHandler);

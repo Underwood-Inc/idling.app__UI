@@ -6,6 +6,7 @@
 import { checkUserPermission } from '@/lib/actions/permissions.actions';
 import { auth } from '@/lib/auth';
 import sql from '@/lib/db';
+import { withRateLimit } from '@/lib/middleware/withRateLimit';
 import { PERMISSIONS } from '@/lib/permissions/permissions';
 import { NextRequest, NextResponse } from 'next/server';
 
@@ -57,7 +58,7 @@ export interface UserTimeout {
 }
 
 // GET /api/admin/users/[id] - Get detailed user information
-export async function GET(
+async function getHandler(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
@@ -172,4 +173,7 @@ export async function GET(
       { status: 500 }
     );
   }
-} 
+}
+
+// Apply rate limiting to handlers
+export const GET = withRateLimit(getHandler); 

@@ -10,6 +10,7 @@
 
 import { auth } from '@/lib/auth';
 import sql from '@/lib/db';
+import { withRateLimit } from '@/lib/middleware/withRateLimit';
 import { EnhancedQuotaService } from '@/lib/services/EnhancedQuotaService';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
@@ -145,7 +146,7 @@ async function logAdminAction(
  * GET /api/admin/users/[id]/quotas
  * Retrieves comprehensive quota information for a specific user
  */
-export async function GET(
+async function getHandler(
   request: NextRequest,
   { params }: { params: { id: string } }
 ): Promise<NextResponse<ApiResponse<{ quotas: UserQuotaData[] }> | ErrorResponse>> {
@@ -244,6 +245,9 @@ export async function GET(
     );
   }
 }
+
+// Apply rate limiting to handler
+export const GET = withRateLimit(getHandler);
 
 /**
  * PATCH /api/admin/users/[id]/quotas

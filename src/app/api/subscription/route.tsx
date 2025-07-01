@@ -1,10 +1,11 @@
 /* eslint-disable no-console */
+import { withRateLimit } from '@/lib/middleware/withRateLimit';
 import { NextRequest } from 'next/server';
 
 // Removed Edge Runtime - using Node.js runtime for better compatibility
 export const dynamic = 'force-dynamic';
 
-export async function GET(request: NextRequest) {
+async function getHandler(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const tier = searchParams.get('tier') || 'pro';
@@ -75,3 +76,6 @@ export async function GET(request: NextRequest) {
     );
   }
 }
+
+// Apply rate limiting to handlers
+export const GET = withRateLimit(getHandler);

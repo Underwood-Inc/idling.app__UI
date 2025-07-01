@@ -1,3 +1,4 @@
+import { withRateLimit } from '@/lib/middleware/withRateLimit';
 import { NextRequest, NextResponse } from 'next/server';
 import { updateBioAction } from '../../../../lib/actions/profile.actions';
 import { auth } from '../../../../lib/auth';
@@ -7,7 +8,7 @@ import { getEffectiveCharacterCount } from '../../../../lib/utils/string';
 // This route uses dynamic features (auth/headers) and should not be pre-rendered
 export const dynamic = 'force-dynamic';
 
-export async function GET(
+async function getHandler(
   request: NextRequest,
   { params }: { params: { username: string } }
 ) {
@@ -54,7 +55,7 @@ export async function GET(
   }
 }
 
-export async function PATCH(
+async function patchHandler(
   request: NextRequest,
   { params }: { params: { username: string } }
 ) {
@@ -147,3 +148,7 @@ export async function PATCH(
     );
   }
 }
+
+// Apply rate limiting to handlers
+export const GET = withRateLimit(getHandler);
+export const PATCH = withRateLimit(patchHandler);

@@ -1,3 +1,4 @@
+import { withRateLimit } from '@/lib/middleware/withRateLimit';
 import { NextRequest } from 'next/server';
 import { OGImageService } from './services/OGImageService';
 
@@ -6,7 +7,7 @@ export const dynamic = 'force-dynamic';
 
 const ogImageService = new OGImageService();
 
-export async function GET(request: NextRequest) {
+async function getHandler(request: NextRequest) {
   try {
     // Use the unified OGImageService which handles all quota checking internally
     // This eliminates duplicate quota systems and ensures consistency
@@ -154,3 +155,6 @@ export async function GET(request: NextRequest) {
     );
   }
 }
+
+// Apply rate limiting to handler
+export const GET = withRateLimit(getHandler);

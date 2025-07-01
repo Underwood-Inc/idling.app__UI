@@ -6,14 +6,15 @@
 import { checkUserPermission } from '@/lib/actions/permissions.actions';
 import { auth } from '@/lib/auth';
 import sql from '@/lib/db';
+import { withRateLimit } from '@/lib/middleware/withRateLimit';
 import { PERMISSIONS } from '@/lib/permissions/permissions';
 import { AdminEmojiActionSchema, AdminEmojiSearchParamsSchema } from '@/lib/schemas/admin-emojis.schema';
 import { NextRequest, NextResponse } from 'next/server';
 import {
-  approveCustomEmoji,
-  deleteCustomEmoji,
-  getPendingCustomEmojis,
-  rejectCustomEmoji
+    approveCustomEmoji,
+    deleteCustomEmoji,
+    getPendingCustomEmojis,
+    rejectCustomEmoji
 } from '../../../../lib/actions/emoji.actions';
 
 interface CustomEmoji {
@@ -32,7 +33,7 @@ interface CustomEmoji {
 }
 
 // GET /api/admin/emojis - Get emojis for admin management
-export async function GET(request: NextRequest) {
+async function getHandler(request: NextRequest) {
   try {
     const session = await auth();
     if (!session?.user?.id) {
@@ -186,7 +187,7 @@ export async function GET(request: NextRequest) {
 }
 
 // POST /api/admin/emojis - Approve or reject emoji
-export async function POST(request: NextRequest) {
+async function postHandler(request: NextRequest) {
   try {
     const body = await request.json();
     
@@ -235,7 +236,7 @@ export async function POST(request: NextRequest) {
 }
 
 // DELETE /api/admin/emojis - Delete emoji
-export async function DELETE(request: NextRequest) {
+async function deleteHandler(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const emojiId = parseInt(searchParams.get('id') || '0');
@@ -269,3 +270,8 @@ export async function DELETE(request: NextRequest) {
     );
   }
 }
+
+// Apply rate limiting to handlers
+export const GET = withRateLimit(getHandler);
+export const POST = withRateLimit(postHandler);
+export const DELETE = withRateLimit(deleteHandler);

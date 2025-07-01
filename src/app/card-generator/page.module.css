@@ -388,7 +388,7 @@
 .features__section {
   overflow-y: auto;
   height: 100%;
-  max-height: calc(100vh - 36rem);
+  max-height: calc(100vh - 30rem);
   padding-inline-end: 1rem;
   padding-block-end: 1rem;
 }

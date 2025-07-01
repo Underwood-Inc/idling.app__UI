@@ -1,8 +1,9 @@
+import { withRateLimit } from '@/lib/middleware/withRateLimit';
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '../../../../lib/auth';
 import sql from '../../../../lib/db';
 
-export async function DELETE(request: NextRequest) {
+async function deleteHandler(request: NextRequest) {
   try {
     const session = await auth();
     if (!session?.user?.id) {
@@ -73,4 +74,6 @@ export async function DELETE(request: NextRequest) {
       { status: 500 }
     );
   }
-} 
+}
+
+export const DELETE = withRateLimit(deleteHandler); 

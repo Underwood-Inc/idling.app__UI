@@ -6,6 +6,7 @@
 import { checkUserPermission } from '@/lib/actions/permissions.actions';
 import { auth } from '@/lib/auth';
 import sql from '@/lib/db';
+import { withRateLimit } from '@/lib/middleware/withRateLimit';
 import { PERMISSIONS } from '@/lib/permissions/permissions';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
@@ -26,7 +27,7 @@ export interface AvailablePlan {
 }
 
 // GET /api/admin/subscription-plans - Get available subscription plans for assignment
-export async function GET(request: NextRequest) {
+async function getHandler(request: NextRequest) {
   try {
     const session = await auth();
     if (!session?.user?.id) {
@@ -78,4 +79,6 @@ export async function GET(request: NextRequest) {
       { status: 500 }
     );
   }
-} 
+}
+
+export const GET = withRateLimit(getHandler); 

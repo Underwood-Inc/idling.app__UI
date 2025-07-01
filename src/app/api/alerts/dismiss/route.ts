@@ -1,5 +1,6 @@
 import { auth } from '@/lib/auth';
 import sql from '@/lib/db';
+import { withRateLimit } from '@/lib/middleware/withRateLimit';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 
@@ -14,7 +15,7 @@ const dismissAlertSchema = z.object({
  * Dismisses a custom alert for a specific user.
  * Updates both the dismissal tracking and analytics.
  */
-export async function POST(request: NextRequest) {
+async function postHandler(request: NextRequest) {
   try {
     const session = await auth();
     if (!session?.user?.id) {
@@ -66,4 +67,6 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
-} 
+}
+
+export const POST = withRateLimit(postHandler); 

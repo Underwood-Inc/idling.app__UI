@@ -1,4 +1,5 @@
 /* eslint-disable no-console */
+import { withRateLimit } from '@/lib/middleware/withRateLimit';
 import { NextRequest } from 'next/server';
 import { DatabaseService } from '../services/DatabaseService';
 
@@ -7,7 +8,7 @@ export const runtime = 'nodejs';
 
 const databaseService = DatabaseService.getInstance();
 
-export async function GET(
+async function getHandler(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
@@ -127,3 +128,6 @@ export async function GET(
     );
   }
 }
+
+// Apply rate limiting to handler
+export const GET = withRateLimit(getHandler);
