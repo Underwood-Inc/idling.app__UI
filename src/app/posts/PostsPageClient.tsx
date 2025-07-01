@@ -1,10 +1,15 @@
 'use client';
 
+import { useAtom } from 'jotai';
+import { useSession } from 'next-auth/react';
 import dynamic from 'next/dynamic';
 import { useState } from 'react';
-import FloatingAddPost from '../components/floating-add-post/FloatingAddPost';
+import { CONTEXT_IDS } from '../../lib/context-ids';
+import { useOverlay } from '../../lib/context/OverlayContext';
+import { shouldUpdateAtom } from '../../lib/state/atoms';
 import { IntelligentSkeletonWrapper } from '../components/skeleton/IntelligentSkeletonWrapper';
 import { Submission } from '../components/submission-forms/schema';
+import { SharedSubmissionForm } from '../components/submission-forms/shared-submission-form/SharedSubmissionForm';
 import { SubmissionItem } from '../components/submissions-list/SubmissionItem';
 import { SubmissionWithReplies } from '../components/submissions-list/actions';
 
@@ -28,13 +33,43 @@ const LazyPostsManager = dynamic(
         expectedItemCount={10}
         hasPagination={true}
         hasInfiniteScroll={false}
-        fallbackMinHeight="400px"
+        fallbackMinHeight="200px"
       >
-        <div style={{ minHeight: '400px' }} />
+        <div style={{ minHeight: '200px' }} />
       </IntelligentSkeletonWrapper>
     )
   }
 );
+
+const AddPostModalContent: React.FC<{ onClose?: () => void }> = ({
+  onClose
+}) => {
+  const [, setShouldUpdate] = useAtom(shouldUpdateAtom);
+
+  const handleSuccess = (result?: {
+    status: number;
+    message?: string;
+    error?: string;
+    submission?: any;
+  }) => {
+    // Trigger global refresh
+    setShouldUpdate(true);
+    onClose?.();
+  };
+
+  return (
+    <div className="floating-add-post__modal-content">
+      <div className="floating-add-post__header">
+        <h2 className="floating-add-post__title">✨ Share Something New</h2>
+      </div>
+      <SharedSubmissionForm
+        mode="create"
+        onSuccess={handleSuccess}
+        contextId={CONTEXT_IDS.POSTS.toString()}
+      />
+    </div>
+  );
+};
 
 interface PostsPageClientProps {
   contextId: string;
@@ -42,20 +77,27 @@ interface PostsPageClientProps {
 
 export default function PostsPageClient({ contextId }: PostsPageClientProps) {
   const [refreshKey, setRefreshKey] = useState(0);
-  const [triggerModal, setTriggerModal] = useState(false);
+  const { data: session } = useSession();
+  const { openOverlay, closeOverlay } = useOverlay();
+  const isAuthorized = !!session?.user;
+
+  const modalId = 'posts-page-add-post-modal';
 
   const handleNewPostClick = () => {
-    setTriggerModal(true);
-  };
-
-  const handleTriggerHandled = () => {
-    setTriggerModal(false);
-  };
-
-  const handleModalClose = () => {
-    setTriggerModal(false);
-    // Refresh posts list when a new post is created
-    setRefreshKey((prev) => prev + 1);
+    if (isAuthorized) {
+      openOverlay({
+        id: modalId,
+        type: 'modal',
+        component: AddPostModalContent,
+        props: {
+          onClose: () => {
+            closeOverlay(modalId);
+            // Refresh posts list when a new post is created
+            setRefreshKey((prev) => prev + 1);
+          }
+        }
+      });
+    }
   };
 
   const renderPostItem = ({
@@ -102,19 +144,11 @@ export default function PostsPageClient({ contextId }: PostsPageClientProps) {
   );
 
   return (
-    <>
-      <LazyPostsManager
-        key={refreshKey}
-        contextId={contextId}
-        onNewPostClick={handleNewPostClick}
-        renderSubmissionItem={renderPostItem}
-      />
-      <FloatingAddPost
-        externalTrigger={triggerModal}
-        onTriggerHandled={handleTriggerHandled}
-        onPostCreated={handleModalClose}
-      />
-      {DevSkeletonToggle && <DevSkeletonToggle />}
-    </>
+    <LazyPostsManager
+      key={refreshKey}
+      contextId={contextId}
+      onNewPostClick={handleNewPostClick}
+      renderSubmissionItem={renderPostItem}
+    />
   );
 }

@@ -99,8 +99,11 @@ const PostsManager = React.memo(function PostsManager({
     setShowFilters
   } = usePostsManagerState();
 
-  // For my-posts page, always include replies and hide the toggle
-  const shouldIncludeReplies = onlyMine || includeThreadReplies;
+  // Default behavior: show posts only (no replies) for both pages
+  // Replies are only included when:
+  // 1. includeThreadReplies toggle is enabled, OR
+  // 2. onlyReplies filter is active
+  const shouldIncludeReplies = includeThreadReplies;
   const showRepliesFilter = true; // Always show the combined filter
 
   // Memoize the submissions manager call

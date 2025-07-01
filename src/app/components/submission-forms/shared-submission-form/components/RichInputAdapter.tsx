@@ -379,19 +379,19 @@ export const RichInputAdapter: React.FC<RichInputAdapterProps> = ({
           }
         }}
         enableDebugLogging={enableDebugLogging}
-      />
-
-      {(isFocused || toolbarInteracting) && (
-        <FloatingToolbar
-          inputRef={richInputRef}
-          onHashtagInsert={insertAtCursor}
-          onMentionInsert={insertAtCursor}
-          onEmojiInsert={insertAtCursor}
-          disabled={disabled}
-          onToolbarInteractionStart={handleToolbarInteractionStart}
-          onToolbarInteractionEnd={handleToolbarInteractionEnd}
-        />
-      )}
+      >
+        {(isFocused || toolbarInteracting) && (
+          <FloatingToolbar
+            inputRef={richInputRef}
+            onHashtagInsert={insertAtCursor}
+            onMentionInsert={insertAtCursor}
+            onEmojiInsert={insertAtCursor}
+            disabled={disabled}
+            onToolbarInteractionStart={handleToolbarInteractionStart}
+            onToolbarInteractionEnd={handleToolbarInteractionEnd}
+          />
+        )}
+      </RichInput>
 
       {renderSearchTooltip()}
     </div>

@@ -6,27 +6,25 @@
   background-color: var(--light-background--primary);
   transition: all 0.2s ease-in-out;
   /* Main post pattern: horizontal lines */
-  background-image: 
-    repeating-linear-gradient(
-      0deg,
-      transparent,
-      transparent 19px,
-      color-mix(in srgb, var(--brand-primary) 8%, transparent) 20px,
-      color-mix(in srgb, var(--brand-primary) 8%, transparent) 21px
-    );
+  background-image: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 19px,
+    color-mix(in srgb, var(--brand-primary) 8%, transparent) 20px,
+    color-mix(in srgb, var(--brand-primary) 8%, transparent) 21px
+  );
 }
 
 .submission__wrapper:hover {
   border-color: var(--brand-primary);
   /* Very subtle horizontal pattern on hover */
-  background-image: 
-    repeating-linear-gradient(
-      0deg,
-      transparent,
-      transparent 22px,
-      color-mix(in srgb, var(--brand-primary) 8%, transparent) 24px,
-      color-mix(in srgb, var(--brand-primary) 8%, transparent) 26px
-    );
+  background-image: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 22px,
+    color-mix(in srgb, var(--brand-primary) 8%, transparent) 24px,
+    color-mix(in srgb, var(--brand-primary) 8%, transparent) 26px
+  );
 }
 
 /* Reply styling with visual hierarchy */
@@ -36,26 +34,24 @@
   margin-top: 0.75rem;
   margin-bottom: 0.75rem;
   /* Reply post pattern: diagonal lines */
-  background-image: 
-    repeating-linear-gradient(
-      45deg,
-      transparent,
-      transparent 14px,
-      color-mix(in srgb, var(--brand-primary) 8%, transparent) 15px,
-      color-mix(in srgb, var(--brand-primary) 8%, transparent) 16px
-    ) !important;
+  background-image: repeating-linear-gradient(
+    45deg,
+    transparent,
+    transparent 14px,
+    color-mix(in srgb, var(--brand-primary) 8%, transparent) 15px,
+    color-mix(in srgb, var(--brand-primary) 8%, transparent) 16px
+  ) !important;
 }
 
 .submission__wrapper.submission__wrapper--reply:hover {
   /* Very subtle diagonal pattern on hover */
-  background-image: 
-    repeating-linear-gradient(
-      45deg,
-      transparent,
-      transparent 18px,
-      color-mix(in srgb, var(--brand-primary) 8%, transparent) 20px,
-      color-mix(in srgb, var(--brand-primary) 8%, transparent) 22px
-    ) !important;
+  background-image: repeating-linear-gradient(
+    45deg,
+    transparent,
+    transparent 18px,
+    color-mix(in srgb, var(--brand-primary) 8%, transparent) 20px,
+    color-mix(in srgb, var(--brand-primary) 8%, transparent) 22px
+  ) !important;
 }
 
 /* Reply dot indicator */
@@ -65,7 +61,7 @@
   background: var(--brand-primary, #007bff);
   border-radius: 50%;
   display: inline-block;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
   border: 2px solid #fff;
 }
 
@@ -89,7 +85,8 @@
   justify-content: space-between;
 }
 
-.submission__meta:has(.submission__owner-actions:not(:empty)) .submission__meta-left {
+.submission__meta:has(.submission__owner-actions:not(:empty))
+  .submission__meta-left {
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -98,7 +95,8 @@
   min-width: 0;
 }
 
-.submission__meta:has(.submission__owner-actions:not(:empty)) .submission__meta-center {
+.submission__meta:has(.submission__owner-actions:not(:empty))
+  .submission__meta-center {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -113,7 +111,8 @@
   width: 100%;
 }
 
-.submission__meta:not(:has(.submission__owner-actions:not(:empty))) .submission__meta-left,
+.submission__meta:not(:has(.submission__owner-actions:not(:empty)))
+  .submission__meta-left,
 .submission__meta:has(.submission__owner-actions:empty) .submission__meta-left {
   display: flex;
   align-items: center;
@@ -123,8 +122,10 @@
   min-width: 0;
 }
 
-.submission__meta:not(:has(.submission__owner-actions:not(:empty))) .submission__meta-center,
-.submission__meta:has(.submission__owner-actions:empty) .submission__meta-center {
+.submission__meta:not(:has(.submission__owner-actions:not(:empty)))
+  .submission__meta-center,
+.submission__meta:has(.submission__owner-actions:empty)
+  .submission__meta-center {
   display: flex;
   align-items: center;
   justify-content: flex-end;
@@ -133,8 +134,10 @@
 }
 
 /* Hide empty owner actions container in two-column layout */
-.submission__meta:not(:has(.submission__owner-actions:not(:empty))) .submission__owner-actions:empty,
-.submission__meta:has(.submission__owner-actions:empty) .submission__owner-actions:empty {
+.submission__meta:not(:has(.submission__owner-actions:not(:empty)))
+  .submission__owner-actions:empty,
+.submission__meta:has(.submission__owner-actions:empty)
+  .submission__owner-actions:empty {
   display: none;
 }
 
@@ -173,7 +176,7 @@
 }
 
 /* Fallback for browsers that don't support :has() */
-.submission__meta-center > span[style*="display: inline-block"] {
+.submission__meta-center > span[style*='display: inline-block'] {
   display: flex !important;
   align-items: center;
 }
@@ -289,7 +292,7 @@
 }
 
 .submission__description {
-  color: var(--light-bg__text-color--secondary);
+  color: var(--light-bg__text-color--primary);
   line-height: 1.6;
   margin: 0;
 }
@@ -344,8 +347,9 @@
   margin-left: auto;
 }
 
-.submission__text-link, .submission__parent-link {
-  color: var(--brand-primary)!important;
+.submission__text-link,
+.submission__parent-link {
+  color: var(--brand-primary) !important;
   text-decoration: none;
   font-size: var(--font-size-sm);
   font-weight: 500;
@@ -357,8 +361,9 @@
   box-shadow: none !important;
 }
 
-.submission__text-link:hover, .submission__parent-link:hover {
-  color: var(--brand-primary--dark)!important;
+.submission__text-link:hover,
+.submission__parent-link:hover {
+  color: var(--brand-primary--dark) !important;
   text-decoration: underline;
   background: none !important;
   transform: none !important;
@@ -433,9 +438,12 @@
   }
 
   .submission__meta-left,
-  .submission__meta:has(.submission__owner-actions:not(:empty)) .submission__meta-left,
-  .submission__meta:not(:has(.submission__owner-actions:not(:empty))) .submission__meta-left,
-  .submission__meta:has(.submission__owner-actions:empty) .submission__meta-left,
+  .submission__meta:has(.submission__owner-actions:not(:empty))
+    .submission__meta-left,
+  .submission__meta:not(:has(.submission__owner-actions:not(:empty)))
+    .submission__meta-left,
+  .submission__meta:has(.submission__owner-actions:empty)
+    .submission__meta-left,
   .submission__meta--no-actions .submission__meta-left {
     flex-direction: column;
     align-items: flex-start;
@@ -445,9 +453,12 @@
   }
 
   .submission__meta-center,
-  .submission__meta:has(.submission__owner-actions:not(:empty)) .submission__meta-center,
-  .submission__meta:not(:has(.submission__owner-actions:not(:empty))) .submission__meta-center,
-  .submission__meta:has(.submission__owner-actions:empty) .submission__meta-center,
+  .submission__meta:has(.submission__owner-actions:not(:empty))
+    .submission__meta-center,
+  .submission__meta:not(:has(.submission__owner-actions:not(:empty)))
+    .submission__meta-center,
+  .submission__meta:has(.submission__owner-actions:empty)
+    .submission__meta-center,
   .submission__meta--no-actions .submission__meta-center {
     order: 2;
     justify-content: flex-start;
@@ -523,78 +534,74 @@
     background-color: var(--dark-background--primary, #1f2937);
     border-color: var(--dark-brand-tertiary--dark, #374151);
     /* Dark mode main post pattern: subtle horizontal lines */
-    background-image: 
-      repeating-linear-gradient(
-        0deg,
-        transparent,
-        transparent 19px,
-        color-mix(in srgb, var(--brand-primary) 3%, transparent) 20px,
-        color-mix(in srgb, var(--brand-primary) 3%, transparent) 21px
-      );
+    background-image: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 19px,
+      color-mix(in srgb, var(--brand-primary) 3%, transparent) 20px,
+      color-mix(in srgb, var(--brand-primary) 3%, transparent) 21px
+    );
   }
 
   .submission__wrapper:hover {
     /* Darken the main post pattern lines on hover in dark mode */
-    background-image: 
-      repeating-linear-gradient(
-        0deg,
-        transparent,
-        transparent 19px,
-        color-mix(in srgb, var(--brand-primary) 8%, transparent) 20px,
-        color-mix(in srgb, var(--brand-primary) 8%, transparent) 21px
-      );
+    background-image: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 19px,
+      color-mix(in srgb, var(--brand-primary) 8%, transparent) 20px,
+      color-mix(in srgb, var(--brand-primary) 8%, transparent) 21px
+    );
   }
 
   .submission__wrapper.submission__wrapper--reply {
     border-left-color: var(--brand-primary);
     /* Dark mode reply post pattern: diagonal lines - higher specificity */
-    background-image: 
-      repeating-linear-gradient(
-        45deg,
-        transparent,
-        transparent 14px,
-        color-mix(in srgb, var(--brand-primary) 3.5%, transparent) 15px,
-        color-mix(in srgb, var(--brand-primary) 3.5%, transparent) 16px
-      ) !important;
+    background-image: repeating-linear-gradient(
+      45deg,
+      transparent,
+      transparent 14px,
+      color-mix(in srgb, var(--brand-primary) 3.5%, transparent) 15px,
+      color-mix(in srgb, var(--brand-primary) 3.5%, transparent) 16px
+    ) !important;
   }
 
   .submission__wrapper.submission__wrapper--reply:hover {
     /* Darken the diagonal pattern on hover in dark mode - higher specificity */
-    background-image: 
-      repeating-linear-gradient(
-        45deg,
-        transparent,
-        transparent 14px,
-        color-mix(in srgb, var(--brand-primary) 9%, transparent) 15px,
-        color-mix(in srgb, var(--brand-primary) 9%, transparent) 16px
-      ) !important;
+    background-image: repeating-linear-gradient(
+      45deg,
+      transparent,
+      transparent 14px,
+      color-mix(in srgb, var(--brand-primary) 9%, transparent) 15px,
+      color-mix(in srgb, var(--brand-primary) 9%, transparent) 16px
+    ) !important;
   }
 
   .submission__title {
-    color: var(--dark-bg__text-color--primary, #f9fafb);
+    color: var(--dark-bg__text-color--primary);
   }
 
   .submission__description {
-    color: var(--dark-bg__text-color--secondary, #d1d5db);
+    color: var(--dark-bg__text-color--secondary);
   }
 
   .submission__meta,
   .submission__datetime {
-    color: var(--dark-bg__text-color--tertiary, #9ca3af);
+    color: var(--dark-bg__text-color--tertiary);
   }
 
   .submission__author {
-    color: var(--dark-bg__text-color--primary, #f9fafb);
+    color: var(--dark-bg__text-color--primary);
   }
 
   .submission__edit-form,
   .submission__reply-form {
-    background-color: var(--dark-background--quaternary, #4b5563);
-    border-color: var(--dark-brand-tertiary, #6b7280);
+    background-color: var(--dark-background--quaternary);
+    border-color: var(--dark-brand-tertiary);
   }
 
   .submission__nested-reply-form {
-    background-color: var(--dark-background--quinary, #6b7280);
+    background-color: var(--dark-background--quinary);
   }
 }
 

@@ -5,11 +5,9 @@
 
 /* Floating Action Button - Increased specificity to avoid conflicts */
 .dev-skeleton-toggle-fab.dev-skeleton-toggle-fab {
-  position: fixed;
-  bottom: 1rem;
-  /* Position below floating add post button */
-  right: 2rem;
-  /* Match floating add post button right position */
+  position: fixed !important;
+  bottom: 8.5rem !important;
+  right: 1.5rem !important;
   width: 56px;
   height: 56px;
   border-radius: 50%;
@@ -18,22 +16,21 @@
   border: none;
   box-shadow: 0 4px 12px rgba(237, 174, 73, 0.4);
   cursor: pointer;
-  z-index: 9999;
-  /* Ensure it's above everything */
+  z-index: 999999 !important;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: all 0.2s ease;
   font-size: 16px;
-  /* Explicitly reset any potential conflicting properties */
-  top: auto;
-  left: auto;
-  transform: none;
-  margin: 0;
+  top: auto !important;
+  left: auto !important;
+  transform: none !important;
+  margin: 0 !important;
   padding: 0;
-  /* Ensure button-specific overrides don't interfere */
   border-radius: 50%;
   background-color: var(--brand-primary);
+  inset: auto 1.5rem 8.5rem auto !important;
+  contain: none !important;
 }
 
 .dev-skeleton-toggle-fab.dev-skeleton-toggle-fab:hover {
@@ -277,9 +274,9 @@
   }
 
   .dev-skeleton-toggle-fab {
-    bottom: 1rem;
-    /* Position below mobile floating button */
-    right: 1rem;
+    bottom: 8.5rem !important;
+    /* Position above mobile floating button */
+    right: 1rem !important;
     /* Match mobile floating button position */
   }
 }

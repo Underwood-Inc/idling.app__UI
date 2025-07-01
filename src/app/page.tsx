@@ -2,7 +2,6 @@ import { About } from './components/about/About';
 import { Card } from './components/card/Card';
 import { DiscordEmbed } from './components/discord-embed/DiscordEmbed';
 import FadeIn from './components/fade-in/FadeIn';
-import FancyBorder from './components/fancy-border/FancyBorder';
 import { PageAside } from './components/page-aside/PageAside';
 import { PageContainer } from './components/page-container/PageContainer';
 import PageContent from './components/page-content/PageContent';
@@ -43,9 +42,7 @@ export default async function Home() {
 
       <PageAside className={styles.discord_aside} bottomMargin={0}>
         <FadeIn>
-          <FancyBorder>
-            <DiscordEmbed />
-          </FancyBorder>
+          <DiscordEmbed />
         </FadeIn>
       </PageAside>
     </div>

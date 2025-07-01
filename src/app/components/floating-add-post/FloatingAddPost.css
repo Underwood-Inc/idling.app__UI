@@ -1,14 +1,18 @@
 /* Modern Discrete Floating Action Button */
 
 .floating-add-post__button {
-  position: fixed;
-  bottom: 4rem;
-  right: 2rem;
+  position: fixed !important;
+  bottom: 4rem !important;
+  right: 1.5rem !important;
   width: 3.5rem;
   height: 3.5rem;
   border-radius: 50%;
   border: none;
-  background: linear-gradient(135deg, var(--brand-primary) 0%, var(--brand-secondary) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--brand-primary) 0%,
+    var(--brand-secondary) 100%
+  );
   color: var(--font-color--primary);
   display: flex;
   align-items: center;
@@ -18,23 +22,37 @@
     0 4px 12px rgba(0, 0, 0, 0.15),
     0 0 0 3px var(--brand-tertiary),
     inset 0 1px 2px rgba(255, 255, 255, 0.3);
-  z-index: 1000;
+  z-index: 2147483647 !important;
   cursor: pointer;
   user-select: none;
+  transform: none !important;
+  margin: 0 !important;
+  top: auto !important;
+  left: auto !important;
+  inset: auto 1.5rem 4rem auto !important;
+  contain: none !important;
 }
 
 .floating-add-post__button::before {
   content: '';
   position: absolute;
   inset: 0;
-  background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.2) 0%, transparent 50%);
+  background: radial-gradient(
+    circle at 30% 30%,
+    rgba(255, 255, 255, 0.2) 0%,
+    transparent 50%
+  );
   border-radius: inherit;
   pointer-events: none;
 }
 
 .floating-add-post__button:hover {
   transform: scale(1.1) rotate(5deg);
-  background: linear-gradient(135deg, var(--brand-primary--dark) 0%, var(--brand-secondary--dark) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--brand-primary--dark) 0%,
+    var(--brand-secondary--dark) 100%
+  );
   box-shadow:
     0 6px 20px rgba(0, 0, 0, 0.25),
     0 0 0 4px var(--brand-tertiary--dark),
@@ -99,9 +117,18 @@
 }
 
 /* Adjust remove button positioning for floating modal context */
-.floating-add-post__modal-content .form-pill-input__container--has-embeds .form-pill-input__pill-wrapper:has(.youtube-embed--small) .form-pill-input__pill-remove,
-.floating-add-post__modal-content .form-pill-input__container--has-embeds .form-pill-input__pill-wrapper:has(.youtube-embed--medium) .form-pill-input__pill-remove,
-.floating-add-post__modal-content .form-pill-input__container--has-embeds .form-pill-input__pill-wrapper:has(.youtube-embed--large) .form-pill-input__pill-remove {
+.floating-add-post__modal-content
+  .form-pill-input__container--has-embeds
+  .form-pill-input__pill-wrapper:has(.youtube-embed--small)
+  .form-pill-input__pill-remove,
+.floating-add-post__modal-content
+  .form-pill-input__container--has-embeds
+  .form-pill-input__pill-wrapper:has(.youtube-embed--medium)
+  .form-pill-input__pill-remove,
+.floating-add-post__modal-content
+  .form-pill-input__container--has-embeds
+  .form-pill-input__pill-wrapper:has(.youtube-embed--large)
+  .form-pill-input__pill-remove {
   position: absolute;
   top: 8px;
   right: 16px;
@@ -115,7 +142,8 @@
 .floating-add-post__header {
   margin-bottom: 1.5rem;
   padding-bottom: 1rem;
-  border-bottom: 1px solid var(--glass-border-overlay-medium, var(--glass-border-medium));
+  border-bottom: 1px solid
+    var(--glass-border-overlay-medium, var(--glass-border-medium));
 }
 
 .floating-add-post__title {
@@ -198,13 +226,18 @@
 /* Ensure proper multiline handling in rich input */
 .floating-add-post__modal-content .rich-input-adapter--multiline,
 .floating-add-post__modal-content .rich-input-adapter--multiline .rich-input,
-.floating-add-post__modal-content .rich-input-adapter--multiline .rich-input-content {
+.floating-add-post__modal-content
+  .rich-input-adapter--multiline
+  .rich-input-content {
   white-space: pre-wrap !important;
   word-wrap: break-word !important;
   overflow-wrap: break-word !important;
 }
 
-.floating-add-post__modal-content .rich-input-adapter--multiline .rich-input-content span {
+.floating-add-post__modal-content
+  .rich-input-adapter--multiline
+  .rich-input-content
+  span {
   white-space: pre-wrap !important;
 }
 
@@ -213,7 +246,9 @@
   color: var(--dark-bg__text-color--secondary) !important;
 }
 
-.floating-add-post__modal-content .shared-submission-form__char-count--error span {
+.floating-add-post__modal-content
+  .shared-submission-form__char-count--error
+  span {
   color: var(--error) !important;
 }
 
@@ -234,7 +269,8 @@
   transition: all 0.2s ease-in-out !important;
 }
 
-.floating-add-post__modal-content .shared-submission-form__submit:hover:not(:disabled) {
+.floating-add-post__modal-content
+  .shared-submission-form__submit:hover:not(:disabled) {
   background-color: var(--brand-primary--dark) !important;
   transform: translateY(-1px) !important;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2) !important;
@@ -247,7 +283,8 @@
   border: 1px solid var(--brand-tertiary--dark) !important;
 }
 
-.floating-add-post__modal-content .shared-submission-form__toggle-btn:hover:not(:disabled) {
+.floating-add-post__modal-content
+  .shared-submission-form__toggle-btn:hover:not(:disabled) {
   background-color: var(--dark-background--secondary) !important;
   color: var(--dark-bg__text-color--primary) !important;
 }
@@ -317,8 +354,8 @@
 
 @media (max-width: 768px) {
   .floating-add-post__button {
-    bottom: 3rem;
-    right: 1.5rem;
+    bottom: 3.5rem !important;
+    right: 1rem !important;
     width: 3rem;
     height: 3rem;
   }
@@ -359,7 +396,6 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-
   .floating-add-post__button,
   .floating-add-post__icon {
     transition: none;

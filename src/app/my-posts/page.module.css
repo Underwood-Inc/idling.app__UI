@@ -17,7 +17,7 @@
 }
 
 .tags_aside {
-  inset-block-start: 21rem;
+  inset-block-start: 0;
 }
 
 .submission__wrapper--is-reply {

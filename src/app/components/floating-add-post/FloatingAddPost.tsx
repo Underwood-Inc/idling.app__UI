@@ -1,15 +1,22 @@
 'use client';
 
+import { useAtom } from 'jotai';
 import { useSession } from 'next-auth/react';
 import React, { useEffect } from 'react';
 import { GiQuill } from 'react-icons/gi';
 import { CONTEXT_IDS } from '../../../lib/context-ids';
 import { useOverlay } from '../../../lib/context/OverlayContext';
+import { shouldUpdateAtom } from '../../../lib/state/atoms';
 import { SharedSubmissionForm } from '../submission-forms/shared-submission-form/SharedSubmissionForm';
 import './FloatingAddPost.css';
 
 interface FloatingAddPostProps {
-  onPostCreated?: () => void;
+  onPostCreated?: (result?: {
+    status: number;
+    message?: string;
+    error?: string;
+    submission?: any;
+  }) => void;
   externalTrigger?: boolean;
   onTriggerHandled?: () => void;
 }
@@ -17,6 +24,19 @@ interface FloatingAddPostProps {
 const AddPostModalContent: React.FC<{ onClose?: () => void }> = ({
   onClose
 }) => {
+  const [, setShouldUpdate] = useAtom(shouldUpdateAtom);
+
+  const handleSuccess = (result?: {
+    status: number;
+    message?: string;
+    error?: string;
+    submission?: any;
+  }) => {
+    // Trigger global refresh
+    setShouldUpdate(true);
+    onClose?.();
+  };
+
   return (
     <div className="floating-add-post__modal-content">
       <div className="floating-add-post__header">
@@ -24,7 +44,7 @@ const AddPostModalContent: React.FC<{ onClose?: () => void }> = ({
       </div>
       <SharedSubmissionForm
         mode="create"
-        onSuccess={onClose}
+        onSuccess={handleSuccess}
         contextId={CONTEXT_IDS.POSTS.toString()}
       />
     </div>

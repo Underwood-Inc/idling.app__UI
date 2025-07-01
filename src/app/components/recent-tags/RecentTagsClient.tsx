@@ -7,9 +7,7 @@ import {
   getSubmissionsStateAtom
 } from '../../../lib/state/atoms';
 import { RECENT_TAGS_SELECTORS } from '../../../lib/test-selectors/components/recent-tags.selectors';
-import { Card } from '../card/Card';
 import Empty from '../empty/Empty';
-import FancyBorder from '../fancy-border/FancyBorder';
 import Loader from '../loader/Loader';
 import { getRecentTags } from './actions';
 import './RecentTags.css';
@@ -211,95 +209,64 @@ const RecentTagsClientComponent = ({
   }
 
   return (
-    <article className="recent-tags__article">
-      <Card width="full" className="recent-tags__card">
-        <FancyBorder className="recent-tags__fancy-border">
-          <div className="recent-tags__container">
-            <div
-              data-testid={RECENT_TAGS_SELECTORS.TITLE}
-              className="recent-tags__header"
+    <article className="recent-tags" data-testid={RECENT_TAGS_SELECTORS.TITLE}>
+      <div className="recent-tags__container">
+        <div className="recent-tags__header">
+          <h3 className="recent-tags__title" title={stableTitle}>
+            {stableTitle}
+          </h3>
+          {tagState.currentTags.length > 1 && (
+            <button
+              className={`recent-tags__logic-toggle recent-tags__logic-toggle--${tagState.currentTagLogic.toLowerCase()}`}
+              onClick={handleLogicToggle}
+              title={
+                `Currently showing posts with ${tagState.currentTagLogic === 'OR' ? 'any' : 'all'} of the selected tags. ` +
+                `Click to switch to ${tagState.currentTagLogic === 'OR' ? 'all' : 'any'}.`
+              }
             >
-              <h3 className="recent-tags__title" title={stableTitle}>
-                {stableTitle}
-              </h3>
-              {tagState.currentTags.length > 1 && (
-                <div className="recent-tags__logic-toggle">
-                  <span className="recent-tags__logic-label">Tags:</span>
-                  <div className="recent-tags__logic-button-group">
-                    <button
-                      className={`recent-tags__logic-button ${
-                        tagState.currentTagLogic === 'AND'
-                          ? 'recent-tags__logic-button--active'
-                          : ''
-                      }`}
-                      onClick={() => {
-                        if (
-                          tagState.currentTags.length > 1 &&
-                          tagState.currentTagLogic !== 'AND'
-                        ) {
-                          handleLogicToggle();
-                        }
-                      }}
-                      title="Show posts with ALL of the selected tags"
-                    >
-                      ALL
-                    </button>
-                    <button
-                      className={`recent-tags__logic-button ${
-                        tagState.currentTagLogic === 'OR'
-                          ? 'recent-tags__logic-button--active'
-                          : ''
-                      }`}
-                      onClick={() => {
-                        if (
-                          tagState.currentTags.length > 1 &&
-                          tagState.currentTagLogic !== 'OR'
-                        ) {
-                          handleLogicToggle();
-                        }
-                      }}
-                      title="Show posts with ANY of the selected tags"
-                    >
-                      ANY
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
+              {tagState.currentTagLogic}
+            </button>
+          )}
+        </div>
 
-            <div className="recent-tags__content">
-              {sortedTags.length > 0 && (
-                <ol className="recent-tags__list">
-                  {sortedTags.map((tag) => {
-                    const formattedTag = tag.startsWith('#') ? tag : `#${tag}`;
-                    const isActive =
-                      tagState.currentTags.includes(formattedTag);
-
-                    return (
-                      <li key={tag} className="recent-tags__list-item">
-                        <button
-                          className={`recent-tags__tag-button ${isActive ? 'active' : ''}`}
-                          onClick={() => handleTagClick(tag)}
-                          title={
-                            isActive
-                              ? `Remove ${tag} filter`
-                              : `Add ${tag} filter`
-                          }
-                        >
-                          {tag}
-                          {isActive && <span className="checkmark">✓</span>}
-                        </button>
-                      </li>
-                    );
-                  })}
-                </ol>
-              )}
-
-              {!sortedTags.length && <Empty label="No recent tags" />}
-            </div>
+        {loading ? (
+          <div className="recent-tags__loading">
+            <Loader />
           </div>
-        </FancyBorder>
-      </Card>
+        ) : recentTags.tags.length > 0 ? (
+          <div className="recent-tags__tags">
+            {sortedTags.map((tag) => {
+              const formattedTag = tag.startsWith('#') ? tag : `#${tag}`;
+              const isActive = tagState.currentTags.includes(formattedTag);
+
+              return (
+                <button
+                  key={tag}
+                  className={`recent-tags__tag ${isActive ? 'recent-tags__tag--active' : ''}`}
+                  onClick={() => handleTagClick(tag)}
+                  title={
+                    isActive
+                      ? `Remove ${formattedTag} filter`
+                      : `Filter by ${formattedTag}`
+                  }
+                >
+                  {formattedTag}
+                  {isActive && (
+                    <span
+                      className="recent-tags__tag-remove"
+                      aria-hidden="true"
+                    >
+                      ×
+                    </span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        ) : (
+          <Empty label="No recent tags found" />
+        )}
+      </div>
     </article>
   );
 };
@@ -325,22 +292,18 @@ export const RecentTagsClient = RecentTagsClientComponent;
 export function RecentTagsLoader() {
   return (
     <article className="recent-tags__article">
-      <Card width="full" className="recent-tags__card">
-        <FancyBorder className="recent-tags__fancy-border">
-          <div className="recent-tags__container">
-            <div className="recent-tags__header">
-              <h3 className="recent-tags__title" title="3 months">
-                Recent Tags
-              </h3>
-            </div>
-            <div className="recent-tags__content">
-              <div className="recent-tags__loading">
-                <Loader label="Loading recent tags..." color="black" />
-              </div>
-            </div>
+      <div className="recent-tags__container">
+        <div className="recent-tags__header">
+          <h3 className="recent-tags__title" title="3 months">
+            Recent Tags
+          </h3>
+        </div>
+        <div className="recent-tags__content">
+          <div className="recent-tags__loading">
+            <Loader label="Loading recent tags..." color="black" />
           </div>
-        </FancyBorder>
-      </Card>
+        </div>
+      </div>
     </article>
   );
 }
