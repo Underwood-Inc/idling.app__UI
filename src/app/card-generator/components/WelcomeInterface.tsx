@@ -1,7 +1,8 @@
 'use client';
 
 import { InstantLink } from '../../components/ui/InstantLink';
-import styles from '../page.module.css';
+import { QuotaDisplay } from './QuotaDisplay';
+import styles from './WelcomeInterface.module.css';
 
 interface WelcomeInterfaceProps {
   remainingGenerations: number;
@@ -34,6 +35,18 @@ export function WelcomeInterface({
             weave enchanted social media cards blessed with mystical geometry
             and profound wisdom.
           </p>
+        </div>
+
+        {/* Mobile Quota Display - compact version for welcome interface */}
+        <div className={styles.welcome__mobile__quota}>
+          <QuotaDisplay
+            remainingGenerations={remainingGenerations}
+            quotaLimit={quotaLimit}
+            hasInitializedQuota={hasInitializedQuota}
+            isQuotaExceeded={isQuotaExceeded}
+            showMeter
+            welcome
+          />
         </div>
 
         <div className={styles.path__buttons}>

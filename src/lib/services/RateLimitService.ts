@@ -14,7 +14,11 @@ let DatabaseService: any = null;
 let logger: any = null;
 
 // Only import Node.js dependencies when running in Node.js runtime
-if (typeof process !== 'undefined' && process.versions?.node) {
+// Check for Edge Runtime by looking for WebAssembly (available in Edge) vs Node.js specific APIs
+const isEdgeRuntime = typeof WebAssembly !== 'undefined' && typeof process === 'undefined';
+const isNodeRuntime = typeof process !== 'undefined' && typeof require !== 'undefined';
+
+if (isNodeRuntime && !isEdgeRuntime) {
   try {
     DatabaseService = require('../../app/api/og-image/services/DatabaseService').DatabaseService;
     logger = require('../logging/instances').logger;
@@ -190,8 +194,9 @@ export class RateLimitService {
   public async checkRateLimit(options: RateLimitOptions): Promise<RateLimitResult> {
     const { identifier, configType, customConfig } = options;
 
-    // Development bypass - return allowed if bypass is enabled
-    if (process.env.BYPASS_RATE_LIMIT === 'true') {
+    // Development bypass - return allowed if bypass is enabled (Edge Runtime compatible)
+    const bypassRateLimit = (typeof process !== 'undefined' && process.env?.BYPASS_RATE_LIMIT === 'true') || false;
+    if (bypassRateLimit) {
       return {
         allowed: true,
         remaining: 999,

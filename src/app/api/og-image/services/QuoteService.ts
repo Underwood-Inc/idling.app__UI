@@ -57,13 +57,20 @@ export class QuoteService {
       const apiConfig = QUOTE_APIS[apiIndex];
 
       try {
+        // Create timeout controller
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
+        
         const response = await fetch(apiConfig.url, {
           cache: 'no-cache',
+          signal: controller.signal,
           headers: {
             'User-Agent': 'Idling.app OG Image Generator',
             ...(apiConfig.headers || {})
           }
         });
+
+        clearTimeout(timeoutId);
 
         if (!response.ok) {
           throw new Error(`HTTP ${response.status}: ${response.statusText}`);
@@ -72,17 +79,22 @@ export class QuoteService {
         const data = await response.json();
         const quote = apiConfig.transform(data);
 
-        return quote;
-             } catch (error) {
-         // eslint-disable-next-line no-console
-         console.warn(`⚠️ Failed to fetch from ${apiConfig.name}:`, error);
-         // Continue to next API
-       }
-     }
+        // Validate quote data
+        if (!quote.text || !quote.author || quote.text.length < 10) {
+          throw new Error('Invalid quote data received');
+        }
 
-     // If all APIs fail, return fallback quotes
-     // eslint-disable-next-line no-console
-     console.log('❌ All quote APIs failed, using fallback quotes');
+        return quote;
+      } catch (error) {
+        // eslint-disable-next-line no-console
+        console.warn(`⚠️ Failed to fetch from ${apiConfig.name}:`, error);
+        // Continue to next API
+      }
+    }
+
+    // If all APIs fail, return fallback quotes
+    // eslint-disable-next-line no-console
+    console.log('❌ All quote APIs failed, using fallback quotes');
     const randomIndex = Math.floor(Math.random() * FALLBACK_QUOTES.length);
     return FALLBACK_QUOTES[randomIndex];
   }

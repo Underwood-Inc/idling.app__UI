@@ -1,9 +1,9 @@
 import {
-  checkGuestQuota,
-  checkUserQuota,
-  recordGuestUsage,
-  recordUserUsage,
-  type QuotaCheck
+    checkGuestQuota,
+    checkUserQuota,
+    recordGuestUsage,
+    recordUserUsage,
+    type QuotaCheck
 } from '@/lib/actions/quota.actions';
 import { auth } from '@/lib/auth';
 import { NextRequest } from 'next/server';
@@ -469,16 +469,46 @@ export class OGImageService {
     const { width, height } = config;
     
     const centerX = width / 2;
-    const centerY1 = height * 0.45;
-    const centerY2 = height * 0.55;
+    const centerY1 = height * 0.4;
+    const centerY2 = height * 0.52;
+    const centerY3 = height * 0.62;
     const viewBox = `0 0 ${width} ${height}`;
     
     return `<svg width="${width}" height="${height}" viewBox="${viewBox}" xmlns="http://www.w3.org/2000/svg">
-  <rect width="${width}" height="${height}" fill="#0a0a0a"/>
-  <text x="${centerX}" y="${centerY1}" text-anchor="middle" fill="white" font-family="system-ui, sans-serif" 
-        font-size="60px" style="font-size: 60px !important;">Idling.app</text>
-  <text x="${centerX}" y="${centerY2}" text-anchor="middle" fill="rgba(255,255,255,0.8)" font-family="system-ui, sans-serif" 
-        font-size="32px" style="font-size: 32px !important;">Wisdom &amp; Community</text>
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1a1a2e;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#16213e;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#0f3460;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="titleGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#ff6b35;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#f7931e;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="${width}" height="${height}" fill="url(#bg)"/>
+  
+  <!-- Decorative elements -->
+  <circle cx="${width * 0.15}" cy="${height * 0.2}" r="40" fill="rgba(255,107,53,0.1)"/>
+  <circle cx="${width * 0.85}" cy="${height * 0.8}" r="60" fill="rgba(247,147,30,0.1)"/>
+  <circle cx="${width * 0.9}" cy="${height * 0.15}" r="25" fill="rgba(255,255,255,0.05)"/>
+  
+  <!-- Main title -->
+  <text x="${centerX}" y="${centerY1}" text-anchor="middle" fill="url(#titleGrad)" 
+        font-family="system-ui, -apple-system, sans-serif" font-size="72" font-weight="700"
+        style="font-size: 72px !important; letter-spacing: -2px;">Idling.app</text>
+  
+  <!-- Subtitle -->
+  <text x="${centerX}" y="${centerY2}" text-anchor="middle" fill="rgba(255,255,255,0.9)" 
+        font-family="system-ui, -apple-system, sans-serif" font-size="28" font-weight="400"
+        style="font-size: 28px !important;">Wisdom &amp; Community</text>
+  
+  <!-- Description -->
+  <text x="${centerX}" y="${centerY3}" text-anchor="middle" fill="rgba(255,255,255,0.7)" 
+        font-family="system-ui, -apple-system, sans-serif" font-size="20" font-weight="300"
+        style="font-size: 20px !important;">Revisit often to see the latest changes and play!</text>
 </svg>`;
   }
 

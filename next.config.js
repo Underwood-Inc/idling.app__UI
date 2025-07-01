@@ -50,9 +50,39 @@ const nextConfig = {
           }
         ]
       },
-      // OG Image API - no caching for dynamic content
+      // OG Image API - conditional caching based on parameters
       {
         source: '/api/og-image',
+        has: [
+          {
+            type: 'query',
+            key: 'seed'
+          }
+        ],
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=86400, s-maxage=86400, stale-while-revalidate=604800' // 1 day cache for seeded images
+          },
+          {
+            key: 'CDN-Cache-Control',
+            value: 'public, max-age=31536000' // 1 year for CDN
+          },
+          {
+            key: 'X-App-Version',
+            value: version
+          }
+        ]
+      },
+      // OG Image API - no caching for random content
+      {
+        source: '/api/og-image',
+        missing: [
+          {
+            type: 'query',
+            key: 'seed'
+          }
+        ],
         headers: [
           {
             key: 'Cache-Control',

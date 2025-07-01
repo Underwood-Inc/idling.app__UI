@@ -1,16 +1,29 @@
 .card {
   padding: 1rem 1.2rem;
   border-radius: var(--border-radius);
-  background: var(--light-background--quaternary);
-  border: 1px solid rgba(var(--card-border-rgb), 0);
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.1) 0%,
+    rgba(255, 255, 255, 0.05) 50%,
+    rgba(0, 0, 0, 0.05) 100%
+  );
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
   transition:
-    background 200ms,
-    border 200ms;
+    background 300ms ease,
+    border 300ms ease,
+    box-shadow 300ms ease,
+    transform 200ms ease;
   overflow: auto;
   display: flex;
   flex-direction: column;
   height: 100%;
-  color: var(--light-bg__text-color--primary);
+  color: var(--dark-bg__text-color--primary);
+  position: relative;
 }
 
 .card.full {
@@ -33,9 +46,34 @@
   width: min-content;
 }
 
+/* Glassmorphic shimmer effect */
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.1) 0%,
+    rgba(255, 255, 255, 0.02) 50%,
+    rgba(0, 0, 0, 0.05) 100%
+  );
+  pointer-events: none;
+  z-index: 1;
+  border-radius: inherit;
+}
+
+/* Ensure content is above the shimmer */
+.card > * {
+  position: relative;
+  z-index: 2;
+}
+
 .card,
 .card sup {
-  color: rgb(2, 2, 2);
+  color: var(--dark-bg__text-color--primary);
 }
 
 .card span {
@@ -47,7 +85,7 @@
 .card h3 {
   font-weight: 600;
   margin-bottom: 0.7rem;
-  color: black;
+  color: var(--dark-bg__text-color--primary);
 }
 
 .card p {
@@ -57,14 +95,37 @@
   width: 100%;
   text-wrap: wrap;
   word-break: break-word;
+  color: var(--dark-bg__text-color--secondary);
 }
 
 .card a {
-  color: var(--anchor__light-bg--primary);
+  color: var(--brand-primary);
 }
 
-/* Enable hover only on non-touch devices */
+/* Enhanced glassmorphic hover effects */
 @media (hover: hover) and (pointer: fine) {
+  .card:hover {
+    background: linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.15) 0%,
+      rgba(255, 255, 255, 0.08) 50%,
+      rgba(0, 0, 0, 0.02) 100%
+    );
+    border-color: rgba(255, 255, 255, 0.3);
+    box-shadow:
+      0 12px 48px rgba(0, 0, 0, 0.15),
+      inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    transform: translateY(-2px);
+  }
+
+  .card:hover::before {
+    background: linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.15) 0%,
+      rgba(255, 255, 255, 0.05) 50%,
+      rgba(0, 0, 0, 0.02) 100%
+    );
+  }
 
   /* Handle on hover */
   ::-webkit-scrollbar-thumb:hover {
@@ -73,22 +134,59 @@
   }
 
   .card a:hover {
-    color: var(--anchor__light-bg--quaternary-hover);
+    color: var(--brand-primary--light);
+    text-decoration: underline;
   }
 }
 
+/* Reduced motion accessibility */
 @media (prefers-reduced-motion) {
+  .card {
+    transition:
+      background 300ms ease,
+      border 300ms ease,
+      box-shadow 300ms ease;
+  }
+
+  .card:hover {
+    transform: none;
+  }
+
   .card:hover span {
     transform: none;
   }
 }
 
-/* Mobile */
-@media (max-width: 700px) {
+/* Mobile glassmorphism optimizations */
+@media (max-width: 768px) {
+  .card {
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    box-shadow:
+      0 4px 16px rgba(0, 0, 0, 0.08),
+      inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  }
 
   .card h2,
-  .caard h3 {
+  .card h3 {
     margin-bottom: 0.5rem;
+  }
+}
+
+/* Touch device optimizations */
+@media (max-width: 700px) {
+  .card {
+    padding: 0.875rem 1rem;
+  }
+
+  .card:active {
+    background: linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.12) 0%,
+      rgba(255, 255, 255, 0.06) 50%,
+      rgba(0, 0, 0, 0.03) 100%
+    );
+    transform: scale(0.98);
   }
 }
 

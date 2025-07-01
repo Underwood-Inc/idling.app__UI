@@ -1,7 +1,8 @@
 import { ImageResponse } from 'next/og';
 import { NextRequest } from 'next/server';
 
-export const runtime = 'edge';
+// Removed Edge Runtime - using Node.js runtime for better compatibility
+export const dynamic = 'force-dynamic';
 
 export async function GET(request: NextRequest) {
   try {

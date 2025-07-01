@@ -1,7 +1,7 @@
 'use client';
 
 import { AspectRatioConfig } from '../constants/aspectRatios';
-import styles from '../page.module.css';
+import styles from './AspectRatioSelector.module.css';
 
 interface AspectRatioSelectorProps {
   selectedRatio: string;

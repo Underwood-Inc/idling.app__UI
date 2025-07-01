@@ -1,4 +1,4 @@
-/* experimental, no safari support, who cares 😜 */
+/* Glassmorphic Fancy Border - Enhanced visibility with elegant glass effects */
 @property --gradient-angle {
   syntax: '<angle>';
   initial-value: 0deg;
@@ -19,26 +19,73 @@
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  padding: 0.3rem;
+  position: relative;
+  /* Enhanced glassmorphic base */
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.12) 0%,
+    rgba(255, 255, 255, 0.08) 50%,
+    rgba(0, 0, 0, 0.04) 100%
+  );
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
 }
 
 .fancy-border::before,
 .fancy-border::after {
   content: '';
   position: absolute;
-  inset: -0.3rem;
+  inset: -0.6rem;
   background: conic-gradient(
     from var(--gradient-angle),
-    var(--brand-primary),
-    var(--brand-secondary),
-    var(--brand-tertiary),
-    var(--brand-secondary),
-    var(--brand-primary)
+    rgba(237, 174, 73, 0.7),
+    /* --brand-primary with 70% opacity - more visible */
+      rgba(249, 223, 116, 0.6),
+    /* --brand-secondary with 60% opacity */ rgba(249, 237, 204, 0.4),
+    /* --brand-tertiary with 40% opacity */ rgba(249, 223, 116, 0.6),
+    /* --brand-secondary with 60% opacity */ rgba(237, 174, 73, 0.7)
+      /* --brand-primary with 70% opacity */
   );
   border-radius: inherit;
-  animation: rotation 7s linear infinite;
+  animation: rotation 10s linear infinite; /* Slightly faster for more presence */
   z-index: -1;
 }
 
 .fancy-border::after {
-  filter: blur(0.5rem);
+  filter: blur(6px); /* Reduced blur for more definition */
+  opacity: 0.8; /* More visible blurred layer */
+}
+
+/* Hover enhancement - noticeable brightness increase */
+.fancy-border:hover::before,
+.fancy-border:hover::after {
+  transition: all 0.3s ease;
+}
+
+.fancy-border:hover::before {
+  background: conic-gradient(
+    from var(--gradient-angle),
+    rgba(237, 174, 73, 0.9),
+    /* Much brighter on hover */ rgba(249, 223, 116, 0.8),
+    rgba(249, 237, 204, 0.6),
+    rgba(249, 223, 116, 0.8),
+    rgba(237, 174, 73, 0.9)
+  );
+}
+
+.fancy-border:hover::after {
+  opacity: 1;
+}
+
+/* Enhanced glassmorphic content area */
+.fancy-border > * {
+  position: relative;
+  z-index: 1;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
 }

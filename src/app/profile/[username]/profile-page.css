@@ -21,7 +21,11 @@
 
 .profile-page__main-card {
   width: 100%;
-  background: linear-gradient(135deg, var(--light-background--primary) 0%, var(--light-background--secondary) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--light-background--primary) 0%,
+    var(--light-background--secondary) 100%
+  );
   border: 2px solid var(--brand-primary);
   transition: all 0.2s ease-in-out;
 }
@@ -33,10 +37,6 @@
 }
 
 /* Aside Styles */
-.profile-page__aside {
-  top: 21rem;
-}
-
 .profile-page__aside-title {
   color: var(--light-bg__text-color--primary);
   font-size: var(--font-size-md);
@@ -55,7 +55,11 @@
   transform: translateX(-50%);
   width: 80px;
   height: 4px;
-  background: linear-gradient(90deg, var(--brand-primary), var(--brand-primary--dark));
+  background: linear-gradient(
+    90deg,
+    var(--brand-primary),
+    var(--brand-primary--dark)
+  );
   border-radius: 2px;
 }
 
@@ -211,7 +215,11 @@
 /* Dark Theme Support */
 @media (prefers-color-scheme: dark) {
   .profile-page__main-card {
-    background: linear-gradient(135deg, var(--dark-background--primary) 0%, var(--dark-background--secondary) 100%);
+    background: linear-gradient(
+      135deg,
+      var(--dark-background--primary) 0%,
+      var(--dark-background--secondary) 100%
+    );
     border-color: var(--brand-primary);
   }
 
@@ -333,7 +341,6 @@
 
 /* High Contrast Support */
 @media (prefers-contrast: high) {
-
   .profile-page__main-card,
   .profile-page__info-item {
     border-width: 3px;
@@ -346,7 +353,6 @@
 
 /* Reduced Motion Support */
 @media (prefers-reduced-motion: reduce) {
-
   .profile-page__main-card,
   .profile-page__info-item {
     transition: none;

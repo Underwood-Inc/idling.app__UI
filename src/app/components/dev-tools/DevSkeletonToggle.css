@@ -6,8 +6,8 @@
 /* Floating Action Button - Increased specificity to avoid conflicts */
 .dev-skeleton-toggle-fab.dev-skeleton-toggle-fab {
   position: fixed;
-  bottom: 8.5rem;
-  /* Position above floating add post button: 4rem (button bottom) + 3.5rem (button height) + 1rem (spacing) = 8.5rem */
+  bottom: 1rem;
+  /* Position below floating add post button */
   right: 2rem;
   /* Match floating add post button right position */
   width: 56px;
@@ -68,7 +68,6 @@
 }
 
 @keyframes pulse {
-
   0%,
   100% {
     opacity: 1;
@@ -84,15 +83,17 @@
 /* Control Panel - Increased specificity */
 .dev-skeleton-toggle-panel.dev-skeleton-toggle-panel {
   position: fixed;
-  bottom: 12rem;
-  /* Position above the moved FAB (8.5rem + 3.5rem spacing) */
+  bottom: 4.5rem;
+  /* Position above the dev skeleton FAB (1rem + 3.5rem spacing) */
   right: 2rem;
   /* Match FAB right position */
   width: 320px;
   max-height: 80vh;
   background: var(--dark-background--primary);
   border-radius: var(--border-radius);
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.4), 0 10px 10px -5px rgba(0, 0, 0, 0.3);
+  box-shadow:
+    0 20px 25px -5px rgba(0, 0, 0, 0.4),
+    0 10px 10px -5px rgba(0, 0, 0, 0.3);
   border: 1px solid var(--brand-tertiary--dark);
   z-index: 9998;
   overflow: hidden;
@@ -188,7 +189,7 @@
   background: var(--dark-background--tertiary);
 }
 
-.dev-skeleton-toggle-panel__radio input[type="radio"] {
+.dev-skeleton-toggle-panel__radio input[type='radio'] {
   margin: 0 8px 0 0;
   cursor: pointer;
 }
@@ -269,15 +270,15 @@
 @media (max-width: 768px) {
   .dev-skeleton-toggle-panel {
     right: 1rem;
-    bottom: 12.5rem;
-    /* Position above mobile skeleton FAB: 9rem (FAB bottom) + 3.5rem (FAB height + spacing) = 12.5rem */
+    bottom: 4.5rem;
+    /* Position above mobile skeleton FAB: 1rem (FAB bottom) + 3.5rem (FAB height + spacing) = 4.5rem */
     width: calc(100vw - 2rem);
     max-width: 320px;
   }
 
   .dev-skeleton-toggle-fab {
-    bottom: 9rem;
-    /* Position above mobile floating button: 5rem (mobile bottom) + 3rem (mobile height) + 1rem (spacing) = 9rem */
+    bottom: 1rem;
+    /* Position below mobile floating button */
     right: 1rem;
     /* Match mobile floating button position */
   }
@@ -285,7 +286,6 @@
 
 /* Reduced motion support */
 @media (prefers-reduced-motion: reduce) {
-
   .dev-skeleton-toggle-fab,
   .dev-skeleton-toggle-panel,
   .dev-skeleton-toggle-panel__close,
@@ -298,7 +298,6 @@
   }
 
   @keyframes slideUp {
-
     from,
     to {
       opacity: 1;

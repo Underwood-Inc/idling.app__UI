@@ -11,7 +11,7 @@
   top: 0;
   min-width: 23rem;
   width: 100%;
-  z-index: 10;
+  z-index: var(--z-header);
 }
 
 /* Mobile header improvements */
@@ -30,6 +30,7 @@
 
 .header h2 {
   margin: 0 auto;
+  font-size: var(--font-size-xl);
 }
 
 .header__auth {
@@ -40,4 +41,5 @@
 
 .header__user-name {
   margin-right: 1rem;
+  font-size: var(--font-size-base);
 }

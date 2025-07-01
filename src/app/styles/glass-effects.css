@@ -16,26 +16,46 @@
   --glass-bg-ultra: rgba(255, 255, 255, 0.35);
 
   /* Glass border colors - composable with current border colors */
-  --glass-border-overlay-light: color-mix(in srgb, currentColor 20%, transparent);
-  --glass-border-overlay-medium: color-mix(in srgb, currentColor 30%, transparent);
-  --glass-border-overlay-heavy: color-mix(in srgb, currentColor 40%, transparent);
+  --glass-border-overlay-light: color-mix(
+    in srgb,
+    currentColor 20%,
+    transparent
+  );
+  --glass-border-overlay-medium: color-mix(
+    in srgb,
+    currentColor 30%,
+    transparent
+  );
+  --glass-border-overlay-heavy: color-mix(
+    in srgb,
+    currentColor 40%,
+    transparent
+  );
 
   /* Fallback border colors */
   --glass-border-light: rgba(255, 255, 255, 0.2);
   --glass-border-medium: rgba(255, 255, 255, 0.3);
   --glass-border-heavy: rgba(255, 255, 255, 0.4);
 
-  /* Tooltip-specific glass variables with high-opacity dark overlays */
-  --tooltip-glass-bg: rgba(0, 0, 0, 0.35);
-  --tooltip-glass-border: rgba(255, 255, 255, 0.4);
-  --tooltip-glass-blur: blur(16px);
-  --tooltip-glass-shadow: 0 16px 64px rgba(0, 0, 0, 0.15);
+  /* Tooltip-specific glass variables - Professional Modern Design */
+  --tooltip-glass-bg: linear-gradient(
+    145deg,
+    rgba(15, 15, 15, 0.98),
+    rgba(25, 25, 25, 0.95)
+  );
+  --tooltip-glass-border: rgba(255, 255, 255, 0.25);
+  --tooltip-glass-blur: blur(20px);
+  --tooltip-glass-shadow:
+    0 20px 40px rgba(0, 0, 0, 0.4), 0 8px 16px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
 
-  /* Modal control overlay - darker for better contrast */
-  --modal-control-glass-bg: rgba(0, 0, 0, 0.35);
-  --modal-control-glass-border: rgba(255, 255, 255, 0.4);
-  --modal-control-glass-blur: blur(8px);
-  --modal-control-glass-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  /* Modal control overlay - Professional design */
+  --modal-control-glass-bg: linear-gradient(
+    145deg,
+    rgba(15, 15, 15, 0.95),
+    rgba(25, 25, 25, 0.92)
+  );
+  --modal-control-glass-border: rgba(255, 255, 255, 0.25);
 
   --glass-shadow-light: 0 4px 6px rgba(0, 0, 0, 0.1);
   --glass-shadow-medium: 0 8px 32px rgba(0, 0, 0, 0.12);
@@ -64,9 +84,13 @@
     --glass-shadow-medium: 0 8px 32px rgba(0, 0, 0, 0.4);
     --glass-shadow-heavy: 0 16px 64px rgba(0, 0, 0, 0.5);
 
-    /* Tooltip variables use lighter background for better readability */
-    --tooltip-glass-bg: rgba(0, 0, 0, 0.35);
-    --tooltip-glass-border: rgba(255, 255, 255, 0.4);
+    /* Tooltip variables - Professional Modern Design for Dark Mode */
+    --tooltip-glass-bg: linear-gradient(
+      145deg,
+      rgba(12, 12, 12, 0.98),
+      rgba(22, 22, 22, 0.96)
+    );
+    --tooltip-glass-border: rgba(255, 255, 255, 0.3);
   }
 }
 
@@ -76,7 +100,8 @@
   -webkit-backdrop-filter: var(--glass-blur-medium);
   /* Use composable overlay or fallback */
   background: var(--glass-overlay-medium, var(--glass-bg-medium));
-  border: 1px solid var(--glass-border-overlay-medium, var(--glass-border-medium));
+  border: 1px solid
+    var(--glass-border-overlay-medium, var(--glass-border-medium));
   box-shadow: var(--glass-shadow-medium);
 }
 
@@ -109,7 +134,8 @@
 .glass-border {
   backdrop-filter: var(--glass-blur-light);
   -webkit-backdrop-filter: var(--glass-blur-light);
-  border: 1px solid var(--glass-border-overlay-medium, var(--glass-border-medium));
+  border: 1px solid
+    var(--glass-border-overlay-medium, var(--glass-border-medium));
   box-shadow: var(--glass-shadow-light);
 }
 
@@ -161,7 +187,8 @@
   backdrop-filter: var(--glass-blur-medium);
   -webkit-backdrop-filter: var(--glass-blur-medium);
   background: var(--glass-overlay-medium, var(--glass-bg-medium));
-  border: 1px solid var(--glass-border-overlay-medium, var(--glass-border-medium));
+  border: 1px solid
+    var(--glass-border-overlay-medium, var(--glass-border-medium));
   box-shadow: var(--glass-shadow-medium);
   border-radius: var(--border-radius, 8px);
 }
@@ -181,7 +208,8 @@
   backdrop-filter: var(--glass-blur-medium);
   -webkit-backdrop-filter: var(--glass-blur-medium);
   background: var(--glass-overlay-medium, var(--glass-bg-medium));
-  border: 1px solid var(--glass-border-overlay-medium, var(--glass-border-medium));
+  border: 1px solid
+    var(--glass-border-overlay-medium, var(--glass-border-medium));
   box-shadow: var(--glass-shadow-medium);
   transition: all 0.2s ease;
   cursor: pointer;
@@ -296,7 +324,6 @@
 
 /* Fallback for browsers that don't support backdrop-filter */
 @supports not (backdrop-filter: blur(1px)) {
-
   .glass,
   .glass--light,
   .glass--heavy,
@@ -316,7 +343,6 @@
   }
 
   @media (prefers-color-scheme: dark) {
-
     .glass,
     .glass--light,
     .glass--heavy,
@@ -339,7 +365,6 @@
 
 /* High contrast mode adjustments */
 @media (prefers-contrast: high) {
-
   .glass,
   .glass--light,
   .glass--heavy,
@@ -356,7 +381,6 @@
 
 /* Reduced motion adjustments */
 @media (prefers-reduced-motion: reduce) {
-
   .glass-hover:hover,
   .glass-interactive:hover,
   .glass-interactive:active {

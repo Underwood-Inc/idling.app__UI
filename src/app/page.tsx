@@ -41,7 +41,7 @@ export default async function Home() {
         </PageContent>
       </PageContainer>
 
-      <PageAside className={styles.discord_aside} bottomMargin={10}>
+      <PageAside className={styles.discord_aside} bottomMargin={0}>
         <FadeIn>
           <FancyBorder>
             <DiscordEmbed />

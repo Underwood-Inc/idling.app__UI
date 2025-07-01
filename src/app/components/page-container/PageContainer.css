@@ -1,8 +1,9 @@
 .page__container {
   position: relative;
-  padding: 0 2rem 7rem 2rem;
+  padding: 0 2rem;
   flex-direction: column;
-  margin-top: 2rem;
+  margin-block-start: 2rem;
+  margin-block-end: 7rem;
   height: inherit;
   justify-content: flex-start;
 }

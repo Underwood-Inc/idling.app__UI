@@ -9,6 +9,7 @@ import PageContent from '../components/page-content/PageContent';
 import PageHeader from '../components/page-header/PageHeader';
 import { GenerationDisplay } from './components/GenerationDisplay';
 import { GenerationForm } from './components/GenerationForm';
+import { MysticalLoader } from './components/MysticalLoader';
 import { QuotaDisplay } from './components/QuotaDisplay';
 import { RegenerationDialog } from './components/RegenerationDialog';
 import { WelcomeInterface } from './components/WelcomeInterface';
@@ -237,17 +238,14 @@ export default function OgImageViewer() {
       <PageContainer>
         <PageHeader>
           <FadeIn>
-            <h2>Card Generator</h2>
-            <p>🔮 Loading your mystical creation...</p>
+            <h2>🧙‍♂️ Mystical Card Generator</h2>
+            <p>
+              Retrieving your enchanted creation from the mystical archives...
+            </p>
           </FadeIn>
         </PageHeader>
         <PageContent>
-          <div className={styles.loading__container}>
-            <div className={styles.loading__spinner}>⚡</div>
-            <p className={styles.loading__message}>
-              Summoning your previous generation from the ancient archives...
-            </p>
-          </div>
+          <MysticalLoader message="Summoning your previous generation from the ancient archives..." />
         </PageContent>
       </PageContainer>
     );
@@ -293,14 +291,14 @@ export default function OgImageViewer() {
                 <div className={styles.header__buttons}>
                   <button
                     onClick={welcomeFlow.returnToWelcome}
-                    className={styles.header__button}
+                    className={`${styles.header__button} ${styles['header__button--welcome']}`}
                     title="Back to welcome"
                   >
                     ← Welcome
                   </button>
                   <button
                     onClick={handleSaveAsPng}
-                    className={styles.header__button}
+                    className={`${styles.header__button} ${styles['header__button--png']}`}
                     title="PNG - Raster image, best for social media"
                     disabled={!svgContent}
                   >
@@ -308,12 +306,23 @@ export default function OgImageViewer() {
                   </button>
                   <button
                     onClick={handleSaveAsSvg}
-                    className={styles.header__button}
+                    className={`${styles.header__button} ${styles['header__button--svg']}`}
                     title="SVG - Vector image, scalable and smaller"
                     disabled={!svgContent}
                   >
                     📥 SVG
                   </button>
+                  {/* Mobile Quota Display - only visible when aside is hidden */}
+                  <div className={styles.mobile__quota__display}>
+                    <QuotaDisplay
+                      remainingGenerations={quotaState.remainingGenerations}
+                      quotaLimit={quotaState.quotaLimit}
+                      hasInitializedQuota={quotaState.hasInitializedQuota}
+                      isQuotaExceeded={quotaState.isQuotaExceeded}
+                      showMeter
+                      mobile
+                    />
+                  </div>
                 </div>
               </div>
             )}
@@ -407,7 +416,7 @@ export default function OgImageViewer() {
                 </h4>
                 <p>
                   Use custom seeds for reproducible results. Save your
-                  Generation ID to recreate cards later!
+                  Generation ID to retrieve previous generations!
                 </p>
               </div>
               <div className={styles.feature__card}>
@@ -417,7 +426,7 @@ export default function OgImageViewer() {
                 </h4>
                 <p>
                   Unlock custom quotes, dimensions, and shape counts with Pro
-                  subscription for unlimited creativity.
+                  subscription (coming soon) for unlimited creativity.
                 </p>
               </div>
               <div className={styles.feature__card}>
