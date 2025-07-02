@@ -104,25 +104,90 @@ class CentralizedBadgeUpdater:
             with open(header_file, 'r') as f:
                 content = f.read()
             
-            # Pattern to match documentation coverage badge in Jekyll
-            doc_badge_pattern = r'<img src="[^"]*Documentation%20Coverage[^"]*" alt="Documentation Coverage" />'
+            # More robust pattern to match the complete documentation coverage badge structure
+            # This matches the anchor tag wrapping the img tag with flexible whitespace
+            doc_badge_pattern = r'<a href="https://underwood-inc\.github\.io/idling\.app__UI/" target="_blank" rel="noopener">\s*<img src="[^"]*Documentation%20Coverage[^"]*" alt="Documentation Coverage" />\s*</a>'
             
-            # New badge HTML
-            new_badge = f'<img src="{self.badge_url}" alt="Documentation Coverage" />'
+            # New badge HTML with proper formatting to match existing structure
+            new_badge_html = f'''<a href="https://underwood-inc.github.io/idling.app__UI/" target="_blank" rel="noopener">
+            <img src="{self.badge_url}" alt="Documentation Coverage" />
+          </a>'''
             
-            if re.search(doc_badge_pattern, content):
-                # Replace existing badge
-                content = re.sub(doc_badge_pattern, new_badge, content)
+            # Store original content for comparison
+            original_content = content
+            replacement_made = False
+            
+            if re.search(doc_badge_pattern, content, re.MULTILINE | re.DOTALL):
+                # Replace existing badge with proper multiline matching
+                print("🔍 Found complete anchor + img pattern, attempting replacement...")
+                content = re.sub(doc_badge_pattern, new_badge_html, content, flags=re.MULTILINE | re.DOTALL)
+                replacement_made = True
                 print("✅ Updated existing documentation coverage badge in Jekyll header")
             else:
-                # Try to add it after React badge
-                react_badge_pattern = r'(<img src="[^"]*React[^"]*" alt="React Version" />)'
-                if re.search(react_badge_pattern, content):
-                    replacement = f'\\1\n          <a href="https://underwood-inc.github.io/idling.app__UI/" target="_blank" rel="noopener">\n            {new_badge}\n          </a>'
-                    content = re.sub(react_badge_pattern, replacement, content)
-                    print("✅ Added documentation coverage badge to Jekyll header")
+                print("❌ Complete anchor + img pattern not found, trying fallback...")
+                # Fallback: Try to find just the img tag pattern as a more lenient approach
+                img_only_pattern = r'<img src="[^"]*Documentation%20Coverage[^"]*" alt="Documentation Coverage" />'
+                if re.search(img_only_pattern, content):
+                    print("🔍 Found img-only pattern, attempting replacement...")
+                    # Replace just the img tag but preserve surrounding anchor structure
+                    new_img_tag = f'<img src="{self.badge_url}" alt="Documentation Coverage" />'
+                    content = re.sub(img_only_pattern, new_img_tag, content)
+                    replacement_made = True
+                    print("✅ Updated documentation coverage badge img tag in Jekyll header")
                 else:
-                    print("⚠️  Could not find React badge in Jekyll header")
+                    print("❌ Img-only pattern not found, trying to add new badge...")
+                    # Try to add it after React badge as fallback
+                    react_badge_pattern = r'(<img src="[^"]*React[^"]*" alt="React Version" />)'
+                    if re.search(react_badge_pattern, content):
+                        print("🔍 Found React badge, adding documentation badge after it...")
+                        replacement = f'\\1\n          <a href="https://underwood-inc.github.io/idling.app__UI/" target="_blank" rel="noopener">\n            <img src="{self.badge_url}" alt="Documentation Coverage" />\n          </a>'
+                        content = re.sub(react_badge_pattern, replacement, content)
+                        replacement_made = True
+                        print("✅ Added documentation coverage badge to Jekyll header after React badge")
+                    else:
+                        print("⚠️  Could not find React badge or existing documentation badge in Jekyll header")
+                        print("🔍 Debug: Searching for documentation badge patterns...")
+                        # Debug: Show what we're actually looking for
+                        if "Documentation Coverage" in content:
+                            print("✅ Found 'Documentation Coverage' text in header")
+                            print("📋 Context around Documentation Coverage:")
+                            lines = content.split('\n')
+                            for i, line in enumerate(lines):
+                                if "Documentation Coverage" in line:
+                                    start = max(0, i-2)
+                                    end = min(len(lines), i+3)
+                                    for j in range(start, end):
+                                        marker = ">>> " if j == i else "    "
+                                        print(f"{marker}{j+1:3}: {lines[j]}")
+                        else:
+                            print("❌ No 'Documentation Coverage' text found in header")
+                        return False
+            
+            # Verify the replacement was successful
+            if replacement_made:
+                if content != original_content:
+                    print("🔍 Verifying replacement was successful...")
+                    if self.badge_url in content:
+                        print(f"✅ Confirmed: New badge URL is present in content")
+                        print(f"🎯 Badge URL: {self.badge_url}")
+                        
+                        # Show the updated badge section for verification
+                        lines = content.split('\n')
+                        for i, line in enumerate(lines):
+                            if self.badge_url in line:
+                                start = max(0, i-2)
+                                end = min(len(lines), i+3)
+                                print("📋 Updated badge section:")
+                                for j in range(start, end):
+                                    marker = ">>> " if j == i else "    "
+                                    print(f"{marker}{j+1:3}: {lines[j]}")
+                                break
+                    else:
+                        print("❌ ERROR: Badge URL not found in updated content!")
+                        print("🔍 This suggests the replacement failed silently")
+                        return False
+                else:
+                    print("❌ ERROR: Content unchanged despite replacement attempt!")
                     return False
             
             with open(header_file, 'w') as f:
