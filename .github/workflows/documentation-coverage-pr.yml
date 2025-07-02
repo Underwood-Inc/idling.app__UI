@@ -199,11 +199,49 @@ jobs:
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
 
-          # Update README.md placeholder
-          sed -i "s|<!-- DOCUMENTATION_COVERAGE_BADGE_PLACEHOLDER -->|[![Documentation Coverage](${{ steps.generate-badge.outputs.badge_url }})](https://underwood-inc.github.io/idling.app__UI/)|g" README.md
+                    # Store badge URL in a variable for safety
+          BADGE_URL="${{ steps.generate-badge.outputs.badge_url }}"
 
-          # Update Jekyll header placeholder
-          sed -i "s|<!-- DOCUMENTATION_COVERAGE_BADGE_PLACEHOLDER -->|<img src=\"${{ steps.generate-badge.outputs.badge_url }}\" alt=\"Documentation Coverage\" />|g" DOCS/_includes/header.html
+          # Update README.md - handle both placeholder and existing badge
+          if grep -q "<!-- DOCUMENTATION_COVERAGE_BADGE_PLACEHOLDER -->" README.md; then
+            echo "Updating README.md badge (initial placement)..."
+            sed -i "s|<!-- DOCUMENTATION_COVERAGE_BADGE_PLACEHOLDER -->|[![Documentation Coverage](${BADGE_URL})](https://underwood-inc.github.io/idling.app__UI/)|" README.md
+          elif grep -q "Documentation Coverage.*https://img.shields.io/badge/Documentation" README.md; then
+            echo "Updating README.md badge (replacing existing)..."
+            # Replace existing documentation coverage badge with new one
+            sed -i "s|\[\!\[Documentation Coverage\](https://img\.shields\.io/badge/Documentation[^)]*)\]([^)]*)|[![Documentation Coverage](${BADGE_URL})](https://underwood-inc.github.io/idling.app__UI/)|g" README.md
+          else
+            echo "⚠️ No documentation coverage badge found in README.md"
+          fi
+
+          # Update Jekyll header - handle both placeholder and existing badge
+          if grep -q "<!-- DOCUMENTATION_COVERAGE_BADGE_PLACEHOLDER -->" DOCS/_includes/header.html; then
+            echo "Updating Jekyll header badge (initial placement)..."
+            sed -i "s|<!-- DOCUMENTATION_COVERAGE_BADGE_PLACEHOLDER -->|<img src=\"${BADGE_URL}\" alt=\"Documentation Coverage\" />|" DOCS/_includes/header.html
+          elif grep -q "Documentation Coverage.*https://img.shields.io/badge/Documentation" DOCS/_includes/header.html; then
+            echo "Updating Jekyll header badge (replacing existing)..."
+            # Replace existing documentation coverage badge with new one
+            sed -i "s|<img src=\"https://img\.shields\.io/badge/Documentation[^\"]*\" alt=\"Documentation Coverage\" />|<img src=\"${BADGE_URL}\" alt=\"Documentation Coverage\" />|g" DOCS/_includes/header.html
+          else
+            echo "⚠️ No documentation coverage badge found in Jekyll header"
+          fi
+
+          # Verify badge updates were successful
+          echo "🔍 Verifying badge updates..."
+
+          # Check README.md
+          if grep -q "Documentation.*Coverage.*${{ steps.generate-badge.outputs.overall_coverage }}%" README.md || grep -q "<!-- DOCUMENTATION_COVERAGE_BADGE_PLACEHOLDER -->" README.md; then
+            echo "✅ README.md badge status: OK"
+          else
+            echo "⚠️ README.md badge may not have updated correctly"
+          fi
+
+          # Check Jekyll header
+          if grep -q "Documentation.*Coverage" DOCS/_includes/header.html || grep -q "<!-- DOCUMENTATION_COVERAGE_BADGE_PLACEHOLDER -->" DOCS/_includes/header.html; then
+            echo "✅ Jekyll header badge status: OK"
+          else
+            echo "⚠️ Jekyll header badge may not have updated correctly"
+          fi
 
           # Check if there are changes to commit
           if git diff --quiet README.md DOCS/_includes/header.html; then
