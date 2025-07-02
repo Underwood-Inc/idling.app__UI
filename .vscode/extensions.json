@@ -15,6 +15,11 @@
     "redhat.vscode-yaml",
     "streetsidesoftware.code-spell-checker",
     "vunguyentuan.vscode-css-variables",
-    "ms-python.python"
+    "ms-python.python",
+    "orta.vscode-jest",
+    "hbenl.vscode-test-explorer",
+    "ms-vscode.test-adapter-converter",
+    "kavod-io.vscode-jest-test-adapter",
+    "firsttris.vscode-jest-runner"
   ]
 }

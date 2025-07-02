@@ -1,0 +1,279 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "🧪 Run All Jest Tests",
+      "type": "shell",
+      "command": "yarn",
+      "args": ["test"],
+      "group": {
+        "kind": "test",
+        "isDefault": true
+      },
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": true,
+        "clear": false,
+        "group": "testing"
+      },
+      "problemMatcher": ["$jest"],
+      "runOptions": {
+        "instanceLimit": 1
+      }
+    },
+    {
+      "label": "🧪 Run Jest Tests with Coverage",
+      "type": "shell",
+      "command": "yarn",
+      "args": ["test:coverage"],
+      "group": "test",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": true,
+        "clear": false,
+        "group": "testing"
+      },
+      "problemMatcher": ["$jest"],
+      "runOptions": {
+        "instanceLimit": 1
+      }
+    },
+    {
+      "label": "🧪 Run Jest Tests (CI Mode)",
+      "type": "shell",
+      "command": "yarn",
+      "args": ["test:ci"],
+      "group": "test",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": true,
+        "clear": false,
+        "group": "testing"
+      },
+      "problemMatcher": ["$jest"],
+      "runOptions": {
+        "instanceLimit": 1
+      }
+    },
+    {
+      "label": "🎭 Run Playwright E2E Tests (UI Mode)",
+      "type": "shell",
+      "command": "yarn",
+      "args": ["e2e"],
+      "group": "test",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": true,
+        "clear": false,
+        "group": "testing"
+      },
+      "problemMatcher": [],
+      "runOptions": {
+        "instanceLimit": 1
+      }
+    },
+    {
+      "label": "🎭 Run Playwright E2E Tests (Headless)",
+      "type": "shell",
+      "command": "yarn",
+      "args": ["e2e:headless"],
+      "group": "test",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": true,
+        "clear": false,
+        "group": "testing"
+      },
+      "problemMatcher": [],
+      "runOptions": {
+        "instanceLimit": 1
+      }
+    },
+    {
+      "label": "🎭 Run Playwright E2E Tests (Headed)",
+      "type": "shell",
+      "command": "yarn",
+      "args": ["e2e:headed"],
+      "group": "test",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": true,
+        "clear": false,
+        "group": "testing"
+      },
+      "problemMatcher": [],
+      "runOptions": {
+        "instanceLimit": 1
+      }
+    },
+    {
+      "label": "📊 Show Playwright Test Reports",
+      "type": "shell",
+      "command": "yarn",
+      "args": ["e2e:reports"],
+      "group": "test",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": true,
+        "clear": false,
+        "group": "testing"
+      },
+      "problemMatcher": [],
+      "runOptions": {
+        "instanceLimit": 1
+      }
+    },
+    {
+      "label": "🎯 Run All Tests (Jest + Playwright)",
+      "dependsOrder": "sequence",
+      "dependsOn": [
+        "🧪 Run All Jest Tests",
+        "🎭 Run Playwright E2E Tests (Headless)"
+      ],
+      "group": "test",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": true,
+        "clear": false,
+        "group": "testing"
+      },
+      "runOptions": {
+        "instanceLimit": 1
+      }
+    },
+    {
+      "label": "📊 Run All Tests with Coverage",
+      "dependsOrder": "sequence",
+      "dependsOn": [
+        "🧪 Run Jest Tests with Coverage",
+        "🎭 Run Playwright E2E Tests (Headless)"
+      ],
+      "group": "test",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": true,
+        "clear": false,
+        "group": "testing"
+      },
+      "runOptions": {
+        "instanceLimit": 1
+      }
+    },
+    {
+      "label": "🚀 Start Dev Server",
+      "type": "shell",
+      "command": "yarn",
+      "args": ["dev"],
+      "group": "build",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": true,
+        "clear": false,
+        "group": "development"
+      },
+      "isBackground": true,
+      "problemMatcher": {
+        "owner": "next",
+        "pattern": {
+          "regexp": "^.*$"
+        },
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": "^.*starting the development server.*$",
+          "endsPattern": "^.*Local:.*http://localhost:3000.*$"
+        }
+      },
+      "runOptions": {
+        "instanceLimit": 1
+      }
+    },
+    {
+      "label": "🐳 Start Docker Dev Environment",
+      "type": "shell",
+      "command": "yarn",
+      "args": ["dev:docker"],
+      "group": "build",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": true,
+        "clear": false,
+        "group": "development"
+      },
+      "runOptions": {
+        "instanceLimit": 1
+      }
+    },
+    {
+      "label": "🔧 Lint TypeScript",
+      "type": "shell",
+      "command": "yarn",
+      "args": ["lint"],
+      "group": "build",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": true,
+        "clear": false,
+        "group": "linting"
+      },
+      "problemMatcher": ["$tsc"],
+      "runOptions": {
+        "instanceLimit": 1
+      }
+    },
+    {
+      "label": "✨ Format with Prettier",
+      "type": "shell",
+      "command": "yarn",
+      "args": ["prettier"],
+      "group": "build",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": true,
+        "clear": false,
+        "group": "linting"
+      },
+      "runOptions": {
+        "instanceLimit": 1
+      }
+    }
+  ]
+}

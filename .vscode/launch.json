@@ -1,0 +1,108 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "🧪 Debug Jest Tests",
+      "type": "node",
+      "request": "launch",
+      "program": "${workspaceFolder}/node_modules/.bin/jest",
+      "args": [
+        "--runInBand",
+        "--no-cache",
+        "--no-coverage",
+        "--watchAll=false"
+      ],
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "env": {
+        "NODE_ENV": "test"
+      },
+      "skipFiles": ["<node_internals>/**"],
+      "presentation": {
+        "hidden": false,
+        "group": "testing",
+        "order": 1
+      }
+    },
+    {
+      "name": "🧪 Debug Specific Jest Test",
+      "type": "node",
+      "request": "launch",
+      "program": "${workspaceFolder}/node_modules/.bin/jest",
+      "args": [
+        "--runInBand",
+        "--no-cache",
+        "--no-coverage",
+        "--watchAll=false",
+        "${relativeFile}"
+      ],
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "env": {
+        "NODE_ENV": "test"
+      },
+      "skipFiles": ["<node_internals>/**"],
+      "presentation": {
+        "hidden": false,
+        "group": "testing",
+        "order": 2
+      }
+    },
+    {
+      "name": "🎭 Debug Playwright Tests",
+      "type": "node",
+      "request": "launch",
+      "program": "${workspaceFolder}/node_modules/.bin/playwright",
+      "args": ["test", "--debug"],
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "env": {
+        "NODE_ENV": "test",
+        "PWDEBUG": "1"
+      },
+      "skipFiles": ["<node_internals>/**"],
+      "presentation": {
+        "hidden": false,
+        "group": "testing",
+        "order": 3
+      }
+    },
+    {
+      "name": "🎭 Debug Specific Playwright Test",
+      "type": "node",
+      "request": "launch",
+      "program": "${workspaceFolder}/node_modules/.bin/playwright",
+      "args": ["test", "${relativeFile}", "--debug"],
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "env": {
+        "NODE_ENV": "test",
+        "PWDEBUG": "1"
+      },
+      "skipFiles": ["<node_internals>/**"],
+      "presentation": {
+        "hidden": false,
+        "group": "testing",
+        "order": 4
+      }
+    },
+    {
+      "name": "🚀 Debug Next.js Dev Server",
+      "type": "node",
+      "request": "launch",
+      "program": "${workspaceFolder}/node_modules/.bin/next",
+      "args": ["dev"],
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "env": {
+        "NODE_ENV": "development"
+      },
+      "skipFiles": ["<node_internals>/**"],
+      "presentation": {
+        "hidden": false,
+        "group": "development",
+        "order": 1
+      }
+    }
+  ]
+}

@@ -1,11 +1,11 @@
 import { PageSize } from 'src/lib/state/atoms';
 import { getSubmissionsAction } from './actions';
 
-// Mock the sql module
+// Mock the sql module BEFORE importing anything else
 jest.mock('../../../lib/db', () => ({
   __esModule: true,
   default: {
-    unsafe: jest.fn()
+    unsafe: jest.fn().mockResolvedValue([])
   }
 }));
 
@@ -34,15 +34,18 @@ const createMockDbRow = (overrides: any = {}) => ({
 describe('getSubmissionsAction', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    // Reset the mock implementation to ensure clean state
     mockSql.mockReset();
+  });
+
+  afterEach(() => {
+    jest.clearAllTimers();
   });
 
   it('should return paginated submissions for onlyMine=true', async () => {
     const mockDbRows = [createMockDbRow()];
-    const mockCount = [{ total: 1 }];  // Changed from string to number
+    const mockCount = [{ total: 1 }];
 
-    mockSql.mockImplementation((query: any, params: any) => {
+    mockSql.mockImplementation((query: any) => {
       if (query.includes('SELECT COUNT(*) as total')) {
         return Promise.resolve(mockCount);
       }
@@ -57,40 +60,43 @@ describe('getSubmissionsAction', () => {
       pageSize: PageSize.TEN
     });
 
-    // Verify that the mock was called
     expect(mockSql).toHaveBeenCalled();
-    
-    // Debug - let's see what we actually got
-    // expect(result.data?.data[0]).toEqual(expect.objectContaining({
-    //   submission_id: expect.any(Number),
-    //   submission_title: expect.any(String),
-    //   author: expect.any(String)
-    // }));
-    
-    // Check if result has any data at all
     expect(result).toBeDefined();
     expect(result.error).toBeUndefined();
     expect(result.data).toBeDefined();
     expect(result.data?.data).toBeDefined();
     expect(result.data?.data).toHaveLength(1);
     
-    // Check actual data
     const firstItem = result.data?.data[0];
     expect(firstItem).toBeDefined();
     expect(firstItem?.submission_id).toBe(1);
     expect(firstItem?.submission_title).toBe('Test Submission');
     expect(firstItem?.author).toBe('Test Author');
-    
     expect(result.data?.pagination.totalRecords).toBe(1);
+  });
+
+  it('should return error when onlyMine is true but userId is falsy', async () => {
+    const result = await getSubmissionsAction({
+      onlyMine: true,
+      userId: '',
+      filters: [],
+      page: 1,
+      pageSize: PageSize.TEN
+    });
+
+    expect(result.error).toBe('User ID is required for user-specific queries');
+    expect(result.data).toBeUndefined();
+    expect(mockSql).not.toHaveBeenCalled();
   });
 
   it('should return paginated submissions for onlyMine=false', async () => {
     const mockDbRows = [createMockDbRow()];
     const mockCount = [{ total: 1 }];
 
-    mockSql.mockReset();
-    mockSql.mockImplementation((query: any, params: any) => {
-      if (query.includes('SELECT COUNT(*) as total')) return Promise.resolve(mockCount);
+    mockSql.mockImplementation((query: any) => {
+      if (query.includes('SELECT COUNT(*) as total')) {
+        return Promise.resolve(mockCount);
+      }
       return Promise.resolve(mockDbRows);
     });
 
@@ -166,19 +172,6 @@ describe('getSubmissionsAction', () => {
 
     expect(result.data?.pagination.currentPage).toBe(0);
     expect(result.error).toBeUndefined();
-  });
-
-  it('should return error when onlyMine is true but userId is falsy', async () => {
-    const result = await getSubmissionsAction({
-      onlyMine: true,
-      userId: '',
-      filters: [],
-      page: 1,
-      pageSize: PageSize.TEN
-    });
-
-    expect(result.error).toBe('User ID is required for user-specific queries');
-    expect(result.data).toBeUndefined();
   });
 
   it('should handle multiple tag filters', async () => {
