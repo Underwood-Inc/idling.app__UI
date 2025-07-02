@@ -1,15 +1,9 @@
 // Learn more: https://github.com/testing-library/jest-dom
-import '@playwright/test';
 import '@testing-library/jest-dom';
 import 'jest-chain';
 
-// This file is run before each test file
-// global.console = {
-//   ...console,
-//   log: jest.fn(),
-//   error: jest.fn(),
-//   warn: jest.fn()
-// };
+// This file is run before each test file for JEST ONLY
+// DO NOT import Playwright here - it's a separate testing framework
 
 // Mock window.matchMedia
 Object.defineProperty(window, 'matchMedia', {
@@ -85,6 +79,22 @@ jest.mock('@dicebear/core', () => ({
   }))
 }));
 
+// Mock database connections to prevent hanging
+jest.mock('src/lib/db', () => ({
+  __esModule: true,
+  default: {
+    unsafe: jest.fn().mockResolvedValue([]),
+    begin: jest.fn().mockResolvedValue({
+      rollback: jest.fn(),
+      commit: jest.fn()
+    })
+  }
+}));
+
+// Mock environment variables for tests
+process.env.NODE_ENV = 'test';
+process.env.DATABASE_URL = 'postgresql://test:test@localhost:5432/test_db';
+
 // Suppress console warnings in tests
 const originalError = console.error;
 const originalWarn = console.warn;
@@ -119,3 +129,6 @@ afterAll(() => {
   console.error = originalError;
   console.warn = originalWarn;
 });
+
+// Set test timeout for Jest
+jest.setTimeout(10000);

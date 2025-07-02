@@ -39,5 +39,65 @@
   "terminal.integrated.env.windows": {
     "PATH": "${env:PATH};C:\\Program Files\\nodejs;C:\\Program Files (x86)\\nodejs"
   },
-  "git.terminalAuthentication": false
+  "git.terminalAuthentication": false,
+
+  // Testing Configuration
+  "jest.jestCommandLine": "yarn test",
+  "jest.autoRun": {
+    "watch": false,
+    "onStartup": ["all-tests"]
+  },
+  "jest.showCoverageOnLoad": false,
+  "jest.coverageFormatter": "GutterFormatter",
+  "jest.coverageColors": {
+    "covered": "rgba(9, 156, 65, 0.4)",
+    "uncovered": "rgba(121, 31, 10, 0.4)",
+    "partially-covered": "rgba(235, 198, 52, 0.4)"
+  },
+  "jest.testExplorer": {
+    "enabled": true,
+    "showClassicStatus": true,
+    "showInlineError": true
+  },
+
+  // Playwright Configuration
+  "playwright.showTrace": false,
+  "playwright.reuseBrowser": false,
+  "playwright.showBrowser": false,
+
+  // Test File Associations
+  "files.associations": {
+    "*.test.ts": "typescript",
+    "*.test.tsx": "typescriptreact",
+    "*.spec.ts": "typescript",
+    "*.spec.tsx": "typescriptreact"
+  },
+
+  // Search Configuration for Tests
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/coverage": true,
+    "**/test-results": true,
+    "**/playwright-report": true,
+    "**/.next": true
+  },
+
+  // File Explorer Configuration
+  "explorer.fileNesting.enabled": true,
+  "explorer.fileNesting.patterns": {
+    "*.test.ts": "${capture}.ts",
+    "*.test.tsx": "${capture}.tsx",
+    "*.spec.ts": "${capture}.ts",
+    "*.spec.tsx": "${capture}.tsx"
+  },
+
+  // Task Configuration
+  "task.autoDetect": "on",
+  "task.showDecorations": true,
+
+  // Testing Panel Configuration
+  "testing.automaticallyOpenPeekView": "never",
+  "testing.defaultGutterClickAction": "run",
+  "testing.followRunningTest": true,
+  "testing.openTesting": "neverOpen"
 }
