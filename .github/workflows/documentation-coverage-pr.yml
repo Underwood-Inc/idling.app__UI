@@ -67,23 +67,20 @@ jobs:
             if [ -f "$file" ]; then
               total_files=$((total_files + 1))
               
-              # Convert src/path/file.ts to DOCS/src/path/file.md
-              doc_file="DOCS/${file%.ts}.md"
-              doc_file="${doc_file%.tsx}.md"
-              doc_file="${doc_file%.js}.md"
-              doc_file="${doc_file%.jsx}.md"
+              # Convert src/path/file.ts to DOCS/src/path/file.md (properly handle extensions)
+              doc_file="DOCS/${file%.*}.md"
               
               if [ -f "$doc_file" ]; then
                 documented_files=$((documented_files + 1))
               else
-                missing_files+=("$file → $doc_file")
+                missing_files+=("$file")
               fi
               
               # Check if this file is in the PR
               if echo "$changed_files" | grep -q "^$file$"; then
                 pr_files+=("$file")
                 if [ ! -f "$doc_file" ]; then
-                  pr_missing_files+=("$file → $doc_file")
+                  pr_missing_files+=("$file")
                 fi
               fi
             fi
@@ -108,21 +105,26 @@ jobs:
             echo "docs_coverage_passed=false" >> $GITHUB_OUTPUT
           fi
 
-                    # Generate detailed reports with better formatting
+                    # Generate detailed reports with table formatting
           echo "### 📋 Missing Documentation Files (${#missing_files[@]} total)" >> coverage_report.md
           echo "" >> coverage_report.md
           if [ ${#missing_files[@]} -gt 0 ]; then
+            echo "| Source File | Required Documentation |" >> coverage_report.md
+            echo "|-------------|------------------------|" >> coverage_report.md
             printf '%s\n' "${missing_files[@]}" | while read -r line; do
               src_file=$(echo "$line" | cut -d' ' -f1)
-              doc_file=$(echo "$line" | cut -d' ' -f3)
-              echo "- **\`${src_file}\`** → \`${doc_file}\`" >> coverage_report.md
+              # Fix the extension handling - only add .md once
+              doc_file="DOCS/${src_file}"
+              # Remove existing extension and add .md
+              doc_file="${doc_file%.*}.md"
+              echo "| \`${src_file}\` | \`${doc_file}\` |" >> coverage_report.md
             done
           else
             echo "✅ All source files have documentation!" >> coverage_report.md
           fi
           echo "" >> coverage_report.md
 
-          # Generate PR-specific report with better formatting
+          # Generate PR-specific report with table formatting
           echo "**Files changed in this PR:** ${#pr_files[@]}" > pr_coverage_report.md
           echo "**Missing documentation:** ${#pr_missing_files[@]}" >> pr_coverage_report.md
           echo "" >> pr_coverage_report.md
@@ -130,10 +132,15 @@ jobs:
           if [ ${#pr_missing_files[@]} -gt 0 ]; then
             echo "### 📝 Files in this PR that need documentation:" >> pr_coverage_report.md
             echo "" >> pr_coverage_report.md
+            echo "| Source File | Required Documentation |" >> pr_coverage_report.md
+            echo "|-------------|------------------------|" >> pr_coverage_report.md
             printf '%s\n' "${pr_missing_files[@]}" | while read -r line; do
               src_file=$(echo "$line" | cut -d' ' -f1)
-              doc_file=$(echo "$line" | cut -d' ' -f3)
-              echo "- **\`${src_file}\`** → \`${doc_file}\`" >> pr_coverage_report.md
+              # Fix the extension handling - only add .md once
+              doc_file="DOCS/${src_file}"
+              # Remove existing extension and add .md
+              doc_file="${doc_file%.*}.md"
+              echo "| \`${src_file}\` | \`${doc_file}\` |" >> pr_coverage_report.md
             done
             echo "" >> pr_coverage_report.md
             echo "💡 **Tip**: Create these documentation files to improve coverage!" >> pr_coverage_report.md
