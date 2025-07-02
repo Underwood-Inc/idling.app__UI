@@ -18,26 +18,69 @@
    * Configuration constants and defaults
    */
   const CONFIG = {
-         // Default theme configuration
+         // Default theme configuration with adaptive colors
      THEME_CONFIG: {
        startOnLoad: false,
-      theme: 'dark',
+      theme: 'base',
       securityLevel: 'loose',
       fontFamily: 'inherit',
       themeVariables: {
+        // High contrast colors for better readability
         primaryColor: '#edae49',
         primaryTextColor: '#ffffff',
         primaryBorderColor: '#edae49',
-        lineColor: '#666666',
-        sectionBkgColor: '#2d2d2d',
-        altSectionBkgColor: '#3d3d3d',
+        secondaryColor: '#252017',
+        tertiaryColor: '#3a3323',
+        
+        // Background colors with good contrast
+        background: '#1a1611',
+        mainBkg: '#252017',
+        secondBkg: '#2f2a1d',
+        tertiaryBkg: '#3a3323',
+        
+        // Text colors optimized for readability
+        textColor: '#ffffff',
+        lineColor: '#edae49',
+        sectionBkgColor: '#252017',
+        altSectionBkgColor: '#2f2a1d',
         gridColor: '#666666',
-        secondaryColor: '#4a4a4a',
-        tertiaryColor: '#5a5a5a',
-        background: '#1e1e1e',
-        mainBkg: '#2d2d2d',
-        secondBkg: '#3d3d3d',
-        tertiaryBkg: '#4a4a4a'
+        
+        // Pie chart colors with good contrast
+        pie1: '#edae49',
+        pie2: '#f9df74',
+        pie3: '#f5c60c',
+        pie4: '#c68214',
+        pie5: '#aa6c14',
+        pie6: '#8b5a0f',
+        pie7: '#6d470c',
+        pie8: '#4f3509',
+        pie9: '#312206',
+        pie10: '#1a1104',
+        pie11: '#0f0802',
+        pie12: '#050301',
+        
+        // Journey diagram colors
+        cScale0: '#edae49',
+        cScale1: '#f9df74',
+        cScale2: '#f5c60c',
+        
+        // Git graph colors
+        git0: '#edae49',
+        git1: '#f9df74',
+        git2: '#f5c60c',
+        git3: '#c68214',
+        git4: '#aa6c14',
+        
+        // Quadrant colors
+        quadrant1Fill: '#252017',
+        quadrant2Fill: '#2f2a1d',
+        quadrant3Fill: '#3a3323',
+        quadrant4Fill: '#443d29',
+        
+        quadrant1TextFill: '#ffffff',
+        quadrant2TextFill: '#ffffff',
+        quadrant3TextFill: '#ffffff',
+        quadrant4TextFill: '#ffffff'
       }
     },
 

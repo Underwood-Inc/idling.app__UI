@@ -420,10 +420,10 @@
   overflow-x: auto;
 }
 
-// Mermaid diagram styling
+// Mermaid diagram styling with proper light/dark theme support
 .mermaid {
-  background: transparent !important;
-  border: 1px solid var(--glass-border-overlay-medium, var(--glass-border-medium)) !important;
+  background: var(--glass-bg-light) !important;
+  border: 1px solid var(--glass-border-medium) !important;
   border-radius: var(--border-radius) !important;
   padding: var(--spacing-lg) !important;
   margin: var(--spacing-lg) 0 !important;
@@ -443,29 +443,290 @@
     box-sizing: border-box !important;
   }
   
-  // Fix text contrast
-  text, .label, .nodeLabel, .edgeLabel, .titleText, .sectionTitle {
-    fill: var(--dark-bg__text-color--primary) !important;
-    color: var(--dark-bg__text-color--primary) !important;
-    font-weight: 500 !important;
-    font-size: 14px !important;
+  // Universal text styling with maximum readability
+  text, .label, .nodeLabel, .edgeLabel, .titleText, .sectionTitle,
+  .actor-text, .messageLine0, .messageLine1, .labelText, .loopText,
+  .node text, .cluster text, .section text, foreignObject div {
+    fill: #ffffff !important;
+    color: #ffffff !important;
+    font-weight: 700 !important;
+    font-size: 15px !important;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+    text-shadow: 
+      0 1px 3px rgba(0, 0, 0, 0.9),
+      0 0 5px rgba(0, 0, 0, 0.7),
+      1px 1px 0 rgba(0, 0, 0, 0.8),
+      -1px -1px 0 rgba(0, 0, 0, 0.8),
+      1px -1px 0 rgba(0, 0, 0, 0.8),
+      -1px 1px 0 rgba(0, 0, 0, 0.8) !important;
+    stroke: rgba(0, 0, 0, 0.8) !important;
+    stroke-width: 0.5px !important;
+    paint-order: stroke fill !important;
   }
   
-  // Node styling
-  .node rect, .node circle, .node ellipse, .node polygon {
-    fill: var(--glass-overlay-medium, var(--glass-bg-medium)) !important;
+  // Node backgrounds with strong contrast
+  .node rect, .node circle, .node ellipse, .node polygon,
+  .actor, .boundary, .control, .entity, .database {
+    fill: rgba(20, 20, 30, 0.9) !important;
+    stroke: var(--brand-primary) !important;
+    stroke-width: 3px !important;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3)) !important;
+  }
+  
+  // Special node styling for better visibility
+  .cluster rect {
+    fill: var(--glass-bg-medium) !important;
+    stroke: var(--glass-border-heavy) !important;
+    stroke-width: 1px !important;
+    stroke-dasharray: 5,5 !important;
+  }
+  
+  // Link and arrow styling
+  .flowchart-link, .messageLine0, .messageLine1, .relation {
     stroke: var(--brand-primary) !important;
     stroke-width: 2px !important;
   }
   
-  // Link styling
-  .flowchart-link, .messageLine0, .messageLine1 {
-    stroke: var(--dark-bg__text-color--secondary) !important;
+  .arrowheadPath, .arrowhead {
+    fill: var(--brand-primary) !important;
+    stroke: var(--brand-primary) !important;
+  }
+  
+  // Pie chart specific styling
+  .pieCircle {
+    stroke: var(--dark-background--primary) !important;
+    stroke-width: 3px !important;
+  }
+  
+  .pieTitleText {
+    fill: #ffffff !important;
+    font-weight: 800 !important;
+    font-size: 18px !important;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+    text-shadow: 
+      0 2px 4px rgba(0, 0, 0, 0.9),
+      0 0 8px rgba(0, 0, 0, 0.7),
+      2px 2px 0 rgba(0, 0, 0, 0.8),
+      -2px -2px 0 rgba(0, 0, 0, 0.8),
+      2px -2px 0 rgba(0, 0, 0, 0.8),
+      -2px 2px 0 rgba(0, 0, 0, 0.8) !important;
+    stroke: rgba(0, 0, 0, 0.9) !important;
+    stroke-width: 1px !important;
+    paint-order: stroke fill !important;
+  }
+  
+  // Timeline specific styling
+  .section0, .section1, .section2, .section3 {
+    fill: var(--dark-background--secondary) !important;
+  }
+  
+  // Gantt chart styling
+  .grid .tick line {
+    stroke: var(--glass-border-medium) !important;
+  }
+  
+  .grid .tick text {
+    fill: var(--dark-bg__text-color--secondary) !important;
+  }
+  
+  // Journey diagram styling
+  .journey-section rect {
+    fill: var(--dark-background--secondary) !important;
+    stroke: var(--brand-primary) !important;
+  }
+  
+  // Quadrant chart styling
+  .quadrant-point circle {
+    stroke: var(--brand-primary) !important;
     stroke-width: 2px !important;
   }
   
-  .arrowheadPath {
-    fill: var(--dark-bg__text-color--secondary) !important;
+  .quadrant-point text {
+    fill: #ffffff !important;
+    font-weight: 700 !important;
+    font-size: 14px !important;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+    text-shadow: 
+      0 1px 3px rgba(0, 0, 0, 0.9),
+      0 0 5px rgba(0, 0, 0, 0.7),
+      1px 1px 0 rgba(0, 0, 0, 0.8),
+      -1px -1px 0 rgba(0, 0, 0, 0.8),
+      1px -1px 0 rgba(0, 0, 0, 0.8),
+      -1px 1px 0 rgba(0, 0, 0, 0.8) !important;
+    stroke: rgba(0, 0, 0, 0.8) !important;
+    stroke-width: 0.5px !important;
+    paint-order: stroke fill !important;
+  }
+  
+  // State diagram styling
+  .state rect, .state circle {
+    fill: var(--dark-background--secondary) !important;
+    stroke: var(--brand-primary) !important;
+  }
+  
+  // Mindmap styling
+  .mindmap-node circle, .mindmap-node rect {
+    fill: var(--dark-background--secondary) !important;
+    stroke: var(--brand-primary) !important;
+  }
+  
+  .mindmap-node text {
+    fill: #ffffff !important;
+    font-weight: 700 !important;
+    font-size: 14px !important;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+    text-shadow: 
+      0 1px 3px rgba(0, 0, 0, 0.9),
+      0 0 5px rgba(0, 0, 0, 0.7),
+      1px 1px 0 rgba(0, 0, 0, 0.8),
+      -1px -1px 0 rgba(0, 0, 0, 0.8),
+      1px -1px 0 rgba(0, 0, 0, 0.8),
+      -1px 1px 0 rgba(0, 0, 0, 0.8) !important;
+    stroke: rgba(0, 0, 0, 0.8) !important;
+    stroke-width: 0.5px !important;
+    paint-order: stroke fill !important;
+  }
+}
+
+// Light mode overrides for better contrast
+@media (prefers-color-scheme: light) {
+  .mermaid {
+    background: rgba(255, 255, 255, 0.9) !important;
+    border: 1px solid rgba(0, 0, 0, 0.2) !important;
+    
+    // Light mode text styling with maximum readability
+    text, .label, .nodeLabel, .edgeLabel, .titleText, .sectionTitle,
+    .actor-text, .messageLine0, .messageLine1, .labelText, .loopText,
+    .node text, .cluster text, .section text, foreignObject div {
+      fill: #000000 !important;
+      color: #000000 !important;
+      font-weight: 800 !important;
+      font-size: 15px !important;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+      text-shadow: 
+        0 1px 3px rgba(255, 255, 255, 0.9),
+        0 0 5px rgba(255, 255, 255, 0.7),
+        1px 1px 0 rgba(255, 255, 255, 0.8),
+        -1px -1px 0 rgba(255, 255, 255, 0.8),
+        1px -1px 0 rgba(255, 255, 255, 0.8),
+        -1px 1px 0 rgba(255, 255, 255, 0.8) !important;
+      stroke: rgba(255, 255, 255, 0.8) !important;
+      stroke-width: 0.5px !important;
+      paint-order: stroke fill !important;
+    }
+    
+    // Light mode node backgrounds
+    .node rect, .node circle, .node ellipse, .node polygon,
+    .actor, .boundary, .control, .entity, .database {
+      fill: rgba(255, 255, 255, 0.8) !important;
+      stroke: var(--dark-goldenrod) !important;
+      stroke-width: 2px !important;
+    }
+    
+    .cluster rect {
+      fill: rgba(255, 255, 255, 0.6) !important;
+      stroke: rgba(0, 0, 0, 0.3) !important;
+    }
+    
+    // Light mode links and arrows
+    .flowchart-link, .messageLine0, .messageLine1, .relation {
+      stroke: var(--dark-goldenrod) !important;
+    }
+    
+    .arrowheadPath, .arrowhead {
+      fill: var(--dark-goldenrod) !important;
+      stroke: var(--dark-goldenrod) !important;
+    }
+    
+    // Light mode pie chart
+    .pieCircle {
+      stroke: rgba(0, 0, 0, 0.8) !important;
+    }
+    
+    .pieTitleText {
+      fill: #000000 !important;
+      font-weight: 900 !important;
+      font-size: 18px !important;
+      text-shadow: 
+        0 2px 4px rgba(255, 255, 255, 0.9),
+        0 0 8px rgba(255, 255, 255, 0.7),
+        2px 2px 0 rgba(255, 255, 255, 0.8),
+        -2px -2px 0 rgba(255, 255, 255, 0.8),
+        2px -2px 0 rgba(255, 255, 255, 0.8),
+        -2px 2px 0 rgba(255, 255, 255, 0.8) !important;
+      stroke: rgba(255, 255, 255, 0.9) !important;
+      stroke-width: 1px !important;
+      paint-order: stroke fill !important;
+    }
+    
+    // Light mode timeline
+    .section0, .section1, .section2, .section3 {
+      fill: rgba(255, 255, 255, 0.8) !important;
+    }
+    
+    // Light mode grid
+    .grid .tick line {
+      stroke: rgba(0, 0, 0, 0.2) !important;
+    }
+    
+    .grid .tick text {
+      fill: var(--light-bg__text-color--secondary) !important;
+    }
+    
+    // Light mode journey
+    .journey-section rect {
+      fill: rgba(255, 255, 255, 0.8) !important;
+      stroke: var(--dark-goldenrod) !important;
+    }
+    
+    // Light mode quadrant
+    .quadrant-point circle {
+      stroke: var(--dark-goldenrod) !important;
+    }
+    
+    .quadrant-point text {
+      fill: #000000 !important;
+      font-weight: 800 !important;
+      font-size: 14px !important;
+      text-shadow: 
+        0 1px 3px rgba(255, 255, 255, 0.9),
+        0 0 5px rgba(255, 255, 255, 0.7),
+        1px 1px 0 rgba(255, 255, 255, 0.8),
+        -1px -1px 0 rgba(255, 255, 255, 0.8),
+        1px -1px 0 rgba(255, 255, 255, 0.8),
+        -1px 1px 0 rgba(255, 255, 255, 0.8) !important;
+      stroke: rgba(255, 255, 255, 0.8) !important;
+      stroke-width: 0.5px !important;
+      paint-order: stroke fill !important;
+    }
+    
+    // Light mode state
+    .state rect, .state circle {
+      fill: rgba(255, 255, 255, 0.8) !important;
+      stroke: var(--dark-goldenrod) !important;
+    }
+    
+    // Light mode mindmap
+    .mindmap-node circle, .mindmap-node rect {
+      fill: rgba(255, 255, 255, 0.8) !important;
+      stroke: var(--dark-goldenrod) !important;
+    }
+    
+    .mindmap-node text {
+      fill: #000000 !important;
+      font-weight: 800 !important;
+      font-size: 14px !important;
+      text-shadow: 
+        0 1px 3px rgba(255, 255, 255, 0.9),
+        0 0 5px rgba(255, 255, 255, 0.7),
+        1px 1px 0 rgba(255, 255, 255, 0.8),
+        -1px -1px 0 rgba(255, 255, 255, 0.8),
+        1px -1px 0 rgba(255, 255, 255, 0.8),
+        -1px 1px 0 rgba(255, 255, 255, 0.8) !important;
+      stroke: rgba(255, 255, 255, 0.8) !important;
+      stroke-width: 0.5px !important;
+      paint-order: stroke fill !important;
+    }
   }
 }
 
