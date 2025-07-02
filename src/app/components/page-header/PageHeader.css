@@ -1,8 +1,8 @@
 .page-header__section {
   flex-direction: column;
-  max-width: 1600px;
   margin-bottom: 1rem;
-  max-width: calc(70vw - 5rem);
+  max-width: calc(80vw - 3rem);
+  width: 100%;
 }
 
 @media (max-width: 1024px) {

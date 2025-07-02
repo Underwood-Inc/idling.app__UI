@@ -7,6 +7,9 @@
   align-items: flex-start;
   gap: 2rem;
   width: 100%;
+  max-width: 100%;
+  margin: 0 auto;
+  padding: 0 1rem;
 }
 
 .header__centered {
@@ -21,6 +24,18 @@
 
 .header__text {
   flex: 1;
+  text-align: center; /* Simple center like welcome interface */
+  margin: 0 auto; /* Center the text container */
+}
+
+.header__text h1 {
+  text-align: center;
+  margin: 0;
+}
+
+.header__text p {
+  text-align: center;
+  margin: 0;
 }
 
 .header__controls {
@@ -209,8 +224,17 @@
     gap: 1rem;
   }
 
-  .header__content:not(.header__centered) {
-    align-items: flex-start;
+  .header__text {
+    text-align: center;
+    width: 100%;
+  }
+
+  .header__text h1 {
+    text-align: center;
+  }
+
+  .header__text p {
+    text-align: center;
   }
 
   .header__controls {
@@ -269,6 +293,18 @@
 
   .header__button {
     width: 100%;
+  }
+
+  .header__text {
+    text-align: center;
+  }
+
+  .header__text h1 {
+    text-align: center;
+  }
+
+  .header__text p {
+    text-align: center;
   }
 
   .configuration__form {
