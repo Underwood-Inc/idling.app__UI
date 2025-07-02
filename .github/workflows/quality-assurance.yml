@@ -321,20 +321,47 @@ jobs:
       - name: 📚 Check documentation files coverage
         id: docs-coverage
         run: |
-          # Comprehensive documentation coverage check
+          # 🔥 COMPREHENSIVE DOCUMENTATION COVERAGE INVESTIGATION 🔥
           total_files=0
           documented_files=0
+          missing_files=()
+          pr_files=()
+          pr_missing_files=()
+
+          # Get list of changed files in this PR (if applicable)
+          if [ "${{ github.event_name }}" == "pull_request" ]; then
+            git fetch origin ${{ github.base_ref }}
+            changed_files=$(git diff --name-only origin/${{ github.base_ref }}...HEAD | grep -E '\.(ts|tsx|js|jsx)$' | grep '^src/' || true)
+          else
+            changed_files=""
+          fi
+
+          # 📊 FULL CODEBASE DOCUMENTATION AUDIT 📊
+          echo "## 🚨 BREAKING: Documentation Coverage Scandal Exposed! 🚨" > coverage_report.md
+          echo "" >> coverage_report.md
+          echo "### 📰 **EXCLUSIVE INVESTIGATION REVEALS SHOCKING TRUTH ABOUT CODE DOCUMENTATION!** 📰" >> coverage_report.md
+          echo "" >> coverage_report.md
 
           # Check ALL TypeScript/JavaScript files in src/
           for file in $(find src/ -name "*.ts" -o -name "*.tsx" -o -name "*.js" -o -name "*.jsx" 2>/dev/null || true); do
             if [ -f "$file" ]; then
               total_files=$((total_files + 1))
               
-              # Convert src/path/file.ts to DOCS/src/path/file.md
+              # Convert src/path/file.ts to DOCS/src/path/file.md (properly handle extensions)
               doc_file="DOCS/${file%.*}.md"
               
               if [ -f "$doc_file" ]; then
                 documented_files=$((documented_files + 1))
+              else
+                missing_files+=("$file")
+              fi
+              
+              # Check if this file is in the PR
+              if [ -n "$changed_files" ] && echo "$changed_files" | grep -q "^$file$"; then
+                pr_files+=("$file")
+                if [ ! -f "$doc_file" ]; then
+                  pr_missing_files+=("$file")
+                fi
               fi
             fi
           done
@@ -349,11 +376,88 @@ jobs:
           echo "doc_coverage=${DOC_COVERAGE}" >> $GITHUB_OUTPUT
           echo "total_files=${total_files}" >> $GITHUB_OUTPUT
           echo "documented_files=${documented_files}" >> $GITHUB_OUTPUT
+          echo "pr_files_count=${#pr_files[@]}" >> $GITHUB_OUTPUT
+          echo "pr_missing_count=${#pr_missing_files[@]}" >> $GITHUB_OUTPUT
 
           if [ $DOC_COVERAGE -ge 85 ]; then
             echo "docs_coverage_passed=true" >> $GITHUB_OUTPUT
           else
             echo "docs_coverage_passed=false" >> $GITHUB_OUTPUT
+          fi
+
+          # 🎭 DRAMATIC TABLOID REPORTING 🎭
+          echo "### 📈 **SHOCKING STATISTICS REVEALED!** 📈" >> coverage_report.md
+          echo "" >> coverage_report.md
+          echo "| 🏆 **METRIC** | 🔢 **COUNT** | 📊 **PERCENTAGE** |" >> coverage_report.md
+          echo "|---------------|---------------|-------------------|" >> coverage_report.md
+          echo "| **Total Source Files** | **${total_files}** | **100%** |" >> coverage_report.md
+          echo "| **Documented Files** | **${documented_files}** | **${DOC_COVERAGE}%** |" >> coverage_report.md
+          echo "| **Missing Documentation** | **${#missing_files[@]}** | **$((100 - DOC_COVERAGE))%** |" >> coverage_report.md
+          echo "" >> coverage_report.md
+
+          # Generate DRAMATIC missing files report
+          if [ ${#missing_files[@]} -gt 0 ]; then
+            echo "### 🚨 **SCANDAL: ${#missing_files[@]} Files Found WITHOUT Documentation!** 🚨" >> coverage_report.md
+            echo "" >> coverage_report.md
+            echo "*Our investigative team has uncovered a shocking conspiracy of undocumented code!*" >> coverage_report.md
+            echo "" >> coverage_report.md
+            echo "| 🔍 **UNDOCUMENTED SOURCE FILE** | 📝 **REQUIRED DOCUMENTATION** | 🚨 **STATUS** |" >> coverage_report.md
+            echo "|----------------------------------|--------------------------------|---------------|" >> coverage_report.md
+            printf '%s\n' "${missing_files[@]}" | while read -r line; do
+              src_file="$line"
+              doc_file="DOCS/${src_file%.*}.md"
+              echo "| \`${src_file}\` | \`${doc_file}\` | ❌ **MISSING** |" >> coverage_report.md
+            done
+            echo "" >> coverage_report.md
+            echo "💥 **BREAKING NEWS:** These files are operating WITHOUT proper documentation coverage!" >> coverage_report.md
+          else
+            echo "### 🎉 **MIRACLE: ALL FILES HAVE DOCUMENTATION!** 🎉" >> coverage_report.md
+            echo "" >> coverage_report.md
+            echo "✨ *In a stunning turn of events, our investigation reveals PERFECT documentation coverage!* ✨" >> coverage_report.md
+          fi
+          echo "" >> coverage_report.md
+
+          # Generate PR-specific TABLOID report
+          if [ "${{ github.event_name }}" == "pull_request" ]; then
+            echo "### 🔥 **THIS JUST IN: PR Documentation Status EXPOSED!** 🔥" > pr_coverage_report.md
+            echo "" >> pr_coverage_report.md
+            echo "**🎯 Files Changed in This PR:** ${#pr_files[@]}" >> pr_coverage_report.md
+            echo "**📝 Missing Documentation:** ${#pr_missing_files[@]}" >> pr_coverage_report.md
+            echo "" >> pr_coverage_report.md
+
+            if [ ${#pr_missing_files[@]} -gt 0 ]; then
+              echo "### 💣 **BOMBSHELL: PR Contains Undocumented Files!** 💣" >> pr_coverage_report.md
+              echo "" >> pr_coverage_report.md
+              echo "*EXCLUSIVE: Our sources reveal that this PR introduces changes to files lacking proper documentation!*" >> pr_coverage_report.md
+              echo "" >> pr_coverage_report.md
+              echo "| 🚨 **UNDOCUMENTED FILE IN PR** | 📚 **REQUIRED DOCUMENTATION** | 🎯 **ACTION NEEDED** |" >> pr_coverage_report.md
+              echo "|--------------------------------|--------------------------------|----------------------|" >> pr_coverage_report.md
+              printf '%s\n' "${pr_missing_files[@]}" | while read -r line; do
+                src_file="$line"
+                doc_file="DOCS/${src_file%.*}.md"
+                echo "| \`${src_file}\` | \`${doc_file}\` | 📝 **CREATE DOCS** |" >> pr_coverage_report.md
+              done
+              echo "" >> pr_coverage_report.md
+              echo "🔥 **URGENT:** Create these documentation files to maintain code quality standards!" >> pr_coverage_report.md
+            else
+              if [ ${#pr_files[@]} -gt 0 ]; then
+                echo "### 🏆 **VICTORY: All PR Files Have Documentation!** 🏆" >> pr_coverage_report.md
+                echo "" >> pr_coverage_report.md
+                echo "✨ *CELEBRATION TIME: Every single file in this PR has proper documentation coverage!* ✨" >> pr_coverage_report.md
+                echo "" >> pr_coverage_report.md
+                echo "| 📁 **DOCUMENTED FILE IN PR** | 📚 **DOCUMENTATION EXISTS** | ✅ **STATUS** |" >> pr_coverage_report.md
+                echo "|-------------------------------|------------------------------|---------------|" >> pr_coverage_report.md
+                printf '%s\n' "${pr_files[@]}" | while read -r line; do
+                  src_file="$line"
+                  doc_file="DOCS/${src_file%.*}.md"
+                  echo "| \`${src_file}\` | \`${doc_file}\` | 🎉 **PERFECT** |" >> pr_coverage_report.md
+                done
+              else
+                echo "### 📰 **REPORT: No Source Files Changed in This PR** 📰" >> pr_coverage_report.md
+                echo "" >> pr_coverage_report.md
+                echo "ℹ️ *Our investigation shows this PR doesn't modify any source files requiring documentation.*" >> pr_coverage_report.md
+              fi
+            fi
           fi
         continue-on-error: true
 
