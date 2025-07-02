@@ -1075,16 +1075,20 @@ final_window = min(actual_window, 3600 seconds)
 
 ### 🔧 Configuration Matrix
 
-| **Endpoint Type** | **Window** | **Limit** | **Storage** | **Purpose**        |
-| ----------------- | ---------- | --------- | ----------- | ------------------ |
-| **API**           | 1 minute   | 100 req   | Memory      | General endpoints  |
-| **Auth**          | 1 minute   | 500 req   | Memory      | Session management |
-| **Upload**        | 1 minute   | 5 req     | Memory      | File operations    |
-| **Search**        | 1 minute   | 200 req   | Memory      | Query endpoints    |
-| **Admin**         | 1 minute   | 50 req    | Memory      | Administrative     |
-| **SSE**           | 1 minute   | 1000 req  | Memory      | Real-time streams  |
-| **OG-Image**      | 24 hours   | 1 req     | Database    | Daily quotas       |
-| **Attack**        | 1 hour     | 1 req     | Memory      | Security response  |
+| **Endpoint Type** | **Window** | **Limit** | **Storage** | **Purpose**              |
+| ----------------- | ---------- | --------- | ----------- | ------------------------ |
+| **API**           | 1 minute   | 100 req   | Memory      | General endpoints        |
+| **Auth**          | 1 minute   | 500 req   | Memory      | Session management       |
+| **Upload**        | 1 minute   | 5 req     | Memory      | File operations          |
+| **Search**        | 1 minute   | 200 req   | Memory      | Query endpoints          |
+| **Admin**         | 1 minute   | 50 req    | Memory      | Administrative           |
+| **SSE**           | 1 minute   | 1000 req  | Memory      | Real-time streams        |
+| **OG-Image**      | 24 hours   | 1 req     | Database    | Rate limit fallback only |
+| **Attack**        | 1 hour     | 1 req     | Memory      | Security response        |
+
+### ⚠️ Important Note: OG-Image Rate Limiting
+
+**The OG-Image entry above represents emergency rate limiting only.** OG-Image generation primarily uses a separate quota management system for user limits. The rate limiting system (1 req/day) only activates as a fallback if the primary quota system is unavailable.
 
 ### 🎯 Exempt Endpoints
 
