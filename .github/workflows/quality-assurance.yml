@@ -533,6 +533,20 @@ jobs:
           # Calculate overall documentation coverage (weighted average)
           DOC_COVERAGE="${{ steps.docs-coverage.outputs.doc_coverage }}"
           DOCSTRING_COVERAGE="${{ steps.interrogate.outputs.docstring_coverage }}"
+
+          # Validate and sanitize coverage values
+          if [[ -z "$DOC_COVERAGE" || ! "$DOC_COVERAGE" =~ ^[0-9]+$ ]]; then
+            echo "⚠️ Invalid DOC_COVERAGE value: '$DOC_COVERAGE', defaulting to 0"
+            DOC_COVERAGE=0
+          fi
+
+          if [[ -z "$DOCSTRING_COVERAGE" || ! "$DOCSTRING_COVERAGE" =~ ^[0-9]+$ ]]; then
+            echo "⚠️ Invalid DOCSTRING_COVERAGE value: '$DOCSTRING_COVERAGE', defaulting to 0"
+            DOCSTRING_COVERAGE=0
+          fi
+
+          echo "📊 Coverage values: DOC_COVERAGE=$DOC_COVERAGE, DOCSTRING_COVERAGE=$DOCSTRING_COVERAGE"
+
           OVERALL_COVERAGE=$(python -c "print(int(($DOC_COVERAGE * 0.6) + ($DOCSTRING_COVERAGE * 0.4)))")
 
           echo "overall_coverage=${OVERALL_COVERAGE}" >> $GITHUB_OUTPUT
@@ -542,39 +556,39 @@ jobs:
 
           # Create SonarCloud-compatible test execution XML (strict format compliance)
           {
-            echo '<?xml version="1.0" encoding="UTF-8"?>'
-            echo '<testExecutions version="1">'
-            echo '  <file path="tests/documentation-coverage.test.js">'
+            printf '<?xml version="1.0" encoding="UTF-8"?>\n'
+            printf '<testExecutions version="1">\n'
+            printf '  <file path="tests/documentation-coverage.test.js">\n'
             
             # Documentation Files Test Case (dynamic based on actual coverage)
             if [ $DOC_COVERAGE -lt 85 ]; then
-              echo "    <testCase name=\"Documentation Files Coverage (${DOC_COVERAGE}%)\" duration=\"100\">"
-              echo "      <failure message=\"Documentation files coverage ${DOC_COVERAGE}% below 85% threshold\">Documentation files coverage is at ${DOC_COVERAGE}% which is below the required 85% threshold. Please create documentation files for missing source files to improve coverage.</failure>"
-              echo "    </testCase>"
+              printf '    <testCase name="Documentation Files Coverage (%s%%)" duration="100">\n' "$DOC_COVERAGE"
+              printf '      <failure message="Documentation files coverage %s%% below 85%% threshold">Documentation files coverage is at %s%% which is below the required 85%% threshold. Please create documentation files for missing source files to improve coverage.</failure>\n' "$DOC_COVERAGE" "$DOC_COVERAGE"
+              printf '    </testCase>\n'
             else
-              echo "    <testCase name=\"Documentation Files Coverage (${DOC_COVERAGE}%)\" duration=\"100\"/>"
+              printf '    <testCase name="Documentation Files Coverage (%s%%)" duration="100"/>\n' "$DOC_COVERAGE"
             fi
             
             # Python Docstring Test Case (dynamic based on actual coverage)
             if [ $DOCSTRING_COVERAGE -lt 85 ]; then
-              echo "    <testCase name=\"Python Docstring Coverage (${DOCSTRING_COVERAGE}%)\" duration=\"50\">"
-              echo "      <failure message=\"Python docstring coverage ${DOCSTRING_COVERAGE}% below 85% threshold\">Python docstring coverage is at ${DOCSTRING_COVERAGE}% which is below the required 85% threshold. Please add proper docstrings to Python functions and classes.</failure>"
-              echo "    </testCase>"
+              printf '    <testCase name="Python Docstring Coverage (%s%%)" duration="50">\n' "$DOCSTRING_COVERAGE"
+              printf '      <failure message="Python docstring coverage %s%% below 85%% threshold">Python docstring coverage is at %s%% which is below the required 85%% threshold. Please add proper docstrings to Python functions and classes.</failure>\n' "$DOCSTRING_COVERAGE" "$DOCSTRING_COVERAGE"
+              printf '    </testCase>\n'
             else
-              echo "    <testCase name=\"Python Docstring Coverage (${DOCSTRING_COVERAGE}%)\" duration=\"50\"/>"
+              printf '    <testCase name="Python Docstring Coverage (%s%%)" duration="50"/>\n' "$DOCSTRING_COVERAGE"
             fi
             
             # Overall Documentation Coverage Test Case (dynamic based on actual coverage)
             if [ $OVERALL_COVERAGE -lt 85 ]; then
-              echo "    <testCase name=\"Overall Documentation Coverage (${OVERALL_COVERAGE}%)\" duration=\"75\">"
-              echo "      <failure message=\"Overall documentation coverage ${OVERALL_COVERAGE}% below 85% threshold\">Overall documentation coverage (weighted average) is at ${OVERALL_COVERAGE}% which is below the required 85% threshold. This combines documentation files (60% weight) and docstring coverage (40% weight).</failure>"
-              echo "    </testCase>"
+              printf '    <testCase name="Overall Documentation Coverage (%s%%)" duration="75">\n' "$OVERALL_COVERAGE"
+              printf '      <failure message="Overall documentation coverage %s%% below 85%% threshold">Overall documentation coverage (weighted average) is at %s%% which is below the required 85%% threshold. This combines documentation files (60%% weight) and docstring coverage (40%% weight).</failure>\n' "$OVERALL_COVERAGE" "$OVERALL_COVERAGE"
+              printf '    </testCase>\n'
             else
-              echo "    <testCase name=\"Overall Documentation Coverage (${OVERALL_COVERAGE}%)\" duration=\"75\"/>"
+              printf '    <testCase name="Overall Documentation Coverage (%s%%)" duration="75"/>\n' "$OVERALL_COVERAGE"
             fi
             
-            echo '  </file>'
-            echo '</testExecutions>'
+            printf '  </file>\n'
+            printf '</testExecutions>\n'
           } > coverage/documentation-test-execution.xml
 
           # Debug: Show generated XML content
