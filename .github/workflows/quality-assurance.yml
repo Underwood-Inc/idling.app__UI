@@ -385,77 +385,77 @@ jobs:
             echo "docs_coverage_passed=false" >> $GITHUB_OUTPUT
           fi
 
-          # 🎭 DRAMATIC TABLOID REPORTING 🎭
-          echo "### 📈 **SHOCKING STATISTICS REVEALED!** 📈" >> coverage_report.md
+          # Generate professional coverage report
+          echo "### 📊 Documentation Coverage Statistics" >> coverage_report.md
           echo "" >> coverage_report.md
-          echo "| 🏆 **METRIC** | 🔢 **COUNT** | 📊 **PERCENTAGE** |" >> coverage_report.md
-          echo "|---------------|---------------|-------------------|" >> coverage_report.md
-          echo "| **Total Source Files** | **${total_files}** | **100%** |" >> coverage_report.md
-          echo "| **Documented Files** | **${documented_files}** | **${DOC_COVERAGE}%** |" >> coverage_report.md
-          echo "| **Missing Documentation** | **${#missing_files[@]}** | **$((100 - DOC_COVERAGE))%** |" >> coverage_report.md
+          echo "| Metric | Count | Percentage |" >> coverage_report.md
+          echo "|--------|-------|------------|" >> coverage_report.md
+          echo "| Total Source Files | ${total_files} | 100% |" >> coverage_report.md
+          echo "| Documented Files | ${documented_files} | ${DOC_COVERAGE}% |" >> coverage_report.md
+          echo "| Missing Documentation | ${#missing_files[@]} | $((100 - DOC_COVERAGE))% |" >> coverage_report.md
           echo "" >> coverage_report.md
 
-          # Generate DRAMATIC missing files report
+          # Generate missing files report
           if [ ${#missing_files[@]} -gt 0 ]; then
-            echo "### 🚨 **SCANDAL: ${#missing_files[@]} Files Found WITHOUT Documentation!** 🚨" >> coverage_report.md
+            echo "### ⚠️ Files Missing Documentation (${#missing_files[@]} files)" >> coverage_report.md
             echo "" >> coverage_report.md
-            echo "*Our investigative team has uncovered a shocking conspiracy of undocumented code!*" >> coverage_report.md
+            echo "The following source files need corresponding documentation files:" >> coverage_report.md
             echo "" >> coverage_report.md
-            echo "| 🔍 **UNDOCUMENTED SOURCE FILE** | 📝 **REQUIRED DOCUMENTATION** | 🚨 **STATUS** |" >> coverage_report.md
-            echo "|----------------------------------|--------------------------------|---------------|" >> coverage_report.md
+            echo "| Source File | Required Documentation | Status |" >> coverage_report.md
+            echo "|-------------|------------------------|--------|" >> coverage_report.md
             printf '%s\n' "${missing_files[@]}" | while read -r line; do
               src_file="$line"
               doc_file="DOCS/${src_file%.*}.md"
-              echo "| \`${src_file}\` | \`${doc_file}\` | ❌ **MISSING** |" >> coverage_report.md
+              echo "| \`${src_file}\` | \`${doc_file}\` | ❌ Missing |" >> coverage_report.md
             done
             echo "" >> coverage_report.md
-            echo "💥 **BREAKING NEWS:** These files are operating WITHOUT proper documentation coverage!" >> coverage_report.md
+            echo "📝 Please create documentation files for these source files to improve coverage." >> coverage_report.md
           else
-            echo "### 🎉 **MIRACLE: ALL FILES HAVE DOCUMENTATION!** 🎉" >> coverage_report.md
+            echo "### ✅ Perfect Documentation Coverage!" >> coverage_report.md
             echo "" >> coverage_report.md
-            echo "✨ *In a stunning turn of events, our investigation reveals PERFECT documentation coverage!* ✨" >> coverage_report.md
+            echo "🎉 All source files have corresponding documentation files." >> coverage_report.md
           fi
           echo "" >> coverage_report.md
 
-          # Generate PR-specific TABLOID report
+          # Generate PR-specific professional report
           if [ "${{ github.event_name }}" == "pull_request" ]; then
-            echo "### 🔥 **THIS JUST IN: PR Documentation Status EXPOSED!** 🔥" > pr_coverage_report.md
+            echo "### 📋 PR Documentation Status" > pr_coverage_report.md
             echo "" >> pr_coverage_report.md
-            echo "**🎯 Files Changed in This PR:** ${#pr_files[@]}" >> pr_coverage_report.md
+            echo "**📁 Files Changed in This PR:** ${#pr_files[@]}" >> pr_coverage_report.md
             echo "**📝 Missing Documentation:** ${#pr_missing_files[@]}" >> pr_coverage_report.md
             echo "" >> pr_coverage_report.md
 
             if [ ${#pr_missing_files[@]} -gt 0 ]; then
-              echo "### 💣 **BOMBSHELL: PR Contains Undocumented Files!** 💣" >> pr_coverage_report.md
+              echo "### ⚠️ PR Contains Undocumented Files" >> pr_coverage_report.md
               echo "" >> pr_coverage_report.md
-              echo "*EXCLUSIVE: Our sources reveal that this PR introduces changes to files lacking proper documentation!*" >> pr_coverage_report.md
+              echo "This PR modifies files that are missing corresponding documentation:" >> pr_coverage_report.md
               echo "" >> pr_coverage_report.md
-              echo "| 🚨 **UNDOCUMENTED FILE IN PR** | 📚 **REQUIRED DOCUMENTATION** | 🎯 **ACTION NEEDED** |" >> pr_coverage_report.md
-              echo "|--------------------------------|--------------------------------|----------------------|" >> pr_coverage_report.md
+              echo "| File in PR | Required Documentation | Action Needed |" >> pr_coverage_report.md
+              echo "|------------|------------------------|---------------|" >> pr_coverage_report.md
               printf '%s\n' "${pr_missing_files[@]}" | while read -r line; do
                 src_file="$line"
                 doc_file="DOCS/${src_file%.*}.md"
-                echo "| \`${src_file}\` | \`${doc_file}\` | 📝 **CREATE DOCS** |" >> pr_coverage_report.md
+                echo "| \`${src_file}\` | \`${doc_file}\` | 📝 Create docs |" >> pr_coverage_report.md
               done
               echo "" >> pr_coverage_report.md
-              echo "🔥 **URGENT:** Create these documentation files to maintain code quality standards!" >> pr_coverage_report.md
+              echo "📋 Please create these documentation files to maintain code quality standards." >> pr_coverage_report.md
             else
               if [ ${#pr_files[@]} -gt 0 ]; then
-                echo "### 🏆 **VICTORY: All PR Files Have Documentation!** 🏆" >> pr_coverage_report.md
+                echo "### ✅ All PR Files Have Documentation" >> pr_coverage_report.md
                 echo "" >> pr_coverage_report.md
-                echo "✨ *CELEBRATION TIME: Every single file in this PR has proper documentation coverage!* ✨" >> pr_coverage_report.md
+                echo "🎉 Every file in this PR has proper documentation coverage:" >> pr_coverage_report.md
                 echo "" >> pr_coverage_report.md
-                echo "| 📁 **DOCUMENTED FILE IN PR** | 📚 **DOCUMENTATION EXISTS** | ✅ **STATUS** |" >> pr_coverage_report.md
-                echo "|-------------------------------|------------------------------|---------------|" >> pr_coverage_report.md
+                echo "| File in PR | Documentation | Status |" >> pr_coverage_report.md
+                echo "|------------|---------------|--------|" >> pr_coverage_report.md
                 printf '%s\n' "${pr_files[@]}" | while read -r line; do
                   src_file="$line"
                   doc_file="DOCS/${src_file%.*}.md"
-                  echo "| \`${src_file}\` | \`${doc_file}\` | 🎉 **PERFECT** |" >> pr_coverage_report.md
+                  echo "| \`${src_file}\` | \`${doc_file}\` | ✅ Documented |" >> pr_coverage_report.md
                 done
               else
-                echo "### 📰 **REPORT: No Source Files Changed in This PR** 📰" >> pr_coverage_report.md
+                echo "### ℹ️ No Source Files Changed in This PR" >> pr_coverage_report.md
                 echo "" >> pr_coverage_report.md
-                echo "ℹ️ *Our investigation shows this PR doesn't modify any source files requiring documentation.*" >> pr_coverage_report.md
+                echo "This PR doesn't modify any source files requiring documentation." >> pr_coverage_report.md
               fi
             fi
           fi
@@ -527,19 +527,19 @@ jobs:
 
             const overallStatus = interrogatePassed && docsCoveragePassed ? '✅' : '❌';
 
-            let comment = `## ${overallStatus} 🚨 BREAKING: Documentation Coverage Investigation Results! 🚨\n\n`;
-            comment += `### 📊 **EXCLUSIVE COVERAGE STATISTICS**\n\n`;
-            comment += `| 🏆 **CHECK** | 🎯 **STATUS** | 📈 **COVERAGE** |\n`;
-            comment += `|--------------|---------------|------------------|\n`;
-            comment += `| Python Docstrings | ${interrogatePassed ? '✅ **PASSED**' : '❌ **FAILED**'} | **${docstringCoverage}%** |\n`;
-            comment += `| Documentation Files | ${docsCoveragePassed ? '✅ **PASSED**' : '❌ **FAILED**'} | **${docCoverage}%** |\n`;
-            comment += `| **🎯 OVERALL COVERAGE** | ${overallStatus} **${overallStatus === '✅' ? 'PASSED' : 'FAILED'}** | **${overallCoverage}%** |\n\n`;
+            let comment = `## ${overallStatus} Documentation Coverage Report\n\n`;
+            comment += `### 📊 Coverage Summary\n\n`;
+            comment += `| Check | Status | Coverage |\n`;
+            comment += `|-------|--------|----------|\n`;
+            comment += `| 🐍 Python Docstrings | ${interrogatePassed ? '✅ Passed' : '❌ Failed'} | ${docstringCoverage}% |\n`;
+            comment += `| 📝 Documentation Files | ${docsCoveragePassed ? '✅ Passed' : '❌ Failed'} | ${docCoverage}% |\n`;
+            comment += `| 🎯 **Overall Coverage** | ${overallStatus} **${overallStatus === '✅' ? 'Passed' : 'Failed'}** | **${overallCoverage}%** |\n\n`;
 
             // Add PR-specific documentation status
             try {
               if (fs.existsSync('pr_coverage_report.md')) {
                 const prReportContent = fs.readFileSync('pr_coverage_report.md', 'utf8');
-                comment += `<details>\n<summary>🔍 **EXCLUSIVE: This PR's Documentation Status EXPOSED!**</summary>\n\n`;
+                comment += `<details>\n<summary>🔍 **PR Documentation Status**</summary>\n\n`;
                 comment += prReportContent + '\n';
                 comment += `</details>\n\n`;
               }
@@ -549,17 +549,17 @@ jobs:
 
             // Add detailed reports in collapsible sections if there are issues
             if (!interrogatePassed) {
-              comment += `<details>\n<summary>🐍 **SCANDAL: Python Docstring Coverage Details REVEALED!**</summary>\n\n`;
+              comment += `<details>\n<summary>🐍 **Python Docstring Details**</summary>\n\n`;
               
               try {
                 if (fs.existsSync('interrogate_output.txt')) {
                   const interrogateOutput = fs.readFileSync('interrogate_output.txt', 'utf8');
                   comment += '```\n' + interrogateOutput + '\n```\n';
                 } else {
-                  comment += '❌ **SHOCKING:** No detailed interrogate output available!\n';
+                  comment += '⚠️ No detailed interrogate output available.\n';
                 }
               } catch (error) {
-                comment += '💥 **ERROR:** Failed to read interrogate output!\n';
+                comment += '❌ Failed to read interrogate output.\n';
               }
               
               comment += `\n</details>\n\n`;
@@ -567,30 +567,30 @@ jobs:
 
             // Add full codebase documentation status
             if (!docsCoveragePassed) {
-              comment += `<details>\n<summary>📚 **BOMBSHELL: Full Codebase Documentation Coverage EXPOSED!**</summary>\n\n`;
+              comment += `<details>\n<summary>📚 **Full Codebase Documentation Coverage**</summary>\n\n`;
               
               try {
                 if (fs.existsSync('coverage_report.md')) {
                   const fullReportContent = fs.readFileSync('coverage_report.md', 'utf8');
                   comment += fullReportContent + '\n';
                 } else {
-                  comment += `**🚨 BREAKING:** ${{ steps.docs-coverage.outputs.documented_files }} of ${{ steps.docs-coverage.outputs.total_files }} files documented\n\n`;
-                  comment += `💥 **SCANDAL:** Some source files are missing corresponding documentation files! `;
-                  comment += `Our investigative team demands you create documentation files in the \`DOCS/\` directory!\n\n`;
-                  comment += `**📰 EXPECTED DOCUMENTATION STRUCTURE:**\n`;
+                  comment += `📊 **Coverage Status:** ${{ steps.docs-coverage.outputs.documented_files }} of ${{ steps.docs-coverage.outputs.total_files }} files documented\n\n`;
+                  comment += `⚠️ Some source files are missing corresponding documentation files. `;
+                  comment += `Please create documentation files in the \`DOCS/\` directory.\n\n`;
+                  comment += `**📁 Expected Documentation Structure:**\n`;
                   comment += `- For \`src/components/Button.tsx\` → create \`DOCS/src/components/Button.md\`\n`;
                   comment += `- For \`src/utils/helpers.ts\` → create \`DOCS/src/utils/helpers.md\`\n`;
                 }
               } catch (error) {
-                comment += '💥 **ERROR:** Failed to read full coverage report!\n';
+                comment += '❌ Failed to read full coverage report.\n';
               }
               
               comment += `</details>\n\n`;
             }
 
-            comment += `### 🎯 **SonarCloud Integration**\n`;
-            comment += `📊 *Coverage data will be available in SonarCloud dashboard with custom metrics*\n\n`;
-            comment += `---\n*🎭 This dramatic exposé was automatically generated by the Quality Assurance workflow's investigative journalism team.*`;
+            comment += `### 🎯 SonarCloud Integration\n`;
+            comment += `📊 Coverage data will be available in the SonarCloud dashboard.\n\n`;
+            comment += `---\n*📋 This report was automatically generated by the Quality Assurance workflow.*`;
 
             // Find existing documentation coverage comment and update/create
             const { data: comments } = await github.rest.issues.listComments({
