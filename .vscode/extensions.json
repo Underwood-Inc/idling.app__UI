@@ -14,6 +14,7 @@
     "monokai.theme-monokai-pro-vscode",
     "redhat.vscode-yaml",
     "streetsidesoftware.code-spell-checker",
-    "vunguyentuan.vscode-css-variables"
+    "vunguyentuan.vscode-css-variables",
+    "ms-python.python"
   ]
 }

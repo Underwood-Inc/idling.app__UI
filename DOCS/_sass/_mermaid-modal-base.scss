@@ -73,13 +73,12 @@
   &__container {
     position: relative;
     z-index: calc(var(--z-modal) + 1);
-    width: 92vw;
-    height: 88vh;
-    max-width: 1600px;
-    max-height: 1000px;
+    width: calc(100vw - var(--spacing-2xl) * 2); // Full width minus consistent gaps
+    height: auto;
+    max-height: calc(100vh - var(--spacing-2xl) * 2); // Full height minus consistent gaps
     @include glass-effect($bg-modal-content, $blur-heavy, rgba(255, 255, 255, 0.15));
     border-radius: var(--radius-xl);
-    overflow: hidden;
+    overflow: auto; // Allow scrolling when content exceeds viewport
     transform-origin: center;
     transition: transform $transition-fast ease;
     box-shadow: 
@@ -92,17 +91,24 @@
     display: flex;
     flex-direction: column;
     
+    // Ensure the container can handle large content properly
+    min-width: 320px;
+    min-height: 240px;
+    
+    // Custom scrollbar for the modal container
+    @include custom-scrollbar();
+    
     @include respond-to(tablet) {
-      width: 96vw;
-      height: 92vh;
-      max-width: none;
-      max-height: none;
+      width: calc(100vw - var(--spacing-xl) * 2);
+      max-height: calc(100vh - var(--spacing-xl) * 2);
     }
     
     @include respond-to(mobile) {
-      width: 98vw;
-      height: 95vh;
+      width: calc(100vw - var(--spacing-lg) * 2);
+      max-height: calc(100vh - var(--spacing-lg) * 2);
       border-radius: var(--radius-lg);
+      min-width: 280px;
+      min-height: 200px;
     }
   }
 } 

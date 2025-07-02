@@ -26,8 +26,7 @@ This page bridges the gap between user-friendly explanations and technical imple
 
 Every request to our application goes through a sophisticated but efficient processing pipeline:
 
-<div class="diagram-container">
-<div class="diagram-title">🔄 Complete Request Processing Flow</div>
+### 🔄 Complete Request Processing Flow
 
 ```mermaid
 flowchart TD
@@ -69,8 +68,7 @@ flowchart TD
     style S fill:#f3e5f5
 ```
 
-<div class="diagram-description">Each request follows this comprehensive evaluation process in milliseconds</div>
-</div>
+_Each request follows this comprehensive evaluation process in milliseconds_
 
 ### Key Processing Steps
 
@@ -85,8 +83,7 @@ flowchart TD
 
 Our rate limiting uses a sliding window algorithm that provides smooth, fair limiting without the harsh reset boundaries of fixed windows:
 
-<div class="diagram-container">
-<div class="diagram-title">📊 Sliding Window vs Fixed Window</div>
+### 📊 Sliding Window vs Fixed Window
 
 ```mermaid
 gantt
@@ -109,8 +106,7 @@ gantt
     Oldest requests expire:60, 72
 ```
 
-<div class="diagram-description">Sliding windows provide smoother rate limiting without harsh reset boundaries</div>
-</div>
+_Sliding windows provide smoother rate limiting without harsh reset boundaries_
 
 ### Algorithm Benefits
 
@@ -132,8 +128,7 @@ gantt
 - Automatic cleanup of expired entries
 - Scales efficiently with user base
 
-<div class="diagram-container">
-<div class="diagram-title">🧮 Sliding Window Implementation</div>
+### 🧮 Sliding Window Implementation
 
 ```mermaid
 graph LR
@@ -178,15 +173,13 @@ graph LR
     style AVAILABLE fill:#e8f5e8
 ```
 
-<div class="diagram-description">Real-time calculation tracks requests across the sliding time window</div>
-</div>
+_Real-time calculation tracks requests across the sliding time window_
 
 ## ⚖️ Progressive Penalty System {#penalty-system}
 
 Our intelligent penalty system learns from behavior patterns and responds proportionally:
 
-<div class="diagram-container">
-<div class="diagram-title">🎯 Penalty Calculation Engine</div>
+### 🎯 Penalty Calculation Engine
 
 ```mermaid
 stateDiagram-v2
@@ -220,8 +213,7 @@ stateDiagram-v2
     end note
 ```
 
-<div class="diagram-description">State-based penalty system with automatic recovery paths</div>
-</div>
+_State-based penalty system with automatic recovery paths_
 
 ### Penalty Calculation
 
@@ -247,8 +239,7 @@ final_window = min(actual_window, 3600 seconds)
 
 Efficient memory usage ensures the system scales without performance degradation:
 
-<div class="diagram-container">
-<div class="diagram-title">💾 Memory Management Architecture</div>
+### 💾 Memory Management Architecture
 
 ```mermaid
 graph TB
@@ -292,8 +283,7 @@ graph TB
     style I fill:#e8f5e8
 ```
 
-<div class="diagram-description">Automated memory management prevents unbounded growth while maintaining performance</div>
-</div>
+_Automated memory management prevents unbounded growth while maintaining performance_
 
 ### Cleanup Strategies
 
@@ -319,8 +309,7 @@ graph TB
 
 Sophisticated pattern recognition identifies and responds to various attack types:
 
-<div class="diagram-container">
-<div class="diagram-title">🔍 Attack Detection Matrix</div>
+### 🔍 Attack Detection Matrix
 
 ```mermaid
 graph TD
@@ -361,8 +350,7 @@ graph TD
     style H fill:#fff3e0
 ```
 
-<div class="diagram-description">Multi-layered attack detection with graduated response levels</div>
-</div>
+_Multi-layered attack detection with graduated response levels_
 
 ### Detection Algorithms
 
@@ -388,8 +376,7 @@ graph TD
 
 The system uses a hierarchical configuration approach:
 
-<div class="diagram-container">
-<div class="diagram-title">⚙️ Configuration Hierarchy</div>
+### ⚙️ Configuration Hierarchy
 
 ```mermaid
 graph TB
@@ -431,8 +418,7 @@ graph TB
     style J fill:#fff3e0
 ```
 
-<div class="diagram-description">Flexible configuration system allows fine-tuning for different scenarios</div>
-</div>
+_Flexible configuration system allows fine-tuning for different scenarios_
 
 ### Configuration Categories
 
@@ -474,8 +460,7 @@ interface AttackConfig {
 
 The rate limiting system integrates seamlessly with existing infrastructure:
 
-<div class="diagram-container">
-<div class="diagram-title">🔌 System Integration Architecture</div>
+### 🔌 System Integration Architecture
 
 ```mermaid
 graph TB
@@ -531,8 +516,7 @@ graph TB
     style M fill:#e8f5e8
 ```
 
-<div class="diagram-description">Comprehensive integration with application infrastructure and external services</div>
-</div>
+_Comprehensive integration with application infrastructure and external services_
 
 ### Integration Benefits
 
@@ -555,28 +539,7 @@ graph TB
 - Cloud-native architecture ready
 
 <style>
-.diagram-container {
-  background: #f8f9fa;
-  border: 1px solid #e1e4e8;
-  border-radius: 8px;
-  padding: 1rem;
-  margin: 2rem 0;
-}
 
-.diagram-title {
-  font-weight: bold;
-  margin-bottom: 1rem;
-  text-align: center;
-  color: #24292e;
-}
-
-.diagram-description {
-  font-size: 0.9rem;
-  color: #586069;
-  text-align: center;
-  margin-top: 1rem;
-  font-style: italic;
-}
 
 .toc {
   background: #f6f8fa;

@@ -18,7 +18,7 @@
 }
 
 .sticky-pagination--bottom {
-  bottom: 5rem;
+  bottom: 1rem;
   animation: slideInFromBottom 0.3s ease;
 }
 
@@ -119,8 +119,8 @@
   }
 
   .sticky-pagination--bottom {
-    bottom: 4rem;
-    /* Adjust for mobile footer */
+    bottom: 1rem;
+    /* Adjust for non-sticky footer */
     animation: slideInFromBottomMobile 0.3s ease;
   }
 

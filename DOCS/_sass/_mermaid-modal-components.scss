@@ -83,15 +83,40 @@
   flex-direction: column;
   overflow: hidden;
   position: relative;
+  min-height: 0; // Allow flex item to shrink below content size
 }
 
 .mermaid-modal__diagram-container {
   flex: 1;
   padding: var(--spacing-2xl);
-  overflow: auto;
-  transform-origin: center;
+  position: relative;
+  overflow: visible; // Allow content to be visible beyond container
+  transform-origin: center center;
   transition: transform $transition-fast ease;
-  @include custom-scrollbar();
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  // The diagram content sits directly in the container
+  .mermaid {
+    display: block;
+    width: auto;
+    height: auto;
+    margin: 0;
+    transform-origin: center center;
+    
+    // Ensure SVG content is not constrained
+    svg {
+      display: block;
+      max-width: none !important;
+      max-height: none !important;
+      width: auto !important;
+      height: auto !important;
+      // Allow the SVG to be as large as it needs to be
+      min-width: auto !important;
+      min-height: auto !important;
+    }
+  }
   
   @include respond-to(tablet) {
     padding: var(--spacing-lg);
