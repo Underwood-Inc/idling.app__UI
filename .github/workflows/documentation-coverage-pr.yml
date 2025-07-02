@@ -18,6 +18,7 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 0
+          ref: ${{ github.head_ref }}
 
       - name: 🐍 Set up Python
         uses: actions/setup-python@v5
@@ -137,7 +138,7 @@ jobs:
             - Documentation Files: ${{ steps.docs-coverage.outputs.doc_coverage }}%
             - Python Docstrings: ${{ steps.interrogate.outputs.docstring_coverage }}%"
             
-            git push origin HEAD
+            git push origin ${{ github.head_ref }}
             echo "✅ Updated documentation coverage badges in PR"
           fi
 
