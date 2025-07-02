@@ -1,8 +1,13 @@
 name: 📚 Documentation Coverage (PR)
 
+# TEMPORARILY DISABLED - Testing if this workflow breaks GitHub status reporting
+# on:
+#   pull_request:
+#     types: [opened, synchronize, reopened]
+
+# Manual trigger only for testing
 on:
-  pull_request:
-    types: [opened, synchronize, reopened]
+  workflow_dispatch:
 
 permissions:
   contents: write
