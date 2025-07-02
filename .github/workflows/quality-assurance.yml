@@ -624,17 +624,6 @@ jobs:
 
             console.log('✅ Documentation coverage comment posted successfully!');
 
-      - name: Upload documentation coverage artifacts
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: documentation-coverage
-          path: |
-            coverage/documentation-coverage.xml
-            coverage/sonar-documentation.properties
-            interrogate_output.txt
-          retention-days: 30
-
   # SonarCloud analysis job (matches original working setup)
   sonar:
     timeout-minutes: 15
