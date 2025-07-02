@@ -10,8 +10,8 @@ permissions:
 
 jobs:
   documentation-coverage:
+    name: Documentation Coverage Check
     runs-on: ubuntu-latest
-    continue-on-error: true
 
     steps:
       - name: 🛒 Checkout repository
@@ -348,3 +348,23 @@ jobs:
               repo: context.repo.repo,
               body: comment
             });
+
+      - name: 📊 Final status check
+        run: |
+          echo "📊 Final Documentation Coverage Status Check"
+          echo "============================================="
+          echo "Python Docstrings: ${{ steps.interrogate.outputs.docstring_coverage }}% (passed: ${{ steps.interrogate.outputs.interrogate_passed }})"
+          echo "Documentation Files: ${{ steps.docs-coverage.outputs.doc_coverage }}% (passed: ${{ steps.docs-coverage.outputs.docs_coverage_passed }})"
+          echo "Overall Coverage: ${{ steps.generate-badge.outputs.overall_coverage }}%"
+          echo ""
+
+          # Set final status based on coverage
+          if [[ "${{ steps.interrogate.outputs.interrogate_passed }}" == "true" && "${{ steps.docs-coverage.outputs.docs_coverage_passed }}" == "true" ]]; then
+            echo "✅ Documentation coverage meets requirements - workflow PASSED"
+            exit 0
+          else
+            echo "❌ Documentation coverage below threshold - workflow FAILED"
+            echo "💡 This is informational - PR can still be merged"
+            echo "🎯 Target: 85% coverage for both Python docstrings and documentation files"
+            exit 1
+          fi
