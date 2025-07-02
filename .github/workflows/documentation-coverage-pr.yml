@@ -17,8 +17,8 @@ jobs:
 
     # Don't cancel other workflows
     concurrency:
-      group: docs-coverage-${{ github.event.pull_request.number }}
-      cancel-in-progress: false
+      group: docs-coverage-pr-${{ github.event.pull_request.number }}-${{ github.sha }}
+      cancel-in-progress: true
 
     steps:
       - name: 🛒 Checkout repository

@@ -2,7 +2,7 @@ name: Tests
 
 # Concurrency group to cancel in-progress runs on PR updates
 concurrency:
-  group: tests-${{ github.event.pull_request.number || github.ref }}
+  group: tests-pr-${{ github.event.pull_request.number || github.ref }}-${{ github.sha }}
   cancel-in-progress: true
 
 # PERFORMANCE OPTIMIZATION:
