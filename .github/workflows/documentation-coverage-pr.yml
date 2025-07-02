@@ -7,6 +7,7 @@ on:
 permissions:
   contents: write
   pull-requests: write
+  checks: write
 
 jobs:
   documentation-coverage:
@@ -105,18 +106,16 @@ jobs:
             echo "docs_coverage_passed=false" >> $GITHUB_OUTPUT
           fi
 
-                    # Generate detailed reports with table formatting
+          # Generate detailed reports with table formatting
           echo "### 📋 Missing Documentation Files (${#missing_files[@]} total)" >> coverage_report.md
           echo "" >> coverage_report.md
           if [ ${#missing_files[@]} -gt 0 ]; then
             echo "| Source File | Required Documentation |" >> coverage_report.md
             echo "|-------------|------------------------|" >> coverage_report.md
             printf '%s\n' "${missing_files[@]}" | while read -r line; do
-              src_file=$(echo "$line" | cut -d' ' -f1)
+              src_file="$line"
               # Fix the extension handling - only add .md once
-              doc_file="DOCS/${src_file}"
-              # Remove existing extension and add .md
-              doc_file="${doc_file%.*}.md"
+              doc_file="DOCS/${src_file%.*}.md"
               echo "| \`${src_file}\` | \`${doc_file}\` |" >> coverage_report.md
             done
           else
@@ -135,11 +134,9 @@ jobs:
             echo "| Source File | Required Documentation |" >> pr_coverage_report.md
             echo "|-------------|------------------------|" >> pr_coverage_report.md
             printf '%s\n' "${pr_missing_files[@]}" | while read -r line; do
-              src_file=$(echo "$line" | cut -d' ' -f1)
+              src_file="$line"
               # Fix the extension handling - only add .md once
-              doc_file="DOCS/${src_file}"
-              # Remove existing extension and add .md
-              doc_file="${doc_file%.*}.md"
+              doc_file="DOCS/${src_file%.*}.md"
               echo "| \`${src_file}\` | \`${doc_file}\` |" >> pr_coverage_report.md
             done
             echo "" >> pr_coverage_report.md
@@ -152,22 +149,6 @@ jobs:
             fi
           fi
         continue-on-error: true
-
-      - name: 📊 Documentation coverage summary
-        run: |
-          echo "📊 Documentation Coverage Summary"
-          echo "=================================="
-          echo "Python Docstrings: ${{ steps.interrogate.outputs.docstring_coverage }}%"
-          echo "Documentation Files: ${{ steps.docs-coverage.outputs.doc_coverage }}%"
-          echo "Overall Coverage: ${{ steps.generate-badge.outputs.overall_coverage }}%"
-          echo ""
-
-          if [[ "${{ steps.interrogate.outputs.interrogate_passed }}" == "false" || "${{ steps.docs-coverage.outputs.docs_coverage_passed }}" == "false" ]]; then
-            echo "::notice::📚 Documentation coverage is below 85% but this won't block the PR"
-            echo "::notice::💡 Consider adding documentation to improve coverage!"
-          else
-            echo "✅ Documentation coverage meets the target threshold!"
-          fi
 
       - name: 🎨 Generate documentation coverage badge
         id: generate-badge
@@ -199,91 +180,95 @@ jobs:
 
           echo "Generated documentation coverage badge: ${OVERALL_COVERAGE}%"
 
-      - name: 📝 Update documentation coverage badge placeholders
+      - name: 📝 Update badges in PR files
         run: |
-          echo "📝 Updating documentation coverage badge placeholders..."
+          echo "📝 Updating documentation coverage badges in PR files..."
 
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
 
-                              # Store badge URL and create safe replacement content
           BADGE_URL="${{ steps.generate-badge.outputs.badge_url }}"
-          README_BADGE="[![Documentation Coverage](${BADGE_URL})](https://underwood-inc.github.io/idling.app__UI/)"
-          JEKYLL_BADGE="<img src=\"${BADGE_URL}\" alt=\"Documentation Coverage\" />"
 
-          echo "🔧 Badge URL: ${BADGE_URL}"
-          echo "📝 README badge: ${README_BADGE}"
-          echo "🎨 Jekyll badge: ${JEKYLL_BADGE}"
-
-          # Create temporary files with clean content
-          cp README.md README.md.backup
-          cp DOCS/_includes/header.html DOCS/_includes/header.html.backup
-
-          # Clean replacement for README.md - remove any existing documentation coverage badges first
-          echo "🧹 Cleaning README.md of any existing documentation coverage badges..."
-          # Remove any line containing "Documentation Coverage" and "img.shields.io"
-          grep -v "Documentation.*Coverage.*img\.shields\.io" README.md.backup > README.md.temp || cp README.md.backup README.md.temp
-
-          # Now safely replace the placeholder
-          if grep -q "<!-- DOCUMENTATION_COVERAGE_BADGE_PLACEHOLDER -->" README.md.temp; then
-            echo "✅ Replacing placeholder in README.md..."
-            sed "s|<!-- DOCUMENTATION_COVERAGE_BADGE_PLACEHOLDER -->|${README_BADGE}|" README.md.temp > README.md
+          # Simple and safe badge replacement
+          echo "🔧 Updating README.md..."
+          if grep -q "<!-- DOCUMENTATION_COVERAGE_BADGE_PLACEHOLDER -->" README.md; then
+            # Replace placeholder with complete badge
+            sed -i "s|<!-- DOCUMENTATION_COVERAGE_BADGE_PLACEHOLDER -->|[![Documentation Coverage](${BADGE_URL})](https://underwood-inc.github.io/idling.app__UI/)|" README.md
+            echo "✅ Updated README.md badge"
           else
-            echo "⚠️ No placeholder found in README.md - keeping original"
-            cp README.md.backup README.md
+            echo "⚠️ No placeholder found in README.md"
           fi
 
-          # Clean replacement for Jekyll header - remove any existing documentation coverage badges first
-          echo "🧹 Cleaning Jekyll header of any existing documentation coverage badges..."
-          # Remove any line containing "Documentation Coverage" and "img.shields.io"
-          grep -v "Documentation.*Coverage.*img\.shields\.io" DOCS/_includes/header.html.backup > DOCS/_includes/header.html.temp || cp DOCS/_includes/header.html.backup DOCS/_includes/header.html.temp
-
-          # Now safely replace the placeholder
-          if grep -q "<!-- DOCUMENTATION_COVERAGE_BADGE_PLACEHOLDER -->" DOCS/_includes/header.html.temp; then
-            echo "✅ Replacing placeholder in Jekyll header..."
-            sed "s|<!-- DOCUMENTATION_COVERAGE_BADGE_PLACEHOLDER -->|${JEKYLL_BADGE}|" DOCS/_includes/header.html.temp > DOCS/_includes/header.html
+          echo "🎨 Updating Jekyll header..."
+          if grep -q "<!-- DOCUMENTATION_COVERAGE_BADGE_PLACEHOLDER -->" DOCS/_includes/header.html; then
+            # Replace placeholder with complete badge
+            sed -i "s|<!-- DOCUMENTATION_COVERAGE_BADGE_PLACEHOLDER -->|<img src=\"${BADGE_URL}\" alt=\"Documentation Coverage\" />|" DOCS/_includes/header.html
+            echo "✅ Updated Jekyll header badge"
           else
-            echo "⚠️ No placeholder found in Jekyll header - keeping original"
-            cp DOCS/_includes/header.html.backup DOCS/_includes/header.html
+            echo "⚠️ No placeholder found in Jekyll header"
           fi
 
-          # Clean up temporary files
-          rm -f README.md.backup README.md.temp DOCS/_includes/header.html.backup DOCS/_includes/header.html.temp
-
-          # Verify badge updates were successful
-          echo "🔍 Verifying badge updates..."
-
-          # Check README.md
-          if grep -q "Documentation.*Coverage.*${{ steps.generate-badge.outputs.overall_coverage }}%" README.md || grep -q "<!-- DOCUMENTATION_COVERAGE_BADGE_PLACEHOLDER -->" README.md; then
-            echo "✅ README.md badge status: OK"
-          else
-            echo "⚠️ README.md badge may not have updated correctly"
-          fi
-
-          # Check Jekyll header
-          if grep -q "Documentation.*Coverage" DOCS/_includes/header.html || grep -q "<!-- DOCUMENTATION_COVERAGE_BADGE_PLACEHOLDER -->" DOCS/_includes/header.html; then
-            echo "✅ Jekyll header badge status: OK"
-          else
-            echo "⚠️ Jekyll header badge may not have updated correctly"
-          fi
-
-          # Check if there are changes to commit
-          if git diff --quiet README.md DOCS/_includes/header.html; then
-            echo "📝 No changes to documentation coverage badges"
-          else
-            echo "📝 Committing documentation coverage badge updates to PR..."
+          # Commit changes if any
+          if ! git diff --quiet README.md DOCS/_includes/header.html; then
+            echo "📝 Committing badge updates..."
             git add README.md DOCS/_includes/header.html
-            git commit -m "docs: update documentation coverage badge - ${{ steps.generate-badge.outputs.overall_coverage }}%
-
-            - Overall Coverage: ${{ steps.generate-badge.outputs.overall_coverage }}%
-            - Documentation Files: ${{ steps.docs-coverage.outputs.doc_coverage }}%
-            - Python Docstrings: ${{ steps.interrogate.outputs.docstring_coverage }}%"
-            
+            git commit -m "docs: update documentation coverage badge - ${{ steps.generate-badge.outputs.overall_coverage }}%"
             git push origin ${{ github.head_ref }}
-            echo "✅ Updated documentation coverage badges in PR"
+            echo "✅ Badge updates committed to PR"
+          else
+            echo "📝 No badge changes to commit"
           fi
 
-      - name: 💬 Comment on PR with results
+      - name: 📋 Update PR description with badge
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const badgeUrl = '${{ steps.generate-badge.outputs.badge_url }}';
+            const overallCoverage = '${{ steps.generate-badge.outputs.overall_coverage }}';
+            const docCoverage = '${{ steps.docs-coverage.outputs.doc_coverage }}';
+            const docstringCoverage = '${{ steps.interrogate.outputs.docstring_coverage }}';
+
+            // Get current PR
+            const { data: pr } = await github.rest.pulls.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number
+            });
+
+            let body = pr.body || '';
+
+            // Create documentation coverage section
+            const overallStatus = parseInt(overallCoverage) >= 85 ? '✅' : '❌';
+            const docStatus = parseInt(docCoverage) >= 85 ? '✅' : '❌';
+            const docstringStatus = parseInt(docstringCoverage) >= 85 ? '✅' : '❌';
+
+            const docSection = '## 📚 Documentation Coverage Status\n\n' +
+              '![Documentation Coverage](' + badgeUrl + ')\n\n' +
+              '| Metric | Coverage | Status |\n' +
+              '|--------|----------|--------|\n' +
+              '| Overall | ' + overallCoverage + '% | ' + overallStatus + ' |\n' +
+              '| Documentation Files | ' + docCoverage + '% | ' + docStatus + ' |\n' +
+              '| Python Docstrings | ' + docstringCoverage + '% | ' + docstringStatus + ' |\n\n' +
+              '*Updated automatically by Documentation Coverage workflow*\n\n' +
+              '---\n\n';
+
+            // Remove existing documentation section if present
+            body = body.replace(/## 📚 Documentation Coverage Status[\s\S]*?---\s*\n\n?/g, '');
+
+            // Add new section at the top
+            body = docSection + body;
+
+            // Update PR description
+            await github.rest.pulls.update({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number,
+              body: body
+            });
+
+            console.log('✅ Updated PR description with documentation coverage badge');
+
+      - name: 💬 Comment on PR with detailed results
         uses: actions/github-script@v7
         with:
           script: |
@@ -359,14 +344,14 @@ jobs:
             comment += `---\n*This comment was automatically generated by the Documentation Coverage workflow.*`;
 
             // Post comment
-            github.rest.issues.createComment({
+            await github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
               body: comment
             });
 
-      - name: 📊 Final status check
+      - name: 📊 Set final status
         run: |
           echo "📊 Final Documentation Coverage Status Check"
           echo "============================================="
@@ -377,11 +362,11 @@ jobs:
 
           # Set final status based on coverage
           if [[ "${{ steps.interrogate.outputs.interrogate_passed }}" == "true" && "${{ steps.docs-coverage.outputs.docs_coverage_passed }}" == "true" ]]; then
-            echo "✅ Documentation coverage meets requirements - workflow PASSED"
+            echo "✅ Documentation coverage meets requirements - CHECK PASSED"
             exit 0
           else
-            echo "❌ Documentation coverage below threshold - workflow FAILED"
-            echo "💡 This is informational - PR can still be merged"
+            echo "❌ Documentation coverage below threshold - CHECK FAILED"
+            echo "💡 This is informational - PR can still be merged if allowed by branch protection"
             echo "🎯 Target: 85% coverage for both Python docstrings and documentation files"
             exit 1
           fi
