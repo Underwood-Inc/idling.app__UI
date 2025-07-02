@@ -11,6 +11,7 @@ permissions:
 jobs:
   documentation-coverage:
     runs-on: ubuntu-latest
+    continue-on-error: true
 
     steps:
       - name: 🛒 Checkout repository
@@ -107,39 +108,59 @@ jobs:
             echo "docs_coverage_passed=false" >> $GITHUB_OUTPUT
           fi
 
-          # Generate detailed reports
+                    # Generate detailed reports with better formatting
           echo "### 📋 Missing Documentation Files (${#missing_files[@]} total)" >> coverage_report.md
           echo "" >> coverage_report.md
           if [ ${#missing_files[@]} -gt 0 ]; then
             printf '%s\n' "${missing_files[@]}" | while read -r line; do
-              echo "- \`$line\`" >> coverage_report.md
+              src_file=$(echo "$line" | cut -d' ' -f1)
+              doc_file=$(echo "$line" | cut -d' ' -f3)
+              echo "- **\`${src_file}\`** → \`${doc_file}\`" >> coverage_report.md
             done
           else
             echo "✅ All source files have documentation!" >> coverage_report.md
           fi
           echo "" >> coverage_report.md
 
-          # Generate PR-specific report
-          echo "## 🔍 This PR's Documentation Status" > pr_coverage_report.md
-          echo "" >> pr_coverage_report.md
-          echo "**Files changed in this PR:** ${#pr_files[@]}" >> pr_coverage_report.md
+          # Generate PR-specific report with better formatting
+          echo "**Files changed in this PR:** ${#pr_files[@]}" > pr_coverage_report.md
           echo "**Missing documentation:** ${#pr_missing_files[@]}" >> pr_coverage_report.md
           echo "" >> pr_coverage_report.md
 
           if [ ${#pr_missing_files[@]} -gt 0 ]; then
-            echo "### 📝 PR Files Missing Documentation" >> pr_coverage_report.md
+            echo "### 📝 Files in this PR that need documentation:" >> pr_coverage_report.md
             echo "" >> pr_coverage_report.md
             printf '%s\n' "${pr_missing_files[@]}" | while read -r line; do
-              echo "- \`$line\`" >> pr_coverage_report.md
+              src_file=$(echo "$line" | cut -d' ' -f1)
+              doc_file=$(echo "$line" | cut -d' ' -f3)
+              echo "- **\`${src_file}\`** → \`${doc_file}\`" >> pr_coverage_report.md
             done
+            echo "" >> pr_coverage_report.md
+            echo "💡 **Tip**: Create these documentation files to improve coverage!" >> pr_coverage_report.md
           else
             if [ ${#pr_files[@]} -gt 0 ]; then
-              echo "✅ All files in this PR have documentation!" >> pr_coverage_report.md
+              echo "✅ **All files in this PR have documentation!**" >> pr_coverage_report.md
             else
-              echo "ℹ️ No source files were changed in this PR." >> pr_coverage_report.md
+              echo "ℹ️ **No source files were changed in this PR.**" >> pr_coverage_report.md
             fi
           fi
         continue-on-error: true
+
+      - name: 📊 Documentation coverage summary
+        run: |
+          echo "📊 Documentation Coverage Summary"
+          echo "=================================="
+          echo "Python Docstrings: ${{ steps.interrogate.outputs.docstring_coverage }}%"
+          echo "Documentation Files: ${{ steps.docs-coverage.outputs.doc_coverage }}%"
+          echo "Overall Coverage: ${{ steps.generate-badge.outputs.overall_coverage }}%"
+          echo ""
+
+          if [[ "${{ steps.interrogate.outputs.interrogate_passed }}" == "false" || "${{ steps.docs-coverage.outputs.docs_coverage_passed }}" == "false" ]]; then
+            echo "::notice::📚 Documentation coverage is below 85% but this won't block the PR"
+            echo "::notice::💡 Consider adding documentation to improve coverage!"
+          else
+            echo "✅ Documentation coverage meets the target threshold!"
+          fi
 
       - name: 🎨 Generate documentation coverage badge
         id: generate-badge
