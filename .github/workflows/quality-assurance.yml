@@ -670,13 +670,35 @@ jobs:
         continue-on-error: true
         uses: actions/download-artifact@v4
 
-      # Run SonarCloud analysis (exactly like the original working setup)
+      # Install xmllint for XML validation
+      - name: Install XML tools
+        run: sudo apt-get update && sudo apt-get install -y libxml2-utils
+
+      # Clear any existing SonarCloud cache
+      - name: Clear SonarCloud cache
+        run: |
+          echo "🧹 Clearing SonarCloud cache..."
+          rm -rf ~/.sonar/cache || true
+          rm -rf /tmp/sonar-scanner-* || true
+          echo "✅ Cache cleared"
+
+      # Debug: List downloaded artifacts
+      - name: Debug artifacts
+        run: |
+          echo "📁 Downloaded artifacts:"
+          find . -name "*.xml" -type f | head -20
+          echo "📊 Coverage directory contents:"
+          ls -la coverage/ || echo "No coverage directory found"
+
+      # Run SonarCloud analysis with cache busting
       - name: SonarCloud Scan
         continue-on-error: true
         uses: SonarSource/sonarqube-scan-action@v5.0.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          # Disable caching to avoid cache issues
+          SONAR_SCANNER_OPTS: '-Dsonar.scanner.cacheEnabled=false'
 
   # Status reporting jobs that consolidate matrix results
   playwright-status:
