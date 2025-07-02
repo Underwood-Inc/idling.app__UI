@@ -45,6 +45,79 @@
   }
 }
 
+/* Navbar Content Styles */
+.navbar__content {
+  display: flex;
+  align-items: center;
+}
+
+.navbar__content--jc-center {
+  justify-content: center;
+}
+
+.navbar__content--jc-end,
+.navbar__content--jc-flex-end {
+  justify-content: flex-end;
+}
+
+.navbar__content--jc-flex-start {
+  justify-content: flex-start;
+}
+
+.navbar__content--jc-space-between {
+  justify-content: space-between;
+}
+
+.navbar__content--jc-space-around {
+  justify-content: space-around;
+}
+
+.navbar__content--jc-space-evenly {
+  justify-content: space-evenly;
+}
+
+.navbar__content--jc-left {
+  justify-content: left;
+}
+
+.navbar__content--jc-right {
+  justify-content: right;
+}
+
+.navbar__content--jc-start {
+  justify-content: start;
+}
+
+.navbar__content--jc-stretch {
+  justify-content: stretch;
+}
+
+.navbar__content--jc-normal {
+  justify-content: normal;
+}
+
+.navbar__content--jc-inherit {
+  justify-content: inherit;
+}
+
+.navbar__content--jc-initial {
+  justify-content: initial;
+}
+
+.navbar__content--jc-revert {
+  justify-content: revert;
+}
+
+.navbar__content--jc-revert-layer {
+  justify-content: revert-layer;
+}
+
+/* Navbar Body Styles */
+.navbar__body {
+  display: flex;
+  width: 100%;
+}
+
 /* Existing navbar styles */
 .navbar__container {
   display: flex;

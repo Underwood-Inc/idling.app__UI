@@ -44,6 +44,8 @@ navigation:
         url: "/components/floating-toolbar/"
       - title: "Search Overlay"
         url: "/components/search-overlay/"
+      - title: "Navbar System"
+        url: "/components/navbar/"
   - title: "Development"
     url: "/development/"
     subnav:

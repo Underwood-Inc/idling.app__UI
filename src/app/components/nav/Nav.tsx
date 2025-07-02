@@ -16,7 +16,7 @@ export default async function Nav() {
     <Navbar>
       <Navbar.Body className="nav__content">
         <Navbar.Content
-          justify="center"
+          justify="flex-start"
           className="nav__links nav__links--as-flex-end"
         >
           <NavPaths />
@@ -33,7 +33,7 @@ export default async function Nav() {
           </InstantLink>
         </Navbar.Content>
 
-        <Navbar.Content justify="end" className="nav--as-flex-end">
+        <Navbar.Content justify="flex-end" className="nav--as-flex-end">
           <Navbar.Item className="nav__auth">
             <NavAuth />
           </Navbar.Item>

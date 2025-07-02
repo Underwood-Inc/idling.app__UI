@@ -45,6 +45,21 @@ Context-sensitive toolbar that appears when editing rich text content. Provides 
 
 Contextual search and suggestion overlay for rich text inputs. Appears automatically when users type trigger characters, offering real-time suggestions and search results.
 
+### Navbar System
+
+**Location**: [Navbar Component](/components/navbar/)
+
+Sophisticated three-column navigation system that ensures perfect centering of the brand (avatar + "Idling.app" text) while providing flexible space for navigation links and authentication controls. Uses a hybrid CSS Grid and Flexbox approach for optimal layout control.
+
+**Key Features**:
+
+- Perfect center alignment using CSS Grid
+- Three-column flex system (navigation, brand, authentication)
+- Responsive design with mobile-first approach
+- Modular component architecture
+- Comprehensive accessibility support
+- Performance-optimized animations
+
 ---
 
 ## Component Categories
@@ -61,7 +76,7 @@ Contextual search and suggestion overlay for rich text inputs. Appears automatic
 
 ### Navigation Components
 
-- _Documentation coming soon..._
+- **Navbar System** - Three-column layout with perfect center alignment
 
 ### Display Components
 

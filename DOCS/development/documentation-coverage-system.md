@@ -164,23 +164,13 @@ chmod +x scripts/update-centralized-badges.py
 
 ### In Jekyll Documentation
 
-```liquid
-<!-- Use the include file -->
-{% include documentation-coverage-badge.html %}
-
-<!-- Or reference the centralized markdown -->
-{% include_relative ../badges/documentation-coverage.md %}
-```
+Use the documentation coverage badge in your Jekyll pages by referencing the include file or using direct markdown.
 
 ### In Markdown Files
 
+Use direct markdown for documentation coverage badges:
+
 ```markdown
-<!-- Reference the centralized badge file -->
-
-{% include_relative DOCS/badges/documentation-coverage.md %}
-
-<!-- Or use direct markdown (will be auto-updated) -->
-
 [![Documentation Coverage](badge-url)](https://underwood-inc.github.io/idling.app__UI/)
 ```
 
