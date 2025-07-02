@@ -275,7 +275,7 @@ export default function OgImageViewer() {
       <PageHeader>
         <FadeIn>
           <div
-            className={`${styles.header__content} ${welcomeFlow.showWelcome ? styles.header__centered : ''}`}
+            className={`${styles.header__content} ${styles.header__centered}`}
           >
             <div className={styles.header__text}>
               <h1>🧙‍♂️ Mystical Card Generator</h1>

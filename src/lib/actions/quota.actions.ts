@@ -1,6 +1,7 @@
 'use server';
 
 import sql from '@/lib/db';
+import { EnhancedQuotaService } from '@/lib/services/EnhancedQuotaService';
 
 // ================================
 // TYPES
@@ -444,8 +445,8 @@ function buildQuotaCheck(
   const remaining = isUnlimited ? Infinity : Math.max(0, quotaLimit - currentUsage);
   const allowed = isUnlimited || currentUsage < quotaLimit;
   
-  // Calculate reset date based on period
-  const resetDate = calculateResetDate(resetPeriod);
+  // Calculate reset date based on period using the shared function
+  const resetDate = EnhancedQuotaService.calculateResetDate(resetPeriod);
 
   return {
     allowed,
@@ -458,23 +459,4 @@ function buildQuotaCheck(
     quota_source: quotaSource,
     message
   };
-}
-
-function calculateResetDate(resetPeriod: string): Date {
-  const now = new Date();
-  
-  switch (resetPeriod) {
-    case 'hourly':
-      return new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours() + 1, 0, 0, 0);
-    case 'daily':
-      return new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 0, 0);
-    case 'weekly': {
-      const daysUntilMonday = (8 - now.getDay()) % 7;
-      return new Date(now.getFullYear(), now.getMonth(), now.getDate() + daysUntilMonday, 0, 0, 0, 0);
-    }
-    case 'monthly':
-      return new Date(now.getFullYear(), now.getMonth() + 1, 1, 0, 0, 0, 0);
-    default:
-      return new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 0, 0);
-  }
 } 

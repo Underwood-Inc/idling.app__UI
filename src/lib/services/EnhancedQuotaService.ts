@@ -215,7 +215,7 @@ export class EnhancedQuotaService {
   /**
    * Calculate the next reset date based on reset period
    */
-  private static calculateResetDate(resetPeriod: string): Date {
+  public static calculateResetDate(resetPeriod: string): Date {
     const now = new Date();
     
     switch (resetPeriod) {
@@ -226,8 +226,10 @@ export class EnhancedQuotaService {
         return new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 0, 0);
       
       case 'weekly': {
-        const daysToNextWeek = 7 - now.getDay();
-        return new Date(now.getFullYear(), now.getMonth(), now.getDate() + daysToNextWeek, 0, 0, 0, 0);
+        // Use same logic as getResetPeriodRange - week starts on Sunday (day 0)
+        const dayOfWeek = now.getDay();
+        const daysUntilNextWeek = dayOfWeek === 0 ? 7 : 7 - dayOfWeek;
+        return new Date(now.getFullYear(), now.getMonth(), now.getDate() + daysUntilNextWeek, 0, 0, 0, 0);
       }
       
       case 'monthly':
