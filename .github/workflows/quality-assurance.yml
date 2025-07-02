@@ -749,6 +749,60 @@ jobs:
 
             console.log('✅ Documentation coverage comment posted successfully!');
 
+      # Update PR description with documentation coverage badges
+      - name: 📝 Update PR description with coverage badges
+        if: github.event_name == 'pull_request'
+        run: |
+          echo "🎨 Generating documentation coverage badge..."
+
+          # Get coverage values
+          DOC_COVERAGE="${{ steps.docs-coverage.outputs.doc_coverage }}"
+          DOCSTRING_COVERAGE="${{ steps.interrogate.outputs.docstring_coverage }}"
+          OVERALL_COVERAGE="${{ steps.generate-metrics.outputs.overall_coverage }}"
+
+          # Validate coverage values
+          if [[ -z "$DOC_COVERAGE" || ! "$DOC_COVERAGE" =~ ^[0-9]+$ ]]; then
+            DOC_COVERAGE=0
+          fi
+          if [[ -z "$DOCSTRING_COVERAGE" || ! "$DOCSTRING_COVERAGE" =~ ^[0-9]+$ ]]; then
+            DOCSTRING_COVERAGE=0
+          fi
+          if [[ -z "$OVERALL_COVERAGE" || ! "$OVERALL_COVERAGE" =~ ^[0-9]+$ ]]; then
+            OVERALL_COVERAGE=0
+          fi
+
+          # Determine badge color based on coverage
+          if [ $OVERALL_COVERAGE -ge 90 ]; then
+            BADGE_COLOR="brightgreen"
+          elif [ $OVERALL_COVERAGE -ge 75 ]; then
+            BADGE_COLOR="green"
+          elif [ $OVERALL_COVERAGE -ge 60 ]; then
+            BADGE_COLOR="yellow"
+          elif [ $OVERALL_COVERAGE -ge 40 ]; then
+            BADGE_COLOR="orange"
+          else
+            BADGE_COLOR="red"
+          fi
+
+          # Generate badge URL
+          BADGE_URL="https://img.shields.io/badge/Documentation%20Coverage-${OVERALL_COVERAGE}%25-${BADGE_COLOR}?style=flat&logo=gitbook&logoColor=white"
+
+          echo "📊 Generated badge URL: $BADGE_URL"
+
+          # Set environment variables for the Python script
+          export DOC_BADGE_URL="$BADGE_URL"
+          export OVERALL_COVERAGE="$OVERALL_COVERAGE"
+          export DOC_COVERAGE="$DOC_COVERAGE"
+          export DOCSTRING_COVERAGE="$DOCSTRING_COVERAGE"
+          export DOCS_PASSED="${{ steps.docs-coverage.outputs.docs_coverage_passed }}"
+          export INTERROGATE_PASSED="${{ steps.interrogate.outputs.interrogate_passed }}"
+
+          # Update PR description
+          python3 scripts/update-pr-description.py \
+            --pr-number "${{ github.event.pull_request.number }}" \
+            --repo "${{ github.repository }}" \
+            --token "${{ secrets.GITHUB_TOKEN }}"
+
   # SonarCloud analysis job (matches original working setup)
   sonar:
     timeout-minutes: 15
@@ -857,6 +911,80 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           # Force fresh analysis with cache busting
           SONAR_SCANNER_OPTS: '-Dsonar.scanner.cacheEnabled=false -Dsonar.cache.dir=/tmp/sonar-cache-${{ env.CACHE_BUSTER }}'
+
+      # Add SonarCloud badges to PR description
+      - name: 📊 Update PR with SonarCloud badges
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const projectKey = 'Underwood-Inc_idling.app__UI';
+            const prNumber = context.issue.number;
+
+            // Generate SonarCloud badge URLs for this specific PR
+            const qualityGateBadge = `https://sonarcloud.io/api/project_badges/measure?project=${projectKey}&metric=alert_status&pullRequest=${prNumber}`;
+            const bugsBadge = `https://sonarcloud.io/api/project_badges/measure?project=${projectKey}&metric=bugs&pullRequest=${prNumber}`;
+            const codeSmellsBadge = `https://sonarcloud.io/api/project_badges/measure?project=${projectKey}&metric=code_smells&pullRequest=${prNumber}`;
+            const coverageBadge = `https://sonarcloud.io/api/project_badges/measure?project=${projectKey}&metric=coverage&pullRequest=${prNumber}`;
+            const duplicatedLinesBadge = `https://sonarcloud.io/api/project_badges/measure?project=${projectKey}&metric=duplicated_lines_density&pullRequest=${prNumber}`;
+            const linesOfCodeBadge = `https://sonarcloud.io/api/project_badges/measure?project=${projectKey}&metric=ncloc&pullRequest=${prNumber}`;
+            const reliabilityBadge = `https://sonarcloud.io/api/project_badges/measure?project=${projectKey}&metric=reliability_rating&pullRequest=${prNumber}`;
+            const securityBadge = `https://sonarcloud.io/api/project_badges/measure?project=${projectKey}&metric=security_rating&pullRequest=${prNumber}`;
+            const maintainabilityBadge = `https://sonarcloud.io/api/project_badges/measure?project=${projectKey}&metric=sqale_rating&pullRequest=${prNumber}`;
+
+            const sonarCloudUrl = `https://sonarcloud.io/summary/new_code?id=${projectKey}&pullRequest=${prNumber}`;
+
+            // Create SonarCloud badges section
+            const sonarBadgesSection = `## 🔍 SonarCloud Analysis\n\n` +
+              `[![Quality Gate Status](${qualityGateBadge})](${sonarCloudUrl})\n` +
+              `[![Bugs](${bugsBadge})](${sonarCloudUrl})\n` +
+              `[![Code Smells](${codeSmellsBadge})](${sonarCloudUrl})\n` +
+              `[![Coverage](${coverageBadge})](${sonarCloudUrl})\n` +
+              `[![Duplicated Lines (%)](${duplicatedLinesBadge})](${sonarCloudUrl})\n` +
+              `[![Lines of Code](${linesOfCodeBadge})](${sonarCloudUrl})\n` +
+              `[![Reliability Rating](${reliabilityBadge})](${sonarCloudUrl})\n` +
+              `[![Security Rating](${securityBadge})](${sonarCloudUrl})\n` +
+              `[![Maintainability Rating](${maintainabilityBadge})](${sonarCloudUrl})\n\n` +
+              `[📊 View Detailed Analysis on SonarCloud](${sonarCloudUrl})\n\n` +
+              `---\n\n`;
+
+            // Get current PR description
+            const { data: pr } = await github.rest.pulls.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: prNumber
+            });
+
+            let currentDescription = pr.body || '';
+
+            // Remove existing SonarCloud section if present
+            currentDescription = currentDescription.replace(
+              /## 🔍 SonarCloud Analysis.*?---\n\n/s,
+              ''
+            );
+
+            // Add SonarCloud section at the top (after documentation coverage if present)
+            let newDescription;
+            if (currentDescription.includes('## 📚 Documentation Coverage Status')) {
+              // Insert after documentation coverage section
+              newDescription = currentDescription.replace(
+                /(## 📚 Documentation Coverage Status.*?---\n\n)/s,
+                `$1${sonarBadgesSection}`
+              );
+            } else {
+              // Add at the very top
+              newDescription = sonarBadgesSection + currentDescription.trim();
+            }
+
+            // Update PR description
+            await github.rest.pulls.update({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: prNumber,
+              body: newDescription
+            });
+
+            console.log('✅ Updated PR description with SonarCloud badges');
 
   # Status reporting jobs that consolidate matrix results
   playwright-status:
