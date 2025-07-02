@@ -26,8 +26,7 @@ This guide helps you understand how to work effectively with our rate limiting s
 
 Think of rate limits like a personal budget for different activities. Just as you might have separate budgets for groceries, entertainment, and savings, our system has different "budgets" for different types of actions.
 
-<div class="diagram-container">
-<div class="diagram-title">💳 Your Rate Limit "Budget"</div>
+### 💳 Your Rate Limit "Budget"
 
 ```mermaid
 pie title Your Activity Budget (Per Minute)
@@ -38,8 +37,7 @@ pie title Your Activity Budget (Per Minute)
     "🔐 Login Attempts" : 10
 ```
 
-<div class="diagram-description">Different activities have different limits based on their resource requirements</div>
-</div>
+_Different activities have different limits based on their resource requirements_
 
 ### Your Daily Limits Breakdown
 
@@ -75,8 +73,7 @@ pie title Your Activity Budget (Per Minute)
 
 Our system recognizes different usage patterns and adapts accordingly:
 
-<div class="diagram-container">
-<div class="diagram-title">👥 User Journey & Experience</div>
+### 👥 User Journey & Experience
 
 ```mermaid
 journey
@@ -105,8 +102,7 @@ journey
       Returns to normal: 5: User
 ```
 
-<div class="diagram-description">The system adapts to different user patterns while maintaining fairness</div>
-</div>
+_The system adapts to different user patterns while maintaining fairness_
 
 ### 👤 **Casual Users**
 
@@ -140,8 +136,7 @@ journey
 
 Different activities have different optimal approaches:
 
-<div class="diagram-container">
-<div class="diagram-title">🎯 Activity Optimization Strategies</div>
+### 🎯 Activity Optimization Strategies
 
 ```mermaid
 graph TD
@@ -175,8 +170,7 @@ graph TD
     style F1 fill:#ffebee
 ```
 
-<div class="diagram-description">Tailored strategies for different types of activities maximize efficiency</div>
-</div>
+_Tailored strategies for different types of activities maximize efficiency_
 
 ### 🔍 **Search & Browse Activities**
 
@@ -268,8 +262,7 @@ graph TD
 
 Follow these guidelines to optimize your experience:
 
-<div class="diagram-container">
-<div class="diagram-title">✅ Best Practices Framework</div>
+### ✅ Best Practices Framework
 
 ```mermaid
 mindmap
@@ -296,8 +289,7 @@ mindmap
       Report suspicious behavior
 ```
 
-<div class="diagram-description">Comprehensive best practices across timing, efficiency, recovery, and security dimensions</div>
-</div>
+_Comprehensive best practices across timing, efficiency, recovery, and security dimensions_
 
 ### ⏰ **Timing Strategies**
 
@@ -357,8 +349,7 @@ mindmap
 
 Recognize these early indicators to avoid hitting hard limits:
 
-<div class="diagram-container">
-<div class="diagram-title">⚠️ Warning Signs Progression</div>
+### ⚠️ Warning Signs Progression
 
 ```mermaid
 graph LR
@@ -376,8 +367,7 @@ graph LR
     style D fill:#ffcdd2
 ```
 
-<div class="diagram-description">Progressive warning system gives you time to adjust before hitting hard limits</div>
-</div>
+_Progressive warning system gives you time to adjust before hitting hard limits_
 
 ### 🟡 **Early Warning Signs**
 
@@ -407,8 +397,7 @@ graph LR
 
 When you do hit limits, here's how to recover quickly and effectively:
 
-<div class="diagram-container">
-<div class="diagram-title">🔄 Recovery Process</div>
+### 🔄 Recovery Process
 
 ```mermaid
 flowchart TD
@@ -428,8 +417,7 @@ flowchart TD
     style I fill:#e8f5e8
 ```
 
-<div class="diagram-description">Systematic recovery process helps you learn and improve</div>
-</div>
+_Systematic recovery process helps you learn and improve_
 
 ### 🕐 **Immediate Steps**
 
@@ -456,8 +444,7 @@ flowchart TD
 
 Advanced techniques for power users and developers:
 
-<div class="diagram-container">
-<div class="diagram-title">⚡ Advanced Optimization Techniques</div>
+### ⚡ Advanced Optimization Techniques
 
 ```mermaid
 graph TB
@@ -510,8 +497,7 @@ graph TB
     style M fill:#f3e5f5
 ```
 
-<div class="diagram-description">Multi-layered optimization approach for maximum efficiency</div>
-</div>
+_Multi-layered optimization approach for maximum efficiency_
 
 ### 🎯 **Request Optimization**
 
@@ -623,28 +609,7 @@ class CircuitBreaker {
 ```
 
 <style>
-.diagram-container {
-  background: #f8f9fa;
-  border: 1px solid #e1e4e8;
-  border-radius: 8px;
-  padding: 1rem;
-  margin: 2rem 0;
-}
 
-.diagram-title {
-  font-weight: bold;
-  margin-bottom: 1rem;
-  text-align: center;
-  color: #24292e;
-}
-
-.diagram-description {
-  font-size: 0.9rem;
-  color: #586069;
-  text-align: center;
-  margin-top: 1rem;
-  font-style: italic;
-}
 
 .toc {
   background: #f6f8fa;

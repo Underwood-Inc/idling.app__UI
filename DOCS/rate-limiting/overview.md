@@ -26,8 +26,7 @@ Our application uses a sophisticated but user-friendly protection system to keep
 
 Imagine our website as a busy restaurant. Just like a restaurant needs systems to handle busy periods without chaos, our website needs systems to handle lots of users without problems.
 
-<div class="diagram-container">
-<div class="diagram-title">🏢 System Architecture Overview</div>
+### 🏢 System Architecture Overview
 
 ```mermaid
 graph TB
@@ -81,8 +80,7 @@ graph TB
     style LOGS fill:#ffebee
 ```
 
-<div class="diagram-description">Multi-layered protection system that processes all requests before they reach your application</div>
-</div>
+_Multi-layered protection system that processes all requests before they reach your application_
 
 ### Our Protection Layers
 
@@ -95,8 +93,7 @@ graph TB
 
 Just like different areas of a restaurant have different rules, our website has different protection levels:
 
-<div class="diagram-container">
-<div class="diagram-title">🏛️ Protection Zones & Limits</div>
+### 🏛️ Protection Zones & Limits
 
 ```mermaid
 pie title Rate Limit Distribution by Zone
@@ -107,8 +104,7 @@ pie title Rate Limit Distribution by Zone
     "📤 File Uploads" : 5
 ```
 
-<div class="diagram-description">Different zones have different limits based on their resource requirements and security needs</div>
-</div>
+_Different zones have different limits based on their resource requirements and security needs_
 
 ### Zone Details
 
@@ -144,8 +140,7 @@ pie title Rate Limit Distribution by Zone
 
 Our protection system gets smarter over time using a progressive penalty system:
 
-<div class="diagram-container">
-<div class="diagram-title">📈 Progressive Penalty System</div>
+### 📈 Progressive Penalty System
 
 ```mermaid
 graph LR
@@ -178,8 +173,7 @@ graph LR
     style L5 fill:#ffcdd2
 ```
 
-<div class="diagram-description">The system learns from behavior patterns and adjusts responses accordingly</div>
-</div>
+_The system learns from behavior patterns and adjusts responses accordingly_
 
 ### Good Behavior Rewards
 
@@ -195,8 +189,7 @@ graph LR
 
 ## 📊 What We Monitor {#monitoring}
 
-<div class="diagram-container">
-<div class="diagram-title">📡 Monitoring Dashboard</div>
+### 📡 Monitoring Dashboard
 
 ```mermaid
 graph TD
@@ -242,8 +235,7 @@ graph TD
     style M fill:#f3e5f5
 ```
 
-<div class="diagram-description">Comprehensive monitoring ensures early detection of issues and optimal system performance</div>
-</div>
+_Comprehensive monitoring ensures early detection of issues and optimal system performance_
 
 ### For Your Safety
 
@@ -261,8 +253,7 @@ graph TD
 
 ## 🎯 Fairness Principles {#fairness}
 
-<div class="diagram-container">
-<div class="diagram-title">⚖️ Fairness Framework</div>
+### ⚖️ Fairness Framework
 
 ```mermaid
 mindmap
@@ -285,8 +276,7 @@ mindmap
       Fresh start policy
 ```
 
-<div class="diagram-description">Our fairness framework ensures equal treatment while accommodating different usage patterns</div>
-</div>
+_Our fairness framework ensures equal treatment while accommodating different usage patterns_
 
 ### Equal Access
 
@@ -306,8 +296,7 @@ Good behavior quickly reduces any restrictions.
 
 ## 🔄 How Limits Reset {#limits-reset}
 
-<div class="diagram-container">
-<div class="diagram-title">⏰ Reset Timeline</div>
+### ⏰ Reset Timeline
 
 ```mermaid
 gantt
@@ -339,8 +328,7 @@ gantt
     Next window      :2, 3
 ```
 
-<div class="diagram-description">Different protection zones have different reset schedules optimized for their specific use cases</div>
-</div>
+_Different protection zones have different reset schedules optimized for their specific use cases_
 
 ### Time-Based Recovery
 
@@ -361,8 +349,7 @@ Your recent behavior affects how quickly limits reset:
 
 ## 🚨 When Protection Activates {#protection-activates}
 
-<div class="diagram-container">
-<div class="diagram-title">🛡️ Protection Activation Flow</div>
+### 🛡️ Protection Activation Flow
 
 ```mermaid
 sequenceDiagram
@@ -395,8 +382,7 @@ sequenceDiagram
     Note over User,Response: All blocks are temporary and self-healing
 ```
 
-<div class="diagram-description">The system responds proportionally to different types of limit violations</div>
-</div>
+_The system responds proportionally to different types of limit violations_
 
 ### What Triggers It
 
@@ -438,28 +424,7 @@ sequenceDiagram
 - **Quality service**: Better experience for everyone
 
 <style>
-.diagram-container {
-  background: #f8f9fa;
-  border: 1px solid #e1e4e8;
-  border-radius: 8px;
-  padding: 1rem;
-  margin: 2rem 0;
-}
 
-.diagram-title {
-  font-weight: bold;
-  margin-bottom: 1rem;
-  text-align: center;
-  color: #24292e;
-}
-
-.diagram-description {
-  font-size: 0.9rem;
-  color: #586069;
-  text-align: center;
-  margin-top: 1rem;
-  font-style: italic;
-}
 
 .toc {
   background: #f6f8fa;

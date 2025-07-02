@@ -8,8 +8,7 @@ mermaid: true
 
 Welcome to the comprehensive documentation for our rate limiting and security system. This documentation provides everything you need to understand, use, and manage the system effectively.
 
-<div class="diagram-container">
-<div class="diagram-title">🛡️ System Overview</div>
+### 🛡️ System Overview
 
 ```mermaid
 graph TB
@@ -64,8 +63,7 @@ graph TB
     style M fill:#fff3e0
 ```
 
-<div class="diagram-description">Multi-layered protection system with intelligent threat detection and comprehensive management tools</div>
-</div>
+_Multi-layered protection system with intelligent threat detection and comprehensive management tools_
 
 ## 🎯 Quick Navigation
 
@@ -125,8 +123,7 @@ graph TB
 
 Our rate limiting system uses a multi-layered approach to provide comprehensive protection:
 
-<div class="diagram-container">
-<div class="diagram-title">🏗️ Protection Layers</div>
+### 🏗️ Protection Layers
 
 ```mermaid
 graph LR
@@ -172,15 +169,13 @@ graph LR
     style J fill:#f3e5f5
 ```
 
-<div class="diagram-description">Four distinct protection layers work together to provide comprehensive security and performance</div>
-</div>
+_Four distinct protection layers work together to provide comprehensive security and performance_
 
 ## 📊 Usage Patterns
 
 Understanding different usage patterns helps you optimize your experience:
 
-<div class="diagram-container">
-<div class="diagram-title">📊 User Activity Patterns</div>
+### 📊 User Activity Patterns
 
 ```mermaid
 pie title User Activity Distribution
@@ -191,8 +186,7 @@ pie title User Activity Distribution
     "⚡ Admin Actions" : 2
 ```
 
-<div class="diagram-description">Most user activity falls into search and general API usage, with specialized functions having lower but important usage</div>
-</div>
+_Most user activity falls into search and general API usage, with specialized functions having lower but important usage_
 
 ### Activity Breakdown
 
@@ -206,8 +200,7 @@ pie title User Activity Distribution
 
 Different types of operations have different rate limiting approaches:
 
-<div class="diagram-container">
-<div class="diagram-title">🎯 Rate Limiting Strategy Matrix</div>
+### 🎯 Rate Limiting Strategy Matrix
 
 ```mermaid
 quadrantChart
@@ -230,15 +223,13 @@ quadrantChart
     User Registration: [0.6, 0.3]
 ```
 
-<div class="diagram-description">Different operations require different rate limiting strategies based on their resource impact and security risk profile</div>
-</div>
+_Different operations require different rate limiting strategies based on their resource impact and security risk profile_
 
 ## 🔄 Request Lifecycle
 
 Every request goes through a comprehensive evaluation process:
 
-<div class="diagram-container">
-<div class="diagram-title">🔄 Request Processing Timeline</div>
+### 🔄 Request Processing Timeline
 
 ```mermaid
 timeline
@@ -264,55 +255,63 @@ timeline
         User Feedback       : Clear response messages
 ```
 
-<div class="diagram-description">Each request follows this timeline, typically completing in under 10 milliseconds</div>
-</div>
+_Each request follows this timeline, typically completing in under 10 milliseconds_
 
 ## 🚨 Protection Levels
 
 Our system provides graduated protection based on threat levels:
 
-<div class="diagram-container">
-<div class="diagram-title">🚨 Threat Response Matrix</div>
+### 🚨 Threat Response Matrix
 
 ```mermaid
-gitgraph
-    commit id: "Normal Traffic"
-    branch gentle-warning
-    commit id: "Soft Warning"
-    commit id: "User Guidance"
+flowchart TD
+    A[🟢 Normal Traffic] --> B{Threat Detected?}
 
-    checkout main
-    branch moderate-limit
-    commit id: "Rate Limit"
-    commit id: "Brief Pause"
+    B -->|Minor Issue| C[⚠️ Gentle Warning]
+    B -->|Moderate Issue| D[🛑 Rate Limiting]
+    B -->|Serious Issue| E[🔒 Security Block]
+    B -->|Attack Pattern| F[🚨 Emergency Response]
 
-    checkout main
-    branch strong-protection
-    commit id: "Security Block"
-    commit id: "Investigation"
+    C --> C1[Soft Warning Message]
+    C1 --> C2[User Guidance Provided]
+    C2 --> G[Monitor Behavior]
 
-    checkout main
-    branch emergency-response
-    commit id: "Attack Detected"
-    commit id: "Emergency Mode"
+    D --> D1[Temporary Rate Limit]
+    D1 --> D2[Brief Pause Required]
+    D2 --> G
 
-    checkout main
-    merge gentle-warning
-    merge moderate-limit
-    merge strong-protection
-    merge emergency-response
-    commit id: "System Recovery"
+    E --> E1[Access Blocked]
+    E1 --> E2[Security Investigation]
+    E2 --> H[Review & Recovery]
+
+    F --> F1[Attack Detected]
+    F1 --> F2[Emergency Mode Active]
+    F2 --> H
+
+    G --> I{Behavior Improved?}
+    H --> I
+
+    I -->|Yes| J[🔄 System Recovery]
+    I -->|No| K[Escalate Response]
+
+    J --> A
+    K --> B
+
+    style A fill:#e8f5e8
+    style C fill:#fff3e0
+    style D fill:#ffcc80
+    style E fill:#ffab91
+    style F fill:#ffcdd2
+    style J fill:#e1f5fe
 ```
 
-<div class="diagram-description">Progressive response system escalates protection measures based on threat severity while maintaining paths to recovery</div>
-</div>
+_Progressive response system escalates protection measures based on threat severity while maintaining paths to recovery_
 
 ## 🎓 Getting Started
 
 Choose your path based on your role and needs:
 
-<div class="diagram-container">
-<div class="diagram-title">🎓 Learning Path Recommendations</div>
+### 🎓 Learning Path Recommendations
 
 ```mermaid
 flowchart TD
@@ -346,8 +345,7 @@ flowchart TD
     style F1 fill:#ffebee
 ```
 
-<div class="diagram-description">Recommended learning paths tailored to different roles and immediate needs</div>
-</div>
+_Recommended learning paths tailored to different roles and immediate needs_
 
 ### 👤 **For End Users**
 
@@ -371,8 +369,7 @@ flowchart TD
 
 Our rate limiting system provides multiple layers of value:
 
-<div class="diagram-container">
-<div class="diagram-title">📈 Value Proposition</div>
+### 📈 Value Proposition
 
 ```mermaid
 mindmap
@@ -399,8 +396,7 @@ mindmap
       Quick recovery
 ```
 
-<div class="diagram-description">Comprehensive benefits across performance, security, reliability, and user experience dimensions</div>
-</div>
+_Comprehensive benefits across performance, security, reliability, and user experience dimensions_
 
 ## 🔗 Quick Links
 
@@ -509,26 +505,5 @@ This documentation is designed to serve users at all technical levels, from casu
   }
 }
 
-.diagram-container {
-  background: #f8f9fa;
-  border: 1px solid #e1e4e8;
-  border-radius: 8px;
-  padding: 1rem;
-  margin: 2rem 0;
-}
 
-.diagram-title {
-  font-weight: bold;
-  margin-bottom: 1rem;
-  text-align: center;
-  color: #24292e;
-}
-
-.diagram-description {
-  font-size: 0.9rem;
-  color: #586069;
-  text-align: center;
-  margin-top: 1rem;
-  font-style: italic;
-}
 </style>
