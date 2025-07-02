@@ -1,192 +1,86 @@
 # 🧪 Testing Guide
 
-This guide covers all testing capabilities in the Idling App UI codebase, including unit tests, integration tests, and end-to-end (E2E) tests.
+Welcome to the comprehensive testing guide for this project! This document covers all testing frameworks, patterns, and best practices.
 
 ## 📋 Table of Contents
 
-- [Quick Start](#-quick-start)
-- [Test Types](#-test-types)
-- [Running Tests](#-running-tests)
-- [VS Code Integration](#-vs-code-integration)
-- [Test Configuration](#-test-configuration)
-- [Writing Tests](#-writing-tests)
-- [Debugging Tests](#-debugging-tests)
-- [CI/CD Integration](#-cicd-integration)
-- [Troubleshooting](#-troubleshooting)
+- [🎯 Testing Overview](#-testing-overview)
+- [🃏 Jest (Unit & Integration Tests)](#-jest-unit--integration-tests)
+- [🎭 Playwright (E2E Tests)](#-playwright-e2e-tests)
+- [🚀 Quick Start](#-quick-start)
+- [⚙️ Configuration](#-configuration)
+- [🛠️ Development Workflow](#️-development-workflow)
+- [🔧 Debugging](#-debugging)
+- [📊 Coverage](#-coverage)
+- [🏗️ Best Practices](#️-best-practices)
+- [❓ Troubleshooting](#-troubleshooting)
 
-## 🚀 Quick Start
+## 🎯 Testing Overview
 
-### Prerequisites
+This project uses **two completely separate testing frameworks**:
 
-1. **Node.js** (>=20.x) - Check with `node --version`
-2. **Yarn** - Check with `yarn --version`
-3. **Dependencies installed** - Run `yarn install`
+### Jest (Unit & Integration Tests)
 
-### Run All Tests
-
-```bash
-# Run Jest unit/integration tests
-yarn test
-
-# Run Playwright E2E tests (UI mode)
-yarn e2e
-
-# Run Playwright E2E tests (headless)
-yarn e2e:headless
-```
-
-## 🎯 Test Types
-
-### 1. Unit Tests (Jest)
-
-- **Location**: `src/**/*.test.{ts,tsx}`
-- **Purpose**: Test individual components and functions in isolation
+- **Purpose**: Test individual components, functions, and modules in isolation
+- **File Pattern**: `src/**/*.test.{ts,tsx,js,jsx}`
 - **Framework**: Jest + React Testing Library
-- **Example**: `src/app/components/app-version/AppVersion.test.tsx`
+- **Runs**: In Node.js environment with jsdom
+- **Focus**: Logic, component behavior, API functions
 
-### 2. Integration Tests (Jest)
+### Playwright (End-to-End Tests)
 
-- **Location**: `src/**/*.test.{ts,tsx}`
-- **Purpose**: Test multiple components working together
-- **Framework**: Jest + React Testing Library
-- **Database**: Uses test database for API route testing
-
-### 3. End-to-End Tests (Playwright)
-
-- **Location**: `e2e/**/*.spec.ts`
-- **Purpose**: Test complete user workflows in a real browser
+- **Purpose**: Test complete user workflows in real browsers
+- **File Pattern**: `e2e/**/*.spec.ts`
 - **Framework**: Playwright
-- **Browsers**: Chromium, Firefox, WebKit
+- **Runs**: In real browsers (Chromium, Firefox, WebKit)
+- **Focus**: User interactions, full application flows
 
-## 🏃 Running Tests
+> **⚠️ Important**: These frameworks are completely independent and should never be mixed or imported into each other!
 
-### Jest (Unit/Integration Tests)
+## 🃏 Jest (Unit & Integration Tests)
+
+### Quick Commands
 
 ```bash
-# Run all tests once
+# Run all Jest tests
 yarn test
 
-# Run tests with coverage report
+# Run tests in watch mode
+yarn test:watch
+
+# Run tests with coverage
 yarn test:coverage
 
-# Run tests in CI mode (no watch)
-yarn test:ci
+# Run specific test file
+yarn test Button.test.tsx
 
-# Run tests and output to file
-yarn test:to-file
+# Run tests matching pattern
+yarn test --testNamePattern="should render"
 ```
 
-### Playwright (E2E Tests)
+### File Structure
 
-```bash
-# Run E2E tests with UI (interactive)
-yarn e2e
-
-# Run E2E tests headless (CI-friendly)
-yarn e2e:headless
-
-# Run E2E tests with browser visible
-yarn e2e:headed
-
-# Show test reports
-yarn e2e:reports
-
-# Generate new test code
-yarn e2e:gen
+```
+src/
+├── components/
+│   ├── Button/
+│   │   ├── Button.tsx
+│   │   └── Button.test.tsx          # ✅ Jest test
+│   └── Form/
+│       ├── Form.tsx
+│       └── __tests__/
+│           └── Form.test.tsx        # ✅ Jest test
+├── lib/
+│   ├── utils.ts
+│   └── utils.test.ts                # ✅ Jest test
+└── app/
+    ├── page.tsx
+    └── page.test.tsx                # ✅ Jest test
 ```
 
-### Combined Test Suites
+### Writing Jest Tests
 
-```bash
-# In VS Code: Use Command Palette (Ctrl/Cmd + Shift + P)
-# Search for "Tasks: Run Task" and select:
-# - "🎯 Run All Tests (Jest + Playwright)"
-# - "📊 Run All Tests with Coverage"
-```
-
-## 🔧 VS Code Integration
-
-### Available Tasks
-
-Press `Ctrl/Cmd + Shift + P` → "Tasks: Run Task":
-
-- **🧪 Run All Jest Tests** - Default test runner
-- **🧪 Run Jest Tests with Coverage** - Includes coverage report
-- **🧪 Run Jest Tests (CI Mode)** - No watch mode
-- **🎭 Run Playwright E2E Tests (UI Mode)** - Interactive E2E testing
-- **🎭 Run Playwright E2E Tests (Headless)** - Background E2E testing
-- **🎭 Run Playwright E2E Tests (Headed)** - Visible browser E2E testing
-- **📊 Show Playwright Test Reports** - View test results
-- **🎯 Run All Tests (Jest + Playwright)** - Complete test suite
-- **📊 Run All Tests with Coverage** - Complete suite with coverage
-
-### Debug Configurations
-
-Press `F5` or go to Run & Debug panel:
-
-- **🧪 Debug Jest Tests** - Debug all Jest tests
-- **🧪 Debug Specific Jest Test** - Debug currently open test file
-- **🎭 Debug Playwright Tests** - Debug all Playwright tests
-- **🎭 Debug Specific Playwright Test** - Debug currently open E2E test
-
-### Test Explorer
-
-- **Jest Extension**: Shows test tree in sidebar
-- **Playwright Extension**: Integrated test runner
-- **Test Results**: Inline in editor with pass/fail indicators
-
-## ⚙️ Test Configuration
-
-### Jest Configuration (`jest.config.js`)
-
-```javascript
-const customJestConfig = {
-  setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
-  testEnvironment: 'jsdom',
-  moduleNameMapping: {
-    '^@/(.*)$': '<rootDir>/src/$1'
-    // ... other mappings
-  },
-  testPathIgnorePatterns: [
-    '<rootDir>/.next/',
-    '<rootDir>/node_modules/',
-    '<rootDir>/e2e/',
-    '\\.spec\\.(ts|tsx)$' // Ignore Playwright specs
-  ],
-  collectCoverageFrom: [
-    'src/**/*.{js,jsx,ts,tsx}',
-    '!src/**/*.d.ts',
-    '!src/**/*.stories.tsx',
-    '!src/**/index.ts'
-  ]
-};
-```
-
-### Playwright Configuration (`playwright.config.ts`)
-
-```typescript
-export default defineConfig({
-  testDir: './e2e',
-  fullyParallel: true,
-  retries: process.env.CI ? 2 : 0,
-  workers: process.env.CI ? 1 : undefined,
-  use: {
-    baseURL: 'http://127.0.0.1:3000',
-    trace: 'on-first-retry',
-    screenshot: 'only-on-failure',
-    video: 'retain-on-failure'
-  },
-  projects: [
-    { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
-    { name: 'firefox', use: { ...devices['Desktop Firefox'] } },
-    { name: 'webkit', use: { ...devices['Desktop Safari'] } }
-  ]
-});
-```
-
-## ✍️ Writing Tests
-
-### Jest Test Example
+#### Component Testing Example
 
 ```typescript
 // src/components/Button/Button.test.tsx
@@ -194,209 +88,528 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { Button } from './Button';
 
 describe('Button Component', () => {
-  it('renders with correct text', () => {
+  it('should render with correct text', () => {
     render(<Button>Click me</Button>);
-    expect(screen.getByText('Click me')).toBeInTheDocument();
+    expect(screen.getByRole('button')).toHaveTextContent('Click me');
   });
 
-  it('calls onClick when clicked', () => {
+  it('should handle click events', () => {
     const handleClick = jest.fn();
     render(<Button onClick={handleClick}>Click me</Button>);
 
-    fireEvent.click(screen.getByText('Click me'));
+    fireEvent.click(screen.getByRole('button'));
     expect(handleClick).toHaveBeenCalledTimes(1);
   });
 });
 ```
 
-### Playwright Test Example
+#### Server Action Testing Example
 
 ```typescript
-// e2e/navigation.spec.ts
-import { test, expect } from '@playwright/test';
+// src/app/api/actions.test.ts
+import { getSubmissionsAction } from './actions';
 
-test.describe('Navigation', () => {
-  test('should navigate to posts page', async ({ page }) => {
-    await page.goto('/');
+// Mock database module
+jest.mock('../../lib/db', () => ({
+  __esModule: true,
+  default: {
+    unsafe: jest.fn().mockResolvedValue([])
+  }
+}));
 
-    await page.click('a[href="/posts"]');
-    await expect(page).toHaveURL('/posts');
+describe('getSubmissionsAction', () => {
+  it('should return submissions data', async () => {
+    const result = await getSubmissionsAction({
+      onlyMine: false,
+      userId: '',
+      filters: [],
+      page: 1,
+      pageSize: 10
+    });
 
-    await expect(page.locator('h1')).toContainText('Posts');
+    expect(result.data).toBeDefined();
+    expect(result.error).toBeUndefined();
   });
 });
 ```
 
-## 🐛 Debugging Tests
+### Jest Configuration
 
-### Jest Debugging
+Key configuration files:
 
-1. **VS Code Debugger**: Use "🧪 Debug Jest Tests" launch configuration
-2. **Browser DevTools**: Add `debugger;` statements in tests
-3. **Console Logging**: Use `console.log()` for debugging output
+- `jest.config.js` - Main Jest configuration
+- `jest.setup.js` - Global test setup (mocks, polyfills)
+- `jest.env.js` - Environment variables for tests
+
+## 🎭 Playwright (End-to-End Tests)
+
+### Quick Commands
+
+```bash
+# Run all E2E tests
+yarn e2e
+
+# Run E2E tests in UI mode (interactive)
+yarn e2e:ui
+
+# Run E2E tests in headed mode (visible browser)
+yarn e2e:headed
+
+# Run specific test file
+yarn e2e login.spec.ts
+
+# Run tests in specific browser
+yarn e2e --project=chromium
+```
+
+### File Structure
+
+```
+e2e/
+├── auth/
+│   ├── login.spec.ts               # ✅ Playwright test
+│   └── signup.spec.ts              # ✅ Playwright test
+├── submissions/
+│   ├── create-submission.spec.ts   # ✅ Playwright test
+│   └── view-submissions.spec.ts    # ✅ Playwright test
+├── fixtures/
+│   └── test-data.ts                # Test data helpers
+└── utils/
+    └── helpers.ts                  # E2E test utilities
+```
+
+### Writing Playwright Tests
+
+#### Page Interaction Example
 
 ```typescript
-// Debug specific test
-it('should debug this test', () => {
-  debugger; // Breakpoint here
-  const result = myFunction();
-  console.log('Result:', result);
-  expect(result).toBe(expected);
+// e2e/submissions/create-submission.spec.ts
+import { test, expect } from '@playwright/test';
+
+test.describe('Create Submission', () => {
+  test('should create a new submission', async ({ page }) => {
+    // Navigate to the page
+    await page.goto('/submissions/new');
+
+    // Fill out the form
+    await page.fill('[data-testid="submission-title"]', 'My Test Submission');
+    await page.fill('[data-testid="submission-url"]', 'https://example.com');
+    await page.selectOption('[data-testid="submission-category"]', 'tech');
+
+    // Submit the form
+    await page.click('[data-testid="submit-button"]');
+
+    // Verify the result
+    await expect(page.locator('[data-testid="success-message"]')).toBeVisible();
+    await expect(page).toHaveURL(/\/submissions\/\d+/);
+  });
 });
 ```
 
-### Playwright Debugging
-
-1. **Debug Mode**: Use `yarn e2e:headed` to see browser
-2. **Playwright Inspector**: Use debug launch configuration
-3. **Trace Viewer**: Check `test-results/` for traces
+#### Authentication Example
 
 ```typescript
-// Debug Playwright test
-test('debug this test', async ({ page }) => {
-  await page.pause(); // Pauses test for debugging
-  await page.goto('/');
-  // ... rest of test
+// e2e/auth/login.spec.ts
+import { test, expect } from '@playwright/test';
+
+test.describe('Authentication', () => {
+  test('should login successfully', async ({ page }) => {
+    await page.goto('/login');
+
+    // Mock authentication if needed
+    await page.route('**/api/auth/**', (route) => {
+      route.fulfill({
+        status: 200,
+        body: JSON.stringify({ user: { id: '1', name: 'Test User' } })
+      });
+    });
+
+    await page.click('[data-testid="login-button"]');
+    await expect(page.locator('[data-testid="user-menu"]')).toBeVisible();
+  });
 });
 ```
 
-## 🚀 CI/CD Integration
+### Playwright Configuration
 
-### GitHub Actions
+Key configuration files:
 
-Tests run automatically on:
+- `playwright.config.ts` - Main Playwright configuration
+- Separate test directories and output folders
+- Browser-specific configurations
 
-- **Pull Requests**: Both Jest and Playwright tests
-- **Push to main/master**: Full test suite with coverage
+## 🚀 Quick Start
 
-### Test Sharding
-
-The CI pipeline runs tests in parallel shards:
-
-- **Jest**: 3 shards for faster execution
-- **Playwright**: 3 shards across different browsers
-
-### Artifacts
-
-Test results are saved as GitHub Actions artifacts:
-
-- **Jest Coverage**: 30 days retention
-- **Playwright Reports**: 30 days retention
-- **Playwright Traces**: 7 days retention (failures only)
-
-## 🔧 Troubleshooting
-
-### Common Issues
-
-#### 1. "Cannot find module" errors
+### Running All Tests
 
 ```bash
-# Clear cache and reinstall
-rm -rf node_modules yarn.lock
-yarn install
+# Run Jest tests (unit/integration)
+yarn test
+
+# Run Playwright tests (E2E)
+yarn e2e
+
+# Run both test suites
+yarn test && yarn e2e
 ```
 
-#### 2. Jest tests timeout
+### Development Workflow
+
+1. **Write Jest tests first** for components and functions
+2. **Run Jest tests** to verify logic works
+3. **Write Playwright tests** for user workflows
+4. **Run E2E tests** to verify full application behavior
+
+## ⚙️ Configuration
+
+### Jest Configuration Highlights
+
+```javascript
+// jest.config.js
+module.exports = {
+  testEnvironment: 'jsdom',
+  testPathIgnorePatterns: [
+    '<rootDir>/e2e/', // ✅ Ignore Playwright tests
+    '\\.spec\\.(ts|tsx)$' // ✅ Ignore .spec files
+  ],
+  testMatch: [
+    '<rootDir>/src/**/*.test.(ts|tsx|js|jsx)' // ✅ Only Jest tests
+  ],
+  setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
+  maxWorkers: 1, // ✅ Prevent database conflicts
+  forceExit: true, // ✅ Prevent hanging
+  detectOpenHandles: true // ✅ Debug async issues
+};
+```
+
+### Playwright Configuration Highlights
+
+```typescript
+// playwright.config.ts
+export default defineConfig({
+  testDir: './e2e', // ✅ Only E2E tests
+  projects: [
+    { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
+    { name: 'firefox', use: { ...devices['Desktop Firefox'] } },
+    { name: 'webkit', use: { ...devices['Desktop Safari'] } }
+  ],
+  webServer: {
+    command: 'yarn build && yarn start',
+    url: 'http://127.0.0.1:3000'
+  }
+});
+```
+
+## 🛠️ Development Workflow
+
+### VS Code Integration
+
+The project includes VS Code configurations for enhanced testing:
+
+#### Launch Configurations (`.vscode/launch.json`)
+
+- **Debug Jest Tests**: Debug individual Jest test files
+- **Debug Playwright Tests**: Debug E2E tests with breakpoints
+- **Debug Next.js**: Debug the application server
+
+#### Tasks (`.vscode/tasks.json`)
+
+- **Run Jest Tests**: Execute Jest tests with various options
+- **Run Playwright Tests**: Execute E2E tests in different modes
+- **Combined Test Tasks**: Run both test suites
+
+#### Settings (`.vscode/settings.json`)
+
+- **Jest Integration**: Auto-discovery and inline test results
+- **Playwright Integration**: Test explorer and trace viewing
+- **File Associations**: Proper syntax highlighting for test files
+
+### Recommended Extensions
+
+The project suggests these VS Code extensions:
+
+- **Jest**: Inline test results and debugging
+- **Playwright Test for VSCode**: E2E test management
+- **Test Explorer UI**: Unified test interface
+
+## 🔧 Debugging
+
+### Debugging Jest Tests
+
+#### In VS Code
+
+1. Set breakpoints in your test file
+2. Use "Debug Jest Tests" launch configuration
+3. Select specific test file or run all tests
+
+#### Command Line
 
 ```bash
-# Increase timeout in jest.config.js
-testTimeout: 30000  // 30 seconds
+# Debug with Node.js debugger
+node --inspect-brk node_modules/.bin/jest --runInBand
+
+# Run single test with verbose output
+yarn test --verbose Button.test.tsx
 ```
 
-#### 3. Playwright browser not found
+### Debugging Playwright Tests
+
+#### In VS Code
+
+1. Set breakpoints in your spec file
+2. Use "Debug Playwright Tests" launch configuration
+3. Browser will pause at breakpoints
+
+#### Command Line
 
 ```bash
-# Install browsers
-yarn playwright install
+# Debug mode with browser DevTools
+yarn e2e --debug
+
+# Headed mode to see browser actions
+yarn e2e --headed
+
+# UI mode for interactive debugging
+yarn e2e:ui
 ```
 
-#### 4. Database connection issues
+#### Playwright Traces
 
 ```bash
-# For Docker users
-yarn dev:docker
+# Generate trace files
+yarn e2e --trace on
 
-# For local development
-# Ensure PostgreSQL is running and .env.local is configured
+# View traces
+npx playwright show-trace test-results/trace.zip
 ```
 
-#### 5. Port conflicts
-
-```bash
-# Kill process on port 3000
-lsof -ti:3000 | xargs kill -9
-
-# Or use different port
-PORT=3001 yarn dev
-```
-
-### Environment Variables
-
-Create `.env.local` for local testing:
-
-```bash
-# Database
-DATABASE_URL="postgresql://username:password@localhost:5432/idling_app_test"
-
-# Auth
-NEXTAUTH_SECRET="your-secret-here"
-NEXTAUTH_URL="http://localhost:3000"
-
-# Test environment
-NODE_ENV="test"
-```
-
-### Performance Tips
-
-1. **Jest**: Use `--maxWorkers=1` for debugging
-2. **Playwright**: Use `--workers=1` for debugging
-3. **Coverage**: Skip coverage during development for faster tests
-4. **Watch Mode**: Use `yarn test --watch` for development
-
-## 📊 Coverage Reports
+## 📊 Coverage
 
 ### Jest Coverage
 
 ```bash
+# Generate coverage report
 yarn test:coverage
+
+# View coverage in browser
+open coverage/lcov-report/index.html
 ```
 
-Reports generated in:
+Coverage configuration in `jest.config.js`:
 
-- **Terminal**: Summary coverage
-- **HTML**: `coverage/lcov-report/index.html`
-- **LCOV**: `coverage/lcov.info`
+```javascript
+collectCoverageFrom: [
+  'src/**/*.{js,jsx,ts,tsx}',
+  '!src/**/*.d.ts',
+  '!src/**/*.stories.tsx',
+  '!src/**/*.spec.{ts,tsx}', // ✅ Exclude Playwright files
+  '!e2e/**/*' // ✅ Exclude E2E directory
+];
+```
 
-### Playwright Coverage
+### Playwright Reports
 
-Playwright focuses on E2E testing rather than code coverage, but provides:
+```bash
+# Generate HTML report
+yarn e2e --reporter=html
 
-- **Test Reports**: `playwright-report/index.html`
-- **Trace Files**: `test-results/*/trace.zip`
-- **Screenshots**: `test-results/*/test-failed-*.png`
+# View report
+npx playwright show-report
+```
 
-## 🎯 Best Practices
+## 🏗️ Best Practices
 
 ### Jest Best Practices
 
-1. **Test Structure**: Use `describe` blocks for grouping
-2. **Naming**: Use descriptive test names
-3. **Isolation**: Each test should be independent
-4. **Mocking**: Mock external dependencies
-5. **Assertions**: Use specific assertions
+1. **Test Structure**: Use `describe` blocks to group related tests
+2. **Mocking**: Mock external dependencies and APIs
+3. **Assertions**: Use specific matchers (`toHaveTextContent` vs `toBeTruthy`)
+4. **Cleanup**: Clean up mocks between tests
+5. **Database**: Mock database calls to prevent hanging
+
+```typescript
+// ✅ Good Jest test structure
+describe('UserService', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  describe('getUserById', () => {
+    it('should return user when found', async () => {
+      // Arrange
+      const mockUser = { id: '1', name: 'John' };
+      mockDb.findUser.mockResolvedValue(mockUser);
+
+      // Act
+      const result = await getUserById('1');
+
+      // Assert
+      expect(result).toEqual(mockUser);
+      expect(mockDb.findUser).toHaveBeenCalledWith('1');
+    });
+  });
+});
+```
 
 ### Playwright Best Practices
 
-1. **Page Objects**: Create reusable page objects
-2. **Selectors**: Use data-testid attributes
-3. **Waiting**: Use proper waiting strategies
-4. **Cleanup**: Clean up test data
-5. **Parallelization**: Design tests to run in parallel
+1. **Page Objects**: Create reusable page object models
+2. **Selectors**: Use `data-testid` attributes for reliable element selection
+3. **Waits**: Use explicit waits instead of timeouts
+4. **Independence**: Each test should be independent and atomic
+5. **Cleanup**: Clean up test data after each test
 
----
+```typescript
+// ✅ Good Playwright test structure
+test.describe('Submission Flow', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto('/');
+    // Setup test data
+  });
 
-## 🎉 Happy Testing!
+  test.afterEach(async ({ page }) => {
+    // Cleanup test data
+  });
 
-This testing setup provides comprehensive coverage for your application. Use the VS Code integration for the best development experience, and refer to this guide when you need to understand the testing infrastructure.
+  test('should create submission successfully', async ({ page }) => {
+    // Use page object methods
+    await submissionPage.fillForm({
+      title: 'Test Submission',
+      url: 'https://example.com'
+    });
 
-For more specific questions, check the individual configuration files or reach out to the development team.
+    await submissionPage.submit();
+
+    // Verify with explicit waits
+    await expect(page.locator('[data-testid="success-message"]')).toBeVisible();
+  });
+});
+```
+
+### Framework Separation Rules
+
+1. **Never import Playwright in Jest tests**
+2. **Never import Jest utilities in Playwright tests**
+3. **Keep test files in separate directories**
+4. **Use different file extensions** (`.test.ts` vs `.spec.ts`)
+5. **Separate configurations and setup files**
+
+## ❓ Troubleshooting
+
+### Common Jest Issues
+
+#### Tests Hanging
+
+```bash
+# Check for open handles
+yarn test --detectOpenHandles
+
+# Force exit after completion
+yarn test --forceExit
+
+# Run with single worker
+yarn test --maxWorkers=1
+```
+
+#### Module Resolution Issues
+
+```bash
+# Clear Jest cache
+yarn test --clearCache
+
+# Check module paths in jest.config.js
+moduleNameMapping: {
+  '^@/(.*)$': '<rootDir>/src/$1'
+}
+```
+
+#### Database Connection Issues
+
+```typescript
+// Mock database in individual test files
+jest.mock('../../lib/db', () => ({
+  __esModule: true,
+  default: {
+    unsafe: jest.fn().mockResolvedValue([])
+  }
+}));
+```
+
+### Common Playwright Issues
+
+#### Browser Launch Failures
+
+```bash
+# Install browsers
+npx playwright install
+
+# Install system dependencies
+npx playwright install-deps
+```
+
+#### Test Timeouts
+
+```typescript
+// Increase timeout in playwright.config.ts
+export default defineConfig({
+  timeout: 30000,
+  expect: { timeout: 5000 }
+});
+```
+
+#### Element Not Found
+
+```typescript
+// Use better selectors
+await page.locator('[data-testid="submit-button"]').click();
+
+// Wait for element
+await page.waitForSelector('[data-testid="submit-button"]');
+
+// Use explicit waits
+await expect(page.locator('[data-testid="result"]')).toBeVisible();
+```
+
+### Performance Issues
+
+#### Jest Performance
+
+- Use `maxWorkers: 1` for database tests
+- Mock heavy dependencies
+- Use `--onlyChanged` for faster feedback
+
+#### Playwright Performance
+
+- Use `fullyParallel: true` for independent tests
+- Optimize selectors and waits
+- Use browser contexts for isolation
+
+## 🎯 Summary
+
+This project maintains **strict separation** between Jest and Playwright:
+
+- **Jest**: Fast unit/integration tests for components and logic
+- **Playwright**: Comprehensive E2E tests for user workflows
+- **Independent**: Separate configurations, file patterns, and purposes
+- **Complementary**: Together they provide complete test coverage
+
+### Test Commands Quick Reference
+
+```bash
+# Jest (Unit/Integration)
+yarn test                    # Run all Jest tests
+yarn test:watch             # Watch mode
+yarn test:coverage          # With coverage
+yarn test Button.test.tsx   # Specific file
+
+# Playwright (E2E)
+yarn e2e                    # Run all E2E tests
+yarn e2e:ui                 # Interactive mode
+yarn e2e:headed             # Visible browser
+yarn e2e login.spec.ts      # Specific file
+
+# Development
+yarn test && yarn e2e       # Run both suites
+```
+
+Happy testing! 🧪✨
