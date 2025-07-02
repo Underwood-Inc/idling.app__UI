@@ -347,10 +347,30 @@ jobs:
             if [ -f "$file" ]; then
               total_files=$((total_files + 1))
               
-              # Convert src/path/file.ts to DOCS/src/path/file.md (properly handle extensions)
-              doc_file="DOCS/${file%.*}.md"
+              # Get the base filename without extension and convert to lowercase
+              base_name=$(basename "$file" | sed 's/\.[^.]*$//' | tr '[:upper:]' '[:lower:]')
               
-              if [ -f "$doc_file" ]; then
+              # Check for documentation in categorized structure
+              doc_found=false
+              
+              # Check different documentation categories
+              for doc_pattern in "DOCS/services/${base_name}.md" "DOCS/components/${base_name}.md" "DOCS/api/${base_name}.md" "DOCS/utils/${base_name}.md" "DOCS/hooks/${base_name}.md"; do
+                if [ -f "$doc_pattern" ]; then
+                  # Skip auto-generated stubs that haven't been filled out
+                  if ! grep -q "Documentation Needed.*This file was automatically generated" "$doc_pattern"; then
+                    doc_found=true
+                    break
+                  fi
+                fi
+              done
+              
+              # Also check the mirror structure as fallback
+              mirror_doc_file="DOCS/${file%.*}.md"
+              if [ -f "$mirror_doc_file" ] && ! grep -q "Documentation Needed.*This file was automatically generated" "$mirror_doc_file"; then
+                doc_found=true
+              fi
+              
+              if [ "$doc_found" = true ]; then
                 documented_files=$((documented_files + 1))
               else
                 missing_files+=("$file")
@@ -359,7 +379,7 @@ jobs:
               # Check if this file is in the PR
               if [ -n "$changed_files" ] && echo "$changed_files" | grep -q "^$file$"; then
                 pr_files+=("$file")
-                if [ ! -f "$doc_file" ]; then
+                if [ "$doc_found" = false ]; then
                   pr_missing_files+=("$file")
                 fi
               fi
@@ -405,8 +425,24 @@ jobs:
             echo "|-------------|------------------------|--------|" >> coverage_report.md
             printf '%s\n' "${missing_files[@]}" | while read -r line; do
               src_file="$line"
-              doc_file="DOCS/${src_file%.*}.md"
-              echo "| \`${src_file}\` | \`${doc_file}\` | ❌ Missing |" >> coverage_report.md
+              base_name=$(basename "$src_file" | sed 's/\.[^.]*$//' | tr '[:upper:]' '[:lower:]')
+              
+              # Suggest appropriate documentation category based on file path
+              if [[ "$src_file" == *"/services/"* ]]; then
+                suggested_doc="DOCS/services/${base_name}.md"
+              elif [[ "$src_file" == *"/components/"* ]]; then
+                suggested_doc="DOCS/components/${base_name}.md"
+              elif [[ "$src_file" == *"/api/"* ]] || [[ "$src_file" == *"/route.ts" ]]; then
+                suggested_doc="DOCS/api/${base_name}.md"
+              elif [[ "$src_file" == *"/utils/"* ]]; then
+                suggested_doc="DOCS/utils/${base_name}.md"
+              elif [[ "$src_file" == *"/hooks/"* ]]; then
+                suggested_doc="DOCS/hooks/${base_name}.md"
+              else
+                suggested_doc="DOCS/${src_file%.*}.md"
+              fi
+              
+              echo "| \`${src_file}\` | \`${suggested_doc}\` | ❌ Missing |" >> coverage_report.md
             done
             echo "" >> coverage_report.md
             echo "📝 Please create documentation files for these source files to improve coverage." >> coverage_report.md
@@ -434,8 +470,24 @@ jobs:
               echo "|------------|------------------------|---------------|" >> pr_coverage_report.md
               printf '%s\n' "${pr_missing_files[@]}" | while read -r line; do
                 src_file="$line"
-                doc_file="DOCS/${src_file%.*}.md"
-                echo "| \`${src_file}\` | \`${doc_file}\` | 📝 Create docs |" >> pr_coverage_report.md
+                base_name=$(basename "$src_file" | sed 's/\.[^.]*$//' | tr '[:upper:]' '[:lower:]')
+                
+                # Suggest appropriate documentation category based on file path
+                if [[ "$src_file" == *"/services/"* ]]; then
+                  suggested_doc="DOCS/services/${base_name}.md"
+                elif [[ "$src_file" == *"/components/"* ]]; then
+                  suggested_doc="DOCS/components/${base_name}.md"
+                elif [[ "$src_file" == *"/api/"* ]] || [[ "$src_file" == *"/route.ts" ]]; then
+                  suggested_doc="DOCS/api/${base_name}.md"
+                elif [[ "$src_file" == *"/utils/"* ]]; then
+                  suggested_doc="DOCS/utils/${base_name}.md"
+                elif [[ "$src_file" == *"/hooks/"* ]]; then
+                  suggested_doc="DOCS/hooks/${base_name}.md"
+                else
+                  suggested_doc="DOCS/${src_file%.*}.md"
+                fi
+                
+                echo "| \`${src_file}\` | \`${suggested_doc}\` | 📝 Create docs |" >> pr_coverage_report.md
               done
               echo "" >> pr_coverage_report.md
               echo "📋 Please create these documentation files to maintain code quality standards." >> pr_coverage_report.md
@@ -449,8 +501,22 @@ jobs:
                 echo "|------------|---------------|--------|" >> pr_coverage_report.md
                 printf '%s\n' "${pr_files[@]}" | while read -r line; do
                   src_file="$line"
-                  doc_file="DOCS/${src_file%.*}.md"
-                  echo "| \`${src_file}\` | \`${doc_file}\` | ✅ Documented |" >> pr_coverage_report.md
+                  base_name=$(basename "$src_file" | sed 's/\.[^.]*$//' | tr '[:upper:]' '[:lower:]')
+                  
+                  # Find the actual documentation file
+                  actual_doc=""
+                  for doc_pattern in "DOCS/services/${base_name}.md" "DOCS/components/${base_name}.md" "DOCS/api/${base_name}.md" "DOCS/utils/${base_name}.md" "DOCS/hooks/${base_name}.md" "DOCS/${src_file%.*}.md"; do
+                    if [ -f "$doc_pattern" ] && ! grep -q "Documentation Needed.*This file was automatically generated" "$doc_pattern"; then
+                      actual_doc="$doc_pattern"
+                      break
+                    fi
+                  done
+                  
+                  if [ -n "$actual_doc" ]; then
+                    echo "| \`${src_file}\` | \`${actual_doc}\` | ✅ Documented |" >> pr_coverage_report.md
+                  else
+                    echo "| \`${src_file}\` | N/A | ❌ Missing |" >> pr_coverage_report.md
+                  fi
                 done
               else
                 echo "### ℹ️ No Source Files Changed in This PR" >> pr_coverage_report.md
