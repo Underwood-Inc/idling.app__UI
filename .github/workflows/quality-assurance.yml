@@ -471,36 +471,64 @@ jobs:
 
           echo "overall_coverage=${OVERALL_COVERAGE}" >> $GITHUB_OUTPUT
 
-          # Create SonarCloud-compatible generic test execution report
+                    # Create SonarCloud-compatible reports
           mkdir -p coverage
-          cat > coverage/documentation-test-execution.xml << EOF
-          <?xml version="1.0" encoding="UTF-8"?>
-          <testExecutions version="1">
-            <file path="tests/documentation-coverage-tests.js">
-              <testCase name="Documentation Files Coverage Test (${DOC_COVERAGE}%)" duration="100">
-                $([ $DOC_COVERAGE -ge 85 ] && echo "" || echo '<failure message="Documentation files coverage below 85%">Only '${DOC_COVERAGE}'% of source files have documentation. Expected: >= 85%</failure>')
-              </testCase>
-              <testCase name="Python Docstring Coverage Test (${DOCSTRING_COVERAGE}%)" duration="50">
-                $([ $DOCSTRING_COVERAGE -ge 85 ] && echo "" || echo '<failure message="Python docstring coverage below 85%">Only '${DOCSTRING_COVERAGE}'% of Python functions have docstrings. Expected: >= 85%</failure>')
-              </testCase>
-              <testCase name="Overall Documentation Coverage Test (${OVERALL_COVERAGE}%)" duration="75">
-                $([ $OVERALL_COVERAGE -ge 85 ] && echo "" || echo '<failure message="Overall documentation coverage below 85%">Overall documentation coverage is '${OVERALL_COVERAGE}'%. Expected: >= 85%</failure>')
-              </testCase>
-            </file>
-          </testExecutions>
-          EOF
 
-          # Also create a generic coverage report for SonarCloud metrics
-          cat > coverage/documentation-generic-coverage.xml << EOF
-          <?xml version="1.0" encoding="UTF-8"?>
-          <coverage version="1">
-            <file path="metrics/documentation-coverage.md">
-              <lineToCover lineNumber="1" covered="$([ $DOC_COVERAGE -ge 85 ] && echo "true" || echo "false")"/>
-              <lineToCover lineNumber="2" covered="$([ $DOCSTRING_COVERAGE -ge 85 ] && echo "true" || echo "false")"/>
-              <lineToCover lineNumber="3" covered="$([ $OVERALL_COVERAGE -ge 85 ] && echo "true" || echo "false")"/>
-            </file>
-          </coverage>
-          EOF
+          # Create simple test execution XML (no complex conditionals)
+          echo '<?xml version="1.0" encoding="UTF-8"?>' > coverage/documentation-test-execution.xml
+          echo '<testExecutions version="1">' >> coverage/documentation-test-execution.xml
+          echo '  <file path="tests/documentation-coverage-tests.js">' >> coverage/documentation-test-execution.xml
+          echo "    <testCase name=\"Documentation Files Coverage Test (${DOC_COVERAGE}%)\" duration=\"100\">" >> coverage/documentation-test-execution.xml
+          if [ $DOC_COVERAGE -lt 85 ]; then
+            echo "      <failure message=\"Documentation files coverage below 85%\">Only ${DOC_COVERAGE}% of source files have documentation. Expected: >= 85%</failure>" >> coverage/documentation-test-execution.xml
+          fi
+          echo '    </testCase>' >> coverage/documentation-test-execution.xml
+          echo "    <testCase name=\"Python Docstring Coverage Test (${DOCSTRING_COVERAGE}%)\" duration=\"50\">" >> coverage/documentation-test-execution.xml
+          if [ $DOCSTRING_COVERAGE -lt 85 ]; then
+            echo "      <failure message=\"Python docstring coverage below 85%\">Only ${DOCSTRING_COVERAGE}% of Python functions have docstrings. Expected: >= 85%</failure>" >> coverage/documentation-test-execution.xml
+          fi
+          echo '    </testCase>' >> coverage/documentation-test-execution.xml
+          echo "    <testCase name=\"Overall Documentation Coverage Test (${OVERALL_COVERAGE}%)\" duration=\"75\">" >> coverage/documentation-test-execution.xml
+          if [ $OVERALL_COVERAGE -lt 85 ]; then
+            echo "      <failure message=\"Overall documentation coverage below 85%\">Overall documentation coverage is ${OVERALL_COVERAGE}%. Expected: >= 85%</failure>" >> coverage/documentation-test-execution.xml
+          fi
+          echo '    </testCase>' >> coverage/documentation-test-execution.xml
+          echo '  </file>' >> coverage/documentation-test-execution.xml
+          echo '</testExecutions>' >> coverage/documentation-test-execution.xml
+
+          # Debug: Show generated XML content
+          echo "📋 Generated test execution XML:"
+          cat coverage/documentation-test-execution.xml
+
+          # Validate XML syntax
+          if command -v xmllint >/dev/null 2>&1; then
+            echo "🔍 Validating XML syntax..."
+            xmllint --noout coverage/documentation-test-execution.xml && echo "✅ XML is valid" || echo "❌ XML is invalid"
+          fi
+
+          # Create generic coverage report (simplified for debugging)
+          DOC_COVERED=$([ $DOC_COVERAGE -ge 85 ] && echo "true" || echo "false")
+          DOCSTRING_COVERED=$([ $DOCSTRING_COVERAGE -ge 85 ] && echo "true" || echo "false") 
+          OVERALL_COVERED=$([ $OVERALL_COVERAGE -ge 85 ] && echo "true" || echo "false")
+
+          echo '<?xml version="1.0" encoding="UTF-8"?>' > coverage/documentation-generic-coverage.xml
+          echo '<coverage version="1">' >> coverage/documentation-generic-coverage.xml
+          echo '  <file path="metrics/documentation-coverage.md">' >> coverage/documentation-generic-coverage.xml
+          echo "    <lineToCover lineNumber=\"1\" covered=\"${DOC_COVERED}\"/>" >> coverage/documentation-generic-coverage.xml
+          echo "    <lineToCover lineNumber=\"2\" covered=\"${DOCSTRING_COVERED}\"/>" >> coverage/documentation-generic-coverage.xml
+          echo "    <lineToCover lineNumber=\"3\" covered=\"${OVERALL_COVERED}\"/>" >> coverage/documentation-generic-coverage.xml
+          echo '  </file>' >> coverage/documentation-generic-coverage.xml
+          echo '</coverage>' >> coverage/documentation-generic-coverage.xml
+
+          # Debug: Show generated coverage XML content
+          echo "📊 Generated coverage XML:"
+          cat coverage/documentation-generic-coverage.xml
+
+          # Validate coverage XML syntax
+          if command -v xmllint >/dev/null 2>&1; then
+            echo "🔍 Validating coverage XML syntax..."
+            xmllint --noout coverage/documentation-generic-coverage.xml && echo "✅ Coverage XML is valid" || echo "❌ Coverage XML is invalid"
+          fi
 
       # Upload documentation coverage artifacts for SonarCloud
       - name: 📤 Upload documentation coverage artifacts
