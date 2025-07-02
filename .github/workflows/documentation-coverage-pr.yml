@@ -399,7 +399,6 @@ jobs:
           # Determine final status
           if [[ "${{ steps.interrogate.outputs.interrogate_passed }}" == "true" && "${{ steps.docs-coverage.outputs.docs_coverage_passed }}" == "true" ]]; then
             echo "✅ Documentation coverage meets requirements - WORKFLOW PASSED"
-            exit 0
           else
             echo "❌ Documentation coverage below threshold - WORKFLOW FAILED"
             echo "💡 This workflow failure is informational - it indicates documentation needs attention"
