@@ -461,7 +461,7 @@ jobs:
           fi
         continue-on-error: true
 
-      - name: 🎨 Generate SonarCloud custom metrics
+      - name: 🎨 Generate SonarCloud compatible metrics
         id: generate-metrics
         run: |
           # Calculate overall documentation coverage (weighted average)
@@ -471,37 +471,46 @@ jobs:
 
           echo "overall_coverage=${OVERALL_COVERAGE}" >> $GITHUB_OUTPUT
 
-          # Create SonarCloud generic test execution report for documentation coverage
+          # Create SonarCloud-compatible generic test execution report
           mkdir -p coverage
-          cat > coverage/documentation-coverage.xml << EOF
+          cat > coverage/documentation-test-execution.xml << EOF
           <?xml version="1.0" encoding="UTF-8"?>
           <testExecutions version="1">
-            <file path="src/documentation-coverage.ts">
-              <testCase name="Documentation Files Coverage" duration="1">
-                <coverage>
-                  <lineToCover lineNumber="1" covered="$([ $DOC_COVERAGE -ge 85 ] && echo "true" || echo "false")"/>
-                </coverage>
+            <file path="tests/documentation-coverage-tests.js">
+              <testCase name="Documentation Files Coverage Test (${DOC_COVERAGE}%)" duration="100">
+                $([ $DOC_COVERAGE -ge 85 ] && echo "" || echo '<failure message="Documentation files coverage below 85%">Only '${DOC_COVERAGE}'% of source files have documentation. Expected: >= 85%</failure>')
               </testCase>
-              <testCase name="Python Docstring Coverage" duration="1">
-                <coverage>
-                  <lineToCover lineNumber="2" covered="$([ $DOCSTRING_COVERAGE -ge 85 ] && echo "true" || echo "false")"/>
-                </coverage>
+              <testCase name="Python Docstring Coverage Test (${DOCSTRING_COVERAGE}%)" duration="50">
+                $([ $DOCSTRING_COVERAGE -ge 85 ] && echo "" || echo '<failure message="Python docstring coverage below 85%">Only '${DOCSTRING_COVERAGE}'% of Python functions have docstrings. Expected: >= 85%</failure>')
               </testCase>
-              <testCase name="Overall Documentation Coverage" duration="1">
-                <coverage>
-                  <lineToCover lineNumber="3" covered="$([ $OVERALL_COVERAGE -ge 85 ] && echo "true" || echo "false")"/>
-                </coverage>
+              <testCase name="Overall Documentation Coverage Test (${OVERALL_COVERAGE}%)" duration="75">
+                $([ $OVERALL_COVERAGE -ge 85 ] && echo "" || echo '<failure message="Overall documentation coverage below 85%">Overall documentation coverage is '${OVERALL_COVERAGE}'%. Expected: >= 85%</failure>')
               </testCase>
             </file>
           </testExecutions>
           EOF
 
-          # Create custom properties for SonarCloud
-          cat > coverage/sonar-documentation.properties << EOF
-          sonar.custom.documentation.files.coverage=${DOC_COVERAGE}
-          sonar.custom.documentation.docstring.coverage=${DOCSTRING_COVERAGE}  
-          sonar.custom.documentation.overall.coverage=${OVERALL_COVERAGE}
+          # Also create a generic coverage report for SonarCloud metrics
+          cat > coverage/documentation-generic-coverage.xml << EOF
+          <?xml version="1.0" encoding="UTF-8"?>
+          <coverage version="1">
+            <file path="metrics/documentation-coverage.md">
+              <lineToCover lineNumber="1" covered="$([ $DOC_COVERAGE -ge 85 ] && echo "true" || echo "false")"/>
+              <lineToCover lineNumber="2" covered="$([ $DOCSTRING_COVERAGE -ge 85 ] && echo "true" || echo "false")"/>
+              <lineToCover lineNumber="3" covered="$([ $OVERALL_COVERAGE -ge 85 ] && echo "true" || echo "false")"/>
+            </file>
+          </coverage>
           EOF
+
+      # Upload documentation coverage artifacts for SonarCloud
+      - name: 📤 Upload documentation coverage artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: documentation-coverage-reports
+          path: |
+            coverage/documentation-test-execution.xml
+            coverage/documentation-generic-coverage.xml
+          retention-days: 7
 
       - name: 💬 Comment on PR with detailed TABLOID results
         if: github.event_name == 'pull_request'
@@ -626,6 +635,32 @@ jobs:
             interrogate_output.txt
           retention-days: 30
 
+  # SonarCloud analysis job (matches original working setup)
+  sonar:
+    timeout-minutes: 15
+    name: SonarCloud Analysis
+    needs: [playwright-tests, jest-tests, documentation-coverage]
+    if: ${{ !cancelled() }} # Run even if some tests fail
+    runs-on: ubuntu-latest
+    environment: actions
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # Download all workflow artifacts including documentation coverage
+      - name: Download all workflow run artifacts
+        continue-on-error: true
+        uses: actions/download-artifact@v4
+
+      # Run SonarCloud analysis (exactly like the original working setup)
+      - name: SonarCloud Scan
+        continue-on-error: true
+        uses: SonarSource/sonarqube-scan-action@v5.0.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
   # Status reporting jobs that consolidate matrix results
   playwright-status:
     name: Playwright Status
@@ -675,18 +710,19 @@ jobs:
 
   # Final status job
   tests-complete:
-    name: Tests Complete
-    needs: [jest-status, playwright-status, documentation-coverage]
+    name: Quality Assurance Complete
+    needs: [jest-status, playwright-status, documentation-coverage, sonar]
     runs-on: ubuntu-latest
     if: always()
     steps:
       - name: Report Final Status
         run: |
-          echo "🧪 Test Suite Complete"
-          echo "======================"
+          echo "🧪 Quality Assurance Complete"
+          echo "============================"
           echo "Jest: ${{ needs.jest-status.result }}"
           echo "Playwright: ${{ needs.playwright-status.result }}"
           echo "Documentation: ${{ needs.documentation-coverage.result }}"
+          echo "SonarCloud: ${{ needs.sonar.result }}"
 
           if [[ "${{ needs.jest-status.result }}" == "success" ]]; then
             echo "✅ All required tests passed"
@@ -694,6 +730,11 @@ jobs:
               echo "✅ Documentation coverage meets requirements"
             else
               echo "⚠️ Documentation coverage needs attention (non-blocking)"
+            fi
+            if [[ "${{ needs.sonar.result }}" == "success" ]]; then
+              echo "✅ SonarCloud analysis completed successfully"
+            else
+              echo "⚠️ SonarCloud analysis had issues (non-blocking)"
             fi
           else
             echo "❌ Required tests failed"
