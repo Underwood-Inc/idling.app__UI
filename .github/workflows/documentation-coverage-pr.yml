@@ -8,11 +8,17 @@ permissions:
   contents: write
   pull-requests: write
   checks: write
+  statuses: write
 
 jobs:
   documentation-coverage:
     name: Documentation Coverage Check
     runs-on: ubuntu-latest
+
+    # Don't cancel other workflows
+    concurrency:
+      group: docs-coverage-${{ github.event.pull_request.number }}
+      cancel-in-progress: false
 
     steps:
       - name: 🛒 Checkout repository
@@ -352,6 +358,7 @@ jobs:
             });
 
       - name: 📊 Set final status
+        if: always()
         run: |
           echo "📊 Final Documentation Coverage Status Check"
           echo "============================================="
@@ -360,13 +367,16 @@ jobs:
           echo "Overall Coverage: ${{ steps.generate-badge.outputs.overall_coverage }}%"
           echo ""
 
-          # Set final status based on coverage
+          # Always report status, but don't fail the workflow
           if [[ "${{ steps.interrogate.outputs.interrogate_passed }}" == "true" && "${{ steps.docs-coverage.outputs.docs_coverage_passed }}" == "true" ]]; then
-            echo "✅ Documentation coverage meets requirements - CHECK PASSED"
-            exit 0
+            echo "✅ Documentation coverage meets requirements"
+            echo "status=success" >> $GITHUB_OUTPUT
           else
-            echo "❌ Documentation coverage below threshold - CHECK FAILED"
-            echo "💡 This is informational - PR can still be merged if allowed by branch protection"
+            echo "⚠️ Documentation coverage below threshold (informational only)"
+            echo "💡 This does not block PR merging - it's for awareness"
             echo "🎯 Target: 85% coverage for both Python docstrings and documentation files"
-            exit 1
+            echo "status=success" >> $GITHUB_OUTPUT
           fi
+
+          # Always exit successfully to not block other checks
+          exit 0

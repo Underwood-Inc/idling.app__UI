@@ -79,17 +79,7 @@ jest.mock('@dicebear/core', () => ({
   }))
 }));
 
-// Mock database connections to prevent hanging
-jest.mock('src/lib/db', () => ({
-  __esModule: true,
-  default: {
-    unsafe: jest.fn().mockResolvedValue([]),
-    begin: jest.fn().mockResolvedValue({
-      rollback: jest.fn(),
-      commit: jest.fn()
-    })
-  }
-}));
+// Database mocking is handled per-test file to avoid global conflicts
 
 // Mock environment variables for tests
 process.env.NODE_ENV = 'test';
