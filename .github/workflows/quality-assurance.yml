@@ -749,6 +749,13 @@ jobs:
 
             console.log('✅ Documentation coverage comment posted successfully!');
 
+      # Install Python dependencies for PR update script
+      - name: 🐍 Install Python dependencies
+        if: github.event_name == 'pull_request'
+        run: |
+          python3 -m pip install --upgrade pip
+          python3 -m pip install requests
+
       # Update PR description with documentation coverage badges
       - name: 📝 Update PR description with coverage badges
         if: github.event_name == 'pull_request'
