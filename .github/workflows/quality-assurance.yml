@@ -549,10 +549,7 @@ jobs:
             # Documentation Files Test Case (dynamic based on actual coverage)
             if [ $DOC_COVERAGE -lt 85 ]; then
               echo "    <testCase name=\"Documentation Files Coverage (${DOC_COVERAGE}%)\" duration=\"100\">"
-              echo "      <failure message=\"Documentation files coverage ${DOC_COVERAGE}% below 85% threshold\">"
-              echo "        Documentation files coverage is at ${DOC_COVERAGE}% which is below the required 85% threshold."
-              echo "        Please create documentation files for missing source files to improve coverage."
-              echo "      </failure>"
+              echo "      <failure message=\"Documentation files coverage ${DOC_COVERAGE}% below 85% threshold\">Documentation files coverage is at ${DOC_COVERAGE}% which is below the required 85% threshold. Please create documentation files for missing source files to improve coverage.</failure>"
               echo "    </testCase>"
             else
               echo "    <testCase name=\"Documentation Files Coverage (${DOC_COVERAGE}%)\" duration=\"100\"/>"
@@ -561,10 +558,7 @@ jobs:
             # Python Docstring Test Case (dynamic based on actual coverage)
             if [ $DOCSTRING_COVERAGE -lt 85 ]; then
               echo "    <testCase name=\"Python Docstring Coverage (${DOCSTRING_COVERAGE}%)\" duration=\"50\">"
-              echo "      <failure message=\"Python docstring coverage ${DOCSTRING_COVERAGE}% below 85% threshold\">"
-              echo "        Python docstring coverage is at ${DOCSTRING_COVERAGE}% which is below the required 85% threshold."
-              echo "        Please add proper docstrings to Python functions and classes."
-              echo "      </failure>"
+              echo "      <failure message=\"Python docstring coverage ${DOCSTRING_COVERAGE}% below 85% threshold\">Python docstring coverage is at ${DOCSTRING_COVERAGE}% which is below the required 85% threshold. Please add proper docstrings to Python functions and classes.</failure>"
               echo "    </testCase>"
             else
               echo "    <testCase name=\"Python Docstring Coverage (${DOCSTRING_COVERAGE}%)\" duration=\"50\"/>"
@@ -573,10 +567,7 @@ jobs:
             # Overall Documentation Coverage Test Case (dynamic based on actual coverage)
             if [ $OVERALL_COVERAGE -lt 85 ]; then
               echo "    <testCase name=\"Overall Documentation Coverage (${OVERALL_COVERAGE}%)\" duration=\"75\">"
-              echo "      <failure message=\"Overall documentation coverage ${OVERALL_COVERAGE}% below 85% threshold\">"
-              echo "        Overall documentation coverage (weighted average) is at ${OVERALL_COVERAGE}% which is below the required 85% threshold."
-              echo "        This combines documentation files (60% weight) and docstring coverage (40% weight)."
-              echo "      </failure>"
+              echo "      <failure message=\"Overall documentation coverage ${OVERALL_COVERAGE}% below 85% threshold\">Overall documentation coverage (weighted average) is at ${OVERALL_COVERAGE}% which is below the required 85% threshold. This combines documentation files (60% weight) and docstring coverage (40% weight).</failure>"
               echo "    </testCase>"
             else
               echo "    <testCase name=\"Overall Documentation Coverage (${OVERALL_COVERAGE}%)\" duration=\"75\"/>"
