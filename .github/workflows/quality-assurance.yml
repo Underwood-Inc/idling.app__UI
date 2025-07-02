@@ -762,14 +762,79 @@ jobs:
         with:
           fetch-depth: 0
 
-      # Download all workflow artifacts including documentation coverage
-      - name: Download all workflow run artifacts
+      # Download Jest coverage artifacts
+      - name: Download Jest coverage artifacts
         continue-on-error: true
         uses: actions/download-artifact@v4
+        with:
+          pattern: jest-coverage-*
+          merge-multiple: true
+
+      # Download documentation coverage artifacts
+      - name: Download documentation coverage artifacts
+        continue-on-error: true
+        uses: actions/download-artifact@v4
+        with:
+          name: documentation-coverage-reports
+          path: coverage/
 
       # Install xmllint for XML validation
       - name: Install XML tools
         run: sudo apt-get update && sudo apt-get install -y libxml2-utils
+
+      # Ensure coverage directory exists and validate XML files
+      - name: Prepare coverage directory and validate XML
+        run: |
+          echo "📁 Creating coverage directory if it doesn't exist..."
+          mkdir -p coverage
+
+          echo "📊 Coverage directory contents:"
+          ls -la coverage/ || echo "No coverage directory found"
+
+          echo "📁 All XML files in workspace:"
+          find . -name "*.xml" -type f | head -20
+
+          # Check if documentation XML exists and validate it
+          if [ -f "coverage/documentation-test-execution.xml" ]; then
+            echo "✅ Found documentation-test-execution.xml"
+            echo "📋 XML content preview:"
+            head -10 coverage/documentation-test-execution.xml
+            
+            # Validate XML syntax if xmllint is available
+            if command -v xmllint >/dev/null 2>&1; then
+              echo "🔍 Validating XML syntax..."
+              if xmllint --noout coverage/documentation-test-execution.xml; then
+                echo "✅ XML is valid"
+              else
+                echo "❌ XML is invalid - creating fallback"
+                # Create a minimal valid XML file as fallback
+                {
+                  printf '<?xml version="1.0" encoding="UTF-8"?>\n'
+                  printf '<testExecutions version="1">\n'
+                  printf '  <file path="tests/documentation-coverage.test.js">\n'
+                  printf '    <testCase name="Documentation Coverage Test" duration="100">\n'
+                  printf '      <failure message="XML generation failed">Documentation coverage XML could not be generated properly</failure>\n'
+                  printf '    </testCase>\n'
+                  printf '  </file>\n'
+                  printf '</testExecutions>\n'
+                } > coverage/documentation-test-execution.xml
+              fi
+            fi
+          else
+            echo "❌ documentation-test-execution.xml not found - creating fallback"
+            # Create a minimal valid XML file as fallback
+            {
+              printf '<?xml version="1.0" encoding="UTF-8"?>\n'
+              printf '<testExecutions version="1">\n'
+              printf '  <file path="tests/documentation-coverage.test.js">\n'
+              printf '    <testCase name="Documentation Coverage Test" duration="100">\n'
+              printf '      <failure message="XML file missing">Documentation coverage XML file was not generated or uploaded</failure>\n'
+              printf '    </testCase>\n'
+              printf '  </file>\n'
+              printf '</testExecutions>\n'
+            } > coverage/documentation-test-execution.xml
+            echo "📋 Created fallback XML file"
+          fi
 
       # Clear any existing SonarCloud cache and force fresh download
       - name: Clear SonarCloud cache and force fresh scanner
@@ -782,14 +847,6 @@ jobs:
 
           # Force a different cache key by creating a timestamp file
           echo "CACHE_BUSTER=$(date +%s)" >> $GITHUB_ENV
-
-      # Debug: List downloaded artifacts
-      - name: Debug artifacts
-        run: |
-          echo "📁 Downloaded artifacts:"
-          find . -name "*.xml" -type f | head -20
-          echo "📊 Coverage directory contents:"
-          ls -la coverage/ || echo "No coverage directory found"
 
       # Run SonarCloud analysis with cache busting
       - name: SonarCloud Scan
