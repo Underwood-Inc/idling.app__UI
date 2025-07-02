@@ -809,8 +809,17 @@
     _applyTransform() {
       if (this._elements.diagramContainer) {
         const { zoom, x, y } = this._transform;
-        this._elements.diagramContainer.style.transform = 
-          `scale(${zoom}) translate(${x}px, ${y}px)`;
+        
+        // Apply transform directly to the diagram container
+        const transform = `scale(${zoom}) translate(${x}px, ${y}px)`;
+        this._elements.diagramContainer.style.transform = transform;
+        
+        // Add/remove zoomed class based on zoom level
+        if (zoom !== 1) {
+          this._elements.diagramContainer.classList.add('zoomed');
+        } else {
+          this._elements.diagramContainer.classList.remove('zoomed');
+        }
       }
     }
 
@@ -852,6 +861,8 @@
      */
     _insertDiagram(diagram) {
       const clonedDiagram = diagram.cloneNode(true);
+      
+      // Clear and insert the diagram directly into the container
       this._elements.diagramContainer.innerHTML = '';
       this._elements.diagramContainer.appendChild(clonedDiagram);
     }

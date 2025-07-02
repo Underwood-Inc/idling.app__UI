@@ -18,6 +18,8 @@ body {
   margin: 0;
   padding: 0;
   overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 // Enhanced sticky header with glass effects
@@ -488,7 +490,7 @@ body {
 .page-content {
   background: var(--dark-background--primary) !important;
   padding: 1rem;
-  min-height: calc(100vh - 240px); // Adjusted for sticky header + search
+  min-height: calc(100vh - 180px); // Adjusted for sticky header + search (no footer padding needed)
   position: relative;
 }
 
@@ -632,11 +634,9 @@ body {
   }
 }
 
-// Enhanced sticky footer with glass effects
+// Enhanced footer with glass effects (non-sticky for better mobile experience)
 .site-footer {
-  position: sticky !important;
-  bottom: 0;
-  z-index: var(--z-footer);
+  position: relative !important;
   background: var(--dark-background--primary) !important;
   border-top: 3px solid var(--brand-primary);
   backdrop-filter: var(--glass-blur-medium);
