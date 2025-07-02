@@ -1,4 +1,4 @@
-name: Tests
+name: Quality Assurance
 
 # Concurrency group to cancel in-progress runs on PR updates
 concurrency:
@@ -256,6 +256,209 @@ jobs:
           path: coverage/
           retention-days: 30
 
+  # Documentation coverage job integrated into test suite
+  documentation-coverage:
+    timeout-minutes: 10
+    name: Documentation Coverage
+    needs: setup
+    runs-on: ubuntu-latest
+    environment: actions
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # Use the same Node.js version as setup job
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: 'yarn'
+
+      # Restore cached dependencies from setup job
+      - name: Restore dependencies cache
+        id: cache-restore
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            node_modules
+            ~/.cache/playwright
+            ~/.cache/ms-playwright
+          key: ${{ runner.os }}-deps-browsers-${{ hashFiles('**/yarn.lock', '**/package.json') }}
+          restore-keys: |
+            ${{ runner.os }}-deps-browsers-
+            ${{ runner.os }}-deps-
+          fail-on-cache-miss: false
+
+      # Install dependencies if cache miss
+      - name: Install dependencies
+        if: steps.cache-restore.outputs.cache-hit != 'true'
+        run: yarn install --check-files
+
+      - name: 🐍 Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: 📦 Install Python dependencies
+        run: |
+          pip install interrogate pydocstyle
+
+      - name: 🐍 Check Python docstring coverage
+        id: interrogate
+        run: |
+          # Run interrogate and capture output
+          if interrogate --fail-under=85 --verbose=2 src/ > interrogate_output.txt 2>&1; then
+            echo "interrogate_passed=true" >> $GITHUB_OUTPUT
+          else
+            echo "interrogate_passed=false" >> $GITHUB_OUTPUT
+          fi
+
+          # Extract docstring coverage percentage
+          DOCSTRING_COVERAGE=$(grep -oP 'TOTAL.*?(\K\d+(?=\.\d+%))' interrogate_output.txt || echo "0")
+          echo "docstring_coverage=${DOCSTRING_COVERAGE}" >> $GITHUB_OUTPUT
+        continue-on-error: true
+
+      - name: 📚 Check documentation files coverage
+        id: docs-coverage
+        run: |
+          # Comprehensive documentation coverage check
+          total_files=0
+          documented_files=0
+
+          # Check ALL TypeScript/JavaScript files in src/
+          for file in $(find src/ -name "*.ts" -o -name "*.tsx" -o -name "*.js" -o -name "*.jsx" 2>/dev/null || true); do
+            if [ -f "$file" ]; then
+              total_files=$((total_files + 1))
+              
+              # Convert src/path/file.ts to DOCS/src/path/file.md
+              doc_file="DOCS/${file%.*}.md"
+              
+              if [ -f "$doc_file" ]; then
+                documented_files=$((documented_files + 1))
+              fi
+            fi
+          done
+
+          # Calculate coverage
+          if [ $total_files -eq 0 ]; then
+            DOC_COVERAGE=100
+          else
+            DOC_COVERAGE=$((documented_files * 100 / total_files))
+          fi
+
+          echo "doc_coverage=${DOC_COVERAGE}" >> $GITHUB_OUTPUT
+          echo "total_files=${total_files}" >> $GITHUB_OUTPUT
+          echo "documented_files=${documented_files}" >> $GITHUB_OUTPUT
+
+          if [ $DOC_COVERAGE -ge 85 ]; then
+            echo "docs_coverage_passed=true" >> $GITHUB_OUTPUT
+          else
+            echo "docs_coverage_passed=false" >> $GITHUB_OUTPUT
+          fi
+        continue-on-error: true
+
+      - name: 🎨 Generate SonarCloud custom metrics
+        id: generate-metrics
+        run: |
+          # Calculate overall documentation coverage (weighted average)
+          DOC_COVERAGE="${{ steps.docs-coverage.outputs.doc_coverage }}"
+          DOCSTRING_COVERAGE="${{ steps.interrogate.outputs.docstring_coverage }}"
+          OVERALL_COVERAGE=$(python -c "print(int(($DOC_COVERAGE * 0.6) + ($DOCSTRING_COVERAGE * 0.4)))")
+
+          echo "overall_coverage=${OVERALL_COVERAGE}" >> $GITHUB_OUTPUT
+
+          # Create SonarCloud generic test execution report for documentation coverage
+          mkdir -p coverage
+          cat > coverage/documentation-coverage.xml << EOF
+          <?xml version="1.0" encoding="UTF-8"?>
+          <testExecutions version="1">
+            <file path="src/documentation-coverage.ts">
+              <testCase name="Documentation Files Coverage" duration="1">
+                <coverage>
+                  <lineToCover lineNumber="1" covered="$([ $DOC_COVERAGE -ge 85 ] && echo "true" || echo "false")"/>
+                </coverage>
+              </testCase>
+              <testCase name="Python Docstring Coverage" duration="1">
+                <coverage>
+                  <lineToCover lineNumber="2" covered="$([ $DOCSTRING_COVERAGE -ge 85 ] && echo "true" || echo "false")"/>
+                </coverage>
+              </testCase>
+              <testCase name="Overall Documentation Coverage" duration="1">
+                <coverage>
+                  <lineToCover lineNumber="3" covered="$([ $OVERALL_COVERAGE -ge 85 ] && echo "true" || echo "false")"/>
+                </coverage>
+              </testCase>
+            </file>
+          </testExecutions>
+          EOF
+
+          # Create custom properties for SonarCloud
+          cat > coverage/sonar-documentation.properties << EOF
+          sonar.custom.documentation.files.coverage=${DOC_COVERAGE}
+          sonar.custom.documentation.docstring.coverage=${DOCSTRING_COVERAGE}  
+          sonar.custom.documentation.overall.coverage=${OVERALL_COVERAGE}
+          EOF
+
+      - name: 💬 Comment on PR with documentation results
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const interrogatePassed = '${{ steps.interrogate.outputs.interrogate_passed }}' === 'true';
+            const docsCoveragePassed = '${{ steps.docs-coverage.outputs.docs_coverage_passed }}' === 'true';
+            const overallCoverage = '${{ steps.generate-metrics.outputs.overall_coverage }}';
+            const docCoverage = '${{ steps.docs-coverage.outputs.doc_coverage }}';
+            const docstringCoverage = '${{ steps.interrogate.outputs.docstring_coverage }}';
+
+            const overallStatus = interrogatePassed && docsCoveragePassed ? '✅' : '❌';
+
+            let comment = `## ${overallStatus} Documentation Coverage Report\n\n`;
+            comment += `| Check | Status | Coverage |\n`;
+            comment += `|-------|--------|---------|\n`;
+            comment += `| Python Docstrings | ${interrogatePassed ? '✅' : '❌'} | ${docstringCoverage}% |\n`;
+            comment += `| Documentation Files | ${docsCoveragePassed ? '✅' : '❌'} | ${docCoverage}% |\n`;
+            comment += `| **Overall** | ${overallStatus} | **${overallCoverage}%** |\n\n`;
+            comment += `*Coverage data will be available in SonarCloud dashboard*\n\n`;
+            comment += `---\n*This comment was automatically generated by the Test Suite workflow.*`;
+
+            // Find existing documentation coverage comment
+            const { data: comments } = await github.rest.issues.listComments({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo
+            });
+
+            const existingComment = comments.find(comment => 
+              comment.body.includes('Documentation Coverage Report')
+            );
+
+            if (existingComment) {
+              await github.rest.issues.updateComment({
+                comment_id: existingComment.id,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: comment
+              });
+            } else {
+              await github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: comment
+              });
+            }
+
+      - name: Upload documentation coverage artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: documentation-coverage
+          path: |
+            coverage/documentation-coverage.xml
+            coverage/sonar-documentation.properties
+            interrogate_output.txt
+          retention-days: 30
+
   # Status reporting jobs that consolidate matrix results
   playwright-status:
     name: Playwright Status
@@ -306,7 +509,7 @@ jobs:
   # Final status job
   tests-complete:
     name: Tests Complete
-    needs: [jest-status, playwright-status]
+    needs: [jest-status, playwright-status, documentation-coverage]
     runs-on: ubuntu-latest
     if: always()
     steps:
@@ -316,9 +519,15 @@ jobs:
           echo "======================"
           echo "Jest: ${{ needs.jest-status.result }}"
           echo "Playwright: ${{ needs.playwright-status.result }}"
+          echo "Documentation: ${{ needs.documentation-coverage.result }}"
 
           if [[ "${{ needs.jest-status.result }}" == "success" ]]; then
             echo "✅ All required tests passed"
+            if [[ "${{ needs.documentation-coverage.result }}" == "success" ]]; then
+              echo "✅ Documentation coverage meets requirements"
+            else
+              echo "⚠️ Documentation coverage needs attention (non-blocking)"
+            fi
           else
             echo "❌ Required tests failed"
             exit 1
