@@ -749,6 +749,91 @@ jobs:
 
             console.log('✅ Documentation coverage comment posted successfully!');
 
+      # Update README badges on main/master branch pushes
+      - name: 📋 Update README badges on main branch
+        if: success() && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master') && github.event_name == 'push'
+        run: |
+          echo "🎨 Updating README badges for main branch..."
+
+          # Get coverage values
+          DOC_COVERAGE="${{ steps.docs-coverage.outputs.doc_coverage }}"
+          DOCSTRING_COVERAGE="${{ steps.interrogate.outputs.docstring_coverage }}"
+          OVERALL_COVERAGE="${{ steps.generate-metrics.outputs.overall_coverage }}"
+
+          # Validate coverage values
+          if [[ -z "$DOC_COVERAGE" || ! "$DOC_COVERAGE" =~ ^[0-9]+$ ]]; then
+            DOC_COVERAGE=0
+          fi
+          if [[ -z "$DOCSTRING_COVERAGE" || ! "$DOCSTRING_COVERAGE" =~ ^[0-9]+$ ]]; then
+            DOCSTRING_COVERAGE=0
+          fi
+          if [[ -z "$OVERALL_COVERAGE" || ! "$OVERALL_COVERAGE" =~ ^[0-9]+$ ]]; then
+            OVERALL_COVERAGE=0
+          fi
+
+          # Determine badge colors
+          if [ $OVERALL_COVERAGE -ge 90 ]; then
+            DOC_COLOR="brightgreen"
+          elif [ $OVERALL_COVERAGE -ge 75 ]; then
+            DOC_COLOR="green"
+          elif [ $OVERALL_COVERAGE -ge 60 ]; then
+            DOC_COLOR="yellow"
+          elif [ $OVERALL_COVERAGE -ge 40 ]; then
+            DOC_COLOR="orange"
+          else
+            DOC_COLOR="red"
+          fi
+
+          if [ $DOC_COVERAGE -ge 90 ]; then
+            FILES_COLOR="brightgreen"
+          elif [ $DOC_COVERAGE -ge 75 ]; then
+            FILES_COLOR="green"
+          elif [ $DOC_COVERAGE -ge 60 ]; then
+            FILES_COLOR="yellow"
+          elif [ $DOC_COVERAGE -ge 40 ]; then
+            FILES_COLOR="orange"
+          else
+            FILES_COLOR="red"
+          fi
+
+          if [ $DOCSTRING_COVERAGE -ge 90 ]; then
+            DOCSTRING_COLOR="brightgreen"
+          elif [ $DOCSTRING_COVERAGE -ge 75 ]; then
+            DOCSTRING_COLOR="green"
+          elif [ $DOCSTRING_COVERAGE -ge 60 ]; then
+            DOCSTRING_COLOR="yellow"
+          elif [ $DOCSTRING_COVERAGE -ge 40 ]; then
+            DOCSTRING_COLOR="orange"
+          else
+            DOCSTRING_COLOR="red"
+          fi
+
+          # Generate badge URLs
+          export DOC_BADGE_URL="https://img.shields.io/badge/Documentation%20Coverage-${OVERALL_COVERAGE}%25-${DOC_COLOR}?style=flat&logo=gitbook&logoColor=white"
+          export DOC_FILES_BADGE_URL="https://img.shields.io/badge/Documentation%20Files-${DOC_COVERAGE}%25-${FILES_COLOR}?style=flat&logo=markdown&logoColor=white"
+          export DOCSTRING_BADGE_URL="https://img.shields.io/badge/Python%20Docstrings-${DOCSTRING_COVERAGE}%25-${DOCSTRING_COLOR}?style=flat&logo=python&logoColor=white"
+
+          echo "📊 Generated badge URLs:"
+          echo "  Overall: $DOC_BADGE_URL"
+          echo "  Files: $DOC_FILES_BADGE_URL"
+          echo "  Docstrings: $DOCSTRING_BADGE_URL"
+
+          # Install Python dependencies and update README
+          python3 -m pip install --upgrade pip
+          python3 scripts/update-readme-badges.py
+
+          # Commit and push changes if README was modified
+          if git diff --quiet README.md; then
+            echo "📝 No changes to README.md"
+          else
+            git config --local user.email "action@github.com"
+            git config --local user.name "GitHub Action"
+            git add README.md
+            git commit -m "docs: update documentation coverage badges [skip ci]"
+            git push
+            echo "✅ Updated and committed README badges"
+          fi
+
       # Install Python dependencies for PR update script
       - name: 🐍 Install Python dependencies
         if: github.event_name == 'pull_request'
