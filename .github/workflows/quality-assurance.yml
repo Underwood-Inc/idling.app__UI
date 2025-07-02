@@ -474,25 +474,38 @@ jobs:
                     # Create SonarCloud-compatible reports
           mkdir -p coverage
 
-          # Create simple test execution XML (no complex conditionals)
+          # Create simple test execution XML (SonarCloud compliant format)
           echo '<?xml version="1.0" encoding="UTF-8"?>' > coverage/documentation-test-execution.xml
           echo '<testExecutions version="1">' >> coverage/documentation-test-execution.xml
-          echo '  <file path="tests/documentation-coverage-tests.js">' >> coverage/documentation-test-execution.xml
-          echo "    <testCase name=\"Documentation Files Coverage Test (${DOC_COVERAGE}%)\" duration=\"100\">" >> coverage/documentation-test-execution.xml
+          echo '  <file path="tests/documentation-coverage.test.js">' >> coverage/documentation-test-execution.xml
+
+          # Documentation Files Test Case (using proper SonarCloud format)
           if [ $DOC_COVERAGE -lt 85 ]; then
-            echo "      <failure message=\"Documentation files coverage below 85%\">Only ${DOC_COVERAGE}% of source files have documentation. Expected: >= 85%</failure>" >> coverage/documentation-test-execution.xml
+            echo "    <testCase name=\"Documentation Files Coverage Test (${DOC_COVERAGE}%)\" duration=\"100\">" >> coverage/documentation-test-execution.xml
+            echo "      <failure message=\"Documentation files coverage below 85%\"/>" >> coverage/documentation-test-execution.xml
+            echo "    </testCase>" >> coverage/documentation-test-execution.xml
+          else
+            echo "    <testCase name=\"Documentation Files Coverage Test (${DOC_COVERAGE}%)\" duration=\"100\"/>" >> coverage/documentation-test-execution.xml
           fi
-          echo '    </testCase>' >> coverage/documentation-test-execution.xml
-          echo "    <testCase name=\"Python Docstring Coverage Test (${DOCSTRING_COVERAGE}%)\" duration=\"50\">" >> coverage/documentation-test-execution.xml
+
+          # Python Docstring Test Case (using proper SonarCloud format)
           if [ $DOCSTRING_COVERAGE -lt 85 ]; then
-            echo "      <failure message=\"Python docstring coverage below 85%\">Only ${DOCSTRING_COVERAGE}% of Python functions have docstrings. Expected: >= 85%</failure>" >> coverage/documentation-test-execution.xml
+            echo "    <testCase name=\"Python Docstring Coverage Test (${DOCSTRING_COVERAGE}%)\" duration=\"50\">" >> coverage/documentation-test-execution.xml
+            echo "      <failure message=\"Python docstring coverage below 85%\"/>" >> coverage/documentation-test-execution.xml
+            echo "    </testCase>" >> coverage/documentation-test-execution.xml
+          else
+            echo "    <testCase name=\"Python Docstring Coverage Test (${DOCSTRING_COVERAGE}%)\" duration=\"50\"/>" >> coverage/documentation-test-execution.xml
           fi
-          echo '    </testCase>' >> coverage/documentation-test-execution.xml
-          echo "    <testCase name=\"Overall Documentation Coverage Test (${OVERALL_COVERAGE}%)\" duration=\"75\">" >> coverage/documentation-test-execution.xml
+
+          # Overall Coverage Test Case (using proper SonarCloud format)
           if [ $OVERALL_COVERAGE -lt 85 ]; then
-            echo "      <failure message=\"Overall documentation coverage below 85%\">Overall documentation coverage is ${OVERALL_COVERAGE}%. Expected: >= 85%</failure>" >> coverage/documentation-test-execution.xml
+            echo "    <testCase name=\"Overall Documentation Coverage Test (${OVERALL_COVERAGE}%)\" duration=\"75\">" >> coverage/documentation-test-execution.xml
+            echo "      <failure message=\"Overall documentation coverage below 85%\"/>" >> coverage/documentation-test-execution.xml
+            echo "    </testCase>" >> coverage/documentation-test-execution.xml
+          else
+            echo "    <testCase name=\"Overall Documentation Coverage Test (${OVERALL_COVERAGE}%)\" duration=\"75\"/>" >> coverage/documentation-test-execution.xml
           fi
-          echo '    </testCase>' >> coverage/documentation-test-execution.xml
+
           echo '  </file>' >> coverage/documentation-test-execution.xml
           echo '</testExecutions>' >> coverage/documentation-test-execution.xml
 
@@ -674,13 +687,17 @@ jobs:
       - name: Install XML tools
         run: sudo apt-get update && sudo apt-get install -y libxml2-utils
 
-      # Clear any existing SonarCloud cache
-      - name: Clear SonarCloud cache
+      # Clear any existing SonarCloud cache and force fresh download
+      - name: Clear SonarCloud cache and force fresh scanner
         run: |
           echo "🧹 Clearing SonarCloud cache..."
           rm -rf ~/.sonar/cache || true
           rm -rf /tmp/sonar-scanner-* || true
+          rm -rf /home/runner/.sonar || true
           echo "✅ Cache cleared"
+
+          # Force a different cache key by creating a timestamp file
+          echo "CACHE_BUSTER=$(date +%s)" >> $GITHUB_ENV
 
       # Debug: List downloaded artifacts
       - name: Debug artifacts
@@ -697,8 +714,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          # Disable caching to avoid cache issues
-          SONAR_SCANNER_OPTS: '-Dsonar.scanner.cacheEnabled=false'
+          # Force fresh analysis with cache busting
+          SONAR_SCANNER_OPTS: '-Dsonar.scanner.cacheEnabled=false -Dsonar.cache.dir=/tmp/sonar-cache-${{ env.CACHE_BUSTER }}'
 
   # Status reporting jobs that consolidate matrix results
   playwright-status:
