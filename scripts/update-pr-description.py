@@ -34,10 +34,28 @@ def update_pr_description(pr_number, repo, token):
     
     # Get current PR
     api_url = f'https://api.github.com/repos/{repo}/pulls/{pr_number}'
+    print(f"🔍 Fetching PR from: {api_url}")
+    print(f"🔑 Using token: {'*' * (len(token) - 4) + token[-4:] if len(token) > 4 else '***'}")
+    
     response = requests.get(api_url, headers=headers)
     
     if response.status_code != 200:
         print(f"❌ Failed to fetch PR: {response.status_code}")
+        print(f"📋 Response headers: {dict(response.headers)}")
+        print(f"📋 Response body: {response.text}")
+        
+        # Check if it's a permissions issue
+        if response.status_code == 403:
+            print("🔍 403 Forbidden - This is likely a token permissions issue")
+            print("💡 Make sure your WORKFLOW_TOKEN has these scopes:")
+            print("   - repo (or public_repo for public repos)")
+            print("   - pull_requests: read")
+            print("   - pull_requests: write")
+        elif response.status_code == 404:
+            print("🔍 404 Not Found - Check if PR number and repo are correct")
+        elif response.status_code == 401:
+            print("🔍 401 Unauthorized - Token is invalid or expired")
+            
         return False
     
     pr_data = response.json()
@@ -72,6 +90,7 @@ def update_pr_description(pr_number, repo, token):
     
     # Update PR description
     update_data = {'body': new_description}
+    print(f"🔄 Updating PR description...")
     response = requests.patch(api_url, json=update_data, headers=headers)
     
     if response.status_code == 200:
@@ -79,7 +98,14 @@ def update_pr_description(pr_number, repo, token):
         return True
     else:
         print(f"❌ Failed to update PR description: {response.status_code}")
-        print(response.text)
+        print(f"📋 Response headers: {dict(response.headers)}")
+        print(f"📋 Response body: {response.text}")
+        
+        if response.status_code == 403:
+            print("🔍 403 Forbidden - Token lacks pull_requests: write permission")
+        elif response.status_code == 422:
+            print("🔍 422 Unprocessable Entity - Invalid request data")
+            
         return False
 
 
