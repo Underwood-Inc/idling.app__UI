@@ -474,17 +474,38 @@ jobs:
                     # Create SonarCloud-compatible reports
           mkdir -p coverage
 
-          # Create minimal SonarCloud test execution XML (exactly matching documentation format)
+          # Create dynamic SonarCloud test execution XML with actual coverage data
           echo '<?xml version="1.0" encoding="UTF-8"?>' > coverage/documentation-test-execution.xml
           echo '<testExecutions version="1">' >> coverage/documentation-test-execution.xml
           echo '  <file path="tests/documentation-coverage.test.js">' >> coverage/documentation-test-execution.xml
-          echo '    <testCase name="Documentation Files Coverage" duration="100">' >> coverage/documentation-test-execution.xml
-          echo '      <failure message="Documentation coverage below threshold"/>' >> coverage/documentation-test-execution.xml
-          echo '    </testCase>' >> coverage/documentation-test-execution.xml
-          echo '    <testCase name="Python Docstring Coverage" duration="50">' >> coverage/documentation-test-execution.xml
-          echo '      <failure message="Docstring coverage below threshold"/>' >> coverage/documentation-test-execution.xml
-          echo '    </testCase>' >> coverage/documentation-test-execution.xml
-          echo '    <testCase name="Overall Documentation Coverage" duration="75"/>' >> coverage/documentation-test-execution.xml
+
+          # Documentation Files Test Case (dynamic based on actual coverage)
+          if [ $DOC_COVERAGE -lt 85 ]; then
+            echo "    <testCase name=\"Documentation Files Coverage (${DOC_COVERAGE}%)\" duration=\"100\">" >> coverage/documentation-test-execution.xml
+            echo "      <failure message=\"Documentation files coverage ${DOC_COVERAGE}% below 85% threshold\"/>" >> coverage/documentation-test-execution.xml
+            echo "    </testCase>" >> coverage/documentation-test-execution.xml
+          else
+            echo "    <testCase name=\"Documentation Files Coverage (${DOC_COVERAGE}%)\" duration=\"100\"/>" >> coverage/documentation-test-execution.xml
+          fi
+
+          # Python Docstring Test Case (dynamic based on actual coverage)
+          if [ $DOCSTRING_COVERAGE -lt 85 ]; then
+            echo "    <testCase name=\"Python Docstring Coverage (${DOCSTRING_COVERAGE}%)\" duration=\"50\">" >> coverage/documentation-test-execution.xml
+            echo "      <failure message=\"Python docstring coverage ${DOCSTRING_COVERAGE}% below 85% threshold\"/>" >> coverage/documentation-test-execution.xml
+            echo "    </testCase>" >> coverage/documentation-test-execution.xml
+          else
+            echo "    <testCase name=\"Python Docstring Coverage (${DOCSTRING_COVERAGE}%)\" duration=\"50\"/>" >> coverage/documentation-test-execution.xml
+          fi
+
+          # Overall Documentation Coverage Test Case (dynamic based on actual coverage)
+          if [ $OVERALL_COVERAGE -lt 85 ]; then
+            echo "    <testCase name=\"Overall Documentation Coverage (${OVERALL_COVERAGE}%)\" duration=\"75\">" >> coverage/documentation-test-execution.xml
+            echo "      <failure message=\"Overall documentation coverage ${OVERALL_COVERAGE}% below 85% threshold\"/>" >> coverage/documentation-test-execution.xml
+            echo "    </testCase>" >> coverage/documentation-test-execution.xml
+          else
+            echo "    <testCase name=\"Overall Documentation Coverage (${OVERALL_COVERAGE}%)\" duration=\"75\"/>" >> coverage/documentation-test-execution.xml
+          fi
+
           echo '  </file>' >> coverage/documentation-test-execution.xml
           echo '</testExecutions>' >> coverage/documentation-test-execution.xml
 
