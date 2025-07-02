@@ -47,11 +47,21 @@ jobs:
       - name: 📚 Check documentation files coverage
         id: docs-coverage
         run: |
-          # Simple documentation coverage check
+          # Comprehensive documentation coverage check
           total_files=0
           documented_files=0
+          missing_files=()
+          pr_files=()
+          pr_missing_files=()
 
-          # Check TypeScript/JavaScript files in src/
+          # Get list of changed files in this PR
+          git fetch origin ${{ github.base_ref }}
+          changed_files=$(git diff --name-only origin/${{ github.base_ref }}...HEAD | grep -E '\.(ts|tsx|js|jsx)$' | grep '^src/' || true)
+
+          # Check ALL TypeScript/JavaScript files in src/
+          echo "## 📊 Full Codebase Documentation Coverage" > coverage_report.md
+          echo "" >> coverage_report.md
+
           for file in $(find src/ -name "*.ts" -o -name "*.tsx" -o -name "*.js" -o -name "*.jsx" 2>/dev/null || true); do
             if [ -f "$file" ]; then
               total_files=$((total_files + 1))
@@ -64,10 +74,21 @@ jobs:
               
               if [ -f "$doc_file" ]; then
                 documented_files=$((documented_files + 1))
+              else
+                missing_files+=("$file → $doc_file")
+              fi
+              
+              # Check if this file is in the PR
+              if echo "$changed_files" | grep -q "^$file$"; then
+                pr_files+=("$file")
+                if [ ! -f "$doc_file" ]; then
+                  pr_missing_files+=("$file → $doc_file")
+                fi
               fi
             fi
           done
 
+          # Calculate coverage
           if [ $total_files -eq 0 ]; then
             DOC_COVERAGE=100
           else
@@ -75,11 +96,48 @@ jobs:
           fi
 
           echo "doc_coverage=${DOC_COVERAGE}" >> $GITHUB_OUTPUT
+          echo "total_files=${total_files}" >> $GITHUB_OUTPUT
+          echo "documented_files=${documented_files}" >> $GITHUB_OUTPUT
+          echo "pr_files_count=${#pr_files[@]}" >> $GITHUB_OUTPUT
+          echo "pr_missing_count=${#pr_missing_files[@]}" >> $GITHUB_OUTPUT
 
           if [ $DOC_COVERAGE -ge 85 ]; then
             echo "docs_coverage_passed=true" >> $GITHUB_OUTPUT
           else
             echo "docs_coverage_passed=false" >> $GITHUB_OUTPUT
+          fi
+
+          # Generate detailed reports
+          echo "### 📋 Missing Documentation Files (${#missing_files[@]} total)" >> coverage_report.md
+          echo "" >> coverage_report.md
+          if [ ${#missing_files[@]} -gt 0 ]; then
+            printf '%s\n' "${missing_files[@]}" | while read -r line; do
+              echo "- \`$line\`" >> coverage_report.md
+            done
+          else
+            echo "✅ All source files have documentation!" >> coverage_report.md
+          fi
+          echo "" >> coverage_report.md
+
+          # Generate PR-specific report
+          echo "## 🔍 This PR's Documentation Status" > pr_coverage_report.md
+          echo "" >> pr_coverage_report.md
+          echo "**Files changed in this PR:** ${#pr_files[@]}" >> pr_coverage_report.md
+          echo "**Missing documentation:** ${#pr_missing_files[@]}" >> pr_coverage_report.md
+          echo "" >> pr_coverage_report.md
+
+          if [ ${#pr_missing_files[@]} -gt 0 ]; then
+            echo "### 📝 PR Files Missing Documentation" >> pr_coverage_report.md
+            echo "" >> pr_coverage_report.md
+            printf '%s\n' "${pr_missing_files[@]}" | while read -r line; do
+              echo "- \`$line\`" >> pr_coverage_report.md
+            done
+          else
+            if [ ${#pr_files[@]} -gt 0 ]; then
+              echo "✅ All files in this PR have documentation!" >> pr_coverage_report.md
+            else
+              echo "ℹ️ No source files were changed in this PR." >> pr_coverage_report.md
+            fi
           fi
         continue-on-error: true
 
@@ -162,6 +220,18 @@ jobs:
             comment += `| Documentation Files | ${docsCoveragePassed ? '✅' : '❌'} | ${{ steps.docs-coverage.outputs.doc_coverage }}% |\n\n`;
             comment += `**Overall Coverage: ${{ steps.generate-badge.outputs.overall_coverage }}%**\n\n`;
 
+            // Add PR-specific documentation status
+            try {
+              if (fs.existsSync('pr_coverage_report.md')) {
+                const prReportContent = fs.readFileSync('pr_coverage_report.md', 'utf8');
+                comment += `<details>\n<summary>🔍 This PR's Documentation Status</summary>\n\n`;
+                comment += prReportContent + '\n';
+                comment += `</details>\n\n`;
+              }
+            } catch (error) {
+              console.log('Error reading PR coverage report:', error);
+            }
+
             // Add detailed reports in collapsible sections if there are issues
             if (!interrogatePassed) {
               comment += `<details>\n<summary>🐍 Python Docstring Coverage Details</summary>\n\n`;
@@ -180,13 +250,26 @@ jobs:
               comment += `\n</details>\n\n`;
             }
 
+            // Add full codebase documentation status
             if (!docsCoveragePassed) {
-              comment += `<details>\n<summary>📚 Missing Documentation Files</summary>\n\n`;
-              comment += `Some source files are missing corresponding documentation files. `;
-              comment += `Please create documentation files in the \`DOCS/\` directory following the same structure as your source files.\n\n`;
-              comment += `**Expected Documentation Structure:**\n`;
-              comment += `- For \`src/components/Button.tsx\` → create \`DOCS/src/components/Button.md\`\n`;
-              comment += `- For \`src/utils/helpers.ts\` → create \`DOCS/src/utils/helpers.md\`\n\n`;
+              comment += `<details>\n<summary>📚 Full Codebase Documentation Coverage</summary>\n\n`;
+              
+              try {
+                if (fs.existsSync('coverage_report.md')) {
+                  const fullReportContent = fs.readFileSync('coverage_report.md', 'utf8');
+                  comment += fullReportContent + '\n';
+                } else {
+                  comment += `**Overall:** ${{ steps.docs-coverage.outputs.documented_files }} of ${{ steps.docs-coverage.outputs.total_files }} files documented\n\n`;
+                  comment += `Some source files are missing corresponding documentation files. `;
+                  comment += `Please create documentation files in the \`DOCS/\` directory following the same structure as your source files.\n\n`;
+                  comment += `**Expected Documentation Structure:**\n`;
+                  comment += `- For \`src/components/Button.tsx\` → create \`DOCS/src/components/Button.md\`\n`;
+                  comment += `- For \`src/utils/helpers.ts\` → create \`DOCS/src/utils/helpers.md\`\n`;
+                }
+              } catch (error) {
+                comment += 'Error reading full coverage report.\n';
+              }
+              
               comment += `</details>\n\n`;
             }
 
