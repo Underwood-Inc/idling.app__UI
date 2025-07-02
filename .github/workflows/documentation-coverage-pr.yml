@@ -1,13 +1,8 @@
 name: 📚 Documentation Coverage (PR)
 
-# TEMPORARILY DISABLED - Testing if this workflow breaks GitHub status reporting
-# on:
-#   pull_request:
-#     types: [opened, synchronize, reopened]
-
-# Manual trigger only for testing
 on:
-  workflow_dispatch:
+  pull_request:
+    types: [opened, synchronize, reopened]
 
 permissions:
   contents: write
@@ -191,44 +186,10 @@ jobs:
 
           echo "Generated documentation coverage badge: ${OVERALL_COVERAGE}%"
 
-      - name: 📝 Update badges in PR files
-        run: |
-          echo "📝 Updating documentation coverage badges in PR files..."
-
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
-
-          BADGE_URL="${{ steps.generate-badge.outputs.badge_url }}"
-
-          # Simple and safe badge replacement
-          echo "🔧 Updating README.md..."
-          if grep -q "<!-- DOCUMENTATION_COVERAGE_BADGE_PLACEHOLDER -->" README.md; then
-            # Replace placeholder with complete badge
-            sed -i "s|<!-- DOCUMENTATION_COVERAGE_BADGE_PLACEHOLDER -->|[![Documentation Coverage](${BADGE_URL})](https://underwood-inc.github.io/idling.app__UI/)|" README.md
-            echo "✅ Updated README.md badge"
-          else
-            echo "⚠️ No placeholder found in README.md"
-          fi
-
-          echo "🎨 Updating Jekyll header..."
-          if grep -q "<!-- DOCUMENTATION_COVERAGE_BADGE_PLACEHOLDER -->" DOCS/_includes/header.html; then
-            # Replace placeholder with complete badge
-            sed -i "s|<!-- DOCUMENTATION_COVERAGE_BADGE_PLACEHOLDER -->|<img src=\"${BADGE_URL}\" alt=\"Documentation Coverage\" />|" DOCS/_includes/header.html
-            echo "✅ Updated Jekyll header badge"
-          else
-            echo "⚠️ No placeholder found in Jekyll header"
-          fi
-
-          # Commit changes if any
-          if ! git diff --quiet README.md DOCS/_includes/header.html; then
-            echo "📝 Committing badge updates..."
-            git add README.md DOCS/_includes/header.html
-            git commit -m "docs: update documentation coverage badge - ${{ steps.generate-badge.outputs.overall_coverage }}%"
-            git push origin ${{ github.head_ref }}
-            echo "✅ Badge updates committed to PR"
-          else
-            echo "📝 No badge changes to commit"
-          fi
+      # DISABLED: This step was causing GitHub status corruption by pushing commits
+      # - name: 📝 Update badges in PR files
+      #   run: |
+      #     echo "📝 Badge updates disabled to prevent status corruption"
 
       - name: 📋 Update PR description with badge
         uses: actions/github-script@v7
