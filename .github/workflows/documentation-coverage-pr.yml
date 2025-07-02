@@ -206,32 +206,49 @@ jobs:
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
 
-                    # Store badge URL in a variable for safety
+                              # Store badge URL and create safe replacement content
           BADGE_URL="${{ steps.generate-badge.outputs.badge_url }}"
+          README_BADGE="[![Documentation Coverage](${BADGE_URL})](https://underwood-inc.github.io/idling.app__UI/)"
+          JEKYLL_BADGE="<img src=\"${BADGE_URL}\" alt=\"Documentation Coverage\" />"
 
-          # Update README.md - handle both placeholder and existing badge
-          if grep -q "<!-- DOCUMENTATION_COVERAGE_BADGE_PLACEHOLDER -->" README.md; then
-            echo "Updating README.md badge (initial placement)..."
-            sed -i "s|<!-- DOCUMENTATION_COVERAGE_BADGE_PLACEHOLDER -->|[![Documentation Coverage](${BADGE_URL})](https://underwood-inc.github.io/idling.app__UI/)|" README.md
-          elif grep -q "Documentation Coverage.*https://img.shields.io/badge/Documentation" README.md; then
-            echo "Updating README.md badge (replacing existing)..."
-            # Replace existing documentation coverage badge with new one
-            sed -i "s|\[\!\[Documentation Coverage\](https://img\.shields\.io/badge/Documentation[^)]*)\]([^)]*)|[![Documentation Coverage](${BADGE_URL})](https://underwood-inc.github.io/idling.app__UI/)|g" README.md
+          echo "🔧 Badge URL: ${BADGE_URL}"
+          echo "📝 README badge: ${README_BADGE}"
+          echo "🎨 Jekyll badge: ${JEKYLL_BADGE}"
+
+          # Create temporary files with clean content
+          cp README.md README.md.backup
+          cp DOCS/_includes/header.html DOCS/_includes/header.html.backup
+
+          # Clean replacement for README.md - remove any existing documentation coverage badges first
+          echo "🧹 Cleaning README.md of any existing documentation coverage badges..."
+          # Remove any line containing "Documentation Coverage" and "img.shields.io"
+          grep -v "Documentation.*Coverage.*img\.shields\.io" README.md.backup > README.md.temp || cp README.md.backup README.md.temp
+
+          # Now safely replace the placeholder
+          if grep -q "<!-- DOCUMENTATION_COVERAGE_BADGE_PLACEHOLDER -->" README.md.temp; then
+            echo "✅ Replacing placeholder in README.md..."
+            sed "s|<!-- DOCUMENTATION_COVERAGE_BADGE_PLACEHOLDER -->|${README_BADGE}|" README.md.temp > README.md
           else
-            echo "⚠️ No documentation coverage badge found in README.md"
+            echo "⚠️ No placeholder found in README.md - keeping original"
+            cp README.md.backup README.md
           fi
 
-          # Update Jekyll header - handle both placeholder and existing badge
-          if grep -q "<!-- DOCUMENTATION_COVERAGE_BADGE_PLACEHOLDER -->" DOCS/_includes/header.html; then
-            echo "Updating Jekyll header badge (initial placement)..."
-            sed -i "s|<!-- DOCUMENTATION_COVERAGE_BADGE_PLACEHOLDER -->|<img src=\"${BADGE_URL}\" alt=\"Documentation Coverage\" />|" DOCS/_includes/header.html
-          elif grep -q "Documentation Coverage.*https://img.shields.io/badge/Documentation" DOCS/_includes/header.html; then
-            echo "Updating Jekyll header badge (replacing existing)..."
-            # Replace existing documentation coverage badge with new one
-            sed -i "s|<img src=\"https://img\.shields\.io/badge/Documentation[^\"]*\" alt=\"Documentation Coverage\" />|<img src=\"${BADGE_URL}\" alt=\"Documentation Coverage\" />|g" DOCS/_includes/header.html
+          # Clean replacement for Jekyll header - remove any existing documentation coverage badges first
+          echo "🧹 Cleaning Jekyll header of any existing documentation coverage badges..."
+          # Remove any line containing "Documentation Coverage" and "img.shields.io"
+          grep -v "Documentation.*Coverage.*img\.shields\.io" DOCS/_includes/header.html.backup > DOCS/_includes/header.html.temp || cp DOCS/_includes/header.html.backup DOCS/_includes/header.html.temp
+
+          # Now safely replace the placeholder
+          if grep -q "<!-- DOCUMENTATION_COVERAGE_BADGE_PLACEHOLDER -->" DOCS/_includes/header.html.temp; then
+            echo "✅ Replacing placeholder in Jekyll header..."
+            sed "s|<!-- DOCUMENTATION_COVERAGE_BADGE_PLACEHOLDER -->|${JEKYLL_BADGE}|" DOCS/_includes/header.html.temp > DOCS/_includes/header.html
           else
-            echo "⚠️ No documentation coverage badge found in Jekyll header"
+            echo "⚠️ No placeholder found in Jekyll header - keeping original"
+            cp DOCS/_includes/header.html.backup DOCS/_includes/header.html
           fi
+
+          # Clean up temporary files
+          rm -f README.md.backup README.md.temp DOCS/_includes/header.html.backup DOCS/_includes/header.html.temp
 
           # Verify badge updates were successful
           echo "🔍 Verifying badge updates..."
