@@ -1,0 +1,169 @@
+name: 📚 Documentation Coverage (PR)
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  documentation-coverage:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 🛒 Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - name: 🐍 Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: 📦 Install Python dependencies
+        run: |
+          pip install interrogate pydocstyle
+
+      - name: 🐍 Check Python docstring coverage
+        id: interrogate
+        run: |
+          # Run interrogate and capture output
+          if interrogate --fail-under=85 --verbose=2 src/ > interrogate_output.txt 2>&1; then
+            echo "interrogate_passed=true" >> $GITHUB_OUTPUT
+          else
+            echo "interrogate_passed=false" >> $GITHUB_OUTPUT
+          fi
+
+          # Extract docstring coverage percentage
+          DOCSTRING_COVERAGE=$(grep -oP 'TOTAL.*?(\K\d+(?=\.\d+%))' interrogate_output.txt || echo "0")
+          echo "docstring_coverage=${DOCSTRING_COVERAGE}" >> $GITHUB_OUTPUT
+        continue-on-error: true
+
+      - name: 📚 Check documentation files coverage
+        id: docs-coverage
+        run: |
+          # Simple documentation coverage check
+          total_files=0
+          documented_files=0
+
+          # Check TypeScript/JavaScript files in src/
+          for file in $(find src/ -name "*.ts" -o -name "*.tsx" -o -name "*.js" -o -name "*.jsx" 2>/dev/null || true); do
+            if [ -f "$file" ]; then
+              total_files=$((total_files + 1))
+              
+              # Convert src/path/file.ts to DOCS/src/path/file.md
+              doc_file="DOCS/${file%.ts}.md"
+              doc_file="${doc_file%.tsx}.md"
+              doc_file="${doc_file%.js}.md"
+              doc_file="${doc_file%.jsx}.md"
+              
+              if [ -f "$doc_file" ]; then
+                documented_files=$((documented_files + 1))
+              fi
+            fi
+          done
+
+          if [ $total_files -eq 0 ]; then
+            DOC_COVERAGE=100
+          else
+            DOC_COVERAGE=$((documented_files * 100 / total_files))
+          fi
+
+          echo "doc_coverage=${DOC_COVERAGE}" >> $GITHUB_OUTPUT
+
+          if [ $DOC_COVERAGE -ge 85 ]; then
+            echo "docs_coverage_passed=true" >> $GITHUB_OUTPUT
+          else
+            echo "docs_coverage_passed=false" >> $GITHUB_OUTPUT
+          fi
+        continue-on-error: true
+
+      - name: 🎨 Generate documentation coverage badge
+        id: generate-badge
+        run: |
+          # Get coverage percentage
+          DOC_COVERAGE="${{ steps.docs-coverage.outputs.doc_coverage }}"
+          DOCSTRING_COVERAGE="${{ steps.interrogate.outputs.docstring_coverage }}"
+
+          # Calculate overall documentation coverage (weighted average)
+          OVERALL_COVERAGE=$(python -c "print(int(($DOC_COVERAGE * 0.6) + ($DOCSTRING_COVERAGE * 0.4)))")
+          echo "overall_coverage=${OVERALL_COVERAGE}" >> $GITHUB_OUTPUT
+
+          # Determine badge color based on coverage
+          if [ "$OVERALL_COVERAGE" -ge 90 ]; then
+            COLOR="brightgreen"
+          elif [ "$OVERALL_COVERAGE" -ge 75 ]; then
+            COLOR="green"
+          elif [ "$OVERALL_COVERAGE" -ge 60 ]; then
+            COLOR="yellow"
+          elif [ "$OVERALL_COVERAGE" -ge 40 ]; then
+            COLOR="orange"
+          else
+            COLOR="red"
+          fi
+
+          # Generate badge URL
+          BADGE_URL="https://img.shields.io/badge/Documentation%20Coverage-${OVERALL_COVERAGE}%25-${COLOR}?style=flat&logo=gitbook&logoColor=white"
+          echo "badge_url=${BADGE_URL}" >> $GITHUB_OUTPUT
+
+          echo "Generated documentation coverage badge: ${OVERALL_COVERAGE}%"
+
+      - name: 📝 Update documentation coverage badge placeholders
+        run: |
+          echo "📝 Updating documentation coverage badge placeholders..."
+
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+
+          # Update README.md placeholder
+          sed -i "s|<!-- DOCUMENTATION_COVERAGE_BADGE_PLACEHOLDER -->|[![Documentation Coverage](${{ steps.generate-badge.outputs.badge_url }})](https://underwood-inc.github.io/idling.app__UI/)|g" README.md
+
+          # Update Jekyll header placeholder
+          sed -i "s|<!-- DOCUMENTATION_COVERAGE_BADGE_PLACEHOLDER -->|<img src=\"${{ steps.generate-badge.outputs.badge_url }}\" alt=\"Documentation Coverage\" />|g" DOCS/_includes/header.html
+
+          # Check if there are changes to commit
+          if git diff --quiet README.md DOCS/_includes/header.html; then
+            echo "📝 No changes to documentation coverage badges"
+          else
+            echo "📝 Committing documentation coverage badge updates to PR..."
+            git add README.md DOCS/_includes/header.html
+            git commit -m "docs: update documentation coverage badge - ${{ steps.generate-badge.outputs.overall_coverage }}%
+
+            - Overall Coverage: ${{ steps.generate-badge.outputs.overall_coverage }}%
+            - Documentation Files: ${{ steps.docs-coverage.outputs.doc_coverage }}%
+            - Python Docstrings: ${{ steps.interrogate.outputs.docstring_coverage }}%"
+            
+            git push origin HEAD
+            echo "✅ Updated documentation coverage badges in PR"
+          fi
+
+      - name: 💬 Comment on PR with results
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const interrogatePassed = '${{ steps.interrogate.outputs.interrogate_passed }}' === 'true';
+            const docsCoveragePassed = '${{ steps.docs-coverage.outputs.docs_coverage_passed }}' === 'true';
+            const badgeUrl = '${{ steps.generate-badge.outputs.badge_url }}';
+
+            const overallStatus = interrogatePassed && docsCoveragePassed ? '✅' : '❌';
+
+            let comment = `## ${overallStatus} Documentation Coverage Report\n\n`;
+            comment += `![Documentation Coverage](${badgeUrl})\n\n`;
+            comment += `| Check | Status | Coverage |\n`;
+            comment += `|-------|--------|---------|\n`;
+            comment += `| Python Docstrings | ${interrogatePassed ? '✅' : '❌'} | ${{ steps.interrogate.outputs.docstring_coverage }}% |\n`;
+            comment += `| Documentation Files | ${docsCoveragePassed ? '✅' : '❌'} | ${{ steps.docs-coverage.outputs.doc_coverage }}% |\n\n`;
+            comment += `**Overall Coverage: ${{ steps.generate-badge.outputs.overall_coverage }}%**\n\n`;
+            comment += `---\n*This comment was automatically generated by the Documentation Coverage workflow.*`;
+
+            // Post comment
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
