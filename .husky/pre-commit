@@ -133,20 +133,8 @@ if [ -f "README.md" ]; then
   if grep -q "Documentation%20Coverage" README.md; then
     # Create a temporary file with the corrected badge
     TEMP_README=$(mktemp)
-    # Use a more robust approach: find lines with Documentation Coverage and replace the URL part
-    while IFS= read -r line; do
-      case "$line" in
-        *"Documentation%20Coverage"*)
-          # Extract everything before the badge URL and everything after the badge URL
-          prefix=$(echo "$line" | sed 's/\(.*\[\!\[Documentation Coverage\](\)[^)]*\().*/\1/')
-          suffix=$(echo "$line" | sed 's/.*\[\!\[Documentation Coverage\]([^)]*\)\(.*\)/\2/')
-          echo "${prefix}${DOC_BADGE_URL}${suffix}"
-          ;;
-        *)
-          echo "$line"
-          ;;
-      esac
-    done < README.md > "$TEMP_README"
+    # Simple approach: replace only the percentage and color parts that actually change
+    sed "s/Documentation%20Coverage-[0-9]*%25-[a-z]*/Documentation%20Coverage-${DOC_COVERAGE}%25-${DOC_COLOR}/g" README.md > "$TEMP_README"
     mv "$TEMP_README" README.md
     echo "✅ Updated documentation badge in README.md"
   else

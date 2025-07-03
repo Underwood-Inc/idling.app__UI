@@ -6,28 +6,28 @@ description: Auto-generated documentation coverage badge
 
 # Documentation Coverage Badge
 
-![Documentation Coverage](https://img.shields.io/badge/Documentation%20Coverage-2%25-red?style=flatDOC_BADGE_URL_PLACEHOLDERlogo=gitbookDOC_BADGE_URL_PLACEHOLDERlogoColor=white)
+![Documentation Coverage](https://img.shields.io/badge/Documentation%20Coverage-3%25-red?style=flatDOC_BADGE_URL_PLACEHOLDERlogo=gitbookDOC_BADGE_URL_PLACEHOLDERlogoColor=white)
 
-**Current Coverage:** 2% (11/434 files)
+**Current Coverage:** 3% (14/434 files)
 
-*Last updated: Thu Jul  3 07:38:39 NDT 2025*
+*Last updated: Thu Jul  3 07:49:49 NDT 2025*
 
 ## Badge URL
 
 ```
-https://img.shields.io/badge/Documentation%20Coverage-2%25-red?style=flatDOC_BADGE_URL_PLACEHOLDERlogo=gitbookDOC_BADGE_URL_PLACEHOLDERlogoColor=white
+https://img.shields.io/badge/Documentation%20Coverage-3%25-red?style=flatDOC_BADGE_URL_PLACEHOLDERlogo=gitbookDOC_BADGE_URL_PLACEHOLDERlogoColor=white
 ```
 
 ## Usage in Markdown
 
 ```markdown
-![Documentation Coverage](https://img.shields.io/badge/Documentation%20Coverage-2%25-red?style=flatDOC_BADGE_URL_PLACEHOLDERlogo=gitbookDOC_BADGE_URL_PLACEHOLDERlogoColor=white)
+![Documentation Coverage](https://img.shields.io/badge/Documentation%20Coverage-3%25-red?style=flatDOC_BADGE_URL_PLACEHOLDERlogo=gitbookDOC_BADGE_URL_PLACEHOLDERlogoColor=white)
 ```
 
 ## Usage in HTML
 
 ```html
-<img src="https://img.shields.io/badge/Documentation%20Coverage-2%25-red?style=flatDOC_BADGE_URL_PLACEHOLDERlogo=gitbookDOC_BADGE_URL_PLACEHOLDERlogoColor=white" alt="Documentation Coverage 2%" />
+<img src="https://img.shields.io/badge/Documentation%20Coverage-3%25-red?style=flatDOC_BADGE_URL_PLACEHOLDERlogo=gitbookDOC_BADGE_URL_PLACEHOLDERlogoColor=white" alt="Documentation Coverage 3%" />
 ```
 
 ---
