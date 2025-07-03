@@ -46,7 +46,7 @@ export async function getFakeAuthCookie() {
       expires: expiresIn30Days.getTime() / 1000,
       httpOnly: true,
       secure: false,
-      sameSite: 'Lax'
+      sameSite: 'Lax' as const
     },
     {
       name: 'authjs.callback-url',
@@ -56,7 +56,7 @@ export async function getFakeAuthCookie() {
       expires: expiresIn30Days.getTime() / 1000,
       httpOnly: true,
       secure: false,
-      sameSite: 'Lax'
+      sameSite: 'Lax' as const
     },
     {
       name: 'authjs.session-token',
@@ -66,7 +66,7 @@ export async function getFakeAuthCookie() {
       expires: expiresIn30Days.getTime() / 1000,
       httpOnly: true,
       secure: false,
-      sameSite: 'Lax'
+      sameSite: 'Lax' as const
     }
   ];
 }
