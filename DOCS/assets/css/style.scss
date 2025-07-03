@@ -4,4 +4,10 @@
 
 @import "minima";
 @import "custom"; 
-@import "mermaid-modal"; 
+@import "mermaid-modal";
+
+// Import our new modular components
+@import "components/navigation";
+@import "components/search";
+@import "base/accessibility";
+@import "base/print"; 

@@ -10,7 +10,8 @@
   "doc_patterns": [
     "DOCS/services/**/*.md",
     "DOCS/components/**/*.md",
-    "DOCS/api/**/*.md",
+    "src/app/api/**/*.md",
+    "src/lib/services/**/*.md",
     "DOCS/utilities/**/*.md",
     "DOCS/hooks/**/*.md"
   ],
@@ -36,7 +37,7 @@
     },
     "api": {
       "pattern": "src/app/api/**/route.ts",
-      "doc_path": "DOCS/api/{path}.md",
+      "doc_path": "{dir}/README.md",
       "priority": "high"
     },
     "utilities": {

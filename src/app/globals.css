@@ -489,7 +489,7 @@ main {
   flex-direction: column;
   flex: 1;
   justify-content: flex-start;
-  min-height: calc(100vh - 4rem);
+  min-height: calc(100vh - 4.5rem);
 }
 
 article,

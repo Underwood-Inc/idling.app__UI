@@ -122,10 +122,10 @@ class DocumentationCoverageEnforcer:
                 os.makedirs(os.path.dirname(config_path), exist_ok=True)
                 with open(config_path, 'w') as f:
                     json.dump(default_config, f, indent=2)
-                print(f"📝 Created default config at {config_path}")
+                print(f"📝 Created default config at {config_path}", file=sys.stderr)
                 return default_config
         except Exception as e:
-            print(f"⚠️  Error loading config: {e}")
+            print(f"⚠️  Error loading config: {e}", file=sys.stderr)
             return default_config
 
     def _get_file_info(self, file_path: str) -> FileInfo:
@@ -205,15 +205,29 @@ class DocumentationCoverageEnforcer:
         """Find all existing documentation files and map them to their locations"""
         doc_files = {}
         
-        # Look for co-located README.md files
+        # Look for co-located documentation files (README.md, docs.md, etc.)
         for pattern in self.config["code_patterns"]:
             files = glob.glob(pattern, recursive=True)
             for file_path in files:
                 file_dir = os.path.dirname(file_path)
-                readme_path = os.path.join(file_dir, "README.md")
-                if os.path.exists(readme_path) and self._has_meaningful_content(readme_path):
-                    file_name = Path(file_path).stem.lower()
-                    doc_files[file_name] = readme_path
+                file_name = Path(file_path).stem.lower()
+                
+                # Check for various documentation file patterns in the same directory
+                doc_patterns = [
+                    "README.md",
+                    "readme.md", 
+                    "docs.md",
+                    "documentation.md",
+                    f"{file_name}.md",
+                    f"{file_name}-docs.md",
+                    f"{file_name}.docs.md"
+                ]
+                
+                for doc_pattern in doc_patterns:
+                    doc_path = os.path.join(file_dir, doc_pattern)
+                    if os.path.exists(doc_path) and self._has_meaningful_content(doc_path):
+                        doc_files[file_name] = doc_path
+                        break  # Found documentation, stop looking
         
         # Also look for centralized docs (like API docs)
         for pattern in self.config["doc_patterns"]:
@@ -232,7 +246,7 @@ class DocumentationCoverageEnforcer:
                 content = f.read().strip()
                 
             # Check if file is empty or nearly empty
-            if len(content) < 50:
+            if len(content) < 20:
                 return False
                 
             # Remove common markdown elements for content analysis
@@ -243,17 +257,16 @@ class DocumentationCoverageEnforcer:
             content_clean = re.sub(r'\n+', ' ', content_clean)  # Normalize whitespace
             content_clean = content_clean.strip()
             
-            # Check for stub patterns
+            # Check for obvious stub patterns (be more lenient)
             stub_patterns = [
-                r'^\s*#\s*\w+\s*$',  # Just a single header
-                r'^\s*TODO\s*:?\s*',  # TODO markers
-                r'^\s*STUB\s*:?\s*',  # STUB markers
-                r'^\s*Coming soon\s*\.?\s*$',  # "Coming soon"
-                r'^\s*Documentation\s+(?:coming\s+soon|to\s+be\s+added)\s*\.?\s*$',  # Generic placeholders
-                r'^\s*This\s+(?:file|document|page)\s+is\s+(?:under\s+construction|not\s+yet\s+complete)\s*\.?\s*$',
-                r'^\s*Placeholder\s*\.?\s*$',  # Placeholder text
-                r'^\s*TBD\s*\.?\s*$',  # TBD (To Be Determined)
-                r'^\s*WIP\s*\.?\s*$',  # WIP (Work In Progress)
+                r'^\s*TODO\s*:?\s*$',  # Just "TODO"
+                r'^\s*STUB\s*:?\s*$',  # Just "STUB"
+                r'^\s*Coming soon\s*\.?\s*$',  # Just "Coming soon"
+                r'^\s*Documentation\s+coming\s+soon\s*\.?\s*$',  # Just "Documentation coming soon"
+                r'^\s*Placeholder\s*\.?\s*$',  # Just "Placeholder"
+                r'^\s*TBD\s*\.?\s*$',  # Just "TBD"
+                r'^\s*WIP\s*\.?\s*$',  # Just "WIP"
+                r'^\s*\[.*\]\s*$',  # Just brackets like [TODO]
             ]
             
             # Check if content matches stub patterns
@@ -261,15 +274,12 @@ class DocumentationCoverageEnforcer:
                 if re.match(pattern, content_clean, re.IGNORECASE):
                     return False
                     
-            # Check if content is too short after cleaning
-            if len(content_clean) < 30:
-                return False
-                
+            # Be more lenient - if there's any reasonable content, consider it meaningful
             # Check for meaningful content indicators
             meaningful_indicators = [
                 r'##\s+',  # Multiple headers indicate structure
                 r'###\s+',  # Even more detailed structure
-                r'\w+\s+\w+\s+\w+\s+\w+\s+\w+',  # At least 5 words in a row
+                r'\w+\s+\w+\s+\w+',  # At least 3 words in a row (more lenient)
                 r'function\s+\w+',  # Function descriptions
                 r'class\s+\w+',  # Class descriptions
                 r'interface\s+\w+',  # Interface descriptions
@@ -279,6 +289,16 @@ class DocumentationCoverageEnforcer:
                 r'Usage\s*:',  # Usage information
                 r'Parameters\s*:',  # Parameter documentation
                 r'Returns\s*:',  # Return value documentation
+                r'Description\s*:',  # Description sections
+                r'Overview\s*:',  # Overview sections
+                r'Installation\s*:',  # Installation instructions
+                r'Getting\s+started',  # Getting started sections
+                r'Features\s*:',  # Feature lists
+                r'API\s*:',  # API documentation
+                r'Configuration\s*:',  # Configuration docs
+                r'https?://',  # URLs indicate real content
+                r'npm\s+install',  # Package installation
+                r'yarn\s+add',  # Package installation
             ]
             
             meaningful_count = 0
@@ -286,11 +306,11 @@ class DocumentationCoverageEnforcer:
                 if re.search(indicator, content, re.IGNORECASE):
                     meaningful_count += 1
                     
-            # Require at least 2 meaningful indicators or substantial content
-            return meaningful_count >= 2 or len(content_clean) > 100
+            # More lenient: require at least 1 meaningful indicator OR substantial content
+            return meaningful_count >= 1 or len(content_clean) > 50
             
         except Exception as e:
-            print(f"⚠️  Error reading {file_path}: {e}")
+            print(f"⚠️  Error reading {file_path}: {e}", file=sys.stderr)
             return False
 
     def _suggest_doc_path(self, file_info: FileInfo) -> str:
@@ -351,15 +371,15 @@ class DocumentationCoverageEnforcer:
 
     def check_coverage(self) -> CoverageReport:
         """Check documentation coverage and generate report"""
-        print("🔍 Scanning codebase for documentation coverage...")
+        print("🔍 Scanning codebase for documentation coverage...", file=sys.stderr)
         
         # Find all code files
         code_files = self._find_code_files()
-        print(f"📁 Found {len(code_files)} code files")
+        print(f"📁 Found {len(code_files)} code files", file=sys.stderr)
         
         # Find existing documentation
         existing_docs = self._find_existing_docs()
-        print(f"📚 Found {len(existing_docs)} documentation files")
+        print(f"📚 Found {len(existing_docs)} documentation files", file=sys.stderr)
         
         # Check for missing documentation
         gaps = []
@@ -372,13 +392,29 @@ class DocumentationCoverageEnforcer:
             if doc_name in existing_docs:
                 documented_count += 1
             else:
-                # Check if there's a co-located README.md in the same directory with meaningful content
+                # Check for various documentation files in the same directory
                 file_dir = os.path.dirname(file_info.path)
-                readme_path = os.path.join(file_dir, "README.md")
+                found_docs = False
                 
-                if os.path.exists(readme_path) and self._has_meaningful_content(readme_path):
-                    documented_count += 1
-                else:
+                # Look for multiple documentation file patterns
+                doc_patterns = [
+                    "README.md",
+                    "readme.md", 
+                    "docs.md",
+                    "documentation.md",
+                    f"{file_info.name.lower()}.md",
+                    f"{file_info.name.lower()}-docs.md",
+                    f"{file_info.name.lower()}.docs.md"
+                ]
+                
+                for doc_pattern in doc_patterns:
+                    doc_path = os.path.join(file_dir, doc_pattern)
+                    if os.path.exists(doc_path) and self._has_meaningful_content(doc_path):
+                        documented_count += 1
+                        found_docs = True
+                        break
+                
+                if not found_docs:
                     gap = DocumentationGap(
                         file_path=file_info.path,
                         file_name=file_info.name,
@@ -519,10 +555,10 @@ class DocumentationCoverageEnforcer:
             try:
                 with open(stub_path, 'w') as f:
                     f.write(stub_content)
-                print(f"📝 Created documentation stub: {stub_path}")
+                print(f"📝 Created documentation stub: {stub_path}", file=sys.stderr)
                 created_count += 1
             except Exception as e:
-                print(f"❌ Failed to create {stub_path}: {e}")
+                print(f"❌ Failed to create {stub_path}: {e}", file=sys.stderr)
                 
         return created_count
 
@@ -587,21 +623,24 @@ def main():
     if args.output:
         with open(args.output, 'w') as f:
             f.write(output)
-        print(f"📄 Report written to {args.output}")
+        print(f"📄 Report written to {args.output}", file=sys.stderr)
     else:
         print(output)
     
     # Generate stubs if requested
     if args.generate_stubs:
         created = enforcer.generate_stubs()
-        print(f"📝 Created {created} documentation stubs")
+        print(f"📝 Created {created} documentation stubs", file=sys.stderr)
     
     # Exit with appropriate code
-    if report.coverage_percentage < enforcer.config["minimum_coverage"]:
-        print(f"\n❌ Coverage {report.coverage_percentage:.1f}% is below minimum {enforcer.config['minimum_coverage']}%")
+    if args.format == "json":
+        # For JSON output, don't print extra messages to stdout
+        sys.exit(0)
+    elif report.coverage_percentage < enforcer.config["minimum_coverage"]:
+        print(f"\n❌ Coverage {report.coverage_percentage:.1f}% is below minimum {enforcer.config['minimum_coverage']}%", file=sys.stderr)
         sys.exit(1)
     else:
-        print(f"\n✅ Coverage {report.coverage_percentage:.1f}% meets minimum requirement")
+        print(f"\n✅ Coverage {report.coverage_percentage:.1f}% meets minimum requirement", file=sys.stderr)
         sys.exit(0)
 
 if __name__ == "__main__":

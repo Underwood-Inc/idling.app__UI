@@ -123,9 +123,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { join } from 'path';
 import { z } from 'zod';
 import {
-    getMediaConfig,
-    validateFileSize,
-    validateMimeType
+  getMediaConfig,
+  validateFileSize,
+  validateMimeType
 } from '../../../../lib/config/media-domains';
 
 // This route uses dynamic features (auth/headers) and should not be pre-rendered

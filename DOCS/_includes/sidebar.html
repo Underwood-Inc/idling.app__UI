@@ -3,16 +3,15 @@
   <h3>Navigation</h3>
   <nav>
     <ul class="navigation-list">
-      <li><a href="{{ '/' | relative_url }}" {% if page.url == '/' %}class="current"{% endif %}>Home</a></li>
-      <li><a href="{{ '/getting-started/' | relative_url }}" {% if page.url contains '/getting-started' %}class="current"{% endif %}>Getting Started</a></li>
-      <li><a href="{{ '/database/' | relative_url }}" {% if page.url contains '/database' %}class="current"{% endif %}>Database</a></li>
-      <li><a href="{{ '/components/' | relative_url }}" {% if page.url contains '/components' %}class="current"{% endif %}>Components</a></li>
-      <li><a href="{{ '/development/' | relative_url }}" {% if page.url contains '/development' %}class="current"{% endif %}>Development</a></li>
-      <li><a href="{{ '/deployment/' | relative_url }}" {% if page.url contains '/deployment' %}class="current"{% endif %}>Deployment</a></li>
-      <li><a href="{{ '/project/' | relative_url }}" {% if page.url contains '/project' %}class="current"{% endif %}>Project</a></li>
-      <li><a href="{{ '/troubleshooting/' | relative_url }}" {% if page.url contains '/troubleshooting' %}class="current"{% endif %}>Troubleshooting</a></li>
-      <li><a href="{{ '/testing/' | relative_url }}" {% if page.url contains '/testing' %}class="current"{% endif %}>Testing</a></li>
-      <li><a href="{{ '/architecture/' | relative_url }}" {% if page.url contains '/architecture' %}class="current"{% endif %}>Architecture</a></li>
+      <li><a href="{{ '/' | relative_url }}" {% if page.url == '/' %}class="current"{% endif %}>🏠 Home</a></li>
+      {%- for nav_item in site.navigation -%}
+        <li>
+          <a href="{{ nav_item.url | relative_url }}" 
+             {% if page.url == nav_item.url or (nav_item.url != "/" and page.url contains nav_item.url) %}class="current"{% endif %}>
+            {{ nav_item.title | escape }}
+          </a>
+        </li>
+      {%- endfor -%}
     </ul>
   </nav>
 </div>

@@ -52,52 +52,77 @@ total_files=0
 documented_files=0
 missing_files_count=0
 
-# Check all TypeScript/JavaScript files in src/
-find src -name "*.ts" -o -name "*.tsx" -o -name "*.js" -o -name "*.jsx" | grep -v -E '\.(test|spec)\.' | sort > "$TEMP_DIR/source_files.txt"
+# Use the Python documentation coverage script for accurate results
+echo "📊 Running Python documentation coverage analysis..."
 
-while IFS= read -r file; do
-  # Skip test files, build files, and certain directories
-  case "$file" in
-    */__tests__/*|*/test/*|*/.next/*|*/node_modules/*|*.test.*|*.spec.*|*/build/*|*/dist/*)
-      continue
-      ;;
-  esac
+# Run the Python script and capture its output
+python3 scripts/check-docs-coverage.py --format json > "$TEMP_DIR/coverage_report.json" 2>/dev/null
+
+if [ -f "$TEMP_DIR/coverage_report.json" ]; then
+  # Parse the JSON output
+  total_files=$(python3 -c "import json; data=json.load(open('$TEMP_DIR/coverage_report.json')); print(data['total_files'])" 2>/dev/null || echo "0")
+  documented_files=$(python3 -c "import json; data=json.load(open('$TEMP_DIR/coverage_report.json')); print(data['documented_files'])" 2>/dev/null || echo "0")
+  missing_files_count=$(python3 -c "import json; data=json.load(open('$TEMP_DIR/coverage_report.json')); print(data['missing_docs'])" 2>/dev/null || echo "0")
+  DOC_COVERAGE=$(python3 -c "import json; data=json.load(open('$TEMP_DIR/coverage_report.json')); print(int(data['coverage_percentage']))" 2>/dev/null || echo "0")
+else
+  # Fallback to simplified bash logic if Python script fails
+  echo "⚠️ Python script failed, using fallback logic..."
   
-  total_files=$((total_files + 1))
-  
-  # Check for corresponding documentation
-  base_name=$(basename "$file" | sed 's/\.[^.]*$//')
-  base_name_lower=$(echo "$base_name" | tr '[:upper:]' '[:lower:]')
-  base_name_kebab=$(echo "$base_name" | sed 's/\([A-Z]\)/-\1/g' | sed 's/^-//' | tr '[:upper:]' '[:lower:]')
-  doc_found=false
-  
-  # Look for documentation in various locations with different naming conventions
-  for doc_pattern in \
-    "DOCS/components/${base_name}.md" \
-    "DOCS/components/${base_name_lower}.md" \
-    "DOCS/components/${base_name_kebab}.md" \
-    "DOCS/api/${base_name}.md" \
-    "DOCS/api/${base_name_lower}.md" \
-    "DOCS/api/${base_name_kebab}.md" \
-    "DOCS/utils/${base_name}.md" \
-    "DOCS/utils/${base_name_lower}.md" \
-    "DOCS/utils/${base_name_kebab}.md" \
-    "DOCS/hooks/${base_name}.md" \
-    "DOCS/hooks/${base_name_lower}.md" \
-    "DOCS/hooks/${base_name_kebab}.md" \
-    "DOCS/${file%.*}.md"; do
-    if [ -f "$doc_pattern" ] && ! grep -q "Documentation Needed.*This file was automatically generated" "$doc_pattern" 2>/dev/null; then
-      documented_files=$((documented_files + 1))
-      doc_found=true
-      break
+  # Check all TypeScript/JavaScript files in src/
+  find src -name "*.ts" -o -name "*.tsx" -o -name "*.js" -o -name "*.jsx" | grep -v -E '\.(test|spec)\.' | sort > "$TEMP_DIR/source_files.txt"
+
+  while IFS= read -r file; do
+    # Skip test files, build files, and certain directories
+    case "$file" in
+      */__tests__/*|*/test/*|*/.next/*|*/node_modules/*|*.test.*|*.spec.*|*/build/*|*/dist/*)
+        continue
+        ;;
+    esac
+    
+    total_files=$((total_files + 1))
+    
+    # Check for co-located README.md first
+    file_dir=$(dirname "$file")
+    readme_path="$file_dir/README.md"
+    doc_found=false
+    
+    if [ -f "$readme_path" ] && ! grep -q "Documentation Needed.*This file was automatically generated" "$readme_path" 2>/dev/null; then
+      # Check if README has meaningful content (more than just a header)
+      content_lines=$(grep -v '^#' "$readme_path" | grep -v '^$' | wc -l)
+      if [ "$content_lines" -gt 3 ]; then
+        documented_files=$((documented_files + 1))
+        doc_found=true
+      fi
     fi
-  done
+    
+    # If no co-located README, check for centralized docs (mainly for API routes)
+    if [ "$doc_found" = false ]; then
+      base_name=$(basename "$file" | sed 's/\.[^.]*$//')
+      base_name_lower=$(echo "$base_name" | tr '[:upper:]' '[:lower:]')
+      
+      # Check for API documentation (centralized)
+      if echo "$file" | grep -q "src/app/api.*route\.ts"; then
+        api_path=$(echo "$file" | sed 's|src/app/api/||' | sed 's|/route\.ts||')
+        if [ -f "src/app/api/$api_path/README.md" ] && ! grep -q "Documentation Needed.*This file was automatically generated" "src/app/api/$api_path/README.md" 2>/dev/null; then
+          documented_files=$((documented_files + 1))
+          doc_found=true
+        fi
+      fi
+    fi
+    
+    if [ "$doc_found" = false ]; then
+      missing_files_count=$((missing_files_count + 1))
+      echo "Missing: $file" >> "$TEMP_DIR/missing_files.txt"
+    fi
+  done < "$TEMP_DIR/source_files.txt"
   
-  if [ "$doc_found" = false ]; then
-    missing_files_count=$((missing_files_count + 1))
-    echo "Missing: $file" >> "$TEMP_DIR/missing_files.txt"
+  # Calculate coverage
+  if [ $total_files -eq 0 ]; then
+    DOC_COVERAGE=100
+  else
+    DOC_COVERAGE=$((documented_files * 100 / total_files))
   fi
-done < "$TEMP_DIR/source_files.txt"
+fi
 
 # Calculate coverage
 if [ $total_files -eq 0 ]; then

@@ -9,26 +9,19 @@
 <header class="site-header" role="banner">
   <div class="wrapper">
     <div class="site-header-content">
+      <!-- Site Branding -->
       <div class="site-branding">
         <a class="site-title" rel="author" href="{{ "/" | relative_url }}">
           {{ site.title | escape }}
         </a>
-        <div class="site-description project-badges">
-          <img src="https://img.shields.io/badge/React-19.0.0--alpha-61DAFB?style=flat&logo=react&logoColor=white" alt="React Version" />
-          <a href="https://underwood-inc.github.io/idling.app__UI/" target="_blank" rel="noopener">
-            <img src="https://img.shields.io/badge/Documentation%20Coverage-0%25-red?style=flat&logo=gitbook&logoColor=white" alt="Documentation Coverage" />
-          </a>
-          <a href="https://sonarcloud.io/summary/new_code?id=Underwood-Inc_idling.app__UI" target="_blank" rel="noopener">
-            <img src="https://sonarcloud.io/api/project_badges/measure?project=Underwood-Inc_idling.app__UI&metric=alert_status" alt="Quality Gate Status" />
-          </a>
-          <a href="https://sonarcloud.io/summary/new_code?id=Underwood-Inc_idling.app__UI" target="_blank" rel="noopener">
-            <img src="https://sonarcloud.io/api/project_badges/measure?project=Underwood-Inc_idling.app__UI&metric=coverage" alt="Coverage" />
-          </a>
+        <div class="site-description">
+          {{ site.description | escape }}
         </div>
       </div>
 
+      <!-- Navigation -->
       {%- if site.navigation -%}
-      <nav class="site-nav">
+      <nav class="site-nav" role="navigation">
         <input type="checkbox" id="nav-trigger" class="nav-trigger" />
         <label for="nav-trigger" class="nav-trigger-label">
           <span class="menu-icon">
@@ -40,10 +33,59 @@
 
         <div class="trigger">
           {%- for nav_item in site.navigation -%}
-            <a class="page-link" href="{{ nav_item.url | relative_url }}"
-               {% if page.url == nav_item.url or (nav_item.url != "/" and page.url contains nav_item.url) %}aria-current="page"{% endif %}>
-              {{ nav_item.title | escape }}
-            </a>
+            {%- if nav_item.subnav -%}
+              <!-- Multi-level navigation item -->
+              <div class="nav-item-container">
+                <div class="nav-item-header">
+                  <a class="page-link nav-main-link" href="{{ nav_item.url | relative_url }}"
+                     {% if page.url == nav_item.url or (nav_item.url != "/" and page.url contains nav_item.url) %}aria-current="page"{% endif %}
+                     title="{{ nav_item.description | escape }}">
+                    {{ nav_item.title | escape }}
+                  </a>
+                  <button class="nav-toggle" aria-label="Toggle {{ nav_item.title | escape }} submenu" aria-expanded="false">
+                    <svg class="nav-toggle-icon" width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M7.41,8.58L12,13.17L16.59,8.58L18,10L12,16L6,10L7.41,8.58Z"/>
+                    </svg>
+                  </button>
+                </div>
+                
+                <div class="nav-subnav">
+                  {%- for sub_item in nav_item.subnav -%}
+                    <div class="nav-sub-item">
+                      <a class="page-link nav-sub-link" href="{{ sub_item.url | relative_url }}"
+                         {% if page.url == sub_item.url or (sub_item.url != "/" and page.url contains sub_item.url) %}aria-current="page"{% endif %}
+                         title="{{ sub_item.description | escape }}">
+                        {{ sub_item.title | escape }}
+                      </a>
+                      {%- if sub_item.description -%}
+                        <span class="nav-sub-description">{{ sub_item.description | escape }}</span>
+                      {%- endif -%}
+                      
+                      {%- if sub_item.subsections -%}
+                        <div class="nav-subsections">
+                          {%- for subsection in sub_item.subsections -%}
+                            <div class="nav-subsection-item">
+                              <a class="page-link nav-subsection-link" href="{{ subsection.url | relative_url }}"
+                                 {% if page.url == subsection.url or (subsection.url != "/" and page.url contains subsection.url) %}aria-current="page"{% endif %}
+                                 title="{{ subsection.description | escape }}">
+                                {{ subsection.title | escape }}
+                              </a>
+                            </div>
+                          {%- endfor -%}
+                        </div>
+                      {%- endif -%}
+                    </div>
+                  {%- endfor -%}
+                </div>
+              </div>
+            {%- else -%}
+              <!-- Simple navigation item -->
+              <a class="page-link nav-main-link" href="{{ nav_item.url | relative_url }}"
+                 {% if page.url == nav_item.url or (nav_item.url != "/" and page.url contains nav_item.url) %}aria-current="page"{% endif %}
+                 title="{{ nav_item.description | escape }}">
+                {{ nav_item.title | escape }}
+              </a>
+            {%- endif -%}
           {%- endfor -%}
           
           <!-- External Links -->
@@ -79,104 +121,394 @@
         </div>
         <div id="search-results" class="search-results"></div>
         
-        <!-- Mobile Navigation -->
-        <div class="mobile-nav">
-          <input type="checkbox" id="mobile-nav-trigger" class="nav-trigger" />
-          <label for="mobile-nav-trigger" class="nav-trigger-label">
-            <span class="menu-icon">
-              <svg viewBox="0 0 18 15" width="18px" height="15px">
-                <path d="m18,1.484c0,0.82-0.665,1.484-1.484,1.484h-15.032c-0.819,0-1.484-0.665-1.484-1.484s0.665-1.484,1.484-1.484h15.032c0.819,0,1.484,0.665,1.484,1.484zm0,6.016c0,0.82-0.665,1.484-1.484,1.484h-15.032c-0.819,0-1.484-0.665-1.484-1.484s0.665-1.484,1.484-1.484h15.032c0.819,0,1.484,0.665,1.484,1.484zm0,6.016c0,0.82-0.665,1.484-1.484,1.484h-15.032c-0.819,0-1.484-0.665-1.484-1.484s0.665-1.484,1.484-1.484h15.032c0.819,0,1.484,0.665,1.484,1.484z"/>
-              </svg>
-            </span>
-          </label>
-          
-          <div class="mobile-trigger">
-            {%- for nav_item in site.navigation -%}
-              <a class="page-link" href="{{ nav_item.url | relative_url }}"
-                 {% if page.url == nav_item.url or (nav_item.url != "/" and page.url contains nav_item.url) %}aria-current="page"{% endif %}>
-                {{ nav_item.title | escape }}
-              </a>
-            {%- endfor -%}
-            
-            <!-- External Links -->
-            <a class="page-link page-link--external" href="https://github.com/Underwood-Inc/idling.app__UI" target="_blank" rel="noopener">
-              GitHub
-            </a>
-            <a class="page-link page-link--external" href="https://github.com/Underwood-Inc/idling.app__UI/discussions" target="_blank" rel="noopener">
-              Discussions
-            </a>
-          </div>
-        </div>
+
       </div>
     </div>
   </div>
 </header>
 
 <script>
-// Search functionality
+// Enhanced navigation functionality
 document.addEventListener('DOMContentLoaded', function() {
+  // Navigation toggle functionality
+  const navToggles = document.querySelectorAll('.nav-toggle');
+  
+  navToggles.forEach(toggle => {
+    toggle.addEventListener('click', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      
+      const container = this.closest('.nav-item-container');
+      const subnav = container.querySelector('.nav-subnav');
+      const isExpanded = container.classList.contains('expanded');
+     
+      // Close all other expanded navs
+      document.querySelectorAll('.nav-item-container.expanded').forEach(item => {
+        if (item !== container) {
+          item.classList.remove('expanded');
+          const otherSubnav = item.querySelector('.nav-subnav');
+          if (otherSubnav) {
+            otherSubnav.style.maxHeight = '0';
+          }
+          const otherToggle = item.querySelector('.nav-toggle');
+          if (otherToggle) {
+            otherToggle.setAttribute('aria-expanded', 'false');
+          }
+        }
+      });
+      
+      // Toggle current nav
+      container.classList.toggle('expanded');
+      
+      // Update ARIA attributes
+      this.setAttribute('aria-expanded', !isExpanded);
+      
+      // Smooth animation with proper height calculation
+      if (container.classList.contains('expanded')) {
+        // Calculate full height including nested elements
+        subnav.style.maxHeight = 'none';
+        const fullHeight = subnav.scrollHeight;
+        subnav.style.maxHeight = '0';
+        
+        // Trigger reflow and animate
+        requestAnimationFrame(() => {
+          subnav.style.maxHeight = fullHeight + 'px';
+        });
+      } else {
+        subnav.style.maxHeight = '0';
+      }
+    });
+  });
+  
+  // Handle keyboard navigation
+  navToggles.forEach(toggle => {
+    toggle.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        this.click();
+      }
+      
+      if (e.key === 'Escape') {
+        const container = this.closest('.nav-item-container');
+        if (container.classList.contains('expanded')) {
+          container.classList.remove('expanded');
+          const subnav = container.querySelector('.nav-subnav');
+          if (subnav) {
+            subnav.style.maxHeight = '0';
+          }
+          this.setAttribute('aria-expanded', 'false');
+          this.focus();
+        }
+      }
+    });
+  });
+  
+  // Close all dropdowns when clicking outside
+  document.addEventListener('click', function(e) {
+    if (!e.target.closest('.nav-item-container')) {
+      document.querySelectorAll('.nav-item-container.expanded').forEach(item => {
+        item.classList.remove('expanded');
+        const subnav = item.querySelector('.nav-subnav');
+        if (subnav) {
+          subnav.style.maxHeight = '0';
+        }
+        const toggle = item.querySelector('.nav-toggle');
+        if (toggle) {
+          toggle.setAttribute('aria-expanded', 'false');
+        }
+      });
+    }
+  });
+  
+  // Mobile navigation enhancements
+  function setupMobileNavigation() {
+    const mobileNavTrigger = document.getElementById('nav-trigger');
+    const mobileNavOverlay = document.querySelector('.site-nav .trigger');
+    
+    if (mobileNavTrigger && mobileNavOverlay) {
+      // Handle mobile nav opening
+      mobileNavTrigger.addEventListener('change', function() {
+        if (this.checked) {
+          // Navigation is opening - scroll to current page
+          setTimeout(() => {
+            scrollToCurrentPage();
+          }, 300); // Wait for animation to complete
+        }
+      });
+    }
+  }
+  
+  function scrollToCurrentPage() {
+    // Find the current page link in the navigation
+    const currentPageLink = document.querySelector('.site-nav [aria-current="page"]');
+    
+    if (currentPageLink) {
+      // Expand parent sections if needed
+      expandParentSections(currentPageLink);
+      
+      // Scroll to the current page with smooth behavior
+      setTimeout(() => {
+        currentPageLink.scrollIntoView({
+          behavior: 'smooth',
+          block: 'center',
+          inline: 'nearest'
+        });
+        
+        // Add visual highlight
+        currentPageLink.style.outline = '2px solid var(--brand-hunyadi-yellow)';
+        currentPageLink.style.outlineOffset = '4px';
+        
+        // Remove highlight after a moment
+        setTimeout(() => {
+          currentPageLink.style.outline = '';
+          currentPageLink.style.outlineOffset = '';
+        }, 2000);
+      }, 100);
+    }
+  }
+  
+  function expandParentSections(currentLink) {
+    // Find parent navigation containers and expand them
+    let parent = currentLink.closest('.nav-item-container');
+    
+    while (parent) {
+      if (!parent.classList.contains('expanded')) {
+        parent.classList.add('expanded');
+        
+        // Trigger the subnav expansion
+        const subnav = parent.querySelector('.nav-subnav');
+        if (subnav) {
+          subnav.style.maxHeight = 'none';
+          const fullHeight = subnav.scrollHeight;
+          subnav.style.maxHeight = '0';
+          
+          requestAnimationFrame(() => {
+            subnav.style.maxHeight = fullHeight + 'px';
+          });
+        }
+        
+        // Update toggle button state
+        const toggle = parent.querySelector('.nav-toggle');
+        if (toggle) {
+          toggle.setAttribute('aria-expanded', 'true');
+        }
+      }
+      
+      // Move up to next parent
+      parent = parent.parentElement?.closest('.nav-item-container');
+    }
+  }
+  
+  // Initialize mobile navigation
+  function setupMobileNavigationEnhanced() {
+    const isMobile = window.innerWidth <= 768;
+    
+    if (isMobile) {
+      // Make entire nav items clickable on mobile (not just toggle button)
+      document.querySelectorAll('.nav-item-container').forEach(container => {
+        const mainLink = container.querySelector('.nav-main-link');
+        const subnav = container.querySelector('.nav-subnav');
+        
+        if (mainLink && subnav) {
+          // Remove href to prevent navigation, make it a button for mobile
+          mainLink.style.cursor = 'pointer';
+          
+          // Add click handler to entire main link area
+          mainLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const isExpanded = container.classList.contains('expanded');
+            
+            // Close all other expanded navs
+            document.querySelectorAll('.nav-item-container.expanded').forEach(item => {
+              if (item !== container) {
+                item.classList.remove('expanded');
+                const otherSubnav = item.querySelector('.nav-subnav');
+                if (otherSubnav) {
+                  otherSubnav.style.maxHeight = '0';
+                }
+              }
+            });
+            
+            // Toggle current nav
+            container.classList.toggle('expanded');
+            
+            // Smooth animation
+            if (container.classList.contains('expanded')) {
+              subnav.style.maxHeight = 'none';
+              const fullHeight = subnav.scrollHeight;
+              subnav.style.maxHeight = '0';
+              
+              requestAnimationFrame(() => {
+                subnav.style.maxHeight = fullHeight + 'px';
+              });
+            } else {
+              subnav.style.maxHeight = '0';
+            }
+          });
+        }
+      });
+      
+      // Auto-close mobile menu when clicking on a navigation link
+      document.querySelectorAll('.nav-sub-link, .nav-subsection-link, .page-link--external').forEach(link => {
+        link.addEventListener('click', function() {
+          const mobileNavTrigger = document.getElementById('mobile-nav-trigger');
+          if (mobileNavTrigger) {
+            mobileNavTrigger.checked = false;
+          }
+        });
+      });
+      
+      // Add swipe to close functionality
+      let startX = 0;
+      let startY = 0;
+      
+      const trigger = document.querySelector('.trigger');
+      if (trigger) {
+        trigger.addEventListener('touchstart', function(e) {
+          startX = e.touches[0].clientX;
+          startY = e.touches[0].clientY;
+        }, { passive: true });
+        
+        trigger.addEventListener('touchmove', function(e) {
+          const currentX = e.touches[0].clientX;
+          const currentY = e.touches[0].clientY;
+          const diffX = currentX - startX;
+          const diffY = Math.abs(currentY - startY);
+          
+          // If swiping right and not scrolling vertically much
+          if (diffX > 50 && diffY < 100) {
+            const mobileNavTrigger = document.getElementById('mobile-nav-trigger');
+            if (mobileNavTrigger) {
+              mobileNavTrigger.checked = false;
+            }
+          }
+        }, { passive: true });
+      }
+    }
+  }
+  
+  // Setup mobile navigation on load and resize
+  setupMobileNavigation();
+  setupMobileNavigationEnhanced();
+  window.addEventListener('resize', () => {
+    setupMobileNavigation();
+    setupMobileNavigationEnhanced();
+  });
+
+  // Keyboard navigation support
+  document.addEventListener('keydown', function(e) {
+    // Close mobile menu with Escape key
+    if (e.key === 'Escape') {
+      const mobileNavTrigger = document.getElementById('mobile-nav-trigger');
+      if (mobileNavTrigger && mobileNavTrigger.checked) {
+        mobileNavTrigger.checked = false;
+        return;
+      }
+      
+      // Close desktop dropdowns with Escape
+      document.querySelectorAll('.nav-item-container.expanded').forEach(item => {
+        item.classList.remove('expanded');
+        const subnav = item.querySelector('.nav-subnav');
+        if (subnav) {
+          subnav.style.maxHeight = '0';
+        }
+        const toggle = item.querySelector('.nav-toggle');
+        if (toggle) {
+          toggle.setAttribute('aria-expanded', 'false');
+          toggle.focus();
+        }
+      });
+    }
+  });
+  
+  // Search functionality
   const searchInput = document.getElementById('search-input');
   const searchResults = document.getElementById('search-results');
-  let searchIndex;
   let searchData;
+  let searchTimeout;
 
-  // Initialize search index
-  fetch('{{ "/assets/js/search-data.json" | relative_url }}')
+  // Initialize search data
+  fetch('{{ "/search.json" | relative_url }}')
     .then(response => response.json())
     .then(data => {
       searchData = data;
-      searchIndex = lunr(function() {
-        this.ref('id');
-        this.field('title', { boost: 10 });
-        this.field('content');
-        this.field('url');
-        
-        data.forEach(function(doc, index) {
-          doc.id = index;
-          this.add(doc);
-        }, this);
-      });
+      console.log('Search data loaded:', data.length, 'items');
     })
     .catch(error => {
-      console.log('Search index not available');
+      console.log('Search index not available:', error);
     });
 
-  // Search input handler
+  // Search input handler with debouncing
+  if (searchInput && searchResults) {
   searchInput.addEventListener('input', function() {
-    const query = this.value.trim();
+      const query = this.value.trim().toLowerCase();
+      
+      // Clear previous timeout
+      clearTimeout(searchTimeout);
     
     if (query.length < 2) {
       searchResults.style.display = 'none';
       return;
     }
 
-    if (!searchIndex) {
+      if (!searchData) {
       searchResults.innerHTML = '<div class="search-result-item">Search index loading...</div>';
       searchResults.style.display = 'block';
       return;
     }
-
-    try {
-      const results = searchIndex.search(query);
-      displaySearchResults(results.slice(0, 8)); // Limit to 8 results
+    
+      // Debounce search
+      searchTimeout = setTimeout(() => {
+        try {
+          // Enhanced search with scoring
+          const results = searchData
+            .map(item => {
+              let score = 0;
+              const titleLower = item.title.toLowerCase();
+              const contentLower = item.content.toLowerCase();
+              
+              // Title exact match gets highest score
+              if (titleLower === query) score += 100;
+              else if (titleLower.includes(query)) score += 50;
+              
+              // Content match
+              if (contentLower.includes(query)) score += 10;
+              
+              // Boost for shorter titles (more relevant)
+              if (score > 0 && item.title.length < 50) score += 5;
+              
+              return { ...item, score };
+            })
+            .filter(item => item.score > 0)
+            .sort((a, b) => b.score - a.score)
+            .slice(0, 8);
+          
+          displaySearchResults(results);
     } catch (error) {
       console.log('Search error:', error);
     }
+      }, 200);
   });
-
+  }
+  
   // Display search results
   function displaySearchResults(results) {
     if (results.length === 0) {
       searchResults.innerHTML = '<div class="search-result-item search-no-results">No results found</div>';
     } else {
       const resultsHTML = results.map(result => {
-        const item = searchData[result.ref];
-        const snippet = item.content.substring(0, 150) + '...';
+        // Highlight search term in title and snippet
+        const query = searchInput.value.trim().toLowerCase();
+        const highlightedTitle = highlightText(result.title, query);
+        const snippet = result.content.substring(0, 150) + '...';
+        const highlightedSnippet = highlightText(snippet, query);
         
         return `
-          <a href="${item.url}" class="search-result-item">
-            <div class="search-result-title">${item.title}</div>
-            <div class="search-result-snippet">${snippet}</div>
+          <a href="${result.url}" class="search-result-item">
+            <div class="search-result-title">${highlightedTitle}</div>
+            <div class="search-result-snippet">${highlightedSnippet}</div>
           </a>
         `;
       }).join('');
@@ -186,19 +518,99 @@ document.addEventListener('DOMContentLoaded', function() {
     
     searchResults.style.display = 'block';
   }
-
+  
+  // Highlight search terms
+  function highlightText(text, query) {
+    if (!query || query.length < 2) return text;
+    
+    const regex = new RegExp(`(${escapeRegExp(query)})`, 'gi');
+    return text.replace(regex, '<mark>$1</mark>');
+  }
+  
+  // Escape special regex characters
+  function escapeRegExp(string) {
+    return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  }
+  
   // Hide search results when clicking outside
   document.addEventListener('click', function(event) {
-    if (!event.target.closest('.search-container')) {
+    if (searchInput && searchResults && !event.target.closest('.search-container')) {
       searchResults.style.display = 'none';
     }
   });
-
+  
   // Show results when focusing on search input
+  if (searchInput && searchResults) {
   searchInput.addEventListener('focus', function() {
     if (this.value.trim().length >= 2 && searchResults.innerHTML.trim()) {
       searchResults.style.display = 'block';
     }
+    });
+    
+    // Keyboard navigation for search results
+    searchInput.addEventListener('keydown', function(e) {
+      const items = searchResults.querySelectorAll('.search-result-item:not(.search-no-results)');
+      const currentFocus = document.activeElement;
+      
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        if (items.length > 0) {
+          if (currentFocus === this) {
+            items[0].focus();
+          } else {
+            const currentIndex = Array.from(items).indexOf(currentFocus);
+            if (currentIndex < items.length - 1) {
+              items[currentIndex + 1].focus();
+            }
+          }
+        }
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        if (items.length > 0) {
+          const currentIndex = Array.from(items).indexOf(currentFocus);
+          if (currentIndex > 0) {
+            items[currentIndex - 1].focus();
+          } else if (currentIndex === 0) {
+            this.focus();
+          }
+        }
+      } else if (e.key === 'Escape') {
+        searchResults.style.display = 'none';
+        this.blur();
+      }
+    });
+  }
+  
+  // Smooth scrolling for anchor links
+  document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function (e) {
+      e.preventDefault();
+      const target = document.querySelector(this.getAttribute('href'));
+      if (target) {
+        target.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start'
+        });
+      }
+    });
+  });
+  
+  // Add loading states for navigation links
+  document.querySelectorAll('.nav-main-link, .nav-sub-link, .nav-subsection-link').forEach(link => {
+    link.addEventListener('click', function(e) {
+      // Only add loading state for internal links
+      const href = this.getAttribute('href');
+      if (href && !href.startsWith('http') && !href.startsWith('#')) {
+        this.style.opacity = '0.7';
+        this.style.pointerEvents = 'none';
+        
+        // Reset after a delay (in case navigation fails)
+        setTimeout(() => {
+          this.style.opacity = '1';
+          this.style.pointerEvents = 'auto';
+        }, 3000);
+      }
+    });
   });
 });
 </script> 
