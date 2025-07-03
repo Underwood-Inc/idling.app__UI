@@ -201,17 +201,97 @@ class DocumentationCoverageEnforcer:
                     
         return code_files
 
-    def _find_existing_docs(self) -> Set[str]:
-        """Find all existing documentation files"""
-        doc_files = set()
+    def _find_existing_docs(self) -> Dict[str, str]:
+        """Find all existing documentation files and map them to their locations"""
+        doc_files = {}
         
+        # Look for co-located README.md files
+        for pattern in self.config["code_patterns"]:
+            files = glob.glob(pattern, recursive=True)
+            for file_path in files:
+                file_dir = os.path.dirname(file_path)
+                readme_path = os.path.join(file_dir, "README.md")
+                if os.path.exists(readme_path) and self._has_meaningful_content(readme_path):
+                    file_name = Path(file_path).stem.lower()
+                    doc_files[file_name] = readme_path
+        
+        # Also look for centralized docs (like API docs)
         for pattern in self.config["doc_patterns"]:
             files = glob.glob(pattern, recursive=True)
             for file_path in files:
-                doc_name = Path(file_path).stem.lower()
-                doc_files.add(doc_name)
+                if self._has_meaningful_content(file_path):
+                    doc_name = Path(file_path).stem.lower()
+                    doc_files[doc_name] = file_path
                 
         return doc_files
+
+    def _has_meaningful_content(self, file_path: str) -> bool:
+        """Check if a documentation file has meaningful content (not just stubs)"""
+        try:
+            with open(file_path, 'r', encoding='utf-8') as f:
+                content = f.read().strip()
+                
+            # Check if file is empty or nearly empty
+            if len(content) < 50:
+                return False
+                
+            # Remove common markdown elements for content analysis
+            content_clean = re.sub(r'#+ ', '', content)  # Remove headers
+            content_clean = re.sub(r'\*\*.*?\*\*', '', content_clean)  # Remove bold text
+            content_clean = re.sub(r'`.*?`', '', content_clean)  # Remove inline code
+            content_clean = re.sub(r'```.*?```', '', content_clean, flags=re.DOTALL)  # Remove code blocks
+            content_clean = re.sub(r'\n+', ' ', content_clean)  # Normalize whitespace
+            content_clean = content_clean.strip()
+            
+            # Check for stub patterns
+            stub_patterns = [
+                r'^\s*#\s*\w+\s*$',  # Just a single header
+                r'^\s*TODO\s*:?\s*',  # TODO markers
+                r'^\s*STUB\s*:?\s*',  # STUB markers
+                r'^\s*Coming soon\s*\.?\s*$',  # "Coming soon"
+                r'^\s*Documentation\s+(?:coming\s+soon|to\s+be\s+added)\s*\.?\s*$',  # Generic placeholders
+                r'^\s*This\s+(?:file|document|page)\s+is\s+(?:under\s+construction|not\s+yet\s+complete)\s*\.?\s*$',
+                r'^\s*Placeholder\s*\.?\s*$',  # Placeholder text
+                r'^\s*TBD\s*\.?\s*$',  # TBD (To Be Determined)
+                r'^\s*WIP\s*\.?\s*$',  # WIP (Work In Progress)
+            ]
+            
+            # Check if content matches stub patterns
+            for pattern in stub_patterns:
+                if re.match(pattern, content_clean, re.IGNORECASE):
+                    return False
+                    
+            # Check if content is too short after cleaning
+            if len(content_clean) < 30:
+                return False
+                
+            # Check for meaningful content indicators
+            meaningful_indicators = [
+                r'##\s+',  # Multiple headers indicate structure
+                r'###\s+',  # Even more detailed structure
+                r'\w+\s+\w+\s+\w+\s+\w+\s+\w+',  # At least 5 words in a row
+                r'function\s+\w+',  # Function descriptions
+                r'class\s+\w+',  # Class descriptions
+                r'interface\s+\w+',  # Interface descriptions
+                r'export\s+',  # Export descriptions
+                r'import\s+',  # Import descriptions
+                r'Example\s*:',  # Examples
+                r'Usage\s*:',  # Usage information
+                r'Parameters\s*:',  # Parameter documentation
+                r'Returns\s*:',  # Return value documentation
+            ]
+            
+            meaningful_count = 0
+            for indicator in meaningful_indicators:
+                if re.search(indicator, content, re.IGNORECASE):
+                    meaningful_count += 1
+                    
+            # Require at least 2 meaningful indicators or substantial content
+            return meaningful_count >= 2 or len(content_clean) > 100
+            
+        except Exception as e:
+            print(f"⚠️  Error reading {file_path}: {e}")
+            return False
 
     def _suggest_doc_path(self, file_info: FileInfo) -> str:
         """Suggest where documentation should be created"""
@@ -231,14 +311,17 @@ class DocumentationCoverageEnforcer:
         
         if file_type_config:
             if file_info.type == "api_route":
-                # Special handling for API routes
+                # Special handling for API routes - keep in centralized DOCS
                 relative_path = file_info.path.replace("src/app/api/", "").replace("/route.ts", "")
                 return file_type_config["doc_path"].format(path=relative_path)
             else:
-                return file_type_config["doc_path"].format(name=file_info.name.lower())
+                # Co-located documentation - place README.md in same directory as source file
+                file_dir = os.path.dirname(file_info.path)
+                return file_type_config["doc_path"].format(dir=file_dir, name=file_info.name.lower())
         
-        # Default fallback with proper pluralization
-        return f"DOCS/{plural_type}/{file_info.name.lower()}.md"
+        # Default fallback - co-located README.md
+        file_dir = os.path.dirname(file_info.path)
+        return f"{file_dir}/README.md"
 
     def _get_priority(self, file_info: FileInfo) -> str:
         """Determine priority for missing documentation"""
@@ -285,18 +368,26 @@ class DocumentationCoverageEnforcer:
         for file_info in code_files:
             doc_name = file_info.name.lower()
             
+            # Check if documentation exists (either co-located or centralized)
             if doc_name in existing_docs:
                 documented_count += 1
             else:
-                gap = DocumentationGap(
-                    file_path=file_info.path,
-                    file_name=file_info.name,
-                    file_type=file_info.type,
-                    suggested_doc_path=self._suggest_doc_path(file_info),
-                    priority=self._get_priority(file_info),
-                    reason=f"{file_info.type.title()} with {file_info.size_lines} lines needs documentation"
-                )
-                gaps.append(gap)
+                # Check if there's a co-located README.md in the same directory with meaningful content
+                file_dir = os.path.dirname(file_info.path)
+                readme_path = os.path.join(file_dir, "README.md")
+                
+                if os.path.exists(readme_path) and self._has_meaningful_content(readme_path):
+                    documented_count += 1
+                else:
+                    gap = DocumentationGap(
+                        file_path=file_info.path,
+                        file_name=file_info.name,
+                        file_type=file_info.type,
+                        suggested_doc_path=self._suggest_doc_path(file_info),
+                        priority=self._get_priority(file_info),
+                        reason=f"{file_info.type.title()} with {file_info.size_lines} lines needs documentation"
+                    )
+                    gaps.append(gap)
         
         # Calculate coverage
         total_files = len(code_files)

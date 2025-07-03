@@ -26,12 +26,12 @@
   "file_type_mapping": {
     "services": {
       "pattern": "src/lib/services/**/*.ts",
-      "doc_path": "DOCS/services/{name}.md",
+      "doc_path": "{dir}/README.md",
       "priority": "high"
     },
     "components": {
       "pattern": "src/components/**/*.tsx",
-      "doc_path": "DOCS/components/{name}.md",
+      "doc_path": "{dir}/README.md",
       "priority": "high"
     },
     "api": {
@@ -41,12 +41,12 @@
     },
     "utilities": {
       "pattern": "src/lib/utils/**/*.ts",
-      "doc_path": "DOCS/utilities/{name}.md",
+      "doc_path": "{dir}/README.md",
       "priority": "medium"
     },
     "hooks": {
       "pattern": "src/lib/hooks/**/*.ts",
-      "doc_path": "DOCS/hooks/{name}.md",
+      "doc_path": "{dir}/README.md",
       "priority": "medium"
     }
   },
