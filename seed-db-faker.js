@@ -2314,7 +2314,7 @@ async function clearDatabase() {
 
   animator.start('Checking for existing data...');
   try {
-    // Check if tables exist before trying to clear them
+    // Check if core tables exist before trying to clear them
     const tableCheck = await sql`
       SELECT table_name 
       FROM information_schema.tables 
@@ -2329,39 +2329,66 @@ async function clearDatabase() {
       return;
     }
 
-    animator.update('Clearing existing data...');
+    animator.update('Clearing existing data in proper order...');
 
-    // Clear in correct order to respect foreign key constraints
-    // Only clear tables that exist
-    const existingTables = tableCheck.map((row) => row.table_name);
+    // Clear all tables that have foreign key references to users table
+    // Order matters - clear dependent tables first, then users table last
+    
+    // 1. Clear analytics and tracking tables (no dependencies)
+    await sql`DELETE FROM alert_analytics WHERE true`;
+    await sql`DELETE FROM alert_dismissals WHERE true`;
+    await sql`DELETE FROM emoji_usage WHERE true`;
+    await sql`DELETE FROM guest_usage_tracking WHERE true`;
+    await sql`DELETE FROM user_timeout_revocations WHERE true`;
+    
+    // 2. Clear user-dependent tables
+    await sql`DELETE FROM custom_alerts WHERE true`;
+    await sql`DELETE FROM custom_emojis WHERE true`;
+    await sql`DELETE FROM user_encryption_keys WHERE true`;
+    await sql`DELETE FROM user_timeouts WHERE true`;
+    await sql`DELETE FROM user_permissions WHERE true`;
+    await sql`DELETE FROM user_role_assignments WHERE true`;
+    await sql`DELETE FROM user_subscriptions WHERE true`;
+    await sql`DELETE FROM subscription_usage WHERE true`;
+    await sql`DELETE FROM user_quota_overrides WHERE true`;
+    await sql`DELETE FROM global_guest_quotas WHERE true`;
+    
+    // 3. Clear submissions (depends on users)
+    await sql`DELETE FROM submissions WHERE true`;
+    
+    // 4. Clear NextAuth tables (depend on users)
+    await sql`DELETE FROM sessions WHERE true`;
+    await sql`DELETE FROM accounts WHERE true`;
+    
+    // 5. Finally clear users table
+    await sql`DELETE FROM users WHERE true`;
 
-    if (existingTables.includes('submissions')) {
-      await sql`DELETE FROM submissions`;
-      // Reset sequence only if table exists
-      const seqCheck = await sql`
-        SELECT 1 FROM pg_sequences WHERE sequencename = 'submissions_submission_id_seq'
-      `;
-      if (seqCheck.length > 0) {
-        await sql`ALTER SEQUENCE submissions_submission_id_seq RESTART WITH 1`;
+    // Reset sequences for main tables
+    const sequenceResets = [
+      'submissions_submission_id_seq',
+      'users_id_seq',
+      'custom_alerts_id_seq',
+      'custom_emojis_id_seq',
+      'user_timeouts_id_seq',
+      'user_role_assignments_id_seq',
+      'user_subscriptions_id_seq',
+      'user_quota_overrides_id_seq'
+    ];
+
+    for (const seqName of sequenceResets) {
+      try {
+        const seqCheck = await sql`
+          SELECT 1 FROM pg_sequences WHERE sequencename = ${seqName}
+        `;
+        if (seqCheck.length > 0) {
+          await sql`ALTER SEQUENCE ${sql(seqName)} RESTART WITH 1`;
+        }
+      } catch (error) {
+        // Ignore sequence reset errors for non-existent sequences
       }
     }
 
-    if (existingTables.includes('accounts')) {
-      await sql`DELETE FROM accounts`;
-    }
-
-    if (existingTables.includes('users')) {
-      await sql`DELETE FROM users`;
-      // Reset sequence only if table exists
-      const seqCheck = await sql`
-        SELECT 1 FROM pg_sequences WHERE sequencename = 'users_id_seq'
-      `;
-      if (seqCheck.length > 0) {
-        await sql`ALTER SEQUENCE users_id_seq RESTART WITH 1`;
-      }
-    }
-
-    animator.success('Database cleared (NextAuth tables included)');
+    animator.success('Database cleared (all dependent tables handled)');
   } catch (error) {
     animator.error(`Error clearing database: ${error.message}`);
     throw error;
