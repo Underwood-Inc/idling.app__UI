@@ -1,10 +1,6 @@
 ---
-layout: default
 title: '🔧 Admin Endpoints'
 description: 'Administrative endpoints for system management'
-nav_order: 4
-parent: '🔌 API Reference'
-grand_parent: '📚 Documentation'
 ---
 
 # 🔧 Admin Endpoints
@@ -227,6 +223,6 @@ Admin endpoints have stricter rate limits:
 
 ## Next Steps
 
-- Review [Core Endpoints](../core/) for regular API functionality
-- Check [API Overview](../overview/) for authentication setup
-- Use [Interactive Tools](../interactive/) for testing (admin token required)
+- Review [Core Endpoints](../README.md) for regular API functionality
+- Check [API Overview](../README.md) for authentication setup
+- Use [Interactive Tools](../swagger.md) for testing (admin token required)

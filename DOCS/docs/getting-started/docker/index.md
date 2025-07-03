@@ -386,7 +386,7 @@ jobs:
 ## 📚 Next Steps
 
 1. 🏗️ Learn about [Architecture](../../architecture/)
-2. 🧩 Explore [Components](../../../dev/components/)
+2. 🧩 Explore [Components](../../../../src/components/)
 3. 🧪 Set up [Testing](../../../dev/testing/)
 4. 🚀 Deploy to [Production](../../deployment/)
 

@@ -6,9 +6,45 @@ Welcome to the idling.app API documentation. This directory contains all API end
 
 - **[Interactive Swagger UI](./swagger.md)** - Interactive API documentation
 - **[OpenAPI Specification](./openapi.json)** - Machine-readable API specification
-- **[Authentication Guide](../../DOCS/getting-started.md#authentication)** - How to authenticate with the API
+- **[Authentication Guide](../../DOCS/docs/getting-started/#authentication)** - How to authenticate with the API
 - **[Rate Limiting](../lib/services/RateLimitService.md)** - API rate limiting documentation
-- **[Development Setup](../../DOCS/getting-started.md)** - Set up your development environment
+- **[Development Setup](../../DOCS/docs/getting-started/)** - Set up your development environment
+
+## 🚀 Getting Started
+
+### Base URL
+
+```
+https://api.idling.app/v1
+```
+
+For development:
+
+```
+http://localhost:3000/api
+```
+
+### Authentication
+
+All API requests require authentication using Bearer tokens:
+
+```bash
+curl -H "Authorization: Bearer YOUR_TOKEN" \
+     http://localhost:3000/api/emojis
+```
+
+### Rate Limiting
+
+- **Authenticated**: 1000 requests per hour
+- **Unauthenticated**: 100 requests per hour
+
+Rate limit headers are included in all responses:
+
+```
+X-RateLimit-Limit: 1000
+X-RateLimit-Remaining: 999
+X-RateLimit-Reset: 1640995200
+```
 
 ## 🚀 API Endpoints
 
@@ -26,7 +62,7 @@ Welcome to the idling.app API documentation. This directory contains all API end
 
 ### Admin Endpoints
 
-- **[/api/admin](./admin/)** - Administrative functions
+- **[/api/admin](./admin/)** - Administrative functions ([Documentation](./admin/README.md))
   - User management
   - System monitoring
   - Rate limit management

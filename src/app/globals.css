@@ -368,7 +368,7 @@ aside {
   top: 0;
   right: 2.3rem;
   width: calc(20vw - 3rem);
-  max-height: calc(100vh - 5rem);
+  max-height: 80vh;
   min-height: 30rem;
   /* overflow-y: auto; */
 }

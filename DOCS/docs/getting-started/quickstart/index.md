@@ -132,7 +132,7 @@ Now that you're up and running:
 1. 📖 Read the [Installation Guide](../installation/) for detailed setup
 2. 🐳 Learn about [Docker Development](../docker/)
 3. 🏗️ Understand the [Architecture](../../architecture/)
-4. 🧩 Explore [Components](../../../dev/components/)
+4. 🧩 Explore [Components](../../../../src/components/)
 5. 🧪 Set up [Testing](../../../dev/testing/)
 
 ## 🔧 Common Commands

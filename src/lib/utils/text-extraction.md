@@ -491,7 +491,7 @@ function secureExtractHashtags(text: string): string[] {
 - **[Content Parsers](content-parsers.html)** - Advanced content parsing and tokenization
 - **[Rich Text Parser](rich-text-parser.html)** - Markdown and rich text processing
 - **[Emoji Parser](emoji-parser.html)** - Emoji processing and rendering
-- **[Components - Rich Input System](../components/rich-input-system/)** - UI components using text extraction
+- **[Components - Rich Input System](../components/rich-input-system/index.md)** - UI components using text extraction
 
 ## 🔗 External Resources
 

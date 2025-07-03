@@ -112,7 +112,7 @@ Comprehensive testing documentation covering unit tests, integration tests, end-
 
 ## 🔗 Related Sections
 
-- **[Components](../components/)** - Component testing examples
+- **[Components](../../src/components/)** - Component testing examples
 - **[Tools](../tools/)** - Development environment setup
 - **[Documentation](../../docs/)** - API testing documentation
 
