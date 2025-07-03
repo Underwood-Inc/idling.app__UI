@@ -11,7 +11,7 @@
     "DOCS/services/**/*.md",
     "DOCS/components/**/*.md",
     "DOCS/api/**/*.md",
-    "DOCS/utils/**/*.md",
+    "DOCS/utilities/**/*.md",
     "DOCS/hooks/**/*.md"
   ],
   "exclude_patterns": [
@@ -34,14 +34,14 @@
       "doc_path": "DOCS/components/{name}.md",
       "priority": "high"
     },
-    "api_routes": {
+    "api": {
       "pattern": "src/app/api/**/route.ts",
       "doc_path": "DOCS/api/{path}.md",
       "priority": "high"
     },
-    "utils": {
+    "utilities": {
       "pattern": "src/lib/utils/**/*.ts",
-      "doc_path": "DOCS/utils/{name}.md",
+      "doc_path": "DOCS/utilities/{name}.md",
       "priority": "medium"
     },
     "hooks": {

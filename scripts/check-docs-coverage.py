@@ -215,7 +215,19 @@ class DocumentationCoverageEnforcer:
 
     def _suggest_doc_path(self, file_info: FileInfo) -> str:
         """Suggest where documentation should be created"""
-        file_type_config = self.config["file_type_mapping"].get(file_info.type + "s")
+        # Handle proper pluralization for directory names
+        type_plural_mapping = {
+            "utility": "utilities",
+            "service": "services", 
+            "component": "components",
+            "hook": "hooks",
+            "api_route": "api",
+            "unknown": "misc"
+        }
+        
+        # Get the plural form for the file type
+        plural_type = type_plural_mapping.get(file_info.type, file_info.type + "s")
+        file_type_config = self.config["file_type_mapping"].get(plural_type)
         
         if file_type_config:
             if file_info.type == "api_route":
@@ -225,12 +237,23 @@ class DocumentationCoverageEnforcer:
             else:
                 return file_type_config["doc_path"].format(name=file_info.name.lower())
         
-        # Default fallback
-        return f"DOCS/{file_info.type}s/{file_info.name.lower()}.md"
+        # Default fallback with proper pluralization
+        return f"DOCS/{plural_type}/{file_info.name.lower()}.md"
 
     def _get_priority(self, file_info: FileInfo) -> str:
         """Determine priority for missing documentation"""
-        file_type_config = self.config["file_type_mapping"].get(file_info.type + "s")
+        # Handle proper pluralization for directory names
+        type_plural_mapping = {
+            "utility": "utilities",
+            "service": "services", 
+            "component": "components",
+            "hook": "hooks",
+            "api_route": "api",
+            "unknown": "misc"
+        }
+        
+        plural_type = type_plural_mapping.get(file_info.type, file_info.type + "s")
+        file_type_config = self.config["file_type_mapping"].get(plural_type)
         
         if file_type_config:
             return file_type_config["priority"]
