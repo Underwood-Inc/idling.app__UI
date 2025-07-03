@@ -1,12 +1,28 @@
 # Use the official Node.js image as the base image
 FROM node:20
 
-# Install zsh and git for development environment
+# Install zsh, git, and Playwright browser dependencies for development environment
 RUN apt-get update && apt-get install -y \
   zsh \
   git \
   curl \
   fonts-powerline \
+  # Playwright browser dependencies
+  libnspr4 \
+  libnss3 \
+  libatk-bridge2.0-0 \
+  libdrm2 \
+  libxkbcommon0 \
+  libxcomposite1 \
+  libxdamage1 \
+  libxrandr2 \
+  libgbm1 \
+  libxss1 \
+  libasound2 \
+  libatspi2.0-0 \
+  libgtk-3-0 \
+  libgdk-pixbuf2.0-0 \
+  libxshmfence1 \
   && rm -rf /var/lib/apt/lists/*
 
 # Install Powerlevel10k
@@ -43,6 +59,9 @@ COPY custom-eslint-rules/ ./custom-eslint-rules/
 
 # Install Node.js dependencies
 RUN yarn install --check-files
+
+# Install Playwright browsers after dependencies are installed
+RUN npx playwright install --with-deps
 
 # Copy the rest of the application code
 COPY . .

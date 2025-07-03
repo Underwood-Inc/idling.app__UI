@@ -42,6 +42,10 @@ Our testing approach includes multiple layers:
 
 Detailed documentation of our CI testing pipeline, job dependencies, and troubleshooting guide.
 
+### [Docker E2E Testing Setup](docker-e2e-setup.html)
+
+Complete guide for running Playwright E2E tests in Docker environment with authentication setup and troubleshooting.
+
 ## Quick Reference
 
 ### Running Tests Locally

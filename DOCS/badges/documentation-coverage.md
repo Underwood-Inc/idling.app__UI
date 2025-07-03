@@ -8,9 +8,9 @@ description: Auto-generated documentation coverage badge
 
 ![Documentation Coverage](https://img.shields.io/badge/Documentation%20Coverage-2%25-red?style=flatDOC_BADGE_URL_PLACEHOLDERlogo=gitbookDOC_BADGE_URL_PLACEHOLDERlogoColor=white)
 
-**Current Coverage:** 2% (10/434 files)
+**Current Coverage:** 2% (10/433 files)
 
-*Last updated: Thu Jul  3 07:16:55 NDT 2025*
+*Last updated: Thu Jul  3 07:24:08 NDT 2025*
 
 ## Badge URL
 

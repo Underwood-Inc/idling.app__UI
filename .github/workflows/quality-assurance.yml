@@ -169,7 +169,7 @@ jobs:
           mkdir -p test-results/{chromium,firefox,webkit} playwright-report
 
           # Run tests with reporters configured in playwright.config.ts
-          IS_CI=1 FORCE_COLOR=1 yarn playwright test \
+          IS_CI=1 IS_GITHUB_ACTIONS=1 FORCE_COLOR=1 yarn playwright test \
             --shard=${{ matrix.shard }}/3
 
           # Debug: Show test results

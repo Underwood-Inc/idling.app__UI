@@ -65,6 +65,13 @@ navigation:
         url: "/development/global-loading-system"
       - title: "User Data Export System"
         url: "/development/user-data-export-system"
+  - title: "Testing"
+    url: "/testing/"
+    subnav:
+      - title: "CI Tests"
+        url: "/testing/ci-tests"
+      - title: "Docker E2E Setup"
+        url: "/testing/docker-e2e-setup"
   - title: "Deployment"
     url: "/deployment/"
     subnav:

@@ -1,6 +1,8 @@
 .page-content__section {
+  display: flex;
   flex-direction: column;
   max-width: calc(80vw - 3rem);
+  flex: 1;
   /* padding-bottom: 5rem; */
 }
 
