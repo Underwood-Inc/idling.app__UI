@@ -242,29 +242,6 @@ CREATE TRIGGER trigger_custom_alerts_updated_at
     EXECUTE FUNCTION update_custom_alerts_updated_at();
 
 -- ================================
--- INITIAL DATA
--- ================================
-
--- Insert a welcome alert for demonstration
-INSERT INTO custom_alerts (
-    title, message, details, alert_type, target_audience, priority,
-    icon, dismissible, persistent, is_active, is_published, created_by
-) VALUES (
-    'Welcome to the Enhanced Alert System! 🎉',
-    'We''ve upgraded our notification system to provide better, more targeted alerts.',
-    'You can now dismiss alerts, and administrators can create custom notifications for different user groups.',
-    'info',
-    'all',
-    10,
-    '🎉',
-    true,
-    false,
-    true,
-    true,
-    1 -- Assuming user ID 1 exists (admin)
-) ON CONFLICT DO NOTHING;
-
--- ================================
 -- PERMISSIONS INTEGRATION
 -- ================================
 

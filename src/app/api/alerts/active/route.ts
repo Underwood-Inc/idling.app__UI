@@ -1,3 +1,30 @@
+/**
+ * @swagger
+ * /api/alerts/active:
+ *   get:
+ *     summary: Get active alerts for current user
+ *     description: Fetches active custom alerts for the current user based on targeting rules and user permissions
+ *     tags:
+ *       - Alerts
+ *     security:
+ *       - NextAuth: []
+ *     responses:
+ *       200:
+ *         description: Successfully retrieved active alerts
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/CustomAlert'
+ *       500:
+ *         description: Failed to fetch alerts
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
+
 import { auth } from '@/lib/auth';
 import sql from '@/lib/db';
 import { NextResponse } from 'next/server';

@@ -6,11 +6,17 @@ services:
     environment:
       - NODE_ENV=development
       - CHOKIDAR_USEPOLLING=true # Better file watching in Docker
+      # Playwright configuration for headless browser testing
+      - PLAYWRIGHT_BROWSERS_PATH=/app/.playwright
+      - DISPLAY=:99 # Virtual display for headless browsers
     volumes:
       # Additional development volumes
       - ./logs:/app/logs
       - ./coverage:/app/coverage
       - ./test-results:/app/test-results
+      - ./playwright-report:/app/playwright-report
+      # Cache Playwright browsers to avoid re-downloading
+      - playwright_browsers:/app/.playwright
     # Development-specific labels
     labels:
       - 'traefik.enable=true'
@@ -28,3 +34,7 @@ services:
       - 'traefik.http.routers.docs.rule=Host(`docs.localhost`)'
       - 'traefik.http.routers.docs.entrypoints=web'
       - 'traefik.http.services.docs.loadbalancer.server.port=4000'
+
+volumes:
+  playwright_browsers:
+    driver: local

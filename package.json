@@ -1,6 +1,6 @@
 {
   "name": "idling.app",
-  "version": "0.332.0",
+  "version": "0.344.0",
   "private": true,
   "engines": {
     "node": ">=20.x"
@@ -20,10 +20,12 @@
     "docs:dev": "cd DOCS && PAGES_REPO_NWO=Underwood-Inc/idling.app__UI bundle exec jekyll serve --config _config.yml,_config_dev.yml --host=0.0.0.0 --port=4000",
     "docs:build": "cd DOCS && PAGES_REPO_NWO=Underwood-Inc/idling.app__UI bundle exec jekyll build",
     "docs:install": "cd DOCS && bundle config set --local path 'vendor/bundle' && bundle install",
+    "docs:openapi": "node scripts/generate-openapi-spec.js",
     "e2e:gen": "yarn playwright codegen",
     "e2e:headed": "yarn playwright test --headed",
     "e2e:headless": "yarn playwright test",
     "e2e:reports": "yarn playwright show-report",
+    "e2e:docker": "./scripts/run-e2e-docker.sh",
     "e2e": "yarn playwright test --ui",
     "gen:secret": "openssl rand -base64 32",
     "lint-staged": "lint-staged",
@@ -65,6 +67,7 @@
     "dotenv": "^16.4.5",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-prettier": "^5.2.1",
+    "jose": "^6.0.11",
     "jotai": "^2.12.5",
     "lorem-ipsum": "^2.0.8",
     "next": "^14.2.15",
@@ -77,6 +80,8 @@
     "react-spinners": "^0.13.8",
     "react-string-replace": "^1.1.1",
     "stream-browserify": "^3.0.0",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-react": "^5.26.0",
     "utf-8-validate": "^5.0.2",
     "zod": "^3.25.67"
   },
@@ -93,6 +98,8 @@
     "@types/pg": "8.10.0",
     "@types/react": "^18.3.4",
     "@types/react-dom": "^18.3.0",
+    "@types/swagger-jsdoc": "^6.0.4",
+    "@types/swagger-ui-react": "^5.18.0",
     "auto-changelog": "^2.5.0",
     "chalk": "^5.4.1",
     "eslint": "^8.57.0",

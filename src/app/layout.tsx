@@ -307,8 +307,8 @@ export default function RootLayout({
                         </NotFoundErrorBoundary>
                       </JotaiProvider>
                     </Suspense>
-                    <Footer />
                   </main>
+                  <Footer />
                   <OverlayRenderer />
                   <PWAInstallPrompt />
                 </OverlayProvider>

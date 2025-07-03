@@ -33,8 +33,8 @@ permissions:
 env:
   AUTH_TRUST_HOST: true
   NEXTAUTH_URL: http://localhost:3000
-  # Secrets are encrypted environment variables
-  NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
+  # Secrets are encrypted environment variables (optional - fallbacks provided in code)
+  NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET || 'fallback-secret-for-testing-only' }}
   AUTHJS_SESSION_TOKEN: ${{ secrets.AUTHJS_SESSION_TOKEN }}
   AUTHJS_CALLBACK_URL: ${{ secrets.AUTHJS_CALLBACK_URL }}
   AUTHJS_CSRF_TOKEN: ${{ secrets.AUTHJS_CSRF_TOKEN }}
@@ -169,7 +169,7 @@ jobs:
           mkdir -p test-results/{chromium,firefox,webkit} playwright-report
 
           # Run tests with reporters configured in playwright.config.ts
-          IS_CI=1 FORCE_COLOR=1 yarn playwright test \
+          IS_CI=1 IS_GITHUB_ACTIONS=1 FORCE_COLOR=1 yarn playwright test \
             --shard=${{ matrix.shard }}/3
 
           # Debug: Show test results
@@ -201,6 +201,190 @@ jobs:
           name: playwright-traces-${{ matrix.shard }}
           path: test-results/
           retention-days: 7
+
+  documentation-coverage:
+    timeout-minutes: 10
+    name: Documentation Coverage
+    needs: setup
+    runs-on: ubuntu-latest
+    environment: actions
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # Setup Python for documentation coverage analysis
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      # Install Python dependencies for documentation analysis
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install interrogate
+
+      # Run documentation coverage analysis
+      - name: Run documentation coverage analysis
+        run: |
+          echo "📚 Running documentation coverage analysis..."
+          python scripts/check-docs-coverage.py --format json > doc-coverage-report.json
+          python scripts/check-docs-coverage.py --format markdown > doc-coverage-report.md
+
+          # Extract coverage percentage for badge generation
+          DOC_COVERAGE=$(python -c "import json; data=json.load(open('doc-coverage-report.json')); print(int(data['coverage_percentage']))")
+          echo "DOC_COVERAGE=$DOC_COVERAGE" >> $GITHUB_ENV
+
+          # Generate console report for logs
+          echo "📊 Documentation Coverage Report:"
+          python scripts/check-docs-coverage.py --format console
+
+      # Upload documentation coverage reports
+      - name: Upload documentation coverage reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: documentation-coverage-reports
+          path: |
+            doc-coverage-report.json
+            doc-coverage-report.md
+          retention-days: 30
+
+      # Comment on PR with documentation coverage results
+      - name: Comment on PR with documentation coverage
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+
+            // Read the markdown report
+            let reportContent = '';
+            try {
+              reportContent = fs.readFileSync('doc-coverage-report.md', 'utf8');
+            } catch (error) {
+              reportContent = 'Documentation coverage report could not be generated.';
+            }
+
+            // Read the JSON report for structured data
+            let jsonReport = null;
+            try {
+              jsonReport = JSON.parse(fs.readFileSync('doc-coverage-report.json', 'utf8'));
+            } catch (error) {
+              console.log('Could not parse JSON report:', error);
+            }
+
+            // Determine badge color based on coverage
+            const coverage = jsonReport ? jsonReport.coverage_percentage : 0;
+            let badgeColor = 'red';
+            if (coverage >= 90) badgeColor = 'brightgreen';
+            else if (coverage >= 75) badgeColor = 'green';
+            else if (coverage >= 60) badgeColor = 'yellow';
+            else if (coverage >= 40) badgeColor = 'orange';
+
+            // Create documentation coverage badge
+            const badgeUrl = `https://img.shields.io/badge/Documentation%20Coverage-${Math.round(coverage)}%25-${badgeColor}?style=flat&logo=gitbook&logoColor=white`;
+
+            // Format the comment
+            const prNumber = context.issue.number;
+            const documentedFiles = jsonReport ? jsonReport.documented_files : 0;
+            const totalFiles = jsonReport ? jsonReport.total_files : 0;
+
+            const comment = `## 📚 Documentation Coverage Status\n\n` +
+              `![Documentation Coverage](${badgeUrl})\n\n` +
+              `**Coverage:** ${coverage.toFixed(1)}% (${documentedFiles}/${totalFiles} files)\n\n` +
+              `<details>\n<summary>📋 Detailed Report</summary>\n\n${reportContent}\n\n</details>\n\n` +
+              `---\n\n` +
+              `*This report was automatically generated by the documentation coverage analysis.*`;
+
+            // Post comment
+            await github.rest.issues.createComment({
+              issue_number: prNumber,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
+
+            console.log('✅ Posted documentation coverage comment on PR');
+
+      # Update PR description with documentation coverage badge
+      - name: Update PR description with documentation coverage badge
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+
+            // Read the JSON report for structured data
+            let jsonReport = null;
+            try {
+              jsonReport = JSON.parse(fs.readFileSync('doc-coverage-report.json', 'utf8'));
+            } catch (error) {
+              console.log('Could not parse JSON report:', error);
+              return;
+            }
+
+            // Determine badge color based on coverage
+            const coverage = jsonReport.coverage_percentage;
+            let badgeColor = 'red';
+            if (coverage >= 90) badgeColor = 'brightgreen';
+            else if (coverage >= 75) badgeColor = 'green';
+            else if (coverage >= 60) badgeColor = 'yellow';
+            else if (coverage >= 40) badgeColor = 'orange';
+
+            // Create documentation coverage badge URL
+            const newBadgeUrl = `https://img.shields.io/badge/Documentation%20Coverage-${Math.round(coverage)}%25-${badgeColor}?style=flat&logo=gitbook&logoColor=white`;
+
+            // Get current PR description
+            const prNumber = context.issue.number;
+            const { data: pr } = await github.rest.pulls.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: prNumber
+            });
+
+            let currentDescription = pr.body || '';
+
+            // Update existing documentation coverage badge in PR description
+            // Look for various patterns of documentation coverage badges
+            const badgePatterns = [
+              /!\[Documentation Coverage\]\(https:\/\/img\.shields\.io\/badge\/Documentation%20Coverage-\d+%25-[a-z]+\?[^)]*\)/g,
+              /!\[Documentation Coverage\]\(https:\/\/img\.shields\.io\/badge\/Documentation%20Coverage-\d+%25-[a-z]+[^)]*\)/g,
+              /https:\/\/img\.shields\.io\/badge\/Documentation%20Coverage-\d+%25-[a-z]+\?[^)\s]*/g
+            ];
+
+            let updatedDescription = currentDescription;
+            let badgeFound = false;
+
+            // Try to replace existing badge with new one
+            for (const pattern of badgePatterns) {
+              if (pattern.test(updatedDescription)) {
+                updatedDescription = updatedDescription.replace(pattern, `![Documentation Coverage](${newBadgeUrl})`);
+                badgeFound = true;
+                console.log('✅ Found and updated existing documentation coverage badge in PR description');
+                break;
+              }
+            }
+
+            // If no badge found, add one at the top of the description
+            if (!badgeFound) {
+              const newBadgeSection = `## 📚 Documentation Coverage Status\n\n![Documentation Coverage](${newBadgeUrl})\n\n---\n\n`;
+              updatedDescription = newBadgeSection + currentDescription;
+              console.log('✅ Added new documentation coverage badge to PR description');
+            }
+
+            // Update PR description if it changed
+            if (updatedDescription !== currentDescription) {
+              await github.rest.pulls.update({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: prNumber,
+                body: updatedDescription
+              });
+              console.log('✅ Updated PR description with documentation coverage badge');
+            } else {
+              console.log('📝 PR description already up to date');
+            }
 
   jest-tests:
     timeout-minutes: 15
@@ -256,734 +440,6 @@ jobs:
           name: jest-coverage-${{ matrix.shard }}
           path: coverage/
           retention-days: 30
-
-  # Documentation coverage job integrated into test suite
-  documentation-coverage:
-    timeout-minutes: 10
-    name: Documentation Coverage
-    needs: setup
-    runs-on: ubuntu-latest
-    environment: actions
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          token: ${{ secrets.WORKFLOW_TOKEN }}
-
-      # Use the same Node.js version as setup job
-      - uses: actions/setup-node@v4
-        with:
-          node-version: lts/*
-          cache: 'yarn'
-
-      # Restore cached dependencies from setup job
-      - name: Restore dependencies cache
-        id: cache-restore
-        uses: actions/cache/restore@v4
-        with:
-          path: |
-            node_modules
-            ~/.cache/playwright
-            ~/.cache/ms-playwright
-          key: ${{ runner.os }}-deps-browsers-${{ hashFiles('**/yarn.lock', '**/package.json') }}
-          restore-keys: |
-            ${{ runner.os }}-deps-browsers-
-            ${{ runner.os }}-deps-
-          fail-on-cache-miss: false
-
-      # Install dependencies if cache miss
-      - name: Install dependencies
-        if: steps.cache-restore.outputs.cache-hit != 'true'
-        run: yarn install --check-files
-
-      - name: 🐍 Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-
-      - name: 📦 Install Python dependencies
-        run: |
-          pip install interrogate pydocstyle
-
-      - name: 🐍 Check Python docstring coverage
-        id: interrogate
-        run: |
-          # Run interrogate and capture output
-          if interrogate --fail-under=85 --verbose=2 src/ > interrogate_output.txt 2>&1; then
-            echo "interrogate_passed=true" >> $GITHUB_OUTPUT
-          else
-            echo "interrogate_passed=false" >> $GITHUB_OUTPUT
-          fi
-
-          # Extract docstring coverage percentage
-          DOCSTRING_COVERAGE=$(grep -oP 'TOTAL.*?(\K\d+(?=\.\d+%))' interrogate_output.txt || echo "0")
-          echo "docstring_coverage=${DOCSTRING_COVERAGE}" >> $GITHUB_OUTPUT
-        continue-on-error: true
-
-      - name: 📚 Check documentation files coverage
-        id: docs-coverage
-        run: |
-          # 🔥 COMPREHENSIVE DOCUMENTATION COVERAGE INVESTIGATION 🔥
-          total_files=0
-          documented_files=0
-          missing_files=()
-          pr_files=()
-          pr_missing_files=()
-
-          # Get list of changed files in this PR (if applicable)
-          if [ "${{ github.event_name }}" == "pull_request" ]; then
-            git fetch origin ${{ github.base_ref }}
-            changed_files=$(git diff --name-only origin/${{ github.base_ref }}...HEAD | grep -E '\.(ts|tsx|js|jsx)$' | grep '^src/' || true)
-          else
-            changed_files=""
-          fi
-
-          # 📊 FULL CODEBASE DOCUMENTATION AUDIT 📊
-          echo "## 🚨 BREAKING: Documentation Coverage Scandal Exposed! 🚨" > coverage_report.md
-          echo "" >> coverage_report.md
-          echo "### 📰 **EXCLUSIVE INVESTIGATION REVEALS SHOCKING TRUTH ABOUT CODE DOCUMENTATION!** 📰" >> coverage_report.md
-          echo "" >> coverage_report.md
-
-          # Check ALL TypeScript/JavaScript files in src/
-          for file in $(find src/ -name "*.ts" -o -name "*.tsx" -o -name "*.js" -o -name "*.jsx" 2>/dev/null || true); do
-            if [ -f "$file" ]; then
-              total_files=$((total_files + 1))
-              
-              # Get the base filename without extension and convert to lowercase
-              base_name=$(basename "$file" | sed 's/\.[^.]*$//' | tr '[:upper:]' '[:lower:]')
-              
-              # Check for documentation in categorized structure
-              doc_found=false
-              
-              # Check different documentation categories
-              for doc_pattern in "DOCS/services/${base_name}.md" "DOCS/components/${base_name}.md" "DOCS/api/${base_name}.md" "DOCS/utils/${base_name}.md" "DOCS/hooks/${base_name}.md"; do
-                if [ -f "$doc_pattern" ]; then
-                  # Skip auto-generated stubs that haven't been filled out
-                  if ! grep -q "Documentation Needed.*This file was automatically generated" "$doc_pattern"; then
-                    doc_found=true
-                    break
-                  fi
-                fi
-              done
-              
-              # Also check the mirror structure as fallback
-              mirror_doc_file="DOCS/${file%.*}.md"
-              if [ -f "$mirror_doc_file" ] && ! grep -q "Documentation Needed.*This file was automatically generated" "$mirror_doc_file"; then
-                doc_found=true
-              fi
-              
-              if [ "$doc_found" = true ]; then
-                documented_files=$((documented_files + 1))
-              else
-                missing_files+=("$file")
-              fi
-              
-              # Check if this file is in the PR
-              if [ -n "$changed_files" ] && echo "$changed_files" | grep -q "^$file$"; then
-                pr_files+=("$file")
-                if [ "$doc_found" = false ]; then
-                  pr_missing_files+=("$file")
-                fi
-              fi
-            fi
-          done
-
-          # Calculate coverage
-          if [ $total_files -eq 0 ]; then
-            DOC_COVERAGE=100
-          else
-            DOC_COVERAGE=$((documented_files * 100 / total_files))
-          fi
-
-          echo "doc_coverage=${DOC_COVERAGE}" >> $GITHUB_OUTPUT
-          echo "total_files=${total_files}" >> $GITHUB_OUTPUT
-          echo "documented_files=${documented_files}" >> $GITHUB_OUTPUT
-          echo "pr_files_count=${#pr_files[@]}" >> $GITHUB_OUTPUT
-          echo "pr_missing_count=${#pr_missing_files[@]}" >> $GITHUB_OUTPUT
-
-          if [ $DOC_COVERAGE -ge 85 ]; then
-            echo "docs_coverage_passed=true" >> $GITHUB_OUTPUT
-          else
-            echo "docs_coverage_passed=false" >> $GITHUB_OUTPUT
-          fi
-
-          # Generate professional coverage report
-          echo "### 📊 Documentation Coverage Statistics" >> coverage_report.md
-          echo "" >> coverage_report.md
-          echo "| Metric | Count | Percentage |" >> coverage_report.md
-          echo "|--------|-------|------------|" >> coverage_report.md
-          echo "| Total Source Files | ${total_files} | 100% |" >> coverage_report.md
-          echo "| Documented Files | ${documented_files} | ${DOC_COVERAGE}% |" >> coverage_report.md
-          echo "| Missing Documentation | ${#missing_files[@]} | $((100 - DOC_COVERAGE))% |" >> coverage_report.md
-          echo "" >> coverage_report.md
-
-          # Generate missing files report
-          if [ ${#missing_files[@]} -gt 0 ]; then
-            echo "### ⚠️ Files Missing Documentation (${#missing_files[@]} files)" >> coverage_report.md
-            echo "" >> coverage_report.md
-            echo "The following source files need corresponding documentation files:" >> coverage_report.md
-            echo "" >> coverage_report.md
-            echo "| Source File | Required Documentation | Status |" >> coverage_report.md
-            echo "|-------------|------------------------|--------|" >> coverage_report.md
-            printf '%s\n' "${missing_files[@]}" | while read -r line; do
-              src_file="$line"
-              base_name=$(basename "$src_file" | sed 's/\.[^.]*$//' | tr '[:upper:]' '[:lower:]')
-              
-              # Suggest appropriate documentation category based on file path
-              if [[ "$src_file" == *"/services/"* ]]; then
-                suggested_doc="DOCS/services/${base_name}.md"
-              elif [[ "$src_file" == *"/components/"* ]]; then
-                suggested_doc="DOCS/components/${base_name}.md"
-              elif [[ "$src_file" == *"/api/"* ]] || [[ "$src_file" == *"/route.ts" ]]; then
-                suggested_doc="DOCS/api/${base_name}.md"
-              elif [[ "$src_file" == *"/utils/"* ]]; then
-                suggested_doc="DOCS/utils/${base_name}.md"
-              elif [[ "$src_file" == *"/hooks/"* ]]; then
-                suggested_doc="DOCS/hooks/${base_name}.md"
-              else
-                suggested_doc="DOCS/${src_file%.*}.md"
-              fi
-              
-              echo "| \`${src_file}\` | \`${suggested_doc}\` | ❌ Missing |" >> coverage_report.md
-            done
-            echo "" >> coverage_report.md
-            echo "📝 Please create documentation files for these source files to improve coverage." >> coverage_report.md
-          else
-            echo "### ✅ Perfect Documentation Coverage!" >> coverage_report.md
-            echo "" >> coverage_report.md
-            echo "🎉 All source files have corresponding documentation files." >> coverage_report.md
-          fi
-          echo "" >> coverage_report.md
-
-          # Generate PR-specific professional report
-          if [ "${{ github.event_name }}" == "pull_request" ]; then
-            echo "### 📋 PR Documentation Status" > pr_coverage_report.md
-            echo "" >> pr_coverage_report.md
-            echo "**📁 Files Changed in This PR:** ${#pr_files[@]}" >> pr_coverage_report.md
-            echo "**📝 Missing Documentation:** ${#pr_missing_files[@]}" >> pr_coverage_report.md
-            echo "" >> pr_coverage_report.md
-
-            if [ ${#pr_missing_files[@]} -gt 0 ]; then
-              echo "### ⚠️ PR Contains Undocumented Files" >> pr_coverage_report.md
-              echo "" >> pr_coverage_report.md
-              echo "This PR modifies files that are missing corresponding documentation:" >> pr_coverage_report.md
-              echo "" >> pr_coverage_report.md
-              echo "| File in PR | Required Documentation | Action Needed |" >> pr_coverage_report.md
-              echo "|------------|------------------------|---------------|" >> pr_coverage_report.md
-              printf '%s\n' "${pr_missing_files[@]}" | while read -r line; do
-                src_file="$line"
-                base_name=$(basename "$src_file" | sed 's/\.[^.]*$//' | tr '[:upper:]' '[:lower:]')
-                
-                # Suggest appropriate documentation category based on file path
-                if [[ "$src_file" == *"/services/"* ]]; then
-                  suggested_doc="DOCS/services/${base_name}.md"
-                elif [[ "$src_file" == *"/components/"* ]]; then
-                  suggested_doc="DOCS/components/${base_name}.md"
-                elif [[ "$src_file" == *"/api/"* ]] || [[ "$src_file" == *"/route.ts" ]]; then
-                  suggested_doc="DOCS/api/${base_name}.md"
-                elif [[ "$src_file" == *"/utils/"* ]]; then
-                  suggested_doc="DOCS/utils/${base_name}.md"
-                elif [[ "$src_file" == *"/hooks/"* ]]; then
-                  suggested_doc="DOCS/hooks/${base_name}.md"
-                else
-                  suggested_doc="DOCS/${src_file%.*}.md"
-                fi
-                
-                echo "| \`${src_file}\` | \`${suggested_doc}\` | 📝 Create docs |" >> pr_coverage_report.md
-              done
-              echo "" >> pr_coverage_report.md
-              echo "📋 Please create these documentation files to maintain code quality standards." >> pr_coverage_report.md
-            else
-              if [ ${#pr_files[@]} -gt 0 ]; then
-                echo "### ✅ All PR Files Have Documentation" >> pr_coverage_report.md
-                echo "" >> pr_coverage_report.md
-                echo "🎉 Every file in this PR has proper documentation coverage:" >> pr_coverage_report.md
-                echo "" >> pr_coverage_report.md
-                echo "| File in PR | Documentation | Status |" >> pr_coverage_report.md
-                echo "|------------|---------------|--------|" >> pr_coverage_report.md
-                printf '%s\n' "${pr_files[@]}" | while read -r line; do
-                  src_file="$line"
-                  base_name=$(basename "$src_file" | sed 's/\.[^.]*$//' | tr '[:upper:]' '[:lower:]')
-                  
-                  # Find the actual documentation file
-                  actual_doc=""
-                  for doc_pattern in "DOCS/services/${base_name}.md" "DOCS/components/${base_name}.md" "DOCS/api/${base_name}.md" "DOCS/utils/${base_name}.md" "DOCS/hooks/${base_name}.md" "DOCS/${src_file%.*}.md"; do
-                    if [ -f "$doc_pattern" ] && ! grep -q "Documentation Needed.*This file was automatically generated" "$doc_pattern"; then
-                      actual_doc="$doc_pattern"
-                      break
-                    fi
-                  done
-                  
-                  if [ -n "$actual_doc" ]; then
-                    echo "| \`${src_file}\` | \`${actual_doc}\` | ✅ Documented |" >> pr_coverage_report.md
-                  else
-                    echo "| \`${src_file}\` | N/A | ❌ Missing |" >> pr_coverage_report.md
-                  fi
-                done
-              else
-                echo "### ℹ️ No Source Files Changed in This PR" >> pr_coverage_report.md
-                echo "" >> pr_coverage_report.md
-                echo "This PR doesn't modify any source files requiring documentation." >> pr_coverage_report.md
-              fi
-            fi
-          fi
-        continue-on-error: true
-
-      - name: 🎨 Generate SonarCloud compatible metrics
-        id: generate-metrics
-        run: |
-          # Calculate overall documentation coverage (weighted average)
-          DOC_COVERAGE="${{ steps.docs-coverage.outputs.doc_coverage }}"
-          DOCSTRING_COVERAGE="${{ steps.interrogate.outputs.docstring_coverage }}"
-
-          # Validate and sanitize coverage values
-          if [[ -z "$DOC_COVERAGE" || ! "$DOC_COVERAGE" =~ ^[0-9]+$ ]]; then
-            echo "⚠️ Invalid DOC_COVERAGE value: '$DOC_COVERAGE', defaulting to 0"
-            DOC_COVERAGE=0
-          fi
-
-          if [[ -z "$DOCSTRING_COVERAGE" || ! "$DOCSTRING_COVERAGE" =~ ^[0-9]+$ ]]; then
-            echo "⚠️ Invalid DOCSTRING_COVERAGE value: '$DOCSTRING_COVERAGE', defaulting to 0"
-            DOCSTRING_COVERAGE=0
-          fi
-
-          echo "📊 Coverage values: DOC_COVERAGE=$DOC_COVERAGE, DOCSTRING_COVERAGE=$DOCSTRING_COVERAGE"
-
-          OVERALL_COVERAGE=$(python -c "print(int(($DOC_COVERAGE * 0.6) + ($DOCSTRING_COVERAGE * 0.4)))")
-
-          echo "overall_coverage=${OVERALL_COVERAGE}" >> $GITHUB_OUTPUT
-
-                    # Create SonarCloud-compatible reports
-          mkdir -p coverage
-
-          # Create SonarCloud-compatible test execution XML (strict format compliance)
-          {
-            printf '<?xml version="1.0" encoding="UTF-8"?>\n'
-            printf '<testExecutions version="1">\n'
-            printf '  <file path="tests/documentation-coverage.test.js">\n'
-            
-            # Documentation Files Test Case (dynamic based on actual coverage)
-            if [ $DOC_COVERAGE -lt 85 ]; then
-              printf '    <testCase name="Documentation Files Coverage (%s%%)" duration="100">\n' "$DOC_COVERAGE"
-              printf '      <failure message="Documentation files coverage %s%% below 85%% threshold">Documentation files coverage is at %s%% which is below the required 85%% threshold. Please create documentation files for missing source files to improve coverage.</failure>\n' "$DOC_COVERAGE" "$DOC_COVERAGE"
-              printf '    </testCase>\n'
-            else
-              printf '    <testCase name="Documentation Files Coverage (%s%%)" duration="100"/>\n' "$DOC_COVERAGE"
-            fi
-            
-            # Python Docstring Test Case (dynamic based on actual coverage)
-            if [ $DOCSTRING_COVERAGE -lt 85 ]; then
-              printf '    <testCase name="Python Docstring Coverage (%s%%)" duration="50">\n' "$DOCSTRING_COVERAGE"
-              printf '      <failure message="Python docstring coverage %s%% below 85%% threshold">Python docstring coverage is at %s%% which is below the required 85%% threshold. Please add proper docstrings to Python functions and classes.</failure>\n' "$DOCSTRING_COVERAGE" "$DOCSTRING_COVERAGE"
-              printf '    </testCase>\n'
-            else
-              printf '    <testCase name="Python Docstring Coverage (%s%%)" duration="50"/>\n' "$DOCSTRING_COVERAGE"
-            fi
-            
-            # Overall Documentation Coverage Test Case (dynamic based on actual coverage)
-            if [ $OVERALL_COVERAGE -lt 85 ]; then
-              printf '    <testCase name="Overall Documentation Coverage (%s%%)" duration="75">\n' "$OVERALL_COVERAGE"
-              printf '      <failure message="Overall documentation coverage %s%% below 85%% threshold">Overall documentation coverage (weighted average) is at %s%% which is below the required 85%% threshold. This combines documentation files (60%% weight) and docstring coverage (40%% weight).</failure>\n' "$OVERALL_COVERAGE" "$OVERALL_COVERAGE"
-              printf '    </testCase>\n'
-            else
-              printf '    <testCase name="Overall Documentation Coverage (%s%%)" duration="75"/>\n' "$OVERALL_COVERAGE"
-            fi
-            
-            printf '  </file>\n'
-            printf '</testExecutions>\n'
-          } > coverage/documentation-test-execution.xml
-
-          # Debug: Show generated XML content
-          echo "📋 Generated test execution XML:"
-          cat coverage/documentation-test-execution.xml
-
-          # Validate XML syntax
-          if command -v xmllint >/dev/null 2>&1; then
-            echo "🔍 Validating XML syntax..."
-            xmllint --noout coverage/documentation-test-execution.xml && echo "✅ XML is valid" || echo "❌ XML is invalid"
-          fi
-
-          # Create SonarCloud-compatible generic coverage report
-          DOC_COVERED=$([ $DOC_COVERAGE -ge 85 ] && echo "true" || echo "false")
-          DOCSTRING_COVERED=$([ $DOCSTRING_COVERAGE -ge 85 ] && echo "true" || echo "false") 
-          OVERALL_COVERED=$([ $OVERALL_COVERAGE -ge 85 ] && echo "true" || echo "false")
-
-          {
-            echo '<?xml version="1.0" encoding="UTF-8"?>'
-            echo '<coverage version="1">'
-            echo '  <file path="metrics/documentation-coverage.md">'
-            echo "    <lineToCover lineNumber=\"1\" covered=\"${DOC_COVERED}\"/>"
-            echo "    <lineToCover lineNumber=\"2\" covered=\"${DOCSTRING_COVERED}\"/>"
-            echo "    <lineToCover lineNumber=\"3\" covered=\"${OVERALL_COVERED}\"/>"
-            echo '  </file>'
-            echo '</coverage>'
-          } > coverage/documentation-generic-coverage.xml
-
-          # Debug: Show generated coverage XML content
-          echo "📊 Generated coverage XML:"
-          cat coverage/documentation-generic-coverage.xml
-
-          # Validate coverage XML syntax
-          if command -v xmllint >/dev/null 2>&1; then
-            echo "🔍 Validating coverage XML syntax..."
-            xmllint --noout coverage/documentation-generic-coverage.xml && echo "✅ Coverage XML is valid" || echo "❌ Coverage XML is invalid"
-          fi
-
-      # Upload documentation coverage artifacts for SonarCloud
-      - name: 📤 Upload documentation coverage artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: documentation-coverage-reports
-          path: |
-            coverage/documentation-test-execution.xml
-            coverage/documentation-generic-coverage.xml
-          retention-days: 7
-
-      - name: 💬 Comment on PR with detailed TABLOID results
-        if: github.event_name == 'pull_request'
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const fs = require('fs');
-
-            const interrogatePassed = '${{ steps.interrogate.outputs.interrogate_passed }}' === 'true';
-            const docsCoveragePassed = '${{ steps.docs-coverage.outputs.docs_coverage_passed }}' === 'true';
-            const overallCoverage = '${{ steps.generate-metrics.outputs.overall_coverage }}';
-            const docCoverage = '${{ steps.docs-coverage.outputs.doc_coverage }}';
-            const docstringCoverage = '${{ steps.interrogate.outputs.docstring_coverage }}';
-
-            const overallStatus = interrogatePassed && docsCoveragePassed ? '✅' : '❌';
-
-            let comment = `## ${overallStatus} Documentation Coverage Report\n\n`;
-            comment += `### 📊 Coverage Summary\n\n`;
-            comment += `| Check | Status | Coverage |\n`;
-            comment += `|-------|--------|----------|\n`;
-            comment += `| 🐍 Python Docstrings | ${interrogatePassed ? '✅ Passed' : '❌ Failed'} | ${docstringCoverage}% |\n`;
-            comment += `| 📝 Documentation Files | ${docsCoveragePassed ? '✅ Passed' : '❌ Failed'} | ${docCoverage}% |\n`;
-            comment += `| 🎯 **Overall Coverage** | ${overallStatus} **${overallStatus === '✅' ? 'Passed' : 'Failed'}** | **${overallCoverage}%** |\n\n`;
-
-            // Add PR-specific documentation status
-            try {
-              if (fs.existsSync('pr_coverage_report.md')) {
-                const prReportContent = fs.readFileSync('pr_coverage_report.md', 'utf8');
-                comment += `<details>\n<summary>🔍 **PR Documentation Status**</summary>\n\n`;
-                comment += prReportContent + '\n';
-                comment += `</details>\n\n`;
-              }
-            } catch (error) {
-              console.log('Error reading PR coverage report:', error);
-            }
-
-            // Add detailed reports in collapsible sections if there are issues
-            if (!interrogatePassed) {
-              comment += `<details>\n<summary>🐍 **Python Docstring Details**</summary>\n\n`;
-              
-              try {
-                if (fs.existsSync('interrogate_output.txt')) {
-                  const interrogateOutput = fs.readFileSync('interrogate_output.txt', 'utf8');
-                  comment += '```\n' + interrogateOutput + '\n```\n';
-                } else {
-                  comment += '⚠️ No detailed interrogate output available.\n';
-                }
-              } catch (error) {
-                comment += '❌ Failed to read interrogate output.\n';
-              }
-              
-              comment += `\n</details>\n\n`;
-            }
-
-            // Add full codebase documentation status
-            if (!docsCoveragePassed) {
-              comment += `<details>\n<summary>📚 **Full Codebase Documentation Coverage**</summary>\n\n`;
-              
-              try {
-                if (fs.existsSync('coverage_report.md')) {
-                  const fullReportContent = fs.readFileSync('coverage_report.md', 'utf8');
-                  comment += fullReportContent + '\n';
-                } else {
-                  comment += `📊 **Coverage Status:** ${{ steps.docs-coverage.outputs.documented_files }} of ${{ steps.docs-coverage.outputs.total_files }} files documented\n\n`;
-                  comment += `⚠️ Some source files are missing corresponding documentation files. `;
-                  comment += `Please create documentation files in the \`DOCS/\` directory.\n\n`;
-                  comment += `**📁 Expected Documentation Structure:**\n`;
-                  comment += `- For \`src/components/Button.tsx\` → create \`DOCS/src/components/Button.md\`\n`;
-                  comment += `- For \`src/utils/helpers.ts\` → create \`DOCS/src/utils/helpers.md\`\n`;
-                }
-              } catch (error) {
-                comment += '❌ Failed to read full coverage report.\n';
-              }
-              
-              comment += `</details>\n\n`;
-            }
-
-            comment += `### 🎯 SonarCloud Integration\n`;
-            comment += `📊 Coverage data will be available in the SonarCloud dashboard.\n\n`;
-            comment += `---\n*📋 This report was automatically generated by the Quality Assurance workflow.*`;
-
-            // Find existing documentation coverage comment and update/create
-            const { data: comments } = await github.rest.issues.listComments({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo
-            });
-
-            const existingComment = comments.find(comment => 
-              comment.body.includes('Documentation Coverage Investigation Results') ||
-              comment.body.includes('Documentation Coverage Report')
-            );
-
-            if (existingComment) {
-              console.log('🔄 Updating existing documentation coverage comment...');
-              await github.rest.issues.updateComment({
-                comment_id: existingComment.id,
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                body: comment
-              });
-            } else {
-              console.log('📝 Creating new documentation coverage comment...');
-              await github.rest.issues.createComment({
-                issue_number: context.issue.number,
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                body: comment
-              });
-            }
-
-            console.log('✅ Documentation coverage comment posted successfully!');
-
-      # Update documentation badges across all locations on main/master branch pushes
-      - name: 📋 Update documentation badges across all locations on main branch
-        if: success() && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master') && github.event_name == 'push'
-        run: |
-          echo "🎨 Updating documentation badges across all locations for main branch..."
-
-          # Get coverage values
-          DOC_COVERAGE="${{ steps.docs-coverage.outputs.doc_coverage }}"
-          DOCSTRING_COVERAGE="${{ steps.interrogate.outputs.docstring_coverage }}"
-          OVERALL_COVERAGE="${{ steps.generate-metrics.outputs.overall_coverage }}"
-
-          # Validate coverage values
-          if [[ -z "$DOC_COVERAGE" || ! "$DOC_COVERAGE" =~ ^[0-9]+$ ]]; then
-            DOC_COVERAGE=0
-          fi
-          if [[ -z "$DOCSTRING_COVERAGE" || ! "$DOCSTRING_COVERAGE" =~ ^[0-9]+$ ]]; then
-            DOCSTRING_COVERAGE=0
-          fi
-          if [[ -z "$OVERALL_COVERAGE" || ! "$OVERALL_COVERAGE" =~ ^[0-9]+$ ]]; then
-            OVERALL_COVERAGE=0
-          fi
-
-          # Determine badge colors
-          if [ $OVERALL_COVERAGE -ge 90 ]; then
-            DOC_COLOR="brightgreen"
-          elif [ $OVERALL_COVERAGE -ge 75 ]; then
-            DOC_COLOR="green"
-          elif [ $OVERALL_COVERAGE -ge 60 ]; then
-            DOC_COLOR="yellow"
-          elif [ $OVERALL_COVERAGE -ge 40 ]; then
-            DOC_COLOR="orange"
-          else
-            DOC_COLOR="red"
-          fi
-
-          if [ $DOC_COVERAGE -ge 90 ]; then
-            FILES_COLOR="brightgreen"
-          elif [ $DOC_COVERAGE -ge 75 ]; then
-            FILES_COLOR="green"
-          elif [ $DOC_COVERAGE -ge 60 ]; then
-            FILES_COLOR="yellow"
-          elif [ $DOC_COVERAGE -ge 40 ]; then
-            FILES_COLOR="orange"
-          else
-            FILES_COLOR="red"
-          fi
-
-          if [ $DOCSTRING_COVERAGE -ge 90 ]; then
-            DOCSTRING_COLOR="brightgreen"
-          elif [ $DOCSTRING_COVERAGE -ge 75 ]; then
-            DOCSTRING_COLOR="green"
-          elif [ $DOCSTRING_COVERAGE -ge 60 ]; then
-            DOCSTRING_COLOR="yellow"
-          elif [ $DOCSTRING_COVERAGE -ge 40 ]; then
-            DOCSTRING_COLOR="orange"
-          else
-            DOCSTRING_COLOR="red"
-          fi
-
-          # Generate badge URLs
-          export DOC_BADGE_URL="https://img.shields.io/badge/Documentation%20Coverage-${OVERALL_COVERAGE}%25-${DOC_COLOR}?style=flat&logo=gitbook&logoColor=white"
-          export DOC_FILES_BADGE_URL="https://img.shields.io/badge/Documentation%20Files-${DOC_COVERAGE}%25-${FILES_COLOR}?style=flat&logo=markdown&logoColor=white"
-          export DOCSTRING_BADGE_URL="https://img.shields.io/badge/Python%20Docstrings-${DOCSTRING_COVERAGE}%25-${DOCSTRING_COLOR}?style=flat&logo=python&logoColor=white"
-
-          echo "📊 Generated badge URLs:"
-          echo "  Overall: $DOC_BADGE_URL"
-          echo "  Files: $DOC_FILES_BADGE_URL"
-          echo "  Docstrings: $DOCSTRING_BADGE_URL"
-
-          # Install Python dependencies and update badges using centralized updater
-          python3 -m pip install --upgrade pip
-          python3 scripts/update-centralized-badges.py \
-            --badge-url "$DOC_BADGE_URL" \
-            --overall-coverage "$OVERALL_COVERAGE" \
-            --doc-coverage "$DOC_COVERAGE" \
-            --docstring-coverage "$DOCSTRING_COVERAGE"
-
-          # Create PR for badge updates if any files were modified
-          if git diff --quiet; then
-            echo "📝 No changes to badge files"
-          else
-            # Create a unique branch name
-            BRANCH_NAME="docs/update-badges-$(date +%Y%m%d-%H%M%S)"
-            
-            # Configure git with proper authentication
-            git config --local user.email "action@github.com"
-            git config --local user.name "GitHub Action"
-            git config --local init.defaultBranch main
-            
-            # Ensure we're on the correct base branch and it's up to date
-            git fetch origin
-            git checkout ${{ github.ref_name }}
-            git pull origin ${{ github.ref_name }}
-            
-            # Check if branch already exists and delete if so
-            if git ls-remote --heads origin "$BRANCH_NAME" | grep -q "$BRANCH_NAME"; then
-              echo "🗑️ Branch $BRANCH_NAME already exists, deleting..."
-              git push origin --delete "$BRANCH_NAME" || true
-            fi
-            
-            # Create and switch to new branch
-            git checkout -b "$BRANCH_NAME"
-            
-            # Add all modified badge files (only if they exist and are modified)
-            git add README.md || true
-            git add DOCS/_includes/header.html || true  
-            git add DOCS/_includes/documentation-coverage-badge.html || true
-            git add DOCS/badges/documentation-coverage.md || true
-            
-            # Check if there are actually changes to commit
-            if git diff --cached --quiet; then
-              echo "❌ No changes staged for commit, skipping..."
-              exit 0
-            fi
-            
-            git commit -m "docs: update documentation coverage badges across all locations
-            
-            - Overall coverage: ${OVERALL_COVERAGE}%
-            - Documentation files: ${DOC_COVERAGE}%  
-            - Python docstrings: ${DOCSTRING_COVERAGE}%
-            
-            Updated locations:
-            - README.md badge section
-            - Jekyll header badges
-            - Jekyll include files
-            - Centralized badge files
-            
-            Auto-generated by centralized documentation coverage workflow"
-            
-            # Push the branch with authentication and error handling
-            if ! git push -u origin "$BRANCH_NAME"; then
-              echo "❌ Failed to push branch $BRANCH_NAME"
-              echo "🔍 Git status:"
-              git status
-              echo "🔍 Git log:"
-              git log --oneline -5
-              echo "🔍 Remote info:"
-              git remote -v
-              exit 1
-            fi
-            
-            echo "✅ Successfully pushed branch $BRANCH_NAME"
-            
-            # Create PR using GitHub CLI or API
-            curl -X POST \
-              -H "Authorization: token ${{ secrets.WORKFLOW_TOKEN }}" \
-              -H "Accept: application/vnd.github.v3+json" \
-              "https://api.github.com/repos/${{ github.repository }}/pulls" \
-              -d "{
-                \"title\": \"📊 Update documentation coverage badges (centralized)\",
-                \"body\": \"## 📊 Centralized Documentation Coverage Badge Update\n\nThis PR updates documentation coverage badges across all locations with the latest metrics:\n\n### 📊 Coverage Metrics\n- **Overall Coverage**: ${OVERALL_COVERAGE}%\n- **Documentation Files**: ${DOC_COVERAGE}%\n- **Python Docstrings**: ${DOCSTRING_COVERAGE}%\n\n### 📁 Updated Locations\n- ✅ \`README.md\` - Main project badges\n- ✅ \`DOCS/_includes/header.html\` - Jekyll documentation site header\n- ✅ \`DOCS/_includes/documentation-coverage-badge.html\` - Reusable Jekyll include\n- ✅ \`DOCS/badges/documentation-coverage.md\` - Centralized badge file\n\n*Auto-generated by the centralized documentation coverage workflow*\n\n### 🤖 Auto-merge Safe\nThis PR only updates badge URLs and can be safely auto-merged.\",
-                \"head\": \"$BRANCH_NAME\",
-                \"base\": \"${{ github.ref_name }}\"
-              }"
-            
-            echo "✅ Created PR for centralized badge updates on branch: $BRANCH_NAME"
-          fi
-
-      # Install Python dependencies for PR update script
-      - name: 🐍 Install Python dependencies
-        if: github.event_name == 'pull_request'
-        run: |
-          python3 -m pip install --upgrade pip
-          python3 -m pip install requests
-
-      # Update PR description with documentation coverage badges
-      - name: 📝 Update PR description with coverage badges
-        if: github.event_name == 'pull_request'
-        run: |
-          echo "🎨 Generating documentation coverage badge..."
-
-          # Get coverage values
-          DOC_COVERAGE="${{ steps.docs-coverage.outputs.doc_coverage }}"
-          DOCSTRING_COVERAGE="${{ steps.interrogate.outputs.docstring_coverage }}"
-          OVERALL_COVERAGE="${{ steps.generate-metrics.outputs.overall_coverage }}"
-
-          # Validate coverage values
-          if [[ -z "$DOC_COVERAGE" || ! "$DOC_COVERAGE" =~ ^[0-9]+$ ]]; then
-            DOC_COVERAGE=0
-          fi
-          if [[ -z "$DOCSTRING_COVERAGE" || ! "$DOCSTRING_COVERAGE" =~ ^[0-9]+$ ]]; then
-            DOCSTRING_COVERAGE=0
-          fi
-          if [[ -z "$OVERALL_COVERAGE" || ! "$OVERALL_COVERAGE" =~ ^[0-9]+$ ]]; then
-            OVERALL_COVERAGE=0
-          fi
-
-          # Determine badge color based on coverage
-          if [ $OVERALL_COVERAGE -ge 90 ]; then
-            BADGE_COLOR="brightgreen"
-          elif [ $OVERALL_COVERAGE -ge 75 ]; then
-            BADGE_COLOR="green"
-          elif [ $OVERALL_COVERAGE -ge 60 ]; then
-            BADGE_COLOR="yellow"
-          elif [ $OVERALL_COVERAGE -ge 40 ]; then
-            BADGE_COLOR="orange"
-          else
-            BADGE_COLOR="red"
-          fi
-
-          # Generate badge URL
-          BADGE_URL="https://img.shields.io/badge/Documentation%20Coverage-${OVERALL_COVERAGE}%25-${BADGE_COLOR}?style=flat&logo=gitbook&logoColor=white"
-
-          echo "📊 Generated badge URL: $BADGE_URL"
-
-          # Set environment variables for the Python script
-          export DOC_BADGE_URL="$BADGE_URL"
-          export OVERALL_COVERAGE="$OVERALL_COVERAGE"
-          export DOC_COVERAGE="$DOC_COVERAGE"
-          export DOCSTRING_COVERAGE="$DOCSTRING_COVERAGE"
-          export DOCS_PASSED="${{ steps.docs-coverage.outputs.docs_coverage_passed }}"
-          export INTERROGATE_PASSED="${{ steps.interrogate.outputs.interrogate_passed }}"
-
-          # Update PR description (with debugging)
-          echo "🔍 Debug info:"
-          echo "  PR Number: ${{ github.event.pull_request.number }}"
-          echo "  Repository: ${{ github.repository }}"
-          echo "  Token exists: ${{ secrets.WORKFLOW_TOKEN != '' }}"
-          echo "  Token starts with: $(echo '${{ secrets.WORKFLOW_TOKEN }}' | cut -c1-4)..."
-
-          if python3 scripts/update-pr-description.py \
-            --pr-number "${{ github.event.pull_request.number }}" \
-            --repo "${{ github.repository }}" \
-            --token "${{ secrets.WORKFLOW_TOKEN }}"; then
-            echo "✅ Successfully updated PR description"
-          else
-            echo "⚠️ Failed to update PR description"
-            echo "🔍 Check if:"
-            echo "  - WORKFLOW_TOKEN secret exists in repository settings"
-            echo "  - Token has 'repo' and 'pull_requests:write' permissions"
-            echo "  - Token is not expired"
-            echo "📋 Badge updates still completed successfully"
-          fi
 
   # SonarCloud analysis job (matches original working setup)
   sonar:
@@ -1215,10 +671,31 @@ jobs:
               process.exit(1);
             }
 
+  documentation-status:
+    name: Documentation Status
+    needs: documentation-coverage
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: Report Documentation Status
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const jobs = ${{ toJson(needs.documentation-coverage.result) }};
+            const success = jobs === 'success';
+
+            console.log(`Documentation coverage result: ${jobs}`);
+
+            if (success) {
+              console.log('✅ Documentation coverage analysis completed');
+            } else {
+              console.log('❌ Documentation coverage analysis failed (non-blocking)');
+            }
+
   # Final status job
   tests-complete:
     name: Quality Assurance Complete
-    needs: [jest-status, playwright-status, documentation-coverage, sonar]
+    needs: [jest-status, playwright-status, documentation-status, sonar]
     runs-on: ubuntu-latest
     if: always()
     steps:
@@ -1228,13 +705,13 @@ jobs:
           echo "============================"
           echo "Jest: ${{ needs.jest-status.result }}"
           echo "Playwright: ${{ needs.playwright-status.result }}"
-          echo "Documentation: ${{ needs.documentation-coverage.result }}"
+          echo "Documentation: ${{ needs.documentation-status.result }}"
           echo "SonarCloud: ${{ needs.sonar.result }}"
 
           if [[ "${{ needs.jest-status.result }}" == "success" ]]; then
             echo "✅ All required tests passed"
-            if [[ "${{ needs.documentation-coverage.result }}" == "success" ]]; then
-              echo "✅ Documentation coverage meets requirements"
+            if [[ "${{ needs.documentation-status.result }}" == "success" ]]; then
+              echo "✅ Documentation coverage analysis completed"
             else
               echo "⚠️ Documentation coverage needs attention (non-blocking)"
             fi

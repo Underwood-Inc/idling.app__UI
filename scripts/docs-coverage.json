@@ -10,8 +10,9 @@
   "doc_patterns": [
     "DOCS/services/**/*.md",
     "DOCS/components/**/*.md",
-    "DOCS/api/**/*.md",
-    "DOCS/utils/**/*.md",
+    "src/app/api/**/*.md",
+    "src/lib/services/**/*.md",
+    "DOCS/utilities/**/*.md",
     "DOCS/hooks/**/*.md"
   ],
   "exclude_patterns": [
@@ -26,27 +27,27 @@
   "file_type_mapping": {
     "services": {
       "pattern": "src/lib/services/**/*.ts",
-      "doc_path": "DOCS/services/{name}.md",
+      "doc_path": "{dir}/README.md",
       "priority": "high"
     },
     "components": {
       "pattern": "src/components/**/*.tsx",
-      "doc_path": "DOCS/components/{name}.md",
+      "doc_path": "{dir}/README.md",
       "priority": "high"
     },
-    "api_routes": {
+    "api": {
       "pattern": "src/app/api/**/route.ts",
-      "doc_path": "DOCS/api/{path}.md",
+      "doc_path": "{dir}/README.md",
       "priority": "high"
     },
-    "utils": {
+    "utilities": {
       "pattern": "src/lib/utils/**/*.ts",
-      "doc_path": "DOCS/utils/{name}.md",
+      "doc_path": "{dir}/README.md",
       "priority": "medium"
     },
     "hooks": {
       "pattern": "src/lib/hooks/**/*.ts",
-      "doc_path": "DOCS/hooks/{name}.md",
+      "doc_path": "{dir}/README.md",
       "priority": "medium"
     }
   },

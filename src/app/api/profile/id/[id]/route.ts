@@ -1,3 +1,75 @@
+/**
+ * @swagger
+ * /api/profile/id/{id}:
+ *   get:
+ *     summary: Get user profile by ID
+ *     description: Retrieve a user's public profile information by their database ID
+ *     tags:
+ *       - Users
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *           pattern: '^[0-9]+$'
+ *         description: Database ID of the user
+ *         example: "123"
+ *     responses:
+ *       200:
+ *         description: Successfully retrieved user profile
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: string
+ *                   description: User database ID
+ *                 username:
+ *                   type: string
+ *                   description: Username
+ *                 display_name:
+ *                   type: string
+ *                   description: Display name
+ *                 avatar_url:
+ *                   type: string
+ *                   description: Avatar image URL
+ *                 bio:
+ *                   type: string
+ *                   description: User bio
+ *                 created_at:
+ *                   type: string
+ *                   format: date-time
+ *                   description: Account creation date
+ *                 profile_visibility:
+ *                   type: string
+ *                   enum: [public, private, friends]
+ *                   description: Profile visibility setting
+ *       400:
+ *         description: Invalid ID format or missing ID
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: "Invalid profile identifier. Only database IDs are supported."
+ *       404:
+ *         description: User not found or profile is private
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
+
 import { withRateLimit } from '@/lib/middleware/withRateLimit';
 import { NextRequest, NextResponse } from 'next/server';
 import { withProfilePrivacy } from '../../../../../lib/utils/privacy';
