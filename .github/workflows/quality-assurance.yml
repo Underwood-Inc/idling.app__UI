@@ -46,6 +46,7 @@ env:
   POSTGRES_HOST_AUTH_METHOD: md5
   POSTGRES_INITDB_ARGS: --auth-host=md5
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  WORKFLOW_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
   SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
 jobs:
@@ -963,11 +964,26 @@ jobs:
           export DOCS_PASSED="${{ steps.docs-coverage.outputs.docs_coverage_passed }}"
           export INTERROGATE_PASSED="${{ steps.interrogate.outputs.interrogate_passed }}"
 
-          # Update PR description
-          python3 scripts/update-pr-description.py \
+          # Update PR description (with debugging)
+          echo "🔍 Debug info:"
+          echo "  PR Number: ${{ github.event.pull_request.number }}"
+          echo "  Repository: ${{ github.repository }}"
+          echo "  Token exists: ${{ secrets.WORKFLOW_TOKEN != '' }}"
+          echo "  Token starts with: $(echo '${{ secrets.WORKFLOW_TOKEN }}' | cut -c1-4)..."
+
+          if python3 scripts/update-pr-description.py \
             --pr-number "${{ github.event.pull_request.number }}" \
             --repo "${{ github.repository }}" \
-            --token "${{ secrets.WORKFLOW_TOKEN }}"
+            --token "${{ secrets.WORKFLOW_TOKEN }}"; then
+            echo "✅ Successfully updated PR description"
+          else
+            echo "⚠️ Failed to update PR description"
+            echo "🔍 Check if:"
+            echo "  - WORKFLOW_TOKEN secret exists in repository settings"
+            echo "  - Token has 'repo' and 'pull_requests:write' permissions"
+            echo "  - Token is not expired"
+            echo "📋 Badge updates still completed successfully"
+          fi
 
   # SonarCloud analysis job (matches original working setup)
   sonar:
