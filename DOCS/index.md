@@ -11,9 +11,9 @@ Welcome to the comprehensive documentation for **Idling.app** - a modern social 
 ## 🚀 Quick Start
 
 - **[Getting Started](./docs/getting-started/)** - Set up your development environment
-- **[Database Setup](./database/migrations)** - Migration system and database management
+- **[Database Setup](./dev/database/)** - Migration system and database management
 - **[Rate Limiting](../src/lib/services/RateLimitService.md)** - Security and performance protection system
-- **[Deployment Guide](./deployment)** - Production deployment instructions
+- **[Deployment Guide](./docs/deployment/)** - Production deployment instructions
 
 ## 📖 Documentation Sections
 
@@ -30,15 +30,15 @@ Welcome to the comprehensive documentation for **Idling.app** - a modern social 
 
 ### 🗄️ Database & Migrations
 
-- **[Migration System Guide](./database/migrations)** - Complete migration system documentation
-- **[Database Optimization](./database/optimization)** - Performance optimization strategies
-- **[Massive Seed Data](./database/massive-seed)** - Generate test data for development
+- **[Migration System Guide](./dev/database/)** - Complete migration system documentation
+- **[Database Performance](./dev/database/performance/)** - Performance optimization strategies
+- **[Data Management](./dev/database/data/)** - Data seeding and management
 
 ### 🔧 Development
 
-- **[Smart Filters](./development/smart-filters)** - Advanced filtering system
-- **[Cache Strategy](./development/caching)** - Production caching implementation
-- **[CI/CD Tests](./development/testing)** - Continuous integration setup
+- **[Development Environment](./dev/)** - Complete development documentation
+- **[Testing Strategies](./dev/testing/)** - Unit, integration, and E2E testing
+- **[Development Tools](./dev/tools/)** - Development environment and tools
 
 ### 🛡️ Security & Rate Limiting
 
@@ -49,34 +49,40 @@ Welcome to the comprehensive documentation for **Idling.app** - a modern social 
 
 ### 🚀 Deployment & Operations
 
-- **[Production Deployment](./deployment/production)** - Server deployment guide
-- **[Cache Management](./deployment/cache-management)** - Cache disabling and management
-- **[Release Process](./deployment/releases)** - Release notes and versioning
+- **[Production Deployment](./docs/deployment/production/)** - Server deployment guide
+- **[Documentation Site](./docs/deployment/docs/)** - Deploy this documentation site
+- **[Release Process](./docs/deployment/releases/)** - Release notes and versioning
 
 ### 🧪 Testing
 
-- **[CI Testing Pipeline](./testing/ci-tests)** - Continuous integration testing
-- **[Testing Strategy](./testing/)** - Unit, integration, and E2E testing
+- **[Testing Strategies](./dev/testing/)** - Complete testing documentation
+- **[Unit Testing](./dev/testing/unit/)** - Unit test strategies
+- **[E2E Testing](./dev/testing/e2e/)** - End-to-end testing with Playwright
+- **[CI/CD Pipeline](./dev/testing/ci-cd/)** - Continuous integration setup
 
 ### 🔧 Troubleshooting
 
-- **[Application Issues](./troubleshooting/application-issues-fixes)** - Common problems and solutions
-- **[Debug Guide](./troubleshooting/)** - Troubleshooting methodology
+- **[Development Issues](./dev/tools/debugging/)** - Debugging and troubleshooting
+- **[Performance Issues](./docs/architecture/performance/)** - Performance optimization
 
 ### 🏗️ Architecture
 
-- **[System Architecture](./architecture/)** - High-level system design and patterns
-- **[User Identification](./architecture/USER_IDENTIFICATION_ARCHITECTURE)** - Authentication system design
+- **[System Architecture](./docs/architecture/)** - High-level system design and patterns
+- **[System Design](./docs/architecture/system/)** - Detailed system architecture
+- **[Security Architecture](./docs/architecture/security/)** - Security implementation patterns
+- **[Performance Architecture](./docs/architecture/performance/)** - Performance optimization strategies
 
 ### 📦 Components
 
 - **[Component Library](../src/components/)** - UI component documentation and patterns
+- **[Component Development](./dev/components/)** - Component development guidelines
 
 ### 📚 Libraries
 
 - **[Internal Libraries](../src/lib/)** - Shared utilities and modules
-- **[Services](../src/lib/services/)** - Core application services
-- **[Utilities](../src/lib/utils/)** - Helper functions and utilities
+- **[Core Services](./dev/libraries/services/)** - Core application services
+- **[Utilities](./dev/libraries/utils/)** - Helper functions and utilities
+- **[React Hooks](./dev/libraries/hooks/)** - Custom React hooks
 
 ### 📋 Templates
 
@@ -113,8 +119,8 @@ Welcome to the comprehensive documentation for **Idling.app** - a modern social 
 This project follows strict development standards:
 
 1. **[Read Commit Guidelines](./project/commits)** - Follow our commit message format
-2. **[Check Testing Guide](./development/testing)** - Ensure all tests pass
-3. **[Review Migration Docs](./database/migrations)** - Understand database changes
+2. **[Check Testing Guide](./dev/testing/)** - Ensure all tests pass
+3. **[Review Migration Docs](./dev/database/)** - Understand database changes
 
 ## 📊 Project Status
 
@@ -126,14 +132,14 @@ This project follows strict development standards:
 
 ## 🔗 Quick Links
 
-| Resource              | Description                      | Link                                            |
-| --------------------- | -------------------------------- | ----------------------------------------------- |
-| **Main README**       | Project overview and setup       | [View](./docs/getting-started/)                 |
-| **API Documentation** | Interactive Swagger UI           | [View](../src/app/api/swagger.md)               |
-| **Migration Guide**   | Database migration system        | [View](./database/migrations)                   |
-| **Rate Limiting**     | Security and performance system  | [View](../src/lib/services/RateLimitService.md) |
-| **Smart Filters**     | Advanced filtering documentation | [View](./development/smart-filters)             |
-| **Production Guide**  | Deployment and operations        | [View](./deployment/production)                 |
+| Resource              | Description                     | Link                                            |
+| --------------------- | ------------------------------- | ----------------------------------------------- |
+| **Main README**       | Project overview and setup      | [View](./docs/getting-started/)                 |
+| **API Documentation** | Interactive Swagger UI          | [View](../src/app/api/swagger.md)               |
+| **Migration Guide**   | Database migration system       | [View](./dev/database/)                         |
+| **Rate Limiting**     | Security and performance system | [View](../src/lib/services/RateLimitService.md) |
+| **Development Guide** | Complete development docs       | [View](./dev/)                                  |
+| **Production Guide**  | Deployment and operations       | [View](./docs/deployment/)                      |
 
 ---
 
