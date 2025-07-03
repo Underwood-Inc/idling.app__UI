@@ -3,7 +3,7 @@
   position: relative;
   min-height: 40px;
   padding: 8px 12px;
-  border: 1px solid var(--border-color, #ccc);
+  border: 1px solid var(--border-primary, #ccc);
   border-radius: 4px;
   background-color: var(--background-color, #fff);
   cursor: text;

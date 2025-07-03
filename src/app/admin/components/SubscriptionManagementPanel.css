@@ -2,13 +2,13 @@
   padding: 1rem;
   background: var(--bg-primary);
   border-radius: 8px;
-  border: 1px solid var(--border-color);
+  border: 1px solid var(--border-primary);
 }
 
 .subscription-management-panel__header {
   margin-bottom: 1.5rem;
   padding-bottom: 1rem;
-  border-bottom: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--border-primary);
 }
 
 .subscription-management-panel__header h2 {
@@ -48,4 +48,4 @@
 .subscription-management-panel__empty-note {
   font-size: 0.875rem;
   opacity: 0.8;
-} 
+}

@@ -12,21 +12,21 @@ Welcome to the comprehensive documentation for **Idling.app** - a modern social 
 
 - **[Getting Started](./docs/getting-started/)** - Set up your development environment
 - **[Database Setup](./dev/database/)** - Migration system and database management
-- **[Rate Limiting](../src/lib/services/RateLimitService.md)** - Security and performance protection system
+- **[Rate Limiting](./dev/libraries/services/#rate-limiting-service)** - Security and performance protection system
 - **[Deployment Guide](./docs/deployment/)** - Production deployment instructions
 
 ## 📖 Documentation Sections
 
 ### 🔌 API Documentation
 
-- **[Interactive Swagger UI](../src/app/api/swagger.md)** - Test and explore all API endpoints directly in your browser
-- **[API Overview](../src/app/api/README.md)** - Introduction to the idling.app API structure
+- **[Interactive Swagger UI](./docs/api/swagger/)** - Test and explore all API endpoints directly in your browser
+- **[API Overview](./docs/api/)** - Introduction to the idling.app API structure
 - **[Authentication Guide](./docs/getting-started/#authentication)** - How to authenticate with the API
 
 ### 🧩 Components
 
-- **[Rich Input System](../src/components/rich-input-system/index.md)** - Comprehensive documentation for the intelligent text editing component
-- **[Component Library](../src/components/index.md)** - Complete UI component documentation and patterns
+- **[Rich Input System](./dev/components/#rich-input-system)** - Comprehensive documentation for the intelligent text editing component
+- **[Component Library](./dev/components/)** - Complete UI component documentation and patterns
 
 ### 🗄️ Database & Migrations
 
@@ -42,10 +42,10 @@ Welcome to the comprehensive documentation for **Idling.app** - a modern social 
 
 ### 🛡️ Security & Rate Limiting
 
-- **[Rate Limiting System](../src/lib/services/RateLimitService.md)** - Comprehensive rate limiting and security documentation
+- **[Rate Limiting System](./dev/libraries/services/#rate-limiting-service)** - Comprehensive rate limiting and security documentation
 - **[Security Architecture](./docs/architecture/security/)** - Overall security implementation and patterns
-- **[Admin Rate Limiting](../src/app/api/admin/README.md)** - Administrative rate limiting controls
-- **[API Rate Limits](../src/app/api/README.md#rate-limiting)** - API endpoint rate limiting details
+- **[Admin Rate Limiting](./docs/api/admin/)** - Administrative rate limiting controls
+- **[API Rate Limits](./docs/api/#rate-limiting)** - API endpoint rate limiting details
 
 ### 🚀 Deployment & Operations
 
@@ -74,12 +74,12 @@ Welcome to the comprehensive documentation for **Idling.app** - a modern social 
 
 ### 📦 Components
 
-- **[Component Library](../src/components/)** - UI component documentation and patterns
+- **[Component Library](./dev/components/)** - UI component documentation and patterns
 - **[Component Development](./dev/components/)** - Component development guidelines
 
 ### 📚 Libraries
 
-- **[Internal Libraries](../src/lib/)** - Shared utilities and modules
+- **[Internal Libraries](./dev/libraries/)** - Shared utilities and modules
 - **[Core Services](./dev/libraries/services/)** - Core application services
 - **[Utilities](./dev/libraries/utils/)** - Helper functions and utilities
 - **[React Hooks](./dev/libraries/hooks/)** - Custom React hooks
@@ -132,14 +132,14 @@ This project follows strict development standards:
 
 ## 🔗 Quick Links
 
-| Resource              | Description                     | Link                                            |
-| --------------------- | ------------------------------- | ----------------------------------------------- |
-| **Main README**       | Project overview and setup      | [View](./docs/getting-started/)                 |
-| **API Documentation** | Interactive Swagger UI          | [View](../src/app/api/swagger.md)               |
-| **Migration Guide**   | Database migration system       | [View](./dev/database/)                         |
-| **Rate Limiting**     | Security and performance system | [View](../src/lib/services/RateLimitService.md) |
-| **Development Guide** | Complete development docs       | [View](./dev/)                                  |
-| **Production Guide**  | Deployment and operations       | [View](./docs/deployment/)                      |
+| Resource              | Description                     | Link                                                    |
+| --------------------- | ------------------------------- | ------------------------------------------------------- |
+| **Main README**       | Project overview and setup      | [View](./docs/getting-started/)                         |
+| **API Documentation** | Interactive Swagger UI          | [View](./docs/api/swagger/)                             |
+| **Migration Guide**   | Database migration system       | [View](./dev/database/)                                 |
+| **Rate Limiting**     | Security and performance system | [View](./dev/libraries/services/#rate-limiting-service) |
+| **Development Guide** | Complete development docs       | [View](./dev/)                                          |
+| **Production Guide**  | Deployment and operations       | [View](./docs/deployment/)                              |
 
 ---
 

@@ -174,17 +174,10 @@ document.addEventListener('DOMContentLoaded', function() {
       // Update ARIA attributes
       this.setAttribute('aria-expanded', !isExpanded);
       
-      // Smooth animation with proper height calculation
+      // Smooth animation respecting CSS max-height
       if (container.classList.contains('expanded')) {
-        // Calculate full height including nested elements
-        subnav.style.maxHeight = 'none';
-        const fullHeight = subnav.scrollHeight;
-        subnav.style.maxHeight = '0';
-        
-        // Trigger reflow and animate
-        requestAnimationFrame(() => {
-          subnav.style.maxHeight = fullHeight + 'px';
-        });
+        // Use CSS-defined max-height instead of calculating pixels
+        subnav.style.maxHeight = '80vh';
       } else {
         subnav.style.maxHeight = '0';
       }
@@ -289,13 +282,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Trigger the subnav expansion
         const subnav = parent.querySelector('.nav-subnav');
         if (subnav) {
-          subnav.style.maxHeight = 'none';
-          const fullHeight = subnav.scrollHeight;
-          subnav.style.maxHeight = '0';
-          
-          requestAnimationFrame(() => {
-            subnav.style.maxHeight = fullHeight + 'px';
-          });
+          subnav.style.maxHeight = '80vh';
         }
         
         // Update toggle button state
@@ -347,13 +334,7 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Smooth animation
             if (container.classList.contains('expanded')) {
-              subnav.style.maxHeight = 'none';
-              const fullHeight = subnav.scrollHeight;
-              subnav.style.maxHeight = '0';
-              
-              requestAnimationFrame(() => {
-                subnav.style.maxHeight = fullHeight + 'px';
-              });
+              subnav.style.maxHeight = '80vh';
             } else {
               subnav.style.maxHeight = '0';
             }

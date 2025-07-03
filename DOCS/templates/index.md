@@ -245,8 +245,8 @@ Template improvements come from:
 
 ### Examples
 
-- **[API Documentation](../src/app/api/)** - Real API documentation examples
-- **[Component Library](../src/components/)** - Component documentation examples
+- **[API Documentation](../docs/api/)** - Real API documentation examples
+- **[Component Library](../dev/components/)** - Component documentation examples
 - **[Architecture Docs](../docs/architecture/)** - Technical documentation examples
 
 ## 🚀 Getting Started

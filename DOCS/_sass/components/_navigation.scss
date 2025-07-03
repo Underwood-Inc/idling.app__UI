@@ -142,8 +142,8 @@ $dropdown-shadow: rgba(0, 0, 0, 0.3);
     position: absolute;
     top: 100%;
     left: 0;
-      background: var(--background-color);
-      border: 1px solid var(--border-color);
+      background: var(--dark-background--primary);
+      border: 1px solid var(--border-primary);
       border-radius: 8px;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     min-width: 300px;
@@ -154,7 +154,7 @@ $dropdown-shadow: rgba(0, 0, 0, 0.3);
 
 .nav-sub-item {
         padding: 1rem;
-        border-bottom: 1px solid var(--border-color);
+        border-bottom: 1px solid var(--border-primary);
   
   &:last-child {
     border-bottom: none;
@@ -229,7 +229,7 @@ $dropdown-shadow: rgba(0, 0, 0, 0.3);
     
     &[aria-current="page"] {
       background-color: var(--brand-primary);
-      color: var(--background-color);
+      color: var(--dark-background--primary);
     }
 }
 
@@ -353,7 +353,7 @@ $dropdown-shadow: rgba(0, 0, 0, 0.3);
     // Chunky mobile navigation items with better spacing
     .nav-item-container {
       margin: 0;
-      border-bottom: 2px solid var(--border-color);
+      border-bottom: 2px solid var(--border-primary);
       flex: 1;
       display: flex;
       flex-direction: column;
@@ -511,7 +511,7 @@ $dropdown-shadow: rgba(0, 0, 0, 0.3);
       font-size: 1.25rem;
       color: var(--text-color-muted);
       text-decoration: none;
-      border-bottom: 1px solid var(--border-color);
+      border-bottom: 1px solid var(--border-primary);
       transition: all 0.2s ease;
       min-height: 80px;
       align-items: center;
@@ -539,7 +539,7 @@ $dropdown-shadow: rgba(0, 0, 0, 0.3);
       font-weight: 600;
       color: var(--text-color);
       text-decoration: none;
-      border-bottom: 2px solid var(--border-color);
+      border-bottom: 2px solid var(--border-primary);
       transition: all 0.2s ease;
       min-height: 100px;
       align-items: center;
@@ -574,7 +574,7 @@ $dropdown-shadow: rgba(0, 0, 0, 0.3);
 // Search result highlighting
 .search-results mark {
   background-color: var(--brand-secondary);
-  color: var(--background-color);
+  color: var(--dark-background--primary);
   padding: 0.125rem 0.25rem;
   border-radius: 3px;
   font-weight: 500;

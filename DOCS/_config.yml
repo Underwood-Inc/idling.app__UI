@@ -38,17 +38,17 @@ navigation:
             url: "/docs/getting-started/docker/"
             description: "Containerized development environment"
       - title: "🔌 API Reference"
-        url: "/src/app/api/"
+        url: "/docs/api/"
         description: "Complete API documentation"
         subsections:
           - title: "📖 API Overview"
-            url: "/src/app/api/README.md"
+            url: "/docs/api/"
             description: "Introduction and concepts"
           - title: "🧪 Interactive Tools"
-            url: "/src/app/api/swagger.md"
+            url: "/docs/api/swagger/"
             description: "Swagger UI and testing tools"
           - title: "🔧 Admin Endpoints"
-            url: "/src/app/api/admin/README.md"
+            url: "/docs/api/admin/"
             description: "Administrative endpoints"
       - title: "🏗️ Architecture"
         url: "/docs/architecture/"
@@ -82,20 +82,20 @@ navigation:
     description: "Development tools and resources"
     subnav:
       - title: "🧩 Components"
-        url: "/src/components/"
+        url: "/dev/components/"
         description: "UI components and design system"
         subsections:
           - title: "📝 Rich Input System"
-            url: "/src/components/rich-input-system/"
+            url: "/dev/components/#rich-input-system"
             description: "Advanced text editing component"
           - title: "🔍 Filter Bar"
-            url: "/src/components/filter-bar/"
+            url: "/dev/components/#filter-bar-component"
             description: "Search and filtering interfaces"
           - title: "🧭 Floating Toolbar"
-            url: "/src/components/floating-toolbar/"
+            url: "/dev/components/#floating-toolbar-component"
             description: "Context-sensitive toolbar"
           - title: "📚 Component Library"
-            url: "/src/components/"
+            url: "/dev/components/"
             description: "Complete component documentation"
       - title: "🗄️ Database"
         url: "/dev/database/"
@@ -111,17 +111,17 @@ navigation:
             url: "/dev/database/data/"
             description: "Data seeding and management"
       - title: "📚 Libraries"
-        url: "/src/lib/"
+        url: "/dev/libraries/"
         description: "Shared utilities and services"
         subsections:
           - title: "⚙️ Core Services"
-            url: "/src/lib/services/"
+            url: "/dev/libraries/services/"
             description: "Authentication, caching, logging"
           - title: "🔧 Utilities"
-            url: "/src/lib/utils/"
+            url: "/dev/libraries/utils/"
             description: "Helper functions and parsers"
           - title: "🎣 React Hooks"
-            url: "/src/lib/hooks/"
+            url: "/dev/libraries/hooks/"
             description: "Custom React hooks"
       - title: "🧪 Testing"
         url: "/dev/testing/"
@@ -242,23 +242,6 @@ exclude:
 # Include files
 include:
   - _pages
-  - ../src/app/api/README.md
-  - ../src/app/api/swagger.md
-  - ../src/app/api/openapi.json
-  - ../src/app/api/admin/README.md
-  - ../src/app/api/emojis/README.md
-  - ../src/lib/services/RateLimitService.md
-  - ../src/lib/services/
-  - ../src/components/
-  - ../src/lib/utils/
-  - ../src/components/rich-input-system/index.md
-  - ../src/components/filter-bar/index.md
-  - ../src/components/floating-toolbar/index.md
-  - ../src/components/search-overlay/index.md
-  - ../src/components/index.md
-  - ../src/components/rich-input.md
-  - ../src/components/ui.md
-  - ../src/lib/index.md
 
 # SEO
 author: "Underwood Inc"
