@@ -20,6 +20,7 @@
     "docs:dev": "cd DOCS && PAGES_REPO_NWO=Underwood-Inc/idling.app__UI bundle exec jekyll serve --config _config.yml,_config_dev.yml --host=0.0.0.0 --port=4000",
     "docs:build": "cd DOCS && PAGES_REPO_NWO=Underwood-Inc/idling.app__UI bundle exec jekyll build",
     "docs:install": "cd DOCS && bundle config set --local path 'vendor/bundle' && bundle install",
+    "docs:openapi": "node scripts/generate-openapi-spec.js",
     "e2e:gen": "yarn playwright codegen",
     "e2e:headed": "yarn playwright test --headed",
     "e2e:headless": "yarn playwright test",

@@ -17,6 +17,12 @@ Welcome to the comprehensive documentation for **Idling.app** - a modern social 
 
 ## 📖 Documentation Sections
 
+### 🔌 API Documentation
+
+- **[Interactive Swagger UI](./api/swagger)** - Test and explore all API endpoints directly in your browser
+- **[API Overview](./api/)** - Introduction to the idling.app API structure
+- **[Authentication Guide](./getting-started#authentication)** - How to authenticate with the API
+
 ### 🧩 Components
 
 - **[Rich Input System](./components/rich-input-system/)** - Comprehensive documentation for the intelligent text editing component
@@ -120,13 +126,14 @@ This project follows strict development standards:
 
 ## 🔗 Quick Links
 
-| Resource             | Description                      | Link                                |
-| -------------------- | -------------------------------- | ----------------------------------- |
-| **Main README**      | Project overview and setup       | [View](./getting-started)           |
-| **Migration Guide**  | Database migration system        | [View](./database/migrations)       |
-| **Rate Limiting**    | Security and performance system  | [View](./rate-limiting/)            |
-| **Smart Filters**    | Advanced filtering documentation | [View](./development/smart-filters) |
-| **Production Guide** | Deployment and operations        | [View](./deployment/production)     |
+| Resource              | Description                      | Link                                |
+| --------------------- | -------------------------------- | ----------------------------------- |
+| **Main README**       | Project overview and setup       | [View](./getting-started)           |
+| **API Documentation** | Interactive Swagger UI           | [View](./api/swagger)               |
+| **Migration Guide**   | Database migration system        | [View](./database/migrations)       |
+| **Rate Limiting**     | Security and performance system  | [View](./rate-limiting/)            |
+| **Smart Filters**     | Advanced filtering documentation | [View](./development/smart-filters) |
+| **Production Guide**  | Deployment and operations        | [View](./deployment/production)     |
 
 ---
 

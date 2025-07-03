@@ -1,3 +1,83 @@
+/**
+ * @swagger
+ * /api/alerts/dismiss:
+ *   post:
+ *     summary: Dismiss an alert for the current user
+ *     description: Dismisses a custom alert for the authenticated user and updates analytics
+ *     tags:
+ *       - Alerts
+ *     security:
+ *       - NextAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               alertId:
+ *                 type: number
+ *                 description: ID of the alert to dismiss
+ *                 example: 123
+ *               userId:
+ *                 type: number
+ *                 description: ID of the user dismissing the alert (must match authenticated user)
+ *                 example: 456
+ *             required:
+ *               - alertId
+ *               - userId
+ *     responses:
+ *       200:
+ *         description: Alert dismissed successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *       400:
+ *         description: Invalid request data
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: "Invalid request data"
+ *                 details:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                   description: Validation error details
+ *       401:
+ *         description: Authentication required
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       403:
+ *         description: Unauthorized (user can only dismiss their own alerts)
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       404:
+ *         description: Alert not found or not dismissible
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       500:
+ *         description: Failed to dismiss alert
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
+
 import { auth } from '@/lib/auth';
 import sql from '@/lib/db';
 import { withRateLimit } from '@/lib/middleware/withRateLimit';

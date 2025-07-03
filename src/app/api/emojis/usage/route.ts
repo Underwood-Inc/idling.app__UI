@@ -1,4 +1,63 @@
 /**
+ * @swagger
+ * /api/emojis/usage:
+ *   post:
+ *     summary: Track emoji usage statistics
+ *     description: Records usage statistics for emojis to track popularity and usage patterns
+ *     tags:
+ *       - Emojis
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               emoji_id:
+ *                 type: string
+ *                 description: ID of the emoji being used
+ *                 example: "1f600"
+ *               emoji_type:
+ *                 type: string
+ *                 enum: [windows, mac, custom]
+ *                 description: Type of emoji being tracked
+ *                 example: "windows"
+ *             required:
+ *               - emoji_id
+ *               - emoji_type
+ *     responses:
+ *       200:
+ *         description: Usage tracked successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: "Emoji usage tracked successfully"
+ *       400:
+ *         description: Invalid request parameters
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: "Missing required fields: emoji_id and emoji_type"
+ *       500:
+ *         description: Failed to track usage
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
+
+/**
  * Emoji Usage API Routes
  * Handles tracking emoji usage statistics
  */

@@ -261,7 +261,7 @@ jobs:
   sonar:
     timeout-minutes: 15
     name: SonarCloud Analysis
-    needs: [playwright-tests, jest-tests, documentation-coverage]
+    needs: [playwright-tests, jest-tests]
     if: ${{ !cancelled() }} # Run even if some tests fail
     runs-on: ubuntu-latest
     environment: actions

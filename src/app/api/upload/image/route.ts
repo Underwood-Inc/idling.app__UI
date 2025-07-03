@@ -1,3 +1,119 @@
+/**
+ * @swagger
+ * /api/upload/image:
+ *   post:
+ *     summary: Upload an image file
+ *     description: Upload an image file to the server with validation and security checks
+ *     tags:
+ *       - Upload
+ *     security:
+ *       - NextAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               file:
+ *                 type: string
+ *                 format: binary
+ *                 description: Image file to upload (JPG, PNG, GIF, WebP)
+ *             required:
+ *               - file
+ *     responses:
+ *       200:
+ *         description: File uploaded successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 url:
+ *                   type: string
+ *                   description: Public URL of the uploaded image
+ *                   example: "/uploads/images/1640995200000-a1b2c3d4.jpg"
+ *                 filename:
+ *                   type: string
+ *                   description: Generated filename
+ *                   example: "1640995200000-a1b2c3d4.jpg"
+ *                 size:
+ *                   type: number
+ *                   description: File size in bytes
+ *                   example: 204800
+ *                 type:
+ *                   type: string
+ *                   description: MIME type of the uploaded file
+ *                   example: "image/jpeg"
+ *       400:
+ *         description: Invalid file or validation error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: "File validation failed"
+ *                 details:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                   description: Validation error details
+ *                 allowedTypes:
+ *                   type: array
+ *                   items:
+ *                     type: string
+ *                   description: Allowed MIME types
+ *                 maxSize:
+ *                   type: number
+ *                   description: Maximum file size in bytes
+ *                 maxSizeMB:
+ *                   type: number
+ *                   description: Maximum file size in MB
+ *       401:
+ *         description: Authentication required
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       413:
+ *         description: File too large
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: "File too large"
+ *                 maxSize:
+ *                   type: number
+ *                 maxSizeMB:
+ *                   type: number
+ *       500:
+ *         description: Upload failed
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *   get:
+ *     summary: Method not allowed
+ *     description: GET requests are not supported for file uploads
+ *     tags:
+ *       - Upload
+ *     responses:
+ *       405:
+ *         description: Method not allowed
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
+
 import { auth } from '@/lib/auth';
 import { withRateLimit } from '@/lib/middleware/withRateLimit';
 import { ImageUploadSchema } from '@/lib/schemas/upload.schema';
@@ -7,9 +123,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { join } from 'path';
 import { z } from 'zod';
 import {
-  getMediaConfig,
-  validateFileSize,
-  validateMimeType
+    getMediaConfig,
+    validateFileSize,
+    validateMimeType
 } from '../../../../lib/config/media-domains';
 
 // This route uses dynamic features (auth/headers) and should not be pre-rendered

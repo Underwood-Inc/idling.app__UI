@@ -1,4 +1,146 @@
 /**
+ * @swagger
+ * /api/emojis:
+ *   get:
+ *     summary: Get emojis by OS and category
+ *     description: Fetches OS-specific emojis with optional filtering by category and search terms
+ *     tags:
+ *       - Emojis
+ *     parameters:
+ *       - in: query
+ *         name: category
+ *         schema:
+ *           type: string
+ *         description: Filter by emoji category (e.g., 'smileys', 'animals')
+ *       - in: query
+ *         name: search
+ *         schema:
+ *           type: string
+ *         description: Search term to filter emojis by name
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: Page number for pagination
+ *       - in: query
+ *         name: per_page
+ *         schema:
+ *           type: integer
+ *           default: 50
+ *           maximum: 100
+ *         description: Number of emojis per page
+ *       - in: query
+ *         name: include_custom
+ *         schema:
+ *           type: boolean
+ *           default: false
+ *         description: Include custom user-uploaded emojis
+ *     responses:
+ *       200:
+ *         description: Successfully retrieved emojis
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/EmojiListResponse'
+ *       400:
+ *         description: Invalid request parameters
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *   post:
+ *     summary: Upload custom emoji
+ *     description: Upload a custom emoji image for the authenticated user
+ *     tags:
+ *       - Emojis
+ *     security:
+ *       - NextAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               file:
+ *                 type: string
+ *                 format: binary
+ *                 description: Emoji image file (PNG, JPG, GIF)
+ *               name:
+ *                 type: string
+ *                 description: Name for the custom emoji
+ *               category:
+ *                 type: string
+ *                 description: Category for the emoji
+ *             required:
+ *               - file
+ *               - name
+ *     responses:
+ *       201:
+ *         description: Emoji uploaded successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 emoji:
+ *                   $ref: '#/components/schemas/EmojiResponse'
+ *       400:
+ *         description: Invalid file or parameters
+ *       401:
+ *         description: Authentication required
+ *       413:
+ *         description: File too large
+ *       500:
+ *         description: Upload failed
+ *   put:
+ *     summary: Track emoji usage
+ *     description: Track usage statistics for an emoji
+ *     tags:
+ *       - Emojis
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               emoji_id:
+ *                 type: string
+ *                 description: ID of the emoji being used
+ *               emoji_type:
+ *                 type: string
+ *                 enum: [windows, mac, custom]
+ *                 description: Type of emoji being tracked
+ *             required:
+ *               - emoji_id
+ *               - emoji_type
+ *     responses:
+ *       200:
+ *         description: Usage tracked successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *       400:
+ *         description: Invalid parameters
+ *       500:
+ *         description: Tracking failed
+ */
+
+/**
  * Emoji API Routes
  * Handles fetching OS-specific emojis using server actions
  */

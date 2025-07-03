@@ -1,3 +1,181 @@
+/**
+ * @swagger
+ * /api/og-image:
+ *   get:
+ *     summary: Generate dynamic OG (Open Graph) images
+ *     description: |
+ *       Generate customizable SVG images with quotes, avatars, and patterns for social media sharing.
+ *       Supports extensive customization including dimensions, colors, positioning, and content.
+ *     tags:
+ *       - Images
+ *     parameters:
+ *       - in: query
+ *         name: seed
+ *         schema:
+ *           type: string
+ *         description: Custom seed for deterministic generation
+ *       - in: query
+ *         name: avatarSeed
+ *         schema:
+ *           type: string
+ *         description: Seed for avatar generation
+ *       - in: query
+ *         name: quote
+ *         schema:
+ *           type: string
+ *         description: Custom quote text
+ *       - in: query
+ *         name: author
+ *         schema:
+ *           type: string
+ *         description: Quote author name
+ *       - in: query
+ *         name: width
+ *         schema:
+ *           type: integer
+ *         description: Custom image width in pixels
+ *       - in: query
+ *         name: height
+ *         schema:
+ *           type: integer
+ *         description: Custom image height in pixels
+ *       - in: query
+ *         name: shapes
+ *         schema:
+ *           type: integer
+ *         description: Number of background shapes
+ *       - in: query
+ *         name: avatarX
+ *         schema:
+ *           type: number
+ *         description: Avatar X position (0-1)
+ *       - in: query
+ *         name: avatarY
+ *         schema:
+ *           type: number
+ *         description: Avatar Y position (0-1)
+ *       - in: query
+ *         name: avatarSize
+ *         schema:
+ *           type: number
+ *         description: Avatar size multiplier
+ *       - in: query
+ *         name: textMaxWidth
+ *         schema:
+ *           type: number
+ *         description: Maximum text width
+ *       - in: query
+ *         name: textStartY
+ *         schema:
+ *           type: number
+ *         description: Text starting Y position
+ *       - in: query
+ *         name: fontSize
+ *         schema:
+ *           type: number
+ *         description: Font size multiplier
+ *       - in: query
+ *         name: borderColor
+ *         schema:
+ *           type: string
+ *         description: Border color (hex or color name)
+ *       - in: query
+ *         name: borderOpacity
+ *         schema:
+ *           type: number
+ *         description: Border opacity (0-1)
+ *       - in: query
+ *         name: patternSeed
+ *         schema:
+ *           type: string
+ *         description: Seed for background pattern
+ *       - in: query
+ *         name: textPadding
+ *         schema:
+ *           type: number
+ *         description: Text padding multiplier
+ *       - in: query
+ *         name: lineHeight
+ *         schema:
+ *           type: number
+ *         description: Line height multiplier
+ *       - in: query
+ *         name: glassBackground
+ *         schema:
+ *           type: boolean
+ *         description: Enable glass background effect
+ *       - in: query
+ *         name: format
+ *         schema:
+ *           type: string
+ *           enum: [svg, json]
+ *         description: Response format (svg returns image, json returns metadata)
+ *     responses:
+ *       200:
+ *         description: Successfully generated OG image
+ *         content:
+ *           image/svg+xml:
+ *             schema:
+ *               type: string
+ *               format: binary
+ *               description: Generated SVG image
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 svg:
+ *                   type: string
+ *                   description: Generated SVG content
+ *                 seed:
+ *                   type: string
+ *                   description: Generation seed used
+ *                 generationId:
+ *                   type: string
+ *                   description: Unique generation ID
+ *                 dimensions:
+ *                   type: object
+ *                   properties:
+ *                     width:
+ *                       type: number
+ *                     height:
+ *                       type: number
+ *                 aspectRatio:
+ *                   type: string
+ *                   description: Image aspect ratio
+ *                 remainingGenerations:
+ *                   type: number
+ *                   description: User's remaining quota
+ *         headers:
+ *           X-Generated-Seed:
+ *             description: Seed used for generation
+ *             schema:
+ *               type: string
+ *           X-Generation-ID:
+ *             description: Unique generation identifier
+ *             schema:
+ *               type: string
+ *           X-Dimensions:
+ *             description: Image dimensions (widthxheight)
+ *             schema:
+ *               type: string
+ *           X-Remaining-Generations:
+ *             description: User's remaining quota
+ *             schema:
+ *               type: string
+ *       429:
+ *         description: Rate limit exceeded or quota exhausted
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       500:
+ *         description: Image generation failed
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
+
 import { withRateLimit } from '@/lib/middleware/withRateLimit';
 import { NextRequest } from 'next/server';
 import { OGImageService } from './services/OGImageService';
