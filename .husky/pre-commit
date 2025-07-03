@@ -116,6 +116,8 @@ DOC_BADGE_URL="https://img.shields.io/badge/Documentation%20Coverage-${DOC_COVER
 if [ -f "README.md" ]; then
   # Look for existing documentation coverage badge and replace it
   if grep -q "Documentation%20Coverage" README.md; then
+    # Use sed to replace the badge URL portion with the new one
+    # This targets the specific pattern: [![Documentation Coverage](OLD_URL)](LINK)
     sed -i.bak "s|https://img\.shields\.io/badge/Documentation%20Coverage-[0-9]*%25-[a-z]*?[^)]*|${DOC_BADGE_URL}|g" README.md
     rm -f README.md.bak
     echo "✅ Updated documentation badge in README.md"
