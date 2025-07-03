@@ -307,6 +307,85 @@ jobs:
 
             console.log('✅ Posted documentation coverage comment on PR');
 
+      # Update PR description with documentation coverage badge
+      - name: Update PR description with documentation coverage badge
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+
+            // Read the JSON report for structured data
+            let jsonReport = null;
+            try {
+              jsonReport = JSON.parse(fs.readFileSync('doc-coverage-report.json', 'utf8'));
+            } catch (error) {
+              console.log('Could not parse JSON report:', error);
+              return;
+            }
+
+            // Determine badge color based on coverage
+            const coverage = jsonReport.coverage_percentage;
+            let badgeColor = 'red';
+            if (coverage >= 90) badgeColor = 'brightgreen';
+            else if (coverage >= 75) badgeColor = 'green';
+            else if (coverage >= 60) badgeColor = 'yellow';
+            else if (coverage >= 40) badgeColor = 'orange';
+
+            // Create documentation coverage badge URL
+            const newBadgeUrl = `https://img.shields.io/badge/Documentation%20Coverage-${Math.round(coverage)}%25-${badgeColor}?style=flat&logo=gitbook&logoColor=white`;
+
+            // Get current PR description
+            const prNumber = context.issue.number;
+            const { data: pr } = await github.rest.pulls.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: prNumber
+            });
+
+            let currentDescription = pr.body || '';
+
+            // Update existing documentation coverage badge in PR description
+            // Look for various patterns of documentation coverage badges
+            const badgePatterns = [
+              /!\[Documentation Coverage\]\(https:\/\/img\.shields\.io\/badge\/Documentation%20Coverage-\d+%25-[a-z]+\?[^)]*\)/g,
+              /!\[Documentation Coverage\]\(https:\/\/img\.shields\.io\/badge\/Documentation%20Coverage-\d+%25-[a-z]+[^)]*\)/g,
+              /https:\/\/img\.shields\.io\/badge\/Documentation%20Coverage-\d+%25-[a-z]+\?[^)\s]*/g
+            ];
+
+            let updatedDescription = currentDescription;
+            let badgeFound = false;
+
+            // Try to replace existing badge with new one
+            for (const pattern of badgePatterns) {
+              if (pattern.test(updatedDescription)) {
+                updatedDescription = updatedDescription.replace(pattern, `![Documentation Coverage](${newBadgeUrl})`);
+                badgeFound = true;
+                console.log('✅ Found and updated existing documentation coverage badge in PR description');
+                break;
+              }
+            }
+
+            // If no badge found, add one at the top of the description
+            if (!badgeFound) {
+              const newBadgeSection = `## 📚 Documentation Coverage Status\n\n![Documentation Coverage](${newBadgeUrl})\n\n---\n\n`;
+              updatedDescription = newBadgeSection + currentDescription;
+              console.log('✅ Added new documentation coverage badge to PR description');
+            }
+
+            // Update PR description if it changed
+            if (updatedDescription !== currentDescription) {
+              await github.rest.pulls.update({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: prNumber,
+                body: updatedDescription
+              });
+              console.log('✅ Updated PR description with documentation coverage badge');
+            } else {
+              console.log('📝 PR description already up to date');
+            }
+
   jest-tests:
     timeout-minutes: 15
     name: Jest Tests
