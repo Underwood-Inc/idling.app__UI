@@ -66,11 +66,26 @@ while IFS= read -r file; do
   total_files=$((total_files + 1))
   
   # Check for corresponding documentation
-  base_name=$(basename "$file" | sed 's/\.[^.]*$//' | tr '[:upper:]' '[:lower:]')
+  base_name=$(basename "$file" | sed 's/\.[^.]*$//')
+  base_name_lower=$(echo "$base_name" | tr '[:upper:]' '[:lower:]')
+  base_name_kebab=$(echo "$base_name" | sed 's/\([A-Z]\)/-\1/g' | sed 's/^-//' | tr '[:upper:]' '[:lower:]')
   doc_found=false
   
-  # Look for documentation in various locations
-  for doc_pattern in "DOCS/components/${base_name}.md" "DOCS/api/${base_name}.md" "DOCS/utils/${base_name}.md" "DOCS/hooks/${base_name}.md" "DOCS/${file%.*}.md"; do
+  # Look for documentation in various locations with different naming conventions
+  for doc_pattern in \
+    "DOCS/components/${base_name}.md" \
+    "DOCS/components/${base_name_lower}.md" \
+    "DOCS/components/${base_name_kebab}.md" \
+    "DOCS/api/${base_name}.md" \
+    "DOCS/api/${base_name_lower}.md" \
+    "DOCS/api/${base_name_kebab}.md" \
+    "DOCS/utils/${base_name}.md" \
+    "DOCS/utils/${base_name_lower}.md" \
+    "DOCS/utils/${base_name_kebab}.md" \
+    "DOCS/hooks/${base_name}.md" \
+    "DOCS/hooks/${base_name_lower}.md" \
+    "DOCS/hooks/${base_name_kebab}.md" \
+    "DOCS/${file%.*}.md"; do
     if [ -f "$doc_pattern" ] && ! grep -q "Documentation Needed.*This file was automatically generated" "$doc_pattern" 2>/dev/null; then
       documented_files=$((documented_files + 1))
       doc_found=true
@@ -116,10 +131,23 @@ DOC_BADGE_URL="https://img.shields.io/badge/Documentation%20Coverage-${DOC_COVER
 if [ -f "README.md" ]; then
   # Look for existing documentation coverage badge and replace it
   if grep -q "Documentation%20Coverage" README.md; then
-    # Use sed to replace the badge URL portion with the new one
-    # This targets the specific pattern: [![Documentation Coverage](OLD_URL)](LINK)
-    sed -i.bak "s|https://img\.shields\.io/badge/Documentation%20Coverage-[0-9]*%25-[a-z]*?[^)]*|${DOC_BADGE_URL}|g" README.md
-    rm -f README.md.bak
+    # Create a temporary file with the corrected badge
+    TEMP_README=$(mktemp)
+    # Use a more robust approach: find lines with Documentation Coverage and replace the URL part
+    while IFS= read -r line; do
+      case "$line" in
+        *"Documentation%20Coverage"*)
+          # Extract everything before the badge URL and everything after the badge URL
+          prefix=$(echo "$line" | sed 's/\(.*\[\!\[Documentation Coverage\](\)[^)]*\().*/\1/')
+          suffix=$(echo "$line" | sed 's/.*\[\!\[Documentation Coverage\]([^)]*\)\(.*\)/\2/')
+          echo "${prefix}${DOC_BADGE_URL}${suffix}"
+          ;;
+        *)
+          echo "$line"
+          ;;
+      esac
+    done < README.md > "$TEMP_README"
+    mv "$TEMP_README" README.md
     echo "✅ Updated documentation badge in README.md"
   else
     echo "⚠️ No existing documentation badge found in README.md"
