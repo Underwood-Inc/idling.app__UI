@@ -14,7 +14,7 @@
 }
 
 .thread_aside {
-  width: 100%;
+  /* Let PageAside component handle its own width and positioning */
 }
 
 /* Thread header and filtering */
