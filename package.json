@@ -1,6 +1,6 @@
 {
   "name": "idling.app",
-  "version": "0.335.0",
+  "version": "0.335.1",
   "private": true,
   "engines": {
     "node": ">=20.x"
@@ -24,6 +24,7 @@
     "e2e:headed": "yarn playwright test --headed",
     "e2e:headless": "yarn playwright test",
     "e2e:reports": "yarn playwright show-report",
+    "e2e:docker": "./scripts/run-e2e-docker.sh",
     "e2e": "yarn playwright test --ui",
     "gen:secret": "openssl rand -base64 32",
     "lint-staged": "lint-staged",
