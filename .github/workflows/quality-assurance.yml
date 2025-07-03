@@ -753,9 +753,13 @@ jobs:
 
       # Update documentation badges across all locations on main/master branch pushes
       - name: 📋 Update documentation badges across all locations on main branch
-        if: success() && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master') && github.event_name == 'push'
+        if: success() && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master') && github.event_name == 'push' && github.repository == 'Underwood-Inc/idling.app__UI'
         run: |
           echo "🎨 Updating documentation badges across all locations for main branch..."
+          echo "🔍 Repository: ${{ github.repository }}"
+          echo "🔍 Actor: ${{ github.actor }}"
+          echo "🔍 Event: ${{ github.event_name }}"
+          echo "🔍 Ref: ${{ github.ref }}"
 
           # Get coverage values
           DOC_COVERAGE="${{ steps.docs-coverage.outputs.doc_coverage }}"
