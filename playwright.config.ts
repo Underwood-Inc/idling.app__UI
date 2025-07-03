@@ -9,9 +9,11 @@ import path from 'path';
 dotenv.config({ path: path.resolve(__dirname, '.env.local') });
 
 // Set consistent test environment variables
+// CRITICAL: Use the same NEXTAUTH_SECRET as the CI environment
 const testEnvVars = {
   NODE_ENV: process.env.NODE_ENV || 'test',
-  NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET || 'test-secret-for-playwright',
+  // Use the CI secret if available, otherwise fall back to a consistent test secret
+  NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET || 'test-secret-for-playwright-fallback',
   NEXTAUTH_URL: process.env.NEXTAUTH_URL || 'http://127.0.0.1:3000'
 };
 
@@ -96,7 +98,12 @@ export default defineConfig({
     url: 'http://127.0.0.1:3000',
     reuseExistingServer: !process.env.CI,
     timeout: 120000,
-    env: testEnvVars
+    // CRITICAL: Pass the same environment variables to the web server
+    env: {
+      ...testEnvVars,
+      // Ensure the web server gets the same NEXTAUTH_SECRET as the tests
+      NEXTAUTH_SECRET: testEnvVars.NEXTAUTH_SECRET
+    }
   },
   
   /* Global timeout for each test */
