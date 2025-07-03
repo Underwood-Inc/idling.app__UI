@@ -24,7 +24,7 @@ permissions:
 
 # Concurrency group to prevent concurrent deployments
 concurrency:
-  group: 'pages'
+  group: 'docs-${{ github.ref }}'
   cancel-in-progress: false
 
 jobs:
@@ -73,6 +73,9 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     needs: build
+    concurrency:
+      group: 'github-pages-deploy'
+      cancel-in-progress: false
     steps:
       - name: Checkout repository for badge updates
         uses: actions/checkout@v4
@@ -102,6 +105,9 @@ jobs:
       contents: read
       issues: write
       pull-requests: write
+    concurrency:
+      group: 'docs-pr-${{ github.event.pull_request.number }}'
+      cancel-in-progress: true
     defaults:
       run:
         working-directory: ./DOCS
