@@ -8,6 +8,16 @@ import path from 'path';
  */
 dotenv.config({ path: path.resolve(__dirname, '.env.local') });
 
+// Set consistent test environment variables
+const testEnvVars = {
+  NODE_ENV: process.env.NODE_ENV || 'test',
+  NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET || 'test-secret-for-playwright',
+  NEXTAUTH_URL: process.env.NEXTAUTH_URL || 'http://127.0.0.1:3000'
+};
+
+// Apply environment variables
+Object.assign(process.env, testEnvVars);
+
 /**
  * Playwright Configuration - E2E Tests ONLY
  * This is completely separate from Jest (unit/integration tests)
@@ -85,7 +95,8 @@ export default defineConfig({
     stdout: 'pipe',
     url: 'http://127.0.0.1:3000',
     reuseExistingServer: !process.env.CI,
-    timeout: 120000
+    timeout: 120000,
+    env: testEnvVars
   },
   
   /* Global timeout for each test */

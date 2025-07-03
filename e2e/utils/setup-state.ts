@@ -1,11 +1,34 @@
-export function getFakeAuthCookie() {
+import { SignJWT } from 'jose';
+
+export async function getFakeAuthCookie() {
   const expiresIn30Days = new Date();
   expiresIn30Days.setDate(expiresIn30Days.getDate() + 30);
+
+  // Create a fresh JWT token for testing with the current NEXTAUTH_SECRET
+  const secret = new TextEncoder().encode(
+    process.env.NEXTAUTH_SECRET || 'test-secret-for-playwright'
+  );
+
+  const jwt = await new SignJWT({
+    name: 'underwood_testing',
+    email: 'test@example.com',
+    picture: 'https://static-cdn.jtvnw.net/user-default-pictures-uv/998f01ae-def8-11e9-b95c-784f43822e80-profile_image-150x150.png',
+    sub: '1',
+    providerAccountId: '1128964567',
+    databaseId: '1',
+    spacing_theme: 'cozy',
+    pagination_mode: 'traditional'
+  })
+    .setProtectedHeader({ alg: 'HS256' })
+    .setIssuedAt()
+    .setExpirationTime('30d')
+    .setJti(crypto.randomUUID())
+    .sign(secret);
 
   return [
     {
       name: 'authjs.csrf-token',
-      value: process.env.AUTHJS_CSRF_TOKEN ?? '',
+      value: crypto.randomUUID(),
       domain: '127.0.0.1',
       path: '/',
       expires: expiresIn30Days.getTime() / 1000,
@@ -15,7 +38,7 @@ export function getFakeAuthCookie() {
     },
     {
       name: 'authjs.callback-url',
-      value: process.env.AUTHJS_CALLBACK_URL ?? '',
+      value: 'http://127.0.0.1:3000',
       domain: '127.0.0.1',
       path: '/',
       expires: expiresIn30Days.getTime() / 1000,
@@ -25,7 +48,7 @@ export function getFakeAuthCookie() {
     },
     {
       name: 'authjs.session-token',
-      value: process.env.AUTHJS_SESSION_TOKEN ?? '',
+      value: jwt,
       domain: '127.0.0.1',
       path: '/',
       expires: expiresIn30Days.getTime() / 1000,

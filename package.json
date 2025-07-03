@@ -65,6 +65,7 @@
     "dotenv": "^16.4.5",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-prettier": "^5.2.1",
+    "jose": "^6.0.11",
     "jotai": "^2.12.5",
     "lorem-ipsum": "^2.0.8",
     "next": "^14.2.15",
