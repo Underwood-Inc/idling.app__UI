@@ -142,6 +142,21 @@ if [ -f "README.md" ]; then
   fi
 fi
 
+# Update Jekyll header badge
+if [ -f "DOCS/_includes/header.html" ]; then
+  # Look for existing documentation coverage badge and replace it
+  if grep -q "Documentation%20Coverage" DOCS/_includes/header.html; then
+    # Create a temporary file with the corrected badge
+    TEMP_HEADER=$(mktemp)
+    # Simple approach: replace only the percentage and color parts that actually change
+    sed "s/Documentation%20Coverage-[0-9]*%25-[a-z]*/Documentation%20Coverage-${DOC_COVERAGE}%25-${DOC_COLOR}/g" DOCS/_includes/header.html > "$TEMP_HEADER"
+    mv "$TEMP_HEADER" DOCS/_includes/header.html
+    echo "✅ Updated documentation badge in Jekyll header"
+  else
+    echo "⚠️ No existing documentation badge found in Jekyll header"
+  fi
+fi
+
 # Update Jekyll documentation badge include
 JEKYLL_BADGE_DIR="DOCS/_includes"
 mkdir -p "$JEKYLL_BADGE_DIR"
@@ -236,6 +251,14 @@ elif [ -f "README.md" ]; then
   git add README.md
   BADGE_FILES_UPDATED=true
   echo "📝 Staged updated README.md"
+fi
+
+if [ -f "DOCS/_includes/header.html" ] && git diff --quiet DOCS/_includes/header.html; then
+  : # No changes to header.html
+elif [ -f "DOCS/_includes/header.html" ]; then
+  git add DOCS/_includes/header.html
+  BADGE_FILES_UPDATED=true
+  echo "📝 Staged updated Jekyll header"
 fi
 
 if [ -f "$JEKYLL_BADGE_DIR/documentation-coverage-badge.html" ]; then
