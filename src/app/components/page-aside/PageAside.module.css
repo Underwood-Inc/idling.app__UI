@@ -3,10 +3,10 @@
   top: 0;
   right: 2rem;
   width: calc(30vw - 0rem);
-  max-height: calc(100vh - 1rem);
+  max-height: 80vh;
   min-height: 32rem;
   z-index: var(--z-content);
-  height: 100%;
+  height: auto;
   overflow-y: auto;
 }
 

@@ -10,22 +10,23 @@ Welcome to the comprehensive documentation for **Idling.app** - a modern social 
 
 ## 🚀 Quick Start
 
-- **[Getting Started](./getting-started)** - Set up your development environment
+- **[Getting Started](./docs/getting-started/)** - Set up your development environment
 - **[Database Setup](./database/migrations)** - Migration system and database management
-- **[Rate Limiting](./rate-limiting/)** - Security and performance protection system
+- **[Rate Limiting](../src/lib/services/RateLimitService.md)** - Security and performance protection system
 - **[Deployment Guide](./deployment)** - Production deployment instructions
 
 ## 📖 Documentation Sections
 
 ### 🔌 API Documentation
 
-- **[Interactive Swagger UI](./api/swagger)** - Test and explore all API endpoints directly in your browser
-- **[API Overview](./api/)** - Introduction to the idling.app API structure
-- **[Authentication Guide](./getting-started#authentication)** - How to authenticate with the API
+- **[Interactive Swagger UI](../src/app/api/swagger.md)** - Test and explore all API endpoints directly in your browser
+- **[API Overview](../src/app/api/README.md)** - Introduction to the idling.app API structure
+- **[Authentication Guide](./docs/getting-started/#authentication)** - How to authenticate with the API
 
 ### 🧩 Components
 
-- **[Rich Input System](./components/rich-input-system/)** - Comprehensive documentation for the intelligent text editing component
+- **[Rich Input System](../src/components/rich-input-system/index.md)** - Comprehensive documentation for the intelligent text editing component
+- **[Component Library](../src/components/index.md)** - Complete UI component documentation and patterns
 
 ### 🗄️ Database & Migrations
 
@@ -41,11 +42,10 @@ Welcome to the comprehensive documentation for **Idling.app** - a modern social 
 
 ### 🛡️ Security & Rate Limiting
 
-- **[Rate Limiting System](./rate-limiting/)** - Comprehensive rate limiting and security documentation
-- **[System Overview](./rate-limiting/overview/)** - How the rate limiting system works
-- **[User Guide](./rate-limiting/user-guide/)** - Best practices for working with rate limits
-- **[Troubleshooting](./rate-limiting/troubleshooting/)** - Diagnosing and resolving rate limit issues
-- **[Admin Guide](./rate-limiting/admin-guide/)** - Administrative tools and procedures
+- **[Rate Limiting System](../src/lib/services/RateLimitService.md)** - Comprehensive rate limiting and security documentation
+- **[Security Architecture](./docs/architecture/security/)** - Overall security implementation and patterns
+- **[Admin Rate Limiting](../src/app/api/admin/README.md)** - Administrative rate limiting controls
+- **[API Rate Limits](../src/app/api/README.md#rate-limiting)** - API endpoint rate limiting details
 
 ### 🚀 Deployment & Operations
 
@@ -70,13 +70,13 @@ Welcome to the comprehensive documentation for **Idling.app** - a modern social 
 
 ### 📦 Components
 
-- **[Component Library](./components/)** - UI component documentation and patterns
+- **[Component Library](../src/components/)** - UI component documentation and patterns
 
 ### 📚 Libraries
 
-- **[Internal Libraries](./libraries/)** - Shared utilities and modules
-- **[Parsers](./libraries/parsers)** - Text parsing utilities
-- **[Logging System](./libraries/logging)** - Application logging and monitoring
+- **[Internal Libraries](../src/lib/)** - Shared utilities and modules
+- **[Services](../src/lib/services/)** - Core application services
+- **[Utilities](../src/lib/utils/)** - Helper functions and utilities
 
 ### 📋 Templates
 
@@ -126,14 +126,14 @@ This project follows strict development standards:
 
 ## 🔗 Quick Links
 
-| Resource              | Description                      | Link                                |
-| --------------------- | -------------------------------- | ----------------------------------- |
-| **Main README**       | Project overview and setup       | [View](./getting-started)           |
-| **API Documentation** | Interactive Swagger UI           | [View](./api/swagger)               |
-| **Migration Guide**   | Database migration system        | [View](./database/migrations)       |
-| **Rate Limiting**     | Security and performance system  | [View](./rate-limiting/)            |
-| **Smart Filters**     | Advanced filtering documentation | [View](./development/smart-filters) |
-| **Production Guide**  | Deployment and operations        | [View](./deployment/production)     |
+| Resource              | Description                      | Link                                            |
+| --------------------- | -------------------------------- | ----------------------------------------------- |
+| **Main README**       | Project overview and setup       | [View](./docs/getting-started/)                 |
+| **API Documentation** | Interactive Swagger UI           | [View](../src/app/api/swagger.md)               |
+| **Migration Guide**   | Database migration system        | [View](./database/migrations)                   |
+| **Rate Limiting**     | Security and performance system  | [View](../src/lib/services/RateLimitService.md) |
+| **Smart Filters**     | Advanced filtering documentation | [View](./development/smart-filters)             |
+| **Production Guide**  | Deployment and operations        | [View](./deployment/production)                 |
 
 ---
 

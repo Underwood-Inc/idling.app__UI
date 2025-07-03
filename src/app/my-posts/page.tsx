@@ -63,7 +63,10 @@ export default async function MyPostsPage() {
           <FadeIn>
             <Card width="full">
               <Suspense fallback={<RecentTagsLoader />}>
-                <RecentTags contextId={CONTEXT_IDS.MY_POSTS.toString()} />
+                <RecentTags
+                  contextId={CONTEXT_IDS.MY_POSTS.toString()}
+                  onlyMine
+                />
               </Suspense>
             </Card>
           </FadeIn>
