@@ -344,30 +344,88 @@ class DocumentationCoverageEnforcer:
         return f"{file_dir}/README.md"
 
     def _get_priority(self, file_info: FileInfo) -> str:
-        """Determine priority for missing documentation"""
-        # Handle proper pluralization for directory names
-        type_plural_mapping = {
-            "utility": "utilities",
-            "service": "services", 
-            "component": "components",
-            "hook": "hooks",
-            "api_route": "api",
-            "unknown": "misc"
-        }
-        
-        plural_type = type_plural_mapping.get(file_info.type, file_info.type + "s")
-        file_type_config = self.config["file_type_mapping"].get(plural_type)
-        
-        if file_type_config:
-            return file_type_config["priority"]
-            
-        # Determine priority based on file characteristics
-        if file_info.size_lines > 200:
+        """Determine priority level for documentation based on file characteristics"""
+        # High priority: Services, API routes, large files
+        if file_info.type in ["service", "api_route"] or file_info.size_lines > 300:
             return "high"
-        elif file_info.size_lines > 50:
+        
+        # Medium priority: Components, utilities with exports
+        if file_info.type in ["component", "utility"] and file_info.exports:
             return "medium"
-        else:
-            return "low"
+            
+        # Low priority: Everything else
+        return "low"
+
+    def _get_all_files_with_status(self) -> List[Dict]:
+        """Get all files with their documentation status for comprehensive reporting"""
+        all_files = []
+        
+        if not self.coverage_report:
+            return all_files
+        
+        # Get all code files
+        code_files = self._find_code_files()
+        existing_docs = self._find_existing_docs()
+        
+        # Create mapping of gaps for easy lookup
+        gaps_by_path = {gap.file_path: gap for gap in self.coverage_report.gaps}
+        
+        for file_info in code_files:
+            doc_name = file_info.name.lower()
+            
+            # Check if file has documentation
+            has_docs = False
+            doc_path = 'N/A'
+            
+            # Check in existing docs mapping
+            if doc_name in existing_docs:
+                has_docs = True
+                doc_path = existing_docs[doc_name]
+            else:
+                # Check for co-located documentation
+                file_dir = os.path.dirname(file_info.path)
+                doc_patterns = [
+                    "README.md",
+                    "readme.md", 
+                    "docs.md",
+                    "documentation.md",
+                    f"{file_info.name.lower()}.md",
+                    f"{file_info.name.lower()}-docs.md",
+                    f"{file_info.name.lower()}.docs.md"
+                ]
+                
+                for doc_pattern in doc_patterns:
+                    potential_doc_path = os.path.join(file_dir, doc_pattern)
+                    if os.path.exists(potential_doc_path) and self._has_meaningful_content(potential_doc_path):
+                        has_docs = True
+                        doc_path = potential_doc_path
+                        break
+            
+            # Determine status and priority
+            status = 'covered' if has_docs else 'missing'
+            priority = self._get_priority(file_info) if not has_docs else 'N/A'
+            
+            # Add to results
+            file_data = {
+                'file_path': file_info.path,
+                'type': file_info.type,
+                'lines': file_info.size_lines,
+                'status': status,
+                'doc_path': doc_path,
+                'priority': priority
+            }
+            
+            all_files.append(file_data)
+        
+        return all_files
+
+    def _get_file_lines(self, file_path: str) -> int:
+        """Get the number of lines in a file"""
+        try:
+            with open(file_path, 'r', encoding='utf-8') as f:
+                return len(f.readlines())
+        except:
+            return 0
 
     def check_coverage(self) -> CoverageReport:
         """Check documentation coverage and generate report"""
@@ -514,8 +572,63 @@ class DocumentationCoverageEnforcer:
         output.append(f"**Coverage:** {report.coverage_percentage:.1f}% ({report.documented_files}/{report.total_files} files)")
         output.append("")
         
+        # Add detailed coverage table
+        output.append("## 📊 Coverage Overview")
+        output.append("")
+        output.append("| File | Status | Type | Lines | Documentation | Priority |")
+        output.append("|------|--------|------|-------|---------------|----------|")
+        
+        # Get all files for comprehensive reporting
+        all_files = self._get_all_files_with_status()
+        
+        for file_info in sorted(all_files, key=lambda x: (x['status'], x['file_path'])):
+            status_icon = "✅" if file_info['status'] == 'covered' else "❌"
+            status_text = "Covered" if file_info['status'] == 'covered' else "Missing"
+            doc_path = file_info.get('doc_path', 'N/A')
+            priority = file_info.get('priority', 'N/A')
+            
+            # Truncate long file paths for better table display
+            display_path = file_info['file_path']
+            if len(display_path) > 40:
+                display_path = "..." + display_path[-37:]
+            
+            output.append(f"| `{display_path}` | {status_icon} {status_text} | {file_info['type']} | {file_info['lines']} | `{doc_path}` | {priority} |")
+        
+        output.append("")
+        
+        # Add summary statistics
+        covered_files = [f for f in all_files if f['status'] == 'covered']
+        uncovered_files = [f for f in all_files if f['status'] == 'missing']
+        
+        output.append("## 📈 Summary Statistics")
+        output.append("")
+        output.append(f"- **Total Files:** {len(all_files)}")
+        output.append(f"- **Covered Files:** {len(covered_files)}")
+        output.append(f"- **Uncovered Files:** {len(uncovered_files)}")
+        output.append(f"- **Coverage Percentage:** {report.coverage_percentage:.1f}%")
+        output.append("")
+        
+        # Add covered files section
+        if covered_files:
+            output.append("## ✅ Covered Files")
+            output.append("")
+            output.append("| File | Type | Documentation Path |")
+            output.append("|------|------|-------------------|")
+            
+            for file_info in sorted(covered_files, key=lambda x: x['file_path']):
+                display_path = file_info['file_path']
+                if len(display_path) > 50:
+                    display_path = "..." + display_path[-47:]
+                doc_path = file_info.get('doc_path', 'N/A')
+                if len(doc_path) > 50:
+                    doc_path = "..." + doc_path[-47:]
+                output.append(f"| `{display_path}` | {file_info['type']} | `{doc_path}` |")
+            
+            output.append("")
+        
+        # Add missing documentation section (existing logic)
         if report.gaps:
-            output.append("## Missing Documentation")
+            output.append("## ❌ Missing Documentation")
             output.append("")
             
             # Group by priority
@@ -524,11 +637,22 @@ class DocumentationCoverageEnforcer:
                 if priority_gaps:
                     output.append(f"### {priority.title()} Priority")
                     output.append("")
+                    
+                    # Table format for missing files
+                    output.append("| File | Type | Lines | Suggested Location | Reason |")
+                    output.append("|------|------|-------|-------------------|--------|")
+                    
                     for gap in priority_gaps:
-                        output.append(f"- **{gap.file_name}** (`{gap.file_path}`)")
-                        output.append(f"  - Suggested location: `{gap.suggested_doc_path}`")
-                        output.append(f"  - Type: {gap.file_type}")
-                        output.append("")
+                        display_path = gap.file_path
+                        if len(display_path) > 30:
+                            display_path = "..." + display_path[-27:]
+                        suggested_path = gap.suggested_doc_path
+                        if len(suggested_path) > 30:
+                            suggested_path = "..." + suggested_path[-27:]
+                        
+                        output.append(f"| `{display_path}` | {gap.file_type} | {self._get_file_lines(gap.file_path)} | `{suggested_path}` | {gap.reason} |")
+                    
+                    output.append("")
         
         return "\n".join(output)
 
