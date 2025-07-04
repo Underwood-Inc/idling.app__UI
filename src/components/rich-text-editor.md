@@ -9,7 +9,7 @@ import { RichTextEditor } from '@rich-text-editor';
 
 function MyForm() {
   const [content, setContent] = useState('');
-  
+
   return (
     <RichTextEditor
       value={content}
@@ -44,6 +44,7 @@ function MyForm() {
 ## 🎯 Features
 
 ### ✅ **100% Native Input Behavior**
+
 - All keyboard shortcuts work (Ctrl+A, Ctrl+Z, arrows, etc.)
 - Copy/paste functionality
 - Selection behavior identical to native inputs
@@ -51,12 +52,14 @@ function MyForm() {
 - Full accessibility support
 
 ### ✅ **Smart Pill Selection**
+
 - Clicking on any part of a pill selects the entire pill
 - Drag selection automatically expands to pill boundaries
 - Keyboard selection (Shift+arrows) respects pill boundaries
 - Pills are treated as atomic units
 
 ### ✅ **Rich Content Support**
+
 - **Hashtags** - `#tag` → styled pill
 - **Mentions** - `@[username|id|author]` → user pill
 - **URLs** - Auto-detection with configurable behavior
@@ -65,6 +68,7 @@ function MyForm() {
 - **Custom Content** - Pluggable parser system
 
 ### ✅ **Advanced Features**
+
 - Multi-line support with full textarea functionality
 - History system with undo/redo
 - Smart positioning and coordinate calculation
@@ -79,8 +83,10 @@ function MyForm() {
 import { RichTextEditor } from '@rich-text-editor';
 
 function BasicExample() {
-  const [value, setValue] = useState('Hello #world! Check out @[user|123|author]');
-  
+  const [value, setValue] = useState(
+    'Hello #world! Check out @[user|123|author]'
+  );
+
   return (
     <RichTextEditor
       value={value}
@@ -119,26 +125,20 @@ function AdvancedExample() {
       spellCheck: true
     }
   });
-  
+
   return (
     <div>
       <RichTextInput ref={editor.ref} {...editor} />
-      
+
       <div className="editor-controls">
         <button onClick={() => editor.insertText(' #trending')}>
           Add Hashtag
         </button>
-        <button onClick={() => editor.clear()}>
-          Clear
-        </button>
-        <button onClick={() => editor.undo()}>
-          Undo
-        </button>
-        <button onClick={() => editor.redo()}>
-          Redo
-        </button>
+        <button onClick={() => editor.clear()}>Clear</button>
+        <button onClick={() => editor.undo()}>Undo</button>
+        <button onClick={() => editor.redo()}>Redo</button>
       </div>
-      
+
       <div className="editor-info">
         <p>Empty: {editor.isEmpty ? 'Yes' : 'No'}</p>
         <p>Focused: {editor.isFocused ? 'Yes' : 'No'}</p>
@@ -157,10 +157,10 @@ import { RichTextInput, RichTextConfig } from '@rich-text-editor';
 
 function CoreExample() {
   const [value, setValue] = useState('');
-  
+
   const config: RichTextConfig = {
     multiline: true,
-    placeholder: "Enter rich content...",
+    placeholder: 'Enter rich content...',
     parsers: {
       hashtags: true,
       mentions: true,
@@ -184,7 +184,7 @@ function CoreExample() {
       }
     }
   };
-  
+
   return (
     <RichTextInput
       value={value}
@@ -215,7 +215,7 @@ const phoneParser = createCustomParser(
     const phoneRegex = /\b\d{3}-\d{3}-\d{4}\b/g;
     const tokens = [];
     let match;
-    
+
     while ((match = phoneRegex.exec(text)) !== null) {
       tokens.push({
         type: 'custom',
@@ -223,20 +223,20 @@ const phoneParser = createCustomParser(
         rawText: match[0],
         start: match.index,
         end: match.index + match[0].length,
-        metadata: { 
+        metadata: {
           customType: 'phone',
           phoneNumber: match[0]
         }
       });
     }
-    
+
     return tokens;
   }
 );
 
 function CustomParserExample() {
   const [value, setValue] = useState('Call me at 555-123-4567');
-  
+
   return (
     <RichTextInput
       value={value}
@@ -263,11 +263,11 @@ const customRenderer = createCustomRenderer(
   (token, index, state) => {
     if (token.type === 'hashtag') {
       return (
-        <span 
+        <span
           key={index}
           className="custom-hashtag"
-          style={{ 
-            backgroundColor: '#ff6b35', 
+          style={{
+            backgroundColor: '#ff6b35',
             color: 'white',
             padding: '2px 8px',
             borderRadius: '16px'
@@ -277,7 +277,7 @@ const customRenderer = createCustomRenderer(
         </span>
       );
     }
-    
+
     // Use default renderer for other types
     return null;
   }
@@ -332,7 +332,7 @@ interface UseRichTextEditorReturn {
   value: string;
   state: RichTextState | null;
   ref: React.RefObject<RichTextInputRef>;
-  
+
   // Methods
   setValue: (value: string) => void;
   insertText: (text: string) => void;
@@ -342,7 +342,7 @@ interface UseRichTextEditorReturn {
   undo: () => void;
   redo: () => void;
   selectAll: () => void;
-  
+
   // State
   isEmpty: boolean;
   isFocused: boolean;
@@ -355,7 +355,15 @@ interface UseRichTextEditorReturn {
 
 ```tsx
 interface RichTextToken {
-  type: 'text' | 'hashtag' | 'mention' | 'url' | 'emoji' | 'image' | 'markdown' | 'custom';
+  type:
+    | 'text'
+    | 'hashtag'
+    | 'mention'
+    | 'url'
+    | 'emoji'
+    | 'image'
+    | 'markdown'
+    | 'custom';
   content: string;
   rawText: string;
   start: number;
@@ -384,9 +392,9 @@ import { useForm } from 'react-hook-form';
 function FormExample() {
   const { register, handleSubmit, setValue, watch } = useForm();
   const content = watch('content', '');
-  
+
   return (
-    <form onSubmit={handleSubmit(data => console.log(data))}>
+    <form onSubmit={handleSubmit((data) => console.log(data))}>
       <label>Post Content</label>
       <RichTextEditor
         value={content}
@@ -396,10 +404,10 @@ function FormExample() {
         enableHashtags={true}
         enableUserMentions={true}
       />
-      
+
       {/* Hidden input for form submission */}
       <input type="hidden" {...register('content')} />
-      
+
       <button type="submit">Submit</button>
     </form>
   );
@@ -412,7 +420,7 @@ The editor uses CSS variables for easy theming:
 
 ```css
 .rich-input {
-  --border-color: #e1e5e9;
+  --border-primary: #e1e5e9;
   --focus-color: #007bff;
   --background-color: #ffffff;
   --cursor-color: #333333;
@@ -466,13 +474,8 @@ function AdvancedConfig() {
       tabSize: 4
     }
   });
-  
-  return (
-    <RichTextInput
-      engine={engine}
-      className="advanced-editor"
-    />
-  );
+
+  return <RichTextInput engine={engine} className="advanced-editor" />;
 }
 ```
 
@@ -481,21 +484,23 @@ function AdvancedConfig() {
 ### Common Issues
 
 1. **Import Errors**
+
    ```tsx
    // ❌ Wrong
    import { RichTextEditor } from 'rich-text-editor';
-   
+
    // ✅ Correct
    import { RichTextEditor } from '@rich-text-editor';
    ```
 
 2. **State Updates**
+
    ```tsx
    // ❌ Wrong - will cause infinite loops
    useEffect(() => {
      editor.setValue(externalValue);
    }, [editor]);
-   
+
    // ✅ Correct
    useEffect(() => {
      editor.setValue(externalValue);
@@ -503,10 +508,11 @@ function AdvancedConfig() {
    ```
 
 3. **Performance**
+
    ```tsx
    // ❌ Wrong - recreates config on every render
    const config = { multiline: true };
-   
+
    // ✅ Correct - stable reference
    const config = useMemo(() => ({ multiline: true }), []);
    ```
@@ -531,4 +537,4 @@ The rich text editor is designed to be completely modular and extensible. You ca
 
 ## 📄 License
 
-This rich text editor system is part of the idling.app project and follows the same licensing terms. 
+This rich text editor system is part of the idling.app project and follows the same licensing terms.

@@ -104,7 +104,7 @@
 /* Emoji Picker Styles */
 .emoji-picker {
   background: var(--bg-surface, #fff);
-  border: 1px solid var(--border-color, #e0e0e0);
+  border: 1px solid var(--border-primary, #e0e0e0);
   border-radius: 8px;
   padding: 12px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
@@ -135,7 +135,7 @@
   align-items: center;
   justify-content: center;
   text-align: center;
-  border: 2px solid var(--border-color, #e0e0e0);
+  border: 2px solid var(--border-primary, #e0e0e0);
   border-radius: 8px;
   background: var(--bg-surface, #fff);
   transition: all 0.2s ease;
@@ -257,7 +257,7 @@
 
 /* URL Embed Styles */
 .url-embed {
-  border: 1px solid var(--border-color, #e0e0e0);
+  border: 1px solid var(--border-primary, #e0e0e0);
   border-radius: 8px;
   padding: 12px;
   margin: 8px 0;
@@ -334,7 +334,7 @@
 @media (prefers-color-scheme: dark) {
   .emoji-picker {
     background: var(--bg-surface-dark, #2d3748);
-    border-color: var(--border-color-dark, #4a5568);
+    border-color: var(--border-primary-dark, #4a5568);
   }
 
   .emoji-button:hover {
@@ -357,7 +357,7 @@
 
   .url-embed {
     background-color: var(--bg-embed-dark, #2d3748);
-    border-color: var(--border-color-dark, #4a5568);
+    border-color: var(--border-primary-dark, #4a5568);
   }
 
   .url-embed:hover {

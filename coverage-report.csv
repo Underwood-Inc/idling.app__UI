@@ -1,0 +1,504 @@
+Documentation Coverage Report
+Generated,2025-07-04T08:02:57.853685
+Total Code Files,474
+Documented Files,15
+Adequately Documented,0
+Missing Documentation,446
+Inadequate Documentation,28
+Coverage Percentage,0.0%
+Quality Score,0.72/1.0
+
+Priority Breakdown
+Priority,Count,Description
+Critical,125,"Public APIs, complex services - immediate action required"
+High,115,"Core components, important utilities - action needed soon"
+Medium,115,"Supporting code, hooks - should be documented"
+Low,119,"Internal utilities, simple helpers - nice to have"
+
+File Type Breakdown
+File Type,Missing,Inadequate,Total Issues
+Service,24,0,24
+Utility,24,25,49
+Hook,33,0,33
+Api_Route,18,2,20
+Component,316,0,316
+Unknown,28,0,28
+Types,2,1,3
+Middleware,1,0,1
+
+Documentation Gaps Detail
+File Path,File Name,Status,Priority,Expected Doc Path,File Type,Estimated Effort,Issues Count,Primary Issues
+src/lib/services/RateLimitService.ts,RateLimitService.ts,Missing,Critical,index.md,Service,High,1,Documentation file does not exist
+src/lib/services/EnhancedQuotaService.ts,EnhancedQuotaService.ts,Missing,Critical,index.md,Service,High,1,Documentation file does not exist
+src/lib/utils/service-worker-cleanup.ts,service-worker-cleanup.ts,Inadequate,Critical,index.md,Utility,Medium,3,overview; usage; examples
+src/lib/utils/content-parsers.ts,content-parsers.ts,Inadequate,Critical,index.md,Utility,Medium,3,overview; usage; examples
+src/lib/utils/os-detection.ts,os-detection.ts,Inadequate,Critical,index.md,Utility,Medium,3,overview; usage; examples
+src/lib/utils/privacy.ts,privacy.ts,Inadequate,Medium,index.md,Utility,Medium,3,overview; usage; examples
+src/lib/utils/scroll-highlight-demo.ts,scroll-highlight-demo.ts,Inadequate,High,index.md,Utility,Medium,3,overview; usage; examples
+src/lib/utils/social-sharing.ts,social-sharing.ts,Inadequate,High,index.md,Utility,Medium,3,overview; usage; examples
+src/lib/utils/cache-manager.ts,cache-manager.ts,Inadequate,Critical,index.md,Utility,Medium,3,overview; usage; examples
+src/lib/utils/scroll-position.ts,scroll-position.ts,Inadequate,Critical,index.md,Utility,Medium,3,overview; usage; examples
+src/lib/utils/timeFormatting.ts,timeFormatting.ts,Inadequate,Medium,index.md,Utility,Medium,3,overview; usage; examples
+src/lib/utils/hard-reset-manager.ts,hard-reset-manager.ts,Inadequate,Critical,index.md,Utility,Medium,3,overview; usage; examples
+src/lib/utils/requestIdentifier.ts,requestIdentifier.ts,Inadequate,High,index.md,Utility,Medium,3,overview; usage; examples
+src/lib/utils/scroll-highlight.ts,scroll-highlight.ts,Inadequate,High,index.md,Utility,Medium,3,overview; usage; examples
+src/lib/utils/string/tag-regex.ts,tag-regex.ts,Missing,High,index.md,Utility,Medium,1,Documentation file does not exist
+src/lib/utils/string/tag-utils.ts,tag-utils.ts,Missing,Medium,index.md,Utility,Low,1,Documentation file does not exist
+src/lib/utils/parsers/emoji-parser.ts,emoji-parser.ts,Missing,Critical,index.md,Utility,High,1,Documentation file does not exist
+src/lib/utils/parsers/image-parser.ts,image-parser.ts,Missing,Critical,index.md,Utility,High,1,Documentation file does not exist
+src/lib/utils/parsers/markdown-parser.ts,markdown-parser.ts,Missing,High,index.md,Utility,Medium,1,Documentation file does not exist
+src/lib/utils/parsers/rich-text-parser.ts,rich-text-parser.ts,Missing,Critical,index.md,Utility,High,1,Documentation file does not exist
+src/lib/hooks/useNavigationLoader.ts,useNavigationLoader.ts,Missing,Medium,index.md,Hook,Low,1,Documentation file does not exist
+src/app/api/admin/quotas/global/route.ts,route.ts,Missing,High,index.md,Api_Route,Medium,1,Documentation file does not exist
+src/app/api/admin/quotas/global/[id]/route.ts,route.ts,Missing,High,index.md,Api_Route,Medium,1,Documentation file does not exist
+src/app/api/admin/emojis/route.ts,route.ts,Missing,Critical,index.md,Api_Route,High,1,Documentation file does not exist
+src/app/api/admin/users/route.ts,route.ts,Missing,High,index.md,Api_Route,Medium,1,Documentation file does not exist
+src/app/api/admin/users/[id]/quotas/route.ts,route.ts,Missing,High,index.md,Api_Route,Medium,1,Documentation file does not exist
+src/app/api/admin/users/[id]/quotas/reset/route.ts,route.ts,Missing,High,index.md,Api_Route,Medium,1,Documentation file does not exist
+src/app/api/admin/users/[id]/timeout/route.ts,route.ts,Missing,High,index.md,Api_Route,Medium,1,Documentation file does not exist
+src/app/api/admin/users/[id]/assign-subscription/route.ts,route.ts,Missing,High,index.md,Api_Route,Medium,1,Documentation file does not exist
+src/app/api/admin/alerts/[id]/route.ts,route.ts,Missing,High,index.md,Api_Route,Medium,1,Documentation file does not exist
+src/app/api/emojis/route.ts,route.ts,Inadequate,High,index.md,Api_Route,Medium,4,overview; usage; api_reference; +1 more
+src/app/components/ErrorBoundary.tsx,ErrorBoundary.tsx,Missing,Low,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/fade-in/FadeIn.test.tsx,FadeIn.test.tsx,Missing,Medium,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/fade-in/FadeIn.tsx,FadeIn.tsx,Missing,Medium,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/user-profile/UserProfile.tsx,UserProfile.tsx,Missing,Critical,index.md,Component,High,1,Documentation file does not exist
+src/app/components/page-header/PageHeader.tsx,PageHeader.tsx,Missing,Low,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/page-header/PageHeader.test.tsx,PageHeader.test.tsx,Missing,Low,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/post/CreatePostForm.tsx,CreatePostForm.tsx,Missing,Medium,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/post/PostItem.tsx,PostItem.tsx,Missing,Low,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/post/PostList.tsx,PostList.tsx,Missing,Low,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/cache-status/CacheStatus.test.tsx,CacheStatus.test.tsx,Missing,High,index.md,Component,Medium,1,Documentation file does not exist
+src/app/components/cache-status/SmartCacheStatus.tsx,SmartCacheStatus.tsx,Missing,Critical,index.md,Component,High,1,Documentation file does not exist
+src/app/components/cache-status/NoCacheStatus.tsx,NoCacheStatus.tsx,Missing,Critical,index.md,Component,High,1,Documentation file does not exist
+src/app/components/cache-status/CacheStatus.tsx,CacheStatus.tsx,Missing,Critical,index.md,Component,High,1,Documentation file does not exist
+src/app/components/gitlab-link/GitLabLink.test.tsx,GitLabLink.test.tsx,Missing,Low,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/gitlab-link/GitLabLink.tsx,GitLabLink.tsx,Missing,Low,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/floating-add-post/FloatingAddPost.tsx,FloatingAddPost.tsx,Missing,Medium,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/author/Author.tsx,Author.tsx,Missing,Critical,index.md,Component,High,1,Documentation file does not exist
+src/app/components/empty/Empty.tsx,Empty.tsx,Missing,Low,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/empty/Empty.test.tsx,Empty.test.tsx,Missing,Low,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/page-aside/PageAside.tsx,PageAside.tsx,Missing,Low,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/page-aside/PageAside.test.tsx,PageAside.test.tsx,Missing,Medium,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/message-ticker/MessageTicker.tsx,MessageTicker.tsx,Missing,Medium,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/message-ticker/MessageTickerWithInterval.tsx,MessageTickerWithInterval.tsx,Missing,Low,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/auth-buttons/AuthButtons.tsx,AuthButtons.tsx,Missing,Low,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/auth-buttons/ClientAuthButtons.tsx,ClientAuthButtons.tsx,Missing,Medium,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/auth-buttons/SessionRefreshHandler.tsx,SessionRefreshHandler.tsx,Missing,High,index.md,Component,Medium,1,Documentation file does not exist
+src/app/components/auth-buttons/AuthButtons.test.tsx,AuthButtons.test.tsx,Missing,Medium,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/discord-link/DiscordLink.tsx,DiscordLink.tsx,Missing,Low,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/discord-link/DiscordLink.test.tsx,DiscordLink.test.tsx,Missing,Medium,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/discord-link/Discord.test.tsx,Discord.test.tsx,Missing,Low,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/infinite-scroll-trigger/InfiniteScrollTrigger.tsx,InfiniteScrollTrigger.tsx,Missing,Medium,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/submission-forms/edit-submission-form/EditSubmissionForm.tsx,EditSubmissionForm.tsx,Missing,Low,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/submission-forms/add-submission-form/AddSubmissionForm.tsx,AddSubmissionForm.tsx,Missing,High,index.md,Component,Medium,1,Documentation file does not exist
+src/app/components/submission-forms/add-submission-form/AddSubmissionForm.test.tsx,AddSubmissionForm.test.tsx,Missing,High,index.md,Component,Medium,1,Documentation file does not exist
+src/app/components/submission-forms/shared-submission-form/SharedSubmissionForm.tsx,SharedSubmissionForm.tsx,Missing,High,index.md,Component,Medium,1,Documentation file does not exist
+src/app/components/submission-forms/shared-submission-form/components/RichInputAdapter.tsx,RichInputAdapter.tsx,Missing,Critical,index.md,Component,High,1,Documentation file does not exist
+src/app/components/submission-forms/shared-submission-form/components/FloatingToolbar.tsx,FloatingToolbar.tsx,Missing,Critical,index.md,Component,High,1,Documentation file does not exist
+src/app/components/submission-forms/delete-submission-form/DeleteSubmissionForm.tsx,DeleteSubmissionForm.tsx,Missing,High,index.md,Component,Medium,1,Documentation file does not exist
+src/app/components/submission-forms/delete-submission-form/DeleteSubmissionForm.test.tsx,DeleteSubmissionForm.test.tsx,Missing,Medium,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/pagination/PageSizeSelector.tsx,PageSizeSelector.tsx,Missing,Low,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/pagination/StickyPagination.tsx,StickyPagination.tsx,Missing,Medium,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/pagination/Pagination.test.tsx,Pagination.test.tsx,Missing,High,index.md,Component,Medium,1,Documentation file does not exist
+src/app/components/pagination/PageSizeSelector.test.tsx,PageSizeSelector.test.tsx,Missing,Medium,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/pagination/Pagination.tsx,Pagination.tsx,Missing,Medium,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/filter-bar/FilterBar.tsx,FilterBar.tsx,Missing,Critical,index.md,Component,High,1,Documentation file does not exist
+src/app/components/filter-bar/FilterBar.test.tsx,FilterBar.test.tsx,Missing,Critical,index.md,Component,High,1,Documentation file does not exist
+src/app/components/filter-bar/CustomFilterInput.test.tsx,CustomFilterInput.test.tsx,Missing,Critical,index.md,Component,High,1,Documentation file does not exist
+src/app/components/filter-bar/CustomFilterInput.tsx,CustomFilterInput.tsx,Missing,Critical,index.md,Component,High,1,Documentation file does not exist
+src/app/components/filter-bar/FilterLabel.test.tsx,FilterLabel.test.tsx,Missing,Critical,index.md,Component,High,1,Documentation file does not exist
+src/app/components/filter-bar/FilterLabel.tsx,FilterLabel.tsx,Missing,Critical,index.md,Component,High,1,Documentation file does not exist
+src/app/components/timeout-banner/TimeoutBanner.tsx,TimeoutBanner.tsx,Missing,Medium,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/docs-link/DocsLink.tsx,DocsLink.tsx,Missing,Low,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/docs-link/DocsLink.test.tsx,DocsLink.test.tsx,Missing,Low,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/docs-link/Docs.test.tsx,Docs.test.tsx,Missing,Low,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/nav/NavPaths.test.tsx,NavPaths.test.tsx,Missing,High,index.md,Component,Medium,1,Documentation file does not exist
+src/app/components/nav/NavPaths.tsx,NavPaths.tsx,Missing,Medium,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/nav/Nav.tsx,Nav.tsx,Missing,Low,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/nav/NavAuth.tsx,NavAuth.tsx,Missing,Low,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/nav/Nav.test.tsx,Nav.test.tsx,Missing,Medium,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/nav/NavUserProfile.tsx,NavUserProfile.tsx,Missing,Low,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/loader/Loader.test.tsx,Loader.test.tsx,Missing,Low,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/loader/Loader.tsx,Loader.tsx,Missing,Low,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/vote-buttons/VoteButtons.tsx,VoteButtons.tsx,Missing,Medium,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/pwa-install/PWAInstallPrompt.tsx,PWAInstallPrompt.tsx,Missing,High,index.md,Component,Medium,1,Documentation file does not exist
+src/app/components/submissions-list/SubmissionItem.tsx,SubmissionItem.tsx,Missing,Critical,index.md,Component,High,1,Documentation file does not exist
+src/app/components/submissions-list/StickyPostsControls.tsx,StickyPostsControls.tsx,Missing,High,index.md,Component,Medium,1,Documentation file does not exist
+src/app/components/submissions-list/SubmissionsList.test.tsx,SubmissionsList.test.tsx,Missing,High,index.md,Component,Medium,1,Documentation file does not exist
+src/app/components/submissions-list/SubmissionsList.tsx,SubmissionsList.tsx,Missing,Critical,index.md,Component,High,1,Documentation file does not exist
+src/app/components/submissions-list/SubmissionThread.tsx,SubmissionThread.tsx,Missing,Medium,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/submissions-list/PostsManager.tsx,PostsManager.tsx,Missing,Critical,index.md,Component,High,1,Documentation file does not exist
+src/app/components/submissions-list/components/SearchStatus.tsx,SearchStatus.tsx,Missing,Low,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/submissions-list/components/SmartFilterInput.tsx,SmartFilterInput.tsx,Missing,Critical,index.md,Component,High,1,Documentation file does not exist
+src/app/components/submissions-list/components/TextSearchInput.tsx,TextSearchInput.tsx,Missing,High,index.md,Component,Medium,1,Documentation file does not exist
+src/app/components/submissions-list/components/SearchInputContainer.tsx,SearchInputContainer.tsx,Missing,High,index.md,Component,Medium,1,Documentation file does not exist
+src/app/components/submissions-list/components/PostsManagerFilters.tsx,PostsManagerFilters.tsx,Missing,Medium,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/submissions-list/components/PostsManagerControls.tsx,PostsManagerControls.tsx,Missing,Medium,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/submissions-list/components/PostsManagerPagination.tsx,PostsManagerPagination.tsx,Missing,Medium,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/submissions-list/components/SmartTextSearchInput.tsx,SmartTextSearchInput.tsx,Missing,Critical,index.md,Component,High,1,Documentation file does not exist
+src/app/components/submissions-list/components/TextSearchInput.test.tsx,TextSearchInput.test.tsx,Missing,Low,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/card/Card.tsx,Card.tsx,Missing,Low,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/card/Card.test.tsx,Card.test.tsx,Missing,Low,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/avatar/Avatar.test.tsx,Avatar.test.tsx,Missing,Medium,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/avatar/Avatar.tsx,Avatar.tsx,Missing,High,index.md,Component,Medium,1,Documentation file does not exist
+src/app/components/ui/URLPill.tsx,URLPill.tsx,Missing,Critical,index.md,Component,High,1,Documentation file does not exist
+src/app/components/ui/FooterBadge.tsx,FooterBadge.tsx,Missing,Medium,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/ui/ImageEmbed.tsx,ImageEmbed.tsx,Missing,High,index.md,Component,Medium,1,Documentation file does not exist
+src/app/components/ui/YouTubeModal.tsx,YouTubeModal.tsx,Missing,Medium,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/ui/BackButton.tsx,BackButton.tsx,Missing,Medium,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/ui/GrammarlyCleanup.tsx,GrammarlyCleanup.tsx,Missing,Medium,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/ui/LoadingButton.tsx,LoadingButton.tsx,Missing,High,index.md,Component,Medium,1,Documentation file does not exist
+src/app/components/ui/InlineSuggestionInput.tsx,InlineSuggestionInput.tsx,Missing,Critical,index.md,Component,High,1,Documentation file does not exist
+src/app/components/ui/SmartPillInput.test.tsx,SmartPillInput.test.tsx,Missing,High,index.md,Component,Medium,1,Documentation file does not exist
+src/app/components/ui/OverlayRenderer.tsx,OverlayRenderer.tsx,Missing,High,index.md,Component,Medium,1,Documentation file does not exist
+src/app/components/ui/TimestampWithTooltip.tsx,TimestampWithTooltip.tsx,Missing,Critical,index.md,Component,High,1,Documentation file does not exist
+src/app/components/ui/SmartPillInput.tsx,SmartPillInput.tsx,Missing,Critical,index.md,Component,High,1,Documentation file does not exist
+src/app/components/ui/NavigationLoadingBar.tsx,NavigationLoadingBar.tsx,Missing,Medium,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/ui/SmartInput.tsx,SmartInput.tsx,Missing,Critical,index.md,Component,High,1,Documentation file does not exist
+src/app/components/ui/PostModal.tsx,PostModal.tsx,Missing,Medium,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/ui/ContentWithPills.tsx,ContentWithPills.tsx,Missing,Critical,index.md,Component,High,1,Documentation file does not exist
+src/app/components/ui/RefreshButton.tsx,RefreshButton.tsx,Missing,Medium,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/ui/PillInput.tsx,PillInput.tsx,Missing,High,index.md,Component,Medium,1,Documentation file does not exist
+src/app/components/ui/ContentWithPills.test.tsx,ContentWithPills.test.tsx,Missing,Critical,index.md,Component,High,1,Documentation file does not exist
+src/app/components/ui/InstantLink.tsx,InstantLink.tsx,Missing,High,index.md,Component,Medium,1,Documentation file does not exist
+src/app/components/ui/EmojiPicker.tsx,EmojiPicker.tsx,Missing,Critical,index.md,Component,High,1,Documentation file does not exist
+src/app/components/ui/YouTubeEmbed.tsx,YouTubeEmbed.tsx,Missing,Medium,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/avatars-background/AvatarsBackground.test.tsx,AvatarsBackground.test.tsx,Missing,Medium,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/avatars-background/AvatarsBackground.tsx,AvatarsBackground.tsx,Missing,Low,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/navbar/NavbarContent.tsx,NavbarContent.tsx,Missing,Low,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/navbar/NavbarBody.test.tsx,NavbarBody.test.tsx,Missing,Low,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/navbar/NavbarItem.tsx,NavbarItem.tsx,Missing,Low,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/navbar/NavbarBrand.test.tsx,NavbarBrand.test.tsx,Missing,Low,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/navbar/NavbarBrand.tsx,NavbarBrand.tsx,Missing,Medium,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/navbar/Navbar.test.tsx,Navbar.test.tsx,Missing,Low,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/navbar/NavbarBody.tsx,NavbarBody.tsx,Missing,Low,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/navbar/NavbarContent.test.tsx,NavbarContent.test.tsx,Missing,Medium,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/navbar/NavbarItem.test.tsx,NavbarItem.test.tsx,Missing,Low,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/navbar/Navbar.tsx,Navbar.tsx,Missing,Low,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/twitch-chat/TwitchChat.tsx,TwitchChat.tsx,Missing,Medium,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/rich-text/RichTextRenderer.tsx,RichTextRenderer.tsx,Missing,High,index.md,Component,Medium,1,Documentation file does not exist
+src/app/components/tooltip/InteractiveTooltip.tsx,InteractiveTooltip.tsx,Missing,Critical,index.md,Component,High,1,Documentation file does not exist
+src/app/components/tooltip/LinkTooltip.tsx,LinkTooltip.tsx,Missing,High,index.md,Component,Medium,1,Documentation file does not exist
+src/app/components/tooltip/TooltipContent.tsx,TooltipContent.tsx,Missing,High,index.md,Component,Medium,1,Documentation file does not exist
+src/app/components/tooltip/TooltipModal.tsx,TooltipModal.tsx,Missing,Medium,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/tooltip/MentionTooltip.tsx,MentionTooltip.tsx,Missing,Medium,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/tooltip/WebPreviewPortal.tsx,WebPreviewPortal.tsx,Missing,Medium,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/tooltip/InfoTooltip.tsx,InfoTooltip.tsx,Missing,High,index.md,Component,Medium,1,Documentation file does not exist
+src/app/components/app-version/AppVersion.test.tsx,AppVersion.test.tsx,Missing,Low,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/app-version/AppVersion.tsx,AppVersion.tsx,Missing,Low,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/fancy-border/FancyBorder.tsx,FancyBorder.tsx,Missing,Low,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/fancy-border/FancyBorder.test.tsx,FancyBorder.test.tsx,Missing,Low,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/page-container/PageContainer.test.tsx,PageContainer.test.tsx,Missing,Medium,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/page-container/PageContainer.tsx,PageContainer.tsx,Missing,Low,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/game/GameWrapper.tsx,GameWrapper.tsx,Missing,Low,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/game/GameWrapper.test.tsx,GameWrapper.test.tsx,Missing,Low,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/spacing-theme-toggle/SpacingThemeToggle.tsx,SpacingThemeToggle.tsx,Missing,Low,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/service-worker/HardResetManager.tsx,HardResetManager.tsx,Missing,Medium,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/service-worker/ServiceWorkerRegistration.tsx,ServiceWorkerRegistration.tsx,Missing,High,index.md,Component,Medium,1,Documentation file does not exist
+src/app/components/error-boundary/NotFoundErrorBoundary.tsx,NotFoundErrorBoundary.tsx,Missing,Low,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/coin/Coin.tsx,Coin.tsx,Missing,Medium,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/coin/Coin.test.tsx,Coin.test.tsx,Missing,Low,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/footer/Footer.tsx,Footer.tsx,Missing,Low,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/footer/Footer.test.tsx,Footer.test.tsx,Missing,Low,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/tag-link/TagLink.test.tsx,TagLink.test.tsx,Missing,Medium,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/tag-link/TagLink.tsx,TagLink.tsx,Missing,High,index.md,Component,Medium,1,Documentation file does not exist
+src/app/components/badge/Badge.test.tsx,Badge.test.tsx,Missing,Medium,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/badge/Badge.tsx,Badge.tsx,Missing,Low,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/threaded/Threaded.tsx,Threaded.tsx,Missing,Low,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/thread/Thread.tsx,Thread.tsx,Missing,Critical,index.md,Component,High,1,Documentation file does not exist
+src/app/components/thread/ThreadTags.tsx,ThreadTags.tsx,Missing,Medium,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/thread/ThreadBreadcrumb.tsx,ThreadBreadcrumb.tsx,Missing,Medium,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/thread/ParentPostLink.tsx,ParentPostLink.tsx,Missing,Medium,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/thread/ReplyForm.tsx,ReplyForm.tsx,Missing,Low,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/thread/CollapsibleReplyForm.tsx,CollapsibleReplyForm.tsx,Missing,Medium,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/font-picker/FontPicker.tsx,FontPicker.tsx,Missing,High,index.md,Component,Medium,1,Documentation file does not exist
+src/app/components/dev-tools/HardResetPanel.tsx,HardResetPanel.tsx,Missing,High,index.md,Component,Medium,1,Documentation file does not exist
+src/app/components/dev-tools/PWATestPanel.tsx,PWATestPanel.tsx,Missing,Medium,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/dev-tools/DevSkeletonToggle.tsx,DevSkeletonToggle.tsx,Missing,High,index.md,Component,Medium,1,Documentation file does not exist
+src/app/components/auth-avatar/AuthAvatarServer.tsx,AuthAvatarServer.tsx,Missing,Low,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/auth-avatar/AuthAvatar.tsx,AuthAvatar.tsx,Missing,Medium,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/auth-avatar/AuthAvatar.test.tsx,AuthAvatar.test.tsx,Missing,Medium,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/header/Header.tsx,Header.tsx,Missing,Low,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/header/Header.test.tsx,Header.test.tsx,Missing,Low,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/about/About.test.tsx,About.test.tsx,Missing,Low,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/about/About.tsx,About.tsx,Missing,Medium,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/skeleton/SmartSkeletonLoader.tsx,SmartSkeletonLoader.tsx,Missing,Critical,index.md,Component,High,1,Documentation file does not exist
+src/app/components/skeleton/useSmartPostsSkeleton.tsx,useSmartPostsSkeleton.tsx,Missing,Critical,index.md,Component,High,1,Documentation file does not exist
+src/app/components/skeleton/SimpleSkeletonWrapper.tsx,SimpleSkeletonWrapper.tsx,Missing,Medium,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/skeleton/IntelligentSkeletonWrapper.tsx,IntelligentSkeletonWrapper.tsx,Missing,Critical,index.md,Component,High,1,Documentation file does not exist
+src/app/components/skeleton/SkeletonLoader.tsx,SkeletonLoader.tsx,Missing,Critical,index.md,Component,High,1,Documentation file does not exist
+src/app/components/skeleton/SkeletonExamples.tsx,SkeletonExamples.tsx,Missing,Critical,index.md,Component,High,1,Documentation file does not exist
+src/app/components/banner-system/SimpleBannerSystem.tsx,SimpleBannerSystem.tsx,Missing,Critical,index.md,Component,High,1,Documentation file does not exist
+src/app/components/comment/CommentForm.tsx,CommentForm.tsx,Missing,Low,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/comment/CommentItem.tsx,CommentItem.tsx,Missing,Low,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/comment/CommentList.tsx,CommentList.tsx,Missing,Low,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/galaxy-link/GalaxyLink.tsx,GalaxyLink.tsx,Missing,Low,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/page-content/PageContent.test.tsx,PageContent.test.tsx,Missing,Low,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/page-content/PageContent.tsx,PageContent.tsx,Missing,Low,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/discord-embed/DiscordEmbed.test.tsx,DiscordEmbed.test.tsx,Missing,Low,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/discord-embed/DiscordEmbed.tsx,DiscordEmbed.tsx,Missing,Low,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/recent-tags/RecentTags.tsx,RecentTags.tsx,Missing,Low,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/recent-tags/RecentTags.test.tsx,RecentTags.test.tsx,Missing,Critical,index.md,Component,High,1,Documentation file does not exist
+src/app/components/recent-tags/RecentTagsClient.tsx,RecentTagsClient.tsx,Missing,Critical,index.md,Component,High,1,Documentation file does not exist
+src/app/components/footer-nav/FooterNav.test.tsx,FooterNav.test.tsx,Missing,Low,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/footer-nav/FooterNav.tsx,FooterNav.tsx,Missing,Low,index.md,Component,Low,1,Documentation file does not exist
+src/app/admin/components/EmojiApprovalPanel.tsx,EmojiApprovalPanel.tsx,Missing,Critical,index.md,Component,High,1,Documentation file does not exist
+src/app/admin/components/SubscriptionManagementPanel.tsx,SubscriptionManagementPanel.tsx,Missing,Low,index.md,Component,Low,1,Documentation file does not exist
+src/app/admin/components/AdminSubmissionItem.tsx,AdminSubmissionItem.tsx,Missing,High,index.md,Component,Medium,1,Documentation file does not exist
+src/app/admin/components/AlertStatusTooltip.tsx,AlertStatusTooltip.tsx,Missing,High,index.md,Component,Medium,1,Documentation file does not exist
+src/app/admin/components/AdminPostsList.tsx,AdminPostsList.tsx,Missing,Low,index.md,Component,Low,1,Documentation file does not exist
+src/app/admin/components/UserManagementPanel.tsx,UserManagementPanel.tsx,Missing,Low,index.md,Component,Low,1,Documentation file does not exist
+src/app/admin/components/GlobalGuestQuotaPanel.tsx,GlobalGuestQuotaPanel.tsx,Missing,Critical,index.md,Component,High,1,Documentation file does not exist
+src/app/admin/components/CustomAlertsPanel.tsx,CustomAlertsPanel.tsx,Missing,Critical,index.md,Component,High,1,Documentation file does not exist
+src/app/admin/components/AdminUserTooltip.tsx,AdminUserTooltip.tsx,Missing,High,index.md,Component,Medium,1,Documentation file does not exist
+src/app/admin/components/UserManagementPanel/HeaderSection.tsx,HeaderSection.tsx,Missing,Medium,index.md,Component,Low,1,Documentation file does not exist
+src/app/admin/components/UserManagementPanel/FilterPanel.tsx,FilterPanel.tsx,Missing,High,index.md,Component,Medium,1,Documentation file does not exist
+src/app/admin/components/UserManagementPanel/utils.tsx,utils.tsx,Missing,High,index.md,Component,Medium,1,Documentation file does not exist
+src/app/admin/components/UserManagementPanel/UserManagementPanel.tsx,UserManagementPanel.tsx,Missing,Critical,index.md,Component,High,1,Documentation file does not exist
+src/app/admin/components/UserManagementPanel/components.tsx,components.tsx,Missing,Critical,index.md,Component,High,1,Documentation file does not exist
+src/app/admin/components/UserManagementPanel/PaginationSection.tsx,PaginationSection.tsx,Missing,Medium,index.md,Component,Low,1,Documentation file does not exist
+src/app/admin/components/UserManagementPanel/QuotaManagement.tsx,QuotaManagement.tsx,Missing,Critical,index.md,Component,High,1,Documentation file does not exist
+src/app/admin/components/UserManagementPanel/UserTable.tsx,UserTable.tsx,Missing,High,index.md,Component,Medium,1,Documentation file does not exist
+src/app/admin/components/modals/TimeoutModal.tsx,TimeoutModal.tsx,Missing,Critical,index.md,Component,High,1,Documentation file does not exist
+src/app/admin/components/modals/AssignSubscriptionModal.tsx,AssignSubscriptionModal.tsx,Missing,Critical,index.md,Component,High,1,Documentation file does not exist
+src/app/admin/components/modals/UserDetailsModal.tsx,UserDetailsModal.tsx,Missing,Critical,index.md,Component,High,1,Documentation file does not exist
+src/app/admin/components/modals/AssignRoleModal.tsx,AssignRoleModal.tsx,Missing,High,index.md,Component,Medium,1,Documentation file does not exist
+src/app/admin/components/modals/ExportModal.tsx,ExportModal.tsx,Missing,Critical,index.md,Component,High,1,Documentation file does not exist
+src/app/card-generator/components/MysticalLoader.tsx,MysticalLoader.tsx,Missing,Low,index.md,Component,Low,1,Documentation file does not exist
+src/app/card-generator/components/WelcomeInterface.tsx,WelcomeInterface.tsx,Missing,Medium,index.md,Component,Low,1,Documentation file does not exist
+src/app/card-generator/components/QuotaDisplay.tsx,QuotaDisplay.tsx,Missing,Medium,index.md,Component,Low,1,Documentation file does not exist
+src/app/card-generator/components/AdvancedControls.tsx,AdvancedControls.tsx,Missing,High,index.md,Component,Medium,1,Documentation file does not exist
+src/app/card-generator/components/AspectRatioSelector.tsx,AspectRatioSelector.tsx,Missing,Medium,index.md,Component,Low,1,Documentation file does not exist
+src/app/card-generator/components/GenerationForm.tsx,GenerationForm.tsx,Missing,Critical,index.md,Component,High,1,Documentation file does not exist
+src/app/card-generator/components/GenerationDisplay.tsx,GenerationDisplay.tsx,Missing,Low,index.md,Component,Low,1,Documentation file does not exist
+src/app/card-generator/components/RegenerationDialog.tsx,RegenerationDialog.tsx,Missing,Medium,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/submission-forms/shared-submission-form/components/RichInputAdapter.tsx,RichInputAdapter.tsx,Missing,Critical,index.md,Component,High,1,Documentation file does not exist
+src/app/components/submission-forms/shared-submission-form/components/FloatingToolbar.tsx,FloatingToolbar.tsx,Missing,Critical,index.md,Component,High,1,Documentation file does not exist
+src/app/components/submissions-list/components/SearchStatus.tsx,SearchStatus.tsx,Missing,Low,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/submissions-list/components/SmartFilterInput.tsx,SmartFilterInput.tsx,Missing,Critical,index.md,Component,High,1,Documentation file does not exist
+src/app/components/submissions-list/components/TextSearchInput.tsx,TextSearchInput.tsx,Missing,High,index.md,Component,Medium,1,Documentation file does not exist
+src/app/components/submissions-list/components/SearchInputContainer.tsx,SearchInputContainer.tsx,Missing,High,index.md,Component,Medium,1,Documentation file does not exist
+src/app/components/submissions-list/components/PostsManagerFilters.tsx,PostsManagerFilters.tsx,Missing,Medium,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/submissions-list/components/PostsManagerControls.tsx,PostsManagerControls.tsx,Missing,Medium,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/submissions-list/components/PostsManagerPagination.tsx,PostsManagerPagination.tsx,Missing,Medium,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/submissions-list/components/SmartTextSearchInput.tsx,SmartTextSearchInput.tsx,Missing,Critical,index.md,Component,High,1,Documentation file does not exist
+src/app/components/submissions-list/components/TextSearchInput.test.tsx,TextSearchInput.test.tsx,Missing,Low,index.md,Component,Low,1,Documentation file does not exist
+src/app/card-generator/page.tsx,page.tsx,Missing,High,index.md,Unknown,Medium,1,Documentation file does not exist
+src/app/profile/[username]/page.tsx,page.tsx,Missing,Critical,index.md,Unknown,High,1,Documentation file does not exist
+src/app/t/[submissionId]/page.tsx,page.tsx,Missing,High,index.md,Unknown,Medium,1,Documentation file does not exist
+src/app/admin/components/EmojiApprovalPanel.tsx,EmojiApprovalPanel.tsx,Missing,Critical,index.md,Component,High,1,Documentation file does not exist
+src/app/admin/components/SubscriptionManagementPanel.tsx,SubscriptionManagementPanel.tsx,Missing,Low,index.md,Component,Low,1,Documentation file does not exist
+src/app/admin/components/AdminSubmissionItem.tsx,AdminSubmissionItem.tsx,Missing,High,index.md,Component,Medium,1,Documentation file does not exist
+src/app/admin/components/AlertStatusTooltip.tsx,AlertStatusTooltip.tsx,Missing,High,index.md,Component,Medium,1,Documentation file does not exist
+src/app/admin/components/AdminPostsList.tsx,AdminPostsList.tsx,Missing,Low,index.md,Component,Low,1,Documentation file does not exist
+src/app/admin/components/UserManagementPanel.tsx,UserManagementPanel.tsx,Missing,Low,index.md,Component,Low,1,Documentation file does not exist
+src/app/admin/components/GlobalGuestQuotaPanel.tsx,GlobalGuestQuotaPanel.tsx,Missing,Critical,index.md,Component,High,1,Documentation file does not exist
+src/app/admin/components/CustomAlertsPanel.tsx,CustomAlertsPanel.tsx,Missing,Critical,index.md,Component,High,1,Documentation file does not exist
+src/app/admin/components/AdminUserTooltip.tsx,AdminUserTooltip.tsx,Missing,High,index.md,Component,Medium,1,Documentation file does not exist
+src/app/admin/components/UserManagementPanel/HeaderSection.tsx,HeaderSection.tsx,Missing,Medium,index.md,Component,Low,1,Documentation file does not exist
+src/app/admin/components/UserManagementPanel/FilterPanel.tsx,FilterPanel.tsx,Missing,High,index.md,Component,Medium,1,Documentation file does not exist
+src/app/admin/components/UserManagementPanel/utils.tsx,utils.tsx,Missing,High,index.md,Component,Medium,1,Documentation file does not exist
+src/app/admin/components/UserManagementPanel/UserManagementPanel.tsx,UserManagementPanel.tsx,Missing,Critical,index.md,Component,High,1,Documentation file does not exist
+src/app/admin/components/UserManagementPanel/components.tsx,components.tsx,Missing,Critical,index.md,Component,High,1,Documentation file does not exist
+src/app/admin/components/UserManagementPanel/PaginationSection.tsx,PaginationSection.tsx,Missing,Medium,index.md,Component,Low,1,Documentation file does not exist
+src/app/admin/components/UserManagementPanel/QuotaManagement.tsx,QuotaManagement.tsx,Missing,Critical,index.md,Component,High,1,Documentation file does not exist
+src/app/admin/components/UserManagementPanel/UserTable.tsx,UserTable.tsx,Missing,High,index.md,Component,Medium,1,Documentation file does not exist
+src/app/admin/components/modals/TimeoutModal.tsx,TimeoutModal.tsx,Missing,Critical,index.md,Component,High,1,Documentation file does not exist
+src/app/admin/components/modals/AssignSubscriptionModal.tsx,AssignSubscriptionModal.tsx,Missing,Critical,index.md,Component,High,1,Documentation file does not exist
+src/app/admin/components/modals/UserDetailsModal.tsx,UserDetailsModal.tsx,Missing,Critical,index.md,Component,High,1,Documentation file does not exist
+src/app/admin/components/modals/AssignRoleModal.tsx,AssignRoleModal.tsx,Missing,High,index.md,Component,Medium,1,Documentation file does not exist
+src/app/admin/components/modals/ExportModal.tsx,ExportModal.tsx,Missing,Critical,index.md,Component,High,1,Documentation file does not exist
+src/app/card-generator/utils/fileUtils.ts,fileUtils.ts,Missing,Medium,index.md,Utility,Low,1,Documentation file does not exist
+src/app/components/submission-forms/shared-submission-form/utils/imageUpload.ts,imageUpload.ts,Missing,Low,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/filter-bar/utils/get-tags.ts,get-tags.ts,Missing,Low,index.md,Component,Low,1,Documentation file does not exist
+src/app/hooks/useTooltipState.ts,useTooltipState.ts,Missing,Medium,index.md,Hook,Low,1,Documentation file does not exist
+src/app/hooks/useLinkPreview.ts,useLinkPreview.ts,Missing,Medium,index.md,Hook,Low,1,Documentation file does not exist
+src/app/hooks/useTooltipPosition.ts,useTooltipPosition.ts,Missing,Medium,index.md,Hook,Low,1,Documentation file does not exist
+src/app/hooks/useTooltipHandlers.ts,useTooltipHandlers.ts,Missing,Medium,index.md,Hook,Low,1,Documentation file does not exist
+src/app/hooks/usePaginationPreRequest.ts,usePaginationPreRequest.ts,Missing,Medium,index.md,Hook,Low,1,Documentation file does not exist
+src/app/hooks/usePostModal.ts,usePostModal.ts,Missing,Medium,index.md,Hook,Low,1,Documentation file does not exist
+src/app/hooks/useEmojis.ts,useEmojis.ts,Missing,Critical,index.md,Hook,High,1,Documentation file does not exist
+src/app/hooks/useTooltipCache.ts,useTooltipCache.ts,Missing,High,index.md,Hook,Medium,1,Documentation file does not exist
+src/app/card-generator/hooks/useQuotaTracking.ts,useQuotaTracking.ts,Missing,High,index.md,Hook,Medium,1,Documentation file does not exist
+src/app/card-generator/hooks/useImageGeneration.ts,useImageGeneration.ts,Missing,Critical,index.md,Hook,High,1,Documentation file does not exist
+src/app/card-generator/hooks/useAspectRatioSync.ts,useAspectRatioSync.ts,Missing,Medium,index.md,Hook,Low,1,Documentation file does not exist
+src/app/card-generator/hooks/useWelcomeFlow.ts,useWelcomeFlow.ts,Missing,Medium,index.md,Hook,Low,1,Documentation file does not exist
+src/app/card-generator/hooks/useGenerationLoader.ts,useGenerationLoader.ts,Missing,Medium,index.md,Hook,Low,1,Documentation file does not exist
+src/app/card-generator/hooks/useFormState.ts,useFormState.ts,Missing,Medium,index.md,Hook,Low,1,Documentation file does not exist
+src/app/components/submission-forms/shared-submission-form/hooks/useTextInsertion.ts,useTextInsertion.ts,Missing,Medium,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/submission-forms/shared-submission-form/hooks/useSearchOverlay.ts,useSearchOverlay.ts,Missing,Critical,index.md,Component,High,1,Documentation file does not exist
+src/app/components/submission-forms/shared-submission-form/hooks/useFocusManagement.ts,useFocusManagement.ts,Missing,Medium,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/submission-forms/shared-submission-form/hooks/useFloatingToolbar.ts,useFloatingToolbar.ts,Missing,High,index.md,Component,Medium,1,Documentation file does not exist
+src/app/components/submission-forms/shared-submission-form/hooks/useValueExtraction.ts,useValueExtraction.ts,Missing,Low,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/submission-forms/shared-submission-form/hooks/useSubmissionForm.ts,useSubmissionForm.ts,Missing,Critical,index.md,Component,High,1,Documentation file does not exist
+src/app/components/submission-forms/shared-submission-form/hooks/useUrlAutoConversion.ts,useUrlAutoConversion.ts,Missing,Medium,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/submissions-list/hooks/usePostsManagerState.ts,usePostsManagerState.ts,Missing,Medium,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/submissions-list/hooks/usePostsManagerHandlers.ts,usePostsManagerHandlers.ts,Missing,High,index.md,Component,Medium,1,Documentation file does not exist
+src/app/components/submissions-list/hooks/useScrollRestoration.ts,useScrollRestoration.ts,Missing,Critical,index.md,Component,High,1,Documentation file does not exist
+src/app/components/submissions-list/components/hooks/useTextSearchInput.ts,useTextSearchInput.ts,Missing,Medium,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/submissions-list/components/hooks/useFilterStatus.ts,useFilterStatus.ts,Missing,Medium,index.md,Component,Low,1,Documentation file does not exist
+src/app/api/og-image/services/MachineFingerprint.ts,MachineFingerprint.ts,Missing,Critical,index.md,Service,High,1,Documentation file does not exist
+src/app/api/og-image/services/DatabaseService.ts,DatabaseService.ts,Missing,Critical,index.md,Service,High,1,Documentation file does not exist
+src/app/api/og-image/services/QuoteService.ts,QuoteService.ts,Missing,High,index.md,Service,Medium,1,Documentation file does not exist
+src/app/api/og-image/services/SVGGenerator.ts,SVGGenerator.ts,Missing,Critical,index.md,Service,High,1,Documentation file does not exist
+src/app/api/og-image/services/AvatarService.ts,AvatarService.ts,Missing,Low,index.md,Service,Low,1,Documentation file does not exist
+src/app/api/og-image/services/OGImageService.ts,OGImageService.ts,Missing,Critical,index.md,Service,High,1,Documentation file does not exist
+src/app/api/og-image/services/patterns/ShapePatternGenerator.ts,ShapePatternGenerator.ts,Missing,Critical,index.md,Service,High,1,Documentation file does not exist
+src/app/api/og-image/services/patterns/BasePatternGenerator.ts,BasePatternGenerator.ts,Missing,High,index.md,Service,Medium,1,Documentation file does not exist
+src/app/api/og-image/services/patterns/OrganicPatternGenerator.ts,OrganicPatternGenerator.ts,Missing,High,index.md,Service,Medium,1,Documentation file does not exist
+src/app/api/og-image/services/patterns/LinePatternGenerator.ts,LinePatternGenerator.ts,Missing,High,index.md,Service,Medium,1,Documentation file does not exist
+src/app/admin/components/UserManagementPanel/index.ts,index.ts,Missing,Low,index.md,Component,Low,1,Documentation file does not exist
+src/app/admin/components/UserManagementPanel/hooks.ts,hooks.ts,Missing,Critical,index.md,Component,High,1,Documentation file does not exist
+src/app/admin/components/UserManagementPanel/constants.ts,constants.ts,Missing,High,index.md,Component,Medium,1,Documentation file does not exist
+src/app/admin/components/UserManagementPanel/types.ts,types.ts,Missing,Medium,index.md,Component,Low,1,Documentation file does not exist
+src/app/card-generator/utils/fileUtils.ts,fileUtils.ts,Missing,Medium,index.md,Utility,Low,1,Documentation file does not exist
+src/app/card-generator/hooks/useQuotaTracking.ts,useQuotaTracking.ts,Missing,High,index.md,Hook,Medium,1,Documentation file does not exist
+src/app/card-generator/hooks/useImageGeneration.ts,useImageGeneration.ts,Missing,Critical,index.md,Hook,High,1,Documentation file does not exist
+src/app/card-generator/hooks/useAspectRatioSync.ts,useAspectRatioSync.ts,Missing,Medium,index.md,Hook,Low,1,Documentation file does not exist
+src/app/card-generator/hooks/useWelcomeFlow.ts,useWelcomeFlow.ts,Missing,Medium,index.md,Hook,Low,1,Documentation file does not exist
+src/app/card-generator/hooks/useGenerationLoader.ts,useGenerationLoader.ts,Missing,Medium,index.md,Hook,Low,1,Documentation file does not exist
+src/app/card-generator/hooks/useFormState.ts,useFormState.ts,Missing,Medium,index.md,Hook,Low,1,Documentation file does not exist
+src/app/components/gitlab-link/gitlab-link-test-ids.ts,gitlab-link-test-ids.ts,Missing,Low,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/message-ticker/actions.ts,actions.ts,Missing,Low,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/auth-buttons/actions.ts,actions.ts,Missing,Low,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/auth-buttons/types.ts,types.ts,Missing,Low,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/submission-forms/schema.ts,schema.ts,Missing,Medium,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/submission-forms/actions.ts,actions.ts,Missing,Critical,index.md,Component,High,1,Documentation file does not exist
+src/app/components/submission-forms/actions.test.ts,actions.test.ts,Missing,Critical,index.md,Component,High,1,Documentation file does not exist
+src/app/components/submission-forms/shared-submission-form/utils/imageUpload.ts,imageUpload.ts,Missing,Low,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/submission-forms/shared-submission-form/hooks/useTextInsertion.ts,useTextInsertion.ts,Missing,Medium,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/submission-forms/shared-submission-form/hooks/useSearchOverlay.ts,useSearchOverlay.ts,Missing,Critical,index.md,Component,High,1,Documentation file does not exist
+src/app/components/submission-forms/shared-submission-form/hooks/useFocusManagement.ts,useFocusManagement.ts,Missing,Medium,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/submission-forms/shared-submission-form/hooks/useFloatingToolbar.ts,useFloatingToolbar.ts,Missing,High,index.md,Component,Medium,1,Documentation file does not exist
+src/app/components/submission-forms/shared-submission-form/hooks/useValueExtraction.ts,useValueExtraction.ts,Missing,Low,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/submission-forms/shared-submission-form/hooks/useSubmissionForm.ts,useSubmissionForm.ts,Missing,Critical,index.md,Component,High,1,Documentation file does not exist
+src/app/components/submission-forms/shared-submission-form/hooks/useUrlAutoConversion.ts,useUrlAutoConversion.ts,Missing,Medium,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/filter-bar/utils/get-tags.ts,get-tags.ts,Missing,Low,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/submissions-list/actions.ts,actions.ts,Missing,Critical,index.md,Component,High,1,Documentation file does not exist
+src/app/components/submissions-list/actions.test.ts,actions.test.ts,Missing,Critical,index.md,Component,High,1,Documentation file does not exist
+src/app/components/submissions-list/components/hooks/useTextSearchInput.ts,useTextSearchInput.ts,Missing,Medium,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/submissions-list/components/hooks/useFilterStatus.ts,useFilterStatus.ts,Missing,Medium,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/submissions-list/hooks/usePostsManagerState.ts,usePostsManagerState.ts,Missing,Medium,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/submissions-list/hooks/usePostsManagerHandlers.ts,usePostsManagerHandlers.ts,Missing,High,index.md,Component,Medium,1,Documentation file does not exist
+src/app/components/submissions-list/hooks/useScrollRestoration.ts,useScrollRestoration.ts,Missing,Critical,index.md,Component,High,1,Documentation file does not exist
+src/app/components/twitch-chat/index.ts,index.ts,Missing,Low,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/tooltip/index.ts,index.ts,Missing,Low,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/tooltip/link-tooltip-modal-atom.ts,link-tooltip-modal-atom.ts,Missing,Low,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/thread/actions.ts,actions.ts,Missing,Medium,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/auth-avatar/index.ts,index.ts,Missing,Low,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/recent-tags/schema.ts,schema.ts,Missing,Low,index.md,Component,Low,1,Documentation file does not exist
+src/app/components/recent-tags/actions.ts,actions.ts,Missing,Medium,index.md,Component,Low,1,Documentation file does not exist
+src/app/lib/test-selectors/components/avatar.selectors.ts,avatar.selectors.ts,Missing,Low,index.md,Component,Low,1,Documentation file does not exist
+src/app/hooks/useTooltipState.ts,useTooltipState.ts,Missing,Medium,index.md,Hook,Low,1,Documentation file does not exist
+src/app/hooks/useLinkPreview.ts,useLinkPreview.ts,Missing,Medium,index.md,Hook,Low,1,Documentation file does not exist
+src/app/hooks/useTooltipPosition.ts,useTooltipPosition.ts,Missing,Medium,index.md,Hook,Low,1,Documentation file does not exist
+src/app/hooks/useTooltipHandlers.ts,useTooltipHandlers.ts,Missing,Medium,index.md,Hook,Low,1,Documentation file does not exist
+src/app/hooks/usePaginationPreRequest.ts,usePaginationPreRequest.ts,Missing,Medium,index.md,Hook,Low,1,Documentation file does not exist
+src/app/hooks/usePostModal.ts,usePostModal.ts,Missing,Medium,index.md,Hook,Low,1,Documentation file does not exist
+src/app/hooks/useEmojis.ts,useEmojis.ts,Missing,Critical,index.md,Hook,High,1,Documentation file does not exist
+src/app/hooks/useTooltipCache.ts,useTooltipCache.ts,Missing,High,index.md,Hook,Medium,1,Documentation file does not exist
+src/app/api/admin/quotas/global/route.ts,route.ts,Missing,High,index.md,Api_Route,Medium,1,Documentation file does not exist
+src/app/api/admin/quotas/global/[id]/route.ts,route.ts,Missing,High,index.md,Api_Route,Medium,1,Documentation file does not exist
+src/app/api/admin/emojis/route.ts,route.ts,Missing,Critical,index.md,Api_Route,High,1,Documentation file does not exist
+src/app/api/admin/users/route.ts,route.ts,Missing,High,index.md,Api_Route,Medium,1,Documentation file does not exist
+src/app/api/admin/users/[id]/quotas/route.ts,route.ts,Missing,High,index.md,Api_Route,Medium,1,Documentation file does not exist
+src/app/api/admin/users/[id]/quotas/reset/route.ts,route.ts,Missing,High,index.md,Api_Route,Medium,1,Documentation file does not exist
+src/app/api/admin/users/[id]/timeout/route.ts,route.ts,Missing,High,index.md,Api_Route,Medium,1,Documentation file does not exist
+src/app/api/admin/users/[id]/assign-subscription/route.ts,route.ts,Missing,High,index.md,Api_Route,Medium,1,Documentation file does not exist
+src/app/api/admin/alerts/[id]/route.ts,route.ts,Missing,High,index.md,Api_Route,Medium,1,Documentation file does not exist
+src/app/api/emojis/route.ts,route.ts,Inadequate,High,index.md,Api_Route,Medium,4,overview; usage; api_reference; +1 more
+src/app/api/og-image/utils.ts,utils.ts,Inadequate,Medium,index.md,Utility,Medium,3,overview; usage; examples
+src/app/api/og-image/types.ts,types.ts,Inadequate,High,index.md,Types,Medium,3,overview; usage; examples
+src/app/api/og-image/services/MachineFingerprint.ts,MachineFingerprint.ts,Missing,Critical,index.md,Service,High,1,Documentation file does not exist
+src/app/api/og-image/services/DatabaseService.ts,DatabaseService.ts,Missing,Critical,index.md,Service,High,1,Documentation file does not exist
+src/app/api/og-image/services/QuoteService.ts,QuoteService.ts,Missing,High,index.md,Service,Medium,1,Documentation file does not exist
+src/app/api/og-image/services/SVGGenerator.ts,SVGGenerator.ts,Missing,Critical,index.md,Service,High,1,Documentation file does not exist
+src/app/api/og-image/services/AvatarService.ts,AvatarService.ts,Missing,Low,index.md,Service,Low,1,Documentation file does not exist
+src/app/api/og-image/services/OGImageService.ts,OGImageService.ts,Missing,Critical,index.md,Service,High,1,Documentation file does not exist
+src/app/api/og-image/services/patterns/ShapePatternGenerator.ts,ShapePatternGenerator.ts,Missing,Critical,index.md,Service,High,1,Documentation file does not exist
+src/app/api/og-image/services/patterns/BasePatternGenerator.ts,BasePatternGenerator.ts,Missing,High,index.md,Service,Medium,1,Documentation file does not exist
+src/app/api/og-image/services/patterns/OrganicPatternGenerator.ts,OrganicPatternGenerator.ts,Missing,High,index.md,Service,Medium,1,Documentation file does not exist
+src/app/api/og-image/services/patterns/LinePatternGenerator.ts,LinePatternGenerator.ts,Missing,High,index.md,Service,Medium,1,Documentation file does not exist
+src/lib/utils/service-worker-cleanup.ts,service-worker-cleanup.ts,Inadequate,Critical,index.md,Utility,Medium,3,overview; usage; examples
+src/lib/utils/content-parsers.ts,content-parsers.ts,Inadequate,Critical,index.md,Utility,Medium,3,overview; usage; examples
+src/lib/utils/os-detection.ts,os-detection.ts,Inadequate,Critical,index.md,Utility,Medium,3,overview; usage; examples
+src/lib/utils/privacy.ts,privacy.ts,Inadequate,Medium,index.md,Utility,Medium,3,overview; usage; examples
+src/lib/utils/scroll-highlight-demo.ts,scroll-highlight-demo.ts,Inadequate,High,index.md,Utility,Medium,3,overview; usage; examples
+src/lib/utils/social-sharing.ts,social-sharing.ts,Inadequate,High,index.md,Utility,Medium,3,overview; usage; examples
+src/lib/utils/cache-manager.ts,cache-manager.ts,Inadequate,Critical,index.md,Utility,Medium,3,overview; usage; examples
+src/lib/utils/scroll-position.ts,scroll-position.ts,Inadequate,Critical,index.md,Utility,Medium,3,overview; usage; examples
+src/lib/utils/timeFormatting.ts,timeFormatting.ts,Inadequate,Medium,index.md,Utility,Medium,3,overview; usage; examples
+src/lib/utils/hard-reset-manager.ts,hard-reset-manager.ts,Inadequate,Critical,index.md,Utility,Medium,3,overview; usage; examples
+src/lib/utils/requestIdentifier.ts,requestIdentifier.ts,Inadequate,High,index.md,Utility,Medium,3,overview; usage; examples
+src/lib/utils/scroll-highlight.ts,scroll-highlight.ts,Inadequate,High,index.md,Utility,Medium,3,overview; usage; examples
+src/lib/utils/string/tag-regex.ts,tag-regex.ts,Missing,High,index.md,Utility,Medium,1,Documentation file does not exist
+src/lib/utils/string/tag-utils.ts,tag-utils.ts,Missing,Medium,index.md,Utility,Low,1,Documentation file does not exist
+src/lib/utils/parsers/emoji-parser.ts,emoji-parser.ts,Missing,Critical,index.md,Utility,High,1,Documentation file does not exist
+src/lib/utils/parsers/image-parser.ts,image-parser.ts,Missing,Critical,index.md,Utility,High,1,Documentation file does not exist
+src/lib/utils/parsers/markdown-parser.ts,markdown-parser.ts,Missing,High,index.md,Utility,Medium,1,Documentation file does not exist
+src/lib/utils/parsers/rich-text-parser.ts,rich-text-parser.ts,Missing,Critical,index.md,Utility,High,1,Documentation file does not exist
+src/lib/logging/factories.ts,factories.ts,Missing,Low,index.md,Unknown,Low,1,Documentation file does not exist
+src/lib/logging/types.ts,types.ts,Missing,High,index.md,Types,Medium,1,Documentation file does not exist
+src/lib/logging/core/Logger.ts,Logger.ts,Missing,High,index.md,Unknown,Medium,1,Documentation file does not exist
+src/lib/logging/adapters/ServiceWorkerLogger.ts,ServiceWorkerLogger.ts,Missing,High,index.md,Unknown,Medium,1,Documentation file does not exist
+src/lib/logging/adapters/DebugLogger.ts,DebugLogger.ts,Missing,High,index.md,Unknown,Medium,1,Documentation file does not exist
+src/lib/logging/adapters/ClientLogger.ts,ClientLogger.ts,Missing,High,index.md,Unknown,Medium,1,Documentation file does not exist
+src/lib/logging/adapters/ServerLogger.ts,ServerLogger.ts,Missing,High,index.md,Unknown,Medium,1,Documentation file does not exist
+src/lib/encryption/emoji-encryption.ts,emoji-encryption.ts,Missing,High,index.md,Unknown,Medium,1,Documentation file does not exist
+src/lib/encryption/base-encryption.ts,base-encryption.ts,Missing,Critical,index.md,Unknown,High,1,Documentation file does not exist
+src/lib/services/RateLimitService.ts,RateLimitService.ts,Missing,Critical,index.md,Service,High,1,Documentation file does not exist
+src/lib/services/EnhancedQuotaService.ts,EnhancedQuotaService.ts,Missing,Critical,index.md,Service,High,1,Documentation file does not exist
+src/lib/middleware/withRateLimit.ts,withRateLimit.ts,Missing,High,index.md,Middleware,Medium,1,Documentation file does not exist
+src/lib/cron/refresh-materialized-views.ts,refresh-materialized-views.ts,Missing,High,index.md,Unknown,Medium,1,Documentation file does not exist
+src/lib/permissions/permissions.ts,permissions.ts,Missing,Critical,index.md,Unknown,High,1,Documentation file does not exist
+src/lib/actions/quota.actions.ts,quota.actions.ts,Missing,Critical,index.md,Unknown,High,1,Documentation file does not exist
+src/lib/actions/permissions.actions.ts,permissions.actions.ts,Missing,Low,index.md,Unknown,Low,1,Documentation file does not exist
+src/lib/actions/emoji.actions.ts,emoji.actions.ts,Missing,High,index.md,Unknown,Medium,1,Documentation file does not exist
+src/lib/actions/profile.actions.ts,profile.actions.ts,Missing,Critical,index.md,Unknown,High,1,Documentation file does not exist
+src/lib/actions/search.actions.ts,search.actions.ts,Missing,Critical,index.md,Unknown,High,1,Documentation file does not exist
+src/lib/actions/post.actions.ts,post.actions.ts,Missing,Low,index.md,Unknown,Low,1,Documentation file does not exist
+src/lib/state/atoms.ts,atoms.ts,Missing,Critical,index.md,Unknown,High,1,Documentation file does not exist
+src/lib/state/batchedUpdater.ts,batchedUpdater.ts,Missing,High,index.md,Unknown,Medium,1,Documentation file does not exist
+src/lib/state/submissions/useUrlSync.ts,useUrlSync.ts,Missing,High,index.md,Unknown,Medium,1,Documentation file does not exist
+src/lib/state/submissions/useSubmissionsFetch.ts,useSubmissionsFetch.ts,Missing,High,index.md,Unknown,Medium,1,Documentation file does not exist
+src/lib/rich-input/types.ts,types.ts,Missing,Critical,index.md,Types,High,1,Documentation file does not exist
+src/lib/rich-input/utils/clickPositioning.ts,clickPositioning.ts,Missing,Critical,index.md,Utility,High,1,Documentation file does not exist
+src/lib/rich-input/utils/navigationUtils.ts,navigationUtils.ts,Missing,Medium,index.md,Utility,Low,1,Documentation file does not exist
+src/lib/rich-input/utils/measurementHelpers.ts,measurementHelpers.ts,Missing,Medium,index.md,Utility,Low,1,Documentation file does not exist
+src/lib/rich-input/utils/tokenPositioning.ts,tokenPositioning.ts,Missing,Medium,index.md,Utility,Low,1,Documentation file does not exist
+src/lib/rich-input/utils/selectionCalculations.ts,selectionCalculations.ts,Missing,High,index.md,Utility,Medium,1,Documentation file does not exist
+src/lib/rich-input/utils/enhancedCursorPositioning.ts,enhancedCursorPositioning.ts,Missing,High,index.md,Utility,Medium,1,Documentation file does not exist
+src/lib/rich-input/utils/enhancedTokenization.ts,enhancedTokenization.ts,Missing,High,index.md,Utility,Medium,1,Documentation file does not exist
+src/lib/rich-input/utils/coordinateCalculations.ts,coordinateCalculations.ts,Missing,Critical,index.md,Utility,High,1,Documentation file does not exist
+src/lib/rich-input/utils/logger.ts,logger.ts,Missing,Critical,index.md,Utility,High,1,Documentation file does not exist
+src/lib/rich-input/utils/cursorCalculations.ts,cursorCalculations.ts,Missing,Critical,index.md,Utility,High,1,Documentation file does not exist
+src/lib/rich-input/core/WidthMeasurement.ts,WidthMeasurement.ts,Missing,High,index.md,Unknown,Medium,1,Documentation file does not exist
+src/lib/rich-input/core/RichInputEngine.ts,RichInputEngine.ts,Missing,Critical,index.md,Unknown,High,1,Documentation file does not exist
+src/lib/rich-input/hooks/useRichInput.ts,useRichInput.ts,Missing,Medium,index.md,Hook,Low,1,Documentation file does not exist
+src/lib/rich-input/hooks/useKeyboardHandlers.ts,useKeyboardHandlers.ts,Missing,Critical,index.md,Hook,High,1,Documentation file does not exist
+src/lib/rich-input/hooks/useMouseHandlers.ts,useMouseHandlers.ts,Missing,Medium,index.md,Hook,Low,1,Documentation file does not exist
+src/lib/test-selectors/components/coin.selectors.ts,coin.selectors.ts,Missing,Low,index.md,Component,Low,1,Documentation file does not exist
+src/lib/test-selectors/components/pagination.selectors.ts,pagination.selectors.ts,Missing,Low,index.md,Component,Low,1,Documentation file does not exist
+src/lib/test-selectors/components/submissions-list.selectors.ts,submissions-list.selectors.ts,Missing,Low,index.md,Component,Low,1,Documentation file does not exist
+src/lib/test-selectors/components/discord-link.selectors.ts,discord-link.selectors.ts,Missing,Low,index.md,Component,Low,1,Documentation file does not exist
+src/lib/test-selectors/components/docs-link.selectors.ts,docs-link.selectors.ts,Missing,Low,index.md,Component,Low,1,Documentation file does not exist
+src/lib/test-selectors/components/add-submission-form.selectors.ts,add-submission-form.selectors.ts,Missing,Low,index.md,Component,Low,1,Documentation file does not exist
+src/lib/test-selectors/components/auth-buttons.selectors.ts,auth-buttons.selectors.ts,Missing,Low,index.md,Component,Low,1,Documentation file does not exist
+src/lib/test-selectors/components/nav.selectors.ts,nav.selectors.ts,Missing,Low,index.md,Component,Low,1,Documentation file does not exist
+src/lib/test-selectors/components/loader.selectors.ts,loader.selectors.ts,Missing,Low,index.md,Component,Low,1,Documentation file does not exist
+src/lib/test-selectors/components/recent-tags.selectors.ts,recent-tags.selectors.ts,Missing,Low,index.md,Component,Low,1,Documentation file does not exist
+src/lib/test-selectors/components/card.selectors.ts,card.selectors.ts,Missing,Low,index.md,Component,Low,1,Documentation file does not exist
+src/lib/test-selectors/components/discord-embed.selectors.ts,discord-embed.selectors.ts,Missing,Low,index.md,Component,Low,1,Documentation file does not exist
+src/lib/test-selectors/components/page-aside.selectors.ts,page-aside.selectors.ts,Missing,Low,index.md,Component,Low,1,Documentation file does not exist
+src/lib/test-selectors/components/fade-in.selectors.ts,fade-in.selectors.ts,Missing,Low,index.md,Component,Low,1,Documentation file does not exist
+src/lib/test-selectors/components/empty.selectors.ts,empty.selectors.ts,Missing,Low,index.md,Component,Low,1,Documentation file does not exist
+src/lib/test-selectors/components/nav-paths.selectors.ts,nav-paths.selectors.ts,Missing,Low,index.md,Component,Low,1,Documentation file does not exist
+src/lib/test-selectors/components/badge.ts,badge.ts,Missing,Low,index.md,Component,Low,1,Documentation file does not exist
+src/lib/test-selectors/components/app-version.selectors.ts,app-version.selectors.ts,Missing,Low,index.md,Component,Low,1,Documentation file does not exist
+src/lib/test-selectors/components/game-wrapper.selectors.ts,game-wrapper.selectors.ts,Missing,Low,index.md,Component,Low,1,Documentation file does not exist
+src/lib/test-selectors/components/avatar.selectors.ts,avatar.selectors.ts,Missing,Low,index.md,Component,Low,1,Documentation file does not exist
+src/lib/hooks/useNavigationLoader.ts,useNavigationLoader.ts,Missing,Medium,index.md,Hook,Low,1,Documentation file does not exist
+src/lib/config/media-domains.ts,media-domains.ts,Missing,High,index.md,Unknown,Medium,1,Documentation file does not exist
+src/lib/config/url-pills.ts,url-pills.ts,Missing,Critical,index.md,Unknown,High,1,Documentation file does not exist
+src/auth.config.ts,auth.config.ts,Missing,High,index.md,Unknown,Medium,1,Documentation file does not exist

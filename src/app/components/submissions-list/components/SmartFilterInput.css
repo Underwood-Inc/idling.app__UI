@@ -2,8 +2,8 @@
 
 /* Hide the floating toolbar for filter input */
 .smart-filter-input .floating-toolbar,
-.smart-filter-input [class*="floating-toolbar"],
-.smart-filter-input [class*="FloatingToolbar"] {
+.smart-filter-input [class*='floating-toolbar'],
+.smart-filter-input [class*='FloatingToolbar'] {
   display: none !important;
 }
 
@@ -16,7 +16,7 @@
 .smart-filter-input__rich-input {
   width: 100%;
   min-height: 40px;
-  border: 1px solid var(--border-color, #e1e5e9);
+  border: 1px solid var(--border-primary, #e1e5e9);
   border-radius: 6px;
   background: var(--input-bg, #ffffff);
   transition: all 0.2s ease;
@@ -69,9 +69,9 @@
     min-height: 36px;
     font-size: 13px;
   }
-  
+
   .smart-filter-input .rich-input-adapter .content-pill {
     padding: 1px 6px;
     font-size: 0.8em;
   }
-} 
+}

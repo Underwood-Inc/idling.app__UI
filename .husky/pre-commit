@@ -45,7 +45,7 @@ else
 fi
 cd ..
 
-# 2. Generate documentation coverage report
+# 2. Generate documentation coverage report with all formats
 echo "📚 Generating documentation coverage report..."
 
 total_files=0
@@ -55,8 +55,10 @@ missing_files_count=0
 # Use the Python documentation coverage script for accurate results
 echo "📊 Running Python documentation coverage analysis..."
 
-# Run the Python script and capture its output
+# Run the Python script and capture its output in all formats
 python3 scripts/check-docs-coverage.py --format json > "$TEMP_DIR/coverage_report.json" 2>/dev/null
+python3 scripts/check-docs-coverage.py --format html > "$TEMP_DIR/coverage_report.html" 2>/dev/null
+python3 scripts/check-docs-coverage.py --format csv > "$TEMP_DIR/coverage_report.csv" 2>/dev/null
 
 if [ -f "$TEMP_DIR/coverage_report.json" ]; then
   # Parse the JSON output
@@ -152,16 +154,17 @@ fi
 # Generate badge URLs
 DOC_BADGE_URL="https://img.shields.io/badge/Documentation%20Coverage-${DOC_COVERAGE}%25-${DOC_COLOR}?style=flat&logo=gitbook&logoColor=white"
 
-# Update README.md badge
+# Update README.md badge with artifact links
 if [ -f "README.md" ]; then
   # Look for existing documentation coverage badge and replace it
   if grep -q "Documentation%20Coverage" README.md; then
-    # Create a temporary file with the corrected badge
+    # Create a temporary file with the corrected badge and artifact links
     TEMP_README=$(mktemp)
-    # Simple approach: replace only the percentage and color parts that actually change
-    sed "s/Documentation%20Coverage-[0-9]*%25-[a-z]*/Documentation%20Coverage-${DOC_COVERAGE}%25-${DOC_COLOR}/g" README.md > "$TEMP_README"
+    # Replace the documentation coverage badge line with updated version including artifact links
+    sed "s/Documentation%20Coverage-[0-9]*%25-[a-z]*/Documentation%20Coverage-${DOC_COVERAGE}%25-${DOC_COLOR}/g" README.md | \
+    sed 's|[![Documentation Coverage](https://img.shields.io/badge/Documentation%20Coverage-[0-9]*%25-[a-z]*[^)]*)|[![Documentation Coverage]('"${DOC_BADGE_URL}"')](https://underwood-inc.github.io/idling.app__UI/) \| [![📊 CSV Report](https://img.shields.io/badge/📊%20CSV-Download-blue?style=flat\&logo=microsoftexcel\&logoColor=white)](https://underwood-inc.github.io/idling.app__UI/coverage-artifacts/latest-coverage-report.csv) \| [![📋 HTML Report](https://img.shields.io/badge/📋%20HTML-Download-green?style=flat\&logo=html5\&logoColor=white)](https://underwood-inc.github.io/idling.app__UI/coverage-artifacts/latest-coverage-report.html)|g' > "$TEMP_README"
     mv "$TEMP_README" README.md
-    echo "✅ Updated documentation badge in README.md"
+    echo "✅ Updated documentation badge with artifact links in README.md"
   else
     echo "⚠️ No existing documentation badge found in README.md"
   fi
@@ -199,24 +202,44 @@ sed -i "s|DOC_COVERAGE_PLACEHOLDER|${DOC_COVERAGE}|g" "$JEKYLL_BADGE_DIR/documen
 
 echo "✅ Updated Jekyll documentation badge include"
 
-# Update centralized badge file
+# Update centralized badge file with artifact links
 BADGE_DIR="DOCS/badges"
 mkdir -p "$BADGE_DIR"
+
+# Copy generated artifacts to accessible location
+ARTIFACT_DIR="DOCS/coverage-artifacts"
+mkdir -p "$ARTIFACT_DIR"
+
+if [ -f "$TEMP_DIR/coverage_report.html" ]; then
+  cp "$TEMP_DIR/coverage_report.html" "$ARTIFACT_DIR/latest-coverage-report.html"
+  echo "✅ Copied HTML coverage report to Jekyll artifacts"
+fi
+
+if [ -f "$TEMP_DIR/coverage_report.csv" ]; then
+  cp "$TEMP_DIR/coverage_report.csv" "$ARTIFACT_DIR/latest-coverage-report.csv"
+  echo "✅ Copied CSV coverage report to Jekyll artifacts"
+fi
 
 cat > "$BADGE_DIR/documentation-coverage.md" << 'EOF'
 ---
 layout: default
 title: Documentation Coverage Badge
-description: Auto-generated documentation coverage badge
+description: Auto-generated documentation coverage badge with downloadable reports
 ---
 
 # Documentation Coverage Badge
 
-![Documentation Coverage](DOC_BADGE_URL_PLACEHOLDER)
+![Documentation Coverage](DOC_BADGE_URL_PLACEHOLDER) | [![📊 CSV Report](https://img.shields.io/badge/📊%20CSV-Download-blue?style=flat&logo=microsoftexcel&logoColor=white)]({{ site.baseurl }}/coverage-artifacts/latest-coverage-report.csv) | [![📋 HTML Report](https://img.shields.io/badge/📋%20HTML-Download-green?style=flat&logo=html5&logoColor=white)]({{ site.baseurl }}/coverage-artifacts/latest-coverage-report.html)
 
 **Current Coverage:** DOC_COVERAGE_PLACEHOLDER% (DOCUMENTED_FILES_PLACEHOLDER/TOTAL_FILES_PLACEHOLDER files)
 
 *Last updated: DATE_PLACEHOLDER*
+
+## 📥 Download Coverage Reports
+
+- **📊 CSV Report**: [Download for Excel/Google Sheets]({{ site.baseurl }}/coverage-artifacts/latest-coverage-report.csv) - Perfect for analysis and tracking
+- **📋 HTML Report**: [Download Interactive Report]({{ site.baseurl }}/coverage-artifacts/latest-coverage-report.html) - Beautiful visual interface with filtering
+- **📄 JSON Report**: Available through GitHub Actions artifacts
 
 ## Badge URL
 
@@ -267,7 +290,7 @@ if [ $DOC_COVERAGE -lt $MIN_COVERAGE ]; then
   echo "🚀 Proceeding with commit (coverage check is informational)"
 fi
 
-# 5. Stage updated badge files
+# 5. Stage updated badge files and coverage artifacts
 BADGE_FILES_UPDATED=false
 
 if [ -f "README.md" ] && git diff --quiet README.md; then
@@ -298,6 +321,19 @@ if [ -f "$BADGE_DIR/documentation-coverage.md" ]; then
   echo "📝 Staged updated centralized badge file"
 fi
 
+# Stage coverage artifacts if they exist
+if [ -f "$ARTIFACT_DIR/latest-coverage-report.html" ]; then
+  git add "$ARTIFACT_DIR/latest-coverage-report.html"
+  BADGE_FILES_UPDATED=true
+  echo "📝 Staged updated HTML coverage report"
+fi
+
+if [ -f "$ARTIFACT_DIR/latest-coverage-report.csv" ]; then
+  git add "$ARTIFACT_DIR/latest-coverage-report.csv"
+  BADGE_FILES_UPDATED=true
+  echo "📝 Staged updated CSV coverage report"
+fi
+
 if [ "$BADGE_FILES_UPDATED" = true ]; then
   echo "✅ Documentation badges updated and staged for commit"
 else
@@ -311,11 +347,21 @@ echo "  📋 Jekyll documentation: $(command -v bundle >/dev/null 2>&1 && echo "
 echo "  📊 Documentation coverage: ${DOC_COVERAGE}%"
 echo "  🎨 Badges updated: $([ "$BADGE_FILES_UPDATED" = true ] && echo "Yes" || echo "No changes needed")"
 echo "  📝 Files documented: ${documented_files}/${total_files}"
+echo "  📄 Coverage reports: HTML & CSV generated"
 
 if [ $missing_files_count -gt 0 ]; then
   echo "  ⚠️  Missing docs: ${missing_files_count} files"
 else
   echo "  ✅ All files documented!"
+fi
+
+# Display artifact locations
+if [ -f "$ARTIFACT_DIR/latest-coverage-report.html" ]; then
+  echo "  📋 HTML Report: DOCS/coverage-artifacts/latest-coverage-report.html"
+fi
+
+if [ -f "$ARTIFACT_DIR/latest-coverage-report.csv" ]; then
+  echo "  📊 CSV Report: DOCS/coverage-artifacts/latest-coverage-report.csv"
 fi
 
 echo ""
