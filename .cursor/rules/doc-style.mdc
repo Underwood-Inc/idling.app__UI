@@ -1,0 +1,5 @@
+---
+alwaysApply: true
+---
+
+when writing documents, other than the root codebase README.md or when specified, all documents must be written under the assumption it is intended for jekyll and so must be available within the jekyll site
