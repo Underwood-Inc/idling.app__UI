@@ -1,0 +1,95 @@
+<!-- Source Code Modal -->
+<div id="source-code-modal" class="modal source-modal">
+    <div class="modal-content source-modal-content">
+        <div class="modal-header">
+            <h3 id="source-modal-title">📄 Source Code Preview</h3>
+            <div class="modal-header-actions">
+                <button id="open-github-btn" class="btn-secondary" title="Open on GitHub">
+                    <span class="btn-icon">🔗</span>
+                    <span class="btn-text">GitHub</span>
+                </button>
+                <button class="modal-close">&times;</button>
+            </div>
+        </div>
+        <div class="modal-body source-modal-body">
+            <div id="source-loading" class="source-loading">
+                <div class="loading-spinner"></div>
+                <p>Loading source code...</p>
+            </div>
+            <div id="source-error" class="source-error" style="display: none;">
+                <p>❌ Could not load source code</p>
+                <p id="source-error-message"></p>
+            </div>
+            <pre id="source-code-content" class="source-code" style="display: none;"><code id="source-code-text"></code></pre>
+        </div>
+    </div>
+</div>
+
+<!-- Column Picker Modal -->
+<div id="column-picker-modal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>🎛️ Column Visibility</h3>
+            <button class="modal-close">&times;</button>
+        </div>
+        <div class="modal-body">
+            <p>Select which columns to display in the table:</p>
+            <div class="column-picker">
+                <!-- Column picker content will be inserted here -->
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button id="reset-columns-btn" class="btn-secondary">Reset to Default</button>
+            <button id="apply-columns-btn" class="btn-primary">Apply Changes</button>
+        </div>
+    </div>
+</div>
+
+<!-- Timestamp Tooltip Template -->
+<div id="timestamp-tooltip" class="timestamp-tooltip" style="display: none;">
+    <div class="tooltip-header">
+        <h4>🕒 Exact Time</h4>
+        <div class="tooltip-relative-time"></div>
+    </div>
+    <div class="tooltip-section">
+        <div class="tooltip-label">UTC Time</div>
+        <div class="tooltip-utc-time"></div>
+    </div>
+    <div class="tooltip-section">
+        <div class="tooltip-label">Your Local Time</div>
+        <div class="tooltip-local-time"></div>
+    </div>
+</div>
+
+<!-- Help Modal -->
+<div id="help-modal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>❓ Help & Keyboard Shortcuts</h3>
+            <button class="modal-close">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="help-section">
+                <h4>⌨️ Keyboard Shortcuts</h4>
+                <div class="shortcut-grid">
+                    <div class="shortcut-item">
+                        <kbd>Ctrl</kbd> + <kbd>F</kbd>
+                        <span>Focus search input</span>
+                    </div>
+                    <div class="shortcut-item">
+                        <kbd>Ctrl</kbd> + <kbd>K</kbd>
+                        <span>Open column picker</span>
+                    </div>
+                    <div class="shortcut-item">
+                        <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>T</kbd>
+                        <span>Toggle theme</span>
+                    </div>
+                    <div class="shortcut-item">
+                        <kbd>Escape</kbd>
+                        <span>Close modals</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div> 

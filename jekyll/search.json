@@ -23,7 +23,7 @@ This file is now generated dynamically and includes all co-located documentation
     {% unless page.exclude_from_search or page.url contains '/assets/' or page.url contains '/vendor/' or page.url contains '/node_modules/' or page.url contains '.xml' or page.url contains '.json' or page.url contains '.txt' or page.url contains '.yml' or page.url contains '.yaml' or page.url contains '.css' or page.url contains '.js' or page.url contains '.scss' or page.url contains '.sass' %}
       {% unless processed_urls contains page.url %}
         {% assign processed_urls = processed_urls | push: page.url %}
-        {% assign search_items = search_items | push: page %}
+      {% assign search_items = search_items | push: page %}
       {% endunless %}
     {% endunless %}
   {% endfor %}
@@ -32,7 +32,7 @@ This file is now generated dynamically and includes all co-located documentation
     {% unless post.exclude_from_search %}
       {% unless processed_urls contains post.url %}
         {% assign processed_urls = processed_urls | push: post.url %}
-        {% assign search_items = search_items | push: post %}
+      {% assign search_items = search_items | push: post %}
       {% endunless %}
     {% endunless %}
   {% endfor %}

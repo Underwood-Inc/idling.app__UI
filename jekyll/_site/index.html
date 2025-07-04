@@ -622,7 +622,8 @@
   <!-- Enhanced Search Bar -->
   <div class="search-header">
     <div class="wrapper">
-      <!-- Search Fallback System - Works without Jekyll -->
+      <!-- Enhanced Search System - Modular Components -->
+<!-- Search Fallback System - Works without Jekyll -->
 <script>
 // Client-side documentation discovery for development environments
 class DocumentationDiscovery {
@@ -1144,9 +1145,9 @@ window.documentationDiscovery = new DocumentationDiscovery();
     gap: 0.5rem;
   }
 }
-</style>
-
+</style> 
 <script>
+// Search functionality for Jekyll documentation
 document.addEventListener('DOMContentLoaded', function() {
   const searchInput = document.getElementById('search-input');
   const searchAutocomplete = document.getElementById('search-autocomplete');
@@ -1196,7 +1197,6 @@ document.addEventListener('DOMContentLoaded', function() {
                !url.includes('.json') && 
                !url.includes('.txt') && 
                !url.includes('.yml') && 
-               !url.includes('.yaml') && 
                !url.includes('.css') && 
                !url.includes('.js') && 
                !url.includes('.scss') &&
@@ -1553,10 +1553,6 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // CRITICAL: Position search results relative to search input
     positionSearchResults();
-    
-    console.log('Search results displayed:', results.length, 'items');
-    console.log('Search results element:', searchResults);
-    console.log('Search results styles:', window.getComputedStyle(searchResults));
   }
   
   function showNoResults(query) {
@@ -1766,7 +1762,7 @@ document.addEventListener('DOMContentLoaded', function() {
     return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   }
 });
-</script> 
+</script>   
     </div>
   </div>
 </header>

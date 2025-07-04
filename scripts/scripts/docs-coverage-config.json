@@ -1,0 +1,118 @@
+{
+  "documentation_standards": {
+    "minimum_quality_score": 0.7,
+    "minimum_coverage_percentage": 85.0,
+    "required_sections": {
+      "api_route": [
+        "overview",
+        "usage",
+        "api_reference",
+        "examples"
+      ],
+      "component": [
+        "overview",
+        "props",
+        "usage",
+        "examples"
+      ],
+      "service": [
+        "overview",
+        "usage",
+        "api_reference",
+        "configuration"
+      ],
+      "utility": [
+        "overview",
+        "usage",
+        "examples"
+      ],
+      "hook": [
+        "overview",
+        "usage",
+        "examples",
+        "api_reference"
+      ],
+      "page": [
+        "overview",
+        "usage",
+        "examples"
+      ],
+      "layout": [
+        "overview",
+        "usage",
+        "examples"
+      ],
+      "types": [
+        "overview",
+        "usage",
+        "examples"
+      ]
+    },
+    "minimum_word_count": {
+      "critical": 200,
+      "high": 150,
+      "medium": 100,
+      "low": 50
+    }
+  },
+  "code_analysis": {
+    "file_patterns": {
+      "components": "src/components/**/*.tsx",
+      "app_components": "src/app/**/components/**/*.tsx",
+      "app_pages": "src/app/**/page.tsx",
+      "app_layouts": "src/app/**/layout.tsx",
+      "app_loading": "src/app/**/loading.tsx",
+      "app_error": "src/app/**/error.tsx",
+      "app_not_found": "src/app/**/not-found.tsx",
+      "app_globals": "src/app/**/globals.tsx",
+      "app_admin": "src/app/admin/**/*.tsx",
+      "app_utils": "src/app/**/utils/**/*.ts",
+      "app_hooks": "src/app/**/hooks/**/*.ts",
+      "app_types": "src/app/**/types/**/*.ts",
+      "app_constants": "src/app/**/constants/**/*.ts",
+      "app_services": "src/app/**/services/**/*.ts",
+      "app_misc_ts": "src/app/**/*.ts",
+      "services": "src/lib/services/**/*.ts",
+      "utilities": "src/lib/utils/**/*.ts",
+      "hooks": "src/lib/hooks/**/*.ts",
+      "types": "src/lib/types/**/*.ts",
+      "lib_components": "src/lib/components/**/*.tsx",
+      "lib_misc": "src/lib/**/*.ts",
+      "api_routes": "src/app/api/**/route.ts",
+      "middleware": "src/middleware/**/*.ts",
+      "templates": "src/templates/**/*.tsx",
+      "template_utils": "src/templates/**/*.ts",
+      "root_files": "src/*.ts",
+      "root_components": "src/*.tsx"
+    },
+    "exclude_patterns": [
+      "**/*.test.*",
+      "**/*.spec.*",
+      "**/test/**",
+      "**/__tests__/**",
+      "**/node_modules/**",
+      "**/.next/**",
+      "**/build/**",
+      "**/dist/**"
+    ],
+    "complexity_thresholds": {
+      "low": 10,
+      "medium": 25,
+      "high": 50,
+      "critical": 100
+    }
+  },
+  "documentation_discovery": {
+    "co_located_patterns": [
+      "index.md",
+      "README.md",
+      "docs.md",
+      "documentation.md"
+    ],
+    "centralized_patterns": [
+      "docs/**/*.md",
+      "DOCS/**/*.md",
+      "jekyll/**/*.md"
+    ]
+  }
+}

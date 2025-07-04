@@ -304,6 +304,7 @@ exclude:
 # Include files
 include:
   - _pages
+  - coverage-artifacts
 
 # SEO
 author: "Underwood Inc"
