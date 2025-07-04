@@ -26,7 +26,7 @@ class DocumentationChecker:
             'console': ConsoleReporter(self.config_manager),
             'json': JsonReporter(self.config_manager),
             'markdown': MarkdownReporter(self.config_manager),
-            'html': HtmlReporter(self.config_manager, enable_syntax_highlighting=False),
+            'html': HtmlReporter(self.config_manager, enable_syntax_highlighting=True),
             'csv': CsvReporter(self.config_manager)
         }
         

@@ -213,6 +213,29 @@ jobs:
         with:
           fetch-depth: 0
 
+      # Setup Node.js for highlight.js dependency
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: 'yarn'
+
+      # Restore cached dependencies from setup job
+      - name: Restore dependencies cache
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            node_modules
+          key: ${{ runner.os }}-deps-browsers-${{ hashFiles('**/yarn.lock', '**/package.json') }}
+          restore-keys: |
+            ${{ runner.os }}-deps-browsers-
+            ${{ runner.os }}-deps-
+          fail-on-cache-miss: false
+
+      # Install dependencies if cache miss
+      - name: Install dependencies
+        if: steps.cache-restore.outputs.cache-hit != 'true'
+        run: yarn install --check-files
+
       # Setup Python for documentation coverage analysis
       - name: Setup Python
         uses: actions/setup-python@v4
@@ -225,16 +248,16 @@ jobs:
           python -m pip install --upgrade pip
           pip install interrogate
 
-      # Run documentation coverage analysis with all formats
+      # Run documentation coverage analysis with all formats and syntax highlighting
       - name: Run documentation coverage analysis
         run: |
-          echo "📚 Running documentation coverage analysis..."
+          echo "📚 Running documentation coverage analysis with syntax highlighting..."
 
-          # Generate all format reports
-          python scripts/check-docs-coverage.py --format json > doc-coverage-report.json
-          python scripts/check-docs-coverage.py --format markdown > doc-coverage-report.md
-          python scripts/check-docs-coverage.py --format html > doc-coverage-report.html
-          python scripts/check-docs-coverage.py --format csv > doc-coverage-report.csv
+          # Generate all format reports with syntax highlighting
+          python scripts/check-docs-coverage.py --format json --output doc-coverage-report.json
+          python scripts/check-docs-coverage.py --format markdown --output doc-coverage-report.md
+          python scripts/check-docs-coverage.py --format html --output documentation-coverage-report.html
+          python scripts/check-docs-coverage.py --format csv --output doc-coverage-report.csv
 
           # Extract coverage percentage for badge generation
           DOC_COVERAGE=$(python -c "import json; data=json.load(open('doc-coverage-report.json')); print(int(data['coverage_percentage']))")
@@ -252,7 +275,7 @@ jobs:
           path: |
             doc-coverage-report.json
             doc-coverage-report.md
-            doc-coverage-report.html
+            documentation-coverage-report.html
             doc-coverage-report.csv
           retention-days: 30
 
