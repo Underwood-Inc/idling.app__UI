@@ -1,0 +1,58 @@
+---
+# Font definitions with Jekyll processing
+---
+
+/* Fira Code Font with Ligature Support */
+@font-face {
+  font-family: 'Fira Code';
+  src: url('{{ "/assets/fonts/woff2/FiraCode-Light.woff2" | relative_url }}') format('woff2'),
+       url('{{ "/assets/fonts/woff/FiraCode-Light.woff" | relative_url }}') format('woff');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Fira Code';
+  src: url('{{ "/assets/fonts/woff2/FiraCode-Regular.woff2" | relative_url }}') format('woff2'),
+       url('{{ "/assets/fonts/woff/FiraCode-Regular.woff" | relative_url }}') format('woff');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Fira Code';
+  src: url('{{ "/assets/fonts/woff2/FiraCode-Medium.woff2" | relative_url }}') format('woff2'),
+       url('{{ "/assets/fonts/woff/FiraCode-Medium.woff" | relative_url }}') format('woff');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Fira Code';
+  src: url('{{ "/assets/fonts/woff2/FiraCode-SemiBold.woff2" | relative_url }}') format('woff2'),
+       url('{{ "/assets/fonts/woff/FiraCode-SemiBold.woff" | relative_url }}') format('woff');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Fira Code';
+  src: url('{{ "/assets/fonts/woff2/FiraCode-Bold.woff2" | relative_url }}') format('woff2'),
+       url('{{ "/assets/fonts/woff/FiraCode-Bold.woff" | relative_url }}') format('woff');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Variable Font Support (Modern browsers) */
+@font-face {
+  font-family: 'Fira Code VF';
+  src: url('{{ "/assets/fonts/woff2/FiraCode-VF.woff2" | relative_url }}') format('woff2-variations');
+  font-weight: 300 700;
+  font-style: normal;
+  font-display: swap;
+} 

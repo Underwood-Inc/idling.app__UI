@@ -1,0 +1,43 @@
+{% comment %}
+Recursive template for deep navigation levels (5-20)
+Each level gets progressively more faded glassmorphism
+{% endcomment %}
+
+{% assign current_level = include.level | default: 5 %}
+{% assign max_level = 20 %}
+
+{% if current_level <= max_level and include.items %}
+  <div class="dropdown-menu level-{{ current_level }}" data-level="{{ current_level }}">
+    <div class="dropdown-content">
+      <ul class="dropdown-list">
+        {% for item in include.items %}
+          <li class="dropdown-item{% if item.subsections or item.sub_subsections or item.sub_sub_subsections %} has-subdropdown{% endif %}">
+            <a href="{{ item.url | relative_url }}" class="dropdown-link">
+              {{ item.title }}
+            </a>
+            {% if item.description %}
+              <span class="dropdown-desc">{{ item.description }}</span>
+            {% endif %}
+            
+            {% comment %}
+            Determine which subsection property to use based on level
+            {% endcomment %}
+            {% assign next_items = null %}
+            {% if item.subsections %}
+              {% assign next_items = item.subsections %}
+            {% elsif item.sub_subsections %}
+              {% assign next_items = item.sub_subsections %}
+            {% elsif item.sub_sub_subsections %}
+              {% assign next_items = item.sub_sub_subsections %}
+            {% endif %}
+            
+            {% if next_items and current_level < max_level %}
+              {% assign next_level = current_level | plus: 1 %}
+              {% include deep-nav-recursive.html items=next_items level=next_level %}
+            {% endif %}
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+{% endif %} 

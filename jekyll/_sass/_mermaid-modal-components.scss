@@ -1,0 +1,221 @@
+// =============================================================================
+// Mermaid Modal Components
+// =============================================================================
+// Modal header, content, and footer component styles
+
+@import 'mermaid-variables';
+
+// -----------------------------------------------------------------------------
+// Modal Header Styles
+// -----------------------------------------------------------------------------
+
+.mermaid-modal__header {
+  position: relative;
+  z-index: calc(var(--z-modal) + 2);
+  @include glass-effect($bg-modal-header, $blur-medium, var(--glass-border-medium));
+  border-bottom: 1px solid var(--glass-border-medium);
+  padding: var(--spacing-lg) var(--spacing-2xl);
+  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-shrink: 0;
+  min-height: 64px;
+  box-shadow: 
+    inset 0 1px 0 var(--glass-overlay-medium),
+    0 1px 0 var(--glass-overlay-light);
+  
+  @include respond-to(tablet) {
+    padding: var(--spacing-md) var(--spacing-xl);
+    min-height: 56px;
+  }
+  
+  @include respond-to(mobile) {
+    padding: var(--spacing-sm) var(--spacing-lg);
+    min-height: 48px;
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  }
+}
+
+.mermaid-modal__title {
+  color: var(--brand-primary);
+  font-weight: 700;
+  font-size: var(--font-size-xl);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  margin: 0;
+  letter-spacing: 0.02em;
+  
+  @include respond-to(tablet) {
+    font-size: var(--font-size-lg);
+  }
+  
+  @include respond-to(mobile) {
+    font-size: var(--font-size-md);
+  }
+}
+
+.mermaid-modal__controls {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-lg);
+  
+  @include respond-to(mobile) {
+    gap: var(--spacing-md);
+  }
+}
+
+.mermaid-modal__control-group {
+  display: flex;
+  gap: var(--spacing-md);
+  
+  @include respond-to(mobile) {
+    gap: var(--spacing-sm);
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Modal Content Styles
+// -----------------------------------------------------------------------------
+
+.mermaid-modal__content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+  min-height: 0; // Allow flex item to shrink below content size
+}
+
+.mermaid-modal__diagram-container {
+  flex: 1;
+  padding: var(--spacing-2xl);
+  position: relative;
+  overflow: visible; // Allow content to be visible beyond container
+  transform-origin: center center;
+  transition: transform $transition-fast ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  // The diagram content sits directly in the container
+  .mermaid {
+    display: block;
+    width: auto;
+    height: auto;
+    margin: 0;
+    transform-origin: center center;
+    
+    // Ensure SVG content is not constrained
+    svg {
+      display: block;
+      max-width: none !important;
+      max-height: none !important;
+      width: auto !important;
+      height: auto !important;
+      // Allow the SVG to be as large as it needs to be
+      min-width: auto !important;
+      min-height: auto !important;
+    }
+  }
+  
+  @include respond-to(tablet) {
+    padding: var(--spacing-lg);
+  }
+  
+  @include respond-to(mobile) {
+    padding: var(--spacing-md);
+  }
+}
+
+.mermaid-modal__zoom-indicator {
+  position: absolute;
+  top: var(--spacing-lg);
+  right: var(--spacing-2xl);
+  @include glass-effect(rgba(0, 0, 0, 0.7), $blur-light, var(--glass-border-light));
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--radius-md);
+  font-size: 12px;
+  color: var(--text-secondary);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity $transition-normal ease;
+  
+  .mermaid-modal.active & {
+    opacity: 1;
+  }
+  
+  @include respond-to(tablet) {
+    right: var(--spacing-xl);
+  }
+  
+  @include respond-to(mobile) {
+    right: var(--spacing-lg);
+  }
+}
+
+.mermaid-modal__zoom-value {
+  font-weight: 500;
+  color: var(--brand-primary);
+}
+
+// -----------------------------------------------------------------------------
+// Modal Footer Styles
+// -----------------------------------------------------------------------------
+
+.mermaid-modal__footer {
+  @include glass-effect(rgba(45, 45, 45, 0.7), $blur-light, var(--glass-border-light));
+  border-top: 1px solid var(--glass-border-light);
+  padding: var(--spacing-md) var(--spacing-2xl);
+  flex-shrink: 0;
+  min-height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  @include respond-to(tablet) {
+    padding: var(--spacing-sm) var(--spacing-xl);
+    min-height: 45px;
+  }
+  
+  @include respond-to(mobile) {
+    padding: var(--spacing-xs) var(--spacing-lg);
+    min-height: 40px;
+  }
+}
+
+.mermaid-modal__help-text {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: var(--spacing-2xl);
+  font-size: 12px;
+  color: var(--text-secondary);
+  font-weight: 400;
+  line-height: 1.4;
+  
+  @include respond-to(mobile) {
+    gap: var(--spacing-xl);
+    font-size: 11px;
+  }
+}
+
+.mermaid-modal__help-item {
+  display: flex;
+  align-items: center;
+  
+  &::after {
+    content: "•";
+    margin-left: var(--spacing-2xl);
+    opacity: 0.4;
+    font-size: 14px;
+    
+    @include respond-to(mobile) {
+      margin-left: var(--spacing-xl);
+      font-size: 12px;
+    }
+  }
+  
+  &:last-child::after {
+    display: none;
+  }
+} 

@@ -1,0 +1,901 @@
+{% include search-fallback.html %}
+
+<div class="search-container">
+  <div class="search-header">
+    <input type="text" id="search-input" placeholder="Search documentation..." class="search-input" autocomplete="off">
+    <div class="search-filters">
+      <select id="category-filter" class="filter-select">
+        <option value="">All Categories</option>
+        <option value="Documentation">Documentation</option>
+        <option value="Development">Development</option>
+        <option value="Community">Community</option>
+        <option value="API">API</option>
+        <option value="Components">Components</option>
+        <option value="Libraries">Libraries</option>
+      </select>
+      <select id="section-filter" class="filter-select">
+        <option value="">All Sections</option>
+        <option value="Getting Started">Getting Started</option>
+        <option value="Architecture">Architecture</option>
+        <option value="Deployment">Deployment</option>
+        <option value="Testing">Testing</option>
+        <option value="Contributing">Contributing</option>
+        <option value="General">General</option>
+      </select>
+    </div>
+  </div>
+  
+  <div id="search-autocomplete" class="search-autocomplete"></div>
+  <div id="search-results" class="search-results"></div>
+  <div id="search-stats" class="search-stats"></div>
+</div>
+
+<style>
+.search-container {
+  margin: 2rem 0;
+  position: relative;
+  width: 100%;
+  max-width: 100%;
+}
+
+.search-header {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: 100%;
+}
+
+.search-input {
+  width: 100%;
+  flex: 1;
+  padding: 1rem;
+  font-size: 1.1rem;
+  border: 2px solid #e1e5e9;
+  border-radius: 8px;
+  background: white;
+  transition: border-color 0.3s ease;
+  box-sizing: border-box;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: #0366d6;
+  box-shadow: 0 0 0 3px rgba(3, 102, 214, 0.1);
+}
+
+.search-filters {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  width: 100%;
+}
+
+.filter-select {
+  padding: 0.5rem 1rem;
+  border: 1px solid #e1e5e9;
+  border-radius: 6px;
+  background: white;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: border-color 0.3s ease;
+  flex: 1;
+  min-width: 150px;
+}
+
+.filter-select:focus {
+  outline: none;
+  border-color: #0366d6;
+}
+
+.search-autocomplete {
+  background: white;
+  border: 1px solid #e1e5e9;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  max-height: 200px;
+  overflow-y: auto;
+  display: none;
+}
+
+.search-autocomplete-item {
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  border-bottom: 1px solid #f6f8fa;
+  transition: background-color 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.search-autocomplete-item:hover,
+.search-autocomplete-item.highlighted {
+  background-color: #f6f8fa;
+}
+
+.search-autocomplete-item:last-child {
+  border-bottom: none;
+}
+
+.search-autocomplete-icon {
+  font-size: 0.8rem;
+  opacity: 0.6;
+  width: 16px;
+  text-align: center;
+}
+
+.search-autocomplete-text {
+  flex: 1;
+  font-size: 0.9rem;
+}
+
+.search-autocomplete-type {
+  font-size: 0.75rem;
+  color: #586069;
+  background: #f1f8ff;
+  padding: 0.2rem 0.4rem;
+  border-radius: 10px;
+}
+
+.search-results {
+  background: white;
+  border: 1px solid #e1e5e9;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  max-height: 500px;
+  overflow-y: auto;
+  display: none;
+}
+
+.search-result {
+  padding: 1rem;
+  border-bottom: 1px solid #f6f8fa;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  background-color: var(--dark-background--primary, #1a1a1a);
+  color: var(--text-primary, #ffffff);
+}
+
+.search-result:hover {
+  background-color: var(--dark-background--secondary, #2a2a2a) !important;
+  color: var(--text-primary, #ffffff) !important;
+}
+
+.search-result:last-child {
+  border-bottom: none;
+}
+
+.search-result-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 0.5rem;
+}
+
+.search-result h4 {
+  margin: 0;
+  color: var(--brand-primary, #0366d6) !important;
+  font-size: 1rem;
+}
+
+.search-result-meta {
+  display: flex;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+}
+
+.search-result-badge {
+  background: #f1f8ff;
+  color: #0366d6;
+  padding: 0.2rem 0.5rem;
+  border-radius: 12px;
+  font-weight: 500;
+}
+
+.search-result p {
+  margin: 0 0 0.5rem 0;
+  color: var(--text-secondary, #cccccc) !important;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.search-result-url {
+  font-size: 0.75rem;
+  color: var(--brand-secondary, #4a9eff) !important;
+  margin: 0;
+  opacity: 0.8;
+}
+
+.search-stats {
+  margin-top: 0.5rem;
+  padding: 0.5rem;
+  background: #f6f8fa;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  color: #586069;
+  display: none;
+}
+
+.search-no-results {
+  padding: 2rem;
+  text-align: center;
+  color: #586069;
+}
+
+.search-no-results h4 {
+  margin: 0 0 1rem 0;
+  color: #24292e;
+}
+
+.search-suggestions {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e1e5e9;
+}
+
+.search-suggestions h5 {
+  margin: 0 0 0.5rem 0;
+  color: #24292e;
+  font-size: 0.9rem;
+}
+
+.search-suggestions ul {
+  margin: 0;
+  padding-left: 1rem;
+  list-style: none;
+}
+
+.search-suggestions li {
+  margin-bottom: 0.25rem;
+}
+
+.search-suggestions a {
+  color: #0366d6;
+  text-decoration: none;
+  font-size: 0.85rem;
+}
+
+.search-suggestions a:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 768px) {
+  .search-filters {
+    flex-direction: column;
+  }
+  
+  .filter-select {
+    width: 100%;
+  }
+  
+  .search-input {
+    font-size: 1rem;
+  }
+  
+  .search-result-header {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const searchInput = document.getElementById('search-input');
+  const searchAutocomplete = document.getElementById('search-autocomplete');
+  const searchResults = document.getElementById('search-results');
+  const searchStats = document.getElementById('search-stats');
+  const categoryFilter = document.getElementById('category-filter');
+  const sectionFilter = document.getElementById('section-filter');
+  
+  console.log('Search elements found:', {
+    searchInput: !!searchInput,
+    searchAutocomplete: !!searchAutocomplete,
+    searchResults: !!searchResults,
+    searchStats: !!searchStats,
+    categoryFilter: !!categoryFilter,
+    sectionFilter: !!sectionFilter
+  });
+  
+  let searchData = [];
+  let filteredData = [];
+  let autocompleteTerms = [];
+  let currentAutocompleteIndex = -1;
+  let isAutocompleteVisible = false;
+  
+  // Load search data with fallback support
+  async function loadSearchData() {
+    try {
+      // Try to use the fallback discovery system first
+      if (window.documentationDiscovery) {
+        const discoveredData = await window.documentationDiscovery.initialize();
+        if (discoveredData && discoveredData.length > 0) {
+          searchData = discoveredData;
+          filteredData = searchData;
+          buildAutocompleteTerms();
+          console.log(`Loaded ${searchData.length} searchable documents with ${autocompleteTerms.length} autocomplete terms (via discovery)`);
+          return;
+        }
+      }
+      
+      // Fallback to direct fetch
+      const response = await fetch('/search.json');
+      const data = await response.json();
+      
+      // Filter out non-documentation files on client side as well
+      searchData = data.filter(item => {
+        const url = item.url.toLowerCase();
+        return !url.includes('.xml') && 
+               !url.includes('.json') && 
+               !url.includes('.txt') && 
+               !url.includes('.yml') && 
+               !url.includes('.yaml') && 
+               !url.includes('.css') && 
+               !url.includes('.js') && 
+               !url.includes('.scss') &&
+               item.title && 
+               item.title.trim() !== '' &&
+               !item.title.includes('404') &&
+               !item.title.includes('Search');
+      });
+      
+      filteredData = searchData;
+      buildAutocompleteTerms();
+      
+      console.log(`Loaded ${searchData.length} searchable documents with ${autocompleteTerms.length} autocomplete terms`);
+      
+    } catch (error) {
+      console.error('Failed to load search data:', error);
+      // Provide some default search data if loading fails
+      searchData = [
+        {
+          title: "Getting Started",
+          url: "/docs/getting-started/",
+          content: "Installation and setup guide for the Idling.app project",
+          category: "Documentation",
+          section: "Getting Started"
+        },
+        {
+          title: "API Reference",
+          url: "/docs/api/",
+          content: "Complete API documentation with examples",
+          category: "Documentation", 
+          section: "API"
+        },
+        {
+          title: "Components",
+          url: "/dev/components/",
+          content: "UI components and design system documentation",
+          category: "Development",
+          section: "Components"
+        },
+        {
+          title: "Architecture",
+          url: "/docs/architecture/",
+          content: "System design and architectural decisions",
+          category: "Documentation",
+          section: "Architecture"
+        },
+        {
+          title: "Deployment",
+          url: "/docs/deployment/",
+          content: "Production deployment procedures and guidelines",
+          category: "Documentation",
+          section: "Deployment"
+        },
+        {
+          title: "Database",
+          url: "/dev/database/",
+          content: "Database schema and migration documentation",
+          category: "Development",
+          section: "Database"
+        },
+        {
+          title: "Libraries",
+          url: "/dev/libraries/",
+          content: "Shared utilities and service libraries",
+          category: "Development",
+          section: "Libraries"
+        },
+        {
+          title: "Testing",
+          url: "/dev/testing/",
+          content: "Testing strategies and implementation guides",
+          category: "Development",
+          section: "Testing"
+        },
+        {
+          title: "Contributing",
+          url: "/community/contributing/",
+          content: "Guidelines for contributing to the project",
+          category: "Community",
+          section: "Contributing"
+        },
+        {
+          title: "Community",
+          url: "/community/",
+          content: "Community resources and communication channels",
+          category: "Community",
+          section: "General"
+        }
+      ];
+      filteredData = searchData;
+      buildAutocompleteTerms();
+    }
+  }
+  
+  function buildAutocompleteTerms() {
+    const terms = new Set();
+    
+    searchData.forEach(item => {
+      // Add title words
+      if (item.title) {
+        item.title.toLowerCase().split(/\s+/).forEach(word => {
+          if (word.length > 2) terms.add(word);
+        });
+      }
+      
+      // Add categories and sections
+      if (item.category) terms.add(item.category.toLowerCase());
+      if (item.section) terms.add(item.section.toLowerCase());
+      
+      // Add tags if available
+      if (item.tags) {
+        item.tags.forEach(tag => terms.add(tag.toLowerCase()));
+      }
+    });
+    
+    autocompleteTerms = Array.from(terms).sort();
+  }
+  
+  function showAutocomplete(query) {
+    if (query.length < 2) {
+      hideAutocomplete();
+      return;
+    }
+    
+    const matches = autocompleteTerms
+      .filter(term => term.includes(query.toLowerCase()))
+      .slice(0, 8)
+      .map(term => {
+        // Determine type based on term
+        let type = 'term';
+        if (searchData.some(item => item.category && item.category.toLowerCase() === term)) {
+          type = 'category';
+        } else if (searchData.some(item => item.section && item.section.toLowerCase() === term)) {
+          type = 'section';
+        } else if (searchData.some(item => item.tags && item.tags.some(tag => tag.toLowerCase() === term))) {
+          type = 'tag';
+        }
+        
+        return { term, type };
+      });
+    
+    if (matches.length === 0) {
+      hideAutocomplete();
+      return;
+    }
+    
+    searchAutocomplete.innerHTML = matches.map((match, index) => `
+      <div class="search-autocomplete-item" data-term="${match.term}" data-index="${index}">
+        <span class="search-autocomplete-icon">${getAutocompleteIcon(match.type)}</span>
+        <span class="search-autocomplete-text">${highlightAutocomplete(match.term, query)}</span>
+        <span class="search-autocomplete-type">${match.type}</span>
+      </div>
+    `).join('');
+    
+    // CRITICAL: Move autocomplete outside the header container
+    if (searchAutocomplete.parentElement !== document.body) {
+      document.body.appendChild(searchAutocomplete);
+      console.log('Moved autocomplete to body');
+    }
+    
+    // CRITICAL: Show the autocomplete modal
+    searchAutocomplete.style.display = 'block';
+    searchAutocomplete.classList.add('show');
+    isAutocompleteVisible = true;
+    currentAutocompleteIndex = -1;
+    
+    // Position autocomplete like search results
+    positionAutocomplete();
+  }
+  
+  function hideAutocomplete() {
+    searchAutocomplete.style.display = 'none';
+    searchAutocomplete.classList.remove('show');
+    isAutocompleteVisible = false;
+    currentAutocompleteIndex = -1;
+  }
+  
+  function getAutocompleteIcon(type) {
+    const icons = {
+      'category': '📁',
+      'section': '📄',
+      'tag': '🏷️',
+      'term': '🔍'
+    };
+    return icons[type] || '🔍';
+  }
+  
+  function highlightAutocomplete(text, query) {
+    if (!query) return text;
+    const regex = new RegExp(`(${escapeRegex(query)})`, 'gi');
+    return text.replace(regex, '<strong>$1</strong>');
+  }
+  
+  function selectAutocompleteItem(term) {
+    searchInput.value = term;
+    hideAutocomplete();
+    performSearch();
+    searchInput.focus();
+  }
+  
+  function navigateAutocomplete(direction) {
+    const items = searchAutocomplete.querySelectorAll('.search-autocomplete-item');
+    if (items.length === 0) return;
+    
+    // Remove current highlight
+    if (currentAutocompleteIndex >= 0) {
+      items[currentAutocompleteIndex].classList.remove('highlighted');
+    }
+    
+    // Update index
+    if (direction === 'down') {
+      currentAutocompleteIndex = (currentAutocompleteIndex + 1) % items.length;
+    } else {
+      currentAutocompleteIndex = currentAutocompleteIndex <= 0 ? items.length - 1 : currentAutocompleteIndex - 1;
+    }
+    
+    // Add new highlight
+    items[currentAutocompleteIndex].classList.add('highlighted');
+    items[currentAutocompleteIndex].scrollIntoView({ block: 'nearest' });
+  }
+  
+  function performSearch() {
+    const query = searchInput.value.toLowerCase().trim();
+    const category = categoryFilter.value;
+    const section = sectionFilter.value;
+    
+    console.log('performSearch called:', { query, category, section, searchDataLength: searchData.length });
+    
+    // Hide autocomplete when performing search
+    hideAutocomplete();
+    
+    // Show helpful message if user has typed 1-2 characters
+    if (query.length > 0 && query.length < 3 && !category && !section) {
+      searchResults.innerHTML = `
+        <div class="search-no-results">
+          <h4>Keep typing...</h4>
+          <p>Enter at least 3 characters to search, or use the filters above.</p>
+        </div>
+      `;
+      // CRITICAL: Show the results modal
+      searchResults.style.setProperty('display', 'block', 'important');
+      searchResults.style.setProperty('visibility', 'visible', 'important');
+      searchResults.style.setProperty('opacity', '1', 'important');
+      searchResults.classList.add('show');
+      searchStats.style.display = 'none';
+      
+      // CRITICAL: Position search results relative to search input
+      positionSearchResults();
+      return;
+    }
+    
+    // Require at least 3 characters for search, or filters must be applied
+    if (query.length < 3 && !category && !section) {
+      hideResults();
+      return;
+    }
+    
+    // Filter by category and section first
+    let filtered = searchData;
+    
+    if (category) {
+      filtered = filtered.filter(item => item.category === category);
+    }
+    
+    if (section) {
+      filtered = filtered.filter(item => item.section === section);
+    }
+    
+    // Then filter by search query
+    let results = filtered;
+    if (query.length >= 3) {
+      results = filtered.filter(item => {
+        const titleMatch = item.title.toLowerCase().includes(query);
+        const contentMatch = item.content.toLowerCase().includes(query);
+        const excerptMatch = item.excerpt && item.excerpt.toLowerCase().includes(query);
+        const tagMatch = item.tags && item.tags.some(tag => tag.toLowerCase().includes(query));
+        
+        return titleMatch || contentMatch || excerptMatch || tagMatch;
+      });
+      
+      // Sort by relevance
+      results.sort((a, b) => {
+        const aScore = calculateRelevanceScore(a, query);
+        const bScore = calculateRelevanceScore(b, query);
+        return bScore - aScore;
+      });
+    } else if (category || section) {
+      // Show filtered results even without query
+      results = filtered;
+    }
+    
+    displayResults(results.slice(0, 15), query);
+    showStats(results.length, filtered.length);
+  }
+  
+  function calculateRelevanceScore(item, query) {
+    let score = 0;
+    const lowerQuery = query.toLowerCase();
+    
+    // Title matches are most important
+    if (item.title.toLowerCase().includes(lowerQuery)) {
+      score += 10;
+      if (item.title.toLowerCase().startsWith(lowerQuery)) {
+        score += 5;
+      }
+    }
+    
+    // Excerpt matches
+    if (item.excerpt && item.excerpt.toLowerCase().includes(lowerQuery)) {
+      score += 5;
+    }
+    
+    // Tag matches
+    if (item.tags && item.tags.some(tag => tag.toLowerCase().includes(lowerQuery))) {
+      score += 3;
+    }
+    
+    // Content matches (less important)
+    if (item.content.toLowerCase().includes(lowerQuery)) {
+      score += 1;
+    }
+    
+    return score;
+  }
+  
+  function displayResults(results, query) {
+    console.log('displayResults called with:', results.length, 'results for query:', query);
+    console.log('searchResults element:', searchResults);
+    
+    if (results.length === 0) {
+      showNoResults(query);
+      return;
+    }
+    
+    searchResults.innerHTML = results.map(item => `
+      <div class="search-result" onclick="window.location.href='${item.url}'" role="button" tabindex="0">
+        <div class="search-result-header">
+          <h4>${highlightText(item.title, query)}</h4>
+          <div class="search-result-meta">
+            <span class="search-result-badge">${item.category}</span>
+            ${item.section && item.section !== item.category ? `<span class="search-result-badge">${item.section}</span>` : ''}
+          </div>
+        </div>
+        <p>${highlightText(truncateText(item.excerpt || item.content, 150), query)}</p>
+        <div class="search-result-url">${item.url}</div>
+      </div>
+    `).join('');
+    
+    // CRITICAL: Show the results modal with proper styling
+    searchResults.style.setProperty('display', 'block', 'important');
+    searchResults.style.setProperty('visibility', 'visible', 'important');
+    searchResults.style.setProperty('opacity', '1', 'important');
+    searchResults.classList.add('show');
+    
+    // CRITICAL: Position search results relative to search input
+    positionSearchResults();
+    
+    console.log('Search results displayed:', results.length, 'items');
+    console.log('Search results element:', searchResults);
+    console.log('Search results styles:', window.getComputedStyle(searchResults));
+  }
+  
+  function showNoResults(query) {
+    const suggestions = getSearchSuggestions(query);
+    
+    searchResults.innerHTML = `
+      <div class="search-no-results">
+        <h4>No results found</h4>
+        <p>Try adjusting your search terms or filters.</p>
+        ${suggestions.length > 0 ? `
+          <div class="search-suggestions">
+            <h5>Popular topics:</h5>
+            <ul>
+              ${suggestions.map(suggestion => `<li><a href="#" onclick="searchFor('${suggestion}')">${suggestion}</a></li>`).join('')}
+            </ul>
+          </div>
+        ` : ''}
+      </div>
+    `;
+    
+    // CRITICAL: Show the results modal with proper styling
+    searchResults.style.setProperty('display', 'block', 'important');
+    searchResults.style.setProperty('visibility', 'visible', 'important');
+    searchResults.style.setProperty('opacity', '1', 'important');
+    searchResults.classList.add('show');
+    
+    // CRITICAL: Position search results relative to search input
+    positionSearchResults();
+  }
+  
+  function getSearchSuggestions(query) {
+    const popular = ['getting started', 'api', 'components', 'authentication', 'deployment', 'testing'];
+    return popular.filter(term => !term.includes(query.toLowerCase())).slice(0, 5);
+  }
+  
+  function showStats(resultCount, totalCount) {
+    searchStats.textContent = `Found ${resultCount} result${resultCount !== 1 ? 's' : ''} of ${totalCount} documents`;
+    searchStats.style.display = 'block';
+  }
+  
+  function hideResults() {
+    searchResults.style.setProperty('display', 'none', 'important');
+    searchResults.style.setProperty('visibility', 'hidden', 'important');
+    searchResults.style.setProperty('opacity', '0', 'important');
+    searchResults.classList.remove('show');
+    searchStats.style.display = 'none';
+  }
+  
+  function positionSearchResults() {
+    // CRITICAL: Move search results outside the header container
+    if (searchResults.parentElement !== document.body) {
+      document.body.appendChild(searchResults);
+      console.log('Moved search results to body');
+    }
+    
+    // Calculate position relative to search input
+    const searchContainer = document.querySelector('.search-container');
+    if (!searchContainer) return;
+    
+    const rect = searchContainer.getBoundingClientRect();
+    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+    
+    // Position below the search container with some padding
+    const top = rect.bottom + scrollTop + 10;
+    
+    // CRITICAL: Use absolute positioning so it scrolls with the page
+    searchResults.style.setProperty('position', 'absolute', 'important');
+    searchResults.style.setProperty('top', `${top}px`, 'important');
+    searchResults.style.setProperty('z-index', '999999', 'important');
+    
+    // On mobile, use full width with margin
+    if (window.innerWidth <= 768) {
+      searchResults.style.setProperty('left', '1rem', 'important');
+      searchResults.style.setProperty('right', '1rem', 'important');
+      searchResults.style.setProperty('width', 'auto', 'important');
+      searchResults.style.setProperty('transform', 'none', 'important');
+    } else {
+      // On desktop, center it
+      searchResults.style.setProperty('left', '50%', 'important');
+      searchResults.style.setProperty('right', 'auto', 'important');
+      searchResults.style.setProperty('transform', 'translateX(-50%)', 'important');
+      searchResults.style.setProperty('width', 'calc(100vw - 4rem)', 'important');
+      searchResults.style.setProperty('max-width', '1200px', 'important');
+    }
+  }
+  
+  function positionAutocomplete() {
+    // CRITICAL: Move autocomplete outside the header container
+    if (searchAutocomplete.parentElement !== document.body) {
+      document.body.appendChild(searchAutocomplete);
+      console.log('Moved autocomplete to body');
+    }
+    
+    // Calculate position relative to search input
+    const searchInput = document.getElementById('search-input');
+    if (!searchInput) return;
+    
+    const rect = searchInput.getBoundingClientRect();
+    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+    
+    // Position below the search input with some padding
+    const top = rect.bottom + scrollTop + 5;
+    const left = rect.left + window.pageXOffset || document.documentElement.scrollLeft;
+    
+    // CRITICAL: Use absolute positioning so it scrolls with the page
+    searchAutocomplete.style.setProperty('position', 'absolute', 'important');
+    searchAutocomplete.style.setProperty('top', `${top}px`, 'important');
+    searchAutocomplete.style.setProperty('left', `${left}px`, 'important');
+    searchAutocomplete.style.setProperty('width', `${rect.width}px`, 'important');
+    searchAutocomplete.style.setProperty('z-index', '999999', 'important');
+  }
+  
+  // Event listeners
+  searchInput.addEventListener('input', function() {
+    const query = this.value.trim();
+    console.log('Search input changed:', query, 'length:', query.length);
+    
+    if (query.length >= 2 && query.length < 3) {
+      console.log('Showing autocomplete for:', query);
+      showAutocomplete(query);
+    } else if (query.length >= 3) {
+      console.log('Performing search for:', query);
+      hideAutocomplete();
+      performSearch();
+    } else {
+      console.log('Hiding results - query too short');
+      hideAutocomplete();
+      hideResults();
+    }
+  });
+  
+  searchInput.addEventListener('keydown', function(e) {
+    if (isAutocompleteVisible) {
+      switch(e.key) {
+        case 'ArrowDown':
+          e.preventDefault();
+          navigateAutocomplete('down');
+          break;
+        case 'ArrowUp':
+          e.preventDefault();
+          navigateAutocomplete('up');
+          break;
+        case 'Enter':
+          e.preventDefault();
+          if (currentAutocompleteIndex >= 0) {
+            const selectedItem = searchAutocomplete.querySelector('.search-autocomplete-item.highlighted');
+            if (selectedItem) {
+              selectAutocompleteItem(selectedItem.dataset.term);
+            }
+          } else {
+            hideAutocomplete();
+            performSearch();
+          }
+          break;
+        case 'Escape':
+          hideAutocomplete();
+          break;
+      }
+    } else if (e.key === 'Enter') {
+      e.preventDefault();
+      performSearch();
+    }
+  });
+  
+  // Autocomplete click handlers
+  searchAutocomplete.addEventListener('click', function(e) {
+    const item = e.target.closest('.search-autocomplete-item');
+    if (item) {
+      selectAutocompleteItem(item.dataset.term);
+    }
+  });
+  
+  // Filter change handlers
+  categoryFilter.addEventListener('change', performSearch);
+  sectionFilter.addEventListener('change', performSearch);
+  
+  // Click outside to close
+  document.addEventListener('click', function(e) {
+    if (!e.target.closest('.search-container')) {
+      hideAutocomplete();
+      hideResults();
+    }
+  });
+  
+  // Initialize
+  loadSearchData();
+  
+  // Global search function for suggestions
+  window.searchFor = function(term) {
+    searchInput.value = term;
+    performSearch();
+    searchInput.focus();
+  };
+  
+  // Helper functions
+  function highlightText(text, query) {
+    if (!query || query.length < 3) return text;
+    const regex = new RegExp(`(${escapeRegex(query)})`, 'gi');
+    return text.replace(regex, '<mark>$1</mark>');
+  }
+  
+  function truncateText(text, length) {
+    return text.length > length ? text.substring(0, length) + '...' : text;
+  }
+  
+  function escapeRegex(string) {
+    return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  }
+});
+</script> 

@@ -1,0 +1,23 @@
+// =============================================================================
+// Mermaid Modal System
+// =============================================================================
+// Professional modal viewer system for Mermaid diagrams
+// Organized into focused, reusable components
+
+// Import foundational variables and mixins
+@import 'mermaid-variables';
+
+// Import animation keyframes
+@import 'mermaid-animations';
+
+// Import core modal structure
+@import 'mermaid-modal-base';
+
+// Import modal components (header, content, footer)
+@import 'mermaid-modal-components';
+
+// Import button styles
+@import 'mermaid-buttons';
+
+// Import container wrapper styles
+@import 'mermaid-container'; 

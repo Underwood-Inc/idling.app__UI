@@ -1,0 +1,2855 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Idling.app Documentation | Complete documentation for the Idling.app project - migrations, deployment, development guides and more</title>
+<meta name="generator" content="Jekyll v3.10.0" />
+<meta property="og:title" content="Idling.app Documentation" />
+<meta name="author" content="Underwood Inc" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Complete documentation for the Idling.app project - development guides, API reference, architecture, and community resources" />
+<meta property="og:description" content="Complete documentation for the Idling.app project - development guides, API reference, architecture, and community resources" />
+<link rel="canonical" href="http://0.0.0.0:4000/" />
+<meta property="og:url" content="http://0.0.0.0:4000/" />
+<meta property="og:site_name" content="Idling.app Documentation" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Idling.app Documentation" />
+<meta name="twitter:site" content="@idling_app" />
+<meta name="twitter:creator" content="@Underwood Inc" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebSite","author":{"@type":"Person","name":"Underwood Inc"},"description":"Complete documentation for the Idling.app project - development guides, API reference, architecture, and community resources","headline":"Idling.app Documentation","name":"Idling.app","sameAs":["https://github.com/Underwood-Inc/idling.app__UI"],"url":"http://0.0.0.0:4000/"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/css/fonts.css">
+  <link rel="stylesheet" href="/assets/css/style.css">
+  <link rel="stylesheet" href="/assets/css/custom.css"><link type="application/atom+xml" rel="alternate" href="http://0.0.0.0:4000/feed.xml" title="Idling.app Documentation" /><!-- Lunr.js for search functionality -->
+  <script src="https://unpkg.com/lunr/lunr.js"></script>
+  
+  <!-- Mermaid Diagram Support -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+  
+  <!-- Professional Mermaid System -->
+  <!-- Load in specific order: Config → Modal → Initializer -->
+  <script src="/assets/js/mermaid-config.js"></script>
+  <script src="/assets/js/mermaid-modal.js"></script>
+  <script src="/assets/js/mermaid-init.js"></script>
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  
+  <!-- Additional meta tags -->
+  <meta name="theme-color" content="#edae49">
+  <meta name="msapplication-TileColor" content="#edae49">
+</head> <body>
+    <!-- Navigation Progress Loader --><!-- Navigation Progress Loader - matches main app styling -->
+<div
+  id="navigation-progress"
+  class="nav-progress"
+  role="progressbar"
+  aria-label="Page loading progress"
+>
+  <div class="nav-progress__bar"></div>
+  <div class="nav-progress__spinner">
+    <svg
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      class="nav-progress__spinner-icon"
+    >
+      <path d="M21 12a9 9 0 11-6.219-8.56" />
+    </svg>
+  </div>
+</div>
+
+<script>
+  (function () {
+    'use strict';
+
+    // Navigation progress functionality
+    const NavProgress = {
+      progressBar: null,
+      spinner: null,
+      isLoading: false,
+      progress: 0,
+
+      init: function () {
+        this.progressBar = document.getElementById('navigation-progress');
+        this.spinner = this.progressBar?.querySelector(
+          '.nav-progress__spinner'
+        );
+
+        if (!this.progressBar) return;
+
+        // Listen for page navigation events
+        this.bindEvents();
+      },
+
+      bindEvents: function () {
+        // Handle clicks on internal links
+        document.addEventListener('click', (e) => {
+          const link = e.target.closest('a[href]');
+          if (!link) return;
+
+          const href = link.getAttribute('href');
+
+          // Only show loader for internal navigation (not external links or anchors)
+          if (this.isInternalNavigation(href)) {
+            this.start();
+          }
+        });
+
+        // Handle browser navigation (back/forward)
+        window.addEventListener('popstate', () => {
+          this.start();
+        });
+
+        // Handle page load completion
+        window.addEventListener('load', () => {
+          this.complete();
+        });
+
+        // Handle DOM content loaded (faster than full load)
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', () => {
+            this.complete();
+          });
+        } else {
+          // Page already loaded
+          this.complete();
+        }
+      },
+
+      isInternalNavigation: function (href) {
+        if (!href) return false;
+
+        // External links
+        if (href.startsWith('http://') || href.startsWith('https://')) {
+          return href.includes(window.location.hostname);
+        }
+
+        // Anchor links don't need loader
+        if (href.startsWith('#')) return false;
+
+        // mailto, tel, etc.
+        if (href.includes(':')) return false;
+
+        // Internal relative links
+        return true;
+      },
+
+      start: function () {
+        if (this.isLoading) return;
+
+        this.isLoading = true;
+        this.progress = 0;
+
+        if (this.progressBar) {
+          this.progressBar.classList.add('nav-progress--active');
+          this.updateProgress(10); // Start at 10%
+
+          // Simulate gradual progress
+          this.simulateProgress();
+        }
+      },
+
+      simulateProgress: function () {
+        const increment = () => {
+          if (!this.isLoading) return;
+
+          if (this.progress < 70) {
+            this.progress += Math.random() * 20;
+            this.updateProgress(Math.min(this.progress, 70));
+            setTimeout(increment, 100 + Math.random() * 200);
+          }
+        };
+
+        setTimeout(increment, 100);
+      },
+
+      updateProgress: function (percent) {
+        if (!this.progressBar) return;
+
+        const bar = this.progressBar.querySelector('.nav-progress__bar');
+        if (bar) {
+          bar.style.width = Math.min(percent, 100) + '%';
+        }
+      },
+
+      complete: function () {
+        if (!this.isLoading) return;
+
+        this.isLoading = false;
+        this.progress = 100;
+        this.updateProgress(100);
+
+        // Hide after completion animation
+        setTimeout(() => {
+          if (this.progressBar && !this.isLoading) {
+            this.progressBar.classList.remove('nav-progress--active');
+            this.progress = 0;
+            this.updateProgress(0);
+          }
+        }, 300);
+      }
+    };
+
+    // Initialize when DOM is ready
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', () => NavProgress.init());
+    } else {
+      NavProgress.init();
+    }
+  })();
+</script>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Idling.app Documentation</title>
+</head>
+
+<header class="site-header" role="banner">
+  <div class="wrapper">
+    <div class="site-header-content">
+      <!-- Site Branding -->
+      <div class="site-branding">
+        <a class="site-title" rel="author" href="/">
+          Idling.app Documentation
+        </a>
+
+        
+        <!-- Project Badges -->
+        <div class="project-badges">
+          <a href="https://github.com/Underwood-Inc/idling.app__UI" target="_blank" rel="noopener">
+            <img src="https://img.shields.io/badge/React-19.0.0--alpha-61DAFB?style=flat&logo=react&logoColor=white" alt="React Version" />
+          </a>
+          <a href="https://underwood-inc.github.io/idling.app__UI/" target="_blank" rel="noopener">
+            <img src="https://img.shields.io/badge/Documentation%20Coverage-90%25-brightgreen?style=flat&logo=gitbook&logoColor=white" alt="Documentation Coverage" />
+          </a>
+          <a href="https://github.com/Underwood-Inc/idling.app__UI/actions" target="_blank" rel="noopener">
+            <img src="https://img.shields.io/github/actions/workflow/status/Underwood-Inc/idling.app__UI/quality-assurance.yml?branch=main&style=flat&logo=github&logoColor=white" alt="Build Status" />
+          </a>
+        </div>
+      </div>
+
+      <!-- Navigation --><nav class="site-nav" role="navigation">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger" class="nav-trigger-label">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="m18,1.484c0,0.82-0.665,1.484-1.484,1.484h-15.032c-0.819,0-1.484-0.665-1.484-1.484s0.665-1.484,1.484-1.484h15.032c0.819,0,1.484,0.665,1.484,1.484zm0,6.016c0,0.82-0.665,1.484-1.484,1.484h-15.032c-0.819,0-1.484-0.665-1.484-1.484s0.665-1.484,1.484-1.484h15.032c0.819,0,1.484,0.665,1.484,1.484zm0,6.016c0,0.82-0.665,1.484-1.484,1.484h-15.032c-0.819,0-1.484-0.665-1.484-1.484s0.665-1.484,1.484-1.484h15.032c0.819,0,1.484,0.665,1.484,1.484z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><!-- Multi-level navigation item -->
+              <div class="nav-item-container">
+                <div class="nav-item-header">
+                  <a class="page-link nav-main-link" href="/docs/"
+                     
+                     title="Complete project documentation">
+                    📚 Documentation
+                  </a>
+                  <button class="nav-toggle" aria-label="Toggle 📚 Documentation submenu" aria-expanded="false">
+                    <svg class="nav-toggle-icon" width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M7.41,8.58L12,13.17L16.59,8.58L18,10L12,16L6,10L7.41,8.58Z"/>
+                    </svg>
+                  </button>
+                </div>
+                
+                <div class="nav-subnav"><div class="nav-sub-item">
+                      <a class="page-link nav-sub-link" href="/docs/getting-started/"
+                         
+                         title="Setup and initial configuration">
+                        🚀 Getting Started
+                      </a><span class="nav-sub-description">Setup and initial configuration</span><div class="nav-subsections"><div class="nav-subsection-item">
+                              <a class="page-link nav-subsection-link" href="/docs/getting-started/installation/"
+                                 
+                                 title="Installation and setup guide">
+                                🔧 Installation
+                              </a>
+                            </div><div class="nav-subsection-item">
+                              <a class="page-link nav-subsection-link" href="/docs/getting-started/quickstart/"
+                                 
+                                 title="Get up and running quickly">
+                                🏃 Quick Start
+                              </a>
+                            </div><div class="nav-subsection-item">
+                              <a class="page-link nav-subsection-link" href="/docs/getting-started/docker/"
+                                 
+                                 title="Containerized development environment">
+                                🐳 Docker Setup
+                              </a>
+                            </div></div></div><div class="nav-sub-item">
+                      <a class="page-link nav-sub-link" href="/docs/api/"
+                         
+                         title="Complete API documentation">
+                        🔌 API Reference
+                      </a><span class="nav-sub-description">Complete API documentation</span><div class="nav-subsections"><div class="nav-subsection-item">
+                              <a class="page-link nav-subsection-link" href="/docs/api/"
+                                 
+                                 title="Introduction and concepts">
+                                📖 API Overview
+                              </a>
+                            </div><div class="nav-subsection-item">
+                              <a class="page-link nav-subsection-link" href="/docs/api/swagger/"
+                                 
+                                 title="Swagger UI and testing tools">
+                                🧪 Interactive Tools
+                              </a>
+                            </div><div class="nav-subsection-item">
+                              <a class="page-link nav-subsection-link" href="/docs/api/admin/"
+                                 
+                                 title="Administrative endpoints">
+                                🔧 Admin Endpoints
+                              </a>
+                            </div></div></div><div class="nav-sub-item">
+                      <a class="page-link nav-sub-link" href="/docs/architecture/"
+                         
+                         title="System design and architecture">
+                        🏗️ Architecture
+                      </a><span class="nav-sub-description">System design and architecture</span><div class="nav-subsections"><div class="nav-subsection-item">
+                              <a class="page-link nav-subsection-link" href="/docs/architecture/system/"
+                                 
+                                 title="High-level system architecture">
+                                🏛️ System Design
+                              </a>
+                            </div><div class="nav-subsection-item">
+                              <a class="page-link nav-subsection-link" href="/docs/architecture/security/"
+                                 
+                                 title="Security patterns and implementation">
+                                🔐 Security
+                              </a>
+                            </div><div class="nav-subsection-item">
+                              <a class="page-link nav-subsection-link" href="/docs/architecture/performance/"
+                                 
+                                 title="Performance optimization strategies">
+                                📊 Performance
+                              </a>
+                            </div></div></div><div class="nav-sub-item">
+                      <a class="page-link nav-sub-link" href="/docs/deployment/"
+                         
+                         title="Production deployment procedures">
+                        🚀 Deployment
+                      </a><span class="nav-sub-description">Production deployment procedures</span><div class="nav-subsections"><div class="nav-subsection-item">
+                              <a class="page-link nav-subsection-link" href="/docs/deployment/production/"
+                                 
+                                 title="Server deployment guide">
+                                🌐 Production Setup
+                              </a>
+                            </div><div class="nav-subsection-item">
+                              <a class="page-link nav-subsection-link" href="/docs/deployment/docs/"
+                                 
+                                 title="Deploy this documentation">
+                                📄 Documentation Site
+                              </a>
+                            </div><div class="nav-subsection-item">
+                              <a class="page-link nav-subsection-link" href="/docs/deployment/releases/"
+                                 
+                                 title="Version management and releases">
+                                📦 Release Process
+                              </a>
+                            </div></div></div></div>
+              </div><!-- Multi-level navigation item -->
+              <div class="nav-item-container">
+                <div class="nav-item-header">
+                  <a class="page-link nav-main-link" href="/dev/"
+                     
+                     title="Development tools and resources">
+                    🛠️ Development
+                  </a>
+                  <button class="nav-toggle" aria-label="Toggle 🛠️ Development submenu" aria-expanded="false">
+                    <svg class="nav-toggle-icon" width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M7.41,8.58L12,13.17L16.59,8.58L18,10L12,16L6,10L7.41,8.58Z"/>
+                    </svg>
+                  </button>
+                </div>
+                
+                <div class="nav-subnav"><div class="nav-sub-item">
+                      <a class="page-link nav-sub-link" href="/dev/components/"
+                         
+                         title="UI components and design system">
+                        🧩 Components
+                      </a><span class="nav-sub-description">UI components and design system</span><div class="nav-subsections"><div class="nav-subsection-item">
+                              <a class="page-link nav-subsection-link" href="/dev/components/#rich-input-system"
+                                 
+                                 title="Advanced text editing component">
+                                📝 Rich Input System
+                              </a>
+                            </div><div class="nav-subsection-item">
+                              <a class="page-link nav-subsection-link" href="/dev/components/#filter-bar-component"
+                                 
+                                 title="Search and filtering interfaces">
+                                🔍 Filter Bar
+                              </a>
+                            </div><div class="nav-subsection-item">
+                              <a class="page-link nav-subsection-link" href="/dev/components/#floating-toolbar-component"
+                                 
+                                 title="Context-sensitive toolbar">
+                                🧭 Floating Toolbar
+                              </a>
+                            </div><div class="nav-subsection-item">
+                              <a class="page-link nav-subsection-link" href="/dev/components/"
+                                 
+                                 title="Complete component documentation">
+                                📚 Component Library
+                              </a>
+                            </div></div></div><div class="nav-sub-item">
+                      <a class="page-link nav-sub-link" href="/dev/database/"
+                         
+                         title="Database and data management">
+                        🗄️ Database
+                      </a><span class="nav-sub-description">Database and data management</span><div class="nav-subsections"><div class="nav-subsection-item">
+                              <a class="page-link nav-subsection-link" href="/dev/database/migrations/"
+                                 
+                                 title="Database schema management">
+                                🔄 Migrations
+                              </a>
+                            </div><div class="nav-subsection-item">
+                              <a class="page-link nav-subsection-link" href="/dev/database/performance/"
+                                 
+                                 title="Database optimization">
+                                ⚡ Performance
+                              </a>
+                            </div><div class="nav-subsection-item">
+                              <a class="page-link nav-subsection-link" href="/dev/database/data/"
+                                 
+                                 title="Data seeding and management">
+                                🌱 Data Management
+                              </a>
+                            </div></div></div><div class="nav-sub-item">
+                      <a class="page-link nav-sub-link" href="/dev/libraries/"
+                         
+                         title="Shared utilities and services">
+                        📚 Libraries
+                      </a><span class="nav-sub-description">Shared utilities and services</span><div class="nav-subsections"><div class="nav-subsection-item">
+                              <a class="page-link nav-subsection-link" href="/dev/libraries/services/"
+                                 
+                                 title="Authentication, caching, logging">
+                                ⚙️ Core Services
+                              </a>
+                            </div><div class="nav-subsection-item">
+                              <a class="page-link nav-subsection-link" href="/dev/libraries/utils/"
+                                 
+                                 title="Helper functions and parsers">
+                                🔧 Utilities
+                              </a>
+                            </div><div class="nav-subsection-item">
+                              <a class="page-link nav-subsection-link" href="/dev/libraries/hooks/"
+                                 
+                                 title="Custom React hooks">
+                                🎣 React Hooks
+                              </a>
+                            </div></div></div><div class="nav-sub-item">
+                      <a class="page-link nav-sub-link" href="/dev/testing/"
+                         
+                         title="Testing strategies and QA">
+                        🧪 Testing
+                      </a><span class="nav-sub-description">Testing strategies and QA</span><div class="nav-subsections"><div class="nav-subsection-item">
+                              <a class="page-link nav-subsection-link" href="/dev/testing/unit/"
+                                 
+                                 title="Unit test strategies">
+                                🔬 Unit Testing
+                              </a>
+                            </div><div class="nav-subsection-item">
+                              <a class="page-link nav-subsection-link" href="/dev/testing/e2e/"
+                                 
+                                 title="End-to-end testing with Playwright">
+                                🌐 E2E Testing
+                              </a>
+                            </div><div class="nav-subsection-item">
+                              <a class="page-link nav-subsection-link" href="/dev/testing/ci-cd/"
+                                 
+                                 title="Continuous integration pipeline">
+                                🔄 CI/CD
+                              </a>
+                            </div></div></div><div class="nav-sub-item">
+                      <a class="page-link nav-sub-link" href="/dev/tools/"
+                         
+                         title="Development environment and tools">
+                        🔧 Tools
+                      </a><span class="nav-sub-description">Development environment and tools</span><div class="nav-subsections"><div class="nav-subsection-item">
+                              <a class="page-link nav-subsection-link" href="/dev/tools/environment/"
+                                 
+                                 title="Environment setup and configuration">
+                                🔧 Environment
+                              </a>
+                            </div><div class="nav-subsection-item">
+                              <a class="page-link nav-subsection-link" href="/dev/tools/performance/"
+                                 
+                                 title="Performance optimization tools">
+                                ⏳ Performance
+                              </a>
+                            </div><div class="nav-subsection-item">
+                              <a class="page-link nav-subsection-link" href="/dev/tools/debugging/"
+                                 
+                                 title="Debugging and troubleshooting">
+                                🔍 Debugging
+                              </a>
+                            </div></div></div></div>
+              </div><!-- Multi-level navigation item -->
+              <div class="nav-item-container">
+                <div class="nav-item-header">
+                  <a class="page-link nav-main-link" href="/community/"
+                     
+                     title="Project community and resources">
+                    👥 Community
+                  </a>
+                  <button class="nav-toggle" aria-label="Toggle 👥 Community submenu" aria-expanded="false">
+                    <svg class="nav-toggle-icon" width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M7.41,8.58L12,13.17L16.59,8.58L18,10L12,16L6,10L7.41,8.58Z"/>
+                    </svg>
+                  </button>
+                </div>
+                
+                <div class="nav-subnav"><div class="nav-sub-item">
+                      <a class="page-link nav-sub-link" href="/community/contributing/"
+                         
+                         title="How to contribute to the project">
+                        🤝 Contributing
+                      </a><span class="nav-sub-description">How to contribute to the project</span><div class="nav-subsections"><div class="nav-subsection-item">
+                              <a class="page-link nav-subsection-link" href="/community/contributing/getting-started/"
+                                 
+                                 title="First steps for contributors">
+                                🚀 Getting Started
+                              </a>
+                            </div><div class="nav-subsection-item">
+                              <a class="page-link nav-subsection-link" href="/community/contributing/guidelines/"
+                                 
+                                 title="Contribution guidelines and standards">
+                                📋 Guidelines
+                              </a>
+                            </div><div class="nav-subsection-item">
+                              <a class="page-link nav-subsection-link" href="/community/contributing/setup/"
+                                 
+                                 title="Setting up development environment">
+                                🔧 Development Setup
+                              </a>
+                            </div></div></div><div class="nav-sub-item">
+                      <a class="page-link nav-sub-link" href="/community/standards/"
+                         
+                         title="Development standards and best practices">
+                        📝 Standards
+                      </a><span class="nav-sub-description">Development standards and best practices</span><div class="nav-subsections"><div class="nav-subsection-item">
+                              <a class="page-link nav-subsection-link" href="/community/standards/code/"
+                                 
+                                 title="Code quality and style guidelines">
+                                📝 Code Standards
+                              </a>
+                            </div><div class="nav-subsection-item">
+                              <a class="page-link nav-subsection-link" href="/community/standards/docs/"
+                                 
+                                 title="Documentation writing guidelines">
+                                📚 Documentation
+                              </a>
+                            </div><div class="nav-subsection-item">
+                              <a class="page-link nav-subsection-link" href="/community/standards/design/"
+                                 
+                                 title="Design and UI/UX guidelines">
+                                🎨 Design System
+                              </a>
+                            </div></div></div><div class="nav-sub-item">
+                      <a class="page-link nav-sub-link" href="/community/communication/"
+                         
+                         title="Community channels and discussions">
+                        💬 Communication
+                      </a><span class="nav-sub-description">Community channels and discussions</span><div class="nav-subsections"><div class="nav-subsection-item">
+                              <a class="page-link nav-subsection-link" href="/community/communication/discord/"
+                                 
+                                 title="Join our Discord community">
+                                💬 Discord
+                              </a>
+                            </div><div class="nav-subsection-item">
+                              <a class="page-link nav-subsection-link" href="/community/communication/github/"
+                                 
+                                 title="GitHub discussions and issues">
+                                🐙 GitHub
+                              </a>
+                            </div><div class="nav-subsection-item">
+                              <a class="page-link nav-subsection-link" href="/community/communication/updates/"
+                                 
+                                 title="Project updates and announcements">
+                                📧 Updates
+                              </a>
+                            </div></div></div><div class="nav-sub-item">
+                      <a class="page-link nav-sub-link" href="/community/project/"
+                         
+                         title="Project management and reports">
+                        📊 Project Info
+                      </a><span class="nav-sub-description">Project management and reports</span><div class="nav-subsections"><div class="nav-subsection-item">
+                              <a class="page-link nav-subsection-link" href="/community/project/reports/"
+                                 
+                                 title="Development reports and analysis">
+                                📋 Reports
+                              </a>
+                            </div><div class="nav-subsection-item">
+                              <a class="page-link nav-subsection-link" href="/community/project/roadmap/"
+                                 
+                                 title="Project roadmap and future plans">
+                                📅 Roadmap
+                              </a>
+                            </div><div class="nav-subsection-item">
+                              <a class="page-link nav-subsection-link" href="/community/project/news/"
+                                 
+                                 title="Latest project news and updates">
+                                📰 News
+                              </a>
+                            </div></div></div></div>
+              </div><!-- External Links -->
+          <a class="page-link page-link--external" href="https://github.com/Underwood-Inc/idling.app__UI" target="_blank" rel="noopener">
+            GitHub
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M14,3V5H17.59L7.76,14.83L9.17,16.24L19,6.41V10H21V3M19,19H5V5H12V3H5C3.89,3 3,3.9 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V12H19V19Z"/>
+            </svg>
+          </a>
+          <a class="page-link page-link--external" href="https://github.com/Underwood-Inc/idling.app__UI/discussions" target="_blank" rel="noopener">
+            Discussions
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M14,3V5H17.59L7.76,14.83L9.17,16.24L19,6.41V10H21V3M19,19H5V5H12V3H5C3.89,3 3,3.9 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V12H19V19Z"/>
+            </svg>
+          </a>
+        </div>
+      </nav></div>
+  </div>
+  
+  <!-- Enhanced Search Bar -->
+  <div class="search-header">
+    <div class="wrapper">
+      <!-- Search Fallback System - Works without Jekyll -->
+<script>
+// Client-side documentation discovery for development environments
+class DocumentationDiscovery {
+  constructor() {
+    this.searchData = [];
+    this.isInitialized = false;
+    this.baseUrl = window.location.origin;
+  }
+
+  async initialize() {
+    if (this.isInitialized) return this.searchData;
+    
+    try {
+      // Try to load from Jekyll-generated search.json first
+      const response = await fetch('/search.json');
+      if (response.ok) {
+        this.searchData = await response.json();
+        this.isInitialized = true;
+        return this.searchData;
+      }
+    } catch (error) {
+      console.warn('Jekyll search.json not available, using fallback discovery');
+    }
+    
+    // Fallback: Discover documentation dynamically
+    await this.discoverDocumentation();
+    this.isInitialized = true;
+    return this.searchData;
+  }
+
+  async discoverDocumentation() {
+    // Common documentation paths in the project
+    const docPaths = [
+      '/docs/',
+      '/dev/components/',
+      '/dev/libraries/', 
+      '/dev/api/',
+      '/community/',
+      '/src/components/',
+      '/src/lib/',
+      '/src/app/api/'
+    ];
+
+    const discoveryPromises = docPaths.map(path => this.discoverPath(path));
+    const results = await Promise.allSettled(discoveryPromises);
+    
+    // Flatten results
+    results.forEach(result => {
+      if (result.status === 'fulfilled' && result.value) {
+        this.searchData.push(...result.value);
+      }
+    });
+
+    // Add default entries if no documentation found
+    if (this.searchData.length === 0) {
+      this.searchData = this.getDefaultSearchData();
+    }
+  }
+
+  async discoverPath(path) {
+    try {
+      // Try to fetch directory listing or index
+      const indexResponse = await fetch(`${path}index.html`);
+      if (indexResponse.ok) {
+        const html = await indexResponse.text();
+        return this.parseDocumentationFromHtml(html, path);
+      }
+    } catch (error) {
+      // Silently fail - this is expected for many paths
+    }
+    
+    return [];
+  }
+
+  parseDocumentationFromHtml(html, basePath) {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, 'text/html');
+    const results = [];
+    
+    // Extract title
+    const title = doc.querySelector('title')?.textContent || 
+                  doc.querySelector('h1')?.textContent || 
+                  'Documentation';
+    
+    // Extract content
+    const content = doc.querySelector('main')?.textContent || 
+                   doc.querySelector('.content')?.textContent || 
+                   doc.body?.textContent || '';
+    
+    // Extract description/excerpt
+    const description = doc.querySelector('meta[name="description"]')?.getAttribute('content') || 
+                       doc.querySelector('p')?.textContent || 
+                       content.substring(0, 200) + '...';
+
+    // Determine category and section
+    const category = this.determineCategoryFromPath(basePath);
+    const section = this.determineSectionFromPath(basePath);
+
+    results.push({
+      title: title.trim(),
+      content: content.trim().substring(0, 2000),
+      url: basePath,
+      date: new Date().toISOString().split('T')[0],
+      category: category,
+      tags: this.extractTagsFromContent(content),
+      excerpt: description.trim(),
+      type: 'page',
+      section: section
+    });
+
+    return results;
+  }
+
+  determineCategoryFromPath(path) {
+    if (path.includes('/docs/api/') || path.includes('/src/app/api/')) return 'API';
+    if (path.includes('/docs/')) return 'Documentation';
+    if (path.includes('/dev/components/') || path.includes('/src/components/')) return 'Components';
+    if (path.includes('/dev/libraries/') || path.includes('/src/lib/')) return 'Libraries';
+    if (path.includes('/dev/')) return 'Development';
+    if (path.includes('/community/')) return 'Community';
+    return 'General';
+  }
+
+  determineSectionFromPath(path) {
+    if (path.includes('/getting-started/')) return 'Getting Started';
+    if (path.includes('/architecture/')) return 'Architecture';
+    if (path.includes('/deployment/')) return 'Deployment';
+    if (path.includes('/testing/')) return 'Testing';
+    if (path.includes('/contributing/')) return 'Contributing';
+    if (path.includes('/api/')) return 'API Reference';
+    if (path.includes('/components/')) return 'Components';
+    if (path.includes('/libraries/')) return 'Libraries';
+    return 'General';
+  }
+
+  extractTagsFromContent(content) {
+    const text = content.toLowerCase();
+    const commonTags = [
+      'api', 'component', 'service', 'hook', 'utility', 'function', 
+      'class', 'interface', 'type', 'config', 'setup', 'install', 
+      'deploy', 'test', 'auth', 'database', 'server', 'client',
+      'frontend', 'backend', 'react', 'next', 'typescript', 'javascript'
+    ];
+    
+    return commonTags.filter(tag => text.includes(tag));
+  }
+
+  getDefaultSearchData() {
+    return [
+      {
+        title: "Getting Started Guide",
+        content: "Complete setup and installation guide for the Idling.app project including Docker setup, quick start instructions, and development environment configuration.",
+        url: "/docs/getting-started/",
+        date: "2024-01-01",
+        category: "Documentation",
+        tags: ["getting-started", "setup", "installation", "docker"],
+        excerpt: "Complete setup and installation guide for the Idling.app project",
+        type: "page",
+        section: "Getting Started"
+      },
+      {
+        title: "API Documentation",
+        content: "Complete API reference including admin endpoints, authentication, database operations, and interactive Swagger documentation.",
+        url: "/docs/api/",
+        date: "2024-01-01",
+        category: "API",
+        tags: ["api", "endpoints", "swagger", "authentication", "admin"],
+        excerpt: "Complete API documentation with interactive tools and examples",
+        type: "api",
+        section: "API Reference"
+      },
+      {
+        title: "Component Library",
+        content: "UI components and design system documentation including rich input system, filter bar, floating toolbar, and component library with React hooks and utilities.",
+        url: "/dev/components/",
+        date: "2024-01-01",
+        category: "Components",
+        tags: ["components", "ui", "design-system", "react", "hooks"],
+        excerpt: "Complete component documentation and design system guide",
+        type: "component",
+        section: "Development"
+      },
+      {
+        title: "Architecture Overview",
+        content: "System architecture documentation including security patterns, performance optimization, database design, and deployment strategies.",
+        url: "/docs/architecture/",
+        date: "2024-01-01",
+        category: "Documentation",
+        tags: ["architecture", "security", "performance", "system-design", "database"],
+        excerpt: "System design and architecture documentation with patterns and strategies",
+        type: "page",
+        section: "Architecture"
+      },
+      {
+        title: "Contributing Guide",
+        content: "How to contribute to the project including setup instructions, coding standards, git workflow, and community guidelines.",
+        url: "/community/contributing/",
+        date: "2024-01-01",
+        category: "Community",
+        tags: ["contributing", "development", "guidelines", "setup", "community"],
+        excerpt: "Complete guide for project contributors with setup and guidelines",
+        type: "page",
+        section: "Contributing"
+      },
+      {
+        title: "Library Documentation",
+        content: "Shared utilities and services including authentication, caching, logging, parsers, and React hooks for the application.",
+        url: "/dev/libraries/",
+        date: "2024-01-01",
+        category: "Libraries",
+        tags: ["libraries", "utilities", "services", "hooks", "authentication"],
+        excerpt: "Shared utilities and services documentation with examples",
+        type: "page",
+        section: "Development"
+      },
+      {
+        title: "Testing Guide",
+        content: "Testing strategies and QA documentation including unit testing, end-to-end testing with Playwright, and CI/CD pipeline configuration.",
+        url: "/dev/testing/",
+        date: "2024-01-01",
+        category: "Development",
+        tags: ["testing", "unit-tests", "e2e", "playwright", "ci-cd"],
+        excerpt: "Complete testing guide with unit, integration, and E2E testing strategies",
+        type: "page",
+        section: "Testing"
+      },
+      {
+        title: "Deployment Guide",
+        content: "Production deployment procedures including server setup, environment configuration, release processes, and monitoring.",
+        url: "/docs/deployment/",
+        date: "2024-01-01",
+        category: "Documentation",
+        tags: ["deployment", "production", "server", "release", "monitoring"],
+        excerpt: "Production deployment procedures and release management",
+        type: "page",
+        section: "Deployment"
+      }
+    ];
+  }
+}
+
+// Initialize the fallback system
+window.documentationDiscovery = new DocumentationDiscovery();
+</script> 
+
+<div class="search-container">
+  <div class="search-header">
+    <input type="text" id="search-input" placeholder="Search documentation..." class="search-input" autocomplete="off">
+    <div class="search-filters">
+      <select id="category-filter" class="filter-select">
+        <option value="">All Categories</option>
+        <option value="Documentation">Documentation</option>
+        <option value="Development">Development</option>
+        <option value="Community">Community</option>
+        <option value="API">API</option>
+        <option value="Components">Components</option>
+        <option value="Libraries">Libraries</option>
+      </select>
+      <select id="section-filter" class="filter-select">
+        <option value="">All Sections</option>
+        <option value="Getting Started">Getting Started</option>
+        <option value="Architecture">Architecture</option>
+        <option value="Deployment">Deployment</option>
+        <option value="Testing">Testing</option>
+        <option value="Contributing">Contributing</option>
+        <option value="General">General</option>
+      </select>
+    </div>
+  </div>
+  
+  <div id="search-autocomplete" class="search-autocomplete"></div>
+  <div id="search-results" class="search-results"></div>
+  <div id="search-stats" class="search-stats"></div>
+</div>
+
+<style>
+.search-container {
+  margin: 2rem 0;
+  position: relative;
+  width: 100%;
+  max-width: 100%;
+}
+
+.search-header {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: 100%;
+}
+
+.search-input {
+  width: 100%;
+  flex: 1;
+  padding: 1rem;
+  font-size: 1.1rem;
+  border: 2px solid #e1e5e9;
+  border-radius: 8px;
+  background: white;
+  transition: border-color 0.3s ease;
+  box-sizing: border-box;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: #0366d6;
+  box-shadow: 0 0 0 3px rgba(3, 102, 214, 0.1);
+}
+
+.search-filters {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  width: 100%;
+}
+
+.filter-select {
+  padding: 0.5rem 1rem;
+  border: 1px solid #e1e5e9;
+  border-radius: 6px;
+  background: white;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: border-color 0.3s ease;
+  flex: 1;
+  min-width: 150px;
+}
+
+.filter-select:focus {
+  outline: none;
+  border-color: #0366d6;
+}
+
+.search-autocomplete {
+  background: white;
+  border: 1px solid #e1e5e9;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  max-height: 200px;
+  overflow-y: auto;
+  display: none;
+}
+
+.search-autocomplete-item {
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  border-bottom: 1px solid #f6f8fa;
+  transition: background-color 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.search-autocomplete-item:hover,
+.search-autocomplete-item.highlighted {
+  background-color: #f6f8fa;
+}
+
+.search-autocomplete-item:last-child {
+  border-bottom: none;
+}
+
+.search-autocomplete-icon {
+  font-size: 0.8rem;
+  opacity: 0.6;
+  width: 16px;
+  text-align: center;
+}
+
+.search-autocomplete-text {
+  flex: 1;
+  font-size: 0.9rem;
+}
+
+.search-autocomplete-type {
+  font-size: 0.75rem;
+  color: #586069;
+  background: #f1f8ff;
+  padding: 0.2rem 0.4rem;
+  border-radius: 10px;
+}
+
+.search-results {
+  background: white;
+  border: 1px solid #e1e5e9;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  max-height: 500px;
+  overflow-y: auto;
+  display: none;
+}
+
+.search-result {
+  padding: 1rem;
+  border-bottom: 1px solid #f6f8fa;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  background-color: var(--dark-background--primary, #1a1a1a);
+  color: var(--text-primary, #ffffff);
+}
+
+.search-result:hover {
+  background-color: var(--dark-background--secondary, #2a2a2a) !important;
+  color: var(--text-primary, #ffffff) !important;
+}
+
+.search-result:last-child {
+  border-bottom: none;
+}
+
+.search-result-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 0.5rem;
+}
+
+.search-result h4 {
+  margin: 0;
+  color: var(--brand-primary, #0366d6) !important;
+  font-size: 1rem;
+}
+
+.search-result-meta {
+  display: flex;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+}
+
+.search-result-badge {
+  background: #f1f8ff;
+  color: #0366d6;
+  padding: 0.2rem 0.5rem;
+  border-radius: 12px;
+  font-weight: 500;
+}
+
+.search-result p {
+  margin: 0 0 0.5rem 0;
+  color: var(--text-secondary, #cccccc) !important;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.search-result-url {
+  font-size: 0.75rem;
+  color: var(--brand-secondary, #4a9eff) !important;
+  margin: 0;
+  opacity: 0.8;
+}
+
+.search-stats {
+  margin-top: 0.5rem;
+  padding: 0.5rem;
+  background: #f6f8fa;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  color: #586069;
+  display: none;
+}
+
+.search-no-results {
+  padding: 2rem;
+  text-align: center;
+  color: #586069;
+}
+
+.search-no-results h4 {
+  margin: 0 0 1rem 0;
+  color: #24292e;
+}
+
+.search-suggestions {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e1e5e9;
+}
+
+.search-suggestions h5 {
+  margin: 0 0 0.5rem 0;
+  color: #24292e;
+  font-size: 0.9rem;
+}
+
+.search-suggestions ul {
+  margin: 0;
+  padding-left: 1rem;
+  list-style: none;
+}
+
+.search-suggestions li {
+  margin-bottom: 0.25rem;
+}
+
+.search-suggestions a {
+  color: #0366d6;
+  text-decoration: none;
+  font-size: 0.85rem;
+}
+
+.search-suggestions a:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 768px) {
+  .search-filters {
+    flex-direction: column;
+  }
+  
+  .filter-select {
+    width: 100%;
+  }
+  
+  .search-input {
+    font-size: 1rem;
+  }
+  
+  .search-result-header {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const searchInput = document.getElementById('search-input');
+  const searchAutocomplete = document.getElementById('search-autocomplete');
+  const searchResults = document.getElementById('search-results');
+  const searchStats = document.getElementById('search-stats');
+  const categoryFilter = document.getElementById('category-filter');
+  const sectionFilter = document.getElementById('section-filter');
+  
+  console.log('Search elements found:', {
+    searchInput: !!searchInput,
+    searchAutocomplete: !!searchAutocomplete,
+    searchResults: !!searchResults,
+    searchStats: !!searchStats,
+    categoryFilter: !!categoryFilter,
+    sectionFilter: !!sectionFilter
+  });
+  
+  let searchData = [];
+  let filteredData = [];
+  let autocompleteTerms = [];
+  let currentAutocompleteIndex = -1;
+  let isAutocompleteVisible = false;
+  
+  // Load search data with fallback support
+  async function loadSearchData() {
+    try {
+      // Try to use the fallback discovery system first
+      if (window.documentationDiscovery) {
+        const discoveredData = await window.documentationDiscovery.initialize();
+        if (discoveredData && discoveredData.length > 0) {
+          searchData = discoveredData;
+          filteredData = searchData;
+          buildAutocompleteTerms();
+          console.log(`Loaded ${searchData.length} searchable documents with ${autocompleteTerms.length} autocomplete terms (via discovery)`);
+          return;
+        }
+      }
+      
+      // Fallback to direct fetch
+      const response = await fetch('/search.json');
+      const data = await response.json();
+      
+      // Filter out non-documentation files on client side as well
+      searchData = data.filter(item => {
+        const url = item.url.toLowerCase();
+        return !url.includes('.xml') && 
+               !url.includes('.json') && 
+               !url.includes('.txt') && 
+               !url.includes('.yml') && 
+               !url.includes('.yaml') && 
+               !url.includes('.css') && 
+               !url.includes('.js') && 
+               !url.includes('.scss') &&
+               item.title && 
+               item.title.trim() !== '' &&
+               !item.title.includes('404') &&
+               !item.title.includes('Search');
+      });
+      
+      filteredData = searchData;
+      buildAutocompleteTerms();
+      
+      console.log(`Loaded ${searchData.length} searchable documents with ${autocompleteTerms.length} autocomplete terms`);
+      
+    } catch (error) {
+      console.error('Failed to load search data:', error);
+      // Provide some default search data if loading fails
+      searchData = [
+        {
+          title: "Getting Started",
+          url: "/docs/getting-started/",
+          content: "Installation and setup guide for the Idling.app project",
+          category: "Documentation",
+          section: "Getting Started"
+        },
+        {
+          title: "API Reference",
+          url: "/docs/api/",
+          content: "Complete API documentation with examples",
+          category: "Documentation", 
+          section: "API"
+        },
+        {
+          title: "Components",
+          url: "/dev/components/",
+          content: "UI components and design system documentation",
+          category: "Development",
+          section: "Components"
+        },
+        {
+          title: "Architecture",
+          url: "/docs/architecture/",
+          content: "System design and architectural decisions",
+          category: "Documentation",
+          section: "Architecture"
+        },
+        {
+          title: "Deployment",
+          url: "/docs/deployment/",
+          content: "Production deployment procedures and guidelines",
+          category: "Documentation",
+          section: "Deployment"
+        },
+        {
+          title: "Database",
+          url: "/dev/database/",
+          content: "Database schema and migration documentation",
+          category: "Development",
+          section: "Database"
+        },
+        {
+          title: "Libraries",
+          url: "/dev/libraries/",
+          content: "Shared utilities and service libraries",
+          category: "Development",
+          section: "Libraries"
+        },
+        {
+          title: "Testing",
+          url: "/dev/testing/",
+          content: "Testing strategies and implementation guides",
+          category: "Development",
+          section: "Testing"
+        },
+        {
+          title: "Contributing",
+          url: "/community/contributing/",
+          content: "Guidelines for contributing to the project",
+          category: "Community",
+          section: "Contributing"
+        },
+        {
+          title: "Community",
+          url: "/community/",
+          content: "Community resources and communication channels",
+          category: "Community",
+          section: "General"
+        }
+      ];
+      filteredData = searchData;
+      buildAutocompleteTerms();
+    }
+  }
+  
+  function buildAutocompleteTerms() {
+    const terms = new Set();
+    
+    searchData.forEach(item => {
+      // Add title words
+      if (item.title) {
+        item.title.toLowerCase().split(/\s+/).forEach(word => {
+          if (word.length > 2) terms.add(word);
+        });
+      }
+      
+      // Add categories and sections
+      if (item.category) terms.add(item.category.toLowerCase());
+      if (item.section) terms.add(item.section.toLowerCase());
+      
+      // Add tags if available
+      if (item.tags) {
+        item.tags.forEach(tag => terms.add(tag.toLowerCase()));
+      }
+    });
+    
+    autocompleteTerms = Array.from(terms).sort();
+  }
+  
+  function showAutocomplete(query) {
+    if (query.length < 2) {
+      hideAutocomplete();
+      return;
+    }
+    
+    const matches = autocompleteTerms
+      .filter(term => term.includes(query.toLowerCase()))
+      .slice(0, 8)
+      .map(term => {
+        // Determine type based on term
+        let type = 'term';
+        if (searchData.some(item => item.category && item.category.toLowerCase() === term)) {
+          type = 'category';
+        } else if (searchData.some(item => item.section && item.section.toLowerCase() === term)) {
+          type = 'section';
+        } else if (searchData.some(item => item.tags && item.tags.some(tag => tag.toLowerCase() === term))) {
+          type = 'tag';
+        }
+        
+        return { term, type };
+      });
+    
+    if (matches.length === 0) {
+      hideAutocomplete();
+      return;
+    }
+    
+    searchAutocomplete.innerHTML = matches.map((match, index) => `
+      <div class="search-autocomplete-item" data-term="${match.term}" data-index="${index}">
+        <span class="search-autocomplete-icon">${getAutocompleteIcon(match.type)}</span>
+        <span class="search-autocomplete-text">${highlightAutocomplete(match.term, query)}</span>
+        <span class="search-autocomplete-type">${match.type}</span>
+      </div>
+    `).join('');
+    
+    // CRITICAL: Move autocomplete outside the header container
+    if (searchAutocomplete.parentElement !== document.body) {
+      document.body.appendChild(searchAutocomplete);
+      console.log('Moved autocomplete to body');
+    }
+    
+    // CRITICAL: Show the autocomplete modal
+    searchAutocomplete.style.display = 'block';
+    searchAutocomplete.classList.add('show');
+    isAutocompleteVisible = true;
+    currentAutocompleteIndex = -1;
+    
+    // Position autocomplete like search results
+    positionAutocomplete();
+  }
+  
+  function hideAutocomplete() {
+    searchAutocomplete.style.display = 'none';
+    searchAutocomplete.classList.remove('show');
+    isAutocompleteVisible = false;
+    currentAutocompleteIndex = -1;
+  }
+  
+  function getAutocompleteIcon(type) {
+    const icons = {
+      'category': '📁',
+      'section': '📄',
+      'tag': '🏷️',
+      'term': '🔍'
+    };
+    return icons[type] || '🔍';
+  }
+  
+  function highlightAutocomplete(text, query) {
+    if (!query) return text;
+    const regex = new RegExp(`(${escapeRegex(query)})`, 'gi');
+    return text.replace(regex, '<strong>$1</strong>');
+  }
+  
+  function selectAutocompleteItem(term) {
+    searchInput.value = term;
+    hideAutocomplete();
+    performSearch();
+    searchInput.focus();
+  }
+  
+  function navigateAutocomplete(direction) {
+    const items = searchAutocomplete.querySelectorAll('.search-autocomplete-item');
+    if (items.length === 0) return;
+    
+    // Remove current highlight
+    if (currentAutocompleteIndex >= 0) {
+      items[currentAutocompleteIndex].classList.remove('highlighted');
+    }
+    
+    // Update index
+    if (direction === 'down') {
+      currentAutocompleteIndex = (currentAutocompleteIndex + 1) % items.length;
+    } else {
+      currentAutocompleteIndex = currentAutocompleteIndex <= 0 ? items.length - 1 : currentAutocompleteIndex - 1;
+    }
+    
+    // Add new highlight
+    items[currentAutocompleteIndex].classList.add('highlighted');
+    items[currentAutocompleteIndex].scrollIntoView({ block: 'nearest' });
+  }
+  
+  function performSearch() {
+    const query = searchInput.value.toLowerCase().trim();
+    const category = categoryFilter.value;
+    const section = sectionFilter.value;
+    
+    console.log('performSearch called:', { query, category, section, searchDataLength: searchData.length });
+    
+    // Hide autocomplete when performing search
+    hideAutocomplete();
+    
+    // Show helpful message if user has typed 1-2 characters
+    if (query.length > 0 && query.length < 3 && !category && !section) {
+      searchResults.innerHTML = `
+        <div class="search-no-results">
+          <h4>Keep typing...</h4>
+          <p>Enter at least 3 characters to search, or use the filters above.</p>
+        </div>
+      `;
+      // CRITICAL: Show the results modal
+      searchResults.style.setProperty('display', 'block', 'important');
+      searchResults.style.setProperty('visibility', 'visible', 'important');
+      searchResults.style.setProperty('opacity', '1', 'important');
+      searchResults.classList.add('show');
+      searchStats.style.display = 'none';
+      
+      // CRITICAL: Position search results relative to search input
+      positionSearchResults();
+      return;
+    }
+    
+    // Require at least 3 characters for search, or filters must be applied
+    if (query.length < 3 && !category && !section) {
+      hideResults();
+      return;
+    }
+    
+    // Filter by category and section first
+    let filtered = searchData;
+    
+    if (category) {
+      filtered = filtered.filter(item => item.category === category);
+    }
+    
+    if (section) {
+      filtered = filtered.filter(item => item.section === section);
+    }
+    
+    // Then filter by search query
+    let results = filtered;
+    if (query.length >= 3) {
+      results = filtered.filter(item => {
+        const titleMatch = item.title.toLowerCase().includes(query);
+        const contentMatch = item.content.toLowerCase().includes(query);
+        const excerptMatch = item.excerpt && item.excerpt.toLowerCase().includes(query);
+        const tagMatch = item.tags && item.tags.some(tag => tag.toLowerCase().includes(query));
+        
+        return titleMatch || contentMatch || excerptMatch || tagMatch;
+      });
+      
+      // Sort by relevance
+      results.sort((a, b) => {
+        const aScore = calculateRelevanceScore(a, query);
+        const bScore = calculateRelevanceScore(b, query);
+        return bScore - aScore;
+      });
+    } else if (category || section) {
+      // Show filtered results even without query
+      results = filtered;
+    }
+    
+    displayResults(results.slice(0, 15), query);
+    showStats(results.length, filtered.length);
+  }
+  
+  function calculateRelevanceScore(item, query) {
+    let score = 0;
+    const lowerQuery = query.toLowerCase();
+    
+    // Title matches are most important
+    if (item.title.toLowerCase().includes(lowerQuery)) {
+      score += 10;
+      if (item.title.toLowerCase().startsWith(lowerQuery)) {
+        score += 5;
+      }
+    }
+    
+    // Excerpt matches
+    if (item.excerpt && item.excerpt.toLowerCase().includes(lowerQuery)) {
+      score += 5;
+    }
+    
+    // Tag matches
+    if (item.tags && item.tags.some(tag => tag.toLowerCase().includes(lowerQuery))) {
+      score += 3;
+    }
+    
+    // Content matches (less important)
+    if (item.content.toLowerCase().includes(lowerQuery)) {
+      score += 1;
+    }
+    
+    return score;
+  }
+  
+  function displayResults(results, query) {
+    console.log('displayResults called with:', results.length, 'results for query:', query);
+    console.log('searchResults element:', searchResults);
+    
+    if (results.length === 0) {
+      showNoResults(query);
+      return;
+    }
+    
+    searchResults.innerHTML = results.map(item => `
+      <div class="search-result" onclick="window.location.href='${item.url}'" role="button" tabindex="0">
+        <div class="search-result-header">
+          <h4>${highlightText(item.title, query)}</h4>
+          <div class="search-result-meta">
+            <span class="search-result-badge">${item.category}</span>
+            ${item.section && item.section !== item.category ? `<span class="search-result-badge">${item.section}</span>` : ''}
+          </div>
+        </div>
+        <p>${highlightText(truncateText(item.excerpt || item.content, 150), query)}</p>
+        <div class="search-result-url">${item.url}</div>
+      </div>
+    `).join('');
+    
+    // CRITICAL: Show the results modal with proper styling
+    searchResults.style.setProperty('display', 'block', 'important');
+    searchResults.style.setProperty('visibility', 'visible', 'important');
+    searchResults.style.setProperty('opacity', '1', 'important');
+    searchResults.classList.add('show');
+    
+    // CRITICAL: Position search results relative to search input
+    positionSearchResults();
+    
+    console.log('Search results displayed:', results.length, 'items');
+    console.log('Search results element:', searchResults);
+    console.log('Search results styles:', window.getComputedStyle(searchResults));
+  }
+  
+  function showNoResults(query) {
+    const suggestions = getSearchSuggestions(query);
+    
+    searchResults.innerHTML = `
+      <div class="search-no-results">
+        <h4>No results found</h4>
+        <p>Try adjusting your search terms or filters.</p>
+        ${suggestions.length > 0 ? `
+          <div class="search-suggestions">
+            <h5>Popular topics:</h5>
+            <ul>
+              ${suggestions.map(suggestion => `<li><a href="#" onclick="searchFor('${suggestion}')">${suggestion}</a></li>`).join('')}
+            </ul>
+          </div>
+        ` : ''}
+      </div>
+    `;
+    
+    // CRITICAL: Show the results modal with proper styling
+    searchResults.style.setProperty('display', 'block', 'important');
+    searchResults.style.setProperty('visibility', 'visible', 'important');
+    searchResults.style.setProperty('opacity', '1', 'important');
+    searchResults.classList.add('show');
+    
+    // CRITICAL: Position search results relative to search input
+    positionSearchResults();
+  }
+  
+  function getSearchSuggestions(query) {
+    const popular = ['getting started', 'api', 'components', 'authentication', 'deployment', 'testing'];
+    return popular.filter(term => !term.includes(query.toLowerCase())).slice(0, 5);
+  }
+  
+  function showStats(resultCount, totalCount) {
+    searchStats.textContent = `Found ${resultCount} result${resultCount !== 1 ? 's' : ''} of ${totalCount} documents`;
+    searchStats.style.display = 'block';
+  }
+  
+  function hideResults() {
+    searchResults.style.setProperty('display', 'none', 'important');
+    searchResults.style.setProperty('visibility', 'hidden', 'important');
+    searchResults.style.setProperty('opacity', '0', 'important');
+    searchResults.classList.remove('show');
+    searchStats.style.display = 'none';
+  }
+  
+  function positionSearchResults() {
+    // CRITICAL: Move search results outside the header container
+    if (searchResults.parentElement !== document.body) {
+      document.body.appendChild(searchResults);
+      console.log('Moved search results to body');
+    }
+    
+    // Calculate position relative to search input
+    const searchContainer = document.querySelector('.search-container');
+    if (!searchContainer) return;
+    
+    const rect = searchContainer.getBoundingClientRect();
+    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+    
+    // Position below the search container with some padding
+    const top = rect.bottom + scrollTop + 10;
+    
+    // CRITICAL: Use absolute positioning so it scrolls with the page
+    searchResults.style.setProperty('position', 'absolute', 'important');
+    searchResults.style.setProperty('top', `${top}px`, 'important');
+    searchResults.style.setProperty('z-index', '999999', 'important');
+    
+    // On mobile, use full width with margin
+    if (window.innerWidth <= 768) {
+      searchResults.style.setProperty('left', '1rem', 'important');
+      searchResults.style.setProperty('right', '1rem', 'important');
+      searchResults.style.setProperty('width', 'auto', 'important');
+      searchResults.style.setProperty('transform', 'none', 'important');
+    } else {
+      // On desktop, center it
+      searchResults.style.setProperty('left', '50%', 'important');
+      searchResults.style.setProperty('right', 'auto', 'important');
+      searchResults.style.setProperty('transform', 'translateX(-50%)', 'important');
+      searchResults.style.setProperty('width', 'calc(100vw - 4rem)', 'important');
+      searchResults.style.setProperty('max-width', '1200px', 'important');
+    }
+  }
+  
+  function positionAutocomplete() {
+    // CRITICAL: Move autocomplete outside the header container
+    if (searchAutocomplete.parentElement !== document.body) {
+      document.body.appendChild(searchAutocomplete);
+      console.log('Moved autocomplete to body');
+    }
+    
+    // Calculate position relative to search input
+    const searchInput = document.getElementById('search-input');
+    if (!searchInput) return;
+    
+    const rect = searchInput.getBoundingClientRect();
+    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+    
+    // Position below the search input with some padding
+    const top = rect.bottom + scrollTop + 5;
+    const left = rect.left + window.pageXOffset || document.documentElement.scrollLeft;
+    
+    // CRITICAL: Use absolute positioning so it scrolls with the page
+    searchAutocomplete.style.setProperty('position', 'absolute', 'important');
+    searchAutocomplete.style.setProperty('top', `${top}px`, 'important');
+    searchAutocomplete.style.setProperty('left', `${left}px`, 'important');
+    searchAutocomplete.style.setProperty('width', `${rect.width}px`, 'important');
+    searchAutocomplete.style.setProperty('z-index', '999999', 'important');
+  }
+  
+  // Event listeners
+  searchInput.addEventListener('input', function() {
+    const query = this.value.trim();
+    console.log('Search input changed:', query, 'length:', query.length);
+    
+    if (query.length >= 2 && query.length < 3) {
+      console.log('Showing autocomplete for:', query);
+      showAutocomplete(query);
+    } else if (query.length >= 3) {
+      console.log('Performing search for:', query);
+      hideAutocomplete();
+      performSearch();
+    } else {
+      console.log('Hiding results - query too short');
+      hideAutocomplete();
+      hideResults();
+    }
+  });
+  
+  searchInput.addEventListener('keydown', function(e) {
+    if (isAutocompleteVisible) {
+      switch(e.key) {
+        case 'ArrowDown':
+          e.preventDefault();
+          navigateAutocomplete('down');
+          break;
+        case 'ArrowUp':
+          e.preventDefault();
+          navigateAutocomplete('up');
+          break;
+        case 'Enter':
+          e.preventDefault();
+          if (currentAutocompleteIndex >= 0) {
+            const selectedItem = searchAutocomplete.querySelector('.search-autocomplete-item.highlighted');
+            if (selectedItem) {
+              selectAutocompleteItem(selectedItem.dataset.term);
+            }
+          } else {
+            hideAutocomplete();
+            performSearch();
+          }
+          break;
+        case 'Escape':
+          hideAutocomplete();
+          break;
+      }
+    } else if (e.key === 'Enter') {
+      e.preventDefault();
+      performSearch();
+    }
+  });
+  
+  // Autocomplete click handlers
+  searchAutocomplete.addEventListener('click', function(e) {
+    const item = e.target.closest('.search-autocomplete-item');
+    if (item) {
+      selectAutocompleteItem(item.dataset.term);
+    }
+  });
+  
+  // Filter change handlers
+  categoryFilter.addEventListener('change', performSearch);
+  sectionFilter.addEventListener('change', performSearch);
+  
+  // Click outside to close
+  document.addEventListener('click', function(e) {
+    if (!e.target.closest('.search-container')) {
+      hideAutocomplete();
+      hideResults();
+    }
+  });
+  
+  // Initialize
+  loadSearchData();
+  
+  // Global search function for suggestions
+  window.searchFor = function(term) {
+    searchInput.value = term;
+    performSearch();
+    searchInput.focus();
+  };
+  
+  // Helper functions
+  function highlightText(text, query) {
+    if (!query || query.length < 3) return text;
+    const regex = new RegExp(`(${escapeRegex(query)})`, 'gi');
+    return text.replace(regex, '<mark>$1</mark>');
+  }
+  
+  function truncateText(text, length) {
+    return text.length > length ? text.substring(0, length) + '...' : text;
+  }
+  
+  function escapeRegex(string) {
+    return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  }
+});
+</script> 
+    </div>
+  </div>
+</header>
+
+<!-- SEPARATE MOBILE NAVIGATION COMPONENT -->
+<!-- MOBILE NAVIGATION - COMPLETELY SEPARATE COMPONENT -->
+<div class="mobile-nav-overlay" id="mobile-nav-overlay">
+  <!-- Mobile Nav Toggle Button -->
+  <button class="mobile-nav-toggle" id="mobile-nav-toggle" aria-label="Toggle mobile navigation">
+    <span class="mobile-nav-icon">
+      <span></span>
+      <span></span>
+      <span></span>
+    </span>
+  </button>
+
+  <!-- Mobile Nav Menu -->
+  <nav class="mobile-nav-menu" id="mobile-nav-menu">
+    <div class="mobile-nav-header">
+      <h2>📚 Navigation</h2>
+      <button class="mobile-nav-close" id="mobile-nav-close" aria-label="Close navigation">✕</button>
+    </div>
+
+    <div class="mobile-nav-content">
+      <!-- Documentation Section -->
+      <div class="mobile-nav-section">
+        <button class="mobile-nav-section-toggle" data-section="documentation">
+          📖 Documentation
+          <span class="mobile-nav-arrow">▼</span>
+        </button>
+        <div class="mobile-nav-subsection" id="mobile-section-documentation">
+          <a href="/docs/getting-started/" class="mobile-nav-link">🚀 Getting Started</a>
+          <a href="/docs/api/" class="mobile-nav-link">🔌 API Reference</a>
+          <a href="/docs/architecture/" class="mobile-nav-link">🏗️ Architecture</a>
+          <a href="/docs/deployment/" class="mobile-nav-link">🚀 Deployment</a>
+        </div>
+      </div>
+
+      <!-- Development Section -->
+      <div class="mobile-nav-section">
+        <button class="mobile-nav-section-toggle" data-section="development">
+          🛠️ Development
+          <span class="mobile-nav-arrow">▼</span>
+        </button>
+        <div class="mobile-nav-subsection" id="mobile-section-development">
+          <a href="/dev/components/" class="mobile-nav-link">🧩 Components</a>
+          <a href="/dev/libraries/" class="mobile-nav-link">📚 Libraries</a>
+          <a href="/dev/testing/" class="mobile-nav-link">🧪 Testing</a>
+          <a href="/dev/tools/" class="mobile-nav-link">🔧 Tools</a>
+        </div>
+      </div>
+
+      <!-- Community Section -->
+      <div class="mobile-nav-section">
+        <button class="mobile-nav-section-toggle" data-section="community">
+          👥 Community
+          <span class="mobile-nav-arrow">▼</span>
+        </button>
+        <div class="mobile-nav-subsection" id="mobile-section-community">
+          <a href="/community/contributing/" class="mobile-nav-link">🤝 Contributing</a>
+          <a href="/community/guidelines/" class="mobile-nav-link">📋 Guidelines</a>
+        </div>
+      </div>
+
+      <!-- External Links -->
+      <div class="mobile-nav-section">
+        <div class="mobile-nav-external">
+          <a href="https://github.com/Underwood-Inc/idling.app__UI" target="_blank" class="mobile-nav-link external">
+            🔗 GitHub
+          </a>
+          <a href="https://github.com/Underwood-Inc/idling.app__UI/discussions" target="_blank" class="mobile-nav-link external">
+            💬 Discussions
+          </a>
+        </div>
+      </div>
+    </div>
+  </nav>
+</div>
+
+<style>
+/* MOBILE NAVIGATION - COMPLETELY INDEPENDENT STYLES */
+.mobile-nav-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 50000; /* Above everything */
+}
+
+@media (max-width: 768px) {
+  .mobile-nav-overlay {
+    display: block;
+  }
+}
+
+.mobile-nav-toggle {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 50001;
+  width: 60px;
+  height: 60px;
+  border: none;
+  border-radius: 50%;
+  background: var(--dark-background--secondary);
+  border: 2px solid var(--brand-primary);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+}
+
+.mobile-nav-toggle:hover {
+  background: var(--dark-background--tertiary);
+  border-color: var(--brand-secondary);
+  transform: scale(1.05);
+}
+
+.mobile-nav-icon {
+  display: flex;
+  flex-direction: column;
+  width: 24px;
+  height: 18px;
+  justify-content: space-between;
+}
+
+.mobile-nav-icon span {
+  display: block;
+  width: 100%;
+  height: 3px;
+  background: var(--brand-primary);
+  border-radius: 2px;
+  transition: all 0.3s ease;
+}
+
+/* Toggle animation */
+.mobile-nav-overlay.active .mobile-nav-icon span:nth-child(1) {
+  transform: rotate(45deg) translate(6px, 6px);
+}
+
+.mobile-nav-overlay.active .mobile-nav-icon span:nth-child(2) {
+  opacity: 0;
+}
+
+.mobile-nav-overlay.active .mobile-nav-icon span:nth-child(3) {
+  transform: rotate(-45deg) translate(6px, -6px);
+}
+
+.mobile-nav-menu {
+  position: fixed;
+  top: 0;
+  right: -100%;
+  width: 85%;
+  max-width: 400px;
+  height: 100vh;
+  background: var(--dark-background--primary);
+  border-left: 3px solid var(--brand-primary);
+  transition: right 0.3s ease;
+  overflow-y: auto;
+  z-index: 50000;
+}
+
+.mobile-nav-overlay.active .mobile-nav-menu {
+  right: 0;
+}
+
+.mobile-nav-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 2rem;
+  background: linear-gradient(135deg, var(--brand-hunyadi-yellow), var(--brand-jasmine));
+  border-bottom: 2px solid var(--brand-primary);
+}
+
+.mobile-nav-header h2 {
+  margin: 0;
+  color: var(--brand-rich-black);
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.mobile-nav-close {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: var(--brand-rich-black);
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 50%;
+  transition: background 0.2s ease;
+}
+
+.mobile-nav-close:hover {
+  background: rgba(0, 0, 0, 0.1);
+}
+
+.mobile-nav-content {
+  padding: 1rem 0;
+}
+
+.mobile-nav-section {
+  border-bottom: 1px solid var(--border-primary);
+}
+
+.mobile-nav-section-toggle {
+  width: 100%;
+  padding: 1.5rem 2rem;
+  background: none;
+  border: none;
+  color: var(--text-color);
+  font-size: 1.25rem;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: all 0.2s ease;
+}
+
+.mobile-nav-section-toggle:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--brand-primary);
+}
+
+.mobile-nav-arrow {
+  transition: transform 0.3s ease;
+  font-size: 1rem;
+}
+
+.mobile-nav-section.expanded .mobile-nav-arrow {
+  transform: rotate(180deg);
+}
+
+.mobile-nav-subsection {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.mobile-nav-section.expanded .mobile-nav-subsection {
+  max-height: 500px;
+}
+
+.mobile-nav-link {
+  display: block;
+  padding: 1rem 3rem;
+  color: var(--text-color);
+  text-decoration: none;
+  font-size: 1rem;
+  transition: all 0.2s ease;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.mobile-nav-link:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--brand-primary);
+  transform: translateX(8px);
+}
+
+.mobile-nav-link.external::after {
+  content: ' ↗';
+  opacity: 0.7;
+}
+
+.mobile-nav-external {
+  padding: 1rem 0;
+}
+
+.mobile-nav-external .mobile-nav-link {
+  padding: 1rem 2rem;
+  border-bottom: 1px solid var(--border-primary);
+}
+
+/* Backdrop */
+.mobile-nav-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+  z-index: 49999;
+}
+
+.mobile-nav-overlay.active .mobile-nav-backdrop {
+  opacity: 1;
+  visibility: visible;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const mobileNavOverlay = document.getElementById('mobile-nav-overlay');
+  const mobileNavToggle = document.getElementById('mobile-nav-toggle');
+  const mobileNavClose = document.getElementById('mobile-nav-close');
+  const mobileNavMenu = document.getElementById('mobile-nav-menu');
+  const body = document.body;
+  
+  // Create backdrop
+  const backdrop = document.createElement('div');
+  backdrop.className = 'mobile-nav-backdrop';
+  mobileNavOverlay.appendChild(backdrop);
+  
+  // Toggle mobile nav
+  function toggleMobileNav() {
+    const isActive = mobileNavOverlay.classList.contains('active');
+    
+    if (isActive) {
+      closeMobileNav();
+    } else {
+      openMobileNav();
+    }
+  }
+  
+  function openMobileNav() {
+    mobileNavOverlay.classList.add('active');
+    
+    // Prevent body scroll
+    const scrollY = window.scrollY;
+    body.style.position = 'fixed';
+    body.style.top = `-${scrollY}px`;
+    body.style.width = '100%';
+    body.style.overflow = 'hidden';
+    body.dataset.scrollY = scrollY.toString();
+  }
+  
+  function closeMobileNav() {
+    mobileNavOverlay.classList.remove('active');
+    
+    // Restore body scroll
+    const scrollY = parseInt(body.dataset.scrollY || '0');
+    body.style.position = '';
+    body.style.top = '';
+    body.style.width = '';
+    body.style.overflow = '';
+    window.scrollTo(0, scrollY);
+    delete body.dataset.scrollY;
+  }
+  
+  // Event listeners
+  mobileNavToggle.addEventListener('click', toggleMobileNav);
+  mobileNavClose.addEventListener('click', closeMobileNav);
+  backdrop.addEventListener('click', closeMobileNav);
+  
+  // Section toggles
+  const sectionToggles = document.querySelectorAll('.mobile-nav-section-toggle');
+  sectionToggles.forEach(toggle => {
+    toggle.addEventListener('click', function() {
+      const section = this.closest('.mobile-nav-section');
+      section.classList.toggle('expanded');
+    });
+  });
+  
+  // Close nav when clicking links
+  const navLinks = document.querySelectorAll('.mobile-nav-link');
+  navLinks.forEach(link => {
+    link.addEventListener('click', function() {
+      if (!link.classList.contains('external')) {
+        closeMobileNav();
+      }
+    });
+  });
+  
+  // Close on escape key
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && mobileNavOverlay.classList.contains('active')) {
+      closeMobileNav();
+    }
+  });
+});
+</script> 
+
+<script>
+// Enhanced navigation functionality
+document.addEventListener('DOMContentLoaded', function() {
+  // Navigation toggle functionality
+  const navToggles = document.querySelectorAll('.nav-toggle');
+  
+  navToggles.forEach(toggle => {
+    toggle.addEventListener('click', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      
+      const container = this.closest('.nav-item-container');
+      const subnav = container.querySelector('.nav-subnav');
+      const isExpanded = container.classList.contains('expanded');
+      
+      // CRITICAL: Set positioning data attribute based on nav item
+      const navLink = container.querySelector('.nav-main-link');
+      const navText = navLink ? navLink.textContent.toLowerCase().trim() : '';
+      
+      if (subnav) {
+        subnav.setAttribute('data-nav-item', navText);
+        
+        // CRITICAL: Position dropdown relative to the nav item
+        const navLinkRect = navLink.getBoundingClientRect();
+        const navBottom = navLinkRect.bottom;
+        
+        // Use fixed positioning relative to viewport - right below the nav item
+        subnav.style.left = Math.max(20, navLinkRect.left) + 'px';
+        subnav.style.top = (navBottom + 5) + 'px';
+        
+        // Ensure it doesn't go off screen
+        const maxLeft = window.innerWidth - subnav.offsetWidth - 20;
+        if (parseInt(subnav.style.left) > maxLeft) {
+          subnav.style.left = maxLeft + 'px';
+        }
+      }
+     
+      // Close all other expanded navs
+      document.querySelectorAll('.nav-item-container.expanded').forEach(item => {
+        if (item !== container) {
+          item.classList.remove('expanded');
+          const otherSubnav = item.querySelector('.nav-subnav');
+          if (otherSubnav) {
+            otherSubnav.style.maxHeight = '0';
+          }
+          const otherToggle = item.querySelector('.nav-toggle');
+          if (otherToggle) {
+            otherToggle.setAttribute('aria-expanded', 'false');
+          }
+        }
+      });
+      
+      // Toggle current nav
+      container.classList.toggle('expanded');
+      
+      // Update ARIA attributes
+      this.setAttribute('aria-expanded', !isExpanded);
+      
+      // Smooth animation respecting CSS max-height
+      if (container.classList.contains('expanded')) {
+        // Use CSS-defined max-height instead of calculating pixels
+        subnav.style.maxHeight = '80vh';
+      } else {
+        subnav.style.maxHeight = '0';
+      }
+    });
+  });
+  
+  // Handle keyboard navigation
+  navToggles.forEach(toggle => {
+    toggle.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        this.click();
+      }
+      
+      if (e.key === 'Escape') {
+        const container = this.closest('.nav-item-container');
+        if (container.classList.contains('expanded')) {
+          container.classList.remove('expanded');
+          const subnav = container.querySelector('.nav-subnav');
+          if (subnav) {
+            subnav.style.maxHeight = '0';
+          }
+          this.setAttribute('aria-expanded', 'false');
+          this.focus();
+        }
+      }
+    });
+  });
+  
+  // Close all dropdowns when clicking outside
+  document.addEventListener('click', function(e) {
+    if (!e.target.closest('.nav-item-container')) {
+      document.querySelectorAll('.nav-item-container.expanded').forEach(item => {
+        item.classList.remove('expanded');
+        const subnav = item.querySelector('.nav-subnav');
+        if (subnav) {
+          subnav.style.maxHeight = '0';
+        }
+        const toggle = item.querySelector('.nav-toggle');
+        if (toggle) {
+          toggle.setAttribute('aria-expanded', 'false');
+        }
+      });
+    }
+  });
+  
+  // Mobile navigation enhancements
+  function setupMobileNavigation() {
+    const mobileNavTrigger = document.getElementById('nav-trigger');
+    const mobileNavOverlay = document.querySelector('.site-nav .trigger');
+    const body = document.body;
+    
+    if (mobileNavTrigger && mobileNavOverlay) {
+      // Handle mobile nav opening/closing
+      mobileNavTrigger.addEventListener('change', function() {
+        if (this.checked) {
+          // Navigation is opening - prevent body scroll
+          body.style.overflow = 'hidden';
+          body.style.position = 'fixed';
+          body.style.top = `-${window.scrollY}px`;
+          body.style.width = '100%';
+          
+          // Scroll to current page after animation
+          setTimeout(() => {
+            scrollToCurrentPage();
+          }, 300);
+        } else {
+          // Navigation is closing - restore body scroll
+          const scrollY = body.style.top;
+          body.style.overflow = '';
+          body.style.position = '';
+          body.style.top = '';
+          body.style.width = '';
+          
+          if (scrollY) {
+            window.scrollTo(0, parseInt(scrollY || '0') * -1);
+          }
+        }
+      });
+      
+      // Close mobile nav when clicking on navigation links
+      const navLinks = mobileNavOverlay.querySelectorAll('a');
+      navLinks.forEach(link => {
+        link.addEventListener('click', function() {
+          mobileNavTrigger.checked = false;
+          // Trigger change event to restore body scroll
+          mobileNavTrigger.dispatchEvent(new Event('change'));
+        });
+      });
+    }
+  }
+  
+  function scrollToCurrentPage() {
+    // Find the current page link in the navigation
+    const currentPageLink = document.querySelector('.site-nav [aria-current="page"]');
+    
+    if (currentPageLink) {
+      // Expand parent sections if needed
+      expandParentSections(currentPageLink);
+      
+      // Scroll to the current page with smooth behavior
+      setTimeout(() => {
+        currentPageLink.scrollIntoView({
+          behavior: 'smooth',
+          block: 'center',
+          inline: 'nearest'
+        });
+        
+        // Add visual highlight
+        currentPageLink.style.outline = '2px solid var(--brand-hunyadi-yellow)';
+        currentPageLink.style.outlineOffset = '4px';
+        
+        // Remove highlight after a moment
+        setTimeout(() => {
+          currentPageLink.style.outline = '';
+          currentPageLink.style.outlineOffset = '';
+        }, 2000);
+      }, 100);
+    }
+  }
+  
+  function expandParentSections(currentLink) {
+    // Find parent navigation containers and expand them
+    let parent = currentLink.closest('.nav-item-container');
+    
+    while (parent) {
+      if (!parent.classList.contains('expanded')) {
+        parent.classList.add('expanded');
+        
+        // Trigger the subnav expansion
+        const subnav = parent.querySelector('.nav-subnav');
+        if (subnav) {
+          subnav.style.maxHeight = '80vh';
+        }
+        
+        // Update toggle button state
+        const toggle = parent.querySelector('.nav-toggle');
+        if (toggle) {
+          toggle.setAttribute('aria-expanded', 'true');
+        }
+      }
+      
+      // Move up to next parent
+      parent = parent.parentElement?.closest('.nav-item-container');
+    }
+  }
+  
+  // Initialize mobile navigation
+  function setupMobileNavigationEnhanced() {
+    const isMobile = window.innerWidth <= 768;
+    
+    if (isMobile) {
+      // Make entire nav items clickable on mobile (not just toggle button)
+      document.querySelectorAll('.nav-item-container').forEach(container => {
+        const mainLink = container.querySelector('.nav-main-link');
+        const subnav = container.querySelector('.nav-subnav');
+        
+        if (mainLink && subnav) {
+          // Remove href to prevent navigation, make it a button for mobile
+          mainLink.style.cursor = 'pointer';
+          
+          // Add click handler to entire main link area
+          mainLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const isExpanded = container.classList.contains('expanded');
+            
+            // Close all other expanded navs
+            document.querySelectorAll('.nav-item-container.expanded').forEach(item => {
+              if (item !== container) {
+                item.classList.remove('expanded');
+                const otherSubnav = item.querySelector('.nav-subnav');
+                if (otherSubnav) {
+                  otherSubnav.style.maxHeight = '0';
+                }
+              }
+            });
+            
+            // Toggle current nav
+            container.classList.toggle('expanded');
+            
+            // Smooth animation
+            if (container.classList.contains('expanded')) {
+              subnav.style.maxHeight = '80vh';
+            } else {
+              subnav.style.maxHeight = '0';
+            }
+          });
+        }
+      });
+      
+      // Auto-close mobile menu when clicking on a navigation link
+      document.querySelectorAll('.nav-sub-link, .nav-subsection-link, .page-link--external').forEach(link => {
+        link.addEventListener('click', function() {
+          const mobileNavTrigger = document.getElementById('mobile-nav-trigger');
+          if (mobileNavTrigger) {
+            mobileNavTrigger.checked = false;
+          }
+        });
+      });
+      
+      // Add swipe to close functionality
+      let startX = 0;
+      let startY = 0;
+      
+      const trigger = document.querySelector('.trigger');
+      if (trigger) {
+        trigger.addEventListener('touchstart', function(e) {
+          startX = e.touches[0].clientX;
+          startY = e.touches[0].clientY;
+        }, { passive: true });
+        
+        trigger.addEventListener('touchmove', function(e) {
+          const currentX = e.touches[0].clientX;
+          const currentY = e.touches[0].clientY;
+          const diffX = currentX - startX;
+          const diffY = Math.abs(currentY - startY);
+          
+          // If swiping right and not scrolling vertically much
+          if (diffX > 50 && diffY < 100) {
+            const mobileNavTrigger = document.getElementById('mobile-nav-trigger');
+            if (mobileNavTrigger) {
+              mobileNavTrigger.checked = false;
+            }
+          }
+        }, { passive: true });
+      }
+    }
+  }
+  
+  // Setup mobile navigation on load and resize
+  setupMobileNavigation();
+  setupMobileNavigationEnhanced();
+  window.addEventListener('resize', () => {
+    setupMobileNavigation();
+    setupMobileNavigationEnhanced();
+  });
+
+  // Keyboard navigation support
+  document.addEventListener('keydown', function(e) {
+    // Close mobile menu with Escape key
+    if (e.key === 'Escape') {
+      const mobileNavTrigger = document.getElementById('mobile-nav-trigger');
+      if (mobileNavTrigger && mobileNavTrigger.checked) {
+        mobileNavTrigger.checked = false;
+        return;
+      }
+      
+      // Close desktop dropdowns with Escape
+      document.querySelectorAll('.nav-item-container.expanded').forEach(item => {
+        item.classList.remove('expanded');
+        const subnav = item.querySelector('.nav-subnav');
+        if (subnav) {
+          subnav.style.maxHeight = '0';
+        }
+        const toggle = item.querySelector('.nav-toggle');
+        if (toggle) {
+          toggle.setAttribute('aria-expanded', 'false');
+          toggle.focus();
+        }
+      });
+    }
+  });
+  
+  // Legacy search functionality removed - now using enhanced search include
+  
+  // Smooth scrolling for anchor links
+  document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function (e) {
+      e.preventDefault();
+      const target = document.querySelector(this.getAttribute('href'));
+      if (target) {
+        target.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start'
+        });
+      }
+    });
+  });
+  
+  // Add loading states for navigation links
+  document.querySelectorAll('.nav-main-link, .nav-sub-link, .nav-subsection-link').forEach(link => {
+    link.addEventListener('click', function(e) {
+      // Only add loading state for internal links
+      const href = this.getAttribute('href');
+      if (href && !href.startsWith('http') && !href.startsWith('#')) {
+        this.style.opacity = '0.7';
+        this.style.pointerEvents = 'none';
+        
+        // Reset after a delay (in case navigation fails)
+        setTimeout(() => {
+          this.style.opacity = '1';
+          this.style.pointerEvents = 'auto';
+        }, 3000);
+      }
+    });
+  });
+});
+</script> 
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <div class="content-grid">
+          <article class="main-content-card">
+            
+            <header class="card-header">
+              <h1>Idling.app Documentation</h1>
+              
+              <p class="page-description">Complete documentation for the Idling.app project - development guides, API reference, architecture, and community resources</p>
+              
+            </header>
+            
+            
+            <div class="card-content">
+              <h1 id="-idlingapp-documentation">🎯 Idling.app Documentation</h1>
+
+<p>Welcome to the comprehensive documentation for <strong>Idling.app</strong> - your complete resource for development, deployment, and community contribution! 🚀</p>
+
+<h2 id="-documentation-sections">📚 Documentation Sections</h2>
+
+<h3 id="-documentation">🚀 <a href="/docs/">Documentation</a></h3>
+
+<p>Complete project documentation including getting started guides, API reference, architecture details, and deployment procedures.</p>
+
+<ul>
+  <li><strong>🔧 Getting Started</strong> - Installation, quick start, and Docker setup</li>
+  <li><strong>🔌 API Reference</strong> - Complete API documentation with interactive tools</li>
+  <li><strong>🏗️ Architecture</strong> - System design, security, and performance</li>
+  <li><strong>🚀 Deployment</strong> - Production setup and release processes</li>
+</ul>
+
+<h3 id="️-development">🛠️ <a href="/dev/">Development</a></h3>
+
+<p>Development tools, resources, and component documentation for contributors and maintainers.</p>
+
+<ul>
+  <li><strong>🧩 Components</strong> - UI components and design system</li>
+  <li><strong>🗄️ Database</strong> - Schema management and optimization</li>
+  <li><strong>📚 Libraries</strong> - Shared utilities and services</li>
+  <li><strong>🧪 Testing</strong> - Unit, E2E, and CI/CD strategies</li>
+  <li><strong>🔧 Tools</strong> - Development environment and debugging</li>
+</ul>
+
+<h3 id="-community">👥 <a href="/community/">Community</a></h3>
+
+<p>Project community resources, contribution guidelines, and communication channels.</p>
+
+<ul>
+  <li><strong>🤝 Contributing</strong> - How to contribute to the project</li>
+  <li><strong>📝 Standards</strong> - Development and documentation standards</li>
+  <li><strong>💬 Communication</strong> - Discord, GitHub, and project updates</li>
+  <li><strong>📊 Project Info</strong> - Reports, roadmap, and news</li>
+</ul>
+
+<h2 id="-documentation-statistics">📊 Documentation Statistics</h2>
+
+<!-- Documentation Coverage Badge - Auto-generated by pre-commit hook -->
+<p><a href="/testing/docker-e2e-setup" title="Documentation Coverage">
+  <img src="https://img.shields.io/badge/Documentation%20Coverage-90%25-brightgreen?style=flatDOC_BADGE_URL_PLACEHOLDERlogo=gitbookDOC_BADGE_URL_PLACEHOLDERlogoColor=white" alt="Documentation Coverage 90%" />
+</a></p>
+
+<ul>
+  <li><strong>Total Documentation Files</strong>: 115+ markdown files</li>
+  <li><strong>Co-located Documentation</strong>: 88 files in <code class="language-plaintext highlighter-rouge">src/</code> directory</li>
+  <li><strong>Documentation Coverage</strong>: 21% of directories documented</li>
+  <li><strong>Search Index</strong>: Real-time search across all content</li>
+</ul>
+
+<h2 id="-quick-navigation">🎯 Quick Navigation</h2>
+
+<div class="quick-nav-grid">
+  <div class="nav-card">
+    <h3>🚀 Get Started</h3>
+    <p>New to the project? Start here!</p>
+    <a href="/docs/getting-started/" class="btn-primary">Begin Setup</a>
+  </div>
+  
+  <div class="nav-card">
+    <h3>🔌 API Docs</h3>
+    <p>Explore our comprehensive API</p>
+    <a href="/docs/api/" class="btn-primary">View API</a>
+  </div>
+  
+  <div class="nav-card">
+    <h3>🧩 Components</h3>
+    <p>UI components and design system</p>
+    <a href="/dev/components/" class="btn-primary">Browse Components</a>
+  </div>
+  
+  <div class="nav-card">
+    <h3>🤝 Contribute</h3>
+    <p>Join our development community</p>
+    <a href="/community/contributing/" class="btn-primary">Start Contributing</a>
+  </div>
+</div>
+
+<h2 id="-development-status">🔧 Development Status</h2>
+
+<p>This documentation uses a <strong>co-located approach</strong> where documentation lives next to the code it describes. This ensures:</p>
+
+<ul>
+  <li>✅ <strong>Always Up-to-Date</strong> - Docs are updated with code changes</li>
+  <li>✅ <strong>Easy to Find</strong> - Documentation is where you expect it</li>
+  <li>✅ <strong>Developer Friendly</strong> - No context switching required</li>
+  <li>✅ <strong>Comprehensive Coverage</strong> - Every component and feature documented</li>
+</ul>
+
+<h2 id="-features">🎨 Features</h2>
+
+<ul>
+  <li><strong>🔍 Real-time Search</strong> - Find any documentation instantly</li>
+  <li><strong>📱 Responsive Design</strong> - Works on all devices</li>
+  <li><strong>🎯 Smart Navigation</strong> - Hierarchical organization</li>
+  <li><strong>📊 Coverage Tracking</strong> - Monitor documentation completeness</li>
+  <li><strong>🔗 Cross-references</strong> - Linked documentation ecosystem</li>
+</ul>
+
+<hr />
+
+<div class="footer-note">
+💡 **Tip**: Use the search bar above to quickly find specific topics, or browse by category using the navigation menu.
+</div>
+
+<style>
+.quick-nav-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin: 2rem 0;
+}
+
+.nav-card {
+  background: var(--dark-background--secondary, #2a2a2a) !important;
+  border: 1px solid var(--glass-border-overlay-medium, #444444) !important;
+  border-radius: 8px;
+  padding: 1.5rem;
+  text-align: center;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  backdrop-filter: var(--glass-blur-medium);
+  -webkit-backdrop-filter: var(--glass-blur-medium);
+}
+
+.nav-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4) !important;
+  background: var(--dark-background--tertiary, #333333) !important;
+  border-color: var(--hunyadi-yellow, #EDAE49) !important;
+}
+
+.nav-card h3 {
+  margin: 0 0 1rem 0;
+  color: var(--text-primary, #ffffff) !important;
+  font-weight: 600;
+}
+
+.nav-card p {
+  margin: 0 0 1.5rem 0;
+  color: var(--text-secondary, #cccccc) !important;
+  line-height: 1.5;
+}
+
+.btn-primary {
+  display: inline-block;
+  padding: 0.75rem 1.5rem;
+  background: var(--hunyadi-yellow, #EDAE49) !important;
+  color: var(--dark-background--primary, #1a1a1a) !important;
+  text-decoration: none !important;
+  border-radius: 6px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  border: 1px solid var(--hunyadi-yellow, #EDAE49);
+  box-shadow: 0 2px 4px rgba(237, 174, 73, 0.2);
+}
+
+.btn-primary:hover,
+.btn-primary:visited,
+.btn-primary:active,
+.btn-primary:focus {
+  background: var(--dark-goldenrod, #B8860B) !important;
+  text-decoration: none !important;
+  color: var(--dark-background--primary, #1a1a1a) !important;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(237, 174, 73, 0.4);
+  border-color: var(--dark-goldenrod, #B8860B);
+}
+
+.btn-primary:visited {
+  background: var(--hunyadi-yellow, #EDAE49) !important;
+  color: var(--dark-background--primary, #1a1a1a) !important;
+  transform: none;
+  box-shadow: 0 2px 4px rgba(237, 174, 73, 0.2);
+}
+
+.footer-note {
+  background: var(--dark-background--secondary, #2a2a2a) !important;
+  border: 1px solid var(--glass-border-overlay-medium, #444444) !important;
+  border-radius: 8px;
+  padding: 1rem;
+  margin: 2rem 0;
+  text-align: center;
+  color: var(--text-secondary, #cccccc) !important;
+  backdrop-filter: var(--glass-blur-light);
+  -webkit-backdrop-filter: var(--glass-blur-light);
+}
+
+@media (max-width: 768px) {
+  .quick-nav-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .nav-card {
+    padding: 1.25rem;
+  }
+  
+  .btn-primary {
+    padding: 0.625rem 1.25rem;
+    font-size: 0.9rem;
+  }
+}
+</style>
+
+
+            </div>
+            
+            
+          </article>
+          
+          
+          <aside class="sidebar">
+            <!-- Sidebar Navigation -->
+<div class="sidebar-card">
+  <h3>Navigation</h3>
+  <nav>
+    <ul class="navigation-list">
+      <li><a href="/" class="current">🏠 Home</a></li><li>
+          <a href="/docs/" 
+             >
+            📚 Documentation
+          </a>
+        </li><li>
+          <a href="/dev/" 
+             >
+            🛠️ Development
+          </a>
+        </li><li>
+          <a href="/community/" 
+             >
+            👥 Community
+          </a>
+        </li></ul>
+  </nav>
+</div>
+
+<!-- Quick Links -->
+<div class="sidebar-card">
+  <h4>Quick Links</h4>
+  <ul class="navigation-list">
+    <li><a href="https://github.com/Underwood-Inc/idling.app__UI" target="_blank">GitHub Repository</a></li>
+    <li><a href="https://github.com/Underwood-Inc/idling.app__UI/discussions" target="_blank">Discussions</a></li>
+    <li><a href="https://github.com/Underwood-Inc/idling.app__UI/issues" target="_blank">Issues</a></li>
+    <li><a href="https://github.com/Underwood-Inc/idling.app__UI/releases" target="_blank">Releases</a></li>
+  </ul>
+</div>
+
+<!-- Page Info -->
+
+
+<!-- Table of Contents -->
+
+<div class="sidebar-card">
+  <h4>Table of Contents</h4>
+  <div id="toc">
+    <!-- TOC will be generated by JavaScript -->
+  </div>
+</div>
+
+<script>
+// Simple TOC generation
+document.addEventListener('DOMContentLoaded', function() {
+  const headings = document.querySelectorAll('.card-content h2, .card-content h3, .card-content h4');
+  const toc = document.getElementById('toc');
+  
+  if (headings.length > 0 && toc) {
+    const tocList = document.createElement('ul');
+    tocList.className = 'navigation-list';
+    
+    headings.forEach(function(heading, index) {
+      const id = 'heading-' + index;
+      heading.id = id;
+      
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = '#' + id;
+      a.textContent = heading.textContent;
+      a.style.paddingLeft = (parseInt(heading.tagName.charAt(1)) - 2) * 16 + 'px';
+      
+      li.appendChild(a);
+      tocList.appendChild(li);
+    });
+    
+    toc.appendChild(tocList);
+  }
+});
+</script>
+ 
+          </aside>
+          
+        </div>
+      </div>
+    </main><footer class="site-footer h-card">
+  <div class="wrapper">
+    <div class="footer-content">
+      <div class="footer-info">
+        <p class="footer-text">
+          © 2025 Idling.app Documentation. 
+          Built with <a href="https://jekyllrb.com/" target="_blank" rel="noopener">Jekyll</a> 
+          and hosted on <a href="https://pages.github.com/" target="_blank" rel="noopener">GitHub Pages</a>.
+        </p>
+        <p class="footer-description">
+          Complete documentation for the Idling.app project - migrations, deployment, development guides and more
+        </p>
+      </div>
+      
+      <div class="footer-links">
+        <a href="https://github.com/Underwood-Inc/idling.app__UI" target="_blank" rel="noopener">
+          GitHub
+        </a>
+        <a href="https://github.com/Underwood-Inc/idling.app__UI/discussions" target="_blank" rel="noopener">
+          Discussions
+        </a>
+        <a href="https://github.com/Underwood-Inc/idling.app__UI/issues" target="_blank" rel="noopener">
+          Issues
+        </a>
+        <a href="https://github.com/Underwood-Inc/idling.app__UI/releases" target="_blank" rel="noopener">
+          Releases
+        </a>
+      </div>
+    </div>
+  </div>
+</footer> </body>
+
+</html> 
