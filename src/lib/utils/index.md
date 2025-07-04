@@ -1,3 +1,9 @@
+---
+title: 🛠️ Utility Functions
+category: api-documentation
+tags: [api, documentation]
+---
+
 # 🛠️ Utility Functions
 
 This directory contains utility functions and helpers used throughout the idling.app application. Each utility is designed to be modular, reusable, and well-tested.
