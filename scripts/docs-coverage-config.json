@@ -1,0 +1,82 @@
+{
+  "documentation_standards": {
+    "minimum_quality_score": 0.7,
+    "minimum_coverage_percentage": 85.0,
+    "required_sections": {
+      "api_route": [
+        "overview",
+        "usage",
+        "api_reference",
+        "examples"
+      ],
+      "component": [
+        "overview",
+        "props",
+        "usage",
+        "examples"
+      ],
+      "service": [
+        "overview",
+        "usage",
+        "api_reference",
+        "configuration"
+      ],
+      "utility": [
+        "overview",
+        "usage",
+        "examples"
+      ],
+      "hook": [
+        "overview",
+        "usage",
+        "examples",
+        "api_reference"
+      ]
+    },
+    "minimum_word_count": {
+      "critical": 200,
+      "high": 150,
+      "medium": 100,
+      "low": 50
+    }
+  },
+  "code_analysis": {
+    "file_patterns": {
+      "components": "src/components/**/*.tsx",
+      "services": "src/lib/services/**/*.ts",
+      "utilities": "src/lib/utils/**/*.ts",
+      "hooks": "src/lib/hooks/**/*.ts",
+      "api_routes": "src/app/api/**/route.ts",
+      "middleware": "src/middleware/**/*.ts",
+      "types": "src/lib/types/**/*.ts"
+    },
+    "exclude_patterns": [
+      "**/*.test.*",
+      "**/*.spec.*",
+      "**/test/**",
+      "**/__tests__/**",
+      "**/node_modules/**",
+      "**/.next/**",
+      "**/build/**",
+      "**/dist/**"
+    ],
+    "complexity_thresholds": {
+      "low": 10,
+      "medium": 25,
+      "high": 50,
+      "critical": 100
+    }
+  },
+  "documentation_discovery": {
+    "co_located_patterns": [
+      "index.md",
+      "README.md",
+      "docs.md",
+      "documentation.md"
+    ],
+    "centralized_patterns": [
+      "docs/**/*.md",
+      "jekyll/**/*.md"
+    ]
+  }
+}

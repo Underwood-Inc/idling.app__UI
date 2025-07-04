@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Documentation Coverage Enforcer
-Ensures every code file has corresponding documentation and provides detailed reporting
+Industry-Standard Documentation Coverage Enforcer
+Validates documentation quality using industry best practices for co-located Jekyll documentation
 """
 
 import os
@@ -13,735 +13,942 @@ from pathlib import Path
 from typing import Dict, List, Set, Tuple, Optional
 from dataclasses import dataclass, asdict
 from datetime import datetime
+import argparse
 
 @dataclass
-class FileInfo:
-    """Information about a code file"""
+class DocumentationQuality:
+    """Represents the quality metrics of a documentation file"""
+    has_overview: bool = False
+    has_usage_examples: bool = False
+    has_api_documentation: bool = False
+    has_installation_guide: bool = False
+    has_configuration_docs: bool = False
+    has_troubleshooting: bool = False
+    has_code_examples: bool = False
+    has_proper_headings: bool = False
+    word_count: int = 0
+    line_count: int = 0
+    quality_score: float = 0.0
+    missing_sections: Optional[List[str]] = None
+    
+    def __post_init__(self):
+        if self.missing_sections is None:
+            self.missing_sections = []
+
+@dataclass
+class CodeFileAnalysis:
+    """Analysis of a code file that needs documentation"""
     path: str
     name: str
-    type: str  # 'service', 'component', 'utility', 'hook', etc.
+    file_type: str
+    language: str
     size_lines: int
-    exports: List[str]
-    is_test: bool
-    last_modified: str
+    complexity_score: int
+    exported_functions: List[str]
+    exported_classes: List[str]
+    exported_types: List[str]
+    exported_constants: List[str]
+    has_tests: bool
+    is_public_api: bool
+    documentation_required: bool
+    priority: str  # 'critical', 'high', 'medium', 'low'
 
 @dataclass
 class DocumentationGap:
-    """Represents a missing documentation file"""
-    file_path: str
-    file_name: str
-    file_type: str
-    suggested_doc_path: str
-    priority: str  # 'high', 'medium', 'low'
-    reason: str
+    """Represents missing or inadequate documentation"""
+    code_file: str
+    expected_doc_path: str
+    gap_type: str  # 'missing', 'inadequate', 'outdated'
+    priority: str
+    required_sections: List[str]
+    quality_issues: List[str]
+    estimated_effort: str  # 'low', 'medium', 'high'
 
 @dataclass
 class CoverageReport:
-    """Complete documentation coverage report"""
-    total_files: int
+    """Comprehensive documentation coverage report"""
+    total_code_files: int
     documented_files: int
-    missing_docs: int
+    adequately_documented: int
+    missing_documentation: int
+    inadequate_documentation: int
     coverage_percentage: float
+    quality_score: float
     gaps: List[DocumentationGap]
+    by_priority: Dict[str, int]
+    by_file_type: Dict[str, Dict[str, int]]
     timestamp: str
 
-class DocumentationCoverageEnforcer:
-    """Enforces documentation coverage across the codebase"""
+class IndustryStandardDocumentationChecker:
+    """Industry-standard documentation coverage checker with Jekyll co-location support"""
     
-    def __init__(self, config_path: str = "scripts/docs-coverage.json"):
+    def __init__(self, config_path: str = "scripts/docs-coverage-config.json"):
         self.config = self._load_config(config_path)
-        self.coverage_report = None
+        self.code_files: List[CodeFileAnalysis] = []
+        self.documentation_files: Dict[str, str] = {}
+        self.quality_assessments: Dict[str, DocumentationQuality] = {}
         
     def _load_config(self, config_path: str) -> Dict:
-        """Load configuration or create default"""
+        """Load configuration with industry-standard defaults"""
         default_config = {
-            "code_patterns": [
-                "src/lib/services/**/*.ts",
-                "src/lib/utils/**/*.ts", 
-                "src/lib/hooks/**/*.ts",
-                "src/components/**/*.tsx",
-                "src/app/api/**/*.ts",
-                "src/app/**/route.ts"
-            ],
-            "doc_patterns": [
-                "DOCS/services/**/*.md",
-                "DOCS/components/**/*.md",
-                "DOCS/api/**/*.md",
-                "DOCS/utils/**/*.md",
-                "DOCS/hooks/**/*.md"
-            ],
-            "exclude_patterns": [
-                "**/test/**",
-                "**/*.test.*",
-                "**/*.spec.*",
-                "**/node_modules/**",
-                "**/.next/**",
-                "**/build/**",
-                "**/dist/**"
-            ],
-            "file_type_mapping": {
-                "services": {
-                    "pattern": "src/lib/services/**/*.ts",
-                    "doc_path": "DOCS/services/{name}.md",
-                    "priority": "high"
+            "documentation_standards": {
+                "minimum_quality_score": 0.7,
+                "minimum_coverage_percentage": 85.0,
+                "required_sections": {
+                    "api_route": ["overview", "usage", "api_reference", "examples"],
+                    "component": ["overview", "props", "usage", "examples"],
+                    "service": ["overview", "usage", "api_reference", "configuration"],
+                    "utility": ["overview", "usage", "examples"],
+                    "hook": ["overview", "usage", "examples", "api_reference"]
                 },
-                "components": {
-                    "pattern": "src/components/**/*.tsx",
-                    "doc_path": "DOCS/components/{name}.md", 
-                    "priority": "high"
-                },
-                "api_routes": {
-                    "pattern": "src/app/api/**/route.ts",
-                    "doc_path": "DOCS/api/{path}.md",
-                    "priority": "high"
-                },
-                "utils": {
-                    "pattern": "src/lib/utils/**/*.ts",
-                    "doc_path": "DOCS/utils/{name}.md",
-                    "priority": "medium"
-                },
-                "hooks": {
-                    "pattern": "src/lib/hooks/**/*.ts", 
-                    "doc_path": "DOCS/hooks/{name}.md",
-                    "priority": "medium"
+                "minimum_word_count": {
+                    "critical": 200,
+                    "high": 150,
+                    "medium": 100,
+                    "low": 50
                 }
             },
-            "minimum_coverage": 85,
-            "fail_on_missing": True,
-            "generate_stubs": True
+            "code_analysis": {
+                "file_patterns": {
+                    "components": "src/components/**/*.tsx",
+                    "services": "src/lib/services/**/*.ts",
+                    "utilities": "src/lib/utils/**/*.ts",
+                    "hooks": "src/lib/hooks/**/*.ts",
+                    "api_routes": "src/app/api/**/route.ts",
+                    "middleware": "src/middleware/**/*.ts",
+                    "types": "src/lib/types/**/*.ts"
+                },
+                "exclude_patterns": [
+                    "**/*.test.*",
+                    "**/*.spec.*",
+                    "**/test/**",
+                    "**/__tests__/**",
+                    "**/node_modules/**",
+                    "**/.next/**",
+                    "**/build/**",
+                    "**/dist/**"
+                ],
+                "complexity_thresholds": {
+                    "low": 10,
+                    "medium": 25,
+                    "high": 50,
+                    "critical": 100
+                }
+            },
+            "documentation_discovery": {
+                "co_located_patterns": [
+                    "index.md",
+                    "README.md",
+                    "docs.md",
+                    "documentation.md"
+                ],
+                "centralized_patterns": [
+                    "docs/**/*.md",
+                    "jekyll/**/*.md"
+                ]
+            }
         }
         
         try:
             if os.path.exists(config_path):
                 with open(config_path, 'r') as f:
-                    config = json.load(f)
-                # Merge with defaults
-                return {**default_config, **config}
+                    user_config = json.load(f)
+                # Deep merge configurations
+                return self._deep_merge(default_config, user_config)
             else:
-                # Create default config file
+                # Create default config
                 os.makedirs(os.path.dirname(config_path), exist_ok=True)
                 with open(config_path, 'w') as f:
                     json.dump(default_config, f, indent=2)
-                print(f"📝 Created default config at {config_path}", file=sys.stderr)
+                print(f"📝 Created default configuration at {config_path}", file=sys.stderr)
                 return default_config
         except Exception as e:
             print(f"⚠️  Error loading config: {e}", file=sys.stderr)
             return default_config
-
-    def _get_file_info(self, file_path: str) -> FileInfo:
-        """Extract information about a code file"""
-        path_obj = Path(file_path)
-        name = path_obj.stem
-        
-        # Determine file type based on path
-        file_type = "unknown"
-        if "services" in file_path:
-            file_type = "service"
-        elif "components" in file_path:
-            file_type = "component"
-        elif "utils" in file_path:
-            file_type = "utility"
-        elif "hooks" in file_path:
-            file_type = "hook"
-        elif "api" in file_path and "route" in file_path:
-            file_type = "api_route"
-        
-        # Count lines
-        try:
-            with open(file_path, 'r', encoding='utf-8') as f:
-                lines = len(f.readlines())
-        except:
-            lines = 0
-            
-        # Extract exports (basic regex)
-        exports = []
+    
+    def _deep_merge(self, base: Dict, update: Dict) -> Dict:
+        """Deep merge two dictionaries"""
+        result = base.copy()
+        for key, value in update.items():
+            if key in result and isinstance(result[key], dict) and isinstance(value, dict):
+                result[key] = self._deep_merge(result[key], value)
+            else:
+                result[key] = value
+        return result
+    
+    def _analyze_typescript_file(self, file_path: str) -> CodeFileAnalysis:
+        """Analyze a TypeScript/TSX file for documentation requirements"""
         try:
             with open(file_path, 'r', encoding='utf-8') as f:
                 content = f.read()
-                # Find export statements
-                export_matches = re.findall(r'export\s+(?:class|function|const|interface|type)\s+(\w+)', content)
-                exports = list(set(export_matches))
-        except:
-            pass
-            
-        # Check if test file
-        is_test = any(pattern in file_path.lower() for pattern in ['test', 'spec', '__tests__'])
-        
-        # Get last modified
-        try:
-            mtime = os.path.getmtime(file_path)
-            last_modified = datetime.fromtimestamp(mtime).isoformat()
-        except:
-            last_modified = "unknown"
-            
-        return FileInfo(
-            path=file_path,
-            name=name,
-            type=file_type,
-            size_lines=lines,
-            exports=exports,
-            is_test=is_test,
-            last_modified=last_modified
-        )
-
-    def _find_code_files(self) -> List[FileInfo]:
-        """Find all code files that need documentation"""
-        code_files = []
-        
-        for pattern in self.config["code_patterns"]:
-            files = glob.glob(pattern, recursive=True)
-            for file_path in files:
-                # Skip excluded patterns
-                if any(excl in file_path for excl in self.config["exclude_patterns"]):
-                    continue
-                    
-                file_info = self._get_file_info(file_path)
-                if not file_info.is_test:  # Skip test files
-                    code_files.append(file_info)
-                    
-        return code_files
-
-    def _find_existing_docs(self) -> Dict[str, str]:
-        """Find all existing documentation files and map them to their locations"""
-        doc_files = {}
-        
-        # Look for co-located documentation files (README.md, docs.md, etc.)
-        for pattern in self.config["code_patterns"]:
-            files = glob.glob(pattern, recursive=True)
-            for file_path in files:
-                file_dir = os.path.dirname(file_path)
-                file_name = Path(file_path).stem.lower()
-                
-                # Check for various documentation file patterns in the same directory
-                doc_patterns = [
-                    "README.md",
-                    "readme.md", 
-                    "docs.md",
-                    "documentation.md",
-                    f"{file_name}.md",
-                    f"{file_name}-docs.md",
-                    f"{file_name}.docs.md"
-                ]
-                
-                for doc_pattern in doc_patterns:
-                    doc_path = os.path.join(file_dir, doc_pattern)
-                    if os.path.exists(doc_path) and self._has_meaningful_content(doc_path):
-                        doc_files[file_name] = doc_path
-                        break  # Found documentation, stop looking
-        
-        # Also look for centralized docs (like API docs)
-        for pattern in self.config["doc_patterns"]:
-            files = glob.glob(pattern, recursive=True)
-            for file_path in files:
-                if self._has_meaningful_content(file_path):
-                    doc_name = Path(file_path).stem.lower()
-                    doc_files[doc_name] = file_path
-                
-        return doc_files
-
-    def _has_meaningful_content(self, file_path: str) -> bool:
-        """Check if a documentation file has meaningful content (not just stubs)"""
-        try:
-            with open(file_path, 'r', encoding='utf-8') as f:
-                content = f.read().strip()
-                
-            # Check if file is empty or nearly empty
-            if len(content) < 20:
-                return False
-                
-            # Remove common markdown elements for content analysis
-            content_clean = re.sub(r'#+ ', '', content)  # Remove headers
-            content_clean = re.sub(r'\*\*.*?\*\*', '', content_clean)  # Remove bold text
-            content_clean = re.sub(r'`.*?`', '', content_clean)  # Remove inline code
-            content_clean = re.sub(r'```.*?```', '', content_clean, flags=re.DOTALL)  # Remove code blocks
-            content_clean = re.sub(r'\n+', ' ', content_clean)  # Normalize whitespace
-            content_clean = content_clean.strip()
-            
-            # Check for obvious stub patterns (be more lenient)
-            stub_patterns = [
-                r'^\s*TODO\s*:?\s*$',  # Just "TODO"
-                r'^\s*STUB\s*:?\s*$',  # Just "STUB"
-                r'^\s*Coming soon\s*\.?\s*$',  # Just "Coming soon"
-                r'^\s*Documentation\s+coming\s+soon\s*\.?\s*$',  # Just "Documentation coming soon"
-                r'^\s*Placeholder\s*\.?\s*$',  # Just "Placeholder"
-                r'^\s*TBD\s*\.?\s*$',  # Just "TBD"
-                r'^\s*WIP\s*\.?\s*$',  # Just "WIP"
-                r'^\s*\[.*\]\s*$',  # Just brackets like [TODO]
-            ]
-            
-            # Check if content matches stub patterns
-            for pattern in stub_patterns:
-                if re.match(pattern, content_clean, re.IGNORECASE):
-                    return False
-                    
-            # Be more lenient - if there's any reasonable content, consider it meaningful
-            # Check for meaningful content indicators
-            meaningful_indicators = [
-                r'##\s+',  # Multiple headers indicate structure
-                r'###\s+',  # Even more detailed structure
-                r'\w+\s+\w+\s+\w+',  # At least 3 words in a row (more lenient)
-                r'function\s+\w+',  # Function descriptions
-                r'class\s+\w+',  # Class descriptions
-                r'interface\s+\w+',  # Interface descriptions
-                r'export\s+',  # Export descriptions
-                r'import\s+',  # Import descriptions
-                r'Example\s*:',  # Examples
-                r'Usage\s*:',  # Usage information
-                r'Parameters\s*:',  # Parameter documentation
-                r'Returns\s*:',  # Return value documentation
-                r'Description\s*:',  # Description sections
-                r'Overview\s*:',  # Overview sections
-                r'Installation\s*:',  # Installation instructions
-                r'Getting\s+started',  # Getting started sections
-                r'Features\s*:',  # Feature lists
-                r'API\s*:',  # API documentation
-                r'Configuration\s*:',  # Configuration docs
-                r'https?://',  # URLs indicate real content
-                r'npm\s+install',  # Package installation
-                r'yarn\s+add',  # Package installation
-            ]
-            
-            meaningful_count = 0
-            for indicator in meaningful_indicators:
-                if re.search(indicator, content, re.IGNORECASE):
-                    meaningful_count += 1
-                    
-            # More lenient: require at least 1 meaningful indicator OR substantial content
-            return meaningful_count >= 1 or len(content_clean) > 50
-            
         except Exception as e:
             print(f"⚠️  Error reading {file_path}: {e}", file=sys.stderr)
-            return False
-
-    def _suggest_doc_path(self, file_info: FileInfo) -> str:
-        """Suggest where documentation should be created"""
-        # Handle proper pluralization for directory names
-        type_plural_mapping = {
-            "utility": "utilities",
-            "service": "services", 
-            "component": "components",
-            "hook": "hooks",
-            "api_route": "api",
-            "unknown": "misc"
-        }
+            return self._create_basic_analysis(file_path)
         
-        # Get the plural form for the file type
-        plural_type = type_plural_mapping.get(file_info.type, file_info.type + "s")
-        file_type_config = self.config["file_type_mapping"].get(plural_type)
+        # Basic file info
+        path_obj = Path(file_path)
+        name = path_obj.stem
+        file_type = self._determine_file_type(file_path)
+        language = "typescript" if file_path.endswith('.ts') else "tsx"
+        size_lines = len(content.splitlines())
         
-        if file_type_config:
-            if file_info.type == "api_route":
-                # Special handling for API routes - keep in centralized DOCS
-                relative_path = file_info.path.replace("src/app/api/", "").replace("/route.ts", "")
-                return file_type_config["doc_path"].format(path=relative_path)
-            else:
-                # Co-located documentation - place README.md in same directory as source file
-                file_dir = os.path.dirname(file_info.path)
-                return file_type_config["doc_path"].format(dir=file_dir, name=file_info.name.lower())
+        # Extract exports using regex (more reliable than AST for TS/TSX)
+        exported_functions = self._extract_exported_functions(content)
+        exported_classes = self._extract_exported_classes(content)
+        exported_types = self._extract_exported_types(content)
+        exported_constants = self._extract_exported_constants(content)
         
-        # Default fallback - co-located README.md
-        file_dir = os.path.dirname(file_info.path)
-        return f"{file_dir}/README.md"
-
-    def _get_priority(self, file_info: FileInfo) -> str:
-        """Determine priority level for documentation based on file characteristics"""
-        # High priority: Services, API routes, large files
-        if file_info.type in ["service", "api_route"] or file_info.size_lines > 300:
-            return "high"
+        # Calculate complexity score
+        complexity_score = self._calculate_complexity(content)
         
-        # Medium priority: Components, utilities with exports
-        if file_info.type in ["component", "utility"] and file_info.exports:
-            return "medium"
-            
-        # Low priority: Everything else
-        return "low"
-
-    def _get_all_files_with_status(self) -> List[Dict]:
-        """Get all files with their documentation status for comprehensive reporting"""
-        all_files = []
-        
-        if not self.coverage_report:
-            return all_files
-        
-        # Get all code files
-        code_files = self._find_code_files()
-        existing_docs = self._find_existing_docs()
-        
-        # Create mapping of gaps for easy lookup
-        gaps_by_path = {gap.file_path: gap for gap in self.coverage_report.gaps}
-        
-        for file_info in code_files:
-            doc_name = file_info.name.lower()
-            
-            # Check if file has documentation
-            has_docs = False
-            doc_path = 'N/A'
-            
-            # Check in existing docs mapping
-            if doc_name in existing_docs:
-                has_docs = True
-                doc_path = existing_docs[doc_name]
-            else:
-                # Check for co-located documentation
-                file_dir = os.path.dirname(file_info.path)
-                doc_patterns = [
-                    "README.md",
-                    "readme.md", 
-                    "docs.md",
-                    "documentation.md",
-                    f"{file_info.name.lower()}.md",
-                    f"{file_info.name.lower()}-docs.md",
-                    f"{file_info.name.lower()}.docs.md"
-                ]
-                
-                for doc_pattern in doc_patterns:
-                    potential_doc_path = os.path.join(file_dir, doc_pattern)
-                    if os.path.exists(potential_doc_path) and self._has_meaningful_content(potential_doc_path):
-                        has_docs = True
-                        doc_path = potential_doc_path
-                        break
-            
-            # Determine status and priority
-            status = 'covered' if has_docs else 'missing'
-            priority = self._get_priority(file_info) if not has_docs else 'N/A'
-            
-            # Add to results
-            file_data = {
-                'file_path': file_info.path,
-                'type': file_info.type,
-                'lines': file_info.size_lines,
-                'status': status,
-                'doc_path': doc_path,
-                'priority': priority
-            }
-            
-            all_files.append(file_data)
-        
-        return all_files
-
-    def _get_file_lines(self, file_path: str) -> int:
-        """Get the number of lines in a file"""
-        try:
-            with open(file_path, 'r', encoding='utf-8') as f:
-                return len(f.readlines())
-        except:
-            return 0
-
-    def check_coverage(self) -> CoverageReport:
-        """Check documentation coverage and generate report"""
-        print("🔍 Scanning codebase for documentation coverage...", file=sys.stderr)
-        
-        # Find all code files
-        code_files = self._find_code_files()
-        print(f"📁 Found {len(code_files)} code files", file=sys.stderr)
-        
-        # Find existing documentation
-        existing_docs = self._find_existing_docs()
-        print(f"📚 Found {len(existing_docs)} documentation files", file=sys.stderr)
-        
-        # Check for missing documentation
-        gaps = []
-        documented_count = 0
-        
-        for file_info in code_files:
-            doc_name = file_info.name.lower()
-            
-            # Check if documentation exists (either co-located or centralized)
-            if doc_name in existing_docs:
-                documented_count += 1
-            else:
-                # Check for various documentation files in the same directory
-                file_dir = os.path.dirname(file_info.path)
-                found_docs = False
-                
-                # Look for multiple documentation file patterns
-                doc_patterns = [
-                    "README.md",
-                    "readme.md", 
-                    "docs.md",
-                    "documentation.md",
-                    f"{file_info.name.lower()}.md",
-                    f"{file_info.name.lower()}-docs.md",
-                    f"{file_info.name.lower()}.docs.md"
-                ]
-                
-                for doc_pattern in doc_patterns:
-                    doc_path = os.path.join(file_dir, doc_pattern)
-                    if os.path.exists(doc_path) and self._has_meaningful_content(doc_path):
-                        documented_count += 1
-                        found_docs = True
-                        break
-                
-                if not found_docs:
-                    gap = DocumentationGap(
-                        file_path=file_info.path,
-                        file_name=file_info.name,
-                        file_type=file_info.type,
-                        suggested_doc_path=self._suggest_doc_path(file_info),
-                        priority=self._get_priority(file_info),
-                        reason=f"{file_info.type.title()} with {file_info.size_lines} lines needs documentation"
-                    )
-                    gaps.append(gap)
-        
-        # Calculate coverage
-        total_files = len(code_files)
-        coverage_percentage = (documented_count / total_files * 100) if total_files > 0 else 100
-        
-        # Create report
-        self.coverage_report = CoverageReport(
-            total_files=total_files,
-            documented_files=documented_count,
-            missing_docs=len(gaps),
-            coverage_percentage=coverage_percentage,
-            gaps=gaps,
-            timestamp=datetime.now().isoformat()
+        # Check for tests
+        test_patterns = [f"{name}.test.", f"{name}.spec.", f"__tests__/{name}"]
+        has_tests = any(
+            os.path.exists(file_path.replace(name + path_obj.suffix, pattern))
+            for pattern in test_patterns
         )
         
-        return self.coverage_report
-
-    def generate_report(self, format: str = "console") -> str:
-        """Generate coverage report in specified format"""
-        if not self.coverage_report:
-            raise ValueError("No coverage report available. Run check_coverage() first.")
-            
-        report = self.coverage_report
+        # Determine if this is a public API
+        is_public_api = self._is_public_api(file_path, content)
         
+        # Determine documentation requirements
+        documentation_required = self._requires_documentation(
+            file_type, complexity_score, exported_functions, exported_classes, is_public_api
+        )
+        
+        # Determine priority
+        priority = self._determine_priority(
+            file_type, complexity_score, is_public_api, size_lines
+        )
+        
+        return CodeFileAnalysis(
+            path=file_path,
+            name=name,
+            file_type=file_type,
+            language=language,
+            size_lines=size_lines,
+            complexity_score=complexity_score,
+            exported_functions=exported_functions,
+            exported_classes=exported_classes,
+            exported_types=exported_types,
+            exported_constants=exported_constants,
+            has_tests=has_tests,
+            is_public_api=is_public_api,
+            documentation_required=documentation_required,
+            priority=priority
+        )
+    
+    def _create_basic_analysis(self, file_path: str) -> CodeFileAnalysis:
+        """Create basic analysis when file cannot be read"""
+        path_obj = Path(file_path)
+        return CodeFileAnalysis(
+            path=file_path,
+            name=path_obj.stem,
+            file_type=self._determine_file_type(file_path),
+            language="unknown",
+            size_lines=0,
+            complexity_score=0,
+            exported_functions=[],
+            exported_classes=[],
+            exported_types=[],
+            exported_constants=[],
+            has_tests=False,
+            is_public_api=False,
+            documentation_required=False,
+            priority="low"
+        )
+    
+    def _determine_file_type(self, file_path: str) -> str:
+        """Determine the type of code file"""
+        if "components" in file_path:
+            return "component"
+        elif "services" in file_path:
+            return "service"
+        elif "utils" in file_path:
+            return "utility"
+        elif "hooks" in file_path:
+            return "hook"
+        elif "api" in file_path and "route" in file_path:
+            return "api_route"
+        elif "middleware" in file_path:
+            return "middleware"
+        elif "types" in file_path:
+            return "types"
+        else:
+            return "unknown"
+    
+    def _extract_exported_functions(self, content: str) -> List[str]:
+        """Extract exported function names"""
+        patterns = [
+            r'export\s+(?:async\s+)?function\s+(\w+)',
+            r'export\s+const\s+(\w+)\s*=\s*(?:async\s+)?\(',
+            r'export\s+const\s+(\w+)\s*:\s*[^=]*=\s*(?:async\s+)?\(',
+        ]
+        
+        functions = []
+        for pattern in patterns:
+            matches = re.findall(pattern, content, re.MULTILINE)
+            functions.extend(matches)
+        
+        return list(set(functions))
+    
+    def _extract_exported_classes(self, content: str) -> List[str]:
+        """Extract exported class names"""
+        patterns = [
+            r'export\s+class\s+(\w+)',
+            r'export\s+abstract\s+class\s+(\w+)',
+        ]
+        
+        classes = []
+        for pattern in patterns:
+            matches = re.findall(pattern, content)
+            classes.extend(matches)
+        
+        return list(set(classes))
+    
+    def _extract_exported_types(self, content: str) -> List[str]:
+        """Extract exported type and interface names"""
+        patterns = [
+            r'export\s+type\s+(\w+)',
+            r'export\s+interface\s+(\w+)',
+            r'export\s+enum\s+(\w+)',
+        ]
+        
+        types = []
+        for pattern in patterns:
+            matches = re.findall(pattern, content)
+            types.extend(matches)
+        
+        return list(set(types))
+    
+    def _extract_exported_constants(self, content: str) -> List[str]:
+        """Extract exported constant names"""
+        patterns = [
+            r'export\s+const\s+(\w+)\s*=\s*[^(]',  # Constants (not functions)
+        ]
+        
+        constants = []
+        for pattern in patterns:
+            matches = re.findall(pattern, content)
+            constants.extend(matches)
+        
+        return list(set(constants))
+    
+    def _calculate_complexity(self, content: str) -> int:
+        """Calculate cyclomatic complexity score"""
+        complexity_indicators = [
+            r'\bif\b',
+            r'\belse\b',
+            r'\bfor\b',
+            r'\bwhile\b',
+            r'\bswitch\b',
+            r'\bcase\b',
+            r'\btry\b',
+            r'\bcatch\b',
+            r'\bfinally\b',
+            r'\?\s*:',  # Ternary operator
+            r'&&',
+            r'\|\|',
+        ]
+        
+        complexity = 1  # Base complexity
+        for indicator in complexity_indicators:
+            complexity += len(re.findall(indicator, content))
+        
+        return complexity
+    
+    def _is_public_api(self, file_path: str, content: str) -> bool:
+        """Determine if this file is part of the public API"""
+        # Check for public API indicators
+        public_indicators = [
+            "export" in content,
+            "api" in file_path.lower(),
+            "public" in file_path.lower(),
+            not file_path.startswith("src/lib/internal/"),
+            not "_internal" in file_path,
+            not ".internal." in file_path,
+        ]
+        
+        return sum(public_indicators) >= 2
+    
+    def _requires_documentation(self, file_type: str, complexity: int, 
+                               functions: List[str], classes: List[str], 
+                               is_public: bool) -> bool:
+        """Determine if a file requires documentation"""
+        # Skip simple API route files (Next.js auto-generated routes)
+        if file_type == "api_route":
+            # Only require docs for complex API routes with multiple functions or high complexity
+            if complexity < 15 and len(functions) <= 2 and len(classes) == 0:
+                return False
+        
+        # Always require docs for public APIs (except simple routes)
+        if is_public and file_type in ["service", "component"]:
+            return True
+        
+        # Require docs for complex files
+        if complexity > self.config["code_analysis"]["complexity_thresholds"]["medium"]:
+            return True
+        
+        # Require docs for files with multiple exports
+        if len(functions) + len(classes) > 3:
+            return True
+        
+        # Require docs for specific file types (but not simple utilities)
+        if file_type in ["service", "component", "hook"]:
+            return True
+        
+        # Require docs for complex utilities
+        if file_type == "utility" and (complexity > 20 or len(functions) > 2):
+            return True
+        
+        return False
+    
+    def _determine_priority(self, file_type: str, complexity: int, 
+                          is_public: bool, size_lines: int) -> str:
+        """Determine documentation priority"""
+        # Critical: Complex public services and large components
+        if is_public and file_type == "service" and complexity > 30:
+            return "critical"
+        
+        if file_type == "component" and size_lines > 300:
+            return "critical"
+        
+        if complexity > self.config["code_analysis"]["complexity_thresholds"]["high"]:
+            return "critical"
+        
+        # High: Public APIs and substantial code files
+        if file_type in ["component", "service"] and size_lines > 150:
+            return "high"
+        
+        if complexity > self.config["code_analysis"]["complexity_thresholds"]["medium"]:
+            return "high"
+        
+        if is_public and file_type in ["api_route", "service"] and complexity > 15:
+            return "high"
+        
+        # Medium: Hooks, utilities, and smaller components
+        if file_type in ["hook", "utility"] and is_public:
+            return "medium"
+        
+        if file_type == "component" and size_lines > 50:
+            return "medium"
+        
+        return "low"
+    
+    def _find_code_files(self) -> List[CodeFileAnalysis]:
+        """Find and analyze all code files"""
+        code_files = []
+        
+        for file_type, pattern in self.config["code_analysis"]["file_patterns"].items():
+            files = glob.glob(pattern, recursive=True)
+            for file_path in files:
+                if self._should_exclude_file(file_path):
+                    continue
+                
+                analysis = self._analyze_typescript_file(file_path)
+                if analysis.documentation_required:
+                    code_files.append(analysis)
+        
+        return code_files
+    
+    def _should_exclude_file(self, file_path: str) -> bool:
+        """Check if file should be excluded from analysis"""
+        for pattern in self.config["code_analysis"]["exclude_patterns"]:
+            if pattern.replace("**", "").replace("*", "") in file_path:
+                return True
+        return False
+    
+    def _find_documentation_files(self) -> Dict[str, str]:
+        """Find all documentation files and map them to code files"""
+        doc_files = {}
+        
+        # Find co-located documentation (preferred for Jekyll)
+        for code_file in self.code_files:
+            file_dir = os.path.dirname(code_file.path)
+            
+            # Check for co-located documentation in priority order
+            for doc_pattern in self.config["documentation_discovery"]["co_located_patterns"]:
+                doc_path = os.path.join(file_dir, doc_pattern)
+                if os.path.exists(doc_path) and self._is_meaningful_documentation(doc_path):
+                    doc_files[code_file.path] = doc_path
+                    break
+        
+        return doc_files
+    
+    def _is_meaningful_documentation(self, doc_path: str) -> bool:
+        """Check if documentation file has meaningful content (not just stub/placeholder)"""
+        try:
+            with open(doc_path, 'r', encoding='utf-8') as f:
+                content = f.read().strip()
+        except Exception:
+            return False
+        
+        # Must have minimum content
+        if len(content) < 50:
+            return False
+        
+        # Check for stub patterns
+        stub_patterns = [
+            r'^\s*TODO\s*:?\s*$',
+            r'^\s*STUB\s*:?\s*$',
+            r'^\s*Coming soon\s*\.?\s*$',
+            r'^\s*Documentation\s+coming\s+soon\s*\.?\s*$',
+            r'^\s*Placeholder\s*\.?\s*$',
+            r'^\s*TBD\s*\.?\s*$',
+            r'^\s*WIP\s*\.?\s*$',
+            r'Documentation Needed.*This file was automatically generated',
+        ]
+        
+        for pattern in stub_patterns:
+            if re.search(pattern, content, re.IGNORECASE | re.MULTILINE):
+                return False
+        
+        # Must have at least one heading or substantial content
+        has_headings = bool(re.search(r'##?\s+\w+', content))
+        has_substantial_content = len(content.split()) > 20
+        
+        return has_headings or has_substantial_content
+    
+    def _assess_documentation_quality(self, doc_path: str, file_type: str, 
+                                    priority: str) -> DocumentationQuality:
+        """Assess the quality of documentation using industry standards"""
+        try:
+            with open(doc_path, 'r', encoding='utf-8') as f:
+                content = f.read()
+        except Exception as e:
+            print(f"⚠️  Error reading {doc_path}: {e}", file=sys.stderr)
+            return DocumentationQuality()
+        
+        # Basic metrics
+        word_count = len(content.split())
+        line_count = len(content.splitlines())
+        
+        quality = DocumentationQuality(
+            word_count=word_count,
+            line_count=line_count
+        )
+        
+        # Check for overview/description
+        quality.has_overview = bool(re.search(r'##?\s*(Overview|Description|About)', content, re.IGNORECASE))
+        
+        # Check for usage examples
+        quality.has_usage_examples = bool(re.search(r'##?\s*(Usage|Examples?|Getting Started)', content, re.IGNORECASE))
+        
+        # Check for API documentation
+        quality.has_api_documentation = bool(re.search(r'##?\s*(API|Reference|Methods?|Props?)', content, re.IGNORECASE))
+        
+        # Check for installation guide
+        quality.has_installation_guide = bool(re.search(r'##?\s*(Installation|Setup|Getting Started)', content, re.IGNORECASE))
+        
+        # Check for configuration docs
+        quality.has_configuration_docs = bool(re.search(r'##?\s*(Configuration|Config|Options)', content, re.IGNORECASE))
+        
+        # Check for troubleshooting
+        quality.has_troubleshooting = bool(re.search(r'##?\s*(Troubleshooting|FAQ|Common Issues)', content, re.IGNORECASE))
+        
+        # Check for code examples
+        quality.has_code_examples = bool(re.search(r'```', content))
+        
+        # Check for proper heading structure
+        quality.has_proper_headings = bool(re.search(r'##?\s+\w+', content))
+        
+        # Calculate quality score
+        quality.quality_score = self._calculate_quality_score(quality, file_type, priority)
+        
+        # Identify missing sections
+        required_sections = self.config["documentation_standards"]["required_sections"].get(file_type, [])
+        quality.missing_sections = self._identify_missing_sections(content, required_sections)
+        
+        return quality
+    
+    def _calculate_quality_score(self, quality: DocumentationQuality, 
+                               file_type: str, priority: str) -> float:
+        """Calculate documentation quality score (0.0 to 1.0)"""
+        score = 0.0
+        total_weight = 0.0
+        
+        # Required sections based on file type
+        required_sections = self.config["documentation_standards"]["required_sections"].get(file_type, [])
+        
+        # Weight different aspects
+        weights = {
+            "overview": 0.2,
+            "usage": 0.25,
+            "api_reference": 0.2,
+            "examples": 0.15,
+            "code_examples": 0.1,
+            "proper_headings": 0.1
+        }
+        
+        # Check each weighted aspect
+        if "overview" in required_sections:
+            total_weight += weights["overview"]
+            if quality.has_overview:
+                score += weights["overview"]
+        
+        if "usage" in required_sections:
+            total_weight += weights["usage"]
+            if quality.has_usage_examples:
+                score += weights["usage"]
+        
+        if "api_reference" in required_sections:
+            total_weight += weights["api_reference"]
+            if quality.has_api_documentation:
+                score += weights["api_reference"]
+        
+        if "examples" in required_sections:
+            total_weight += weights["examples"]
+            if quality.has_code_examples:
+                score += weights["examples"]
+        
+        # Always check for proper structure
+        total_weight += weights["proper_headings"]
+        if quality.has_proper_headings:
+            score += weights["proper_headings"]
+        
+        # Word count penalty/bonus
+        min_words = self.config["documentation_standards"]["minimum_word_count"].get(priority, 50)
+        if quality.word_count < min_words:
+            score *= (quality.word_count / min_words)  # Penalty for too short
+        elif quality.word_count > min_words * 2:
+            score = min(score * 1.1, 1.0)  # Small bonus for comprehensive docs
+        
+        return score / total_weight if total_weight > 0 else 0.0
+    
+    def _identify_missing_sections(self, content: str, required_sections: List[str]) -> List[str]:
+        """Identify missing required sections"""
+        missing = []
+        
+        section_patterns = {
+            "overview": r'##?\s*(Overview|Description|About)',
+            "usage": r'##?\s*(Usage|Getting Started|How to Use)',
+            "api_reference": r'##?\s*(API|Reference|Methods?|Props?)',
+            "examples": r'##?\s*(Examples?|Sample Code)',
+            "installation": r'##?\s*(Installation|Setup)',
+            "configuration": r'##?\s*(Configuration|Config|Options)',
+            "troubleshooting": r'##?\s*(Troubleshooting|FAQ|Common Issues)'
+        }
+        
+        for section in required_sections:
+            pattern = section_patterns.get(section)
+            if pattern and not re.search(pattern, content, re.IGNORECASE):
+                missing.append(section)
+        
+        return missing
+    
+    def check_coverage(self) -> CoverageReport:
+        """Perform comprehensive documentation coverage analysis"""
+        print("🔍 Performing industry-standard documentation coverage analysis...", file=sys.stderr)
+        
+        # Find and analyze code files
+        self.code_files = self._find_code_files()
+        print(f"📁 Found {len(self.code_files)} code files requiring documentation", file=sys.stderr)
+        
+        # Find documentation files
+        self.documentation_files = self._find_documentation_files()
+        print(f"📚 Found {len(self.documentation_files)} meaningful documentation files", file=sys.stderr)
+        
+        # Assess documentation quality
+        gaps = []
+        adequately_documented = 0
+        total_quality_score = 0.0
+        
+        for code_file in self.code_files:
+            if code_file.path in self.documentation_files:
+                doc_path = self.documentation_files[code_file.path]
+                quality = self._assess_documentation_quality(doc_path, code_file.file_type, code_file.priority)
+                self.quality_assessments[code_file.path] = quality
+                
+                min_quality = self.config["documentation_standards"]["minimum_quality_score"]
+                if quality.quality_score >= min_quality:
+                    adequately_documented += 1
+                else:
+                    # Documentation exists but is inadequate
+                    gap = DocumentationGap(
+                        code_file=code_file.path,
+                        expected_doc_path=doc_path,
+                        gap_type="inadequate",
+                        priority=code_file.priority,
+                        required_sections=self.config["documentation_standards"]["required_sections"].get(code_file.file_type, []),
+                        quality_issues=quality.missing_sections or [],
+                        estimated_effort=self._estimate_effort(quality, code_file)
+                    )
+                    gaps.append(gap)
+                
+                total_quality_score += quality.quality_score
+            else:
+                # Documentation is missing
+                expected_doc_path = self._get_expected_doc_path(code_file)
+                gap = DocumentationGap(
+                    code_file=code_file.path,
+                    expected_doc_path=expected_doc_path,
+                    gap_type="missing",
+                    priority=code_file.priority,
+                    required_sections=self.config["documentation_standards"]["required_sections"].get(code_file.file_type, []),
+                    quality_issues=["Documentation file does not exist"],
+                    estimated_effort=self._estimate_effort_for_missing(code_file)
+                )
+                gaps.append(gap)
+        
+        # Calculate metrics
+        documented_files = len(self.documentation_files)
+        total_files = len(self.code_files)
+        coverage_percentage = (adequately_documented / total_files * 100) if total_files > 0 else 100
+        average_quality = (total_quality_score / documented_files) if documented_files > 0 else 0.0
+        
+        # Group by priority and file type
+        by_priority = {"critical": 0, "high": 0, "medium": 0, "low": 0}
+        by_file_type = {}
+        
+        for gap in gaps:
+            by_priority[gap.priority] += 1
+            
+            file_type = next((cf.file_type for cf in self.code_files if cf.path == gap.code_file), "unknown")
+            if file_type not in by_file_type:
+                by_file_type[file_type] = {"missing": 0, "inadequate": 0}
+            
+            by_file_type[file_type][gap.gap_type] += 1
+        
+        return CoverageReport(
+            total_code_files=total_files,
+            documented_files=documented_files,
+            adequately_documented=adequately_documented,
+            missing_documentation=len([g for g in gaps if g.gap_type == "missing"]),
+            inadequate_documentation=len([g for g in gaps if g.gap_type == "inadequate"]),
+            coverage_percentage=coverage_percentage,
+            quality_score=average_quality,
+            gaps=gaps,
+            by_priority=by_priority,
+            by_file_type=by_file_type,
+            timestamp=datetime.now().isoformat()
+        )
+    
+    def _get_expected_doc_path(self, code_file: CodeFileAnalysis) -> str:
+        """Get the expected documentation path for a code file"""
+        file_dir = os.path.dirname(code_file.path)
+        # Prefer index.md for Jekyll compatibility
+        return os.path.join(file_dir, "index.md")
+    
+    def _estimate_effort(self, quality: DocumentationQuality, code_file: CodeFileAnalysis) -> str:
+        """Estimate effort to improve documentation"""
+        if quality.quality_score < 0.3:
+            return "high"
+        elif quality.quality_score < 0.6:
+            return "medium"
+        else:
+            return "low"
+    
+    def _estimate_effort_for_missing(self, code_file: CodeFileAnalysis) -> str:
+        """Estimate effort to create missing documentation"""
+        if code_file.priority == "critical":
+            return "high"
+        elif code_file.priority == "high":
+            return "medium"
+        else:
+            return "low"
+    
+    def generate_report(self, report: CoverageReport, format: str = "console") -> str:
+        """Generate comprehensive coverage report"""
         if format == "console":
             return self._generate_console_report(report)
         elif format == "json":
-            return json.dumps(asdict(report), indent=2)
+            return json.dumps(asdict(report), indent=2, default=str)
         elif format == "markdown":
             return self._generate_markdown_report(report)
         else:
             raise ValueError(f"Unsupported format: {format}")
-
+    
     def _generate_console_report(self, report: CoverageReport) -> str:
-        """Generate console-friendly report"""
+        """Generate detailed console report"""
         output = []
         
         # Header
-        output.append("=" * 80)
-        output.append("📊 DOCUMENTATION COVERAGE REPORT")
-        output.append("=" * 80)
+        output.append("=" * 90)
+        output.append("📊 INDUSTRY-STANDARD DOCUMENTATION COVERAGE REPORT")
+        output.append("=" * 90)
         output.append("")
         
         # Summary
-        status_emoji = "✅" if report.coverage_percentage >= self.config["minimum_coverage"] else "❌"
-        output.append(f"{status_emoji} Coverage: {report.coverage_percentage:.1f}% ({report.documented_files}/{report.total_files} files)")
-        output.append(f"📝 Missing documentation: {report.missing_docs} files")
+        min_coverage = self.config["documentation_standards"]["minimum_coverage_percentage"]
+        status_emoji = "✅" if report.coverage_percentage >= min_coverage else "❌"
+        quality_emoji = "✅" if report.quality_score >= 0.7 else "⚠️" if report.quality_score >= 0.5 else "❌"
+        
+        output.append(f"{status_emoji} **Coverage**: {report.coverage_percentage:.1f}% ({report.adequately_documented}/{report.total_code_files} files)")
+        output.append(f"{quality_emoji} **Quality Score**: {report.quality_score:.2f}/1.0")
+        output.append(f"📝 **Missing Documentation**: {report.missing_documentation} files")
+        output.append(f"⚠️  **Inadequate Documentation**: {report.inadequate_documentation} files")
         output.append("")
         
+        # Priority breakdown
+        output.append("🎯 **Priority Breakdown:**")
+        for priority, count in report.by_priority.items():
+            if count > 0:
+                emoji = {"critical": "🚨", "high": "⚠️", "medium": "📝", "low": "💡"}[priority]
+                output.append(f"  {emoji} {priority.title()}: {count} files")
+        output.append("")
+        
+        # File type breakdown
+        if report.by_file_type:
+            output.append("📂 **File Type Breakdown:**")
+            for file_type, counts in report.by_file_type.items():
+                total = counts.get("missing", 0) + counts.get("inadequate", 0)
+                output.append(f"  📁 {file_type.title()}: {total} issues")
+                if counts.get("missing", 0) > 0:
+                    output.append(f"    ❌ Missing: {counts['missing']}")
+                if counts.get("inadequate", 0) > 0:
+                    output.append(f"    ⚠️  Inadequate: {counts['inadequate']}")
+            output.append("")
+        
+        # Detailed gaps
         if report.gaps:
-            # Group by priority
-            high_priority = [g for g in report.gaps if g.priority == "high"]
-            medium_priority = [g for g in report.gaps if g.priority == "medium"] 
-            low_priority = [g for g in report.gaps if g.priority == "low"]
+            critical_gaps = [g for g in report.gaps if g.priority == "critical"]
+            high_gaps = [g for g in report.gaps if g.priority == "high"]
             
-            if high_priority:
-                output.append("🚨 HIGH PRIORITY - Missing Documentation:")
-                for gap in high_priority:
-                    output.append(f"  ❌ {gap.file_path}")
-                    output.append(f"     → Should create: {gap.suggested_doc_path}")
-                    output.append(f"     → Reason: {gap.reason}")
+            if critical_gaps:
+                output.append("🚨 **CRITICAL PRIORITY - Immediate Action Required:**")
+                for gap in critical_gaps:
+                    output.append(f"  ❌ {gap.code_file}")
+                    output.append(f"     📍 Expected: {gap.expected_doc_path}")
+                    output.append(f"     📊 Status: {gap.gap_type.title()}")
+                    output.append(f"     ⏱️  Effort: {gap.estimated_effort.title()}")
+                    if gap.quality_issues:
+                        output.append(f"     🔍 Issues: {', '.join(gap.quality_issues)}")
                     output.append("")
-                    
-            if medium_priority:
-                output.append("⚠️  MEDIUM PRIORITY - Missing Documentation:")
-                for gap in medium_priority:
-                    output.append(f"  ⚠️  {gap.file_path}")
-                    output.append(f"     → Should create: {gap.suggested_doc_path}")
-                    output.append("")
-                    
-            if low_priority:
-                output.append("📝 LOW PRIORITY - Missing Documentation:")
-                for gap in low_priority:
-                    output.append(f"  📝 {gap.file_path}")
-                    output.append(f"     → Should create: {gap.suggested_doc_path}")
+            
+            if high_gaps:
+                output.append("⚠️  **HIGH PRIORITY - Action Needed:**")
+                for gap in high_gaps:
+                    output.append(f"  ⚠️  {gap.code_file}")
+                    output.append(f"     📍 Expected: {gap.expected_doc_path}")
+                    output.append(f"     📊 Status: {gap.gap_type.title()}")
+                    if gap.quality_issues:
+                        output.append(f"     🔍 Issues: {', '.join(gap.quality_issues)}")
                     output.append("")
         
-        output.append("=" * 80)
+        # Recommendations
+        output.append("💡 **Recommendations:**")
+        if report.coverage_percentage < min_coverage:
+            output.append(f"  • Increase documentation coverage to meet {min_coverage}% minimum")
+        if report.quality_score < 0.7:
+            output.append("  • Improve documentation quality by adding missing sections")
+        if report.missing_documentation > 0:
+            output.append("  • Create index.md files for co-located documentation")
+        if report.inadequate_documentation > 0:
+            output.append("  • Enhance existing documentation with required sections")
+        
+        output.append("")
+        output.append("=" * 90)
+        
         return "\n".join(output)
-
+    
     def _generate_markdown_report(self, report: CoverageReport) -> str:
-        """Generate markdown report for GitHub/Jekyll"""
+        """Generate markdown report for Jekyll"""
         output = []
+        
+        output.append("---")
+        output.append("title: Documentation Coverage Report")
+        output.append("category: quality-assurance")
+        output.append("tags: [documentation, coverage, quality]")
+        output.append(f"generated: {report.timestamp}")
+        output.append("---")
+        output.append("")
         
         output.append("# Documentation Coverage Report")
         output.append("")
         output.append(f"**Generated:** {report.timestamp}")
-        output.append(f"**Coverage:** {report.coverage_percentage:.1f}% ({report.documented_files}/{report.total_files} files)")
+        output.append(f"**Coverage:** {report.coverage_percentage:.1f}% ({report.adequately_documented}/{report.total_code_files} files)")
+        output.append(f"**Quality Score:** {report.quality_score:.2f}/1.0")
         output.append("")
         
-        # Add detailed coverage table
-        output.append("## 📊 Coverage Overview")
+        # Summary table
+        output.append("## 📊 Summary")
         output.append("")
-        output.append("| File | Status | Type | Lines | Documentation | Priority |")
-        output.append("|------|--------|------|-------|---------------|----------|")
-        
-        # Get all files for comprehensive reporting
-        all_files = self._get_all_files_with_status()
-        
-        for file_info in sorted(all_files, key=lambda x: (x['status'], x['file_path'])):
-            status_icon = "✅" if file_info['status'] == 'covered' else "❌"
-            status_text = "Covered" if file_info['status'] == 'covered' else "Missing"
-            doc_path = file_info.get('doc_path', 'N/A')
-            priority = file_info.get('priority', 'N/A')
-            
-            # Truncate long file paths for better table display
-            display_path = file_info['file_path']
-            if len(display_path) > 40:
-                display_path = "..." + display_path[-37:]
-            
-            output.append(f"| `{display_path}` | {status_icon} {status_text} | {file_info['type']} | {file_info['lines']} | `{doc_path}` | {priority} |")
-        
+        output.append("| Metric | Value |")
+        output.append("|--------|-------|")
+        output.append(f"| Total Code Files | {report.total_code_files} |")
+        output.append(f"| Documented Files | {report.documented_files} |")
+        output.append(f"| Adequately Documented | {report.adequately_documented} |")
+        output.append(f"| Missing Documentation | {report.missing_documentation} |")
+        output.append(f"| Inadequate Documentation | {report.inadequate_documentation} |")
+        output.append(f"| Coverage Percentage | {report.coverage_percentage:.1f}% |")
+        output.append(f"| Average Quality Score | {report.quality_score:.2f}/1.0 |")
         output.append("")
         
-        # Add summary statistics
-        covered_files = [f for f in all_files if f['status'] == 'covered']
-        uncovered_files = [f for f in all_files if f['status'] == 'missing']
-        
-        output.append("## 📈 Summary Statistics")
-        output.append("")
-        output.append(f"- **Total Files:** {len(all_files)}")
-        output.append(f"- **Covered Files:** {len(covered_files)}")
-        output.append(f"- **Uncovered Files:** {len(uncovered_files)}")
-        output.append(f"- **Coverage Percentage:** {report.coverage_percentage:.1f}%")
-        output.append("")
-        
-        # Add covered files section
-        if covered_files:
-            output.append("## ✅ Covered Files")
+        # Priority breakdown
+        if any(count > 0 for count in report.by_priority.values()):
+            output.append("## 🎯 Priority Breakdown")
             output.append("")
-            output.append("| File | Type | Documentation Path |")
-            output.append("|------|------|-------------------|")
+            output.append("| Priority | Count | Description |")
+            output.append("|----------|-------|-------------|")
             
-            for file_info in sorted(covered_files, key=lambda x: x['file_path']):
-                display_path = file_info['file_path']
-                if len(display_path) > 50:
-                    display_path = "..." + display_path[-47:]
-                doc_path = file_info.get('doc_path', 'N/A')
-                if len(doc_path) > 50:
-                    doc_path = "..." + doc_path[-47:]
-                output.append(f"| `{display_path}` | {file_info['type']} | `{doc_path}` |")
+            priority_descriptions = {
+                "critical": "Public APIs, complex services - immediate action required",
+                "high": "Core components, important utilities - action needed soon",
+                "medium": "Supporting code, hooks - should be documented",
+                "low": "Internal utilities, simple helpers - nice to have"
+            }
+            
+            for priority, count in report.by_priority.items():
+                if count > 0:
+                    emoji = {"critical": "🚨", "high": "⚠️", "medium": "📝", "low": "💡"}[priority]
+                    desc = priority_descriptions[priority]
+                    output.append(f"| {emoji} {priority.title()} | {count} | {desc} |")
             
             output.append("")
         
-        # Add missing documentation section (existing logic)
+        # Detailed gaps
         if report.gaps:
-            output.append("## ❌ Missing Documentation")
+            output.append("## ❌ Documentation Gaps")
             output.append("")
             
-            # Group by priority
-            for priority in ["high", "medium", "low"]:
+            for priority in ["critical", "high", "medium", "low"]:
                 priority_gaps = [g for g in report.gaps if g.priority == priority]
                 if priority_gaps:
-                    output.append(f"### {priority.title()} Priority")
+                    emoji = {"critical": "🚨", "high": "⚠️", "medium": "📝", "low": "💡"}[priority]
+                    output.append(f"### {emoji} {priority.title()} Priority")
                     output.append("")
                     
-                    # Table format for missing files
-                    output.append("| File | Type | Lines | Suggested Location | Reason |")
-                    output.append("|------|------|-------|-------------------|--------|")
+                    output.append("| File | Status | Expected Documentation | Issues |")
+                    output.append("|------|--------|------------------------|--------|")
                     
                     for gap in priority_gaps:
-                        display_path = gap.file_path
-                        if len(display_path) > 30:
-                            display_path = "..." + display_path[-27:]
-                        suggested_path = gap.suggested_doc_path
-                        if len(suggested_path) > 30:
-                            suggested_path = "..." + suggested_path[-27:]
+                        file_name = gap.code_file.split("/")[-1]
+                        doc_name = gap.expected_doc_path.split("/")[-1]
+                        issues = ", ".join(gap.quality_issues[:3])  # Limit to first 3 issues
+                        if len(gap.quality_issues) > 3:
+                            issues += "..."
                         
-                        output.append(f"| `{display_path}` | {gap.file_type} | {self._get_file_lines(gap.file_path)} | `{suggested_path}` | {gap.reason} |")
+                        output.append(f"| `{file_name}` | {gap.gap_type.title()} | `{doc_name}` | {issues} |")
                     
                     output.append("")
         
         return "\n".join(output)
 
-    def generate_stubs(self) -> int:
-        """Generate documentation stub files for missing docs"""
-        if not self.coverage_report or not self.config["generate_stubs"]:
-            return 0
-            
-        created_count = 0
-        
-        for gap in self.coverage_report.gaps:
-            stub_path = gap.suggested_doc_path
-            
-            # Create directory if it doesn't exist
-            os.makedirs(os.path.dirname(stub_path), exist_ok=True)
-            
-            # Don't overwrite existing files
-            if os.path.exists(stub_path):
-                continue
-                
-            # Generate stub content
-            stub_content = self._generate_stub_content(gap)
-            
-            try:
-                with open(stub_path, 'w') as f:
-                    f.write(stub_content)
-                print(f"📝 Created documentation stub: {stub_path}", file=sys.stderr)
-                created_count += 1
-            except Exception as e:
-                print(f"❌ Failed to create {stub_path}: {e}", file=sys.stderr)
-                
-        return created_count
-
-    def _generate_stub_content(self, gap: DocumentationGap) -> str:
-        """Generate content for documentation stub"""
-        return f"""---
-title: {gap.file_name}
-category: {gap.file_type}
-tags: [documentation-needed]
-status: draft
----
-
-# {gap.file_name}
-
-> ⚠️ **Documentation Needed**: This file was automatically generated and needs content.
-
-## Overview
-
-TODO: Describe what this {gap.file_type} does.
-
-## Usage
-
-TODO: Provide usage examples.
-
-## API Reference
-
-TODO: Document the public interface.
-
----
-
-*File: `{gap.file_path}`*  
-*Auto-generated on: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}*
-"""
-
 def main():
     """Main entry point"""
-    import argparse
-    
-    parser = argparse.ArgumentParser(description="Check documentation coverage")
-    parser.add_argument("--config", default="scripts/docs-coverage.json", help="Config file path")
+    parser = argparse.ArgumentParser(description="Industry-standard documentation coverage checker")
+    parser.add_argument("--config", default="scripts/docs-coverage-config.json", help="Configuration file")
     parser.add_argument("--format", choices=["console", "json", "markdown"], default="console", help="Output format")
     parser.add_argument("--output", help="Output file (default: stdout)")
-    parser.add_argument("--generate-stubs", action="store_true", help="Generate documentation stubs")
     parser.add_argument("--fail-under", type=float, help="Fail if coverage is under this percentage")
+    parser.add_argument("--min-quality", type=float, help="Minimum quality score required")
     
     args = parser.parse_args()
     
-    # Create enforcer
-    enforcer = DocumentationCoverageEnforcer(args.config)
+    # Create checker
+    checker = IndustryStandardDocumentationChecker(args.config)
     
-    # Override minimum coverage if specified
+    # Override thresholds if specified
     if args.fail_under:
-        enforcer.config["minimum_coverage"] = args.fail_under
+        checker.config["documentation_standards"]["minimum_coverage_percentage"] = args.fail_under
+    if args.min_quality:
+        checker.config["documentation_standards"]["minimum_quality_score"] = args.min_quality
     
     # Check coverage
-    report = enforcer.check_coverage()
+    report = checker.check_coverage()
     
     # Generate report
-    output = enforcer.generate_report(args.format)
+    output = checker.generate_report(report, args.format)
     
     # Write output
     if args.output:
@@ -751,20 +958,18 @@ def main():
     else:
         print(output)
     
-    # Generate stubs if requested
-    if args.generate_stubs:
-        created = enforcer.generate_stubs()
-        print(f"📝 Created {created} documentation stubs", file=sys.stderr)
-    
     # Exit with appropriate code
-    if args.format == "json":
-        # For JSON output, don't print extra messages to stdout
-        sys.exit(0)
-    elif report.coverage_percentage < enforcer.config["minimum_coverage"]:
-        print(f"\n❌ Coverage {report.coverage_percentage:.1f}% is below minimum {enforcer.config['minimum_coverage']}%", file=sys.stderr)
+    min_coverage = checker.config["documentation_standards"]["minimum_coverage_percentage"]
+    min_quality = checker.config["documentation_standards"]["minimum_quality_score"]
+    
+    if report.coverage_percentage < min_coverage:
+        print(f"\n❌ Coverage {report.coverage_percentage:.1f}% below minimum {min_coverage}%", file=sys.stderr)
+        sys.exit(1)
+    elif report.quality_score < min_quality:
+        print(f"\n❌ Quality score {report.quality_score:.2f} below minimum {min_quality}", file=sys.stderr)
         sys.exit(1)
     else:
-        print(f"\n✅ Coverage {report.coverage_percentage:.1f}% meets minimum requirement", file=sys.stderr)
+        print(f"\n✅ Coverage {report.coverage_percentage:.1f}% meets requirements", file=sys.stderr)
         sys.exit(0)
 
 if __name__ == "__main__":
