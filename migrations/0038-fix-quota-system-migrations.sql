@@ -7,10 +7,17 @@
 -- DROP EXISTING FUNCTIONS TO AVOID CONFLICTS
 -- ================================
 
-DROP FUNCTION IF EXISTS get_effective_user_quota(INTEGER, VARCHAR(50), VARCHAR(100));
-DROP FUNCTION IF EXISTS get_guest_quota(VARCHAR(50), VARCHAR(100));
-DROP FUNCTION IF EXISTS record_guest_usage(VARCHAR(45), VARCHAR(32), VARCHAR(64), VARCHAR(50), VARCHAR(100), INTEGER, JSONB);
-DROP FUNCTION IF EXISTS get_guest_usage(VARCHAR(45), VARCHAR(32), VARCHAR(50), VARCHAR(100), VARCHAR(20));
+-- Drop functions with CASCADE to handle dependencies and all possible signatures
+DROP FUNCTION IF EXISTS get_effective_user_quota CASCADE;
+DROP FUNCTION IF EXISTS get_guest_quota CASCADE;
+DROP FUNCTION IF EXISTS record_guest_usage CASCADE;
+DROP FUNCTION IF EXISTS get_guest_usage CASCADE;
+
+-- Also drop any potential variations with different parameter types
+DROP FUNCTION IF EXISTS get_effective_user_quota(INTEGER, TEXT, TEXT) CASCADE;
+DROP FUNCTION IF EXISTS get_guest_quota(TEXT, TEXT) CASCADE;
+DROP FUNCTION IF EXISTS record_guest_usage(TEXT, TEXT, TEXT, TEXT, TEXT, INTEGER, JSONB) CASCADE;
+DROP FUNCTION IF EXISTS get_guest_usage(TEXT, TEXT, TEXT, TEXT, TEXT) CASCADE;
 
 -- ================================
 -- FIX MIGRATION 0026: Custom Alerts System
