@@ -2,8 +2,12 @@
 -- Date: 2024-07-04
 -- Description: The manage-user script expects posts and comments tables to exist for activity tracking
 
+-- Drop existing tables if they exist (to fix ownership issues)
+DROP TABLE IF EXISTS comments CASCADE;
+DROP TABLE IF EXISTS posts CASCADE;
+
 -- Create posts table
-CREATE TABLE IF NOT EXISTS posts (
+CREATE TABLE posts (
     id SERIAL PRIMARY KEY,
     title TEXT NOT NULL,
     content TEXT,
@@ -16,7 +20,7 @@ CREATE TABLE IF NOT EXISTS posts (
 );
 
 -- Create comments table  
-CREATE TABLE IF NOT EXISTS comments (
+CREATE TABLE comments (
     id SERIAL PRIMARY KEY,
     content TEXT NOT NULL,
     author_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
