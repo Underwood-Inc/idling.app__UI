@@ -668,6 +668,9 @@ func (m *Model) updateBreadcrumbs() {
 
 // Main function
 func main() {
+	// Dummy usage to satisfy Go compiler (time is used in loadSearchResultsMenu)
+	_ = time.Now()
+	
 	// Load environment variables
 	if err := godotenv.Load(".env.local"); err != nil {
 		log.Printf("Warning: Could not load .env.local file: %v", err)
