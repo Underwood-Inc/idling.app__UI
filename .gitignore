@@ -50,12 +50,12 @@ pnpm-lock.yaml
 playwright/.auth
 
 # Jekyll build files
-DOCS/_site/
-DOCS/.sass-cache/
-DOCS/.jekyll-cache/
-DOCS/vendor/bundle/
-DOCS/Gemfile.lock
-DOCS/.jekyll-metadata
+jekyll/_site/
+jekyll/.sass-cache/
+jekyll/.jekyll-cache/
+jekyll/vendor/bundle/
+jekyll/Gemfile.lock
+jekyll/.jekyll-metadata
 
 # Python
 __pycache__/

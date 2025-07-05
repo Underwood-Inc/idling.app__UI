@@ -5,12 +5,12 @@ on:
   push:
     branches: [master, main]
     paths:
-      - 'DOCS/**'
+      - 'jekyll/**'
       - '.github/workflows/docs.yml'
   pull_request:
     branches: [master, main]
     paths:
-      - 'DOCS/**'
+      - 'jekyll/**'
   # Manual trigger
   workflow_dispatch:
 
@@ -33,7 +33,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ./DOCS
+        working-directory: ./jekyll
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -45,7 +45,7 @@ jobs:
         with:
           ruby-version: '3.3.4'
           bundler-cache: true
-          working-directory: './DOCS'
+          working-directory: './jekyll'
 
       - name: Setup Pages
         id: pages
@@ -63,7 +63,7 @@ jobs:
         if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ./DOCS/_site/
+          path: ./jekyll/_site/
 
   # Deploy to GitHub Pages (only on main/master branch)
   deploy:
@@ -110,7 +110,7 @@ jobs:
       cancel-in-progress: true
     defaults:
       run:
-        working-directory: ./DOCS
+        working-directory: ./jekyll
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -120,7 +120,7 @@ jobs:
         with:
           ruby-version: '3.3.4'
           bundler-cache: true
-          working-directory: './DOCS'
+          working-directory: './jekyll'
 
       - name: Install Jekyll dependencies
         run: bundle install
@@ -151,7 +151,7 @@ jobs:
         continue-on-error: true
         uses: actions/github-script@v6
         env:
-          WORKING_DIR: ./DOCS
+          WORKING_DIR: ./jekyll
         with:
           script: |
             const workingDir = process.env.WORKING_DIR || '.';

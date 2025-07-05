@@ -20,11 +20,11 @@ RUN gem install bundler:2.5.23 && \
     gem install jekyll:3.10.0 && \
     gem cleanup
 
-# Set the working directory to DOCS
-WORKDIR /app/DOCS
+# Set the working directory to jekyll
+WORKDIR /app/jekyll
 
-# Copy the DOCS directory
-COPY DOCS/ ./
+# Copy the jekyll directory
+COPY jekyll/ ./
 
 # Expose Jekyll port
 EXPOSE 4000
