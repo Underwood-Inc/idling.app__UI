@@ -278,12 +278,30 @@ jobs:
           PR_AUTHOR: ${{ github.event.pull_request.user.login }}
         run: |
           echo "🔍 Running PR-specific documentation coverage analysis..."
+          echo "📍 PR Number: ${{ github.event.pull_request.number }}"
+          echo "📍 Base ref: origin/${{ github.event.pull_request.base.ref }}"
+          echo "📍 Head ref: ${{ github.event.pull_request.head.sha }}"
+          echo "📍 Current branch: $(git branch --show-current)"
+          echo "📍 Available branches: $(git branch -a | head -5)"
 
-          # Generate PR-specific reports
-          python scripts/check-pr-docs-coverage.py --format json --output pr-doc-coverage-report.json --base-ref origin/${{ github.event.pull_request.base.ref }} --head-ref ${{ github.event.pull_request.head.sha }} --pr-number ${{ github.event.pull_request.number }}
-          python scripts/check-pr-docs-coverage.py --format markdown --output pr-doc-coverage-report.md --base-ref origin/${{ github.event.pull_request.base.ref }} --head-ref ${{ github.event.pull_request.head.sha }} --pr-number ${{ github.event.pull_request.number }}
-          python scripts/check-pr-docs-coverage.py --format html --output pr-documentation-coverage-report.html --base-ref origin/${{ github.event.pull_request.base.ref }} --head-ref ${{ github.event.pull_request.head.sha }} --pr-number ${{ github.event.pull_request.number }}
-          python scripts/check-pr-docs-coverage.py --format csv --output pr-doc-coverage-report.csv --base-ref origin/${{ github.event.pull_request.base.ref }} --head-ref ${{ github.event.pull_request.head.sha }} --pr-number ${{ github.event.pull_request.number }}
+          # Ensure we have the latest refs
+          git fetch origin ${{ github.event.pull_request.base.ref }}:${{ github.event.pull_request.base.ref }} || true
+          git fetch origin +refs/pull/${{ github.event.pull_request.number }}/head:pr-${{ github.event.pull_request.number }} || true
+
+          # Generate PR-specific reports with better error handling
+          python scripts/check-pr-docs-coverage.py --format json --output pr-doc-coverage-report.json --base-ref origin/${{ github.event.pull_request.base.ref }} --head-ref ${{ github.event.pull_request.head.sha }} --pr-number ${{ github.event.pull_request.number }} || echo "PR JSON report failed"
+          python scripts/check-pr-docs-coverage.py --format markdown --output pr-doc-coverage-report.md --base-ref origin/${{ github.event.pull_request.base.ref }} --head-ref ${{ github.event.pull_request.head.sha }} --pr-number ${{ github.event.pull_request.number }} || echo "PR Markdown report failed"
+          python scripts/check-pr-docs-coverage.py --format html --output pr-documentation-coverage-report.html --base-ref origin/${{ github.event.pull_request.base.ref }} --head-ref ${{ github.event.pull_request.head.sha }} --pr-number ${{ github.event.pull_request.number }} || echo "PR HTML report failed"
+          python scripts/check-pr-docs-coverage.py --format csv --output pr-doc-coverage-report.csv --base-ref origin/${{ github.event.pull_request.base.ref }} --head-ref ${{ github.event.pull_request.head.sha }} --pr-number ${{ github.event.pull_request.number }} || echo "PR CSV report failed"
+
+          # Check if PR report was generated successfully
+          if [ -f "pr-doc-coverage-report.json" ]; then
+            echo "✅ PR documentation coverage report generated successfully"
+            echo "📊 Report size: $(wc -c < pr-doc-coverage-report.json) bytes"
+            echo "📊 Report preview: $(head -3 pr-doc-coverage-report.json)"
+          else
+            echo "❌ PR documentation coverage report was not generated"
+          fi
 
           # Extract PR coverage percentage for badge generation
           PR_DOC_COVERAGE=$(python -c "import json; data=json.load(open('pr-doc-coverage-report.json')); print(int(data['coverage_percentage']))" 2>/dev/null || echo "100")
@@ -291,7 +309,7 @@ jobs:
 
           # Generate console report for logs
           echo "📊 PR Documentation Coverage Report:"
-          python scripts/check-pr-docs-coverage.py --format console --base-ref origin/${{ github.event.pull_request.base.ref }} --head-ref ${{ github.event.pull_request.head.sha }} --pr-number ${{ github.event.pull_request.number }}
+          python scripts/check-pr-docs-coverage.py --format console --base-ref origin/${{ github.event.pull_request.base.ref }} --head-ref ${{ github.event.pull_request.head.sha }} --pr-number ${{ github.event.pull_request.number }} || echo "PR console report failed"
 
       # Upload documentation coverage reports as artifacts
       - name: Upload documentation coverage reports

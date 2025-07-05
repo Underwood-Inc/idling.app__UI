@@ -15,12 +15,37 @@ from docs_coverage import DocumentationChecker, CoverageReport, DocumentationGap
 def get_pr_changed_files(base_ref="origin/main", head_ref="HEAD"):
     """Get list of files changed in the current PR"""
     try:
-        # Get the list of changed files between base and head
-        result = subprocess.run([
-            "git", "diff", "--name-only", f"{base_ref}...{head_ref}"
-        ], capture_output=True, text=True, check=True)
+        # First, try to get changed files using git diff
+        # Handle different scenarios: CI environment vs local development
         
-        changed_files = [f.strip() for f in result.stdout.strip().split('\n') if f.strip()]
+        # Try multiple git diff strategies
+        git_commands = [
+            # For GitHub Actions PR context
+            ["git", "diff", "--name-only", f"{base_ref}...{head_ref}"],
+            # For local development - compare against main/master
+            ["git", "diff", "--name-only", "main...HEAD"],
+            ["git", "diff", "--name-only", "master...HEAD"],
+            # Fallback - get recently changed files
+            ["git", "diff", "--name-only", "HEAD~10..HEAD"],
+            # Last resort - get all tracked files (for testing)
+            ["git", "ls-files", "*.ts", "*.tsx", "*.js", "*.jsx"]
+        ]
+        
+        changed_files = []
+        
+        for cmd in git_commands:
+            try:
+                result = subprocess.run(cmd, capture_output=True, text=True, check=True)
+                if result.stdout.strip():
+                    changed_files = [f.strip() for f in result.stdout.strip().split('\n') if f.strip()]
+                    print(f"✅ Found {len(changed_files)} changed files using: {' '.join(cmd)}", file=sys.stderr)
+                    break
+            except subprocess.CalledProcessError:
+                continue
+        
+        if not changed_files:
+            print("⚠️ No changed files found with any git diff strategy", file=sys.stderr)
+            return []
         
         # Filter for source files only (TypeScript/JavaScript)
         source_extensions = {'.ts', '.tsx', '.js', '.jsx'}
@@ -33,7 +58,7 @@ def get_pr_changed_files(base_ref="origin/main", head_ref="HEAD"):
                     source_files.append(file)
         
         return source_files
-    except subprocess.CalledProcessError as e:
+    except Exception as e:
         print(f"Error getting changed files: {e}", file=sys.stderr)
         return []
 
@@ -205,6 +230,8 @@ def main():
     # Get PR changed files
     if not args.quiet:
         print("🔍 Analyzing PR-specific documentation coverage...", file=sys.stderr)
+        print(f"📍 Base ref: {args.base_ref}", file=sys.stderr)
+        print(f"📍 Head ref: {args.head_ref}", file=sys.stderr)
     
     pr_files = get_pr_changed_files(args.base_ref, args.head_ref)
     
@@ -216,14 +243,18 @@ def main():
         if args.format == "json":
             empty_report = {
                 "pr_info": get_pr_info(),
+                "pr_files": [],
                 "total_code_files": 0,
                 "documented_files": 0,
                 "adequately_documented": 0,
+                "missing_documentation": 0,
+                "inadequate_documentation": 0,
                 "coverage_percentage": 100.0,
                 "quality_score": 1.0,
                 "gaps": [],
                 "by_priority": {"critical": 0, "high": 0, "medium": 0, "low": 0},
                 "by_file_type": {},
+                "timestamp": datetime.now().isoformat(),
                 "message": "No source files changed in this PR"
             }
             print(json.dumps(empty_report, indent=2))
