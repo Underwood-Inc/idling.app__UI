@@ -55,17 +55,17 @@ missing_files_count=0
 # Use the Python documentation coverage script for accurate results
 echo "📊 Running Python documentation coverage analysis..."
 
-# Run the Python script and capture its output in all formats
-python3 scripts/check-docs-coverage.py --format json > "$TEMP_DIR/coverage_report.json" 2>/dev/null
-python3 scripts/check-docs-coverage.py --format html > "$TEMP_DIR/coverage_report.html" 2>/dev/null
-python3 scripts/check-docs-coverage.py --format csv > "$TEMP_DIR/coverage_report.csv" 2>/dev/null
+# Run the Python script and capture its output in all formats (non-blocking)
+python3 scripts/check-docs-coverage.py --format json > "$TEMP_DIR/coverage_report.json" 2>/dev/null || echo "⚠️ Documentation coverage script failed, using fallback logic"
+python3 scripts/check-docs-coverage.py --format html > "$TEMP_DIR/coverage_report.html" 2>/dev/null || true
+python3 scripts/check-docs-coverage.py --format csv > "$TEMP_DIR/coverage_report.csv" 2>/dev/null || true
 
 if [ -f "$TEMP_DIR/coverage_report.json" ]; then
-  # Parse the JSON output
-  total_files=$(python3 -c "import json; data=json.load(open('$TEMP_DIR/coverage_report.json')); print(data['total_files'])" 2>/dev/null || echo "0")
-  documented_files=$(python3 -c "import json; data=json.load(open('$TEMP_DIR/coverage_report.json')); print(data['documented_files'])" 2>/dev/null || echo "0")
-  missing_files_count=$(python3 -c "import json; data=json.load(open('$TEMP_DIR/coverage_report.json')); print(data['missing_docs'])" 2>/dev/null || echo "0")
-  DOC_COVERAGE=$(python3 -c "import json; data=json.load(open('$TEMP_DIR/coverage_report.json')); print(int(data['coverage_percentage']))" 2>/dev/null || echo "0")
+  # Parse the JSON output with correct field names
+  total_files=$(python3 -c "import json; data=json.load(open('$TEMP_DIR/coverage_report.json')); print(data.get('total_code_files', data.get('total_files', 0)))" 2>/dev/null || echo "0")
+  documented_files=$(python3 -c "import json; data=json.load(open('$TEMP_DIR/coverage_report.json')); print(data.get('documented_files', 0))" 2>/dev/null || echo "0")
+  missing_files_count=$(python3 -c "import json; data=json.load(open('$TEMP_DIR/coverage_report.json')); print(data.get('missing_documentation', data.get('missing_docs', 0)))" 2>/dev/null || echo "0")
+  DOC_COVERAGE=$(python3 -c "import json; data=json.load(open('$TEMP_DIR/coverage_report.json')); print(int(data.get('coverage_percentage', 0)))" 2>/dev/null || echo "0")
 else
   # Fallback to simplified bash logic if Python script fails
   echo "⚠️ Python script failed, using fallback logic..."
