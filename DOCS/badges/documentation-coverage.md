@@ -6,11 +6,11 @@ description: Auto-generated documentation coverage badge with downloadable repor
 
 # Documentation Coverage Badge
 
-![Documentation Coverage](https://img.shields.io/badge/Documentation%20Coverage-100%25-brightgreen?style=flatDOC_BADGE_URL_PLACEHOLDERlogo=gitbookDOC_BADGE_URL_PLACEHOLDERlogoColor=white) | [![📊 CSV Report](https://img.shields.io/badge/📊%20CSV-Download-blue?style=flat&logo=microsoftexcel&logoColor=white)]({{ site.baseurl }}/coverage-artifacts/latest-coverage-report.csv) | [![📋 HTML Report](https://img.shields.io/badge/📋%20HTML-Download-green?style=flat&logo=html5&logoColor=white)]({{ site.baseurl }}/coverage-artifacts/latest-coverage-report.html)
+![Documentation Coverage](https://img.shields.io/badge/Documentation%20Coverage-4%25-red?style=flatDOC_BADGE_URL_PLACEHOLDERlogo=gitbookDOC_BADGE_URL_PLACEHOLDERlogoColor=white) | [![📊 CSV Report](https://img.shields.io/badge/📊%20CSV-Download-blue?style=flat&logo=microsoftexcel&logoColor=white)]({{ site.baseurl }}/coverage-artifacts/latest-coverage-report.csv) | [![📋 HTML Report](https://img.shields.io/badge/📋%20HTML-Download-green?style=flat&logo=html5&logoColor=white)]({{ site.baseurl }}/coverage-artifacts/latest-coverage-report.html)
 
-**Current Coverage:** 100% (24/0 files)
+**Current Coverage:** 4% (24/493 files)
 
-*Last updated: Sat Jul  5 04:44:46 NDT 2025*
+*Last updated: Sat Jul  5 05:15:57 NDT 2025*
 
 ## 📥 Download Coverage Reports
 
@@ -21,19 +21,19 @@ description: Auto-generated documentation coverage badge with downloadable repor
 ## Badge URL
 
 ```
-https://img.shields.io/badge/Documentation%20Coverage-100%25-brightgreen?style=flatDOC_BADGE_URL_PLACEHOLDERlogo=gitbookDOC_BADGE_URL_PLACEHOLDERlogoColor=white
+https://img.shields.io/badge/Documentation%20Coverage-4%25-red?style=flatDOC_BADGE_URL_PLACEHOLDERlogo=gitbookDOC_BADGE_URL_PLACEHOLDERlogoColor=white
 ```
 
 ## Usage in Markdown
 
 ```markdown
-![Documentation Coverage](https://img.shields.io/badge/Documentation%20Coverage-100%25-brightgreen?style=flatDOC_BADGE_URL_PLACEHOLDERlogo=gitbookDOC_BADGE_URL_PLACEHOLDERlogoColor=white)
+![Documentation Coverage](https://img.shields.io/badge/Documentation%20Coverage-4%25-red?style=flatDOC_BADGE_URL_PLACEHOLDERlogo=gitbookDOC_BADGE_URL_PLACEHOLDERlogoColor=white)
 ```
 
 ## Usage in HTML
 
 ```html
-<img src="https://img.shields.io/badge/Documentation%20Coverage-100%25-brightgreen?style=flatDOC_BADGE_URL_PLACEHOLDERlogo=gitbookDOC_BADGE_URL_PLACEHOLDERlogoColor=white" alt="Documentation Coverage 100%" />
+<img src="https://img.shields.io/badge/Documentation%20Coverage-4%25-red?style=flatDOC_BADGE_URL_PLACEHOLDERlogo=gitbookDOC_BADGE_URL_PLACEHOLDERlogoColor=white" alt="Documentation Coverage 4%" />
 ```
 
 ---
