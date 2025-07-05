@@ -11,7 +11,7 @@ Welcome to the comprehensive documentation for **Idling.app** - your complete re
 
 ## 📚 Documentation Sections
 
-### 🚀 [Documentation](/docs/)
+### 🚀 [Documentation](/)
 
 Complete project documentation including getting started guides, API reference, architecture details, and deployment procedures.
 
@@ -20,7 +20,7 @@ Complete project documentation including getting started guides, API reference, 
 - **🏗️ Architecture** - System design, security, and performance
 - **🚀 Deployment** - Production setup and release processes
 
-### 🛠️ [Development](/dev/)
+### 🛠️ [Development](/development/)
 
 Development tools, resources, and component documentation for contributors and maintainers.
 
@@ -54,19 +54,19 @@ Project community resources, contribution guidelines, and communication channels
   <div class="nav-card">
     <h3>🚀 Get Started</h3>
     <p>New to the project? Start here!</p>
-    <a href="/docs/getting-started/" class="btn-primary">Begin Setup</a>
+    <a href="/getting-started/" class="btn-primary">Begin Setup</a>
   </div>
   
   <div class="nav-card">
     <h3>🔌 API Docs</h3>
     <p>Explore our comprehensive API</p>
-    <a href="/docs/api/" class="btn-primary">View API</a>
+    <a href="/api/" class="btn-primary">View API</a>
   </div>
   
   <div class="nav-card">
     <h3>🧩 Components</h3>
     <p>UI components and design system</p>
-    <a href="/dev/components/" class="btn-primary">Browse Components</a>
+    <a href="/development/components/" class="btn-primary">Browse Components</a>
   </div>
   
   <div class="nav-card">

@@ -58,8 +58,8 @@ services:
       dockerfile: Dockerfile.docs
     container_name: idlingapp__ui-docs
     volumes:
-      - ./DOCS:/app/DOCS
-      - docs_vendor:/app/DOCS/vendor # Cache Jekyll bundle
+      - ./jekyll:/app/jekyll
+      - docs_vendor:/app/jekyll/vendor # Cache Jekyll bundle
     ports:
       - '0.0.0.0:4000:4000'
     environment:

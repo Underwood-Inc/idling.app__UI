@@ -67,12 +67,9 @@ print_success "Node.js dependencies installed"
 # Create necessary directories
 print_status "Creating documentation directories..."
 
-mkdir -p DOCS/services
-mkdir -p DOCS/components  
-mkdir -p DOCS/api
-mkdir -p DOCS/utils
-mkdir -p DOCS/hooks
-mkdir -p DOCS/badges
+# Create co-located documentation directories (documentation should live next to code)
+# Only create Jekyll-specific directories that are needed
+mkdir -p jekyll/badges
 mkdir -p scripts
 
 print_success "Documentation directories created"
@@ -97,7 +94,7 @@ pkg.scripts = pkg.scripts || {};
 pkg.scripts['docs:check'] = 'python scripts/check-docs-coverage.py';
 pkg.scripts['docs:check-verbose'] = 'python scripts/check-docs-coverage.py --format=console';
 pkg.scripts['docs:generate-stubs'] = 'python scripts/check-docs-coverage.py --generate-stubs';
-pkg.scripts['docs:coverage-report'] = 'python scripts/check-docs-coverage.py --format=markdown --output=DOCS/coverage-report.md';
+pkg.scripts['docs:coverage-report'] = 'python scripts/check-docs-coverage.py --format=markdown --output=jekyll/coverage-report.md';
 pkg.scripts['lint:docs'] = 'eslint --config .eslintrc.docs-coverage.js src/';
 pkg.scripts['lint:docs-fix'] = 'eslint --config .eslintrc.docs-coverage.js src/ --fix';
 
@@ -165,7 +162,8 @@ print_success "VS Code settings created"
 # Create a sample documentation file
 print_status "Creating sample documentation..."
 
-cat > DOCS/services/ratelimitservice.md << 'EOF'
+# Example service documentation would be co-located: src/services/ratelimitservice.md
+# cat > src/services/ratelimitservice.md << 'EOF'
 ---
 title: RateLimitService
 category: service
@@ -229,7 +227,7 @@ python scripts/check-docs-coverage.py || print_warning "Some files are missing d
 # Create configuration summary
 print_status "Creating configuration summary..."
 
-cat > DOCS/documentation-coverage-setup.md << 'EOF'
+cat > jekyll/documentation-coverage-setup.md << 'EOF'
 # Documentation Coverage System Setup
 
 This project now has comprehensive documentation coverage enforcement! 🎉
@@ -311,5 +309,5 @@ echo "   2. Run: npm run docs:generate-stubs"
 echo "   3. Fill in generated documentation files"
 echo "   4. Commit and push - CI will validate everything!"
 echo ""
-echo "📚 For more information, see: DOCS/documentation-coverage-setup.md"
+echo "📚 For more information, see: jekyll/documentation-coverage-setup.md"
 echo "" 

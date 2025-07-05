@@ -31,11 +31,11 @@ class DocumentationDiscovery {
 
   async discoverDocumentation() {
     // Common documentation paths in the project
-    const docPaths = [
-      '/docs/',
-      '/dev/components/',
-      '/dev/libraries/', 
-      '/dev/api/',
+          const docPaths = [
+        '/',
+        '/development/components/',
+        '/development/libraries/', 
+        '/development/api/',
       '/community/',
       '/src/components/',
       '/src/lib/',
@@ -113,11 +113,11 @@ class DocumentationDiscovery {
   }
 
   determineCategoryFromPath(path) {
-    if (path.includes('/docs/api/') || path.includes('/src/app/api/')) return 'API';
-    if (path.includes('/docs/')) return 'Documentation';
-    if (path.includes('/dev/components/') || path.includes('/src/components/')) return 'Components';
-    if (path.includes('/dev/libraries/') || path.includes('/src/lib/')) return 'Libraries';
-    if (path.includes('/dev/')) return 'Development';
+          if (path.includes('/api/') || path.includes('/src/app/api/')) return 'API';
+      if (path.includes('/architecture/') || path.includes('/getting-started/') || path.includes('/deployment/')) return 'Documentation';
+          if (path.includes('/development/components/') || path.includes('/src/components/')) return 'Components';
+      if (path.includes('/development/libraries/') || path.includes('/src/lib/')) return 'Libraries';
+      if (path.includes('/development/')) return 'Development';
     if (path.includes('/community/')) return 'Community';
     return 'General';
   }
@@ -151,7 +151,7 @@ class DocumentationDiscovery {
       {
         title: "Getting Started Guide",
         content: "Complete setup and installation guide for the Idling.app project including Docker setup, quick start instructions, and development environment configuration.",
-        url: "/docs/getting-started/",
+        url: "/getting-started/",
         date: "2024-01-01",
         category: "Documentation",
         tags: ["getting-started", "setup", "installation", "docker"],
@@ -162,7 +162,7 @@ class DocumentationDiscovery {
       {
         title: "API Documentation",
         content: "Complete API reference including admin endpoints, authentication, database operations, and interactive Swagger documentation.",
-        url: "/docs/api/",
+        url: "/api/",
         date: "2024-01-01",
         category: "API",
         tags: ["api", "endpoints", "swagger", "authentication", "admin"],
@@ -173,7 +173,7 @@ class DocumentationDiscovery {
       {
         title: "Component Library",
         content: "UI components and design system documentation including rich input system, filter bar, floating toolbar, and component library with React hooks and utilities.",
-        url: "/dev/components/",
+        url: "/development/components/",
         date: "2024-01-01",
         category: "Components",
         tags: ["components", "ui", "design-system", "react", "hooks"],
@@ -184,7 +184,7 @@ class DocumentationDiscovery {
       {
         title: "Architecture Overview",
         content: "System architecture documentation including security patterns, performance optimization, database design, and deployment strategies.",
-        url: "/docs/architecture/",
+        url: "/architecture/",
         date: "2024-01-01",
         category: "Documentation",
         tags: ["architecture", "security", "performance", "system-design", "database"],
@@ -206,7 +206,7 @@ class DocumentationDiscovery {
       {
         title: "Library Documentation",
         content: "Shared utilities and services including authentication, caching, logging, parsers, and React hooks for the application.",
-        url: "/dev/libraries/",
+        url: "/development/libraries/",
         date: "2024-01-01",
         category: "Libraries",
         tags: ["libraries", "utilities", "services", "hooks", "authentication"],
@@ -217,7 +217,7 @@ class DocumentationDiscovery {
       {
         title: "Testing Guide",
         content: "Testing strategies and QA documentation including unit testing, end-to-end testing with Playwright, and CI/CD pipeline configuration.",
-        url: "/dev/testing/",
+        url: "/development/testing/",
         date: "2024-01-01",
         category: "Development",
         tags: ["testing", "unit-tests", "e2e", "playwright", "ci-cd"],
@@ -228,7 +228,7 @@ class DocumentationDiscovery {
       {
         title: "Deployment Guide",
         content: "Production deployment procedures including server setup, environment configuration, release processes, and monitoring.",
-        url: "/docs/deployment/",
+        url: "/deployment/",
         date: "2024-01-01",
         category: "Documentation",
         tags: ["deployment", "production", "server", "release", "monitoring"],
