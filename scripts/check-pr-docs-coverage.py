@@ -80,6 +80,28 @@ class PRDocumentationChecker(DocumentationChecker):
         super().__init__(config_file)
         self.pr_files = pr_files or []
         self.pr_info = get_pr_info()
+        
+        # Enhance all reporters with PR context
+        self._enhance_reporters_with_pr_context()
+    
+    def _enhance_reporters_with_pr_context(self):
+        """Enhance all reporters with PR-specific context and metadata"""
+        pr_context = {
+            'pr_info': self.pr_info,
+            'pr_files': self.pr_files,
+            'is_pr_analysis': True,
+            'scope': 'PR-specific analysis'
+        }
+        
+        # Add PR context to all reporters
+        for format_name, reporter in self.reporters.items():
+            if hasattr(reporter, 'set_pr_context'):
+                reporter.set_pr_context(pr_context)
+            elif hasattr(reporter, 'pr_context'):
+                reporter.pr_context = pr_context
+            else:
+                # Add PR context as an attribute for reporters that don't have specific methods
+                setattr(reporter, 'pr_context', pr_context)
     
     def filter_code_files_for_pr(self, all_code_files):
         """Filter the code files list to only include PR-changed files"""
@@ -208,6 +230,29 @@ class PRDocumentationChecker(DocumentationChecker):
             by_file_type=by_file_type,
             timestamp=datetime.now().isoformat()
         )
+    
+    def generate_report(self, report: CoverageReport, format: str = "console") -> str:
+        """Generate comprehensive coverage report with PR context"""
+        if format not in self.reporters:
+            raise ValueError(f"Unsupported format: {format}. Supported formats: {', '.join(self.reporters.keys())}")
+        
+        reporter = self.reporters[format]
+        
+        # Set code files for CSV reporter (needed for detailed analysis)
+        if format == "csv":
+            reporter.set_code_files(self.code_files)
+        
+        # Ensure PR context is available in the report
+        if hasattr(reporter, 'pr_context'):
+            # Update PR context with current file lists
+            reporter.pr_context.update({
+                'analyzed_files': [cf.path for cf in self.code_files],
+                'documented_files': list(self.documentation_files.keys()),
+                'total_pr_files': len(self.pr_files),
+                'analyzed_pr_files': len(self.code_files)
+            })
+        
+        return reporter.generate(report)
 
 def main():
     """Main entry point"""
@@ -293,18 +338,79 @@ def main():
         }
         
         output = json.dumps(pr_report, indent=2)
-    else:
-        # Use standard reporter for other formats
-        output = checker.generate_report(report, args.format)
+        
+        # Output the report
+        if args.output:
+            with open(args.output, 'w') as f:
+                f.write(output)
+            if not args.quiet:
+                print(f"📄 PR coverage report written to {args.output}", file=sys.stderr)
+        else:
+            print(output)
     
-    # Output the report
-    if args.output:
-        with open(args.output, 'w') as f:
-            f.write(output)
+    elif args.format in ["html", "csv", "markdown"]:
+        # File formats automatically save to files (like the main script)
         if not args.quiet:
-            print(f"📄 PR coverage report written to {args.output}", file=sys.stderr)
+            print(f"🎨 Generating {args.format.upper()} report...", file=sys.stderr)
+        
+        # Determine output filename
+        if args.output:
+            output_file = args.output
+            # Set custom output file for reporters that support it
+            if args.format in ["html", "csv"]:
+                checker.reporters[args.format].set_output_file(output_file)
+        else:
+            # Auto-generate filename based on format
+            extensions = {"html": "html", "csv": "csv", "markdown": "md"}
+            output_file = f"pr-documentation-coverage-report.{extensions[args.format]}"
+        
+        # Generate the report (this writes to file and returns console summary)
+        console_summary = checker.generate_report(report, args.format)
+        
+        # For markdown, handle file writing here since it doesn't have internal file writing
+        if args.format == "markdown":
+            with open(output_file, 'w', encoding='utf-8') as f:
+                # Get the actual markdown content
+                markdown_content = checker.reporters["markdown"].generate(report)
+                f.write(markdown_content)
+        
+        # Check if file was created and get its size
+        if os.path.exists(output_file):
+            file_size = os.path.getsize(output_file)
+            if not args.quiet:
+                print(f"✅ {args.format.upper()} report written to {output_file} ({file_size:,} bytes)", file=sys.stderr)
+        else:
+            if not args.quiet:
+                print(f"❌ Failed to create {output_file}", file=sys.stderr)
+            sys.exit(1)
+        
+        # Show file location hint
+        if not args.quiet:
+            current_dir = os.getcwd()
+            print(f"📍 Location: {os.path.join(current_dir, output_file)}", file=sys.stderr)
+            
+            # Also show brief console summary
+            print("\n" + "="*60, file=sys.stderr)
+            print("📋 QUICK SUMMARY", file=sys.stderr)
+            print("="*60, file=sys.stderr)
+            # The console_summary returned by these reporters is already a summary
+            print(console_summary, file=sys.stderr)
+            
+            if args.format == "html":
+                print(f"\n🌐 Open {output_file} in your browser to explore the interactive report!", file=sys.stderr)
+    
     else:
-        print(output)
+        # Console format
+        output = checker.generate_report(report, args.format)
+        
+        # Output the report
+        if args.output:
+            with open(args.output, 'w') as f:
+                f.write(output)
+            if not args.quiet:
+                print(f"📄 PR coverage report written to {args.output}", file=sys.stderr)
+        else:
+            print(output)
     
     # Summary for stderr
     if not args.quiet:

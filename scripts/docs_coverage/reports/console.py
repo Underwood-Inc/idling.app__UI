@@ -14,14 +14,37 @@ class ConsoleReporter:
         self.config = config_manager.config
     
     def generate(self, report: CoverageReport) -> str:
-        """Generate detailed console report"""
+        """Generate detailed console report with PR context if available"""
         output = []
+        
+        # Check if this is a PR-specific report
+        pr_context = getattr(self, 'pr_context', None)
         
         # Header
         output.append("=" * 90)
-        output.append("📊 INDUSTRY-STANDARD DOCUMENTATION COVERAGE REPORT")
-        output.append("=" * 90)
-        output.append("")
+        if pr_context and pr_context.get('is_pr_analysis'):
+            output.append("📊 PR DOCUMENTATION COVERAGE REPORT")
+            output.append("=" * 90)
+            
+            # PR context information
+            pr_info = pr_context.get('pr_info', {})
+            pr_files = pr_context.get('pr_files', [])
+            
+            if pr_info.get('pr_number'):
+                output.append(f"🔄 **Pull Request**: #{pr_info.get('pr_number', 'Unknown')}")
+                if pr_info.get('title'):
+                    output.append(f"📝 **Title**: {pr_info.get('title')}")
+                if pr_info.get('author'):
+                    output.append(f"👤 **Author**: {pr_info.get('author')}")
+                output.append("")
+            
+            output.append(f"📁 **PR Scope**: Analyzing {len(pr_files)} changed files")
+            output.append(f"📊 **Files Requiring Documentation**: {report.total_code_files}")
+            output.append("")
+        else:
+            output.append("📊 INDUSTRY-STANDARD DOCUMENTATION COVERAGE REPORT")
+            output.append("=" * 90)
+            output.append("")
         
         # Summary
         min_coverage = self.config["documentation_standards"]["minimum_coverage_percentage"]
