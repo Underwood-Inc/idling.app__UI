@@ -18,6 +18,10 @@ plugins:
   - jemoji
   # jekyll-github-metadata disabled for local development
 
+# Custom plugins (loaded from _plugins directory)
+plugins_dir: _plugins
+safe: false  # Allow custom plugins to run
+
 # Explicitly disable GitHub metadata plugin
 github-metadata:
   enabled: false

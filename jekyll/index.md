@@ -11,7 +11,7 @@ Welcome to the comprehensive documentation for **Idling.app** - your complete re
 
 ## 📚 Documentation Sections
 
-### 🚀 [Documentation](/docs/)
+### 🚀 [Documentation](/)
 
 Complete project documentation including getting started guides, API reference, architecture details, and deployment procedures.
 
@@ -20,7 +20,7 @@ Complete project documentation including getting started guides, API reference, 
 - **🏗️ Architecture** - System design, security, and performance
 - **🚀 Deployment** - Production setup and release processes
 
-### 🛠️ [Development](/dev/)
+### 🛠️ [Development](/development/)
 
 Development tools, resources, and component documentation for contributors and maintainers.
 
@@ -51,28 +51,28 @@ Project community resources, contribution guidelines, and communication channels
 ## 🎯 Quick Navigation
 
 <div class="quick-nav-grid">
-  <div class="nav-card">
-    <h3>🚀 Get Started</h3>
-    <p>New to the project? Start here!</p>
-    <a href="/docs/getting-started/" class="btn-primary">Begin Setup</a>
+  <div class="quick-nav-item">
+    <h3>🚀 Getting Started</h3>
+    <p>Set up your development environment and get running quickly</p>
+    <a href="/getting-started/" class="btn-primary">Begin Setup</a>
   </div>
   
-  <div class="nav-card">
-    <h3>🔌 API Docs</h3>
-    <p>Explore our comprehensive API</p>
-    <a href="/docs/api/" class="btn-primary">View API</a>
+  <div class="quick-nav-item">
+    <h3>🔌 API Reference</h3>
+    <p>Complete API documentation with interactive examples</p>
+    <a href="/api/" class="btn-primary">View API</a>
   </div>
   
-  <div class="nav-card">
+  <div class="quick-nav-item">
     <h3>🧩 Components</h3>
-    <p>UI components and design system</p>
-    <a href="/dev/components/" class="btn-primary">Browse Components</a>
+    <p>UI components and design system documentation</p>
+    <a href="/development/components/" class="btn-primary">Browse Components</a>
   </div>
   
-  <div class="nav-card">
-    <h3>🤝 Contribute</h3>
-    <p>Join our development community</p>
-    <a href="/community/contributing/" class="btn-primary">Start Contributing</a>
+  <div class="quick-nav-item">
+    <h3>🤝 Contributing</h3>
+    <p>Guidelines for contributing to the project</p>
+    <a href="/community/contributing/" class="btn-primary">Get Involved</a>
   </div>
 </div>
 

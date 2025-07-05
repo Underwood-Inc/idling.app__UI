@@ -93,8 +93,6 @@ class ConfigManager:
                     "documentation.md"
                 ],
                 "centralized_patterns": [
-                    "docs/**/*.md",
-                    "DOCS/**/*.md",
                     "jekyll/**/*.md"
                 ]
             }

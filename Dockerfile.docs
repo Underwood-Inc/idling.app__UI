@@ -20,11 +20,11 @@ RUN gem install bundler:2.5.23 && \
     gem install jekyll:3.10.0 && \
     gem cleanup
 
-# Set the working directory to DOCS
-WORKDIR /app/DOCS
+# Set the working directory to jekyll
+WORKDIR /app/jekyll
 
-# Copy the DOCS directory
-COPY DOCS/ ./
+# Copy the jekyll directory
+COPY jekyll/ ./
 
 # Expose Jekyll port
 EXPOSE 4000
@@ -36,7 +36,7 @@ RUN echo '#!/bin/bash\n\
     bundle config set --local path "vendor/bundle"\n\
     bundle install --retry 3\n\
     echo "Starting Jekyll server..."\n\
-    bundle exec jekyll serve --config "_config.yml,_config_dev.yml" --host=0.0.0.0 --port=4000' > /start.sh && \
+    JEKYLL_ENV=development bundle exec jekyll serve --config "_config.yml,_config_dev.yml" --host=0.0.0.0 --port=4000' > /start.sh && \
     chmod +x /start.sh
 
 # Start Jekyll server via startup script

@@ -12,6 +12,11 @@ class ConsoleReporter:
     
     def __init__(self, config_manager: ConfigManager):
         self.config = config_manager.config
+        self.pr_context = None
+    
+    def set_pr_context(self, pr_context: dict) -> None:
+        """Set PR context for the reporter."""
+        self.pr_context = pr_context
     
     def generate(self, report: CoverageReport) -> str:
         """Generate detailed console report with PR context if available"""
@@ -42,9 +47,9 @@ class ConsoleReporter:
             output.append(f"📊 **Files Requiring Documentation**: {report.total_code_files}")
             output.append("")
         else:
-            output.append("📊 INDUSTRY-STANDARD DOCUMENTATION COVERAGE REPORT")
-            output.append("=" * 90)
-            output.append("")
+        output.append("📊 INDUSTRY-STANDARD DOCUMENTATION COVERAGE REPORT")
+        output.append("=" * 90)
+        output.append("")
         
         # Summary
         min_coverage = self.config["documentation_standards"]["minimum_coverage_percentage"]
