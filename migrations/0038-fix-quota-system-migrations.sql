@@ -4,73 +4,86 @@
 -- Date: 2025-01-29
 
 -- ================================
+-- DROP EXISTING FUNCTIONS TO AVOID CONFLICTS
+-- ================================
+
+DROP FUNCTION IF EXISTS get_effective_user_quota(INTEGER, VARCHAR(50), VARCHAR(100));
+DROP FUNCTION IF EXISTS get_guest_quota(VARCHAR(50), VARCHAR(100));
+DROP FUNCTION IF EXISTS record_guest_usage(VARCHAR(45), VARCHAR(32), VARCHAR(64), VARCHAR(50), VARCHAR(100), INTEGER, JSONB);
+DROP FUNCTION IF EXISTS get_guest_usage(VARCHAR(45), VARCHAR(32), VARCHAR(50), VARCHAR(100), VARCHAR(20));
+
+-- ================================
 -- FIX MIGRATION 0026: Custom Alerts System
 -- ================================
 
 -- First, ensure we have the custom_alerts table structure
-CREATE TABLE IF NOT EXISTS CUSTOM_ALERTS (
-    ID SERIAL PRIMARY KEY,
- 
+CREATE TABLE IF NOT EXISTS custom_alerts (
+    id SERIAL PRIMARY KEY,
+    
     -- Alert identification
-    TITLE VARCHAR(200) NOT NULL,
-    MESSAGE TEXT,
-    DETAILS TEXT,
-    ALERT_TYPE VARCHAR(50) NOT NULL DEFAULT 'info',
- 
+    title VARCHAR(200) NOT NULL,
+    message TEXT,
+    details TEXT,
+    alert_type VARCHAR(50) NOT NULL DEFAULT 'info',
+    
     -- Targeting and scheduling
-    TARGET_AUDIENCE VARCHAR(50) NOT NULL DEFAULT 'all',
-    TARGET_ROLES JSONB,
-    TARGET_USERS JSONB,
- 
+    target_audience VARCHAR(50) NOT NULL DEFAULT 'all',
+    target_roles JSONB,
+    target_users JSONB,
+    
     -- Display configuration
-    PRIORITY INTEGER DEFAULT 0,
-    ICON VARCHAR(20),
-    DISMISSIBLE BOOLEAN DEFAULT TRUE,
-    PERSISTENT BOOLEAN DEFAULT FALSE,
- 
+    priority INTEGER DEFAULT 0,
+    icon VARCHAR(20),
+    dismissible BOOLEAN DEFAULT true,
+    persistent BOOLEAN DEFAULT false,
+    
     -- Scheduling
-    START_DATE TIMESTAMP WITH TIME ZONE,
-    END_DATE TIMESTAMP WITH TIME ZONE,
-    EXPIRES_AT TIMESTAMP WITH TIME ZONE,
- 
+    start_date TIMESTAMP WITH TIME ZONE,
+    end_date TIMESTAMP WITH TIME ZONE,
+    expires_at TIMESTAMP WITH TIME ZONE,
+    
     -- Status and metadata
-    IS_ACTIVE BOOLEAN DEFAULT TRUE,
-    IS_PUBLISHED BOOLEAN DEFAULT FALSE,
-    CREATED_BY INTEGER REFERENCES USERS(ID),
-    UPDATED_BY INTEGER REFERENCES USERS(ID),
-    CREATED_AT TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    UPDATED_AT TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
- 
+    is_active BOOLEAN DEFAULT true,
+    is_published BOOLEAN DEFAULT false,
+    created_by INTEGER REFERENCES users(id),
+    updated_by INTEGER REFERENCES users(id),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    
     -- Additional configuration
-    ACTIONS JSONB,
-    METADATA JSONB,
- 
+    actions JSONB,
+    metadata JSONB,
+    
     -- Constraints
-    CHECK (ALERT_TYPE IN ('info', 'warning', 'error', 'success', 'maintenance', 'custom')),
-    CHECK (TARGET_AUDIENCE IN ('all', 'authenticated', 'subscribers', 'admins', 'role_based', 'specific_users')),
-    CHECK (PRIORITY >= -100 AND PRIORITY <= 100),
-    CHECK (START_DATE IS NULL OR END_DATE IS NULL OR START_DATE <= END_DATE)
+    CHECK (alert_type IN ('info', 'warning', 'error', 'success', 'maintenance', 'custom')),
+    CHECK (target_audience IN ('all', 'authenticated', 'subscribers', 'admins', 'role_based', 'specific_users')),
+    CHECK (priority >= -100 AND priority <= 100),
+    CHECK (start_date IS NULL OR end_date IS NULL OR start_date <= end_date)
 );
 
 -- Create alert dismissals table
-CREATE TABLE IF NOT EXISTS ALERT_DISMISSALS (
-    ID SERIAL PRIMARY KEY,
-    ALERT_ID INTEGER NOT NULL REFERENCES CUSTOM_ALERTS(ID) ON DELETE CASCADE,
-    USER_ID INTEGER NOT NULL REFERENCES USERS(ID) ON DELETE CASCADE,
-    DISMISSED_AT TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    UNIQUE(ALERT_ID, USER_ID)
+CREATE TABLE IF NOT EXISTS alert_dismissals (
+    id SERIAL PRIMARY KEY,
+    alert_id INTEGER NOT NULL REFERENCES custom_alerts(id) ON DELETE CASCADE,
+    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    dismissed_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    
+    UNIQUE(alert_id, user_id)
 );
 
 -- Create alert analytics table
-CREATE TABLE IF NOT EXISTS ALERT_ANALYTICS (
-    ID SERIAL PRIMARY KEY,
-    ALERT_ID INTEGER NOT NULL REFERENCES CUSTOM_ALERTS(ID) ON DELETE CASCADE,
-    TOTAL_VIEWS INTEGER DEFAULT 0,
-    TOTAL_DISMISSALS INTEGER DEFAULT 0,
-    UNIQUE_VIEWERS INTEGER DEFAULT 0,
-    CLICK_THROUGH_RATE DECIMAL(5, 4) DEFAULT 0,
-    DATE DATE NOT NULL DEFAULT CURRENT_DATE,
-    UNIQUE(ALERT_ID, DATE)
+CREATE TABLE IF NOT EXISTS alert_analytics (
+    id SERIAL PRIMARY KEY,
+    alert_id INTEGER NOT NULL REFERENCES custom_alerts(id) ON DELETE CASCADE,
+    
+    total_views INTEGER DEFAULT 0,
+    total_dismissals INTEGER DEFAULT 0,
+    unique_viewers INTEGER DEFAULT 0,
+    click_through_rate DECIMAL(5,4) DEFAULT 0,
+    
+    date DATE NOT NULL DEFAULT CURRENT_DATE,
+    
+    UNIQUE(alert_id, date)
 );
 
 -- ================================
@@ -78,92 +91,92 @@ CREATE TABLE IF NOT EXISTS ALERT_ANALYTICS (
 -- ================================
 
 -- Create global guest quotas table
-CREATE TABLE IF NOT EXISTS GLOBAL_GUEST_QUOTAS (
-    ID SERIAL PRIMARY KEY,
-    SERVICE_NAME VARCHAR(50) NOT NULL,
-    FEATURE_NAME VARCHAR(100) NOT NULL,
- 
+CREATE TABLE IF NOT EXISTS global_guest_quotas (
+    id SERIAL PRIMARY KEY,
+    service_name VARCHAR(50) NOT NULL,
+    feature_name VARCHAR(100) NOT NULL,
+    
     -- Quota configuration
-    QUOTA_LIMIT INTEGER NOT NULL DEFAULT 1,
-    IS_UNLIMITED BOOLEAN DEFAULT FALSE,
- 
+    quota_limit INTEGER NOT NULL DEFAULT 1,
+    is_unlimited BOOLEAN DEFAULT false,
+    
     -- Time window configuration
-    RESET_PERIOD VARCHAR(20) NOT NULL DEFAULT 'daily' CHECK (RESET_PERIOD IN ('hourly', 'daily', 'weekly', 'monthly')),
- 
+    reset_period VARCHAR(20) NOT NULL DEFAULT 'daily' CHECK (reset_period IN ('hourly', 'daily', 'weekly', 'monthly')),
+    
     -- Admin configuration
-    IS_ACTIVE BOOLEAN DEFAULT TRUE,
-    CREATED_BY INTEGER REFERENCES USERS(ID),
- 
+    is_active BOOLEAN DEFAULT true,
+    created_by INTEGER REFERENCES users(id),
+    
     -- Metadata
-    DESCRIPTION TEXT,
-    CREATED_AT TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    UPDATED_AT TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
- 
+    description TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    
     -- Constraints
-    UNIQUE(SERVICE_NAME, FEATURE_NAME),
-    CHECK (QUOTA_LIMIT >= 0 OR IS_UNLIMITED = TRUE),
- 
+    UNIQUE(service_name, feature_name),
+    CHECK (quota_limit >= 0 OR is_unlimited = true),
+    
     -- Foreign key constraint to ensure service/feature exists
-    FOREIGN KEY (SERVICE_NAME) REFERENCES SUBSCRIPTION_SERVICES(NAME) ON DELETE CASCADE
+    FOREIGN KEY (service_name) REFERENCES subscription_services(name) ON DELETE CASCADE
 );
 
 -- Create guest usage tracking table
-CREATE TABLE IF NOT EXISTS GUEST_USAGE_TRACKING (
-    ID SERIAL PRIMARY KEY,
- 
+CREATE TABLE IF NOT EXISTS guest_usage_tracking (
+    id SERIAL PRIMARY KEY,
+    
     -- Guest identification
-    CLIENT_IP VARCHAR(45) NOT NULL,
-    MACHINE_FINGERPRINT VARCHAR(32),
-    USER_AGENT_HASH VARCHAR(64),
- 
+    client_ip VARCHAR(45) NOT NULL,
+    machine_fingerprint VARCHAR(32),
+    user_agent_hash VARCHAR(64),
+    
     -- Service/feature tracking
-    SERVICE_NAME VARCHAR(50) NOT NULL,
-    FEATURE_NAME VARCHAR(100) NOT NULL,
- 
+    service_name VARCHAR(50) NOT NULL,
+    feature_name VARCHAR(100) NOT NULL,
+    
     -- Usage data
-    USAGE_DATE DATE NOT NULL DEFAULT CURRENT_DATE,
-    USAGE_COUNT INTEGER NOT NULL DEFAULT 1,
- 
+    usage_date DATE NOT NULL DEFAULT CURRENT_DATE,
+    usage_count INTEGER NOT NULL DEFAULT 1,
+    
     -- Context metadata
-    METADATA JSONB,
- 
+    metadata JSONB,
+    
     -- Timestamps
-    CREATED_AT TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    UPDATED_AT TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
- 
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    
     -- Constraints
-    UNIQUE(CLIENT_IP, MACHINE_FINGERPRINT, SERVICE_NAME, FEATURE_NAME, USAGE_DATE),
-    CHECK (USAGE_COUNT >= 0),
- 
+    UNIQUE(client_ip, machine_fingerprint, service_name, feature_name, usage_date),
+    CHECK (usage_count >= 0),
+    
     -- Foreign key constraint
-    FOREIGN KEY (SERVICE_NAME) REFERENCES SUBSCRIPTION_SERVICES(NAME) ON DELETE CASCADE
+    FOREIGN KEY (service_name) REFERENCES subscription_services(name) ON DELETE CASCADE
 );
 
 -- Create user quota overrides table
-CREATE TABLE IF NOT EXISTS USER_QUOTA_OVERRIDES (
-    ID SERIAL PRIMARY KEY,
-    USER_ID INTEGER NOT NULL REFERENCES USERS(ID) ON DELETE CASCADE,
-    SERVICE_NAME VARCHAR(50) NOT NULL,
-    FEATURE_NAME VARCHAR(100) NOT NULL,
- 
+CREATE TABLE IF NOT EXISTS user_quota_overrides (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    service_name VARCHAR(50) NOT NULL,
+    feature_name VARCHAR(100) NOT NULL,
+    
     -- Override configuration
-    QUOTA_LIMIT INTEGER,
-    IS_UNLIMITED BOOLEAN DEFAULT FALSE,
- 
+    quota_limit INTEGER,
+    is_unlimited BOOLEAN DEFAULT false,
+    
     -- Admin tracking
-    CREATED_BY INTEGER REFERENCES USERS(ID),
-    REASON TEXT,
- 
+    created_by INTEGER REFERENCES users(id),
+    reason TEXT,
+    
     -- Metadata
-    CREATED_AT TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    UPDATED_AT TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
- 
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    
     -- Constraints
-    UNIQUE(USER_ID, SERVICE_NAME, FEATURE_NAME),
-    CHECK (QUOTA_LIMIT IS NULL OR QUOTA_LIMIT >= 0 OR IS_UNLIMITED = TRUE),
- 
+    UNIQUE(user_id, service_name, feature_name),
+    CHECK (quota_limit IS NULL OR quota_limit >= 0 OR is_unlimited = true),
+    
     -- Foreign key constraint
-    FOREIGN KEY (SERVICE_NAME) REFERENCES SUBSCRIPTION_SERVICES(NAME) ON DELETE CASCADE
+    FOREIGN KEY (service_name) REFERENCES subscription_services(name) ON DELETE CASCADE
 );
 
 -- ================================
@@ -171,378 +184,256 @@ CREATE TABLE IF NOT EXISTS USER_QUOTA_OVERRIDES (
 -- ================================
 
 -- Custom alerts indexes
-CREATE INDEX IF NOT EXISTS IDX_CUSTOM_ALERTS_ACTIVE_PUBLISHED ON CUSTOM_ALERTS(IS_ACTIVE, IS_PUBLISHED) WHERE IS_ACTIVE = TRUE AND IS_PUBLISHED = TRUE;
-
-CREATE INDEX IF NOT EXISTS IDX_CUSTOM_ALERTS_SCHEDULING ON CUSTOM_ALERTS(START_DATE, END_DATE, EXPIRES_AT) WHERE IS_PUBLISHED = TRUE;
-
-CREATE INDEX IF NOT EXISTS IDX_CUSTOM_ALERTS_PRIORITY ON CUSTOM_ALERTS(PRIORITY DESC) WHERE IS_ACTIVE = TRUE AND IS_PUBLISHED = TRUE;
-
-CREATE INDEX IF NOT EXISTS IDX_CUSTOM_ALERTS_TARGET_AUDIENCE ON CUSTOM_ALERTS(TARGET_AUDIENCE) WHERE IS_ACTIVE = TRUE AND IS_PUBLISHED = TRUE;
-
-CREATE INDEX IF NOT EXISTS IDX_CUSTOM_ALERTS_CREATED_BY ON CUSTOM_ALERTS(CREATED_BY);
+CREATE INDEX IF NOT EXISTS idx_custom_alerts_active_published ON custom_alerts(is_active, is_published) WHERE is_active = true AND is_published = true;
+CREATE INDEX IF NOT EXISTS idx_custom_alerts_scheduling ON custom_alerts(start_date, end_date, expires_at) WHERE is_published = true;
+CREATE INDEX IF NOT EXISTS idx_custom_alerts_priority ON custom_alerts(priority DESC) WHERE is_active = true AND is_published = true;
+CREATE INDEX IF NOT EXISTS idx_custom_alerts_target_audience ON custom_alerts(target_audience) WHERE is_active = true AND is_published = true;
+CREATE INDEX IF NOT EXISTS idx_custom_alerts_created_by ON custom_alerts(created_by);
 
 -- Alert dismissals indexes
-CREATE INDEX IF NOT EXISTS IDX_ALERT_DISMISSALS_ALERT_ID ON ALERT_DISMISSALS(ALERT_ID);
-
-CREATE INDEX IF NOT EXISTS IDX_ALERT_DISMISSALS_USER_ID ON ALERT_DISMISSALS(USER_ID);
+CREATE INDEX IF NOT EXISTS idx_alert_dismissals_alert_id ON alert_dismissals(alert_id);
+CREATE INDEX IF NOT EXISTS idx_alert_dismissals_user_id ON alert_dismissals(user_id);
 
 -- Alert analytics indexes
-CREATE INDEX IF NOT EXISTS IDX_ALERT_ANALYTICS_ALERT_ID ON ALERT_ANALYTICS(ALERT_ID);
-
-CREATE INDEX IF NOT EXISTS IDX_ALERT_ANALYTICS_DATE ON ALERT_ANALYTICS(DATE);
+CREATE INDEX IF NOT EXISTS idx_alert_analytics_alert_id ON alert_analytics(alert_id);
+CREATE INDEX IF NOT EXISTS idx_alert_analytics_date ON alert_analytics(date);
 
 -- Global guest quotas indexes
-CREATE INDEX IF NOT EXISTS IDX_GLOBAL_GUEST_QUOTAS_SERVICE ON GLOBAL_GUEST_QUOTAS(SERVICE_NAME);
-
-CREATE INDEX IF NOT EXISTS IDX_GLOBAL_GUEST_QUOTAS_FEATURE ON GLOBAL_GUEST_QUOTAS(SERVICE_NAME, FEATURE_NAME);
-
-CREATE INDEX IF NOT EXISTS IDX_GLOBAL_GUEST_QUOTAS_ACTIVE ON GLOBAL_GUEST_QUOTAS(IS_ACTIVE) WHERE IS_ACTIVE = TRUE;
+CREATE INDEX IF NOT EXISTS idx_global_guest_quotas_service ON global_guest_quotas(service_name);
+CREATE INDEX IF NOT EXISTS idx_global_guest_quotas_feature ON global_guest_quotas(service_name, feature_name);
+CREATE INDEX IF NOT EXISTS idx_global_guest_quotas_active ON global_guest_quotas(is_active) WHERE is_active = true;
 
 -- Guest usage tracking indexes
-CREATE INDEX IF NOT EXISTS IDX_GUEST_USAGE_IP_DATE ON GUEST_USAGE_TRACKING(CLIENT_IP, USAGE_DATE);
-
-CREATE INDEX IF NOT EXISTS IDX_GUEST_USAGE_FINGERPRINT_DATE ON GUEST_USAGE_TRACKING(MACHINE_FINGERPRINT, USAGE_DATE) WHERE MACHINE_FINGERPRINT IS NOT NULL;
-
-CREATE INDEX IF NOT EXISTS IDX_GUEST_USAGE_SERVICE_DATE ON GUEST_USAGE_TRACKING(SERVICE_NAME, FEATURE_NAME, USAGE_DATE);
-
-CREATE INDEX IF NOT EXISTS IDX_GUEST_USAGE_CLEANUP ON GUEST_USAGE_TRACKING(USAGE_DATE);
+CREATE INDEX IF NOT EXISTS idx_guest_usage_ip_date ON guest_usage_tracking(client_ip, usage_date);
+CREATE INDEX IF NOT EXISTS idx_guest_usage_fingerprint_date ON guest_usage_tracking(machine_fingerprint, usage_date) WHERE machine_fingerprint IS NOT NULL;
+CREATE INDEX IF NOT EXISTS idx_guest_usage_service_date ON guest_usage_tracking(service_name, feature_name, usage_date);
+CREATE INDEX IF NOT EXISTS idx_guest_usage_cleanup ON guest_usage_tracking(usage_date);
 
 -- User quota overrides indexes
-CREATE INDEX IF NOT EXISTS IDX_USER_QUOTA_OVERRIDES_USER ON USER_QUOTA_OVERRIDES(USER_ID);
-
-CREATE INDEX IF NOT EXISTS IDX_USER_QUOTA_OVERRIDES_SERVICE ON USER_QUOTA_OVERRIDES(SERVICE_NAME, FEATURE_NAME);
+CREATE INDEX IF NOT EXISTS idx_user_quota_overrides_user ON user_quota_overrides(user_id);
+CREATE INDEX IF NOT EXISTS idx_user_quota_overrides_service ON user_quota_overrides(service_name, feature_name);
 
 -- ================================
 -- INSERT DEFAULT GLOBAL GUEST QUOTAS (WITHOUT CREATED_BY)
 -- ================================
 
-INSERT INTO GLOBAL_GUEST_QUOTAS (
-    SERVICE_NAME,
-    FEATURE_NAME,
-    QUOTA_LIMIT,
-    RESET_PERIOD,
-    DESCRIPTION
-) VALUES (
-    'og_generator',
-    'daily_generations',
-    1,
-    'daily',
-    'Default daily generation limit for anonymous users'
-),
-(
-    'custom_emoji',
-    'emoji_slots',
-    0,
-    'daily',
-    'Custom emojis require user account'
-),
-(
-    'api_access',
-    'api_requests',
-    100,
-    'hourly',
-    'API rate limit for anonymous users'
-),
-(
-    'content_system',
-    'daily_posts',
-    5,
-    'daily',
-    'Daily content creation limit for guests'
-) ON CONFLICT (
-    SERVICE_NAME,
-    FEATURE_NAME
-) DO NOTHING;
+INSERT INTO global_guest_quotas (service_name, feature_name, quota_limit, reset_period, description) 
+VALUES
+('og_generator', 'daily_generations', 1, 'daily', 'Default daily generation limit for anonymous users'),
+('custom_emoji', 'emoji_slots', 0, 'daily', 'Custom emojis require user account'),
+('api_access', 'api_requests', 100, 'hourly', 'API rate limit for anonymous users'),
+('content_system', 'daily_posts', 5, 'daily', 'Daily content creation limit for guests')
+ON CONFLICT (service_name, feature_name) DO NOTHING;
 
 -- ================================
 -- CREATE QUOTA MANAGEMENT FUNCTIONS
 -- ================================
 
 -- Function to get effective quota for a user
-CREATE OR REPLACE FUNCTION GET_EFFECTIVE_USER_QUOTA(
-    P_USER_ID INTEGER,
-    P_SERVICE_NAME VARCHAR(50),
-    P_FEATURE_NAME VARCHAR(100)
-) RETURNS TABLE( QUOTA_LIMIT INTEGER, IS_UNLIMITED BOOLEAN, SOURCE VARCHAR(20) ) AS
-    $$                       DECLARE V_OVERRIDE_QUOTA INTEGER;
-    V_OVERRIDE_UNLIMITED     BOOLEAN;
-    V_SUBSCRIPTION_QUOTA     INTEGER;
-    V_SUBSCRIPTION_UNLIMITED BOOLEAN;
+CREATE OR REPLACE FUNCTION get_effective_user_quota(
+    p_user_id INTEGER,
+    p_service_name VARCHAR(50),
+    p_feature_name VARCHAR(100)
+) RETURNS TABLE(
+    quota_limit INTEGER,
+    is_unlimited BOOLEAN,
+    source VARCHAR(20)
+) AS $$
+DECLARE
+    v_override_quota INTEGER;
+    v_override_unlimited BOOLEAN;
+    v_subscription_quota INTEGER;
+    v_subscription_unlimited BOOLEAN;
 BEGIN
- 
     -- Check for user-specific override first
-    SELECT
-        UQO.QUOTA_LIMIT,
-        UQO.IS_UNLIMITED INTO V_OVERRIDE_QUOTA,
-        V_OVERRIDE_UNLIMITED
-    FROM
-        USER_QUOTA_OVERRIDES UQO
-    WHERE
-        UQO.USER_ID = P_USER_ID
-        AND UQO.SERVICE_NAME = P_SERVICE_NAME
-        AND UQO.FEATURE_NAME = P_FEATURE_NAME;
+    SELECT uqo.quota_limit, uqo.is_unlimited 
+    INTO v_override_quota, v_override_unlimited
+    FROM user_quota_overrides uqo
+    WHERE uqo.user_id = p_user_id 
+    AND uqo.service_name = p_service_name 
+    AND uqo.feature_name = p_feature_name;
+    
     IF FOUND THEN
-        RETURN QUERY
-        SELECT
-            V_OVERRIDE_QUOTA,
-            V_OVERRIDE_UNLIMITED,
-            'override'::VARCHAR(20);
+        RETURN QUERY SELECT v_override_quota, v_override_unlimited, 'override'::VARCHAR(20);
         RETURN;
     END IF;
- 
-
+    
     -- Fall back to subscription-based quota
-    SELECT
-        CASE
-            WHEN PFV.FEATURE_VALUE::TEXT = '-1' THEN
-                -1
-            ELSE
-                (PFV.FEATURE_VALUE::TEXT)::INTEGER
-        END,
-        PFV.FEATURE_VALUE::TEXT = '-1' INTO V_SUBSCRIPTION_QUOTA,
-        V_SUBSCRIPTION_UNLIMITED
-    FROM
-        USER_SUBSCRIPTIONS US
-        JOIN SUBSCRIPTION_PLANS SP
-        ON US.PLAN_ID = SP.ID
-        JOIN PLAN_FEATURE_VALUES PFV
-        ON SP.ID = PFV.PLAN_ID
-        JOIN SUBSCRIPTION_FEATURES SF
-        ON PFV.FEATURE_ID = SF.ID
-        JOIN SUBSCRIPTION_SERVICES SS
-        ON SF.SERVICE_ID = SS.ID
-    WHERE
-        US.USER_ID = P_USER_ID
-        AND US.STATUS IN ('active', 'trialing')
-        AND (US.EXPIRES_AT IS NULL
-        OR US.EXPIRES_AT > NOW())
-        AND SS.NAME = P_SERVICE_NAME
-        AND SF.NAME = P_FEATURE_NAME
-    ORDER BY
-        SP.SORT_ORDER DESC LIMIT 1;
+    SELECT 
+        CASE WHEN pfv.feature_value::text = '-1' THEN -1 ELSE (pfv.feature_value::text)::INTEGER END,
+        pfv.feature_value::text = '-1'
+    INTO v_subscription_quota, v_subscription_unlimited
+    FROM user_subscriptions us
+    JOIN subscription_plans sp ON us.plan_id = sp.id
+    JOIN plan_feature_values pfv ON sp.id = pfv.plan_id
+    JOIN subscription_features sf ON pfv.feature_id = sf.id
+    JOIN subscription_services ss ON sf.service_id = ss.id
+    WHERE us.user_id = p_user_id
+    AND us.status IN ('active', 'trialing')
+    AND (us.expires_at IS NULL OR us.expires_at > NOW())
+    AND ss.name = p_service_name
+    AND sf.name = p_feature_name
+    ORDER BY sp.sort_order DESC
+    LIMIT 1;
+    
     IF FOUND THEN
-        RETURN QUERY
-        SELECT
-            V_SUBSCRIPTION_QUOTA,
-            V_SUBSCRIPTION_UNLIMITED,
-            'subscription'::VARCHAR(20);
+        RETURN QUERY SELECT v_subscription_quota, v_subscription_unlimited, 'subscription'::VARCHAR(20);
         RETURN;
     END IF;
- 
-
+    
     -- Fall back to default subscription feature value
-    SELECT
-        CASE
-            WHEN SF.DEFAULT_VALUE::TEXT = '-1' THEN
-                -1
-            ELSE
-                (SF.DEFAULT_VALUE::TEXT)::INTEGER
-        END,
-        SF.DEFAULT_VALUE::TEXT = '-1' INTO V_SUBSCRIPTION_QUOTA,
-        V_SUBSCRIPTION_UNLIMITED
-    FROM
-        SUBSCRIPTION_FEATURES SF
-        JOIN SUBSCRIPTION_SERVICES SS
-        ON SF.SERVICE_ID = SS.ID
-    WHERE
-        SS.NAME = P_SERVICE_NAME
-        AND SF.NAME = P_FEATURE_NAME LIMIT 1;
+    SELECT 
+        CASE WHEN sf.default_value::text = '-1' THEN -1 ELSE (sf.default_value::text)::INTEGER END,
+        sf.default_value::text = '-1'
+    INTO v_subscription_quota, v_subscription_unlimited
+    FROM subscription_features sf
+    JOIN subscription_services ss ON sf.service_id = ss.id
+    WHERE ss.name = p_service_name
+    AND sf.name = p_feature_name
+    LIMIT 1;
+    
     IF FOUND THEN
-        RETURN QUERY
-        SELECT
-            V_SUBSCRIPTION_QUOTA,
-            V_SUBSCRIPTION_UNLIMITED,
-            'default'::VARCHAR(20);
+        RETURN QUERY SELECT v_subscription_quota, v_subscription_unlimited, 'default'::VARCHAR(20);
         RETURN;
     END IF;
- 
-
+    
     -- Ultimate fallback
-    RETURN QUERY SELECT 1, FALSE, 'system'::VARCHAR(20);
+    RETURN QUERY SELECT 1, false, 'system'::VARCHAR(20);
 END;
+$$ LANGUAGE plpgsql STABLE;
 
-$$ LANGUAGE PLPGSQL STABLE;
- 
 -- Function to get guest quota
-CREATE OR REPLACE FUNCTION GET_GUEST_QUOTA( P_SERVICE_NAME VARCHAR(50), P_FEATURE_NAME VARCHAR(100) ) RETURNS TABLE( QUOTA_LIMIT INTEGER, IS_UNLIMITED BOOLEAN, RESET_PERIOD VARCHAR(20) ) AS
-    $$     BEGIN RETURN QUERY
-    SELECT
-        GGQ.QUOTA_LIMIT,
-        GGQ.IS_UNLIMITED,
-        GGQ.RESET_PERIOD
-    FROM
-        GLOBAL_GUEST_QUOTAS GGQ
-    WHERE
-        GGQ.SERVICE_NAME = P_SERVICE_NAME
-        AND GGQ.FEATURE_NAME = P_FEATURE_NAME
-        AND GGQ.IS_ACTIVE = TRUE LIMIT 1;
- 
+CREATE OR REPLACE FUNCTION get_guest_quota(
+    p_service_name VARCHAR(50),
+    p_feature_name VARCHAR(100)
+) RETURNS TABLE(
+    quota_limit INTEGER,
+    is_unlimited BOOLEAN,
+    reset_period VARCHAR(20)
+) AS $$
+BEGIN
+    RETURN QUERY
+    SELECT ggq.quota_limit, ggq.is_unlimited, ggq.reset_period
+    FROM global_guest_quotas ggq
+    WHERE ggq.service_name = p_service_name
+    AND ggq.feature_name = p_feature_name
+    AND ggq.is_active = true
+    LIMIT 1;
+    
     -- If no specific quota found, return default
-    IF     NOT FOUND THEN
-        RETURN QUERY
-        SELECT
-            1,
-            FALSE,
-            'daily'::VARCHAR(20);
+    IF NOT FOUND THEN
+        RETURN QUERY SELECT 1, false, 'daily'::VARCHAR(20);
     END IF;
 END;
-$$     LANGUAGE PLPGSQL STABLE;
- 
+$$ LANGUAGE plpgsql STABLE;
+
 -- Function to record guest usage
-CREATE OR REPLACE
-
-FUNCTION RECORD_GUEST_USAGE(
-    P_CLIENT_IP VARCHAR(45),
-    P_MACHINE_FINGERPRINT VARCHAR(32),
-    P_USER_AGENT_HASH VARCHAR(64),
-    P_SERVICE_NAME VARCHAR(50),
-    P_FEATURE_NAME VARCHAR(100),
-    P_USAGE_COUNT INTEGER DEFAULT 1,
-    P_METADATA JSONB DEFAULT NULL
-) RETURNS INTEGER AS
-    $$ DECLARE V_NEW_USAGE_COUNT INTEGER;
+CREATE OR REPLACE FUNCTION record_guest_usage(
+    p_client_ip VARCHAR(45),
+    p_machine_fingerprint VARCHAR(32),
+    p_user_agent_hash VARCHAR(64),
+    p_service_name VARCHAR(50),
+    p_feature_name VARCHAR(100),
+    p_usage_count INTEGER DEFAULT 1,
+    p_metadata JSONB DEFAULT NULL
+) RETURNS INTEGER AS $$
+DECLARE
+    v_new_usage_count INTEGER;
 BEGIN
-    INSERT INTO GUEST_USAGE_TRACKING (
-        CLIENT_IP,
-        MACHINE_FINGERPRINT,
-        USER_AGENT_HASH,
-        SERVICE_NAME,
-        FEATURE_NAME,
-        USAGE_COUNT,
-        METADATA
+    INSERT INTO guest_usage_tracking (
+        client_ip, machine_fingerprint, user_agent_hash,
+        service_name, feature_name, usage_count, metadata
     ) VALUES (
-        P_CLIENT_IP,
-        P_MACHINE_FINGERPRINT,
-        P_USER_AGENT_HASH,
-        P_SERVICE_NAME,
-        P_FEATURE_NAME,
-        P_USAGE_COUNT,
-        P_METADATA
-    ) ON CONFLICT (
-        CLIENT_IP,
-        MACHINE_FINGERPRINT,
-        SERVICE_NAME,
-        FEATURE_NAME,
-        USAGE_DATE
-    ) DO UPDATE SET USAGE_COUNT = GUEST_USAGE_TRACKING.USAGE_COUNT + P_USAGE_COUNT, UPDATED_AT = NOW(
-    ), METADATA = COALESCE(
-        P_METADATA,
-        GUEST_USAGE_TRACKING.METADATA
-    ) RETURNING USAGE_COUNT INTO V_NEW_USAGE_COUNT;
-    RETURN V_NEW_USAGE_COUNT;
+        p_client_ip, p_machine_fingerprint, p_user_agent_hash,
+        p_service_name, p_feature_name, p_usage_count, p_metadata
+    )
+    ON CONFLICT (client_ip, machine_fingerprint, service_name, feature_name, usage_date)
+    DO UPDATE SET 
+        usage_count = guest_usage_tracking.usage_count + p_usage_count,
+        updated_at = NOW(),
+        metadata = COALESCE(p_metadata, guest_usage_tracking.metadata)
+    RETURNING usage_count INTO v_new_usage_count;
+    
+    RETURN v_new_usage_count;
 END;
+$$ LANGUAGE plpgsql;
 
-$$     LANGUAGE PLPGSQL;
- 
 -- Function to get guest usage
-CREATE OR REPLACE
-
-FUNCTION GET_GUEST_USAGE(
-    P_CLIENT_IP VARCHAR(45),
-    P_MACHINE_FINGERPRINT VARCHAR(32),
-    P_SERVICE_NAME VARCHAR(50),
-    P_FEATURE_NAME VARCHAR(100),
-    P_RESET_PERIOD VARCHAR(20) DEFAULT 'daily'
-) RETURNS INTEGER AS
-    $$           DECLARE V_USAGE_COUNT INTEGER := 0;
-    V_START_DATE DATE;
+CREATE OR REPLACE FUNCTION get_guest_usage(
+    p_client_ip VARCHAR(45),
+    p_machine_fingerprint VARCHAR(32),
+    p_service_name VARCHAR(50),
+    p_feature_name VARCHAR(100),
+    p_reset_period VARCHAR(20) DEFAULT 'daily'
+) RETURNS INTEGER AS $$
+DECLARE
+    v_usage_count INTEGER := 0;
+    v_start_date DATE;
 BEGIN
- 
     -- Calculate start date based on reset period
-    CASE P_RESET_PERIOD
+    CASE p_reset_period
         WHEN 'hourly' THEN
-            V_START_DATE := CURRENT_DATE;
+            v_start_date := CURRENT_DATE;
         WHEN 'daily' THEN
-            V_START_DATE := CURRENT_DATE;
+            v_start_date := CURRENT_DATE;
         WHEN 'weekly' THEN
-            V_START_DATE := CURRENT_DATE - INTERVAL '7 days';
+            v_start_date := CURRENT_DATE - INTERVAL '7 days';
         WHEN 'monthly' THEN
-            V_START_DATE := CURRENT_DATE - INTERVAL '30 days';
+            v_start_date := CURRENT_DATE - INTERVAL '30 days';
         ELSE
-            V_START_DATE := CURRENT_DATE;
+            v_start_date := CURRENT_DATE;
     END CASE;
-
-    SELECT
-        COALESCE(SUM(GUT.USAGE_COUNT),
-        0) INTO V_USAGE_COUNT
-    FROM
-        GUEST_USAGE_TRACKING GUT
-    WHERE
-        GUT.CLIENT_IP = P_CLIENT_IP
-        AND (P_MACHINE_FINGERPRINT IS NULL
-        OR GUT.MACHINE_FINGERPRINT = P_MACHINE_FINGERPRINT)
-        AND GUT.SERVICE_NAME = P_SERVICE_NAME
-        AND GUT.FEATURE_NAME = P_FEATURE_NAME
-        AND GUT.USAGE_DATE >= V_START_DATE;
-    RETURN V_USAGE_COUNT;
+    
+    SELECT COALESCE(SUM(gut.usage_count), 0)
+    INTO v_usage_count
+    FROM guest_usage_tracking gut
+    WHERE gut.client_ip = p_client_ip
+    AND (p_machine_fingerprint IS NULL OR gut.machine_fingerprint = p_machine_fingerprint)
+    AND gut.service_name = p_service_name
+    AND gut.feature_name = p_feature_name
+    AND gut.usage_date >= v_start_date;
+    
+    RETURN v_usage_count;
 END;
+$$ LANGUAGE plpgsql STABLE;
 
-$$     LANGUAGE PLPGSQL STABLE;
- 
 -- ================================
 -- CREATE TRIGGERS
 -- ================================
--- Update triggers for timestamp management
-CREATE OR REPLACE
 
-FUNCTION UPDATE_UPDATED_AT_COLUMN(
-) RETURNS TRIGGER AS
-    $$     BEGIN NEW.UPDATED_AT = NOW();
+-- Update triggers for timestamp management
+CREATE OR REPLACE FUNCTION update_updated_at_column()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.updated_at = NOW();
     RETURN NEW;
 END;
-$$     LANGUAGE PLPGSQL;
- 
+$$ LANGUAGE plpgsql;
+
 -- Apply triggers to tables
-DO     $$ BEGIN IF NOT EXISTS (
-    SELECT
-        1
-    FROM
-        PG_TRIGGER
-    WHERE
-        TGNAME = 'update_global_guest_quotas_updated_at'
-) THEN
-    CREATE TRIGGER UPDATE_GLOBAL_GUEST_QUOTAS_UPDATED_AT BEFORE
-    UPDATE ON GLOBAL_GUEST_QUOTAS FOR EACH ROW EXECUTE FUNCTION UPDATE_UPDATED_AT_COLUMN(
-    );
-END IF;
-
-IF     NOT EXISTS (
-    SELECT
-        1
-    FROM
-        PG_TRIGGER
-    WHERE
-        TGNAME = 'update_guest_usage_tracking_updated_at'
-) THEN
-    CREATE TRIGGER UPDATE_GUEST_USAGE_TRACKING_UPDATED_AT BEFORE UPDATE ON GUEST_USAGE_TRACKING FOR EACH ROW EXECUTE
-
-    FUNCTION UPDATE_UPDATED_AT_COLUMN(
-    );
-END IF;
-IF     NOT EXISTS (
-    SELECT
-        1
-    FROM
-        PG_TRIGGER
-    WHERE
-        TGNAME = 'update_user_quota_overrides_updated_at'
-) THEN
-    CREATE TRIGGER UPDATE_USER_QUOTA_OVERRIDES_UPDATED_AT BEFORE UPDATE ON USER_QUOTA_OVERRIDES FOR EACH ROW EXECUTE
-
-    FUNCTION UPDATE_UPDATED_AT_COLUMN(
-    );
-END IF;
-IF     NOT EXISTS (
-    SELECT
-        1
-    FROM
-        PG_TRIGGER
-    WHERE
-        TGNAME = 'update_custom_alerts_updated_at'
-) THEN
-    CREATE TRIGGER UPDATE_CUSTOM_ALERTS_UPDATED_AT BEFORE UPDATE ON CUSTOM_ALERTS FOR EACH ROW EXECUTE
-
-    FUNCTION UPDATE_UPDATED_AT_COLUMN(
-    );
-END IF;
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'update_global_guest_quotas_updated_at') THEN
+        CREATE TRIGGER update_global_guest_quotas_updated_at 
+            BEFORE UPDATE ON global_guest_quotas 
+            FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+    END IF;
+    
+    IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'update_guest_usage_tracking_updated_at') THEN
+        CREATE TRIGGER update_guest_usage_tracking_updated_at 
+            BEFORE UPDATE ON guest_usage_tracking 
+            FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+    END IF;
+    
+    IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'update_user_quota_overrides_updated_at') THEN
+        CREATE TRIGGER update_user_quota_overrides_updated_at 
+            BEFORE UPDATE ON user_quota_overrides 
+            FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+    END IF;
+    
+    IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'update_custom_alerts_updated_at') THEN
+        CREATE TRIGGER update_custom_alerts_updated_at 
+            BEFORE UPDATE ON custom_alerts 
+            FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+    END IF;
 END $$;
