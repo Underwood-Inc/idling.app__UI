@@ -195,8 +195,9 @@ cat > "$JEKYLL_BADGE_DIR/documentation-coverage-badge.html" << 'EOF'
 </a>
 EOF
 
-# Replace placeholders
-sed -i "s|DOC_BADGE_URL_PLACEHOLDER|${DOC_BADGE_URL}|g" "$JEKYLL_BADGE_DIR/documentation-coverage-badge.html"
+# Replace placeholders with proper escaping
+DOC_BADGE_URL_ESCAPED=$(echo "$DOC_BADGE_URL" | sed 's/[&/\\]/\\&/g')
+sed -i "s|DOC_BADGE_URL_PLACEHOLDER|${DOC_BADGE_URL_ESCAPED}|g" "$JEKYLL_BADGE_DIR/documentation-coverage-badge.html"
 sed -i "s|DOC_COVERAGE_PLACEHOLDER|${DOC_COVERAGE}|g" "$JEKYLL_BADGE_DIR/documentation-coverage-badge.html"
 
 echo "✅ Updated Jekyll documentation badge include"
@@ -262,8 +263,9 @@ DOC_BADGE_URL_PLACEHOLDER
 *This file is automatically updated by the pre-commit hook*
 EOF
 
-# Replace placeholders
-sed -i "s|DOC_BADGE_URL_PLACEHOLDER|${DOC_BADGE_URL}|g" "$BADGE_DIR/documentation-coverage.md"
+# Replace placeholders with proper escaping
+DOC_BADGE_URL_ESCAPED=$(echo "$DOC_BADGE_URL" | sed 's/[&/\\]/\\&/g')
+sed -i "s|DOC_BADGE_URL_PLACEHOLDER|${DOC_BADGE_URL_ESCAPED}|g" "$BADGE_DIR/documentation-coverage.md"
 sed -i "s|DOC_COVERAGE_PLACEHOLDER|${DOC_COVERAGE}|g" "$BADGE_DIR/documentation-coverage.md"
 sed -i "s|DOCUMENTED_FILES_PLACEHOLDER|${documented_files}|g" "$BADGE_DIR/documentation-coverage.md"
 sed -i "s|TOTAL_FILES_PLACEHOLDER|${total_files}|g" "$BADGE_DIR/documentation-coverage.md"
