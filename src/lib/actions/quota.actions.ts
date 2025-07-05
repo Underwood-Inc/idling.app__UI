@@ -60,9 +60,8 @@ export async function checkGuestQuota(
       return buildQuotaCheck(quota.quota_limit, usage, quota.reset_period, quota.is_unlimited, 'global_guest');
     }
 
-    // 2. Fallback to system default for guests (1 per day)
-    const usage = await getGuestUsage(guestIdentity, serviceName, featureName, 'daily');
-    return buildQuotaCheck(1, usage, 'daily', false, 'system_default');
+    // 2. No quota found - return error state instead of fallback
+    return buildQuotaCheck(0, 0, 'daily', false, 'system_default', 'No guest quota configured for this service');
 
   } catch (error) {
     console.error('Error checking guest quota:', error);
@@ -160,15 +159,17 @@ export async function checkUserQuota(
       return buildQuotaCheck(override.quota_limit, usage, override.reset_period, override.is_unlimited, 'user_override');
     }
 
-    // 2. Check subscription plan quota with proper schema (plan_services doesn't have reset_period)
+    // 2. Check subscription plan quota - FIXED QUERY
     const subscriptionQuota = await sql`
       SELECT 
-        COALESCE(pfv.feature_value::text::integer, sf.default_value::text::integer, 1) as quota_limit,
+        COALESCE(pfv.feature_value::text::integer, sf.default_value::text::integer) as quota_limit,
         CASE 
-          WHEN COALESCE(pfv.feature_value::text::integer, sf.default_value::text::integer, 1) = -1 THEN true
-          ELSE ps.is_unlimited
+          WHEN COALESCE(pfv.feature_value::text::integer, sf.default_value::text::integer) = -1 THEN true
+          ELSE COALESCE(ps.is_unlimited, false)
         END as is_unlimited,
-        'daily' as reset_period
+        'daily' as reset_period,
+        us.user_id,
+        sp.name as plan_name
       FROM user_subscriptions us
       JOIN subscription_plans sp ON us.plan_id = sp.id
       JOIN plan_services ps ON sp.id = ps.plan_id
@@ -190,8 +191,8 @@ export async function checkUserQuota(
       return buildQuotaCheck(quota.quota_limit, usage, quota.reset_period, quota.is_unlimited, 'subscription_plan');
     }
 
-    // 3. Fallback to system default
-    return buildQuotaCheck(1, 0, 'daily', false, 'system_default');
+    // 3. No subscription found - return error state instead of fallback
+    return buildQuotaCheck(0, 0, 'daily', false, 'system_default', `User ${userId} has no active subscription for ${serviceName}`);
 
   } catch (error) {
     console.error('Error checking user quota:', error);

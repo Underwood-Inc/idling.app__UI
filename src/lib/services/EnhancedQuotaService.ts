@@ -57,118 +57,95 @@ export class EnhancedQuotaService {
   /**
    * Get comprehensive quota information for a specific user
    * Returns all available services and features with their current usage and limits
+   * Shows effective quota: override takes precedence over plan quota, falls back to service defaults
    */
   static async getUserQuotaInfo(userId: number): Promise<UserQuotaInfo[]> {
     try {
-      // Get all available services and features
-      const serviceFeatures = await sql`
+      const quotaInfo: UserQuotaInfo[] = [];
+
+      // Get ALL available service/feature combinations that support quotas
+      const availableServices = await sql`
         SELECT 
           ss.name as service_name,
           sf.name as feature_name,
           ss.display_name as service_display_name,
           sf.display_name as feature_display_name,
-          sf.default_value::integer as default_quota_limit,
-          sf.feature_type
+          sf.feature_type,
+          sf.default_value
         FROM subscription_services ss
         JOIN subscription_features sf ON ss.id = sf.service_id
-        WHERE sf.feature_type = 'limit' 
-        AND ss.is_active = true
+        WHERE ss.is_active = true 
+        AND sf.feature_type = 'limit'
         ORDER BY ss.name, sf.name
       `;
 
-      // Get user's active overrides
-      const userOverrides = await sql`
-        SELECT * FROM user_quota_overrides
-        WHERE user_id = ${userId} AND is_active = true
-      `;
-
-      // Get user's subscription plan quotas
-      const subscriptionQuotas = await sql`
+      // Get user's current subscription plan quotas
+      const userPlanQuotas = await sql`
         SELECT 
           ss.name as service_name,
           sf.name as feature_name,
-          COALESCE(pfv.feature_value::text::integer, sf.default_value::text::integer, 1) as quota_limit,
-          CASE 
-            WHEN COALESCE(pfv.feature_value::text::integer, sf.default_value::text::integer, 1) = -1 THEN true
-            ELSE ps.is_unlimited
-          END as is_unlimited,
-          -- Use the correct reset period based on feature name
-          CASE 
-            WHEN sf.name = 'daily_generations' THEN 'daily'
-            WHEN sf.name LIKE '%_daily_%' THEN 'daily'
-            WHEN sf.name LIKE '%_weekly_%' THEN 'weekly'
-            WHEN sf.name LIKE '%_monthly_%' THEN 'monthly'
-            WHEN sf.name LIKE '%_hourly_%' THEN 'hourly'
-            ELSE 'daily'
-          END as reset_period
+          COALESCE(pfv.feature_value::text::integer, sf.default_value::text::integer) as plan_quota,
+          sp.name as plan_name
         FROM user_subscriptions us
         JOIN subscription_plans sp ON us.plan_id = sp.id
         JOIN plan_services ps ON sp.id = ps.plan_id
         JOIN subscription_services ss ON ps.service_id = ss.id
         JOIN subscription_features sf ON ss.id = sf.service_id
         LEFT JOIN plan_feature_values pfv ON sp.id = pfv.plan_id AND sf.id = pfv.feature_id
-        WHERE us.user_id = ${userId}
-        AND us.status IN ('active', 'trialing')
-        AND (us.expires_at IS NULL OR us.expires_at > NOW())
+        WHERE us.user_id = ${userId} 
+        AND us.status = 'active'
         AND sf.feature_type = 'limit'
-        ORDER BY sp.sort_order DESC
       `;
 
-      const quotaInfo: UserQuotaInfo[] = [];
+      // Get existing user overrides
+      const userOverrides = await sql`
+        SELECT * FROM user_quota_overrides
+        WHERE user_id = ${userId} 
+        AND is_active = true
+      `;
 
-      // Process each service feature
-      for (const feature of serviceFeatures) {
-        // Check for user override first (highest priority)
-        const override = userOverrides.find(
-          uo => uo.service_name === feature.service_name && uo.feature_name === feature.feature_name
+      // Build comprehensive quota data for ALL available services
+      for (const service of availableServices) {
+        const planQuota = userPlanQuotas.find(
+          pq => pq.service_name === service.service_name && pq.feature_name === service.feature_name
         );
+        
+        const override = userOverrides.find(
+          uo => uo.service_name === service.service_name && uo.feature_name === service.feature_name
+        );
+
+        let effectiveQuota: number, quotaSource: 'user_override' | 'subscription_plan' | 'global_guest' | 'system_default', resetPeriod: string;
 
         if (override) {
-          const usage = await this.getUserUsage(userId, feature.service_name, feature.feature_name, override.reset_period);
-          quotaInfo.push({
-            service_name: feature.service_name,
-            feature_name: feature.feature_name,
-            current_usage: usage,
-            quota_limit: override.quota_limit,
-            is_unlimited: override.is_unlimited,
-            reset_date: this.calculateResetDate(override.reset_period),
-            quota_source: 'user_override',
-            reset_period: override.reset_period
-          });
-          continue;
+          // Override exists - use override values (ignores plan completely)
+          effectiveQuota = override.quota_limit;
+          quotaSource = 'user_override';
+          resetPeriod = override.reset_period;
+        } else if (planQuota) {
+          // No override but user has plan - use plan quota
+          effectiveQuota = planQuota.plan_quota;
+          quotaSource = 'subscription_plan';
+          resetPeriod = 'daily'; // Default reset period for plan quotas
+        } else {
+          // No override and no plan - use service default value for admin management
+          effectiveQuota = parseInt(service.default_value) || 0;
+          quotaSource = 'system_default';
+          resetPeriod = 'daily';
         }
 
-        // Check for subscription plan quota (second priority)
-        const subscriptionQuota = subscriptionQuotas.find(
-          sq => sq.service_name === feature.service_name && sq.feature_name === feature.feature_name
-        );
+        const usage = effectiveQuota > 0 ? 
+          await this.getUserUsage(userId, service.service_name, service.feature_name, resetPeriod) : 
+          0;
 
-        if (subscriptionQuota) {
-          const usage = await this.getUserUsage(userId, feature.service_name, feature.feature_name, subscriptionQuota.reset_period);
-          quotaInfo.push({
-            service_name: feature.service_name,
-            feature_name: feature.feature_name,
-            current_usage: usage,
-            quota_limit: subscriptionQuota.quota_limit,
-            is_unlimited: subscriptionQuota.is_unlimited,
-            reset_date: this.calculateResetDate(subscriptionQuota.reset_period),
-            quota_source: 'subscription_plan',
-            reset_period: subscriptionQuota.reset_period
-          });
-          continue;
-        }
-
-        // Fallback to system default (lowest priority)
-        const usage = await this.getUserUsage(userId, feature.service_name, feature.feature_name, 'daily');
         quotaInfo.push({
-          service_name: feature.service_name,
-          feature_name: feature.feature_name,
+          service_name: service.service_name,
+          feature_name: service.feature_name,
           current_usage: usage,
-          quota_limit: feature.default_quota_limit || 1,
-          is_unlimited: false,
-          reset_date: this.calculateResetDate('daily'),
-          quota_source: 'system_default',
-          reset_period: 'daily'
+          quota_limit: effectiveQuota,
+          is_unlimited: effectiveQuota === -1,
+          reset_date: effectiveQuota > 0 ? this.calculateResetDate(resetPeriod) : null,
+          quota_source: quotaSource,
+          reset_period: resetPeriod
         });
       }
 
@@ -298,15 +275,15 @@ export class EnhancedQuotaService {
       );
 
       if (!serviceQuota) {
-        // Return default quota if service/feature not found
+        // No quota found - user has NO quota for this service/feature
         return {
           allowed: false,
-          quota_limit: 1,
+          quota_limit: 0,
           current_usage: 0,
-          remaining: 1,
-          reset_date: this.calculateResetDate('daily'),
+          remaining: 0,
+          reset_date: null,
           is_unlimited: false,
-          quota_source: 'system_default'
+          quota_source: 'none'
         };
       }
 
