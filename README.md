@@ -177,9 +177,9 @@ yarn dev:seed
 
 ### Without Docker
 
-Ensure you have postgres setup, a `.env.local` file in the root of the project directory, and have node pacakges installed before beginning.
+Ensure you have postgres setup, a `.env.local` file in the root of the project directory, and have node packages installed before beginning.
 
-This project uses `yarn` and `npx` so, package-lock.json has been added to the `.gitigore` list.
+This project uses `yarn` and `npx` so, package-lock.json has been added to the `.gitignore` list.
 
 First, run the development server:
 
