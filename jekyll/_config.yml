@@ -32,6 +32,10 @@ plugins:
   - jekyll-gist
   - jemoji
 
+# Custom plugins (loaded from _plugins directory)
+plugins_dir: _plugins
+safe: false  # Allow custom plugins to run
+
 # Collections for co-located documentation - no physical directories needed
 # Jekyll will find files via plugins, not directory scanning
 collections: {}
