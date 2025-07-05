@@ -32,7 +32,7 @@ func NewDatabase() (*Database, error) {
 		port = "5432"
 	}
 	
-	psqlInfo := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=prefer",
+	psqlInfo := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
 		host, port, user, password, dbname)
 	
 	db, err := sql.Open("postgres", psqlInfo)
