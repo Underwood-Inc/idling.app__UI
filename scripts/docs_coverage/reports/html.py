@@ -33,9 +33,25 @@ class HtmlReporter:
         self.enable_syntax_highlighting = enable_syntax_highlighting
         self.pr_context = None  # Will be set by PR checker if applicable
         
+        # Initialize modular components for compatibility
+        try:
+            from .html_components.content_generators import ContentGenerator
+            self.content_generator = ContentGenerator(self.config)
+        except ImportError:
+            # Fallback if modular components are not available
+            self.content_generator = None
+        
     def set_output_file(self, output_file: str) -> None:
         """Set custom output filename."""
         self.output_file = Path(output_file)
+    
+    def set_pr_context(self, pr_context: dict) -> None:
+        """Set PR context for the reporter and propagate to components."""
+        self.pr_context = pr_context
+        
+        # Propagate to content generator if available
+        if self.content_generator:
+            setattr(self.content_generator, 'pr_context', pr_context)
         
     def generate(self, report: CoverageReport) -> str:
         """Generate the complete HTML report using modular components."""

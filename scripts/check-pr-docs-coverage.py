@@ -103,9 +103,8 @@ class PRDocumentationChecker(DocumentationChecker):
                 # Add PR context as an attribute for reporters that don't have specific methods
                 setattr(reporter, 'pr_context', pr_context)
             
-            # Also set PR context on any internal components that might need it
-            if hasattr(reporter, 'content_generator'):
-                setattr(reporter.content_generator, 'pr_context', pr_context)
+            # The set_pr_context method now handles propagation to internal components
+            # No need for manual propagation here
     
     def filter_code_files_for_pr(self, all_code_files):
         """Filter the code files list to only include PR-changed files"""
