@@ -47,9 +47,9 @@ class ConsoleReporter:
             output.append(f"📊 **Files Requiring Documentation**: {report.total_code_files}")
             output.append("")
         else:
-            output.append("📊 INDUSTRY-STANDARD DOCUMENTATION COVERAGE REPORT")
-            output.append("=" * 90)
-            output.append("")
+        output.append("📊 INDUSTRY-STANDARD DOCUMENTATION COVERAGE REPORT")
+        output.append("=" * 90)
+        output.append("")
         
         # Summary
         min_coverage = self.config["documentation_standards"]["minimum_coverage_percentage"]

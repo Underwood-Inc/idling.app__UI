@@ -109,8 +109,8 @@
       "docs.md",
       "documentation.md"
     ],
-          "centralized_patterns": [
-        "jekyll/**/*.md"
-      ]
+    "centralized_patterns": [
+      "jekyll/**/*.md"
+    ]
   }
 }

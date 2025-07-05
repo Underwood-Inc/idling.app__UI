@@ -1,11 +1,12 @@
 # Use the official Node.js image as the base image
 FROM node:20
 
-# Install zsh, git, and Playwright browser dependencies for development environment
+# Install zsh, git, Go, and Playwright browser dependencies for development environment
 RUN apt-get update && apt-get install -y \
   zsh \
   git \
   curl \
+  wget \
   fonts-powerline \
   # Playwright browser dependencies
   libnspr4 \
@@ -25,6 +26,21 @@ RUN apt-get update && apt-get install -y \
   libxshmfence1 \
   && rm -rf /var/lib/apt/lists/*
 
+# Install Go 1.21.x
+ENV GO_VERSION=1.21.5
+RUN wget -q https://go.dev/dl/go${GO_VERSION}.linux-amd64.tar.gz && \
+  tar -C /usr/local -xzf go${GO_VERSION}.linux-amd64.tar.gz && \
+  rm go${GO_VERSION}.linux-amd64.tar.gz
+
+# Set Go environment variables
+ENV PATH="/usr/local/go/bin:${PATH}"
+ENV GOPATH="/go"
+ENV GOBIN="/go/bin"
+ENV PATH="${GOBIN}:${PATH}"
+
+# Create Go workspace
+RUN mkdir -p /go/{bin,src,pkg} && chmod -R 755 /go
+
 # Install Powerlevel10k
 RUN git clone --depth=1 https://github.com/romkatv/powerlevel10k.git /opt/powerlevel10k
 
@@ -37,7 +53,11 @@ RUN echo 'source /opt/powerlevel10k/powerlevel10k.zsh-theme' >> /etc/zsh/zshrc &
   echo 'POWERLEVEL9K_MULTILINE_FIRST_PROMPT_PREFIX=""' >> /etc/zsh/zshrc && \
   echo 'POWERLEVEL9K_MULTILINE_LAST_PROMPT_PREFIX="❯ "' >> /etc/zsh/zshrc && \
   echo 'POWERLEVEL9K_MODE="nerdfont-complete"' >> /etc/zsh/zshrc && \
-  echo 'POWERLEVEL9K_INSTANT_PROMPT=quiet' >> /etc/zsh/zshrc
+  echo 'POWERLEVEL9K_INSTANT_PROMPT=quiet' >> /etc/zsh/zshrc && \
+  echo 'export PATH="/usr/local/go/bin:$PATH"' >> /etc/zsh/zshrc && \
+  echo 'export GOPATH="/go"' >> /etc/zsh/zshrc && \
+  echo 'export GOBIN="/go/bin"' >> /etc/zsh/zshrc && \
+  echo 'export PATH="$GOBIN:$PATH"' >> /etc/zsh/zshrc
 
 # Set zsh as the default shell for root
 RUN chsh -s /usr/bin/zsh root

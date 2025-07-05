@@ -57,13 +57,13 @@ class ContentGenerator:
             </div>
             """
         else:
-            return f"""
-            <div class="header">
-                <h1>📊 Documentation Coverage Report</h1>
-                <p>Comprehensive analysis of documentation coverage across the Idling.app codebase</p>
+        return f"""
+        <div class="header">
+            <h1>📊 Documentation Coverage Report</h1>
+            <p>Comprehensive analysis of documentation coverage across the Idling.app codebase</p>
                 <p>Generated: {report.timestamp}</p>
-            </div>
-            """
+        </div>
+        """
     
     def generate_overview_cards(self, report: CoverageReport) -> str:
         """Generate overview metrics cards with filtering capabilities and PR context."""
@@ -531,7 +531,7 @@ class ContentGenerator:
     
     def _get_effort_sort_value(self, effort: str) -> int:
         """Get numeric sort value for effort."""
-        return self.utils.get_effort_sort_value(effort)
+        return self.utils.get_effort_sort_value(effort) 
     
     def _get_github_url(self, file_path: str) -> str:
         """Generate context-aware GitHub URL based on PR context"""

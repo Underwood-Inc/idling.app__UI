@@ -54,16 +54,16 @@ class MarkdownReporter:
             output.append(f"**Files Requiring Documentation:** {report.total_code_files}")
             output.append("")
         else:
-            output.append("---")
-            output.append("title: Documentation Coverage Report")
-            output.append("category: quality-assurance")
-            output.append("tags: [documentation, coverage, quality]")
-            output.append(f"generated: {report.timestamp}")
-            output.append("---")
-            output.append("")
-            
-            output.append("# Documentation Coverage Report")
-            output.append("")
+        output.append("---")
+        output.append("title: Documentation Coverage Report")
+        output.append("category: quality-assurance")
+        output.append("tags: [documentation, coverage, quality]")
+        output.append(f"generated: {report.timestamp}")
+        output.append("---")
+        output.append("")
+        
+        output.append("# Documentation Coverage Report")
+        output.append("")
         
         output.append(f"**Generated:** {report.timestamp}")
         output.append(f"**Coverage:** {report.coverage_percentage:.1f}% ({report.adequately_documented}/{report.total_code_files} files)")

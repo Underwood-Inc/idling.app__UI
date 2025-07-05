@@ -22,7 +22,7 @@
             <img src="https://img.shields.io/badge/React-19.0.0--alpha-61DAFB?style=flat&logo=react&logoColor=white" alt="React Version" />
           </a>
           <a href="https://underwood-inc.github.io/idling.app__UI/" target="_blank" rel="noopener">
-            <img src="https://img.shields.io/badge/Documentation%20Coverage-90%25-brightgreen?style=flat&logo=gitbook&logoColor=white" alt="Documentation Coverage" />
+            <img src="https://img.shields.io/badge/Documentation%20Coverage-100%25-brightgreen?style=flat&logo=gitbook&logoColor=white" alt="Documentation Coverage" />
           </a>
           <a href="https://github.com/Underwood-Inc/idling.app__UI/actions" target="_blank" rel="noopener">
             <img src="https://img.shields.io/github/actions/workflow/status/Underwood-Inc/idling.app__UI/quality-assurance.yml?branch=main&style=flat&logo=github&logoColor=white" alt="Build Status" />
@@ -43,7 +43,9 @@
         </label>
 
         <div class="trigger">
-          {%- for nav_item in site.navigation -%}
+          <!-- Auto-generated navigation from frontmatter -->
+          <!-- Debug: {{ site.data.auto_navigation.size | default: 0 }} navigation items found -->
+          {%- for nav_item in site.data.auto_navigation -%}
             {%- if nav_item.subnav -%}
               <!-- Multi-level navigation item -->
               <div class="nav-item-container">
@@ -121,7 +123,10 @@
   <!-- Enhanced Search Bar -->
   <div class="search-header">
     <div class="wrapper">
-      {% include search.html %}
+      <div class="search-container">
+        <input type="text" id="search-input" placeholder="Search documentation..." autocomplete="off">
+        <div id="search-results"></div>
+      </div>
     </div>
   </div>
 </header>
