@@ -31,6 +31,7 @@ class HtmlReporter:
         self.config = config_manager.config
         self.output_file = Path("documentation-coverage-report.html")
         self.enable_syntax_highlighting = enable_syntax_highlighting
+        self.pr_context = None  # Will be set by PR checker if applicable
         
     def set_output_file(self, output_file: str) -> None:
         """Set custom output filename."""
@@ -2603,7 +2604,7 @@ class HtmlReporter:
                            data-file-name="{gap.code_file}"
                            data-expected-doc="{gap.expected_doc_path}"
                            data-issues-count="{len(gap.quality_issues)}"
-                           data-github-url="https://github.com/Underwood-Inc/idling.app__UI/blob/docs/links/{gap.code_file}"
+                           data-github-url="{self._get_github_url(gap.code_file)}"
                            data-source-preview="{file_preview_escaped}"'''
             
             quality_issues = ', '.join(gap.quality_issues[:3]) if gap.quality_issues else 'None'
@@ -2621,7 +2622,7 @@ class HtmlReporter:
                     <div class="file-path-container">
                         {f'<span class="file-directory">{file_dir}/</span>' if file_dir else ''}
                         <span class="file-name clickable-filename" 
-                              data-github-url="https://github.com/Underwood-Inc/idling.app__UI/blob/docs/links/{gap.code_file}"
+                              data-github-url="{self._get_github_url(gap.code_file)}"
                               title="Click to open on GitHub">{file_name}</span>
                     </div>
                 </td>
@@ -4612,3 +4613,30 @@ console.log(JSON.stringify(results));
                 os.unlink(temp_script_path)
             except:
                 pass
+    
+    def _get_github_url(self, file_path: str) -> str:
+        """Generate context-aware GitHub URL based on PR context"""
+        base_url = "https://github.com/Underwood-Inc/idling.app__UI/blob"
+        
+        # Check if this is a PR-specific report
+        pr_context = getattr(self, 'pr_context', None)
+        
+        if pr_context and pr_context.get('is_pr_analysis'):
+            # For PR analysis, use the PR head reference
+            pr_info = pr_context.get('pr_info', {})
+            head_ref = pr_info.get('head_ref', 'HEAD')
+            
+            # Clean up the reference for GitHub URL
+            if head_ref.startswith('origin/'):
+                branch_name = head_ref.replace('origin/', '')
+            elif head_ref == 'HEAD':
+                # If HEAD, try to get the actual branch name from PR info
+                # Fall back to a generic PR reference
+                branch_name = f"pr-{pr_info.get('number', 'unknown')}"
+            else:
+                branch_name = head_ref
+            
+            return f"{base_url}/{branch_name}/{file_path}"
+        else:
+            # For master branch analysis, use master
+            return f"{base_url}/master/{file_path}"
