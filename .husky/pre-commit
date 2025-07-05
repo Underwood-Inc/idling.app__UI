@@ -158,13 +158,12 @@ DOC_BADGE_URL="https://img.shields.io/badge/Documentation%20Coverage-${DOC_COVER
 if [ -f "README.md" ]; then
   # Look for existing documentation coverage badge and replace it
   if grep -q "Documentation%20Coverage" README.md; then
-    # Create a temporary file with the corrected badge and artifact links
+    # Create a temporary file with the corrected badge
     TEMP_README=$(mktemp)
-    # Replace the documentation coverage badge line with updated version including artifact links
-    sed "s/Documentation%20Coverage-[0-9]*%25-[a-z]*/Documentation%20Coverage-${DOC_COVERAGE}%25-${DOC_COLOR}/g" README.md | \
-    sed 's|[![Documentation Coverage](https://img.shields.io/badge/Documentation%20Coverage-[0-9]*%25-[a-z]*[^)]*)|[![Documentation Coverage]('"${DOC_BADGE_URL}"')](https://underwood-inc.github.io/idling.app__UI/) \| [![📊 CSV Report](https://img.shields.io/badge/📊%20CSV-Download-blue?style=flat\&logo=microsoftexcel\&logoColor=white)](https://underwood-inc.github.io/idling.app__UI/coverage-artifacts/latest-coverage-report.csv) \| [![📋 HTML Report](https://img.shields.io/badge/📋%20HTML-Download-green?style=flat\&logo=html5\&logoColor=white)](https://underwood-inc.github.io/idling.app__UI/coverage-artifacts/latest-coverage-report.html)|g' > "$TEMP_README"
+    # First, update just the percentage and color in the badge URL
+    sed "s/Documentation%20Coverage-[0-9.]*%25-[a-z]*/Documentation%20Coverage-${DOC_COVERAGE}%25-${DOC_COLOR}/g" README.md > "$TEMP_README"
     mv "$TEMP_README" README.md
-    echo "✅ Updated documentation badge with artifact links in README.md"
+    echo "✅ Updated documentation badge percentage and color in README.md"
   else
     echo "⚠️ No existing documentation badge found in README.md"
   fi
