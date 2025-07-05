@@ -43,9 +43,8 @@
         </label>
 
         <div class="trigger">
-          <!-- Auto-generated navigation from frontmatter -->
-          <!-- Debug: {{ site.data.auto_navigation.size | default: 0 }} navigation items found -->
-          {%- for nav_item in site.data.auto_navigation -%}
+          <!-- Manual navigation from _data/navigation.yml -->
+          {%- for nav_item in site.data.navigation.main -%}
             {%- if nav_item.subnav -%}
               <!-- Multi-level navigation item -->
               <div class="nav-item-container">
