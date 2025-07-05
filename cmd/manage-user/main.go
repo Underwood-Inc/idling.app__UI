@@ -6,6 +6,8 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"time"
+	"io"
 
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/list"
@@ -406,21 +408,22 @@ type menuItemDelegate struct{}
 func (d menuItemDelegate) Height() int                               { return 2 }
 func (d menuItemDelegate) Spacing() int                              { return 1 }
 func (d menuItemDelegate) Update(msg tea.Msg, m *list.Model) tea.Cmd { return nil }
-func (d menuItemDelegate) Render(w *list.Model, index int, listItem list.Item) string {
+func (d menuItemDelegate) Render(w io.Writer, m list.Model, index int, listItem list.Item) {
 	i, ok := listItem.(menuItem)
 	if !ok {
-		return ""
+		return
 	}
 
 	str := fmt.Sprintf("%s %s", i.option.Icon, i.option.Label)
 	desc := i.option.Description
 
-	if index == w.Index() {
-		return selectedItemStyle.Render(str) + "\n" + 
-			lipgloss.NewStyle().Foreground(lipgloss.Color("#9CA3AF")).MarginLeft(2).Render(desc)
+	if index == m.Index() {
+		fmt.Fprint(w, selectedItemStyle.Render(str) + "\n" + 
+			lipgloss.NewStyle().Foreground(lipgloss.Color("#9CA3AF")).MarginLeft(2).Render(desc))
+	} else {
+		fmt.Fprint(w, itemStyle.Render(str) + "\n" + 
+			lipgloss.NewStyle().Foreground(lipgloss.Color("#D1D5DB")).MarginLeft(2).Render(desc))
 	}
-	return itemStyle.Render(str) + "\n" + 
-		lipgloss.NewStyle().Foreground(lipgloss.Color("#D1D5DB")).MarginLeft(2).Render(desc)
 }
 
 // Navigation and menu functions

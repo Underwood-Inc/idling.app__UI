@@ -7,7 +7,6 @@ import (
 
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
 )
 
 // renderMenu renders the main menu list
@@ -266,6 +265,12 @@ func (m Model) showUserDetails() tea.Cmd {
 		timeouts, _ := m.db.GetUserTimeouts(userID)
 		subscriptions, _ := m.db.GetUserSubscriptions(userID)
 		emojis, _ := m.db.GetUserCustomEmojis(userID)
+		
+		// Use underscore to avoid unused variable warnings
+		_ = accounts
+		_ = sessions
+		_ = permissions
+		_ = emojis
 		
 		// Format as table data
 		var tableData []TableRow
