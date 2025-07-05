@@ -5,12 +5,14 @@ import { QuotaState } from '../types/generation';
 export function useQuotaTracking(): QuotaState & {
   updateQuota: (remaining: number, limit?: number, resetDate?: Date | null) => void;
   initializeQuota: () => Promise<void>;
+  quotaError?: string;
 } {
   const { data: session, status } = useSession();
-  const [remainingGenerations, setRemainingGenerations] = useState<number>(1);
-  const [quotaLimit, setQuotaLimit] = useState<number>(1);
+  const [remainingGenerations, setRemainingGenerations] = useState<number>(0);
+  const [quotaLimit, setQuotaLimit] = useState<number>(0);
   const [hasInitializedQuota, setHasInitializedQuota] = useState<boolean>(false);
   const [resetDate, setResetDate] = useState<Date | null>(null);
+  const [quotaError, setQuotaError] = useState<string | undefined>(undefined);
   
   // Track previous auth state to detect changes
   const previousUserIdRef = useRef<string | null>(null);
@@ -31,43 +33,42 @@ export function useQuotaTracking(): QuotaState & {
 
   const initializeQuota = async () => {
     try {
+      setQuotaError(undefined); // Clear previous errors
       const response = await fetch('/api/og-image?format=json&dry-run=true', {
         credentials: 'include'
       });
       if (response.ok) {
         const data = await response.json();
-        if (data.remainingGenerations !== undefined) {
-          // Extract quota limit and reset date from the response if available
-          const limit = data.quotaLimit || data.quota_limit || 1; // Default to 1 if no limit provided
+        if (data.remainingGenerations !== undefined && data.quotaLimit !== undefined) {
+          // Extract quota limit and reset date from the response
+          const limit = data.quotaLimit || data.quota_limit;
           const resetDateValue = data.resetDate || data.reset_date ? new Date(data.resetDate || data.reset_date) : null;
           updateQuota(data.remainingGenerations, limit, resetDateValue);
+          return; // Success - exit early
         } else {
-          // If no quota data, assume user has quota available
-          setRemainingGenerations(1);
-          setQuotaLimit(1);
-          setResetDate(null);
-          setHasInitializedQuota(true);
+          console.error('Quota data missing from API response:', data);
+          setQuotaError('Quota data missing from API response');
         }
       } else {
-        // If API fails, assume user has quota available
-        setRemainingGenerations(1);
-        setQuotaLimit(1);
-        setResetDate(null);
-        setHasInitializedQuota(true);
+        const errorData = await response.json().catch(() => ({}));
+        console.error('API request failed:', response.status, errorData);
+        setQuotaError(`API request failed with status ${response.status}`);
       }
     } catch (error) {
-      // On error, assume user has quota available
-      console.warn('Failed to initialize quota, assuming quota available:', error);
-      setRemainingGenerations(1);
-      setQuotaLimit(1);
-      setResetDate(null);
-      setHasInitializedQuota(true);
+      console.error('Failed to initialize quota:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+      setQuotaError(`Unable to load quota information: ${errorMessage}`);
     }
+    
+    // Fallback: Always provide working quota values even if API fails
+    // This ensures the UI never breaks - user gets reasonable defaults
+    console.warn('Using fallback quota values due to API failure');
+    updateQuota(1, 1, new Date(Date.now() + 86400000)); // 1 generation, resets tomorrow
   };
 
   // Auto-initialize on mount
   useEffect(() => {
-    initializeQuota();
+    initializeQuota().catch(console.error);
   }, []);
 
   // Monitor auth state changes and refresh quota when auth changes
@@ -84,12 +85,13 @@ export function useQuotaTracking(): QuotaState & {
     if (authStateChanged) {
       // Reset quota state and reinitialize
       setHasInitializedQuota(false);
-      setRemainingGenerations(1);
-      setQuotaLimit(1);
+      setRemainingGenerations(0);
+      setQuotaLimit(0);
       setResetDate(null);
+      setQuotaError(undefined);
       
       // Reinitialize quota with new auth state
-      initializeQuota();
+      initializeQuota().catch(console.error);
 
       // Update the ref for next comparison
       previousUserIdRef.current = currentUserId;
@@ -103,6 +105,7 @@ export function useQuotaTracking(): QuotaState & {
     isQuotaExceeded,
     resetDate,
     updateQuota,
-    initializeQuota
+    initializeQuota,
+    quotaError
   };
 } 

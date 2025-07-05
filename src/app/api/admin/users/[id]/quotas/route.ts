@@ -182,7 +182,7 @@ async function getHandler(
     // Get comprehensive quota info using EnhancedQuotaService
     const quotaInfo = await EnhancedQuotaService.getUserQuotaInfo(parseInt(params.id));
     
-    // Get additional display information
+    // Get additional display information for proper names
     const serviceFeatures = await sql`
       SELECT 
         ss.name as service_name,
@@ -194,25 +194,13 @@ async function getHandler(
       WHERE sf.feature_type = 'limit' AND ss.is_active = true
     `;
 
-    // Get existing user overrides
-    const userOverrides = await sql`
-      SELECT * FROM user_quota_overrides
-      WHERE user_id = ${params.id} AND is_active = true
-    `;
-
-    // Build comprehensive quota data
-    const quotaData: UserQuotaData[] = [];
-    
-    for (const info of quotaInfo) {
+    // Transform quota info to admin panel format
+    const quotaData: UserQuotaData[] = quotaInfo.map(info => {
       const serviceFeature = serviceFeatures.find(
         sf => sf.service_name === info.service_name && sf.feature_name === info.feature_name
       );
-      
-      const override = userOverrides.find(
-        uo => uo.service_name === info.service_name && uo.feature_name === info.feature_name
-      );
 
-      quotaData.push({
+      return {
         service_name: info.service_name,
         feature_name: info.feature_name,
         display_name: serviceFeature ? 
@@ -221,12 +209,12 @@ async function getHandler(
         current_usage: info.current_usage,
         quota_limit: info.quota_limit,
         is_unlimited: info.is_unlimited,
-        is_custom: !!override,
+        is_custom: info.quota_source === 'user_override',
         reset_date: info.reset_date?.toISOString() || new Date(Date.now() + 86400000).toISOString(),
         quota_source: info.quota_source,
         reset_period: info.reset_period
-      });
-    }
+      };
+    });
 
     return NextResponse.json({
       success: true,

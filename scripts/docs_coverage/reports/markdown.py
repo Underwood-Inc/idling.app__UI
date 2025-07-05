@@ -13,19 +13,53 @@ class MarkdownReporter:
         self.config = config_manager.config
     
     def generate(self, report: CoverageReport) -> str:
-        """Generate markdown report for Jekyll"""
+        """Generate markdown report for Jekyll with PR context if available"""
         output = []
         
-        output.append("---")
-        output.append("title: Documentation Coverage Report")
-        output.append("category: quality-assurance")
-        output.append("tags: [documentation, coverage, quality]")
-        output.append(f"generated: {report.timestamp}")
-        output.append("---")
-        output.append("")
+        # Check if this is a PR-specific report
+        pr_context = getattr(self, 'pr_context', None)
         
-        output.append("# Documentation Coverage Report")
-        output.append("")
+        if pr_context and pr_context.get('is_pr_analysis'):
+            pr_info = pr_context.get('pr_info', {})
+            pr_files = pr_context.get('pr_files', [])
+            
+            output.append("---")
+            output.append("title: PR Documentation Coverage Report")
+            output.append("category: quality-assurance")
+            output.append("tags: [documentation, coverage, quality, pull-request]")
+            output.append(f"generated: {report.timestamp}")
+            if pr_info.get('pr_number'):
+                output.append(f"pr_number: {pr_info.get('pr_number')}")
+            output.append("---")
+            output.append("")
+            
+            output.append("# PR Documentation Coverage Report")
+            output.append("")
+            
+            # PR context information
+            if pr_info.get('pr_number'):
+                output.append(f"**Pull Request:** #{pr_info.get('pr_number', 'Unknown')}")
+                if pr_info.get('title'):
+                    output.append(f"**Title:** {pr_info.get('title')}")
+                if pr_info.get('author'):
+                    output.append(f"**Author:** {pr_info.get('author')}")
+                output.append("")
+            
+            output.append(f"**PR Scope:** Analyzing {len(pr_files)} changed files")
+            output.append(f"**Files Requiring Documentation:** {report.total_code_files}")
+            output.append("")
+        else:
+            output.append("---")
+            output.append("title: Documentation Coverage Report")
+            output.append("category: quality-assurance")
+            output.append("tags: [documentation, coverage, quality]")
+            output.append(f"generated: {report.timestamp}")
+            output.append("---")
+            output.append("")
+            
+            output.append("# Documentation Coverage Report")
+            output.append("")
+        
         output.append(f"**Generated:** {report.timestamp}")
         output.append(f"**Coverage:** {report.coverage_percentage:.1f}% ({report.adequately_documented}/{report.total_code_files} files)")
         output.append(f"**Quality Score:** {report.quality_score:.2f}/1.0")

@@ -267,6 +267,50 @@ jobs:
           echo "📊 Documentation Coverage Report:"
           python scripts/check-docs-coverage.py --format console
 
+      # Run PR-specific documentation coverage analysis
+      - name: Run PR-specific documentation coverage analysis
+        if: github.event_name == 'pull_request'
+        env:
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_BASE_REF: origin/${{ github.event.pull_request.base.ref }}
+          PR_HEAD_REF: ${{ github.event.pull_request.head.sha }}
+          PR_AUTHOR: ${{ github.event.pull_request.user.login }}
+        run: |
+          echo "🔍 Running PR-specific documentation coverage analysis..."
+          echo "📍 PR Number: ${{ github.event.pull_request.number }}"
+          echo "📍 Base ref: origin/${{ github.event.pull_request.base.ref }}"
+          echo "📍 Head ref: ${{ github.event.pull_request.head.sha }}"
+          echo "📍 Current branch: $(git branch --show-current)"
+          echo "📍 Available branches: $(git branch -a | head -5)"
+
+          # Ensure we have the latest refs
+          git fetch origin ${{ github.event.pull_request.base.ref }}:${{ github.event.pull_request.base.ref }} || true
+          git fetch origin +refs/pull/${{ github.event.pull_request.number }}/head:pr-${{ github.event.pull_request.number }} || true
+
+          # Generate PR-specific reports with better error handling
+          python scripts/check-pr-docs-coverage.py --format json --output pr-doc-coverage-report.json --base-ref origin/${{ github.event.pull_request.base.ref }} --head-ref ${{ github.event.pull_request.head.sha }} --pr-number ${{ github.event.pull_request.number }} || echo "PR JSON report failed"
+          python scripts/check-pr-docs-coverage.py --format markdown --output pr-doc-coverage-report.md --base-ref origin/${{ github.event.pull_request.base.ref }} --head-ref ${{ github.event.pull_request.head.sha }} --pr-number ${{ github.event.pull_request.number }} || echo "PR Markdown report failed"
+          python scripts/check-pr-docs-coverage.py --format html --output pr-documentation-coverage-report.html --base-ref origin/${{ github.event.pull_request.base.ref }} --head-ref ${{ github.event.pull_request.head.sha }} --pr-number ${{ github.event.pull_request.number }} || echo "PR HTML report failed"
+          python scripts/check-pr-docs-coverage.py --format csv --output pr-doc-coverage-report.csv --base-ref origin/${{ github.event.pull_request.base.ref }} --head-ref ${{ github.event.pull_request.head.sha }} --pr-number ${{ github.event.pull_request.number }} || echo "PR CSV report failed"
+
+          # Check if PR report was generated successfully
+          if [ -f "pr-doc-coverage-report.json" ]; then
+            echo "✅ PR documentation coverage report generated successfully"
+            echo "📊 Report size: $(wc -c < pr-doc-coverage-report.json) bytes"
+            echo "📊 Report preview: $(head -3 pr-doc-coverage-report.json)"
+          else
+            echo "❌ PR documentation coverage report was not generated"
+          fi
+
+          # Extract PR coverage percentage for badge generation
+          PR_DOC_COVERAGE=$(python -c "import json; data=json.load(open('pr-doc-coverage-report.json')); print(int(data['coverage_percentage']))" 2>/dev/null || echo "100")
+          echo "PR_DOC_COVERAGE=$PR_DOC_COVERAGE" >> $GITHUB_ENV
+
+          # Generate console report for logs
+          echo "📊 PR Documentation Coverage Report:"
+          python scripts/check-pr-docs-coverage.py --format console --base-ref origin/${{ github.event.pull_request.base.ref }} --head-ref ${{ github.event.pull_request.head.sha }} --pr-number ${{ github.event.pull_request.number }} || echo "PR console report failed"
+
       # Upload documentation coverage reports as artifacts
       - name: Upload documentation coverage reports
         uses: actions/upload-artifact@v4
@@ -277,6 +321,10 @@ jobs:
             doc-coverage-report.md
             documentation-coverage-report.html
             doc-coverage-report.csv
+            pr-doc-coverage-report.json
+            pr-doc-coverage-report.md
+            pr-documentation-coverage-report.html
+            pr-doc-coverage-report.csv
           retention-days: 30
 
       # Comment on PR with documentation coverage results and artifact links
@@ -303,7 +351,15 @@ jobs:
               console.log('Could not parse JSON report:', error);
             }
 
-            // Determine badge color based on coverage
+            // Read the PR-specific JSON report if it exists
+            let prJsonReport = null;
+            try {
+              prJsonReport = JSON.parse(fs.readFileSync('pr-doc-coverage-report.json', 'utf8'));
+            } catch (error) {
+              console.log('Could not parse PR JSON report:', error);
+            }
+
+            // Determine badge color based on total coverage
             const coverage = jsonReport ? jsonReport.coverage_percentage : 0;
             let badgeColor = 'red';
             if (coverage >= 90) badgeColor = 'brightgreen';
@@ -311,8 +367,17 @@ jobs:
             else if (coverage >= 60) badgeColor = 'yellow';
             else if (coverage >= 40) badgeColor = 'orange';
 
-            // Create documentation coverage badge
-            const badgeUrl = `https://img.shields.io/badge/Documentation%20Coverage-${Math.round(coverage)}%25-${badgeColor}?style=flat&logo=gitbook&logoColor=white`;
+            // Determine PR badge color based on PR coverage
+            const prCoverage = prJsonReport ? prJsonReport.coverage_percentage : 100;
+            let prBadgeColor = 'red';
+            if (prCoverage >= 90) prBadgeColor = 'brightgreen';
+            else if (prCoverage >= 75) prBadgeColor = 'green';
+            else if (prCoverage >= 60) prBadgeColor = 'yellow';
+            else if (prCoverage >= 40) prBadgeColor = 'orange';
+
+            // Create documentation coverage badges
+            const badgeUrl = `https://img.shields.io/badge/Total%20Coverage-${Math.round(coverage)}%25-${badgeColor}?style=flat&logo=gitbook&logoColor=white`;
+            const prBadgeUrl = `https://img.shields.io/badge/PR%20Coverage-${Math.round(prCoverage)}%25-${prBadgeColor}?style=flat&logo=git&logoColor=white`;
 
             // Create artifact download badges
             const csvBadgeUrl = `https://img.shields.io/badge/📊%20CSV%20Report-Download-blue?style=flat&logo=microsoftexcel&logoColor=white`;
@@ -326,19 +391,84 @@ jobs:
             // Format the comment
             const prNumber = context.issue.number;
             const documentedFiles = jsonReport ? jsonReport.documented_files : 0;
-            const totalFiles = jsonReport ? jsonReport.total_files : 0;
+            const totalFiles = jsonReport ? jsonReport.total_code_files : 0;
+            const prDocumentedFiles = prJsonReport ? prJsonReport.documented_files : 0;
+            const prTotalFiles = prJsonReport ? prJsonReport.total_code_files : 0;
+            const prChangedFiles = prJsonReport ? prJsonReport.pr_files.length : 0;
+
+            // Generate PR-specific details if available
+            let prDetailsSection = '';
+            if (prJsonReport && prJsonReport.pr_files && prJsonReport.pr_files.length > 0) {
+              const prFiles = prJsonReport.pr_files;
+              const prGaps = prJsonReport.gaps || [];
+              const missingDocs = prGaps.filter(gap => gap.gap_type === 'missing');
+              const inadequateDocs = prGaps.filter(gap => gap.gap_type === 'inadequate');
+              
+              prDetailsSection = `<details>\n<summary>🔍 PR-Specific Analysis (${prFiles.length} files changed)</summary>\n\n`;
+              
+              if (prFiles.length > 0) {
+                prDetailsSection += `**Files Changed in this PR:**\n`;
+                prFiles.slice(0, 10).forEach(file => {
+                  prDetailsSection += `- \`${file}\`\n`;
+                });
+                if (prFiles.length > 10) {
+                  prDetailsSection += `- ... and ${prFiles.length - 10} more files\n`;
+                }
+                prDetailsSection += `\n`;
+              }
+              
+              if (missingDocs.length > 0) {
+                prDetailsSection += `**Missing Documentation (${missingDocs.length} files):**\n`;
+                missingDocs.slice(0, 5).forEach(gap => {
+                  prDetailsSection += `- \`${gap.code_file}\` (${gap.priority} priority)\n`;
+                });
+                if (missingDocs.length > 5) {
+                  prDetailsSection += `- ... and ${missingDocs.length - 5} more files\n`;
+                }
+                prDetailsSection += `\n`;
+              }
+              
+              if (inadequateDocs.length > 0) {
+                prDetailsSection += `**Inadequate Documentation (${inadequateDocs.length} files):**\n`;
+                inadequateDocs.slice(0, 5).forEach(gap => {
+                  prDetailsSection += `- \`${gap.code_file}\` (${gap.priority} priority)\n`;
+                });
+                if (inadequateDocs.length > 5) {
+                  prDetailsSection += `- ... and ${inadequateDocs.length - 5} more files\n`;
+                }
+                prDetailsSection += `\n`;
+              }
+              
+              if (prGaps.length === 0) {
+                prDetailsSection += `✅ **All changed files have adequate documentation!**\n\n`;
+              }
+              
+              prDetailsSection += `</details>\n\n`;
+            }
 
             const comment = `## 📚 Documentation Coverage Status\n\n` +
-              `![Documentation Coverage](${badgeUrl}) | ` +
+              `![Total Coverage](${badgeUrl}) ![PR Coverage](${prBadgeUrl}) | ` +
               `[![CSV Report](${csvBadgeUrl})](${artifactUrl}) | ` +
               `[![HTML Report](${htmlBadgeUrl})](${artifactUrl})\n\n` +
-              `**Coverage:** ${coverage.toFixed(1)}% (${documentedFiles}/${totalFiles} files)\n\n` +
-              `### 📥 Download Coverage Reports\n\n` +
+              `### 📊 Coverage Summary\n\n` +
+              `| Metric | Coverage | Files |\n` +
+              `|--------|----------|-------|\n` +
+              `| **Total Project** | ${coverage.toFixed(1)}% | ${documentedFiles}/${totalFiles} |\n` +
+              `| **This PR** | ${prCoverage.toFixed(1)}% | ${prDocumentedFiles}/${prTotalFiles} |\n` +
+              `| **Files Changed** | - | ${prChangedFiles} source files |\n\n` +
+              prDetailsSection +
+              `<details>\n<summary>📥 Download Coverage Reports</summary>\n\n` +
+              `#### 🌍 Total Project Coverage\n` +
               `- **📊 CSV Report**: [Download for Excel/Google Sheets](${artifactUrl}) - Perfect for analysis and tracking\n` +
               `- **📋 HTML Report**: [Download Interactive Report](${artifactUrl}) - Beautiful visual interface with filtering\n` +
               `- **📄 JSON Report**: [Download Raw Data](${artifactUrl}) - API integration and automation\n\n` +
+              `#### 🔍 PR-Specific Coverage\n` +
+              `- **📊 PR CSV Report**: [Download PR Analysis](${artifactUrl}) - Only files changed in this PR\n` +
+              `- **📋 PR HTML Report**: [Download PR Interactive Report](${artifactUrl}) - Visual analysis of PR changes\n` +
+              `- **📄 PR JSON Report**: [Download PR Raw Data](${artifactUrl}) - PR-specific structured data\n\n` +
               `*Click the badges above or visit the [workflow artifacts](${artifactUrl}) to download reports.*\n\n` +
-              `<details>\n<summary>📋 Detailed Report</summary>\n\n${reportContent}\n\n</details>\n\n` +
+              `</details>\n\n` +
+              `<details>\n<summary>📋 Detailed Analysis Report (Total Project)</summary>\n\n${reportContent}\n\n</details>\n\n` +
               `---\n\n` +
               `*This report was automatically generated by the documentation coverage analysis.*`;
 
@@ -399,12 +529,33 @@ jobs:
 
             let currentDescription = pr.body || '';
 
-            // Create new badge section with artifact links
+            // Read the PR-specific JSON report for PR description
+            let prJsonReportForDesc = null;
+            try {
+              prJsonReportForDesc = JSON.parse(fs.readFileSync('pr-doc-coverage-report.json', 'utf8'));
+            } catch (error) {
+              console.log('Could not parse PR JSON report for description:', error);
+            }
+
+            // Calculate PR coverage for description
+            const prCoverageForDesc = prJsonReportForDesc ? prJsonReportForDesc.coverage_percentage : 100;
+            let prBadgeColorForDesc = 'red';
+            if (prCoverageForDesc >= 90) prBadgeColorForDesc = 'brightgreen';
+            else if (prCoverageForDesc >= 75) prBadgeColorForDesc = 'green';
+            else if (prCoverageForDesc >= 60) prBadgeColorForDesc = 'yellow';
+            else if (prCoverageForDesc >= 40) prBadgeColorForDesc = 'orange';
+
+            const prBadgeUrlForDesc = `https://img.shields.io/badge/PR%20Coverage-${Math.round(prCoverageForDesc)}%25-${prBadgeColorForDesc}?style=flat&logo=git&logoColor=white`;
+
+            // Create new badge section with collapsible artifact links
             const newBadgeSection = `## 📚 Documentation Coverage Status\n\n` +
-              `![Documentation Coverage](${newBadgeUrl}) | ` +
+              `![Total Coverage](${newBadgeUrl}) ![PR Coverage](${prBadgeUrlForDesc}) | ` +
               `[![CSV Report](${csvBadgeUrl})](${artifactUrl}) | ` +
               `[![HTML Report](${htmlBadgeUrl})](${artifactUrl})\n\n` +
-              `**Download Coverage for PR:** [📊 CSV](${artifactUrl}) | [📋 HTML](${artifactUrl})\n\n` +
+              `<details>\n<summary>📥 Download Coverage Reports for this PR</summary>\n\n` +
+              `**Total Project Coverage:** [📊 CSV](${artifactUrl}) | [📋 HTML](${artifactUrl}) | [📄 JSON](${artifactUrl})\n\n` +
+              `**PR-Specific Coverage:** [📊 CSV](${artifactUrl}) | [📋 HTML](${artifactUrl}) | [📄 JSON](${artifactUrl})\n\n` +
+              `</details>\n\n` +
               `---\n\n`;
 
             // Update existing documentation coverage section in PR description

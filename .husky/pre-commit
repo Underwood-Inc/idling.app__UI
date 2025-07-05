@@ -55,17 +55,17 @@ missing_files_count=0
 # Use the Python documentation coverage script for accurate results
 echo "📊 Running Python documentation coverage analysis..."
 
-# Run the Python script and capture its output in all formats
-python3 scripts/check-docs-coverage.py --format json > "$TEMP_DIR/coverage_report.json" 2>/dev/null
-python3 scripts/check-docs-coverage.py --format html > "$TEMP_DIR/coverage_report.html" 2>/dev/null
-python3 scripts/check-docs-coverage.py --format csv > "$TEMP_DIR/coverage_report.csv" 2>/dev/null
+# Run the Python script and capture its output in all formats (non-blocking)
+python3 scripts/check-docs-coverage.py --format json > "$TEMP_DIR/coverage_report.json" 2>/dev/null || echo "⚠️ Documentation coverage script failed, using fallback logic"
+python3 scripts/check-docs-coverage.py --format html > "$TEMP_DIR/coverage_report.html" 2>/dev/null || true
+python3 scripts/check-docs-coverage.py --format csv > "$TEMP_DIR/coverage_report.csv" 2>/dev/null || true
 
 if [ -f "$TEMP_DIR/coverage_report.json" ]; then
-  # Parse the JSON output
-  total_files=$(python3 -c "import json; data=json.load(open('$TEMP_DIR/coverage_report.json')); print(data['total_files'])" 2>/dev/null || echo "0")
-  documented_files=$(python3 -c "import json; data=json.load(open('$TEMP_DIR/coverage_report.json')); print(data['documented_files'])" 2>/dev/null || echo "0")
-  missing_files_count=$(python3 -c "import json; data=json.load(open('$TEMP_DIR/coverage_report.json')); print(data['missing_docs'])" 2>/dev/null || echo "0")
-  DOC_COVERAGE=$(python3 -c "import json; data=json.load(open('$TEMP_DIR/coverage_report.json')); print(int(data['coverage_percentage']))" 2>/dev/null || echo "0")
+  # Parse the JSON output with correct field names
+  total_files=$(python3 -c "import json; data=json.load(open('$TEMP_DIR/coverage_report.json')); print(data.get('total_code_files', data.get('total_files', 0)))" 2>/dev/null || echo "0")
+  documented_files=$(python3 -c "import json; data=json.load(open('$TEMP_DIR/coverage_report.json')); print(data.get('documented_files', 0))" 2>/dev/null || echo "0")
+  missing_files_count=$(python3 -c "import json; data=json.load(open('$TEMP_DIR/coverage_report.json')); print(data.get('missing_documentation', data.get('missing_docs', 0)))" 2>/dev/null || echo "0")
+  DOC_COVERAGE=$(python3 -c "import json; data=json.load(open('$TEMP_DIR/coverage_report.json')); print(int(data.get('coverage_percentage', 0)))" 2>/dev/null || echo "0")
 else
   # Fallback to simplified bash logic if Python script fails
   echo "⚠️ Python script failed, using fallback logic..."
@@ -158,13 +158,12 @@ DOC_BADGE_URL="https://img.shields.io/badge/Documentation%20Coverage-${DOC_COVER
 if [ -f "README.md" ]; then
   # Look for existing documentation coverage badge and replace it
   if grep -q "Documentation%20Coverage" README.md; then
-    # Create a temporary file with the corrected badge and artifact links
+    # Create a temporary file with the corrected badge
     TEMP_README=$(mktemp)
-    # Replace the documentation coverage badge line with updated version including artifact links
-    sed "s/Documentation%20Coverage-[0-9]*%25-[a-z]*/Documentation%20Coverage-${DOC_COVERAGE}%25-${DOC_COLOR}/g" README.md | \
-    sed 's|[![Documentation Coverage](https://img.shields.io/badge/Documentation%20Coverage-[0-9]*%25-[a-z]*[^)]*)|[![Documentation Coverage]('"${DOC_BADGE_URL}"')](https://underwood-inc.github.io/idling.app__UI/) \| [![📊 CSV Report](https://img.shields.io/badge/📊%20CSV-Download-blue?style=flat\&logo=microsoftexcel\&logoColor=white)](https://underwood-inc.github.io/idling.app__UI/coverage-artifacts/latest-coverage-report.csv) \| [![📋 HTML Report](https://img.shields.io/badge/📋%20HTML-Download-green?style=flat\&logo=html5\&logoColor=white)](https://underwood-inc.github.io/idling.app__UI/coverage-artifacts/latest-coverage-report.html)|g' > "$TEMP_README"
+    # First, update just the percentage and color in the badge URL
+    sed "s/Documentation%20Coverage-[0-9.]*%25-[a-z]*/Documentation%20Coverage-${DOC_COVERAGE}%25-${DOC_COLOR}/g" README.md > "$TEMP_README"
     mv "$TEMP_README" README.md
-    echo "✅ Updated documentation badge with artifact links in README.md"
+    echo "✅ Updated documentation badge percentage and color in README.md"
   else
     echo "⚠️ No existing documentation badge found in README.md"
   fi
@@ -196,8 +195,9 @@ cat > "$JEKYLL_BADGE_DIR/documentation-coverage-badge.html" << 'EOF'
 </a>
 EOF
 
-# Replace placeholders
-sed -i "s|DOC_BADGE_URL_PLACEHOLDER|${DOC_BADGE_URL}|g" "$JEKYLL_BADGE_DIR/documentation-coverage-badge.html"
+# Replace placeholders with proper escaping
+DOC_BADGE_URL_ESCAPED=$(echo "$DOC_BADGE_URL" | sed 's/[&/\\]/\\&/g')
+sed -i "s|DOC_BADGE_URL_PLACEHOLDER|${DOC_BADGE_URL_ESCAPED}|g" "$JEKYLL_BADGE_DIR/documentation-coverage-badge.html"
 sed -i "s|DOC_COVERAGE_PLACEHOLDER|${DOC_COVERAGE}|g" "$JEKYLL_BADGE_DIR/documentation-coverage-badge.html"
 
 echo "✅ Updated Jekyll documentation badge include"
@@ -263,8 +263,9 @@ DOC_BADGE_URL_PLACEHOLDER
 *This file is automatically updated by the pre-commit hook*
 EOF
 
-# Replace placeholders
-sed -i "s|DOC_BADGE_URL_PLACEHOLDER|${DOC_BADGE_URL}|g" "$BADGE_DIR/documentation-coverage.md"
+# Replace placeholders with proper escaping
+DOC_BADGE_URL_ESCAPED=$(echo "$DOC_BADGE_URL" | sed 's/[&/\\]/\\&/g')
+sed -i "s|DOC_BADGE_URL_PLACEHOLDER|${DOC_BADGE_URL_ESCAPED}|g" "$BADGE_DIR/documentation-coverage.md"
 sed -i "s|DOC_COVERAGE_PLACEHOLDER|${DOC_COVERAGE}|g" "$BADGE_DIR/documentation-coverage.md"
 sed -i "s|DOCUMENTED_FILES_PLACEHOLDER|${documented_files}|g" "$BADGE_DIR/documentation-coverage.md"
 sed -i "s|TOTAL_FILES_PLACEHOLDER|${total_files}|g" "$BADGE_DIR/documentation-coverage.md"

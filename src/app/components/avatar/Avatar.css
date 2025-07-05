@@ -47,7 +47,6 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: var(--light-background--quaternary);
   border-radius: 50%;
   overflow: hidden;
   transition: transform 0.3s ease;
@@ -80,7 +79,6 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: var(--dark-background--quaternary);
   border-radius: 50%;
   z-index: 1;
 }
@@ -183,7 +181,6 @@
 }
 
 .avatar-tooltip__container {
-  background: var(--light-background--quaternary);
   border: 2px solid var(--brand-primary);
   border-radius: 50%;
   overflow: hidden;

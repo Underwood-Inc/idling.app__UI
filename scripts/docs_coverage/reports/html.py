@@ -31,6 +31,7 @@ class HtmlReporter:
         self.config = config_manager.config
         self.output_file = Path("documentation-coverage-report.html")
         self.enable_syntax_highlighting = enable_syntax_highlighting
+        self.pr_context = None  # Will be set by PR checker if applicable
         
     def set_output_file(self, output_file: str) -> None:
         """Set custom output filename."""
@@ -192,6 +193,52 @@ class HtmlReporter:
             --card-bg: var(--dark-bg-secondary);
             --code-bg: var(--dark-bg-tertiary);
             --code-text: var(--dark-text-primary);
+        }
+        
+        /* PR Context Banner Styles */
+        .pr-context-banner {
+            background: linear-gradient(135deg, 
+                var(--brand-primary) 0%, 
+                var(--brand-secondary) 100%);
+            color: var(--brand-quinary);
+            padding: var(--spacing-lg);
+            border-radius: var(--radius-lg);
+            margin-bottom: var(--spacing-xl);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .pr-details {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-sm);
+            flex-wrap: wrap;
+        }
+        
+        .pr-badge {
+            background: var(--brand-quinary);
+            color: var(--brand-tertiary);
+            padding: var(--spacing-xs) var(--spacing-sm);
+            border-radius: var(--radius-sm);
+            font-weight: 600;
+            font-size: var(--font-size-sm);
+        }
+        
+        .pr-title {
+            font-weight: 500;
+            font-size: var(--font-size-lg);
+            flex: 1;
+        }
+        
+        .pr-author {
+            font-size: var(--font-size-sm);
+            opacity: 0.9;
+        }
+        
+        .pr-scope {
+            font-size: var(--font-size-sm);
+            margin: 0;
+            opacity: 0.9;
         }
         
         /* Auto Theme Detection */
@@ -2357,24 +2404,67 @@ class HtmlReporter:
         """
     
     def _generate_header(self, report: CoverageReport) -> str:
-        """Generate the report header."""
-        return f"""
-        <div class="header">
-            <h1>📊 Documentation Coverage Report</h1>
-            <p>Comprehensive analysis of documentation coverage across the Idling.app codebase</p>
-            <p>Generated: {report.timestamp}</p>
-        </div>
-        """
+        """Generate the report header with PR context if available."""
+        # Check if this is a PR-specific report
+        pr_context = getattr(self, 'pr_context', None)
+        
+        if pr_context and pr_context.get('is_pr_analysis'):
+            pr_info = pr_context.get('pr_info', {})
+            pr_files = pr_context.get('pr_files', [])
+            
+            pr_header = ""
+            if pr_info.get('pr_number'):
+                pr_header = f"""
+                <div class="pr-context-banner">
+                    <h2>🔄 Pull Request Analysis</h2>
+                    <div class="pr-details">
+                        <span class="pr-badge">PR #{pr_info.get('pr_number', 'Unknown')}</span>
+                        {f'<span class="pr-title">{pr_info.get("title", "")}</span>' if pr_info.get("title") else ''}
+                        {f'<span class="pr-author">by {pr_info.get("author", "Unknown")}</span>' if pr_info.get("author") else ''}
+                    </div>
+                    <p class="pr-scope">📁 Analyzing {len(pr_files)} changed files in this PR</p>
+                </div>
+                """
+            
+            return f"""
+            <div class="header">
+                <h1>📊 PR Documentation Coverage Report</h1>
+                <p>Documentation coverage analysis for Pull Request changes</p>
+                <p>Generated: {report.timestamp}</p>
+                {pr_header}
+            </div>
+            """
+        else:
+            return f"""
+            <div class="header">
+                <h1>📊 Documentation Coverage Report</h1>
+                <p>Comprehensive analysis of documentation coverage across the Idling.app codebase</p>
+                <p>Generated: {report.timestamp}</p>
+            </div>
+            """
     
     def _generate_overview_cards(self, report: CoverageReport) -> str:
-        """Generate overview metrics cards with filtering capabilities."""
+        """Generate overview metrics cards with filtering capabilities and PR context."""
         min_coverage = self.config["documentation_standards"]["minimum_coverage_percentage"]
+        
+        # Check if this is a PR-specific report
+        pr_context = getattr(self, 'pr_context', None)
+        
+        if pr_context and pr_context.get('is_pr_analysis'):
+            total_pr_files = pr_context.get('total_pr_files', 0)
+            analyzed_pr_files = pr_context.get('analyzed_pr_files', 0)
+            
+            title_suffix = f" (from {total_pr_files} changed files in PR)"
+            files_label = f"PR Files Analyzed"
+        else:
+            title_suffix = ""
+            files_label = "Total Files"
         
         return f"""
         <div class="overview-grid">
-            <div class="metric-card" data-filter="all" title="Click to show all files">
+            <div class="metric-card" data-filter="all" title="Click to show all files{title_suffix}">
                 <div class="metric-value">{report.total_code_files}</div>
-                <div class="metric-label">Total Files</div>
+                <div class="metric-label">{files_label}</div>
             </div>
             <div class="metric-card clickable-card" data-filter="all" title="📄 Click to show all documentation issues and reset any active filters">
                 <div class="metric-value">{report.adequately_documented}</div>
@@ -2514,7 +2604,7 @@ class HtmlReporter:
                            data-file-name="{gap.code_file}"
                            data-expected-doc="{gap.expected_doc_path}"
                            data-issues-count="{len(gap.quality_issues)}"
-                           data-github-url="https://github.com/Underwood-Inc/idling.app__UI/blob/docs/links/{gap.code_file}"
+                           data-github-url="{self._get_github_url(gap.code_file)}"
                            data-source-preview="{file_preview_escaped}"'''
             
             quality_issues = ', '.join(gap.quality_issues[:3]) if gap.quality_issues else 'None'
@@ -2532,7 +2622,7 @@ class HtmlReporter:
                     <div class="file-path-container">
                         {f'<span class="file-directory">{file_dir}/</span>' if file_dir else ''}
                         <span class="file-name clickable-filename" 
-                              data-github-url="https://github.com/Underwood-Inc/idling.app__UI/blob/docs/links/{gap.code_file}"
+                              data-github-url="{self._get_github_url(gap.code_file)}"
                               title="Click to open on GitHub">{file_name}</span>
                     </div>
                 </td>
@@ -4523,3 +4613,30 @@ console.log(JSON.stringify(results));
                 os.unlink(temp_script_path)
             except:
                 pass
+    
+    def _get_github_url(self, file_path: str) -> str:
+        """Generate context-aware GitHub URL based on PR context"""
+        base_url = "https://github.com/Underwood-Inc/idling.app__UI/blob"
+        
+        # Check if this is a PR-specific report
+        pr_context = getattr(self, 'pr_context', None)
+        
+        if pr_context and pr_context.get('is_pr_analysis'):
+            # For PR analysis, use the PR head reference
+            pr_info = pr_context.get('pr_info', {})
+            head_ref = pr_info.get('head_ref', 'HEAD')
+            
+            # Clean up the reference for GitHub URL
+            if head_ref.startswith('origin/'):
+                branch_name = head_ref.replace('origin/', '')
+            elif head_ref == 'HEAD':
+                # If HEAD, try to get the actual branch name from PR info
+                # Fall back to a generic PR reference
+                branch_name = f"pr-{pr_info.get('number', 'unknown')}"
+            else:
+                branch_name = head_ref
+            
+            return f"{base_url}/{branch_name}/{file_path}"
+        else:
+            # For master branch analysis, use master
+            return f"{base_url}/master/{file_path}"
