@@ -94,13 +94,26 @@ const config = {
   // 🔍 Local Search Plugin (React 19 compatible)
   plugins: [
     [
-      require.resolve("@easyops-cn/docusaurus-search-local"),
+      'docusaurus-plugin-search-local',
       {
-        // Minimal configuration
-        hashed: true,
+        // More comprehensive configuration
         indexDocs: true,
         indexBlog: false,
+        indexPages: false,
+        docsRouteBasePath: '/',
+        language: ['en'],
+        hashed: true,
+        docsDir: ['src'],
+        blogDir: [],
+        removeDefaultStopWordFilter: true,
         highlightSearchTermsOnTargetPage: true,
+        searchResultLimits: 8,
+        searchResultContextMaxLength: 50,
+        explicitSearchResultPath: false,
+        searchBarShortcut: true,
+        searchBarShortcutHint: true,
+        searchBarPosition: 'right',
+        searchBarStyle: 'input',
       },
     ],
   ],
