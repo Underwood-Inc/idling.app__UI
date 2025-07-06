@@ -96,12 +96,11 @@ const config = {
     [
       'docusaurus-plugin-search-local',
       {
-        // More comprehensive configuration
+        // Valid configuration options only
         indexDocs: true,
         indexBlog: false,
         indexPages: false,
         docsRouteBasePath: '/',
-        language: ['en'],
         hashed: true,
         docsDir: ['src'],
         blogDir: [],
