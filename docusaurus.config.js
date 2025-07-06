@@ -94,11 +94,13 @@ const config = {
   // 🔍 Local Search Plugin (React 19 compatible)
   plugins: [
     [
-      'docusaurus-plugin-search-local',
+      require.resolve("@easyops-cn/docusaurus-search-local"),
       {
         // Minimal configuration
+        hashed: true,
         indexDocs: true,
         indexBlog: false,
+        highlightSearchTermsOnTargetPage: true,
       },
     ],
   ],
