@@ -5,12 +5,20 @@ on:
   push:
     branches: [master, main]
     paths:
-      - 'jekyll/**'
+      - 'src/**/*.md'
+      - 'src/**/*.mdx'
+      - 'docusaurus.config.js'
+      - 'sidebars.js'
+      - 'openapi.yaml'
       - '.github/workflows/docs.yml'
   pull_request:
     branches: [master, main]
     paths:
-      - 'jekyll/**'
+      - 'src/**/*.md'
+      - 'src/**/*.mdx'
+      - 'docusaurus.config.js'
+      - 'sidebars.js'
+      - 'openapi.yaml'
   # Manual trigger
   workflow_dispatch:
 
@@ -31,39 +39,53 @@ jobs:
   # Build documentation
   build:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./jekyll
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Setup Ruby
-        uses: ruby/setup-ruby@v1
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          ruby-version: '3.3.4'
-          bundler-cache: true
-          working-directory: './jekyll'
+          node-version: '20'
 
-      - name: Setup Pages
-        id: pages
-        uses: actions/configure-pages@v4
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 8
 
-      - name: Install Jekyll dependencies
-        run: bundle install
+      - name: Get pnpm store directory
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
 
-      - name: Build Jekyll site
-        run: bundle exec jekyll build --baseurl "${{ steps.pages.outputs.base_path }}"
+      - name: Setup pnpm cache
+        uses: actions/cache@v4
+        with:
+          # GitHub automatically generates STORE_PATH env var from pnpm store path command
+          path: ${{ env.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Generate OpenAPI docs
+        run: pnpm docusaurus gen-api-docs all
+        continue-on-error: true
+
+      - name: Build Docusaurus site
+        run: pnpm build
         env:
-          JEKYLL_ENV: production
+          NODE_ENV: production
 
       - name: Upload Pages artifact
         if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ./jekyll/_site/
+          path: ./build/
 
   # Deploy to GitHub Pages (only on main/master branch)
   deploy:
@@ -77,22 +99,6 @@ jobs:
       group: 'github-pages-deploy'
       cancel-in-progress: false
     steps:
-      - name: Checkout repository for badge updates
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Setup Python for badge generation
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.11'
-
-      - name: Install Python dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install interrogate
-
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
@@ -108,79 +114,97 @@ jobs:
     concurrency:
       group: 'docs-pr-${{ github.event.pull_request.number }}'
       cancel-in-progress: true
-    defaults:
-      run:
-        working-directory: ./jekyll
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Ruby
-        uses: ruby/setup-ruby@v1
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          ruby-version: '3.3.4'
-          bundler-cache: true
-          working-directory: './jekyll'
+          node-version: '20'
 
-      - name: Install Jekyll dependencies
-        run: bundle install
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 8
 
-      - name: Build Jekyll site (PR check)
-        run: bundle exec jekyll build --baseurl "/idling.app__UI"
+      - name: Get pnpm store directory
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+
+      - name: Setup pnpm cache
+        uses: actions/cache@v4
+        with:
+          # GitHub automatically generates STORE_PATH env var from pnpm store path command
+          path: ${{ env.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Generate OpenAPI docs
+        run: pnpm docusaurus gen-api-docs all
+        continue-on-error: true
+
+      - name: Build Docusaurus site (PR check)
+        run: pnpm build
         env:
-          JEKYLL_ENV: production
+          NODE_ENV: production
 
       - name: Check for build errors
         run: |
-          if [ ! -d "_site" ]; then
-            echo "❌ Jekyll build failed - _site directory not created"
+          if [ ! -d "build" ]; then
+            echo "❌ Docusaurus build failed - build directory not created"
             exit 1
           fi
 
-          if [ ! -f "_site/index.html" ]; then
-            echo "❌ Jekyll build failed - index.html not generated"
+          if [ ! -f "build/index.html" ]; then
+            echo "❌ Docusaurus build failed - index.html not generated"
             exit 1
           fi
 
-          echo "✅ Jekyll build successful"
+          echo "✅ Docusaurus build successful"
           echo "📊 Generated files:"
-          find _site -name "*.html" | head -10
+          find build -name "*.html" | head -10
 
       - name: Comment on PR
         if: github.event_name == 'pull_request'
         continue-on-error: true
         uses: actions/github-script@v6
-        env:
-          WORKING_DIR: ./jekyll
         with:
           script: |
-            const workingDir = process.env.WORKING_DIR || '.';
-            process.chdir(workingDir);
             const fs = require('fs');
             const path = require('path');
 
             // Count generated files
-            const siteDir = '_site';
+            const buildDir = 'build';
             const htmlFiles = [];
 
             function findHtmlFiles(dir) {
-              const files = fs.readdirSync(dir);
-              files.forEach(file => {
-                const filePath = path.join(dir, file);
-                const stat = fs.statSync(filePath);
-                if (stat.isDirectory()) {
-                  findHtmlFiles(filePath);
-                } else if (file.endsWith('.html')) {
-                  htmlFiles.push(filePath.replace('_site/', ''));
-                }
-              });
+              try {
+                const files = fs.readdirSync(dir);
+                files.forEach(file => {
+                  const filePath = path.join(dir, file);
+                  const stat = fs.statSync(filePath);
+                  if (stat.isDirectory()) {
+                    findHtmlFiles(filePath);
+                  } else if (file.endsWith('.html')) {
+                    htmlFiles.push(filePath.replace('build/', ''));
+                  }
+                });
+              } catch (e) {
+                console.log(`Error reading directory ${dir}: ${e.message}`);
+              }
             }
 
-            findHtmlFiles(siteDir);
+            findHtmlFiles(buildDir);
 
             const comment = `## 📚 Documentation Build Check
 
-            ✅ **Jekyll build successful!**
+            ✅ **Docusaurus build successful!**
 
             **Generated Pages:** ${htmlFiles.length}
             **Preview:** Documentation will be available at: \`https://underwood-inc.github.io/idling.app__UI/\`
@@ -189,9 +213,15 @@ jobs:
             ${htmlFiles.slice(0, 10).map(f => `- \`${f}\``).join('\n')}
             ${htmlFiles.length > 10 ? `\n... and ${htmlFiles.length - 10} more pages` : ''}
 
-            The documentation site will be automatically deployed when this PR is merged to main.`;
+            The documentation site will be automatically deployed when this PR is merged to main.
 
-            github.rest.issues.createComment({
+            🚀 **Features:**
+            - Co-located documentation from \`src/**/*.md\` files
+            - Interactive API documentation with OpenAPI integration
+            - Dark theme matching your main application`;
+
+            // Create a comment on the pull request with build results
+            await github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,

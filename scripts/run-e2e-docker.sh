@@ -25,6 +25,6 @@ mkdir -p test-results playwright-report
 
 # Run the tests with proper configuration
 echo "🚀 Starting E2E tests..."
-yarn playwright test "$@"
+pnpm playwright test "$@"
 
 echo "✅ E2E tests completed!" 

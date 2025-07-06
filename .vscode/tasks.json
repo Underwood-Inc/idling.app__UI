@@ -4,7 +4,7 @@
     {
       "label": "🧪 Run All Jest Tests",
       "type": "shell",
-      "command": "yarn",
+      "command": "pnpm",
       "args": ["test"],
       "group": {
         "kind": "test",
@@ -27,7 +27,7 @@
     {
       "label": "🧪 Run Jest Tests with Coverage",
       "type": "shell",
-      "command": "yarn",
+      "command": "pnpm",
       "args": ["test:coverage"],
       "group": "test",
       "presentation": {
@@ -47,7 +47,7 @@
     {
       "label": "🧪 Run Jest Tests (CI Mode)",
       "type": "shell",
-      "command": "yarn",
+      "command": "pnpm",
       "args": ["test:ci"],
       "group": "test",
       "presentation": {
@@ -67,7 +67,7 @@
     {
       "label": "🎭 Run Playwright E2E Tests (UI Mode)",
       "type": "shell",
-      "command": "yarn",
+      "command": "pnpm",
       "args": ["e2e"],
       "group": "test",
       "presentation": {
@@ -87,7 +87,7 @@
     {
       "label": "🎭 Run Playwright E2E Tests (Headless)",
       "type": "shell",
-      "command": "yarn",
+      "command": "pnpm",
       "args": ["e2e:headless"],
       "group": "test",
       "presentation": {
@@ -107,7 +107,7 @@
     {
       "label": "🎭 Run Playwright E2E Tests (Headed)",
       "type": "shell",
-      "command": "yarn",
+      "command": "pnpm",
       "args": ["e2e:headed"],
       "group": "test",
       "presentation": {
@@ -127,7 +127,7 @@
     {
       "label": "📊 Show Playwright Test Reports",
       "type": "shell",
-      "command": "yarn",
+      "command": "pnpm",
       "args": ["e2e:reports"],
       "group": "test",
       "presentation": {
@@ -189,7 +189,7 @@
     {
       "label": "🚀 Start Dev Server",
       "type": "shell",
-      "command": "yarn",
+      "command": "pnpm",
       "args": ["dev"],
       "group": "build",
       "presentation": {
@@ -220,7 +220,7 @@
     {
       "label": "🐳 Start Docker Dev Environment",
       "type": "shell",
-      "command": "yarn",
+      "command": "pnpm",
       "args": ["dev:docker"],
       "group": "build",
       "presentation": {
@@ -239,7 +239,7 @@
     {
       "label": "🔧 Lint TypeScript",
       "type": "shell",
-      "command": "yarn",
+      "command": "pnpm",
       "args": ["lint"],
       "group": "build",
       "presentation": {
@@ -259,7 +259,7 @@
     {
       "label": "✨ Format with Prettier",
       "type": "shell",
-      "command": "yarn",
+      "command": "pnpm",
       "args": ["prettier"],
       "group": "build",
       "presentation": {
