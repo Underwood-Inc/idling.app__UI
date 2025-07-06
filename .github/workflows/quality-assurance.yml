@@ -64,25 +64,30 @@ jobs:
         with:
           fetch-depth: 0
 
-      # Setup Node.js using LTS version and output version for reuse
+      # Setup Node.js using LTS version and enable Corepack
       - uses: actions/setup-node@v4
         id: setup-node
         with:
           node-version: lts/*
-          cache: 'yarn' # Enable built-in yarn caching
+
+      # Enable Corepack to use packageManager from package.json
+      - name: Enable Corepack
+        run: |
+          corepack enable
+          corepack install
 
       # Output Node.js version for other jobs
       - name: Get Node.js version
         id: node-version
         run: echo "version=$(node --version)" >> $GITHUB_OUTPUT
 
-      # Install project dependencies
+      # Install project dependencies using pnpm (as specified in package.json)
       - name: Install dependencies
-        run: npm install -g yarn && yarn install --check-files
+        run: pnpm install --frozen-lockfile
 
       # Install Playwright browsers for caching
       - name: Install Playwright browsers
-        run: npx playwright install --with-deps
+        run: pnpm exec playwright install --with-deps
 
       # Cache dependencies and browsers to speed up future runs
       - name: Cache dependencies and browsers
@@ -93,7 +98,7 @@ jobs:
             node_modules
             ~/.cache/playwright
             ~/.cache/ms-playwright
-          key: ${{ runner.os }}-deps-browsers-${{ hashFiles('**/yarn.lock', '**/package.json') }}
+          key: ${{ runner.os }}-deps-browsers-${{ hashFiles('**/pnpm-lock.yaml', '**/package.json') }}
 
   playwright-tests:
     name: Playwright Tests
@@ -133,7 +138,12 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: lts/*
-          cache: 'yarn'
+
+      # Enable Corepack to use packageManager from package.json
+      - name: Enable Corepack
+        run: |
+          corepack enable
+          corepack install
 
       # Restore cached dependencies and browsers from setup job
       - name: Restore dependencies and browsers cache
@@ -144,7 +154,7 @@ jobs:
             node_modules
             ~/.cache/playwright
             ~/.cache/ms-playwright
-          key: ${{ runner.os }}-deps-browsers-${{ hashFiles('**/yarn.lock', '**/package.json') }}
+          key: ${{ runner.os }}-deps-browsers-${{ hashFiles('**/pnpm-lock.yaml', '**/package.json') }}
           restore-keys: |
             ${{ runner.os }}-deps-browsers-
             ${{ runner.os }}-deps-
@@ -154,8 +164,8 @@ jobs:
       - name: Install dependencies and browsers
         if: steps.cache-restore.outputs.cache-hit != 'true'
         run: |
-          yarn install --check-files
-          npx playwright install --with-deps
+          pnpm install --frozen-lockfile
+          pnpm exec playwright install --with-deps
 
       # Setup test database
       - name: Run migrations
@@ -169,7 +179,7 @@ jobs:
           mkdir -p test-results/{chromium,firefox,webkit} playwright-report
 
           # Run tests with reporters configured in playwright.config.ts
-          IS_CI=1 IS_GITHUB_ACTIONS=1 FORCE_COLOR=1 yarn playwright test \
+          IS_CI=1 IS_GITHUB_ACTIONS=1 FORCE_COLOR=1 pnpm playwright test \
             --shard=${{ matrix.shard }}/3
 
           # Debug: Show test results
@@ -217,7 +227,12 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: lts/*
-          cache: 'yarn'
+
+      # Enable Corepack to use packageManager from package.json
+      - name: Enable Corepack
+        run: |
+          corepack enable
+          corepack install
 
       # Restore cached dependencies from setup job
       - name: Restore dependencies cache
@@ -225,7 +240,7 @@ jobs:
         with:
           path: |
             node_modules
-          key: ${{ runner.os }}-deps-browsers-${{ hashFiles('**/yarn.lock', '**/package.json') }}
+          key: ${{ runner.os }}-deps-browsers-${{ hashFiles('**/pnpm-lock.yaml', '**/package.json') }}
           restore-keys: |
             ${{ runner.os }}-deps-browsers-
             ${{ runner.os }}-deps-
@@ -234,7 +249,7 @@ jobs:
       # Install dependencies if cache miss
       - name: Install dependencies
         if: steps.cache-restore.outputs.cache-hit != 'true'
-        run: yarn install --check-files
+        run: pnpm install --frozen-lockfile
 
       # Setup Python for documentation coverage analysis
       - name: Setup Python
@@ -614,7 +629,12 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: lts/*
-          cache: 'yarn'
+
+      # Enable Corepack to use packageManager from package.json
+      - name: Enable Corepack
+        run: |
+          corepack enable
+          corepack install
 
       # Restore cached dependencies from setup job
       - name: Restore dependencies cache
@@ -625,7 +645,7 @@ jobs:
             node_modules
             ~/.cache/playwright
             ~/.cache/ms-playwright
-          key: ${{ runner.os }}-deps-browsers-${{ hashFiles('**/yarn.lock', '**/package.json') }}
+          key: ${{ runner.os }}-deps-browsers-${{ hashFiles('**/pnpm-lock.yaml', '**/package.json') }}
           restore-keys: |
             ${{ runner.os }}-deps-browsers-
             ${{ runner.os }}-deps-
@@ -634,13 +654,13 @@ jobs:
       # Install dependencies if cache miss (first run or cache eviction)
       - name: Install dependencies
         if: steps.cache-restore.outputs.cache-hit != 'true'
-        run: yarn install --check-files
+        run: pnpm install --frozen-lockfile
 
       # Run unit tests with sharding
       - name: Run Jest tests (Shard ${{ matrix.shard }}/3)
         run: |
           echo "::group::Running Jest Tests (Shard ${{ matrix.shard }}/3)"
-          FORCE_COLOR=1 yarn test:coverage --ci --colors --json --shard=${{ matrix.shard }}/3 --testLocationInResults --outputFile="$GITHUB_WORKSPACE/jest-results-${{ matrix.shard }}.json"
+          FORCE_COLOR=1 pnpm test:coverage --ci --colors --json --shard=${{ matrix.shard }}/3 --testLocationInResults --outputFile="$GITHUB_WORKSPACE/jest-results-${{ matrix.shard }}.json"
           echo "::endgroup::"
 
       # Upload coverage reports for each shard

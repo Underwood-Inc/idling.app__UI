@@ -56,10 +56,14 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'yarn'
+
+      - name: 🔧 Enable Corepack
+        run: |
+          corepack enable
+          corepack install
 
       - name: 🔧 Install dependencies
-        run: yarn install --check-files
+        run: pnpm install --frozen-lockfile
 
       - name: 📊 Generate comprehensive debrief report (PR)
         if: github.event_name == 'pull_request'
@@ -72,7 +76,7 @@ jobs:
           PR_URL: ${{ github.event.pull_request.html_url }}
         run: |
           echo "🔍 Generating ultra-detailed debrief for merged PR #$PR_NUMBER"
-          yarn debrief --pr --report-type ultra --format all
+          pnpm debrief --pr --report-type ultra --format all
 
           # Create PR summary for comment
           if [ -f "reports/"*"/pr-$PR_NUMBER-debrief-ultra.md" ]; then
@@ -92,7 +96,7 @@ jobs:
           echo "Analyzing commits since: $SINCE_DATE"
 
           # Generate ultra-detailed report for recent commits
-          yarn debrief --days 1 --report-type ultra --format all
+          pnpm debrief --days 1 --report-type ultra --format all
 
           echo "✅ Generated comprehensive debrief for recent commits"
 
@@ -104,7 +108,7 @@ jobs:
           echo "Format: ${{ github.event.inputs.format }}"
           echo "Days: ${{ github.event.inputs.days }}"
 
-          yarn debrief --days ${{ github.event.inputs.days }} --report-type ${{ github.event.inputs.report_type }} --format ${{ github.event.inputs.format }}
+          pnpm debrief --days ${{ github.event.inputs.days }} --report-type ${{ github.event.inputs.report_type }} --format ${{ github.event.inputs.format }}
 
       - name: 📤 Upload debrief reports
         uses: actions/upload-artifact@v4
