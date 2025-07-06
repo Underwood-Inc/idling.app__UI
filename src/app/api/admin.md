@@ -2,7 +2,7 @@
 layout: default
 title: 'Admin API Documentation'
 description: 'Administrative API endpoints and functionality'
-permalink: /docs/api/admin/
+permalink: /api/admin/
 ---
 
 # 🔐 Admin API Documentation
@@ -498,7 +498,7 @@ Monitor admin actions and set up alerts for:
 
 ---
 
-**Last Updated**: {{ site.time | date: "%B %d, %Y" }}
+**Last Updated**: January 28, 2025
 **Admin API Version**: v1.0.0
 
 > **⚠️ Security Notice**: Admin endpoints are logged and monitored. All actions are subject to audit and review.

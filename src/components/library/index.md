@@ -274,4 +274,4 @@ describe('RichInput', () => {
 
 ---
 
-_Component library is continuously updated. Last updated: {{ site.time | date: "%B %d, %Y" }}_
+_Component library is continuously updated. Last updated: January 28, 2025_

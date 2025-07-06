@@ -218,4 +218,4 @@ yarn dev
 
 ---
 
-_Development tools documentation is continuously updated. Last updated: {{ site.time | date: "%B %d, %Y" }}_
+_Development tools documentation is continuously updated. Last updated: January 28, 2025_

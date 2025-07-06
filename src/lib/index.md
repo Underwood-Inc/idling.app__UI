@@ -2,7 +2,9 @@
 layout: default
 title: 'Libraries'
 description: 'Shared utilities and services'
-permalink: /dev/libraries/
+permalink: /development/libraries/
+category: 'Development'
+parent: 'development'
 ---
 
 # 📚 Libraries
@@ -305,6 +307,6 @@ export const servicesConfig = {
 
 ---
 
-**Last Updated**: {{ site.time | date: "%B %d, %Y" }}
+**Last Updated**: January 28, 2025
 
 > **Library Standards**: All libraries follow consistent patterns, include comprehensive documentation, and maintain high test coverage for reliability and maintainability.

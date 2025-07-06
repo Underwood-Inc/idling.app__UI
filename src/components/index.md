@@ -2,7 +2,9 @@
 layout: default
 title: 'Component Library'
 description: 'UI components and design system documentation'
-permalink: /dev/components/
+permalink: /development/components/
+category: 'Development'
+parent: 'development'
 ---
 
 # 🧩 Component Library
@@ -713,6 +715,6 @@ function App() {
 
 ---
 
-**Last Updated**: {{ site.time | date: "%B %d, %Y" }}
+**Last Updated**: January 28, 2025
 
 > **Component Library**: All components are built with TypeScript, tested with Jest, and documented with Storybook. They follow accessibility standards and design system guidelines.

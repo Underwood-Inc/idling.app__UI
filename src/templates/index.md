@@ -260,4 +260,4 @@ Template improvements come from:
 
 ---
 
-_Templates are continuously improved based on team feedback and best practices. Last updated: {{ site.time | date: "%B %d, %Y" }}_
+_Templates are continuously improved based on team feedback and best practices. Last updated: January 28, 2025_

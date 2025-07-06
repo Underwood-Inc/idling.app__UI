@@ -1,89 +1,112 @@
 ---
 layout: default
-title: 'Quick Start'
-description: 'Get Idling.app running in under 5 minutes'
+title: 'Quick Start Guide'
+description: 'Get Idling.app running in 5 minutes'
 permalink: /getting-started/quickstart/
 parent: Getting Started
-nav_order: 2
 ---
 
 # 🏃 Quick Start Guide
 
-Get Idling.app running in under 5 minutes with our streamlined setup.
+Get Idling.app up and running in 5 minutes.
 
-## ⚡ One-Command Setup
+## ⚡ Prerequisites
+
+- [Docker](https://www.docker.com/get-started) installed
+- [Node.js 18+](https://nodejs.org/) and [Yarn](https://yarnpkg.com/) installed
+- [Git](https://git-scm.com/) installed
+
+## 🚀 5-Minute Setup
+
+### 1. Clone & Enter
 
 ```bash
-# Clone, install, and start everything
-git clone https://github.com/your-org/idling.app__UI.git && \
-cd idling.app__UI && \
-yarn install && \
-docker-compose up -d && \
+git clone https://github.com/Underwood-Inc/idling.app__UI.git
+cd idling.app__UI
+```
+
+### 2. Install Dependencies
+
+```bash
+yarn install
+```
+
+### 3. Start Everything
+
+```bash
+# Start all services (PostgreSQL, docs, etc.)
+docker-compose up -d
+
+# Start the main application
 yarn dev
 ```
 
-## 🎯 Essential Commands
+### 4. Open & Explore
+
+- **🌐 Main App**: [http://localhost:3000](http://localhost:3000)
+- **📚 Documentation**: [http://localhost:4000](http://localhost:4000)
+- **🔍 API Health**: [http://localhost:3000/api/health](http://localhost:3000/api/health)
+
+## 🎯 What's Running?
+
+| Service     | Port | URL                                     | Description        |
+| ----------- | ---- | --------------------------------------- | ------------------ |
+| Next.js App | 3000 | [localhost:3000](http://localhost:3000) | Main application   |
+| Jekyll Docs | 4000 | [localhost:4000](http://localhost:4000) | Documentation site |
+| PostgreSQL  | 5432 | localhost:5432                          | Database           |
+| Adminer     | 8080 | [localhost:8080](http://localhost:8080) | Database admin     |
+
+## 🔧 Quick Commands
 
 ```bash
-# Development server
-yarn dev
+# Development
+yarn dev              # Start Next.js dev server
+yarn build            # Build for production
+yarn start            # Start production server
 
-# Database operations
-yarn migrate
-yarn seed
+# Database
+yarn db:migrate       # Run database migrations
+yarn db:seed          # Seed database with sample data
+yarn db:reset         # Reset database
 
 # Testing
-yarn test
-yarn test:e2e
+yarn test             # Run unit tests
+yarn test:e2e         # Run end-to-end tests
+yarn test:watch       # Run tests in watch mode
 
-# Build
-yarn build
+# Docker
+docker-compose up -d  # Start all services
+docker-compose down   # Stop all services
+docker-compose logs   # View logs
 ```
 
-## 🔗 Quick Links
+## 🎨 First Steps
 
-Once running, access these URLs:
+1. **Explore the App**: Visit [localhost:3000](http://localhost:3000)
+2. **Read the Docs**: Check [localhost:4000](http://localhost:4000)
+3. **Check the API**: Test [localhost:3000/api/health](http://localhost:3000/api/health)
+4. **View Database**: Access [localhost:8080](http://localhost:8080) (user: `postgres`, password: `postgres`)
 
-- **Main App**: [http://localhost:3000](http://localhost:3000)
-- **API Docs**: [http://localhost:3000/api/swagger](http://localhost:3000/api/swagger)
-- **Admin Panel**: [http://localhost:3000/admin](http://localhost:3000/admin)
-- **Documentation**: [http://localhost:4000](http://localhost:4000)
+## 🔍 What's Next?
 
-## 🧪 Test Your Setup
+- [📦 Full Installation Guide](/getting-started/installation/) - Detailed setup
+- [🐳 Docker Setup](/getting-started/docker/) - Container configuration
+- [🛠️ Development Guide](/development/) - Start contributing
+- [🏗️ Architecture](/architecture/) - Understand the system
 
-```bash
-# Health check
-curl http://localhost:3000/api/health
+## 🆘 Having Issues?
 
-# Create test user
-yarn run manage-user create --email test@example.com --username testuser
-```
+### Common Problems
 
-## 📱 Mobile Development
+1. **Port already in use**: Change ports in `docker-compose.yml`
+2. **Docker not running**: Start Docker Desktop
+3. **Permission denied**: Run with `sudo` on Linux
 
-```bash
-# Expose to network for mobile testing
-yarn dev --host 0.0.0.0
-```
+### Get Help
 
-## 🔄 Reset Environment
-
-```bash
-# Complete reset
-docker-compose down -v
-yarn clean
-yarn install
-docker-compose up -d
-yarn migrate
-yarn seed
-```
-
-## 🚀 Next Steps
-
-- [📖 Full Installation Guide](/getting-started/installation/)
-- [🐳 Docker Setup Details](/getting-started/docker/)
-- [🔌 API Documentation](/api/)
-- [🛠️ Development Guide](/development/)
+- [Installation Guide](/getting-started/installation/)
+- [Community Support](/community/)
+- [GitHub Issues](https://github.com/Underwood-Inc/idling.app__UI/issues)
 
 ---
 

@@ -1,10 +1,3 @@
----
-layout: default
-title: 'Component Documentation Template'
-description: 'Template for React component documentation'
-permalink: /templates/component-template/
----
-
 # 📋 Component Documentation Template
 
 Use this template when documenting React components for the Idling.app project.
@@ -493,6 +486,6 @@ src/components/ComponentName/
 
 ---
 
-**Last Updated**: {{ site.time | date: "%B %d, %Y" }}
+**Last Updated**: January 28, 2025
 **Author**: [Your Name]
 **Reviewers**: [Reviewer Names]

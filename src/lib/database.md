@@ -72,4 +72,4 @@ Comprehensive documentation for database schema, migrations, performance optimiz
 
 ---
 
-_Database documentation is continuously updated. Last updated: {{ site.time | date: "%B %d, %Y" }}_
+_Database documentation is continuously updated. Last updated: January 28, 2025_

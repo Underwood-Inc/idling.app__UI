@@ -2,6 +2,7 @@
 layout: default
 title: Community
 permalink: /community/
+category: 'Community'
 ---
 
 # 👥 Community
