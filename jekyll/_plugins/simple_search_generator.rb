@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 require 'ostruct'
+require 'fileutils'
+require 'json'
 
 module Jekyll
   # Simple Search Generator - Creates search index for client-side search
@@ -32,9 +34,12 @@ module Jekyll
         }.compact
       end
 
-      # Write search index
+      # Write search index directly to _site directory
       search_index_path = File.join(@site.dest, 'search-index.json')
+      FileUtils.mkdir_p(File.dirname(search_index_path))
       File.write(search_index_path, JSON.pretty_generate(search_data))
+      
+      Jekyll.logger.info "Simple Search:", "Created search index at #{search_index_path}"
     end
 
     def all_searchable_documents
@@ -101,4 +106,6 @@ module Jekyll
       excerpt.length > 200 ? excerpt[0..200] + '...' : excerpt
     end
   end
+
+
 end 

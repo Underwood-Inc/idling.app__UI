@@ -1,192 +1,198 @@
 # frozen_string_literal: true
 
 require 'yaml'
+require 'fileutils'
 
 module Jekyll
-  # Dynamic Navigation Generator - Pure frontmatter-driven navigation
-  # Scans entire project for co-located markdown files with navigation frontmatter
-  class DynamicNavigationGenerator < Generator
-    safe true
-    priority :high # Run early to set up navigation before other generators
-
-    def generate(site)
-      @site = site
+  # Dynamic Navigation Hook - Uses hooks instead of generators to work in safe mode
+  class DynamicNavigationHook
+    def self.setup(site)
+      puts "\n=== DYNAMIC NAVIGATION HOOK ==="
+      puts "Jekyll source: #{site.source}"
       
-      Jekyll.logger.warn "Dynamic Navigation:", "Starting navigation generation..."
-      Jekyll.logger.warn "Dynamic Navigation:", "Jekyll source: #{site.source}"
+      project_root = File.expand_path('..', site.source)
+      puts "Project root: #{project_root}"
       
-      # Collect all pages with navigation frontmatter from entire project
-      nav_pages = collect_navigation_pages_from_project
+      # Scan for markdown files with navigation frontmatter
+      nav_pages = scan_for_navigation_pages(project_root)
       
-      Jekyll.logger.warn "Dynamic Navigation:", "Found #{nav_pages.length} pages with navigation frontmatter"
-      nav_pages.each { |p| Jekyll.logger.warn "Dynamic Navigation:", "  - #{p[:title]} (#{p[:category] || p[:parent] || 'root'})" }
+      puts "Found #{nav_pages.length} pages with navigation frontmatter:"
+      nav_pages.each do |page|
+        puts "  - #{page[:title]} (#{page[:parent] || page[:category] || 'root'}) -> #{page[:url]}"
+      end
       
-      # Build navigation tree from parent/category relationships
-      navigation_tree = build_navigation_from_frontmatter(nav_pages)
+      # Build navigation structure
+      navigation = build_navigation_structure(nav_pages)
       
-      # Set the navigation in site data
-      site.data['auto_navigation'] = navigation_tree
+      puts "Built navigation with #{navigation.length} top-level items:"
+      navigation.each do |item|
+        puts "  - #{item[:title]} (#{item[:subnav]&.length || 0} subitems)"
+      end
       
-      Jekyll.logger.warn "Dynamic Navigation:", "Generated navigation with #{navigation_tree.length} sections"
-      Jekyll.logger.warn "Dynamic Navigation:", "Navigation sections: #{navigation_tree.map { |n| n[:title] }.join(', ')}"
+      # Store in site data
+      site.data ||= {}
+      site.data['auto_navigation'] = navigation
+      
+      puts "Navigation stored in site.data['auto_navigation']"
+      puts "=== END NAVIGATION HOOK ===\n"
     end
 
     private
 
-    def collect_navigation_pages_from_project
+    def self.scan_for_navigation_pages(project_root)
       nav_pages = []
       
-      # Get project root (parent of Jekyll directory)
-      project_root = File.expand_path('..', @site.source)
-      Jekyll.logger.warn "Dynamic Navigation:", "Scanning project root: #{project_root}"
+      # Find all markdown files in src/ directory
+      src_pattern = File.join(project_root, 'src', '**', '*.md')
       
-      # Find all markdown files in the entire project
-      Dir.glob(File.join(project_root, '**', '*.md')).each do |file_path|
+      puts "Scanning pattern: #{src_pattern}"
+      
+      Dir.glob(src_pattern).each do |file_path|
         next unless File.file?(file_path)
         
-        # Skip files in node_modules, .git, etc.
-        relative_path = file_path.sub(project_root + '/', '')
-        next if relative_path.start_with?('node_modules/', '.git/', 'vendor/', '.next/')
+        relative_path = file_path.sub("#{project_root}/", '')
+        puts "Processing: #{relative_path}"
         
-        Jekyll.logger.warn "Dynamic Navigation:", "Checking file: #{relative_path}"
-        
-        # Parse frontmatter
         begin
-          content = File.read(file_path)
-          next unless content.match(/\A---\s*\n.*?\n---\s*\n/m)
+          frontmatter = extract_frontmatter(file_path)
+          next unless frontmatter
           
-          front_matter = YAML.safe_load(content.match(/\A---\s*\n(.*?)\n---\s*\n/m)[1]) || {}
+          # Check if this file should be included in navigation
+          next unless should_include_in_navigation?(frontmatter)
+          
+          page_data = build_page_data(frontmatter, relative_path)
+          nav_pages << page_data
+          
+          puts "  ✓ Added to navigation: #{page_data[:title]}"
+          
         rescue => e
-          Jekyll.logger.warn "Dynamic Navigation:", "  Error parsing #{relative_path}: #{e.message}"
-          next
+          puts "  ✗ Error processing #{relative_path}: #{e.message}"
         end
-        
-        # Only include pages with navigation frontmatter
-        next unless has_nav_frontmatter?(front_matter)
-        
-        # Skip if explicitly excluded
-        next if front_matter['nav_exclude'] == true
-        
-        Jekyll.logger.warn "Dynamic Navigation:", "  -> Including in navigation"
-        
-        # Extract title from content or frontmatter
-        title = front_matter['title'] || extract_title_from_content(content)
-        
-        # Generate URL from permalink or file path
-        url = front_matter['permalink'] || generate_url_from_path(relative_path)
-        
-        nav_pages << {
-          title: title,
-          url: url,
-          description: front_matter['description'],
-          parent: front_matter['parent'],
-          category: front_matter['category'],
-          nav_order: front_matter['nav_order'] || 999,
-          file_path: relative_path,
-          front_matter: front_matter
-        }
       end
       
       nav_pages
     end
 
-    def has_nav_frontmatter?(front_matter)
-      return false unless front_matter
+    def self.extract_frontmatter(file_path)
+      content = File.read(file_path)
       
-      # Must have either parent, category, or be a root page with title and permalink
-      has_nav = front_matter['parent'] || front_matter['category'] || 
-                (front_matter['title'] && front_matter['permalink'])
+      # Check for frontmatter
+      return nil unless content.match(/\A---\s*\n.*?\n---\s*\n/m)
       
-      Jekyll.logger.warn "Dynamic Navigation:", "    has_nav_frontmatter? #{has_nav} (parent: #{front_matter['parent']}, category: #{front_matter['category']}, title: #{front_matter['title']}, permalink: #{front_matter['permalink']})"
-      
-      has_nav
+      # Extract and parse frontmatter
+      frontmatter_text = content.match(/\A---\s*\n(.*?)\n---\s*\n/m)[1]
+      YAML.safe_load(frontmatter_text) || {}
+    rescue => e
+      puts "    Error parsing YAML: #{e.message}"
+      nil
     end
 
-    def extract_title_from_content(content)
-      # Look for H1 heading in content
-      body = content.sub(/\A---\s*\n.*?\n---\s*\n/m, '')
-      match = body.match(/^#\s+(.+)$/m)
-      match ? match[1].strip : nil
+    def self.should_include_in_navigation?(frontmatter)
+      # Must have title and either parent, category, or permalink
+      has_title = frontmatter['title']
+      has_nav_info = frontmatter['parent'] || frontmatter['category'] || frontmatter['permalink']
+      
+      # Not excluded
+      not_excluded = !frontmatter['nav_exclude']
+      
+      result = has_title && has_nav_info && not_excluded
+      
+      puts "    Title: #{frontmatter['title']}"
+      puts "    Parent: #{frontmatter['parent']}"
+      puts "    Category: #{frontmatter['category']}"
+      puts "    Permalink: #{frontmatter['permalink']}"
+      puts "    Include? #{result}"
+      
+      result
     end
 
-    def generate_url_from_path(relative_path)
-      # Convert file path to URL
-      url = '/' + relative_path.sub(/\.md$/, '/')
-      
-      # Clean up URL - remove index and handle special cases
-      url = url.sub(/\/index\/$/, '/')
-      url = url.gsub(/\/+/, '/')
-      
-      # Handle special directories
-      url = url.sub(/^\/src\//, '/development/')
-      url = url.sub(/^\/cmd\//, '/tools/')
-      url = url.sub(/^\/community\//, '/community/')
-      url = url.sub(/^\/jekyll\//, '/')
-      
-      url
+    def self.build_page_data(frontmatter, relative_path)
+      {
+        title: frontmatter['title'],
+        url: frontmatter['permalink'] || generate_url_from_path(relative_path),
+        description: frontmatter['description'],
+        parent: frontmatter['parent'],
+        category: frontmatter['category'],
+        nav_order: frontmatter['nav_order'] || 999,
+        file_path: relative_path
+      }
     end
 
-    def build_navigation_from_frontmatter(nav_pages)
-      # Group pages by category or parent
-      categories = {}
-      root_pages = []
+    def self.generate_url_from_path(relative_path)
+      # Convert src/components/navbar/index.md -> /components/navbar/
+      url = relative_path
+        .sub(/^src\//, '/') # Remove src/ prefix
+        .sub(/\.md$/, '/') # Replace .md with /
+        .sub(/\/index\/$/, '/') # Remove /index/ 
+      
+      url.gsub(/\/+/, '/') # Clean up double slashes
+    end
+
+    def self.build_navigation_structure(nav_pages)
+      # Group pages by parent/category
+      grouped = group_pages_by_parent(nav_pages)
+      
+      # Build navigation items
+      navigation = []
+      
+      grouped.each do |parent_name, pages|
+        if parent_name == 'root'
+          # Add root pages directly
+          pages.each do |page|
+            navigation << {
+              title: page[:title],
+              url: page[:url],
+              description: page[:description]
+            }
+          end
+        else
+          # Create parent item with subnav
+          parent_page = find_parent_page(pages, parent_name)
+          
+          navigation << {
+            title: parent_name,
+            url: parent_page ? parent_page[:url] : "/#{parent_name.downcase.gsub(/\s+/, '-')}/",
+            description: parent_page ? parent_page[:description] : "#{parent_name} documentation",
+            subnav: pages.sort_by { |p| p[:nav_order] }.map do |page|
+              {
+                title: page[:title],
+                url: page[:url],
+                description: page[:description]
+              }
+            end
+          }
+
+        end
+      end
+      
+      # Sort navigation by title
+      navigation.sort_by { |item| item[:title] }
+    end
+
+    def self.group_pages_by_parent(nav_pages)
+      grouped = {}
       
       nav_pages.each do |page|
-        if page[:category]
-          # Page belongs to a category
-          category_key = page[:category]
-          categories[category_key] ||= []
-          categories[category_key] << page
-        elsif page[:parent]
-          # Page has a parent - parent becomes the category
-          parent_key = page[:parent]
-          categories[parent_key] ||= []
-          categories[parent_key] << page
-        else
-          # Root-level page
-          root_pages << page
-        end
+        parent_key = page[:parent] || page[:category] || 'root'
+        grouped[parent_key] ||= []
+        grouped[parent_key] << page
       end
       
-      # Build navigation sections
-      navigation_sections = []
-      
-      # Add root pages first
-      root_pages.sort_by { |p| p[:nav_order] }.each do |page|
-        navigation_sections << {
-          title: page[:title],
-          url: page[:url],
-          description: page[:description] || "#{page[:title]} documentation"
-        }
+      grouped
+    end
+
+    def self.find_parent_page(pages, parent_name)
+      # Look for an index page or page with matching title
+      pages.find do |page|
+        page[:title].downcase.include?('index') ||
+        page[:title].downcase == parent_name.downcase ||
+        page[:url].end_with?('/')
       end
-      
-      # Add categories
-      categories.each do |category_name, pages|
-        # Sort pages within category
-        sorted_pages = pages.sort_by { |p| p[:nav_order] }
-        
-        # Find or create category index page
-        index_page = sorted_pages.find { |p| p[:url].end_with?('/') || p[:title].downcase.include?('index') }
-        category_url = index_page ? index_page[:url] : "/#{category_name.downcase.gsub(/\s+/, '-')}/"
-        
-        # Build subnav for category
-        subnav = sorted_pages.map do |page|
-          {
-            title: page[:title],
-            url: page[:url],
-            description: page[:description] || "#{page[:title]} documentation"
-          }
-        end
-        
-        navigation_sections << {
-          title: category_name,
-          url: category_url,
-          description: "#{category_name} documentation and resources",
-          subnav: subnav
-        }
-      end
-      
-      navigation_sections
     end
   end
+end
+
+# Register the hook to run after site initialization
+Jekyll::Hooks.register :site, :post_init do |site|
+  Jekyll::DynamicNavigationHook.setup(site)
 end 
