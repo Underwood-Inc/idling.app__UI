@@ -2586,7 +2586,7 @@ class HtmlReporter:
         columns = [
             {"id": "file", "label": "📁 File", "width": "300px", "sortable": True, "visible": True, "essential": True},
             {"id": "status", "label": "📊 Status", "width": "120px", "sortable": True, "visible": True, "essential": True},
-            {"id": "priority", "label": "⚡ Priority", "width": "100px", "sortable": True, "visible": True, "essential": True},
+            {"id": "priority", "label": " Priority", "width": "100px", "sortable": True, "visible": True, "essential": True},
             {"id": "expected", "label": "📄 Expected Doc Path", "width": "250px", "sortable": True, "visible": True, "essential": False},
             {"id": "effort", "label": "🔧 Effort", "width": "100px", "sortable": True, "visible": True, "essential": False},
             {"id": "issues", "label": "⚠️ Issues", "width": "200px", "sortable": True, "visible": True, "essential": False},

@@ -1,15 +1,85 @@
----
-layout: default
-title: 'Component Library'
-description: 'UI components and design system documentation'
-permalink: /development/components/
-category: 'Development'
-parent: 'development'
----
-
 # 🧩 Component Library
 
 Complete documentation for the Idling.app React component library, including design system, usage examples, and implementation details.
+
+## 🎨 Component Gallery
+
+### Visual Component Overview
+
+<div class="component-card">
+
+#### Core UI Components Visual Reference
+
+**Button Component Variants:**
+
+```
+┌──────────────────────────────────────────────────────────────────┐
+│ Primary     │ Secondary   │ Outline     │ Ghost       │ Danger    │
+│ [Primary]   │ [Secondary] │ ┌─────────┐ │ [ Ghost ]   │ [Danger]  │
+│ (Solid BG)  │ (Light BG)  │ │ Outline │ │ (No BG)     │ (Red BG)  │
+│             │             │ └─────────┘ │             │           │
+└──────────────────────────────────────────────────────────────────┘
+```
+
+**Input Component States:**
+
+```
+┌──────────────────────────────────────────────────────────────────┐
+│ Default:     [  Type your message...                          ] │
+│ Focused:     [  Type your message...                          ]│ │
+│ With Icon:   [🔍 Search for content...                        ] │
+│ Error:       [  Invalid input                                 ]⚠ │
+│ Disabled:    [  Disabled field                               ]░ │
+└──────────────────────────────────────────────────────────────────┘
+```
+
+**Card Component Layouts:**
+
+```
+┌─ Basic Card ──────────────┐  ┌─ Interactive Card ────────────┐
+│                           │  │  ┌─────┐                     │
+│  Card Title               │  │  │ IMG │  Card with Image    │
+│  Card content goes here.  │  │  └─────┘  and hover effects  │
+│                           │  │                              │
+└───────────────────────────┘  └──────────────────────────────┘
+```
+
+</div>
+
+### Component Interaction Flow
+
+```mermaid
+graph TD
+    A[User Interaction] --> B{Component Type}
+
+    B -->|Click| C[Button Component]
+    B -->|Input| D[Input Component]
+    B -->|Display| E[Card Component]
+    B -->|Navigate| F[Modal Component]
+
+    C --> C1[Handle Click Event]
+    C --> C2[Visual Feedback]
+    C --> C3[State Change]
+
+    D --> D1[Validate Input]
+    D --> D2[Format Content]
+    D --> D3[Update State]
+
+    E --> E1[Render Content]
+    E --> E2[Handle Hover]
+    E --> E3[Manage Layout]
+
+    F --> F1[Show Overlay]
+    F --> F2[Focus Management]
+    F --> F3[Handle Escape]
+
+    style A fill:#edae49,stroke:#c68214,stroke-width:3px
+    style B fill:#f9df74,stroke:#edae49,stroke-width:2px
+    style C fill:#f9edcc,stroke:#edae49,stroke-width:1px
+    style D fill:#f9edcc,stroke:#edae49,stroke-width:1px
+    style E fill:#f9edcc,stroke:#edae49,stroke-width:1px
+    style F fill:#f9edcc,stroke:#edae49,stroke-width:1px
+```
 
 ## 🎨 Design System
 
@@ -72,7 +142,76 @@ Complete documentation for the Idling.app React component library, including des
 
 ### Button Component
 
-Flexible button component with multiple variants and states.
+<div class="component-card">
+
+#### Visual Button Renderings
+
+**Size Variations:**
+
+```
+┌─ Small ─┐  ┌── Medium ──┐  ┌─── Large ───┐  ┌──── XL ─────┐
+│  [SM]   │  │   [MD]     │  │    [LG]     │  │     [XL]    │
+└─────────┘  └────────────┘  └─────────────┘  └─────────────┘
+```
+
+**Variant Showcase:**
+
+```
+Primary:     [  Submit Form  ]  ← Main CTA, solid brand color
+Secondary:   [  Save Draft   ]  ← Secondary action, muted
+Outline:     ┌─ Cancel ──────┐  ← Subtle, border only
+             └───────────────┘
+Ghost:       [ + New Item ]     ← Minimal, no background
+Destructive: [  Delete All  ]  ← Dangerous, red styling
+```
+
+**State Transitions:**
+
+```
+Default → Hover → Active → Focus
+  [BTN] → [BTN] → [BTN] → [BTN]
+          ↑glow   ↓push   ↑ring
+
+Loading State:
+  [●●● Loading...]  ← Spinner + disabled
+
+Disabled State:
+  [░░ Disabled ░░]  ← Grayed out + no interaction
+```
+
+</div>
+
+#### Component Interaction Flow
+
+```mermaid
+stateDiagram-v2
+    [*] --> Default
+    Default --> Hover: Mouse enter
+    Default --> Focus: Tab/Click
+    Default --> Loading: Action triggered
+    Default --> Disabled: Prop change
+
+    Hover --> Default: Mouse leave
+    Hover --> Active: Mouse down
+    Hover --> Focus: Tab while hovering
+
+    Active --> Hover: Mouse up
+    Active --> Clicked: Mouse up + valid
+
+    Focus --> Default: Blur
+    Focus --> Active: Space/Enter
+    Focus --> Hover: Mouse enter
+
+    Clicked --> Loading: Async action
+    Clicked --> Default: Sync action
+
+    Loading --> Default: Action complete
+    Loading --> Error: Action failed
+
+    Disabled --> Default: Re-enabled
+
+    Error --> Default: Reset
+```
 
 #### Props Interface
 
@@ -88,42 +227,89 @@ interface ButtonProps {
   children: React.ReactNode;
   className?: string;
   type?: 'button' | 'submit' | 'reset';
+  loadingText?: string;
+  ariaLabel?: string;
 }
 ```
+
+<div class="component-example">
 
 #### Usage Examples
 
 ```tsx
 import { Button } from '@/components/ui/Button';
+import { PlusIcon, SaveIcon, TrashIcon } from '@/icons';
 
 // Basic button
 <Button variant="primary" size="md">
   Click me
 </Button>
 
-// Button with icon
+// Button with icons
 <Button variant="secondary" leftIcon={<PlusIcon />}>
   Add Item
 </Button>
 
-// Loading button
-<Button variant="primary" loading>
-  Saving...
+<Button variant="primary" rightIcon={<SaveIcon />}>
+  Save Changes
+</Button>
+
+// Loading button with custom text
+<Button variant="primary" loading loadingText="Saving...">
+  Save Document
 </Button>
 
 // Disabled button
 <Button variant="outline" disabled>
-  Disabled
+  Disabled Action
 </Button>
+
+// Destructive action
+<Button variant="destructive" leftIcon={<TrashIcon />}>
+  Delete Forever
+</Button>
+
+// Form submission
+<Button type="submit" variant="primary" size="lg">
+  Submit Form
+</Button>
+```
+
+</div>
+
+#### Accessibility Features
+
+```mermaid
+graph LR
+    A[Button Component] --> B[Keyboard Support]
+    A --> C[Screen Reader]
+    A --> D[Focus Management]
+    A --> E[State Announcements]
+
+    B --> B1[Space/Enter activation]
+    B --> B2[Tab navigation]
+    B --> B3[Escape to cancel]
+
+    C --> C1[Role='button']
+    C --> C2[Accessible name]
+    C --> C3[State descriptions]
+
+    D --> D1[Visible focus ring]
+    D --> D2[Focus trapping in modals]
+    D --> D3[Skip to content]
+
+    E --> E1[Loading announcements]
+    E --> E2[Success/error states]
+    E --> E3[Disabled state info]
 ```
 
 #### Variants
 
-- **Primary**: Main call-to-action buttons
-- **Secondary**: Secondary actions
-- **Outline**: Subtle actions with border
-- **Ghost**: Minimal actions without background
-- **Destructive**: Dangerous actions (delete, etc.)
+- **Primary**: Main call-to-action buttons with solid brand color background
+- **Secondary**: Secondary actions with muted background styling
+- **Outline**: Subtle actions with transparent background and border
+- **Ghost**: Minimal actions without background, text-only styling
+- **Destructive**: Dangerous actions (delete, etc.) with warning colors
 
 ### Input Component
 

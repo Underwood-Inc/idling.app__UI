@@ -1,0 +1,150 @@
+/**
+ * Responsive Design & Media Queries
+ * Mobile and tablet optimizations
+ */
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+  /* Layout adjustments */
+  article {
+    padding: var(--spacing-md);
+    margin: var(--spacing-sm) 0;
+  }
+
+  .navbar {
+    padding: var(--spacing-sm) var(--spacing-md);
+  }
+
+  /* Typography adjustments */
+  h1 {
+    font-size: 2rem !important;
+  }
+
+  h2 {
+    font-size: 1.5rem !important;
+  }
+
+  h3 {
+    font-size: 1.2rem !important;
+  }
+
+  /* Component adjustments */
+  .component-card {
+    padding: var(--spacing-md) !important;
+    margin: var(--spacing-md) 0 !important;
+  }
+
+  /* Table responsiveness */
+  table {
+    font-size: var(--font-size-sm) !important;
+  }
+
+  th,
+  td {
+    padding: var(--spacing-sm) !important;
+  }
+
+  /* List adjustments */
+  ul li:has(strong) {
+    padding: var(--spacing-sm) !important;
+    margin-bottom: var(--spacing-sm) !important;
+  }
+
+  /* Mermaid diagram mobile optimizations */
+  .mermaid {
+    padding: var(--spacing-md);
+    margin: var(--spacing-md) 0;
+  }
+
+  .mermaid svg {
+    max-width: 100% !important;
+    height: auto !important;
+  }
+
+  .mermaid text {
+    font-size: 10px !important;
+  }
+
+  .mermaid .nodeLabel,
+  .mermaid .edgeLabel {
+    font-size: 10px !important;
+  }
+
+  .mermaid-container::after {
+    font-size: 10px;
+    padding: 2px 6px;
+    top: 6px;
+    right: 8px;
+  }
+}
+
+/* Tablet optimizations */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .component-card {
+    padding: var(--spacing-lg) !important;
+  }
+
+  .mermaid {
+    padding: var(--spacing-lg);
+  }
+}
+
+/* Large screen optimizations */
+@media (min-width: 1400px) {
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  article {
+    padding: var(--spacing-2xl);
+  }
+}
+
+/* High DPI display optimizations */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  .mermaid svg {
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+  }
+}
+
+/* Reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .mermaid-control-btn:hover {
+    transform: none;
+  }
+
+  .component-card:hover {
+    transform: none;
+  }
+}
+
+/* Print styles */
+@media print {
+  .navbar,
+  .footer,
+  .mermaid-controls,
+  .mermaid-info {
+    display: none !important;
+  }
+
+  .mermaid {
+    border: 1px solid #000 !important;
+    background: white !important;
+  }
+
+  article {
+    background: white !important;
+    border: none !important;
+    box-shadow: none !important;
+  }
+}

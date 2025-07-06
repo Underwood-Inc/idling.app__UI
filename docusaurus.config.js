@@ -91,15 +91,26 @@ const config = {
 
   themes: [/* "docusaurus-theme-openapi-docs", */ "@docusaurus/theme-mermaid"],
 
-  // 🔍 Local Search Plugin - minimal configuration
+  // 🔍 Local Search Plugin (React 19 compatible)
   plugins: [
     [
       'docusaurus-plugin-search-local',
       {
+        // Minimal, valid configuration
         indexDocs: true,
         indexBlog: false,
+        docsRouteBasePath: '/',
+        hashed: true,
       },
     ],
+  ],
+
+  // Custom scripts for enhanced functionality
+  scripts: [
+    {
+      src: '/js/mermaid-viewer.js',
+      async: true,
+    },
   ],
 
   themeConfig:
@@ -177,8 +188,24 @@ const config = {
           dark: 'dark',
         },
         options: {
-          // Enable pan and zoom for all diagram types
+          // Enhanced diagram viewing capabilities
           maxTextSize: 50000,
+          
+          // Enable comprehensive pan and zoom for all diagram types
+          panZoom: true,
+          
+          // Enhanced security and rendering options
+          securityLevel: 'loose',
+          startOnLoad: true,
+          htmlLabels: true,
+          
+          // Improved layout and spacing
+          er: {
+            useMaxWidth: false,
+            entityPadding: 15,
+            fontSize: 14,
+          },
+          
           // Enhanced styling for better visibility
           themeVariables: {
             // Dark theme colors that match our brand
@@ -195,37 +222,139 @@ const config = {
             secondBkg: '#2f2a1d',
             tertiaryBkg: '#3a3323',
           },
-          // Enable pan and zoom
-          panZoom: true,
-          // Flowchart specific options
+          
+          // Flowchart specific options with enhanced interactivity
           flowchart: {
             useMaxWidth: false,
             htmlLabels: true,
+            curve: 'cardinalClosed',
+            padding: 20,
+            nodeSpacing: 50,
+            rankSpacing: 100,
+            diagramPadding: 20,
           },
-          // Sequence diagram options
+          
+          // Sequence diagram options with better spacing
           sequence: {
             useMaxWidth: false,
             wrap: true,
+            width: 150,
+            height: 65,
+            boxMargin: 10,
+            boxTextMargin: 5,
+            noteMargin: 10,
+            messageMargin: 35,
+            diagramMarginX: 50,
+            diagramMarginY: 10,
+            actorMargin: 50,
+            bottomMarginAdj: 1,
           },
-          // Gantt chart options
-          gantt: {
-            useMaxWidth: false,
-          },
-          // Class diagram options
+          
+          // Class diagram options with better layout
           class: {
             useMaxWidth: false,
+            titleTopMargin: 25,
+            arrowMarkerAbsolute: false,
+            dividerMargin: 10,
+            padding: 5,
+            textHeight: 14,
           },
+          
           // State diagram options
           state: {
             useMaxWidth: false,
+            dividerMargin: 10,
+            sizeUnit: 5,
+            padding: 8,
+            textHeight: 16,
+            titleShift: -15,
+            noteMargin: 10,
+            forkWidth: 70,
+            forkHeight: 7,
+            miniMumStateDiagramWidth: 1,
+            fontSize: 12,
           },
+          
+                     // Gantt chart options with enhanced readability
+           gantt: {
+             useMaxWidth: false,
+             titleTopMargin: 25,
+             barHeight: 20,
+             fontSizeSection: 24,
+             fontSizeTask: 14,
+             fontSizeAxis: 12,
+             numberSectionStyles: 4,
+             axisFormat: '%Y-%m-%d',
+             topPadding: 50,
+             leftPadding: 75,
+             gridLineStartPadding: 35,
+             fontSize: 11,
+             fontFamily: '"Fira Code", monospace',
+           },
+          
           // User journey options
           journey: {
             useMaxWidth: false,
+            diagramMarginX: 50,
+            diagramMarginY: 10,
+            actorMargin: 50,
+            width: 150,
+            height: 65,
+            boxMargin: 10,
+            boxTextMargin: 5,
+            noteMargin: 10,
+            messageMargin: 35,
+            bottomMarginAdj: 1,
           },
+          
           // Timeline options
           timeline: {
             useMaxWidth: false,
+            diagramMarginX: 50,
+            diagramMarginY: 10,
+            leftMargin: 150,
+            width: 150,
+            height: 50,
+            boxMargin: 10,
+            boxTextMargin: 5,
+            noteMargin: 10,
+            messageMargin: 35,
+            bottomMarginAdj: 1,
+          },
+          
+          // Git graph options
+          gitGraph: {
+            useMaxWidth: false,
+            titleTopMargin: 25,
+            diagramPadding: 8,
+            nodeLabel: {
+              width: 75,
+              height: 100,
+              x: -25,
+              y: -8,
+            },
+            mainBranchName: 'main',
+            showCommitLabel: true,
+            showBranches: true,
+            rotateCommitLabel: true,
+          },
+          
+          // C4 Context options
+          c4: {
+            useMaxWidth: false,
+            diagramMarginX: 50,
+            diagramMarginY: 10,
+            c4ShapeMargin: 50,
+            c4ShapePadding: 20,
+            width: 216,
+            height: 60,
+            boxMargin: 10,
+            c4ShapeInRow: 4,
+            nextLinePaddingX: 0,
+            c4BoundaryInRow: 2,
+            personFontSize: 14,
+            personFontFamily: '"Fira Code", monospace',
+            personFontWeight: 'normal',
           },
         },
       },

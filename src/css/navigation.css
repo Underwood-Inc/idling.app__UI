@@ -1,0 +1,225 @@
+/**
+ * Navigation & Menu Styles
+ * Navbar, sidebar, and menu component styling
+ */
+
+/* Navbar */
+.navbar {
+  background: var(--dark-bg-secondary);
+  border-bottom: 1px solid var(--glass-border-light);
+  backdrop-filter: var(--glass-blur-medium);
+}
+
+.navbar__title {
+  color: var(--brand-primary) !important;
+  font-weight: var(--font-weight-bold) !important;
+}
+
+.navbar__item {
+  color: var(--text-secondary);
+}
+
+.navbar__link:hover {
+  color: var(--brand-primary);
+}
+
+/* Sidebar */
+.theme-doc-sidebar-container {
+  background: var(--dark-bg-secondary);
+  border-right: 1px solid var(--glass-border-light);
+  backdrop-filter: var(--glass-blur-medium);
+}
+
+.theme-doc-sidebar-menu {
+  background: transparent !important;
+}
+
+.menu__link {
+  color: var(--text-secondary);
+  border-radius: var(--border-radius-md);
+  transition: var(--transition-base);
+}
+
+.menu__link:hover {
+  background: var(--glass-bg-light);
+  color: var(--brand-primary);
+}
+
+.menu__link--active {
+  background: var(--brand-primary);
+  color: var(--text-primary) !important;
+  font-weight: var(--font-weight-semibold);
+}
+
+/* Breadcrumbs */
+.breadcrumbs {
+  background: var(--glass-bg-light);
+  backdrop-filter: var(--glass-blur-medium);
+  border: 1px solid var(--glass-border-light);
+  border-radius: var(--border-radius-md);
+  padding: var(--spacing-md);
+  margin-bottom: var(--spacing-md);
+}
+
+.breadcrumbs__link {
+  color: var(--text-secondary);
+  transition: var(--transition-base);
+}
+
+.breadcrumbs__link:hover {
+  color: var(--brand-primary);
+}
+
+/* Pagination */
+.pagination-nav {
+  margin: var(--spacing-xl) 0;
+}
+
+.pagination-nav__link {
+  background: var(--glass-bg-light);
+  backdrop-filter: var(--glass-blur-medium);
+  border: 1px solid var(--glass-border-light);
+  border-radius: var(--border-radius-md);
+  transition: var(--transition-base);
+}
+
+.pagination-nav__link:hover {
+  background: var(--glass-bg-medium);
+  border-color: var(--brand-primary);
+}
+
+/* Footer */
+footer.footer,
+.footer {
+  background: var(--glass-bg-light) !important;
+  backdrop-filter: var(--glass-blur-medium) !important;
+  border-top: 1px solid var(--glass-border-light) !important;
+  padding: var(--spacing-md) var(--spacing-sm) !important;
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+}
+
+footer.footer .container,
+.footer .container {
+  padding: 0 !important;
+  margin: 0 auto !important;
+  max-width: 100% !important;
+}
+
+footer.footer .row,
+.footer .row {
+  margin: 0 !important;
+  padding: var(--spacing-sm) 0 !important;
+}
+
+footer.footer .col,
+.footer .col {
+  padding: 0 var(--spacing-sm) !important;
+  margin-bottom: 0 !important;
+}
+
+/* Target specific Docusaurus footer elements */
+.footer--dark {
+  padding: var(--spacing-md) 0 !important;
+}
+
+.footer__links {
+  margin-bottom: var(--spacing-sm) !important;
+}
+
+.footer__bottom {
+  margin-top: var(--spacing-sm) !important;
+  padding-top: var(--spacing-sm) !important;
+}
+
+.footer__title {
+  color: var(--brand-primary) !important;
+  font-weight: var(--font-weight-semibold) !important;
+  font-size: var(--font-size-base) !important;
+  margin-bottom: var(--spacing-sm) !important;
+}
+
+.footer__item {
+  color: var(--text-secondary) !important;
+  margin-bottom: 0.25rem !important;
+  line-height: 1.4 !important;
+}
+
+.footer__link-item {
+  color: var(--text-secondary) !important;
+  transition: var(--transition-base) !important;
+  text-decoration: none !important;
+  font-size: var(--font-size-sm) !important;
+}
+
+.footer__link-item:hover {
+  color: var(--brand-primary) !important;
+}
+
+.footer__copyright {
+  color: var(--text-muted) !important;
+  font-size: var(--font-size-sm) !important;
+  text-align: center !important;
+  margin: 0 !important;
+  padding: var(--spacing-xs) 0 !important;
+  border-top: 1px solid var(--glass-border-light) !important;
+  line-height: 1.2 !important;
+}
+
+/* Additional aggressive spacing reductions */
+.footer__bottom {
+  margin: 0 !important;
+  padding: var(--spacing-xs) 0 !important;
+}
+
+.footer__items {
+  margin-bottom: 0 !important;
+}
+
+.footer__col {
+  margin-bottom: 0 !important;
+  padding-bottom: 0 !important;
+}
+
+/* Nuclear option - target all footer spacing */
+footer,
+footer *,
+.footer,
+.footer * {
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+}
+
+/* Override any remaining Docusaurus footer padding */
+footer.footer {
+  padding: 0 !important;
+}
+
+footer .container,
+.footer .container {
+  padding: 0 !important;
+  margin: 0 auto !important;
+}
+
+/* Target the main footer wrapper */
+.footer--dark {
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+/* Search */
+.DocSearch-Button {
+  background: var(--glass-bg-medium) !important;
+  border: 1px solid var(--glass-border-light) !important;
+  color: var(--text-secondary) !important;
+  border-radius: var(--border-radius-md) !important;
+  transition: var(--transition-base) !important;
+}
+
+.DocSearch-Button:hover {
+  background: var(--glass-bg-light) !important;
+  color: var(--brand-primary) !important;
+  border-color: var(--brand-primary) !important;
+}

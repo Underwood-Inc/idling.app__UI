@@ -1,0 +1,368 @@
+/**
+ * Mermaid Diagram Styles
+ * Enhanced styling for interactive diagram viewing
+ */
+
+/* Mermaid Container & Base Styling */
+.mermaid {
+  background: var(--glass-bg-light) !important;
+  backdrop-filter: var(--glass-blur-medium);
+  border: 1px solid var(--glass-border-light);
+  border-radius: var(--border-radius-lg);
+  padding: var(--spacing-lg);
+  margin: var(--spacing-lg) 0;
+  overflow: hidden;
+  position: relative;
+  transition: var(--transition-slow);
+}
+
+.mermaid:hover {
+  border-color: var(--brand-primary);
+  box-shadow:
+    var(--glass-shadow-medium),
+    0 0 20px rgba(237, 174, 73, 0.2);
+}
+
+/* SVG container styling */
+.mermaid svg {
+  max-width: 100% !important;
+  height: auto !important;
+  background: transparent !important;
+  cursor: grab;
+}
+
+.mermaid svg:active {
+  cursor: grabbing;
+}
+
+/* Enhanced Mermaid diagram container with advanced viewing capabilities */
+.mermaid-container {
+  position: relative;
+  width: 100%;
+  margin: var(--spacing-lg) 0;
+  border-radius: var(--border-radius-lg);
+  overflow: hidden;
+  background: var(--dark-bg-code);
+  border: 1px solid var(--glass-border-light);
+}
+
+/* Diagram viewer controls */
+.mermaid-controls {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  display: flex;
+  gap: var(--spacing-sm);
+  background: rgba(0, 0, 0, 0.8);
+  border-radius: var(--border-radius-md);
+  padding: var(--spacing-sm);
+  opacity: 0;
+  transition: var(--transition-slow);
+  z-index: var(--z-index-dropdown);
+  backdrop-filter: var(--glass-blur-medium);
+}
+
+.mermaid-container:hover .mermaid-controls {
+  opacity: 1;
+}
+
+.mermaid-control-btn {
+  background: var(--brand-primary);
+  color: var(--dark-bg-primary);
+  border: none;
+  border-radius: var(--border-radius-sm);
+  padding: 4px var(--spacing-sm);
+  font-size: 12px;
+  font-weight: var(--font-weight-semibold);
+  cursor: pointer;
+  transition: var(--transition-base);
+  font-family: var(--font-family-base);
+}
+
+.mermaid-control-btn:hover {
+  background: var(--brand-primary-light);
+  transform: translateY(-1px);
+}
+
+.mermaid-control-btn:active {
+  transform: translateY(0);
+}
+
+/* Fullscreen viewer */
+.mermaid-fullscreen {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  z-index: var(--z-index-overlay) !important;
+  background: var(--dark-bg-primary) !important;
+  margin: 0 !important;
+  border-radius: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.mermaid-fullscreen .mermaid {
+  max-width: 95vw !important;
+  max-height: 95vh !important;
+  margin: 0 !important;
+}
+
+.mermaid-fullscreen .mermaid-controls {
+  opacity: 1 !important;
+  top: 20px !important;
+  right: 20px !important;
+}
+
+/* Enhanced diagram info overlay */
+.mermaid-info {
+  position: absolute;
+  bottom: 12px;
+  left: 12px;
+  background: rgba(0, 0, 0, 0.8);
+  color: var(--text-secondary);
+  font-size: 11px;
+  font-family: var(--font-family-base);
+  padding: var(--spacing-sm) 12px;
+  border-radius: var(--border-radius-md);
+  opacity: 0;
+  transition: var(--transition-slow);
+  backdrop-filter: var(--glass-blur-medium);
+  max-width: 300px;
+  line-height: 1.4;
+}
+
+.mermaid-container:hover .mermaid-info {
+  opacity: 1;
+}
+
+/* Diagram type specific styling */
+.mermaid-container[data-diagram-type='flowchart'] .mermaid-info::before {
+  content: 'Flowchart • ';
+  color: var(--brand-primary);
+  font-weight: var(--font-weight-semibold);
+}
+
+.mermaid-container[data-diagram-type='sequence'] .mermaid-info::before {
+  content: 'Sequence • ';
+  color: var(--brand-primary);
+  font-weight: var(--font-weight-semibold);
+}
+
+.mermaid-container[data-diagram-type='class'] .mermaid-info::before {
+  content: 'Class Diagram • ';
+  color: var(--brand-primary);
+  font-weight: var(--font-weight-semibold);
+}
+
+.mermaid-container[data-diagram-type='state'] .mermaid-info::before {
+  content: 'State Diagram • ';
+  color: var(--brand-primary);
+  font-weight: var(--font-weight-semibold);
+}
+
+.mermaid-container[data-diagram-type='er'] .mermaid-info::before {
+  content: 'Entity Relationship • ';
+  color: var(--brand-primary);
+  font-weight: var(--font-weight-semibold);
+}
+
+.mermaid-container[data-diagram-type='gantt'] .mermaid-info::before {
+  content: 'Gantt Chart • ';
+  color: var(--brand-primary);
+  font-weight: var(--font-weight-semibold);
+}
+
+.mermaid-container[data-diagram-type='journey'] .mermaid-info::before {
+  content: 'User Journey • ';
+  color: var(--brand-primary);
+  font-weight: var(--font-weight-semibold);
+}
+
+/* Loading state for diagrams */
+.mermaid-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  background: var(--glass-bg-light);
+  border-radius: var(--border-radius-md);
+  color: var(--text-secondary);
+  font-family: var(--font-family-base);
+}
+
+.mermaid-loading::before {
+  content: 'Loading diagram...';
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* Error state for diagrams */
+.mermaid-error {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  background: rgba(234, 43, 31, 0.1);
+  border: 1px solid var(--chili-red);
+  border-radius: var(--border-radius-md);
+  color: var(--chili-red);
+  font-family: var(--font-family-base);
+  text-align: center;
+  padding: 20px;
+}
+
+.mermaid-error::before {
+  content: 'Diagram rendering error\APlease check the syntax';
+  white-space: pre;
+}
+
+/* Node styling */
+.mermaid .node rect,
+.mermaid .node circle,
+.mermaid .node ellipse,
+.mermaid .node polygon {
+  fill: var(--dark-bg-secondary) !important;
+  stroke: var(--brand-primary) !important;
+  stroke-width: 2px !important;
+}
+
+.mermaid .node text {
+  fill: var(--text-primary) !important;
+  font-family: var(--font-family-base) !important;
+  font-size: 14px !important;
+  font-weight: var(--font-weight-medium) !important;
+}
+
+/* Edge/Arrow styling */
+.mermaid .edgePath path {
+  stroke: var(--brand-primary-light) !important;
+  stroke-width: 2px !important;
+  fill: none !important;
+}
+
+.mermaid .arrowheadPath {
+  fill: var(--brand-primary-light) !important;
+  stroke: var(--brand-primary-light) !important;
+}
+
+/* Label styling */
+.mermaid .edgeLabel {
+  background-color: var(--dark-bg-primary) !important;
+  color: var(--text-secondary) !important;
+  font-family: var(--font-family-base) !important;
+  font-size: 12px !important;
+  border-radius: var(--border-radius-sm) !important;
+  padding: 2px 6px !important;
+}
+
+/* Sequence diagram specific styling */
+.mermaid .actor {
+  fill: var(--dark-bg-secondary) !important;
+  stroke: var(--brand-primary) !important;
+  stroke-width: 2px !important;
+}
+
+.mermaid .actor-line {
+  stroke: var(--brand-primary-light) !important;
+  stroke-width: 1px !important;
+  stroke-dasharray: 3, 3 !important;
+}
+
+.mermaid .messageLine0,
+.mermaid .messageLine1 {
+  stroke: var(--brand-primary-light) !important;
+  stroke-width: 2px !important;
+}
+
+.mermaid .messageText {
+  fill: var(--text-secondary) !important;
+  font-family: var(--font-family-base) !important;
+  font-size: 12px !important;
+}
+
+/* Class diagram styling */
+.mermaid .classBox {
+  fill: var(--dark-bg-secondary) !important;
+  stroke: var(--brand-primary) !important;
+  stroke-width: 2px !important;
+}
+
+.mermaid .classText {
+  fill: var(--text-primary) !important;
+  font-family: var(--font-family-base) !important;
+}
+
+/* State diagram styling */
+.mermaid .stateBox {
+  fill: var(--dark-bg-secondary) !important;
+  stroke: var(--brand-primary) !important;
+}
+
+.mermaid .stateText {
+  fill: var(--text-primary) !important;
+  font-family: var(--font-family-base) !important;
+}
+
+/* Gantt chart styling */
+.mermaid .section0,
+.mermaid .section1,
+.mermaid .section2,
+.mermaid .section3 {
+  fill: var(--brand-primary) !important;
+  opacity: 0.8 !important;
+}
+
+.mermaid .taskText {
+  fill: var(--text-primary) !important;
+  font-family: var(--font-family-base) !important;
+  font-size: 11px !important;
+}
+
+/* Timeline styling */
+.mermaid .timeline-item {
+  fill: var(--brand-primary) !important;
+}
+
+/* Git graph styling */
+.mermaid .commit-id,
+.mermaid .commit-msg {
+  fill: var(--text-secondary) !important;
+  font-family: var(--font-family-base) !important;
+}
+
+/* Journey diagram styling */
+.mermaid .journey-section {
+  fill: var(--brand-primary) !important;
+}
+
+/* Dark theme overrides */
+html[data-theme='dark'] .mermaid {
+  background: var(--dark-bg-code) !important;
+}
+
+html[data-theme='dark'] .mermaid * {
+  color: var(--text-primary) !important;
+}
+
+html[data-theme='dark'] .mermaid .flowchart-link {
+  stroke: var(--brand-primary-light) !important;
+}
+
+html[data-theme='dark'] .mermaid .activation0,
+html[data-theme='dark'] .mermaid .activation1,
+html[data-theme='dark'] .mermaid .activation2 {
+  fill: var(--glass-bg-light) !important;
+  stroke: var(--brand-primary) !important;
+}

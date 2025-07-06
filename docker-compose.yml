@@ -70,6 +70,7 @@ services:
       - ./src/css:/app/src/css:ro
     ports:
       - '0.0.0.0:3001:3001'
+      - '0.0.0.0:3002:3002'
     environment:
       - NODE_ENV=development
       - PORT=3001
@@ -87,5 +88,4 @@ services:
       timeout: 15s
       retries: 5
       start_period: 60s
-
 # No custom volumes needed for Docusaurus
