@@ -96,23 +96,11 @@ const config = {
     [
       'docusaurus-plugin-search-local',
       {
-        // Valid configuration options only
+        // Minimal, valid configuration
         indexDocs: true,
         indexBlog: false,
-        indexPages: false,
         docsRouteBasePath: '/',
         hashed: true,
-        docsDir: ['src'],
-        blogDir: [],
-        removeDefaultStopWordFilter: true,
-        highlightSearchTermsOnTargetPage: true,
-        searchResultLimits: 8,
-        searchResultContextMaxLength: 50,
-        explicitSearchResultPath: false,
-        searchBarShortcut: true,
-        searchBarShortcutHint: true,
-        searchBarPosition: 'right',
-        searchBarStyle: 'input',
       },
     ],
   ],
