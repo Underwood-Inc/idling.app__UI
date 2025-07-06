@@ -1,13 +1,18 @@
 # Use the official Node.js image as the base image
 FROM node:20
 
-# Install zsh, git, Go, and Playwright browser dependencies for development environment
+# Install zsh, git, Go, Ruby, Jekyll and Playwright browser dependencies for development environment
 RUN apt-get update && apt-get install -y \
   zsh \
   git \
   curl \
   wget \
   fonts-powerline \
+  # Ruby and Jekyll dependencies
+  ruby \
+  ruby-dev \
+  build-essential \
+  zlib1g-dev \
   # Playwright browser dependencies
   libnspr4 \
   libnss3 \
@@ -26,9 +31,12 @@ RUN apt-get update && apt-get install -y \
   libxshmfence1 \
   && rm -rf /var/lib/apt/lists/*
 
+# Install Jekyll and Bundler
+RUN gem install jekyll bundler
+
 # Install Go 1.21.x
 ENV GO_VERSION=1.21.5
-RUN wget -q https://go.dev/dl/go${GO_VERSION}.linux-amd64.tar.gz && \
+RUN wget --timeout=30 --tries=3 https://go.dev/dl/go${GO_VERSION}.linux-amd64.tar.gz && \
   tar -C /usr/local -xzf go${GO_VERSION}.linux-amd64.tar.gz && \
   rm go${GO_VERSION}.linux-amd64.tar.gz
 
@@ -71,14 +79,14 @@ ENV SHELL=/usr/bin/zsh
 # Set the working directory
 WORKDIR /app
 
-# Copy package.json and yarn.lock first for better caching
-COPY package*.json yarn.lock ./
+# Copy package.json and pnpm-lock.yaml first for better caching
+COPY package*.json pnpm-lock.yaml ./
 
 # Copy custom eslint rules (needed for local package reference)
 COPY custom-eslint-rules/ ./custom-eslint-rules/
 
 # Install Node.js dependencies
-RUN yarn install --check-files
+RUN corepack enable && pnpm install
 
 # Install Playwright browsers after dependencies are installed
 RUN npx playwright install --with-deps
