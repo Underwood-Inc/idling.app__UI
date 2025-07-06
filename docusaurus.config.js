@@ -91,20 +91,13 @@ const config = {
 
   themes: [/* "docusaurus-theme-openapi-docs", */ "@docusaurus/theme-mermaid"],
 
-  // 🔍 Local Search Plugin configured for dev and production
+  // 🔍 Local Search Plugin - minimal configuration
   plugins: [
     [
       'docusaurus-plugin-search-local',
       {
         indexDocs: true,
         indexBlog: false,
-        docsRouteBasePath: '/',
-        hashed: false, // Disable hashing for development
-        searchResultLimits: 8,
-        searchResultContextMaxLength: 50,
-        // Force index generation in development
-        searchBarShortcut: true,
-        searchBarPosition: 'right',
       },
     ],
   ],
