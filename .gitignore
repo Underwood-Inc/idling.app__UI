@@ -112,3 +112,4 @@ documentation-coverage-*.json
 jekyll/_site/feed.xml
 jekyll/_site/index.html
 jekyll/_site/sitemap.xml
+.docusaurus/
