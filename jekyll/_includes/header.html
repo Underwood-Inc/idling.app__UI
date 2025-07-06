@@ -31,7 +31,6 @@
       </div>
 
       <!-- Navigation -->
-      {%- if site.navigation -%}
       <nav class="site-nav" role="navigation">
         <input type="checkbox" id="nav-trigger" class="nav-trigger" />
         <label for="nav-trigger" class="nav-trigger-label">
@@ -43,8 +42,11 @@
         </label>
 
         <div class="trigger">
-          <!-- Manual navigation from _data/navigation.yml -->
-          {%- for nav_item in site.data.navigation.main -%}
+          <!-- Generate navigation data from markdown files -->
+          {% include navigation-generator.liquid %}
+          
+          <!-- Auto-generated navigation from navigation generator -->
+          {%- for nav_item in auto_navigation -%}
             {%- if nav_item.subnav -%}
               <!-- Multi-level navigation item -->
               <div class="nav-item-container">
@@ -115,7 +117,6 @@
           </a>
         </div>
       </nav>
-      {%- endif -%}
     </div>
   </div>
   

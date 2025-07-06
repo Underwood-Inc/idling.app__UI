@@ -84,10 +84,11 @@ exclude:
   - vendor/gems/
   - vendor/ruby/
 
-# Include files
+# Include files - CRITICAL: Tell Jekyll to process src/ directory via symlink
 include:
   - _pages
   - coverage-artifacts
+  - src
 
 # SEO
 author: "Underwood Inc"
