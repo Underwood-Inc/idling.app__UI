@@ -91,16 +91,20 @@ const config = {
 
   themes: [/* "docusaurus-theme-openapi-docs", */ "@docusaurus/theme-mermaid"],
 
-  // 🔍 Local Search Plugin (React 19 compatible)
+  // 🔍 Local Search Plugin configured for dev and production
   plugins: [
     [
       'docusaurus-plugin-search-local',
       {
-        // Minimal, valid configuration
         indexDocs: true,
         indexBlog: false,
         docsRouteBasePath: '/',
-        hashed: true,
+        hashed: false, // Disable hashing for development
+        searchResultLimits: 8,
+        searchResultContextMaxLength: 50,
+        // Force index generation in development
+        searchBarShortcut: true,
+        searchBarPosition: 'right',
       },
     ],
   ],
