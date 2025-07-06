@@ -64,6 +64,9 @@
 <loc>http://0.0.0.0:4000/diagrams/service-architecture-patterns.mermaid.html</loc>
 </url>
 <url>
+<loc>http://0.0.0.0:4000/community/standards/</loc>
+</url>
+<url>
 <loc>http://0.0.0.0:4000/diagrams/system-architecture-overview.mermaid.html</loc>
 </url>
 <url>
@@ -71,9 +74,6 @@
 </url>
 <url>
 <loc>http://0.0.0.0:4000/navigation/community/communication.html</loc>
-</url>
-<url>
-<loc>http://0.0.0.0:4000/navigation/community/standards.html</loc>
 </url>
 <url>
 <loc>http://0.0.0.0:4000/navigation/deployment/docs.html</loc>

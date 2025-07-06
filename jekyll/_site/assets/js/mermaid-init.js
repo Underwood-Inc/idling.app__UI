@@ -520,20 +520,25 @@
   });
 
   /**
-   * Auto-initialize when DOM is ready
+   * Auto-initialize when DOM is ready (only if diagrams are present)
    */
   function autoInitialize() {
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', () => {
+    function initializeIfNeeded() {
+      // Only initialize if there are mermaid diagrams on the page
+      const hasDiagrams = document.querySelector('pre code.language-mermaid, .mermaid') !== null;
+      
+      if (hasDiagrams) {
         mermaidSystem.initialize().catch(error => {
           console.error('Mermaid system auto-initialization failed:', error);
         });
-      });
+      }
+    }
+    
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initializeIfNeeded);
     } else {
       // DOM already ready
-      mermaidSystem.initialize().catch(error => {
-        console.error('Mermaid system auto-initialization failed:', error);
-      });
+      initializeIfNeeded();
     }
   }
 
