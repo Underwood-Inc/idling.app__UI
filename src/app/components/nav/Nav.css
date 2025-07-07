@@ -27,8 +27,9 @@
   grid-column: 2;
 }
 
-/* Right column - Auth */
+/* Right column - Auth and Search */
 .nav__auth,
+.nav__search,
 .nav--as-flex-end {
   display: flex;
   flex-wrap: wrap;
@@ -103,6 +104,24 @@ a:hover .nav__header {
   display: flex;
   align-items: center;
   height: 100%;
+}
+
+.nav__search .user-search {
+  max-width: 250px;
+  min-width: 200px;
+}
+
+.nav__search .user-search__input {
+  height: 2.5rem;
+  font-size: var(--font-size-sm);
+  padding: 0.5rem 0.75rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.nav__search .user-search__input:focus {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: var(--brand-primary);
 }
 
 /* Mobile navigation improvements */

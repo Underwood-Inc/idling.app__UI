@@ -8,7 +8,7 @@ import { OverlayProvider } from '../lib/context/OverlayContext';
 import { UserPreferencesProvider } from '../lib/context/UserPreferencesContext';
 import { JotaiProvider } from '../lib/state/JotaiProvider';
 import { SessionRefreshHandler } from './components/auth-buttons/SessionRefreshHandler';
-import { AvatarsBackground } from './components/avatars-background/AvatarsBackground';
+import AvatarsBackground from './components/avatars-background/AvatarsBackground';
 import SimpleBannerSystem from './components/banner-system/SimpleBannerSystem';
 import { NotFoundErrorBoundary } from './components/error-boundary/NotFoundErrorBoundary';
 import FadeIn from './components/fade-in/FadeIn';
