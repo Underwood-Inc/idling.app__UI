@@ -72,7 +72,7 @@
   --color-quaternary: #74a892;
   --color-quinary: #008585;
   --anchor--on-card: #003d3d;
-  --anchor-hover--on-card: #e3ede9;
+  --anchor-hover--on-card: #4a90a4;
 
   --font-color--primary: #2a150d;
   --font-color--secondary: #e8d4d7;
@@ -120,10 +120,10 @@
   --anchor__light-bg--tertiary: #a0522d;
   --anchor__light-bg--quaternary: #8b0000;
 
-  --anchor__light-bg--primary-hover: #4a2b0a;
-  --anchor__light-bg--secondary-hover: #6b3e0f;
-  --anchor__light-bg--tertiary-hover: #8b4513;
-  --anchor__light-bg--quaternary-hover: #6b0000;
+  --anchor__light-bg--primary-hover: #8b5a2b;
+  --anchor__light-bg--secondary-hover: #a0522d;
+  --anchor__light-bg--tertiary-hover: #cd853f;
+  --anchor__light-bg--quaternary-hover: #dc143c;
 
   --anchor__dark-bg--primary: #ffd700;
   --anchor__dark-bg--secondary: #ffefd5;
@@ -151,14 +151,12 @@
 
   --max-width: 1100px;
   --border-radius: 0.5rem;
-  --font-mono:
-    'Fira Code', 'Fira Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas,
-    'Courier New', monospace;
+  --font-mono: 'Fira Code', 'Fira Mono', Monaco, 'Cascadia Code', 'Roboto Mono',
+    Consolas, 'Courier New', monospace;
 
   /* App font family - can be changed by FontPicker component */
-  --app-font-family:
-    'Fira Code', 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji',
-    'Segoe UI Symbol', monospace;
+  --app-font-family: 'Fira Code', 'Apple Color Emoji', 'Segoe UI Emoji',
+    'Noto Color Emoji', 'Segoe UI Symbol', monospace;
 
   /* Font size variables - much smaller for better scaling */
   --font-size-xs: 0.75rem;
@@ -647,7 +645,7 @@ section:not(:last-of-type) {
 
   a:hover {
     text-decoration: underline;
-    color: var(--anchor__light-bg--quaternary-hover);
+    color: var(--anchor__light-bg--primary-hover);
   }
 
   [aria-disabled='true']:hover,
