@@ -1,0 +1,285 @@
+/* ================================
+   EDIT SUBSCRIPTION MODAL - DARK GLASSMORPHISM
+   ================================ */
+
+.edit-subscription-modal {
+  background: var(--dark-background--primary);
+  border-radius: var(--border-radius);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  max-width: 600px;
+  width: 100%;
+  max-height: 90vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--dark-border--secondary);
+}
+
+/* Header */
+.edit-subscription-modal__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.5rem 2rem 1rem 2rem;
+  border-bottom: 1px solid var(--dark-border--secondary);
+  background: var(--dark-background--secondary);
+}
+
+.edit-subscription-modal__header h2 {
+  margin: 0;
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+  color: var(--dark-bg__text-color--primary);
+  text-transform: none;
+}
+
+/* User Info Section */
+.edit-subscription-modal__user-info {
+  padding: 1.5rem 2rem;
+  background: var(--dark-background--tertiary);
+  border-bottom: 1px solid var(--dark-border--primary);
+}
+
+.edit-subscription-modal__user-info h3 {
+  margin: 0 0 0.5rem 0;
+  font-size: var(--font-size-md);
+  color: var(--dark-bg__text-color--primary);
+  font-weight: 600;
+}
+
+.edit-subscription-modal__user-info p {
+  margin: 0.25rem 0;
+  color: var(--dark-bg__text-color--secondary);
+  font-size: var(--font-size-sm);
+}
+
+.edit-subscription-modal__user-info p strong {
+  color: var(--dark-bg__text-color--primary);
+}
+
+/* Form */
+.edit-subscription-modal__form {
+  flex: 1;
+  overflow-y: auto;
+  padding: 2rem;
+  background: var(--dark-background--primary);
+}
+
+.edit-subscription-modal__form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.edit-subscription-modal__form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.edit-subscription-modal__form-group--full-width {
+  grid-column: 1 / -1;
+}
+
+/* Labels */
+.edit-subscription-modal__label {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--dark-bg__text-color--primary) !important; /* Force white text */
+  margin-bottom: 0.25rem;
+}
+
+/* Form Controls */
+.edit-subscription-modal__select,
+.edit-subscription-modal__input,
+.edit-subscription-modal__textarea {
+  padding: 0.75rem;
+  border: 1px solid var(--dark-border--primary);
+  border-radius: var(--border-radius);
+  background: var(--dark-background--secondary);
+  color: var(--dark-bg__text-color--primary);
+  font-size: var(--font-size-sm);
+  transition: all 0.2s ease;
+}
+
+.edit-subscription-modal__select:focus,
+.edit-subscription-modal__input:focus,
+.edit-subscription-modal__textarea:focus {
+  outline: none;
+  border-color: var(--brand-primary);
+  box-shadow: 0 0 0 2px rgba(237, 174, 73, 0.2);
+  background: var(--dark-background--tertiary);
+}
+
+.edit-subscription-modal__select:hover,
+.edit-subscription-modal__input:hover,
+.edit-subscription-modal__textarea:hover {
+  border-color: var(--dark-border--secondary);
+}
+
+/* Select specific styling */
+.edit-subscription-modal__select {
+  cursor: pointer;
+}
+
+.edit-subscription-modal__select option {
+  background: var(--dark-background--secondary);
+  color: var(--dark-bg__text-color--primary);
+}
+
+/* Textarea specific styling */
+.edit-subscription-modal__textarea {
+  resize: vertical;
+  min-height: 80px;
+  font-family: inherit;
+}
+
+/* Help Text */
+.edit-subscription-modal__help {
+  font-size: var(--font-size-xs);
+  color: var(
+    --dark-bg__text-color--tertiary
+  ) !important; /* Force light gray text */
+  font-style: italic;
+  margin-top: 0.25rem;
+}
+
+/* Error Message */
+.edit-subscription-modal__error {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(220, 38, 127, 0.1);
+  border: 1px solid rgba(220, 38, 127, 0.3);
+  color: #ff6b9d;
+  padding: 1rem;
+  border-radius: var(--border-radius);
+  margin-bottom: 1.5rem;
+  font-size: var(--font-size-sm);
+}
+
+/* Actions */
+.edit-subscription-modal__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--dark-border--primary);
+}
+
+.edit-subscription-modal__btn {
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--border-radius);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+  min-width: 120px;
+}
+
+.edit-subscription-modal__btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.edit-subscription-modal__btn--primary {
+  background: var(--brand-primary);
+  color: var(--font-color--primary);
+  border-color: var(--brand-primary--dark);
+}
+
+.edit-subscription-modal__btn--primary:hover:not(:disabled) {
+  background: var(--brand-primary--dark);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(237, 174, 73, 0.3);
+}
+
+.edit-subscription-modal__btn--primary:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(237, 174, 73, 0.3);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .edit-subscription-modal {
+    max-width: calc(100vw - 2rem);
+    max-height: calc(100vh - 2rem);
+    margin: 1rem;
+  }
+
+  .edit-subscription-modal__header,
+  .edit-subscription-modal__user-info,
+  .edit-subscription-modal__form {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+
+  .edit-subscription-modal__form-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .edit-subscription-modal__actions {
+    flex-direction: column;
+  }
+
+  .edit-subscription-modal__btn {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .edit-subscription-modal__header,
+  .edit-subscription-modal__user-info,
+  .edit-subscription-modal__form {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  .edit-subscription-modal__header {
+    padding-top: 1rem;
+    padding-bottom: 0.75rem;
+  }
+
+  .edit-subscription-modal__user-info {
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+  }
+
+  .edit-subscription-modal__form {
+    padding-top: 1.5rem;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .edit-subscription-modal__select,
+  .edit-subscription-modal__input,
+  .edit-subscription-modal__textarea {
+    border-width: 2px;
+  }
+
+  .edit-subscription-modal__btn--primary {
+    border-width: 2px;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .edit-subscription-modal__select,
+  .edit-subscription-modal__input,
+  .edit-subscription-modal__textarea,
+  .edit-subscription-modal__btn {
+    transition: none;
+  }
+
+  .edit-subscription-modal__btn--primary:hover:not(:disabled) {
+    transform: none;
+  }
+
+  .edit-subscription-modal__btn--primary:active:not(:disabled) {
+    transform: none;
+  }
+}
