@@ -1,10 +1,16 @@
 /**
  * Enhanced Quota Service
  * 
- * Provides comprehensive quota information and management for users,
- * integrating with the subscription system, user overrides, and global quotas.
+ * Agnostic quota system that can be leveraged by subscriptions and other systems.
+ * When both subscription and override quotas exist, uses the higher value.
  * 
- * @version 1.0.0
+ * Architecture:
+ * - Quota system is the foundation (handles all quota logic)
+ * - Subscription system integrates with quota system but doesn't replace it
+ * - When both subscription and override exist, use the higher quota
+ * - Admin interface manages both systems independently
+ * 
+ * @version 2.0.0
  * @author System
  */
 
@@ -158,6 +164,86 @@ export class EnhancedQuotaService {
   }
 
   /**
+   * Get quota from user overrides
+   */
+  private static async getUserOverrideQuota(
+    userId: number,
+    serviceName: string,
+    featureName: string
+  ): Promise<{
+    quota_limit: number;
+    is_unlimited: boolean;
+    reset_period: string;
+  } | null> {
+    try {
+      const result = await sql<{
+        quota_limit: number;
+        is_unlimited: boolean;
+        reset_period: string;
+      }[]>`
+        SELECT quota_limit, is_unlimited, reset_period
+        FROM user_quota_overrides
+        WHERE user_id = ${userId}
+        AND service_name = ${serviceName}
+        AND feature_name = ${featureName}
+        AND is_active = true
+      `;
+
+      return result.length > 0 ? result[0] : null;
+    } catch (error) {
+      console.error('Error getting user override quota:', error);
+      return null;
+    }
+  }
+
+  /**
+   * Get quota from user's subscription plan
+   */
+  private static async getUserSubscriptionQuota(
+    userId: number,
+    serviceName: string,
+    featureName: string
+  ): Promise<{
+    quota_limit: number;
+    is_unlimited: boolean;
+    reset_period: string;
+  } | null> {
+    try {
+      const result = await sql<{
+        quota_limit: number;
+        is_unlimited: boolean;
+        reset_period: string;
+      }[]>`
+        SELECT 
+          COALESCE(pfv.feature_value::text::integer, sf.default_value::text::integer) as quota_limit,
+          CASE 
+            WHEN COALESCE(pfv.feature_value::text::integer, sf.default_value::text::integer) = -1 THEN true
+            ELSE COALESCE(ps.is_unlimited, false)
+          END as is_unlimited,
+          'daily' as reset_period
+        FROM user_subscriptions us
+        JOIN subscription_plans sp ON us.plan_id = sp.id
+        JOIN plan_services ps ON sp.id = ps.plan_id
+        JOIN subscription_services ss ON ps.service_id = ss.id
+        JOIN subscription_features sf ON ss.id = sf.service_id
+        LEFT JOIN plan_feature_values pfv ON sp.id = pfv.plan_id AND sf.id = pfv.feature_id
+        WHERE us.user_id = ${userId}
+        AND us.status IN ('active', 'trialing')
+        AND (us.expires_at IS NULL OR us.expires_at > NOW())
+        AND ss.name = ${serviceName}
+        AND sf.name = ${featureName}
+        ORDER BY sp.sort_order DESC
+        LIMIT 1
+      `;
+
+      return result.length > 0 ? result[0] : null;
+    } catch (error) {
+      console.error('Error getting user subscription quota:', error);
+      return null;
+    }
+  }
+
+  /**
    * Get current usage for a user's specific service and feature
    */
   private static async getUserUsage(
@@ -254,6 +340,7 @@ export class EnhancedQuotaService {
 
   /**
    * Check if a user has exceeded their quota for a specific service/feature
+   * Uses agnostic quota system - checks both overrides and subscriptions, uses higher value
    */
   static async checkUserQuota(
     userId: number,
@@ -269,13 +356,38 @@ export class EnhancedQuotaService {
     quota_source: string;
   }> {
     try {
-      const quotaInfo = await this.getUserQuotaInfo(userId);
-      const serviceQuota = quotaInfo.find(
-        q => q.service_name === serviceName && q.feature_name === featureName
-      );
+      // Get quota from both sources
+      const overrideQuota = await this.getUserOverrideQuota(userId, serviceName, featureName);
+      const subscriptionQuota = await this.getUserSubscriptionQuota(userId, serviceName, featureName);
 
-      if (!serviceQuota) {
-        // No quota found - user has NO quota for this service/feature
+      // Determine which quota to use (higher value wins)
+      let effectiveQuota: {
+        quota_limit: number;
+        is_unlimited: boolean;
+        reset_period: string;
+      } | null = null;
+      let quotaSource = 'user_override';
+
+      if (subscriptionQuota && overrideQuota) {
+        // Both exist - use the higher quota
+        if (subscriptionQuota.is_unlimited || 
+            (!overrideQuota.is_unlimited && subscriptionQuota.quota_limit > overrideQuota.quota_limit)) {
+          effectiveQuota = subscriptionQuota;
+          quotaSource = 'subscription_plan';
+        } else {
+          effectiveQuota = overrideQuota;
+          quotaSource = 'user_override';
+        }
+      } else if (subscriptionQuota && !overrideQuota) {
+        // Only subscription exists
+        effectiveQuota = subscriptionQuota;
+        quotaSource = 'subscription_plan';
+      } else if (!subscriptionQuota && overrideQuota) {
+        // Only override exists
+        effectiveQuota = overrideQuota;
+        quotaSource = 'user_override';
+      } else {
+        // No quota found - return default behavior
         return {
           allowed: false,
           quota_limit: 0,
@@ -287,18 +399,26 @@ export class EnhancedQuotaService {
         };
       }
 
-      const remaining = serviceQuota.is_unlimited ? 
+      // Get current usage for the effective quota period
+      const currentUsage = await this.getUserUsage(
+        userId, 
+        serviceName, 
+        featureName, 
+        effectiveQuota.reset_period
+      );
+
+      const remaining = effectiveQuota.is_unlimited ? 
         Number.MAX_SAFE_INTEGER : 
-        Math.max(0, serviceQuota.quota_limit - serviceQuota.current_usage);
+        Math.max(0, effectiveQuota.quota_limit - currentUsage);
 
       return {
-        allowed: serviceQuota.is_unlimited || serviceQuota.current_usage < serviceQuota.quota_limit,
-        quota_limit: serviceQuota.quota_limit,
-        current_usage: serviceQuota.current_usage,
+        allowed: effectiveQuota.is_unlimited || currentUsage < effectiveQuota.quota_limit,
+        quota_limit: effectiveQuota.quota_limit,
+        current_usage: currentUsage,
         remaining,
-        reset_date: serviceQuota.reset_date,
-        is_unlimited: serviceQuota.is_unlimited,
-        quota_source: serviceQuota.quota_source
+        reset_date: this.calculateResetDate(effectiveQuota.reset_period),
+        is_unlimited: effectiveQuota.is_unlimited,
+        quota_source: quotaSource
       };
 
     } catch (error) {
@@ -309,6 +429,7 @@ export class EnhancedQuotaService {
 
   /**
    * Record usage for a user's service/feature
+   * Handles both quota overrides and subscription-based quotas
    */
   static async recordUserUsage(
     userId: number,
@@ -324,42 +445,85 @@ export class EnhancedQuotaService {
     message?: string;
   }> {
     try {
-      // Get user's subscription and service/feature IDs
-      const subscriptionInfo = await sql`
-        SELECT us.id as subscription_id, ss.id as service_id, sf.id as feature_id
-        FROM user_subscriptions us
-        JOIN subscription_plans sp ON us.plan_id = sp.id
-        JOIN plan_services ps ON sp.id = ps.plan_id
-        JOIN subscription_services ss ON ps.service_id = ss.id
-        JOIN subscription_features sf ON ss.id = sf.service_id
-        WHERE us.user_id = ${userId}
-        AND us.status IN ('active', 'trialing')
-        AND (us.expires_at IS NULL OR us.expires_at > NOW())
-        AND ss.name = ${serviceName}
-        AND sf.name = ${featureName}
-        LIMIT 1
+      // First check if user has a quota override
+      const userOverride = await sql`
+        SELECT * FROM user_quota_overrides
+        WHERE user_id = ${userId} 
+        AND service_name = ${serviceName} 
+        AND feature_name = ${featureName}
+        AND is_active = true
       `;
 
-      if (subscriptionInfo.length === 0) {
-        throw new Error(`No active subscription found for service ${serviceName}.${featureName}`);
+      if (userOverride.length > 0) {
+        // User has quota override - record usage in a generic usage tracking table
+        // Get service and feature IDs for consistent tracking
+        const serviceInfo = await sql`
+          SELECT ss.id as service_id, sf.id as feature_id
+          FROM subscription_services ss
+          JOIN subscription_features sf ON ss.id = sf.service_id
+          WHERE ss.name = ${serviceName}
+          AND sf.name = ${featureName}
+          LIMIT 1
+        `;
+
+        if (serviceInfo.length === 0) {
+          throw new Error(`Service ${serviceName}.${featureName} not found`);
+        }
+
+        const { service_id, feature_id } = serviceInfo[0];
+
+        // Record usage in subscription_usage table with NULL subscription_id for override users
+        await sql`
+          INSERT INTO subscription_usage (
+            user_id, subscription_id, service_id, feature_id, usage_date, usage_count, metadata
+          ) VALUES (
+            ${userId}, NULL, ${service_id}, ${feature_id}, CURRENT_DATE, ${usageCount}, 
+            ${metadata ? JSON.stringify(metadata) : null}
+          )
+          ON CONFLICT (user_id, COALESCE(subscription_id, 0), service_id, feature_id, usage_date)
+          DO UPDATE SET 
+            usage_count = subscription_usage.usage_count + ${usageCount},
+            updated_at = NOW(),
+            metadata = COALESCE(${metadata ? JSON.stringify(metadata) : null}, subscription_usage.metadata)
+        `;
+      } else {
+        // User doesn't have override - try subscription-based quota
+        const subscriptionInfo = await sql`
+          SELECT us.id as subscription_id, ss.id as service_id, sf.id as feature_id
+          FROM user_subscriptions us
+          JOIN subscription_plans sp ON us.plan_id = sp.id
+          JOIN plan_services ps ON sp.id = ps.plan_id
+          JOIN subscription_services ss ON ps.service_id = ss.id
+          JOIN subscription_features sf ON ss.id = sf.service_id
+          WHERE us.user_id = ${userId}
+          AND us.status IN ('active', 'trialing')
+          AND (us.expires_at IS NULL OR us.expires_at > NOW())
+          AND ss.name = ${serviceName}
+          AND sf.name = ${featureName}
+          LIMIT 1
+        `;
+
+        if (subscriptionInfo.length === 0) {
+          throw new Error(`No active subscription or quota override found for service ${serviceName}.${featureName}`);
+        }
+
+        const { subscription_id, service_id, feature_id } = subscriptionInfo[0];
+
+        // Record the usage with subscription
+        await sql`
+          INSERT INTO subscription_usage (
+            user_id, subscription_id, service_id, feature_id, usage_date, usage_count, metadata
+          ) VALUES (
+            ${userId}, ${subscription_id}, ${service_id}, ${feature_id}, CURRENT_DATE, ${usageCount}, 
+            ${metadata ? JSON.stringify(metadata) : null}
+          )
+          ON CONFLICT (user_id, subscription_id, service_id, feature_id, usage_date)
+          DO UPDATE SET 
+            usage_count = subscription_usage.usage_count + ${usageCount},
+            updated_at = NOW(),
+            metadata = COALESCE(${metadata ? JSON.stringify(metadata) : null}, subscription_usage.metadata)
+        `;
       }
-
-      const { subscription_id, service_id, feature_id } = subscriptionInfo[0];
-
-      // Record the usage
-      await sql`
-        INSERT INTO subscription_usage (
-          user_id, subscription_id, service_id, feature_id, usage_date, usage_count, metadata
-        ) VALUES (
-          ${userId}, ${subscription_id}, ${service_id}, ${feature_id}, CURRENT_DATE, ${usageCount}, 
-          ${metadata ? JSON.stringify(metadata) : null}
-        )
-        ON CONFLICT (user_id, subscription_id, service_id, feature_id, usage_date)
-        DO UPDATE SET 
-          usage_count = subscription_usage.usage_count + ${usageCount},
-          updated_at = NOW(),
-          metadata = COALESCE(${metadata ? JSON.stringify(metadata) : null}, subscription_usage.metadata)
-      `;
 
       // Get updated quota info
       const quotaCheck = await this.checkUserQuota(userId, serviceName, featureName);
