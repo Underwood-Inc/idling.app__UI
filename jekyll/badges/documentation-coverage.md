@@ -6,11 +6,11 @@ description: Auto-generated documentation coverage badge with downloadable repor
 
 # Documentation Coverage Badge
 
-![Documentation Coverage](https://img.shields.io/badge/Documentation%20Coverage-100%25-brightgreen?style=flat&logo=gitbook&logoColor=white) | [![📊 CSV Report](https://img.shields.io/badge/📊%20CSV-Download-blue?style=flat&logo=microsoftexcel&logoColor=white)]({{ site.baseurl }}/coverage-artifacts/latest-coverage-report.csv) | [![📋 HTML Report](https://img.shields.io/badge/📋%20HTML-Download-green?style=flat&logo=html5&logoColor=white)]({{ site.baseurl }}/coverage-artifacts/latest-coverage-report.html)
+![Documentation Coverage](https://img.shields.io/badge/Documentation%20Coverage-4%25-red?style=flat&logo=gitbook&logoColor=white) | [![📊 CSV Report](https://img.shields.io/badge/📊%20CSV-Download-blue?style=flat&logo=microsoftexcel&logoColor=white)]({{ site.baseurl }}/coverage-artifacts/latest-coverage-report.csv) | [![📋 HTML Report](https://img.shields.io/badge/📋%20HTML-Download-green?style=flat&logo=html5&logoColor=white)]({{ site.baseurl }}/coverage-artifacts/latest-coverage-report.html)
 
-**Current Coverage:** 100% (0/0 files)
+**Current Coverage:** 4% (25/510 files)
 
-*Last updated: Sat Jul  5 09:42:55 NDT 2025*
+*Last updated: Mon Jul  7 11:38:03 NDT 2025*
 
 ## 📥 Download Coverage Reports
 
@@ -21,19 +21,19 @@ description: Auto-generated documentation coverage badge with downloadable repor
 ## Badge URL
 
 ```
-https://img.shields.io/badge/Documentation%20Coverage-100%25-brightgreen?style=flat&logo=gitbook&logoColor=white
+https://img.shields.io/badge/Documentation%20Coverage-4%25-red?style=flat&logo=gitbook&logoColor=white
 ```
 
 ## Usage in Markdown
 
 ```markdown
-![Documentation Coverage](https://img.shields.io/badge/Documentation%20Coverage-100%25-brightgreen?style=flat&logo=gitbook&logoColor=white)
+![Documentation Coverage](https://img.shields.io/badge/Documentation%20Coverage-4%25-red?style=flat&logo=gitbook&logoColor=white)
 ```
 
 ## Usage in HTML
 
 ```html
-<img src="https://img.shields.io/badge/Documentation%20Coverage-100%25-brightgreen?style=flat&logo=gitbook&logoColor=white" alt="Documentation Coverage 100%" />
+<img src="https://img.shields.io/badge/Documentation%20Coverage-4%25-red?style=flat&logo=gitbook&logoColor=white" alt="Documentation Coverage 4%" />
 ```
 
 ---

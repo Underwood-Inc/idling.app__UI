@@ -1,124 +1,71 @@
-.avatar__background-container {
+.avatars-background {
   pointer-events: none;
   position: fixed;
   top: 0;
-  height: 100%;
-  max-width: 100%;
-  z-index: -2;
-  overflow: hidden;
-}
-
-.avatar__background {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  z-index: 0;
-  overflow: hidden;
-  top: 0;
   left: 0;
-}
-
-.avatar__background_avatar {
-  z-index: 0;
-  position: absolute;
-  bottom: -100px;
-  width: 60px;
-  height: 60px;
-  opacity: 0.5;
-  animation: rise 60s infinite ease-in;
-  border-radius: 50%;
+  width: 100vw;
+  height: 100vh;
+  z-index: -1;
   overflow: hidden;
 }
 
-/* Ensure the Avatar component inside fits properly within the 60px circular container */
-.avatar__background_avatar .avatar {
+.avatar-instance {
+  position: absolute;
+  pointer-events: none;
+  will-change: transform, opacity;
+  transition-property: opacity;
+  transition-timing-function: ease-out;
+  transition-duration: 0s;
+}
+
+.avatar-instance .avatar {
   width: 100% !important;
   height: 100% !important;
+  border-radius: 50%;
+  overflow: hidden;
+  filter: blur(1px) saturate(0.8) brightness(0.9) contrast(0.9);
+  transform: none !important; /* Prevent any scaling */
+  opacity: 1 !important;
 }
 
-/* Disable hover effects on background avatars only */
-.avatar__background_avatar .avatar:hover {
+.avatar-instance .avatar:hover {
   transform: none !important;
+  filter: blur(2px) saturate(0.4) brightness(0.6) contrast(0.7) !important;
 }
 
-.avatar__background_avatar .avatar img {
+.avatar-instance .avatar img {
   width: 100%;
   height: 100%;
   object-fit: cover;
   object-position: center;
+  transform: none !important; /* Prevent any scaling */
 }
 
-.avatar__background_avatar:nth-child(1) {
-  left: 10%;
-  animation-duration: 32s;
+.avatar-instance--removing {
+  transition-duration: 4s;
+  transition-property: opacity;
 }
 
-.avatar__background_avatar:nth-child(2) {
-  left: 20%;
-  animation-duration: 20s;
-  animation-delay: 1s;
+/* Responsive sizing - but NO size changes during animation */
+@media (max-width: 768px) {
+  .avatar-instance {
+    /* Sizes are handled by JavaScript, not CSS */
+  }
 }
 
-.avatar__background_avatar:nth-child(3) {
-  left: 35%;
-  animation-duration: 28s;
-  animation-delay: 2s;
+@media (max-width: 480px) {
+  .avatar-instance {
+    /* Sizes are handled by JavaScript, not CSS */
+  }
 }
 
-.avatar__background_avatar:nth-child(4) {
-  left: 50%;
-  animation-duration: 44s;
-  animation-delay: 0s;
-}
-
-.avatar__background_avatar:nth-child(5) {
-  left: 55%;
-  animation-duration: 24s;
-  animation-delay: 1s;
-}
-
-.avatar__background_avatar:nth-child(6) {
-  left: 65%;
-  animation-duration: 32s;
-  animation-delay: 3s;
-}
-
-.avatar__background_avatar:nth-child(7) {
-  left: 70%;
-  animation-duration: 48s;
-  animation-delay: 2s;
-}
-
-.avatar__background_avatar:nth-child(8) {
-  left: 80%;
-  animation-duration: 24s;
-  animation-delay: 2s;
-}
-
-.avatar__background_avatar:nth-child(9) {
-  left: 70%;
-  animation-duration: 20s;
-  animation-delay: 1s;
-}
-
-.avatar__background_avatar:nth-child(10) {
-  left: 25%;
-  animation-duration: 40s;
-  animation-delay: 4s;
-}
-
-@keyframes rise {
-  0% {
-    bottom: 0;
-    transform: translateX(0);
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .avatar-instance {
+    transition-duration: 2s !important;
   }
 
-  50% {
-    transform: translate(100px);
-  }
-
-  100% {
-    bottom: 100vh;
-    transform: translateX(-100px);
+  .avatar-instance--removing {
+    transition-duration: 3s !important;
   }
 }

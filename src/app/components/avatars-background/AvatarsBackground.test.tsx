@@ -1,4 +1,5 @@
 import { cleanup, render, screen } from '@testing-library/react';
+import React from 'react';
 
 // Mock the makeid function BEFORE importing the component
 jest.mock('../../../lib/utils/string/make-id', () => ({
@@ -14,7 +15,7 @@ jest.mock('../avatar/Avatar', () => ({
 
 // Import after mocking
 import { makeid } from '../../../lib/utils/string/make-id';
-import { AvatarsBackground } from './AvatarsBackground';
+import AvatarsBackground from './AvatarsBackground';
 
 describe('AvatarsBackground', () => {
   beforeEach(() => {
