@@ -28,6 +28,8 @@ permissions:
   actions: write
   checks: write
   pull-requests: write
+  pages: write
+  id-token: write
 
 # Environment variables available to all jobs
 env:
@@ -611,6 +613,34 @@ jobs:
             } else {
               console.log('📝 PR description already up to date');
             }
+
+      # Generate OpenAPI docs for Docusaurus
+      - name: Generate OpenAPI docs
+        run: pnpm docusaurus gen-api-docs all
+        continue-on-error: true
+
+      # Build Docusaurus documentation site
+      - name: Build Docusaurus site
+        run: |
+          echo "📚 Building Docusaurus documentation site..."
+          pnpm docs:build
+        env:
+          NODE_ENV: production
+
+      # Upload Pages artifact for deployment (only on main/master branch)
+      - name: Upload Pages artifact
+        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./build/
+
+      # Deploy to GitHub Pages (only on main/master branch)
+      - name: Deploy to GitHub Pages
+        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+        id: deployment
+        uses: actions/deploy-pages@v4
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   jest-tests:
     timeout-minutes: 15
