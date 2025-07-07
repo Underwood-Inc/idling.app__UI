@@ -11,6 +11,11 @@ class MarkdownReporter:
     
     def __init__(self, config_manager: ConfigManager):
         self.config = config_manager.config
+        self.pr_context = None
+    
+    def set_pr_context(self, pr_context: dict) -> None:
+        """Set PR context for the reporter."""
+        self.pr_context = pr_context
     
     def generate(self, report: CoverageReport) -> str:
         """Generate markdown report for Jekyll with PR context if available"""
@@ -56,9 +61,9 @@ class MarkdownReporter:
             output.append(f"generated: {report.timestamp}")
             output.append("---")
             output.append("")
-            
-            output.append("# Documentation Coverage Report")
-            output.append("")
+        
+        output.append("# Documentation Coverage Report")
+        output.append("")
         
         output.append(f"**Generated:** {report.timestamp}")
         output.append(f"**Coverage:** {report.coverage_percentage:.1f}% ({report.adequately_documented}/{report.total_code_files} files)")

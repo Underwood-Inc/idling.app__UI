@@ -3,10 +3,9 @@
     "connectionId": "underwood-inc",
     "projectKey": "Underwood-Inc_idling.app__UI"
   },
-  "cSpell.words": ["nextjs", "SIGNIN", "Subthread", "testid"],
+  "cSpell.words": ["choco", "doesn", "nextjs", "SIGNIN", "Subthread", "testid"],
   "window.commandCenter": true,
   "diffEditor.maxComputationTime": 0,
-  "workbench.colorTheme": "Monokai Pro (Filter Spectrum)",
   "git.autofetch": true,
   "git.confirmSync": false,
   "git.enableCommitSigning": false,
@@ -42,7 +41,7 @@
   "git.terminalAuthentication": false,
 
   // Testing Configuration
-  "jest.jestCommandLine": "yarn test",
+  "jest.jestCommandLine": "pnpm test",
   "jest.autoRun": {
     "watch": false,
     "onStartup": ["all-tests"]
@@ -100,5 +99,13 @@
   "testing.defaultGutterClickAction": "run",
   "testing.followRunningTest": true,
   "testing.openTesting": "neverOpen",
-  "testing.automaticallyOpenTestResults": "neverOpen"
+  "testing.automaticallyOpenTestResults": "neverOpen",
+
+  // Theme Configuration
+  "workbench.colorTheme": "Monokai Pro (Filter Spectrum)",
+
+  // Editor Associations
+  "workbench.editorAssociations": {
+    "*.md": "vscode.markdown.preview.editor"
+  }
 }

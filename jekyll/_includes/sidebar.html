@@ -2,9 +2,12 @@
 <div class="sidebar-card">
   <h3>Navigation</h3>
   <nav>
+    <!-- Generate navigation data from markdown files -->
+    {% include navigation-generator.liquid %}
+    
     <ul class="navigation-list">
       <li><a href="{{ '/' | relative_url }}" {% if page.url == '/' %}class="current"{% endif %}>🏠 Home</a></li>
-      {%- for nav_item in site.navigation -%}
+      {%- for nav_item in auto_navigation -%}
         <li>
           <a href="{{ nav_item.url | relative_url }}" 
              {% if page.url == nav_item.url or (nav_item.url != "/" and page.url contains nav_item.url) %}class="current"{% endif %}>

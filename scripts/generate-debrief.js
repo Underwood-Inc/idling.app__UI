@@ -1071,7 +1071,7 @@ ${analysis.securityFixes.length > 3 ? `\n... and ${analysis.securityFixes.length
         : ''
     }${
       analysis.performanceImprovements.length > 0
-        ? `### ⚡ **Performance Improvements** (${analysis.performanceImprovements.length})
+        ? `###  **Performance Improvements** (${analysis.performanceImprovements.length})
 ${analysis.performanceImprovements
   .slice(0, 3)
   .map(
@@ -1319,7 +1319,7 @@ ${analysis.securityFixes
         : ''
     }${
       analysis.performanceImprovements.length > 0
-        ? `#### ⚡ **Performance Improvements** (${analysis.performanceImprovements.length})
+        ? `####  **Performance Improvements** (${analysis.performanceImprovements.length})
 ${analysis.performanceImprovements
   .map((commit) => {
     const details = this.getDetailedCommitInfo(commit.hash);
@@ -2367,7 +2367,7 @@ ${chalk.yellow.bold('ENHANCED FEATURES:')}
   ${chalk.white('🔍 Deep Commit Analysis')}    - File changes, complexity metrics, co-authors
   ${chalk.white('📊 Version Tracking')}        - Automatic version bump detection and notes
   ${chalk.white('🔒 Security Analysis')}       - Security fix identification and severity
-  ${chalk.white('⚡ Performance Tracking')}    - Performance improvement detection
+  ${chalk.white(' Performance Tracking')}    - Performance improvement detection
   ${chalk.white('💥 Breaking Changes')}        - Breaking change detection and documentation
   ${chalk.white('📈 Temporal Analysis')}       - Commit patterns by time and day
   ${chalk.white('📁 File Impact Analysis')}    - Most changed files and hotspots

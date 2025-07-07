@@ -22,7 +22,7 @@
             <img src="https://img.shields.io/badge/React-19.0.0--alpha-61DAFB?style=flat&logo=react&logoColor=white" alt="React Version" />
           </a>
           <a href="https://underwood-inc.github.io/idling.app__UI/" target="_blank" rel="noopener">
-            <img src="https://img.shields.io/badge/Documentation%20Coverage-90%25-brightgreen?style=flat&logo=gitbook&logoColor=white" alt="Documentation Coverage" />
+            <img src="https://img.shields.io/badge/Documentation%20Coverage-100%25-brightgreen?style=flat&logo=gitbook&logoColor=white" alt="Documentation Coverage" />
           </a>
           <a href="https://github.com/Underwood-Inc/idling.app__UI/actions" target="_blank" rel="noopener">
             <img src="https://img.shields.io/github/actions/workflow/status/Underwood-Inc/idling.app__UI/quality-assurance.yml?branch=main&style=flat&logo=github&logoColor=white" alt="Build Status" />
@@ -31,7 +31,6 @@
       </div>
 
       <!-- Navigation -->
-      {%- if site.navigation -%}
       <nav class="site-nav" role="navigation">
         <input type="checkbox" id="nav-trigger" class="nav-trigger" />
         <label for="nav-trigger" class="nav-trigger-label">
@@ -43,7 +42,11 @@
         </label>
 
         <div class="trigger">
-          {%- for nav_item in site.navigation -%}
+          <!-- Generate navigation data from markdown files -->
+          {% include navigation-generator.liquid %}
+          
+          <!-- Auto-generated navigation from navigation generator -->
+          {%- for nav_item in auto_navigation -%}
             {%- if nav_item.subnav -%}
               <!-- Multi-level navigation item -->
               <div class="nav-item-container">
@@ -114,14 +117,16 @@
           </a>
         </div>
       </nav>
-      {%- endif -%}
     </div>
   </div>
   
   <!-- Enhanced Search Bar -->
   <div class="search-header">
     <div class="wrapper">
-      {% include search.html %}
+      <div class="search-container">
+        <input type="text" id="search-input" placeholder="Search documentation..." autocomplete="off">
+        <div id="search-results"></div>
+      </div>
     </div>
   </div>
 </header>

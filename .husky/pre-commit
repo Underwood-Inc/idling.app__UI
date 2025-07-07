@@ -30,13 +30,13 @@ trap "rm -rf $TEMP_DIR" EXIT
 
 # 1. Build Jekyll documentation locally (if bundle is available)
 echo "🏗️ Checking Jekyll documentation build..."
-cd DOCS
+cd jekyll
 if command -v bundle >/dev/null 2>&1; then
   if bundle exec jekyll build --destination "$TEMP_DIR/docs_build" >/dev/null 2>&1; then
     echo "✅ Jekyll documentation built successfully"
   else
     echo "⚠️ Jekyll documentation build failed (non-blocking)"
-    echo "🔧 Run 'cd DOCS && bundle exec jekyll build' to see detailed errors"
+    echo "🔧 Run 'cd jekyll && bundle exec jekyll build' to see detailed errors"
     echo "🚀 Continuing with documentation coverage checks..."
   fi
 else
@@ -83,29 +83,28 @@ else
     
     total_files=$((total_files + 1))
     
-    # Check for co-located README.md first
+    # Check for co-located documentation (index.md or README.md in same directory)
     file_dir=$(dirname "$file")
-    readme_path="$file_dir/README.md"
     doc_found=false
     
-    if [ -f "$readme_path" ] && ! grep -q "Documentation Needed.*This file was automatically generated" "$readme_path" 2>/dev/null; then
-      # Check if README has meaningful content (more than just a header)
-      content_lines=$(grep -v '^#' "$readme_path" | grep -v '^$' | wc -l)
+    # Check for index.md (preferred for co-located docs)
+    index_path="$file_dir/index.md"
+    if [ -f "$index_path" ] && ! grep -q "Documentation Needed.*This file was automatically generated" "$index_path" 2>/dev/null; then
+      # Check if index.md has meaningful content (more than just a header)
+      content_lines=$(grep -v '^#' "$index_path" | grep -v '^$' | wc -l)
       if [ "$content_lines" -gt 3 ]; then
         documented_files=$((documented_files + 1))
         doc_found=true
       fi
     fi
     
-    # If no co-located README, check for centralized docs (mainly for API routes)
+    # Check for README.md as fallback
     if [ "$doc_found" = false ]; then
-      base_name=$(basename "$file" | sed 's/\.[^.]*$//')
-      base_name_lower=$(echo "$base_name" | tr '[:upper:]' '[:lower:]')
-      
-      # Check for API documentation (centralized)
-      if echo "$file" | grep -q "src/app/api.*route\.ts"; then
-        api_path=$(echo "$file" | sed 's|src/app/api/||' | sed 's|/route\.ts||')
-        if [ -f "src/app/api/$api_path/README.md" ] && ! grep -q "Documentation Needed.*This file was automatically generated" "src/app/api/$api_path/README.md" 2>/dev/null; then
+      readme_path="$file_dir/README.md"
+      if [ -f "$readme_path" ] && ! grep -q "Documentation Needed.*This file was automatically generated" "$readme_path" 2>/dev/null; then
+        # Check if README has meaningful content (more than just a header)
+        content_lines=$(grep -v '^#' "$readme_path" | grep -v '^$' | wc -l)
+        if [ "$content_lines" -gt 3 ]; then
           documented_files=$((documented_files + 1))
           doc_found=true
         fi
@@ -170,14 +169,14 @@ if [ -f "README.md" ]; then
 fi
 
 # Update Jekyll header badge
-if [ -f "DOCS/_includes/header.html" ]; then
+if [ -f "jekyll/_includes/header.html" ]; then
   # Look for existing documentation coverage badge and replace it
-  if grep -q "Documentation%20Coverage" DOCS/_includes/header.html; then
+  if grep -q "Documentation%20Coverage" jekyll/_includes/header.html; then
     # Create a temporary file with the corrected badge
     TEMP_HEADER=$(mktemp)
     # Simple approach: replace only the percentage and color parts that actually change
-    sed "s/Documentation%20Coverage-[0-9]*%25-[a-z]*/Documentation%20Coverage-${DOC_COVERAGE}%25-${DOC_COLOR}/g" DOCS/_includes/header.html > "$TEMP_HEADER"
-    mv "$TEMP_HEADER" DOCS/_includes/header.html
+    sed "s/Documentation%20Coverage-[0-9]*%25-[a-z]*/Documentation%20Coverage-${DOC_COVERAGE}%25-${DOC_COLOR}/g" jekyll/_includes/header.html > "$TEMP_HEADER"
+    mv "$TEMP_HEADER" jekyll/_includes/header.html
     echo "✅ Updated documentation badge in Jekyll header"
   else
     echo "⚠️ No existing documentation badge found in Jekyll header"
@@ -185,7 +184,7 @@ if [ -f "DOCS/_includes/header.html" ]; then
 fi
 
 # Update Jekyll documentation badge include
-JEKYLL_BADGE_DIR="DOCS/_includes"
+JEKYLL_BADGE_DIR="jekyll/_includes"
 mkdir -p "$JEKYLL_BADGE_DIR"
 
 cat > "$JEKYLL_BADGE_DIR/documentation-coverage-badge.html" << 'EOF'
@@ -203,11 +202,11 @@ sed -i "s|DOC_COVERAGE_PLACEHOLDER|${DOC_COVERAGE}|g" "$JEKYLL_BADGE_DIR/documen
 echo "✅ Updated Jekyll documentation badge include"
 
 # Update centralized badge file with artifact links
-BADGE_DIR="DOCS/badges"
+BADGE_DIR="jekyll/badges"
 mkdir -p "$BADGE_DIR"
 
 # Copy generated artifacts to accessible location
-ARTIFACT_DIR="DOCS/coverage-artifacts"
+ARTIFACT_DIR="jekyll/coverage-artifacts"
 mkdir -p "$ARTIFACT_DIR"
 
 if [ -f "$TEMP_DIR/coverage_report.html" ]; then
@@ -285,8 +284,9 @@ if [ $DOC_COVERAGE -lt $MIN_COVERAGE ]; then
     fi
   fi
   echo ""
-  echo "💡 Consider creating documentation files in the DOCS/ directory"
-  echo "   Example: For src/components/Button.tsx → create DOCS/components/button.md"
+  echo "💡 Consider creating co-located documentation files:"
+  echo "   Example: For src/components/Button.tsx → create src/components/index.md"
+  echo "   Example: For src/lib/utils.ts → create src/lib/index.md"
   echo ""
   echo "🚀 Proceeding with commit (coverage check is informational)"
 fi
@@ -302,10 +302,10 @@ elif [ -f "README.md" ]; then
   echo "📝 Staged updated README.md"
 fi
 
-if [ -f "DOCS/_includes/header.html" ] && git diff --quiet DOCS/_includes/header.html; then
+if [ -f "jekyll/_includes/header.html" ] && git diff --quiet jekyll/_includes/header.html; then
   : # No changes to header.html
-elif [ -f "DOCS/_includes/header.html" ]; then
-  git add DOCS/_includes/header.html
+elif [ -f "jekyll/_includes/header.html" ]; then
+  git add jekyll/_includes/header.html
   BADGE_FILES_UPDATED=true
   echo "📝 Staged updated Jekyll header"
 fi
@@ -358,11 +358,11 @@ fi
 
 # Display artifact locations
 if [ -f "$ARTIFACT_DIR/latest-coverage-report.html" ]; then
-  echo "  📋 HTML Report: DOCS/coverage-artifacts/latest-coverage-report.html"
+  echo "  📋 HTML Report: jekyll/coverage-artifacts/latest-coverage-report.html"
 fi
 
 if [ -f "$ARTIFACT_DIR/latest-coverage-report.csv" ]; then
-  echo "  📊 CSV Report: DOCS/coverage-artifacts/latest-coverage-report.csv"
+  echo "  📊 CSV Report: jekyll/coverage-artifacts/latest-coverage-report.csv"
 fi
 
 echo ""

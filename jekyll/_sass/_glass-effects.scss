@@ -1,1 +1,9 @@
- 
+// Glass effects for modern UI elements
+// Currently empty - add glass effect styles here when needed
+
+.glass-effect {
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+} 

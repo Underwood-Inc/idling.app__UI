@@ -1,8 +1,8 @@
 # Dependencies
 node_modules/
-yarn-error.log
+pnpm-error.log
 npm-debug.log*
-yarn-debug.log*
+pnpm-debug.log*
 
 # Build outputs
 .next/
@@ -29,11 +29,11 @@ test-debrief.md
 *.swo
 
 # Documentation build files
-DOCS/_site/
-DOCS/.sass-cache/
-DOCS/.jekyll-cache/
-DOCS/vendor/
-DOCS/Gemfile.lock
+jekyll/_site/
+jekyll/.sass-cache/
+jekyll/.jekyll-cache/
+jekyll/vendor/
+jekyll/Gemfile.lock
 
 # Git files
 .git/

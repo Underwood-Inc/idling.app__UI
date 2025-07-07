@@ -32,20 +32,13 @@ plugins:
   - jekyll-gist
   - jemoji
 
-# Collections for co-located documentation
-collections:
-  docs:
-    output: true
-    permalink: /:collection/:name/
-  components:
-    output: true
-    permalink: /dev/:collection/:name/
-  libraries:
-    output: true
-    permalink: /dev/:collection/:name/
-  api:
-    output: true
-    permalink: /docs/:collection/:name/
+# Custom plugins (loaded from _plugins directory)
+plugins_dir: _plugins
+safe: false  # Allow custom plugins to run
+
+# Collections for co-located documentation - no physical directories needed
+# Jekyll will find files via plugins, not directory scanning
+collections: {}
 
 # Defaults for different content types
 defaults:
@@ -54,35 +47,10 @@ defaults:
       type: "pages"
     values:
       layout: "default"
-  - scope:
-      path: ""
-      type: "docs"
-    values:
-      layout: "default"
-  - scope:
-      path: ""
-      type: "components"
-    values:
-      layout: "default"
-  - scope:
-      path: ""
-      type: "libraries"
-    values:
-      layout: "default"
-  - scope:
-      path: ""
-      type: "api"
-    values:
-      layout: "default"
 
-# Search configuration
+# Search configuration - co-located docs found via plugins
 search:
   enabled: true
-  collections:
-    - docs
-    - components
-    - libraries
-    - api
   exclude_files:
     - "*.json"
     - "*.xml"
@@ -90,206 +58,18 @@ search:
   include_content: true
   content_length: 2000
 
-# Documentation paths for co-located docs
+# Documentation paths for co-located docs - actual file locations in codebase
 documentation_paths:
-  components: "src/components"
-  libraries: "src/lib"
-  api: "src/app/api"
-  templates: "src/templates"
-  community: "community"
-  docs: "docs"
+  components: "../src/components"
+  libraries: "../src/lib"
+  api: "../src/app/api"
+  templates: "../src/templates"
+  community: "../community"
+  diagrams: "./diagrams"
 
-# Navigation - Only 3 top-level categories
-navigation:
-  - title: "📚 Documentation"
-    url: "/docs/"
-    description: "Complete project documentation"
-    subnav:
-      - title: "🚀 Getting Started"
-        url: "/docs/getting-started/"
-        description: "Setup and initial configuration"
-        subsections:
-          - title: "🔧 Installation"
-            url: "/docs/getting-started/installation/"
-            description: "Installation and setup guide"
-          - title: "🏃 Quick Start"
-            url: "/docs/getting-started/quickstart/"
-            description: "Get up and running quickly"
-          - title: "🐳 Docker Setup"
-            url: "/docs/getting-started/docker/"
-            description: "Containerized development environment"
-      - title: "🔌 API Reference"
-        url: "/docs/api/"
-        description: "Complete API documentation"
-        subsections:
-          - title: "📖 API Overview"
-            url: "/docs/api/"
-            description: "Introduction and concepts"
-          - title: "🧪 Interactive Tools"
-            url: "/docs/api/swagger/"
-            description: "Swagger UI and testing tools"
-          - title: "🔧 Admin Endpoints"
-            url: "/docs/api/admin/"
-            description: "Administrative endpoints"
-      - title: "🏗️ Architecture"
-        url: "/docs/architecture/"
-        description: "System design and architecture"
-        subsections:
-          - title: "🏛️ System Design"
-            url: "/docs/architecture/system/"
-            description: "High-level system architecture"
-          - title: "📊 Architecture Diagrams"
-            url: "/docs/diagrams/"
-            description: "Visual architecture documentation with Mermaid diagrams"
-          - title: "🔐 Security"
-            url: "/docs/architecture/security/"
-            description: "Security patterns and implementation"
-          - title: "📊 Performance"
-            url: "/docs/architecture/performance/"
-            description: "Performance optimization strategies"
-      - title: "🚀 Deployment"
-        url: "/docs/deployment/"
-        description: "Production deployment procedures"
-        subsections:
-          - title: "🌐 Production Setup"
-            url: "/docs/deployment/production/"
-            description: "Server deployment guide"
-          - title: "📄 Documentation Site"
-            url: "/docs/deployment/docs/"
-            description: "Deploy this documentation"
-          - title: "📦 Release Process"
-            url: "/docs/deployment/releases/"
-            description: "Version management and releases"
-                    
-  - title: "🛠️ Development"
-    url: "/dev/"
-    description: "Development tools and resources"
-    subnav:
-      - title: "🧩 Components"
-        url: "/dev/components/"
-        description: "UI components and design system"
-        subsections:
-          - title: "📝 Rich Input System"
-            url: "/dev/components/#rich-input-system"
-            description: "Advanced text editing component"
-          - title: "🔍 Filter Bar"
-            url: "/dev/components/#filter-bar-component"
-            description: "Search and filtering interfaces"
-          - title: "🧭 Floating Toolbar"
-            url: "/dev/components/#floating-toolbar-component"
-            description: "Context-sensitive toolbar"
-          - title: "📚 Component Library"
-            url: "/dev/components/"
-            description: "Complete component documentation"
-      - title: "🗄️ Database"
-        url: "/dev/database/"
-        description: "Database and data management"
-        subsections:
-          - title: "🔄 Migrations"
-            url: "/dev/database/migrations/"
-            description: "Database schema management"
-          - title: "⚡ Performance"
-            url: "/dev/database/performance/"
-            description: "Database optimization"
-          - title: "🌱 Data Management"
-            url: "/dev/database/data/"
-            description: "Data seeding and management"
-      - title: "📚 Libraries"
-        url: "/dev/libraries/"
-        description: "Shared utilities and services"
-        subsections:
-          - title: "⚙️ Core Services"
-            url: "/dev/libraries/services/"
-            description: "Authentication, caching, logging"
-          - title: "🔧 Utilities"
-            url: "/dev/libraries/utils/"
-            description: "Helper functions and parsers"
-          - title: "🎣 React Hooks"
-            url: "/dev/libraries/hooks/"
-            description: "Custom React hooks"
-      - title: "🧪 Testing"
-        url: "/dev/testing/"
-        description: "Testing strategies and QA"
-        subsections:
-          - title: "🔬 Unit Testing"
-            url: "/dev/testing/unit/"
-            description: "Unit test strategies"
-          - title: "🌐 E2E Testing"
-            url: "/dev/testing/e2e/"
-            description: "End-to-end testing with Playwright"
-          - title: "🔄 CI/CD"
-            url: "/dev/testing/ci-cd/"
-            description: "Continuous integration pipeline"
-      - title: "🔧 Tools"
-        url: "/dev/tools/"
-        description: "Development environment and tools"
-        subsections:
-          - title: "🔧 Environment"
-            url: "/dev/tools/environment/"
-            description: "Environment setup and configuration"
-          - title: "⏳ Performance"
-            url: "/dev/tools/performance/"
-            description: "Performance optimization tools"
-          - title: "🔍 Debugging"
-            url: "/dev/tools/debugging/"
-            description: "Debugging and troubleshooting"
-                    
-  - title: "👥 Community"
-    url: "/community/"
-    description: "Project community and resources"
-    subnav:
-      - title: "🤝 Contributing"
-        url: "/community/contributing/"
-        description: "How to contribute to the project"
-        subsections:
-          - title: "🚀 Getting Started"
-            url: "/community/contributing/getting-started/"
-            description: "First steps for contributors"
-          - title: "📋 Guidelines"
-            url: "/community/contributing/guidelines/"
-            description: "Contribution guidelines and standards"
-          - title: "🔧 Development Setup"
-            url: "/community/contributing/setup/"
-            description: "Setting up development environment"
-      - title: "📝 Standards"
-        url: "/community/standards/"
-        description: "Development standards and best practices"
-        subsections:
-          - title: "📝 Code Standards"
-            url: "/community/standards/code/"
-            description: "Code quality and style guidelines"
-          - title: "📚 Documentation"
-            url: "/community/standards/docs/"
-            description: "Documentation writing guidelines"
-          - title: "🎨 Design System"
-            url: "/community/standards/design/"
-            description: "Design and UI/UX guidelines"
-      - title: "💬 Communication"
-        url: "/community/communication/"
-        description: "Community channels and discussions"
-        subsections:
-          - title: "💬 Discord"
-            url: "/community/communication/discord/"
-            description: "Join our Discord community"
-          - title: "🐙 GitHub"
-            url: "/community/communication/github/"
-            description: "GitHub discussions and issues"
-          - title: "📧 Updates"
-            url: "/community/communication/updates/"
-            description: "Project updates and announcements"
-      - title: "📊 Project Info"
-        url: "/community/project/"
-        description: "Project management and reports"
-        subsections:
-          - title: "📋 Reports"
-            url: "/community/project/reports/"
-            description: "Development reports and analysis"
-          - title: "📅 Roadmap"
-            url: "/community/project/roadmap/"
-            description: "Project roadmap and future plans"
-          - title: "📰 News"
-            url: "/community/project/news/"
-            description: "Latest project news and updates"
+# Auto-generated navigation from frontmatter
+# The DynamicNavigationGenerator plugin will create site.data.auto_navigation
+# No manual configuration needed - just add frontmatter to your markdown files!
 
 # Exclude files
 exclude:
@@ -304,10 +84,11 @@ exclude:
   - vendor/gems/
   - vendor/ruby/
 
-# Include files
+# Include files - CRITICAL: Tell Jekyll to process src/ directory via symlink
 include:
   - _pages
   - coverage-artifacts
+  - src
 
 # SEO
 author: "Underwood Inc"

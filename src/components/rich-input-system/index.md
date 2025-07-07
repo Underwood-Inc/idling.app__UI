@@ -14,6 +14,119 @@ toc: true
 
 # Rich Input System - Business Requirements Document
 
+## 🎨 Component Visual Overview
+
+### Live Component Examples
+
+<div class="component-card">
+
+#### Basic Rich Input
+
+```jsx
+<RichInput
+  placeholder="What's on your mind? Try typing #hashtag or @mention..."
+  value={content}
+  onChange={setContent}
+  enableHashtags={true}
+  enableMentions={true}
+/>
+```
+
+**Visual Rendering:**
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│ What's on your mind? Try typing #hashtag or @mention...         │
+│                                                                 │
+│ Check out this #javascript tutorial by @johndev! 🚀            │
+│ https://example.com/tutorial                                    │
+│                                                                 │
+│ [#javascript] [📤@johndev] [🔗 https://example.com/tutorial]   │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+#### Enhanced Rich Input with Floating Toolbar
+
+```jsx
+<RichInput
+  placeholder="Create your post..."
+  multiline={true}
+  enableHashtags={true}
+  enableMentions={true}
+  enableEmojis={true}
+  showFloatingToolbar={true}
+/>
+```
+
+**Visual Rendering:**
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│ Create your post...                                    [#@😊]   │
+│                                                                 │
+│ Working on a new #react component for our dashboard! 💻        │
+│ Big thanks to @sarah for the design mockups 🎨                │
+│                                                                 │
+│ [#react] [📤@sarah] [💻] [🎨]                                   │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+</div>
+
+### Component States Visualization
+
+```mermaid
+stateDiagram-v2
+    [*] --> Empty
+    Empty --> Typing: User starts typing
+    Typing --> Pills: Hashtag/Mention detected
+    Typing --> Suggestions: Trigger character typed
+    Pills --> Editing: Pill selected
+    Suggestions --> Pills: Suggestion selected
+    Suggestions --> Typing: Suggestion dismissed
+    Editing --> Pills: Edit completed
+    Pills --> Typing: Continue typing
+    Typing --> [*]: Focus lost
+    Pills --> [*]: Focus lost
+    Editing --> [*]: Focus lost
+```
+
+### Interactive Elements Breakdown
+
+```mermaid
+graph TD
+    A[Rich Input Container] --> B[Text Input Area]
+    A --> C[Pill Container]
+    A --> D[Floating Toolbar]
+    A --> E[Search Overlay]
+
+    B --> B1[Cursor Position]
+    B --> B2[Selection Range]
+    B --> B3[Content Validation]
+
+    C --> C1[Hashtag Pills]
+    C --> C2[Mention Pills]
+    C --> C3[URL Pills]
+    C --> C4[Emoji Pills]
+
+    D --> D1[Hashtag Button]
+    D --> D2[Mention Button]
+    D --> D3[Emoji Button]
+    D --> D4[Image Button]
+
+    E --> E1[Hashtag Search]
+    E --> E2[User Search]
+    E --> E3[Emoji Picker]
+
+    style A fill:#edae49,stroke:#c68214,stroke-width:3px
+    style B fill:#f9df74,stroke:#edae49,stroke-width:2px
+    style C fill:#f9df74,stroke:#edae49,stroke-width:2px
+    style D fill:#f9df74,stroke:#edae49,stroke-width:2px
+    style E fill:#f9df74,stroke:#edae49,stroke-width:2px
+```
+
+</div>
+
 ## Executive Summary
 
 The Rich Input System is a sophisticated text editing component that transforms basic text input into an intelligent, interactive writing experience. It automatically detects and enhances user content with visual pills for hashtags, user mentions, emojis, and URLs while providing real-time suggestions and auto-completion features.
@@ -241,18 +354,70 @@ flowchart TD
 
 #### 3.1 Floating Toolbar
 
+<div class="component-card">
+
+#### Floating Toolbar Component Rendering
+
+**Visual Appearance:**
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│ Type your message here...                            [# @ 😊 🖼]│
+│                                                                 │
+│ Amazing #sunset photos from today! 📸                          │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+**Interaction Flow:**
+
+```
+User clicks [#] → Shows hashtag search panel
+User clicks [@] → Shows user search panel
+User clicks [😊] → Shows emoji picker
+User clicks [🖼] → Shows image upload options
+```
+
+</div>
+
 ```mermaid
 graph LR
     A[Input Focus] --> B[Show Floating Toolbar]
     B --> C[Hashtag Button]
     B --> D[Mention Button]
     B --> E[Emoji Button]
-    C --> F[Hashtag Search Panel]
-    D --> G[User Search Panel]
-    E --> H[Emoji Picker Panel]
-    F --> I[Insert Hashtag]
-    G --> J[Insert Mention]
-    H --> K[Insert Emoji]
+    B --> F[Image Button]
+    C --> G[Hashtag Search Panel]
+    D --> H[User Search Panel]
+    E --> I[Emoji Picker Panel]
+    F --> J[Image Upload Panel]
+    G --> K[Insert Hashtag]
+    H --> L[Insert Mention]
+    I --> M[Insert Emoji]
+    J --> N[Insert Image]
+
+    style A fill:#edae49,stroke:#c68214,stroke-width:2px
+    style B fill:#f9df74,stroke:#edae49,stroke-width:2px
+    style C fill:#f9edcc,stroke:#edae49,stroke-width:1px
+    style D fill:#f9edcc,stroke:#edae49,stroke-width:1px
+    style E fill:#f9edcc,stroke:#edae49,stroke-width:1px
+    style F fill:#f9edcc,stroke:#edae49,stroke-width:1px
+```
+
+#### Toolbar Button States
+
+```mermaid
+stateDiagram-v2
+    [*] --> Hidden
+    Hidden --> Visible: Input focused
+    Visible --> Active: Button clicked
+    Active --> Searching: Search panel open
+    Searching --> Selecting: Item highlighted
+    Selecting --> Inserting: Item selected
+    Inserting --> Visible: Content inserted
+    Visible --> Hidden: Input unfocused
+    Active --> Visible: Panel dismissed
+    Searching --> Active: Search closed
 ```
 
 **Business Rules**:
@@ -272,6 +437,128 @@ graph LR
 - Integration with search overlays
 
 #### 3.2 Search Overlay System
+
+<div class="component-card">
+
+#### Search Overlay Component Renderings
+
+**Hashtag Search Overlay:**
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│ Working on a #rea|                                              │
+│                 ┌─────────────────────────┐                    │
+│                 │ 🔍 Hashtag Search        │                    │
+│                 │ ________________________ │                    │
+│                 │ #react (2,847 posts) ✨ │                    │
+│                 │ #reactjs (1,205 posts)  │                    │
+│                 │ #real (892 posts)       │                    │
+│                 │ #readme (156 posts)     │                    │
+│                 │ ________________________ │                    │
+│                 │ ↑↓ Navigate • Enter Select │                   │
+│                 └─────────────────────────┘                    │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+**User Mention Search Overlay:**
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│ Thanks to @sar|                                                 │
+│             ┌─────────────────────────────┐                    │
+│             │ 👤 User Search              │                    │
+│             │ ____________________________ │                    │
+│             │ 👨‍💻 sarah_dev              │                    │
+│             │    Software Engineer         │                    │
+│             │ 👩‍🎨 sarah_designer         │                    │
+│             │    UI/UX Designer           │                    │
+│             │ 👨‍💼 samuel_pm             │                    │
+│             │    Product Manager          │                    │
+│             │ ____________________________ │                    │
+│             │ ↑↓ Navigate • Enter Select   │                    │
+│             └─────────────────────────────┘                    │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+**Emoji Picker Overlay:**
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│ Great work :thu|                                                │
+│              ┌─────────────────────────────┐                   │
+│              │ 😊 Emoji Picker             │                   │
+│              │ [😀][😃][😄][😁][😆][😅]  │                   │
+│              │ [😂][🤣][😊][😇][🙂][🙃]  │                   │
+│              │ [👍][👎][👌][✌️][🤞][🤟]   │                   │
+│              │ [🔥][💯][✨][🎉][🚀][💻]   │                   │
+│              │ ___________________________  │                   │
+│              │ :thumbs_up: 👍              │                   │
+│              │ :fire: 🔥                   │                   │
+│              │ :rocket: 🚀                 │                   │
+│              └─────────────────────────────┘                   │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+</div>
+
+#### Search Overlay Interaction Flow
+
+```mermaid
+sequenceDiagram
+    participant U as User
+    participant RI as Rich Input
+    participant SO as Search Overlay
+    participant API as Search API
+    participant DB as Database
+
+    U->>RI: Types trigger character (#, @, :)
+    RI->>SO: Show overlay at cursor position
+    U->>RI: Types search query
+    RI->>SO: Update search query
+    SO->>API: Request search results (debounced 300ms)
+    API->>DB: Query database
+    DB-->>API: Return results
+    API-->>SO: Return formatted results
+    SO->>SO: Display results with highlighting
+    U->>SO: Navigate with arrow keys
+    SO->>SO: Update selection highlight
+    U->>SO: Press Enter to select
+    SO->>RI: Insert selected content
+    RI->>RI: Update content with pill
+    SO->>SO: Hide overlay
+```
+
+#### Search Result Types
+
+```mermaid
+graph TD
+    A[Search Trigger] --> B{Trigger Type}
+
+    B -->|#| C[Hashtag Search]
+    B -->|@| D[User Search]
+    B -->|:| E[Emoji Search]
+
+    C --> C1[Popular Tags]
+    C --> C2[Recent Tags]
+    C --> C3[Suggested Tags]
+    C --> C4[Create New Tag]
+
+    D --> D1[Team Members]
+    D --> D2[Frequent Mentions]
+    D --> D3[Active Users]
+    D --> D4[Search All Users]
+
+    E --> E1[Recent Emojis]
+    E --> E2[Category Browse]
+    E --> E3[Search by Name]
+    E --> E4[Custom Emojis]
+
+    style A fill:#edae49,stroke:#c68214,stroke-width:2px
+    style B fill:#f9df74,stroke:#edae49,stroke-width:2px
+    style C fill:#f9edcc,stroke:#edae49,stroke-width:1px
+    style D fill:#f9edcc,stroke:#edae49,stroke-width:1px
+    style E fill:#f9edcc,stroke:#edae49,stroke-width:1px
+```
 
 **Business Rules**:
 
@@ -394,8 +681,47 @@ graph TD
 
 ### 1. Component Structure
 
+<div class="component-card">
+
+#### Component Hierarchy Visualization
+
+**React Component Tree:**
+
+```
+RichInputProvider
+├── RichInputAdapter
+│   ├── RichInputEngine
+│   │   ├── ContentParser
+│   │   ├── CursorManager
+│   │   └── StateManager
+│   ├── FloatingToolbar
+│   │   ├── HashtagButton
+│   │   ├── MentionButton
+│   │   ├── EmojiButton
+│   │   └── ImageButton
+│   ├── SearchOverlay
+│   │   ├── HashtagSearch
+│   │   ├── UserSearch
+│   │   └── EmojiPicker
+│   └── PillRenderer
+│       ├── HashtagPill
+│       ├── MentionPill
+│       ├── URLPill
+│       └── EmojiPill
+```
+
+</div>
+
 ```mermaid
 classDiagram
+    class RichInputProvider {
+        +configuration: GlobalConfig
+        +searchServices: SearchServices
+        +userSettings: UserPreferences
+        +initializeServices()
+        +updateGlobalSettings()
+    }
+
     class RichInputAdapter {
         +value: string
         +onChange: function
@@ -403,68 +729,319 @@ classDiagram
         +enableHashtags: boolean
         +enableMentions: boolean
         +enableEmojis: boolean
+        +enableImageUpload: boolean
+        +characterLimit: number
+        +placeholder: string
         +handleValueChange()
         +handleProcessing()
+        +switchViewMode()
+        +validateContent()
     }
 
-    class RichInput {
+    class RichInputEngine {
         +parsers: ParserConfig
         +behavior: BehaviorConfig
         +styling: StyleConfig
         +handlers: EventHandlers
+        +cursorPosition: number
+        +selectionRange: Range
         +render()
         +getState()
         +setState()
+        +processContent()
+        +updateCursor()
     }
 
     class FloatingToolbar {
+        +position: Position
+        +visible: boolean
+        +buttons: ToolbarButton[]
         +onHashtagInsert: function
         +onMentionInsert: function
         +onEmojiInsert: function
+        +onImageInsert: function
         +disabled: boolean
+        +show()
+        +hide()
+        +updatePosition()
         +render()
     }
 
     class SearchOverlay {
         +searchType: 'hashtag' | 'mention' | 'emoji'
-        +results: Array
+        +query: string
+        +results: SearchResult[]
         +isLoading: boolean
+        +selectedIndex: number
+        +position: Position
         +onResultSelect: function
+        +search()
         +show()
         +hide()
+        +navigateResults()
+        +selectCurrent()
     }
 
-    RichInputAdapter --> RichInput
+    class ContentParser {
+        +parseHashtags: function
+        +parseMentions: function
+        +parseURLs: function
+        +parseEmojis: function
+        +generateTokens()
+        +validateTokens()
+    }
+
+    class PillRenderer {
+        +renderHashtag: function
+        +renderMention: function
+        +renderURL: function
+        +renderEmoji: function
+        +handlePillClick()
+        +handlePillEdit()
+        +handlePillDelete()
+    }
+
+    RichInputProvider --> RichInputAdapter
+    RichInputAdapter --> RichInputEngine
     RichInputAdapter --> FloatingToolbar
     RichInputAdapter --> SearchOverlay
+    RichInputEngine --> ContentParser
+    RichInputEngine --> PillRenderer
+
+    style RichInputProvider fill:#edae49,stroke:#c68214,stroke-width:3px
+    style RichInputAdapter fill:#f9df74,stroke:#edae49,stroke-width:2px
+    style RichInputEngine fill:#f9edcc,stroke:#edae49,stroke-width:2px
+    style FloatingToolbar fill:#f9edcc,stroke:#edae49,stroke-width:2px
+    style SearchOverlay fill:#f9edcc,stroke:#edae49,stroke-width:2px
+```
+
+#### Component Props Interface Details
+
+```mermaid
+erDiagram
+    RichInputAdapter {
+        string value
+        function onChange
+        string placeholder
+        boolean multiline
+        number characterLimit
+        string viewMode
+        boolean enableHashtags
+        boolean enableMentions
+        boolean enableEmojis
+        boolean enableImageUpload
+        boolean showFloatingToolbar
+        object searchConfig
+        object validationRules
+        string className
+        object style
+    }
+
+    FloatingToolbar {
+        boolean visible
+        object position
+        array buttons
+        function onAction
+        boolean disabled
+        string theme
+        object animations
+    }
+
+    SearchOverlay {
+        string searchType
+        string query
+        array results
+        boolean isLoading
+        number selectedIndex
+        object position
+        function onSelect
+        function onDismiss
+        object searchConfig
+    }
+
+    RichInputAdapter ||--|| FloatingToolbar : contains
+    RichInputAdapter ||--|| SearchOverlay : contains
 ```
 
 ### 2. Data Flow Architecture
 
+<div class="component-card">
+
+#### Complete Data Flow Process
+
+**Input Processing Pipeline:**
+
+```
+User Input → Validation → Parsing → Enhancement → Rendering → Display
+     ↓            ↓          ↓           ↓            ↓          ↓
+  Keypress    Format      Token      Visual       DOM      User Sees
+  Detection   Check     Creation     Pills      Update    Rich Content
+```
+
+**State Management Flow:**
+
+```
+Component State ←→ Global Context ←→ Local Storage
+       ↓                  ↓              ↓
+   Input Value     User Preferences  Recent Searches
+   Cursor Pos      Search History    Draft Content
+   View Mode       Custom Settings   Filter State
+```
+
+</div>
+
 ```mermaid
 flowchart TD
-    A[User Input] --> B[RichInputAdapter]
-    B --> C{Input Type?}
+    A[🎯 User Input Event] --> B{Input Classification}
 
-    C -->|Text| D[Rich Input Engine]
-    C -->|Trigger Character| E[Search Overlay]
-    C -->|Toolbar Click| F[Floating Toolbar]
+    B -->|💬 Text Content| C[Rich Input Engine]
+    B -->|🔍 Trigger Char #@:| D[Search Overlay System]
+    B -->|🛠️ Toolbar Action| E[Floating Toolbar]
+    B -->|📷 Image/File| F[Media Handler]
 
-    D --> G[Content Parsers]
-    E --> H[Search Services]
-    F --> I[Insertion Services]
+    C --> G[Content Parser Engine]
+    D --> H[Search Service Layer]
+    E --> I[Insertion Service]
+    F --> J[Upload Service]
 
-    G --> J[Token Generation]
-    H --> K[Suggestion Results]
-    I --> L[Content Insertion]
+    G --> G1[Hashtag Parser]
+    G --> G2[Mention Parser]
+    G --> G3[URL Parser]
+    G --> G4[Emoji Parser]
 
-    J --> M[Visual Rendering]
-    K --> N[Overlay Display]
-    L --> O[Content Update]
+    H --> H1[Hashtag Search API]
+    H --> H2[User Search API]
+    H --> H3[Emoji Database]
 
-    M --> P[Enhanced Content]
-    N --> P
-    O --> P
+    I --> I1[Content Insertion]
+    I --> I2[Cursor Management]
+    I --> I3[State Update]
+
+    J --> J1[File Validation]
+    J --> J2[Upload Progress]
+    J --> J3[Media Integration]
+
+    G1 --> K[Token Generation]
+    G2 --> K
+    G3 --> K
+    G4 --> K
+
+    H1 --> L[Suggestion Display]
+    H2 --> L
+    H3 --> L
+
+    I1 --> M[Content Update]
+    I2 --> M
+    I3 --> M
+
+    J1 --> N[Media Embedding]
+    J2 --> N
+    J3 --> N
+
+    K --> O[Visual Pill Rendering]
+    L --> P[Overlay Rendering]
+    M --> Q[State Synchronization]
+    N --> R[Rich Media Display]
+
+    O --> S[🎨 Enhanced UI Display]
+    P --> S
+    Q --> S
+    R --> S
+
+    S --> T[📱 User Experience]
+
+    style A fill:#edae49,stroke:#c68214,stroke-width:3px
+    style B fill:#f9df74,stroke:#edae49,stroke-width:2px
+    style S fill:#f9df74,stroke:#edae49,stroke-width:2px
+    style T fill:#edae49,stroke:#c68214,stroke-width:3px
+```
+
+#### Event Handling Architecture
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant Adapter as RichInputAdapter
+    participant Engine as RichInputEngine
+    participant Parser as ContentParser
+    participant Renderer as PillRenderer
+    participant State as StateManager
+
+    User->>Adapter: Keyboard Input
+    Adapter->>Engine: Process Input Event
+    Engine->>Parser: Parse Content
+    Parser->>Parser: Detect Patterns
+    Parser-->>Engine: Return Tokens
+    Engine->>Renderer: Create Visual Pills
+    Renderer->>State: Update Component State
+    State-->>Adapter: Trigger Re-render
+    Adapter-->>User: Display Enhanced Content
+
+    Note over User, State: Real-time processing (<50ms)
+
+    User->>Adapter: Search Trigger (#@:)
+    Adapter->>Engine: Show Search Overlay
+    Engine->>State: Update Overlay State
+    State-->>User: Display Search Interface
+    User->>Adapter: Select Search Result
+    Adapter->>Engine: Insert Selected Content
+    Engine->>Parser: Parse New Content
+    Parser->>Renderer: Update Pills
+    Renderer-->>User: Show Updated Content
+```
+
+#### State Management Architecture
+
+```mermaid
+graph TB
+    subgraph "Component Level State"
+        A1[Input Value]
+        A2[Cursor Position]
+        A3[Selection Range]
+        A4[View Mode]
+        A5[Focus State]
+    end
+
+    subgraph "Feature State"
+        B1[Search Query]
+        B2[Search Results]
+        B3[Overlay Visibility]
+        B4[Toolbar State]
+        B5[Loading States]
+    end
+
+    subgraph "Global Context"
+        C1[User Preferences]
+        C2[Search History]
+        C3[Recent Emojis]
+        C4[Custom Settings]
+        C5[Theme Config]
+    end
+
+    subgraph "Persistence Layer"
+        D1[LocalStorage]
+        D2[SessionStorage]
+        D3[IndexedDB]
+        D4[Server Sync]
+    end
+
+    A1 --> B1
+    A2 --> B3
+    A3 --> B4
+    A4 --> B5
+    A5 --> B2
+
+    B1 --> C1
+    B2 --> C2
+    B3 --> C3
+    B4 --> C4
+    B5 --> C5
+
+    C1 --> D1
+    C2 --> D2
+    C3 --> D3
+    C4 --> D4
+    C5 --> D1
 ```
 
 ### 3. State Management

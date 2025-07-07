@@ -1,10 +1,3 @@
----
-layout: default
-title: 'API Endpoint Template'
-description: 'Template for API endpoint documentation'
-permalink: /templates/api-template/
----
-
 # 📋 API Endpoint Template
 
 Use this template when documenting API endpoints for the Idling.app project.
@@ -634,6 +627,6 @@ const validationSchema = {
 
 ---
 
-**Last Updated**: {{ site.time | date: "%B %d, %Y" }}
+**Last Updated**: January 28, 2025
 **Author**: [Your Name]
 **Reviewers**: [Reviewer Names]

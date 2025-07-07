@@ -8,7 +8,8 @@ url: "http://localhost:4000"
 # Development-specific Jekyll configuration
 # This file overrides settings in _config.yml for local development
 
-# Disable problematic plugins for local development
+# Disable GitHub Pages gem for local development to allow custom plugins
+# Note: GitHub Pages gem will still be used for deployment
 plugins:
   - jekyll-feed
   - jekyll-sitemap
@@ -17,6 +18,10 @@ plugins:
   - jekyll-gist
   - jemoji
   # jekyll-github-metadata disabled for local development
+
+# Custom plugins (loaded from _plugins directory)
+plugins_dir: _plugins
+safe: false  # Allow custom plugins to run in development
 
 # Explicitly disable GitHub metadata plugin
 github-metadata:

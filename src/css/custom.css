@@ -1,0 +1,46 @@
+/**
+ * Idling.app Documentation Styles
+ * Modular CSS architecture for maintainability and organization
+ * 
+ * @version 2.0.0
+ * @description Refactored from monolithic to modular design
+ */
+
+/* Import CSS Modules in Dependency Order */
+
+/* 1. Design System Foundation */
+@import './variables.css'; /* CSS custom properties and design tokens */
+
+/* 2. Base & Typography */
+@import './base.css'; /* Fundamental styles and typography */
+
+/* 3. Navigation & Layout */
+@import './navigation.css'; /* Navbar, sidebar, and menu styles */
+
+/* 4. Components */
+@import './components.css'; /* Reusable component styles */
+
+/* 5. Specialized Features */
+@import './mermaid.css'; /* Diagram-specific styling */
+
+/* 6. Responsive Design */
+@import './responsive.css'; /* Media queries and mobile optimizations */
+
+/**
+ * Module Organization:
+ * 
+ * variables.css    - Design tokens, colors, spacing, typography scales
+ * base.css         - Reset, typography, fundamental element styling  
+ * navigation.css   - Navbar, sidebar, breadcrumbs, pagination, search
+ * components.css   - Tables, cards, alerts, examples, lists, badges
+ * mermaid.css      - Interactive diagram viewer with pan/zoom/fullscreen
+ * responsive.css   - Mobile/tablet/desktop breakpoints and print styles
+ * 
+ * Benefits:
+ * ✓ Modular and maintainable
+ * ✓ Single responsibility per file
+ * ✓ Easy to locate and update specific styles
+ * ✓ Better organization for team collaboration
+ * ✓ Easier debugging and performance optimization
+ * ✓ Clear dependency hierarchy
+ */

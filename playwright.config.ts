@@ -93,7 +93,7 @@ export default defineConfig({
 
   /* Run your local dev server before starting the tests */
   webServer: {
-    command: 'echo "======================building..."; NODE_ENV=test yarn build; NODE_ENV=test yarn start;',
+            command: 'echo "======================building..."; NODE_ENV=test pnpm build; NODE_ENV=test pnpm start;',
     stdout: 'pipe',
     url: 'http://127.0.0.1:3000',
     reuseExistingServer: !process.env.CI,

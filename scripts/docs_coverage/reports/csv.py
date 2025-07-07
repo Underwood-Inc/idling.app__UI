@@ -19,6 +19,7 @@ class CsvReporter:
     def __init__(self, config_manager: ConfigManager):
         self.config = config_manager.config
         self.output_file = Path("documentation-coverage-report.csv")
+        self.pr_context = None
         
         # Idling.app Product Colors (hex values for spreadsheet compatibility)
         self.colors = {
@@ -42,6 +43,10 @@ class CsvReporter:
     def set_code_files(self, code_files) -> None:
         """Set code files for detailed analysis."""
         self.code_files = code_files
+    
+    def set_pr_context(self, pr_context: dict) -> None:
+        """Set PR context for the reporter."""
+        self.pr_context = pr_context
     
     def generate(self, report: CoverageReport) -> str:
         """Generate the complete CSV report with enhanced formatting."""

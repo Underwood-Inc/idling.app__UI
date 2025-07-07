@@ -1,43 +1,46 @@
-# Use the official Ruby image for Jekyll
-FROM ruby:3.2
+# Dockerfile for Docusaurus Documentation Service
+FROM node:20-alpine
 
-# Install Jekyll dependencies
-RUN apt-get update && apt-get install -y \
-    build-essential \
-    zlib1g-dev \
-    git \
-    curl \
-    && rm -rf /var/lib/apt/lists/*
+# Install dependencies for any native packages
+RUN apk add --no-cache \
+    python3 \
+    make \
+    g++ \
+    cairo-dev \
+    jpeg-dev \
+    pango-dev \
+    giflib-dev
 
-# Set Ruby environment variables
-ENV GEM_HOME="/usr/local/bundle"
-ENV PATH="$GEM_HOME/bin:/usr/local/bin:$PATH"
-ENV BUNDLE_SILENCE_ROOT_WARNING=1
-ENV BUNDLE_APP_CONFIG="$GEM_HOME"
+# Enable corepack for pnpm
+RUN corepack enable
 
-# Install Bundler and Jekyll (GitHub Pages compatible versions)
-RUN gem install bundler:2.5.23 && \
-    gem install jekyll:3.10.0 && \
-    gem cleanup
+# Set working directory
+WORKDIR /app
 
-# Set the working directory to DOCS
-WORKDIR /app/DOCS
+# Copy package files and custom eslint rules (needed for pnpm install)
+COPY package.json pnpm-lock.yaml ./
+COPY custom-eslint-rules/ ./custom-eslint-rules/
 
-# Copy the DOCS directory
-COPY DOCS/ ./
+# Install dependencies
+RUN pnpm install
 
-# Expose Jekyll port
-EXPOSE 4000
+# Copy Docusaurus configuration
+COPY docusaurus.config.js sidebars.js ./
+COPY src/css/ src/css/
 
-# Create a startup script that installs dependencies and starts Jekyll
-RUN echo '#!/bin/bash\n\
-    set -e\n\
-    echo "Installing Jekyll dependencies..."\n\
-    bundle config set --local path "vendor/bundle"\n\
-    bundle install --retry 3\n\
-    echo "Starting Jekyll server..."\n\
-    bundle exec jekyll serve --config "_config.yml,_config_dev.yml" --host=0.0.0.0 --port=4000' > /start.sh && \
-    chmod +x /start.sh
+# Create empty static directory to satisfy Docusaurus
+RUN mkdir -p static
 
-# Start Jekyll server via startup script
-CMD ["/start.sh"] 
+# Copy any existing OpenAPI spec
+COPY openapi.yaml ./
+COPY scripts/generate-openapi-spec.js scripts/
+
+# Expose port 3001 (matches existing docs port)
+EXPOSE 3001
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+    CMD wget --no-verbose --tries=1 --spider http://localhost:3001/ || exit 1
+
+# Start Docusaurus in development mode
+CMD ["pnpm", "docs:dev"] 

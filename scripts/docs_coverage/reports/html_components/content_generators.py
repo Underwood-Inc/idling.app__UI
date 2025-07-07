@@ -18,7 +18,7 @@ from .utils import HtmlUtils, BadgeGenerator, CssClassHelper
 class ContentGenerator:
     """Generates HTML content for different report sections."""
     
-    def __init__(self, config: Dict[str, Any], utils: Any):
+    def __init__(self, config: Dict[str, Any], utils: Any = None):
         self.config = config
         self.utils = utils
         self.badge_generator = BadgeGenerator()
@@ -26,52 +26,93 @@ class ContentGenerator:
         self.pr_context = None  # Will be set by PR checker if applicable
         
     def generate_header(self, report: CoverageReport) -> str:
-        """Generate the report header."""
-        return f"""
-        <div class="header">
-            <h1>📊 Documentation Coverage Report</h1>
-            <p>Comprehensive analysis of documentation coverage across the Idling.app codebase</p>
-            <p>Generated: <span class="timestamp-with-tooltip" data-timestamp="{report.timestamp}">
-                <span class="relative-time">Loading...</span>
-            </span></p>
-        </div>
-        """
+        """Generate the report header with PR context if available."""
+        # Check if this is a PR-specific report
+        pr_context = getattr(self, 'pr_context', None)
+        
+        if pr_context and pr_context.get('is_pr_analysis'):
+            pr_info = pr_context.get('pr_info', {})
+            pr_files = pr_context.get('pr_files', [])
+            
+            pr_header = ""
+            if pr_info.get('pr_number'):
+                pr_header = f"""
+                <div class="pr-context-banner">
+                    <h2>🔄 Pull Request Analysis</h2>
+                    <div class="pr-details">
+                        <span class="pr-badge">PR #{pr_info.get('pr_number', 'Unknown')}</span>
+                        {f'<span class="pr-title">{pr_info.get("title", "")}</span>' if pr_info.get("title") else ''}
+                        {f'<span class="pr-author">by {pr_info.get("author", "Unknown")}</span>' if pr_info.get("author") else ''}
+                    </div>
+                    <p class="pr-scope">📁 Analyzing {len(pr_files)} changed files in this PR</p>
+                </div>
+                """
+            
+            return f"""
+            <div class="header">
+                <h1>📊 PR Documentation Coverage Report</h1>
+                <p>Documentation coverage analysis for Pull Request changes</p>
+                <p>Generated: {report.timestamp}</p>
+                {pr_header}
+            </div>
+            """
+        else:
+            return f"""
+            <div class="header">
+                <h1>📊 Documentation Coverage Report</h1>
+                <p>Comprehensive analysis of documentation coverage across the Idling.app codebase</p>
+                    <p>Generated: {report.timestamp}</p>
+            </div>
+            """
     
     def generate_overview_cards(self, report: CoverageReport) -> str:
-        """Generate overview metrics cards with filtering capabilities."""
+        """Generate overview metrics cards with filtering capabilities and PR context."""
         min_coverage = self.config["documentation_standards"]["minimum_coverage_percentage"]
+        
+        # Check if this is a PR-specific report
+        pr_context = getattr(self, 'pr_context', None)
+        
+        if pr_context and pr_context.get('is_pr_analysis'):
+            total_pr_files = pr_context.get('total_pr_files', 0)
+            analyzed_pr_files = pr_context.get('analyzed_pr_files', 0)
+            
+            title_suffix = f" (from {total_pr_files} changed files in PR)"
+            files_label = f"PR Files Analyzed"
+        else:
+            title_suffix = ""
+            files_label = "Total Files"
         
         return f"""
         <div class="overview-grid">
-            <div class="metric-card clickable-card" data-filter="all" title="Click to show all files">
+            <div class="metric-card" data-filter="all" title="Click to show all files{title_suffix}">
                 <div class="metric-value">{report.total_code_files}</div>
-                <div class="metric-label">Total Files</div>
+                <div class="metric-label">{files_label}</div>
             </div>
-            <div class="metric-card clickable-card" data-filter="documented" title="Click to show documented files">
+            <div class="metric-card clickable-card" data-filter="all" title="📄 Click to show all documentation issues and reset any active filters">
                 <div class="metric-value">{report.adequately_documented}</div>
                 <div class="metric-label">Documented Files</div>
             </div>
-            <div class="metric-card clickable-card" data-filter="coverage" title="Click to show coverage-related issues">
+            <div class="metric-card clickable-card" data-filter="all" title="📊 Click to show all documentation issues and reset any active filters">
                 <div class="metric-value {self._get_coverage_class(report.coverage_percentage, min_coverage)}">{report.coverage_percentage:.1f}%</div>
                 <div class="metric-label">Coverage</div>
                 <div class="progress-bar">
                     <div class="progress-fill" style="width: {min(report.coverage_percentage, 100)}%"></div>
                 </div>
             </div>
-            <div class="metric-card clickable-card" data-filter="quality" title="Click to show files with quality issues">
+            <div class="metric-card clickable-card" data-filter="inadequate" title="⭐ Click to filter and show only files with inadequate documentation that need quality improvements">
                 <div class="metric-value {self._get_quality_class(report.quality_score)}">{report.quality_score:.2f}</div>
                 <div class="metric-label">Quality Score</div>
-                <div class="progress-bar">
-                    <div class="progress-fill" style="width: {min(report.quality_score * 100, 100)}%"></div>
+                <div class="quality-bar">
+                    <div class="quality-fill" style="width: {min(report.quality_score * 100, 100)}%"></div>
                 </div>
-                <p style="font-size: var(--font-size-xs); margin-top: var(--spacing-xs);">Files needing quality improvements</p>
+                <p style="font-size: var(--font-size-xs); margin-top: var(--spacing-xs);">Shows files needing quality improvements</p>
             </div>
-            <div class="metric-card clickable-card" data-filter="missing" title="Click to show files with missing documentation">
+            <div class="metric-card clickable-card" data-filter="missing" title="❌ Click to filter and show only files with missing documentation">
                 <div class="metric-value {self._get_status_class(report.missing_documentation == 0)}">{report.missing_documentation}</div>
                 <div class="metric-label">Missing Documentation</div>
                 <p style="font-size: var(--font-size-xs); margin-top: var(--spacing-xs);">Files without any documentation</p>
             </div>
-            <div class="metric-card clickable-card" data-filter="inadequate" title="Click to show files with inadequate documentation">
+            <div class="metric-card clickable-card" data-filter="inadequate" title="⚠️ Click to filter and show only files with inadequate documentation">
                 <div class="metric-value {self._get_status_class(report.inadequate_documentation == 0)}">{report.inadequate_documentation}</div>
                 <div class="metric-label">Inadequate Documentation</div>
                 <p style="font-size: var(--font-size-xs); margin-top: var(--spacing-xs);">Files with incomplete documentation</p>
@@ -490,7 +531,7 @@ class ContentGenerator:
     
     def _get_effort_sort_value(self, effort: str) -> int:
         """Get numeric sort value for effort."""
-        return self.utils.get_effort_sort_value(effort)
+        return self.utils.get_effort_sort_value(effort) 
     
     def _get_github_url(self, file_path: str) -> str:
         """Generate context-aware GitHub URL based on PR context"""

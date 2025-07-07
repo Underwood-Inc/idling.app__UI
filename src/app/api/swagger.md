@@ -2,7 +2,7 @@
 layout: default
 title: 'Swagger UI - Interactive API Documentation'
 description: 'Interactive API documentation and testing interface'
-permalink: /docs/api/swagger/
+permalink: /api/swagger/
 ---
 
 # 🧪 Swagger UI - Interactive API Documentation
@@ -247,7 +247,7 @@ Test error scenarios by providing invalid data.
 
 ---
 
-**Last Updated**: {{ site.time | date: "%B %d, %Y" }}
+**Last Updated**: January 28, 2025
 
 <script src="https://unpkg.com/swagger-ui-dist@4.15.5/swagger-ui-bundle.js"></script>
 <script src="https://unpkg.com/swagger-ui-dist@4.15.5/swagger-ui-standalone-preset.js"></script>

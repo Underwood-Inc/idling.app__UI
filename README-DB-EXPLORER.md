@@ -9,29 +9,34 @@ node scripts/explore-db.js
 ```
 
 That's it! The script will:
+
 - ✅ Auto-load your `.env.local` file
-- 🔗 Connect to your PostgreSQL database 
+- 🔗 Connect to your PostgreSQL database
 - 📊 Present a beautiful interactive menu
 
 ## 🎯 Features
 
 ### 📊 Quick Views
+
 - List all tables
 - Recent users, posts, comments
 - Database statistics
 - Table sizes and activity
 
-### 🔍 Schema Info  
+### 🔍 Schema Info
+
 - Describe any table structure
 - List all database indexes
 - Show table relationships
 
-### ⚡ Custom Queries
+### Custom Queries
+
 - Run any SQL query interactively
 - Popular pre-built queries
 - Beautiful table output with `console.table()`
 
 ### 🛠️ Utilities
+
 - Connection information
 - Database health checks
 - Activity monitoring
@@ -48,6 +53,7 @@ const chalk = require('chalk');
 ```
 
 **Benefits:**
+
 - ✅ Consistent with your codebase
 - ✅ Uses existing dependencies
 - ✅ Auto-loads environment variables
@@ -75,7 +81,7 @@ Interactive PostgreSQL database exploration
   8. List indexes
   9. Show relationships
 
-⚡ Custom Queries:
+ Custom Queries:
   10. Run custom SQL
   11. Popular queries
 
@@ -103,13 +109,15 @@ The script works perfectly on production servers too! Just make sure your `.env.
 ## 🆘 Troubleshooting
 
 **"Connection failed":**
+
 - Check your `.env.local` file has correct `POSTGRES_*` variables
 - Ensure the database is running
 
 **"MODULE_NOT_FOUND":**
+
 - All dependencies are already in your `package.json`
 - Run `yarn install` if needed
 
 ---
 
-*Much simpler than my original overly-complex approach! 🧙‍♂️✨*
+_Much simpler than my original overly-complex approach! 🧙‍♂️✨_

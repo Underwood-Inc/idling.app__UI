@@ -1,0 +1,87 @@
+/**
+ * CSS Custom Properties (Variables)
+ * Central design system tokens for consistent theming
+ */
+
+:root {
+  /* Brand Colors */
+  --brand-primary: #edae49;
+  --brand-primary-light: #f9df74;
+  --brand-primary-dark: #c68214;
+  --brand-secondary: #252017;
+
+  /* Extended Color Palette */
+  --saffron: #edae49;
+  --cornflower-blue: #6495ed;
+  --chili-red: #ea2b1f;
+  --success-green: #28a745;
+  --warning-orange: #ffc107;
+
+  /* Dark Theme Colors */
+  --dark-bg-primary: #1a1611;
+  --dark-bg-secondary: #252017;
+  --dark-bg-tertiary: #2f2a1d;
+  --dark-bg-code: #0f0e0b;
+
+  /* Text Colors */
+  --text-primary: #f9f9f9;
+  --text-secondary: #b8b8b8;
+  --text-muted: #888;
+
+  /* Glass/Translucent Effects */
+  --glass-bg-light: rgba(255, 255, 255, 0.05);
+  --glass-bg-medium: rgba(255, 255, 255, 0.08);
+  --glass-bg-heavy: rgba(255, 255, 255, 0.12);
+  --glass-border-light: rgba(255, 255, 255, 0.1);
+  --glass-border-medium: rgba(255, 255, 255, 0.15);
+  --glass-shadow-light: 0 4px 6px rgba(0, 0, 0, 0.1);
+  --glass-shadow-medium: 0 8px 16px rgba(0, 0, 0, 0.15);
+  --glass-blur-light: blur(4px);
+  --glass-blur-medium: blur(8px);
+  --glass-blur-heavy: blur(12px);
+
+  /* Typography */
+  --font-family-base: 'Fira Code', 'SF Mono', Monaco, 'Inconsolata',
+    'Roboto Mono', Consolas, 'Courier New', monospace;
+  --font-size-base: 1rem;
+  --font-size-sm: 0.875rem;
+  --font-size-lg: 1.125rem;
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  /* Spacing */
+  --spacing-xs: 0.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.5rem;
+  --spacing-xl: 2rem;
+  --spacing-2xl: 3rem;
+
+  /* Border Radius */
+  --border-radius-sm: 4px;
+  --border-radius-md: 8px;
+  --border-radius-lg: 12px;
+  --border-radius-xl: 16px;
+
+  /* Transitions */
+  --transition-fast: 0.15s ease;
+  --transition-base: 0.2s ease;
+  --transition-slow: 0.3s ease;
+
+  /* Z-Index Scale */
+  --z-index-dropdown: 1000;
+  --z-index-modal: 1050;
+  --z-index-overlay: 1100;
+  --z-index-tooltip: 1200;
+}
+
+/* Dark theme overrides */
+html[data-theme='dark'] {
+  --ifm-color-primary: var(--brand-primary);
+  --ifm-color-primary-dark: var(--brand-primary-dark);
+  --ifm-color-primary-light: var(--brand-primary-light);
+  --ifm-background-color: var(--dark-bg-primary);
+  --ifm-background-surface-color: var(--dark-bg-secondary);
+}

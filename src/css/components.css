@@ -1,0 +1,177 @@
+/**
+ * Component Styles
+ * Reusable component styling for cards, tables, examples, etc.
+ */
+
+/* Enhanced Tables for Props/API Documentation */
+table {
+  background: var(--glass-bg-light) !important;
+  backdrop-filter: var(--glass-blur-medium) !important;
+  border: 1px solid var(--glass-border-light) !important;
+  border-radius: var(--border-radius-md) !important;
+  overflow: hidden !important;
+  margin: var(--spacing-lg) 0 !important;
+  box-shadow: var(--glass-shadow-medium) !important;
+}
+
+th {
+  background: var(--dark-bg-tertiary) !important;
+  color: var(--brand-primary) !important;
+  font-weight: var(--font-weight-semibold) !important;
+  padding: var(--spacing-md) !important;
+  text-align: left !important;
+  font-size: var(--font-size-sm) !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+}
+
+td {
+  border-color: var(--glass-border-light) !important;
+  padding: 0.75rem var(--spacing-md) !important;
+  vertical-align: top !important;
+  color: var(--text-secondary) !important;
+}
+
+/* Code in tables */
+td code {
+  background: var(--dark-bg-code) !important;
+  color: var(--brand-primary-light) !important;
+  padding: 0.2rem 0.4rem !important;
+  border-radius: var(--border-radius-sm) !important;
+  font-size: 0.85rem !important;
+  font-weight: var(--font-weight-medium) !important;
+  border: 1px solid var(--glass-border-light) !important;
+}
+
+/* Component Cards */
+.component-card {
+  background: var(--glass-bg-medium) !important;
+  backdrop-filter: var(--glass-blur-medium) !important;
+  border: 1px solid var(--glass-border-light) !important;
+  border-radius: var(--border-radius-lg) !important;
+  padding: var(--spacing-lg) !important;
+  margin: var(--spacing-lg) 0 !important;
+  transition: var(--transition-slow) !important;
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+.component-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(
+    90deg,
+    var(--brand-primary),
+    var(--brand-primary-light)
+  );
+}
+
+.component-card:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    var(--glass-shadow-medium),
+    0 0 20px rgba(237, 174, 73, 0.2);
+  border-color: var(--brand-primary);
+}
+
+/* Component Example Sections */
+.component-example {
+  background: var(--dark-bg-code) !important;
+  border: 1px solid var(--glass-border-light) !important;
+  border-radius: var(--border-radius-md) !important;
+  padding: var(--spacing-lg) !important;
+  margin: var(--spacing-lg) 0 !important;
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+.component-example::before {
+  content: '📋 Example';
+  position: absolute;
+  top: -10px;
+  left: 15px;
+  background: var(--brand-primary);
+  color: var(--dark-bg-primary);
+  padding: 0.2rem 0.8rem;
+  border-radius: var(--border-radius-sm);
+  font-size: 0.8rem;
+  font-weight: var(--font-weight-semibold);
+}
+
+/* Lists */
+ul li {
+  margin-bottom: var(--spacing-sm) !important;
+  color: var(--text-secondary) !important;
+  line-height: 1.6 !important;
+}
+
+/* Special styling for feature lists with strong/bold text */
+ul:has(li strong) {
+  padding-left: 0 !important;
+  margin-left: 0 !important;
+}
+
+ul li:has(strong) {
+  list-style: none !important;
+  padding: 0.75rem var(--spacing-md) !important;
+  border-left: 3px solid var(--brand-primary) !important;
+  margin-left: 0 !important;
+  margin-bottom: 0.75rem !important;
+  background: var(--glass-bg-light) !important;
+  border-radius: var(--border-radius-md) !important;
+  backdrop-filter: var(--glass-blur-medium) !important;
+}
+
+ul li:has(strong)::before {
+  content: '';
+  left: -var(--spacing-md);
+  font-size: var(--font-size-base);
+}
+
+/* Alerts/Admonitions */
+.alert {
+  border-radius: var(--border-radius-md);
+  border-left: 4px solid var(--brand-primary);
+  background: var(--glass-bg-light);
+  backdrop-filter: var(--glass-blur-medium);
+  padding: var(--spacing-md);
+  margin: var(--spacing-md) 0;
+}
+
+.alert--info {
+  border-left-color: var(--cornflower-blue);
+}
+
+.alert--warning {
+  border-left-color: var(--warning-orange);
+}
+
+.alert--danger {
+  border-left-color: var(--chili-red);
+}
+
+/* API Documentation Styling */
+.openapi-explorer {
+  background: var(--glass-bg-light);
+  backdrop-filter: var(--glass-blur-medium);
+  border: 1px solid var(--glass-border-light);
+  border-radius: var(--border-radius-lg);
+  padding: var(--spacing-lg);
+}
+
+.openapi-tabs__tab {
+  background: var(--dark-bg-secondary);
+  color: var(--text-secondary);
+  border: 1px solid var(--glass-border-light);
+  border-radius: var(--border-radius-sm);
+  transition: var(--transition-base);
+}
+
+.openapi-tabs__tab--active {
+  background: var(--brand-primary);
+  color: var(--dark-bg-primary);
+}

@@ -360,4 +360,4 @@ When implementing the navbar system:
 
 _This documentation covers the complete navbar system implementation. For specific component APIs, see individual component documentation pages._
 
-**Last Updated**: {{ site.time | date: "%B %d, %Y" }}
+**Last Updated**: January 28, 2025

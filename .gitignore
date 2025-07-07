@@ -5,7 +5,7 @@
 **/vendor
 /.pnp
 .pnp.js
-.yarn/install-state.gz
+.pnpm-store/
 
 # testing
 /coverage/*
@@ -29,8 +29,8 @@
 
 # debug
 npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
+pnpm-debug.log*
+pnpm-error.log*
 
 # local env files
 .env*.local
@@ -50,12 +50,12 @@ pnpm-lock.yaml
 playwright/.auth
 
 # Jekyll build files
-DOCS/_site/
-DOCS/.sass-cache/
-DOCS/.jekyll-cache/
-DOCS/vendor/bundle/
-DOCS/Gemfile.lock
-DOCS/.jekyll-metadata
+jekyll/_site/
+jekyll/.sass-cache/
+jekyll/.jekyll-cache/
+jekyll/vendor/bundle/
+jekyll/Gemfile.lock
+jekyll/.jekyll-metadata
 
 # Python
 __pycache__/
@@ -109,3 +109,7 @@ venv.bak/
 documentation-coverage-*.csv
 documentation-coverage-*.html
 documentation-coverage-*.json
+jekyll/_site/feed.xml
+jekyll/_site/index.html
+jekyll/_site/sitemap.xml
+.docusaurus/

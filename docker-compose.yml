@@ -57,28 +57,35 @@ services:
       context: .
       dockerfile: Dockerfile.docs
     container_name: idlingapp__ui-docs
+    working_dir: /app
     volumes:
-      - ./DOCS:/app/DOCS
-      - docs_vendor:/app/DOCS/vendor # Cache Jekyll bundle
+      # Mount source directory for co-located documentation discovery
+      - ./src:/app/src:ro
+      # Mount docusaurus config files
+      - ./docusaurus.config.js:/app/docusaurus.config.js:ro
+      - ./sidebars.js:/app/sidebars.js:ro
+      # Mount OpenAPI spec
+      - ./openapi.yaml:/app/openapi.yaml:ro
+      # Mount custom CSS
+      - ./src/css:/app/src/css:ro
     ports:
-      - '0.0.0.0:4000:4000'
+      - '0.0.0.0:3001:3001'
+      - '0.0.0.0:3002:3002'
     environment:
-      - JEKYLL_ENV=development
-      - PAGES_REPO_NWO=Underwood-Inc/idling.app__UI
+      - NODE_ENV=development
+      - PORT=3001
     healthcheck:
       test: |
-        jekyll_health=$$(curl -s -o /dev/null -w "%{http_code}" http://localhost:4000/ 2>/dev/null || echo "000")
-        if [ "$$jekyll_health" = "200" ]; then
-          echo "✅ Jekyll docs service healthy"
+        docs_health=$$(curl -s -o /dev/null -w "%{http_code}" http://localhost:3001/ 2>/dev/null || echo "000")
+        if [ "$$docs_health" = "200" ]; then
+          echo "✅ Docusaurus service healthy"
           exit 0
         else
-          echo "❌ Jekyll docs service health check failed ($$jekyll_health)"
+          echo "❌ Docusaurus service health check failed ($$docs_health)"
           exit 1
         fi
       interval: 30s
       timeout: 15s
       retries: 5
       start_period: 60s
-
-volumes:
-  docs_vendor:
+# No custom volumes needed for Docusaurus

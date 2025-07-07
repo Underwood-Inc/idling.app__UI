@@ -1,10 +1,3 @@
----
-layout: default
-title: 'Feature Documentation Template'
-description: 'Template for documenting new features'
-permalink: /templates/feature-template/
----
-
 # 📋 Feature Documentation Template
 
 Use this template when documenting new features for the Idling.app project.
@@ -300,6 +293,6 @@ If issues arise:
 
 ---
 
-**Last Updated**: {{ site.time | date: "%B %d, %Y" }}
+**Last Updated**: January 28, 2025
 **Author**: [Your Name]
 **Reviewers**: [Reviewer Names]

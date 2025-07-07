@@ -118,4 +118,4 @@ Comprehensive testing documentation covering unit tests, integration tests, end-
 
 ---
 
-_Testing documentation is continuously updated. Last updated: {{ site.time | date: "%B %d, %Y" }}_
+_Testing documentation is continuously updated. Last updated: January 28, 2025_
