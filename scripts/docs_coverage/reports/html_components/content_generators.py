@@ -57,13 +57,13 @@ class ContentGenerator:
             </div>
             """
         else:
-        return f"""
-        <div class="header">
-            <h1>📊 Documentation Coverage Report</h1>
-            <p>Comprehensive analysis of documentation coverage across the Idling.app codebase</p>
-                <p>Generated: {report.timestamp}</p>
-        </div>
-        """
+            return f"""
+            <div class="header">
+                <h1>📊 Documentation Coverage Report</h1>
+                <p>Comprehensive analysis of documentation coverage across the Idling.app codebase</p>
+                    <p>Generated: {report.timestamp}</p>
+            </div>
+            """
     
     def generate_overview_cards(self, report: CoverageReport) -> str:
         """Generate overview metrics cards with filtering capabilities and PR context."""
