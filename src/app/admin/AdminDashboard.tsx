@@ -7,16 +7,9 @@ import AdminPostsList from './components/AdminPostsList';
 import CustomAlertsPanel from './components/CustomAlertsPanel';
 import EmojiApprovalPanel from './components/EmojiApprovalPanel';
 import GlobalGuestQuotaPanel from './components/GlobalGuestQuotaPanel';
+import PermissionManagementPanel from './components/PermissionManagementPanel';
 import SubscriptionManagementPanel from './components/SubscriptionManagementPanel';
 import { UserManagementPanel } from './components/UserManagementPanel';
-
-// Placeholder components - will be created
-const PermissionManagementPanel = () => (
-  <div className="admin-dashboard__placeholder">
-    <h2>Permission Management</h2>
-    <p>Permission management features coming soon...</p>
-  </div>
-);
 
 type AdminTab =
   | 'emojis'
