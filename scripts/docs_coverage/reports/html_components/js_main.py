@@ -70,8 +70,6 @@ def get_complete_javascript() -> str:
                 this.components.keyboardManager = new KeyboardManager();
                 this.components.modalStyleManager = new ModalStyleManager();
                 this.components.modalManager = new ModalManager();
-                this.components.sourceCodeManager = new SourceCodeManager();
-                this.components.columnPickerManager = new ColumnPickerManager();
                 this.components.tableManager = new EnhancedTableManager();
                 
                 // Make modal manager globally accessible

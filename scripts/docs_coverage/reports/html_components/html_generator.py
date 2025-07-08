@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
 """
-Main HTML Generator Coordinator for Documentation Coverage Report
+HTML Generator for Documentation Coverage Report
 
-This is a lightweight coordinator that delegates to specialized components
-and uses external templates and styles instead of inline content.
+Generates the complete HTML document using external CSS files with golden branding.
 """
 
 from typing import Dict, List, Any, Optional, Union
@@ -20,16 +19,14 @@ except ImportError:
     # Fallback for when running as standalone module
     from typing import Any as CoverageReport, Any as DocumentationGap, Any as ConfigManager
 
-from .template_loader import TemplateLoader
 from .content_generators import ContentGenerator
+from .javascript import get_javascript
+from .template_loader import TemplateLoader
 
 
 class HtmlGenerator:
     """
-    Lightweight HTML generator that coordinates components and templates.
-    
-    Uses external HTML templates and CSS files instead of inline content
-    to maintain clean separation of concerns and stay under 300 lines.
+    HTML generator that uses external CSS files with golden branding.
     """
     
     def __init__(self, config: Union[ConfigManager, Dict[str, Any]]):
@@ -48,25 +45,15 @@ class HtmlGenerator:
             self.config = {}
         
         # Initialize components
-        self.template_loader = TemplateLoader()
         self.content_generator = ContentGenerator(self.config)
-        
-        # Set up default content generators
-        self._setup_default_generators()
+        self.template_loader = TemplateLoader()
     
-    def _setup_default_generators(self):
-        """Set up default content generation methods."""
-        # These can be overridden by external code
-        self._generate_header = self._default_header
-        self._generate_overview_cards = self._default_overview_cards
-        self._generate_quality_metrics = self._default_quality_metrics
-        self._generate_priority_distribution = self._default_priority_breakdown
-        self._generate_gaps_table = self._default_gaps_analysis
-        self._generate_recommendations = self._default_recommendations
-        self._generate_footer = self._default_footer
+    def set_code_files(self, code_files: List[Any]) -> None:
+        """Set the code files data for line count information."""
+        self.content_generator.set_code_files(code_files)
     
     def generate_document(self, report: CoverageReport) -> str:
-        """Generate the complete HTML document.
+        """Generate the complete HTML document using external CSS files.
         
         Args:
             report: Coverage report data
@@ -74,162 +61,167 @@ class HtmlGenerator:
         Returns:
             Complete HTML document as string
         """
+        output = []
+        
+        # HTML header with external CSS files (golden branding) and highlight.js
+        output.append(f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Documentation Coverage Report - {report.timestamp}</title>
+    <!-- Highlight.js CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/vs2015.min.css">
+    <style>
+        {self._get_complete_css()}
+    </style>
+</head>
+<body>
+    <div class="theme-toggle">
+        <button id="theme-toggle-btn" class="theme-toggle-btn" aria-label="Toggle theme">
+            <span class="theme-icon light-icon">☀️</span>
+            <span class="theme-icon dark-icon">🌙</span>
+        </button>
+    </div>
+    
+    <div class="container">""")
+        
+        # Generate all content sections using the content generator
+        output.append(self.content_generator.generate_header(report))
+        output.append(self.content_generator.generate_overview_cards(report))
+        output.append(self.content_generator.generate_quality_metrics(report))
+        output.append(self.content_generator.generate_priority_breakdown(report))
+        output.append(self.content_generator.generate_gaps_analysis(report))
+        output.append(self.content_generator.generate_recommendations(report))
+        output.append(self.content_generator.generate_footer(report))
+        
+        # Close container
+        output.append("    </div>")
+        
+        # Add modals
+        output.append(self._get_modals())
+        
+        # Add source code embedding for modal system
+        output.append(self.content_generator.generate_source_code_embedding(report))
+        
+        # Add highlight.js JavaScript and the main application JavaScript
+        output.append(f"""
+    <!-- Highlight.js JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/typescript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/css.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/json.min.js"></script>
+    <script>
+        {self._get_complete_javascript()}
+    </script>""")
+        
+        # Close HTML
+        output.append("""
+</body>
+</html>""")
+        
+        return "\n".join(output)
+    
+    def _get_complete_css(self) -> str:
+        """Get the complete CSS with golden branding."""
         try:
-            # Generate content sections
-            header = self._generate_header(report)
-            overview = self._generate_overview_cards(report)
-            quality = self._generate_quality_metrics(report)
-            priority = self._generate_priority_distribution(report)
-            gaps = self._generate_gaps_table(report)
-            recommendations = self._generate_recommendations(report)
-            footer = self._generate_footer(report)
+            # Load all CSS files
+            main_css = self.template_loader.load_style('main.css')
+            table_css = self.template_loader.load_style('table.css')
+            modal_css = self.template_loader.load_style('modals.css')
             
-            # Load modals template
-            modals = self.template_loader.load_template('modals.html')
+            # Load additional CSS components
+            try:
+                from .filter_controls import FilterControlsGenerator
+                from .pagination import PaginationStyleGenerator
+                filter_css = FilterControlsGenerator().generate_filter_styles()
+                pagination_css = PaginationStyleGenerator().generate_pagination_styles()
+            except ImportError:
+                filter_css = ""
+                pagination_css = ""
             
-            # Render base template with all content
-            html_content = self.template_loader.render_template(
-                'base.html',
-                header=header,
-                overview=overview,
-                quality=quality,
-                priority=priority,
-                gaps=gaps,
-                recommendations=recommendations,
-                footer=footer,
-                modals=modals
-            )
-            
-            # Replace external CSS/JS links with inline content for single-file output
-            html_content = self._embed_assets(html_content)
-            
-            return html_content
+            # Combine all CSS
+            return f"{main_css}\n{table_css}\n{modal_css}\n{filter_css}\n{pagination_css}"
             
         except Exception as e:
-            return self._generate_error_page(str(e))
+            print(f"❌ Failed to load CSS: {e}")
+            # Fallback to minimal CSS
+            return """
+            body { font-family: Arial, sans-serif; margin: 40px; }
+            .error { background: #fee; border: 1px solid #fcc; padding: 20px; border-radius: 8px; }
+            .error h1 { color: #c33; margin-top: 0; }
+            """
     
-    def _embed_assets(self, html_content: str) -> str:
-        """Embed external CSS and JS files inline for single-file output.
-        
-        Args:
-            html_content: HTML content with external links
+    def _get_modals(self) -> str:
+        """Get the modals HTML with column picker configuration."""
+        try:
+            # Define column configurations for the table
+            column_definitions = [
+                {
+                    "id": "file",
+                    "label": "📁 File",
+                    "visible": True,
+                    "essential": True
+                },
+                {
+                    "id": "lines",
+                    "label": "📏 Lines",
+                    "visible": True,
+                    "essential": False
+                },
+                {
+                    "id": "status",
+                    "label": "📊 Status",
+                    "visible": True,
+                    "essential": True
+                },
+                {
+                    "id": "priority",
+                    "label": "🎯 Priority",
+                    "visible": True,
+                    "essential": True
+                },
+                {
+                    "id": "doc",
+                    "label": "📄 Expected Doc",
+                    "visible": True,
+                    "essential": False
+                },
+                {
+                    "id": "effort",
+                    "label": "⏱️ Effort",
+                    "visible": True,
+                    "essential": False
+                },
+                {
+                    "id": "issues",
+                    "label": "⚠️ Issues",
+                    "visible": True,
+                    "essential": False
+                }
+            ]
             
-        Returns:
-            HTML with embedded assets
-        """
-        # Replace CSS links with inline styles
-        css_links = [
-            '<link rel="stylesheet" href="styles/main.css">',
-            '<link rel="stylesheet" href="styles/table.css">',
-            '<link rel="stylesheet" href="styles/modals.css">'
-        ]
-        
-        inline_styles = self.template_loader.get_inline_styles()
-        
-        for link in css_links:
-            html_content = html_content.replace(link, '')
-        
-        # Insert styles in head
-        html_content = html_content.replace('</head>', f'{inline_styles}\n</head>')
-        
-        # Replace JS links with inline scripts
-        js_links = [
-            '<script src="scripts/main.js"></script>'
-        ]
-        
-        inline_scripts = self.template_loader.get_inline_scripts()
-        
-        for link in js_links:
-            html_content = html_content.replace(link, inline_scripts)
-        
-        return html_content
+            # Try to use the modals generator with column definitions
+            try:
+                from .modals import ModalsGenerator
+                modals_generator = ModalsGenerator(self.config)
+                return modals_generator.generate_all_modals(column_definitions)
+            except ImportError:
+                # Fallback to template loader
+                return self.template_loader.load_template('modals.html')
+                
+        except Exception as e:
+            print(f"❌ Failed to load modals: {e}")
+            return ""
     
-    def _generate_error_page(self, error_message: str) -> str:
-        """Generate an error page when something goes wrong.
-        
-        Args:
-            error_message: Error message to display
-            
-        Returns:
-            Error page HTML
-        """
-        return f"""
-        <!DOCTYPE html>
-        <html lang="en">
-        <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Error - Documentation Coverage Report</title>
-            <style>
-                body {{ font-family: Arial, sans-serif; margin: 40px; }}
-                .error {{ background: #fee; border: 1px solid #fcc; padding: 20px; border-radius: 8px; }}
-                .error h1 {{ color: #c33; margin-top: 0; }}
-            </style>
-        </head>
-        <body>
-            <div class="error">
-                <h1>❌ Error Generating Report</h1>
-                <p><strong>Error:</strong> {error_message}</p>
-                <p>Please check the configuration and try again.</p>
-            </div>
-        </body>
-        </html>
-        """
-    
-    # Default content generators (can be overridden)
-    def _default_header(self, report: CoverageReport) -> str:
-        """Generate default header content."""
-        return self.content_generator.generate_header(report)
-    
-    def _default_overview_cards(self, report: CoverageReport) -> str:
-        """Generate default overview cards."""
-        return self.content_generator.generate_overview_cards(report)
-    
-    def _default_quality_metrics(self, report: CoverageReport) -> str:
-        """Generate default quality metrics."""
-        return self.content_generator.generate_quality_metrics(report)
-    
-    def _default_priority_breakdown(self, report: CoverageReport) -> str:
-        """Generate default priority breakdown."""
-        return self.content_generator.generate_priority_breakdown(report)
-    
-    def _default_gaps_analysis(self, report: CoverageReport) -> str:
-        """Generate default gaps analysis."""
-        return self.content_generator.generate_gaps_analysis(report)
-    
-    def _default_recommendations(self, report: CoverageReport) -> str:
-        """Generate default recommendations."""
-        return self.content_generator.generate_recommendations(report)
-    
-    def _default_footer(self, report: CoverageReport) -> str:
-        """Generate default footer."""
-        return self.content_generator.generate_footer(report)
-    
-    # Public methods for customization
-    def set_header_generator(self, generator_func):
-        """Set custom header generator function."""
-        self._generate_header = generator_func
-    
-    def set_overview_generator(self, generator_func):
-        """Set custom overview generator function."""
-        self._generate_overview_cards = generator_func
-    
-    def set_quality_generator(self, generator_func):
-        """Set custom quality metrics generator function."""
-        self._generate_quality_metrics = generator_func
-    
-    def set_priority_generator(self, generator_func):
-        """Set custom priority breakdown generator function."""
-        self._generate_priority_distribution = generator_func
-    
-    def set_gaps_generator(self, generator_func):
-        """Set custom gaps analysis generator function."""
-        self._generate_gaps_table = generator_func
-    
-    def set_recommendations_generator(self, generator_func):
-        """Set custom recommendations generator function."""
-        self._generate_recommendations = generator_func
-    
-    def set_footer_generator(self, generator_func):
-        """Set custom footer generator function."""
-        self._generate_footer = generator_func 
+    def _get_complete_javascript(self) -> str:
+        """Get the complete JavaScript."""
+        try:
+            # FORCE USE OF SIMPLE JAVASCRIPT - complex system is broken
+            return self.content_generator.generate_simple_javascript()
+        except Exception as e:
+            print(f"❌ Failed to load simple JavaScript: {e}")
+            # Fallback to basic JavaScript
+            return get_javascript().replace('<script>', '').replace('</script>', '') 

@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JavaScript Test - Fixed Version</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #1a1a1a;
+            color: #e0e0e0;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #444;
+            border-radius: 8px;
+            background: #2a2a2a;
+        }
+        button {
+            background: #f4d03f;
+            color: #000;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #f1c40f;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal.show {
+            display: flex !important;
+        }
+        .modal-content {
+            background: #2a2a2a;
+            border-radius: 12px;
+            padding: 20px;
+            max-width: 500px;
+            width: 90%;
+        }
+        .modal-close {
+            float: right;
+            font-size: 24px;
+            cursor: pointer;
+            background: none;
+            border: none;
+            color: #e0e0e0;
+        }
+        .advanced-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 10px 0;
+            font-size: 14px;
+        }
+        .advanced-table th,
+        .advanced-table td {
+            padding: 8px 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        .advanced-table th {
+            background: #f5f5f5;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .advanced-table th:hover {
+            background: #e8e8e8;
+        }
+        .gap-row {
+            cursor: pointer;
+        }
+        .gap-row:hover {
+            background: #f9f9f9;
+        }
+        .search-input {
+            width: 100%;
+            padding: 10px;
+            background: #333;
+            border: 1px solid #555;
+            color: #e0e0e0;
+            border-radius: 5px;
+        }
+        .filter-tag {
+            background: #e0e0e0;
+            color: #333;
+            padding: 6px 12px;
+            border-radius: 16px;
+            cursor: pointer;
+            font-size: 14px;
+            border: 2px solid transparent;
+            transition: all 0.2s ease;
+        }
+        .filter-tag:hover {
+            background: #d0d0d0;
+        }
+        .filter-tag.active {
+            background: #4CAF50;
+            color: white;
+            border-color: #45a049;
+        }
+        [data-theme='dark'] .filter-tag {
+            background: #444;
+            color: #e0e0e0;
+        }
+        [data-theme='dark'] .filter-tag:hover {
+            background: #555;
+        }
+        [data-theme='dark'] .filter-tag.active {
+            background: #4CAF50;
+            color: white;
+        }
+        #filter-status {
+            background: #f0f0f0;
+            color: #333;
+        }
+        [data-theme='dark'] #filter-status {
+            background: #444;
+            color: #e0e0e0;
+        }
+        [data-theme='dark'] {
+            background-color: #1a1a1a;
+            color: #e0e0e0;
+        }
+        [data-theme='light'] {
+            background-color: #ffffff;
+            color: #000000;
+        }
+        .theme-toggle-btn {
+            padding: 8px 16px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 10px;
+        }
+        .theme-toggle-btn:hover {
+            background: #45a049;
+        }
+        .hljs {
+            background-color: #f4f4f4;
+            padding: 15px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+        .hljs-keyword { color: #0066cc; font-weight: bold; }
+        .hljs-string { color: #006600; }
+        .hljs-comment { color: #999999; font-style: italic; }
+        .hljs-number { color: #cc0000; }
+        .hljs-function { color: #cc6600; }
+        .hljs-property { color: #0066cc; }
+        .test-row {
+            padding: 10px;
+            margin: 5px 0;
+            border: 1px solid #ddd;
+            cursor: pointer;
+        }
+        .test-row:hover {
+            background-color: #f0f0f0;
+        }
+        [data-theme='dark'] .test-row {
+            border-color: #555;
+        }
+        [data-theme='dark'] .test-row:hover {
+            background-color: #333;
+        }
+        [data-theme='dark'] .modal-content {
+            background-color: #2a2a2a;
+            color: #e0e0e0;
+        }
+        [data-theme='dark'] .hljs {
+            background-color: #1e1e1e;
+            color: #e0e0e0;
+        }
+        [data-theme='dark'] .hljs-keyword { color: #569cd6; }
+        [data-theme='dark'] .hljs-string { color: #ce9178; }
+        [data-theme='dark'] .hljs-comment { color: #6a9955; }
+        [data-theme='dark'] .hljs-number { color: #b5cea8; }
+        [data-theme='dark'] .hljs-function { color: #dcdcaa; }
+        [data-theme='dark'] .hljs-property { color: #9cdcfe; }
+        #debug-log {
+            margin-top: 20px;
+            padding: 10px;
+            background: #f0f0f0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        [data-theme='dark'] #debug-log {
+            background: #2a2a2a;
+            color: #e0e0e0;
+            border-color: #555;
+        }
+        .filter-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 10px 0;
+        }
+        .advanced-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 10px 0;
+            font-size: 14px;
+        }
+        .advanced-table th,
+        .advanced-table td {
+            padding: 8px 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        .advanced-table th {
+            background: #f5f5f5;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .advanced-table th:hover {
+            background: #e8e8e8;
+        }
+        .gap-row {
+            cursor: pointer;
+        }
+        .gap-row:hover {
+            background: #f9f9f9;
+        }
+        [data-theme='dark'] .advanced-table th {
+            background: #444;
+            color: #e0e0e0;
+        }
+        [data-theme='dark'] .advanced-table th:hover {
+            background: #555;
+        }
+        [data-theme='dark'] .advanced-table td {
+            border-color: #555;
+            color: #e0e0e0;
+        }
+        [data-theme='dark'] .gap-row:hover {
+            background: #333;
+        }
+    </style>
+</head>
+<body>
+    <h1>JavaScript Test Page</h1>
+    <p>Current theme: <span id="current-theme">Loading...</span></p>
+    
+    <button class="theme-toggle-btn" onclick="testThemeToggle()">🌙 Test Theme Toggle</button>
+    
+    <div style="margin: 20px 0;">
+        <h3>Filter Test</h3>
+        <div class="filter-tags">
+            <span class="filter-tag active" data-filter="all">All (4)</span>
+            <span class="filter-tag" data-filter="critical">Critical (1)</span>
+            <span class="filter-tag" data-filter="high">High (1)</span>
+            <span class="filter-tag" data-filter="medium">Medium (1)</span>
+            <span class="filter-tag" data-filter="low">Low (1)</span>
+            <span class="filter-tag" data-filter="missing">Missing (2)</span>
+            <span class="filter-tag" data-filter="inadequate">Inadequate (2)</span>
+        </div>
+        <div id="filter-status" style="margin: 10px 0; padding: 8px; background: #f0f0f0; border-radius: 4px; font-weight: bold;">
+            Filter status will appear here...
+        </div>
+    </div>
+    
+    <div style="margin: 20px 0;">
+        <h3>Table Test</h3>
+        <table id="gaps-table" class="advanced-table">
+            <thead>
+                <tr>
+                    <th data-column="file">📁 File</th>
+                    <th data-column="status">📊 Status</th>
+                    <th data-column="priority">⭐ Priority</th>
+                </tr>
+            </thead>
+            <tbody id="table-tbody">
+                <tr class="gap-row" data-file-path="test1.tsx">
+                    <td>test1.tsx</td>
+                    <td>Missing</td>
+                    <td>Critical</td>
+                </tr>
+                <tr class="gap-row" data-file-path="test2.js">
+                    <td>test2.js</td>
+                    <td>Missing</td>
+                    <td>High</td>
+                </tr>
+                <tr class="gap-row" data-file-path="test3.ts">
+                    <td>test3.ts</td>
+                    <td>Inadequate</td>
+                    <td>Medium</td>
+                </tr>
+                <tr class="gap-row" data-file-path="test4.jsx">
+                    <td>test4.jsx</td>
+                    <td>Inadequate</td>
+                    <td>Low</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    
+    <div class="test-row" data-file="test.tsx" onclick="testModal('test.tsx')">
+        Click to test source modal for test.tsx
+    </div>
+    
+    <div class="test-row" data-file="example.ts" onclick="testModal('example.ts')">
+        Click to test source modal for example.ts
+    </div>
+
+    <div id="debug-log">
+        <strong>Debug Log:</strong><br>
+    </div>
+    
+    <script>
+        // Debug logging
+        function debugLog(message) {
+            const log = document.getElementById('debug-log');
+            const timestamp = new Date().toLocaleTimeString();
+            log.innerHTML += `<div>[${timestamp}] ${message}</div>`;
+            log.scrollTop = log.scrollHeight;
+            console.log(`[${timestamp}] ${message}`);
+        }
+
+        // Test theme toggle
+        function testThemeToggle() {
+            debugLog('🌙 Theme toggle clicked');
+            if (window.tableManager) {
+                debugLog('✅ TableManager found, calling toggleTheme()');
+                window.tableManager.toggleTheme();
+            } else {
+                debugLog('❌ TableManager not found!');
+            }
+        }
+
+        // Test modal
+        function testModal(filePath) {
+            debugLog(`📄 Modal test clicked for: ${filePath}`);
+            if (window.tableManager) {
+                debugLog('✅ TableManager found, calling openSourceModal()');
+                window.tableManager.openSourceModal(filePath);
+            } else {
+                debugLog('❌ TableManager not found!');
+            }
+        }
+
+        // Close modal
+        function closeModal() {
+            debugLog('❌ Close modal clicked');
+            if (window.tableManager) {
+                window.tableManager.closeModals();
+            }
+        }
+
+        // Test theme display
+        function updateThemeDisplay() {
+            const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
+            document.getElementById('current-theme').textContent = currentTheme;
+            debugLog(`🎨 Theme updated to: ${currentTheme}`);
+        }
+
+        // Update theme display on load
+        updateThemeDisplay();
+
+        // Monitor for theme changes
+        new MutationObserver(updateThemeDisplay).observe(document.documentElement, {
+            attributes: true,
+            attributeFilter: ['data-theme']
+        });
+
+        debugLog('🚀 Test page loaded');
+    </script>
+    
+    <script src="test-main.js"></script>
+    
+    <script>
+        // Test that window.tableManager is available
+        setTimeout(() => {
+            if (window.tableManager) {
+                debugLog('✅ TableManager is available globally');
+                debugLog('✅ Theme toggle and modal should work now');
+            } else {
+                debugLog('❌ TableManager is NOT available globally');
+            }
+        }, 100);
+    </script>
+</body>
+</html> 

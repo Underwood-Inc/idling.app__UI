@@ -327,10 +327,22 @@ def get_table_manager_js() -> str:
             
             let result = 0;
             
-            // Handle numeric values
-            if (!isNaN(valueA) && !isNaN(valueB)) {
+            // Handle special sorting for specific columns
+            if (column === 'size' || column === 'priority' || column === 'effort') {
+                // These columns have numeric data-sort values
+                const numA = parseFloat(valueA);
+                const numB = parseFloat(valueB);
+                
+                if (!isNaN(numA) && !isNaN(numB)) {
+                    result = numA - numB;
+                } else {
+                    result = valueA.localeCompare(valueB);
+                }
+            } else if (!isNaN(valueA) && !isNaN(valueB)) {
+                // Other numeric columns
                 result = parseFloat(valueA) - parseFloat(valueB);
             } else {
+                // String comparison
                 result = valueA.localeCompare(valueB);
             }
             
@@ -459,6 +471,162 @@ def get_table_manager_js() -> str:
                     }
                 });
             });
+        }
+        
+        showSourceCodeModal(row) {
+            // Delegate to the modal manager
+            if (window.modalManager) {
+                window.modalManager.showSourceCodeModal(row);
+            } else {
+                console.warn('⚠️ Modal manager not available');
+            }
+        }
+        
+        // State Management Methods
+        loadPersistedState() {
+            try {
+                const savedState = localStorage.getItem(this.storageKey);
+                if (savedState) {
+                    const state = JSON.parse(savedState);
+                    
+                    // Restore pagination
+                    this.currentPage = state.currentPage || 1;
+                    this.pageSize = state.pageSize || 50;
+                    
+                    // Restore sorting
+                    this.sortState = state.sortState || {
+                        primary: { column: null, direction: 'asc' },
+                        secondary: { column: null, direction: 'asc' }
+                    };
+                    
+                    // Restore filters
+                    this.currentFilter = state.currentFilter || 'all';
+                    this.searchTerm = state.searchTerm || '';
+                    
+                    // Restore column widths
+                    this.columnWidths = state.columnWidths || {};
+                    
+                    // Restore hidden columns
+                    this.hiddenColumns = new Set(state.hiddenColumns || ['type']);
+                    
+                    console.log('📊 Table state restored from localStorage');
+                }
+            } catch (e) {
+                console.warn('⚠️ Failed to load persisted state:', e);
+                // Use defaults
+                this.hiddenColumns = new Set(['type']);
+            }
+        }
+        
+        saveState() {
+            try {
+                const state = {
+                    currentPage: this.currentPage,
+                    pageSize: this.pageSize,
+                    sortState: this.sortState,
+                    currentFilter: this.currentFilter,
+                    searchTerm: this.searchTerm,
+                    columnWidths: this.columnWidths,
+                    hiddenColumns: Array.from(this.hiddenColumns)
+                };
+                
+                localStorage.setItem(this.storageKey, JSON.stringify(state));
+            } catch (e) {
+                console.warn('⚠️ Failed to save state:', e);
+            }
+        }
+        
+        // Filter and utility methods
+        applyFilters() {
+            this.filteredRows = this.allRows.filter(row => {
+                // Search filter
+                if (this.searchTerm) {
+                    const searchText = row.textContent.toLowerCase();
+                    if (!searchText.includes(this.searchTerm)) {
+                        return false;
+                    }
+                }
+                
+                // Priority/status filter
+                if (this.currentFilter !== 'all') {
+                    const priority = row.dataset.priority;
+                    const gapType = row.dataset.gapType;
+                    
+                    if (this.currentFilter === 'missing' && gapType !== 'missing') return false;
+                    if (this.currentFilter === 'inadequate' && gapType !== 'inadequate') return false;
+                    if (['critical', 'high', 'medium', 'low'].includes(this.currentFilter) && priority !== this.currentFilter) return false;
+                }
+                
+                return true;
+            });
+            
+            this.currentPage = 1;
+            this.updateDisplay();
+        }
+        
+        updateFilterTags() {
+            document.querySelectorAll('.filter-tag').forEach(tag => {
+                tag.classList.toggle('active', tag.dataset.filter === this.currentFilter);
+            });
+        }
+        
+        clearAllFilters() {
+            this.currentFilter = 'all';
+            this.searchTerm = '';
+            this.currentPage = 1;
+            
+            // Clear search input
+            const searchInput = document.getElementById('gap-search');
+            if (searchInput) searchInput.value = '';
+            
+            this.updateFilterTags();
+            this.applyFilters();
+            this.saveState();
+        }
+        
+        resetTableSettings() {
+            // Reset pagination
+            this.currentPage = 1;
+            this.pageSize = 50;
+            
+            // Reset sorting
+            this.sortState = {
+                primary: { column: null, direction: 'asc' },
+                secondary: { column: null, direction: 'asc' }
+            };
+            
+            // Reset filters
+            this.currentFilter = 'all';
+            this.searchTerm = '';
+            
+            // Reset columns
+            this.hiddenColumns = new Set(['type']);
+            
+            // Reset column widths
+            this.columnWidths = {};
+            
+            // Apply changes
+            this.clearAllFilters();
+            this.updateDisplay();
+            this.saveState();
+            
+            console.log('🔄 Table settings reset to defaults');
+        }
+        
+        showColumnPicker() {
+            // Delegate to modal manager
+            if (window.modalManager) {
+                window.modalManager.showColumnPicker();
+            } else {
+                console.warn('⚠️ Modal manager not available');
+            }
+        }
+        
+        scrollToTable() {
+            const tableContainer = document.querySelector('.gaps-analysis-section');
+            if (tableContainer) {
+                tableContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
         }
     }
     """

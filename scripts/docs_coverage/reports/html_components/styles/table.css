@@ -415,3 +415,318 @@
     gap: 0.5rem;
   }
 }
+
+/* Table-specific CSS styles for HTML Documentation Coverage Report */
+/* Enhanced table styling with proper column widths and layout */
+
+/* Advanced Table Container */
+.advanced-table-container {
+  overflow: auto;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background: var(--bg-secondary);
+  margin: 1rem 0;
+  max-height: 80vh;
+}
+
+/* Main Table - CRITICAL FIXED LAYOUT */
+.advanced-table {
+  width: 100%;
+  min-width: 1200px;
+  border-collapse: collapse;
+  font-size: 14px;
+  background: var(--bg-secondary);
+  table-layout: fixed !important;
+}
+
+/* Table Cells - Base Styling */
+.advanced-table th,
+.advanced-table td {
+  padding: 12px 16px;
+  text-align: left;
+  border-bottom: 1px solid var(--border-color);
+  vertical-align: top;
+  box-sizing: border-box;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Table Headers */
+.advanced-table th {
+  background: var(--bg-tertiary);
+  font-weight: 600;
+  color: var(--text-primary);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  border-bottom: 2px solid var(--border-color);
+  user-select: none;
+}
+
+/* COLUMN WIDTHS - FIXED AND ENFORCED */
+.advanced-table .col-file {
+  width: 25% !important;
+  min-width: 250px !important;
+  max-width: 350px !important;
+}
+
+.advanced-table .col-status {
+  width: 10% !important;
+  min-width: 100px !important;
+  max-width: 120px !important;
+}
+
+.advanced-table .col-priority {
+  width: 8% !important;
+  min-width: 80px !important;
+  max-width: 100px !important;
+}
+
+.advanced-table .col-size {
+  width: 8% !important;
+  min-width: 80px !important;
+  max-width: 100px !important;
+}
+
+.advanced-table .col-expected {
+  width: 20% !important;
+  min-width: 200px !important;
+  max-width: 300px !important;
+}
+
+.advanced-table .col-effort {
+  width: 8% !important;
+  min-width: 80px !important;
+  max-width: 100px !important;
+}
+
+.advanced-table .col-issues {
+  width: 15% !important;
+  min-width: 150px !important;
+  max-width: 200px !important;
+}
+
+.advanced-table .col-type {
+  width: 6% !important;
+  min-width: 60px !important;
+  max-width: 80px !important;
+}
+
+/* File Path Specific Styling */
+.advanced-table .col-file {
+  white-space: normal !important;
+  word-break: break-word !important;
+  overflow-wrap: break-word !important;
+}
+
+.file-path-container {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 1.4;
+  display: block;
+  width: 100%;
+}
+
+.file-directory {
+  color: var(--text-secondary);
+  opacity: 0.7;
+  font-weight: 400;
+}
+
+.file-name {
+  color: var(--brand-primary);
+  font-weight: 600;
+}
+
+.clickable-filename {
+  cursor: pointer;
+  text-decoration: underline;
+  transition: all 0.2s ease;
+}
+
+.clickable-filename:hover {
+  color: var(--brand-secondary);
+  text-shadow: 0 0 4px rgba(237, 174, 73, 0.3);
+}
+
+/* Row Hover Effects */
+.advanced-table tbody tr:hover {
+  background: var(--hover-bg) !important;
+  cursor: pointer;
+}
+
+.advanced-table tbody tr.clickable-row:hover {
+  background: linear-gradient(
+    135deg,
+    var(--hover-bg),
+    rgba(237, 174, 73, 0.05)
+  ) !important;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(237, 174, 73, 0.1);
+}
+
+/* Badge Styling */
+.badge {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.badge-error {
+  background: #ef4444;
+  color: white;
+}
+
+.badge-warning {
+  background: #f59e0b;
+  color: white;
+}
+
+.badge-info {
+  background: #3b82f6;
+  color: white;
+}
+
+.badge-success {
+  background: #22c55e;
+  color: white;
+}
+
+/* Code Path Styling */
+.doc-path {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  background: var(--bg-primary);
+  padding: 2px 6px;
+  border-radius: 4px;
+  border: 1px solid var(--border-color);
+  display: inline-block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Effort Badges */
+.effort-badge {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.effort-low {
+  background: #22c55e;
+  color: white;
+}
+.effort-medium {
+  background: #f59e0b;
+  color: white;
+}
+.effort-high {
+  background: #ef4444;
+  color: white;
+}
+
+/* File Type Badges */
+.file-type-badge {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 10px;
+  font-weight: 500;
+  text-transform: uppercase;
+  border: 1px solid var(--border-color);
+}
+
+/* Sort Indicators */
+.sortable {
+  cursor: pointer;
+  position: relative;
+}
+
+.sortable:hover {
+  background: var(--hover-bg);
+}
+
+.sort-indicators {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 12px;
+  height: 12px;
+}
+
+/* Header Content Layout */
+.header-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  position: relative;
+}
+
+.header-text {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 1400px) {
+  .advanced-table {
+    font-size: 13px;
+  }
+
+  .advanced-table th,
+  .advanced-table td {
+    padding: 10px 12px;
+  }
+}
+
+@media (max-width: 1200px) {
+  .advanced-table {
+    font-size: 12px;
+  }
+
+  .advanced-table th,
+  .advanced-table td {
+    padding: 8px 10px;
+  }
+}
+
+/* Scrollbar Styling */
+.advanced-table-container::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+
+.advanced-table-container::-webkit-scrollbar-track {
+  background: var(--bg-secondary);
+  border-radius: 6px;
+}
+
+.advanced-table-container::-webkit-scrollbar-thumb {
+  background: var(--brand-primary);
+  border-radius: 6px;
+  border: 2px solid var(--bg-secondary);
+}
+
+.advanced-table-container::-webkit-scrollbar-thumb:hover {
+  background: var(--brand-secondary);
+}
+
+/* Firefox Scrollbars */
+.advanced-table-container {
+  scrollbar-width: auto;
+  scrollbar-color: var(--brand-primary) var(--bg-secondary);
+}

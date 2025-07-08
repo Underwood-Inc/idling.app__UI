@@ -1,16 +1,18 @@
 #!/usr/bin/env python3
 """
-JavaScript functionality coordinator for HTML Documentation Coverage Report
+JavaScript functionality for HTML Documentation Coverage Report
 
-Coordinates all JavaScript components for comprehensive interactive features.
+Generates the simple JavaScript for filtering - MATCHES OLD WORKING VERSION.
 """
 
-from .js_main import get_complete_javascript
+from .content_generators import ContentGenerator
 
 
 def get_javascript() -> str:
-    """Generate comprehensive JavaScript for all interactive features."""
-    return get_complete_javascript()
+    """Generate simple JavaScript for filtering - MATCHES OLD WORKING VERSION."""
+    # Create a content generator to get the simple JavaScript
+    generator = ContentGenerator({})
+    return generator.generate_simple_javascript()
 
 
 # Export the main function for backward compatibility

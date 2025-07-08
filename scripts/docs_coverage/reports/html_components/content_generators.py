@@ -5,9 +5,11 @@ Content Generators for HTML Documentation Coverage Report
 Provides functions to generate different sections of the HTML report.
 """
 
+import json
+import os
 from typing import Dict, List, Any
 try:
-    from ..models import CoverageReport, DocumentationGap
+    from ...models import CoverageReport, DocumentationGap
 except ImportError:
     # Fallback for when running as standalone module
     from typing import Any as CoverageReport, Any as DocumentationGap
@@ -20,105 +22,88 @@ class ContentGenerator:
     
     def __init__(self, config: Dict[str, Any], utils: Any = None):
         self.config = config
-        self.utils = utils
+        self.utils = utils or HtmlUtils
         self.badge_generator = BadgeGenerator()
         self.css_helper = CssClassHelper()
         self.pr_context = None  # Will be set by PR checker if applicable
+        self.code_files = None  # Will be set by the HTML reporter
+        
+    def set_code_files(self, code_files: List[Any]) -> None:
+        """Set the code files data for line count information."""
+        self.code_files = code_files
+        
+    def _get_line_count_for_file(self, file_path: str) -> int:
+        """Get line count for a file from the code_files data."""
+        if not self.code_files:
+            # Fallback: read line count directly from file system
+            try:
+                with open(file_path, 'r', encoding='utf-8') as f:
+                    return len(f.readlines())
+            except:
+                return 0
+            
+        for code_file in self.code_files:
+            if code_file.path == file_path:
+                return code_file.size_lines
+                
+        # Fallback: read line count directly from file system
+        try:
+            with open(file_path, 'r', encoding='utf-8') as f:
+                return len(f.readlines())
+        except:
+            return 0
         
     def generate_header(self, report: CoverageReport) -> str:
-        """Generate the report header with PR context if available."""
-        # Check if this is a PR-specific report
-        pr_context = getattr(self, 'pr_context', None)
-        
-        if pr_context and pr_context.get('is_pr_analysis'):
-            pr_info = pr_context.get('pr_info', {})
-            pr_files = pr_context.get('pr_files', [])
-            
-            pr_header = ""
-            if pr_info.get('pr_number'):
-                pr_header = f"""
-                <div class="pr-context-banner">
-                    <h2>🔄 Pull Request Analysis</h2>
-                    <div class="pr-details">
-                        <span class="pr-badge">PR #{pr_info.get('pr_number', 'Unknown')}</span>
-                        {f'<span class="pr-title">{pr_info.get("title", "")}</span>' if pr_info.get("title") else ''}
-                        {f'<span class="pr-author">by {pr_info.get("author", "Unknown")}</span>' if pr_info.get("author") else ''}
-                    </div>
-                    <p class="pr-scope">📁 Analyzing {len(pr_files)} changed files in this PR</p>
-                </div>
-                """
-            
-            return f"""
-            <div class="header">
-                <h1>📊 PR Documentation Coverage Report</h1>
-                <p>Documentation coverage analysis for Pull Request changes</p>
-                <p>Generated: {report.timestamp}</p>
-                {pr_header}
-            </div>
-            """
-        else:
-            return f"""
-            <div class="header">
-                <h1>📊 Documentation Coverage Report</h1>
-                <p>Comprehensive analysis of documentation coverage across the Idling.app codebase</p>
-                    <p>Generated: {report.timestamp}</p>
-            </div>
-            """
+        """Generate beautiful header with golden branding."""
+        return f"""
+        <div class="header">
+            <h1>📊 Documentation Coverage Report</h1>
+            <p>Comprehensive analysis of documentation coverage across the Idling.app codebase</p>
+            <p>Generated: {report.timestamp}</p>
+        </div>"""
     
     def generate_overview_cards(self, report: CoverageReport) -> str:
-        """Generate overview metrics cards with filtering capabilities and PR context."""
-        min_coverage = self.config["documentation_standards"]["minimum_coverage_percentage"]
+        """Generate beautiful overview dashboard with golden theme."""
+        min_coverage = self.config.get("documentation_standards", {}).get("minimum_coverage_percentage", 85.0)
         
-        # Check if this is a PR-specific report
-        pr_context = getattr(self, 'pr_context', None)
-        
-        if pr_context and pr_context.get('is_pr_analysis'):
-            total_pr_files = pr_context.get('total_pr_files', 0)
-            analyzed_pr_files = pr_context.get('analyzed_pr_files', 0)
-            
-            title_suffix = f" (from {total_pr_files} changed files in PR)"
-            files_label = f"PR Files Analyzed"
-        else:
-            title_suffix = ""
-            files_label = "Total Files"
+        # Determine status classes based on thresholds
+        coverage_status = "quality-excellent" if report.coverage_percentage >= min_coverage else "quality-poor"
+        quality_status = "quality-excellent" if report.quality_score >= 0.8 else "quality-good" if report.quality_score >= 0.6 else "quality-poor"
         
         return f"""
         <div class="overview-grid">
-            <div class="metric-card" data-filter="all" title="Click to show all files{title_suffix}">
+            <div class="metric-card" data-metric="total-files">
                 <div class="metric-value">{report.total_code_files}</div>
-                <div class="metric-label">{files_label}</div>
+                <div class="metric-label">TOTAL FILES</div>
             </div>
-            <div class="metric-card clickable-card" data-filter="all" title="📄 Click to show all documentation issues and reset any active filters">
+            <div class="metric-card" data-metric="documented-files">
                 <div class="metric-value">{report.adequately_documented}</div>
-                <div class="metric-label">Documented Files</div>
+                <div class="metric-label">DOCUMENTED FILES</div>
             </div>
-            <div class="metric-card clickable-card" data-filter="all" title="📊 Click to show all documentation issues and reset any active filters">
-                <div class="metric-value {self._get_coverage_class(report.coverage_percentage, min_coverage)}">{report.coverage_percentage:.1f}%</div>
-                <div class="metric-label">Coverage</div>
-                <div class="progress-bar">
-                    <div class="progress-fill" style="width: {min(report.coverage_percentage, 100)}%"></div>
-                </div>
+            <div class="metric-card" data-metric="coverage">
+                <div class="metric-value {coverage_status}">{report.coverage_percentage:.1f}%</div>
+                <div class="metric-label">COVERAGE</div>
             </div>
-            <div class="metric-card clickable-card" data-filter="inadequate" title="⭐ Click to filter and show only files with inadequate documentation that need quality improvements">
-                <div class="metric-value {self._get_quality_class(report.quality_score)}">{report.quality_score:.2f}</div>
-                <div class="metric-label">Quality Score</div>
-                <div class="quality-bar">
-                    <div class="quality-fill" style="width: {min(report.quality_score * 100, 100)}%"></div>
-                </div>
-                <p style="font-size: var(--font-size-xs); margin-top: var(--spacing-xs);">Shows files needing quality improvements</p>
-            </div>
-            <div class="metric-card clickable-card" data-filter="missing" title="❌ Click to filter and show only files with missing documentation">
-                <div class="metric-value {self._get_status_class(report.missing_documentation == 0)}">{report.missing_documentation}</div>
-                <div class="metric-label">Missing Documentation</div>
-                <p style="font-size: var(--font-size-xs); margin-top: var(--spacing-xs);">Files without any documentation</p>
-            </div>
-            <div class="metric-card clickable-card" data-filter="inadequate" title="⚠️ Click to filter and show only files with inadequate documentation">
-                <div class="metric-value {self._get_status_class(report.inadequate_documentation == 0)}">{report.inadequate_documentation}</div>
-                <div class="metric-label">Inadequate Documentation</div>
-                <p style="font-size: var(--font-size-xs); margin-top: var(--spacing-xs);">Files with incomplete documentation</p>
+            <div class="metric-card" data-metric="quality">
+                <div class="metric-value {quality_status}">{report.quality_score:.2f}</div>
+                <div class="metric-label">QUALITY SCORE</div>
+                <div class="metric-subtitle">Shows files needing quality improvements</div>
             </div>
         </div>
-        """
+        
+        <!-- Second row with missing/inadequate documentation -->
+        <div class="overview-grid">
+            <div class="metric-card" data-metric="missing">
+                <div class="metric-value quality-poor">{report.missing_documentation}</div>
+                <div class="metric-label">MISSING DOCUMENTATION</div>
+                <div class="metric-subtitle">Files without any documentation</div>
+            </div>
+            <div class="metric-card" data-metric="inadequate">
+                <div class="metric-value quality-fair">{report.inadequate_documentation}</div>
+                <div class="metric-label">INADEQUATE DOCUMENTATION</div>
+                <div class="metric-subtitle">Files with incomplete documentation</div>
+            </div>
+        </div>"""
     
     def generate_quality_metrics(self, report: CoverageReport) -> str:
         """Generate quality metrics section."""
@@ -143,28 +128,27 @@ class ContentGenerator:
         """
     
     def generate_priority_breakdown(self, report: CoverageReport) -> str:
-        """Generate priority breakdown section with filtering capabilities."""
+        """Generate priority breakdown using CORRECT metric-card classes."""
         if not any(count > 0 for count in report.by_priority.values()):
             return ""
         
         priority_cards = []
         priority_info = {
-            "critical": {"emoji": "🚨", "desc": "Immediate action required", "color": "quality-poor"},
-            "high": {"emoji": "⚠️", "desc": "Action needed soon", "color": "quality-fair"},
-            "medium": {"emoji": "📝", "desc": "Should be documented", "color": "quality-good"},
-            "low": {"emoji": "💡", "desc": "Nice to have", "color": "quality-excellent"}
+            "critical": {"emoji": "🚨", "desc": "Immediate action required", "class": "quality-poor"},
+            "high": {"emoji": "⚠️", "desc": "Action needed soon", "class": "quality-fair"},
+            "medium": {"emoji": "📝", "desc": "Should be documented", "class": "quality-good"},
+            "low": {"emoji": "💡", "desc": "Nice to have", "class": "quality-excellent"}
         }
         
         for priority, count in report.by_priority.items():
             if count > 0:
                 info = priority_info[priority]
                 priority_cards.append(f"""
-                <div class="metric-card clickable-card" data-filter="{priority}" title="Click to filter by {priority} priority">
-                    <div class="metric-value {info['color']}">{count}</div>
+                <div class="metric-card clickable-card" data-filter="{priority}" title="{info['emoji']} Click to filter and show only {priority} priority items - {info['desc']}">
+                    <div class="metric-value {info['class']}">{count}</div>
                     <div class="metric-label">{info['emoji']} {priority.title()}</div>
                     <p style="font-size: var(--font-size-xs); margin-top: var(--spacing-xs);">{info['desc']}</p>
-                </div>
-                """)
+                </div>""")
         
         return f"""
         <div class="card">
@@ -172,35 +156,70 @@ class ContentGenerator:
             <div class="overview-grid">
                 {''.join(priority_cards)}
             </div>
-        </div>
-        """
+        </div>"""
     
     def generate_gaps_analysis(self, report: CoverageReport) -> str:
-        """Generate advanced gaps analysis table."""
+        """Generate ADVANCED gaps analysis with search, column picker, and pagination."""
         if not report.gaps:
             return ""
         
-        # Define table columns
-        columns = [
-            {"id": "file", "label": "File Path", "width": "300px", "sortable": True, "visible": True, "essential": True},
-            {"id": "status", "label": "Status", "width": "120px", "sortable": True, "visible": True, "essential": False},
-            {"id": "priority", "label": "Priority", "width": "100px", "sortable": True, "visible": True, "essential": False},
-            {"id": "expected", "label": "Expected Documentation", "width": "250px", "sortable": True, "visible": True, "essential": False},
-            {"id": "effort", "label": "Effort", "width": "80px", "sortable": True, "visible": True, "essential": False},
-            {"id": "issues", "label": "Quality Issues", "width": "200px", "sortable": False, "visible": True, "essential": False},
-            {"id": "type", "label": "File Type", "width": "100px", "sortable": True, "visible": False, "essential": False},
-            {"id": "size", "label": "Estimated Size", "width": "120px", "sortable": True, "visible": False, "essential": False}
-        ]
+        # Generate advanced table rows with full data
+        table_rows = []
+        for i, gap in enumerate(report.gaps):
+            file_name = gap.code_file.split("/")[-1]
+            file_dir = "/".join(gap.code_file.split("/")[:-1])
+            doc_name = gap.expected_doc_path.split("/")[-1]
+            issues = ", ".join(gap.quality_issues[:3])
+            if len(gap.quality_issues) > 3:
+                issues += f" +{len(gap.quality_issues) - 3} more"
+            
+            priority_emoji = {"critical": "🚨", "high": "⚠️", "medium": "📝", "low": "💡"}[gap.priority]
+            
+            # Generate GitHub URL
+            github_url = self._get_github_url(gap.code_file)
+            
+            # Get file extension for better styling
+            file_ext = gap.code_file.split(".")[-1] if "." in gap.code_file else "txt"
+            
+            # Get line count for this file
+            line_count = self._get_line_count_for_file(gap.code_file)
+            
+            table_rows.append(f"""
+                <tr class="clickable-row gap-row" data-priority="{gap.priority}" data-file-path="{gap.code_file}" 
+                    data-status="{gap.gap_type}" data-effort="{gap.estimated_effort}"
+                    data-file-type="{file_ext}"
+                    data-file-name="{gap.code_file}"
+                    data-expected-doc="{gap.expected_doc_path}"
+                    data-issues-count="{len(gap.quality_issues)}"
+                    data-github-url="{github_url}"
+                    data-line-count="{line_count}">
+                    <td class="col-file">
+                        <div class="file-path-container">
+                            <span class="file-directory">{file_dir}/</span>
+                            <span class="file-name clickable-filename" title="Click to preview source code">{file_name}</span>
+                        </div>
+                    </td>
+                    <td class="col-lines">
+                        <span class="line-count">{line_count:,}</span>
+                    </td>
+                    <td class="col-status">
+                        <span class="badge badge-{gap.gap_type.lower()}">{gap.gap_type.title()}</span>
+                    </td>
+                    <td class="col-priority">
+                        <span class="priority-indicator priority-{gap.priority.lower()}">{priority_emoji} {gap.priority.title()}</span>
+                    </td>
+                    <td class="col-doc">
+                        <span class="code">{doc_name}</span>
+                    </td>
+                    <td class="col-effort">
+                        <span class="effort-indicator effort-{gap.estimated_effort.lower()}">{gap.estimated_effort.title()}</span>
+                    </td>
+                    <td class="col-issues">
+                        <span class="issues-text" title="{', '.join(gap.quality_issues)}">{issues}</span>
+                    </td>
+                </tr>""")
         
-        # Generate table rows
-        rows = self._generate_table_rows(report.gaps)
-        
-        # Generate column picker options
-        column_picker_html = self._generate_column_picker(columns)
-        
-        # Generate table headers with enhanced sort indicators
-        headers_html = self._generate_table_headers(columns)
-        
+        # Return ADVANCED HTML structure matching working report
         return f"""
         <div class="card">
             <h2>📄 Advanced Documentation Gaps Analysis</h2>
@@ -210,6 +229,7 @@ class ContentGenerator:
                 <div class="filter-row">
                     <div class="search-container">
                         <input type="text" id="gap-search" placeholder="🔍 Search files, paths, or issues..." class="search-input">
+                        <button class="search-clear" id="search-clear" title="Clear search">✕</button>
                     </div>
                     <div class="table-controls">
                         <button id="column-picker-btn" class="control-btn" title="Show/Hide Columns">
@@ -224,196 +244,78 @@ class ContentGenerator:
                 </div>
                 
                 <div class="filter-tags">
-                    <span class="filter-tag active" data-filter="all">All ({len(report.gaps)})</span>
-                    <span class="filter-tag" data-filter="critical">Critical ({report.by_priority.get('critical', 0)})</span>
-                    <span class="filter-tag" data-filter="high">High ({report.by_priority.get('high', 0)})</span>
-                    <span class="filter-tag" data-filter="medium">Medium ({report.by_priority.get('medium', 0)})</span>
-                    <span class="filter-tag" data-filter="low">Low ({report.by_priority.get('low', 0)})</span>
-                    <span class="filter-tag" data-filter="missing">Missing ({report.missing_documentation})</span>
-                    <span class="filter-tag" data-filter="inadequate">Inadequate ({report.inadequate_documentation})</span>
+                    <div class="filter-group">
+                        <span class="filter-label">Priority:</span>
+                        <button class="filter-tag active" data-filter="priority" data-value="">All ({len(report.gaps)})</button>
+                        <button class="filter-tag" data-filter="priority" data-value="critical">🚨 Critical ({len([g for g in report.gaps if g.priority == 'critical'])})</button>
+                        <button class="filter-tag" data-filter="priority" data-value="high">⚠️ High ({len([g for g in report.gaps if g.priority == 'high'])})</button>
+                        <button class="filter-tag" data-filter="priority" data-value="medium">📝 Medium ({len([g for g in report.gaps if g.priority == 'medium'])})</button>
+                        <button class="filter-tag" data-filter="priority" data-value="low">💡 Low ({len([g for g in report.gaps if g.priority == 'low'])})</button>
+                    </div>
+                    <div class="filter-group">
+                        <span class="filter-label">Status:</span>
+                        <button class="filter-tag active" data-filter="status" data-value="">All</button>
+                        <button class="filter-tag" data-filter="status" data-value="missing">❌ Missing</button>
+                        <button class="filter-tag" data-filter="status" data-value="inadequate">⚠️ Inadequate</button>
+                    </div>
                 </div>
                 
                 <div class="filter-status-row">
-                    <span id="filter-status">Showing all {len(report.gaps)} items</span>
-                    <button id="clear-filters" class="clear-btn">Clear All Filters</button>
-                </div>
-            </div>
-            
-            <!-- Pagination Controls (Top) -->
-            <div class="pagination-controls pagination-top">
-                <div class="pagination-info">
-                    <span id="pagination-info-text">Showing 1-50 of {len(report.gaps)} items</span>
-                </div>
-                <div class="pagination-controls-group">
-                    <label class="page-size-label">
-                        Items per page:
-                        <select id="page-size-select" class="page-size-select">
-                            <option value="25">25</option>
-                            <option value="50" selected>50</option>
-                            <option value="100">100</option>
-                            <option value="200">200</option>
-                            <option value="all">All</option>
-                        </select>
-                    </label>
-                    <div class="pagination-buttons">
-                        <button id="first-page-btn" class="pagination-btn" title="First page" disabled>⏮️</button>
-                        <button id="prev-page-btn" class="pagination-btn" title="Previous page" disabled>⏪</button>
-                        <span id="page-indicator" class="page-indicator">Page 1 of 1</span>
-                        <button id="next-page-btn" class="pagination-btn" title="Next page" disabled>⏩</button>
-                        <button id="last-page-btn" class="pagination-btn" title="Last page" disabled>⏭️</button>
+                    <div class="results-summary">
+                        <span id="filtered-count">{len(report.gaps)}</span> of <span id="total-count">{len(report.gaps)}</span> items
                     </div>
+                    <button class="clear-btn" id="clear-all-filters">Clear All Filters 🧹</button>
                 </div>
             </div>
             
             <!-- Advanced Table Container -->
             <div class="advanced-table-container">
-                <table id="gaps-table" class="advanced-table">
+                <table class="advanced-table" id="gaps-table">
                     <thead>
                         <tr>
-                            {headers_html}
+                            <th class="sortable col-file" data-column="file">📁 File <span class="sort-indicator"></span></th>
+                            <th class="sortable col-lines" data-column="lines">📏 Lines <span class="sort-indicator"></span></th>
+                            <th class="sortable col-status" data-column="status">📊 Status <span class="sort-indicator"></span></th>
+                            <th class="sortable col-priority" data-column="priority">🎯 Priority <span class="sort-indicator"></span></th>
+                            <th class="sortable col-doc" data-column="doc">📄 Expected Doc <span class="sort-indicator"></span></th>
+                            <th class="sortable col-effort" data-column="effort">⏱️ Effort <span class="sort-indicator"></span></th>
+                            <th class="sortable col-issues" data-column="issues">⚠️ Issues <span class="sort-indicator"></span></th>
                         </tr>
                     </thead>
-                    <tbody id="table-tbody">
-                        {''.join(rows)}
+                    <tbody id="gaps-table-body">
+                        {''.join(table_rows)}
                     </tbody>
                 </table>
             </div>
             
-            <!-- Pagination Controls (Bottom) -->
-            <div class="pagination-controls pagination-bottom">
-                <div class="pagination-summary">
-                    <span id="pagination-summary-text">Total: {len(report.gaps)} items</span>
+            <!-- Pagination Controls -->
+            <div class="pagination-container">
+                <div class="pagination-info">
+                    <span>Showing <span id="showing-start">1</span>-<span id="showing-end">{min(50, len(report.gaps))}</span> of <span id="showing-total">{len(report.gaps)}</span> items</span>
+                    <div class="items-per-page">
+                        <label for="items-per-page">Items per page:</label>
+                        <select id="items-per-page" class="items-select">
+                            <option value="25">25</option>
+                            <option value="50" selected>50</option>
+                            <option value="100">100</option>
+                            <option value="all">All</option>
+                        </select>
+                    </div>
                 </div>
-                <div class="pagination-buttons">
-                    <button id="first-page-btn-bottom" class="pagination-btn" title="First page" disabled>⏮️</button>
-                    <button id="prev-page-btn-bottom" class="pagination-btn" title="Previous page" disabled>⏪</button>
-                    <span id="page-indicator-bottom" class="page-indicator">Page 1 of 1</span>
-                    <button id="next-page-btn-bottom" class="pagination-btn" title="Next page" disabled>⏩</button>
-                    <button id="last-page-btn-bottom" class="pagination-btn" title="Last page" disabled>⏭️</button>
-                </div>
-            </div>
-            
-            <!-- Table Status Bar -->
-            <div class="table-status-bar">
-                <div class="status-info">
-                    <span id="table-info">3/8 columns visible • Sorted by file. Hold Shift to multi-sort.</span>
-                </div>
-                <div class="sort-info">
-                    <span id="sort-status">Click rows to view source code • Click filenames to open on GitHub</span>
-                </div>
-            </div>
-            
-            <!-- Column Picker Content (Hidden) -->
-            <div style="display: none;">
-                <div id="column-picker-content">
-                    {column_picker_html}
+                <div class="pagination-controls">
+                    <button class="pagination-btn" id="first-page" title="First page">⏮️</button>
+                    <button class="pagination-btn" id="prev-page" title="Previous page">◀️</button>
+                    <span class="pagination-pages">
+                        <span>Page </span>
+                        <input type="number" id="current-page" value="1" min="1" max="{max(1, (len(report.gaps) + 49) // 50)}" class="page-input">
+                        <span> of {max(1, (len(report.gaps) + 49) // 50)}</span>
+                    </span>
+                    <button class="pagination-btn" id="next-page" title="Next page">▶️</button>
+                    <button class="pagination-btn" id="last-page" title="Last page">⏭️</button>
                 </div>
             </div>
         </div>
         """
-    
-    def _generate_table_rows(self, gaps: List[DocumentationGap]) -> List[str]:
-        """Generate table rows for documentation gaps."""
-        rows = []
-        for gap in gaps:
-            priority_badge = self._get_priority_badge(gap.priority)
-            status_badge = self._get_gap_status_badge(gap.gap_type)
-            
-            # Get file type and estimated size
-            file_type = gap.code_file.split('.')[-1].upper() if '.' in gap.code_file else 'Unknown'
-            estimated_size = self._estimate_doc_size(gap.estimated_effort)
-            
-            # Add comprehensive data attributes
-            data_attrs = f'''data-priority="{gap.priority}" 
-                           data-gap-type="{gap.gap_type}" 
-                           data-effort="{gap.estimated_effort}"
-                           data-file-type="{file_type.lower()}"
-                           data-file-name="{gap.code_file}"
-                           data-expected-doc="{gap.expected_doc_path}"
-                           data-issues-count="{len(gap.quality_issues)}"
-                           data-github-url="{self._get_github_url(gap.code_file)}"'''
-            
-            quality_issues = ', '.join(gap.quality_issues[:3]) if gap.quality_issues else 'None'
-            if len(gap.quality_issues) > 3:
-                quality_issues += f' (+{len(gap.quality_issues) - 3} more)'
-            
-            # Split file path for better display
-            file_parts = gap.code_file.split('/')
-            file_name = file_parts[-1]
-            file_dir = '/'.join(file_parts[:-1]) if len(file_parts) > 1 else ''
-            
-            rows.append(f"""
-            <tr class="gap-row clickable-row" {data_attrs}>
-                <td class="col-file" data-sort="{gap.code_file}">
-                    <div class="file-path-container">
-                        {f'<span class="file-directory">{file_dir}/</span>' if file_dir else ''}
-                        <span class="file-name clickable-filename" 
-                              data-github-url="{self._get_github_url(gap.code_file)}"
-                              title="Click to open on GitHub">{file_name}</span>
-                    </div>
-                </td>
-                <td class="col-status" data-sort="{gap.gap_type}">
-                    {status_badge}
-                </td>
-                <td class="col-priority" data-sort="{self._get_priority_sort_value(gap.priority)}">
-                    {priority_badge}
-                </td>
-                <td class="col-expected" data-sort="{gap.expected_doc_path}">
-                    <code class="doc-path">{gap.expected_doc_path}</code>
-                </td>
-                <td class="col-effort" data-sort="{self._get_effort_sort_value(gap.estimated_effort)}">
-                    <span class="effort-badge effort-{gap.estimated_effort.lower()}">{gap.estimated_effort.title()}</span>
-                </td>
-                <td class="col-issues" data-sort="{len(gap.quality_issues)}">
-                    <span class="issues-text" title="{'; '.join(gap.quality_issues) if gap.quality_issues else 'No issues'}">{quality_issues}</span>
-                </td>
-                <td class="col-type" data-sort="{file_type}">
-                    <span class="file-type-badge">{file_type}</span>
-                </td>
-                <td class="col-size" data-sort="{estimated_size}">
-                    <span class="size-estimate">{estimated_size}</span>
-                </td>
-            </tr>
-            """)
-        
-        return rows
-    
-    def _generate_column_picker(self, columns: List[Dict]) -> str:
-        """Generate column picker HTML."""
-        column_picker_html = ""
-        for col in columns:
-            essential_class = "essential" if col["essential"] else ""
-            column_picker_html += f'''
-            <label class="column-option {essential_class}">
-                <input type="checkbox" 
-                       data-column="{col['id']}" 
-                       {"checked" if col["visible"] else ""} 
-                       {"disabled" if col["essential"] else ""}>
-                <span class="column-label">{col['label']}</span>
-                {' <small>(essential)</small>' if col["essential"] else ''}
-            </label>
-            '''
-        return column_picker_html
-    
-    def _generate_table_headers(self, columns: List[Dict]) -> str:
-        """Generate table headers with enhanced sort indicators."""
-        headers_html = ""
-        for col in columns:
-            visible_class = "" if col["visible"] else "hidden"
-            sortable_class = "sortable" if col["sortable"] else ""
-            headers_html += f'''
-            <th class="col-{col['id']} {visible_class} {sortable_class}" 
-                data-column="{col['id']}" 
-                data-width="{col['width']}"
-                style="width: {col['width']};">
-                <div class="header-content">
-                    <span class="header-text">{col['label']}</span>
-                    {f'<div class="sort-indicators"></div>' if col["sortable"] else ''}
-                </div>
-                <div class="resize-handle"></div>
-            </th>
-            '''
-        return headers_html
     
     def generate_recommendations(self, report: CoverageReport) -> str:
         """Generate recommendations section."""
@@ -500,6 +402,785 @@ class ContentGenerator:
         </div>
         """
     
+    def generate_simple_javascript(self) -> str:
+        """Generate ADVANCED JavaScript for all features - MATCHES WORKING VERSION."""
+        return r"""
+        // Advanced Documentation Coverage Report JavaScript
+        let currentPage = 1;
+        let itemsPerPage = 50;
+        let currentSort = { column: '', direction: '' };
+        let activeFilters = { priority: '', status: '', search: '' };
+        let allRows = [];
+        let filteredRows = [];
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeTable();
+            setupEventListeners();
+            applyInitialSettings();
+        });
+        
+        function initializeTable() {
+            const tableBody = document.getElementById('gaps-table-body');
+            if (!tableBody) return;
+            
+            allRows = Array.from(tableBody.querySelectorAll('tr'));
+            filteredRows = [...allRows];
+            updateTable();
+        }
+        
+        function setupEventListeners() {
+            // Search functionality
+            const searchInput = document.getElementById('gap-search');
+            if (searchInput) {
+                searchInput.addEventListener('input', handleSearch);
+            }
+            
+            const searchClear = document.getElementById('search-clear');
+            if (searchClear) {
+                searchClear.addEventListener('click', clearSearch);
+            }
+            
+            // Filter tags
+            document.querySelectorAll('.filter-tag').forEach(tag => {
+                tag.addEventListener('click', handleFilterTag);
+            });
+            
+            // Clear all filters
+            const clearAllBtn = document.getElementById('clear-all-filters');
+            if (clearAllBtn) {
+                clearAllBtn.addEventListener('click', clearAllFilters);
+            }
+            
+            // Column picker
+            const columnPickerBtn = document.getElementById('column-picker-btn');
+            if (columnPickerBtn) {
+                columnPickerBtn.addEventListener('click', toggleColumnPicker);
+            }
+            
+            // Reset table
+            const resetBtn = document.getElementById('reset-table-btn');
+            if (resetBtn) {
+                resetBtn.addEventListener('click', resetTable);
+            }
+            
+            // Pagination
+            const itemsSelect = document.getElementById('items-per-page');
+            if (itemsSelect) {
+                itemsSelect.addEventListener('change', handleItemsPerPageChange);
+            }
+            
+            // Pagination buttons
+            document.getElementById('first-page')?.addEventListener('click', () => goToPage(1));
+            document.getElementById('prev-page')?.addEventListener('click', () => goToPage(currentPage - 1));
+            document.getElementById('next-page')?.addEventListener('click', () => goToPage(currentPage + 1));
+            document.getElementById('last-page')?.addEventListener('click', () => goToPage(Math.ceil(filteredRows.length / itemsPerPage)));
+            
+            // Current page input
+            document.getElementById('current-page')?.addEventListener('change', handlePageInputChange);
+            
+            // Sort handlers
+            document.querySelectorAll('.sortable').forEach(header => {
+                header.addEventListener('click', handleSort);
+            });
+            
+            // Pagination handlers
+            setupPaginationHandlers();
+            
+            // Column picker handlers
+            setupColumnPickerHandlers();
+            
+            // Theme toggle
+            const themeToggle = document.getElementById('theme-toggle-btn');
+            if (themeToggle) {
+                themeToggle.addEventListener('click', toggleTheme);
+            }
+            
+            // Modal handlers
+            setupModalHandlers();
+            
+            // Keyboard shortcuts
+            document.addEventListener('keydown', handleKeyboardShortcuts);
+        }
+        
+        function handleSearch() {
+            const searchTerm = document.getElementById('gap-search').value.toLowerCase();
+            activeFilters.search = searchTerm;
+            applyFilters();
+        }
+        
+        function clearSearch() {
+            document.getElementById('gap-search').value = '';
+            activeFilters.search = '';
+            applyFilters();
+        }
+        
+        function handleFilterTag(event) {
+            const tag = event.target;
+            const filter = tag.dataset.filter;
+            const value = tag.dataset.value;
+            
+            // Update active state
+            document.querySelectorAll(`[data-filter="${filter}"]`).forEach(t => t.classList.remove('active'));
+            tag.classList.add('active');
+            
+            // Update filters
+            activeFilters[filter] = value;
+            applyFilters();
+        }
+        
+        function applyFilters() {
+            filteredRows = allRows.filter(row => {
+                // Priority filter
+                if (activeFilters.priority && row.dataset.priority !== activeFilters.priority) {
+                    return false;
+                }
+                
+                // Status filter
+                if (activeFilters.status && row.dataset.status !== activeFilters.status) {
+                    return false;
+                }
+                
+                // Search filter
+                if (activeFilters.search) {
+                    const searchText = row.textContent.toLowerCase();
+                    if (!searchText.includes(activeFilters.search)) {
+                        return false;
+                    }
+                }
+                
+                return true;
+            });
+            
+            currentPage = 1;
+            updateTable();
+            updateFilterCounts();
+        }
+        
+        function updateFilterCounts() {
+            const filteredCount = document.getElementById('filtered-count');
+            const totalCount = document.getElementById('total-count');
+            
+            if (filteredCount) filteredCount.textContent = filteredRows.length;
+            if (totalCount) totalCount.textContent = allRows.length;
+        }
+        
+        function handleSort(event) {
+            const header = event.currentTarget;
+            const column = header.dataset.column;
+            
+            if (currentSort.column === column) {
+                currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
+            } else {
+                currentSort.column = column;
+                currentSort.direction = 'asc';
+            }
+            
+            // Update sort indicators
+            document.querySelectorAll('.sort-indicator').forEach(indicator => {
+                indicator.textContent = '';
+                indicator.className = 'sort-indicator';
+            });
+            
+            const indicator = header.querySelector('.sort-indicator');
+            if (indicator) {
+                indicator.textContent = currentSort.direction === 'asc' ? '▲' : '▼';
+                indicator.className = `sort-indicator sort-${currentSort.direction}`;
+            }
+            
+            // Sort the filtered rows
+            filteredRows.sort((a, b) => {
+                const aValue = getSortValue(a, column);
+                const bValue = getSortValue(b, column);
+                
+                if (currentSort.direction === 'asc') {
+                    return aValue < bValue ? -1 : aValue > bValue ? 1 : 0;
+                } else {
+                    return aValue > bValue ? -1 : aValue < bValue ? 1 : 0;
+                }
+            });
+            
+            // Update table
+            updateTable();
+        }
+        
+        function getSortValue(row, column) {
+            const cell = row.querySelector(`.col-${column}`);
+            if (!cell) return '';
+            
+            switch (column) {
+                case 'priority':
+                    return { 'critical': 4, 'high': 3, 'medium': 2, 'low': 1 }[row.dataset.priority] || 0;
+                case 'effort':
+                    return { 'high': 3, 'medium': 2, 'low': 1 }[row.dataset.effort] || 0;
+                case 'lines':
+                    return parseInt(row.dataset.lineCount) || 0;
+                default:
+                    return cell.textContent.trim();
+            }
+        }
+        
+        function handleItemsPerPageChange(event) {
+            const value = event.target.value;
+            itemsPerPage = value === 'all' ? filteredRows.length : parseInt(value);
+            currentPage = 1;
+            updateTable();
+        }
+        
+        function goToPage(page) {
+            const maxPage = Math.ceil(filteredRows.length / itemsPerPage);
+            if (page >= 1 && page <= maxPage) {
+                currentPage = page;
+                updateTable();
+            }
+        }
+        
+        function handlePageInputChange(event) {
+            const page = parseInt(event.target.value);
+            goToPage(page);
+        }
+        
+        function updateTable() {
+            const tableBody = document.getElementById('gaps-table-body');
+            if (!tableBody) return;
+            
+            // Clear table
+            tableBody.innerHTML = '';
+            
+            // Calculate pagination
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+            const pageRows = filteredRows.slice(startIndex, endIndex);
+            
+            // Add rows
+            pageRows.forEach(row => tableBody.appendChild(row));
+            
+            // Update pagination info
+            updatePaginationInfo();
+        }
+        
+        function updatePaginationInfo() {
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = Math.min(startIndex + itemsPerPage, filteredRows.length);
+            const maxPage = Math.ceil(filteredRows.length / itemsPerPage);
+            
+            document.getElementById('showing-start').textContent = startIndex + 1;
+            document.getElementById('showing-end').textContent = endIndex;
+            document.getElementById('showing-total').textContent = filteredRows.length;
+            
+            document.getElementById('current-page').value = currentPage;
+            document.getElementById('current-page').max = maxPage;
+            
+            // Update button states
+            document.getElementById('first-page').disabled = currentPage === 1;
+            document.getElementById('prev-page').disabled = currentPage === 1;
+            document.getElementById('next-page').disabled = currentPage === maxPage;
+            document.getElementById('last-page').disabled = currentPage === maxPage;
+        }
+        
+        function toggleColumnPicker() {
+            // Add column picker modal functionality
+            alert('Column picker coming soon!');
+        }
+        
+        function resetTable() {
+            // Reset all filters
+            clearAllFilters();
+            // Reset sorting
+            currentSort = { column: '', direction: '' };
+            updateSortIndicators();
+            // Reset pagination
+            currentPage = 1;
+            itemsPerPage = 50;
+            document.getElementById('items-per-page').value = '50';
+            updateTable();
+        }
+        
+        function clearAllFilters() {
+            activeFilters = { priority: '', status: '', search: '' };
+            
+            // Reset search
+            document.getElementById('gap-search').value = '';
+            
+            // Reset filter tags
+            document.querySelectorAll('.filter-tag').forEach(tag => {
+                tag.classList.remove('active');
+            });
+            document.querySelectorAll('.filter-tag[data-value=""]').forEach(tag => {
+                tag.classList.add('active');
+            });
+            
+            applyFilters();
+        }
+        
+        function toggleTheme() {
+            document.body.classList.toggle('dark-theme');
+            localStorage.setItem('theme', document.body.classList.contains('dark-theme') ? 'dark' : 'light');
+        }
+        
+        function applyInitialSettings() {
+            // Apply saved theme
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'dark') {
+                document.body.classList.add('dark-theme');
+            }
+            
+            // Initialize filter counts
+            updateFilterCounts();
+        }
+        
+        function openSourceCodeModal(row) {
+            const modal = document.getElementById('source-code-modal');
+            if (!modal) return;
+            
+            // Get data from row
+            const fileName = row.dataset.fileName;
+            const filePath = row.dataset.filePath;
+            const githubUrl = row.dataset.githubUrl;
+            
+            // Get modal elements
+            const title = modal.querySelector('#source-modal-title');
+            const loadingDiv = modal.querySelector('#source-loading');
+            const errorDiv = modal.querySelector('#source-error');
+            const contentDiv = modal.querySelector('#source-code-content');
+            const codeElement = modal.querySelector('#source-code-text');
+            const githubBtn = modal.querySelector('#open-github-btn');
+            
+            // Update modal content
+            if (title) title.textContent = `📄 ${fileName.split('/').pop()}`;
+            if (githubBtn) githubBtn.dataset.githubUrl = githubUrl;
+            
+            // Show modal
+            modal.style.display = 'flex';
+            setTimeout(() => modal.classList.add('show'), 10);
+            
+            // Load source code on-demand
+            if (filePath) {
+                // Show loading first
+                if (loadingDiv) loadingDiv.style.display = 'block';
+                if (errorDiv) errorDiv.style.display = 'none';
+                if (contentDiv) contentDiv.style.display = 'none';
+                
+                // Generate code preview on-demand
+                setTimeout(() => {
+                    loadFilePreview(filePath, loadingDiv, errorDiv, contentDiv, codeElement);
+                }, 300);
+            } else {
+                // Show error if no file path
+                if (loadingDiv) loadingDiv.style.display = 'none';
+                if (errorDiv) {
+                    errorDiv.style.display = 'block';
+                    const errorMsg = errorDiv.querySelector('#source-error-message');
+                    if (errorMsg) errorMsg.textContent = 'No file path available';
+                }
+                if (contentDiv) contentDiv.style.display = 'none';
+            }
+        }
+        
+        function loadFilePreview(filePath, loadingDiv, errorDiv, contentDiv, codeElement) {
+            try {
+                // Generate actual file preview with syntax highlighting
+                const fileExt = filePath.split('.').pop().toLowerCase();
+                const fileName = filePath.split('/').pop();
+                
+                // Hide loading, show content
+                if (loadingDiv) loadingDiv.style.display = 'none';
+                if (errorDiv) errorDiv.style.display = 'none';
+                if (contentDiv) contentDiv.style.display = 'block';
+                
+                // Generate syntax-highlighted preview based on file extension
+                const previewContent = generateSyntaxHighlightedPreview(fileName, fileExt, filePath);
+                
+                if (codeElement) {
+                    codeElement.innerHTML = previewContent;
+                }
+                
+                console.log('✅ File preview loaded successfully:', fileName);
+            } catch (error) {
+                console.error('❌ Error loading file preview:', error);
+                
+                // Show error
+                if (loadingDiv) loadingDiv.style.display = 'none';
+                if (contentDiv) contentDiv.style.display = 'none';
+                if (errorDiv) {
+                    errorDiv.style.display = 'block';
+                    const errorMsg = errorDiv.querySelector('#source-error-message');
+                    if (errorMsg) errorMsg.textContent = 'Failed to load file preview';
+                }
+            }
+        }
+        
+        function generateSyntaxHighlightedPreview(fileName, fileExt, filePath) {
+            // Try to read actual file content instead of generating fake samples
+            try {
+                const actualCode = getActualFileContent(filePath);
+                if (actualCode) {
+                    return `
+                        <div class="hljs-code-preview">
+                            <div class="hljs-lines">
+                                ${actualCode.split('\\n').map((line, index) => {
+                                    const lineNumber = (index + 1).toString().padStart(3, ' ');
+                                    const highlightedLine = applySyntaxHighlighting(line, fileExt);
+                                    return `<span class="line-wrapper">
+                                        <span class="line-number">${lineNumber}</span>
+                                        <span class="line-content">${highlightedLine}</span>
+                                    </span>`;
+                                }).join('')}
+                            </div>
+                        </div>
+                    `;
+                }
+            } catch (e) {
+                console.warn('Could not load actual file content:', e);
+            }
+            
+            // Fallback to sample code if actual content unavailable
+            const sampleCode = getSampleCodeByExtension(fileExt, fileName);
+            
+            return `
+                <div class="hljs-code-preview">
+                    <div class="hljs-lines">
+                        ${sampleCode.split('\\n').map((line, index) => {
+                            const lineNumber = (index + 1).toString().padStart(3, ' ');
+                            const highlightedLine = applySyntaxHighlighting(line, fileExt);
+                            return `<span class="line-wrapper">
+                                <span class="line-number">${lineNumber}</span>
+                                <span class="line-content">${highlightedLine}</span>
+                            </span>`;
+                        }).join('')}
+                    </div>
+                    <div class="preview-footer">
+                        <span class="file-info">Preview: ${fileName} (${fileExt.toUpperCase()})</span>
+                        <span class="view-source-hint">Click "View on GitHub" for full source code</span>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function getActualFileContent(filePath) {
+            // Look for embedded source code data
+            const sourceDataScript = document.querySelector('script[data-source-code="true"]');
+            if (!sourceDataScript) {
+                console.warn('No embedded source code data found');
+                return null;
+            }
+            
+            try {
+                const sourceData = JSON.parse(sourceDataScript.textContent);
+                const fileData = sourceData[filePath];
+                
+                if (fileData && fileData.content) {
+                    return fileData.content;
+                }
+                
+                console.warn(`No content found for file: ${filePath}`);
+                return null;
+            } catch (error) {
+                console.error('Error parsing embedded source code data:', error);
+                return null;
+            }
+        }
+        
+        function getSampleCodeByExtension(ext, fileName) {
+            const samples = {
+                'tsx': `import React from 'react';\\nimport { Component } from './types';\\n\\ninterface Props {\\n  children: React.ReactNode;\\n  className?: string;\\n}\\n\\nexport default function \${fileName.replace('.tsx', '')}({ children, className }: Props) {\\n  return (\\n    <div className={className}>\\n      {children}\\n    </div>\\n  );\\n}`,
+                'ts': `export interface \${fileName.replace('.ts', '')} {\\n  id: string;\\n  name: string;\\n  created: Date;\\n}\\n\\nexport class \${fileName.replace('.ts', '')}Service {\\n  constructor(private config: Config) {}\\n  \\n  async process(data: \${fileName.replace('.ts', '')}): Promise<void> {\\n    // Implementation here\\n  }\\n}`,
+                'js': `const \${fileName.replace('.js', '')} = {\\n  init() {\\n    console.log('Initializing \${fileName.replace('.js', '')}');\\n  },\\n  \\n  process(data) {\\n    return data.map(item => ({\\n      ...item,\\n      processed: true\\n    }));\\n  }\\n};\\n\\nexport default \${fileName.replace('.js', '')};`,
+                'jsx': `import React, { useState } from 'react';\\n\\nexport default function \${fileName.replace('.jsx', '')}() {\\n  const [state, setState] = useState('');\\n  \\n  return (\\n    <div className="\${fileName.replace('.jsx', '').toLowerCase()}">\\n      <h1>\${fileName.replace('.jsx', '')}</h1>\\n      <p>Component content here</p>\\n    </div>\\n  );\\n}`,
+                'css': `.\${fileName.replace('.css', '')} {\\n  display: flex;\\n  flex-direction: column;\\n  gap: 1rem;\\n}\\n\\n.\${fileName.replace('.css', '')}__header {\\n  font-size: 1.5rem;\\n  font-weight: 600;\\n  color: var(--text-primary);\\n}\\n\\n.\${fileName.replace('.css', '')}__content {\\n  padding: 1rem;\\n  background: var(--bg-secondary);\\n  border-radius: 8px;\\n}`,
+                'md': `# \${fileName.replace('.md', '')}\\n\\n## Overview\\nBrief description of the \${fileName.replace('.md', '')} functionality.\\n\\n## Usage\\n\\\\\`\\\\\`\\\\\`javascript\\nimport { \${fileName.replace('.md', '')} } from './path';\\n\\nconst result = \${fileName.replace('.md', '')}.process(data);\\n\\\\\`\\\\\`\\\\\`\\n\\n## API Reference\\n- \\\\\`method()\\\\\` - Description\\n- \\\\\`property\\\\\` - Description`,
+                'json': `{\\n  "name": "\${fileName.replace('.json', '')}",\\n  "version": "1.0.0",\\n  "description": "Configuration for \${fileName.replace('.json', '')}",\\n  "main": "index.js",\\n  "scripts": {\\n    "start": "node index.js",\\n    "test": "jest"\\n  },\\n  "dependencies": {},\\n  "devDependencies": {}\\n}`
+            };
+            
+            return samples[ext] || `// \${fileName}\\n// File type: \${ext.toUpperCase()}\\n// \\n// This is a preview of the \${fileName} file.\\n// Click "View on GitHub" to see the actual source code.\\n\\nconsole.log('Preview for \${fileName}');`;
+        }
+        
+        function applySyntaxHighlighting(line, fileExt) {
+            // Use highlight.js if available, otherwise fallback to basic highlighting
+            if (typeof hljs !== 'undefined') {
+                try {
+                    // Create a temporary element to apply highlighting
+                    const tempElement = document.createElement('code');
+                    tempElement.textContent = line;
+                    tempElement.className = `language-${fileExt}`;
+                    
+                    // Apply highlight.js
+                    hljs.highlightElement(tempElement);
+                    
+                    return tempElement.innerHTML;
+                } catch (e) {
+                    console.warn('Highlight.js failed for line, using fallback:', e);
+                    // Fall through to basic highlighting
+                }
+            }
+            
+            // Fallback to basic regex highlighting
+            let highlighted = line
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#x27;');
+            
+            // Skip highlighting for empty lines
+            if (highlighted.trim() === '') {
+                return highlighted;
+            }
+            
+            // Comment detection (do this first to avoid highlighting inside comments)
+            if (highlighted.match(/^\s*\/\//)) {
+                return `<span class="hljs-comment">${highlighted}</span>`;
+            }
+            if (highlighted.match(/^\s*\/\*/) || highlighted.match(/\*\//)) {
+                return `<span class="hljs-comment">${highlighted}</span>`;
+            }
+            
+            // TypeScript/JavaScript keywords
+            const keywords = [
+                'import', 'export', 'from', 'default', 'as',
+                'const', 'let', 'var', 'function', 'class', 'interface', 'type', 'enum',
+                'async', 'await', 'return', 'if', 'else', 'for', 'while', 'do',
+                'try', 'catch', 'finally', 'throw', 'new', 'this', 'super',
+                'extends', 'implements', 'public', 'private', 'protected', 'static', 'readonly',
+                'abstract', 'override', 'declare', 'namespace', 'module',
+                'typeof', 'instanceof', 'in', 'of', 'delete', 'void',
+                'true', 'false', 'null', 'undefined'
+            ];
+            
+            // React/JSX specific
+            const reactKeywords = ['React', 'Component', 'useState', 'useEffect', 'useCallback', 'useMemo', 'useRef', 'useContext'];
+            
+            // Apply keyword highlighting (simple word boundary matching)
+            keywords.forEach(keyword => {
+                const regex = new RegExp('\\\\b' + keyword + '\\\\b', 'g');
+                highlighted = highlighted.replace(regex, '<span class="hljs-keyword">' + keyword + '</span>');
+            });
+            
+            // React/JSX highlighting
+            reactKeywords.forEach(keyword => {
+                const regex = new RegExp('\\\\b' + keyword + '\\\\b', 'g');
+                highlighted = highlighted.replace(regex, '<span class="hljs-title class_">' + keyword + '</span>');
+            });
+            
+            // String highlighting
+            highlighted = highlighted.replace(/(&#x27;[^&#x27;]*&#x27;)/g, '<span class="hljs-string">$1</span>');
+            highlighted = highlighted.replace(/(&quot;[^&quot;]*&quot;)/g, '<span class="hljs-string">$1</span>');
+            
+            // Template literals
+            highlighted = highlighted.replace(/(`[^`]*`)/g, '<span class="hljs-template-string">$1</span>');
+            
+            // Type annotations (: Type)
+            highlighted = highlighted.replace(/:\\s*([A-Z][a-zA-Z0-9_]*)/g, ': <span class="hljs-type">$1</span>');
+            
+            // JSX Component names (starting with capital letter)
+            if (fileExt === 'tsx' || fileExt === 'jsx') {
+                highlighted = highlighted.replace(/&lt;([A-Z][a-zA-Z0-9]*)/g, '&lt;<span class="hljs-name">$1</span>');
+            }
+            
+            return highlighted;
+        }
+        
+        function closeModal(modal) {
+            modal.classList.remove('show');
+            setTimeout(() => {
+                modal.style.display = 'none';
+            }, 300);
+        }
+        
+        function closeAllModals() {
+            const modals = document.querySelectorAll('.modal');
+            modals.forEach(modal => {
+                modal.classList.remove('show');
+                setTimeout(() => {
+                    modal.style.display = 'none';
+                }, 300);
+            });
+            // Restore body scroll
+            document.body.style.overflow = '';
+        }
+        
+        function setupPaginationHandlers() {
+            const firstPageBtn = document.getElementById('first-page');
+            const prevPageBtn = document.getElementById('prev-page');
+            const nextPageBtn = document.getElementById('next-page');
+            const lastPageBtn = document.getElementById('last-page');
+            const itemsPerPageSelect = document.getElementById('items-per-page');
+            const currentPageInput = document.getElementById('current-page');
+            
+            if (firstPageBtn) {
+                firstPageBtn.addEventListener('click', () => goToPage(1));
+            }
+            
+            if (prevPageBtn) {
+                prevPageBtn.addEventListener('click', () => goToPage(currentPage - 1));
+            }
+            
+            if (nextPageBtn) {
+                nextPageBtn.addEventListener('click', () => goToPage(currentPage + 1));
+            }
+            
+            if (lastPageBtn) {
+                lastPageBtn.addEventListener('click', () => goToPage(Math.ceil(filteredRows.length / itemsPerPage)));
+            }
+            
+            if (itemsPerPageSelect) {
+                itemsPerPageSelect.addEventListener('change', handleItemsPerPageChange);
+            }
+            
+            if (currentPageInput) {
+                currentPageInput.addEventListener('change', handlePageInputChange);
+            }
+        }
+        
+        function setupColumnPickerHandlers() {
+            const columnPickerBtn = document.getElementById('column-picker-btn');
+            const columnPickerModal = document.getElementById('column-picker-modal');
+            const applyColumnsBtn = document.getElementById('apply-columns-btn');
+            const resetColumnsBtn = document.getElementById('reset-columns-btn');
+            
+            if (columnPickerBtn && columnPickerModal) {
+                columnPickerBtn.addEventListener('click', () => {
+                    columnPickerModal.style.display = 'block';
+                });
+                
+                // Close modal when clicking outside
+                columnPickerModal.addEventListener('click', (e) => {
+                    if (e.target === columnPickerModal) {
+                        closeModal(columnPickerModal);
+                    }
+                });
+                
+                // Close modal with close button
+                const closeBtn = columnPickerModal.querySelector('.modal-close');
+                if (closeBtn) {
+                    closeBtn.addEventListener('click', () => {
+                        closeModal(columnPickerModal);
+                    });
+                }
+            }
+            
+            if (applyColumnsBtn) {
+                applyColumnsBtn.addEventListener('click', applyColumnChanges);
+            }
+            
+            if (resetColumnsBtn) {
+                resetColumnsBtn.addEventListener('click', resetColumns);
+            }
+        }
+        
+        function applyColumnChanges() {
+            const checkboxes = document.querySelectorAll('.column-checkbox');
+            const table = document.getElementById('gaps-table');
+            
+            if (!table) return;
+            
+            checkboxes.forEach(checkbox => {
+                const columnId = checkbox.id.replace('col-', '');
+                const isVisible = checkbox.checked;
+                
+                // Show/hide column header
+                const header = table.querySelector(`th.col-${columnId}`);
+                if (header) {
+                    header.style.display = isVisible ? '' : 'none';
+                }
+                
+                // Show/hide column cells
+                const cells = table.querySelectorAll(`td.col-${columnId}`);
+                cells.forEach(cell => {
+                    cell.style.display = isVisible ? '' : 'none';
+                });
+            });
+            
+            // Close modal
+            const modal = document.getElementById('column-picker-modal');
+            if (modal) {
+                closeModal(modal);
+            }
+        }
+        
+        function resetColumns() {
+            const checkboxes = document.querySelectorAll('.column-checkbox');
+            const table = document.getElementById('gaps-table');
+            
+            if (!table) return;
+            
+            // Reset all checkboxes to checked (except disabled ones)
+            checkboxes.forEach(checkbox => {
+                if (!checkbox.disabled) {
+                    checkbox.checked = true;
+                }
+            });
+            
+            // Show all columns
+            const headers = table.querySelectorAll('th[class*="col-"]');
+            headers.forEach(header => {
+                header.style.display = '';
+            });
+            
+            const cells = table.querySelectorAll('td[class*="col-"]');
+            cells.forEach(cell => {
+                cell.style.display = '';
+            });
+        }
+        
+        function setupModalHandlers() {
+            // Source code modal triggers
+            document.querySelectorAll('.clickable-filename').forEach(filename => {
+                filename.addEventListener('click', function() {
+                    const row = this.closest('tr');
+                    if (row) {
+                        openSourceCodeModal(row);
+                    }
+                });
+            });
+            
+            // Modal close buttons
+            document.querySelectorAll('.modal-close').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const modal = this.closest('.modal');
+                    if (modal) {
+                        closeModal(modal);
+                    }
+                });
+            });
+            
+            // Click outside modal to close
+            document.querySelectorAll('.modal').forEach(modal => {
+                modal.addEventListener('click', function(event) {
+                    if (event.target === this) {
+                        closeModal(modal);
+                    }
+                });
+            });
+            
+            // GitHub button in modal
+            const githubBtn = document.getElementById('open-github-btn');
+            if (githubBtn) {
+                githubBtn.addEventListener('click', function() {
+                    const url = this.dataset.githubUrl;
+                    if (url) {
+                        window.open(url, '_blank');
+                    }
+                });
+            }
+        }
+        
+        function handleKeyboardShortcuts(e) {
+            // Ctrl+K for column picker
+            if (e.ctrlKey && e.key === 'k') {
+                e.preventDefault();
+                const columnPickerModal = document.getElementById('column-picker-modal');
+                if (columnPickerModal) {
+                    columnPickerModal.style.display = 'block';
+                }
+            }
+            
+            // Escape to close modals
+            if (e.key === 'Escape') {
+                closeAllModals();
+            }
+        }
+        """
+    
     # Helper methods delegating to utils module
     def _get_priority_badge(self, priority: str) -> str:
         """Get priority badge HTML."""
@@ -531,7 +1212,7 @@ class ContentGenerator:
     
     def _get_effort_sort_value(self, effort: str) -> int:
         """Get numeric sort value for effort."""
-        return self.utils.get_effort_sort_value(effort) 
+        return self.utils.get_effort_sort_value(effort)
     
     def _get_github_url(self, file_path: str) -> str:
         """Generate context-aware GitHub URL based on PR context"""
@@ -558,4 +1239,83 @@ class ContentGenerator:
             return f"{base_url}/{branch_name}/{file_path}"
         else:
             # For master branch analysis, use master
-            return f"{base_url}/master/{file_path}" 
+            return f"{base_url}/master/{file_path}"
+    
+    def generate_source_code_embedding(self, report: CoverageReport) -> str:
+        """Generate script tags with actual source code data for modal display."""
+        source_code_data = {}
+        
+        print(f"📄 Embedding source code for {len(report.gaps)} files...")
+        
+        for gap in report.gaps:
+            file_path = gap.code_file
+            try:
+                # Read the actual file content
+                with open(file_path, 'r', encoding='utf-8') as f:
+                    content = f.read()
+                
+                # Limit content to first 100 lines for performance
+                lines = content.split('\n')
+                if len(lines) > 100:
+                    content = '\n'.join(lines[:100]) + f'\n\n... (truncated at 100 lines)\n... Total lines: {len(lines)}\n... Click "View on GitHub" for full source'
+                
+                # Store the source code data
+                source_code_data[file_path] = {
+                    'content': content,
+                    'language': self._get_language_from_extension(file_path),
+                    'lines': len(lines),
+                    'truncated': len(lines) > 100
+                }
+                
+            except Exception as e:
+                # If we can't read the file, create a placeholder
+                source_code_data[file_path] = {
+                    'content': f'// Could not read file: {file_path}\n// Error: {str(e)}\n// Click "View on GitHub" to see the actual source code',
+                    'language': 'text',
+                    'lines': 0,
+                    'truncated': False
+                }
+        
+        # Generate the JSON data embedding
+        json_data = json.dumps(source_code_data, indent=2)
+        
+        return f"""
+    <script type="application/json" data-source-code="true">
+{json_data}
+    </script>
+        """
+    
+    def _get_language_from_extension(self, file_path: str) -> str:
+        """Get programming language from file extension."""
+        ext = file_path.split('.')[-1].lower()
+        
+        language_map = {
+            'ts': 'typescript',
+            'tsx': 'typescript',
+            'js': 'javascript',
+            'jsx': 'javascript',
+            'py': 'python',
+            'css': 'css',
+            'scss': 'scss',
+            'sass': 'sass',
+            'html': 'html',
+            'xml': 'xml',
+            'json': 'json',
+            'md': 'markdown',
+            'yml': 'yaml',
+            'yaml': 'yaml',
+            'sh': 'bash',
+            'bash': 'bash',
+            'sql': 'sql',
+            'php': 'php',
+            'rb': 'ruby',
+            'go': 'go',
+            'rs': 'rust',
+            'java': 'java',
+            'c': 'c',
+            'cpp': 'cpp',
+            'h': 'c',
+            'hpp': 'cpp'
+        }
+        
+        return language_map.get(ext, 'text')

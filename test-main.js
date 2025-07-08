@@ -61,11 +61,11 @@ class TableManager {
     }
 
     initializeTableData() {
-        // Get all table rows using correct table body ID
-        const rows = document.querySelectorAll('#gaps-table-body tr');
+        // Get all table rows
+        const rows = document.querySelectorAll('#table-tbody tr.gap-row');
         
         if (typeof window.debugLog === 'function') {
-            window.debugLog(`🔍 Looking for table rows with selector '#gaps-table-body tr'`);
+            window.debugLog(`🔍 Looking for table rows with selector '#table-tbody tr.gap-row'`);
             window.debugLog(`📊 Found ${rows.length} table rows`);
         }
         
@@ -116,33 +116,33 @@ class TableManager {
             card.addEventListener('click', this.handleFilterCard.bind(this));
         });
 
-        // Page size selector - using correct ID
-        this.pageSizeSelect = document.getElementById('items-per-page');
+        // Page size - this one exists
+        this.pageSizeSelect = document.getElementById('page-size-select');
         if (this.pageSizeSelect) {
             this.pageSizeSelect.addEventListener('change', this.handlePageSizeChange.bind(this));
         }
 
-        // Pagination buttons - matching the correct HTML IDs
-        const firstPageBtn = document.getElementById('first-page');
-        const prevPageBtn = document.getElementById('prev-page');
-        const nextPageBtn = document.getElementById('next-page');
-        const lastPageBtn = document.getElementById('last-page');
+        // Pagination buttons - top set
+        const firstPageBtn = document.getElementById('first-page-btn');
+        const prevPageBtn = document.getElementById('prev-page-btn');
+        const nextPageBtn = document.getElementById('next-page-btn');
+        const lastPageBtn = document.getElementById('last-page-btn');
 
         if (firstPageBtn) firstPageBtn.addEventListener('click', () => this.goToPage(1));
         if (prevPageBtn) prevPageBtn.addEventListener('click', () => this.goToPage(this.currentPage - 1));
         if (nextPageBtn) nextPageBtn.addEventListener('click', () => this.goToPage(this.currentPage + 1));
         if (lastPageBtn) lastPageBtn.addEventListener('click', () => this.goToPage(this.getTotalPages()));
 
-        // Current page input navigation
-        const currentPageInput = document.getElementById('current-page');
-        if (currentPageInput) {
-            currentPageInput.addEventListener('change', (e) => {
-                const page = parseInt(e.target.value);
-                if (page >= 1 && page <= this.getTotalPages()) {
-                    this.goToPage(page);
-                }
-            });
-        }
+        // Pagination buttons - bottom set
+        const firstPageBtnBottom = document.getElementById('first-page-btn-bottom');
+        const prevPageBtnBottom = document.getElementById('prev-page-btn-bottom');
+        const nextPageBtnBottom = document.getElementById('next-page-btn-bottom');
+        const lastPageBtnBottom = document.getElementById('last-page-btn-bottom');
+
+        if (firstPageBtnBottom) firstPageBtnBottom.addEventListener('click', () => this.goToPage(1));
+        if (prevPageBtnBottom) prevPageBtnBottom.addEventListener('click', () => this.goToPage(this.currentPage - 1));
+        if (nextPageBtnBottom) nextPageBtnBottom.addEventListener('click', () => this.goToPage(this.currentPage + 1));
+        if (lastPageBtnBottom) lastPageBtnBottom.addEventListener('click', () => this.goToPage(this.getTotalPages()));
 
         // Table headers for sorting - use data-column instead of data-sort
         const headers = document.querySelectorAll('th[data-column]');
@@ -150,8 +150,8 @@ class TableManager {
             header.addEventListener('click', this.handleSort.bind(this));
         });
 
-        // Table rows for clicking - using correct table body ID
-        this.table = document.querySelector('#gaps-table-body');
+        // Table rows for clicking - target the actual table body
+        this.table = document.querySelector('#table-tbody');
         if (this.table) {
             this.table.addEventListener('click', this.handleRowClick.bind(this));
         }
@@ -277,12 +277,7 @@ class TableManager {
     }
 
     handlePageSizeChange(e) {
-        const value = e.target.value;
-        if (value === 'all') {
-            this.pageSize = this.filteredItems.length || 9999;
-        } else {
-            this.pageSize = parseInt(value);
-        }
+        this.pageSize = parseInt(e.target.value);
         this.currentPage = 1;
         this.updateDisplay();
     }
@@ -453,10 +448,9 @@ class TableManager {
     }
 
     updateItemCount() {
-        // Update the total items display using correct element ID
-        const totalElement = document.getElementById('showing-total');
+        const totalElement = document.querySelector('.total-items');
         if (totalElement) {
-            totalElement.textContent = this.filteredItems.length;
+            totalElement.textContent = `Total: ${this.filteredItems.length} items`;
         }
     }
 
@@ -587,85 +581,61 @@ export default UserProfile;`;
             window.debugLog('🎨 Starting syntax highlighting...');
         }
         
+        // Add hljs class for styling
+        element.className = 'hljs language-typescript';
+        
         // Get the text content
-        const codeContent = element.textContent || element.innerText;
+        let html = element.textContent;
         
         if (typeof window.debugLog === 'function') {
-            window.debugLog(`📝 Processing ${codeContent.length} characters of code`);
+            window.debugLog(`📝 Processing ${html.length} characters of code`);
         }
         
         try {
-            // Use highlight.js if available
-            if (typeof hljs !== 'undefined') {
-                // Clear existing content
-                element.innerHTML = '';
-                element.textContent = codeContent;
-                
-                // Apply highlight.js
-                hljs.highlightElement(element);
-                
-                // Add additional CSS classes for our custom styling
-                element.classList.add('hljs', 'language-typescript');
-                
-                if (typeof window.debugLog === 'function') {
-                    window.debugLog('✅ Syntax highlighting applied using highlight.js');
-                }
-            } else {
-                // Fallback to basic regex highlighting
-                if (typeof window.debugLog === 'function') {
-                    window.debugLog('⚠️ highlight.js not available, using basic highlighting');
-                }
-                
-                let html = codeContent;
-                
-                // Add hljs class for styling
-                element.className = 'hljs language-typescript';
-                
-                // Basic regex highlighting
-                const keywords = [
-                    'import', 'export', 'from', 'const', 'let', 'var', 'function', 'return',
-                    'if', 'else', 'for', 'while', 'class', 'interface', 'type', 'enum',
-                    'async', 'await', 'try', 'catch', 'finally', 'throw', 'new', 'this',
-                    'super', 'extends', 'implements', 'public', 'private', 'protected',
-                    'static', 'readonly', 'default'
-                ].join('|');
-                html = html.replace(new RegExp(`\\b(${keywords})\\b`, 'g'), '<span class="hljs-keyword">$1</span>');
-                
-                // Strings
-                html = html.replace(/(["'`])((?:\\.|(?!\1)[^\\])*?)\1/g, '<span class="hljs-string">$1$2$1</span>');
-                
-                // Comments
-                html = html.replace(/(\/\/.*$)/gm, '<span class="hljs-comment">$1</span>');
-                html = html.replace(/(\/\*[\s\S]*?\*\/)/g, '<span class="hljs-comment">$1</span>');
-                
-                // Numbers
-                html = html.replace(/\b(\d+(?:\.\d+)?)\b/g, '<span class="hljs-number">$1</span>');
-                
-                // Function names
-                html = html.replace(/\b([a-zA-Z_][a-zA-Z0-9_]*)\s*(?=\()/g, '<span class="hljs-function">$1</span>');
-                
-                // Types (capitalized words)
-                html = html.replace(/\b([A-Z][a-zA-Z0-9_]*)\b/g, '<span class="hljs-title class_">$1</span>');
-                
-                // Properties
-                html = html.replace(/\.([a-zA-Z_][a-zA-Z0-9_]*)/g, '.<span class="hljs-property">$1</span>');
-                
-                // JSX tags
-                html = html.replace(/(<\/?[a-zA-Z][a-zA-Z0-9]*)/g, '<span class="hljs-tag">$1</span>');
-                html = html.replace(/(<span class="hljs-tag"><\/?[a-zA-Z][a-zA-Z0-9]*)(>)/g, '$1<span class="hljs-name">$2</span>');
-                
-                element.innerHTML = html;
-                
-                if (typeof window.debugLog === 'function') {
-                    window.debugLog('✅ Basic syntax highlighting applied');
-                }
+            // Keywords
+            const keywords = [
+                'import', 'export', 'from', 'const', 'let', 'var', 'function', 'return',
+                'if', 'else', 'for', 'while', 'class', 'interface', 'type', 'enum',
+                'async', 'await', 'try', 'catch', 'finally', 'throw', 'new', 'this',
+                'super', 'extends', 'implements', 'public', 'private', 'protected',
+                'static', 'readonly', 'default'
+            ].join('|');
+            html = html.replace(new RegExp(`\\b(${keywords})\\b`, 'g'), '<span class="hljs-keyword">$1</span>');
+            
+            // Strings
+            html = html.replace(/(["'`])((?:\\.|(?!\1)[^\\])*?)\1/g, '<span class="hljs-string">$1$2$1</span>');
+            
+            // Comments
+            html = html.replace(/(\/\/.*$)/gm, '<span class="hljs-comment">$1</span>');
+            html = html.replace(/(\/\*[\s\S]*?\*\/)/g, '<span class="hljs-comment">$1</span>');
+            
+            // Numbers
+            html = html.replace(/\b(\d+(?:\.\d+)?)\b/g, '<span class="hljs-number">$1</span>');
+            
+            // Function names
+            html = html.replace(/\b([a-zA-Z_][a-zA-Z0-9_]*)\s*(?=\()/g, '<span class="hljs-function">$1</span>');
+            
+            // Types (capitalized words)
+            html = html.replace(/\b([A-Z][a-zA-Z0-9_]*)\b/g, '<span class="hljs-title class_">$1</span>');
+            
+            // Properties
+            html = html.replace(/\.([a-zA-Z_][a-zA-Z0-9_]*)/g, '.<span class="hljs-property">$1</span>');
+            
+            // JSX tags
+            html = html.replace(/(<\/?[a-zA-Z][a-zA-Z0-9]*)/g, '<span class="hljs-tag">$1</span>');
+            html = html.replace(/(<span class="hljs-tag"><\/?[a-zA-Z][a-zA-Z0-9]*)(>)/g, '$1<span class="hljs-name">$2</span>');
+            
+            element.innerHTML = html;
+            
+            if (typeof window.debugLog === 'function') {
+                window.debugLog('✅ Syntax highlighting regex completed successfully');
             }
         } catch (error) {
             if (typeof window.debugLog === 'function') {
                 window.debugLog(`❌ Error in syntax highlighting: ${error.message}`);
             }
             // Fallback - just show the plain text
-            element.innerHTML = codeContent;
+            element.innerHTML = element.textContent;
         }
     }
 
@@ -745,13 +715,7 @@ export default UserProfile;`;
         const modals = document.querySelectorAll('.modal');
         modals.forEach(modal => {
             modal.classList.remove('show');
-            // Set display to none after animation completes
-            setTimeout(() => {
-                modal.style.display = 'none';
-            }, 300);
         });
-        // Restore body scroll
-        document.body.style.overflow = '';
     }
 
     toggleTheme() {
@@ -897,42 +861,45 @@ export default UserProfile;`;
     updatePaginationControls() {
         const totalPages = this.getTotalPages();
         
-        // Update pagination controls using correct IDs
-        const firstPageBtn = document.getElementById('first-page');
-        const prevPageBtn = document.getElementById('prev-page');
-        const nextPageBtn = document.getElementById('next-page');
-        const lastPageBtn = document.getElementById('last-page');
-        const currentPageInput = document.getElementById('current-page');
-        
-        // Update pagination info elements
-        const showingStart = document.getElementById('showing-start');
-        const showingEnd = document.getElementById('showing-end');
-        const showingTotal = document.getElementById('showing-total');
+        // Update top pagination controls
+        const firstPageBtn = document.getElementById('first-page-btn');
+        const prevPageBtn = document.getElementById('prev-page-btn');
+        const nextPageBtn = document.getElementById('next-page-btn');
+        const lastPageBtn = document.getElementById('last-page-btn');
+        const pageIndicator = document.getElementById('page-indicator');
+        const paginationInfo = document.getElementById('pagination-info-text');
+
+        // Update bottom pagination controls
+        const firstPageBtnBottom = document.getElementById('first-page-btn-bottom');
+        const prevPageBtnBottom = document.getElementById('prev-page-btn-bottom');
+        const nextPageBtnBottom = document.getElementById('next-page-btn-bottom');
+        const lastPageBtnBottom = document.getElementById('last-page-btn-bottom');
 
         // Update button states
         const isFirstPage = this.currentPage === 1;
         const isLastPage = this.currentPage === totalPages || totalPages === 0;
 
-        // Enable/disable buttons
+        // Top controls
         if (firstPageBtn) firstPageBtn.disabled = isFirstPage;
         if (prevPageBtn) prevPageBtn.disabled = isFirstPage;
         if (nextPageBtn) nextPageBtn.disabled = isLastPage;
         if (lastPageBtn) lastPageBtn.disabled = isLastPage;
 
-        // Update current page input
-        if (currentPageInput) {
-            currentPageInput.value = this.currentPage;
-            currentPageInput.max = totalPages;
+        // Bottom controls
+        if (firstPageBtnBottom) firstPageBtnBottom.disabled = isFirstPage;
+        if (prevPageBtnBottom) prevPageBtnBottom.disabled = isFirstPage;
+        if (nextPageBtnBottom) nextPageBtnBottom.disabled = isLastPage;
+        if (lastPageBtnBottom) lastPageBtnBottom.disabled = isLastPage;
+
+        // Update indicators
+        if (pageIndicator) {
+            pageIndicator.textContent = totalPages > 0 ? `Page ${this.currentPage} of ${totalPages}` : 'Page 0 of 0';
         }
 
-        // Update showing info
-        if (showingStart && showingEnd && showingTotal) {
+        if (paginationInfo) {
             const startItem = totalPages > 0 ? ((this.currentPage - 1) * this.pageSize) + 1 : 0;
             const endItem = Math.min(this.currentPage * this.pageSize, this.filteredItems.length);
-            
-            showingStart.textContent = startItem;
-            showingEnd.textContent = endItem;
-            showingTotal.textContent = this.filteredItems.length;
+            paginationInfo.textContent = `Showing ${startItem}-${endItem} of ${this.filteredItems.length} items`;
         }
     }
 }
