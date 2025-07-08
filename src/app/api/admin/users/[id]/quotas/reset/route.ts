@@ -8,6 +8,8 @@
  * @author System
  */
 
+import { withUserPermissions } from '@/lib/api/wrappers/withUserPermissions';
+import { withUserRoles } from '@/lib/api/wrappers/withUserRoles';
 import { auth } from '@/lib/auth';
 import sql from '@/lib/db';
 import { withRateLimit } from '@/lib/middleware/withRateLimit';
@@ -40,25 +42,6 @@ interface ErrorResponse {
 // ================================
 // HELPER FUNCTIONS
 // ================================
-
-async function validateAdminAccess(userId: string): Promise<boolean> {
-  try {
-    const adminCheck = await sql`
-      SELECT ura.role_id, ur.name as role_name
-      FROM user_role_assignments ura
-      JOIN user_roles ur ON ura.role_id = ur.id
-      WHERE ura.user_id = ${userId}
-      AND ur.name IN ('admin', 'moderator')
-      AND ura.is_active = true
-      AND (ura.expires_at IS NULL OR ura.expires_at > CURRENT_TIMESTAMP)
-      LIMIT 1
-    `;
-    return adminCheck.length > 0;
-  } catch (error) {
-    console.error('Admin validation error:', error);
-    return false;
-  }
-}
 
 async function validateUserExists(userId: string): Promise<boolean> {
   try {
@@ -110,15 +93,6 @@ async function postHandler(
       return NextResponse.json(
         { success: false, error: 'Authentication required' },
         { status: 401 }
-      );
-    }
-
-    // Validate admin permissions
-    const isAdmin = await validateAdminAccess(session.user.id);
-    if (!isAdmin) {
-      return NextResponse.json(
-        { success: false, error: 'Admin access required' },
-        { status: 403 }
       );
     }
 
@@ -199,17 +173,25 @@ async function postHandler(
       SELECT email FROM users WHERE id = ${params.id}
     `;
 
+    if (userInfo.length > 0) {
+      await sql`
+        DELETE FROM guest_usage
+        WHERE email = ${userInfo[0].email}
+        AND service_name = ${service_name}
+        AND feature_name = ${feature_name}
+        AND usage_date >= CURRENT_DATE
+      `;
+    }
+
     // Log the admin action
     await logAdminAction(
       session.user.id,
       'user_quota_reset',
       {
         target_user_id: params.id,
-        target_user_email: userInfo[0]?.email,
         service_name,
         feature_name,
         previous_usage: previousUsage,
-        reset_count: resetResult.count,
         service_display_name: serviceFeatureExists[0].service_display_name,
         feature_display_name: serviceFeatureExists[0].feature_display_name
       },
@@ -221,11 +203,11 @@ async function postHandler(
 
     return NextResponse.json({
       success: true,
-      data: {
-        reset: true,
+      data: { 
+        reset: true, 
         previous_usage: previousUsage 
       },
-      message: `Usage reset for ${serviceName} - ${featureName}. Previous usage: ${previousUsage}`
+      message: `Quota usage reset for ${serviceName} - ${featureName} (was: ${previousUsage})`
     });
 
   } catch (error) {
@@ -234,12 +216,12 @@ async function postHandler(
       { 
         success: false, 
         error: 'Internal server error',
-        message: 'Failed to reset user quota usage'
+        message: 'Failed to reset user quota'
       },
       { status: 500 }
     );
   }
 }
 
-// Apply rate limiting to handler
-export const POST = withRateLimit(postHandler); 
+// Apply rate limiting and permission wrappers to handlers
+export const POST = withUserRoles(withUserPermissions(withRateLimit(postHandler))); 

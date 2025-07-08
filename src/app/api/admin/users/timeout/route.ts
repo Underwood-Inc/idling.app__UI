@@ -3,31 +3,23 @@
  * Handles issuing and managing user timeouts
  */
 
+import { withUserPermissions } from '@/lib/api/wrappers/withUserPermissions';
+import { withUserRoles } from '@/lib/api/wrappers/withUserRoles';
+import { auth } from '@/lib/auth';
+import {
+  PermissionsService,
+  TIMEOUT_TYPES
+} from '@/lib/permissions/permissions';
 import { AdminTimeoutManagementSchema, AdminTimeoutRevocationParamsSchema, AdminTimeoutStatusParamsSchema } from '@/lib/schemas/admin-users.schema';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
-import { auth } from '../../../../../lib/auth';
-import {
-  PERMISSIONS,
-  PermissionsService,
-  requirePermission,
-  TIMEOUT_TYPES
-} from '../../../../../lib/permissions/permissions';
 
 // This route uses dynamic features (auth/headers) and should not be pre-rendered
 export const dynamic = 'force-dynamic';
 
 // POST /api/admin/users/timeout - Issue timeout to user
-export async function POST(request: NextRequest) {
+async function postHandler(request: NextRequest) {
   try {
-    // Check admin permissions
-    if (!(await requirePermission(PERMISSIONS.ADMIN.USERS_TIMEOUT))) {
-      return NextResponse.json(
-        { error: 'Insufficient permissions' },
-        { status: 403 }
-      );
-    }
-
     const session = await auth();
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
@@ -89,16 +81,8 @@ export async function POST(request: NextRequest) {
 }
 
 // DELETE /api/admin/users/timeout - Revoke timeout
-export async function DELETE(request: NextRequest) {
+async function deleteHandler(request: NextRequest) {
   try {
-    // Check admin permissions
-    if (!(await requirePermission(PERMISSIONS.ADMIN.USERS_TIMEOUT))) {
-      return NextResponse.json(
-        { error: 'Insufficient permissions' },
-        { status: 403 }
-      );
-    }
-
     const session = await auth();
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
@@ -161,16 +145,8 @@ export async function DELETE(request: NextRequest) {
 }
 
 // GET /api/admin/users/timeout - Get user timeout status
-export async function GET(request: NextRequest) {
+async function getHandler(request: NextRequest) {
   try {
-    // Check admin permissions
-    if (!(await requirePermission(PERMISSIONS.ADMIN.USERS_VIEW))) {
-      return NextResponse.json(
-        { error: 'Insufficient permissions' },
-        { status: 403 }
-      );
-    }
-
     // Validate query parameters
     const { searchParams } = new URL(request.url);
     const paramsResult = AdminTimeoutStatusParamsSchema.safeParse({
@@ -213,3 +189,8 @@ export async function GET(request: NextRequest) {
     );
   }
 }
+
+// Apply permission wrappers to handlers
+export const POST = withUserRoles(withUserPermissions(postHandler));
+export const DELETE = withUserRoles(withUserPermissions(deleteHandler));
+export const GET = withUserRoles(withUserPermissions(getHandler));

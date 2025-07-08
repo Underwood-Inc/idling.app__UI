@@ -1,11 +1,11 @@
+import { withUserPermissions } from '@/lib/api/wrappers/withUserPermissions';
+import { withUserRoles } from '@/lib/api/wrappers/withUserRoles';
+import { auth } from '@/lib/auth';
+import sql from '@/lib/db';
 import { withRateLimit } from '@/lib/middleware/withRateLimit';
 import { AdminUserSimpleSearchParamsSchema } from '@/lib/schemas/admin-users.schema';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
-import { checkUserPermission } from '../../../../../lib/actions/permissions.actions';
-import { auth } from '../../../../../lib/auth';
-import sql from '../../../../../lib/db';
-import { PERMISSIONS } from '../../../../../lib/permissions/permissions';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -41,17 +41,6 @@ async function getHandler(request: NextRequest) {
     const userId = parseInt(session.user.id);
     if (isNaN(userId)) {
       return NextResponse.json({ error: 'Invalid session' }, { status: 401 });
-    }
-
-    // Permission check
-    const hasPermission = await checkUserPermission(
-      userId,
-      PERMISSIONS.ADMIN.USERS_VIEW
-    );
-    if (!hasPermission) {
-      return NextResponse.json({ 
-        error: 'Insufficient permissions to search users' 
-      }, { status: 403 });
     }
 
     // Validate search parameters
@@ -131,4 +120,4 @@ async function getHandler(request: NextRequest) {
   }
 }
 
-export const GET = withRateLimit(getHandler); 
+export const GET = withUserRoles(withUserPermissions(withRateLimit(getHandler))); 

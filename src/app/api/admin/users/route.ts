@@ -96,12 +96,12 @@
  * Handles user listing, searching, and basic management operations
  */
 
-import { checkUserPermission } from '@/lib/actions/permissions.actions';
+import { withUserPermissions } from '@/lib/api/wrappers/withUserPermissions';
+import { withUserRoles } from '@/lib/api/wrappers/withUserRoles';
 import { auth } from '@/lib/auth';
 import sql from '@/lib/db';
 import { createLogger } from '@/lib/logging';
 import { withRateLimit } from '@/lib/middleware/withRateLimit';
-import { PERMISSIONS } from '@/lib/permissions/permissions';
 import { AdminUserSearchParamsSchema } from '@/lib/schemas/admin-users.schema';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
@@ -163,17 +163,6 @@ async function getHandler(request: NextRequest) {
 
     const userId = parseInt(session.user.id);
     logger.info('User requesting admin users', { userId });
-
-    // Check if user has permission to view users
-    const hasPermission = await checkUserPermission(
-      userId,
-      PERMISSIONS.ADMIN.USERS_VIEW
-    );
-    logger.info('User permission check completed', { userId, hasPermission });
-    
-    if (!hasPermission) {
-      return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 });
-    }
 
     // Validate query parameters
     const { searchParams } = new URL(request.url);
@@ -306,5 +295,5 @@ async function getHandler(request: NextRequest) {
   }
 }
 
-// Apply rate limiting to handlers
-export const GET = withRateLimit(getHandler);
+// Apply rate limiting and permission wrappers to handlers
+export const GET = withUserRoles(withUserPermissions(withRateLimit(getHandler)));

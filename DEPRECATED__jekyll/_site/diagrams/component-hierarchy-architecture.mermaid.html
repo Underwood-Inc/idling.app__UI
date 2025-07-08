@@ -1,0 +1,2632 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Component Hierarchy &amp; Architecture | Idling.app Documentation</title>
+<meta name="generator" content="Jekyll v3.10.0" />
+<meta property="og:title" content="Component Hierarchy &amp; Architecture" />
+<meta name="author" content="Underwood Inc" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Complete React component hierarchy showing component relationships, props flow, and architectural patterns" />
+<meta property="og:description" content="Complete React component hierarchy showing component relationships, props flow, and architectural patterns" />
+<link rel="canonical" href="http://0.0.0.0:4000/diagrams/component-hierarchy-architecture.mermaid.html" />
+<meta property="og:url" content="http://0.0.0.0:4000/diagrams/component-hierarchy-architecture.mermaid.html" />
+<meta property="og:site_name" content="Idling.app Documentation" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Component Hierarchy &amp; Architecture" />
+<meta name="twitter:site" content="@idling_app" />
+<meta name="twitter:creator" content="@Underwood Inc" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","author":{"@type":"Person","name":"Underwood Inc"},"description":"Complete React component hierarchy showing component relationships, props flow, and architectural patterns","headline":"Component Hierarchy &amp; Architecture","url":"http://0.0.0.0:4000/diagrams/component-hierarchy-architecture.mermaid.html"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css"><link type="application/atom+xml" rel="alternate" href="http://0.0.0.0:4000/feed.xml" title="Idling.app Documentation" /><!-- Simple Search System -->
+  <script src="/assets/js/simple-search.js"></script>
+  
+  <!-- Mermaid Diagram Support -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+  
+  <!-- Professional Mermaid System -->
+  <!-- Load in specific order: Config → Modal → Initializer -->
+  <script src="/assets/js/mermaid-config.js"></script>
+  <script src="/assets/js/mermaid-modal.js"></script>
+  <script src="/assets/js/mermaid-init.js"></script>
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  
+  <!-- Additional meta tags -->
+  <meta name="theme-color" content="#edae49">
+  <meta name="msapplication-TileColor" content="#edae49">
+</head> <body>
+    <!-- Generate navigation data -->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- DEBUG: Generated navigation from 85 total items (12 found + 13 known) into 75 groups -->
+<!-- Available as 'auto_navigation' variable for templates --> <!-- Navigation Progress Loader --><!-- Navigation Progress Loader - matches main app styling -->
+<div
+  id="navigation-progress"
+  class="nav-progress"
+  role="progressbar"
+  aria-label="Page loading progress"
+>
+  <div class="nav-progress__bar"></div>
+  <div class="nav-progress__spinner">
+    <svg
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      class="nav-progress__spinner-icon"
+    >
+      <path d="M21 12a9 9 0 11-6.219-8.56" />
+    </svg>
+  </div>
+</div>
+
+<script>
+  (function () {
+    'use strict';
+
+    // Navigation progress functionality
+    const NavProgress = {
+      progressBar: null,
+      spinner: null,
+      isLoading: false,
+      progress: 0,
+
+      init: function () {
+        this.progressBar = document.getElementById('navigation-progress');
+        this.spinner = this.progressBar?.querySelector(
+          '.nav-progress__spinner'
+        );
+
+        if (!this.progressBar) return;
+
+        // Listen for page navigation events
+        this.bindEvents();
+      },
+
+      bindEvents: function () {
+        // Handle clicks on internal links
+        document.addEventListener('click', (e) => {
+          const link = e.target.closest('a[href]');
+          if (!link) return;
+
+          const href = link.getAttribute('href');
+
+          // Only show loader for internal navigation (not external links or anchors)
+          if (this.isInternalNavigation(href)) {
+            this.start();
+          }
+        });
+
+        // Handle browser navigation (back/forward)
+        window.addEventListener('popstate', () => {
+          this.start();
+        });
+
+        // Handle page load completion
+        window.addEventListener('load', () => {
+          this.complete();
+        });
+
+        // Handle DOM content loaded (faster than full load)
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', () => {
+            this.complete();
+          });
+        } else {
+          // Page already loaded
+          this.complete();
+        }
+      },
+
+      isInternalNavigation: function (href) {
+        if (!href) return false;
+
+        // External links
+        if (href.startsWith('http://') || href.startsWith('https://')) {
+          return href.includes(window.location.hostname);
+        }
+
+        // Anchor links don't need loader
+        if (href.startsWith('#')) return false;
+
+        // mailto, tel, etc.
+        if (href.includes(':')) return false;
+
+        // Internal relative links
+        return true;
+      },
+
+      start: function () {
+        if (this.isLoading) return;
+
+        this.isLoading = true;
+        this.progress = 0;
+
+        if (this.progressBar) {
+          this.progressBar.classList.add('nav-progress--active');
+          this.updateProgress(10); // Start at 10%
+
+          // Simulate gradual progress
+          this.simulateProgress();
+        }
+      },
+
+      simulateProgress: function () {
+        const increment = () => {
+          if (!this.isLoading) return;
+
+          if (this.progress < 70) {
+            this.progress += Math.random() * 20;
+            this.updateProgress(Math.min(this.progress, 70));
+            setTimeout(increment, 100 + Math.random() * 200);
+          }
+        };
+
+        setTimeout(increment, 100);
+      },
+
+      updateProgress: function (percent) {
+        if (!this.progressBar) return;
+
+        const bar = this.progressBar.querySelector('.nav-progress__bar');
+        if (bar) {
+          bar.style.width = Math.min(percent, 100) + '%';
+        }
+      },
+
+      complete: function () {
+        if (!this.isLoading) return;
+
+        this.isLoading = false;
+        this.progress = 100;
+        this.updateProgress(100);
+
+        // Hide after completion animation
+        setTimeout(() => {
+          if (this.progressBar && !this.isLoading) {
+            this.progressBar.classList.remove('nav-progress--active');
+            this.progress = 0;
+            this.updateProgress(0);
+          }
+        }, 300);
+      }
+    };
+
+    // Initialize when DOM is ready
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', () => NavProgress.init());
+    } else {
+      NavProgress.init();
+    }
+  })();
+</script>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Component Hierarchy & Architecture</title>
+</head>
+
+<header class="site-header" role="banner">
+  <div class="wrapper">
+    <div class="site-header-content">
+      <!-- Site Branding -->
+      <div class="site-branding">
+        <a class="site-title" rel="author" href="/">
+          Idling.app Documentation
+        </a>
+
+        
+        <!-- Project Badges -->
+        <div class="project-badges">
+          <a href="https://github.com/Underwood-Inc/idling.app__UI" target="_blank" rel="noopener">
+            <img src="https://img.shields.io/badge/React-19.0.0--alpha-61DAFB?style=flat&logo=react&logoColor=white" alt="React Version" />
+          </a>
+          <a href="https://underwood-inc.github.io/idling.app__UI/" target="_blank" rel="noopener">
+            <img src="https://img.shields.io/badge/Documentation%20Coverage-100%25-brightgreen?style=flat&logo=gitbook&logoColor=white" alt="Documentation Coverage" />
+          </a>
+          <a href="https://github.com/Underwood-Inc/idling.app__UI/actions" target="_blank" rel="noopener">
+            <img src="https://img.shields.io/github/actions/workflow/status/Underwood-Inc/idling.app__UI/quality-assurance.yml?branch=main&style=flat&logo=github&logoColor=white" alt="Build Status" />
+          </a>
+        </div>
+      </div>
+
+      <!-- Navigation -->
+      <nav class="site-nav" role="navigation">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger" class="nav-trigger-label">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="m18,1.484c0,0.82-0.665,1.484-1.484,1.484h-15.032c-0.819,0-1.484-0.665-1.484-1.484s0.665-1.484,1.484-1.484h15.032c0.819,0,1.484,0.665,1.484,1.484zm0,6.016c0,0.82-0.665,1.484-1.484,1.484h-15.032c-0.819,0-1.484-0.665-1.484-1.484s0.665-1.484,1.484-1.484h15.032c0.819,0,1.484,0.665,1.484,1.484zm0,6.016c0,0.82-0.665,1.484-1.484,1.484h-15.032c-0.819,0-1.484-0.665-1.484-1.484s0.665-1.484,1.484-1.484h15.032c0.819,0,1.484,0.665,1.484,1.484z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger">
+          <!-- Generate navigation data from markdown files -->
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- DEBUG: Generated navigation from 85 total items (12 found + 13 known) into 75 groups -->
+<!-- Available as 'auto_navigation' variable for templates --> 
+          
+          <!-- Auto-generated navigation from navigation generator --><!-- Simple navigation item -->
+              <a class="page-link nav-main-link" href=""
+                 
+                 title="">
+                
+              </a><!-- Simple navigation item -->
+              <a class="page-link nav-main-link" href=""
+                 
+                 title="">
+                
+              </a><!-- Simple navigation item -->
+              <a class="page-link nav-main-link" href=""
+                 
+                 title="">
+                
+              </a><!-- Simple navigation item -->
+              <a class="page-link nav-main-link" href=""
+                 
+                 title="">
+                
+              </a><!-- Simple navigation item -->
+              <a class="page-link nav-main-link" href=""
+                 
+                 title="">
+                
+              </a><!-- Simple navigation item -->
+              <a class="page-link nav-main-link" href=""
+                 
+                 title="">
+                
+              </a><!-- Simple navigation item -->
+              <a class="page-link nav-main-link" href=""
+                 
+                 title="">
+                
+              </a><!-- Simple navigation item -->
+              <a class="page-link nav-main-link" href=""
+                 
+                 title="">
+                
+              </a><!-- Simple navigation item -->
+              <a class="page-link nav-main-link" href=""
+                 
+                 title="">
+                
+              </a><!-- Simple navigation item -->
+              <a class="page-link nav-main-link" href=""
+                 
+                 title="">
+                
+              </a><!-- Simple navigation item -->
+              <a class="page-link nav-main-link" href=""
+                 
+                 title="">
+                
+              </a><!-- Simple navigation item -->
+              <a class="page-link nav-main-link" href=""
+                 
+                 title="">
+                
+              </a><!-- Simple navigation item -->
+              <a class="page-link nav-main-link" href=""
+                 
+                 title="">
+                
+              </a><!-- Simple navigation item -->
+              <a class="page-link nav-main-link" href=""
+                 
+                 title="">
+                
+              </a><!-- Simple navigation item -->
+              <a class="page-link nav-main-link" href=""
+                 
+                 title="">
+                
+              </a><!-- Simple navigation item -->
+              <a class="page-link nav-main-link" href=""
+                 
+                 title="">
+                
+              </a><!-- Simple navigation item -->
+              <a class="page-link nav-main-link" href=""
+                 
+                 title="">
+                
+              </a><!-- Simple navigation item -->
+              <a class="page-link nav-main-link" href=""
+                 
+                 title="">
+                
+              </a><!-- Simple navigation item -->
+              <a class="page-link nav-main-link" href=""
+                 
+                 title="">
+                
+              </a><!-- Simple navigation item -->
+              <a class="page-link nav-main-link" href=""
+                 
+                 title="">
+                
+              </a><!-- Simple navigation item -->
+              <a class="page-link nav-main-link" href=""
+                 
+                 title="">
+                
+              </a><!-- Simple navigation item -->
+              <a class="page-link nav-main-link" href=""
+                 
+                 title="">
+                
+              </a><!-- Simple navigation item -->
+              <a class="page-link nav-main-link" href=""
+                 
+                 title="">
+                
+              </a><!-- Simple navigation item -->
+              <a class="page-link nav-main-link" href=""
+                 
+                 title="">
+                
+              </a><!-- Simple navigation item -->
+              <a class="page-link nav-main-link" href=""
+                 
+                 title="">
+                
+              </a><!-- Simple navigation item -->
+              <a class="page-link nav-main-link" href=""
+                 
+                 title="">
+                
+              </a><!-- Simple navigation item -->
+              <a class="page-link nav-main-link" href=""
+                 
+                 title="">
+                
+              </a><!-- Simple navigation item -->
+              <a class="page-link nav-main-link" href=""
+                 
+                 title="">
+                
+              </a><!-- Simple navigation item -->
+              <a class="page-link nav-main-link" href=""
+                 
+                 title="">
+                
+              </a><!-- Simple navigation item -->
+              <a class="page-link nav-main-link" href=""
+                 
+                 title="">
+                
+              </a><!-- Simple navigation item -->
+              <a class="page-link nav-main-link" href=""
+                 
+                 title="">
+                
+              </a><!-- Simple navigation item -->
+              <a class="page-link nav-main-link" href=""
+                 
+                 title="">
+                
+              </a><!-- Simple navigation item -->
+              <a class="page-link nav-main-link" href=""
+                 
+                 title="">
+                
+              </a><!-- Simple navigation item -->
+              <a class="page-link nav-main-link" href=""
+                 
+                 title="">
+                
+              </a><!-- Simple navigation item -->
+              <a class="page-link nav-main-link" href=""
+                 
+                 title="">
+                
+              </a><!-- Simple navigation item -->
+              <a class="page-link nav-main-link" href=""
+                 
+                 title="">
+                
+              </a><!-- Simple navigation item -->
+              <a class="page-link nav-main-link" href=""
+                 
+                 title="">
+                
+              </a><!-- Simple navigation item -->
+              <a class="page-link nav-main-link" href=""
+                 
+                 title="">
+                
+              </a><!-- Simple navigation item -->
+              <a class="page-link nav-main-link" href=""
+                 
+                 title="">
+                
+              </a><!-- Simple navigation item -->
+              <a class="page-link nav-main-link" href=""
+                 
+                 title="">
+                
+              </a><!-- Simple navigation item -->
+              <a class="page-link nav-main-link" href=""
+                 
+                 title="">
+                
+              </a><!-- Simple navigation item -->
+              <a class="page-link nav-main-link" href=""
+                 
+                 title="">
+                
+              </a><!-- Simple navigation item -->
+              <a class="page-link nav-main-link" href=""
+                 
+                 title="">
+                
+              </a><!-- Simple navigation item -->
+              <a class="page-link nav-main-link" href=""
+                 
+                 title="">
+                
+              </a><!-- Simple navigation item -->
+              <a class="page-link nav-main-link" href=""
+                 
+                 title="">
+                
+              </a><!-- Simple navigation item -->
+              <a class="page-link nav-main-link" href=""
+                 
+                 title="">
+                
+              </a><!-- Simple navigation item -->
+              <a class="page-link nav-main-link" href=""
+                 
+                 title="">
+                
+              </a><!-- Simple navigation item -->
+              <a class="page-link nav-main-link" href=""
+                 
+                 title="">
+                
+              </a><!-- Simple navigation item -->
+              <a class="page-link nav-main-link" href=""
+                 
+                 title="">
+                
+              </a><!-- Simple navigation item -->
+              <a class="page-link nav-main-link" href=""
+                 
+                 title="">
+                
+              </a><!-- Simple navigation item -->
+              <a class="page-link nav-main-link" href=""
+                 
+                 title="">
+                
+              </a><!-- Simple navigation item -->
+              <a class="page-link nav-main-link" href=""
+                 
+                 title="">
+                
+              </a><!-- Simple navigation item -->
+              <a class="page-link nav-main-link" href=""
+                 
+                 title="">
+                
+              </a><!-- Simple navigation item -->
+              <a class="page-link nav-main-link" href=""
+                 
+                 title="">
+                
+              </a><!-- Simple navigation item -->
+              <a class="page-link nav-main-link" href=""
+                 
+                 title="">
+                
+              </a><!-- Simple navigation item -->
+              <a class="page-link nav-main-link" href=""
+                 
+                 title="">
+                
+              </a><!-- Simple navigation item -->
+              <a class="page-link nav-main-link" href=""
+                 
+                 title="">
+                
+              </a><!-- Simple navigation item -->
+              <a class="page-link nav-main-link" href=""
+                 
+                 title="">
+                
+              </a><!-- Simple navigation item -->
+              <a class="page-link nav-main-link" href=""
+                 
+                 title="">
+                
+              </a><!-- Simple navigation item -->
+              <a class="page-link nav-main-link" href=""
+                 
+                 title="">
+                
+              </a><!-- Simple navigation item -->
+              <a class="page-link nav-main-link" href=""
+                 
+                 title="">
+                
+              </a><!-- Simple navigation item -->
+              <a class="page-link nav-main-link" href=""
+                 
+                 title="">
+                
+              </a><!-- Simple navigation item -->
+              <a class="page-link nav-main-link" href=""
+                 
+                 title="">
+                
+              </a><!-- Simple navigation item -->
+              <a class="page-link nav-main-link" href=""
+                 
+                 title="">
+                
+              </a><!-- Simple navigation item -->
+              <a class="page-link nav-main-link" href=""
+                 
+                 title="">
+                
+              </a><!-- Simple navigation item -->
+              <a class="page-link nav-main-link" href=""
+                 
+                 title="">
+                
+              </a><!-- Simple navigation item -->
+              <a class="page-link nav-main-link" href=""
+                 
+                 title="">
+                
+              </a><!-- Simple navigation item -->
+              <a class="page-link nav-main-link" href=""
+                 
+                 title="">
+                
+              </a><!-- Simple navigation item -->
+              <a class="page-link nav-main-link" href=""
+                 
+                 title="">
+                
+              </a><!-- Simple navigation item -->
+              <a class="page-link nav-main-link" href=""
+                 
+                 title="">
+                
+              </a><!-- Simple navigation item -->
+              <a class="page-link nav-main-link" href=""
+                 
+                 title="">
+                
+              </a><!-- Simple navigation item -->
+              <a class="page-link nav-main-link" href=""
+                 
+                 title="">
+                
+              </a><!-- Simple navigation item -->
+              <a class="page-link nav-main-link" href=""
+                 
+                 title="">
+                
+              </a><!-- Simple navigation item -->
+              <a class="page-link nav-main-link" href=""
+                 
+                 title="">
+                
+              </a><!-- Simple navigation item -->
+              <a class="page-link nav-main-link" href=""
+                 
+                 title="">
+                
+              </a><!-- External Links -->
+          <a class="page-link page-link--external" href="https://github.com/Underwood-Inc/idling.app__UI" target="_blank" rel="noopener">
+            GitHub
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M14,3V5H17.59L7.76,14.83L9.17,16.24L19,6.41V10H21V3M19,19H5V5H12V3H5C3.89,3 3,3.9 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V12H19V19Z"/>
+            </svg>
+          </a>
+          <a class="page-link page-link--external" href="https://github.com/Underwood-Inc/idling.app__UI/discussions" target="_blank" rel="noopener">
+            Discussions
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M14,3V5H17.59L7.76,14.83L9.17,16.24L19,6.41V10H21V3M19,19H5V5H12V3H5C3.89,3 3,3.9 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V12H19V19Z"/>
+            </svg>
+          </a>
+        </div>
+      </nav>
+    </div>
+  </div>
+  
+  <!-- Enhanced Search Bar -->
+  <div class="search-header">
+    <div class="wrapper">
+      <div class="search-container">
+        <input type="text" id="search-input" placeholder="Search documentation..." autocomplete="off">
+        <div id="search-results"></div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- SEPARATE MOBILE NAVIGATION COMPONENT -->
+<!-- MOBILE NAVIGATION - COMPLETELY SEPARATE COMPONENT -->
+<div class="mobile-nav-overlay" id="mobile-nav-overlay">
+  <!-- Mobile Nav Toggle Button -->
+  <button class="mobile-nav-toggle" id="mobile-nav-toggle" aria-label="Toggle mobile navigation">
+    <span class="mobile-nav-icon">
+      <span></span>
+      <span></span>
+      <span></span>
+    </span>
+  </button>
+
+  <!-- Mobile Nav Menu -->
+  <nav class="mobile-nav-menu" id="mobile-nav-menu">
+    <div class="mobile-nav-header">
+      <h2>📚 Navigation</h2>
+      <button class="mobile-nav-close" id="mobile-nav-close" aria-label="Close navigation">✕</button>
+    </div>
+
+    <div class="mobile-nav-content">
+      <!-- Documentation Section -->
+      <div class="mobile-nav-section">
+        <button class="mobile-nav-section-toggle" data-section="documentation">
+          📖 Documentation
+          <span class="mobile-nav-arrow">▼</span>
+        </button>
+        <div class="mobile-nav-subsection" id="mobile-section-documentation">
+          <a href="/getting-started/" class="mobile-nav-link">🚀 Getting Started</a>
+          <a href="/api/" class="mobile-nav-link">🔌 API Reference</a>
+          <a href="/architecture/" class="mobile-nav-link">🏗️ Architecture</a>
+          <a href="/deployment/" class="mobile-nav-link">🚀 Deployment</a>
+        </div>
+      </div>
+
+      <!-- Development Section -->
+      <div class="mobile-nav-section">
+        <button class="mobile-nav-section-toggle" data-section="development">
+          🛠️ Development
+          <span class="mobile-nav-arrow">▼</span>
+        </button>
+        <div class="mobile-nav-subsection" id="mobile-section-development">
+          <a href="/development/components/" class="mobile-nav-link">🧩 Components</a>
+          <a href="/development/libraries/" class="mobile-nav-link">📚 Libraries</a>
+          <a href="/development/testing/" class="mobile-nav-link">🧪 Testing</a>
+          <a href="/development/tools/" class="mobile-nav-link">🔧 Tools</a>
+        </div>
+      </div>
+
+      <!-- Community Section -->
+      <div class="mobile-nav-section">
+        <button class="mobile-nav-section-toggle" data-section="community">
+          👥 Community
+          <span class="mobile-nav-arrow">▼</span>
+        </button>
+        <div class="mobile-nav-subsection" id="mobile-section-community">
+          <a href="/community/contributing/" class="mobile-nav-link">🤝 Contributing</a>
+          <a href="/community/standards/" class="mobile-nav-link">📋 Standards</a>
+        </div>
+      </div>
+
+      <!-- External Links -->
+      <div class="mobile-nav-section">
+        <div class="mobile-nav-external">
+          <a href="https://github.com/Underwood-Inc/idling.app__UI" target="_blank" class="mobile-nav-link external">
+            🔗 GitHub
+          </a>
+          <a href="https://github.com/Underwood-Inc/idling.app__UI/discussions" target="_blank" class="mobile-nav-link external">
+            💬 Discussions
+          </a>
+        </div>
+      </div>
+    </div>
+  </nav>
+</div>
+
+<style>
+/* MOBILE NAVIGATION - COMPLETELY INDEPENDENT STYLES */
+.mobile-nav-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 50000; /* Above everything */
+}
+
+@media (max-width: 768px) {
+  .mobile-nav-overlay {
+    display: block;
+  }
+}
+
+.mobile-nav-toggle {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 50001;
+  width: 60px;
+  height: 60px;
+  border: none;
+  border-radius: 50%;
+  background: var(--dark-background--secondary);
+  border: 2px solid var(--brand-primary);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+}
+
+.mobile-nav-toggle:hover {
+  background: var(--dark-background--tertiary);
+  border-color: var(--brand-secondary);
+  transform: scale(1.05);
+}
+
+.mobile-nav-icon {
+  display: flex;
+  flex-direction: column;
+  width: 24px;
+  height: 18px;
+  justify-content: space-between;
+}
+
+.mobile-nav-icon span {
+  display: block;
+  width: 100%;
+  height: 3px;
+  background: var(--brand-primary);
+  border-radius: 2px;
+  transition: all 0.3s ease;
+}
+
+/* Toggle animation */
+.mobile-nav-overlay.active .mobile-nav-icon span:nth-child(1) {
+  transform: rotate(45deg) translate(6px, 6px);
+}
+
+.mobile-nav-overlay.active .mobile-nav-icon span:nth-child(2) {
+  opacity: 0;
+}
+
+.mobile-nav-overlay.active .mobile-nav-icon span:nth-child(3) {
+  transform: rotate(-45deg) translate(6px, -6px);
+}
+
+.mobile-nav-menu {
+  position: fixed;
+  top: 0;
+  right: -100%;
+  width: 85%;
+  max-width: 400px;
+  height: 100vh;
+  background: var(--dark-background--primary);
+  border-left: 3px solid var(--brand-primary);
+  transition: right 0.3s ease;
+  overflow-y: auto;
+  z-index: 50000;
+}
+
+.mobile-nav-overlay.active .mobile-nav-menu {
+  right: 0;
+}
+
+.mobile-nav-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 2rem;
+  background: linear-gradient(135deg, var(--brand-hunyadi-yellow), var(--brand-jasmine));
+  border-bottom: 2px solid var(--brand-primary);
+}
+
+.mobile-nav-header h2 {
+  margin: 0;
+  color: var(--brand-rich-black);
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.mobile-nav-close {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: var(--brand-rich-black);
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 50%;
+  transition: background 0.2s ease;
+}
+
+.mobile-nav-close:hover {
+  background: rgba(0, 0, 0, 0.1);
+}
+
+.mobile-nav-content {
+  padding: 1rem 0;
+}
+
+.mobile-nav-section {
+  border-bottom: 1px solid var(--border-primary);
+}
+
+.mobile-nav-section-toggle {
+  width: 100%;
+  padding: 1.5rem 2rem;
+  background: none;
+  border: none;
+  color: var(--text-color);
+  font-size: 1.25rem;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: all 0.2s ease;
+}
+
+.mobile-nav-section-toggle:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--brand-primary);
+}
+
+.mobile-nav-arrow {
+  transition: transform 0.3s ease;
+  font-size: 1rem;
+}
+
+.mobile-nav-section.expanded .mobile-nav-arrow {
+  transform: rotate(180deg);
+}
+
+.mobile-nav-subsection {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.mobile-nav-section.expanded .mobile-nav-subsection {
+  max-height: 500px;
+}
+
+.mobile-nav-link {
+  display: block;
+  padding: 1rem 3rem;
+  color: var(--text-color);
+  text-decoration: none;
+  font-size: 1rem;
+  transition: all 0.2s ease;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.mobile-nav-link:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--brand-primary);
+  transform: translateX(8px);
+}
+
+.mobile-nav-link.external::after {
+  content: ' ↗';
+  opacity: 0.7;
+}
+
+.mobile-nav-external {
+  padding: 1rem 0;
+}
+
+.mobile-nav-external .mobile-nav-link {
+  padding: 1rem 2rem;
+  border-bottom: 1px solid var(--border-primary);
+}
+
+/* Backdrop */
+.mobile-nav-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+  z-index: 49999;
+}
+
+.mobile-nav-overlay.active .mobile-nav-backdrop {
+  opacity: 1;
+  visibility: visible;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const mobileNavOverlay = document.getElementById('mobile-nav-overlay');
+  const mobileNavToggle = document.getElementById('mobile-nav-toggle');
+  const mobileNavClose = document.getElementById('mobile-nav-close');
+  const mobileNavMenu = document.getElementById('mobile-nav-menu');
+  const body = document.body;
+  
+  // Create backdrop
+  const backdrop = document.createElement('div');
+  backdrop.className = 'mobile-nav-backdrop';
+  mobileNavOverlay.appendChild(backdrop);
+  
+  // Toggle mobile nav
+  function toggleMobileNav() {
+    const isActive = mobileNavOverlay.classList.contains('active');
+    
+    if (isActive) {
+      closeMobileNav();
+    } else {
+      openMobileNav();
+    }
+  }
+  
+  function openMobileNav() {
+    mobileNavOverlay.classList.add('active');
+    
+    // Prevent body scroll
+    const scrollY = window.scrollY;
+    body.style.position = 'fixed';
+    body.style.top = `-${scrollY}px`;
+    body.style.width = '100%';
+    body.style.overflow = 'hidden';
+    body.dataset.scrollY = scrollY.toString();
+  }
+  
+  function closeMobileNav() {
+    mobileNavOverlay.classList.remove('active');
+    
+    // Restore body scroll
+    const scrollY = parseInt(body.dataset.scrollY || '0');
+    body.style.position = '';
+    body.style.top = '';
+    body.style.width = '';
+    body.style.overflow = '';
+    window.scrollTo(0, scrollY);
+    delete body.dataset.scrollY;
+  }
+  
+  // Event listeners
+  mobileNavToggle.addEventListener('click', toggleMobileNav);
+  mobileNavClose.addEventListener('click', closeMobileNav);
+  backdrop.addEventListener('click', closeMobileNav);
+  
+  // Section toggles
+  const sectionToggles = document.querySelectorAll('.mobile-nav-section-toggle');
+  sectionToggles.forEach(toggle => {
+    toggle.addEventListener('click', function() {
+      const section = this.closest('.mobile-nav-section');
+      section.classList.toggle('expanded');
+    });
+  });
+  
+  // Close nav when clicking links
+  const navLinks = document.querySelectorAll('.mobile-nav-link');
+  navLinks.forEach(link => {
+    link.addEventListener('click', function() {
+      if (!link.classList.contains('external')) {
+        closeMobileNav();
+      }
+    });
+  });
+  
+  // Close on escape key
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && mobileNavOverlay.classList.contains('active')) {
+      closeMobileNav();
+    }
+  });
+});
+</script> 
+
+<script>
+// Enhanced navigation functionality
+document.addEventListener('DOMContentLoaded', function() {
+  // Navigation toggle functionality
+  const navToggles = document.querySelectorAll('.nav-toggle');
+  
+  navToggles.forEach(toggle => {
+    toggle.addEventListener('click', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      
+      const container = this.closest('.nav-item-container');
+      const subnav = container.querySelector('.nav-subnav');
+      const isExpanded = container.classList.contains('expanded');
+      
+      // CRITICAL: Set positioning data attribute based on nav item
+      const navLink = container.querySelector('.nav-main-link');
+      const navText = navLink ? navLink.textContent.toLowerCase().trim() : '';
+      
+      if (subnav) {
+        subnav.setAttribute('data-nav-item', navText);
+        
+        // CRITICAL: Position dropdown relative to the nav item
+        const navLinkRect = navLink.getBoundingClientRect();
+        const navBottom = navLinkRect.bottom;
+        
+        // Use fixed positioning relative to viewport - right below the nav item
+        subnav.style.left = Math.max(20, navLinkRect.left) + 'px';
+        subnav.style.top = (navBottom + 5) + 'px';
+        
+        // Ensure it doesn't go off screen
+        const maxLeft = window.innerWidth - subnav.offsetWidth - 20;
+        if (parseInt(subnav.style.left) > maxLeft) {
+          subnav.style.left = maxLeft + 'px';
+        }
+      }
+     
+      // Close all other expanded navs
+      document.querySelectorAll('.nav-item-container.expanded').forEach(item => {
+        if (item !== container) {
+          item.classList.remove('expanded');
+          const otherSubnav = item.querySelector('.nav-subnav');
+          if (otherSubnav) {
+            otherSubnav.style.maxHeight = '0';
+          }
+          const otherToggle = item.querySelector('.nav-toggle');
+          if (otherToggle) {
+            otherToggle.setAttribute('aria-expanded', 'false');
+          }
+        }
+      });
+      
+      // Toggle current nav
+      container.classList.toggle('expanded');
+      
+      // Update ARIA attributes
+      this.setAttribute('aria-expanded', !isExpanded);
+      
+      // Smooth animation respecting CSS max-height
+      if (container.classList.contains('expanded')) {
+        // Use CSS-defined max-height instead of calculating pixels
+        subnav.style.maxHeight = '80vh';
+      } else {
+        subnav.style.maxHeight = '0';
+      }
+    });
+  });
+  
+  // Handle keyboard navigation
+  navToggles.forEach(toggle => {
+    toggle.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        this.click();
+      }
+      
+      if (e.key === 'Escape') {
+        const container = this.closest('.nav-item-container');
+        if (container.classList.contains('expanded')) {
+          container.classList.remove('expanded');
+          const subnav = container.querySelector('.nav-subnav');
+          if (subnav) {
+            subnav.style.maxHeight = '0';
+          }
+          this.setAttribute('aria-expanded', 'false');
+          this.focus();
+        }
+      }
+    });
+  });
+  
+  // Close all dropdowns when clicking outside
+  document.addEventListener('click', function(e) {
+    if (!e.target.closest('.nav-item-container')) {
+      document.querySelectorAll('.nav-item-container.expanded').forEach(item => {
+        item.classList.remove('expanded');
+        const subnav = item.querySelector('.nav-subnav');
+        if (subnav) {
+          subnav.style.maxHeight = '0';
+        }
+        const toggle = item.querySelector('.nav-toggle');
+        if (toggle) {
+          toggle.setAttribute('aria-expanded', 'false');
+        }
+      });
+    }
+  });
+  
+  // Mobile navigation enhancements
+  function setupMobileNavigation() {
+    const mobileNavTrigger = document.getElementById('nav-trigger');
+    const mobileNavOverlay = document.querySelector('.site-nav .trigger');
+    const body = document.body;
+    
+    if (mobileNavTrigger && mobileNavOverlay) {
+      // Handle mobile nav opening/closing
+      mobileNavTrigger.addEventListener('change', function() {
+        if (this.checked) {
+          // Navigation is opening - prevent body scroll
+          body.style.overflow = 'hidden';
+          body.style.position = 'fixed';
+          body.style.top = `-${window.scrollY}px`;
+          body.style.width = '100%';
+          
+          // Scroll to current page after animation
+          setTimeout(() => {
+            scrollToCurrentPage();
+          }, 300);
+        } else {
+          // Navigation is closing - restore body scroll
+          const scrollY = body.style.top;
+          body.style.overflow = '';
+          body.style.position = '';
+          body.style.top = '';
+          body.style.width = '';
+          
+          if (scrollY) {
+            window.scrollTo(0, parseInt(scrollY || '0') * -1);
+          }
+        }
+      });
+      
+      // Close mobile nav when clicking on navigation links
+      const navLinks = mobileNavOverlay.querySelectorAll('a');
+      navLinks.forEach(link => {
+        link.addEventListener('click', function() {
+          mobileNavTrigger.checked = false;
+          // Trigger change event to restore body scroll
+          mobileNavTrigger.dispatchEvent(new Event('change'));
+        });
+      });
+    }
+  }
+  
+  function scrollToCurrentPage() {
+    // Find the current page link in the navigation
+    const currentPageLink = document.querySelector('.site-nav [aria-current="page"]');
+    
+    if (currentPageLink) {
+      // Expand parent sections if needed
+      expandParentSections(currentPageLink);
+      
+      // Scroll to the current page with smooth behavior
+      setTimeout(() => {
+        currentPageLink.scrollIntoView({
+          behavior: 'smooth',
+          block: 'center',
+          inline: 'nearest'
+        });
+        
+        // Add visual highlight
+        currentPageLink.style.outline = '2px solid var(--brand-hunyadi-yellow)';
+        currentPageLink.style.outlineOffset = '4px';
+        
+        // Remove highlight after a moment
+        setTimeout(() => {
+          currentPageLink.style.outline = '';
+          currentPageLink.style.outlineOffset = '';
+        }, 2000);
+      }, 100);
+    }
+  }
+  
+  function expandParentSections(currentLink) {
+    // Find parent navigation containers and expand them
+    let parent = currentLink.closest('.nav-item-container');
+    
+    while (parent) {
+      if (!parent.classList.contains('expanded')) {
+        parent.classList.add('expanded');
+        
+        // Trigger the subnav expansion
+        const subnav = parent.querySelector('.nav-subnav');
+        if (subnav) {
+          subnav.style.maxHeight = '80vh';
+        }
+        
+        // Update toggle button state
+        const toggle = parent.querySelector('.nav-toggle');
+        if (toggle) {
+          toggle.setAttribute('aria-expanded', 'true');
+        }
+      }
+      
+      // Move up to next parent
+      parent = parent.parentElement?.closest('.nav-item-container');
+    }
+  }
+  
+  // Initialize mobile navigation
+  function setupMobileNavigationEnhanced() {
+    const isMobile = window.innerWidth <= 768;
+    
+    if (isMobile) {
+      // Make entire nav items clickable on mobile (not just toggle button)
+      document.querySelectorAll('.nav-item-container').forEach(container => {
+        const mainLink = container.querySelector('.nav-main-link');
+        const subnav = container.querySelector('.nav-subnav');
+        
+        if (mainLink && subnav) {
+          // Remove href to prevent navigation, make it a button for mobile
+          mainLink.style.cursor = 'pointer';
+          
+          // Add click handler to entire main link area
+          mainLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const isExpanded = container.classList.contains('expanded');
+            
+            // Close all other expanded navs
+            document.querySelectorAll('.nav-item-container.expanded').forEach(item => {
+              if (item !== container) {
+                item.classList.remove('expanded');
+                const otherSubnav = item.querySelector('.nav-subnav');
+                if (otherSubnav) {
+                  otherSubnav.style.maxHeight = '0';
+                }
+              }
+            });
+            
+            // Toggle current nav
+            container.classList.toggle('expanded');
+            
+            // Smooth animation
+            if (container.classList.contains('expanded')) {
+              subnav.style.maxHeight = '80vh';
+            } else {
+              subnav.style.maxHeight = '0';
+            }
+          });
+        }
+      });
+      
+      // Auto-close mobile menu when clicking on a navigation link
+      document.querySelectorAll('.nav-sub-link, .nav-subsection-link, .page-link--external').forEach(link => {
+        link.addEventListener('click', function() {
+          const mobileNavTrigger = document.getElementById('mobile-nav-trigger');
+          if (mobileNavTrigger) {
+            mobileNavTrigger.checked = false;
+          }
+        });
+      });
+      
+      // Add swipe to close functionality
+      let startX = 0;
+      let startY = 0;
+      
+      const trigger = document.querySelector('.trigger');
+      if (trigger) {
+        trigger.addEventListener('touchstart', function(e) {
+          startX = e.touches[0].clientX;
+          startY = e.touches[0].clientY;
+        }, { passive: true });
+        
+        trigger.addEventListener('touchmove', function(e) {
+          const currentX = e.touches[0].clientX;
+          const currentY = e.touches[0].clientY;
+          const diffX = currentX - startX;
+          const diffY = Math.abs(currentY - startY);
+          
+          // If swiping right and not scrolling vertically much
+          if (diffX > 50 && diffY < 100) {
+            const mobileNavTrigger = document.getElementById('mobile-nav-trigger');
+            if (mobileNavTrigger) {
+              mobileNavTrigger.checked = false;
+            }
+          }
+        }, { passive: true });
+      }
+    }
+  }
+  
+  // Setup mobile navigation on load and resize
+  setupMobileNavigation();
+  setupMobileNavigationEnhanced();
+  window.addEventListener('resize', () => {
+    setupMobileNavigation();
+    setupMobileNavigationEnhanced();
+  });
+
+  // Keyboard navigation support
+  document.addEventListener('keydown', function(e) {
+    // Close mobile menu with Escape key
+    if (e.key === 'Escape') {
+      const mobileNavTrigger = document.getElementById('mobile-nav-trigger');
+      if (mobileNavTrigger && mobileNavTrigger.checked) {
+        mobileNavTrigger.checked = false;
+        return;
+      }
+      
+      // Close desktop dropdowns with Escape
+      document.querySelectorAll('.nav-item-container.expanded').forEach(item => {
+        item.classList.remove('expanded');
+        const subnav = item.querySelector('.nav-subnav');
+        if (subnav) {
+          subnav.style.maxHeight = '0';
+        }
+        const toggle = item.querySelector('.nav-toggle');
+        if (toggle) {
+          toggle.setAttribute('aria-expanded', 'false');
+          toggle.focus();
+        }
+      });
+    }
+  });
+  
+  // Legacy search functionality removed - now using enhanced search include
+  
+  // Smooth scrolling for anchor links
+  document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function (e) {
+      e.preventDefault();
+      const target = document.querySelector(this.getAttribute('href'));
+      if (target) {
+        target.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start'
+        });
+      }
+    });
+  });
+  
+  // Add loading states for navigation links
+  document.querySelectorAll('.nav-main-link, .nav-sub-link, .nav-subsection-link').forEach(link => {
+    link.addEventListener('click', function(e) {
+      // Only add loading state for internal links
+      const href = this.getAttribute('href');
+      if (href && !href.startsWith('http') && !href.startsWith('#')) {
+        this.style.opacity = '0.7';
+        this.style.pointerEvents = 'none';
+        
+        // Reset after a delay (in case navigation fails)
+        setTimeout(() => {
+          this.style.opacity = '1';
+          this.style.pointerEvents = 'auto';
+        }, 3000);
+      }
+    });
+  });
+});
+</script> 
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <div class="content-grid">
+          <article class="main-content-card">
+            
+            <header class="card-header">
+              <h1>Component Hierarchy &amp; Architecture</h1>
+              
+              <p class="page-description">Complete React component hierarchy showing component relationships, props flow, and architectural patterns</p>
+              
+            </header>
+            
+            
+            <div class="card-content">
+              <h1 id="️-component-hierarchy--architecture">⚛️ Component Hierarchy &amp; Architecture</h1>
+
+<p>This diagram shows the complete React component architecture for Idling.app, including component relationships, props flow, state management, and architectural patterns.</p>
+
+<h2 id="️-application-component-tree">🏗️ <strong>Application Component Tree</strong></h2>
+
+<pre><code class="language-mermaid">flowchart TD
+    subgraph "🚀 App Root"
+        A[🌟 App Component]
+        A --&gt; B[🔄 Providers Wrapper]
+        A --&gt; C[🛡️ Auth Provider]
+        A --&gt; D[🎨 Theme Provider]
+        A --&gt; E[📊 Analytics Provider]
+    end
+
+    subgraph "🗂️ Layout Components"
+        B --&gt; F[📐 RootLayout]
+        F --&gt; G[🧭 Navigation]
+        F --&gt; H[🏠 Main Content]
+        F --&gt; I[🦶 Footer]
+
+        G --&gt; J[🔗 NavLink]
+        G --&gt; K[👤 UserMenu]
+        G --&gt; L[🔔 NotificationBell]
+    end
+
+    subgraph "📄 Page Components"
+        H --&gt; M[🏠 HomePage]
+        H --&gt; N[📊 DashboardPage]
+        H --&gt; O[🎮 SessionPage]
+        H --&gt; P[⚙️ SettingsPage]
+        H --&gt; Q[🛠️ AdminPage]
+
+        M --&gt; R[🎯 HeroSection]
+        M --&gt; S[✨ FeatureSection]
+        M --&gt; T[📈 StatsSection]
+    end
+
+    subgraph "🎮 Session Components"
+        N --&gt; U[📊 SessionDashboard]
+        O --&gt; V[🎯 SessionCreator]
+        O --&gt; W[🎮 ActiveSession]
+        O --&gt; X[📈 SessionStats]
+
+        U --&gt; Y[📋 SessionList]
+        U --&gt; Z[➕ QuickStart]
+
+        V --&gt; AA[⚙️ SessionConfig]
+        V --&gt; BB[😊 EmojiSelector]
+        V --&gt; CC[⏰ TimerConfig]
+
+        W --&gt; DD[🎛️ SessionControls]
+        W --&gt; EE[📊 LiveStats]
+        W --&gt; FF[🎨 VisualFeedback]
+    end
+
+    subgraph "😊 Emoji System"
+        BB --&gt; GG[🗂️ EmojiCategories]
+        BB --&gt; HH[🔍 EmojiSearch]
+        BB --&gt; II[⭐ EmojiFavorites]
+
+        GG --&gt; JJ[📋 CategoryList]
+        GG --&gt; KK[😊 EmojiGrid]
+
+        HH --&gt; LL[🔎 SearchInput]
+        HH --&gt; MM[📊 SearchResults]
+
+        II --&gt; NN[❤️ FavoritesList]
+        II --&gt; OO[⭐ FavoriteButton]
+    end
+
+    style A fill:#e3f2fd
+    style F fill:#c8e6c9
+    style U fill:#fff3e0
+    style BB fill:#f3e5f5
+</code></pre>
+
+<h2 id="-props-flow--state-management">🔄 <strong>Props Flow &amp; State Management</strong></h2>
+
+<pre><code class="language-mermaid">sequenceDiagram
+    participant App as 🚀 App
+    participant Context as 🌐 Context
+    participant Dashboard as 📊 Dashboard
+    participant Session as 🎮 Session
+    participant Emoji as 😊 Emoji
+    participant UI as 🎨 UI Components
+
+    App-&gt;&gt;Context: Initialize Global State
+    Context-&gt;&gt;Context: User Auth State
+    Context-&gt;&gt;Context: Theme State
+    Context-&gt;&gt;Context: Session State
+
+    Dashboard-&gt;&gt;Context: Request User Data
+    Context-&gt;&gt;Dashboard: User Sessions
+    Dashboard-&gt;&gt;Session: Session Props
+
+    Session-&gt;&gt;Context: Update Session State
+    Context-&gt;&gt;Dashboard: Notify State Change
+    Dashboard-&gt;&gt;UI: Re-render Components
+
+    Session-&gt;&gt;Emoji: Open Emoji Selector
+    Emoji-&gt;&gt;Context: Selected Emoji
+    Context-&gt;&gt;Session: Update Session Emoji
+
+    UI-&gt;&gt;Context: User Interaction
+    Context-&gt;&gt;App: Global State Update
+    App-&gt;&gt;UI: Propagate Changes
+</code></pre>
+
+<h2 id="-component-architecture-patterns">🧩 <strong>Component Architecture Patterns</strong></h2>
+
+<pre><code class="language-mermaid">classDiagram
+    class BaseComponent {
+        +props: ComponentProps
+        +state: ComponentState
+        +render(): JSX.Element
+        +componentDidMount()
+        +componentWillUnmount()
+    }
+
+    class ContainerComponent {
+        +fetchData()
+        +handleBusinessLogic()
+        +manageState()
+        +passPropsToPresentation()
+    }
+
+    class PresentationalComponent {
+        +displayData()
+        +handleUIEvents()
+        +renderVisualElements()
+        +noBusinessLogic()
+    }
+
+    class HookComponent {
+        +useState()
+        +useEffect()
+        +useContext()
+        +useCustomHooks()
+    }
+
+    class HigherOrderComponent {
+        +withAuth()
+        +withTheme()
+        +withAnalytics()
+        +withErrorBoundary()
+    }
+
+    BaseComponent &lt;|-- ContainerComponent
+    BaseComponent &lt;|-- PresentationalComponent
+    BaseComponent &lt;|-- HookComponent
+    ContainerComponent --&gt; PresentationalComponent
+    HigherOrderComponent --&gt; BaseComponent
+</code></pre>
+
+<h2 id="-component-responsibility-matrix">🎯 <strong>Component Responsibility Matrix</strong></h2>
+
+<pre><code class="language-mermaid">graph TB
+    subgraph "🏗️ Structural Components"
+        S1[🚀 App - Application Root]
+        S2[📐 Layout - Page Structure]
+        S3[🧭 Navigation - App Navigation]
+        S4[🛡️ ErrorBoundary - Error Handling]
+    end
+
+    subgraph "📊 Data Components"
+        D1[📈 Dashboard - Data Aggregation]
+        D2[📋 SessionList - Session Management]
+        D3[👤 UserProfile - User Data]
+        D4[📊 Analytics - Metrics Display]
+    end
+
+    subgraph "🎮 Interactive Components"
+        I1[🎯 SessionCreator - Session Setup]
+        I2[🎛️ SessionControls - Session Management]
+        I3[😊 EmojiSelector - Emoji Selection]
+        I4[⚙️ SettingsPanel - Configuration]
+    end
+
+    subgraph "🎨 UI Components"
+        U1[🔘 Button - User Actions]
+        U2[📝 Input - Data Entry]
+        U3[📋 Modal - Overlays]
+        U4[🔔 Notification - User Feedback]
+    end
+
+    subgraph "🔌 Utility Components"
+        T1[🔄 LoadingSpinner - Loading States]
+        T2[🚨 ErrorMessage - Error Display]
+        T3[📱 ResponsiveWrapper - Device Adaptation]
+        T4[🎨 ThemeProvider - Styling Context]
+    end
+
+    S1 --&gt; D1
+    S1 --&gt; I1
+    S2 --&gt; U1
+    S3 --&gt; U2
+
+    D1 --&gt; U3
+    D2 --&gt; U4
+    I1 --&gt; T1
+    I2 --&gt; T2
+
+    style S1 fill:#e3f2fd
+    style D1 fill:#c8e6c9
+    style I1 fill:#fff3e0
+    style U1 fill:#f3e5f5
+    style T1 fill:#ffcdd2
+</code></pre>
+
+<h2 id="-component-dependencies-graph">🔗 <strong>Component Dependencies Graph</strong></h2>
+
+<pre><code class="language-mermaid">graph LR
+    subgraph "📦 External Dependencies"
+        E1[⚛️ React]
+        E2[🔄 Next.js]
+        E3[🎨 Tailwind CSS]
+        E4[📊 Chart.js]
+        E5[🔔 React Hot Toast]
+    end
+
+    subgraph "🏠 Internal Components"
+        I1[🚀 App]
+        I2[📊 Dashboard]
+        I3[🎮 Session]
+        I4[😊 Emoji]
+        I5[🎨 UI Library]
+    end
+
+    subgraph "🔧 Custom Hooks"
+        H1[🎯 useSession]
+        H2[👤 useAuth]
+        H3[🎨 useTheme]
+        H4[📊 useAnalytics]
+    end
+
+    subgraph "🌐 Context Providers"
+        C1[🔑 AuthContext]
+        C2[🎮 SessionContext]
+        C3[🎨 ThemeContext]
+        C4[📊 AnalyticsContext]
+    end
+
+    E1 --&gt; I1
+    E2 --&gt; I1
+    E3 --&gt; I5
+    E4 --&gt; I2
+    E5 --&gt; I5
+
+    I1 --&gt; I2
+    I1 --&gt; I3
+    I1 --&gt; I4
+    I1 --&gt; I5
+
+    I2 --&gt; H1
+    I2 --&gt; H2
+    I3 --&gt; H1
+    I3 --&gt; H3
+    I4 --&gt; H4
+
+    H1 --&gt; C2
+    H2 --&gt; C1
+    H3 --&gt; C3
+    H4 --&gt; C4
+
+    style E1 fill:#e3f2fd
+    style I1 fill:#c8e6c9
+    style H1 fill:#fff3e0
+    style C1 fill:#f3e5f5
+</code></pre>
+
+<h2 id="-styling-architecture">🎨 <strong>Styling Architecture</strong></h2>
+
+<pre><code class="language-mermaid">flowchart TB
+    subgraph "🎨 Design System"
+        DS1[🎯 Design Tokens]
+        DS2[🎨 Color Palette]
+        DS3[📝 Typography Scale]
+        DS4[📏 Spacing System]
+        DS5[🔳 Component Variants]
+    end
+
+    subgraph "🏗️ CSS Architecture"
+        CSS1[🌊 Tailwind Base]
+        CSS2[🧩 Component Classes]
+        CSS3[🎛️ Utility Classes]
+        CSS4[📱 Responsive Breakpoints]
+        CSS5[🌙 Dark Mode Support]
+    end
+
+    subgraph "⚛️ Component Styling"
+        CS1[💅 Styled Components]
+        CS2[📦 CSS Modules]
+        CS3[🎨 Inline Styles]
+        CS4[🔄 Dynamic Styling]
+        CS5[🎭 Conditional Classes]
+    end
+
+    subgraph "🎯 Theme Management"
+        TM1[🌐 Theme Provider]
+        TM2[🔧 Theme Configuration]
+        TM3[🌙 Light/Dark Modes]
+        TM4[🎨 Custom Themes]
+        TM5[💾 Theme Persistence]
+    end
+
+    DS1 --&gt; CSS1
+    DS2 --&gt; CSS2
+    DS3 --&gt; CSS3
+    DS4 --&gt; CSS4
+    DS5 --&gt; CSS5
+
+    CSS1 --&gt; CS1
+    CSS2 --&gt; CS2
+    CSS3 --&gt; CS3
+    CSS4 --&gt; CS4
+    CSS5 --&gt; CS5
+
+    CS1 --&gt; TM1
+    CS2 --&gt; TM2
+    CS3 --&gt; TM3
+    CS4 --&gt; TM4
+    CS5 --&gt; TM5
+
+    style DS1 fill:#e3f2fd
+    style CSS1 fill:#c8e6c9
+    style CS1 fill:#fff3e0
+    style TM1 fill:#f3e5f5
+</code></pre>
+
+<h2 id="-component-lifecycle-flow">🔄 <strong>Component Lifecycle Flow</strong></h2>
+
+<pre><code class="language-mermaid">stateDiagram-v2
+    [*] --&gt; Mounting
+
+    Mounting --&gt; Constructor
+    Constructor --&gt; ComponentDidMount
+    ComponentDidMount --&gt; Mounted
+
+    Mounted --&gt; Updating
+    Updating --&gt; ShouldComponentUpdate
+    ShouldComponentUpdate --&gt; ComponentDidUpdate
+    ComponentDidUpdate --&gt; Mounted
+
+    Mounted --&gt; Unmounting
+    Unmounting --&gt; ComponentWillUnmount
+    ComponentWillUnmount --&gt; [*]
+
+    Mounted --&gt; ErrorState
+    ErrorState --&gt; ComponentDidCatch
+    ComponentDidCatch --&gt; ErrorBoundary
+    ErrorBoundary --&gt; Mounted
+
+    note right of Constructor
+        Initial state setup
+        Bind event handlers
+        Initialize refs
+    end note
+
+    note right of ComponentDidMount
+        API calls
+        Event listeners
+        DOM manipulation
+    end note
+
+    note right of ComponentDidUpdate
+        Update DOM
+        Network requests
+        State synchronization
+    end note
+
+    note right of ComponentWillUnmount
+        Cleanup timers
+        Remove listeners
+        Cancel requests
+    end note
+</code></pre>
+
+<h2 id="-component-testing-strategy">🧪 <strong>Component Testing Strategy</strong></h2>
+
+<pre><code class="language-mermaid">flowchart LR
+    subgraph "🧪 Testing Levels"
+        T1[🔬 Unit Tests]
+        T2[🔗 Integration Tests]
+        T3[🎭 E2E Tests]
+        T4[📸 Visual Tests]
+    end
+
+    subgraph "🛠️ Testing Tools"
+        TT1[⚛️ React Testing Library]
+        TT2[🃏 Jest]
+        TT3[🎭 Playwright]
+        TT4[📷 Storybook]
+    end
+
+    subgraph "🎯 Test Scenarios"
+        TS1[🔄 Component Rendering]
+        TS2[🎮 User Interactions]
+        TS3[📊 State Management]
+        TS4[🔌 Props Validation]
+        TS5[🚨 Error Handling]
+    end
+
+    subgraph "📊 Coverage Metrics"
+        CM1[📈 Line Coverage]
+        CM2[🌿 Branch Coverage]
+        CM3[🔧 Function Coverage]
+        CM4[📝 Statement Coverage]
+    end
+
+    T1 --&gt; TT1
+    T1 --&gt; TT2
+    T2 --&gt; TT1
+    T2 --&gt; TT2
+    T3 --&gt; TT3
+    T4 --&gt; TT4
+
+    TT1 --&gt; TS1
+    TT1 --&gt; TS2
+    TT2 --&gt; TS3
+    TT2 --&gt; TS4
+    TT3 --&gt; TS5
+
+    TS1 --&gt; CM1
+    TS2 --&gt; CM2
+    TS3 --&gt; CM3
+    TS4 --&gt; CM4
+
+    style T1 fill:#e3f2fd
+    style TT1 fill:#c8e6c9
+    style TS1 fill:#fff3e0
+    style CM1 fill:#f3e5f5
+</code></pre>
+
+<h2 id="-performance-optimization-matrix">📊 <strong>Performance Optimization Matrix</strong></h2>
+
+<pre><code class="language-mermaid">graph TB
+    subgraph "⚡ Performance Strategies"
+        P1[🧠 React.memo]
+        P2[🔄 useMemo]
+        P3[📞 useCallback]
+        P4[🔀 Code Splitting]
+        P5[📦 Bundle Optimization]
+    end
+
+    subgraph "🎯 Optimization Targets"
+        O1[🔄 Re-render Prevention]
+        O2[📊 Expensive Calculations]
+        O3[🎮 Event Handlers]
+        O4[📦 Bundle Size]
+        O5[⏰ Load Time]
+    end
+
+    subgraph "📈 Monitoring Tools"
+        M1[⚛️ React DevTools]
+        M2[🔍 Chrome DevTools]
+        M3[📊 Web Vitals]
+        M4[🎯 Lighthouse]
+        M5[📈 Performance API]
+    end
+
+    subgraph "🎯 Performance Metrics"
+        PM1[⏰ First Contentful Paint]
+        PM2[🎨 Largest Contentful Paint]
+        PM3[🔄 Cumulative Layout Shift]
+        PM4[⚡ First Input Delay]
+        PM5[🎮 Time to Interactive]
+    end
+
+    P1 --&gt; O1
+    P2 --&gt; O2
+    P3 --&gt; O3
+    P4 --&gt; O4
+    P5 --&gt; O5
+
+    O1 --&gt; M1
+    O2 --&gt; M2
+    O3 --&gt; M3
+    O4 --&gt; M4
+    O5 --&gt; M5
+
+    M1 --&gt; PM1
+    M2 --&gt; PM2
+    M3 --&gt; PM3
+    M4 --&gt; PM4
+    M5 --&gt; PM5
+
+    style P1 fill:#e3f2fd
+    style O1 fill:#c8e6c9
+    style M1 fill:#fff3e0
+    style PM1 fill:#f3e5f5
+</code></pre>
+
+<h2 id="-component-architecture-analysis">🔍 <strong>Component Architecture Analysis</strong></h2>
+
+<h3 id="architectural-patterns"><strong>Architectural Patterns</strong></h3>
+
+<ul>
+  <li><strong>Container/Presentational</strong>: Clear separation of business logic and UI</li>
+  <li><strong>Higher-Order Components</strong>: Cross-cutting concerns like authentication</li>
+  <li><strong>Render Props</strong>: Flexible component composition patterns</li>
+  <li><strong>Custom Hooks</strong>: Reusable stateful logic extraction</li>
+</ul>
+
+<h3 id="state-management-strategy"><strong>State Management Strategy</strong></h3>
+
+<ul>
+  <li><strong>Local State</strong>: Component-specific state with useState</li>
+  <li><strong>Global State</strong>: Application-wide state with Context API</li>
+  <li><strong>Server State</strong>: Remote data management with React Query</li>
+  <li><strong>Form State</strong>: Specialized form handling with React Hook Form</li>
+</ul>
+
+<h3 id="component-composition"><strong>Component Composition</strong></h3>
+
+<ul>
+  <li><strong>Atomic Design</strong>: Building from atoms to organisms</li>
+  <li><strong>Compound Components</strong>: Related components working together</li>
+  <li><strong>Polymorphic Components</strong>: Flexible component APIs</li>
+  <li><strong>Provider Pattern</strong>: Context-based dependency injection</li>
+</ul>
+
+<h3 id="performance-considerations"><strong>Performance Considerations</strong></h3>
+
+<ul>
+  <li><strong>Memoization</strong>: Preventing unnecessary re-renders</li>
+  <li><strong>Code Splitting</strong>: Lazy loading for better performance</li>
+  <li><strong>Bundle Optimization</strong>: Tree shaking and dead code elimination</li>
+  <li><strong>Virtual Scrolling</strong>: Efficient rendering of large lists</li>
+</ul>
+
+<h3 id="testing-strategy"><strong>Testing Strategy</strong></h3>
+
+<ul>
+  <li><strong>Unit Testing</strong>: Individual component behavior</li>
+  <li><strong>Integration Testing</strong>: Component interaction testing</li>
+  <li><strong>Visual Testing</strong>: UI consistency verification</li>
+  <li><strong>Accessibility Testing</strong>: WCAG compliance validation</li>
+</ul>
+
+<h3 id="development-experience"><strong>Development Experience</strong></h3>
+
+<ul>
+  <li><strong>TypeScript Integration</strong>: Type safety and better DX</li>
+  <li><strong>Storybook Documentation</strong>: Component library documentation</li>
+  <li><strong>Hot Reload</strong>: Fast development feedback loop</li>
+  <li><strong>ESLint/Prettier</strong>: Code quality and consistency</li>
+</ul>
+
+<p>This component architecture provides a scalable, maintainable, and performant foundation for the Idling.app React application with comprehensive testing and optimization strategies.</p>
+
+            </div>
+            
+            
+          </article>
+          
+          
+          <aside class="sidebar">
+            <!-- Sidebar Navigation -->
+<div class="sidebar-card">
+  <h3>Navigation</h3>
+  <nav>
+    <!-- Generate navigation data from markdown files -->
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- DEBUG: Generated navigation from 85 total items (12 found + 13 known) into 75 groups -->
+<!-- Available as 'auto_navigation' variable for templates --> 
+    
+    <ul class="navigation-list">
+      <li><a href="/" >🏠 Home</a></li><li>
+          <a href="" 
+             >
+            
+          </a>
+        </li><li>
+          <a href="" 
+             >
+            
+          </a>
+        </li><li>
+          <a href="" 
+             >
+            
+          </a>
+        </li><li>
+          <a href="" 
+             >
+            
+          </a>
+        </li><li>
+          <a href="" 
+             >
+            
+          </a>
+        </li><li>
+          <a href="" 
+             >
+            
+          </a>
+        </li><li>
+          <a href="" 
+             >
+            
+          </a>
+        </li><li>
+          <a href="" 
+             >
+            
+          </a>
+        </li><li>
+          <a href="" 
+             >
+            
+          </a>
+        </li><li>
+          <a href="" 
+             >
+            
+          </a>
+        </li><li>
+          <a href="" 
+             >
+            
+          </a>
+        </li><li>
+          <a href="" 
+             >
+            
+          </a>
+        </li><li>
+          <a href="" 
+             >
+            
+          </a>
+        </li><li>
+          <a href="" 
+             >
+            
+          </a>
+        </li><li>
+          <a href="" 
+             >
+            
+          </a>
+        </li><li>
+          <a href="" 
+             >
+            
+          </a>
+        </li><li>
+          <a href="" 
+             >
+            
+          </a>
+        </li><li>
+          <a href="" 
+             >
+            
+          </a>
+        </li><li>
+          <a href="" 
+             >
+            
+          </a>
+        </li><li>
+          <a href="" 
+             >
+            
+          </a>
+        </li><li>
+          <a href="" 
+             >
+            
+          </a>
+        </li><li>
+          <a href="" 
+             >
+            
+          </a>
+        </li><li>
+          <a href="" 
+             >
+            
+          </a>
+        </li><li>
+          <a href="" 
+             >
+            
+          </a>
+        </li><li>
+          <a href="" 
+             >
+            
+          </a>
+        </li><li>
+          <a href="" 
+             >
+            
+          </a>
+        </li><li>
+          <a href="" 
+             >
+            
+          </a>
+        </li><li>
+          <a href="" 
+             >
+            
+          </a>
+        </li><li>
+          <a href="" 
+             >
+            
+          </a>
+        </li><li>
+          <a href="" 
+             >
+            
+          </a>
+        </li><li>
+          <a href="" 
+             >
+            
+          </a>
+        </li><li>
+          <a href="" 
+             >
+            
+          </a>
+        </li><li>
+          <a href="" 
+             >
+            
+          </a>
+        </li><li>
+          <a href="" 
+             >
+            
+          </a>
+        </li><li>
+          <a href="" 
+             >
+            
+          </a>
+        </li><li>
+          <a href="" 
+             >
+            
+          </a>
+        </li><li>
+          <a href="" 
+             >
+            
+          </a>
+        </li><li>
+          <a href="" 
+             >
+            
+          </a>
+        </li><li>
+          <a href="" 
+             >
+            
+          </a>
+        </li><li>
+          <a href="" 
+             >
+            
+          </a>
+        </li><li>
+          <a href="" 
+             >
+            
+          </a>
+        </li><li>
+          <a href="" 
+             >
+            
+          </a>
+        </li><li>
+          <a href="" 
+             >
+            
+          </a>
+        </li><li>
+          <a href="" 
+             >
+            
+          </a>
+        </li><li>
+          <a href="" 
+             >
+            
+          </a>
+        </li><li>
+          <a href="" 
+             >
+            
+          </a>
+        </li><li>
+          <a href="" 
+             >
+            
+          </a>
+        </li><li>
+          <a href="" 
+             >
+            
+          </a>
+        </li><li>
+          <a href="" 
+             >
+            
+          </a>
+        </li><li>
+          <a href="" 
+             >
+            
+          </a>
+        </li><li>
+          <a href="" 
+             >
+            
+          </a>
+        </li><li>
+          <a href="" 
+             >
+            
+          </a>
+        </li><li>
+          <a href="" 
+             >
+            
+          </a>
+        </li><li>
+          <a href="" 
+             >
+            
+          </a>
+        </li><li>
+          <a href="" 
+             >
+            
+          </a>
+        </li><li>
+          <a href="" 
+             >
+            
+          </a>
+        </li><li>
+          <a href="" 
+             >
+            
+          </a>
+        </li><li>
+          <a href="" 
+             >
+            
+          </a>
+        </li><li>
+          <a href="" 
+             >
+            
+          </a>
+        </li><li>
+          <a href="" 
+             >
+            
+          </a>
+        </li><li>
+          <a href="" 
+             >
+            
+          </a>
+        </li><li>
+          <a href="" 
+             >
+            
+          </a>
+        </li><li>
+          <a href="" 
+             >
+            
+          </a>
+        </li><li>
+          <a href="" 
+             >
+            
+          </a>
+        </li><li>
+          <a href="" 
+             >
+            
+          </a>
+        </li><li>
+          <a href="" 
+             >
+            
+          </a>
+        </li><li>
+          <a href="" 
+             >
+            
+          </a>
+        </li><li>
+          <a href="" 
+             >
+            
+          </a>
+        </li><li>
+          <a href="" 
+             >
+            
+          </a>
+        </li><li>
+          <a href="" 
+             >
+            
+          </a>
+        </li><li>
+          <a href="" 
+             >
+            
+          </a>
+        </li><li>
+          <a href="" 
+             >
+            
+          </a>
+        </li><li>
+          <a href="" 
+             >
+            
+          </a>
+        </li><li>
+          <a href="" 
+             >
+            
+          </a>
+        </li><li>
+          <a href="" 
+             >
+            
+          </a>
+        </li></ul>
+  </nav>
+</div>
+
+<!-- Quick Links -->
+<div class="sidebar-card">
+  <h4>Quick Links</h4>
+  <ul class="navigation-list">
+    <li><a href="https://github.com/Underwood-Inc/idling.app__UI" target="_blank">GitHub Repository</a></li>
+    <li><a href="https://github.com/Underwood-Inc/idling.app__UI/discussions" target="_blank">Discussions</a></li>
+    <li><a href="https://github.com/Underwood-Inc/idling.app__UI/issues" target="_blank">Issues</a></li>
+    <li><a href="https://github.com/Underwood-Inc/idling.app__UI/releases" target="_blank">Releases</a></li>
+  </ul>
+</div>
+
+<!-- Page Info -->
+
+
+<!-- Table of Contents -->
+
+<div class="sidebar-card">
+  <h4>Table of Contents</h4>
+  <div id="toc">
+    <!-- TOC will be generated by JavaScript -->
+  </div>
+</div>
+
+<script>
+// Simple TOC generation
+document.addEventListener('DOMContentLoaded', function() {
+  const headings = document.querySelectorAll('.card-content h2, .card-content h3, .card-content h4');
+  const toc = document.getElementById('toc');
+  
+  if (headings.length > 0 && toc) {
+    const tocList = document.createElement('ul');
+    tocList.className = 'navigation-list';
+    
+    headings.forEach(function(heading, index) {
+      const id = 'heading-' + index;
+      heading.id = id;
+      
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = '#' + id;
+      a.textContent = heading.textContent;
+      a.style.paddingLeft = (parseInt(heading.tagName.charAt(1)) - 2) * 16 + 'px';
+      
+      li.appendChild(a);
+      tocList.appendChild(li);
+    });
+    
+    toc.appendChild(tocList);
+  }
+});
+</script>
+ 
+          </aside>
+          
+        </div>
+      </div>
+    </main><footer class="site-footer h-card">
+  <div class="wrapper">
+    <div class="footer-content">
+      <div class="footer-info">
+        <p class="footer-text">
+          © 2025 Idling.app Documentation. 
+          Built with <a href="https://jekyllrb.com/" target="_blank" rel="noopener">Jekyll</a> 
+          and hosted on <a href="https://pages.github.com/" target="_blank" rel="noopener">GitHub Pages</a>.
+        </p>
+        <p class="footer-description">
+          Complete documentation for the Idling.app project - migrations, deployment, development guides and more
+        </p>
+      </div>
+      
+      <div class="footer-links">
+        <a href="https://github.com/Underwood-Inc/idling.app__UI" target="_blank" rel="noopener">
+          GitHub
+        </a>
+        <a href="https://github.com/Underwood-Inc/idling.app__UI/discussions" target="_blank" rel="noopener">
+          Discussions
+        </a>
+        <a href="https://github.com/Underwood-Inc/idling.app__UI/issues" target="_blank" rel="noopener">
+          Issues
+        </a>
+        <a href="https://github.com/Underwood-Inc/idling.app__UI/releases" target="_blank" rel="noopener">
+          Releases
+        </a>
+      </div>
+    </div>
+  </div>
+</footer> </body>
+
+</html> 

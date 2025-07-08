@@ -8,6 +8,8 @@
  * @author System
  */
 
+import { withUserPermissions } from '@/lib/api/wrappers/withUserPermissions';
+import { withUserRoles } from '@/lib/api/wrappers/withUserRoles';
 import { auth } from '@/lib/auth';
 import sql from '@/lib/db';
 import { withRateLimit } from '@/lib/middleware/withRateLimit';
@@ -404,4 +406,7 @@ export async function PATCH(
       { status: 500 }
     );
   }
-} 
+}
+
+// export default handler;
+export default withUserRoles(withUserPermissions(handler)); 

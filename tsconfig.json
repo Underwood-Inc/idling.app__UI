@@ -23,7 +23,8 @@
     "paths": {
       "@rich-text-editor": ["./src/components/rich-text-editor"],
       "@rich-text-editor/*": ["./src/components/rich-text-editor/*"],
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@lib/*": ["./src/lib/*"]
       // "@components/*": ["./src/components/*"],
       // "@pages/*": ["src/app/pages/*/*"],
       // "@constants/*": ["./src/constants/*"],

@@ -381,7 +381,7 @@ export const QuotaManagement: React.FC<QuotaManagementProps> = ({
                   fontWeight: '600'
                 }}
               >
-                🎯 Quota Management - Agnostic System
+                🎯 Quota Management
               </h3>
               <p
                 style={{

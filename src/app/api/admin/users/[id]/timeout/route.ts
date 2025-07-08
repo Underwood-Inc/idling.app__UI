@@ -3,10 +3,10 @@
  * Handles issuing and managing user timeouts
  */
 
-import { checkUserPermission } from '@/lib/actions/permissions.actions';
+import { withUserPermissions } from '@/lib/api/wrappers/withUserPermissions';
+import { withUserRoles } from '@/lib/api/wrappers/withUserRoles';
 import { auth } from '@/lib/auth';
 import sql from '@/lib/db';
-import { PERMISSIONS } from '@/lib/permissions/permissions';
 import { AdminUserTimeoutCancelParamsSchema, AdminUserTimeoutRequestSchema, UserIdParamsSchema } from '@/lib/schemas/admin-users.schema';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
@@ -19,7 +19,7 @@ export interface TimeoutRequest {
 }
 
 // POST /api/admin/users/[id]/timeout - Issue timeout to user
-export async function POST(
+async function postHandler(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
@@ -44,15 +44,6 @@ export async function POST(
     }
 
     const targetUserId = parseInt(paramsResult.data.id);
-
-    // Check if user has permission to issue timeouts
-    const hasPermission = await checkUserPermission(
-      adminUserId,
-      PERMISSIONS.ADMIN.USERS_MANAGE
-    );
-    if (!hasPermission) {
-      return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 });
-    }
 
     // Validate request body
     const body = await request.json();
@@ -128,7 +119,7 @@ export async function POST(
 }
 
 // DELETE /api/admin/users/[id]/timeout - Remove/cancel timeout
-export async function DELETE(
+async function deleteHandler(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
@@ -143,15 +134,6 @@ export async function DELETE(
 
     if (isNaN(targetUserId)) {
       return NextResponse.json({ error: 'Invalid user ID' }, { status: 400 });
-    }
-
-    // Check if user has permission to manage timeouts
-    const hasPermission = await checkUserPermission(
-      adminUserId,
-      PERMISSIONS.ADMIN.USERS_MANAGE
-    );
-    if (!hasPermission) {
-      return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 });
     }
 
     // Validate query parameters
@@ -218,4 +200,8 @@ export async function DELETE(
       { status: 500 }
     );
   }
-} 
+}
+
+// Apply permission wrappers to handlers
+export const POST = withUserRoles(withUserPermissions(postHandler));
+export const DELETE = withUserRoles(withUserPermissions(deleteHandler)); 

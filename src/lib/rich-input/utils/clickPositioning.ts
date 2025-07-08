@@ -3,7 +3,7 @@
  * Handles converting mouse clicks to cursor positions with token awareness
  */
 
-import { createLogger } from '@/lib/logging';
+import { createLogger } from '@lib/logging';
 import type { RichInputPosition } from '../types';
 import { getFirstTextNode } from './cursorCalculations';
 import { richTextLogger } from './logger';
