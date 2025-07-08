@@ -266,10 +266,24 @@ cat > static/coverage/index.html << EOF
 EOF
 
 # ============================================================================
-# UPDATE DOCUSAURUS HEADER WITH BADGE
+# UPDATE BADGES IN KEY LOCATIONS
 # ============================================================================
 
-print_status "🎯 Updating Docusaurus header with documentation badge..."
+print_status "🎯 Updating documentation badges in key locations..."
+
+# Update root README.md if it exists
+if [ -f "README.md" ]; then
+    # Check if badge already exists
+    if ! grep -q "Documentation Coverage" "README.md" 2>/dev/null; then
+        # Add badge after React badge in Code Analysis section
+        sed -i '/!\[React\]/a [![Documentation Coverage]('"${badge_url}"')](https://underwood-inc.github.io/idling.app__UI/)' "README.md"
+        print_success "Added documentation badge to README.md"
+    else
+        # Update existing badge URL only (don't add duplicates)
+        sed -i 's|https://img\.shields\.io/badge/Documentation%20Coverage-[^)]*|'"${badge_url}"'|g' "README.md"
+        print_success "Updated documentation badge in README.md"
+    fi
+fi
 
 # Update main index.md if it exists
 if [ -f "src/index.md" ]; then
@@ -279,8 +293,8 @@ if [ -f "src/index.md" ]; then
         sed -i '/^# /a\\n[![Documentation Coverage]('"${badge_url}"')](./coverage/)\n' "src/index.md"
         print_success "Added documentation badge to src/index.md"
     else
-        # Update existing badge
-        sed -i 's|!\[Documentation Coverage\]([^)]*)|![Documentation Coverage]('"${badge_url}"')|g' "src/index.md"
+        # Update existing badge URL only (don't add duplicates)
+        sed -i 's|https://img\.shields\.io/badge/Documentation%20Coverage-[^)]*|'"${badge_url}"'|g' "src/index.md"
         print_success "Updated documentation badge in src/index.md"
     fi
 fi
