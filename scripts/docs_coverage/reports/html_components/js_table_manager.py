@@ -8,7 +8,7 @@ Provides table-specific interactive features including sorting, filtering, and p
 def get_table_manager_js() -> str:
     """Generate JavaScript for table management functionality."""
     return """
-    // Enhanced Table Manager with Fixed Event Handling
+    // Enhanced Table Manager - ULTRA DEFENSIVE VERSION
     class EnhancedTableManager {
         constructor() {
             this.table = null;
@@ -19,25 +19,57 @@ def get_table_manager_js() -> str:
             this.totalPages = 1;
             this.currentFilter = 'all';
             this.searchTerm = '';
-            this.sortState = { 
-                primary: { column: null, direction: 'asc' },
-                secondary: { column: null, direction: 'asc' }
-            };
+            this.sortState = this.createSafeSortState();
             this.columnWidths = {};
             this.hiddenColumns = new Set();
             this.storageKey = 'docs-coverage-table-state';
-            
-            // Bind methods to preserve context
-            this.handleRowClick = this.handleRowClick.bind(this);
-            this.handleFilenameClick = this.handleFilenameClick.bind(this);
-            this.handleColumnSort = this.handleColumnSort.bind(this);
-            this.handleFilterTagClick = this.handleFilterTagClick.bind(this);
-            this.handleCardClick = this.handleCardClick.bind(this);
+            this.isDestroyed = false;
+            this.isInitialized = false;
             
             this.init();
         }
         
+        createSafeSortState() {
+            return {
+                primary: { column: null, direction: 'asc' },
+                secondary: { column: null, direction: 'asc' }
+            };
+        }
+        
+        validateSortState() {
+            // Ultra defensive sort state validation
+            if (!this.sortState || typeof this.sortState !== 'object') {
+                console.warn('⚠️ Sort state is invalid, creating new one');
+                this.sortState = this.createSafeSortState();
+                return false;
+            }
+            
+            // Validate primary sort
+            if (!this.sortState.primary || typeof this.sortState.primary !== 'object') {
+                console.warn('⚠️ Primary sort state is invalid, fixing');
+                this.sortState.primary = { column: null, direction: 'asc' };
+            }
+            
+            // Validate secondary sort
+            if (!this.sortState.secondary || typeof this.sortState.secondary !== 'object') {
+                console.warn('⚠️ Secondary sort state is invalid, fixing');
+                this.sortState.secondary = { column: null, direction: 'asc' };
+            }
+            
+            // Validate direction values
+            if (!['asc', 'desc'].includes(this.sortState.primary.direction)) {
+                this.sortState.primary.direction = 'asc';
+            }
+            if (!['asc', 'desc'].includes(this.sortState.secondary.direction)) {
+                this.sortState.secondary.direction = 'asc';
+            }
+            
+            return true;
+        }
+        
         init() {
+            if (this.isDestroyed) return;
+            
             // Wait for DOM to be ready
             if (document.readyState === 'loading') {
                 document.addEventListener('DOMContentLoaded', () => this.initializeComponents());
@@ -47,16 +79,49 @@ def get_table_manager_js() -> str:
         }
         
         initializeComponents() {
+            if (this.isDestroyed || this.isInitialized) return;
+            
             console.log('🔧 Initializing Enhanced Table Manager...');
             
-            this.setupTable();
-            this.setupPagination();
-            this.setupFilters();
-            this.setupColumnManagement();
-            this.loadPersistedState();
-            this.updateDisplay();
+            // Validate sort state before doing anything
+            this.validateSortState();
             
-            console.log('✅ Enhanced Table Manager initialized successfully!');
+            try {
+                this.setupTable();
+                this.setupPagination();
+                this.setupFilters();
+                this.setupColumnManagement();
+                this.setupCardFilters();
+                this.loadPersistedState();
+                this.updateDisplay();
+                
+                this.isInitialized = true;
+                console.log('✅ Enhanced Table Manager initialized successfully!');
+            } catch (error) {
+                console.error('❌ Failed to initialize table manager:', error);
+                // Reset to safe state
+                this.sortState = this.createSafeSortState();
+                this.currentFilter = 'all';
+                this.currentPage = 1;
+                this.searchTerm = '';
+                
+                // Try minimal initialization
+                try {
+                    this.setupBasicTable();
+                    console.log('✅ Basic table functionality initialized');
+                } catch (fallbackError) {
+                    console.error('❌ Even basic table initialization failed:', fallbackError);
+                }
+            }
+        }
+        
+        setupBasicTable() {
+            this.table = document.getElementById('gaps-table');
+            if (this.table) {
+                this.allRows = Array.from(this.table.querySelectorAll('tbody tr'));
+                this.filteredRows = [...this.allRows];
+                console.log(`📊 Found ${this.allRows.length} table rows`);
+            }
         }
         
         setupTable() {
@@ -73,21 +138,27 @@ def get_table_manager_js() -> str:
             
             // Setup row click handlers for source code modal
             this.allRows.forEach((row, index) => {
-                row.addEventListener('click', (e) => this.handleRowClick(e, row));
+                row.addEventListener('click', (e) => {
+                    if (this.isDestroyed) return;
+                    this.handleRowClick(e, row);
+                });
             });
             
             // Setup filename click handlers for GitHub links
             this.table.querySelectorAll('.clickable-filename').forEach(filename => {
-                filename.addEventListener('click', this.handleFilenameClick);
+                filename.addEventListener('click', (e) => {
+                    if (this.isDestroyed) return;
+                    this.handleFilenameClick(e);
+                });
             });
             
             // Setup column sorting
             this.table.querySelectorAll('th.sortable').forEach(th => {
-                th.addEventListener('click', (e) => this.handleColumnSort(e, th));
+                th.addEventListener('click', (e) => {
+                    if (this.isDestroyed) return;
+                    this.handleColumnSort(e, th);
+                });
             });
-            
-            // Setup column resizing
-            this.setupColumnResizing();
             
             console.log('🎯 Table event handlers attached');
         }
@@ -99,7 +170,13 @@ def get_table_manager_js() -> str:
             }
             
             console.log('🖱️ Row clicked:', row.dataset.fileName);
-            this.showSourceCodeModal(row);
+            
+            // Delegate to modal manager
+            if (window.modalManager && window.modalManager.showSourceCodeModal) {
+                window.modalManager.showSourceCodeModal(row);
+            } else {
+                console.warn('⚠️ Modal manager not available');
+            }
         }
         
         handleFilenameClick(e) {
@@ -119,39 +196,12 @@ def get_table_manager_js() -> str:
             this.toggleSort(column, isMultiSort);
         }
         
-        handleFilterTagClick(e) {
-            const tag = e.target;
-            const filter = tag.dataset.filter;
-            
-            console.log(`🏷️ Filter tag clicked: ${filter}`);
-            this.currentFilter = filter;
-            this.currentPage = 1;
-            this.updateFilterTags();
-            this.applyFilters();
-            this.saveState();
-        }
-        
-        handleCardClick(e) {
-            const card = e.target.closest('.clickable-card');
-            if (!card) return;
-            
-            const filter = card.dataset.filter;
-            if (filter) {
-                console.log(`📊 Card clicked: ${filter}`);
-                this.currentFilter = filter;
-                this.currentPage = 1;
-                this.updateFilterTags();
-                this.applyFilters();
-                this.scrollToTable();
-                this.saveState();
-            }
-        }
-        
         setupPagination() {
             // Page size selector
             const pageSizeSelect = document.getElementById('page-size-select');
             if (pageSizeSelect) {
                 pageSizeSelect.addEventListener('change', (e) => {
+                    if (this.isDestroyed) return;
                     this.pageSize = e.target.value === 'all' ? this.filteredRows.length : parseInt(e.target.value);
                     this.currentPage = 1;
                     this.updateDisplay();
@@ -160,7 +210,7 @@ def get_table_manager_js() -> str:
                 });
             }
             
-            // Pagination buttons with proper event handling
+            // Pagination buttons
             const paginationButtons = [
                 { id: 'first-page-btn', action: () => this.goToPage(1) },
                 { id: 'prev-page-btn', action: () => this.goToPage(this.currentPage - 1) },
@@ -175,7 +225,10 @@ def get_table_manager_js() -> str:
             paginationButtons.forEach(({ id, action }) => {
                 const btn = document.getElementById(id);
                 if (btn) {
-                    btn.addEventListener('click', action);
+                    btn.addEventListener('click', (e) => {
+                        if (this.isDestroyed) return;
+                        action();
+                    });
                 }
             });
             
@@ -187,6 +240,7 @@ def get_table_manager_js() -> str:
             const searchInput = document.getElementById('gap-search');
             if (searchInput) {
                 searchInput.addEventListener('input', (e) => {
+                    if (this.isDestroyed) return;
                     this.searchTerm = e.target.value.toLowerCase();
                     this.currentPage = 1;
                     this.applyFilters();
@@ -197,24 +251,25 @@ def get_table_manager_js() -> str:
             
             // Filter tags
             document.querySelectorAll('.filter-tag').forEach(tag => {
-                tag.addEventListener('click', this.handleFilterTagClick);
-            });
-            
-            // Clickable cards for filtering
-            document.querySelectorAll('.clickable-card').forEach(card => {
-                card.addEventListener('click', this.handleCardClick);
-            });
-            
-            // Clear filters button
-            const clearFiltersBtn = document.getElementById('clear-filters');
-            if (clearFiltersBtn) {
-                clearFiltersBtn.addEventListener('click', () => {
-                    this.clearAllFilters();
-                    console.log('🧹 All filters cleared');
+                tag.addEventListener('click', (e) => {
+                    if (this.isDestroyed) return;
+                    this.handleFilterTagClick(e);
                 });
-            }
+            });
             
             console.log('🏷️ Filter handlers attached');
+        }
+        
+        setupCardFilters() {
+            // Clickable overview cards
+            document.querySelectorAll('.clickable-card').forEach(card => {
+                card.addEventListener('click', (e) => {
+                    if (this.isDestroyed) return;
+                    this.handleCardClick(e);
+                });
+            });
+            
+            console.log('📊 Card filter handlers attached');
         }
         
         setupColumnManagement() {
@@ -222,161 +277,57 @@ def get_table_manager_js() -> str:
             const columnPickerBtn = document.getElementById('column-picker-btn');
             if (columnPickerBtn) {
                 columnPickerBtn.addEventListener('click', () => {
+                    if (this.isDestroyed) return;
                     this.showColumnPicker();
                 });
             }
             
-            // Reset table button
-            const resetTableBtn = document.getElementById('reset-table-btn');
-            if (resetTableBtn) {
-                resetTableBtn.addEventListener('click', () => {
-                    this.resetTableSettings();
+            // Apply columns button
+            const applyColumnsBtn = document.getElementById('apply-columns-btn');
+            if (applyColumnsBtn) {
+                applyColumnsBtn.addEventListener('click', () => {
+                    if (this.isDestroyed) return;
+                    this.applyColumnVisibility();
                 });
             }
             
-            console.log('⚙️ Column management handlers attached');
-        }
-        
-        setupColumnResizing() {
-            if (!this.table) return;
-            
-            const headers = this.table.querySelectorAll('th');
-            headers.forEach(th => {
-                const resizer = th.querySelector('.resize-handle');
-                if (resizer) {
-                    let isResizing = false;
-                    let startX = 0;
-                    let startWidth = 0;
-                    
-                    resizer.addEventListener('mousedown', (e) => {
-                        isResizing = true;
-                        startX = e.clientX;
-                        startWidth = parseInt(window.getComputedStyle(th).width, 10);
-                        document.addEventListener('mousemove', handleMouseMove);
-                        document.addEventListener('mouseup', handleMouseUp);
-                        e.preventDefault();
-                    });
-                    
-                    const handleMouseMove = (e) => {
-                        if (!isResizing) return;
-                        const width = startWidth + e.clientX - startX;
-                        th.style.width = Math.max(50, width) + 'px';
-                        this.columnWidths[th.dataset.column] = Math.max(50, width);
-                    };
-                    
-                    const handleMouseUp = () => {
-                        isResizing = false;
-                        document.removeEventListener('mousemove', handleMouseMove);
-                        document.removeEventListener('mouseup', handleMouseUp);
-                        this.saveState();
-                    };
-                }
-            });
-        }
-        
-        toggleSort(column, isMultiSort) {
-            if (!isMultiSort) {
-                // Single column sort - replace primary sort
-                if (this.sortState.primary.column === column) {
-                    this.sortState.primary.direction = this.sortState.primary.direction === 'asc' ? 'desc' : 'asc';
-                } else {
-                    this.sortState.primary = { column, direction: 'asc' };
-                    this.sortState.secondary = { column: null, direction: 'asc' };
-                }
-            } else {
-                // Multi-column sort
-                if (this.sortState.primary.column === column) {
-                    this.sortState.primary.direction = this.sortState.primary.direction === 'asc' ? 'desc' : 'asc';
-                } else if (this.sortState.secondary.column === column) {
-                    this.sortState.secondary.direction = this.sortState.secondary.direction === 'asc' ? 'desc' : 'asc';
-                } else {
-                    // Move primary to secondary, set new primary
-                    this.sortState.secondary = { ...this.sortState.primary };
-                    this.sortState.primary = { column, direction: 'asc' };
-                }
+            // Reset columns button
+            const resetColumnsBtn = document.getElementById('reset-columns-btn');
+            if (resetColumnsBtn) {
+                resetColumnsBtn.addEventListener('click', () => {
+                    if (this.isDestroyed) return;
+                    this.resetColumnVisibility();
+                });
             }
             
-            this.applySort();
-            this.updateSortIndicators();
-            this.updateDisplay();
+            console.log('🎛️ Column management handlers attached');
+        }
+        
+        handleFilterTagClick(e) {
+            const tag = e.target;
+            const filter = tag.dataset.filter;
+            
+            console.log(`🏷️ Filter tag clicked: ${filter}`);
+            this.currentFilter = filter;
+            this.currentPage = 1;
+            this.updateFilterTags();
+            this.safeApplyFilters();
             this.saveState();
         }
         
-        applySort() {
-            if (!this.sortState.primary.column) return;
+        handleCardClick(e) {
+            const card = e.target.closest('.clickable-card');
+            if (!card) return;
             
-            this.filteredRows.sort((a, b) => {
-                const primaryResult = this.compareRows(a, b, this.sortState.primary.column, this.sortState.primary.direction);
-                
-                if (primaryResult !== 0 || !this.sortState.secondary.column) {
-                    return primaryResult;
-                }
-                
-                return this.compareRows(a, b, this.sortState.secondary.column, this.sortState.secondary.direction);
-            });
-        }
-        
-        compareRows(rowA, rowB, column, direction) {
-            const cellA = rowA.querySelector(`td.col-${column}`);
-            const cellB = rowB.querySelector(`td.col-${column}`);
-            
-            if (!cellA || !cellB) return 0;
-            
-            const valueA = cellA.dataset.sort || cellA.textContent.trim();
-            const valueB = cellB.dataset.sort || cellB.textContent.trim();
-            
-            let result = 0;
-            
-            // Handle special sorting for specific columns
-            if (column === 'size' || column === 'priority' || column === 'effort') {
-                // These columns have numeric data-sort values
-                const numA = parseFloat(valueA);
-                const numB = parseFloat(valueB);
-                
-                if (!isNaN(numA) && !isNaN(numB)) {
-                    result = numA - numB;
-                } else {
-                    result = valueA.localeCompare(valueB);
-                }
-            } else if (!isNaN(valueA) && !isNaN(valueB)) {
-                // Other numeric columns
-                result = parseFloat(valueA) - parseFloat(valueB);
-            } else {
-                // String comparison
-                result = valueA.localeCompare(valueB);
-            }
-            
-            return direction === 'desc' ? -result : result;
-        }
-        
-        updateSortIndicators() {
-            // Clear all indicators
-            this.table.querySelectorAll('.sort-indicators').forEach(indicator => {
-                indicator.innerHTML = '';
-            });
-            
-            // Add primary sort indicator
-            if (this.sortState.primary.column) {
-                const primaryTh = this.table.querySelector(`th[data-column="${this.sortState.primary.column}"]`);
-                if (primaryTh) {
-                    const indicator = primaryTh.querySelector('.sort-indicators');
-                    if (indicator) {
-                        const arrow = this.sortState.primary.direction === 'asc' ? '↑' : '↓';
-                        indicator.innerHTML = `<span class="sort-primary">${arrow}1</span>`;
-                    }
-                }
-            }
-            
-            // Add secondary sort indicator
-            if (this.sortState.secondary.column) {
-                const secondaryTh = this.table.querySelector(`th[data-column="${this.sortState.secondary.column}"]`);
-                if (secondaryTh) {
-                    const indicator = secondaryTh.querySelector('.sort-indicators');
-                    if (indicator) {
-                        const arrow = this.sortState.secondary.direction === 'asc' ? '↑' : '↓';
-                        indicator.innerHTML += `<span class="sort-secondary">${arrow}2</span>`;
-                    }
-                }
+            const filter = card.dataset.filter;
+            if (filter) {
+                console.log(`📊 Card clicked: ${filter}`);
+                this.currentFilter = filter;
+                this.currentPage = 1;
+                this.updateFilterTags();
+                this.safeApplyFilters();
+                this.scrollToTable();
+                this.saveState();
             }
         }
         
@@ -387,52 +338,118 @@ def get_table_manager_js() -> str:
             this.updateDisplay();
             this.saveState();
             
-            // Scroll to table
-            this.scrollToTable();
+            console.log(`📄 Navigated to page ${page}`);
         }
         
-        scrollToTable() {
-            const tableContainer = document.querySelector('.gaps-analysis-section');
-            if (tableContainer) {
-                tableContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        toggleSort(column, isMultiSort) {
+            // Validate sort state before making changes
+            this.validateSortState();
+            
+            if (!isMultiSort) {
+                // Single column sort - replace primary
+                this.sortState.primary = {
+                    column: column,
+                    direction: this.sortState.primary.column === column && this.sortState.primary.direction === 'asc' ? 'desc' : 'asc'
+                };
+                this.sortState.secondary = { column: null, direction: 'asc' };
+            } else {
+                // Multi-column sort
+                if (this.sortState.primary.column === column) {
+                    this.sortState.primary.direction = this.sortState.primary.direction === 'asc' ? 'desc' : 'asc';
+                } else if (this.sortState.secondary.column === column) {
+                    this.sortState.secondary.direction = this.sortState.secondary.direction === 'asc' ? 'desc' : 'asc';
+                } else {
+                    this.sortState.secondary = this.sortState.primary;
+                    this.sortState.primary = { column: column, direction: 'asc' };
+                }
             }
+            
+            this.applySorting();
+            this.updateDisplay();
+            this.saveState();
+        }
+        
+        applySorting() {
+            if (!this.filteredRows || this.filteredRows.length === 0) return;
+            
+            this.filteredRows.sort((a, b) => {
+                // Primary sort
+                let result = this.compareRows(a, b, this.sortState.primary.column, this.sortState.primary.direction);
+                
+                // Secondary sort if primary is equal
+                if (result === 0 && this.sortState.secondary.column) {
+                    result = this.compareRows(a, b, this.sortState.secondary.column, this.sortState.secondary.direction);
+                }
+                
+                return result;
+            });
+        }
+        
+        compareRows(a, b, column, direction) {
+            if (!column) return 0;
+            
+            const aVal = this.getCellValue(a, column);
+            const bVal = this.getCellValue(b, column);
+            
+            let result = 0;
+            if (aVal < bVal) result = -1;
+            else if (aVal > bVal) result = 1;
+            
+            return direction === 'desc' ? -result : result;
+        }
+        
+        getCellValue(row, column) {
+            const cell = row.querySelector(`td[data-column="${column}"]`);
+            if (!cell) return '';
+            
+            // Try to get numeric value first
+            const numericValue = parseFloat(cell.textContent);
+            if (!isNaN(numericValue)) return numericValue;
+            
+            // Fall back to string value
+            return cell.textContent.trim().toLowerCase();
         }
         
         updateDisplay() {
-            this.updateTableRows();
-            this.updatePaginationInfo();
-            this.updatePaginationButtons();
-        }
-        
-        updateTableRows() {
-            // Calculate pagination
-            this.totalPages = Math.ceil(this.filteredRows.length / this.pageSize);
-            const startIndex = (this.currentPage - 1) * this.pageSize;
-            const endIndex = Math.min(startIndex + this.pageSize, this.filteredRows.length);
+            if (this.isDestroyed) return;
             
-            // Hide all rows
-            this.allRows.forEach(row => {
-                row.style.display = 'none';
-            });
-            
-            // Show current page rows
-            for (let i = startIndex; i < endIndex; i++) {
-                if (this.filteredRows[i]) {
-                    this.filteredRows[i].style.display = '';
+            try {
+                // Calculate pagination
+                this.totalPages = Math.ceil(this.filteredRows.length / this.pageSize);
+                if (this.currentPage > this.totalPages) {
+                    this.currentPage = Math.max(1, this.totalPages);
                 }
+                
+                // Show/hide rows
+                this.allRows.forEach(row => row.style.display = 'none');
+                
+                const startIndex = (this.currentPage - 1) * this.pageSize;
+                const endIndex = startIndex + this.pageSize;
+                
+                this.filteredRows.slice(startIndex, endIndex).forEach(row => {
+                    row.style.display = '';
+                });
+                
+                // Update pagination info
+                this.updatePaginationInfo();
+                this.updatePaginationButtons();
+                this.safeUpdateSortIndicators();
+                
+                console.log(`📊 Display updated - Page ${this.currentPage}/${this.totalPages}, showing ${Math.min(this.pageSize, this.filteredRows.length - startIndex)} rows`);
+            } catch (error) {
+                console.error('❌ Error updating display:', error);
             }
         }
         
         updatePaginationInfo() {
-            const startIndex = (this.currentPage - 1) * this.pageSize + 1;
-            const endIndex = Math.min(this.currentPage * this.pageSize, this.filteredRows.length);
+            const startIndex = (this.currentPage - 1) * this.pageSize;
+            const endIndex = Math.min(startIndex + this.pageSize, this.filteredRows.length);
             
-            const infoText = `Showing ${startIndex}-${endIndex} of ${this.filteredRows.length} items`;
+            const infoText = `Showing ${startIndex + 1}-${endIndex} of ${this.filteredRows.length} entries`;
             
-            // Update both top and bottom pagination info
             const infoElements = [
-                document.getElementById('pagination-info-text'),
-                document.getElementById('pagination-info-text-bottom')
+                document.getElementById('table-info'),
+                document.getElementById('table-info-bottom')
             ];
             
             infoElements.forEach(element => {
@@ -473,71 +490,78 @@ def get_table_manager_js() -> str:
             });
         }
         
-        showSourceCodeModal(row) {
-            // Delegate to the modal manager
-            if (window.modalManager) {
-                window.modalManager.showSourceCodeModal(row);
+        safeUpdateSortIndicators() {
+            try {
+                this.updateSortIndicators();
+            } catch (error) {
+                console.error('❌ Error updating sort indicators:', error);
+                // Reset sort state and try again
+                this.sortState = this.createSafeSortState();
+                try {
+                    this.updateSortIndicators();
+                } catch (secondError) {
+                    console.error('❌ Even safe sort indicators failed:', secondError);
+                }
+            }
+        }
+        
+        updateSortIndicators() {
+            // Ultra defensive programming - ensure everything exists
+            if (!this.table) return;
+            
+            // Validate sort state before accessing it
+            this.validateSortState();
+            
+            // Clear all sort indicators
+            const sortableHeaders = this.table.querySelectorAll('th.sortable');
+            sortableHeaders.forEach(th => {
+                th.classList.remove('sort-asc', 'sort-desc', 'sort-primary', 'sort-secondary');
+            });
+            
+            // Add primary sort indicator
+            if (this.sortState.primary && this.sortState.primary.column) {
+                const primaryTh = this.table.querySelector(`th[data-column="${this.sortState.primary.column}"]`);
+                if (primaryTh) {
+                    primaryTh.classList.add('sort-primary');
+                    primaryTh.classList.add(this.sortState.primary.direction === 'asc' ? 'sort-asc' : 'sort-desc');
+                }
+            }
+            
+            // Add secondary sort indicator
+            if (this.sortState.secondary && this.sortState.secondary.column) {
+                const secondaryTh = this.table.querySelector(`th[data-column="${this.sortState.secondary.column}"]`);
+                if (secondaryTh) {
+                    secondaryTh.classList.add('sort-secondary');
+                    secondaryTh.classList.add(this.sortState.secondary.direction === 'asc' ? 'sort-asc' : 'sort-desc');
+                }
+            }
+        }
+        
+        showColumnPicker() {
+            // Delegate to modal manager
+            if (window.modalManager && window.modalManager.showColumnPicker) {
+                window.modalManager.showColumnPicker();
             } else {
                 console.warn('⚠️ Modal manager not available');
             }
         }
         
-        // State Management Methods
-        loadPersistedState() {
+        safeApplyFilters() {
             try {
-                const savedState = localStorage.getItem(this.storageKey);
-                if (savedState) {
-                    const state = JSON.parse(savedState);
-                    
-                    // Restore pagination
-                    this.currentPage = state.currentPage || 1;
-                    this.pageSize = state.pageSize || 50;
-                    
-                    // Restore sorting
-                    this.sortState = state.sortState || {
-                        primary: { column: null, direction: 'asc' },
-                        secondary: { column: null, direction: 'asc' }
-                    };
-                    
-                    // Restore filters
-                    this.currentFilter = state.currentFilter || 'all';
-                    this.searchTerm = state.searchTerm || '';
-                    
-                    // Restore column widths
-                    this.columnWidths = state.columnWidths || {};
-                    
-                    // Restore hidden columns
-                    this.hiddenColumns = new Set(state.hiddenColumns || ['type']);
-                    
-                    console.log('📊 Table state restored from localStorage');
-                }
-            } catch (e) {
-                console.warn('⚠️ Failed to load persisted state:', e);
-                // Use defaults
-                this.hiddenColumns = new Set(['type']);
+                this.applyFilters();
+            } catch (error) {
+                console.error('❌ Error applying filters:', error);
+                // Reset to safe state
+                this.currentFilter = 'all';
+                this.searchTerm = '';
+                this.filteredRows = [...this.allRows];
+                this.updateDisplay();
             }
         }
         
-        saveState() {
-            try {
-                const state = {
-                    currentPage: this.currentPage,
-                    pageSize: this.pageSize,
-                    sortState: this.sortState,
-                    currentFilter: this.currentFilter,
-                    searchTerm: this.searchTerm,
-                    columnWidths: this.columnWidths,
-                    hiddenColumns: Array.from(this.hiddenColumns)
-                };
-                
-                localStorage.setItem(this.storageKey, JSON.stringify(state));
-            } catch (e) {
-                console.warn('⚠️ Failed to save state:', e);
-            }
-        }
-        
-        // Filter and utility methods
         applyFilters() {
+            if (this.isDestroyed) return;
+            
             this.filteredRows = this.allRows.filter(row => {
                 // Search filter
                 if (this.searchTerm) {
@@ -570,63 +594,128 @@ def get_table_manager_js() -> str:
             });
         }
         
-        clearAllFilters() {
-            this.currentFilter = 'all';
-            this.searchTerm = '';
-            this.currentPage = 1;
-            
-            // Clear search input
-            const searchInput = document.getElementById('gap-search');
-            if (searchInput) searchInput.value = '';
-            
-            this.updateFilterTags();
-            this.applyFilters();
-            this.saveState();
-        }
-        
-        resetTableSettings() {
-            // Reset pagination
-            this.currentPage = 1;
-            this.pageSize = 50;
-            
-            // Reset sorting
-            this.sortState = {
-                primary: { column: null, direction: 'asc' },
-                secondary: { column: null, direction: 'asc' }
-            };
-            
-            // Reset filters
-            this.currentFilter = 'all';
-            this.searchTerm = '';
-            
-            // Reset columns
-            this.hiddenColumns = new Set(['type']);
-            
-            // Reset column widths
-            this.columnWidths = {};
-            
-            // Apply changes
-            this.clearAllFilters();
-            this.updateDisplay();
-            this.saveState();
-            
-            console.log('🔄 Table settings reset to defaults');
-        }
-        
-        showColumnPicker() {
-            // Delegate to modal manager
-            if (window.modalManager) {
-                window.modalManager.showColumnPicker();
-            } else {
-                console.warn('⚠️ Modal manager not available');
-            }
-        }
-        
         scrollToTable() {
             const tableContainer = document.querySelector('.gaps-analysis-section');
             if (tableContainer) {
                 tableContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
             }
+        }
+        
+        // State management - ultra defensive
+        loadPersistedState() {
+            try {
+                const savedState = localStorage.getItem(this.storageKey);
+                if (savedState) {
+                    const state = JSON.parse(savedState);
+                    
+                    this.currentPage = state.currentPage || 1;
+                    this.pageSize = state.pageSize || 50;
+                    this.currentFilter = state.currentFilter || 'all';
+                    this.searchTerm = state.searchTerm || '';
+                    this.columnWidths = state.columnWidths || {};
+                    this.hiddenColumns = new Set(state.hiddenColumns || ['type']);
+                    
+                    // Ultra defensive sort state restoration
+                    if (state.sortState && typeof state.sortState === 'object') {
+                        this.sortState = this.createSafeSortState();
+                        
+                        // Restore primary sort
+                        if (state.sortState.primary && typeof state.sortState.primary === 'object') {
+                            this.sortState.primary = {
+                                column: state.sortState.primary.column || null,
+                                direction: ['asc', 'desc'].includes(state.sortState.primary.direction) ? state.sortState.primary.direction : 'asc'
+                            };
+                        }
+                        
+                        // Restore secondary sort
+                        if (state.sortState.secondary && typeof state.sortState.secondary === 'object') {
+                            this.sortState.secondary = {
+                                column: state.sortState.secondary.column || null,
+                                direction: ['asc', 'desc'].includes(state.sortState.secondary.direction) ? state.sortState.secondary.direction : 'asc'
+                            };
+                        }
+                    } else {
+                        this.sortState = this.createSafeSortState();
+                    }
+                    
+                    console.log('📊 Table state restored from localStorage');
+                }
+            } catch (e) {
+                console.warn('⚠️ Failed to load persisted state:', e);
+                // Reset to safe defaults
+                this.sortState = this.createSafeSortState();
+                this.hiddenColumns = new Set(['type']);
+                this.currentFilter = 'all';
+                this.searchTerm = '';
+                this.currentPage = 1;
+            }
+        }
+        
+        saveState() {
+            if (this.isDestroyed) return;
+            
+            try {
+                // Validate sort state before saving
+                this.validateSortState();
+                
+                const state = {
+                    currentPage: this.currentPage,
+                    pageSize: this.pageSize,
+                    sortState: this.sortState,
+                    currentFilter: this.currentFilter,
+                    searchTerm: this.searchTerm,
+                    columnWidths: this.columnWidths,
+                    hiddenColumns: Array.from(this.hiddenColumns)
+                };
+                
+                localStorage.setItem(this.storageKey, JSON.stringify(state));
+            } catch (e) {
+                console.warn('⚠️ Failed to save state:', e);
+            }
+        }
+        
+        applyColumnVisibility() {
+            // Apply column visibility changes
+            Object.keys(this.columnVisibility || {}).forEach(columnId => {
+                this.updateColumnVisibility(columnId, this.columnVisibility[columnId]);
+            });
+            
+            this.updateDisplay();
+            
+            // Close modal
+            if (window.modalManager) {
+                window.modalManager.closeModal();
+            }
+        }
+        
+        resetColumnVisibility() {
+            this.hiddenColumns = new Set(['type']);
+            this.updateDisplay();
+            this.saveState();
+        }
+        
+        updateColumnVisibility(columnId, visible) {
+            if (visible) {
+                this.hiddenColumns.delete(columnId);
+            } else {
+                this.hiddenColumns.add(columnId);
+            }
+            
+            // Update column display
+            const columnCells = this.table.querySelectorAll(`th[data-column="${columnId}"], td[data-column="${columnId}"]`);
+            columnCells.forEach(cell => {
+                cell.style.display = visible ? '' : 'none';
+            });
+        }
+        
+        // Cleanup
+        destroy() {
+            this.isDestroyed = true;
+            this.isInitialized = false;
+            this.table = null;
+            this.allRows = [];
+            this.filteredRows = [];
+            this.sortState = this.createSafeSortState();
         }
     }
     """

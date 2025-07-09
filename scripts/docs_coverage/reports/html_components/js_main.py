@@ -6,244 +6,264 @@ Combines all JavaScript components and provides the main initialization function
 """
 
 try:
+    # First try relative imports
     from .js_table_manager import get_table_manager_js
-    from .js_modals import get_modal_manager_js, get_modal_styles_js
+    from .js_modals import get_modal_manager_js
     from .js_theme_utils import (
         get_theme_manager_js,
         get_timestamp_manager_js,
         get_keyboard_manager_js,
         get_utility_functions_js
     )
-except ImportError:
-    # Fallback functions for when modules are not available
-    def get_table_manager_js() -> str: return "// Table manager not available"
-    def get_modal_manager_js() -> str: return "// Modal manager not available"
-    def get_modal_styles_js() -> str: return "// Modal styles not available"
-    def get_theme_manager_js() -> str: return "// Theme manager not available"
-    def get_timestamp_manager_js() -> str: return "// Timestamp manager not available"
-    def get_keyboard_manager_js() -> str: return "// Keyboard manager not available"
-    def get_utility_functions_js() -> str: return "// Utility functions not available"
+    print("✅ All JavaScript components imported successfully")
+except ImportError as e:
+    print(f"❌ Relative import error: {e}")
+    # Try absolute imports
+    try:
+        import sys
+        from pathlib import Path
+        sys.path.append(str(Path(__file__).parent))
+        
+        from js_table_manager import get_table_manager_js
+        from js_modals import get_modal_manager_js
+        from js_theme_utils import (
+            get_theme_manager_js,
+            get_timestamp_manager_js,
+            get_keyboard_manager_js,
+            get_utility_functions_js
+        )
+        print("✅ JavaScript components imported via absolute import")
+    except ImportError as e2:
+        print(f"❌ Absolute import error: {e2}")
+        # Fallback functions for when modules are not available
+        def get_table_manager_js() -> str: return "// Table manager not available"
+        def get_modal_manager_js() -> str: return "// Modal manager not available"
+        def get_theme_manager_js() -> str: return "// Theme manager not available"
+        def get_timestamp_manager_js() -> str: return "// Timestamp manager not available"
+        def get_keyboard_manager_js() -> str: return "// Keyboard manager not available"
+        def get_utility_functions_js() -> str: return "// Utility functions not available"
 
 
 def get_complete_javascript() -> str:
     """Generate the complete JavaScript for the HTML report."""
-    return f"""
-    {get_utility_functions_js()}
+    # Build JavaScript components
+    utility_js = get_utility_functions_js()
+    theme_js = get_theme_manager_js()
+    timestamp_js = get_timestamp_manager_js()
+    keyboard_js = get_keyboard_manager_js()
+    modal_js = get_modal_manager_js()
+    table_js = get_table_manager_js()
     
-    {get_theme_manager_js()}
-    
-    {get_timestamp_manager_js()}
-    
-    {get_keyboard_manager_js()}
-    
-    {get_modal_manager_js()}
-    
-    {get_modal_styles_js()}
-    
-    {get_table_manager_js()}
-    
-    // Main Application Initialization
-    class DocumentationCoverageApp {{
-        constructor() {{
-            this.components = {{}};
+    # Main app JavaScript without f-string formatting issues
+    main_app_js = """
+    // Main Application Controller - FIXED VERSION
+    class DocumentationCoverageApp {
+        constructor() {
+            this.components = {};
             this.initialized = false;
+            this.isDestroyed = false;
             this.init();
-        }}
+        }
         
-        init() {{
+        init() {
             console.log('🚀 Initializing Documentation Coverage Report App...');
             
             // Wait for DOM to be ready
-            if (document.readyState === 'loading') {{
+            if (document.readyState === 'loading') {
                 document.addEventListener('DOMContentLoaded', () => this.initializeApp());
-            }} else {{
+            } else {
                 this.initializeApp();
-            }}
-        }}
+            }
+        }
         
-        initializeApp() {{
-            try {{
-                // Initialize all components in order
-                this.components.utilityManager = new UtilityManager();
-                this.components.themeManager = new ThemeManager();
-                this.components.timestampManager = new TimestampManager();
-                this.components.keyboardManager = new KeyboardManager();
-                this.components.modalStyleManager = new ModalStyleManager();
-                this.components.modalManager = new ModalManager();
-                this.components.tableManager = new EnhancedTableManager();
-                
-                // Make modal manager globally accessible
-                window.modalManager = this.components.modalManager;
-                
-                this.initialized = true;
-                this.setupGlobalErrorHandling();
-                
-                console.log('✅ Documentation Coverage Report App initialized successfully!');
-                console.log('🎯 All interactive features are now active');
-                
-                // Show initialization notification
-                if (this.components.utilityManager) {{
-                    window.docsCoverageUtils.showNotification(
-                        'Documentation Coverage Report loaded successfully!',
-                        'success',
-                        2000
-                    );
-                }}
-                
-            }} catch (error) {{
-                console.error('❌ Failed to initialize app:', error);
-                this.showInitializationError(error);
-            }}
-        }}
-        
-        setupGlobalErrorHandling() {{
-            window.addEventListener('error', (event) => {{
-                console.error('Global error:', event.error);
-                
-                // Show user-friendly error message
-                if (window.docsCoverageUtils) {{
-                    window.docsCoverageUtils.showNotification(
-                        'An error occurred. Please refresh the page if issues persist.',
-                        'error',
-                        5000
-                    );
-                }}
-            }});
+        initializeApp() {
+            if (this.isDestroyed) return;
             
-            window.addEventListener('unhandledrejection', (event) => {{
-                console.error('Unhandled promise rejection:', event.reason);
+            console.log('🔧 Starting component initialization...');
+            
+            // Initialize core components
+            this.initializeGlobalErrorHandling();
+            this.initializeSyntaxHighlighting();
+            this.initializeUtilities();
+            this.initializeTheme();
+            this.initializeTimestamps();
+            this.initializeKeyboardShortcuts();
+            this.initializeModals();
+            this.initializeTable();
+            
+            this.initialized = true;
+            console.log('✅ Documentation Coverage Report App initialized successfully!');
+            console.log('🎯 All interactive features are now active');
+        }
+        
+        initializeGlobalErrorHandling() {
+            this.setupGlobalErrorHandling();
+        }
+        
+        initializeSyntaxHighlighting() {
+            try {
+                // Initialize highlight.js if available
+                if (typeof window.hljs !== 'undefined') {
+                    window.hljs.configure({
+                        languages: ['typescript', 'javascript', 'python', 'css', 'json', 'html'],
+                        ignoreUnescapedHTML: true
+                    });
+                    console.log('✨ Syntax highlighting initialized successfully');
+                } else {
+                    console.warn('⚠️ Highlight.js not available');
+                }
+            } catch (error) {
+                console.warn('⚠️ Failed to initialize syntax highlighting:', error);
+            }
+        }
+        
+        initializeUtilities() {
+            try {
+                if (typeof UtilityManager !== 'undefined') {
+                    this.components.utilityManager = new UtilityManager();
+                    console.log('✅ Utility manager initialized');
+                } else {
+                    console.log('ℹ️ Utility manager not available');
+                }
+            } catch (error) {
+                console.warn('⚠️ Failed to initialize utilities:', error);
+            }
+        }
+        
+        initializeTheme() {
+            try {
+                if (typeof ThemeManager !== 'undefined') {
+                    this.components.themeManager = new ThemeManager();
+                    console.log('✅ Theme manager initialized');
+                } else {
+                    console.log('ℹ️ Theme manager not available');
+                }
+            } catch (error) {
+                console.warn('⚠️ Failed to initialize theme manager:', error);
+            }
+        }
+        
+        initializeTimestamps() {
+            try {
+                if (typeof TimestampManager !== 'undefined') {
+                    this.components.timestampManager = new TimestampManager();
+                    console.log('✅ Timestamp manager initialized');
+                } else {
+                    console.log('ℹ️ Timestamp manager not available');
+                }
+            } catch (error) {
+                console.warn('⚠️ Failed to initialize timestamp manager:', error);
+            }
+        }
+        
+        initializeKeyboardShortcuts() {
+            try {
+                if (typeof KeyboardManager !== 'undefined') {
+                    this.components.keyboardManager = new KeyboardManager();
+                    console.log('✅ Keyboard manager initialized');
+                } else {
+                    console.log('ℹ️ Keyboard manager not available');
+                }
+            } catch (error) {
+                console.warn('⚠️ Failed to initialize keyboard manager:', error);
+            }
+        }
+        
+        initializeModals() {
+            try {
+                // Modal manager initializes itself, just ensure it's available
+                if (window.modalManager) {
+                    this.components.modalManager = window.modalManager;
+                    console.log('✅ Modal manager ready');
+                } else {
+                    console.warn('⚠️ Modal manager not available');
+                }
                 
-                // Show user-friendly error message
-                if (window.docsCoverageUtils) {{
-                    window.docsCoverageUtils.showNotification(
-                        'An error occurred. Please refresh the page if issues persist.',
-                        'error',
-                        5000
-                    );
-                }}
-            }});
-        }}
+            } catch (error) {
+                console.warn('⚠️ Failed to initialize modal components:', error);
+            }
+        }
         
-        showInitializationError(error) {{
-            // Create error message element
-            const errorDiv = document.createElement('div');
-            errorDiv.style.cssText = `
-                position: fixed;
-                top: 0;
-                left: 0;
-                right: 0;
-                background: #ef4444;
-                color: white;
-                padding: 16px;
-                text-align: center;
-                z-index: 10000;
-                font-family: monospace;
-            `;
-            errorDiv.innerHTML = `
-                <strong>⚠️ Initialization Error</strong><br>
-                Some interactive features may not work properly.<br>
-                <small>Error: ${{error.message}}</small><br>
-                <button onclick="location.reload()" style="margin-top: 8px; padding: 4px 8px; background: white; color: #ef4444; border: none; border-radius: 4px; cursor: pointer;">
-                    Reload Page
-                </button>
-            `;
+        initializeTable() {
+            try {
+                if (typeof EnhancedTableManager !== 'undefined') {
+                    this.components.tableManager = new EnhancedTableManager();
+                    console.log('✅ Table manager initialized');
+                } else {
+                    console.log('ℹ️ Table manager not available');
+                }
+            } catch (error) {
+                console.warn('⚠️ Failed to initialize table manager:', error);
+            }
+        }
+        
+        setupGlobalErrorHandling() {
+            window.addEventListener('error', (event) => {
+                console.error('🚨 Global error caught:', event.error);
+                // Don't prevent default behavior, just log
+            });
             
-            document.body.insertBefore(errorDiv, document.body.firstChild);
+            window.addEventListener('unhandledrejection', (event) => {
+                console.error('🚨 Unhandled promise rejection:', event.reason);
+                // Don't prevent default behavior, just log
+            });
+        }
+        
+        destroy() {
+            this.isDestroyed = true;
             
-            // Auto-hide after 10 seconds
-            setTimeout(() => {{
-                if (errorDiv.parentNode) {{
-                    errorDiv.parentNode.removeChild(errorDiv);
-                }}
-            }}, 10000);
-        }}
+            // Clean up all components
+            Object.values(this.components).forEach(component => {
+                if (component && typeof component.destroy === 'function') {
+                    component.destroy();
+                }
+            });
+            
+            this.components = {};
+            this.initialized = false;
+        }
+    }
+    
+    // Global initialization function
+    function initializeDocsCoverageApp() {
+        // Clean up any existing instance
+        if (window.docsCoverageApp) {
+            window.docsCoverageApp.destroy();
+        }
         
-        getComponent(name) {{
-            return this.components[name];
-        }}
-        
-        isInitialized() {{
-            return this.initialized;
-        }}
-    }}
+        // Create new instance
+        window.docsCoverageApp = new DocumentationCoverageApp();
+    }
     
-    // Initialize the application
-    const app = new DocumentationCoverageApp();
-    
-    // Make app globally accessible for debugging
-    window.docsCoverageApp = app;
-    
-    // Export for potential module usage
-    if (typeof module !== 'undefined' && module.exports) {{
-        module.exports = {{ DocumentationCoverageApp, app }};
-    }}
+    // Auto-initialize
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initializeDocsCoverageApp);
+    } else {
+        initializeDocsCoverageApp();
+    }
     """
+    
+    # Combine all JavaScript components using string concatenation
+    complete_js = """
+    // Documentation Coverage Report - Main JavaScript Application
+    // FIXED VERSION - No conflicts, proper syntax highlighting
+    
+    """ + utility_js + """
+    
+    """ + theme_js + """
+    
+    """ + timestamp_js + """
+    
+    """ + keyboard_js + """
+    
+    """ + modal_js + """
+    
+    """ + table_js + """
+    
+    """ + main_app_js
+    
+    return complete_js
 
 
-def get_legacy_javascript() -> str:
-    """Generate JavaScript with legacy support for older browsers."""
-    return f"""
-    // Legacy browser support check
-    (function() {{
-        'use strict';
-        
-        // Check for required features
-        const requiredFeatures = [
-            'querySelector',
-            'addEventListener',
-            'classList',
-            'dataset',
-            'localStorage',
-            'JSON'
-        ];
-        
-        const missingFeatures = requiredFeatures.filter(feature => {{
-            if (feature === 'querySelector') return !document.querySelector;
-            if (feature === 'addEventListener') return !document.addEventListener;
-            if (feature === 'classList') return !document.body.classList;
-            if (feature === 'dataset') return !document.body.dataset;
-            if (feature === 'localStorage') return !window.localStorage;
-            if (feature === 'JSON') return !window.JSON;
-            return false;
-        }});
-        
-        if (missingFeatures.length > 0) {{
-            console.warn('⚠️ Legacy browser detected. Missing features:', missingFeatures);
-            
-            // Show legacy browser warning
-            const warning = document.createElement('div');
-            warning.style.cssText = `
-                position: fixed;
-                top: 0;
-                left: 0;
-                right: 0;
-                background: #f59e0b;
-                color: white;
-                padding: 12px;
-                text-align: center;
-                z-index: 10000;
-                font-family: Arial, sans-serif;
-            `;
-            warning.innerHTML = `
-                <strong>⚠️ Browser Compatibility Notice</strong><br>
-                Your browser may not support all interactive features of this report.<br>
-                For the best experience, please use a modern browser.
-            `;
-            
-            document.body.insertBefore(warning, document.body.firstChild);
-            
-            // Provide basic functionality fallback
-            return;
-        }}
-        
-        // Modern browser - load full functionality
-        {get_complete_javascript()}
-    }})();
-    """
-
-
-# Export the main JavaScript functions
-__all__ = [
-    'get_complete_javascript',
-    'get_legacy_javascript'
-] 
+# Export the main function
+__all__ = ['get_complete_javascript'] 

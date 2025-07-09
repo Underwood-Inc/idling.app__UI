@@ -8,7 +8,11 @@ Provides the main HTML document template and structure.
 from typing import Dict, Any
 from .styles import get_css_styles
 from .table_styles import get_table_styles
-from .javascript import get_javascript
+try:
+    from .js_main import get_complete_javascript
+except ImportError:
+    from .javascript import get_javascript
+    get_complete_javascript = get_javascript
 
 
 class HtmlDocumentGenerator:
@@ -30,6 +34,7 @@ class HtmlDocumentGenerator:
     <style>
         {get_css_styles()}
         {get_table_styles()}
+        {self._get_modal_styles()}
         {self._get_additional_styles()}
     </style>
 </head>
@@ -56,7 +61,7 @@ class HtmlDocumentGenerator:
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/css.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/json.min.js"></script>
     <script>
-        {get_javascript()}
+        {get_complete_javascript()}
     </script>
 </body>
 </html>"""
@@ -170,6 +175,254 @@ class HtmlDocumentGenerator:
         </div>
     </div>
         """
+    
+    def _get_modal_styles(self) -> str:
+        """Get CSS styles for modal functionality."""
+        try:
+            from .template_loader import TemplateLoader
+            loader = TemplateLoader()
+            return loader.load_style('modals.css')
+        except (ImportError, FileNotFoundError):
+            # Fallback modal styles
+            return """
+            /* Modal Styles */
+            .modal {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100vw;
+                height: 100vh;
+                background: rgba(0, 0, 0, 0.8);
+                z-index: 9999;
+                backdrop-filter: blur(4px);
+                align-items: center;
+                justify-content: center;
+                opacity: 0;
+                transition: opacity 0.3s ease;
+            }
+            
+            .modal.show {
+                display: flex !important;
+                opacity: 1;
+            }
+            
+            .modal-content {
+                background: var(--bg-secondary);
+                border-radius: 12px;
+                box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+                border: 1px solid var(--border-color);
+                width: 90vw;
+                height: 80vh;
+                max-width: 1200px;
+                max-height: 800px;
+                overflow: hidden;
+                display: flex;
+                flex-direction: column;
+                transform: scale(0.9);
+                transition: transform 0.3s ease;
+            }
+            
+            .modal.show .modal-content {
+                transform: scale(1);
+            }
+            
+            .source-modal .modal-content {
+                width: 95vw;
+                height: 95vh;
+                max-height: none;
+            }
+            
+            .modal-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 0.75rem 1.5rem;
+                border-bottom: 1px solid var(--border-color);
+                background: linear-gradient(135deg, #f4d03f, #f7dc6f);
+                color: #000;
+                flex-shrink: 0;
+            }
+            
+            .modal-header h3 {
+                margin: 0;
+                font-size: 1.1rem;
+                font-weight: 600;
+                flex: 1;
+            }
+            
+            .modal-header-actions {
+                display: flex;
+                gap: 0.5rem;
+                align-items: center;
+            }
+            
+            #open-github-btn {
+                background: rgba(255, 255, 255, 0.2);
+                border: 1px solid rgba(255, 255, 255, 0.3);
+                border-radius: 6px;
+                padding: 0.4rem 0.8rem;
+                color: #000;
+                font-weight: 500;
+                font-size: 0.85rem;
+                cursor: pointer;
+                transition: all 0.2s ease;
+                display: inline-flex;
+                align-items: center;
+                gap: 0.4rem;
+            }
+            
+            #open-github-btn:hover {
+                background: rgba(255, 255, 255, 0.3);
+                transform: translateY(-1px);
+            }
+            
+            .modal-close {
+                background: none;
+                border: none;
+                font-size: 1.5rem;
+                cursor: pointer;
+                color: #000;
+                width: 32px;
+                height: 32px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border-radius: 50%;
+                transition: background-color 0.2s ease;
+            }
+            
+            .modal-close:hover {
+                background: rgba(0, 0, 0, 0.1);
+            }
+            
+            .modal-body {
+                flex: 1;
+                overflow: hidden;
+                display: flex;
+                flex-direction: column;
+                min-height: 0;
+                padding: 1.5rem;
+            }
+            
+            .source-modal-body {
+                padding: 0;
+                height: 100%;
+            }
+            
+            .source-code {
+                flex: 1;
+                margin: 0;
+                padding: 1rem;
+                overflow: auto;
+                background: var(--bg-primary);
+                font-family: 'Consolas', 'Monaco', 'Ubuntu Mono', 'Courier New', monospace;
+                font-size: 0.9rem;
+                line-height: 1.4;
+                border: none;
+                color: var(--text-primary);
+                white-space: pre;
+                height: 100%;
+                min-height: 0;
+            }
+            
+            .source-loading {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                padding: 3rem;
+                color: var(--text-secondary);
+                height: 100%;
+            }
+            
+            .source-error {
+                text-align: center;
+                padding: 3rem;
+                color: var(--status-error);
+                height: 100%;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+            }
+            
+            .loading-spinner {
+                border: 3px solid var(--border-color);
+                border-top: 3px solid var(--brand-primary);
+                border-radius: 50%;
+                width: 30px;
+                height: 30px;
+                animation: spin 1s linear infinite;
+                margin-bottom: 1rem;
+            }
+            
+            @keyframes spin {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(360deg); }
+            }
+            
+            /* Syntax Highlighting */
+            .hljs-keyword, .hljs-built_in, .hljs-type {
+                color: #569cd6;
+                font-weight: 500;
+            }
+            
+            .hljs-string, .hljs-template-string {
+                color: #ce9178;
+            }
+            
+            .hljs-comment {
+                color: #6a9955;
+                font-style: italic;
+            }
+            
+            .hljs-number {
+                color: #b5cea8;
+            }
+            
+            .hljs-class, .hljs-title {
+                color: #4ec9b0;
+                font-weight: 500;
+            }
+            
+            .hljs-variable, .hljs-property {
+                color: #9cdcfe;
+            }
+            
+            .hljs-function .hljs-title {
+                color: #dcdcaa;
+                font-weight: 500;
+            }
+            
+            .hljs-tag {
+                color: #569cd6;
+            }
+            
+            .hljs-name {
+                color: #4ec9b0;
+            }
+            
+            .hljs-attr {
+                color: #92c5f7;
+            }
+            
+            .hljs-value {
+                color: #ce9178;
+            }
+            
+            .hljs-punctuation {
+                color: #d4d4d4;
+            }
+            
+            .hljs-operator {
+                color: #d4d4d4;
+            }
+            
+            .hljs-literal, .hljs-boolean {
+                color: #569cd6;
+            }
+            """
     
     def _get_additional_styles(self) -> str:
         """Get additional CSS styles for components not in main style files."""

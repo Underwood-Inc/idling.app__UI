@@ -20,7 +20,6 @@ except ImportError:
     from typing import Any as CoverageReport, Any as DocumentationGap, Any as ConfigManager
 
 from .content_generators import ContentGenerator
-from .javascript import get_javascript
 from .template_loader import TemplateLoader
 
 
@@ -105,7 +104,7 @@ class HtmlGenerator:
         output.append(self.content_generator.generate_source_code_embedding(report))
         
         # Add highlight.js JavaScript and the main application JavaScript
-        output.append(f"""
+        output.append("""
     <!-- Highlight.js JavaScript -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/typescript.min.js"></script>
@@ -113,9 +112,13 @@ class HtmlGenerator:
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/python.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/css.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/json.min.js"></script>
-    <script>
-        {self._get_complete_javascript()}
-    </script>""")
+    <script>""")
+        
+        # Add the JavaScript content using concatenation instead of f-strings
+        output.append(self._get_complete_javascript())
+        
+        # Close the script tag
+        output.append("    </script>")
         
         # Close HTML
         output.append("""
@@ -217,11 +220,78 @@ class HtmlGenerator:
             return ""
     
     def _get_complete_javascript(self) -> str:
-        """Get the complete JavaScript."""
+        """Get the complete JavaScript with all modal and interaction functions - FIXED VERSION."""
         try:
-            # FORCE USE OF SIMPLE JAVASCRIPT - complex system is broken
-            return self.content_generator.generate_simple_javascript()
+            # PRIORITY: Use the FIXED JavaScript system with all features
+            from .js_main import get_complete_javascript
+            js_code = get_complete_javascript()
+            print("✅ Using FIXED JavaScript system with working modals")
+            return js_code
+        except ImportError as e:
+            print(f"❌ Failed to import fixed JavaScript from js_main: {e}")
+            # Try alternate import path
+            try:
+                import sys
+                from pathlib import Path
+                sys.path.append(str(Path(__file__).parent))
+                from js_main import get_complete_javascript
+                js_code = get_complete_javascript()
+                print("✅ Using FIXED JavaScript system (alternate import)")
+                return js_code
+            except Exception as e2:
+                print(f"❌ Alternate import also failed: {e2}")
+                # Final fallback - create basic working JavaScript inline
+                return self._get_fallback_javascript()
         except Exception as e:
-            print(f"❌ Failed to load simple JavaScript: {e}")
-            # Fallback to basic JavaScript
-            return get_javascript().replace('<script>', '').replace('</script>', '') 
+            print(f"❌ Error getting complete JavaScript: {e}")
+            return self._get_fallback_javascript()
+    
+    def _get_fallback_javascript(self) -> str:
+        """Generate basic fallback JavaScript that at least won't break."""
+        return """
+        // FALLBACK JavaScript - Basic functionality only
+        console.log('🔧 Using fallback JavaScript due to import issues');
+        
+        // Basic modal functionality
+        function closeModal() {
+            const modals = document.querySelectorAll('.modal');
+            modals.forEach(modal => {
+                modal.style.display = 'none';
+                modal.classList.remove('show');
+            });
+            document.body.style.overflow = '';
+        }
+        
+        // Basic row click handler
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('📄 Basic JavaScript initialized');
+            
+            // Modal close handlers
+            document.addEventListener('click', function(e) {
+                if (e.target.classList.contains('modal') || e.target.classList.contains('modal-close')) {
+                    closeModal();
+                }
+            });
+            
+            // Escape key to close modals
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    closeModal();
+                }
+            });
+            
+            // Basic syntax highlighting if hljs is available
+            if (window.hljs) {
+                try {
+                    window.hljs.highlightAll();
+                    console.log('✨ Basic syntax highlighting applied');
+                } catch (e) {
+                    console.warn('⚠️ Syntax highlighting failed:', e);
+                }
+            }
+        });
+        """
+
+
+# Export the main class
+__all__ = ['HtmlGenerator'] 
