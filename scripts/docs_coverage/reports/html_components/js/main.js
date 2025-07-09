@@ -140,8 +140,7 @@ class DocumentationCoverageApp {
             themeToggle.addEventListener('click', this.toggleTheme);
         }
         
-        // Global keyboard shortcuts
-        document.addEventListener('keydown', this.handleGlobalKeyboardShortcuts);
+        // Note: Global keyboard shortcuts are handled by TableManagerCore
         
         console.log('⌨️ Global event listeners attached');
     }
@@ -305,32 +304,7 @@ class DocumentationCoverageApp {
         console.log(`🌓 Theme switched to: ${isDark ? 'dark' : 'light'}`);
     }
     
-    /**
-     * Handle global keyboard shortcuts
-     * @private
-     * @param {KeyboardEvent} e - Keyboard event
-     */
-    handleGlobalKeyboardShortcuts(e) {
-        // Ctrl+Shift+D for theme toggle
-        if (e.ctrlKey && e.shiftKey && e.key === 'D') {
-            e.preventDefault();
-            this.toggleTheme();
-        }
-        
-        // F1 for help
-        if (e.key === 'F1') {
-            e.preventDefault();
-            const helpModal = document.getElementById('help-modal');
-            if (helpModal) {
-                helpModal.style.display = 'block';
-            }
-        }
-        
-        // Escape to close all modals
-        if (e.key === 'Escape') {
-            this.closeAllModals();
-        }
-    }
+    // Keyboard shortcuts removed - now handled by TableManagerCore
     
     /**
      * Close all modals

@@ -75,19 +75,14 @@ export class SearchComponent {
             this.searchClear.addEventListener('click', this.handleClear);
         }
         
-        // Keyboard shortcuts
-        document.addEventListener('keydown', (e) => {
-            // Ctrl+F to focus search
-            if (e.ctrlKey && e.key === 'f') {
-                e.preventDefault();
-                this.focusSearch();
-            }
-            
-            // Escape to clear search
+        // Escape key to clear search when focused on search input
+        this.searchInput.addEventListener('keydown', (e) => {
             if (e.key === 'Escape' && document.activeElement === this.searchInput) {
                 this.clearSearch();
             }
         });
+        
+        // Note: Global keyboard shortcuts (Ctrl/Cmd+F) are handled by TableManagerCore
     }
     
     /**

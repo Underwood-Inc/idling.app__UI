@@ -274,27 +274,27 @@ class ContentGenerator:
                 <!-- Fixed Header Container -->
                 <div class="advanced-table-header">
                     <table class="advanced-table">
-                        <thead>
-                            <tr>
-                                <th class="sortable col-file" data-column="file">📁 File <span class="sort-indicator"></span></th>
-                                <th class="sortable col-lines" data-column="lines">📏 Lines <span class="sort-indicator"></span></th>
-                                <th class="sortable col-status" data-column="status">📊 Status <span class="sort-indicator"></span></th>
-                                <th class="sortable col-priority" data-column="priority">🎯 Priority <span class="sort-indicator"></span></th>
-                                <th class="sortable col-doc" data-column="doc">📄 Expected Doc <span class="sort-indicator"></span></th>
-                                <th class="sortable col-effort" data-column="effort">⏱️ Effort <span class="sort-indicator"></span></th>
-                                <th class="sortable col-issues" data-column="issues">⚠️ Issues <span class="sort-indicator"></span></th>
-                            </tr>
-                        </thead>
+                    <thead>
+                        <tr>
+                            <th class="sortable col-file" data-column="file">📁 File <span class="sort-indicator"></span></th>
+                            <th class="sortable col-lines" data-column="lines">📏 Lines <span class="sort-indicator"></span></th>
+                            <th class="sortable col-status" data-column="status">📊 Status <span class="sort-indicator"></span></th>
+                            <th class="sortable col-priority" data-column="priority">🎯 Priority <span class="sort-indicator"></span></th>
+                            <th class="sortable col-doc" data-column="doc">📄 Expected Doc <span class="sort-indicator"></span></th>
+                            <th class="sortable col-effort" data-column="effort">⏱️ Effort <span class="sort-indicator"></span></th>
+                            <th class="sortable col-issues" data-column="issues">⚠️ Issues <span class="sort-indicator"></span></th>
+                        </tr>
+                    </thead>
                     </table>
                 </div>
                 
                 <!-- Scrollable Body Container -->
                 <div class="advanced-table-body">
                     <table class="advanced-table" id="gaps-table">
-                        <tbody id="gaps-table-body">
-                            {''.join(table_rows)}
-                        </tbody>
-                    </table>
+                    <tbody id="gaps-table-body">
+                        {''.join(table_rows)}
+                    </tbody>
+                </table>
                 </div>
                 
                 <!-- Empty State View -->
