@@ -121,6 +121,9 @@ def get_table_manager_js() -> str:
                 this.allRows = Array.from(this.table.querySelectorAll('tbody tr'));
                 this.filteredRows = [...this.allRows];
                 console.log(`📊 Found ${this.allRows.length} table rows`);
+                
+                // Setup scroll sync even in basic mode
+                this.setupScrollSync();
             }
         }
         
@@ -152,15 +155,56 @@ def get_table_manager_js() -> str:
                 });
             });
             
-            // Setup column sorting
-            this.table.querySelectorAll('th.sortable').forEach(th => {
-                th.addEventListener('click', (e) => {
-                    if (this.isDestroyed) return;
-                    this.handleColumnSort(e, th);
+            // Setup column sorting - headers are now in a separate table
+            const headerTable = document.querySelector('.advanced-table-header .advanced-table');
+            if (headerTable) {
+                headerTable.querySelectorAll('th.sortable').forEach(th => {
+                    th.addEventListener('click', (e) => {
+                        if (this.isDestroyed) return;
+                        this.handleColumnSort(e, th);
+                    });
                 });
-            });
+            } else {
+                console.warn('⚠️ Header table not found!');
+            }
+            
+            // Setup horizontal scroll synchronization
+            this.setupScrollSync();
             
             console.log('🎯 Table event handlers attached');
+        }
+        
+        setupScrollSync() {
+            // Get header and body containers
+            const headerContainer = document.querySelector('.advanced-table-header');
+            const bodyContainer = document.querySelector('.advanced-table-body');
+            
+            if (!headerContainer || !bodyContainer) {
+                console.warn('⚠️ Could not find header or body containers for scroll sync');
+                return;
+            }
+            
+            // Prevent infinite loop with flags
+            let isHeaderScrolling = false;
+            let isBodyScrolling = false;
+            
+            // Sync header scroll to body scroll
+            headerContainer.addEventListener('scroll', () => {
+                if (this.isDestroyed || isBodyScrolling) return;
+                isHeaderScrolling = true;
+                bodyContainer.scrollLeft = headerContainer.scrollLeft;
+                setTimeout(() => { isHeaderScrolling = false; }, 0);
+            });
+            
+            // Sync body scroll to header scroll
+            bodyContainer.addEventListener('scroll', () => {
+                if (this.isDestroyed || isHeaderScrolling) return;
+                isBodyScrolling = true;
+                headerContainer.scrollLeft = bodyContainer.scrollLeft;
+                setTimeout(() => { isBodyScrolling = false; }, 0);
+            });
+            
+            console.log('🔄 Horizontal scroll synchronization setup completed');
         }
         
         handleRowClick(e, row) {
@@ -264,6 +308,15 @@ def get_table_manager_js() -> str:
                     this.handleFilterTagClick(e);
                 });
             });
+            
+            // Clear all filters button - main one
+            const clearAllFiltersBtn = document.getElementById('clear-all-filters');
+            if (clearAllFiltersBtn) {
+                clearAllFiltersBtn.addEventListener('click', (e) => {
+                    if (this.isDestroyed) return;
+                    this.clearAllFilters();
+                });
+            }
             
             // Clear filters from empty state
             const clearFiltersEmptyBtn = document.getElementById('clear-filters-empty');
@@ -604,15 +657,22 @@ def get_table_manager_js() -> str:
             // Validate sort state before accessing it
             this.validateSortState();
             
+            // Find the header table (headers are now in a separate table)
+            const headerTable = document.querySelector('.advanced-table-header .advanced-table');
+            if (!headerTable) {
+                console.warn('⚠️ Header table not found for sort indicators');
+                return;
+            }
+            
             // Clear all sort indicators
-            const sortableHeaders = this.table.querySelectorAll('th.sortable');
+            const sortableHeaders = headerTable.querySelectorAll('th.sortable');
             sortableHeaders.forEach(th => {
                 th.classList.remove('sort-asc', 'sort-desc', 'sort-primary', 'sort-secondary');
             });
             
             // Add primary sort indicator
             if (this.sortState.primary && this.sortState.primary.column) {
-                const primaryTh = this.table.querySelector(`th[data-column="${this.sortState.primary.column}"]`);
+                const primaryTh = headerTable.querySelector(`th[data-column="${this.sortState.primary.column}"]`);
                 if (primaryTh) {
                     primaryTh.classList.add('sort-primary');
                     primaryTh.classList.add(this.sortState.primary.direction === 'asc' ? 'sort-asc' : 'sort-desc');
@@ -621,7 +681,7 @@ def get_table_manager_js() -> str:
             
             // Add secondary sort indicator
             if (this.sortState.secondary && this.sortState.secondary.column) {
-                const secondaryTh = this.table.querySelector(`th[data-column="${this.sortState.secondary.column}"]`);
+                const secondaryTh = headerTable.querySelector(`th[data-column="${this.sortState.secondary.column}"]`);
                 if (secondaryTh) {
                     secondaryTh.classList.add('sort-secondary');
                     secondaryTh.classList.add(this.sortState.secondary.direction === 'asc' ? 'sort-asc' : 'sort-desc');
@@ -723,19 +783,21 @@ def get_table_manager_js() -> str:
                 searchInput.value = '';
             }
             
-            // Reset filter tags
+            // Reset filter tags - be more specific about which tags to activate
             document.querySelectorAll('.filter-tag').forEach(tag => {
                 tag.classList.remove('active');
             });
             
-            // Activate "All" filter tags
-            document.querySelectorAll('.filter-tag[data-value=""]').forEach(tag => {
+            // Activate "All" filter tags (the ones with empty data-value or data-filter="all")
+            document.querySelectorAll('.filter-tag[data-value=""], .filter-tag[data-filter="all"]').forEach(tag => {
                 tag.classList.add('active');
             });
             
             // Apply filters (will show all items)
-            this.applyFilters();
+            this.safeApplyFilters();
             this.saveState();
+            
+            console.log('✨ All filters cleared successfully');
         }
         
         updateFilterTags() {
@@ -862,6 +924,19 @@ def get_table_manager_js() -> str:
         destroy() {
             this.isDestroyed = true;
             this.isInitialized = false;
+            
+            // Clean up scroll event listeners
+            const headerContainer = document.querySelector('.advanced-table-header');
+            const bodyContainer = document.querySelector('.advanced-table-body');
+            if (headerContainer && bodyContainer) {
+                // Remove event listeners by cloning and replacing nodes
+                const newHeaderContainer = headerContainer.cloneNode(true);
+                const newBodyContainer = bodyContainer.cloneNode(true);
+                headerContainer.parentNode.replaceChild(newHeaderContainer, headerContainer);
+                bodyContainer.parentNode.replaceChild(newBodyContainer, bodyContainer);
+                console.log('🧹 Scroll event listeners cleaned up');
+            }
+            
             this.table = null;
             this.allRows = [];
             this.filteredRows = [];
