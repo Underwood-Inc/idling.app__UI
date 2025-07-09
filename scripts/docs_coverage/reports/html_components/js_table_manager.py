@@ -197,8 +197,8 @@ def get_table_manager_js() -> str:
         }
         
         setupPagination() {
-            // Page size selector
-            const pageSizeSelect = document.getElementById('page-size-select');
+            // Page size selector - use correct ID from HTML
+            const pageSizeSelect = document.getElementById('items-per-page');
             if (pageSizeSelect) {
                 pageSizeSelect.addEventListener('change', (e) => {
                     if (this.isDestroyed) return;
@@ -210,16 +210,12 @@ def get_table_manager_js() -> str:
                 });
             }
             
-            // Pagination buttons
+            // Pagination buttons - use correct IDs from HTML
             const paginationButtons = [
-                { id: 'first-page-btn', action: () => this.goToPage(1) },
-                { id: 'prev-page-btn', action: () => this.goToPage(this.currentPage - 1) },
-                { id: 'next-page-btn', action: () => this.goToPage(this.currentPage + 1) },
-                { id: 'last-page-btn', action: () => this.goToPage(this.totalPages) },
-                { id: 'first-page-btn-bottom', action: () => this.goToPage(1) },
-                { id: 'prev-page-btn-bottom', action: () => this.goToPage(this.currentPage - 1) },
-                { id: 'next-page-btn-bottom', action: () => this.goToPage(this.currentPage + 1) },
-                { id: 'last-page-btn-bottom', action: () => this.goToPage(this.totalPages) }
+                { id: 'first-page', action: () => this.goToPage(1) },
+                { id: 'prev-page', action: () => this.goToPage(this.currentPage - 1) },
+                { id: 'next-page', action: () => this.goToPage(this.currentPage + 1) },
+                { id: 'last-page', action: () => this.goToPage(this.totalPages) }
             ];
             
             paginationButtons.forEach(({ id, action }) => {
@@ -231,6 +227,18 @@ def get_table_manager_js() -> str:
                     });
                 }
             });
+            
+            // Current page input - use correct ID from HTML
+            const currentPageInput = document.getElementById('current-page');
+            if (currentPageInput) {
+                currentPageInput.addEventListener('change', (e) => {
+                    if (this.isDestroyed) return;
+                    const page = parseInt(e.target.value);
+                    if (page >= 1 && page <= this.totalPages) {
+                        this.goToPage(page);
+                    }
+                });
+            }
             
             console.log('📄 Pagination handlers attached');
         }
@@ -256,6 +264,15 @@ def get_table_manager_js() -> str:
                     this.handleFilterTagClick(e);
                 });
             });
+            
+            // Clear filters from empty state
+            const clearFiltersEmptyBtn = document.getElementById('clear-filters-empty');
+            if (clearFiltersEmptyBtn) {
+                clearFiltersEmptyBtn.addEventListener('click', (e) => {
+                    if (this.isDestroyed) return;
+                    this.clearAllFilters();
+                });
+            }
             
             console.log('🏷️ Filter handlers attached');
         }
@@ -305,12 +322,28 @@ def get_table_manager_js() -> str:
         
         handleFilterTagClick(e) {
             const tag = e.target;
-            const filter = tag.dataset.filter;
+            const filterType = tag.dataset.filter;
+            const filterValue = tag.dataset.value;
             
-            console.log(`🏷️ Filter tag clicked: ${filter}`);
-            this.currentFilter = filter;
+            console.log(`🏷️ Filter tag clicked: ${filterType}=${filterValue}`);
+            
+            // Handle grouped filters (priority, status) or direct filters
+            const actualFilter = filterValue !== undefined ? filterValue : filterType;
+            
+            // Remove active class from tags in the same group
+            const filterGroup = tag.closest('.filter-group');
+            if (filterGroup) {
+                filterGroup.querySelectorAll('.filter-tag').forEach(t => t.classList.remove('active'));
+            } else {
+                // Fallback: remove from all filter tags
+                document.querySelectorAll('.filter-tag').forEach(t => t.classList.remove('active'));
+            }
+            
+            // Add active class to clicked tag
+            tag.classList.add('active');
+            
+            this.currentFilter = actualFilter === '' ? 'all' : actualFilter;
             this.currentPage = 1;
-            this.updateFilterTags();
             this.safeApplyFilters();
             this.saveState();
         }
@@ -399,15 +432,59 @@ def get_table_manager_js() -> str:
         }
         
         getCellValue(row, column) {
-            const cell = row.querySelector(`td[data-column="${column}"]`);
+            // Map column names to CSS classes
+            const columnClassMap = {
+                'file': 'col-file',
+                'lines': 'col-lines', 
+                'status': 'col-status',
+                'priority': 'col-priority',
+                'doc': 'col-doc',
+                'effort': 'col-effort',
+                'issues': 'col-issues'
+            };
+            
+            const cssClass = columnClassMap[column];
+            if (!cssClass) return '';
+            
+            const cell = row.querySelector(`td.${cssClass}`);
             if (!cell) return '';
             
-            // Try to get numeric value first
-            const numericValue = parseFloat(cell.textContent);
-            if (!isNaN(numericValue)) return numericValue;
+            const cellText = cell.textContent.trim();
             
-            // Fall back to string value
-            return cell.textContent.trim().toLowerCase();
+            // Handle different data types for proper sorting
+            switch (column) {
+                case 'lines':
+                    // Extract numeric value from line count
+                    const lineMatch = cellText.match(/[\\d,]+/);
+                    return lineMatch ? parseInt(lineMatch[0].replace(/,/g, '')) : 0;
+                    
+                case 'priority':
+                    // Priority order: Critical > High > Medium > Low
+                    const priorityOrder = { 'critical': 4, 'high': 3, 'medium': 2, 'low': 1 };
+                    const priority = cellText.toLowerCase().replace(/[^a-z]/g, '');
+                    return priorityOrder[priority] || 0;
+                    
+                case 'effort':
+                    // Effort order: High > Medium > Low
+                    const effortOrder = { 'high': 3, 'medium': 2, 'low': 1 };
+                    const effort = cellText.toLowerCase().replace(/[^a-z]/g, '');
+                    return effortOrder[effort] || 0;
+                    
+                case 'status':
+                    // Status order: Missing > Inadequate
+                    const statusOrder = { 'missing': 2, 'inadequate': 1 };
+                    const status = cellText.toLowerCase().replace(/[^a-z]/g, '');
+                    return statusOrder[status] || 0;
+                    
+                case 'issues':
+                    // Count number of issues (extract number from text like "3 issues")
+                    const issueMatch = cellText.match(/(\\d+)/);
+                    return issueMatch ? parseInt(issueMatch[1]) : 0;
+                    
+                default:
+                    // For file names and docs, use alphabetical sorting
+                    return cellText.toLowerCase();
+            }
         }
         
         updateDisplay() {
@@ -420,22 +497,45 @@ def get_table_manager_js() -> str:
                     this.currentPage = Math.max(1, this.totalPages);
                 }
                 
-                // Show/hide rows
-                this.allRows.forEach(row => row.style.display = 'none');
+                // Check if we need to show empty state
+                const emptyState = document.getElementById('empty-state');
+                const table = document.getElementById('gaps-table');
+                const paginationContainer = document.querySelector('.pagination-container');
                 
-                const startIndex = (this.currentPage - 1) * this.pageSize;
-                const endIndex = startIndex + this.pageSize;
-                
-                this.filteredRows.slice(startIndex, endIndex).forEach(row => {
-                    row.style.display = '';
-                });
+                if (this.filteredRows.length === 0) {
+                    // Show empty state, hide table and pagination
+                    if (emptyState) emptyState.style.display = 'block';
+                    if (table) table.style.display = 'none';
+                    if (paginationContainer) paginationContainer.style.display = 'none';
+                    
+                    console.log('📭 No records found - showing empty state');
+                } else {
+                    // Show table and pagination, hide empty state
+                    if (emptyState) emptyState.style.display = 'none';
+                    if (table) table.style.display = 'table';
+                    if (paginationContainer) paginationContainer.style.display = 'flex';
+                    
+                    // First, reorder the DOM to match the sorted filteredRows
+                    this.reorderTableRows();
+                    
+                    // Then show/hide rows based on pagination
+                    this.allRows.forEach(row => row.style.display = 'none');
+                    
+                    const startIndex = (this.currentPage - 1) * this.pageSize;
+                    const endIndex = startIndex + this.pageSize;
+                    
+                    this.filteredRows.slice(startIndex, endIndex).forEach(row => {
+                        row.style.display = '';
+                    });
+                    
+                    console.log(`📊 Display updated - Page ${this.currentPage}/${this.totalPages}, showing ${Math.min(this.pageSize, this.filteredRows.length - startIndex)} rows`);
+                }
                 
                 // Update pagination info
                 this.updatePaginationInfo();
                 this.updatePaginationButtons();
                 this.safeUpdateSortIndicators();
                 
-                console.log(`📊 Display updated - Page ${this.currentPage}/${this.totalPages}, showing ${Math.min(this.pageSize, this.filteredRows.length - startIndex)} rows`);
             } catch (error) {
                 console.error('❌ Error updating display:', error);
             }
@@ -445,39 +545,24 @@ def get_table_manager_js() -> str:
             const startIndex = (this.currentPage - 1) * this.pageSize;
             const endIndex = Math.min(startIndex + this.pageSize, this.filteredRows.length);
             
-            const infoText = `Showing ${startIndex + 1}-${endIndex} of ${this.filteredRows.length} entries`;
+            // Update showing start/end/total elements
+            const showingStart = document.getElementById('showing-start');
+            const showingEnd = document.getElementById('showing-end');
+            const showingTotal = document.getElementById('showing-total');
             
-            const infoElements = [
-                document.getElementById('table-info'),
-                document.getElementById('table-info-bottom')
-            ];
+            if (showingStart) showingStart.textContent = startIndex + 1;
+            if (showingEnd) showingEnd.textContent = endIndex;
+            if (showingTotal) showingTotal.textContent = this.filteredRows.length;
             
-            infoElements.forEach(element => {
-                if (element) {
-                    element.textContent = infoText;
-                }
-            });
-            
-            // Update page indicators
-            const pageText = `Page ${this.currentPage} of ${this.totalPages}`;
-            const pageElements = [
-                document.getElementById('page-indicator'),
-                document.getElementById('page-indicator-bottom')
-            ];
-            
-            pageElements.forEach(element => {
-                if (element) {
-                    element.textContent = pageText;
-                }
-            });
+            console.log(`📊 Pagination info updated: ${startIndex + 1}-${endIndex} of ${this.filteredRows.length}`);
         }
         
         updatePaginationButtons() {
             const buttons = [
-                { ids: ['first-page-btn', 'first-page-btn-bottom'], condition: this.currentPage <= 1 },
-                { ids: ['prev-page-btn', 'prev-page-btn-bottom'], condition: this.currentPage <= 1 },
-                { ids: ['next-page-btn', 'next-page-btn-bottom'], condition: this.currentPage >= this.totalPages },
-                { ids: ['last-page-btn', 'last-page-btn-bottom'], condition: this.currentPage >= this.totalPages }
+                { ids: ['first-page'], condition: this.currentPage <= 1 },
+                { ids: ['prev-page'], condition: this.currentPage <= 1 },
+                { ids: ['next-page'], condition: this.currentPage >= this.totalPages },
+                { ids: ['last-page'], condition: this.currentPage >= this.totalPages }
             ];
             
             buttons.forEach(({ ids, condition }) => {
@@ -488,6 +573,13 @@ def get_table_manager_js() -> str:
                     }
                 });
             });
+            
+            // Update current page input
+            const currentPageInput = document.getElementById('current-page');
+            if (currentPageInput) {
+                currentPageInput.value = this.currentPage;
+                currentPageInput.max = this.totalPages;
+            }
         }
         
         safeUpdateSortIndicators() {
@@ -537,6 +629,33 @@ def get_table_manager_js() -> str:
             }
         }
         
+        reorderTableRows() {
+            if (!this.table || !this.filteredRows.length) return;
+            
+            const tbody = this.table.querySelector('tbody');
+            if (!tbody) return;
+            
+            // Create a document fragment to efficiently reorder the DOM
+            const fragment = document.createDocumentFragment();
+            
+            // Add filtered rows to fragment in sorted order
+            this.filteredRows.forEach(row => {
+                fragment.appendChild(row);
+            });
+            
+            // Add any non-filtered rows (hidden) to the end
+            this.allRows.forEach(row => {
+                if (!this.filteredRows.includes(row)) {
+                    fragment.appendChild(row);
+                }
+            });
+            
+            // Replace tbody content with reordered rows
+            tbody.appendChild(fragment);
+            
+            console.log(`🔄 Table rows reordered - ${this.filteredRows.length} filtered rows in sorted order`);
+        }
+        
         showColumnPicker() {
             // Delegate to modal manager
             if (window.modalManager && window.modalManager.showColumnPicker) {
@@ -574,10 +693,10 @@ def get_table_manager_js() -> str:
                 // Priority/status filter
                 if (this.currentFilter !== 'all') {
                     const priority = row.dataset.priority;
-                    const gapType = row.dataset.gapType;
+                    const status = row.dataset.status; // Using data-status instead of data-gap-type
                     
-                    if (this.currentFilter === 'missing' && gapType !== 'missing') return false;
-                    if (this.currentFilter === 'inadequate' && gapType !== 'inadequate') return false;
+                    if (this.currentFilter === 'missing' && status !== 'missing') return false;
+                    if (this.currentFilter === 'inadequate' && status !== 'inadequate') return false;
                     if (['critical', 'high', 'medium', 'low'].includes(this.currentFilter) && priority !== this.currentFilter) return false;
                 }
                 
@@ -586,6 +705,37 @@ def get_table_manager_js() -> str:
             
             this.currentPage = 1;
             this.updateDisplay();
+        }
+        
+        clearAllFilters() {
+            if (this.isDestroyed) return;
+            
+            console.log('🧹 Clearing all filters');
+            
+            // Reset filter state
+            this.currentFilter = 'all';
+            this.searchTerm = '';
+            this.currentPage = 1;
+            
+            // Reset search input
+            const searchInput = document.getElementById('gap-search');
+            if (searchInput) {
+                searchInput.value = '';
+            }
+            
+            // Reset filter tags
+            document.querySelectorAll('.filter-tag').forEach(tag => {
+                tag.classList.remove('active');
+            });
+            
+            // Activate "All" filter tags
+            document.querySelectorAll('.filter-tag[data-value=""]').forEach(tag => {
+                tag.classList.add('active');
+            });
+            
+            // Apply filters (will show all items)
+            this.applyFilters();
+            this.saveState();
         }
         
         updateFilterTags() {

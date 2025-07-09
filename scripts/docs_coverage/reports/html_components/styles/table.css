@@ -188,23 +188,54 @@
   color: var(--golden-primary);
 }
 
-/* Multi-sort indicators */
+/* Multi-sort indicators - Enhanced for better visibility */
 .sort-primary::before {
-  content: '1️⃣';
+  content: '1';
   position: absolute;
-  left: 0.25rem;
+  left: 0.5rem;
   top: 50%;
   transform: translateY(-50%);
-  font-size: 0.8rem;
+  font-size: 0.75rem;
+  font-weight: bold;
+  background: var(--golden-primary);
+  color: #000;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 }
 
 .sort-secondary::before {
-  content: '2️⃣';
+  content: '2';
   position: absolute;
-  left: 0.25rem;
+  left: 0.5rem;
   top: 50%;
   transform: translateY(-50%);
-  font-size: 0.8rem;
+  font-size: 0.75rem;
+  font-weight: bold;
+  background: var(--golden-secondary, #f39c12);
+  color: #000;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+/* Adjust sortable padding to accommodate multi-sort indicators */
+.sort-primary {
+  padding-left: 2.5rem;
+}
+
+.sort-secondary {
+  padding-left: 2.5rem;
 }
 
 /* Table Body */

@@ -151,10 +151,10 @@
 }
 
 .source-code code {
-  background: none;
+  background: var(--bg-primary, #1a1a1a);
   padding: 1rem;
   font-size: inherit;
-  color: inherit;
+  color: var(--text-primary, #e0e0e0);
   display: block;
   white-space: pre;
   flex: 1;
@@ -164,6 +164,26 @@
   line-height: inherit;
 }
 
+/* Ensure the specific source-code-text element has proper scrolling */
+#source-code-text {
+  overflow: auto !important;
+  height: 100% !important;
+  width: 100% !important;
+  display: block !important;
+  white-space: pre !important;
+  padding: 1rem !important;
+  margin: 0 !important;
+  font-family: 'Consolas', 'Monaco', 'Ubuntu Mono', 'Courier New', monospace !important;
+  font-size: 0.9rem !important;
+  line-height: 1.4 !important;
+  background: var(--bg-primary, #1a1a1a) !important;
+  color: var(--text-primary, #e0e0e0) !important;
+  border: none !important;
+  outline: none !important;
+  flex: 1 !important;
+  min-height: 0 !important;
+}
+
 /* Make sure modal content container allows proper scrolling */
 #source-code-content {
   flex: 1;
@@ -171,6 +191,7 @@
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  height: 100%;
 }
 
 /* Ensure no double scrollbars */

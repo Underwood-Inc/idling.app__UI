@@ -225,18 +225,27 @@ class TableManager {
 
     handleFilterTag(e) {
         // Handle filter tag clicks
-        const filterValue = e.target.dataset.filter;
+        const filterType = e.target.dataset.filter;
+        const filterValue = e.target.dataset.value;
         
-        // Remove active class from all tags
-        document.querySelectorAll('.filter-tag').forEach(tag => {
-            tag.classList.remove('active');
-        });
+        // Remove active class from all tags in the same group
+        const filterGroup = e.target.closest('.filter-group');
+        if (filterGroup) {
+            filterGroup.querySelectorAll('.filter-tag').forEach(tag => {
+                tag.classList.remove('active');
+            });
+        }
         
         // Add active class to clicked tag
         e.target.classList.add('active');
         
-        // Apply filter
-        this.filters.status = filterValue === 'all' ? '' : filterValue;
+        // Apply filter based on type
+        if (filterType === 'priority') {
+            this.filters.priority = filterValue === '' ? '' : filterValue;
+        } else if (filterType === 'status') {
+            this.filters.status = filterValue === '' ? '' : filterValue;
+        }
+        
         this.applyFilters();
         
         // Smooth scroll to table
@@ -602,6 +611,7 @@ export default UserProfile;`;
                 element.textContent = codeContent;
                 
                 // Apply highlight.js
+                // eslint-disable-next-line no-undef
                 hljs.highlightElement(element);
                 
                 // Add additional CSS classes for our custom styling

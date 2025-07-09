@@ -46,13 +46,13 @@ class FilterControlsGenerator:
             </div>
             
             <div class="filter-tags">
-                <span class="filter-tag active" data-filter="all">All ({total_gaps})</span>
-                <span class="filter-tag" data-filter="critical">Critical ({by_priority.get('critical', 0)})</span>
-                <span class="filter-tag" data-filter="high">High ({by_priority.get('high', 0)})</span>
-                <span class="filter-tag" data-filter="medium">Medium ({by_priority.get('medium', 0)})</span>
-                <span class="filter-tag" data-filter="low">Low ({by_priority.get('low', 0)})</span>
-                <span class="filter-tag" data-filter="missing">Missing ({missing_docs})</span>
-                <span class="filter-tag" data-filter="inadequate">Inadequate ({inadequate_docs})</span>
+                <button class="filter-tag active" data-filter="all">All ({total_gaps})</button>
+                <button class="filter-tag" data-filter="critical">Critical ({by_priority.get('critical', 0)})</button>
+                <button class="filter-tag" data-filter="high">High ({by_priority.get('high', 0)})</button>
+                <button class="filter-tag" data-filter="medium">Medium ({by_priority.get('medium', 0)})</button>
+                <button class="filter-tag" data-filter="low">Low ({by_priority.get('low', 0)})</button>
+                <button class="filter-tag" data-filter="missing">Missing ({missing_docs})</button>
+                <button class="filter-tag" data-filter="inadequate">Inadequate ({inadequate_docs})</button>
             </div>
             
             <div class="filter-status-row">
@@ -232,11 +232,21 @@ class FilterControlsGenerator:
             font-size: var(--font-size-sm);
             transition: all 0.2s ease;
             white-space: nowrap;
+            font-family: inherit;
+            font-weight: 500;
+            outline: none;
+            user-select: none;
         }
         
         .filter-tag:hover {
             background: var(--bg-hover);
             border-color: var(--color-primary);
+        }
+        
+        .filter-tag:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 2px rgba(var(--color-primary-rgb), 0.1);
         }
         
         .filter-tag.active {
