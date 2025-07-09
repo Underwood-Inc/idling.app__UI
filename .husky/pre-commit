@@ -5,6 +5,16 @@
 
 set -e
 
+# ============================================================================
+# INFINITE LOOP PREVENTION
+# ============================================================================
+
+# Check if we're in a post-commit auto-commit context
+if [ -f ".git/post-commit-in-progress" ]; then
+    echo "🔄 Skipping pre-commit hook - post-commit auto-commit in progress"
+    exit 0
+fi
+
 echo "🧙‍♂️ Performing pre-commit quality assurance checks..."
 
 # ============================================================================
@@ -273,31 +283,54 @@ print_status "🎯 Updating documentation badges in key locations..."
 
 # Update root README.md if it exists
 if [ -f "README.md" ]; then
-    # Check if badge already exists
-    if ! grep -q "Documentation Coverage" "README.md" 2>/dev/null; then
-        # Add badge after React badge in Code Analysis section
-        sed -i '/!\[React\]/a [![Documentation Coverage]('"${badge_url}"')](https://underwood-inc.github.io/idling.app__UI/)' "README.md"
-        print_success "Added documentation badge to README.md"
+    # Create a backup
+    cp README.md README.md.bak
+    
+    # Use Python for safe, precise badge replacement (only update existing badges)
+    BADGE_URL="$badge_url" python3 -c "
+import re
+import sys
+import os
+
+# Read the current README
+with open('README.md', 'r') as f:
+    content = f.read()
+
+# The new badge markdown (get badge_url from environment)
+badge_url = os.environ.get('BADGE_URL', '')
+if not badge_url:
+    print('ERROR: No badge URL provided')
+    sys.exit(1)
+
+new_badge = f'[![Documentation Coverage]({badge_url})](https://underwood-inc.github.io/idling.app__UI/)'
+
+# Pattern to match the existing Documentation Coverage badge (very specific)
+doc_badge_pattern = r'\[!\[Documentation Coverage\]\([^)]*\)\]\([^)]*\)'
+
+# Only update if the badge already exists
+if re.search(doc_badge_pattern, content):
+    # Replace the existing badge
+    content = re.sub(doc_badge_pattern, new_badge, content)
+    print('Updated existing Documentation Coverage badge')
+    
+    # Write the updated content
+    with open('README.md', 'w') as f:
+        f.write(content)
+else:
+    print('No existing Documentation Coverage badge found to update')
+"
+    
+    # Check if the Python script succeeded
+    if [ $? -eq 0 ]; then
+        print_success "Successfully updated documentation badge in README.md"
+        rm README.md.bak
     else
-        # Update existing badge URL only (don't add duplicates)
-        sed -i 's|https://img\.shields\.io/badge/Documentation%20Coverage-[^)]*|'"${badge_url}"'|g' "README.md"
-        print_success "Updated documentation badge in README.md"
+        print_error "Failed to update documentation badge, restoring backup"
+        mv README.md.bak README.md
     fi
 fi
 
-# Update main index.md if it exists
-if [ -f "src/index.md" ]; then
-    # Check if badge already exists
-    if ! grep -q "Documentation Coverage" "src/index.md" 2>/dev/null; then
-        # Add badge after the first header
-        sed -i '/^# /a\\n[![Documentation Coverage]('"${badge_url}"')](./coverage/)\n' "src/index.md"
-        print_success "Added documentation badge to src/index.md"
-    else
-        # Update existing badge URL only (don't add duplicates)
-        sed -i 's|https://img\.shields\.io/badge/Documentation%20Coverage-[^)]*|'"${badge_url}"'|g' "src/index.md"
-        print_success "Updated documentation badge in src/index.md"
-    fi
-fi
+# Note: Jekyll-related badge updates removed as project no longer uses Jekyll
 
 # ============================================================================
 # FINAL VALIDATION

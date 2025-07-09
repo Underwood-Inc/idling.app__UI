@@ -29,20 +29,96 @@ if echo "$LAST_COMMIT_MSG" | grep -q "chore: bump version to"; then
   exit 0
 fi
 
+# Check if this commit is already a badge update commit (to prevent infinite loop)
+if echo "$LAST_COMMIT_MSG" | grep -q "docs: update documentation coverage badges"; then
+  # This is already a badge update commit, don't create another one
+  rm "$LOCK_FILE" 2>/dev/null || true
+  exit 0
+fi
+
 # Run version bump script with the commit message
 echo "$LAST_COMMIT_MSG" | node scripts/version-bump-from-msg.js
+
+# Track if we need to make a commit
+NEEDS_COMMIT=false
+FILES_TO_ADD=""
 
 # Check if package.json was modified by the version bump
 if [ -n "$(git status --porcelain package.json)" ]; then
   # Get the new version from package.json
   NEW_VERSION=$(node -p "require('./package.json').version")
   
-  # Stage and commit the version bump
+  # Stage the package.json changes
   git add package.json
-  git commit -m "chore: bump version to $NEW_VERSION
+  FILES_TO_ADD="package.json"
+  NEEDS_COMMIT=true
+fi
+
+# Check for badge update files that were modified by the pre-commit hook
+BADGE_FILES_MODIFIED=""
+
+# Check the actual files that get modified by the pre-commit hook
+if [ -n "$(git status --porcelain README.md)" ]; then
+  git add README.md
+  BADGE_FILES_MODIFIED="README.md"
+fi
+
+if [ -n "$(git status --porcelain static/coverage/documentation-badge.md)" ]; then
+  git add static/coverage/documentation-badge.md
+  if [ -n "$BADGE_FILES_MODIFIED" ]; then
+    BADGE_FILES_MODIFIED="$BADGE_FILES_MODIFIED static/coverage/documentation-badge.md"
+  else
+    BADGE_FILES_MODIFIED="static/coverage/documentation-badge.md"
+  fi
+fi
+
+if [ -n "$(git status --porcelain static/coverage/index.html)" ]; then
+  git add static/coverage/index.html
+  if [ -n "$BADGE_FILES_MODIFIED" ]; then
+    BADGE_FILES_MODIFIED="$BADGE_FILES_MODIFIED static/coverage/index.html"
+  else
+    BADGE_FILES_MODIFIED="static/coverage/index.html"
+  fi
+fi
+
+# If we have badge files modified, handle them
+if [ -n "$BADGE_FILES_MODIFIED" ]; then
+  if [ "$NEEDS_COMMIT" = true ]; then
+    FILES_TO_ADD="$FILES_TO_ADD and badge files"
+  else
+    FILES_TO_ADD="badge files"
+    NEEDS_COMMIT=true
+  fi
+fi
+
+# Make the commit if we have changes
+if [ "$NEEDS_COMMIT" = true ]; then
+  # Create flag to prevent pre-commit hook from running during auto-commit
+  touch .git/post-commit-in-progress
+  
+  if [ -n "$NEW_VERSION" ] && [ -n "$BADGE_FILES_MODIFIED" ]; then
+    git commit -m "chore: bump version to $NEW_VERSION and update badges
 
 - Automatic version increment based on previous commit
+- Updated documentation coverage badges
+- Updated $FILES_TO_ADD
 - This commit will not trigger further version bumps"
+  elif [ -n "$NEW_VERSION" ]; then
+    git commit -m "chore: bump version to $NEW_VERSION
+
+- Automatic version increment based on previous commit
+- Updated $FILES_TO_ADD
+- This commit will not trigger further version bumps"
+  elif [ -n "$BADGE_FILES_MODIFIED" ]; then
+    git commit -m "docs: update documentation coverage badges
+
+- Automatic badge update based on documentation coverage analysis
+- Updated $FILES_TO_ADD
+- This commit will not trigger further badge updates"
+  fi
+  
+  # Remove flag after commit is complete
+  rm -f .git/post-commit-in-progress
 fi
 
 # Clean up old lock files (keep only the last 5)
