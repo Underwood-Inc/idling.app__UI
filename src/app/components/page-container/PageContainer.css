@@ -13,3 +13,33 @@
   /* Ensure no scrollbar on container */
   height: auto;
 }
+
+/* Card Generator specific layout adjustments */
+/* Target the card-generator route specifically */
+[data-route="/card-generator"] .page__container,
+body:has([data-testid="card-generator"]) .page__container {
+  margin-right: calc(28vw + 1rem);
+}
+
+/* Remove aside margin on smaller screens where aside is hidden */
+@media (max-width: 1024px) {
+  [data-route="/card-generator"] .page__container,
+  body:has([data-testid="card-generator"]) .page__container {
+    margin-right: 0;
+  }
+}
+
+/* Responsive aside margins for different screen sizes */
+@media (min-width: 1400px) {
+  [data-route="/card-generator"] .page__container,
+  body:has([data-testid="card-generator"]) .page__container {
+    margin-right: calc(26vw + 1.5rem);
+  }
+}
+
+@media (min-width: 1600px) {
+  [data-route="/card-generator"] .page__container,
+  body:has([data-testid="card-generator"]) .page__container {
+    margin-right: calc(24vw + 2rem);
+  }
+}

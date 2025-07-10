@@ -3,7 +3,7 @@
   position: fixed;
   top: 156px; /* Align with main content instead of header */
   right: 2rem;
-  width: calc(28vw - 2rem);
+  width: calc(26vw - 2rem);
   max-height: calc(100vh - 160px); /* Adjust for new positioning */
   z-index: 50; /* Lower z-index to avoid conflicts */
   overflow: visible;
@@ -108,14 +108,14 @@
 /* Refined desktop sizing */
 @media (min-width: 1400px) {
   .page-aside__container {
-    width: calc(26vw - 2rem);
+    width: calc(24vw - 2rem);
     right: 2.5rem;
   }
 }
 
 @media (min-width: 1600px) {
   .page-aside__container {
-    width: calc(24vw - 2rem);
+    width: calc(22vw - 2rem);
     right: 3rem;
   }
 }
