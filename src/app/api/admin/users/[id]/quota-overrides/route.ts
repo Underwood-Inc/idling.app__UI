@@ -8,8 +8,6 @@
  * @author System
  */
 
-import { withUserPermissions } from '@/lib/api/wrappers/withUserPermissions';
-import { withUserRoles } from '@/lib/api/wrappers/withUserRoles';
 import { auth } from '@/lib/auth';
 import sql from '@/lib/db';
 import { withRateLimit } from '@/lib/middleware/withRateLimit';
@@ -400,7 +398,4 @@ async function deleteHandler(
 export const PUT = withRateLimit(putHandler);
 export const DELETE = withRateLimit(deleteHandler);
 
-// At the end of the file, wrap the handler:
-
-// export default handler;
-export default withUserRoles(withUserPermissions(handler)); 
+// Removed default export - Next.js API routes should only use named exports 

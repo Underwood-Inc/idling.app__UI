@@ -8,8 +8,6 @@
  * @author System
  */
 
-import { withUserPermissions } from '@/lib/api/wrappers/withUserPermissions';
-import { withUserRoles } from '@/lib/api/wrappers/withUserRoles';
 import { auth } from '@/lib/auth';
 import sql from '@/lib/db';
 import { withRateLimit } from '@/lib/middleware/withRateLimit';
@@ -65,7 +63,7 @@ async function validateAdminAccess(userId: number): Promise<boolean> {
 async function validateUserExists(userId: string): Promise<boolean> {
   try {
     const result = await sql`
-      SELECT 1 FROM users WHERE id = ${userId}
+      SELECT 1 FROM users WHERE id = ${parseInt(userId)}
     `;
     return result.length > 0;
   } catch (error) {
@@ -172,7 +170,7 @@ async function postHandler(
       FROM subscription_usage su
       JOIN subscription_services ss ON su.service_id = ss.id
       JOIN subscription_features sf ON su.feature_id = sf.id
-      WHERE su.user_id = ${params.id}
+      WHERE su.user_id = ${parseInt(params.id)}
       AND ss.name = ${service_name}
       AND sf.name = ${feature_name}
       AND su.usage_date >= CURRENT_DATE - INTERVAL '30 days'
@@ -186,7 +184,7 @@ async function postHandler(
       USING subscription_services ss, subscription_features sf
       WHERE su.service_id = ss.id
       AND su.feature_id = sf.id
-      AND su.user_id = ${params.id}
+      AND su.user_id = ${parseInt(params.id)}
       AND ss.name = ${service_name}
       AND sf.name = ${feature_name}
       AND su.usage_date >= CURRENT_DATE - INTERVAL '30 days'
@@ -197,7 +195,7 @@ async function postHandler(
       session.user.id,
       'user_quota_usage_reset',
       {
-        target_user_id: params.id,
+        target_user_id: parseInt(params.id),
         service_name,
         feature_name,
         previous_usage: previousUsage,
@@ -230,7 +228,4 @@ async function postHandler(
 }
 
 // Apply rate limiting to handler
-export const POST = withRateLimit(postHandler);
-
-// export default handler;
-export default withUserRoles(withUserPermissions(postHandler)); 
+export const POST = withRateLimit(postHandler); 

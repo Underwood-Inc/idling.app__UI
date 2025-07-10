@@ -117,7 +117,7 @@
       rgba(0, 0, 0, 0.1) 100%
     );
   }
-}
+  }
 
 /* Hover effects for non-profile cards */
 .card:not(.profile-page__main-card):hover {
@@ -133,7 +133,7 @@
   .card {
     transition: none;
   }
-  
+
   .card:hover {
     transform: none;
   }

@@ -222,7 +222,7 @@ export function useUrlSync({
     if (newUrl !== currentUrl) {
       router.replace(newUrl); // Use replace to avoid history pollution
     }
-      }, [urlParams, pathname, router, searchParams]);
+  }, [urlParams, pathname, router, searchParams]);
 
   return {
     urlParams

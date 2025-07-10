@@ -403,18 +403,18 @@
   .user-profile__bio {
     background: rgba(0, 0, 0, 0.15);
     border-color: rgba(237, 174, 73, 0.25);
-  }
-  
-  .user-profile__stat {
+}
+
+.user-profile__stat {
     background: rgba(0, 0, 0, 0.2);
     border-color: rgba(237, 174, 73, 0.3);
-  }
-  
+}
+
   .user-profile--compact {
     background: rgba(0, 0, 0, 0.2);
     border-color: rgba(237, 174, 73, 0.3);
-  }
-  
+}
+
   .user-profile--tooltip {
     background: rgba(0, 0, 0, 0.3);
     border-color: rgba(237, 174, 73, 0.4);
@@ -428,24 +428,24 @@
     gap: 1rem;
     text-align: center;
   }
-  
+
   .user-profile__name {
     font-size: 2rem;
   }
-  
+
   .user-profile__stats {
     grid-template-columns: 1fr;
     gap: 1rem;
   }
-  
+
   .user-profile__stat {
     padding: 1rem;
   }
-  
+
   .user-profile__stat-number {
     font-size: 2rem;
   }
-  
+
   .user-profile__bio {
     padding: 1.5rem;
   }
@@ -455,12 +455,12 @@
   .user-profile__name {
     font-size: 1.75rem;
   }
-  
+
   .user-profile__header-top {
     flex-direction: column;
     align-items: center;
   }
-  
+
   .user-profile__location,
   .user-profile__join-date {
     padding: 0.5rem 0.75rem;

@@ -9,8 +9,6 @@
  */
 
 import { checkUserPermission } from '@/lib/actions/permissions.actions';
-import { withUserPermissions } from '@/lib/api/wrappers/withUserPermissions';
-import { withUserRoles } from '@/lib/api/wrappers/withUserRoles';
 import { auth } from '@/lib/auth';
 import sql from '@/lib/db';
 import { withRateLimit } from '@lib/middleware/withRateLimit';
@@ -222,5 +220,4 @@ async function getHandler(
 // Apply rate limiting to handler
 export const GET = withRateLimit(getHandler);
 
-// export default getHandler;
-export default withUserRoles(withUserPermissions(getHandler)); 
+// Removed default export - Next.js API routes should only use named exports 
