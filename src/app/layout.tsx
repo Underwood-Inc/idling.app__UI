@@ -8,7 +8,6 @@ import { OverlayProvider } from '../lib/context/OverlayContext';
 import { UserPreferencesProvider } from '../lib/context/UserPreferencesContext';
 import { JotaiProvider } from '../lib/state/JotaiProvider';
 import { SessionRefreshHandler } from './components/auth-buttons/SessionRefreshHandler';
-import AvatarsBackground from './components/avatars-background/AvatarsBackground';
 import SimpleBannerSystem from './components/banner-system/SimpleBannerSystem';
 import { NotFoundErrorBoundary } from './components/error-boundary/NotFoundErrorBoundary';
 import FadeIn from './components/fade-in/FadeIn';
@@ -17,6 +16,7 @@ import Header from './components/header/Header';
 import Loader from './components/loader/Loader';
 import MessageTickerWithInterval from './components/message-ticker/MessageTickerWithInterval';
 import PWAInstallPrompt from './components/pwa-install/PWAInstallPrompt';
+import RetroSpaceBackground from './components/retro-space-background/RetroSpaceBackground';
 import { HardResetManager } from './components/service-worker/HardResetManager';
 import { ServiceWorkerRegistration } from './components/service-worker/ServiceWorkerRegistration';
 import TimeoutBanner from './components/timeout-banner/TimeoutBanner';
@@ -294,7 +294,11 @@ export default function RootLayout({
                   <SimpleBannerSystem />
                   <TimeoutBanner />
                   <main>
-                    <AvatarsBackground />
+                    <RetroSpaceBackground
+                      movementDirection="forward"
+                      movementSpeed="normal"
+                      // enableSpeedLines
+                    />
 
                     <Header />
 

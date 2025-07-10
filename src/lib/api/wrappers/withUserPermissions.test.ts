@@ -1,17 +1,24 @@
+/**
+ * @jest-environment node
+ */
 import { NextRequest, NextResponse } from 'next/server';
 import { withUserPermissions } from './withUserPermissions';
 
+// Mock the auth module
 jest.mock('../../auth', () => ({
   auth: jest.fn()
 }));
+
+// Mock the permissions module
 jest.mock('../../permissions/permissions', () => ({
   PermissionsService: {
     getUserPermissions: jest.fn()
   }
 }));
 
-const { auth } = require('../../auth');
-const { PermissionsService } = require('../../permissions/permissions');
+// Import the mocked modules
+import { auth } from '../../auth';
+import { PermissionsService } from '../../permissions/permissions';
 
 describe('withUserPermissions', () => {
   const mockHandler = jest.fn();
@@ -23,8 +30,8 @@ describe('withUserPermissions', () => {
   });
 
   it('adds userPermissions to JSON response for authenticated user with permissions', async () => {
-    auth.mockResolvedValue({ user: { id: '42' } });
-    PermissionsService.getUserPermissions.mockResolvedValue([{ name: 'read' }, { name: 'write' }]);
+    (auth as jest.Mock).mockResolvedValue({ user: { id: '42' } });
+    (PermissionsService.getUserPermissions as jest.Mock).mockResolvedValue([{ name: 'read' }, { name: 'write' }]);
     mockHandler.mockResolvedValue(NextResponse.json({ foo: 'bar' }));
 
     const wrapped = withUserPermissions(mockHandler);
@@ -35,8 +42,8 @@ describe('withUserPermissions', () => {
   });
 
   it('adds empty userPermissions if user has no permissions', async () => {
-    auth.mockResolvedValue({ user: { id: '42' } });
-    PermissionsService.getUserPermissions.mockResolvedValue([]);
+    (auth as jest.Mock).mockResolvedValue({ user: { id: '42' } });
+    (PermissionsService.getUserPermissions as jest.Mock).mockResolvedValue([]);
     mockHandler.mockResolvedValue(NextResponse.json({ foo: 'bar' }));
 
     const wrapped = withUserPermissions(mockHandler);
@@ -46,7 +53,7 @@ describe('withUserPermissions', () => {
   });
 
   it('does not add userPermissions if unauthenticated', async () => {
-    auth.mockResolvedValue(null);
+    (auth as jest.Mock).mockResolvedValue(null);
     mockHandler.mockResolvedValue(NextResponse.json({ foo: 'bar' }));
 
     const wrapped = withUserPermissions(mockHandler);
@@ -56,8 +63,8 @@ describe('withUserPermissions', () => {
   });
 
   it('returns non-JSON response as is', async () => {
-    auth.mockResolvedValue({ user: { id: '42' } });
-    PermissionsService.getUserPermissions.mockResolvedValue([{ name: 'read' }]);
+    (auth as jest.Mock).mockResolvedValue({ user: { id: '42' } });
+    (PermissionsService.getUserPermissions as jest.Mock).mockResolvedValue([{ name: 'read' }]);
     const nonJson = new NextResponse('not json', { status: 200 });
     mockHandler.mockResolvedValue(nonJson);
 
@@ -67,8 +74,8 @@ describe('withUserPermissions', () => {
   });
 
   it('does not throw if PermissionsService fails', async () => {
-    auth.mockResolvedValue({ user: { id: '42' } });
-    PermissionsService.getUserPermissions.mockRejectedValue(new Error('fail'));
+    (auth as jest.Mock).mockResolvedValue({ user: { id: '42' } });
+    (PermissionsService.getUserPermissions as jest.Mock).mockRejectedValue(new Error('fail'));
     mockHandler.mockResolvedValue(NextResponse.json({ foo: 'bar' }));
 
     const wrapped = withUserPermissions(mockHandler);
@@ -78,8 +85,8 @@ describe('withUserPermissions', () => {
   });
 
   it('is composable with another wrapper', async () => {
-    auth.mockResolvedValue({ user: { id: '42' } });
-    PermissionsService.getUserPermissions.mockResolvedValue([{ name: 'read' }]);
+    (auth as jest.Mock).mockResolvedValue({ user: { id: '42' } });
+    (PermissionsService.getUserPermissions as jest.Mock).mockResolvedValue([{ name: 'read' }]);
     mockHandler.mockResolvedValue(NextResponse.json({ foo: 'bar' }));
 
     // Dummy wrapper that adds a property

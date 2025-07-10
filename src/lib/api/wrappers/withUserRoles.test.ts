@@ -1,17 +1,24 @@
+/**
+ * @jest-environment node
+ */
 import { NextRequest, NextResponse } from 'next/server';
 import { withUserRoles } from './withUserRoles';
 
+// Mock the auth module
 jest.mock('../../auth', () => ({
   auth: jest.fn()
 }));
+
+// Mock the permissions module
 jest.mock('../../permissions/permissions', () => ({
   PermissionsService: {
     getUserRoles: jest.fn()
   }
 }));
 
-const { auth } = require('../../auth');
-const { PermissionsService } = require('../../permissions/permissions');
+// Import the mocked modules
+import { auth } from '../../auth';
+import { PermissionsService } from '../../permissions/permissions';
 
 describe('withUserRoles', () => {
   const mockHandler = jest.fn();
@@ -23,8 +30,8 @@ describe('withUserRoles', () => {
   });
 
   it('adds userRoles to JSON response for authenticated user with roles', async () => {
-    auth.mockResolvedValue({ user: { id: '42' } });
-    PermissionsService.getUserRoles.mockResolvedValue([{ name: 'admin' }, { name: 'wizard' }]);
+    (auth as jest.Mock).mockResolvedValue({ user: { id: '42' } });
+    (PermissionsService.getUserRoles as jest.Mock).mockResolvedValue([{ name: 'admin' }, { name: 'wizard' }]);
     mockHandler.mockResolvedValue(NextResponse.json({ foo: 'bar' }));
 
     const wrapped = withUserRoles(mockHandler);
@@ -35,8 +42,8 @@ describe('withUserRoles', () => {
   });
 
   it('adds empty userRoles if user has no roles', async () => {
-    auth.mockResolvedValue({ user: { id: '42' } });
-    PermissionsService.getUserRoles.mockResolvedValue([]);
+    (auth as jest.Mock).mockResolvedValue({ user: { id: '42' } });
+    (PermissionsService.getUserRoles as jest.Mock).mockResolvedValue([]);
     mockHandler.mockResolvedValue(NextResponse.json({ foo: 'bar' }));
 
     const wrapped = withUserRoles(mockHandler);
@@ -46,7 +53,7 @@ describe('withUserRoles', () => {
   });
 
   it('does not add userRoles if unauthenticated', async () => {
-    auth.mockResolvedValue(null);
+    (auth as jest.Mock).mockResolvedValue(null);
     mockHandler.mockResolvedValue(NextResponse.json({ foo: 'bar' }));
 
     const wrapped = withUserRoles(mockHandler);
@@ -56,8 +63,8 @@ describe('withUserRoles', () => {
   });
 
   it('returns non-JSON response as is', async () => {
-    auth.mockResolvedValue({ user: { id: '42' } });
-    PermissionsService.getUserRoles.mockResolvedValue([{ name: 'admin' }]);
+    (auth as jest.Mock).mockResolvedValue({ user: { id: '42' } });
+    (PermissionsService.getUserRoles as jest.Mock).mockResolvedValue([{ name: 'admin' }]);
     const nonJson = new NextResponse('not json', { status: 200 });
     mockHandler.mockResolvedValue(nonJson);
 
@@ -67,8 +74,8 @@ describe('withUserRoles', () => {
   });
 
   it('does not throw if PermissionsService fails', async () => {
-    auth.mockResolvedValue({ user: { id: '42' } });
-    PermissionsService.getUserRoles.mockRejectedValue(new Error('fail'));
+    (auth as jest.Mock).mockResolvedValue({ user: { id: '42' } });
+    (PermissionsService.getUserRoles as jest.Mock).mockRejectedValue(new Error('fail'));
     mockHandler.mockResolvedValue(NextResponse.json({ foo: 'bar' }));
 
     const wrapped = withUserRoles(mockHandler);
@@ -78,8 +85,8 @@ describe('withUserRoles', () => {
   });
 
   it('is composable with another wrapper', async () => {
-    auth.mockResolvedValue({ user: { id: '42' } });
-    PermissionsService.getUserRoles.mockResolvedValue([{ name: 'admin' }]);
+    (auth as jest.Mock).mockResolvedValue({ user: { id: '42' } });
+    (PermissionsService.getUserRoles as jest.Mock).mockResolvedValue([{ name: 'admin' }]);
     mockHandler.mockResolvedValue(NextResponse.json({ foo: 'bar' }));
 
     // Dummy wrapper that adds a property
