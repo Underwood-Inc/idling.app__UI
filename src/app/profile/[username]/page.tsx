@@ -13,7 +13,7 @@ import { PageContainer } from '../../components/page-container/PageContainer';
 import PageContent from '../../components/page-content/PageContent';
 import { InstantLink } from '../../components/ui/InstantLink';
 import { ProfilePageClient } from './ProfilePageClient';
-import './profile-page.css';
+import './profile-page.scss';
 
 interface ProfilePageProps {
   params: {
@@ -130,110 +130,102 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
 
         <PageAside className="profile-page__aside" bottomMargin={10}>
           <FadeIn>
-            <Card width="full">
-              <h3 className="profile-page__aside-title">Profile Info</h3>
-              <div className="profile-page__info-grid">
-                {joinDate && (
-                  <div className="profile-page__info-item">
-                    <span className="profile-page__info-icon">📅</span>
-                    <div className="profile-page__info-content">
-                      <span className="profile-page__info-label">Joined</span>
-                      <span className="profile-page__info-value">
-                        {joinDate}
-                      </span>
-                    </div>
-                  </div>
-                )}
-
-                {lastActivity && (
-                  <div className="profile-page__info-item">
-                    <span className="profile-page__info-icon">🔥</span>
-                    <div className="profile-page__info-content">
-                      <span className="profile-page__info-label">
-                        Last Active
-                      </span>
-                      <span className="profile-page__info-value">
-                        {lastActivity}
-                      </span>
-                    </div>
-                  </div>
-                )}
-
+            <h3 className="profile-page__aside-title">Profile Info</h3>
+            <div className="profile-page__info-grid">
+              {joinDate && (
                 <div className="profile-page__info-item">
-                  <span className="profile-page__info-icon">📊</span>
+                  <span className="profile-page__info-icon">📅</span>
                   <div className="profile-page__info-content">
-                    <span className="profile-page__info-label">
-                      Total Posts
-                    </span>
-                    <span className="profile-page__info-value">
-                      {userProfile.total_submissions || 0}
-                    </span>
-                  </div>
-                </div>
-
-                <InstantLink
-                  href={`/posts?author=${userProfile.id}`}
-                  className="profile-page__info-item profile-page__info-item--clickable"
-                  title="View all posts by this user"
-                  aria-label={`View all ${userProfile.total_submissions || 0} posts by ${userProfile.username || userProfile.name}`}
-                >
-                  <div className="profile-page__info-wrapper">
-                    <span className="profile-page__info-icon">📝</span>
-                    <div className="profile-page__info-content">
-                      <span className="profile-page__info-label">
-                        View Posts
-                      </span>
-                      <span className="profile-page__info-value">
-                        Browse All →
-                      </span>
-                    </div>
-                  </div>
-                </InstantLink>
-
-                <InstantLink
-                  href={`/posts?author=${userProfile.id}&onlyReplies=true`}
-                  className="profile-page__info-item profile-page__info-item--clickable"
-                  title="View only replies by this user"
-                  aria-label={`View all ${userProfile.replies_count || 0} replies by ${userProfile.username || userProfile.name}`}
-                >
-                  <div className="profile-page__info-wrapper">
-                    <span className="profile-page__info-icon">💬</span>
-                    <div className="profile-page__info-content">
-                      <span className="profile-page__info-label">
-                        {userProfile.replies_count || 0} Replies
-                      </span>
-                      <span className="profile-page__info-value">
-                        View Replies →
-                      </span>
-                    </div>
-                  </div>
-                </InstantLink>
-
-                <div className="profile-page__info-item">
-                  <span className="profile-page__info-icon">🌟</span>
-                  <div className="profile-page__info-content">
-                    <span className="profile-page__info-label">Profile</span>
-                    <span className="profile-page__info-value">
-                      {userProfile.profile_public !== false
-                        ? 'Public'
-                        : 'Private'}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              {isOwnProfile && (
-                <div className="profile-page__owner-actions">
-                  <div className="profile-page__owner-note">
-                    <span className="profile-page__owner-icon">ℹ️</span>
-                    <p>
-                      This is your profile. You can edit your bio in the main
-                      section.
-                    </p>
+                    <span className="profile-page__info-label">Joined</span>
+                    <span className="profile-page__info-value">{joinDate}</span>
                   </div>
                 </div>
               )}
-            </Card>
+
+              {lastActivity && (
+                <div className="profile-page__info-item">
+                  <span className="profile-page__info-icon">🔥</span>
+                  <div className="profile-page__info-content">
+                    <span className="profile-page__info-label">
+                      Last Active
+                    </span>
+                    <span className="profile-page__info-value">
+                      {lastActivity}
+                    </span>
+                  </div>
+                </div>
+              )}
+
+              <div className="profile-page__info-item">
+                <span className="profile-page__info-icon">📊</span>
+                <div className="profile-page__info-content">
+                  <span className="profile-page__info-label">Total Posts</span>
+                  <span className="profile-page__info-value">
+                    {userProfile.total_submissions || 0}
+                  </span>
+                </div>
+              </div>
+
+              <InstantLink
+                href={`/posts?author=${userProfile.id}`}
+                className="profile-page__info-item profile-page__info-item--clickable"
+                title="View all posts by this user"
+                aria-label={`View all ${userProfile.total_submissions || 0} posts by ${userProfile.username || userProfile.name}`}
+              >
+                <div className="profile-page__info-wrapper">
+                  <span className="profile-page__info-icon">📝</span>
+                  <div className="profile-page__info-content">
+                    <span className="profile-page__info-label">View Posts</span>
+                    <span className="profile-page__info-value">
+                      Browse All →
+                    </span>
+                  </div>
+                </div>
+              </InstantLink>
+
+              <InstantLink
+                href={`/posts?author=${userProfile.id}&onlyReplies=true`}
+                className="profile-page__info-item profile-page__info-item--clickable"
+                title="View only replies by this user"
+                aria-label={`View all ${userProfile.replies_count || 0} replies by ${userProfile.username || userProfile.name}`}
+              >
+                <div className="profile-page__info-wrapper">
+                  <span className="profile-page__info-icon">💬</span>
+                  <div className="profile-page__info-content">
+                    <span className="profile-page__info-label">
+                      {userProfile.replies_count || 0} Replies
+                    </span>
+                    <span className="profile-page__info-value">
+                      View Replies →
+                    </span>
+                  </div>
+                </div>
+              </InstantLink>
+
+              <div className="profile-page__info-item">
+                <span className="profile-page__info-icon">🌟</span>
+                <div className="profile-page__info-content">
+                  <span className="profile-page__info-label">Profile</span>
+                  <span className="profile-page__info-value">
+                    {userProfile.profile_public !== false
+                      ? 'Public'
+                      : 'Private'}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {isOwnProfile && (
+              <div className="profile-page__owner-actions">
+                <div className="profile-page__owner-note">
+                  <span className="profile-page__owner-icon">ℹ️</span>
+                  <p>
+                    This is your profile. You can edit your bio in the main
+                    section.
+                  </p>
+                </div>
+              </div>
+            )}
           </FadeIn>
         </PageAside>
       </PageContainer>

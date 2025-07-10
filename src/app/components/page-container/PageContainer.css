@@ -7,4 +7,9 @@
   justify-content: flex-start;
   display: flex;
   flex: 1;
+  /* Remove min-height that causes scrollbar issues */
+  width: 100%;
+  overflow: visible;
+  /* Ensure no scrollbar on container */
+  height: auto;
 }

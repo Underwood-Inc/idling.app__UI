@@ -1,7 +1,19 @@
+@import '../../../styles/glassmorphism.scss';
+
 .footer {
-  position: relative;
-  background-color: var(--dark-background--primary);
+  // Apply glassmorphism with the current dark background color at 80% opacity
+  @include glassmorphism(
+    $color: #1a1611,
+    $opacity: 0.7,
+    $blur: 12px,
+    $include-border: false // We'll use custom border
+  );
+  
+  // Keep the existing custom border style
   border-top: 2px solid var(--dark-background--quinary);
+  
+  // Keep all existing styles
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -28,4 +40,4 @@
   .footer__app-version {
     right: 0.5rem;
   }
-}
+} 

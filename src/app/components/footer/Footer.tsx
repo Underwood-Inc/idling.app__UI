@@ -2,7 +2,7 @@ import React from 'react';
 import AppVersion from '../app-version/AppVersion';
 import SmartCacheStatus from '../cache-status/SmartCacheStatus';
 import FooterNav from '../footer-nav/FooterNav';
-import './Footer.css';
+import './Footer.scss';
 
 const Footer = (): React.JSX.Element => {
   return (

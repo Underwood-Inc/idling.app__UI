@@ -27,6 +27,24 @@ export type FontOption = 'monospace' | 'default';
 export type ProfileVisibility = 'public' | 'private';
 export type AccessibilityFocusMode = 'disabled' | 'enabled';
 
+// RetroSpaceBackground settings types
+export type BackgroundMovementDirection =
+  | 'static'
+  | 'forward'
+  | 'backward'
+  | 'left'
+  | 'right'
+  | 'up'
+  | 'down';
+export type BackgroundMovementSpeed = 'slow' | 'normal' | 'fast';
+export type BackgroundAnimationLayers = {
+  stars: boolean;
+  particles: boolean;
+  nebula: boolean;
+  planets: boolean;
+  aurora: boolean;
+};
+
 interface UserPreferencesContextType {
   // Spacing theme
   spacingTheme: SpacingTheme;
@@ -52,6 +70,18 @@ interface UserPreferencesContextType {
   accessibilityFocusMode: AccessibilityFocusMode;
   setAccessibilityFocusMode: (mode: AccessibilityFocusMode) => Promise<void>;
 
+  // Background settings
+  backgroundMovementDirection: BackgroundMovementDirection;
+  setBackgroundMovementDirection: (
+    direction: BackgroundMovementDirection
+  ) => Promise<void>;
+  backgroundMovementSpeed: BackgroundMovementSpeed;
+  setBackgroundMovementSpeed: (speed: BackgroundMovementSpeed) => Promise<void>;
+  backgroundAnimationLayers: BackgroundAnimationLayers;
+  setBackgroundAnimationLayers: (
+    layers: BackgroundAnimationLayers
+  ) => Promise<void>;
+
   // Loading states
   isUpdatingSpacingTheme: boolean;
   isUpdatingPaginationMode: boolean;
@@ -59,6 +89,9 @@ interface UserPreferencesContextType {
   isUpdatingFontPreference: boolean;
   isUpdatingProfileVisibility: boolean;
   isUpdatingAccessibilityFocusMode: boolean;
+  isUpdatingBackgroundMovementDirection: boolean;
+  isUpdatingBackgroundMovementSpeed: boolean;
+  isUpdatingBackgroundAnimationLayers: boolean;
 
   // Error states
   spacingThemeError: string | null;
@@ -67,6 +100,9 @@ interface UserPreferencesContextType {
   fontPreferenceError: string | null;
   profileVisibilityError: string | null;
   accessibilityFocusModeError: string | null;
+  backgroundMovementDirectionError: string | null;
+  backgroundMovementSpeedError: string | null;
+  backgroundAnimationLayersError: string | null;
 }
 
 const UserPreferencesContext = createContext<
@@ -89,6 +125,20 @@ export function UserPreferencesProvider({ children }: { children: ReactNode }) {
   const [accessibilityFocusMode, setAccessibilityFocusModeState] =
     useState<AccessibilityFocusMode>('disabled');
 
+  // Background settings state
+  const [backgroundMovementDirection, setBackgroundMovementDirectionState] =
+    useState<BackgroundMovementDirection>('forward');
+  const [backgroundMovementSpeed, setBackgroundMovementSpeedState] =
+    useState<BackgroundMovementSpeed>('normal');
+  const [backgroundAnimationLayers, setBackgroundAnimationLayersState] =
+    useState<BackgroundAnimationLayers>({
+      stars: true,
+      particles: true,
+      nebula: true,
+      planets: true,
+      aurora: true
+    });
+
   // Loading states
   const [isUpdatingSpacingTheme, setIsUpdatingSpacingTheme] = useState(false);
   const [isUpdatingPaginationMode, setIsUpdatingPaginationMode] =
@@ -102,6 +152,18 @@ export function UserPreferencesProvider({ children }: { children: ReactNode }) {
   const [
     isUpdatingAccessibilityFocusMode,
     setIsUpdatingAccessibilityFocusMode
+  ] = useState(false);
+  const [
+    isUpdatingBackgroundMovementDirection,
+    setIsUpdatingBackgroundMovementDirection
+  ] = useState(false);
+  const [
+    isUpdatingBackgroundMovementSpeed,
+    setIsUpdatingBackgroundMovementSpeed
+  ] = useState(false);
+  const [
+    isUpdatingBackgroundAnimationLayers,
+    setIsUpdatingBackgroundAnimationLayers
   ] = useState(false);
 
   // Error states
@@ -121,6 +183,14 @@ export function UserPreferencesProvider({ children }: { children: ReactNode }) {
     string | null
   >(null);
   const [accessibilityFocusModeError, setAccessibilityFocusModeError] =
+    useState<string | null>(null);
+  const [
+    backgroundMovementDirectionError,
+    setBackgroundMovementDirectionError
+  ] = useState<string | null>(null);
+  const [backgroundMovementSpeedError, setBackgroundMovementSpeedError] =
+    useState<string | null>(null);
+  const [backgroundAnimationLayersError, setBackgroundAnimationLayersError] =
     useState<string | null>(null);
 
   // Apply font preference to document
@@ -189,6 +259,16 @@ export function UserPreferencesProvider({ children }: { children: ReactNode }) {
         'accessibility-focus-mode-global'
       );
 
+      const savedBackgroundMovementDirection = localStorage.getItem(
+        'background-movement-direction-global'
+      );
+      const savedBackgroundMovementSpeed = localStorage.getItem(
+        'background-movement-speed-global'
+      );
+      const savedBackgroundAnimationLayers = localStorage.getItem(
+        'background-animation-layers-global'
+      );
+
       // Set from localStorage immediately
       if (savedSpacingTheme === 'cozy' || savedSpacingTheme === 'compact') {
         setSpacingThemeState(savedSpacingTheme);
@@ -216,6 +296,45 @@ export function UserPreferencesProvider({ children }: { children: ReactNode }) {
         savedAccessibilityFocusMode === 'disabled'
       ) {
         setAccessibilityFocusModeState(savedAccessibilityFocusMode);
+      }
+
+      // Background settings initialization
+      if (
+        savedBackgroundMovementDirection === 'static' ||
+        savedBackgroundMovementDirection === 'forward' ||
+        savedBackgroundMovementDirection === 'backward' ||
+        savedBackgroundMovementDirection === 'left' ||
+        savedBackgroundMovementDirection === 'right' ||
+        savedBackgroundMovementDirection === 'up' ||
+        savedBackgroundMovementDirection === 'down'
+      ) {
+        setBackgroundMovementDirectionState(savedBackgroundMovementDirection);
+      }
+      if (
+        savedBackgroundMovementSpeed === 'slow' ||
+        savedBackgroundMovementSpeed === 'normal' ||
+        savedBackgroundMovementSpeed === 'fast'
+      ) {
+        setBackgroundMovementSpeedState(savedBackgroundMovementSpeed);
+      }
+      if (savedBackgroundAnimationLayers) {
+        try {
+          const layers = JSON.parse(savedBackgroundAnimationLayers);
+          if (layers && typeof layers === 'object') {
+            setBackgroundAnimationLayersState({
+              stars: layers.stars ?? true,
+              particles: layers.particles ?? true,
+              nebula: layers.nebula ?? true,
+              planets: layers.planets ?? true,
+              aurora: layers.aurora ?? true
+            });
+          }
+        } catch (error) {
+          logger.error(
+            'Failed to parse background animation layers from localStorage',
+            error as Error
+          );
+        }
       }
     }
 
@@ -634,6 +753,144 @@ export function UserPreferencesProvider({ children }: { children: ReactNode }) {
     [session]
   );
 
+  // Function to update background movement direction
+  const setBackgroundMovementDirection = useCallback(
+    async (newDirection: BackgroundMovementDirection) => {
+      setIsUpdatingBackgroundMovementDirection(true);
+      setBackgroundMovementDirectionError(null);
+
+      try {
+        // Always update localStorage first for immediate UI response
+        if (typeof window !== 'undefined') {
+          localStorage.setItem(
+            'background-movement-direction-global',
+            newDirection
+          );
+        }
+
+        // Update state immediately
+        setBackgroundMovementDirectionState(newDirection);
+
+        // If authenticated, also update database
+        if (session?.user?.id) {
+          // TODO: Update database action to support background settings
+          logger.debug('Updated background movement direction', {
+            userId: session.user.id,
+            newDirection
+          });
+        }
+      } catch (error) {
+        logger.error(
+          'Failed to update background movement direction',
+          error as Error,
+          {
+            userId: session?.user?.id,
+            newDirection
+          }
+        );
+        setBackgroundMovementDirectionError(
+          error instanceof Error
+            ? error.message
+            : 'Failed to update background movement direction'
+        );
+      } finally {
+        setIsUpdatingBackgroundMovementDirection(false);
+      }
+    },
+    [session]
+  );
+
+  // Function to update background movement speed
+  const setBackgroundMovementSpeed = useCallback(
+    async (newSpeed: BackgroundMovementSpeed) => {
+      setIsUpdatingBackgroundMovementSpeed(true);
+      setBackgroundMovementSpeedError(null);
+
+      try {
+        // Always update localStorage first for immediate UI response
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('background-movement-speed-global', newSpeed);
+        }
+
+        // Update state immediately
+        setBackgroundMovementSpeedState(newSpeed);
+
+        // If authenticated, also update database
+        if (session?.user?.id) {
+          // TODO: Update database action to support background settings
+          logger.debug('Updated background movement speed', {
+            userId: session.user.id,
+            newSpeed
+          });
+        }
+      } catch (error) {
+        logger.error(
+          'Failed to update background movement speed',
+          error as Error,
+          {
+            userId: session?.user?.id,
+            newSpeed
+          }
+        );
+        setBackgroundMovementSpeedError(
+          error instanceof Error
+            ? error.message
+            : 'Failed to update background movement speed'
+        );
+      } finally {
+        setIsUpdatingBackgroundMovementSpeed(false);
+      }
+    },
+    [session]
+  );
+
+  // Function to update background animation layers
+  const setBackgroundAnimationLayers = useCallback(
+    async (newLayers: BackgroundAnimationLayers) => {
+      setIsUpdatingBackgroundAnimationLayers(true);
+      setBackgroundAnimationLayersError(null);
+
+      try {
+        // Always update localStorage first for immediate UI response
+        if (typeof window !== 'undefined') {
+          localStorage.setItem(
+            'background-animation-layers-global',
+            JSON.stringify(newLayers)
+          );
+        }
+
+        // Update state immediately
+        setBackgroundAnimationLayersState(newLayers);
+
+        // If authenticated, also update database
+        if (session?.user?.id) {
+          // TODO: Update database action to support background settings
+          logger.debug('Updated background animation layers', {
+            userId: session.user.id,
+            newLayers
+          });
+        }
+      } catch (error) {
+        logger.error(
+          'Failed to update background animation layers',
+          error as Error,
+          {
+            userId: session?.user?.id,
+            newLayers
+          }
+        );
+        setBackgroundAnimationLayersError(
+          error instanceof Error
+            ? error.message
+            : 'Failed to update background animation layers'
+        );
+      } finally {
+        setIsUpdatingBackgroundAnimationLayers(false);
+      }
+    },
+    [session]
+  );
+
   return (
     <UserPreferencesContext.Provider
       value={{
@@ -649,18 +906,30 @@ export function UserPreferencesProvider({ children }: { children: ReactNode }) {
         setProfileVisibility,
         accessibilityFocusMode,
         setAccessibilityFocusMode,
+        backgroundMovementDirection,
+        setBackgroundMovementDirection,
+        backgroundMovementSpeed,
+        setBackgroundMovementSpeed,
+        backgroundAnimationLayers,
+        setBackgroundAnimationLayers,
         isUpdatingSpacingTheme,
         isUpdatingPaginationMode,
         isUpdatingEmojiPanelBehavior,
         isUpdatingFontPreference,
         isUpdatingProfileVisibility,
         isUpdatingAccessibilityFocusMode,
+        isUpdatingBackgroundMovementDirection,
+        isUpdatingBackgroundMovementSpeed,
+        isUpdatingBackgroundAnimationLayers,
         spacingThemeError,
         paginationModeError,
         emojiPanelBehaviorError,
         fontPreferenceError,
         profileVisibilityError,
-        accessibilityFocusModeError
+        accessibilityFocusModeError,
+        backgroundMovementDirectionError,
+        backgroundMovementSpeedError,
+        backgroundAnimationLayersError
       }}
     >
       <div

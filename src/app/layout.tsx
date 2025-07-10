@@ -294,11 +294,7 @@ export default function RootLayout({
                   <SimpleBannerSystem />
                   <TimeoutBanner />
                   <main>
-                    <RetroSpaceBackground
-                      movementDirection="forward"
-                      movementSpeed="normal"
-                      // enableSpeedLines
-                    />
+                    <RetroSpaceBackground />
 
                     <Header />
 

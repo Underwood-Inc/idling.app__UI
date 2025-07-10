@@ -3,7 +3,15 @@
     "connectionId": "underwood-inc",
     "projectKey": "Underwood-Inc_idling.app__UI"
   },
-  "cSpell.words": ["choco", "doesn", "nextjs", "SIGNIN", "Subthread", "testid"],
+  "cSpell.words": [
+    "choco",
+    "doesn",
+    "glassmorphism",
+    "nextjs",
+    "SIGNIN",
+    "Subthread",
+    "testid"
+  ],
   "window.commandCenter": true,
   "diffEditor.maxComputationTime": 0,
   "git.autofetch": true,

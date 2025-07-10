@@ -18,4 +18,14 @@ export interface UserProfileData {
   pagination_mode?: 'traditional' | 'infinite';
   emoji_panel_behavior?: 'close_after_select' | 'stay_open';
   font_preference?: 'monospace' | 'default';
+  // Background settings
+  background_movement_direction?: 'static' | 'forward' | 'backward' | 'left' | 'right' | 'up' | 'down';
+  background_movement_speed?: 'slow' | 'normal' | 'fast';
+  background_animation_layers?: {
+    stars: boolean;
+    particles: boolean;
+    nebula: boolean;
+    planets: boolean;
+    aurora: boolean;
+  };
 }

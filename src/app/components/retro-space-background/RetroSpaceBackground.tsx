@@ -1,151 +1,134 @@
 'use client';
 
-import React from 'react';
+import { useUserPreferences } from '../../../lib/context/UserPreferencesContext';
 import './RetroSpaceBackground.scss';
 
-type MovementDirection =
-  | 'static'
-  | 'forward'
-  | 'backward'
-  | 'left'
-  | 'right'
-  | 'up'
-  | 'down';
-
+// Keep prop interface for potential override capabilities
 interface RetroSpaceBackgroundProps {
-  enableStarField?: boolean;
-  enableSpaceParticles?: boolean;
-  enableNebula?: boolean;
-  enablePlanets?: boolean;
-  enableAurora?: boolean;
-  enableSpeedLines?: boolean;
-  movementDirection?: MovementDirection;
+  movementDirection?:
+    | 'static'
+    | 'forward'
+    | 'backward'
+    | 'left'
+    | 'right'
+    | 'up'
+    | 'down';
   movementSpeed?: 'slow' | 'normal' | 'fast';
+  enableSpeedLines?: boolean;
 }
 
-const RetroSpaceBackground: React.FC<RetroSpaceBackgroundProps> = ({
-  enableStarField = true,
-  enableSpaceParticles = true,
-  enableNebula = true,
-  enablePlanets = true,
-  enableAurora = true,
-  enableSpeedLines = false,
-  movementDirection = 'static',
-  movementSpeed = 'normal'
-}) => {
-  // Generate random positions for stars
-  const generateStars = (count: number, className: string) => {
-    return Array.from({ length: count }, (_, i) => (
-      <div
-        key={`${className}-${i}`}
-        className={`star ${className}`}
-        style={{
-          left: `${Math.random() * 100}%`,
-          top: `${Math.random() * 100}%`,
-          animationDelay: `${Math.random() * 4}s`
-        }}
-      />
-    ));
-  };
+export default function RetroSpaceBackground({
+  movementDirection: overrideDirection,
+  movementSpeed: overrideSpeed,
+  enableSpeedLines = false
+}: RetroSpaceBackgroundProps) {
+  // Get settings from user preferences context
+  const {
+    backgroundMovementDirection,
+    backgroundMovementSpeed,
+    backgroundAnimationLayers
+  } = useUserPreferences();
 
-  // Generate space particles
-  const generateParticles = (count: number) => {
-    return Array.from({ length: count }, (_, i) => (
-      <div
-        key={`particle-${i}`}
-        className="space-particle"
-        style={{
-          left: `${Math.random() * 100}%`,
-          top: `${Math.random() * 100}%`,
-          animationDelay: `${Math.random() * 8}s`,
-          animationDuration: `${6 + Math.random() * 4}s`
-        }}
-      />
-    ));
-  };
+  // Use context values unless overridden by props
+  const movementDirection = overrideDirection || backgroundMovementDirection;
+  const movementSpeed = overrideSpeed || backgroundMovementSpeed;
 
-  // Generate planets
-  const generatePlanets = () => {
-    return Array.from({ length: 3 }, (_, i) => (
-      <div
-        key={`planet-${i}`}
-        className={`planet planet-${i + 1}`}
-        style={{
-          left: `${10 + Math.random() * 80}%`,
-          top: `${10 + Math.random() * 80}%`,
-          animationDelay: `${Math.random() * 20}s`
-        }}
-      />
-    ));
-  };
-
-  // Generate speed lines for movement effect
-  const generateSpeedLines = () => {
-    return Array.from({ length: 30 }, (_, i) => (
-      <div
-        key={`speed-line-${i}`}
-        className="speed-line"
-        style={{
-          left: `${Math.random() * 100}%`,
-          top: `${Math.random() * 100}%`,
-          animationDelay: `${Math.random() * 2}s`,
-          animationDuration: `${0.5 + Math.random() * 1}s`
-        }}
-      />
-    ));
-  };
-
+  // Build dynamic class names based on settings
   const containerClasses = [
     'retro-space-background',
     `movement-${movementDirection}`,
-    `speed-${movementSpeed}`
-  ].join(' ');
+    `speed-${movementSpeed}`,
+    !backgroundAnimationLayers.stars && 'hide-stars',
+    !backgroundAnimationLayers.particles && 'hide-particles',
+    !backgroundAnimationLayers.nebula && 'hide-nebula',
+    !backgroundAnimationLayers.planets && 'hide-planets',
+    !backgroundAnimationLayers.aurora && 'hide-aurora'
+  ]
+    .filter(Boolean)
+    .join(' ');
 
   return (
     <div className={containerClasses}>
-      {/* Twinkling Star Field */}
-      {enableStarField && (
+      {/* 1. Twinkling Star Field */}
+      {backgroundAnimationLayers.stars && (
         <div className="star-field">
-          {generateStars(80, 'star-small')}
-          {generateStars(40, 'star-medium')}
-          {generateStars(20, 'star-large')}
+          {Array.from({ length: 200 }, (_, i) => (
+            <div
+              key={i}
+              className={`star ${i % 3 === 0 ? 'star-small' : i % 2 === 0 ? 'star-medium' : 'star-large'}`}
+              style={{
+                left: `${Math.random() * 100}%`,
+                top: `${Math.random() * 100}%`,
+                animationDelay: `${Math.random() * 4}s`,
+                animationDuration: `${4 + Math.random() * 2}s`
+              }}
+            />
+          ))}
         </div>
       )}
 
-      {/* Speed Lines for Movement Effect */}
-      {enableSpeedLines && (
-        <div className="speed-lines-container">{generateSpeedLines()}</div>
-      )}
-
-      {/* Drifting Space Particles */}
-      {enableSpaceParticles && (
-        <div className="space-particles">{generateParticles(15)}</div>
-      )}
-
-      {/* Nebula Cloud Gradients */}
-      {enableNebula && (
-        <div className="nebula-container">
-          <div className="nebula nebula-1" />
-          <div className="nebula nebula-2" />
-          <div className="nebula nebula-3" />
+      {/* 2. Drifting Space Particles */}
+      {backgroundAnimationLayers.particles && (
+        <div className="space-particles">
+          {Array.from({ length: 50 }, (_, i) => (
+            <div
+              key={i}
+              className="space-particle"
+              style={{
+                left: `${Math.random() * -10}%`,
+                top: `${Math.random() * 100}%`,
+                animationDelay: `${Math.random() * 8}s`,
+                animationDuration: `${6 + Math.random() * 4}s`
+              }}
+            />
+          ))}
         </div>
       )}
 
-      {/* Distant Planets/Orbs */}
-      {enablePlanets && (
-        <div className="planets-container">{generatePlanets()}</div>
-      )}
-
-      {/* Aurora Waves */}
-      {enableAurora && (
-        <div className="aurora-container">
-          <div className="aurora aurora-1" />
-          <div className="aurora aurora-2" />
-          <div className="aurora aurora-3" />
+      {/* 3. Nebula Cloud Gradients */}
+      {backgroundAnimationLayers.nebula && (
+        <div className="nebula-clouds">
+          <div className="nebula-cloud"></div>
+          <div className="nebula-cloud"></div>
+          <div className="nebula-cloud"></div>
         </div>
       )}
+
+      {/* 4. Distant Planets/Orbs */}
+      {backgroundAnimationLayers.planets && (
+        <div className="distant-planets">
+          <div className="distant-planet"></div>
+          <div className="distant-planet"></div>
+          <div className="distant-planet"></div>
+        </div>
+      )}
+
+      {/* 5. Aurora Waves */}
+      {backgroundAnimationLayers.aurora && (
+        <div className="aurora-waves">
+          <div className="aurora-wave"></div>
+          <div className="aurora-wave"></div>
+          <div className="aurora-wave"></div>
+        </div>
+      )}
+
+      {/* Speed Lines (optional overlay for fast movement) */}
+      {enableSpeedLines &&
+        (movementDirection === 'forward' ||
+          movementDirection === 'backward') && (
+          <div className="speed-lines">
+            {Array.from({ length: 30 }, (_, i) => (
+              <div
+                key={i}
+                className="speed-line"
+                style={{
+                  left: `${Math.random() * 100}%`,
+                  animationDelay: `${Math.random() * 2}s`
+                }}
+              />
+            ))}
+          </div>
+        )}
     </div>
   );
-};
-
-export default RetroSpaceBackground;
+}
