@@ -1,5 +1,5 @@
 import { useSession } from 'next-auth/react';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { SubmissionWithReplies } from '../../app/components/submissions-list/actions';
 import { useSimpleSubmissions } from './submissions/useSimpleSubmissions';
 import { useSimpleUrlFilters } from './submissions/useSimpleUrlFilters';
@@ -54,6 +54,8 @@ export function useSubmissionsManager({
   const { data: session } = useSession();
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
+  const initializedRef = useRef(false);
+  const initializationAttemptedRef = useRef(false);
 
   // Use the new URL-first filter system
   const { filters, addFilter, removeFilter, clearFilters } = useSimpleUrlFilters();
@@ -67,23 +69,37 @@ export function useSubmissionsManager({
     enabled: true
   });
 
-  // Initialize filters from props if URL is empty
+  // Initialize filters from props if URL is empty - only once and only if needed
   useEffect(() => {
-    if (filters.length === 0 && initialFilters.length > 0) {
-      initialFilters.forEach(filter => {
-        addFilter(filter);
-      });
+    // Only initialize once and only if we have initial filters and no current filters
+    if (
+      !initializedRef.current &&
+      !initializationAttemptedRef.current &&
+      filters.length === 0 &&
+      initialFilters.length > 0
+    ) {
+      initializationAttemptedRef.current = true;
+      
+      // Use setTimeout to avoid initialization during render
+      const timer = setTimeout(() => {
+        initialFilters.forEach(filter => {
+          addFilter(filter);
+        });
+        initializedRef.current = true;
+      }, 0);
+      
+      return () => clearTimeout(timer);
     }
-  }, [initialFilters, filters.length, addFilter]);
+  }, [filters.length, initialFilters.length]); // Only depend on lengths, not the arrays themselves
 
-  // Create pagination object
+  // Create pagination object - memoized
   const pagination = useMemo(() => ({
     currentPage,
     pageSize,
     totalRecords
   }), [currentPage, pageSize, totalRecords]);
 
-  // Handle pagination (simplified for now)
+  // Handle pagination - memoized callbacks
   const setPage = useCallback((page: number) => {
     setCurrentPage(page);
   }, []);
@@ -93,41 +109,38 @@ export function useSubmissionsManager({
     setCurrentPage(1);
   }, []);
 
-  // Handle multiple filters
+  // Handle multiple filters - memoized
   const addFilters = useCallback((newFilters: Array<{ name: string; value: string }>) => {
     newFilters.forEach(filter => {
       addFilter(filter);
     });
   }, [addFilter]);
 
-  // Alias for removeFilter to match old interface
+  // Alias for removeFilter to match old interface - memoized
   const removeTag = useCallback((name: string, value?: string) => {
     removeFilter(name, value);
   }, [removeFilter]);
 
-  // Update filter (remove old, add new)
+  // Update filter (remove old, add new) - memoized
   const updateFilter = useCallback((oldFilter: any, newFilter: any) => {
     removeFilter(oldFilter.name, oldFilter.value);
     addFilter(newFilter);
   }, [removeFilter, addFilter]);
 
-  // Infinite scroll handlers (simplified)
+  // Infinite scroll handlers - memoized
   const loadMore = useCallback(() => {
-    // For now, just increment page
     setCurrentPage(prev => prev + 1);
   }, []);
 
-  const isLoadingMore = false; // Simplified
+  const isLoadingMore = false;
   const hasMore = currentPage * pageSize < totalRecords;
 
-  // Optimistic updates (simplified)
+  // Optimistic updates - memoized
   const optimisticUpdateSubmission = useCallback((submissionId: number, updatedSubmission: any) => {
-    // For now, just refresh - could implement optimistic updates later
     refresh();
   }, [refresh]);
 
   const optimisticRemoveSubmission = useCallback((submissionId: number) => {
-    // For now, just refresh - could implement optimistic updates later
     refresh();
   }, [refresh]);
 
