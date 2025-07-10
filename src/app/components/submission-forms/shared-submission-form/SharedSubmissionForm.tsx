@@ -1,6 +1,7 @@
 'use client';
 
 import { useAtom } from 'jotai';
+import React from 'react';
 import { shouldUpdateAtom } from '../../../../lib/state/atoms';
 import { SmartInput } from '../../ui/SmartInput';
 import { Submission } from '../schema';

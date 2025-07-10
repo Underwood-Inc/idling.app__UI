@@ -11,6 +11,7 @@ import FadeIn from '../../components/fade-in/FadeIn';
 import { PageAside } from '../../components/page-aside/PageAside';
 import { PageContainer } from '../../components/page-container/PageContainer';
 import PageContent from '../../components/page-content/PageContent';
+import { InstantLink } from '../../components/ui/InstantLink';
 import { ProfilePageClient } from './ProfilePageClient';
 import './profile-page.css';
 
@@ -168,31 +169,45 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
                       {userProfile.total_submissions || 0}
                     </span>
                   </div>
-                  <a
-                    href={`/posts?author=${userProfile.id}`}
-                    className="profile-page__info-link"
-                    title="View all posts by this user"
-                  >
-                    View All →
-                  </a>
                 </div>
 
-                <div className="profile-page__info-item">
-                  <span className="profile-page__info-icon">💬</span>
-                  <div className="profile-page__info-content">
-                    <span className="profile-page__info-label">Replies</span>
-                    <span className="profile-page__info-value">
-                      {userProfile.replies_count || 0}
-                    </span>
+                <InstantLink
+                  href={`/posts?author=${userProfile.id}`}
+                  className="profile-page__info-item profile-page__info-item--clickable"
+                  title="View all posts by this user"
+                  aria-label={`View all ${userProfile.total_submissions || 0} posts by ${userProfile.username || userProfile.name}`}
+                >
+                  <div className="profile-page__info-wrapper">
+                    <span className="profile-page__info-icon">📝</span>
+                    <div className="profile-page__info-content">
+                      <span className="profile-page__info-label">
+                        View Posts
+                      </span>
+                      <span className="profile-page__info-value">
+                        Browse All →
+                      </span>
+                    </div>
                   </div>
-                  <a
-                    href={`/posts?author=${userProfile.id}&onlyReplies=true`}
-                    className="profile-page__info-link"
-                    title="View only replies by this user"
-                  >
-                    View Replies →
-                  </a>
-                </div>
+                </InstantLink>
+
+                <InstantLink
+                  href={`/posts?author=${userProfile.id}&onlyReplies=true`}
+                  className="profile-page__info-item profile-page__info-item--clickable"
+                  title="View only replies by this user"
+                  aria-label={`View all ${userProfile.replies_count || 0} replies by ${userProfile.username || userProfile.name}`}
+                >
+                  <div className="profile-page__info-wrapper">
+                    <span className="profile-page__info-icon">💬</span>
+                    <div className="profile-page__info-content">
+                      <span className="profile-page__info-label">
+                        {userProfile.replies_count || 0} Replies
+                      </span>
+                      <span className="profile-page__info-value">
+                        View Replies →
+                      </span>
+                    </div>
+                  </div>
+                </InstantLink>
 
                 <div className="profile-page__info-item">
                   <span className="profile-page__info-icon">🌟</span>

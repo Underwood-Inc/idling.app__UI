@@ -40,10 +40,22 @@ export function useUrlSync({
 
     // Parse other filters
     const authorParam = searchParams.get('author');
-    if (authorParam) urlFilters.push({ name: 'author', value: authorParam });
+    if (authorParam) {
+      // Handle comma-separated author values
+      const authors = authorParam.split(',').filter(Boolean);
+      authors.forEach(author => {
+        urlFilters.push({ name: 'author', value: author.trim() });
+      });
+    }
 
     const mentionsParam = searchParams.get('mentions');
-    if (mentionsParam) urlFilters.push({ name: 'mentions', value: mentionsParam });
+    if (mentionsParam) {
+      // Handle comma-separated mention values
+      const mentions = mentionsParam.split(',').filter(Boolean);
+      mentions.forEach(mention => {
+        urlFilters.push({ name: 'mentions', value: mention.trim() });
+      });
+    }
 
     const searchParam = searchParams.get('search');
     if (searchParam) urlFilters.push({ name: 'search', value: searchParam });
@@ -64,13 +76,39 @@ export function useUrlSync({
     if (mentionsLogicParam) urlFilters.push({ name: 'mentionsLogic', value: mentionsLogicParam });
 
     // Use URL filters if available, otherwise use initial filters
-    const finalFilters = urlFilters.length > 0 ? urlFilters : initialFilters;
+    const combinedFilters = urlFilters.length > 0 ? urlFilters : initialFilters;
+    
+    // Deduplicate filters by type and value
+    const deduplicatedFilters: Filter<PostFilters>[] = [];
+    const seen = new Set<string>();
+    
+    for (const filter of combinedFilters) {
+      const key = `${filter.name}:${filter.value}`;
+      if (!seen.has(key)) {
+        seen.add(key);
+        deduplicatedFilters.push(filter);
+      }
+    }
+    
     const pageParam = searchParams.get('page');
     const page = pageParam ? parseInt(pageParam, 10) : 1;
 
+    // Debug logging for initialization
+    if (process.env.NODE_ENV === 'development') {
+      // eslint-disable-next-line no-console
+      console.log('🔍 useUrlSync INITIALIZATION:', {
+        urlFilters,
+        combinedFilters,
+        deduplicatedFilters,
+        searchParamsString: searchParams.toString(),
+        page,
+        initialFilters
+      });
+    }
+
     setFiltersState((prevState) => ({
       ...prevState,
-      filters: finalFilters as Filter[], // Cast to match atom type
+      filters: deduplicatedFilters as Filter[], // Cast to match atom type
       page,
       initialized: true
     }));
@@ -78,7 +116,17 @@ export function useUrlSync({
 
   // Memoize URL params to prevent unnecessary URL updates
   const urlParams = useMemo(() => {
-    if (!filtersState.initialized || infiniteScroll) return null;
+    if (!filtersState.initialized || infiniteScroll) {
+      if (process.env.NODE_ENV === 'development') {
+        // eslint-disable-next-line no-console
+        console.log('🔍 urlParams memo: Early return', {
+          initialized: filtersState.initialized,
+          infiniteScroll,
+          filters: filtersState.filters
+        });
+      }
+      return null;
+    }
 
     const params = new URLSearchParams();
 
@@ -96,7 +144,9 @@ export function useUrlSync({
       const tagsForUrl = filterGroups.tags.map(tag => 
         tag.startsWith('#') ? tag.slice(1) : tag
       );
-      params.set('tags', tagsForUrl.join(','));
+      // Remove duplicates
+      const uniqueTags = [...new Set(tagsForUrl)];
+      params.set('tags', uniqueTags.join(','));
     }
 
     // Add other filters
@@ -106,9 +156,13 @@ export function useUrlSync({
         if (name === 'onlyReplies' && values[0] === 'true') {
           params.set('onlyReplies', 'true');
         } else if (name === 'author') {
-          params.set('author', values.join(','));
+          // Remove duplicates before joining
+          const uniqueValues = [...new Set(values)];
+          params.set('author', uniqueValues.join(','));
         } else if (name === 'mentions') {
-          params.set('mentions', values.join(','));
+          // Remove duplicates before joining
+          const uniqueValues = [...new Set(values)];
+          params.set('mentions', uniqueValues.join(','));
         } else if (name === 'search') {
           params.set('search', values[0]);
         } else if (name === 'globalLogic' || name === 'tagLogic' || name === 'authorLogic' || name === 'mentionsLogic') {
@@ -122,7 +176,19 @@ export function useUrlSync({
       params.set('page', filtersState.page.toString());
     }
 
-    return params.toString();
+    const result = params.toString();
+    
+    if (process.env.NODE_ENV === 'development') {
+      // eslint-disable-next-line no-console
+      console.log('🔍 urlParams memo: Generated', {
+        filters: filtersState.filters,
+        filterGroups,
+        result,
+        initialized: filtersState.initialized
+      });
+    }
+
+    return result;
   }, [
     filtersState.filters,
     filtersState.page,
@@ -138,11 +204,25 @@ export function useUrlSync({
     const newUrl = `${pathname}${urlParams ? `?${urlParams}` : ''}`;
     const currentUrl = `${pathname}${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;
 
+    // Debug logging
+    if (process.env.NODE_ENV === 'development') {
+      // eslint-disable-next-line no-console
+      console.log('🔍 useUrlSync URL update check:', {
+        urlParams,
+        newUrl,
+        currentUrl,
+        willUpdate: newUrl !== currentUrl,
+        filtersInitialized: filtersState.initialized,
+        filterCount: filtersState.filters.length,
+        filters: filtersState.filters.map(f => ({ name: f.name, value: f.value }))
+      });
+    }
+
     // Only update URL if it changed
     if (newUrl !== currentUrl) {
       router.replace(newUrl); // Use replace to avoid history pollution
     }
-  }, [urlParams, pathname, router, searchParams]);
+      }, [urlParams, pathname, router, searchParams]);
 
   return {
     urlParams

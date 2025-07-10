@@ -151,7 +151,7 @@ else
 fi
 
 # Generate documentation coverage badge URL
-badge_url="https://img.shields.io/badge/Documentation%20Coverage-${coverage_percentage}%25-${badge_color}?style=for-the-badge&logo=gitbook&logoColor=white"
+badge_url="https://img.shields.io/badge/Documentation%20Coverage-${coverage_percentage}%25-${badge_color}?style=flat&logo=gitbook&logoColor=white"
 
 # Create badge markdown for inclusion in Docusaurus
 cat > static/coverage/documentation-badge.md << EOF

@@ -1,9 +1,6 @@
 module.exports = {
   extends: ['next', 'next/core-web-vitals', 'prettier', 'eslint:recommended'],
   plugins: ['prettier', 'jest', 'custom-rules', '@typescript-eslint'],
-  globals: {
-    React: 'readonly'
-  },
   env: {
     'jest/globals': true
   },
@@ -35,6 +32,8 @@ module.exports = {
         ignoreRestSiblings: true
       }
     ],
+    'react/react-in-jsx-scope': 'off',
+    'react/jsx-uses-react': 'off',
     'custom-rules/enforce-link-target-blank': 'warn',
     'max-len': ['error', { code: 180 }],
     'no-console': [

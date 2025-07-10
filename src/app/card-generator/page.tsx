@@ -226,11 +226,17 @@ export default function OgImageViewer() {
       clearFormState();
       clearGeneration();
       welcomeFlow.clearWelcomeFlow();
+      quotaState.clearQuota();
       setSvgContent('');
       setCurrentGenerationId('');
       setError('');
     };
-  }, [clearFormState, clearGeneration, welcomeFlow.clearWelcomeFlow]);
+  }, [
+    clearFormState,
+    clearGeneration,
+    welcomeFlow.clearWelcomeFlow,
+    quotaState.clearQuota
+  ]);
 
   // Loading states
   if (generationLoader.isLoading) {

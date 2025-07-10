@@ -1,10 +1,11 @@
 import { useSession } from 'next-auth/react';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { QuotaState } from '../types/generation';
 
 export function useQuotaTracking(): QuotaState & {
   updateQuota: (remaining: number, limit?: number, resetDate?: Date | null) => void;
   initializeQuota: () => Promise<void>;
+  clearQuota: () => void;
   quotaError?: string;
 } {
   const { data: session, status } = useSession();
@@ -20,7 +21,7 @@ export function useQuotaTracking(): QuotaState & {
   // Don't show quota exceeded until we've actually initialized
   const isQuotaExceeded = hasInitializedQuota && remainingGenerations <= 0;
 
-  const updateQuota = (remaining: number, limit?: number, resetDate?: Date | null) => {
+  const updateQuota = useCallback((remaining: number, limit?: number, resetDate?: Date | null) => {
     setRemainingGenerations(remaining);
     if (limit !== undefined) {
       setQuotaLimit(limit);
@@ -29,9 +30,17 @@ export function useQuotaTracking(): QuotaState & {
       setResetDate(resetDate);
     }
     setHasInitializedQuota(true);
-  };
+  }, []);
 
-  const initializeQuota = async () => {
+  const clearQuota = useCallback(() => {
+    setRemainingGenerations(0);
+    setQuotaLimit(0);
+    setHasInitializedQuota(false);
+    setResetDate(null);
+    setQuotaError(undefined);
+  }, []);
+
+  const initializeQuota = useCallback(async () => {
     try {
       setQuotaError(undefined); // Clear previous errors
       const response = await fetch('/api/og-image?format=json&dry-run=true', {
@@ -64,12 +73,12 @@ export function useQuotaTracking(): QuotaState & {
     // This ensures the UI never breaks - user gets reasonable defaults
     console.warn('Using fallback quota values due to API failure');
     updateQuota(1, 1, new Date(Date.now() + 86400000)); // 1 generation, resets tomorrow
-  };
+  }, [updateQuota]);
 
   // Auto-initialize on mount
   useEffect(() => {
     initializeQuota().catch(console.error);
-  }, []);
+  }, [initializeQuota]);
 
   // Monitor auth state changes and refresh quota when auth changes
   useEffect(() => {
@@ -96,7 +105,7 @@ export function useQuotaTracking(): QuotaState & {
       // Update the ref for next comparison
       previousUserIdRef.current = currentUserId;
     }
-  }, [session?.user?.id, status]);
+  }, [session?.user?.id, status, initializeQuota]);
 
   return {
     remainingGenerations,
@@ -106,6 +115,7 @@ export function useQuotaTracking(): QuotaState & {
     resetDate,
     updateQuota,
     initializeQuota,
+    clearQuota,
     quotaError
   };
 } 

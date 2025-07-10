@@ -36,6 +36,7 @@ interface PostsManagerProps {
   onlyMine?: boolean;
   enableThreadMode?: boolean;
   onNewPostClick?: () => void;
+  initialFilters?: Array<{ name: string; value: string }>;
   // Custom renderer for submissions
   renderSubmissionItem?: (props: {
     submission: SubmissionWithReplies;
@@ -67,6 +68,7 @@ const PostsManager = React.memo(function PostsManager({
   onlyMine = false,
   enableThreadMode = false,
   onNewPostClick,
+  initialFilters = [],
   renderSubmissionItem
 }: PostsManagerProps) {
   const { data: session } = useSession();
@@ -129,6 +131,7 @@ const PostsManager = React.memo(function PostsManager({
   } = useSubmissionsManager({
     contextId,
     onlyMine,
+    initialFilters: initialFilters as any,
     initialUserId: session?.user?.id?.toString() || '',
     includeThreadReplies: shouldIncludeReplies,
     infiniteScroll: infiniteScrollMode
@@ -219,6 +222,9 @@ const PostsManager = React.memo(function PostsManager({
     },
     [setIncludeThreadReplies]
   );
+
+  // Initial filters are now handled by useUrlSync in useSubmissionsManager
+  // No need to apply them here to avoid duplicates
 
   // Memoize authorization check
   const isAuthorized = useMemo(() => !!session?.user?.id, [session?.user?.id]);

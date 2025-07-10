@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import { SessionProvider } from 'next-auth/react';
 import { Inter } from 'next/font/google';
-import { Suspense } from 'react';
+import React, { Suspense } from 'react';
 import { GlobalLoadingProvider } from '../lib/context/GlobalLoadingContext';
 import { NavigationLoadingProvider } from '../lib/context/NavigationLoadingContext';
 import { OverlayProvider } from '../lib/context/OverlayContext';
