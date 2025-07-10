@@ -71,4 +71,4 @@ async function postHandler(request: NextRequest) {
 }
 
 // Apply permission wrappers to handlers
-export const POST = withUserRoles(withUserPermissions(postHandler)); 
+export const POST = withUserRoles(withUserPermissions(postHandler as any)); 

@@ -3,6 +3,8 @@
  * Handles assigning and managing user roles
  */
 
+import { withUserPermissions } from '@/lib/api/wrappers/withUserPermissions';
+import { withUserRoles } from '@/lib/api/wrappers/withUserRoles';
 import { auth } from '@/lib/auth';
 import sql from '@/lib/db';
 import {
@@ -10,8 +12,6 @@ import {
   AdminUserRoleRemovalParamsSchema,
   UserIdParamsSchema
 } from '@/lib/schemas/admin-users.schema';
-import { withUserPermissions } from '@lib/api/wrappers/withUserPermissions';
-import { withUserRoles } from '@lib/api/wrappers/withUserRoles';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 
@@ -184,5 +184,5 @@ async function deleteHandler(
 }
 
 // Apply permission wrappers to handlers
-export const POST = withUserRoles(withUserPermissions(postHandler));
-export const DELETE = withUserRoles(withUserPermissions(deleteHandler)); 
+export const POST = withUserRoles(withUserPermissions(postHandler as any));
+export const DELETE = withUserRoles(withUserPermissions(deleteHandler as any)); 

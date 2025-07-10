@@ -114,7 +114,7 @@ async function postHandler(
     }
 
     // Validate admin permissions
-    const isAdmin = await validateAdminAccess(session.user.id);
+    const isAdmin = await validateAdminAccess(parseInt(session.user.id));
     if (!isAdmin) {
       return NextResponse.json(
         { success: false, error: 'Admin access required' },
@@ -192,7 +192,7 @@ async function postHandler(
 
     // Log the admin action
     await logAdminAction(
-      session.user.id,
+      parseInt(session.user.id),
       'user_quota_usage_reset',
       {
         target_user_id: parseInt(params.id),

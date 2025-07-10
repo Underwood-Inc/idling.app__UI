@@ -689,7 +689,7 @@ export const QuotaManagement: React.FC<QuotaManagementProps> = ({
                       >
                         <div>
                           Resets:{' '}
-                          <TimestampWithTooltip timestamp={quota.reset_date} />
+                          <TimestampWithTooltip date={quota.reset_date} />
                         </div>
                       </div>
 

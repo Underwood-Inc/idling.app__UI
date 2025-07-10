@@ -347,7 +347,7 @@ const PostsManager = React.memo(function PostsManager({
           filtersCount={actualFiltersCount}
           totalRecords={pagination.totalRecords}
           isLoading={isLoading}
-          error={error ?? undefined}
+          error={error as any}
           onNewPostClick={handleNewPostClick}
           isAuthorized={isAuthorized}
           compactMode={spacingTheme === 'compact'}
@@ -410,7 +410,7 @@ const PostsManager = React.memo(function PostsManager({
           optimisticRemoveSubmission={optimisticRemoveSubmission}
           currentPage={pagination.currentPage}
           currentFilters={filters}
-          error={error}
+          error={error as any}
         >
           {renderSubmissionItem}
         </SubmissionsList>
@@ -419,7 +419,7 @@ const PostsManager = React.memo(function PostsManager({
       {/* Pagination */}
       <PostsManagerPagination
         isLoading={isLoading}
-        error={error || undefined}
+        error={error ?? null}
         submissions={submissions}
         infiniteScrollMode={infiniteScrollMode}
         hasMore={hasMore}

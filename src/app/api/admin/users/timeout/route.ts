@@ -7,8 +7,8 @@ import { withUserPermissions } from '@/lib/api/wrappers/withUserPermissions';
 import { withUserRoles } from '@/lib/api/wrappers/withUserRoles';
 import { auth } from '@/lib/auth';
 import {
-  PermissionsService,
-  TIMEOUT_TYPES
+    PermissionsService,
+    TIMEOUT_TYPES
 } from '@/lib/permissions/permissions';
 import { AdminTimeoutManagementSchema, AdminTimeoutRevocationParamsSchema, AdminTimeoutStatusParamsSchema } from '@/lib/schemas/admin-users.schema';
 import { NextRequest, NextResponse } from 'next/server';
@@ -191,6 +191,6 @@ async function getHandler(request: NextRequest) {
 }
 
 // Apply permission wrappers to handlers
-export const POST = withUserRoles(withUserPermissions(postHandler));
-export const DELETE = withUserRoles(withUserPermissions(deleteHandler));
-export const GET = withUserRoles(withUserPermissions(getHandler));
+export const POST = withUserRoles(withUserPermissions(postHandler as any));
+export const DELETE = withUserRoles(withUserPermissions(deleteHandler as any));
+export const GET = withUserRoles(withUserPermissions(getHandler as any));

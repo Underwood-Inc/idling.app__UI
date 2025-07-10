@@ -146,7 +146,7 @@ async function putHandler(
     }
 
     // Validate admin permissions
-    const isAdmin = await validateAdminAccess(session.user.id);
+    const isAdmin = await validateAdminAccess(parseInt(session.user.id));
     if (!isAdmin) {
       return NextResponse.json(
         { success: false, error: 'Admin access required' },
@@ -232,7 +232,7 @@ async function putHandler(
           is_unlimited, reset_period, reason, created_by, is_active
         ) VALUES (
           ${params.id}, ${service_name}, ${feature_name}, ${finalQuotaLimit},
-          ${finalIsUnlimited}, ${finalResetPeriod}, ${reason || null}, ${session.user.id}, true
+          ${finalIsUnlimited}, ${finalResetPeriod}, ${reason || null}, ${parseInt(session.user.id)}, true
         )
         RETURNING *
       `;
@@ -240,7 +240,7 @@ async function putHandler(
 
     // Log the admin action
     await logAdminAction(
-      session.user.id,
+      parseInt(session.user.id),
       'user_quota_override',
       {
         target_user_id: params.id,
@@ -297,7 +297,7 @@ async function deleteHandler(
     }
 
     // Validate admin permissions
-    const isAdmin = await validateAdminAccess(session.user.id);
+    const isAdmin = await validateAdminAccess(parseInt(session.user.id));
     if (!isAdmin) {
       return NextResponse.json(
         { success: false, error: 'Admin access required' },
@@ -364,7 +364,7 @@ async function deleteHandler(
 
     // Log the admin action
     await logAdminAction(
-      session.user.id,
+      parseInt(session.user.id),
       'user_quota_override_remove',
       {
         target_user_id: params.id,

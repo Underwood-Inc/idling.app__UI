@@ -120,4 +120,4 @@ async function getHandler(request: NextRequest) {
   }
 }
 
-export const GET = withUserRoles(withUserPermissions(withRateLimit(getHandler))); 
+export const GET = withUserRoles(withUserPermissions(withRateLimit(getHandler as any) as any)) as any; 

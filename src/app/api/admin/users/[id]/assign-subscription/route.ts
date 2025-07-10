@@ -279,6 +279,6 @@ async function deleteHandler(
 }
 
 // Apply permission wrappers to handlers
-export const POST = withUserRoles(withUserPermissions(postHandler));
-export const PATCH = withUserRoles(withUserPermissions(patchHandler));
-export const DELETE = withUserRoles(withUserPermissions(deleteHandler)); 
+export const POST = withUserRoles(withUserPermissions(postHandler as any));
+export const PATCH = withUserRoles(withUserPermissions(patchHandler as any));
+export const DELETE = withUserRoles(withUserPermissions(deleteHandler as any)); 

@@ -167,4 +167,4 @@ async function getHandler(
 }
 
 // Apply rate limiting and permission wrappers to handlers
-export const GET = withUserRoles(withUserPermissions(withRateLimit(getHandler))); 
+export const GET = withUserRoles(withUserPermissions(withRateLimit(getHandler as any) as any)) as any; 

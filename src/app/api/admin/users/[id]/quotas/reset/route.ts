@@ -224,4 +224,4 @@ async function postHandler(
 }
 
 // Apply rate limiting and permission wrappers to handlers
-export const POST = withUserRoles(withUserPermissions(withRateLimit(postHandler))); 
+export const POST = withUserRoles(withUserPermissions(withRateLimit(postHandler as any) as any)) as any; 
