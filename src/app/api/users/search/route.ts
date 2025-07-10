@@ -1,6 +1,12 @@
 /**
  * User Search API
  * Provides search functionality for finding user profiles
+ * 
+ * Accessibility:
+ * - Guest users: Can search but only see public profiles
+ * - Authenticated users: Can search and see both public and private profiles
+ * 
+ * Privacy is enforced at search level, with additional checks at profile view level
  */
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -19,10 +25,9 @@ const searchSchema = z.object({
 
 async function searchHandler(request: NextRequest) {
   try {
+    // Allow both authenticated and guest users
     const session = await auth();
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+    const isAuthenticated = !!session?.user?.id;
 
     const { searchParams } = new URL(request.url);
     const query = searchParams.get('q');
@@ -41,6 +46,9 @@ async function searchHandler(request: NextRequest) {
     // Using ILIKE for case-insensitive search (PostgreSQL)
     const searchTerm = `%${q}%`;
     
+    // Build query with privacy consideration
+    // For guest users, only show public profiles
+    // For authenticated users, show both public and private profiles
     const users = await sql`
       SELECT 
         id,
@@ -48,6 +56,7 @@ async function searchHandler(request: NextRequest) {
         email,
         image,
         created_at,
+        profile_public,
         -- Calculate relevance score
         CASE 
           WHEN LOWER(name) = LOWER(${q}) THEN 100
@@ -64,16 +73,19 @@ async function searchHandler(request: NextRequest) {
           LOWER(name) LIKE LOWER(${searchTerm}) OR 
           LOWER(email) LIKE LOWER(${searchTerm})
         )
-        AND is_active = TRUE
+        AND COALESCE(is_active, true) = TRUE
+        ${isAuthenticated ? sql`` : sql`AND COALESCE(profile_public, true) = TRUE`}
       ORDER BY relevance_score DESC, created_at DESC
       LIMIT ${validatedLimit}
     `;
 
     // Format results to match expected interface
+    // For guest users, limit exposed information
     const formattedUsers = users.map(user => ({
       id: user.id.toString(),
       name: user.name,
-      email: user.email,
+      // Only show email to authenticated users
+      email: isAuthenticated ? user.email : undefined,
       image: user.image,
     }));
 
