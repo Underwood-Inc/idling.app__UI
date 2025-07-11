@@ -62,26 +62,7 @@ const config = {
     ],
   ],
 
-  // plugins: [
-  //   [
-  //     'docusaurus-plugin-openapi-docs',
-  //     {
-  //       id: "api",
-  //       docsPluginId: "classic",
-  //       config: {
-  //         api: {
-  //           specPath: "openapi.yaml", // We'll create this
-  //           outputDir: "docs/api",
-  //           sidebarOptions: {
-  //             groupPathsBy: "tag",
-  //             categoryLinkSource: "tag",
-  //           },
-  //           template: "api.mustache", // Custom template
-  //         },
-  //       },
-  //     },
-  //   ],
-  // ],
+
 
   markdown: {
     mermaid: true,
@@ -89,10 +70,27 @@ const config = {
     format: 'detect', // Let Docusaurus auto-detect .md vs .mdx
   },
 
-  themes: [/* "docusaurus-theme-openapi-docs", */ "@docusaurus/theme-mermaid"],
+  themes: ["docusaurus-theme-openapi-docs", "@docusaurus/theme-mermaid"],
 
   // 🔍 Local Search Plugin (React 19 compatible)
   plugins: [
+    [
+      'docusaurus-plugin-openapi-docs',
+      {
+        id: "api",
+        docsPluginId: "classic",
+        config: {
+          api: {
+            specPath: "openapi.yaml", // We'll create this
+            outputDir: "docs/api",
+            sidebarOptions: {
+              groupPathsBy: "tag",
+              categoryLinkSource: "tag",
+            },
+          },
+        },
+      },
+    ],
     [
       'docusaurus-plugin-search-local',
       {

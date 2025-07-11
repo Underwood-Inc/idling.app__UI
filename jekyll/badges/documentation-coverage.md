@@ -8,9 +8,9 @@ description: Auto-generated documentation coverage badge with downloadable repor
 
 ![Documentation Coverage](https://img.shields.io/badge/Documentation%20Coverage-4%25-red?style=flat&logo=gitbook&logoColor=white) | [![📊 CSV Report](https://img.shields.io/badge/📊%20CSV-Download-blue?style=flat&logo=microsoftexcel&logoColor=white)]({{ site.baseurl }}/coverage-artifacts/latest-coverage-report.csv) | [![📋 HTML Report](https://img.shields.io/badge/📋%20HTML-Download-green?style=flat&logo=html5&logoColor=white)]({{ site.baseurl }}/coverage-artifacts/latest-coverage-report.html)
 
-**Current Coverage:** 4% (25/510 files)
+**Current Coverage:** 4% (25/508 files)
 
-*Last updated: Mon Jul  7 12:30:33 NDT 2025*
+*Last updated: Fri Jul 11 07:43:21 NDT 2025*
 
 ## 📥 Download Coverage Reports
 

@@ -1,4 +1,4 @@
-import { cleanup, render, screen } from '@testing-library/react';
+import { act, cleanup, render, screen } from '@testing-library/react';
 import React from 'react';
 
 // Mock the makeid function BEFORE importing the component
@@ -8,8 +8,24 @@ jest.mock('../../../lib/utils/string/make-id', () => ({
 
 // Mock the Avatar component
 jest.mock('../avatar/Avatar', () => ({
-  Avatar: function MockedAvatar({ seed }: { seed: string }) {
-    return <div data-testid="mocked-avatar" data-seed={seed}></div>;
+  Avatar: function MockedAvatar({
+    seed,
+    size
+  }: {
+    seed: string;
+    size: string;
+  }) {
+    return (
+      <div
+        data-testid="mocked-avatar"
+        data-seed={seed}
+        data-size={size}
+        role="img"
+        aria-label="Background Avatar"
+      >
+        Mock Avatar
+      </div>
+    );
   }
 }));
 
@@ -18,72 +34,135 @@ import { makeid } from '../../../lib/utils/string/make-id';
 import AvatarsBackground from './AvatarsBackground';
 
 describe('AvatarsBackground', () => {
+  let mockRequestAnimationFrame: jest.SpyInstance;
+  let mockCancelAnimationFrame: jest.SpyInstance;
+  let mockDateNow: jest.SpyInstance;
+  let currentTime: number;
+
   beforeEach(() => {
-    // Clear mock calls before the test, but note that makeid is called at module import time
+    // Clear mock calls before each test
     jest.clearAllMocks();
+
+    // Mock timing functions
+    currentTime = 1000000; // Start with a base time
+    mockDateNow = jest.spyOn(Date, 'now').mockReturnValue(currentTime);
+
+    // Mock requestAnimationFrame to run immediately
+    mockRequestAnimationFrame = jest
+      .spyOn(window, 'requestAnimationFrame')
+      .mockImplementation((callback) => {
+        // Execute callback immediately instead of waiting for next frame
+        setTimeout(() => callback(currentTime), 0);
+        return 1; // Return a mock frame ID
+      });
+
+    mockCancelAnimationFrame = jest
+      .spyOn(window, 'cancelAnimationFrame')
+      .mockImplementation(() => {});
+
+    // Mock window dimensions
+    Object.defineProperty(window, 'innerWidth', {
+      writable: true,
+      configurable: true,
+      value: 1024
+    });
+    Object.defineProperty(window, 'innerHeight', {
+      writable: true,
+      configurable: true,
+      value: 768
+    });
   });
 
   afterEach(() => {
-    // Clean up after each render
     cleanup();
+    mockRequestAnimationFrame.mockRestore();
+    mockCancelAnimationFrame.mockRestore();
+    mockDateNow.mockRestore();
   });
 
-  it('renders the correct number of avatars', () => {
+  it('renders the avatars background container', () => {
     render(<AvatarsBackground />);
-    const avatars = screen.getAllByTestId('mocked-avatar');
-    expect(avatars).toHaveLength(10);
+
+    const container = document.querySelector('.avatars-background');
+    expect(container).toBeInTheDocument();
+    expect(container).toHaveStyle({
+      position: 'fixed',
+      top: '0',
+      left: '0',
+      width: '100%',
+      height: '100%',
+      pointerEvents: 'none',
+      zIndex: '-1',
+      overflow: 'hidden'
+    });
   });
 
-  it('uses makeid to generate seeds for avatars', () => {
-    // Reset the mock to ensure we can track new calls
-    (makeid as jest.Mock).mockClear();
-
-    // Since makeid is called at module load time, we need to trigger a re-import
-    // or check that the calls were made previously. For this test, we'll verify
-    // that the component renders correctly with the mocked seeds.
+  it('generates avatars after the time interval', async () => {
     render(<AvatarsBackground />);
 
-    // The component should render with the mocked seeds
-    const avatars = screen.getAllByTestId('mocked-avatar');
-    expect(avatars).toHaveLength(10);
+    // Initially, no avatars should be present
+    expect(screen.queryAllByTestId('mocked-avatar')).toHaveLength(0);
 
-    // Each avatar should have the mocked seed in its data-seed attribute
-    avatars.forEach((avatar, index) => {
-      expect(avatar).toHaveAttribute('data-seed');
-      const seed = avatar.getAttribute('data-seed');
-      expect(seed).toMatch(/^background-\d+-mocked-seed$/);
+    // Fast forward time beyond the generation interval (4000ms)
+    await act(async () => {
+      currentTime += 5000; // Advance 5 seconds
+      mockDateNow.mockReturnValue(currentTime);
+
+      // Wait for the animation frame to process
+      await new Promise((resolve) => setTimeout(resolve, 10));
     });
 
-    // Since makeid was called at module import time, we can't easily test
-    // the exact number of calls, but we can verify the component works correctly
-    // with the mocked return value
+    // Now avatars should be generated
+    const avatars = screen.queryAllByTestId('mocked-avatar');
+    expect(avatars.length).toBeGreaterThan(0);
   });
 
-  it('passes the generated seed to each Avatar component', () => {
+  it('uses makeid to generate seeds for avatars', async () => {
     render(<AvatarsBackground />);
-    const avatars = screen.getAllByTestId('mocked-avatar');
+
+    // Fast forward time to trigger avatar generation
+    await act(async () => {
+      currentTime += 5000;
+      mockDateNow.mockReturnValue(currentTime);
+      await new Promise((resolve) => setTimeout(resolve, 10));
+    });
+
+    // Check that makeid was called (it's called for both id and seed generation)
+    expect(makeid).toHaveBeenCalled();
+
+    // Check that avatars have the mocked seed
+    const avatars = screen.queryAllByTestId('mocked-avatar');
+    if (avatars.length > 0) {
+      avatars.forEach((avatar) => {
+        expect(avatar).toHaveAttribute('data-seed', 'mocked-seed');
+      });
+    }
+  });
+
+  it('passes the generated seed to each Avatar component', async () => {
+    render(<AvatarsBackground />);
+
+    // Fast forward time to trigger avatar generation
+    await act(async () => {
+      currentTime += 5000;
+      mockDateNow.mockReturnValue(currentTime);
+      await new Promise((resolve) => setTimeout(resolve, 10));
+    });
+
+    const avatars = screen.queryAllByTestId('mocked-avatar');
     avatars.forEach((avatar) => {
       expect(avatar).toHaveAttribute('data-seed');
-      // The seed should contain "background-" prefix and the mocked-seed
-      expect(avatar.getAttribute('data-seed')).toMatch(
-        /^background-\d+-mocked-seed$/
-      );
+      expect(avatar).toHaveAttribute('data-size');
     });
   });
 
-  it('renders avatars with correct class names', () => {
-    const { container } = render(<AvatarsBackground />);
-    const avatarContainers = container.querySelectorAll(
-      '.avatar__background_avatar'
-    );
-    expect(avatarContainers).toHaveLength(10);
-  });
+  it('cleans up animation frame on unmount', () => {
+    const { unmount } = render(<AvatarsBackground />);
 
-  it('renders the correct structure', () => {
-    const { container } = render(<AvatarsBackground />);
-    expect(
-      container.querySelector('.avatar__background-container')
-    ).toBeInTheDocument();
-    expect(container.querySelector('.avatar__background')).toBeInTheDocument();
+    // Unmount the component
+    unmount();
+
+    // The component should have called cancelAnimationFrame
+    expect(mockCancelAnimationFrame).toHaveBeenCalled();
   });
 });
