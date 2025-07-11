@@ -36,6 +36,7 @@ class HtmlReporter:
         self.enable_syntax_highlighting = enable_syntax_highlighting
         self.template_loader = TemplateLoader()
         self.code_files = None  # Will be set by the checker
+        self.output_file = "documentation-coverage-report.html"  # Default output file
         
         # Initialize modular components if available
         if MODULAR_AVAILABLE:
@@ -58,20 +59,22 @@ class HtmlReporter:
         if self.content_generator:
             self.content_generator.set_code_files(code_files)
     
+    def set_output_file(self, output_file: str) -> None:
+        """Set custom output filename."""
+        self.output_file = output_file
+    
     def generate(self, report: CoverageReport) -> str:
         """Generate HTML report and return the file path."""
-        output_file = "documentation-coverage-report.html"
-        
         try:
             # Generate HTML content
             html_content = self._build_html_document(report)
             
-            # Write to file
-            with open(output_file, 'w', encoding='utf-8') as f:
+            # Write to file using the configured output file
+            with open(self.output_file, 'w', encoding='utf-8') as f:
                 f.write(html_content)
             
-            print(f"📄 HTML report generated: {output_file}")
-            return output_file
+            print(f"📄 HTML report generated: {self.output_file}")
+            return self.output_file
             
         except Exception as e:
             print(f"❌ Failed to generate HTML report: {e}")
