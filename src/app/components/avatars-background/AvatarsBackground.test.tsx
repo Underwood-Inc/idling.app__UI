@@ -5,12 +5,7 @@ jest.mock('../../../lib/utils/string/make-id', () => ({
   makeid: jest.fn()
 }));
 
-// Mock the @dicebear/core createAvatar function
-jest.mock('@dicebear/core', () => ({
-  createAvatar: jest.fn(() => ({
-    toDataUri: jest.fn(() => 'data:image/svg+xml;base64,mock-avatar-data')
-  }))
-}));
+// @dicebear/core is automatically mocked by Jest from __mocks__/@dicebear/core.ts
 
 // Mock window.innerWidth and window.innerHeight
 Object.defineProperty(window, 'innerWidth', {
@@ -69,10 +64,10 @@ global.cancelAnimationFrame = mockCancelAnimationFrame;
 // Mock Date.now to return predictable values
 let mockTime = 1000000;
 const mockDateNow = jest.fn(() => mockTime);
-global.Date.now = mockDateNow;
-
-// Mock performance.now
 const mockPerformanceNow = jest.fn(() => mockTime);
+
+// Apply mocks to global objects
+global.Date.now = mockDateNow;
 global.performance = {
   ...global.performance,
   now: mockPerformanceNow
@@ -81,8 +76,7 @@ global.performance = {
 // Helper function to advance time
 const advanceTime = (ms: number) => {
   mockTime += ms;
-  mockDateNow.mockReturnValue(mockTime);
-  mockPerformanceNow.mockReturnValue(mockTime);
+  // Mock functions already return mockTime, so no need to call mockReturnValue
 };
 
 // Import after mocking
@@ -92,14 +86,10 @@ import AvatarsBackground from './AvatarsBackground';
 describe('AvatarsBackground', () => {
   let mockRequestAnimationFrame: jest.SpyInstance;
   let mockCancelAnimationFrame: jest.SpyInstance;
-  let mockDateNow: jest.SpyInstance;
-  let currentTime: number;
 
   beforeEach(() => {
-    // Reset time
+    // Reset time (mock functions already return mockTime)
     mockTime = 1000000;
-    mockDateNow.mockReturnValue(mockTime);
-    mockPerformanceNow.mockReturnValue(mockTime);
 
     // Setup makeid to return predictable values
     let callCount = 0;
@@ -118,22 +108,9 @@ describe('AvatarsBackground', () => {
     frameId = 0;
     jest.clearAllMocks();
 
-    // Mock timing functions
-    currentTime = 1000000; // Start with a base time
-    mockDateNow = jest.spyOn(Date, 'now').mockReturnValue(currentTime);
-
-    // Mock requestAnimationFrame to run immediately
-    mockRequestAnimationFrame = jest
-      .spyOn(window, 'requestAnimationFrame')
-      .mockImplementation((callback) => {
-        // Execute callback immediately instead of waiting for next frame
-        setTimeout(() => callback(currentTime), 0);
-        return 1; // Return a mock frame ID
-      });
-
-    mockCancelAnimationFrame = jest
-      .spyOn(window, 'cancelAnimationFrame')
-      .mockImplementation(() => {});
+    // Assign global mocks to local variables for testing
+    mockRequestAnimationFrame = global.requestAnimationFrame as jest.Mock;
+    mockCancelAnimationFrame = global.cancelAnimationFrame as jest.Mock;
 
     // Mock window dimensions
     Object.defineProperty(window, 'innerWidth', {
