@@ -1,0 +1,57 @@
+@import '../../../styles/glassmorphism.scss';
+
+.header {
+  // Apply glassmorphism with the current dark background color at 80% opacity
+  @include glassmorphism(
+    $color: #1a1611,
+    $opacity: 0.7,
+    $blur: 12px,
+    $include-border: false // We'll use custom border
+  );
+  
+  // Keep the existing custom border style
+  border-bottom: 2px solid var(--dark-background--quinary);
+  
+  // Keep all existing styles
+  padding: 0.5rem 2rem 0;
+  color: var(--brand-primary);
+  display: flex;
+  flex-flow: column;
+  align-items: center;
+  justify-content: center;
+  position: sticky;
+  top: 0;
+  min-width: 23rem;
+  width: 100%;
+  z-index: var(--z-header);
+}
+
+/* Mobile header improvements */
+@media (max-width: 768px) {
+  .header {
+    padding: 0.5rem 1rem 0;
+    min-width: auto;
+  }
+}
+
+@media (max-width: 480px) {
+  .header {
+    padding: 0.25rem 0.5rem 0;
+  }
+}
+
+.header h2 {
+  margin: 0 auto;
+  font-size: var(--font-size-xl);
+}
+
+.header__auth {
+  margin: 1rem;
+  display: flex;
+  align-items: center;
+}
+
+.header__user-name {
+  margin-right: 1rem;
+  font-size: var(--font-size-base);
+} 

@@ -8,7 +8,11 @@ Provides the main HTML document template and structure.
 from typing import Dict, Any
 from .styles import get_css_styles
 from .table_styles import get_table_styles
-from .javascript import get_javascript
+try:
+    from .js_main import get_complete_javascript
+except ImportError:
+    from .javascript import get_javascript
+    get_complete_javascript = get_javascript
 
 
 class HtmlDocumentGenerator:
@@ -25,10 +29,12 @@ class HtmlDocumentGenerator:
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Documentation Coverage Report - Idling.app</title>
+    <!-- Highlight.js CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/vs2015.min.css">
     <style>
         {get_css_styles()}
         {get_table_styles()}
-        {self._get_additional_styles()}
+        {self._get_modal_styles()}
     </style>
 </head>
 <body>
@@ -46,8 +52,15 @@ class HtmlDocumentGenerator:
     {self._generate_modals()}
     {self._generate_tooltip_templates()}
     
+    <!-- Highlight.js JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/typescript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/css.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/json.min.js"></script>
     <script>
-        {get_javascript()}
+        {get_complete_javascript()}
     </script>
 </body>
 </html>"""
@@ -162,287 +175,16 @@ class HtmlDocumentGenerator:
     </div>
         """
     
-    def _get_additional_styles(self) -> str:
-        """Get additional CSS styles for components not in main style files."""
-        return """
-        /* Additional Component Styles */
-        
-        /* Filtering Styles */
-        .clickable-card {
-            cursor: pointer;
-            transition: all var(--transition-normal);
-        }
-        
-        .clickable-card:hover {
-            transform: translateY(-6px);
-            box-shadow: 0 8px 25px rgba(237, 174, 73, 0.3);
-            border-color: var(--brand-primary);
-        }
-        
-        .clickable-card:active {
-            transform: translateY(-2px);
-        }
-        
-        .filter-controls {
-            background: var(--bg-tertiary);
-            border-radius: var(--radius-lg);
-            padding: var(--spacing-lg);
-            margin-bottom: var(--spacing-lg);
-            border: 1px solid var(--border-color);
-        }
-        
-        .search-container {
-            margin-bottom: var(--spacing-md);
-        }
-        
-        .search-input {
-            width: 100%;
-            padding: var(--spacing-sm) var(--spacing-md);
-            border: 2px solid var(--border-color);
-            border-radius: var(--radius-md);
-            background: var(--card-bg);
-            color: var(--text-primary);
-            font-size: var(--font-size-base);
-            transition: all var(--transition-normal);
-        }
-        
-        .search-input:focus {
-            outline: none;
-            border-color: var(--brand-primary);
-            box-shadow: 0 0 0 3px rgba(237, 174, 73, 0.1);
-        }
-        
-        .filter-tags {
-            display: flex;
-            flex-wrap: wrap;
-            gap: var(--spacing-sm);
-            margin-bottom: var(--spacing-md);
-        }
-        
-        .filter-tag {
-            background: var(--card-bg);
-            color: var(--text-secondary);
-            padding: var(--spacing-xs) var(--spacing-sm);
-            border-radius: var(--radius-sm);
-            font-size: var(--font-size-sm);
-            cursor: pointer;
-            transition: all var(--transition-normal);
-            border: 1px solid var(--border-color);
-        }
-        
-        .filter-tag:hover {
-            background: var(--bg-hover);
-            border-color: var(--brand-primary);
-        }
-        
-        .filter-tag.active {
-            background: var(--brand-primary);
-            color: var(--text-on-primary);
-            border-color: var(--brand-primary);
-        }
-        
-        /* Loading Spinner */
-        .loading-spinner {
-            border: 3px solid var(--border-color);
-            border-top: 3px solid var(--brand-primary);
-            border-radius: 50%;
-            width: 30px;
-            height: 30px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto var(--spacing-sm);
-        }
-        
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        
-        /* Source Code Styles */
-        .source-loading {
-            text-align: center;
-            padding: var(--spacing-xl);
-            color: var(--text-secondary);
-        }
-        
-        .source-error {
-            text-align: center;
-            padding: var(--spacing-xl);
-            color: var(--status-error);
-        }
-        
-        .source-code {
-            background: transparent;
-            border: none;
-            padding: 1rem;
-            overflow: auto;
-            height: 100%;
-            min-height: 0;
-            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
-            font-size: var(--font-size-sm);
-            line-height: 1.1;
-            display: flex;
-            flex-direction: column;
-            flex: 1;
-        }
-        
-        .source-code code {
-            flex: 1;
-            display: block;
-            height: 100%;
-            min-height: 0;
-        }
-        
-        /* Ensure hljs elements fill space */
-        .hljs-code-preview {
-            height: 100%;
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            overflow: auto;
-        }
-        
-        .hljs-lines {
-            flex: 1;
-            height: 100%;
-            min-height: 0;
-        }
-        
-        /* Ensure modal content fills height properly */
-        .source-modal .modal-content {
-            height: 90vh;
-            max-height: 90vh;
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .source-modal-content {
-            height: 100%;
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .source-modal-body {
-            flex: 1;
-            height: 100%;
-            min-height: 0;
-            display: flex;
-            flex-direction: column;
-        }
-        
-        /* Enhanced Modal Button Styling */
-        .modal-header-actions .btn-secondary {
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.1));
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            border-radius: 8px;
-            padding: 0.5rem 1rem;
-            color: #000;
-            font-weight: 500;
-            font-size: 0.9rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        
-        .modal-header-actions .btn-secondary:hover {
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.2));
-            border-color: rgba(255, 255, 255, 0.5);
-            transform: translateY(-1px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-        }
-        
-        .modal-header-actions .btn-secondary:active {
-            transform: translateY(0);
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-        
-        /* Help Modal Styles */
-        .help-section {
-            margin-bottom: var(--spacing-lg);
-        }
-        
-        .help-section h4 {
-            color: var(--text-primary);
-            margin-bottom: var(--spacing-sm);
-            font-size: var(--font-size-md);
-        }
-        
-        .help-section ul {
-            list-style: none;
-            padding: 0;
-        }
-        
-        .help-section li {
-            padding: var(--spacing-xs) 0;
-            color: var(--text-secondary);
-            line-height: 1.4;
-        }
-        
-        .help-section kbd {
-            background: var(--bg-tertiary);
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-xs);
-            padding: 2px 6px;
-            font-size: var(--font-size-xs);
-            font-family: monospace;
-            color: var(--text-primary);
-        }
-        
-        /* Tooltip Styles */
-        .timestamp-tooltip {
-            position: absolute;
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-md);
-            padding: var(--spacing-sm);
-            box-shadow: var(--shadow-lg);
-            z-index: 1000;
-            max-width: 300px;
-            font-size: var(--font-size-sm);
-            opacity: 0;
-            transition: opacity 0.2s ease;
-        }
-        
-        .tooltip-header {
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: var(--spacing-xs);
-            margin-bottom: var(--spacing-xs);
-        }
-        
-        .tooltip-header h4 {
-            margin: 0;
-            color: var(--text-primary);
-            font-size: var(--font-size-sm);
-        }
-        
-        .tooltip-relative-time {
-            color: var(--text-secondary);
-            font-size: var(--font-size-xs);
-        }
-        
-        .tooltip-section {
-            margin-bottom: var(--spacing-xs);
-        }
-        
-        .tooltip-label {
-            font-weight: 600;
-            color: var(--text-primary);
-            font-size: var(--font-size-xs);
-        }
-        
-        .tooltip-utc-time,
-        .tooltip-local-time {
-            color: var(--text-secondary);
-            font-family: monospace;
-            font-size: var(--font-size-xs);
-        }
-        """
+    def _get_modal_styles(self) -> str:
+        """Get CSS styles for modal functionality."""
+        try:
+            from .template_loader import TemplateLoader
+            loader = TemplateLoader()
+            return loader.load_style('modals.css')
+        except (ImportError, FileNotFoundError) as e:
+            # No fallback CSS - fail fast if external CSS is missing
+            print(f"❌ Failed to load modals.css: {e}")
+            return "/* Modal CSS file not found - check styles/modals.css */"
 
 
 # Export the generator class

@@ -1,175 +1,167 @@
-import { createLogger } from '@/lib/logging';
-import { useAtom } from 'jotai';
 import { useSession } from 'next-auth/react';
-import { useEffect, useMemo } from 'react';
-import {
-  getSubmissionsFiltersAtom,
-  getSubmissionsStateAtom,
-  shouldUpdateAtom
-} from './atoms';
-import { UseSubmissionsManagerProps } from './submissions/types';
-import { useFiltersManager } from './submissions/useFiltersManager';
-import { useInfiniteScroll } from './submissions/useInfiniteScroll';
-import { useOptimisticUpdates } from './submissions/useOptimisticUpdates';
-import { useSubmissionsFetch } from './submissions/useSubmissionsFetch';
-import { useUrlSync } from './submissions/useUrlSync';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { SubmissionWithReplies } from '../../app/components/submissions-list/actions';
+import { useSimpleSubmissions } from './submissions/useSimpleSubmissions';
+import { useSimpleUrlFilters } from './submissions/useSimpleUrlFilters';
 
-// Create component-specific logger
-const logger = createLogger({
-  context: {
-    component: 'useSubmissionsManager',
-    module: 'state'
-  },
-  enabled: true // Enabled to debug race condition
-});
+// Keep the same interface for compatibility
+export interface UseSubmissionsManagerProps {
+  contextId: string;
+  onlyMine?: boolean;
+  initialFilters?: Array<{ name: string; value: string }>;
+  initialUserId?: string;
+  includeThreadReplies?: boolean;
+  infiniteScroll?: boolean;
+}
 
+export interface UseSubmissionsManagerReturn {
+  submissions: SubmissionWithReplies[];
+  pagination: {
+    currentPage: number;
+    pageSize: number;
+    totalRecords: number;
+  };
+  filters: Array<{ name: string; value: string }>;
+  isLoading: boolean;
+  error: string | null;
+  addFilter: (filter: { name: string; value: string }) => void;
+  addFilters: (filters: Array<{ name: string; value: string }>) => void;
+  removeFilter: (name: string, value?: string) => void;
+  removeTag: (name: string, value?: string) => void;
+  clearFilters: () => void;
+  setPage: (page: number) => void;
+  setPageSize: (pageSize: number) => void;
+  loadMore: () => void;
+  isLoadingMore: boolean;
+  hasMore: boolean;
+  optimisticUpdateSubmission: (submissionId: number, updatedSubmission: any) => void;
+  optimisticRemoveSubmission: (submissionId: number) => void;
+  updateFilter: (oldFilter: any, newFilter: any) => void;
+}
+
+/**
+ * Submissions manager using URL-first architecture
+ * Keeps the same interface as the old manager for compatibility
+ */
 export function useSubmissionsManager({
   contextId,
   onlyMine = false,
   initialFilters = [],
-  initialUserId,
+  initialUserId = '',
   includeThreadReplies = false,
   infiniteScroll = false
-}: UseSubmissionsManagerProps) {
+}: UseSubmissionsManagerProps): UseSubmissionsManagerReturn {
   const { data: session } = useSession();
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const initializedRef = useRef(false);
+  const initializationAttemptedRef = useRef(false);
 
-  // Use simple atoms without circular dependencies
-  const [submissionsState, setSubmissionsState] = useAtom(
-    getSubmissionsStateAtom(contextId)
-  );
-  const [filtersState, setFiltersState] = useAtom(
-    getSubmissionsFiltersAtom(contextId)
-  );
-  const [shouldUpdate, setShouldUpdate] = useAtom(shouldUpdateAtom);
+  // Use the new URL-first filter system
+  const { filters, addFilter, removeFilter, clearFilters } = useSimpleUrlFilters();
 
-  // User ID with session fallback (internal database ID)
-  const userId = useMemo(() => {
-    return initialUserId || session?.user?.id || '';
-  }, [initialUserId, session?.user?.id]);
-
-  // Initialize infinite scroll hook
-  const {
-    infiniteData,
-    setInfiniteData,
-    infinitePage,
-    setInfinitePage,
-    isLoadingMore,
-    hasMore,
-    setHasMore,
-    loadMore
-  } = useInfiniteScroll({
-    infiniteScroll,
-    filtersState,
-    submissionsState,
+  // Use the new simple submissions hook
+  const { submissions, isLoading, error, totalRecords, refresh } = useSimpleSubmissions({
+    filters,
     onlyMine,
-    userId,
-    includeThreadReplies
-  });
-
-  // Initialize URL sync hook
-  useUrlSync({
-    filtersState,
-    setFiltersState,
-    initialFilters,
-    infiniteScroll
-  });
-
-  // Initialize data fetching hook
-  const { forceRefresh } = useSubmissionsFetch({
-    filtersState,
-    setSubmissionsState,
-    onlyMine,
-    userId,
+    userId: session?.user?.id?.toString() || initialUserId,
     includeThreadReplies,
-    infiniteScroll,
-    setInfiniteData,
-    setInfinitePage,
-    setHasMore
+    enabled: true
   });
 
-  // Initialize filters management hook
-  const {
-    addFilter,
-    addFilters,
-    removeFilter,
-    removeTag,
-    setPage,
-    setPageSize,
-    clearFilters,
-    updateFilter
-  } = useFiltersManager({
-    setFiltersState,
-    infiniteScroll,
-    setInfiniteData,
-    setInfinitePage,
-    setHasMore
-  });
-
-  // Initialize optimistic updates hook
-  const { optimisticUpdateSubmission, optimisticRemoveSubmission } =
-    useOptimisticUpdates({
-      submissionsState,
-      setSubmissionsState,
-      infiniteScroll,
-      infiniteData,
-      setInfiniteData
-    });
-
-  // Listen for shouldUpdate changes (edit/delete operations)
+  // Initialize filters from props if URL is empty - only once and only if needed
   useEffect(() => {
-    if (shouldUpdate) {
-      logger.debug('Received shouldUpdate signal, forcing refresh');
+    // Only initialize once and only if we have initial filters and no current filters
+    if (
+      !initializedRef.current &&
+      !initializationAttemptedRef.current &&
+      filters.length === 0 &&
+      initialFilters.length > 0
+    ) {
+      initializationAttemptedRef.current = true;
       
-      // Reset the shouldUpdate flag first
-      setShouldUpdate(false);
-
-      // Trigger a fresh fetch
-      forceRefresh();
+      // Use setTimeout to avoid initialization during render
+      const timer = setTimeout(() => {
+        initialFilters.forEach(filter => {
+          addFilter(filter);
+        });
+        initializedRef.current = true;
+      }, 0);
+      
+      return () => clearTimeout(timer);
     }
-  }, [shouldUpdate, setShouldUpdate, forceRefresh]);
+  }, [filters.length, initialFilters.length]); // Only depend on lengths, not the arrays themselves
 
-  // Default pagination
-  const pagination = useMemo(
-    () => ({
-      currentPage: filtersState.page,
-      pageSize: filtersState.pageSize,
-      totalRecords: submissionsState.data?.pagination?.totalRecords || 0
-    }),
-    [filtersState.page, filtersState.pageSize, submissionsState.data?.pagination?.totalRecords]
-  );
+  // Create pagination object - memoized
+  const pagination = useMemo(() => ({
+    currentPage,
+    pageSize,
+    totalRecords
+  }), [currentPage, pageSize, totalRecords]);
+
+  // Handle pagination - memoized callbacks
+  const setPage = useCallback((page: number) => {
+    setCurrentPage(page);
+  }, []);
+
+  const handleSetPageSize = useCallback((size: number) => {
+    setPageSize(size);
+    setCurrentPage(1);
+  }, []);
+
+  // Handle multiple filters - memoized
+  const addFilters = useCallback((newFilters: Array<{ name: string; value: string }>) => {
+    newFilters.forEach(filter => {
+      addFilter(filter);
+    });
+  }, [addFilter]);
+
+  // Alias for removeFilter to match old interface - memoized
+  const removeTag = useCallback((name: string, value?: string) => {
+    removeFilter(name, value);
+  }, [removeFilter]);
+
+  // Update filter (remove old, add new) - memoized
+  const updateFilter = useCallback((oldFilter: any, newFilter: any) => {
+    removeFilter(oldFilter.name, oldFilter.value);
+    addFilter(newFilter);
+  }, [removeFilter, addFilter]);
+
+  // Infinite scroll handlers - memoized
+  const loadMore = useCallback(() => {
+    setCurrentPage(prev => prev + 1);
+  }, []);
+
+  const isLoadingMore = false;
+  const hasMore = currentPage * pageSize < totalRecords;
+
+  // Optimistic updates - memoized
+  const optimisticUpdateSubmission = useCallback((submissionId: number, updatedSubmission: any) => {
+    refresh();
+  }, [refresh]);
+
+  const optimisticRemoveSubmission = useCallback((submissionId: number) => {
+    refresh();
+  }, [refresh]);
 
   return {
-    // State
-    submissions: submissionsState.data?.submissions || [],
+    submissions,
     pagination,
-    isLoading: submissionsState.loading,
-    error: submissionsState.error,
-    filters: filtersState.filters,
-    initialized: filtersState.initialized,
-
-    // Infinite scroll
-    infiniteData,
-    hasMore,
-    isLoadingMore,
-    loadMore,
-
-    // Actions
+    filters,
+    isLoading,
+    error,
     addFilter,
     addFilters,
     removeFilter,
     removeTag,
-    setPage,
-    setPageSize,
     clearFilters,
-    updateFilter,
-
-    // Optimistic updates
+    setPage,
+    setPageSize: handleSetPageSize,
+    loadMore,
+    isLoadingMore,
+    hasMore,
     optimisticUpdateSubmission,
     optimisticRemoveSubmission,
-
-    // Computed values
-    totalFilters: filtersState.filters.length,
-    currentPage: filtersState.page,
-    pageSize: filtersState.pageSize
+    updateFilter
   };
 }

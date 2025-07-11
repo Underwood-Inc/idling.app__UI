@@ -3,11 +3,11 @@
  * Handles assigning and managing user subscriptions
  */
 
-import { checkUserPermission } from '@/lib/actions/permissions.actions';
-import { auth } from '@/lib/auth';
 import sql from '@/lib/db';
-import { PERMISSIONS } from '@/lib/permissions/permissions';
-import { AdminSubscriptionAssignmentSchema, AdminSubscriptionCancelParamsSchema, AdminSubscriptionUpdateSchema } from '@/lib/schemas/admin-subscriptions.schema';
+import { withUserPermissions } from '@lib/api/wrappers/withUserPermissions';
+import { withUserRoles } from '@lib/api/wrappers/withUserRoles';
+import { auth } from '@lib/auth';
+import { AdminSubscriptionAssignmentSchema, AdminSubscriptionCancelParamsSchema, AdminSubscriptionUpdateSchema } from '@lib/schemas/admin-subscriptions.schema';
 import { NextRequest, NextResponse } from 'next/server';
 import z from 'zod';
 
@@ -20,7 +20,7 @@ export interface SubscriptionAssignmentRequest {
 }
 
 // POST /api/admin/users/[id]/assign-subscription - Assign subscription to user
-export async function POST(
+async function postHandler(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
@@ -35,15 +35,6 @@ export async function POST(
 
     if (isNaN(targetUserId)) {
       return NextResponse.json({ error: 'Invalid user ID' }, { status: 400 });
-    }
-
-    // Check if user has permission to manage subscriptions
-    const hasPermission = await checkUserPermission(
-      adminUserId,
-      PERMISSIONS.ADMIN.USERS_MANAGE
-    );
-    if (!hasPermission) {
-      return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 });
     }
 
     // Validate request body
@@ -154,7 +145,7 @@ export async function POST(
 }
 
 // PATCH /api/admin/users/[id]/assign-subscription - Update subscription
-export async function PATCH(
+async function patchHandler(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
@@ -169,15 +160,6 @@ export async function PATCH(
 
     if (isNaN(targetUserId)) {
       return NextResponse.json({ error: 'Invalid user ID' }, { status: 400 });
-    }
-
-    // Check if user has permission to manage subscriptions
-    const hasPermission = await checkUserPermission(
-      adminUserId,
-      PERMISSIONS.ADMIN.USERS_MANAGE
-    );
-    if (!hasPermission) {
-      return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 });
     }
 
     // Validate request body
@@ -200,9 +182,9 @@ export async function PATCH(
     await sql`
       UPDATE user_subscriptions 
       SET 
-        status = COALESCE(${status || null}, status),
-        expires_at = COALESCE(${expiresAt || null}, expires_at),
-        notes = COALESCE(${reason || null}, notes),
+        status = ${status || 'active'},
+        expires_at = ${expiresAt || null},
+        notes = ${reason || null},
         updated_at = NOW()
       WHERE id = ${subscriptionId} AND user_id = ${targetUserId}
     `;
@@ -212,6 +194,15 @@ export async function PATCH(
       message: 'Subscription updated successfully' 
     });
   } catch (error) {
+    console.error('Error updating subscription:', error);
+    
+    if (error instanceof z.ZodError) {
+      return NextResponse.json(
+        { error: 'Invalid request data', details: error.errors },
+        { status: 400 }
+      );
+    }
+    
     return NextResponse.json(
       { error: 'Failed to update subscription' },
       { status: 500 }
@@ -220,7 +211,7 @@ export async function PATCH(
 }
 
 // DELETE /api/admin/users/[id]/assign-subscription - Cancel subscription
-export async function DELETE(
+async function deleteHandler(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
@@ -235,15 +226,6 @@ export async function DELETE(
 
     if (isNaN(targetUserId)) {
       return NextResponse.json({ error: 'Invalid user ID' }, { status: 400 });
-    }
-
-    // Check if user has permission to manage subscriptions
-    const hasPermission = await checkUserPermission(
-      adminUserId,
-      PERMISSIONS.ADMIN.USERS_MANAGE
-    );
-    if (!hasPermission) {
-      return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 });
     }
 
     // Validate query parameters
@@ -263,17 +245,16 @@ export async function DELETE(
       );
     }
 
-    const { subscriptionId, reason = 'Cancelled by admin' } = paramsResult.data;
+    const { subscriptionId, reason = 'Cancelled by administrator' } = paramsResult.data;
 
     // Cancel the subscription
     await sql`
       UPDATE user_subscriptions 
       SET 
         status = 'cancelled',
-        expires_at = NOW(),
         notes = ${reason},
         updated_at = NOW()
-      WHERE id = ${subscriptionId} AND user_id = ${targetUserId}
+      WHERE id = ${parseInt(subscriptionId.toString())} AND user_id = ${targetUserId}
     `;
 
     return NextResponse.json({ 
@@ -281,9 +262,23 @@ export async function DELETE(
       message: 'Subscription cancelled successfully' 
     });
   } catch (error) {
+    console.error('Error cancelling subscription:', error);
+    
+    if (error instanceof z.ZodError) {
+      return NextResponse.json(
+        { error: 'Invalid request data', details: error.errors },
+        { status: 400 }
+      );
+    }
+    
     return NextResponse.json(
       { error: 'Failed to cancel subscription' },
       { status: 500 }
     );
   }
-} 
+}
+
+// Apply permission wrappers to handlers
+export const POST = withUserRoles(withUserPermissions(postHandler as any));
+export const PATCH = withUserRoles(withUserPermissions(patchHandler as any));
+export const DELETE = withUserRoles(withUserPermissions(deleteHandler as any)); 

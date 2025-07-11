@@ -36,6 +36,7 @@ interface PostsManagerProps {
   onlyMine?: boolean;
   enableThreadMode?: boolean;
   onNewPostClick?: () => void;
+  initialFilters?: Array<{ name: string; value: string }>;
   // Custom renderer for submissions
   renderSubmissionItem?: (props: {
     submission: SubmissionWithReplies;
@@ -67,21 +68,12 @@ const PostsManager = React.memo(function PostsManager({
   onlyMine = false,
   enableThreadMode = false,
   onNewPostClick,
+  initialFilters = [],
   renderSubmissionItem
 }: PostsManagerProps) {
   const { data: session } = useSession();
 
-  // Simple render counter for debugging
-  const renderCount = useRef(0);
-  renderCount.current += 1;
-
-  // Only log in development and when there's a potential issue
-  if (process.env.NODE_ENV === 'development' && renderCount.current > 2) {
-    // eslint-disable-next-line no-console
-    console.warn(
-      `PostsManager rendered ${renderCount.current} times for contextId: ${contextId}`
-    );
-  }
+  // Debug logging removed to prevent unnecessary render cycles
 
   // Track filter operations for debugging
   const filterOpCount = useRef(0);
@@ -129,6 +121,7 @@ const PostsManager = React.memo(function PostsManager({
   } = useSubmissionsManager({
     contextId,
     onlyMine,
+    initialFilters: initialFilters as any,
     initialUserId: session?.user?.id?.toString() || '',
     includeThreadReplies: shouldIncludeReplies,
     infiniteScroll: infiniteScrollMode
@@ -220,6 +213,9 @@ const PostsManager = React.memo(function PostsManager({
     [setIncludeThreadReplies]
   );
 
+  // Initial filters are now handled by useUrlSync in useSubmissionsManager
+  // No need to apply them here to avoid duplicates
+
   // Memoize authorization check
   const isAuthorized = useMemo(() => !!session?.user?.id, [session?.user?.id]);
 
@@ -280,8 +276,7 @@ const PostsManager = React.memo(function PostsManager({
       // eslint-disable-next-line no-console
       console.log(`Filter operation #${filterOpCount.current}:`, {
         filtersCount: filters.length,
-        isLoading,
-        renderCount: renderCount.current
+        isLoading
       });
     }
   }
@@ -309,26 +304,23 @@ const PostsManager = React.memo(function PostsManager({
   });
 
   // Additional debug logging for search results issue
-  if (process.env.NODE_ENV === 'development') {
-    // Only log when there are actual issues, not on every render
-    if (renderCount.current === 1 || renderCount.current % 10 === 0) {
-      // eslint-disable-next-line no-console
-      console.log('🔍 PostsManager Debug - Search Results Issue:', {
-        submissionsLength: submissions.length,
-        isLoading,
-        error,
-        totalRecords: pagination.totalRecords,
-        renderCount: renderCount.current,
-        filters: filters.map((f) => ({ name: f.name, value: f.value })),
-        firstSubmission: submissions[0]
-          ? {
-              id: submissions[0].submission_id,
-              title: submissions[0].submission_title,
-              author: submissions[0].author
-            }
-          : null
-      });
-    }
+  if (process.env.NODE_ENV === 'development' && filterOpCount.current <= 3) {
+    // Only log first few filter operations to avoid spam
+    // eslint-disable-next-line no-console
+    console.log('🔍 PostsManager Debug - Search Results Issue:', {
+      submissionsLength: submissions.length,
+      isLoading,
+      error,
+      totalRecords: pagination.totalRecords,
+      filters: filters.map((f) => ({ name: f.name, value: f.value })),
+      firstSubmission: submissions[0]
+        ? {
+            id: submissions[0].submission_id,
+            title: submissions[0].submission_title,
+            author: submissions[0].author
+          }
+        : null
+    });
   }
 
   logger.groupEnd();
@@ -355,7 +347,7 @@ const PostsManager = React.memo(function PostsManager({
           filtersCount={actualFiltersCount}
           totalRecords={pagination.totalRecords}
           isLoading={isLoading}
-          error={error || null}
+          error={error as any}
           onNewPostClick={handleNewPostClick}
           isAuthorized={isAuthorized}
           compactMode={spacingTheme === 'compact'}
@@ -418,7 +410,7 @@ const PostsManager = React.memo(function PostsManager({
           optimisticRemoveSubmission={optimisticRemoveSubmission}
           currentPage={pagination.currentPage}
           currentFilters={filters}
-          error={error}
+          error={error as any}
         >
           {renderSubmissionItem}
         </SubmissionsList>
@@ -427,7 +419,7 @@ const PostsManager = React.memo(function PostsManager({
       {/* Pagination */}
       <PostsManagerPagination
         isLoading={isLoading}
-        error={error || null}
+        error={error ?? null}
         submissions={submissions}
         infiniteScrollMode={infiniteScrollMode}
         hasMore={hasMore}

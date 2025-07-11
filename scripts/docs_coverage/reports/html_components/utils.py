@@ -94,6 +94,12 @@ class HtmlUtils:
         return effort_values.get(effort.lower(), 0)
     
     @staticmethod
+    def get_github_url(file_path: str) -> str:
+        """Generate GitHub URL for a file in the main branch."""
+        base_url = "https://github.com/Underwood-Inc/idling.app__UI/blob"
+        return f"{base_url}/main/{file_path}"
+    
+    @staticmethod
     def generate_console_summary(report: Any, output_file: str) -> str:
         """Generate a beautiful console summary for the generated report."""
         return f"""

@@ -3,11 +3,11 @@
  * Handles detailed user information retrieval for admin management
  */
 
-import { checkUserPermission } from '@/lib/actions/permissions.actions';
+import { withUserPermissions } from '@/lib/api/wrappers/withUserPermissions';
+import { withUserRoles } from '@/lib/api/wrappers/withUserRoles';
 import { auth } from '@/lib/auth';
 import sql from '@/lib/db';
 import { withRateLimit } from '@/lib/middleware/withRateLimit';
-import { PERMISSIONS } from '@/lib/permissions/permissions';
 import { NextRequest, NextResponse } from 'next/server';
 
 export interface DetailedUser {
@@ -73,15 +73,6 @@ async function getHandler(
 
     if (isNaN(targetUserId)) {
       return NextResponse.json({ error: 'Invalid user ID' }, { status: 400 });
-    }
-
-    // Check if user has permission to view user details
-    const hasPermission = await checkUserPermission(
-      userId,
-      PERMISSIONS.ADMIN.USERS_VIEW
-    );
-    if (!hasPermission) {
-      return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 });
     }
 
     // Get basic user information with provider data
@@ -175,5 +166,5 @@ async function getHandler(
   }
 }
 
-// Apply rate limiting to handlers
-export const GET = withRateLimit(getHandler); 
+// Apply rate limiting and permission wrappers to handlers
+export const GET = withUserRoles(withUserPermissions(withRateLimit(getHandler as any) as any)) as any; 

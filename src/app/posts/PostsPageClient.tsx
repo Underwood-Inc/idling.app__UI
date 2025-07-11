@@ -3,7 +3,7 @@
 import { useAtom } from 'jotai';
 import { useSession } from 'next-auth/react';
 import dynamic from 'next/dynamic';
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { CONTEXT_IDS } from '../../lib/context-ids';
 import { useOverlay } from '../../lib/context/OverlayContext';
 import { shouldUpdateAtom } from '../../lib/state/atoms';

@@ -6,8 +6,6 @@ describe('GitLab Link', () => {
   it('renders the GitLab link', () => {
     render(<GitLabLink />);
 
-    screen.findByRole('heading');
-
     expect(screen.getByTestId(GITLAB_LINK_TEST_IDS.LINK))
       .toBeVisible()
       .toBeEnabled()

@@ -3,10 +3,10 @@
  * Handles revoking/ending user timeouts early
  */
 
-import { checkUserPermission } from '@/lib/actions/permissions.actions';
+import { withUserPermissions } from '@/lib/api/wrappers/withUserPermissions';
+import { withUserRoles } from '@/lib/api/wrappers/withUserRoles';
 import { auth } from '@/lib/auth';
 import sql from '@/lib/db';
-import { PERMISSIONS } from '@/lib/permissions/permissions';
 import { NextRequest, NextResponse } from 'next/server';
 
 export interface RevokeTimeoutRequest {
@@ -20,7 +20,7 @@ export interface RevokeTimeoutResponse {
 }
 
 // POST /api/admin/users/timeout/revoke - Revoke a user timeout
-export async function POST(request: NextRequest) {
+async function postHandler(request: NextRequest) {
   try {
     const session = await auth();
     if (!session?.user?.id) {
@@ -28,15 +28,6 @@ export async function POST(request: NextRequest) {
     }
 
     const userId = parseInt(session.user.id);
-
-    // Check if user has permission to manage timeouts
-    const hasPermission = await checkUserPermission(
-      userId,
-      PERMISSIONS.ADMIN.USERS_TIMEOUT
-    );
-    if (!hasPermission) {
-      return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 });
-    }
 
     const { timeoutId, reason = 'Revoked by administrator' }: RevokeTimeoutRequest = await request.json();
 
@@ -77,4 +68,7 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
-} 
+}
+
+// Apply permission wrappers to handlers
+export const POST = withUserRoles(withUserPermissions(postHandler as any)); 

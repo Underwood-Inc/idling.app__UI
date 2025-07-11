@@ -228,6 +228,15 @@ export async function updateUserProfile(
     pagination_mode: 'traditional' | 'infinite';
     emoji_panel_behavior: 'close_after_select' | 'stay_open';
     font_preference: 'monospace' | 'default';
+    background_movement_direction: 'static' | 'forward' | 'backward' | 'left' | 'right' | 'up' | 'down';
+    background_movement_speed: 'slow' | 'normal' | 'fast';
+    background_animation_layers: {
+      stars: boolean;
+      particles: boolean;
+      nebula: boolean;
+      planets: boolean;
+      aurora: boolean;
+    };
   }>
 ): Promise<UserProfileData | null> {
   try {
@@ -268,6 +277,18 @@ export async function updateUserProfile(
       setClauses.push(`font_preference = $${paramIndex++}`);
       values.push(updates.font_preference);
     }
+    if (updates.background_movement_direction !== undefined) {
+      setClauses.push(`background_movement_direction = $${paramIndex++}`);
+      values.push(updates.background_movement_direction);
+    }
+    if (updates.background_movement_speed !== undefined) {
+      setClauses.push(`background_movement_speed = $${paramIndex++}`);
+      values.push(updates.background_movement_speed);
+    }
+    if (updates.background_animation_layers !== undefined) {
+      setClauses.push(`background_animation_layers = $${paramIndex++}`);
+      values.push(JSON.stringify(updates.background_animation_layers));
+    }
 
     if (setClauses.length === 0) {
       return getUserProfileById(userId);
@@ -294,7 +315,10 @@ export async function updateUserProfile(
         spacing_theme,
         pagination_mode,
         emoji_panel_behavior,
-        font_preference
+        font_preference,
+        background_movement_direction,
+        background_movement_speed,
+        background_animation_layers
     `;
 
     const result = await sql.unsafe(queryText, [...values, userId]);
@@ -331,7 +355,16 @@ export async function updateUserProfile(
       pagination_mode: userRow.pagination_mode || 'traditional',
       emoji_panel_behavior:
         userRow.emoji_panel_behavior || 'close_after_select',
-      font_preference: userRow.font_preference || 'default'
+      font_preference: userRow.font_preference || 'default',
+      background_movement_direction: userRow.background_movement_direction || 'forward',
+      background_movement_speed: userRow.background_movement_speed || 'normal',
+      background_animation_layers: userRow.background_animation_layers || {
+        stars: true,
+        particles: true,
+        nebula: true,
+        planets: true,
+        aurora: true
+      }
     };
   } catch (error) {
     logger.error('Error updating user profile', error as Error, {
@@ -409,6 +442,15 @@ export async function updateUserPreferencesAction(
     emoji_panel_behavior?: 'close_after_select' | 'stay_open';
     font_preference?: 'monospace' | 'default';
     profile_public?: boolean;
+    background_movement_direction?: 'static' | 'forward' | 'backward' | 'left' | 'right' | 'up' | 'down';
+    background_movement_speed?: 'slow' | 'normal' | 'fast';
+    background_animation_layers?: {
+      stars: boolean;
+      particles: boolean;
+      nebula: boolean;
+      planets: boolean;
+      aurora: boolean;
+    };
   }
 ): Promise<{
   success: boolean;

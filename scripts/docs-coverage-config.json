@@ -105,13 +105,15 @@
   },
   "documentation_discovery": {
     "co_located_patterns": [
+      "{basename}.md",
       "index.md",
       "README.md",
       "docs.md",
       "documentation.md"
     ],
     "centralized_patterns": [
-      "jekyll/**/*.md"
+      "static/**/*.md",
+      "static/coverage/**/*.md"
     ]
   }
 }

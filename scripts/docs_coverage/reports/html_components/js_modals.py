@@ -2,409 +2,316 @@
 """
 Modal JavaScript functionality for HTML Documentation Coverage Report
 
-Provides modal dialog management including source code viewer, column picker, and help modals.
+Provides references to modular JavaScript files for modal management.
+This file has been refactored to use external JS modules instead of inline code.
 """
 
+import os
+import re
+
+def _remove_es6_module_syntax(js_content: str) -> str:
+    """Remove ES6 module syntax (import/export) from JavaScript for inline use."""
+    # Remove import statements (various forms)
+    js_content = re.sub(r'^import\s+.*?from\s+[\'"][^\'"]*[\'"];?\s*\n?', '', js_content, flags=re.MULTILINE)
+    js_content = re.sub(r'^import\s+[\'"][^\'"]*[\'"];?\s*\n?', '', js_content, flags=re.MULTILINE)
+    js_content = re.sub(r'^import\s+.*?;?\s*\n?', '', js_content, flags=re.MULTILINE)
+    
+    # Remove export statements (various forms)
+    js_content = re.sub(r'^export\s+function\s+', 'function ', js_content, flags=re.MULTILINE)
+    js_content = re.sub(r'^export\s+class\s+', 'class ', js_content, flags=re.MULTILINE)
+    js_content = re.sub(r'^export\s+const\s+', 'const ', js_content, flags=re.MULTILINE)
+    js_content = re.sub(r'^export\s+let\s+', 'let ', js_content, flags=re.MULTILINE)
+    js_content = re.sub(r'^export\s+var\s+', 'var ', js_content, flags=re.MULTILINE)
+    js_content = re.sub(r'^export\s+default\s+', '', js_content, flags=re.MULTILINE)
+    js_content = re.sub(r'^export\s+\{[^}]*\};?\s*\n?', '', js_content, flags=re.MULTILINE)
+    
+    return js_content
+
 def get_modal_manager_js() -> str:
-    """Generate JavaScript for modal management functionality."""
+    """Generate inlined modal management functionality by combining modular files."""
+    
+    # Get the directory containing this Python file
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    js_dir = os.path.join(current_dir, 'js')
+    
+    # Read the separate JavaScript files
+    syntax_highlighting_js = ""
+    modal_manager_js = ""
+    source_code_modal_js = ""
+    
+    try:
+        # Read syntax highlighting utilities
+        with open(os.path.join(js_dir, 'utils', 'syntax-highlighting.js'), 'r') as f:
+            syntax_highlighting_js = f.read()
+        
+        # Read modal manager
+        with open(os.path.join(js_dir, 'components', 'modal-manager.js'), 'r') as f:
+            modal_manager_js = f.read()
+        
+        # Read source code modal (remove ES6 module syntax)
+        with open(os.path.join(js_dir, 'components', 'source-code-modal.js'), 'r') as f:
+            source_code_modal_js = f.read()
+            # Remove import/export statements since we're inlining
+            source_code_modal_js = _remove_es6_module_syntax(source_code_modal_js)
+            # Remove the auto-execution part since we'll handle it in the main script
+            source_code_modal_js = source_code_modal_js.replace(
+                "// Call the extension function if this file is loaded\nif (typeof window !== 'undefined') {\n    extendModalManagerWithSourceCode();\n}", ""
+            )
+        
+        # Clean syntax highlighting JS of export statements
+        syntax_highlighting_js = _remove_es6_module_syntax(syntax_highlighting_js)
+        
+        # Clean modal manager JS of export statements  
+        modal_manager_js = _remove_es6_module_syntax(modal_manager_js)
+        
+    except FileNotFoundError as e:
+        print(f"⚠️  Warning: Could not load modular JavaScript files: {e}")
+        print("    Falling back to inline JavaScript...")
+        return get_fallback_modal_js()
+    
+    # Combine all JavaScript into a single inline script
+    combined_js = f"""
+    // Modal Manager - Combined from modular files for production
+    // Source: js/utils/syntax-highlighting.js + js/components/modal-manager.js + js/components/source-code-modal.js
+    
+    // ============================================================================
+    // Syntax Highlighting Utilities
+    // ============================================================================
+    
+    {syntax_highlighting_js}
+    
+    // ============================================================================
+    // Modal Manager
+    // ============================================================================
+    
+    {modal_manager_js}
+    
+    // ============================================================================
+    // Source Code Modal Extensions
+    // ============================================================================
+    
+    {source_code_modal_js}
+    
+    // ============================================================================
+    // Initialization
+    // ============================================================================
+    
+    function initializeModalManager() {{
+        if (window.modalManager) {{
+            window.modalManager.destroy();
+        }}
+        
+        window.modalManager = new ModalManager();
+        
+        // Extend with source code functionality
+        if (typeof extendModalManagerWithSourceCode === 'function') {{
+            extendModalManagerWithSourceCode();
+        }}
+        
+        console.log('✅ Modal manager initialized');
+    }}
+    
+    // Auto-initialize when DOM is ready
+    if (document.readyState === 'loading') {{
+        document.addEventListener('DOMContentLoaded', initializeModalManager);
+    }} else {{
+        initializeModalManager();
+    }}
+    """
+    
+    return combined_js
+
+
+def get_fallback_modal_js() -> str:
+    """Fallback inline JavaScript if modular files cannot be loaded."""
     return """
-    // Modal Manager for handling all modal dialogs
+    // Fallback modal functionality
+    console.warn('🔧 Using fallback modal functionality');
+    
+    function applySyntaxHighlighting(element, language) {
+        if (!element) { return; }
+        
+        if (window.hljs && typeof window.hljs.highlightElement === 'function') {
+            try {
+                element.className = '';
+                if (language) {
+                    element.classList.add(`language-${language}`);
+                }
+                window.hljs.highlightElement(element);
+                console.log('✨ Syntax highlighting applied with hljs');
+                return;
+            } catch (e) {
+                console.warn('Failed to apply hljs highlighting:', e);
+            }
+        }
+        
+        // Basic fallback highlighting
+        element.className = `hljs language-${language || 'javascript'}`;
+        console.log('✨ Basic highlighting applied');
+    }
+    
     class ModalManager {
         constructor() {
             this.activeModal = null;
-            this.setupModalHandlers();
+            this.fileMetadata = {};
+            this.currentFilePath = null;
+            this.isDestroyed = false;
+            this.originalBodyOverflow = '';
+            this.initializeModalSystem();
         }
         
-        setupModalHandlers() {
-            // Setup escape key handler
+        initializeModalSystem() {
+            if (this.isDestroyed) { return; }
+            
+            this.originalBodyOverflow = document.body.style.overflow || '';
+            this.loadEmbeddedSourceCode();
+            this.setupModalEventHandlers();
+            
+            console.log('🎭 Modal system initialized successfully');
+        }
+        
+        loadEmbeddedSourceCode() {
+            try {
+                const sourceCodeScript = document.querySelector('script[data-source-code="true"]');
+                
+                if (sourceCodeScript) {
+                    try {
+                        this.fileMetadata = JSON.parse(sourceCodeScript.textContent);
+                        console.log(`📄 Loaded source code for ${Object.keys(this.fileMetadata).length} files`);
+                    } catch (e) {
+                        console.warn('Failed to parse source code data:', e);
+                        this.fileMetadata = {};
+                    }
+                } else {
+                    console.warn('No source code data found');
+                    this.fileMetadata = {};
+                }
+            } catch (e) {
+                console.warn('Failed to load source code data:', e);
+                this.fileMetadata = {};
+            }
+        }
+        
+        setupModalEventHandlers() {
             document.addEventListener('keydown', (e) => {
-                if (e.key === 'Escape' && this.activeModal) {
-                    this.closeModal(this.activeModal);
+                if (e.key === 'Escape' && this.activeModal && !this.isDestroyed) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    this.closeModal();
                 }
             });
             
-            // Setup modal backdrop click handlers
-            document.querySelectorAll('.modal').forEach(modal => {
-                modal.addEventListener('click', (e) => {
-                    if (e.target === modal) {
-                        this.closeModal(modal);
-                    }
-                });
+            document.addEventListener('click', (e) => {
+                if (this.isDestroyed) { return; }
+                
+                if (e.target.classList.contains('modal') && this.activeModal) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    this.closeModal();
+                }
+                
+                if (e.target.classList.contains('modal-close') && this.activeModal) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    this.closeModal();
+                }
             });
-            
-            // Setup close button handlers
-            document.querySelectorAll('.modal-close').forEach(closeBtn => {
-                closeBtn.addEventListener('click', (e) => {
-                    const modal = e.target.closest('.modal');
-                    if (modal) {
-                        this.closeModal(modal);
-                    }
-                });
-            });
-            
-            console.log('🎭 Modal handlers initialized');
         }
         
-        showModal(modalId) {
-            const modal = document.getElementById(modalId);
-            if (!modal) {
-                console.warn(`⚠️ Modal not found: ${modalId}`);
-                return;
+        showModal(modal) {
+            if (this.isDestroyed) { return; }
+            
+            if (this.activeModal && this.activeModal !== modal) {
+                this.closeModal();
             }
             
-            // Close any existing modal
-            if (this.activeModal) {
-                this.closeModal(this.activeModal);
+            if (!this.originalBodyOverflow) {
+                this.originalBodyOverflow = document.body.style.overflow || '';
             }
             
             modal.style.display = 'flex';
-            setTimeout(() => {
-                modal.classList.add('show');
-            }, 10);
+            document.body.style.overflow = 'hidden';
+            
+            requestAnimationFrame(() => {
+                if (!this.isDestroyed) {
+                    modal.classList.add('show');
+                }
+            });
             
             this.activeModal = modal;
-            
-            // Focus management
-            const firstFocusable = modal.querySelector('button, input, select, textarea, [tabindex]:not([tabindex="-1"])');
-            if (firstFocusable) {
-                firstFocusable.focus();
-            }
-            
-            console.log(`🎭 Modal opened: ${modalId}`);
+            console.log('🎭 Modal opened successfully');
         }
         
-        closeModal(modal) {
-            if (!modal) return;
+        closeModal() {
+            if (!this.activeModal || this.isDestroyed) { return; }
             
-            modal.classList.remove('show');
+            console.log('🎭 Closing modal...');
+            
+            const modalToClose = this.activeModal;
+            modalToClose.classList.remove('show');
+            this.activeModal = null;
+            document.body.style.overflow = this.originalBodyOverflow;
+            
             setTimeout(() => {
-                modal.style.display = 'none';
+                if (!this.isDestroyed && modalToClose) {
+                    modalToClose.style.display = 'none';
+                }
             }, 300);
             
-            this.activeModal = null;
-            
-            console.log('🎭 Modal closed');
+            console.log('🎭 Modal closed successfully');
+        }
+        
+        showLoadingState(loading, error, content) {
+            if (loading) { loading.style.display = 'flex'; }
+            if (error) { error.style.display = 'none'; }
+            if (content) { content.style.display = 'none'; }
         }
         
         showSourceCodeModal(row) {
-            const fileName = row.dataset.fileName || 'Unknown File';
-            const filePath = row.dataset.filePath || '';
-            const githubUrl = row.dataset.githubUrl || '';
-            
-            // Update modal content
-            const modal = document.getElementById('source-code-modal');
-            if (!modal) return;
-            
-            const title = modal.querySelector('#source-modal-title');
-            const pathElement = modal.querySelector('#source-path');
-            const statsElement = modal.querySelector('#source-stats');
-            const codeContent = modal.querySelector('#source-code-content code');
-            const githubBtn = modal.querySelector('#open-github-btn');
-            
-            if (title) title.textContent = `Source: ${fileName}`;
-            if (pathElement) pathElement.textContent = filePath;
-            if (statsElement) statsElement.textContent = 'Loading file information...';
-            if (codeContent) codeContent.textContent = 'Loading source code...';
-            if (githubBtn) githubBtn.dataset.githubUrl = githubUrl;
-            
-            this.showModal('source-code-modal');
-            
-            // Simulate loading source code (in real implementation, this would fetch from server)
-            setTimeout(() => {
-                if (codeContent) {
-                    codeContent.textContent = `// Source code for ${fileName}
-// This is a placeholder - in a real implementation, 
-// the actual source code would be fetched from the server
-                    
-class ExampleClass {
-    constructor() {
-        this.fileName = '${fileName}';
-        this.filePath = '${filePath}';
-    }
-    
-    getDocumentationGaps() {
-        // Implementation would analyze the file for documentation gaps
-        return [];
-    }
-}
-
-export default ExampleClass;`;
-                }
-                
-                if (statsElement) {
-                    statsElement.textContent = 'Lines: 42 | Size: 1.2 KB | Type: JavaScript';
-                }
-            }, 500);
+            console.log('📄 Source code modal functionality not fully loaded');
         }
         
-        showColumnPicker() {
-            this.showModal('column-picker-modal');
-        }
-        
-        showHelpModal() {
-            this.showModal('help-modal');
+        destroy() {
+            if (this.activeModal) {
+                this.closeModal();
+            }
+            this.isDestroyed = true;
+            this.activeModal = null;
+            this.fileMetadata = {};
+            this.currentFilePath = null;
+            document.body.style.overflow = this.originalBodyOverflow;
         }
     }
     
-    // Source Code Modal Functionality
-    class SourceCodeManager {
-        constructor() {
-            this.setupSourceCodeHandlers();
+    function initializeModalManager() {
+        if (window.modalManager) {
+            window.modalManager.destroy();
         }
         
-        setupSourceCodeHandlers() {
-            // Copy source code button
-            const copyBtn = document.getElementById('copy-source-btn');
-            if (copyBtn) {
-                copyBtn.addEventListener('click', () => {
-                    this.copySourceCode();
-                });
-            }
-            
-            // Download source code button
-            const downloadBtn = document.getElementById('download-source-btn');
-            if (downloadBtn) {
-                downloadBtn.addEventListener('click', () => {
-                    this.downloadSourceCode();
-                });
-            }
-            
-            // GitHub button
-            const githubBtn = document.getElementById('open-github-btn');
-            if (githubBtn) {
-                githubBtn.addEventListener('click', () => {
-                    const url = githubBtn.dataset.githubUrl;
-                    if (url) {
-                        window.open(url, '_blank');
-                    }
-                });
-            }
-            
-            console.log('📄 Source code handlers initialized');
-        }
-        
-        copySourceCode() {
-            const codeElement = document.querySelector('#source-code-content code');
-            if (!codeElement) return;
-            
-            const text = codeElement.textContent;
-            
-            if (navigator.clipboard) {
-                navigator.clipboard.writeText(text).then(() => {
-                    this.showCopyFeedback('Source code copied to clipboard!');
-                }).catch(err => {
-                    console.error('Failed to copy:', err);
-                    this.fallbackCopyText(text);
-                });
-            } else {
-                this.fallbackCopyText(text);
-            }
-        }
-        
-        fallbackCopyText(text) {
-            const textArea = document.createElement('textarea');
-            textArea.value = text;
-            textArea.style.position = 'fixed';
-            textArea.style.left = '-999999px';
-            textArea.style.top = '-999999px';
-            document.body.appendChild(textArea);
-            textArea.focus();
-            textArea.select();
-            
-            try {
-                document.execCommand('copy');
-                this.showCopyFeedback('Source code copied to clipboard!');
-            } catch (err) {
-                console.error('Fallback copy failed:', err);
-                this.showCopyFeedback('Failed to copy source code', 'error');
-            }
-            
-            document.body.removeChild(textArea);
-        }
-        
-        showCopyFeedback(message, type = 'success') {
-            const copyBtn = document.getElementById('copy-source-btn');
-            if (!copyBtn) return;
-            
-            const originalText = copyBtn.querySelector('.btn-text').textContent;
-            const textElement = copyBtn.querySelector('.btn-text');
-            
-            textElement.textContent = message;
-            copyBtn.classList.add(type === 'success' ? 'success' : 'error');
-            
-            setTimeout(() => {
-                textElement.textContent = originalText;
-                copyBtn.classList.remove('success', 'error');
-            }, 2000);
-        }
-        
-        downloadSourceCode() {
-            const codeElement = document.querySelector('#source-code-content code');
-            const pathElement = document.querySelector('#source-path');
-            
-            if (!codeElement || !pathElement) return;
-            
-            const content = codeElement.textContent;
-            const fileName = pathElement.textContent.split('/').pop() || 'source-code.txt';
-            
-            const blob = new Blob([content], { type: 'text/plain' });
-            const url = URL.createObjectURL(blob);
-            
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = fileName;
-            a.style.display = 'none';
-            
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            
-            URL.revokeObjectURL(url);
-            
-            console.log(`💾 Downloaded: ${fileName}`);
-        }
+        window.modalManager = new ModalManager();
+        console.log('✅ Modal manager initialized (fallback mode)');
     }
     
-    // Column Picker Modal Functionality
-    class ColumnPickerManager {
-        constructor() {
-            this.setupColumnPickerHandlers();
-        }
-        
-        setupColumnPickerHandlers() {
-            // Column checkboxes
-            document.querySelectorAll('.column-option input[type="checkbox"]').forEach(checkbox => {
-                checkbox.addEventListener('change', (e) => {
-                    const column = e.target.dataset.column;
-                    const isVisible = e.target.checked;
-                    this.toggleColumn(column, isVisible);
-                });
-            });
-            
-            // Reset columns button
-            const resetBtn = document.getElementById('reset-columns-btn');
-            if (resetBtn) {
-                resetBtn.addEventListener('click', () => {
-                    this.resetColumns();
-                });
-            }
-            
-            // Apply columns button
-            const applyBtn = document.getElementById('apply-columns-btn');
-            if (applyBtn) {
-                applyBtn.addEventListener('click', () => {
-                    this.applyColumnChanges();
-                });
-            }
-            
-            console.log('⚙️ Column picker handlers initialized');
-        }
-        
-        toggleColumn(column, isVisible) {
-            const table = document.getElementById('gaps-table');
-            if (!table) return;
-            
-            const headers = table.querySelectorAll(`th.col-${column}`);
-            const cells = table.querySelectorAll(`td.col-${column}`);
-            
-            headers.forEach(header => {
-                header.style.display = isVisible ? '' : 'none';
-            });
-            
-            cells.forEach(cell => {
-                cell.style.display = isVisible ? '' : 'none';
-            });
-            
-            console.log(`⚙️ Column ${column} ${isVisible ? 'shown' : 'hidden'}`);
-        }
-        
-        resetColumns() {
-            // Reset all checkboxes to default state
-            document.querySelectorAll('.column-option input[type="checkbox"]').forEach(checkbox => {
-                const isEssential = checkbox.disabled;
-                checkbox.checked = isEssential || checkbox.dataset.defaultVisible === 'true';
-                
-                const column = checkbox.dataset.column;
-                this.toggleColumn(column, checkbox.checked);
-            });
-            
-            console.log('🔄 Columns reset to default');
-        }
-        
-        applyColumnChanges() {
-            // Save column visibility state
-            const columnState = {};
-            document.querySelectorAll('.column-option input[type="checkbox"]').forEach(checkbox => {
-                const column = checkbox.dataset.column;
-                columnState[column] = checkbox.checked;
-            });
-            
-            localStorage.setItem('docs-coverage-column-state', JSON.stringify(columnState));
-            
-            // Close modal
-            const modal = document.getElementById('column-picker-modal');
-            if (modal) {
-                window.modalManager.closeModal(modal);
-            }
-            
-            console.log('✅ Column changes applied');
-        }
+    // Auto-initialize when DOM is ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initializeModalManager);
+    } else {
+        initializeModalManager();
     }
     """
 
 
-def get_modal_styles_js() -> str:
-    """Generate JavaScript for modal styling and animations."""
+def get_modal_script_tags() -> str:
+    """Generate script tags for loading modular JavaScript components."""
     return """
-    // Modal Animation and Styling Manager
-    class ModalStyleManager {
-        constructor() {
-            this.setupModalAnimations();
-        }
-        
-        setupModalAnimations() {
-            // Add CSS classes for modal animations
-            const style = document.createElement('style');
-            style.textContent = `
-                .modal {
-                    transition: opacity 0.3s ease-out, visibility 0.3s ease-out;
-                }
-                
-                .modal.show {
-                    opacity: 1;
-                    visibility: visible;
-                }
-                
-                .modal-content {
-                    transition: transform 0.3s ease-out;
-                }
-                
-                .modal.show .modal-content {
-                    transform: scale(1);
-                }
-                
-                .btn.success {
-                    background-color: var(--color-success);
-                    border-color: var(--color-success);
-                    color: white;
-                }
-                
-                .btn.error {
-                    background-color: var(--color-error);
-                    border-color: var(--color-error);
-                    color: white;
-                }
-            `;
-            document.head.appendChild(style);
-            
-            console.log('🎨 Modal animations initialized');
-        }
-    }
+    <!-- Modular JavaScript Components -->
     """
+
+
+def get_modal_fallback_js() -> str:
+    """Get fallback JavaScript for modal functionality."""
+    return get_fallback_modal_js()
 
 
 # Export the JavaScript generator functions
-__all__ = [
-    'get_modal_manager_js',
-    'get_modal_styles_js'
-] 
+__all__ = ['get_modal_manager_js', 'get_modal_script_tags', 'get_modal_fallback_js'] 

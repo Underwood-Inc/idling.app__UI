@@ -7,8 +7,6 @@ describe('Page', () => {
   it('renders the about page', () => {
     render(<About />);
 
-    screen.findByRole('heading');
-
     expect(screen.getByTestId(ABOUT_PAGE_SELECTORS.ROOT_LINK))
       .toBeVisible()
       .toBeEnabled()

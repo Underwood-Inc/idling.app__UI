@@ -221,13 +221,21 @@ export function useImageGeneration(props: UseImageGenerationProps) {
     const currentSnapshot = getCurrentFormSnapshot();
     
     // Check if this is a repeat generation with same parameters
-    if (lastGenerationParams.current && areFormSnapshotsEqual(currentSnapshot, lastGenerationParams.current)) {
+    // BUT only if we have any form values filled in - empty forms should always generate
+    const hasAnyFormValues = currentSnapshot.currentSeed || 
+                            currentSnapshot.avatarSeed || 
+                            currentSnapshot.customQuote || 
+                            currentSnapshot.customAuthor;
+    
+    if (hasAnyFormValues && 
+        lastGenerationParams.current && 
+        areFormSnapshotsEqual(currentSnapshot, lastGenerationParams.current)) {
       // Show regeneration dialog
       setShowRegenerationDialog(true);
       return;
     }
 
-    // Form has changed or this is first generation, proceed normally
+    // Form has changed, this is first generation, or form is empty - proceed normally
     await performGeneration(false);
   }, [getCurrentFormSnapshot, areFormSnapshotsEqual, performGeneration]);
 

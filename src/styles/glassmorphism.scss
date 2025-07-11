@@ -1,0 +1,123 @@
+/**
+ * Glassmorphism Effect System
+ * Reusable SCSS mixins for creating glass-like effects
+ *
+ * Usage Examples:
+ * 
+ * // Basic glassmorphism with default border
+ * @include glassmorphism();
+ * 
+ * // Glassmorphism without border (for custom borders)
+ * @include glassmorphism($include-border: false);
+ * border: 2px solid var(--brand-primary);
+ * 
+ * // Custom glassmorphism with specific border
+ * @include glassmorphism-custom(
+ *   rgba(255, 255, 255, 0.1),
+ *   $blur: 12px,
+ *   $border: 1px solid rgba(237, 174, 73, 0.3)
+ * );
+ * 
+ * // Minimal glass effect (no border, no shadow)
+ * @include glassmorphism($include-border: false, $shadow: false);
+ */
+
+@mixin glassmorphism($color: #ffffff, $opacity: 0.1, $blur: 10px, $border-opacity: 0.2, $include-border: true, $shadow: true) {
+  background: rgba($color, $opacity);
+  backdrop-filter: blur($blur);
+  -webkit-backdrop-filter: blur($blur);
+  
+  @if $include-border {
+    border: 1px solid rgba($color, $border-opacity);
+  }
+  
+  @if $shadow {
+    box-shadow: 
+      0 8px 32px rgba(0, 0, 0, 0.12),
+      inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  }
+}
+
+@mixin glassmorphism-custom($background, $blur: 10px, $border: null, $shadow: true) {
+  background: $background;
+  backdrop-filter: blur($blur);
+  -webkit-backdrop-filter: blur($blur);
+  
+  @if $border {
+    border: $border;
+  }
+  
+  @if $shadow {
+    box-shadow: 
+      0 8px 32px rgba(0, 0, 0, 0.12),
+      inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  }
+}
+
+// CSS Custom Properties for dynamic glassmorphism
+:root {
+  --glass-bg-light: rgba(255, 255, 255, 0.05);
+  --glass-bg-medium: rgba(255, 255, 255, 0.1);
+  --glass-bg-strong: rgba(255, 255, 255, 0.15);
+  --glass-border-light: rgba(255, 255, 255, 0.1);
+  --glass-border-medium: rgba(255, 255, 255, 0.2);
+  --glass-blur-light: blur(8px);
+  --glass-blur-medium: blur(12px);
+  --glass-blur-strong: blur(16px);
+  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+// Utility classes for quick application
+.glass {
+  @include glassmorphism();
+}
+
+.glass-light {
+  @include glassmorphism($opacity: 0.05, $blur: 8px);
+}
+
+.glass-medium {
+  @include glassmorphism($opacity: 0.1, $blur: 12px);
+}
+
+.glass-strong {
+  @include glassmorphism($opacity: 0.15, $blur: 16px);
+}
+
+// Border control variants
+.glass-no-border {
+  @include glassmorphism($include-border: false);
+}
+
+.glass-no-shadow {
+  @include glassmorphism($shadow: false);
+}
+
+.glass-minimal {
+  @include glassmorphism($include-border: false, $shadow: false);
+}
+
+// Color-specific utility classes
+.glass-dark {
+  @include glassmorphism($color: #000000, $opacity: 0.1);
+}
+
+.glass-dark-no-border {
+  @include glassmorphism($color: #000000, $opacity: 0.1, $include-border: false);
+}
+
+.glass-primary {
+  @include glassmorphism($color: #edae49, $opacity: 0.1); // var(--brand-primary)
+}
+
+.glass-primary-no-border {
+  @include glassmorphism($color: #edae49, $opacity: 0.1, $include-border: false);
+}
+
+.glass-secondary {
+  @include glassmorphism($color: #f9df74, $opacity: 0.08); // var(--brand-secondary)
+}
+
+.glass-secondary-no-border {
+  @include glassmorphism($color: #f9df74, $opacity: 0.08, $include-border: false);
+} 

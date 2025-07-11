@@ -7,13 +7,15 @@
     "noEmit": true,
     "esModuleInterop": true,
     "module": "esnext",
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "resolveJsonModule": true,
     "isolatedModules": true,
     "jsx": "preserve",
     "incremental": true,
     "baseUrl": ".",
     "types": ["jest", "@testing-library/jest-dom", "node"],
+    "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true,
     "target": "ES6",
     "plugins": [
       {
@@ -21,15 +23,15 @@
       }
     ],
     "paths": {
-      "@rich-text-editor": ["./src/components/rich-text-editor"],
-      "@rich-text-editor/*": ["./src/components/rich-text-editor/*"],
-      "@/*": ["./src/*"]
-      // "@components/*": ["./src/components/*"],
-      // "@pages/*": ["src/app/pages/*/*"],
-      // "@constants/*": ["./src/constants/*"],
-      // "@types/*": ["./src/types/*"],
-      // "@interfaces/*": ["./src/interfaces/*"],
-      // "@server/*": ["./src/server/*"]
+      "@rich-text-editor": ["./src/app/components/rich-text"],
+      "@rich-text-editor/*": ["./src/app/components/rich-text/*"],
+      "@/*": ["./src/*"],
+      "@lib/*": ["./src/lib/*"],
+      "@components/*": ["./src/components/*"],
+      "@constants/*": ["./src/constants/*"],
+      "@types/*": ["./src/types/*"],
+      "@interfaces/*": ["./src/interfaces/*"],
+      "@server/*": ["./src/server/*"]
     }
   },
   "include": [
@@ -43,9 +45,9 @@
   "exclude": ["node_modules"],
   "ts-node": {
     "esm": true,
-    "experimentalSpecifierResolution": "node",
     "compilerOptions": {
-      "module": "CommonJS"
+      "module": "CommonJS",
+      "moduleResolution": "node"
     }
   }
 }
