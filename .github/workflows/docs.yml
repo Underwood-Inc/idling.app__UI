@@ -55,6 +55,9 @@ jobs:
         with:
           version: 8
 
+      - name: Enable Corepack for yarn compatibility
+        run: corepack enable
+
       - name: Get pnpm store directory
         shell: bash
         run: |
@@ -70,8 +73,7 @@ jobs:
             ${{ runner.os }}-pnpm-store-
 
       - name: Install dependencies
-        run: |
-          pnpm install || echo "Warning: Some post-install scripts failed (postman-code-generators), but continuing build"
+        run: pnpm install
 
       - name: Generate OpenAPI docs
         run: pnpm docusaurus gen-api-docs all
@@ -129,6 +131,9 @@ jobs:
         with:
           version: 8
 
+      - name: Enable Corepack for yarn compatibility
+        run: corepack enable
+
       - name: Get pnpm store directory
         shell: bash
         run: |
@@ -144,8 +149,7 @@ jobs:
             ${{ runner.os }}-pnpm-store-
 
       - name: Install dependencies
-        run: |
-          pnpm install || echo "Warning: Some post-install scripts failed (postman-code-generators), but continuing build"
+        run: pnpm install
 
       - name: Generate OpenAPI docs
         run: pnpm docusaurus gen-api-docs all
