@@ -3,50 +3,14 @@
     "minimum_quality_score": 0.7,
     "minimum_coverage_percentage": 85.0,
     "required_sections": {
-      "api_route": [
-        "overview",
-        "usage",
-        "api_reference",
-        "examples"
-      ],
-      "component": [
-        "overview",
-        "props",
-        "usage",
-        "examples"
-      ],
-      "service": [
-        "overview",
-        "usage",
-        "api_reference",
-        "configuration"
-      ],
-      "utility": [
-        "overview",
-        "usage",
-        "examples"
-      ],
-      "hook": [
-        "overview",
-        "usage",
-        "examples",
-        "api_reference"
-      ],
-      "page": [
-        "overview",
-        "usage",
-        "examples"
-      ],
-      "layout": [
-        "overview",
-        "usage",
-        "examples"
-      ],
-      "types": [
-        "overview",
-        "usage",
-        "examples"
-      ]
+      "api_route": ["overview", "usage", "api_reference", "examples"],
+      "component": ["overview", "props", "usage", "examples"],
+      "service": ["overview", "usage", "api_reference", "configuration"],
+      "utility": ["overview", "usage", "examples"],
+      "hook": ["overview", "usage", "examples", "api_reference"],
+      "page": ["overview", "usage", "examples"],
+      "layout": ["overview", "usage", "examples"],
+      "types": ["overview", "usage", "examples"]
     },
     "minimum_word_count": {
       "critical": 200,
@@ -109,8 +73,6 @@
       "docs.md",
       "documentation.md"
     ],
-    "centralized_patterns": [
-      "jekyll/**/*.md"
-    ]
+    "centralized_patterns": ["docs/**/*.md"]
   }
 }

@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 
 /**
- * Generate OpenAPI Specification for Jekyll Documentation
+ * Generate OpenAPI Specification for Docusaurus Documentation
  * 
  * This script generates the OpenAPI spec from the swagger configuration
- * and places it in the Jekyll docs directory for static serving.
+ * and places it in the appropriate directory for serving.
  */
 
 const fs = require('fs');

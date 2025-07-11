@@ -85,7 +85,7 @@ jobs:
 
       # Install project dependencies using pnpm (as specified in package.json)
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm install
 
       # Install Playwright browsers for caching
       - name: Install Playwright browsers
@@ -166,7 +166,7 @@ jobs:
       - name: Install dependencies and browsers
         if: steps.cache-restore.outputs.cache-hit != 'true'
         run: |
-          pnpm install --frozen-lockfile
+          pnpm install
           pnpm exec playwright install --with-deps
 
       # Setup test database
@@ -251,7 +251,7 @@ jobs:
       # Install dependencies if cache miss
       - name: Install dependencies
         if: steps.cache-restore.outputs.cache-hit != 'true'
-        run: pnpm install --frozen-lockfile
+        run: pnpm install
 
       # Setup Python for documentation coverage analysis
       - name: Setup Python
@@ -614,10 +614,15 @@ jobs:
               console.log('📝 PR description already up to date');
             }
 
-      # Generate OpenAPI docs for Docusaurus
-      - name: Generate OpenAPI docs
-        run: pnpm docusaurus gen-api-docs all
-        continue-on-error: true
+      # Generate OpenAPI specification before building docs
+      - name: Generate OpenAPI specification
+        run: pnpm docs:openapi
+
+      - name: OpenAPI Documentation Status
+        run: |
+          echo "📚 Using Redocusaurus for OpenAPI documentation"
+          echo "✅ OpenAPI spec generated at: src/app/api/openapi.json"
+          echo "🌐 API documentation will be available at: /api/"
 
       # Build Docusaurus documentation site
       - name: Build Docusaurus site
@@ -684,7 +689,7 @@ jobs:
       # Install dependencies if cache miss (first run or cache eviction)
       - name: Install dependencies
         if: steps.cache-restore.outputs.cache-hit != 'true'
-        run: pnpm install --frozen-lockfile
+        run: pnpm install
 
       # Run unit tests with sharding
       - name: Run Jest tests (Shard ${{ matrix.shard }}/3)

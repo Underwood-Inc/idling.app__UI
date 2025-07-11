@@ -49,12 +49,6 @@ import { mockEssentialBrowserAPIs } from './__mocks__/index';
 if (typeof window !== 'undefined') {
   // Apply only essential browser environment mocks
   mockEssentialBrowserAPIs();
-
-  // eslint-disable-next-line no-console
-  console.log('🧪 Essential browser API mocks initialized for jsdom environment');
-} else {
-  // eslint-disable-next-line no-console
-  console.log('🧪 Skipping browser API mocks for Node.js environment');
 }
 
 // ============================================================================
@@ -87,7 +81,5 @@ process.env.DATABASE_URL = 'postgresql://test:test@localhost:5432/test_db';  // 
 jest.setTimeout(10000);
 
 /**
- * Setup complete message
+ * Setup complete - essential mocks configured
  */
-// eslint-disable-next-line no-console
-console.log('🧪 Jest setup complete - essential mocks only!');

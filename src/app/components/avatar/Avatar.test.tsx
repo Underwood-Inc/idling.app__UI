@@ -12,21 +12,7 @@ jest.mock('jotai', () => ({
   atom: jest.fn()
 }));
 
-// Mock @dicebear/core
-jest.mock('@dicebear/core', () => ({
-  createAvatar: jest.fn().mockReturnValue({
-    toDataUri: jest.fn().mockReturnValue('data:image/svg+xml;base64,mock')
-  })
-}));
-
-// Mock @dicebear/collection
-jest.mock('@dicebear/collection', () => ({
-  adventurer: {
-    create: jest.fn().mockReturnValue({
-      toDataUriSync: jest.fn().mockReturnValue('data:image/svg+xml;base64,mock')
-    })
-  }
-}));
+// @dicebear/core and @dicebear/collection are automatically mocked by Jest from __mocks__/ directory
 
 describe('Avatar', () => {
   beforeEach(() => {

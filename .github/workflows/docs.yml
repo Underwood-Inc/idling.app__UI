@@ -55,6 +55,9 @@ jobs:
         with:
           version: 8
 
+      - name: Enable Corepack for yarn compatibility
+        run: corepack enable
+
       - name: Get pnpm store directory
         shell: bash
         run: |
@@ -72,12 +75,16 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
-      - name: Generate OpenAPI docs
-        run: pnpm docusaurus gen-api-docs all
-        continue-on-error: true
+      - name: Generate OpenAPI specification
+        run: pnpm docs:openapi
+
+      - name: OpenAPI Documentation Status
+        run: |
+          echo "📚 Using Redocusaurus for OpenAPI documentation"
+          echo "✅ OpenAPI spec generated at: src/app/api/openapi.json"
 
       - name: Build Docusaurus site
-        run: pnpm build
+        run: pnpm docs:build
         env:
           NODE_ENV: production
 
@@ -128,6 +135,9 @@ jobs:
         with:
           version: 8
 
+      - name: Enable Corepack for yarn compatibility
+        run: corepack enable
+
       - name: Get pnpm store directory
         shell: bash
         run: |
@@ -145,12 +155,13 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
-      - name: Generate OpenAPI docs
-        run: pnpm docusaurus gen-api-docs all
-        continue-on-error: true
+      - name: OpenAPI Documentation Status
+        run: |
+          echo "📚 Using Redocusaurus for OpenAPI documentation"
+          echo "✅ API docs will be automatically generated during build"
 
       - name: Build Docusaurus site (PR check)
-        run: pnpm build
+        run: pnpm docs:build
         env:
           NODE_ENV: production
 

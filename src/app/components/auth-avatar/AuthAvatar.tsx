@@ -35,8 +35,6 @@ export function AuthAvatar({
 
     // If we had a user before and now we don't (sign out), clear the cache
     if (previousUserId && !currentUserId) {
-      // eslint-disable-next-line no-console
-      console.log('🧹 Clearing avatar cache on sign out');
       setAvatarCache({});
     }
 
@@ -47,8 +45,6 @@ export function AuthAvatar({
   // Additional effect to ensure cache is cleared when session becomes null
   useEffect(() => {
     if (!session) {
-      // eslint-disable-next-line no-console
-      console.log('🧹 Clearing avatar cache - no session detected');
       setAvatarCache({});
     }
   }, [session, setAvatarCache]);

@@ -5,12 +5,7 @@ jest.mock('../../../lib/utils/string/make-id', () => ({
   makeid: jest.fn()
 }));
 
-// Mock the @dicebear/core createAvatar function
-jest.mock('@dicebear/core', () => ({
-  createAvatar: jest.fn(() => ({
-    toDataUri: jest.fn(() => 'data:image/svg+xml;base64,mock-avatar-data')
-  }))
-}));
+// @dicebear/core is automatically mocked by Jest from __mocks__/@dicebear/core.ts
 
 // Mock window.innerWidth and window.innerHeight
 Object.defineProperty(window, 'innerWidth', {
@@ -69,10 +64,10 @@ global.cancelAnimationFrame = mockCancelAnimationFrame;
 // Mock Date.now to return predictable values
 let mockTime = 1000000;
 const mockDateNow = jest.fn(() => mockTime);
-global.Date.now = mockDateNow;
-
-// Mock performance.now
 const mockPerformanceNow = jest.fn(() => mockTime);
+
+// Apply mocks to global objects
+global.Date.now = mockDateNow;
 global.performance = {
   ...global.performance,
   now: mockPerformanceNow
@@ -81,8 +76,7 @@ global.performance = {
 // Helper function to advance time
 const advanceTime = (ms: number) => {
   mockTime += ms;
-  mockDateNow.mockReturnValue(mockTime);
-  mockPerformanceNow.mockReturnValue(mockTime);
+  // Mock functions already return mockTime, so no need to call mockReturnValue
 };
 
 // Import after mocking
@@ -90,11 +84,12 @@ import { makeid } from '../../../lib/utils/string/make-id';
 import AvatarsBackground from './AvatarsBackground';
 
 describe('AvatarsBackground', () => {
+  let mockRequestAnimationFrame: jest.SpyInstance;
+  let mockCancelAnimationFrame: jest.SpyInstance;
+
   beforeEach(() => {
-    // Reset time
+    // Reset time (mock functions already return mockTime)
     mockTime = 1000000;
-    mockDateNow.mockReturnValue(mockTime);
-    mockPerformanceNow.mockReturnValue(mockTime);
 
     // Setup makeid to return predictable values
     let callCount = 0;
@@ -112,6 +107,22 @@ describe('AvatarsBackground', () => {
     frameCallbacks = [];
     frameId = 0;
     jest.clearAllMocks();
+
+    // Assign global mocks to local variables for testing
+    mockRequestAnimationFrame = global.requestAnimationFrame as jest.Mock;
+    mockCancelAnimationFrame = global.cancelAnimationFrame as jest.Mock;
+
+    // Mock window dimensions
+    Object.defineProperty(window, 'innerWidth', {
+      writable: true,
+      configurable: true,
+      value: 1024
+    });
+    Object.defineProperty(window, 'innerHeight', {
+      writable: true,
+      configurable: true,
+      value: 768
+    });
   });
 
   afterEach(() => {

@@ -21,7 +21,7 @@ class QualityAssessor:
         """Find all documentation files and map them to code files"""
         doc_files = {}
         
-        # Find co-located documentation (preferred for Jekyll)
+        # Find co-located documentation
         for code_file in code_files:
             file_dir = os.path.dirname(code_file.path)
             basename = os.path.splitext(os.path.basename(code_file.path))[0]

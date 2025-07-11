@@ -49,13 +49,7 @@ pnpm-lock.yaml
 
 playwright/.auth
 
-# Jekyll build files
-jekyll/_site/
-jekyll/.sass-cache/
-jekyll/.jekyll-cache/
-jekyll/vendor/bundle/
-jekyll/Gemfile.lock
-jekyll/.jekyll-metadata
+# Jekyll removed - now using Docusaurus
 
 # Python
 __pycache__/
@@ -108,7 +102,5 @@ venv.bak/
 documentation-coverage-*.csv
 documentation-coverage-*.html
 documentation-coverage-*.json
-jekyll/_site/feed.xml
-jekyll/_site/index.html
-jekyll/_site/sitemap.xml
+# Jekyll references removed
 .docusaurus/

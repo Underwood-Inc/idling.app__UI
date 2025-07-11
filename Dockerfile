@@ -1,16 +1,14 @@
 # Use the official Node.js image as the base image
 FROM node:20
 
-# Install zsh, git, Go, Ruby, Jekyll and Playwright browser dependencies for development environment
+# Install zsh, git, Go and Playwright browser dependencies for development environment
 RUN apt-get update && apt-get install -y \
   zsh \
   git \
   curl \
   wget \
   fonts-powerline \
-  # Ruby and Jekyll dependencies
-  ruby \
-  ruby-dev \
+  # Build dependencies for native packages
   build-essential \
   zlib1g-dev \
   # Playwright browser dependencies
@@ -31,8 +29,7 @@ RUN apt-get update && apt-get install -y \
   libxshmfence1 \
   && rm -rf /var/lib/apt/lists/*
 
-# Install Jekyll and Bundler
-RUN gem install jekyll bundler
+# Jekyll dependencies removed - now using Docusaurus
 
 # Install Go 1.21.x
 ENV GO_VERSION=1.21.5

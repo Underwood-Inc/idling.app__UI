@@ -186,7 +186,7 @@ With this infrastructure in place, the User Management TUI is ready for:
 1. **Development**: Immediate use in Docker environment
 2. **Testing**: Comprehensive testing with provided scripts
 3. **Production**: One-command deployment to production servers
-4. **Documentation**: Ready for comprehensive Jekyll documentation
+4. **Documentation**: Ready for comprehensive Docusaurus documentation
 
 ---
 

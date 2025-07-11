@@ -241,7 +241,7 @@ Template improvements come from:
 
 - **[Markdown Guide](https://www.markdownguide.org/)** - Markdown syntax reference
 - **[Mermaid Documentation](https://mermaid-js.github.io/)** - Diagram syntax
-- **[Jekyll Documentation](https://jekyllrb.com/docs/)** - Static site generator
+- **[Docusaurus Documentation](https://docusaurus.io/docs)** - Modern documentation site generator
 
 ### Examples
 

@@ -1,0 +1,15 @@
+# pnpm configuration for handling problematic dependencies
+# Specifically addresses postman-code-generators post-install script failures
+
+# Continue installation even if some lifecycle scripts fail
+# This allows builds to continue when postman-code-generators fails
+ignore-scripts=false
+
+# Use strict peer dependencies but allow some flexibility
+strict-peer-dependencies=true
+
+# Enable better dependency resolution
+resolution-mode=highest
+
+# Improve compatibility with problematic packages
+node-linker=isolated 

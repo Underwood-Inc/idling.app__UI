@@ -110,7 +110,7 @@ When making multiple related changes, ALWAYS organize into logical sequence:
 2. **Core System Addition**
 
    ```
-   feat: add Jekyll documentation system with enhanced search
+   feat: add Docusaurus documentation system with enhanced search
    ```
 
 3. **Implementation Details**
