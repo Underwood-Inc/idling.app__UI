@@ -8,7 +8,7 @@ _Research conducted January 2025_
 
 ## Executive Summary
 
-After extensive research, **Jekyll is fundamentally incompatible** with co-located documentation due to GitHub Pages safe mode restrictions. Modern documentation systems have evolved significantly, with several excellent alternatives that naturally support co-located docs, automatic navigation generation, and Mermaid diagrams.
+After extensive research, **Jekyll was fundamentally incompatible** with co-located documentation due to GitHub Pages safe mode restrictions. Modern documentation systems have evolved significantly, with Docusaurus being the chosen alternatives that naturally support co-located docs, automatic navigation generation, and Mermaid diagrams.
 
 **Top Recommendations:**
 
@@ -19,7 +19,7 @@ After extensive research, **Jekyll is fundamentally incompatible** with co-locat
 
 ---
 
-## Why Jekyll Fails for Co-Located Docs
+## Why Jekyll Failed for Co-Located Docs (Historical)
 
 ### Fundamental Issues
 
@@ -30,7 +30,7 @@ After extensive research, **Jekyll is fundamentally incompatible** with co-locat
 
 ### The Co-Located Problem
 
-Jekyll was designed in 2008 for centralized documentation. Modern development requires:
+Jekyll was designed in 2008 for centralized documentation. Modern development required:
 
 - Documentation living **with** the code it documents
 - Automatic discovery of markdown files

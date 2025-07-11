@@ -32,7 +32,7 @@ Idling.app uses a **co-located documentation approach** where documentation live
 
 ```
 idling.app__UI/
-├── jekyll/                    # Jekyll configuration only (no markdown files)
+├── docs/                      # Generated documentation (build output)
 │   ├── _config.yml
 │   ├── _layouts/
 │   ├── _sass/
@@ -292,7 +292,7 @@ find . -name "*.md" -type f | sort > .docs-index
 
 ## 🔗 Related Resources
 
-- [Jekyll Documentation](https://jekyllrb.com/docs/)
+- [Docusaurus Documentation](https://docusaurus.io/docs)
 - [Markdown Guide](https://www.markdownguide.org/)
 - [Documentation Best Practices](https://www.writethedocs.org/guide/)
 - [Co-location Benefits](https://martinfowler.com/bliki/DocumentationAsCode.html)
