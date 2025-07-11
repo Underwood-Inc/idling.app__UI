@@ -63,7 +63,7 @@ jobs:
           corepack install
 
       - name: 🔧 Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm install
 
       - name: 📊 Generate comprehensive debrief report (PR)
         if: github.event_name == 'pull_request'

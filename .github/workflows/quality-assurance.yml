@@ -85,7 +85,7 @@ jobs:
 
       # Install project dependencies using pnpm (as specified in package.json)
       - name: Install dependencies
-        run: pnpm install --check-files
+        run: pnpm install
 
       # Install Playwright browsers for caching
       - name: Install Playwright browsers
@@ -166,7 +166,7 @@ jobs:
       - name: Install dependencies and browsers
         if: steps.cache-restore.outputs.cache-hit != 'true'
         run: |
-          pnpm install --check-files
+          pnpm install
           pnpm exec playwright install --with-deps
 
       # Setup test database
@@ -251,7 +251,7 @@ jobs:
       # Install dependencies if cache miss
       - name: Install dependencies
         if: steps.cache-restore.outputs.cache-hit != 'true'
-        run: pnpm install --check-files
+        run: pnpm install
 
       # Setup Python for documentation coverage analysis
       - name: Setup Python
@@ -684,7 +684,7 @@ jobs:
       # Install dependencies if cache miss (first run or cache eviction)
       - name: Install dependencies
         if: steps.cache-restore.outputs.cache-hit != 'true'
-        run: pnpm install --check-files
+        run: pnpm install
 
       # Run unit tests with sharding
       - name: Run Jest tests (Shard ${{ matrix.shard }}/3)
