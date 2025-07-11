@@ -819,26 +819,7 @@ export async function getSubmissionsAction({
 
     const result = await sql.unsafe(mainQuery, queryParams);
 
-    // Debug logging for the first few results to understand timestamp issues
-    if (result.length > 0) {
-      // eslint-disable-next-line no-console
-      console.log('First few results from database:', {
-        isOnlyReplies,
-        count: result.length,
-        firstResult: {
-          submission_id: result[0]?.submission_id,
-          raw_submission_datetime: result[0]?.submission_datetime,
-          typeof_datetime: typeof result[0]?.submission_datetime,
-          thread_parent_id: result[0]?.thread_parent_id
-        },
-        secondResult: result[1] ? {
-          submission_id: result[1]?.submission_id,
-          raw_submission_datetime: result[1]?.submission_datetime,
-          typeof_datetime: typeof result[1]?.submission_datetime,
-          thread_parent_id: result[1]?.thread_parent_id
-        } : null
-      });
-    }
+    // Process results from database
 
     // Process results with debug logging
     const processedData: SubmissionWithReplies[] = result.map((row: any) => {
@@ -848,25 +829,9 @@ export async function getSubmissionsAction({
         const d = new Date(row.submission_datetime);
         if (!isNaN(d.getTime()) && d.getTime() > 0) {
           mainDate = d;
-        } else {
-          // eslint-disable-next-line no-console
-          console.error('Invalid main submission_datetime (invalid date):', {
-            submission_id: row.submission_id,
-            raw_datetime: row.submission_datetime,
-            parsed_time: d.getTime(),
-            isOnlyReplies,
-            thread_parent_id: row.thread_parent_id
-          });
         }
       } catch (error) {
-        // eslint-disable-next-line no-console
-        console.error('Invalid main submission_datetime (parse error):', {
-          submission_id: row.submission_id,
-          raw_datetime: row.submission_datetime,
-          error: error instanceof Error ? error.message : String(error),
-          isOnlyReplies,
-          thread_parent_id: row.thread_parent_id
-        });
+        // Date parsing failed, mainDate remains null
       }
 
       return {
