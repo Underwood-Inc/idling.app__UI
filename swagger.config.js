@@ -432,6 +432,14 @@ const options = {
         name: 'Alerts',
         description: 'System alerts and notifications',
       },
+      {
+        name: 'System',
+        description: 'System information and metadata',
+      },
+      {
+        name: 'Documentation',
+        description: 'API documentation endpoints',
+      },
     ],
   },
   apis: [

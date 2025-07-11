@@ -323,20 +323,18 @@ components:
           nullable: true
           description: ID of active timeout
 tags:
-  - name: Authentication
-    description: User authentication and session management
-  - name: Users
-    description: User profile and account management
   - name: Admin
     description: Administrative operations (admin only)
-  - name: Emojis
-    description: Emoji browsing and management
-  - name: Upload
-    description: File upload operations
-  - name: Images
-    description: Dynamic image generation
   - name: Alerts
     description: System alerts and notifications
+  - name: Emojis
+    description: Emoji browsing and management
+  - name: System
+    description: System information and metadata
+  - name: Upload
+    description: File upload operations
+  - name: Users
+    description: User profile and account management
 paths:
   /api/admin/users:
     get:

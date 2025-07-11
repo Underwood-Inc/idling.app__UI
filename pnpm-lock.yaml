@@ -12664,7 +12664,7 @@ snapshots:
 
   '@docusaurus/react-loadable@6.0.0(react@19.0.0-rc-fb9a90fa48-20240614)':
     dependencies:
-      '@types/react': 19.1.8
+      '@types/react': 18.3.4
       react: 19.0.0-rc-fb9a90fa48-20240614
 
   '@docusaurus/theme-classic@3.8.1(@types/react@18.3.4)(acorn@8.12.1)(bufferutil@4.0.8)(react-dom@19.0.0-rc-fb9a90fa48-20240614(react@19.0.0-rc-fb9a90fa48-20240614))(react@19.0.0-rc-fb9a90fa48-20240614)(typescript@5.5.4)(utf-8-validate@5.0.10)':

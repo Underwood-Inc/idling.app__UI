@@ -472,6 +472,14 @@
     {
       "name": "Alerts",
       "description": "System alerts and notifications"
+    },
+    {
+      "name": "System",
+      "description": "System information and metadata"
+    },
+    {
+      "name": "Documentation",
+      "description": "API documentation endpoints"
     }
   ],
   "paths": {
@@ -1085,6 +1093,27 @@
         }
       }
     },
+    "/api/openapi": {
+      "get": {
+        "summary": "OpenAPI specification",
+        "description": "Returns the OpenAPI 3.0 specification for the Idling.app API",
+        "tags": [
+          "Documentation"
+        ],
+        "responses": {
+          "200": {
+            "description": "OpenAPI specification",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/profile/id/{id}": {
       "get": {
         "summary": "Get user profile by ID",
@@ -1184,6 +1213,27 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/swagger": {
+      "get": {
+        "summary": "Swagger UI HTML page",
+        "description": "Serves the interactive Swagger UI documentation interface",
+        "tags": [
+          "Documentation"
+        ],
+        "responses": {
+          "200": {
+            "description": "Swagger UI HTML page",
+            "content": {
+              "text/html": {
+                "schema": {
+                  "type": "string"
                 }
               }
             }
