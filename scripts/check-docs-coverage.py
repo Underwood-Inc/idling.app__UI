@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Industry-Standard Documentation Coverage Enforcer (Modular Version)
-Validates documentation quality using industry best practices for co-located Jekyll documentation
+Validates documentation quality using industry best practices for co-located documentation
 
 This is the new modular version that replaces the massive monolithic script.
 """

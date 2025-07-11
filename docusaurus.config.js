@@ -28,7 +28,6 @@ const config = {
 
   markdown: {
     mermaid: true,
-    // Disable MDX for existing Jekyll-syntax markdown files
     format: 'detect', // Let Docusaurus auto-detect .md vs .mdx
   },
 
@@ -44,24 +43,16 @@ const config = {
           path: 'src',
           routeBasePath: '/',
           sidebarPath: './sidebars.js',
-          // docItemComponent: '@theme/ApiItem', // For OpenAPI integration (disabled for now)
-          include: ['**/*.md'], // Only include .md files for now (disable .mdx to avoid Jekyll syntax conflicts)
+          include: ['**/*.md'], // Include all .md files
           exclude: [
             '**/_*.{js,jsx,ts,tsx,md,mdx}',
             '**/_*/**',
             '**/*.test.{js,jsx,ts,tsx}',
             '**/__tests__/**',
-            '**/pages/**', // Exclude Next.js pages directory to avoid confusion
-            '**/jekyll/**', // Exclude legacy Jekyll documentation entirely
-            'jekyll/**', // Also exclude from root level
+                          '**/pages/**', // Exclude Next.js pages directory to avoid confusion
+              // Jekyll exclusions removed
           ],
         },
-        // Disable pages preset to avoid routing conflicts with docs
-        // pages: {
-        //   // Standalone pages like homepage
-        //   path: 'src/doc-pages',
-        //   routeBasePath: '/',
-        // },
         blog: false, // Disable blog
         theme: {
           customCss: './src/css/custom.css',
@@ -74,7 +65,7 @@ const config = {
         // OpenAPI specifications
         specs: [
           {
-            spec: 'openapi.yaml',
+            spec: 'openapi.json',
             route: '/api/',
             id: 'api-docs',
           },

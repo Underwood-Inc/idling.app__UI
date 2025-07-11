@@ -64,8 +64,8 @@ services:
       # Mount docusaurus config files
       - ./docusaurus.config.js:/app/docusaurus.config.js:ro
       - ./sidebars.js:/app/sidebars.js:ro
-      # Mount OpenAPI spec
-      - ./openapi.yaml:/app/openapi.yaml:ro
+      # Mount OpenAPI spec (generated JSON file)
+      - ./src/app/api/openapi.json:/app/openapi.json:ro
       # Mount custom CSS
       - ./src/css:/app/src/css:ro
     ports:

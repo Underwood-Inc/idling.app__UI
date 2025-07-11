@@ -29,11 +29,7 @@ test-debrief.md
 *.swo
 
 # Documentation build files
-jekyll/_site/
-jekyll/.sass-cache/
-jekyll/.jekyll-cache/
-jekyll/vendor/
-jekyll/Gemfile.lock
+# Jekyll removed - now using Docusaurus
 
 # Git files
 .git/

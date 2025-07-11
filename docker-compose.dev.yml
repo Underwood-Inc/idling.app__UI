@@ -26,8 +26,8 @@ services:
 
   docs:
     # Development-specific overrides for docs service
-    environment:
-      - JEKYLL_ENV=development
+    # environment:
+    # Jekyll environment removed - now using Docusaurus
     # Development-specific labels
     labels:
       - 'traefik.enable=true'

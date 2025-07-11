@@ -31,9 +31,13 @@ COPY src/css/ src/css/
 # Create empty static directory to satisfy Docusaurus
 RUN mkdir -p static
 
-# Copy any existing OpenAPI spec
-COPY openapi.yaml ./
+# Copy the OpenAPI generation script and source files
 COPY scripts/generate-openapi-spec.js scripts/
+COPY src/app/api/ src/app/api/
+COPY swagger.config.js ./
+
+# Generate OpenAPI spec during build
+RUN pnpm docs:openapi
 
 # Expose port 3001 (matches existing docs port)
 EXPOSE 3001

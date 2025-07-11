@@ -21,7 +21,7 @@
     "docs:clear": "docusaurus clear",
     "sw:update": "node scripts/update-sw-version.js",
     "sw:restore": "node scripts/update-sw-version.js --restore",
-    "docs:install": "cd DOCS && bundle config set --local path 'vendor/bundle' && bundle install",
+    "docs:install": "echo 'Jekyll removed - use pnpm install for Docusaurus'",
     "docs:coverage": "python3 scripts/check-docs-coverage.py --format html",
     "docs:coverage:syntax": "python3 scripts/check-docs-coverage.py --format html",
     "docs:openapi": "node scripts/generate-openapi-spec.js",

@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 """
-Markdown report generator for Jekyll documentation
+Markdown report generator for documentation
 """
 
 from ..models import CoverageReport
 from ..config import ConfigManager
 
 class MarkdownReporter:
-    """Generates markdown reports for Jekyll"""
+    """Generates markdown reports for documentation"""
     
     def __init__(self, config_manager: ConfigManager):
         self.config = config_manager.config
@@ -18,7 +18,7 @@ class MarkdownReporter:
         self.pr_context = pr_context
     
     def generate(self, report: CoverageReport) -> str:
-        """Generate markdown report for Jekyll with PR context if available"""
+        """Generate markdown report with PR context if available"""
         output = []
         
         # Check if this is a PR-specific report

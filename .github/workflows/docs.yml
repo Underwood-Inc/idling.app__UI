@@ -75,10 +75,13 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
+      - name: Generate OpenAPI specification
+        run: pnpm docs:openapi
+
       - name: OpenAPI Documentation Status
         run: |
           echo "📚 Using Redocusaurus for OpenAPI documentation"
-          echo "✅ API docs will be automatically generated during build"
+          echo "✅ OpenAPI spec generated at: src/app/api/openapi.json"
 
       - name: Build Docusaurus site
         run: pnpm build

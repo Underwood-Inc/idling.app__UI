@@ -330,7 +330,7 @@ else:
     fi
 fi
 
-# Note: Jekyll-related badge updates removed as project no longer uses Jekyll
+# Note: Jekyll removed - now using Docusaurus
 
 # ============================================================================
 # FINAL VALIDATION

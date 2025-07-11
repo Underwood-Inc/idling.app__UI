@@ -139,8 +139,8 @@ module.exports = {
       // Base directory for documentation
       docsRoot: 'DOCS',
       
-      // Jekyll configuration
-      jekyllConfig: {
+          // Documentation configuration
+    docsConfig: {
         collections: ['services', 'components', 'api', 'utils', 'hooks']
       },
       
