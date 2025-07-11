@@ -110,7 +110,8 @@
       "documentation.md"
     ],
     "centralized_patterns": [
-      "jekyll/**/*.md"
+      "static/**/*.md",
+      "static/coverage/**/*.md"
     ]
   }
 }

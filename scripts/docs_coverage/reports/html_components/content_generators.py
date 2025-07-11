@@ -5,9 +5,12 @@ Content Generators for HTML Documentation Coverage Report
 Provides functions to generate different sections of the HTML report.
 """
 
+import json
+import os
+import base64
 from typing import Dict, List, Any
 try:
-    from ..models import CoverageReport, DocumentationGap
+    from ...models import CoverageReport, DocumentationGap
 except ImportError:
     # Fallback for when running as standalone module
     from typing import Any as CoverageReport, Any as DocumentationGap
@@ -20,105 +23,88 @@ class ContentGenerator:
     
     def __init__(self, config: Dict[str, Any], utils: Any = None):
         self.config = config
-        self.utils = utils
+        self.utils = utils or HtmlUtils
         self.badge_generator = BadgeGenerator()
         self.css_helper = CssClassHelper()
         self.pr_context = None  # Will be set by PR checker if applicable
+        self.code_files = None  # Will be set by the HTML reporter
+        
+    def set_code_files(self, code_files: List[Any]) -> None:
+        """Set the code files data for line count information."""
+        self.code_files = code_files
+        
+    def _get_line_count_for_file(self, file_path: str) -> int:
+        """Get line count for a file from the code_files data."""
+        if not self.code_files:
+            # Fallback: read line count directly from file system
+            try:
+                with open(file_path, 'r', encoding='utf-8') as f:
+                    return len(f.readlines())
+            except:
+                return 0
+            
+        for code_file in self.code_files:
+            if code_file.path == file_path:
+                return code_file.size_lines
+                
+        # Fallback: read line count directly from file system
+        try:
+            with open(file_path, 'r', encoding='utf-8') as f:
+                return len(f.readlines())
+        except:
+            return 0
         
     def generate_header(self, report: CoverageReport) -> str:
-        """Generate the report header with PR context if available."""
-        # Check if this is a PR-specific report
-        pr_context = getattr(self, 'pr_context', None)
-        
-        if pr_context and pr_context.get('is_pr_analysis'):
-            pr_info = pr_context.get('pr_info', {})
-            pr_files = pr_context.get('pr_files', [])
-            
-            pr_header = ""
-            if pr_info.get('pr_number'):
-                pr_header = f"""
-                <div class="pr-context-banner">
-                    <h2>🔄 Pull Request Analysis</h2>
-                    <div class="pr-details">
-                        <span class="pr-badge">PR #{pr_info.get('pr_number', 'Unknown')}</span>
-                        {f'<span class="pr-title">{pr_info.get("title", "")}</span>' if pr_info.get("title") else ''}
-                        {f'<span class="pr-author">by {pr_info.get("author", "Unknown")}</span>' if pr_info.get("author") else ''}
-                    </div>
-                    <p class="pr-scope">📁 Analyzing {len(pr_files)} changed files in this PR</p>
-                </div>
-                """
-            
-            return f"""
-            <div class="header">
-                <h1>📊 PR Documentation Coverage Report</h1>
-                <p>Documentation coverage analysis for Pull Request changes</p>
-                <p>Generated: {report.timestamp}</p>
-                {pr_header}
-            </div>
-            """
-        else:
-            return f"""
-            <div class="header">
-                <h1>📊 Documentation Coverage Report</h1>
-                <p>Comprehensive analysis of documentation coverage across the Idling.app codebase</p>
-                    <p>Generated: {report.timestamp}</p>
-            </div>
-            """
+        """Generate beautiful header with golden branding."""
+        return f"""
+        <div class="header">
+            <h1>📊 Documentation Coverage Report</h1>
+            <p>Comprehensive analysis of documentation coverage across the Idling.app codebase</p>
+            <p>Generated: {report.timestamp}</p>
+        </div>"""
     
     def generate_overview_cards(self, report: CoverageReport) -> str:
-        """Generate overview metrics cards with filtering capabilities and PR context."""
-        min_coverage = self.config["documentation_standards"]["minimum_coverage_percentage"]
+        """Generate beautiful overview dashboard with golden theme."""
+        min_coverage = self.config.get("documentation_standards", {}).get("minimum_coverage_percentage", 85.0)
         
-        # Check if this is a PR-specific report
-        pr_context = getattr(self, 'pr_context', None)
-        
-        if pr_context and pr_context.get('is_pr_analysis'):
-            total_pr_files = pr_context.get('total_pr_files', 0)
-            analyzed_pr_files = pr_context.get('analyzed_pr_files', 0)
-            
-            title_suffix = f" (from {total_pr_files} changed files in PR)"
-            files_label = f"PR Files Analyzed"
-        else:
-            title_suffix = ""
-            files_label = "Total Files"
+        # Determine status classes based on thresholds
+        coverage_status = "quality-excellent" if report.coverage_percentage >= min_coverage else "quality-poor"
+        quality_status = "quality-excellent" if report.quality_score >= 0.8 else "quality-good" if report.quality_score >= 0.6 else "quality-poor"
         
         return f"""
         <div class="overview-grid">
-            <div class="metric-card" data-filter="all" title="Click to show all files{title_suffix}">
+            <div class="metric-card" data-metric="total-files">
                 <div class="metric-value">{report.total_code_files}</div>
-                <div class="metric-label">{files_label}</div>
+                <div class="metric-label">TOTAL FILES</div>
             </div>
-            <div class="metric-card clickable-card" data-filter="all" title="📄 Click to show all documentation issues and reset any active filters">
+            <div class="metric-card" data-metric="documented-files">
                 <div class="metric-value">{report.adequately_documented}</div>
-                <div class="metric-label">Documented Files</div>
+                <div class="metric-label">DOCUMENTED FILES</div>
             </div>
-            <div class="metric-card clickable-card" data-filter="all" title="📊 Click to show all documentation issues and reset any active filters">
-                <div class="metric-value {self._get_coverage_class(report.coverage_percentage, min_coverage)}">{report.coverage_percentage:.1f}%</div>
-                <div class="metric-label">Coverage</div>
-                <div class="progress-bar">
-                    <div class="progress-fill" style="width: {min(report.coverage_percentage, 100)}%"></div>
-                </div>
+            <div class="metric-card" data-metric="coverage">
+                <div class="metric-value {coverage_status}">{report.coverage_percentage:.1f}%</div>
+                <div class="metric-label">COVERAGE</div>
             </div>
-            <div class="metric-card clickable-card" data-filter="inadequate" title="⭐ Click to filter and show only files with inadequate documentation that need quality improvements">
-                <div class="metric-value {self._get_quality_class(report.quality_score)}">{report.quality_score:.2f}</div>
-                <div class="metric-label">Quality Score</div>
-                <div class="quality-bar">
-                    <div class="quality-fill" style="width: {min(report.quality_score * 100, 100)}%"></div>
-                </div>
-                <p style="font-size: var(--font-size-xs); margin-top: var(--spacing-xs);">Shows files needing quality improvements</p>
-            </div>
-            <div class="metric-card clickable-card" data-filter="missing" title="❌ Click to filter and show only files with missing documentation">
-                <div class="metric-value {self._get_status_class(report.missing_documentation == 0)}">{report.missing_documentation}</div>
-                <div class="metric-label">Missing Documentation</div>
-                <p style="font-size: var(--font-size-xs); margin-top: var(--spacing-xs);">Files without any documentation</p>
-            </div>
-            <div class="metric-card clickable-card" data-filter="inadequate" title="⚠️ Click to filter and show only files with inadequate documentation">
-                <div class="metric-value {self._get_status_class(report.inadequate_documentation == 0)}">{report.inadequate_documentation}</div>
-                <div class="metric-label">Inadequate Documentation</div>
-                <p style="font-size: var(--font-size-xs); margin-top: var(--spacing-xs);">Files with incomplete documentation</p>
+            <div class="metric-card" data-metric="quality">
+                <div class="metric-value {quality_status}">{report.quality_score:.2f}</div>
+                <div class="metric-label">QUALITY SCORE</div>
+                <div class="metric-subtitle">Shows files needing quality improvements</div>
             </div>
         </div>
-        """
+        
+        <!-- Second row with missing/inadequate documentation -->
+        <div class="overview-grid">
+            <div class="metric-card" data-metric="missing">
+                <div class="metric-value quality-poor">{report.missing_documentation}</div>
+                <div class="metric-label">MISSING DOCUMENTATION</div>
+                <div class="metric-subtitle">Files without any documentation</div>
+            </div>
+            <div class="metric-card" data-metric="inadequate">
+                <div class="metric-value quality-fair">{report.inadequate_documentation}</div>
+                <div class="metric-label">INADEQUATE DOCUMENTATION</div>
+                <div class="metric-subtitle">Files with incomplete documentation</div>
+            </div>
+        </div>"""
     
     def generate_quality_metrics(self, report: CoverageReport) -> str:
         """Generate quality metrics section."""
@@ -143,28 +129,27 @@ class ContentGenerator:
         """
     
     def generate_priority_breakdown(self, report: CoverageReport) -> str:
-        """Generate priority breakdown section with filtering capabilities."""
+        """Generate priority breakdown using CORRECT metric-card classes."""
         if not any(count > 0 for count in report.by_priority.values()):
             return ""
         
         priority_cards = []
         priority_info = {
-            "critical": {"emoji": "🚨", "desc": "Immediate action required", "color": "quality-poor"},
-            "high": {"emoji": "⚠️", "desc": "Action needed soon", "color": "quality-fair"},
-            "medium": {"emoji": "📝", "desc": "Should be documented", "color": "quality-good"},
-            "low": {"emoji": "💡", "desc": "Nice to have", "color": "quality-excellent"}
+            "critical": {"emoji": "🚨", "desc": "Immediate action required", "class": "quality-poor"},
+            "high": {"emoji": "⚠️", "desc": "Action needed soon", "class": "quality-fair"},
+            "medium": {"emoji": "📝", "desc": "Should be documented", "class": "quality-good"},
+            "low": {"emoji": "💡", "desc": "Nice to have", "class": "quality-excellent"}
         }
         
         for priority, count in report.by_priority.items():
             if count > 0:
                 info = priority_info[priority]
                 priority_cards.append(f"""
-                <div class="metric-card clickable-card" data-filter="{priority}" title="Click to filter by {priority} priority">
-                    <div class="metric-value {info['color']}">{count}</div>
+                <div class="metric-card clickable-card" data-filter="{priority}" title="{info['emoji']} Click to filter and show only {priority} priority items - {info['desc']}">
+                    <div class="metric-value {info['class']}">{count}</div>
                     <div class="metric-label">{info['emoji']} {priority.title()}</div>
                     <p style="font-size: var(--font-size-xs); margin-top: var(--spacing-xs);">{info['desc']}</p>
-                </div>
-                """)
+                </div>""")
         
         return f"""
         <div class="card">
@@ -172,35 +157,70 @@ class ContentGenerator:
             <div class="overview-grid">
                 {''.join(priority_cards)}
             </div>
-        </div>
-        """
+        </div>"""
     
     def generate_gaps_analysis(self, report: CoverageReport) -> str:
-        """Generate advanced gaps analysis table."""
+        """Generate ADVANCED gaps analysis with search, column picker, and pagination."""
         if not report.gaps:
             return ""
         
-        # Define table columns
-        columns = [
-            {"id": "file", "label": "File Path", "width": "300px", "sortable": True, "visible": True, "essential": True},
-            {"id": "status", "label": "Status", "width": "120px", "sortable": True, "visible": True, "essential": False},
-            {"id": "priority", "label": "Priority", "width": "100px", "sortable": True, "visible": True, "essential": False},
-            {"id": "expected", "label": "Expected Documentation", "width": "250px", "sortable": True, "visible": True, "essential": False},
-            {"id": "effort", "label": "Effort", "width": "80px", "sortable": True, "visible": True, "essential": False},
-            {"id": "issues", "label": "Quality Issues", "width": "200px", "sortable": False, "visible": True, "essential": False},
-            {"id": "type", "label": "File Type", "width": "100px", "sortable": True, "visible": False, "essential": False},
-            {"id": "size", "label": "Estimated Size", "width": "120px", "sortable": True, "visible": False, "essential": False}
-        ]
+        # Generate advanced table rows with full data
+        table_rows = []
+        for i, gap in enumerate(report.gaps):
+            file_name = gap.code_file.split("/")[-1]
+            file_dir = "/".join(gap.code_file.split("/")[:-1])
+            doc_name = gap.expected_doc_path.split("/")[-1]
+            issues = ", ".join(gap.quality_issues[:3])
+            if len(gap.quality_issues) > 3:
+                issues += f" +{len(gap.quality_issues) - 3} more"
+            
+            priority_emoji = {"critical": "🚨", "high": "⚠️", "medium": "📝", "low": "💡"}[gap.priority]
+            
+            # Generate GitHub URL
+            github_url = self._get_github_url(gap.code_file)
+            
+            # Get file extension for better styling
+            file_ext = gap.code_file.split(".")[-1] if "." in gap.code_file else "txt"
+            
+            # Get line count for this file
+            line_count = self._get_line_count_for_file(gap.code_file)
+            
+            table_rows.append(f"""
+                <tr class="clickable-row gap-row" data-priority="{gap.priority}" data-file-path="{gap.code_file}" 
+                    data-status="{gap.gap_type}" data-effort="{gap.estimated_effort}"
+                    data-file-type="{file_ext}"
+                    data-file-name="{gap.code_file}"
+                    data-expected-doc="{gap.expected_doc_path}"
+                    data-issues-count="{len(gap.quality_issues)}"
+                    data-github-url="{github_url}"
+                    data-line-count="{line_count}">
+                    <td class="col-file">
+                        <div class="file-path-container">
+                            <span class="file-directory">{file_dir}/</span>
+                            <span class="file-name clickable-filename" title="Click to preview source code">{file_name}</span>
+                        </div>
+                    </td>
+                    <td class="col-lines">
+                        <span class="line-count">{line_count:,}</span>
+                    </td>
+                    <td class="col-status">
+                        <span class="badge badge-{gap.gap_type.lower()}">{gap.gap_type.title()}</span>
+                    </td>
+                    <td class="col-priority">
+                        <span class="priority-indicator priority-{gap.priority.lower()}">{priority_emoji} {gap.priority.title()}</span>
+                    </td>
+                    <td class="col-doc">
+                        <span class="code">{doc_name}</span>
+                    </td>
+                    <td class="col-effort">
+                        <span class="effort-indicator effort-{gap.estimated_effort.lower()}">{gap.estimated_effort.title()}</span>
+                    </td>
+                    <td class="col-issues">
+                        <span class="issues-text" title="{', '.join(gap.quality_issues)}">{issues}</span>
+                    </td>
+                </tr>""")
         
-        # Generate table rows
-        rows = self._generate_table_rows(report.gaps)
-        
-        # Generate column picker options
-        column_picker_html = self._generate_column_picker(columns)
-        
-        # Generate table headers with enhanced sort indicators
-        headers_html = self._generate_table_headers(columns)
-        
+        # Return ADVANCED HTML structure matching working report
         return f"""
         <div class="card">
             <h2>📄 Advanced Documentation Gaps Analysis</h2>
@@ -210,6 +230,7 @@ class ContentGenerator:
                 <div class="filter-row">
                     <div class="search-container">
                         <input type="text" id="gap-search" placeholder="🔍 Search files, paths, or issues..." class="search-input">
+                        <button class="search-clear" id="search-clear" title="Clear search">✕</button>
                     </div>
                     <div class="table-controls">
                         <button id="column-picker-btn" class="control-btn" title="Show/Hide Columns">
@@ -224,196 +245,98 @@ class ContentGenerator:
                 </div>
                 
                 <div class="filter-tags">
-                    <span class="filter-tag active" data-filter="all">All ({len(report.gaps)})</span>
-                    <span class="filter-tag" data-filter="critical">Critical ({report.by_priority.get('critical', 0)})</span>
-                    <span class="filter-tag" data-filter="high">High ({report.by_priority.get('high', 0)})</span>
-                    <span class="filter-tag" data-filter="medium">Medium ({report.by_priority.get('medium', 0)})</span>
-                    <span class="filter-tag" data-filter="low">Low ({report.by_priority.get('low', 0)})</span>
-                    <span class="filter-tag" data-filter="missing">Missing ({report.missing_documentation})</span>
-                    <span class="filter-tag" data-filter="inadequate">Inadequate ({report.inadequate_documentation})</span>
+                    <div class="filter-group">
+                        <span class="filter-label">Priority:</span>
+                        <button class="filter-tag active" data-filter="priority" data-value="">All ({len(report.gaps)})</button>
+                        <button class="filter-tag" data-filter="priority" data-value="critical">🚨 Critical ({len([g for g in report.gaps if g.priority == 'critical'])})</button>
+                        <button class="filter-tag" data-filter="priority" data-value="high">⚠️ High ({len([g for g in report.gaps if g.priority == 'high'])})</button>
+                        <button class="filter-tag" data-filter="priority" data-value="medium">📝 Medium ({len([g for g in report.gaps if g.priority == 'medium'])})</button>
+                        <button class="filter-tag" data-filter="priority" data-value="low">💡 Low ({len([g for g in report.gaps if g.priority == 'low'])})</button>
+                    </div>
+                    <div class="filter-group">
+                        <span class="filter-label">Status:</span>
+                        <button class="filter-tag active" data-filter="status" data-value="">All</button>
+                        <button class="filter-tag" data-filter="status" data-value="missing">❌ Missing</button>
+                        <button class="filter-tag" data-filter="status" data-value="inadequate">⚠️ Inadequate</button>
+                    </div>
                 </div>
                 
                 <div class="filter-status-row">
-                    <span id="filter-status">Showing all {len(report.gaps)} items</span>
-                    <button id="clear-filters" class="clear-btn">Clear All Filters</button>
+                    <div class="results-summary">
+                        <span id="filtered-count">{len(report.gaps)}</span> of <span id="total-count">{len(report.gaps)}</span> items
+                    </div>
+                    <button class="clear-btn" id="clear-all-filters">Clear All Filters 🧹</button>
                 </div>
             </div>
             
-            <!-- Pagination Controls (Top) -->
-            <div class="pagination-controls pagination-top">
-                <div class="pagination-info">
-                    <span id="pagination-info-text">Showing 1-50 of {len(report.gaps)} items</span>
+            <!-- Advanced Table Container with Fixed Header -->
+            <div class="advanced-table-container">
+                <!-- Fixed Header Container -->
+                <div class="advanced-table-header">
+                    <table class="advanced-table">
+                    <thead>
+                        <tr>
+                            <th class="sortable col-file" data-column="file">📁 File <span class="sort-indicator"></span></th>
+                            <th class="sortable col-lines" data-column="lines">📏 Lines <span class="sort-indicator"></span></th>
+                            <th class="sortable col-status" data-column="status">📊 Status <span class="sort-indicator"></span></th>
+                            <th class="sortable col-priority" data-column="priority">🎯 Priority <span class="sort-indicator"></span></th>
+                            <th class="sortable col-doc" data-column="doc">📄 Expected Doc <span class="sort-indicator"></span></th>
+                            <th class="sortable col-effort" data-column="effort">⏱️ Effort <span class="sort-indicator"></span></th>
+                            <th class="sortable col-issues" data-column="issues">⚠️ Issues <span class="sort-indicator"></span></th>
+                        </tr>
+                    </thead>
+                    </table>
                 </div>
-                <div class="pagination-controls-group">
-                    <label class="page-size-label">
-                        Items per page:
-                        <select id="page-size-select" class="page-size-select">
-                            <option value="25">25</option>
-                            <option value="50" selected>50</option>
-                            <option value="100">100</option>
-                            <option value="200">200</option>
-                            <option value="all">All</option>
-                        </select>
-                    </label>
-                    <div class="pagination-buttons">
-                        <button id="first-page-btn" class="pagination-btn" title="First page" disabled>⏮️</button>
-                        <button id="prev-page-btn" class="pagination-btn" title="Previous page" disabled>⏪</button>
-                        <span id="page-indicator" class="page-indicator">Page 1 of 1</span>
-                        <button id="next-page-btn" class="pagination-btn" title="Next page" disabled>⏩</button>
-                        <button id="last-page-btn" class="pagination-btn" title="Last page" disabled>⏭️</button>
+                
+                <!-- Scrollable Body Container -->
+                <div class="advanced-table-body">
+                    <table class="advanced-table" id="gaps-table">
+                    <tbody id="gaps-table-body">
+                        {''.join(table_rows)}
+                    </tbody>
+                </table>
+                </div>
+                
+                <!-- Empty State View -->
+                <div id="empty-state" class="empty-state" style="display: none;">
+                    <div class="empty-state-icon">🔍</div>
+                    <div class="empty-state-text">No Records Found</div>
+                    <div class="empty-state-subtext">
+                        <p>No documentation gaps match your current filters.</p>
+                        <p>Try adjusting your search criteria or clearing filters to see more results.</p>
+                        <button class="clear-btn" id="clear-filters-empty">Clear All Filters</button>
                     </div>
                 </div>
             </div>
             
-            <!-- Advanced Table Container -->
-            <div class="advanced-table-container">
-                <table id="gaps-table" class="advanced-table">
-                    <thead>
-                        <tr>
-                            {headers_html}
-                        </tr>
-                    </thead>
-                    <tbody id="table-tbody">
-                        {''.join(rows)}
-                    </tbody>
-                </table>
-            </div>
-            
-            <!-- Pagination Controls (Bottom) -->
-            <div class="pagination-controls pagination-bottom">
-                <div class="pagination-summary">
-                    <span id="pagination-summary-text">Total: {len(report.gaps)} items</span>
+            <!-- Pagination Controls -->
+            <div class="pagination-container">
+                <div class="pagination-info">
+                    <span>Showing <span id="showing-start">1</span>-<span id="showing-end">{min(50, len(report.gaps))}</span> of <span id="showing-total">{len(report.gaps)}</span> items</span>
+                    <div class="items-per-page">
+                        <label for="items-per-page">Items per page:</label>
+                        <select id="items-per-page" class="items-select">
+                            <option value="25">25</option>
+                            <option value="50" selected>50</option>
+                            <option value="100">100</option>
+                            <option value="all">All</option>
+                        </select>
+                    </div>
                 </div>
-                <div class="pagination-buttons">
-                    <button id="first-page-btn-bottom" class="pagination-btn" title="First page" disabled>⏮️</button>
-                    <button id="prev-page-btn-bottom" class="pagination-btn" title="Previous page" disabled>⏪</button>
-                    <span id="page-indicator-bottom" class="page-indicator">Page 1 of 1</span>
-                    <button id="next-page-btn-bottom" class="pagination-btn" title="Next page" disabled>⏩</button>
-                    <button id="last-page-btn-bottom" class="pagination-btn" title="Last page" disabled>⏭️</button>
-                </div>
-            </div>
-            
-            <!-- Table Status Bar -->
-            <div class="table-status-bar">
-                <div class="status-info">
-                    <span id="table-info">3/8 columns visible • Sorted by file. Hold Shift to multi-sort.</span>
-                </div>
-                <div class="sort-info">
-                    <span id="sort-status">Click rows to view source code • Click filenames to open on GitHub</span>
-                </div>
-            </div>
-            
-            <!-- Column Picker Content (Hidden) -->
-            <div style="display: none;">
-                <div id="column-picker-content">
-                    {column_picker_html}
+                <div class="pagination-controls">
+                    <button class="pagination-btn" id="first-page" title="First page">⏮️</button>
+                    <button class="pagination-btn" id="prev-page" title="Previous page">◀️</button>
+                    <span class="pagination-pages">
+                        <span>Page </span>
+                        <input type="number" id="current-page" value="1" min="1" max="{max(1, (len(report.gaps) + 49) // 50)}" class="page-input">
+                        <span> of {max(1, (len(report.gaps) + 49) // 50)}</span>
+                    </span>
+                    <button class="pagination-btn" id="next-page" title="Next page">▶️</button>
+                    <button class="pagination-btn" id="last-page" title="Last page">⏭️</button>
                 </div>
             </div>
         </div>
         """
-    
-    def _generate_table_rows(self, gaps: List[DocumentationGap]) -> List[str]:
-        """Generate table rows for documentation gaps."""
-        rows = []
-        for gap in gaps:
-            priority_badge = self._get_priority_badge(gap.priority)
-            status_badge = self._get_gap_status_badge(gap.gap_type)
-            
-            # Get file type and estimated size
-            file_type = gap.code_file.split('.')[-1].upper() if '.' in gap.code_file else 'Unknown'
-            estimated_size = self._estimate_doc_size(gap.estimated_effort)
-            
-            # Add comprehensive data attributes
-            data_attrs = f'''data-priority="{gap.priority}" 
-                           data-gap-type="{gap.gap_type}" 
-                           data-effort="{gap.estimated_effort}"
-                           data-file-type="{file_type.lower()}"
-                           data-file-name="{gap.code_file}"
-                           data-expected-doc="{gap.expected_doc_path}"
-                           data-issues-count="{len(gap.quality_issues)}"
-                           data-github-url="{self._get_github_url(gap.code_file)}"'''
-            
-            quality_issues = ', '.join(gap.quality_issues[:3]) if gap.quality_issues else 'None'
-            if len(gap.quality_issues) > 3:
-                quality_issues += f' (+{len(gap.quality_issues) - 3} more)'
-            
-            # Split file path for better display
-            file_parts = gap.code_file.split('/')
-            file_name = file_parts[-1]
-            file_dir = '/'.join(file_parts[:-1]) if len(file_parts) > 1 else ''
-            
-            rows.append(f"""
-            <tr class="gap-row clickable-row" {data_attrs}>
-                <td class="col-file" data-sort="{gap.code_file}">
-                    <div class="file-path-container">
-                        {f'<span class="file-directory">{file_dir}/</span>' if file_dir else ''}
-                        <span class="file-name clickable-filename" 
-                              data-github-url="{self._get_github_url(gap.code_file)}"
-                              title="Click to open on GitHub">{file_name}</span>
-                    </div>
-                </td>
-                <td class="col-status" data-sort="{gap.gap_type}">
-                    {status_badge}
-                </td>
-                <td class="col-priority" data-sort="{self._get_priority_sort_value(gap.priority)}">
-                    {priority_badge}
-                </td>
-                <td class="col-expected" data-sort="{gap.expected_doc_path}">
-                    <code class="doc-path">{gap.expected_doc_path}</code>
-                </td>
-                <td class="col-effort" data-sort="{self._get_effort_sort_value(gap.estimated_effort)}">
-                    <span class="effort-badge effort-{gap.estimated_effort.lower()}">{gap.estimated_effort.title()}</span>
-                </td>
-                <td class="col-issues" data-sort="{len(gap.quality_issues)}">
-                    <span class="issues-text" title="{'; '.join(gap.quality_issues) if gap.quality_issues else 'No issues'}">{quality_issues}</span>
-                </td>
-                <td class="col-type" data-sort="{file_type}">
-                    <span class="file-type-badge">{file_type}</span>
-                </td>
-                <td class="col-size" data-sort="{estimated_size}">
-                    <span class="size-estimate">{estimated_size}</span>
-                </td>
-            </tr>
-            """)
-        
-        return rows
-    
-    def _generate_column_picker(self, columns: List[Dict]) -> str:
-        """Generate column picker HTML."""
-        column_picker_html = ""
-        for col in columns:
-            essential_class = "essential" if col["essential"] else ""
-            column_picker_html += f'''
-            <label class="column-option {essential_class}">
-                <input type="checkbox" 
-                       data-column="{col['id']}" 
-                       {"checked" if col["visible"] else ""} 
-                       {"disabled" if col["essential"] else ""}>
-                <span class="column-label">{col['label']}</span>
-                {' <small>(essential)</small>' if col["essential"] else ''}
-            </label>
-            '''
-        return column_picker_html
-    
-    def _generate_table_headers(self, columns: List[Dict]) -> str:
-        """Generate table headers with enhanced sort indicators."""
-        headers_html = ""
-        for col in columns:
-            visible_class = "" if col["visible"] else "hidden"
-            sortable_class = "sortable" if col["sortable"] else ""
-            headers_html += f'''
-            <th class="col-{col['id']} {visible_class} {sortable_class}" 
-                data-column="{col['id']}" 
-                data-width="{col['width']}"
-                style="width: {col['width']};">
-                <div class="header-content">
-                    <span class="header-text">{col['label']}</span>
-                    {f'<div class="sort-indicators"></div>' if col["sortable"] else ''}
-                </div>
-                <div class="resize-handle"></div>
-            </th>
-            '''
-        return headers_html
     
     def generate_recommendations(self, report: CoverageReport) -> str:
         """Generate recommendations section."""
@@ -468,36 +391,137 @@ class ContentGenerator:
         """
     
     def generate_footer(self, report: CoverageReport) -> str:
-        """Generate enhanced footer with timestamp tooltips."""
+        """Generate beautiful enhanced footer with golden theme and modern design."""
+        min_coverage = self.config.get("documentation_standards", {}).get("minimum_coverage_percentage", 85.0)
+        
         return f"""
         <div class="footer">
+            <div class="footer-hero">
+                <div class="footer-hero-content">
+                    <h3 class="footer-title">
+                        <span class="footer-icon">📊</span>
+                        Documentation Coverage Analysis Complete
+                    </h3>
+                    <p class="footer-subtitle">
+                        Powered by <strong>Idling.app Documentation Coverage Tool</strong>
+                    </p>
+                </div>
+            </div>
+            
             <div class="footer-content">
                 <div class="footer-section">
-                    <h4>📊 Report Information</h4>
-                    <p>Generated by <strong>Idling.app Documentation Coverage Tool</strong></p>
-                    <p>Total files analyzed: <strong>{report.total_code_files}</strong></p>
-                    <p>Documentation gaps found: <strong>{len(report.gaps)}</strong></p>
+                    <div class="footer-section-header">
+                        <h4 class="footer-section-title">📋 Report Summary</h4>
                 </div>
+                    <div class="footer-stats">
+                        <div class="footer-stat">
+                            <span class="footer-stat-value">{report.total_code_files:,}</span>
+                            <span class="footer-stat-label">Total Files</span>
+                        </div>
+                        <div class="footer-stat">
+                            <span class="footer-stat-value">{len(report.gaps):,}</span>
+                            <span class="footer-stat-label">Documentation Gaps</span>
+                        </div>
+                        <div class="footer-stat">
+                            <span class="footer-stat-value">{report.coverage_percentage:.1f}%</span>
+                            <span class="footer-stat-label">Coverage</span>
+                        </div>
+                    </div>
+                </div>
+                
                 <div class="footer-section">
-                    <h4>🕒 Timestamp Information</h4>
-                    <p>Generated: <span class="timestamp-with-tooltip" data-timestamp="{report.timestamp}">
+                    <div class="footer-section-header">
+                        <h4 class="footer-section-title">🕒 Generation Info</h4>
+                    </div>
+                    <div class="footer-info">
+                        <div class="footer-info-item">
+                            <span class="footer-info-label">Generated:</span>
+                            <span class="footer-info-value timestamp-with-tooltip" data-timestamp="{report.timestamp}">
                         <span class="relative-time">Loading...</span>
-                    </span></p>
-                    <p>Analysis completed: <span class="timestamp-with-tooltip" data-timestamp="{report.timestamp}">
+                            </span>
+                        </div>
+                        <div class="footer-info-item">
+                            <span class="footer-info-label">Analysis:</span>
+                            <span class="footer-info-value timestamp-with-tooltip" data-timestamp="{report.timestamp}">
                         <span class="relative-time">Loading...</span>
-                    </span></p>
+                            </span>
                 </div>
+                    </div>
+                </div>
+                
                 <div class="footer-section">
-                    <h4>⚙️ Configuration</h4>
-                    <p>Coverage threshold: <strong>{report.coverage_percentage:.1f}%</strong></p>
-                    <p>Quality threshold: <strong>{report.quality_score:.1f}%</strong></p>
+                    <div class="footer-section-header">
+                        <h4 class="footer-section-title">⚙️ Configuration</h4>
                 </div>
+                    <div class="footer-config">
+                        <div class="footer-config-item">
+                            <span class="footer-config-label">Coverage Threshold:</span>
+                            <span class="footer-config-value">{min_coverage:.1f}%</span>
             </div>
-            <div class="footer-bottom">
-                <p>💡 <strong>Tip:</strong> Click on table rows to view source code, click filenames to open on GitHub</p>
-                <p>⌨️ <strong>Shortcuts:</strong> Ctrl+F (Search), Ctrl+K (Columns), Ctrl+Shift+D (Theme)</p>
+                        <div class="footer-config-item">
+                            <span class="footer-config-label">Quality Threshold:</span>
+                            <span class="footer-config-value">{report.quality_score:.1f}</span>
             </div>
         </div>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <div class="footer-tips">
+                    <div class="footer-tip">
+                        <span class="footer-tip-icon">💡</span>
+                        <span class="footer-tip-text">
+                            <strong>Tip:</strong> Click on table rows to view source code, click filenames to open on GitHub
+                        </span>
+                            </div>
+                    <div class="footer-shortcuts">
+                        <span class="footer-shortcut-group">
+                            <kbd class="footer-kbd">Ctrl+F</kbd>
+                            <span class="footer-shortcut-desc">Search</span>
+                        </span>
+                        <span class="footer-shortcut-group">
+                            <kbd class="footer-kbd">Ctrl+K</kbd>
+                            <span class="footer-shortcut-desc">Columns</span>
+                        </span>
+                        <span class="footer-shortcut-group">
+                            <kbd class="footer-kbd">Ctrl+Shift+D</kbd>
+                            <span class="footer-shortcut-desc">Theme</span>
+                        </span>
+                        </div>
+                </div>
+            </div>
+            
+            <div class="footer-brand">
+                <div class="footer-brand-content">
+                    <span class="footer-brand-text">
+                        Made with <span class="footer-heart">❤️</span> by <strong>Idling.app</strong>
+                    </span>
+                    <span class="footer-version">v1.0.0</span>
+                    </div>
+                    </div>
+                </div>
+        """
+    
+    def generate_simple_javascript(self) -> str:
+        """Load modular JavaScript components for the documentation coverage report."""
+        return """
+        // Documentation Coverage Report - Modern Modular JavaScript
+        // This loads the professional, maintainable JavaScript architecture
+        
+        // Import and initialize the documentation coverage application
+        import { documentationCoverageApp } from './js/main.js';
+        
+        // Ensure the application is initialized
+        documentationCoverageApp.initialize().catch(error => {
+            console.error('Failed to initialize documentation coverage app:', error);
+        });
+        
+        // Backward compatibility - provide the old function name
+        window.initializeDocumentationCoverageTable = () => {
+            return documentationCoverageApp.initialize();
+        };
+        
+        console.log('📚 Documentation Coverage Report - Modular JavaScript loaded');
         """
     
     # Helper methods delegating to utils module
@@ -531,7 +555,7 @@ class ContentGenerator:
     
     def _get_effort_sort_value(self, effort: str) -> int:
         """Get numeric sort value for effort."""
-        return self.utils.get_effort_sort_value(effort) 
+        return self.utils.get_effort_sort_value(effort)
     
     def _get_github_url(self, file_path: str) -> str:
         """Generate context-aware GitHub URL based on PR context"""
@@ -558,4 +582,86 @@ class ContentGenerator:
             return f"{base_url}/{branch_name}/{file_path}"
         else:
             # For master branch analysis, use master
-            return f"{base_url}/master/{file_path}" 
+            return f"{base_url}/master/{file_path}"
+    
+    def generate_source_code_embedding(self, report: CoverageReport) -> str:
+        """Generate source code data for modal display - BASE64 ENCODED TO AVOID JSON ESCAPING."""
+        source_code_data = {}
+        
+        print(f"📄 Embedding source code for {len(report.gaps)} files...")
+        
+        for gap in report.gaps:
+            file_path = gap.code_file
+            try:
+                # Read the actual file content - NO TRUNCATION
+                with open(file_path, 'r', encoding='utf-8') as f:
+                    content = f.read()
+                
+                lines = content.split('\n')
+                
+                # BASE64 encode the content to avoid JSON escaping issues
+                encoded_content = base64.b64encode(content.encode('utf-8')).decode('ascii')
+                
+                # Store the source code data with base64 encoded content
+                source_code_data[file_path] = {
+                    'content_base64': encoded_content,  # Base64 encoded content
+                    'language': self._get_language_from_extension(file_path),
+                    'lines': len(lines),
+                    'truncated': False
+                }
+                
+            except Exception as e:
+                # If we can't read the file, create a placeholder
+                error_content = f'// Could not read file: {file_path}\n// Error: {str(e)}\n// Click "View on GitHub" to see the actual source code'
+                encoded_error = base64.b64encode(error_content.encode('utf-8')).decode('ascii')
+                
+                source_code_data[file_path] = {
+                    'content_base64': encoded_error,
+                    'language': 'text',
+                    'lines': 0,
+                    'truncated': False
+                }
+        
+        # Generate the JSON data embedding - no escaping issues with base64!
+        json_data = json.dumps(source_code_data, indent=2)
+        
+        return f"""
+    <script type="application/json" data-source-code="true">
+{json_data}
+    </script>
+        """
+    
+    def _get_language_from_extension(self, file_path: str) -> str:
+        """Get programming language from file extension."""
+        ext = file_path.split('.')[-1].lower()
+        
+        language_map = {
+            'ts': 'typescript',
+            'tsx': 'typescript',
+            'js': 'javascript',
+            'jsx': 'javascript',
+            'py': 'python',
+            'css': 'css',
+            'scss': 'scss',
+            'sass': 'sass',
+            'html': 'html',
+            'xml': 'xml',
+            'json': 'json',
+            'md': 'markdown',
+            'yml': 'yaml',
+            'yaml': 'yaml',
+            'sh': 'bash',
+            'bash': 'bash',
+            'sql': 'sql',
+            'php': 'php',
+            'rb': 'ruby',
+            'go': 'go',
+            'rs': 'rust',
+            'java': 'java',
+            'c': 'c',
+            'cpp': 'cpp',
+            'h': 'c',
+            'hpp': 'cpp'
+        }
+        
+        return language_map.get(ext, 'text')

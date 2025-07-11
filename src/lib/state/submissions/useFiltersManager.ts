@@ -21,22 +21,52 @@ export function useFiltersManager({
   
   const addFilter = useCallback(
     (filter: Filter<PostFilters>) => {
-      setFiltersState((prevState) => ({
-        ...prevState,
-        filters: [...prevState.filters, filter as Filter],
-        page: 1
-      }));
+      setFiltersState((prevState) => {
+        // Check if this exact filter already exists
+        const filterKey = `${filter.name}:${filter.value}`;
+        const filterExists = prevState.filters.some(
+          existingFilter => `${existingFilter.name}:${existingFilter.value}` === filterKey
+        );
+        
+        // If filter already exists, don't add it again
+        if (filterExists) {
+          return prevState;
+        }
+        
+        return {
+          ...prevState,
+          filters: [...prevState.filters, filter as Filter],
+          page: 1
+        };
+      });
     },
     [setFiltersState]
   );
 
   const addFilters = useCallback(
     (filters: Filter<PostFilters>[]) => {
-      setFiltersState((prevState) => ({
-        ...prevState,
-        filters: [...prevState.filters, ...filters as Filter[]],
-        page: 1
-      }));
+      setFiltersState((prevState) => {
+        // Combine existing and new filters
+        const allFilters = [...prevState.filters, ...filters as Filter[]];
+        
+        // Deduplicate by creating a unique key for each filter
+        const deduplicatedFilters: Filter[] = [];
+        const seen = new Set<string>();
+        
+        for (const filter of allFilters) {
+          const key = `${filter.name}:${filter.value}`;
+          if (!seen.has(key)) {
+            seen.add(key);
+            deduplicatedFilters.push(filter);
+          }
+        }
+        
+        return {
+          ...prevState,
+          filters: deduplicatedFilters,
+          page: 1
+        };
+      });
     },
     [setFiltersState]
   );

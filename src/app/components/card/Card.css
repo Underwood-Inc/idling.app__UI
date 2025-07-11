@@ -1,3 +1,4 @@
+/* Card Component - Base Styles */
 .card {
   padding: 1rem 1.2rem;
   border-radius: var(--border-radius);
@@ -26,6 +27,13 @@
   position: relative;
 }
 
+/* Profile card gets special treatment - don't override! */
+.card.profile-page__main-card {
+  /* All profile card styles are handled in profile-page.scss */
+  /* This ensures no interference with the new glassmorphism design */
+}
+
+/* Card size variants */
 .card.full {
   width: 100%;
 }
@@ -46,8 +54,8 @@
   width: min-content;
 }
 
-/* Glassmorphic shimmer effect */
-.card::before {
+/* Base card glassmorphic shimmer effect */
+.card:not(.profile-page__main-card)::before {
   content: '';
   position: absolute;
   top: 0;
@@ -65,12 +73,13 @@
   border-radius: inherit;
 }
 
-/* Ensure content is above the shimmer */
-.card > * {
+/* Ensure content is above the shimmer (except profile cards) */
+.card:not(.profile-page__main-card) > * {
   position: relative;
   z-index: 2;
 }
 
+/* Base card text styles */
 .card,
 .card sup {
   color: var(--dark-bg__text-color--primary);
@@ -88,117 +97,51 @@
   color: var(--dark-bg__text-color--primary);
 }
 
-.card p {
-  margin: 0;
-  font-size: var(--font-size-lg);
-  line-height: 1.5;
-  width: 100%;
-  text-wrap: wrap;
-  word-break: break-word;
-  color: var(--dark-bg__text-color--secondary);
-}
-
-.card a {
-  color: var(--brand-primary);
-}
-
-/* Enhanced glassmorphic hover effects */
-@media (hover: hover) and (pointer: fine) {
-  .card:hover {
+/* Dark mode support for base cards */
+@media (prefers-color-scheme: dark) {
+  .card:not(.profile-page__main-card) {
     background: linear-gradient(
       135deg,
-      rgba(255, 255, 255, 0.15) 0%,
-      rgba(255, 255, 255, 0.08) 50%,
-      rgba(0, 0, 0, 0.02) 100%
+      rgba(255, 255, 255, 0.08) 0%,
+      rgba(255, 255, 255, 0.04) 50%,
+      rgba(0, 0, 0, 0.1) 100%
     );
-    border-color: rgba(255, 255, 255, 0.3);
-    box-shadow:
-      0 12px 48px rgba(0, 0, 0, 0.15),
-      inset 0 1px 0 rgba(255, 255, 255, 0.3);
-    transform: translateY(-2px);
+    border-color: rgba(255, 255, 255, 0.15);
   }
 
-  .card:hover::before {
+  .card:not(.profile-page__main-card)::before {
     background: linear-gradient(
       135deg,
-      rgba(255, 255, 255, 0.15) 0%,
-      rgba(255, 255, 255, 0.05) 50%,
-      rgba(0, 0, 0, 0.02) 100%
+      rgba(255, 255, 255, 0.06) 0%,
+      rgba(255, 255, 255, 0.02) 50%,
+      rgba(0, 0, 0, 0.1) 100%
     );
   }
-
-  /* Handle on hover */
-  ::-webkit-scrollbar-thumb:hover {
-    background: var(--brand-primary--dark);
-    cursor: pointer;
   }
 
-  .card a:hover {
-    color: var(--brand-primary--light);
-    text-decoration: underline;
-  }
+/* Hover effects for non-profile cards */
+.card:not(.profile-page__main-card):hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 12px 40px rgba(0, 0, 0, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  border-color: rgba(255, 255, 255, 0.3);
 }
 
-/* Reduced motion accessibility */
-@media (prefers-reduced-motion) {
+/* Accessibility and reduced motion */
+@media (prefers-reduced-motion: reduce) {
   .card {
-    transition:
-      background 300ms ease,
-      border 300ms ease,
-      box-shadow 300ms ease;
+    transition: none;
   }
 
   .card:hover {
     transform: none;
   }
-
-  .card:hover span {
-    transform: none;
-  }
 }
 
-/* Mobile glassmorphism optimizations */
-@media (max-width: 768px) {
+/* High contrast support */
+@media (prefers-contrast: high) {
   .card {
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    box-shadow:
-      0 4px 16px rgba(0, 0, 0, 0.08),
-      inset 0 1px 0 rgba(255, 255, 255, 0.15);
-  }
-
-  .card h2,
-  .card h3 {
-    margin-bottom: 0.5rem;
-  }
-}
-
-/* Touch device optimizations */
-@media (max-width: 700px) {
-  .card {
-    padding: 0.875rem 1rem;
-  }
-
-  .card:active {
-    background: linear-gradient(
-      135deg,
-      rgba(255, 255, 255, 0.12) 0%,
-      rgba(255, 255, 255, 0.06) 50%,
-      rgba(0, 0, 0, 0.03) 100%
-    );
-    transform: scale(0.98);
-  }
-}
-
-/* 4k Displays */
-@media (min-width: 2160px) {
-  .card {
-    max-width: 1600px;
-    margin-bottom: 0;
-    width: 100%;
-  }
-
-  .card:not(:last-of-type) {
-    margin-right: 1rem;
+    border-width: 2px;
   }
 }

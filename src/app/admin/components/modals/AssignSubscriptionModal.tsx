@@ -1,8 +1,13 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
+import './AssignSubscriptionModal.css';
 
-export interface SubscriptionPlan {
+// ================================
+// TYPES & INTERFACES
+// ================================
+
+interface SubscriptionPlan {
   id: string;
   name: string;
   display_name: string;
@@ -11,9 +16,10 @@ export interface SubscriptionPlan {
   price_monthly_cents?: number;
   price_yearly_cents?: number;
   price_lifetime_cents?: number;
+  is_active: boolean;
 }
 
-export interface AssignSubscriptionModalProps {
+interface AssignSubscriptionModalProps {
   isOpen: boolean;
   onClose: () => void;
   onAssign: (
@@ -24,144 +30,259 @@ export interface AssignSubscriptionModalProps {
   ) => Promise<void>;
   userName: string;
   userId: string;
-  currentSubscriptions?: any[];
 }
 
 export const AssignSubscriptionModal: React.FC<
   AssignSubscriptionModalProps
-> = ({
-  isOpen,
-  onClose,
-  onAssign,
-  userName,
-  userId,
-  currentSubscriptions = []
-}) => {
-  const [selectedPlan, setSelectedPlan] = useState('');
-  const [billingCycle, setBillingCycle] = useState<
-    'monthly' | 'yearly' | 'lifetime'
-  >('monthly');
-  const [expiresAt, setExpiresAt] = useState('');
-  const [reason, setReason] = useState('');
-  const [availablePlans, setAvailablePlans] = useState<SubscriptionPlan[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+> = ({ isOpen, onClose, onAssign, userName, userId }) => {
+  // ================================
+  // STATE MANAGEMENT
+  // ================================
 
-  // Load available subscription plans
-  useEffect(() => {
-    if (isOpen) {
-      loadAvailablePlans();
-    }
-  }, [isOpen]);
+  const [subscriptionPlans, setSubscriptionPlans] = useState<
+    SubscriptionPlan[]
+  >([]);
+  const [loading, setLoading] = useState(true);
+  const [assigning, setAssigning] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const loadAvailablePlans = async () => {
-    setLoading(true);
+  // Form state
+  const [selectedPlanId, setSelectedPlanId] = useState<string>('');
+  const [billingCycle, setBillingCycle] = useState<string>('monthly');
+  const [expiresAt, setExpiresAt] = useState<string>('');
+  const [reason, setReason] = useState<string>('');
+  const [hasExpiration, setHasExpiration] = useState<boolean>(false);
+
+  // ================================
+  // DATA FETCHING
+  // ================================
+
+  const fetchSubscriptionPlans = useCallback(async () => {
     try {
+      setError(null);
       const response = await fetch('/api/admin/subscription-plans');
-      if (response.ok) {
-        const plans = await response.json();
-        setAvailablePlans(plans);
+
+      if (!response.ok) {
+        throw new Error(
+          `Failed to fetch subscription plans: ${response.status}`
+        );
       }
+
+      const plans = await response.json();
+      setSubscriptionPlans(
+        plans.filter((plan: SubscriptionPlan) => plan.is_active)
+      );
     } catch (error) {
-      console.error('Failed to load subscription plans:', error);
+      console.error('Error fetching subscription plans:', error);
+      setError(
+        error instanceof Error
+          ? error.message
+          : 'Failed to fetch subscription plans'
+      );
     } finally {
       setLoading(false);
     }
+  }, []);
+
+  useEffect(() => {
+    if (isOpen) {
+      fetchSubscriptionPlans();
+    }
+  }, [isOpen, fetchSubscriptionPlans]);
+
+  // ================================
+  // FORM VALIDATION
+  // ================================
+
+  const validateForm = (): string | null => {
+    if (!selectedPlanId) {
+      return 'Please select a subscription plan';
+    }
+
+    if (!billingCycle) {
+      return 'Please select a billing cycle';
+    }
+
+    if (hasExpiration && !expiresAt) {
+      return 'Please set an expiration date';
+    }
+
+    if (hasExpiration && expiresAt) {
+      const expirationDate = new Date(expiresAt);
+      const now = new Date();
+      if (expirationDate <= now) {
+        return 'Expiration date must be in the future';
+      }
+    }
+
+    return null;
   };
+
+  // ================================
+  // EVENT HANDLERS
+  // ================================
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedPlan || !billingCycle) return;
 
-    setIsSubmitting(true);
+    const validationError = validateForm();
+    if (validationError) {
+      setError(validationError);
+      return;
+    }
+
+    setAssigning(true);
+    setError(null);
+
     try {
       await onAssign(
-        selectedPlan,
+        selectedPlanId,
         billingCycle,
-        expiresAt || undefined,
+        hasExpiration ? expiresAt : undefined,
         reason || undefined
       );
-      handleClose();
+
+      // Reset form and close modal
+      resetForm();
+      onClose();
     } catch (error) {
-      console.error('Failed to assign subscription:', error);
+      console.error('Error assigning subscription:', error);
+      setError(
+        error instanceof Error ? error.message : 'Failed to assign subscription'
+      );
     } finally {
-      setIsSubmitting(false);
+      setAssigning(false);
     }
   };
 
-  const handleClose = () => {
-    setSelectedPlan('');
+  const resetForm = () => {
+    setSelectedPlanId('');
     setBillingCycle('monthly');
     setExpiresAt('');
     setReason('');
-    onClose();
+    setHasExpiration(false);
+    setError(null);
   };
 
+  const handleClose = () => {
+    if (!assigning) {
+      resetForm();
+      onClose();
+    }
+  };
+
+  // ================================
+  // HELPER FUNCTIONS
+  // ================================
+
   const formatPrice = (cents?: number) => {
-    if (!cents) return 'Free';
+    if (!cents || cents === 0) return 'Free';
     return `$${(cents / 100).toFixed(2)}`;
   };
 
-  const selectedPlanData = availablePlans.find((p) => p.id === selectedPlan);
+  const getSelectedPlan = () => {
+    return subscriptionPlans.find((plan) => plan.id === selectedPlanId);
+  };
+
+  const getBillingCycleOptions = (): Array<{
+    value: string;
+    label: string;
+  }> => {
+    const selectedPlan = getSelectedPlan();
+    if (!selectedPlan) return [];
+
+    const options: Array<{ value: string; label: string }> = [];
+
+    if (selectedPlan.price_monthly_cents !== undefined) {
+      options.push({
+        value: 'monthly',
+        label: `Monthly - ${formatPrice(selectedPlan.price_monthly_cents)}/month`
+      });
+    }
+
+    if (selectedPlan.price_yearly_cents !== undefined) {
+      options.push({
+        value: 'yearly',
+        label: `Yearly - ${formatPrice(selectedPlan.price_yearly_cents)}/year`
+      });
+    }
+
+    if (selectedPlan.price_lifetime_cents !== undefined) {
+      options.push({
+        value: 'lifetime',
+        label: `Lifetime - ${formatPrice(selectedPlan.price_lifetime_cents)} once`
+      });
+    }
+
+    if (options.length === 0 && selectedPlan.name === 'free') {
+      options.push({
+        value: 'free',
+        label: 'Free Plan'
+      });
+    }
+
+    return options;
+  };
+
+  // ================================
+  // RENDER HELPERS
+  // ================================
 
   if (!isOpen) return null;
 
   return (
     <div className="modal-overlay" onClick={handleClose}>
-      <div
-        className="modal-content modal-content--large"
-        onClick={(e) => e.stopPropagation()}
-      >
+      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
-          <div>
-            <h3>💎 Assign Subscription to {userName}</h3>
-            <p
-              style={{
-                margin: '4px 0 0 0',
-                color: 'var(--text-secondary)',
-                fontSize: '0.9rem'
-              }}
-            >
-              ID: {userId}
-            </p>
-          </div>
-          <button className="modal-close-btn" onClick={handleClose}>
+          <h3>Assign Subscription</h3>
+          <button
+            className="modal-close"
+            onClick={handleClose}
+            disabled={assigning}
+          >
             ✕
           </button>
         </div>
 
-        <form onSubmit={handleSubmit}>
-          <div className="modal-body">
-            {loading ? (
-              <div
-                style={{
-                  display: 'flex',
-                  justifyContent: 'center',
-                  padding: '2rem'
-                }}
-              >
-                <div className="loading-spinner"></div>
+        <div className="modal-body">
+          {loading ? (
+            <div className="loading-state">
+              <div className="loading-spinner"></div>
+              <p>Loading subscription plans...</p>
+            </div>
+          ) : (
+            <>
+              <div className="user-info">
+                <h4>👤 Assigning to:</h4>
+                <p>
+                  <strong>{userName}</strong>
+                </p>
+                <p className="user-id">User ID: {userId}</p>
               </div>
-            ) : (
-              <div
-                style={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '1rem'
-                }}
-              >
-                {/* Plan Selection */}
+
+              {error && (
+                <div className="error-message">
+                  <span>❌ {error}</span>
+                </div>
+              )}
+
+              <form onSubmit={handleSubmit}>
                 <div className="form-group">
-                  <label htmlFor="plan-select">Subscription Plan *</label>
+                  <label htmlFor="subscription-plan">
+                    📋 Subscription Plan <span className="required">*</span>
+                  </label>
                   <select
-                    id="plan-select"
-                    value={selectedPlan}
-                    onChange={(e) => setSelectedPlan(e.target.value)}
+                    id="subscription-plan"
+                    value={selectedPlanId}
+                    onChange={(e) => {
+                      setSelectedPlanId(e.target.value);
+                      setBillingCycle(''); // Reset billing cycle when plan changes
+                    }}
                     required
-                    className="admin-select"
+                    disabled={assigning}
                   >
                     <option value="">Select a plan...</option>
-                    {availablePlans.map((plan) => (
+                    {subscriptionPlans.map((plan) => (
                       <option key={plan.id} value={plan.id}>
                         {plan.display_name} ({plan.plan_type})
                       </option>
@@ -169,168 +290,89 @@ export const AssignSubscriptionModal: React.FC<
                   </select>
                 </div>
 
-                {/* Plan Details */}
-                {selectedPlanData && (
-                  <div
-                    style={{
-                      padding: '12px',
-                      background: 'var(--light-background--secondary)',
-                      borderRadius: '6px',
-                      fontSize: '0.9rem'
-                    }}
-                  >
-                    <strong>{selectedPlanData.display_name}</strong>
-                    <br />
-                    <div style={{ margin: '8px 0' }}>
-                      {selectedPlanData.description ||
-                        'No description available.'}
-                    </div>
-                    <div
-                      style={{
-                        display: 'flex',
-                        gap: '16px',
-                        fontSize: '0.8rem',
-                        color: 'var(--text-secondary)'
-                      }}
+                {selectedPlanId && (
+                  <div className="form-group">
+                    <label htmlFor="billing-cycle">
+                      💳 Billing Cycle <span className="required">*</span>
+                    </label>
+                    <select
+                      id="billing-cycle"
+                      value={billingCycle}
+                      onChange={(e) => setBillingCycle(e.target.value)}
+                      required
+                      disabled={assigning}
                     >
-                      <span>
-                        Monthly:{' '}
-                        {formatPrice(selectedPlanData.price_monthly_cents)}
-                      </span>
-                      <span>
-                        Yearly:{' '}
-                        {formatPrice(selectedPlanData.price_yearly_cents)}
-                      </span>
-                      {selectedPlanData.price_lifetime_cents && (
-                        <span>
-                          Lifetime:{' '}
-                          {formatPrice(selectedPlanData.price_lifetime_cents)}
-                        </span>
-                      )}
-                    </div>
+                      <option value="">Select billing cycle...</option>
+                      {getBillingCycleOptions().map((option) => (
+                        <option key={option.value} value={option.value}>
+                          {option.label}
+                        </option>
+                      ))}
+                    </select>
                   </div>
                 )}
 
-                {/* Billing Cycle */}
                 <div className="form-group">
-                  <label htmlFor="billing-cycle">Billing Cycle *</label>
-                  <select
-                    id="billing-cycle"
-                    value={billingCycle}
-                    onChange={(e) => setBillingCycle(e.target.value as any)}
-                    required
-                    className="admin-select"
-                  >
-                    <option value="monthly">Monthly</option>
-                    <option value="yearly">Yearly</option>
-                    <option value="lifetime">Lifetime</option>
-                  </select>
+                  <label className="checkbox-label">
+                    <input
+                      type="checkbox"
+                      checked={hasExpiration}
+                      onChange={(e) => setHasExpiration(e.target.checked)}
+                      disabled={assigning}
+                    />
+                    📅 Set expiration date
+                  </label>
                 </div>
 
-                {/* Status */}
-                <div className="form-group">
-                  <label htmlFor="status">Status</label>
-                  <select
-                    id="status"
-                    defaultValue="active"
-                    className="admin-select"
-                  >
-                    <option value="active">Active</option>
-                    <option value="trialing">Trial</option>
-                    <option value="pending">Pending</option>
-                    <option value="suspended">Suspended</option>
-                  </select>
-                </div>
-
-                {/* Expiration Date */}
-                <div className="form-group">
-                  <label htmlFor="expires-at">Expires At (Optional)</label>
-                  <input
-                    type="datetime-local"
-                    id="expires-at"
-                    value={expiresAt}
-                    onChange={(e) => setExpiresAt(e.target.value)}
-                    min={new Date().toISOString().slice(0, 16)}
-                    style={{
-                      padding: '8px 12px',
-                      border: '2px solid var(--light-background--tertiary)',
-                      borderRadius: '6px',
-                      fontSize: '14px',
-                      width: '100%'
-                    }}
-                  />
-                  <div className="form-help">
-                    Leave empty for lifetime subscriptions or auto-renewal.
+                {hasExpiration && (
+                  <div className="form-group">
+                    <label htmlFor="expires-at">
+                      Expires At <span className="required">*</span>
+                    </label>
+                    <input
+                      type="datetime-local"
+                      id="expires-at"
+                      value={expiresAt}
+                      onChange={(e) => setExpiresAt(e.target.value)}
+                      required={hasExpiration}
+                      disabled={assigning}
+                    />
                   </div>
-                </div>
+                )}
 
-                {/* Reason */}
                 <div className="form-group">
-                  <label htmlFor="reason">Reason (Optional)</label>
+                  <label htmlFor="reason">📝 Assignment Reason</label>
                   <textarea
                     id="reason"
                     value={reason}
                     onChange={(e) => setReason(e.target.value)}
-                    placeholder="Reason for subscription assignment..."
+                    placeholder="Optional reason for this assignment..."
                     rows={3}
-                    style={{
-                      padding: '8px 12px',
-                      border: '2px solid var(--light-background--tertiary)',
-                      borderRadius: '6px',
-                      fontSize: '14px',
-                      width: '100%',
-                      resize: 'vertical',
-                      fontFamily: 'inherit'
-                    }}
+                    disabled={assigning}
                   />
                 </div>
 
-                {/* Current Subscriptions Display */}
-                {currentSubscriptions.length > 0 && (
-                  <div>
-                    <label style={{ marginBottom: '8px', display: 'block' }}>
-                      Current Subscriptions:
-                    </label>
-                    <div
-                      style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}
-                    >
-                      {currentSubscriptions.map((sub, index) => (
-                        <span
-                          key={index}
-                          className={`subscription-badge subscription-badge--${sub.status}`}
-                        >
-                          {sub.plan_name}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-
-          <div className="modal-footer">
-            <div className="modal-actions">
-              <button
-                type="button"
-                className="btn btn--secondary"
-                onClick={handleClose}
-                disabled={isSubmitting}
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                className="btn btn--accent"
-                disabled={
-                  !selectedPlan || !billingCycle || isSubmitting || loading
-                }
-              >
-                {isSubmitting ? '🔄 Assigning...' : '💎 Assign Subscription'}
-              </button>
-            </div>
-          </div>
-        </form>
+                <div className="form-actions">
+                  <button
+                    type="button"
+                    className="btn btn-secondary"
+                    onClick={handleClose}
+                    disabled={assigning}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="btn btn-primary"
+                    disabled={assigning || !selectedPlanId}
+                  >
+                    {assigning ? '🔄 Assigning...' : '✅ Assign Subscription'}
+                  </button>
+                </div>
+              </form>
+            </>
+          )}
+        </div>
       </div>
     </div>
   );

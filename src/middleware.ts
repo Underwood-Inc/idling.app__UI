@@ -11,7 +11,11 @@ const { auth } = NextAuth({
 export default auth(async (req) => {
   const { nextUrl, auth: session } = req;
 
-  // Handle API route authentication (rate limiting moved to individual routes)
+  // Note: User existence validation is handled at the API route level
+  // because middleware runs in Edge Runtime which doesn't support Node.js database clients
+  // Each API route uses the validation utility for consistent security checks
+
+  // Handle API route authentication
   if (nextUrl.pathname.startsWith('/api/')) {
     // Protect profile update routes (PATCH, POST, DELETE)
     if (nextUrl.pathname.startsWith('/api/profile') && req.method !== 'GET') {
@@ -43,11 +47,7 @@ export default auth(async (req) => {
       }
     }
 
-    // Note: Profile privacy protection is handled at the endpoint level
-    // using the privacy utility in /lib/utils/privacy.ts for better performance
-    // and to avoid database queries in middleware
-
-    // Protect admin routes
+    // Protect admin routes - CRITICAL SECURITY with real-time permission checking
     if (nextUrl.pathname.startsWith('/api/admin')) {
       if (!session) {
         return NextResponse.json(
@@ -55,9 +55,13 @@ export default auth(async (req) => {
           { status: 401 }
         );
       }
+      
+             // Note: Admin permission validation is handled at the individual API route level
+       // because middleware runs in Edge Runtime which doesn't support database connections
+       // Each admin API route MUST implement proper permission checking using the validation utility
     }
 
-    // Continue to API route (rate limiting will be handled by individual routes)
+    // Continue to API route
     return NextResponse.next();
   }
 
@@ -67,6 +71,20 @@ export default auth(async (req) => {
     PUBLIC_ROUTES.includes(nextUrl.pathname) ||
     nextUrl.pathname.startsWith('/t/') ||
     nextUrl.pathname.startsWith('/profile/');
+
+  // CRITICAL: Protect admin pages - require authentication
+  if (nextUrl.pathname.startsWith('/admin')) {
+    if (!session) {
+      const url = new URL(NAV_PATHS.SIGNIN, nextUrl);
+      url.searchParams.append('redirect', nextUrl.pathname);
+      return NextResponse.redirect(url);
+    }
+
+    // Note: Admin permission validation is handled in the admin layout.tsx
+    // because middleware runs in Edge Runtime which doesn't support database connections
+    // The layout provides server-side permission checking with proper error handling
+    return NextResponse.next();
+  }
 
   if (isPublicRoute) {
     return;
@@ -89,6 +107,7 @@ export const config = {
     '/api/admin/:path*',
     '/api/emojis/:path*',
     '/api/upload/:path*',
+    '/admin/:path*',
     '/((?!api|_next/static|_next/image|favicon.ico).*)'
   ]
 };

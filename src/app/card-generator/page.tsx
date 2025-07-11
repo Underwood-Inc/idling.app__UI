@@ -226,263 +226,275 @@ export default function OgImageViewer() {
       clearFormState();
       clearGeneration();
       welcomeFlow.clearWelcomeFlow();
+      quotaState.clearQuota();
       setSvgContent('');
       setCurrentGenerationId('');
       setError('');
     };
-  }, [clearFormState, clearGeneration, welcomeFlow.clearWelcomeFlow]);
+  }, [
+    clearFormState,
+    clearGeneration,
+    welcomeFlow.clearWelcomeFlow,
+    quotaState.clearQuota
+  ]);
 
   // Loading states
   if (generationLoader.isLoading) {
     return (
-      <PageContainer>
-        <PageHeader>
-          <FadeIn>
-            <h2>🧙‍♂️ Mystical Card Generator</h2>
-            <p>
-              Retrieving your enchanted creation from the mystical archives...
-            </p>
-          </FadeIn>
-        </PageHeader>
-        <PageContent>
-          <MysticalLoader message="Summoning your previous generation from the ancient archives..." />
-        </PageContent>
-      </PageContainer>
+      <div data-testid="card-generator">
+        <PageContainer>
+          <PageHeader>
+            <FadeIn>
+              <h2>🧙‍♂️ Mystical Card Generator</h2>
+              <p>
+                Retrieving your enchanted creation from the mystical archives...
+              </p>
+            </FadeIn>
+          </PageHeader>
+          <PageContent>
+            <MysticalLoader message="Summoning your previous generation from the ancient archives..." />
+          </PageContent>
+        </PageContainer>
+      </div>
     );
   }
 
   if (error) {
     return (
-      <PageContainer>
-        <PageHeader>
-          <FadeIn>
-            <h2>Card Generator</h2>
-            <p>Error: {error}</p>
-            <button
-              onClick={() => setError('')}
-              className={styles.header__button}
-            >
-              Try Again
-            </button>
-          </FadeIn>
-        </PageHeader>
-      </PageContainer>
+      <div data-testid="card-generator">
+        <PageContainer>
+          <PageHeader>
+            <FadeIn>
+              <h2>Card Generator</h2>
+              <p>Error: {error}</p>
+              <button
+                onClick={() => setError('')}
+                className={styles.header__button}
+              >
+                Try Again
+              </button>
+            </FadeIn>
+          </PageHeader>
+        </PageContainer>
+      </div>
     );
   }
 
   return (
-    <PageContainer>
-      <PageHeader>
-        <FadeIn>
-          <div
-            className={`${styles.header__content} ${styles.header__centered}`}
-          >
-            <div className={styles.header__text}>
-              <h1>🧙‍♂️ Mystical Card Generator</h1>
-              <p>
-                {welcomeFlow.showWelcome
-                  ? 'Harness ancient wisdom to forge enchanted social media cards'
-                  : 'Channel mystical energies into beautiful social media cards'}
-              </p>
-            </div>
+    <div data-testid="card-generator">
+      <PageContainer>
+        <PageHeader>
+          <FadeIn>
+            <div
+              className={`${styles.header__content} ${styles.header__centered}`}
+            >
+              <div className={styles.header__text}>
+                <h1>🧙‍♂️ Mystical Card Generator</h1>
+                <p>
+                  {welcomeFlow.showWelcome
+                    ? 'Harness ancient wisdom to forge enchanted social media cards'
+                    : 'Channel mystical energies into beautiful social media cards'}
+                </p>
+              </div>
 
-            {!welcomeFlow.showWelcome && (
-              <div className={styles.header__controls}>
-                <div className={styles.header__buttons}>
-                  <button
-                    onClick={welcomeFlow.returnToWelcome}
-                    className={`${styles.header__button} ${styles['header__button--welcome']}`}
-                    title="Back to welcome"
-                  >
-                    ← Welcome
-                  </button>
-                  <button
-                    onClick={handleSaveAsPng}
-                    className={`${styles.header__button} ${styles['header__button--png']}`}
-                    title="PNG - Raster image, best for social media"
-                    disabled={!svgContent}
-                  >
-                    📥 PNG
-                  </button>
-                  <button
-                    onClick={handleSaveAsSvg}
-                    className={`${styles.header__button} ${styles['header__button--svg']}`}
-                    title="SVG - Vector image, scalable and smaller"
-                    disabled={!svgContent}
-                  >
-                    📥 SVG
-                  </button>
-                  {/* Mobile Quota Display - only visible when aside is hidden */}
-                  <div className={styles.mobile__quota__display}>
-                    <QuotaDisplay
-                      remainingGenerations={quotaState.remainingGenerations}
-                      quotaLimit={quotaState.quotaLimit}
-                      hasInitializedQuota={quotaState.hasInitializedQuota}
-                      isQuotaExceeded={quotaState.isQuotaExceeded}
-                      resetDate={quotaState.resetDate}
-                      showMeter
-                      mobile
-                    />
+              {!welcomeFlow.showWelcome && (
+                <div className={styles.header__controls}>
+                  <div className={styles.header__buttons}>
+                    <button
+                      onClick={welcomeFlow.returnToWelcome}
+                      className={`${styles.header__button} ${styles['header__button--welcome']}`}
+                      title="Back to welcome"
+                    >
+                      ← Welcome
+                    </button>
+                    <button
+                      onClick={handleSaveAsPng}
+                      className={`${styles.header__button} ${styles['header__button--png']}`}
+                      title="PNG - Raster image, best for social media"
+                      disabled={!svgContent}
+                    >
+                      📥 PNG
+                    </button>
+                    <button
+                      onClick={handleSaveAsSvg}
+                      className={`${styles.header__button} ${styles['header__button--svg']}`}
+                      title="SVG - Vector image, scalable and smaller"
+                      disabled={!svgContent}
+                    >
+                      📥 SVG
+                    </button>
+                    {/* Mobile Quota Display - only visible when aside is hidden */}
+                    <div className={styles.mobile__quota__display}>
+                      <QuotaDisplay
+                        remainingGenerations={quotaState.remainingGenerations}
+                        quotaLimit={quotaState.quotaLimit}
+                        hasInitializedQuota={quotaState.hasInitializedQuota}
+                        isQuotaExceeded={quotaState.isQuotaExceeded}
+                        resetDate={quotaState.resetDate}
+                        showMeter
+                        mobile
+                      />
+                    </div>
                   </div>
                 </div>
-              </div>
-            )}
-          </div>
-        </FadeIn>
-      </PageHeader>
+              )}
+            </div>
+          </FadeIn>
+        </PageHeader>
 
-      <PageContent>
-        {welcomeFlow.showWelcome ? (
+        <PageContent>
+          {welcomeFlow.showWelcome ? (
+            <FadeIn>
+              <WelcomeInterface
+                remainingGenerations={quotaState.remainingGenerations}
+                quotaLimit={quotaState.quotaLimit}
+                hasInitializedQuota={quotaState.hasInitializedQuota}
+                isQuotaExceeded={quotaState.isQuotaExceeded}
+                resetDate={quotaState.resetDate}
+                loadGenerationId={welcomeFlow.loadGenerationId}
+                setLoadGenerationId={welcomeFlow.setLoadGenerationId}
+                onNewGeneration={handleNewGeneration}
+                onLoadGeneration={welcomeFlow.handleLoadGeneration}
+              />
+            </FadeIn>
+          ) : (
+            <article className={styles.viewer__container}>
+              <FadeIn className={styles.viewer__container_fade}>
+                <GenerationForm
+                  currentSeed={formState.currentSeed}
+                  setCurrentSeed={(seed) => updateField('currentSeed', seed)}
+                  avatarSeed={formState.avatarSeed}
+                  setAvatarSeed={(seed) => updateField('avatarSeed', seed)}
+                  customQuote={formState.customQuote}
+                  setCustomQuote={(quote) => updateField('customQuote', quote)}
+                  customAuthor={formState.customAuthor}
+                  setCustomAuthor={(author) =>
+                    updateField('customAuthor', author)
+                  }
+                  customWidth={formState.customWidth}
+                  setCustomWidth={(width) => updateField('customWidth', width)}
+                  customHeight={formState.customHeight}
+                  setCustomHeight={(height) =>
+                    updateField('customHeight', height)
+                  }
+                  shapeCount={formState.shapeCount}
+                  setShapeCount={(count) => updateField('shapeCount', count)}
+                  isQuotaExceeded={quotaState.isQuotaExceeded}
+                  isGenerating={isGenerating}
+                  onGenerate={handleGenerate}
+                  onRandomize={handleRandomize}
+                  isCollapsed={isFormCollapsed}
+                  onToggleCollapse={() => setIsFormCollapsed(!isFormCollapsed)}
+                  selectedRatio={
+                    ASPECT_RATIO_OPTIONS.find((r) => r.key === selectedRatio) ||
+                    ASPECT_RATIO_OPTIONS[0]
+                  }
+                  onRatioChange={(ratio) => setSelectedRatio(ratio.key)}
+                  aspectRatioOptions={ASPECT_RATIO_OPTIONS}
+                  generationOptions={generationOptions}
+                  advancedOptions={advancedOptions}
+                  onAdvancedOptionsChange={setAdvancedOptions}
+                  isProUser={false} // TODO: Connect to actual Pro user status
+                  isReadOnly={isLoadedGeneration}
+                />
+
+                <GenerationDisplay
+                  generationId={currentGenerationId}
+                  svgContent={svgContent}
+                  onCopyId={handleCopyId}
+                />
+              </FadeIn>
+            </article>
+          )}
+        </PageContent>
+
+        <PageAside className={styles.features_aside} bottomMargin={10}>
           <FadeIn>
-            <WelcomeInterface
+            <QuotaDisplay
               remainingGenerations={quotaState.remainingGenerations}
               quotaLimit={quotaState.quotaLimit}
               hasInitializedQuota={quotaState.hasInitializedQuota}
               isQuotaExceeded={quotaState.isQuotaExceeded}
               resetDate={quotaState.resetDate}
-              loadGenerationId={welcomeFlow.loadGenerationId}
-              setLoadGenerationId={welcomeFlow.setLoadGenerationId}
-              onNewGeneration={handleNewGeneration}
-              onLoadGeneration={welcomeFlow.handleLoadGeneration}
+              showMeter
             />
-          </FadeIn>
-        ) : (
-          <article className={styles.viewer__container}>
-            <FadeIn className={styles.viewer__container_fade}>
-              <GenerationForm
-                currentSeed={formState.currentSeed}
-                setCurrentSeed={(seed) => updateField('currentSeed', seed)}
-                avatarSeed={formState.avatarSeed}
-                setAvatarSeed={(seed) => updateField('avatarSeed', seed)}
-                customQuote={formState.customQuote}
-                setCustomQuote={(quote) => updateField('customQuote', quote)}
-                customAuthor={formState.customAuthor}
-                setCustomAuthor={(author) =>
-                  updateField('customAuthor', author)
-                }
-                customWidth={formState.customWidth}
-                setCustomWidth={(width) => updateField('customWidth', width)}
-                customHeight={formState.customHeight}
-                setCustomHeight={(height) =>
-                  updateField('customHeight', height)
-                }
-                shapeCount={formState.shapeCount}
-                setShapeCount={(count) => updateField('shapeCount', count)}
-                isQuotaExceeded={quotaState.isQuotaExceeded}
-                isGenerating={isGenerating}
-                onGenerate={handleGenerate}
-                onRandomize={handleRandomize}
-                isCollapsed={isFormCollapsed}
-                onToggleCollapse={() => setIsFormCollapsed(!isFormCollapsed)}
-                selectedRatio={
-                  ASPECT_RATIO_OPTIONS.find((r) => r.key === selectedRatio) ||
-                  ASPECT_RATIO_OPTIONS[0]
-                }
-                onRatioChange={(ratio) => setSelectedRatio(ratio.key)}
-                aspectRatioOptions={ASPECT_RATIO_OPTIONS}
-                generationOptions={generationOptions}
-                advancedOptions={advancedOptions}
-                onAdvancedOptionsChange={setAdvancedOptions}
-                isProUser={false} // TODO: Connect to actual Pro user status
-                isReadOnly={isLoadedGeneration}
-              />
 
-              <GenerationDisplay
-                generationId={currentGenerationId}
-                svgContent={svgContent}
-                onCopyId={handleCopyId}
-              />
-            </FadeIn>
-          </article>
-        )}
-      </PageContent>
-
-      <PageAside className={styles.features_aside} bottomMargin={10}>
-        <FadeIn>
-          <QuotaDisplay
-            remainingGenerations={quotaState.remainingGenerations}
-            quotaLimit={quotaState.quotaLimit}
-            hasInitializedQuota={quotaState.hasInitializedQuota}
-            isQuotaExceeded={quotaState.isQuotaExceeded}
-            resetDate={quotaState.resetDate}
-            showMeter
-          />
-
-          {/* Mystical Codex */}
-          <div className={styles.features__section}>
-            <h3>📜 Arcane Knowledge</h3>
-            <div className={styles.features__grid}>
-              <div className={styles.feature__card}>
-                <h4>
-                  <span className={styles.feature__icon}>🎯</span>
-                  Pro Tips
-                </h4>
-                <p>
-                  Use custom seeds for reproducible results. Save your
-                  Generation ID to retrieve previous generations!
-                </p>
-              </div>
-              <div className={styles.feature__card}>
-                <h4>
-                  <span className={styles.feature__icon}>⚙️</span>
-                  Advanced Magic
-                </h4>
-                <p>
-                  Unlock custom quotes, dimensions, and shape counts with Pro
-                  subscription (coming soon) for unlimited creativity.
-                </p>
-              </div>
-              <div className={styles.feature__card}>
-                <h4>
-                  <span className={styles.feature__icon}>📱</span>
-                  Perfect Formats
-                </h4>
-                <p>
-                  Choose from 7+ aspect ratios: Instagram, YouTube, LinkedIn,
-                  Twitter, Facebook, and more!
-                </p>
-              </div>
-              <div className={styles.feature__card}>
-                <h4>
-                  <span className={styles.feature__icon}>💾</span>
-                  Export Options
-                </h4>
-                <p>
-                  Download as PNG for social media or SVG for scalable vector
-                  graphics. Both formats supported!
-                </p>
-              </div>
-              <div className={styles.feature__card}>
-                <h4>
-                  <span className={styles.feature__icon}>🔄</span>
-                  Generation History
-                </h4>
-                <p>
-                  Every creation gets a unique ID. Load previous generations
-                  anytime using the ID lookup feature.
-                </p>
-              </div>
-              <div className={styles.feature__card}>
-                <h4>
-                  <span className={styles.feature__icon}>🎨</span>
-                  Sacred Geometry
-                </h4>
-                <p>
-                  Algorithmically generated patterns based on mathematical
-                  principles and mystical symbolism.
-                </p>
+            {/* Mystical Codex */}
+            <div className={styles.features__section}>
+              <h3>📜 Arcane Knowledge</h3>
+              <div className={styles.features__grid}>
+                <div className={styles.feature__card}>
+                  <h4>
+                    <span className={styles.feature__icon}>🎯</span>
+                    Pro Tips
+                  </h4>
+                  <p>
+                    Use custom seeds for reproducible results. Save your
+                    Generation ID to retrieve previous generations!
+                  </p>
+                </div>
+                <div className={styles.feature__card}>
+                  <h4>
+                    <span className={styles.feature__icon}>⚙️</span>
+                    Advanced Magic
+                  </h4>
+                  <p>
+                    Unlock custom quotes, dimensions, and shape counts with Pro
+                    subscription (coming soon) for unlimited creativity.
+                  </p>
+                </div>
+                <div className={styles.feature__card}>
+                  <h4>
+                    <span className={styles.feature__icon}>📱</span>
+                    Perfect Formats
+                  </h4>
+                  <p>
+                    Choose from 7+ aspect ratios: Instagram, YouTube, LinkedIn,
+                    Twitter, Facebook, and more!
+                  </p>
+                </div>
+                <div className={styles.feature__card}>
+                  <h4>
+                    <span className={styles.feature__icon}>💾</span>
+                    Export Options
+                  </h4>
+                  <p>
+                    Download as PNG for social media or SVG for scalable vector
+                    graphics. Both formats supported!
+                  </p>
+                </div>
+                <div className={styles.feature__card}>
+                  <h4>
+                    <span className={styles.feature__icon}>🔄</span>
+                    Generation History
+                  </h4>
+                  <p>
+                    Every creation gets a unique ID. Load previous generations
+                    anytime using the ID lookup feature.
+                  </p>
+                </div>
+                <div className={styles.feature__card}>
+                  <h4>
+                    <span className={styles.feature__icon}>🎨</span>
+                    Sacred Geometry
+                  </h4>
+                  <p>
+                    Algorithmically generated patterns based on mathematical
+                    principles and mystical symbolism.
+                  </p>
+                </div>
               </div>
             </div>
-          </div>
-        </FadeIn>
-      </PageAside>
+          </FadeIn>
+        </PageAside>
 
-      {/* Regeneration Dialog */}
-      <RegenerationDialog
-        isOpen={showRegenerationDialog}
-        onChoice={handleRegenerationChoice}
-        onClose={handleCloseRegenerationDialog}
-      />
-    </PageContainer>
+        {/* Regeneration Dialog */}
+        <RegenerationDialog
+          isOpen={showRegenerationDialog}
+          onChoice={handleRegenerationChoice}
+          onClose={handleCloseRegenerationDialog}
+        />
+      </PageContainer>
+    </div>
   );
 }

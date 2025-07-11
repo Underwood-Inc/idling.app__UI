@@ -31,7 +31,7 @@ export async function NavAuth() {
       <div className="nav__auth-links">
         <InstantLink href={profileUrl} data-testid={NAV_SELECTORS.PROFILE_LINK}>
           <div className="nav__user-profile">
-            <NavUserProfile />
+            <NavUserProfile initialSession={session} />
           </div>
         </InstantLink>
       </div>

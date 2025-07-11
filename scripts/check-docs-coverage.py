@@ -127,7 +127,9 @@ def main():
         if args.output:
             output_file = args.output
             # Set custom output file for reporters that support it
-            if output_format in ["html", "csv"]:
+            if output_format == "csv":
+                checker.reporters[output_format].set_output_file(output_file)
+            elif output_format == "html":
                 checker.reporters[output_format].set_output_file(output_file)
         else:
             # Auto-generate filename based on format

@@ -114,16 +114,11 @@
 
 /* Navbar Body Styles */
 .navbar__body {
-  display: flex;
   width: 100%;
 }
 
 /* Existing navbar styles */
 .navbar__container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
   width: 100%;
 }
 

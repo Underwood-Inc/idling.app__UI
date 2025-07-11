@@ -1,575 +1,971 @@
-// Main JavaScript for Documentation Coverage Report
-// Enhanced Table Manager with Pagination, Source Code Modals, and Timestamp Tooltips
+/**
+ * Main JavaScript functionality for Documentation Coverage Report
+ * Handles table interaction, modals, theming, and pagination
+ */
 
-class EnhancedTableManager {
+// Global debug function (works even without test page)
+window.debugLog = function(message) {
+    const timestamp = new Date().toLocaleTimeString();
+    
+    // Only log to console in development mode
+    if (typeof window !== 'undefined' && window.location && window.location.hostname === 'localhost') {
+        // eslint-disable-next-line no-console
+        console.log(`[${timestamp}] ${message}`);
+    }
+    
+    // Also log to DOM if debug element exists
+    const debugElement = document.getElementById('debug-log');
+    if (debugElement) {
+        debugElement.innerHTML += `<div>[${timestamp}] ${message}</div>`;
+        debugElement.scrollTop = debugElement.scrollHeight;
+    }
+};
+
+class TableManager {
     constructor() {
         this.currentPage = 1;
         this.pageSize = 50;
-        this.totalRows = 0;
-        this.filteredRows = 0;
-        this.sortColumns = [];
-        this.filterText = '';
-        this.statusFilter = 'all';
-        this.priorityFilter = 'all';
-        this.allRows = [];
-        this.filteredData = [];
-        this.visibleColumns = new Set();
-        this.sourceModal = null;
-        this.columnModal = null;
-        this.timestampTooltip = null;
+        this.totalItems = 0;
+        this.filteredItems = [];
+        this.allItems = [];
+        this.sortColumn = null;
+        this.sortDirection = 'asc';
+        this.filters = {
+            search: '',
+            status: '',
+            priority: ''
+        };
+        this.columnVisibility = {
+            'file': true,
+            'status': true,
+            'priority': true,
+            'size': true,
+            'expected': true,
+            'effort': false,
+            'issues': false,
+            'type': false
+        };
         
         this.init();
     }
-    
+
     init() {
-        this.cacheElements();
-        this.setupEventListeners();
-        this.loadColumnVisibility();
-        this.loadData();
-        this.setupKeyboardShortcuts();
+        this.initializeEventListeners();
+        this.initializeTableData();
+        this.updateTableInfo();
+        this.applyFilters();
         this.initializeTheme();
+        
+        // Make sure tableManager is available globally
+        window.tableManager = this;
     }
-    
-    cacheElements() {
-        this.table = document.querySelector('.coverage-table tbody');
-        this.searchInput = document.querySelector('.search-input');
-        this.statusSelect = document.querySelector('.status-filter');
-        this.prioritySelect = document.querySelector('.priority-filter');
-        this.pageInfo = document.querySelector('.page-info');
-        this.pageSizeSelect = document.querySelector('.page-size-select');
-        this.paginationContainer = document.querySelector('.pagination-controls');
-        this.sourceModal = document.getElementById('source-code-modal');
-        this.columnModal = document.getElementById('column-picker-modal');
-        this.timestampTooltip = document.getElementById('timestamp-tooltip');
+
+    initializeTableData() {
+        // Get all table rows using correct table body ID
+        const rows = document.querySelectorAll('#gaps-table-body tr');
+        
+        if (typeof window.debugLog === 'function') {
+            window.debugLog(`🔍 Looking for table rows with selector '#gaps-table-body tr'`);
+            window.debugLog(`📊 Found ${rows.length} table rows`);
+        }
+        
+        this.allItems = Array.from(rows).map((row, index) => {
+            const fileCell = row.querySelector('td');
+            const statusCell = row.querySelector('td:nth-child(2)');
+            const priorityCell = row.querySelector('td:nth-child(3)');
+            
+            const item = {
+                element: row,
+                file: fileCell ? fileCell.textContent.trim() : '',
+                status: statusCell ? statusCell.textContent.trim() : '',
+                priority: priorityCell ? priorityCell.textContent.trim() : '',
+                visible: true
+            };
+            
+            if (typeof window.debugLog === 'function' && index < 3) {
+                window.debugLog(`📋 Item ${index}: file="${item.file}", status="${item.status}", priority="${item.priority}"`);
+            }
+            
+            return item;
+        });
+        
+        // Initialize filteredItems
+        this.filteredItems = [...this.allItems];
+        
+        if (typeof window.debugLog === 'function') {
+            window.debugLog(`✅ Initialized ${this.allItems.length} items total`);
+        }
     }
-    
-    setupEventListeners() {
-        // Search and filters
+
+    initializeEventListeners() {
+        // Search input - use actual ID from HTML
+        this.searchInput = document.getElementById('gap-search');
         if (this.searchInput) {
             this.searchInput.addEventListener('input', this.handleSearch.bind(this));
         }
-        
-        if (this.statusSelect) {
-            this.statusSelect.addEventListener('change', this.handleStatusFilter.bind(this));
-        }
-        
-        if (this.prioritySelect) {
-            this.prioritySelect.addEventListener('change', this.handlePriorityFilter.bind(this));
-        }
-        
-        // Page size
+
+        // Filter tags instead of dropdowns
+        const filterTags = document.querySelectorAll('.filter-tag');
+        filterTags.forEach(tag => {
+            tag.addEventListener('click', this.handleFilterTag.bind(this));
+        });
+
+        // Clickable metric cards for filtering
+        const clickableCards = document.querySelectorAll('.clickable-card[data-filter]');
+        clickableCards.forEach(card => {
+            card.addEventListener('click', this.handleFilterCard.bind(this));
+        });
+
+        // Page size selector - using correct ID
+        this.pageSizeSelect = document.getElementById('items-per-page');
         if (this.pageSizeSelect) {
             this.pageSizeSelect.addEventListener('change', this.handlePageSizeChange.bind(this));
         }
-        
-        // Table sorting
-        document.querySelectorAll('.sortable').forEach(header => {
+
+        // Pagination buttons - matching the correct HTML IDs
+        const firstPageBtn = document.getElementById('first-page');
+        const prevPageBtn = document.getElementById('prev-page');
+        const nextPageBtn = document.getElementById('next-page');
+        const lastPageBtn = document.getElementById('last-page');
+
+        if (firstPageBtn) firstPageBtn.addEventListener('click', () => this.goToPage(1));
+        if (prevPageBtn) prevPageBtn.addEventListener('click', () => this.goToPage(this.currentPage - 1));
+        if (nextPageBtn) nextPageBtn.addEventListener('click', () => this.goToPage(this.currentPage + 1));
+        if (lastPageBtn) lastPageBtn.addEventListener('click', () => this.goToPage(this.getTotalPages()));
+
+        // Current page input navigation
+        const currentPageInput = document.getElementById('current-page');
+        if (currentPageInput) {
+            currentPageInput.addEventListener('change', (e) => {
+                const page = parseInt(e.target.value);
+                if (page >= 1 && page <= this.getTotalPages()) {
+                    this.goToPage(page);
+                }
+            });
+        }
+
+        // Table headers for sorting - use data-column instead of data-sort
+        const headers = document.querySelectorAll('th[data-column]');
+        headers.forEach(header => {
             header.addEventListener('click', this.handleSort.bind(this));
         });
-        
-        // Row clicks for source code modal
+
+        // Table rows for clicking - using correct table body ID
+        this.table = document.querySelector('#gaps-table-body');
         if (this.table) {
             this.table.addEventListener('click', this.handleRowClick.bind(this));
         }
-        
-        // Modal controls
-        this.setupModalControls();
-        
-        // Theme toggle
-        const themeToggle = document.getElementById('theme-toggle-btn');
-        if (themeToggle) {
-            themeToggle.addEventListener('click', this.toggleTheme.bind(this));
-        }
-    }
-    
-    setupModalControls() {
-        // Close modals
-        document.querySelectorAll('.modal-close').forEach(btn => {
+
+        // Theme toggle - DON'T bind event listener since HTML uses onclick
+        // The global toggleTheme() function will handle this
+
+        // Modal close buttons
+        const closeButtons = document.querySelectorAll('.modal-close');
+        closeButtons.forEach(btn => {
             btn.addEventListener('click', this.closeModals.bind(this));
         });
-        
-        // Close on backdrop click
-        document.querySelectorAll('.modal').forEach(modal => {
+
+        // Modal overlay clicks
+        const modals = document.querySelectorAll('.modal');
+        modals.forEach(modal => {
             modal.addEventListener('click', (e) => {
                 if (e.target === modal) {
                     this.closeModals();
                 }
             });
         });
-        
-        // Column picker
+
+        // Column picker button
         const columnPickerBtn = document.getElementById('column-picker-btn');
         if (columnPickerBtn) {
             columnPickerBtn.addEventListener('click', this.openColumnPicker.bind(this));
         }
-        
-        // GitHub link
+
+        // GitHub button
         const githubBtn = document.getElementById('open-github-btn');
         if (githubBtn) {
             githubBtn.addEventListener('click', this.openGitHub.bind(this));
         }
-    }
-    
-    setupKeyboardShortcuts() {
+
+        // Column picker buttons
+        const resetColumnsBtn = document.getElementById('reset-columns-btn');
+        if (resetColumnsBtn) {
+            resetColumnsBtn.addEventListener('click', this.resetColumnVisibility.bind(this));
+        }
+
+        const applyColumnsBtn = document.getElementById('apply-columns-btn');
+        if (applyColumnsBtn) {
+            applyColumnsBtn.addEventListener('click', this.applyColumnVisibility.bind(this));
+        }
+
+        // Keyboard shortcuts
         document.addEventListener('keydown', (e) => {
-            // Ctrl+F for search
             if (e.ctrlKey && e.key === 'f') {
                 e.preventDefault();
-                if (this.searchInput) {
-                    this.searchInput.focus();
-                }
+                this.focusSearch();
             }
-            
-            // Ctrl+K for column picker
             if (e.ctrlKey && e.key === 'k') {
                 e.preventDefault();
                 this.openColumnPicker();
             }
-            
-            // Ctrl+Shift+T for theme toggle
             if (e.ctrlKey && e.shiftKey && e.key === 'T') {
                 e.preventDefault();
                 this.toggleTheme();
             }
-            
-            // Escape to close modals
             if (e.key === 'Escape') {
                 this.closeModals();
             }
         });
     }
-    
-    loadData() {
-        // Extract data from table
-        const rows = Array.from(document.querySelectorAll('.coverage-table tbody tr'));
-        this.allRows = rows.map(row => ({
-            element: row,
-            data: this.extractRowData(row)
-        }));
+
+    handleSearch(e) {
+        this.filters.search = e.target.value.toLowerCase();
+        this.applyFilters();
+    }
+
+    handleFilterTag(e) {
+        // Handle filter tag clicks
+        const filterType = e.target.dataset.filter;
+        const filterValue = e.target.dataset.value;
         
-        this.totalRows = this.allRows.length;
-        this.filteredData = [...this.allRows];
-        this.filteredRows = this.totalRows;
+        // Remove active class from all tags in the same group
+        const filterGroup = e.target.closest('.filter-group');
+        if (filterGroup) {
+            filterGroup.querySelectorAll('.filter-tag').forEach(tag => {
+                tag.classList.remove('active');
+            });
+        }
         
-        this.updateDisplay();
-    }
-    
-    extractRowData(row) {
-        const cells = row.querySelectorAll('td');
-        return {
-            file: cells[0]?.textContent.trim() || '',
-            status: cells[1]?.textContent.trim() || '',
-            priority: cells[2]?.textContent.trim() || '',
-            expected: cells[3]?.textContent.trim() || '',
-            effort: cells[4]?.textContent.trim() || '',
-            issues: cells[5]?.textContent.trim() || '',
-            lastUpdated: cells[6]?.textContent.trim() || ''
-        };
-    }
-    
-    handleSearch() {
-        this.filterText = this.searchInput.value.toLowerCase();
-        this.currentPage = 1;
+        // Add active class to clicked tag
+        e.target.classList.add('active');
+        
+        // Apply filter based on type
+        if (filterType === 'priority') {
+            this.filters.priority = filterValue === '' ? '' : filterValue;
+        } else if (filterType === 'status') {
+            this.filters.status = filterValue === '' ? '' : filterValue;
+        }
+        
         this.applyFilters();
+        
+        // Smooth scroll to table
+        this.smoothScrollToTable();
     }
-    
-    handleStatusFilter() {
-        this.statusFilter = this.statusSelect.value;
-        this.currentPage = 1;
-        this.applyFilters();
-    }
-    
-    handlePriorityFilter() {
-        this.priorityFilter = this.prioritySelect.value;
-        this.currentPage = 1;
-        this.applyFilters();
-    }
-    
-    applyFilters() {
-        this.filteredData = this.allRows.filter(row => {
-            const data = row.data;
-            
-            // Text search
-            if (this.filterText) {
-                const searchText = `${data.file} ${data.status} ${data.priority} ${data.expected} ${data.issues}`.toLowerCase();
-                if (!searchText.includes(this.filterText)) {
-                    return false;
-                }
-            }
-            
-            // Status filter
-            if (this.statusFilter !== 'all' && data.status.toLowerCase() !== this.statusFilter) {
-                return false;
-            }
-            
-            // Priority filter
-            if (this.priorityFilter !== 'all' && data.priority.toLowerCase() !== this.priorityFilter) {
-                return false;
-            }
-            
-            return true;
+
+    handleFilterCard(e) {
+        // Handle clickable metric card clicks
+        const filterValue = e.currentTarget.dataset.filter;
+        
+        // Remove active class from all filter tags
+        document.querySelectorAll('.filter-tag').forEach(tag => {
+            tag.classList.remove('active');
         });
         
-        this.filteredRows = this.filteredData.length;
+        // Add active class to corresponding filter tag
+        const correspondingTag = document.querySelector(`.filter-tag[data-filter="${filterValue}"]`);
+        if (correspondingTag) {
+            correspondingTag.classList.add('active');
+        }
+        
+        // Apply filter
+        this.filters.status = filterValue === 'all' ? '' : filterValue;
+        this.applyFilters();
+        
+        // Smooth scroll to table
+        this.smoothScrollToTable();
+    }
+
+    handleStatusFilter(e) {
+        this.filters.status = e.target.value;
+        this.applyFilters();
+    }
+
+    handlePriorityFilter(e) {
+        this.filters.priority = e.target.value;
+        this.applyFilters();
+    }
+
+    handlePageSizeChange(e) {
+        const value = e.target.value;
+        if (value === 'all') {
+            this.pageSize = this.filteredItems.length || 9999;
+        } else {
+            this.pageSize = parseInt(value);
+        }
+        this.currentPage = 1;
         this.updateDisplay();
     }
-    
+
     handleSort(e) {
-        const header = e.currentTarget;
-        const column = header.dataset.column;
-        
-        if (!column) return;
-        
-        // Handle multi-column sorting with Ctrl+click
-        if (e.ctrlKey) {
-            this.addSortColumn(column);
+        const column = e.target.closest('th').dataset.column;
+        if (this.sortColumn === column) {
+            this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
         } else {
-            this.setSingleSort(column);
+            this.sortColumn = column;
+            this.sortDirection = 'asc';
         }
-        
-        this.updateSortHeaders();
-        this.sortData();
-        this.updateDisplay();
+        this.applySorting();
     }
-    
-    setSingleSort(column) {
-        const existing = this.sortColumns.find(col => col.column === column);
-        if (existing) {
-            existing.direction = existing.direction === 'asc' ? 'desc' : 'asc';
-            this.sortColumns = [existing];
-        } else {
-            this.sortColumns = [{ column, direction: 'asc' }];
+
+    handleRowClick(e) {
+        const row = e.target.closest('tr');
+        if (row && row.classList.contains('gap-row')) {
+            const filePath = row.dataset.filePath || row.cells[0]?.textContent || '';
+            this.openSourceModal(filePath);
         }
     }
-    
-    addSortColumn(column) {
-        const existingIndex = this.sortColumns.findIndex(col => col.column === column);
-        if (existingIndex >= 0) {
-            const existing = this.sortColumns[existingIndex];
-            if (existing.direction === 'desc') {
-                this.sortColumns.splice(existingIndex, 1);
-            } else {
-                existing.direction = 'desc';
-            }
-        } else {
-            this.sortColumns.push({ column, direction: 'asc' });
+
+    applyFilters() {
+        if (typeof window.debugLog === 'function') {
+            window.debugLog(`🎯 Applying filters - search: "${this.filters.search}", status: "${this.filters.status}"`);
+            window.debugLog(`📊 Starting with ${this.allItems.length} total items`);
         }
-    }
-    
-    updateSortHeaders() {
-        document.querySelectorAll('.sortable').forEach(header => {
-            header.classList.remove('sort-asc', 'sort-desc', 'sort-primary', 'sort-secondary');
-        });
         
-        this.sortColumns.forEach((sort, index) => {
-            const header = document.querySelector(`[data-column="${sort.column}"]`);
-            if (header) {
-                header.classList.add(`sort-${sort.direction}`);
-                if (index === 0) {
-                    header.classList.add('sort-primary');
-                } else if (index === 1) {
-                    header.classList.add('sort-secondary');
+        this.filteredItems = this.allItems.filter(item => {
+            const matchesSearch = !this.filters.search || 
+                item.file.toLowerCase().includes(this.filters.search);
+            
+            // Handle filter tag values
+            let matchesStatus = true;
+            if (this.filters.status && this.filters.status !== 'all') {
+                switch (this.filters.status) {
+                    case 'critical':
+                        matchesStatus = item.priority.toLowerCase() === 'critical';
+                        break;
+                    case 'high':
+                        matchesStatus = item.priority.toLowerCase() === 'high';
+                        break;
+                    case 'medium':
+                        matchesStatus = item.priority.toLowerCase() === 'medium';
+                        break;
+                    case 'low':
+                        matchesStatus = item.priority.toLowerCase() === 'low';
+                        break;
+                    case 'missing':
+                        matchesStatus = item.status.toLowerCase() === 'missing';
+                        break;
+                    case 'inadequate':
+                        matchesStatus = item.status.toLowerCase() === 'inadequate';
+                        break;
+                    default:
+                        matchesStatus = true;
                 }
             }
-        });
-    }
-    
-    sortData() {
-        this.filteredData.sort((a, b) => {
-            for (const sort of this.sortColumns) {
-                const aVal = a.data[sort.column] || '';
-                const bVal = b.data[sort.column] || '';
-                
-                let comparison = 0;
-                if (aVal < bVal) comparison = -1;
-                else if (aVal > bVal) comparison = 1;
-                
-                if (comparison !== 0) {
-                    return sort.direction === 'asc' ? comparison : -comparison;
-                }
+            
+            const passes = matchesSearch && matchesStatus;
+            
+            if (typeof window.debugLog === 'function' && this.allItems.indexOf(item) < 3) {
+                window.debugLog(`🔍 Item "${item.file}": search=${matchesSearch}, status=${matchesStatus}, passes=${passes}`);
             }
-            return 0;
+            
+            return passes;
         });
-    }
-    
-    handlePageSizeChange() {
-        this.pageSize = parseInt(this.pageSizeSelect.value);
+        
+        if (typeof window.debugLog === 'function') {
+            window.debugLog(`✅ Filter complete: ${this.filteredItems.length} items match criteria`);
+        }
+        
         this.currentPage = 1;
         this.updateDisplay();
+        this.updateFilterStatus();
     }
-    
-    updateDisplay() {
-        this.renderTable();
-        this.renderPagination();
-        this.updatePageInfo();
+
+    updateFilterStatus() {
+        const filterStatus = document.getElementById('filter-status');
+        if (filterStatus) {
+            const total = this.filteredItems.length;
+            const totalAll = this.allItems.length;
+            
+            if (total === totalAll) {
+                filterStatus.textContent = `Showing all ${total} items`;
+            } else {
+                filterStatus.textContent = `Showing ${total} of ${totalAll} items`;
+            }
+        }
     }
-    
-    renderTable() {
-        if (!this.table) return;
+
+    applySorting() {
+        if (!this.sortColumn) return;
         
+        this.filteredItems.sort((a, b) => {
+            const aValue = a.file || '';
+            const bValue = b.file || '';
+            
+            let comparison = 0;
+            if (aValue < bValue) comparison = -1;
+            if (aValue > bValue) comparison = 1;
+            
+            return this.sortDirection === 'desc' ? -comparison : comparison;
+        });
+        
+        this.updateDisplay();
+    }
+
+    updateDisplay() {
+        this.updateTableVisibility();
+        this.updatePaginationControls();
+        this.updateItemCount();
+    }
+
+    updateTableVisibility() {
+        // Hide all rows first
+        this.allItems.forEach(item => {
+            item.element.style.display = 'none';
+        });
+        
+        // Show filtered and paginated rows
         const startIndex = (this.currentPage - 1) * this.pageSize;
         const endIndex = startIndex + this.pageSize;
-        const pageData = this.filteredData.slice(startIndex, endIndex);
+        const pageItems = this.filteredItems.slice(startIndex, endIndex);
         
-        // Clear table
-        this.table.innerHTML = '';
-        
-        if (pageData.length === 0) {
-            this.table.innerHTML = `
-                <tr>
-                    <td colspan="100%" class="empty-state">
-                        <div class="empty-state-icon">📭</div>
-                        <div class="empty-state-text">No results found</div>
-                        <div class="empty-state-subtext">Try adjusting your search or filters</div>
-                    </td>
-                </tr>
-            `;
-            return;
-        }
-        
-        pageData.forEach(row => {
-            this.table.appendChild(row.element);
+        pageItems.forEach(item => {
+            item.element.style.display = '';
         });
     }
-    
-    renderPagination() {
-        if (!this.paginationContainer) return;
+
+    updatePagination() {
+        const totalPages = Math.ceil(this.filteredItems.length / this.pageSize);
+        const paginationContainer = document.querySelector('.pagination-container');
         
-        const totalPages = Math.ceil(this.filteredRows / this.pageSize);
-        const maxVisiblePages = 5;
+        if (!paginationContainer) return;
         
-        let startPage = Math.max(1, this.currentPage - Math.floor(maxVisiblePages / 2));
-        let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+        // Update pagination HTML
+        paginationContainer.innerHTML = this.generatePaginationHTML(totalPages);
+    }
+
+    generatePaginationHTML(totalPages) {
+        if (totalPages <= 1) return '';
         
-        if (endPage - startPage + 1 < maxVisiblePages) {
-            startPage = Math.max(1, endPage - maxVisiblePages + 1);
-        }
-        
-        let paginationHTML = '';
+        let html = '<div class="pagination-controls">';
         
         // Previous button
-        paginationHTML += `
-            <button class="pagination-btn" ${this.currentPage === 1 ? 'disabled' : ''} 
-                    onclick="tableManager.goToPage(${this.currentPage - 1})">
-                ← Previous
-            </button>
-        `;
+        if (this.currentPage > 1) {
+            html += `<button class="pagination-btn" onclick="tableManager.goToPage(${this.currentPage - 1})">‹</button>`;
+        }
         
         // Page numbers
-        if (startPage > 1) {
-            paginationHTML += `
-                <button class="pagination-btn" onclick="tableManager.goToPage(1)">1</button>
-            `;
-            if (startPage > 2) {
-                paginationHTML += '<span class="pagination-ellipsis">...</span>';
+        for (let i = 1; i <= totalPages; i++) {
+            if (i === this.currentPage) {
+                html += `<button class="pagination-btn active">${i}</button>`;
+            } else {
+                html += `<button class="pagination-btn" onclick="tableManager.goToPage(${i})">${i}</button>`;
             }
-        }
-        
-        for (let i = startPage; i <= endPage; i++) {
-            paginationHTML += `
-                <button class="pagination-btn ${i === this.currentPage ? 'active' : ''}" 
-                        onclick="tableManager.goToPage(${i})">${i}</button>
-            `;
-        }
-        
-        if (endPage < totalPages) {
-            if (endPage < totalPages - 1) {
-                paginationHTML += '<span class="pagination-ellipsis">...</span>';
-            }
-            paginationHTML += `
-                <button class="pagination-btn" onclick="tableManager.goToPage(${totalPages})">${totalPages}</button>
-            `;
         }
         
         // Next button
-        paginationHTML += `
-            <button class="pagination-btn" ${this.currentPage === totalPages ? 'disabled' : ''} 
-                    onclick="tableManager.goToPage(${this.currentPage + 1})">
-                Next →
-            </button>
-        `;
+        if (this.currentPage < totalPages) {
+            html += `<button class="pagination-btn" onclick="tableManager.goToPage(${this.currentPage + 1})">›</button>`;
+        }
         
-        this.paginationContainer.innerHTML = paginationHTML;
+        html += '</div>';
+        return html;
     }
-    
-    updatePageInfo() {
-        if (!this.pageInfo) return;
-        
-        const startIndex = (this.currentPage - 1) * this.pageSize + 1;
-        const endIndex = Math.min(this.currentPage * this.pageSize, this.filteredRows);
-        
-        this.pageInfo.textContent = `Showing ${startIndex}-${endIndex} of ${this.filteredRows} results`;
+
+    updateItemCount() {
+        // Update the total items display using correct element ID
+        const totalElement = document.getElementById('showing-total');
+        if (totalElement) {
+            totalElement.textContent = this.filteredItems.length;
+        }
     }
-    
+
     goToPage(page) {
-        const totalPages = Math.ceil(this.filteredRows / this.pageSize);
+        const totalPages = this.getTotalPages();
         if (page >= 1 && page <= totalPages) {
             this.currentPage = page;
             this.updateDisplay();
         }
     }
-    
-    handleRowClick(e) {
-        const row = e.target.closest('tr');
-        if (!row) return;
-        
-        const fileCell = row.querySelector('td:first-child');
-        if (!fileCell) return;
-        
-        const filePath = fileCell.textContent.trim();
-        this.openSourceModal(filePath);
-    }
-    
+
     openSourceModal(filePath) {
-        if (!this.sourceModal) return;
+        const modal = document.getElementById('source-code-modal');
+        const modalTitle = document.getElementById('source-modal-title');
+        const sourceCode = document.getElementById('source-code-content');
+        const sourceCodeText = document.getElementById('source-code-text');
         
-        // Show modal
-        this.sourceModal.classList.add('show');
-        
-        // Update title
-        const title = document.getElementById('source-modal-title');
-        if (title) {
-            title.textContent = `📄 ${filePath}`;
+        // Debug logging
+        if (typeof window.debugLog === 'function') {
+            window.debugLog('🔍 Modal elements found:');
+            window.debugLog(`  - modal: ${modal ? 'found' : 'NOT found'}`);
+            window.debugLog(`  - modalTitle: ${modalTitle ? 'found' : 'NOT found'}`);
+            window.debugLog(`  - sourceCode: ${sourceCode ? 'found' : 'NOT found'}`);
+            window.debugLog(`  - sourceCodeText: ${sourceCodeText ? 'found' : 'NOT found'}`);
         }
+        
+        if (!modal || !modalTitle || !sourceCode || !sourceCodeText) {
+            if (typeof window.debugLog === 'function') {
+                window.debugLog('❌ Some modal elements missing, aborting');
+            }
+            return;
+        }
+        
+        modalTitle.textContent = `📄 ${filePath}`;
         
         // Show loading state
-        const loading = document.getElementById('source-loading');
-        const error = document.getElementById('source-error');
-        const content = document.getElementById('source-code-content');
+        sourceCodeText.textContent = 'Loading source code...';
+        sourceCode.style.display = 'block';
         
-        if (loading) loading.style.display = 'block';
-        if (error) error.style.display = 'none';
-        if (content) content.style.display = 'none';
+        modal.classList.add('show');
         
-        // Simulate loading source code
+        if (typeof window.debugLog === 'function') {
+            window.debugLog('✅ Modal opened, starting setTimeout...');
+        }
+        
+        // Load source code with syntax highlighting
         setTimeout(() => {
-            this.loadSourceCode(filePath);
-        }, 500);
-    }
-    
-    loadSourceCode(filePath) {
-        // In a real implementation, this would fetch from GitHub API
-        const mockCode = `// Source code for ${filePath}
-// This is a mock implementation
-        
-class DocumentationGap {
-    constructor(filePath, expectedDocs, issues) {
-        this.filePath = filePath;
-        this.expectedDocs = expectedDocs;
-        this.issues = issues;
-        this.priority = this.calculatePriority();
-    }
-    
-    calculatePriority() {
-        // Priority calculation logic
-        if (this.issues.length > 5) return 'Critical';
-        if (this.issues.length > 3) return 'High';
-        if (this.issues.length > 1) return 'Medium';
-        return 'Low';
-    }
-    
-    getRecommendations() {
-        return this.issues.map(issue => ({
-            type: issue.type,
-            description: issue.description,
-            effort: issue.estimatedEffort
-        }));
-    }
+            if (typeof window.debugLog === 'function') {
+                window.debugLog('⏰ setTimeout executed, loading code...');
+            }
+            
+            const codeContent = `// Source code for ${filePath}
+// This would typically load from the actual file
+
+import React from 'react';
+import { useState, useEffect } from 'react';
+
+/**
+ * Example component for ${filePath}
+ */
+interface UserProfileProps {
+    userId: string;
+    showDetails?: boolean;
 }
 
-export default DocumentationGap;`;
-        
-        const loading = document.getElementById('source-loading');
-        const error = document.getElementById('source-error');
-        const content = document.getElementById('source-code-content');
-        const codeText = document.getElementById('source-code-text');
-        
-        if (loading) loading.style.display = 'none';
-        if (error) error.style.display = 'none';
-        if (content) content.style.display = 'block';
-        if (codeText) codeText.textContent = mockCode;
+const UserProfile: React.FC<UserProfileProps> = ({ userId, showDetails = false }) => {
+    const [user, setUser] = useState<User | null>(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+
+    useEffect(() => {
+        fetchUserData(userId)
+            .then(userData => {
+                setUser(userData);
+                setLoading(false);
+            })
+            .catch(err => {
+                setError(err.message);
+                setLoading(false);
+            });
+    }, [userId]);
+
+    if (loading) return <div className="loading">Loading...</div>;
+    if (error) return <div className="error">Error: {error}</div>;
+    if (!user) return <div className="no-user">User not found</div>;
+
+    return (
+        <div className="user-profile">
+            <h2>{user.name}</h2>
+            <p>Email: {user.email}</p>
+            {showDetails && (
+                <div className="details">
+                    <p>ID: {user.id}</p>
+                    <p>Created: {user.createdAt}</p>
+                    <p>Last Login: {user.lastLoginAt}</p>
+                </div>
+            )}
+        </div>
+    );
+};
+
+export default UserProfile;`;
+
+            sourceCodeText.textContent = codeContent;
+            
+            if (typeof window.debugLog === 'function') {
+                window.debugLog('📝 Code content set, applying syntax highlighting...');
+            }
+            
+            // Add syntax highlighting classes manually
+            this.applySyntaxHighlighting(sourceCodeText);
+            
+            if (typeof window.debugLog === 'function') {
+                window.debugLog('✅ Syntax highlighting applied');
+            }
+        }, 500);
     }
-    
-    openGitHub() {
-        const title = document.getElementById('source-modal-title');
-        if (title) {
-            const filePath = title.textContent.replace('📄 ', '');
-            const githubUrl = `https://github.com/your-org/your-repo/blob/main/${filePath}`;
-            window.open(githubUrl, '_blank');
+
+    applySyntaxHighlighting(element) {
+        if (!element) {
+            if (typeof window.debugLog === 'function') {
+                window.debugLog('❌ No element provided to applySyntaxHighlighting');
+            }
+            return;
+        }
+        
+        if (typeof window.debugLog === 'function') {
+            window.debugLog('🎨 Starting syntax highlighting...');
+        }
+        
+        // Get the text content
+        const codeContent = element.textContent || element.innerText;
+        
+        if (typeof window.debugLog === 'function') {
+            window.debugLog(`📝 Processing ${codeContent.length} characters of code`);
+        }
+        
+        try {
+            // Use highlight.js if available
+            if (typeof hljs !== 'undefined') {
+                // Clear existing content
+                element.innerHTML = '';
+                element.textContent = codeContent;
+                
+                // Apply highlight.js
+                // eslint-disable-next-line no-undef
+                hljs.highlightElement(element);
+                
+                // Add additional CSS classes for our custom styling
+                element.classList.add('hljs', 'language-typescript');
+                
+                if (typeof window.debugLog === 'function') {
+                    window.debugLog('✅ Syntax highlighting applied using highlight.js');
+                }
+            } else {
+                // Fallback to basic regex highlighting
+                if (typeof window.debugLog === 'function') {
+                    window.debugLog('⚠️ highlight.js not available, using basic highlighting');
+                }
+                
+                let html = codeContent;
+                
+                // Add hljs class for styling
+                element.className = 'hljs language-typescript';
+                
+                // Basic regex highlighting
+                const keywords = [
+                    'import', 'export', 'from', 'const', 'let', 'var', 'function', 'return',
+                    'if', 'else', 'for', 'while', 'class', 'interface', 'type', 'enum',
+                    'async', 'await', 'try', 'catch', 'finally', 'throw', 'new', 'this',
+                    'super', 'extends', 'implements', 'public', 'private', 'protected',
+                    'static', 'readonly', 'default'
+                ].join('|');
+                html = html.replace(new RegExp(`\\b(${keywords})\\b`, 'g'), '<span class="hljs-keyword">$1</span>');
+                
+                // Strings
+                html = html.replace(/(["'`])((?:\\.|(?!\1)[^\\])*?)\1/g, '<span class="hljs-string">$1$2$1</span>');
+                
+                // Comments
+                html = html.replace(/(\/\/.*$)/gm, '<span class="hljs-comment">$1</span>');
+                html = html.replace(/(\/\*[\s\S]*?\*\/)/g, '<span class="hljs-comment">$1</span>');
+                
+                // Numbers
+                html = html.replace(/\b(\d+(?:\.\d+)?)\b/g, '<span class="hljs-number">$1</span>');
+                
+                // Function names
+                html = html.replace(/\b([a-zA-Z_][a-zA-Z0-9_]*)\s*(?=\()/g, '<span class="hljs-function">$1</span>');
+                
+                // Types (capitalized words)
+                html = html.replace(/\b([A-Z][a-zA-Z0-9_]*)\b/g, '<span class="hljs-title class_">$1</span>');
+                
+                // Properties
+                html = html.replace(/\.([a-zA-Z_][a-zA-Z0-9_]*)/g, '.<span class="hljs-property">$1</span>');
+                
+                // JSX tags
+                html = html.replace(/(<\/?[a-zA-Z][a-zA-Z0-9]*)/g, '<span class="hljs-tag">$1</span>');
+                html = html.replace(/(<span class="hljs-tag"><\/?[a-zA-Z][a-zA-Z0-9]*)(>)/g, '$1<span class="hljs-name">$2</span>');
+                
+                element.innerHTML = html;
+                
+                if (typeof window.debugLog === 'function') {
+                    window.debugLog('✅ Basic syntax highlighting applied');
+                }
+            }
+        } catch (error) {
+            if (typeof window.debugLog === 'function') {
+                window.debugLog(`❌ Error in syntax highlighting: ${error.message}`);
+            }
+            // Fallback - just show the plain text
+            element.innerHTML = codeContent;
         }
     }
-    
+
     openColumnPicker() {
-        if (!this.columnModal) return;
-        
-        this.renderColumnPicker();
-        this.columnModal.classList.add('show');
+        const modal = document.getElementById('column-picker-modal');
+        if (modal) {
+            this.generateColumnPickerContent();
+            modal.classList.add('show');
+        }
     }
-    
-    renderColumnPicker() {
+
+    generateColumnPickerContent() {
         const picker = document.querySelector('.column-picker');
         if (!picker) return;
-        
+
+        // Define available columns based on actual table structure
         const columns = [
             { id: 'file', label: 'File Path', essential: true },
             { id: 'status', label: 'Status', essential: false },
             { id: 'priority', label: 'Priority', essential: false },
+            { id: 'size', label: 'Size', essential: false },
             { id: 'expected', label: 'Expected Documentation', essential: false },
             { id: 'effort', label: 'Effort', essential: false },
             { id: 'issues', label: 'Quality Issues', essential: false },
-            { id: 'lastUpdated', label: 'Last Updated', essential: false }
+            { id: 'type', label: 'Type', essential: false }
         ];
-        
+
         picker.innerHTML = columns.map(col => `
             <div class="column-item ${col.essential ? 'essential' : ''}">
-                <input type="checkbox" class="column-checkbox" id="col-${col.id}" 
-                       ${this.visibleColumns.has(col.id) ? 'checked' : ''} 
+                <input type="checkbox" 
+                       class="column-checkbox" 
+                       id="col-${col.id}" 
+                       data-column="${col.id}"
+                       ${this.columnVisibility[col.id] !== false ? 'checked' : ''} 
                        ${col.essential ? 'disabled' : ''}>
                 <label for="col-${col.id}" class="column-label">${col.label}</label>
                 ${col.essential ? '<span class="column-essential">Essential</span>' : ''}
             </div>
         `).join('');
-    }
-    
-    loadColumnVisibility() {
-        const saved = localStorage.getItem('columnVisibility');
-        if (saved) {
-            this.visibleColumns = new Set(JSON.parse(saved));
-        } else {
-            this.visibleColumns = new Set(['file', 'status', 'priority', 'expected']);
-        }
-    }
-    
-    saveColumnVisibility() {
-        localStorage.setItem('columnVisibility', JSON.stringify([...this.visibleColumns]));
-    }
-    
-    closeModals() {
-        document.querySelectorAll('.modal.show').forEach(modal => {
-            modal.classList.remove('show');
+
+        // Add event listeners to checkboxes
+        picker.querySelectorAll('.column-checkbox').forEach(checkbox => {
+            checkbox.addEventListener('change', (e) => {
+                const columnId = e.target.dataset.column;
+                this.columnVisibility[columnId] = e.target.checked;
+                this.updateColumnVisibility(columnId, e.target.checked);
+            });
         });
     }
-    
-    initializeTheme() {
-        const savedTheme = localStorage.getItem('theme') || 'light';
-        document.documentElement.setAttribute('data-theme', savedTheme);
+
+    updateColumnVisibility(columnId, visible) {
+        // Find the column index by class name
+        const table = document.querySelector('#gaps-table');
+        if (!table) return;
+
+        const columnClass = `col-${columnId}`;
+        
+        // Hide/show header
+        const headerCell = table.querySelector(`th.${columnClass}`);
+        if (headerCell) {
+            headerCell.style.display = visible ? '' : 'none';
+        }
+        
+        // Hide/show data cells
+        const dataCells = table.querySelectorAll(`td.${columnClass}`);
+        dataCells.forEach(cell => {
+            cell.style.display = visible ? '' : 'none';
+        });
     }
-    
+
+    openGitHub() {
+        // Would open GitHub file in new tab
+        // Implementation would go here
+    }
+
+    closeModals() {
+        const modals = document.querySelectorAll('.modal');
+        modals.forEach(modal => {
+            modal.classList.remove('show');
+            // Set display to none after animation completes
+            setTimeout(() => {
+                modal.style.display = 'none';
+            }, 300);
+        });
+        // Restore body scroll
+        document.body.style.overflow = '';
+    }
+
     toggleTheme() {
+        if (typeof window.debugLog === 'function') {
+            window.debugLog('🌙 Instance toggleTheme() called');
+        }
+        
         const currentTheme = document.documentElement.getAttribute('data-theme');
         const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
         
+        if (typeof window.debugLog === 'function') {
+            window.debugLog(`🎨 Changing theme from ${currentTheme} to ${newTheme}`);
+        }
+        
         document.documentElement.setAttribute('data-theme', newTheme);
         localStorage.setItem('theme', newTheme);
+        
+        if (typeof window.debugLog === 'function') {
+            window.debugLog('✅ Theme changed successfully');
+        }
+    }
+
+    initializeTheme() {
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+    }
+
+    initializeColumnVisibility() {
+        const checkboxes = document.querySelectorAll('.column-checkbox');
+        checkboxes.forEach(checkbox => {
+            const columnName = checkbox.dataset.column;
+            if (this.columnVisibility[columnName] !== undefined) {
+                checkbox.checked = this.columnVisibility[columnName];
+            }
+            
+            checkbox.addEventListener('change', (e) => {
+                this.toggleColumnVisibility(columnName, e.target.checked);
+            });
+        });
+    }
+
+    toggleColumnVisibility(columnName, visible) {
+        this.columnVisibility[columnName] = visible;
+        
+        // Update table column visibility
+        const table = document.querySelector('table');
+        if (!table) return;
+        
+        const columnIndex = this.getColumnIndex(columnName);
+        if (columnIndex === -1) return;
+        
+        // Hide/show header
+        const headerCells = table.querySelectorAll('th');
+        if (headerCells[columnIndex]) {
+            headerCells[columnIndex].style.display = visible ? '' : 'none';
+        }
+        
+        // Hide/show data cells
+        const rows = table.querySelectorAll('tbody tr');
+        rows.forEach(row => {
+            if (row.cells[columnIndex]) {
+                row.cells[columnIndex].style.display = visible ? '' : 'none';
+            }
+        });
+    }
+
+    getColumnIndex(columnName) {
+        const columnMap = {
+            'file': 0,
+            'status': 1,
+            'priority': 2,
+            'size': 3,
+            'expected': 4,
+            'effort': 5,
+            'issues': 6,
+            'type': 7
+        };
+        return columnMap[columnName] || -1;
+    }
+
+    focusSearch() {
+        if (this.searchInput) {
+            this.searchInput.focus();
+        }
+    }
+
+    applyColumnVisibility() {
+        // Apply all column visibility changes
+        Object.keys(this.columnVisibility).forEach(columnId => {
+            this.updateColumnVisibility(columnId, this.columnVisibility[columnId]);
+        });
+        
+        // Update table info
+        this.updateTableInfo();
+        
+        // Close modal
+        this.closeModals();
+    }
+
+    resetColumnVisibility() {
+        this.columnVisibility = {
+            'file': true,
+            'status': true,
+            'priority': true,
+            'size': true,
+            'expected': true,
+            'effort': false,
+            'issues': false,
+            'type': false
+        };
+        
+        // Regenerate column picker content
+        this.generateColumnPickerContent();
+        
+        // Apply changes
+        this.applyColumnVisibility();
+    }
+
+    updateTableInfo() {
+        const visibleColumns = Object.values(this.columnVisibility).filter(visible => visible).length;
+        const totalColumns = Object.keys(this.columnVisibility).length;
+        
+        const tableInfo = document.getElementById('table-info');
+        if (tableInfo) {
+            tableInfo.textContent = `${visibleColumns}/${totalColumns} columns visible • Sorted by ${this.sortColumn || 'file'}. Hold Shift to multi-sort.`;
+        }
+    }
+
+    smoothScrollToTable() {
+        const tableContainer = document.querySelector('.advanced-table-container');
+        if (tableContainer) {
+            tableContainer.scrollIntoView({ 
+                behavior: 'smooth', 
+                block: 'start' 
+            });
+        }
+    }
+
+    getTotalPages() {
+        return Math.ceil(this.filteredItems.length / this.pageSize);
+    }
+
+    updatePaginationControls() {
+        const totalPages = this.getTotalPages();
+        
+        // Update pagination controls using correct IDs
+        const firstPageBtn = document.getElementById('first-page');
+        const prevPageBtn = document.getElementById('prev-page');
+        const nextPageBtn = document.getElementById('next-page');
+        const lastPageBtn = document.getElementById('last-page');
+        const currentPageInput = document.getElementById('current-page');
+        
+        // Update pagination info elements
+        const showingStart = document.getElementById('showing-start');
+        const showingEnd = document.getElementById('showing-end');
+        const showingTotal = document.getElementById('showing-total');
+
+        // Update button states
+        const isFirstPage = this.currentPage === 1;
+        const isLastPage = this.currentPage === totalPages || totalPages === 0;
+
+        // Enable/disable buttons
+        if (firstPageBtn) firstPageBtn.disabled = isFirstPage;
+        if (prevPageBtn) prevPageBtn.disabled = isFirstPage;
+        if (nextPageBtn) nextPageBtn.disabled = isLastPage;
+        if (lastPageBtn) lastPageBtn.disabled = isLastPage;
+
+        // Update current page input
+        if (currentPageInput) {
+            currentPageInput.value = this.currentPage;
+            currentPageInput.max = totalPages;
+        }
+
+        // Update showing info
+        if (showingStart && showingEnd && showingTotal) {
+            const startItem = totalPages > 0 ? ((this.currentPage - 1) * this.pageSize) + 1 : 0;
+            const endItem = Math.min(this.currentPage * this.pageSize, this.filteredItems.length);
+            
+            showingStart.textContent = startItem;
+            showingEnd.textContent = endItem;
+            showingTotal.textContent = this.filteredItems.length;
+        }
     }
 }
 
-// Initialize when DOM is ready
-document.addEventListener('DOMContentLoaded', () => {
-    window.tableManager = new EnhancedTableManager();
-});
+// Global functions for inline event handlers
+function toggleTheme() {
+    if (typeof window.debugLog === 'function') {
+        window.debugLog('🌍 Global toggleTheme() called');
+    }
+    
+    if (window.tableManager) {
+        if (typeof window.debugLog === 'function') {
+            window.debugLog('✅ TableManager found, calling instance method');
+        }
+        window.tableManager.toggleTheme();
+    } else {
+        if (typeof window.debugLog === 'function') {
+            window.debugLog('❌ TableManager not found!');
+        }
+    }
+}
 
-// Export for use in other modules
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = EnhancedTableManager;
-} 
+// Initialize when DOM is loaded
+document.addEventListener('DOMContentLoaded', () => {
+    window.tableManager = new TableManager();
+}); 

@@ -4,6 +4,7 @@ import { NAV_SELECTORS } from 'src/lib/test-selectors/components/nav.selectors';
 import { NAV_PATHS } from '../../../lib/routes';
 import { Navbar } from '../navbar/Navbar';
 import { InstantLink } from '../ui/InstantLink';
+import { UserSearch } from '../user-search/UserSearch';
 import './Nav.css';
 import { NavAuth } from './NavAuth';
 import { NavPaths } from './NavPaths';
@@ -34,6 +35,9 @@ export default async function Nav() {
         </Navbar.Content>
 
         <Navbar.Content justify="flex-end" className="nav--as-flex-end">
+          <Navbar.Item className="nav__search">
+            <UserSearch placeholder="Find users..." />
+          </Navbar.Item>
           <Navbar.Item className="nav__auth">
             <NavAuth />
           </Navbar.Item>

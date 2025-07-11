@@ -1,7 +1,7 @@
 services:
   postgres:
     image: postgres:latest
-    container_name: postgres
+    container_name: idlingapp__ui-postgres
     env_file:
       - ./.env.local
     ports:
@@ -17,7 +17,7 @@ services:
 
   nextjs:
     build: .
-    container_name: nextjs
+    container_name: idlingapp__ui-nextjs
     working_dir: /app
     volumes:
       - .:/app

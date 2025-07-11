@@ -1,5 +1,5 @@
 import Nav from '../nav/Nav';
-import './Header.css';
+import './Header.scss';
 
 export default async function Header() {
   return (

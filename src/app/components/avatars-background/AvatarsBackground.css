@@ -1,124 +1,82 @@
-.avatar__background-container {
-  pointer-events: none;
-  position: fixed;
-  top: 0;
-  height: 100%;
-  max-width: 100%;
-  z-index: -2;
-  overflow: hidden;
+/* Professional AvatarsBackground Component Styles */
+.avatars-background {
+  pointer-events: none !important;
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  z-index: -1 !important;
+  overflow: hidden !important;
+  background: transparent !important;
 }
 
-.avatar__background {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  z-index: 0;
-  overflow: hidden;
-  top: 0;
-  left: 0;
+.floating-avatar {
+  position: absolute !important;
+  pointer-events: none !important;
+  will-change: transform, opacity !important;
+  transition: opacity 0.3s ease-out !important;
+  z-index: 1 !important;
 }
 
-.avatar__background_avatar {
-  z-index: 0;
-  position: absolute;
-  bottom: -100px;
-  width: 60px;
-  height: 60px;
-  opacity: 0.5;
-  animation: rise 60s infinite ease-in;
-  border-radius: 50%;
-  overflow: hidden;
-}
-
-/* Ensure the Avatar component inside fits properly within the 60px circular container */
-.avatar__background_avatar .avatar {
+.floating-avatar .avatar {
   width: 100% !important;
   height: 100% !important;
-}
-
-/* Disable hover effects on background avatars only */
-.avatar__background_avatar .avatar:hover {
+  border-radius: 50% !important;
+  overflow: hidden !important;
+  filter: blur(0.5px) saturate(0.8) brightness(0.9) contrast(0.8) !important;
   transform: none !important;
+  opacity: 1 !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
 }
 
-.avatar__background_avatar .avatar img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center;
+.floating-avatar .avatar img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  object-position: center !important;
+  transform: none !important;
+  border-radius: 50% !important;
 }
 
-.avatar__background_avatar:nth-child(1) {
-  left: 10%;
-  animation-duration: 32s;
+/* Ensure avatars appear above background but below main content */
+.avatars-background {
+  z-index: -10 !important;
 }
 
-.avatar__background_avatar:nth-child(2) {
-  left: 20%;
-  animation-duration: 20s;
-  animation-delay: 1s;
-}
-
-.avatar__background_avatar:nth-child(3) {
-  left: 35%;
-  animation-duration: 28s;
-  animation-delay: 2s;
-}
-
-.avatar__background_avatar:nth-child(4) {
-  left: 50%;
-  animation-duration: 44s;
-  animation-delay: 0s;
-}
-
-.avatar__background_avatar:nth-child(5) {
-  left: 55%;
-  animation-duration: 24s;
-  animation-delay: 1s;
-}
-
-.avatar__background_avatar:nth-child(6) {
-  left: 65%;
-  animation-duration: 32s;
-  animation-delay: 3s;
-}
-
-.avatar__background_avatar:nth-child(7) {
-  left: 70%;
-  animation-duration: 48s;
-  animation-delay: 2s;
-}
-
-.avatar__background_avatar:nth-child(8) {
-  left: 80%;
-  animation-duration: 24s;
-  animation-delay: 2s;
-}
-
-.avatar__background_avatar:nth-child(9) {
-  left: 70%;
-  animation-duration: 20s;
-  animation-delay: 1s;
-}
-
-.avatar__background_avatar:nth-child(10) {
-  left: 25%;
-  animation-duration: 40s;
-  animation-delay: 4s;
-}
-
-@keyframes rise {
-  0% {
-    bottom: 0;
-    transform: translateX(0);
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .floating-avatar {
+    /* All sizing handled by JavaScript */
   }
+}
 
-  50% {
-    transform: translate(100px);
+@media (max-width: 480px) {
+  .floating-avatar {
+    /* All sizing handled by JavaScript */
   }
+}
 
-  100% {
-    bottom: 100vh;
-    transform: translateX(-100px);
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .floating-avatar {
+    transition: opacity 1s ease-out !important;
+    animation: none !important;
   }
+  
+  .avatars-background {
+    display: none !important;
+  }
+}
+
+/* Debug helper - remove this in production */
+.avatars-background-debug {
+  border: 2px solid red !important;
+  background: rgba(255, 0, 0, 0.1) !important;
+  z-index: 1000 !important;
+}
+
+.floating-avatar-debug {
+  border: 1px solid blue !important;
+  background: rgba(0, 0, 255, 0.1) !important;
 }

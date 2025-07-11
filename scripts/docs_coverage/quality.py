@@ -24,10 +24,17 @@ class QualityAssessor:
         # Find co-located documentation (preferred for Jekyll)
         for code_file in code_files:
             file_dir = os.path.dirname(code_file.path)
+            basename = os.path.splitext(os.path.basename(code_file.path))[0]
             
             # Check for co-located documentation in priority order
             for doc_pattern in self.config["documentation_discovery"]["co_located_patterns"]:
-                doc_path = os.path.join(file_dir, doc_pattern)
+                # Handle dynamic basename pattern
+                if "{basename}" in doc_pattern:
+                    doc_filename = doc_pattern.replace("{basename}", basename)
+                else:
+                    doc_filename = doc_pattern
+                
+                doc_path = os.path.join(file_dir, doc_filename)
                 if os.path.exists(doc_path) and self._is_meaningful_documentation(doc_path):
                     doc_files[code_file.path] = doc_path
                     break
@@ -206,8 +213,18 @@ class QualityAssessor:
     def get_expected_doc_path(self, code_file: CodeFileAnalysis) -> str:
         """Get the expected documentation path for a code file"""
         file_dir = os.path.dirname(code_file.path)
-        # Prefer index.md for Jekyll compatibility
-        return os.path.join(file_dir, "index.md")
+        basename = os.path.splitext(os.path.basename(code_file.path))[0]
+        
+        # Use the first pattern from co_located_patterns (highest priority)
+        first_pattern = self.config["documentation_discovery"]["co_located_patterns"][0]
+        
+        # Handle dynamic basename pattern
+        if "{basename}" in first_pattern:
+            doc_filename = first_pattern.replace("{basename}", basename)
+        else:
+            doc_filename = first_pattern
+        
+        return os.path.join(file_dir, doc_filename)
     
     def estimate_effort(self, quality: DocumentationQuality, code_file: CodeFileAnalysis) -> str:
         """Estimate effort to improve documentation"""

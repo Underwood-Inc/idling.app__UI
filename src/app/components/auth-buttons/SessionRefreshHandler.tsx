@@ -2,7 +2,7 @@
 
 /* eslint-disable no-console */
 
-import { useSession } from 'next-auth/react';
+import { signOut, useSession } from 'next-auth/react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense, useEffect, useRef } from 'react';
 
@@ -110,6 +110,140 @@ function SessionRefreshHandlerInternal() {
  * authentication state without requiring a hard refresh.
  */
 export function SessionRefreshHandler() {
+  const { data: session, status } = useSession();
+  const lastRefreshRef = useRef<number>(0);
+
+  useEffect(() => {
+    if (status !== 'authenticated' || !session) return;
+
+    const refreshInterval = 30 * 60 * 1000; // 30 minutes
+    const now = Date.now();
+
+    // Only refresh if enough time has passed
+    if (now - lastRefreshRef.current < refreshInterval) return;
+
+    let isRefreshing = false;
+
+    const refreshSession = async () => {
+      if (isRefreshing) return;
+      isRefreshing = true;
+
+      try {
+        // Test if the session is still valid by making a lightweight API call
+        const response = await fetch('/api/user/timeout?type=post_creation', {
+          method: 'GET',
+          credentials: 'include'
+        });
+
+        // Check if server indicates session should be cleared
+        const clearSession = response.headers.get('X-Clear-Session') === 'true';
+
+        if (
+          clearSession ||
+          response.status === 404 ||
+          response.status === 401
+        ) {
+          console.log('🔒 Session invalidated by server, signing out...');
+          await signOut({
+            redirect: true,
+            callbackUrl: '/auth/signin?reason=session_invalid'
+          });
+          return;
+        }
+
+        // If response indicates user validation failure, check the response body
+        if (!response.ok) {
+          try {
+            const errorData = await response.json();
+            if (errorData.clearSession || errorData.requiresReauth) {
+              console.log(
+                '🔒 Server requested session clearing, signing out...'
+              );
+              await signOut({
+                redirect: true,
+                callbackUrl: '/auth/signin?reason=user_not_found'
+              });
+              return;
+            }
+          } catch (e) {
+            // If we can't parse the response, but it's not ok, sign out anyway
+            console.log('🔒 Invalid session response, signing out...');
+            await signOut({
+              redirect: true,
+              callbackUrl: '/auth/signin?reason=invalid_response'
+            });
+            return;
+          }
+        }
+
+        lastRefreshRef.current = now;
+      } catch (error) {
+        console.error('Session refresh failed:', error);
+        // On network error, don't sign out automatically - could be temporary
+      } finally {
+        isRefreshing = false;
+      }
+    };
+
+    // Initial refresh check
+    refreshSession();
+
+    // Set up interval for periodic checks
+    const interval = setInterval(refreshSession, refreshInterval);
+
+    return () => clearInterval(interval);
+  }, [session, status]);
+
+  // Also set up a global fetch interceptor to catch session invalidation responses
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const originalFetch = window.fetch;
+
+    window.fetch = async function (...args) {
+      const response = await originalFetch.apply(this, args);
+
+      // Check for session invalidation headers
+      if (response.headers.get('X-Clear-Session') === 'true') {
+        console.log('🔒 Global session invalidation detected, signing out...');
+        await signOut({
+          redirect: true,
+          callbackUrl: '/auth/signin?reason=global_invalidation'
+        });
+        return response;
+      }
+
+      // Check for specific error responses that indicate session issues
+      if (
+        (response.status === 404 || response.status === 401) &&
+        response.url.includes('/api/')
+      ) {
+        try {
+          const clonedResponse = response.clone();
+          const errorData = await clonedResponse.json();
+
+          if (errorData.clearSession || errorData.requiresReauth) {
+            console.log(
+              '🔒 API response requested session clearing, signing out...'
+            );
+            await signOut({
+              redirect: true,
+              callbackUrl: '/auth/signin?reason=api_invalidation'
+            });
+          }
+        } catch (e) {
+          // Ignore JSON parsing errors
+        }
+      }
+
+      return response;
+    };
+
+    return () => {
+      window.fetch = originalFetch;
+    };
+  }, []);
+
   return (
     <Suspense fallback={null}>
       <SessionRefreshHandlerInternal />

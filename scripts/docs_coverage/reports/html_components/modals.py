@@ -85,21 +85,92 @@ class ModalsGenerator:
         return modals_html
     
     def _generate_fallback_modals(self) -> str:
-        """Generate basic modal structure if template loading fails.
+        """Generate enhanced modal structure for all modals.
         
         Returns:
-            Basic modal HTML structure
+            Complete modal HTML structure with source code viewer
         """
         return """
-        <!-- Fallback Modal Structure -->
-        <div id="source-code-modal" class="modal">
+        <!-- Source Code Modal -->
+        <div id="source-code-modal" class="modal source-modal">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h3>Source Code</h3>
+                    <h3 id="source-code-title">Source Code</h3>
+                    <div class="modal-header-actions">
+                        <button id="open-github-btn" class="btn btn-secondary">
+                            <span>📂 Open on GitHub</span>
+                        </button>
+                        <button class="modal-close">&times;</button>
+                    </div>
+                </div>
+                <div class="modal-body source-modal-body">
+                    <div id="source-code-content">
+                        <p>Loading source code...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Column Picker Modal -->
+        <div id="column-picker-modal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>⚙️ Column Visibility</h3>
                     <button class="modal-close">&times;</button>
                 </div>
                 <div class="modal-body">
-                    <p>Source code viewer not available.</p>
+                    <div class="column-picker-content">
+                        <div class="column-picker-header">
+                            <p>Select which columns to show or hide:</p>
+                        </div>
+                        <div id="column-picker-options">
+                            <!-- Column picker content will be inserted here -->
+                        </div>
+                        <div class="column-picker-footer">
+                            <button id="reset-columns-btn" class="btn btn-secondary">
+                                🔄 Reset to Default
+                            </button>
+                            <button id="apply-columns-btn" class="btn btn-primary">
+                                ✅ Apply Changes
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Help Modal -->
+        <div id="help-modal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>❓ Help & Shortcuts</h3>
+                    <button class="modal-close">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="help-content">
+                        <h4>🔍 Table Features</h4>
+                        <ul>
+                            <li><strong>Click headers</strong> to sort columns</li>
+                            <li><strong>Shift+Click</strong> for multi-column sorting</li>
+                            <li><strong>Click rows</strong> to view source code</li>
+                            <li><strong>Click file names</strong> to open on GitHub</li>
+                        </ul>
+                        
+                        <h4>⌨️ Keyboard Shortcuts</h4>
+                        <ul>
+                            <li><kbd>Ctrl+K</kbd> - Toggle column picker</li>
+                            <li><kbd>Ctrl+Shift+D</kbd> - Toggle dark/light theme</li>
+                            <li><kbd>Escape</kbd> - Close modals</li>
+                        </ul>
+                        
+                        <h4>📊 Badge Legend</h4>
+                        <ul>
+                            <li><span class="badge badge-error">🚨 Critical</span> - Immediate action required</li>
+                            <li><span class="badge badge-warning">⚠️ High</span> - Action needed soon</li>
+                            <li><span class="badge badge-info">📝 Medium</span> - Should be documented</li>
+                            <li><span class="badge badge-success">💡 Low</span> - Nice to have</li>
+                        </ul>
+                    </div>
                 </div>
             </div>
         </div>
@@ -146,4 +217,9 @@ class ModalsGenerator:
 
 
 # Export the main class
-__all__ = ['ModalsGenerator'] 
+__all__ = ['ModalsGenerator', 'get_modals_html']
+
+def get_modals_html() -> str:
+    """Get the modal HTML for the report."""
+    generator = ModalsGenerator({})
+    return generator.generate_all_modals() 

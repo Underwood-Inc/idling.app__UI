@@ -1,0 +1,134 @@
+'use client';
+
+import { useUserPreferences } from '../../../lib/context/UserPreferencesContext';
+import './RetroSpaceBackground.scss';
+
+// Keep prop interface for potential override capabilities
+interface RetroSpaceBackgroundProps {
+  movementDirection?:
+    | 'static'
+    | 'forward'
+    | 'backward'
+    | 'left'
+    | 'right'
+    | 'up'
+    | 'down';
+  movementSpeed?: 'slow' | 'normal' | 'fast';
+  enableSpeedLines?: boolean;
+}
+
+export default function RetroSpaceBackground({
+  movementDirection: overrideDirection,
+  movementSpeed: overrideSpeed,
+  enableSpeedLines = false
+}: RetroSpaceBackgroundProps) {
+  // Get settings from user preferences context
+  const {
+    backgroundMovementDirection,
+    backgroundMovementSpeed,
+    backgroundAnimationLayers
+  } = useUserPreferences();
+
+  // Use context values unless overridden by props
+  const movementDirection = overrideDirection || backgroundMovementDirection;
+  const movementSpeed = overrideSpeed || backgroundMovementSpeed;
+
+  // Build dynamic class names based on settings
+  const containerClasses = [
+    'retro-space-background',
+    `movement-${movementDirection}`,
+    `speed-${movementSpeed}`,
+    !backgroundAnimationLayers.stars && 'hide-stars',
+    !backgroundAnimationLayers.particles && 'hide-particles',
+    !backgroundAnimationLayers.nebula && 'hide-nebula',
+    !backgroundAnimationLayers.planets && 'hide-planets',
+    !backgroundAnimationLayers.aurora && 'hide-aurora'
+  ]
+    .filter(Boolean)
+    .join(' ');
+
+  return (
+    <div className={containerClasses}>
+      {/* 1. Twinkling Star Field */}
+      {backgroundAnimationLayers.stars && (
+        <div className="star-field">
+          {Array.from({ length: 200 }, (_, i) => (
+            <div
+              key={i}
+              className={`star ${i % 3 === 0 ? 'star-small' : i % 2 === 0 ? 'star-medium' : 'star-large'}`}
+              style={{
+                left: `${Math.random() * 100}%`,
+                top: `${Math.random() * 100}%`,
+                animationDelay: `${Math.random() * 4}s`,
+                animationDuration: `${4 + Math.random() * 2}s`
+              }}
+            />
+          ))}
+        </div>
+      )}
+
+      {/* 2. Drifting Space Particles */}
+      {backgroundAnimationLayers.particles && (
+        <div className="space-particles">
+          {Array.from({ length: 50 }, (_, i) => (
+            <div
+              key={i}
+              className="space-particle"
+              style={{
+                left: `${Math.random() * -10}%`,
+                top: `${Math.random() * 100}%`,
+                animationDelay: `${Math.random() * 8}s`,
+                animationDuration: `${6 + Math.random() * 4}s`
+              }}
+            />
+          ))}
+        </div>
+      )}
+
+      {/* 3. Nebula Cloud Gradients */}
+      {backgroundAnimationLayers.nebula && (
+        <div className="nebula-clouds">
+          <div className="nebula-cloud"></div>
+          <div className="nebula-cloud"></div>
+          <div className="nebula-cloud"></div>
+        </div>
+      )}
+
+      {/* 4. Distant Planets/Orbs */}
+      {backgroundAnimationLayers.planets && (
+        <div className="distant-planets">
+          <div className="distant-planet"></div>
+          <div className="distant-planet"></div>
+          <div className="distant-planet"></div>
+        </div>
+      )}
+
+      {/* 5. Aurora Waves */}
+      {backgroundAnimationLayers.aurora && (
+        <div className="aurora-waves">
+          <div className="aurora-wave"></div>
+          <div className="aurora-wave"></div>
+          <div className="aurora-wave"></div>
+        </div>
+      )}
+
+      {/* Speed Lines (optional overlay for fast movement) */}
+      {enableSpeedLines &&
+        (movementDirection === 'forward' ||
+          movementDirection === 'backward') && (
+          <div className="speed-lines">
+            {Array.from({ length: 30 }, (_, i) => (
+              <div
+                key={i}
+                className="speed-line"
+                style={{
+                  left: `${Math.random() * 100}%`,
+                  animationDelay: `${Math.random() * 2}s`
+                }}
+              />
+            ))}
+          </div>
+        )}
+    </div>
+  );
+}

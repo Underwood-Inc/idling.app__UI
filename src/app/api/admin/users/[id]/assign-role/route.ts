@@ -3,10 +3,10 @@
  * Handles assigning and managing user roles
  */
 
-import { checkUserPermission } from '@/lib/actions/permissions.actions';
+import { withUserPermissions } from '@/lib/api/wrappers/withUserPermissions';
+import { withUserRoles } from '@/lib/api/wrappers/withUserRoles';
 import { auth } from '@/lib/auth';
 import sql from '@/lib/db';
-import { PERMISSIONS } from '@/lib/permissions/permissions';
 import {
   AdminUserRoleAssignmentSchema,
   AdminUserRoleRemovalParamsSchema,
@@ -22,7 +22,7 @@ export interface RoleAssignmentRequest {
 }
 
 // POST /api/admin/users/[id]/assign-role - Assign role to user
-export async function POST(
+async function postHandler(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
@@ -47,15 +47,6 @@ export async function POST(
     }
 
     const targetUserId = parseInt(postUserIdValidation.data.id);
-
-    // Check if user has permission to assign roles
-    const hasPermission = await checkUserPermission(
-      adminUserId,
-      PERMISSIONS.ADMIN.USERS_MANAGE
-    );
-    if (!hasPermission) {
-      return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 });
-    }
 
     // Validate request body
     const body = await request.json();
@@ -120,7 +111,7 @@ export async function POST(
 }
 
 // DELETE /api/admin/users/[id]/assign-role - Remove role from user
-export async function DELETE(
+async function deleteHandler(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
@@ -145,15 +136,6 @@ export async function DELETE(
     }
 
     const targetUserId = parseInt(deleteUserIdValidation.data.id);
-
-    // Check if user has permission to manage roles
-    const hasPermission = await checkUserPermission(
-      adminUserId,
-      PERMISSIONS.ADMIN.USERS_MANAGE
-    );
-    if (!hasPermission) {
-      return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 });
-    }
 
     // Validate query parameters
     const { searchParams } = new URL(request.url);
@@ -199,4 +181,8 @@ export async function DELETE(
       { status: 500 }
     );
   }
-} 
+}
+
+// Apply permission wrappers to handlers
+export const POST = withUserRoles(withUserPermissions(postHandler as any));
+export const DELETE = withUserRoles(withUserPermissions(deleteHandler as any)); 

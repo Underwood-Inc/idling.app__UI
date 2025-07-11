@@ -3,7 +3,7 @@
  * Handles role-based access control and permission checking
  */
 
-import { createLogger } from '@/lib/logging';
+import { createLogger } from '@lib/logging';
 import { unstable_noStore as noStore } from 'next/cache';
 import { auth } from '../auth';
 import sql from '../db';

@@ -131,8 +131,8 @@ class DocumentationChecker:
         
         reporter = self.reporters[format]
         
-        # Set code files for CSV reporter (needed for detailed analysis)
-        if format == "csv":
+        # Set code files for CSV and HTML reporters (needed for detailed analysis)
+        if format in ["csv", "html"]:
             reporter.set_code_files(self.code_files)
         
         return reporter.generate(report)
