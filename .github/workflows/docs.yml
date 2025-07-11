@@ -84,7 +84,7 @@ jobs:
           echo "✅ OpenAPI spec generated at: src/app/api/openapi.json"
 
       - name: Build Docusaurus site
-        run: pnpm build
+        run: pnpm docs:build
         env:
           NODE_ENV: production
 
@@ -161,7 +161,7 @@ jobs:
           echo "✅ API docs will be automatically generated during build"
 
       - name: Build Docusaurus site (PR check)
-        run: pnpm build
+        run: pnpm docs:build
         env:
           NODE_ENV: production
 

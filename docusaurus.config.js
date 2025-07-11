@@ -65,7 +65,7 @@ const config = {
         // OpenAPI specifications
         specs: [
           {
-            spec: 'openapi.json',
+            spec: 'src/app/api/openapi.json',
             route: '/api/',
             id: 'api-docs',
           },
