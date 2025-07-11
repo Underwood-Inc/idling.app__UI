@@ -26,6 +26,14 @@ const config = {
     locales: ['en'],
   },
 
+  markdown: {
+    mermaid: true,
+    // Disable MDX for existing Jekyll-syntax markdown files
+    format: 'detect', // Let Docusaurus auto-detect .md vs .mdx
+  },
+
+  themes: ["@docusaurus/theme-mermaid"],
+
   presets: [
     [
       'classic',
@@ -60,55 +68,34 @@ const config = {
         },
       }),
     ],
-  ],
-
-  // plugins: [
-  //   [
-  //     'docusaurus-plugin-openapi-docs',
-  //     {
-  //       id: "api",
-  //       docsPluginId: "classic",
-  //       config: {
-  //         api: {
-  //           specPath: "openapi.yaml", // We'll create this
-  //           outputDir: "docs/api",
-  //           sidebarOptions: {
-  //             groupPathsBy: "tag",
-  //             categoryLinkSource: "tag",
-  //           },
-  //           template: "api.mustache", // Custom template
-  //         },
-  //       },
-  //     },
-  //   ],
-  // ],
-
-  markdown: {
-    mermaid: true,
-    // Disable MDX for existing Jekyll-syntax markdown files
-    format: 'detect', // Let Docusaurus auto-detect .md vs .mdx
-  },
-
-  themes: ["docusaurus-theme-openapi-docs", "@docusaurus/theme-mermaid"],
-
-  // 🔍 Local Search Plugin (React 19 compatible) + OpenAPI Plugin
-  plugins: [
     [
-      'docusaurus-plugin-openapi-docs',
+      'redocusaurus',
       {
-        id: "api",
-        docsPluginId: "classic",
-        config: {
-          api: {
-            specPath: "src/app/api/openapi.json",
-            outputDir: "docs/api",
-            sidebarOptions: {
-              groupPathsBy: "tagGroup",
-            },
+        // OpenAPI specifications
+        specs: [
+          {
+            spec: 'openapi.yaml',
+            route: '/api/',
+            id: 'api-docs',
+          },
+        ],
+        // Theme Options for customization
+        theme: {
+          // Change with your site colors  
+          primaryColor: '#edae49',
+          options: {
+            scrollYOffset: 60,
+            hideDownloadButton: false,
+            disableSearch: false,
+            nativeScrollbars: false,
           },
         },
       },
     ],
+  ],
+
+  // 🔍 Local Search Plugin (React 19 compatible)
+  plugins: [
     [
       'docusaurus-plugin-search-local',
       {
@@ -147,12 +134,11 @@ const config = {
             position: 'left',
             label: 'Documentation',
           },
-          // Temporarily removed until we have a proper API section
-          // {
-          //   to: '/api',
-          //   label: 'API Reference',
-          //   position: 'left'
-          // },
+          {
+            to: '/api/',
+            label: 'API Reference',
+            position: 'left'
+          },
           {
             href: 'https://github.com/Underwood-Inc/idling.app__UI',
             label: 'GitHub',

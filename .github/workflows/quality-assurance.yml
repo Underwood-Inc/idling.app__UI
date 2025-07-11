@@ -614,10 +614,12 @@ jobs:
               console.log('📝 PR description already up to date');
             }
 
-      # Generate OpenAPI docs for Docusaurus
-      - name: Generate OpenAPI docs
-        run: pnpm docusaurus gen-api-docs all
-        continue-on-error: true
+            # Note: OpenAPI docs are now generated automatically by Redocusaurus during build
+      - name: OpenAPI Documentation Status
+        run: |
+          echo "📚 Using Redocusaurus for OpenAPI documentation"
+          echo "✅ API docs will be automatically generated during build from: src/app/api/openapi.json"
+          echo "🌐 API documentation will be available at: /api/"
 
       # Build Docusaurus documentation site
       - name: Build Docusaurus site

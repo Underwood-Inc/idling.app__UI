@@ -623,7 +623,8 @@
               }
             }
           }
-        }
+        },
+        "operationId": "getAdminusers"
       }
     },
     "/api/alerts/active": {
@@ -662,7 +663,8 @@
               }
             }
           }
-        }
+        },
+        "operationId": "getAlertsactive"
       }
     },
     "/api/alerts/dismiss": {
@@ -783,7 +785,8 @@
               }
             }
           }
-        }
+        },
+        "operationId": "postAlertsdismiss"
       }
     },
     "/api/emojis": {
@@ -870,7 +873,8 @@
               }
             }
           }
-        }
+        },
+        "operationId": "getEmojis"
       },
       "post": {
         "summary": "Upload custom emoji",
@@ -943,7 +947,8 @@
           "500": {
             "description": "Upload failed"
           }
-        }
+        },
+        "operationId": "postEmojis"
       },
       "put": {
         "summary": "Track emoji usage",
@@ -1002,7 +1007,8 @@
           "500": {
             "description": "Tracking failed"
           }
-        }
+        },
+        "operationId": "putEmojis"
       }
     },
     "/api/emojis/usage": {
@@ -1090,7 +1096,8 @@
               }
             }
           }
-        }
+        },
+        "operationId": "postEmojisusage"
       }
     },
     "/api/openapi": {
@@ -1111,7 +1118,8 @@
               }
             }
           }
-        }
+        },
+        "operationId": "getOpenapi"
       }
     },
     "/api/profile/id/{id}": {
@@ -1217,7 +1225,8 @@
               }
             }
           }
-        }
+        },
+        "operationId": "getProfileidByid"
       }
     },
     "/api/swagger": {
@@ -1238,7 +1247,8 @@
               }
             }
           }
-        }
+        },
+        "operationId": "getSwagger"
       }
     },
     "/api/upload/image": {
@@ -1390,7 +1400,8 @@
               }
             }
           }
-        }
+        },
+        "operationId": "postUploadimage"
       },
       "get": {
         "summary": "Method not allowed",
@@ -1409,7 +1420,8 @@
               }
             }
           }
-        }
+        },
+        "operationId": "getUploadimage"
       }
     },
     "/api/version": {
@@ -1447,7 +1459,8 @@
               }
             }
           }
-        }
+        },
+        "operationId": "getVersion"
       }
     }
   }

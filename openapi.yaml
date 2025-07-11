@@ -323,18 +323,24 @@ components:
           nullable: true
           description: ID of active timeout
 tags:
-  - name: Admin
-    description: Administrative operations (admin only)
-  - name: Alerts
-    description: System alerts and notifications
-  - name: Emojis
-    description: Emoji browsing and management
-  - name: System
-    description: System information and metadata
-  - name: Upload
-    description: File upload operations
+  - name: Authentication
+    description: User authentication and session management
   - name: Users
     description: User profile and account management
+  - name: Admin
+    description: Administrative operations (admin only)
+  - name: Emojis
+    description: Emoji browsing and management
+  - name: Upload
+    description: File upload operations
+  - name: Images
+    description: Dynamic image generation
+  - name: Alerts
+    description: System alerts and notifications
+  - name: System
+    description: System information and metadata
+  - name: Documentation
+    description: API documentation endpoints
 paths:
   /api/admin/users:
     get:
@@ -427,6 +433,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+      operationId: getAdminusers
   /api/alerts/active:
     get:
       summary: Get active alerts for current user
@@ -452,6 +459,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+      operationId: getAlertsactive
   /api/alerts/dismiss:
     post:
       summary: Dismiss an alert for the current user
@@ -532,6 +540,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+      operationId: postAlertsdismiss
   /api/emojis:
     get:
       summary: Get emojis by OS and category
@@ -589,6 +598,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+      operationId: getEmojis
     post:
       summary: Upload custom emoji
       description: Upload a custom emoji image for the authenticated user
@@ -636,6 +646,7 @@ paths:
           description: File too large
         '500':
           description: Upload failed
+      operationId: postEmojis
     put:
       summary: Track emoji usage
       description: Track usage statistics for an emoji
@@ -675,6 +686,7 @@ paths:
           description: Invalid parameters
         '500':
           description: Tracking failed
+      operationId: putEmojis
   /api/emojis/usage:
     post:
       summary: Track emoji usage statistics
@@ -735,6 +747,21 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+      operationId: postEmojisusage
+  /api/openapi:
+    get:
+      summary: OpenAPI specification
+      description: Returns the OpenAPI 3.0 specification for the Idling.app API
+      tags:
+        - Documentation
+      responses:
+        '200':
+          description: OpenAPI specification
+          content:
+            application/json:
+              schema:
+                type: object
+      operationId: getOpenapi
   /api/profile/id/{id}:
     get:
       summary: Get user profile by ID
@@ -808,6 +835,21 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+      operationId: getProfileidByid
+  /api/swagger:
+    get:
+      summary: Swagger UI HTML page
+      description: Serves the interactive Swagger UI documentation interface
+      tags:
+        - Documentation
+      responses:
+        '200':
+          description: Swagger UI HTML page
+          content:
+            text/html:
+              schema:
+                type: string
+      operationId: getSwagger
   /api/upload/image:
     post:
       summary: Upload an image file
@@ -908,6 +950,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+      operationId: postUploadimage
     get:
       summary: Method not allowed
       description: GET requests are not supported for file uploads
@@ -920,6 +963,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+      operationId: getUploadimage
   /api/version:
     get:
       summary: Get application version
@@ -944,3 +988,4 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+      operationId: getVersion

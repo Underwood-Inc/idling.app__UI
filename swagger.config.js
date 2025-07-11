@@ -449,4 +449,31 @@ const options = {
 };
 
 const specs = swaggerJSDoc(options);
+
+// Auto-generate operationIds for all endpoints
+function generateOperationId(method, path) {
+  // Convert path to camelCase and remove special characters
+  const cleanPath = path
+    .replace(/^\/api\//, '') // Remove /api/ prefix
+    .replace(/\{([^}]+)\}/g, 'By$1') // Convert {id} to ById
+    .replace(/[/-]/g, '') // Remove slashes and hyphens
+    .replace(/([a-z])([A-Z])/g, '$1$2') // Keep camelCase
+    .replace(/^(.)/, (match) => match.toLowerCase()); // Lowercase first letter
+  
+  // Add method prefix
+  const methodPrefix = method.toLowerCase();
+  return methodPrefix + cleanPath.charAt(0).toUpperCase() + cleanPath.slice(1);
+}
+
+// Add operationIds to all operations
+if (specs.paths) {
+  Object.entries(specs.paths).forEach(([path, pathItem]) => {
+    Object.entries(pathItem).forEach(([method, operation]) => {
+      if (operation && typeof operation === 'object' && !operation.operationId) {
+        operation.operationId = generateOperationId(method, path);
+      }
+    });
+  });
+}
+
 module.exports = specs; 

@@ -75,9 +75,10 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
-      - name: Generate OpenAPI docs
-        run: pnpm docusaurus gen-api-docs all
-        continue-on-error: true
+      - name: OpenAPI Documentation Status
+        run: |
+          echo "📚 Using Redocusaurus for OpenAPI documentation"
+          echo "✅ API docs will be automatically generated during build"
 
       - name: Build Docusaurus site
         run: pnpm build
@@ -151,9 +152,10 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
-      - name: Generate OpenAPI docs
-        run: pnpm docusaurus gen-api-docs all
-        continue-on-error: true
+      - name: OpenAPI Documentation Status
+        run: |
+          echo "📚 Using Redocusaurus for OpenAPI documentation"
+          echo "✅ API docs will be automatically generated during build"
 
       - name: Build Docusaurus site (PR check)
         run: pnpm build
