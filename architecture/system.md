@@ -1,10 +1,7 @@
 ---
-layout: default
-title: 'System Design'
-description: 'Detailed system architecture and design patterns'
-permalink: /architecture/system/
-parent: Architecture
-nav_order: 1
+title: 'System Architecture'
+description: 'Core system design patterns and infrastructure'
+sidebar_position: 1
 ---
 
 # 🏛️ System Design
@@ -76,4 +73,4 @@ graph TB
 
 ---
 
-_This is a stub file. [Contribute to expand this documentation](/community/contributing/)._
+**This documentation is under development. [Contribute to expand this documentation](/community/contributing/).**

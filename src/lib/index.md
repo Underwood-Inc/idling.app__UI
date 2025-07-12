@@ -1,10 +1,7 @@
 ---
-layout: default
-title: 'Libraries'
-description: 'Shared utilities and services'
-permalink: /development/libraries/
-category: 'Development'
-parent: 'development'
+title: 'Libraries Overview'
+description: 'Shared utilities, services, and React hooks for Idling.app'
+sidebar_position: 1
 ---
 
 # 📚 Libraries

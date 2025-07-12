@@ -1,6 +1,6 @@
 import {
-  checkGuestQuota,
-  recordGuestUsage
+    checkGuestQuota,
+    recordGuestUsage
 } from '@lib/actions/quota.actions';
 import { auth } from '@lib/auth';
 import { EnhancedQuotaService } from '@lib/services/EnhancedQuotaService';
@@ -254,7 +254,7 @@ export class OGImageService {
     const avatarSeed = searchParams.get('avatarSeed');
     const customQuote = searchParams.get('quote');
     const customAuthor = searchParams.get('author');
-    const aspectRatio = searchParams.get('ratio') || searchParams.get('aspect') || 'default';
+    const aspectRatio = searchParams.get('variant') || searchParams.get('ratio') || searchParams.get('aspect') || 'default';
     
     const customWidth = searchParams.get('width') ? parseInt(searchParams.get('width')!) : undefined;
     const customHeight = searchParams.get('height') ? parseInt(searchParams.get('height')!) : undefined;

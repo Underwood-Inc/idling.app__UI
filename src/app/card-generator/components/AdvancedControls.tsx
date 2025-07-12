@@ -9,15 +9,30 @@ interface AdvancedControlsProps {
   onOptionsChange: (options: Partial<GenerationOptions>) => void;
   isProUser: boolean;
   isReadonly?: boolean;
+  generationOptions?: {
+    avatarX?: number;
+    avatarY?: number;
+    avatarSize?: number;
+    textMaxWidth?: number;
+    textStartY?: number;
+    fontSize?: number;
+    borderOpacity?: number;
+    textPadding?: number;
+    lineHeight?: number;
+    borderColor?: string;
+    patternSeed?: string;
+    glassBackground?: boolean;
+  };
 }
 
 export function AdvancedControls({
   options,
   onOptionsChange,
   isProUser,
-  isReadonly = false
+  isReadonly = false,
+  generationOptions
 }: AdvancedControlsProps) {
-  const disabled = !isProUser || isReadonly;
+  const disabled = !isProUser;
 
   const handleChange = (key: keyof GenerationOptions, value: any) => {
     if (disabled) return;
@@ -25,6 +40,57 @@ export function AdvancedControls({
       ...options,
       [key]: value
     });
+  };
+
+  // Helper function to get numeric display values - prioritize user input
+  const getNumericDisplayValue = (
+    key: keyof Partial<GenerationOptions>
+  ): number | undefined => {
+    // Prioritize user input values over generated values
+    const userValue = options[key];
+    if (typeof userValue === 'number') {
+      return userValue;
+    }
+    // Fall back to generated values for auto-fill when no user input
+    if (generationOptions && key in generationOptions) {
+      const value = generationOptions[key as keyof typeof generationOptions];
+      return typeof value === 'number' ? value : undefined;
+    }
+    return undefined;
+  };
+
+  // Helper function to get string display values - prioritize user input
+  const getStringDisplayValue = (
+    key: keyof Partial<GenerationOptions>
+  ): string | undefined => {
+    // Prioritize user input values over generated values
+    const userValue = options[key];
+    if (typeof userValue === 'string') {
+      return userValue;
+    }
+    // Fall back to generated values for auto-fill when no user input
+    if (generationOptions && key in generationOptions) {
+      const value = generationOptions[key as keyof typeof generationOptions];
+      return typeof value === 'string' ? value : undefined;
+    }
+    return undefined;
+  };
+
+  // Helper function to get boolean display values - prioritize user input
+  const getBooleanDisplayValue = (
+    key: keyof Partial<GenerationOptions>
+  ): boolean => {
+    // Prioritize user input values over generated values
+    const userValue = options[key];
+    if (typeof userValue === 'boolean') {
+      return userValue;
+    }
+    // Fall back to generated values for auto-fill when no user input
+    if (generationOptions && key in generationOptions) {
+      const value = generationOptions[key as keyof typeof generationOptions];
+      return typeof value === 'boolean' ? value : false;
+    }
+    return false;
   };
 
   return (
@@ -53,7 +119,7 @@ export function AdvancedControls({
               <span className={formStyles.label__text}>Avatar X</span>
               <input
                 type="number"
-                value={options.avatarX || ''}
+                value={getNumericDisplayValue('avatarX') || ''}
                 onChange={(e) =>
                   handleChange('avatarX', parseInt(e.target.value) || undefined)
                 }
@@ -68,7 +134,7 @@ export function AdvancedControls({
               <span className={formStyles.label__text}>Avatar Y</span>
               <input
                 type="number"
-                value={options.avatarY || ''}
+                value={getNumericDisplayValue('avatarY') || ''}
                 onChange={(e) =>
                   handleChange('avatarY', parseInt(e.target.value) || undefined)
                 }
@@ -83,7 +149,7 @@ export function AdvancedControls({
               <span className={formStyles.label__text}>Avatar Size</span>
               <input
                 type="number"
-                value={options.avatarSize || ''}
+                value={getNumericDisplayValue('avatarSize') || ''}
                 onChange={(e) =>
                   handleChange(
                     'avatarSize',
@@ -108,7 +174,7 @@ export function AdvancedControls({
               <span className={formStyles.label__text}>Text Max Width</span>
               <input
                 type="number"
-                value={options.textMaxWidth || ''}
+                value={getNumericDisplayValue('textMaxWidth') || ''}
                 onChange={(e) =>
                   handleChange(
                     'textMaxWidth',
@@ -126,7 +192,7 @@ export function AdvancedControls({
               <span className={formStyles.label__text}>Text Start Y</span>
               <input
                 type="number"
-                value={options.textStartY || ''}
+                value={getNumericDisplayValue('textStartY') || ''}
                 onChange={(e) =>
                   handleChange(
                     'textStartY',
@@ -144,7 +210,7 @@ export function AdvancedControls({
               <span className={formStyles.label__text}>Text Padding</span>
               <input
                 type="number"
-                value={options.textPadding || ''}
+                value={getNumericDisplayValue('textPadding') || ''}
                 onChange={(e) =>
                   handleChange(
                     'textPadding',
@@ -171,7 +237,7 @@ export function AdvancedControls({
               <span className={formStyles.label__text}>Font Size</span>
               <input
                 type="number"
-                value={options.fontSize || ''}
+                value={getNumericDisplayValue('fontSize') || ''}
                 onChange={(e) =>
                   handleChange(
                     'fontSize',
@@ -190,7 +256,7 @@ export function AdvancedControls({
               <input
                 type="number"
                 step="0.1"
-                value={options.lineHeight || ''}
+                value={getNumericDisplayValue('lineHeight') || ''}
                 onChange={(e) =>
                   handleChange(
                     'lineHeight',
@@ -209,7 +275,7 @@ export function AdvancedControls({
               <input
                 type="number"
                 step="0.1"
-                value={options.borderOpacity || ''}
+                value={getNumericDisplayValue('borderOpacity') || ''}
                 onChange={(e) =>
                   handleChange(
                     'borderOpacity',
@@ -236,7 +302,7 @@ export function AdvancedControls({
               <span className={formStyles.label__text}>Border Color</span>
               <input
                 type="color"
-                value={options.borderColor || '#ffffff'}
+                value={getStringDisplayValue('borderColor') || '#ffffff'}
                 onChange={(e) => handleChange('borderColor', e.target.value)}
                 disabled={disabled}
                 className={`${formStyles.form__input} ${disabled ? formStyles.form__input__disabled : ''}`}
@@ -247,7 +313,7 @@ export function AdvancedControls({
               <span className={formStyles.label__text}>Pattern Seed</span>
               <input
                 type="text"
-                value={options.patternSeed || ''}
+                value={getStringDisplayValue('patternSeed') || ''}
                 onChange={(e) =>
                   handleChange('patternSeed', e.target.value || undefined)
                 }
@@ -259,7 +325,7 @@ export function AdvancedControls({
             <label className={formStyles.form__checkbox__label}>
               <input
                 type="checkbox"
-                checked={options.glassBackground || false}
+                checked={getBooleanDisplayValue('glassBackground')}
                 onChange={(e) =>
                   handleChange('glassBackground', e.target.checked)
                 }

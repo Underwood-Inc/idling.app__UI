@@ -19,11 +19,11 @@ export const ASPECT_RATIOS: Record<string, AspectRatioConfig> = {
     width: 1080,
     height: 1080,
     description: 'Instagram posts, Facebook posts',
-    textMaxWidth: 900,
+    textMaxWidth: 950,
     textStartY: 750,
     avatarX: 240,
-    avatarY: 100,
-    avatarSize: 600
+    avatarY: 140,
+    avatarSize: 550
   },
   // 4:3 ratio for presentations, some social platforms
   '4-3': {
@@ -31,11 +31,11 @@ export const ASPECT_RATIOS: Record<string, AspectRatioConfig> = {
     width: 1200,
     height: 900,
     description: 'Presentations, classic displays',
-    textMaxWidth: 900,
-    textStartY: 620,
+    textMaxWidth: 1000,
+    textStartY: 680,
     avatarX: 350,
-    avatarY: 50,
-    avatarSize: 450
+    avatarY: 80,
+    avatarSize: 520
   },
   // YouTube thumbnail ratio
   youtube: {
@@ -43,11 +43,11 @@ export const ASPECT_RATIOS: Record<string, AspectRatioConfig> = {
     width: 1280,
     height: 720,
     description: 'YouTube thumbnails, video content',
-    textMaxWidth: 950,
-    textStartY: 500,
+    textMaxWidth: 1100,
+    textStartY: 520,
     avatarX: 390,
-    avatarY: 40,
-    avatarSize: 400
+    avatarY: 60,
+    avatarSize: 450
   },
   // Facebook cover photo
   'facebook-cover': {
@@ -55,11 +55,11 @@ export const ASPECT_RATIOS: Record<string, AspectRatioConfig> = {
     width: 1200,
     height: 630,
     description: 'Facebook cover photos',
-    textMaxWidth: 900,
-    textStartY: 420,
+    textMaxWidth: 1000,
+    textStartY: 450,
     avatarX: 350,
-    avatarY: 20,
-    avatarSize: 500
+    avatarY: 40,
+    avatarSize: 520
   },
   // LinkedIn banner - very wide and short format
   'linkedin-banner': {
@@ -67,11 +67,11 @@ export const ASPECT_RATIOS: Record<string, AspectRatioConfig> = {
     width: 1584,
     height: 396,
     description: 'LinkedIn profile banners',
-    textMaxWidth: 1000,
+    textMaxWidth: 1300,
     textStartY: 280,
-    avatarX: 292,
-    avatarY: 48,
-    avatarSize: 300
+    avatarX: 792,
+    avatarY: 40,
+    avatarSize: 160
   },
   // Twitter header - wide format
   'twitter-header': {
@@ -79,11 +79,11 @@ export const ASPECT_RATIOS: Record<string, AspectRatioConfig> = {
     width: 1500,
     height: 500,
     description: 'Twitter profile headers',
-    textMaxWidth: 1000,
-    textStartY: 350,
+    textMaxWidth: 1200,
+    textStartY: 380,
     avatarX: 350,
-    avatarY: 50,
-    avatarSize: 350
+    avatarY: 70,
+    avatarSize: 400
   }
 };
 

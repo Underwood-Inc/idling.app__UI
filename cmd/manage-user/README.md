@@ -1,3 +1,8 @@
+---
+title: 'README'
+description: 'Documentation for README'
+---
+
 # 🧙‍♂️ Modern User Management Tool
 
 A beautiful, modern Terminal User Interface (TUI) for comprehensive user administration, built with [Bubble Tea](https://github.com/charmbracelet/bubbletea).

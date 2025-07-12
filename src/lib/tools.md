@@ -1,8 +1,7 @@
 ---
-layout: default
 title: 'Development Tools'
-description: 'Development environment setup, tools, and utilities documentation'
-permalink: /dev/tools/
+description: 'Development environment setup, debugging tools, and utilities'
+sidebar_position: 2
 ---
 
 # 🔧 Development Tools

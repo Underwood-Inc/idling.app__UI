@@ -1,9 +1,7 @@
 ---
-layout: default
-title: 'Quick Start Guide'
-description: 'Get Idling.app running in 5 minutes'
-permalink: /getting-started/quickstart/
-parent: Getting Started
+title: 'Quick Start'
+description: 'Get up and running in minutes with essential setup steps'
+sidebar_position: 3
 ---
 
 # 🏃 Quick Start Guide
@@ -110,4 +108,4 @@ docker-compose logs   # View logs
 
 ---
 
-_This is a stub file. [Contribute to expand this documentation](/community/contributing/)._
+**This documentation is under development. [Contribute to expand this documentation](/community/contributing/).**

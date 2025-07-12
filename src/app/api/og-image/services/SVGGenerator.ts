@@ -86,8 +86,10 @@ export class SVGGenerator {
     const glassBackground = this.calculateGlassBackground(
       textPositioning,
       width,
+      height,
       finalTextMaxWidth,
-      finalTextPadding
+      finalTextPadding,
+      aspectRatio
     );
 
     const svg = this.buildSVG(
@@ -100,7 +102,8 @@ export class SVGGenerator {
       { x: finalAvatarX, y: finalAvatarY, size: finalAvatarSize },
       quote,
       textPositioning,
-      finalGlassBackground ? glassBackground : null
+      finalGlassBackground ? glassBackground : null,
+      aspectRatio
     );
 
     return {
@@ -142,12 +145,37 @@ export class SVGGenerator {
       const aspectRatioFactor = Math.min(width / 1200, height / 630);
       fontSize = Math.floor(fontSize * aspectRatioFactor);
 
+      // Apply aspect ratio specific font adjustments
+      switch (aspectRatio) {
+        case 'square':
+          fontSize = Math.floor(fontSize * 1.15); // 15% larger for square format
+          break;
+        case '4-3':
+          fontSize = Math.floor(fontSize * 1.1); // 10% larger for 4:3 format
+          break;
+        case 'youtube':
+          fontSize = Math.floor(fontSize * 1.05); // 5% larger for YouTube format
+          break;
+        case 'facebook-cover':
+          fontSize = Math.floor(fontSize * 1.08); // 8% larger for Facebook cover
+          break;
+        case 'twitter-header':
+          fontSize = Math.floor(fontSize * 1.12); // 12% larger for Twitter header
+          break;
+        case 'linkedin-banner':
+          fontSize = Math.floor(fontSize * 1.4); // 40% larger for LinkedIn banner (wide format needs bigger text)
+          break;
+        default:
+          // No adjustment for default and other formats
+          break;
+      }
+
       if (quote.text.length > 100) fontSize = Math.floor(fontSize * 0.9);
       else if (quote.text.length > 150) fontSize = Math.floor(fontSize * 0.8);
       else if (quote.text.length > 200) fontSize = Math.floor(fontSize * 0.7);
 
       // Ensure minimum readable font size
-      fontSize = Math.max(fontSize, 18);
+      fontSize = Math.max(fontSize, 20); // Increased minimum from 18 to 20
     }
 
     // Wrap text
@@ -155,20 +183,52 @@ export class SVGGenerator {
     const maxCharsPerLine = Math.floor(textMaxWidth / (fontSize * 0.6));
     const lines = wrapTextForSVG(quoteText, maxCharsPerLine);
 
-    // Calculate text positioning - better logic for narrow formats
+    // Calculate text positioning - optimized for all aspect ratios
     const lineHeight = (customLineHeight || 1.4) * fontSize;
     const totalTextHeight = lines.length * lineHeight;
 
     let adjustedTextStartY;
-    if (height < 500) {
-      // For very narrow formats like LinkedIn/Twitter banners
-      adjustedTextStartY = height * 0.7;
-    } else if (height < 700) {
-      // For medium height formats like YouTube
-      adjustedTextStartY = textStartY + (height - 630) * 0.2;
+    
+    // Handle narrow formats first (height-based check)
+    if (height < 500 && aspectRatio !== 'linkedin-banner') {
+      // For other very narrow formats (Twitter header, etc.)
+      adjustedTextStartY = height * 0.75;
     } else {
-      // For other tall formats like 4:3
-      adjustedTextStartY = textStartY + (height - 630) * 0.1;
+      // Handle specific aspect ratios
+      switch (aspectRatio) {
+        case 'square':
+          // For square format, position text for centralized composition
+          adjustedTextStartY = Math.max(textStartY, height * 0.7);
+          break;
+        case '4-3':
+          // For 4:3 format, use more vertical space effectively
+          adjustedTextStartY = Math.max(textStartY, height * 0.75);
+          break;
+        case 'youtube':
+          // For YouTube 16:9 format, optimize for wider canvas
+          adjustedTextStartY = Math.max(textStartY, height * 0.72);
+          break;
+        case 'facebook-cover':
+          // For Facebook cover, similar to default but slightly optimized
+          adjustedTextStartY = Math.max(textStartY, height * 0.71);
+          break;
+        case 'twitter-header':
+          // For Twitter header, wide format optimization
+          adjustedTextStartY = Math.max(textStartY, height * 0.76);
+          break;
+        case 'linkedin-banner':
+          // For LinkedIn banner, wide format optimization
+          adjustedTextStartY = Math.max(textStartY, height * 0.71);
+          break;
+        default:
+          // For other formats, use height-based logic
+          if (height < 700) {
+            adjustedTextStartY = textStartY + (height - 630) * 0.2;
+          } else {
+            adjustedTextStartY = textStartY + (height - 630) * 0.1;
+          }
+          break;
+      }
     }
 
     const finalTextStartY = adjustedTextStartY - totalTextHeight / 2;
@@ -184,8 +244,10 @@ export class SVGGenerator {
   private calculateGlassBackground(
     textPositioning: TextPositioning,
     width: number,
+    height: number,
     textMaxWidth: number,
-    customPadding?: number
+    customPadding?: number,
+    aspectRatio?: string
   ): { x: number; y: number; width: number; height: number } {
     const padding = customPadding || 30;
     const longestLine = textPositioning.lines.reduce(
@@ -200,7 +262,16 @@ export class SVGGenerator {
     const lineHeight = textPositioning.fontSize * 1.4;
     const totalTextHeight = textPositioning.lines.length * lineHeight;
     const textHeight = totalTextHeight + padding * 0.8;
-    const glassX = (width - textWidth) / 2;
+    
+    // Calculate glass background position
+    let glassX = (width - textWidth) / 2; // Default: center horizontally
+    
+    // For LinkedIn banner, center glass background like other variants
+    if (aspectRatio === 'linkedin-banner') {
+      // Center glass background like other variants
+      glassX = (width - textWidth) / 2;
+    }
+    
     const glassY = textPositioning.startY - 27 - (textHeight - totalTextHeight) / 2;
 
     return {
@@ -221,9 +292,20 @@ export class SVGGenerator {
     avatarPositioning: AvatarPositioning,
     quote: QuoteData,
     textPositioning: TextPositioning,
-    glassBackground: { x: number; y: number; width: number; height: number } | null
+    glassBackground: { x: number; y: number; width: number; height: number } | null,
+    aspectRatio?: string
   ): string {
     const lineHeight = textPositioning.fontSize * 1.4;
+
+    // Calculate text X position - special handling for LinkedIn banner
+    let textX = width / 2; // Default: center horizontally
+    let textAnchor = 'middle'; // Default: center-anchored text
+    
+    // For LinkedIn banner, center text like other variants
+    if (aspectRatio === 'linkedin-banner') {
+      textX = width / 2; // Center horizontally like other variants
+      textAnchor = 'middle'; // Center-anchored text
+    }
 
     return `<svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" xmlns="http://www.w3.org/2000/svg">
   <defs>
@@ -289,8 +371,8 @@ export class SVGGenerator {
   ${textPositioning.lines
     .map(
       (line, index) =>
-        `<text x="${width / 2}" y="${textPositioning.startY + index * lineHeight}" 
-           text-anchor="middle" 
+        `<text x="${textX}" y="${textPositioning.startY + index * lineHeight}" 
+           text-anchor="${textAnchor}" 
            fill="white" 
            font-family="system-ui, -apple-system, sans-serif" 
            font-size="${textPositioning.fontSize}px"

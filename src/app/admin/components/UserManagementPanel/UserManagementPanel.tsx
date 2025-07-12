@@ -190,24 +190,36 @@ export const UserManagementPanel: React.FC<AdminUserManagementPanelProps> = ({
       planId: string,
       billingCycle: string,
       expiresAt?: string,
-      reason?: string
+      reason?: string,
+      priceOverrideCents?: number,
+      priceOverrideReason?: string
     ) => {
       if (!subscriptionAssignmentUser) return;
       try {
         const response = await fetch(
-          `/api/admin/users/${subscriptionAssignmentUser.id}/subscriptions`,
+          `/api/admin/users/${subscriptionAssignmentUser.id}/assign-subscription`,
           {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ planId, billingCycle, expiresAt, reason })
+            body: JSON.stringify({
+              planId: parseInt(planId),
+              billingCycle,
+              expiresAt,
+              reason,
+              priceOverrideCents,
+              priceOverrideReason
+            })
           }
         );
-        if (response.ok) {
-          await loadUsers(currentPage);
-          onUserUpdate?.();
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || 'Failed to assign subscription');
         }
+        await loadUsers(currentPage);
+        onUserUpdate?.();
       } catch (error) {
         console.error('Error managing subscription:', error);
+        throw error; // Re-throw to show error in modal
       }
     },
     [subscriptionAssignmentUser, currentPage, loadUsers, onUserUpdate]

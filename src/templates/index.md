@@ -1,167 +1,188 @@
 ---
-layout: default
 title: 'Documentation Templates'
-description: 'Standardized templates for consistent documentation'
-permalink: /templates/
+description: 'Standardized templates for consistent, accessible documentation'
+draft: true
 ---
 
 # 📋 Documentation Templates
 
-Standardized templates for creating consistent, high-quality documentation across the Idling.app project.
+Standardized templates for creating consistent, high-quality documentation that anyone can understand, regardless of their technical background.
 
 ## 🎯 Template Purpose
 
-Templates ensure:
+Our templates ensure:
 
-- **Consistency**: Uniform structure across all documentation
-- **Completeness**: All necessary sections are included
-- **Quality**: Professional and comprehensive documentation
-- **Efficiency**: Faster documentation creation process
+- **📐 Consistency**: Uniform structure across all documentation
+- **🎯 Completeness**: All necessary sections are included
+- **🌟 Quality**: Professional and comprehensive documentation
+- **⚡ Efficiency**: Faster documentation creation process
+- **🤝 Accessibility**: Welcoming to all skill levels
 
-## 📚 Available Templates
+## 📚 Template Categories
 
-### [Pull Request Template](pull_request_template/)
+### 🔧 **Code & Component Documentation**
 
-Standardized pull request description format:
+Templates for documenting technical implementations:
 
-- **Summary**: Clear description of changes
-- **Type of Change**: Feature, fix, docs, etc.
-- **Testing**: Testing approach and coverage
-- **Checklist**: Pre-merge verification steps
-- **Screenshots**: Visual changes documentation
-- **Breaking Changes**: Impact assessment
+#### [📦 Component Documentation Template](component-template/)
 
-### [Feature Documentation Template](feature-template/)
+_For React components, hooks, and UI elements_
 
-Template for documenting new features:
+- Component overview with analogies
+- Props interface with clear explanations
+- Usage examples anyone can follow
+- Styling guidelines and accessibility notes
+- Testing examples and troubleshooting
 
-- **Overview**: Feature description and purpose
-- **User Stories**: Use cases and scenarios
-- **Technical Specification**: Implementation details
-- **API Documentation**: Endpoint specifications
-- **Testing Strategy**: Test coverage and scenarios
-- **Deployment Notes**: Release considerations
+#### [🧩 Utility Documentation Template](documentation-templates/utility-template/)
 
-### [Component Documentation Template](component-template/)
+_For helper functions, libraries, and utilities_
 
-Template for React component documentation:
+- Function purpose with everyday examples
+- Parameter explanations in plain language
+- Usage patterns and common scenarios
+- Integration guides and troubleshooting
 
-- **Component Overview**: Purpose and usage
-- **Props Interface**: TypeScript prop definitions
-- **Usage Examples**: Code examples and demos
-- **Styling Guidelines**: CSS and theme integration
-- **Accessibility**: WCAG compliance notes
-- **Testing Examples**: Unit and integration tests
+#### [⚡ Accessible Tech Documentation Template](accessible-tech-doc-template/)
 
-### [API Endpoint Template](api-template/)
+_For comprehensive technical documentation anyone can understand_
 
-Template for API endpoint documentation:
+- Visual explanations with mermaid diagrams
+- Multiple audience perspectives (users, developers, business)
+- Step-by-step guides with analogies
+- Troubleshooting with empathy
 
-- **Endpoint Description**: Purpose and functionality
-- **Request/Response**: Schema and examples
-- **Authentication**: Required permissions
-- **Error Handling**: Error codes and messages
-- **Rate Limiting**: Usage restrictions
-- **Examples**: cURL and SDK examples
+### 🌐 **API & Integration Documentation**
 
-## 🔧 Template Usage
+Templates for documenting interfaces and integrations:
 
-### 1. Choose Template
+#### [🔗 API Endpoint Template](api-template/)
 
-Select the appropriate template for your documentation type:
+_For REST endpoints, GraphQL, and external APIs_
+
+- Endpoint description with real-world context
+- Request/response schemas with examples
+- Authentication and security explanations
+- Error handling and rate limiting
+- Integration examples and SDKs
+
+### 🚀 **Feature & Project Documentation**
+
+Templates for documenting features and projects:
+
+#### [✨ Feature Documentation Template](feature-template/)
+
+_For new features, enhancements, and capabilities_
+
+- Feature overview with user benefits
+- User stories and use cases
+- Technical specifications
+- Testing strategy and deployment notes
+- Success metrics and monitoring
+
+#### [🔄 Pull Request Template](pull_request_template/)
+
+_For standardized pull request descriptions_
+
+- Clear change summary
+- Type classification and impact
+- Testing approach and coverage
+- Visual documentation for UI changes
+- Breaking change notifications
+
+## 🎨 **Specialized Templates**
+
+### 📖 **Documentation Standards**
+
+- **Writing Guidelines**: Accessible, inclusive documentation standards
+- **Visual Standards**: Mermaid diagrams, screenshots, and formatting
+- **Review Process**: Quality assurance and accuracy verification
+
+### 🎯 **Quick Reference**
+
+| Template Type       | Use When...                  | Key Features                        |
+| ------------------- | ---------------------------- | ----------------------------------- |
+| **Component**       | Documenting React components | Props, examples, accessibility      |
+| **Utility**         | Documenting helper functions | Parameters, usage patterns          |
+| **API**             | Documenting endpoints        | Schemas, auth, error handling       |
+| **Feature**         | Documenting new features     | User stories, technical specs       |
+| **Accessible Tech** | Complex technical systems    | Visual diagrams, multiple audiences |
+
+## 🔧 How to Use Templates
+
+### 1. **Choose Your Template**
+
+Select based on what you're documenting:
 
 ```bash
-# Copy template to your documentation location
-cp DOCS/templates/feature-template.md your-feature-docs.md
+# For a new React component
+cp src/templates/component-template.md docs/components/your-component.md
+
+# For a complex technical system
+cp src/templates/accessible-tech-doc-template.mdx docs/systems/your-system.mdx
+
+# For an API endpoint
+cp src/templates/api-template.md docs/api/your-endpoint.md
 ```
 
-### 2. Customize Content
+### 2. **Customize Content**
 
 Replace placeholder content with your specific information:
 
-- Update title and description
-- Fill in all required sections
-- Add relevant examples and code snippets
-- Include necessary diagrams or screenshots
+- ✅ Update title and description
+- ✅ Fill in all required sections
+- ✅ Add relevant examples and code snippets
+- ✅ Include necessary diagrams or screenshots
+- ✅ Write with your audience in mind
 
-### 3. Review Checklist
+### 3. **Review & Publish**
 
 Before publishing, ensure:
 
 - [ ] All sections are completed
-- [ ] Code examples are tested
-- [ ] Links are valid and working
+- [ ] Code examples are tested and working
+- [ ] Links are valid and functional
 - [ ] Grammar and spelling are correct
-- [ ] Formatting follows style guide
+- [ ] Formatting follows our style guide
+- [ ] Non-technical readers can understand key concepts
 
-## 📝 Writing Guidelines
+## 📝 Writing Standards
 
-### Content Structure
+### 🎭 **Tone & Voice**
 
-#### Clear Headings
+- **Professional yet approachable**: Clear and authoritative, but welcoming
+- **Helpful and encouraging**: Supportive to all skill levels
+- **Concise but complete**: Direct without sacrificing clarity
+- **Inclusive and accessible**: Understandable regardless of technical background
 
-Use descriptive, hierarchical headings:
+### 🔍 **Content Requirements**
 
-```markdown
-# Main Title
+#### Visual Elements
 
-## Major Section
-
-### Subsection
-
-#### Detail Section
-```
-
-#### Consistent Formatting
-
-- **Bold** for emphasis and labels
-- `Code` for inline code and filenames
-- _Italic_ for quotes and references
-- Lists for step-by-step instructions
+- Use mermaid diagrams liberally for complex concepts
+- Include screenshots for UI-related documentation
+- Add flowcharts for process explanations
+- Use tables for structured comparisons
 
 #### Code Examples
 
-Always include working code examples:
+- Always include working, tested examples
+- Provide context and explanations
+- Include error handling where appropriate
+- Show both basic and advanced usage
 
-```typescript
-// Good: Complete, working example
-interface UserProps {
-  id: string;
-  name: string;
-  email: string;
-}
+#### Cross-References
 
-function UserCard({ id, name, email }: UserProps) {
-  return (
-    <div className="user-card">
-      <h3>{name}</h3>
-      <p>{email}</p>
-    </div>
-  );
-}
-```
+- Link to related documentation
+- Reference source code when helpful
+- Connect to troubleshooting guides
+- Point to additional resources
 
-### Writing Style
+## 🎨 Visual Documentation Standards
 
-#### Voice and Tone
+### Mermaid Diagrams
 
-- **Professional**: Clear and authoritative
-- **Helpful**: Supportive and encouraging
-- **Concise**: Direct and to the point
-- **Inclusive**: Accessible to all skill levels
-
-#### Technical Accuracy
-
-- Verify all code examples work
-- Test all instructions step-by-step
-- Keep documentation up-to-date
-- Link to authoritative sources
-
-## 🎨 Visual Elements
-
-### Diagrams and Charts
-
-Use Mermaid for technical diagrams:
+Always use standard markdown mermaid blocks:
 
 ```mermaid
 graph TD
@@ -172,92 +193,35 @@ graph TD
     E --> F[Response]
 ```
 
-### Screenshots and Images
-
-Include visual aids when helpful:
-
-- UI screenshots for user-facing features
-- Architecture diagrams for system design
-- Flowcharts for complex processes
-- Before/after comparisons for changes
-
 ### Code Syntax Highlighting
 
-Use appropriate language tags:
+Use appropriate language tags for all code blocks:
 
 ```bash
 # Terminal commands
 npm install package-name
 ```
 
-```json
-{
-  "config": "value",
-  "setting": true
+```typescript
+// TypeScript examples
+interface UserProps {
+  id: string;
+  name: string;
 }
 ```
 
 ```sql
+-- SQL examples
 SELECT * FROM users WHERE active = true;
 ```
 
-## 📊 Template Maintenance
+## 🆘 Getting Help
 
-### Regular Updates
-
-Templates are reviewed and updated:
-
-- **Monthly**: Minor improvements and fixes
-- **Quarterly**: Major structure updates
-- **Annually**: Complete template overhaul
-
-### Version Control
-
-All templates are version controlled:
-
-- Track changes and improvements
-- Maintain backward compatibility
-- Document breaking changes
-- Provide migration guides
-
-### Community Feedback
-
-Template improvements come from:
-
-- User feedback and suggestions
-- Best practice research
-- Industry standard updates
-- Team retrospectives
-
-## 🔗 Related Resources
-
-### Style Guides
-
-- **[Writing Style Guide](../community/standards/docs/)** - Writing conventions
-- **[Code Style Guide](../community/standards/code/)** - Code formatting rules
-- **[Design System](../dev/components/library/)** - UI component guidelines
-
-### Tools
-
-- **[Markdown Guide](https://www.markdownguide.org/)** - Markdown syntax reference
-- **[Mermaid Documentation](https://mermaid-js.github.io/)** - Diagram syntax
-- **[Docusaurus Documentation](https://docusaurus.io/docs)** - Modern documentation site generator
-
-### Examples
-
-- **[API Documentation](../docs/api/)** - Real API documentation examples
-- **[Component Library](../dev/components/)** - Component documentation examples
-- **[Architecture Docs](../docs/architecture/)** - Technical documentation examples
-
-## 🚀 Getting Started
-
-1. **Choose Template**: Select the appropriate template for your needs
-2. **Copy Template**: Create a new file from the template
-3. **Customize Content**: Fill in your specific information
-4. **Review Guidelines**: Follow the writing and formatting guidelines
-5. **Submit for Review**: Get feedback before publishing
-6. **Publish**: Add to the documentation site
+- **Questions about templates**: Check our documentation guidelines
+- **Technical writing help**: Review our style guide
+- **Template requests**: Open an issue with your needs
+- **Feedback on organization**: We're always improving our structure
 
 ---
 
-_Templates are continuously improved based on team feedback and best practices. Last updated: January 28, 2025_
+_Remember: Great documentation makes complex things simple, not simple things complex._ 🧙‍♂️✨

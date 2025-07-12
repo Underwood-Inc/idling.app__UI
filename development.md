@@ -1,9 +1,7 @@
 ---
-layout: default
-title: 'Development'
-description: 'Development tools, guides, and resources for Idling.app'
-permalink: /development/
-nav_order: 4
+title: 'Development Guide'
+description: 'Comprehensive development resources and contributor guidelines'
+sidebar_position: 2
 ---
 
 # 🛠️ Development Guide
@@ -17,45 +15,55 @@ This section covers everything developers need to know to work effectively with 
 ## 🧩 Core Areas
 
 ### [🧩 Components](/development/components/)
+
 UI components and design system documentation.
 
 **Key Topics:**
+
 - Rich Input System - Advanced text editing
-- Filter Bar - Search and filtering interfaces  
+- Filter Bar - Search and filtering interfaces
 - Floating Toolbar - Context-sensitive actions
 - Component Library - Reusable UI components
 
 ### [🗄️ Database](/development/database/)
+
 Database architecture, migrations, and optimization.
 
 **Key Topics:**
+
 - Migration management and versioning
 - Performance optimization strategies
 - Data modeling and relationships
 - Backup and recovery procedures
 
 ### [📚 Libraries](/development/libraries/)
+
 Shared utilities, services, and React hooks.
 
 **Key Topics:**
+
 - Core services (auth, caching, logging)
 - Utility functions and parsers
 - Custom React hooks
 - TypeScript type definitions
 
 ### [🧪 Testing](/development/testing/)
+
 Testing strategies and quality assurance.
 
 **Key Topics:**
+
 - Unit testing with Jest
 - End-to-end testing with Playwright
 - Integration testing patterns
 - CI/CD pipeline testing
 
 ### [🔧 Tools](/development/tools/)
+
 Development environment and debugging tools.
 
 **Key Topics:**
+
 - Environment setup and configuration
 - Performance monitoring and optimization
 - Debugging techniques and tools
@@ -64,6 +72,7 @@ Development environment and debugging tools.
 ## 🚀 Quick Start for Developers
 
 1. **Setup Development Environment**
+
    ```bash
    git clone https://github.com/your-org/idling.app__UI.git
    cd idling.app__UI
@@ -72,11 +81,13 @@ Development environment and debugging tools.
    ```
 
 2. **Run Development Server**
+
    ```bash
    yarn dev
    ```
 
 3. **Run Tests**
+
    ```bash
    yarn test
    yarn test:e2e
@@ -91,18 +102,21 @@ Development environment and debugging tools.
 ## 🎨 Development Standards
 
 ### Code Quality
+
 - TypeScript for type safety
 - ESLint for code consistency
 - Prettier for formatting
 - Husky for pre-commit hooks
 
 ### Documentation
+
 - Co-located documentation strategy
 - JSDoc comments for functions
 - README files for modules
 - Architecture decision records
 
 ### Testing
+
 - Unit tests for business logic
 - Integration tests for API endpoints
 - E2E tests for critical user flows
@@ -111,17 +125,20 @@ Development environment and debugging tools.
 ## 🔄 Development Workflow
 
 1. **Create Feature Branch**
+
    ```bash
    git checkout -b feature/your-feature-name
    ```
 
 2. **Develop and Test**
+
    ```bash
    yarn dev
    yarn test
    ```
 
 3. **Commit Changes**
+
    ```bash
    git add .
    git commit -m "feat: add new feature"
@@ -148,4 +165,4 @@ Development environment and debugging tools.
 
 ---
 
-*This is a stub file. [Contribute to expand this documentation](/community/contributing/).* 
+**This documentation is under development. [Contribute to expand this documentation](/community/contributing/).**

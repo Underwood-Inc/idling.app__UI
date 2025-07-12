@@ -1,3 +1,9 @@
+---
+title: 'Authentication Patterns'
+description: 'Authentication and authorization patterns and utilities'
+sidebar_position: 5
+---
+
 # Authentication Patterns Guide
 
 ## Overview

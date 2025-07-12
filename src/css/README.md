@@ -1,3 +1,8 @@
+---
+title: 'Modular CSS Architecture'
+description: 'CSS architecture and styling system for Idling.app'
+---
+
 # Modular CSS Architecture
 
 This directory contains the modular CSS architecture for the Idling.app documentation site, refactored from a single monolithic file into organized, maintainable modules.

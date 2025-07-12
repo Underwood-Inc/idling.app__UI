@@ -1,9 +1,7 @@
 ---
-layout: default
-title: 'Architecture'
-description: 'System design and architecture documentation for Idling.app'
-permalink: /architecture/
-nav_order: 3
+title: 'Architecture Overview'
+description: 'High-level system architecture and design decisions'
+sidebar_position: 5
 ---
 
 # 🏗️ Architecture Overview
@@ -133,4 +131,4 @@ graph TB
 
 ---
 
-_This is a stub file. [Contribute to expand this documentation](/community/contributing/)._
+**This documentation is under development. [Contribute to expand this documentation](/community/contributing/).**

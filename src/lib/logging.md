@@ -1,3 +1,9 @@
+---
+title: 'Logging System'
+description: 'Structured logging utilities and monitoring integrations'
+sidebar_position: 7
+---
+
 # Logging System
 
 A unified, environment-aware logging solution with comprehensive features for development and production use.

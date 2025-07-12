@@ -1,3 +1,8 @@
+---
+title: 'WithUserPermissions'
+description: 'Documentation for WithUserPermissions'
+---
+
 # withUserPermissions
 
 **Purpose:**

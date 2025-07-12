@@ -341,7 +341,9 @@ export default function SubscriptionManagementPanel() {
     planId: string,
     billingCycle: string,
     expiresAt?: string,
-    reason?: string
+    reason?: string,
+    priceOverrideCents?: number,
+    priceOverrideReason?: string
   ) => {
     if (!selectedUser) return;
 
@@ -357,7 +359,9 @@ export default function SubscriptionManagementPanel() {
             planId: parseInt(planId),
             billingCycle,
             expiresAt,
-            reason
+            reason,
+            priceOverrideCents,
+            priceOverrideReason
           })
         }
       );

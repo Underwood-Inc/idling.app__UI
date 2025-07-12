@@ -1,3 +1,8 @@
+---
+title: 'Git Commit Standards'
+description: 'Documentation for Git Commit Standards'
+---
+
 # Git Commit Standards and Conventional Commits
 
 ## Mandatory Git Workflow Rules

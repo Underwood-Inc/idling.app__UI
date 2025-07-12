@@ -1,8 +1,7 @@
 ---
-layout: default
 title: 'Docker Go Setup & Production Deployment'
 description: 'Summary of Docker Go integration and production deployment setup for the User Management TUI'
-permalink: /infrastructure/docker-go-setup/
+sidebar_position: 11
 ---
 
 # 🐳 Docker Go Setup & Production Deployment

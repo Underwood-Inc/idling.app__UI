@@ -1,8 +1,7 @@
 ---
-layout: default
-title: 'Admin API Documentation'
-description: 'Administrative API endpoints and functionality'
-permalink: /api/admin/
+title: 'Admin API Overview'
+description: 'Administrative API overview and authentication patterns'
+sidebar_position: 3
 ---
 
 # 🔐 Admin API Documentation

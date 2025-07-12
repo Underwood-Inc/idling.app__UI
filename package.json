@@ -1,6 +1,6 @@
 {
   "name": "idling.app",
-  "version": "0.415.10",
+  "version": "0.418.0",
   "private": true,
   "engines": {
     "node": ">=20.x"
@@ -19,6 +19,11 @@
     "docs:build": "docusaurus build",
     "docs:serve": "docusaurus serve --port 3001",
     "docs:clear": "docusaurus clear",
+    "docs:audit": "node scripts/docs-automation.js audit",
+    "docs:fix": "node scripts/docs-automation.js fix",
+    "docs:standardize": "node scripts/docs-automation.js standardize",
+    "docs:validate": "node scripts/docs-automation.js validate",
+    "docs:doctor": "node scripts/docs-automation.js doctor",
     "sw:update": "node scripts/update-sw-version.js",
     "sw:restore": "node scripts/update-sw-version.js --restore",
     "docs:install": "echo 'Jekyll removed - use pnpm install for Docusaurus'",

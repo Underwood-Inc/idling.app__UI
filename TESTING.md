@@ -1,3 +1,9 @@
+---
+title: 'Testing Strategy'
+description: 'Testing guidelines, frameworks, and quality assurance processes'
+sidebar_position: 4
+---
+
 # 🧪 Testing Guide
 
 Welcome to the comprehensive testing guide for this project! This document covers all testing frameworks, patterns, and best practices.

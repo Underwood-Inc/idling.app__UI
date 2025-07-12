@@ -1,8 +1,7 @@
 ---
-layout: default
-title: 'Database & Data Management'
-description: 'Database schema, migrations, and data management documentation'
-permalink: /dev/database/
+title: 'Database Utilities'
+description: 'Database connection, query helpers, and migration utilities'
+sidebar_position: 4
 ---
 
 # 🗄️ Database & Data Management

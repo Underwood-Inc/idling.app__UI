@@ -1,3 +1,9 @@
+---
+title: 'Content Parsers'
+description: 'Markdown, text, and content parsing utilities'
+sidebar_position: 8
+---
+
 # Rich Text Parser System
 
 A comprehensive, zero-dependency parsing system for rich content including markdown, emojis, images, and existing content pills (hashtags, mentions, URLs).

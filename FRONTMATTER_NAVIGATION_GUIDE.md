@@ -1,8 +1,6 @@
 ---
 title: 'Frontmatter Navigation Guide'
 description: 'How to use the automatic frontmatter-based navigation system'
-permalink: /frontmatter-navigation-guide/
-nav_exclude: true
 ---
 
 # 🧙‍♂️ Frontmatter Navigation Guide

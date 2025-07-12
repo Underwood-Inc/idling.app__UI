@@ -1,0 +1,176 @@
+---
+alwaysApply: true
+---
+
+# Accessible Documentation Style Guidelines
+
+When writing technical documentation, follow these guidelines to ensure everyone can understand, regardless of their technical background:
+
+## Core Principles
+
+### 1. Inviting & Accessible Persona
+
+- Use warm, welcoming language that makes everyone feel included
+- Avoid technical jargon unless absolutely necessary (then explain it)
+- Write as if explaining to a smart friend who's curious but not technical
+- Use "we" and "you" to create connection
+- Include encouraging phrases like "don't worry about the code details"
+- Replace intimidating terms with friendlier alternatives
+
+### 2. Universal Understanding
+
+- Start every explanation with everyday analogies
+- Use concrete examples instead of abstract concepts
+- Explain WHY something matters before diving into HOW it works
+- Include sections for different audiences (users, developers, business)
+- Never assume prior knowledge - build understanding step by step
+
+### 3. Visual Communication
+
+- Use liberal mermaid diagrams for ALL complex concepts
+- Include multiple diagram types: flowcharts, sequence diagrams, pie charts, graphs
+- Use emojis strategically to make content more approachable
+- Color-code diagrams for better comprehension
+- Every major concept should have a visual representation
+
+### 4. Format & Structure
+
+- Use .mdx format for better diagram integration with Docusaurus
+- Include proper frontmatter with title, description, and tags
+- Structure content with clear headings and subheadings
+- Use consistent formatting and styling
+- Include navigation aids and cross-references
+
+## Required Sections
+
+### Opening (Required)
+
+- **Title**: [Component] - What It Does & How It Helps
+- **Description**: One-sentence explanation anyone can understand
+- **"What this page is about"**: Clear statement of purpose and audience
+
+### Core Content (Required)
+
+- **What Does This Actually Do?**: Start with everyday analogy
+- **Why Do We Need This?**: Benefits for different audiences
+- **How It Works (The Simple Version)**: Step-by-step breakdown
+- **Visual Flow**: Mermaid diagrams showing the process
+
+### Practical Information (Required)
+
+- **Different Ways This Gets Used**: Common patterns with plain English explanations
+- **When Things Go Wrong**: Troubleshooting with empathy
+- **Getting Help**: Clear paths for different types of users
+
+### Technical Details (If Applicable)
+
+- **Configuration Options**: Visual representation of settings
+- **Development & Testing**: Practical examples
+- **Performance Impact**: Real numbers and metrics
+
+## Diagram Requirements
+
+### Mandatory Diagrams
+
+- **Big Picture**: High-level overview of the system
+- **Process Flow**: Step-by-step sequence diagram
+- **Data Flow**: How information moves through the system
+- **Configuration**: Visual representation of options/settings
+
+### Optional but Encouraged
+
+- **Timeline**: For process-based explanations
+- **Comparison**: When explaining different approaches
+- **Hierarchy**: For organizational structures
+- **Stats**: For performance or usage data
+
+## Language Guidelines
+
+### DO Use:
+
+- "Think of this like..." (analogies)
+- "In simple terms..." (summaries)
+- "What this means..." (explanations)
+- "Here's what happens..." (descriptions)
+- "You'll see..." (expectations)
+
+### DON'T Use:
+
+- Technical jargon without explanation
+- Assumption of prior knowledge
+- Intimidating or exclusive language
+- Overly complex sentences
+- Passive voice when active is clearer
+
+## Accuracy Requirements
+
+### Source Code Verification
+
+- All examples must be from actual implementation
+- No fictional or theoretical content
+- Reference actual file paths and line numbers
+- Include version information and last updated dates
+- Verify all technical details against current codebase
+
+### Content Validation
+
+- Test all code examples before publishing
+- Verify all claims about performance and behavior
+- Check all cross-references and links
+- Ensure all troubleshooting steps are accurate
+
+## Template Usage
+
+Always start with the template: `src/templates/accessible-tech-doc-template.mdx`
+
+### Customization Steps:
+
+1. Replace placeholder text with actual content
+2. Add component-specific diagrams
+3. Include real code examples from source
+4. Verify all technical claims
+5. Add appropriate cross-references
+
+## Quality Checklist
+
+Before publishing, ensure:
+
+- [ ] Can a non-technical person understand the main concepts?
+- [ ] Are there at least 3 mermaid diagrams?
+- [ ] Does every technical term have an explanation?
+- [ ] Are all code examples from real source files?
+- [ ] Are there clear action items for different user types?
+- [ ] Is the troubleshooting section empathetic and helpful?
+- [ ] Are cross-references working and relevant?
+
+## Examples of Good Language
+
+### Instead of: "The middleware intercepts requests and applies rate limiting logic"
+
+### Write: "Think of this like a security guard at a building entrance. Just as a guard checks everyone coming in and makes sure they're allowed to enter, this system checks every request to our app and makes sure it's safe to process."
+
+### Instead of: "Configure the rate limiter with custom parameters"
+
+### Write: "You can adjust the settings to fit your needs - kind of like adjusting the thermostat in your home to the perfect temperature."
+
+### Instead of: "The system implements exponential backoff"
+
+### Write: "When someone tries to access the system too quickly, we gradually increase the waiting time - like asking someone to wait a little longer each time they keep knocking on a door."
+
+Remember: The goal is to make complex technical concepts accessible to everyone while maintaining accuracy and completeness.
+
+## Mermaid Diagram Syntax
+
+**CRITICAL**: Always use standard markdown mermaid blocks:
+
+```mermaid
+graph TD
+    A[Start] --> B[End]
+```
+
+**NEVER use JSX components** like `<Mermaid>` - they don't exist in our Docusaurus setup and will cause compilation errors.
+description:
+globs:
+alwaysApply: false
+
+---

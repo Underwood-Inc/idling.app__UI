@@ -9,39 +9,7 @@
  * - Attack detection and progressive penalties
  */
 
-// Conditional imports to support both Node.js and Edge Runtime
-let DatabaseService: any = null;
-let logger: any = null;
-
-// Only import Node.js dependencies when running in Node.js runtime
-// Check for Edge Runtime by looking for WebAssembly (available in Edge) vs Node.js specific APIs
-const isEdgeRuntime = typeof WebAssembly !== 'undefined' && typeof process === 'undefined';
-const isNodeRuntime = typeof process !== 'undefined' && typeof require !== 'undefined';
-
-if (isNodeRuntime && !isEdgeRuntime) {
-  try {
-    DatabaseService = require('../../app/api/og-image/services/DatabaseService').DatabaseService;
-    logger = require('../logging/instances').logger;
-  } catch (error) {
-    // Fallback for Edge Runtime or when dependencies are unavailable
-    // eslint-disable-next-line no-console
-    console.warn('Node.js dependencies unavailable, using Edge-compatible fallbacks');
-  }
-}
-
-// Fallback logger for Edge Runtime
-if (!logger) {
-  logger = {
-    // eslint-disable-next-line no-console
-    info: console.log,
-    // eslint-disable-next-line no-console
-    warn: console.warn,
-    // eslint-disable-next-line no-console
-    error: console.error,
-    // eslint-disable-next-line no-console
-    debug: console.debug
-  };
-}
+import { DatabaseService } from '../../app/api/og-image/services/DatabaseService';
 
 // ============================================================================
 // TYPES & INTERFACES
@@ -160,14 +128,8 @@ export class RateLimitService {
   } as const;
 
   constructor() {
-    // Initialize database service for daily quotas - with better error handling
-    try {
-      this.databaseService = DatabaseService?.getInstance() || null;
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.warn('Database service unavailable, falling back to memory-only rate limiting:', error);
-      this.databaseService = null;
-    }
+    // Initialize database service for daily quotas - fail fast if unavailable
+    this.databaseService = DatabaseService.getInstance();
 
     // Clean up old entries every 5 minutes
     this.cleanupInterval = setInterval(() => {
@@ -194,8 +156,8 @@ export class RateLimitService {
   public async checkRateLimit(options: RateLimitOptions): Promise<RateLimitResult> {
     const { identifier, configType, customConfig } = options;
 
-    // Development bypass - return allowed if bypass is enabled (Edge Runtime compatible)
-    const bypassRateLimit = (typeof process !== 'undefined' && process.env?.BYPASS_RATE_LIMIT === 'true') || false;
+    // Development bypass - return allowed if bypass is enabled
+    const bypassRateLimit = process.env.BYPASS_RATE_LIMIT === 'true';
     if (bypassRateLimit) {
       return {
         allowed: true,
@@ -207,14 +169,15 @@ export class RateLimitService {
       };
     }
 
-    // Get configuration (built-in or custom)
-    const config = customConfig || 
-                   RateLimitService.CONFIGS[configType as keyof typeof RateLimitService.CONFIGS] || 
-                   RateLimitService.CONFIGS.api;
+    // Get configuration
+    const config = customConfig || RateLimitService.CONFIGS[configType as keyof typeof RateLimitService.CONFIGS];
+    
+    if (!config) {
+      throw new Error(`Unknown rate limit configuration: ${configType}`);
+    }
 
     // Route to appropriate rate limiting method based on storage type
     if (config.storage === 'database') {
-      logger.info('Checking database rate limit');
       return await this.checkDatabaseRateLimit(identifier, config);
     } else {
       return this.checkMemoryRateLimit(identifier, config);
@@ -229,6 +192,7 @@ export class RateLimitService {
     const key = this.generateKey(identifier, config.keyPrefix || 'default');
     const now = Date.now();
     
+    // Get or create entry
     let entry = this.memoryStore.get(key);
     if (!entry) {
       entry = {
@@ -241,7 +205,7 @@ export class RateLimitService {
       this.memoryStore.set(key, entry);
     }
 
-    // Check if currently in backoff period
+    // Check if still under backoff period
     if (entry.backoffUntil > now) {
       const isAttack = entry.penaltyLevel >= 3;
       return {
@@ -300,34 +264,22 @@ export class RateLimitService {
   // ============================================================================
 
   private async checkDatabaseRateLimit(identifier: string, config: RateLimitConfig): Promise<RateLimitResult> {
-    try {
-      if (!this.databaseService) {
-        // Fallback to memory if database unavailable
-        console.warn('Database service unavailable for rate limiting, falling back to memory');
-        return this.checkMemoryRateLimit(identifier, config);
-      }
+    const dailyCount = await this.databaseService.getDailyGenerationCount(identifier);
+    const remaining = Math.max(0, config.maxRequests - dailyCount);
+    const allowed = dailyCount < config.maxRequests;
 
-      const dailyCount = await this.databaseService.getDailyGenerationCount(identifier);
-      const remaining = Math.max(0, config.maxRequests - dailyCount);
-      const allowed = dailyCount < config.maxRequests;
+    const now = Date.now();
+    const resetTime = this.getNextDayReset();
 
-      const now = Date.now();
-      const resetTime = this.getNextDayReset();
-
-      return {
-        allowed,
-        remaining,
-        resetTime,
-        retryAfter: allowed ? undefined : Math.ceil((resetTime - now) / 1000),
-        penaltyLevel: 0, // Database rate limiting doesn't use penalty levels
-        isAttack: false,
-        quotaType: 'daily'
-      };
-    } catch (error) {
-      console.warn('Database rate limit check failed, falling back to memory:', error);
-      // Graceful fallback to memory-based limiting
-      return this.checkMemoryRateLimit(identifier, config);
-    }
+    return {
+      allowed,
+      remaining,
+      resetTime,
+      retryAfter: allowed ? undefined : Math.ceil((resetTime - now) / 1000),
+      penaltyLevel: 0, // Database rate limiting doesn't use penalty levels
+      isAttack: false,
+      quotaType: 'daily'
+    };
   }
 
   // ============================================================================
@@ -348,8 +300,6 @@ export class RateLimitService {
       }
     };
   }
-
-  // Removed createOGImageLimiter - using direct checkRateLimit method for cleaner consolidation
 
   /**
    * Create a standard API rate limiter

@@ -17,6 +17,7 @@ export function useQuotaTracking(): QuotaState & {
   
   // Track previous auth state to detect changes
   const previousUserIdRef = useRef<string | null>(null);
+  const isInitializedRef = useRef<boolean>(false);
 
   // Don't show quota exceeded until we've actually initialized
   const isQuotaExceeded = hasInitializedQuota && remainingGenerations <= 0;
@@ -38,14 +39,29 @@ export function useQuotaTracking(): QuotaState & {
     setHasInitializedQuota(false);
     setResetDate(null);
     setQuotaError(undefined);
+    isInitializedRef.current = false;
   }, []);
 
   const initializeQuota = useCallback(async () => {
     try {
       setQuotaError(undefined); // Clear previous errors
-      const response = await fetch('/api/og-image?format=json&dry-run=true', {
-        credentials: 'include'
+      
+      // NEVER cache quota data - add cache-busting parameters and headers
+      const cacheBuster = `${Date.now()}-${Math.random().toString(36).substring(2)}`;
+      const url = `/api/og-image?format=json&dry-run=true&_t=${cacheBuster}&_nocache=true`;
+      
+      const response = await fetch(url, {
+        method: 'GET',
+        credentials: 'include',
+        headers: {
+          'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0',
+          'Pragma': 'no-cache',
+          'Expires': '0',
+          'X-Requested-With': 'XMLHttpRequest',
+          'X-Cache-Bust': cacheBuster
+        }
       });
+      
       if (response.ok) {
         const data = await response.json();
         if (data.remainingGenerations !== undefined && data.quotaLimit !== undefined) {
@@ -53,6 +69,7 @@ export function useQuotaTracking(): QuotaState & {
           const limit = data.quotaLimit || data.quota_limit;
           const resetDateValue = data.resetDate || data.reset_date ? new Date(data.resetDate || data.reset_date) : null;
           updateQuota(data.remainingGenerations, limit, resetDateValue);
+          isInitializedRef.current = true;
           return; // Success - exit early
         } else {
           console.error('Quota data missing from API response:', data);
@@ -69,43 +86,68 @@ export function useQuotaTracking(): QuotaState & {
       setQuotaError(`Unable to load quota information: ${errorMessage}`);
     }
     
-    // Fallback: Always provide working quota values even if API fails
-    // This ensures the UI never breaks - user gets reasonable defaults
-    console.warn('Using fallback quota values due to API failure');
-    updateQuota(1, 1, new Date(Date.now() + 86400000)); // 1 generation, resets tomorrow
+    // No fallback - if quota loading fails, leave in uninitialized state
+    console.warn('Quota initialization failed - leaving in uninitialized state');
   }, [updateQuota]);
 
-  // Auto-initialize on mount
+  // Initialize quota when session is ready and we have a stable auth state
   useEffect(() => {
-    initializeQuota().catch(console.error);
-  }, [initializeQuota]);
-
-  // Monitor auth state changes and refresh quota when auth changes
-  useEffect(() => {
-    // Skip if session is still loading
+    // Only initialize if session is loaded and we haven't initialized yet
     if (status === 'loading') return;
 
     const currentUserId = session?.user?.id || null;
     const previousUserId = previousUserIdRef.current;
 
-    // Check if auth state has changed (login, logout, or user switch)
+    // Check if this is the initial mount or if auth state has changed
     const authStateChanged = currentUserId !== previousUserId;
+    const isInitialMount = !isInitializedRef.current;
 
-    if (authStateChanged) {
-      // Reset quota state and reinitialize
-      setHasInitializedQuota(false);
+    if (isInitialMount || authStateChanged) {
+      // Clear previous state first - COMPLETELY reset everything
       setRemainingGenerations(0);
       setQuotaLimit(0);
+      setHasInitializedQuota(false);
+      setResetDate(null);
+      setQuotaError(undefined);
+      isInitializedRef.current = false;
+      
+      // Update tracking refs
+      previousUserIdRef.current = currentUserId;
+      
+      // Initialize quota with current auth state
+      initializeQuota().catch(console.error);
+    }
+  }, [session?.user?.id, status, initializeQuota]);
+
+  // Comprehensive cleanup on unmount - reset everything no matter what
+  useEffect(() => {
+    return () => {
+      // Reset all state values directly
+      setRemainingGenerations(0);
+      setQuotaLimit(0);
+      setHasInitializedQuota(false);
       setResetDate(null);
       setQuotaError(undefined);
       
-      // Reinitialize quota with new auth state
-      initializeQuota().catch(console.error);
+      // Reset refs
+      previousUserIdRef.current = null;
+      isInitializedRef.current = false;
+    };
+  }, []);
 
-      // Update the ref for next comparison
-      previousUserIdRef.current = currentUserId;
+  // Force refresh quota when user logs out (session becomes null)
+  useEffect(() => {
+    if (status !== 'loading' && !session) {
+      // User has logged out - immediately clear all quota state
+      setRemainingGenerations(0);
+      setQuotaLimit(0);
+      setHasInitializedQuota(false);
+      setResetDate(null);
+      setQuotaError(undefined);
+      isInitializedRef.current = false;
+      previousUserIdRef.current = null;
     }
-  }, [session?.user?.id, status, initializeQuota]);
+  }, [session, status]);
 
   return {
     remainingGenerations,

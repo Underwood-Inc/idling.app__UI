@@ -1,3 +1,8 @@
+---
+title: 'Documentation Systems Analysis'
+description: 'Documentation for Documentation Systems Analysis'
+---
+
 # Modern Documentation Systems Analysis
 
 ## Co-Located Docs, Mermaid Support, and Automatic Navigation
