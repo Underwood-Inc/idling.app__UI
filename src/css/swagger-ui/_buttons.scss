@@ -1,76 +1,173 @@
 /**
  * Swagger UI Button Styles
- * All button variants and states
+ * Visual styling only - no text manipulation
  */
 
-// ===== Base Button Styles =====
+// ===== BUTTON TEXT VISIBILITY FIX =====
+// Override the webkit-text-fill-color that's interfering with button text
+.swagger-ui .btn,
+.swagger-ui button {
+  -webkit-text-fill-color: initial;
+  color: inherit;
+}
+
+// ===== BASE BUTTON STYLING =====
 .swagger-ui .btn {
-  background-color: var(--brand-primary) !important;
-  color: var(--brand-secondary) !important;
-  border: none !important;
-  border-radius: var(--border-radius-sm) !important;
-  padding: $button-padding-vertical $button-padding-horizontal !important;
-  font-weight: var(--font-weight-medium) !important;
-  transition: var(--transition-base) !important;
+  font-family: var(--font-family-base);
+  border-radius: var(--border-radius-sm);
+  padding: var(--spacing-sm) var(--spacing-md);
+  transition: var(--transition-base);
+  cursor: pointer;
+  border: 1px solid transparent;
   
-  &:hover {
-    background-color: var(--brand-primary-light) !important;
-    transform: translateY(-1px) !important;
+  // Default button appearance
+  &:not(.execute):not(.cancel):not(.authorize):not(.try-out__btn) {
+    background-color: var(--dark-bg-tertiary);
+    color: var(--text-primary);
+    border-color: var(--glass-border-light);
+    
+    &:hover {
+      background-color: var(--brand-primary);
+      color: var(--brand-secondary);
+      border-color: var(--brand-primary);
+    }
   }
 }
 
-// ===== Execute Button =====
+// ===== SPECIFIC BUTTON TYPES =====
+// Try it out button (blue)
+.swagger-ui .btn.try-out__btn {
+  background-color: var(--cornflower-blue);
+  color: white;
+  border-color: var(--cornflower-blue);
+  -webkit-text-fill-color: white;
+  
+  &:hover {
+    background-color: #4682b4;
+    border-color: #4682b4;
+    -webkit-text-fill-color: white;
+  }
+}
+
+// Execute button (green)
 .swagger-ui .btn.execute {
-  background-color: var(--success-green) !important;
-  color: white !important;
+  background-color: var(--success-green);
+  color: white;
+  border-color: var(--success-green);
+  -webkit-text-fill-color: white;
   
   &:hover {
-    background-color: #1e7e34 !important;
+    background-color: #1e7e34;
+    border-color: #1e7e34;
+    -webkit-text-fill-color: white;
   }
 }
 
-// ===== Cancel Button =====
+// Cancel button (red)
 .swagger-ui .btn.cancel {
-  background-color: var(--chili-red) !important;
-  color: white !important;
+  background-color: var(--chili-red);
+  color: white;
+  border-color: var(--chili-red);
+  -webkit-text-fill-color: white;
   
   &:hover {
-    background-color: #c82333 !important;
+    background-color: #c82333;
+    border-color: #c82333;
+    -webkit-text-fill-color: white;
   }
 }
 
-// ===== Authorization Button =====
+// Authorization button (brand color)
 .swagger-ui .btn.authorize {
-  background-color: var(--brand-primary) !important;
-  color: var(--brand-secondary) !important;
-  border: 2px solid var(--brand-primary) !important;
-  font-weight: var(--font-weight-semibold) !important;
+  background-color: var(--brand-primary);
+  color: var(--brand-secondary);
+  border-color: var(--brand-primary);
+  -webkit-text-fill-color: var(--brand-secondary);
   
   &:hover {
-    background-color: var(--brand-primary-light) !important;
-    border-color: var(--brand-primary-light) !important;
+    background-color: var(--brand-primary-light);
+    border-color: var(--brand-primary-light);
+    -webkit-text-fill-color: var(--brand-secondary);
   }
 }
 
-// ===== Button Groups =====
+// ===== BUTTON CONTAINERS =====
 .swagger-ui .btn-group,
 .swagger-ui .execute-wrapper,
 .swagger-ui .try-out {
-  display: flex !important;
-  justify-content: center !important;
-  align-items: center !important;
-  gap: var(--spacing-sm) !important;
-  background-color: var(--dark-bg-tertiary) !important;
-  border-radius: var(--border-radius-sm) !important;
-  padding: var(--spacing-sm) !important;
-  margin: var(--spacing-sm) 0 !important;
-  border: 1px solid var(--glass-border-light) !important;
+  display: flex;
+  gap: var(--spacing-sm);
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-sm);
+  margin: var(--spacing-sm) 0;
   
   .btn {
-    margin: 0 !important;
-    flex-shrink: 0 !important;
+    margin: 0;
+    min-width: 100px;
   }
 }
 
-// ===== Copy Button =====
-// Note: Main copy button styling moved to _layout.scss for better positioning control 
+// ===== EXPAND/COLLAPSE BUTTONS =====
+// For schema expand/collapse buttons ([...] buttons)
+.swagger-ui .btn.model-toggle,
+.swagger-ui .model-toggle,
+.swagger-ui .model-collapse,
+.swagger-ui button[class*="toggle"],
+.swagger-ui button[class*="expand"],
+.swagger-ui button[class*="collapse"] {
+  // ===== SUBTLE DESIGN =====
+  background: transparent;
+  color: var(--text-muted);
+  border: 1px solid transparent;
+  border-radius: var(--border-radius-sm);
+  padding: var(--spacing-xs);
+  font-size: var(--font-size-xs);
+  cursor: pointer;
+  margin: 0;
+  min-width: auto;
+  width: auto;
+  display: inline;
+  vertical-align: middle;
+  
+  // ===== POSITIONING =====
+  margin-left: var(--spacing-xs);
+  
+  // ===== TEXT VISIBILITY FIXES =====
+  -webkit-text-fill-color: var(--text-muted);
+  color: var(--text-muted);
+  
+  // ===== SUBTLE HOVER ONLY =====
+  &:hover {
+    background-color: var(--dark-bg-tertiary);
+    color: var(--brand-primary);
+    border-color: var(--glass-border-light);
+    -webkit-text-fill-color: var(--brand-primary);
+    transform: none; // Override global hover transform
+  }
+  
+  &:focus {
+    outline: 1px solid var(--brand-primary);
+    outline-offset: 1px;
+  }
+  
+  // ===== HIDE NON-FUNCTIONAL BUTTONS =====
+  &:empty,
+  &[disabled],
+  &.inactive {
+    opacity: 0.2;
+    pointer-events: none;
+    display: none; // Hide completely if not functional
+  }
+}
+
+// ===== SMALL UTILITY BUTTONS =====
+// For copy buttons, small action buttons, etc.
+.swagger-ui .btn-sm,
+.swagger-ui .btn.btn-sm,
+.swagger-ui button.btn-sm {
+  padding: var(--spacing-xs);
+  font-size: var(--font-size-xs);
+  min-width: auto;
+  border-radius: var(--border-radius-sm);
+} 

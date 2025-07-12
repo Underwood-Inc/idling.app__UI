@@ -1,49 +1,283 @@
 /**
  * Swagger UI Table Styles
- * Tables, responses, and tabular data
+ * Tables, responses, and tabular data with enhanced text handling
  */
 
 // ===== Base Table Styles =====
 .swagger-ui table {
-  border-collapse: collapse !important;
-  width: 100% !important;
+  border-collapse: collapse;
+  width: 100%;
+  max-width: 100%;
+  table-layout: fixed; // Enable fixed layout for better column control
   
   th,
   td {
-    padding: var(--spacing-sm) var(--spacing-md) !important;
-    border: 1px solid var(--glass-border-light) !important;
-    text-align: left !important;
+    padding: var(--spacing-sm) var(--spacing-md);
+    border: 1px solid var(--glass-border-light);
+    text-align: left;
+    vertical-align: top;
+    
+    // ===== ENHANCED TEXT HANDLING =====
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    word-break: break-word;
+    white-space: pre-wrap;
+    
+    // ===== CONTROLLED OVERFLOW =====
+    overflow: visible; // Allow content to show
   }
   
   th {
-    background-color: var(--dark-bg-tertiary) !important;
-    color: var(--text-primary) !important;
-    font-weight: var(--font-weight-medium) !important;
+    background-color: var(--dark-bg-tertiary);
+    color: var(--text-primary);
+    font-weight: var(--font-weight-medium);
+    position: sticky;
+    top: 0;
+    z-index: 10;
   }
   
   td {
-    background-color: var(--dark-bg-secondary) !important;
-    color: var(--text-secondary) !important;
+    background-color: var(--dark-bg-secondary);
+    color: var(--text-secondary);
+    vertical-align: top;
+  }
+  
+  // ===== RESPONSIVE TABLE WRAPPER =====
+  &.responses-table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+    max-width: 100%;
+    
+    th, td {
+      white-space: pre-wrap;
+      min-width: 120px;
+    }
   }
 }
 
-// ===== Model Schema Tables =====
+// ===== ENHANCED RESPONSE TABLES =====
+.swagger-ui .responses table,
+.swagger-ui .responses-wrapper table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: var(--spacing-md) 0;
+  background-color: var(--dark-bg-code);
+  border-radius: var(--border-radius-sm);
+  overflow: visible; // Allow content to expand
+  box-shadow: var(--glass-shadow-light);
+  table-layout: fixed; // Fixed layout for column control
+  
+  th {
+    background-color: var(--dark-bg-tertiary);
+    color: var(--brand-primary);
+    font-weight: var(--font-weight-semibold);
+    padding: var(--spacing-md);
+    text-align: left;
+    border-bottom: 2px solid var(--brand-primary);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    
+    // ===== OPTIMIZED COLUMN WIDTHS =====
+    &:nth-child(1) { width: 5%; }   // Code column - very narrow
+    &:nth-child(2) { width: 80%; }  // Description column - much wider
+    &:nth-child(3) { width: 15%; }  // Links column - compact
+  }
+  
+  td {
+    padding: var(--spacing-md);
+    border-bottom: 1px solid var(--glass-border-light);
+    color: var(--text-secondary);
+    vertical-align: top;
+    
+    // ===== SMART TEXT WRAPPING =====
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    white-space: pre-wrap;
+    
+    // ===== COLUMN-SPECIFIC STYLING =====
+    &:nth-child(1) {
+      // Code column - very compact
+      color: var(--brand-primary);
+      font-weight: var(--font-weight-semibold);
+      white-space: nowrap;
+      text-align: center;
+      width: 5%;
+      font-size: var(--font-size-lg);
+      padding: var(--spacing-sm);
+    }
+    
+    &:nth-child(2) {
+      // Description column - maximum space
+      width: 80%;
+      max-height: none; // Remove height restrictions
+      overflow: visible;
+      
+      // Enhanced content areas
+      .response-col_description__inner,
+      .model-box-content,
+      .example-value,
+      pre, code {
+        max-height: none; // Remove height restrictions
+        overflow-y: visible;
+        overflow-x: auto;
+        word-wrap: break-word;
+        white-space: pre-wrap;
+      }
+    }
+    
+    &:nth-child(3) {
+      // Links column - minimal
+      width: 15%;
+      font-size: var(--font-size-sm);
+      color: var(--text-muted);
+      padding: var(--spacing-sm);
+    }
+  }
+  
+  tr:last-child td {
+    border-bottom: none;
+  }
+}
+
+// ===== MODEL SCHEMA TABLES =====
 .swagger-ui .model-box {
-  background-color: var(--dark-bg-code) !important;
-  border: 1px solid var(--glass-border-light) !important;
-  border-radius: var(--border-radius-sm) !important;
-  padding: var(--spacing-md) !important;
+  background-color: var(--dark-bg-code);
+  border: 1px solid var(--glass-border-light);
+  border-radius: var(--border-radius-sm);
+  padding: var(--spacing-md);
+  max-width: 100%;
+  overflow: visible; // Allow content to expand
+  
+  // ===== ENSURE ALL TEXT IS VISIBLE =====
+  -webkit-text-fill-color: initial;
   
   .model-title {
-    color: var(--brand-primary) !important;
-    font-weight: var(--font-weight-semibold) !important;
+    color: var(--brand-primary);
+    font-weight: var(--font-weight-semibold);
+    word-wrap: break-word;
+    -webkit-text-fill-color: initial;
   }
   
   .property-row {
-    border-bottom: 1px solid var(--glass-border-light) !important;
+    border-bottom: 1px solid var(--glass-border-light);
+    padding: var(--spacing-sm) 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-sm);
     
     &:last-child {
-      border-bottom: none !important;
+      border-bottom: none;
     }
+  }
+  
+  .property-name {
+    color: var(--brand-primary);
+    font-weight: var(--font-weight-semibold);
+    min-width: 120px;
+    flex-shrink: 0;
+    word-wrap: break-word;
+    -webkit-text-fill-color: initial;
+  }
+  
+  .property-type {
+    color: var(--cornflower-blue);
+    font-family: monospace;
+    font-size: var(--font-size-sm);
+    background-color: var(--dark-bg-tertiary);
+    padding: 0.2rem 0.4rem;
+    border-radius: var(--border-radius-sm);
+    white-space: nowrap;
+    -webkit-text-fill-color: initial;
+  }
+  
+  .property-description {
+    color: var(--text-secondary);
+    flex-grow: 1;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    line-height: 1.5;
+    -webkit-text-fill-color: initial;
+  }
+}
+
+// ===== SCHEMA CONTENT CONTAINERS =====
+.swagger-ui .model-box-content,
+.swagger-ui .model-example {
+  background-color: var(--dark-bg-code);
+  border: 1px solid var(--glass-border-light);
+  border-radius: var(--border-radius-sm);
+  padding: var(--spacing-md);
+  margin: var(--spacing-sm) 0;
+  
+  // ===== OPTIMAL CONTENT DISPLAY =====
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  white-space: pre-wrap;
+  
+  // ===== RESPONSIVE DIMENSIONS =====
+  max-width: 100%;
+  width: 100%;
+  box-sizing: border-box;
+  
+  // ===== REMOVE SCROLLING LIMITS =====
+  overflow-x: auto;
+  overflow-y: visible;
+  max-height: none; // Remove height restrictions
+  
+  // ===== IMPROVED READABILITY =====
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-sm);
+  line-height: 1.6;
+  color: var(--text-primary);
+  -webkit-text-fill-color: initial;
+}
+
+// ===== SUBTLE EXPAND/COLLAPSE BUTTON FIXES =====
+.swagger-ui .model-toggle,
+.swagger-ui .model-collapse,
+.swagger-ui .btn.model-toggle {
+  // Make buttons much more subtle
+  background: transparent;
+  color: var(--text-muted);
+  border: 1px solid transparent;
+  border-radius: var(--border-radius-sm);
+  padding: var(--spacing-xs);
+  font-size: var(--font-size-xs);
+  cursor: pointer;
+  margin: 0;
+  
+  // ===== MINIMAL DESIGN =====
+  display: inline-block;
+  vertical-align: middle;
+  margin-left: var(--spacing-xs);
+  min-width: auto;
+  width: auto;
+  
+  // ===== SUBTLE HOVER =====
+  &:hover {
+    background-color: var(--dark-bg-tertiary);
+    color: var(--brand-primary);
+    border-color: var(--glass-border-light);
+    transform: none; // No movement
+  }
+  
+  // ===== BUTTON TEXT VISIBILITY =====
+  -webkit-text-fill-color: initial;
+  color: var(--text-muted);
+  
+  &:hover {
+    -webkit-text-fill-color: initial;
+    color: var(--brand-primary);
+  }
+  
+  // ===== HIDE USELESS BUTTONS =====
+  // If button doesn't actually expand/collapse anything, make it nearly invisible
+  &:empty,
+  &[disabled],
+  &.inactive {
+    opacity: 0.3;
+    pointer-events: none;
   }
 } 

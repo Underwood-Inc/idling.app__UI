@@ -194,7 +194,7 @@ X-RateLimit-Reset: 1640995200
 ## 📚 Interactive Documentation
 
 - **Swagger UI**: [http://localhost:3000/api/swagger](http://localhost:3000/api/swagger)
-- **OpenAPI Spec**: [http://localhost:3000/api/openapi.json](http://localhost:3000/api/openapi.json)
+- **OpenAPI Spec**: [http://localhost:3000/api/openapi](http://localhost:3000/api/openapi)
 
 ## 🔗 Related Resources
 

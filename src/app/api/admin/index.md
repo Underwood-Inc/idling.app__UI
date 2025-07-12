@@ -225,4 +225,4 @@ Admin endpoints have stricter rate limits:
 
 - Review [Core Endpoints](../README.md) for regular API functionality
 - Check [API Overview](../README.md) for authentication setup
-- Use [Interactive Tools](../swagger.md) for testing (admin token required)
+- Use [Interactive Tools](../swagger.mdx) for testing (admin token required)

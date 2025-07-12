@@ -5,55 +5,60 @@
 
 // ===== Main Container =====
 .swagger-ui {
-  font-family: var(--font-family-base) !important;
-  background-color: var(--dark-bg-primary) !important;
-  color: var(--text-primary) !important;
-  padding: var(--spacing-sm) !important;
-  border-radius: var(--border-radius-lg) !important;
-  max-width: $container-max-width !important;
-  margin: 0 auto !important;
+  font-family: var(--font-family-base);
+  background-color: var(--dark-bg-primary);
+  color: var(--text-primary);
+  padding: var(--spacing-sm);
+  border-radius: var(--border-radius-lg);
+  max-width: 100%;
+  margin: 0 auto;
 }
 
 // ===== Wrapper =====
 .swagger-ui .wrapper {
-  max-width: $container-max-width !important;
-  padding: 0 !important;
-  background: transparent !important;
-  border: none !important;
+  max-width: 100%;
+  padding: 0;
+  margin: 0;
+  background: transparent;
+  border: none;
 }
 
 // ===== Global Scrollbars =====
 .swagger-ui ::-webkit-scrollbar {
-  width: 8px !important;
-  height: 8px !important;
+  width: 8px;
+  height: 8px;
 }
 
 .swagger-ui ::-webkit-scrollbar-track {
-  background: var(--dark-bg-secondary) !important;
+  background: var(--dark-bg-secondary);
 }
 
 .swagger-ui ::-webkit-scrollbar-thumb {
-  background: var(--brand-primary) !important;
-  border-radius: var(--border-radius-sm) !important;
+  background: var(--brand-primary);
+  border-radius: var(--border-radius-sm);
 }
 
 .swagger-ui ::-webkit-scrollbar-thumb:hover {
-  background: var(--brand-primary-light) !important;
+  background: var(--brand-primary-light);
 }
 
 // ===== Loading States =====
 .swagger-ui .loading-container {
-  background-color: var(--dark-bg-primary) !important;
-  color: var(--text-primary) !important;
+  background-color: var(--dark-bg-primary);
+  color: var(--text-primary);
 }
 
 // ===== Global Animations =====
 .swagger-ui .btn,
 .swagger-ui .opblock-summary {
-  transition: var(--transition-base) !important;
+  transition: var(--transition-base);
 }
 
 .swagger-ui .btn:hover,
 .swagger-ui .opblock-summary:hover {
-  transform: translateY(-1px) !important;
-} 
+  transform: translateY(-1px);
+}
+
+// ===== PRESERVE DEFAULT SWAGGER UI BUTTONS =====
+// Let Swagger UI handle all button styling, text visibility, and behavior
+// No custom overrides that interfere with default functionality 

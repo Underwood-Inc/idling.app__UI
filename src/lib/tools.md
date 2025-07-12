@@ -213,7 +213,7 @@ yarn dev
 ## 🔗 Related Sections
 
 - **[Testing](../testing/)** - Testing tools and strategies
-- **[Components](../../src/components/)** - Component development
+- **Components** - Component development
 - **[Database](../database/)** - Database tools
 
 ---
