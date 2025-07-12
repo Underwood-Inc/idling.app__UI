@@ -1,7 +1,7 @@
 /* eslint-disable custom-rules/enforce-link-target-blank */
 'use client';
 
-import { createLogger } from '@/lib/logging';
+import { createLogger } from '@lib/logging';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import React, { Suspense, useCallback, useMemo } from 'react';
 import { NAV_PATHS } from '../../../lib/routes';

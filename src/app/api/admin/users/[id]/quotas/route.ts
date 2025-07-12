@@ -8,10 +8,10 @@
  * @author System
  */
 
-import { auth } from '@/lib/auth';
-import sql from '@/lib/db';
-import { withRateLimit } from '@/lib/middleware/withRateLimit';
-import { EnhancedQuotaService } from '@/lib/services/EnhancedQuotaService';
+import { auth } from '@lib/auth';
+import sql from '@lib/db';
+import { withRateLimit } from '@lib/middleware/withRateLimit';
+import { EnhancedQuotaService } from '@lib/services/EnhancedQuotaService';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 

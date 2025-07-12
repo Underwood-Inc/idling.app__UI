@@ -1,5 +1,5 @@
-import { auth } from '@/lib/auth';
-import { PermissionsService } from '@/lib/permissions/permissions';
+import { auth } from '@lib/auth';
+import { PermissionsService } from '@lib/permissions/permissions';
 import { NextRequest, NextResponse } from 'next/server';
 /**
  * Wraps an API handler to always include the current user's roles in the JSON response.

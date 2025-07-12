@@ -488,10 +488,10 @@ function secureExtractHashtags(text: string): string[] {
 
 ## 📚 Related Documentation
 
-- **[Content Parsers](content-parsers.html)** - Advanced content parsing and tokenization
-- **[Rich Text Parser](rich-text-parser.html)** - Markdown and rich text processing
-- **[Emoji Parser](emoji-parser.html)** - Emoji processing and rendering
-- **[Components - Rich Input System](../components/rich-input-system/index.md)** - UI components using text extraction
+- **Content Parsers** - Advanced content parsing and tokenization
+- **Rich Text Parser** - Markdown and rich text processing
+- **Emoji Parser** - Emoji processing and rendering
+- **Components - Rich Input System** - UI components using text extraction
 
 ## 🔗 External Resources
 

@@ -3,7 +3,7 @@
  * Scalable and secure solution for parsing standard and custom emojis
  */
 
-import { createLogger } from '@/lib/logging';
+import { createLogger } from '@lib/logging';
 
 const logger = createLogger({
   context: {

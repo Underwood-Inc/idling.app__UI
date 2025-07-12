@@ -5,7 +5,7 @@
 
 /* Global Reset & Base Styles */
 * {
-  font-family: var(--font-family-base) !important;
+  font-family: var(--font-family-base);
 }
 
 /* Layout Containers */
@@ -33,22 +33,22 @@ h1 {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  font-size: 2.5rem !important;
-  font-weight: var(--font-weight-bold) !important;
-  margin-bottom: var(--spacing-lg) !important;
-  text-align: center !important;
-  position: relative !important;
-  padding-bottom: var(--spacing-md) !important;
+  font-size: 2.5rem;
+  font-weight: var(--font-weight-bold);
+  margin-bottom: var(--spacing-lg);
+  text-align: center;
+  position: relative;
+  padding-bottom: var(--spacing-md);
 }
 
 h2 {
-  color: var(--brand-primary) !important;
-  font-size: 2rem !important;
-  font-weight: var(--font-weight-semibold) !important;
-  margin-top: var(--spacing-2xl) !important;
-  margin-bottom: var(--spacing-lg) !important;
-  border-bottom: 2px solid var(--brand-primary) !important;
-  padding-bottom: var(--spacing-sm) !important;
+  color: var(--brand-primary);
+  font-size: 2rem;
+  font-weight: var(--font-weight-semibold);
+  margin-top: var(--spacing-2xl);
+  margin-bottom: var(--spacing-lg);
+  border-bottom: 2px solid var(--brand-primary);
+  padding-bottom: var(--spacing-sm);
 }
 
 h2::after {
@@ -62,13 +62,12 @@ h2::after {
 }
 
 h3 {
-  color: var(--brand-primary-light) !important;
-  font-size: 1.5rem !important;
-  font-weight: var(--font-weight-medium) !important;
-  margin-top: var(--spacing-xl) !important;
-  margin-bottom: var(--spacing-md) !important;
-  position: relative !important;
-  padding-left: var(--spacing-lg) !important;
+  color: var(--brand-primary-light);
+  font-size: 1.5rem;
+  font-weight: var(--font-weight-medium);
+  margin-top: var(--spacing-xl);
+  position: relative;
+  padding-left: var(--spacing-lg);
 }
 
 h3::before {
@@ -80,42 +79,41 @@ h3::before {
 }
 
 h4 {
-  color: var(--text-primary) !important;
-  font-size: 1.25rem !important;
-  font-weight: var(--font-weight-medium) !important;
-  margin-top: var(--spacing-lg) !important;
-  margin-bottom: var(--spacing-md) !important;
-  border-left: 3px solid var(--brand-primary) !important;
-  padding-left: var(--spacing-md) !important;
+  color: var(--text-primary);
+  font-size: 1.25rem;
+  font-weight: var(--font-weight-medium);
+  margin-top: var(--spacing-lg);
+  border-left: 3px solid var(--brand-primary);
+  padding-left: var(--spacing-md);
 }
 
 /* Code Blocks */
 .prism-code {
-  background: var(--dark-bg-code) !important;
+  background: var(--dark-bg-code);
   border: 1px solid var(--glass-border-light);
   border-radius: var(--border-radius-md);
-  font-family: var(--font-family-base) !important;
+  font-family: var(--font-family-base);
 }
 
 code {
   background: var(--dark-bg-code);
   color: var(--brand-primary-light);
-  font-family: var(--font-family-base) !important;
+  font-family: var(--font-family-base);
   border-radius: var(--border-radius-sm);
   padding: 0.2rem 0.4rem;
 }
 
 /* Enhanced Blockquotes */
 blockquote {
-  background: var(--glass-bg-light) !important;
-  backdrop-filter: var(--glass-blur-medium) !important;
-  border-left: 4px solid var(--brand-primary) !important;
-  border-radius: 0 var(--border-radius-md) var(--border-radius-md) 0 !important;
-  padding: var(--spacing-md) var(--spacing-lg) !important;
-  margin: var(--spacing-lg) 0 !important;
-  color: var(--text-secondary) !important;
-  font-style: italic !important;
-  position: relative !important;
+  background: var(--glass-bg-light);
+  backdrop-filter: var(--glass-blur-medium);
+  border-left: 4px solid var(--brand-primary);
+  border-radius: 0 var(--border-radius-md) var(--border-radius-md) 0;
+  padding: var(--spacing-md) var(--spacing-lg);
+  margin: var(--spacing-lg) 0;
+  color: var(--text-secondary);
+  font-style: italic;
+  position: relative;
 }
 
 blockquote::before {

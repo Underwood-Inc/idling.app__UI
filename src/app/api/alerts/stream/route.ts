@@ -7,7 +7,7 @@
  * @deprecated Use /api/sse/stream instead
  */
 
-import { withRateLimit } from '@/lib/middleware/withRateLimit';
+import { withRateLimit } from '@lib/middleware/withRateLimit';
 import { NextRequest } from 'next/server';
 
 export const dynamic = 'force-dynamic';

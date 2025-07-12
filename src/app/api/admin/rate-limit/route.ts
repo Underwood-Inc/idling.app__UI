@@ -1,7 +1,7 @@
-import { RateLimitResetParamsSchema } from '@/lib/schemas/admin-rate-limit.schema';
+import { RateLimitResetParamsSchema } from '@lib/schemas/admin-rate-limit.schema';
+import { rateLimitService } from '@lib/services/RateLimitService';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
-import { rateLimitService } from '../../../../lib/services/RateLimitService';
 
 /**
  * GET /api/admin/rate-limit

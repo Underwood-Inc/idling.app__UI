@@ -23,11 +23,10 @@
       }
     ],
     "paths": {
-      "@rich-text-editor": ["./src/app/components/rich-text"],
-      "@rich-text-editor/*": ["./src/app/components/rich-text/*"],
-      "@/*": ["./src/*"],
-      "@lib/*": ["./src/lib/*"],
+      "@rich-text-editor": ["./src/components/rich-text-editor"],
+      "@rich-text-editor/*": ["./src/components/rich-text-editor/*"],
       "@components/*": ["./src/components/*"],
+      "@lib/*": ["./src/lib/*"],
       "@constants/*": ["./src/constants/*"],
       "@types/*": ["./src/types/*"],
       "@interfaces/*": ["./src/interfaces/*"],

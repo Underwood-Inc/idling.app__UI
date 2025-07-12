@@ -3,7 +3,7 @@
  * Handles cursor positioning within tokens and coordinate calculations
  */
 
-import { createLogger } from '@/lib/logging';
+import { createLogger } from '@lib/logging';
 import type { RichInputPosition } from '../types';
 import { richTextLogger } from './logger';
 import type { TokenPosition } from './tokenPositioning';

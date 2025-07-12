@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import { withRateLimit } from '@/lib/middleware/withRateLimit';
+import { withRateLimit } from '@lib/middleware/withRateLimit';
 import { NextRequest } from 'next/server';
 import { DatabaseService } from '../services/DatabaseService';
 

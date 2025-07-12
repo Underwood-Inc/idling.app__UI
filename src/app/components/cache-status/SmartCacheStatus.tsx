@@ -1,6 +1,6 @@
 'use client';
 
-import { createLogger } from '@/lib/logging';
+import { createLogger } from '@lib/logging';
 import React, { useCallback, useEffect, useState } from 'react';
 import { TimestampWithTooltip } from '../ui/TimestampWithTooltip';
 import './CacheStatus.css';

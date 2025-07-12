@@ -1,0 +1,179 @@
+/**
+ * Swagger UI Form Styles
+ * Input elements, parameters, and form controls
+ */
+
+// ===== SELECT TEXT VISIBILITY FIX =====
+// Override the webkit-text-fill-color that's interfering with select text
+.swagger-ui select,
+.swagger-ui option {
+  -webkit-text-fill-color: initial;
+  color: inherit;
+}
+
+// ===== Base Form Elements =====
+.swagger-ui input[type="text"],
+.swagger-ui input[type="password"],
+.swagger-ui textarea,
+.swagger-ui select {
+  background-color: var(--dark-bg-code);
+  color: var(--text-primary);
+  border: 1px solid var(--glass-border-light);
+  border-radius: var(--border-radius-sm);
+  padding: var(--spacing-sm) var(--spacing-md);
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-sm);
+  width: 100%;
+  max-width: 300px;
+  
+  // Explicit text color override
+  -webkit-text-fill-color: var(--text-primary);
+  
+  &:focus {
+    border-color: var(--brand-primary);
+    box-shadow: 0 0 0 2px rgba(237, 174, 73, 0.2);
+    outline: none;
+    background-color: var(--dark-bg-secondary);
+    -webkit-text-fill-color: var(--text-primary);
+  }
+}
+
+// ===== SPECIFIC SELECT ELEMENT FIXES =====
+.swagger-ui select {
+  // Better contrast for select elements
+  background-color: var(--dark-bg-code);
+  color: var(--text-primary);
+  -webkit-text-fill-color: var(--text-primary);
+  
+  // Style option elements
+  option {
+    background-color: var(--dark-bg-code);
+    color: var(--text-primary);
+    -webkit-text-fill-color: var(--text-primary);
+    padding: var(--spacing-sm);
+    
+    &:hover,
+    &:focus,
+    &:checked {
+      background-color: var(--brand-primary);
+      color: var(--brand-secondary);
+      -webkit-text-fill-color: var(--brand-secondary);
+    }
+  }
+  
+  &:focus {
+    border-color: var(--brand-primary);
+    box-shadow: 0 0 0 2px rgba(237, 174, 73, 0.2);
+    outline: none;
+    background-color: var(--dark-bg-secondary);
+    -webkit-text-fill-color: var(--text-primary);
+  }
+}
+
+// ===== Parameter Items =====
+.swagger-ui .parameter-item-wrap {  
+  input {
+    display: block;
+    margin-top: var(--spacing-sm);
+  }
+}
+
+.swagger-ui .parameter-item {
+  border-bottom: 1px solid var(--glass-border-light);
+  padding: var(--spacing-md) 0;
+  
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+// ===== Parameter Names and Types =====
+.swagger-ui .parameter__name {
+  color: var(--brand-primary);
+  font-weight: var(--font-weight-medium);
+  
+  &.required {
+    color: var(--brand-primary);
+    font-weight: var(--font-weight-semibold);
+    
+    &:after {
+      color: var(--chili-red);
+      content: " *";
+    }
+  }
+}
+
+.swagger-ui .parameter__type {
+  color: var(--cornflower-blue);
+}
+
+.swagger-ui .parameter__extension,
+.swagger-ui .parameter__in {
+  color: var(--text-muted);
+  font-size: var(--font-size-sm);
+}
+
+// ===== Parameters Table =====
+.swagger-ui .parameters {
+  thead {
+    tr,
+    tr th {
+      background-color: var(--dark-bg-tertiary);
+      color: var(--text-primary);
+      border-color: var(--glass-border-light);
+    }
+  }
+  
+  tbody {
+    tr {
+      background-color: var(--dark-bg-secondary);
+      border-color: var(--glass-border-light);
+      
+      &:hover {
+        background-color: var(--dark-bg-tertiary);
+      }
+    }
+  }
+}
+
+.swagger-ui .parameters-col_name {
+  color: var(--brand-primary);
+  font-weight: var(--font-weight-medium);
+}
+
+.swagger-ui .parameters-col_description {
+  color: var(--text-secondary);
+}
+
+// ===== Server Selection =====
+.swagger-ui .servers {
+  background-color: var(--dark-bg-secondary);
+  border: 1px solid var(--glass-border-light);
+  border-radius: var(--border-radius-md);
+  padding: var(--spacing-md);
+  margin-bottom: var(--spacing-lg);
+  
+  .servers-title {
+    color: var(--text-primary);
+    font-weight: var(--font-weight-medium);
+    margin-bottom: var(--spacing-sm);
+  }
+  
+  select {
+    background-color: var(--dark-bg-code);
+    color: var(--text-primary);
+    border: 1px solid var(--glass-border-light);
+    border-radius: var(--border-radius-sm);
+    padding: var(--spacing-sm);
+    -webkit-text-fill-color: var(--text-primary);
+  }
+}
+
+// ===== Authorization Section =====
+.swagger-ui .auth-wrapper {
+  background-color: var(--dark-bg-secondary);
+  border: 1px solid var(--glass-border-light);
+  border-radius: var(--border-radius-md);
+  padding: var(--spacing-md);
+  margin-bottom: var(--spacing-lg);
+} 

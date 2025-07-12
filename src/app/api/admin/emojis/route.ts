@@ -3,19 +3,19 @@
  * Handles comprehensive emoji management including approval, rejection, deletion, and filtering
  */
 
-import { checkUserPermission } from '@/lib/actions/permissions.actions';
-import { auth } from '@/lib/auth';
-import sql from '@/lib/db';
-import { withRateLimit } from '@/lib/middleware/withRateLimit';
-import { PERMISSIONS } from '@/lib/permissions/permissions';
-import { AdminEmojiActionSchema, AdminEmojiSearchParamsSchema } from '@/lib/schemas/admin-emojis.schema';
-import { NextRequest, NextResponse } from 'next/server';
 import {
-    approveCustomEmoji,
-    deleteCustomEmoji,
-    getPendingCustomEmojis,
-    rejectCustomEmoji
-} from '../../../../lib/actions/emoji.actions';
+  approveCustomEmoji,
+  deleteCustomEmoji,
+  getPendingCustomEmojis,
+  rejectCustomEmoji
+} from '@lib/actions/emoji.actions';
+import { checkUserPermission } from '@lib/actions/permissions.actions';
+import { auth } from '@lib/auth';
+import sql from '@lib/db';
+import { withRateLimit } from '@lib/middleware/withRateLimit';
+import { PERMISSIONS } from '@lib/permissions/permissions';
+import { AdminEmojiActionSchema, AdminEmojiSearchParamsSchema } from '@lib/schemas/admin-emojis.schema';
+import { NextRequest, NextResponse } from 'next/server';
 
 interface CustomEmoji {
   id: number;

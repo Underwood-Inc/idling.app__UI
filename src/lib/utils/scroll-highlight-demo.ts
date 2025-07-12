@@ -6,7 +6,7 @@
  * configurable duration, intensity, colors, and behaviors.
  */
 
-import { createLogger } from '@/lib/logging';
+import { createLogger } from '@lib/logging';
 import {
   applyScrollHighlight,
   HIGHLIGHT_PRESETS,

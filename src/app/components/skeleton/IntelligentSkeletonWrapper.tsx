@@ -1,6 +1,6 @@
 'use client';
 
-import { createLogger } from '@/lib/logging';
+import { createLogger } from '@lib/logging';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import './SkeletonLoader.css';
 

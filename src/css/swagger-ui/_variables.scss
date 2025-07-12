@@ -1,0 +1,95 @@
+/**
+ * Swagger UI Variables
+ * CSS Custom Properties and SCSS Variables
+ * Matches Idling.app brand colors and theme
+ */
+
+// ===== CSS Custom Properties =====
+// These are used throughout the application and referenced in the styles
+:root {
+  // Brand Colors
+  --brand-primary: #edae49;
+  --brand-primary-light: #f1c369;
+  --brand-secondary: #1a1611;
+  
+  // Background Colors
+  --dark-bg-primary: #121212;
+  --dark-bg-secondary: #1e1e1e;
+  --dark-bg-tertiary: #2a2a2a;
+  --dark-bg-code: #0d1117;
+  
+  // Text Colors
+  --text-primary: #ffffff;
+  --text-secondary: #b0b0b0;
+  --text-muted: #6c6c6c;
+  
+  // Glass Effect
+  --glass-bg-light: rgba(255, 255, 255, 0.05);
+  --glass-border-light: rgba(255, 255, 255, 0.1);
+  --glass-border-medium: rgba(255, 255, 255, 0.2);
+  --glass-shadow-light: 0 4px 6px rgba(0, 0, 0, 0.1);
+  --glass-shadow-medium: 0 8px 16px rgba(0, 0, 0, 0.2);
+  --glass-blur-light: blur(10px);
+  
+  // Status Colors
+  --success-green: #28a745;
+  --warning-orange: #ffc107;
+  --chili-red: #ea2b1f;
+  --cornflower-blue: #6495ed;
+  
+  // Spacing
+  --spacing-xs: 0.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.5rem;
+  --spacing-xl: 2rem;
+  
+  // Border Radius
+  --border-radius-sm: 0.25rem;
+  --border-radius-md: 0.5rem;
+  --border-radius-lg: 0.75rem;
+  
+  // Typography
+  --font-family-base: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.875rem;
+  --font-size-base: 1rem;
+  --font-size-lg: 1.125rem;
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  
+  // Transitions
+  --transition-base: all 0.2s ease;
+}
+
+// ===== SCSS Variables =====
+// These are used for calculations and mixins within SCSS
+
+// HTTP Method Colors
+$http-get-color: var(--cornflower-blue);
+$http-post-color: var(--success-green);
+$http-put-color: var(--warning-orange);
+$http-delete-color: var(--chili-red);
+
+// Component Specific
+$container-max-width: 100%;
+$button-padding-vertical: var(--spacing-sm);
+$button-padding-horizontal: var(--spacing-md);
+$input-max-width: 300px;
+
+// Z-Index Scale
+$z-index-base: 1;
+$z-index-dropdown: 1000;
+$z-index-modal: 1050;
+$z-index-tooltip: 1100;
+
+// Breakpoints
+$breakpoint-mobile: 768px;
+$breakpoint-tablet: 1024px;
+$breakpoint-desktop: 1200px;
+
+// Animation Durations
+$animation-fast: 0.15s;
+$animation-base: 0.2s;
+$animation-slow: 0.3s; 

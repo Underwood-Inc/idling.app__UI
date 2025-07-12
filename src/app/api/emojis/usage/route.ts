@@ -62,7 +62,7 @@
  * Handles tracking emoji usage statistics
  */
 
-import { withRateLimit } from '@/lib/middleware/withRateLimit';
+import { withRateLimit } from '@lib/middleware/withRateLimit';
 import { NextRequest, NextResponse } from 'next/server';
 import { trackEmojiUsage } from '../../../../lib/actions/emoji.actions';
 

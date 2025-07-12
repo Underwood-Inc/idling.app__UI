@@ -151,7 +151,7 @@ export async function GET(request: NextRequest) {
   <script>
     window.onload = function() {
       const ui = SwaggerUIBundle({
-        url: '/api/openapi.json',
+        url: '/api/openapi',
         dom_id: '#swagger-ui',
         deepLinking: true,
         presets: [

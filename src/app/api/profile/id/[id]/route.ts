@@ -70,7 +70,7 @@
  *               $ref: '#/components/schemas/Error'
  */
 
-import { withRateLimit } from '@/lib/middleware/withRateLimit';
+import { withRateLimit } from '@lib/middleware/withRateLimit';
 import { NextRequest, NextResponse } from 'next/server';
 import { withProfilePrivacy } from '../../../../../lib/utils/privacy';
 

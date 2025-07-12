@@ -27,6 +27,44 @@ Explain what this component does and why it exists.
 - **Feature 2**: Description of the second key feature
 - **Feature 3**: Description of the third key feature
 
+### Component Architecture
+
+```mermaid
+graph TD
+    A[ComponentName] --> B[Props Interface]
+    A --> C[State Management]
+    A --> D[Event Handlers]
+    A --> E[Render Logic]
+
+    B --> B1[Required Props]
+    B --> B2[Optional Props]
+    B --> B3[Event Callbacks]
+
+    C --> C1[Local State]
+    C --> C2[Context Usage]
+    C --> C3[External State]
+
+    D --> D1[User Interactions]
+    D --> D2[Lifecycle Events]
+    D --> D3[Custom Events]
+
+    E --> E1[Conditional Rendering]
+    E --> E2[Child Components]
+    E --> E3[Styling Logic]
+
+    classDef component fill:#e3f2fd,stroke:#1976d2,stroke-width:2px
+    classDef props fill:#e8f5e8,stroke:#388e3c,stroke-width:2px
+    classDef state fill:#fff3e0,stroke:#f57c00,stroke-width:2px
+    classDef events fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px
+    classDef render fill:#ffebee,stroke:#d32f2f,stroke-width:2px
+
+    class A component
+    class B,B1,B2,B3 props
+    class C,C1,C2,C3 state
+    class D,D1,D2,D3 events
+    class E,E1,E2,E3 render
+```
+
 ## 📦 Installation
 
 ```bash
@@ -60,6 +98,41 @@ interface ComponentNameProps {
   className?: string;
   style?: React.CSSProperties;
 }
+```
+
+### Props Flow Diagram
+
+```mermaid
+graph LR
+    A[Parent Component] --> B[ComponentName]
+    B --> C[Internal Logic]
+    C --> D[Child Components]
+
+    A --> A1[id: string]
+    A --> A2[title: string]
+    A --> A3[onClick: function]
+
+    B --> B1[Props Validation]
+    B --> B2[Default Values]
+    B --> B3[Event Handling]
+
+    C --> C1[State Updates]
+    C --> C2[Effect Handlers]
+    C --> C3[Computed Values]
+
+    D --> D1[Render Elements]
+    D --> D2[Pass Props Down]
+    D --> D3[Event Bubbling]
+
+    classDef parent fill:#e3f2fd,stroke:#1976d2,stroke-width:2px
+    classDef component fill:#e8f5e8,stroke:#388e3c,stroke-width:2px
+    classDef internal fill:#fff3e0,stroke:#f57c00,stroke-width:2px
+    classDef child fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px
+
+    class A,A1,A2,A3 parent
+    class B,B1,B2,B3 component
+    class C,C1,C2,C3 internal
+    class D,D1,D2,D3 child
 ```
 
 ### Prop Descriptions
@@ -210,282 +283,220 @@ The component uses the following CSS classes:
 .component-name--disabled {
   /* Disabled state styles */
 }
-
-.component-name--loading {
-  /* Loading state styles */
-}
 ```
 
-### Custom Styling
+### Styling Architecture
 
-You can customize the component using CSS custom properties:
+```mermaid
+graph TD
+    A[Component Styling] --> B[Base Styles]
+    A --> C[Variant Styles]
+    A --> D[Size Styles]
+    A --> E[State Styles]
+    A --> F[Custom Styles]
 
-```css
-.component-name {
-  --component-background: #f0f0f0;
-  --component-text-color: #333;
-  --component-border-color: #ccc;
-  --component-border-radius: 4px;
-  --component-padding: 1rem;
-}
+    B --> B1[Layout]
+    B --> B2[Typography]
+    B --> B3[Colors]
+
+    C --> C1[Primary Theme]
+    C --> C2[Secondary Theme]
+    C --> C3[Danger Theme]
+
+    D --> D1[Small Sizing]
+    D --> D2[Medium Sizing]
+    D --> D3[Large Sizing]
+
+    E --> E1[Hover States]
+    E --> E2[Focus States]
+    E --> E3[Disabled States]
+
+    F --> F1[Custom Classes]
+    F --> F2[Inline Styles]
+    F --> F3[CSS Variables]
+
+    classDef base fill:#e3f2fd,stroke:#1976d2,stroke-width:2px
+    classDef variant fill:#e8f5e8,stroke:#388e3c,stroke-width:2px
+    classDef size fill:#fff3e0,stroke:#f57c00,stroke-width:2px
+    classDef state fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px
+    classDef custom fill:#ffebee,stroke:#d32f2f,stroke-width:2px
+
+    class A,B,B1,B2,B3 base
+    class C,C1,C2,C3 variant
+    class D,D1,D2,D3 size
+    class E,E1,E2,E3 state
+    class F,F1,F2,F3 custom
 ```
 
 ### Theme Integration
 
-The component integrates with the design system:
+The component integrates with the application theme system:
 
-```tsx
-import { ComponentName } from '@/components/ComponentName';
-import { useTheme } from '@/hooks/useTheme';
+```css
+/* CSS Custom Properties */
+.component-name {
+  --component-primary-color: var(--theme-primary);
+  --component-secondary-color: var(--theme-secondary);
+  --component-border-radius: var(--theme-border-radius);
+  --component-spacing: var(--theme-spacing-md);
+}
 
-function ThemedComponent() {
-  const theme = useTheme();
-
-  return (
-    <ComponentName
-      id="themed-component"
-      title="Themed Component"
-      style={{
-        backgroundColor: theme.colors.background,
-        color: theme.colors.text
-      }}
-    />
-  );
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+  .component-name {
+    --component-background: var(--theme-dark-bg);
+    --component-text: var(--theme-dark-text);
+  }
 }
 ```
-
-## ♿ Accessibility
-
-### ARIA Attributes
-
-The component implements proper ARIA attributes:
-
-```tsx
-<ComponentName
-  id="accessible-component"
-  title="Accessible Component"
-  aria-label="Component description"
-  aria-describedby="component-help-text"
-  role="button"
-  tabIndex={0}
-/>
-```
-
-### Keyboard Navigation
-
-- **Tab**: Navigate to the component
-- **Enter/Space**: Activate the component (if interactive)
-- **Escape**: Close or cancel (if applicable)
-
-### Screen Reader Support
-
-The component provides proper announcements:
-
-```tsx
-<ComponentName
-  id="announced-component"
-  title="Announced Component"
-  aria-live="polite"
-  aria-atomic="true"
-/>
-```
-
-### Color Contrast
-
-All variants meet WCAG 2.1 AA standards:
-
-- **Primary**: 4.5:1 contrast ratio
-- **Secondary**: 4.5:1 contrast ratio
-- **Danger**: 4.5:1 contrast ratio
 
 ## 🧪 Testing
 
 ### Unit Tests
 
-```typescript
+```tsx
 import { render, screen, fireEvent } from '@testing-library/react';
 import { ComponentName } from './ComponentName';
 
 describe('ComponentName', () => {
   test('renders with required props', () => {
-    render(
-      <ComponentName
-        id="test-component"
-        title="Test Component"
-      />
-    );
-
+    render(<ComponentName id="test" title="Test Component" />);
     expect(screen.getByText('Test Component')).toBeInTheDocument();
   });
 
   test('handles click events', () => {
     const handleClick = jest.fn();
-
     render(
-      <ComponentName
-        id="test-component"
-        title="Test Component"
-        onClick={handleClick}
-      />
+      <ComponentName id="test" title="Test Component" onClick={handleClick} />
     );
-
     fireEvent.click(screen.getByText('Test Component'));
     expect(handleClick).toHaveBeenCalledTimes(1);
   });
 
-  test('applies custom className', () => {
-    render(
-      <ComponentName
-        id="test-component"
-        title="Test Component"
-        className="custom-class"
-      />
-    );
-
-    expect(screen.getByText('Test Component')).toHaveClass('custom-class');
+  test('applies variant classes', () => {
+    render(<ComponentName id="test" title="Test" variant="danger" />);
+    expect(screen.getByText('Test')).toHaveClass('component-name--danger');
   });
 });
 ```
 
-### Integration Tests
+### Testing Strategy
 
-```typescript
-import { render, screen } from '@testing-library/react';
-import { ComponentName } from './ComponentName';
-import { ThemeProvider } from '@/contexts/ThemeContext';
+```mermaid
+graph TD
+    A[Component Testing] --> B[Unit Tests]
+    A --> C[Integration Tests]
+    A --> D[Visual Tests]
+    A --> E[Accessibility Tests]
 
-describe('ComponentName Integration', () => {
-  test('integrates with theme provider', () => {
-    render(
-      <ThemeProvider>
-        <ComponentName
-          id="themed-component"
-          title="Themed Component"
-        />
-      </ThemeProvider>
-    );
+    B --> B1[Props Validation]
+    B --> B2[Event Handling]
+    B --> B3[State Management]
+    B --> B4[Rendering Logic]
 
-    expect(screen.getByText('Themed Component')).toBeInTheDocument();
-  });
-});
+    C --> C1[Parent Integration]
+    C --> C2[Child Components]
+    C --> C3[Context Usage]
+
+    D --> D1[Variant Rendering]
+    D --> D2[Responsive Design]
+    D --> D3[Theme Integration]
+
+    E --> E1[Screen Reader Support]
+    E --> E2[Keyboard Navigation]
+    E --> E3[ARIA Attributes]
+
+    classDef testing fill:#e3f2fd,stroke:#1976d2,stroke-width:2px
+    classDef unit fill:#e8f5e8,stroke:#388e3c,stroke-width:2px
+    classDef integration fill:#fff3e0,stroke:#f57c00,stroke-width:2px
+    classDef visual fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px
+    classDef a11y fill:#ffebee,stroke:#d32f2f,stroke-width:2px
+
+    class A testing
+    class B,B1,B2,B3,B4 unit
+    class C,C1,C2,C3 integration
+    class D,D1,D2,D3 visual
+    class E,E1,E2,E3 a11y
 ```
 
-### E2E Tests
+## 📚 API Reference
 
-```typescript
-import { test, expect } from '@playwright/test';
+### Methods
 
-test('ComponentName E2E', async ({ page }) => {
-  await page.goto('/components/component-name');
-
-  // Test component rendering
-  await expect(page.locator('[data-testid="component-name"]')).toBeVisible();
-
-  // Test interaction
-  await page.click('[data-testid="component-name"]');
-  await expect(page.locator('[data-testid="result"]')).toContainText('Clicked');
-});
-```
-
-## 📊 Performance
-
-### Bundle Size
-
-- **Minified**: ~5KB
-- **Gzipped**: ~2KB
-
-### Rendering Performance
-
-- **Initial Render**: <16ms
-- **Re-render**: <8ms
-- **Memory Usage**: <1MB
-
-### Optimization Tips
+If the component exposes methods via `useImperativeHandle`:
 
 ```tsx
-// Use React.memo for expensive components
-const ComponentName = React.memo(({ id, title, ...props }) => {
-  // Component implementation
-});
+interface ComponentNameHandle {
+  focus: () => void;
+  reset: () => void;
+  getValue: () => string;
+}
 
-// Use useMemo for expensive calculations
-const expensiveValue = useMemo(() => {
-  return calculateExpensiveValue(props);
-}, [props.dependency]);
+const ComponentName = forwardRef<ComponentNameHandle, ComponentNameProps>(
+  (props, ref) => {
+    useImperativeHandle(ref, () => ({
+      focus: () => {
+        // Focus implementation
+      },
+      reset: () => {
+        // Reset implementation
+      },
+      getValue: () => {
+        // Get value implementation
+        return '';
+      }
+    }));
 
-// Use useCallback for event handlers
-const handleClick = useCallback(
-  (event) => {
-    // Handle click
-  },
-  [dependency]
+    return <div>{/* Component JSX */}</div>;
+  }
 );
 ```
 
-## 🔧 Implementation Details
+### Hooks
 
-### File Structure
+If the component provides custom hooks:
 
-```
-src/components/ComponentName/
-├── index.ts                 # Export file
-├── ComponentName.tsx        # Main component
-├── ComponentName.test.tsx   # Unit tests
-├── ComponentName.stories.tsx # Storybook stories
-├── ComponentName.module.css # Component styles
-└── types.ts                # TypeScript types
-```
+```tsx
+// Custom hook for component logic
+export function useComponentName(options?: ComponentNameOptions) {
+  const [state, setState] = useState(initialState);
 
-### Dependencies
+  const handleAction = useCallback(() => {
+    // Hook logic
+  }, []);
 
-```json
-{
-  "dependencies": {
-    "react": "^18.0.0",
-    "react-dom": "^18.0.0"
-  },
-  "devDependencies": {
-    "@testing-library/react": "^13.0.0",
-    "@testing-library/jest-dom": "^5.0.0"
-  }
+  return {
+    state,
+    handleAction
+  };
 }
 ```
 
-## 📚 Related Components
+## 🔗 Related Components
 
-- **[RelatedComponent1](../RelatedComponent1/)** - Description of relationship
-- **[RelatedComponent2](../RelatedComponent2/)** - Description of relationship
-- **[ParentComponent](../ParentComponent/)** - Parent component that uses this
+- **[RelatedComponent1](../related-component-1/)** - Description of relationship
+- **[RelatedComponent2](../related-component-2/)** - Description of relationship
 
-## 🔗 References
+## 📋 Checklist
 
-- **[Design System](../../dev/components/library/)** - Component library guidelines
-- **[Testing Guide](../../dev/testing/)** - Testing best practices
-- **[Accessibility Guide](../../community/standards/design/)** - Accessibility standards
-- **[API Documentation](../../docs/api/)** - Related API endpoints
+Before marking this component as complete:
 
-## 📝 Changelog
+- [ ] All required props are documented
+- [ ] Usage examples are provided
+- [ ] Styling guidelines are complete
+- [ ] Unit tests are written
+- [ ] Accessibility requirements are met
+- [ ] Documentation is reviewed
+- [ ] Component is exported from index
 
-### Version 1.2.0
+## 🔄 Changelog
 
-- Added new `variant` prop
-- Improved accessibility support
-- Performance optimizations
+### Version 1.0.0 (Initial Release)
 
-### Version 1.1.0
-
-- Added `size` prop
-- Enhanced TypeScript types
-- Bug fixes
-
-### Version 1.0.0
-
-- Initial release
-- Basic functionality
-- Unit tests
+- Initial component implementation
+- Basic props and styling
+- Unit tests and documentation
 
 ---
 
-**Last Updated**: January 28, 2025
-**Author**: [Your Name]
-**Reviewers**: [Reviewer Names]
+_Component documentation template. Remove this line and update with actual component information._

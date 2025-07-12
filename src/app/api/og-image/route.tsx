@@ -176,7 +176,7 @@
  *               $ref: '#/components/schemas/Error'
  */
 
-import { withRateLimit } from '@/lib/middleware/withRateLimit';
+import { withRateLimit } from '@lib/middleware/withRateLimit';
 import { NextRequest } from 'next/server';
 import { OGImageService } from './services/OGImageService';
 

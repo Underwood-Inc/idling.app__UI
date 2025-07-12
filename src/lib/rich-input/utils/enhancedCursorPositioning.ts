@@ -3,7 +3,7 @@
  * Maps cursor positions to specific rendered tokens for accurate positioning
  */
 
-import { createLogger } from '@/lib/logging';
+import { createLogger } from '@lib/logging';
 import type { RichInputPosition } from '../types';
 import {
   calculateEnhancedClickPosition,

@@ -3,7 +3,7 @@
  * Handles multi-token selections and selection rendering coordinates
  */
 
-import { createLogger } from '@/lib/logging';
+import { createLogger } from '@lib/logging';
 import type { RichInputSelection } from '../types';
 import { getFirstTextNode } from './cursorCalculations';
 import { findTokenAtPosition, type TokenPosition } from './tokenPositioning';

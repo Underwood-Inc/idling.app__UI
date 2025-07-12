@@ -1,0 +1,736 @@
+/**
+ * Swagger UI Layout Styles
+ * Operations, sections, headers, and structural elements
+ */
+
+// ===== SCSS Mixins =====
+@mixin chevron-positioning {
+  position: absolute;
+  top: 50%;
+  right: var(--spacing-md);
+  transform: translateY(-50%);
+  width: 20px;
+  height: 20px;
+  fill: var(--text-secondary);
+  transition: var(--transition-base);
+}
+
+@mixin glass-container($bg: var(--glass-bg-light), $border: var(--glass-border-light)) {
+  background: $bg;
+  backdrop-filter: var(--glass-blur-light);
+  border: 1px solid $border;
+  border-radius: var(--border-radius-md);
+  box-shadow: var(--glass-shadow-light);
+}
+
+@mixin absolute-center($right: var(--spacing-md)) {
+  position: absolute;
+  top: 50%;
+  right: $right;
+  transform: translateY(-50%);
+}
+
+@mixin flex-center($justify: space-between) {
+  display: flex;
+  align-items: center;
+  justify-content: $justify;
+}
+
+@mixin button-base {
+  background-color: var(--dark-bg-tertiary);
+  border: 1px solid var(--glass-border-light);
+  border-radius: var(--border-radius-sm);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  color: var(--text-secondary);
+  font-size: var(--font-size-xs);
+  cursor: pointer;
+  transition: var(--transition-base);
+  
+  &:hover {
+    background-color: var(--brand-primary);
+    color: var(--brand-secondary);
+    border-color: var(--brand-primary);
+    transform: scale(1.05);
+  }
+}
+
+@mixin hover-lift {
+  transition: var(--transition-base);
+  
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(237, 174, 73, 0.2);
+  }
+}
+
+// ===== Minimal Artifact Fixes =====
+.swagger-ui {
+  // Only target the specific pseudo-elements causing the artifact
+  .opblock-tag h3::after {
+    display: none;
+  }
+  
+  // Hide expand button but keep SVG positioned correctly
+  .opblock-tag button {
+    background: none;
+    border: none;
+    padding: 0;
+    margin: 0;
+    outline: none;
+    
+    // Keep SVG visible and positioned
+    svg {
+      @include chevron-positioning;
+    }
+  }
+}
+
+// ===== Header and Info Section =====
+.swagger-ui {
+  .info {
+    @include glass-container(var(--dark-bg-secondary), var(--glass-border-light));
+    padding: var(--spacing-lg);
+    margin-bottom: var(--spacing-lg);
+    
+    h1, h2, h3 {
+      color: var(--brand-primary);
+    }
+    
+    p {
+      color: var(--text-secondary);
+    }
+    
+    .title {
+      background: linear-gradient(135deg, var(--brand-primary), var(--brand-primary-light));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+  }
+
+  // ===== Main API Section Headers =====
+  .opblock-tag {
+    background: var(--dark-bg-secondary);
+    border: 1px solid var(--glass-border-light);
+    border-left: 4px solid var(--brand-primary);
+    border-radius: var(--border-radius-sm);
+    margin: 0 0 var(--spacing-sm) 0;
+    padding: var(--spacing-sm) var(--spacing-md);
+    cursor: pointer;
+    position: relative;
+    
+    &:hover {
+      border-color: var(--brand-primary);
+      background: var(--dark-bg-tertiary);
+    }
+    
+    h3 {
+      @include flex-center;
+      color: var(--brand-primary);
+      margin: 0;
+      font-weight: var(--font-weight-semibold);
+      font-size: var(--font-size-lg);
+      padding-right: var(--spacing-lg);
+      
+      &:after {
+        display: none;
+      }
+    }
+    
+    small {
+      color: var(--text-secondary);
+      font-size: var(--font-size-sm);
+      font-weight: var(--font-weight-normal);
+      margin-top: var(--spacing-xs);
+      display: block;
+    }
+    
+    // Native Swagger UI chevron positioning
+    .opblock-tag-section svg,
+    button svg {
+      @include chevron-positioning;
+    }
+    
+    &.is-open svg,
+    &[aria-expanded="true"] svg {
+      fill: var(--brand-primary);
+      transform: translateY(-50%) rotate(180deg);
+    }
+  }
+
+  // ===== Operation Blocks =====
+  .opblock {
+    @include glass-container(var(--dark-bg-secondary), var(--glass-border-light));
+    margin-bottom: var(--spacing-sm);
+    
+    &.is-open {
+      border-color: var(--brand-primary);
+      
+      .opblock-summary {
+        border-bottom: 2px solid var(--brand-primary);
+        margin-bottom: 0;
+      }
+      
+      .opblock-body {
+        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+    }
+  }
+
+  // ===== Operation Summary =====
+  .opblock-summary {
+    @include flex-center;
+    position: relative;
+    border-radius: var(--border-radius-md);
+    padding: var(--spacing-sm) var(--spacing-md);
+    cursor: pointer;
+    min-height: 3rem;
+    
+    .opblock-summary-method {
+      flex-shrink: 0;
+      margin-right: var(--spacing-sm);
+    }
+    
+    .opblock-summary-path {
+      flex-grow: 1;
+      margin-right: var(--spacing-sm);
+    }
+    
+    .opblock-summary-description {
+      color: var(--text-secondary);
+      flex-grow: 1;
+      margin-right: var(--spacing-sm);
+    }
+    
+    .opblock-summary-control {
+      @include flex-center(flex-start);
+      flex-shrink: 0;
+      gap: var(--spacing-xs);
+      
+      svg {
+        width: 16px;
+        height: 16px;
+        fill: var(--text-secondary);
+        transition: var(--transition-base);
+      }
+    }
+    
+    &:hover .opblock-summary-control svg {
+      fill: var(--brand-primary);
+    }
+
+    // Copy and Authorization Button Positioning
+    .copy-to-clipboard {
+      @include absolute-center(4rem);
+      @include button-base;
+      z-index: 1000;
+      
+      &:hover {
+        transform: translateY(-50%) scale(1.05);
+      }
+    }
+    
+    .authorization__btn {
+      @include absolute-center(6.5rem);
+      @include button-base;
+      z-index: 1000;
+      padding: var(--spacing-xs);
+      
+      &:hover {
+        transform: translateY(-50%) scale(1.05);
+      }
+      
+      svg {
+        width: 14px;
+        height: 14px;
+        fill: currentColor;
+      }
+    }
+  }
+
+  // ===== Operation Body =====
+  .opblock-body {
+    background-color: var(--dark-bg-primary);
+    border: 1px solid var(--glass-border-medium);
+    border-top: none;
+    border-radius: 0 0 var(--border-radius-md) var(--border-radius-md);
+    padding: var(--spacing-md);
+    margin-top: -1px;
+  }
+
+  // ===== SIMPLIFIED PARAMETERS SECTION =====
+  .opblock-section-header {
+    background: linear-gradient(135deg, var(--brand-primary), var(--brand-primary-light));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-weight: var(--font-weight-semibold);
+    font-size: var(--font-size-lg);
+    margin-bottom: var(--spacing-md);
+    padding: var(--spacing-sm) 0;
+    border-bottom: 2px solid var(--brand-primary);
+    
+    h4 {
+      color: var(--brand-primary);
+      margin: 0;
+      font-weight: var(--font-weight-semibold);
+      font-size: var(--font-size-lg);
+    }
+    
+    label {
+      color: var(--text-secondary);
+      font-size: var(--font-size-sm);
+      font-weight: var(--font-weight-normal);
+    }
+  }
+
+  // ===== CLEAN PARAMETERS CONTAINER =====
+  .opblock-section-request-body,
+  .opblock-section-parameters,
+  .parameters-container,
+  .opblock-section {
+    background-color: var(--dark-bg-secondary);
+    border: 1px solid var(--glass-border-light);
+    border-radius: var(--border-radius-md);
+    padding: var(--spacing-lg);
+    margin: var(--spacing-sm) 0;
+    box-shadow: var(--glass-shadow-light);
+  }
+
+  // ===== CLEAN PARAMETER ITEMS =====
+  .parameter-item-wrap,
+  .parameter-item {
+    background-color: var(--dark-bg-code);
+    border: 1px solid var(--glass-border-light);
+    border-radius: var(--border-radius-sm);
+    padding: var(--spacing-md);
+    margin-bottom: var(--spacing-sm);
+    
+    &:last-child {
+      margin-bottom: 0;
+    }
+    
+    // Clean parameter styling
+    .parameter__name {
+      color: var(--brand-primary);
+      font-weight: var(--font-weight-semibold);
+      font-size: var(--font-size-base);
+      margin-bottom: var(--spacing-xs);
+      display: block;
+    }
+    
+    .parameter__type {
+      color: var(--cornflower-blue);
+      font-family: monospace;
+      font-size: var(--font-size-sm);
+      background-color: var(--dark-bg-tertiary);
+      padding: 0.2rem 0.4rem;
+      border-radius: var(--border-radius-sm);
+      margin-left: var(--spacing-sm);
+    }
+    
+    .parameter__description {
+      color: var(--text-secondary);
+      margin-top: var(--spacing-sm);
+      font-size: var(--font-size-sm);
+      line-height: 1.5;
+    }
+  }
+
+  // ===== SIMPLIFIED BUTTON GROUPS =====
+  .try-out,
+  .execute-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: var(--spacing-md);
+    padding: var(--spacing-md);
+    margin: var(--spacing-md) 0;
+    background-color: var(--dark-bg-tertiary);
+    border: 1px solid var(--glass-border-light);
+    border-radius: var(--border-radius-sm);
+    
+    .btn {
+      margin: 0;
+      flex-shrink: 0;
+      min-width: 120px;
+    }
+  }
+
+
+
+  // ===== ENHANCED TABLES =====
+  .parameters,
+  .response-content-type,
+  .responses table,
+  .response-body {
+    width: 100%;
+    border-collapse: collapse;
+    margin: var(--spacing-md) 0;
+    background-color: var(--dark-bg-code);
+    border-radius: var(--border-radius-sm);
+    overflow: hidden;
+    box-shadow: var(--glass-shadow-light);
+    
+    th {
+      background-color: var(--dark-bg-tertiary);
+      color: var(--brand-primary);
+      font-weight: var(--font-weight-semibold);
+      padding: var(--spacing-md);
+      text-align: left;
+      border-bottom: 2px solid var(--brand-primary);
+    }
+    
+    td {
+      padding: var(--spacing-md);
+      border-bottom: 1px solid var(--glass-border-light);
+      color: var(--text-secondary);
+      
+      &:first-child {
+        color: var(--brand-primary);
+        font-weight: var(--font-weight-medium);
+      }
+    }
+    
+    tr:last-child td {
+      border-bottom: none;
+    }
+  }
+
+  // ===== UNIFIED RESPONSES SECTION =====
+  .responses-wrapper {
+    background-color: var(--dark-bg-secondary);
+    border: 1px solid var(--glass-border-light);
+    border-radius: var(--border-radius-md);
+    margin: var(--spacing-md) 0;
+    padding: 0;
+    box-shadow: var(--glass-shadow-light);
+    
+    // Unified header for responses
+    &::before {
+      content: 'API Responses';
+      background: linear-gradient(135deg, var(--brand-primary), var(--brand-primary-light));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      font-weight: var(--font-weight-semibold);
+      font-size: var(--font-size-lg);
+      display: block;
+      padding: var(--spacing-md) var(--spacing-lg) var(--spacing-sm);
+      margin: 0;
+      border-bottom: 2px solid var(--brand-primary);
+      background-color: var(--dark-bg-tertiary);
+      border-radius: var(--border-radius-md) var(--border-radius-md) 0 0;
+    }
+  }
+
+  .responses-inner {
+    background-color: var(--dark-bg-primary);
+    border: none;
+    border-radius: 0 0 var(--border-radius-md) var(--border-radius-md);
+    padding: var(--spacing-lg);
+    margin: 0;
+    
+    // Clean response items
+    .response-item {
+      background-color: var(--dark-bg-code);
+      border: 1px solid var(--glass-border-light);
+      border-radius: var(--border-radius-sm);
+      padding: var(--spacing-md);
+      margin-bottom: var(--spacing-sm);
+      
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
+    
+    .response-col_status {
+      color: var(--brand-primary);
+      font-weight: var(--font-weight-semibold);
+      font-size: var(--font-size-lg);
+      margin-bottom: var(--spacing-xs);
+      display: block;
+    }
+    
+    .response-col_description {
+      color: var(--text-secondary);
+      font-size: var(--font-size-base);
+      line-height: 1.5;
+    }
+  }
+
+  // ===== ENHANCED RESPONSE CONTENT AREAS =====
+  .responses,
+  .responses-wrapper,
+  .response-content-type,
+  .response-col_description__inner {
+    // ===== WORD WRAPPING PRIORITY =====
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    white-space: pre-wrap;
+    
+    // ===== RESPONSIVE CONTAINER =====
+    max-width: 100%;
+    box-sizing: border-box;
+    
+    // ===== CONTENT VISIBILITY =====
+    overflow-x: auto;
+    overflow-y: visible;
+    
+    // ===== INNER CONTENT HANDLING =====
+    pre, code, .example-value, .model-example {
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+      white-space: pre-wrap;
+      max-width: 100%;
+      overflow-x: auto;
+      overflow-y: visible;
+      max-height: none; // Remove height restrictions
+    }
+    
+    // ===== TABLE RESPONSIVENESS =====
+    table {
+      width: 100%;
+      table-layout: fixed; // Use fixed layout for better control
+      word-wrap: break-word;
+      
+      th, td {
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        white-space: pre-wrap;
+        overflow: visible; // Allow content to show
+      }
+      
+      // ===== OPTIMIZED COLUMN SIZES =====
+      th:nth-child(1), td:nth-child(1) {
+        width: 5%;   // Code column
+        text-align: center;
+        padding: var(--spacing-sm);
+      }
+      
+      th:nth-child(2), td:nth-child(2) {
+        width: 80%;  // Description column
+      }
+      
+      th:nth-child(3), td:nth-child(3) {
+        width: 15%;  // Links column
+        font-size: var(--font-size-sm);
+        padding: var(--spacing-sm);
+      }
+    }
+  }
+
+  // ===== CLEAN SCHEMA DISPLAY =====
+  .model-box,
+  .model-example,
+  .example-value {
+    // ===== REMOVE VISUAL CLUTTER =====
+    border: 1px solid var(--glass-border-light);
+    border-radius: var(--border-radius-sm);
+    background-color: var(--dark-bg-code);
+    padding: var(--spacing-md);
+    margin: var(--spacing-sm) 0;
+    -webkit-text-fill-color: initial;
+    
+    // ===== CLEAN BUTTON INTEGRATION =====
+    button, .btn {
+      // Make expand buttons blend in better
+      &:not(.try-out__btn):not(.execute):not(.cancel):not(.authorize) {
+        background: transparent;
+        border: 1px solid transparent;
+        color: var(--text-muted);
+        font-size: var(--font-size-xs);
+        padding: var(--spacing-xs);
+        margin: 0 0 0 var(--spacing-xs);
+        
+        &:hover {
+          background-color: var(--dark-bg-tertiary);
+          color: var(--brand-primary);
+          border-color: var(--glass-border-light);
+        }
+      }
+    }
+    
+    // ===== CLEANER PROPERTY DISPLAY =====
+    .property-row {
+      padding: var(--spacing-sm) 0;
+      border-bottom: 1px solid var(--glass-border-light);
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      gap: var(--spacing-sm);
+      
+      &:last-child {
+        border-bottom: none;
+      }
+      
+      .property-name {
+        color: var(--brand-primary);
+        font-weight: var(--font-weight-semibold);
+        min-width: 120px;
+        flex-shrink: 0;
+        -webkit-text-fill-color: initial;
+      }
+      
+      .property-type {
+        color: var(--cornflower-blue);
+        font-family: monospace;
+        font-size: var(--font-size-sm);
+        background-color: var(--dark-bg-tertiary);
+        padding: 0.2rem 0.4rem;
+        border-radius: var(--border-radius-sm);
+        white-space: nowrap;
+        -webkit-text-fill-color: initial;
+      }
+      
+      .property-description {
+        color: var(--text-secondary);
+        flex-grow: 1;
+        line-height: 1.5;
+        -webkit-text-fill-color: initial;
+      }
+    }
+  }
+
+  // ===== SCHEMA SECTION CONTAINERS =====
+  .opblock-tag-section {
+    margin: 0 0 var(--spacing-md) 0;
+    
+    &:first-child {
+      margin-top: 0;
+    }
+    
+    &:last-child {
+      margin-bottom: 0;
+    }
+    
+    &.is-open {
+      background: var(--dark-bg-primary);
+      border: 1px solid var(--glass-border-light);
+      border-radius: var(--border-radius-sm);
+      padding: 0;
+      margin: 0 0 var(--spacing-md) 0;
+      
+      &:last-child {
+        margin-bottom: 0;
+      }
+      
+      > .opblock-tag {
+        margin: 0;
+        border-radius: var(--border-radius-sm) var(--border-radius-sm) 0 0;
+        border-bottom: 1px solid var(--brand-primary);
+      }
+      
+      // Content container for individual operations
+      > div:not(.opblock-tag) {
+        padding: var(--spacing-md);
+        background-color: var(--dark-bg-secondary);
+        border-radius: 0 0 var(--border-radius-sm) var(--border-radius-sm);
+        
+        // Individual operation blocks
+        .opblock {
+          margin-bottom: var(--spacing-sm);
+          
+          &:last-child {
+            margin-bottom: 0;
+          }
+        }
+      }
+    }
+  }
+
+  // ===== Universal Copy Button Overrides =====
+  * .copy-to-clipboard {
+    @include absolute-center(4rem);
+    @include button-base;
+    z-index: 1000;
+    
+    // Code block positioning (different from operation buttons)
+    .highlight-code &,
+    .microlight &,
+    .model-box &,
+    .response-col_description__inner &,
+    pre &,
+    code & {
+      position: absolute;
+      top: var(--spacing-xs);
+      right: var(--spacing-xs);
+      transform: none;
+      z-index: 100;
+    }
+  }
+
+  // ===== Universal Authorization Button Overrides =====
+  * .authorization__btn {
+    @include absolute-center(6.5rem);
+    @include button-base;
+    z-index: 1000;
+    padding: var(--spacing-xs);
+    
+    svg {
+      width: 14px;
+      height: 14px;
+      fill: currentColor;
+    }
+  }
+
+  // ===== Spacing Utilities =====
+  .opblock + .opblock {
+    margin-top: var(--spacing-lg);
+  }
+
+  // ===== Glass Morphism Effects =====
+  .scheme-container {
+    @include glass-container(var(--glass-bg-light), var(--glass-border-light));
+    border-radius: var(--border-radius-lg);
+    margin-bottom: var(--spacing-lg);
+  }
+
+  // ===== Remove Default Margins =====
+  .wrapper > div {
+    margin-top: 0;
+    
+    &:first-child {
+      margin-top: 0;
+    }
+  }
+  
+  .opblock-tag-section .opblock-tag {
+    margin-top: 0;
+  }
+
+  // ===== SCHEMA SECTION (Models/Definitions) =====
+  .models-wrapper,
+  .models,
+  .model-container {
+    background: var(--dark-bg-secondary);
+    border: 1px solid var(--glass-border-light);
+    border-radius: var(--border-radius-sm);
+    padding: var(--spacing-md);
+    margin: var(--spacing-md) 0;
+    
+    // Prevent stacking issues
+    position: relative;
+    z-index: 1;
+    
+    // Each model definition
+    .model-box {
+      margin-bottom: var(--spacing-md);
+      
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
+  }
+  
+  // ===== SCHEMA TITLE/HEADER =====
+  .models-wrapper h4,
+  .models h4,
+  .model-container h4 {
+    color: var(--brand-primary);
+    font-weight: var(--font-weight-semibold);
+    margin: 0 0 var(--spacing-md) 0;
+    padding-bottom: var(--spacing-sm);
+    border-bottom: 1px solid var(--brand-primary);
+  }
+} 

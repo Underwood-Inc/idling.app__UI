@@ -1,0 +1,188 @@
+/**
+ * Swagger UI Theming Styles
+ * HTTP method colors, code blocks, and theme-specific styling
+ */
+
+// ===== HTTP Method Colors =====
+.swagger-ui .opblock.opblock-get {
+  border-color: var(--cornflower-blue);
+  
+  .opblock-summary {
+    background-color: rgba(100, 149, 237, 0.1);
+  }
+  
+  &.is-open .opblock-summary-control svg {
+    fill: var(--cornflower-blue);
+  }
+}
+
+.swagger-ui .opblock.opblock-post {
+  border-color: var(--success-green);
+  
+  .opblock-summary {
+    background-color: rgba(40, 167, 69, 0.1);
+  }
+  
+  &.is-open .opblock-summary-control svg {
+    fill: var(--success-green);
+  }
+}
+
+.swagger-ui .opblock.opblock-put {
+  border-color: var(--warning-orange);
+  
+  .opblock-summary {
+    background-color: rgba(255, 193, 7, 0.1);
+  }
+  
+  &.is-open .opblock-summary-control svg {
+    fill: var(--warning-orange);
+  }
+}
+
+.swagger-ui .opblock.opblock-delete {
+  border-color: var(--chili-red);
+  
+  .opblock-summary {
+    background-color: rgba(234, 43, 31, 0.1);
+  }
+  
+  &.is-open .opblock-summary-control svg {
+    fill: var(--chili-red);
+  }
+}
+
+// ===== ENHANCED CODE BLOCKS & RESPONSE CONTENT =====
+.swagger-ui .highlight-code,
+.swagger-ui .microlight,
+.swagger-ui pre,
+.swagger-ui code,
+.swagger-ui .renderedMarkdown,
+.swagger-ui .response-col_description__inner,
+.swagger-ui .model-box-content,
+.swagger-ui .example-value,
+.swagger-ui .example-string {
+  background-color: var(--dark-bg-code);
+  border: 1px solid var(--glass-border-light);
+  border-radius: var(--border-radius-sm);
+  padding: var(--spacing-md);
+  font-family: var(--font-family-base);
+  color: var(--text-primary);
+  
+  // ===== WORD WRAPPING PRIORITY =====
+  // Prioritize word-wrapping over horizontal scrolling
+  word-wrap: break-word;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  white-space: pre-wrap;
+  
+  // ===== RESPONSIVE CONTENT =====
+  max-width: 100%;
+  width: 100%;
+  box-sizing: border-box;
+  
+  // ===== INCREASED SCROLLING LIMITS =====
+  // Remove height limits for better content visibility
+  overflow-x: auto;
+  overflow-y: visible;
+  max-height: none; // Remove height restrictions
+  
+  // ===== BETTER READABILITY =====
+  line-height: 1.6;
+  font-size: var(--font-size-sm);
+  
+  // ===== INNER PRE/CODE ELEMENTS =====
+  pre, code {
+    background-color: transparent;
+    border: none;
+    padding: 0;
+    margin: 0;
+    color: inherit;
+    font-family: inherit;
+    word-wrap: inherit;
+    word-break: inherit;
+    overflow-wrap: inherit;
+    white-space: inherit;
+  }
+}
+
+// ===== SPECIFIC RESPONSE CONTENT AREAS =====
+.swagger-ui .response-col_description__inner,
+.swagger-ui .response-col_text {
+  // Enhanced response content styling
+  background-color: var(--dark-bg-code);
+  border: 1px solid var(--glass-border-light);
+  border-radius: var(--border-radius-sm);
+  padding: var(--spacing-md);
+  margin: var(--spacing-sm) 0;
+  
+  // Optimal text wrapping
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  white-space: pre-wrap;
+  
+  // Constrained width for better readability
+  max-width: 100%;
+  box-sizing: border-box;
+  
+  // Remove vertical scrolling limits
+  overflow-x: hidden;
+  overflow-y: visible;
+  max-height: none; // Remove height restrictions
+}
+
+// ===== EXAMPLE VALUES & SCHEMA =====
+.swagger-ui .example-value,
+.swagger-ui .example-string,
+.swagger-ui .model-example {
+  background-color: var(--dark-bg-code);
+  border: 1px solid var(--glass-border-light);
+  border-radius: var(--border-radius-sm);
+  padding: var(--spacing-sm);
+  
+  // Smart text handling
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  white-space: pre-wrap;
+  
+  // Responsive sizing
+  max-width: 100%;
+  width: 100%;
+  
+  // Remove controlled overflow restrictions
+  overflow-x: auto;
+  overflow-y: visible;
+  max-height: none; // Remove height restrictions
+  
+  // Improved typography
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-sm);
+  line-height: 1.5;
+  color: var(--text-primary);
+}
+
+// ===== JSON/CODE SYNTAX HIGHLIGHTING =====
+.swagger-ui .highlight-code {
+  .hljs-string { color: #98c379; }
+  .hljs-number { color: #d19a66; }
+  .hljs-literal { color: #56b6c2; }
+  .hljs-keyword { color: #c678dd; }
+  .hljs-attr { color: #e06c75; }
+}
+
+// ===== GLOBAL TEXT COLORS =====
+.swagger-ui .opblock-section-header {
+  h4 {
+    color: var(--text-primary);
+  }
+  
+  label {
+    color: var(--text-secondary);
+  }
+}
+
+// ===== ENHANCED VISUAL EFFECTS =====
+.swagger-ui .opblock.is-open .opblock-summary-control svg {
+  fill: var(--brand-primary);
+  transform: rotate(180deg);
+} 

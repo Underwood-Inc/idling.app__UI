@@ -5,7 +5,7 @@
  * and enforces the 12-hour maximum cache policy across the application.
  */
 
-import { createLogger } from '@/lib/logging';
+import { createLogger } from '@lib/logging';
 
 // Create logger for cache management
 const logger = createLogger({

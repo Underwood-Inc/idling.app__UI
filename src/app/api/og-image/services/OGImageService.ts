@@ -1,9 +1,9 @@
 import {
   checkGuestQuota,
   recordGuestUsage
-} from '@/lib/actions/quota.actions';
-import { auth } from '@/lib/auth';
-import { EnhancedQuotaService } from '@/lib/services/EnhancedQuotaService';
+} from '@lib/actions/quota.actions';
+import { auth } from '@lib/auth';
+import { EnhancedQuotaService } from '@lib/services/EnhancedQuotaService';
 import { NextRequest } from 'next/server';
 import { formatRetryAfter } from '../../../../lib/utils/timeFormatting';
 import { ASPECT_RATIOS } from '../config';

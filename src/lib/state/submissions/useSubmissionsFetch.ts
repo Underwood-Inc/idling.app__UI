@@ -1,4 +1,4 @@
-import { createLogger } from '@/lib/logging';
+import { createLogger } from '@lib/logging';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { getSubmissionsWithReplies } from '../../../app/components/submissions-list/actions';
 import { PostFilters } from '../../types/filters';

@@ -1,5 +1,5 @@
 'use client';
-import { createLogger } from '@/lib/logging';
+import { createLogger } from '@lib/logging';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { createPost } from 'src/lib/actions/post.actions';

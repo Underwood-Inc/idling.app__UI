@@ -49,7 +49,7 @@ export type { OverlayConfig } from '../context/OverlayContext';
  * USAGE GUIDELINES:
  *
  * ✅ DO:
- * - Import from this file: `import { Submission, SubmissionWithReplies } from '@/lib/types'`
+ * - Import from this file: `import { Submission, SubmissionWithReplies } from '@lib/types'`
  * - Use Submission types for all new features
  * - Use SubmissionWithReplies for components that handle nested replies
  * - Use Filter<PostFilters> for filtering functionality

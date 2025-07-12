@@ -1,6 +1,6 @@
 'use client';
 
-import { createLogger } from '@/lib/logging';
+import { createLogger } from '@lib/logging';
 import { useSession } from 'next-auth/react';
 import { useState } from 'react';
 import { buildThreadUrl } from '../../../lib/routes';

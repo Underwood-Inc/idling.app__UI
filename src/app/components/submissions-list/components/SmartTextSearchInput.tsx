@@ -1,6 +1,6 @@
 'use client';
 
-import { createLogger } from '@/lib/logging';
+import { createLogger } from '@lib/logging';
 import { useAtom } from 'jotai';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Filter, getSubmissionsFiltersAtom } from '../../../../lib/state/atoms';

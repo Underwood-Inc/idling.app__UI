@@ -43,19 +43,23 @@ const config = {
           path: 'src',
           routeBasePath: '/',
           sidebarPath: './sidebars.js',
-          include: ['**/*.md'], // Include all .md files
+          // docItemComponent: '@theme/ApiItem', // For OpenAPI integration (disabled for now)
+          include: ['**/*.md', '**/*.mdx'], // Include both .md and .mdx files
           exclude: [
             '**/_*.{js,jsx,ts,tsx,md,mdx}',
             '**/_*/**',
             '**/*.test.{js,jsx,ts,tsx}',
             '**/__tests__/**',
-                          '**/pages/**', // Exclude Next.js pages directory to avoid confusion
-              // Jekyll exclusions removed
+            '**/pages/**', // Exclude Next.js pages directory to avoid confusion
+            '**/*.html', // Exclude HTML files (documentation reports)
+            '**/*.csv', // Exclude CSV files (documentation reports)
+            '**/*.json', // Exclude JSON files to avoid conflicts
+            // Jekyll exclusions removed
           ],
         },
         blog: false, // Disable blog
         theme: {
-          customCss: './src/css/custom.css',
+          customCss: './src/css/custom.scss',
         },
       }),
     ],
@@ -85,8 +89,30 @@ const config = {
     ],
   ],
 
-  // 🔍 Local Search Plugin (React 19 compatible)
+  // plugins: [
+  //   [
+  //     'docusaurus-plugin-openapi-docs',
+  //     {
+  //       id: "api",
+  //       docsPluginId: "classic",
+  //       config: {
+  //         api: {
+  //           specPath: "openapi.yaml", // We'll create this
+  //           outputDir: "docs/api",
+  //           sidebarOptions: {
+  //             groupPathsBy: "tag",
+  //             categoryLinkSource: "tag",
+  //           },
+  //           template: "api.mustache", // Custom template
+  //         },
+  //       },
+  //     },
+  //   ],
+  // ],
+
   plugins: [
+    'docusaurus-plugin-sass',
+    // 🔍 Local Search Plugin (React 19 compatible)
     [
       'docusaurus-plugin-search-local',
       {
@@ -97,6 +123,24 @@ const config = {
         hashed: true,
       },
     ],
+    // Custom webpack configuration to handle Node.js polyfills
+    function(context, options) {
+      return {
+        name: 'custom-webpack-plugin',
+        configureWebpack(config, isServer, utils) {
+          return {
+            resolve: {
+              fallback: {
+                "stream": require.resolve("stream-browserify"),
+                "util": require.resolve("util"),
+                "buffer": require.resolve("buffer"),
+                "process": require.resolve("process/browser"),
+              },
+            },
+          };
+        },
+      };
+    },
   ],
 
   // Custom scripts for enhanced functionality
@@ -268,22 +312,22 @@ const config = {
             fontSize: 12,
           },
           
-                     // Gantt chart options with enhanced readability
-           gantt: {
-             useMaxWidth: false,
-             titleTopMargin: 25,
-             barHeight: 20,
-             fontSizeSection: 24,
-             fontSizeTask: 14,
-             fontSizeAxis: 12,
-             numberSectionStyles: 4,
-             axisFormat: '%Y-%m-%d',
-             topPadding: 50,
-             leftPadding: 75,
-             gridLineStartPadding: 35,
-             fontSize: 11,
-             fontFamily: '"Fira Code", monospace',
-           },
+          // Gantt chart options with enhanced readability
+          gantt: {
+            useMaxWidth: false,
+            titleTopMargin: 25,
+            barHeight: 20,
+            fontSizeSection: 24,
+            fontSizeTask: 14,
+            fontSizeAxis: 12,
+            numberSectionStyles: 4,
+            axisFormat: '%Y-%m-%d',
+            topPadding: 50,
+            leftPadding: 75,
+            gridLineStartPadding: 35,
+            fontSize: 11,
+            fontFamily: '"Fira Code", monospace',
+          },
           
           // User journey options
           journey: {

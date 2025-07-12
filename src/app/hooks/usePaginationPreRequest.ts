@@ -1,10 +1,10 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import { createLogger } from '@/lib/logging';
+import { createLogger } from '@lib/logging';
 import { getSubmissionsPaginationCount, GetSubmissionsPaginationCountResponse } from '../components/submissions-list/actions';
-import { PostFilters } from '@/lib/types/filters';
-import { Filter } from '@/lib/state/atoms';
+import { PostFilters } from '@lib/types/filters';
+import { Filter } from '@lib/state/atoms';
 
 const logger = createLogger({
   context: { component: 'usePaginationPreRequest' }

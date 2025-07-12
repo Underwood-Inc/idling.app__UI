@@ -30,38 +30,43 @@ Idling.app uses a **co-located documentation approach** where documentation live
 
 ## 🏗️ Directory Structure
 
-```
-idling.app__UI/
-├── docs/                      # Generated documentation (build output)
-│   ├── _config.yml
-│   ├── _layouts/
-│   ├── _sass/
-│   └── assets/
-├── src/                       # Co-located technical documentation
-│   ├── app/api/              # API endpoint documentation
-│   │   ├── README.md         # API overview
-│   │   ├── admin/README.md   # Admin API docs
-│   │   └── [endpoint]/README.md
-│   ├── components/           # Component documentation
-│   │   ├── index.md          # Component library overview
-│   │   └── [component]/index.md
-│   ├── lib/                  # Library and utility documentation
-│   │   ├── index.md          # Library overview
-│   │   ├── services/         # Service documentation
-│   │   └── utils/            # Utility documentation
-│   └── templates/            # Documentation templates
-├── community/                # Community and contribution guidelines
-│   ├── index.md
-│   ├── contributing/
-│   └── standards/
-├── docs/                     # General project documentation
-│   ├── index.md
-│   ├── getting-started/
-│   ├── architecture/
-│   └── deployment/
-├── commits/                  # Project management documentation
-├── updates/
-└── README.md                 # Main project documentation
+```mermaid
+graph TD
+    A[idling.app__UI/] --> B[src/]
+    A --> C[docs/]
+    A --> D[community/]
+    A --> E[commits/]
+    A --> F[README.md]
+
+    B --> G[app/api/]
+    B --> H[components/]
+    B --> I[lib/]
+    B --> J[templates/]
+
+    G --> K[README.md<br/>API Overview]
+    G --> L[admin/README.md<br/>Admin API docs]
+    G --> M[[endpoint]/README.md<br/>Endpoint docs]
+
+    H --> N[index.md<br/>Component library]
+    H --> O[[component]/index.md<br/>Component docs]
+
+    I --> P[index.md<br/>Library overview]
+    I --> Q[services/<br/>Service docs]
+    I --> R[utils/<br/>Utility docs]
+
+    J --> S[Documentation<br/>Templates]
+
+    C --> T[Generated<br/>Documentation]
+    D --> U[Community<br/>Guidelines]
+    E --> V[Project<br/>Management]
+
+    classDef colocated fill:#e1f5fe,stroke:#0277bd,stroke-width:2px
+    classDef generated fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px
+    classDef community fill:#e8f5e8,stroke:#388e3c,stroke-width:2px
+
+    class G,H,I,J,K,L,M,N,O,P,Q,R,S colocated
+    class C,T generated
+    class D,E,U,V community
 ```
 
 ## 📝 Documentation Types and Locations
@@ -73,7 +78,7 @@ idling.app__UI/
 **Examples**:
 
 - `src/app/api/admin/README.md` - Admin API documentation
-- `src/components/rich-input-system/index.md` - Component documentation
+- `src/app/components/rich-input-system/` - Component documentation
 - `src/lib/services/RateLimitService.md` - Service documentation
 
 ### 2. Feature Documentation
@@ -82,7 +87,7 @@ idling.app__UI/
 **Format**: `index.md` or dedicated files  
 **Examples**:
 
-- `src/components/navbar/index.md` - Navigation component
+- `src/app/components/navbar/` - Navigation component
 - `src/lib/auth-patterns.md` - Authentication patterns
 
 ### 3. Community Documentation
@@ -136,6 +141,25 @@ nav_order: 1 (optional)
 
 ### Cross-Reference Patterns
 
+```mermaid
+graph LR
+    A[Current Doc] --> B[Relative Links]
+    A --> C[Absolute Links]
+
+    B --> D[./component-name/<br/>Within Directory]
+    B --> E[../index.md<br/>Parent Directory]
+    B --> F[../sibling-feature/<br/>Sibling Directory]
+
+    C --> G[/api/<br/>Jekyll Navigation]
+    C --> H[/components/<br/>Jekyll Navigation]
+
+    classDef preferred fill:#e8f5e8,stroke:#388e3c,stroke-width:2px
+    classDef jekyll fill:#fff3e0,stroke:#f57c00,stroke-width:2px
+
+    class B,D,E,F preferred
+    class C,G,H jekyll
+```
+
 #### Relative Links (Preferred)
 
 ```markdown
@@ -165,6 +189,32 @@ nav_order: 1 (optional)
 
 ### Search Strategy
 
+```mermaid
+flowchart TD
+    A[Documentation Search] --> B[File-based Search]
+    A --> C[Content Search]
+    A --> D[Jekyll Search]
+    A --> E[Link Validation]
+
+    B --> F[IDE/Editor Search]
+    B --> G[find . -name "*.md"]
+
+    C --> H[grep/ripgrep]
+    C --> I[Content Indexing]
+
+    D --> J[Site-wide Search]
+    D --> K[Jekyll Plugins]
+
+    E --> L[Automated Link Checking]
+    E --> M[CI/CD Integration]
+
+    classDef search fill:#e3f2fd,stroke:#1976d2,stroke-width:2px
+    classDef validation fill:#fce4ec,stroke:#c2185b,stroke-width:2px
+
+    class A,B,C,D,F,G,H,I,J,K search
+    class E,L,M validation
+```
+
 1. **File-based Search**: Use IDE/editor search capabilities
 2. **Content Search**: Grep/ripgrep for content within documentation
 3. **Jekyll Search**: Site-wide search through Jekyll plugins
@@ -187,6 +237,31 @@ grep -r "\[.*\](" --include="*.md" . | grep -v "http"
 
 ### Documentation Updates
 
+```mermaid
+graph TD
+    A[Code Changes] --> B[Update Co-located Docs]
+    C[Feature Addition] --> D[Create Feature Directory Docs]
+    E[API Changes] --> F[Update Endpoint README]
+    G[Architecture Changes] --> H[Update System Docs]
+
+    B --> I[Same PR Review]
+    D --> I
+    F --> I
+    H --> I
+
+    I --> J[Automated Link Check]
+    J --> K[Documentation Build]
+    K --> L[Deploy Documentation]
+
+    classDef code fill:#e8f5e8,stroke:#388e3c,stroke-width:2px
+    classDef docs fill:#e1f5fe,stroke:#0277bd,stroke-width:2px
+    classDef process fill:#fff3e0,stroke:#f57c00,stroke-width:2px
+
+    class A,C,E,G code
+    class B,D,F,H docs
+    class I,J,K,L process
+```
+
 1. **Code Changes**: Update co-located documentation in same PR
 2. **Feature Additions**: Create documentation in feature directory
 3. **API Changes**: Update endpoint README files
@@ -199,104 +274,52 @@ grep -r "\[.*\](" --include="*.md" . | grep -v "http"
 find . -name "*.md" -exec grep -l "\[.*\](" {} \; | \
   xargs grep -o "\[.*\]([^)]*)" | \
   grep -v "http" | \
-  # Validate each link exists
+  while read line; do
+    # Extract link path and validate
+    echo "Checking: $line"
+  done
 ```
 
-### Content Auditing
-
-Regular audits should check:
-
-- [ ] All code directories have appropriate documentation
-- [ ] Links between documentation files work correctly
-- [ ] Documentation is up-to-date with code changes
-- [ ] Jekyll front matter is consistent
-
-## 🎨 Visual Documentation
-
-### Diagrams and Charts
-
-Use Mermaid for technical diagrams:
+## 🚀 Benefits of This Architecture
 
 ```mermaid
-graph TD
-    A[Code Change] --> B[Update Co-located Docs]
-    B --> C[Review Together]
-    C --> D[Deploy Both]
-    D --> E[Maintain Consistency]
+mindmap
+  root((Documentation Architecture))
+    Co-location Benefits
+      Reduced Context Switching
+      Improved Accuracy
+      Better Code Reviews
+      Faster Onboarding
+
+    Maintenance Benefits
+      Natural Ownership
+      Atomic Updates
+      Version Control
+      Review Process
+
+    Discovery Benefits
+      Intuitive Location
+      IDE Integration
+      Search Capabilities
+      Link Validation
+
+    Quality Benefits
+      Consistent Templates
+      Automated Checks
+      Community Standards
+      Living Documentation
 ```
 
-### Screenshots and Examples
+## 📋 Implementation Checklist
 
-- Include visual examples for UI components
-- Provide code examples with expected outputs
-- Show before/after comparisons for changes
-
-## 🚀 Migration Strategy
-
-### From Centralized to Co-located
-
-1. **Identify Documentation**: Catalog existing centralized docs
-2. **Map to Code**: Determine appropriate co-located positions
-3. **Move Files**: Relocate documentation to co-located positions
-4. **Update Links**: Fix all cross-references
-5. **Validate**: Ensure all links work correctly
-
-### Link Update Process
-
-```bash
-# Example: Moving API docs from docs/api/ to src/app/api/
-# Update all references:
-find . -name "*.md" -exec sed -i 's|docs/api/|src/app/api/|g' {} \;
-```
-
-## 🔧 Tools and Automation
-
-### Recommended Tools
-
-- **Link Checking**: `markdown-link-check` or custom scripts
-- **Content Search**: `ripgrep` for fast content search
-- **Documentation Generation**: JSDoc for code documentation
-- **Jekyll Plugins**: For enhanced search and navigation
-
-### Automation Scripts
-
-```bash
-#!/bin/bash
-# docs-check.sh - Validate documentation structure
-
-# Check for missing documentation
-find src -type d -name "components" -exec test -f {}/index.md \; || echo "Missing component docs"
-
-# Validate links
-find . -name "*.md" -exec markdown-link-check {} \;
-
-# Generate documentation index
-find . -name "*.md" -type f | sort > .docs-index
-```
-
-## 📈 Success Metrics
-
-### Quantitative Metrics
-
-- **Documentation Coverage**: Percentage of code directories with documentation
-- **Link Health**: Percentage of working internal links
-- **Update Frequency**: Documentation updates per code change
-- **Search Success**: Successful documentation searches
-
-### Qualitative Metrics
-
-- **Developer Satisfaction**: Ease of finding relevant documentation
-- **Onboarding Time**: Time for new developers to find needed information
-- **Maintenance Burden**: Effort required to keep documentation current
-- **Consistency**: Uniformity across documentation
-
-## 🔗 Related Resources
-
-- [Docusaurus Documentation](https://docusaurus.io/docs)
-- [Markdown Guide](https://www.markdownguide.org/)
-- [Documentation Best Practices](https://www.writethedocs.org/guide/)
-- [Co-location Benefits](https://martinfowler.com/bliki/DocumentationAsCode.html)
+- [ ] **File Structure**: Organize docs using co-location principles
+- [ ] **Templates**: Use standardized documentation templates
+- [ ] **Front Matter**: Include proper Jekyll front matter
+- [ ] **Links**: Use relative links for internal references
+- [ ] **Search**: Implement content search and indexing
+- [ ] **Validation**: Set up automated link checking
+- [ ] **Maintenance**: Establish documentation update workflows
 
 ---
 
-_This documentation architecture is continuously evolved based on team feedback and industry best practices. Last updated: {{ site.time | date: "%B %d, %Y" }}_
+_This documentation architecture ensures that knowledge stays close to code, making it easier to maintain, discover, and trust._

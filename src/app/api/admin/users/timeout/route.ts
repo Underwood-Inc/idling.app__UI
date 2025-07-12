@@ -3,14 +3,11 @@
  * Handles issuing and managing user timeouts
  */
 
-import { withUserPermissions } from '@/lib/api/wrappers/withUserPermissions';
-import { withUserRoles } from '@/lib/api/wrappers/withUserRoles';
-import { auth } from '@/lib/auth';
-import {
-    PermissionsService,
-    TIMEOUT_TYPES
-} from '@/lib/permissions/permissions';
-import { AdminTimeoutManagementSchema, AdminTimeoutRevocationParamsSchema, AdminTimeoutStatusParamsSchema } from '@/lib/schemas/admin-users.schema';
+import { withUserPermissions } from '@lib/api/wrappers/withUserPermissions';
+import { withUserRoles } from '@lib/api/wrappers/withUserRoles';
+import { auth } from '@lib/auth';
+import { PermissionsService, TIMEOUT_TYPES } from '@lib/permissions/permissions';
+import { AdminTimeoutManagementSchema, AdminTimeoutRevocationParamsSchema, AdminTimeoutStatusParamsSchema } from '@lib/schemas/admin-users.schema';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 

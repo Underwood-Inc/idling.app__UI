@@ -25,8 +25,8 @@
  *               $ref: '#/components/schemas/Error'
  */
 
-import { auth } from '@/lib/auth';
-import sql from '@/lib/db';
+import { auth } from '@lib/auth';
+import sql from '@lib/db';
 import { NextResponse } from 'next/server';
 
 export const dynamic = 'force-dynamic';

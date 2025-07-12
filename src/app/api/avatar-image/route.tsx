@@ -1,4 +1,4 @@
-import { withRateLimit } from '@/lib/middleware/withRateLimit';
+import { withRateLimit } from '@lib/middleware/withRateLimit';
 import { ImageResponse } from 'next/og';
 import { NextRequest } from 'next/server';
 
