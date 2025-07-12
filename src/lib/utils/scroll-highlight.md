@@ -29,7 +29,7 @@ The scroll highlight system consists of:
 ## Basic Usage
 
 ```tsx
-import { applyScrollHighlight } from '@/lib/utils/scroll-highlight';
+import { applyScrollHighlight } from '@lib/utils/scroll-highlight';
 
 function MyComponent() {
   const handleHighlight = () => {
@@ -55,7 +55,7 @@ import {
   applyScrollHighlight,
   HIGHLIGHT_PRESETS,
   type ScrollHighlightOptions
-} from '@/lib/utils/scroll-highlight';
+} from '@lib/utils/scroll-highlight';
 
 function AdvancedHighlight() {
   const handleCustomHighlight = () => {
@@ -111,7 +111,7 @@ interface ScrollHighlightOptions {
 ### Preset Configurations
 
 ```tsx
-import { HIGHLIGHT_PRESETS } from '@/lib/utils/scroll-highlight';
+import { HIGHLIGHT_PRESETS } from '@lib/utils/scroll-highlight';
 
 // Available presets
 HIGHLIGHT_PRESETS.DEFAULT; // Standard highlight
@@ -311,7 +311,7 @@ function announceHighlight(element: HTMLElement, type: string) {
 Highlight elements after scroll restoration:
 
 ```tsx
-import { applyScrollHighlight } from '@/lib/utils/scroll-highlight';
+import { applyScrollHighlight } from '@lib/utils/scroll-highlight';
 
 function useScrollRestoration() {
   const highlightRestoredElement = (elementId: string) => {
@@ -401,7 +401,7 @@ function SuccessButton() {
 ### Unit Tests
 
 ```tsx
-import { applyScrollHighlight } from '@/lib/utils/scroll-highlight';
+import { applyScrollHighlight } from '@lib/utils/scroll-highlight';
 
 describe('ScrollHighlight', () => {
   test('applies highlight class to element', () => {

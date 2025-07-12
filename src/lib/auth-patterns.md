@@ -9,20 +9,20 @@ This document establishes the correct authentication patterns for the applicatio
 ### Server-Side Components (RSC)
 
 ```tsx
-import { auth } from '@/lib/auth';
+import { auth } from '@lib/auth';
 
 async function MyServerComponent() {
   const session = await auth();
-  
+
   // Check if user is authenticated
   const isAuthenticated = !!session?.user?.id;
-  
+
   // Check if user owns a resource
   const isOwner = session?.user?.id === resourceOwnerId;
-  
+
   // Use user ID for stable comparisons
   const currentUserId = session?.user?.id;
-  
+
   return (
     <div>
       {isAuthenticated && <p>Welcome back!</p>}
@@ -41,16 +41,16 @@ import { useSession } from 'next-auth/react';
 
 function MyClientComponent() {
   const { data: session } = useSession();
-  
+
   // Check if user is authenticated
   const isAuthenticated = !!session?.user?.id;
-  
+
   // Check if user owns a resource
   const isOwner = session?.user?.id === resourceOwnerId;
-  
+
   // Use user ID for stable comparisons
   const currentUserId = session?.user?.id;
-  
+
   return (
     <div>
       {isAuthenticated && <p>Welcome back!</p>}
@@ -63,13 +63,14 @@ function MyClientComponent() {
 ## ❌ Incorrect Patterns (DO NOT USE)
 
 ### Complex Username Matching
+
 ```tsx
 // ❌ WRONG - Error-prone and inconsistent
-const isOwnProfile = session?.user && (
-  userProfile.id === session.user.id ||
-  userProfile.username === session.user.name ||
-  userProfile.username === session.user.email
-);
+const isOwnProfile =
+  session?.user &&
+  (userProfile.id === session.user.id ||
+    userProfile.username === session.user.name ||
+    userProfile.username === session.user.email);
 ```
 
 ### Using `session.user.id` (Database ID)
@@ -79,10 +80,11 @@ const isOwner = session?.user?.id === authorId;
 ```
 
 ### Inconsistent Checks
+
 ```tsx
 // ❌ WRONG - Mix of different identifiers
-const canEdit = session?.user?.name === author || 
-               session?.user?.email === userEmail;
+const canEdit =
+  session?.user?.name === author || session?.user?.email === userEmail;
 ```
 
 ## Key Principles
@@ -135,10 +137,10 @@ If you encounter legacy patterns using `providerAccountId`, replace them with `s
 
 ```tsx
 // Before
-session?.user?.providerAccountId === authorId
+session?.user?.providerAccountId === authorId;
 
-// After  
-session?.user?.id === authorId
+// After
+session?.user?.id === authorId;
 ```
 
 ## Session Structure
@@ -148,10 +150,10 @@ Our session object has this structure:
 ```typescript
 interface Session {
   user: {
-    id: string;           // ✅ Use this for all comparisons
-    name?: string;        // Display name
-    email?: string;       // User email
-    image?: string;       // Profile image URL
+    id: string; // ✅ Use this for all comparisons
+    name?: string; // Display name
+    email?: string; // User email
+    image?: string; // Profile image URL
     providerAccountId?: string; // ⚠️ OAuth only, don't use for app logic
   };
 }
@@ -160,12 +162,14 @@ interface Session {
 ## Examples
 
 ### Profile Ownership Check
+
 ```tsx
 // ✅ Correct
 const isOwnProfile = session?.user?.id === userProfile.id;
 ```
 
 ### Post/Comment Ownership
+
 ```tsx
 // ✅ Correct
 const canEdit = session?.user?.id === post.authorId;
@@ -173,6 +177,7 @@ const canDelete = session?.user?.id === comment.authorId;
 ```
 
 ### Authorization for Actions
+
 ```tsx
 // ✅ Correct
 const canReply = !!session?.user?.id;
@@ -196,9 +201,10 @@ const mockSession = {
 ## Conclusion
 
 Following these patterns ensures:
+
 - **Consistency** across the entire application
-- **Security** through proper identity verification  
+- **Security** through proper identity verification
 - **Maintainability** with simple, predictable patterns
 - **Reliability** using stable identifiers
 
-Always use `session.user.id` for all authentication and authorization checks! 
+Always use `session.user.id` for all authentication and authorization checks!

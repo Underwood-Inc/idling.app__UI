@@ -43,7 +43,7 @@ src/lib/[utility-path]/
 ### Basic Usage
 
 ```typescript
-import { [utilityName] } from '@/lib/[utility-path]';
+import { [utilityName] } from '@lib/[utility-path]';
 
 // Simple usage
 const result = [utilityName]([parameters]);
@@ -58,7 +58,7 @@ const result = [utilityName]([parameters], {
 ### Real-World Example
 
 ```typescript
-import { [utilityName] } from '@/lib/[utility-path]';
+import { [utilityName] } from '@lib/[utility-path]';
 
 function ExampleComponent() {
   const [data, setData] = useState([initialValue]);

@@ -44,7 +44,7 @@ The `RateLimitService` is a singleton service that implements:
 ### Basic Rate Limiting
 
 ```typescript
-import { RateLimitService } from '@/lib/services/RateLimitService';
+import { RateLimitService } from '@lib/services/RateLimitService';
 
 const rateLimiter = RateLimitService.getInstance();
 
@@ -181,8 +181,8 @@ For daily quotas, ensure your database service is properly configured. The servi
 
 ```typescript
 // app/api/example/route.ts
-import { RateLimitService } from '@/lib/services/RateLimitService';
-import { getClientIP } from '@/lib/utils/request';
+import { RateLimitService } from '@lib/services/RateLimitService';
+import { getClientIP } from '@lib/utils/request';
 
 export async function GET(request: Request) {
   const rateLimiter = RateLimitService.getInstance();

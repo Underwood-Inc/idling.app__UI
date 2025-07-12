@@ -352,7 +352,7 @@ try {
 ### React Component Integration
 
 ```typescript
-import { TextExtractor, TextManipulator } from '@/lib/utils/text-extraction';
+import { TextExtractor, TextManipulator } from '@lib/utils/text-extraction';
 
 function SocialPostEditor() {
   const [text, setText] = useState('');
@@ -393,7 +393,7 @@ function SocialPostEditor() {
 
 ```typescript
 // Process user input on the server
-import { TextExtractor } from '@/lib/utils/text-extraction';
+import { TextExtractor } from '@lib/utils/text-extraction';
 
 export async function processUserPost(content: string) {
   const extracted = TextExtractor.extractAll(content);
