@@ -1,6 +1,6 @@
 {
   "name": "idling.app",
-  "version": "0.415.8",
+  "version": "0.415.9",
   "private": true,
   "engines": {
     "node": ">=20.x"
