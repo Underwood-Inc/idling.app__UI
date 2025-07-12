@@ -2,6 +2,9 @@ import { auth } from '@lib/auth';
 import sql from '@lib/db';
 import { NextRequest, NextResponse } from 'next/server';
 
+// Force dynamic rendering since we need to access headers for auth
+export const dynamic = 'force-dynamic';
+
 export interface SubscriptionStatusResponse {
   hasActiveSubscription: boolean;
   isPro: boolean;
