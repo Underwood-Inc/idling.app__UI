@@ -1,5 +1,5 @@
-import { auth } from '@/lib/auth';
-import { PermissionsService } from '@/lib/permissions/permissions';
+import { auth } from '@lib/auth';
+import { PermissionsService } from '@lib/permissions/permissions';
 import { NextRequest, NextResponse } from 'next/server';
 
 /**

@@ -4,21 +4,21 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { withUserPermissions } from './withUserPermissions';
 
-// Mock the auth module
-jest.mock('../../auth', () => ({
+// Mock the auth module using the correct alias
+jest.mock('@lib/auth', () => ({
   auth: jest.fn()
 }));
 
-// Mock the permissions module
-jest.mock('../../permissions/permissions', () => ({
+// Mock the permissions module using the correct alias
+jest.mock('@lib/permissions/permissions', () => ({
   PermissionsService: {
     getUserPermissions: jest.fn()
   }
 }));
 
-// Import the mocked modules
-import { auth } from '../../auth';
-import { PermissionsService } from '../../permissions/permissions';
+// Import the mocked modules using the correct aliases
+import { auth } from '@lib/auth';
+import { PermissionsService } from '@lib/permissions/permissions';
 
 describe('withUserPermissions', () => {
   const mockHandler = jest.fn();
