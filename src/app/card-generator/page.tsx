@@ -18,6 +18,7 @@ import { useFormState } from './hooks/useFormState';
 import { useGenerationLoader } from './hooks/useGenerationLoader';
 import { useImageGeneration } from './hooks/useImageGeneration';
 import { useQuotaTracking } from './hooks/useQuotaTracking';
+import { useSubscriptionStatus } from './hooks/useSubscriptionStatus';
 import { useWelcomeFlow } from './hooks/useWelcomeFlow';
 import styles from './page.module.css';
 import { GenerationOptions } from './types/generation';
@@ -47,6 +48,7 @@ export default function OgImageViewer() {
     useFormState();
   const [isFormCollapsed, setIsFormCollapsed] = useState(true);
   const quotaState = useQuotaTracking();
+  const subscriptionStatus = useSubscriptionStatus();
   const welcomeFlow = useWelcomeFlow();
   const generationLoader = useGenerationLoader({
     setFormState,
@@ -386,15 +388,16 @@ export default function OgImageViewer() {
                   isCollapsed={isFormCollapsed}
                   onToggleCollapse={() => setIsFormCollapsed(!isFormCollapsed)}
                   selectedRatio={
-                    ASPECT_RATIO_OPTIONS.find((r) => r.key === selectedRatio) ||
-                    ASPECT_RATIO_OPTIONS[0]
+                    ASPECT_RATIO_OPTIONS.find(
+                      (opt) => opt.key === selectedRatio
+                    ) || ASPECT_RATIO_OPTIONS[0]
                   }
                   onRatioChange={(ratio) => setSelectedRatio(ratio.key)}
                   aspectRatioOptions={ASPECT_RATIO_OPTIONS}
                   generationOptions={generationOptions}
                   advancedOptions={advancedOptions}
                   onAdvancedOptionsChange={setAdvancedOptions}
-                  isProUser={false} // TODO: Connect to actual Pro user status
+                  isProUser={subscriptionStatus.isPro}
                   isReadOnly={isLoadedGeneration}
                 />
 

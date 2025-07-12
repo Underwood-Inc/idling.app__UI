@@ -97,7 +97,7 @@ export function useQuotaTracking(): QuotaState & {
 
     const currentUserId = session?.user?.id || null;
     const previousUserId = previousUserIdRef.current;
-    
+
     // Check if this is the initial mount or if auth state has changed
     const authStateChanged = currentUserId !== previousUserId;
     const isInitialMount = !isInitializedRef.current;

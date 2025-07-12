@@ -9,10 +9,12 @@ import { z } from 'zod';
  */
 export const AdminSubscriptionAssignmentSchema = z.object({
   planId: z.number().int().min(1, 'Plan ID is required'),
-  billingCycle: z.enum(['weekly', 'monthly', 'yearly']).default('monthly'),
+  billingCycle: z.enum(['weekly', 'monthly', 'yearly', 'lifetime']).default('monthly'),
   expiresAt: z.string().datetime().optional(),
   status: z.enum(['active', 'trialing', 'cancelled', 'expired', 'suspended']).default('active'),
   reason: z.string().min(3, 'Reason must be at least 3 characters').optional(),
+  priceOverrideCents: z.number().int().min(0, 'Price override must be 0 or greater').optional(),
+  priceOverrideReason: z.string().min(3, 'Price override reason must be at least 3 characters').optional(),
 });
 
 /**

@@ -56,23 +56,32 @@ export function WelcomeInterface({
           <button
             onClick={onNewGeneration}
             className={`${styles.path__button__large} ${styles.path__button__new}`}
-            disabled={isQuotaExceeded}
+            disabled={!hasInitializedQuota || isQuotaExceeded}
           >
             <div className={styles.button__icon}>🆕</div>
             <div className={styles.button__content}>
-              <h3>Create New</h3>
-              <p>Generate a fresh mystical card</p>
+              <h3>{hasInitializedQuota ? 'Create New' : 'Loading...'}</h3>
+              <p>
+                {hasInitializedQuota
+                  ? 'Generate a fresh mystical card'
+                  : 'Initializing mystical energies...'}
+              </p>
             </div>
           </button>
 
           <button
             onClick={() => setLoadGenerationId(' ')}
             className={`${styles.path__button__large} ${styles.path__button__load}`}
+            disabled={!hasInitializedQuota}
           >
             <div className={styles.button__icon}>🔍</div>
             <div className={styles.button__content}>
-              <h3>Load Previous</h3>
-              <p>Retrieve an existing generation</p>
+              <h3>{hasInitializedQuota ? 'Load Previous' : 'Loading...'}</h3>
+              <p>
+                {hasInitializedQuota
+                  ? 'Retrieve an existing generation'
+                  : 'Initializing mystical energies...'}
+              </p>
             </div>
           </button>
         </div>

@@ -8,14 +8,14 @@ import './AssignSubscriptionModal.css';
 // ================================
 
 interface SubscriptionPlan {
-  id: string;
+  id: number;
   name: string;
   display_name: string;
   description?: string;
   plan_type: 'tier' | 'addon' | 'bundle';
-  price_monthly_cents?: number;
-  price_yearly_cents?: number;
-  price_lifetime_cents?: number;
+  price_monthly_cents: number | null;
+  price_yearly_cents: number | null;
+  price_lifetime_cents: number | null;
   is_active: boolean;
 }
 
@@ -26,7 +26,9 @@ interface AssignSubscriptionModalProps {
     planId: string,
     billingCycle: string,
     expiresAt?: string,
-    reason?: string
+    reason?: string,
+    priceOverrideCents?: number,
+    priceOverrideReason?: string
   ) => Promise<void>;
   userName: string;
   userId: string;
@@ -52,6 +54,9 @@ export const AssignSubscriptionModal: React.FC<
   const [expiresAt, setExpiresAt] = useState<string>('');
   const [reason, setReason] = useState<string>('');
   const [hasExpiration, setHasExpiration] = useState<boolean>(false);
+  const [hasPriceOverride, setHasPriceOverride] = useState<boolean>(false);
+  const [priceOverrideDollars, setPriceOverrideDollars] = useState<string>('');
+  const [priceOverrideReason, setPriceOverrideReason] = useState<string>('');
 
   // ================================
   // DATA FETCHING
@@ -115,6 +120,21 @@ export const AssignSubscriptionModal: React.FC<
       }
     }
 
+    if (hasPriceOverride) {
+      if (!priceOverrideDollars) {
+        return 'Please enter a price override amount';
+      }
+
+      const priceValue = parseFloat(priceOverrideDollars);
+      if (isNaN(priceValue) || priceValue < 0) {
+        return 'Price override must be a valid amount (0 or greater)';
+      }
+
+      if (!priceOverrideReason.trim()) {
+        return 'Please provide a reason for the price override';
+      }
+    }
+
     return null;
   };
 
@@ -135,11 +155,17 @@ export const AssignSubscriptionModal: React.FC<
     setError(null);
 
     try {
+      const priceOverrideCents = hasPriceOverride
+        ? Math.round(parseFloat(priceOverrideDollars) * 100)
+        : undefined;
+
       await onAssign(
         selectedPlanId,
         billingCycle,
         hasExpiration ? expiresAt : undefined,
-        reason || undefined
+        reason || undefined,
+        priceOverrideCents,
+        hasPriceOverride ? priceOverrideReason : undefined
       );
 
       // Reset form and close modal
@@ -161,6 +187,9 @@ export const AssignSubscriptionModal: React.FC<
     setExpiresAt('');
     setReason('');
     setHasExpiration(false);
+    setHasPriceOverride(false);
+    setPriceOverrideDollars('');
+    setPriceOverrideReason('');
     setError(null);
   };
 
@@ -181,7 +210,9 @@ export const AssignSubscriptionModal: React.FC<
   };
 
   const getSelectedPlan = () => {
-    return subscriptionPlans.find((plan) => plan.id === selectedPlanId);
+    return subscriptionPlans.find(
+      (plan) => plan.id === parseInt(selectedPlanId)
+    );
   };
 
   const getBillingCycleOptions = (): Array<{
@@ -193,21 +224,21 @@ export const AssignSubscriptionModal: React.FC<
 
     const options: Array<{ value: string; label: string }> = [];
 
-    if (selectedPlan.price_monthly_cents !== undefined) {
+    if (selectedPlan.price_monthly_cents) {
       options.push({
         value: 'monthly',
         label: `Monthly - ${formatPrice(selectedPlan.price_monthly_cents)}/month`
       });
     }
 
-    if (selectedPlan.price_yearly_cents !== undefined) {
+    if (selectedPlan.price_yearly_cents) {
       options.push({
         value: 'yearly',
         label: `Yearly - ${formatPrice(selectedPlan.price_yearly_cents)}/year`
       });
     }
 
-    if (selectedPlan.price_lifetime_cents !== undefined) {
+    if (selectedPlan.price_lifetime_cents) {
       options.push({
         value: 'lifetime',
         label: `Lifetime - ${formatPrice(selectedPlan.price_lifetime_cents)} once`
@@ -324,6 +355,18 @@ export const AssignSubscriptionModal: React.FC<
                   </label>
                 </div>
 
+                <div className="form-group">
+                  <label className="checkbox-label">
+                    <input
+                      type="checkbox"
+                      checked={hasPriceOverride}
+                      onChange={(e) => setHasPriceOverride(e.target.checked)}
+                      disabled={assigning}
+                    />
+                    💰 Override plan pricing
+                  </label>
+                </div>
+
                 {hasExpiration && (
                   <div className="form-group">
                     <label htmlFor="expires-at">
@@ -338,6 +381,46 @@ export const AssignSubscriptionModal: React.FC<
                       disabled={assigning}
                     />
                   </div>
+                )}
+
+                {hasPriceOverride && (
+                  <>
+                    <div className="form-group">
+                      <label htmlFor="price-override">
+                        💰 Custom Price (USD){' '}
+                        <span className="required">*</span>
+                      </label>
+                      <input
+                        type="number"
+                        id="price-override"
+                        value={priceOverrideDollars}
+                        onChange={(e) =>
+                          setPriceOverrideDollars(e.target.value)
+                        }
+                        placeholder="0.00"
+                        min="0"
+                        step="0.01"
+                        required={hasPriceOverride}
+                        disabled={assigning}
+                      />
+                    </div>
+
+                    <div className="form-group">
+                      <label htmlFor="price-override-reason">
+                        💡 Price Override Reason{' '}
+                        <span className="required">*</span>
+                      </label>
+                      <textarea
+                        id="price-override-reason"
+                        value={priceOverrideReason}
+                        onChange={(e) => setPriceOverrideReason(e.target.value)}
+                        placeholder="e.g., Trial period, Special discount, Promotional pricing..."
+                        rows={2}
+                        required={hasPriceOverride}
+                        disabled={assigning}
+                      />
+                    </div>
+                  </>
                 )}
 
                 <div className="form-group">

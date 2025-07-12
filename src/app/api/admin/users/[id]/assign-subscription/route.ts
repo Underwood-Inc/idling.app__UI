@@ -17,6 +17,8 @@ export interface SubscriptionAssignmentRequest {
   expiresAt?: string;
   status?: string;
   reason?: string;
+  priceOverrideCents?: number;
+  priceOverrideReason?: string;
 }
 
 // POST /api/admin/users/[id]/assign-subscription - Assign subscription to user
@@ -51,7 +53,7 @@ async function postHandler(
       );
     }
 
-    const { planId, billingCycle, expiresAt, status, reason } = bodyResult.data;
+    const { planId, billingCycle, expiresAt, status, reason, priceOverrideCents, priceOverrideReason } = bodyResult.data;
 
     // Check if subscription system exists
     let planExists = false;
@@ -85,31 +87,40 @@ async function postHandler(
     }
 
     // Calculate expiry date if not provided
-    let finalExpiresAt = expiresAt;
+    let finalExpiresAt: string | null = expiresAt || null;
     if (!finalExpiresAt && billingCycle) {
       const now = new Date();
       switch (billingCycle) {
         case 'monthly':
           now.setMonth(now.getMonth() + 1);
+          finalExpiresAt = now.toISOString();
           break;
         case 'yearly':
           now.setFullYear(now.getFullYear() + 1);
+          finalExpiresAt = now.toISOString();
           break;
         case 'weekly':
           now.setDate(now.getDate() + 7);
+          finalExpiresAt = now.toISOString();
+          break;
+        case 'lifetime':
+          // Lifetime subscriptions never expire
+          finalExpiresAt = null;
           break;
         default:
           // Default to monthly if unrecognized
           now.setMonth(now.getMonth() + 1);
+          finalExpiresAt = now.toISOString();
       }
-      finalExpiresAt = now.toISOString();
     }
 
     // Assign the subscription
     await sql`
       INSERT INTO user_subscriptions (
         user_id, plan_id, status, billing_cycle, expires_at, 
-        assigned_by, created_at, notes
+        assigned_by, created_at, notes,
+        admin_price_override_cents, admin_price_override_reason, 
+        admin_price_override_by, admin_price_override_at
       ) VALUES (
         ${targetUserId}, 
         ${planId}, 
@@ -118,7 +129,11 @@ async function postHandler(
         ${finalExpiresAt || null}, 
         ${adminUserId}, 
         NOW(), 
-        ${reason || null}
+        ${reason || null},
+        ${priceOverrideCents || null},
+        ${priceOverrideReason || null},
+        ${priceOverrideCents !== undefined ? adminUserId : null},
+        ${priceOverrideCents !== undefined ? sql`NOW()` : null}
       )
     `;
 
