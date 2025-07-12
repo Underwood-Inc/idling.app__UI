@@ -125,8 +125,21 @@ export function useImageGeneration(props: UseImageGenerationProps) {
       }
       // For forceRandom=true, we only send ratio and format, letting server randomize everything
 
+      // NEVER cache image generation - add cache-busting parameters
+      const cacheBuster = `${Date.now()}-${Math.random().toString(36).substring(2)}`;
+      params.set('_t', cacheBuster);
+      params.set('_nocache', 'true');
+
       const response = await fetch(`/api/og-image?${params.toString()}`, {
-        credentials: 'include'
+        method: 'GET',
+        credentials: 'include',
+        headers: {
+          'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0',
+          'Pragma': 'no-cache',
+          'Expires': '0',
+          'X-Requested-With': 'XMLHttpRequest',
+          'X-Cache-Bust': cacheBuster
+        }
       });
       
       if (!response.ok) {

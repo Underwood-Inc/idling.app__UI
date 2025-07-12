@@ -40,8 +40,14 @@ export function useGenerationLoader({
       setSelectedRatio('default');
       setLoadedOptions(null);
 
+      // Allow 30-day caching for existing generations since they don't change
       const response = await fetch(`/api/og-image/${id}?format=json`, {
-        credentials: 'include'
+        method: 'GET',
+        credentials: 'include',
+        headers: {
+          'Cache-Control': 'public, max-age=2592000, immutable', // 30 days = 2592000 seconds
+          'X-Cache-Policy': 'long-term-cache'
+        }
       });
 
       if (!response.ok) {
