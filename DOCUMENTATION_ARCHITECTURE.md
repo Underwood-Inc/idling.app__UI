@@ -1,9 +1,6 @@
 ---
-layout: default
 title: 'Documentation Architecture'
 description: 'Co-located documentation approach and architectural guidelines for Idling.app'
-permalink: /documentation-architecture/
-nav_order: 2
 ---
 
 # 📚 Documentation Architecture

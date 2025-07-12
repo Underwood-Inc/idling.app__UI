@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Card } from '../../components/card/Card';
 import { InstantLink } from '../../components/ui/InstantLink';
 import type { GenerationOptions } from '../types/generation';
@@ -135,15 +135,23 @@ export function GenerationForm({
               title={isCollapsed ? 'Expand form' : 'Collapse form'}
             >
               <span>{isCollapsed ? 'Expand' : 'Collapse'}</span>
-              <span
+              <svg
                 className={`${formStyles.form__collapse__chevron} ${
                   isCollapsed
                     ? formStyles['form__collapse__chevron--collapsed']
                     : formStyles['form__collapse__chevron--expanded']
                 }`}
+                width="12"
+                height="12"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
               >
-                ▼
-              </span>
+                <polyline points="6,9 12,15 18,9" />
+              </svg>
             </button>
           )}
         </div>
@@ -387,15 +395,23 @@ export function GenerationForm({
               className={formStyles.form__toggle__button}
             >
               <span>{isAdvancedOpen ? 'Hide Details' : 'Show Details'}</span>
-              <span
+              <svg
                 className={`${formStyles.form__toggle__chevron} ${
                   isAdvancedOpen
                     ? formStyles['form__toggle__chevron--expanded']
                     : formStyles['form__toggle__chevron--collapsed']
                 }`}
+                width="12"
+                height="12"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
               >
-                ▼
-              </span>
+                <polyline points="6,9 12,15 18,9" />
+              </svg>
             </button>
           </div>
 

@@ -347,7 +347,7 @@ export default function PermissionManagementPanel() {
     }
     if (!item.is_active) {
       return (
-        <span className="status-badge status-badge--disabled">⏸️ Disabled</span>
+        <span className="status-badge status-badge--disabled">🔒 Disabled</span>
       );
     }
     return <span className="status-badge status-badge--active">✅ Active</span>;
@@ -587,7 +587,7 @@ export default function PermissionManagementPanel() {
               className={`action-btn ${permission.is_active ? 'action-btn--disable' : 'action-btn--enable'}`}
               disabled={loading || permission.is_system}
             >
-              {permission.is_active ? '⏸️ Disable' : '▶️ Enable'}
+              {permission.is_active ? '🔒 Disable' : '✅ Enable'}
             </button>
 
             {!permission.is_system && !permission.is_archived && (
@@ -677,7 +677,7 @@ export default function PermissionManagementPanel() {
               className={`action-btn ${role.is_active ? 'action-btn--disable' : 'action-btn--enable'}`}
               disabled={loading || role.is_system}
             >
-              {role.is_active ? '⏸️ Disable' : '▶️ Enable'}
+              {role.is_active ? '🔒 Disable' : '✅ Enable'}
             </button>
 
             {!role.is_system && !role.is_archived && (

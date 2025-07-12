@@ -1,9 +1,7 @@
 ---
-layout: default
 title: 'Installation Guide'
-description: 'Detailed installation instructions for Idling.app'
-permalink: /getting-started/installation/
-parent: Getting Started
+description: 'Step-by-step installation instructions for developers'
+sidebar_position: 2
 ---
 
 # 📦 Installation Guide
@@ -105,4 +103,4 @@ manage-user --help
 
 ---
 
-_This is a stub file. [Contribute to expand this documentation](/community/contributing/)._
+**This documentation is under development. [Contribute to expand this documentation](/community/contributing/).**

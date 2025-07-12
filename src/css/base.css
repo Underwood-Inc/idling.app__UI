@@ -67,11 +67,11 @@ h3 {
   font-weight: var(--font-weight-medium);
   margin-top: var(--spacing-xl);
   position: relative;
-  padding-left: var(--spacing-lg);
+  padding-left: var(--spacing-xl);
 }
 
 h3::before {
-  content: '▸';
+  content: '📌';
   position: absolute;
   left: 0;
   color: var(--brand-primary);

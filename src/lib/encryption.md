@@ -1,3 +1,9 @@
+---
+title: 'Encryption Utilities'
+description: 'Encryption, hashing, and cryptographic utility functions'
+sidebar_position: 6
+---
+
 # Encryption System Documentation
 
 This directory contains the encryption system for the application, providing secure data encryption/decryption capabilities with support for both personal (per-user) and global (application-level) encryption.
@@ -15,6 +21,7 @@ The encryption system is built with a modular architecture:
 ### Dual Encryption Scopes
 
 1. **Personal Encryption**: Per-user encryption keys for private data
+
    - Each user has their own encryption key
    - Only the user can decrypt their personal data
    - Keys are derived from user ID + context + master key
@@ -133,7 +140,10 @@ The `EmojiEncryptionService` is a specialized implementation of the base encrypt
 ### Usage Example
 
 ```typescript
-import { EmojiEncryptionService, EmojiEncryptionUtils } from './emoji-encryption';
+import {
+  EmojiEncryptionService,
+  EmojiEncryptionUtils
+} from './emoji-encryption';
 
 // Encrypt emoji image (personal)
 const encryptedImage = await EmojiEncryptionService.encryptImageData(
@@ -212,7 +222,7 @@ Set these environment variables for production:
 # Global encryption master key
 GLOBAL_ENCRYPTION_MASTER_KEY=your-secure-global-master-key
 
-# Personal encryption master key  
+# Personal encryption master key
 PERSONAL_ENCRYPTION_MASTER_KEY=your-secure-personal-master-key
 ```
 
@@ -244,7 +254,7 @@ To assign admin role to a user, use direct database access:
 ```sql
 -- Only run this with direct database access
 INSERT INTO user_role_assignments (user_id, role_id, assigned_by)
-SELECT 
+SELECT
     (SELECT id FROM users WHERE username = 'target_username'),
     (SELECT id FROM user_roles WHERE name = 'admin'),
     (SELECT id FROM users WHERE username = 'admin_username');
@@ -318,11 +328,11 @@ describe('BaseEncryptionService', () => {
       context: 'test',
       userId: 123
     });
-    
+
     const decrypted = await BaseEncryptionService.decrypt(encrypted, {
       userId: 123
     });
-    
+
     expect(decrypted).toBe(data);
   });
 });
@@ -383,4 +393,4 @@ Test the complete flow from API to encryption:
 - `parseEncryptedPayload(payload)`: Parse encrypted data
 - `generateEmojiId(name, userId)`: Generate unique emoji ID
 - `validateEmojiMetadata(metadata)`: Validate emoji metadata
-- `sanitizeEmojiData(data)`: Sanitize emoji data for XSS prevention 
+- `sanitizeEmojiData(data)`: Sanitize emoji data for XSS prevention

@@ -1,3 +1,9 @@
+---
+title: 'Database Explorer'
+description: 'Database exploration tools and administrative interface'
+sidebar_position: 12
+---
+
 # 🧙‍♂️ Database Explorer
 
 Simple interactive PostgreSQL database exploration tool that follows the same patterns as your existing scripts.

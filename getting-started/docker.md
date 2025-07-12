@@ -1,10 +1,7 @@
 ---
-layout: default
 title: 'Docker Setup'
-description: 'Containerized development environment for Idling.app'
-permalink: /getting-started/docker/
-parent: Getting Started
-nav_order: 3
+description: 'Complete Docker development environment setup'
+sidebar_position: 4
 ---
 
 # 🐳 Docker Setup
@@ -222,4 +219,4 @@ docker-compose exec app cat /sys/fs/cgroup/memory/memory.limit_in_bytes
 
 ---
 
-_This is a stub file. [Contribute to expand this documentation](/community/contributing/)._
+**This documentation is under development. [Contribute to expand this documentation](/community/contributing/).**

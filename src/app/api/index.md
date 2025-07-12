@@ -1,8 +1,7 @@
 ---
-layout: default
 title: 'API Reference'
-description: 'Complete API documentation and reference for Idling.app'
-permalink: /api/
+description: 'Complete REST API documentation and interactive examples'
+sidebar_position: 1
 ---
 
 # 🔌 API Reference
@@ -205,4 +204,4 @@ X-RateLimit-Reset: 1640995200
 
 ---
 
-_This is a stub file. [Contribute to expand this documentation](/community/contributing/)._
+**This documentation is under development. [Contribute to expand this documentation](/community/contributing/).**

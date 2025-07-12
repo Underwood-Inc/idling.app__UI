@@ -1,3 +1,9 @@
+---
+title: 'Idling.app - Social Gaming Platform'
+description: 'Main project overview, setup instructions, and quick start guide'
+sidebar_position: 1
+---
+
 ## Code Analysis
 
 ![React](https://img.shields.io/badge/React-19.0.0--alpha-61DAFB?style=flat&logo=react&logoColor=white)

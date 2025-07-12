@@ -1,8 +1,7 @@
 ---
-layout: default
-title: 'Testing Strategies'
-description: 'Testing frameworks, strategies, and quality assurance documentation'
-permalink: /dev/testing/
+title: 'Testing Utilities'
+description: 'Testing helpers, mocks, and library-specific testing patterns'
+sidebar_position: 3
 ---
 
 # 🧪 Testing Strategies

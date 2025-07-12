@@ -1,9 +1,7 @@
 ---
-layout: default
 title: 'Getting Started'
-description: 'Get up and running with Idling.app development'
-permalink: /getting-started/
-nav_order: 2
+description: 'Quick start guide and introduction to Idling.app'
+sidebar_position: 6
 ---
 
 # 🚀 Getting Started
@@ -58,4 +56,4 @@ Welcome to Idling.app! This guide will help you get up and running with the proj
 
 ---
 
-_This is a stub file. [Contribute to expand this documentation](/community/contributing/)._
+**This documentation is under development. [Contribute to expand this documentation](/community/contributing/).**

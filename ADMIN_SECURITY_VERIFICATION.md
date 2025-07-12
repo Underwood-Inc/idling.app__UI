@@ -1,3 +1,9 @@
+---
+title: 'Admin Security Verification'
+description: 'Security verification procedures and access control for admin functions'
+sidebar_position: 10
+---
+
 # 🔐 ADMIN SECURITY VERIFICATION
 
 ## ✅ SECURITY IMPLEMENTATION STATUS

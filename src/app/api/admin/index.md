@@ -1,6 +1,7 @@
 ---
-title: '🔧 Admin Endpoints'
-description: 'Administrative endpoints for system management'
+title: 'Admin API'
+description: 'Administrative endpoints for system management and user administration'
+sidebar_position: 2
 ---
 
 # 🔧 Admin Endpoints

@@ -328,6 +328,53 @@ jobs:
           echo "📊 PR Documentation Coverage Report:"
           python scripts/check-pr-docs-coverage.py --format console --base-ref origin/${{ github.event.pull_request.base.ref }} --head-ref ${{ github.event.pull_request.head.sha }} --pr-number ${{ github.event.pull_request.number }} || echo "PR console report failed"
 
+      # Update documentation site badge (only on main/master branch)
+      - name: Update Docusaurus documentation badge
+        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+        run: |
+          # Determine badge color based on coverage
+          COVERAGE=${{ env.DOC_COVERAGE }}
+          if [ $COVERAGE -ge 90 ]; then
+            BADGE_COLOR="brightgreen"
+          elif [ $COVERAGE -ge 75 ]; then
+            BADGE_COLOR="green"
+          elif [ $COVERAGE -ge 60 ]; then
+            BADGE_COLOR="yellow"
+          elif [ $COVERAGE -ge 40 ]; then
+            BADGE_COLOR="orange"
+          else
+            BADGE_COLOR="red"
+          fi
+
+          # Create badge URL
+          BADGE_URL="https://img.shields.io/badge/Documentation%20Coverage-${COVERAGE}%25-${BADGE_COLOR}?style=flat&logo=gitbook&logoColor=white"
+
+                    # Update the documentation site badge
+          python3 scripts/update-docusaurus-badge.py --badge-url "$BADGE_URL" --coverage $COVERAGE
+
+          echo "🎨 Updated documentation site badge: ${COVERAGE}% coverage (${BADGE_COLOR})"
+
+      # Commit and push badge updates (only on main/master branch)
+      - name: Commit documentation badge updates
+        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+        run: |
+          # Configure git
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+
+          # Check if there are changes to commit
+          if git diff --quiet src/index.md; then
+            echo "📝 No changes to documentation badge - already up to date"
+          else
+            echo "📝 Committing documentation badge updates..."
+            git add src/index.md
+            git commit -m "docs: update documentation coverage badge to ${{ env.DOC_COVERAGE }}%
+
+            [skip ci]"
+            git push
+            echo "✅ Successfully updated and pushed documentation badge"
+          fi
+
       # Upload documentation coverage reports as artifacts
       - name: Upload documentation coverage reports
         uses: actions/upload-artifact@v4

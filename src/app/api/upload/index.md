@@ -1,7 +1,7 @@
 ---
-layout: default
-title: Upload APIs
-description: File and image upload endpoints for the idling.app API
+title: 'Upload API'
+description: 'File upload endpoints for images, media, and user content'
+sidebar_position: 4
 ---
 
 # 📁 Upload APIs
@@ -179,7 +179,7 @@ curl -X POST https://yourdomain.com/api/upload/image \
 ### 1. Simple File Upload with HTML
 
 ```html
-<!DOCTYPE html>
+<!doctype html>
 <html>
   <head>
     <title>Image Upload</title>
