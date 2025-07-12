@@ -398,7 +398,7 @@ export default function OgImageViewer() {
                   advancedOptions={advancedOptions}
                   onAdvancedOptionsChange={setAdvancedOptions}
                   isProUser={subscriptionStatus.isPro}
-                  isReadOnly={isLoadedGeneration}
+                  isReadOnly={isLoadedGeneration && !subscriptionStatus.isPro}
                 />
 
                 <GenerationDisplay

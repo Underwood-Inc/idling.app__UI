@@ -426,7 +426,8 @@ export function GenerationForm({
               options={advancedOptions || {}}
               onOptionsChange={onAdvancedOptionsChange || (() => {})}
               isProUser={isProUser || false}
-              isReadonly={!isProUser || isReadOnly}
+              isReadonly={isReadOnly && !isProUser}
+              generationOptions={generationOptions}
             />
           </div>
         </div>
