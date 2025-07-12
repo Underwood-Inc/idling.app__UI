@@ -105,10 +105,10 @@ All libraries are part of the main application and can be imported directly:
 
 ```typescript
 // Import services
-import { authService, rateLimitService } from '@/lib/services';
+import { authService, rateLimitService } from '@lib/services';
 
 // Import utilities
-import { stringUtils, dateUtils } from '@/lib/utils';
+import { stringUtils, dateUtils } from '@lib/utils';
 
 // Import hooks
 import { useAuth, useApi } from '@/hooks';
@@ -170,7 +170,7 @@ When creating custom hooks:
 ### Service Testing
 
 ```typescript
-import { authService } from '@/lib/services/AuthService';
+import { authService } from '@lib/services/AuthService';
 
 describe('AuthService', () => {
   test('should authenticate user with valid credentials', async () => {
@@ -189,7 +189,7 @@ describe('AuthService', () => {
 ### Utility Testing
 
 ```typescript
-import { stringUtils } from '@/lib/utils';
+import { stringUtils } from '@lib/utils';
 
 describe('stringUtils', () => {
   test('should slugify strings correctly', () => {

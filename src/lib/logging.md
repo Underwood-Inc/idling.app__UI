@@ -14,7 +14,7 @@ A unified, environment-aware logging solution with comprehensive features for de
 ## Basic Usage
 
 ```typescript
-import { createLogger } from '@/lib/logging';
+import { createLogger } from '@lib/logging';
 
 const logger = createLogger({
   context: {
@@ -40,6 +40,7 @@ enableRawLoggerOutput();
 ```
 
 This will:
+
 - Override all console methods globally
 - Convert objects to structured, copyable text
 - Add timestamps to all log entries
@@ -50,11 +51,13 @@ This will:
 ### Example Output
 
 **Normal logging:**
+
 ```
 🔍 [MyComponent] User action completed {userId: "123", action: "login"}
 ```
 
 **Raw output mode:**
+
 ```
 [2024-01-15T10:30:45.123Z] INFO: 🔍 [MyComponent] User action completed {
   userId: "123",
@@ -97,26 +100,30 @@ isRawLoggerOutputEnabled(); // returns true/false
 ## Logger Types
 
 ### Generic Logger
+
 ```typescript
-import { createLogger } from '@/lib/logging';
+import { createLogger } from '@lib/logging';
 const logger = createLogger();
 ```
 
 ### Client Logger
+
 ```typescript
-import { createClientLogger } from '@/lib/logging';
+import { createClientLogger } from '@lib/logging';
 const logger = createClientLogger();
 ```
 
 ### Server Logger
+
 ```typescript
-import { createServerLogger } from '@/lib/logging';
+import { createServerLogger } from '@lib/logging';
 const logger = createServerLogger();
 ```
 
 ### Debug Logger
+
 ```typescript
-import { createDebugLogger } from '@/lib/logging';
+import { createDebugLogger } from '@lib/logging';
 const logger = createDebugLogger();
 ```
 
@@ -134,4 +141,4 @@ const logger = createLogger({
     slowThreshold: 1000
   }
 });
-``` 
+```

@@ -222,7 +222,7 @@ export async function cleanupServiceWorkers(): Promise<number> {
 export function clearRouteFilters(): void {
   try {
     // Import clearAllRouteFilters dynamically to avoid circular dependencies
-    import('@/lib/state/atoms').then(({ clearAllRouteFilters }) => {
+    import('@lib/state/atoms').then(({ clearAllRouteFilters }) => {
       clearAllRouteFilters();
     });
   } catch (error) {

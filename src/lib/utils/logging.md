@@ -31,7 +31,7 @@ The logging system consists of:
 ## Basic Usage
 
 ```tsx
-import { createLogger } from '@/lib/logging';
+import { createLogger } from '@lib/logging';
 
 const logger = createLogger({
   context: {
@@ -61,7 +61,7 @@ function MyComponent() {
 ## Advanced Configuration
 
 ```tsx
-import { createLogger, createComponentLogger } from '@/lib/logging';
+import { createLogger, createComponentLogger } from '@lib/logging';
 
 // Component-specific logger
 const componentLogger = createComponentLogger('UserProfile', {
@@ -137,7 +137,7 @@ type LogLevel = 'trace' | 'debug' | 'info' | 'warn' | 'error' | 'fatal';
 ### Environment-Based Configuration
 
 ```tsx
-import { createLogger } from '@/lib/logging';
+import { createLogger } from '@lib/logging';
 
 const logger = createLogger({
   // Development: Full logging with debugging
@@ -354,7 +354,7 @@ useEffect(() => {
 ### React Component Integration
 
 ```tsx
-import { createComponentLogger } from '@/lib/logging';
+import { createComponentLogger } from '@lib/logging';
 
 function UserDashboard({ userId }: { userId: string }) {
   const logger = createComponentLogger('UserDashboard', {
@@ -391,7 +391,7 @@ function UserDashboard({ userId }: { userId: string }) {
 ### API Client Integration
 
 ```tsx
-import { createLogger } from '@/lib/logging';
+import { createLogger } from '@lib/logging';
 
 class ApiClient {
   private logger = createLogger({
@@ -436,7 +436,7 @@ class ApiClient {
 ### Error Boundary Integration
 
 ```tsx
-import { createComponentLogger } from '@/lib/logging';
+import { createComponentLogger } from '@lib/logging';
 
 class ErrorBoundary extends React.Component {
   private logger = createComponentLogger('ErrorBoundary');
@@ -469,7 +469,7 @@ class ErrorBoundary extends React.Component {
 ### Unit Tests
 
 ```tsx
-import { createLogger } from '@/lib/logging';
+import { createLogger } from '@lib/logging';
 
 describe('Logger', () => {
   test('creates logger with context', () => {

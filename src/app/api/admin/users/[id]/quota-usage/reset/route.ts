@@ -8,9 +8,9 @@
  * @author System
  */
 
-import { auth } from '@/lib/auth';
-import sql from '@/lib/db';
-import { withRateLimit } from '@/lib/middleware/withRateLimit';
+import { auth } from '@lib/auth';
+import sql from '@lib/db';
+import { withRateLimit } from '@lib/middleware/withRateLimit';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 

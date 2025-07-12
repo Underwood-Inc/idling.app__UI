@@ -83,34 +83,34 @@ src/lib/utils/
 
 ```typescript
 // Import specific utilities
-import { TextExtractor } from '@/lib/utils/text-extraction';
-import { CacheManager } from '@/lib/utils/cache-manager';
+import { TextExtractor } from '@lib/utils/text-extraction';
+import { CacheManager } from '@lib/utils/cache-manager';
 
 // Import from subdirectories
-import { makeId } from '@/lib/utils/string/make-id';
-import { EmojiParser } from '@/lib/utils/parsers/emoji-parser';
+import { makeId } from '@lib/utils/string/make-id';
+import { EmojiParser } from '@lib/utils/parsers/emoji-parser';
 ```
 
 ### Common Patterns
 
 ```typescript
 // Text processing pipeline
-import { TextExtractor } from '@/lib/utils/text-extraction';
-import { ContentParser } from '@/lib/utils/content-parsers';
+import { TextExtractor } from '@lib/utils/text-extraction';
+import { ContentParser } from '@lib/utils/content-parsers';
 
 const userInput = 'Check out #coding with @[dev|user123] 🚀';
 const extracted = TextExtractor.extractAll(userInput);
 const parsed = ContentParser.parse(userInput);
 
 // Cache management
-import { CacheManager } from '@/lib/utils/cache-manager';
+import { CacheManager } from '@lib/utils/cache-manager';
 
 await CacheManager.set('user-data', userData, { ttl: 3600 });
 const cachedData = await CacheManager.get('user-data');
 
 // System utilities
-import { OSDetection } from '@/lib/utils/os-detection';
-import { Logger } from '@/lib/utils/server-logger';
+import { OSDetection } from '@lib/utils/os-detection';
+import { Logger } from '@lib/utils/server-logger';
 
 const userOS = OSDetection.detect();
 Logger.info('User connected', { os: userOS });

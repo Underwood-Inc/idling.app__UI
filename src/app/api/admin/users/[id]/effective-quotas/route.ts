@@ -8,9 +8,9 @@
  * @author System
  */
 
-import { checkUserPermission } from '@/lib/actions/permissions.actions';
-import { auth } from '@/lib/auth';
-import sql from '@/lib/db';
+import { checkUserPermission } from '@lib/actions/permissions.actions';
+import { auth } from '@lib/auth';
+import sql from '@lib/db';
 import { withRateLimit } from '@lib/middleware/withRateLimit';
 import { PERMISSIONS } from '@lib/permissions/permissions';
 import { EnhancedQuotaService } from '@lib/services/EnhancedQuotaService';
