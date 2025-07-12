@@ -1,6 +1,6 @@
 'use server';
 
-import { createLogger } from '@/lib/logging';
+import { createLogger } from '@lib/logging';
 import { revalidatePath } from 'next/cache';
 import { CustomSession } from 'src/auth.config';
 import { auth } from '../auth';

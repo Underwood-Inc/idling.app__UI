@@ -51,14 +51,14 @@ RUN git clone --depth=1 https://github.com/romkatv/powerlevel10k.git /opt/powerl
 
 # Configure zsh with Powerlevel10k globally
 RUN echo 'source /opt/powerlevel10k/powerlevel10k.zsh-theme' >> /etc/zsh/zshrc && \
-  echo 'POWERLEVEL9K_DISABLE_CONFIGURATION_WIZARD=true' >> /etc/zsh/zshrc && \
-  echo 'POWERLEVEL9K_LEFT_PROMPT_ELEMENTS=(context dir vcs)' >> /etc/zsh/zshrc && \
-  echo 'POWERLEVEL9K_RIGHT_PROMPT_ELEMENTS=(status root_indicator background_jobs history time)' >> /etc/zsh/zshrc && \
-  echo 'POWERLEVEL9K_PROMPT_ON_NEWLINE=true' >> /etc/zsh/zshrc && \
-  echo 'POWERLEVEL9K_MULTILINE_FIRST_PROMPT_PREFIX=""' >> /etc/zsh/zshrc && \
-  echo 'POWERLEVEL9K_MULTILINE_LAST_PROMPT_PREFIX="❯ "' >> /etc/zsh/zshrc && \
-  echo 'POWERLEVEL9K_MODE="nerdfont-complete"' >> /etc/zsh/zshrc && \
-  echo 'POWERLEVEL9K_INSTANT_PROMPT=quiet' >> /etc/zsh/zshrc && \
+  echo 'POWERLEVEL10K_DISABLE_CONFIGURATION_WIZARD=true' >> /etc/zsh/zshrc && \
+  echo 'POWERLEVEL10K_LEFT_PROMPT_ELEMENTS=(context dir vcs)' >> /etc/zsh/zshrc && \
+  echo 'POWERLEVEL10K_RIGHT_PROMPT_ELEMENTS=(status root_indicator background_jobs history time)' >> /etc/zsh/zshrc && \
+  echo 'POWERLEVEL10K_PROMPT_ON_NEWLINE=true' >> /etc/zsh/zshrc && \
+  echo 'POWERLEVEL10K_MULTILINE_FIRST_PROMPT_PREFIX=""' >> /etc/zsh/zshrc && \
+  echo 'POWERLEVEL10K_MULTILINE_LAST_PROMPT_PREFIX="❯ "' >> /etc/zsh/zshrc && \
+  echo 'POWERLEVEL10K_MODE="nerdfont-complete"' >> /etc/zsh/zshrc && \
+  echo 'POWERLEVEL10K_INSTANT_PROMPT=quiet' >> /etc/zsh/zshrc && \
   echo 'export PATH="/usr/local/go/bin:$PATH"' >> /etc/zsh/zshrc && \
   echo 'export GOPATH="/go"' >> /etc/zsh/zshrc && \
   echo 'export GOBIN="/go/bin"' >> /etc/zsh/zshrc && \
@@ -91,8 +91,12 @@ RUN npx playwright install --with-deps
 # Copy the rest of the application code
 COPY . .
 
+# Copy and set up the entrypoint script
+COPY docker-entrypoint.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+
 # Expose port 3000 (Next.js)
 EXPOSE 3000
 
-# Start the Next.js application
-CMD ["npm", "run", "dev", "--", "--hostname", "0.0.0.0"]
+# Use the entrypoint script to run migrations and start the app
+CMD ["/usr/local/bin/docker-entrypoint.sh"]

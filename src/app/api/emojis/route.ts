@@ -145,8 +145,8 @@
  * Handles fetching OS-specific emojis using server actions
  */
 
-import { createLogger } from '@/lib/logging';
-import { withRateLimit } from '@/lib/middleware/withRateLimit';
+import { createLogger } from '@lib/logging';
+import { withRateLimit } from '@lib/middleware/withRateLimit';
 import { NextRequest, NextResponse } from 'next/server';
 import {
     getCategoryMapping,

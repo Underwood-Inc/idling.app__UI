@@ -1,6 +1,6 @@
 'use client';
 
-import { createLogger } from '@/lib/logging';
+import { createLogger } from '@lib/logging';
 import React, { useEffect, useState } from 'react';
 import {
   getResetStats,

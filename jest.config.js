@@ -81,14 +81,16 @@ const customJestConfig = {
    * Maps import paths to actual file locations, matching Next.js configuration
    * 
    * This allows imports like:
-   * - import Component from '@/components/Component'
-   * - import { helper } from '@/lib/utils'
+   * - import Component from '@components/Component'
+   * - import { helper } from '@lib/utils'
    */
   moduleNameMapper: {
-    '^@/(.*)$': '<rootDir>/src/$1',              // General @ alias
-    '^@/components/(.*)$': '<rootDir>/src/components/$1',  // Components alias
-    '^@/lib/(.*)$': '<rootDir>/src/lib/$1',      // Library code alias
-    '^@/app/(.*)$': '<rootDir>/src/app/$1'       // App directory alias
+    '^@components/(.*)$': '<rootDir>/src/components/$1',  // Components alias
+    '^@lib/(.*)$': '<rootDir>/src/lib/$1',               // Library code alias
+    '^@constants/(.*)$': '<rootDir>/src/constants/$1',   // Constants alias
+    '^@types/(.*)$': '<rootDir>/src/types/$1',           // Types alias
+    '^@interfaces/(.*)$': '<rootDir>/src/interfaces/$1', // Interfaces alias
+    '^@server/(.*)$': '<rootDir>/src/server/$1'          // Server alias
   },
   
   /**

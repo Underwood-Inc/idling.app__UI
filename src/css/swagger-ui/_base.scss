@@ -1,0 +1,59 @@
+/**
+ * Swagger UI Base Styles
+ * Main container and wrapper styling
+ */
+
+// ===== Main Container =====
+.swagger-ui {
+  font-family: var(--font-family-base) !important;
+  background-color: var(--dark-bg-primary) !important;
+  color: var(--text-primary) !important;
+  padding: var(--spacing-sm) !important;
+  border-radius: var(--border-radius-lg) !important;
+  max-width: $container-max-width !important;
+  margin: 0 auto !important;
+}
+
+// ===== Wrapper =====
+.swagger-ui .wrapper {
+  max-width: $container-max-width !important;
+  padding: 0 !important;
+  background: transparent !important;
+  border: none !important;
+}
+
+// ===== Global Scrollbars =====
+.swagger-ui ::-webkit-scrollbar {
+  width: 8px !important;
+  height: 8px !important;
+}
+
+.swagger-ui ::-webkit-scrollbar-track {
+  background: var(--dark-bg-secondary) !important;
+}
+
+.swagger-ui ::-webkit-scrollbar-thumb {
+  background: var(--brand-primary) !important;
+  border-radius: var(--border-radius-sm) !important;
+}
+
+.swagger-ui ::-webkit-scrollbar-thumb:hover {
+  background: var(--brand-primary-light) !important;
+}
+
+// ===== Loading States =====
+.swagger-ui .loading-container {
+  background-color: var(--dark-bg-primary) !important;
+  color: var(--text-primary) !important;
+}
+
+// ===== Global Animations =====
+.swagger-ui .btn,
+.swagger-ui .opblock-summary {
+  transition: var(--transition-base) !important;
+}
+
+.swagger-ui .btn:hover,
+.swagger-ui .opblock-summary:hover {
+  transform: translateY(-1px) !important;
+} 

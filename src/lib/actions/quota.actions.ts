@@ -1,7 +1,7 @@
 'use server';
 
-import sql from '@/lib/db';
-import { EnhancedQuotaService } from '@/lib/services/EnhancedQuotaService';
+import sql from '@lib/db';
+import { EnhancedQuotaService } from '@lib/services/EnhancedQuotaService';
 
 // ================================
 // TYPES

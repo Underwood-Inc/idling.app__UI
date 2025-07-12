@@ -1,6 +1,6 @@
 'use client';
 
-import { createLogger } from '@/lib/logging';
+import { createLogger } from '@lib/logging';
 import { usePathname } from 'next/navigation';
 import { useEffect } from 'react';
 import { highlightScrollTarget } from '../../../../lib/utils/scroll-highlight';

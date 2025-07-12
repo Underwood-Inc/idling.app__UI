@@ -1,0 +1,49 @@
+/**
+ * Swagger UI Table Styles
+ * Tables, responses, and tabular data
+ */
+
+// ===== Base Table Styles =====
+.swagger-ui table {
+  border-collapse: collapse !important;
+  width: 100% !important;
+  
+  th,
+  td {
+    padding: var(--spacing-sm) var(--spacing-md) !important;
+    border: 1px solid var(--glass-border-light) !important;
+    text-align: left !important;
+  }
+  
+  th {
+    background-color: var(--dark-bg-tertiary) !important;
+    color: var(--text-primary) !important;
+    font-weight: var(--font-weight-medium) !important;
+  }
+  
+  td {
+    background-color: var(--dark-bg-secondary) !important;
+    color: var(--text-secondary) !important;
+  }
+}
+
+// ===== Model Schema Tables =====
+.swagger-ui .model-box {
+  background-color: var(--dark-bg-code) !important;
+  border: 1px solid var(--glass-border-light) !important;
+  border-radius: var(--border-radius-sm) !important;
+  padding: var(--spacing-md) !important;
+  
+  .model-title {
+    color: var(--brand-primary) !important;
+    font-weight: var(--font-weight-semibold) !important;
+  }
+  
+  .property-row {
+    border-bottom: 1px solid var(--glass-border-light) !important;
+    
+    &:last-child {
+      border-bottom: none !important;
+    }
+  }
+} 

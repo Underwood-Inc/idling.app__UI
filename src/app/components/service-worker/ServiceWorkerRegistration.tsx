@@ -1,6 +1,6 @@
 'use client';
 
-import { createLogger } from '@/lib/logging';
+import { createLogger } from '@lib/logging';
 import { useEffect } from 'react';
 import { enforceOneServiceWorker } from '../../../lib/utils/service-worker-cleanup';
 

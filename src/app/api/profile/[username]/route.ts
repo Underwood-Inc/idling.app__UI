@@ -1,4 +1,4 @@
-import { withRateLimit } from '@/lib/middleware/withRateLimit';
+import { withRateLimit } from '@lib/middleware/withRateLimit';
 import { NextRequest, NextResponse } from 'next/server';
 import { updateBioAction } from '../../../../lib/actions/profile.actions';
 import { auth } from '../../../../lib/auth';

@@ -1,0 +1,136 @@
+/**
+ * Swagger UI Form Styles
+ * Input elements, parameters, and form controls
+ */
+
+// ===== Base Form Elements =====
+.swagger-ui input[type="text"],
+.swagger-ui input[type="password"],
+.swagger-ui textarea,
+.swagger-ui select {
+  background-color: var(--dark-bg-code) !important;
+  color: var(--text-primary) !important;
+  border: 1px solid var(--glass-border-light) !important;
+  border-radius: var(--border-radius-sm) !important;
+  padding: var(--spacing-sm) var(--spacing-md) !important;
+  font-family: var(--font-family-base) !important;
+  font-size: var(--font-size-sm) !important;
+  width: 100% !important;
+  max-width: $input-max-width !important;
+  
+  &:focus {
+    border-color: var(--brand-primary) !important;
+    box-shadow: 0 0 0 2px rgba(237, 174, 73, 0.2) !important;
+    outline: none !important;
+    background-color: var(--dark-bg-secondary) !important;
+  }
+}
+
+// ===== Parameter Items =====
+.swagger-ui .parameter-item-wrap {
+  margin-bottom: var(--spacing-md) !important;
+  
+  input {
+    display: block !important;
+    margin-top: var(--spacing-sm) !important;
+  }
+}
+
+.swagger-ui .parameter-item {
+  border-bottom: 1px solid var(--glass-border-light) !important;
+  padding: var(--spacing-md) 0 !important;
+  
+  &:last-child {
+    border-bottom: none !important;
+  }
+}
+
+// ===== Parameter Names and Types =====
+.swagger-ui .parameter__name {
+  color: var(--brand-primary) !important;
+  font-weight: var(--font-weight-medium) !important;
+  
+  &.required {
+    color: var(--brand-primary) !important;
+    font-weight: var(--font-weight-semibold) !important;
+    
+    &:after {
+      color: var(--chili-red) !important;
+      content: " *" !important;
+    }
+  }
+}
+
+.swagger-ui .parameter__type {
+  color: var(--cornflower-blue) !important;
+}
+
+.swagger-ui .parameter__extension,
+.swagger-ui .parameter__in {
+  color: var(--text-muted) !important;
+  font-size: var(--font-size-sm) !important;
+}
+
+// ===== Parameters Table =====
+.swagger-ui .parameters {
+  thead {
+    tr,
+    tr th {
+      background-color: var(--dark-bg-tertiary) !important;
+      color: var(--text-primary) !important;
+      border-color: var(--glass-border-light) !important;
+    }
+  }
+  
+  tbody {
+    tr {
+      background-color: var(--dark-bg-secondary) !important;
+      border-color: var(--glass-border-light) !important;
+      
+      &:hover {
+        background-color: var(--dark-bg-tertiary) !important;
+      }
+    }
+  }
+}
+
+.swagger-ui .parameters-col_name {
+  color: var(--brand-primary) !important;
+  font-weight: var(--font-weight-medium) !important;
+}
+
+.swagger-ui .parameters-col_description {
+  color: var(--text-secondary) !important;
+}
+
+// ===== Server Selection =====
+.swagger-ui .servers {
+  background-color: var(--dark-bg-secondary) !important;
+  border: 1px solid var(--glass-border-light) !important;
+  border-radius: var(--border-radius-md) !important;
+  padding: var(--spacing-md) !important;
+  margin-bottom: var(--spacing-lg) !important;
+  
+  .servers-title {
+    color: var(--text-primary) !important;
+    font-weight: var(--font-weight-medium) !important;
+    margin-bottom: var(--spacing-sm) !important;
+  }
+  
+  select {
+    background-color: var(--dark-bg-code) !important;
+    color: var(--text-primary) !important;
+    border: 1px solid var(--glass-border-light) !important;
+    border-radius: var(--border-radius-sm) !important;
+    padding: var(--spacing-sm) !important;
+  }
+}
+
+// ===== Authorization Section =====
+.swagger-ui .auth-wrapper {
+  background-color: var(--dark-bg-secondary) !important;
+  border: 1px solid var(--glass-border-light) !important;
+  border-radius: var(--border-radius-md) !important;
+  padding: var(--spacing-md) !important;
+  margin-bottom: var(--spacing-lg) !important;
+} 

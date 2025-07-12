@@ -1,7 +1,7 @@
 'use client';
 
-import { InteractiveTooltip } from '@/app/components/tooltip/InteractiveTooltip';
 import React from 'react';
+import { InteractiveTooltip } from '../../components/tooltip/InteractiveTooltip';
 import './AlertStatusTooltip.css';
 
 export interface AlertStatusTooltipProps {

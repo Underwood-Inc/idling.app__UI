@@ -8,7 +8,7 @@
  * Now dramatically reduced in size by delegating to specialized components.
  */
 
-import { usePaginationMode } from '@/lib/context/UserPreferencesContext';
+import { usePaginationMode } from '@lib/context/UserPreferencesContext';
 import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import { AssignRoleModal } from '../modals/AssignRoleModal';
 import { AssignSubscriptionModal } from '../modals/AssignSubscriptionModal';

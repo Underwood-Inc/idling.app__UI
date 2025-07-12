@@ -1,4 +1,4 @@
-import { createLogger } from '@/lib/logging';
+import { createLogger } from '@lib/logging';
 import type {
   RichContentToken,
   RichInputPosition,

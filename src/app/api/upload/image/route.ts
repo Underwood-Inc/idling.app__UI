@@ -114,9 +114,9 @@
  *               $ref: '#/components/schemas/Error'
  */
 
-import { auth } from '@/lib/auth';
-import { withRateLimit } from '@/lib/middleware/withRateLimit';
-import { ImageUploadSchema } from '@/lib/schemas/upload.schema';
+import { auth } from '@lib/auth';
+import { withRateLimit } from '@lib/middleware/withRateLimit';
+import { ImageUploadSchema } from '@lib/schemas/upload.schema';
 import crypto from 'crypto';
 import { mkdir, writeFile } from 'fs/promises';
 import { NextRequest, NextResponse } from 'next/server';

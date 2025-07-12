@@ -1,0 +1,85 @@
+/**
+ * Swagger UI Theming Styles
+ * HTTP method colors, code blocks, and theme-specific styling
+ */
+
+// ===== HTTP Method Colors =====
+.swagger-ui .opblock.opblock-get {
+  border-color: $http-get-color !important;
+  
+  .opblock-summary {
+    background-color: rgba(100, 149, 237, 0.1) !important;
+  }
+  
+  &.is-open .opblock-summary-control svg {
+    fill: $http-get-color !important;
+  }
+}
+
+.swagger-ui .opblock.opblock-post {
+  border-color: $http-post-color !important;
+  
+  .opblock-summary {
+    background-color: rgba(40, 167, 69, 0.1) !important;
+  }
+  
+  &.is-open .opblock-summary-control svg {
+    fill: $http-post-color !important;
+  }
+}
+
+.swagger-ui .opblock.opblock-put {
+  border-color: $http-put-color !important;
+  
+  .opblock-summary {
+    background-color: rgba(255, 193, 7, 0.1) !important;
+  }
+  
+  &.is-open .opblock-summary-control svg {
+    fill: $http-put-color !important;
+  }
+}
+
+.swagger-ui .opblock.opblock-delete {
+  border-color: $http-delete-color !important;
+  
+  .opblock-summary {
+    background-color: rgba(234, 43, 31, 0.1) !important;
+  }
+  
+  &.is-open .opblock-summary-control svg {
+    fill: $http-delete-color !important;
+  }
+}
+
+// ===== Code Blocks =====
+.swagger-ui .highlight-code {
+  background-color: var(--dark-bg-code) !important;
+  border: 1px solid var(--glass-border-light) !important;
+  border-radius: var(--border-radius-sm) !important;
+  padding: var(--spacing-md) !important;
+  font-family: var(--font-family-base) !important;
+  
+  pre {
+    background-color: transparent !important;
+    color: var(--text-primary) !important;
+    font-family: var(--font-family-base) !important;
+  }
+}
+
+// ===== Global Text Colors =====
+.swagger-ui .opblock-section-header {
+  h4 {
+    color: var(--text-primary) !important;
+  }
+  
+  label {
+    color: var(--text-secondary) !important;
+  }
+}
+
+// ===== Enhanced Visual Effects =====
+.swagger-ui .opblock.is-open .opblock-summary-control svg {
+  fill: var(--brand-primary) !important;
+  transform: rotate(180deg) !important;
+} 

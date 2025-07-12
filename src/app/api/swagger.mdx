@@ -1,0 +1,93 @@
+---
+layout: default
+title: 'Swagger UI - Interactive API Documentation'
+description: 'Interactive API documentation and testing interface'
+permalink: /api/swagger/
+---
+
+# 🧪 Swagger UI - Interactive API Documentation
+
+Explore and test the Idling.app API directly in your browser with our interactive Swagger UI interface.
+
+## 🚀 Interactive API Explorer
+
+import BrowserOnly from '@docusaurus/BrowserOnly';
+import SwaggerUI from 'swagger-ui-react';
+
+<BrowserOnly fallback={<div>Loading...</div>}>
+  {() => (
+    <SwaggerUI
+      url="http://localhost:3000/api/openapi"
+      tryItOutEnabled={true}
+      supportedSubmitMethods={['get', 'post', 'put', 'delete', 'patch']}
+    />
+  )}
+</BrowserOnly>
+
+## 📚 Getting Started
+
+### Authentication
+
+Before testing endpoints:
+
+1. Click **"Authorize"** button at the top
+2. Enter your Bearer token: `Bearer YOUR_TOKEN_HERE`
+3. Click **"Authorize"** to save
+
+### Testing Endpoints
+
+1. **Expand** any endpoint section
+2. **Click** "Try it out" button
+3. **Fill in** required parameters
+4. **Click** "Execute" to test
+
+## 🔐 Authentication Setup
+
+### Getting Your API Token
+
+1. **Login** to your Idling.app account
+2. **Navigate** to Settings → API Keys
+3. **Generate** a new API key
+4. **Copy** the token for use in Swagger UI
+
+### Token Format
+
+```
+Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+```
+
+## 🛠️ Testing Examples
+
+### Example 1: Get User Profile
+
+```bash
+curl -X 'GET' \
+  'https://api.idling.app/api/v1/user/profile' \
+  -H 'accept: application/json' \
+  -H 'Authorization: Bearer YOUR_TOKEN'
+```
+
+### Example 2: Create a Post
+
+```bash
+curl -X 'POST' \
+  'https://api.idling.app/api/v1/posts' \
+  -H 'accept: application/json' \
+  -H 'Content-Type: application/json' \
+  -H 'Authorization: Bearer YOUR_TOKEN' \
+  -d '{
+    "title": "My New Post",
+    "content": "This is the content of my post",
+    "tags": ["example", "test"]
+  }'
+```
+
+## 🔗 Related Resources
+
+- [API Overview](../index.md) - Complete API documentation
+- [Authentication Guide](../../getting-started/#authentication) - Detailed auth setup
+- [Admin Documentation](../admin/) - Administrative endpoints
+
+---
+
+**Last Updated**: January 28, 2025

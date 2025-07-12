@@ -3,11 +3,11 @@
  * Handles detailed user information retrieval for admin management
  */
 
-import { withUserPermissions } from '@/lib/api/wrappers/withUserPermissions';
-import { withUserRoles } from '@/lib/api/wrappers/withUserRoles';
-import { auth } from '@/lib/auth';
-import sql from '@/lib/db';
-import { withRateLimit } from '@/lib/middleware/withRateLimit';
+import { withUserPermissions } from '@lib/api/wrappers/withUserPermissions';
+import { withUserRoles } from '@lib/api/wrappers/withUserRoles';
+import { auth } from '@lib/auth';
+import sql from '@lib/db';
+import { withRateLimit } from '@lib/middleware/withRateLimit';
 import { NextRequest, NextResponse } from 'next/server';
 
 export interface DetailedUser {

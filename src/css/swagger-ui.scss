@@ -1,0 +1,34 @@
+/**
+ * Swagger UI Custom Theming - Main SCSS Entry Point
+ * 
+ * This file imports all Swagger UI styling partials in the correct order
+ * to ensure proper cascade and maintainability.
+ * 
+ * Matches Idling.app brand colors and dark theme
+ * 
+ * @author Idling.app Development Team
+ * @version 1.0.0
+ */
+
+// ===== Foundation =====
+// Variables and base configurations must come first
+@import 'swagger-ui/variables';
+@import 'swagger-ui/base';
+
+// ===== Components =====
+// Individual component styles
+@import 'swagger-ui/buttons';
+@import 'swagger-ui/forms';
+@import 'swagger-ui/tables';
+
+// ===== Layout =====
+// Structural and layout components
+@import 'swagger-ui/layout';
+
+// ===== Theming =====
+// Theme-specific styling and colors
+@import 'swagger-ui/theming';
+
+// ===== Global Enhancements =====
+// Add any global enhancements or overrides here if needed
+// (Keep this section minimal to maintain modularity) 

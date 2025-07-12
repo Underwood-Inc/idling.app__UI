@@ -1,0 +1,826 @@
+/**
+ * Swagger UI Layout Styles
+ * Operations, sections, headers, and structural elements
+ */
+
+// ===== Header and Info Section =====
+.swagger-ui .info {
+  background-color: var(--dark-bg-secondary) !important;
+  border: 1px solid var(--glass-border-light) !important;
+  border-radius: var(--border-radius-lg) !important;
+  padding: var(--spacing-lg) !important;
+  margin-bottom: var(--spacing-lg) !important;
+  
+  h1,
+  h2,
+  h3 {
+    color: var(--brand-primary) !important;
+  }
+  
+  p {
+    color: var(--text-secondary) !important;
+  }
+  
+  .title {
+    background: linear-gradient(135deg, var(--brand-primary), var(--brand-primary-light)) !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    background-clip: text !important;
+  }
+}
+
+// ===== Main API Section Headers =====
+.swagger-ui .opblock-tag {
+  background: linear-gradient(135deg, var(--dark-bg-secondary), var(--dark-bg-tertiary)) !important;
+  border: 2px solid var(--glass-border-light) !important;
+  border-left: 4px solid var(--brand-primary) !important;
+  border-radius: var(--border-radius-md) !important;
+  margin-bottom: var(--spacing-md) !important;
+  padding: var(--spacing-md) !important;
+  box-shadow: var(--glass-shadow-medium) !important;
+  cursor: pointer !important;
+  transition: var(--transition-base) !important;
+  position: relative !important;
+  
+  &:hover {
+    border-color: var(--brand-primary) !important;
+    box-shadow: 0 4px 12px rgba(237, 174, 73, 0.2) !important;
+    transform: translateY(-1px) !important;
+  }
+  
+  // Fix the header layout
+  h3 {
+    color: var(--brand-primary) !important;
+    margin: 0 !important;
+    margin-block-end: 1rem !important;
+    font-weight: var(--font-weight-semibold) !important;
+    font-size: var(--font-size-lg) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    padding-right: var(--spacing-lg) !important; // Add space for chevron
+  }
+  
+  // Remove the custom chevron - let Swagger UI handle it
+  h3:after {
+    display: none !important;
+  }
+  
+  small {
+    color: var(--text-secondary) !important;
+    font-size: var(--font-size-sm) !important;
+    font-weight: var(--font-weight-normal) !important;
+    margin-top: var(--spacing-xs) !important;
+    display: block !important;
+  }
+}
+
+// ===== Fix Expand Operation Button Position =====
+.swagger-ui .expand-operation,
+.swagger-ui button.expand-operation {
+  position: absolute !important;
+  top: 50% !important;
+  right: var(--spacing-sm) !important;
+  transform: translateY(-50%) !important;
+  background: none !important;
+  border: none !important;
+  cursor: pointer !important;
+  z-index: 10 !important;
+  padding: var(--spacing-xs) !important;
+  
+  svg,
+  .arrow {
+    width: 16px !important;
+    height: 16px !important;
+    fill: var(--text-secondary) !important;
+    transition: var(--transition-base) !important;
+  }
+  
+  &:hover svg,
+  &:hover .arrow {
+    fill: var(--brand-primary) !important;
+  }
+}
+
+// ===== Fix Swagger UI's Native Chevron =====
+.swagger-ui .opblock-tag .opblock-tag-section svg,
+.swagger-ui .opblock-tag button svg {
+  position: absolute !important;
+  top: 50% !important;
+  right: var(--spacing-md) !important;
+  transform: translateY(-50%) !important;
+  width: 20px !important;
+  height: 20px !important;
+  fill: var(--text-secondary) !important;
+  transition: var(--transition-base) !important;
+}
+
+.swagger-ui .opblock-tag.is-open svg,
+.swagger-ui .opblock-tag[aria-expanded="true"] svg {
+  fill: var(--brand-primary) !important;
+  transform: translateY(-50%) rotate(180deg) !important;
+}
+
+// ===== Operation Blocks =====
+.swagger-ui .opblock {
+  background-color: var(--dark-bg-secondary) !important;
+  border: 1px solid var(--glass-border-light) !important;
+  border-radius: var(--border-radius-md) !important;
+  margin-bottom: var(--spacing-sm) !important;
+  box-shadow: var(--glass-shadow-light) !important;
+  
+  &.is-open {
+    background-color: var(--dark-bg-secondary) !important;
+    border-color: var(--brand-primary) !important;
+    
+    .opblock-summary {
+      border-bottom: 2px solid var(--brand-primary) !important;
+      margin-bottom: 0 !important;
+    }
+    
+    .opblock-body {
+      box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+    }
+  }
+}
+
+// ===== Operation Summary =====
+.swagger-ui .opblock-summary {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  border-radius: var(--border-radius-md) !important;
+  padding: var(--spacing-sm) var(--spacing-md) !important;
+  cursor: pointer !important;
+  
+  .opblock-summary-method {
+    flex-shrink: 0 !important;
+    margin-right: var(--spacing-sm) !important;
+  }
+  
+  .opblock-summary-path {
+    flex-grow: 1 !important;
+    margin-right: var(--spacing-sm) !important;
+  }
+  
+  .opblock-summary-description {
+    color: var(--text-secondary) !important;
+    flex-grow: 1 !important;
+    margin-right: var(--spacing-sm) !important;
+  }
+  
+  .opblock-summary-control {
+    flex-shrink: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: var(--spacing-xs) !important;
+    
+    svg {
+      width: 16px !important;
+      height: 16px !important;
+      fill: var(--text-secondary) !important;
+      transition: var(--transition-base) !important;
+    }
+  }
+  
+  &:hover .opblock-summary-control svg {
+    fill: var(--brand-primary) !important;
+  }
+}
+
+// ===== Operation Body =====
+.swagger-ui .opblock-body {
+  background-color: var(--dark-bg-primary) !important;
+  border: 1px solid var(--glass-border-medium) !important;
+  border-top: none !important;
+  border-radius: 0 0 var(--border-radius-md) var(--border-radius-md) !important;
+  padding: var(--spacing-md) !important;
+  margin-top: -1px !important;
+  position: static !important;
+  display: block !important;
+  width: auto !important;
+  overflow: visible !important;
+}
+
+// ===== Operation Section Headers =====
+.swagger-ui .opblock-section-header {
+  background-color: var(--dark-bg-tertiary) !important;
+  padding: var(--spacing-sm) var(--spacing-md) !important;
+  margin-block-end: var(--spacing-sm) !important;
+  border-radius: var(--border-radius-sm) !important;
+  border: 1px solid var(--glass-border-light) !important;
+  border-bottom: 2px solid var(--brand-primary) !important;
+  position: static !important;
+  display: block !important;
+  width: auto !important;
+  
+  h4 {
+    color: var(--brand-primary) !important;
+    margin: 0 !important;
+    font-weight: var(--font-weight-semibold) !important;
+    font-size: var(--font-size-base) !important;
+  }
+  
+  label {
+    color: var(--text-secondary) !important;
+    font-size: var(--font-size-sm) !important;
+    font-weight: var(--font-weight-normal) !important;
+  }
+}
+
+// ===== Schema Section Containers =====
+.swagger-ui .opblock-tag-section {
+  margin-bottom: var(--spacing-xl) !important;
+  
+  &.is-open {
+    background-color: var(--dark-bg-primary) !important;
+    border: 1px solid var(--glass-border-medium) !important;
+    border-radius: var(--border-radius-md) !important;
+    box-shadow: var(--glass-shadow-light) !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    margin-top: 0 !important; // Fix spacing above expanded sections
+    
+    // Category header styling for expanded state
+    > .opblock-tag {
+      margin-bottom: 0 !important;
+      margin-top: 0 !important; // Remove top margin
+      border-radius: var(--border-radius-md) var(--border-radius-md) 0 0 !important;
+      border-bottom: 2px solid var(--brand-primary) !important;
+      position: relative !important;
+    }
+    
+    // Content wrapper
+    .opblock-section-content,
+    > div:not(.opblock-tag) {
+      padding: var(--spacing-md) !important;
+      background-color: var(--dark-bg-secondary) !important;
+      border-radius: 0 0 var(--border-radius-md) var(--border-radius-md) !important;
+      margin-top: 0 !important; // Fix spacing in content
+      
+      // Individual operation blocks within expanded section
+      .opblock {
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        margin-bottom: var(--spacing-sm) !important;
+        margin-top: 0 !important; // Remove top margin
+        
+        &:first-child {
+          margin-top: 0 !important;
+        }
+        
+        &:last-child {
+          margin-bottom: 0 !important;
+        }
+      }
+    }
+  }
+}
+
+// ===== Models/Schema Section Specific Styling =====
+.swagger-ui .models-section,
+.swagger-ui .model-container,
+.swagger-ui .models {
+  background-color: var(--dark-bg-primary) !important;
+  border: 1px solid var(--glass-border-medium) !important;
+  border-radius: var(--border-radius-md) !important;
+  margin-bottom: var(--spacing-lg) !important;
+  padding: var(--spacing-md) !important;
+  
+  h4 {
+    color: var(--brand-primary) !important;
+    margin-bottom: var(--spacing-md) !important;
+    padding-bottom: var(--spacing-sm) !important;
+    border-bottom: 1px solid var(--glass-border-light) !important;
+    font-size: var(--font-size-lg) !important;
+    font-weight: var(--font-weight-semibold) !important;
+  }
+  
+  .model-box {
+    margin: 0 0 var(--spacing-md) 0 !important;
+    padding: var(--spacing-md) !important;
+    border: 1px solid var(--glass-border-light) !important;
+    border-radius: var(--border-radius-sm) !important;
+    background-color: var(--dark-bg-secondary) !important;
+    position: relative !important;
+    
+    &:last-child {
+      margin-bottom: 0 !important;
+    }
+  }
+  
+  .model-title {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    cursor: pointer !important;
+    padding: var(--spacing-sm) 0 !important;
+    color: var(--brand-primary) !important;
+    font-weight: var(--font-weight-semibold) !important;
+    margin-bottom: var(--spacing-sm) !important;
+    font-size: var(--font-size-base) !important;
+    
+    &:hover {
+      color: var(--brand-primary-light) !important;
+    }
+  }
+  
+  .model-box-content {
+    padding-left: var(--spacing-md) !important;
+    border-left: 2px solid var(--glass-border-light) !important;
+    margin-left: var(--spacing-sm) !important;
+    background-color: var(--dark-bg-code) !important;
+    border-radius: var(--border-radius-sm) !important;
+    padding: var(--spacing-sm) !important;
+  }
+  
+  // Fix schema property display
+  .model-box .property-row {
+    display: flex !important;
+    align-items: flex-start !important;
+    padding: var(--spacing-xs) 0 !important;
+    border-bottom: 1px solid var(--glass-border-light) !important;
+    
+    &:last-child {
+      border-bottom: none !important;
+    }
+  }
+  
+  .property-name {
+    color: var(--brand-primary) !important;
+    font-weight: var(--font-weight-medium) !important;
+    margin-right: var(--spacing-sm) !important;
+    min-width: 120px !important;
+  }
+  
+  .property-type {
+    color: var(--cornflower-blue) !important;
+    font-family: monospace !important;
+    font-size: var(--font-size-sm) !important;
+  }
+  
+  .property-description {
+    color: var(--text-secondary) !important;
+    margin-left: var(--spacing-sm) !important;
+    flex-grow: 1 !important;
+  }
+}
+
+// ===== Copy Button Positioning - Force into Lock Button Position =====
+.swagger-ui .swagger-ui .copy-to-clipboard,
+.swagger-ui .opblock-summary .copy-to-clipboard,
+.swagger-ui .opblock .opblock-summary .copy-to-clipboard {
+  position: absolute !important;
+  top: 50% !important;
+  right: 4rem !important; // More space from chevron
+  left: auto !important;
+  transform: translateY(-50%) !important;
+  background-color: var(--dark-bg-tertiary) !important;
+  border: 1px solid var(--glass-border-light) !important;
+  border-radius: var(--border-radius-sm) !important;
+  padding: var(--spacing-xs) var(--spacing-sm) !important;
+  color: var(--text-secondary) !important;
+  font-size: var(--font-size-xs) !important;
+  cursor: pointer !important;
+  transition: var(--transition-base) !important;
+  z-index: 1000 !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
+  display: block !important;
+  width: auto !important;
+  height: auto !important;
+  
+  &:hover,
+  &:focus {
+    background-color: var(--brand-primary) !important;
+    color: var(--brand-secondary) !important;
+    border-color: var(--brand-primary) !important;
+    transform: translateY(-50%) scale(1.05) !important;
+  }
+}
+
+// ===== Lock Button - Force to Left of Copy Button =====
+.swagger-ui .swagger-ui .authorization__btn,
+.swagger-ui .opblock-summary .authorization__btn,
+.swagger-ui .opblock .opblock-summary .authorization__btn {
+  position: absolute !important;
+  top: 50% !important;
+  right: 6.5rem !important; // Left of copy button
+  left: auto !important;
+  transform: translateY(-50%) !important;
+  background-color: var(--dark-bg-tertiary) !important;
+  border: 1px solid var(--glass-border-light) !important;
+  border-radius: var(--border-radius-sm) !important;
+  padding: var(--spacing-xs) !important;
+  color: var(--text-secondary) !important;
+  font-size: var(--font-size-xs) !important;
+  cursor: pointer !important;
+  transition: var(--transition-base) !important;
+  z-index: 1000 !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  display: block !important;
+  pointer-events: auto !important;
+  width: auto !important;
+  height: auto !important;
+  
+  &:hover {
+    background-color: var(--brand-primary) !important;
+    color: var(--brand-secondary) !important;
+    border-color: var(--brand-primary) !important;
+    transform: translateY(-50%) scale(1.05) !important;
+  }
+  
+  svg {
+    width: 14px !important;
+    height: 14px !important;
+    fill: currentColor !important;
+  }
+}
+
+// ===== Authorization Icon in Operation Summary =====
+.swagger-ui .opblock-summary .authorization__btn {
+  position: static !important;
+  transform: none !important;
+  margin-left: var(--spacing-sm) !important;
+  margin-right: var(--spacing-sm) !important;
+}
+
+// ===== Operation Summary - ORIGINAL LAYOUT =====
+.swagger-ui .opblock-summary {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  border-radius: var(--border-radius-md) !important;
+  padding: var(--spacing-sm) var(--spacing-md) !important;
+  cursor: pointer !important;
+  
+  .opblock-summary-method {
+    flex-shrink: 0 !important;
+    margin-right: var(--spacing-sm) !important;
+  }
+  
+  .opblock-summary-path {
+    flex-grow: 1 !important;
+    margin-right: var(--spacing-sm) !important;
+  }
+  
+  .opblock-summary-description {
+    color: var(--text-secondary) !important;
+    flex-grow: 1 !important;
+    margin-right: var(--spacing-sm) !important;
+  }
+  
+  .opblock-summary-control {
+    flex-shrink: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: var(--spacing-xs) !important;
+    
+    svg {
+      width: 16px !important;
+      height: 16px !important;
+      fill: var(--text-secondary) !important;
+      transition: var(--transition-base) !important;
+    }
+  }
+  
+  &:hover .opblock-summary-control svg {
+    fill: var(--brand-primary) !important;
+  }
+}
+
+// ===== Force Operation Summary to Be Relative =====
+.swagger-ui .opblock-summary {
+  position: relative !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  border-radius: var(--border-radius-md) !important;
+  padding: var(--spacing-sm) var(--spacing-md) !important;
+  cursor: pointer !important;
+  min-height: 3rem !important;
+  
+  .opblock-summary-method {
+    flex-shrink: 0 !important;
+    margin-right: var(--spacing-sm) !important;
+  }
+  
+  .opblock-summary-path {
+    flex-grow: 1 !important;
+    margin-right: var(--spacing-sm) !important;
+  }
+  
+  .opblock-summary-description {
+    color: var(--text-secondary) !important;
+    flex-grow: 1 !important;
+    margin-right: var(--spacing-sm) !important;
+  }
+  
+  .opblock-summary-control {
+    flex-shrink: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: var(--spacing-xs) !important;
+    
+    svg {
+      width: 16px !important;
+      height: 16px !important;
+      fill: var(--text-secondary) !important;
+      transition: var(--transition-base) !important;
+    }
+  }
+  
+  &:hover .opblock-summary-control svg {
+    fill: var(--brand-primary) !important;
+  }
+}
+
+// ===== Nuclear Option - Override Everything =====
+.swagger-ui * .copy-to-clipboard {
+  position: absolute !important;
+  top: 50% !important;
+  right: 4rem !important;
+  transform: translateY(-50%) !important;
+  z-index: 1000 !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  display: block !important;
+}
+
+.swagger-ui * .authorization__btn {
+  position: absolute !important;
+  top: 50% !important;
+  right: 6.5rem !important;
+  transform: translateY(-50%) !important;
+  z-index: 1000 !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  display: block !important;
+}
+
+// ===== Code Block Copy Buttons - Different Positioning =====
+.swagger-ui .highlight-code,
+.swagger-ui .microlight,
+.swagger-ui .model-box,
+.swagger-ui .response-col_description .response-col_description__inner,
+.swagger-ui pre,
+.swagger-ui code {
+  position: relative !important;
+  
+  .copy-to-clipboard {
+    position: absolute !important;
+    top: var(--spacing-xs) !important;
+    right: var(--spacing-xs) !important;
+    transform: none !important;
+    z-index: 100 !important;
+    opacity: 1 !important;
+    display: block !important;
+  }
+}
+
+// ===== Override Any Hiding Rules =====
+.swagger-ui .opblock-summary .copy-to-clipboard,
+.swagger-ui .opblock-tag .copy-to-clipboard,
+.swagger-ui .opblock .copy-to-clipboard {
+  display: block !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
+}
+
+// ===== Override Any Hiding Rules for Auth Button =====
+.swagger-ui .opblock-summary .authorization__btn,
+.swagger-ui .opblock-tag .authorization__btn,
+.swagger-ui .opblock .authorization__btn {
+  display: block !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
+}
+
+// ===== Fix Operation Body - Remove Excessive Padding =====
+.swagger-ui .opblock-body {
+  background-color: var(--dark-bg-primary) !important;
+  border: 1px solid var(--glass-border-medium) !important;
+  border-top: none !important;
+  border-radius: 0 0 var(--border-radius-md) var(--border-radius-md) !important;
+  padding: var(--spacing-sm) !important; // Reduced padding
+  margin-top: -1px !important;
+  position: static !important;
+  display: block !important;
+  width: auto !important;
+  overflow: visible !important;
+}
+
+// ===== Fix Section Containers - Reduce Padding =====
+.swagger-ui .opblock-section-request-body,
+.swagger-ui .opblock-section-parameters,
+.swagger-ui .parameters-container,
+.swagger-ui .opblock-section {
+  background-color: var(--dark-bg-code) !important;
+  border: 1px solid var(--glass-border-light) !important;
+  border-radius: var(--border-radius-sm) !important;
+  padding: var(--spacing-sm) !important; // Reduced padding
+  margin: var(--spacing-xs) 0 !important; // Reduced margin
+  position: static !important;
+  display: block !important;
+  width: auto !important;
+  overflow: visible !important;
+}
+
+// ===== Fix Button Positioning - Group Cancel and Execute =====
+.swagger-ui .btn.cancel,
+.swagger-ui .btn.execute {
+  position: static !important;
+  display: inline-block !important;
+  margin: var(--spacing-xs) var(--spacing-sm) var(--spacing-xs) 0 !important;
+  float: none !important;
+}
+
+// ===== Fix Try It Out Section =====
+.swagger-ui .try-out {
+  display: flex !important;
+  justify-content: flex-start !important;
+  align-items: center !important;
+  gap: var(--spacing-sm) !important;
+  background-color: transparent !important;
+  border: none !important;
+  border-radius: 0 !important;
+  padding: var(--spacing-sm) 0 !important;
+  margin: 0 !important;
+  position: static !important;
+  width: auto !important;
+  
+  .btn {
+    margin: 0 !important;
+    flex-shrink: 0 !important;
+    position: static !important;
+  }
+}
+
+// ===== Fix Execute Wrapper - Remove Extra Containers =====
+.swagger-ui .execute-wrapper {
+  display: flex !important;
+  justify-content: flex-start !important;
+  align-items: center !important;
+  gap: var(--spacing-sm) !important;
+  background-color: transparent !important;
+  border: none !important;
+  border-radius: 0 !important;
+  padding: var(--spacing-sm) 0 !important;
+  margin: 0 !important;
+  position: static !important;
+  width: auto !important;
+  
+  .btn {
+    margin: 0 !important;
+    flex-shrink: 0 !important;
+    position: static !important;
+  }
+}
+
+// ===== Fix Parameter Table Structure =====
+.swagger-ui .parameters,
+.swagger-ui .parameters-container .parameters {
+  width: 100% !important;
+  border-collapse: collapse !important;
+  margin: 0 !important;
+  background-color: transparent !important;
+  position: static !important;
+  display: table !important;
+}
+
+// ===== Fix Parameter Items - Reduce Spacing =====
+.swagger-ui .parameter-item-wrap,
+.swagger-ui .parameter-item {
+  margin-bottom: var(--spacing-sm) !important; // Reduced spacing
+  border-bottom: 1px solid var(--glass-border-light) !important;
+  padding: var(--spacing-sm) 0 !important; // Reduced padding
+  position: static !important;
+  display: block !important;
+  width: auto !important;
+  
+  &:last-child {
+    border-bottom: none !important;
+    margin-bottom: 0 !important;
+  }
+}
+
+// ===== Fix Section Headers - Reduce Padding =====
+.swagger-ui .opblock-section-header {
+  background-color: var(--dark-bg-tertiary) !important;
+  padding: var(--spacing-xs) var(--spacing-sm) !important; // Reduced padding
+  margin-block-end: var(--spacing-xs) !important; // Reduced margin
+  border-radius: var(--border-radius-sm) !important;
+  border: 1px solid var(--glass-border-light) !important;
+  border-bottom: 2px solid var(--brand-primary) !important;
+  position: static !important;
+  display: block !important;
+  width: auto !important;
+  
+  h4 {
+    color: var(--brand-primary) !important;
+    margin: 0 !important;
+    font-weight: var(--font-weight-semibold) !important;
+    font-size: var(--font-size-base) !important;
+  }
+  
+  label {
+    color: var(--text-secondary) !important;
+    font-size: var(--font-size-sm) !important;
+    font-weight: var(--font-weight-normal) !important;
+  }
+}
+
+// ===== Fix Responses Section - Reduce Spacing =====
+.swagger-ui .responses-wrapper {
+  border-radius: var(--border-radius-md) !important;
+  position: static !important;
+  display: block !important;
+  width: auto !important;
+  margin: var(--spacing-sm) 0 !important; // Reduced margin
+  overflow: visible !important;
+}
+
+.swagger-ui .responses-inner {
+  background-color: var(--dark-bg-tertiary) !important;
+  border: 1px solid var(--glass-border-light) !important;
+  border-radius: var(--border-radius-sm) !important;
+  padding: var(--spacing-sm) !important; // Reduced padding
+  position: static !important;
+  display: block !important;
+  width: auto !important;
+  
+  .response-col_description {
+    color: var(--text-secondary) !important;
+  }
+  
+  .response-col_status {
+    color: var(--brand-primary) !important;
+    font-weight: var(--font-weight-semibold) !important;
+  }
+}
+
+// ===== Reset Response Tables to Normal =====
+.swagger-ui .response-content-type,
+.swagger-ui .responses table,
+.swagger-ui .response-body {
+  width: 100% !important;
+  position: static !important;
+  display: table !important;
+  border-collapse: collapse !important;
+  margin: var(--spacing-sm) 0 !important;
+}
+
+// ===== Fix Button Groups - Remove Extra Styling =====
+.swagger-ui .btn-group {
+  display: flex !important;
+  justify-content: flex-start !important;
+  align-items: center !important;
+  gap: var(--spacing-sm) !important;
+  background-color: transparent !important;
+  border: none !important;
+  border-radius: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  position: static !important;
+  width: auto !important;
+  
+  .btn {
+    margin: 0 !important;
+    flex-shrink: 0 !important;
+    position: static !important;
+  }
+}
+
+// ===== Remove All Forced Positioning =====
+.swagger-ui .opblock.is-open .opblock-body > * {
+  position: static !important;
+  display: block !important;
+  width: auto !important;
+  margin-bottom: var(--spacing-xs) !important; // Reduced spacing
+}
+
+// ===== Section Spacing =====
+.swagger-ui .opblock + .opblock {
+  margin-top: var(--spacing-md) !important;
+}
+
+// ===== Tag Section =====
+.opblock-tag-section.is-open {
+  padding: var(--spacing-md) !important;
+  border-radius: var(--border-radius-md) !important;
+  border: 1px solid var(--glass-border-light) !important;
+  box-shadow: var(--glass-shadow-light) !important;
+}
+
+// ===== Glass Morphism Effect =====
+.swagger-ui .scheme-container {
+  background: var(--glass-bg-light) !important;
+  backdrop-filter: var(--glass-blur-light) !important;
+  border-radius: var(--border-radius-lg) !important;
+  border: 1px solid var(--glass-border-light) !important;
+  margin-bottom: var(--spacing-lg) !important;
+} 

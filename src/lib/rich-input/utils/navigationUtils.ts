@@ -3,7 +3,7 @@
  * Handles word boundaries, cursor snapping, and smart navigation
  */
 
-import { createLogger } from '@/lib/logging';
+import { createLogger } from '@lib/logging';
 import { ContentParser } from '../../utils/content-parsers';
 import type { RichInputPosition } from '../types';
 

@@ -1,7 +1,7 @@
-import { withRateLimit } from '@/lib/middleware/withRateLimit';
+import { auth } from '@lib/auth';
+import sql from '@lib/db';
+import { withRateLimit } from '@lib/middleware/withRateLimit';
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '../../../../lib/auth';
-import sql from '../../../../lib/db';
 
 async function deleteHandler(request: NextRequest) {
   try {

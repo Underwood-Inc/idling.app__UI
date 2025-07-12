@@ -1,15 +1,15 @@
 /**
  * Idling.app Documentation Styles
- * Modular CSS architecture for maintainability and organization
+ * Modular SCSS architecture for maintainability and organization
  * 
  * @version 2.0.0
- * @description Refactored from monolithic to modular design
+ * @description Refactored from monolithic to modular design with SCSS support
  */
 
-/* Import CSS Modules in Dependency Order */
+/* Import SCSS Modules in Dependency Order */
 
 /* 1. Design System Foundation */
-@import './variables.css'; /* CSS custom properties and design tokens */
+@import './variables.scss'; /* SCSS variables and CSS custom properties */
 
 /* 2. Base & Typography */
 @import './base.css'; /* Fundamental styles and typography */
@@ -22,6 +22,7 @@
 
 /* 5. Specialized Features */
 @import './mermaid.css'; /* Diagram-specific styling */
+@import './swagger-ui.scss'; /* Swagger UI theming to match brand */
 
 /* 6. Responsive Design */
 @import './responsive.css'; /* Media queries and mobile optimizations */
@@ -34,6 +35,7 @@
  * navigation.css   - Navbar, sidebar, breadcrumbs, pagination, search
  * components.css   - Tables, cards, alerts, examples, lists, badges
  * mermaid.css      - Interactive diagram viewer with pan/zoom/fullscreen
+ * swagger-ui.scss  - Modular Swagger UI theming with SCSS variables
  * responsive.css   - Mobile/tablet/desktop breakpoints and print styles
  * 
  * Benefits:
@@ -43,4 +45,5 @@
  * ✓ Better organization for team collaboration
  * ✓ Easier debugging and performance optimization
  * ✓ Clear dependency hierarchy
- */
+ * ✓ SCSS support for variables, nesting, and advanced features
+ */ 

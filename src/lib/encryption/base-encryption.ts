@@ -4,7 +4,7 @@
  * Supports both personal (per-user) and global (application-level) encryption
  */
 
-import { createLogger } from '@/lib/logging';
+import { createLogger } from '@lib/logging';
 import crypto from 'crypto';
 import sql from '../db';
 

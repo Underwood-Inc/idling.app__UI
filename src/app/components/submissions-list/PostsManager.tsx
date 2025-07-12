@@ -1,6 +1,6 @@
 'use client';
 
-import { createLogger } from '@/lib/logging';
+import { createLogger } from '@lib/logging';
 import { useSession } from 'next-auth/react';
 import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useSubmissionsManager } from '../../../lib/state/useSubmissionsManager';
@@ -8,8 +8,8 @@ import '../../../lib/utils/scroll-highlight-demo'; // Import for global test fun
 import { Submission } from '../submission-forms/schema';
 import { SubmissionWithReplies } from './actions';
 
-import { Filter } from '@/lib/state/atoms';
-import { PostFilters } from '@/lib/types/filters';
+import { Filter } from '@lib/state/atoms';
+import { PostFilters } from '@lib/types/filters';
 import { usePaginationPreRequest } from '../../hooks/usePaginationPreRequest';
 import { SimpleSkeletonWrapper } from '../skeleton/SimpleSkeletonWrapper';
 import { PostsManagerControls } from './components/PostsManagerControls';

@@ -1,4 +1,4 @@
-import { createLogger } from '@/lib/logging';
+import { createLogger } from '@lib/logging';
 import NextAuth from 'next-auth';
 import { Pool } from 'pg';
 import { authConfig } from '../auth.config';

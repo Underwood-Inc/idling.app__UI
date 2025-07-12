@@ -4,7 +4,7 @@
  * Use these functions to manually clean up multiple service workers
  */
 
-import { createLogger } from '@/lib/logging';
+import { createLogger } from '@lib/logging';
 
 // Create logger for service worker cleanup
 const logger = createLogger({

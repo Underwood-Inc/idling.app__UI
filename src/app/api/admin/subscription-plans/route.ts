@@ -3,11 +3,11 @@
  * Handles fetching available subscription plans for assignment
  */
 
-import { checkUserPermission } from '@/lib/actions/permissions.actions';
-import { auth } from '@/lib/auth';
-import sql from '@/lib/db';
-import { withRateLimit } from '@/lib/middleware/withRateLimit';
-import { PERMISSIONS } from '@/lib/permissions/permissions';
+import { checkUserPermission } from '@lib/actions/permissions.actions';
+import { auth } from '@lib/auth';
+import sql from '@lib/db';
+import { withRateLimit } from '@lib/middleware/withRateLimit';
+import { PERMISSIONS } from '@lib/permissions/permissions';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 

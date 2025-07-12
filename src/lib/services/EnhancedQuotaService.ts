@@ -14,7 +14,7 @@
  * @author System
  */
 
-import sql from '@/lib/db';
+import sql from '@lib/db';
 
 // ================================
 // TYPES & INTERFACES
