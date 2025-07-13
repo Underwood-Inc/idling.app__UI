@@ -49,6 +49,11 @@
   background: var(--light-background--tertiary);
 }
 
+.admin-dashboard__tab .tab-icon {
+  margin-right: 0.5rem;
+  font-size: 1.1em;
+}
+
 .admin-dashboard__content {
   min-height: 60vh;
 }
