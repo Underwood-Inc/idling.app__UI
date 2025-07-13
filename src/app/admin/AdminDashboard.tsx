@@ -1,9 +1,10 @@
 'use client';
 
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import './AdminDashboard.css';
 import AdminPostsList from './components/AdminPostsList';
+import AnalyticsDashboard from './components/AnalyticsDashboard';
 import CustomAlertsPanel from './components/CustomAlertsPanel';
 import EmojiApprovalPanel from './components/EmojiApprovalPanel';
 import GlobalGuestQuotaPanel from './components/GlobalGuestQuotaPanel';
@@ -11,35 +12,104 @@ import PermissionManagementPanel from './components/PermissionManagementPanel';
 import SubscriptionManagementPanel from './components/SubscriptionManagementPanel';
 import { UserManagementPanel } from './components/UserManagementPanel';
 
-type AdminTab =
-  | 'emojis'
-  | 'posts'
-  | 'users'
-  | 'subscriptions'
-  | 'alerts'
-  | 'quotas'
-  | 'permissions';
+// ================================
+// ADMIN TABS CONFIGURATION
+// ================================
+
+interface AdminTabConfig {
+  id: string;
+  label: string;
+  icon?: string;
+  component: React.ComponentType;
+  sortOrder: number;
+  description?: string;
+}
+
+const ADMIN_TABS: AdminTabConfig[] = [
+  {
+    id: 'analytics',
+    label: 'Analytics',
+    icon: '📊',
+    component: AnalyticsDashboard,
+    sortOrder: 1,
+    description: 'Global app analytics and user behavior tracking'
+  },
+  {
+    id: 'users',
+    label: 'User Management',
+    icon: '👥',
+    component: UserManagementPanel,
+    sortOrder: 2,
+    description: 'Manage user accounts, roles, and permissions'
+  },
+  {
+    id: 'posts',
+    label: 'Posts Moderation',
+    icon: '📝',
+    component: AdminPostsList,
+    sortOrder: 3,
+    description: 'Review and moderate user posts'
+  },
+  {
+    id: 'emojis',
+    label: 'Emoji Approval',
+    icon: '😀',
+    component: EmojiApprovalPanel,
+    sortOrder: 4,
+    description: 'Approve or reject custom emoji submissions'
+  },
+  {
+    id: 'subscriptions',
+    label: 'Subscriptions',
+    icon: '💳',
+    component: SubscriptionManagementPanel,
+    sortOrder: 5,
+    description: 'Manage subscription plans and user subscriptions'
+  },
+  {
+    id: 'permissions',
+    label: 'Permissions',
+    icon: '🔐',
+    component: PermissionManagementPanel,
+    sortOrder: 6,
+    description: 'Configure system permissions and access control'
+  },
+  {
+    id: 'alerts',
+    label: 'Custom Alerts',
+    icon: '🔔',
+    component: CustomAlertsPanel,
+    sortOrder: 7,
+    description: 'Manage system alerts and notifications'
+  },
+  {
+    id: 'quotas',
+    label: 'Guest Quotas',
+    icon: '📊',
+    component: GlobalGuestQuotaPanel,
+    sortOrder: 8,
+    description: 'Configure guest user quotas and limits'
+  }
+].sort((a, b) => a.sortOrder - b.sortOrder);
+
+// Generate types and validation from config
+type AdminTab = (typeof ADMIN_TABS)[number]['id'];
+const VALID_TABS = ADMIN_TABS.map((tab) => tab.id);
+const DEFAULT_TAB = ADMIN_TABS[0].id;
+
+// ================================
+// MAIN COMPONENT
+// ================================
 
 export default function AdminDashboard() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [activeTab, setActiveTab] = useState<AdminTab>('emojis');
+  const [activeTab, setActiveTab] = useState<AdminTab>(DEFAULT_TAB);
 
   // Sync with URL parameters on mount and when URL changes
   useEffect(() => {
     const tabFromUrl = searchParams.get('tab') as AdminTab;
-    if (
-      tabFromUrl &&
-      [
-        'emojis',
-        'posts',
-        'users',
-        'subscriptions',
-        'alerts',
-        'quotas',
-        'permissions'
-      ].includes(tabFromUrl)
-    ) {
+    if (tabFromUrl && VALID_TABS.includes(tabFromUrl)) {
       setActiveTab(tabFromUrl);
     }
   }, [searchParams]);
@@ -52,65 +122,35 @@ export default function AdminDashboard() {
     router.push(newUrl.pathname + newUrl.search, { scroll: false });
   };
 
+  // Get the current tab component
+  const getCurrentTabComponent = () => {
+    const currentTab = ADMIN_TABS.find((tab) => tab.id === activeTab);
+    if (!currentTab) return null;
+
+    const Component = currentTab.component;
+    return <Component />;
+  };
+
   return (
     <div className="admin-dashboard">
       <div className="admin-dashboard__header">
         <h1 className="admin-dashboard__title">Admin Dashboard</h1>
         <div className="admin-dashboard__tabs">
-          <button
-            className={`admin-dashboard__tab ${activeTab === 'emojis' ? 'admin-dashboard__tab--active' : ''}`}
-            onClick={() => handleTabChange('emojis')}
-          >
-            Emoji Approval
-          </button>
-          <button
-            className={`admin-dashboard__tab ${activeTab === 'posts' ? 'admin-dashboard__tab--active' : ''}`}
-            onClick={() => handleTabChange('posts')}
-          >
-            Posts Moderation
-          </button>
-          <button
-            className={`admin-dashboard__tab ${activeTab === 'users' ? 'admin-dashboard__tab--active' : ''}`}
-            onClick={() => handleTabChange('users')}
-          >
-            User Management
-          </button>
-          <button
-            className={`admin-dashboard__tab ${activeTab === 'subscriptions' ? 'admin-dashboard__tab--active' : ''}`}
-            onClick={() => handleTabChange('subscriptions')}
-          >
-            Subscriptions
-          </button>
-          <button
-            className={`admin-dashboard__tab ${activeTab === 'alerts' ? 'admin-dashboard__tab--active' : ''}`}
-            onClick={() => handleTabChange('alerts')}
-          >
-            Custom Alerts
-          </button>
-          <button
-            className={`admin-dashboard__tab ${activeTab === 'quotas' ? 'admin-dashboard__tab--active' : ''}`}
-            onClick={() => handleTabChange('quotas')}
-          >
-            Guest Quotas
-          </button>
-          <button
-            className={`admin-dashboard__tab ${activeTab === 'permissions' ? 'admin-dashboard__tab--active' : ''}`}
-            onClick={() => handleTabChange('permissions')}
-          >
-            Permissions
-          </button>
+          {ADMIN_TABS.map((tab) => (
+            <button
+              key={tab.id}
+              className={`admin-dashboard__tab ${activeTab === tab.id ? 'admin-dashboard__tab--active' : ''}`}
+              onClick={() => handleTabChange(tab.id)}
+              title={tab.description}
+            >
+              {tab.icon && <span className="tab-icon">{tab.icon}</span>}
+              {tab.label}
+            </button>
+          ))}
         </div>
       </div>
 
-      <div className="admin-dashboard__content">
-        {activeTab === 'emojis' && <EmojiApprovalPanel />}
-        {activeTab === 'posts' && <AdminPostsList />}
-        {activeTab === 'users' && <UserManagementPanel />}
-        {activeTab === 'subscriptions' && <SubscriptionManagementPanel />}
-        {activeTab === 'alerts' && <CustomAlertsPanel />}
-        {activeTab === 'quotas' && <GlobalGuestQuotaPanel />}
-        {activeTab === 'permissions' && <PermissionManagementPanel />}
-      </div>
+      <div className="admin-dashboard__content">{getCurrentTabComponent()}</div>
     </div>
   );
 }

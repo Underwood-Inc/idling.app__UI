@@ -260,21 +260,21 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.KeyMsg:
 		// Skip global key bindings when in text input mode
 		if m.state.Navigation.CurrentMenu != MenuUserLookup {
-			switch {
-			case key.Matches(msg, keys.Quit):
-				return m, tea.Quit
+		switch {
+		case key.Matches(msg, keys.Quit):
+			return m, tea.Quit
 
-			case key.Matches(msg, keys.Help):
-				m.showHelp = !m.showHelp
+		case key.Matches(msg, keys.Help):
+			m.showHelp = !m.showHelp
 
-			case key.Matches(msg, keys.Back):
-				return m, m.navigateBack()
+		case key.Matches(msg, keys.Back):
+			return m, m.navigateBack()
 
-			case key.Matches(msg, keys.Refresh):
-				return m, m.refreshCurrentView()
+		case key.Matches(msg, keys.Refresh):
+			return m, m.refreshCurrentView()
 
-			case key.Matches(msg, keys.Enter):
-				return m, m.handleEnter()
+		case key.Matches(msg, keys.Enter):
+			return m, m.handleEnter()
 			}
 		} else {
 			// In text input mode, only handle specific keys
@@ -474,51 +474,51 @@ func (d menuItemDelegate) Render(w io.Writer, m list.Model, index int, listItem 
 // Navigation and menu functions
 func (m Model) loadMainMenu() tea.Cmd {
 	return func() tea.Msg {
-		items := []list.Item{
-			menuItem{MenuOption{Key: "lookup", Label: "User Lookup", Description: "Find user by ID or search by name", Icon: "🔍", Enabled: true}},
-			menuItem{MenuOption{Key: "reference", Label: "Reference Data", Description: "View roles, permissions, and plans", Icon: "📖", Enabled: true}},
-			menuItem{MenuOption{Key: "quit", Label: "Quit", Description: "Exit the application", Icon: "🚪", Enabled: true}},
-		}
+	items := []list.Item{
+		menuItem{MenuOption{Key: "lookup", Label: "User Lookup", Description: "Find user by ID or search by name", Icon: "🔍", Enabled: true}},
+		menuItem{MenuOption{Key: "reference", Label: "Reference Data", Description: "View roles, permissions, and plans", Icon: "📖", Enabled: true}},
+		menuItem{MenuOption{Key: "quit", Label: "Quit", Description: "Exit the application", Icon: "🚪", Enabled: true}},
+	}
 		return menuLoadedMsg{items: items}
 	}
 }
 
 func (m Model) loadUserProfileMenu() tea.Cmd {
 	return func() tea.Msg {
-		items := []list.Item{
-			menuItem{MenuOption{Key: "basic_profile", Label: "Basic Profile", Description: "Update name, email, bio, location, visibility", Icon: "👤", Enabled: true}},
-			menuItem{MenuOption{Key: "roles_permissions", Label: "Roles & Permissions", Description: "Assign/remove roles, manage permissions", Icon: "🔐", Enabled: true}},
-			menuItem{MenuOption{Key: "timeouts", Label: "User Timeouts", Description: "Issue timeout, view timeout history", Icon: "⏰", Enabled: true}},
-			menuItem{MenuOption{Key: "subscriptions", Label: "Subscriptions", Description: "Manage user subscriptions and plans", Icon: "💳", Enabled: true}},
-			menuItem{MenuOption{Key: "custom_emojis", Label: "Custom Emojis", Description: "Approve/reject custom emojis", Icon: "😀", Enabled: true}},
-			menuItem{MenuOption{Key: "quota_management", Label: "Quota Management", Description: "Manage user quotas", Icon: "📊", Enabled: true}},
-			menuItem{MenuOption{Key: "view_details", Label: "View Full Details", Description: "Show comprehensive user information", Icon: "📋", Enabled: true}},
-		}
+	items := []list.Item{
+		menuItem{MenuOption{Key: "basic_profile", Label: "Basic Profile", Description: "Update name, email, bio, location, visibility", Icon: "👤", Enabled: true}},
+		menuItem{MenuOption{Key: "roles_permissions", Label: "Roles & Permissions", Description: "Assign/remove roles, manage permissions", Icon: "🔐", Enabled: true}},
+		menuItem{MenuOption{Key: "timeouts", Label: "User Timeouts", Description: "Issue timeout, view timeout history", Icon: "⏰", Enabled: true}},
+		menuItem{MenuOption{Key: "subscriptions", Label: "Subscriptions", Description: "Manage user subscriptions and plans", Icon: "💳", Enabled: true}},
+		menuItem{MenuOption{Key: "custom_emojis", Label: "Custom Emojis", Description: "Approve/reject custom emojis", Icon: "😀", Enabled: true}},
+		menuItem{MenuOption{Key: "quota_management", Label: "Quota Management", Description: "Manage user quotas", Icon: "📊", Enabled: true}},
+		menuItem{MenuOption{Key: "view_details", Label: "View Full Details", Description: "Show comprehensive user information", Icon: "📋", Enabled: true}},
+	}
 		return menuLoadedMsg{items: items}
 	}
 }
 
 func (m Model) loadSearchResultsMenu() tea.Cmd {
 	return func() tea.Msg {
-		var items []list.Item
-		for _, result := range m.searchResults {
-			name := "No name"
-			if result.Name != nil {
-				name = *result.Name
-			}
-			email := "No email"
-			if result.Email != nil {
-				email = *result.Email
-			}
-			
-			items = append(items, menuItem{MenuOption{
-				Key:         fmt.Sprintf("user_%d", result.ID),
-				Label:       fmt.Sprintf("%s (%s)", name, email),
-				Description: fmt.Sprintf("ID: %d - Created: %s", result.ID, result.CreatedAt.Format("2006-01-02")),
-				Icon:        "👤",
-				Enabled:     true,
-			}})
+	var items []list.Item
+	for _, result := range m.searchResults {
+		name := "No name"
+		if result.Name != nil {
+			name = *result.Name
 		}
+		email := "No email"
+		if result.Email != nil {
+			email = *result.Email
+		}
+		
+		items = append(items, menuItem{MenuOption{
+			Key:         fmt.Sprintf("user_%d", result.ID),
+			Label:       fmt.Sprintf("%s (%s)", name, email),
+			Description: fmt.Sprintf("ID: %d - Created: %s", result.ID, result.CreatedAt.Format("2006-01-02")),
+			Icon:        "👤",
+			Enabled:     true,
+		}})
+	}
 		return menuLoadedMsg{items: items}
 	}
 }
@@ -856,7 +856,7 @@ func main() {
 	if err := godotenv.Load("../../.env.local"); err != nil {
 		// Try current directory as fallback
 		if err2 := godotenv.Load(".env.local"); err2 != nil {
-			log.Printf("Warning: Could not load .env.local file: %v", err)
+		log.Printf("Warning: Could not load .env.local file: %v", err)
 		}
 	}
 

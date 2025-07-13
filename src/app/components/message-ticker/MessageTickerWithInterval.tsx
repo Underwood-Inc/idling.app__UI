@@ -7,6 +7,16 @@ export default function MessageTickerWithInterval() {
   const [message, setMessage] = useState<string[]>([]);
 
   useEffect(() => {
+    // Generate random interval between 10-20 minutes (600000-1200000 ms)
+    const getRandomInterval = () => {
+      const minInterval = 10 * 60 * 1000; // 10 minutes in milliseconds
+      const maxInterval = 20 * 60 * 1000; // 20 minutes in milliseconds
+      return (
+        Math.floor(Math.random() * (maxInterval - minInterval + 1)) +
+        minInterval
+      );
+    };
+
     const fetchData = () => {
       fetchBuddha()
         .then((result) => {
@@ -21,9 +31,24 @@ export default function MessageTickerWithInterval() {
 
     fetchData(); // Initial fetch
 
-    const intervalId = setInterval(fetchData, 108000); // Fetch data every 108 seconds
+    // Set up interval with random timing
+    const setupInterval = () => {
+      const randomInterval = getRandomInterval();
 
-    return () => clearInterval(intervalId); // Cleanup interval on component unmount
+      return setTimeout(() => {
+        fetchData();
+        // Set up next interval after this one completes
+        intervalRef.current = setupInterval();
+      }, randomInterval);
+    };
+
+    const intervalRef = { current: setupInterval() };
+
+    return () => {
+      if (intervalRef.current) {
+        clearTimeout(intervalRef.current);
+      }
+    };
   }, []);
 
   return (

@@ -169,9 +169,9 @@ main() {
     
     # Check Go environment
     if ! check_go_environment; then
-        exit 1
-    fi
-    
+    exit 1
+fi
+
     # Show build info
     if [ "$VERBOSE" = true ]; then
         show_build_info
@@ -203,8 +203,8 @@ main() {
         fi
     else
         log_error "Build failed!"
-        exit 1
-    fi
+    exit 1
+fi 
 }
 
 # Run main function

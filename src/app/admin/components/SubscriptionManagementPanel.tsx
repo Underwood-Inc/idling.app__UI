@@ -75,7 +75,7 @@ interface User {
   email: string;
 }
 
-type TabType = 'overview' | 'plans' | 'subscriptions' | 'analytics';
+type TabType = 'overview' | 'plans' | 'subscriptions';
 
 export default function SubscriptionManagementPanel() {
   // ================================
@@ -780,22 +780,6 @@ export default function SubscriptionManagementPanel() {
     </div>
   );
 
-  const renderAnalytics = () => (
-    <div className="subscription-analytics">
-      <h3>📈 Analytics</h3>
-      <div className="analytics-placeholder">
-        <p>📊 Advanced subscription analytics coming soon...</p>
-        <ul>
-          <li>📈 Revenue trends and forecasting</li>
-          <li>👥 User acquisition and churn analysis</li>
-          <li>🔄 Conversion funnel metrics</li>
-          <li>💡 Plan performance insights</li>
-          <li>📋 Custom reports and exports</li>
-        </ul>
-      </div>
-    </div>
-  );
-
   // ================================
   // MAIN RENDER
   // ================================
@@ -834,8 +818,8 @@ export default function SubscriptionManagementPanel() {
       <div className="panel-header">
         <h2>💳 Subscription Management</h2>
         <p>
-          Manage subscription plans, user subscriptions, and analytics with
-          quota system integration
+          Manage subscription plans, user subscriptions, and quota system
+          integration
         </p>
       </div>
 
@@ -865,19 +849,12 @@ export default function SubscriptionManagementPanel() {
         >
           👥 Subscriptions
         </button>
-        <button
-          className={`tab-button ${activeTab === 'analytics' ? 'tab-button--active' : ''}`}
-          onClick={() => setActiveTab('analytics')}
-        >
-          📈 Analytics
-        </button>
       </div>
 
       <div className="panel-content">
         {activeTab === 'overview' && renderOverview()}
         {activeTab === 'plans' && renderPlans()}
         {activeTab === 'subscriptions' && renderSubscriptions()}
-        {activeTab === 'analytics' && renderAnalytics()}
       </div>
 
       {/* Modals */}

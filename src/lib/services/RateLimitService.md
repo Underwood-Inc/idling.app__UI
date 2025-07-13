@@ -17,7 +17,7 @@ The `RateLimitService` is a singleton service that implements:
 - **Daily Quota Limits**: For resource-intensive operations with database persistence
 - **Attack Detection**: Progressive penalties for detected abuse patterns
 - **Development Bypass**: Configurable bypass for development environments
-- **Edge Runtime Compatibility**: Works in both Node.js and Edge Runtime environments
+- **Fail-Fast Architecture**: Works properly on all devices or fails explicitly with clear errors
 
 ## Key Features
 
@@ -33,11 +33,12 @@ The `RateLimitService` is a singleton service that implements:
 - Progressive backoff periods (1min → 5min → 15min → 1hr → 6hr → 24hr)
 - Separate attack-specific rate limits
 
-### ⚙️ **Flexible Configuration**
+### ⚙️ **Reliable Configuration**
 
 - Pre-configured limits for common scenarios
 - Custom rate limiting configurations
 - Per-endpoint customization
+- **No fallbacks** - works properly or fails with clear error messages
 
 ## Usage
 
@@ -129,6 +130,8 @@ Main method to check if a request should be rate limited.
 - `isAttack`: Whether this is classified as an attack
 - `quotaType`: Type of quota applied
 
+**Throws:** `Error` if unknown configuration type is provided
+
 ### `createAPILimiter(configType?: string)`
 
 Creates a middleware-style rate limiter for API routes.
@@ -159,13 +162,14 @@ The service automatically detects abuse patterns and applies progressive penalti
 
 Penalty levels increase with repeated violations and decay over time.
 
-## Edge Runtime Compatibility
+## Fail-Fast Architecture
 
-The service gracefully handles both Node.js and Edge Runtime environments:
+The service uses a fail-fast approach for maximum reliability:
 
-- Conditional imports for Node.js-specific dependencies
-- Fallback implementations for Edge Runtime
-- Graceful degradation when database is unavailable
+- **Direct Dependencies**: All dependencies are imported directly
+- **Explicit Errors**: Unknown configurations throw clear error messages
+- **No Silent Failures**: Service works properly or fails with actionable errors
+- **Consistent Behavior**: Same behavior across all devices and environments
 
 ## Environment Configuration
 
@@ -175,7 +179,7 @@ Set `BYPASS_RATE_LIMIT=true` in your environment to disable rate limiting during
 
 ### Database Configuration
 
-For daily quotas, ensure your database service is properly configured. The service will fall back to memory-only operation if database is unavailable.
+For daily quotas, ensure your database service is properly configured. The service requires DatabaseService to be available for database-backed rate limiting.
 
 ## Example: API Route Implementation
 
@@ -232,7 +236,16 @@ export async function GET(request: Request) {
 - Automatic cleanup prevents memory leaks
 - Singleton pattern ensures efficient resource usage
 
+## Error Handling
+
+The service throws explicit errors for:
+- Unknown configuration types
+- Missing required dependencies
+- Database connection failures (for database-backed limits)
+
+This ensures issues are caught early and resolved rather than silently failing.
+
 ---
 
 _File: `src/lib/services/RateLimitService.ts`_  
-_Last Updated: 2025-07-02_
+_Last Updated: 2025-01-15_

@@ -114,9 +114,9 @@ func (m Model) showReferenceData() tea.Cmd {
 		}
 		
 		// Update navigation state
-		m.state.Navigation.CurrentMenu = MenuReferenceData
-		m.updateBreadcrumbs()
-		
+	m.state.Navigation.CurrentMenu = MenuReferenceData
+	m.updateBreadcrumbs()
+	
 		return menuLoadedMsg{items: listItems}
 	}
 }
@@ -247,14 +247,14 @@ func (m Model) showAllSubscriptionPlans() tea.Cmd {
 
 func (m Model) showBasicProfileForm() tea.Cmd {
 	return func() tea.Msg {
-		// Create a menu for profile fields
-		items := []list.Item{
-			menuItem{MenuOption{Key: "name", Label: "Update Name", Description: getCurrentValue(m.state.Navigation.User.Name), Icon: "👤", Enabled: true}},
-			menuItem{MenuOption{Key: "email", Label: "Update Email", Description: getCurrentValue(m.state.Navigation.User.Email), Icon: "📧", Enabled: true}},
-			menuItem{MenuOption{Key: "bio", Label: "Update Bio", Description: getCurrentValue(m.state.Navigation.User.Bio), Icon: "📝", Enabled: true}},
-			menuItem{MenuOption{Key: "location", Label: "Update Location", Description: getCurrentValue(m.state.Navigation.User.Location), Icon: "📍", Enabled: true}},
-			menuItem{MenuOption{Key: "profile_public", Label: "Toggle Profile Visibility", Description: getProfileVisibility(m.state.Navigation.User.ProfilePublic), Icon: "👁️", Enabled: true}},
-		}
+	// Create a menu for profile fields
+	items := []list.Item{
+		menuItem{MenuOption{Key: "name", Label: "Update Name", Description: getCurrentValue(m.state.Navigation.User.Name), Icon: "👤", Enabled: true}},
+		menuItem{MenuOption{Key: "email", Label: "Update Email", Description: getCurrentValue(m.state.Navigation.User.Email), Icon: "📧", Enabled: true}},
+		menuItem{MenuOption{Key: "bio", Label: "Update Bio", Description: getCurrentValue(m.state.Navigation.User.Bio), Icon: "📝", Enabled: true}},
+		menuItem{MenuOption{Key: "location", Label: "Update Location", Description: getCurrentValue(m.state.Navigation.User.Location), Icon: "📍", Enabled: true}},
+		menuItem{MenuOption{Key: "profile_public", Label: "Toggle Profile Visibility", Description: getProfileVisibility(m.state.Navigation.User.ProfilePublic), Icon: "👁️", Enabled: true}},
+	}
 		
 		// Update navigation state
 		m.state.Navigation.CurrentMenu = MenuBasicProfile
@@ -354,89 +354,89 @@ func (m Model) toggleProfileVisibility() tea.Cmd {
 
 func (m Model) showRolesPermissions() tea.Cmd {
 	return func() tea.Msg {
-		// Create menu for role/permission actions
-		items := []list.Item{
-			menuItem{MenuOption{Key: "assign_role", Label: "Assign Role", Description: "Assign a new role to this user", Icon: "➕", Enabled: true}},
-			menuItem{MenuOption{Key: "remove_role", Label: "Remove Role", Description: "Remove an existing role from this user", Icon: "➖", Enabled: true}},
-			menuItem{MenuOption{Key: "view_roles", Label: "View Current Roles", Description: "Show all roles assigned to this user", Icon: "📋", Enabled: true}},
-			menuItem{MenuOption{Key: "view_permissions", Label: "View Permissions", Description: "Show all permissions for this user", Icon: "🔑", Enabled: true}},
-		}
+	// Create menu for role/permission actions
+	items := []list.Item{
+		menuItem{MenuOption{Key: "assign_role", Label: "Assign Role", Description: "Assign a new role to this user", Icon: "➕", Enabled: true}},
+		menuItem{MenuOption{Key: "remove_role", Label: "Remove Role", Description: "Remove an existing role from this user", Icon: "➖", Enabled: true}},
+		menuItem{MenuOption{Key: "view_roles", Label: "View Current Roles", Description: "Show all roles assigned to this user", Icon: "📋", Enabled: true}},
+		menuItem{MenuOption{Key: "view_permissions", Label: "View Permissions", Description: "Show all permissions for this user", Icon: "🔑", Enabled: true}},
+	}
 		
 		// Update navigation state
 		m.state.Navigation.CurrentMenu = MenuRolesPermissions
 		m.updateBreadcrumbs()
-		
+	
 		return menuLoadedMsg{items: items}
 	}
 }
 
 func (m Model) showTimeouts() tea.Cmd {
 	return func() tea.Msg {
-		// Create menu for timeout actions
-		items := []list.Item{
-			menuItem{MenuOption{Key: "issue_timeout", Label: "Issue Timeout", Description: "Issue a new timeout for this user", Icon: "⏰", Enabled: true}},
-			menuItem{MenuOption{Key: "view_timeouts", Label: "View Timeout History", Description: "Show all timeouts for this user", Icon: "📜", Enabled: true}},
-			menuItem{MenuOption{Key: "revoke_timeout", Label: "Revoke Active Timeout", Description: "Revoke an active timeout", Icon: "🔓", Enabled: true}},
-		}
+	// Create menu for timeout actions
+	items := []list.Item{
+		menuItem{MenuOption{Key: "issue_timeout", Label: "Issue Timeout", Description: "Issue a new timeout for this user", Icon: "⏰", Enabled: true}},
+		menuItem{MenuOption{Key: "view_timeouts", Label: "View Timeout History", Description: "Show all timeouts for this user", Icon: "📜", Enabled: true}},
+		menuItem{MenuOption{Key: "revoke_timeout", Label: "Revoke Active Timeout", Description: "Revoke an active timeout", Icon: "🔓", Enabled: true}},
+	}
 		
 		// Update navigation state
 		m.state.Navigation.CurrentMenu = MenuTimeouts
 		m.updateBreadcrumbs()
-		
+	
 		return menuLoadedMsg{items: items}
 	}
 }
 
 func (m Model) showSubscriptions() tea.Cmd {
 	return func() tea.Msg {
-		// Create menu for subscription actions
-		items := []list.Item{
-			menuItem{MenuOption{Key: "assign_subscription", Label: "Assign Subscription", Description: "Assign a new subscription plan", Icon: "💳", Enabled: true}},
-			menuItem{MenuOption{Key: "modify_subscription", Label: "Modify Subscription", Description: "Modify existing subscription", Icon: "✏️", Enabled: true}},
-			menuItem{MenuOption{Key: "view_subscriptions", Label: "View Subscriptions", Description: "Show all subscriptions for this user", Icon: "📊", Enabled: true}},
-			menuItem{MenuOption{Key: "cancel_subscription", Label: "Cancel Subscription", Description: "Cancel active subscription", Icon: "❌", Enabled: true}},
-		}
+	// Create menu for subscription actions
+	items := []list.Item{
+		menuItem{MenuOption{Key: "assign_subscription", Label: "Assign Subscription", Description: "Assign a new subscription plan", Icon: "💳", Enabled: true}},
+		menuItem{MenuOption{Key: "modify_subscription", Label: "Modify Subscription", Description: "Modify existing subscription", Icon: "✏️", Enabled: true}},
+		menuItem{MenuOption{Key: "view_subscriptions", Label: "View Subscriptions", Description: "Show all subscriptions for this user", Icon: "📊", Enabled: true}},
+		menuItem{MenuOption{Key: "cancel_subscription", Label: "Cancel Subscription", Description: "Cancel active subscription", Icon: "❌", Enabled: true}},
+	}
 		
 		// Update navigation state
 		m.state.Navigation.CurrentMenu = MenuSubscriptions
 		m.updateBreadcrumbs()
-		
+	
 		return menuLoadedMsg{items: items}
 	}
 }
 
 func (m Model) showCustomEmojis() tea.Cmd {
 	return func() tea.Msg {
-		// Create menu for emoji actions
-		items := []list.Item{
-			menuItem{MenuOption{Key: "view_emojis", Label: "View Custom Emojis", Description: "Show all custom emojis for this user", Icon: "😀", Enabled: true}},
-			menuItem{MenuOption{Key: "approve_emoji", Label: "Approve Emoji", Description: "Approve a pending custom emoji", Icon: "✅", Enabled: true}},
-			menuItem{MenuOption{Key: "reject_emoji", Label: "Reject Emoji", Description: "Reject a pending custom emoji", Icon: "❌", Enabled: true}},
-			menuItem{MenuOption{Key: "toggle_global", Label: "Toggle Global Availability", Description: "Make emoji globally available", Icon: "🌍", Enabled: true}},
-		}
+	// Create menu for emoji actions
+	items := []list.Item{
+		menuItem{MenuOption{Key: "view_emojis", Label: "View Custom Emojis", Description: "Show all custom emojis for this user", Icon: "😀", Enabled: true}},
+		menuItem{MenuOption{Key: "approve_emoji", Label: "Approve Emoji", Description: "Approve a pending custom emoji", Icon: "✅", Enabled: true}},
+		menuItem{MenuOption{Key: "reject_emoji", Label: "Reject Emoji", Description: "Reject a pending custom emoji", Icon: "❌", Enabled: true}},
+		menuItem{MenuOption{Key: "toggle_global", Label: "Toggle Global Availability", Description: "Make emoji globally available", Icon: "🌍", Enabled: true}},
+	}
 		
 		// Update navigation state
 		m.state.Navigation.CurrentMenu = MenuCustomEmojis
 		m.updateBreadcrumbs()
-		
+	
 		return menuLoadedMsg{items: items}
 	}
 }
 
 func (m Model) showQuotaManagement() tea.Cmd {
 	return func() tea.Msg {
-		// Create menu for quota actions
-		items := []list.Item{
-			menuItem{MenuOption{Key: "view_quotas", Label: "View Current Quotas", Description: "Show all quotas for this user", Icon: "📊", Enabled: true}},
-			menuItem{MenuOption{Key: "update_quota", Label: "Update Quota Limit", Description: "Change quota limits", Icon: "⚙️", Enabled: true}},
-			menuItem{MenuOption{Key: "reset_usage", Label: "Reset Quota Usage", Description: "Reset current usage to zero", Icon: "🔄", Enabled: true}},
-			menuItem{MenuOption{Key: "set_unlimited", Label: "Set Unlimited", Description: "Remove quota limits", Icon: "♾️", Enabled: true}},
-		}
+	// Create menu for quota actions
+	items := []list.Item{
+		menuItem{MenuOption{Key: "view_quotas", Label: "View Current Quotas", Description: "Show all quotas for this user", Icon: "📊", Enabled: true}},
+		menuItem{MenuOption{Key: "update_quota", Label: "Update Quota Limit", Description: "Change quota limits", Icon: "⚙️", Enabled: true}},
+		menuItem{MenuOption{Key: "reset_usage", Label: "Reset Quota Usage", Description: "Reset current usage to zero", Icon: "🔄", Enabled: true}},
+		menuItem{MenuOption{Key: "set_unlimited", Label: "Set Unlimited", Description: "Remove quota limits", Icon: "♾️", Enabled: true}},
+	}
 		
 		// Update navigation state
 		m.state.Navigation.CurrentMenu = MenuQuotaManagement
 		m.updateBreadcrumbs()
-		
+	
 		return menuLoadedMsg{items: items}
 	}
 }
@@ -584,7 +584,7 @@ func (m Model) showUserDetails() tea.Cmd {
 		
 		// Roles
 		if len(roles) > 0 {
-			for _, role := range roles {
+		for _, role := range roles {
 				tableData = append(tableData, TableRow{
 					"section": "🔐 Roles",
 					"field":   role.RoleName,
@@ -622,7 +622,7 @@ func (m Model) showUserDetails() tea.Cmd {
 		
 		// Timeouts
 		if len(timeouts) > 0 {
-			for _, timeout := range timeouts {
+		for _, timeout := range timeouts {
 				status := "Expired"
 				if timeout.IsActive {
 					status = "Active"
@@ -638,12 +638,12 @@ func (m Model) showUserDetails() tea.Cmd {
 				"section": "⏰ Timeouts",
 				"field":   "Status",
 				"value":   "No timeouts",
-			})
+				})
 		}
 		
 		// Subscriptions
 		if len(subscriptions) > 0 {
-			for _, sub := range subscriptions {
+		for _, sub := range subscriptions {
 				tableData = append(tableData, TableRow{
 					"section": "💳 Subscriptions",
 					"field":   sub.PlanName,
@@ -677,7 +677,7 @@ func (m Model) showUserDetails() tea.Cmd {
 				"section": "😀 Custom Emojis",
 				"field":   "Total",
 				"value":   fmt.Sprintf("%d", len(emojis)),
-			})
+				})
 			tableData = append(tableData, TableRow{
 				"section": "😀 Custom Emojis",
 				"field":   "Approved",
@@ -758,7 +758,7 @@ func formatIntPtr(i *int) string {
 		return "Not set"
 	}
 	return fmt.Sprintf("%d", *i)
-}
+} 
 
 // showUserRoles displays the user's current role assignments
 func (m Model) showUserRoles() tea.Cmd {

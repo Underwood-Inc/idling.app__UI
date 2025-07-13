@@ -1,12 +1,8 @@
 ---
-title: '[Utility Name] - [Brief Purpose]'
-description: '[Brief description under 160 characters for SEO optimization]'
-permalink: /utilities/[utility-name]/
-parent: 'Utilities'
-categories: [utilities, helpers, additional-categories]
-tags: [utility-name, typescript, helpers, additional-tags]
-date: 2025-01-28
-toc: true
+sidebar_position: 2
+sidebar_label: '🧩 Utility Template'
+title: 'Utility Documentation Template'
+description: 'Template for documenting helper functions, libraries, and utilities'
 ---
 
 # [Utility Name] - [Brief Purpose]
