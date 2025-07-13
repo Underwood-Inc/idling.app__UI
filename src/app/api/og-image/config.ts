@@ -52,14 +52,14 @@ export const ASPECT_RATIOS: Record<string, AspectRatioConfig> = {
   // Facebook cover photo
   'facebook-cover': {
     name: 'Facebook Cover',
-    width: 1200,
+    width: 1695,
     height: 630,
     description: 'Facebook cover photos',
     textMaxWidth: 1000,
     textStartY: 450,
-    avatarX: 350,
+    avatarX: 650,
     avatarY: 40,
-    avatarSize: 520
+    avatarSize: 500
   },
   // LinkedIn banner - very wide and short format
   'linkedin-banner': {
