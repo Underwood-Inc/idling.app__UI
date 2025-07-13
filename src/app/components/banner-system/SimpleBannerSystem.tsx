@@ -99,7 +99,7 @@ const cleanupDismissedAlerts = () => {
 
 export function useSimpleBanners() {
   const [banners, setBanners] = useState<BannerData[]>([]);
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const lastFetchRef = useRef<string>(''); // Track last successful fetch signature
 
   // Clean up dismissed alerts on component mount
@@ -112,6 +112,9 @@ export function useSimpleBanners() {
   // Check for all types of banners via polling
   useEffect(() => {
     const checkForBanners = async () => {
+      // Wait for session to be loaded before checking for banners
+      if (status === 'loading') return;
+
       try {
         const newBanners: BannerData[] = [];
 
@@ -170,7 +173,7 @@ export function useSimpleBanners() {
         }
 
         // 2. Check for timeouts (authenticated users only)
-        if (session?.user?.id) {
+        if (status === 'authenticated' && session?.user?.id) {
           try {
             const timeoutResponse = await fetch(
               '/api/user/timeout?type=post_creation',
@@ -301,7 +304,7 @@ export function useSimpleBanners() {
       window.removeEventListener('refresh-alerts', handleRefresh);
       window.removeEventListener('alert-admin-change', handleAdminChange);
     };
-  }, [session?.user?.id]);
+  }, [session?.user?.id, status]);
 
   const dismissBanner = useCallback(
     (id: string) => {

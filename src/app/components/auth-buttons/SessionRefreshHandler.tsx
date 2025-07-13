@@ -114,7 +114,7 @@ export function SessionRefreshHandler() {
   const lastRefreshRef = useRef<number>(0);
 
   useEffect(() => {
-    if (status !== 'authenticated' || !session) return;
+    if (status !== 'authenticated' || !session?.user?.id) return;
 
     const refreshInterval = 30 * 60 * 1000; // 30 minutes
     const now = Date.now();

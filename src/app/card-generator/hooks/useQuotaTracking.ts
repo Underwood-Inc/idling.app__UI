@@ -46,6 +46,14 @@ export function useQuotaTracking(): QuotaState & {
     try {
       setQuotaError(undefined); // Clear previous errors
       
+      // Don't make API calls if user is not authenticated
+      const session = await fetch('/api/auth/session').then(r => r.json()).catch(() => null);
+      if (!session?.user?.id) {
+        // Set defaults for unauthenticated users
+        updateQuota(0, 0, null);
+        return;
+      }
+      
       // NEVER cache quota data - add cache-busting parameters and headers
       const cacheBuster = `${Date.now()}-${Math.random().toString(36).substring(2)}`;
       const url = `/api/og-image?format=json&dry-run=true&_t=${cacheBuster}&_nocache=true`;
