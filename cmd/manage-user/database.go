@@ -32,8 +32,18 @@ func NewDatabase() (*Database, error) {
 		port = "5432"
 	}
 	
-	psqlInfo := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
-		host, port, user, password, dbname)
+	// Try to get SSL mode from environment, default to disable for local development
+	sslmode := os.Getenv("POSTGRES_SSLMODE")
+	if sslmode == "" {
+		sslmode = "disable"
+	}
+	
+	psqlInfo := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=%s",
+		host, port, user, password, dbname, sslmode)
+	
+	// Debug output for database connection
+	log.Printf("Debug: Database connection info: host=%s port=%s user=%s dbname=%s sslmode=%s", 
+		host, port, user, dbname, sslmode)
 	
 	db, err := sql.Open("postgres", psqlInfo)
 	if err != nil {
@@ -411,10 +421,10 @@ func (d *Database) GetUserCustomEmojis(userID int) ([]CustomEmoji, error) {
 // GetAllRoles retrieves all available roles
 func (d *Database) GetAllRoles() ([]UserRole, error) {
 	query := `
-		SELECT id, name, display_name, description, is_active, sort_order, created_at
+		SELECT id, name, display_name, description, is_active, created_at
 		FROM user_roles 
 		WHERE is_active = true
-		ORDER BY sort_order, name`
+		ORDER BY name`
 	
 	rows, err := d.db.Query(query)
 	if err != nil {
@@ -426,10 +436,12 @@ func (d *Database) GetAllRoles() ([]UserRole, error) {
 	for rows.Next() {
 		var role UserRole
 		err := rows.Scan(&role.ID, &role.Name, &role.DisplayName, &role.Description,
-			&role.IsActive, &role.SortOrder, &role.CreatedAt)
+			&role.IsActive, &role.CreatedAt)
 		if err != nil {
 			return nil, fmt.Errorf("failed to scan role: %w", err)
 		}
+		// Set default SortOrder since column doesn't exist in database
+		role.SortOrder = 0
 		roles = append(roles, role)
 	}
 	
