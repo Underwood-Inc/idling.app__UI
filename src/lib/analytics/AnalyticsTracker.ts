@@ -7,7 +7,10 @@
  * @version 2.0.0 - Balanced & Useful
  */
 
-import { v4 as uuidv4 } from 'uuid';
+// Simple ID generator without external dependencies
+function generateId(): string {
+  return Date.now().toString(36) + Math.random().toString(36).substr(2);
+}
 
 // ================================
 // TYPES & INTERFACES
@@ -158,14 +161,14 @@ export class AnalyticsTracker {
   // ================================
 
   private getOrCreateSessionId(): string {
-    if (typeof window === 'undefined') return uuidv4();
+    if (typeof window === 'undefined') return generateId();
     
     const existingSession = sessionStorage.getItem('analytics_session_id');
     if (existingSession) {
       return existingSession;
     }
     
-    const newSessionId = uuidv4();
+    const newSessionId = generateId();
     sessionStorage.setItem('analytics_session_id', newSessionId);
     return newSessionId;
   }
