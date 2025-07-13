@@ -192,6 +192,20 @@ type searchResultsMsg struct {
 	results []UserSearchResult
 }
 
+type menuLoadedMsg struct {
+	items []list.Item
+}
+
+type tableLoadedMsg struct {
+	data    []TableRow
+	columns []TableColumn
+}
+
+type navigationMsg struct {
+	menu string
+	action string // "navigate", "back", "clear_input"
+}
+
 // Initialize the model
 func initialModel() Model {
 	// Create text input for search
@@ -203,7 +217,7 @@ func initialModel() Model {
 
 	// Create list for menu items
 	items := []list.Item{}
-	l := list.New(items, menuItemDelegate{}, 0, 0)
+	l := list.New(items, menuItemDelegate{}, 80, 20)
 	l.Title = "User Management Options"
 	l.SetShowStatusBar(false)
 	l.SetFilteringEnabled(false)
@@ -244,32 +258,41 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.menuList.SetHeight(msg.Height - 10)
 
 	case tea.KeyMsg:
-		switch {
-		case key.Matches(msg, keys.Quit):
-			return m, tea.Quit
+		// Skip global key bindings when in text input mode
+		if m.state.Navigation.CurrentMenu != MenuUserLookup {
+			switch {
+			case key.Matches(msg, keys.Quit):
+				return m, tea.Quit
 
-		case key.Matches(msg, keys.Help):
-			m.showHelp = !m.showHelp
+			case key.Matches(msg, keys.Help):
+				m.showHelp = !m.showHelp
 
-		case key.Matches(msg, keys.Back):
-			return m, m.navigateBack()
+			case key.Matches(msg, keys.Back):
+				return m, m.navigateBack()
 
-		case key.Matches(msg, keys.Refresh):
-			return m, m.refreshCurrentView()
+			case key.Matches(msg, keys.Refresh):
+				return m, m.refreshCurrentView()
 
-		case key.Matches(msg, keys.Enter):
-			return m, m.handleEnter()
+			case key.Matches(msg, keys.Enter):
+				return m, m.handleEnter()
+			}
+		} else {
+			// In text input mode, only handle specific keys
+			switch {
+			case key.Matches(msg, keys.Quit):
+				return m, tea.Quit
+
+			case key.Matches(msg, keys.Back):
+				return m, m.navigateBack()
+
+			case key.Matches(msg, keys.Enter):
+				return m, m.handleEnter()
+			}
 		}
 
 		// Handle input based on current view
 		switch m.state.Navigation.CurrentMenu {
 		case MenuUserLookup:
-			if key.Matches(msg, keys.Enter) {
-				input := strings.TrimSpace(m.textInput.Value())
-				if input != "" {
-					return m, m.handleUserLookup(input)
-				}
-			}
 			m.textInput, cmd = m.textInput.Update(msg)
 			cmds = append(cmds, cmd)
 
@@ -304,6 +327,28 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 		// Show search results for selection
 		return m, m.loadSearchResultsMenu()
+
+	case menuLoadedMsg:
+		m.menuList.SetItems(msg.items)
+
+	case tableLoadedMsg:
+		m.state.TableData = msg.data
+		m.state.Columns = msg.columns
+		m.state.Navigation.CurrentMenu = MenuTable
+		m.updateBreadcrumbs()
+
+	case navigationMsg:
+		m.state.Navigation.CurrentMenu = msg.menu
+		m.updateBreadcrumbs()
+		
+		switch msg.menu {
+		case MenuUserLookup:
+			m.textInput.SetValue("")
+			m.textInput.Focus()
+			return m, textinput.Blink
+		case MenuReferenceData:
+			return m, m.showReferenceData()
+		}
 
 	case errorMsg:
 		m.state.Error = msg.err.Error()
@@ -428,51 +473,54 @@ func (d menuItemDelegate) Render(w io.Writer, m list.Model, index int, listItem 
 
 // Navigation and menu functions
 func (m Model) loadMainMenu() tea.Cmd {
-	items := []list.Item{
-		menuItem{MenuOption{Key: "lookup", Label: "User Lookup", Description: "Find user by ID or search by name", Icon: "🔍", Enabled: true}},
-		menuItem{MenuOption{Key: "reference", Label: "Reference Data", Description: "View roles, permissions, and plans", Icon: "📖", Enabled: true}},
-		menuItem{MenuOption{Key: "quit", Label: "Quit", Description: "Exit the application", Icon: "🚪", Enabled: true}},
+	return func() tea.Msg {
+		items := []list.Item{
+			menuItem{MenuOption{Key: "lookup", Label: "User Lookup", Description: "Find user by ID or search by name", Icon: "🔍", Enabled: true}},
+			menuItem{MenuOption{Key: "reference", Label: "Reference Data", Description: "View roles, permissions, and plans", Icon: "📖", Enabled: true}},
+			menuItem{MenuOption{Key: "quit", Label: "Quit", Description: "Exit the application", Icon: "🚪", Enabled: true}},
+		}
+		return menuLoadedMsg{items: items}
 	}
-	m.menuList.SetItems(items)
-	return nil
 }
 
 func (m Model) loadUserProfileMenu() tea.Cmd {
-	items := []list.Item{
-		menuItem{MenuOption{Key: "basic_profile", Label: "Basic Profile", Description: "Update name, email, bio, location, visibility", Icon: "👤", Enabled: true}},
-		menuItem{MenuOption{Key: "roles_permissions", Label: "Roles & Permissions", Description: "Assign/remove roles, manage permissions", Icon: "🔐", Enabled: true}},
-		menuItem{MenuOption{Key: "timeouts", Label: "User Timeouts", Description: "Issue timeout, view timeout history", Icon: "⏰", Enabled: true}},
-		menuItem{MenuOption{Key: "subscriptions", Label: "Subscriptions", Description: "Manage user subscriptions and plans", Icon: "💳", Enabled: true}},
-		menuItem{MenuOption{Key: "custom_emojis", Label: "Custom Emojis", Description: "Approve/reject custom emojis", Icon: "😀", Enabled: true}},
-		menuItem{MenuOption{Key: "quota_management", Label: "Quota Management", Description: "Manage user quotas", Icon: "📊", Enabled: true}},
-		menuItem{MenuOption{Key: "view_details", Label: "View Full Details", Description: "Show comprehensive user information", Icon: "📋", Enabled: true}},
+	return func() tea.Msg {
+		items := []list.Item{
+			menuItem{MenuOption{Key: "basic_profile", Label: "Basic Profile", Description: "Update name, email, bio, location, visibility", Icon: "👤", Enabled: true}},
+			menuItem{MenuOption{Key: "roles_permissions", Label: "Roles & Permissions", Description: "Assign/remove roles, manage permissions", Icon: "🔐", Enabled: true}},
+			menuItem{MenuOption{Key: "timeouts", Label: "User Timeouts", Description: "Issue timeout, view timeout history", Icon: "⏰", Enabled: true}},
+			menuItem{MenuOption{Key: "subscriptions", Label: "Subscriptions", Description: "Manage user subscriptions and plans", Icon: "💳", Enabled: true}},
+			menuItem{MenuOption{Key: "custom_emojis", Label: "Custom Emojis", Description: "Approve/reject custom emojis", Icon: "😀", Enabled: true}},
+			menuItem{MenuOption{Key: "quota_management", Label: "Quota Management", Description: "Manage user quotas", Icon: "📊", Enabled: true}},
+			menuItem{MenuOption{Key: "view_details", Label: "View Full Details", Description: "Show comprehensive user information", Icon: "📋", Enabled: true}},
+		}
+		return menuLoadedMsg{items: items}
 	}
-	m.menuList.SetItems(items)
-	return nil
 }
 
 func (m Model) loadSearchResultsMenu() tea.Cmd {
-	var items []list.Item
-	for _, result := range m.searchResults {
-		name := "No name"
-		if result.Name != nil {
-			name = *result.Name
+	return func() tea.Msg {
+		var items []list.Item
+		for _, result := range m.searchResults {
+			name := "No name"
+			if result.Name != nil {
+				name = *result.Name
+			}
+			email := "No email"
+			if result.Email != nil {
+				email = *result.Email
+			}
+			
+			items = append(items, menuItem{MenuOption{
+				Key:         fmt.Sprintf("user_%d", result.ID),
+				Label:       fmt.Sprintf("%s (%s)", name, email),
+				Description: fmt.Sprintf("ID: %d - Created: %s", result.ID, result.CreatedAt.Format("2006-01-02")),
+				Icon:        "👤",
+				Enabled:     true,
+			}})
 		}
-		email := "No email"
-		if result.Email != nil {
-			email = *result.Email
-		}
-		
-		items = append(items, menuItem{MenuOption{
-			Key:         fmt.Sprintf("user_%d", result.ID),
-			Label:       fmt.Sprintf("%s (%s)", name, email),
-			Description: fmt.Sprintf("ID: %d - Created: %s", result.ID, result.CreatedAt.Format("2006-01-02")),
-			Icon:        "👤",
-			Enabled:     true,
-		}})
+		return menuLoadedMsg{items: items}
 	}
-	m.menuList.SetItems(items)
-	return nil
 }
 
 func (m Model) handleEnter() tea.Cmd {
@@ -482,17 +530,25 @@ func (m Model) handleEnter() tea.Cmd {
 		if item, ok := selected.(menuItem); ok {
 			switch item.option.Key {
 			case "lookup":
-				m.state.Navigation.CurrentMenu = MenuUserLookup
-				m.updateBreadcrumbs()
-				m.textInput.SetValue("")
-				m.textInput.Focus()
-				return textinput.Blink
+				return func() tea.Msg {
+					return navigationMsg{menu: MenuUserLookup, action: "navigate"}
+				}
 			case "reference":
-				return m.showReferenceData()
+				return func() tea.Msg {
+					return navigationMsg{menu: MenuReferenceData, action: "navigate"}
+				}
 			case "quit":
 				return tea.Quit
 			}
 		}
+
+	case MenuUserLookup:
+		// Handle user lookup input
+		input := strings.TrimSpace(m.textInput.Value())
+		if input != "" {
+			return m.handleUserLookup(input)
+		}
+		return nil
 
 	case MenuUserProfile:
 		selected := m.menuList.SelectedItem()
@@ -515,9 +571,134 @@ func (m Model) handleEnter() tea.Cmd {
 			}
 		}
 
+	case MenuBasicProfile:
+		selected := m.menuList.SelectedItem()
+		if item, ok := selected.(menuItem); ok {
+			switch item.option.Key {
+			case "name":
+				return m.updateUserField("name", "Name")
+			case "email":
+				return m.updateUserField("email", "Email")
+			case "bio":
+				return m.updateUserField("bio", "Bio")
+			case "location":
+				return m.updateUserField("location", "Location")
+			case "profile_public":
+				return m.toggleProfileVisibility()
+			}
+		}
+
+	case MenuRolesPermissions:
+		selected := m.menuList.SelectedItem()
+		if item, ok := selected.(menuItem); ok {
+			switch item.option.Key {
+			case "assign_role":
+				// TODO: Implement role assignment
+				return func() tea.Msg {
+					return errorMsg{fmt.Errorf("role assignment not yet implemented")}
+				}
+			case "remove_role":
+				// TODO: Implement role removal
+				return func() tea.Msg {
+					return errorMsg{fmt.Errorf("role removal not yet implemented")}
+				}
+			case "view_roles":
+				return m.showUserRoles()
+			case "view_permissions":
+				return m.showUserPermissions()
+			}
+		}
+
+	case MenuTimeouts:
+		selected := m.menuList.SelectedItem()
+		if item, ok := selected.(menuItem); ok {
+			switch item.option.Key {
+			case "issue_timeout":
+				return func() tea.Msg {
+					return errorMsg{fmt.Errorf("timeout issuance not yet implemented")}
+				}
+			case "view_timeouts":
+				return m.showUserTimeouts()
+			case "revoke_timeout":
+				return func() tea.Msg {
+					return errorMsg{fmt.Errorf("timeout revocation not yet implemented")}
+				}
+			}
+		}
+
+	case MenuSubscriptions:
+		selected := m.menuList.SelectedItem()
+		if item, ok := selected.(menuItem); ok {
+			switch item.option.Key {
+			case "assign_subscription":
+				// TODO: Implement subscription assignment
+				return nil
+			case "modify_subscription":
+				// TODO: Implement subscription modification
+				return nil
+			case "view_subscriptions":
+				// TODO: Implement view subscriptions
+				return nil
+			case "cancel_subscription":
+				// TODO: Implement subscription cancellation
+				return nil
+			}
+		}
+
+	case MenuCustomEmojis:
+		selected := m.menuList.SelectedItem()
+		if item, ok := selected.(menuItem); ok {
+			switch item.option.Key {
+			case "view_emojis":
+				// TODO: Implement view emojis
+				return nil
+			case "approve_emoji":
+				// TODO: Implement emoji approval
+				return nil
+			case "reject_emoji":
+				// TODO: Implement emoji rejection
+				return nil
+			case "toggle_global":
+				// TODO: Implement toggle global
+				return nil
+			}
+		}
+
+	case MenuQuotaManagement:
+		selected := m.menuList.SelectedItem()
+		if item, ok := selected.(menuItem); ok {
+			switch item.option.Key {
+			case "view_quotas":
+				// TODO: Implement view quotas
+				return nil
+			case "update_quota":
+				// TODO: Implement quota update
+				return nil
+			case "reset_usage":
+				// TODO: Implement usage reset
+				return nil
+			case "set_unlimited":
+				// TODO: Implement unlimited quota
+				return nil
+			}
+		}
+
 	case MenuTable:
 		// Handle table selection if needed
 		return nil
+
+	case MenuReferenceData:
+		selected := m.menuList.SelectedItem()
+		if item, ok := selected.(menuItem); ok {
+			switch item.option.Key {
+			case "roles":
+				return m.showAllRoles()
+			case "permissions":
+				return m.showAllPermissions()
+			case "subscription_plans":
+				return m.showAllSubscriptionPlans()
+			}
+		}
 
 	default:
 		// Handle other menu selections
@@ -671,9 +852,12 @@ func main() {
 	// Dummy usage to satisfy Go compiler (time is used in loadSearchResultsMenu)
 	_ = time.Now()
 	
-	// Load environment variables
-	if err := godotenv.Load(".env.local"); err != nil {
-		log.Printf("Warning: Could not load .env.local file: %v", err)
+	// Load environment variables from project root
+	if err := godotenv.Load("../../.env.local"); err != nil {
+		// Try current directory as fallback
+		if err2 := godotenv.Load(".env.local"); err2 != nil {
+			log.Printf("Warning: Could not load .env.local file: %v", err)
+		}
 	}
 
 	// Connect to database

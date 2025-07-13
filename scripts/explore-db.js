@@ -1,8 +1,9 @@
-/* eslint-disable no-console */
+/* eslint-disable no-console, no-undef, no-constant-condition, no-fallthrough */
 // Load environment variables FIRST, before any other imports
 require('dotenv').config({ path: '.env.local' });
 
-const chalk = require('chalk');
+// Chalk will be dynamically imported in main function
+let chalk;
 const postgres = require('postgres');
 const readline = require('readline');
 
@@ -197,14 +198,16 @@ async function showTableSizes() {
   const sizes = await sql`
     SELECT 
       schemaname,
-      tablename,
+      relname as table_name,
+      pg_size_pretty(pg_total_relation_size(schemaname||'.'||relname)) as total_size,
+      pg_size_pretty(pg_relation_size(schemaname||'.'||relname)) as table_size,
       n_tup_ins as inserts,
       n_tup_upd as updates,
       n_tup_del as deletes,
       n_live_tup as live_rows,
       n_dead_tup as dead_rows
     FROM pg_stat_user_tables 
-    ORDER BY n_live_tup DESC
+    ORDER BY pg_total_relation_size(schemaname||'.'||relname) DESC
   `;
   
   console.table(sizes);
@@ -582,6 +585,10 @@ async function checkDatabaseHealth() {
 
 // Main application loop
 async function main() {
+  // Dynamic import for chalk (ES module)
+  const chalkModule = await import('chalk');
+  chalk = chalkModule.default;
+  
   console.log(chalk.green('🔗 Connecting to database...'));
   
   try {

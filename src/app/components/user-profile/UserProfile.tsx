@@ -269,7 +269,7 @@ export function UserProfile({
                 ⚙️ Settings
               </InstantLink>
             )}
-            {hasAdminAccess && (
+            {hasAdminAccess && isOwnProfile && (
               <InstantLink
                 href="/admin"
                 className="user-profile__admin-link"
