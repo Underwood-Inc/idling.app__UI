@@ -73,9 +73,7 @@ const UserProfileModal: React.FC<{
   return (
     <div className="user-profile-modal">
       <div className="user-profile-modal__header">
-        <h2 className="user-profile-modal__title">
-          {user.username || user.name || 'User Profile'}
-        </h2>
+        <h2 className="user-profile-modal__title">User Profile</h2>
         <button
           className="user-profile-modal__close"
           onClick={onClose}

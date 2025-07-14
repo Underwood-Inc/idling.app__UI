@@ -11,10 +11,10 @@
 import { usePaginationMode } from '@lib/context/UserPreferencesContext';
 import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import { AssignRoleModal } from '../modals/AssignRoleModal';
-import { AssignSubscriptionModal } from '../modals/AssignSubscriptionModal';
 import { ExportModal } from '../modals/ExportModal';
 import { TimeoutModal, type TimeoutOptions } from '../modals/TimeoutModal';
 import { UserDetailsModal } from '../modals/UserDetailsModal';
+import { UserSubscriptionManagementModal } from '../modals/UserSubscriptionManagementModal';
 
 // Import our extracted modules
 import '../UserManagementPanel.css';
@@ -107,60 +107,48 @@ export const UserManagementPanel: React.FC<AdminUserManagementPanelProps> = ({
   const [showRoleModal, setShowRoleModal] = React.useState(false);
   const [showSubscriptionModal, setShowSubscriptionModal] =
     React.useState(false);
+  const [showUserDetailsModal, setShowUserDetailsModal] = React.useState(false);
   const [showQuotaModal, setShowQuotaModal] = React.useState(false);
+  const [showTimeoutModal, setShowTimeoutModal] = React.useState(false);
+  const [showExportModal, setShowExportModal] = React.useState(false);
+
+  // User assignment states
   const [roleAssignmentUser, setRoleAssignmentUser] =
     React.useState<ManagementUser | null>(null);
   const [subscriptionAssignmentUser, setSubscriptionAssignmentUser] =
     React.useState<ManagementUser | null>(null);
   const [quotaManagementUser, setQuotaManagementUser] =
     React.useState<ManagementUser | null>(null);
-  const [showTimeoutModal, setShowTimeoutModal] = React.useState(false);
   const [timeoutUser, setTimeoutUser] = React.useState<ManagementUser | null>(
     null
   );
-  const [showExportModal, setShowExportModal] = React.useState(false);
-  const [showUserDetailsModal, setShowUserDetailsModal] = React.useState(false);
 
+  // Refs for infinite scrolling
   const tableContainerRef = useRef<HTMLDivElement>(null);
 
-  // Effects
+  // Load users on mount
   useEffect(() => {
-    loadUsers();
+    loadUsers(1);
   }, [loadUsers]);
+
+  // Scroll to top when page changes
   useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      if (searchQuery.trim().length >= 2) handleSearchChange(searchQuery);
-    }, 300);
-    return () => clearTimeout(timeoutId);
-  }, [searchQuery, handleSearchChange]);
+    if (tableContainerRef.current) {
+      tableContainerRef.current.scrollTop = 0;
+    }
+  }, [currentPage]);
 
-  useEffect(() => {
-    if (paginationMode !== 'infinite') return;
-    const container = tableContainerRef.current;
-    if (!container) return;
-
-    const handleScroll = () => {
-      const { scrollTop, scrollHeight, clientHeight } = container;
-      if (scrollTop + clientHeight >= scrollHeight - 100) loadMoreUsers();
-    };
-
-    container.addEventListener('scroll', handleScroll);
-    return () => container.removeEventListener('scroll', handleScroll);
-  }, [loadMoreUsers, paginationMode]);
-
-  // Action handlers (simplified)
-  const handleViewUser = useCallback(async (userId: string) => {
-    try {
-      const response = await fetch(`/api/admin/users/${userId}`);
-      if (response.ok) {
-        const userData = await response.json();
-        setSelectedUser(userData);
+  // Handle user actions
+  const handleViewUser = useCallback(
+    (userId: string) => {
+      const user = users.find((u) => u.id === userId);
+      if (user) {
+        setSelectedUser(user);
         setShowUserDetailsModal(true);
       }
-    } catch (error) {
-      console.error('Error loading user details:', error);
-    }
-  }, []);
+    },
+    [users]
+  );
 
   const handleAssignRole = useCallback(
     async (roleId: string, expiresAt?: string, reason?: string) => {
@@ -185,56 +173,15 @@ export const UserManagementPanel: React.FC<AdminUserManagementPanelProps> = ({
     [roleAssignmentUser, currentPage, loadUsers, onUserUpdate]
   );
 
-  const handleManageSubscription = useCallback(
-    async (
-      planId: string,
-      billingCycle: string,
-      expiresAt?: string,
-      reason?: string,
-      priceOverrideCents?: number,
-      priceOverrideReason?: string
-    ) => {
-      if (!subscriptionAssignmentUser) return;
-      try {
-        const response = await fetch(
-          `/api/admin/users/${subscriptionAssignmentUser.id}/assign-subscription`,
-          {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              planId: parseInt(planId),
-              billingCycle,
-              expiresAt,
-              reason,
-              priceOverrideCents,
-              priceOverrideReason
-            })
-          }
-        );
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.error || 'Failed to assign subscription');
-        }
-        await loadUsers(currentPage);
-        onUserUpdate?.();
-      } catch (error) {
-        console.error('Error managing subscription:', error);
-        throw error; // Re-throw to show error in modal
-      }
-    },
-    [subscriptionAssignmentUser, currentPage, loadUsers, onUserUpdate]
-  );
-
   const handleManageQuota = useCallback((user: ManagementUser) => {
     setQuotaManagementUser(user);
     setShowQuotaModal(true);
   }, []);
 
-  const handleQuotaUpdate = useCallback(() => {
-    // Refresh user data after quota update
-    loadUsers(currentPage);
+  const handleQuotaUpdate = useCallback(async () => {
+    await loadUsers(currentPage);
     onUserUpdate?.();
-  }, [loadUsers, currentPage, onUserUpdate]);
+  }, [currentPage, loadUsers, onUserUpdate]);
 
   const handleTimeoutUser = useCallback((user: ManagementUser) => {
     setTimeoutUser(user);
@@ -243,20 +190,9 @@ export const UserManagementPanel: React.FC<AdminUserManagementPanelProps> = ({
 
   const handleRevokeTimeout = useCallback(
     async (user: ManagementUser) => {
-      if (!user.active_timeout_id) return;
-      const confirmed = window.confirm(
-        `Revoke timeout for ${user.name || user.email}?`
-      );
-      if (!confirmed) return;
-
       try {
-        const response = await fetch(`/api/admin/users/timeout/revoke`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            timeoutId: user.active_timeout_id,
-            reason: 'Revoked via admin panel'
-          })
+        const response = await fetch(`/api/admin/users/${user.id}/timeout`, {
+          method: 'DELETE'
         });
         if (response.ok) {
           await loadUsers(currentPage);
@@ -269,65 +205,42 @@ export const UserManagementPanel: React.FC<AdminUserManagementPanelProps> = ({
     [currentPage, loadUsers, onUserUpdate]
   );
 
-  const handleTimeoutSubmit = useCallback(
-    async (userId: string, options: TimeoutOptions) => {
-      try {
-        const response = await fetch(`/api/admin/users/timeout`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            userId: parseInt(userId),
-            timeoutType: options.timeoutType,
-            reason: options.reason,
-            durationHours: options.durationHours
-          })
-        });
-        if (response.ok) {
-          await loadUsers(currentPage);
-          onUserUpdate?.();
+  // Clear search when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (showSearchResults) {
+        const searchContainer = document.querySelector('.search-container');
+        if (
+          searchContainer &&
+          !searchContainer.contains(event.target as Node)
+        ) {
+          setShowSearchResults(false);
         }
-      } catch (error) {
-        console.error('Error timing out user:', error);
       }
-    },
-    [currentPage, loadUsers, onUserUpdate]
-  );
+    };
 
-  // Search overlay content
-  const searchOverlayContent = useMemo(() => {
-    if (!showSearchResults) return null;
-    return (
-      <div className="user-search-overlay-content">
-        <SearchOverlayContent
-          isSearching={isSearching}
-          searchResults={searchResults}
-          searchQuery={searchQuery}
-          onResultSelect={handleSearchResultSelect}
-        />
-      </div>
-    );
-  }, [
-    showSearchResults,
-    isSearching,
-    searchResults,
-    searchQuery,
-    handleSearchResultSelect
-  ]);
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [showSearchResults, setShowSearchResults]);
 
-  // Early returns
-  if (loading && users.length === 0) return <LoadingState />;
-  if (error)
-    return <ErrorState error={error} onRetry={() => loadUsers(currentPage)} />;
+  // Main render
+  if (loading) {
+    return <LoadingState />;
+  }
+
+  if (error) {
+    return <ErrorState error={error} onRetry={() => loadUsers(1)} />;
+  }
 
   return (
     <div className="user-management-panel">
       <HeaderSection
-        showFilterPanel={showFilterPanel}
-        activeFiltersCount={activeFiltersCount}
         searchQuery={searchQuery}
         showSearchResults={showSearchResults}
         isSearching={isSearching}
-        searchOverlayContent={searchOverlayContent}
+        showFilterPanel={showFilterPanel}
+        activeFiltersCount={activeFiltersCount}
+        searchOverlayContent={null}
         onToggleFilterPanel={() => setShowFilterPanel(!showFilterPanel)}
         onExportAll={() => setShowExportModal(true)}
         onSearchQueryChange={setSearchQuery}
@@ -339,16 +252,29 @@ export const UserManagementPanel: React.FC<AdminUserManagementPanelProps> = ({
         }}
       />
 
-      <FilterPanel
-        showFilterPanel={showFilterPanel}
-        activeFiltersCount={activeFiltersCount}
-        columnFilters={columnFilters}
-        onTogglePanel={() => setShowFilterPanel(!showFilterPanel)}
-        onClearAllFilters={clearAllFilters}
-        onAddFilter={addColumnFilter}
-        onUpdateFilter={updateColumnFilter}
-        onRemoveFilter={removeColumnFilter}
-      />
+      {/* Search overlay */}
+      {showSearchResults && (
+        <SearchOverlayContent
+          isSearching={isSearching}
+          searchResults={searchResults}
+          searchQuery={searchQuery}
+          onResultSelect={handleSearchResultSelect}
+        />
+      )}
+
+      {/* Filter panel */}
+      {showFilterPanel && (
+        <FilterPanel
+          showFilterPanel={showFilterPanel}
+          activeFiltersCount={activeFiltersCount}
+          columnFilters={columnFilters}
+          onTogglePanel={() => setShowFilterPanel(false)}
+          onClearAllFilters={clearAllFilters}
+          onAddFilter={addColumnFilter}
+          onUpdateFilter={updateColumnFilter}
+          onRemoveFilter={removeColumnFilter}
+        />
+      )}
 
       <UserTable
         users={paginatedUsers}
@@ -408,7 +334,7 @@ export const UserManagementPanel: React.FC<AdminUserManagementPanelProps> = ({
       )}
 
       {showSubscriptionModal && subscriptionAssignmentUser && (
-        <AssignSubscriptionModal
+        <UserSubscriptionManagementModal
           userName={
             subscriptionAssignmentUser.name ||
             subscriptionAssignmentUser.email ||
@@ -420,7 +346,10 @@ export const UserManagementPanel: React.FC<AdminUserManagementPanelProps> = ({
             setShowSubscriptionModal(false);
             setSubscriptionAssignmentUser(null);
           }}
-          onAssign={handleManageSubscription}
+          onUpdate={async () => {
+            await loadUsers(currentPage);
+            onUserUpdate?.();
+          }}
         />
       )}
 

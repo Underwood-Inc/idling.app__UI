@@ -2,8 +2,14 @@ import { checkGuestQuota, recordGuestUsage } from '@lib/actions/quota.actions';
 import { auth } from '@lib/auth';
 import { EnhancedQuotaService } from '@lib/services/EnhancedQuotaService';
 import { NextRequest } from 'next/server';
+import sql from '../../../../lib/db';
 import { formatRetryAfter } from '../../../../lib/utils/timeFormatting';
-import { ASPECT_RATIOS } from '../config';
+import {
+  ASPECT_RATIOS,
+  WATERMARK_CONFIG,
+  WATERMARK_CONFIG_FREE_TIER
+} from '../config';
+import type { WatermarkConfig } from '../types';
 import { AvatarService } from './AvatarService';
 import { DatabaseService } from './DatabaseService';
 import { QuoteService } from './QuoteService';
@@ -37,6 +43,14 @@ interface GenerationConfig {
   textPadding?: number;
   lineHeight?: number;
   glassBackground?: boolean;
+
+  // Pro watermark controls
+  watermarkEnabled?: boolean;
+  watermarkText?: string;
+  watermarkOpacity?: number;
+  watermarkSize?: number;
+  watermarkPosition?: string;
+  watermarkRotation?: number;
 }
 
 interface GenerationResponse {
@@ -52,6 +66,24 @@ interface GenerationResponse {
   id?: string;
 }
 
+/**
+ * OGImageService handles secure image generation with proper authentication and authorization.
+ *
+ * SECURITY FEATURES:
+ * - Server-side validation of all Pro-only parameters
+ * - Permission checks before applying advanced features
+ * - Sanitization of configuration to prevent privilege escalation
+ * - Logging of potential tampering attempts
+ * - Database-backed subscription verification
+ *
+ * PROTECTED FEATURES (Pro-only):
+ * - Custom positioning (avatarX, avatarY, avatarSize, textMaxWidth, textStartY)
+ * - Visual controls (fontSize, borderColor, borderOpacity, patternSeed, textPadding, lineHeight, glassBackground)
+ * - Watermark customization (watermarkEnabled, watermarkText, watermarkOpacity, watermarkSize, watermarkPosition, watermarkRotation)
+ *
+ * FREE FEATURES (Always allowed):
+ * - Basic generation parameters (seed, avatarSeed, quote, author, aspectRatio, customWidth, customHeight)
+ */
 export class OGImageService {
   private quoteService = new QuoteService();
   private avatarService = new AvatarService();
@@ -137,7 +169,7 @@ export class OGImageService {
     const config = this.buildGenerationConfig(searchParams);
 
     // Generate the image with actual values
-    const result = await this.callGenerationAPI(config);
+    const result = await this.callGenerationAPI(config, !!userId);
 
     // Record usage in the appropriate quota system and get updated quota info
     let updatedQuotaCheck: any;
@@ -316,6 +348,21 @@ export class OGImageService {
       : undefined;
     const glassBackground = searchParams.get('glassBackground') === 'true';
 
+    // Pro watermark controls
+    const watermarkEnabled = searchParams.get('watermarkEnabled') === 'true';
+    const watermarkText = searchParams.get('watermarkText') || undefined;
+    const watermarkOpacity = searchParams.get('watermarkOpacity')
+      ? parseFloat(searchParams.get('watermarkOpacity')!)
+      : undefined;
+    const watermarkSize = searchParams.get('watermarkSize')
+      ? parseFloat(searchParams.get('watermarkSize')!)
+      : undefined;
+    const watermarkPosition =
+      searchParams.get('watermarkPosition') || undefined;
+    const watermarkRotation = searchParams.get('watermarkRotation')
+      ? parseFloat(searchParams.get('watermarkRotation')!)
+      : undefined;
+
     return {
       seed: customSeed || '',
       avatarSeed: avatarSeed || '',
@@ -336,11 +383,20 @@ export class OGImageService {
       patternSeed,
       textPadding,
       lineHeight,
-      glassBackground
+      glassBackground,
+      watermarkEnabled,
+      watermarkText,
+      watermarkOpacity,
+      watermarkSize,
+      watermarkPosition,
+      watermarkRotation
     };
   }
 
-  private async callGenerationAPI(config: GenerationConfig): Promise<{
+  private async callGenerationAPI(
+    config: GenerationConfig,
+    isAuthenticated: boolean = false
+  ): Promise<{
     svg: string;
     seed: string;
     dimensions: { width: number; height: number };
@@ -362,38 +418,48 @@ export class OGImageService {
     actualGlassBackground: boolean;
   }> {
     try {
+      // SECURITY: Validate user permissions and sanitize config
+      const validatedConfig = await this.validateAndSanitizeConfig(
+        config,
+        isAuthenticated
+      );
+
       // Use the actual seed or generate a random one
       const actualSeed =
-        config.seed || Math.random().toString(36).substring(2, 15);
-      const actualAvatarSeed = config.avatarSeed || actualSeed;
+        validatedConfig.seed || Math.random().toString(36).substring(2, 15);
+      const actualAvatarSeed = validatedConfig.avatarSeed || actualSeed;
 
       // Get aspect ratio configuration
       const aspectConfig =
-        ASPECT_RATIOS[config.aspectRatio] || ASPECT_RATIOS['default'];
+        ASPECT_RATIOS[validatedConfig.aspectRatio] || ASPECT_RATIOS['default'];
 
       // Apply custom dimensions if provided
       const finalConfig = {
         ...aspectConfig,
-        width: config.customWidth || aspectConfig.width,
-        height: config.customHeight || aspectConfig.height,
+        width: validatedConfig.customWidth || aspectConfig.width,
+        height: validatedConfig.customHeight || aspectConfig.height,
         // Override positioning if custom values provided
         avatarX:
-          config.avatarX !== undefined ? config.avatarX : aspectConfig.avatarX,
+          validatedConfig.avatarX !== undefined
+            ? validatedConfig.avatarX
+            : aspectConfig.avatarX,
         avatarY:
-          config.avatarY !== undefined ? config.avatarY : aspectConfig.avatarY,
+          validatedConfig.avatarY !== undefined
+            ? validatedConfig.avatarY
+            : aspectConfig.avatarY,
         avatarSize:
-          config.avatarSize !== undefined
-            ? config.avatarSize
+          validatedConfig.avatarSize !== undefined
+            ? validatedConfig.avatarSize
             : aspectConfig.avatarSize
       };
 
       // Get quote (custom or random)
       let actualQuote;
-      if (config.quote || config.author) {
+      if (validatedConfig.quote || validatedConfig.author) {
         // For custom quotes, use the QuoteService to handle author attribution properly
         actualQuote = await this.quoteService.getQuote(
-          config.quote,
-          config.author
+          validatedConfig.quote,
+          validatedConfig.author
         );
       } else {
         actualQuote = await this.quoteService.fetchRandomQuote();
@@ -406,14 +472,98 @@ export class OGImageService {
       const actualAvatarPositioning =
         this.avatarService.calculateAvatarPositioning(
           finalConfig,
-          config.aspectRatio
+          validatedConfig.aspectRatio
         );
 
       // Generate pattern seed if not provided
-      const actualPatternSeed = config.patternSeed || actualSeed;
+      const actualPatternSeed = validatedConfig.patternSeed || actualSeed;
 
       // Determine actual shape count
-      const actualShapeCount = config.shapeCount || 8; // Default from config
+      const actualShapeCount = validatedConfig.shapeCount || 8; // Default from config
+
+      // Determine watermark configuration based on user type and subscription status
+      let watermarkConfig: WatermarkConfig | undefined;
+
+      if (!isAuthenticated) {
+        // Guest users get repeated watermarks
+        watermarkConfig = WATERMARK_CONFIG;
+      } else {
+        // For authenticated users, check subscription status
+        try {
+          // Get user session to check subscription
+          const session = await auth();
+          if (session?.user?.id) {
+            const userId = parseInt(session.user.id);
+
+            // Check subscription status using existing database query
+            const subscriptions = await sql<
+              Array<{
+                plan_name: string;
+                plan_type: string;
+                status: string;
+              }>
+            >`
+              SELECT sp.name as plan_name, sp.plan_type, us.status
+              FROM user_subscriptions us
+              JOIN subscription_plans sp ON us.plan_id = sp.id
+              WHERE us.user_id = ${userId}
+                AND us.status IN ('active', 'trialing')
+                AND (us.expires_at IS NULL OR us.expires_at > NOW())
+                AND sp.is_active = true
+              ORDER BY us.created_at DESC
+              LIMIT 1
+            `;
+
+            // Check if user has Pro subscription
+            const isPro =
+              subscriptions.length > 0 &&
+              subscriptions[0].plan_type === 'tier' &&
+              (subscriptions[0].plan_name.toLowerCase().includes('pro') ||
+                subscriptions[0].plan_name
+                  .toLowerCase()
+                  .includes('enterprise'));
+
+            if (!isPro) {
+              // Authenticated free tier users get top-left watermark
+              watermarkConfig = WATERMARK_CONFIG_FREE_TIER;
+            } else if (validatedConfig.watermarkEnabled) {
+              // Pro users can enable custom watermarks with smart defaults
+              const proPosition =
+                (validatedConfig.watermarkPosition as any) || 'repeated';
+              const defaultRotation = proPosition === 'repeated' ? -25 : 0;
+              watermarkConfig = {
+                enabled: true,
+                text:
+                  validatedConfig.watermarkText ||
+                  'https://idling.app/card-generator',
+                opacity: validatedConfig.watermarkOpacity || 0.15,
+                fontSize: validatedConfig.watermarkSize || 16,
+                position: proPosition,
+                rotation:
+                  validatedConfig.watermarkRotation !== undefined
+                    ? validatedConfig.watermarkRotation
+                    : defaultRotation, // -25° for repeated, 0° for single positions
+                color: '#ffffff',
+                fontFamily:
+                  'FiraCode, "Fira Code", Monaco, Consolas, "Liberation Mono", "Courier New", monospace',
+                margin: 40,
+                pattern: 'single',
+                spacing: 200
+              };
+            }
+            // Pro users without watermark enabled get no watermark (watermarkConfig remains undefined)
+          } else {
+            // No valid session - apply guest watermark as fallback
+            watermarkConfig = WATERMARK_CONFIG;
+          }
+        } catch (error) {
+          console.warn(
+            'Failed to check subscription status, applying guest watermark as fallback:',
+            error
+          );
+          watermarkConfig = WATERMARK_CONFIG;
+        }
+      }
 
       // Generate SVG using the SVGGenerator with ALL options
       const svgResult = this.svgGenerator.generateSVG(
@@ -421,26 +571,27 @@ export class OGImageService {
         actualQuote,
         actualPatternSeed,
         finalConfig,
-        config.aspectRatio,
+        validatedConfig.aspectRatio,
         actualAvatarPositioning,
         actualShapeCount,
         {
           // Visual styling options
-          fontSize: config.fontSize,
-          borderColor: config.borderColor,
-          borderOpacity: config.borderOpacity,
-          patternSeed: config.patternSeed,
-          textPadding: config.textPadding,
-          lineHeight: config.lineHeight,
-          glassBackground: config.glassBackground,
+          fontSize: validatedConfig.fontSize,
+          borderColor: validatedConfig.borderColor,
+          borderOpacity: validatedConfig.borderOpacity,
+          patternSeed: validatedConfig.patternSeed,
+          textPadding: validatedConfig.textPadding,
+          lineHeight: validatedConfig.lineHeight,
+          glassBackground: validatedConfig.glassBackground,
 
           // Positioning overrides
-          avatarX: config.avatarX,
-          avatarY: config.avatarY,
-          avatarSize: config.avatarSize,
-          textMaxWidth: config.textMaxWidth,
-          textStartY: config.textStartY
-        }
+          avatarX: validatedConfig.avatarX,
+          avatarY: validatedConfig.avatarY,
+          avatarSize: validatedConfig.avatarSize,
+          textMaxWidth: validatedConfig.textMaxWidth,
+          textStartY: validatedConfig.textStartY
+        },
+        watermarkConfig // Pass watermark config for guest users
       );
 
       return {
@@ -450,7 +601,7 @@ export class OGImageService {
           width: finalConfig.width,
           height: finalConfig.height
         },
-        aspectRatio: config.aspectRatio,
+        aspectRatio: validatedConfig.aspectRatio,
         // Return all actual values used from SVGGenerator
         actualSeed,
         actualAvatarSeed,
@@ -509,6 +660,168 @@ export class OGImageService {
         actualGlassBackground: false
       };
     }
+  }
+
+  /**
+   * SECURITY: Validates user permissions and sanitizes config to prevent privilege escalation
+   */
+  private async validateAndSanitizeConfig(
+    config: GenerationConfig,
+    isAuthenticated: boolean
+  ): Promise<GenerationConfig> {
+    // Start with a clean base config with only free parameters
+    const sanitizedConfig: GenerationConfig = {
+      // Free parameters - always allowed
+      seed: config.seed,
+      avatarSeed: config.avatarSeed,
+      quote: config.quote,
+      author: config.author,
+      aspectRatio: config.aspectRatio,
+      customWidth: config.customWidth,
+      customHeight: config.customHeight,
+
+      // Pro parameters - default to undefined (will be validated)
+      shapeCount: undefined,
+      avatarX: undefined,
+      avatarY: undefined,
+      avatarSize: undefined,
+      textMaxWidth: undefined,
+      textStartY: undefined,
+      fontSize: undefined,
+      borderColor: undefined,
+      borderOpacity: undefined,
+      patternSeed: undefined,
+      textPadding: undefined,
+      lineHeight: undefined,
+      glassBackground: undefined,
+
+      // Pro watermark controls - default to undefined
+      watermarkEnabled: undefined,
+      watermarkText: undefined,
+      watermarkOpacity: undefined,
+      watermarkSize: undefined,
+      watermarkPosition: undefined,
+      watermarkRotation: undefined
+    };
+
+    // Check if Pro-only parameters were attempted
+    const proOnlyParams = [
+      'shapeCount',
+      'avatarX',
+      'avatarY',
+      'avatarSize',
+      'textMaxWidth',
+      'textStartY',
+      'fontSize',
+      'borderColor',
+      'borderOpacity',
+      'patternSeed',
+      'textPadding',
+      'lineHeight',
+      'glassBackground',
+      'watermarkEnabled',
+      'watermarkText',
+      'watermarkOpacity',
+      'watermarkSize',
+      'watermarkPosition',
+      'watermarkRotation'
+    ];
+
+    const attemptedProParams = proOnlyParams.filter(
+      (param) => config[param as keyof GenerationConfig] !== undefined
+    );
+
+    // If user is not authenticated, return only free parameters
+    if (!isAuthenticated) {
+      if (attemptedProParams.length > 0) {
+        console.warn(
+          'SECURITY: Guest user attempted to access Pro-only parameters:',
+          attemptedProParams
+        );
+      }
+      return sanitizedConfig;
+    }
+
+    // For authenticated users, check Pro status
+    try {
+      const session = await auth();
+      if (session?.user?.id) {
+        const userId = parseInt(session.user.id);
+
+        // Check subscription status
+        const subscriptions = await sql<
+          Array<{
+            plan_name: string;
+            plan_type: string;
+            status: string;
+          }>
+        >`
+          SELECT sp.name as plan_name, sp.plan_type, us.status
+          FROM user_subscriptions us
+          JOIN subscription_plans sp ON us.plan_id = sp.id
+          WHERE us.user_id = ${userId}
+            AND us.status IN ('active', 'trialing')
+            AND (us.expires_at IS NULL OR us.expires_at > NOW())
+            AND sp.is_active = true
+          ORDER BY us.created_at DESC
+          LIMIT 1
+        `;
+
+        // Check if user has Pro subscription
+        const isPro =
+          subscriptions.length > 0 &&
+          subscriptions[0].plan_type === 'tier' &&
+          (subscriptions[0].plan_name.toLowerCase().includes('pro') ||
+            subscriptions[0].plan_name.toLowerCase().includes('enterprise'));
+
+        if (isPro) {
+          // Pro users can use all parameters
+          return {
+            ...sanitizedConfig,
+            // Pro positioning controls
+            shapeCount: config.shapeCount,
+            avatarX: config.avatarX,
+            avatarY: config.avatarY,
+            avatarSize: config.avatarSize,
+            textMaxWidth: config.textMaxWidth,
+            textStartY: config.textStartY,
+
+            // Pro visual controls
+            fontSize: config.fontSize,
+            borderColor: config.borderColor,
+            borderOpacity: config.borderOpacity,
+            patternSeed: config.patternSeed,
+            textPadding: config.textPadding,
+            lineHeight: config.lineHeight,
+            glassBackground: config.glassBackground,
+
+            // Pro watermark controls
+            watermarkEnabled: config.watermarkEnabled,
+            watermarkText: config.watermarkText,
+            watermarkOpacity: config.watermarkOpacity,
+            watermarkSize: config.watermarkSize,
+            watermarkPosition: config.watermarkPosition,
+            watermarkRotation: config.watermarkRotation
+          };
+        } else {
+          // Non-Pro authenticated user attempted Pro features
+          if (attemptedProParams.length > 0) {
+            console.warn(
+              `SECURITY: Non-Pro user ${userId} attempted to access Pro-only parameters:`,
+              attemptedProParams
+            );
+          }
+        }
+      }
+    } catch (error) {
+      console.warn(
+        'Failed to validate Pro status during config sanitization:',
+        error
+      );
+    }
+
+    // Non-Pro authenticated users get only free parameters
+    return sanitizedConfig;
   }
 
   private getClientIP(request: NextRequest): string {

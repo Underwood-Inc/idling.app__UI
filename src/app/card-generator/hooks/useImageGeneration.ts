@@ -181,6 +181,35 @@ export function useImageGeneration(props: UseImageGenerationProps) {
                 ? props.advancedOptions.glassBackground
                 : true;
             params.set('glassBackground', glassBackgroundValue.toString());
+
+            // Add watermark parameters if they exist
+            if (props.advancedOptions.watermarkEnabled !== undefined)
+              params.set(
+                'watermarkEnabled',
+                props.advancedOptions.watermarkEnabled.toString()
+              );
+            if (props.advancedOptions.watermarkText)
+              params.set('watermarkText', props.advancedOptions.watermarkText);
+            if (props.advancedOptions.watermarkOpacity !== undefined)
+              params.set(
+                'watermarkOpacity',
+                props.advancedOptions.watermarkOpacity.toString()
+              );
+            if (props.advancedOptions.watermarkSize !== undefined)
+              params.set(
+                'watermarkSize',
+                props.advancedOptions.watermarkSize.toString()
+              );
+            if (props.advancedOptions.watermarkPosition)
+              params.set(
+                'watermarkPosition',
+                props.advancedOptions.watermarkPosition
+              );
+            if (props.advancedOptions.watermarkRotation !== undefined)
+              params.set(
+                'watermarkRotation',
+                props.advancedOptions.watermarkRotation.toString()
+              );
           } else {
             // No advanced options provided, use default glass background
             params.set('glassBackground', 'true');

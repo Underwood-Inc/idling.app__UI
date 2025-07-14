@@ -579,6 +579,46 @@
   text-decoration: none;
 }
 
+/* Pro Notice Styling */
+.proNotice {
+  background: var(--brand-secondary);
+  border: 1px solid var(--brand-primary);
+  border-radius: 8px;
+  padding: 1rem;
+  margin: 1rem 0;
+  text-align: center;
+}
+
+.proNotice h4 {
+  color: var(--brand-primary);
+  margin: 0 0 0.5rem 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.proNotice p {
+  color: var(--dark-bg__text-color--secondary);
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+/* Disabled Input Styling */
+.input:disabled,
+.textarea:disabled {
+  background: var(--light-background--tertiary);
+  color: var(--dark-bg__text-color--muted);
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.fieldHint {
+  font-size: 0.875rem;
+  color: var(--dark-bg__text-color--secondary);
+  margin-top: 0.25rem;
+  display: block;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
   .stepIndicatorContainer {

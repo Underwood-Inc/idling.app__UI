@@ -2,7 +2,7 @@
 
 import { useAtom } from 'jotai';
 import { useSession } from 'next-auth/react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Card } from '../../components/card/Card';
 import { InstantLink } from '../../components/ui/InstantLink';
 import {
@@ -18,7 +18,7 @@ import {
   shapeCountAtom,
   updateFormStateAtom
 } from '../atoms/generatorAtoms';
-import { ASPECT_RATIO_OPTIONS } from '../constants/aspectRatios';
+import { useAspectRatios } from '../hooks/useFormOptions';
 import formStyles from './FormElements.module.css';
 import type { AspectRatioOption } from './GenerationForm';
 import wizardStyles from './WizardForm.module.css';
@@ -80,6 +80,34 @@ export function WizardForm({
   const [customHeight, setCustomHeight] = useAtom(customHeightAtom);
   const [shapeCount, setShapeCount] = useAtom(shapeCountAtom);
   const [, syncAspectRatio] = useAtom(aspectRatioSyncAtom);
+
+  // Use API-based aspect ratios with lazy loading
+  const {
+    data: aspectRatioData,
+    isLoading: aspectRatioLoading,
+    fetchIfNeeded
+  } = useAspectRatios(true);
+
+  // Convert API response to AspectRatioOption format
+  const apiAspectRatios: AspectRatioOption[] =
+    aspectRatioData?.aspect_ratios?.map((option) => ({
+      key: option.key,
+      name: option.name,
+      width: option.width,
+      height: option.height,
+      description: option.description || '',
+      dimensions: option.dimensions
+    })) || [];
+
+  // Use API data only - no fallbacks
+  const effectiveAspectRatios = apiAspectRatios;
+
+  // Fetch aspect ratios when platform step is shown
+  useEffect(() => {
+    if (currentStep === 'platform') {
+      fetchIfNeeded();
+    }
+  }, [currentStep, fetchIfNeeded]);
 
   const handleNext = () => {
     switch (currentStep) {
@@ -147,7 +175,17 @@ export function WizardForm({
   };
 
   const handleSubmit = () => {
-    onSubmit(formData);
+    const data: WizardFormData = {
+      selectedRatio,
+      currentSeed,
+      avatarSeed,
+      customAuthor,
+      customQuote,
+      customWidth,
+      customHeight,
+      shapeCount
+    };
+    onSubmit(data);
   };
 
   const getStepTitle = () => {
@@ -262,38 +300,51 @@ export function WizardForm({
 
   const renderPlatformStep = () => (
     <div className={wizardStyles.stepContent}>
-      <h3>Select Platform & Aspect Ratio</h3>
+      <h3>🎯 Choose Your Platform</h3>
       <p>
-        Choose the platform where you&apos;ll share your card. This determines
-        the optimal dimensions.
+        Select the platform where you&apos;ll be sharing your card. Each
+        platform has optimized dimensions for the best visual impact.
       </p>
 
       <div className={wizardStyles.ratioGrid}>
-        {ASPECT_RATIO_OPTIONS.map((ratio) => (
-          <button
-            key={ratio.key}
-            className={`${wizardStyles.ratioCard} ${
-              selectedRatio.key === ratio.key
-                ? wizardStyles.ratioCardSelected
-                : ''
-            }`}
-            onClick={() => syncAspectRatio(ratio)}
+        {aspectRatioLoading ? (
+          <div
+            style={{
+              gridColumn: '1 / -1',
+              textAlign: 'center',
+              padding: '2rem',
+              color: 'var(--dark-bg__text-color--secondary)'
+            }}
           >
-            <div className={wizardStyles.ratioPreview}>
-              <div
-                className={wizardStyles.ratioRectangle}
-                style={{ aspectRatio: `${ratio.width}/${ratio.height}` }}
-              />
-            </div>
-            <div className={wizardStyles.ratioInfo}>
-              <h4>{ratio.name}</h4>
-              <p>{ratio.description}</p>
-              <span className={wizardStyles.ratioDimensions}>
-                {ratio.dimensions}
-              </span>
-            </div>
-          </button>
-        ))}
+            Loading aspect ratios...
+          </div>
+        ) : (
+          effectiveAspectRatios.map((ratio) => (
+            <button
+              key={ratio.key}
+              className={`${wizardStyles.ratioCard} ${
+                selectedRatio.key === ratio.key
+                  ? wizardStyles.ratioCardSelected
+                  : ''
+              }`}
+              onClick={() => syncAspectRatio(ratio)}
+            >
+              <div className={wizardStyles.ratioPreview}>
+                <div
+                  className={wizardStyles.ratioRectangle}
+                  style={{ aspectRatio: `${ratio.width}/${ratio.height}` }}
+                />
+              </div>
+              <div className={wizardStyles.ratioInfo}>
+                <h4>{ratio.name}</h4>
+                <p>{ratio.description}</p>
+                <span className={wizardStyles.ratioDimensions}>
+                  {ratio.dimensions}
+                </span>
+              </div>
+            </button>
+          ))
+        )}
       </div>
     </div>
   );
@@ -376,8 +427,19 @@ export function WizardForm({
 
   const renderProStep = () => (
     <div className={wizardStyles.stepContent}>
-      <h3>Pro Configuration</h3>
+      <h3>⚡ Pro Configuration</h3>
       <p>Fine-tune advanced settings with your Pro subscription.</p>
+
+      {!isPro && (
+        <div className={wizardStyles.proNotice}>
+          <h4>🚀 Upgrade to Pro</h4>
+          <p>
+            This step contains advanced features available only to Pro
+            subscribers. Wizard mode with basic configuration is completely
+            free!
+          </p>
+        </div>
+      )}
 
       <div className={wizardStyles.formGrid}>
         <div className={wizardStyles.formGroup}>
@@ -391,9 +453,10 @@ export function WizardForm({
               min="400"
               max="2000"
               className={wizardStyles.input}
+              disabled={!isPro}
             />
             <span className={wizardStyles.fieldHint}>
-              Custom width in pixels
+              Custom width in pixels {!isPro && '(Pro feature)'}
             </span>
           </label>
         </div>
@@ -409,27 +472,29 @@ export function WizardForm({
               min="400"
               max="2000"
               className={wizardStyles.input}
+              disabled={!isPro}
             />
             <span className={wizardStyles.fieldHint}>
-              Custom height in pixels
+              Custom height in pixels {!isPro && '(Pro feature)'}
             </span>
           </label>
         </div>
 
         <div className={wizardStyles.formGroup}>
           <label>
-            <span className={wizardStyles.labelText}>🔢 Shape Count</span>
+            <span className={wizardStyles.labelText}>🔥 Shape Count</span>
             <input
               type="number"
               value={shapeCount}
               onChange={(e) => setShapeCount(e.target.value)}
               placeholder="8"
-              min="0"
-              max="20"
+              min="3"
+              max="15"
               className={wizardStyles.input}
+              disabled={!isPro}
             />
             <span className={wizardStyles.fieldHint}>
-              Number of decorative shapes
+              Number of background shapes {!isPro && '(Pro feature)'}
             </span>
           </label>
         </div>

@@ -1,6 +1,5 @@
 import { atom } from 'jotai';
 import type { AspectRatioOption } from '../components/GenerationForm';
-import { ASPECT_RATIO_OPTIONS } from '../constants/aspectRatios';
 
 // ============================================================================
 // CARD GENERATOR FORM STATE ATOMS
@@ -22,9 +21,19 @@ export interface GeneratorFormState {
   shapeCount: string;
 }
 
+// Default fallback aspect ratio (will be updated when API loads)
+const defaultAspectRatio: AspectRatioOption = {
+  key: 'default',
+  name: 'Open Graph (Default)',
+  width: 1200,
+  height: 630,
+  description: 'Standard social media sharing',
+  dimensions: '1200×630'
+};
+
 // Initial state
 const initialFormState: GeneratorFormState = {
-  selectedRatio: ASPECT_RATIO_OPTIONS[0],
+  selectedRatio: defaultAspectRatio,
   currentSeed: '',
   avatarSeed: '',
   customAuthor: '',

@@ -5,6 +5,9 @@ export const convertSvgToPng = async (svgContent: string): Promise<Blob> => {
       return;
     }
 
+    // eslint-disable-next-line no-console
+    console.log('Starting PNG conversion, SVG length:', svgContent.length);
+
     const img = new Image();
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
@@ -15,26 +18,54 @@ export const convertSvgToPng = async (svgContent: string): Promise<Blob> => {
     }
 
     img.onload = () => {
+      // eslint-disable-next-line no-console
+      console.log(
+        'SVG loaded successfully, dimensions:',
+        img.naturalWidth || img.width,
+        'x',
+        img.naturalHeight || img.height
+      );
+
       canvas.width = img.naturalWidth || img.width;
       canvas.height = img.naturalHeight || img.height;
+
+      // Clear canvas to transparent (this is crucial for transparent backgrounds)
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Ensure canvas supports transparency
+      ctx.globalCompositeOperation = 'source-over';
+
+      // Draw the SVG image on the transparent canvas
       ctx.drawImage(img, 0, 0);
 
       canvas.toBlob((blob) => {
         if (blob) {
+          // eslint-disable-next-line no-console
+          console.log('PNG conversion successful, blob size:', blob.size);
           resolve(blob);
         } else {
           reject(new Error('Failed to create PNG blob'));
         }
-      }, 'image/png');
+      }, 'image/png'); // PNG format supports transparency
     };
 
-    img.onerror = () => {
+    img.onerror = (error) => {
+      // eslint-disable-next-line no-console
+      console.error('SVG loading failed:', error);
       reject(new Error('Failed to load SVG as image'));
     };
 
-    const svgBlob = new Blob([svgContent], { type: 'image/svg+xml' });
-    const svgUrl = URL.createObjectURL(svgBlob);
-    img.src = svgUrl;
+    try {
+      // Use base64 data URL approach instead of createObjectURL for better compatibility
+      const svgBase64 = btoa(unescape(encodeURIComponent(svgContent)));
+      img.src = `data:image/svg+xml;base64,${svgBase64}`;
+      // eslint-disable-next-line no-console
+      console.log('SVG data URL set, waiting for load...');
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error('Error creating SVG data URL:', error);
+      reject(new Error('Failed to create SVG data URL'));
+    }
   });
 };
 
@@ -61,4 +92,4 @@ export const generateFilename = (
     ? `og-image-${seed}${ratioSuffix}`
     : `og-image-${timestamp}${ratioSuffix}`;
   return `${baseName}.${type}`;
-}; 
+};

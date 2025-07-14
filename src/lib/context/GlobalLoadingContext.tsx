@@ -68,8 +68,6 @@ export function GlobalLoadingProvider({
           url.includes('/api/link-preview') || // Skip link preview requests
           url.includes('/api/test/health') || // Skip health checks
           url.includes('/api/notifications/poll') || // Skip notification polling
-          url.includes('/api/alerts/active') || // Skip banner system polling
-          url.includes('/api/user/timeout') || // Skip timeout checking polling
           url.includes('buddha-api.com') // Skip Buddha API requests
         ) {
           return originalFetch(input, init);

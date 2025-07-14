@@ -11,6 +11,26 @@ export interface QuoteAPIConfig {
   transform: (data: any) => QuoteData;
 }
 
+export interface WatermarkConfig {
+  enabled: boolean;
+  text: string;
+  fontSize: number;
+  opacity: number;
+  color: string;
+  position:
+    | 'top-left'
+    | 'top-right'
+    | 'bottom-left'
+    | 'bottom-right'
+    | 'center'
+    | 'repeated';
+  margin: number;
+  rotation?: number;
+  fontFamily?: string;
+  pattern?: 'diagonal' | 'grid' | 'single';
+  spacing?: number;
+}
+
 export interface AspectRatioConfig {
   name: string;
   width: number;

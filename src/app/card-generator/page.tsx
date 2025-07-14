@@ -5,6 +5,7 @@ import { useSession } from 'next-auth/react';
 import { useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useGeneratorMode } from '../../lib/context/UserPreferencesContext';
+import type { AspectRatioOption } from '../actions/form-options';
 import FadeIn from '../components/fade-in/FadeIn';
 import { PageAside } from '../components/page-aside/PageAside';
 import { PageContainer } from '../components/page-container/PageContainer';
@@ -23,7 +24,7 @@ import { QuotaDisplay } from './components/QuotaDisplay';
 import { RegenerationDialog } from './components/RegenerationDialog';
 import { WelcomeInterface } from './components/WelcomeInterface';
 import { WizardForm } from './components/WizardForm';
-import { ASPECT_RATIO_OPTIONS } from './constants/aspectRatios';
+import { useAspectRatios } from './hooks/useFormOptions';
 import { useFormState } from './hooks/useFormState';
 import { useGenerationLoader } from './hooks/useGenerationLoader';
 import { useImageGeneration } from './hooks/useImageGeneration';
@@ -60,6 +61,11 @@ export default function OgImageViewer() {
   const resetForm = useSetAtom(resetFormAtom);
   const updateFormState = useSetAtom(updateFormStateAtom);
 
+  // Get aspect ratios from server action
+  const { data: aspectRatioData, fetchIfNeeded } = useAspectRatios(false);
+  const aspectRatios: AspectRatioOption[] =
+    aspectRatioData?.aspect_ratios || [];
+
   // Custom hooks for clean separation of concerns
   const {
     formState: legacyFormState,
@@ -85,14 +91,12 @@ export default function OgImageViewer() {
 
   // Sync aspect ratio changes with form fields
   useEffect(() => {
-    const aspectConfig = ASPECT_RATIO_OPTIONS.find(
-      (opt) => opt.key === selectedRatio
-    );
+    const aspectConfig = aspectRatios.find((opt) => opt.key === selectedRatio);
     if (aspectConfig) {
       updateField('customWidth', aspectConfig.width.toString());
       updateField('customHeight', aspectConfig.height.toString());
     }
-  }, [selectedRatio, updateField]);
+  }, [selectedRatio, aspectRatios, updateField]);
 
   // Image generation hook
   const {
@@ -264,6 +268,19 @@ export default function OgImageViewer() {
       );
     }
 
+    const currentAspectRatio =
+      aspectRatios.find((opt) => opt.key === selectedRatio) ||
+      (aspectRatios.length > 0
+        ? aspectRatios[0]
+        : {
+            key: 'default',
+            name: 'Open Graph (Default)',
+            width: 1200,
+            height: 630,
+            description: 'Standard social media sharing',
+            dimensions: '1200×630'
+          });
+
     return (
       <GenerationForm
         currentSeed={legacyFormState.currentSeed}
@@ -286,12 +303,9 @@ export default function OgImageViewer() {
         onRandomize={handleRandomize}
         isCollapsed={isFormCollapsed}
         onToggleCollapse={() => setIsFormCollapsed(!isFormCollapsed)}
-        selectedRatio={
-          ASPECT_RATIO_OPTIONS.find((opt) => opt.key === selectedRatio) ||
-          ASPECT_RATIO_OPTIONS[0]
-        }
+        selectedRatio={currentAspectRatio}
         onRatioChange={(ratio) => setSelectedRatio(ratio.key)}
-        aspectRatioOptions={ASPECT_RATIO_OPTIONS}
+        aspectRatioOptions={aspectRatios}
         generationOptions={generationOptions}
         advancedOptions={advancedOptions}
         onAdvancedOptionsChange={setAdvancedOptions}

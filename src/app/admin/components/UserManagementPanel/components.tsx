@@ -6,7 +6,7 @@
  * composition and reusability.
  */
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Avatar } from '../../../components/avatar/Avatar';
 import { LoadingButton } from '../../../components/ui/LoadingButton';
 import type {
@@ -150,6 +150,12 @@ export const SearchOverlayContent: React.FC<SearchOverlayProps> = ({
   searchQuery,
   onResultSelect
 }) => {
+  const [imageErrors, setImageErrors] = useState<Set<string>>(new Set());
+
+  const handleImageError = (userId: string) => {
+    setImageErrors((prev) => new Set(prev).add(userId));
+  };
+
   if (isSearching) {
     return (
       <div className="search-overlay-loading">
@@ -176,42 +182,22 @@ export const SearchOverlayContent: React.FC<SearchOverlayProps> = ({
         >
           <div className="search-result-avatars">
             {/* Provider account image */}
-            {user.image && (
+            {user.image && !imageErrors.has(user.id) && (
               <img
                 src={user.image}
                 alt="Provider avatar"
                 className="search-result-provider-avatar"
+                onError={() => handleImageError(user.id)}
               />
             )}
             {/* Seeded avatar */}
             <Avatar seed={user.id} size="xxs" />
           </div>
           <div className="search-result-info">
-            <span className="search-result-name">
+            <div className="search-result-name">
               {user.name || 'Unnamed User'}
-            </span>
-            <span className="search-result-email">{user.email}</span>
-            {(user.role_names || (user.roles && user.roles.length > 0)) && (
-              <div className="search-result-roles">
-                {user.role_names
-                  ? user.role_names.split(', ').map((roleName, index) => (
-                      <span
-                        key={index}
-                        className="role-badge role-badge--small"
-                      >
-                        {roleName}
-                      </span>
-                    ))
-                  : user.roles?.map((role) => (
-                      <span
-                        key={role.id}
-                        className="role-badge role-badge--small"
-                      >
-                        {role.name}
-                      </span>
-                    ))}
-              </div>
-            )}
+            </div>
+            <div className="search-result-email">{user.email}</div>
           </div>
         </button>
       ))}
@@ -230,31 +216,45 @@ interface UserInfoCellProps {
 /**
  * User info cell with dual avatars and user details
  */
-export const UserInfoCell: React.FC<UserInfoCellProps> = ({ user }) => (
-  <td className="user-info-cell">
-    <div className="user-avatars">
-      {/* Provider account image */}
-      {user.image && (
-        <img
-          src={user.image}
-          alt="Provider avatar"
-          className="provider-avatar"
-          title="Provider account image"
+export const UserInfoCell: React.FC<UserInfoCellProps> = ({ user }) => {
+  const [imageError, setImageError] = useState(false);
+
+  const handleImageError = () => {
+    setImageError(true);
+  };
+
+  return (
+    <td className="user-info-cell">
+      <div className="user-avatars">
+        {/* Provider account image */}
+        {user.image && !imageError && (
+          <img
+            src={user.image}
+            alt="Provider avatar"
+            className="provider-avatar"
+            title="Provider account image"
+            onError={handleImageError}
+          />
+        )}
+        {/* Seeded avatar */}
+        <Avatar
+          seed={user.id}
+          size="sm"
+          enableTooltip={true}
+          tooltipScale={2}
         />
-      )}
-      {/* Seeded avatar */}
-      <Avatar seed={user.id} size="sm" enableTooltip={true} tooltipScale={2} />
-    </div>
-    <div className="user-details">
-      <div className="user-name-row">
-        <span className="user-name">{user.name || 'Unnamed User'}</span>
       </div>
-      <div className="user-id-row">
-        <span className="user-id">ID: {user.id}</span>
+      <div className="user-details">
+        <div className="user-name-row">
+          <span className="user-name">{user.name || 'Unnamed User'}</span>
+        </div>
+        <div className="user-id-row">
+          <span className="user-id">ID: {user.id}</span>
+        </div>
       </div>
-    </div>
-  </td>
-);
+    </td>
+  );
+};
 
 interface RolesCellProps {
   user: ManagementUser;

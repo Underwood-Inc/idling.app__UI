@@ -65,32 +65,114 @@ export const AssignSubscriptionModal: React.FC<
   const fetchSubscriptionPlans = useCallback(async () => {
     try {
       setError(null);
+      // eslint-disable-next-line no-console
+      console.log(
+        'AssignSubscriptionModal: Starting fetch to /api/admin/subscription-plans'
+      );
+
       const response = await fetch('/api/admin/subscription-plans');
 
+      // eslint-disable-next-line no-console
+      console.log('AssignSubscriptionModal: Response received:', {
+        ok: response.ok,
+        status: response.status,
+        statusText: response.statusText,
+        headers: Object.fromEntries(response.headers.entries())
+      });
+
       if (!response.ok) {
+        const errorText = await response.text();
+        // eslint-disable-next-line no-console
+        console.error('AssignSubscriptionModal: HTTP error response:', {
+          status: response.status,
+          statusText: response.statusText,
+          errorText
+        });
         throw new Error(
-          `Failed to fetch subscription plans: ${response.status}`
+          `Failed to fetch subscription plans: ${response.status} - ${errorText}`
         );
       }
 
-      const plans = await response.json();
-      setSubscriptionPlans(
-        plans.filter((plan: SubscriptionPlan) => plan.is_active)
-      );
+      const data = await response.json();
+
+      // eslint-disable-next-line no-console
+      console.log('AssignSubscriptionModal: Raw response data:', data);
+
+      // Handle error response from API
+      if (data && typeof data === 'object' && 'error' in data) {
+        // eslint-disable-next-line no-console
+        console.error(
+          'AssignSubscriptionModal: API returned error:',
+          data.error
+        );
+        throw new Error(data.error);
+      }
+
+      // Extract plans from the response object
+      // The withUniversalEnhancements wrapper turns the array into an object
+      // with numbered keys (0, 1, 2, etc.) plus metadata fields
+      let plans: any[] = [];
+
+      if (Array.isArray(data)) {
+        plans = data;
+      } else if (data && typeof data === 'object') {
+        // Extract numbered keys and ignore metadata fields
+        const numberedKeys = Object.keys(data)
+          .filter((key) => /^\d+$/.test(key))
+          .map((key) => parseInt(key))
+          .sort((a, b) => a - b);
+
+        plans = numberedKeys.map((key) => data[key]);
+
+        // eslint-disable-next-line no-console
+        console.log('AssignSubscriptionModal: Extracted plans from object:', {
+          totalKeys: Object.keys(data).length,
+          numberedKeys: numberedKeys.length,
+          metadataKeys: Object.keys(data).filter((key) => !/^\d+$/.test(key)),
+          extractedPlans: plans.length
+        });
+      }
+
+      // Debug logging to help identify future issues
+      // eslint-disable-next-line no-console
+      console.log('AssignSubscriptionModal: Fetched plans:', {
+        total: plans.length,
+        active: plans.filter((p) => p.is_active).length,
+        inactive: plans.filter((p) => !p.is_active).length,
+        plans: plans.map((p) => ({
+          id: p.id,
+          name: p.display_name,
+          active: p.is_active
+        }))
+      });
+
+      // Show ALL plans (active and inactive) for assignment, but with clear indication
+      setSubscriptionPlans(plans);
     } catch (error) {
-      console.error('Error fetching subscription plans:', error);
+      // eslint-disable-next-line no-console
+      console.error('AssignSubscriptionModal: Fetch error:', error);
       setError(
         error instanceof Error
           ? error.message
           : 'Failed to fetch subscription plans'
       );
+      // Reset to empty array on error
+      setSubscriptionPlans([]);
     } finally {
       setLoading(false);
     }
   }, []);
 
   useEffect(() => {
+    // eslint-disable-next-line no-console
+    console.log('AssignSubscriptionModal useEffect triggered:', {
+      isOpen,
+      loading
+    });
+
     if (isOpen) {
+      // eslint-disable-next-line no-console
+      console.log('Modal is open, calling fetchSubscriptionPlans...');
       fetchSubscriptionPlans();
     }
   }, [isOpen, fetchSubscriptionPlans]);
@@ -211,8 +293,13 @@ export const AssignSubscriptionModal: React.FC<
 
   const getSelectedPlan = () => {
     return subscriptionPlans.find(
-      (plan) => plan.id === parseInt(selectedPlanId)
+      (plan) => plan.id.toString() === selectedPlanId
     );
+  };
+
+  const formatPlanDisplayName = (plan: SubscriptionPlan): string => {
+    const baseText = `${plan.display_name} (${plan.plan_type})`;
+    return plan.is_active ? baseText : `${baseText} - INACTIVE`;
   };
 
   const getBillingCycleOptions = (): Array<{
@@ -259,6 +346,16 @@ export const AssignSubscriptionModal: React.FC<
   // RENDER HELPERS
   // ================================
 
+  // eslint-disable-next-line no-console
+  console.log('AssignSubscriptionModal render:', {
+    isOpen,
+    userName,
+    userId,
+    loading,
+    subscriptionPlansLength: subscriptionPlans.length,
+    error
+  });
+
   if (!isOpen) return null;
 
   return (
@@ -291,9 +388,38 @@ export const AssignSubscriptionModal: React.FC<
                 <p className="user-id">User ID: {userId}</p>
               </div>
 
+              {subscriptionPlans.length > 0 && (
+                <div className="plans-status">
+                  <p>
+                    📋 Found {subscriptionPlans.length} plan
+                    {subscriptionPlans.length !== 1 ? 's' : ''} (
+                    {subscriptionPlans.filter((p) => p.is_active).length}{' '}
+                    active,{' '}
+                    {subscriptionPlans.filter((p) => !p.is_active).length}{' '}
+                    inactive)
+                  </p>
+                </div>
+              )}
+
               {error && (
                 <div className="error-message">
                   <span>❌ {error}</span>
+                  <button
+                    onClick={() => {
+                      // eslint-disable-next-line no-console
+                      console.log('Manual fetch triggered');
+                      setError(null);
+                      setLoading(true);
+                      fetchSubscriptionPlans();
+                    }}
+                    style={{
+                      marginLeft: '10px',
+                      padding: '4px 8px',
+                      fontSize: '12px'
+                    }}
+                  >
+                    🔄 Retry
+                  </button>
                 </div>
               )}
 
@@ -314,8 +440,16 @@ export const AssignSubscriptionModal: React.FC<
                   >
                     <option value="">Select a plan...</option>
                     {subscriptionPlans.map((plan) => (
-                      <option key={plan.id} value={plan.id}>
-                        {plan.display_name} ({plan.plan_type})
+                      <option
+                        key={plan.id}
+                        value={plan.id}
+                        disabled={!plan.is_active}
+                        style={{
+                          color: plan.is_active ? 'inherit' : '#999',
+                          fontStyle: plan.is_active ? 'normal' : 'italic'
+                        }}
+                      >
+                        {formatPlanDisplayName(plan)}
                       </option>
                     ))}
                   </select>

@@ -14,7 +14,7 @@ export interface GenerationOptions {
   aspectRatio: string;
   customWidth?: number;
   customHeight?: number;
-  
+
   // Pro parameters
   shapeCount?: number;
   avatarX?: number;
@@ -29,6 +29,20 @@ export interface GenerationOptions {
   borderColor?: string;
   patternSeed?: string;
   glassBackground?: boolean;
+
+  // Pro watermark controls
+  watermarkEnabled?: boolean;
+  watermarkText?: string;
+  watermarkOpacity?: number;
+  watermarkSize?: number;
+  watermarkPosition?:
+    | 'top-left'
+    | 'top-right'
+    | 'bottom-left'
+    | 'bottom-right'
+    | 'center'
+    | 'repeated';
+  watermarkRotation?: number; // Rotation angle in degrees for repeated watermarks
 }
 
 export interface GenerationResponse {
@@ -60,4 +74,4 @@ export interface QuotaState {
   hasInitializedQuota: boolean;
   isQuotaExceeded: boolean;
   resetDate?: Date | null;
-} 
+}

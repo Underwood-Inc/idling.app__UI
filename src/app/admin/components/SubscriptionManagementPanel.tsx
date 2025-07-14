@@ -129,8 +129,47 @@ export default function SubscriptionManagementPanel() {
         throw new Error(data.error);
       }
 
-      // Ensure we have an array
-      const plans = Array.isArray(data) ? data : [];
+      // Extract plans from the response object
+      // The withUniversalEnhancements wrapper turns the array into an object
+      // with numbered keys (0, 1, 2, etc.) plus metadata fields
+      let plans: any[] = [];
+
+      if (Array.isArray(data)) {
+        plans = data;
+      } else if (data && typeof data === 'object') {
+        // Extract numbered keys and ignore metadata fields
+        const numberedKeys = Object.keys(data)
+          .filter((key) => /^\d+$/.test(key))
+          .map((key) => parseInt(key))
+          .sort((a, b) => a - b);
+
+        plans = numberedKeys.map((key) => data[key]);
+
+        // eslint-disable-next-line no-console
+        console.log(
+          'SubscriptionManagementPanel: Extracted plans from object:',
+          {
+            totalKeys: Object.keys(data).length,
+            numberedKeys: numberedKeys.length,
+            metadataKeys: Object.keys(data).filter((key) => !/^\d+$/.test(key)),
+            extractedPlans: plans.length
+          }
+        );
+      }
+
+      // Debug logging to help identify future issues
+      // eslint-disable-next-line no-console
+      console.log('SubscriptionManagementPanel: Fetched plans:', {
+        total: plans.length,
+        active: plans.filter((p) => p.is_active).length,
+        inactive: plans.filter((p) => !p.is_active).length,
+        plans: plans.map((p) => ({
+          id: p.id,
+          name: p.display_name,
+          active: p.is_active
+        }))
+      });
+
       setSubscriptionPlans(plans);
     } catch (error) {
       console.error('Error fetching subscription plans:', error);

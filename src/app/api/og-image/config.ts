@@ -1,4 +1,9 @@
-import { AspectRatioConfig, GenerationLimits, QuoteAPIConfig } from './types';
+import {
+  AspectRatioConfig,
+  GenerationLimits,
+  QuoteAPIConfig,
+  WatermarkConfig
+} from './types';
 
 export const ASPECT_RATIOS: Record<string, AspectRatioConfig> = {
   // Default OG image ratio
@@ -52,7 +57,7 @@ export const ASPECT_RATIOS: Record<string, AspectRatioConfig> = {
   // Facebook cover photo
   'facebook-cover': {
     name: 'Facebook Cover',
-    width: 1695,
+    width: 1702,
     height: 630,
     description: 'Facebook cover photos',
     textMaxWidth: 1000,
@@ -166,11 +171,43 @@ export const FALLBACK_QUOTES = [
   }
 ];
 
+// Watermark configuration for guest users
+export const WATERMARK_CONFIG: WatermarkConfig = {
+  enabled: true,
+  text: 'https://idling.app/card-generator',
+  fontSize: 24,
+  opacity: 0.15,
+  color: '#ffffff',
+  position: 'repeated',
+  margin: 40,
+  rotation: -25, // Default rotation for repeated pattern
+  fontFamily:
+    'FiraCode, "Fira Code", Monaco, Consolas, "Liberation Mono", "Courier New", monospace',
+  pattern: 'diagonal', // Repeated diagonal pattern
+  spacing: 200 // Space between repeated watermarks
+};
+
+// Watermark configuration for authenticated free tier users
+export const WATERMARK_CONFIG_FREE_TIER: WatermarkConfig = {
+  enabled: true,
+  text: 'https://idling.app/card-generator',
+  fontSize: 24,
+  opacity: 0.15,
+  color: '#ffffff',
+  position: 'top-left',
+  margin: 40,
+  rotation: 0, // No rotation for single position
+  fontFamily:
+    'FiraCode, "Fira Code", Monaco, Consolas, "Liberation Mono", "Courier New", monospace',
+  pattern: 'single', // Single watermark placement
+  spacing: 200 // Not used for single placement
+};
+
 // Rate limiting configuration
 export const GENERATION_LIMITS: GenerationLimits = {
-  perMinute: 10,  // 10 generations per minute
-  perHour: 100,   // 100 generations per hour  
-  perDay: 1       // 1 generation per day (reduced for quota management)
+  perMinute: 10, // 10 generations per minute
+  perHour: 100, // 100 generations per hour
+  perDay: 1 // 1 generation per day (reduced for quota management)
 };
 
 // Custom dimension limits
@@ -181,4 +218,4 @@ export const DIMENSION_LIMITS = {
   maxHeight: 1800,
   minShapeCount: 3,
   maxShapeCount: 15
-}; 
+};

@@ -3,6 +3,7 @@ import { Provider, useSetAtom } from 'jotai';
 import { usePathname, useSearchParams } from 'next/navigation';
 import React, { Suspense, useEffect } from 'react';
 import { CONTEXT_IDS } from '../context-ids';
+import { useSessionDataSync } from '../hooks/useApiWrapperData';
 import { NAV_PATHS } from '../routes';
 import { initializePaginationFromUrl, paginationStateAtom } from './atoms';
 
@@ -43,6 +44,18 @@ function PaginationInitializer() {
 }
 
 /**
+ * Internal component to sync session data from API wrapper responses
+ * This runs globally and updates the session atom from every API response
+ */
+function SessionDataSyncProvider() {
+  // This hook automatically updates the session atom when API responses
+  // contain session data via the API wrapper system
+  useSessionDataSync();
+
+  return null;
+}
+
+/**
  * Jotai Provider that replaces all Context providers
  * Maintains server/client boundaries and initializes state properly
  */
@@ -51,6 +64,7 @@ export function JotaiProvider({ children }: { children: React.ReactNode }) {
     <Provider>
       <Suspense fallback={null}>
         <PaginationInitializer />
+        <SessionDataSyncProvider />
       </Suspense>
       {children}
     </Provider>

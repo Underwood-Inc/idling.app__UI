@@ -1617,7 +1617,7 @@ class FakerContentGenerator {
       // NextAuth user fields
       name: profile.username,
       email: `${profile.firstName.toLowerCase()}.${profile.lastName.toLowerCase()}+${index}@example.com`,
-      image: faker.image.avatar(),
+      image: null, // Use null instead of faker.image.avatar() to avoid IPFS URLs
       profile_public: true,
 
       // Account fields

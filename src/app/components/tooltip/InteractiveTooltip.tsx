@@ -55,7 +55,7 @@ export const InteractiveTooltip: React.FC<InteractiveTooltipProps> = ({
   useEffect(() => {
     onShowRef.current = onShow;
     onCloseRef.current = onClose;
-  });
+  }, []);
 
   // Sync external show prop with internal state
   useEffect(() => {
