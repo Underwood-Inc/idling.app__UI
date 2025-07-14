@@ -1,11 +1,11 @@
+import { withUniversalEnhancements } from '@lib/api/withUniversalEnhancements';
 import { auth } from '@lib/auth';
 import sql from '@lib/db';
-import { withRateLimit } from '@lib/middleware/withRateLimit';
 import { NextRequest, NextResponse } from 'next/server';
 
 /**
  * POST /api/alerts/[id]/dismiss
- * 
+ *
  * Records that a user has dismissed a specific alert.
  * This prevents the alert from appearing again for that user.
  */
@@ -33,11 +33,17 @@ async function postHandler(
     `;
 
     if (!alert) {
-      return NextResponse.json({ error: 'Alert not found or not active' }, { status: 404 });
+      return NextResponse.json(
+        { error: 'Alert not found or not active' },
+        { status: 404 }
+      );
     }
 
     if (!alert.dismissible) {
-      return NextResponse.json({ error: 'Alert cannot be dismissed' }, { status: 400 });
+      return NextResponse.json(
+        { error: 'Alert cannot be dismissed' },
+        { status: 400 }
+      );
     }
 
     // Record the dismissal (insert or update)
@@ -53,16 +59,18 @@ async function postHandler(
       SELECT update_alert_analytics(${alertId}, 'dismiss')
     `;
 
-    return NextResponse.json({ 
+    return NextResponse.json({
       message: 'Alert dismissed successfully',
       alertId,
-      userId 
+      userId
     });
-
   } catch (error) {
     console.error('Error dismissing alert:', error);
-    return NextResponse.json({ error: 'Failed to dismiss alert' }, { status: 500 });
+    return NextResponse.json(
+      { error: 'Failed to dismiss alert' },
+      { status: 500 }
+    );
   }
 }
 
-export const POST = withRateLimit(postHandler); 
+export const POST = withUniversalEnhancements(postHandler);

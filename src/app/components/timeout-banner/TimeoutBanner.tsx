@@ -18,7 +18,7 @@ interface TimeRemaining {
 }
 
 export default function TimeoutBanner() {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const [timeoutInfo, setTimeoutInfo] = useState<TimeoutInfo | null>(null);
   const [timeRemaining, setTimeRemaining] = useState<TimeRemaining | null>(
     null
@@ -27,6 +27,9 @@ export default function TimeoutBanner() {
 
   // Check timeout status
   useEffect(() => {
+    // Wait for session to be loaded and authenticated
+    if (status === 'loading') return;
+
     if (!session?.user?.id) {
       setIsLoading(false);
       return;
@@ -57,7 +60,7 @@ export default function TimeoutBanner() {
     // Check every minute for updates
     const interval = setInterval(checkTimeout, 60000);
     return () => clearInterval(interval);
-  }, [session?.user?.id]);
+  }, [session?.user?.id, status]);
 
   // Update countdown timer
   useEffect(() => {

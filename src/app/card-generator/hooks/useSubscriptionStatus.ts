@@ -71,13 +71,22 @@ export function useSubscriptionStatus() {
   useEffect(() => {
     if (status === 'loading') return;
     
-    // Always fetch regardless of session state (API handles unauthenticated users)
-    fetchSubscriptionStatus();
-  }, [status, fetchSubscriptionStatus]);
+    // Only fetch if user is authenticated - unauthenticated users don't have subscriptions
+    if (status === 'authenticated' && session?.user?.id) {
+      fetchSubscriptionStatus();
+    } else {
+      // Set defaults for unauthenticated users
+      setSubscriptionStatus({
+        hasActiveSubscription: false,
+        isPro: false
+      });
+      setIsLoading(false);
+    }
+  }, [status, session?.user?.id, fetchSubscriptionStatus]);
 
   // Refresh subscription status when session changes
   useEffect(() => {
-    if (status !== 'loading') {
+    if (status !== 'loading' && status === 'authenticated' && session?.user?.id) {
       fetchSubscriptionStatus();
     }
   }, [session?.user?.id, status, fetchSubscriptionStatus]);

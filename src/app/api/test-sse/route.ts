@@ -2,17 +2,19 @@
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
 
-export async function GET() {
+import { withUniversalEnhancementsNoRateLimit } from '@lib/api/withUniversalEnhancements';
+
+async function sseHandler() {
   const encoder = new TextEncoder();
-  
+
   const stream = new ReadableStream({
     start(controller) {
       // Send immediate data
-      controller.enqueue(encoder.encode('data: {"test": "immediate"}\n\n'));
-      
+      controller.enqueue(encoder.encode('data: {"test": "immediate"}\\n\\n'));
+
       // Send more data after 1 second
       setTimeout(() => {
-        controller.enqueue(encoder.encode('data: {"test": "delayed"}\n\n'));
+        controller.enqueue(encoder.encode('data: {"test": "delayed"}\\n\\n'));
         controller.close();
       }, 1000);
     }
@@ -22,7 +24,9 @@ export async function GET() {
     headers: {
       'Content-Type': 'text/event-stream',
       'Cache-Control': 'no-cache',
-      'Connection': 'keep-alive',
-    },
+      Connection: 'keep-alive'
+    }
   });
-} 
+}
+
+export const GET = withUniversalEnhancementsNoRateLimit(sseHandler);

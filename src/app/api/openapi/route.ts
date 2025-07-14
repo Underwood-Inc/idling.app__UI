@@ -1,3 +1,4 @@
+import { withUniversalEnhancementsNoRateLimit } from '@lib/api/withUniversalEnhancements';
 import { readFileSync } from 'fs';
 import { NextRequest, NextResponse } from 'next/server';
 import { join } from 'path';
@@ -18,7 +19,7 @@ import { join } from 'path';
  *             schema:
  *               type: object
  */
-export async function GET(request: NextRequest) {
+async function openApiHandler(request: NextRequest) {
   try {
     // Read the OpenAPI spec from the static file
     const openApiPath = join(process.cwd(), 'src/app/api/openapi.json');
@@ -26,16 +27,18 @@ export async function GET(request: NextRequest) {
     const spec = JSON.parse(openApiSpec);
 
     // Update server URLs based on environment
-    const baseUrl = process.env.NODE_ENV === 'production' 
-      ? 'https://idling.app'
-      : `http://localhost:${process.env.PORT || 3000}`;
+    const baseUrl =
+      process.env.NODE_ENV === 'production'
+        ? 'https://idling.app'
+        : `http://localhost:${process.env.PORT || 3000}`;
 
     spec.servers = [
       {
         url: baseUrl,
-        description: process.env.NODE_ENV === 'production' 
-          ? 'Production server'
-          : 'Development server'
+        description:
+          process.env.NODE_ENV === 'production'
+            ? 'Production server'
+            : 'Development server'
       }
     ];
 
@@ -54,7 +57,7 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error('Error serving OpenAPI spec:', error);
     return NextResponse.json(
-      { 
+      {
         error: 'Failed to load OpenAPI specification',
         details: error instanceof Error ? error.message : 'Unknown error'
       },
@@ -63,13 +66,15 @@ export async function GET(request: NextRequest) {
   }
 }
 
+export const GET = withUniversalEnhancementsNoRateLimit(openApiHandler);
+
 export async function OPTIONS(request: NextRequest) {
   return new NextResponse(null, {
     status: 200,
     headers: {
       'Access-Control-Allow-Origin': '*',
       'Access-Control-Allow-Methods': 'GET, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type',
+      'Access-Control-Allow-Headers': 'Content-Type'
     }
   });
-} 
+}

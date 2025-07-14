@@ -1,0 +1,646 @@
+/* Wizard Container */
+.wizardContainer {
+  max-width: 900px;
+  margin: 0 auto;
+  background: rgba(0, 0, 0, 0.85) !important;
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  border-radius: 16px;
+  overflow: hidden;
+  position: relative;
+}
+
+/* Mystical background effect */
+.wizardContainer::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(147, 51, 234, 0.1) 0%,
+    rgba(59, 130, 246, 0.1) 50%,
+    rgba(16, 185, 129, 0.1) 100%
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Header Content for Collapsible Header */
+.wizardHeaderContent {
+  flex: 1;
+  text-align: center;
+}
+
+.wizardTitle {
+  color: var(--dark-bg__text-color--primary);
+  font-size: 1.875rem;
+  font-weight: 700;
+  margin: 0 0 0.5rem 0;
+}
+
+.wizardDescription {
+  color: var(--dark-bg__text-color--secondary);
+  font-size: 1.125rem;
+  margin: 0;
+}
+
+.stepIndicatorContainer {
+  margin-top: 1.5rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 2rem;
+  min-height: 40px;
+}
+
+/* Wizard-specific collapse button */
+.wizardCollapseButton {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  font-size: 0.875rem;
+  color: rgba(255, 255, 255, 0.9);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  backdrop-filter: blur(8px);
+  height: 40px;
+  white-space: nowrap;
+  box-sizing: border-box;
+  flex-shrink: 0;
+}
+
+.wizardCollapseButton:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.3);
+  color: rgba(255, 255, 255, 1);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.wizardCollapseButton:active {
+  transform: translateY(0);
+}
+
+/* Chevron animation for wizard collapse button */
+.wizardCollapseChevron {
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: inline-block;
+  font-size: 0.75rem;
+}
+
+.wizardCollapseChevron--collapsed {
+  transform: rotate(0deg);
+}
+
+.wizardCollapseChevron--expanded {
+  transform: rotate(180deg);
+}
+
+/* Legacy Header (for backward compatibility) */
+.wizardHeader {
+  padding: 2rem 2rem 1rem;
+  text-align: center;
+  position: relative;
+  z-index: 2;
+}
+
+.wizardHeader h2 {
+  color: var(--dark-bg__text-color--primary);
+  font-size: 1.875rem;
+  font-weight: 700;
+  margin: 0 0 0.5rem 0;
+}
+
+.wizardHeader p {
+  color: var(--dark-bg__text-color--secondary);
+  font-size: 1.125rem;
+  margin: 0 0 2rem 0;
+}
+
+/* Step Indicator */
+.stepIndicator {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0;
+  margin: 0;
+}
+
+.stepIndicatorItem {
+  display: flex;
+  align-items: center;
+}
+
+.stepNumber {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+}
+
+.stepActive {
+  background: linear-gradient(135deg, #8b5cf6, #3b82f6);
+  color: white;
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4);
+}
+
+.stepInactive {
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.stepLine {
+  width: 40px;
+  height: 2px;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+}
+
+.stepLineActive {
+  background: linear-gradient(90deg, #8b5cf6, #3b82f6);
+}
+
+.stepLineInactive {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* Body */
+.wizardBody {
+  padding: 2rem;
+  position: relative;
+  z-index: 2;
+  min-height: 400px;
+}
+
+.stepContent {
+  animation: fadeInSlide 0.3s ease-out;
+}
+
+@keyframes fadeInSlide {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.stepContent h3 {
+  color: var(--dark-bg__text-color--primary);
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0 0 0.5rem 0;
+}
+
+.stepContent > p {
+  color: var(--dark-bg__text-color--secondary);
+  font-size: 1rem;
+  margin: 0 0 2rem 0;
+  line-height: 1.6;
+}
+
+/* Platform Step - Ratio Grid */
+.ratioGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+
+.ratioCard {
+  background: rgba(255, 255, 255, 0.05);
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 1.5rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: left;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.ratioInfo {
+  flex: 1;
+  order: 1;
+}
+
+.ratioPreview {
+  margin-bottom: 0;
+  display: flex;
+  justify-content: center;
+  flex-shrink: 0;
+  order: 2;
+}
+
+.ratioCard:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.3);
+  transform: translateY(-2px);
+}
+
+.ratioCardSelected {
+  background: rgba(139, 92, 246, 0.2);
+  border-color: #8b5cf6;
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+}
+
+.ratioRectangle {
+  width: 80px;
+  max-height: 60px;
+  background: linear-gradient(135deg, #8b5cf6, #3b82f6);
+  border-radius: 6px;
+  box-shadow: 0 2px 8px rgba(139, 92, 246, 0.3);
+}
+
+.ratioInfo h4 {
+  color: var(--dark-bg__text-color--primary);
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 0 0 0.5rem 0;
+}
+
+.ratioInfo p {
+  color: var(--dark-bg__text-color--secondary);
+  font-size: 0.875rem;
+  margin: 0 0 0.75rem 0;
+  line-height: 1.4;
+}
+
+.ratioDimensions {
+  color: var(--dark-bg__text-color--tertiary);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Form Grid */
+.formGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+}
+
+.formGroupFull {
+  grid-column: 1 / -1;
+}
+
+.formGroup label,
+.formGroupFull label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.labelText {
+  color: var(--dark-bg__text-color--secondary);
+  font-size: 1rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.input,
+.textarea {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  padding: 0.875rem 1rem;
+  color: var(--dark-bg__text-color--primary);
+  font-size: 1rem;
+  transition: all 0.2s ease;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.input:focus,
+.textarea:focus {
+  outline: none;
+  background: rgba(255, 255, 255, 0.15);
+  border-color: #8b5cf6;
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.2);
+}
+
+.input::placeholder,
+.textarea::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.textarea {
+  resize: vertical;
+  min-height: 100px;
+  line-height: 1.5;
+}
+
+.fieldHint {
+  color: var(--dark-bg__text-color--tertiary);
+  font-size: 0.875rem;
+  line-height: 1.4;
+  margin-top: 0.25rem;
+}
+
+/* Confirmation Step */
+.confirmationCard {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 2rem;
+  margin-top: 2rem;
+}
+
+.configSection {
+  margin-bottom: 2rem;
+}
+
+.configSection:last-child {
+  margin-bottom: 0;
+}
+
+.configSection h4 {
+  color: var(--dark-bg__text-color--primary);
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin: 0 0 1rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.configItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.configItem:last-child {
+  border-bottom: none;
+}
+
+.configItem span:first-child {
+  color: var(--dark-bg__text-color--secondary);
+  font-weight: 500;
+}
+
+.configItem span:last-child {
+  color: var(--dark-bg__text-color--primary);
+  font-weight: 600;
+}
+
+/* Footer */
+.wizardFooter {
+  padding: 1.5rem 2rem 2rem;
+  position: relative;
+  z-index: 2;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.navigationButtons {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+/* Buttons */
+.cancelButton,
+.previousButton,
+.nextButton,
+.generateButton {
+  padding: 0.875rem 1.5rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.cancelButton {
+  background: rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.cancelButton:hover:not(:disabled) {
+  background: rgba(239, 68, 68, 0.3);
+  transform: translateY(-1px);
+}
+
+.previousButton {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--dark-bg__text-color--secondary);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.previousButton:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.15);
+  color: var(--dark-bg__text-color--primary);
+}
+
+.nextButton {
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+  color: white;
+}
+
+.nextButton:hover:not(:disabled) {
+  background: linear-gradient(135deg, #2563eb, #1e40af);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.generateButton {
+  background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+  color: white;
+  font-size: 1.125rem;
+  padding: 1rem 2rem;
+}
+
+.generateButton:hover:not(:disabled) {
+  background: linear-gradient(135deg, #7c3aed, #6d28d9);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(139, 92, 246, 0.4);
+}
+
+.generateButtonDisabled {
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.5);
+  cursor: not-allowed;
+}
+
+.cancelButton:disabled,
+.previousButton:disabled,
+.nextButton:disabled,
+.generateButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Quota Exceeded Notice */
+.quotaExceededNotice {
+  background: rgba(245, 158, 11, 0.2);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-top: 1rem;
+  text-align: center;
+  width: 100%;
+}
+
+.quotaExceededNotice h4 {
+  color: #f59e0b;
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin: 0 0 0.5rem 0;
+}
+
+.quotaExceededNotice p {
+  color: var(--dark-bg__text-color--secondary);
+  margin: 0 0 1rem 0;
+}
+
+.upgradeButton {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border-radius: 6px;
+  font-weight: 600;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.2s ease;
+}
+
+.upgradeButton:hover {
+  background: linear-gradient(135deg, #d97706, #b45309);
+  transform: translateY(-1px);
+  text-decoration: none;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .stepIndicatorContainer {
+    flex-direction: column;
+    gap: 1rem;
+    margin-top: 1rem;
+    min-height: auto;
+  }
+
+  .wizardCollapseButton {
+    font-size: 0.8125rem;
+    padding: 0.4375rem 0.875rem;
+    height: 32px;
+  }
+
+  .wizardHeaderContent {
+    margin-bottom: 0.5rem;
+  }
+
+  .wizardTitle {
+    font-size: 1.625rem;
+  }
+
+  .wizardDescription {
+    font-size: 1rem;
+  }
+
+  .stepIndicator {
+    margin-bottom: 0.5rem;
+  }
+
+  .wizardContainer {
+    margin: 0 1rem;
+  }
+
+  .wizardHeader,
+  .wizardBody,
+  .wizardFooter {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+
+  .ratioGrid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .formGrid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .wizardFooter {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .navigationButtons {
+    justify-content: center;
+    width: 100%;
+  }
+
+  .stepNumber {
+    width: 32px;
+    height: 32px;
+    font-size: 0.875rem;
+  }
+
+  .stepLine {
+    width: 24px;
+  }
+}
+
+@media (max-width: 480px) {
+  .wizardHeader h2 {
+    font-size: 1.5rem;
+  }
+
+  .stepContent h3 {
+    font-size: 1.25rem;
+  }
+
+  .ratioCard {
+    padding: 1rem;
+  }
+
+  .confirmationCard {
+    padding: 1.5rem;
+  }
+} 

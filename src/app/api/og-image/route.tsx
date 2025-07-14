@@ -176,6 +176,7 @@
  *               $ref: '#/components/schemas/Error'
  */
 
+import { withPermissions } from '@lib/api/withPermissions';
 import { withRateLimit } from '@lib/middleware/withRateLimit';
 import { NextRequest } from 'next/server';
 import { OGImageService } from './services/OGImageService';
@@ -335,4 +336,4 @@ async function getHandler(request: NextRequest) {
 }
 
 // Apply rate limiting to handler
-export const GET = withRateLimit(getHandler);
+export const GET = withPermissions(withRateLimit(getHandler));

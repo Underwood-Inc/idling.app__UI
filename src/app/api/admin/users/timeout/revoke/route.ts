@@ -3,8 +3,7 @@
  * Handles revoking/ending user timeouts early
  */
 
-import { withUserPermissions } from '@lib/api/wrappers/withUserPermissions';
-import { withUserRoles } from '@lib/api/wrappers/withUserRoles';
+import { withUniversalEnhancements } from '@lib/api/withUniversalEnhancements';
 import { auth } from '@lib/auth';
 import sql from '@lib/db';
 import { NextRequest, NextResponse } from 'next/server';
@@ -29,10 +28,16 @@ async function postHandler(request: NextRequest) {
 
     const userId = parseInt(session.user.id);
 
-    const { timeoutId, reason = 'Revoked by administrator' }: RevokeTimeoutRequest = await request.json();
+    const {
+      timeoutId,
+      reason = 'Revoked by administrator'
+    }: RevokeTimeoutRequest = await request.json();
 
     if (!timeoutId) {
-      return NextResponse.json({ error: 'Timeout ID is required' }, { status: 400 });
+      return NextResponse.json(
+        { error: 'Timeout ID is required' },
+        { status: 400 }
+      );
     }
 
     // Directly update the timeout in the database
@@ -51,16 +56,19 @@ async function postHandler(request: NextRequest) {
     `;
 
     if (result.count === 0) {
-      return NextResponse.json({ 
-        error: 'Failed to revoke timeout. Timeout may not exist or may already be expired.' 
-      }, { status: 400 });
+      return NextResponse.json(
+        {
+          error:
+            'Failed to revoke timeout. Timeout may not exist or may already be expired.'
+        },
+        { status: 400 }
+      );
     }
 
     return NextResponse.json({
       success: true,
       message: 'Timeout revoked successfully'
     });
-
   } catch (error) {
     console.error('Error revoking timeout:', error);
     return NextResponse.json(
@@ -71,4 +79,4 @@ async function postHandler(request: NextRequest) {
 }
 
 // Apply permission wrappers to handlers
-export const POST = withUserRoles(withUserPermissions(postHandler as any)); 
+export const POST = withUniversalEnhancements(postHandler);

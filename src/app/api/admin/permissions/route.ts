@@ -1,18 +1,18 @@
 /**
  * Admin Permissions Management API
  * Handles comprehensive permissions management with full CRUD operations
- * 
+ *
  * @author System Wizard 🧙‍♂️
  * @version 1.0.0
  */
 
+import { checkUserPermission } from '@lib/actions/permissions.actions';
+import { withUniversalEnhancements } from '@lib/api/withUniversalEnhancements';
+import { auth } from '@lib/auth';
+import sql from '@lib/db';
+import { PERMISSIONS } from '@lib/permissions/permissions';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
-import { checkUserPermission } from '../../../../lib/actions/permissions.actions';
-import { auth } from '../../../../lib/auth';
-import sql from '../../../../lib/db';
-import { withRateLimit } from '../../../../lib/middleware/withRateLimit';
-import { PERMISSIONS } from '../../../../lib/permissions/permissions';
 
 export const runtime = 'nodejs';
 
@@ -91,24 +91,48 @@ export interface RoleWithStats {
 const PermissionSearchSchema = z.object({
   search: z.string().optional(),
   category: z.string().optional(),
-  status: z.enum(['all', 'active', 'disabled', 'archived']).optional().default('all'),
-  risk_level: z.enum(['all', 'low', 'medium', 'high', 'critical']).optional().default('all'),
-  sort_by: z.enum(['name', 'display_name', 'category', 'created_at', 'updated_at', 'usage_count', 'sort_order']).optional().default('sort_order'),
+  status: z
+    .enum(['all', 'active', 'disabled', 'archived'])
+    .optional()
+    .default('all'),
+  risk_level: z
+    .enum(['all', 'low', 'medium', 'high', 'critical'])
+    .optional()
+    .default('all'),
+  sort_by: z
+    .enum([
+      'name',
+      'display_name',
+      'category',
+      'created_at',
+      'updated_at',
+      'usage_count',
+      'sort_order'
+    ])
+    .optional()
+    .default('sort_order'),
   sort_order: z.enum(['asc', 'desc']).optional().default('asc'),
   page: z.coerce.number().min(1).optional().default(1),
-  limit: z.coerce.number().min(1).max(100).optional().default(20),
+  limit: z.coerce.number().min(1).max(100).optional().default(20)
 });
 
 const PermissionCreateSchema = z.object({
-  name: z.string().min(1).max(100).regex(/^[a-z0-9._-]+$/i, 'Invalid permission name format'),
+  name: z
+    .string()
+    .min(1)
+    .max(100)
+    .regex(/^[a-z0-9._-]+$/i, 'Invalid permission name format'),
   display_name: z.string().min(1).max(200),
   description: z.string().optional(),
   category: z.string().min(1).max(50),
   is_inheritable: z.boolean().optional().default(false),
-  risk_level: z.enum(['low', 'medium', 'high', 'critical']).optional().default('low'),
+  risk_level: z
+    .enum(['low', 'medium', 'high', 'critical'])
+    .optional()
+    .default('low'),
   dependencies: z.array(z.string()).optional().default([]),
   metadata: z.record(z.any()).optional().default({}),
-  reason: z.string().optional(),
+  reason: z.string().optional()
 });
 
 const PermissionUpdateSchema = z.object({
@@ -121,11 +145,11 @@ const PermissionUpdateSchema = z.object({
   sort_order: z.number().min(0).optional(),
   dependencies: z.array(z.string()).optional(),
   metadata: z.record(z.any()).optional(),
-  reason: z.string().optional(),
+  reason: z.string().optional()
 });
 
 const PermissionArchiveSchema = z.object({
-  reason: z.string().min(1).max(500),
+  reason: z.string().min(1).max(500)
 });
 
 // ================================
@@ -143,14 +167,22 @@ async function getHandler(request: NextRequest) {
     }
 
     const userId = parseInt(session.user.id);
-    const hasPermission = await checkUserPermission(userId, PERMISSIONS.ADMIN.PERMISSIONS_VIEW);
-    
+    const hasPermission = await checkUserPermission(
+      userId,
+      PERMISSIONS.ADMIN.PERMISSIONS_VIEW
+    );
+
     if (!hasPermission) {
-      return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 });
+      return NextResponse.json(
+        { error: 'Insufficient permissions' },
+        { status: 403 }
+      );
     }
 
     const { searchParams } = new URL(request.url);
-    const params = PermissionSearchSchema.parse(Object.fromEntries(searchParams));
+    const params = PermissionSearchSchema.parse(
+      Object.fromEntries(searchParams)
+    );
 
     // Build dynamic query conditions
     let baseQuery = sql`
@@ -193,36 +225,40 @@ async function getHandler(request: NextRequest) {
 
     // Add category filtering
     if (params.category) {
-      baseQuery = params.search ? 
-        sql`${baseQuery} AND p.category = ${params.category}` :
-        sql`${baseQuery} WHERE p.category = ${params.category}`;
+      baseQuery = params.search
+        ? sql`${baseQuery} AND p.category = ${params.category}`
+        : sql`${baseQuery} WHERE p.category = ${params.category}`;
     }
 
     // Add status filtering
     if (params.status !== 'all') {
-      const statusCondition = params.status === 'active' ? 
-        sql`p.is_active = TRUE AND p.is_archived = FALSE` :
-        params.status === 'disabled' ?
-        sql`p.is_active = FALSE AND p.is_archived = FALSE` :
-        sql`p.is_archived = TRUE`;
-      
-      baseQuery = (params.search || params.category) ? 
-        sql`${baseQuery} AND ${statusCondition}` :
-        sql`${baseQuery} WHERE ${statusCondition}`;
+      const statusCondition =
+        params.status === 'active'
+          ? sql`p.is_active = TRUE AND p.is_archived = FALSE`
+          : params.status === 'disabled'
+            ? sql`p.is_active = FALSE AND p.is_archived = FALSE`
+            : sql`p.is_archived = TRUE`;
+
+      baseQuery =
+        params.search || params.category
+          ? sql`${baseQuery} AND ${statusCondition}`
+          : sql`${baseQuery} WHERE ${statusCondition}`;
     }
 
     // Add risk level filtering
     if (params.risk_level !== 'all') {
-      const hasWhere = params.search || params.category || params.status !== 'all';
-      baseQuery = hasWhere ? 
-        sql`${baseQuery} AND p.risk_level = ${params.risk_level}` :
-        sql`${baseQuery} WHERE p.risk_level = ${params.risk_level}`;
+      const hasWhere =
+        params.search || params.category || params.status !== 'all';
+      baseQuery = hasWhere
+        ? sql`${baseQuery} AND p.risk_level = ${params.risk_level}`
+        : sql`${baseQuery} WHERE p.risk_level = ${params.risk_level}`;
     }
 
     // Add sorting
-    const sortField = params.sort_by === 'usage_count' ? 'usage_count' : `p.${params.sort_by}`;
+    const sortField =
+      params.sort_by === 'usage_count' ? 'usage_count' : `p.${params.sort_by}`;
     const sortOrder = params.sort_order.toUpperCase();
-    
+
     // Calculate offset
     const offset = (params.page - 1) * params.limit;
 
@@ -266,17 +302,16 @@ async function getHandler(request: NextRequest) {
         has_more: offset + permissions.length < totalCount
       }
     });
-
   } catch (error) {
     console.error('Error fetching permissions:', error);
-    
+
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         { error: 'Invalid request parameters', details: error.errors },
         { status: 400 }
       );
     }
-    
+
     return NextResponse.json(
       { error: 'Failed to fetch permissions' },
       { status: 500 }
@@ -295,10 +330,16 @@ async function postHandler(request: NextRequest) {
     }
 
     const userId = parseInt(session.user.id);
-    const hasPermission = await checkUserPermission(userId, PERMISSIONS.ADMIN.PERMISSIONS_MANAGE);
-    
+    const hasPermission = await checkUserPermission(
+      userId,
+      PERMISSIONS.ADMIN.PERMISSIONS_MANAGE
+    );
+
     if (!hasPermission) {
-      return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 });
+      return NextResponse.json(
+        { error: 'Insufficient permissions' },
+        { status: 403 }
+      );
     }
 
     const body = await request.json();
@@ -338,21 +379,23 @@ async function postHandler(request: NextRequest) {
       )
     `;
 
-    return NextResponse.json({
-      message: 'Permission created successfully',
-      permission: newPermission[0]
-    }, { status: 201 });
-
+    return NextResponse.json(
+      {
+        message: 'Permission created successfully',
+        permission: newPermission[0]
+      },
+      { status: 201 }
+    );
   } catch (error) {
     console.error('Error creating permission:', error);
-    
+
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         { error: 'Invalid request data', details: error.errors },
         { status: 400 }
       );
     }
-    
+
     return NextResponse.json(
       { error: 'Failed to create permission' },
       { status: 500 }
@@ -364,6 +407,5 @@ async function postHandler(request: NextRequest) {
 // EXPORT HANDLERS
 // ================================
 
-export const GET = withRateLimit(getHandler);
-
-export const POST = withRateLimit(postHandler); 
+export const GET = withUniversalEnhancements(getHandler);
+export const POST = withUniversalEnhancements(postHandler);

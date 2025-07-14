@@ -1,17 +1,17 @@
 /**
  * Admin Individual Permission Management API
  * Handles update, disable, archive operations for specific permissions
- * 
+ *
  * @author System Wizard 🧙‍♂️
  * @version 1.0.0
  */
 
+import { withUniversalEnhancements } from '@lib/api/withUniversalEnhancements';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { checkUserPermission } from '../../../../../lib/actions/permissions.actions';
 import { auth } from '../../../../../lib/auth';
 import sql from '../../../../../lib/db';
-import { withRateLimit } from '../../../../../lib/middleware/withRateLimit';
 import { PERMISSIONS } from '../../../../../lib/permissions/permissions';
 
 export const runtime = 'nodejs';
@@ -21,7 +21,7 @@ export const runtime = 'nodejs';
 // ================================
 
 const PermissionIdSchema = z.object({
-  id: z.coerce.number().positive(),
+  id: z.coerce.number().positive()
 });
 
 const PermissionUpdateSchema = z.object({
@@ -34,11 +34,11 @@ const PermissionUpdateSchema = z.object({
   sort_order: z.number().min(0).optional(),
   dependencies: z.array(z.string()).optional(),
   metadata: z.record(z.any()).optional(),
-  reason: z.string().optional(),
+  reason: z.string().optional()
 });
 
 const PermissionArchiveSchema = z.object({
-  reason: z.string().min(1).max(500),
+  reason: z.string().min(1).max(500)
 });
 
 // ================================
@@ -48,7 +48,10 @@ const PermissionArchiveSchema = z.object({
 /**
  * GET /api/admin/permissions/[id] - Get specific permission with details
  */
-async function getHandler(request: NextRequest, { params }: { params: { id: string } }) {
+async function getHandler(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
   try {
     const session = await auth();
     if (!session?.user?.id) {
@@ -56,10 +59,16 @@ async function getHandler(request: NextRequest, { params }: { params: { id: stri
     }
 
     const userId = parseInt(session.user.id);
-    const hasPermission = await checkUserPermission(userId, PERMISSIONS.ADMIN.PERMISSIONS_VIEW);
-    
+    const hasPermission = await checkUserPermission(
+      userId,
+      PERMISSIONS.ADMIN.PERMISSIONS_VIEW
+    );
+
     if (!hasPermission) {
-      return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 });
+      return NextResponse.json(
+        { error: 'Insufficient permissions' },
+        { status: 403 }
+      );
     }
 
     const { id } = PermissionIdSchema.parse({ id: params.id });
@@ -97,7 +106,10 @@ async function getHandler(request: NextRequest, { params }: { params: { id: stri
     `;
 
     if (permission.length === 0) {
-      return NextResponse.json({ error: 'Permission not found' }, { status: 404 });
+      return NextResponse.json(
+        { error: 'Permission not found' },
+        { status: 404 }
+      );
     }
 
     // Get roles that have this permission
@@ -144,17 +156,16 @@ async function getHandler(request: NextRequest, { params }: { params: { id: stri
       users: users,
       audit_history: auditHistory
     });
-
   } catch (error) {
     console.error('Error fetching permission:', error);
-    
+
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         { error: 'Invalid permission ID', details: error.errors },
         { status: 400 }
       );
     }
-    
+
     return NextResponse.json(
       { error: 'Failed to fetch permission' },
       { status: 500 }
@@ -165,7 +176,10 @@ async function getHandler(request: NextRequest, { params }: { params: { id: stri
 /**
  * PATCH /api/admin/permissions/[id] - Update permission
  */
-async function patchHandler(request: NextRequest, { params }: { params: { id: string } }) {
+async function patchHandler(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
   try {
     const session = await auth();
     if (!session?.user?.id) {
@@ -173,10 +187,16 @@ async function patchHandler(request: NextRequest, { params }: { params: { id: st
     }
 
     const userId = parseInt(session.user.id);
-    const hasPermission = await checkUserPermission(userId, PERMISSIONS.ADMIN.PERMISSIONS_MANAGE);
-    
+    const hasPermission = await checkUserPermission(
+      userId,
+      PERMISSIONS.ADMIN.PERMISSIONS_MANAGE
+    );
+
     if (!hasPermission) {
-      return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 });
+      return NextResponse.json(
+        { error: 'Insufficient permissions' },
+        { status: 403 }
+      );
     }
 
     const { id } = PermissionIdSchema.parse({ id: params.id });
@@ -189,7 +209,10 @@ async function patchHandler(request: NextRequest, { params }: { params: { id: st
     `;
 
     if (existingPermission.length === 0) {
-      return NextResponse.json({ error: 'Permission not found' }, { status: 404 });
+      return NextResponse.json(
+        { error: 'Permission not found' },
+        { status: 404 }
+      );
     }
 
     const permission = existingPermission[0];
@@ -240,17 +263,16 @@ async function patchHandler(request: NextRequest, { params }: { params: { id: st
       message: 'Permission updated successfully',
       permission: updatedPermission[0]
     });
-
   } catch (error) {
     console.error('Error updating permission:', error);
-    
+
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         { error: 'Invalid request data', details: error.errors },
         { status: 400 }
       );
     }
-    
+
     return NextResponse.json(
       { error: 'Failed to update permission' },
       { status: 500 }
@@ -261,7 +283,10 @@ async function patchHandler(request: NextRequest, { params }: { params: { id: st
 /**
  * DELETE /api/admin/permissions/[id] - Archive permission (soft delete)
  */
-async function deleteHandler(request: NextRequest, { params }: { params: { id: string } }) {
+async function deleteHandler(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
   try {
     const session = await auth();
     if (!session?.user?.id) {
@@ -269,10 +294,16 @@ async function deleteHandler(request: NextRequest, { params }: { params: { id: s
     }
 
     const userId = parseInt(session.user.id);
-    const hasPermission = await checkUserPermission(userId, PERMISSIONS.ADMIN.PERMISSIONS_MANAGE);
-    
+    const hasPermission = await checkUserPermission(
+      userId,
+      PERMISSIONS.ADMIN.PERMISSIONS_MANAGE
+    );
+
     if (!hasPermission) {
-      return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 });
+      return NextResponse.json(
+        { error: 'Insufficient permissions' },
+        { status: 403 }
+      );
     }
 
     const { id } = PermissionIdSchema.parse({ id: params.id });
@@ -285,7 +316,10 @@ async function deleteHandler(request: NextRequest, { params }: { params: { id: s
     `;
 
     if (existingPermission.length === 0) {
-      return NextResponse.json({ error: 'Permission not found' }, { status: 404 });
+      return NextResponse.json(
+        { error: 'Permission not found' },
+        { status: 404 }
+      );
     }
 
     const permission = existingPermission[0];
@@ -349,17 +383,16 @@ async function deleteHandler(request: NextRequest, { params }: { params: { id: s
       message: 'Permission archived successfully',
       permission: archivedPermission[0]
     });
-
   } catch (error) {
     console.error('Error archiving permission:', error);
-    
+
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         { error: 'Invalid request data', details: error.errors },
         { status: 400 }
       );
     }
-    
+
     return NextResponse.json(
       { error: 'Failed to archive permission' },
       { status: 500 }
@@ -371,8 +404,8 @@ async function deleteHandler(request: NextRequest, { params }: { params: { id: s
 // EXPORT HANDLERS
 // ================================
 
-export const GET = withRateLimit(getHandler);
+export const GET = withUniversalEnhancements(getHandler);
 
-export const PATCH = withRateLimit(patchHandler);
+export const PATCH = withUniversalEnhancements(patchHandler);
 
-export const DELETE = withRateLimit(deleteHandler); 
+export const DELETE = withUniversalEnhancements(deleteHandler);

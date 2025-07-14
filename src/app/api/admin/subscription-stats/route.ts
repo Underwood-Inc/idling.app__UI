@@ -3,12 +3,12 @@
  * Handles fetching aggregate subscription statistics for admin dashboard
  */
 
+import { withUniversalEnhancements } from '@lib/api/withUniversalEnhancements';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { checkUserPermission } from '../../../../lib/actions/permissions.actions';
 import { auth } from '../../../../lib/auth';
 import sql from '../../../../lib/db';
-import { withRateLimit } from '../../../../lib/middleware/withRateLimit';
 import { PERMISSIONS } from '../../../../lib/permissions/permissions';
 
 export const runtime = 'nodejs';
@@ -47,7 +47,10 @@ async function getHandler(request: NextRequest) {
       PERMISSIONS.ADMIN.USERS_MANAGE
     );
     if (!hasPermission) {
-      return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 });
+      return NextResponse.json(
+        { error: 'Insufficient permissions' },
+        { status: 403 }
+      );
     }
 
     // Check if subscription system exists and get statistics
@@ -119,11 +122,13 @@ async function getHandler(request: NextRequest) {
         active_plans: planCounts[0]?.active_plans || 0,
         total_subscriptions: subscriptionCounts[0]?.total_subscriptions || 0,
         active_subscriptions: subscriptionCounts[0]?.active_subscriptions || 0,
-        trialing_subscriptions: subscriptionCounts[0]?.trialing_subscriptions || 0,
-        expired_subscriptions: subscriptionCounts[0]?.expired_subscriptions || 0,
+        trialing_subscriptions:
+          subscriptionCounts[0]?.trialing_subscriptions || 0,
+        expired_subscriptions:
+          subscriptionCounts[0]?.expired_subscriptions || 0,
         revenue_monthly_cents: revenueStats[0]?.revenue_monthly_cents || 0,
         revenue_yearly_cents: revenueStats[0]?.revenue_yearly_cents || 0,
-        plan_distribution: planDistribution.map(row => ({
+        plan_distribution: planDistribution.map((row) => ({
           plan_name: row.plan_name,
           plan_display_name: row.plan_display_name,
           subscriber_count: parseInt(row.subscriber_count) || 0,
@@ -132,22 +137,25 @@ async function getHandler(request: NextRequest) {
       };
     } catch (error) {
       // Subscription tables might not exist yet
-      return NextResponse.json({ 
-        error: 'Subscription system not available' 
-      }, { status: 503 });
+      return NextResponse.json(
+        {
+          error: 'Subscription system not available'
+        },
+        { status: 503 }
+      );
     }
 
     return NextResponse.json(stats);
   } catch (error) {
     console.error('Error fetching subscription statistics:', error);
-    
+
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         { error: 'Invalid request data', details: error.errors },
         { status: 400 }
       );
     }
-    
+
     return NextResponse.json(
       { error: 'Failed to fetch subscription statistics' },
       { status: 500 }
@@ -155,4 +163,4 @@ async function getHandler(request: NextRequest) {
   }
 }
 
-export const GET = withRateLimit(getHandler); 
+export const GET = withUniversalEnhancements(getHandler);

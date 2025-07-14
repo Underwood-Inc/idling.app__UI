@@ -3,11 +3,17 @@
  * Handles issuing and managing user timeouts
  */
 
-import { withUserPermissions } from '@lib/api/wrappers/withUserPermissions';
-import { withUserRoles } from '@lib/api/wrappers/withUserRoles';
+import { withUniversalEnhancements } from '@lib/api/withUniversalEnhancements';
 import { auth } from '@lib/auth';
-import { PermissionsService, TIMEOUT_TYPES } from '@lib/permissions/permissions';
-import { AdminTimeoutManagementSchema, AdminTimeoutRevocationParamsSchema, AdminTimeoutStatusParamsSchema } from '@lib/schemas/admin-users.schema';
+import {
+  PermissionsService,
+  TIMEOUT_TYPES
+} from '@lib/permissions/permissions';
+import {
+  AdminTimeoutManagementSchema,
+  AdminTimeoutRevocationParamsSchema,
+  AdminTimeoutStatusParamsSchema
+} from '@lib/schemas/admin-users.schema';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 
@@ -25,12 +31,12 @@ async function postHandler(request: NextRequest) {
     // Validate request body
     const body = await request.json();
     const bodyResult = AdminTimeoutManagementSchema.safeParse(body);
-    
+
     if (!bodyResult.success) {
       return NextResponse.json(
-        { 
+        {
           error: 'Invalid request data',
-          details: bodyResult.error.errors 
+          details: bodyResult.error.errors
         },
         { status: 400 }
       );
@@ -62,14 +68,14 @@ async function postHandler(request: NextRequest) {
     });
   } catch (error) {
     console.error('Error issuing timeout:', error);
-    
+
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         { error: 'Invalid request data', details: error.errors },
         { status: 400 }
       );
     }
-    
+
     return NextResponse.json(
       { error: 'Failed to issue timeout' },
       { status: 500 }
@@ -89,20 +95,21 @@ async function deleteHandler(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const paramsResult = AdminTimeoutRevocationParamsSchema.safeParse({
       id: searchParams.get('id'),
-      reason: searchParams.get('reason'),
+      reason: searchParams.get('reason')
     });
 
     if (!paramsResult.success) {
       return NextResponse.json(
-        { 
+        {
           error: 'Invalid revocation parameters',
-          details: paramsResult.error.errors 
+          details: paramsResult.error.errors
         },
         { status: 400 }
       );
     }
 
-    const { id: timeoutId, reason = 'Revoked by administrator' } = paramsResult.data;
+    const { id: timeoutId, reason = 'Revoked by administrator' } =
+      paramsResult.data;
 
     const revokedBy = parseInt(session.user.id);
 
@@ -126,14 +133,14 @@ async function deleteHandler(request: NextRequest) {
     });
   } catch (error) {
     console.error('Error revoking timeout:', error);
-    
+
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         { error: 'Invalid request data', details: error.errors },
         { status: 400 }
       );
     }
-    
+
     return NextResponse.json(
       { error: 'Failed to revoke timeout' },
       { status: 500 }
@@ -148,20 +155,21 @@ async function getHandler(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const paramsResult = AdminTimeoutStatusParamsSchema.safeParse({
       userId: searchParams.get('userId'),
-      type: searchParams.get('type'),
+      type: searchParams.get('type')
     });
 
     if (!paramsResult.success) {
       return NextResponse.json(
-        { 
+        {
           error: 'Invalid status query parameters',
-          details: paramsResult.error.errors 
+          details: paramsResult.error.errors
         },
         { status: 400 }
       );
     }
 
-    const { userId, type: timeoutType = TIMEOUT_TYPES.POST_CREATION } = paramsResult.data;
+    const { userId, type: timeoutType = TIMEOUT_TYPES.POST_CREATION } =
+      paramsResult.data;
 
     // Check timeout status
     const timeoutStatus = await PermissionsService.checkUserTimeout(
@@ -172,14 +180,14 @@ async function getHandler(request: NextRequest) {
     return NextResponse.json(timeoutStatus);
   } catch (error) {
     console.error('Error checking timeout status:', error);
-    
+
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         { error: 'Invalid request data', details: error.errors },
         { status: 400 }
       );
     }
-    
+
     return NextResponse.json(
       { error: 'Failed to check timeout status' },
       { status: 500 }
@@ -188,6 +196,6 @@ async function getHandler(request: NextRequest) {
 }
 
 // Apply permission wrappers to handlers
-export const POST = withUserRoles(withUserPermissions(postHandler as any));
-export const DELETE = withUserRoles(withUserPermissions(deleteHandler as any));
-export const GET = withUserRoles(withUserPermissions(getHandler as any));
+export const POST = withUniversalEnhancements(postHandler);
+export const DELETE = withUniversalEnhancements(deleteHandler);
+export const GET = withUniversalEnhancements(getHandler);

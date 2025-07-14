@@ -4,9 +4,9 @@
  */
 
 import { checkUserPermission } from '@lib/actions/permissions.actions';
+import { withUniversalEnhancements } from '@lib/api/withUniversalEnhancements';
 import { auth } from '@lib/auth';
 import sql from '@lib/db';
-import { withRateLimit } from '@lib/middleware/withRateLimit';
 import { PERMISSIONS } from '@lib/permissions/permissions';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
@@ -42,7 +42,10 @@ async function getHandler(request: NextRequest) {
       PERMISSIONS.ADMIN.USERS_MANAGE
     );
     if (!hasPermission) {
-      return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 });
+      return NextResponse.json(
+        { error: 'Insufficient permissions' },
+        { status: 403 }
+      );
     }
 
     // Check if subscription system exists
@@ -58,22 +61,25 @@ async function getHandler(request: NextRequest) {
       `;
     } catch (error) {
       // Subscription tables might not exist yet
-      return NextResponse.json({ 
-        error: 'Subscription system not available' 
-      }, { status: 503 });
+      return NextResponse.json(
+        {
+          error: 'Subscription system not available'
+        },
+        { status: 503 }
+      );
     }
 
     return NextResponse.json(plans);
   } catch (error) {
     console.error('Error fetching subscription plans:', error);
-    
+
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         { error: 'Invalid request data', details: error.errors },
         { status: 400 }
       );
     }
-    
+
     return NextResponse.json(
       { error: 'Failed to fetch subscription plans' },
       { status: 500 }
@@ -81,4 +87,4 @@ async function getHandler(request: NextRequest) {
   }
 }
 
-export const GET = withRateLimit(getHandler); 
+export const GET = withUniversalEnhancements(getHandler);

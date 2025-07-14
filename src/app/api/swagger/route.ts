@@ -1,3 +1,4 @@
+import { withUniversalEnhancementsNoRateLimit } from '@lib/api/withUniversalEnhancements';
 import { readFileSync } from 'fs';
 import { NextRequest, NextResponse } from 'next/server';
 import { join } from 'path';
@@ -18,7 +19,9 @@ import { join } from 'path';
  *             schema:
  *               type: string
  */
-export async function GET(request: NextRequest) {
+export const GET = withUniversalEnhancementsNoRateLimit(swaggerHandler);
+
+async function swaggerHandler(request: NextRequest) {
   try {
     // Read the OpenAPI spec
     const openApiPath = join(process.cwd(), 'src/app/api/openapi.json');
@@ -222,8 +225,8 @@ export async function GET(request: NextRequest) {
       headers: {
         'Content-Type': 'text/html',
         'Cache-Control': 'no-cache, no-store, must-revalidate',
-        'Pragma': 'no-cache',
-        'Expires': '0'
+        Pragma: 'no-cache',
+        Expires: '0'
       }
     });
   } catch (error) {
@@ -233,4 +236,4 @@ export async function GET(request: NextRequest) {
       { status: 500 }
     );
   }
-} 
+}

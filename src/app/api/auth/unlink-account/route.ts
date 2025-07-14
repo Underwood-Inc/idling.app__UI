@@ -1,6 +1,6 @@
+import { withUniversalEnhancements } from '@lib/api/withUniversalEnhancements';
 import { auth } from '@lib/auth';
 import sql from '@lib/db';
-import { withRateLimit } from '@lib/middleware/withRateLimit';
 import { NextRequest, NextResponse } from 'next/server';
 
 async function deleteHandler(request: NextRequest) {
@@ -42,10 +42,7 @@ async function deleteHandler(request: NextRequest) {
     );
 
     if (!accountToUnlink) {
-      return NextResponse.json(
-        { error: 'Account not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: 'Account not found' }, { status: 404 });
     }
 
     // Delete the account
@@ -66,7 +63,6 @@ async function deleteHandler(request: NextRequest) {
       message: 'Account unlinked successfully',
       provider: accountToUnlink.provider
     });
-
   } catch (error) {
     console.error('Unlink account error:', error);
     return NextResponse.json(
@@ -76,4 +72,4 @@ async function deleteHandler(request: NextRequest) {
   }
 }
 
-export const DELETE = withRateLimit(deleteHandler); 
+export const DELETE = withUniversalEnhancements(deleteHandler);

@@ -1,16 +1,16 @@
 /**
  * User Quota Overrides API
- * 
+ *
  * Provides secure endpoints for managing user quota overrides
  * with integration to the enhanced quota system.
- * 
+ *
  * @version 1.0.0
  * @author System
  */
 
+import { withUniversalEnhancements } from '@lib/api/withUniversalEnhancements';
 import { auth } from '@lib/auth';
 import sql from '@lib/db';
-import { withRateLimit } from '@lib/middleware/withRateLimit';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 
@@ -33,23 +33,27 @@ interface UserQuotaOverride {
   updated_at: string;
 }
 
-const UpdateQuotaOverrideSchema = z.object({
-  service_name: z.string().min(1),
-  feature_name: z.string().min(1),
-  quota_limit: z.number().int().min(0).optional(),
-  is_unlimited: z.boolean().default(false),
-  reset_period: z.enum(['hourly', 'daily', 'weekly', 'monthly']).default('daily'),
-  reason: z.string().max(500).optional()
-}).transform((data) => {
-  // If quota_limit is 0, treat as unlimited
-  if (data.quota_limit === 0) {
-    return {
-      ...data,
-      is_unlimited: true
-    };
-  }
-  return data;
-});
+const UpdateQuotaOverrideSchema = z
+  .object({
+    service_name: z.string().min(1),
+    feature_name: z.string().min(1),
+    quota_limit: z.number().int().min(0).optional(),
+    is_unlimited: z.boolean().default(false),
+    reset_period: z
+      .enum(['hourly', 'daily', 'weekly', 'monthly'])
+      .default('daily'),
+    reason: z.string().max(500).optional()
+  })
+  .transform((data) => {
+    // If quota_limit is 0, treat as unlimited
+    if (data.quota_limit === 0) {
+      return {
+        ...data,
+        is_unlimited: true
+      };
+    }
+    return data;
+  });
 
 const DeleteQuotaOverrideSchema = z.object({
   service_name: z.string().min(1),
@@ -81,7 +85,7 @@ async function validateAdminAccess(userId: number): Promise<boolean> {
       JOIN permissions p ON rp.permission_id = p.id
       WHERE ura.user_id = ${userId}
       AND ur.is_active = true
-      AND p.name = 'admin:manage_users'
+      AND p.name = 'admin.users.manage'
       AND p.is_active = true
       LIMIT 1
     `;
@@ -134,7 +138,9 @@ async function logAdminAction(
 async function putHandler(
   request: NextRequest,
   { params }: { params: { id: string } }
-): Promise<NextResponse<ApiResponse<{ override: UserQuotaOverride }> | ErrorResponse>> {
+): Promise<
+  NextResponse<ApiResponse<{ override: UserQuotaOverride }> | ErrorResponse>
+> {
   try {
     // Validate session
     const session = await auth();
@@ -166,19 +172,26 @@ async function putHandler(
     // Validate request body
     const body = await request.json();
     const validationResult = UpdateQuotaOverrideSchema.safeParse(body);
-    
+
     if (!validationResult.success) {
       return NextResponse.json(
-        { 
-          success: false, 
+        {
+          success: false,
           error: 'Invalid request data',
-          data: validationResult.error.issues 
+          data: validationResult.error.issues
         },
         { status: 400 }
       );
     }
 
-    const { service_name, feature_name, quota_limit, is_unlimited, reset_period, reason } = validationResult.data;
+    const {
+      service_name,
+      feature_name,
+      quota_limit,
+      is_unlimited,
+      reset_period,
+      reason
+    } = validationResult.data;
 
     // Verify service and feature exist
     const serviceFeatureExists = await sql`
@@ -198,7 +211,7 @@ async function putHandler(
 
     // Calculate final quota limit - treat 0 as unlimited
     const finalIsUnlimited = is_unlimited || quota_limit === 0;
-    const finalQuotaLimit = finalIsUnlimited ? -1 : (quota_limit || 1);
+    const finalQuotaLimit = finalIsUnlimited ? -1 : quota_limit || 1;
     const finalResetPeriod = reset_period || 'daily';
 
     // Check if override already exists
@@ -210,7 +223,7 @@ async function putHandler(
     `;
 
     let override;
-    
+
     if (existingOverride.length > 0) {
       // Update existing override
       override = await sql`
@@ -264,12 +277,11 @@ async function putHandler(
       data: { override: override[0] as unknown as UserQuotaOverride },
       message: `Quota override ${actionType} for ${serviceName} - ${featureName}`
     });
-
   } catch (error) {
     console.error('PUT /api/admin/users/[id]/quota-overrides error:', error);
     return NextResponse.json(
-      { 
-        success: false, 
+      {
+        success: false,
         error: 'Internal server error',
         message: 'Failed to update user quota override'
       },
@@ -317,13 +329,13 @@ async function deleteHandler(
     // Validate request body
     const body = await request.json();
     const validationResult = DeleteQuotaOverrideSchema.safeParse(body);
-    
+
     if (!validationResult.success) {
       return NextResponse.json(
-        { 
-          success: false, 
+        {
+          success: false,
           error: 'Invalid request data',
-          data: validationResult.error.issues 
+          data: validationResult.error.issues
         },
         { status: 400 }
       );
@@ -380,12 +392,11 @@ async function deleteHandler(
       data: { deleted: true },
       message: `Quota override removed for ${service_name}.${feature_name}`
     });
-
   } catch (error) {
     console.error('DELETE /api/admin/users/[id]/quota-overrides error:', error);
     return NextResponse.json(
-      { 
-        success: false, 
+      {
+        success: false,
         error: 'Internal server error',
         message: 'Failed to delete user quota override'
       },
@@ -395,7 +406,7 @@ async function deleteHandler(
 }
 
 // Apply rate limiting to handlers
-export const PUT = withRateLimit(putHandler);
-export const DELETE = withRateLimit(deleteHandler);
+export const PUT = withUniversalEnhancements(putHandler);
+export const DELETE = withUniversalEnhancements(deleteHandler);
 
-// Removed default export - Next.js API routes should only use named exports 
+// Removed default export - Next.js API routes should only use named exports

@@ -145,16 +145,16 @@
  * Handles fetching OS-specific emojis using server actions
  */
 
+import { withUniversalEnhancements } from '@lib/api/withUniversalEnhancements';
 import { createLogger } from '@lib/logging';
-import { withRateLimit } from '@lib/middleware/withRateLimit';
 import { NextRequest, NextResponse } from 'next/server';
 import {
-    getCategoryMapping,
-    getCustomEmojis,
-    getEmojiCategories,
-    getOSEmojis,
-    trackEmojiUsage,
-    uploadCustomEmoji
+  getCategoryMapping,
+  getCustomEmojis,
+  getEmojiCategories,
+  getOSEmojis,
+  trackEmojiUsage,
+  uploadCustomEmoji
 } from '../../../lib/actions/emoji.actions';
 import { OSDetection } from '../../../lib/utils/os-detection';
 
@@ -432,7 +432,7 @@ async function putHandler(request: NextRequest) {
   }
 }
 
-// Apply rate limiting to all handlers
-export const GET = withRateLimit(getHandler);
-export const POST = withRateLimit(postHandler);
-export const PUT = withRateLimit(putHandler);
+// Apply universal enhancements to all handlers
+export const GET = withUniversalEnhancements(getHandler);
+export const POST = withUniversalEnhancements(postHandler);
+export const PUT = withUniversalEnhancements(putHandler);

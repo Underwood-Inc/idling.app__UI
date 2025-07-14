@@ -1,8 +1,6 @@
-import { withUserPermissions } from '@lib/api/wrappers/withUserPermissions';
-import { withUserRoles } from '@lib/api/wrappers/withUserRoles';
+import { withUniversalEnhancements } from '@lib/api/withUniversalEnhancements';
 import { auth } from '@lib/auth';
 import sql from '@lib/db';
-import { withRateLimit } from '@lib/middleware/withRateLimit';
 import { AdminUserSimpleSearchParamsSchema } from '@lib/schemas/admin-users.schema';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
@@ -46,14 +44,14 @@ async function getHandler(request: NextRequest) {
     // Validate search parameters
     const searchParams = request.nextUrl.searchParams;
     const paramsResult = AdminUserSimpleSearchParamsSchema.safeParse({
-      q: searchParams.get('q'),
+      q: searchParams.get('q')
     });
 
     if (!paramsResult.success) {
       return NextResponse.json(
-        { 
+        {
           error: 'Invalid search parameters',
-          details: paramsResult.error.errors 
+          details: paramsResult.error.errors
         },
         { status: 400 }
       );
@@ -99,20 +97,19 @@ async function getHandler(request: NextRequest) {
     };
 
     return NextResponse.json(response);
-
   } catch (error) {
     console.error('Admin user search error:', error);
-    
+
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { 
-          error: 'Invalid request parameters', 
-          details: error.errors 
+        {
+          error: 'Invalid request parameters',
+          details: error.errors
         },
         { status: 400 }
       );
     }
-    
+
     return NextResponse.json(
       { error: 'Failed to search users' },
       { status: 500 }
@@ -120,4 +117,4 @@ async function getHandler(request: NextRequest) {
   }
 }
 
-export const GET = withUserRoles(withUserPermissions(withRateLimit(getHandler as any) as any)) as any; 
+export const GET = withUniversalEnhancements(getHandler);

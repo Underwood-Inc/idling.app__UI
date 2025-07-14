@@ -1,13 +1,13 @@
 /**
  * Legacy Alerts Stream Endpoint
- * 
+ *
  * This endpoint redirects to the new universal SSE system.
  * Maintained for backward compatibility.
- * 
+ *
  * @deprecated Use /api/sse/stream instead
  */
 
-import { withRateLimit } from '@lib/middleware/withRateLimit';
+import { withUniversalEnhancements } from '@lib/api/withUniversalEnhancements';
 import { NextRequest } from 'next/server';
 
 export const dynamic = 'force-dynamic';
@@ -20,4 +20,4 @@ async function getHandler(request: NextRequest) {
   return Response.redirect(new URL('/api/sse/stream', request.url), 301);
 }
 
-export const GET = withRateLimit(getHandler); 
+export const GET = withUniversalEnhancements(getHandler);

@@ -1,3 +1,4 @@
+import { withUniversalEnhancementsNoRateLimit } from '@lib/api/withUniversalEnhancements';
 import { NextResponse } from 'next/server';
 
 /**
@@ -27,8 +28,10 @@ import { NextResponse } from 'next/server';
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-export async function GET() {
+async function versionHandler() {
   // Read version from package.json using require to avoid import warnings
   const packageJson = require('../../../../package.json');
   return NextResponse.json({ version: packageJson.version });
-} 
+}
+
+export const GET = withUniversalEnhancementsNoRateLimit(versionHandler);

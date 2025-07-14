@@ -26,6 +26,7 @@ export type EmojiPanelBehavior = 'close_after_select' | 'stay_open';
 export type FontOption = 'monospace' | 'default';
 export type ProfileVisibility = 'public' | 'private';
 export type AccessibilityFocusMode = 'disabled' | 'enabled';
+export type GeneratorMode = 'wizard' | 'advanced';
 
 // RetroSpaceBackground settings types
 export type BackgroundMovementDirection =
@@ -70,6 +71,10 @@ interface UserPreferencesContextType {
   accessibilityFocusMode: AccessibilityFocusMode;
   setAccessibilityFocusMode: (mode: AccessibilityFocusMode) => Promise<void>;
 
+  // Generator mode (wizard vs advanced form)
+  generatorMode: GeneratorMode;
+  setGeneratorMode: (mode: GeneratorMode) => Promise<void>;
+
   // Background settings
   backgroundMovementDirection: BackgroundMovementDirection;
   setBackgroundMovementDirection: (
@@ -89,6 +94,7 @@ interface UserPreferencesContextType {
   isUpdatingFontPreference: boolean;
   isUpdatingProfileVisibility: boolean;
   isUpdatingAccessibilityFocusMode: boolean;
+  isUpdatingGeneratorMode: boolean;
   isUpdatingBackgroundMovementDirection: boolean;
   isUpdatingBackgroundMovementSpeed: boolean;
   isUpdatingBackgroundAnimationLayers: boolean;
@@ -100,6 +106,7 @@ interface UserPreferencesContextType {
   fontPreferenceError: string | null;
   profileVisibilityError: string | null;
   accessibilityFocusModeError: string | null;
+  generatorModeError: string | null;
   backgroundMovementDirectionError: string | null;
   backgroundMovementSpeedError: string | null;
   backgroundAnimationLayersError: string | null;
@@ -124,6 +131,8 @@ export function UserPreferencesProvider({ children }: { children: ReactNode }) {
     useState<ProfileVisibility>('public');
   const [accessibilityFocusMode, setAccessibilityFocusModeState] =
     useState<AccessibilityFocusMode>('disabled');
+  const [generatorMode, setGeneratorModeState] =
+    useState<GeneratorMode>('wizard');
 
   // Background settings state
   const [backgroundMovementDirection, setBackgroundMovementDirectionState] =
@@ -153,6 +162,7 @@ export function UserPreferencesProvider({ children }: { children: ReactNode }) {
     isUpdatingAccessibilityFocusMode,
     setIsUpdatingAccessibilityFocusMode
   ] = useState(false);
+  const [isUpdatingGeneratorMode, setIsUpdatingGeneratorMode] = useState(false);
   const [
     isUpdatingBackgroundMovementDirection,
     setIsUpdatingBackgroundMovementDirection
@@ -184,6 +194,9 @@ export function UserPreferencesProvider({ children }: { children: ReactNode }) {
   >(null);
   const [accessibilityFocusModeError, setAccessibilityFocusModeError] =
     useState<string | null>(null);
+  const [generatorModeError, setGeneratorModeError] = useState<string | null>(
+    null
+  );
   const [
     backgroundMovementDirectionError,
     setBackgroundMovementDirectionError
@@ -258,6 +271,7 @@ export function UserPreferencesProvider({ children }: { children: ReactNode }) {
       const savedAccessibilityFocusMode = localStorage.getItem(
         'accessibility-focus-mode-global'
       );
+      const savedGeneratorMode = localStorage.getItem('generator-mode-global');
 
       const savedBackgroundMovementDirection = localStorage.getItem(
         'background-movement-direction-global'
@@ -296,6 +310,12 @@ export function UserPreferencesProvider({ children }: { children: ReactNode }) {
         savedAccessibilityFocusMode === 'disabled'
       ) {
         setAccessibilityFocusModeState(savedAccessibilityFocusMode);
+      }
+      if (
+        savedGeneratorMode === 'wizard' ||
+        savedGeneratorMode === 'advanced'
+      ) {
+        setGeneratorModeState(savedGeneratorMode);
       }
 
       // Background settings initialization
@@ -753,6 +773,49 @@ export function UserPreferencesProvider({ children }: { children: ReactNode }) {
     [session]
   );
 
+  // Function to update generator mode (wizard vs advanced form)
+  const setGeneratorMode = useCallback(
+    async (newMode: GeneratorMode) => {
+      setIsUpdatingGeneratorMode(true);
+      setGeneratorModeError(null);
+
+      try {
+        // Always update localStorage first for immediate UI response
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('generator-mode-global', newMode);
+        }
+
+        // Update state immediately
+        setGeneratorModeState(newMode);
+
+        // If authenticated, also log for future database update
+        if (session?.user?.id) {
+          // TODO: Update database action to support generator_mode
+          logger.debug(
+            'Updated generator mode in localStorage (authenticated)',
+            {
+              userId: session.user.id,
+              newMode
+            }
+          );
+        }
+      } catch (error) {
+        logger.error('Failed to update generator mode', error as Error, {
+          userId: session?.user?.id,
+          newMode
+        });
+        setGeneratorModeError(
+          error instanceof Error
+            ? error.message
+            : 'Failed to update generator mode'
+        );
+      } finally {
+        setIsUpdatingGeneratorMode(false);
+      }
+    },
+    [session]
+  );
+
   // Function to update background movement direction
   const setBackgroundMovementDirection = useCallback(
     async (newDirection: BackgroundMovementDirection) => {
@@ -906,6 +969,8 @@ export function UserPreferencesProvider({ children }: { children: ReactNode }) {
         setProfileVisibility,
         accessibilityFocusMode,
         setAccessibilityFocusMode,
+        generatorMode,
+        setGeneratorMode,
         backgroundMovementDirection,
         setBackgroundMovementDirection,
         backgroundMovementSpeed,
@@ -918,6 +983,7 @@ export function UserPreferencesProvider({ children }: { children: ReactNode }) {
         isUpdatingFontPreference,
         isUpdatingProfileVisibility,
         isUpdatingAccessibilityFocusMode,
+        isUpdatingGeneratorMode,
         isUpdatingBackgroundMovementDirection,
         isUpdatingBackgroundMovementSpeed,
         isUpdatingBackgroundAnimationLayers,
@@ -927,6 +993,7 @@ export function UserPreferencesProvider({ children }: { children: ReactNode }) {
         fontPreferenceError,
         profileVisibilityError,
         accessibilityFocusModeError,
+        generatorModeError,
         backgroundMovementDirectionError,
         backgroundMovementSpeedError,
         backgroundAnimationLayersError
@@ -1039,5 +1106,20 @@ export function useAccessibilityFocusMode() {
     setMode: setAccessibilityFocusMode,
     isUpdating: isUpdatingAccessibilityFocusMode,
     error: accessibilityFocusModeError
+  };
+}
+
+export function useGeneratorMode() {
+  const {
+    generatorMode,
+    setGeneratorMode,
+    isUpdatingGeneratorMode,
+    generatorModeError
+  } = useUserPreferences();
+  return {
+    mode: generatorMode,
+    setMode: setGeneratorMode,
+    isUpdating: isUpdatingGeneratorMode,
+    error: generatorModeError
   };
 }

@@ -3,19 +3,28 @@
  * Handles updating individual user subscriptions
  */
 
+import { withUniversalEnhancements } from '@lib/api/withUniversalEnhancements';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { checkUserPermission } from '../../../../../lib/actions/permissions.actions';
 import { auth } from '../../../../../lib/auth';
 import sql from '../../../../../lib/db';
-import { withRateLimit } from '../../../../../lib/middleware/withRateLimit';
 import { PERMISSIONS } from '../../../../../lib/permissions/permissions';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 const updateSubscriptionSchema = z.object({
-  status: z.enum(['active', 'cancelled', 'expired', 'suspended', 'pending', 'trialing']).optional(),
+  status: z
+    .enum([
+      'active',
+      'cancelled',
+      'expired',
+      'suspended',
+      'pending',
+      'trialing'
+    ])
+    .optional(),
   expires_at: z.string().optional(),
   trial_ends_at: z.string().optional(),
   cancelled_at: z.string().optional(),
@@ -27,38 +36,44 @@ async function patchHandler(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
-      try {
-        const session = await auth();
-        if (!session?.user?.id) {
-          return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-        }
+  try {
+    const session = await auth();
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
 
-        // Check admin permissions
-        const hasPermission = await checkUserPermission(
-          parseInt(session.user.id),
-          PERMISSIONS.ADMIN.USERS_MANAGE
-        );
-        if (!hasPermission) {
-          return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 });
-        }
+    // Check admin permissions
+    const hasPermission = await checkUserPermission(
+      parseInt(session.user.id),
+      PERMISSIONS.ADMIN.USERS_MANAGE
+    );
+    if (!hasPermission) {
+      return NextResponse.json(
+        { error: 'Insufficient permissions' },
+        { status: 403 }
+      );
+    }
 
-        const subscriptionId = params.id;
-        const body = await request.json();
-        const updateData = updateSubscriptionSchema.parse(body);
+    const subscriptionId = params.id;
+    const body = await request.json();
+    const updateData = updateSubscriptionSchema.parse(body);
 
-        // Check if subscription exists
-        const existingSubscription = await sql`
+    // Check if subscription exists
+    const existingSubscription = await sql`
           SELECT id, user_id, plan_id, status
           FROM user_subscriptions
           WHERE id = ${subscriptionId}
         `;
 
-        if (existingSubscription.length === 0) {
-          return NextResponse.json({ error: 'Subscription not found' }, { status: 404 });
-        }
+    if (existingSubscription.length === 0) {
+      return NextResponse.json(
+        { error: 'Subscription not found' },
+        { status: 404 }
+      );
+    }
 
-        // Update subscription with provided fields
-        const result = await sql`
+    // Update subscription with provided fields
+    const result = await sql`
           UPDATE user_subscriptions 
           SET 
             status = COALESCE(${updateData.status ?? null}, status),
@@ -72,12 +87,15 @@ async function patchHandler(
           RETURNING *
         `;
 
-        if (result.length === 0) {
-          return NextResponse.json({ error: 'Failed to update subscription' }, { status: 500 });
-        }
+    if (result.length === 0) {
+      return NextResponse.json(
+        { error: 'Failed to update subscription' },
+        { status: 500 }
+      );
+    }
 
-        // Log the action
-        await sql`
+    // Log the action
+    await sql`
           INSERT INTO admin_actions (
             admin_user_id, action_type, action_details, created_at
           ) VALUES (
@@ -92,19 +110,18 @@ async function patchHandler(
           )
         `;
 
-        return NextResponse.json({
-          success: true,
-          subscription: result[0],
-          message: 'Subscription updated successfully'
-        });
-
-      } catch (error) {
-        console.error('Error updating user subscription:', error);
-        return NextResponse.json(
-          { error: 'Internal server error' },
-          { status: 500 }
-        );
-      }
+    return NextResponse.json({
+      success: true,
+      subscription: result[0],
+      message: 'Subscription updated successfully'
+    });
+  } catch (error) {
+    console.error('Error updating user subscription:', error);
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    );
+  }
 }
 
-export const PATCH = withRateLimit(patchHandler); 
+export const PATCH = withUniversalEnhancements(patchHandler);

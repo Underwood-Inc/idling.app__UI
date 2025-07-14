@@ -3,11 +3,14 @@
  * Handles issuing and managing user timeouts
  */
 
-import { withUserPermissions } from '@lib/api/wrappers/withUserPermissions';
-import { withUserRoles } from '@lib/api/wrappers/withUserRoles';
+import { withUniversalEnhancements } from '@lib/api/withUniversalEnhancements';
 import { auth } from '@lib/auth';
 import sql from '@lib/db';
-import { AdminUserTimeoutCancelParamsSchema, AdminUserTimeoutRequestSchema, UserIdParamsSchema } from '@lib/schemas/admin-users.schema';
+import {
+  AdminUserTimeoutCancelParamsSchema,
+  AdminUserTimeoutRequestSchema,
+  UserIdParamsSchema
+} from '@lib/schemas/admin-users.schema';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 
@@ -35,9 +38,9 @@ async function postHandler(
     const paramsResult = UserIdParamsSchema.safeParse(params);
     if (!paramsResult.success) {
       return NextResponse.json(
-        { 
+        {
           error: 'Invalid user ID format',
-          details: paramsResult.error.errors 
+          details: paramsResult.error.errors
         },
         { status: 400 }
       );
@@ -48,12 +51,12 @@ async function postHandler(
     // Validate request body
     const body = await request.json();
     const bodyResult = AdminUserTimeoutRequestSchema.safeParse(body);
-    
+
     if (!bodyResult.success) {
       return NextResponse.json(
-        { 
+        {
           error: 'Invalid request data',
-          details: bodyResult.error.errors 
+          details: bodyResult.error.errors
         },
         { status: 400 }
       );
@@ -70,9 +73,12 @@ async function postHandler(
     }
 
     if (!finalExpiresAt) {
-      return NextResponse.json({ 
-        error: 'Either expiresAt or duration must be provided' 
-      }, { status: 400 });
+      return NextResponse.json(
+        {
+          error: 'Either expiresAt or duration must be provided'
+        },
+        { status: 400 }
+      );
     }
 
     // Check if user already has an active timeout of this type
@@ -85,9 +91,12 @@ async function postHandler(
     `;
 
     if (existingTimeouts.length > 0) {
-      return NextResponse.json({ 
-        error: `User already has an active ${timeoutType} timeout` 
-      }, { status: 409 });
+      return NextResponse.json(
+        {
+          error: `User already has an active ${timeoutType} timeout`
+        },
+        { status: 409 }
+      );
     }
 
     // Issue the timeout
@@ -105,8 +114,8 @@ async function postHandler(
       )
     `;
 
-    return NextResponse.json({ 
-      success: true, 
+    return NextResponse.json({
+      success: true,
       message: `${timeoutType} timeout issued successfully`,
       expiresAt: finalExpiresAt
     });
@@ -140,14 +149,14 @@ async function deleteHandler(
     const { searchParams } = new URL(request.url);
     const paramsResult = AdminUserTimeoutCancelParamsSchema.safeParse({
       timeoutId: searchParams.get('timeoutId'),
-      timeoutType: searchParams.get('timeoutType'),
+      timeoutType: searchParams.get('timeoutType')
     });
 
     if (!paramsResult.success) {
       return NextResponse.json(
-        { 
+        {
           error: 'Invalid cancellation parameters',
-          details: paramsResult.error.errors 
+          details: paramsResult.error.errors
         },
         { status: 400 }
       );
@@ -174,27 +183,30 @@ async function deleteHandler(
       `;
     } else {
       // This should never happen due to schema validation, but be defensive
-      return NextResponse.json({ 
-        error: 'Either timeoutId or timeoutType must be provided' 
-      }, { status: 400 });
+      return NextResponse.json(
+        {
+          error: 'Either timeoutId or timeoutType must be provided'
+        },
+        { status: 400 }
+      );
     }
 
     await query;
 
-    return NextResponse.json({ 
-      success: true, 
-      message: 'Timeout cancelled successfully' 
+    return NextResponse.json({
+      success: true,
+      message: 'Timeout cancelled successfully'
     });
   } catch (error) {
     console.error('Error cancelling timeout:', error);
-    
+
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         { error: 'Invalid request data', details: error.errors },
         { status: 400 }
       );
     }
-    
+
     return NextResponse.json(
       { error: 'Failed to cancel timeout' },
       { status: 500 }
@@ -203,5 +215,5 @@ async function deleteHandler(
 }
 
 // Apply permission wrappers to handlers
-export const POST = withUserRoles(withUserPermissions(postHandler as any));
-export const DELETE = withUserRoles(withUserPermissions(deleteHandler as any)); 
+export const POST = withUniversalEnhancements(postHandler);
+export const DELETE = withUniversalEnhancements(deleteHandler);

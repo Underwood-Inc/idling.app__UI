@@ -1,10 +1,10 @@
-import { createLogger } from '@lib/logging';
 import type {
   Adapter,
   AdapterSession,
   AdapterUser,
   VerificationToken
 } from '@auth/core/adapters';
+import { createLogger } from '@lib/logging';
 import type { Pool } from 'pg';
 
 const logger = createLogger({
@@ -38,13 +38,14 @@ export default function CustomPostgresAdapter(client: Pool): Adapter {
 
       return verificationToken;
     },
+
     async useVerificationToken({
       identifier,
       token
     }: {
       identifier: string;
       token: string;
-    }): Promise<VerificationToken> {
+    }): Promise<VerificationToken | null> {
       const sql = `delete from verification_token
       where identifier = $1 and token = $2
       RETURNING identifier, expires, token `;

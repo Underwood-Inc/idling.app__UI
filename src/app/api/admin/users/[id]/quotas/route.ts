@@ -1,16 +1,16 @@
 /**
  * Individual User Quota Management API
- * 
+ *
  * Provides secure endpoints for managing specific user quota settings
  * with integration to the enhanced quota system.
- * 
+ *
  * @version 1.0.0
  * @author System
  */
 
+import { withUniversalEnhancements } from '@lib/api/withUniversalEnhancements';
 import { auth } from '@lib/auth';
 import sql from '@lib/db';
-import { withRateLimit } from '@lib/middleware/withRateLimit';
 import { EnhancedQuotaService } from '@lib/services/EnhancedQuotaService';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
@@ -47,24 +47,26 @@ interface UserQuotaOverride {
   updated_at: string;
 }
 
-const UpdateUserQuotaSchema = z.object({
-  service_name: z.string().min(1),
-  feature_name: z.string().min(1),
-  quota_limit: z.number().int().min(0).optional(),
-  is_unlimited: z.boolean().default(false),
-  reset_period: z.enum(['hourly', 'daily', 'weekly', 'monthly']).optional(),
-  reset_usage: z.boolean().default(false),
-  reason: z.string().max(500).optional()
-}).transform((data) => {
-  // If quota_limit is 0, treat as unlimited
-  if (data.quota_limit === 0) {
-    return {
-      ...data,
-      is_unlimited: true
-    };
-  }
-  return data;
-});
+const UpdateUserQuotaSchema = z
+  .object({
+    service_name: z.string().min(1),
+    feature_name: z.string().min(1),
+    quota_limit: z.number().int().min(0).optional(),
+    is_unlimited: z.boolean().default(false),
+    reset_period: z.enum(['hourly', 'daily', 'weekly', 'monthly']).optional(),
+    reset_usage: z.boolean().default(false),
+    reason: z.string().max(500).optional()
+  })
+  .transform((data) => {
+    // If quota_limit is 0, treat as unlimited
+    if (data.quota_limit === 0) {
+      return {
+        ...data,
+        is_unlimited: true
+      };
+    }
+    return data;
+  });
 
 const ResetUserQuotaSchema = z.object({
   service_name: z.string().min(1),
@@ -150,7 +152,9 @@ async function logAdminAction(
 async function getHandler(
   request: NextRequest,
   { params }: { params: { id: string } }
-): Promise<NextResponse<ApiResponse<{ quotas: UserQuotaData[] }> | ErrorResponse>> {
+): Promise<
+  NextResponse<ApiResponse<{ quotas: UserQuotaData[] }> | ErrorResponse>
+> {
   try {
     // Validate session
     const session = await auth();
@@ -180,8 +184,10 @@ async function getHandler(
     }
 
     // Get comprehensive quota info using EnhancedQuotaService
-    const quotaInfo = await EnhancedQuotaService.getUserQuotaInfo(parseInt(params.id));
-    
+    const quotaInfo = await EnhancedQuotaService.getUserQuotaInfo(
+      parseInt(params.id)
+    );
+
     // Get additional display information for proper names
     const serviceFeatures = await sql`
       SELECT 
@@ -195,22 +201,26 @@ async function getHandler(
     `;
 
     // Transform quota info to admin panel format
-    const quotaData: UserQuotaData[] = quotaInfo.map(info => {
+    const quotaData: UserQuotaData[] = quotaInfo.map((info) => {
       const serviceFeature = serviceFeatures.find(
-        sf => sf.service_name === info.service_name && sf.feature_name === info.feature_name
+        (sf) =>
+          sf.service_name === info.service_name &&
+          sf.feature_name === info.feature_name
       );
 
       return {
         service_name: info.service_name,
         feature_name: info.feature_name,
-        display_name: serviceFeature ? 
-          `${serviceFeature.service_display_name} - ${serviceFeature.feature_display_name}` : 
-          `${info.service_name} - ${info.feature_name}`,
+        display_name: serviceFeature
+          ? `${serviceFeature.service_display_name} - ${serviceFeature.feature_display_name}`
+          : `${info.service_name} - ${info.feature_name}`,
         current_usage: info.current_usage,
         quota_limit: info.quota_limit,
         is_unlimited: info.is_unlimited,
         is_custom: info.quota_source === 'user_override',
-        reset_date: info.reset_date?.toISOString() || new Date(Date.now() + 86400000).toISOString(),
+        reset_date:
+          info.reset_date?.toISOString() ||
+          new Date(Date.now() + 86400000).toISOString(),
         quota_source: info.quota_source,
         reset_period: info.reset_period
       };
@@ -221,12 +231,11 @@ async function getHandler(
       data: { quotas: quotaData },
       message: `Retrieved ${quotaData.length} quota entries for user`
     });
-
   } catch (error) {
     console.error('GET /api/admin/users/[id]/quotas error:', error);
     return NextResponse.json(
-      { 
-        success: false, 
+      {
+        success: false,
         error: 'Internal server error',
         message: 'Failed to retrieve user quotas'
       },
@@ -236,7 +245,7 @@ async function getHandler(
 }
 
 // Apply rate limiting to handler
-export const GET = withRateLimit(getHandler);
+export const GET = withUniversalEnhancements(getHandler);
 
 /**
  * PATCH /api/admin/users/[id]/quotas
@@ -245,7 +254,9 @@ export const GET = withRateLimit(getHandler);
 export async function PATCH(
   request: NextRequest,
   { params }: { params: { id: string } }
-): Promise<NextResponse<ApiResponse<{ override: UserQuotaOverride }> | ErrorResponse>> {
+): Promise<
+  NextResponse<ApiResponse<{ override: UserQuotaOverride }> | ErrorResponse>
+> {
   try {
     // Validate session
     const session = await auth();
@@ -277,19 +288,27 @@ export async function PATCH(
     // Validate request body
     const body = await request.json();
     const validationResult = UpdateUserQuotaSchema.safeParse(body);
-    
+
     if (!validationResult.success) {
       return NextResponse.json(
-        { 
-          success: false, 
+        {
+          success: false,
           error: 'Invalid request data',
-          data: validationResult.error.issues 
+          data: validationResult.error.issues
         },
         { status: 400 }
       );
     }
 
-    const { service_name, feature_name, quota_limit, is_unlimited, reset_period, reset_usage, reason } = validationResult.data;
+    const {
+      service_name,
+      feature_name,
+      quota_limit,
+      is_unlimited,
+      reset_period,
+      reset_usage,
+      reason
+    } = validationResult.data;
 
     // Verify service and feature exist
     const serviceFeatureExists = await sql`
@@ -309,7 +328,7 @@ export async function PATCH(
 
     // Calculate final quota limit - treat 0 as unlimited
     const finalIsUnlimited = is_unlimited || quota_limit === 0;
-    const finalQuotaLimit = finalIsUnlimited ? -1 : (quota_limit || 1);
+    const finalQuotaLimit = finalIsUnlimited ? -1 : quota_limit || 1;
     const finalResetPeriod = reset_period || 'monthly';
 
     // Check if override already exists
@@ -321,7 +340,7 @@ export async function PATCH(
     `;
 
     let override;
-    
+
     if (existingOverride.length > 0) {
       // Update existing override
       override = await sql`
@@ -380,7 +399,8 @@ export async function PATCH(
         service_display_name: serviceFeatureExists[0].service_display_name,
         feature_display_name: serviceFeatureExists[0].feature_display_name
       },
-      reason || `Updated quota override for ${service_name}.${feature_name}${reset_usage ? ' (usage reset)' : ''}`
+      reason ||
+        `Updated quota override for ${service_name}.${feature_name}${reset_usage ? ' (usage reset)' : ''}`
     );
 
     const actionType = existingOverride.length > 0 ? 'updated' : 'created';
@@ -392,12 +412,11 @@ export async function PATCH(
       data: { override: override[0] as unknown as UserQuotaOverride },
       message: `Quota override ${actionType} for ${serviceName} - ${featureName}`
     });
-
   } catch (error) {
     console.error('PATCH /api/admin/users/[id]/quotas error:', error);
     return NextResponse.json(
-      { 
-        success: false, 
+      {
+        success: false,
         error: 'Internal server error',
         message: 'Failed to update user quota'
       },
@@ -405,5 +424,3 @@ export async function PATCH(
     );
   }
 }
-
- 

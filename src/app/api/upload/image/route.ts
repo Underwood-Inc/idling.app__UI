@@ -114,8 +114,8 @@
  *               $ref: '#/components/schemas/Error'
  */
 
+import { withUniversalEnhancements } from '@lib/api/withUniversalEnhancements';
 import { auth } from '@lib/auth';
-import { withRateLimit } from '@lib/middleware/withRateLimit';
 import { ImageUploadSchema } from '@lib/schemas/upload.schema';
 import crypto from 'crypto';
 import { mkdir, writeFile } from 'fs/promises';
@@ -227,19 +227,19 @@ async function postHandler(request: NextRequest) {
     });
   } catch (error) {
     console.error('Image upload error:', error);
-    
+
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         { error: 'Invalid file data', details: error.errors },
         { status: 400 }
       );
     }
-    
+
     return NextResponse.json({ error: 'Upload failed' }, { status: 500 });
   }
 }
 
-export const POST = withRateLimit(postHandler);
+export const POST = withUniversalEnhancements(postHandler);
 
 // Only allow POST requests
 export async function GET() {

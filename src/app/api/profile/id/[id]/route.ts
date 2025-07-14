@@ -70,9 +70,9 @@
  *               $ref: '#/components/schemas/Error'
  */
 
-import { withRateLimit } from '@lib/middleware/withRateLimit';
+import { withUniversalEnhancements } from '@lib/api/withUniversalEnhancements';
+import { withProfilePrivacy } from '@lib/utils/privacy';
 import { NextRequest, NextResponse } from 'next/server';
-import { withProfilePrivacy } from '../../../../../lib/utils/privacy';
 
 async function getHandler(
   request: NextRequest,
@@ -118,4 +118,4 @@ async function getHandler(
 }
 
 // Apply rate limiting to handler
-export const GET = withRateLimit(getHandler);
+export const GET = withUniversalEnhancements(getHandler);
