@@ -93,7 +93,7 @@ export function QuotaDisplay({
   };
 
   const quotaText = hasInitializedQuota
-    ? `${remainingGenerations}/${quotaLimit} ${mobile || welcome ? 'enchantment today' : 'enchantment today'}`
+    ? `${remainingGenerations}/${quotaLimit} ${mobile || welcome ? `(resetting ${getResetTimeText()})` : `(resetting ${getResetTimeText()})`}`
     : 'Channeling energy...';
 
   const simpleQuotaText = `${remainingGenerations} spell remaining (resetting ${getResetTimeText()})`;
