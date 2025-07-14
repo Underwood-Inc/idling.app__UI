@@ -1,26 +1,26 @@
 /**
  * User Search API
  * Provides search functionality for finding user profiles
- * 
+ *
  * Accessibility:
  * - Guest users: Can search but only see public profiles
  * - Authenticated users: Can search and see both public and private profiles
- * 
+ *
  * Privacy is enforced at search level, with additional checks at profile view level
  */
 
+import { withUniversalEnhancements } from '@lib/api/withUniversalEnhancements';
+import { auth } from '@lib/auth';
+import sql from '@lib/db';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
-import { auth } from '../../../../lib/auth';
-import sql from '../../../../lib/db';
-import { withRateLimit } from '../../../../lib/middleware/withRateLimit';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 const searchSchema = z.object({
   q: z.string().min(1).max(100),
-  limit: z.coerce.number().min(1).max(20).optional().default(10),
+  limit: z.coerce.number().min(1).max(20).optional().default(10)
 });
 
 async function searchHandler(request: NextRequest) {
@@ -34,18 +34,21 @@ async function searchHandler(request: NextRequest) {
     const limit = searchParams.get('limit');
 
     if (!query) {
-      return NextResponse.json({ error: 'Search query is required' }, { status: 400 });
+      return NextResponse.json(
+        { error: 'Search query is required' },
+        { status: 400 }
+      );
     }
 
     const { q, limit: validatedLimit } = searchSchema.parse({
       q: query,
-      limit: limit ? parseInt(limit) : 10,
+      limit: limit ? parseInt(limit) : 10
     });
 
     // Search for users by name, email, or username
     // Using ILIKE for case-insensitive search (PostgreSQL)
     const searchTerm = `%${q}%`;
-    
+
     // Build query with privacy consideration
     // For guest users, only show public profiles
     // For authenticated users, show both public and private profiles
@@ -81,30 +84,29 @@ async function searchHandler(request: NextRequest) {
 
     // Format results to match expected interface
     // For guest users, limit exposed information
-    const formattedUsers = users.map(user => ({
+    const formattedUsers = users.map((user) => ({
       id: user.id.toString(),
       name: user.name,
       // Only show email to authenticated users
       email: isAuthenticated ? user.email : undefined,
-      image: user.image,
+      image: user.image
     }));
 
     return NextResponse.json({
       users: formattedUsers,
       total: users.length,
-      query: q,
+      query: q
     });
-
   } catch (error) {
     console.error('Error searching users:', error);
-    
+
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         { error: 'Invalid search parameters', details: error.errors },
         { status: 400 }
       );
     }
-    
+
     return NextResponse.json(
       { error: 'Failed to search users' },
       { status: 500 }
@@ -112,4 +114,4 @@ async function searchHandler(request: NextRequest) {
   }
 }
 
-export const GET = withRateLimit(searchHandler); 
+export const GET = withUniversalEnhancements(searchHandler);

@@ -3,11 +3,12 @@
  * Allows users to check their own timeout status
  */
 
+import { withUniversalEnhancements } from '@lib/api/withUniversalEnhancements';
 import { NextResponse } from 'next/server';
-import { withAuthValidation, type ValidatedRequest } from '../../../../lib/api/withValidation';
+import { type ValidatedRequest } from '../../../../lib/api/withValidation';
 import {
-    PermissionsService,
-    TIMEOUT_TYPES
+  PermissionsService,
+  TIMEOUT_TYPES
 } from '../../../../lib/permissions/permissions';
 
 // This route uses dynamic features (auth/headers) and should not be pre-rendered
@@ -50,4 +51,4 @@ async function getHandler(request: ValidatedRequest) {
 }
 
 // Export with validation wrapper
-export const GET = withAuthValidation(getHandler);
+export const GET = withUniversalEnhancements(getHandler);

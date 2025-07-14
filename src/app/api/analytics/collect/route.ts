@@ -1,14 +1,14 @@
 /**
  * Analytics Data Collection API
  * Handles client-side analytics data collection for comprehensive user tracking
- * 
+ *
  * @author System Wizard 🧙‍♂️
  * @version 1.0.0
  */
 
+import { withUniversalEnhancements } from '@lib/api/withUniversalEnhancements';
 import { auth } from '@lib/auth';
 import sql from '@lib/db';
-import { withRateLimit } from '@lib/middleware/withRateLimit';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 
@@ -37,7 +37,7 @@ const SessionDataSchema = z.object({
   utmMedium: z.string().optional(),
   utmCampaign: z.string().optional(),
   utmTerm: z.string().optional(),
-  utmContent: z.string().optional(),
+  utmContent: z.string().optional()
 });
 
 const PageViewSchema = z.object({
@@ -52,7 +52,7 @@ const PageViewSchema = z.object({
   pageLoadTime: z.number().optional(),
   domReadyTime: z.number().optional(),
   firstContentfulPaint: z.number().optional(),
-  largestContentfulPaint: z.number().optional(),
+  largestContentfulPaint: z.number().optional()
 });
 
 const ClickEventSchema = z.object({
@@ -74,7 +74,7 @@ const ClickEventSchema = z.object({
   pageTitle: z.string().optional(),
   elementCategory: z.string().optional(),
   actionType: z.string().optional(),
-  isRageClick: z.boolean().optional(),
+  isRageClick: z.boolean().optional()
 });
 
 const BehaviorEventSchema = z.object({
@@ -86,7 +86,7 @@ const BehaviorEventSchema = z.object({
   behaviorValue: z.number().optional(),
   pageUrl: z.string(),
   elementSelector: z.string().optional(),
-  additionalData: z.record(z.any()).optional(),
+  additionalData: z.record(z.any()).optional()
 });
 
 const FormInteractionSchema = z.object({
@@ -104,7 +104,7 @@ const FormInteractionSchema = z.object({
   fieldValue: z.string().optional(),
   validationError: z.string().optional(),
   timeToComplete: z.number().optional(),
-  pageUrl: z.string(),
+  pageUrl: z.string()
 });
 
 const HoverEventSchema = z.object({
@@ -117,7 +117,7 @@ const HoverEventSchema = z.object({
   elementClass: z.string().optional(),
   hoverDuration: z.number(),
   pageUrl: z.string(),
-  hoverStartedAt: z.number().optional(),
+  hoverStartedAt: z.number().optional()
 });
 
 const ErrorEventSchema = z.object({
@@ -129,7 +129,7 @@ const ErrorEventSchema = z.object({
   errorUrl: z.string().optional(),
   errorLine: z.number().optional(),
   errorColumn: z.number().optional(),
-  pageUrl: z.string(),
+  pageUrl: z.string()
 });
 
 const SubscriptionEventSchema = z.object({
@@ -147,12 +147,21 @@ const SubscriptionEventSchema = z.object({
   funnelPosition: z.number().optional(),
   pageUrl: z.string().optional(),
   referrerUrl: z.string().optional(),
-  additionalData: z.record(z.any()).optional(),
+  additionalData: z.record(z.any()).optional()
 });
 
 // Schema for single event
 const AnalyticsRequestSchema = z.object({
-  type: z.enum(['session', 'pageview', 'click', 'behavior', 'form_interaction', 'hover', 'subscription', 'error']),
+  type: z.enum([
+    'session',
+    'pageview',
+    'click',
+    'behavior',
+    'form_interaction',
+    'hover',
+    'subscription',
+    'error'
+  ]),
   data: z.union([
     SessionDataSchema,
     PageViewSchema,
@@ -162,25 +171,36 @@ const AnalyticsRequestSchema = z.object({
     HoverEventSchema,
     SubscriptionEventSchema,
     ErrorEventSchema
-  ]),
+  ])
 });
 
 // Schema for batched events (what the tracker actually sends)
 const BatchedAnalyticsRequestSchema = z.object({
-  events: z.array(z.object({
-    type: z.enum(['session', 'pageview', 'click', 'behavior', 'form_interaction', 'hover', 'subscription', 'error']),
-    data: z.union([
-      SessionDataSchema,
-      PageViewSchema,
-      ClickEventSchema,
-      BehaviorEventSchema,
-      FormInteractionSchema,
-      HoverEventSchema,
-      SubscriptionEventSchema,
-      ErrorEventSchema
-    ]),
-    timestamp: z.number().optional(),
-  }))
+  events: z.array(
+    z.object({
+      type: z.enum([
+        'session',
+        'pageview',
+        'click',
+        'behavior',
+        'form_interaction',
+        'hover',
+        'subscription',
+        'error'
+      ]),
+      data: z.union([
+        SessionDataSchema,
+        PageViewSchema,
+        ClickEventSchema,
+        BehaviorEventSchema,
+        FormInteractionSchema,
+        HoverEventSchema,
+        SubscriptionEventSchema,
+        ErrorEventSchema
+      ]),
+      timestamp: z.number().optional()
+    })
+  )
 });
 
 // ================================
@@ -189,27 +209,31 @@ const BatchedAnalyticsRequestSchema = z.object({
 
 function parseDeviceType(userAgent: string): string {
   const ua = userAgent.toLowerCase();
-  
+
   if (/tablet|ipad|playbook|silk/i.test(ua)) {
     return 'tablet';
   }
-  
-  if (/mobile|iphone|ipod|android|blackberry|opera|mini|windows\sce|palm|smartphone|iemobile/i.test(ua)) {
+
+  if (
+    /mobile|iphone|ipod|android|blackberry|opera|mini|windows\sce|palm|smartphone|iemobile/i.test(
+      ua
+    )
+  ) {
     return 'mobile';
   }
-  
+
   return 'desktop';
 }
 
 function parseBrowserName(userAgent: string): string {
   const ua = userAgent.toLowerCase();
-  
+
   if (ua.includes('firefox')) return 'Firefox';
   if (ua.includes('chrome')) return 'Chrome';
   if (ua.includes('safari')) return 'Safari';
   if (ua.includes('edge')) return 'Edge';
   if (ua.includes('opera')) return 'Opera';
-  
+
   return 'Unknown';
 }
 
@@ -220,14 +244,14 @@ function parseBrowserVersion(userAgent: string): string {
 
 function parseOSName(userAgent: string): string {
   const ua = userAgent.toLowerCase();
-  
+
   if (ua.includes('windows')) return 'Windows';
   if (ua.includes('mac')) return 'macOS';
   if (ua.includes('x11')) return 'UNIX';
   if (ua.includes('linux')) return 'Linux';
   if (ua.includes('android')) return 'Android';
   if (ua.includes('ios')) return 'iOS';
-  
+
   return 'Unknown';
 }
 
@@ -237,19 +261,19 @@ function parseOSVersion(userAgent: string): string {
   if (userAgent.includes('Windows NT 6.3')) return '8.1';
   if (userAgent.includes('Windows NT 6.2')) return '8';
   if (userAgent.includes('Windows NT 6.1')) return '7';
-  
+
   // macOS
   const macMatch = userAgent.match(/Mac OS X (\d+[._]\d+)/);
   if (macMatch) return macMatch[1].replace('_', '.');
-  
+
   // Android
   const androidMatch = userAgent.match(/Android (\d+[._]\d+)/);
   if (androidMatch) return androidMatch[1].replace('_', '.');
-  
+
   // iOS
   const iOSMatch = userAgent.match(/OS (\d+[._]\d+)/);
   if (iOSMatch) return iOSMatch[1].replace('_', '.');
-  
+
   return 'Unknown';
 }
 
@@ -260,15 +284,15 @@ function parseOSVersion(userAgent: string): string {
 async function getClientIpAddress(request: NextRequest): Promise<string> {
   const forwarded = request.headers.get('x-forwarded-for');
   const realIp = request.headers.get('x-real-ip');
-  
+
   if (forwarded) {
     return forwarded.split(',')[0].trim();
   }
-  
+
   if (realIp) {
     return realIp;
   }
-  
+
   return request.ip || '127.0.0.1';
 }
 
@@ -276,17 +300,21 @@ async function getGeolocationData(ipAddress: string) {
   try {
     // In production, you'd use a real geolocation service like MaxMind, IP2Location, or ipapi.co
     // For development/demo purposes, we'll use a mock implementation
-    if (ipAddress === '127.0.0.1' || ipAddress.startsWith('192.168.') || ipAddress.startsWith('10.')) {
+    if (
+      ipAddress === '127.0.0.1' ||
+      ipAddress.startsWith('192.168.') ||
+      ipAddress.startsWith('10.')
+    ) {
       return {
         countryCode: 'US',
         countryName: 'United States',
         regionName: 'California',
         cityName: 'San Francisco',
         latitude: 37.7749,
-        longitude: -122.4194,
+        longitude: -122.4194
       };
     }
-    
+
     // Mock geolocation data - replace with real service
     const mockData = {
       countryCode: 'US',
@@ -294,9 +322,9 @@ async function getGeolocationData(ipAddress: string) {
       regionName: 'California',
       cityName: 'San Francisco',
       latitude: 37.7749,
-      longitude: -122.4194,
+      longitude: -122.4194
     };
-    
+
     return mockData;
   } catch (error) {
     console.error('Error getting geolocation data:', error);
@@ -312,25 +340,30 @@ async function detectVpnProxy(ipAddress: string) {
     isProxy: false,
     isTor: false,
     vpnProvider: null,
-    proxyType: null,
+    proxyType: null
   };
 }
 
-async function createOrUpdateSession(sessionData: z.infer<typeof SessionDataSchema>, ipAddress: string, userAgent: string, userId?: number) {
+async function createOrUpdateSession(
+  sessionData: z.infer<typeof SessionDataSchema>,
+  ipAddress: string,
+  userAgent: string,
+  userId?: number
+) {
   try {
     // Get geolocation and VPN detection data
     const [geoData, vpnData] = await Promise.all([
       getGeolocationData(ipAddress),
       detectVpnProxy(ipAddress)
     ]);
-    
+
     // Check if session exists
     const existingSession = await sql`
       SELECT id FROM analytics_sessions 
       WHERE session_token = ${sessionData.sessionToken}
       LIMIT 1
     `;
-    
+
     if (existingSession.length > 0) {
       // Update existing session
       await sql`
@@ -342,7 +375,7 @@ async function createOrUpdateSession(sessionData: z.infer<typeof SessionDataSche
       `;
       return existingSession[0].id;
     }
-    
+
     // Create new session
     const newSession = await sql`
         INSERT INTO analytics_sessions (
@@ -416,8 +449,8 @@ async function createOrUpdateSession(sessionData: z.infer<typeof SessionDataSche
         )
         RETURNING id
       `;
-      
-      return newSession[0].id;
+
+    return newSession[0].id;
   } catch (error) {
     console.error('Error creating/updating session:', error);
     throw error;
@@ -428,24 +461,29 @@ async function createOrUpdateSession(sessionData: z.infer<typeof SessionDataSche
 // EVENT PROCESSING FUNCTIONS
 // ================================
 
-async function ensureSessionExists(sessionToken: string, ipAddress: string, userAgent: string, userId?: number) {
+async function ensureSessionExists(
+  sessionToken: string,
+  ipAddress: string,
+  userAgent: string,
+  userId?: number
+) {
   // Check if session exists and return the actual UUID
   const existingSession = await sql`
     SELECT id FROM analytics_sessions 
     WHERE session_token = ${sessionToken}
     LIMIT 1
   `;
-  
+
   if (existingSession.length > 0) {
     return existingSession[0].id; // Return the UUID
   }
-  
+
   // Create minimal session if it doesn't exist
   const [geoData, vpnData] = await Promise.all([
     getGeolocationData(ipAddress),
     detectVpnProxy(ipAddress)
   ]);
-  
+
   const newSession = await sql`
     INSERT INTO analytics_sessions (
       user_id,
@@ -518,27 +556,42 @@ async function ensureSessionExists(sessionToken: string, ipAddress: string, user
     )
     RETURNING id
   `;
-  
+
   return newSession[0].id; // Return the UUID
 }
 
-async function processEvent(event: any, ipAddress: string, userAgent: string, userId?: number) {
+async function processEvent(
+  event: any,
+  ipAddress: string,
+  userAgent: string,
+  userId?: number
+) {
   const { type, data } = event;
-  
+
   try {
     switch (type) {
       case 'session': {
         const sessionData = SessionDataSchema.parse(data);
-        const sessionId = await createOrUpdateSession(sessionData, ipAddress, userAgent, userId);
+        const sessionId = await createOrUpdateSession(
+          sessionData,
+          ipAddress,
+          userAgent,
+          userId
+        );
         return { success: true, sessionId };
       }
-      
+
       case 'pageview': {
         const pageViewData = PageViewSchema.parse(data);
-        
+
         // Get the actual session UUID from the session token
-        const sessionUuid = await ensureSessionExists(pageViewData.sessionId, ipAddress, userAgent, userId);
-        
+        const sessionUuid = await ensureSessionExists(
+          pageViewData.sessionId,
+          ipAddress,
+          userAgent,
+          userId
+        );
+
         const pageView = await sql`
           INSERT INTO analytics_page_views (
             session_id,
@@ -573,16 +626,21 @@ async function processEvent(event: any, ipAddress: string, userAgent: string, us
         `;
         return { success: true, pageViewId: pageView[0].id };
       }
-      
+
       case 'click': {
         const clickData = ClickEventSchema.parse(data);
-        
+
         // Get the actual session UUID from the session token
-        const sessionUuid = await ensureSessionExists(clickData.sessionId, ipAddress, userAgent, userId);
-        
+        const sessionUuid = await ensureSessionExists(
+          clickData.sessionId,
+          ipAddress,
+          userAgent,
+          userId
+        );
+
         // Get or create a page_view_id since database requires it
         let pageViewUuid = null;
-        
+
         if (clickData.pageViewId) {
           // Try to use provided page view ID
           const pageViewResult = await sql`
@@ -594,7 +652,7 @@ async function processEvent(event: any, ipAddress: string, userAgent: string, us
             pageViewUuid = pageViewResult[0].id;
           }
         }
-        
+
         // If no valid page view found, get the most recent one for this session or create one
         if (!pageViewUuid) {
           const recentPageView = await sql`
@@ -603,7 +661,7 @@ async function processEvent(event: any, ipAddress: string, userAgent: string, us
             ORDER BY viewed_at DESC
             LIMIT 1
           `;
-          
+
           if (recentPageView.length > 0) {
             pageViewUuid = recentPageView[0].id;
           } else {
@@ -627,7 +685,7 @@ async function processEvent(event: any, ipAddress: string, userAgent: string, us
             pageViewUuid = newPageView[0].id;
           }
         }
-        
+
         await sql`
           INSERT INTO analytics_clicks (
             session_id,
@@ -669,13 +727,18 @@ async function processEvent(event: any, ipAddress: string, userAgent: string, us
         `;
         return { success: true };
       }
-      
+
       case 'behavior': {
         const behaviorData = BehaviorEventSchema.parse(data);
-        
+
         // Get the actual session UUID from the session token
-        const sessionUuid = await ensureSessionExists(behaviorData.sessionId, ipAddress, userAgent, userId);
-        
+        const sessionUuid = await ensureSessionExists(
+          behaviorData.sessionId,
+          ipAddress,
+          userAgent,
+          userId
+        );
+
         const behavior = await sql`
           INSERT INTO analytics_user_behavior (
             session_id,
@@ -704,13 +767,18 @@ async function processEvent(event: any, ipAddress: string, userAgent: string, us
         `;
         return { success: true, behaviorId: behavior[0].id };
       }
-      
+
       case 'form_interaction': {
         const formData = data as any; // Type assertion since we need to handle form_interaction
-        
+
         // Get the actual session UUID from the session token
-        const sessionUuid = await ensureSessionExists(formData.sessionId, ipAddress, userAgent, userId);
-        
+        const sessionUuid = await ensureSessionExists(
+          formData.sessionId,
+          ipAddress,
+          userAgent,
+          userId
+        );
+
         const formInteraction = await sql`
           INSERT INTO analytics_form_interactions (
             session_id,
@@ -751,13 +819,18 @@ async function processEvent(event: any, ipAddress: string, userAgent: string, us
         `;
         return { success: true, formInteractionId: formInteraction[0].id };
       }
-      
+
       case 'hover': {
         const hoverData = data as any; // Type assertion since we need to handle hover
-        
+
         // Get the actual session UUID from the session token
-        const sessionUuid = await ensureSessionExists(hoverData.sessionId, ipAddress, userAgent, userId);
-        
+        const sessionUuid = await ensureSessionExists(
+          hoverData.sessionId,
+          ipAddress,
+          userAgent,
+          userId
+        );
+
         const hoverEvent = await sql`
           INSERT INTO analytics_hover_events (
             session_id,
@@ -793,10 +866,15 @@ async function processEvent(event: any, ipAddress: string, userAgent: string, us
 
       case 'error': {
         const errorData = ErrorEventSchema.parse(data);
-        
+
         // Get the actual session UUID from the session token
-        const sessionUuid = await ensureSessionExists(errorData.sessionId, ipAddress, userAgent, userId);
-        
+        const sessionUuid = await ensureSessionExists(
+          errorData.sessionId,
+          ipAddress,
+          userAgent,
+          userId
+        );
+
         await sql`
           INSERT INTO analytics_errors (
             session_id,
@@ -824,13 +902,18 @@ async function processEvent(event: any, ipAddress: string, userAgent: string, us
         `;
         return { success: true };
       }
-      
+
       case 'subscription': {
         const subscriptionData = SubscriptionEventSchema.parse(data);
-        
+
         // Get the actual session UUID from the session token
-        const sessionUuid = await ensureSessionExists(subscriptionData.sessionId, ipAddress, userAgent, userId);
-        
+        const sessionUuid = await ensureSessionExists(
+          subscriptionData.sessionId,
+          ipAddress,
+          userAgent,
+          userId
+        );
+
         await sql`
           INSERT INTO analytics_subscription_events (
             session_id,
@@ -870,7 +953,7 @@ async function processEvent(event: any, ipAddress: string, userAgent: string, us
         `;
         return { success: true };
       }
-      
+
       default:
         throw new Error(`Invalid analytics type: ${type}`);
     }
@@ -888,44 +971,60 @@ async function postHandler(request: NextRequest) {
   try {
     const session = await auth();
     const userId = session?.user?.id ? parseInt(session.user.id) : undefined;
-    
+
     const body = await request.json();
     const ipAddress = await getClientIpAddress(request);
     const userAgent = request.headers.get('user-agent') || 'Unknown';
-    
+
     // Check if this is a batched request (what the tracker sends) or single event
     if (body.events && Array.isArray(body.events)) {
       // Batched events from the analytics tracker
       const { events } = BatchedAnalyticsRequestSchema.parse(body);
-      
+
       const results = [];
       for (const event of events) {
         try {
-          const result = await processEvent(event, ipAddress, userAgent, userId);
+          const result = await processEvent(
+            event,
+            ipAddress,
+            userAgent,
+            userId
+          );
           results.push(result);
         } catch (error) {
           console.error('Error processing event:', error);
-          results.push({ success: false, error: error instanceof Error ? error.message : 'Unknown error' });
+          results.push({
+            success: false,
+            error: error instanceof Error ? error.message : 'Unknown error'
+          });
         }
       }
-      
-      return NextResponse.json({ 
-        success: true, 
+
+      return NextResponse.json({
+        success: true,
         processed: results.length,
-        results 
+        results
       });
     } else {
       // Single event (backwards compatibility)
       const singleEvent = AnalyticsRequestSchema.parse(body);
-      const result = await processEvent(singleEvent, ipAddress, userAgent, userId);
+      const result = await processEvent(
+        singleEvent,
+        ipAddress,
+        userAgent,
+        userId
+      );
       return NextResponse.json(result);
     }
   } catch (error) {
     console.error('Error processing analytics data:', error);
-    return NextResponse.json({ 
-      error: 'Failed to process analytics data',
-      details: error instanceof Error ? error.message : 'Unknown error'
-    }, { status: 500 });
+    return NextResponse.json(
+      {
+        error: 'Failed to process analytics data',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      },
+      { status: 500 }
+    );
   }
 }
 
@@ -933,4 +1032,4 @@ async function postHandler(request: NextRequest) {
 // EXPORT HANDLERS
 // ================================
 
-export const POST = withRateLimit(postHandler); 
+export const POST = withUniversalEnhancements(postHandler);

@@ -1,6 +1,7 @@
+import { withUniversalEnhancementsNoRateLimit } from '@lib/api/withUniversalEnhancements';
 import { NextResponse } from 'next/server';
 
-export async function GET() {
+async function healthHandler() {
   return NextResponse.json(
     {
       status: 'healthy',
@@ -13,3 +14,5 @@ export async function GET() {
     { status: 200 }
   );
 }
+
+export const GET = withUniversalEnhancementsNoRateLimit(healthHandler);

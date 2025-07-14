@@ -1,7 +1,9 @@
 'use client';
 
+import { useSession } from 'next-auth/react';
 import { useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import { useGeneratorMode } from '../../lib/context/UserPreferencesContext';
 import FadeIn from '../components/fade-in/FadeIn';
 import { PageAside } from '../components/page-aside/PageAside';
 import { PageContainer } from '../components/page-container/PageContainer';
@@ -13,6 +15,7 @@ import { MysticalLoader } from './components/MysticalLoader';
 import { QuotaDisplay } from './components/QuotaDisplay';
 import { RegenerationDialog } from './components/RegenerationDialog';
 import { WelcomeInterface } from './components/WelcomeInterface';
+import { WizardForm, type WizardFormData } from './components/WizardForm';
 import { ASPECT_RATIO_OPTIONS } from './constants/aspectRatios';
 import { useFormState } from './hooks/useFormState';
 import { useGenerationLoader } from './hooks/useGenerationLoader';
@@ -30,6 +33,8 @@ import {
 
 export default function OgImageViewer() {
   const searchParams = useSearchParams();
+  const { data: session } = useSession();
+  const { mode: generatorMode, setMode: setGeneratorMode } = useGeneratorMode();
 
   // Core state
   const [svgContent, setSvgContent] = useState<string>('');
@@ -115,6 +120,26 @@ export default function OgImageViewer() {
     setSvgContent
   });
 
+  // Handle wizard form submission
+  const handleWizardSubmit = (wizardData: WizardFormData) => {
+    // Convert wizard data to form state
+    setFormState({
+      currentSeed: wizardData.currentSeed,
+      avatarSeed: wizardData.avatarSeed,
+      customQuote: wizardData.customQuote,
+      customAuthor: wizardData.customAuthor,
+      customWidth: wizardData.customWidth,
+      customHeight: wizardData.customHeight,
+      shapeCount: wizardData.shapeCount
+    });
+
+    // Set the selected ratio
+    setSelectedRatio(wizardData.selectedRatio.key);
+
+    // Trigger generation
+    handleGenerate();
+  };
+
   // ALWAYS clear form when starting new generation - no exceptions
   const handleNewGeneration = () => {
     // FIRST: Clear ALL form state completely
@@ -137,6 +162,44 @@ export default function OgImageViewer() {
   // Handle copy generation ID
   const handleCopyId = () => {
     navigator.clipboard.writeText(currentGenerationId);
+  };
+
+  // Handle mode toggle (only for authenticated users)
+  const handleModeToggle = () => {
+    if (session?.user?.id) {
+      const newMode = generatorMode === 'wizard' ? 'advanced' : 'wizard';
+      setGeneratorMode(newMode);
+    }
+  };
+
+  // Handle save as PNG
+  const handleSaveAsPng = async () => {
+    if (!svgContent) return;
+
+    try {
+      const blob = await convertSvgToPng(svgContent);
+      const filename = generateFilename(
+        'png',
+        formState.currentSeed,
+        selectedRatio
+      );
+      downloadFile(blob, filename);
+    } catch (error) {
+      console.error('Error converting to PNG:', error);
+    }
+  };
+
+  // Handle save as SVG
+  const handleSaveAsSvg = () => {
+    if (!svgContent) return;
+
+    const blob = new Blob([svgContent], { type: 'image/svg+xml' });
+    const filename = generateFilename(
+      'svg',
+      formState.currentSeed,
+      selectedRatio
+    );
+    downloadFile(blob, filename);
   };
 
   // Load generation by ID from URL (only for direct links)
@@ -177,110 +240,74 @@ export default function OgImageViewer() {
       setIsLoadedGeneration(false);
       clearGeneration(); // Clear generation hook state including lastGenerationParams
     }
-  }, []); // Run only once on mount
+  }, []);
 
-  // Download handlers
-  const handleSaveAsPng = async () => {
-    try {
-      const pngBlob = await convertSvgToPng(svgContent);
-      downloadFile(
-        pngBlob,
-        generateFilename('png', formState.currentSeed, selectedRatio)
+  // Render form based on mode
+  const renderForm = () => {
+    const isAuthenticated = !!session?.user?.id;
+    const shouldUseWizard = !isAuthenticated || generatorMode === 'wizard';
+
+    if (shouldUseWizard) {
+      const selectedRatioObj =
+        ASPECT_RATIO_OPTIONS.find((opt) => opt.key === selectedRatio) ||
+        ASPECT_RATIO_OPTIONS[0];
+
+      return (
+        <WizardForm
+          initialData={{
+            selectedRatio: selectedRatioObj,
+            currentSeed: formState.currentSeed,
+            avatarSeed: formState.avatarSeed,
+            customAuthor: formState.customAuthor,
+            customQuote: formState.customQuote,
+            customWidth: formState.customWidth,
+            customHeight: formState.customHeight,
+            shapeCount: formState.shapeCount
+          }}
+          onSubmit={handleWizardSubmit}
+          isGenerating={isGenerating}
+          isQuotaExceeded={quotaState.isQuotaExceeded}
+          isPro={subscriptionStatus.isPro}
+        />
       );
-    } catch (err) {
-      setError('Failed to convert to PNG. Please try again.');
-    }
-  };
-
-  const handleSaveAsSvg = () => {
-    if (!svgContent) {
-      setError('No SVG content available');
-      return;
     }
 
-    const svgBlob = new Blob([svgContent], { type: 'image/svg+xml' });
-    downloadFile(
-      svgBlob,
-      generateFilename('svg', formState.currentSeed, selectedRatio)
-    );
-  };
-
-  // ALWAYS clear form and image when returning to welcome - no exceptions
-  useEffect(() => {
-    if (welcomeFlow.showWelcome) {
-      // Force clear ALL state when returning to welcome - no conditions
-      clearFormState();
-      clearGeneration();
-      setSvgContent('');
-      setCurrentGenerationId('');
-      setSelectedRatio('default');
-      setError('');
-      setIsFormCollapsed(true);
-      setIsLoadedGeneration(false);
-      setAdvancedOptions({});
-    }
-  }, [welcomeFlow.showWelcome]);
-
-  // Cleanup on component unmount
-  useEffect(() => {
-    return () => {
-      // Clear all state when component unmounts (navigation away from page)
-      clearFormState();
-      clearGeneration();
-      welcomeFlow.clearWelcomeFlow();
-      quotaState.clearQuota();
-      setSvgContent('');
-      setCurrentGenerationId('');
-      setError('');
-    };
-  }, [
-    clearFormState,
-    clearGeneration,
-    welcomeFlow.clearWelcomeFlow,
-    quotaState.clearQuota
-  ]);
-
-  // Loading states
-  if (generationLoader.isLoading) {
     return (
-      <div data-testid="card-generator">
-        <PageContainer>
-          <PageHeader>
-            <FadeIn>
-              <h2>🧙‍♂️ Mystical Card Generator</h2>
-              <p>
-                Retrieving your enchanted creation from the mystical archives...
-              </p>
-            </FadeIn>
-          </PageHeader>
-          <PageContent>
-            <MysticalLoader message="Summoning your previous generation from the ancient archives..." />
-          </PageContent>
-        </PageContainer>
-      </div>
+      <GenerationForm
+        currentSeed={formState.currentSeed}
+        setCurrentSeed={(seed) => updateField('currentSeed', seed)}
+        avatarSeed={formState.avatarSeed}
+        setAvatarSeed={(seed) => updateField('avatarSeed', seed)}
+        customQuote={formState.customQuote}
+        setCustomQuote={(quote) => updateField('customQuote', quote)}
+        customAuthor={formState.customAuthor}
+        setCustomAuthor={(author) => updateField('customAuthor', author)}
+        customWidth={formState.customWidth}
+        setCustomWidth={(width) => updateField('customWidth', width)}
+        customHeight={formState.customHeight}
+        setCustomHeight={(height) => updateField('customHeight', height)}
+        shapeCount={formState.shapeCount}
+        setShapeCount={(count) => updateField('shapeCount', count)}
+        isQuotaExceeded={quotaState.isQuotaExceeded}
+        isGenerating={isGenerating}
+        onGenerate={handleGenerate}
+        onRandomize={handleRandomize}
+        isCollapsed={isFormCollapsed}
+        onToggleCollapse={() => setIsFormCollapsed(!isFormCollapsed)}
+        selectedRatio={
+          ASPECT_RATIO_OPTIONS.find((opt) => opt.key === selectedRatio) ||
+          ASPECT_RATIO_OPTIONS[0]
+        }
+        onRatioChange={(ratio) => setSelectedRatio(ratio.key)}
+        aspectRatioOptions={ASPECT_RATIO_OPTIONS}
+        generationOptions={generationOptions}
+        advancedOptions={advancedOptions}
+        onAdvancedOptionsChange={setAdvancedOptions}
+        isProUser={subscriptionStatus.isPro}
+        isReadOnly={isLoadedGeneration}
+      />
     );
-  }
-
-  if (error) {
-    return (
-      <div data-testid="card-generator">
-        <PageContainer>
-          <PageHeader>
-            <FadeIn>
-              <h2>Card Generator</h2>
-              <p>Error: {error}</p>
-              <button
-                onClick={() => setError('')}
-                className={styles.header__button}
-              >
-                Try Again
-              </button>
-            </FadeIn>
-          </PageHeader>
-        </PageContainer>
-      </div>
-    );
-  }
+  };
 
   return (
     <div data-testid="card-generator">
@@ -309,6 +336,20 @@ export default function OgImageViewer() {
                     >
                       ← Welcome
                     </button>
+
+                    {/* Mode Toggle Button (only for authenticated users) */}
+                    {session?.user?.id && (
+                      <button
+                        onClick={handleModeToggle}
+                        className={`${styles.header__button} ${styles['header__button--mode']}`}
+                        title={`Switch to ${generatorMode === 'wizard' ? 'Advanced' : 'Wizard'} mode`}
+                      >
+                        {generatorMode === 'wizard'
+                          ? '⚙️ Advanced'
+                          : '🪄 Wizard'}
+                      </button>
+                    )}
+
                     <button
                       onClick={handleSaveAsPng}
                       className={`${styles.header__button} ${styles['header__button--png']}`}
@@ -326,15 +367,14 @@ export default function OgImageViewer() {
                       📥 SVG
                     </button>
                     {/* Mobile Quota Display - only visible when aside is hidden */}
-                    <div className={styles.mobile__quota__display}>
+                    <div className={styles.quota__mobile}>
                       <QuotaDisplay
                         remainingGenerations={quotaState.remainingGenerations}
                         quotaLimit={quotaState.quotaLimit}
+                        resetDate={quotaState.resetDate}
                         hasInitializedQuota={quotaState.hasInitializedQuota}
                         isQuotaExceeded={quotaState.isQuotaExceeded}
-                        resetDate={quotaState.resetDate}
-                        showMeter
-                        mobile
+                        mobile={true}
                       />
                     </div>
                   </div>
@@ -345,158 +385,78 @@ export default function OgImageViewer() {
         </PageHeader>
 
         <PageContent>
+          {/* Show welcome interface when appropriate */}
           {welcomeFlow.showWelcome ? (
-            <FadeIn>
-              <WelcomeInterface
-                remainingGenerations={quotaState.remainingGenerations}
-                quotaLimit={quotaState.quotaLimit}
-                hasInitializedQuota={quotaState.hasInitializedQuota}
-                isQuotaExceeded={quotaState.isQuotaExceeded}
-                resetDate={quotaState.resetDate}
-                loadGenerationId={welcomeFlow.loadGenerationId}
-                setLoadGenerationId={welcomeFlow.setLoadGenerationId}
-                onNewGeneration={handleNewGeneration}
-                onLoadGeneration={welcomeFlow.handleLoadGeneration}
-              />
-            </FadeIn>
-          ) : (
-            <article className={styles.viewer__container}>
-              <FadeIn className={styles.viewer__container_fade}>
-                <GenerationForm
-                  currentSeed={formState.currentSeed}
-                  setCurrentSeed={(seed) => updateField('currentSeed', seed)}
-                  avatarSeed={formState.avatarSeed}
-                  setAvatarSeed={(seed) => updateField('avatarSeed', seed)}
-                  customQuote={formState.customQuote}
-                  setCustomQuote={(quote) => updateField('customQuote', quote)}
-                  customAuthor={formState.customAuthor}
-                  setCustomAuthor={(author) =>
-                    updateField('customAuthor', author)
-                  }
-                  customWidth={formState.customWidth}
-                  setCustomWidth={(width) => updateField('customWidth', width)}
-                  customHeight={formState.customHeight}
-                  setCustomHeight={(height) =>
-                    updateField('customHeight', height)
-                  }
-                  shapeCount={formState.shapeCount}
-                  setShapeCount={(count) => updateField('shapeCount', count)}
-                  isQuotaExceeded={quotaState.isQuotaExceeded}
-                  isGenerating={isGenerating}
-                  onGenerate={handleGenerate}
-                  onRandomize={handleRandomize}
-                  isCollapsed={isFormCollapsed}
-                  onToggleCollapse={() => setIsFormCollapsed(!isFormCollapsed)}
-                  selectedRatio={
-                    ASPECT_RATIO_OPTIONS.find(
-                      (opt) => opt.key === selectedRatio
-                    ) || ASPECT_RATIO_OPTIONS[0]
-                  }
-                  onRatioChange={(ratio) => setSelectedRatio(ratio.key)}
-                  aspectRatioOptions={ASPECT_RATIO_OPTIONS}
-                  generationOptions={generationOptions}
-                  advancedOptions={advancedOptions}
-                  onAdvancedOptionsChange={setAdvancedOptions}
-                  isProUser={subscriptionStatus.isPro}
-                  isReadOnly={isLoadedGeneration && !subscriptionStatus.isPro}
-                />
-
-                <GenerationDisplay
-                  generationId={currentGenerationId}
-                  svgContent={svgContent}
-                  onCopyId={handleCopyId}
-                />
-              </FadeIn>
-            </article>
-          )}
-        </PageContent>
-
-        <PageAside className={styles.features_aside} bottomMargin={10}>
-          <FadeIn>
-            <QuotaDisplay
+            <WelcomeInterface
               remainingGenerations={quotaState.remainingGenerations}
               quotaLimit={quotaState.quotaLimit}
               hasInitializedQuota={quotaState.hasInitializedQuota}
               isQuotaExceeded={quotaState.isQuotaExceeded}
               resetDate={quotaState.resetDate}
-              showMeter
+              loadGenerationId={welcomeFlow.loadGenerationId}
+              setLoadGenerationId={welcomeFlow.setLoadGenerationId}
+              onNewGeneration={welcomeFlow.handleNewGeneration}
+              onLoadGeneration={welcomeFlow.handleLoadGeneration}
             />
+          ) : (
+            <article className={styles.viewer__container}>
+              <FadeIn className={styles.viewer__container_fade}>
+                {renderForm()}
 
-            {/* Mystical Codex */}
-            <div className={styles.features__section}>
-              <h3>📜 Arcane Knowledge</h3>
-              <div className={styles.features__grid}>
-                <div className={styles.feature__card}>
-                  <h4>
-                    <span className={styles.feature__icon}>🎯</span>
-                    Pro Tips
-                  </h4>
-                  <p>
-                    Use custom seeds for reproducible results. Save your
-                    Generation ID to retrieve previous generations!
-                  </p>
-                </div>
-                <div className={styles.feature__card}>
-                  <h4>
-                    <span className={styles.feature__icon}>⚙️</span>
-                    Advanced Magic
-                  </h4>
-                  <p>
-                    Unlock custom quotes, dimensions, and shape counts with Pro
-                    subscription (coming soon) for unlimited creativity.
-                  </p>
-                </div>
-                <div className={styles.feature__card}>
-                  <h4>
-                    <span className={styles.feature__icon}>📱</span>
-                    Perfect Formats
-                  </h4>
-                  <p>
-                    Choose from 7+ aspect ratios: Instagram, YouTube, LinkedIn,
-                    Twitter, Facebook, and more!
-                  </p>
-                </div>
-                <div className={styles.feature__card}>
-                  <h4>
-                    <span className={styles.feature__icon}>💾</span>
-                    Export Options
-                  </h4>
-                  <p>
-                    Download as PNG for social media or SVG for scalable vector
-                    graphics. Both formats supported!
-                  </p>
-                </div>
-                <div className={styles.feature__card}>
-                  <h4>
-                    <span className={styles.feature__icon}>🔄</span>
-                    Generation History
-                  </h4>
-                  <p>
-                    Every creation gets a unique ID. Load previous generations
-                    anytime using the ID lookup feature.
-                  </p>
-                </div>
-                <div className={styles.feature__card}>
-                  <h4>
-                    <span className={styles.feature__icon}>🎨</span>
-                    Sacred Geometry
-                  </h4>
-                  <p>
-                    Algorithmically generated patterns based on mathematical
-                    principles and mystical symbolism.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </FadeIn>
+                {/* Copy Generation ID Button - only visible when generation exists */}
+                {currentGenerationId && (
+                  <div className={styles.generation__id__container}>
+                    <button
+                      onClick={handleCopyId}
+                      className={styles.generation__id__button}
+                      title="Copy generation ID to clipboard"
+                    >
+                      📋 Copy ID: {currentGenerationId}
+                    </button>
+                  </div>
+                )}
+
+                {/* Mystical Loader */}
+                {isGenerating && <MysticalLoader />}
+
+                {/* Error Display */}
+                {error && (
+                  <div className={styles.error__container}>
+                    <p className={styles.error__message}>{error}</p>
+                  </div>
+                )}
+
+                {/* Generation Display */}
+                {svgContent && (
+                  <GenerationDisplay
+                    generationId={currentGenerationId}
+                    svgContent={svgContent}
+                    onCopyId={handleCopyId}
+                  />
+                )}
+
+                {/* Regeneration Dialog */}
+                {showRegenerationDialog && (
+                  <RegenerationDialog
+                    isOpen={showRegenerationDialog}
+                    onChoice={handleRegenerationChoice}
+                    onClose={handleCloseRegenerationDialog}
+                  />
+                )}
+              </FadeIn>
+            </article>
+          )}
+        </PageContent>
+
+        <PageAside>
+          <QuotaDisplay
+            remainingGenerations={quotaState.remainingGenerations}
+            quotaLimit={quotaState.quotaLimit}
+            resetDate={quotaState.resetDate}
+            hasInitializedQuota={quotaState.hasInitializedQuota}
+            isQuotaExceeded={quotaState.isQuotaExceeded}
+          />
         </PageAside>
-
-        {/* Regeneration Dialog */}
-        <RegenerationDialog
-          isOpen={showRegenerationDialog}
-          onChoice={handleRegenerationChoice}
-          onClose={handleCloseRegenerationDialog}
-        />
       </PageContainer>
     </div>
   );

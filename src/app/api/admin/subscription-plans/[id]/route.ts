@@ -3,12 +3,12 @@
  * Handles updating individual subscription plans
  */
 
+import { withUniversalEnhancements } from '@lib/api/withUniversalEnhancements';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { checkUserPermission } from '../../../../../lib/actions/permissions.actions';
 import { auth } from '../../../../../lib/auth';
 import sql from '../../../../../lib/db';
-import { withRateLimit } from '../../../../../lib/middleware/withRateLimit';
 import { PERMISSIONS } from '../../../../../lib/permissions/permissions';
 
 export const runtime = 'nodejs';
@@ -28,42 +28,45 @@ async function patchHandler(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
-      try {
-        const session = await auth();
-        if (!session?.user?.id) {
-          return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-        }
+  try {
+    const session = await auth();
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
 
-        // Check admin permissions
-        const hasPermission = await checkUserPermission(
-          parseInt(session.user.id),
-          PERMISSIONS.ADMIN.USERS_MANAGE
-        );
-        if (!hasPermission) {
-          return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 });
-        }
+    // Check admin permissions
+    const hasPermission = await checkUserPermission(
+      parseInt(session.user.id),
+      PERMISSIONS.ADMIN.USERS_MANAGE
+    );
+    if (!hasPermission) {
+      return NextResponse.json(
+        { error: 'Insufficient permissions' },
+        { status: 403 }
+      );
+    }
 
-        const planId = parseInt(params.id);
-        if (isNaN(planId)) {
-          return NextResponse.json({ error: 'Invalid plan ID' }, { status: 400 });
-        }
+    const planId = parseInt(params.id);
+    if (isNaN(planId)) {
+      return NextResponse.json({ error: 'Invalid plan ID' }, { status: 400 });
+    }
 
-        const body = await request.json();
-        const updateData = updatePlanSchema.parse(body);
+    const body = await request.json();
+    const updateData = updatePlanSchema.parse(body);
 
-        // Check if plan exists
-        const existingPlan = await sql`
+    // Check if plan exists
+    const existingPlan = await sql`
           SELECT id, name, display_name, is_active
           FROM subscription_plans
           WHERE id = ${planId}
         `;
 
-        if (existingPlan.length === 0) {
-          return NextResponse.json({ error: 'Plan not found' }, { status: 404 });
-        }
+    if (existingPlan.length === 0) {
+      return NextResponse.json({ error: 'Plan not found' }, { status: 404 });
+    }
 
-        // Update plan with provided fields
-        const result = await sql`
+    // Update plan with provided fields
+    const result = await sql`
           UPDATE subscription_plans 
           SET 
             is_active = COALESCE(${updateData.is_active ?? null}, is_active),
@@ -78,12 +81,15 @@ async function patchHandler(
           RETURNING *
         `;
 
-        if (result.length === 0) {
-          return NextResponse.json({ error: 'Failed to update plan' }, { status: 500 });
-        }
+    if (result.length === 0) {
+      return NextResponse.json(
+        { error: 'Failed to update plan' },
+        { status: 500 }
+      );
+    }
 
-        // Log the action
-        await sql`
+    // Log the action
+    await sql`
           INSERT INTO admin_actions (
             admin_user_id, action_type, action_details, created_at
           ) VALUES (
@@ -98,47 +104,49 @@ async function patchHandler(
           )
         `;
 
-        return NextResponse.json({
-          success: true,
-          plan: result[0],
-          message: 'Plan updated successfully'
-        });
-
-      } catch (error) {
-        console.error('Error updating subscription plan:', error);
-        return NextResponse.json(
-          { error: 'Internal server error' },
-          { status: 500 }
-        );
-      }
+    return NextResponse.json({
+      success: true,
+      plan: result[0],
+      message: 'Plan updated successfully'
+    });
+  } catch (error) {
+    console.error('Error updating subscription plan:', error);
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    );
+  }
 }
 
 async function deleteHandler(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
-      try {
-        const session = await auth();
-        if (!session?.user?.id) {
-          return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-        }
+  try {
+    const session = await auth();
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
 
-        // Check admin permissions
-        const hasPermission = await checkUserPermission(
-          parseInt(session.user.id),
-          PERMISSIONS.ADMIN.USERS_MANAGE
-        );
-        if (!hasPermission) {
-          return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 });
-        }
+    // Check admin permissions
+    const hasPermission = await checkUserPermission(
+      parseInt(session.user.id),
+      PERMISSIONS.ADMIN.USERS_MANAGE
+    );
+    if (!hasPermission) {
+      return NextResponse.json(
+        { error: 'Insufficient permissions' },
+        { status: 403 }
+      );
+    }
 
-        const planId = parseInt(params.id);
-        if (isNaN(planId)) {
-          return NextResponse.json({ error: 'Invalid plan ID' }, { status: 400 });
-        }
+    const planId = parseInt(params.id);
+    if (isNaN(planId)) {
+      return NextResponse.json({ error: 'Invalid plan ID' }, { status: 400 });
+    }
 
-        // Check if plan exists and has active subscriptions
-        const planInfo = await sql`
+    // Check if plan exists and has active subscriptions
+    const planInfo = await sql`
           SELECT 
             sp.id, sp.name, sp.display_name,
             COUNT(us.id) as active_subscriptions
@@ -148,25 +156,28 @@ async function deleteHandler(
           GROUP BY sp.id, sp.name, sp.display_name
         `;
 
-        if (planInfo.length === 0) {
-          return NextResponse.json({ error: 'Plan not found' }, { status: 404 });
-        }
+    if (planInfo.length === 0) {
+      return NextResponse.json({ error: 'Plan not found' }, { status: 404 });
+    }
 
-        const plan = planInfo[0];
-        if (plan.active_subscriptions > 0) {
-          return NextResponse.json({ 
-            error: `Cannot delete plan with ${plan.active_subscriptions} active subscriptions. Disable the plan instead.` 
-          }, { status: 400 });
-        }
+    const plan = planInfo[0];
+    if (plan.active_subscriptions > 0) {
+      return NextResponse.json(
+        {
+          error: `Cannot delete plan with ${plan.active_subscriptions} active subscriptions. Disable the plan instead.`
+        },
+        { status: 400 }
+      );
+    }
 
-        // Delete the plan
-        await sql`
+    // Delete the plan
+    await sql`
           DELETE FROM subscription_plans
           WHERE id = ${planId}
         `;
 
-        // Log the action
-        await sql`
+    // Log the action
+    await sql`
           INSERT INTO admin_actions (
             admin_user_id, action_type, action_details, created_at
           ) VALUES (
@@ -181,19 +192,18 @@ async function deleteHandler(
           )
         `;
 
-        return NextResponse.json({
-          success: true,
-          message: 'Plan deleted successfully'
-        });
-
-      } catch (error) {
-        console.error('Error deleting subscription plan:', error);
-        return NextResponse.json(
-          { error: 'Internal server error' },
-          { status: 500 }
-        );
-      }
+    return NextResponse.json({
+      success: true,
+      message: 'Plan deleted successfully'
+    });
+  } catch (error) {
+    console.error('Error deleting subscription plan:', error);
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    );
+  }
 }
 
-export const PATCH = withRateLimit(patchHandler);
-export const DELETE = withRateLimit(deleteHandler); 
+export const PATCH = withUniversalEnhancements(patchHandler);
+export const DELETE = withUniversalEnhancements(deleteHandler);

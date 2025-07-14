@@ -54,29 +54,30 @@
   flex-wrap: wrap;
 }
 
-/* Base header button styling */
+/* Header Button Styles */
 .header__button {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  justify-content: center;
   gap: 0.5rem;
-  padding: 0.75rem 1.25rem;
-  border: none;
+  padding: 0.75rem 1rem;
+  background: var(--color-background-secondary);
+  border: 1px solid var(--color-border);
   border-radius: 8px;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  white-space: nowrap;
+  color: var(--color-text-primary);
   text-decoration: none;
-  position: relative;
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  font-size: 0.875rem;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  white-space: nowrap;
 }
 
 .header__button:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  background: var(--color-background-tertiary);
+  border-color: var(--color-border-hover);
+  transform: translateY(-1px);
+  text-decoration: none;
+  color: var(--color-text-primary);
 }
 
 .header__button:disabled {
@@ -85,76 +86,53 @@
   transform: none;
 }
 
-/* Welcome button - Blue styling */
+/* Specific button variants */
 .header__button--welcome {
-  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+  background: linear-gradient(135deg, #8b5cf6, #7c3aed);
   color: white;
-  border: 1px solid rgba(59, 130, 246, 0.3);
-  box-shadow: 0 4px 16px rgba(59, 130, 246, 0.2);
+  border-color: #8b5cf6;
 }
 
 .header__button--welcome:hover:not(:disabled) {
-  background: linear-gradient(135deg, #1d4ed8, #1e40af);
-  border-color: rgba(59, 130, 246, 0.5);
-  box-shadow: 0 8px 25px rgba(59, 130, 246, 0.3);
+  background: linear-gradient(135deg, #7c3aed, #6d28d9);
+  border-color: #7c3aed;
+  color: white;
 }
 
-/* PNG button - Green styling for raster images */
+.header__button--mode {
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+  color: white;
+  border-color: #3b82f6;
+}
+
+.header__button--mode:hover:not(:disabled) {
+  background: linear-gradient(135deg, #2563eb, #1e40af);
+  border-color: #2563eb;
+  color: white;
+}
+
 .header__button--png {
   background: linear-gradient(135deg, #10b981, #059669);
   color: white;
-  border: 1px solid rgba(16, 185, 129, 0.3);
-  box-shadow: 0 4px 16px rgba(16, 185, 129, 0.2);
+  border-color: #10b981;
 }
 
 .header__button--png:hover:not(:disabled) {
   background: linear-gradient(135deg, #059669, #047857);
-  border-color: rgba(16, 185, 129, 0.5);
-  box-shadow: 0 8px 25px rgba(16, 185, 129, 0.3);
-}
-
-.header__button--png:disabled {
-  background: linear-gradient(135deg, #6b7280, #4b5563);
-  border-color: rgba(107, 114, 128, 0.3);
-  box-shadow: none;
-}
-
-/* SVG button - Purple styling for vector images */
-.header__button--svg {
-  background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+  border-color: #059669;
   color: white;
-  border: 1px solid rgba(139, 92, 246, 0.3);
-  box-shadow: 0 4px 16px rgba(139, 92, 246, 0.2);
+}
+
+.header__button--svg {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  color: white;
+  border-color: #f59e0b;
 }
 
 .header__button--svg:hover:not(:disabled) {
-  background: linear-gradient(135deg, #7c3aed, #6d28d9);
-  border-color: rgba(139, 92, 246, 0.5);
-  box-shadow: 0 8px 25px rgba(139, 92, 246, 0.3);
-}
-
-.header__button--svg:disabled {
-  background: linear-gradient(135deg, #6b7280, #4b5563);
-  border-color: rgba(107, 114, 128, 0.3);
-  box-shadow: none;
-}
-
-/* Default header button (fallback) */
-.header__button:not(.header__button--welcome):not(.header__button--png):not(
-    .header__button--svg
-  ) {
-  background-color: var(--brand-primary);
+  background: linear-gradient(135deg, #d97706, #b45309);
+  border-color: #d97706;
   color: white;
-  border: 1px solid rgba(255, 107, 53, 0.3);
-  box-shadow: 0 4px 16px rgba(255, 107, 53, 0.2);
-}
-
-.header__button:not(.header__button--welcome):not(.header__button--png):not(
-    .header__button--svg
-  ):hover:not(:disabled) {
-  background-color: var(--brand-primary--dark);
-  border-color: rgba(255, 107, 53, 0.5);
-  box-shadow: 0 8px 25px rgba(255, 107, 53, 0.3);
 }
 
 /* Loading and error states */

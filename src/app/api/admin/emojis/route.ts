@@ -10,11 +10,14 @@ import {
   rejectCustomEmoji
 } from '@lib/actions/emoji.actions';
 import { checkUserPermission } from '@lib/actions/permissions.actions';
+import { withUniversalEnhancements } from '@lib/api/withUniversalEnhancements';
 import { auth } from '@lib/auth';
 import sql from '@lib/db';
-import { withRateLimit } from '@lib/middleware/withRateLimit';
 import { PERMISSIONS } from '@lib/permissions/permissions';
-import { AdminEmojiActionSchema, AdminEmojiSearchParamsSchema } from '@lib/schemas/admin-emojis.schema';
+import {
+  AdminEmojiActionSchema,
+  AdminEmojiSearchParamsSchema
+} from '@lib/schemas/admin-emojis.schema';
 import { NextRequest, NextResponse } from 'next/server';
 
 interface CustomEmoji {
@@ -48,7 +51,10 @@ async function getHandler(request: NextRequest) {
       PERMISSIONS.ADMIN.EMOJI_APPROVE
     );
     if (!hasPermission) {
-      return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 });
+      return NextResponse.json(
+        { error: 'Insufficient permissions' },
+        { status: 403 }
+      );
     }
 
     // Validate query parameters
@@ -57,14 +63,14 @@ async function getHandler(request: NextRequest) {
       page: searchParams.get('page'),
       limit: searchParams.get('limit'),
       status: searchParams.get('status'),
-      search: searchParams.get('search'),
+      search: searchParams.get('search')
     });
 
     if (!paramsResult.success) {
       return NextResponse.json(
-        { 
+        {
           error: 'Invalid query parameters',
-          details: paramsResult.error.errors 
+          details: paramsResult.error.errors
         },
         { status: 400 }
       );
@@ -79,7 +85,7 @@ async function getHandler(request: NextRequest) {
     if (status === 'pending' || status === 'all') {
       // Get pending emojis using existing server action
       const pendingEmojis = await getPendingCustomEmojis(limit, offset);
-      emojis = pendingEmojis.map(emoji => ({
+      emojis = pendingEmojis.map((emoji) => ({
         ...emoji,
         approval_status: 'pending' as const
       }));
@@ -88,7 +94,7 @@ async function getHandler(request: NextRequest) {
     if (status === 'approved' || status === 'rejected' || status === 'all') {
       // Build where clause for approved/rejected emojis
       let whereClause = sql`WHERE ce.is_approved IS NOT NULL`;
-      
+
       if (status === 'approved') {
         whereClause = sql`${whereClause} AND ce.is_approved = true`;
       } else if (status === 'rejected') {
@@ -133,10 +139,11 @@ async function getHandler(request: NextRequest) {
 
     // Apply search filter to pending emojis if needed
     if (search && (status === 'pending' || status === 'all')) {
-      emojis = emojis.filter(emoji => 
-        emoji.name.toLowerCase().includes(search.toLowerCase()) ||
-        emoji.description?.toLowerCase().includes(search.toLowerCase()) ||
-        emoji.creator_email.toLowerCase().includes(search.toLowerCase())
+      emojis = emojis.filter(
+        (emoji) =>
+          emoji.name.toLowerCase().includes(search.toLowerCase()) ||
+          emoji.description?.toLowerCase().includes(search.toLowerCase()) ||
+          emoji.creator_email.toLowerCase().includes(search.toLowerCase())
       );
     }
 
@@ -190,14 +197,14 @@ async function getHandler(request: NextRequest) {
 async function postHandler(request: NextRequest) {
   try {
     const body = await request.json();
-    
+
     // Validate request body
     const bodyResult = AdminEmojiActionSchema.safeParse(body);
     if (!bodyResult.success) {
       return NextResponse.json(
-        { 
+        {
           error: 'Invalid request data',
-          details: bodyResult.error.errors 
+          details: bodyResult.error.errors
         },
         { status: 400 }
       );
@@ -272,6 +279,6 @@ async function deleteHandler(request: NextRequest) {
 }
 
 // Apply rate limiting to handlers
-export const GET = withRateLimit(getHandler);
-export const POST = withRateLimit(postHandler);
-export const DELETE = withRateLimit(deleteHandler);
+export const GET = withUniversalEnhancements(getHandler);
+export const POST = withUniversalEnhancements(postHandler);
+export const DELETE = withUniversalEnhancements(deleteHandler);

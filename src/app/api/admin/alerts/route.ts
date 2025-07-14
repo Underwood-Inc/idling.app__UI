@@ -1,5 +1,7 @@
+import { withUniversalEnhancements } from '@lib/api/withUniversalEnhancements';
 import { auth } from '@lib/auth';
 import sql from '@lib/db';
+import { withRateLimit } from '@lib/middleware/withRateLimit';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 
@@ -11,7 +13,14 @@ const CreateAlertSchema = z.object({
   title: z.string().min(1, 'Title is required').max(200, 'Title too long'),
   message: z.string().optional(),
   details: z.string().optional(),
-  alert_type: z.enum(['info', 'warning', 'error', 'success', 'maintenance', 'custom']),
+  alert_type: z.enum([
+    'info',
+    'warning',
+    'error',
+    'success',
+    'maintenance',
+    'custom'
+  ]),
   priority: z.number().int().min(-100).max(100).default(0),
   icon: z.string().optional(),
   dismissible: z.boolean().default(true),
@@ -19,9 +28,16 @@ const CreateAlertSchema = z.object({
   is_active: z.boolean().default(true),
   is_published: z.boolean().default(false),
   expires_at: z.string().datetime().optional(),
-  target_audience: z.enum([
-    'all', 'authenticated', 'subscribers', 'admins', 'role_based', 'specific_users'
-  ]).default('all'),
+  target_audience: z
+    .enum([
+      'all',
+      'authenticated',
+      'subscribers',
+      'admins',
+      'role_based',
+      'specific_users'
+    ])
+    .default('all'),
   target_roles: z.array(z.string()).optional(),
   target_users: z.array(z.number().int()).optional(),
   start_date: z.string().datetime().optional(),
@@ -46,7 +62,7 @@ async function validateAdminAccess(sessionUserId: string): Promise<boolean> {
       AND (ura.expires_at IS NULL OR ura.expires_at > CURRENT_TIMESTAMP)
       LIMIT 1
     `;
-    
+
     return adminCheck.length > 0;
   } catch (error) {
     console.error('Admin validation error:', error);
@@ -58,24 +74,28 @@ async function validateAdminAccess(sessionUserId: string): Promise<boolean> {
 // API HANDLERS
 // ================================
 
-export async function GET(request: NextRequest) {
-  try {
-    const session = await auth();
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+export const GET = withUniversalEnhancements(
+  withRateLimit(async (request: NextRequest) => {
+    try {
+      const session = await auth();
+      if (!session?.user?.id) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      }
 
-    const isAdmin = await validateAdminAccess(session.user.id);
-    if (!isAdmin) {
-      return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
-    }
+      const isAdmin = await validateAdminAccess(session.user.id);
+      if (!isAdmin) {
+        return NextResponse.json(
+          { error: 'Admin access required' },
+          { status: 403 }
+        );
+      }
 
-    const { searchParams } = new URL(request.url);
-    const page = parseInt(searchParams.get('page') || '1');
-    const limit = parseInt(searchParams.get('limit') || '10');
-    const offset = (page - 1) * limit;
+      const { searchParams } = new URL(request.url);
+      const page = parseInt(searchParams.get('page') || '1');
+      const limit = parseInt(searchParams.get('limit') || '10');
+      const offset = (page - 1) * limit;
 
-    const alerts = await sql`
+      const alerts = await sql`
       SELECT 
         id, title, message, details, alert_type, priority, icon,
         dismissible, persistent, expires_at, target_audience,
@@ -87,42 +107,49 @@ export async function GET(request: NextRequest) {
       LIMIT ${limit} OFFSET ${offset}
     `;
 
-    const totalCount = await sql`
+      const totalCount = await sql`
       SELECT COUNT(*) as count FROM custom_alerts
     `;
 
-    return NextResponse.json({
-      alerts,
-      pagination: {
-        page,
-        limit,
-        total: totalCount[0].count,
-        totalPages: Math.ceil(totalCount[0].count / limit)
+      return NextResponse.json({
+        alerts,
+        pagination: {
+          page,
+          limit,
+          total: totalCount[0].count,
+          totalPages: Math.ceil(totalCount[0].count / limit)
+        }
+      });
+    } catch (error) {
+      console.error('Error fetching alerts:', error);
+      return NextResponse.json(
+        { error: 'Failed to fetch alerts' },
+        { status: 500 }
+      );
+    }
+  })
+);
+
+export const POST = withUniversalEnhancements(
+  withRateLimit(async (request: NextRequest) => {
+    try {
+      const session = await auth();
+      if (!session?.user?.id) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
       }
-    });
 
-  } catch (error) {
-    console.error('Error fetching alerts:', error);
-    return NextResponse.json({ error: 'Failed to fetch alerts' }, { status: 500 });
-  }
-}
+      const isAdmin = await validateAdminAccess(session.user.id);
+      if (!isAdmin) {
+        return NextResponse.json(
+          { error: 'Admin access required' },
+          { status: 403 }
+        );
+      }
 
-export async function POST(request: NextRequest) {
-  try {
-    const session = await auth();
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+      const body = await request.json();
+      const validatedData = CreateAlertSchema.parse(body);
 
-    const isAdmin = await validateAdminAccess(session.user.id);
-    if (!isAdmin) {
-      return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
-    }
-
-    const body = await request.json();
-    const validatedData = CreateAlertSchema.parse(body);
-
-    const [newAlert] = await sql`
+      const [newAlert] = await sql`
       INSERT INTO custom_alerts (
         title, message, details, alert_type, priority, icon,
         dismissible, persistent, is_active, is_published, expires_at, target_audience,
@@ -151,22 +178,25 @@ export async function POST(request: NextRequest) {
       ) RETURNING *
     `;
 
-    // SSE notifications removed - admin panel now uses polling for updates
+      // SSE notifications removed - admin panel now uses polling for updates
 
-    return NextResponse.json({ 
-      message: 'Alert created successfully', 
-      alert: newAlert 
-    });
+      return NextResponse.json({
+        message: 'Alert created successfully',
+        alert: newAlert
+      });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return NextResponse.json(
+          { error: 'Validation failed', details: error.errors },
+          { status: 400 }
+        );
+      }
 
-  } catch (error) {
-    if (error instanceof z.ZodError) {
+      console.error('Error creating alert:', error);
       return NextResponse.json(
-        { error: 'Validation failed', details: error.errors },
-        { status: 400 }
+        { error: 'Failed to create alert' },
+        { status: 500 }
       );
     }
-    
-    console.error('Error creating alert:', error);
-    return NextResponse.json({ error: 'Failed to create alert' }, { status: 500 });
-  }
-} 
+  })
+);

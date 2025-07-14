@@ -1,17 +1,17 @@
 /**
  * Admin Roles Management API
  * Handles comprehensive roles management with full CRUD operations
- * 
+ *
  * @author System Wizard 🧙‍♂️
  * @version 1.0.0
  */
 
+import { withUniversalEnhancements } from '@lib/api/withUniversalEnhancements';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { checkUserPermission } from '../../../../../lib/actions/permissions.actions';
 import { auth } from '../../../../../lib/auth';
 import sql from '../../../../../lib/db';
-import { withRateLimit } from '../../../../../lib/middleware/withRateLimit';
 import { PERMISSIONS } from '../../../../../lib/permissions/permissions';
 
 export const runtime = 'nodejs';
@@ -22,45 +22,70 @@ export const runtime = 'nodejs';
 
 const RoleSearchSchema = z.object({
   search: z.string().optional(),
-  status: z.enum(['all', 'active', 'disabled', 'archived']).optional().default('all'),
-  sort_by: z.enum(['name', 'display_name', 'created_at', 'updated_at', 'user_count', 'permission_count', 'sort_order']).optional().default('sort_order'),
+  status: z
+    .enum(['all', 'active', 'disabled', 'archived'])
+    .optional()
+    .default('all'),
+  sort_by: z
+    .enum([
+      'name',
+      'display_name',
+      'created_at',
+      'updated_at',
+      'user_count',
+      'permission_count',
+      'sort_order'
+    ])
+    .optional()
+    .default('sort_order'),
   sort_order: z.enum(['asc', 'desc']).optional().default('asc'),
   page: z.coerce.number().min(1).optional().default(1),
-  limit: z.coerce.number().min(1).max(100).optional().default(20),
+  limit: z.coerce.number().min(1).max(100).optional().default(20)
 });
 
 const RoleCreateSchema = z.object({
-  name: z.string().min(1).max(100).regex(/^[a-z0-9_-]+$/i, 'Invalid role name format'),
+  name: z
+    .string()
+    .min(1)
+    .max(100)
+    .regex(/^[a-z0-9_-]+$/i, 'Invalid role name format'),
   display_name: z.string().min(1).max(200),
   description: z.string().optional(),
-  role_color: z.string().regex(/^#[0-9A-F]{6}$/i, 'Invalid hex color').optional().default('#6366F1'),
+  role_color: z
+    .string()
+    .regex(/^#[0-9A-F]{6}$/i, 'Invalid hex color')
+    .optional()
+    .default('#6366F1'),
   role_icon: z.string().min(1).max(50).optional().default('user'),
   is_default: z.boolean().optional().default(false),
   permissions: z.array(z.number()).optional().default([]),
   metadata: z.record(z.any()).optional().default({}),
-  reason: z.string().optional(),
+  reason: z.string().optional()
 });
 
 const RoleUpdateSchema = z.object({
   display_name: z.string().min(1).max(200).optional(),
   description: z.string().optional(),
-  role_color: z.string().regex(/^#[0-9A-F]{6}$/i, 'Invalid hex color').optional(),
+  role_color: z
+    .string()
+    .regex(/^#[0-9A-F]{6}$/i, 'Invalid hex color')
+    .optional(),
   role_icon: z.string().min(1).max(50).optional(),
   is_active: z.boolean().optional(),
   is_default: z.boolean().optional(),
   sort_order: z.number().min(0).optional(),
   permissions: z.array(z.number()).optional(),
   metadata: z.record(z.any()).optional(),
-  reason: z.string().optional(),
+  reason: z.string().optional()
 });
 
 const RoleArchiveSchema = z.object({
-  reason: z.string().min(1).max(500),
+  reason: z.string().min(1).max(500)
 });
 
 const RolePermissionUpdateSchema = z.object({
   permission_ids: z.array(z.number()),
-  reason: z.string().optional(),
+  reason: z.string().optional()
 });
 
 // ================================
@@ -78,10 +103,16 @@ async function getHandler(request: NextRequest) {
     }
 
     const userId = parseInt(session.user.id);
-    const hasPermission = await checkUserPermission(userId, PERMISSIONS.ADMIN.ROLES_VIEW);
-    
+    const hasPermission = await checkUserPermission(
+      userId,
+      PERMISSIONS.ADMIN.ROLES_VIEW
+    );
+
     if (!hasPermission) {
-      return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 });
+      return NextResponse.json(
+        { error: 'Insufficient permissions' },
+        { status: 403 }
+      );
     }
 
     const { searchParams } = new URL(request.url);
@@ -123,15 +154,16 @@ async function getHandler(request: NextRequest) {
 
     // Add status filtering
     if (params.status !== 'all') {
-      const statusCondition = params.status === 'active' ? 
-        sql`ur.is_active = TRUE AND ur.is_archived = FALSE` :
-        params.status === 'disabled' ?
-        sql`ur.is_active = FALSE AND ur.is_archived = FALSE` :
-        sql`ur.is_archived = TRUE`;
-      
-      baseQuery = params.search ? 
-        sql`${baseQuery} AND ${statusCondition}` :
-        sql`${baseQuery} WHERE ${statusCondition}`;
+      const statusCondition =
+        params.status === 'active'
+          ? sql`ur.is_active = TRUE AND ur.is_archived = FALSE`
+          : params.status === 'disabled'
+            ? sql`ur.is_active = FALSE AND ur.is_archived = FALSE`
+            : sql`ur.is_archived = TRUE`;
+
+      baseQuery = params.search
+        ? sql`${baseQuery} AND ${statusCondition}`
+        : sql`${baseQuery} WHERE ${statusCondition}`;
     }
 
     // Add sorting
@@ -150,7 +182,7 @@ async function getHandler(request: NextRequest) {
       sortField = `ur.${params.sort_by}`;
     }
     const sortOrder = params.sort_order.toUpperCase();
-    
+
     // Calculate offset
     const offset = (params.page - 1) * params.limit;
 
@@ -163,7 +195,7 @@ async function getHandler(request: NextRequest) {
 
     // Get total count with same filtering as main query
     let countQuery = sql`SELECT COUNT(*) as total FROM user_roles ur`;
-    
+
     // Apply same search filtering to count
     if (params.search) {
       countQuery = sql`
@@ -176,15 +208,16 @@ async function getHandler(request: NextRequest) {
 
     // Apply same status filtering to count
     if (params.status !== 'all') {
-      const statusCondition = params.status === 'active' ? 
-        sql`ur.is_active = TRUE AND ur.is_archived = FALSE` :
-        params.status === 'disabled' ?
-        sql`ur.is_active = FALSE AND ur.is_archived = FALSE` :
-        sql`ur.is_archived = TRUE`;
-      
-      countQuery = params.search ? 
-        sql`${countQuery} AND ${statusCondition}` :
-        sql`${countQuery} WHERE ${statusCondition}`;
+      const statusCondition =
+        params.status === 'active'
+          ? sql`ur.is_active = TRUE AND ur.is_archived = FALSE`
+          : params.status === 'disabled'
+            ? sql`ur.is_active = FALSE AND ur.is_archived = FALSE`
+            : sql`ur.is_archived = TRUE`;
+
+      countQuery = params.search
+        ? sql`${countQuery} AND ${statusCondition}`
+        : sql`${countQuery} WHERE ${statusCondition}`;
     }
 
     const countResult = await countQuery;
@@ -221,17 +254,16 @@ async function getHandler(request: NextRequest) {
         has_more: offset + roles.length < totalCount
       }
     });
-
   } catch (error) {
     console.error('Error fetching roles:', error);
-    
+
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         { error: 'Invalid request parameters', details: error.errors },
         { status: 400 }
       );
     }
-    
+
     return NextResponse.json(
       { error: 'Failed to fetch roles' },
       { status: 500 }
@@ -250,10 +282,16 @@ async function postHandler(request: NextRequest) {
     }
 
     const userId = parseInt(session.user.id);
-    const hasPermission = await checkUserPermission(userId, PERMISSIONS.ADMIN.ROLES_MANAGE);
-    
+    const hasPermission = await checkUserPermission(
+      userId,
+      PERMISSIONS.ADMIN.ROLES_MANAGE
+    );
+
     if (!hasPermission) {
-      return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 });
+      return NextResponse.json(
+        { error: 'Insufficient permissions' },
+        { status: 403 }
+      );
     }
 
     const body = await request.json();
@@ -295,13 +333,14 @@ async function postHandler(request: NextRequest) {
 
     // Assign permissions to role
     if (data.permissions.length > 0) {
-      const permissionInserts = data.permissions.map(permissionId => 
-        sql`
+      const permissionInserts = data.permissions.map(
+        (permissionId) =>
+          sql`
           INSERT INTO role_permissions (role_id, permission_id, granted_by, granted_at)
           VALUES (${roleId}, ${permissionId}, ${userId}, CURRENT_TIMESTAMP)
         `
       );
-      
+
       await Promise.all(permissionInserts);
     }
 
@@ -314,21 +353,23 @@ async function postHandler(request: NextRequest) {
       )
     `;
 
-    return NextResponse.json({
-      message: 'Role created successfully',
-      role: newRole[0]
-    }, { status: 201 });
-
+    return NextResponse.json(
+      {
+        message: 'Role created successfully',
+        role: newRole[0]
+      },
+      { status: 201 }
+    );
   } catch (error) {
     console.error('Error creating role:', error);
-    
+
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         { error: 'Invalid request data', details: error.errors },
         { status: 400 }
       );
     }
-    
+
     return NextResponse.json(
       { error: 'Failed to create role' },
       { status: 500 }
@@ -340,6 +381,5 @@ async function postHandler(request: NextRequest) {
 // EXPORT HANDLERS
 // ================================
 
-export const GET = withRateLimit(getHandler);
-
-export const POST = withRateLimit(postHandler); 
+export const GET = withUniversalEnhancements(getHandler);
+export const POST = withUniversalEnhancements(postHandler);

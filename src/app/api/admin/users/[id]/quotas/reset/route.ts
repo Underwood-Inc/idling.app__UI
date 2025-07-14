@@ -1,18 +1,16 @@
 /**
  * User Quota Reset API
- * 
+ *
  * Provides secure endpoint for resetting user quota usage counts
  * while preserving the quota limits themselves.
- * 
+ *
  * @version 1.0.0
  * @author System
  */
 
-import { withUserPermissions } from '@lib/api/wrappers/withUserPermissions';
-import { withUserRoles } from '@lib/api/wrappers/withUserRoles';
+import { withUniversalEnhancements } from '@lib/api/withUniversalEnhancements';
 import { auth } from '@lib/auth';
 import sql from '@lib/db';
-import { withRateLimit } from '@lib/middleware/withRateLimit';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 
@@ -85,7 +83,11 @@ async function logAdminAction(
 async function postHandler(
   request: NextRequest,
   { params }: { params: { id: string } }
-): Promise<NextResponse<ApiResponse<{ reset: boolean; previous_usage: number }> | ErrorResponse>> {
+): Promise<
+  NextResponse<
+    ApiResponse<{ reset: boolean; previous_usage: number }> | ErrorResponse
+  >
+> {
   try {
     // Validate session
     const session = await auth();
@@ -108,13 +110,13 @@ async function postHandler(
     // Validate request body
     const body = await request.json();
     const validationResult = ResetUserQuotaSchema.safeParse(body);
-    
+
     if (!validationResult.success) {
       return NextResponse.json(
-        { 
-          success: false, 
+        {
+          success: false,
           error: 'Invalid request data',
-          data: validationResult.error.issues 
+          data: validationResult.error.issues
         },
         { status: 400 }
       );
@@ -203,18 +205,17 @@ async function postHandler(
 
     return NextResponse.json({
       success: true,
-      data: { 
-        reset: true, 
-        previous_usage: previousUsage 
+      data: {
+        reset: true,
+        previous_usage: previousUsage
       },
       message: `Quota usage reset for ${serviceName} - ${featureName} (was: ${previousUsage})`
     });
-
   } catch (error) {
     console.error('POST /api/admin/users/[id]/quotas/reset error:', error);
     return NextResponse.json(
-      { 
-        success: false, 
+      {
+        success: false,
         error: 'Internal server error',
         message: 'Failed to reset user quota'
       },
@@ -224,4 +225,4 @@ async function postHandler(
 }
 
 // Apply rate limiting and permission wrappers to handlers
-export const POST = withUserRoles(withUserPermissions(withRateLimit(postHandler as any) as any)) as any; 
+export const POST = withUniversalEnhancements(postHandler);

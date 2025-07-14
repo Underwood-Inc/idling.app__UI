@@ -78,9 +78,9 @@
  *               $ref: '#/components/schemas/Error'
  */
 
+import { withUniversalEnhancements } from '@lib/api/withUniversalEnhancements';
 import { auth } from '@lib/auth';
 import sql from '@lib/db';
-import { withRateLimit } from '@lib/middleware/withRateLimit';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 
@@ -91,7 +91,7 @@ const dismissAlertSchema = z.object({
 
 /**
  * POST /api/alerts/dismiss
- * 
+ *
  * Dismisses a custom alert for a specific user.
  * Updates both the dismissal tracking and analytics.
  */
@@ -110,10 +110,7 @@ async function postHandler(request: NextRequest) {
 
     // Verify the user can only dismiss their own alerts
     if (parseInt(session.user.id) !== userId) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 403 }
-      );
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
     }
 
     // Dismiss the alert
@@ -149,4 +146,4 @@ async function postHandler(request: NextRequest) {
   }
 }
 
-export const POST = withRateLimit(postHandler); 
+export const POST = withUniversalEnhancements(postHandler);

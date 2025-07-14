@@ -96,12 +96,10 @@
  * Handles user listing, searching, and basic management operations
  */
 
-import { withUserPermissions } from '@lib/api/wrappers/withUserPermissions';
-import { withUserRoles } from '@lib/api/wrappers/withUserRoles';
+import { withUniversalEnhancements } from '@lib/api/withUniversalEnhancements';
 import { auth } from '@lib/auth';
 import sql from '@lib/db';
 import { createLogger } from '@lib/logging';
-import { withRateLimit } from '@lib/middleware/withRateLimit';
 import { AdminUserSearchParamsSchema } from '@lib/schemas/admin-users.schema';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
@@ -109,11 +107,11 @@ import { z } from 'zod';
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-const logger = createLogger({ 
-  context: { 
+const logger = createLogger({
+  context: {
     component: 'admin-users-api',
-    context: 'server' 
-  } 
+    context: 'server'
+  }
 });
 
 export interface AdminUser {
@@ -169,14 +167,14 @@ async function getHandler(request: NextRequest) {
     const paramsResult = AdminUserSearchParamsSchema.safeParse({
       page: searchParams.get('page'),
       limit: searchParams.get('limit'),
-      search: searchParams.get('search'),
+      search: searchParams.get('search')
     });
 
     if (!paramsResult.success) {
       return NextResponse.json(
-        { 
+        {
           error: 'Invalid query parameters',
-          details: paramsResult.error.errors 
+          details: paramsResult.error.errors
         },
         { status: 400 }
       );
@@ -185,7 +183,12 @@ async function getHandler(request: NextRequest) {
     const { page, limit, search } = paramsResult.data;
     const offset = (page - 1) * limit;
 
-    logger.info('Processing validated query parameters', { page, limit, search, offset });
+    logger.info('Processing validated query parameters', {
+      page,
+      limit,
+      search,
+      offset
+    });
 
     // Build search query
     let whereClause = sql`WHERE 1=1`;
@@ -271,29 +274,35 @@ async function getHandler(request: NextRequest) {
       }
     };
 
-    logger.info('API Response prepared', { 
-      userCount: users.length, 
-      currentPage: response.currentPage, 
-      totalPages: response.totalPages 
+    logger.info('API Response prepared', {
+      userCount: users.length,
+      currentPage: response.currentPage,
+      totalPages: response.totalPages
     });
 
     return NextResponse.json(response);
   } catch (error) {
-    logger.error('Error fetching admin users', error instanceof Error ? error : new Error(String(error)));
-    
+    logger.error(
+      'Error fetching admin users',
+      error instanceof Error ? error : new Error(String(error))
+    );
+
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         { error: 'Invalid request data', details: error.errors },
         { status: 400 }
       );
     }
-    
+
     return NextResponse.json(
-      { error: 'Failed to fetch users', details: error instanceof Error ? error.message : 'Unknown error' },
+      {
+        error: 'Failed to fetch users',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      },
       { status: 500 }
     );
   }
 }
 
-// Apply rate limiting and permission wrappers to handlers
-export const GET = withUserRoles(withUserPermissions(withRateLimit(getHandler as any) as any)) as any;
+// Apply permissions and rate limiting to handlers
+export const GET = withUniversalEnhancements(getHandler);

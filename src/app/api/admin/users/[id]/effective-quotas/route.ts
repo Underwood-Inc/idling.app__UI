@@ -1,17 +1,17 @@
 /**
  * Effective Quotas API for Admin Panel
- * 
+ *
  * Provides comprehensive quota information for admin user management
  * showing subscription quotas, overrides, and effective limits.
- * 
+ *
  * @version 1.0.0
  * @author System
  */
 
 import { checkUserPermission } from '@lib/actions/permissions.actions';
+import { withUniversalEnhancements } from '@lib/api/withUniversalEnhancements';
 import { auth } from '@lib/auth';
 import sql from '@lib/db';
-import { withRateLimit } from '@lib/middleware/withRateLimit';
 import { PERMISSIONS } from '@lib/permissions/permissions';
 import { EnhancedQuotaService } from '@lib/services/EnhancedQuotaService';
 import { NextRequest, NextResponse } from 'next/server';
@@ -80,7 +80,9 @@ async function validateUserExists(userId: string): Promise<boolean> {
 async function getHandler(
   request: NextRequest,
   { params }: { params: { id: string } }
-): Promise<NextResponse<ApiResponse<{ quotas: EffectiveQuotaData[] }> | ErrorResponse>> {
+): Promise<
+  NextResponse<ApiResponse<{ quotas: EffectiveQuotaData[] }> | ErrorResponse>
+> {
   try {
     // Validate session
     const session = await auth();
@@ -93,7 +95,10 @@ async function getHandler(
 
     // Canonical admin permission check
     const userId = parseInt(session.user.id);
-    const hasPermission = await checkUserPermission(userId, PERMISSIONS.ADMIN.USERS_VIEW);
+    const hasPermission = await checkUserPermission(
+      userId,
+      PERMISSIONS.ADMIN.USERS_VIEW
+    );
     if (!hasPermission) {
       return NextResponse.json(
         { success: false, error: 'Admin access required' },
@@ -111,8 +116,10 @@ async function getHandler(
     }
 
     // Get comprehensive quota info using EnhancedQuotaService
-    const quotaInfo = await EnhancedQuotaService.getUserQuotaInfo(parseInt(params.id));
-    
+    const quotaInfo = await EnhancedQuotaService.getUserQuotaInfo(
+      parseInt(params.id)
+    );
+
     // Get additional display information for proper names
     const serviceFeatures = await sql`
       SELECT 
@@ -153,13 +160,17 @@ async function getHandler(
     `;
 
     // Transform quota info to admin panel format
-    const quotaData: EffectiveQuotaData[] = quotaInfo.map(info => {
+    const quotaData: EffectiveQuotaData[] = quotaInfo.map((info) => {
       const serviceFeature = serviceFeatures.find(
-        sf => sf.service_name === info.service_name && sf.feature_name === info.feature_name
+        (sf) =>
+          sf.service_name === info.service_name &&
+          sf.feature_name === info.feature_name
       );
 
       const override = userOverrides.find(
-        uo => uo.service_name === info.service_name && uo.feature_name === info.feature_name
+        (uo) =>
+          uo.service_name === info.service_name &&
+          uo.feature_name === info.feature_name
       );
 
       // Determine subscription quota (if no override exists)
@@ -170,15 +181,17 @@ async function getHandler(
       if (!override && info.quota_source === 'subscription_plan') {
         subscriptionQuotaLimit = info.quota_limit;
         subscriptionIsUnlimited = info.is_unlimited;
-        subscriptionPlanName = userSubscription[0]?.plan_display_name || userSubscription[0]?.plan_name;
+        subscriptionPlanName =
+          userSubscription[0]?.plan_display_name ||
+          userSubscription[0]?.plan_name;
       }
 
       return {
         service_name: info.service_name,
         feature_name: info.feature_name,
-        display_name: serviceFeature ? 
-          `${serviceFeature.service_display_name} - ${serviceFeature.feature_display_name}` : 
-          `${info.service_name} - ${info.feature_name}`,
+        display_name: serviceFeature
+          ? `${serviceFeature.service_display_name} - ${serviceFeature.feature_display_name}`
+          : `${info.service_name} - ${info.feature_name}`,
         current_usage: info.current_usage,
         // Subscription quota
         subscription_quota_limit: subscriptionQuotaLimit,
@@ -191,9 +204,15 @@ async function getHandler(
         // Effective (active) quota
         effective_quota_limit: info.quota_limit,
         effective_is_unlimited: info.is_unlimited,
-        effective_source: info.quota_source === 'user_override' ? 'user_override' : 
-                         info.quota_source === 'subscription_plan' ? 'subscription_plan' : 'none',
-        reset_date: info.reset_date?.toISOString() || new Date(Date.now() + 86400000).toISOString(),
+        effective_source:
+          info.quota_source === 'user_override'
+            ? 'user_override'
+            : info.quota_source === 'subscription_plan'
+              ? 'subscription_plan'
+              : 'none',
+        reset_date:
+          info.reset_date?.toISOString() ||
+          new Date(Date.now() + 86400000).toISOString(),
         reset_period: info.reset_period
       };
     });
@@ -203,12 +222,11 @@ async function getHandler(
       data: { quotas: quotaData },
       message: `Retrieved ${quotaData.length} effective quota entries for user`
     });
-
   } catch (error) {
     console.error('GET /api/admin/users/[id]/effective-quotas error:', error);
     return NextResponse.json(
-      { 
-        success: false, 
+      {
+        success: false,
         error: 'Internal server error',
         message: 'Failed to retrieve effective quotas'
       },
@@ -218,6 +236,6 @@ async function getHandler(
 }
 
 // Apply rate limiting to handler
-export const GET = withRateLimit(getHandler);
+export const GET = withUniversalEnhancements(getHandler);
 
-// Removed default export - Next.js API routes should only use named exports 
+// Removed default export - Next.js API routes should only use named exports

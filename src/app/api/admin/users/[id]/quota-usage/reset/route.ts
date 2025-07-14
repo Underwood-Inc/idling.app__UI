@@ -1,16 +1,16 @@
 /**
  * User Quota Usage Reset API
- * 
+ *
  * Provides secure endpoint for resetting user quota usage counts
  * while preserving the quota limits themselves.
- * 
+ *
  * @version 1.0.0
  * @author System
  */
 
+import { withUniversalEnhancements } from '@lib/api/withUniversalEnhancements';
 import { auth } from '@lib/auth';
 import sql from '@lib/db';
-import { withRateLimit } from '@lib/middleware/withRateLimit';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 
@@ -49,7 +49,7 @@ async function validateAdminAccess(userId: number): Promise<boolean> {
       JOIN permissions p ON rp.permission_id = p.id
       WHERE ura.user_id = ${userId}
       AND ur.is_active = true
-      AND p.name = 'admin:manage_users'
+      AND p.name = 'admin.users.manage'
       AND p.is_active = true
       LIMIT 1
     `;
@@ -102,7 +102,11 @@ async function logAdminAction(
 async function postHandler(
   request: NextRequest,
   { params }: { params: { id: string } }
-): Promise<NextResponse<ApiResponse<{ reset: boolean; previous_usage: number }> | ErrorResponse>> {
+): Promise<
+  NextResponse<
+    ApiResponse<{ reset: boolean; previous_usage: number }> | ErrorResponse
+  >
+> {
   try {
     // Validate session
     const session = await auth();
@@ -134,13 +138,13 @@ async function postHandler(
     // Validate request body
     const body = await request.json();
     const validationResult = ResetUserQuotaSchema.safeParse(body);
-    
+
     if (!validationResult.success) {
       return NextResponse.json(
-        { 
-          success: false, 
+        {
+          success: false,
           error: 'Invalid request data',
-          data: validationResult.error.issues 
+          data: validationResult.error.issues
         },
         { status: 400 }
       );
@@ -207,18 +211,17 @@ async function postHandler(
 
     return NextResponse.json({
       success: true,
-      data: { 
-        reset: true, 
-        previous_usage: previousUsage 
+      data: {
+        reset: true,
+        previous_usage: previousUsage
       },
       message: `Usage reset for ${serviceFeatureExists[0].service_display_name} - ${serviceFeatureExists[0].feature_display_name} (was ${previousUsage})`
     });
-
   } catch (error) {
     console.error('POST /api/admin/users/[id]/quota-usage/reset error:', error);
     return NextResponse.json(
-      { 
-        success: false, 
+      {
+        success: false,
         error: 'Internal server error',
         message: 'Failed to reset user quota usage'
       },
@@ -228,4 +231,4 @@ async function postHandler(
 }
 
 // Apply rate limiting to handler
-export const POST = withRateLimit(postHandler); 
+export const POST = withUniversalEnhancements(postHandler);

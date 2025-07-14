@@ -3,12 +3,12 @@
  * Handles fetching user subscription data for admin management
  */
 
+import { withUniversalEnhancements } from '@lib/api/withUniversalEnhancements';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { checkUserPermission } from '../../../../lib/actions/permissions.actions';
 import { auth } from '../../../../lib/auth';
 import sql from '../../../../lib/db';
-import { withRateLimit } from '../../../../lib/middleware/withRateLimit';
 import { PERMISSIONS } from '../../../../lib/permissions/permissions';
 
 export const runtime = 'nodejs';
@@ -18,7 +18,13 @@ export interface UserSubscription {
   id: string;
   user_id: string;
   plan_id: string;
-  status: 'active' | 'cancelled' | 'expired' | 'suspended' | 'pending' | 'trialing';
+  status:
+    | 'active'
+    | 'cancelled'
+    | 'expired'
+    | 'suspended'
+    | 'pending'
+    | 'trialing';
   billing_cycle?: string;
   expires_at?: string;
   trial_ends_at?: string;
@@ -50,7 +56,10 @@ async function getHandler(request: NextRequest) {
       PERMISSIONS.ADMIN.USERS_MANAGE
     );
     if (!hasPermission) {
-      return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 });
+      return NextResponse.json(
+        { error: 'Insufficient permissions' },
+        { status: 403 }
+      );
     }
 
     // Check if subscription system exists and get user subscriptions
@@ -82,22 +91,25 @@ async function getHandler(request: NextRequest) {
       `;
     } catch (error) {
       // Subscription tables might not exist yet
-      return NextResponse.json({ 
-        error: 'Subscription system not available' 
-      }, { status: 503 });
+      return NextResponse.json(
+        {
+          error: 'Subscription system not available'
+        },
+        { status: 503 }
+      );
     }
 
     return NextResponse.json(subscriptions);
   } catch (error) {
     console.error('Error fetching user subscriptions:', error);
-    
+
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         { error: 'Invalid request data', details: error.errors },
         { status: 400 }
       );
     }
-    
+
     return NextResponse.json(
       { error: 'Failed to fetch user subscriptions' },
       { status: 500 }
@@ -105,4 +117,4 @@ async function getHandler(request: NextRequest) {
   }
 }
 
-export const GET = withRateLimit(getHandler); 
+export const GET = withUniversalEnhancements(getHandler);

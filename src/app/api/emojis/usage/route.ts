@@ -62,7 +62,7 @@
  * Handles tracking emoji usage statistics
  */
 
-import { withRateLimit } from '@lib/middleware/withRateLimit';
+import { withUniversalEnhancements } from '@lib/api/withUniversalEnhancements';
 import { NextRequest, NextResponse } from 'next/server';
 import { trackEmojiUsage } from '../../../../lib/actions/emoji.actions';
 
@@ -107,4 +107,4 @@ async function postHandler(request: NextRequest) {
   }
 }
 
-export const POST = withRateLimit(postHandler);
+export const POST = withUniversalEnhancements(postHandler);

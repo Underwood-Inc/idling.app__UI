@@ -1,9 +1,9 @@
-import { withRateLimit } from '@lib/middleware/withRateLimit';
+import { updateBioAction } from '@lib/actions/profile.actions';
+import { withUniversalEnhancements } from '@lib/api/withUniversalEnhancements';
+import { auth } from '@lib/auth';
+import { withProfilePrivacy } from '@lib/utils/privacy';
+import { getEffectiveCharacterCount } from '@lib/utils/string';
 import { NextRequest, NextResponse } from 'next/server';
-import { updateBioAction } from '../../../../lib/actions/profile.actions';
-import { auth } from '../../../../lib/auth';
-import { withProfilePrivacy } from '../../../../lib/utils/privacy';
-import { getEffectiveCharacterCount } from '../../../../lib/utils/string';
 
 // This route uses dynamic features (auth/headers) and should not be pre-rendered
 export const dynamic = 'force-dynamic';
@@ -150,5 +150,5 @@ async function patchHandler(
 }
 
 // Apply rate limiting to handlers
-export const GET = withRateLimit(getHandler);
-export const PATCH = withRateLimit(patchHandler);
+export const GET = withUniversalEnhancements(getHandler);
+export const PATCH = withUniversalEnhancements(patchHandler);

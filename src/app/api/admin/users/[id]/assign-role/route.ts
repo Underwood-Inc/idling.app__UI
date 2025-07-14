@@ -3,8 +3,7 @@
  * Handles assigning and managing user roles
  */
 
-import { withUserPermissions } from '@lib/api/wrappers/withUserPermissions';
-import { withUserRoles } from '@lib/api/wrappers/withUserRoles';
+import { withUniversalEnhancements } from '@lib/api/withUniversalEnhancements';
 import { auth } from '@lib/auth';
 import sql from '@lib/db';
 import {
@@ -38,9 +37,9 @@ async function postHandler(
     const postUserIdValidation = UserIdParamsSchema.safeParse(params);
     if (!postUserIdValidation.success) {
       return NextResponse.json(
-        { 
+        {
           error: 'Invalid user ID format',
-          details: postUserIdValidation.error.errors 
+          details: postUserIdValidation.error.errors
         },
         { status: 400 }
       );
@@ -51,12 +50,12 @@ async function postHandler(
     // Validate request body
     const body = await request.json();
     const bodyResult = AdminUserRoleAssignmentSchema.safeParse(body);
-    
+
     if (!bodyResult.success) {
       return NextResponse.json(
-        { 
+        {
           error: 'Invalid request data',
-          details: bodyResult.error.errors 
+          details: bodyResult.error.errors
         },
         { status: 400 }
       );
@@ -80,7 +79,10 @@ async function postHandler(
     `;
 
     if (existingAssignments.length > 0) {
-      return NextResponse.json({ error: 'User already has this role' }, { status: 409 });
+      return NextResponse.json(
+        { error: 'User already has this role' },
+        { status: 409 }
+      );
     }
 
     // Assign the role
@@ -98,9 +100,9 @@ async function postHandler(
       )
     `;
 
-    return NextResponse.json({ 
-      success: true, 
-      message: `Role assigned successfully` 
+    return NextResponse.json({
+      success: true,
+      message: `Role assigned successfully`
     });
   } catch (error) {
     return NextResponse.json(
@@ -127,9 +129,9 @@ async function deleteHandler(
     const deleteUserIdValidation = UserIdParamsSchema.safeParse(params);
     if (!deleteUserIdValidation.success) {
       return NextResponse.json(
-        { 
+        {
           error: 'Invalid user ID format',
-          details: deleteUserIdValidation.error.errors 
+          details: deleteUserIdValidation.error.errors
         },
         { status: 400 }
       );
@@ -140,14 +142,14 @@ async function deleteHandler(
     // Validate query parameters
     const { searchParams } = new URL(request.url);
     const queryValidation = AdminUserRoleRemovalParamsSchema.safeParse({
-      roleId: searchParams.get('roleId'),
+      roleId: searchParams.get('roleId')
     });
 
     if (!queryValidation.success) {
       return NextResponse.json(
-        { 
+        {
           error: 'Invalid role removal parameters',
-          details: queryValidation.error.errors 
+          details: queryValidation.error.errors
         },
         { status: 400 }
       );
@@ -162,20 +164,20 @@ async function deleteHandler(
       WHERE user_id = ${targetUserId} AND role_id = ${roleId} AND is_active = true
     `;
 
-    return NextResponse.json({ 
-      success: true, 
-      message: 'Role removed successfully' 
+    return NextResponse.json({
+      success: true,
+      message: 'Role removed successfully'
     });
   } catch (error) {
     console.error('Error removing role:', error);
-    
+
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         { error: 'Invalid request data', details: error.errors },
         { status: 400 }
       );
     }
-    
+
     return NextResponse.json(
       { error: 'Failed to remove role' },
       { status: 500 }
@@ -184,5 +186,5 @@ async function deleteHandler(
 }
 
 // Apply permission wrappers to handlers
-export const POST = withUserRoles(withUserPermissions(postHandler as any));
-export const DELETE = withUserRoles(withUserPermissions(deleteHandler as any)); 
+export const POST = withUniversalEnhancements(postHandler);
+export const DELETE = withUniversalEnhancements(deleteHandler);

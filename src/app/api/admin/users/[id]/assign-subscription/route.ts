@@ -3,11 +3,14 @@
  * Handles assigning and managing user subscriptions
  */
 
-import { withUserPermissions } from '@lib/api/wrappers/withUserPermissions';
-import { withUserRoles } from '@lib/api/wrappers/withUserRoles';
+import { withUniversalEnhancements } from '@lib/api/withUniversalEnhancements';
 import { auth } from '@lib/auth';
 import sql from '@lib/db';
-import { AdminSubscriptionAssignmentSchema, AdminSubscriptionCancelParamsSchema, AdminSubscriptionUpdateSchema } from '@lib/schemas/admin-subscriptions.schema';
+import {
+  AdminSubscriptionAssignmentSchema,
+  AdminSubscriptionCancelParamsSchema,
+  AdminSubscriptionUpdateSchema
+} from '@lib/schemas/admin-subscriptions.schema';
 import { NextRequest, NextResponse } from 'next/server';
 import z from 'zod';
 
@@ -42,18 +45,26 @@ async function postHandler(
     // Validate request body
     const body = await request.json();
     const bodyResult = AdminSubscriptionAssignmentSchema.safeParse(body);
-    
+
     if (!bodyResult.success) {
       return NextResponse.json(
-        { 
+        {
           error: 'Invalid request data',
-          details: bodyResult.error.errors 
+          details: bodyResult.error.errors
         },
         { status: 400 }
       );
     }
 
-    const { planId, billingCycle, expiresAt, status, reason, priceOverrideCents, priceOverrideReason } = bodyResult.data;
+    const {
+      planId,
+      billingCycle,
+      expiresAt,
+      status,
+      reason,
+      priceOverrideCents,
+      priceOverrideReason
+    } = bodyResult.data;
 
     // Check if subscription system exists
     let planExists = false;
@@ -63,13 +74,19 @@ async function postHandler(
       `;
       planExists = plans.length > 0;
     } catch (error) {
-      return NextResponse.json({ 
-        error: 'Subscription system not available' 
-      }, { status: 503 });
+      return NextResponse.json(
+        {
+          error: 'Subscription system not available'
+        },
+        { status: 503 }
+      );
     }
 
     if (!planExists) {
-      return NextResponse.json({ error: 'Subscription plan not found' }, { status: 404 });
+      return NextResponse.json(
+        { error: 'Subscription plan not found' },
+        { status: 404 }
+      );
     }
 
     // Check for existing active subscription
@@ -81,9 +98,12 @@ async function postHandler(
     `;
 
     if (existingSubscriptions.length > 0) {
-      return NextResponse.json({ 
-        error: 'User already has an active subscription' 
-      }, { status: 409 });
+      return NextResponse.json(
+        {
+          error: 'User already has an active subscription'
+        },
+        { status: 409 }
+      );
     }
 
     // Calculate expiry date if not provided
@@ -137,21 +157,21 @@ async function postHandler(
       )
     `;
 
-    return NextResponse.json({ 
-      success: true, 
+    return NextResponse.json({
+      success: true,
       message: 'Subscription assigned successfully',
       expiresAt: finalExpiresAt
     });
   } catch (error) {
     console.error('Error assigning subscription:', error);
-    
+
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         { error: 'Invalid request data', details: error.errors },
         { status: 400 }
       );
     }
-    
+
     return NextResponse.json(
       { error: 'Failed to assign subscription' },
       { status: 500 }
@@ -180,12 +200,12 @@ async function patchHandler(
     // Validate request body
     const body = await request.json();
     const bodyResult = AdminSubscriptionUpdateSchema.safeParse(body);
-    
+
     if (!bodyResult.success) {
       return NextResponse.json(
-        { 
+        {
           error: 'Invalid request data',
-          details: bodyResult.error.errors 
+          details: bodyResult.error.errors
         },
         { status: 400 }
       );
@@ -204,20 +224,20 @@ async function patchHandler(
       WHERE id = ${subscriptionId} AND user_id = ${targetUserId}
     `;
 
-    return NextResponse.json({ 
-      success: true, 
-      message: 'Subscription updated successfully' 
+    return NextResponse.json({
+      success: true,
+      message: 'Subscription updated successfully'
     });
   } catch (error) {
     console.error('Error updating subscription:', error);
-    
+
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         { error: 'Invalid request data', details: error.errors },
         { status: 400 }
       );
     }
-    
+
     return NextResponse.json(
       { error: 'Failed to update subscription' },
       { status: 500 }
@@ -247,20 +267,21 @@ async function deleteHandler(
     const { searchParams } = new URL(request.url);
     const paramsResult = AdminSubscriptionCancelParamsSchema.safeParse({
       subscriptionId: searchParams.get('subscriptionId'),
-      reason: searchParams.get('reason'),
+      reason: searchParams.get('reason')
     });
 
     if (!paramsResult.success) {
       return NextResponse.json(
-        { 
+        {
           error: 'Invalid cancellation parameters',
-          details: paramsResult.error.errors 
+          details: paramsResult.error.errors
         },
         { status: 400 }
       );
     }
 
-    const { subscriptionId, reason = 'Cancelled by administrator' } = paramsResult.data;
+    const { subscriptionId, reason = 'Cancelled by administrator' } =
+      paramsResult.data;
 
     // Cancel the subscription
     await sql`
@@ -272,20 +293,20 @@ async function deleteHandler(
       WHERE id = ${parseInt(subscriptionId.toString())} AND user_id = ${targetUserId}
     `;
 
-    return NextResponse.json({ 
-      success: true, 
-      message: 'Subscription cancelled successfully' 
+    return NextResponse.json({
+      success: true,
+      message: 'Subscription cancelled successfully'
     });
   } catch (error) {
     console.error('Error cancelling subscription:', error);
-    
+
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         { error: 'Invalid request data', details: error.errors },
         { status: 400 }
       );
     }
-    
+
     return NextResponse.json(
       { error: 'Failed to cancel subscription' },
       { status: 500 }
@@ -294,6 +315,6 @@ async function deleteHandler(
 }
 
 // Apply permission wrappers to handlers
-export const POST = withUserRoles(withUserPermissions(postHandler as any));
-export const PATCH = withUserRoles(withUserPermissions(patchHandler as any));
-export const DELETE = withUserRoles(withUserPermissions(deleteHandler as any)); 
+export const POST = withUniversalEnhancements(postHandler);
+export const PATCH = withUniversalEnhancements(patchHandler);
+export const DELETE = withUniversalEnhancements(deleteHandler);

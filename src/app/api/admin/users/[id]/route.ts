@@ -3,11 +3,9 @@
  * Handles detailed user information retrieval for admin management
  */
 
-import { withUserPermissions } from '@lib/api/wrappers/withUserPermissions';
-import { withUserRoles } from '@lib/api/wrappers/withUserRoles';
+import { withUniversalEnhancements } from '@lib/api/withUniversalEnhancements';
 import { auth } from '@lib/auth';
 import sql from '@lib/db';
-import { withRateLimit } from '@lib/middleware/withRateLimit';
 import { NextRequest, NextResponse } from 'next/server';
 
 export interface DetailedUser {
@@ -167,4 +165,4 @@ async function getHandler(
 }
 
 // Apply rate limiting and permission wrappers to handlers
-export const GET = withUserRoles(withUserPermissions(withRateLimit(getHandler as any) as any)) as any; 
+export const GET = withUniversalEnhancements(getHandler);
