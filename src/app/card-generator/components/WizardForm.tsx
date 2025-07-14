@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { Card } from '../../components/card/Card';
 import { InstantLink } from '../../components/ui/InstantLink';
 import { ASPECT_RATIO_OPTIONS } from '../constants/aspectRatios';
+import formStyles from './FormElements.module.css';
 import type { AspectRatioOption } from './GenerationForm';
 import wizardStyles from './WizardForm.module.css';
 
@@ -32,6 +33,8 @@ interface WizardFormProps {
   isGenerating?: boolean;
   isQuotaExceeded?: boolean;
   isPro?: boolean;
+  isCollapsed?: boolean;
+  onToggleCollapse?: () => void;
 }
 
 type WizardStep = 'platform' | 'basic' | 'pro' | 'confirm';
@@ -42,7 +45,9 @@ export function WizardForm({
   onCancel,
   isGenerating = false,
   isQuotaExceeded = false,
-  isPro = false
+  isPro = false,
+  isCollapsed = false,
+  onToggleCollapse
 }: WizardFormProps) {
   const { data: session } = useSession();
   const isAuthenticated = !!session?.user?.id;
@@ -448,75 +453,119 @@ export function WizardForm({
 
   return (
     <Card width="full" className={wizardStyles.wizardContainer}>
-      <div className={wizardStyles.wizardHeader}>
-        <h2>{getStepTitle()}</h2>
-        <p>{getStepDescription()}</p>
-        {renderStepIndicator()}
-      </div>
+      {/* Collapsible Header */}
+      <div className={formStyles.form__header}>
+        <div className={wizardStyles.wizardHeaderContent}>
+          <h2 className={wizardStyles.wizardTitle}>{getStepTitle()}</h2>
+          <p className={wizardStyles.wizardDescription}>
+            {getStepDescription()}
+          </p>
+        </div>
 
-      <div className={wizardStyles.wizardBody}>{renderCurrentStep()}</div>
-
-      <div className={wizardStyles.wizardFooter}>
-        {onCancel && (
-          <button
-            onClick={onCancel}
-            className={wizardStyles.cancelButton}
-            disabled={isGenerating}
-          >
-            Cancel
-          </button>
-        )}
-
-        <div className={wizardStyles.navigationButtons}>
-          {showPrevious && (
+        {/* Step Indicator with Collapse Button */}
+        <div className={wizardStyles.stepIndicatorContainer}>
+          {renderStepIndicator()}
+          {onToggleCollapse && (
             <button
-              onClick={handlePrevious}
-              className={wizardStyles.previousButton}
-              disabled={isGenerating}
+              onClick={onToggleCollapse}
+              className={wizardStyles.wizardCollapseButton}
+              title={isCollapsed ? 'Expand wizard' : 'Collapse wizard'}
             >
-              ← Previous
-            </button>
-          )}
-
-          {showNext && (
-            <button
-              onClick={handleNext}
-              className={wizardStyles.nextButton}
-              disabled={!canGoNext() || isGenerating}
-            >
-              Next →
-            </button>
-          )}
-
-          {showGenerate && (
-            <button
-              onClick={handleSubmit}
-              className={`${wizardStyles.generateButton} ${
-                isQuotaExceeded || isGenerating
-                  ? wizardStyles.generateButtonDisabled
-                  : ''
-              }`}
-              disabled={isQuotaExceeded || isGenerating}
-            >
-              {isGenerating ? '🔮 Generating...' : '⚡ Generate Card'}
+              <span>{isCollapsed ? 'Expand' : 'Collapse'}</span>
+              <svg
+                className={`${wizardStyles.wizardCollapseChevron} ${
+                  isCollapsed
+                    ? wizardStyles['wizardCollapseChevron--collapsed']
+                    : wizardStyles['wizardCollapseChevron--expanded']
+                }`}
+                width="12"
+                height="12"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <polyline points="6,9 12,15 18,9" />
+              </svg>
             </button>
           )}
         </div>
+      </div>
 
-        {isQuotaExceeded && (
-          <div className={wizardStyles.quotaExceededNotice}>
-            <h4>⚡ Daily Quota Exceeded</h4>
-            <p>
-              Upgrade to Pro for unlimited generations and advanced features!
-            </p>
-            <InstantLink
-              href="/subscription"
-              className={wizardStyles.upgradeButton}
+      {/* Collapsible Content */}
+      <div
+        className={`${formStyles.form__collapsible__content} ${
+          isCollapsed
+            ? formStyles['form__collapsible__content--collapsed']
+            : formStyles['form__collapsible__content--expanded']
+        }`}
+      >
+        <div className={wizardStyles.wizardBody}>{renderCurrentStep()}</div>
+
+        <div className={wizardStyles.wizardFooter}>
+          {onCancel && (
+            <button
+              onClick={onCancel}
+              className={wizardStyles.cancelButton}
+              disabled={isGenerating}
             >
-              Upgrade to Pro 🚀
-            </InstantLink>
+              Cancel
+            </button>
+          )}
+
+          <div className={wizardStyles.navigationButtons}>
+            {showPrevious && (
+              <button
+                onClick={handlePrevious}
+                className={wizardStyles.previousButton}
+                disabled={isGenerating}
+              >
+                ← Previous
+              </button>
+            )}
+
+            {showNext && (
+              <button
+                onClick={handleNext}
+                className={wizardStyles.nextButton}
+                disabled={!canGoNext() || isGenerating}
+              >
+                Next →
+              </button>
+            )}
+
+            {showGenerate && (
+              <button
+                onClick={handleSubmit}
+                className={`${wizardStyles.generateButton} ${
+                  isQuotaExceeded || isGenerating
+                    ? wizardStyles.generateButtonDisabled
+                    : ''
+                }`}
+                disabled={isQuotaExceeded || isGenerating}
+              >
+                {isGenerating ? '🔮 Generating...' : '⚡ Generate Card'}
+              </button>
+            )}
           </div>
-        )}
+
+          {isQuotaExceeded && (
+            <div className={wizardStyles.quotaExceededNotice}>
+              <h4>⚡ Daily Quota Exceeded</h4>
+              <p>
+                Upgrade to Pro for unlimited generations and advanced features!
+              </p>
+              <InstantLink
+                href="/subscription"
+                className={wizardStyles.upgradeButton}
+              >
+                Upgrade to Pro 🚀
+              </InstantLink>
+            </div>
+          )}
+        </div>
       </div>
     </Card>
   );

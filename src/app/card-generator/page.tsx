@@ -268,6 +268,8 @@ export default function OgImageViewer() {
           isGenerating={isGenerating}
           isQuotaExceeded={quotaState.isQuotaExceeded}
           isPro={subscriptionStatus.isPro}
+          isCollapsed={isFormCollapsed}
+          onToggleCollapse={() => setIsFormCollapsed(!isFormCollapsed)}
         />
       );
     }
@@ -395,26 +397,13 @@ export default function OgImageViewer() {
               resetDate={quotaState.resetDate}
               loadGenerationId={welcomeFlow.loadGenerationId}
               setLoadGenerationId={welcomeFlow.setLoadGenerationId}
-              onNewGeneration={welcomeFlow.handleNewGeneration}
+              onNewGeneration={handleNewGeneration}
               onLoadGeneration={welcomeFlow.handleLoadGeneration}
             />
           ) : (
             <article className={styles.viewer__container}>
               <FadeIn className={styles.viewer__container_fade}>
-                {renderForm()}
-
-                {/* Copy Generation ID Button - only visible when generation exists */}
-                {currentGenerationId && (
-                  <div className={styles.generation__id__container}>
-                    <button
-                      onClick={handleCopyId}
-                      className={styles.generation__id__button}
-                      title="Copy generation ID to clipboard"
-                    >
-                      📋 Copy ID: {currentGenerationId}
-                    </button>
-                  </div>
-                )}
+                <div className={styles.viewer__form}>{renderForm()}</div>
 
                 {/* Mystical Loader */}
                 {isGenerating && <MysticalLoader />}

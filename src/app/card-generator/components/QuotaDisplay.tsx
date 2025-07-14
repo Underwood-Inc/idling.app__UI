@@ -28,6 +28,27 @@ export function QuotaDisplay({
       ? styles.quota__mobile
       : styles.quota__section;
 
+  // Calculate dynamic reset time text
+  const getResetTimeText = () => {
+    if (!resetDate) return '...';
+
+    const now = new Date();
+    const reset = new Date(resetDate);
+    const diffMs = reset.getTime() - now.getTime();
+
+    if (diffMs <= 0) return 'resetting now';
+
+    const hours = Math.ceil(diffMs / (1000 * 60 * 60));
+    const days = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+
+    if (hours <= 1) return 'within an hour';
+    if (hours <= 12) return `in ${hours} hours`;
+    if (hours <= 24) return 'tomorrow';
+    if (days <= 7) return `in ${days} days`;
+
+    return 'soon';
+  };
+
   // Helper function to render quota text with optional tooltip
   const renderQuotaText = (text: string) => {
     if (!resetDate) {
@@ -75,7 +96,7 @@ export function QuotaDisplay({
     ? `${remainingGenerations}/${quotaLimit} ${mobile || welcome ? 'enchantment today' : 'enchantment today'}`
     : 'Channeling energy...';
 
-  const simpleQuotaText = `${remainingGenerations} spell remaining (until tomorrow)`;
+  const simpleQuotaText = `${remainingGenerations} spell remaining (resetting ${getResetTimeText()})`;
 
   return (
     <div className={containerClass}>

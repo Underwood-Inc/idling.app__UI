@@ -1,5 +1,9 @@
 import { auth } from '@lib/auth';
 import sql from '@lib/db';
+import {
+  PermissionsService,
+  TIMEOUT_TYPES
+} from '@lib/permissions/permissions';
 import { NextRequest, NextResponse } from 'next/server';
 
 export interface TimeoutInfo {
@@ -13,6 +17,7 @@ export interface TimeoutInfo {
     is_active: boolean;
   } | null;
   userValidated: boolean;
+  expires_at?: Date;
 }
 
 type ApiHandler = (
@@ -22,7 +27,7 @@ type ApiHandler = (
 
 /**
  * Universal wrapper that adds user timeout information to every API response
- * Replaces the need for repeated /api/user/timeout requests
+ * Uses the existing PermissionsService and timeout system
  */
 export function withTimeoutInfo(handler: ApiHandler) {
   return async (req: NextRequest, ctx?: any) => {
@@ -40,7 +45,7 @@ export function withTimeoutInfo(handler: ApiHandler) {
 
       let timeoutInfo: TimeoutInfo = {
         is_timed_out: false,
-        lastValidated: null,
+        lastValidated: new Date().toISOString(),
         reason: null,
         userInfo: null,
         userValidated: false
@@ -49,44 +54,42 @@ export function withTimeoutInfo(handler: ApiHandler) {
       if (session?.user?.id) {
         const userId = parseInt(session.user.id);
 
-        // Get user info and timeout status
+        // Get user info from the database
         const userResult = await sql<
           {
             id: number;
-            username: string;
+            name: string;
             email: string;
             is_active: boolean;
-            timeout_until: string | null;
-            timeout_reason: string | null;
-            last_validated: string | null;
           }[]
         >`
-          SELECT 
-            id, username, email, is_active,
-            timeout_until, timeout_reason, last_validated
+          SELECT id, name, email, 
+                 COALESCE(is_active, true) as is_active
           FROM users 
           WHERE id = ${userId}
         `;
 
         if (userResult.length > 0) {
           const user = userResult[0];
-          const now = new Date();
-          const timeoutUntil = user.timeout_until
-            ? new Date(user.timeout_until)
-            : null;
+
+          // Check timeout status using the existing PermissionsService
+          const timeoutStatus = await PermissionsService.checkUserTimeout(
+            userId,
+            TIMEOUT_TYPES.POST_CREATION
+          );
 
           timeoutInfo = {
-            is_timed_out: timeoutUntil ? timeoutUntil > now : false,
-            lastValidated: user.last_validated,
-            reason: user.timeout_reason,
+            is_timed_out: timeoutStatus.is_timed_out,
+            lastValidated: new Date().toISOString(),
+            reason: timeoutStatus.reason || null,
+            expires_at: timeoutStatus.expires_at,
             userInfo: {
               id: user.id,
-              username: user.username,
-              email: user.email,
+              username: user.name || '',
+              email: user.email || '',
               is_active: user.is_active
             },
-            userValidated:
-              user.is_active && (!timeoutUntil || timeoutUntil <= now)
+            userValidated: user.is_active && !timeoutStatus.is_timed_out
           };
         }
       } else {
@@ -115,9 +118,30 @@ export function withTimeoutInfo(handler: ApiHandler) {
         headers: response.headers
       });
     } catch (error) {
-      // If timeout info fetch fails, return original response
+      // If timeout info fetch fails, return original response with default info
       console.error('Error adding timeout info to response:', error);
-      return response;
+
+      try {
+        const responseBody = await response.json();
+        const enhancedResponse = {
+          ...responseBody,
+          timeoutInfo: {
+            is_timed_out: false,
+            lastValidated: new Date().toISOString(),
+            reason: null,
+            userInfo: null,
+            userValidated: false
+          }
+        };
+
+        return NextResponse.json(enhancedResponse, {
+          status: response.status,
+          headers: response.headers
+        });
+      } catch {
+        // If we can't parse the response, return original
+        return response;
+      }
     }
   };
 }

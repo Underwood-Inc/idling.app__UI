@@ -173,6 +173,10 @@
   width: 100%;
 }
 
+.viewer__form {
+  margin-block-end: 1rem;
+}
+
 .features_aside {
   /* Aside-specific styles handled by PageAside component */
 }
