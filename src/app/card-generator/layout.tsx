@@ -1,4 +1,4 @@
-import { Suspense } from 'react';
+import React, { Suspense } from 'react';
 import { MysticalLoader } from './components/MysticalLoader';
 
 function LoadingFallback() {

@@ -14,7 +14,6 @@ import FadeIn from './components/fade-in/FadeIn';
 import Footer from './components/footer/Footer';
 import Header from './components/header/Header';
 import Loader from './components/loader/Loader';
-import MessageTickerWithInterval from './components/message-ticker/MessageTickerWithInterval';
 import PWAInstallPrompt from './components/pwa-install/PWAInstallPrompt';
 import RetroSpaceBackground from './components/retro-space-background/RetroSpaceBackground';
 import { HardResetManager } from './components/service-worker/HardResetManager';
@@ -299,8 +298,6 @@ export default function RootLayout({
                     <RetroSpaceBackground />
 
                     <Header />
-
-                    <MessageTickerWithInterval />
 
                     <Suspense fallback={<Loader />}>
                       <JotaiProvider>
