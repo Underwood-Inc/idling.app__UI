@@ -77,6 +77,22 @@ export default function OgImageViewer() {
   const quotaState = useQuotaTracking();
   const subscriptionStatus = useSubscriptionStatus();
   const welcomeFlow = useWelcomeFlow();
+
+  // Force wizard mode for non-Pro users - override any persisted preferences
+  useEffect(() => {
+    if (
+      session?.user?.id &&
+      !subscriptionStatus.isPro &&
+      generatorMode === 'advanced'
+    ) {
+      setGeneratorMode('wizard');
+    }
+  }, [
+    session?.user?.id,
+    subscriptionStatus.isPro,
+    generatorMode,
+    setGeneratorMode
+  ]);
   const generationLoader = useGenerationLoader({
     setFormState,
     setSvgContent,
@@ -251,7 +267,10 @@ export default function OgImageViewer() {
   // Render form based on mode
   const renderForm = () => {
     const isAuthenticated = !!session?.user?.id;
-    const shouldUseWizard = !isAuthenticated || generatorMode === 'wizard';
+    const shouldUseWizard =
+      !isAuthenticated ||
+      generatorMode === 'wizard' ||
+      !subscriptionStatus.isPro;
 
     if (shouldUseWizard) {
       return (
