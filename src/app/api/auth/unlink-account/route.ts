@@ -47,7 +47,7 @@
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/Error'
+ *               type: object
  *       404:
  *         description: Account not found
  *         content:
@@ -63,7 +63,7 @@
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/Error'
+ *               type: object
  */
 
 import { withUniversalEnhancements } from '@lib/api/withUniversalEnhancements';

@@ -28,7 +28,7 @@ export const dynamic = 'force-dynamic';
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/Error'
+ *               type: object
  */
 async function versionHandler() {
   // Read version from package.json using require to avoid import warnings

@@ -69,19 +69,19 @@
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/AnalyticsDashboardResponse'
+ *               type: object
  *       401:
  *         description: Authentication required
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/Error'
+ *               type: object
  *       403:
  *         description: Insufficient permissions - requires admin access
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/Error'
+ *               type: object
  *       400:
  *         description: Invalid query parameters
  *         content:
@@ -100,7 +100,7 @@
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/Error'
+ *               type: object
  */
 
 import { checkUserPermission } from '@lib/actions/permissions.actions';

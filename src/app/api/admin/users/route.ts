@@ -76,19 +76,19 @@
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/Error'
+ *               type: object
  *       403:
  *         description: Insufficient permissions (admin required)
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/Error'
+ *               type: object
  *       500:
  *         description: Internal server error
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/Error'
+ *               type: object
  */
 
 /**

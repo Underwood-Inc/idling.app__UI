@@ -16,25 +16,22 @@
  *             schema:
  *               type: array
  *               items:
- *                 $ref: '#/components/schemas/AvailableRole'
+ *                 type: object
  *       401:
  *         description: Authentication required
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/Error'
  *       403:
  *         description: Insufficient permissions - requires ADMIN.USERS_MANAGE permission
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/Error'
  *       500:
  *         description: Internal server error
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/Error'
  */
 
 import { checkUserPermission } from '@lib/actions/permissions.actions';

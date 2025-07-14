@@ -22,7 +22,7 @@
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/Error'
+ *               type: object
  */
 
 import { auth } from '@lib/auth';
