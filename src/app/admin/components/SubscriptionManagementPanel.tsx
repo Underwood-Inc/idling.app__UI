@@ -122,7 +122,15 @@ export default function SubscriptionManagementPanel() {
           `Failed to fetch subscription plans: ${response.status}`
         );
       }
-      const plans = await response.json();
+      const data = await response.json();
+
+      // Handle error response from API
+      if (data && typeof data === 'object' && 'error' in data) {
+        throw new Error(data.error);
+      }
+
+      // Ensure we have an array
+      const plans = Array.isArray(data) ? data : [];
       setSubscriptionPlans(plans);
     } catch (error) {
       console.error('Error fetching subscription plans:', error);
@@ -131,6 +139,8 @@ export default function SubscriptionManagementPanel() {
           ? error.message
           : 'Failed to fetch subscription plans'
       );
+      // Reset to empty array on error
+      setSubscriptionPlans([]);
     }
   }, []);
 
@@ -145,7 +155,15 @@ export default function SubscriptionManagementPanel() {
           `Failed to fetch user subscriptions: ${response.status}`
         );
       }
-      const subscriptions = await response.json();
+      const data = await response.json();
+
+      // Handle error response from API
+      if (data && typeof data === 'object' && 'error' in data) {
+        throw new Error(data.error);
+      }
+
+      // Ensure we have an array
+      const subscriptions = Array.isArray(data) ? data : [];
       setUserSubscriptions(subscriptions);
     } catch (error) {
       console.error('Error fetching user subscriptions:', error);
@@ -154,6 +172,8 @@ export default function SubscriptionManagementPanel() {
           ? error.message
           : 'Failed to fetch user subscriptions'
       );
+      // Reset to empty array on error
+      setUserSubscriptions([]);
     }
   }, []);
 
@@ -168,8 +188,14 @@ export default function SubscriptionManagementPanel() {
           `Failed to fetch subscription stats: ${response.status}`
         );
       }
-      const stats = await response.json();
-      setSubscriptionStats(stats);
+      const data = await response.json();
+
+      // Handle error response from API
+      if (data && typeof data === 'object' && 'error' in data) {
+        throw new Error(data.error);
+      }
+
+      setSubscriptionStats(data);
     } catch (error) {
       console.error('Error fetching subscription stats:', error);
       setError(
@@ -177,6 +203,8 @@ export default function SubscriptionManagementPanel() {
           ? error.message
           : 'Failed to fetch subscription stats'
       );
+      // Reset to null on error
+      setSubscriptionStats(null);
     }
   }, []);
 
@@ -467,7 +495,9 @@ export default function SubscriptionManagementPanel() {
   // SUBSCRIPTION FILTERING & PAGINATION
   // ================================
 
-  const filteredSubscriptions = userSubscriptions.filter((subscription) => {
+  const filteredSubscriptions = (
+    Array.isArray(userSubscriptions) ? userSubscriptions : []
+  ).filter((subscription) => {
     const matchesSearch =
       !searchTerm ||
       subscription.user_name
