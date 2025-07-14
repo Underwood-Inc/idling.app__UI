@@ -353,7 +353,7 @@ export async function DELETE(request: NextRequest) {
 }
 
 // Helper function to clear cache (for admin use)
-export async function clearFormOptionsCache() {
+function clearFormOptionsCache() {
   cachedOptions.clear();
   return { success: true, message: 'Cache cleared' };
 }
