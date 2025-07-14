@@ -2,12 +2,17 @@
 
 import { useSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
-import './TimeoutBanner.css';
 
 interface TimeoutInfo {
   is_timed_out: boolean;
   expires_at?: string;
   reason?: string;
+  userInfo?: {
+    id: number;
+    username: string;
+    email: string;
+    is_active: boolean;
+  };
 }
 
 interface TimeRemaining {
@@ -17,6 +22,10 @@ interface TimeRemaining {
   seconds: number;
 }
 
+/**
+ * Enhanced TimeoutBanner that reads timeout data from API response wrappers
+ * instead of polling the dedicated endpoint
+ */
 export default function TimeoutBanner() {
   const { data: session, status } = useSession();
   const [timeoutInfo, setTimeoutInfo] = useState<TimeoutInfo | null>(null);
@@ -25,41 +34,47 @@ export default function TimeoutBanner() {
   );
   const [isLoading, setIsLoading] = useState(true);
 
-  // Check timeout status
+  /**
+   * Process wrapper data from any API response to extract timeout information
+   * This replaces the polling endpoint since the data is now on every response
+   */
+  const processTimeoutData = (responseData: any) => {
+    if (!responseData?.timeoutInfo) return;
+
+    const timeout = responseData.timeoutInfo;
+    if (timeout.is_timed_out && timeout.expires_at) {
+      setTimeoutInfo({
+        is_timed_out: timeout.is_timed_out,
+        expires_at: timeout.expires_at,
+        reason: timeout.reason,
+        userInfo: timeout.userInfo
+      });
+    } else {
+      setTimeoutInfo(null);
+    }
+    setIsLoading(false);
+  };
+
+  // Expose the processing function globally so other components can call it
   useEffect(() => {
-    // Wait for session to be loaded and authenticated
+    if (typeof window !== 'undefined') {
+      (window as any).__processTimeoutData = processTimeoutData;
+    }
+  }, []);
+
+  // Initial loading state management
+  useEffect(() => {
     if (status === 'loading') return;
 
     if (!session?.user?.id) {
       setIsLoading(false);
+      setTimeoutInfo(null);
       return;
     }
 
-    const checkTimeout = async () => {
-      try {
-        const response = await fetch(`/api/user/timeout?type=post_creation`, {
-          credentials: 'include' // Ensure authentication headers are sent
-        });
-        if (response.ok) {
-          const data = await response.json();
-          setTimeoutInfo(data);
-        } else if (response.status === 401) {
-          // User session expired, don't log this as an error
-          // eslint-disable-next-line no-console
-          console.debug('User session expired, skipping timeout check');
-        }
-      } catch (error) {
-        console.error('Error checking timeout:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    checkTimeout();
-
-    // Check every minute for updates
-    const interval = setInterval(checkTimeout, 60000);
-    return () => clearInterval(interval);
+    // If we have a session but no timeout data yet, mark as loading
+    // The timeout data will be populated when any API call is made
+    setIsLoading(true);
   }, [session?.user?.id, status]);
 
   // Update countdown timer
@@ -121,30 +136,81 @@ export default function TimeoutBanner() {
   };
 
   return (
-    <div className="timeout-banner">
-      <div className="timeout-banner__content">
-        <div className="timeout-banner__icon">⏰</div>
-        <div className="timeout-banner__text">
-          <div className="timeout-banner__title">
-            You are temporarily restricted from creating posts
-          </div>
-          <div className="timeout-banner__details">
-            <span className="timeout-banner__reason">
-              Reason: {timeoutInfo.reason}
-            </span>
-            <span className="timeout-banner__timer">
-              Time remaining: {formatTimeRemaining()}
-            </span>
-          </div>
-        </div>
-        <div className="timeout-banner__close">
-          <button
-            onClick={() => setTimeoutInfo(null)}
-            className="timeout-banner__close-btn"
-            aria-label="Dismiss notification"
+    <div
+      style={{
+        width: '100%',
+        background: 'linear-gradient(135deg, #fed7aa, #fdba74)',
+        borderLeft: '4px solid #f97316',
+        borderRadius: '8px',
+        padding: '12px 16px',
+        marginBottom: '8px',
+        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
+      }}
+    >
+      <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+        <div style={{ flexShrink: 0, fontSize: '20px' }}>⏰</div>
+        <div style={{ flex: 1 }}>
+          <h4
+            style={{
+              fontWeight: '600',
+              fontSize: '16px',
+              color: '#9a3412',
+              margin: '0 0 4px 0',
+              lineHeight: '1.3'
+            }}
           >
-            ×
-          </button>
+            Account Temporarily Restricted
+          </h4>
+          <p
+            style={{
+              fontSize: '14px',
+              color: '#9a3412',
+              opacity: 0.9,
+              lineHeight: '1.4',
+              margin: '0 0 8px 0'
+            }}
+          >
+            You are temporarily restricted from creating posts.
+          </p>
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              marginBottom: '6px'
+            }}
+          >
+            <div
+              style={{
+                width: '6px',
+                height: '6px',
+                borderRadius: '50%',
+                background: '#f97316',
+                animation: 'pulse 2s infinite'
+              }}
+            />
+            <span
+              style={{
+                fontSize: '12px',
+                fontWeight: '500',
+                color: '#9a3412'
+              }}
+            >
+              Expires in {formatTimeRemaining()}
+            </span>
+          </div>
+          {timeoutInfo.reason && (
+            <p
+              style={{
+                fontSize: '11px',
+                color: '#9a3412',
+                opacity: 0.75,
+                margin: '0'
+              }}
+            >
+              Reason: {timeoutInfo.reason}
+            </p>
+          )}
         </div>
       </div>
     </div>

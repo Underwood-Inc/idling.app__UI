@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Avatar } from '../../../components/avatar/Avatar';
 
 interface UserRole {
@@ -61,7 +61,19 @@ export const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
   isOpen,
   onClose
 }) => {
-  if (!isOpen || !user) return null;
+  const [imageError, setImageError] = useState(false);
+
+  const handleImageError = () => {
+    setImageError(true);
+  };
+
+  const handleClose = () => {
+    // Reset image error state when closing modal
+    setImageError(false);
+    onClose();
+  };
+
+  if (!isOpen) return null;
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleString('en-US', {
@@ -89,7 +101,7 @@ export const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
   };
 
   return (
-    <div className="modal-overlay" onClick={onClose}>
+    <div className="modal-overlay" onClick={handleClose}>
       <div
         className="modal-content modal-content--large"
         onClick={(e) => e.stopPropagation()}
@@ -99,11 +111,12 @@ export const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
           <div className="modal-user-info">
             <div className="modal-user-avatars">
               {/* Provider account image */}
-              {user.image && (
+              {user.image && !imageError && (
                 <img
                   src={user.image}
                   alt="Provider avatar"
                   className="modal-provider-avatar"
+                  onError={handleImageError}
                 />
               )}
               {/* Seeded avatar */}
@@ -115,7 +128,7 @@ export const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
               <p className="user-id-display">ID: {user.id}</p>
             </div>
           </div>
-          <button className="modal-close-btn" onClick={onClose}>
+          <button className="modal-close-btn" onClick={handleClose}>
             ✕
           </button>
         </div>
@@ -291,7 +304,7 @@ export const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
             <button
               type="button"
               className="btn btn--secondary"
-              onClick={onClose}
+              onClick={handleClose}
             >
               Close
             </button>

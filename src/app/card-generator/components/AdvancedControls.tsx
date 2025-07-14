@@ -338,6 +338,167 @@ export function AdvancedControls({
             </label>
           </div>
         </div>
+
+        {/* Watermark Controls - Pro Only */}
+        {isProUser && (
+          <div className={formStyles.form__section}>
+            <h5 className={formStyles.form__subsection__title}>
+              🏷️ Watermark Controls
+            </h5>
+            <div className={formStyles.form__row}>
+              <label className={formStyles.form__checkbox__label}>
+                <input
+                  type="checkbox"
+                  checked={getBooleanDisplayValue('watermarkEnabled')}
+                  onChange={(e) =>
+                    handleChange('watermarkEnabled', e.target.checked)
+                  }
+                  disabled={disabled}
+                  className={formStyles.form__checkbox}
+                />
+                <span className={formStyles.label__text}>
+                  Enable Custom Watermark
+                </span>
+              </label>
+            </div>
+
+            {getBooleanDisplayValue('watermarkEnabled') && (
+              <>
+                <div className={formStyles.form__row}>
+                  <label className={formStyles.form__label}>
+                    <span className={formStyles.label__text}>
+                      Watermark Text
+                    </span>
+                    <input
+                      type="text"
+                      value={getStringDisplayValue('watermarkText') || ''}
+                      onChange={(e) =>
+                        handleChange(
+                          'watermarkText',
+                          e.target.value || undefined
+                        )
+                      }
+                      disabled={disabled}
+                      placeholder="https://idling.app/card-generator"
+                      className={`${formStyles.form__input} ${disabled ? formStyles.form__input__disabled : ''}`}
+                    />
+                  </label>
+                  <label className={formStyles.form__label}>
+                    <span className={formStyles.label__text}>Position</span>
+                    <select
+                      value={
+                        getStringDisplayValue('watermarkPosition') || 'repeated'
+                      }
+                      onChange={(e) => {
+                        const newPosition = e.target.value as
+                          | 'top-left'
+                          | 'top-right'
+                          | 'bottom-left'
+                          | 'bottom-right'
+                          | 'center'
+                          | 'repeated';
+
+                        // Reset rotation to 0 when position is not "repeated"
+                        // Combine both changes into a single state update
+                        const updates: Partial<GenerationOptions> = {
+                          watermarkPosition: newPosition
+                        };
+
+                        if (newPosition !== 'repeated') {
+                          updates.watermarkRotation = 0;
+                        }
+
+                        onOptionsChange({
+                          ...options,
+                          ...updates
+                        });
+                      }}
+                      disabled={disabled}
+                      className={`${formStyles.form__input} ${disabled ? formStyles.form__input__disabled : ''}`}
+                    >
+                      <option value="top-left">Top Left</option>
+                      <option value="top-right">Top Right</option>
+                      <option value="bottom-left">Bottom Left</option>
+                      <option value="bottom-right">Bottom Right</option>
+                      <option value="center">Center</option>
+                      <option value="repeated">Repeated Pattern</option>
+                    </select>
+                  </label>
+                </div>
+                {/* Rotation control - only shown when position is repeated */}
+                {(getStringDisplayValue('watermarkPosition') || 'repeated') ===
+                  'repeated' && (
+                  <div className={formStyles.form__row}>
+                    <label className={formStyles.form__label}>
+                      <span className={formStyles.label__text}>
+                        Rotation (degrees)
+                      </span>
+                      <input
+                        type="number"
+                        value={
+                          getNumericDisplayValue('watermarkRotation') || ''
+                        }
+                        onChange={(e) =>
+                          handleChange(
+                            'watermarkRotation',
+                            parseInt(e.target.value) || undefined
+                          )
+                        }
+                        disabled={disabled}
+                        placeholder="-25"
+                        min="-360"
+                        max="360"
+                        step="5"
+                        className={`${formStyles.form__input} ${disabled ? formStyles.form__input__disabled : ''}`}
+                      />
+                    </label>
+                  </div>
+                )}
+                <div className={formStyles.form__row}>
+                  <label className={formStyles.form__label}>
+                    <span className={formStyles.label__text}>Size</span>
+                    <input
+                      type="number"
+                      value={getNumericDisplayValue('watermarkSize') || ''}
+                      onChange={(e) =>
+                        handleChange(
+                          'watermarkSize',
+                          parseInt(e.target.value) || undefined
+                        )
+                      }
+                      disabled={disabled}
+                      placeholder="16"
+                      min="10"
+                      max="48"
+                      className={`${formStyles.form__input} ${disabled ? formStyles.form__input__disabled : ''}`}
+                    />
+                  </label>
+                  <label className={formStyles.form__label}>
+                    <span className={formStyles.label__text}>Opacity (%)</span>
+                    <input
+                      type="number"
+                      value={Math.round(
+                        (getNumericDisplayValue('watermarkOpacity') || 0.15) *
+                          100
+                      )}
+                      onChange={(e) =>
+                        handleChange(
+                          'watermarkOpacity',
+                          (parseInt(e.target.value) || 15) / 100
+                        )
+                      }
+                      disabled={disabled}
+                      placeholder="15"
+                      min="5"
+                      max="100"
+                      className={`${formStyles.form__input} ${disabled ? formStyles.form__input__disabled : ''}`}
+                    />
+                  </label>
+                </div>
+              </>
+            )}
+          </div>
+        )}
       </div>
 
       {disabled && (

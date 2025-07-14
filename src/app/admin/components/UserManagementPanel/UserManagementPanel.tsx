@@ -364,8 +364,18 @@ export const UserManagementPanel: React.FC<AdminUserManagementPanelProps> = ({
           setShowRoleModal(true);
         }}
         onManageSubscription={(user) => {
+          // eslint-disable-next-line no-console
+          console.log(
+            'UserManagementPanel: onManageSubscription triggered for user:',
+            user
+          );
           setSubscriptionAssignmentUser(user);
           setShowSubscriptionModal(true);
+          // eslint-disable-next-line no-console
+          console.log(
+            'UserManagementPanel: Modal state set - showSubscriptionModal:',
+            true
+          );
         }}
         onManageQuota={handleManageQuota}
         onExportData={(user) => {
@@ -406,6 +416,16 @@ export const UserManagementPanel: React.FC<AdminUserManagementPanelProps> = ({
           onAssign={handleAssignRole}
         />
       )}
+
+      {(() => {
+        // eslint-disable-next-line no-console
+        console.log('UserManagementPanel modal render check:', {
+          showSubscriptionModal,
+          subscriptionAssignmentUser: subscriptionAssignmentUser?.id,
+          shouldRenderModal: showSubscriptionModal && subscriptionAssignmentUser
+        });
+        return null;
+      })()}
 
       {showSubscriptionModal && subscriptionAssignmentUser && (
         <AssignSubscriptionModal

@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { Card } from '../../components/card/Card';
 import { InstantLink } from '../../components/ui/InstantLink';
+import { useAspectRatios } from '../hooks/useFormOptions';
 import type { GenerationOptions } from '../types/generation';
 import { AdvancedControls } from './AdvancedControls';
 import formStyles from './FormElements.module.css';
@@ -40,7 +41,7 @@ interface GenerationFormProps {
   // Aspect ratio props
   selectedRatio: AspectRatioOption;
   onRatioChange: (ratio: AspectRatioOption) => void;
-  aspectRatioOptions: AspectRatioOption[];
+  aspectRatioOptions: AspectRatioOption[]; // Keep for backwards compatibility but won't be used
   // Advanced configuration (Pro features)
   generationOptions?: {
     avatarX?: number;
@@ -87,7 +88,7 @@ export function GenerationForm({
   onToggleCollapse,
   selectedRatio,
   onRatioChange,
-  aspectRatioOptions,
+  aspectRatioOptions, // Keep for backwards compatibility
   generationOptions,
   advancedOptions,
   onAdvancedOptionsChange,
@@ -121,6 +122,27 @@ export function GenerationForm({
     setEditingSeed(null);
     setTempSeed('');
   };
+
+  // Use API-based aspect ratios with lazy loading
+  const {
+    data: aspectRatioData,
+    isLoading: aspectRatioLoading,
+    fetchIfNeeded
+  } = useAspectRatios(true);
+
+  // Convert API response to AspectRatioOption format
+  const apiAspectRatios: AspectRatioOption[] =
+    aspectRatioData?.aspect_ratios?.map((option) => ({
+      key: option.key,
+      name: option.name,
+      width: option.width,
+      height: option.height,
+      description: option.description || '',
+      dimensions: option.dimensions
+    })) || [];
+
+  // Use API data only - no fallbacks
+  const effectiveAspectRatios = apiAspectRatios;
 
   return (
     <Card width="full" className={formStyles.generation__form__container}>
@@ -322,19 +344,24 @@ export function GenerationForm({
               <select
                 value={selectedRatio.key}
                 onChange={(e) => {
-                  const ratio = aspectRatioOptions.find(
+                  const ratio = effectiveAspectRatios.find(
                     (r) => r.key === e.target.value
                   );
                   if (ratio) onRatioChange(ratio);
                 }}
+                onFocus={fetchIfNeeded}
                 className={`${formStyles.form__input} ${isReadOnly ? formStyles.form__input__disabled : ''}`}
-                disabled={isReadOnly}
+                disabled={isReadOnly || aspectRatioLoading}
               >
-                {aspectRatioOptions.map((ratio) => (
-                  <option key={ratio.key} value={ratio.key}>
-                    {ratio.name} ({ratio.dimensions})
-                  </option>
-                ))}
+                {aspectRatioLoading ? (
+                  <option value="">Loading aspect ratios...</option>
+                ) : (
+                  effectiveAspectRatios.map((ratio) => (
+                    <option key={ratio.key} value={ratio.key}>
+                      {ratio.name} ({ratio.dimensions})
+                    </option>
+                  ))
+                )}
               </select>
             </label>
           </div>

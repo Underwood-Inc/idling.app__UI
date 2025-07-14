@@ -2,7 +2,8 @@ import {
   AspectRatioConfig,
   AvatarPositioning,
   QuoteData,
-  TextPositioning
+  TextPositioning,
+  WatermarkConfig
 } from '../types';
 import { escapeXml, wrapTextForSVG } from '../utils';
 import { BasePatternGenerator } from './patterns/BasePatternGenerator';
@@ -34,11 +35,32 @@ export class SVGGenerator {
       avatarSize?: number;
       textMaxWidth?: number;
       textStartY?: number;
-    }
+
+      // Pro watermark controls
+      watermarkEnabled?: boolean;
+      watermarkText?: string;
+      watermarkOpacity?: number;
+      watermarkSize?: number;
+      watermarkPosition?:
+        | 'top-left'
+        | 'top-right'
+        | 'bottom-left'
+        | 'bottom-right'
+        | 'center'
+        | 'repeated';
+      watermarkRotation?: number;
+    },
+    defaultWatermarkConfig?: WatermarkConfig // Default watermark for non-Pro users
   ): {
     svg: string;
     actualValues: {
       // All actual values used during generation
+      shapeCount: number;
+      avatarX: number;
+      avatarY: number;
+      avatarSize: number;
+      textMaxWidth: number;
+      textStartY: number;
       fontSize: number;
       borderColor: string;
       borderOpacity: number;
@@ -46,12 +68,6 @@ export class SVGGenerator {
       textPadding: number;
       lineHeight: number;
       glassBackground: boolean;
-      avatarX: number;
-      avatarY: number;
-      avatarSize: number;
-      textMaxWidth: number;
-      textStartY: number;
-      shapeCount: number;
     };
   } {
     const { width, height } = config;
@@ -104,6 +120,33 @@ export class SVGGenerator {
       aspectRatio
     );
 
+    // Calculate watermark positioning if watermark is enabled
+    const watermarkConfig = allCustomOptions?.watermarkEnabled
+      ? ({
+          enabled: true,
+          text:
+            allCustomOptions.watermarkText ||
+            'https://idling.app/card-generator',
+          fontSize: allCustomOptions.watermarkSize || 16, // Pro default: 16
+          opacity: allCustomOptions.watermarkOpacity || 0.15,
+          rotation:
+            allCustomOptions.watermarkRotation !== undefined
+              ? allCustomOptions.watermarkRotation
+              : 0, // Pro default: 0 rotation
+          color: '#ffffff',
+          fontFamily:
+            'FiraCode, "Fira Code", Monaco, Consolas, "Liberation Mono", "Courier New", monospace',
+          spacing: 200,
+          margin: 40,
+          pattern: 'single', // Pro default: single watermark
+          position: allCustomOptions.watermarkPosition || 'bottom-right' // Pro default: bottom-right
+        } as WatermarkConfig)
+      : defaultWatermarkConfig;
+
+    const watermarkPositioning = watermarkConfig?.enabled
+      ? this.calculateWatermarkPositioning(watermarkConfig, width, height)
+      : undefined;
+
     const svg = this.buildSVG(
       width,
       height,
@@ -115,7 +158,9 @@ export class SVGGenerator {
       quote,
       textPositioning,
       finalGlassBackground ? glassBackground : null,
-      aspectRatio
+      aspectRatio,
+      watermarkPositioning, // Pass watermark positioning
+      watermarkConfig // Pass watermark config
     );
 
     return {
@@ -307,6 +352,104 @@ export class SVGGenerator {
     };
   }
 
+  private calculateWatermarkPositioning(
+    watermarkConfig: WatermarkConfig,
+    width: number,
+    height: number
+  ):
+    | Array<{ x: number; y: number; width: number; height: number }>
+    | undefined {
+    const {
+      enabled,
+      text,
+      fontSize,
+      pattern,
+      spacing = 200,
+      position
+    } = watermarkConfig;
+
+    if (!enabled) {
+      return undefined;
+    }
+
+    const textWidth = text.length * (fontSize * 0.6);
+    const textHeight = fontSize * 1.4;
+    const positions: Array<{
+      x: number;
+      y: number;
+      width: number;
+      height: number;
+    }> = [];
+
+    if (position === 'repeated') {
+      // Create a diagonal repeated pattern covering the entire image
+      const stepX = spacing;
+      const stepY = spacing;
+
+      // Calculate how many watermarks we need to cover the area
+      const numCols = Math.ceil(width / stepX) + 2;
+      const numRows = Math.ceil(height / stepY) + 2;
+
+      for (let row = -1; row < numRows; row++) {
+        for (let col = -1; col < numCols; col++) {
+          const x = col * stepX;
+          const y = row * stepY;
+
+          // Only add if within canvas bounds (with some padding)
+          if (
+            x >= -textWidth &&
+            x <= width &&
+            y >= -textHeight &&
+            y <= height
+          ) {
+            positions.push({
+              x: x,
+              y: y + textHeight, // Adjust for text baseline
+              width: textWidth,
+              height: textHeight
+            });
+          }
+        }
+      }
+    } else {
+      // Single watermark positioning (existing logic)
+      let watermarkX = (width - textWidth) / 2;
+      let watermarkY = height - textHeight - 20;
+
+      switch (position) {
+        case 'top-left':
+          watermarkX = 20;
+          watermarkY = textHeight + 20;
+          break;
+        case 'top-right':
+          watermarkX = width - textWidth - 20;
+          watermarkY = textHeight + 20;
+          break;
+        case 'bottom-left':
+          watermarkX = 20;
+          watermarkY = height - 20;
+          break;
+        case 'bottom-right':
+          watermarkX = width - textWidth - 20;
+          watermarkY = height - 20;
+          break;
+        case 'center':
+          watermarkX = (width - textWidth) / 2;
+          watermarkY = (height + textHeight) / 2;
+          break;
+      }
+
+      positions.push({
+        x: watermarkX,
+        y: watermarkY,
+        width: textWidth,
+        height: textHeight
+      });
+    }
+
+    return positions;
+  }
+
   private buildSVG(
     width: number,
     height: number,
@@ -323,7 +466,14 @@ export class SVGGenerator {
       width: number;
       height: number;
     } | null,
-    aspectRatio?: string
+    aspectRatio?: string,
+    watermarkPositioning?: Array<{
+      x: number;
+      y: number;
+      width: number;
+      height: number;
+    }>,
+    watermarkConfig?: WatermarkConfig
   ): string {
     const lineHeight = textPositioning.fontSize * 1.4;
 
@@ -398,6 +548,44 @@ export class SVGGenerator {
         stroke="rgba(255, 255, 255, 0.1)" 
         stroke-width="1"
         filter="url(#glassFilter)"/>`
+      : ''
+  }
+  
+  <!-- Watermark -->
+  ${
+    watermarkPositioning && watermarkConfig?.text
+      ? watermarkPositioning
+          .map((pos, index) => {
+            // Ensure valid numbers for positioning and rotation
+            const safeX = isNaN(pos.x) ? 0 : pos.x;
+            const safeY = isNaN(pos.y) ? 0 : pos.y;
+            const safeWidth = isNaN(pos.width) ? 0 : pos.width;
+            const safeHeight = isNaN(pos.height) ? 0 : pos.height;
+            const safeRotation = isNaN(watermarkConfig?.rotation ?? 0)
+              ? 0
+              : (watermarkConfig?.rotation ?? 0);
+            const safeFontSize = isNaN(watermarkConfig?.fontSize || 24)
+              ? 24
+              : watermarkConfig?.fontSize || 24;
+            const safeOpacity = isNaN(watermarkConfig?.opacity || 0.15)
+              ? 0.15
+              : watermarkConfig?.opacity || 0.15;
+
+            // Use a simple, safe font-family without complex quotes
+            const safeFontFamily = 'FiraCode, Monaco, Consolas, monospace';
+
+            return `
+        <text x="${safeX}" y="${safeY}" 
+           text-anchor="start" 
+           fill="${watermarkConfig?.color || '#ffffff'}" 
+           font-family="${safeFontFamily}" 
+           font-size="${safeFontSize}px"
+           opacity="${safeOpacity}"
+           transform="rotate(${safeRotation} ${safeX + safeWidth / 2} ${safeY - safeHeight / 2})"
+           style="font-size: ${safeFontSize}px !important; font-weight: 600; letter-spacing: 0.05em;">${escapeXml(watermarkConfig?.text || '')}</text>
+      `;
+          })
+          .join('\n  ')
       : ''
   }
   

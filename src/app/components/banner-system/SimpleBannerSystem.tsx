@@ -8,13 +8,8 @@
  */
 
 import { useSession } from 'next-auth/react';
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState
-} from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { SimpleBanner } from './SimpleBanner';
 
 // Force logging function to bypass console silencer - but only for important events
 const forceLog = (
@@ -35,72 +30,88 @@ const forceLog = (
   }
 };
 
-interface BannerData {
+export interface BannerData {
   id: string;
-  type: string;
+  type: 'alert' | 'timeout' | 'rate-limit';
   title: string;
   message: string;
   dismissible?: boolean;
   priority?: number;
   retryAfter?: number;
-  metadata?: Record<string, any>;
   createdAt?: number;
+  metadata?: {
+    reason?: string;
+    expiresAt?: string;
+    alertType?: string;
+    userId?: number;
+  };
 }
 
-interface DatabaseAlert {
-  id: number;
-  title: string;
-  message?: string;
-  details?: string;
-  alert_type: string;
-  priority: number;
-  icon?: string;
-  dismissible: boolean;
-  persistent: boolean;
-  expires_at?: string;
-  actions?: any;
-  metadata?: any;
-}
-
-// Helper function to create a stable key for banner comparison
-const createBannerKey = (banner: BannerData): string => {
-  return `${banner.id}-${banner.type}-${banner.title}-${banner.message}-${banner.priority}-${banner.dismissible}`;
-};
-
-// Helper function to check if two banner arrays are equivalent
-const areBannersEqual = (prev: BannerData[], next: BannerData[]): boolean => {
-  if (prev.length !== next.length) return false;
-
-  const prevKeys = prev.map(createBannerKey).sort();
-  const nextKeys = next.map(createBannerKey).sort();
-
-  return prevKeys.every((key, index) => key === nextKeys[index]);
-};
-
-// Helper function to clean up old dismissed alerts from localStorage
-const cleanupDismissedAlerts = () => {
-  try {
-    const dismissedAlerts = JSON.parse(
-      localStorage.getItem('dismissedAlerts') || '[]'
+// Helper function to check if banners are equal
+const areBannersEqual = (a: BannerData[], b: BannerData[]): boolean => {
+  if (a.length !== b.length) return false;
+  return a.every((banner, index) => {
+    const other = b[index];
+    return (
+      banner.id === other.id &&
+      banner.type === other.type &&
+      banner.title === other.title &&
+      banner.message === other.message &&
+      banner.dismissible === other.dismissible &&
+      banner.priority === other.priority &&
+      banner.retryAfter === other.retryAfter &&
+      JSON.stringify(banner.metadata) === JSON.stringify(other.metadata)
     );
-    const oneWeekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000; // 7 days
+  });
+};
 
-    // For now, we'll just limit to 50 most recent dismissals to prevent unbounded growth
-    // In the future, we could store dismissal timestamps and clean by date
-    if (dismissedAlerts.length > 50) {
-      const recentDismissals = dismissedAlerts.slice(-50);
-      localStorage.setItem('dismissedAlerts', JSON.stringify(recentDismissals));
-    }
-  } catch (error) {
-    // If localStorage is corrupted, reset it
-    localStorage.removeItem('dismissedAlerts');
+// Helper function to get dismissed alerts from localStorage
+const getDismissedAlerts = (): Set<string> => {
+  if (typeof window === 'undefined') return new Set();
+  try {
+    const dismissed = localStorage.getItem('dismissed-alerts');
+    return dismissed ? new Set(JSON.parse(dismissed)) : new Set();
+  } catch {
+    return new Set();
   }
 };
 
+// Helper function to save dismissed alerts to localStorage
+const saveDismissedAlerts = (alertIds: Set<string>): void => {
+  if (typeof window === 'undefined') return;
+  try {
+    localStorage.setItem('dismissed-alerts', JSON.stringify([...alertIds]));
+  } catch {
+    // Ignore localStorage errors
+  }
+};
+
+// Helper function to clean up old dismissed alerts
+const cleanupDismissedAlerts = (): void => {
+  if (typeof window === 'undefined') return;
+  try {
+    const dismissed = localStorage.getItem('dismissed-alerts');
+    if (dismissed) {
+      const alertIds = JSON.parse(dismissed);
+      // Keep only recent dismissals (last 7 days)
+      const weekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
+      // For now, just clear all old dismissals since we don't store timestamps
+      // In a future enhancement, we could store {id, dismissedAt} objects
+      localStorage.setItem('dismissed-alerts', JSON.stringify([]));
+    }
+  } catch {
+    // Ignore localStorage errors
+  }
+};
+
+/**
+ * Enhanced banner system that reads banner data from API response wrappers
+ * instead of polling dedicated endpoints
+ */
 export function useSimpleBanners() {
   const [banners, setBanners] = useState<BannerData[]>([]);
   const { data: session, status } = useSession();
-  const lastFetchRef = useRef<string>(''); // Track last successful fetch signature
+  const lastProcessedDataRef = useRef<string>('');
 
   // Clean up dismissed alerts on component mount
   useEffect(() => {
@@ -109,643 +120,159 @@ export function useSimpleBanners() {
     }
   }, []);
 
-  // Check for all types of banners via polling
-  useEffect(() => {
-    const checkForBanners = async () => {
-      // Wait for session to be loaded before checking for banners
-      if (status === 'loading') return;
+  /**
+   * Process wrapper data from any API response to extract banner information
+   * This replaces the polling endpoints since the data is now on every response
+   */
+  const processWrapperData = (responseData: any) => {
+    if (!responseData) return;
 
-      try {
-        const newBanners: BannerData[] = [];
+    const newBanners: BannerData[] = [];
+    const dismissedAlerts = getDismissedAlerts();
 
-        // 1. Check for database alerts (for all users - testing mode)
+    // 1. Process activeAlertsInfo (from withActiveAlerts wrapper)
+    if (responseData.activeAlertsInfo?.alerts) {
+      responseData.activeAlertsInfo.alerts.forEach((alert: any) => {
+        const alertId = `alert-${alert.id}`;
+
+        // Skip dismissed alerts
+        if (dismissedAlerts.has(alertId)) return;
+
+        newBanners.push({
+          id: alertId,
+          type: 'alert',
+          title: alert.title,
+          message: alert.message || '',
+          dismissible: alert.dismissible,
+          priority: alert.priority || 0,
+          createdAt: Date.now(),
+          metadata: {
+            alertType: alert.alert_type,
+            reason: alert.details
+          }
+        });
+      });
+    }
+
+    // 2. Process timeoutInfo (from withTimeoutInfo wrapper)
+    if (
+      responseData.timeoutInfo?.is_timed_out &&
+      responseData.timeoutInfo.expires_at
+    ) {
+      const timeoutId = 'timeout-banner';
+
+      // Skip if dismissed
+      if (!dismissedAlerts.has(timeoutId)) {
+        newBanners.push({
+          id: timeoutId,
+          type: 'timeout',
+          title: 'Account Temporarily Restricted',
+          message: 'You are temporarily restricted from creating posts.',
+          dismissible: true,
+          priority: 90,
+          createdAt: Date.now(),
+          metadata: {
+            reason: responseData.timeoutInfo.reason,
+            expiresAt: responseData.timeoutInfo.expires_at
+          }
+        });
+      }
+    }
+
+    // 3. Check sessionStorage for rate limit info (still needed for interceptor data)
+    if (typeof window !== 'undefined') {
+      const rateLimitInfo = sessionStorage.getItem('rate-limit-info');
+      if (rateLimitInfo) {
         try {
-          const alertsResponse = await fetch('/api/alerts/active');
+          const info = JSON.parse(rateLimitInfo);
+          const rateLimitId = `rate-limit-${info.endpoint || 'general'}`;
 
-          if (alertsResponse.ok) {
-            const dbAlerts: DatabaseAlert[] = await alertsResponse.json();
-
-            // For anonymous users, filter out dismissed alerts from localStorage
-            let dismissedAlerts: string[] = [];
-            if (!session?.user?.id) {
-              try {
-                dismissedAlerts = JSON.parse(
-                  localStorage.getItem('dismissedAlerts') || '[]'
-                );
-              } catch (error) {
-                forceLog(
-                  'Failed to parse dismissed alerts from localStorage:',
-                  error
-                );
+          if (!dismissedAlerts.has(rateLimitId)) {
+            newBanners.push({
+              id: rateLimitId,
+              type: 'rate-limit',
+              title: 'Rate Limit Exceeded',
+              message: `Too many requests. Please wait ${info.retryAfter || 60} seconds before trying again.`,
+              dismissible: true,
+              priority: 80,
+              retryAfter: info.retryAfter || 60,
+              createdAt: Date.now(),
+              metadata: {
+                reason: 'rate_limit_exceeded'
               }
-            }
-
-            dbAlerts.forEach((alert) => {
-              // Skip alerts that anonymous users have dismissed
-              if (
-                !session?.user?.id &&
-                dismissedAlerts.includes(alert.id.toString())
-              ) {
-                return;
-              }
-
-              const bannerData = {
-                id: `alert-${alert.id}`,
-                type: alert.alert_type,
-                title: alert.title,
-                message: alert.message || alert.details || '',
-                dismissible: alert.dismissible,
-                priority: alert.priority,
-                createdAt: Date.now(),
-                metadata: {
-                  ...alert.metadata,
-                  icon: alert.icon,
-                  actions: alert.actions,
-                  expiresAt: alert.expires_at,
-                  persistent: alert.persistent
-                }
-              };
-              newBanners.push(bannerData);
             });
           }
-        } catch (error) {
-          forceLog('Failed to fetch database alerts:', error, 'error');
-        }
-
-        // 2. Check for timeouts (authenticated users only)
-        if (status === 'authenticated' && session?.user?.id) {
-          try {
-            const timeoutResponse = await fetch(
-              '/api/user/timeout?type=post_creation',
-              {
-                credentials: 'include' // Ensure authentication headers are sent
-              }
-            );
-            if (timeoutResponse.ok) {
-              const timeoutInfo = await timeoutResponse.json();
-
-              if (timeoutInfo.is_timed_out && timeoutInfo.expires_at) {
-                newBanners.push({
-                  id: 'timeout-banner',
-                  type: 'timeout',
-                  title: 'Account Temporarily Restricted',
-                  message:
-                    'You are temporarily restricted from creating posts.',
-                  dismissible: true,
-                  priority: 90,
-                  createdAt: Date.now(),
-                  metadata: {
-                    reason: timeoutInfo.reason,
-                    expiresAt: timeoutInfo.expires_at
-                  }
-                });
-              }
-            } else if (timeoutResponse.status === 401) {
-              // User session expired, don't log this as an error
-              forceLog(
-                'User session expired, skipping timeout check',
-                null,
-                'debug'
-              );
-            }
-          } catch (error) {
-            forceLog('Failed to fetch timeout info:', error, 'error');
-          }
-        }
-
-        // 3. Check sessionStorage for rate limit info (set by fetch interceptor)
-        const rateLimitInfo = sessionStorage.getItem('rate-limit-info');
-        if (rateLimitInfo) {
-          try {
-            const info = JSON.parse(rateLimitInfo);
-            if (info.retryAfter && info.retryAfter > 0) {
-              newBanners.push({
-                id: 'rate-limit-banner',
-                type: 'rate-limit',
-                title: 'Rate Limit Exceeded',
-                message: info.error || 'Too many requests. Please slow down.',
-                dismissible: true,
-                priority: 100,
-                retryAfter: info.retryAfter,
-                createdAt: Date.now(),
-                metadata: {
-                  quotaType: info.quotaType,
-                  penaltyLevel: info.penaltyLevel,
-                  isAttack: info.penaltyLevel >= 3
-                }
-              });
-              sessionStorage.removeItem('rate-limit-info');
-            }
-          } catch (error) {
-            forceLog('Failed to parse rate limit info:', error, 'error');
-            sessionStorage.removeItem('rate-limit-info');
-          }
-        }
-
-        // Create a signature of the current fetch to compare with previous
-        const currentSignature = JSON.stringify(
-          newBanners.map(createBannerKey).sort()
-        );
-
-        // Only update state if data actually changed
-        if (lastFetchRef.current !== currentSignature) {
-          lastFetchRef.current = currentSignature;
-
-          setBanners((prev) => {
-            // Merge with existing banners, avoiding duplicates
-            const existingIds = new Set(prev.map((b) => b.id));
-            const filteredNew = newBanners.filter(
-              (b) => !existingIds.has(b.id)
-            );
-
-            // Keep existing banners that are still valid
-            const validExisting = prev.filter((banner) => {
-              // Keep rate limit banners if they still have time left
-              if (banner.type === 'rate-limit' && banner.retryAfter) {
-                const elapsed = (Date.now() - (banner.createdAt || 0)) / 1000;
-                return elapsed < banner.retryAfter;
-              }
-              // Keep other banners if they match new data
-              return newBanners.some((nb) => nb.id === banner.id);
-            });
-
-            const finalBanners = [...validExisting, ...filteredNew];
-
-            // Double-check: only return new array if actually different
-            if (areBannersEqual(prev, finalBanners)) {
-              return prev; // Return same reference to prevent rerender
-            }
-
-            return finalBanners;
-          });
-        }
-      } catch (error) {
-        forceLog('Error checking for banners:', error, 'error');
-      }
-    };
-
-    // Check immediately and then every 5 seconds (more responsive)
-    checkForBanners();
-    const interval = setInterval(checkForBanners, 5000);
-
-    // Listen for manual refresh events
-    const handleRefresh = () => checkForBanners();
-    window.addEventListener('refresh-alerts', handleRefresh);
-
-    // Listen for admin panel changes
-    const handleAdminChange = () => {
-      // Immediate refresh when admin makes changes
-      setTimeout(checkForBanners, 100); // Small delay to let the API update
-    };
-    window.addEventListener('alert-admin-change', handleAdminChange);
-
-    return () => {
-      clearInterval(interval);
-      window.removeEventListener('refresh-alerts', handleRefresh);
-      window.removeEventListener('alert-admin-change', handleAdminChange);
-    };
-  }, [session?.user?.id, status]);
-
-  const dismissBanner = useCallback(
-    (id: string) => {
-      setBanners((prev) => prev.filter((b) => b.id !== id));
-
-      // If dismissing a database alert, record the dismissal
-      if (id.startsWith('alert-')) {
-        const alertId = id.replace('alert-', '');
-
-        if (session?.user?.id) {
-          // Authenticated user - record dismissal in database
-          fetch(`/api/alerts/${alertId}/dismiss`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' }
-          }).catch((error) => {
-            forceLog('Failed to record alert dismissal:', error);
-          });
-        } else {
-          // Anonymous user - store dismissal in localStorage
-          try {
-            const dismissedAlerts = JSON.parse(
-              localStorage.getItem('dismissedAlerts') || '[]'
-            );
-            if (!dismissedAlerts.includes(alertId)) {
-              dismissedAlerts.push(alertId);
-              localStorage.setItem(
-                'dismissedAlerts',
-                JSON.stringify(dismissedAlerts)
-              );
-            }
-          } catch (error) {
-            forceLog('Failed to store dismissal in localStorage:', error);
-          }
+        } catch {
+          // Ignore invalid JSON
         }
       }
-    },
-    [session?.user?.id]
-  );
+    }
 
+    // Update banners if data changed
+    const dataSignature = JSON.stringify(newBanners);
+    if (lastProcessedDataRef.current !== dataSignature) {
+      lastProcessedDataRef.current = dataSignature;
+
+      setBanners((prev) => {
+        // Filter out expired rate limit banners
+        const validExisting = prev.filter((banner) => {
+          if (banner.type === 'rate-limit' && banner.retryAfter) {
+            const elapsed = (Date.now() - (banner.createdAt || 0)) / 1000;
+            return elapsed < banner.retryAfter;
+          }
+          return true;
+        });
+
+        // Merge with new banners, avoiding duplicates
+        const existingIds = new Set(validExisting.map((b) => b.id));
+        const filteredNew = newBanners.filter((b) => !existingIds.has(b.id));
+
+        const finalBanners = [...validExisting, ...filteredNew];
+
+        // Only update if actually different
+        if (areBannersEqual(prev, finalBanners)) {
+          return prev;
+        }
+
+        return finalBanners;
+      });
+    }
+  };
+
+  // Expose the processing function so components can call it with their API response data
   return {
     banners,
-    dismissBanner
+    processWrapperData,
+    dismissBanner: (id: string) => {
+      const dismissed = getDismissedAlerts();
+      dismissed.add(id);
+      saveDismissedAlerts(dismissed);
+      setBanners((prev) => prev.filter((banner) => banner.id !== id));
+    }
   };
 }
 
-const Banner = React.memo(function Banner({
-  banner,
-  onDismiss
-}: {
-  banner: BannerData;
-  onDismiss: (id: string) => void;
-}) {
-  const [isVisible, setIsVisible] = useState(false);
-  const [timeLeft, setTimeLeft] = useState(banner.retryAfter || 0);
-  const [progress, setProgress] = useState(100);
-
-  // Animation entrance
-  useEffect(() => {
-    const timer = setTimeout(() => setIsVisible(true), 100);
-    return () => clearTimeout(timer);
-  }, []);
-
-  // Live countdown timer - memoized to prevent unnecessary recalculations
-  useEffect(() => {
-    if (!banner.retryAfter) return;
-
-    const startTime = banner.createdAt || Date.now();
-    const endTime = startTime + banner.retryAfter * 1000;
-
-    const updateTimer = () => {
-      const now = Date.now();
-      const remaining = Math.max(0, Math.ceil((endTime - now) / 1000));
-      const progressPercent =
-        banner.retryAfter && banner.retryAfter > 0
-          ? Math.max(0, (remaining / banner.retryAfter) * 100)
-          : 0;
-
-      setTimeLeft(remaining);
-      setProgress(progressPercent);
-
-      if (remaining <= 0) {
-        handleDismiss();
-      }
-    };
-
-    updateTimer();
-    const interval = setInterval(updateTimer, 1000);
-    return () => clearInterval(interval);
-  }, [banner.retryAfter, banner.createdAt]);
-
-  const handleDismiss = useCallback(() => {
-    setIsVisible(false);
-    setTimeout(() => onDismiss(banner.id), 300);
-  }, [banner.id, onDismiss]);
-
-  const formatTime = useCallback((seconds: number) => {
-    if (seconds >= 60) {
-      const mins = Math.floor(seconds / 60);
-      const secs = seconds % 60;
-      return `${mins}m ${secs}s`;
-    }
-    return `${seconds}s`;
-  }, []);
-
-  const config = useMemo(() => {
-    const isRateLimit = banner.type === 'rate-limit';
-    const isAttack = banner.metadata?.isAttack;
-    const isTimeout = banner.type === 'timeout';
-
-    // Use custom icon if provided
-    const customIcon = banner.metadata?.icon;
-
-    if (isAttack) {
-      return {
-        icon: customIcon || '🚨',
-        bgGradient: 'linear-gradient(135deg, #fee2e2, #fecaca)',
-        borderColor: '#f87171',
-        textColor: '#991b1b',
-        accentColor: '#ef4444',
-        progressColor: '#f87171'
-      };
-    }
-
-    if (isRateLimit) {
-      return {
-        icon: customIcon || '⚡',
-        bgGradient: 'linear-gradient(135deg, #fef3c7, #fde68a)',
-        borderColor: '#f59e0b',
-        textColor: '#92400e',
-        accentColor: '#f59e0b',
-        progressColor: '#fbbf24'
-      };
-    }
-
-    if (isTimeout) {
-      return {
-        icon: customIcon || '⏰',
-        bgGradient: 'linear-gradient(135deg, #fed7aa, #fdba74)',
-        borderColor: '#f97316',
-        textColor: '#9a3412',
-        accentColor: '#f97316',
-        progressColor: '#fb923c'
-      };
-    }
-
-    // Handle different alert types from database
-    switch (banner.type) {
-      case 'warning':
-        return {
-          icon: customIcon || '⚠️',
-          bgGradient: 'linear-gradient(135deg, #fef3c7, #fde68a)',
-          borderColor: '#f59e0b',
-          textColor: '#92400e',
-          accentColor: '#f59e0b',
-          progressColor: '#fbbf24'
-        };
-
-      case 'error':
-        return {
-          icon: customIcon || '❌',
-          bgGradient: 'linear-gradient(135deg, #fee2e2, #fecaca)',
-          borderColor: '#f87171',
-          textColor: '#991b1b',
-          accentColor: '#ef4444',
-          progressColor: '#f87171'
-        };
-
-      case 'success':
-        return {
-          icon: customIcon || '✅',
-          bgGradient: 'linear-gradient(135deg, #d1fae5, #a7f3d0)',
-          borderColor: '#34d399',
-          textColor: '#065f46',
-          accentColor: '#10b981',
-          progressColor: '#34d399'
-        };
-
-      case 'maintenance':
-        return {
-          icon: customIcon || '🔧',
-          bgGradient: 'linear-gradient(135deg, #e0e7ff, #c7d2fe)',
-          borderColor: '#818cf8',
-          textColor: '#3730a3',
-          accentColor: '#6366f1',
-          progressColor: '#818cf8'
-        };
-
-      default:
-        return {
-          icon: customIcon || 'ℹ️',
-          bgGradient: 'linear-gradient(135deg, #dbeafe, #bfdbfe)',
-          borderColor: '#60a5fa',
-          textColor: '#1e40af',
-          accentColor: '#3b82f6',
-          progressColor: '#60a5fa'
-        };
-    }
-  }, [banner.type, banner.metadata?.isAttack, banner.metadata?.icon]);
-
-  return (
-    <div
-      style={{
-        width: '100%',
-        transform: isVisible
-          ? 'translateY(0) scale(1)'
-          : 'translateY(-10px) scale(0.98)',
-        opacity: isVisible ? 1 : 0,
-        transition: 'all 0.3s ease-out',
-        marginBottom: '8px'
-      }}
-    >
-      <div
-        style={{
-          position: 'relative',
-          overflow: 'hidden',
-          borderRadius: '8px',
-          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
-          borderLeft: `4px solid ${config.borderColor}`,
-          background: config.bgGradient,
-          minHeight: '60px',
-          width: '100%'
-        }}
-      >
-        {/* Progress bar for timed banners */}
-        {banner.retryAfter && (
-          <div
-            style={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              right: 0,
-              height: '3px',
-              background: 'rgba(0, 0, 0, 0.1)'
-            }}
-          >
-            <div
-              style={{
-                height: '100%',
-                background: config.progressColor,
-                width: `${progress}%`,
-                transition: 'width 1s linear'
-              }}
-            />
-          </div>
-        )}
-
-        <div style={{ padding: '12px 16px' }}>
-          <div
-            style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}
-          >
-            {/* Icon */}
-            <div style={{ flexShrink: 0, fontSize: '20px' }}>{config.icon}</div>
-
-            {/* Content */}
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <h4
-                style={{
-                  fontWeight: '600',
-                  fontSize: '16px',
-                  color: config.textColor,
-                  margin: '0 0 4px 0',
-                  lineHeight: '1.3'
-                }}
-              >
-                {banner.title}
-              </h4>
-
-              {banner.message && (
-                <p
-                  style={{
-                    fontSize: '14px',
-                    color: config.textColor,
-                    opacity: 0.9,
-                    lineHeight: '1.4',
-                    margin: '0'
-                  }}
-                >
-                  {banner.message}
-                </p>
-              )}
-
-              {/* Live countdown */}
-              {timeLeft > 0 && (
-                <div
-                  style={{
-                    marginTop: '8px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '6px'
-                  }}
-                >
-                  <div
-                    style={{
-                      width: '6px',
-                      height: '6px',
-                      borderRadius: '50%',
-                      background: config.accentColor,
-                      animation: 'pulse 2s infinite'
-                    }}
-                  />
-                  <span
-                    style={{
-                      fontSize: '12px',
-                      fontWeight: '500',
-                      color: config.textColor
-                    }}
-                  >
-                    Try again in {formatTime(timeLeft)}
-                  </span>
-                </div>
-              )}
-
-              {/* Additional info */}
-              {banner.metadata?.reason && (
-                <p
-                  style={{
-                    fontSize: '11px',
-                    marginTop: '6px',
-                    color: config.textColor,
-                    opacity: 0.75
-                  }}
-                >
-                  Reason: {banner.metadata.reason}
-                </p>
-              )}
-            </div>
-
-            {/* Dismiss button */}
-            {banner.dismissible && (
-              <button
-                onClick={handleDismiss}
-                style={{
-                  flexShrink: 0,
-                  padding: '8px',
-                  borderRadius: '50%',
-                  background: 'rgba(255, 255, 255, 0.2)',
-                  border: 'none',
-                  color: config.textColor,
-                  cursor: 'pointer',
-                  transition: 'all 0.2s ease',
-                  fontSize: '14px',
-                  width: '28px',
-                  height: '28px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.background = 'rgba(255, 255, 255, 0.3)';
-                  e.currentTarget.style.transform = 'scale(1.1)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background = 'rgba(255, 255, 255, 0.2)';
-                  e.currentTarget.style.transform = 'scale(1)';
-                }}
-                aria-label="Dismiss notification"
-              >
-                ✕
-              </button>
-            )}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-});
-
 export default function SimpleBannerSystem() {
   const { banners, dismissBanner } = useSimpleBanners();
-  const { data: session } = useSession();
-
-  // Add global refresh function for testing (but remove debug logging)
-  useEffect(() => {
-    (window as any).__refreshBanners = () => {
-      window.dispatchEvent(new CustomEvent('refresh-alerts'));
-    };
-
-    (window as any).__bannerDebug = () => {
-      const dismissedAlerts = localStorage.getItem('dismissedAlerts');
-      return {
-        bannerCount: banners.length,
-        banners: banners,
-        isSimpleBannerSystemMounted: true,
-        dismissedAlerts: dismissedAlerts ? JSON.parse(dismissedAlerts) : [],
-        isAuthenticated: !!session?.user?.id
-      };
-    };
-
-    // Debug helper to clear dismissed alerts
-    (window as any).__clearDismissedAlerts = () => {
-      localStorage.removeItem('dismissedAlerts');
-      window.dispatchEvent(new CustomEvent('refresh-alerts'));
-      return 'Dismissed alerts cleared and banners refreshed';
-    };
-  }, [banners, session?.user?.id]);
-
-  // Memoize sorted banners to prevent unnecessary re-sorts
-  const sortedBanners = useMemo(() => {
-    return banners.sort((a, b) => (b.priority || 0) - (a.priority || 0));
-  }, [banners]);
-
-  if (banners.length === 0) {
-    return null; // Don't show anything when no banners
-  }
 
   return (
-    <div
-      style={{
-        position: 'sticky',
-        top: 0,
-        left: 0,
-        right: 0,
-        zIndex: 9999,
-        pointerEvents: 'auto',
-        width: '100%'
-      }}
-    >
-      <div
-        style={{
-          width: '100%'
-        }}
-      >
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          {/* Banners with proper React keys for optimal rendering */}
-          {sortedBanners.map((banner, index) => (
-            <div
-              key={createBannerKey(banner)} // Stable key that includes content
-              style={{
-                width: '100%',
-                transform: 'translateY(0) scale(1)',
-                opacity: 1,
-                transition: 'all 0.3s ease-out',
-                animationDelay: `${index * 100}ms`,
-                animationFillMode: 'both'
-              }}
-            >
-              <Banner banner={banner} onDismiss={dismissBanner} />
-            </div>
-          ))}
-        </div>
-      </div>
+    <div style={{ position: 'relative', zIndex: 1000 }}>
+      {banners
+        .sort((a, b) => (b.priority || 0) - (a.priority || 0))
+        .map((banner) => (
+          <SimpleBanner
+            key={banner.id}
+            id={banner.id}
+            type={banner.type}
+            title={banner.title}
+            message={banner.message}
+            dismissible={banner.dismissible}
+            onDismiss={() => dismissBanner(banner.id)}
+            metadata={banner.metadata}
+            retryAfter={banner.retryAfter}
+            createdAt={banner.createdAt}
+          />
+        ))}
     </div>
   );
 }
