@@ -248,7 +248,7 @@
 
 .user-subscription-modal .status-pending {
   background: var(--dark-background--tertiary);
-  color: var(--dark-bg__text-color--secondary);
+  color: var(--dark-text-primary);
   border-color: var(--dark-border--primary);
 }
 
