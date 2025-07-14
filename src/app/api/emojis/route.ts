@@ -48,13 +48,13 @@
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/Error'
+ *               type: object
  *       500:
  *         description: Internal server error
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/Error'
+ *               type: object
  *   post:
  *     summary: Upload custom emoji
  *     description: Upload a custom emoji image for the authenticated user

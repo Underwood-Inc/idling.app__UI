@@ -79,7 +79,7 @@
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/Error'
+ *               type: object
  *       413:
  *         description: File too large
  *         content:
@@ -99,7 +99,7 @@
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/Error'
+ *               type: object
  *   get:
  *     summary: Method not allowed
  *     description: GET requests are not supported for file uploads
@@ -111,7 +111,7 @@
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/Error'
+ *               type: object
  */
 
 import { withUniversalEnhancements } from '@lib/api/withUniversalEnhancements';

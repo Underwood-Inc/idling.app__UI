@@ -472,9 +472,419 @@
     {
       "name": "Alerts",
       "description": "System alerts and notifications"
+    },
+    {
+      "name": "System",
+      "description": "System information and metadata"
+    },
+    {
+      "name": "Documentation",
+      "description": "API documentation endpoints"
     }
   ],
   "paths": {
+    "/api/admin/permissions": {
+      "get": {
+        "summary": "Get permissions with search, filtering, and pagination",
+        "description": "Retrieve a comprehensive list of permissions with advanced filtering, search, and pagination capabilities. Includes usage statistics and role associations.",
+        "tags": [
+          "Admin"
+        ],
+        "security": [
+          {
+            "NextAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "search",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Search term to filter permissions by name, display_name, or description"
+          },
+          {
+            "in": "query",
+            "name": "category",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Filter permissions by category"
+          },
+          {
+            "in": "query",
+            "name": "status",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "all",
+                "active",
+                "disabled",
+                "archived"
+              ],
+              "default": "all"
+            },
+            "description": "Filter permissions by status"
+          },
+          {
+            "in": "query",
+            "name": "risk_level",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "all",
+                "low",
+                "medium",
+                "high",
+                "critical"
+              ],
+              "default": "all"
+            },
+            "description": "Filter permissions by risk level"
+          },
+          {
+            "in": "query",
+            "name": "sort_by",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "name",
+                "display_name",
+                "category",
+                "created_at",
+                "updated_at",
+                "usage_count",
+                "sort_order"
+              ],
+              "default": "sort_order"
+            },
+            "description": "Field to sort by"
+          },
+          {
+            "in": "query",
+            "name": "sort_order",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ],
+              "default": "asc"
+            },
+            "description": "Sort order direction"
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1
+            },
+            "description": "Page number for pagination"
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20
+            },
+            "description": "Number of permissions per page"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved permissions with pagination data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "overview": {
+                      "type": "object"
+                    },
+                    "permissions": {
+                      "type": "array",
+                      "items": {
+                        "type": "object"
+                      }
+                    },
+                    "pagination": {
+                      "type": "object",
+                      "properties": {
+                        "page": {
+                          "type": "integer"
+                        },
+                        "limit": {
+                          "type": "integer"
+                        },
+                        "total": {
+                          "type": "integer"
+                        },
+                        "totalPages": {
+                          "type": "integer"
+                        },
+                        "hasNext": {
+                          "type": "boolean"
+                        },
+                        "hasPrev": {
+                          "type": "boolean"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": null
+              }
+            }
+          },
+          "403": {
+            "description": "Insufficient permissions - requires ADMIN.PERMISSIONS_VIEW permission",
+            "content": {
+              "application/json": {
+                "schema": null
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": null
+              }
+            }
+          }
+        },
+        "operationId": "getAdminpermissions"
+      },
+      "post": {
+        "summary": "Create a new permission",
+        "description": "Create a new permission with specified name, display name, category, and other properties",
+        "tags": [
+          "Admin"
+        ],
+        "security": [
+          {
+            "NextAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "pattern": "^[a-z0-9._-]+$",
+                    "minLength": 1,
+                    "maxLength": 100,
+                    "description": "Unique permission name (lowercase, alphanumeric, dots, underscores, hyphens)"
+                  },
+                  "display_name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 200,
+                    "description": "Human-readable display name"
+                  },
+                  "description": {
+                    "type": "string",
+                    "description": "Optional description of the permission"
+                  },
+                  "category": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 50,
+                    "description": "Permission category"
+                  },
+                  "is_inheritable": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Whether this permission can be inherited"
+                  },
+                  "risk_level": {
+                    "type": "string",
+                    "enum": [
+                      "low",
+                      "medium",
+                      "high",
+                      "critical"
+                    ],
+                    "default": "low",
+                    "description": "Risk level associated with this permission"
+                  },
+                  "dependencies": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "default": [],
+                    "description": "List of permission names this permission depends on"
+                  },
+                  "metadata": {
+                    "type": "object",
+                    "default": {},
+                    "description": "Additional metadata for the permission"
+                  },
+                  "reason": {
+                    "type": "string",
+                    "description": "Optional reason for creating this permission"
+                  }
+                },
+                "required": [
+                  "name",
+                  "display_name",
+                  "category"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Permission created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "permission": {
+                      "type": "object"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request data or validation errors",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    },
+                    "details": {
+                      "type": "array",
+                      "items": {
+                        "type": "object"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": null
+              }
+            }
+          },
+          "403": {
+            "description": "Insufficient permissions - requires ADMIN.PERMISSIONS_CREATE permission",
+            "content": {
+              "application/json": {
+                "schema": null
+              }
+            }
+          },
+          "409": {
+            "description": "Permission with this name already exists",
+            "content": {
+              "application/json": {
+                "schema": null
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": null
+              }
+            }
+          }
+        },
+        "operationId": "postAdminpermissions"
+      }
+    },
+    "/api/admin/roles": {
+      "get": {
+        "summary": "Get available roles for assignment",
+        "description": "Retrieve a list of available roles that can be assigned to users. Excludes protected roles that can only be assigned via database.",
+        "tags": [
+          "Admin"
+        ],
+        "security": [
+          {
+            "NextAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved available roles",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": null
+              }
+            }
+          },
+          "403": {
+            "description": "Insufficient permissions - requires ADMIN.USERS_MANAGE permission",
+            "content": {
+              "application/json": {
+                "schema": null
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": null
+              }
+            }
+          }
+        },
+        "operationId": "getAdminroles"
+      }
+    },
     "/api/admin/users": {
       "get": {
         "summary": "Get users for admin management",
@@ -590,7 +1000,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Error"
+                  "type": "object"
                 }
               }
             }
@@ -600,7 +1010,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Error"
+                  "type": "object"
                 }
               }
             }
@@ -610,12 +1020,13 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Error"
+                  "type": "object"
                 }
               }
             }
           }
-        }
+        },
+        "operationId": "getAdminusers"
       }
     },
     "/api/alerts/active": {
@@ -649,12 +1060,13 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Error"
+                  "type": "object"
                 }
               }
             }
           }
-        }
+        },
+        "operationId": "getAlertsactive"
       }
     },
     "/api/alerts/dismiss": {
@@ -740,7 +1152,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Error"
+                  "type": "object"
                 }
               }
             }
@@ -750,7 +1162,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Error"
+                  "type": "object"
                 }
               }
             }
@@ -760,7 +1172,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Error"
+                  "type": "object"
                 }
               }
             }
@@ -770,12 +1182,298 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Error"
+                  "type": "object"
                 }
               }
             }
           }
-        }
+        },
+        "operationId": "postAlertsdismiss"
+      }
+    },
+    "/api/analytics/dashboard": {
+      "get": {
+        "summary": "Get comprehensive analytics dashboard data",
+        "description": "Retrieve detailed analytics data including sessions, page views, geographic data, device information,\nVPN usage, heatmap data, and subscription analytics for the admin dashboard.\n",
+        "tags": [
+          "Analytics"
+        ],
+        "security": [
+          {
+            "NextAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "dateRange",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "7d",
+                "30d",
+                "90d",
+                "1y"
+              ],
+              "default": "30d"
+            },
+            "description": "Date range for analytics data"
+          },
+          {
+            "in": "query",
+            "name": "metrics",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "sessions",
+                  "pageviews",
+                  "clicks",
+                  "users",
+                  "geographic",
+                  "devices",
+                  "vpn",
+                  "heatmap",
+                  "subscriptions"
+                ]
+              }
+            },
+            "description": "Specific metrics to include in the response"
+          },
+          {
+            "in": "query",
+            "name": "granularity",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "hourly",
+                "daily",
+                "weekly",
+                "monthly"
+              ],
+              "default": "daily"
+            },
+            "description": "Time granularity for time-series data"
+          },
+          {
+            "in": "query",
+            "name": "timezone",
+            "schema": {
+              "type": "string",
+              "default": "UTC"
+            },
+            "description": "Timezone for time-based calculations"
+          },
+          {
+            "in": "query",
+            "name": "country",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Filter analytics by specific country code"
+          },
+          {
+            "in": "query",
+            "name": "device_type",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "desktop",
+                "mobile",
+                "tablet"
+              ]
+            },
+            "description": "Filter analytics by device type"
+          },
+          {
+            "in": "query",
+            "name": "include_vpn",
+            "schema": {
+              "type": "boolean",
+              "default": true
+            },
+            "description": "Include VPN/proxy traffic in analytics"
+          },
+          {
+            "in": "query",
+            "name": "format",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "json",
+                "csv"
+              ],
+              "default": "json"
+            },
+            "description": "Response format"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved analytics dashboard data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid query parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    },
+                    "details": {
+                      "type": "array",
+                      "items": {
+                        "type": "object"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Insufficient permissions - requires admin access",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "operationId": "getAnalyticsdashboard"
+      }
+    },
+    "/api/auth/unlink-account": {
+      "delete": {
+        "summary": "Unlink an authentication provider account",
+        "description": "Removes a linked authentication provider account from the user's profile.\nUsers must have at least one authentication method remaining.\n",
+        "tags": [
+          "Authentication"
+        ],
+        "security": [
+          {
+            "NextAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "providerId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "The ID of the provider account to unlink"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Account unlinked successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Account unlinked successfully"
+                    },
+                    "provider": {
+                      "type": "string",
+                      "example": "google",
+                      "description": "The provider that was unlinked"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request or cannot unlink the only authentication method",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "Cannot unlink the only authentication method"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Account not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "Account not found"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "operationId": "deleteAuthunlinkaccount"
       }
     },
     "/api/emojis": {
@@ -847,7 +1545,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Error"
+                  "type": "object"
                 }
               }
             }
@@ -857,12 +1555,13 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Error"
+                  "type": "object"
                 }
               }
             }
           }
-        }
+        },
+        "operationId": "getEmojis"
       },
       "post": {
         "summary": "Upload custom emoji",
@@ -935,7 +1634,8 @@
           "500": {
             "description": "Upload failed"
           }
-        }
+        },
+        "operationId": "postEmojis"
       },
       "put": {
         "summary": "Track emoji usage",
@@ -994,7 +1694,8 @@
           "500": {
             "description": "Tracking failed"
           }
-        }
+        },
+        "operationId": "putEmojis"
       }
     },
     "/api/emojis/usage": {
@@ -1077,12 +1778,13 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Error"
+                  "type": "object"
                 }
               }
             }
           }
-        }
+        },
+        "operationId": "postEmojisusage"
       }
     },
     "/api/openapi": {
@@ -1103,7 +1805,8 @@
               }
             }
           }
-        }
+        },
+        "operationId": "getOpenapi"
       }
     },
     "/api/profile/id/{id}": {
@@ -1194,7 +1897,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Error"
+                  "type": "object"
                 }
               }
             }
@@ -1204,12 +1907,13 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Error"
+                  "type": "object"
                 }
               }
             }
           }
-        }
+        },
+        "operationId": "getProfileidByid"
       }
     },
     "/api/swagger": {
@@ -1230,7 +1934,8 @@
               }
             }
           }
-        }
+        },
+        "operationId": "getSwagger"
       }
     },
     "/api/upload/image": {
@@ -1345,7 +2050,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Error"
+                  "type": "object"
                 }
               }
             }
@@ -1377,12 +2082,13 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Error"
+                  "type": "object"
                 }
               }
             }
           }
-        }
+        },
+        "operationId": "postUploadimage"
       },
       "get": {
         "summary": "Method not allowed",
@@ -1396,12 +2102,13 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Error"
+                  "type": "object"
                 }
               }
             }
           }
-        }
+        },
+        "operationId": "getUploadimage"
       }
     },
     "/api/version": {
@@ -1434,12 +2141,13 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Error"
+                  "type": "object"
                 }
               }
             }
           }
-        }
+        },
+        "operationId": "getVersion"
       }
     }
   }

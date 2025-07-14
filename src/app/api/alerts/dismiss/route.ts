@@ -57,25 +57,25 @@
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/Error'
+ *               type: object
  *       403:
  *         description: Unauthorized (user can only dismiss their own alerts)
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/Error'
+ *               type: object
  *       404:
  *         description: Alert not found or not dismissible
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/Error'
+ *               type: object
  *       500:
  *         description: Failed to dismiss alert
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/Error'
+ *               type: object
  */
 
 import { withUniversalEnhancements } from '@lib/api/withUniversalEnhancements';

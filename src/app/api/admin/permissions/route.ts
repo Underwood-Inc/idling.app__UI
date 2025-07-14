@@ -71,11 +71,11 @@
  *               type: object
  *               properties:
  *                 overview:
- *                   $ref: '#/components/schemas/PermissionOverview'
+ *                   type: object
  *                 permissions:
  *                   type: array
  *                   items:
- *                     $ref: '#/components/schemas/PermissionWithStats'
+ *                     type: object
  *                 pagination:
  *                   type: object
  *                   properties:
@@ -96,19 +96,16 @@
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/Error'
  *       403:
  *         description: Insufficient permissions - requires ADMIN.PERMISSIONS_VIEW permission
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/Error'
  *       500:
  *         description: Internal server error
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/Error'
  *   post:
  *     summary: Create a new permission
  *     description: Create a new permission with specified name, display name, category, and other properties
@@ -179,7 +176,7 @@
  *                 success:
  *                   type: boolean
  *                 permission:
- *                   $ref: '#/components/schemas/PermissionWithStats'
+ *                   type: object
  *                 message:
  *                   type: string
  *       400:
@@ -200,25 +197,21 @@
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/Error'
  *       403:
  *         description: Insufficient permissions - requires ADMIN.PERMISSIONS_CREATE permission
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/Error'
  *       409:
  *         description: Permission with this name already exists
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/Error'
  *       500:
  *         description: Internal server error
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/Error'
  */
 
 import { checkUserPermission } from '@lib/actions/permissions.actions';
