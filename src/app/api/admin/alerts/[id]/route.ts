@@ -3,23 +3,39 @@ import sql from '@lib/db';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
+
 // ================================
 // VALIDATION SCHEMAS
 // ================================
 
 const UpdateAlertSchema = z.object({
-  title: z.string().min(1, 'Title is required').max(200, 'Title too long').optional(),
+  title: z
+    .string()
+    .min(1, 'Title is required')
+    .max(200, 'Title too long')
+    .optional(),
   message: z.string().optional(),
   details: z.string().optional(),
-  alert_type: z.enum(['info', 'warning', 'error', 'success', 'maintenance', 'custom']).optional(),
+  alert_type: z
+    .enum(['info', 'warning', 'error', 'success', 'maintenance', 'custom'])
+    .optional(),
   priority: z.number().int().min(-100).max(100).optional(),
   icon: z.string().optional(),
   dismissible: z.boolean().optional(),
   persistent: z.boolean().optional(),
   expires_at: z.string().datetime().optional(),
-  target_audience: z.enum([
-    'all', 'authenticated', 'subscribers', 'admins', 'role_based', 'specific_users'
-  ]).optional(),
+  target_audience: z
+    .enum([
+      'all',
+      'authenticated',
+      'subscribers',
+      'admins',
+      'role_based',
+      'specific_users'
+    ])
+    .optional(),
   target_roles: z.array(z.string()).optional(),
   target_users: z.array(z.number().int()).optional(),
   start_date: z.string().datetime().optional(),
@@ -46,7 +62,7 @@ async function validateAdminAccess(sessionUserId: string): Promise<boolean> {
       AND (ura.expires_at IS NULL OR ura.expires_at > CURRENT_TIMESTAMP)
       LIMIT 1
     `;
-    
+
     return adminCheck.length > 0;
   } catch (error) {
     console.error('Admin validation error:', error);
@@ -70,7 +86,10 @@ export async function GET(
 
     const isAdmin = await validateAdminAccess(session.user.id);
     if (!isAdmin) {
-      return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
+      return NextResponse.json(
+        { error: 'Admin access required' },
+        { status: 403 }
+      );
     }
 
     const alertId = parseInt(params.id);
@@ -87,10 +106,12 @@ export async function GET(
     }
 
     return NextResponse.json(alert);
-
   } catch (error) {
     console.error('Error fetching alert:', error);
-    return NextResponse.json({ error: 'Failed to fetch alert' }, { status: 500 });
+    return NextResponse.json(
+      { error: 'Failed to fetch alert' },
+      { status: 500 }
+    );
   }
 }
 
@@ -106,7 +127,10 @@ export async function PUT(
 
     const isAdmin = await validateAdminAccess(session.user.id);
     if (!isAdmin) {
-      return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
+      return NextResponse.json(
+        { error: 'Admin access required' },
+        { status: 403 }
+      );
     }
 
     const alertId = parseInt(params.id);
@@ -124,7 +148,12 @@ export async function PUT(
 
     Object.entries(validatedData).forEach(([key, value]) => {
       if (value !== undefined) {
-        if (key === 'target_roles' || key === 'target_users' || key === 'actions' || key === 'metadata') {
+        if (
+          key === 'target_roles' ||
+          key === 'target_users' ||
+          key === 'actions' ||
+          key === 'metadata'
+        ) {
           updateFields.push(`${key} = $${paramIndex}`);
           updateValues.push(JSON.stringify(value));
         } else {
@@ -136,11 +165,17 @@ export async function PUT(
     });
 
     if (updateFields.length === 0) {
-      return NextResponse.json({ error: 'No fields to update' }, { status: 400 });
+      return NextResponse.json(
+        { error: 'No fields to update' },
+        { status: 400 }
+      );
     }
 
     // Add updated_by and updated_at
-    updateFields.push(`updated_by = $${paramIndex}`, `updated_at = CURRENT_TIMESTAMP`);
+    updateFields.push(
+      `updated_by = $${paramIndex}`,
+      `updated_at = CURRENT_TIMESTAMP`
+    );
     updateValues.push(session.user.id);
 
     const query = `
@@ -159,11 +194,10 @@ export async function PUT(
 
     // SSE notifications removed - admin panel now uses polling for updates
 
-    return NextResponse.json({ 
-      message: 'Alert updated successfully', 
-      alert: updatedAlert 
+    return NextResponse.json({
+      message: 'Alert updated successfully',
+      alert: updatedAlert
     });
-
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
@@ -171,9 +205,12 @@ export async function PUT(
         { status: 400 }
       );
     }
-    
+
     console.error('Error updating alert:', error);
-    return NextResponse.json({ error: 'Failed to update alert' }, { status: 500 });
+    return NextResponse.json(
+      { error: 'Failed to update alert' },
+      { status: 500 }
+    );
   }
 }
 
@@ -189,7 +226,10 @@ export async function DELETE(
 
     const isAdmin = await validateAdminAccess(session.user.id);
     if (!isAdmin) {
-      return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
+      return NextResponse.json(
+        { error: 'Admin access required' },
+        { status: 403 }
+      );
     }
 
     const alertId = parseInt(params.id);
@@ -209,13 +249,15 @@ export async function DELETE(
 
     // SSE notifications removed - admin panel now uses polling for updates
 
-    return NextResponse.json({ 
+    return NextResponse.json({
       message: 'Alert deleted successfully',
-      alert: deletedAlert 
+      alert: deletedAlert
     });
-
   } catch (error) {
     console.error('Error deleting alert:', error);
-    return NextResponse.json({ error: 'Failed to delete alert' }, { status: 500 });
+    return NextResponse.json(
+      { error: 'Failed to delete alert' },
+      { status: 500 }
+    );
   }
-} 
+}

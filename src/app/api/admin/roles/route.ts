@@ -1,6 +1,40 @@
 /**
- * Admin Roles API
- * Handles fetching available roles for assignment
+ * @swagger
+ * /api/admin/roles:
+ *   get:
+ *     summary: Get available roles for assignment
+ *     description: Retrieve a list of available roles that can be assigned to users. Excludes protected roles that can only be assigned via database.
+ *     tags:
+ *       - Admin
+ *     security:
+ *       - NextAuth: []
+ *     responses:
+ *       200:
+ *         description: Successfully retrieved available roles
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/AvailableRole'
+ *       401:
+ *         description: Authentication required
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       403:
+ *         description: Insufficient permissions - requires ADMIN.USERS_MANAGE permission
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
  */
 
 import { checkUserPermission } from '@lib/actions/permissions.actions';

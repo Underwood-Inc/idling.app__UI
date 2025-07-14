@@ -3,6 +3,7 @@ import sql from '@lib/db';
 import { NextRequest, NextResponse } from 'next/server';
 
 // Force dynamic rendering since we need to access headers for auth
+export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 export interface SubscriptionStatusResponse {
@@ -29,27 +30,29 @@ export async function GET(request: NextRequest) {
   try {
     const session = await auth();
     if (!session?.user?.id) {
-      return NextResponse.json({ 
-        hasActiveSubscription: false, 
-        isPro: false 
+      return NextResponse.json({
+        hasActiveSubscription: false,
+        isPro: false
       });
     }
 
     const userId = parseInt(session.user.id);
 
     // Check for active subscription
-    const subscriptions = await sql<Array<{
-      id: number;
-      plan_id: number;
-      status: string;
-      billing_cycle: string;
-      expires_at: string | null;
-      admin_price_override_cents: number | null;
-      admin_price_override_reason: string | null;
-      plan_name: string;
-      plan_display_name: string;
-      plan_type: string;
-    }>>`
+    const subscriptions = await sql<
+      Array<{
+        id: number;
+        plan_id: number;
+        status: string;
+        billing_cycle: string;
+        expires_at: string | null;
+        admin_price_override_cents: number | null;
+        admin_price_override_reason: string | null;
+        plan_name: string;
+        plan_display_name: string;
+        plan_type: string;
+      }>
+    >`
       SELECT 
         us.id,
         us.plan_id,
@@ -72,18 +75,19 @@ export async function GET(request: NextRequest) {
     `;
 
     if (subscriptions.length === 0) {
-      return NextResponse.json({ 
-        hasActiveSubscription: false, 
-        isPro: false 
+      return NextResponse.json({
+        hasActiveSubscription: false,
+        isPro: false
       });
     }
 
     const subscription = subscriptions[0];
-    
+
     // Check if this is a pro-level plan (could be Pro, Enterprise, etc.)
-    const isPro = subscription.plan_type === 'tier' && 
-                  (subscription.plan_name.toLowerCase().includes('pro') || 
-                   subscription.plan_name.toLowerCase().includes('enterprise'));
+    const isPro =
+      subscription.plan_type === 'tier' &&
+      (subscription.plan_name.toLowerCase().includes('pro') ||
+        subscription.plan_name.toLowerCase().includes('enterprise'));
 
     const response: SubscriptionStatusResponse = {
       hasActiveSubscription: true,
@@ -100,19 +104,19 @@ export async function GET(request: NextRequest) {
         billing_cycle: subscription.billing_cycle,
         expires_at: subscription.expires_at || undefined,
         has_price_override: subscription.admin_price_override_cents !== null,
-        price_override_cents: subscription.admin_price_override_cents || undefined
+        price_override_cents:
+          subscription.admin_price_override_cents || undefined
       }
     };
 
     return NextResponse.json(response);
-
   } catch (error) {
     console.error('Error checking subscription status:', error);
-    
+
     // Return safe defaults on error
-    return NextResponse.json({ 
-      hasActiveSubscription: false, 
-      isPro: false 
+    return NextResponse.json({
+      hasActiveSubscription: false,
+      isPro: false
     });
   }
-} 
+}

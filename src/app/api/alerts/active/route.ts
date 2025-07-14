@@ -29,6 +29,7 @@ import { auth } from '@lib/auth';
 import sql from '@lib/db';
 import { NextResponse } from 'next/server';
 
+export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 export interface CustomAlert {
@@ -48,14 +49,17 @@ export interface CustomAlert {
 
 /**
  * GET /api/alerts/active
- * 
+ *
  * Fetches active custom alerts for the current user based on targeting rules.
  * Includes proper authentication and user targeting logic.
  */
 export async function GET() {
   try {
     // Prevent database calls during build time
-    if (process.env.NODE_ENV === 'production' && process.env.NEXT_PHASE === 'phase-production-build') {
+    if (
+      process.env.NODE_ENV === 'production' &&
+      process.env.NEXT_PHASE === 'phase-production-build'
+    ) {
       return NextResponse.json([]);
     }
 
@@ -72,8 +76,9 @@ export async function GET() {
     if (alerts.length > 0 && process.env.NODE_ENV !== 'test') {
       const alertIds = alerts.map((alert: CustomAlert) => alert.id);
       await Promise.all(
-        alertIds.map((alertId: number) =>
-          sql`SELECT update_alert_analytics(${alertId}, 'view')`
+        alertIds.map(
+          (alertId: number) =>
+            sql`SELECT update_alert_analytics(${alertId}, 'view')`
         )
       );
     }
@@ -86,4 +91,4 @@ export async function GET() {
       { status: 500 }
     );
   }
-} 
+}

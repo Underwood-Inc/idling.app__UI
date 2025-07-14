@@ -1,9 +1,9 @@
 /**
  * Individual Global Guest Quota Management API
- * 
+ *
  * Provides secure endpoints for managing specific global quota settings by ID
  * with proper validation and admin action logging.
- * 
+ *
  * @version 1.0.0
  * @author System
  */
@@ -12,6 +12,9 @@ import { auth } from '@lib/auth';
 import sql from '@lib/db';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
+
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
 
 // ================================
 // TYPES & SCHEMAS
@@ -31,22 +34,24 @@ interface GlobalGuestQuota {
   updated_at: string;
 }
 
-const UpdateGlobalQuotaSchema = z.object({
-  quota_limit: z.number().int().min(0).optional(),
-  is_unlimited: z.boolean().optional(),
-  reset_period: z.enum(['hourly', 'daily', 'weekly', 'monthly']).optional(),
-  description: z.string().max(500).optional(),
-  is_active: z.boolean().optional()
-}).transform((data) => {
-  // If quota_limit is 0, treat as unlimited
-  if (data.quota_limit === 0) {
-    return {
-      ...data,
-      is_unlimited: true
-    };
-  }
-  return data;
-});
+const UpdateGlobalQuotaSchema = z
+  .object({
+    quota_limit: z.number().int().min(0).optional(),
+    is_unlimited: z.boolean().optional(),
+    reset_period: z.enum(['hourly', 'daily', 'weekly', 'monthly']).optional(),
+    description: z.string().max(500).optional(),
+    is_active: z.boolean().optional()
+  })
+  .transform((data) => {
+    // If quota_limit is 0, treat as unlimited
+    if (data.quota_limit === 0) {
+      return {
+        ...data,
+        is_unlimited: true
+      };
+    }
+    return data;
+  });
 
 interface ApiResponse<T> {
   success: true;
@@ -114,7 +119,9 @@ async function logAdminAction(
 export async function PUT(
   request: NextRequest,
   { params }: { params: { id: string } }
-): Promise<NextResponse<ApiResponse<{ quota: GlobalGuestQuota }> | ErrorResponse>> {
+): Promise<
+  NextResponse<ApiResponse<{ quota: GlobalGuestQuota }> | ErrorResponse>
+> {
   try {
     // Validate session
     const session = await auth();
@@ -146,13 +153,13 @@ export async function PUT(
     // Validate request body
     const body = await request.json();
     const validationResult = UpdateGlobalQuotaSchema.safeParse(body);
-    
+
     if (!validationResult.success) {
       return NextResponse.json(
-        { 
-          success: false, 
+        {
+          success: false,
           error: 'Invalid request data',
-          data: validationResult.error.issues 
+          data: validationResult.error.issues
         },
         { status: 400 }
       );
@@ -184,8 +191,9 @@ export async function PUT(
     let paramIndex = 1;
 
     // Handle quota_limit and is_unlimited together to support 0 as infinite
-    const isBecomingUnlimited = updates.is_unlimited || updates.quota_limit === 0;
-    
+    const isBecomingUnlimited =
+      updates.is_unlimited || updates.quota_limit === 0;
+
     if (updates.quota_limit !== undefined) {
       const finalQuotaLimit = isBecomingUnlimited ? -1 : updates.quota_limit;
       updateFields.push(`quota_limit = $${paramIndex++}`);
@@ -195,7 +203,7 @@ export async function PUT(
     if (updates.is_unlimited !== undefined || updates.quota_limit === 0) {
       updateFields.push(`is_unlimited = $${paramIndex++}`);
       updateValues.push(isBecomingUnlimited);
-      
+
       // If setting to unlimited but quota_limit wasn't provided, also set quota_limit to -1
       if (isBecomingUnlimited && updates.quota_limit === undefined) {
         updateFields.push(`quota_limit = $${paramIndex++}`);
@@ -266,12 +274,11 @@ export async function PUT(
       data: { quota: updatedQuota[0] as unknown as GlobalGuestQuota },
       message: `Global quota updated for ${currentQuota.service_display_name} - ${currentQuota.feature_display_name}`
     });
-
   } catch (error) {
     console.error('PUT /api/admin/quotas/global/[id] error:', error);
     return NextResponse.json(
-      { 
-        success: false, 
+      {
+        success: false,
         error: 'Internal server error',
         message: 'Failed to update global quota'
       },
@@ -374,16 +381,15 @@ export async function DELETE(
       data: { deleted: true },
       message: `Global quota deleted for ${quotaToDelete.service_display_name} - ${quotaToDelete.feature_display_name}`
     });
-
   } catch (error) {
     console.error('DELETE /api/admin/quotas/global/[id] error:', error);
     return NextResponse.json(
-      { 
-        success: false, 
+      {
+        success: false,
         error: 'Internal server error',
         message: 'Failed to delete global quota'
       },
       { status: 500 }
     );
   }
-} 
+}

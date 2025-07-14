@@ -1,5 +1,5 @@
-import { auth } from '@lib/auth';
 import { NextRequest, NextResponse } from 'next/server';
+import { auth } from '../../../../lib/auth';
 
 export const dynamic = 'force-dynamic';
 
@@ -19,7 +19,7 @@ export async function POST(request: NextRequest) {
 
   try {
     const session = await auth();
-    
+
     if (!session?.user?.id) {
       return NextResponse.json(
         { error: 'Authentication required' },
@@ -34,19 +34,21 @@ export async function POST(request: NextRequest) {
     // Use target user ID if provided (for testing), otherwise use current user
     const testUserId = targetUserId ? parseInt(targetUserId) : userId;
 
-    console.log(`🧪 Testing rate limit notification for user ${testUserId} (type: ${testType})`);
+    console.log(
+      `🧪 Testing rate limit notification for user ${testUserId} (type: ${testType})`
+    );
 
     // Simulate rate limit by returning a 429 response with rate limit headers
     // This will trigger the fetch interceptor to store rate limit info in sessionStorage
     const isAttack = testType === 'attack';
     const retryAfter = isAttack ? 300 : 60; // 5 minutes for attack, 1 minute for normal
-    
-    const message = isAttack 
+
+    const message = isAttack
       ? 'Suspicious activity detected. Access temporarily restricted.'
       : 'Rate limit exceeded for testing purposes.';
 
     const response = NextResponse.json(
-      { 
+      {
         error: message,
         retryAfter,
         penaltyLevel: isAttack ? 3 : 1,
@@ -58,15 +60,20 @@ export async function POST(request: NextRequest) {
     // Add rate limit headers that the fetch interceptor will read
     response.headers.set('X-RateLimit-Limit', '100');
     response.headers.set('X-RateLimit-Remaining', '0');
-    response.headers.set('X-RateLimit-Reset', new Date(Date.now() + retryAfter * 1000).toISOString());
+    response.headers.set(
+      'X-RateLimit-Reset',
+      new Date(Date.now() + retryAfter * 1000).toISOString()
+    );
     response.headers.set('Retry-After', retryAfter.toString());
-    
+
     if (isAttack) {
-      response.headers.set('X-Security-Warning', 'Rate limit test - attack simulation');
+      response.headers.set(
+        'X-Security-Warning',
+        'Rate limit test - attack simulation'
+      );
     }
 
     return response;
-
   } catch (error) {
     console.error('Rate limit test error:', error);
     return NextResponse.json(
@@ -74,4 +81,4 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
-} 
+}

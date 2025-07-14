@@ -1,9 +1,106 @@
 /**
- * Analytics Dashboard API
- * Provides comprehensive analytics data for the subscription management dashboard
- *
- * @author System Wizard 🧙‍♂️
- * @version 1.0.0
+ * @swagger
+ * /api/analytics/dashboard:
+ *   get:
+ *     summary: Get comprehensive analytics dashboard data
+ *     description: |
+ *       Retrieve detailed analytics data including sessions, page views, geographic data, device information,
+ *       VPN usage, heatmap data, and subscription analytics for the admin dashboard.
+ *     tags:
+ *       - Analytics
+ *     security:
+ *       - NextAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: dateRange
+ *         schema:
+ *           type: string
+ *           enum: [7d, 30d, 90d, 1y]
+ *           default: 30d
+ *         description: Date range for analytics data
+ *       - in: query
+ *         name: metrics
+ *         schema:
+ *           type: array
+ *           items:
+ *             type: string
+ *             enum: [sessions, pageviews, clicks, users, geographic, devices, vpn, heatmap, subscriptions]
+ *         description: Specific metrics to include in the response
+ *       - in: query
+ *         name: granularity
+ *         schema:
+ *           type: string
+ *           enum: [hourly, daily, weekly, monthly]
+ *           default: daily
+ *         description: Time granularity for time-series data
+ *       - in: query
+ *         name: timezone
+ *         schema:
+ *           type: string
+ *           default: UTC
+ *         description: Timezone for time-based calculations
+ *       - in: query
+ *         name: country
+ *         schema:
+ *           type: string
+ *         description: Filter analytics by specific country code
+ *       - in: query
+ *         name: device_type
+ *         schema:
+ *           type: string
+ *           enum: [desktop, mobile, tablet]
+ *         description: Filter analytics by device type
+ *       - in: query
+ *         name: include_vpn
+ *         schema:
+ *           type: boolean
+ *           default: true
+ *         description: Include VPN/proxy traffic in analytics
+ *       - in: query
+ *         name: format
+ *         schema:
+ *           type: string
+ *           enum: [json, csv]
+ *           default: json
+ *         description: Response format
+ *     responses:
+ *       200:
+ *         description: Successfully retrieved analytics dashboard data
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/AnalyticsDashboardResponse'
+ *       401:
+ *         description: Authentication required
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       403:
+ *         description: Insufficient permissions - requires admin access
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       400:
+ *         description: Invalid query parameters
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                 details:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
  */
 
 import { checkUserPermission } from '@lib/actions/permissions.actions';

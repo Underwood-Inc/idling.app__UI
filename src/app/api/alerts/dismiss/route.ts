@@ -84,6 +84,9 @@ import sql from '@lib/db';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
+
 const dismissAlertSchema = z.object({
   alertId: z.number(),
   userId: z.number()

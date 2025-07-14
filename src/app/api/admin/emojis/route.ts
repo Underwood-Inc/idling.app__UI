@@ -20,6 +20,9 @@ import {
 } from '@lib/schemas/admin-emojis.schema';
 import { NextRequest, NextResponse } from 'next/server';
 
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
+
 interface CustomEmoji {
   id: number;
   name: string;

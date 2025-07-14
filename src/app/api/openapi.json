@@ -1462,6 +1462,255 @@
         },
         "operationId": "getVersion"
       }
+    },
+    "/api/admin/roles": {
+      "get": {
+        "summary": "Get available roles for assignment",
+        "description": "Retrieve a list of available roles that can be assigned to users. Excludes protected roles that can only be assigned via database.",
+        "tags": [
+          "Admin"
+        ],
+        "security": [
+          {
+            "NextAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved available roles",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AvailableRole"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Insufficient permissions - requires ADMIN.USERS_MANAGE permission",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "operationId": "getAdminRoles"
+      }
+    },
+    "/api/analytics/dashboard": {
+      "get": {
+        "summary": "Get comprehensive analytics dashboard data",
+        "description": "Retrieve detailed analytics data including sessions, page views, geographic data, device information, VPN usage, heatmap data, and subscription analytics for the admin dashboard.",
+        "tags": [
+          "Analytics"
+        ],
+        "security": [
+          {
+            "NextAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "dateRange",
+            "schema": {
+              "type": "string",
+              "enum": ["7d", "30d", "90d", "1y"],
+              "default": "30d"
+            },
+            "description": "Date range for analytics data"
+          },
+          {
+            "in": "query",
+            "name": "granularity",
+            "schema": {
+              "type": "string",
+              "enum": ["hourly", "daily", "weekly", "monthly"],
+              "default": "daily"
+            },
+            "description": "Time granularity for time-series data"
+          },
+          {
+            "in": "query",
+            "name": "timezone",
+            "schema": {
+              "type": "string",
+              "default": "UTC"
+            },
+            "description": "Timezone for time-based calculations"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved analytics dashboard data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnalyticsDashboardResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Insufficient permissions - requires admin access",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "operationId": "getAnalyticsDashboard"
+      }
+    },
+    "/api/auth/unlink-account": {
+      "delete": {
+        "summary": "Unlink an authentication provider account",
+        "description": "Removes a linked authentication provider account from the user's profile. Users must have at least one authentication method remaining.",
+        "tags": [
+          "Authentication"
+        ],
+        "security": [
+          {
+            "NextAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "providerId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "The ID of the provider account to unlink"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Account unlinked successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Account unlinked successfully"
+                    },
+                    "provider": {
+                      "type": "string",
+                      "example": "google",
+                      "description": "The provider that was unlinked"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request or cannot unlink the only authentication method",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "Cannot unlink the only authentication method"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Account not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "Account not found"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "operationId": "deleteAuthUnlinkAccount"
+      }
     }
   }
 }

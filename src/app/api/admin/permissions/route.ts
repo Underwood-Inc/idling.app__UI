@@ -1,9 +1,224 @@
 /**
- * Admin Permissions Management API
- * Handles comprehensive permissions management with full CRUD operations
- *
- * @author System Wizard 🧙‍♂️
- * @version 1.0.0
+ * @swagger
+ * /api/admin/permissions:
+ *   get:
+ *     summary: Get permissions with search, filtering, and pagination
+ *     description: Retrieve a comprehensive list of permissions with advanced filtering, search, and pagination capabilities. Includes usage statistics and role associations.
+ *     tags:
+ *       - Admin
+ *     security:
+ *       - NextAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: search
+ *         schema:
+ *           type: string
+ *         description: Search term to filter permissions by name, display_name, or description
+ *       - in: query
+ *         name: category
+ *         schema:
+ *           type: string
+ *         description: Filter permissions by category
+ *       - in: query
+ *         name: status
+ *         schema:
+ *           type: string
+ *           enum: [all, active, disabled, archived]
+ *           default: all
+ *         description: Filter permissions by status
+ *       - in: query
+ *         name: risk_level
+ *         schema:
+ *           type: string
+ *           enum: [all, low, medium, high, critical]
+ *           default: all
+ *         description: Filter permissions by risk level
+ *       - in: query
+ *         name: sort_by
+ *         schema:
+ *           type: string
+ *           enum: [name, display_name, category, created_at, updated_at, usage_count, sort_order]
+ *           default: sort_order
+ *         description: Field to sort by
+ *       - in: query
+ *         name: sort_order
+ *         schema:
+ *           type: string
+ *           enum: [asc, desc]
+ *           default: asc
+ *         description: Sort order direction
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           default: 1
+ *         description: Page number for pagination
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           maximum: 100
+ *           default: 20
+ *         description: Number of permissions per page
+ *     responses:
+ *       200:
+ *         description: Successfully retrieved permissions with pagination data
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 overview:
+ *                   $ref: '#/components/schemas/PermissionOverview'
+ *                 permissions:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/PermissionWithStats'
+ *                 pagination:
+ *                   type: object
+ *                   properties:
+ *                     page:
+ *                       type: integer
+ *                     limit:
+ *                       type: integer
+ *                     total:
+ *                       type: integer
+ *                     totalPages:
+ *                       type: integer
+ *                     hasNext:
+ *                       type: boolean
+ *                     hasPrev:
+ *                       type: boolean
+ *       401:
+ *         description: Authentication required
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       403:
+ *         description: Insufficient permissions - requires ADMIN.PERMISSIONS_VIEW permission
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *   post:
+ *     summary: Create a new permission
+ *     description: Create a new permission with specified name, display name, category, and other properties
+ *     tags:
+ *       - Admin
+ *     security:
+ *       - NextAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 pattern: '^[a-z0-9._-]+$'
+ *                 minLength: 1
+ *                 maxLength: 100
+ *                 description: Unique permission name (lowercase, alphanumeric, dots, underscores, hyphens)
+ *               display_name:
+ *                 type: string
+ *                 minLength: 1
+ *                 maxLength: 200
+ *                 description: Human-readable display name
+ *               description:
+ *                 type: string
+ *                 description: Optional description of the permission
+ *               category:
+ *                 type: string
+ *                 minLength: 1
+ *                 maxLength: 50
+ *                 description: Permission category
+ *               is_inheritable:
+ *                 type: boolean
+ *                 default: false
+ *                 description: Whether this permission can be inherited
+ *               risk_level:
+ *                 type: string
+ *                 enum: [low, medium, high, critical]
+ *                 default: low
+ *                 description: Risk level associated with this permission
+ *               dependencies:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                 default: []
+ *                 description: List of permission names this permission depends on
+ *               metadata:
+ *                 type: object
+ *                 default: {}
+ *                 description: Additional metadata for the permission
+ *               reason:
+ *                 type: string
+ *                 description: Optional reason for creating this permission
+ *             required:
+ *               - name
+ *               - display_name
+ *               - category
+ *     responses:
+ *       201:
+ *         description: Permission created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 permission:
+ *                   $ref: '#/components/schemas/PermissionWithStats'
+ *                 message:
+ *                   type: string
+ *       400:
+ *         description: Invalid request data or validation errors
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                 details:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *       401:
+ *         description: Authentication required
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       403:
+ *         description: Insufficient permissions - requires ADMIN.PERMISSIONS_CREATE permission
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       409:
+ *         description: Permission with this name already exists
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
  */
 
 import { checkUserPermission } from '@lib/actions/permissions.actions';

@@ -1,9 +1,9 @@
 /**
  * Global Guest Quota Management API
- * 
+ *
  * Provides secure endpoints for managing global quota settings for anonymous/guest users
  * with feature-level granularity to prevent unintended impacts on other systems.
- * 
+ *
  * @version 1.0.0
  * @author System
  */
@@ -12,6 +12,9 @@ import { auth } from '@lib/auth';
 import sql from '@lib/db';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
+
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
 
 // ================================
 // TYPES & SCHEMAS
@@ -43,41 +46,47 @@ interface ServiceFeature {
   is_active: boolean;
 }
 
-const CreateGlobalQuotaSchema = z.object({
-  service_name: z.string().min(1).max(50),
-  feature_name: z.string().min(1).max(100),
-  quota_limit: z.number().int().min(0).optional(),
-  is_unlimited: z.boolean().default(false),
-  reset_period: z.enum(['hourly', 'daily', 'weekly', 'monthly']).default('daily'),
-  description: z.string().max(500).optional(),
-  is_active: z.boolean().default(true)
-}).transform((data) => {
-  // If quota_limit is 0, treat as unlimited
-  if (data.quota_limit === 0) {
-    return {
-      ...data,
-      is_unlimited: true
-    };
-  }
-  return data;
-});
+const CreateGlobalQuotaSchema = z
+  .object({
+    service_name: z.string().min(1).max(50),
+    feature_name: z.string().min(1).max(100),
+    quota_limit: z.number().int().min(0).optional(),
+    is_unlimited: z.boolean().default(false),
+    reset_period: z
+      .enum(['hourly', 'daily', 'weekly', 'monthly'])
+      .default('daily'),
+    description: z.string().max(500).optional(),
+    is_active: z.boolean().default(true)
+  })
+  .transform((data) => {
+    // If quota_limit is 0, treat as unlimited
+    if (data.quota_limit === 0) {
+      return {
+        ...data,
+        is_unlimited: true
+      };
+    }
+    return data;
+  });
 
-const UpdateGlobalQuotaSchema = z.object({
-  quota_limit: z.number().int().min(0).optional(),
-  is_unlimited: z.boolean().optional(),
-  reset_period: z.enum(['hourly', 'daily', 'weekly', 'monthly']).optional(),
-  description: z.string().max(500).optional(),
-  is_active: z.boolean().optional()
-}).transform((data) => {
-  // If quota_limit is 0, treat as unlimited
-  if (data.quota_limit === 0) {
-    return {
-      ...data,
-      is_unlimited: true
-    };
-  }
-  return data;
-});
+const UpdateGlobalQuotaSchema = z
+  .object({
+    quota_limit: z.number().int().min(0).optional(),
+    is_unlimited: z.boolean().optional(),
+    reset_period: z.enum(['hourly', 'daily', 'weekly', 'monthly']).optional(),
+    description: z.string().max(500).optional(),
+    is_active: z.boolean().optional()
+  })
+  .transform((data) => {
+    // If quota_limit is 0, treat as unlimited
+    if (data.quota_limit === 0) {
+      return {
+        ...data,
+        is_unlimited: true
+      };
+    }
+    return data;
+  });
 
 const ParamsSchema = z.object({
   id: z.string().regex(/^\d+$/, 'Invalid quota ID')
@@ -159,17 +168,19 @@ async function getAvailableServiceFeatures(): Promise<ServiceFeature[]> {
     ORDER BY ss.display_name, sf.display_name
   `;
 
-  return features.map((feature: any): ServiceFeature => ({
-    service_name: feature.service_name,
-    service_display_name: feature.service_display_name,
-    feature_name: feature.feature_name,
-    feature_display_name: feature.feature_display_name,
-    feature_type: feature.feature_type,
-    current_quota: feature.current_quota,
-    is_unlimited: feature.is_unlimited,
-    reset_period: feature.reset_period,
-    is_active: feature.is_active
-  }));
+  return features.map(
+    (feature: any): ServiceFeature => ({
+      service_name: feature.service_name,
+      service_display_name: feature.service_display_name,
+      feature_name: feature.feature_name,
+      feature_display_name: feature.feature_display_name,
+      feature_type: feature.feature_type,
+      current_quota: feature.current_quota,
+      is_unlimited: feature.is_unlimited,
+      reset_period: feature.reset_period,
+      is_active: feature.is_active
+    })
+  );
 }
 
 // ================================
@@ -182,7 +193,15 @@ async function getAvailableServiceFeatures(): Promise<ServiceFeature[]> {
  */
 export async function GET(
   request: NextRequest
-): Promise<NextResponse<ApiResponse<{ quotas: GlobalGuestQuota[]; available_features: ServiceFeature[] }> | ErrorResponse>> {
+): Promise<
+  NextResponse<
+    | ApiResponse<{
+        quotas: GlobalGuestQuota[];
+        available_features: ServiceFeature[];
+      }>
+    | ErrorResponse
+  >
+> {
   try {
     // Validate session
     const session = await auth();
@@ -225,12 +244,11 @@ export async function GET(
       },
       message: `Retrieved ${quotas.length} global quotas and ${availableFeatures.length} available features`
     });
-
   } catch (error) {
     console.error('GET /api/admin/quotas/global error:', error);
     return NextResponse.json(
-      { 
-        success: false, 
+      {
+        success: false,
         error: 'Internal server error',
         message: 'Failed to retrieve global quotas'
       },
@@ -245,7 +263,9 @@ export async function GET(
  */
 export async function POST(
   request: NextRequest
-): Promise<NextResponse<ApiResponse<{ quota: GlobalGuestQuota }> | ErrorResponse>> {
+): Promise<
+  NextResponse<ApiResponse<{ quota: GlobalGuestQuota }> | ErrorResponse>
+> {
   try {
     // Validate session
     const session = await auth();
@@ -268,19 +288,27 @@ export async function POST(
     // Validate request body
     const body = await request.json();
     const validationResult = CreateGlobalQuotaSchema.safeParse(body);
-    
+
     if (!validationResult.success) {
       return NextResponse.json(
-        { 
-          success: false, 
+        {
+          success: false,
           error: 'Invalid request data',
-          data: validationResult.error.issues 
+          data: validationResult.error.issues
         },
         { status: 400 }
       );
     }
 
-    const { service_name, feature_name, quota_limit, is_unlimited, reset_period, description, is_active } = validationResult.data;
+    const {
+      service_name,
+      feature_name,
+      quota_limit,
+      is_unlimited,
+      reset_period,
+      description,
+      is_active
+    } = validationResult.data;
 
     // Verify service and feature exist
     const serviceFeatureExists = await sql`
@@ -306,15 +334,19 @@ export async function POST(
 
     if (existingQuota.length > 0) {
       return NextResponse.json(
-        { success: false, error: 'Global quota for this service/feature already exists' },
+        {
+          success: false,
+          error: 'Global quota for this service/feature already exists'
+        },
         { status: 409 }
       );
     }
 
     // Create the quota - treat 0 as unlimited
-    const finalQuotaLimit = is_unlimited || quota_limit === 0 ? -1 : (quota_limit || 1);
+    const finalQuotaLimit =
+      is_unlimited || quota_limit === 0 ? -1 : quota_limit || 1;
     const finalIsUnlimited = is_unlimited || quota_limit === 0;
-    
+
     const newQuota = await sql`
       INSERT INTO global_guest_quotas (
         service_name, feature_name, quota_limit, is_unlimited, 
@@ -347,16 +379,15 @@ export async function POST(
       data: { quota: newQuota[0] as GlobalGuestQuota },
       message: `Global quota created for ${serviceFeatureExists[0].service_display_name} - ${serviceFeatureExists[0].feature_display_name}`
     });
-
   } catch (error) {
     console.error('POST /api/admin/quotas/global error:', error);
     return NextResponse.json(
-      { 
-        success: false, 
+      {
+        success: false,
         error: 'Internal server error',
         message: 'Failed to create global quota'
       },
       { status: 500 }
     );
   }
-} 
+}
