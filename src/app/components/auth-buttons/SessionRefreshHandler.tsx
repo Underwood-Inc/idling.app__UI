@@ -2,9 +2,11 @@
 
 /* eslint-disable no-console */
 
+import { useAtom } from 'jotai';
 import { signOut, useSession } from 'next-auth/react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense, useEffect, useRef } from 'react';
+import { sessionDataAtom } from '../../../lib/state/atoms';
 
 /**
  * Internal SessionRefreshHandler that uses useSearchParams
@@ -103,96 +105,98 @@ function SessionRefreshHandlerInternal() {
 }
 
 /**
- * SessionRefreshHandler - Handles OAuth callback session refresh
+ * SessionRefreshHandler - Handles OAuth callback session refresh and session validation
  *
  * This component detects when a user returns from OAuth provider
  * and forces a session refresh to ensure the UI reflects the new
  * authentication state without requiring a hard refresh.
+ *
+ * Session validation is now handled via the session atom that gets updated
+ * automatically from API wrapper responses instead of making separate API calls.
  */
 export function SessionRefreshHandler() {
   const { data: session, status } = useSession();
-  const lastRefreshRef = useRef<number>(0);
+  const [sessionData] = useAtom(sessionDataAtom);
+  const lastValidationRef = useRef<number>(0);
 
   useEffect(() => {
     if (status !== 'authenticated' || !session?.user?.id) return;
 
-    const refreshInterval = 30 * 60 * 1000; // 30 minutes
+    const validationInterval = 30 * 60 * 1000; // 30 minutes
     const now = Date.now();
 
-    // Only refresh if enough time has passed
-    if (now - lastRefreshRef.current < refreshInterval) return;
+    // Only check if enough time has passed
+    if (now - lastValidationRef.current < validationInterval) return;
 
-    let isRefreshing = false;
+    let isValidating = false;
 
-    const refreshSession = async () => {
-      if (isRefreshing) return;
-      isRefreshing = true;
+    const validateSession = async () => {
+      if (isValidating) return;
+      isValidating = true;
 
       try {
-        // Test if the session is still valid by making a lightweight API call
-        const response = await fetch('/api/user/timeout?type=post_creation', {
-          method: 'GET',
-          credentials: 'include'
-        });
+        // Check session data from atom (updated by API wrapper responses)
+        if (sessionData) {
+          const { timeoutInfo, isValid, lastUpdated } = sessionData;
 
-        // Check if server indicates session should be cleared
-        const clearSession = response.headers.get('X-Clear-Session') === 'true';
+          // Check if session data is recent (within last 5 minutes)
+          const dataAge = now - new Date(lastUpdated).getTime();
+          const maxDataAge = 5 * 60 * 1000; // 5 minutes
 
-        if (
-          clearSession ||
-          response.status === 404 ||
-          response.status === 401
-        ) {
-          console.log('🔒 Session invalidated by server, signing out...');
-          await signOut({
-            redirect: true,
-            callbackUrl: '/auth/signin?reason=session_invalid'
-          });
-          return;
-        }
-
-        // If response indicates user validation failure, check the response body
-        if (!response.ok) {
-          try {
-            const errorData = await response.json();
-            if (errorData.clearSession || errorData.requiresReauth) {
+          if (dataAge < maxDataAge) {
+            // Use fresh session data from atom
+            if (!isValid || !timeoutInfo?.userValidated) {
               console.log(
-                '🔒 Server requested session clearing, signing out...'
+                '🔒 Session data indicates invalid session, signing out...'
               );
               await signOut({
                 redirect: true,
-                callbackUrl: '/auth/signin?reason=user_not_found'
+                callbackUrl: '/auth/signin?reason=session_invalid'
               });
               return;
             }
-          } catch (e) {
-            // If we can't parse the response, but it's not ok, sign out anyway
-            console.log('🔒 Invalid session response, signing out...');
-            await signOut({
-              redirect: true,
-              callbackUrl: '/auth/signin?reason=invalid_response'
-            });
-            return;
-          }
-        }
 
-        lastRefreshRef.current = now;
+            // Check if user is timed out
+            if (timeoutInfo?.is_timed_out) {
+              console.log('🔒 User is timed out, signing out...');
+              await signOut({
+                redirect: true,
+                callbackUrl: '/auth/signin?reason=user_timed_out'
+              });
+              return;
+            }
+
+            // Check if user is inactive
+            if (timeoutInfo?.userInfo && !timeoutInfo.userInfo.is_active) {
+              console.log('🔒 User account is inactive, signing out...');
+              await signOut({
+                redirect: true,
+                callbackUrl: '/auth/signin?reason=user_inactive'
+              });
+              return;
+            }
+
+            lastValidationRef.current = now;
+          }
+          // If data is stale, validation will happen when next API call updates the atom
+        }
+        // If no session data in atom yet, validation will happen when next API call updates it
       } catch (error) {
-        console.error('Session refresh failed:', error);
-        // On network error, don't sign out automatically - could be temporary
+        console.error('Session validation failed:', error);
+        // On error, don't sign out automatically - could be temporary
       } finally {
-        isRefreshing = false;
+        isValidating = false;
       }
     };
 
-    // Initial refresh check
-    refreshSession();
+    // Initial validation check
+    validateSession();
 
     // Set up interval for periodic checks
-    const interval = setInterval(refreshSession, refreshInterval);
+    const interval = setInterval(validateSession, validationInterval);
 
     return () => clearInterval(interval);
-  }, [session, status]);
+  }, [session, status, sessionData]);
 
   // Also set up a global fetch interceptor to catch session invalidation responses
   useEffect(() => {

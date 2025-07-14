@@ -171,7 +171,7 @@ export const FALLBACK_QUOTES = [
   }
 ];
 
-// Watermark configuration for guest/free users
+// Watermark configuration for guest users
 export const WATERMARK_CONFIG: WatermarkConfig = {
   enabled: true,
   text: 'https://idling.app/card-generator',
@@ -185,6 +185,22 @@ export const WATERMARK_CONFIG: WatermarkConfig = {
     'FiraCode, "Fira Code", Monaco, Consolas, "Liberation Mono", "Courier New", monospace',
   pattern: 'diagonal', // Repeated diagonal pattern
   spacing: 200 // Space between repeated watermarks
+};
+
+// Watermark configuration for authenticated free tier users
+export const WATERMARK_CONFIG_FREE_TIER: WatermarkConfig = {
+  enabled: true,
+  text: 'https://idling.app/card-generator',
+  fontSize: 24,
+  opacity: 0.15,
+  color: '#ffffff',
+  position: 'top-left',
+  margin: 40,
+  rotation: 0, // No rotation for single position
+  fontFamily:
+    'FiraCode, "Fira Code", Monaco, Consolas, "Liberation Mono", "Courier New", monospace',
+  pattern: 'single', // Single watermark placement
+  spacing: 200 // Not used for single placement
 };
 
 // Rate limiting configuration

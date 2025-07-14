@@ -1,4 +1,6 @@
+import { useAtom } from 'jotai';
 import { useEffect, useRef } from 'react';
+import { updateSessionDataAtom } from '../state/atoms';
 
 export interface ApiWrapperData {
   activeAlertsInfo?: {
@@ -26,24 +28,29 @@ export interface ApiWrapperData {
       email: string;
       is_active: boolean;
     };
+    userValidated: boolean;
+    lastValidated?: string;
   };
   userPermissions?: Record<string, string[]>;
   userRoles?: string[];
 }
 
-type WrapperDataProcessor = (data: ApiWrapperData) => void;
+export type WrapperDataProcessor = (data: ApiWrapperData) => void;
 
 class ApiWrapperDataManager {
-  private processors: Set<WrapperDataProcessor> = new Set();
+  private processors: WrapperDataProcessor[] = [];
 
-  register(processor: WrapperDataProcessor) {
-    this.processors.add(processor);
+  register(processor: WrapperDataProcessor): () => void {
+    this.processors.push(processor);
     return () => {
-      this.processors.delete(processor);
+      const index = this.processors.indexOf(processor);
+      if (index > -1) {
+        this.processors.splice(index, 1);
+      }
     };
   }
 
-  process(data: ApiWrapperData) {
+  process(data: ApiWrapperData): void {
     this.processors.forEach((processor) => {
       try {
         processor(data);
@@ -73,6 +80,33 @@ export function useApiWrapperData(processor: WrapperDataProcessor) {
 
     return apiWrapperDataManager.register(wrappedProcessor);
   }, []);
+}
+
+/**
+ * Hook to automatically update session atom from API wrapper responses
+ * This ensures the session atom stays current with every API response
+ */
+export function useSessionDataSync() {
+  const [, updateSessionData] = useAtom(updateSessionDataAtom);
+
+  useApiWrapperData((data) => {
+    if (data.timeoutInfo) {
+      updateSessionData({
+        timeoutInfo: {
+          is_timed_out: data.timeoutInfo.is_timed_out,
+          lastValidated: data.timeoutInfo.lastValidated || null,
+          reason: data.timeoutInfo.reason || null,
+          userInfo: data.timeoutInfo.userInfo || null,
+          userValidated: data.timeoutInfo.userValidated,
+          expires_at: data.timeoutInfo.expires_at
+            ? new Date(data.timeoutInfo.expires_at)
+            : undefined
+        },
+        isValid:
+          data.timeoutInfo.userValidated && !data.timeoutInfo.is_timed_out
+      });
+    }
+  });
 }
 
 /**

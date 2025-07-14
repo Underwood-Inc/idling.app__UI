@@ -117,6 +117,68 @@ export const shouldUpdateAtom = atom<boolean>(false);
  */
 export const sessionCacheAtom = atomWithStorage<any>('session-cache', null);
 
+/**
+ * Session data atom - updated automatically from API wrapper responses
+ * Contains timeout info and session validation state
+ */
+export interface SessionData {
+  timeoutInfo: {
+    is_timed_out: boolean;
+    lastValidated: string | null;
+    reason: string | null;
+    userInfo: {
+      id: number;
+      username: string;
+      email: string;
+      is_active: boolean;
+    } | null;
+    userValidated: boolean;
+    expires_at?: Date;
+  };
+  lastUpdated: string;
+  isValid: boolean;
+}
+
+export const sessionDataAtom = atom<SessionData | null>(null);
+
+/**
+ * Session data update atom - write-only atom to update session data
+ */
+export const updateSessionDataAtom = atom(
+  null,
+  (get, set, update: Partial<SessionData>) => {
+    const current = get(sessionDataAtom);
+
+    // If no current data, create a new SessionData with defaults
+    if (!current) {
+      const defaultSessionData: SessionData = {
+        timeoutInfo: {
+          is_timed_out: false,
+          lastValidated: null,
+          reason: null,
+          userInfo: null,
+          userValidated: false
+        },
+        lastUpdated: new Date().toISOString(),
+        isValid: true
+      };
+
+      set(sessionDataAtom, {
+        ...defaultSessionData,
+        ...update,
+        lastUpdated: new Date().toISOString()
+      });
+    } else {
+      // Update existing data
+      set(sessionDataAtom, {
+        ...current,
+        ...update,
+        lastUpdated: new Date().toISOString()
+      });
+    }
+  }
+);
+
 // Custom storage for avatar cache with size limits and error handling
 const createAvatarCacheStorage = () => {
   const STORAGE_KEY = 'avatar-cache-v3-adventurer';
@@ -127,7 +189,7 @@ const createAvatarCacheStorage = () => {
       try {
         const stored = localStorage.getItem(STORAGE_KEY);
         if (!stored) return {};
-        
+
         const parsed = JSON.parse(stored);
         return typeof parsed === 'object' && parsed !== null ? parsed : {};
       } catch (error) {
@@ -145,7 +207,7 @@ const createAvatarCacheStorage = () => {
           const limitedEntries = entries.slice(-MAX_CACHE_SIZE);
           value = Object.fromEntries(limitedEntries);
         }
-        
+
         localStorage.setItem(STORAGE_KEY, JSON.stringify(value));
       } catch (error) {
         if (error instanceof Error && error.name === 'QuotaExceededError') {
@@ -161,7 +223,10 @@ const createAvatarCacheStorage = () => {
             }
             localStorage.setItem(STORAGE_KEY, JSON.stringify(value));
           } catch (retryError) {
-            console.error('Failed to store avatar cache even after cleanup:', retryError);
+            console.error(
+              'Failed to store avatar cache even after cleanup:',
+              retryError
+            );
           }
         } else {
           console.error('Failed to store avatar cache:', error);
@@ -611,16 +676,22 @@ export const initializeFiltersFromUrl = (
 
   if (sanitizedTags) {
     // Split comma-separated tags into individual filter entries
-    const tags = sanitizedTags.split(',').map(tag => tag.trim()).filter(Boolean);
-    tags.forEach(tag => {
+    const tags = sanitizedTags
+      .split(',')
+      .map((tag) => tag.trim())
+      .filter(Boolean);
+    tags.forEach((tag) => {
       filters.push({ name: 'tags', value: tag });
     });
   }
 
   if (sanitizedAuthor) {
     // Split comma-separated authors into individual filter entries
-    const authors = sanitizedAuthor.split(',').map(author => author.trim()).filter(Boolean);
-    authors.forEach(author => {
+    const authors = sanitizedAuthor
+      .split(',')
+      .map((author) => author.trim())
+      .filter(Boolean);
+    authors.forEach((author) => {
       filters.push({ name: 'author', value: author });
     });
   }
@@ -890,7 +961,12 @@ export const urlSyncAtom = atom(
     );
 
     Object.entries(filterGroups).forEach(([name, values]) => {
-      if (name === 'tags' || name === 'author' || name === 'mentions' || name === 'search') {
+      if (
+        name === 'tags' ||
+        name === 'author' ||
+        name === 'mentions' ||
+        name === 'search'
+      ) {
         if (name === 'tags') {
           const { formatTagsForUrl } = require('../utils/string/tag-utils');
           const allTags = values.flatMap((value) =>
@@ -1081,9 +1157,9 @@ export const filtersFromUrlAtom = atom((get) => {
       // 1. Plain username: "shaun_beatty"
       // 2. Combined format: "shaun_beatty|122"
       // 3. User ID only: "122"
-      
+
       let filterValue = mentionValue;
-      
+
       // If it's already in combined format (username|userId), use as-is
       if (mentionValue.includes('|')) {
         filterValue = mentionValue;
@@ -1096,7 +1172,7 @@ export const filtersFromUrlAtom = atom((get) => {
         // For now, store as username|username and let the system resolve the user ID later
         filterValue = `${mentionValue}|${mentionValue}`;
       }
-      
+
       filters.push({
         name: 'mentions' as PostFilters,
         value: filterValue
@@ -1201,7 +1277,12 @@ export const createAutoUrlSyncAtom = (contextId: string) => {
     );
 
     Object.entries(filterGroups).forEach(([name, values]) => {
-      if (name === 'tags' || name === 'author' || name === 'mentions' || name === 'search') {
+      if (
+        name === 'tags' ||
+        name === 'author' ||
+        name === 'mentions' ||
+        name === 'search'
+      ) {
         if (name === 'tags') {
           const { formatTagsForUrl } = require('../utils/string/tag-utils');
           const allTags = values.flatMap((value) =>

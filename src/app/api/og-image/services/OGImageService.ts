@@ -4,7 +4,11 @@ import { EnhancedQuotaService } from '@lib/services/EnhancedQuotaService';
 import { NextRequest } from 'next/server';
 import sql from '../../../../lib/db';
 import { formatRetryAfter } from '../../../../lib/utils/timeFormatting';
-import { ASPECT_RATIOS, WATERMARK_CONFIG } from '../config';
+import {
+  ASPECT_RATIOS,
+  WATERMARK_CONFIG,
+  WATERMARK_CONFIG_FREE_TIER
+} from '../config';
 import type { WatermarkConfig } from '../types';
 import { AvatarService } from './AvatarService';
 import { DatabaseService } from './DatabaseService';
@@ -477,11 +481,11 @@ export class OGImageService {
       // Determine actual shape count
       const actualShapeCount = validatedConfig.shapeCount || 8; // Default from config
 
-      // Determine watermark configuration based on subscription status
+      // Determine watermark configuration based on user type and subscription status
       let watermarkConfig: WatermarkConfig | undefined;
 
       if (!isAuthenticated) {
-        // Guest users always get watermarks
+        // Guest users get repeated watermarks
         watermarkConfig = WATERMARK_CONFIG;
       } else {
         // For authenticated users, check subscription status
@@ -520,8 +524,8 @@ export class OGImageService {
                   .includes('enterprise'));
 
             if (!isPro) {
-              // Non-Pro authenticated users get watermarks
-              watermarkConfig = WATERMARK_CONFIG;
+              // Authenticated free tier users get top-left watermark
+              watermarkConfig = WATERMARK_CONFIG_FREE_TIER;
             } else if (validatedConfig.watermarkEnabled) {
               // Pro users can enable custom watermarks with smart defaults
               const proPosition =
@@ -549,12 +553,12 @@ export class OGImageService {
             }
             // Pro users without watermark enabled get no watermark (watermarkConfig remains undefined)
           } else {
-            // No valid session - apply watermark as fallback
+            // No valid session - apply guest watermark as fallback
             watermarkConfig = WATERMARK_CONFIG;
           }
         } catch (error) {
           console.warn(
-            'Failed to check subscription status, applying watermark as fallback:',
+            'Failed to check subscription status, applying guest watermark as fallback:',
             error
           );
           watermarkConfig = WATERMARK_CONFIG;
