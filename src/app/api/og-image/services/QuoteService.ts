@@ -23,7 +23,10 @@ export class QuoteService {
     // Shuffle the pool for better distribution
     for (let i = this.weightedPool.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
-      [this.weightedPool[i], this.weightedPool[j]] = [this.weightedPool[j], this.weightedPool[i]];
+      [this.weightedPool[i], this.weightedPool[j]] = [
+        this.weightedPool[j],
+        this.weightedPool[i]
+      ];
     }
   }
 
@@ -36,7 +39,8 @@ export class QuoteService {
     }
 
     const apiIndex = this.weightedPool[this.currentPoolIndex];
-    this.currentPoolIndex = (this.currentPoolIndex + 1) % this.weightedPool.length;
+    this.currentPoolIndex =
+      (this.currentPoolIndex + 1) % this.weightedPool.length;
 
     // Reinitialize pool when we've gone through all entries
     if (this.currentPoolIndex === 0) {
@@ -60,7 +64,7 @@ export class QuoteService {
         // Create timeout controller
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
-        
+
         const response = await fetch(apiConfig.url, {
           cache: 'no-cache',
           signal: controller.signal,
@@ -79,8 +83,8 @@ export class QuoteService {
         const data = await response.json();
         const quote = apiConfig.transform(data);
 
-        // Validate quote data
-        if (!quote.text || !quote.author || quote.text.length < 10) {
+        // Validate quote data - author is now optional
+        if (!quote.text || quote.text.length < 10) {
           throw new Error('Invalid quote data received');
         }
 
@@ -101,15 +105,20 @@ export class QuoteService {
 
   /**
    * Get a quote either from custom input or fetch from APIs
+   * When a custom quote is provided without an author, no author attribution is added
+   * to prevent inappropriate attribution of user-generated content
    */
-  async getQuote(customQuote?: string | null, customAuthor?: string | null): Promise<QuoteData> {
+  async getQuote(
+    customQuote?: string | null,
+    customAuthor?: string | null
+  ): Promise<QuoteData> {
     if (customQuote) {
       return {
         text: customQuote,
-        author: customAuthor || 'Idling.app'
+        author: customAuthor || undefined // Don't provide fallback author for custom quotes
       };
     }
 
     return this.fetchRandomQuote();
   }
-} 
+}

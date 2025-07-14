@@ -6,6 +6,7 @@ import { getEffectiveCharacterCount } from '@lib/utils/string';
 import { NextRequest, NextResponse } from 'next/server';
 
 // This route uses dynamic features (auth/headers) and should not be pre-rendered
+export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 async function getHandler(

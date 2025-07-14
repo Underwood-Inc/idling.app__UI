@@ -164,6 +164,31 @@
   border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
+/* Clickable Step Styles */
+.stepClickable {
+  transition: all 0.3s ease;
+}
+
+.stepClickable:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 16px rgba(139, 92, 246, 0.3);
+}
+
+.stepClickable.stepActive:hover {
+  background: linear-gradient(135deg, #7c3aed, #2563eb);
+  box-shadow: 0 6px 16px rgba(139, 92, 246, 0.5);
+}
+
+.stepClickable.stepInactive:hover {
+  background: rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.8);
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+.stepClickable:active {
+  transform: scale(0.95);
+}
+
 .stepLine {
   width: 40px;
   height: 2px;
@@ -265,11 +290,11 @@
 }
 
 .ratioRectangle {
-  width: 80px;
-  max-height: 60px;
+  width: 60px;
   background: linear-gradient(135deg, #8b5cf6, #3b82f6);
   border-radius: 6px;
   box-shadow: 0 2px 8px rgba(139, 92, 246, 0.3);
+  /* Remove height constraints that interfere with aspect-ratio */
 }
 
 .ratioInfo h4 {
@@ -624,6 +649,15 @@
 
   .stepLine {
     width: 24px;
+  }
+  
+  /* Mobile clickable step adjustments */
+  .stepClickable:hover {
+    transform: scale(1.03); /* Reduced scale for mobile */
+  }
+  
+  .stepClickable:active {
+    transform: scale(0.97); /* Reduced scale for mobile */
   }
 }
 

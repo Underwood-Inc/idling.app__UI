@@ -1,4 +1,9 @@
-import { AspectRatioConfig, AvatarPositioning, QuoteData, TextPositioning } from '../types';
+import {
+  AspectRatioConfig,
+  AvatarPositioning,
+  QuoteData,
+  TextPositioning
+} from '../types';
 import { escapeXml, wrapTextForSVG } from '../utils';
 import { BasePatternGenerator } from './patterns/BasePatternGenerator';
 
@@ -22,8 +27,8 @@ export class SVGGenerator {
       textPadding?: number;
       lineHeight?: number;
       glassBackground?: boolean;
-      
-      // Positioning overrides (5) 
+
+      // Positioning overrides (5)
       avatarX?: number;
       avatarY?: number;
       avatarSize?: number;
@@ -54,8 +59,10 @@ export class SVGGenerator {
     // Use custom positioning overrides if provided
     const finalAvatarX = allCustomOptions?.avatarX ?? avatarPositioning.x;
     const finalAvatarY = allCustomOptions?.avatarY ?? avatarPositioning.y;
-    const finalAvatarSize = allCustomOptions?.avatarSize ?? avatarPositioning.size;
-    const finalTextMaxWidth = allCustomOptions?.textMaxWidth ?? config.textMaxWidth;
+    const finalAvatarSize =
+      allCustomOptions?.avatarSize ?? avatarPositioning.size;
+    const finalTextMaxWidth =
+      allCustomOptions?.textMaxWidth ?? config.textMaxWidth;
     const finalTextStartY = allCustomOptions?.textStartY ?? config.textStartY;
     const finalShapeCount = shapeCount ?? 8;
 
@@ -66,7 +73,8 @@ export class SVGGenerator {
       height,
       finalShapeCount
     );
-    const finalBorderColor = allCustomOptions?.borderColor ?? backgroundResult.predominantColor;
+    const finalBorderColor =
+      allCustomOptions?.borderColor ?? backgroundResult.predominantColor;
     const finalBorderOpacity = allCustomOptions?.borderOpacity ?? 0.7;
     const finalGlassBackground = allCustomOptions?.glassBackground ?? true;
 
@@ -74,9 +82,13 @@ export class SVGGenerator {
     const finalFontSize = allCustomOptions?.fontSize;
     const finalLineHeight = allCustomOptions?.lineHeight;
     const textPositioning = this.calculateTextPositioning(
-      quote, 
-      { ...config, textMaxWidth: finalTextMaxWidth, textStartY: finalTextStartY }, 
-      aspectRatio, 
+      quote,
+      {
+        ...config,
+        textMaxWidth: finalTextMaxWidth,
+        textStartY: finalTextStartY
+      },
+      aspectRatio,
       finalFontSize,
       finalLineHeight
     );
@@ -126,8 +138,18 @@ export class SVGGenerator {
     };
   }
 
-  getPatternResult(seed: string, width: number, height: number, shapeCount?: number) {
-    return this.patternGenerator.generateBackgroundPattern(seed, width, height, shapeCount);
+  getPatternResult(
+    seed: string,
+    width: number,
+    height: number,
+    shapeCount?: number
+  ) {
+    return this.patternGenerator.generateBackgroundPattern(
+      seed,
+      width,
+      height,
+      shapeCount
+    );
   }
 
   private calculateTextPositioning(
@@ -178,8 +200,10 @@ export class SVGGenerator {
       fontSize = Math.max(fontSize, 20); // Increased minimum from 18 to 20
     }
 
-    // Wrap text
-    const quoteText = `"${quote.text}" — ${quote.author}`;
+    // Wrap text - conditionally include author attribution
+    const quoteText = quote.author
+      ? `"${quote.text}" — ${quote.author}`
+      : `"${quote.text}"`;
     const maxCharsPerLine = Math.floor(textMaxWidth / (fontSize * 0.6));
     const lines = wrapTextForSVG(quoteText, maxCharsPerLine);
 
@@ -188,7 +212,7 @@ export class SVGGenerator {
     const totalTextHeight = lines.length * lineHeight;
 
     let adjustedTextStartY;
-    
+
     // Handle narrow formats first (height-based check)
     if (height < 500 && aspectRatio !== 'linkedin-banner') {
       // For other very narrow formats (Twitter header, etc.)
@@ -262,17 +286,18 @@ export class SVGGenerator {
     const lineHeight = textPositioning.fontSize * 1.4;
     const totalTextHeight = textPositioning.lines.length * lineHeight;
     const textHeight = totalTextHeight + padding * 0.8;
-    
+
     // Calculate glass background position
     let glassX = (width - textWidth) / 2; // Default: center horizontally
-    
+
     // For LinkedIn banner, center glass background like other variants
     if (aspectRatio === 'linkedin-banner') {
       // Center glass background like other variants
       glassX = (width - textWidth) / 2;
     }
-    
-    const glassY = textPositioning.startY - 27 - (textHeight - totalTextHeight) / 2;
+
+    const glassY =
+      textPositioning.startY - 27 - (textHeight - totalTextHeight) / 2;
 
     return {
       x: glassX,
@@ -292,7 +317,12 @@ export class SVGGenerator {
     avatarPositioning: AvatarPositioning,
     quote: QuoteData,
     textPositioning: TextPositioning,
-    glassBackground: { x: number; y: number; width: number; height: number } | null,
+    glassBackground: {
+      x: number;
+      y: number;
+      width: number;
+      height: number;
+    } | null,
     aspectRatio?: string
   ): string {
     const lineHeight = textPositioning.fontSize * 1.4;
@@ -300,7 +330,7 @@ export class SVGGenerator {
     // Calculate text X position - special handling for LinkedIn banner
     let textX = width / 2; // Default: center horizontally
     let textAnchor = 'middle'; // Default: center-anchored text
-    
+
     // For LinkedIn banner, center text like other variants
     if (aspectRatio === 'linkedin-banner') {
       textX = width / 2; // Center horizontally like other variants
@@ -360,12 +390,16 @@ export class SVGGenerator {
   </g>
   
   <!-- Glass background for text -->
-  ${glassBackground ? `<rect x="${glassBackground.x}" y="${glassBackground.y}" width="${glassBackground.width}" height="${glassBackground.height}" 
+  ${
+    glassBackground
+      ? `<rect x="${glassBackground.x}" y="${glassBackground.y}" width="${glassBackground.width}" height="${glassBackground.height}" 
         rx="16" ry="16" 
         fill="rgba(0, 0, 0, 0.6)" 
         stroke="rgba(255, 255, 255, 0.1)" 
         stroke-width="1"
-        filter="url(#glassFilter)"/>` : ''}
+        filter="url(#glassFilter)"/>`
+      : ''
+  }
   
   <!-- Text -->
   ${textPositioning.lines
@@ -381,4 +415,4 @@ export class SVGGenerator {
     .join('\n  ')}
 </svg>`;
   }
-} 
+}

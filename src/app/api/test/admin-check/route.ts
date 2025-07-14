@@ -10,6 +10,7 @@ import {
 } from '../../../../lib/permissions/permissions';
 
 // This route uses dynamic features (auth/headers) and should not be pre-rendered
+export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 export async function GET() {

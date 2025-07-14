@@ -86,6 +86,20 @@
   transform: none;
 }
 
+/* Explicitly disabled button state */
+.header__button--disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none !important;
+  filter: grayscale(0.3);
+}
+
+.header__button--disabled:hover {
+  transform: none !important;
+  box-shadow: none !important;
+  opacity: 0.4 !important;
+}
+
 /* Specific button variants */
 .header__button--welcome {
   background: linear-gradient(135deg, #8b5cf6, #7c3aed);

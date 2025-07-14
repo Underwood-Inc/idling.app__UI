@@ -128,6 +128,8 @@ import {
   validateMimeType
 } from '../../../../lib/config/media-domains';
 
+export const runtime = 'nodejs';
+
 // This route uses dynamic features (auth/headers) and should not be pre-rendered
 export const dynamic = 'force-dynamic';
 

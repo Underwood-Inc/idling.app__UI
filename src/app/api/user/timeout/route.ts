@@ -12,6 +12,7 @@ import {
 } from '../../../../lib/permissions/permissions';
 
 // This route uses dynamic features (auth/headers) and should not be pre-rendered
+export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 // GET /api/user/timeout - Get current user's timeout status (with automatic validation)

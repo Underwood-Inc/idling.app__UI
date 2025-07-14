@@ -361,29 +361,6 @@ h6 {
   cursor: help;
 }
 
-/* DEPRECATED GLOBAL ASIDE STYLES - Override for PageAside component */
-aside {
-  /* Keep global aside for backwards compatibility but allow overrides */
-  position: absolute;
-  top: 0;
-  right: 2.3rem;
-  width: calc(20vw - 3rem);
-  max-height: 80vh;
-  min-height: 30rem;
-  /* overflow-y: auto; - Commented out to prevent scrollbar conflicts */
-}
-
-/* Override global aside when inside PageAside container */
-.page-aside__container aside {
-  /* Let PageAside.css handle all styling */
-  position: static !important;
-  top: auto !important;
-  right: auto !important;
-  width: 100% !important;
-  max-height: none !important;
-  min-height: auto !important;
-}
-
 /* Removed global font-size rule to prevent specificity conflicts */
 /* Components should set their own font-size using CSS variables */
 

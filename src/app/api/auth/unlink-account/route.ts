@@ -1,7 +1,78 @@
+/**
+ * @swagger
+ * /api/auth/unlink-account:
+ *   delete:
+ *     summary: Unlink an authentication provider account
+ *     description: |
+ *       Removes a linked authentication provider account from the user's profile.
+ *       Users must have at least one authentication method remaining.
+ *     tags:
+ *       - Authentication
+ *     security:
+ *       - NextAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: providerId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The ID of the provider account to unlink
+ *     responses:
+ *       200:
+ *         description: Account unlinked successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Account unlinked successfully"
+ *                 provider:
+ *                   type: string
+ *                   example: "google"
+ *                   description: The provider that was unlinked
+ *       400:
+ *         description: Invalid request or cannot unlink the only authentication method
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: "Cannot unlink the only authentication method"
+ *       401:
+ *         description: Authentication required
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       404:
+ *         description: Account not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: "Account not found"
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
+
 import { withUniversalEnhancements } from '@lib/api/withUniversalEnhancements';
 import { auth } from '@lib/auth';
 import sql from '@lib/db';
 import { NextRequest, NextResponse } from 'next/server';
+
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
 
 async function deleteHandler(request: NextRequest) {
   try {

@@ -13,7 +13,6 @@
   border-bottom: 2px solid var(--dark-background--quinary);
   
   // Keep all existing styles
-  padding: 0.5rem 2rem 0;
   color: var(--brand-primary);
   display: flex;
   flex-flow: column;
@@ -21,8 +20,6 @@
   justify-content: center;
   position: sticky;
   top: 0;
-  min-width: 23rem;
-  width: 100%;
   z-index: var(--z-header);
 }
 
@@ -54,4 +51,10 @@
 .header__user-name {
   margin-right: 1rem;
   font-size: var(--font-size-base);
-} 
+}
+
+.header__nav {
+  min-width: 23rem;
+  width: 100%;
+  padding: 0.5rem 2rem 0;
+}

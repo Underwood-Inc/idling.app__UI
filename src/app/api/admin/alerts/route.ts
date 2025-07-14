@@ -5,6 +5,9 @@ import { withRateLimit } from '@lib/middleware/withRateLimit';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
+
 // ================================
 // VALIDATION SCHEMAS
 // ================================

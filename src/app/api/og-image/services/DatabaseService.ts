@@ -72,7 +72,10 @@ export class DatabaseService {
 
   private isDatabaseAvailable(): boolean {
     // Never connect to database during build time
-    if (process.env.NODE_ENV === 'production' && process.env.NEXT_PHASE === 'phase-production-build') {
+    if (
+      process.env.NODE_ENV === 'production' &&
+      process.env.NEXT_PHASE === 'phase-production-build'
+    ) {
       return false;
     }
 
@@ -91,7 +94,9 @@ export class DatabaseService {
   }
 
   // New OG Generation tracking methods
-  public async recordGeneration(params: CreateOGGenerationParams): Promise<string> {
+  public async recordGeneration(
+    params: CreateOGGenerationParams
+  ): Promise<string> {
     if (!this.isDatabaseAvailable()) {
       throw new Error('Database not available');
     }
@@ -111,14 +116,16 @@ export class DatabaseService {
         RETURNING id
               `;
 
-        return result[0]?.id || '';
+      return result[0]?.id || '';
     } catch (error) {
       console.error('Failed to record generation:', error);
       throw error;
     }
   }
 
-  public async getOGGenerationById(id: string): Promise<OGGenerationRecord | null> {
+  public async getOGGenerationById(
+    id: string
+  ): Promise<OGGenerationRecord | null> {
     if (!this.isDatabaseAvailable()) {
       return null;
     }
@@ -134,7 +141,10 @@ export class DatabaseService {
     }
   }
 
-  public async getOGGenerationsBySeed(seed: string, limit: number = 10): Promise<OGGenerationRecord[]> {
+  public async getOGGenerationsBySeed(
+    seed: string,
+    limit: number = 10
+  ): Promise<OGGenerationRecord[]> {
     if (!this.isDatabaseAvailable()) {
       return [];
     }
@@ -153,7 +163,10 @@ export class DatabaseService {
     }
   }
 
-  public async getDailyGenerationCount(ipAddress: string, machineFingerprint?: string): Promise<number> {
+  public async getDailyGenerationCount(
+    ipAddress: string,
+    machineFingerprint?: string
+  ): Promise<number> {
     if (!this.isDatabaseAvailable()) {
       return 0; // If database not available, allow generations
     }
@@ -178,7 +191,7 @@ export class DatabaseService {
         `;
         return parseInt(result[0]?.count || '0', 10);
       }
-      
+
       // Fallback to IP-only checking
       const result = await sql<{ count: string }[]>`
         SELECT COUNT(*) as count 
@@ -205,24 +218,28 @@ export class DatabaseService {
     }
 
     try {
-      const [totalResult, todayResult, uniqueSeedsResult, topRatiosResult] = await Promise.all([
-        sql`SELECT COUNT(*) as total FROM og_generations`,
-        sql`SELECT COUNT(*) as today FROM og_generations WHERE created_at >= CURRENT_DATE`,
-        sql`SELECT COUNT(DISTINCT seed) as unique_seeds FROM og_generations`,
-        sql`
+      const [totalResult, todayResult, uniqueSeedsResult, topRatiosResult] =
+        await Promise.all([
+          sql`SELECT COUNT(*) as total FROM og_generations`,
+          sql`SELECT COUNT(*) as today FROM og_generations WHERE created_at >= CURRENT_DATE`,
+          sql`SELECT COUNT(DISTINCT seed) as unique_seeds FROM og_generations`,
+          sql`
           SELECT aspect_ratio, COUNT(*) as count 
           FROM og_generations 
           GROUP BY aspect_ratio 
           ORDER BY count DESC 
           LIMIT 5
         `
-      ]);
+        ]);
 
       return {
         total: parseInt(totalResult[0]?.total || '0'),
         today: parseInt(todayResult[0]?.today || '0'),
         uniqueSeeds: parseInt(uniqueSeedsResult[0]?.unique_seeds || '0'),
-        topAspectRatios: topRatiosResult as unknown as Array<{ aspect_ratio: string; count: number }>
+        topAspectRatios: topRatiosResult as unknown as Array<{
+          aspect_ratio: string;
+          count: number;
+        }>
       };
     } catch (error) {
       console.error('Failed to get generation stats:', error);
@@ -376,7 +393,7 @@ export class DatabaseService {
       seed: stored.seed,
       quote: {
         text: stored.quote_text,
-        author: stored.quote_author
+        author: stored.quote_author || undefined // Only include author if not null
       },
       aspectRatio: stored.aspect_ratio,
       dimensions: {
@@ -384,10 +401,13 @@ export class DatabaseService {
         height: stored.height
       },
       shapeCount: stored.shape_count,
-      customDimensions: stored.custom_width || stored.custom_height ? {
-        width: stored.custom_width,
-        height: stored.custom_height
-      } : undefined,
+      customDimensions:
+        stored.custom_width || stored.custom_height
+          ? {
+              width: stored.custom_width,
+              height: stored.custom_height
+            }
+          : undefined,
       generatedAt: stored.created_at,
       clientInfo: {
         ip: stored.client_ip,
@@ -395,4 +415,4 @@ export class DatabaseService {
       }
     };
   }
-} 
+}

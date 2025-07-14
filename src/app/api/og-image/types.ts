@@ -1,6 +1,6 @@
 export interface QuoteData {
   text: string;
-  author: string;
+  author?: string; // Made optional to handle cases where no author should be attributed
 }
 
 export interface QuoteAPIConfig {
@@ -144,4 +144,4 @@ export interface OGImageResponse {
     patternSeed?: string;
   };
   remainingGenerations: number;
-} 
+}
