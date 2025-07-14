@@ -309,6 +309,7 @@
   padding-bottom: 0;
   min-height: 0;
   overflow: hidden;
+  border: none !important;
 }
 
 .form__collapsible__content--expanded {

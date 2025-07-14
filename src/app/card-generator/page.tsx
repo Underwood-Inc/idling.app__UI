@@ -1,5 +1,6 @@
 'use client';
 
+import { useAtom, useSetAtom } from 'jotai';
 import { useSession } from 'next-auth/react';
 import { useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -9,13 +10,19 @@ import { PageAside } from '../components/page-aside/PageAside';
 import { PageContainer } from '../components/page-container/PageContainer';
 import PageContent from '../components/page-content/PageContent';
 import PageHeader from '../components/page-header/PageHeader';
+import { InteractiveTooltip } from '../components/tooltip/InteractiveTooltip';
+import {
+  generatorFormStateAtom,
+  resetFormAtom,
+  updateFormStateAtom
+} from './atoms/generatorAtoms';
 import { GenerationDisplay } from './components/GenerationDisplay';
 import { GenerationForm } from './components/GenerationForm';
 import { MysticalLoader } from './components/MysticalLoader';
 import { QuotaDisplay } from './components/QuotaDisplay';
 import { RegenerationDialog } from './components/RegenerationDialog';
 import { WelcomeInterface } from './components/WelcomeInterface';
-import { WizardForm, type WizardFormData } from './components/WizardForm';
+import { WizardForm } from './components/WizardForm';
 import { ASPECT_RATIO_OPTIONS } from './constants/aspectRatios';
 import { useFormState } from './hooks/useFormState';
 import { useGenerationLoader } from './hooks/useGenerationLoader';
@@ -48,9 +55,18 @@ export default function OgImageViewer() {
     Partial<GenerationOptions>
   >({});
 
+  // Jotai atoms for form state
+  const [formState] = useAtom(generatorFormStateAtom);
+  const resetForm = useSetAtom(resetFormAtom);
+  const updateFormState = useSetAtom(updateFormStateAtom);
+
   // Custom hooks for clean separation of concerns
-  const { formState, setFormState, updateField, clearFormState } =
-    useFormState();
+  const {
+    formState: legacyFormState,
+    setFormState,
+    updateField,
+    clearFormState
+  } = useFormState();
   const [isFormCollapsed, setIsFormCollapsed] = useState(true);
   const quotaState = useQuotaTracking();
   const subscriptionStatus = useSubscriptionStatus();
@@ -91,7 +107,7 @@ export default function OgImageViewer() {
   } = useImageGeneration({
     currentSeed: formState.currentSeed,
     avatarSeed: formState.avatarSeed,
-    selectedRatio,
+    selectedRatio: formState.selectedRatio.key,
     customQuote: formState.customQuote,
     customAuthor: formState.customAuthor,
     customWidth: formState.customWidth,
@@ -99,13 +115,13 @@ export default function OgImageViewer() {
     shapeCount: formState.shapeCount,
     isQuotaExceeded: quotaState.isQuotaExceeded,
     advancedOptions: advancedOptions,
-    setCurrentSeed: (seed) => updateField('currentSeed', seed),
-    setAvatarSeed: (seed) => updateField('avatarSeed', seed),
-    setCustomQuote: (quote) => updateField('customQuote', quote),
-    setCustomAuthor: (author) => updateField('customAuthor', author),
-    setCustomWidth: (width) => updateField('customWidth', width),
-    setCustomHeight: (height) => updateField('customHeight', height),
-    setShapeCount: (count) => updateField('shapeCount', count),
+    setCurrentSeed: (seed) => updateFormState({ currentSeed: seed }),
+    setAvatarSeed: (seed) => updateFormState({ avatarSeed: seed }),
+    setCustomQuote: (quote) => updateFormState({ customQuote: quote }),
+    setCustomAuthor: (author) => updateFormState({ customAuthor: author }),
+    setCustomWidth: (width) => updateFormState({ customWidth: width }),
+    setCustomHeight: (height) => updateFormState({ customHeight: height }),
+    setShapeCount: (count) => updateFormState({ shapeCount: count }),
     setCurrentGenerationId: (id) => {
       setCurrentGenerationId(id);
       // Auto-collapse form after successful generation
@@ -120,30 +136,16 @@ export default function OgImageViewer() {
     setSvgContent
   });
 
-  // Handle wizard form submission
-  const handleWizardSubmit = (wizardData: WizardFormData) => {
-    // Convert wizard data to form state
-    setFormState({
-      currentSeed: wizardData.currentSeed,
-      avatarSeed: wizardData.avatarSeed,
-      customQuote: wizardData.customQuote,
-      customAuthor: wizardData.customAuthor,
-      customWidth: wizardData.customWidth,
-      customHeight: wizardData.customHeight,
-      shapeCount: wizardData.shapeCount
-    });
-
-    // Set the selected ratio
-    setSelectedRatio(wizardData.selectedRatio.key);
-
-    // Trigger generation
+  // Handle wizard form submission - now much simpler!
+  const handleWizardSubmit = () => {
+    // Form data is always current thanks to atoms - no timing issues!
     handleGenerate();
   };
 
   // ALWAYS clear form when starting new generation - no exceptions
   const handleNewGeneration = () => {
     // FIRST: Clear ALL form state completely
-    clearFormState();
+    resetForm();
     setAdvancedOptions({});
     setSelectedRatio('default');
     clearGeneration();
@@ -181,7 +183,7 @@ export default function OgImageViewer() {
       const filename = generateFilename(
         'png',
         formState.currentSeed,
-        selectedRatio
+        formState.selectedRatio.key
       );
       downloadFile(blob, filename);
     } catch (error) {
@@ -197,7 +199,7 @@ export default function OgImageViewer() {
     const filename = generateFilename(
       'svg',
       formState.currentSeed,
-      selectedRatio
+      formState.selectedRatio.key
     );
     downloadFile(blob, filename);
   };
@@ -248,47 +250,35 @@ export default function OgImageViewer() {
     const shouldUseWizard = !isAuthenticated || generatorMode === 'wizard';
 
     if (shouldUseWizard) {
-      const selectedRatioObj =
-        ASPECT_RATIO_OPTIONS.find((opt) => opt.key === selectedRatio) ||
-        ASPECT_RATIO_OPTIONS[0];
-
       return (
         <WizardForm
-          initialData={{
-            selectedRatio: selectedRatioObj,
-            currentSeed: formState.currentSeed,
-            avatarSeed: formState.avatarSeed,
-            customAuthor: formState.customAuthor,
-            customQuote: formState.customQuote,
-            customWidth: formState.customWidth,
-            customHeight: formState.customHeight,
-            shapeCount: formState.shapeCount
-          }}
           onSubmit={handleWizardSubmit}
           isGenerating={isGenerating}
           isQuotaExceeded={quotaState.isQuotaExceeded}
           isPro={subscriptionStatus.isPro}
           isCollapsed={isFormCollapsed}
-          onToggleCollapse={() => setIsFormCollapsed(!isFormCollapsed)}
+          onToggleCollapse={
+            svgContent ? () => setIsFormCollapsed(!isFormCollapsed) : undefined
+          }
         />
       );
     }
 
     return (
       <GenerationForm
-        currentSeed={formState.currentSeed}
+        currentSeed={legacyFormState.currentSeed}
         setCurrentSeed={(seed) => updateField('currentSeed', seed)}
-        avatarSeed={formState.avatarSeed}
+        avatarSeed={legacyFormState.avatarSeed}
         setAvatarSeed={(seed) => updateField('avatarSeed', seed)}
-        customQuote={formState.customQuote}
+        customQuote={legacyFormState.customQuote}
         setCustomQuote={(quote) => updateField('customQuote', quote)}
-        customAuthor={formState.customAuthor}
+        customAuthor={legacyFormState.customAuthor}
         setCustomAuthor={(author) => updateField('customAuthor', author)}
-        customWidth={formState.customWidth}
+        customWidth={legacyFormState.customWidth}
         setCustomWidth={(width) => updateField('customWidth', width)}
-        customHeight={formState.customHeight}
+        customHeight={legacyFormState.customHeight}
         setCustomHeight={(height) => updateField('customHeight', height)}
-        shapeCount={formState.shapeCount}
+        shapeCount={legacyFormState.shapeCount}
         setShapeCount={(count) => updateField('shapeCount', count)}
         isQuotaExceeded={quotaState.isQuotaExceeded}
         isGenerating={isGenerating}
@@ -339,18 +329,50 @@ export default function OgImageViewer() {
                       ← Welcome
                     </button>
 
-                    {/* Mode Toggle Button (only for authenticated users) */}
-                    {session?.user?.id && (
+                    {/* Mode Toggle Button - show for all authenticated users */}
+                    <InteractiveTooltip
+                      content={
+                        !subscriptionStatus?.isPro ? (
+                          <div style={{ padding: '0.75rem' }}>
+                            <strong>🚀 Advanced Mode - Pro Feature</strong>
+                            <p
+                              style={{
+                                margin: '0.5rem 0 0 0',
+                                color: 'var(--dark-bg__text-color--secondary)'
+                              }}
+                            >
+                              Unlock the advanced form with direct field access,
+                              precise controls, and professional features.
+                            </p>
+                          </div>
+                        ) : undefined
+                      }
+                      disabled={subscriptionStatus.isPro}
+                      triggerOnClick={true}
+                    >
                       <button
-                        onClick={handleModeToggle}
-                        className={`${styles.header__button} ${styles['header__button--mode']}`}
-                        title={`Switch to ${generatorMode === 'wizard' ? 'Advanced' : 'Wizard'} mode`}
+                        onClick={
+                          subscriptionStatus.isPro
+                            ? handleModeToggle
+                            : undefined
+                        }
+                        className={`${styles.header__button} ${styles['header__button--mode']} ${
+                          !subscriptionStatus.isPro
+                            ? styles['header__button--disabled']
+                            : ''
+                        }`}
+                        title={
+                          subscriptionStatus.isPro
+                            ? `Switch to ${generatorMode === 'wizard' ? 'Advanced' : 'Wizard'} mode`
+                            : 'Upgrade to Pro to access Advanced Mode'
+                        }
+                        disabled={!subscriptionStatus.isPro}
                       >
                         {generatorMode === 'wizard'
                           ? '⚙️ Advanced'
                           : '🪄 Wizard'}
                       </button>
-                    )}
+                    </InteractiveTooltip>
 
                     <button
                       onClick={handleSaveAsPng}

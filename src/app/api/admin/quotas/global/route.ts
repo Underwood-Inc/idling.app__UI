@@ -191,9 +191,7 @@ async function getAvailableServiceFeatures(): Promise<ServiceFeature[]> {
  * GET /api/admin/quotas/global
  * Retrieves all global guest quotas with available service/feature options
  */
-export async function GET(
-  request: NextRequest
-): Promise<
+export async function GET(request: NextRequest): Promise<
   NextResponse<
     | ApiResponse<{
         quotas: GlobalGuestQuota[];

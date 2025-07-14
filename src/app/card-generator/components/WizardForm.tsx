@@ -1,9 +1,23 @@
 'use client';
 
+import { useAtom } from 'jotai';
 import { useSession } from 'next-auth/react';
 import { useState } from 'react';
 import { Card } from '../../components/card/Card';
 import { InstantLink } from '../../components/ui/InstantLink';
+import {
+  aspectRatioSyncAtom,
+  avatarSeedAtom,
+  currentSeedAtom,
+  customAuthorAtom,
+  customHeightAtom,
+  customQuoteAtom,
+  customWidthAtom,
+  generatorFormStateAtom,
+  selectedRatioAtom,
+  shapeCountAtom,
+  updateFormStateAtom
+} from '../atoms/generatorAtoms';
 import { ASPECT_RATIO_OPTIONS } from '../constants/aspectRatios';
 import formStyles from './FormElements.module.css';
 import type { AspectRatioOption } from './GenerationForm';
@@ -53,20 +67,19 @@ export function WizardForm({
   const isAuthenticated = !!session?.user?.id;
 
   const [currentStep, setCurrentStep] = useState<WizardStep>('platform');
-  const [formData, setFormData] = useState<WizardFormData>({
-    selectedRatio: initialData?.selectedRatio || ASPECT_RATIO_OPTIONS[0],
-    currentSeed: initialData?.currentSeed || '',
-    avatarSeed: initialData?.avatarSeed || '',
-    customAuthor: initialData?.customAuthor || '',
-    customQuote: initialData?.customQuote || '',
-    customWidth: initialData?.customWidth || '',
-    customHeight: initialData?.customHeight || '',
-    shapeCount: initialData?.shapeCount || '8'
-  });
 
-  const updateFormData = (updates: Partial<WizardFormData>) => {
-    setFormData((prev) => ({ ...prev, ...updates }));
-  };
+  // Use Jotai atoms instead of local state
+  const [formData] = useAtom(generatorFormStateAtom);
+  const [, updateFormData] = useAtom(updateFormStateAtom);
+  const [selectedRatio, setSelectedRatio] = useAtom(selectedRatioAtom);
+  const [currentSeed, setCurrentSeed] = useAtom(currentSeedAtom);
+  const [avatarSeed, setAvatarSeed] = useAtom(avatarSeedAtom);
+  const [customAuthor, setCustomAuthor] = useAtom(customAuthorAtom);
+  const [customQuote, setCustomQuote] = useAtom(customQuoteAtom);
+  const [customWidth, setCustomWidth] = useAtom(customWidthAtom);
+  const [customHeight, setCustomHeight] = useAtom(customHeightAtom);
+  const [shapeCount, setShapeCount] = useAtom(shapeCountAtom);
+  const [, syncAspectRatio] = useAtom(aspectRatioSyncAtom);
 
   const handleNext = () => {
     switch (currentStep) {
@@ -94,6 +107,42 @@ export function WizardForm({
       case 'confirm':
         setCurrentStep(isAuthenticated && isPro ? 'pro' : 'basic');
         break;
+    }
+  };
+
+  /**
+   * Handle direct step navigation by clicking on progress circles
+   */
+  const handleStepClick = (targetStep: WizardStep) => {
+    // Don't allow navigation during generation
+    if (isGenerating) return;
+
+    // Don't navigate to current step
+    if (targetStep === currentStep) return;
+
+    // Validate step access based on current form state and user permissions
+    const canNavigateToStep = (step: WizardStep): boolean => {
+      switch (step) {
+        case 'platform':
+          return true; // Can always go back to platform
+        case 'basic':
+          return true; // Can always access basic if platform is valid
+        case 'pro':
+          return isAuthenticated && isPro; // Only Pro users can access pro step
+        case 'confirm':
+          return !!selectedRatio; // Can only confirm if platform is selected
+        default:
+          return false;
+      }
+    };
+
+    if (canNavigateToStep(targetStep)) {
+      // Expand the wizard if it's collapsed when clicking a step
+      if (isCollapsed && onToggleCollapse) {
+        onToggleCollapse();
+      }
+
+      setCurrentStep(targetStep);
     }
   };
 
@@ -140,30 +189,73 @@ export function WizardForm({
 
     const currentIndex = steps.indexOf(currentStep);
 
+    // Helper function to determine if a step is clickable
+    const isStepClickable = (step: WizardStep): boolean => {
+      if (isGenerating) return false;
+      if (step === currentStep) return false;
+
+      switch (step) {
+        case 'platform':
+          return true; // Can always go back to platform
+        case 'basic':
+          return true; // Can always access basic
+        case 'pro':
+          return isAuthenticated && isPro; // Only Pro users can access pro step
+        case 'confirm':
+          return !!selectedRatio; // Can only confirm if platform is selected
+        default:
+          return false;
+      }
+    };
+
     return (
       <div className={wizardStyles.stepIndicator}>
-        {steps.map((step, index) => (
-          <div key={step} className={wizardStyles.stepIndicatorItem}>
-            <div
-              className={`${wizardStyles.stepNumber} ${
-                index <= currentIndex
-                  ? wizardStyles.stepActive
-                  : wizardStyles.stepInactive
-              }`}
-            >
-              {index + 1}
-            </div>
-            {index < steps.length - 1 && (
+        {steps.map((step, index) => {
+          const stepClickable = isStepClickable(step as WizardStep);
+
+          return (
+            <div key={step} className={wizardStyles.stepIndicatorItem}>
               <div
-                className={`${wizardStyles.stepLine} ${
-                  index < currentIndex
-                    ? wizardStyles.stepLineActive
-                    : wizardStyles.stepLineInactive
-                }`}
-              />
-            )}
-          </div>
-        ))}
+                className={`${wizardStyles.stepNumber} ${
+                  index <= currentIndex
+                    ? wizardStyles.stepActive
+                    : wizardStyles.stepInactive
+                } ${stepClickable ? wizardStyles.stepClickable : ''}`}
+                onClick={() =>
+                  stepClickable && handleStepClick(step as WizardStep)
+                }
+                style={{
+                  cursor: stepClickable ? 'pointer' : 'default',
+                  userSelect: 'none'
+                }}
+                title={
+                  stepClickable
+                    ? `Go to ${
+                        step === 'platform'
+                          ? 'Platform Selection'
+                          : step === 'basic'
+                            ? 'Basic Configuration'
+                            : step === 'pro'
+                              ? 'Pro Configuration'
+                              : 'Confirm & Generate'
+                      }`
+                    : undefined
+                }
+              >
+                {index + 1}
+              </div>
+              {index < steps.length - 1 && (
+                <div
+                  className={`${wizardStyles.stepLine} ${
+                    index < currentIndex
+                      ? wizardStyles.stepLineActive
+                      : wizardStyles.stepLineInactive
+                  }`}
+                />
+              )}
+            </div>
+          );
+        })}
       </div>
     );
   };
@@ -181,18 +273,16 @@ export function WizardForm({
           <button
             key={ratio.key}
             className={`${wizardStyles.ratioCard} ${
-              formData.selectedRatio.key === ratio.key
+              selectedRatio.key === ratio.key
                 ? wizardStyles.ratioCardSelected
                 : ''
             }`}
-            onClick={() => updateFormData({ selectedRatio: ratio })}
+            onClick={() => syncAspectRatio(ratio)}
           >
             <div className={wizardStyles.ratioPreview}>
               <div
                 className={wizardStyles.ratioRectangle}
-                style={{
-                  aspectRatio: `${ratio.width} / ${ratio.height}`
-                }}
+                style={{ aspectRatio: `${ratio.width}/${ratio.height}` }}
               />
             </div>
             <div className={wizardStyles.ratioInfo}>
@@ -222,8 +312,8 @@ export function WizardForm({
             <span className={wizardStyles.labelText}>🎲 Main Seed</span>
             <input
               type="text"
-              value={formData.currentSeed}
-              onChange={(e) => updateFormData({ currentSeed: e.target.value })}
+              value={currentSeed}
+              onChange={(e) => setCurrentSeed(e.target.value)}
               placeholder="Leave empty for random"
               className={wizardStyles.input}
             />
@@ -238,8 +328,8 @@ export function WizardForm({
             <span className={wizardStyles.labelText}>👤 Avatar Seed</span>
             <input
               type="text"
-              value={formData.avatarSeed}
-              onChange={(e) => updateFormData({ avatarSeed: e.target.value })}
+              value={avatarSeed}
+              onChange={(e) => setAvatarSeed(e.target.value)}
               placeholder="Leave empty for random"
               className={wizardStyles.input}
             />
@@ -254,8 +344,8 @@ export function WizardForm({
             <span className={wizardStyles.labelText}>✍️ Author</span>
             <input
               type="text"
-              value={formData.customAuthor}
-              onChange={(e) => updateFormData({ customAuthor: e.target.value })}
+              value={customAuthor}
+              onChange={(e) => setCustomAuthor(e.target.value)}
               placeholder="Leave empty for random"
               className={wizardStyles.input}
             />
@@ -269,8 +359,8 @@ export function WizardForm({
           <label>
             <span className={wizardStyles.labelText}>💬 Quote</span>
             <textarea
-              value={formData.customQuote}
-              onChange={(e) => updateFormData({ customQuote: e.target.value })}
+              value={customQuote}
+              onChange={(e) => setCustomQuote(e.target.value)}
               placeholder="Leave empty for random inspirational quote"
               className={wizardStyles.textarea}
               rows={3}
@@ -295,8 +385,8 @@ export function WizardForm({
             <span className={wizardStyles.labelText}>📏 Custom Width</span>
             <input
               type="number"
-              value={formData.customWidth}
-              onChange={(e) => updateFormData({ customWidth: e.target.value })}
+              value={customWidth}
+              onChange={(e) => setCustomWidth(e.target.value)}
               placeholder="Auto"
               min="400"
               max="2000"
@@ -313,8 +403,8 @@ export function WizardForm({
             <span className={wizardStyles.labelText}>📏 Custom Height</span>
             <input
               type="number"
-              value={formData.customHeight}
-              onChange={(e) => updateFormData({ customHeight: e.target.value })}
+              value={customHeight}
+              onChange={(e) => setCustomHeight(e.target.value)}
               placeholder="Auto"
               min="400"
               max="2000"
@@ -331,8 +421,8 @@ export function WizardForm({
             <span className={wizardStyles.labelText}>🔢 Shape Count</span>
             <input
               type="number"
-              value={formData.shapeCount}
-              onChange={(e) => updateFormData({ shapeCount: e.target.value })}
+              value={shapeCount}
+              onChange={(e) => setShapeCount(e.target.value)}
               placeholder="8"
               min="0"
               max="20"
@@ -356,7 +446,7 @@ export function WizardForm({
         <div className={wizardStyles.configSection}>
           <h4>📐 Platform</h4>
           <p>
-            {formData.selectedRatio.name} ({formData.selectedRatio.dimensions})
+            {selectedRatio.name} ({selectedRatio.dimensions})
           </p>
         </div>
 
@@ -364,13 +454,13 @@ export function WizardForm({
           <h4>🎨 Content</h4>
           <div className={wizardStyles.configItem}>
             <span>Author:</span>
-            <span>{formData.customAuthor || 'Random'}</span>
+            <span>{customAuthor || 'Random'}</span>
           </div>
           <div className={wizardStyles.configItem}>
             <span>Quote:</span>
             <span>
-              {formData.customQuote
-                ? `"${formData.customQuote.substring(0, 50)}${formData.customQuote.length > 50 ? '...' : ''}"`
+              {customQuote
+                ? `"${customQuote.substring(0, 50)}${customQuote.length > 50 ? '...' : ''}"`
                 : 'Random'}
             </span>
           </div>
@@ -380,37 +470,35 @@ export function WizardForm({
           <h4>🎲 Seeds</h4>
           <div className={wizardStyles.configItem}>
             <span>Main:</span>
-            <span>{formData.currentSeed || 'Random'}</span>
+            <span>{currentSeed || 'Random'}</span>
           </div>
           <div className={wizardStyles.configItem}>
             <span>Avatar:</span>
-            <span>{formData.avatarSeed || 'Random'}</span>
+            <span>{avatarSeed || 'Random'}</span>
           </div>
         </div>
 
         {isAuthenticated &&
           isPro &&
-          (formData.customWidth ||
-            formData.customHeight ||
-            formData.shapeCount !== '8') && (
+          (customWidth || customHeight || shapeCount !== '8') && (
             <div className={wizardStyles.configSection}>
               <h4>⚡ Pro Settings</h4>
-              {formData.customWidth && (
+              {customWidth && (
                 <div className={wizardStyles.configItem}>
                   <span>Width:</span>
-                  <span>{formData.customWidth}px</span>
+                  <span>{customWidth}px</span>
                 </div>
               )}
-              {formData.customHeight && (
+              {customHeight && (
                 <div className={wizardStyles.configItem}>
                   <span>Height:</span>
-                  <span>{formData.customHeight}px</span>
+                  <span>{customHeight}px</span>
                 </div>
               )}
-              {formData.shapeCount !== '8' && (
+              {shapeCount !== '8' && (
                 <div className={wizardStyles.configItem}>
                   <span>Shapes:</span>
-                  <span>{formData.shapeCount}</span>
+                  <span>{shapeCount}</span>
                 </div>
               )}
             </div>
@@ -437,7 +525,7 @@ export function WizardForm({
   const canGoNext = () => {
     switch (currentStep) {
       case 'platform':
-        return !!formData.selectedRatio;
+        return !!selectedRatio;
       case 'basic':
       case 'pro':
       case 'confirm':
@@ -452,7 +540,10 @@ export function WizardForm({
   const showGenerate = currentStep === 'confirm';
 
   return (
-    <Card width="full" className={wizardStyles.wizardContainer}>
+    <Card
+      width="full"
+      className={`${wizardStyles.wizardContainer} ${isCollapsed ? wizardStyles.wizardContainerCollapsed : ''}`}
+    >
       {/* Collapsible Header */}
       <div className={formStyles.form__header}>
         <div className={wizardStyles.wizardHeaderContent}>
