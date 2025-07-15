@@ -28,8 +28,6 @@ permissions:
   actions: write
   checks: write
   pull-requests: write
-  pages: write
-  id-token: write
 
 # Environment variables available to all jobs
 env:
@@ -621,38 +619,24 @@ jobs:
               console.log('📝 PR description already up to date');
             }
 
-      # Generate OpenAPI specification before building docs
+      # Generate OpenAPI specification for documentation validation
       - name: Generate OpenAPI specification
         run: pnpm docs:openapi
 
       - name: OpenAPI Documentation Status
         run: |
-          echo "📚 Using Redocusaurus for OpenAPI documentation"
+          echo "📚 Validating OpenAPI documentation generation"
           echo "✅ OpenAPI spec generated at: src/app/api/openapi.json"
-          echo "🌐 API documentation will be available at: /api/"
+          echo "ℹ️ Note: Documentation deployment handled by docs workflow"
 
-      # Build Docusaurus documentation site
-      - name: Build Docusaurus site
+      # Build Docusaurus documentation site for validation only
+      - name: Build Docusaurus site (validation only)
         run: |
-          echo "📚 Building Docusaurus documentation site..."
+          echo "📚 Building Docusaurus documentation site for validation..."
+          echo "ℹ️ This is a validation build only - deployment handled by docs workflow"
           pnpm docs:build
         env:
           NODE_ENV: production
-
-      # Upload Pages artifact for deployment (only on main/master branch)
-      - name: Upload Pages artifact
-        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: ./build/
-
-      # Deploy to GitHub Pages (only on main/master branch)
-      - name: Deploy to GitHub Pages
-        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
-        id: deployment
-        uses: actions/deploy-pages@v4
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   jest-tests:
     timeout-minutes: 15
