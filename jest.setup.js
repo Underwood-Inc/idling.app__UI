@@ -49,6 +49,34 @@ import { mockEssentialBrowserAPIs } from './__mocks__/index';
 if (typeof window !== 'undefined') {
   // Apply only essential browser environment mocks
   mockEssentialBrowserAPIs();
+  
+  // ============================================================================
+  // PORTAL CONTAINER SETUP
+  // ============================================================================
+  
+  /**
+   * Create portal container for React Portal tests
+   * This sets up the DOM element that createPortal() targets in tests
+   */
+  const setupPortalContainer = () => {
+    // Create overlay portal container
+    const overlayPortal = document.createElement('div');
+    overlayPortal.id = 'overlay-portal';
+    document.body.appendChild(overlayPortal);
+  };
+  
+  // Setup portal container before each test
+  beforeEach(() => {
+    setupPortalContainer();
+  });
+  
+  // Clean up portal container after each test
+  afterEach(() => {
+    const overlayPortal = document.getElementById('overlay-portal');
+    if (overlayPortal) {
+      document.body.removeChild(overlayPortal);
+    }
+  });
 }
 
 // ============================================================================
