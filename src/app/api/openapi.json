@@ -441,6 +441,210 @@
             "description": "ID of active timeout"
           }
         }
+      },
+      "AvailableRole": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "description": "Role ID"
+          },
+          "name": {
+            "type": "string",
+            "description": "Role name"
+          },
+          "display_name": {
+            "type": "string",
+            "description": "Human-readable role name"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true,
+            "description": "Role description"
+          }
+        },
+        "required": ["id", "name", "display_name"]
+      },
+      "AnalyticsDashboardResponse": {
+        "type": "object",
+        "properties": {
+          "overview": {
+            "type": "object",
+            "properties": {
+              "totalSessions": { "type": "number" },
+              "totalPageViews": { "type": "number" },
+              "totalClicks": { "type": "number" },
+              "uniqueUsers": { "type": "number" },
+              "avgSessionDuration": { "type": "number" },
+              "bounceRate": { "type": "number" },
+              "vpnPercentage": { "type": "number" },
+              "conversionRate": { "type": "number" }
+            }
+          },
+          "timeSeriesData": {
+            "type": "object",
+            "properties": {
+              "labels": { "type": "array", "items": { "type": "string" } },
+              "sessions": { "type": "array", "items": { "type": "number" } },
+              "pageViews": { "type": "array", "items": { "type": "number" } },
+              "clicks": { "type": "array", "items": { "type": "number" } },
+              "conversions": { "type": "array", "items": { "type": "number" } }
+            }
+          },
+          "geographicData": {
+            "type": "object",
+            "properties": {
+              "countries": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "countryCode": { "type": "string" },
+                    "countryName": { "type": "string" },
+                    "sessions": { "type": "number" },
+                    "percentage": { "type": "number" }
+                  }
+                }
+              },
+              "cities": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "cityName": { "type": "string" },
+                    "regionName": { "type": "string" },
+                    "countryName": { "type": "string" },
+                    "sessions": { "type": "number" },
+                    "percentage": { "type": "number" }
+                  }
+                }
+              }
+            }
+          },
+          "deviceData": {
+            "type": "object",
+            "properties": {
+              "devices": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "deviceType": { "type": "string" },
+                    "sessions": { "type": "number" },
+                    "percentage": { "type": "number" }
+                  }
+                }
+              },
+              "browsers": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "browserName": { "type": "string" },
+                    "sessions": { "type": "number" },
+                    "percentage": { "type": "number" }
+                  }
+                }
+              },
+              "operatingSystems": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "osName": { "type": "string" },
+                    "sessions": { "type": "number" },
+                    "percentage": { "type": "number" }
+                  }
+                }
+              }
+            }
+          },
+          "vpnData": {
+            "type": "object",
+            "properties": {
+              "vpnSessions": { "type": "number" },
+              "proxySessions": { "type": "number" },
+              "torSessions": { "type": "number" },
+              "vpnPercentage": { "type": "number" },
+              "topVpnProviders": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "provider": { "type": "string" },
+                    "sessions": { "type": "number" },
+                    "percentage": { "type": "number" }
+                  }
+                }
+              }
+            }
+          },
+          "heatmapData": {
+            "type": "object",
+            "properties": {
+              "topPages": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "pagePath": { "type": "string" },
+                    "pageTitle": { "type": "string" },
+                    "clicks": { "type": "number" },
+                    "sessions": { "type": "number" }
+                  }
+                }
+              },
+              "clickPatterns": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "elementSelector": { "type": "string" },
+                    "elementText": { "type": "string" },
+                    "clicks": { "type": "number" },
+                    "avgX": { "type": "number" },
+                    "avgY": { "type": "number" }
+                  }
+                }
+              }
+            }
+          },
+          "subscriptionAnalytics": {
+            "type": "object",
+            "properties": {
+              "planViews": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "planName": { "type": "string" },
+                    "views": { "type": "number" },
+                    "conversions": { "type": "number" },
+                    "conversionRate": { "type": "number" }
+                  }
+                }
+              },
+              "funnelData": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "step": { "type": "string" },
+                    "users": { "type": "number" },
+                    "dropoffRate": { "type": "number" }
+                  }
+                }
+              },
+              "revenueImpact": {
+                "type": "object",
+                "properties": {
+                  "attributedRevenue": { "type": "number" },
+                  "avgRevenuePerUser": { "type": "number" }
+                }
+              }
+            }
+          }
+        }
       }
     }
   },
@@ -851,7 +1055,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "type": "object"
+                    "$ref": "#/components/schemas/AvailableRole"
                   }
                 }
               }
@@ -1315,7 +1519,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object"
+                  "$ref": "#/components/schemas/AnalyticsDashboardResponse"
                 }
               }
             }
