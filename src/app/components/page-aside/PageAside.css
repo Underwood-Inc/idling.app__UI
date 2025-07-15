@@ -4,7 +4,7 @@
   top: 16rem; /* Align with main content instead of header */
   right: 2rem;
   width: calc(26vw - 2rem);
-  max-height: calc(100vh - 160px); /* Adjust for new positioning */
+  max-height: 60vh; /* Reduced maximum height for better balance */
   z-index: 50; /* Lower z-index to avoid conflicts */
   overflow: visible;
   /* Ensure visibility */
@@ -18,7 +18,7 @@
   top: auto !important;
   right: auto !important;
   width: 100% !important;
-  max-height: calc(100vh - 160px) !important;
+  max-height: 60vh !important;
   min-height: auto !important;
   
   /* Our custom glassmorphism styling */

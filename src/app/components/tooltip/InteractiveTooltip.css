@@ -112,3 +112,11 @@
 .portal-tooltip--narrow {
   min-width: 200px;
 }
+
+/* Elevated z-index for tooltips when inside modal context */
+.modal-context .interactive-tooltip,
+.modal-context .link-tooltip,
+.modal-context .info-tooltip,
+.modal-context .mention-tooltip {
+  z-index: 10000001 !important; /* Higher than modal toolbar */
+}

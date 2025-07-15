@@ -2,7 +2,7 @@
 .recent-tags {
   width: 100%;
   height: auto;
-  min-height: 200px; /* Match loading state height */
+  min-height: 150px; /* Reduced to fit better in smaller aside */
   display: flex;
   flex-direction: column;
   position: relative;
@@ -12,7 +12,7 @@
 .recent-tags__fancy-border {
   padding: 2rem;
   height: auto;
-  min-height: 200px; /* Match loading state height */
+  min-height: 150px; /* Reduced to fit better in smaller aside */
   display: flex;
   flex-direction: column;
   background: linear-gradient(
@@ -134,7 +134,7 @@
   justify-content: center;
   align-items: center;
   padding: 3rem;
-  min-height: 200px;
+  min-height: 150px;
 }
 
 .recent-tags__tags {

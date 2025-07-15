@@ -1,7 +1,8 @@
 /* Wizard Container */
 .wizardContainer {
-  max-width: 900px;
-  margin: 0 auto;
+  width: 100%; /* Fill available width within PageContent constraints */
+  max-width: 100%; /* Remove arbitrary width limit */
+  margin: 0; /* Remove auto centering to use full width */
   background: rgba(0, 0, 0, 0.85) !important;
   backdrop-filter: blur(16px);
   border: 1px solid rgba(255, 255, 255, 0.2) !important;
@@ -651,7 +652,7 @@
   }
 
   .wizardContainer {
-    margin: 0 1rem;
+    margin: 0; /* Keep consistent with desktop - PageContainer handles padding */
   }
 
   .wizardHeader,

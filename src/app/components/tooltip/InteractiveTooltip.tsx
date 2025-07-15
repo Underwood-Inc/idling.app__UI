@@ -428,9 +428,16 @@ export const InteractiveTooltip: React.FC<InteractiveTooltipProps> = ({
               position: 'fixed',
               top: position.top,
               left: position.left,
-              zIndex: className.includes('search-overlay-tooltip')
-                ? 10100
-                : 10001,
+              zIndex: (() => {
+                // Check if we're inside a modal by looking for modal-context ancestor
+                const isInModal =
+                  tooltipRef.current?.closest('.modal-context') !== null;
+
+                if (className.includes('search-overlay-tooltip')) {
+                  return isInModal ? 10000002 : 10100;
+                }
+                return isInModal ? 10000001 : 10001;
+              })(),
               // Protected background styles - components cannot override these
               background: 'var(--tooltip-glass-bg) !important',
               backdropFilter: 'var(--tooltip-glass-blur) !important',

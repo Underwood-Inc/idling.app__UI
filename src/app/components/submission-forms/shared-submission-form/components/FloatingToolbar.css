@@ -12,6 +12,11 @@
   z-index: 5;
 }
 
+/* Elevated z-index when inside modal context */
+.modal-context .floating-toolbar {
+  z-index: 10000000; /* Higher than modal backdrop but below modal overlay */
+}
+
 .toolbar-button {
   display: flex;
   align-items: center;

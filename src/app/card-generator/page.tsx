@@ -10,7 +10,6 @@ import FadeIn from '../components/fade-in/FadeIn';
 import { PageAside } from '../components/page-aside/PageAside';
 import { PageContainer } from '../components/page-container/PageContainer';
 import PageContent from '../components/page-content/PageContent';
-import PageHeader from '../components/page-header/PageHeader';
 import { InteractiveTooltip } from '../components/tooltip/InteractiveTooltip';
 import {
   generatorFormStateAtom,
@@ -337,10 +336,12 @@ export default function OgImageViewer() {
   return (
     <div data-testid="card-generator">
       <PageContainer>
-        <PageHeader>
+        <PageContent>
+          {/* Header moved inside PageContent for proper aside layout constraints */}
           <FadeIn>
             <div
               className={`${styles.header__content} ${styles.header__centered}`}
+              style={{ marginBottom: '2rem' }}
             >
               <div className={styles.header__text}>
                 <h1>🧙‍♂️ Mystical Card Generator</h1>
@@ -423,25 +424,23 @@ export default function OgImageViewer() {
                     >
                       📥 SVG
                     </button>
-                    {/* Mobile Quota Display - only visible when aside is hidden */}
-                    <div className={styles.quota__mobile}>
-                      <QuotaDisplay
-                        remainingGenerations={quotaState.remainingGenerations}
-                        quotaLimit={quotaState.quotaLimit}
-                        resetDate={quotaState.resetDate}
-                        hasInitializedQuota={quotaState.hasInitializedQuota}
-                        isQuotaExceeded={quotaState.isQuotaExceeded}
-                        mobile={true}
-                      />
-                    </div>
+                  </div>
+
+                  {/* Mobile Quota Display - moved outside buttons container for better alignment */}
+                  <div className={styles.quota__mobile}>
+                    <QuotaDisplay
+                      remainingGenerations={quotaState.remainingGenerations}
+                      quotaLimit={quotaState.quotaLimit}
+                      resetDate={quotaState.resetDate}
+                      hasInitializedQuota={quotaState.hasInitializedQuota}
+                      isQuotaExceeded={quotaState.isQuotaExceeded}
+                      mobile={true}
+                    />
                   </div>
                 </div>
               )}
             </div>
           </FadeIn>
-        </PageHeader>
-
-        <PageContent>
           {/* Show welcome interface when appropriate */}
           {welcomeFlow.showWelcome ? (
             <WelcomeInterface

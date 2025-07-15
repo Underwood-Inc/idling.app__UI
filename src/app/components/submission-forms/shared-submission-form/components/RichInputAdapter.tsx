@@ -207,19 +207,23 @@ export const RichInputAdapter: React.FC<RichInputAdapterProps> = ({
 
     // Calculate position relative to the input container
     const containerRect = containerRef.current?.getBoundingClientRect();
+    // Check if we're inside a modal context for elevated z-index
+    const isInModal = containerRef.current?.closest('.modal-context') !== null;
+    const modalAwareZIndex = isInModal ? 10000002 : 1000;
+
     const tooltipStyle = containerRect
       ? {
           position: 'fixed' as const,
           top: containerRect.bottom + 4,
           left: containerRect.left,
-          zIndex: 1000,
+          zIndex: modalAwareZIndex,
           pointerEvents: 'auto' as const
         }
       : {
           position: 'fixed' as const,
           top: 0,
           left: 0,
-          zIndex: 1000,
+          zIndex: modalAwareZIndex,
           pointerEvents: 'auto' as const
         };
 

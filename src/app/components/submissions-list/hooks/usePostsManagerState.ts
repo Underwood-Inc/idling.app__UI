@@ -49,12 +49,12 @@ export function usePostsManagerState(): PostsManagerState {
       return false; // Default to collapsed on server side
     }
 
-    // Check localStorage first, fallback to theme-based default
+    // Check localStorage first, fallback to collapsed by default
     const saved = localStorage.getItem('posts-manager-filters-expanded');
     if (saved !== null) {
       return saved === 'true';
     }
-    return spacingTheme === 'cozy'; // Show filters by default in cozy mode, hide in compact mode
+    return false; // Always default to collapsed/hidden
   });
 
   // Save filter visibility to localStorage when it changes

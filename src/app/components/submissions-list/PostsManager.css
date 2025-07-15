@@ -737,6 +737,11 @@
   /* Prevent layout shifts */
 }
 
+/* Pagination container - add spacing from content above */
+.posts-manager__pagination {
+  margin-top: 2rem;
+}
+
 /* Posts Manager Text Search Styling */
 .posts-manager__text-search {
   margin-block-end: 0.5rem;
