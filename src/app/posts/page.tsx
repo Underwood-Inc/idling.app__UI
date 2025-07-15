@@ -54,11 +54,9 @@ export default async function PostsPage() {
 
         <PageAside className={styles.tags_aside} bottomMargin={10}>
           <FadeIn>
-            <Card width="full">
-              <Suspense fallback={<RecentTagsLoader />}>
-                <RecentTags contextId={CONTEXT_IDS.POSTS.toString()} />
-              </Suspense>
-            </Card>
+            <Suspense fallback={<RecentTagsLoader />}>
+              <RecentTags contextId={CONTEXT_IDS.POSTS.toString()} />
+            </Suspense>
           </FadeIn>
         </PageAside>
       </PageContainer>

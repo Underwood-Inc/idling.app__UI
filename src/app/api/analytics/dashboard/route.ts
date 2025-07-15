@@ -70,6 +70,89 @@
  *           application/json:
  *             schema:
  *               type: object
+ *               properties:
+ *                 overview:
+ *                   type: object
+ *                   properties:
+ *                     totalSessions:
+ *                       type: number
+ *                       description: Total number of sessions
+ *                     totalPageViews:
+ *                       type: number
+ *                       description: Total page views
+ *                     totalClicks:
+ *                       type: number
+ *                       description: Total clicks tracked
+ *                     uniqueUsers:
+ *                       type: number
+ *                       description: Number of unique users
+ *                     avgSessionDuration:
+ *                       type: number
+ *                       description: Average session duration in seconds
+ *                     bounceRate:
+ *                       type: number
+ *                       description: Bounce rate percentage
+ *                     vpnPercentage:
+ *                       type: number
+ *                       description: Percentage of VPN/proxy traffic
+ *                   required: [totalSessions, totalPageViews, totalClicks, uniqueUsers, avgSessionDuration, bounceRate, vpnPercentage]
+ *                   description: Analytics overview metrics
+ *                 trends:
+ *                   type: object
+ *                   properties:
+ *                     sessions:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           date:
+ *                             type: string
+ *                             format: date
+ *                           count:
+ *                             type: number
+ *                       description: Session count trends over time
+ *                     pageViews:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           date:
+ *                             type: string
+ *                             format: date
+ *                           count:
+ *                             type: number
+ *                       description: Page view trends over time
+ *                   description: Analytics trends data
+ *                 topPages:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       path:
+ *                         type: string
+ *                         description: Page path
+ *                       views:
+ *                         type: number
+ *                         description: Number of views
+ *                       uniqueViews:
+ *                         type: number
+ *                         description: Number of unique views
+ *                   description: Most popular pages
+ *                 devices:
+ *                   type: object
+ *                   properties:
+ *                     desktop:
+ *                       type: number
+ *                       description: Desktop usage percentage
+ *                     mobile:
+ *                       type: number
+ *                       description: Mobile usage percentage
+ *                     tablet:
+ *                       type: number
+ *                       description: Tablet usage percentage
+ *                   description: Device type distribution
+ *               required: [overview]
+ *               description: Analytics dashboard data
  *       401:
  *         description: Authentication required
  *         content:

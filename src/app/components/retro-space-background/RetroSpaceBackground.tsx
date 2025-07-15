@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { useUserPreferences } from '../../../lib/context/UserPreferencesContext';
 import './RetroSpaceBackground.scss';
 
@@ -22,6 +23,9 @@ export default function RetroSpaceBackground({
   movementSpeed: overrideSpeed,
   enableSpeedLines = false
 }: RetroSpaceBackgroundProps) {
+  // Client-side only rendering to prevent hydration mismatch
+  const [isMounted, setIsMounted] = useState(false);
+
   // Get settings from user preferences context
   const {
     backgroundMovementDirection,
@@ -32,6 +36,11 @@ export default function RetroSpaceBackground({
   // Use context values unless overridden by props
   const movementDirection = overrideDirection || backgroundMovementDirection;
   const movementSpeed = overrideSpeed || backgroundMovementSpeed;
+
+  // Ensure client-side only rendering for dynamic elements
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   // Build dynamic class names based on settings
   const containerClasses = [
@@ -49,8 +58,8 @@ export default function RetroSpaceBackground({
 
   return (
     <div className={containerClasses}>
-      {/* 1. Twinkling Star Field */}
-      {backgroundAnimationLayers.stars && (
+      {/* 1. Twinkling Star Field - Client-side only for dynamic randomness */}
+      {backgroundAnimationLayers.stars && isMounted && (
         <div className="star-field">
           {Array.from({ length: 200 }, (_, i) => (
             <div
@@ -67,8 +76,8 @@ export default function RetroSpaceBackground({
         </div>
       )}
 
-      {/* 2. Drifting Space Particles */}
-      {backgroundAnimationLayers.particles && (
+      {/* 2. Drifting Space Particles - Client-side only for dynamic randomness */}
+      {backgroundAnimationLayers.particles && isMounted && (
         <div className="space-particles">
           {Array.from({ length: 50 }, (_, i) => (
             <div
@@ -85,7 +94,7 @@ export default function RetroSpaceBackground({
         </div>
       )}
 
-      {/* 3. Nebula Cloud Gradients */}
+      {/* 3. Nebula Cloud Gradients - Static elements safe for SSR */}
       {backgroundAnimationLayers.nebula && (
         <div className="nebula-clouds">
           <div className="nebula-cloud"></div>
@@ -94,7 +103,7 @@ export default function RetroSpaceBackground({
         </div>
       )}
 
-      {/* 4. Distant Planets/Orbs */}
+      {/* 4. Distant Planets/Orbs - Static elements safe for SSR */}
       {backgroundAnimationLayers.planets && (
         <div className="distant-planets">
           <div className="distant-planet"></div>
@@ -103,7 +112,7 @@ export default function RetroSpaceBackground({
         </div>
       )}
 
-      {/* 5. Aurora Waves */}
+      {/* 5. Aurora Waves - Static elements safe for SSR */}
       {backgroundAnimationLayers.aurora && (
         <div className="aurora-waves">
           <div className="aurora-wave"></div>
@@ -112,10 +121,10 @@ export default function RetroSpaceBackground({
         </div>
       )}
 
-      {/* Speed Lines (optional overlay for fast movement) */}
+      {/* Speed Lines - Client-side only for dynamic randomness */}
       {enableSpeedLines &&
-        (movementDirection === 'forward' ||
-          movementDirection === 'backward') && (
+        (movementDirection === 'forward' || movementDirection === 'backward') &&
+        isMounted && (
           <div className="speed-lines">
             {Array.from({ length: 30 }, (_, i) => (
               <div

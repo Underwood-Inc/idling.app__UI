@@ -42,7 +42,90 @@
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/EmojiListResponse'
+ *               type: object
+ *               properties:
+ *                 emojis:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: number
+ *                       emoji_id:
+ *                         type: string
+ *                       unicode_codepoint:
+ *                         type: string
+ *                         nullable: true
+ *                       unicode_char:
+ *                         type: string
+ *                         nullable: true
+ *                       name:
+ *                         type: string
+ *                       description:
+ *                         type: string
+ *                         nullable: true
+ *                       category:
+ *                         type: object
+ *                         properties:
+ *                           id:
+ *                             type: number
+ *                           name:
+ *                             type: string
+ *                           display_name:
+ *                             type: string
+ *                       tags:
+ *                         type: array
+ *                         items:
+ *                           type: string
+ *                       aliases:
+ *                         type: array
+ *                         items:
+ *                           type: string
+ *                       keywords:
+ *                         type: array
+ *                         items:
+ *                           type: string
+ *                         nullable: true
+ *                       is_custom:
+ *                         type: boolean
+ *                         nullable: true
+ *                       custom_image_url:
+ *                         type: string
+ *                         nullable: true
+ *                       usage_count:
+ *                         type: number
+ *                         nullable: true
+ *                       version_min:
+ *                         type: string
+ *                         nullable: true
+ *                       is_approved:
+ *                         type: boolean
+ *                         nullable: true
+ *                       is_personal:
+ *                         type: boolean
+ *                         nullable: true
+ *                 categories:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: number
+ *                       name:
+ *                         type: string
+ *                       display_name:
+ *                         type: string
+ *                       description:
+ *                         type: string
+ *                         nullable: true
+ *                       emoji_count:
+ *                         type: number
+ *                 total_count:
+ *                   type: number
+ *                 page:
+ *                   type: number
+ *                 per_page:
+ *                   type: number
  *       400:
  *         description: Invalid request parameters
  *         content:
@@ -93,7 +176,63 @@
  *                 success:
  *                   type: boolean
  *                 emoji:
- *                   $ref: '#/components/schemas/EmojiResponse'
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: number
+ *                     emoji_id:
+ *                       type: string
+ *                     unicode_codepoint:
+ *                       type: string
+ *                       nullable: true
+ *                     unicode_char:
+ *                       type: string
+ *                       nullable: true
+ *                     name:
+ *                       type: string
+ *                     description:
+ *                       type: string
+ *                       nullable: true
+ *                     category:
+ *                       type: object
+ *                       properties:
+ *                         id:
+ *                           type: number
+ *                         name:
+ *                           type: string
+ *                         display_name:
+ *                           type: string
+ *                     tags:
+ *                       type: array
+ *                       items:
+ *                         type: string
+ *                     aliases:
+ *                       type: array
+ *                       items:
+ *                         type: string
+ *                     keywords:
+ *                       type: array
+ *                       items:
+ *                         type: string
+ *                       nullable: true
+ *                     is_custom:
+ *                       type: boolean
+ *                       nullable: true
+ *                     custom_image_url:
+ *                       type: string
+ *                       nullable: true
+ *                     usage_count:
+ *                       type: number
+ *                       nullable: true
+ *                     version_min:
+ *                       type: string
+ *                       nullable: true
+ *                     is_approved:
+ *                       type: boolean
+ *                       nullable: true
+ *                     is_personal:
+ *                       type: boolean
+ *                       nullable: true
  *       400:
  *         description: Invalid file or parameters
  *       401:

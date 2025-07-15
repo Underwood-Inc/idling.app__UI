@@ -60,10 +60,12 @@ export const NAV_PATH_LABELS: Record<ROUTES, string> = {
 };
 
 export const DISABLED_PATHS = [NAV_PATHS.GAME, NAV_PATHS.COINS];
-export const PUBLIC_ROUTES = [NAV_PATHS.ROOT, NAV_PATHS.SIGNIN, NAV_PATHS.CARD_GENERATOR, '/auth/unlink-account'];
-export const PRIVATE_ROUTES = [
-  NAV_PATHS.ADMIN,
-  NAV_PATHS.MY_POSTS,
-  NAV_PATHS.POSTS
+export const PUBLIC_ROUTES = [
+  NAV_PATHS.ROOT,
+  NAV_PATHS.SIGNIN,
+  NAV_PATHS.CARD_GENERATOR,
+  NAV_PATHS.POSTS,
+  '/auth/unlink-account'
 ];
+export const PRIVATE_ROUTES = [NAV_PATHS.ADMIN, NAV_PATHS.MY_POSTS];
 export const DEFAULT_REDIRECT = '/';

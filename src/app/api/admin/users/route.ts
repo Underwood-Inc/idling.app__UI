@@ -38,7 +38,96 @@
  *                 users:
  *                   type: array
  *                   items:
- *                     $ref: '#/components/schemas/AdminUser'
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: number
+ *                       name:
+ *                         type: string
+ *                         nullable: true
+ *                       email:
+ *                         type: string
+ *                       image:
+ *                         type: string
+ *                         nullable: true
+ *                       created_at:
+ *                         type: string
+ *                         format: date-time
+ *                       profile_public:
+ *                         type: boolean
+ *                         nullable: true
+ *                       bio:
+ *                         type: string
+ *                         nullable: true
+ *                       location:
+ *                         type: string
+ *                         nullable: true
+ *                       last_login:
+ *                         type: string
+ *                         format: date-time
+ *                         nullable: true
+ *                       login_count:
+ *                         type: number
+ *                         nullable: true
+ *                       is_active:
+ *                         type: boolean
+ *                         nullable: true
+ *                       admin_notes:
+ *                         type: string
+ *                         nullable: true
+ *                       provider_name:
+ *                         type: string
+ *                         nullable: true
+ *                       provider_email:
+ *                         type: string
+ *                         nullable: true
+ *                       provider_verified:
+ *                         type: boolean
+ *                         nullable: true
+ *                       provider_last_used:
+ *                         type: string
+ *                         format: date-time
+ *                         nullable: true
+ *                       role_count:
+ *                         type: number
+ *                         nullable: true
+ *                       role_names:
+ *                         type: string
+ *                         nullable: true
+ *                       has_admin:
+ *                         type: boolean
+ *                         nullable: true
+ *                       has_moderator:
+ *                         type: boolean
+ *                         nullable: true
+ *                       subscription_count:
+ *                         type: number
+ *                         nullable: true
+ *                       active_subscriptions:
+ *                         type: number
+ *                         nullable: true
+ *                       subscription_names:
+ *                         type: string
+ *                         nullable: true
+ *                       has_active_subscription:
+ *                         type: boolean
+ *                         nullable: true
+ *                       is_timed_out:
+ *                         type: boolean
+ *                         nullable: true
+ *                       timeout_count:
+ *                         type: number
+ *                         nullable: true
+ *                       active_timeout_reason:
+ *                         type: string
+ *                         nullable: true
+ *                       timeout_expires:
+ *                         type: string
+ *                         format: date-time
+ *                         nullable: true
+ *                       active_timeout_id:
+ *                         type: number
+ *                         nullable: true
  *                 currentPage:
  *                   type: integer
  *                 totalPages:
