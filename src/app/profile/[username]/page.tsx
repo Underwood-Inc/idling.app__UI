@@ -156,28 +156,20 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
                 </div>
               )}
 
-              <div className="profile-page__info-item">
-                <span className="profile-page__info-icon">📊</span>
-                <div className="profile-page__info-content">
-                  <span className="profile-page__info-label">Total Posts</span>
-                  <span className="profile-page__info-value">
-                    {userProfile.total_submissions || 0}
-                  </span>
-                </div>
-              </div>
-
               <InstantLink
                 href={`/posts?author=${userProfile.id}`}
                 className="profile-page__info-item profile-page__info-item--clickable"
                 title="View all posts by this user"
-                aria-label={`View all ${userProfile.total_submissions || 0} posts by ${userProfile.username || userProfile.name}`}
+                aria-label={`View all ${userProfile.posts_count || 0} posts by ${userProfile.username || userProfile.name}`}
               >
                 <div className="profile-page__info-wrapper">
                   <span className="profile-page__info-icon">📝</span>
                   <div className="profile-page__info-content">
-                    <span className="profile-page__info-label">View Posts</span>
+                    <span className="profile-page__info-label">
+                      {userProfile.posts_count || 0} Posts
+                    </span>
                     <span className="profile-page__info-value">
-                      Browse All →
+                      View Posts →
                     </span>
                   </div>
                 </div>

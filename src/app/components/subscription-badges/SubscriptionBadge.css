@@ -1,0 +1,417 @@
+/* Subscription Badge Styles */
+
+/* Base Badge Styling */
+.subscription-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.875rem 1rem;
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 12px;
+  box-shadow: 
+    0 4px 16px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.subscription-badge::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.02) 0%,
+    rgba(255, 255, 255, 0.01) 100%
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+
+.subscription-badge > * {
+  position: relative;
+  z-index: 2;
+}
+
+.subscription-badge:hover {
+  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.25);
+  box-shadow: 
+    0 8px 24px rgba(0, 0, 0, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25);
+}
+
+/* Icon Styling */
+.subscription-badge__icon {
+  font-size: 1.25rem;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Content Section */
+.subscription-badge__content {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.subscription-badge__name {
+  font-weight: 600;
+  color: var(--color-text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.subscription-badge__meta {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+  color: var(--color-text-secondary);
+}
+
+.subscription-badge__status,
+.subscription-badge__billing {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.subscription-badge__status-icon {
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.subscription-badge__expiration {
+  font-size: 0.75rem;
+  color: var(--color-text-tertiary);
+  margin-top: 0.25rem;
+  text-align: right;
+}
+
+.subscription-badge__override-indicator {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  font-size: 0.875rem;
+  background: rgba(249, 223, 116, 0.9);
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Plan Type Variants */
+
+/* Tier Plans (Pro, Enterprise) */
+.subscription-badge--tier {
+  border-color: rgba(139, 92, 246, 0.3);
+  background: linear-gradient(
+    135deg,
+    rgba(139, 92, 246, 0.1) 0%,
+    rgba(59, 130, 246, 0.05) 100%
+  );
+}
+
+.subscription-badge--tier:hover {
+  border-color: rgba(139, 92, 246, 0.5);
+  background: linear-gradient(
+    135deg,
+    rgba(139, 92, 246, 0.15) 0%,
+    rgba(59, 130, 246, 0.08) 100%
+  );
+}
+
+.subscription-badge--tier .subscription-badge__name {
+  background: linear-gradient(135deg, #8b5cf6, #3b82f6);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Addon Plans */
+.subscription-badge--addon {
+  border-color: rgba(16, 185, 129, 0.3);
+  background: linear-gradient(
+    135deg,
+    rgba(16, 185, 129, 0.1) 0%,
+    rgba(34, 197, 94, 0.05) 100%
+  );
+}
+
+.subscription-badge--addon:hover {
+  border-color: rgba(16, 185, 129, 0.5);
+  background: linear-gradient(
+    135deg,
+    rgba(16, 185, 129, 0.15) 0%,
+    rgba(34, 197, 94, 0.08) 100%
+  );
+}
+
+.subscription-badge--addon .subscription-badge__name {
+  background: linear-gradient(135deg, #10b981, #22c55e);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Bundle Plans */
+.subscription-badge--bundle {
+  border-color: rgba(245, 158, 11, 0.3);
+  background: linear-gradient(
+    135deg,
+    rgba(245, 158, 11, 0.1) 0%,
+    rgba(251, 191, 36, 0.05) 100%
+  );
+}
+
+.subscription-badge--bundle:hover {
+  border-color: rgba(245, 158, 11, 0.5);
+  background: linear-gradient(
+    135deg,
+    rgba(245, 158, 11, 0.15) 0%,
+    rgba(251, 191, 36, 0.08) 100%
+  );
+}
+
+.subscription-badge--bundle .subscription-badge__name {
+  background: linear-gradient(135deg, #f59e0b, #fbbf24);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Status Variants */
+
+/* Active Status */
+.subscription-badge--active {
+  box-shadow: 
+    0 4px 16px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2),
+    0 0 0 1px rgba(34, 197, 94, 0.2);
+}
+
+/* Trial Status */
+.subscription-badge--trialing {
+  box-shadow: 
+    0 4px 16px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2),
+    0 0 0 1px rgba(59, 130, 246, 0.3);
+  animation: trial-pulse 2s ease-in-out infinite;
+}
+
+@keyframes trial-pulse {
+  0%, 100% { 
+    box-shadow: 
+      0 4px 16px rgba(0, 0, 0, 0.1),
+      inset 0 1px 0 rgba(255, 255, 255, 0.2),
+      0 0 0 1px rgba(59, 130, 246, 0.3);
+  }
+  50% { 
+    box-shadow: 
+      0 4px 16px rgba(0, 0, 0, 0.1),
+      inset 0 1px 0 rgba(255, 255, 255, 0.2),
+      0 0 0 2px rgba(59, 130, 246, 0.5);
+  }
+}
+
+/* Cancelled/Expired Status */
+.subscription-badge--cancelled,
+.subscription-badge--expired {
+  opacity: 0.6;
+  filter: grayscale(0.3);
+  box-shadow: 
+    0 4px 16px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2),
+    0 0 0 1px rgba(239, 68, 68, 0.2);
+}
+
+/* Suspended Status */
+.subscription-badge--suspended {
+  opacity: 0.7;
+  filter: grayscale(0.5);
+  box-shadow: 
+    0 4px 16px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2),
+    0 0 0 1px rgba(245, 158, 11, 0.3);
+}
+
+/* Pending Status */
+.subscription-badge--pending {
+  opacity: 0.8;
+  box-shadow: 
+    0 4px 16px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2),
+    0 0 0 1px rgba(156, 163, 175, 0.3);
+}
+
+/* Compact Variant */
+.subscription-badge--compact {
+  padding: 0.5rem 0.75rem;
+  font-size: 0.8125rem;
+  border-radius: 8px;
+  gap: 0.5rem;
+}
+
+.subscription-badge--compact .subscription-badge__icon {
+  font-size: 1rem;
+}
+
+.subscription-badge--compact .subscription-badge__name {
+  font-size: 0.8125rem;
+}
+
+/* Detailed Variant */
+.subscription-badge--detailed {
+  flex-direction: column;
+  align-items: stretch;
+  padding: 1rem;
+  gap: 0.75rem;
+}
+
+.subscription-badge__header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.subscription-badge__title-section {
+  flex: 1;
+  min-width: 0;
+}
+
+.subscription-badge__type {
+  font-size: 0.75rem;
+  color: var(--color-text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 500;
+}
+
+.subscription-badge__details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.subscription-badge__detail-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.8125rem;
+}
+
+.subscription-badge__detail-label {
+  color: var(--color-text-secondary);
+  font-weight: 500;
+}
+
+.subscription-badge__detail-value {
+  color: var(--color-text-primary);
+  font-weight: 600;
+}
+
+.subscription-badge__override-notice {
+  color: var(--brand-primary);
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+/* Special Indicators */
+.subscription-badge--override {
+  position: relative;
+}
+
+.subscription-badge--trial .subscription-badge__name::after {
+  content: '🆕';
+  margin-left: 0.25rem;
+  font-size: 0.75rem;
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+  .subscription-badge {
+    background: rgba(0, 0, 0, 0.3);
+    border-color: rgba(255, 255, 255, 0.2);
+  }
+
+  .subscription-badge:hover {
+    background: rgba(0, 0, 0, 0.4);
+    border-color: rgba(255, 255, 255, 0.3);
+  }
+
+  .subscription-badge--tier {
+    background: linear-gradient(
+      135deg,
+      rgba(139, 92, 246, 0.2) 0%,
+      rgba(59, 130, 246, 0.1) 100%
+    );
+  }
+
+  .subscription-badge--addon {
+    background: linear-gradient(
+      135deg,
+      rgba(16, 185, 129, 0.2) 0%,
+      rgba(34, 197, 94, 0.1) 100%
+    );
+  }
+
+  .subscription-badge--bundle {
+    background: linear-gradient(
+      135deg,
+      rgba(245, 158, 11, 0.2) 0%,
+      rgba(251, 191, 36, 0.1) 100%
+    );
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .subscription-badge {
+    padding: 0.75rem;
+    font-size: 0.8125rem;
+  }
+
+  .subscription-badge__icon {
+    font-size: 1.125rem;
+  }
+
+  .subscription-badge--detailed {
+    padding: 0.875rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .subscription-badge {
+    padding: 0.625rem;
+    gap: 0.5rem;
+  }
+
+  .subscription-badge__meta {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+  }
+} 

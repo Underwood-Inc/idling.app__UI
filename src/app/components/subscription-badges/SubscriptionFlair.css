@@ -1,0 +1,198 @@
+/* Discord-style Subscription Flairs */
+.subscription-flair {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  backdrop-filter: blur(8px);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s ease;
+  z-index: 10;
+  cursor: pointer;
+}
+
+.subscription-flair:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+}
+
+/* Size variants */
+.subscription-flair--sm {
+  width: 24px;
+  height: 24px;
+  font-size: 0.7rem;
+}
+
+.subscription-flair--md {
+  width: 32px;
+  height: 32px;
+  font-size: 0.8rem;
+  gap: 2px;
+}
+
+/* Position variants */
+.subscription-flair--top-right {
+  top: -8px;
+  right: -8px;
+}
+
+.subscription-flair--top-left {
+  top: -8px;
+  left: -8px;
+}
+
+.subscription-flair--bottom-right {
+  bottom: -8px;
+  right: -8px;
+}
+
+.subscription-flair--bottom-left {
+  bottom: -8px;
+  left: -8px;
+}
+
+/* Plan type styling */
+.subscription-flair--tier {
+  background: linear-gradient(135deg, rgba(147, 51, 234, 0.9), rgba(79, 70, 229, 0.9));
+  border-color: rgba(147, 51, 234, 0.6);
+}
+
+.subscription-flair--tier:hover {
+  background: linear-gradient(135deg, rgba(147, 51, 234, 1), rgba(79, 70, 229, 1));
+  border-color: rgba(147, 51, 234, 0.8);
+}
+
+.subscription-flair--addon {
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.9), rgba(22, 163, 74, 0.9));
+  border-color: rgba(34, 197, 94, 0.6);
+}
+
+.subscription-flair--addon:hover {
+  background: linear-gradient(135deg, rgba(34, 197, 94, 1), rgba(22, 163, 74, 1));
+  border-color: rgba(34, 197, 94, 0.8);
+}
+
+.subscription-flair--bundle {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.9), rgba(217, 119, 6, 0.9));
+  border-color: rgba(245, 158, 11, 0.6);
+}
+
+.subscription-flair--bundle:hover {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 1), rgba(217, 119, 6, 1));
+  border-color: rgba(245, 158, 11, 0.8);
+}
+
+/* Status modifiers */
+.subscription-flair--trialing {
+  animation: trial-pulse 2s ease-in-out infinite;
+}
+
+@keyframes trial-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+.subscription-flair--cancelled,
+.subscription-flair--expired {
+  filter: grayscale(80%);
+  opacity: 0.6;
+}
+
+.subscription-flair--suspended {
+  filter: grayscale(50%);
+  opacity: 0.8;
+}
+
+.subscription-flair--pending {
+  animation: pending-glow 1.5s ease-in-out infinite alternate;
+}
+
+@keyframes pending-glow {
+  from { 
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  }
+  to { 
+    box-shadow: 0 4px 20px rgba(255, 255, 255, 0.4);
+  }
+}
+
+/* Icon and status elements */
+.subscription-flair__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+.subscription-flair__status {
+  position: absolute;
+  bottom: -4px;
+  right: -4px;
+  width: 14px;
+  height: 14px;
+  background: rgba(0, 0, 0, 0.8);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+/* Multiple flair stacking */
+.subscription-flairs-stack {
+  position: relative;
+  display: inline-block;
+}
+
+.subscription-flairs-stack .subscription-flair:nth-child(2) {
+  top: -4px;
+  right: -12px;
+}
+
+.subscription-flairs-stack .subscription-flair:nth-child(3) {
+  top: 4px;
+  right: -16px;
+}
+
+.subscription-flairs-stack .subscription-flair:nth-child(4) {
+  bottom: -4px;
+  right: -12px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .subscription-flair--sm {
+    width: 20px;
+    height: 20px;
+    font-size: 0.6rem;
+  }
+  
+  .subscription-flair--md {
+    width: 28px;
+    height: 28px;
+    font-size: 0.7rem;
+  }
+  
+  .subscription-flair--top-right,
+  .subscription-flair--top-left {
+    top: -6px;
+  }
+  
+  .subscription-flair--top-right,
+  .subscription-flair--bottom-right {
+    right: -6px;
+  }
+  
+  .subscription-flair--top-left,
+  .subscription-flair--bottom-left {
+    left: -6px;
+  }
+  
+  .subscription-flair--bottom-right,
+  .subscription-flair--bottom-left {
+    bottom: -6px;
+  }
+} 
