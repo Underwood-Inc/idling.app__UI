@@ -1,38 +1,4 @@
-/**
- * @swagger
- * /api/admin/roles:
- *   get:
- *     summary: Get available roles for assignment
- *     description: Retrieve a list of available roles that can be assigned to users. Excludes protected roles that can only be assigned via database.
- *     tags:
- *       - Admin
- *     security:
- *       - NextAuth: []
- *     responses:
- *       200:
- *         description: Successfully retrieved available roles
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 type: object
- *       401:
- *         description: Authentication required
- *         content:
- *           application/json:
- *             schema:
- *       403:
- *         description: Insufficient permissions - requires ADMIN.USERS_MANAGE permission
- *         content:
- *           application/json:
- *             schema:
- *       500:
- *         description: Internal server error
- *         content:
- *           application/json:
- *             schema:
- */
+// OpenAPI documentation for this endpoint is in ./openapi.yaml
 
 import { checkUserPermission } from '@lib/actions/permissions.actions';
 import { withUniversalEnhancements } from '@lib/api/withUniversalEnhancements';

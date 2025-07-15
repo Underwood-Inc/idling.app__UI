@@ -441,210 +441,6 @@
             "description": "ID of active timeout"
           }
         }
-      },
-      "AvailableRole": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "number",
-            "description": "Role ID"
-          },
-          "name": {
-            "type": "string",
-            "description": "Role name"
-          },
-          "display_name": {
-            "type": "string",
-            "description": "Human-readable role name"
-          },
-          "description": {
-            "type": "string",
-            "nullable": true,
-            "description": "Role description"
-          }
-        },
-        "required": ["id", "name", "display_name"]
-      },
-      "AnalyticsDashboardResponse": {
-        "type": "object",
-        "properties": {
-          "overview": {
-            "type": "object",
-            "properties": {
-              "totalSessions": { "type": "number" },
-              "totalPageViews": { "type": "number" },
-              "totalClicks": { "type": "number" },
-              "uniqueUsers": { "type": "number" },
-              "avgSessionDuration": { "type": "number" },
-              "bounceRate": { "type": "number" },
-              "vpnPercentage": { "type": "number" },
-              "conversionRate": { "type": "number" }
-            }
-          },
-          "timeSeriesData": {
-            "type": "object",
-            "properties": {
-              "labels": { "type": "array", "items": { "type": "string" } },
-              "sessions": { "type": "array", "items": { "type": "number" } },
-              "pageViews": { "type": "array", "items": { "type": "number" } },
-              "clicks": { "type": "array", "items": { "type": "number" } },
-              "conversions": { "type": "array", "items": { "type": "number" } }
-            }
-          },
-          "geographicData": {
-            "type": "object",
-            "properties": {
-              "countries": {
-                "type": "array",
-                "items": {
-                  "type": "object",
-                  "properties": {
-                    "countryCode": { "type": "string" },
-                    "countryName": { "type": "string" },
-                    "sessions": { "type": "number" },
-                    "percentage": { "type": "number" }
-                  }
-                }
-              },
-              "cities": {
-                "type": "array",
-                "items": {
-                  "type": "object",
-                  "properties": {
-                    "cityName": { "type": "string" },
-                    "regionName": { "type": "string" },
-                    "countryName": { "type": "string" },
-                    "sessions": { "type": "number" },
-                    "percentage": { "type": "number" }
-                  }
-                }
-              }
-            }
-          },
-          "deviceData": {
-            "type": "object",
-            "properties": {
-              "devices": {
-                "type": "array",
-                "items": {
-                  "type": "object",
-                  "properties": {
-                    "deviceType": { "type": "string" },
-                    "sessions": { "type": "number" },
-                    "percentage": { "type": "number" }
-                  }
-                }
-              },
-              "browsers": {
-                "type": "array",
-                "items": {
-                  "type": "object",
-                  "properties": {
-                    "browserName": { "type": "string" },
-                    "sessions": { "type": "number" },
-                    "percentage": { "type": "number" }
-                  }
-                }
-              },
-              "operatingSystems": {
-                "type": "array",
-                "items": {
-                  "type": "object",
-                  "properties": {
-                    "osName": { "type": "string" },
-                    "sessions": { "type": "number" },
-                    "percentage": { "type": "number" }
-                  }
-                }
-              }
-            }
-          },
-          "vpnData": {
-            "type": "object",
-            "properties": {
-              "vpnSessions": { "type": "number" },
-              "proxySessions": { "type": "number" },
-              "torSessions": { "type": "number" },
-              "vpnPercentage": { "type": "number" },
-              "topVpnProviders": {
-                "type": "array",
-                "items": {
-                  "type": "object",
-                  "properties": {
-                    "provider": { "type": "string" },
-                    "sessions": { "type": "number" },
-                    "percentage": { "type": "number" }
-                  }
-                }
-              }
-            }
-          },
-          "heatmapData": {
-            "type": "object",
-            "properties": {
-              "topPages": {
-                "type": "array",
-                "items": {
-                  "type": "object",
-                  "properties": {
-                    "pagePath": { "type": "string" },
-                    "pageTitle": { "type": "string" },
-                    "clicks": { "type": "number" },
-                    "sessions": { "type": "number" }
-                  }
-                }
-              },
-              "clickPatterns": {
-                "type": "array",
-                "items": {
-                  "type": "object",
-                  "properties": {
-                    "elementSelector": { "type": "string" },
-                    "elementText": { "type": "string" },
-                    "clicks": { "type": "number" },
-                    "avgX": { "type": "number" },
-                    "avgY": { "type": "number" }
-                  }
-                }
-              }
-            }
-          },
-          "subscriptionAnalytics": {
-            "type": "object",
-            "properties": {
-              "planViews": {
-                "type": "array",
-                "items": {
-                  "type": "object",
-                  "properties": {
-                    "planName": { "type": "string" },
-                    "views": { "type": "number" },
-                    "conversions": { "type": "number" },
-                    "conversionRate": { "type": "number" }
-                  }
-                }
-              },
-              "funnelData": {
-                "type": "array",
-                "items": {
-                  "type": "object",
-                  "properties": {
-                    "step": { "type": "string" },
-                    "users": { "type": "number" },
-                    "dropoffRate": { "type": "number" }
-                  }
-                }
-              },
-              "revenueImpact": {
-                "type": "object",
-                "properties": {
-                  "attributedRevenue": { "type": "number" },
-                  "avgRevenuePerUser": { "type": "number" }
-                }
-              }
-            }
-          }
-        }
       }
     }
   },
@@ -1035,60 +831,6 @@
         "operationId": "postAdminpermissions"
       }
     },
-    "/api/admin/roles": {
-      "get": {
-        "summary": "Get available roles for assignment",
-        "description": "Retrieve a list of available roles that can be assigned to users. Excludes protected roles that can only be assigned via database.",
-        "tags": [
-          "Admin"
-        ],
-        "security": [
-          {
-            "NextAuth": []
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successfully retrieved available roles",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/AvailableRole"
-                  }
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Authentication required",
-            "content": {
-              "application/json": {
-                "schema": null
-              }
-            }
-          },
-          "403": {
-            "description": "Insufficient permissions - requires ADMIN.USERS_MANAGE permission",
-            "content": {
-              "application/json": {
-                "schema": null
-              }
-            }
-          },
-          "500": {
-            "description": "Internal server error",
-            "content": {
-              "application/json": {
-                "schema": null
-              }
-            }
-          }
-        },
-        "operationId": "getAdminroles"
-      }
-    },
     "/api/admin/users": {
       "get": {
         "summary": "Get users for admin management",
@@ -1231,46 +973,6 @@
           }
         },
         "operationId": "getAdminusers"
-      }
-    },
-    "/api/alerts/active": {
-      "get": {
-        "summary": "Get active alerts for current user",
-        "description": "Fetches active custom alerts for the current user based on targeting rules and user permissions",
-        "tags": [
-          "Alerts"
-        ],
-        "security": [
-          {
-            "NextAuth": []
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successfully retrieved active alerts",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/CustomAlert"
-                  }
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Failed to fetch alerts",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object"
-                }
-              }
-            }
-          }
-        },
-        "operationId": "getAlertsactive"
       }
     },
     "/api/alerts/dismiss": {
@@ -1519,7 +1221,133 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/AnalyticsDashboardResponse"
+                  "type": "object",
+                  "properties": {
+                    "overview": {
+                      "type": "object",
+                      "properties": {
+                        "totalSessions": {
+                          "type": "number",
+                          "description": "Total number of sessions"
+                        },
+                        "totalPageViews": {
+                          "type": "number",
+                          "description": "Total page views"
+                        },
+                        "totalClicks": {
+                          "type": "number",
+                          "description": "Total clicks tracked"
+                        },
+                        "uniqueUsers": {
+                          "type": "number",
+                          "description": "Number of unique users"
+                        },
+                        "avgSessionDuration": {
+                          "type": "number",
+                          "description": "Average session duration in seconds"
+                        },
+                        "bounceRate": {
+                          "type": "number",
+                          "description": "Bounce rate percentage"
+                        },
+                        "vpnPercentage": {
+                          "type": "number",
+                          "description": "Percentage of VPN/proxy traffic"
+                        }
+                      },
+                      "required": [
+                        "totalSessions",
+                        "totalPageViews",
+                        "totalClicks",
+                        "uniqueUsers",
+                        "avgSessionDuration",
+                        "bounceRate",
+                        "vpnPercentage"
+                      ],
+                      "description": "Analytics overview metrics"
+                    },
+                    "trends": {
+                      "type": "object",
+                      "properties": {
+                        "sessions": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "date": {
+                                "type": "string",
+                                "format": "date"
+                              },
+                              "count": {
+                                "type": "number"
+                              }
+                            }
+                          },
+                          "description": "Session count trends over time"
+                        },
+                        "pageViews": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "date": {
+                                "type": "string",
+                                "format": "date"
+                              },
+                              "count": {
+                                "type": "number"
+                              }
+                            }
+                          },
+                          "description": "Page view trends over time"
+                        }
+                      },
+                      "description": "Analytics trends data"
+                    },
+                    "topPages": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "path": {
+                            "type": "string",
+                            "description": "Page path"
+                          },
+                          "views": {
+                            "type": "number",
+                            "description": "Number of views"
+                          },
+                          "uniqueViews": {
+                            "type": "number",
+                            "description": "Number of unique views"
+                          }
+                        }
+                      },
+                      "description": "Most popular pages"
+                    },
+                    "devices": {
+                      "type": "object",
+                      "properties": {
+                        "desktop": {
+                          "type": "number",
+                          "description": "Desktop usage percentage"
+                        },
+                        "mobile": {
+                          "type": "number",
+                          "description": "Mobile usage percentage"
+                        },
+                        "tablet": {
+                          "type": "number",
+                          "description": "Tablet usage percentage"
+                        }
+                      },
+                      "description": "Device type distribution"
+                    }
+                  },
+                  "required": [
+                    "overview"
+                  ],
+                  "description": "Analytics dashboard data"
                 }
               }
             }
@@ -2352,6 +2180,84 @@
           }
         },
         "operationId": "getVersion"
+      }
+    },
+    "/api/admin/roles": {
+      "get": {
+        "summary": "Get available roles for assignment",
+        "description": "Retrieve a list of available roles that can be assigned to users. Excludes protected roles that can only be assigned via database.",
+        "tags": [
+          "Admin"
+        ],
+        "security": [
+          {
+            "NextAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved available roles",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "number",
+                        "description": "Role ID"
+                      },
+                      "name": {
+                        "type": "string",
+                        "description": "Role name"
+                      },
+                      "display_name": {
+                        "type": "string",
+                        "description": "Human-readable role name"
+                      },
+                      "description": {
+                        "type": "string",
+                        "nullable": true,
+                        "description": "Role description"
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "name",
+                      "display_name"
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": null
+              }
+            }
+          },
+          "403": {
+            "description": "Insufficient permissions - requires ADMIN.USERS_MANAGE permission",
+            "content": {
+              "application/json": {
+                "schema": null
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": null
+              }
+            }
+          }
+        },
+        "operationId": "getAdminroles"
       }
     }
   }
