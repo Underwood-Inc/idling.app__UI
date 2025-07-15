@@ -1,6 +1,6 @@
 import { Metadata } from 'next';
 import { redirect } from 'next/navigation';
-import { Suspense } from 'react';
+import React, { Suspense } from 'react';
 import { CustomSession } from '../../auth.config';
 import { auth } from '../../lib/auth';
 import { CONTEXT_IDS } from '../../lib/context-ids';
@@ -61,14 +61,12 @@ export default async function MyPostsPage() {
 
         <PageAside className={styles.tags_aside} bottomMargin={10}>
           <FadeIn>
-            <Card width="full">
-              <Suspense fallback={<RecentTagsLoader />}>
-                <RecentTags
-                  contextId={CONTEXT_IDS.MY_POSTS.toString()}
-                  onlyMine
-                />
-              </Suspense>
-            </Card>
+            <Suspense fallback={<RecentTagsLoader />}>
+              <RecentTags
+                contextId={CONTEXT_IDS.MY_POSTS.toString()}
+                onlyMine
+              />
+            </Suspense>
           </FadeIn>
         </PageAside>
       </PageContainer>

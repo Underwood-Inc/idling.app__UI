@@ -18,6 +18,7 @@ export interface AuthorProps {
   className?: string;
   enableTooltip?: boolean;
   bio?: string | null; // Optional bio data to avoid API call
+  asSpan?: boolean; // Render as span instead of link to avoid nested anchor tags
 }
 
 // Enhanced User Profile Modal Component
@@ -393,7 +394,8 @@ export const Author: React.FC<AuthorProps> = ({
   onClick,
   className = '',
   enableTooltip = true,
-  bio
+  bio,
+  asSpan
 }) => {
   const [userProfile, setUserProfile] = useState<UserProfileData | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -492,9 +494,20 @@ export const Author: React.FC<AuthorProps> = ({
     window.location.href = profileUrl;
   };
 
-  const containerClass = `author ${size} clickable ${className}`;
+  const containerClass = `author ${size} ${asSpan ? '' : 'clickable'} ${className}`;
 
-  const authorElement = (
+  const authorElement = asSpan ? (
+    <span className={containerClass}>
+      <div className="author__name">
+        <Avatar
+          seed={userProfile?.id || authorId}
+          size={size}
+          enableTooltip={false} // Disable avatar tooltip since we have user profile tooltip
+        />
+        <span>{displayName}</span>
+      </div>
+    </span>
+  ) : (
     <InstantLink
       href={profileUrl}
       className={containerClass}

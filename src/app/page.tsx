@@ -6,7 +6,7 @@ import { PageAside } from './components/page-aside/PageAside';
 import { PageContainer } from './components/page-container/PageContainer';
 import PageContent from './components/page-content/PageContent';
 import PageHeader from './components/page-header/PageHeader';
-import { TwitchChat } from './components/twitch-chat';
+import { RecentActivityFeed } from './components/recent-activity-feed';
 import './globals.css';
 import styles from './page.module.css';
 
@@ -27,13 +27,7 @@ export default async function Home() {
               </Card>
 
               <Card className={styles.home__container_item_full}>
-                <TwitchChat
-                  username="strixun"
-                  height="500px"
-                  className={styles.home__twitch_chat}
-                  minimal
-                  hideHeader
-                />
+                <RecentActivityFeed />
               </Card>
             </FadeIn>
           </article>
