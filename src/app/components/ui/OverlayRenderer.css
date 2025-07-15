@@ -3,8 +3,11 @@
   position: fixed;
   top: 0;
   left: 0;
+  width: 100vw;
+  height: 100vh;
   pointer-events: none;
-  z-index: 1000;
+  z-index: 999999; /* NUCLEAR z-index to break out of stacking contexts */
+  isolation: isolate; /* Create new stacking context */
 }
 
 #overlay-portal>* {
@@ -13,16 +16,21 @@
 
 /* Modal Styles */
 .overlay-modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 1000;
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  z-index: 9999999 !important; /* Even higher than portal container */
   display: flex;
   align-items: center;
   justify-content: center;
   animation: modalFadeIn 0.2s ease-out;
+  isolation: isolate; /* Create stacking context */
+  transform: none !important;
+  contain: none !important;
 }
 
 .modal-backdrop {

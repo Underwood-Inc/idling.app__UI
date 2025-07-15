@@ -166,7 +166,7 @@ const Modal: React.FC<{
   }, [onClose]);
 
   return (
-    <div className={`overlay-modal ${className}`}>
+    <div className={`overlay-modal${className ? ` ${className}` : ''}`}>
       <div className="modal-backdrop" onClick={onClose} />
       <div className="modal-content">{children}</div>
     </div>
@@ -181,22 +181,10 @@ export const OverlayRenderer: React.FC = () => {
   );
 
   useEffect(() => {
-    // Create or get the portal container
-    let container = document.getElementById('overlay-portal');
-    if (!container) {
-      container = document.createElement('div');
-      container.id = 'overlay-portal';
-      document.body.appendChild(container);
-    }
+    // Use the existing root-level portal container
+    const container = document.getElementById('overlay-portal');
     setPortalContainer(container);
-
-    return () => {
-      // Clean up portal container if no overlays exist
-      if (overlays.length === 0 && container?.parentNode) {
-        container.parentNode.removeChild(container);
-      }
-    };
-  }, [overlays.length]);
+  }, []);
 
   if (!portalContainer || overlays.length === 0) {
     return null;

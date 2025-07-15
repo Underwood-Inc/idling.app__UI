@@ -421,7 +421,7 @@ export const InteractiveTooltip: React.FC<InteractiveTooltipProps> = ({
         createPortal(
           <div
             ref={tooltipContentRef}
-            className={`link-tooltip interactive-tooltip glass-border-heavy ${className} ${showTooltip ? 'visible' : ''}`}
+            className={`link-tooltip interactive-tooltip glass-border-heavy${className ? ` ${className}` : ''} ${showTooltip ? 'visible' : ''}`}
             onMouseEnter={handleTooltipMouseEnter}
             onMouseLeave={handleTooltipMouseLeave}
             style={{

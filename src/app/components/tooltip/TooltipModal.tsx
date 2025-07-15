@@ -1,4 +1,5 @@
 import React, { RefObject } from 'react';
+import ReactDOM from 'react-dom';
 import './TooltipModal.css';
 
 interface TooltipModalProps {
@@ -28,7 +29,7 @@ export const TooltipModal: React.FC<TooltipModalProps> = ({
 }) => {
   if (!showModal || !enableCtrlClick) return null;
 
-  return (
+  return ReactDOM.createPortal(
     <div
       className="link-preview-modal"
       data-testid="link-preview-modal"
@@ -122,6 +123,7 @@ export const TooltipModal: React.FC<TooltipModalProps> = ({
           sandbox="allow-same-origin allow-scripts"
         />
       </div>
-    </div>
+    </div>,
+    document.getElementById('overlay-portal')!
   );
 };

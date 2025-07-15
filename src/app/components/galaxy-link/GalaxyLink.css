@@ -1,0 +1,58 @@
+/* Galaxy Modal Styles - Full Screen */
+.galaxy-modal .modal-content {
+  width: 95vw !important;
+  height: 95vh !important;
+  max-width: none !important;
+  max-height: none !important;
+}
+
+.galaxy-modal-content {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.galaxy-modal-header {
+  padding: 16px;
+  border-bottom: 1px solid var(--brand-tertiary--dark);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--dark-background--secondary);
+  flex-shrink: 0;
+}
+
+.galaxy-modal-header h3 {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+}
+
+.galaxy-modal-close {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 24px;
+  cursor: pointer;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  transition: all 0.15s ease;
+}
+
+.galaxy-modal-close:hover {
+  background: var(--brand-tertiary);
+  color: var(--text-primary);
+}
+
+.galaxy-modal-iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+  flex: 1;
+} 

@@ -282,6 +282,9 @@ export default function RootLayout({
       </head>
 
       <body className={inter.className}>
+        {/* ROOT LEVEL PORTAL CONTAINER - Outside all React trees and stacking contexts */}
+        <div id="overlay-portal"></div>
+
         <GrammarlyCleanup />
         <ServiceWorkerRegistration />
         <HardResetManager />
