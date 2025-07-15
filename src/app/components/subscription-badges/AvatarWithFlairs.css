@@ -1,0 +1,91 @@
+/* Avatar with Flairs Container */
+.avatar-with-flairs {
+  position: relative;
+  display: inline-block;
+}
+
+/* Size-specific spacing adjustments */
+.avatar-with-flairs--full {
+  margin: 12px;
+}
+
+.avatar-with-flairs--lg {
+  margin: 10px;
+}
+
+.avatar-with-flairs--md {
+  margin: 8px;
+}
+
+.avatar-with-flairs--sm {
+  margin: 6px;
+}
+
+.avatar-with-flairs--xs {
+  margin: 4px;
+}
+
+.avatar-with-flairs--xxs {
+  margin: 3px;
+}
+
+/* Loading state for flairs */
+.avatar-with-flairs__loading {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+}
+
+.avatar-with-flairs__skeleton-flair {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: linear-gradient(90deg, 
+    rgba(255, 255, 255, 0.05) 0%, 
+    rgba(255, 255, 255, 0.1) 50%, 
+    rgba(255, 255, 255, 0.05) 100%);
+  animation: skeleton-pulse 1.5s ease-in-out infinite;
+  background-size: 200% 100%;
+}
+
+@keyframes skeleton-pulse {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+/* Ensure flairs don't interfere with avatar interactions */
+.avatar-with-flairs .subscription-flair {
+  pointer-events: auto;
+}
+
+.avatar-with-flairs .avatar {
+  position: relative;
+  z-index: 1;
+}
+
+/* Mobile responsive adjustments */
+@media (max-width: 768px) {
+  .avatar-with-flairs--full {
+    margin: 10px;
+  }
+
+  .avatar-with-flairs--lg {
+    margin: 8px;
+  }
+
+  .avatar-with-flairs--md {
+    margin: 6px;
+  }
+
+  .avatar-with-flairs--sm {
+    margin: 4px;
+  }
+
+  .avatar-with-flairs--xs {
+    margin: 3px;
+  }
+
+  .avatar-with-flairs--xxs {
+    margin: 2px;
+  }
+} 

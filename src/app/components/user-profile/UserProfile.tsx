@@ -4,7 +4,7 @@ import { useSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
 import { UserProfileData } from '../../../lib/types/profile';
 import { getEffectiveCharacterCount } from '../../../lib/utils/string';
-import { Avatar } from '../avatar/Avatar';
+import { EnhancedAvatar } from '../subscription-badges';
 import { ContentWithPills } from '../ui/ContentWithPills';
 import { InstantLink } from '../ui/InstantLink';
 import { SmartInput } from '../ui/SmartInput';
@@ -103,7 +103,7 @@ export function UserProfile({
       <div className={`user-profile user-profile--tooltip ${className}`}>
         <div className="user-profile__header">
           <div>
-            <Avatar seed={user.id} size="md" />
+            <EnhancedAvatar seed={user.id} size="md" userId={user.id} />
           </div>
           <div className="user-profile__header-info">
             <div className="user-profile__header-top">
@@ -212,7 +212,7 @@ export function UserProfile({
   if (variant === 'compact') {
     return (
       <div className={`user-profile user-profile--compact ${className}`}>
-        <Avatar seed={user.id} size="sm" />
+        <EnhancedAvatar seed={user.id} size="sm" userId={user.id} />
         <div className="user-profile__info">
           <span className="user-profile__name">{displayName}</span>
           {user.location && (
@@ -227,7 +227,7 @@ export function UserProfile({
     <div className={`user-profile user-profile--full ${className}`}>
       <div className="user-profile__header">
         <div className="user-profile__avatar-container">
-          <Avatar seed={user.id} size="lg" />
+          <EnhancedAvatar seed={user.id} size="lg" userId={user.id} />
           <div className="user-profile__avatar-badge">
             {user.profile_public !== false ? '🌟' : '🔒'}
           </div>

@@ -3,6 +3,7 @@
 import { useSession } from 'next-auth/react';
 import { useState, useTransition } from 'react';
 import { updateBioAction } from '../../../lib/actions/profile.actions';
+import { SubscriptionBadgesList } from '../../components/subscription-badges';
 import {
   UserProfile,
   UserProfileData
@@ -56,12 +57,25 @@ export function ProfilePageClient({
   };
 
   return (
-    <UserProfile
-      user={currentProfile}
-      variant="full"
-      isOwnProfile={isOwnProfile}
-      onBioUpdate={isOwnProfile ? handleBioUpdate : undefined}
-      isPending={isPending}
-    />
+    <>
+      <UserProfile
+        user={currentProfile}
+        variant="full"
+        isOwnProfile={isOwnProfile}
+        onBioUpdate={isOwnProfile ? handleBioUpdate : undefined}
+        isPending={isPending}
+      />
+
+      {/* Subscription Badges Section */}
+      <div style={{ marginTop: '2rem' }}>
+        <SubscriptionBadgesList
+          userId={userProfile.id}
+          variant="default"
+          maxDisplay={8}
+          title="🎟️ Subscriptions"
+          emptyMessage="Free tier user"
+        />
+      </div>
+    </>
   );
 }

@@ -57,7 +57,11 @@ export function MentionTooltip({
         position: 'fixed',
         left: position.x,
         top: position.y,
-        zIndex: 10000,
+        zIndex: (() => {
+          // Check if we're inside a modal by looking for modal-context class in DOM
+          const modalContext = document.querySelector('.modal-context');
+          return modalContext ? 10000001 : 10000;
+        })(),
         display: 'block'
       }}
     >

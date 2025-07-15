@@ -211,7 +211,12 @@ export const LinkTooltip: React.FC<LinkTooltipProps> = ({
               top: position.top,
               left: position.left,
               padding: 'var(--spacing-cozy)',
-              zIndex: 10000
+              zIndex: (() => {
+                // Check if we're inside a modal by looking for modal-context ancestor
+                const isInModal =
+                  tooltipRef.current?.closest('.modal-context') !== null;
+                return isInModal ? 10000001 : 10000;
+              })()
             }}
             data-testid="link-tooltip"
           >

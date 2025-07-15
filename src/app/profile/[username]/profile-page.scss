@@ -1919,19 +1919,9 @@
 }
 
 /* Animation Keyframes */
-@keyframes gentle-float {
-  0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-10px); }
-}
-
 @keyframes subtle-glow {
   0%, 100% { box-shadow: 0 0 20px rgba(237, 174, 73, 0.2); }
   50% { box-shadow: 0 0 30px rgba(237, 174, 73, 0.3); }
-}
-
-/* Add floating animation to avatar */
-.profile-page__main-card .user-profile__avatar-container {
-  animation: gentle-float 6s ease-in-out infinite;
 }
 
 /* Add glow animation to main card */

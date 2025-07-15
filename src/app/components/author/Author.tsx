@@ -3,7 +3,8 @@
 import { useSession } from 'next-auth/react';
 import React, { useEffect, useState } from 'react';
 import { useOverlay } from '../../../lib/context/OverlayContext';
-import { Avatar, AvatarPropSizes } from '../avatar/Avatar';
+import { AvatarPropSizes } from '../avatar/Avatar';
+import { EnhancedAvatar } from '../subscription-badges/EnhancedAvatar';
 import { InteractiveTooltip } from '../tooltip/InteractiveTooltip';
 import { InstantLink } from '../ui/InstantLink';
 import { UserProfile, UserProfileData } from '../user-profile/UserProfile';
@@ -116,7 +117,7 @@ const UserProfileTooltipContent: React.FC<{
       <div className="author-tooltip__content">
         <div className="author-tooltip__header">
           <div>
-            <Avatar seed={user.id} size="sm" />
+            <EnhancedAvatar seed={user.id} size="sm" userId={user.id} />
           </div>
           <div className="author-tooltip__header-info">
             <h4 className="author-tooltip__name">{displayName}</h4>
@@ -499,9 +500,10 @@ export const Author: React.FC<AuthorProps> = ({
   const authorElement = asSpan ? (
     <span className={containerClass}>
       <div className="author__name">
-        <Avatar
+        <EnhancedAvatar
           seed={userProfile?.id || authorId}
           size={size}
+          userId={userProfile?.id || authorId}
           enableTooltip={false} // Disable avatar tooltip since we have user profile tooltip
         />
         <span>{displayName}</span>
@@ -516,9 +518,10 @@ export const Author: React.FC<AuthorProps> = ({
       aria-label={`View ${authorName}'s profile`}
     >
       <div className="author__name">
-        <Avatar
+        <EnhancedAvatar
           seed={userProfile?.id || authorId}
           size={size}
+          userId={userProfile?.id || authorId}
           enableTooltip={false} // Disable avatar tooltip since we have user profile tooltip
         />
         <span>{displayName}</span>
