@@ -4,13 +4,7 @@ name: Build and Deploy Documentation
 on:
   push:
     branches: [master, main]
-    paths:
-      - 'src/**/*.md'
-      - 'src/**/*.mdx'
-      - 'docusaurus.config.js'
-      - 'sidebars.js'
-      - 'openapi.yaml'
-      - '.github/workflows/docs.yml'
+    # No paths filter - deploy docs on every push to master
   pull_request:
     branches: [master, main]
     paths:
