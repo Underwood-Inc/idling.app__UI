@@ -37,13 +37,11 @@
 
 
 .discord_aside {
-  min-height: 60rem;
+  min-height: 80rem;
+  padding: 0 !important;
+  max-height: none !important;
 }
 
-.discord_aside>div::before,
-.discord_aside>div::after {
-  margin-block-end: 0.2rem;
-}
 
 /* Mobile responsiveness */
 @media (max-width: 768px) {
