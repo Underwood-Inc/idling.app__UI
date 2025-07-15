@@ -46,6 +46,12 @@
   margin: 0 !important;
 }
 
+/* Discord aside override - target CSS module class */
+.page-aside__container aside[class*="discord_aside"] {
+  padding: 0 !important;
+  max-height: none !important;
+}
+
 .page-aside__container aside:hover {
   background: rgba(255, 255, 255, 0.1);
   border-color: rgba(237, 174, 73, 0.25);
