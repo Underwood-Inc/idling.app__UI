@@ -13,6 +13,7 @@
   transition: all 0.2s ease;
   overflow: hidden;
   min-height: 44px;
+  padding-right: 1rem;
 }
 
 .text-search-input__container:focus-within {
@@ -222,10 +223,8 @@
 
 /* Clear Button */
 .text-search-input__clear {
-  position: absolute;
-  top: 50%;
-  right: 8px;
-  transform: translateY(-50%);
+  right: -.5rem;
+  align-self: center;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -248,12 +247,6 @@
 .text-search-input__thread-toggle,
 .text-search-input__replies-toggle {
   display: none; /* Hidden in favor of combined filter */
-}
-
-/* When replies filter is present, move clear button further right to avoid overlap */
-.text-search-input--with-replies-filter .text-search-input__clear {
-  right: 8px;
-  z-index: 20;
 }
 
 /* Search Status */
