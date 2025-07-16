@@ -1,9 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Submission } from '../../components/submission-forms/schema';
 import { SubmissionItem } from '../../components/submissions-list/SubmissionItem';
-import { SubmissionWithReplies } from '../../components/submissions-list/actions';
+import { SubmissionWithReplies } from '../../components/submissions-list/types';
 import './AdminSubmissionItem.css';
 import { AdminUserTooltip } from './AdminUserTooltip';
 
