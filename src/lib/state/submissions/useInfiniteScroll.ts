@@ -1,6 +1,7 @@
 import { createLogger } from '@lib/logging';
 import { useCallback, useEffect, useState } from 'react';
-import { getSubmissionsWithReplies, SubmissionWithReplies } from '../../../app/components/submissions-list/actions';
+import { getSubmissionsWithReplies } from '../../../app/components/submissions-list/actions';
+import { SubmissionWithReplies } from '../../../app/components/submissions-list/types';
 import { PostFilters } from '../../types/filters';
 import { Filter } from '../atoms';
 import { FiltersState, SubmissionsState } from './types';
@@ -130,4 +131,4 @@ export function useInfiniteScroll({
     setHasMore,
     loadMore
   };
-} 
+}

@@ -1,4 +1,4 @@
-import { SubmissionWithReplies } from '../../../app/components/submissions-list/actions';
+import { SubmissionWithReplies } from '../../../app/components/submissions-list/types';
 import { PostFilters } from '../../types/filters';
 import { Filter } from '../atoms';
 
@@ -12,7 +12,10 @@ export interface UseSubmissionsManagerProps {
 }
 
 // Use the existing atom types instead of creating new ones
-export type { SubmissionsFilters as FiltersState, SubmissionsState } from '../atoms';
+export type {
+  SubmissionsFilters as FiltersState,
+  SubmissionsState
+} from '../atoms';
 
 export interface FetchParams {
   filters: Filter<PostFilters>[];
@@ -52,7 +55,10 @@ export interface UseSubmissionsManagerReturn {
   clearFilters: () => void;
 
   // Optimistic updates
-  optimisticUpdateSubmission: (submissionId: number, updatedSubmission: any) => void;
+  optimisticUpdateSubmission: (
+    submissionId: number,
+    updatedSubmission: any
+  ) => void;
   optimisticRemoveSubmission: (submissionId: number) => void;
 
   // Computed values
@@ -62,4 +68,4 @@ export interface UseSubmissionsManagerReturn {
 
   // New updateFilter function
   updateFilter: (filterName: PostFilters, newValue: string) => void;
-} 
+}

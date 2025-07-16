@@ -1,6 +1,6 @@
 import { useSession } from 'next-auth/react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { SubmissionWithReplies } from '../../app/components/submissions-list/actions';
+import { SubmissionWithReplies } from '../../app/components/submissions-list/types';
 import { useSimpleSubmissions } from './submissions/useSimpleSubmissions';
 import { useSimpleUrlFilters } from './submissions/useSimpleUrlFilters';
 
@@ -34,7 +34,10 @@ export interface UseSubmissionsManagerReturn {
   loadMore: () => void;
   isLoadingMore: boolean;
   hasMore: boolean;
-  optimisticUpdateSubmission: (submissionId: number, updatedSubmission: any) => void;
+  optimisticUpdateSubmission: (
+    submissionId: number,
+    updatedSubmission: any
+  ) => void;
   optimisticRemoveSubmission: (submissionId: number) => void;
   updateFilter: (oldFilter: any, newFilter: any) => void;
 }
@@ -58,16 +61,18 @@ export function useSubmissionsManager({
   const initializationAttemptedRef = useRef(false);
 
   // Use the new URL-first filter system
-  const { filters, addFilter, removeFilter, clearFilters } = useSimpleUrlFilters();
+  const { filters, addFilter, removeFilter, clearFilters } =
+    useSimpleUrlFilters();
 
   // Use the new simple submissions hook
-  const { submissions, isLoading, error, totalRecords, refresh } = useSimpleSubmissions({
-    filters,
-    onlyMine,
-    userId: session?.user?.id?.toString() || initialUserId,
-    includeThreadReplies,
-    enabled: true
-  });
+  const { submissions, isLoading, error, totalRecords, refresh } =
+    useSimpleSubmissions({
+      filters,
+      onlyMine,
+      userId: session?.user?.id?.toString() || initialUserId,
+      includeThreadReplies,
+      enabled: true
+    });
 
   // Initialize filters from props if URL is empty - only once and only if needed
   useEffect(() => {
@@ -79,25 +84,28 @@ export function useSubmissionsManager({
       initialFilters.length > 0
     ) {
       initializationAttemptedRef.current = true;
-      
+
       // Use setTimeout to avoid initialization during render
       const timer = setTimeout(() => {
-        initialFilters.forEach(filter => {
+        initialFilters.forEach((filter) => {
           addFilter(filter);
         });
         initializedRef.current = true;
       }, 0);
-      
+
       return () => clearTimeout(timer);
     }
   }, [filters.length, initialFilters.length]); // Only depend on lengths, not the arrays themselves
 
   // Create pagination object - memoized
-  const pagination = useMemo(() => ({
-    currentPage,
-    pageSize,
-    totalRecords
-  }), [currentPage, pageSize, totalRecords]);
+  const pagination = useMemo(
+    () => ({
+      currentPage,
+      pageSize,
+      totalRecords
+    }),
+    [currentPage, pageSize, totalRecords]
+  );
 
   // Handle pagination - memoized callbacks
   const setPage = useCallback((page: number) => {
@@ -110,39 +118,54 @@ export function useSubmissionsManager({
   }, []);
 
   // Handle multiple filters - memoized
-  const addFilters = useCallback((newFilters: Array<{ name: string; value: string }>) => {
-    newFilters.forEach(filter => {
-      addFilter(filter);
-    });
-  }, [addFilter]);
+  const addFilters = useCallback(
+    (newFilters: Array<{ name: string; value: string }>) => {
+      newFilters.forEach((filter) => {
+        addFilter(filter);
+      });
+    },
+    [addFilter]
+  );
 
   // Alias for removeFilter to match old interface - memoized
-  const removeTag = useCallback((name: string, value?: string) => {
-    removeFilter(name, value);
-  }, [removeFilter]);
+  const removeTag = useCallback(
+    (name: string, value?: string) => {
+      removeFilter(name, value);
+    },
+    [removeFilter]
+  );
 
   // Update filter (remove old, add new) - memoized
-  const updateFilter = useCallback((oldFilter: any, newFilter: any) => {
-    removeFilter(oldFilter.name, oldFilter.value);
-    addFilter(newFilter);
-  }, [removeFilter, addFilter]);
+  const updateFilter = useCallback(
+    (oldFilter: any, newFilter: any) => {
+      removeFilter(oldFilter.name, oldFilter.value);
+      addFilter(newFilter);
+    },
+    [removeFilter, addFilter]
+  );
 
   // Infinite scroll handlers - memoized
   const loadMore = useCallback(() => {
-    setCurrentPage(prev => prev + 1);
+    setCurrentPage((prev) => prev + 1);
   }, []);
 
   const isLoadingMore = false;
   const hasMore = currentPage * pageSize < totalRecords;
 
   // Optimistic updates - memoized
-  const optimisticUpdateSubmission = useCallback((submissionId: number, updatedSubmission: any) => {
-    refresh();
-  }, [refresh]);
+  const optimisticUpdateSubmission = useCallback(
+    (submissionId: number, updatedSubmission: any) => {
+      refresh();
+    },
+    [refresh]
+  );
 
-  const optimisticRemoveSubmission = useCallback((submissionId: number) => {
-    refresh();
-  }, [refresh]);
+  const optimisticRemoveSubmission = useCallback(
+    (submissionId: number) => {
+      refresh();
+    },
+    [refresh]
+  );
 
   return {
     submissions,

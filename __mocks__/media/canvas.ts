@@ -1,6 +1,6 @@
 /**
  * Media API Mocks
- * 
+ *
  * Mocks for media-related APIs including Canvas, Image, Audio, Video, and SVG
  * that are commonly used in React components but not fully implemented in jsdom.
  */
@@ -11,7 +11,7 @@
 export const mockCanvasAPI = () => {
   /**
    * Mock HTMLCanvasElement.prototype.getContext
-   * 
+   *
    * This is useful for testing canvas-based functionality
    */
   HTMLCanvasElement.prototype.getContext = jest.fn().mockReturnValue({
@@ -56,7 +56,7 @@ export const mockCanvasAPI = () => {
 export const mockImageAPI = () => {
   /**
    * Mock Image loading
-   * 
+   *
    * This is useful for testing image loading
    */
   global.Image = jest.fn().mockImplementation(() => ({
@@ -80,10 +80,12 @@ export const mockImageAPI = () => {
 export const mockMediaElementAPIs = () => {
   /**
    * Mock HTMLMediaElement methods
-   * 
+   *
    * These are useful for testing media functionality
    */
-  global.HTMLMediaElement.prototype.play = jest.fn().mockResolvedValue(undefined);
+  global.HTMLMediaElement.prototype.play = jest
+    .fn()
+    .mockResolvedValue(undefined);
   global.HTMLMediaElement.prototype.pause = jest.fn();
   global.HTMLMediaElement.prototype.load = jest.fn();
   global.HTMLMediaElement.prototype.canPlayType = jest.fn().mockReturnValue('');
@@ -94,11 +96,11 @@ export const mockMediaElementAPIs = () => {
  */
 export const mockSVGAPI = () => {
   /**
-   * Mock SVGElement.prototype.getBBox
-   * 
+   * Mock SVGElement.getBBox method
+   *
    * This is useful for testing SVG-based functionality
    */
-  SVGElement.prototype.getBBox = jest.fn().mockReturnValue({
+  (SVGElement.prototype as any).getBBox = jest.fn().mockReturnValue({
     x: 0,
     y: 0,
     width: 0,
@@ -112,7 +114,7 @@ export const mockSVGAPI = () => {
 export const mockURLAPIs = () => {
   /**
    * Mock URL.createObjectURL and revokeObjectURL
-   * 
+   *
    * These are useful for testing file handling
    */
   global.URL.createObjectURL = jest.fn().mockReturnValue('mock-url');
@@ -128,4 +130,4 @@ export const mockMediaAPIs = () => {
   mockMediaElementAPIs();
   mockSVGAPI();
   mockURLAPIs();
-}; 
+};

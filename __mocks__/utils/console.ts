@@ -1,6 +1,6 @@
 /**
  * Console Mock Utilities
- * 
+ *
  * Utilities for mocking console methods while preserving output visibility.
  * This allows tests to verify console calls without losing debugging information.
  */
@@ -13,10 +13,10 @@ export const mockConsoleAPIs = () => {
    * Store original console methods so we can restore them later
    */
   const originalConsole = { ...console };
-  
+
   /**
    * Mock console methods while preserving output
-   * 
+   *
    * This is useful for testing logging behavior while maintaining
    * the ability to see console output during test development
    */
@@ -49,11 +49,13 @@ export const suppressConsoleOutput = () => {
  */
 export const clearConsoleMocks = () => {
   // eslint-disable-next-line no-console
-  Object.keys(console).forEach(method => {
+  Object.keys(console).forEach((method) => {
     // eslint-disable-next-line no-console
+    // @ts-expect-error - Dynamic console method access for test cleanup
     if (jest.isMockFunction(console[method])) {
       // eslint-disable-next-line no-console
+      // @ts-expect-error - Dynamic console method access for test cleanup
       console[method].mockClear();
     }
   });
-}; 
+};
