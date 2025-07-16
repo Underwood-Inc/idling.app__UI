@@ -1,9 +1,10 @@
 'use client';
 
+import { useSimpleUrlFilters } from '@lib/state/submissions/useSimpleUrlFilters';
+import { RECENT_TAGS_SELECTORS } from '@lib/test-selectors/components/recent-tags.selectors';
+import { handleTagFilter, isTagActive } from '@lib/utils/filter-utils';
 import { useMemo, useState } from 'react';
 import { CustomSession } from '../../../auth.config';
-import { useSimpleUrlFilters } from '../../../lib/state/submissions/useSimpleUrlFilters';
-import { RECENT_TAGS_SELECTORS } from '../../../lib/test-selectors/components/recent-tags.selectors';
 import Empty from '../empty/Empty';
 import Loader from '../loader/Loader';
 import { getRecentTags } from './actions';
@@ -24,7 +25,7 @@ const RecentTagsClientComponent = ({
   const [loading, setLoading] = useState(false);
 
   // Use the new URL-first filter system to match PostsManager
-  const { filters, addFilter, removeFilter } = useSimpleUrlFilters();
+  const { filters, addFilter, removeFilter, updateUrl } = useSimpleUrlFilters();
 
   // Extract current tags and logic from URL-first filters
   const tagFilters = filters.filter((f) => f.name === 'tags');
@@ -68,34 +69,19 @@ const RecentTagsClientComponent = ({
   };
 
   const handleTagClick = (tag: string) => {
-    // Format tag consistently
-    const formattedTag = tag.startsWith('#') ? tag.slice(1) : tag; // Remove # for URL consistency
-    const displayTag = tag.startsWith('#') ? tag : `#${tag}`;
-    const isSelected = tagState.currentTags.includes(displayTag);
-
-    if (isSelected) {
-      // Remove tag - remove the specific tag filter entry
-      removeFilter('tags', formattedTag);
-
-      // Check if we need to remove tagLogic
-      const remainingTagFilters = tagFilters.filter(
-        (f) => f.value !== formattedTag
+    if (process.env.NODE_ENV === 'development') {
+      // eslint-disable-next-line no-console
+      console.log(
+        '🏷️ RecentTags click:',
+        tag,
+        '(active:',
+        isTagActive(tag, filters),
+        ')'
       );
-      if (remainingTagFilters.length <= 1) {
-        removeFilter('tagLogic');
-      }
-    } else {
-      // Add tag first
-      addFilter({ name: 'tags', value: formattedTag });
-
-      // Add tagLogic if we'll have multiple tags and don't already have it
-      const existingTagFilters = tagFilters.length;
-      const willHaveMultipleTags = existingTagFilters >= 1;
-
-      if (willHaveMultipleTags && !tagLogicFilter) {
-        addFilter({ name: 'tagLogic', value: 'OR' });
-      }
     }
+
+    // Use the reusable tag filter utility with atomic updates
+    handleTagFilter(tag, filters, addFilter, removeFilter, updateUrl);
   };
 
   const handleLogicToggle = () => {
@@ -112,11 +98,8 @@ const RecentTagsClientComponent = ({
   // Sort tags by usage (most used first) with current tags prioritized
   const sortedTags = useMemo(() => {
     return [...recentTags.tags].sort((a, b) => {
-      const aFormatted = a.startsWith('#') ? a : `#${a}`;
-      const bFormatted = b.startsWith('#') ? b : `#${b}`;
-
-      const aIsActive = tagState.currentTags.includes(aFormatted);
-      const bIsActive = tagState.currentTags.includes(bFormatted);
+      const aIsActive = isTagActive(a, filters);
+      const bIsActive = isTagActive(b, filters);
 
       // Active tags first
       if (aIsActive && !bIsActive) return -1;
@@ -125,7 +108,7 @@ const RecentTagsClientComponent = ({
       // Then alphabetical
       return a.localeCompare(b);
     });
-  }, [recentTags.tags, tagState.currentTags]);
+  }, [recentTags.tags, filters]);
 
   return (
     <article className="recent-tags" data-testid={RECENT_TAGS_SELECTORS.TITLE}>
@@ -165,7 +148,7 @@ const RecentTagsClientComponent = ({
           <div className="recent-tags__tags">
             {sortedTags.map((tag) => {
               const formattedTag = tag.startsWith('#') ? tag : `#${tag}`;
-              const isActive = tagState.currentTags.includes(formattedTag);
+              const isActive = isTagActive(tag, filters);
 
               return (
                 <button

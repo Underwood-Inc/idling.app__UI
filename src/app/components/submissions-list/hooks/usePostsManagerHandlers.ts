@@ -3,15 +3,10 @@
 import { createLogger } from '@lib/logging';
 import { useSimpleUrlFilters } from '@lib/state/submissions/useSimpleUrlFilters';
 import { PostFilters } from '@lib/types/filters';
+import { handleTagFilter } from '@lib/utils/filter-utils';
 import React, { useCallback, useRef } from 'react';
 
-const logger = createLogger({
-  context: {
-    component: 'usePostsManagerHandlers',
-    module: 'hooks'
-  },
-  enabled: true
-});
+const logger = createLogger({ context: { module: 'usePostsManagerHandlers' } });
 
 export interface PostsManagerHandlers {
   handleAddFilter: (filter: any) => void;
@@ -50,7 +45,12 @@ export function usePostsManagerHandlers({
   contextId
 }: PostsManagerHandlersOptions): PostsManagerHandlers {
   // Use the new URL-first filter system instead of Jotai atoms
-  const { filters, updateFilter: urlUpdateFilter } = useSimpleUrlFilters();
+  const {
+    filters,
+    updateFilter: urlUpdateFilter,
+    addFilter: urlAddFilter,
+    removeFilter: urlRemoveFilter
+  } = useSimpleUrlFilters();
 
   // Use refs for stable function references
   const addFilterRef = useRef(addFilter);
@@ -75,61 +75,18 @@ export function usePostsManagerHandlers({
   // Optimize callbacks with useCallback to prevent child re-renders
   const handleTagClick = useCallback(
     (tag: string) => {
-      // Store tags without # prefix to match URL format and prevent normalization conflicts
-      const normalizedTag = tag.startsWith('#') ? tag.slice(1) : tag;
-
-      // Get current filters from the new URL-first system
-      const existingTagFilters = filters.filter((f) => f.name === 'tags');
-      const willHaveMultipleTags = existingTagFilters.length >= 1; // Will have multiple after adding this one
-
-      // Debug logging
-      logger.debug('[RACE_FIX] 🏷️ TAG_CLICK: Tag click handler called', {
-        tag,
-        normalizedTag,
-        existingTagFilters,
-        willHaveMultipleTags,
-        currentFiltersLength: filters.length
-      });
-
-      // Prepare filters to add
-      const filtersToAdd = [{ name: 'tags', value: normalizedTag }];
-
-      // Add tagLogic if we'll have multiple tags
-      if (willHaveMultipleTags) {
-        filtersToAdd.push({ name: 'tagLogic', value: 'OR' });
-      }
-
-      logger.debug('[RACE_FIX] 🏷️ TAG_CLICK: Filters to add', { filtersToAdd });
-
-      // Add all filters atomically to prevent double fetches
-      addFilters(filtersToAdd);
+      // Use shared handleTagFilter utility for consistency with URL-first functions
+      handleTagFilter(tag, filters, urlAddFilter, urlRemoveFilter);
     },
-    [addFilters, filters] // Include filters in dependencies now
+    [urlAddFilter, urlRemoveFilter, filters]
   );
 
   const handleHashtagClick = useCallback(
     (hashtag: string) => {
-      // Store tags without # prefix to match URL format and prevent normalization conflicts
-      const normalizedHashtag = hashtag.startsWith('#')
-        ? hashtag.slice(1)
-        : hashtag;
-
-      // Get current filters from the new URL-first system
-      const existingTagFilters = filters.filter((f) => f.name === 'tags');
-      const willHaveMultipleTags = existingTagFilters.length >= 1; // Will have multiple after adding this one
-
-      // Prepare filters to add
-      const filtersToAdd = [{ name: 'tags', value: normalizedHashtag }];
-
-      // Add tagLogic if we'll have multiple tags
-      if (willHaveMultipleTags) {
-        filtersToAdd.push({ name: 'tagLogic', value: 'OR' });
-      }
-
-      // Add all filters atomically to prevent double fetches
-      addFilters(filtersToAdd);
+      // Use shared handleTagFilter utility for consistency with URL-first functions
+      handleTagFilter(hashtag, filters, urlAddFilter, urlRemoveFilter);
     },
-    [addFilters, filters] // Include filters in dependencies now
+    [urlAddFilter, urlRemoveFilter, filters]
   );
 
   const handleMentionClick = useCallback(

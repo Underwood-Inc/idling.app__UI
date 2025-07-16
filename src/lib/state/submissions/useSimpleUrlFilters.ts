@@ -16,6 +16,7 @@ export interface UseSimpleUrlFiltersReturn {
   hasFilter: (name: string, value?: string) => boolean;
   getFilterValues: (name: string) => string[];
   updateFilter: (name: string, value: string) => void;
+  updateUrl: (filters: Filter[]) => void;
 }
 
 /**
@@ -45,27 +46,47 @@ export function useSimpleUrlFilters(): UseSimpleUrlFiltersReturn {
     const handleUrlChange = () => {
       if (!isUpdatingRef.current && typeof window !== 'undefined') {
         const currentParams = new URLSearchParams(window.location.search);
-        if (process.env.NODE_ENV === 'development') {
-          // eslint-disable-next-line no-console
-          console.log('🔍 handleUrlChange: syncing atom with URL:', {
-            currentParams,
-            paramsString: currentParams.toString()
-          });
+        const currentParamsString = currentParams.toString();
+        const atomParamsString = searchParams.toString();
+
+        // Only sync if URL actually changed to prevent loops
+        if (currentParamsString !== atomParamsString) {
+          if (process.env.NODE_ENV === 'development') {
+            // eslint-disable-next-line no-console
+            console.log('🔍 handleUrlChange: syncing atom with URL:', {
+              currentParams: currentParamsString,
+              atomParams: atomParamsString,
+              willSync: true
+            });
+          }
+          setSearchParams(currentParams);
+        } else {
+          if (process.env.NODE_ENV === 'development') {
+            // eslint-disable-next-line no-console
+            console.log('🔍 handleUrlChange: URLs match, no sync needed');
+          }
         }
-        setSearchParams(currentParams);
       }
     };
 
     // Listen for browser navigation
     window.addEventListener('popstate', handleUrlChange);
 
-    // Initial sync on mount
-    handleUrlChange();
+    // Initial sync on mount - but only if needed
+    if (typeof window !== 'undefined') {
+      const currentParams = new URLSearchParams(window.location.search);
+      const currentParamsString = currentParams.toString();
+      const atomParamsString = searchParams.toString();
+
+      if (currentParamsString !== atomParamsString) {
+        handleUrlChange();
+      }
+    }
 
     return () => {
       window.removeEventListener('popstate', handleUrlChange);
     };
-  }, [setSearchParams]);
+  }, [setSearchParams]); // Remove searchParams from dependencies to prevent loops
 
   // Parse current URL parameters into filters
   const filters = useMemo(() => {
@@ -358,6 +379,7 @@ export function useSimpleUrlFilters(): UseSimpleUrlFiltersReturn {
     clearFilters,
     hasFilter,
     getFilterValues,
-    updateFilter
+    updateFilter,
+    updateUrl
   };
 }

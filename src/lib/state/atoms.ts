@@ -358,152 +358,12 @@ class SubmissionsStateAtomRegistry {
   }
 }
 
-/**
- * Registry for submissions filters atoms by context
- */
-class SubmissionsFiltersAtomRegistry {
-  private static instance: SubmissionsFiltersAtomRegistry;
-  private atoms = new Map<
-    string,
-    ReturnType<typeof atomWithStorage<SubmissionsFilters>>
-  >();
+// REMOVED: SubmissionsFiltersAtomRegistry - Using URL-first approach instead
+// No more localStorage persistence or atom-based filter storage
 
-  static getInstance(): SubmissionsFiltersAtomRegistry {
-    if (!SubmissionsFiltersAtomRegistry.instance) {
-      SubmissionsFiltersAtomRegistry.instance =
-        new SubmissionsFiltersAtomRegistry();
-    }
-    return SubmissionsFiltersAtomRegistry.instance;
-  }
+// REMOVED: DisplayFiltersAtomRegistry - Was dependent on SubmissionsFiltersAtomRegistry
 
-  private getStorageKey(contextId: string): string {
-    // Create route-scoped storage key based on context ID
-    // This ensures consistent storage keys regardless of when the atom is created
-    const routeMap: Record<string, string> = {
-      [CONTEXT_IDS.POSTS.toString()]: '/posts',
-      [CONTEXT_IDS.MY_POSTS.toString()]: '/my-posts',
-      [CONTEXT_IDS.THREAD.toString()]: '/thread',
-      [CONTEXT_IDS.ADMIN_POSTS.toString()]: '/admin'
-    };
-
-    const route = routeMap[contextId] || '/posts'; // Default to /posts if no mapping
-    const storageKey = `filters-${route}-${contextId}`;
-
-    // Debug logging to help verify the fix
-    if (typeof window !== 'undefined') {
-      logger.debug('Filter storage key generated', {
-        contextId,
-        route,
-        storageKey,
-        currentPath: window.location.pathname,
-        localStorage: localStorage.getItem(storageKey)
-      });
-    }
-
-    return storageKey;
-  }
-
-  getAtom(contextId: string) {
-    if (!this.atoms.has(contextId)) {
-      const storageKey = this.getStorageKey(contextId);
-      const defaultValue: SubmissionsFilters = {
-        onlyMine: false,
-        userId: '',
-        filters: [],
-        page: 1,
-        pageSize: 10,
-        initialized: false
-      };
-
-      // Create the atom with storage
-      const atom = atomWithStorage<SubmissionsFilters>(
-        storageKey,
-        defaultValue
-      );
-
-      // Debug logging for atom creation
-      if (typeof window !== 'undefined') {
-        logger.debug('Creating filter atom', {
-          contextId,
-          storageKey,
-          defaultValue,
-          existingValue: localStorage.getItem(storageKey)
-        });
-      }
-
-      this.atoms.set(contextId, atom);
-    }
-    return this.atoms.get(contextId)!;
-  }
-
-  clearAtom(contextId: string) {
-    // Clear from memory
-    this.atoms.delete(contextId);
-
-    // Clear from localStorage
-    if (typeof window !== 'undefined') {
-      const storageKey = this.getStorageKey(contextId);
-      localStorage.removeItem(storageKey);
-    }
-  }
-
-  // Clear all route-scoped filters (for logout/cache clearing)
-  clearAllRouteFilters() {
-    if (typeof window !== 'undefined') {
-      const keysToRemove: string[] = [];
-      for (let i = 0; i < localStorage.length; i++) {
-        const key = localStorage.key(i);
-        if (key && key.startsWith('filters-')) {
-          keysToRemove.push(key);
-        }
-      }
-      keysToRemove.forEach((key) => localStorage.removeItem(key));
-    }
-
-    // Clear memory atoms
-    this.atoms.clear();
-  }
-}
-
-/**
- * Registry for display filters atoms by context
- */
-class DisplayFiltersAtomRegistry {
-  private static instance: DisplayFiltersAtomRegistry;
-  private atoms = new Map<string, any>();
-
-  static getInstance(): DisplayFiltersAtomRegistry {
-    if (!DisplayFiltersAtomRegistry.instance) {
-      DisplayFiltersAtomRegistry.instance = new DisplayFiltersAtomRegistry();
-    }
-    return DisplayFiltersAtomRegistry.instance;
-  }
-
-  getAtom(contextId: string) {
-    if (!this.atoms.has(contextId)) {
-      const filtersAtom = getSubmissionsFiltersAtom(contextId);
-      this.atoms.set(
-        contextId,
-        atom(
-          (get) => get(filtersAtom).filters,
-          (get, set, newFilters: Filter[]) => {
-            const current = get(filtersAtom);
-            set(filtersAtom, {
-              ...current,
-              filters: newFilters,
-              page: 1 // Reset to page 1 when filters change
-            });
-          }
-        )
-      );
-    }
-    return this.atoms.get(contextId)!;
-  }
-
-  clearAtom(contextId: string) {
-    this.atoms.delete(contextId);
-  }
-}
+// REMOVED: DisplayFiltersAtomRegistry - Was dependent on SubmissionsFiltersAtomRegistry
 
 // ============================================================================
 // PUBLIC API - Interface Segregation Principle
@@ -516,19 +376,8 @@ export const getSubmissionsStateAtom = (contextId: string) => {
   return SubmissionsStateAtomRegistry.getInstance().getAtom(contextId);
 };
 
-/**
- * Get submissions filters atom for a specific context
- */
-export const getSubmissionsFiltersAtom = (contextId: string) => {
-  return SubmissionsFiltersAtomRegistry.getInstance().getAtom(contextId);
-};
-
-/**
- * Get display filters atom for a specific context
- */
-export const getDisplayFiltersAtom = (contextId: string) => {
-  return DisplayFiltersAtomRegistry.getInstance().getAtom(contextId);
-};
+// REMOVED: getSubmissionsFiltersAtom - Using URL-first approach with useSimpleUrlFilters instead
+// REMOVED: getDisplayFiltersAtom - Was dependent on getSubmissionsFiltersAtom
 
 // ============================================================================
 // COMPUTED ATOMS - Derived state
@@ -567,10 +416,11 @@ export const createPaginationComputedAtom = (contextId: string) => {
 
 /**
  * Computed submissions state with derived values
+ * UPDATED: Now uses URL-first approach via createCombinedFiltersAtom
  */
 export const createSubmissionsComputedAtom = (contextId: string) => {
   const stateAtom = getSubmissionsStateAtom(contextId);
-  const filtersAtom = getSubmissionsFiltersAtom(contextId);
+  const filtersAtom = createCombinedFiltersAtom(contextId); // Use URL-first combined atom
 
   return atom((get) => {
     const state = get(stateAtom);
@@ -810,18 +660,18 @@ export const removeSubmissionFromList = (
 /**
  * Clear all atoms for a specific context
  * Useful for cleanup and testing
+ * UPDATED: Only clears state atoms since filters are now URL-first
  */
 export const clearContextAtoms = (contextId: string) => {
   SubmissionsStateAtomRegistry.getInstance().clearAtom(contextId);
-  SubmissionsFiltersAtomRegistry.getInstance().clearAtom(contextId);
-  DisplayFiltersAtomRegistry.getInstance().clearAtom(contextId);
+  // REMOVED: DisplayFiltersAtomRegistry - Using URL-first approach instead
 };
 
 /**
  * Clear all route-scoped filters (for logout/cache clearing)
  */
 export const clearAllRouteFilters = () => {
-  SubmissionsFiltersAtomRegistry.getInstance().clearAllRouteFilters();
+  // No longer needed with URL-first approach
 };
 
 // ============================================================================
@@ -833,28 +683,24 @@ export const clearAllRouteFilters = () => {
  */
 export const fetchStatusAtom = atom<'idle' | 'pending' | 'fetching'>('idle');
 
-/**
- * Derived atom that triggers fetches when filters/page change
- * This eliminates the need for complex useEffect coordination
- */
-export const fetchTriggerAtom = atom((get) => {
-  const filters = get(getSubmissionsFiltersAtom('default'));
-  const status = get(fetchStatusAtom);
-
-  // Only return trigger data if not already fetching
-  if (status === 'fetching') return null;
-
-  return {
-    filters: filters.filters,
-    page: filters.page,
-    pageSize: filters.pageSize,
-    timestamp: Date.now() // Force re-evaluation
-  };
-});
+// DISABLED: Legacy fetch trigger atom - Using URL-first approach with useSimpleUrlFilters instead
+// export const fetchTriggerAtom = atom((get) => {
+//   const filters = get(getSubmissionsFiltersAtom('default'));
+//   const status = get(fetchStatusAtom);
+//   // Only return trigger data if not already fetching
+//   if (status === 'fetching') return null;
+//   return {
+//     filters: filters.filters,
+//     page: filters.page,
+//     pageSize: filters.pageSize,
+//     timestamp: Date.now() // Force re-evaluation
+//   };
+// });
 
 /**
  * Write-only atom for triggering fetches
  * This replaces the complex fetchSubmissions coordination
+ * UPDATED: Now uses URL-first approach via createCombinedFiltersAtom
  */
 export const triggerFetchAtom = atom(
   null,
@@ -879,7 +725,8 @@ export const triggerFetchAtom = atom(
     set(fetchStatusAtom, 'fetching');
 
     try {
-      const filtersState = get(getSubmissionsFiltersAtom(params.contextId));
+      // Use URL-first combined filters atom instead of old getSubmissionsFiltersAtom
+      const filtersState = get(createCombinedFiltersAtom(params.contextId));
       const submissionsState = get(getSubmissionsStateAtom(params.contextId));
 
       // Set loading state
@@ -937,24 +784,20 @@ export const triggerFetchAtom = atom(
  */
 // Removed: urlSyncAtom - Replaced by direct URL updates in filter actions
 
-/**
- * Batched filter update atom - replaces manual batching
- */
-export const batchedFilterUpdateAtom = atom(
-  null,
-  (get, set, update: { contextId: string; filters: Filter<PostFilters>[] }) => {
-    const current = get(getSubmissionsFiltersAtom(update.contextId));
-
-    // Jotai automatically batches these updates
-    set(getSubmissionsFiltersAtom(update.contextId), {
-      ...current,
-      filters: update.filters,
-      page: 1 // Reset to first page
-    });
-
-    // Note: Fetch will be triggered by the derived atom when needed
-  }
-);
+// DISABLED: Batched filter update atom - Using URL-first approach with useSimpleUrlFilters instead
+// export const batchedFilterUpdateAtom = atom(
+//   null,
+//   (get, set, update: { contextId: string; filters: Filter<PostFilters>[] }) => {
+//     const current = get(getSubmissionsFiltersAtom(update.contextId));
+//     // Jotai automatically batches these updates
+//     set(getSubmissionsFiltersAtom(update.contextId), {
+//       ...current,
+//       filters: update.filters,
+//       page: 1 // Reset to first page
+//     });
+//     // Note: Fetch will be triggered by the derived atom when needed
+//   }
+// );
 
 // ============================================================================
 // ENHANCED ATOMIC SOLUTION - Full Jotai Integration
@@ -1200,281 +1043,25 @@ export const createInfiniteScrollAtom = (contextId: string) => {
 };
 
 /**
- * URL-first filter actions - Updates URL directly, state derives from URL
+ * URL-first filter actions - DISABLED: Use useSimpleUrlFilters instead
+ * This atom is kept for compatibility but doesn't write to URL anymore
  */
 export const createFilterActionsAtom = (contextId: string) => {
-  return atom(
-    null,
-    (
-      get,
-      set,
-      action:
-        | { type: 'ADD_FILTER'; filter: Filter<PostFilters> }
-        | { type: 'ADD_FILTERS'; filters: Filter<PostFilters>[] }
-        | { type: 'REMOVE_FILTER'; name: PostFilters; value?: string }
-        | { type: 'REMOVE_TAG'; tag: string }
-        | { type: 'CLEAR_FILTERS' }
-        | { type: 'SET_PAGE'; page: number }
-        | { type: 'SET_PAGE_SIZE'; pageSize: number }
-        | { type: 'UPDATE_URL'; router: any; pathname: string }
-    ) => {
-      // Get current state from URL (single source of truth)
-      const current = get(createCombinedFiltersAtom(contextId));
-      const config = get(getSubmissionsConfigAtom(contextId));
-
-      let newFilters = [...current.filters];
-      let newPage = current.page;
-      let newPageSize = current.pageSize;
-
-      switch (action.type) {
-        case 'ADD_FILTER': {
-          // Check if filter already exists
-          const exists = newFilters.some(
-            (f) =>
-              f.name === action.filter.name && f.value === action.filter.value
-          );
-          if (!exists) {
-            newFilters = [...newFilters, action.filter];
-            newPage = 1; // Reset to first page
-          }
-          break;
-        }
-
-        case 'ADD_FILTERS': {
-          // Add multiple filters, avoiding duplicates
-          action.filters.forEach((filter) => {
-            const exists = newFilters.some(
-              (f) => f.name === filter.name && f.value === filter.value
-            );
-            if (!exists) {
-              newFilters.push(filter);
-            }
-          });
-          newPage = 1; // Reset to first page
-          break;
-        }
-
-        case 'REMOVE_FILTER': {
-          newFilters = action.value
-            ? newFilters.filter(
-                (f) => !(f.name === action.name && f.value === action.value)
-              )
-            : newFilters.filter((f) => f.name !== action.name);
-          newPage = 1; // Reset to first page
-          break;
-        }
-
-        case 'REMOVE_TAG': {
-          // Remove specific tag and handle tagLogic cleanup
-          newFilters = newFilters.filter((f) => {
-            if (f.name === 'tags') {
-              // For tag filters, check if this is the tag to remove
-              return f.value !== action.tag;
-            }
-            return true;
-          });
-
-          // Clean up tagLogic if only one or no tags left
-          const remainingTags = newFilters.filter((f) => f.name === 'tags');
-          if (remainingTags.length <= 1) {
-            newFilters = newFilters.filter((f) => f.name !== 'tagLogic');
-          }
-          newPage = 1; // Reset to first page
-          break;
-        }
-
-        case 'CLEAR_FILTERS': {
-          newFilters = [];
-          newPage = 1;
-
-          // Reset infinite scroll if enabled
-          if (config?.infiniteScroll) {
-            const infiniteScrollAtom = createInfiniteScrollAtom(contextId);
-            set(infiniteScrollAtom, {
-              data: [],
-              page: 1,
-              isLoadingMore: false,
-              hasMore: true
-            });
-          }
-          break;
-        }
-
-        case 'SET_PAGE': {
-          newPage = action.page;
-          break;
-        }
-
-        case 'SET_PAGE_SIZE': {
-          newPageSize = action.pageSize;
-          newPage = 1; // Reset to first page when changing page size
-          break;
-        }
-
-        case 'UPDATE_URL': {
-          // This action is called to sync current state to URL
-          // Used by components that have access to router
-          updateUrlFromFilters(
-            newFilters,
-            newPage,
-            newPageSize,
-            action.router,
-            action.pathname
-          );
-          return;
-        }
-      }
-
-      // Update URL with new filter state
-      if (typeof window !== 'undefined') {
-        updateUrlFromCurrentFilters(newFilters, newPage, newPageSize);
-
-        // Update urlParamsAtom to trigger reactivity after URL change
-        const updatedParams = new URLSearchParams(window.location.search);
-        set(urlParamsAtom, updatedParams);
-      }
-
-      // Auto-trigger fetch
-      const autoFetch = createAutoFetchAtom(contextId);
-      set(autoFetch);
+  return atom(null, (get, set, action: any) => {
+    if (process.env.NODE_ENV === 'development') {
+      // eslint-disable-next-line no-console
+      console.log(
+        '⚠️ createFilterActionsAtom DISABLED - use useSimpleUrlFilters for filter management'
+      );
     }
-  );
+    // Do nothing - URL-first system (useSimpleUrlFilters) handles all filter operations
+  });
 };
 
-/**
- * Updates URL from filter state - Browser history method
- */
-function updateUrlFromCurrentFilters(
-  filters: Filter[],
-  page: number,
-  pageSize: number
-) {
-  const params = new URLSearchParams();
-
-  // Group filters by name for URL formatting
-  const filterGroups = filters.reduce(
-    (acc, filter) => {
-      if (!acc[filter.name]) acc[filter.name] = [];
-      acc[filter.name].push(filter.value);
-      return acc;
-    },
-    {} as Record<string, string[]>
-  );
-
-  // Format filters for URL
-  Object.entries(filterGroups).forEach(([name, values]) => {
-    if (
-      name === 'tags' ||
-      name === 'author' ||
-      name === 'mentions' ||
-      name === 'search'
-    ) {
-      if (name === 'tags') {
-        const { formatTagsForUrl } = require('../utils/string/tag-utils');
-        const allTags = values.flatMap((value) =>
-          value.split(',').map((tag) => tag.trim())
-        );
-        params.set(name, formatTagsForUrl(allTags));
-      } else {
-        params.set(name, values.join(','));
-      }
-    } else if (name === 'onlyReplies') {
-      if (values[0] === 'true') {
-        params.set('onlyReplies', 'true');
-      }
-    } else if (name === 'tagLogic' && filterGroups.tags) {
-      params.set('tagLogic', values[0]);
-    } else if (name === 'authorLogic' && filterGroups.author) {
-      params.set('authorLogic', values[0]);
-    } else if (name === 'mentionsLogic' && filterGroups.mentions) {
-      params.set('mentionsLogic', values[0]);
-    } else if (name === 'searchLogic' && filterGroups.search) {
-      params.set('searchLogic', values[0]);
-    } else if (name === 'globalLogic') {
-      params.set('globalLogic', values[0]);
-    }
-  });
-
-  // Add pagination
-  if (page > 1) {
-    params.set('page', page.toString());
-  }
-  if (pageSize !== 10) {
-    params.set('pageSize', pageSize.toString());
-  }
-
-  // Update URL using browser history
-  const newUrl = `${window.location.pathname}${params.toString() ? `?${params.toString()}` : ''}`;
-  window.history.pushState({}, '', newUrl);
-}
-
-/**
- * Updates URL using Next.js router - For components with router access
- */
-function updateUrlFromFilters(
-  filters: Filter[],
-  page: number,
-  pageSize: number,
-  router: any,
-  pathname: string
-) {
-  const params = new URLSearchParams();
-
-  // Group filters by name for URL formatting
-  const filterGroups = filters.reduce(
-    (acc, filter) => {
-      if (!acc[filter.name]) acc[filter.name] = [];
-      acc[filter.name].push(filter.value);
-      return acc;
-    },
-    {} as Record<string, string[]>
-  );
-
-  // Format filters for URL
-  Object.entries(filterGroups).forEach(([name, values]) => {
-    if (
-      name === 'tags' ||
-      name === 'author' ||
-      name === 'mentions' ||
-      name === 'search'
-    ) {
-      if (name === 'tags') {
-        const { formatTagsForUrl } = require('../utils/string/tag-utils');
-        const allTags = values.flatMap((value) =>
-          value.split(',').map((tag) => tag.trim())
-        );
-        params.set(name, formatTagsForUrl(allTags));
-      } else {
-        params.set(name, values.join(','));
-      }
-    } else if (name === 'onlyReplies') {
-      if (values[0] === 'true') {
-        params.set('onlyReplies', 'true');
-      }
-    } else if (name === 'tagLogic' && filterGroups.tags) {
-      params.set('tagLogic', values[0]);
-    } else if (name === 'authorLogic' && filterGroups.author) {
-      params.set('authorLogic', values[0]);
-    } else if (name === 'mentionsLogic' && filterGroups.mentions) {
-      params.set('mentionsLogic', values[0]);
-    } else if (name === 'searchLogic' && filterGroups.search) {
-      params.set('searchLogic', values[0]);
-    } else if (name === 'globalLogic') {
-      params.set('globalLogic', values[0]);
-    }
-  });
-
-  // Add pagination
-  if (page > 1) {
-    params.set('page', page.toString());
-  }
-  if (pageSize !== 10) {
-    params.set('pageSize', pageSize.toString());
-  }
-
-  const newUrl = `${pathname}${params.toString() ? `?${params.toString()}` : ''}`;
-  router.push(newUrl, { scroll: false });
-}
+// REMOVED: Duplicate URL formatting functions - Now handled by useSimpleUrlFilters.updateUrl
+// These functions duplicated the URL formatting logic that already exists in useSimpleUrlFilters
+// - updateUrlFromCurrentFilters()
+// - updateUrlFromFilters()
 
 // Removed: createWritableFiltersAtom - No longer needed with URL-first approach
 
@@ -1484,114 +1071,37 @@ function updateUrlFromFilters(
  */
 export const createCombinedFiltersAtom = (contextId: string) => {
   return atom(
+    // Read from URL (single source of truth)
     (get) => {
+      const urlParams = get(urlParamsAtom);
       const config = get(getSubmissionsConfigAtom(contextId));
-      const urlFilters = get(filtersFromUrlAtom);
-      const urlPagination = get(paginationFromUrlAtom);
 
-      if (!config) {
-        return {
-          onlyMine: false,
-          userId: '',
-          filters: [],
-          page: 1,
-          pageSize: 10,
-          initialized: false
-        };
-      }
+      // Parse filters from URL
+      const filters = get(filtersFromUrlAtom);
+
+      // Parse pagination
+      const page = Math.max(1, parseInt(urlParams.get('page') || '1'));
+      const pageSize = Math.max(1, parseInt(urlParams.get('pageSize') || '10'));
 
       return {
-        onlyMine: config.onlyMine,
-        userId: config.userId,
-        filters: urlFilters as Filter[],
-        page: urlPagination.page,
-        pageSize: urlPagination.pageSize,
+        filters,
+        page,
+        pageSize,
+        onlyMine: config?.onlyMine || false,
+        userId: config?.userId || '',
+        includeThreadReplies: config?.includeThreadReplies || false,
         initialized: true
       };
     },
-    // Add write capability that updates URL instead of atom state
-    (get, set, update: Partial<SubmissionsFilters>) => {
-      if (typeof window === 'undefined') return;
-
+    // DISABLED: No URL writing - URL-first system handles this
+    () => {
       if (process.env.NODE_ENV === 'development') {
         // eslint-disable-next-line no-console
-        console.log('🔍 createCombinedFiltersAtom WRITE called with:', update);
+        console.log(
+          '⚠️ createCombinedFiltersAtom write DISABLED - use useSimpleUrlFilters for URL updates'
+        );
       }
-
-      // Get current state
-      const current = get(createCombinedFiltersAtom(contextId));
-
-      // Apply updates to create new state
-      const newState = { ...current, ...update };
-
-      // Update URL directly
-      const params = new URLSearchParams();
-
-      // Group filters by name
-      const filterGroups = newState.filters.reduce(
-        (acc, filter) => {
-          if (!acc[filter.name]) acc[filter.name] = [];
-          acc[filter.name].push(filter.value);
-          return acc;
-        },
-        {} as Record<string, string[]>
-      );
-
-      // Format filters for URL
-      Object.entries(filterGroups).forEach(([name, values]) => {
-        if (values.length > 0) {
-          if (name === 'tags') {
-            const { formatTagsForUrl } = require('../utils/string/tag-utils');
-            const allTags = values.flatMap((value) =>
-              value.split(',').map((tag) => tag.trim())
-            );
-            params.set(name, formatTagsForUrl(allTags));
-          } else if (
-            name === 'author' ||
-            name === 'mentions' ||
-            name === 'search'
-          ) {
-            params.set(name, values.join(','));
-          } else if (name === 'onlyReplies') {
-            if (values[0] === 'true') {
-              params.set('onlyReplies', 'true');
-            }
-          } else if (name.endsWith('Logic')) {
-            // Special case for globalLogic - always add it
-            if (name === 'globalLogic') {
-              params.set(name, values[0]);
-            } else {
-              const baseFilterName = name.replace('Logic', '');
-              if (filterGroups[baseFilterName]) {
-                params.set(name, values[0]);
-              }
-            }
-          } else {
-            params.set(name, values[0]);
-          }
-        }
-      });
-
-      // Add pagination
-      if (newState.page > 1) {
-        params.set('page', newState.page.toString());
-      }
-      if (newState.pageSize !== 10) {
-        params.set('pageSize', newState.pageSize.toString());
-      }
-
-      // Update URL using browser history
-      const newUrl = `${window.location.pathname}${params.toString() ? `?${params.toString()}` : ''}`;
-      if (process.env.NODE_ENV === 'development') {
-        // eslint-disable-next-line no-console
-        console.log('🔍 createCombinedFiltersAtom: Updating URL to:', newUrl);
-      }
-
-      window.history.pushState({}, '', newUrl);
-
-      // Update urlParamsAtom to trigger reactivity
-      const updatedParams = new URLSearchParams(window.location.search);
-      set(urlParamsAtom, updatedParams);
+      // Do nothing - URL-first system (useSimpleUrlFilters) handles URL updates
     }
   );
 };
@@ -1714,7 +1224,7 @@ export const debugFilters = () => {
   });
 
   // Show registry state
-  const filtersRegistry = SubmissionsFiltersAtomRegistry.getInstance();
+  const filtersRegistry = SubmissionsStateAtomRegistry.getInstance();
   logger.debug('Registry state', {
     atomsCount: (filtersRegistry as any).atoms.size,
     atomKeys: Array.from((filtersRegistry as any).atoms.keys())
@@ -1728,44 +1238,13 @@ if (typeof window !== 'undefined') {
   (window as any).debugFilters = debugFilters;
   (window as any).clearAllRouteFilters = clearAllRouteFilters;
 
-  // Test function to add sample filters
-  (window as any).testFilterPersistence = (
-    contextId = CONTEXT_IDS.POSTS.toString()
-  ) => {
-    logger.debug('Testing filter persistence for context', { contextId });
-
-    const filtersAtom = getSubmissionsFiltersAtom(contextId);
-    const registry = SubmissionsFiltersAtomRegistry.getInstance();
-
-    // Get current storage key
-    const storageKey = (registry as any).getStorageKey(contextId);
-    logger.debug('Using storage key', { storageKey });
-
-    // Create test filters
-    const testFilters = [
-      { name: 'tags', value: '#test,#persistence' },
-      { name: 'author', value: 'testuser' }
-    ];
-
-    const testData = {
-      onlyMine: false,
-      userId: '',
-      filters: testFilters,
-      page: 2,
-      pageSize: 20,
-      initialized: true
-    };
-
-    // Store directly in localStorage to test
-    localStorage.setItem(storageKey, JSON.stringify(testData));
-    logger.debug('Stored test data', { testData });
-
-    // Try to read it back
-    const retrieved = localStorage.getItem(storageKey);
-    logger.debug('Retrieved data', {
-      retrieved: retrieved ? JSON.parse(retrieved) : null
-    });
-
-    return { storageKey, testData, retrieved };
-  };
+  // DISABLED: Test function for filter persistence - No longer relevant with URL-first approach
+  // (window as any).testFilterPersistence = (
+  //   contextId = CONTEXT_IDS.POSTS.toString()
+  // ) => {
+  //   logger.debug('Testing filter persistence for context', { contextId });
+  //   const filtersAtom = getSubmissionsFiltersAtom(contextId);
+  //   const registry = SubmissionsStateAtomRegistry.getInstance();
+  //   // ... rest of function disabled since we use URL-first now
+  // };
 }
