@@ -18,7 +18,8 @@ import { ContentWithPills } from '../ui/ContentWithPills';
 import { InstantLink } from '../ui/InstantLink';
 import { RefreshButton } from '../ui/RefreshButton';
 import { TimestampWithTooltip } from '../ui/TimestampWithTooltip';
-import { getSubmissionById, SubmissionWithReplies } from './actions';
+import { getSubmissionById } from './actions';
+import { SubmissionWithReplies } from './types';
 
 // Create component-specific logger
 const logger = createLogger({

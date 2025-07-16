@@ -11,7 +11,7 @@ import { IntelligentSkeletonWrapper } from '../components/skeleton/IntelligentSk
 import { Submission } from '../components/submission-forms/schema';
 import { SharedSubmissionForm } from '../components/submission-forms/shared-submission-form/SharedSubmissionForm';
 import { SubmissionItem } from '../components/submissions-list/SubmissionItem';
-import { SubmissionWithReplies } from '../components/submissions-list/actions';
+import { SubmissionWithReplies } from '../components/submissions-list/types';
 import styles from './page.module.css';
 
 const LazyPostsManager = dynamic(
