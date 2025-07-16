@@ -1557,9 +1557,14 @@ export const createCombinedFiltersAtom = (contextId: string) => {
               params.set('onlyReplies', 'true');
             }
           } else if (name.endsWith('Logic')) {
-            const baseFilterName = name.replace('Logic', '');
-            if (filterGroups[baseFilterName]) {
+            // Special case for globalLogic - always add it
+            if (name === 'globalLogic') {
               params.set(name, values[0]);
+            } else {
+              const baseFilterName = name.replace('Logic', '');
+              if (filterGroups[baseFilterName]) {
+                params.set(name, values[0]);
+              }
             }
           } else {
             params.set(name, values[0]);

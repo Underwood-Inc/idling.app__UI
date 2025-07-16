@@ -167,13 +167,18 @@ export function useSimpleUrlFilters(): UseSimpleUrlFiltersReturn {
               params.set('onlyReplies', 'true');
             }
           } else if (name.endsWith('Logic')) {
-            // Only add logic params if the corresponding filter exists
-            const baseFilterName = name.replace('Logic', '');
-            // Handle plural forms: tagLogic -> tags, authorLogic -> author, etc.
-            const filterGroupName =
-              baseFilterName === 'tag' ? 'tags' : baseFilterName;
-            if (filterGroups[filterGroupName]) {
+            // Special case for globalLogic - always add it
+            if (name === 'globalLogic') {
               params.set(name, values[0]);
+            } else {
+              // Only add other logic params if the corresponding filter exists
+              const baseFilterName = name.replace('Logic', '');
+              // Handle plural forms: tagLogic -> tags, authorLogic -> author, etc.
+              const filterGroupName =
+                baseFilterName === 'tag' ? 'tags' : baseFilterName;
+              if (filterGroups[filterGroupName]) {
+                params.set(name, values[0]);
+              }
             }
           } else {
             params.set(name, values[0]);
