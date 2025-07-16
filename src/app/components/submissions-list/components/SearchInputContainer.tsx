@@ -226,7 +226,11 @@ export const SearchInputContainer: React.FC<SearchInputContainerProps> = ({
           className="text-search-input__replies-tooltip"
         >
           <div
-            className={`text-search-input__replies-filter text-search-input__replies-filter--${getRepliesFilterState()}`}
+            className={`text-search-input__replies-filter text-search-input__replies-filter--${getRepliesFilterState()} ${
+              !actualHasValue
+                ? 'text-search-input__replies-filter--no-clear'
+                : ''
+            }`}
             title="Configure reply filtering options"
           >
             <div className="text-search-input__replies-icon">

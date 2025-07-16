@@ -111,6 +111,11 @@
   min-width: 120px;
 }
 
+/* When clear button is hidden, move replies filter closer to edge */
+.text-search-input__replies-filter--no-clear {
+  right: 1.5rem;
+}
+
 .text-search-input__replies-filter:hover {
   border-color: var(--accent-primary, #007bff);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
