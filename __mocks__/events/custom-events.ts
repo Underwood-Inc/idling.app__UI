@@ -31,7 +31,7 @@ export const mockCustomEventAPI = () => {
  */
 export const mockEventAPI = () => {
   /**
-   * Mock global Event constructor
+   * Mock Event constructor
    *
    * This is useful for testing events
    */

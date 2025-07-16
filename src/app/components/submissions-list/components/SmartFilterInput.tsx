@@ -309,10 +309,6 @@ export const SmartFilterInput: React.FC<SmartFilterInputProps> = ({
   // Handle pill clicks for removal
   const handleHashtagClick = useCallback(
     (hashtag: string) => {
-      if (process.env.NODE_ENV === 'development') {
-        console.log('🗑️ SmartFilterInput hashtag click:', hashtag);
-      }
-
       if (onPillClick) {
         onPillClick(hashtag);
       }
@@ -322,13 +318,6 @@ export const SmartFilterInput: React.FC<SmartFilterInputProps> = ({
 
   const handleMentionClick = useCallback(
     (mention: string, filterType?: 'author' | 'mentions') => {
-      if (process.env.NODE_ENV === 'development') {
-        console.log('🗑️ SmartFilterInput mention click:', {
-          mention,
-          filterType
-        });
-      }
-
       if (onMentionClick) {
         onMentionClick(mention, filterType);
       }

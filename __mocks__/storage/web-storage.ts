@@ -74,7 +74,7 @@ export const mockFileAPI = () => {
  */
 export const mockFileReaderAPI = () => {
   /**
-   * Mock global FileReader constructor
+   * Mock FileReader constructor
    *
    * This is useful for testing file reading functionality
    */
