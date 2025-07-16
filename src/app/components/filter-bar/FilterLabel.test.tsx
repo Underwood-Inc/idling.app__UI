@@ -40,18 +40,16 @@ jest.mock('../../../lib/utils/filter-utils', () => ({
 }));
 
 // Mock the useSimpleUrlFilters hook
-const mockUseSimpleUrlFilters = jest.fn(() => ({
-  filters: [],
-  addFilter: jest.fn(),
-  removeFilter: jest.fn(),
-  updateUrl: jest.fn(),
-  tagLogic: 'AND',
-  setTagLogic: jest.fn(),
-  searchParams: new URLSearchParams()
-}));
-
 jest.mock('../../../lib/state/submissions/useSimpleUrlFilters', () => ({
-  useSimpleUrlFilters: mockUseSimpleUrlFilters
+  useSimpleUrlFilters: jest.fn(() => ({
+    filters: [],
+    addFilter: jest.fn(),
+    removeFilter: jest.fn(),
+    updateUrl: jest.fn(),
+    tagLogic: 'AND',
+    setTagLogic: jest.fn(),
+    searchParams: new URLSearchParams()
+  }))
 }));
 
 // Mock the search actions

@@ -1,19 +1,18 @@
 import { createStore } from 'jotai';
 import {
-    clearAllRouteFilters,
-    clearContextAtoms,
-    getDisplayFiltersAtom,
-    getSubmissionsFiltersAtom,
-    getSubmissionsStateAtom,
-    initializeFiltersFromUrl,
-    initializePaginationFromUrl,
-    PageSize,
-    PaginationAction,
-    paginationActionAtom,
-    paginationStateAtom,
-    ShouldUpdateAction,
-    shouldUpdateActionAtom,
-    shouldUpdateAtom
+  clearAllRouteFilters,
+  clearContextAtoms,
+  createCombinedFiltersAtom,
+  getSubmissionsStateAtom,
+  initializeFiltersFromUrl,
+  initializePaginationFromUrl,
+  PageSize,
+  PaginationAction,
+  paginationActionAtom,
+  paginationStateAtom,
+  ShouldUpdateAction,
+  shouldUpdateActionAtom,
+  shouldUpdateAtom
 } from './atoms';
 
 describe('Jotai Atoms', () => {
@@ -147,8 +146,8 @@ describe('Jotai Atoms', () => {
       });
     });
 
-    it('should initialize filters state correctly', () => {
-      const atom = getSubmissionsFiltersAtom('test');
+    it('should initialize combined filters state correctly', () => {
+      const atom = createCombinedFiltersAtom('test');
       const state = store.get(atom);
 
       expect(state).toEqual({
@@ -157,10 +156,13 @@ describe('Jotai Atoms', () => {
         filters: [],
         page: 1,
         pageSize: 10,
-        initialized: false
+        includeThreadReplies: false,
+        initialized: true
       });
     });
 
+    // DEPRECATED: Test removed - getDisplayFiltersAtom and getSubmissionsFiltersAtom replaced with URL-first approach
+    /*
     it('should handle display filters updates', () => {
       const atom = getDisplayFiltersAtom('test');
       const newFilters = [{ name: 'tags', value: 'test-tag' }];
@@ -176,6 +178,7 @@ describe('Jotai Atoms', () => {
       expect(filtersState.filters).toEqual(newFilters);
       expect(filtersState.page).toBe(1); // Should reset to page 1
     });
+    */
   });
 
   describe('Utility Functions', () => {
@@ -237,27 +240,20 @@ describe('Jotai Atoms', () => {
     });
 
     it('should clear context atoms', () => {
-      // Create some atoms
+      // Create state atom (filters are now URL-first, so only state needs clearing)
       const stateAtom = getSubmissionsStateAtom('test');
-      const filtersAtom = getSubmissionsFiltersAtom('test');
-      const displayAtom = getDisplayFiltersAtom('test');
 
-      // Verify they exist
+      // Verify it exists
       expect(stateAtom).toBeDefined();
-      expect(filtersAtom).toBeDefined();
-      expect(displayAtom).toBeDefined();
 
-      // Clear them
+      // Clear it
       clearContextAtoms('test');
 
-      // New calls should create new atoms (different references)
+      // New call should create new atom (different reference)
       const newStateAtom = getSubmissionsStateAtom('test');
-      const newFiltersAtom = getSubmissionsFiltersAtom('test');
-      const newDisplayAtom = getDisplayFiltersAtom('test');
 
+      // Should be different reference after clearing
       expect(newStateAtom).not.toBe(stateAtom);
-      expect(newFiltersAtom).not.toBe(filtersAtom);
-      expect(newDisplayAtom).not.toBe(displayAtom);
     });
   });
 
@@ -307,69 +303,44 @@ describe('Jotai Atoms', () => {
     });
 
     it('should create route-scoped persistent filters', () => {
-      // Test with known context IDs that map to specific routes
-      const postsFiltersAtom1 = getSubmissionsFiltersAtom('1'); // CONTEXT_IDS.POSTS
-      const postsFiltersAtom2 = getSubmissionsFiltersAtom('1'); // Same context
-      const myPostsFiltersAtom = getSubmissionsFiltersAtom('2'); // CONTEXT_IDS.MY_POSTS
+      // Test with URL-first combined filters atoms
+      const postsFiltersAtom1 = createCombinedFiltersAtom('1'); // CONTEXT_IDS.POSTS
+      const postsFiltersAtom2 = createCombinedFiltersAtom('1'); // Same context
+      const myPostsFiltersAtom = createCombinedFiltersAtom('2'); // CONTEXT_IDS.MY_POSTS
 
-      // Same context should return same atom
-      expect(postsFiltersAtom1).toBe(postsFiltersAtom2);
-
-      // Different contexts should return different atoms
+      // createCombinedFiltersAtom creates new atoms each time (no registry)
+      expect(postsFiltersAtom1).not.toBe(postsFiltersAtom2);
       expect(postsFiltersAtom1).not.toBe(myPostsFiltersAtom);
 
-      // Update filters for posts
-      store.set(postsFiltersAtom1, {
-        onlyMine: false,
-        userId: '',
-        filters: [{ name: 'tags', value: '#test' }],
-        page: 1,
-        pageSize: 10,
-        initialized: true
-      });
+      // But they should have the same structure and behavior
+      expect(typeof postsFiltersAtom1.read).toBe('function');
+      expect(typeof postsFiltersAtom2.read).toBe('function');
 
-      // Posts filters should be persisted
-      const postsState = store.get(postsFiltersAtom2);
-      expect(postsState.filters).toEqual([{ name: 'tags', value: '#test' }]);
+      // Since atoms are URL-first, we can't set them directly
+      // Just verify they're created and have proper structure
+      const postsState = store.get(postsFiltersAtom1) as any;
+      const myPostsState = store.get(myPostsFiltersAtom) as any;
 
-      // My posts should have separate state
-      const myPostsState = store.get(myPostsFiltersAtom);
-      expect(myPostsState.filters).toEqual([]);
+      // Both should have the expected structure with filters arrays
+      expect(postsState).toHaveProperty('filters');
+      expect(postsState).toHaveProperty('initialized');
+      expect(myPostsState).toHaveProperty('filters');
+      expect(myPostsState).toHaveProperty('initialized');
+
+      // Both should be arrays (empty by default since no URL params)
+      expect(Array.isArray(postsState.filters)).toBe(true);
+      expect(Array.isArray(myPostsState.filters)).toBe(true);
     });
 
     it('should clear all route filters', () => {
-      // Mock localStorage
-      const mockLocalStorage = {
-        removeItem: jest.fn(),
-        key: jest.fn(),
-        length: 2,
-        getItem: jest.fn(),
-        setItem: jest.fn(),
-        clear: jest.fn()
-      };
-
-      mockLocalStorage.key.mockReturnValueOnce('filters-/posts-1');
-      mockLocalStorage.key.mockReturnValueOnce('filters-/my-posts-2');
-
-      const originalLocalStorage = window.localStorage;
-      Object.defineProperty(window, 'localStorage', {
-        value: mockLocalStorage
-      });
-
-      try {
+      // clearAllRouteFilters is now a no-op since filters are URL-first
+      // Just verify the function exists and can be called without errors
+      expect(() => {
         clearAllRouteFilters();
+      }).not.toThrow();
 
-        expect(mockLocalStorage.removeItem).toHaveBeenCalledWith(
-          'filters-/posts-1'
-        );
-        expect(mockLocalStorage.removeItem).toHaveBeenCalledWith(
-          'filters-/my-posts-2'
-        );
-      } finally {
-        Object.defineProperty(window, 'localStorage', {
-          value: originalLocalStorage
-        });
-      }
+      // Function should complete successfully (no localStorage operations needed)
+      expect(clearAllRouteFilters).toBeDefined();
     });
   });
 });

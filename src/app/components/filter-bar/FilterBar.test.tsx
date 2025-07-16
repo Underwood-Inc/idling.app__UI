@@ -58,6 +58,88 @@ jest.mock('./FilterLabel', () => {
   };
 });
 
+// Create a mock for onUpdateFilter that can be accessed by TagLogicToggle
+let globalMockOnUpdateFilter: jest.Mock;
+let currentTestFilters: Filter<PostFilters>[] = [];
+
+// Mock the TagLogicToggle component
+jest.mock('../shared/TagLogicToggle', () => {
+  return {
+    TagLogicToggle: ({ disabled, allTitle, anyTitle }: any) => {
+      // Get the current logic from the test filters
+      const tagLogicFilter = currentTestFilters.find(
+        (f) => f.name === 'tagLogic'
+      );
+      const currentLogic = tagLogicFilter?.value || 'OR';
+
+      return (
+        <div className="logic-toggle">
+          <div className="logic-toggle__button-group">
+            <button
+              className={`logic-toggle__button ${currentLogic === 'AND' ? 'logic-toggle__button--active' : ''}`}
+              title={allTitle}
+              disabled={disabled}
+              onClick={() => {
+                if (globalMockOnUpdateFilter) {
+                  globalMockOnUpdateFilter('tagLogic', 'AND');
+                }
+              }}
+            >
+              ALL
+            </button>
+            <button
+              className={`logic-toggle__button ${currentLogic === 'OR' ? 'logic-toggle__button--active' : ''}`}
+              title={anyTitle}
+              disabled={disabled}
+              onClick={() => {
+                if (globalMockOnUpdateFilter) {
+                  globalMockOnUpdateFilter('tagLogic', 'OR');
+                }
+              }}
+            >
+              ANY
+            </button>
+          </div>
+        </div>
+      );
+    }
+  };
+});
+
+// Mock the LogicToggle component
+jest.mock('../shared/LogicToggle', () => {
+  return {
+    LogicToggle: ({
+      currentLogic,
+      onToggle,
+      disabled,
+      allTitle,
+      anyTitle
+    }: any) => (
+      <div className="logic-toggle">
+        <div className="logic-toggle__button-group">
+          <button
+            className={`logic-toggle__button ${currentLogic === 'AND' ? 'logic-toggle__button--active' : ''}`}
+            onClick={() => onToggle && onToggle('AND')}
+            title={allTitle || 'ALL'}
+            disabled={disabled}
+          >
+            ALL
+          </button>
+          <button
+            className={`logic-toggle__button ${currentLogic === 'OR' ? 'logic-toggle__button--active' : ''}`}
+            onClick={() => onToggle && onToggle('OR')}
+            title={anyTitle || 'ANY'}
+            disabled={disabled}
+          >
+            ANY
+          </button>
+        </div>
+      </div>
+    )
+  };
+});
+
 // Mock the utils
 jest.mock('./utils/get-tags', () => ({
   getTagsFromSearchParams: (value: string) => {
@@ -81,9 +163,11 @@ describe('FilterBar Component', () => {
     mockOnRemoveTag = jest.fn();
     mockOnClearFilters = jest.fn();
     mockOnUpdateFilter = jest.fn();
+    globalMockOnUpdateFilter = mockOnUpdateFilter;
   });
 
   const renderFilterBar = (filters: Filter<PostFilters>[] = []) => {
+    currentTestFilters = filters; // Store filters for mocks to access
     return render(
       <Provider store={store}>
         <FilterBar
