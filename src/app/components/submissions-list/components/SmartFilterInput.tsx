@@ -4,7 +4,13 @@ import { createLogger } from '@lib/logging';
 import { Filter } from '@lib/state/atoms';
 import { useSimpleUrlFilters } from '@lib/state/submissions/useSimpleUrlFilters';
 import { PostFilters } from '@lib/types/filters';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState
+} from 'react';
 import { RichInputAdapter } from '../../submission-forms/shared-submission-form/components/RichInputAdapter';
 import './SmartFilterInput.css';
 
@@ -51,6 +57,9 @@ export const SmartFilterInput: React.FC<SmartFilterInputProps> = ({
 }) => {
   // Use the new URL-first filter system instead of Jotai atoms
   const { filters } = useSimpleUrlFilters();
+
+  // Ref to control RichInputAdapter cursor position
+  const richInputRef = useRef<any>(null);
 
   // Local input state for user typing
   const [localInputValue, setLocalInputValue] = useState('');
@@ -276,131 +285,14 @@ export const SmartFilterInput: React.FC<SmartFilterInputProps> = ({
         applyFilters(filters);
         setIsUserTyping(false);
 
-        // Try immediate cursor positioning (might work if DOM updates synchronously)
-        const immediatePosition = () => {
-          const activeElement = document.activeElement as HTMLInputElement;
-          if (
-            activeElement &&
-            (activeElement.tagName === 'INPUT' ||
-              activeElement.tagName === 'TEXTAREA')
-          ) {
-            const length = activeElement.value.length;
-            activeElement.setSelectionRange(length, length);
-            // eslint-disable-next-line no-console
-            console.log('🎯 Immediate cursor positioning to:', length);
-            return true;
-          }
-          return false;
-        };
-
-        // Try immediate positioning first
-        const immediateSuccess = immediatePosition();
-
-        // Set cursor to end after filter application completes
+        // Set cursor to end using RichInput API
         setTimeout(() => {
-          // eslint-disable-next-line no-console
-          console.log(
-            '🎯 SmartFilterInput: Starting cursor positioning after filter application'
-          );
-
-          // Try multiple approaches to find and focus the input
-          let inputElement: HTMLInputElement | HTMLTextAreaElement | null =
-            null;
-
-          // Try to find the RichInput's actual input element
-          const richInputContainer = document.querySelector(
-            '.smart-filter-input__rich-input'
-          );
-          if (richInputContainer) {
-            inputElement = richInputContainer.querySelector(
-              'input, textarea, [contenteditable="true"]'
-            ) as HTMLInputElement;
-            // eslint-disable-next-line no-console
-            console.log(
-              '🎯 Found input via rich input container:',
-              inputElement
-            );
+          if (richInputRef.current && richInputRef.current.setCursor) {
+            const state = richInputRef.current.getState();
+            const textLength = state.rawText.length;
+            richInputRef.current.setCursor({ index: textLength });
           }
-
-          // Fallback to any focused input in the smart filter container
-          if (!inputElement) {
-            const smartFilterContainer = document.querySelector(
-              '.smart-filter-input'
-            );
-            if (smartFilterContainer) {
-              inputElement = smartFilterContainer.querySelector(
-                'input, textarea, [contenteditable="true"]'
-              ) as HTMLInputElement;
-              // eslint-disable-next-line no-console
-              console.log(
-                '🎯 Found input via smart filter container:',
-                inputElement
-              );
-            }
-          }
-
-          // Final fallback to the currently focused element if it's an input
-          if (!inputElement) {
-            const activeElement = document.activeElement;
-            if (
-              activeElement &&
-              (activeElement.tagName === 'INPUT' ||
-                activeElement.tagName === 'TEXTAREA' ||
-                activeElement.getAttribute('contenteditable') === 'true')
-            ) {
-              inputElement = activeElement as HTMLInputElement;
-              // eslint-disable-next-line no-console
-              console.log('🎯 Found input via active element:', inputElement);
-            }
-          }
-
-          if (inputElement) {
-            // eslint-disable-next-line no-console
-            console.log(
-              '🎯 Current input value:',
-              (inputElement as HTMLInputElement).value
-            );
-            // eslint-disable-next-line no-console
-            console.log(
-              '🎯 Current cursor position:',
-              (inputElement as HTMLInputElement).selectionStart
-            );
-
-            // Focus first
-            inputElement.focus();
-
-            // Set cursor to end
-            if (
-              inputElement.tagName === 'INPUT' ||
-              inputElement.tagName === 'TEXTAREA'
-            ) {
-              const length = (inputElement as HTMLInputElement).value.length;
-              (inputElement as HTMLInputElement).setSelectionRange(
-                length,
-                length
-              );
-              // eslint-disable-next-line no-console
-              console.log('🎯 Set cursor to position:', length);
-            } else if (
-              inputElement.getAttribute('contenteditable') === 'true'
-            ) {
-              // For contenteditable elements, use Selection API
-              const range = document.createRange();
-              range.selectNodeContents(inputElement);
-              range.collapse(false); // Collapse to end
-              const selection = window.getSelection();
-              if (selection) {
-                selection.removeAllRanges();
-                selection.addRange(range);
-              }
-              // eslint-disable-next-line no-console
-              console.log('🎯 Set cursor to end of contenteditable');
-            }
-          } else {
-            // eslint-disable-next-line no-console
-            console.log('❌ No input element found for cursor positioning');
-          }
-        }, 200); // Increased timeout even more to ensure everything has settled
+        }, 50);
       } else {
         // Mark that user is actively typing for manual input
         setIsUserTyping(true);
@@ -452,6 +344,7 @@ export const SmartFilterInput: React.FC<SmartFilterInputProps> = ({
       onBlur={handleBlur}
     >
       <RichInputAdapter
+        ref={richInputRef}
         value={localInputValue}
         onChange={handleInputChange}
         placeholder={placeholder}
