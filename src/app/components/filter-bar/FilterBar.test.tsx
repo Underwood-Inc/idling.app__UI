@@ -198,8 +198,8 @@ describe('FilterBar Component', () => {
       const allButton = screen.getByTitle('All filter groups must match');
       const anyButton = screen.getByTitle('Any filter group can match');
 
-      expect(allButton).not.toHaveClass('filter-bar__logic-button--active');
-      expect(anyButton).toHaveClass('filter-bar__logic-button--active');
+      expect(allButton).not.toHaveClass('logic-toggle__button--active');
+      expect(anyButton).toHaveClass('logic-toggle__button--active');
     });
 
     it('should show filter-specific logic controls for multi-value filters', () => {
@@ -447,7 +447,7 @@ describe('FilterBar Component', () => {
       const tagAllButtons = screen.getAllByTitle(
         'Controlled by Groups setting - set Groups to ANY to change'
       );
-      expect(tagAllButtons[0]).toHaveClass('filter-bar__logic-button--active');
+      expect(tagAllButtons[0]).toHaveClass('logic-toggle__button--active');
     });
 
     it('should handle missing logic filters gracefully', () => {
@@ -460,7 +460,7 @@ describe('FilterBar Component', () => {
 
       // When no tagLogic is specified, it defaults to OR and buttons are enabled
       const anyButton = screen.getByTitle('Must have ANY selected tags');
-      expect(anyButton).toHaveClass('filter-bar__logic-button--active');
+      expect(anyButton).toHaveClass('logic-toggle__button--active');
     });
   });
 
@@ -489,7 +489,7 @@ describe('FilterBar Component', () => {
       // Should show correct active states for logic buttons
       // With globalLogic OR, individual filter logic buttons should be enabled
       expect(screen.getByTitle('Any filter group can match')).toHaveClass(
-        'filter-bar__logic-button--active'
+        'logic-toggle__button--active'
       );
     });
 

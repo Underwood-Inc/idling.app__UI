@@ -7,6 +7,7 @@ import { useMemo, useState } from 'react';
 import { CustomSession } from '../../../auth.config';
 import Empty from '../empty/Empty';
 import Loader from '../loader/Loader';
+import { TagLogicToggle } from '../shared/TagLogicToggle';
 import { getRecentTags } from './actions';
 import './RecentTags.css';
 
@@ -29,26 +30,12 @@ const RecentTagsClientComponent = ({
 
   // Extract current tags and logic from URL-first filters
   const tagFilters = filters.filter((f) => f.name === 'tags');
-  const tagLogicFilter = filters.find((f) => f.name === 'tagLogic');
 
   // Extract current tags from individual filter entries
   const currentTags = tagFilters.map((filter) => {
     const tag = filter.value;
     return tag.startsWith('#') ? tag : `#${tag}`;
   });
-
-  const currentTagLogic = tagLogicFilter?.value || 'OR';
-
-  // Memoize tag-related state to prevent unnecessary re-renders
-  const tagState = useMemo(
-    () => ({
-      currentTags,
-      currentTagLogic,
-      tagFilters,
-      tagLogicFilter
-    }),
-    [currentTags.join(','), currentTagLogic]
-  );
 
   // Auto-refresh tags when onlyMine changes
   const refreshTags = async () => {
@@ -84,17 +71,6 @@ const RecentTagsClientComponent = ({
     handleTagFilter(tag, filters, addFilter, removeFilter, updateUrl);
   };
 
-  const handleLogicToggle = () => {
-    const newLogic = tagState.currentTagLogic === 'OR' ? 'AND' : 'OR';
-
-    // Update logic filter if we have multiple tags
-    if (tagState.currentTags.length > 1) {
-      // Remove existing tagLogic and add new one
-      removeFilter('tagLogic');
-      addFilter({ name: 'tagLogic', value: newLogic });
-    }
-  };
-
   // Sort tags by usage (most used first) with current tags prioritized
   const sortedTags = useMemo(() => {
     return [...recentTags.tags].sort((a, b) => {
@@ -114,29 +90,20 @@ const RecentTagsClientComponent = ({
     <article className="recent-tags" data-testid={RECENT_TAGS_SELECTORS.TITLE}>
       <div className="recent-tags__header">
         <h2 className="recent-tags__title">Recent Tags</h2>
-        {tagState.currentTags.length > 1 && (
-          <div className="recent-tags__logic-control">
-            <button
-              className={`recent-tags__logic-button ${
-                tagState.currentTagLogic === 'AND'
-                  ? 'recent-tags__logic-button--and'
-                  : 'recent-tags__logic-button--or'
-              }`}
-              onClick={handleLogicToggle}
-              title={`Current: Show posts with ${tagState.currentTagLogic === 'AND' ? 'ALL' : 'ANY'} selected tags. Click to toggle.`}
-            >
-              {tagState.currentTagLogic}
-            </button>
-          </div>
-        )}
-        <button
-          className="recent-tags__refresh"
-          onClick={refreshTags}
-          disabled={loading}
-          title="Refresh recent tags"
-        >
-          🔄
-        </button>
+        <div className="recent-tags__header-controls">
+          <TagLogicToggle
+            allTitle="Show posts with ALL selected tags"
+            anyTitle="Show posts with ANY selected tags"
+          />
+          <button
+            className="recent-tags__refresh"
+            onClick={refreshTags}
+            disabled={loading}
+            title="Refresh recent tags"
+          >
+            🔄
+          </button>
+        </div>
       </div>
 
       <div className="recent-tags__content">

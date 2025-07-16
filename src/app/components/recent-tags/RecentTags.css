@@ -72,10 +72,18 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 1rem;
   padding-bottom: 1rem;
   border-bottom: 1px solid rgba(255, 255, 255, 0.2);
   position: relative;
+  width: 100%;
   flex-shrink: 0;
+}
+
+.recent-tags__header-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
 }
 
 .recent-tags__title {
@@ -91,43 +99,44 @@
   letter-spacing: 0.5px;
 }
 
-.recent-tags__logic-toggle {
-  background: linear-gradient(
-    135deg,
-    var(--light-background--secondary) 0%,
-    var(--light-background--tertiary) 100%
-  );
+/* REMOVED: Custom logic button styles - Now using shared LogicToggle component */
+
+/* Refresh button styling - matching the aside design */
+.recent-tags__refresh {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2rem;
+  min-height: 2rem;
+  padding: 0.4rem;
+  background-color: var(--light-background--secondary);
+  color: var(--light-bg__text-color--secondary);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 0.5rem;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  color: #4a5568;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  border-radius: 12px;
-  padding: 0.5rem 1rem;
-  font-size: 0.8rem;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-.recent-tags__logic-toggle:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-  border-color: rgba(255, 255, 255, 0.5);
+.recent-tags__refresh:hover:not(:disabled) {
+  background-color: var(--brand-primary--light);
+  color: var(--brand-primary--dark);
+  border-color: var(--brand-primary--light);
+  transform: translateY(-1px);
 }
 
-.recent-tags__logic-toggle--or {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  border-color: rgba(255, 255, 255, 0.4);
+/* Logic toggle container with subtle border radius */
+.recent-tags__header .logic-toggle {
+  border-radius: 0.375rem;
+  overflow: hidden;
 }
 
-.recent-tags__logic-toggle--and {
-  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-  color: white;
-  border-color: rgba(255, 255, 255, 0.4);
+.recent-tags__refresh:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
 }
 
 .recent-tags__loading {
