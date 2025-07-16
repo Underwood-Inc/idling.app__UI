@@ -1,13 +1,17 @@
 import { useCallback } from 'react';
-import { SubmissionWithReplies } from '../../../app/components/submissions-list/actions';
+import { SubmissionWithReplies } from '../../../app/components/submissions-list/types';
 import { SubmissionsState } from './types';
 
 interface UseOptimisticUpdatesProps {
   submissionsState: SubmissionsState;
-  setSubmissionsState: (updater: (prevState: SubmissionsState) => SubmissionsState) => void;
+  setSubmissionsState: (
+    updater: (prevState: SubmissionsState) => SubmissionsState
+  ) => void;
   infiniteScroll: boolean;
   infiniteData: SubmissionWithReplies[];
-  setInfiniteData: (updater: (prev: SubmissionWithReplies[]) => SubmissionWithReplies[]) => void;
+  setInfiniteData: (
+    updater: (prev: SubmissionWithReplies[]) => SubmissionWithReplies[]
+  ) => void;
 }
 
 export function useOptimisticUpdates({
@@ -17,7 +21,6 @@ export function useOptimisticUpdates({
   infiniteData,
   setInfiniteData
 }: UseOptimisticUpdatesProps) {
-  
   const optimisticUpdateSubmission = useCallback(
     (submissionId: number, updatedSubmission: any) => {
       const currentState = submissionsState;
@@ -81,4 +84,4 @@ export function useOptimisticUpdates({
     optimisticUpdateSubmission,
     optimisticRemoveSubmission
   };
-} 
+}

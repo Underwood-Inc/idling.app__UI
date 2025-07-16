@@ -16,7 +16,7 @@ export type {
   SubmissionForm
 } from '../../app/components/submission-forms/schema';
 
-export type { SubmissionWithReplies } from '../../app/components/submissions-list/actions';
+export type { SubmissionWithReplies } from '../../app/components/submissions-list/types';
 
 // === FILTERING SYSTEM ===
 export type { Filter } from '../state/atoms';
@@ -40,7 +40,7 @@ export type { Comment, CreateComment } from '../schemas/comment.schemas';
 export type {
   GetSubmissionsActionArguments,
   GetSubmissionsActionResponse
-} from '../../app/components/submissions-list/actions';
+} from '../../app/components/submissions-list/types';
 
 // === UI TYPES ===
 export type { OverlayConfig } from '../context/OverlayContext';
