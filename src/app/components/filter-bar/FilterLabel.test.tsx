@@ -34,6 +34,26 @@ jest.mock('../ui/ContentWithPills', () => ({
   )
 }));
 
+// Mock the filter utilities
+jest.mock('../../../lib/utils/filter-utils', () => ({
+  handleTagFilter: jest.fn()
+}));
+
+// Mock the useSimpleUrlFilters hook
+const mockUseSimpleUrlFilters = jest.fn(() => ({
+  filters: [],
+  addFilter: jest.fn(),
+  removeFilter: jest.fn(),
+  updateUrl: jest.fn(),
+  tagLogic: 'AND',
+  setTagLogic: jest.fn(),
+  searchParams: new URLSearchParams()
+}));
+
+jest.mock('../../../lib/state/submissions/useSimpleUrlFilters', () => ({
+  useSimpleUrlFilters: mockUseSimpleUrlFilters
+}));
+
 // Mock the search actions
 const mockResolveUserIdToUsername = jest.fn();
 const mockGetUserInfo = jest.fn();
@@ -84,6 +104,8 @@ describe('FilterLabel Component', () => {
     });
 
     it('should handle tag removal via hashtag click', () => {
+      const { handleTagFilter } = require('../../../lib/utils/filter-utils');
+
       renderFilterLabel({
         name: 'tags',
         label: '#react'
@@ -92,7 +114,13 @@ describe('FilterLabel Component', () => {
       const hashtagButton = screen.getByTestId('hashtag-click');
       fireEvent.click(hashtagButton);
 
-      expect(mockOnRemoveTag).toHaveBeenCalledWith('#react');
+      expect(handleTagFilter).toHaveBeenCalledWith(
+        '#react',
+        [],
+        expect.any(Function),
+        expect.any(Function),
+        expect.any(Function)
+      );
     });
 
     it('should handle multiple tags', () => {

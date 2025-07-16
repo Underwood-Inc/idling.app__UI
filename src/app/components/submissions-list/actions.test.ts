@@ -20,14 +20,14 @@ const createMockDbRow = (overrides: any = {}) => ({
   submission_name: 'test-submission',
   submission_title: 'Test Submission',
   submission_url: 'https://example.com',
-  submission_datetime: '2023-01-01T00:00:00.000Z',  // Fixed: proper timestamp format
+  submission_datetime: '2023-01-01T00:00:00.000Z', // Fixed: proper timestamp format
   user_id: 123,
   tags: [],
   thread_parent_id: null,
-  author: 'Test Author',           // This comes from u.name as author in SQL JOIN
-  author_bio: 'Test Bio',          // This comes from u.bio as author_bio in SQL JOIN
-  reply_count: 0,                  // This comes from the COUNT subquery
-  replies: null,                   // This comes from the json_agg subquery
+  author: 'Test Author', // This comes from u.name as author in SQL JOIN
+  author_bio: 'Test Bio', // This comes from u.bio as author_bio in SQL JOIN
+  reply_count: 0, // This comes from the COUNT subquery
+  replies: null, // This comes from the json_agg subquery
   ...overrides
 });
 
@@ -66,7 +66,7 @@ describe('getSubmissionsAction', () => {
     expect(result.data).toBeDefined();
     expect(result.data?.data).toBeDefined();
     expect(result.data?.data).toHaveLength(1);
-    
+
     const firstItem = result.data?.data[0];
     expect(firstItem).toBeDefined();
     expect(firstItem?.submission_id).toBe(1);
@@ -124,7 +124,8 @@ describe('getSubmissionsAction', () => {
 
     mockSql.mockReset();
     mockSql.mockImplementation((query: any, params: any) => {
-      if (query.includes('SELECT COUNT(*) as total')) return Promise.resolve(mockCount);
+      if (query.includes('SELECT COUNT(*) as total'))
+        return Promise.resolve(mockCount);
       return Promise.resolve(mockDbRows);
     });
 
@@ -180,7 +181,8 @@ describe('getSubmissionsAction', () => {
 
     mockSql.mockReset();
     mockSql.mockImplementation((query: any, params: any) => {
-      if (query.includes('SELECT COUNT(*) as total')) return Promise.resolve(mockCount);
+      if (query.includes('SELECT COUNT(*) as total'))
+        return Promise.resolve(mockCount);
       return Promise.resolve(mockDbRows);
     });
 
@@ -208,7 +210,8 @@ describe('getSubmissionsAction', () => {
 
     mockSql.mockReset();
     mockSql.mockImplementation((query: any, params: any) => {
-      if (query.includes('SELECT COUNT(*) as total')) return Promise.resolve(mockCount);
+      if (query.includes('SELECT COUNT(*) as total'))
+        return Promise.resolve(mockCount);
       return Promise.resolve(mockDbRows);
     });
 
@@ -259,7 +262,8 @@ describe('getSubmissionsAction', () => {
 
     beforeEach(() => {
       mockSql.mockImplementation((query: any, params: any) => {
-        if (query.includes('SELECT COUNT(*) as total')) return Promise.resolve(mockCount);
+        if (query.includes('SELECT COUNT(*) as total'))
+          return Promise.resolve(mockCount);
         return Promise.resolve(mockDbRows);
       });
     });
@@ -290,7 +294,8 @@ describe('getSubmissionsAction', () => {
 
       mockSql.mockReset();
       mockSql.mockImplementation((query: any, params: any) => {
-        if (query.includes('SELECT COUNT(*) as total')) return Promise.resolve(mockCount);
+        if (query.includes('SELECT COUNT(*) as total'))
+          return Promise.resolve(mockCount);
         return Promise.resolve(mockDbRows);
       });
 
@@ -585,9 +590,7 @@ describe('getSubmissionsAction', () => {
     });
 
     it('should handle database errors gracefully', async () => {
-      mockSql.mockRejectedValue(
-        new Error('Database connection failed')
-      );
+      mockSql.mockRejectedValue(new Error('Database connection failed'));
 
       const result = await getSubmissionsAction({
         onlyMine: false,
@@ -597,7 +600,7 @@ describe('getSubmissionsAction', () => {
         pageSize: PageSize.TEN
       });
 
-      expect(result.error).toBe('Failed to fetch submissions');
+      expect(result.error).toBe('Database connection failed');
       expect(result.data).toBeUndefined();
     });
 
@@ -617,7 +620,7 @@ describe('getSubmissionsAction', () => {
         pageSize: PageSize.TEN
       });
 
-      expect(result.error).toBe('Failed to fetch submissions');
+      expect(result.error).toBe('Count query failed');
       expect(result.data).toBeUndefined();
     });
 
@@ -672,7 +675,8 @@ describe('getSubmissionsAction', () => {
 
       mockSql.mockReset();
       mockSql.mockImplementation((query: any, params: any) => {
-        if (query.includes('SELECT COUNT(*) as total')) return Promise.resolve(mockCount);
+        if (query.includes('SELECT COUNT(*) as total'))
+          return Promise.resolve(mockCount);
         return Promise.resolve(mockDbRows); // Return empty array
       });
 
@@ -694,7 +698,8 @@ describe('getSubmissionsAction', () => {
 
       mockSql.mockReset();
       mockSql.mockImplementation((query: any, params: any) => {
-        if (query.includes('SELECT COUNT(*) as total')) return Promise.resolve(mockCount);
+        if (query.includes('SELECT COUNT(*) as total'))
+          return Promise.resolve(mockCount);
         return Promise.resolve(mockDbRows);
       });
 
@@ -716,7 +721,8 @@ describe('getSubmissionsAction', () => {
 
       mockSql.mockReset();
       mockSql.mockImplementation((query: any, params: any) => {
-        if (query.includes('SELECT COUNT(*) as total')) return Promise.resolve(mockCount);
+        if (query.includes('SELECT COUNT(*) as total'))
+          return Promise.resolve(mockCount);
         return Promise.resolve(mockDbRows);
       });
 
@@ -738,7 +744,8 @@ describe('getSubmissionsAction', () => {
 
       mockSql.mockReset();
       mockSql.mockImplementation((query: any, params: any) => {
-        if (query.includes('SELECT COUNT(*) as total')) return Promise.resolve(mockCount);
+        if (query.includes('SELECT COUNT(*) as total'))
+          return Promise.resolve(mockCount);
         return Promise.resolve(mockDbRows);
       });
 

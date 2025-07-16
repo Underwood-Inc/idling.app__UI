@@ -381,7 +381,6 @@
 .filter-bar__filter-label {
   font-size: 0.85rem;
   font-weight: 600;
-  color: var(--light-bg__text-color--primary);
   white-space: nowrap;
   text-transform: uppercase;
 }

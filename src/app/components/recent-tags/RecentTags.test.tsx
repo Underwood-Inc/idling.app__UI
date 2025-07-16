@@ -26,6 +26,24 @@ jest.mock('../tag-link/TagLink', () => ({
   TagLink: ({ value }: { value: string }) => <span>#{value}</span>
 }));
 
+// Mock the filter utilities
+jest.mock('../../../lib/utils/filter-utils', () => ({
+  handleTagFilter: jest.fn()
+}));
+
+// Mock the useSimpleUrlFilters hook
+jest.mock('../../../lib/state/submissions/useSimpleUrlFilters', () => ({
+  useSimpleUrlFilters: jest.fn(() => ({
+    filters: [],
+    addFilter: jest.fn(),
+    removeFilter: jest.fn(),
+    updateUrl: jest.fn(),
+    tagLogic: 'AND',
+    setTagLogic: jest.fn(),
+    searchParams: new URLSearchParams()
+  }))
+}));
+
 // Mock the atoms module with a proper atom factory
 jest.mock('../../../lib/state/atoms', () => {
   const mockAtom = {
