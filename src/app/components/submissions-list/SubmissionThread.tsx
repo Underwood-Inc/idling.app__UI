@@ -2,8 +2,8 @@
 
 import { ReplyForm } from '../thread/ReplyForm';
 import { TimestampWithTooltip } from '../ui/TimestampWithTooltip';
-import { SubmissionWithReplies } from './actions';
 import './SubmissionThread.css';
+import { SubmissionWithReplies } from './types';
 
 interface SubmissionThreadProps {
   submission: SubmissionWithReplies;
