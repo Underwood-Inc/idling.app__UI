@@ -30,6 +30,12 @@ interface RichInputAdapterProps {
   enableImagePaste?: boolean;
   mentionFilterType?: 'author' | 'mentions';
   enableDebugLogging?: boolean;
+  // Pill click handlers for filter removal
+  onHashtagClick?: (hashtag: string) => void;
+  onMentionClick?: (
+    mention: string,
+    filterType?: 'author' | 'mentions'
+  ) => void;
 }
 
 export const RichInputAdapter = forwardRef<any, RichInputAdapterProps>(
@@ -48,7 +54,9 @@ export const RichInputAdapter = forwardRef<any, RichInputAdapterProps>(
       enableEmojis = true,
       enableImagePaste = true,
       mentionFilterType = 'author',
-      enableDebugLogging = true
+      enableDebugLogging = true,
+      onHashtagClick,
+      onMentionClick
     },
     ref
   ) => {
@@ -128,6 +136,22 @@ export const RichInputAdapter = forwardRef<any, RichInputAdapterProps>(
         handleValueChangeWithURLDetection(finalValue, previousValue);
       },
       [value, handleValueChangeWithURLDetection]
+    );
+
+    // Handle pill clicks for filter removal
+    const handleTokenClick = useCallback(
+      (token: any, state: any) => {
+        // Only handle pill clicks, not other token types
+        if (token.type === 'hashtag' && onHashtagClick) {
+          onHashtagClick(token.value || token.content);
+        } else if (token.type === 'mention' && onMentionClick) {
+          onMentionClick(
+            token.value || token.content,
+            token.filterType || 'author'
+          );
+        }
+      },
+      [onHashtagClick, onMentionClick]
     );
 
     // Handle interaction state changes
@@ -395,7 +419,8 @@ export const RichInputAdapter = forwardRef<any, RichInputAdapterProps>(
               handleProcessing(value);
               // Then handle focus management
               handleBlur();
-            }
+            },
+            onTokenClick: handleTokenClick
           }}
           enableDebugLogging={enableDebugLogging}
         >

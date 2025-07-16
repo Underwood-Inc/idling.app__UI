@@ -69,8 +69,20 @@ export function useSimpleUrlFilters(): UseSimpleUrlFiltersReturn {
       }
     };
 
+    const handleCustomUrlChange = (event: Event) => {
+      if (process.env.NODE_ENV === 'development') {
+        // eslint-disable-next-line no-console
+        console.log('🔍 Custom URL filters change event received:', event);
+      }
+      // Force a sync check after custom event
+      handleUrlChange();
+    };
+
     // Listen for browser navigation
     window.addEventListener('popstate', handleUrlChange);
+
+    // Listen for custom filter change events
+    window.addEventListener('urlfilterschange', handleCustomUrlChange);
 
     // Initial sync on mount - but only if needed
     if (typeof window !== 'undefined') {
@@ -85,11 +97,20 @@ export function useSimpleUrlFilters(): UseSimpleUrlFiltersReturn {
 
     return () => {
       window.removeEventListener('popstate', handleUrlChange);
+      window.removeEventListener('urlfilterschange', handleCustomUrlChange);
     };
   }, [setSearchParams]); // Remove searchParams from dependencies to prevent loops
 
   // Parse current URL parameters into filters
   const filters = useMemo(() => {
+    if (process.env.NODE_ENV === 'development') {
+      // eslint-disable-next-line no-console
+      console.log('🔍 Recalculating filters from searchParams:', {
+        searchParamsString: searchParams.toString(),
+        timestamp: Date.now()
+      });
+    }
+
     const result: Filter[] = [];
 
     // Parse each parameter type
@@ -107,6 +128,11 @@ export function useSimpleUrlFilters(): UseSimpleUrlFiltersReturn {
         result.push({ name: key, value });
       }
     });
+
+    if (process.env.NODE_ENV === 'development') {
+      // eslint-disable-next-line no-console
+      console.log('🔍 Calculated filters:', result);
+    }
 
     return result;
   }, [searchParams]);
@@ -238,15 +264,25 @@ export function useSimpleUrlFilters(): UseSimpleUrlFiltersReturn {
         // Use browser history directly - more reliable than router
         window.history.pushState({}, '', newUrl);
 
-        // Update the atom to trigger reactivity
-        const updatedParams = new URLSearchParams(window.location.search);
-        setSearchParams(updatedParams);
+        // CRITICAL FIX: Use microtask queue to ensure proper synchronization
+        queueMicrotask(() => {
+          // Update the atom to trigger reactivity after URL is set
+          const updatedParams = new URLSearchParams(window.location.search);
+          setSearchParams(updatedParams);
 
-        // Trigger a popstate event to notify other listeners
-        window.dispatchEvent(new PopStateEvent('popstate'));
+          // Trigger events to notify other listeners
+          window.dispatchEvent(new PopStateEvent('popstate'));
 
-        // Reset flag immediately after URL change - no timeout needed
-        isUpdatingRef.current = false;
+          // Custom event for better component synchronization
+          window.dispatchEvent(
+            new CustomEvent('urlfilterschange', {
+              detail: { filters: newFilters }
+            })
+          );
+
+          // Reset flag after all updates are complete
+          isUpdatingRef.current = false;
+        });
       } else {
         if (process.env.NODE_ENV === 'development') {
           // eslint-disable-next-line no-console
@@ -302,14 +338,38 @@ export function useSimpleUrlFilters(): UseSimpleUrlFiltersReturn {
   // Remove a filter - use stable filtersString instead of filters array
   const removeFilter = useCallback(
     (name: string, value?: string) => {
+      if (process.env.NODE_ENV === 'development') {
+        console.log('🔍 removeFilter called with:', {
+          name,
+          value,
+          currentFilters: filters
+        });
+      }
+
       const currentFilters = filters;
       const newFilters = currentFilters.filter((f) => {
+        const shouldKeep =
+          f.name !== name || (value !== undefined && f.value !== value);
+
+        if (process.env.NODE_ENV === 'development' && !shouldKeep) {
+          console.log('🗑️ removeFilter: removing filter:', f);
+        }
+
         if (f.name !== name) return true;
         if (value !== undefined) {
           return f.value !== value;
         }
         return false; // Remove all filters with this name
       });
+
+      if (process.env.NODE_ENV === 'development') {
+        console.log('🔍 removeFilter result:', {
+          originalCount: currentFilters.length,
+          newCount: newFilters.length,
+          removed: currentFilters.length - newFilters.length,
+          newFilters
+        });
+      }
 
       updateUrl(newFilters);
     },

@@ -1,4 +1,6 @@
 'use client';
+import { useSimpleUrlFilters } from '@lib/state/submissions/useSimpleUrlFilters';
+import { handleTagFilter } from '@lib/utils/filter-utils';
 import { useEffect, useState } from 'react';
 import { ContentWithPills } from '../ui/ContentWithPills';
 import './FilterBar.css';
@@ -18,6 +20,9 @@ export function FilterLabel({
 }) {
   const [displayLabel, setDisplayLabel] = useState(label);
   const [isLoading, setIsLoading] = useState(false);
+
+  // Use URL-first filter system for atomic tag operations
+  const { filters, addFilter, removeFilter, updateUrl } = useSimpleUrlFilters();
 
   // Simplified display logic - resolve userId to username for display
   useEffect(() => {
@@ -140,8 +145,20 @@ export function FilterLabel({
   }, [name, label, displayLabel]);
 
   const handleTagClick = (tagValue: string) => {
-    // FilterBar now preserves the correct format, so use the label directly
-    onRemoveTag(label);
+    // Use the same atomic tag filter handling as working aside components
+
+    if (process.env.NODE_ENV === 'development') {
+      // eslint-disable-next-line no-console
+      console.log('🏷️ FilterLabel handleTagClick:', {
+        tagValue,
+        label,
+        name,
+        filters: filters.map((f: any) => ({ name: f.name, value: f.value }))
+      });
+    }
+
+    // Use atomic handleTagFilter utility for proper synchronization
+    handleTagFilter(label, filters, addFilter, removeFilter, updateUrl);
   };
 
   const handleMentionClick = (

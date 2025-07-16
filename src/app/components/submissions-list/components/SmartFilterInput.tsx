@@ -42,11 +42,13 @@ interface SmartFilterInputProps {
 }
 
 export const SmartFilterInput: React.FC<SmartFilterInputProps> = ({
-  placeholder = 'Search posts, #hashtags, @mentions...',
+  placeholder = 'Start typing or use #hashtag @mention...',
   className = '',
   contextId,
   enableHashtags = true,
   enableUserMentions = true,
+  onMentionClick,
+  onPillClick,
   onAddFilter,
   onAddFilters,
   onRemoveFilter,
@@ -304,6 +306,36 @@ export const SmartFilterInput: React.FC<SmartFilterInputProps> = ({
     [isUpdatingFromFilters, lastInputValue, parseInputToFilters, applyFilters]
   );
 
+  // Handle pill clicks for removal
+  const handleHashtagClick = useCallback(
+    (hashtag: string) => {
+      if (process.env.NODE_ENV === 'development') {
+        console.log('🗑️ SmartFilterInput hashtag click:', hashtag);
+      }
+
+      if (onPillClick) {
+        onPillClick(hashtag);
+      }
+    },
+    [onPillClick]
+  );
+
+  const handleMentionClick = useCallback(
+    (mention: string, filterType?: 'author' | 'mentions') => {
+      if (process.env.NODE_ENV === 'development') {
+        console.log('🗑️ SmartFilterInput mention click:', {
+          mention,
+          filterType
+        });
+      }
+
+      if (onMentionClick) {
+        onMentionClick(mention, filterType);
+      }
+    },
+    [onMentionClick]
+  );
+
   // Handle Enter key to apply filters
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
@@ -316,7 +348,13 @@ export const SmartFilterInput: React.FC<SmartFilterInputProps> = ({
         setIsUserTyping(false);
       }
     },
-    [parseInputToFilters, applyFilters, isUpdatingFromFilters, localInputValue]
+    [
+      parseInputToFilters,
+      applyFilters,
+      isUpdatingFromFilters,
+      localInputValue,
+      setIsUserTyping
+    ]
   );
 
   // Handle blur to apply filters when user clicks away
@@ -357,6 +395,8 @@ export const SmartFilterInput: React.FC<SmartFilterInputProps> = ({
         enableImagePaste={false}
         mentionFilterType="mentions"
         enableDebugLogging={false}
+        onHashtagClick={handleHashtagClick}
+        onMentionClick={handleMentionClick}
       />
     </div>
   );

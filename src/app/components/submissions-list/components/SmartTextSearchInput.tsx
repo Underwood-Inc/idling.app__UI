@@ -452,12 +452,29 @@ export const SmartTextSearchInput: React.FC<SmartTextSearchInputProps> = ({
     (pillText: string) => {
       if (!onRemoveFilter) return;
 
+      if (process.env.NODE_ENV === 'development') {
+        console.log('🗑️ SmartTextSearchInput handlePillClick called with:', {
+          pillText,
+          currentFilters: filters,
+          onRemoveFilter: !!onRemoveFilter
+        });
+      }
+
       // Parse the pill to determine what filter to remove
       if (pillText.startsWith('#')) {
         // Remove specific tag filter entry (new system)
         const tag = pillText.substring(1);
-        // Remove the specific tag filter entry by its exact value
-        onRemoveFilter('tags', `#${tag}`);
+
+        if (process.env.NODE_ENV === 'development') {
+          console.log('🗑️ Attempting to remove tag:', {
+            tag,
+            pillText,
+            existingTagFilters: filters.filter((f) => f.name === 'tags')
+          });
+        }
+
+        // Remove the specific tag filter entry by its exact value (WITHOUT # prefix to match storage)
+        onRemoveFilter('tags', tag);
       } else if (pillText.startsWith('@')) {
         // Parse mention format to determine removal
         const enhancedMatch = pillText.match(
@@ -465,6 +482,16 @@ export const SmartTextSearchInput: React.FC<SmartTextSearchInputProps> = ({
         );
         if (enhancedMatch) {
           const [, username, userId, filterType] = enhancedMatch;
+
+          if (process.env.NODE_ENV === 'development') {
+            console.log('🗑️ Attempting to remove mention:', {
+              username,
+              userId,
+              filterType,
+              pillText
+            });
+          }
+
           if (filterType === 'author') {
             // For author filters, remove by user ID only
             onRemoveFilter('author', userId);

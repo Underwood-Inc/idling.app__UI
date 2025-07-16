@@ -6,7 +6,7 @@ import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useSubmissionsManager } from '../../../lib/state/useSubmissionsManager';
 import '../../../lib/utils/scroll-highlight-demo'; // Import for global test function
 import { Submission } from '../submission-forms/schema';
-import { SubmissionWithReplies } from './actions';
+import { SubmissionWithReplies } from './types';
 
 import { Filter } from '@lib/state/atoms';
 import { PostFilters } from '@lib/types/filters';
@@ -63,7 +63,7 @@ interface PostsManagerProps {
  * Manages state with useSubmissionsManager and passes data to child components
  * This eliminates duplicate API calls from multiple useSubmissionsManager instances
  */
-const PostsManager = React.memo(function PostsManager({
+function PostsManager({
   contextId,
   onlyMine = false,
   enableThreadMode = false,
@@ -431,6 +431,6 @@ const PostsManager = React.memo(function PostsManager({
       />
     </>
   );
-});
+}
 
 export default PostsManager;
