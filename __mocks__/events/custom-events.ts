@@ -1,6 +1,6 @@
 /**
  * Events API Mocks
- * 
+ *
  * Mocks for event-related APIs including CustomEvent, Event, and AbortController
  * that are commonly used in React components.
  */
@@ -11,7 +11,7 @@
 export const mockCustomEventAPI = () => {
   /**
    * Mock CustomEvent constructor
-   * 
+   *
    * This is useful for testing custom events
    */
   global.CustomEvent = jest.fn().mockImplementation((type, options) => ({
@@ -32,9 +32,10 @@ export const mockCustomEventAPI = () => {
 export const mockEventAPI = () => {
   /**
    * Mock Event constructor
-   * 
+   *
    * This is useful for testing events
    */
+  // @ts-expect-error - Mock doesn't need full Event constructor interface
   global.Event = jest.fn().mockImplementation((type, options) => ({
     type,
     bubbles: options?.bubbles || false,
@@ -58,7 +59,7 @@ export const mockEventAPI = () => {
 export const mockAbortControllerAPI = () => {
   /**
    * Mock AbortController constructor
-   * 
+   *
    * This is useful for testing request cancellation
    */
   global.AbortController = jest.fn().mockImplementation(() => ({
@@ -79,4 +80,4 @@ export const mockEventsAPIs = () => {
   mockCustomEventAPI();
   mockEventAPI();
   mockAbortControllerAPI();
-}; 
+};

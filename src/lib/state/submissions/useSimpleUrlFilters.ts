@@ -338,22 +338,10 @@ export function useSimpleUrlFilters(): UseSimpleUrlFiltersReturn {
   // Remove a filter - use stable filtersString instead of filters array
   const removeFilter = useCallback(
     (name: string, value?: string) => {
-      if (process.env.NODE_ENV === 'development') {
-        console.log('🔍 removeFilter called with:', {
-          name,
-          value,
-          currentFilters: filters
-        });
-      }
-
       const currentFilters = filters;
       const newFilters = currentFilters.filter((f) => {
         const shouldKeep =
           f.name !== name || (value !== undefined && f.value !== value);
-
-        if (process.env.NODE_ENV === 'development' && !shouldKeep) {
-          console.log('🗑️ removeFilter: removing filter:', f);
-        }
 
         if (f.name !== name) return true;
         if (value !== undefined) {
@@ -361,15 +349,6 @@ export function useSimpleUrlFilters(): UseSimpleUrlFiltersReturn {
         }
         return false; // Remove all filters with this name
       });
-
-      if (process.env.NODE_ENV === 'development') {
-        console.log('🔍 removeFilter result:', {
-          originalCount: currentFilters.length,
-          newCount: newFilters.length,
-          removed: currentFilters.length - newFilters.length,
-          newFilters
-        });
-      }
 
       updateUrl(newFilters);
     },

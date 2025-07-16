@@ -1,5 +1,8 @@
+import sql from '@lib/db';
 import { NextRequest, NextResponse } from 'next/server';
-import sql from '../../../lib/db';
+
+// Opt out of static rendering since this route uses dynamic request data
+export const dynamic = 'force-dynamic';
 
 export interface UserSubscriptionResponse {
   id: string;

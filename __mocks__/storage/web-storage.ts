@@ -1,6 +1,6 @@
 /**
  * Storage API Mocks
- * 
+ *
  * Mocks for storage-related APIs including localStorage, sessionStorage, and file APIs
  * that are commonly used in React components but need proper mocking in tests.
  */
@@ -11,7 +11,7 @@
 export const mockWebStorage = () => {
   /**
    * Mock localStorage
-   * 
+   *
    * jsdom provides these but we want to ensure they're properly mocked
    * and can be controlled in tests
    */
@@ -53,7 +53,7 @@ export const mockWebStorage = () => {
 export const mockFileAPI = () => {
   /**
    * Mock File constructor
-   * 
+   *
    * These are useful for testing file upload functionality
    */
   global.File = jest.fn().mockImplementation((bits, filename, options) => ({
@@ -75,9 +75,10 @@ export const mockFileAPI = () => {
 export const mockFileReaderAPI = () => {
   /**
    * Mock FileReader constructor
-   * 
+   *
    * This is useful for testing file reading functionality
    */
+  // @ts-expect-error - Mock doesn't need full FileReader constructor interface
   global.FileReader = jest.fn().mockImplementation(() => ({
     readAsText: jest.fn(),
     readAsDataURL: jest.fn(),
@@ -108,7 +109,7 @@ export const mockFileReaderAPI = () => {
 export const mockFormDataAPI = () => {
   /**
    * Mock FormData constructor
-   * 
+   *
    * This is useful for testing form submissions
    */
   global.FormData = jest.fn().mockImplementation(() => ({
@@ -133,4 +134,4 @@ export const mockStorageAPIs = () => {
   mockFileAPI();
   mockFileReaderAPI();
   mockFormDataAPI();
-}; 
+};

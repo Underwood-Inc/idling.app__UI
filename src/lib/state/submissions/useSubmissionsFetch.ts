@@ -14,7 +14,11 @@ const logger = createLogger({
 
 interface UseSubmissionsFetchProps {
   filtersState: SubmissionsFilters;
-  setSubmissionsState: (stateOrUpdater: SubmissionsState | ((prevState: SubmissionsState) => SubmissionsState)) => void;
+  setSubmissionsState: (
+    stateOrUpdater:
+      | SubmissionsState
+      | ((prevState: SubmissionsState) => SubmissionsState)
+  ) => void;
   onlyMine: boolean;
   userId: string;
   includeThreadReplies: boolean;
@@ -151,7 +155,7 @@ export function useSubmissionsFetch({
 
       if (result.data) {
         const submissionsData = result.data.data || [];
-        
+
         // Debug logging for search results issue
         if (process.env.NODE_ENV === 'development') {
           // eslint-disable-next-line no-console
@@ -160,14 +164,16 @@ export function useSubmissionsFetch({
             totalRecords: result.data.pagination?.totalRecords || 0,
             filters: currentFilters.filters,
             page: currentFilters.page,
-            firstSubmission: submissionsData[0] ? {
-              id: submissionsData[0].submission_id,
-              title: submissionsData[0].submission_title,
-              author: submissionsData[0].author
-            } : null
+            firstSubmission: submissionsData[0]
+              ? {
+                  id: submissionsData[0].submission_id,
+                  title: submissionsData[0].submission_title,
+                  author: submissionsData[0].author
+                }
+              : null
           });
         }
-        
+
         setSubmissionsState({
           loading: false,
           data: {
@@ -185,7 +191,9 @@ export function useSubmissionsFetch({
         if (infiniteScroll && currentFilters.page === 1) {
           setInfiniteData(result.data.data || []);
           setInfinitePage(1);
-          setHasMore((result.data.data?.length || 0) === currentFilters.pageSize);
+          setHasMore(
+            (result.data.data?.length || 0) === currentFilters.pageSize
+          );
         }
       } else {
         setSubmissionsState({
@@ -264,4 +272,4 @@ export function useSubmissionsFetch({
     fetchSubmissions,
     forceRefresh
   };
-} 
+}

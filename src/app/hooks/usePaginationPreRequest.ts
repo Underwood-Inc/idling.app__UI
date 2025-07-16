@@ -1,10 +1,10 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
 import { createLogger } from '@lib/logging';
-import { getSubmissionsPaginationCount, GetSubmissionsPaginationCountResponse } from '../components/submissions-list/actions';
-import { PostFilters } from '@lib/types/filters';
 import { Filter } from '@lib/state/atoms';
+import { PostFilters } from '@lib/types/filters';
+import { useCallback, useEffect, useState } from 'react';
+import { getSubmissionsPaginationCount } from '../components/submissions-list/actions';
 
 const logger = createLogger({
   context: { component: 'usePaginationPreRequest' }
@@ -71,7 +71,7 @@ export function usePaginationPreRequest({
       includeThreadReplies
     });
 
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
       isLoading: true,
       error: null,
@@ -88,7 +88,7 @@ export function usePaginationPreRequest({
       });
 
       if (result.data) {
-        setState(prev => ({
+        setState((prev) => ({
           ...prev,
           isLoading: false,
           data: result.data!,
@@ -100,18 +100,22 @@ export function usePaginationPreRequest({
           expectedItems: result.data.expectedItems
         });
       } else {
-        setState(prev => ({
+        setState((prev) => ({
           ...prev,
           isLoading: false,
           data: null,
           error: result.error || 'Failed to fetch pagination count'
         }));
 
-        logger.error('Pagination pre-request failed', new Error(result.error || 'Unknown error'));
+        logger.error(
+          'Pagination pre-request failed',
+          new Error(result.error || 'Unknown error')
+        );
       }
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      setState(prev => ({
+      const errorMessage =
+        error instanceof Error ? error.message : 'Unknown error';
+      setState((prev) => ({
         ...prev,
         isLoading: false,
         data: null,
@@ -122,7 +126,16 @@ export function usePaginationPreRequest({
     } finally {
       logger.groupEnd();
     }
-  }, [onlyMine, userId, filters, pageSize, includeThreadReplies, enabled, state.lastRequestKey, state.data]);
+  }, [
+    onlyMine,
+    userId,
+    filters,
+    pageSize,
+    includeThreadReplies,
+    enabled,
+    state.lastRequestKey,
+    state.data
+  ]);
 
   const reset = useCallback(() => {
     setState({
