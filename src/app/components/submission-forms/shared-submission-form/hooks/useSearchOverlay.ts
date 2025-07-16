@@ -86,11 +86,6 @@ export function useSearchOverlay({
   // Handle search result selection
   const handleSearchResultSelect = useCallback(
     (item: any) => {
-      const currentValue = value || '';
-      const triggerIndex = searchOverlay.triggerIndex;
-      const queryLength = searchOverlay.query.length;
-      const replaceEndIndex = triggerIndex + 1 + queryLength; // +1 for trigger character
-
       // Generate the structured text
       let insertText = '';
       if (searchOverlay.type === 'mention') {
@@ -103,11 +98,18 @@ export function useSearchOverlay({
         insertText = item.unicode || `:${item.name}:`;
       }
 
+      const currentValue = value || '';
+      const triggerIndex = searchOverlay.triggerIndex;
+      const queryLength = searchOverlay.query.length;
+      const replaceEndIndex = triggerIndex + 1 + queryLength; // +1 for trigger character
+
       const beforeTrigger = currentValue.substring(0, triggerIndex);
       const afterQuery = currentValue.substring(replaceEndIndex);
       const newValue = beforeTrigger + insertText + afterQuery;
 
+      // Update the value
       onChange(newValue);
+
       hideSearchOverlay();
     },
     [value, searchOverlay, onChange, mentionFilterType]
@@ -253,4 +255,4 @@ export function useSearchOverlay({
     detectTriggerAndShowOverlay,
     hideSearchOverlay
   };
-} 
+}

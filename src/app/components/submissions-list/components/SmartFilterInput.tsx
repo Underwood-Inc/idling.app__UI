@@ -1,10 +1,10 @@
 'use client';
 
 import { createLogger } from '@lib/logging';
-import { useAtom } from 'jotai';
+import { Filter } from '@lib/state/atoms';
+import { useSimpleUrlFilters } from '@lib/state/submissions/useSimpleUrlFilters';
+import { PostFilters } from '@lib/types/filters';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { Filter, getSubmissionsFiltersAtom } from '../../../../lib/state/atoms';
-import { PostFilters } from '../../../../lib/types/filters';
 import { RichInputAdapter } from '../../submission-forms/shared-submission-form/components/RichInputAdapter';
 import './SmartFilterInput.css';
 
@@ -49,7 +49,8 @@ export const SmartFilterInput: React.FC<SmartFilterInputProps> = ({
   onClearFilters,
   onValueChange
 }) => {
-  const [filtersState] = useAtom(getSubmissionsFiltersAtom(contextId));
+  // Use the new URL-first filter system instead of Jotai atoms
+  const { filters } = useSimpleUrlFilters();
 
   // Local input state for user typing
   const [localInputValue, setLocalInputValue] = useState('');
@@ -63,45 +64,31 @@ export const SmartFilterInput: React.FC<SmartFilterInputProps> = ({
     const parts: string[] = [];
 
     // Add hashtags
-    filtersState.filters
-      .filter((f: Filter) => f.name === 'tags')
-      .forEach((filter: Filter) => {
-        // Handle legacy comma-separated values by splitting them
-        const values = filter.value
-          .split(',')
-          .map((v) => v.trim())
-          .filter(Boolean);
-        values.forEach((value) => {
-          const cleanValue = value.startsWith('#') ? value : `#${value}`;
-          parts.push(cleanValue);
-        });
+    filters
+      .filter((f) => f.name === 'tags')
+      .forEach((filter) => {
+        const cleanValue = filter.value.startsWith('#')
+          ? filter.value
+          : `#${filter.value}`;
+        parts.push(cleanValue);
       });
 
     // Add structured mentions and authors
-    filtersState.filters
-      .filter((f: Filter) => f.name === 'author' || f.name === 'mentions')
-      .forEach((filter: Filter) => {
-        // Handle legacy comma-separated values by splitting them
-        const values = filter.value
-          .split(',')
-          .map((v) => v.trim())
-          .filter(Boolean);
-        values.forEach((value) => {
-          if (value.includes('|')) {
-            const [username, userId] = value.split('|');
-            const filterType = filter.name === 'author' ? 'author' : 'mentions';
-            parts.push(`@[${username}|${userId}|${filterType}]`);
-          } else {
-            const filterType = filter.name === 'author' ? 'author' : 'mentions';
-            parts.push(`@[${value}|${value}|${filterType}]`);
-          }
-        });
+    filters
+      .filter((f) => f.name === 'author' || f.name === 'mentions')
+      .forEach((filter) => {
+        if (filter.value.includes('|')) {
+          const [username, userId] = filter.value.split('|');
+          const filterType = filter.name === 'author' ? 'author' : 'mentions';
+          parts.push(`@[${username}|${userId}|${filterType}]`);
+        } else {
+          const filterType = filter.name === 'author' ? 'author' : 'mentions';
+          parts.push(`@[${filter.value}|${filter.value}|${filterType}]`);
+        }
       });
 
     // Add search text
-    const searchFilter = filtersState.filters.find(
-      (f: Filter) => f.name === 'search'
-    );
+    const searchFilter = filters.find((f) => f.name === 'search');
     if (searchFilter?.value) {
       const searchText = searchFilter.value;
       // Parse quoted phrases and individual words
@@ -120,7 +107,7 @@ export const SmartFilterInput: React.FC<SmartFilterInputProps> = ({
     }
 
     return parts.join(' ');
-  }, [filtersState.filters]);
+  }, [filters]);
 
   // Initialize input value on first load
   useEffect(() => {
@@ -131,7 +118,7 @@ export const SmartFilterInput: React.FC<SmartFilterInputProps> = ({
 
   // Sync input with filter state changes
   useEffect(() => {
-    const currentFilterCount = filtersState.filters.length;
+    const currentFilterCount = filters.length;
 
     // If filters were cleared (went from having filters to no filters)
     if (lastFilterStateLength > 0 && currentFilterCount === 0) {
@@ -150,7 +137,7 @@ export const SmartFilterInput: React.FC<SmartFilterInputProps> = ({
 
     setLastFilterStateLength(currentFilterCount);
   }, [
-    filtersState.filters.length,
+    filters.length,
     lastFilterStateLength,
     isUserTyping,
     isUpdatingFromFilters,
@@ -182,14 +169,14 @@ export const SmartFilterInput: React.FC<SmartFilterInputProps> = ({
   // Parse user input and extract filters
   const parseInputToFilters = useCallback(
     (input: string): Filter<PostFilters>[] => {
-      const filters: Filter<PostFilters>[] = [];
+      const parsedFilters: Filter<PostFilters>[] = [];
       let remainingText = input;
 
       // Extract hashtags
       const hashtagRegex = /#(\w+)/g;
       let match;
       while ((match = hashtagRegex.exec(input)) !== null) {
-        filters.push({ name: 'tags', value: match[1] });
+        parsedFilters.push({ name: 'tags', value: match[1] });
         remainingText = remainingText.replace(match[0], '').trim();
       }
 
@@ -198,11 +185,17 @@ export const SmartFilterInput: React.FC<SmartFilterInputProps> = ({
       while ((match = mentionRegex.exec(input)) !== null) {
         const [fullMatch, username, userId, filterType] = match;
         if (filterType === 'author') {
-          filters.push({ name: 'author', value: userId });
+          parsedFilters.push({ name: 'author', value: userId });
         } else if (filterType === 'mentions') {
-          filters.push({ name: 'mentions', value: `${username}|${userId}` });
+          parsedFilters.push({
+            name: 'mentions',
+            value: `${username}|${userId}`
+          });
         } else {
-          filters.push({ name: 'mentions', value: `${username}|${userId}` });
+          parsedFilters.push({
+            name: 'mentions',
+            value: `${username}|${userId}`
+          });
         }
         remainingText = remainingText.replace(fullMatch, '').trim();
       }
@@ -210,44 +203,52 @@ export const SmartFilterInput: React.FC<SmartFilterInputProps> = ({
       // Extract simple mentions @username
       const simpleMentionRegex = /@(\w+)/g;
       while ((match = simpleMentionRegex.exec(remainingText)) !== null) {
-        filters.push({ name: 'mentions', value: match[1] });
+        parsedFilters.push({ name: 'mentions', value: match[1] });
         remainingText = remainingText.replace(match[0], '').trim();
       }
 
       // Handle remaining text as search
       if (remainingText.trim()) {
-        filters.push({ name: 'search', value: remainingText.trim() });
+        parsedFilters.push({ name: 'search', value: remainingText.trim() });
       }
 
-      return filters;
+      return parsedFilters;
     },
     []
   );
 
   // Apply filters to state
   const applyFilters = useCallback(
-    (filters: Filter<PostFilters>[]) => {
+    (filtersToApply: Filter<PostFilters>[]) => {
       setIsUpdatingFromFilters(true);
 
       // Clear existing filters
-      onRemoveFilter?.('tags');
-      onRemoveFilter?.('author');
-      onRemoveFilter?.('mentions');
-      onRemoveFilter?.('search');
+      if (onRemoveFilter) {
+        onRemoveFilter('tags');
+        onRemoveFilter('author');
+        onRemoveFilter('mentions');
+        onRemoveFilter('search');
+      }
 
       // Add new filters
-      if (filters.length > 0) {
-        onAddFilters?.(filters);
-        onFilterSuccess?.();
+      if (filtersToApply.length > 0) {
+        if (onAddFilters) {
+          onAddFilters(filtersToApply);
+        } else if (onAddFilter) {
+          filtersToApply.forEach((filter) => onAddFilter(filter));
+        }
+        if (onFilterSuccess) {
+          onFilterSuccess();
+        }
       }
 
       // Trigger search callback if there's search text
-      const searchFilter = filters.find((f) => f.name === 'search');
-      if (searchFilter?.value) {
-        onSearch?.(searchFilter.value);
+      const searchFilter = filtersToApply.find((f) => f.name === 'search');
+      if (searchFilter && onSearch) {
+        onSearch(searchFilter.value);
       }
     },
-    [onAddFilters, onRemoveFilter, onFilterSuccess, onSearch]
+    [onRemoveFilter, onAddFilters, onAddFilter, onFilterSuccess, onSearch]
   );
 
   // Handle input changes from RichInputAdapter (only update local state)
@@ -258,16 +259,157 @@ export const SmartFilterInput: React.FC<SmartFilterInputProps> = ({
         return;
       }
 
+      // Check if this is a search result selection (contains structured mentions or hashtags with spaces)
+      const wasStructuredInsert =
+        newValue !== lastInputValue &&
+        // Check for hashtag insertions ending with space
+        (/#\w+\s$/.test(newValue) ||
+          // Check for structured mention insertions ending with space
+          /@\[[^|\]]+\|[^|\]]+\|[^|\]]+\]\s$/.test(newValue));
+
       // Always update local state immediately for responsive typing
       setLocalInputValue(newValue);
 
-      // Mark that user is actively typing
-      setIsUserTyping(true);
+      // If this was a search result selection, apply filters immediately
+      if (wasStructuredInsert) {
+        const filters = parseInputToFilters(newValue);
+        applyFilters(filters);
+        setIsUserTyping(false);
+
+        // Try immediate cursor positioning (might work if DOM updates synchronously)
+        const immediatePosition = () => {
+          const activeElement = document.activeElement as HTMLInputElement;
+          if (
+            activeElement &&
+            (activeElement.tagName === 'INPUT' ||
+              activeElement.tagName === 'TEXTAREA')
+          ) {
+            const length = activeElement.value.length;
+            activeElement.setSelectionRange(length, length);
+            // eslint-disable-next-line no-console
+            console.log('🎯 Immediate cursor positioning to:', length);
+            return true;
+          }
+          return false;
+        };
+
+        // Try immediate positioning first
+        const immediateSuccess = immediatePosition();
+
+        // Set cursor to end after filter application completes
+        setTimeout(() => {
+          // eslint-disable-next-line no-console
+          console.log(
+            '🎯 SmartFilterInput: Starting cursor positioning after filter application'
+          );
+
+          // Try multiple approaches to find and focus the input
+          let inputElement: HTMLInputElement | HTMLTextAreaElement | null =
+            null;
+
+          // Try to find the RichInput's actual input element
+          const richInputContainer = document.querySelector(
+            '.smart-filter-input__rich-input'
+          );
+          if (richInputContainer) {
+            inputElement = richInputContainer.querySelector(
+              'input, textarea, [contenteditable="true"]'
+            ) as HTMLInputElement;
+            // eslint-disable-next-line no-console
+            console.log(
+              '🎯 Found input via rich input container:',
+              inputElement
+            );
+          }
+
+          // Fallback to any focused input in the smart filter container
+          if (!inputElement) {
+            const smartFilterContainer = document.querySelector(
+              '.smart-filter-input'
+            );
+            if (smartFilterContainer) {
+              inputElement = smartFilterContainer.querySelector(
+                'input, textarea, [contenteditable="true"]'
+              ) as HTMLInputElement;
+              // eslint-disable-next-line no-console
+              console.log(
+                '🎯 Found input via smart filter container:',
+                inputElement
+              );
+            }
+          }
+
+          // Final fallback to the currently focused element if it's an input
+          if (!inputElement) {
+            const activeElement = document.activeElement;
+            if (
+              activeElement &&
+              (activeElement.tagName === 'INPUT' ||
+                activeElement.tagName === 'TEXTAREA' ||
+                activeElement.getAttribute('contenteditable') === 'true')
+            ) {
+              inputElement = activeElement as HTMLInputElement;
+              // eslint-disable-next-line no-console
+              console.log('🎯 Found input via active element:', inputElement);
+            }
+          }
+
+          if (inputElement) {
+            // eslint-disable-next-line no-console
+            console.log(
+              '🎯 Current input value:',
+              (inputElement as HTMLInputElement).value
+            );
+            // eslint-disable-next-line no-console
+            console.log(
+              '🎯 Current cursor position:',
+              (inputElement as HTMLInputElement).selectionStart
+            );
+
+            // Focus first
+            inputElement.focus();
+
+            // Set cursor to end
+            if (
+              inputElement.tagName === 'INPUT' ||
+              inputElement.tagName === 'TEXTAREA'
+            ) {
+              const length = (inputElement as HTMLInputElement).value.length;
+              (inputElement as HTMLInputElement).setSelectionRange(
+                length,
+                length
+              );
+              // eslint-disable-next-line no-console
+              console.log('🎯 Set cursor to position:', length);
+            } else if (
+              inputElement.getAttribute('contenteditable') === 'true'
+            ) {
+              // For contenteditable elements, use Selection API
+              const range = document.createRange();
+              range.selectNodeContents(inputElement);
+              range.collapse(false); // Collapse to end
+              const selection = window.getSelection();
+              if (selection) {
+                selection.removeAllRanges();
+                selection.addRange(range);
+              }
+              // eslint-disable-next-line no-console
+              console.log('🎯 Set cursor to end of contenteditable');
+            }
+          } else {
+            // eslint-disable-next-line no-console
+            console.log('❌ No input element found for cursor positioning');
+          }
+        }, 200); // Increased timeout even more to ensure everything has settled
+      } else {
+        // Mark that user is actively typing for manual input
+        setIsUserTyping(true);
+      }
 
       // Update the last input value for comparison in next call
       setLastInputValue(newValue);
     },
-    [isUpdatingFromFilters]
+    [isUpdatingFromFilters, lastInputValue, parseInputToFilters, applyFilters]
   );
 
   // Handle Enter key to apply filters

@@ -64,6 +64,13 @@ export const RichInputAdapter: React.FC<RichInputAdapterProps> = ({
       blurDelay: 150
     });
 
+  // Handle text insertion at cursor
+  const { insertAtCursor } = useTextInsertion({
+    value,
+    onChange,
+    richInputRef
+  });
+
   // Handle search overlay functionality
   const {
     searchOverlay,
@@ -81,13 +88,6 @@ export const RichInputAdapter: React.FC<RichInputAdapterProps> = ({
     enableHashtags,
     enableUserMentions,
     enableEmojis
-  });
-
-  // Handle text insertion at cursor
-  const { insertAtCursor } = useTextInsertion({
-    value,
-    onChange,
-    richInputRef
   });
 
   // Handle URL auto-conversion

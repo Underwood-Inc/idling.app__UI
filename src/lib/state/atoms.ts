@@ -935,79 +935,7 @@ export const triggerFetchAtom = atom(
 /**
  * URL synchronization atom - handles URL updates when filters change
  */
-export const urlSyncAtom = atom(
-  null,
-  (
-    get,
-    set,
-    params: {
-      contextId: string;
-      router: any;
-      pathname: string;
-      infiniteScroll?: boolean;
-    }
-  ) => {
-    const filtersState = get(getSubmissionsFiltersAtom(params.contextId));
-    const urlParams = new URLSearchParams();
-
-    // Add filters to URL - combine multiple values for same filter type
-    const filterGroups = filtersState.filters.reduce(
-      (acc, filter) => {
-        if (!acc[filter.name]) acc[filter.name] = [];
-        acc[filter.name].push(filter.value);
-        return acc;
-      },
-      {} as Record<string, string[]>
-    );
-
-    Object.entries(filterGroups).forEach(([name, values]) => {
-      if (
-        name === 'tags' ||
-        name === 'author' ||
-        name === 'mentions' ||
-        name === 'search'
-      ) {
-        if (name === 'tags') {
-          const { formatTagsForUrl } = require('../utils/string/tag-utils');
-          const allTags = values.flatMap((value) =>
-            value.split(',').map((tag) => tag.trim())
-          );
-          urlParams.set(name, formatTagsForUrl(allTags));
-        } else {
-          urlParams.set(name, values.join(','));
-        }
-      } else if (name === 'onlyReplies') {
-        // Handle onlyReplies filter
-        if (values[0] === 'true') {
-          urlParams.set('onlyReplies', 'true');
-        }
-      } else if (name === 'tagLogic' && filterGroups.tags) {
-        urlParams.set('tagLogic', values[0]);
-      } else if (name === 'authorLogic' && filterGroups.author) {
-        urlParams.set('authorLogic', values[0]);
-      } else if (name === 'mentionsLogic' && filterGroups.mentions) {
-        urlParams.set('mentionsLogic', values[0]);
-      } else if (name === 'searchLogic' && filterGroups.search) {
-        urlParams.set('searchLogic', values[0]);
-      } else if (name === 'globalLogic') {
-        urlParams.set('globalLogic', values[0]);
-      }
-    });
-
-    // Add pagination only if not in infinite scroll mode
-    if (!params.infiniteScroll) {
-      if (filtersState.page > 1) {
-        urlParams.set('page', filtersState.page.toString());
-      }
-      if (filtersState.pageSize !== 10) {
-        urlParams.set('pageSize', filtersState.pageSize.toString());
-      }
-    }
-
-    const newUrl = `${params.pathname}${urlParams.toString() ? `?${urlParams.toString()}` : ''}`;
-    params.router.push(newUrl, { scroll: false });
-  }
-);
+// Removed: urlSyncAtom - Replaced by direct URL updates in filter actions
 
 /**
  * Batched filter update atom - replaces manual batching
@@ -1080,9 +1008,14 @@ export const getSubmissionsConfigAtom = (contextId: string) => {
 };
 
 /**
- * URL parameters atom - derived from current URL
+ * URL parameters atom - reactive to browser URL changes
  */
-export const urlParamsAtom = atom<URLSearchParams>(new URLSearchParams());
+export const urlParamsAtom = atom<URLSearchParams>(
+  // Get initial URL params from browser
+  typeof window !== 'undefined'
+    ? new URLSearchParams(window.location.search)
+    : new URLSearchParams()
+);
 
 /**
  * Derived atom that extracts filters from URL parameters
@@ -1252,76 +1185,7 @@ export const paginationFromUrlAtom = atom((get) => {
   };
 });
 
-/**
- * Auto-syncing URL atom that updates URL when filters change
- */
-export const createAutoUrlSyncAtom = (contextId: string) => {
-  return atom(null, (get, set, params: { router: any; pathname: string }) => {
-    const config = get(getSubmissionsConfigAtom(contextId));
-    const filters = get(createCombinedFiltersAtom(contextId)); // Use combined atom
-
-    if (!config || !filters.initialized || config.infiniteScroll) {
-      return;
-    }
-
-    const urlParams = new URLSearchParams();
-
-    // Add filters to URL
-    const filterGroups = filters.filters.reduce(
-      (acc, filter) => {
-        if (!acc[filter.name]) acc[filter.name] = [];
-        acc[filter.name].push(filter.value);
-        return acc;
-      },
-      {} as Record<string, string[]>
-    );
-
-    Object.entries(filterGroups).forEach(([name, values]) => {
-      if (
-        name === 'tags' ||
-        name === 'author' ||
-        name === 'mentions' ||
-        name === 'search'
-      ) {
-        if (name === 'tags') {
-          const { formatTagsForUrl } = require('../utils/string/tag-utils');
-          const allTags = values.flatMap((value) =>
-            value.split(',').map((tag) => tag.trim())
-          );
-          urlParams.set(name, formatTagsForUrl(allTags));
-        } else {
-          urlParams.set(name, values.join(','));
-        }
-      } else if (name === 'onlyReplies') {
-        // Handle onlyReplies filter
-        if (values[0] === 'true') {
-          urlParams.set('onlyReplies', 'true');
-        }
-      } else if (name === 'tagLogic' && filterGroups.tags) {
-        urlParams.set('tagLogic', values[0]);
-      } else if (name === 'authorLogic' && filterGroups.author) {
-        urlParams.set('authorLogic', values[0]);
-      } else if (name === 'mentionsLogic' && filterGroups.mentions) {
-        urlParams.set('mentionsLogic', values[0]);
-      } else if (name === 'searchLogic' && filterGroups.search) {
-        urlParams.set('searchLogic', values[0]);
-      } else if (name === 'globalLogic') {
-        urlParams.set('globalLogic', values[0]);
-      }
-    });
-
-    // Add pagination
-    if (filters.page > 1) {
-      urlParams.set('page', filters.page.toString());
-    }
-    if (filters.pageSize !== 10) {
-      urlParams.set('pageSize', filters.pageSize.toString());
-    }
-
-    const newUrl = `${params.pathname}${urlParams.toString() ? `?${urlParams.toString()}` : ''}`;
-    params.router.push(newUrl, { scroll: false });
-  });
-};
+// Removed: createAutoUrlSyncAtom - Replaced by direct URL updates in filter actions
 
 /**
  * Infinite scroll state atom
@@ -1336,7 +1200,7 @@ export const createInfiniteScrollAtom = (contextId: string) => {
 };
 
 /**
- * Comprehensive action atoms for filter management
+ * URL-first filter actions - Updates URL directly, state derives from URL
  */
 export const createFilterActionsAtom = (contextId: string) => {
   return atom(
@@ -1352,87 +1216,76 @@ export const createFilterActionsAtom = (contextId: string) => {
         | { type: 'CLEAR_FILTERS' }
         | { type: 'SET_PAGE'; page: number }
         | { type: 'SET_PAGE_SIZE'; pageSize: number }
+        | { type: 'UPDATE_URL'; router: any; pathname: string }
     ) => {
-      const current = get(createCombinedFiltersAtom(contextId)); // Use combined atom
+      // Get current state from URL (single source of truth)
+      const current = get(createCombinedFiltersAtom(contextId));
       const config = get(getSubmissionsConfigAtom(contextId));
+
+      let newFilters = [...current.filters];
+      let newPage = current.page;
+      let newPageSize = current.pageSize;
 
       switch (action.type) {
         case 'ADD_FILTER': {
-          const newFilters = [...current.filters, action.filter];
-          set(createCombinedFiltersAtom(contextId), {
-            ...current,
-            filters: newFilters as Filter[],
-            page: 1
-          });
+          // Check if filter already exists
+          const exists = newFilters.some(
+            (f) =>
+              f.name === action.filter.name && f.value === action.filter.value
+          );
+          if (!exists) {
+            newFilters = [...newFilters, action.filter];
+            newPage = 1; // Reset to first page
+          }
           break;
         }
 
         case 'ADD_FILTERS': {
-          const newFilters = [...current.filters, ...action.filters];
-          set(createCombinedFiltersAtom(contextId), {
-            ...current,
-            filters: newFilters as Filter[],
-            page: 1
+          // Add multiple filters, avoiding duplicates
+          action.filters.forEach((filter) => {
+            const exists = newFilters.some(
+              (f) => f.name === filter.name && f.value === filter.value
+            );
+            if (!exists) {
+              newFilters.push(filter);
+            }
           });
+          newPage = 1; // Reset to first page
           break;
         }
 
         case 'REMOVE_FILTER': {
-          const newFilters = action.value
-            ? current.filters.filter(
+          newFilters = action.value
+            ? newFilters.filter(
                 (f) => !(f.name === action.name && f.value === action.value)
               )
-            : current.filters.filter((f) => f.name !== action.name);
-
-          set(createCombinedFiltersAtom(contextId), {
-            ...current,
-            filters: newFilters,
-            page: 1
-          });
+            : newFilters.filter((f) => f.name !== action.name);
+          newPage = 1; // Reset to first page
           break;
         }
 
         case 'REMOVE_TAG': {
-          const tagsFilter = current.filters.find((f) => f.name === 'tags');
-          if (!tagsFilter) return;
-
-          const currentTags = tagsFilter.value
-            .split(',')
-            .map((tag) => tag.trim())
-            .filter(Boolean);
-
-          const newTags = currentTags.filter((tag) => tag !== action.tag);
-
-          let newFilters = [...current.filters];
-
-          if (newTags.length === 0) {
-            newFilters = newFilters.filter(
-              (f) => f.name !== 'tags' && f.name !== 'tagLogic'
-            );
-          } else {
-            newFilters = newFilters.map((f) =>
-              f.name === 'tags' ? { ...f, value: newTags.join(',') } : f
-            );
-
-            if (newTags.length === 1) {
-              newFilters = newFilters.filter((f) => f.name !== 'tagLogic');
+          // Remove specific tag and handle tagLogic cleanup
+          newFilters = newFilters.filter((f) => {
+            if (f.name === 'tags') {
+              // For tag filters, check if this is the tag to remove
+              return f.value !== action.tag;
             }
-          }
-
-          set(createCombinedFiltersAtom(contextId), {
-            ...current,
-            filters: newFilters,
-            page: 1
+            return true;
           });
+
+          // Clean up tagLogic if only one or no tags left
+          const remainingTags = newFilters.filter((f) => f.name === 'tags');
+          if (remainingTags.length <= 1) {
+            newFilters = newFilters.filter((f) => f.name !== 'tagLogic');
+          }
+          newPage = 1; // Reset to first page
           break;
         }
 
         case 'CLEAR_FILTERS': {
-          set(createCombinedFiltersAtom(contextId), {
-            ...current,
-            filters: [],
-            page: 1
-          });
+          newFilters = [];
+          newPage = 1;
 
           // Reset infinite scroll if enabled
           if (config?.infiniteScroll) {
@@ -1448,21 +1301,37 @@ export const createFilterActionsAtom = (contextId: string) => {
         }
 
         case 'SET_PAGE': {
-          set(createCombinedFiltersAtom(contextId), {
-            ...current,
-            page: action.page
-          });
+          newPage = action.page;
           break;
         }
 
         case 'SET_PAGE_SIZE': {
-          set(createCombinedFiltersAtom(contextId), {
-            ...current,
-            pageSize: action.pageSize,
-            page: 1
-          });
+          newPageSize = action.pageSize;
+          newPage = 1; // Reset to first page when changing page size
           break;
         }
+
+        case 'UPDATE_URL': {
+          // This action is called to sync current state to URL
+          // Used by components that have access to router
+          updateUrlFromFilters(
+            newFilters,
+            newPage,
+            newPageSize,
+            action.router,
+            action.pathname
+          );
+          return;
+        }
+      }
+
+      // Update URL with new filter state
+      if (typeof window !== 'undefined') {
+        updateUrlFromCurrentFilters(newFilters, newPage, newPageSize);
+
+        // Update urlParamsAtom to trigger reactivity after URL change
+        const updatedParams = new URLSearchParams(window.location.search);
+        set(urlParamsAtom, updatedParams);
       }
 
       // Auto-trigger fetch
@@ -1473,36 +1342,150 @@ export const createFilterActionsAtom = (contextId: string) => {
 };
 
 /**
- * Writable filter state atom for dynamic updates
+ * Updates URL from filter state - Browser history method
  */
-export const createWritableFiltersAtom = (contextId: string) => {
-  return atom<SubmissionsFilters>({
-    onlyMine: false,
-    userId: '',
-    filters: [],
-    page: 1,
-    pageSize: 10,
-    initialized: false
+function updateUrlFromCurrentFilters(
+  filters: Filter[],
+  page: number,
+  pageSize: number
+) {
+  const params = new URLSearchParams();
+
+  // Group filters by name for URL formatting
+  const filterGroups = filters.reduce(
+    (acc, filter) => {
+      if (!acc[filter.name]) acc[filter.name] = [];
+      acc[filter.name].push(filter.value);
+      return acc;
+    },
+    {} as Record<string, string[]>
+  );
+
+  // Format filters for URL
+  Object.entries(filterGroups).forEach(([name, values]) => {
+    if (
+      name === 'tags' ||
+      name === 'author' ||
+      name === 'mentions' ||
+      name === 'search'
+    ) {
+      if (name === 'tags') {
+        const { formatTagsForUrl } = require('../utils/string/tag-utils');
+        const allTags = values.flatMap((value) =>
+          value.split(',').map((tag) => tag.trim())
+        );
+        params.set(name, formatTagsForUrl(allTags));
+      } else {
+        params.set(name, values.join(','));
+      }
+    } else if (name === 'onlyReplies') {
+      if (values[0] === 'true') {
+        params.set('onlyReplies', 'true');
+      }
+    } else if (name === 'tagLogic' && filterGroups.tags) {
+      params.set('tagLogic', values[0]);
+    } else if (name === 'authorLogic' && filterGroups.author) {
+      params.set('authorLogic', values[0]);
+    } else if (name === 'mentionsLogic' && filterGroups.mentions) {
+      params.set('mentionsLogic', values[0]);
+    } else if (name === 'searchLogic' && filterGroups.search) {
+      params.set('searchLogic', values[0]);
+    } else if (name === 'globalLogic') {
+      params.set('globalLogic', values[0]);
+    }
   });
-};
+
+  // Add pagination
+  if (page > 1) {
+    params.set('page', page.toString());
+  }
+  if (pageSize !== 10) {
+    params.set('pageSize', pageSize.toString());
+  }
+
+  // Update URL using browser history
+  const newUrl = `${window.location.pathname}${params.toString() ? `?${params.toString()}` : ''}`;
+  window.history.pushState({}, '', newUrl);
+}
 
 /**
- * Combined filters atom that merges URL initialization with dynamic updates
+ * Updates URL using Next.js router - For components with router access
+ */
+function updateUrlFromFilters(
+  filters: Filter[],
+  page: number,
+  pageSize: number,
+  router: any,
+  pathname: string
+) {
+  const params = new URLSearchParams();
+
+  // Group filters by name for URL formatting
+  const filterGroups = filters.reduce(
+    (acc, filter) => {
+      if (!acc[filter.name]) acc[filter.name] = [];
+      acc[filter.name].push(filter.value);
+      return acc;
+    },
+    {} as Record<string, string[]>
+  );
+
+  // Format filters for URL
+  Object.entries(filterGroups).forEach(([name, values]) => {
+    if (
+      name === 'tags' ||
+      name === 'author' ||
+      name === 'mentions' ||
+      name === 'search'
+    ) {
+      if (name === 'tags') {
+        const { formatTagsForUrl } = require('../utils/string/tag-utils');
+        const allTags = values.flatMap((value) =>
+          value.split(',').map((tag) => tag.trim())
+        );
+        params.set(name, formatTagsForUrl(allTags));
+      } else {
+        params.set(name, values.join(','));
+      }
+    } else if (name === 'onlyReplies') {
+      if (values[0] === 'true') {
+        params.set('onlyReplies', 'true');
+      }
+    } else if (name === 'tagLogic' && filterGroups.tags) {
+      params.set('tagLogic', values[0]);
+    } else if (name === 'authorLogic' && filterGroups.author) {
+      params.set('authorLogic', values[0]);
+    } else if (name === 'mentionsLogic' && filterGroups.mentions) {
+      params.set('mentionsLogic', values[0]);
+    } else if (name === 'searchLogic' && filterGroups.search) {
+      params.set('searchLogic', values[0]);
+    } else if (name === 'globalLogic') {
+      params.set('globalLogic', values[0]);
+    }
+  });
+
+  // Add pagination
+  if (page > 1) {
+    params.set('page', page.toString());
+  }
+  if (pageSize !== 10) {
+    params.set('pageSize', pageSize.toString());
+  }
+
+  const newUrl = `${pathname}${params.toString() ? `?${params.toString()}` : ''}`;
+  router.push(newUrl, { scroll: false });
+}
+
+// Removed: createWritableFiltersAtom - No longer needed with URL-first approach
+
+/**
+ * URL-first combined filters atom - Always derives from URL (single source of truth)
+ * This replaces the old getSubmissionsFiltersAtom to make it URL-first
  */
 export const createCombinedFiltersAtom = (contextId: string) => {
-  const writableAtom = createWritableFiltersAtom(contextId);
-
   return atom(
     (get) => {
       const config = get(getSubmissionsConfigAtom(contextId));
-      const writable = get(writableAtom);
-
-      // If writable is initialized, use it (for dynamic updates)
-      if (writable.initialized) {
-        return writable;
-      }
-
-      // Otherwise, initialize from URL
       const urlFilters = get(filtersFromUrlAtom);
       const urlPagination = get(paginationFromUrlAtom);
 
@@ -1512,7 +1495,7 @@ export const createCombinedFiltersAtom = (contextId: string) => {
           userId: '',
           filters: [],
           page: 1,
-          pageSize: 100,
+          pageSize: 10,
           initialized: false
         };
       }
@@ -1526,8 +1509,84 @@ export const createCombinedFiltersAtom = (contextId: string) => {
         initialized: true
       };
     },
+    // Add write capability that updates URL instead of atom state
     (get, set, update: Partial<SubmissionsFilters>) => {
-      set(writableAtom, (prev) => ({ ...prev, ...update, initialized: true }));
+      if (typeof window === 'undefined') return;
+
+      if (process.env.NODE_ENV === 'development') {
+        // eslint-disable-next-line no-console
+        console.log('🔍 createCombinedFiltersAtom WRITE called with:', update);
+      }
+
+      // Get current state
+      const current = get(createCombinedFiltersAtom(contextId));
+
+      // Apply updates to create new state
+      const newState = { ...current, ...update };
+
+      // Update URL directly
+      const params = new URLSearchParams();
+
+      // Group filters by name
+      const filterGroups = newState.filters.reduce(
+        (acc, filter) => {
+          if (!acc[filter.name]) acc[filter.name] = [];
+          acc[filter.name].push(filter.value);
+          return acc;
+        },
+        {} as Record<string, string[]>
+      );
+
+      // Format filters for URL
+      Object.entries(filterGroups).forEach(([name, values]) => {
+        if (values.length > 0) {
+          if (name === 'tags') {
+            const { formatTagsForUrl } = require('../utils/string/tag-utils');
+            const allTags = values.flatMap((value) =>
+              value.split(',').map((tag) => tag.trim())
+            );
+            params.set(name, formatTagsForUrl(allTags));
+          } else if (
+            name === 'author' ||
+            name === 'mentions' ||
+            name === 'search'
+          ) {
+            params.set(name, values.join(','));
+          } else if (name === 'onlyReplies') {
+            if (values[0] === 'true') {
+              params.set('onlyReplies', 'true');
+            }
+          } else if (name.endsWith('Logic')) {
+            const baseFilterName = name.replace('Logic', '');
+            if (filterGroups[baseFilterName]) {
+              params.set(name, values[0]);
+            }
+          } else {
+            params.set(name, values[0]);
+          }
+        }
+      });
+
+      // Add pagination
+      if (newState.page > 1) {
+        params.set('page', newState.page.toString());
+      }
+      if (newState.pageSize !== 10) {
+        params.set('pageSize', newState.pageSize.toString());
+      }
+
+      // Update URL using browser history
+      const newUrl = `${window.location.pathname}${params.toString() ? `?${params.toString()}` : ''}`;
+      if (process.env.NODE_ENV === 'development') {
+        // eslint-disable-next-line no-console
+        console.log('🔍 createCombinedFiltersAtom: Updating URL to:', newUrl);
+      }
+
+      window.history.pushState({}, '', newUrl);
+
+      // Update urlParamsAtom to trigger reactivity
+      const updatedParams = new URLSearchParams(window.location.search);
+      set(urlParamsAtom, updatedParams);
     }
   );
 };

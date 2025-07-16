@@ -75,11 +75,11 @@ export function GlobalLoadingProvider({
 
         // Debug: Log all intercepted requests
         // eslint-disable-next-line no-console
-        console.log('🌐 LOADING: Intercepted request:', {
-          requestId,
-          method,
-          url
-        });
+        // console.log('🌐 LOADING: Intercepted request:', {
+        //   requestId,
+        //   method,
+        //   url
+        // });
 
         const loadingMessage = getLoadingMessage(url, method);
 
@@ -99,10 +99,10 @@ export function GlobalLoadingProvider({
 
           // Debug: Log completed requests
           // eslint-disable-next-line no-console
-          console.log('✅ LOADING: Request completed:', {
-            requestId,
-            status: response.status
-          });
+          // console.log('✅ LOADING: Request completed:', {
+          //   requestId,
+          //   status: response.status
+          // });
 
           // Handle rate limiting
           if (response.status === 429) {
@@ -145,10 +145,10 @@ export function GlobalLoadingProvider({
             const newRequests = new Set(prev.activeRequests);
             newRequests.delete(requestId);
             // eslint-disable-next-line no-console
-            console.log('🔄 LOADING: Updated loading state:', {
-              activeRequests: Array.from(newRequests),
-              isLoading: newRequests.size > 0
-            });
+            // console.log('🔄 LOADING: Updated loading state:', {
+            //   activeRequests: Array.from(newRequests),
+            //   isLoading: newRequests.size > 0
+            // });
             return {
               isLoading: newRequests.size > 0,
               activeRequests: newRequests,
@@ -219,7 +219,7 @@ export function GlobalLoadingProvider({
 
   const clearAllLoading = useCallback(() => {
     // eslint-disable-next-line no-console
-    console.log('🧹 LOADING: Clearing all loading states');
+    // console.log('🧹 LOADING: Clearing all loading states');
     setLoadingState({
       isLoading: false,
       activeRequests: new Set(),

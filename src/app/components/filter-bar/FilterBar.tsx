@@ -1,9 +1,8 @@
 'use client';
 
-import { useAtom } from 'jotai';
+import { Filter } from '@lib/state/atoms';
+import { PostFilters } from '@lib/types/filters';
 import { useEffect } from 'react';
-import { Filter, getSubmissionsFiltersAtom } from '../../../lib/state/atoms';
-import { PostFilters } from '../../../lib/types/filters';
 import './FilterBar.css';
 import { FilterLabel } from './FilterLabel';
 
@@ -28,11 +27,6 @@ export default function FilterBar({
   onClearFilters,
   onUpdateFilter
 }: FilterBarProps) {
-  // Add direct Jotai access for debugging
-  const [filtersState, setFiltersState] = useAtom(
-    getSubmissionsFiltersAtom(filterId)
-  );
-
   // Handle filter type change events from FilterLabel components
   useEffect(() => {
     const handleFilterTypeChange = (event: Event) => {
