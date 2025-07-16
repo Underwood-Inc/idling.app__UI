@@ -26,6 +26,80 @@ jest.mock('../tag-link/TagLink', () => ({
   TagLink: ({ value }: { value: string }) => <span>#{value}</span>
 }));
 
+// Mock the TagLogicToggle component
+jest.mock('../shared/TagLogicToggle', () => ({
+  TagLogicToggle: () => {
+    const {
+      useSimpleUrlFilters
+    } = require('../../../lib/state/submissions/useSimpleUrlFilters');
+    const mockFilters = useSimpleUrlFilters();
+
+    const currentTagLogic =
+      mockFilters.filters.find((f: any) => f.name === 'tagLogic')?.value ||
+      'OR';
+
+    // Check if we have multiple tags to determine if toggle should be shown
+    const tagFilters = mockFilters.filters.filter(
+      (f: any) => f.name === 'tags'
+    );
+    const hasMultipleTags = tagFilters.length > 1;
+
+    // Don't render if we don't have multiple tags
+    if (!hasMultipleTags) {
+      return null;
+    }
+
+    return (
+      <div className="logic-toggle">
+        <div className="logic-toggle__button-group">
+          <button
+            className={`logic-toggle__button ${currentTagLogic === 'AND' ? 'logic-toggle__button--active' : ''}`}
+            onClick={() =>
+              mockFilters.updateFilter &&
+              mockFilters.updateFilter('tagLogic', 'AND')
+            }
+            title="Show posts with ALL selected tags"
+          >
+            ALL
+          </button>
+          <button
+            className={`logic-toggle__button ${currentTagLogic === 'OR' ? 'logic-toggle__button--active' : ''}`}
+            onClick={() =>
+              mockFilters.updateFilter &&
+              mockFilters.updateFilter('tagLogic', 'OR')
+            }
+            title="Show posts with ANY selected tags"
+          >
+            ANY
+          </button>
+        </div>
+      </div>
+    );
+  }
+}));
+
+// Mock the filter utilities
+jest.mock('../../../lib/utils/filter-utils', () => ({
+  handleTagFilter: jest.fn(),
+  isTagActive: jest.fn((tag, filters) => {
+    // Mock implementation: return true if tag is in filters
+    return filters.some((f: any) => f.name === 'tags' && f.value === tag);
+  })
+}));
+
+// Mock the useSimpleUrlFilters hook
+jest.mock('../../../lib/state/submissions/useSimpleUrlFilters', () => ({
+  useSimpleUrlFilters: jest.fn(() => ({
+    filters: [],
+    addFilter: jest.fn(),
+    removeFilter: jest.fn(),
+    updateUrl: jest.fn(),
+    tagLogic: 'AND',
+    setTagLogic: jest.fn(),
+    searchParams: new URLSearchParams()
+  }))
+}));
+
 // Mock the atoms module with a proper atom factory
 jest.mock('../../../lib/state/atoms', () => {
   const mockAtom = {
@@ -221,6 +295,24 @@ describe('RecentTagsClient', () => {
       mockSetFiltersState
     ]);
 
+    // Also mock useSimpleUrlFilters with multiple tags
+    const {
+      useSimpleUrlFilters
+    } = require('../../../lib/state/submissions/useSimpleUrlFilters');
+    (useSimpleUrlFilters as jest.Mock).mockReturnValue({
+      filters: [
+        { name: 'tags', value: 'javascript' },
+        { name: 'tags', value: 'react' }
+      ],
+      addFilter: jest.fn(),
+      removeFilter: jest.fn(),
+      updateUrl: jest.fn(),
+      updateFilter: jest.fn(),
+      tagLogic: 'OR',
+      setTagLogic: jest.fn(),
+      searchParams: new URLSearchParams()
+    });
+
     render(
       <Provider>
         <RecentTagsClient {...defaultProps} />
@@ -235,12 +327,14 @@ describe('RecentTagsClient', () => {
     });
 
     // Should show the toggle
-    expect(screen.getByText('OR')).toBeInTheDocument();
-    expect(screen.queryByText('ANY')).not.toBeInTheDocument();
-    expect(screen.queryByText('ALL')).not.toBeInTheDocument();
+    expect(screen.getByText('ANY')).toBeInTheDocument();
+    expect(screen.getByText('ALL')).toBeInTheDocument();
   });
 
   it('handles tag selection correctly', async () => {
+    // Get the mocked functions
+    const { handleTagFilter } = require('../../../lib/utils/filter-utils');
+
     render(
       <Provider>
         <RecentTagsClient {...defaultProps} />
@@ -258,23 +352,29 @@ describe('RecentTagsClient', () => {
     const tagButton = screen.getByText('#javascript');
     fireEvent.click(tagButton);
 
-    // Should call setFiltersState to add the tag
+    // Should call handleTagFilter
     await waitFor(() => {
-      expect(mockSetFiltersState).toHaveBeenCalled();
+      expect(handleTagFilter).toHaveBeenCalled();
     });
   });
 
   it('handles multiple tag selection correctly', async () => {
-    // Start with one tag selected
-    const oneTagFiltersState = {
-      ...mockFiltersState,
-      filters: [{ name: 'tags', value: 'javascript' }]
-    };
-    const { useAtom } = require('jotai');
-    (useAtom as jest.Mock).mockReturnValue([
-      oneTagFiltersState,
-      mockSetFiltersState
-    ]);
+    // Get the mocked functions
+    const { handleTagFilter } = require('../../../lib/utils/filter-utils');
+
+    // Mock useSimpleUrlFilters to return existing tags
+    const {
+      useSimpleUrlFilters
+    } = require('../../../lib/state/submissions/useSimpleUrlFilters');
+    (useSimpleUrlFilters as jest.Mock).mockReturnValue({
+      filters: [{ name: 'tags', value: 'javascript' }],
+      addFilter: jest.fn(),
+      removeFilter: jest.fn(),
+      updateUrl: jest.fn(),
+      tagLogic: 'AND',
+      setTagLogic: jest.fn(),
+      searchParams: new URLSearchParams()
+    });
 
     render(
       <Provider>
@@ -293,27 +393,32 @@ describe('RecentTagsClient', () => {
     const reactButton = screen.getByText('#react');
     fireEvent.click(reactButton);
 
-    // Should call setFiltersState to add the second tag
+    // Should call handleTagFilter to add the second tag
     await waitFor(() => {
-      expect(mockSetFiltersState).toHaveBeenCalled();
+      expect(handleTagFilter).toHaveBeenCalled();
     });
   });
 
   it('handles AND/OR logic toggle correctly', async () => {
-    // Mock state with multiple tags and OR logic - separate filter entries
-    const multiTagFiltersState = {
-      ...mockFiltersState,
+    // Mock useSimpleUrlFilters to return multiple tags with OR logic
+    const {
+      useSimpleUrlFilters
+    } = require('../../../lib/state/submissions/useSimpleUrlFilters');
+    const mockUpdateFilter = jest.fn();
+    (useSimpleUrlFilters as jest.Mock).mockReturnValue({
       filters: [
         { name: 'tags', value: '#javascript' },
         { name: 'tags', value: '#react' },
         { name: 'tagLogic', value: 'OR' }
-      ]
-    };
-    const { useAtom } = require('jotai');
-    (useAtom as jest.Mock).mockReturnValue([
-      multiTagFiltersState,
-      mockSetFiltersState
-    ]);
+      ],
+      addFilter: jest.fn(),
+      removeFilter: jest.fn(),
+      updateUrl: jest.fn(),
+      updateFilter: mockUpdateFilter,
+      tagLogic: 'OR',
+      setTagLogic: jest.fn(),
+      searchParams: new URLSearchParams()
+    });
 
     render(
       <Provider>
@@ -328,33 +433,37 @@ describe('RecentTagsClient', () => {
       ).not.toBeInTheDocument();
     });
 
-    // Find and click the OR button to switch from OR to AND
-    const orButton = screen.getByRole('button', {
-      name: 'OR'
+    // Find and click the ALL button to switch from OR to AND
+    const allButton = screen.getByRole('button', {
+      name: 'ALL'
     });
-    fireEvent.click(orButton);
+    fireEvent.click(allButton);
 
-    // Should call setFiltersState to update logic to AND
+    // Should call updateFilter to change logic to AND
     await waitFor(() => {
-      expect(mockSetFiltersState).toHaveBeenCalled();
+      expect(mockUpdateFilter).toHaveBeenCalledWith('tagLogic', 'AND');
     });
   });
 
-  it('updates smart title based on selected tags and logic', async () => {
-    // Mock state with multiple tags and AND logic - separate filter entries
-    const multiTagAndFiltersState = {
-      ...mockFiltersState,
+  it('displays the correct active tags when multiple tags are selected', async () => {
+    // Mock useSimpleUrlFilters to return multiple tags with AND logic
+    const {
+      useSimpleUrlFilters
+    } = require('../../../lib/state/submissions/useSimpleUrlFilters');
+    (useSimpleUrlFilters as jest.Mock).mockReturnValue({
       filters: [
         { name: 'tags', value: '#javascript' },
         { name: 'tags', value: '#react' },
         { name: 'tagLogic', value: 'AND' }
-      ]
-    };
-    const { useAtom } = require('jotai');
-    (useAtom as jest.Mock).mockReturnValue([
-      multiTagAndFiltersState,
-      mockSetFiltersState
-    ]);
+      ],
+      addFilter: jest.fn(),
+      removeFilter: jest.fn(),
+      updateUrl: jest.fn(),
+      updateFilter: jest.fn(),
+      tagLogic: 'AND',
+      setTagLogic: jest.fn(),
+      searchParams: new URLSearchParams()
+    });
 
     render(
       <Provider>
@@ -369,27 +478,30 @@ describe('RecentTagsClient', () => {
       ).not.toBeInTheDocument();
     });
 
-    // Should show smart title with "all of"
-    expect(
-      screen.getByText(/Posts with all of: #javascript, #react/)
-    ).toBeInTheDocument();
+    // Should show active tags
+    expect(screen.getByText('#javascript')).toBeInTheDocument();
+    expect(screen.getByText('#react')).toBeInTheDocument();
   });
 
-  it('updates smart title for OR logic', async () => {
-    // Mock state with multiple tags and OR logic - separate filter entries
-    const multiTagOrFiltersState = {
-      ...mockFiltersState,
+  it('shows correct logic toggle state for OR logic', async () => {
+    // Mock useSimpleUrlFilters to return multiple tags with OR logic
+    const {
+      useSimpleUrlFilters
+    } = require('../../../lib/state/submissions/useSimpleUrlFilters');
+    (useSimpleUrlFilters as jest.Mock).mockReturnValue({
       filters: [
         { name: 'tags', value: '#javascript' },
         { name: 'tags', value: '#react' },
         { name: 'tagLogic', value: 'OR' }
-      ]
-    };
-    const { useAtom } = require('jotai');
-    (useAtom as jest.Mock).mockReturnValue([
-      multiTagOrFiltersState,
-      mockSetFiltersState
-    ]);
+      ],
+      addFilter: jest.fn(),
+      removeFilter: jest.fn(),
+      updateUrl: jest.fn(),
+      updateFilter: jest.fn(),
+      tagLogic: 'OR',
+      setTagLogic: jest.fn(),
+      searchParams: new URLSearchParams()
+    });
 
     render(
       <Provider>
@@ -404,26 +516,31 @@ describe('RecentTagsClient', () => {
       ).not.toBeInTheDocument();
     });
 
-    // Should show smart title with "any of"
-    expect(
-      screen.getByText(/Posts with any of: #javascript, #react/)
-    ).toBeInTheDocument();
+    // Should show ANY button as active for OR logic
+    const anyButton = screen.getByRole('button', { name: 'ANY' });
+    expect(anyButton).toHaveClass('logic-toggle__button--active');
   });
 
   it('handles tag removal correctly', async () => {
-    // Mock state with multiple tags - separate filter entries
-    const multiTagFiltersState = {
-      ...mockFiltersState,
+    // Get the mocked functions
+    const { handleTagFilter } = require('../../../lib/utils/filter-utils');
+
+    // Mock useSimpleUrlFilters to return multiple existing tags
+    const {
+      useSimpleUrlFilters
+    } = require('../../../lib/state/submissions/useSimpleUrlFilters');
+    (useSimpleUrlFilters as jest.Mock).mockReturnValue({
       filters: [
         { name: 'tags', value: '#javascript' },
         { name: 'tags', value: '#react' }
-      ]
-    };
-    const { useAtom } = require('jotai');
-    (useAtom as jest.Mock).mockReturnValue([
-      multiTagFiltersState,
-      mockSetFiltersState
-    ]);
+      ],
+      addFilter: jest.fn(),
+      removeFilter: jest.fn(),
+      updateUrl: jest.fn(),
+      tagLogic: 'OR',
+      setTagLogic: jest.fn(),
+      searchParams: new URLSearchParams()
+    });
 
     render(
       <Provider>
@@ -442,23 +559,29 @@ describe('RecentTagsClient', () => {
     const tagButton = screen.getByText('#javascript');
     fireEvent.click(tagButton);
 
-    // Should call setFiltersState to remove the tag
+    // Should call handleTagFilter to remove the tag
     await waitFor(() => {
-      expect(mockSetFiltersState).toHaveBeenCalled();
+      expect(handleTagFilter).toHaveBeenCalled();
     });
   });
 
   it('clears all filters when removing last tag', async () => {
-    // Mock state with single tag
-    const singleTagFiltersState = {
-      ...mockFiltersState,
-      filters: [{ name: 'tags', value: 'javascript' }]
-    };
-    const { useAtom } = require('jotai');
-    (useAtom as jest.Mock).mockReturnValue([
-      singleTagFiltersState,
-      mockSetFiltersState
-    ]);
+    // Get the mocked functions
+    const { handleTagFilter } = require('../../../lib/utils/filter-utils');
+
+    // Mock useSimpleUrlFilters to return single tag
+    const {
+      useSimpleUrlFilters
+    } = require('../../../lib/state/submissions/useSimpleUrlFilters');
+    (useSimpleUrlFilters as jest.Mock).mockReturnValue({
+      filters: [{ name: 'tags', value: 'javascript' }],
+      addFilter: jest.fn(),
+      removeFilter: jest.fn(),
+      updateUrl: jest.fn(),
+      tagLogic: 'OR',
+      setTagLogic: jest.fn(),
+      searchParams: new URLSearchParams()
+    });
 
     render(
       <Provider>
@@ -477,9 +600,9 @@ describe('RecentTagsClient', () => {
     const tagButton = screen.getByText('#javascript');
     fireEvent.click(tagButton);
 
-    // Should call setFiltersState to clear all filters
+    // Should call handleTagFilter to clear the last tag
     await waitFor(() => {
-      expect(mockSetFiltersState).toHaveBeenCalled();
+      expect(handleTagFilter).toHaveBeenCalled();
     });
   });
 

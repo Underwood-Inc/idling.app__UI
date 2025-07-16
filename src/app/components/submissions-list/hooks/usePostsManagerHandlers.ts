@@ -1,18 +1,12 @@
 'use client';
 
 import { createLogger } from '@lib/logging';
-import { useAtom } from 'jotai';
-import { useCallback, useRef } from 'react';
-import { getSubmissionsFiltersAtom, shouldUpdateAtom } from '../../../../lib/state/atoms';
-import { PostFilters } from '../../../../lib/types/filters';
+import { useSimpleUrlFilters } from '@lib/state/submissions/useSimpleUrlFilters';
+import { PostFilters } from '@lib/types/filters';
+import { handleTagFilter } from '@lib/utils/filter-utils';
+import React, { useCallback, useRef } from 'react';
 
-const logger = createLogger({
-  context: {
-    component: 'usePostsManagerHandlers',
-    module: 'hooks'
-  },
-  enabled: true
-});
+const logger = createLogger({ context: { module: 'usePostsManagerHandlers' } });
 
 export interface PostsManagerHandlers {
   handleAddFilter: (filter: any) => void;
@@ -50,8 +44,13 @@ export function usePostsManagerHandlers({
   onNewPostClick,
   contextId
 }: PostsManagerHandlersOptions): PostsManagerHandlers {
-  const [, setShouldUpdate] = useAtom(shouldUpdateAtom);
-  const [filtersState] = useAtom(getSubmissionsFiltersAtom(contextId));
+  // Use the new URL-first filter system instead of Jotai atoms
+  const {
+    filters,
+    updateFilter: urlUpdateFilter,
+    addFilter: urlAddFilter,
+    removeFilter: urlRemoveFilter
+  } = useSimpleUrlFilters();
 
   // Use refs for stable function references
   const addFilterRef = useRef(addFilter);
@@ -76,65 +75,18 @@ export function usePostsManagerHandlers({
   // Optimize callbacks with useCallback to prevent child re-renders
   const handleTagClick = useCallback(
     (tag: string) => {
-      // Store tags without # prefix to match URL format and prevent normalization conflicts
-      const normalizedTag = tag.startsWith('#') ? tag.slice(1) : tag;
-      
-      // Get current filters at execution time from atom (not from dependencies)
-      const currentFilters = filtersState.filters;
-      const existingTagFilters = currentFilters.filter(f => f.name === 'tags');
-      const willHaveMultipleTags = existingTagFilters.length >= 1; // Will have multiple after adding this one
-      
-      // Debug logging
-      logger.debug('[RACE_FIX] 🏷️ TAG_CLICK: Tag click handler called', {
-        tag,
-        normalizedTag,
-        existingTagFilters,
-        willHaveMultipleTags,
-        currentFiltersLength: currentFilters.length
-      });
-      
-      // Prepare filters to add
-      const filtersToAdd = [
-        { name: 'tags', value: normalizedTag }
-      ];
-      
-      // Add tagLogic if we'll have multiple tags
-      if (willHaveMultipleTags) {
-        filtersToAdd.push({ name: 'tagLogic', value: 'OR' });
-      }
-      
-      logger.debug('[RACE_FIX] 🏷️ TAG_CLICK: Filters to add', { filtersToAdd });
-      
-      // Add all filters atomically to prevent double fetches
-      addFilters(filtersToAdd);
+      // Use shared handleTagFilter utility for consistency with URL-first functions
+      handleTagFilter(tag, filters, urlAddFilter, urlRemoveFilter);
     },
-    [addFilters] // Remove filtersState.filters from dependencies
+    [urlAddFilter, urlRemoveFilter, filters]
   );
 
   const handleHashtagClick = useCallback(
     (hashtag: string) => {
-      // Store tags without # prefix to match URL format and prevent normalization conflicts
-      const normalizedHashtag = hashtag.startsWith('#') ? hashtag.slice(1) : hashtag;
-      
-      // Get current filters at execution time from atom (not from dependencies)
-      const currentFilters = filtersState.filters;
-      const existingTagFilters = currentFilters.filter(f => f.name === 'tags');
-      const willHaveMultipleTags = existingTagFilters.length >= 1; // Will have multiple after adding this one
-      
-      // Prepare filters to add
-      const filtersToAdd = [
-        { name: 'tags', value: normalizedHashtag }
-      ];
-      
-      // Add tagLogic if we'll have multiple tags
-      if (willHaveMultipleTags) {
-        filtersToAdd.push({ name: 'tagLogic', value: 'OR' });
-      }
-        
-      // Add all filters atomically to prevent double fetches
-      addFilters(filtersToAdd);
+      // Use shared handleTagFilter utility for consistency with URL-first functions
+      handleTagFilter(hashtag, filters, urlAddFilter, urlRemoveFilter);
     },
-    [addFilters] // Remove filtersState.filters from dependencies
+    [urlAddFilter, urlRemoveFilter, filters]
   );
 
   const handleMentionClick = useCallback(
@@ -161,9 +113,13 @@ export function usePostsManagerHandlers({
   }, [onNewPostClick]);
 
   const handleRefresh = useCallback(() => {
-    // Trigger a refresh using the shouldUpdateAtom mechanism
-    setShouldUpdate(true);
-  }, [setShouldUpdate]);
+    // Trigger a refresh by clearing and re-adding filters to force re-fetch
+    const currentFilters = [...filters];
+    // This will trigger a re-fetch in the useSubmissionsManager
+    if (currentFilters.length > 0) {
+      addFilters(currentFilters);
+    }
+  }, [filters, addFilters]);
 
   const handleFilterSuccess = useCallback(() => {
     // This callback is triggered when filters are successfully added
@@ -172,10 +128,10 @@ export function usePostsManagerHandlers({
 
   const handleUpdateFilter = useCallback(
     (name: string, value: string) => {
-      // Use single updateFilter operation instead of remove + add
-      updateFilter(name as PostFilters, value);
+      // Use the URL-first updateFilter instead of the old system
+      urlUpdateFilter(name, value);
     },
-    [updateFilter]
+    [urlUpdateFilter] // Use URL-first system instead of old updateFilter
   );
 
   const handleTextSearch = useCallback(

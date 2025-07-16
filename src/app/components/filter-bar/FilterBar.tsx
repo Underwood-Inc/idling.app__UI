@@ -1,9 +1,10 @@
 'use client';
 
-import { useAtom } from 'jotai';
+import { Filter } from '@lib/state/atoms';
+import { PostFilters } from '@lib/types/filters';
 import { useEffect } from 'react';
-import { Filter, getSubmissionsFiltersAtom } from '../../../lib/state/atoms';
-import { PostFilters } from '../../../lib/types/filters';
+import { LogicToggle } from '../shared/LogicToggle';
+import { TagLogicToggle } from '../shared/TagLogicToggle';
 import './FilterBar.css';
 import { FilterLabel } from './FilterLabel';
 
@@ -28,11 +29,6 @@ export default function FilterBar({
   onClearFilters,
   onUpdateFilter
 }: FilterBarProps) {
-  // Add direct Jotai access for debugging
-  const [filtersState, setFiltersState] = useAtom(
-    getSubmissionsFiltersAtom(filterId)
-  );
-
   // Handle filter type change events from FilterLabel components
   useEffect(() => {
     const handleFilterTypeChange = (event: Event) => {
@@ -150,22 +146,14 @@ export default function FilterBar({
         {hasMultipleFilterTypes && onUpdateFilter && (
           <div className="filter-bar__global-logic-inline">
             <span className="filter-bar__logic-label">Groups:</span>
-            <div className="filter-bar__logic-button-group">
-              <button
-                className={`filter-bar__logic-button ${effectiveGlobalLogic === 'AND' ? 'filter-bar__logic-button--active' : ''}`}
-                onClick={() => onUpdateFilter('globalLogic', 'AND')}
-                title="All filter groups must match"
-              >
-                ALL
-              </button>
-              <button
-                className={`filter-bar__logic-button ${effectiveGlobalLogic === 'OR' ? 'filter-bar__logic-button--active' : ''}`}
-                onClick={() => onUpdateFilter('globalLogic', 'OR')}
-                title="Any filter group can match"
-              >
-                ANY
-              </button>
-            </div>
+            <LogicToggle
+              currentLogic={effectiveGlobalLogic as 'AND' | 'OR'}
+              onToggle={(logic: 'AND' | 'OR') =>
+                onUpdateFilter('globalLogic', logic)
+              }
+              allTitle="All filter groups must match"
+              anyTitle="Any filter group can match"
+            />
           </div>
         )}
 
@@ -282,70 +270,50 @@ export default function FilterBar({
                   {/* Logic toggle for multi-value filters */}
                   {hasMultipleValues && onUpdateFilter && (
                     <div className="filter-bar__logic-toggle-inline">
-                      <div className="filter-bar__logic-button-group">
-                        <button
-                          className={`filter-bar__logic-button ${
-                            currentLogic === 'AND'
-                              ? 'filter-bar__logic-button--active'
-                              : ''
-                          } ${effectiveGlobalLogic === 'AND' ? 'filter-bar__logic-button--disabled' : ''}`}
-                          onClick={() => {
-                            // Only allow changes when globalLogic is OR
-                            if (effectiveGlobalLogic === 'OR') {
-                              const logicType =
-                                filter.name === 'tags'
-                                  ? 'tagLogic'
-                                  : filter.name === 'author'
-                                    ? 'authorLogic'
-                                    : filter.name === 'mentions'
-                                      ? 'mentionsLogic'
-                                      : filter.name === 'search'
-                                        ? 'searchLogic'
-                                        : 'tagLogic';
-                              onUpdateFilter(logicType, 'AND');
-                            }
-                          }}
+                      {filter.name === 'tags' ? (
+                        <TagLogicToggle
                           disabled={effectiveGlobalLogic === 'AND'}
-                          title={
+                          allTitle={
                             effectiveGlobalLogic === 'AND'
                               ? `Controlled by Groups setting - set Groups to ANY to change`
                               : `Must have ALL selected ${filter.name}`
                           }
-                        >
-                          ALL
-                        </button>
-                        <button
-                          className={`filter-bar__logic-button ${
-                            currentLogic === 'OR'
-                              ? 'filter-bar__logic-button--active'
-                              : ''
-                          } ${effectiveGlobalLogic === 'AND' ? 'filter-bar__logic-button--disabled' : ''}`}
-                          onClick={() => {
-                            // Only allow changes when globalLogic is OR
-                            if (effectiveGlobalLogic === 'OR') {
-                              const logicType =
-                                filter.name === 'tags'
-                                  ? 'tagLogic'
-                                  : filter.name === 'author'
-                                    ? 'authorLogic'
-                                    : filter.name === 'mentions'
-                                      ? 'mentionsLogic'
-                                      : filter.name === 'search'
-                                        ? 'searchLogic'
-                                        : 'tagLogic';
-                              onUpdateFilter(logicType, 'OR');
-                            }
-                          }}
-                          disabled={effectiveGlobalLogic === 'AND'}
-                          title={
+                          anyTitle={
                             effectiveGlobalLogic === 'AND'
                               ? `Controlled by Groups setting - set Groups to ANY to change`
                               : `Must have ANY selected ${filter.name}`
                           }
-                        >
-                          ANY
-                        </button>
-                      </div>
+                        />
+                      ) : (
+                        <LogicToggle
+                          currentLogic={currentLogic as 'AND' | 'OR'}
+                          onToggle={(logic: 'AND' | 'OR') => {
+                            // Only allow changes when globalLogic is OR
+                            if (effectiveGlobalLogic === 'OR') {
+                              const logicType =
+                                filter.name === 'author'
+                                  ? 'authorLogic'
+                                  : filter.name === 'mentions'
+                                    ? 'mentionsLogic'
+                                    : filter.name === 'search'
+                                      ? 'searchLogic'
+                                      : 'tagLogic';
+                              onUpdateFilter(logicType, logic);
+                            }
+                          }}
+                          disabled={effectiveGlobalLogic === 'AND'}
+                          allTitle={
+                            effectiveGlobalLogic === 'AND'
+                              ? `Controlled by Groups setting - set Groups to ANY to change`
+                              : `Must have ALL selected ${filter.name}`
+                          }
+                          anyTitle={
+                            effectiveGlobalLogic === 'AND'
+                              ? `Controlled by Groups setting - set Groups to ANY to change`
+                              : `Must have ANY selected ${filter.name}`
+                          }
+                        />
+                      )}
                     </div>
                   )}
 

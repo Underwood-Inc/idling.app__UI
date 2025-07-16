@@ -16,6 +16,8 @@ export interface TextSearchInputProps {
   initialValue?: string;
   value?: string; // Controlled value
   onChange?: (value: string) => void; // Controlled change handler
+  onKeyDown?: (e: React.KeyboardEvent) => void; // Key event handler
+  onBlur?: () => void; // Blur event handler
   // Combined replies filter
   showRepliesFilter?: boolean;
   includeThreadReplies?: boolean;
@@ -50,6 +52,8 @@ export const TextSearchInput: React.FC<TextSearchInputProps> = ({
   initialValue = '',
   value,
   onChange,
+  onKeyDown,
+  onBlur,
   showRepliesFilter = false,
   includeThreadReplies = false,
   onlyReplies = false,
@@ -89,6 +93,9 @@ export const TextSearchInput: React.FC<TextSearchInputProps> = ({
       ? onClearFilters // Clear all filters in smart mode
       : searchInput.handleClear; // Clear only search in regular mode
 
+  // Combine key handlers - use custom onKeyDown if provided, otherwise use default
+  const handleKeyDown = onKeyDown || searchInput.handleKeyDown;
+
   // Determine container class
   const containerClass = [
     'text-search-input',
@@ -115,7 +122,8 @@ export const TextSearchInput: React.FC<TextSearchInputProps> = ({
         onSearch={onSearch}
         inputRef={searchInput.inputRef}
         onInputChange={searchInput.handleInputChange}
-        onKeyDown={searchInput.handleKeyDown}
+        onKeyDown={handleKeyDown}
+        onBlur={onBlur}
         placeholder={placeholder}
         isLoading={isLoading}
         hasValue={searchInput.hasValue}

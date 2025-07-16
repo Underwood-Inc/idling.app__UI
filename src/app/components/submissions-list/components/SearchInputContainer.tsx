@@ -4,36 +4,29 @@ import React, { useCallback, useState } from 'react';
 import { InteractiveTooltip } from '../../tooltip/InteractiveTooltip';
 import { SmartFilterInput } from './SmartFilterInput';
 
-interface SearchInputContainerProps {
-  // Smart input mode
+export interface SearchInputContainerProps {
   enableSmartInput?: boolean;
   contextId?: string;
   currentValue: string;
-  onSmartInputChange: (value: string) => void;
+  onSmartInputChange?: (newValue: string) => void;
   onMentionClick?: (
     mention: string,
     filterType?: 'author' | 'mentions'
   ) => void;
   onPillClick?: (pill: string) => void;
-  // Filter management callbacks for smart input
   onAddFilter?: (filter: any) => void;
   onAddFilters?: (filters: any[]) => void;
   onRemoveFilter?: (name: any, value?: any) => void;
   onFilterSuccess?: () => void;
   onSearch?: (searchText: string) => void;
-
-  // Regular input mode
-  inputRef: React.RefObject<HTMLInputElement>;
-  onInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  onKeyDown: (e: React.KeyboardEvent<HTMLInputElement>) => void;
-
-  // Common props
-  placeholder: string;
-  isLoading: boolean;
-  hasValue: boolean;
-  onClear: () => void;
-
-  // Combined replies filter
+  inputRef?: React.RefObject<HTMLInputElement>;
+  onInputChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onKeyDown?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
+  onBlur?: () => void;
+  placeholder?: string;
+  isLoading?: boolean;
+  hasValue?: boolean;
+  onClear?: () => void;
   showRepliesFilter?: boolean;
   includeThreadReplies?: boolean;
   onlyReplies?: boolean;
@@ -56,6 +49,7 @@ export const SearchInputContainer: React.FC<SearchInputContainerProps> = ({
   inputRef,
   onInputChange,
   onKeyDown,
+  onBlur,
   placeholder,
   isLoading,
   hasValue,
@@ -78,7 +72,9 @@ export const SearchInputContainer: React.FC<SearchInputContainerProps> = ({
   const handleSmartInputClear = useCallback(() => {
     setSmartInputValue('');
     // Call onClear which should clear all filters
-    onClear();
+    if (onClear) {
+      onClear();
+    }
   }, [onClear]);
 
   // Determine if we have a value (for clear button visibility)
@@ -214,6 +210,7 @@ export const SearchInputContainer: React.FC<SearchInputContainerProps> = ({
           value={currentValue}
           onChange={onInputChange}
           onKeyDown={onKeyDown}
+          onBlur={onBlur}
           placeholder={placeholder}
           className="text-search-input__field"
           autoComplete="off"
@@ -229,7 +226,11 @@ export const SearchInputContainer: React.FC<SearchInputContainerProps> = ({
           className="text-search-input__replies-tooltip"
         >
           <div
-            className={`text-search-input__replies-filter text-search-input__replies-filter--${getRepliesFilterState()}`}
+            className={`text-search-input__replies-filter text-search-input__replies-filter--${getRepliesFilterState()} ${
+              !actualHasValue
+                ? 'text-search-input__replies-filter--no-clear'
+                : ''
+            }`}
             title="Configure reply filtering options"
           >
             <div className="text-search-input__replies-icon">

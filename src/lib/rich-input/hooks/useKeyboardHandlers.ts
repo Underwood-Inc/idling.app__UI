@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import React, { useCallback } from 'react';
 import type { RichInputEngine } from '../core/RichInputEngine';
 import type {
   RichInputConfig,
@@ -243,6 +243,15 @@ export function useKeyboardHandlers(
             // Handle regular character input (including a, z, y when not Cmd+key)
             e.preventDefault();
 
+            // Debug logging to see if our fix is being triggered
+            if (key === ' ') {
+              console.log('🧙‍♂️ RichInput spacebar handler triggered!', {
+                currentCursor: state.cursorPosition.index,
+                currentText: state.rawText,
+                willBypassSnapping: true
+              });
+            }
+
             // If there's a selection, replace it
             if (state.selection.start.index !== state.selection.end.index) {
               engine.replaceText(
@@ -259,7 +268,35 @@ export function useKeyboardHandlers(
                 key
               );
             } else {
-              engine.insertText(key);
+              // For normal character input (like spacebar), bypass cursor snapping
+              // by using setState directly instead of insertText
+              const currentText = state.rawText;
+              const cursorPos = state.cursorPosition.index;
+              const newText =
+                currentText.slice(0, cursorPos) +
+                key +
+                currentText.slice(cursorPos);
+              const newCursorPos = { index: cursorPos + key.length };
+
+              if (key === ' ') {
+                console.log('🧙‍♂️ Applying spacebar fix:', {
+                  oldCursor: cursorPos,
+                  newCursor: newCursorPos.index,
+                  oldText: currentText,
+                  newText: newText
+                });
+              }
+
+              engine.saveHistoryEntry();
+              engine.setState({
+                rawText: newText,
+                cursorPosition: newCursorPos,
+                selection: {
+                  start: newCursorPos,
+                  end: newCursorPos,
+                  direction: 'none'
+                }
+              });
             }
           }
           break;

@@ -1,11 +1,11 @@
 'use client';
 
-import { useAtom } from 'jotai';
+import { CONTEXT_IDS } from '@lib/context-ids';
+import { useSimpleUrlFilters } from '@lib/state/submissions/useSimpleUrlFilters';
+import { handleMentionFilter, handleTagFilter } from '@lib/utils/filter-utils';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { Suspense, useEffect, useState } from 'react';
-import { CONTEXT_IDS } from '../../../lib/context-ids';
-import { getSubmissionsFiltersAtom } from '../../../lib/state/atoms';
 import { Card } from '../../components/card/Card';
 import FadeIn from '../../components/fade-in/FadeIn';
 import Loader from '../../components/loader/Loader';
@@ -40,11 +40,15 @@ export default function ThreadPageClient({
   );
   const [loading, setLoading] = useState(!initialThreadData);
 
-  // Use global filter state management
+  // Use URL-first filter state management
   const contextId = CONTEXT_IDS.THREAD.toString();
-  const [filtersState, setFiltersState] = useAtom(
-    getSubmissionsFiltersAtom(contextId)
-  );
+  const {
+    filters,
+    addFilter,
+    removeFilter,
+    clearFilters: clearAllFilters,
+    updateUrl
+  } = useSimpleUrlFilters();
 
   // Only load data if we don't have initial data
   useEffect(() => {
@@ -70,91 +74,23 @@ export default function ThreadPageClient({
   }, [submissionId, initialThreadData, router]);
 
   const handleHashtagClick = (hashtag: string) => {
-    // Ensure hashtag value includes # prefix for proper filtering
-    const hashtagValue = hashtag.startsWith('#') ? hashtag : `#${hashtag}`;
-
-    setFiltersState((prev) => {
-      const newFilters = [...prev.filters];
-      const tagsIndex = newFilters.findIndex((f) => f.name === 'tags');
-
-      if (tagsIndex >= 0) {
-        // Update existing tags filter
-        const currentTags = newFilters[tagsIndex].value
-          .split(',')
-          .map((tag) => tag.trim())
-          .filter(Boolean);
-
-        const isTagActive = currentTags.includes(hashtagValue);
-        const updatedTags = isTagActive
-          ? currentTags.filter((tag) => tag !== hashtagValue)
-          : [...currentTags, hashtagValue];
-
-        if (updatedTags.length > 0) {
-          newFilters[tagsIndex] = {
-            name: 'tags',
-            value: updatedTags.join(',')
-          };
-        } else {
-          // Remove tags filter if no tags left
-          return {
-            ...prev,
-            filters: newFilters.filter(
-              (f) => f.name !== 'tags' && f.name !== 'tagLogic'
-            )
-          };
-        }
-      } else {
-        // Add new tags filter
-        newFilters.push({ name: 'tags', value: hashtagValue });
-      }
-
-      return {
-        ...prev,
-        filters: newFilters,
-        page: 1
-      };
-    });
+    // Use the reusable tag filter utility with atomic updates
+    handleTagFilter(hashtag, filters, addFilter, removeFilter, updateUrl);
   };
 
   const handleMentionClick = async (mentionValue: string) => {
-    // ContentWithPills now ONLY passes user IDs, never usernames
-    // We can directly use the mentionValue as the author ID for filtering
-    setFiltersState((prev) => {
-      const newFilters = [...prev.filters];
-      const authorIndex = newFilters.findIndex((f) => f.name === 'author');
-
-      if (authorIndex >= 0) {
-        // Toggle author filter
-        const currentAuthor = newFilters[authorIndex].value;
-        if (currentAuthor === mentionValue) {
-          // Remove author filter if same mention clicked
-          return {
-            ...prev,
-            filters: newFilters.filter((f) => f.name !== 'author')
-          };
-        } else {
-          // Update author filter
-          newFilters[authorIndex] = { name: 'author', value: mentionValue };
-        }
-      } else {
-        // Add new author filter
-        newFilters.push({ name: 'author', value: mentionValue });
-      }
-
-      return {
-        ...prev,
-        filters: newFilters,
-        page: 1
-      };
-    });
+    // Use the reusable mention filter utility with atomic updates
+    handleMentionFilter(
+      mentionValue,
+      filters,
+      addFilter,
+      removeFilter,
+      updateUrl
+    );
   };
 
   const clearFilters = () => {
-    setFiltersState((prev) => ({
-      ...prev,
-      filters: [],
-      page: 1
-    }));
+    clearAllFilters();
   };
 
   if (loading) {
@@ -167,16 +103,16 @@ export default function ThreadPageClient({
 
   const userId = session?.user?.id?.toString() || '';
 
-  // Extract active filters from global state
-  const activeHashtags =
-    filtersState.filters
-      .find((f) => f.name === 'tags')
-      ?.value?.split(',')
-      ?.map((tag) => tag.trim())
-      ?.filter(Boolean) || [];
+  // Extract active filters from URL-first state
+  const activeHashtags = filters
+    .filter((f) => f.name === 'tags')
+    .map((f) => f.value)
+    .filter(Boolean);
 
-  const authorFilter = filtersState.filters.find((f) => f.name === 'author');
-  const activeMentions = authorFilter?.value ? [authorFilter.value] : [];
+  const activeMentions = filters
+    .filter((f) => f.name === 'author')
+    .map((f) => f.value)
+    .filter(Boolean);
 
   const hasActiveFilters =
     activeHashtags.length > 0 || activeMentions.length > 0;

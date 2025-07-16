@@ -1,9 +1,8 @@
 'use client';
-import { useAtom } from 'jotai';
+import { NAV_PATHS } from '@lib/routes';
+import { useSimpleUrlFilters } from '@lib/state/submissions/useSimpleUrlFilters';
 import { usePathname, useSearchParams } from 'next/navigation';
-import { Suspense } from 'react';
-import { NAV_PATHS } from '../../../lib/routes';
-import { getSubmissionsFiltersAtom } from '../../../lib/state/atoms';
+import React, { Suspense } from 'react';
 import { InstantLink } from '../ui/InstantLink';
 import './TagLink.css';
 
@@ -26,10 +25,8 @@ function TagLinkInternal({
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  // Use shared Jotai atoms directly for state synchronization
-  const [filtersState, setFiltersState] = useAtom(
-    getSubmissionsFiltersAtom(contextId)
-  );
+  // Use the new URL-first filter system
+  const { filters, addFilter, removeFilter } = useSimpleUrlFilters();
 
   // Check if we're on a thread page
   const isThreadPage = pathname.startsWith('/t/');
@@ -49,78 +46,105 @@ function TagLinkInternal({
         .map((tag) => tag.trim())
         .filter(Boolean) || [];
 
-    if (appendSearchParam) {
-      // Add tag if not already present
-      if (!currentTags.includes(sanitizedTag)) {
-        const newTags = [...currentTags, sanitizedTag];
-        params.set('tags', newTags.join(','));
+    // Normalize tag for comparison (remove # prefix if present)
+    const normalizedTag = sanitizedTag.startsWith('#')
+      ? sanitizedTag.slice(1)
+      : sanitizedTag;
+    const displayTag = `#${normalizedTag}`;
+
+    // Check if tag is already in URL
+    const isTagActive = currentTags.some((tag) => {
+      const normalizedCurrentTag = tag.startsWith('#') ? tag.slice(1) : tag;
+      return normalizedCurrentTag === normalizedTag;
+    });
+
+    if (isTagActive) {
+      // Remove the tag
+      const updatedTags = currentTags.filter((tag) => {
+        const normalizedCurrentTag = tag.startsWith('#') ? tag.slice(1) : tag;
+        return normalizedCurrentTag !== normalizedTag;
+      });
+
+      if (updatedTags.length > 0) {
+        params.set('tags', updatedTags.join(','));
+      } else {
+        params.delete('tags');
+        params.delete('tagLogic'); // Remove tagLogic when no tags remain
       }
     } else {
-      // Toggle tag
-      if (currentTags.includes(sanitizedTag)) {
-        const newTags = currentTags.filter((tag) => tag !== sanitizedTag);
-        if (newTags.length > 0) {
-          params.set('tags', newTags.join(','));
-        } else {
-          params.delete('tags');
-        }
-      } else {
-        const newTags = [...currentTags, sanitizedTag];
-        params.set('tags', newTags.join(','));
+      // Add the tag
+      const updatedTags = [...currentTags, normalizedTag];
+      params.set('tags', updatedTags.join(','));
+
+      // Add tagLogic if we have multiple tags
+      if (updatedTags.length > 1) {
+        params.set('tagLogic', 'OR');
       }
     }
 
     // Reset to first page when filters change
-    params.delete('page');
+    params.set('page', '1');
 
-    // For thread pages, navigate to posts with filters only if no onTagClick callback
-    // If onTagClick is provided (thread filtering), we'll use that instead
-    const targetPath = isThreadPage && !onTagClick ? NAV_PATHS.POSTS : pathname;
-    return `${targetPath}${params.toString() ? `?${params.toString()}` : ''}`;
+    if (isThreadPage) {
+      // Thread pages: go to posts page with filters
+      return `${NAV_PATHS.POSTS}?${params.toString()}`;
+    } else {
+      // Posts pages: stay on current page with updated filters
+      return `${pathname}?${params.toString()}`;
+    }
   };
 
-  const handleClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
-    const sanitizedTag = value.trim();
-    if (!sanitizedTag || sanitizedTag.length > 50) {
-      console.warn('Invalid tag:', value);
-      return;
-    }
+  const handleTagClick = (e: React.MouseEvent) => {
+    e.preventDefault();
 
-    // If parent provides onTagClick callback, use it and prevent navigation
     if (onTagClick) {
-      event.preventDefault();
-      onTagClick(sanitizedTag);
+      onTagClick(value);
       return;
     }
 
-    // For thread pages without onTagClick callback, allow navigation to posts
-    // For other pages, let the Link component handle navigation normally
+    // Use URL-first system for state management
+    const normalizedTag = value.startsWith('#') ? value.slice(1) : value;
+
+    // Get current tag filters
+    const currentTagFilters = filters.filter((f) => f.name === 'tags');
+    const isTagActive = currentTagFilters.some((f) => {
+      const filterValue = f.value.startsWith('#') ? f.value.slice(1) : f.value;
+      return filterValue === normalizedTag;
+    });
+
+    if (isTagActive) {
+      // Remove the tag
+      removeFilter('tags', normalizedTag);
+
+      // If no more tag filters remain, remove tagLogic as well
+      const remainingTagFilters = currentTagFilters.filter((f) => {
+        const filterValue = f.value.startsWith('#')
+          ? f.value.slice(1)
+          : f.value;
+        return filterValue !== normalizedTag;
+      });
+
+      if (remainingTagFilters.length <= 1) {
+        removeFilter('tagLogic');
+      }
+    } else {
+      // Add the tag
+      addFilter({ name: 'tags', value: normalizedTag });
+
+      // Add tagLogic if we'll have multiple tags
+      if (currentTagFilters.length >= 1) {
+        addFilter({ name: 'tagLogic', value: 'OR' });
+      }
+    }
   };
 
-  // Check if this tag is currently active based on context
-  let isActive = false;
-
-  if (isThreadPage && onTagClick) {
-    // For thread pages with filtering, check the filter state
-    const activeHashtags =
-      filtersState.filters
-        .find((f) => f.name === 'tags')
-        ?.value?.split(',')
-        ?.map((tag) => tag.trim())
-        ?.filter(Boolean) || [];
-
-    const tagValue = value.startsWith('#') ? value : `#${value}`;
-    isActive = activeHashtags.includes(tagValue);
-  } else {
-    // For posts pages or thread pages without filtering, check URL params
-    const currentTags =
-      searchParams
-        .get('tags')
-        ?.split(',')
-        .map((tag) => tag.trim())
-        .filter(Boolean) || [];
-    isActive = currentTags.includes(value);
-  }
+  // Check if the tag is currently active based on URL-first filters
+  const isActive = filters.some((f) => {
+    if (f.name !== 'tags') return false;
+    const filterValue = f.value.startsWith('#') ? f.value.slice(1) : f.value;
+    const tagValue = value.startsWith('#') ? value.slice(1) : value;
+    return filterValue === tagValue;
+  });
 
   const tagUrl = generateTagUrl();
 
@@ -128,7 +152,7 @@ function TagLinkInternal({
     <InstantLink
       href={tagUrl}
       className={`tag-link ${isActive ? 'active' : ''}`}
-      onClick={handleClick}
+      onClick={handleTagClick}
       title={`Filter by tag: ${value}`}
     >
       {value}

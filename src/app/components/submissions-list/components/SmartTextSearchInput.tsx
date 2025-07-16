@@ -1,10 +1,10 @@
 'use client';
 
 import { createLogger } from '@lib/logging';
-import { useAtom } from 'jotai';
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Filter, getSubmissionsFiltersAtom } from '../../../../lib/state/atoms';
-import { PostFilters } from '../../../../lib/types/filters';
+import { Filter } from '@lib/state/atoms';
+import { useSimpleUrlFilters } from '@lib/state/submissions/useSimpleUrlFilters';
+import { PostFilters } from '@lib/types/filters';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { TextSearchInput } from './TextSearchInput';
 
 const logger = createLogger({
@@ -51,7 +51,7 @@ const useUserResolution = () => {
 
       try {
         const { resolveUserIdToUsername } = await import(
-          '../../../../lib/actions/search.actions'
+          '@lib/actions/search.actions'
         );
         const username = await resolveUserIdToUsername(userId);
 
@@ -125,8 +125,8 @@ export const SmartTextSearchInput: React.FC<SmartTextSearchInputProps> = ({
   onToggleOnlyReplies,
   isLoading = false
 }) => {
-  // Read filter state from Jotai
-  const [filtersState] = useAtom(getSubmissionsFiltersAtom(contextId));
+  // Use the new URL-first filter system instead of Jotai atoms
+  const { filters } = useSimpleUrlFilters();
 
   // User resolution hook
   const { resolveUserId } = useUserResolution();
@@ -135,47 +135,32 @@ export const SmartTextSearchInput: React.FC<SmartTextSearchInputProps> = ({
   const constructedValue = useMemo(() => {
     const filterParts: string[] = [];
 
-    // Add tag filters as hashtags (each tag is now a separate filter entry)
-    filtersState.filters
-      .filter((f: Filter) => f.name === 'tags')
-      .forEach((f: Filter) => {
-        if (typeof f.value === 'string') {
-          const tag = f.value.trim();
-          if (tag && !tag.startsWith('#')) {
-            filterParts.push(`#${tag}`);
-          } else if (tag) {
-            filterParts.push(tag);
-          }
-        }
+    // Add hashtags
+    filters
+      .filter((f) => f.name === 'tags')
+      .forEach((filter) => {
+        const cleanValue = filter.value.startsWith('#')
+          ? filter.value
+          : `#${filter.value}`;
+        filterParts.push(cleanValue);
       });
 
-    // Add author filters as mentions (with async username resolution)
-    filtersState.filters
-      .filter((f: Filter) => f.name === 'author')
-      .forEach((f: Filter) => {
-        // Author filters now only store user ID, so we need to resolve username
-        // Use the user ID as placeholder, will be resolved below
-        filterParts.push(`@[${f.value}|${f.value}|author]`);
-      });
-
-    // Add mentions filters
-    filtersState.filters
-      .filter((f: Filter) => f.name === 'mentions')
-      .forEach((f: Filter) => {
-        // Check if the value contains both username and user ID (username|userId format)
-        if (f.value.includes('|')) {
-          const [username, userId] = f.value.split('|');
-          filterParts.push(`@[${username}|${userId}|mentions]`);
+    // Add structured mentions and authors
+    filters
+      .filter((f) => f.name === 'author' || f.name === 'mentions')
+      .forEach((filter) => {
+        if (filter.value.includes('|')) {
+          const [username, userId] = filter.value.split('|');
+          const filterType = filter.name === 'author' ? 'author' : 'mentions';
+          filterParts.push(`@[${username}|${userId}|${filterType}]`);
         } else {
-          // Legacy format - just username, use username for both
-          filterParts.push(`@[${f.value}|${f.value}|mentions]`);
+          const filterType = filter.name === 'author' ? 'author' : 'mentions';
+          filterParts.push(`@[${filter.value}|${filter.value}|${filterType}]`);
         }
       });
 
-    // Add search text at the end, ensuring proper spacing
-    const searchFilter = filtersState.filters.find(
-      (f: Filter) => f.name === 'search'
-    );
+    // Add search text and handle quoted phrases
+    const searchFilter = filters.find((f) => f.name === 'search');
     if (searchFilter?.value) {
       // Parse search text to identify quoted phrases and individual words
       const searchText = searchFilter.value;
@@ -210,12 +195,12 @@ export const SmartTextSearchInput: React.FC<SmartTextSearchInputProps> = ({
 
     const result = filterParts.join(' ').replace(/\s+/g, ' ').trim();
     logger.debug('SmartTextSearchInput constructedValue', {
-      filters: filtersState.filters,
+      filters: filters,
       filterParts,
       result
     });
     return result;
-  }, [filtersState.filters]);
+  }, [filters]);
 
   // Resolve usernames for legacy user ID filters
   const [resolvedValue, setResolvedValue] = useState(constructedValue);
@@ -261,11 +246,15 @@ export const SmartTextSearchInput: React.FC<SmartTextSearchInputProps> = ({
   }, [constructedValue, resolveUserId, resolvedValue]);
 
   // Handle input value changes and parse filters
-  const handleInputChange = useCallback(
+  const handleInputChange = useCallback((value: string) => {
+    // Just update the input value, don't apply filters yet
+    // Filters will be applied on Enter key or blur
+  }, []);
+
+  // Parse filters from input text
+  const parseInputToFilters = useCallback(
     (value: string) => {
       // Parse filters from the input
-      const filters: Filter<PostFilters>[] = [];
-      const filtersToRemove: { name: PostFilters; value?: any }[] = [];
       let remainingText = value;
 
       // Extract hashtags
@@ -277,116 +266,95 @@ export const SmartTextSearchInput: React.FC<SmartTextSearchInputProps> = ({
         remainingText = remainingText.replace(hashtagMatch[0], '').trim();
       }
 
+      const filtersToApply: any[] = [];
+
       if (hashtags.length > 0) {
         // Remove existing tags filter
-        filtersToRemove.push({ name: 'tags' });
+        if (onRemoveFilter) {
+          onRemoveFilter('tags');
+        }
         // Add individual tag filter entries (new system)
         hashtags.forEach((tag) => {
-          filters.push({
+          filtersToApply.push({
             name: 'tags',
-            value: `#${tag}`
+            value: tag
           });
         });
-      } else {
-        // No hashtags found, remove tags filter
-        filtersToRemove.push({ name: 'tags' });
       }
 
-      // Extract user mentions
+      // Extract user mentions @[username|userId|filterType]
       const mentionRegex = /@\[([^|]+)\|([^|]+)\|([^|]+)\]/g;
       let mentionMatch;
-      const processedUsers = new Set<string>();
-
       while ((mentionMatch = mentionRegex.exec(value)) !== null) {
         const [fullMatch, username, userId, filterType] = mentionMatch;
-        const userKey = `${userId}-${filterType}`;
+        remainingText = remainingText.replace(fullMatch, '').trim();
 
-        if (!processedUsers.has(userKey)) {
-          processedUsers.add(userKey);
+        // Remove existing filters for this user (using both possible formats)
+        if (onRemoveFilter) {
+          onRemoveFilter('author', userId);
+          onRemoveFilter('author', `${username}|${userId}`);
+          onRemoveFilter('mentions', username);
+          onRemoveFilter('mentions', `${username}|${userId}`);
+        }
 
-          // Remove existing filters for this user (using both possible formats)
-          filtersToRemove.push({ name: 'author', value: userId });
-          filtersToRemove.push({
+        // Add new filter with appropriate format based on filter type
+        if (filterType === 'author') {
+          // For author filters, backend expects just the user ID
+          filtersToApply.push({
             name: 'author',
-            value: `${username}|${userId}`
+            value: userId
           });
-          filtersToRemove.push({ name: 'mentions', value: username });
-          filtersToRemove.push({
+        } else if (filterType === 'mentions') {
+          // For mentions filters, store combined format for display
+          filtersToApply.push({
             name: 'mentions',
             value: `${username}|${userId}`
           });
-
-          // Add new filter with appropriate format based on filter type
-          if (filterType === 'author') {
-            // For author filters, backend expects just the user ID
-            filters.push({
-              name: filterType,
-              value: userId
-            });
-          } else if (filterType === 'mentions') {
-            // For mentions filters, store combined format for display
-            filters.push({
-              name: filterType,
-              value: `${username}|${userId}`
-            });
-          }
         }
-
-        remainingText = remainingText.replace(fullMatch, '').trim();
       }
 
-      // Clean up remaining text and reconstruct search terms
-      remainingText = remainingText.replace(/\s+/g, ' ').trim();
-
-      // Handle search text - reconstruct from individual terms and quoted phrases
-      if (remainingText) {
-        // The remaining text may contain individual words and quoted phrases
-        // We need to reconstruct them into a single search value
-        const searchTerms: string[] = [];
-        const searchRegex = /"([^"]+)"|(\S+)/g;
-        let match;
-
-        while ((match = searchRegex.exec(remainingText)) !== null) {
-          const quotedText = match[1]; // Captured quoted content
-          const unquotedText = match[2]; // Captured unquoted content
-
-          if (quotedText) {
-            // Quoted phrase - keep the quotes
-            searchTerms.push(`"${quotedText}"`);
-          } else if (unquotedText) {
-            // Individual word
-            searchTerms.push(unquotedText);
-          }
-        }
+      // Handle remaining text as search
+      if (remainingText.trim().length >= minLength) {
+        const searchTerms = remainingText.trim().split(/\s+/);
 
         if (searchTerms.length > 0) {
-          filters.push({ name: 'search', value: searchTerms.join(' ') });
+          filtersToApply.push({ name: 'search', value: searchTerms.join(' ') });
         }
-      } else {
-        filtersToRemove.push({ name: 'search' });
+      } else if (onRemoveFilter) {
+        onRemoveFilter('search');
       }
 
-      // Apply filter changes
-      if (filtersToRemove.length > 0 && onRemoveFilter) {
-        filtersToRemove.forEach(({ name, value }) => {
-          onRemoveFilter(name, value);
-        });
+      // Apply all filters at once
+      if (filtersToApply.length > 0 && onAddFilters) {
+        onAddFilters(filtersToApply);
+      } else if (filtersToApply.length > 0 && onAddFilter) {
+        filtersToApply.forEach((filter) => onAddFilter(filter));
       }
 
-      if (filters.length > 0) {
-        if (onAddFilters && filters.length > 1) {
-          onAddFilters(filters);
-        } else if (onAddFilter) {
-          filters.forEach((filter) => onAddFilter(filter));
-        }
-
-        if (onFilterSuccess) {
-          onFilterSuccess();
-        }
+      if (onFilterSuccess) {
+        onFilterSuccess();
       }
     },
-    [onAddFilter, onAddFilters, onRemoveFilter, onFilterSuccess]
+    [onAddFilter, onAddFilters, onRemoveFilter, onFilterSuccess, minLength]
   );
+
+  // Handle Enter key to apply filters
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        // Parse and apply filters on Enter
+        parseInputToFilters(resolvedValue);
+      }
+    },
+    [parseInputToFilters, resolvedValue]
+  );
+
+  // Handle blur to apply filters when user clicks away
+  const handleBlur = useCallback(() => {
+    // Parse and apply filters on blur
+    parseInputToFilters(resolvedValue);
+  }, [parseInputToFilters, resolvedValue]);
 
   // Calculate filter category counts for enhanced search status
   const filterCounts = useMemo(() => {
@@ -397,7 +365,7 @@ export const SmartTextSearchInput: React.FC<SmartTextSearchInputProps> = ({
       search: 0
     };
 
-    filtersState.filters.forEach((filter: Filter) => {
+    filters.forEach((filter) => {
       switch (filter.name) {
         case 'tags':
           // Count individual tag filter entries (new system)
@@ -422,7 +390,7 @@ export const SmartTextSearchInput: React.FC<SmartTextSearchInputProps> = ({
     });
 
     return counts;
-  }, [filtersState.filters]);
+  }, [filters]);
 
   // Calculate total active filters
   const totalActiveFilters =
@@ -484,12 +452,29 @@ export const SmartTextSearchInput: React.FC<SmartTextSearchInputProps> = ({
     (pillText: string) => {
       if (!onRemoveFilter) return;
 
+      if (process.env.NODE_ENV === 'development') {
+        console.log('🗑️ SmartTextSearchInput handlePillClick called with:', {
+          pillText,
+          currentFilters: filters,
+          onRemoveFilter: !!onRemoveFilter
+        });
+      }
+
       // Parse the pill to determine what filter to remove
       if (pillText.startsWith('#')) {
         // Remove specific tag filter entry (new system)
         const tag = pillText.substring(1);
-        // Remove the specific tag filter entry by its exact value
-        onRemoveFilter('tags', `#${tag}`);
+
+        if (process.env.NODE_ENV === 'development') {
+          console.log('🗑️ Attempting to remove tag:', {
+            tag,
+            pillText,
+            existingTagFilters: filters.filter((f) => f.name === 'tags')
+          });
+        }
+
+        // Remove the specific tag filter entry by its exact value (WITHOUT # prefix to match storage)
+        onRemoveFilter('tags', tag);
       } else if (pillText.startsWith('@')) {
         // Parse mention format to determine removal
         const enhancedMatch = pillText.match(
@@ -497,6 +482,16 @@ export const SmartTextSearchInput: React.FC<SmartTextSearchInputProps> = ({
         );
         if (enhancedMatch) {
           const [, username, userId, filterType] = enhancedMatch;
+
+          if (process.env.NODE_ENV === 'development') {
+            console.log('🗑️ Attempting to remove mention:', {
+              username,
+              userId,
+              filterType,
+              pillText
+            });
+          }
+
           if (filterType === 'author') {
             // For author filters, remove by user ID only
             onRemoveFilter('author', userId);
@@ -511,7 +506,7 @@ export const SmartTextSearchInput: React.FC<SmartTextSearchInputProps> = ({
         onFilterSuccess();
       }
     },
-    [filtersState.filters, onRemoveFilter, onAddFilter, onFilterSuccess]
+    [filters, onRemoveFilter, onAddFilter, onFilterSuccess]
   );
 
   return (
@@ -523,6 +518,8 @@ export const SmartTextSearchInput: React.FC<SmartTextSearchInputProps> = ({
       className={className}
       value={resolvedValue}
       onChange={handleInputChange}
+      onKeyDown={handleKeyDown}
+      onBlur={handleBlur}
       showRepliesFilter={showRepliesFilter}
       includeThreadReplies={includeThreadReplies}
       onlyReplies={onlyReplies}

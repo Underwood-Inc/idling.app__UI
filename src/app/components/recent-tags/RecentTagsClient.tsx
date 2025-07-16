@@ -1,14 +1,13 @@
 'use client';
-import { useAtom } from 'jotai';
-import { useEffect, useMemo, useState } from 'react';
+
+import { useSimpleUrlFilters } from '@lib/state/submissions/useSimpleUrlFilters';
+import { RECENT_TAGS_SELECTORS } from '@lib/test-selectors/components/recent-tags.selectors';
+import { handleTagFilter, isTagActive } from '@lib/utils/filter-utils';
+import { useMemo, useState } from 'react';
 import { CustomSession } from '../../../auth.config';
-import {
-  getSubmissionsFiltersAtom,
-  getSubmissionsStateAtom
-} from '../../../lib/state/atoms';
-import { RECENT_TAGS_SELECTORS } from '../../../lib/test-selectors/components/recent-tags.selectors';
 import Empty from '../empty/Empty';
 import Loader from '../loader/Loader';
+import { TagLogicToggle } from '../shared/TagLogicToggle';
 import { getRecentTags } from './actions';
 import './RecentTags.css';
 
@@ -26,20 +25,11 @@ const RecentTagsClientComponent = ({
   const [recentTags, setRecentTags] = useState(initialRecentTags);
   const [loading, setLoading] = useState(false);
 
-  // Use shared Jotai atoms directly for state synchronization
-  const [filtersState, setFiltersState] = useAtom(
-    getSubmissionsFiltersAtom(contextId)
-  );
+  // Use the new URL-first filter system to match PostsManager
+  const { filters, addFilter, removeFilter, updateUrl } = useSimpleUrlFilters();
 
-  // We also need access to the submissions state to set loading immediately
-  const [, setSubmissionsState] = useAtom(getSubmissionsStateAtom(contextId));
-
-  // Extract current tags and logic from shared filters with null checks
-  const filters = filtersState?.filters || [];
-
-  // Get all tag filters (each tag is now a separate filter entry)
+  // Extract current tags and logic from URL-first filters
   const tagFilters = filters.filter((f) => f.name === 'tags');
-  const tagLogicFilter = filters.find((f) => f.name === 'tagLogic');
 
   // Extract current tags from individual filter entries
   const currentTags = tagFilters.map((filter) => {
@@ -47,188 +37,76 @@ const RecentTagsClientComponent = ({
     return tag.startsWith('#') ? tag : `#${tag}`;
   });
 
-  const currentTagLogic = tagLogicFilter?.value || 'OR';
+  // Auto-refresh tags when onlyMine changes
+  const refreshTags = async () => {
+    if (loading) return;
 
-  // Memoize tag-related state to prevent unnecessary re-renders
-  const tagState = useMemo(
-    () => ({
-      currentTags,
-      currentTagLogic,
-      tagFilters,
-      tagLogicFilter
-    }),
-    [currentTags.join(','), currentTagLogic]
-  ); // Only depend on actual tag values
-
-  // Stable title that doesn't change on hover - no more flickering
-  const stableTitle = useMemo(() => {
-    if (tagState.currentTags.length === 0) {
-      return 'Recent Tags';
-    }
-
-    if (tagState.currentTags.length === 1) {
-      return `Posts tagged: ${tagState.currentTags[0]}`;
-    }
-
-    const logicText = tagState.currentTagLogic === 'OR' ? 'any of' : 'all of';
-    const tagList = tagState.currentTags.join(', ');
-    return `Posts with ${logicText}: ${tagList}`;
-  }, [tagState.currentTags, tagState.currentTagLogic]);
-
-  // Fetch recent tags
-  useEffect(() => {
-    async function fetchTags() {
-      if (!session?.user?.id && onlyMine) {
-        return;
-      }
-
-      setLoading(true);
-      const tags = await getRecentTags(
+    setLoading(true);
+    try {
+      const freshTags = await getRecentTags(
         'months',
         onlyMine && session?.user?.id ? session.user.id : undefined
       );
-      setRecentTags(tags);
+      setRecentTags(freshTags);
+    } catch (error) {
+      console.error('Failed to refresh recent tags:', error);
+    } finally {
       setLoading(false);
     }
-
-    // Initial fetch or when dependencies change
-    fetchTags();
-  }, [onlyMine, session]);
+  };
 
   const handleTagClick = (tag: string) => {
-    // Simple approach: just update the filters and let useSubmissionsManager handle the rest
-    const formattedTag = tag.startsWith('#') ? tag : `#${tag}`;
-    const isSelected = tagState.currentTags.includes(formattedTag);
-
-    // Set loading state immediately when filter changes - this is the key fix!
-    setSubmissionsState((prev) => ({
-      ...prev,
-      loading: true
-    }));
-
-    if (isSelected) {
-      // Remove tag - remove the specific tag filter entry
-      setFiltersState((prevState) => {
-        const newFilters = prevState.filters.filter((filter) => {
-          if (filter.name === 'tags') {
-            const filterTag = filter.value.startsWith('#')
-              ? filter.value
-              : `#${filter.value}`;
-            return filterTag !== formattedTag;
-          }
-          return true;
-        });
-
-        // If no tag filters remain, also remove tagLogic
-        const remainingTagFilters = newFilters.filter((f) => f.name === 'tags');
-        const finalFilters =
-          remainingTagFilters.length > 0
-            ? newFilters
-            : newFilters.filter((f) => f.name !== 'tagLogic');
-
-        return {
-          ...prevState,
-          filters: finalFilters,
-          page: 1
-        };
-      });
-    } else {
-      // Add tag - add a new tag filter entry
-      setFiltersState((prevState) => {
-        // Check if there are already tag filters
-        const existingTagFilters = prevState.filters.filter(
-          (f) => f.name === 'tags'
-        );
-        const willHaveMultipleTags = existingTagFilters.length >= 1; // Will have multiple after adding this one
-
-        const filtersToAdd = [{ name: 'tags', value: formattedTag }];
-
-        // Add tagLogic if we'll have multiple tags and no tagLogic exists
-        if (
-          willHaveMultipleTags &&
-          !prevState.filters.find((f) => f.name === 'tagLogic')
-        ) {
-          filtersToAdd.push({ name: 'tagLogic', value: 'OR' });
-        }
-
-        return {
-          ...prevState,
-          filters: [...prevState.filters, ...filtersToAdd],
-          page: 1
-        };
-      });
+    if (process.env.NODE_ENV === 'development') {
+      // eslint-disable-next-line no-console
+      console.log(
+        '🏷️ RecentTags click:',
+        tag,
+        '(active:',
+        isTagActive(tag, filters),
+        ')'
+      );
     }
+
+    // Use the reusable tag filter utility with atomic updates
+    handleTagFilter(tag, filters, addFilter, removeFilter, updateUrl);
   };
 
-  const handleLogicToggle = () => {
-    const newLogic = tagState.currentTagLogic === 'OR' ? 'AND' : 'OR';
-
-    // Update logic filter directly if we have multiple tags
-    if (tagState.currentTags.length > 1) {
-      // Set loading state immediately when filter changes
-      setSubmissionsState((prev) => ({
-        ...prev,
-        loading: true
-      }));
-
-      setFiltersState((prevState) => {
-        // Remove existing tagLogic filter and add new one
-        const newFilters = prevState.filters.filter(
-          (f) => f.name !== 'tagLogic'
-        );
-        return {
-          ...prevState,
-          filters: [...newFilters, { name: 'tagLogic', value: newLogic }],
-          page: 1
-        };
-      });
-    }
-  };
-
-  // Sort tags so selected ones appear at the top
+  // Sort tags by usage (most used first) with current tags prioritized
   const sortedTags = useMemo(() => {
-    const selectedTags: string[] = [];
-    const unselectedTags: string[] = [];
+    return [...recentTags.tags].sort((a, b) => {
+      const aIsActive = isTagActive(a, filters);
+      const bIsActive = isTagActive(b, filters);
 
-    recentTags.tags.forEach((tag) => {
-      const formattedTag = tag.startsWith('#') ? tag : `#${tag}`;
-      const isActive = tagState.currentTags.includes(formattedTag);
+      // Active tags first
+      if (aIsActive && !bIsActive) return -1;
+      if (!aIsActive && bIsActive) return 1;
 
-      if (isActive) {
-        selectedTags.push(tag);
-      } else {
-        unselectedTags.push(tag);
-      }
+      // Then alphabetical
+      return a.localeCompare(b);
     });
-
-    return [...selectedTags, ...unselectedTags];
-  }, [recentTags.tags, tagState.currentTags]);
-
-  if (loading) {
-    return <RecentTagsLoader />;
-  }
+  }, [recentTags.tags, filters]);
 
   return (
     <article className="recent-tags" data-testid={RECENT_TAGS_SELECTORS.TITLE}>
-      <div className="recent-tags__container">
-        <div className="recent-tags__header">
-          <h3 className="recent-tags__title" title={stableTitle}>
-            {stableTitle}
-          </h3>
-          {tagState.currentTags.length > 1 && (
-            <button
-              className={`recent-tags__logic-toggle recent-tags__logic-toggle--${tagState.currentTagLogic.toLowerCase()}`}
-              onClick={handleLogicToggle}
-              title={
-                `Currently showing posts with ${tagState.currentTagLogic === 'OR' ? 'any' : 'all'} of the selected tags. ` +
-                `Click to switch to ${tagState.currentTagLogic === 'OR' ? 'all' : 'any'}.`
-              }
-            >
-              {tagState.currentTagLogic}
-            </button>
-          )}
+      <div className="recent-tags__header">
+        <h2 className="recent-tags__title">Recent Tags</h2>
+        <div className="recent-tags__header-controls">
+          <TagLogicToggle
+            allTitle="Show posts with ALL selected tags"
+            anyTitle="Show posts with ANY selected tags"
+          />
+          <button
+            className="recent-tags__refresh"
+            onClick={refreshTags}
+            disabled={loading}
+            title="Refresh recent tags"
+          >
+            🔄
+          </button>
         </div>
+      </div>
 
+      <div className="recent-tags__content">
         {loading ? (
           <div className="recent-tags__loading">
             <Loader />
@@ -237,7 +115,7 @@ const RecentTagsClientComponent = ({
           <div className="recent-tags__tags">
             {sortedTags.map((tag) => {
               const formattedTag = tag.startsWith('#') ? tag : `#${tag}`;
-              const isActive = tagState.currentTags.includes(formattedTag);
+              const isActive = isTagActive(tag, filters);
 
               return (
                 <button
@@ -271,39 +149,14 @@ const RecentTagsClientComponent = ({
   );
 };
 
-// Memoize the component to prevent unnecessary re-renders when parent components change due to pagination
-export const RecentTagsClient = RecentTagsClientComponent;
-// Temporarily disabled memo for debugging
-// export const RecentTagsClient = React.memo(
-//   RecentTagsClientComponent,
-//   (prevProps, nextProps) => {
-//     // Only re-render if contextId, onlyMine, or session changes
-//     // Don't re-render for pagination or other state changes
-//     return (
-//       prevProps.contextId === nextProps.contextId &&
-//       prevProps.onlyMine === nextProps.onlyMine &&
-//       prevProps.session?.user?.id === nextProps.session?.user?.id &&
-//       prevProps.initialRecentTags.tags.length ===
-//         nextProps.initialRecentTags.tags.length
-//     );
-//   }
-// );
+export default RecentTagsClientComponent;
 
-export function RecentTagsLoader() {
-  return (
-    <article className="recent-tags__article">
-      <div className="recent-tags__container">
-        <div className="recent-tags__header">
-          <h3 className="recent-tags__title" title="3 months">
-            Recent Tags
-          </h3>
-        </div>
-        <div className="recent-tags__content">
-          <div className="recent-tags__loading">
-            <Loader label="Loading recent tags..." color="black" />
-          </div>
-        </div>
-      </div>
-    </article>
-  );
-}
+// Named exports for compatibility with existing imports
+export const RecentTagsClient = RecentTagsClientComponent;
+
+// Simple loader component for Suspense fallback
+export const RecentTagsLoader = () => (
+  <div className="recent-tags__loading">
+    <div className="recent-tags__loading-spinner">Loading tags...</div>
+  </div>
+);

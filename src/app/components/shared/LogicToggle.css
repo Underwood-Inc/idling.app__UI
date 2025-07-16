@@ -1,0 +1,80 @@
+/* Shared Logic Toggle Component - ANY/ALL controls */
+.logic-toggle {
+  display: inline-flex;
+  align-items: center;
+}
+
+.logic-toggle__button-group {
+  display: inline-flex;
+  background-color: var(--light-bg__color--primary);
+  /* No border-radius on container - overflow: hidden handles clipping */
+  border: 2px solid var(--brand-tertiary--dark);
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.logic-toggle__button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 3rem;
+  padding: 0.4rem 0.7rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  background-color: var(--brand-tertiary);
+  color: var(--light-bg__text-color--secondary);
+  border: none !important; /* Override global button borders */
+  border-radius: 0 !important; /* Override global button border-radius */
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  position: relative;
+}
+
+.logic-toggle__button:first-child {
+  border-right: 1px solid var(--brand-tertiary) !important; /* Override global styles */
+}
+
+.logic-toggle__button:hover:not(:disabled) {
+  background-color: var(--brand-primary--light);
+  color: var(--brand-primary--dark);
+  transform: scale(1.02);
+  transform-origin: center;
+  position: relative;
+  z-index: 5;
+}
+
+.logic-toggle__button--active {
+  background-color: var(--brand-primary);
+  color: white;
+  font-weight: 700;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.logic-toggle__button--active:hover:not(:disabled) {
+  background-color: var(--brand-primary--dark);
+  color: white;
+  transform: scale(1.02);
+  transform-origin: center;
+  position: relative;
+  z-index: 5;
+}
+
+.logic-toggle__button:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--brand-primary--light);
+  z-index: 1;
+}
+
+.logic-toggle__button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.logic-toggle__button:disabled:hover {
+  background-color: var(--brand-tertiary);
+  color: var(--light-bg__text-color--secondary);
+  transform: none;
+} 

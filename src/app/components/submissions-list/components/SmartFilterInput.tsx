@@ -1,10 +1,16 @@
 'use client';
 
 import { createLogger } from '@lib/logging';
-import { useAtom } from 'jotai';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { Filter, getSubmissionsFiltersAtom } from '../../../../lib/state/atoms';
-import { PostFilters } from '../../../../lib/types/filters';
+import { Filter } from '@lib/state/atoms';
+import { useSimpleUrlFilters } from '@lib/state/submissions/useSimpleUrlFilters';
+import { PostFilters } from '@lib/types/filters';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState
+} from 'react';
 import { RichInputAdapter } from '../../submission-forms/shared-submission-form/components/RichInputAdapter';
 import './SmartFilterInput.css';
 
@@ -36,11 +42,13 @@ interface SmartFilterInputProps {
 }
 
 export const SmartFilterInput: React.FC<SmartFilterInputProps> = ({
-  placeholder = 'Search posts, #hashtags, @mentions...',
+  placeholder = 'Start typing or use #hashtag @mention...',
   className = '',
   contextId,
   enableHashtags = true,
   enableUserMentions = true,
+  onMentionClick,
+  onPillClick,
   onAddFilter,
   onAddFilters,
   onRemoveFilter,
@@ -49,7 +57,11 @@ export const SmartFilterInput: React.FC<SmartFilterInputProps> = ({
   onClearFilters,
   onValueChange
 }) => {
-  const [filtersState] = useAtom(getSubmissionsFiltersAtom(contextId));
+  // Use the new URL-first filter system instead of Jotai atoms
+  const { filters } = useSimpleUrlFilters();
+
+  // Ref to control RichInputAdapter cursor position
+  const richInputRef = useRef<any>(null);
 
   // Local input state for user typing
   const [localInputValue, setLocalInputValue] = useState('');
@@ -63,45 +75,31 @@ export const SmartFilterInput: React.FC<SmartFilterInputProps> = ({
     const parts: string[] = [];
 
     // Add hashtags
-    filtersState.filters
-      .filter((f: Filter) => f.name === 'tags')
-      .forEach((filter: Filter) => {
-        // Handle legacy comma-separated values by splitting them
-        const values = filter.value
-          .split(',')
-          .map((v) => v.trim())
-          .filter(Boolean);
-        values.forEach((value) => {
-          const cleanValue = value.startsWith('#') ? value : `#${value}`;
-          parts.push(cleanValue);
-        });
+    filters
+      .filter((f) => f.name === 'tags')
+      .forEach((filter) => {
+        const cleanValue = filter.value.startsWith('#')
+          ? filter.value
+          : `#${filter.value}`;
+        parts.push(cleanValue);
       });
 
     // Add structured mentions and authors
-    filtersState.filters
-      .filter((f: Filter) => f.name === 'author' || f.name === 'mentions')
-      .forEach((filter: Filter) => {
-        // Handle legacy comma-separated values by splitting them
-        const values = filter.value
-          .split(',')
-          .map((v) => v.trim())
-          .filter(Boolean);
-        values.forEach((value) => {
-          if (value.includes('|')) {
-            const [username, userId] = value.split('|');
-            const filterType = filter.name === 'author' ? 'author' : 'mentions';
-            parts.push(`@[${username}|${userId}|${filterType}]`);
-          } else {
-            const filterType = filter.name === 'author' ? 'author' : 'mentions';
-            parts.push(`@[${value}|${value}|${filterType}]`);
-          }
-        });
+    filters
+      .filter((f) => f.name === 'author' || f.name === 'mentions')
+      .forEach((filter) => {
+        if (filter.value.includes('|')) {
+          const [username, userId] = filter.value.split('|');
+          const filterType = filter.name === 'author' ? 'author' : 'mentions';
+          parts.push(`@[${username}|${userId}|${filterType}]`);
+        } else {
+          const filterType = filter.name === 'author' ? 'author' : 'mentions';
+          parts.push(`@[${filter.value}|${filter.value}|${filterType}]`);
+        }
       });
 
     // Add search text
-    const searchFilter = filtersState.filters.find(
-      (f: Filter) => f.name === 'search'
-    );
+    const searchFilter = filters.find((f) => f.name === 'search');
     if (searchFilter?.value) {
       const searchText = searchFilter.value;
       // Parse quoted phrases and individual words
@@ -120,7 +118,7 @@ export const SmartFilterInput: React.FC<SmartFilterInputProps> = ({
     }
 
     return parts.join(' ');
-  }, [filtersState.filters]);
+  }, [filters]);
 
   // Initialize input value on first load
   useEffect(() => {
@@ -131,7 +129,7 @@ export const SmartFilterInput: React.FC<SmartFilterInputProps> = ({
 
   // Sync input with filter state changes
   useEffect(() => {
-    const currentFilterCount = filtersState.filters.length;
+    const currentFilterCount = filters.length;
 
     // If filters were cleared (went from having filters to no filters)
     if (lastFilterStateLength > 0 && currentFilterCount === 0) {
@@ -150,7 +148,7 @@ export const SmartFilterInput: React.FC<SmartFilterInputProps> = ({
 
     setLastFilterStateLength(currentFilterCount);
   }, [
-    filtersState.filters.length,
+    filters.length,
     lastFilterStateLength,
     isUserTyping,
     isUpdatingFromFilters,
@@ -182,14 +180,14 @@ export const SmartFilterInput: React.FC<SmartFilterInputProps> = ({
   // Parse user input and extract filters
   const parseInputToFilters = useCallback(
     (input: string): Filter<PostFilters>[] => {
-      const filters: Filter<PostFilters>[] = [];
+      const parsedFilters: Filter<PostFilters>[] = [];
       let remainingText = input;
 
       // Extract hashtags
       const hashtagRegex = /#(\w+)/g;
       let match;
       while ((match = hashtagRegex.exec(input)) !== null) {
-        filters.push({ name: 'tags', value: match[1] });
+        parsedFilters.push({ name: 'tags', value: match[1] });
         remainingText = remainingText.replace(match[0], '').trim();
       }
 
@@ -198,11 +196,17 @@ export const SmartFilterInput: React.FC<SmartFilterInputProps> = ({
       while ((match = mentionRegex.exec(input)) !== null) {
         const [fullMatch, username, userId, filterType] = match;
         if (filterType === 'author') {
-          filters.push({ name: 'author', value: userId });
+          parsedFilters.push({ name: 'author', value: userId });
         } else if (filterType === 'mentions') {
-          filters.push({ name: 'mentions', value: `${username}|${userId}` });
+          parsedFilters.push({
+            name: 'mentions',
+            value: `${username}|${userId}`
+          });
         } else {
-          filters.push({ name: 'mentions', value: `${username}|${userId}` });
+          parsedFilters.push({
+            name: 'mentions',
+            value: `${username}|${userId}`
+          });
         }
         remainingText = remainingText.replace(fullMatch, '').trim();
       }
@@ -210,44 +214,52 @@ export const SmartFilterInput: React.FC<SmartFilterInputProps> = ({
       // Extract simple mentions @username
       const simpleMentionRegex = /@(\w+)/g;
       while ((match = simpleMentionRegex.exec(remainingText)) !== null) {
-        filters.push({ name: 'mentions', value: match[1] });
+        parsedFilters.push({ name: 'mentions', value: match[1] });
         remainingText = remainingText.replace(match[0], '').trim();
       }
 
       // Handle remaining text as search
       if (remainingText.trim()) {
-        filters.push({ name: 'search', value: remainingText.trim() });
+        parsedFilters.push({ name: 'search', value: remainingText.trim() });
       }
 
-      return filters;
+      return parsedFilters;
     },
     []
   );
 
   // Apply filters to state
   const applyFilters = useCallback(
-    (filters: Filter<PostFilters>[]) => {
+    (filtersToApply: Filter<PostFilters>[]) => {
       setIsUpdatingFromFilters(true);
 
       // Clear existing filters
-      onRemoveFilter?.('tags');
-      onRemoveFilter?.('author');
-      onRemoveFilter?.('mentions');
-      onRemoveFilter?.('search');
+      if (onRemoveFilter) {
+        onRemoveFilter('tags');
+        onRemoveFilter('author');
+        onRemoveFilter('mentions');
+        onRemoveFilter('search');
+      }
 
       // Add new filters
-      if (filters.length > 0) {
-        onAddFilters?.(filters);
-        onFilterSuccess?.();
+      if (filtersToApply.length > 0) {
+        if (onAddFilters) {
+          onAddFilters(filtersToApply);
+        } else if (onAddFilter) {
+          filtersToApply.forEach((filter) => onAddFilter(filter));
+        }
+        if (onFilterSuccess) {
+          onFilterSuccess();
+        }
       }
 
       // Trigger search callback if there's search text
-      const searchFilter = filters.find((f) => f.name === 'search');
-      if (searchFilter?.value) {
-        onSearch?.(searchFilter.value);
+      const searchFilter = filtersToApply.find((f) => f.name === 'search');
+      if (searchFilter && onSearch) {
+        onSearch(searchFilter.value);
       }
     },
-    [onAddFilters, onRemoveFilter, onFilterSuccess, onSearch]
+    [onRemoveFilter, onAddFilters, onAddFilter, onFilterSuccess, onSearch]
   );
 
   // Handle input changes from RichInputAdapter (only update local state)
@@ -258,16 +270,70 @@ export const SmartFilterInput: React.FC<SmartFilterInputProps> = ({
         return;
       }
 
+      // Check if this is a search result selection (contains structured mentions or hashtags with spaces)
+      const wasStructuredInsert =
+        newValue !== lastInputValue &&
+        // Check for hashtag insertions ending with space
+        (/#\w+\s$/.test(newValue) ||
+          // Check for structured mention insertions ending with space
+          /@\[[^|\]]+\|[^|\]]+\|[^|\]]+\]\s$/.test(newValue));
+
       // Always update local state immediately for responsive typing
       setLocalInputValue(newValue);
 
-      // Mark that user is actively typing
-      setIsUserTyping(true);
+      // If this was a search result selection, apply filters immediately
+      if (wasStructuredInsert) {
+        const filters = parseInputToFilters(newValue);
+        applyFilters(filters);
+        setIsUserTyping(false);
+
+        // Set cursor to end using RichInput API
+        setTimeout(() => {
+          if (richInputRef.current && richInputRef.current.setCursor) {
+            const state = richInputRef.current.getState();
+            const textLength = state.rawText.length;
+            richInputRef.current.setCursor({ index: textLength });
+          }
+        }, 50);
+      } else {
+        // Mark that user is actively typing for manual input
+        setIsUserTyping(true);
+      }
 
       // Update the last input value for comparison in next call
       setLastInputValue(newValue);
     },
-    [isUpdatingFromFilters]
+    [isUpdatingFromFilters, lastInputValue, parseInputToFilters, applyFilters]
+  );
+
+  // Handle pill clicks for removal
+  const handleHashtagClick = useCallback(
+    (hashtag: string) => {
+      if (process.env.NODE_ENV === 'development') {
+        console.log('🗑️ SmartFilterInput hashtag click:', hashtag);
+      }
+
+      if (onPillClick) {
+        onPillClick(hashtag);
+      }
+    },
+    [onPillClick]
+  );
+
+  const handleMentionClick = useCallback(
+    (mention: string, filterType?: 'author' | 'mentions') => {
+      if (process.env.NODE_ENV === 'development') {
+        console.log('🗑️ SmartFilterInput mention click:', {
+          mention,
+          filterType
+        });
+      }
+
+      if (onMentionClick) {
+        onMentionClick(mention, filterType);
+      }
+    },
+    [onMentionClick]
   );
 
   // Handle Enter key to apply filters
@@ -282,7 +348,13 @@ export const SmartFilterInput: React.FC<SmartFilterInputProps> = ({
         setIsUserTyping(false);
       }
     },
-    [parseInputToFilters, applyFilters, isUpdatingFromFilters, localInputValue]
+    [
+      parseInputToFilters,
+      applyFilters,
+      isUpdatingFromFilters,
+      localInputValue,
+      setIsUserTyping
+    ]
   );
 
   // Handle blur to apply filters when user clicks away
@@ -310,6 +382,7 @@ export const SmartFilterInput: React.FC<SmartFilterInputProps> = ({
       onBlur={handleBlur}
     >
       <RichInputAdapter
+        ref={richInputRef}
         value={localInputValue}
         onChange={handleInputChange}
         placeholder={placeholder}
@@ -322,6 +395,8 @@ export const SmartFilterInput: React.FC<SmartFilterInputProps> = ({
         enableImagePaste={false}
         mentionFilterType="mentions"
         enableDebugLogging={false}
+        onHashtagClick={handleHashtagClick}
+        onMentionClick={handleMentionClick}
       />
     </div>
   );
