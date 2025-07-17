@@ -1,5 +1,5 @@
 'use client';
-import { COIN_SELECTORS } from '../../../lib/test-selectors/components/coin.selectors';
+import { COIN_SELECTORS } from '@lib/test-selectors/components/coin.selectors';
 import { Avatar } from '../avatar/Avatar';
 import './Coin.css';
 

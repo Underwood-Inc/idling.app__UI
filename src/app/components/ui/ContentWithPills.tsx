@@ -2,13 +2,10 @@
 'use client';
 
 import { createLogger } from '@lib/logging';
+import { NAV_PATHS } from '@lib/routes';
+import { ContentParser, ContentSegment } from '@lib/utils/content-parsers';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import React, { Suspense, useCallback, useMemo } from 'react';
-import { NAV_PATHS } from '../../../lib/routes';
-import {
-  ContentParser,
-  ContentSegment
-} from '../../../lib/utils/content-parsers';
 import { InteractiveTooltip } from '../tooltip/InteractiveTooltip';
 import './ContentWithPills.css';
 import { InstantLink } from './InstantLink';

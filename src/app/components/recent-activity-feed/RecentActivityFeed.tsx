@@ -1,9 +1,9 @@
 'use client';
 
+import { useSimpleSubmissions } from '@lib/state/submissions/useSimpleSubmissions';
+import { formatLastUpdated } from '@lib/utils/time-utils';
 import Link from 'next/link';
 import React from 'react';
-import { useSimpleSubmissions } from '../../../lib/state/submissions/useSimpleSubmissions';
-import { formatLastUpdated } from '../../../lib/utils/time-utils';
 import { Author } from '../author/Author';
 import './RecentActivityFeed.css';
 

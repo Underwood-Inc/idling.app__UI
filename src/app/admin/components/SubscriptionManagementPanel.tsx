@@ -1,7 +1,7 @@
 'use client';
 
+import { useOverlay } from '@lib/context/OverlayContext';
 import { useCallback, useEffect, useState } from 'react';
-import { useOverlay } from '../../../lib/context/OverlayContext';
 import { AssignSubscriptionModal } from './modals/AssignSubscriptionModal';
 import { EditPlanModal } from './modals/EditPlanModal';
 import { EditSubscriptionModal } from './modals/EditSubscriptionModal';

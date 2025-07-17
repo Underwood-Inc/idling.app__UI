@@ -1,8 +1,8 @@
 import { checkUserPermission } from '@lib/actions/permissions.actions';
+import { auth } from '@lib/auth';
+import sql from '@lib/db';
 import { PERMISSIONS } from '@lib/permissions/permissions';
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '../../../../../../lib/auth';
-import sql from '../../../../../../lib/db';
 
 interface UserSubscription {
   id: string;

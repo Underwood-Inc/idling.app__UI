@@ -3,22 +3,11 @@
 import React, { useEffect, useState } from 'react';
 import './SkeletonLoader.css';
 
-// Development-only import that gets tree-shaken in production
-let useDevSkeletonState: () => {
-  shouldShowSkeleton: boolean;
-  isDevModeActive: boolean;
-};
-
-if (process.env.NODE_ENV === 'development') {
-  const devModule = require('../dev-tools/DevSkeletonToggle');
-  useDevSkeletonState = devModule.useDevSkeletonState;
-} else {
-  // Production fallback - returns inactive state
-  useDevSkeletonState = () => ({
-    shouldShowSkeleton: false,
-    isDevModeActive: false
-  });
-}
+// DevSkeletonToggle removed - always return inactive state
+const useDevSkeletonState = () => ({
+  shouldShowSkeleton: false,
+  isDevModeActive: false
+});
 
 // Base skeleton components
 export const SkeletonText: React.FC<{

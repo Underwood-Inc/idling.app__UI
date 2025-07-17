@@ -1,5 +1,5 @@
+import { TextExtractor } from '@lib/utils/text-extraction';
 import { useMemo } from 'react';
-import { TextExtractor } from '../../../../../lib/utils/text-extraction';
 
 export function useValueExtraction(value: string) {
   // Memoize extracted values to prevent unnecessary re-renders
@@ -7,7 +7,7 @@ export function useValueExtraction(value: string) {
     () => TextExtractor.extractHashtags(value),
     [value]
   );
-  
+
   const existingUserIds = useMemo(
     () => TextExtractor.extractUserIds(value),
     [value]
@@ -18,10 +18,7 @@ export function useValueExtraction(value: string) {
     [value]
   );
 
-  const existingUrls = useMemo(
-    () => TextExtractor.extractUrls(value),
-    [value]
-  );
+  const existingUrls = useMemo(() => TextExtractor.extractUrls(value), [value]);
 
   return {
     existingHashtags,
@@ -29,4 +26,4 @@ export function useValueExtraction(value: string) {
     existingMentions,
     existingUrls
   };
-} 
+}

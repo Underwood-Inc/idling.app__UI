@@ -1,4 +1,3 @@
-import React from 'react';
 import { Card } from '../../components/card/Card';
 import FadeIn from '../../components/fade-in/FadeIn';
 import { PageAside } from '../../components/page-aside/PageAside';

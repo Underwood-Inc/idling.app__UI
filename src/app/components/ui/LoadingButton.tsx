@@ -1,7 +1,7 @@
 'use client';
 
+import { useGlobalLoading } from '@lib/context/GlobalLoadingContext';
 import { ReactNode, useCallback, useState } from 'react';
-import { useGlobalLoading } from '../../../lib/context/GlobalLoadingContext';
 import './LoadingButton.css';
 
 interface LoadingButtonProps {

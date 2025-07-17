@@ -1,6 +1,6 @@
+import { materializedViewRefresher } from '@lib/cron/refresh-materialized-views';
+import { serverLogger } from '@lib/utils/server-logger';
 import { NextRequest, NextResponse } from 'next/server';
-import { materializedViewRefresher } from '../../../../lib/cron/refresh-materialized-views';
-import { serverLogger } from '../../../../lib/utils/server-logger';
 
 /**
  * API endpoint for managing materialized view refreshes

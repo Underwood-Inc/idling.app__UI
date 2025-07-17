@@ -1,8 +1,8 @@
 'use client';
 
+import { Filter } from '@lib/state/atoms';
+import { PostFilters } from '@lib/types/filters';
 import { useState } from 'react';
-import { Filter } from '../../../lib/state/atoms';
-import { PostFilters } from '../../../lib/types/filters';
 import { SmartPillInput } from '../ui/SmartPillInput';
 import './CustomFilterInput.css';
 

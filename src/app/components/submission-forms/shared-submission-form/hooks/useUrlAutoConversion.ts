@@ -1,6 +1,6 @@
+import { createURLPill, findDomainConfig } from '@lib/config/url-pills';
+import { TextManipulator } from '@lib/utils/text-extraction';
 import { useCallback } from 'react';
-import { createURLPill, findDomainConfig } from '../../../../../lib/config/url-pills';
-import { TextManipulator } from '../../../../../lib/utils/text-extraction';
 
 interface UseUrlAutoConversionProps {
   value: string;
@@ -13,7 +13,6 @@ export function useUrlAutoConversion({
   onChange,
   richInputRef
 }: UseUrlAutoConversionProps) {
-  
   const handleValueChangeWithURLDetection = useCallback(
     (newValue: string, previousValue?: string) => {
       const prevValue = previousValue || value || '';
@@ -125,4 +124,4 @@ export function useUrlAutoConversion({
   return {
     handleValueChangeWithURLDetection
   };
-} 
+}

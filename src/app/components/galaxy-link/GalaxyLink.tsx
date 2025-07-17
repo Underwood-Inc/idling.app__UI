@@ -1,8 +1,8 @@
 'use client';
 
+import { useOverlay } from '@lib/context/OverlayContext';
 import React from 'react';
 import { NAV_PATHS } from 'src/lib/routes';
-import { useOverlay } from '../../../lib/context/OverlayContext';
 import { LinkTooltip } from '../tooltip/LinkTooltip';
 import { InstantLink } from '../ui/InstantLink';
 import './GalaxyLink.css';

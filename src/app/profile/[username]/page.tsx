@@ -1,11 +1,11 @@
-import { notFound } from 'next/navigation';
-import { getUserProfileByDatabaseId } from '../../../lib/actions/profile.actions';
-import { auth } from '../../../lib/auth';
+import { getUserProfileByDatabaseId } from '@lib/actions/profile.actions';
+import { auth } from '@lib/auth';
 import {
   cleanContentForSocialSharing,
   extractEmbedUrls,
   getFirstYouTubeUrl
-} from '../../../lib/utils/social-sharing';
+} from '@lib/utils/social-sharing';
+import { notFound } from 'next/navigation';
 import { Card } from '../../components/card/Card';
 import FadeIn from '../../components/fade-in/FadeIn';
 import { PageAside } from '../../components/page-aside/PageAside';

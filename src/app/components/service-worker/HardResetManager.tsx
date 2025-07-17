@@ -1,11 +1,11 @@
 'use client';
 
 import { createLogger } from '@lib/logging';
-import { useEffect } from 'react';
 import {
   checkAndPerformHardReset,
   getResetStats
-} from '../../../lib/utils/hard-reset-manager';
+} from '@lib/utils/hard-reset-manager';
+import { useEffect } from 'react';
 
 // Create component-specific logger
 const logger = createLogger({

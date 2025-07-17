@@ -1,6 +1,6 @@
+import { auth } from '@lib/auth';
+import { NAV_PATHS } from '@lib/routes';
 import { redirect } from 'next/navigation';
-import { auth } from '../../../lib/auth';
-import { NAV_PATHS } from '../../../lib/routes';
 import { PageContainer } from '../../components/page-container/PageContainer';
 import { InstantLink } from '../../components/ui/InstantLink';
 import { UnauthenticatedUnlinkForm } from './UnauthenticatedUnlinkForm';

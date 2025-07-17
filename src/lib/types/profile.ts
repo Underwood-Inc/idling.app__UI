@@ -1,3 +1,5 @@
+import { FlairPreference } from '../actions/subscription.actions';
+
 export interface UserProfileData {
   id: string;
   providerAccountId?: string;
@@ -18,8 +20,16 @@ export interface UserProfileData {
   pagination_mode?: 'traditional' | 'infinite';
   emoji_panel_behavior?: 'close_after_select' | 'stay_open';
   font_preference?: 'monospace' | 'default';
+  flair_preference?: FlairPreference;
   // Background settings
-  background_movement_direction?: 'static' | 'forward' | 'backward' | 'left' | 'right' | 'up' | 'down';
+  background_movement_direction?:
+    | 'static'
+    | 'forward'
+    | 'backward'
+    | 'left'
+    | 'right'
+    | 'up'
+    | 'down';
   background_movement_speed?: 'slow' | 'normal' | 'fast';
   background_animation_layers?: {
     stars: boolean;

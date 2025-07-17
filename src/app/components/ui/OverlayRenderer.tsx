@@ -1,8 +1,8 @@
 'use client';
 
+import { useOverlay } from '@lib/context/OverlayContext';
 import React, { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { useOverlay } from '../../../lib/context/OverlayContext';
 import './OverlayRenderer.css';
 
 // Draggable/Resizable Widget Component

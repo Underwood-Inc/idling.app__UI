@@ -1,6 +1,6 @@
 'use server';
 
-import sql from '../../../lib/db';
+import sql from '@lib/db';
 
 export interface NestedSubmission {
   submission_id: number;

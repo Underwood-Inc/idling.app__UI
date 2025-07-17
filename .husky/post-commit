@@ -63,6 +63,15 @@ if [ -n "$(git status --porcelain README.md)" ]; then
   BADGE_FILES_MODIFIED="README.md"
 fi
 
+if [ -n "$(git status --porcelain src/index.md)" ]; then
+  git add src/index.md
+  if [ -n "$BADGE_FILES_MODIFIED" ]; then
+    BADGE_FILES_MODIFIED="$BADGE_FILES_MODIFIED src/index.md"
+  else
+    BADGE_FILES_MODIFIED="src/index.md"
+  fi
+fi
+
 if [ -n "$(git status --porcelain static/coverage/documentation-badge.md)" ]; then
   git add static/coverage/documentation-badge.md
   if [ -n "$BADGE_FILES_MODIFIED" ]; then

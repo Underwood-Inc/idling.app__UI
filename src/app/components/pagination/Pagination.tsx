@@ -1,6 +1,6 @@
 'use client';
-import { PageSize } from '../../../lib/state/atoms';
-import { PAGINATION_SELECTORS } from '../../../lib/test-selectors/components/pagination.selectors';
+import { PageSize } from '@lib/state/atoms';
+import { PAGINATION_SELECTORS } from '@lib/test-selectors/components/pagination.selectors';
 import PageSizeSelector from './PageSizeSelector';
 import './Pagination.css';
 

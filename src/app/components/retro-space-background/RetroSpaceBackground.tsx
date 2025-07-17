@@ -1,7 +1,7 @@
 'use client';
 
+import { useUserPreferences } from '@lib/context/UserPreferencesContext';
 import { useEffect, useState } from 'react';
-import { useUserPreferences } from '../../../lib/context/UserPreferencesContext';
 import './RetroSpaceBackground.scss';
 
 // Keep prop interface for potential override capabilities

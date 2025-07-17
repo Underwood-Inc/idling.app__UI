@@ -1,8 +1,8 @@
 'use client';
+import { shouldUpdateAtom } from '@lib/state/atoms';
 import { useAtom } from 'jotai';
 import { useEffect, useRef, useState } from 'react';
 import { useFormState, useFormStatus } from 'react-dom';
-import { shouldUpdateAtom } from '../../../../lib/state/atoms';
 import { InteractiveTooltip } from '../../tooltip/InteractiveTooltip';
 import { canDeleteSubmission, deleteSubmissionAction } from '../actions';
 import './DeleteSubmissionForm.css';

@@ -1,14 +1,11 @@
+import { NAV_PATHS, PUBLIC_ROUTES } from '@lib/routes';
 import NextAuth from 'next-auth';
-import { NextResponse } from 'next/server';
+import { NextResponse, type NextRequest } from 'next/server';
 import { authConfig } from './auth.config';
-import { NAV_PATHS, PUBLIC_ROUTES } from './lib/routes';
 
-const { auth } = NextAuth({
-  ...authConfig,
-  basePath: '/api/auth'
-});
+const { auth } = NextAuth(authConfig);
 
-export default auth(async (req) => {
+export default auth(async (req: NextRequest & { auth: any }) => {
   const { nextUrl, auth: session } = req;
 
   // Note: User existence validation is handled at the API route level
@@ -55,10 +52,10 @@ export default auth(async (req) => {
           { status: 401 }
         );
       }
-      
-             // Note: Admin permission validation is handled at the individual API route level
-       // because middleware runs in Edge Runtime which doesn't support database connections
-       // Each admin API route MUST implement proper permission checking using the validation utility
+
+      // Note: Admin permission validation is handled at the individual API route level
+      // because middleware runs in Edge Runtime which doesn't support database connections
+      // Each admin API route MUST implement proper permission checking using the validation utility
     }
 
     // Continue to API route

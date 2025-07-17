@@ -1,10 +1,10 @@
-import { Metadata } from 'next';
-import { notFound } from 'next/navigation';
 import {
   cleanContentForSocialSharing,
   extractEmbedUrls,
   getFirstYouTubeUrl
-} from '../../../lib/utils/social-sharing';
+} from '@lib/utils/social-sharing';
+import { Metadata } from 'next';
+import { notFound } from 'next/navigation';
 import { Submission } from '../../components/submission-forms/schema';
 import { getSubmissionThread } from '../../components/thread/actions';
 import ThreadPageClient from './ThreadPageClient';

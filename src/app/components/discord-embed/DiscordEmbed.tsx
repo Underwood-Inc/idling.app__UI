@@ -1,6 +1,6 @@
 'use client';
+import { DISCORD_EMBED_SELECTORS } from '@lib/test-selectors/components/discord-embed.selectors';
 import React from 'react';
-import { DISCORD_EMBED_SELECTORS } from '../../../lib/test-selectors/components/discord-embed.selectors';
 import './DiscordEmbed.css';
 
 export const DiscordEmbed: React.FC = () => {

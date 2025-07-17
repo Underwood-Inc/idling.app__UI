@@ -9,6 +9,7 @@
 import React, { useState } from 'react';
 import { Avatar } from '../../../components/avatar/Avatar';
 import { LoadingButton } from '../../../components/ui/LoadingButton';
+import { Username } from '../../../components/username';
 import type {
   ManagementUser,
   SearchResult,
@@ -246,7 +247,14 @@ export const UserInfoCell: React.FC<UserInfoCellProps> = ({ user }) => {
       </div>
       <div className="user-details">
         <div className="user-name-row">
-          <span className="user-name">{user.name || 'Unnamed User'}</span>
+          <Username
+            userId={user.id}
+            displayName={user.name || 'Unnamed User'}
+            size="sm"
+            weight="medium"
+            className="user-name"
+            data-testid={`admin-username-${user.id}`}
+          />
         </div>
         <div className="user-id-row">
           <span className="user-id">ID: {user.id}</span>

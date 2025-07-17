@@ -1,5 +1,5 @@
+import { formatRetryAfter } from '@lib/utils/timeFormatting';
 import { useCallback, useRef, useState } from 'react';
-import { formatRetryAfter } from '../../../lib/utils/timeFormatting';
 import { GenerationOptions } from '../types/generation';
 
 interface UseImageGenerationProps {

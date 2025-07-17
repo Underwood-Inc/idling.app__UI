@@ -1,8 +1,8 @@
 'use client';
 
-import { getMediaType } from '../../../lib/config/media-domains';
-import { getURLPillType, shouldEmbedURL } from '../../../lib/config/url-pills';
-import { useOverlay } from '../../../lib/context/OverlayContext';
+import { getMediaType } from '@lib/config/media-domains';
+import { getURLPillType, shouldEmbedURL } from '@lib/config/url-pills';
+import { useOverlay } from '@lib/context/OverlayContext';
 import { ImageEmbed } from './ImageEmbed';
 import './URLPill.css';
 import { YouTubeEmbed } from './YouTubeEmbed';

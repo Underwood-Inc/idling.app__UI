@@ -470,7 +470,7 @@ main,
 article,
 section {
   display: flex;
-  justify-content: center;
+  justify-content: flex-start;
 }
 
 main {
@@ -482,7 +482,7 @@ main {
 
 article,
 section {
-  justify-content: center;
+  justify-content: flex-start;
   align-items: start;
   flex-direction: column;
 }

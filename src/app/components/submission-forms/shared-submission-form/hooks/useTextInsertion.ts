@@ -1,5 +1,5 @@
+import { TextManipulator } from '@lib/utils/text-extraction';
 import { useCallback } from 'react';
-import { TextManipulator } from '../../../../../lib/utils/text-extraction';
 
 interface UseTextInsertionProps {
   value: string;
@@ -12,7 +12,6 @@ export function useTextInsertion({
   onChange,
   richInputRef
 }: UseTextInsertionProps) {
-  
   const insertAtCursor = useCallback(
     (text: string) => {
       if (richInputRef?.current?.insertText) {
@@ -31,7 +30,11 @@ export function useTextInsertion({
         const currentText = currentState.rawText;
         const cursorPosition = currentState.cursorPosition.index;
 
-        const result = TextManipulator.insertAtPosition(currentText, text, cursorPosition);
+        const result = TextManipulator.insertAtPosition(
+          currentText,
+          text,
+          cursorPosition
+        );
 
         onChange(result.newText);
 
@@ -43,7 +46,9 @@ export function useTextInsertion({
             }
             // Use setCursor method if available (preferred over setSelection)
             if (richInputRef.current.setCursor) {
-              richInputRef.current.setCursor({ index: result.newCursorPosition });
+              richInputRef.current.setCursor({
+                index: result.newCursorPosition
+              });
             } else if (richInputRef.current.setCursorPosition) {
               richInputRef.current.setCursorPosition(result.newCursorPosition);
             } else if (richInputRef.current.setSelection) {
@@ -72,7 +77,12 @@ export function useTextInsertion({
 
   const replaceTextRange = useCallback(
     (startPos: number, endPos: number, newText: string) => {
-      const result = TextManipulator.replaceBetween(value, newText, startPos, endPos);
+      const result = TextManipulator.replaceBetween(
+        value,
+        newText,
+        startPos,
+        endPos
+      );
       onChange(result.newText);
 
       // Set cursor position after replacement
@@ -96,4 +106,4 @@ export function useTextInsertion({
     insertAtCursor,
     replaceTextRange
   };
-} 
+}

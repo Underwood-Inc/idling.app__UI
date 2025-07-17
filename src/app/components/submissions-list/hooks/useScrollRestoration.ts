@@ -1,13 +1,13 @@
 'use client';
 
 import { createLogger } from '@lib/logging';
+import { highlightScrollTarget } from '@lib/utils/scroll-highlight';
+import {
+  generateScrollKey,
+  storeOrUpdateScrollPosition
+} from '@lib/utils/scroll-position';
 import { usePathname } from 'next/navigation';
 import { useEffect } from 'react';
-import { highlightScrollTarget } from '../../../../lib/utils/scroll-highlight';
-import {
-    generateScrollKey,
-    storeOrUpdateScrollPosition
-} from '../../../../lib/utils/scroll-position';
 
 // Create hook-specific logger
 const logger = createLogger({
@@ -371,15 +371,18 @@ export function useScrollRestoration({
       const attemptScrollRestore = (attempts = 0, maxAttempts = 15) => {
         try {
           const storedPosition = localStorage.getItem(scrollKey);
-          
+
           // Early exit if no stored position - don't retry
           if (!storedPosition) {
             if (attempts === 0) {
-              logger.debug('No stored scroll position found, skipping restoration', {
-                scrollKey,
-                attempts,
-                maxAttempts
-              });
+              logger.debug(
+                'No stored scroll position found, skipping restoration',
+                {
+                  scrollKey,
+                  attempts,
+                  maxAttempts
+                }
+              );
             }
             return; // Exit immediately, don't retry
           }
@@ -417,8 +420,7 @@ export function useScrollRestoration({
               } catch (error) {
                 logger.warn('Failed to clear stored scroll position', {
                   scrollKey,
-                  error:
-                    error instanceof Error ? error.message : String(error)
+                  error: error instanceof Error ? error.message : String(error)
                 });
               }
 

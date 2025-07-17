@@ -1,12 +1,12 @@
 'use client';
 
+import { CONTEXT_IDS } from '@lib/context-ids';
+import { useOverlay } from '@lib/context/OverlayContext';
+import { shouldUpdateAtom } from '@lib/state/atoms';
 import { useAtom } from 'jotai';
 import { useSession } from 'next-auth/react';
 import dynamic from 'next/dynamic';
-import { useState } from 'react';
-import { CONTEXT_IDS } from '../../lib/context-ids';
-import { useOverlay } from '../../lib/context/OverlayContext';
-import { shouldUpdateAtom } from '../../lib/state/atoms';
+import React, { useState } from 'react';
 import { IntelligentSkeletonWrapper } from '../components/skeleton/IntelligentSkeletonWrapper';
 import { Submission } from '../components/submission-forms/schema';
 import { SharedSubmissionForm } from '../components/submission-forms/shared-submission-form/SharedSubmissionForm';

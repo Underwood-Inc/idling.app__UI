@@ -1,6 +1,6 @@
 'use client';
 
-import { CONTEXT_IDS } from '../../../lib/context-ids';
+import { CONTEXT_IDS } from '@lib/context-ids';
 import PostsManager from '../../components/submissions-list/PostsManager';
 import './AdminPostsList.css';
 

@@ -1,6 +1,6 @@
+import sql from '@lib/db';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
-import sql from '../../../lib/db';
 
 // Cache for form options to reduce database calls
 const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes

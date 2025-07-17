@@ -1,3 +1,4 @@
+import React from 'react';
 import { DISCORD_LINK_SELECTORS } from 'src/lib/test-selectors/components/discord-link.selectors';
 import { PAGE_ASIDE_SELECTORS } from 'src/lib/test-selectors/components/page-aside.selectors';
 import { render, screen } from '../test-utils';
@@ -21,6 +22,13 @@ jest.mock('./components/page-content/PageContent', () => ({
   __esModule: true,
   default: ({ children }: { children: React.ReactNode }) => (
     <div data-testid="mock-page-content">{children}</div>
+  )
+}));
+
+// Mock RecentActivityFeed to prevent next-auth import issues
+jest.mock('./components/recent-activity-feed', () => ({
+  RecentActivityFeed: () => (
+    <div data-testid="mock-recent-activity-feed">Recent Activity Feed</div>
   )
 }));
 

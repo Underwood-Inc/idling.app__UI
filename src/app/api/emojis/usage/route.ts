@@ -62,9 +62,9 @@
  * Handles tracking emoji usage statistics
  */
 
+import { trackEmojiUsage } from '@lib/actions/emoji.actions';
 import { withUniversalEnhancements } from '@lib/api/withUniversalEnhancements';
 import { NextRequest, NextResponse } from 'next/server';
-import { trackEmojiUsage } from '../../../../lib/actions/emoji.actions';
 
 /**
  * POST /api/emojis/usage

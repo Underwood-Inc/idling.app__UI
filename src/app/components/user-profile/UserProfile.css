@@ -27,26 +27,7 @@
   z-index: 10;
 }
 
-.user-profile__avatar-badge {
-  position: absolute;
-  bottom: -4px;
-  right: -4px;
-  width: 32px;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1rem;
-  border-radius: 50%;
-  z-index: 12;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-  transition: all 0.3s ease;
-}
-
-.user-profile__avatar-badge:hover {
-  transform: scale(1.1);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
-}
+/* REMOVED: Avatar badge styling - no longer needed */
 
 /* Header Information Section */
 .user-profile__header-info {
@@ -78,19 +59,23 @@
   line-height: 1.2;
   letter-spacing: -0.02em;
   word-wrap: break-word;
+  /* Fallback color for compatibility */
+  color: var(--brand-primary);
+  /* Gradient text effect - only if browser supports it properly */
   background: linear-gradient(
     135deg,
     var(--brand-primary) 0%,
     var(--brand-primary--light) 50%,
     var(--brand-primary--dark) 100%
   );
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
   background-clip: text;
+  -webkit-background-clip: text;
   text-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   position: relative;
   z-index: 10;
 }
+
+/* REMOVED: Transparent text effect that was causing blur issues */
 
 /* Location and Join Date Pills */
 .user-profile__location,

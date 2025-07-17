@@ -1,5 +1,5 @@
+import { emojiParser } from '@lib/utils/parsers/emoji-parser';
 import { useCallback, useState } from 'react';
-import { emojiParser } from '../../../../../lib/utils/parsers/emoji-parser';
 import { useFloatingToolbar } from './useFloatingToolbar';
 
 interface SearchOverlayState {

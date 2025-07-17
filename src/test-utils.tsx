@@ -1,7 +1,7 @@
+import { NavigationLoadingProvider } from '@lib/context/NavigationLoadingContext';
+import { OverlayProvider } from '@lib/context/OverlayContext';
 import { render, RenderOptions } from '@testing-library/react';
 import React from 'react';
-import { NavigationLoadingProvider } from './lib/context/NavigationLoadingContext';
-import { OverlayProvider } from './lib/context/OverlayContext';
 
 // Create a custom render function that includes providers
 const AllTheProviders = ({ children }: { children: React.ReactNode }) => {

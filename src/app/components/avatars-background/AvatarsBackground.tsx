@@ -2,8 +2,8 @@
 
 import { adventurer } from '@dicebear/collection';
 import { createAvatar } from '@dicebear/core';
+import { makeid } from '@lib/utils/string/make-id';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { makeid } from '../../../lib/utils/string/make-id';
 import './AvatarsBackground.css';
 
 // ================================

@@ -1,25 +1,17 @@
 'use client';
 
+import { CONTEXT_IDS } from '@lib/context-ids';
+import { useOverlay } from '@lib/context/OverlayContext';
+import { shouldUpdateAtom } from '@lib/state/atoms';
 import { useAtom } from 'jotai';
 import { useSession } from 'next-auth/react';
 import dynamic from 'next/dynamic';
 import React, { useState } from 'react';
-import { CONTEXT_IDS } from '../../lib/context-ids';
-import { useOverlay } from '../../lib/context/OverlayContext';
-import { shouldUpdateAtom } from '../../lib/state/atoms';
 import { IntelligentSkeletonWrapper } from '../components/skeleton/IntelligentSkeletonWrapper';
 import { Submission } from '../components/submission-forms/schema';
 import { SharedSubmissionForm } from '../components/submission-forms/shared-submission-form/SharedSubmissionForm';
 import { SubmissionItem } from '../components/submissions-list/SubmissionItem';
 import { SubmissionWithReplies } from '../components/submissions-list/types';
-
-// Development-only import that gets tree-shaken in production
-let DevSkeletonToggle: React.ComponentType | null = null;
-
-if (process.env.NODE_ENV === 'development') {
-  const devModule = require('../components/dev-tools/DevSkeletonToggle');
-  DevSkeletonToggle = devModule.DevSkeletonToggle;
-}
 
 const LazyPostsManager = dynamic(
   () => import('../components/submissions-list/PostsManager'),

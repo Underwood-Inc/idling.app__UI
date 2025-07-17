@@ -122,5 +122,6 @@ export const authConfig: NextAuthConfig = {
     maxAge:
       process.env.NODE_ENV === 'development' ? 30 * 24 * 60 * 60 : 24 * 60 * 60 // 30 days in dev, 1 day in prod
   },
+  basePath: '/api/auth',
   secret: process.env.NEXTAUTH_SECRET
 } satisfies NextAuthConfig;

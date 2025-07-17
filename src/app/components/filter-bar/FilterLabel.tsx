@@ -108,7 +108,7 @@ export function FilterLabel({
         // Author filter: label is a userId, resolve to username for display
         try {
           const { resolveUserIdToUsername } = await import(
-            '../../../lib/actions/search.actions'
+            '@lib/actions/search.actions'
           );
           const username = await resolveUserIdToUsername(label);
           if (username) {

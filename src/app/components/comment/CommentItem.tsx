@@ -1,4 +1,4 @@
-import { Comment } from '../../../lib/types';
+import { Comment } from '@lib/types';
 import { TimestampWithTooltip } from '../ui/TimestampWithTooltip';
 import './CommentItem.css';
 

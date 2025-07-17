@@ -1,12 +1,12 @@
 'use client';
 
-import { forwardRef, useCallback, useImperativeHandle, useRef } from 'react';
 import {
   PaginatedHashtagResult,
   PaginatedUserResult,
   searchHashtags,
   searchUsers
-} from '../../../lib/actions/search.actions';
+} from '@lib/actions/search.actions';
+import { forwardRef, useCallback, useImperativeHandle, useRef } from 'react';
 import {
   EmojiData,
   EmojiPicker,
@@ -253,7 +253,7 @@ export const SmartInput = forwardRef<
               const url = lastWord;
 
               // Import URL detection utilities
-              import('../../../lib/config/url-pills')
+              import('@lib/config/url-pills')
                 .then(({ findDomainConfig, createURLPill }) => {
                   const domainConfig = findDomainConfig(url);
                   if (domainConfig) {

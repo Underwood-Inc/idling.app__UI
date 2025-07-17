@@ -1,7 +1,7 @@
+import { auth } from '@lib/auth';
+import { NAV_PATHS } from '@lib/routes';
 import { redirect } from 'next/navigation';
 import { PageContainer } from 'src/app/components/page-container/PageContainer';
-import { auth } from '../../../lib/auth';
-import { NAV_PATHS } from '../../../lib/routes';
 import { ClientSignIn } from '../../components/auth-buttons/ClientAuthButtons';
 import { SignInProviders } from '../../components/auth-buttons/types';
 import { OAuthAccountConflictHandler } from './OAuthAccountConflictHandler';

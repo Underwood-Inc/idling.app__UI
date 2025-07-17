@@ -1,9 +1,9 @@
 'use client';
 
+import { avatarCacheAtom } from '@lib/state/atoms';
 import { useAtom } from 'jotai';
 import { useSession } from 'next-auth/react';
 import { useEffect, useRef } from 'react';
-import { avatarCacheAtom } from '../../../lib/state/atoms';
 import { Avatar, AvatarPropSizes } from '../avatar/Avatar';
 
 interface AuthAvatarProps {

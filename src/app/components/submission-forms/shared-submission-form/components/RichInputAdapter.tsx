@@ -5,9 +5,9 @@
 
 'use client';
 
+import { RichInput } from '@lib/rich-input';
 import React, { forwardRef, useCallback, useRef, useState } from 'react';
 import ReactDOM from 'react-dom';
-import { RichInput } from '../../../../../lib/rich-input';
 import { useFocusManagement } from '../hooks/useFocusManagement';
 import { useSearchOverlay } from '../hooks/useSearchOverlay';
 import { useTextInsertion } from '../hooks/useTextInsertion';

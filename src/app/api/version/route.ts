@@ -1,5 +1,5 @@
+import { withUniversalEnhancementsNoRateLimit } from '@lib/api/withUniversalEnhancements';
 import { NextResponse } from 'next/server';
-import { withUniversalEnhancementsNoRateLimit } from '../../../lib/api/withUniversalEnhancements';
 
 export const dynamic = 'force-dynamic';
 

@@ -1,7 +1,7 @@
 /* eslint-disable custom-rules/enforce-link-target-blank */
+import { auth } from '@lib/auth';
+import { NAV_PATHS } from '@lib/routes';
 import { NAV_SELECTORS } from 'src/lib/test-selectors/components/nav.selectors';
-import { auth } from '../../../lib/auth';
-import { NAV_PATHS } from '../../../lib/routes';
 import { SignOut } from '../auth-buttons/AuthButtons';
 import { InstantLink } from '../ui/InstantLink';
 import { NavUserProfile } from './NavUserProfile';

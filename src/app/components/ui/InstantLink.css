@@ -194,7 +194,7 @@
 /* Content pills */
 .content-pill.instant-link {
   text-decoration: none;
-  color: inherit;
+  color: black;
 }
 
 /* Callback page buttons */

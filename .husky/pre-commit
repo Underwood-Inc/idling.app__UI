@@ -330,6 +330,17 @@ else:
     fi
 fi
 
+# Update Docusaurus index page badge
+if [ -f "src/index.md" ]; then
+    # Convert decimal to integer for the script
+    coverage_int=$(echo "$coverage_percentage" | awk '{print int($1)}')
+    if python3 scripts/update-docusaurus-badge.py --badge-url "$badge_url" --coverage "$coverage_int" >/dev/null 2>&1; then
+        print_success "Successfully updated documentation badge in src/index.md"
+    else
+        print_warning "Could not update Docusaurus index badge"
+    fi
+fi
+
 # Note: Jekyll removed - now using Docusaurus
 
 # ============================================================================

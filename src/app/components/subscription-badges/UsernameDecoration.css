@@ -1,0 +1,322 @@
+/* Username Decoration Styles */
+.username-decoration {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.username-decoration__content {
+  position: relative;
+  z-index: 2;
+}
+
+/* Loading States */
+.username-decoration__loading {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 4px;
+  z-index: 10;
+}
+
+/* Error States */
+.username-decoration__error {
+  position: absolute;
+  top: -0.25rem;
+  right: -0.25rem;
+  color: #f59e0b;
+  font-size: 0.6rem;
+  z-index: 11;
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+.username-decoration__spinner {
+  width: 12px;
+  height: 12px;
+  border: 2px solid #e0e0e0;
+  border-top-color: #3b82f6;
+  border-radius: 50%;
+  animation: username-decoration-spin 1s linear infinite;
+}
+
+@keyframes username-decoration-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Enterprise Crown Decoration */
+.username-decoration--enterprise-crown {
+  color: #fbbf24;
+  font-weight: 700;
+  text-shadow: 0 0 8px rgba(251, 191, 36, 0.4);
+}
+
+.username-decoration__crown {
+  position: absolute;
+  top: -0.5rem;
+  left: -0.25rem;
+  font-size: 0.75rem;
+  animation: username-crown-bounce 2s ease-in-out infinite;
+  z-index: 3;
+}
+
+.username-decoration__glow--enterprise {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(45deg, rgba(251, 191, 36, 0.2), rgba(245, 158, 11, 0.2));
+  border-radius: 4px;
+  animation: username-enterprise-pulse 3s ease-in-out infinite;
+  z-index: 1;
+}
+
+@keyframes username-crown-bounce {
+  0%, 20%, 50%, 80%, 100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-2px);
+  }
+  60% {
+    transform: translateY(-1px);
+  }
+}
+
+@keyframes username-enterprise-pulse {
+  0%, 100% {
+    opacity: 0.3;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.6;
+    transform: scale(1.02);
+  }
+}
+
+/* Premium Galaxy Decoration */
+.username-decoration--premium-galaxy {
+  color: #8b5cf6;
+  font-weight: 600;
+  text-shadow: 0 0 6px rgba(139, 92, 246, 0.4);
+}
+
+.username-decoration__glow--galaxy {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(45deg, rgba(139, 92, 246, 0.15), rgba(167, 139, 250, 0.15));
+  border-radius: 4px;
+  animation: username-galaxy-shimmer 4s ease-in-out infinite;
+  z-index: 1;
+}
+
+.username-decoration__particles {
+  position: absolute;
+  top: -0.5rem;
+  right: -0.5rem;
+  width: 1rem;
+  height: 1rem;
+  pointer-events: none;
+  z-index: 3;
+}
+
+.username-decoration__particle {
+  position: absolute;
+  font-size: 0.5rem;
+  animation: username-particle-float 3s ease-in-out infinite;
+}
+
+.username-decoration__particle--star {
+  top: 0;
+  right: 0;
+  animation-delay: 0s;
+}
+
+.username-decoration__particle--sparkle {
+  top: 0.25rem;
+  right: 0.25rem;
+  animation-delay: 1s;
+}
+
+.username-decoration__particle--diamond {
+  top: -0.25rem;
+  right: 0.5rem;
+  animation-delay: 2s;
+}
+
+@keyframes username-galaxy-shimmer {
+  0%, 100% {
+    opacity: 0.2;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.4;
+    transform: scale(1.01);
+  }
+}
+
+@keyframes username-particle-float {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+    opacity: 0.6;
+  }
+  33% {
+    transform: translateY(-1px) rotate(120deg);
+    opacity: 1;
+  }
+  66% {
+    transform: translateY(1px) rotate(240deg);
+    opacity: 0.8;
+  }
+}
+
+/* Pro Plasma Decoration */
+.username-decoration--pro-plasma {
+  color: #06b6d4;
+  font-weight: 600;
+  text-shadow: 0 0 6px rgba(6, 182, 212, 0.3);
+}
+
+.username-decoration__glow--plasma {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(45deg, rgba(6, 182, 212, 0.1), rgba(34, 211, 238, 0.1));
+  border-radius: 4px;
+  animation: username-plasma-flow 2.5s ease-in-out infinite;
+  z-index: 1;
+}
+
+@keyframes username-plasma-flow {
+  0%, 100% {
+    opacity: 0.2;
+    background-position: 0% 50%;
+  }
+  50% {
+    opacity: 0.4;
+    background-position: 100% 50%;
+  }
+}
+
+/* Active Glow Decoration */
+.username-decoration--active-glow {
+  color: #10b981;
+  font-weight: 500;
+  text-shadow: 0 0 4px rgba(16, 185, 129, 0.3);
+}
+
+.username-decoration__glow--active {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(16, 185, 129, 0.1);
+  border-radius: 4px;
+  animation: username-active-glow 2s ease-in-out infinite;
+  z-index: 1;
+}
+
+@keyframes username-active-glow {
+  0%, 100% {
+    opacity: 0.2;
+    box-shadow: 0 0 4px rgba(16, 185, 129, 0.2);
+  }
+  50% {
+    opacity: 0.4;
+    box-shadow: 0 0 8px rgba(16, 185, 129, 0.3);
+  }
+}
+
+/* Trial Pulse Decoration */
+.username-decoration--trial-pulse {
+  color: #f59e0b;
+  font-weight: 500;
+  text-shadow: 0 0 4px rgba(245, 158, 11, 0.3);
+}
+
+.username-decoration__pulse--trial {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(245, 158, 11, 0.1);
+  border-radius: 4px;
+  animation: username-trial-pulse 1.5s ease-in-out infinite;
+  z-index: 1;
+}
+
+@keyframes username-trial-pulse {
+  0%, 100% {
+    opacity: 0.1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.3;
+    transform: scale(1.01);
+  }
+}
+
+/* Dark mode adjustments */
+@media (prefers-color-scheme: dark) {
+  .username-decoration__loading {
+    background: rgba(30, 30, 30, 0.8);
+  }
+
+  .username-decoration__error {
+    color: #fbbf24;
+  }
+
+  .username-decoration--enterprise-crown {
+    text-shadow: 0 0 8px rgba(251, 191, 36, 0.6);
+  }
+
+  .username-decoration--premium-galaxy {
+    text-shadow: 0 0 6px rgba(139, 92, 246, 0.6);
+  }
+
+  .username-decoration--pro-plasma {
+    text-shadow: 0 0 6px rgba(6, 182, 212, 0.5);
+  }
+
+  .username-decoration--active-glow {
+    text-shadow: 0 0 4px rgba(16, 185, 129, 0.5);
+  }
+
+  .username-decoration--trial-pulse {
+    text-shadow: 0 0 4px rgba(245, 158, 11, 0.5);
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .username-decoration__crown {
+    font-size: 0.625rem;
+    top: -0.375rem;
+  }
+
+  .username-decoration__particle {
+    font-size: 0.375rem;
+  }
+
+  .username-decoration__particles {
+    width: 0.75rem;
+    height: 0.75rem;
+  }
+} 

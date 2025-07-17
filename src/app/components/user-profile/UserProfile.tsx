@@ -1,10 +1,11 @@
 'use client';
 
+import { UserProfileData } from '@lib/types/profile';
+import { getEffectiveCharacterCount } from '@lib/utils/string';
 import { useSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
-import { UserProfileData } from '../../../lib/types/profile';
-import { getEffectiveCharacterCount } from '../../../lib/utils/string';
-import { EnhancedAvatar } from '../subscription-badges';
+import { Avatar } from '../avatar/Avatar';
+import { UserDecorationWrapper } from '../decoration/UserDecorationWrapper';
 import { ContentWithPills } from '../ui/ContentWithPills';
 import { InstantLink } from '../ui/InstantLink';
 import { SmartInput } from '../ui/SmartInput';
@@ -103,11 +104,15 @@ export function UserProfile({
       <div className={`user-profile user-profile--tooltip ${className}`}>
         <div className="user-profile__header">
           <div>
-            <EnhancedAvatar seed={user.id} size="md" userId={user.id} />
+            <Avatar seed={user.id} size="md" />
           </div>
           <div className="user-profile__header-info">
             <div className="user-profile__header-top">
-              <h4 className="user-profile__name">{displayName}</h4>
+              <h4 className="user-profile__name">
+                <UserDecorationWrapper userId={user.id}>
+                  {displayName}
+                </UserDecorationWrapper>
+              </h4>
               {isOwnProfile && !isEditingBio && (
                 <button
                   className="user-profile__edit-bio-btn user-profile__edit-bio-btn--header"
@@ -212,9 +217,13 @@ export function UserProfile({
   if (variant === 'compact') {
     return (
       <div className={`user-profile user-profile--compact ${className}`}>
-        <EnhancedAvatar seed={user.id} size="sm" userId={user.id} />
+        <Avatar seed={user.id} size="sm" />
         <div className="user-profile__info">
-          <span className="user-profile__name">{displayName}</span>
+          <span className="user-profile__name">
+            <UserDecorationWrapper userId={user.id}>
+              {displayName}
+            </UserDecorationWrapper>
+          </span>
           {user.location && (
             <span className="user-profile__location">{user.location}</span>
           )}
@@ -227,13 +236,14 @@ export function UserProfile({
     <div className={`user-profile user-profile--full ${className}`}>
       <div className="user-profile__header">
         <div className="user-profile__avatar-container">
-          <EnhancedAvatar seed={user.id} size="lg" userId={user.id} />
-          <div className="user-profile__avatar-badge">
-            {user.profile_public !== false ? '🌟' : '🔒'}
-          </div>
+          <Avatar seed={user.id} size="lg" />
         </div>
         <div className="user-profile__header-info">
-          <h2 className="user-profile__name">{displayName}</h2>
+          <h2 className="user-profile__name">
+            <UserDecorationWrapper userId={user.id}>
+              {displayName}
+            </UserDecorationWrapper>
+          </h2>
           <div className="user-profile__meta-row">
             {user.location && (
               <p className="user-profile__location">📍 {user.location}</p>

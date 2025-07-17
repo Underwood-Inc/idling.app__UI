@@ -1,8 +1,8 @@
 'use client';
 
 import { createLogger } from '@lib/logging';
+import { enforceOneServiceWorker } from '@lib/utils/service-worker-cleanup';
 import { useEffect } from 'react';
-import { enforceOneServiceWorker } from '../../../lib/utils/service-worker-cleanup';
 
 // Create component-specific logger
 const logger = createLogger({

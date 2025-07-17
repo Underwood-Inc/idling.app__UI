@@ -6,13 +6,13 @@
  * @version 1.0.0
  */
 
+import { checkUserPermission } from '@lib/actions/permissions.actions';
 import { withUniversalEnhancements } from '@lib/api/withUniversalEnhancements';
+import { auth } from '@lib/auth';
+import sql from '@lib/db';
+import { PERMISSIONS } from '@lib/permissions/permissions';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
-import { checkUserPermission } from '../../../../../lib/actions/permissions.actions';
-import { auth } from '../../../../../lib/auth';
-import sql from '../../../../../lib/db';
-import { PERMISSIONS } from '../../../../../lib/permissions/permissions';
 
 export const runtime = 'nodejs';
 

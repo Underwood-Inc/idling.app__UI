@@ -1,7 +1,7 @@
 'use client';
 
+import { useOverlay } from '@lib/context/OverlayContext';
 import React, { useState } from 'react';
-import { useOverlay } from '../../../../lib/context/OverlayContext';
 import './EditSubscriptionModal.css';
 
 interface Subscription {
