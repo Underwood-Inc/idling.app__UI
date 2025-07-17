@@ -3,10 +3,10 @@
 import { updateBioAction } from '@lib/actions/profile.actions';
 import { useSession } from 'next-auth/react';
 import { useEffect, useState, useTransition } from 'react';
-import { FlairSelector } from '../../components/flair-selector/FlairSelector';
+import { UserDecorationWrapper } from '../../components/decoration/UserDecorationWrapper';
 import {
   SubscriptionBadgesList,
-  UsernameDecoration
+  SubscriptionFlairToggle
 } from '../../components/subscription-badges';
 import { InteractiveTooltip } from '../../components/tooltip/InteractiveTooltip';
 import {
@@ -127,14 +127,14 @@ export function ProfilePageClient({
 
   // Demo username with decoration for testing
   const demoUsername = (
-    <UsernameDecoration
+    <UserDecorationWrapper
       userId={userProfile.id}
       forceDecoration={selectedDecoration || undefined}
     >
       <span style={{ fontSize: '1.2rem', fontWeight: 'bold' }}>
         {userProfile.username || userProfile.name || 'Demo User'}
       </span>
-    </UsernameDecoration>
+    </UserDecorationWrapper>
   );
 
   return (
@@ -181,7 +181,7 @@ export function ProfilePageClient({
       </div>
 
       {/* Flair Settings Section - Only for own profile */}
-      {isOwnProfile && <FlairSelector userId={userProfile.id} />}
+      {isOwnProfile && <SubscriptionFlairToggle userId={userProfile.id} />}
     </>
   );
 }

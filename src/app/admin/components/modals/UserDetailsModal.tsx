@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { Avatar } from '../../../components/avatar/Avatar';
+import { Username } from '../../../components/username';
 
 interface UserRole {
   id: string;
@@ -123,7 +124,15 @@ export const UserDetailsModal: React.FC<UserDetailsModalProps> = ({
               <Avatar seed={user.id} size="lg" />
             </div>
             <div className="modal-user-details">
-              <h3>{user.name || 'Unnamed User'}</h3>
+              <h3>
+                <Username
+                  userId={user.id}
+                  displayName={user.name || 'Unnamed User'}
+                  size="lg"
+                  weight="bold"
+                  data-testid={`modal-username-${user.id}`}
+                />
+              </h3>
               <p>{user.email}</p>
               <p className="user-id-display">ID: {user.id}</p>
             </div>

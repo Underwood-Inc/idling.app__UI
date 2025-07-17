@@ -4,7 +4,7 @@ import { useOverlay } from '@lib/context/OverlayContext';
 import { useSession } from 'next-auth/react';
 import React, { useEffect, useState } from 'react';
 import { Avatar, AvatarPropSizes } from '../avatar/Avatar';
-import { UsernameDecoration } from '../subscription-badges';
+import { UserDecorationWrapper } from '../decoration/UserDecorationWrapper';
 import { InteractiveTooltip } from '../tooltip/InteractiveTooltip';
 import { InstantLink } from '../ui/InstantLink';
 import { UserProfile, UserProfileData } from '../user-profile/UserProfile';
@@ -119,9 +119,9 @@ const UserProfileTooltipContent: React.FC<{
           </div>
           <div className="author-tooltip__header-info">
             <h4 className="author-tooltip__name">
-              <UsernameDecoration userId={user.id}>
+              <UserDecorationWrapper userId={user.id}>
                 {displayName}
-              </UsernameDecoration>
+              </UserDecorationWrapper>
             </h4>
             {user.location && (
               <p className="author-tooltip__location">📍 {user.location}</p>
@@ -202,9 +202,9 @@ const UserProfileTooltipPrivate: React.FC<{
           </div>
           <div className="author-tooltip__header-info">
             <h4 className="author-tooltip__name">
-              <UsernameDecoration userId={undefined}>
+              <UserDecorationWrapper userId={undefined}>
                 {authorName}
-              </UsernameDecoration>
+              </UserDecorationWrapper>
             </h4>
             <p className="author-tooltip__private-status">Private Profile</p>
           </div>
@@ -507,9 +507,9 @@ export const Author: React.FC<AuthorProps> = ({
     <span className={containerClass}>
       <div className="author__name">
         <Avatar seed={userProfile?.id || authorId} size={size} />
-        <UsernameDecoration userId={userProfile?.id || authorId}>
+        <UserDecorationWrapper userId={userProfile?.id || authorId}>
           <span>{displayName}</span>
-        </UsernameDecoration>
+        </UserDecorationWrapper>
       </div>
     </span>
   ) : (
@@ -522,9 +522,9 @@ export const Author: React.FC<AuthorProps> = ({
     >
       <div className="author__name">
         <Avatar seed={userProfile?.id || authorId} size={size} />
-        <UsernameDecoration userId={userProfile?.id || authorId}>
+        <UserDecorationWrapper userId={userProfile?.id || authorId}>
           <span>{displayName}</span>
-        </UsernameDecoration>
+        </UserDecorationWrapper>
       </div>
     </InstantLink>
   );

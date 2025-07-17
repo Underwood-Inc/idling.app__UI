@@ -1,6 +1,7 @@
 'use client';
 
 import { getUserDecoration } from '@lib/actions/subscription.actions';
+import { useFlairPreference } from '@lib/context/UserPreferencesContext';
 import React, { useEffect, useState, useTransition } from 'react';
 import './UsernameDecoration.css';
 
@@ -19,6 +20,9 @@ export function UsernameDecoration({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+
+  // Listen to flair preference changes to trigger refresh
+  const { preference: flairPreference } = useFlairPreference();
 
   useEffect(() => {
     if (forceDecoration) {
@@ -53,7 +57,7 @@ export function UsernameDecoration({
         setLoading(false);
       }
     });
-  }, [userId, forceDecoration]);
+  }, [userId, forceDecoration, flairPreference]); // Added flairPreference dependency
 
   if (!decoration) {
     return <>{children}</>;

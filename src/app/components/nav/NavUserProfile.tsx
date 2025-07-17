@@ -2,6 +2,7 @@
 
 import { Session } from 'next-auth';
 import { useSession } from 'next-auth/react';
+import { UserDecorationWrapper } from '../decoration/UserDecorationWrapper';
 
 interface NavUserProfileProps {
   initialSession?: Session;
@@ -27,5 +28,11 @@ export function NavUserProfile({ initialSession }: NavUserProfileProps) {
     return null;
   }
 
-  return <h3 className="header__user-name">{currentSession.user.name}</h3>;
+  return (
+    <h3 className="header__user-name">
+      <UserDecorationWrapper userId={currentSession.user.id}>
+        {currentSession.user.name}
+      </UserDecorationWrapper>
+    </h3>
+  );
 }

@@ -63,6 +63,7 @@ export async function getUserProfileByDatabaseId(
         u.pagination_mode,
         u.emoji_panel_behavior,
         u.font_preference,
+        u.flair_preference,
         a."providerAccountId"
       FROM users u 
       LEFT JOIN accounts a ON u.id = a."userId"
@@ -111,6 +112,7 @@ export async function getUserProfileByDatabaseId(
       pagination_mode: user.pagination_mode || 'traditional',
       emoji_panel_behavior: user.emoji_panel_behavior || 'close_after_select',
       font_preference: user.font_preference || 'default',
+      flair_preference: user.flair_preference || 'auto',
       total_submissions: stats ? parseInt(stats.total_submissions) : 0,
       posts_count: stats ? parseInt(stats.posts_count) : 0,
       replies_count: stats ? parseInt(stats.replies_count) : 0,
@@ -155,6 +157,7 @@ export async function getUserProfileById(
         u.pagination_mode,
         u.emoji_panel_behavior,
         u.font_preference,
+        u.flair_preference,
         a."providerAccountId"
       FROM users u 
       LEFT JOIN accounts a ON u.id = a."userId"
@@ -203,6 +206,7 @@ export async function getUserProfileById(
       pagination_mode: user.pagination_mode || 'traditional',
       emoji_panel_behavior: user.emoji_panel_behavior || 'close_after_select',
       font_preference: user.font_preference || 'default',
+      flair_preference: user.flair_preference || 'auto',
       total_submissions: stats ? parseInt(stats.total_submissions) : 0,
       posts_count: stats ? parseInt(stats.posts_count) : 0,
       replies_count: stats ? parseInt(stats.replies_count) : 0,
@@ -229,6 +233,7 @@ export async function updateUserProfile(
     pagination_mode: 'traditional' | 'infinite';
     emoji_panel_behavior: 'close_after_select' | 'stay_open';
     font_preference: 'monospace' | 'default';
+    flair_preference: FlairPreference;
     background_movement_direction:
       | 'static'
       | 'forward'
@@ -285,6 +290,10 @@ export async function updateUserProfile(
       setClauses.push(`font_preference = $${paramIndex++}`);
       values.push(updates.font_preference);
     }
+    if (updates.flair_preference !== undefined) {
+      setClauses.push(`flair_preference = $${paramIndex++}`);
+      values.push(updates.flair_preference);
+    }
     if (updates.background_movement_direction !== undefined) {
       setClauses.push(`background_movement_direction = $${paramIndex++}`);
       values.push(updates.background_movement_direction);
@@ -324,6 +333,7 @@ export async function updateUserProfile(
         pagination_mode,
         emoji_panel_behavior,
         font_preference,
+        flair_preference,
         background_movement_direction,
         background_movement_speed,
         background_animation_layers
@@ -364,6 +374,7 @@ export async function updateUserProfile(
       emoji_panel_behavior:
         userRow.emoji_panel_behavior || 'close_after_select',
       font_preference: userRow.font_preference || 'default',
+      flair_preference: userRow.flair_preference || 'auto',
       background_movement_direction:
         userRow.background_movement_direction || 'forward',
       background_movement_speed: userRow.background_movement_speed || 'normal',

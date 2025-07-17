@@ -5,7 +5,7 @@ import { getEffectiveCharacterCount } from '@lib/utils/string';
 import { useSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
 import { Avatar } from '../avatar/Avatar';
-import { UsernameDecoration } from '../subscription-badges';
+import { UserDecorationWrapper } from '../decoration/UserDecorationWrapper';
 import { ContentWithPills } from '../ui/ContentWithPills';
 import { InstantLink } from '../ui/InstantLink';
 import { SmartInput } from '../ui/SmartInput';
@@ -109,9 +109,9 @@ export function UserProfile({
           <div className="user-profile__header-info">
             <div className="user-profile__header-top">
               <h4 className="user-profile__name">
-                <UsernameDecoration userId={user.id}>
+                <UserDecorationWrapper userId={user.id}>
                   {displayName}
-                </UsernameDecoration>
+                </UserDecorationWrapper>
               </h4>
               {isOwnProfile && !isEditingBio && (
                 <button
@@ -220,9 +220,9 @@ export function UserProfile({
         <Avatar seed={user.id} size="sm" />
         <div className="user-profile__info">
           <span className="user-profile__name">
-            <UsernameDecoration userId={user.id}>
+            <UserDecorationWrapper userId={user.id}>
               {displayName}
-            </UsernameDecoration>
+            </UserDecorationWrapper>
           </span>
           {user.location && (
             <span className="user-profile__location">{user.location}</span>
@@ -240,9 +240,9 @@ export function UserProfile({
         </div>
         <div className="user-profile__header-info">
           <h2 className="user-profile__name">
-            <UsernameDecoration userId={user.id}>
+            <UserDecorationWrapper userId={user.id}>
               {displayName}
-            </UsernameDecoration>
+            </UserDecorationWrapper>
           </h2>
           <div className="user-profile__meta-row">
             {user.location && (

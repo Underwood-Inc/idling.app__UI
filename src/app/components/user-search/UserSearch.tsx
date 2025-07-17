@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { Username } from '../username';
 import './UserSearch.css';
 
 interface UserSearchResult {
@@ -174,9 +175,16 @@ export function UserSearch({
               >
                 <div className="user-search__result-content">
                   <div className="user-search__result-info">
-                    <span className="user-search__result-name">
-                      {user.name || user.username || 'Anonymous User'}
-                    </span>
+                    <Username
+                      userId={user.id}
+                      displayName={
+                        user.name || user.username || 'Anonymous User'
+                      }
+                      size="sm"
+                      weight="medium"
+                      className="user-search__result-name"
+                      data-testid={`search-username-${user.id}`}
+                    />
                     {user.email && (
                       <span className="user-search__result-email">
                         {user.email}
