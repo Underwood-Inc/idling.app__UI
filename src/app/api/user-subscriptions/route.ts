@@ -147,7 +147,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(response, {
       headers: {
         'Content-Type': 'application/json',
-        'Cache-Control': 'no-cache, no-store, must-revalidate' // Force fresh data for subscriptions
+        'Cache-Control': 'public, max-age=14400, s-maxage=14400' // Cache for 4 hours
       }
     });
   } catch (error) {

@@ -43,7 +43,7 @@ export function AvatarWithFlairs({
       setLoading(true);
       try {
         const response = await fetch(
-          `/api/user-subscriptions?userId=${userId}&t=${Date.now()}`
+          `/api/user-subscriptions?userId=${userId}`
         );
         if (response.ok) {
           const data = await response.json();
