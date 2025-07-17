@@ -22,6 +22,7 @@ interface UserProfileProps {
   isOwnProfile?: boolean;
   onBioUpdate?: (newBio: string) => Promise<void>;
   isPending?: boolean;
+  forceAvatarDecoration?: string;
 }
 
 export function UserProfile({
@@ -31,7 +32,8 @@ export function UserProfile({
   showStats = false,
   isOwnProfile = false,
   onBioUpdate,
-  isPending = false
+  isPending = false,
+  forceAvatarDecoration
 }: UserProfileProps) {
   const [isEditingBio, setIsEditingBio] = useState(false);
   const [bioText, setBioText] = useState(user.bio || '');
@@ -103,7 +105,12 @@ export function UserProfile({
       <div className={`user-profile user-profile--tooltip ${className}`}>
         <div className="user-profile__header">
           <div>
-            <EnhancedAvatar seed={user.id} size="md" userId={user.id} />
+            <EnhancedAvatar
+              seed={user.id}
+              size="md"
+              userId={user.id}
+              forceDecoration={forceAvatarDecoration}
+            />
           </div>
           <div className="user-profile__header-info">
             <div className="user-profile__header-top">
@@ -212,7 +219,12 @@ export function UserProfile({
   if (variant === 'compact') {
     return (
       <div className={`user-profile user-profile--compact ${className}`}>
-        <EnhancedAvatar seed={user.id} size="sm" userId={user.id} />
+        <EnhancedAvatar
+          seed={user.id}
+          size="sm"
+          userId={user.id}
+          forceDecoration={forceAvatarDecoration}
+        />
         <div className="user-profile__info">
           <span className="user-profile__name">{displayName}</span>
           {user.location && (
@@ -227,7 +239,12 @@ export function UserProfile({
     <div className={`user-profile user-profile--full ${className}`}>
       <div className="user-profile__header">
         <div className="user-profile__avatar-container">
-          <EnhancedAvatar seed={user.id} size="lg" userId={user.id} />
+          <EnhancedAvatar
+            seed={user.id}
+            size="lg"
+            userId={user.id}
+            forceDecoration={forceAvatarDecoration}
+          />
           <div className="user-profile__avatar-badge">
             {user.profile_public !== false ? '🌟' : '🔒'}
           </div>

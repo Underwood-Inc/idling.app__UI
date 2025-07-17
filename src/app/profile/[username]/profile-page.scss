@@ -2202,3 +2202,130 @@
     transform: none;
   }
 }
+
+// Admin Avatar Decoration Testing Controls
+.profile-admin-panel {
+  margin-top: 1.5rem;
+  display: flex;
+  justify-content: center;
+}
+
+.profile-admin-toggle {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 20px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+.profile-admin-controls {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e0e0e0;
+  min-width: 320px;
+  max-width: 450px;
+
+  &__title {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 8px;
+    color: #333;
+  }
+
+  &__description {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 16px;
+    line-height: 1.4;
+  }
+
+  &__decoration-grid {
+    display: grid;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  &__decoration-option {
+    background: #f5f5f5;
+    border: 2px solid transparent;
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: left;
+
+    &:hover {
+      background: #ebebeb;
+    }
+
+    &--active {
+      background: #e3f2fd;
+      border-color: #2196f3;
+      color: #1976d2;
+      font-weight: 600;
+    }
+  }
+
+  &__note {
+    font-size: 12px;
+    color: #888;
+    font-style: italic;
+    text-align: center;
+    padding-top: 12px;
+    border-top: 1px solid #eee;
+  }
+}
+
+// Dark mode support
+@media (prefers-color-scheme: dark) {
+  .profile-admin-controls {
+    background: #2a2a2a;
+    border-color: #404040;
+    color: #e0e0e0;
+
+    &__title {
+      color: #ffffff;
+    }
+
+    &__description {
+      color: #b0b0b0;
+    }
+
+    &__decoration-option {
+      background: #3a3a3a;
+      color: #e0e0e0;
+
+      &:hover {
+        background: #4a4a4a;
+      }
+
+      &--active {
+        background: #1e3a8a;
+        border-color: #3b82f6;
+        color: #60a5fa;
+      }
+    }
+
+    &__note {
+      color: #888;
+      border-top-color: #404040;
+    }
+  }
+}
