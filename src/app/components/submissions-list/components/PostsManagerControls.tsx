@@ -1,7 +1,5 @@
 'use client';
 
-import { InstantLink } from '../../ui/InstantLink';
-
 export interface PostsManagerControlsProps {
   isMobile: boolean;
   showFilters: boolean;
@@ -30,19 +28,19 @@ export function PostsManagerControls({
   const isCompact = compactMode || isMobile;
 
   // Debug logging for totalRecords
-  if (process.env.NODE_ENV === 'development') {
-    // Only log when there are actual issues or significant changes
-    if (totalRecords === 0 && !isLoading && !error) {
-      // eslint-disable-next-line no-console
-      console.log('🔍 PostsManagerControls - totalRecords debug:', {
-        totalRecords,
-        isLoading,
-        error,
-        filtersCount,
-        isCompact
-      });
-    }
-  }
+  // if (process.env.NODE_ENV === 'development') {
+  //   // Only log when there are actual issues or significant changes
+  //   if (totalRecords === 0 && !isLoading && !error) {
+  //     // eslint-disable-next-line no-console
+  //     console.log('🔍 PostsManagerControls - totalRecords debug:', {
+  //       totalRecords,
+  //       isLoading,
+  //       error,
+  //       filtersCount,
+  //       isCompact
+  //     });
+  //   }
+  // }
 
   return (
     <div
@@ -115,16 +113,22 @@ export function PostsManagerControls({
 
       {/* New Post Button */}
       {onNewPostClick && (
-        <InstantLink
-          href="#"
+        <button
+          type="button"
           onClick={(e) => {
             e.preventDefault();
-            onNewPostClick();
+            e.stopPropagation();
+
+            // Only call onNewPostClick if user is authorized
+            if (isAuthorized) {
+              onNewPostClick();
+            }
           }}
           className={`posts-manager__new-post-button instant-link--button ${
             isCompact ? 'posts-manager__new-post-button--compact' : ''
           }`}
           aria-disabled={!isAuthorized}
+          disabled={!isAuthorized}
           title={isAuthorized ? 'Create a new post' : 'Login to create posts'}
         >
           <svg
@@ -141,7 +145,7 @@ export function PostsManagerControls({
             <line x1="5" y1="12" x2="19" y2="12" />
           </svg>
           <span className="instant-link__content">New</span>
-        </InstantLink>
+        </button>
       )}
     </div>
   );

@@ -265,21 +265,21 @@ function PostsManager({
   }, [filters]);
 
   // Debug logging for filter operations
-  if (process.env.NODE_ENV === 'development') {
-    const currentFilterString = JSON.stringify(filters);
-    if (
-      filterOpCount.current === 0 ||
-      lastFilterOp.current !== currentFilterString
-    ) {
-      filterOpCount.current += 1;
-      lastFilterOp.current = currentFilterString;
-      // eslint-disable-next-line no-console
-      console.log(`Filter operation #${filterOpCount.current}:`, {
-        filtersCount: filters.length,
-        isLoading
-      });
-    }
-  }
+  // if (process.env.NODE_ENV === 'development') {
+  //   const currentFilterString = JSON.stringify(filters);
+  //   if (
+  //     filterOpCount.current === 0 ||
+  //     lastFilterOp.current !== currentFilterString
+  //   ) {
+  //     filterOpCount.current += 1;
+  //     lastFilterOp.current = currentFilterString;
+  //     // eslint-disable-next-line no-console
+  //     console.log(`Filter operation #${filterOpCount.current}:`, {
+  //       filtersCount: filters.length,
+  //       isLoading
+  //     });
+  //   }
+  // }
 
   // Debug logging for render state
   logger.group('renderState');
@@ -304,24 +304,24 @@ function PostsManager({
   });
 
   // Additional debug logging for search results issue
-  if (process.env.NODE_ENV === 'development' && filterOpCount.current <= 3) {
-    // Only log first few filter operations to avoid spam
-    // eslint-disable-next-line no-console
-    console.log('🔍 PostsManager Debug - Search Results Issue:', {
-      submissionsLength: submissions.length,
-      isLoading,
-      error,
-      totalRecords: pagination.totalRecords,
-      filters: filters.map((f) => ({ name: f.name, value: f.value })),
-      firstSubmission: submissions[0]
-        ? {
-            id: submissions[0].submission_id,
-            title: submissions[0].submission_title,
-            author: submissions[0].author
-          }
-        : null
-    });
-  }
+  // if (process.env.NODE_ENV === 'development' && filterOpCount.current <= 3) {
+  //   // Only log first few filter operations to avoid spam
+  //   // eslint-disable-next-line no-console
+  //   console.log('🔍 PostsManager Debug - Search Results Issue:', {
+  //     submissionsLength: submissions.length,
+  //     isLoading,
+  //     error,
+  //     totalRecords: pagination.totalRecords,
+  //     filters: filters.map((f) => ({ name: f.name, value: f.value })),
+  //     firstSubmission: submissions[0]
+  //       ? {
+  //           id: submissions[0].submission_id,
+  //           title: submissions[0].submission_title,
+  //           author: submissions[0].author
+  //         }
+  //       : null
+  //   });
+  // }
 
   logger.groupEnd();
 

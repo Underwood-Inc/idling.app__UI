@@ -2,7 +2,6 @@
 
 import { useSession } from 'next-auth/react';
 import { useCallback, useEffect, useState } from 'react';
-import { InstantLink } from '../ui/InstantLink';
 import './StickyPostsControls.css';
 
 interface StickyPostsControlsProps {
@@ -167,14 +166,20 @@ export function StickyPostsControls({
 
         {/* New post button - icon only */}
         {onNewPostClick && (
-          <InstantLink
-            href="#"
+          <button
+            type="button"
             onClick={(e) => {
               e.preventDefault();
-              onNewPostClick();
+              e.stopPropagation();
+
+              // Only call onNewPostClick if user is authorized
+              if (isAuthorized) {
+                onNewPostClick();
+              }
             }}
             className="sticky-posts-controls__new-post instant-link--button"
             aria-disabled={!isAuthorized}
+            disabled={!isAuthorized}
             title={isAuthorized ? 'Create a new post' : 'Login to create posts'}
           >
             <svg
@@ -190,7 +195,7 @@ export function StickyPostsControls({
               <line x1="12" y1="5" x2="12" y2="19" />
               <line x1="5" y1="12" x2="19" y2="12" />
             </svg>
-          </InstantLink>
+          </button>
         )}
       </div>
     </div>

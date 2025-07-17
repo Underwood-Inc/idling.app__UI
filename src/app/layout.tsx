@@ -8,6 +8,7 @@ import React from 'react';
 import Footer from './components/footer/Footer';
 import Header from './components/header/Header';
 import RetroSpaceBackground from './components/retro-space-background/RetroSpaceBackground';
+import { OverlayRendererWrapper } from './components/ui/ClientWrappers';
 import { NavigationLoadingBar } from './components/ui/NavigationLoadingBar';
 import './globals.css';
 
@@ -67,11 +68,13 @@ export default function RootLayout({
                   <Header />
                   <main>{children}</main>
                   <Footer />
+                  <OverlayRendererWrapper />
                 </GlobalLoadingProvider>
               </NavigationLoadingProvider>
             </OverlayProvider>
           </UserPreferencesProvider>
         </SessionProvider>
+        <div id="overlay-portal"></div>
       </body>
     </html>
   );
