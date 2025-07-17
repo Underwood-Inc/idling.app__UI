@@ -3,8 +3,8 @@
 import { useSession } from 'next-auth/react';
 import React, { useEffect, useState } from 'react';
 import { useOverlay } from '../../../lib/context/OverlayContext';
-import { AvatarPropSizes } from '../avatar/Avatar';
-import { EnhancedAvatar } from '../subscription-badges/EnhancedAvatar';
+import { Avatar, AvatarPropSizes } from '../avatar/Avatar';
+import { UsernameDecoration } from '../subscription-badges';
 import { InteractiveTooltip } from '../tooltip/InteractiveTooltip';
 import { InstantLink } from '../ui/InstantLink';
 import { UserProfile, UserProfileData } from '../user-profile/UserProfile';
@@ -117,10 +117,14 @@ const UserProfileTooltipContent: React.FC<{
       <div className="author-tooltip__content">
         <div className="author-tooltip__header">
           <div>
-            <EnhancedAvatar seed={user.id} size="sm" userId={user.id} />
+            <Avatar seed={user.id} size="sm" />
           </div>
           <div className="author-tooltip__header-info">
-            <h4 className="author-tooltip__name">{displayName}</h4>
+            <h4 className="author-tooltip__name">
+              <UsernameDecoration userId={user.id}>
+                {displayName}
+              </UsernameDecoration>
+            </h4>
             {user.location && (
               <p className="author-tooltip__location">📍 {user.location}</p>
             )}
@@ -199,7 +203,11 @@ const UserProfileTooltipPrivate: React.FC<{
             <div className="author-tooltip__private-icon">🔒</div>
           </div>
           <div className="author-tooltip__header-info">
-            <h4 className="author-tooltip__name">{authorName}</h4>
+            <h4 className="author-tooltip__name">
+              <UsernameDecoration userId={undefined}>
+                {authorName}
+              </UsernameDecoration>
+            </h4>
             <p className="author-tooltip__private-status">Private Profile</p>
           </div>
         </div>
@@ -500,13 +508,10 @@ export const Author: React.FC<AuthorProps> = ({
   const authorElement = asSpan ? (
     <span className={containerClass}>
       <div className="author__name">
-        <EnhancedAvatar
-          seed={userProfile?.id || authorId}
-          size={size}
-          userId={userProfile?.id || authorId}
-          enableTooltip={false} // Disable avatar tooltip since we have user profile tooltip
-        />
-        <span>{displayName}</span>
+        <Avatar seed={userProfile?.id || authorId} size={size} />
+        <UsernameDecoration userId={userProfile?.id || authorId}>
+          <span>{displayName}</span>
+        </UsernameDecoration>
       </div>
     </span>
   ) : (
@@ -518,13 +523,10 @@ export const Author: React.FC<AuthorProps> = ({
       aria-label={`View ${authorName}'s profile`}
     >
       <div className="author__name">
-        <EnhancedAvatar
-          seed={userProfile?.id || authorId}
-          size={size}
-          userId={userProfile?.id || authorId}
-          enableTooltip={false} // Disable avatar tooltip since we have user profile tooltip
-        />
-        <span>{displayName}</span>
+        <Avatar seed={userProfile?.id || authorId} size={size} />
+        <UsernameDecoration userId={userProfile?.id || authorId}>
+          <span>{displayName}</span>
+        </UsernameDecoration>
       </div>
     </InstantLink>
   );

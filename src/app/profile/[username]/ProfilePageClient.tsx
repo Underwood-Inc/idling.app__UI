@@ -3,7 +3,10 @@
 import { useSession } from 'next-auth/react';
 import { useEffect, useState, useTransition } from 'react';
 import { updateBioAction } from '../../../lib/actions/profile.actions';
-import { SubscriptionBadgesList } from '../../components/subscription-badges';
+import {
+  SubscriptionBadgesList,
+  UsernameDecoration
+} from '../../components/subscription-badges';
 import { InteractiveTooltip } from '../../components/tooltip/InteractiveTooltip';
 import {
   UserProfile,
@@ -91,14 +94,14 @@ export function ProfilePageClient({
     });
   };
 
-  // Admin controls content for avatar decoration testing
+  // Admin controls content for username decoration testing
   const adminControlsContent = (
     <div className="profile-admin-controls">
       <div className="profile-admin-controls__title">
-        🎭 Avatar Decoration Testing
+        🎭 Username Decoration Testing
       </div>
       <p className="profile-admin-controls__description">
-        Test different avatar decorations on your profile page
+        Test different username decorations on your profile page
       </p>
       <div className="profile-admin-controls__decoration-grid">
         {decorationOptions.map((option) => (
@@ -121,6 +124,18 @@ export function ProfilePageClient({
     </div>
   );
 
+  // Demo username with decoration for testing
+  const demoUsername = (
+    <UsernameDecoration
+      userId={userProfile.id}
+      forceDecoration={selectedDecoration || undefined}
+    >
+      <span style={{ fontSize: '1.2rem', fontWeight: 'bold' }}>
+        {userProfile.username || userProfile.name || 'Demo User'}
+      </span>
+    </UsernameDecoration>
+  );
+
   return (
     <>
       <UserProfile
@@ -129,13 +144,15 @@ export function ProfilePageClient({
         isOwnProfile={isOwnProfile}
         onBioUpdate={isOwnProfile ? handleBioUpdate : undefined}
         isPending={isPending}
-        // Pass the selected decoration to control the avatar
-        forceAvatarDecoration={selectedDecoration || undefined}
       />
 
       {/* Admin Controls Panel - Only visible to admins on their own profile */}
       {isOwnProfile && hasAdminAccess && (
         <div className="profile-admin-panel">
+          <div className="profile-admin-preview">
+            <h4>Preview:</h4>
+            {demoUsername}
+          </div>
           <InteractiveTooltip
             content={adminControlsContent}
             triggerOnClick={true}
@@ -143,9 +160,9 @@ export function ProfilePageClient({
           >
             <button
               className="profile-admin-toggle"
-              title="Avatar Decoration Testing (Admin Only)"
+              title="Username Decoration Testing (Admin Only)"
             >
-              🎨 Test Avatar Decorations
+              🎨 Test Username Decorations
             </button>
           </InteractiveTooltip>
         </div>
