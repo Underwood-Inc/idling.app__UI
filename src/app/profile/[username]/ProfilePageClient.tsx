@@ -3,6 +3,7 @@
 import { updateBioAction } from '@lib/actions/profile.actions';
 import { useSession } from 'next-auth/react';
 import { useEffect, useState, useTransition } from 'react';
+import { FlairSelector } from '../../components/flair-selector/FlairSelector';
 import {
   SubscriptionBadgesList,
   UsernameDecoration
@@ -178,6 +179,9 @@ export function ProfilePageClient({
           emptyMessage="Free tier user"
         />
       </div>
+
+      {/* Flair Settings Section - Only for own profile */}
+      {isOwnProfile && <FlairSelector userId={userProfile.id} />}
     </>
   );
 }
