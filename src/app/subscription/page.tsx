@@ -1,7 +1,7 @@
 'use client';
 
 import { useSearchParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import FadeIn from '../components/fade-in/FadeIn';
 import { PageContainer } from '../components/page-container/PageContainer';
 import PageContent from '../components/page-content/PageContent';
@@ -28,7 +28,30 @@ interface SubscriptionData {
   };
 }
 
-export default function SubscriptionPage() {
+// Loading component for Suspense fallback
+function SubscriptionLoading() {
+  return (
+    <PageContainer>
+      <PageHeader>
+        <div>
+          <h1>Subscription</h1>
+          <p>Choose your plan</p>
+        </div>
+      </PageHeader>
+      <PageContent>
+        <FadeIn>
+          <div className={styles.loadingContainer}>
+            <div className={styles.loadingSpinner}></div>
+            <p>Loading subscription options...</p>
+          </div>
+        </FadeIn>
+      </PageContent>
+    </PageContainer>
+  );
+}
+
+// Component that uses useSearchParams - wrapped in Suspense
+function SubscriptionContent() {
   const searchParams = useSearchParams();
   const [subscriptionData, setSubscriptionData] =
     useState<SubscriptionData | null>(null);
@@ -68,11 +91,19 @@ export default function SubscriptionPage() {
     return (
       <PageContainer>
         <PageHeader>
-          <FadeIn>
-            <h2>Subscription Plans</h2>
-            <p>Loading subscription options...</p>
-          </FadeIn>
+          <div>
+            <h1>Subscription</h1>
+            <p>Choose your plan</p>
+          </div>
         </PageHeader>
+        <PageContent>
+          <FadeIn>
+            <div className={styles.loadingContainer}>
+              <div className={styles.loadingSpinner}></div>
+              <p>Loading subscription data...</p>
+            </div>
+          </FadeIn>
+        </PageContent>
       </PageContainer>
     );
   }
@@ -81,11 +112,42 @@ export default function SubscriptionPage() {
     return (
       <PageContainer>
         <PageHeader>
-          <FadeIn>
-            <h2>Subscription Plans</h2>
-            <p>Error loading subscription data: {error}</p>
-          </FadeIn>
+          <div>
+            <h1>Subscription</h1>
+            <p>Choose your plan</p>
+          </div>
         </PageHeader>
+        <PageContent>
+          <FadeIn>
+            <div className={styles.errorContainer}>
+              <h2>Error</h2>
+              <p>{error}</p>
+              <InstantLink href="/">Return to Home</InstantLink>
+            </div>
+          </FadeIn>
+        </PageContent>
+      </PageContainer>
+    );
+  }
+
+  if (!subscriptionData) {
+    return (
+      <PageContainer>
+        <PageHeader>
+          <div>
+            <h1>Subscription</h1>
+            <p>Choose your plan</p>
+          </div>
+        </PageHeader>
+        <PageContent>
+          <FadeIn>
+            <div className={styles.errorContainer}>
+              <h2>No Data Available</h2>
+              <p>Subscription data could not be loaded.</p>
+              <InstantLink href="/">Return to Home</InstantLink>
+            </div>
+          </FadeIn>
+        </PageContent>
       </PageContainer>
     );
   }
@@ -93,104 +155,100 @@ export default function SubscriptionPage() {
   return (
     <PageContainer>
       <PageHeader>
-        <FadeIn>
-          <div className={styles.header__content}>
-            <h2>Upgrade Your Plan</h2>
-            {fromQuotaLimit ? (
-              <p className={styles.quota__message}>
-                🚀 You&apos;ve reached your daily limit of{' '}
-                {subscriptionData?.currentLimits.free.dailyGenerations}{' '}
-                generations. Upgrade to continue creating amazing images!
-              </p>
-            ) : (
-              <p>
-                Choose a plan that fits your needs and unlock unlimited
-                creativity.
-              </p>
-            )}
-          </div>
-        </FadeIn>
+        <div>
+          <h1>Subscription</h1>
+          <p>
+            {fromQuotaLimit
+              ? 'Upgrade to continue generating emojis'
+              : 'Choose your plan'}
+          </p>
+        </div>
       </PageHeader>
-
       <PageContent>
-        <article className={styles.subscription__container}>
-          <FadeIn className={styles.subscription__container_fade}>
-            {/* Current Plan Limits */}
-            <div className={styles.current__plan}>
-              <h3>Current Plan: Free</h3>
-              <div className={styles.plan__limits}>
-                <div className={styles.limit__item}>
-                  <span className={styles.limit__label}>
-                    Daily Generations:
-                  </span>
-                  <span className={styles.limit__value}>
-                    {subscriptionData?.currentLimits.free.dailyGenerations}
-                  </span>
-                </div>
-                <div className={styles.limit__item}>
-                  <span className={styles.limit__label}>Advanced Options:</span>
-                  <span className={styles.limit__value}>
-                    {subscriptionData?.currentLimits.free.advancedOptions
-                      ? 'Enabled'
-                      : 'Disabled'}
-                  </span>
-                </div>
+        <article className={styles.subscriptionArticle}>
+          <FadeIn>
+            {fromQuotaLimit && (
+              <div className={styles.quotaLimitBanner}>
+                <h2>Daily Limit Reached</h2>
+                <p>
+                  You&apos;ve reached your daily generation limit. Upgrade to
+                  Pro to continue generating emojis with unlimited daily
+                  generations.
+                </p>
               </div>
-            </div>
+            )}
 
-            {/* Subscription Tier */}
-            {subscriptionData && (
-              <div className={styles.tier__card}>
-                <div className={styles.tier__header}>
-                  <h3 className={styles.tier__name}>
-                    {subscriptionData.tier.name}
-                  </h3>
-                  <div className={styles.tier__price}>
+            <div className={styles.subscriptionContent}>
+              <div className={styles.subscriptionCard}>
+                <div className={styles.cardHeader}>
+                  <h2>{subscriptionData.tier.name}</h2>
+                  <div className={styles.price}>
                     {subscriptionData.tier.price}
                   </div>
                 </div>
 
-                <div className={styles.tier__features}>
-                  <h4>What you get:</h4>
-                  <ul className={styles.features__list}>
+                <div className={styles.cardBody}>
+                  <h3>What you get:</h3>
+                  <ul className={styles.featuresList}>
                     {subscriptionData.tier.features.map((feature, index) => (
-                      <li key={index} className={styles.feature__item}>
-                        ✓ {feature}
-                      </li>
+                      <li key={index}>{feature}</li>
                     ))}
                   </ul>
+
+                  <div className={styles.limitInfo}>
+                    <strong>Daily Limit:</strong>{' '}
+                    {subscriptionData.tier.dailyLimit}
+                  </div>
+
+                  <div className={styles.currentLimitsSection}>
+                    <h4>Your Current Limits (Free Plan):</h4>
+                    <ul>
+                      <li>
+                        Daily Generations:{' '}
+                        {subscriptionData.currentLimits.free.dailyGenerations}
+                      </li>
+                      <li>
+                        Advanced Options:{' '}
+                        {subscriptionData.currentLimits.free.advancedOptions
+                          ? 'Yes'
+                          : 'No'}
+                      </li>
+                    </ul>
+                  </div>
                 </div>
 
-                <div className={styles.tier__actions}>
-                  <button className={styles.upgrade__button} disabled>
-                    Coming Soon - Payment Integration
-                  </button>
-                  <p className={styles.coming__soon}>
-                    Payment processing will be available soon. For now, enjoy
-                    your free daily generations!
-                  </p>
+                <div className={styles.cardFooter}>
+                  <a
+                    href={subscriptionData.paymentUrl}
+                    className={styles.subscribeButton}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Subscribe Now
+                  </a>
                 </div>
               </div>
-            )}
 
-            {/* Navigation */}
-            <div className={styles.navigation__section}>
-              <InstantLink href="/card-generator" className={styles.back__link}>
-                ← Back to Card Generator
-              </InstantLink>
+              <div className={styles.messageSection}>
+                <p>{subscriptionData.message}</p>
+              </div>
 
-              {fromQuotaLimit && (
-                <div className={styles.quota__info}>
-                  <p>
-                    Your quota will reset tomorrow. Come back then for more free
-                    generations!
-                  </p>
-                </div>
-              )}
+              <div className={styles.backLink}>
+                <InstantLink href="/">← Back to Emoji Generator</InstantLink>
+              </div>
             </div>
           </FadeIn>
         </article>
       </PageContent>
     </PageContainer>
+  );
+}
+
+// Main page component with Suspense boundary
+export default function SubscriptionPage() {
+  return (
+    <Suspense fallback={<SubscriptionLoading />}>
+      <SubscriptionContent />
+    </Suspense>
   );
 }
