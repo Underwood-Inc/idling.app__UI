@@ -160,7 +160,7 @@ describe('TextExtractor', () => {
 
 - **[Libraries Documentation](../../DOCS/libraries/)** - Higher-level library documentation
 - **[Development Guide](../../DOCS/development/)** - Development setup and practices
-- **[API Documentation](../../app/api/README.md)** - API endpoint documentation
+- **[API Documentation](../../app/api/index.md)** - API endpoint documentation
 
 ---
 
