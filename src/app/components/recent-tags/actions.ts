@@ -1,6 +1,6 @@
 'use server';
 
-import sql from '../../../lib/db';
+import sql from '@lib/db';
 import { parseZodErrors } from '../submission-forms/schema';
 import { Tags, tagSchema } from './schema';
 

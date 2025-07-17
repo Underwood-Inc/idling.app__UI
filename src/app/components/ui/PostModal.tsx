@@ -1,7 +1,7 @@
 'use client';
 
+import { useOverlay } from '@lib/context/OverlayContext';
 import React from 'react';
-import { useOverlay } from '../../../lib/context/OverlayContext';
 import { EditSubmissionForm } from '../submission-forms/edit-submission-form/EditSubmissionForm';
 import { SharedSubmissionForm } from '../submission-forms/shared-submission-form/SharedSubmissionForm';
 import './PostModal.css';

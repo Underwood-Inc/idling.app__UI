@@ -1,6 +1,6 @@
 'use client';
+import { PAGE_ASIDE_SELECTORS } from '@lib/test-selectors/components/page-aside.selectors';
 import React from 'react';
-import { PAGE_ASIDE_SELECTORS } from '../../../lib/test-selectors/components/page-aside.selectors';
 import './PageAside.css';
 
 export function PageAside({

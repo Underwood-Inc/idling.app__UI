@@ -1,12 +1,12 @@
 'use client';
+import { shouldUpdateAtom } from '@lib/state/atoms';
+import { ADD_SUBMISSION_FORM_SELECTORS } from '@lib/test-selectors/components/add-submission-form.selectors';
+import { getEffectiveCharacterCount } from '@lib/utils/string';
+import { validateTagsInput } from '@lib/utils/string/tag-regex';
 import { useAtom } from 'jotai';
 import { useSession } from 'next-auth/react';
 import { useEffect, useRef, useState } from 'react';
 import { useFormState, useFormStatus } from 'react-dom';
-import { shouldUpdateAtom } from '../../../../lib/state/atoms';
-import { ADD_SUBMISSION_FORM_SELECTORS } from '../../../../lib/test-selectors/components/add-submission-form.selectors';
-import { getEffectiveCharacterCount } from '../../../../lib/utils/string';
-import { validateTagsInput } from '../../../../lib/utils/string/tag-regex';
 import { SmartInput } from '../../ui/SmartInput';
 import {
   createSubmissionAction,

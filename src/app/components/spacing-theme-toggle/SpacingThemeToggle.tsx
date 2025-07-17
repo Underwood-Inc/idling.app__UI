@@ -1,6 +1,6 @@
 'use client';
 
-import { useUserPreferences } from '../../../lib/context/UserPreferencesContext';
+import { useUserPreferences } from '@lib/context/UserPreferencesProvider';
 import './SpacingThemeToggle.css';
 
 export function SpacingThemeToggle() {

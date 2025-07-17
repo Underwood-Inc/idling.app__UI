@@ -1,8 +1,8 @@
 'use client';
 
+import { useOverlay } from '@lib/context/OverlayContext';
 import { useSession } from 'next-auth/react';
 import React, { useEffect, useState } from 'react';
-import { useOverlay } from '../../../lib/context/OverlayContext';
 import { Avatar, AvatarPropSizes } from '../avatar/Avatar';
 import { UsernameDecoration } from '../subscription-badges';
 import { InteractiveTooltip } from '../tooltip/InteractiveTooltip';
@@ -47,9 +47,7 @@ const UserProfileModal: React.FC<{
   const handleBioUpdate = async (newBio: string): Promise<void> => {
     try {
       // Use the same server action as the profile page for consistency
-      const { updateBioAction } = await import(
-        '../../../lib/actions/profile.actions'
-      );
+      const { updateBioAction } = await import('@lib/actions/profile.actions');
 
       // ✅ CRITICAL: Use database ID only for bio updates (after migration 0011)
       // This ensures bio updates work reliably regardless of username changes

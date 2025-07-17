@@ -1,9 +1,9 @@
 'use client';
 
+import { useNavigationLoader } from '@lib/hooks/useNavigationLoader';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import React, { useCallback, useEffect, useState } from 'react';
-import { useNavigationLoader } from '../../../lib/hooks/useNavigationLoader';
 import './InstantLink.css';
 
 interface InstantLinkProps {

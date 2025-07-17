@@ -2,12 +2,9 @@
  * Test API endpoint to check admin permissions
  */
 
+import { auth } from '@lib/auth';
+import { PermissionsService, requireAdmin } from '@lib/permissions/permissions';
 import { NextResponse } from 'next/server';
-import { auth } from '../../../../lib/auth';
-import {
-  PermissionsService,
-  requireAdmin
-} from '../../../../lib/permissions/permissions';
 
 // This route uses dynamic features (auth/headers) and should not be pre-rendered
 export const runtime = 'nodejs';

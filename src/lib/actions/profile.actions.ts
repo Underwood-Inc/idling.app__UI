@@ -6,6 +6,7 @@ import { auth } from '../auth';
 import sql from '../db';
 import { UserProfileData } from '../types/profile';
 import { getEffectiveCharacterCount } from '../utils/string';
+import { FlairPreference } from './subscription.actions';
 
 const logger = createLogger({
   context: {
@@ -228,7 +229,14 @@ export async function updateUserProfile(
     pagination_mode: 'traditional' | 'infinite';
     emoji_panel_behavior: 'close_after_select' | 'stay_open';
     font_preference: 'monospace' | 'default';
-    background_movement_direction: 'static' | 'forward' | 'backward' | 'left' | 'right' | 'up' | 'down';
+    background_movement_direction:
+      | 'static'
+      | 'forward'
+      | 'backward'
+      | 'left'
+      | 'right'
+      | 'up'
+      | 'down';
     background_movement_speed: 'slow' | 'normal' | 'fast';
     background_animation_layers: {
       stars: boolean;
@@ -356,7 +364,8 @@ export async function updateUserProfile(
       emoji_panel_behavior:
         userRow.emoji_panel_behavior || 'close_after_select',
       font_preference: userRow.font_preference || 'default',
-      background_movement_direction: userRow.background_movement_direction || 'forward',
+      background_movement_direction:
+        userRow.background_movement_direction || 'forward',
       background_movement_speed: userRow.background_movement_speed || 'normal',
       background_animation_layers: userRow.background_animation_layers || {
         stars: true,
@@ -441,8 +450,16 @@ export async function updateUserPreferencesAction(
     pagination_mode?: 'traditional' | 'infinite';
     emoji_panel_behavior?: 'close_after_select' | 'stay_open';
     font_preference?: 'monospace' | 'default';
+    flair_preference?: FlairPreference;
     profile_public?: boolean;
-    background_movement_direction?: 'static' | 'forward' | 'backward' | 'left' | 'right' | 'up' | 'down';
+    background_movement_direction?:
+      | 'static'
+      | 'forward'
+      | 'backward'
+      | 'left'
+      | 'right'
+      | 'up'
+      | 'down';
     background_movement_speed?: 'slow' | 'normal' | 'fast';
     background_animation_layers?: {
       stars: boolean;

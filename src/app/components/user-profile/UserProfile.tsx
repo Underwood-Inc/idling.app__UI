@@ -1,9 +1,9 @@
 'use client';
 
+import { UserProfileData } from '@lib/types/profile';
+import { getEffectiveCharacterCount } from '@lib/utils/string';
 import { useSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
-import { UserProfileData } from '../../../lib/types/profile';
-import { getEffectiveCharacterCount } from '../../../lib/utils/string';
 import { Avatar } from '../avatar/Avatar';
 import { UsernameDecoration } from '../subscription-badges';
 import { ContentWithPills } from '../ui/ContentWithPills';

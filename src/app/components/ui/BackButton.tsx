@@ -1,10 +1,10 @@
 'use client';
 
 import { createLogger } from '@lib/logging';
+import { getStoredScrollPosition } from '@lib/utils/scroll-position';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { getStoredScrollPosition } from '../../../lib/utils/scroll-position';
 
 // Create component-specific logger
 const logger = createLogger({

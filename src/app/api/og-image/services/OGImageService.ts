@@ -1,9 +1,9 @@
 import { checkGuestQuota, recordGuestUsage } from '@lib/actions/quota.actions';
 import { auth } from '@lib/auth';
+import sql from '@lib/db';
 import { EnhancedQuotaService } from '@lib/services/EnhancedQuotaService';
+import { formatRetryAfter } from '@lib/utils/timeFormatting';
 import { NextRequest } from 'next/server';
-import sql from '../../../../lib/db';
-import { formatRetryAfter } from '../../../../lib/utils/timeFormatting';
 import {
   ASPECT_RATIOS,
   WATERMARK_CONFIG,

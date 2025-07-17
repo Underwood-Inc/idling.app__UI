@@ -1,12 +1,12 @@
 'use client';
 
 import { createLogger } from '@lib/logging';
-import React, { useEffect, useState } from 'react';
 import {
   getResetStats,
   HardResetResult,
   triggerManualHardReset
-} from '../../../lib/utils/hard-reset-manager';
+} from '@lib/utils/hard-reset-manager';
+import React, { useEffect, useState } from 'react';
 
 const logger = createLogger({
   context: {

@@ -1,14 +1,14 @@
 /* eslint-disable custom-rules/enforce-link-target-blank */
 'use client';
 
-import { usePathname, useSearchParams } from 'next/navigation';
-import { Suspense, useEffect, useRef, useState } from 'react';
 import {
   HEADER_NAV_PATHS,
   NAV_PATH_LABELS,
   NAV_PATHS,
   ROUTES
-} from '../../../lib/routes';
+} from '@lib/routes';
+import { usePathname, useSearchParams } from 'next/navigation';
+import { Suspense, useEffect, useRef, useState } from 'react';
 import { Navbar } from '../navbar/Navbar';
 import { InstantLink } from '../ui/InstantLink';
 

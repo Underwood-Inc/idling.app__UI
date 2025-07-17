@@ -1,8 +1,8 @@
 'use client';
 
+import { updateBioAction } from '@lib/actions/profile.actions';
 import { useSession } from 'next-auth/react';
 import { useEffect, useState, useTransition } from 'react';
-import { updateBioAction } from '../../../lib/actions/profile.actions';
 import {
   SubscriptionBadgesList,
   UsernameDecoration

@@ -1,11 +1,11 @@
 'use client';
 
-import React, { useMemo } from 'react';
-import { emojiRegistry } from '../../../lib/utils/parsers/emoji-parser';
+import { emojiRegistry } from '@lib/utils/parsers/emoji-parser';
 import {
   RichTextConfig,
   richTextParser
-} from '../../../lib/utils/parsers/rich-text-parser';
+} from '@lib/utils/parsers/rich-text-parser';
+import React, { useMemo } from 'react';
 import './RichText.css';
 
 export interface RichTextRendererProps {

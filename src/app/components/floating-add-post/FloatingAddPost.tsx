@@ -1,12 +1,12 @@
 'use client';
 
+import { CONTEXT_IDS } from '@lib/context-ids';
+import { useOverlay } from '@lib/context/OverlayContext';
+import { shouldUpdateAtom } from '@lib/state/atoms';
 import { useAtom } from 'jotai';
 import { useSession } from 'next-auth/react';
 import React, { useEffect } from 'react';
 import { GiQuill } from 'react-icons/gi';
-import { CONTEXT_IDS } from '../../../lib/context-ids';
-import { useOverlay } from '../../../lib/context/OverlayContext';
-import { shouldUpdateAtom } from '../../../lib/state/atoms';
 import { SharedSubmissionForm } from '../submission-forms/shared-submission-form/SharedSubmissionForm';
 import './FloatingAddPost.css';
 

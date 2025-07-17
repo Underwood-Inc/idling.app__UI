@@ -1,6 +1,6 @@
+import { requireAdmin } from '@lib/permissions/permissions';
 import { redirect } from 'next/navigation';
 import { Suspense } from 'react';
-import { requireAdmin } from '../../lib/permissions/permissions';
 import Loader from '../components/loader/Loader';
 import AdminDashboard from './AdminDashboard';
 

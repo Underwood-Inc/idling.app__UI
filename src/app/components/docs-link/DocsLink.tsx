@@ -1,5 +1,5 @@
+import { DOCS_LINK_SELECTORS } from '@lib/test-selectors/components/docs-link.selectors';
 import React from 'react';
-import { DOCS_LINK_SELECTORS } from '../../../lib/test-selectors/components/docs-link.selectors';
 import { LinkTooltip } from '../tooltip/LinkTooltip';
 
 export const DocsLink: React.FC = () => {

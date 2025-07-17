@@ -1,12 +1,12 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
-import { NAV_PATHS } from '../../../lib/routes';
+import { NAV_PATHS } from '@lib/routes';
 import {
   generateScrollKey,
   getStoredScrollPosition
-} from '../../../lib/utils/scroll-position';
+} from '@lib/utils/scroll-position';
+import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import { Author } from '../author/Author';
 import Loader from '../loader/Loader';
 import { DeleteSubmissionForm } from '../submission-forms/delete-submission-form/DeleteSubmissionForm';

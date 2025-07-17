@@ -1,7 +1,7 @@
+import { auth } from '@lib/auth';
+import { requireAdmin } from '@lib/permissions/permissions';
 import { redirect } from 'next/navigation';
 import { ReactNode } from 'react';
-import { auth } from '../../lib/auth';
-import { requireAdmin } from '../../lib/permissions/permissions';
 
 // Force dynamic rendering for all admin routes
 export const dynamic = 'force-dynamic';

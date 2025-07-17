@@ -1,4 +1,4 @@
-import { auth } from '../../lib/auth';
+import { auth } from '@lib/auth';
 import { Card } from '../components/card/Card';
 import Coin from '../components/coin/Coin';
 

@@ -1,5 +1,5 @@
+import { DISCORD_LINK_SELECTORS } from '@lib/test-selectors/components/discord-link.selectors';
 import React from 'react';
-import { DISCORD_LINK_SELECTORS } from '../../../lib/test-selectors/components/discord-link.selectors';
 import { LinkTooltip } from '../tooltip/LinkTooltip';
 
 export interface DiscordLinkProps {

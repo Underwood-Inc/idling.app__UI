@@ -1,13 +1,13 @@
 'use client';
 
-import * as React from 'react';
 import {
   HashtagResult,
   searchHashtags,
   searchUsers,
   UserResult
-} from '../../../../../lib/actions/search.actions';
-import { useUserPreferences } from '../../../../../lib/context/UserPreferencesContext';
+} from '@lib/actions/search.actions';
+import { useUserPreferences } from '@lib/context/UserPreferencesContext';
+import * as React from 'react';
 import { InteractiveTooltip } from '../../../tooltip/InteractiveTooltip';
 import {
   EmojiData,

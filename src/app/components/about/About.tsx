@@ -1,5 +1,5 @@
-import { NAV_PATHS } from '../../../lib/routes';
-import { ABOUT_PAGE_SELECTORS } from '../../../lib/test-selectors/pages/about.selectors';
+import { NAV_PATHS } from '@lib/routes';
+import { ABOUT_PAGE_SELECTORS } from '@lib/test-selectors/pages/about.selectors';
 import { DiscordLink } from '../discord-link/DiscordLink';
 import { GalaxyLink } from '../galaxy-link/GalaxyLink';
 import { LinkTooltip } from '../tooltip/LinkTooltip';

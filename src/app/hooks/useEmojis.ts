@@ -3,8 +3,8 @@
  * React hook for fetching and managing emojis with OS detection
  */
 
+import { useOSDetection } from '@lib/utils/os-detection';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { useOSDetection } from '../../lib/utils/os-detection';
 
 export interface EmojiData {
   id: number;

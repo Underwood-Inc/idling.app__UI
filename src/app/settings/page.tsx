@@ -1,11 +1,12 @@
 'use client';
 
-import { useSession } from 'next-auth/react';
-import React, { useState } from 'react';
 import {
+  useFlairPreference,
   useProfileVisibility,
   useUserPreferences
-} from '../../lib/context/UserPreferencesContext';
+} from '@lib/context/UserPreferencesContext';
+import { useSession } from 'next-auth/react';
+import { useState } from 'react';
 import './settings.css';
 
 interface SettingsCategory {
@@ -59,6 +60,13 @@ export default function SettingsPage() {
     isUpdating: isUpdatingProfileVisibility,
     error: profileVisibilityError
   } = useProfileVisibility();
+
+  const {
+    preference: flairPreference,
+    setPreference: setFlairPreference,
+    isUpdating: isUpdatingFlairPreference,
+    error: flairPreferenceError
+  } = useFlairPreference();
 
   // Category expansion state
   const [categories, setCategories] = useState<SettingsCategory[]>([
@@ -913,6 +921,56 @@ export default function SettingsPage() {
                       {profileVisibilityError && (
                         <div className="settings-card__error">
                           {profileVisibilityError}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Flair Preference */}
+                    <div className="settings-card">
+                      <div className="settings-card__header">
+                        <h3 className="settings-card__title">Username Flair</h3>
+                        <span className="settings-card__current">
+                          {flairPreference === 'auto'
+                            ? 'Auto'
+                            : flairPreference === 'none'
+                              ? 'None'
+                              : flairPreference.charAt(0).toUpperCase() +
+                                flairPreference.slice(1).replace('-', ' ')}
+                        </span>
+                      </div>
+                      <div className="settings-card__options">
+                        <button
+                          className={`settings-option ${flairPreference === 'auto' ? 'settings-option--active' : ''}`}
+                          onClick={() => setFlairPreference('auto')}
+                          disabled={isUpdatingFlairPreference}
+                          aria-pressed={flairPreference === 'auto'}
+                        >
+                          <span className="settings-option__icon">✨</span>
+                          <div className="settings-option__content">
+                            <span className="settings-option__label">Auto</span>
+                            <span className="settings-option__desc">
+                              Show highest tier subscription flair
+                            </span>
+                          </div>
+                        </button>
+                        <button
+                          className={`settings-option ${flairPreference === 'none' ? 'settings-option--active' : ''}`}
+                          onClick={() => setFlairPreference('none')}
+                          disabled={isUpdatingFlairPreference}
+                          aria-pressed={flairPreference === 'none'}
+                        >
+                          <span className="settings-option__icon">🚫</span>
+                          <div className="settings-option__content">
+                            <span className="settings-option__label">None</span>
+                            <span className="settings-option__desc">
+                              Hide all subscription flair
+                            </span>
+                          </div>
+                        </button>
+                      </div>
+                      {flairPreferenceError && (
+                        <div className="settings-card__error">
+                          {flairPreferenceError}
                         </div>
                       )}
                     </div>

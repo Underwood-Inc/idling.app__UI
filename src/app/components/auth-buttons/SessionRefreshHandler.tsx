@@ -2,11 +2,11 @@
 
 /* eslint-disable no-console */
 
+import { sessionDataAtom } from '@lib/state/atoms';
 import { useAtom } from 'jotai';
 import { signOut, useSession } from 'next-auth/react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense, useEffect, useRef } from 'react';
-import { sessionDataAtom } from '../../../lib/state/atoms';
 
 /**
  * Internal SessionRefreshHandler that uses useSearchParams

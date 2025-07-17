@@ -1,10 +1,10 @@
 'use client';
 
 import { createLogger } from '@lib/logging';
+import { useSubmissionsManager } from '@lib/state/useSubmissionsManager';
+import '@lib/utils/scroll-highlight-demo'; // Import for global test function
 import { useSession } from 'next-auth/react';
 import React, { useCallback, useEffect, useMemo, useRef } from 'react';
-import { useSubmissionsManager } from '../../../lib/state/useSubmissionsManager';
-import '../../../lib/utils/scroll-highlight-demo'; // Import for global test function
 import { Submission } from '../submission-forms/schema';
 import { SubmissionWithReplies } from './types';
 

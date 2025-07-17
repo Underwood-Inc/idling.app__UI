@@ -2,9 +2,9 @@
 
 import { adventurer } from '@dicebear/collection';
 import { createAvatar } from '@dicebear/core';
+import { avatarCacheAtom } from '@lib/state/atoms';
 import { useAtom } from 'jotai';
 import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
-import { avatarCacheAtom } from '../../../lib/state/atoms';
 import { InteractiveTooltip } from '../tooltip/InteractiveTooltip';
 import './Avatar.css';
 

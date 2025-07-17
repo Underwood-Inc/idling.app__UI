@@ -1,9 +1,9 @@
 'use client';
 
+import { NAV_PATHS } from '@lib/routes';
 import { signIn, signOut } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { NAV_PATHS } from '../../../lib/routes';
 import { InstantLink } from '../../components/ui/InstantLink';
 import './UnlinkAccountForm.css';
 
@@ -138,7 +138,7 @@ export function UnlinkAccountForm({
         <div className="unlink-account-form__section">
           <h3>{instructions.title}</h3>
           <p>
-            To completely resolve this issue, you need to revoke access on{' '}
+            To completely resolve this issue, you need to revoke access on&nbsp;
             {provider}&apos;s side as well. Follow these steps:
           </p>
 

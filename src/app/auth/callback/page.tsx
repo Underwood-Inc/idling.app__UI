@@ -1,7 +1,7 @@
+import { auth } from '@lib/auth';
+import { NAV_PATHS } from '@lib/routes';
 import { redirect } from 'next/navigation';
 import { Suspense } from 'react';
-import { auth } from '../../../lib/auth';
-import { NAV_PATHS } from '../../../lib/routes';
 import Loader from '../../components/loader/Loader';
 import { PageContainer } from '../../components/page-container/PageContainer';
 import { InstantLink } from '../../components/ui/InstantLink';

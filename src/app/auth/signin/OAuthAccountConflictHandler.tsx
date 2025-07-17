@@ -1,7 +1,7 @@
 'use client';
 
+import { NAV_PATHS } from '@lib/routes';
 import { signOut } from 'next-auth/react';
-import { NAV_PATHS } from '../../../lib/routes';
 import { InstantLink } from '../../components/ui/InstantLink';
 
 interface OAuthAccountConflictHandlerProps {

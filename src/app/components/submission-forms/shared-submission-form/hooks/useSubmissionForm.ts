@@ -1,8 +1,8 @@
+import { buildThreadUrl } from '@lib/routes';
+import { getEffectiveCharacterCount } from '@lib/utils/string';
+import { validateTagsInput } from '@lib/utils/string/tag-regex';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { buildThreadUrl } from '../../../../../lib/routes';
-import { getEffectiveCharacterCount } from '../../../../../lib/utils/string';
-import { validateTagsInput } from '../../../../../lib/utils/string/tag-regex';
 import { createSubmissionAction, editSubmissionAction } from '../../actions';
 
 interface UseSubmissionFormProps {
@@ -51,9 +51,7 @@ export const useSubmissionForm = ({
       } else if (mode === 'reply' && replyToAuthor) {
         // Create properly formatted mention for reply
         try {
-          const { getUserInfo } = await import(
-            '../../../../../lib/actions/search.actions'
-          );
+          const { getUserInfo } = await import('@lib/actions/search.actions');
           const userInfo = await getUserInfo(replyToAuthor);
 
           const properMention =
@@ -239,7 +237,7 @@ export const useSubmissionForm = ({
             // Try to get proper mention format for reset
             try {
               const { getUserInfo } = await import(
-                '../../../../../lib/actions/search.actions'
+                '@lib/actions/search.actions'
               );
               const userInfo = await getUserInfo(replyToAuthor);
 

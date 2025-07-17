@@ -3,8 +3,17 @@
 import { SubscriptionBadgeData } from '../../app/components/subscription-badges/SubscriptionBadge';
 import sql from '../db';
 
+export type DecorationTypes =
+  | 'enterprise-crown'
+  | 'premium-galaxy'
+  | 'pro-plasma'
+  | 'active-glow'
+  | 'trial-pulse';
+
+export type FlairPreference = 'auto' | DecorationTypes | 'none';
+
 export interface UserDecorationData {
-  decoration: string | null;
+  decoration: DecorationTypes | null;
   loading: boolean;
   error?: string;
 }
@@ -102,7 +111,7 @@ export async function getUserDecoration(
       (sub) => sub.status === 'active' || sub.status === 'trialing'
     );
 
-    let selectedDecoration = null;
+    let selectedDecoration: DecorationTypes | null = null;
 
     // Priority order: enterprise > premium bundles > pro tiers > addons > trial
     for (const sub of activeSubscriptions) {

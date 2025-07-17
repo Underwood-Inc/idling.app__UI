@@ -1,11 +1,11 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { buildThreadUrl } from '../../../lib/routes';
+import { buildThreadUrl } from '@lib/routes';
 import {
   generateScrollKey,
   storeScrollPosition
-} from '../../../lib/utils/scroll-position';
+} from '@lib/utils/scroll-position';
+import { useEffect, useState } from 'react';
 import { InstantLink } from '../ui/InstantLink';
 import './ThreadBreadcrumb.css';
 

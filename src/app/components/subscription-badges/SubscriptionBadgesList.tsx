@@ -117,7 +117,7 @@ export function SubscriptionBadgesList({
 
       try {
         const response = await fetch(
-          `/api/user-subscriptions?userId=${userId}`
+          `/api/user-subscriptions?userId=${userId}&t=${Date.now()}`
         );
 
         if (!response.ok) {

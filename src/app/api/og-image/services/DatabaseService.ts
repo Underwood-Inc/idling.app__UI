@@ -1,4 +1,4 @@
-import sql from '../../../../lib/db';
+import sql from '@lib/db';
 import { GenerationMetadata, StoredGeneration } from '../types';
 
 export interface OGGenerationRecord {

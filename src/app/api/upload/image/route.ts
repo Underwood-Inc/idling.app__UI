@@ -116,17 +116,17 @@
 
 import { withUniversalEnhancements } from '@lib/api/withUniversalEnhancements';
 import { auth } from '@lib/auth';
+import {
+  getMediaConfig,
+  validateFileSize,
+  validateMimeType
+} from '@lib/config/media-domains';
 import { ImageUploadSchema } from '@lib/schemas/upload.schema';
 import crypto from 'crypto';
 import { mkdir, writeFile } from 'fs/promises';
 import { NextRequest, NextResponse } from 'next/server';
 import { join } from 'path';
 import { z } from 'zod';
-import {
-  getMediaConfig,
-  validateFileSize,
-  validateMimeType
-} from '../../../../lib/config/media-domains';
 
 export const runtime = 'nodejs';
 

@@ -1,10 +1,10 @@
-import { useEffect, useMemo, useState } from 'react';
 import {
   HashtagResult,
   searchHashtags,
   searchUsers,
   UserResult
-} from '../../../../../lib/actions/search.actions';
+} from '@lib/actions/search.actions';
+import { useEffect, useMemo, useState } from 'react';
 
 export const useFloatingToolbar = (
   existingHashtags: string[] = [],

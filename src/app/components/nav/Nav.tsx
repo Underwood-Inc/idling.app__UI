@@ -1,7 +1,7 @@
 /* eslint-disable custom-rules/enforce-link-target-blank */
+import { NAV_PATHS } from '@lib/routes';
 import { unstable_noStore as noStore } from 'next/cache';
 import { NAV_SELECTORS } from 'src/lib/test-selectors/components/nav.selectors';
-import { NAV_PATHS } from '../../../lib/routes';
 import { Navbar } from '../navbar/Navbar';
 import { InstantLink } from '../ui/InstantLink';
 import { UserSearch } from '../user-search/UserSearch';

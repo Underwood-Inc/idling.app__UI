@@ -1,4 +1,4 @@
-import sql from '../../../../lib/db';
+import sql from '@lib/db';
 import { SubmissionWithReplies } from '../types';
 
 export class SqlQueryBuilder {

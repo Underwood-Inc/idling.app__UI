@@ -1,8 +1,8 @@
 'use client';
 
+import { useGlobalLoading } from '@lib/context/GlobalLoadingContext';
+import { useNavigationLoading } from '@lib/context/NavigationLoadingContext';
 import { useEffect, useState } from 'react';
-import { useGlobalLoading } from '../../../lib/context/GlobalLoadingContext';
-import { useNavigationLoading } from '../../../lib/context/NavigationLoadingContext';
 import './NavigationLoadingBar.css';
 
 export function NavigationLoadingBar() {

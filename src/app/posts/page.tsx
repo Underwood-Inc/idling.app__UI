@@ -1,8 +1,8 @@
+import { auth } from '@lib/auth';
 import { Metadata } from 'next';
-import React, { Suspense } from 'react';
+import { Suspense } from 'react';
 import { CONTEXT_IDS } from 'src/lib/context-ids';
 import { CustomSession } from '../../auth.config';
-import { auth } from '../../lib/auth';
 import { Card } from '../components/card/Card';
 import FadeIn from '../components/fade-in/FadeIn';
 import FloatingAddPost from '../components/floating-add-post/FloatingAddPost';
@@ -15,14 +15,6 @@ import { RecentTags } from '../components/recent-tags/RecentTags';
 import { RecentTagsLoader } from '../components/recent-tags/RecentTagsClient';
 import PostsPageClient from './PostsPageClient';
 import styles from './page.module.css';
-
-// Development-only import that gets tree-shaken in production
-let DevSkeletonToggle: React.ComponentType | null = null;
-
-if (process.env.NODE_ENV === 'development') {
-  const devModule = require('../components/dev-tools/DevSkeletonToggle');
-  DevSkeletonToggle = devModule.DevSkeletonToggle;
-}
 
 export const metadata: Metadata = {
   title: 'Posts - Idling.app',
@@ -63,7 +55,6 @@ export default async function PostsPage() {
 
       {/* Floating buttons positioned at viewport level */}
       {session?.user?.id && <FloatingAddPost />}
-      {DevSkeletonToggle && <DevSkeletonToggle />}
     </>
   );
 }

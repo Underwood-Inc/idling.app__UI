@@ -1,13 +1,13 @@
 'use client';
 
 import { createLogger } from '@lib/logging';
-import { useSession } from 'next-auth/react';
-import { useState } from 'react';
-import { buildThreadUrl } from '../../../lib/routes';
+import { buildThreadUrl } from '@lib/routes';
 import {
   generateScrollKey,
   storeScrollPosition
-} from '../../../lib/utils/scroll-position';
+} from '@lib/utils/scroll-position';
+import { useSession } from 'next-auth/react';
+import { useState } from 'react';
 import { Author } from '../author/Author';
 import { DeleteSubmissionForm } from '../submission-forms/delete-submission-form/DeleteSubmissionForm';
 import { EditSubmissionForm } from '../submission-forms/edit-submission-form/EditSubmissionForm';

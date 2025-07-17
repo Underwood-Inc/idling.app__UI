@@ -1,7 +1,7 @@
 'use client';
 
+import { getUserDecoration } from '@lib/actions/subscription.actions';
 import React, { useEffect, useState, useTransition } from 'react';
-import { getUserDecoration } from '../../../lib/actions/subscription.actions';
 import './UsernameDecoration.css';
 
 export interface UsernameDecorationProps {

@@ -1,15 +1,15 @@
 /* eslint-disable no-console */
 'use server';
-import { revalidatePath } from 'next/cache';
-import { CustomSession } from '../../../auth.config';
-import { auth } from '../../../lib/auth';
-import sql from '../../../lib/db';
-import { getEffectiveCharacterCount } from '../../../lib/utils/string';
+import { auth } from '@lib/auth';
+import sql from '@lib/db';
+import { getEffectiveCharacterCount } from '@lib/utils/string';
 import {
   extractTagsFromText,
   parseTagsInput,
   validateTagsInput
-} from '../../../lib/utils/string/tag-regex';
+} from '@lib/utils/string/tag-regex';
+import { revalidatePath } from 'next/cache';
+import { CustomSession } from '../../../auth.config';
 import {
   parseDeleteSubmission,
   parseEditSubmission,

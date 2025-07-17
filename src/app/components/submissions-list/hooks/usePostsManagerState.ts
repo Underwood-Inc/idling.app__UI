@@ -1,8 +1,8 @@
 'use client';
 
+import { useUserPreferences } from '@lib/context/UserPreferencesContext';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { useUserPreferences } from '../../../../lib/context/UserPreferencesContext';
 
 export interface PostsManagerState {
   spacingTheme: 'cozy' | 'compact';

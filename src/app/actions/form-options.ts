@@ -1,8 +1,8 @@
 'use server';
 
+import sql from '@lib/db';
 import { cache } from 'react';
 import { z } from 'zod';
-import sql from '../../lib/db';
 
 // Zod schema for aspect ratio options
 const AspectRatioSchema = z.object({

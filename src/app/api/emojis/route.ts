@@ -284,9 +284,6 @@
  * Handles fetching OS-specific emojis using server actions
  */
 
-import { withUniversalEnhancements } from '@lib/api/withUniversalEnhancements';
-import { createLogger } from '@lib/logging';
-import { NextRequest, NextResponse } from 'next/server';
 import {
   getCategoryMapping,
   getCustomEmojis,
@@ -294,8 +291,11 @@ import {
   getOSEmojis,
   trackEmojiUsage,
   uploadCustomEmoji
-} from '../../../lib/actions/emoji.actions';
-import { OSDetection } from '../../../lib/utils/os-detection';
+} from '@lib/actions/emoji.actions';
+import { withUniversalEnhancements } from '@lib/api/withUniversalEnhancements';
+import { createLogger } from '@lib/logging';
+import { OSDetection } from '@lib/utils/os-detection';
+import { NextRequest, NextResponse } from 'next/server';
 
 const logger = createLogger({
   context: {

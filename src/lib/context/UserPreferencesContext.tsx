@@ -10,6 +10,7 @@ import {
   useState
 } from 'react';
 import { updateUserPreferencesAction } from '../actions/profile.actions';
+import { FlairPreference } from '../actions/subscription.actions';
 import { createLogger } from '../logging';
 
 // Create logger for user preferences
@@ -63,6 +64,10 @@ interface UserPreferencesContextType {
   fontPreference: FontOption;
   setFontPreference: (font: FontOption) => Promise<void>;
 
+  // Flair preference
+  flairPreference: FlairPreference;
+  setFlairPreference: (flair: FlairPreference) => Promise<void>;
+
   // Profile visibility
   profileVisibility: ProfileVisibility;
   setProfileVisibility: (visibility: ProfileVisibility) => Promise<void>;
@@ -92,6 +97,7 @@ interface UserPreferencesContextType {
   isUpdatingPaginationMode: boolean;
   isUpdatingEmojiPanelBehavior: boolean;
   isUpdatingFontPreference: boolean;
+  isUpdatingFlairPreference: boolean;
   isUpdatingProfileVisibility: boolean;
   isUpdatingAccessibilityFocusMode: boolean;
   isUpdatingGeneratorMode: boolean;
@@ -104,6 +110,7 @@ interface UserPreferencesContextType {
   paginationModeError: string | null;
   emojiPanelBehaviorError: string | null;
   fontPreferenceError: string | null;
+  flairPreferenceError: string | null;
   profileVisibilityError: string | null;
   accessibilityFocusModeError: string | null;
   generatorModeError: string | null;
@@ -127,6 +134,8 @@ export function UserPreferencesProvider({ children }: { children: ReactNode }) {
     useState<EmojiPanelBehavior>('close_after_select');
   const [fontPreference, setFontPreferenceState] =
     useState<FontOption>('default');
+  const [flairPreference, setFlairPreferenceState] =
+    useState<FlairPreference>('auto');
   const [profileVisibility, setProfileVisibilityState] =
     useState<ProfileVisibility>('public');
   const [accessibilityFocusMode, setAccessibilityFocusModeState] =
@@ -155,6 +164,8 @@ export function UserPreferencesProvider({ children }: { children: ReactNode }) {
   const [isUpdatingEmojiPanelBehavior, setIsUpdatingEmojiPanelBehavior] =
     useState(false);
   const [isUpdatingFontPreference, setIsUpdatingFontPreference] =
+    useState(false);
+  const [isUpdatingFlairPreference, setIsUpdatingFlairPreference] =
     useState(false);
   const [isUpdatingProfileVisibility, setIsUpdatingProfileVisibility] =
     useState(false);
@@ -189,6 +200,9 @@ export function UserPreferencesProvider({ children }: { children: ReactNode }) {
   const [fontPreferenceError, setFontPreferenceError] = useState<string | null>(
     null
   );
+  const [flairPreferenceError, setFlairPreferenceError] = useState<
+    string | null
+  >(null);
   const [profileVisibilityError, setProfileVisibilityError] = useState<
     string | null
   >(null);
@@ -268,6 +282,9 @@ export function UserPreferencesProvider({ children }: { children: ReactNode }) {
       const savedFontPreference = localStorage.getItem(
         'font-preference-global'
       );
+      const savedFlairPreference = localStorage.getItem(
+        'flair-preference-global'
+      );
       const savedAccessibilityFocusMode = localStorage.getItem(
         'accessibility-focus-mode-global'
       );
@@ -304,6 +321,17 @@ export function UserPreferencesProvider({ children }: { children: ReactNode }) {
         savedFontPreference === 'default'
       ) {
         setFontPreferenceState(savedFontPreference);
+      }
+      if (
+        savedFlairPreference === 'auto' ||
+        savedFlairPreference === 'enterprise-crown' ||
+        savedFlairPreference === 'premium-galaxy' ||
+        savedFlairPreference === 'pro-plasma' ||
+        savedFlairPreference === 'active-glow' ||
+        savedFlairPreference === 'trial-pulse' ||
+        savedFlairPreference === 'none'
+      ) {
+        setFlairPreferenceState(savedFlairPreference);
       }
       if (
         savedAccessibilityFocusMode === 'enabled' ||
@@ -419,6 +447,20 @@ export function UserPreferencesProvider({ children }: { children: ReactNode }) {
         }
       }
 
+      if (
+        userProfile.flair_preference &&
+        userProfile.flair_preference !== flairPreference
+      ) {
+        setFlairPreferenceState(userProfile.flair_preference);
+        // Update localStorage to match server
+        if (typeof window !== 'undefined') {
+          localStorage.setItem(
+            'flair-preference-global',
+            userProfile.flair_preference
+          );
+        }
+      }
+
       if (userProfile.profile_public !== undefined) {
         const serverVisibility = userProfile.profile_public
           ? 'public'
@@ -433,6 +475,7 @@ export function UserPreferencesProvider({ children }: { children: ReactNode }) {
         emojiPanelBehavior:
           userProfile.emoji_panel_behavior || emojiPanelBehavior,
         fontPreference: userProfile.font_preference || fontPreference,
+        flairPreference: userProfile.flair_preference || flairPreference,
         profileVisibility: userProfile.profile_public ? 'public' : 'private'
       });
     }
@@ -661,6 +704,59 @@ export function UserPreferencesProvider({ children }: { children: ReactNode }) {
         );
       } finally {
         setIsUpdatingFontPreference(false);
+      }
+    },
+    [session]
+  );
+
+  // Function to update flair preference
+  const setFlairPreference = useCallback(
+    async (newFlair: FlairPreference) => {
+      setIsUpdatingFlairPreference(true);
+      setFlairPreferenceError(null);
+
+      try {
+        // Always update localStorage first for immediate UI response
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('flair-preference-global', newFlair);
+
+          logger.debug('Updated flair preference in localStorage', {
+            newFlair
+          });
+        }
+
+        // Update state immediately
+        setFlairPreferenceState(newFlair);
+
+        // If authenticated, also update database
+        if (session?.user?.id) {
+          const result = await updateUserPreferencesAction(session.user.id, {
+            flair_preference: newFlair
+          });
+
+          if (!result.success) {
+            throw new Error(
+              result.error || 'Failed to update flair preference'
+            );
+          }
+
+          logger.debug('Updated flair preference in database', {
+            userId: session.user.id,
+            newFlair
+          });
+        }
+      } catch (error) {
+        logger.error('Failed to update flair preference', error as Error, {
+          userId: session?.user?.id,
+          newFlair
+        });
+        setFlairPreferenceError(
+          error instanceof Error
+            ? error.message
+            : 'Failed to update flair preference'
+        );
+      } finally {
+        setIsUpdatingFlairPreference(false);
       }
     },
     [session]
@@ -965,6 +1061,8 @@ export function UserPreferencesProvider({ children }: { children: ReactNode }) {
         setEmojiPanelBehavior,
         fontPreference,
         setFontPreference,
+        flairPreference,
+        setFlairPreference,
         profileVisibility,
         setProfileVisibility,
         accessibilityFocusMode,
@@ -981,6 +1079,7 @@ export function UserPreferencesProvider({ children }: { children: ReactNode }) {
         isUpdatingPaginationMode,
         isUpdatingEmojiPanelBehavior,
         isUpdatingFontPreference,
+        isUpdatingFlairPreference,
         isUpdatingProfileVisibility,
         isUpdatingAccessibilityFocusMode,
         isUpdatingGeneratorMode,
@@ -991,6 +1090,7 @@ export function UserPreferencesProvider({ children }: { children: ReactNode }) {
         paginationModeError,
         emojiPanelBehaviorError,
         fontPreferenceError,
+        flairPreferenceError,
         profileVisibilityError,
         accessibilityFocusModeError,
         generatorModeError,
@@ -1076,6 +1176,21 @@ export function useFontPreference() {
     setPreference: setFontPreference,
     isUpdating: isUpdatingFontPreference,
     error: fontPreferenceError
+  };
+}
+
+export function useFlairPreference() {
+  const {
+    flairPreference,
+    setFlairPreference,
+    isUpdatingFlairPreference,
+    flairPreferenceError
+  } = useUserPreferences();
+  return {
+    preference: flairPreference,
+    setPreference: setFlairPreference,
+    isUpdating: isUpdatingFlairPreference,
+    error: flairPreferenceError
   };
 }
 

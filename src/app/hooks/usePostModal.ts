@@ -1,7 +1,7 @@
 'use client';
 
+import { useOverlay } from '@lib/context/OverlayContext';
 import { useCallback } from 'react';
-import { useOverlay } from '../../lib/context/OverlayContext';
 import { PostModal } from '../components/ui/PostModal';
 
 export interface UsePostModalOptions {
