@@ -203,7 +203,7 @@ async function clearSecureCaches(): Promise<number> {
 
     return successCount;
   } catch (error) {
-    logger.error('Failed to clear caches:', error);
+    logger.error('Failed to clear caches:', error as Error);
     return 0;
   }
 }
@@ -231,7 +231,7 @@ async function clearServiceWorkers(): Promise<number> {
         logger.debug('Service worker unregistered');
         return true;
       } catch (error) {
-        logger.warn('Failed to unregister service worker:', error);
+        logger.warn('Failed to unregister service worker:', error as Error);
         return false;
       }
     });
@@ -246,7 +246,7 @@ async function clearServiceWorkers(): Promise<number> {
 
     return successCount;
   } catch (error) {
-    logger.error('Failed to clear service workers:', error);
+    logger.error('Failed to clear service workers:', error as Error);
     return 0;
   }
 }
@@ -296,7 +296,7 @@ async function clearSecureIndexedDB(): Promise<boolean> {
     logger.info('IndexedDB cleared');
     return true;
   } catch (error) {
-    logger.warn('Failed to clear IndexedDB:', error);
+    logger.warn('Failed to clear IndexedDB:', error as Error);
     return false;
   }
 }
@@ -327,7 +327,7 @@ async function clearSecureWebSQL(): Promise<boolean> {
     }
     return false;
   } catch (error) {
-    logger.warn('Failed to clear WebSQL:', error);
+    logger.warn('Failed to clear WebSQL:', error as Error);
     return false;
   }
 }
@@ -416,7 +416,7 @@ export async function performSecureLogout(
   } catch (error) {
     const errorMsg = error instanceof Error ? error.message : String(error);
     result.errors.push(`Secure logout failed: ${errorMsg}`);
-    logger.error('Secure logout failed:', error);
+    logger.error('Secure logout failed:', error as Error);
   }
 
   logger.groupEnd();
