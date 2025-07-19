@@ -153,13 +153,17 @@ export async function performUniversalSecurityCheck(
         'Step 3: Validating user existence and account status'
       );
 
-      const userId = parseInt(session.user.id);
+      const userId = parseInt(session.user.id || '0');
       if (!userId || isNaN(userId)) {
-        securityLogger.error('SECURITY VIOLATION: Invalid user ID in session', {
-          sessionUserId: session.user.id,
-          requestId,
-          violation: 'INVALID_USER_ID'
-        });
+        securityLogger.error(
+          'SECURITY VIOLATION: Invalid user ID in session',
+          undefined,
+          {
+            sessionUserId: session.user.id,
+            requestId,
+            violation: 'INVALID_USER_ID'
+          }
+        );
 
         return {
           success: false,
@@ -180,6 +184,7 @@ export async function performUniversalSecurityCheck(
       if (!userValidation.isValid) {
         securityLogger.error(
           'SECURITY VIOLATION: User does not exist or account deactivated',
+          undefined,
           {
             userId,
             validationResult: userValidation,
@@ -202,6 +207,7 @@ export async function performUniversalSecurityCheck(
       if (requireActiveAccount && !securityContext.accountActive) {
         securityLogger.error(
           'SECURITY VIOLATION: Inactive account access attempt',
+          undefined,
           {
             userId,
             accountActive: securityContext.accountActive,
@@ -236,13 +242,17 @@ export async function performUniversalSecurityCheck(
         );
 
         if (!permissionValidation.hasPermission) {
-          securityLogger.error('SECURITY VIOLATION: Insufficient permissions', {
-            userId: securityContext.userId,
-            requiredPermission: permission,
-            requestPath,
-            requestId,
-            violation: 'INSUFFICIENT_PERMISSIONS'
-          });
+          securityLogger.error(
+            'SECURITY VIOLATION: Insufficient permissions',
+            undefined,
+            {
+              userId: securityContext.userId,
+              requiredPermission: permission,
+              requestPath,
+              requestId,
+              violation: 'INSUFFICIENT_PERMISSIONS'
+            }
+          );
 
           return {
             success: false,
@@ -318,7 +328,7 @@ export async function performUniversalSecurityCheck(
     };
   } catch (error) {
     const duration = Date.now() - startTime;
-    securityLogger.error('❌ SECURITY CHECK FAILED', {
+    securityLogger.error('❌ SECURITY CHECK FAILED', undefined, {
       error: error instanceof Error ? error.message : String(error),
       requestId,
       duration: `${duration}ms`,
@@ -348,7 +358,7 @@ export async function handleSecurityFailure(
   isApiRoute: boolean = false,
   triggerLogout: boolean = true
 ): Promise<NextResponse | never> {
-  securityLogger.error('🚨 HANDLING SECURITY FAILURE', {
+  securityLogger.error('🚨 HANDLING SECURITY FAILURE', undefined, {
     failureReason: result.failureReason,
     failureCode: result.failureCode,
     requiresLogout: result.requiresLogout,
@@ -363,6 +373,7 @@ export async function handleSecurityFailure(
     } catch (error) {
       securityLogger.error(
         'Failed to perform secure logout on security failure:',
+        undefined,
         {
           error: error instanceof Error ? error.message : String(error)
         }
@@ -421,7 +432,7 @@ export async function handleSecurityFailure(
  * This version uses the robust permissions system instead of real-time DB validation
  * to avoid Edge Runtime compatibility issues in Server Components
  */
-// eslint-disable-next-line no-console
+/* eslint-disable no-console */
 export async function useServerSecurityGuard(
   options: SecurityCheckOptions = {}
 ): Promise<SecurityContext> {
@@ -457,7 +468,7 @@ export async function useServerSecurityGuard(
       };
     }
 
-    const userId = parseInt(session.user.id);
+    const userId = parseInt(session.user.id || '0');
     if (!userId || isNaN(userId)) {
       console.log('❌ SERVER SECURITY: Invalid user ID in session');
       redirect('/auth/signin?reason=invalid_session');
@@ -495,6 +506,7 @@ export async function useServerSecurityGuard(
     redirect('/auth/signin?reason=security_error');
   }
 }
+/* eslint-enable no-console */
 
 /**
  * SECURITY CRITICAL: API Route Security Guard
