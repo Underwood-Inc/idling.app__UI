@@ -16,6 +16,7 @@
  * @version 1.0.0
  */
 
+import { useClientAdminGuard } from '@lib/security/useClientAdminGuard';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import './PermissionManagementPanel.css';
 
@@ -100,6 +101,13 @@ type RiskLevel = 'all' | 'low' | 'medium' | 'high' | 'critical';
 // ================================
 
 export default function PermissionManagementPanel() {
+  // 🔐 SECURITY CRITICAL: Real-time admin permission validation for permissions management
+  const {
+    isLoading: securityLoading,
+    isAuthorized,
+    error: securityError
+  } = useClientAdminGuard();
+
   // ================================
   // STATE MANAGEMENT
   // ================================
