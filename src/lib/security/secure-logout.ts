@@ -426,33 +426,9 @@ export async function performSecureLogout(
 /**
  * CLIENT-SIDE SECURE LOGOUT HOOK
  *
- * Use this in React components to perform secure logout with cache clearing
+ * MOVED TO: useSecureLogout.ts to avoid Edge Runtime compatibility issues
+ * Import from '@lib/security/useSecureLogout' instead of this file
  */
-export function useSecureLogout() {
-  return {
-    secureLogout: async (
-      options?: Parameters<typeof performSecureLogout>[0]
-    ) => {
-      // First perform the cache clearing
-      const result = await performSecureLogout(options);
-
-      // Then trigger NextAuth logout
-      const { signOut } = await import('next-auth/react');
-
-      await signOut({
-        redirect: false, // We'll handle redirect after cache clearing
-        callbackUrl: '/'
-      });
-
-      // Force a hard refresh to ensure clean state
-      setTimeout(() => {
-        window.location.replace('/');
-      }, 500);
-
-      return result;
-    }
-  };
-}
 
 /**
  * GLOBAL CACHE-BUSTING HEADERS

@@ -3,6 +3,9 @@ import { PermissionsService } from '@lib/permissions/permissions';
 import { validateUserExistence } from '@lib/security/validation';
 import { NextRequest, NextResponse } from 'next/server';
 
+// Force dynamic rendering since this route uses authentication
+export const dynamic = 'force-dynamic';
+
 /**
  * GET /api/auth/permissions
  *
