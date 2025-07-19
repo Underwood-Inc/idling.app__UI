@@ -9,6 +9,7 @@
  */
 
 import { usePaginationMode } from '@lib/context/UserPreferencesContext';
+import { useClientAdminGuard } from '@lib/security/useClientAdminGuard';
 import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import { AssignRoleModal } from '../modals/AssignRoleModal';
 import { ExportModal } from '../modals/ExportModal';
@@ -38,6 +39,13 @@ import { UserTable } from './UserTable';
 export const UserManagementPanel: React.FC<AdminUserManagementPanelProps> = ({
   onUserUpdate
 }) => {
+  // 🔐 SECURITY CRITICAL: Real-time admin permission validation
+  const {
+    isLoading: securityLoading,
+    isAuthorized,
+    error: securityError
+  } = useClientAdminGuard();
+
   // All the hooks for data management
   const {
     users,
@@ -230,6 +238,33 @@ export const UserManagementPanel: React.FC<AdminUserManagementPanelProps> = ({
 
   if (error) {
     return <ErrorState error={error} onRetry={() => loadUsers(1)} />;
+  }
+
+  // 🔐 SECURITY: Check authorization before rendering sensitive user data
+  if (securityLoading) {
+    return (
+      <div className="user-management-panel">
+        <div className="security-loading">
+          <div className="loading-spinner"></div>
+          <h3>🔐 Validating Admin Permissions</h3>
+          <p>Verifying your access to user management...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!isAuthorized || securityError) {
+    return (
+      <div className="user-management-panel">
+        <div className="security-error">
+          <h3>🚫 Access Denied</h3>
+          <p>{securityError || 'You do not have permission to manage users'}</p>
+          <button onClick={() => (window.location.href = '/')}>
+            Return Home
+          </button>
+        </div>
+      </div>
+    );
   }
 
   return (
