@@ -1,11 +1,12 @@
+/* eslint-disable no-console */
 'use client';
 
 /**
  * Client-Side Security Guard Hook
- * 
+ *
  * SECURITY CRITICAL: This hook provides automatic client-side security validation
  * that runs on every component mount and performs regular security checks.
- * 
+ *
  * Features:
  * - Automatic security validation on component mount
  * - Periodic security state validation
@@ -14,9 +15,9 @@
  * - Permission checking for client components
  */
 
-import React, { useEffect, useRef, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
+import React, { useEffect, useRef, useState } from 'react';
 import { performSecureLogout } from './secure-logout';
 
 export interface ClientSecurityOptions {
@@ -54,7 +55,7 @@ export function useClientSecurityGuard(options: ClientSecurityOptions = {}) {
 
   const { data: session, status } = useSession();
   const router = useRouter();
-  
+
   const [securityState, setSecurityState] = useState<ClientSecurityState>({
     isSecure: false,
     isValidating: true,
@@ -70,24 +71,28 @@ export function useClientSecurityGuard(options: ClientSecurityOptions = {}) {
    */
   const performSecurityCheck = async (): Promise<boolean> => {
     if (isValidatingRef.current) return securityState.isSecure;
-    
+
     isValidatingRef.current = true;
-    setSecurityState(prev => ({ ...prev, isValidating: true }));
+    setSecurityState((prev) => ({ ...prev, isValidating: true }));
 
     try {
       // Basic authentication check
       const isAuthenticated = !!session?.user?.id;
-      
+
       if (requireAuth && !isAuthenticated && !allowGuestAccess) {
-        console.log('🔒 CLIENT SECURITY: Authentication required, redirecting...');
+        console.log(
+          '🔒 CLIENT SECURITY: Authentication required, redirecting...'
+        );
         setSecurityState({
           isSecure: false,
           isValidating: false,
           lastCheck: new Date(),
           failureReason: 'Authentication required'
         });
-        
-        router.push(`/auth/signin?redirect=${encodeURIComponent(window.location.pathname)}&reason=client_auth_required`);
+
+        router.push(
+          `/auth/signin?redirect=${encodeURIComponent(window.location.pathname)}&reason=client_auth_required`
+        );
         return false;
       }
 
@@ -102,8 +107,10 @@ export function useClientSecurityGuard(options: ClientSecurityOptions = {}) {
           });
 
           if (!response.ok) {
-            console.log('🔒 CLIENT SECURITY: Session validation failed, performing secure logout...');
-            
+            console.log(
+              '🔒 CLIENT SECURITY: Session validation failed, performing secure logout...'
+            );
+
             setSecurityState({
               isSecure: false,
               isValidating: false,
@@ -118,11 +125,13 @@ export function useClientSecurityGuard(options: ClientSecurityOptions = {}) {
           }
 
           const sessionData = await response.json();
-          
+
           // Check if the session data indicates we need to logout
           if (!sessionData || !sessionData.user) {
-            console.log('🔒 CLIENT SECURITY: No valid session data, performing secure logout...');
-            
+            console.log(
+              '🔒 CLIENT SECURITY: No valid session data, performing secure logout...'
+            );
+
             setSecurityState({
               isSecure: false,
               isValidating: false,
@@ -146,8 +155,10 @@ export function useClientSecurityGuard(options: ClientSecurityOptions = {}) {
               });
 
               if (!permissionResponse.ok) {
-                console.log('🔒 CLIENT SECURITY: Permission check failed, redirecting...');
-                
+                console.log(
+                  '🔒 CLIENT SECURITY: Permission check failed, redirecting...'
+                );
+
                 setSecurityState({
                   isSecure: false,
                   isValidating: false,
@@ -160,12 +171,14 @@ export function useClientSecurityGuard(options: ClientSecurityOptions = {}) {
               }
 
               const permissionData = await permissionResponse.json();
-              
+
               // Basic permission checking (server-side will do the real validation)
               for (const permission of requiredPermissions) {
                 if (!permissionData.permissions?.includes(permission)) {
-                  console.log(`🔒 CLIENT SECURITY: Missing required permission: ${permission}`);
-                  
+                  console.log(
+                    `🔒 CLIENT SECURITY: Missing required permission: ${permission}`
+                  );
+
                   setSecurityState({
                     isSecure: false,
                     isValidating: false,
@@ -177,10 +190,12 @@ export function useClientSecurityGuard(options: ClientSecurityOptions = {}) {
                   return false;
                 }
               }
-
             } catch (permissionError) {
-              console.error('🔒 CLIENT SECURITY: Permission validation error:', permissionError);
-              
+              console.error(
+                '🔒 CLIENT SECURITY: Permission validation error:',
+                permissionError
+              );
+
               setSecurityState({
                 isSecure: false,
                 isValidating: false,
@@ -195,12 +210,16 @@ export function useClientSecurityGuard(options: ClientSecurityOptions = {}) {
 
           // High security checks
           if (securityLevel === 'high' || securityLevel === 'maximum') {
-            const sessionAge = Date.now() - new Date(sessionData.expires || 0).getTime();
-            const maxAge = securityLevel === 'maximum' ? 30 * 60 * 1000 : 60 * 60 * 1000; // 30min/1hr
+            const sessionAge =
+              Date.now() - new Date(sessionData.expires || 0).getTime();
+            const maxAge =
+              securityLevel === 'maximum' ? 30 * 60 * 1000 : 60 * 60 * 1000; // 30min/1hr
 
             if (sessionAge > maxAge) {
-              console.log('🔒 CLIENT SECURITY: Session too old for security level, refreshing...');
-              
+              console.log(
+                '🔒 CLIENT SECURITY: Session too old for security level, refreshing...'
+              );
+
               setSecurityState({
                 isSecure: false,
                 isValidating: false,
@@ -213,10 +232,9 @@ export function useClientSecurityGuard(options: ClientSecurityOptions = {}) {
               return false;
             }
           }
-
         } catch (error) {
           console.error('🔒 CLIENT SECURITY: Security check failed:', error);
-          
+
           setSecurityState({
             isSecure: false,
             isValidating: false,
@@ -241,10 +259,12 @@ export function useClientSecurityGuard(options: ClientSecurityOptions = {}) {
 
       lastValidationRef.current = Date.now();
       return true;
-
     } catch (error) {
-      console.error('🔒 CLIENT SECURITY: Unexpected security check error:', error);
-      
+      console.error(
+        '🔒 CLIENT SECURITY: Unexpected security check error:',
+        error
+      );
+
       setSecurityState({
         isSecure: false,
         isValidating: false,
@@ -261,7 +281,7 @@ export function useClientSecurityGuard(options: ClientSecurityOptions = {}) {
   // Initial security check on mount
   useEffect(() => {
     if (status === 'loading') return;
-    
+
     performSecurityCheck();
   }, [session, status, router]);
 
@@ -269,14 +289,19 @@ export function useClientSecurityGuard(options: ClientSecurityOptions = {}) {
   useEffect(() => {
     if (!enablePeriodicChecks || status === 'loading') return;
 
-    const interval = setInterval(() => {
-      const timeSinceLastCheck = Date.now() - lastValidationRef.current;
-      
-      if (timeSinceLastCheck >= checkInterval) {
-        console.log('🔒 CLIENT SECURITY: Performing periodic security check...');
-        performSecurityCheck();
-      }
-    }, Math.min(checkInterval, 60000)); // Check at least every minute
+    const interval = setInterval(
+      () => {
+        const timeSinceLastCheck = Date.now() - lastValidationRef.current;
+
+        if (timeSinceLastCheck >= checkInterval) {
+          console.log(
+            '🔒 CLIENT SECURITY: Performing periodic security check...'
+          );
+          performSecurityCheck();
+        }
+      },
+      Math.min(checkInterval, 60000)
+    ); // Check at least every minute
 
     return () => clearInterval(interval);
   }, [checkInterval, enablePeriodicChecks, status]);
@@ -298,7 +323,7 @@ export function useClientSecurityGuard(options: ClientSecurityOptions = {}) {
   // Force logout function
   const forceLogout = async (reason = 'manual_logout') => {
     console.log('🔒 CLIENT SECURITY: Force logout triggered:', reason);
-    
+
     setSecurityState({
       isSecure: false,
       isValidating: false,
@@ -328,7 +353,8 @@ export function withClientSecurity<T extends Record<string, any>>(
   securityOptions: ClientSecurityOptions = {}
 ) {
   return function SecurityWrappedComponent(props: T) {
-    const { isSecure, isValidating, failureReason } = useClientSecurityGuard(securityOptions);
+    const { isSecure, isValidating, failureReason } =
+      useClientSecurityGuard(securityOptions);
 
     // Show loading state while validating
     if (isValidating) {
@@ -353,4 +379,4 @@ export function withClientSecurity<T extends Record<string, any>>(
     // Render the component if security is valid
     return <Component {...props} />;
   };
-} 
+}
