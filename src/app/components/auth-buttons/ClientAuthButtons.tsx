@@ -1,9 +1,9 @@
 'use client';
 
+import { NAV_PATHS } from '@lib/routes';
+import { useSecureLogout } from '@lib/security/useSecureLogout';
+import { AUTH_BUTTON_SELECTORS } from '@lib/test-selectors/components/auth-buttons.selectors';
 import { signIn, signOut } from 'next-auth/react';
-import { NAV_PATHS } from 'src/lib/routes';
-import { useSecureLogout } from 'src/lib/security/secure-logout';
-import { AUTH_BUTTON_SELECTORS } from 'src/lib/test-selectors/components/auth-buttons.selectors';
 import './AuthButtons.css';
 import { SignInProviders } from './types';
 
