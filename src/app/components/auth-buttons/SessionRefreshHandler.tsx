@@ -207,13 +207,47 @@ export function SessionRefreshHandler() {
     window.fetch = async function (...args) {
       const response = await originalFetch.apply(this, args);
 
-      // Check for session invalidation headers
-      if (response.headers.get('X-Clear-Session') === 'true') {
-        console.log('🔒 Global session invalidation detected, signing out...');
-        await signOut({
-          redirect: true,
-          callbackUrl: '/auth/signin?reason=global_invalidation'
-        });
+      // SECURITY CRITICAL: Check for session invalidation headers
+      const sessionInvalidated =
+        response.headers.get('X-Session-Invalidated') === 'true';
+      const requireFullLogout =
+        response.headers.get('X-Require-Full-Logout') === 'true';
+      const clearSession = response.headers.get('X-Clear-Session') === 'true';
+
+      if (sessionInvalidated || requireFullLogout || clearSession) {
+        console.log(
+          '🔒 SECURITY: Global session invalidation detected, performing secure logout...'
+        );
+
+        // Import and use secure logout for comprehensive cache clearing
+        try {
+          const { performSecureLogout } = await import(
+            'src/lib/security/secure-logout'
+          );
+
+          // Perform comprehensive cache clearing
+          await performSecureLogout({
+            level: 'comprehensive'
+          });
+
+          // Then proceed with NextAuth logout
+          await signOut({
+            redirect: true,
+            callbackUrl: '/auth/signin?reason=security_invalidation'
+          });
+        } catch (error) {
+          console.error(
+            '❌ SECURITY: Secure logout failed, falling back to basic logout:',
+            error
+          );
+
+          // Fallback to basic NextAuth logout
+          await signOut({
+            redirect: true,
+            callbackUrl: '/auth/signin?reason=fallback_invalidation'
+          });
+        }
+
         return response;
       }
 
@@ -228,12 +262,34 @@ export function SessionRefreshHandler() {
 
           if (errorData.clearSession || errorData.requiresReauth) {
             console.log(
-              '🔒 API response requested session clearing, signing out...'
+              '🔒 SECURITY: API response requested session clearing, performing secure logout...'
             );
-            await signOut({
-              redirect: true,
-              callbackUrl: '/auth/signin?reason=api_invalidation'
-            });
+
+            // Use secure logout for comprehensive cache clearing
+            try {
+              const { performSecureLogout } = await import(
+                'src/lib/security/secure-logout'
+              );
+
+              await performSecureLogout({
+                level: 'comprehensive'
+              });
+
+              await signOut({
+                redirect: true,
+                callbackUrl: '/auth/signin?reason=api_invalidation'
+              });
+            } catch (error) {
+              console.error(
+                '❌ SECURITY: Secure logout failed, falling back to basic logout:',
+                error
+              );
+
+              await signOut({
+                redirect: true,
+                callbackUrl: '/auth/signin?reason=api_invalidation'
+              });
+            }
           }
         } catch (e) {
           // Ignore JSON parsing errors

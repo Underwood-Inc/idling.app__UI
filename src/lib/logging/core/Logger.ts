@@ -225,11 +225,14 @@ export class Logger implements LoggerInstance {
     this.activeGroups.push(title);
     const prefix = this.getContextPrefix();
 
-    // Always use collapsed groups by default for cleaner output
-    if (console.groupCollapsed) {
+    // Check if console methods are available (Edge Runtime compatibility)
+    if (typeof console.groupCollapsed === 'function') {
       console.groupCollapsed(`${prefix}${title}`);
-    } else {
+    } else if (typeof console.group === 'function') {
       console.group(`${prefix}${title}`);
+    } else {
+      // Fallback for environments without grouping support
+      console.log(`${prefix}📁 ${title}`);
     }
   }
 
@@ -238,16 +241,27 @@ export class Logger implements LoggerInstance {
 
     this.activeGroups.pop();
 
-    // Always call groupEnd to properly close groups and prevent nesting
-    if (console.groupEnd) {
+    // Check if console.groupEnd is available (Edge Runtime compatibility)
+    if (typeof console.groupEnd === 'function') {
       console.groupEnd();
+    } else {
+      // Fallback for environments without grouping support
+      const prefix = this.getContextPrefix();
+      console.log(`${prefix}📁 End`);
     }
   }
 
   table(data: any[]): void {
     if (!this.shouldLogLevel('INFO')) return;
 
-    console.table(data);
+    // Check if console.table is available (Edge Runtime compatibility)
+    if (typeof console.table === 'function') {
+      console.table(data);
+    } else {
+      // Fallback to JSON.stringify for environments without table support
+      const prefix = this.getContextPrefix();
+      console.log(`${prefix}📊 Table Data:`, JSON.stringify(data, null, 2));
+    }
   }
 
   time(label: string): void {
