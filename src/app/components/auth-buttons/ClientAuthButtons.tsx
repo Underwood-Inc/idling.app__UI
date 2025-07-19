@@ -2,6 +2,7 @@
 
 import { signIn, signOut } from 'next-auth/react';
 import { NAV_PATHS } from 'src/lib/routes';
+import { useSecureLogout } from 'src/lib/security/secure-logout';
 import { AUTH_BUTTON_SELECTORS } from 'src/lib/test-selectors/components/auth-buttons.selectors';
 import './AuthButtons.css';
 import { SignInProviders } from './types';
@@ -37,19 +38,44 @@ export function ClientSignOut({
 }: {
   'data-testid'?: string;
 }) {
-  const handleSignOut = async () => {
-    // Clear route-scoped filters before signing out
-    try {
-      const { clearAllRouteFilters } = await import('src/lib/state/atoms');
-      clearAllRouteFilters();
-    } catch (error) {
-      console.warn('Failed to clear route filters on signout:', error);
-    }
+  const { secureLogout } = useSecureLogout();
 
-    await signOut({
-      callbackUrl: NAV_PATHS.ROOT,
-      redirect: true
-    });
+  const handleSignOut = async () => {
+    // SECURITY CRITICAL: Use secure logout to clear ALL cache and storage
+    // This prevents cache-based permission leakage to subsequent users
+    try {
+      // eslint-disable-next-line no-console -- Security audit logging
+      console.log(
+        '🔒 SECURITY: Performing secure logout with comprehensive cache clearing...'
+      );
+
+      // Clear route-scoped filters first
+      try {
+        const { clearAllRouteFilters } = await import('src/lib/state/atoms');
+        clearAllRouteFilters();
+      } catch (error) {
+        console.warn('Failed to clear route filters on signout:', error);
+      }
+
+      // Perform secure logout with comprehensive cache clearing
+      await secureLogout({
+        level: 'comprehensive' // Clear all caches and storage
+      });
+
+      // eslint-disable-next-line no-console -- Security audit logging
+      console.log('✅ SECURITY: Secure logout completed successfully');
+    } catch (error) {
+      console.error(
+        '❌ SECURITY: Secure logout failed, falling back to basic logout:',
+        error
+      );
+
+      // Fallback to basic NextAuth logout if secure logout fails
+      await signOut({
+        callbackUrl: NAV_PATHS.ROOT,
+        redirect: true
+      });
+    }
   };
 
   return (
