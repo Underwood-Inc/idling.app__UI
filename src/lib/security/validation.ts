@@ -1,14 +1,23 @@
 /**
  * Comprehensive Security Validation Utilities
- * 
+ *
  * Provides real-time validation for user existence, account status, and permissions
  * Used by middleware and individual API routes for consistent security
  */
 
 import { NextResponse } from 'next/server';
+import sql from '../db';
+import { getSecureCacheBustingHeaders } from './secure-logout';
 
 export interface UserValidationResult {
   isValid: boolean;
+  error?: string;
+  code?:
+    | 'INVALID_USER_ID'
+    | 'USER_NOT_FOUND'
+    | 'ACCOUNT_DEACTIVATED'
+    | 'VALIDATION_ERROR';
+  requiresReauth?: boolean;
   user?: {
     id: number;
     name: string;
@@ -16,22 +25,21 @@ export interface UserValidationResult {
     is_active: boolean;
     created_at: Date;
   };
-  error?: string;
-  code?: string;
-  requiresReauth?: boolean;
 }
 
 export interface PermissionValidationResult {
   hasPermission: boolean;
   error?: string;
-  code?: string;
+  code?: 'INSUFFICIENT_PERMISSIONS' | 'PERMISSION_CHECK_ERROR';
 }
 
 /**
  * Validates user existence and account status in real-time
  * This should be called on every authenticated request
  */
-export async function validateUserExistence(userId: number): Promise<UserValidationResult> {
+export async function validateUserExistence(
+  userId: number
+): Promise<UserValidationResult> {
   try {
     if (!userId || isNaN(userId)) {
       return {
@@ -42,7 +50,6 @@ export async function validateUserExistence(userId: number): Promise<UserValidat
       };
     }
 
-    const { default: sql } = await import('../db');
     const userValidation = await sql`
       SELECT 
         id, 
@@ -94,7 +101,6 @@ export async function validateUserExistence(userId: number): Promise<UserValidat
         created_at: user.created_at
       }
     };
-
   } catch (error) {
     console.error('❌ Error validating user existence:', error);
     return {
@@ -111,16 +117,21 @@ export async function validateUserExistence(userId: number): Promise<UserValidat
  * This should be called for permission-protected routes
  */
 export async function validateUserPermission(
-  userId: number, 
+  userId: number,
   permission: string
 ): Promise<PermissionValidationResult> {
   try {
-    const { checkUserPermission } = await import('../actions/permissions.actions');
-    
+    const { checkUserPermission } = await import(
+      '../actions/permissions.actions'
+    );
+
     const hasPermission = await checkUserPermission(userId, permission);
-    
+
     if (!hasPermission) {
-      console.warn('❌ User lacks required permission:', { userId, permission });
+      console.warn('❌ User lacks required permission:', {
+        userId,
+        permission
+      });
       return {
         hasPermission: false,
         error: 'Insufficient permissions',
@@ -131,7 +142,6 @@ export async function validateUserPermission(
     return {
       hasPermission: true
     };
-
   } catch (error) {
     console.error('❌ Error validating user permission:', error);
     return {
@@ -146,14 +156,16 @@ export async function validateUserPermission(
  * Validates admin permissions specifically
  * Convenience wrapper for admin permission checking
  */
-export async function validateAdminPermission(userId: number): Promise<PermissionValidationResult> {
+export async function validateAdminPermission(
+  userId: number
+): Promise<PermissionValidationResult> {
   const { PERMISSIONS } = await import('../permissions/permissions');
   return validateUserPermission(userId, PERMISSIONS.ADMIN.PERMISSIONS_VIEW);
 }
 
 /**
  * Creates appropriate NextResponse for validation failures
- * Handles both API and page route responses
+ * Handles both API and page route responses with SECURITY-CRITICAL cache busting
  */
 export function createValidationFailureResponse(
   validation: UserValidationResult | PermissionValidationResult,
@@ -161,16 +173,32 @@ export function createValidationFailureResponse(
   redirectUrl?: string
 ): NextResponse {
   if (isApiRoute) {
-    const status = validation.code === 'USER_NOT_FOUND' ? 404 : 
-                  validation.code === 'ACCOUNT_DEACTIVATED' ? 403 :
-                  validation.code === 'INSUFFICIENT_PERMISSIONS' ? 403 : 401;
-    
-    const response = NextResponse.json({
-      error: validation.error,
-      code: validation.code,
-      requiresReauth: 'requiresReauth' in validation ? validation.requiresReauth : false,
-      clearSession: 'requiresReauth' in validation ? validation.requiresReauth : false
-    }, { status });
+    const status =
+      validation.code === 'USER_NOT_FOUND'
+        ? 404
+        : validation.code === 'ACCOUNT_DEACTIVATED'
+          ? 403
+          : validation.code === 'INSUFFICIENT_PERMISSIONS'
+            ? 403
+            : 401;
+
+    const response = NextResponse.json(
+      {
+        error: validation.error,
+        code: validation.code,
+        requiresReauth:
+          'requiresReauth' in validation ? validation.requiresReauth : false,
+        clearSession:
+          'requiresReauth' in validation ? validation.requiresReauth : false
+      },
+      { status }
+    );
+
+    // SECURITY CRITICAL: Add cache-busting headers to prevent cached responses
+    const secureHeaders = getSecureCacheBustingHeaders();
+    Object.entries(secureHeaders).forEach(([key, value]) => {
+      response.headers.set(key, value);
+    });
 
     // Clear session cookies if reauth is required
     if ('requiresReauth' in validation && validation.requiresReauth) {
@@ -180,17 +208,26 @@ export function createValidationFailureResponse(
       response.cookies.delete('__Host-next-auth.csrf-token');
       response.cookies.delete('next-auth.callback-url');
       response.cookies.delete('__Secure-next-auth.callback-url');
-      
-      // Add header to trigger client-side session clearing
-      response.headers.set('X-Clear-Session', 'true');
+
+      // Add additional security headers for session invalidation
+      response.headers.set('X-Session-Invalidated', 'true');
+      response.headers.set('X-Require-Full-Logout', 'true');
     }
-    
+
     return response;
   } else {
-    // Page route - redirect appropriately
+    // Page route - redirect appropriately with cache busting
     const url = redirectUrl || '/auth/signin';
-    const response = NextResponse.redirect(new URL(url, 'http://localhost:3000'));
-    
+    const response = NextResponse.redirect(
+      new URL(url, 'http://localhost:3000')
+    );
+
+    // SECURITY CRITICAL: Add cache-busting headers to redirects
+    const secureHeaders = getSecureCacheBustingHeaders();
+    Object.entries(secureHeaders).forEach(([key, value]) => {
+      response.headers.set(key, value);
+    });
+
     // Clear session if reauth is required
     if ('requiresReauth' in validation && validation.requiresReauth) {
       response.cookies.delete('next-auth.session-token');
@@ -199,8 +236,12 @@ export function createValidationFailureResponse(
       response.cookies.delete('__Host-next-auth.csrf-token');
       response.cookies.delete('next-auth.callback-url');
       response.cookies.delete('__Secure-next-auth.callback-url');
+
+      // Add security headers for page redirects
+      response.headers.set('X-Session-Invalidated', 'true');
+      response.headers.set('X-Auth-Redirect', 'true');
     }
-    
+
     return response;
   }
 }
@@ -232,7 +273,10 @@ export async function validateAuthenticatedRequest(
 
   // If permission is required, validate it
   if (requiredPermission) {
-    const permissionValidation = await validateUserPermission(userId, requiredPermission);
+    const permissionValidation = await validateUserPermission(
+      userId,
+      requiredPermission
+    );
     if (!permissionValidation.hasPermission) {
       return {
         isValid: false,
@@ -248,4 +292,4 @@ export async function validateAuthenticatedRequest(
     isValid: true,
     user: userValidation.user
   };
-} 
+}
