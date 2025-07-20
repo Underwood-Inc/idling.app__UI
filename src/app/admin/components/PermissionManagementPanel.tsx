@@ -16,7 +16,6 @@
  * @version 1.0.0
  */
 
-import { useClientAdminGuard } from '@lib/security/useClientAdminGuard';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import './PermissionManagementPanel.css';
 
@@ -54,42 +53,26 @@ interface Role {
   name: string;
   display_name: string;
   description: string;
+  is_inheritable: boolean;
   is_active: boolean;
   is_archived: boolean;
   is_system: boolean;
-  is_default: boolean;
   sort_order: number;
-  role_color: string;
-  role_icon: string;
-  metadata: Record<string, any>;
+  permissions: Permission[];
   created_at: string;
   updated_at: string;
-  archived_at: string | null;
-  archived_by: number | null;
-  archive_reason: string | null;
-  permission_count: number;
   user_count: number;
-  permissions: Array<{
-    id: number;
-    name: string;
-    display_name: string;
-    category: string;
-    risk_level: string;
-  }>;
 }
 
 interface PermissionOverview {
   total_permissions: number;
   active_permissions: number;
-  disabled_permissions: number;
   archived_permissions: number;
+  system_permissions: number;
+  categories: { name: string; count: number }[];
+  risk_levels: { level: string; count: number }[];
   total_roles: number;
   active_roles: number;
-  disabled_roles: number;
-  archived_roles: number;
-  total_user_assignments: number;
-  active_user_assignments: number;
-  recent_changes: number;
 }
 
 type ViewMode = 'permissions' | 'roles' | 'audit';
@@ -101,13 +84,6 @@ type RiskLevel = 'all' | 'low' | 'medium' | 'high' | 'critical';
 // ================================
 
 export default function PermissionManagementPanel() {
-  // 🔐 SECURITY CRITICAL: Real-time admin permission validation for permissions management
-  const {
-    isLoading: securityLoading,
-    isAuthorized,
-    error: securityError
-  } = useClientAdminGuard();
-
   // ================================
   // STATE MANAGEMENT
   // ================================
@@ -401,10 +377,10 @@ export default function PermissionManagementPanel() {
                   {overview.active_permissions} Active
                 </span>
                 <span className="stat-item stat-item--disabled">
-                  {overview.disabled_permissions} Disabled
-                </span>
-                <span className="stat-item stat-item--archived">
                   {overview.archived_permissions} Archived
+                </span>
+                <span className="stat-item stat-item--system">
+                  {overview.system_permissions} System
                 </span>
               </div>
             </div>
@@ -419,30 +395,36 @@ export default function PermissionManagementPanel() {
                 <span className="stat-item stat-item--active">
                   {overview.active_roles} Active
                 </span>
-                <span className="stat-item stat-item--disabled">
-                  {overview.disabled_roles} Disabled
-                </span>
-                <span className="stat-item stat-item--archived">
-                  {overview.archived_roles} Archived
-                </span>
               </div>
             </div>
           </div>
 
-          <div className="stat-card stat-card--assignments">
-            <div className="stat-icon">📋</div>
+          <div className="stat-card stat-card--categories">
+            <div className="stat-icon">🗂️</div>
             <div className="stat-content">
-              <h3>Assignments</h3>
-              <div className="stat-number">
-                {overview.total_user_assignments}
-              </div>
+              <h3>Categories</h3>
+              <div className="stat-number">{overview.categories.length}</div>
               <div className="stat-breakdown">
-                <span className="stat-item stat-item--active">
-                  {overview.active_user_assignments} Active
-                </span>
-                <span className="stat-item stat-item--info">
-                  {overview.recent_changes} Recent Changes
-                </span>
+                {overview.categories.map((cat) => (
+                  <span key={cat.name} className="stat-item">
+                    {cat.name}: {cat.count}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <div className="stat-card stat-card--risk-levels">
+            <div className="stat-icon">⚠️</div>
+            <div className="stat-content">
+              <h3>Risk Levels</h3>
+              <div className="stat-number">{overview.risk_levels.length}</div>
+              <div className="stat-breakdown">
+                {overview.risk_levels.map((risk) => (
+                  <span key={risk.level} className="stat-item">
+                    {risk.level}: {risk.count}
+                  </span>
+                ))}
               </div>
             </div>
           </div>
@@ -620,8 +602,8 @@ export default function PermissionManagementPanel() {
           <div className="item-header">
             <div className="item-title">
               <div className="role-title-with-icon">
-                <span className="role-icon" style={{ color: role.role_color }}>
-                  {getRoleIcon(role.role_icon)}
+                <span className="role-icon" style={{ color: '#007bff' }}>
+                  👥
                 </span>
                 <h3>{role.display_name}</h3>
               </div>
@@ -630,9 +612,6 @@ export default function PermissionManagementPanel() {
             <div className="item-badges">
               {renderStatusBadge(role)}
               {renderSystemBadge(role.is_system)}
-              {role.is_default && (
-                <span className="default-badge">⭐ Default</span>
-              )}
             </div>
           </div>
 
@@ -648,7 +627,7 @@ export default function PermissionManagementPanel() {
               </span>
               <span className="meta-item">
                 <span className="meta-label">Permissions:</span>
-                <span className="meta-value">{role.permission_count}</span>
+                <span className="meta-value">{role.permissions.length}</span>
               </span>
             </div>
 
