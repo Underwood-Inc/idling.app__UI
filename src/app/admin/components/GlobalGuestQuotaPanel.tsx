@@ -10,7 +10,6 @@
 
 import { noCacheFetch } from '@lib/utils/no-cache-fetch';
 import React, { useCallback, useEffect, useState } from 'react';
-import './GlobalGuestQuotaPanel.css';
 
 // ================================
 // TYPES & INTERFACES
