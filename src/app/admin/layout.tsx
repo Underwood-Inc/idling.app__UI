@@ -1,4 +1,5 @@
-import { useServerSecurityGuard } from '@lib/security/universal-security-guard';
+import { auth } from '@lib/auth';
+import { PERMISSIONS, requirePermission } from '@lib/permissions/permissions';
 import { redirect } from 'next/navigation';
 import { ReactNode } from 'react';
 
@@ -10,38 +11,29 @@ interface AdminLayoutProps {
 }
 
 /**
- * Admin Layout - Protects ALL admin routes with comprehensive security
+ * Admin Layout - Server Component
  *
- * This layout ensures that:
- * 1. User is authenticated (has valid session)
- * 2. User exists in database and account is active
- * 3. User has admin permissions
- * 4. Full security validation including real-time checks
- * 5. Redirects unauthorized users to home page
- *
- * Applied to ALL routes under /admin/*
+ * Protects all admin routes using the existing robust permission system.
+ * Server-side validation ensures no client-side bypassing.
  */
 export default async function AdminLayout({ children }: AdminLayoutProps) {
-  try {
-    // SECURITY CRITICAL: Use comprehensive security validation
-    const securityContext = await useServerSecurityGuard({
-      requireAuth: true,
-      requireActiveAccount: true,
-      requiredPermissions: ['admin.access'],
-      securityLevel: 'maximum' // Highest security for admin area
-    });
+  // Check authentication
+  const session = await auth();
 
-    // If we get here, all security checks passed
-    // User is authenticated, exists in DB, account is active, and has admin permissions
-
-    return (
-      <div className="admin-layout">
-        <div className="admin-content">{children}</div>
-      </div>
-    );
-  } catch (error) {
-    // If any security check fails, redirect to home
-    console.error('❌ SECURITY: Admin layout security check failed:', error);
-    redirect('/');
+  if (!session?.user?.id) {
+    redirect('/api/auth/signin?callbackUrl=/admin');
   }
+
+  // Check admin permission using existing system
+  const hasAdminAccess = await requirePermission(PERMISSIONS.ADMIN.ACCESS);
+
+  if (!hasAdminAccess) {
+    redirect('/api/auth/signin?error=insufficient_permissions');
+  }
+
+  return (
+    <div className="admin-layout">
+      <div className="admin-content">{children}</div>
+    </div>
+  );
 }

@@ -1,6 +1,7 @@
 'use client';
 
 import { useOverlay } from '@lib/context/OverlayContext';
+import { noCacheFetch } from '@lib/utils/no-cache-fetch';
 import { useCallback, useEffect, useState } from 'react';
 import { AssignSubscriptionModal } from './modals/AssignSubscriptionModal';
 import { EditPlanModal } from './modals/EditPlanModal';
@@ -113,7 +114,7 @@ export default function SubscriptionManagementPanel() {
 
   const fetchSubscriptionPlans = useCallback(async () => {
     try {
-      const response = await fetch('/api/admin/subscription-plans');
+      const response = await noCacheFetch('/api/admin/subscription-plans');
       if (!response.ok) {
         if (response.status === 503) {
           throw new Error('Subscription system not available');
@@ -185,7 +186,7 @@ export default function SubscriptionManagementPanel() {
 
   const fetchUserSubscriptions = useCallback(async () => {
     try {
-      const response = await fetch('/api/admin/user-subscriptions');
+      const response = await noCacheFetch('/api/admin/user-subscriptions');
       if (!response.ok) {
         if (response.status === 503) {
           throw new Error('Subscription system not available');
@@ -218,7 +219,7 @@ export default function SubscriptionManagementPanel() {
 
   const fetchSubscriptionStats = useCallback(async () => {
     try {
-      const response = await fetch('/api/admin/subscription-stats');
+      const response = await noCacheFetch('/api/admin/subscription-stats');
       if (!response.ok) {
         if (response.status === 503) {
           throw new Error('Subscription system not available');

@@ -1,9 +1,12 @@
 /**
- * Simple Polling Notification Client
- * 
- * Replaces the broken SSE system with reliable polling.
- * Much simpler, always works, no browser compatibility issues.
+ * Notifications Polling Client
+ *
+ * Efficiently polls for notifications using long-polling technique
+ * with exponential backoff and error recovery.
  */
+
+import { logger } from '@lib/logging';
+import { noCacheFetch } from '@lib/utils/no-cache-fetch';
 
 export interface NotificationData {
   id: string;
@@ -56,10 +59,10 @@ export class PollingNotificationClient {
     this.log('Starting notification polling');
     this.isRunning = true;
     this.lastCheck = Date.now();
-    
+
     // Initial check
     this.checkNotifications();
-    
+
     // Set up polling
     this.intervalId = window.setInterval(() => {
       this.checkNotifications();
@@ -114,28 +117,31 @@ export class PollingNotificationClient {
    */
   private async checkNotifications(): Promise<void> {
     try {
-      const response = await fetch(`/api/notifications/poll?since=${this.lastCheck}`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include'
-      });
+      const response = await noCacheFetch(
+        `/api/notifications/poll?since=${this.lastCheck}`,
+        {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          credentials: 'include'
+        }
+      );
 
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
 
       const data = await response.json();
-      
+
       if (data.notifications && data.notifications.length > 0) {
         this.log(`Received ${data.notifications.length} notifications`);
-        
+
         // Update last check time
         this.lastCheck = Date.now();
-        
+
         // Notify handlers
-        this.handlers.forEach(handler => {
+        this.handlers.forEach((handler) => {
           try {
             handler(data.notifications);
           } catch (error) {
@@ -143,10 +149,9 @@ export class PollingNotificationClient {
           }
         });
       }
-
     } catch (error) {
       this.log('Polling error:', error);
-      this.errorHandlers.forEach(handler => {
+      this.errorHandlers.forEach((handler) => {
         try {
           handler(error as Error);
         } catch (handlerError) {
@@ -176,7 +181,7 @@ export class PollingNotificationClient {
 
   private log(...args: any[]): void {
     if (this.options.debug) {
-      console.log('[PollingClient]', ...args);
+      logger.debug('PollingClient', { args });
     }
   }
 }
@@ -184,6 +189,8 @@ export class PollingNotificationClient {
 /**
  * Create a polling notification client
  */
-export function createPollingClient(options?: PollingClientOptions): PollingNotificationClient {
+export function createPollingClient(
+  options?: PollingClientOptions
+): PollingNotificationClient {
   return new PollingNotificationClient(options);
-} 
+}

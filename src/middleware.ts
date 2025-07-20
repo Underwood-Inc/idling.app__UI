@@ -9,12 +9,9 @@ const { auth } = NextAuth(authConfig);
 export default auth(async (req: NextRequest & { auth: any }) => {
   const { nextUrl, auth: session } = req;
 
-  // Note: User existence validation is handled by the universal security guard
-  // which provides comprehensive real-time security validation
-
-  // Handle API route authentication with universal security checking
+  // Handle API route authentication
   if (nextUrl.pathname.startsWith('/api/')) {
-    // Skip auth routes from security checking (they handle their own auth)
+    // Skip auth routes (they handle their own auth)
     if (nextUrl.pathname.startsWith('/api/auth/')) {
       return NextResponse.next();
     }

@@ -1,3 +1,4 @@
+import { noCacheFetch } from '@lib/utils/no-cache-fetch';
 import { formatRetryAfter } from '@lib/utils/timeFormatting';
 import { useCallback, useRef, useState } from 'react';
 import { GenerationOptions } from '../types/generation';
@@ -222,17 +223,9 @@ export function useImageGeneration(props: UseImageGenerationProps) {
         params.set('_t', cacheBuster);
         params.set('_nocache', 'true');
 
-        const response = await fetch(`/api/og-image?${params.toString()}`, {
-          method: 'GET',
-          credentials: 'include',
-          headers: {
-            'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0',
-            Pragma: 'no-cache',
-            Expires: '0',
-            'X-Requested-With': 'XMLHttpRequest',
-            'X-Cache-Bust': cacheBuster
-          }
-        });
+        const response = await noCacheFetch(
+          `/api/og-image?${params.toString()}`
+        );
 
         if (!response.ok) {
           const errorData = await response.json().catch(() => ({}));

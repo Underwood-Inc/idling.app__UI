@@ -1,18 +1,19 @@
 /**
  * Custom hooks for User Management Panel
- * 
+ *
  * This module contains reusable hooks that encapsulate complex state
  * management logic, API calls, and data processing for the user
  * management system.
  */
 
+import { noCacheFetch } from '@lib/utils/no-cache-fetch';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { USERS_PER_LOAD, USERS_PER_PAGE } from './constants';
 import type {
-    ColumnFilter,
-    ColumnSort,
-    ManagementUser,
-    SearchResult
+  ColumnFilter,
+  ColumnSort,
+  ManagementUser,
+  SearchResult
 } from './types';
 import { getFieldValue } from './utils';
 
@@ -35,7 +36,9 @@ export const useUsersData = () => {
     setError(null);
 
     try {
-      const response = await fetch(`/api/admin/users?page=${page}&limit=20`);
+      const response = await noCacheFetch(
+        `/api/admin/users?page=${page}&limit=20`
+      );
       if (!response.ok) {
         throw new Error('Failed to load users');
       }
@@ -270,9 +273,12 @@ export const useColumnSorting = () => {
     setCurrentSort((prev) => {
       if (prev.column === columnKey) {
         // Cycle through: asc -> desc -> null -> asc
-        const newDirection = 
-          prev.direction === 'asc' ? 'desc' :
-          prev.direction === 'desc' ? null : 'asc';
+        const newDirection =
+          prev.direction === 'asc'
+            ? 'desc'
+            : prev.direction === 'desc'
+              ? null
+              : 'asc';
         return { column: columnKey, direction: newDirection };
       } else {
         // New column, start with ascending
@@ -376,4 +382,4 @@ export const usePaginatedUsers = (
       return filteredUsers.slice(startIndex, endIndex);
     }
   }, [paginationMode, displayedUsers, filteredUsers, currentPage]);
-}; 
+};
