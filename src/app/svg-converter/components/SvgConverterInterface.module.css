@@ -1,0 +1,349 @@
+/* SVG Converter Interface Styles */
+
+.interface {
+  width: 100%;
+}
+
+.interface__header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.interface__title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+}
+
+.interface__subtitle {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+.interface__content {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+/* Input Method Selector */
+.input__selector {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+  background: var(--glass-bg-medium);
+  border-radius: var(--border-radius-md);
+  padding: 0.25rem;
+}
+
+.selector__button {
+  flex: 1;
+  padding: 0.75rem 1rem;
+  border: none;
+  border-radius: var(--border-radius-sm);
+  background: transparent;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: var(--transition-base);
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.selector__button:hover {
+  background: var(--glass-bg-medium);
+  color: var(--text-primary);
+}
+
+.selector__button--active {
+  background: var(--brand-primary);
+  color: var(--dark-bg-primary);
+}
+
+/* File Upload Area */
+.upload__area {
+  border: 2px dashed var(--glass-border-light);
+  border-radius: var(--border-radius-lg);
+  padding: 2rem;
+  text-align: center;
+  transition: var(--transition-base);
+  cursor: pointer;
+}
+
+.upload__area:hover {
+  border-color: var(--brand-primary);
+  background: var(--glass-bg-light);
+}
+
+.upload__input {
+  display: none;
+}
+
+.upload__label {
+  display: block;
+  cursor: pointer;
+}
+
+.upload__content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.upload__icon {
+  font-size: 2rem;
+}
+
+.upload__text {
+  color: var(--text-primary);
+  font-size: 1rem;
+}
+
+.upload__hint {
+  color: var(--text-muted);
+  font-size: 0.875rem;
+}
+
+.upload__preview {
+  margin-top: 1rem;
+  padding: 0.75rem;
+  background: rgba(40, 167, 69, 0.1);
+  border: 1px solid var(--success-green);
+  border-radius: var(--border-radius-md);
+  color: var(--success-green);
+  font-size: 0.875rem;
+}
+
+/* Text Input */
+.text__input {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.text__label {
+  font-weight: 500;
+  color: var(--text-primary);
+  font-size: 0.875rem;
+}
+
+.text__area {
+  width: 100%;
+  padding: 1rem;
+  border: 1px solid var(--glass-border-medium);
+  border-radius: var(--border-radius-md);
+  background: rgba(0, 0, 0, 0.3);
+  color: var(--text-primary);
+  font-family: 'Fira Code', monospace;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  resize: vertical;
+  min-height: 200px;
+}
+
+.text__area:focus {
+  outline: none;
+  border-color: var(--brand-primary);
+  box-shadow: 0 0 0 2px rgba(237, 174, 73, 0.3);
+}
+
+.text__hint {
+  color: var(--text-muted);
+  font-size: 0.75rem;
+}
+
+/* Conversion Options */
+.options {
+  background: var(--glass-bg-heavy);
+  border: 1px solid var(--glass-border-medium);
+  border-radius: var(--border-radius-md);
+  padding: 1.5rem;
+}
+
+.options__title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--brand-primary);
+  margin-bottom: 1rem;
+}
+
+.options__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.option__group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.option__label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.option__input {
+  padding: 0.5rem;
+  border: 1px solid var(--glass-border-medium);
+  border-radius: var(--border-radius-sm);
+  background: rgba(0, 0, 0, 0.4);
+  color: var(--text-primary);
+  font-size: 0.875rem;
+}
+
+.option__input:focus {
+  outline: none;
+  border-color: var(--brand-primary);
+  box-shadow: 0 0 0 2px rgba(237, 174, 73, 0.3);
+}
+
+.option__slider {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 4px;
+  background: var(--glass-border-light);
+  border-radius: 2px;
+  cursor: pointer;
+}
+
+.option__slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  background: var(--brand-primary);
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.option__slider::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  background: var(--brand-primary);
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+}
+
+.option__select {
+  padding: 0.5rem;
+  border: 1px solid var(--glass-border-medium);
+  border-radius: var(--border-radius-sm);
+  background: rgba(0, 0, 0, 0.4);
+  color: var(--text-primary);
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+
+/* Convert Section */
+.convert__section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.convert__button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem 2rem;
+  background: var(--brand-primary);
+  color: var(--dark-bg-primary);
+  border: none;
+  border-radius: var(--border-radius-md);
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition-base);
+  min-width: 180px;
+  justify-content: center;
+}
+
+.convert__button:hover:not(:disabled) {
+  background: var(--brand-primary-dark);
+  transform: translateY(-1px);
+  box-shadow: var(--glass-shadow-medium);
+}
+
+.convert__button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.convert__button--loading {
+  pointer-events: none;
+}
+
+.button__icon,
+.button__spinner {
+  font-size: 1.125rem;
+}
+
+.button__spinner {
+  animation: spin 1s linear infinite;
+}
+
+/* Progress Bar */
+.progress {
+  width: 100%;
+  max-width: 300px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.progress__bar {
+  width: 100%;
+  height: 6px;
+  background: rgba(0, 0, 0, 0.4);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.progress__fill {
+  height: 100%;
+  background: var(--brand-primary);
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+
+.progress__text {
+  text-align: center;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+/* Animations */
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .options__grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .input__selector {
+    flex-direction: column;
+  }
+  
+  .upload__area {
+    padding: 1.5rem;
+  }
+  
+  .convert__button {
+    padding: 0.875rem 1.5rem;
+    min-width: 160px;
+  }
+} 

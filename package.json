@@ -1,6 +1,6 @@
 {
   "name": "idling.app",
-  "version": "0.458.0",
+  "version": "0.458.1",
   "private": true,
   "engines": {
     "node": ">=20.x"
@@ -38,7 +38,11 @@
     "e2e": "pnpm playwright test --ui",
     "gen:secret": "openssl rand -base64 32",
     "lint-staged": "lint-staged",
+    "validate": "pnpm lint && pnpm lint:css && pnpm lint:css:vars",
     "lint": "npx tsc --noemit --project tsconfig.json",
+    "lint:css": "stylelint \"src/**/*.{css,scss,module.css}\" --cache",
+    "lint:css:fix": "stylelint \"src/**/*.{css,scss,module.css}\" --fix --cache",
+    "lint:css:vars": "node scripts/validate-css-variables.js",
     "migrations": "tsx scripts/migrations.ts main",
     "migrate:og-table": "node scripts/run-migration.js",
     "test:og-tracking": "node scripts/test-og-tracking.js",
@@ -160,6 +164,10 @@
     "release-it": "^17.11.0",
     "sass-loader": "^16.0.5",
     "style-loader": "^4.0.0",
+    "stylelint": "^16.22.0",
+    "stylelint-config-css-modules": "^4.5.1",
+    "stylelint-config-standard": "^38.0.0",
+    "stylelint-declaration-strict-value": "^1.10.11",
     "ts-jest": "^29.4.0",
     "ts-node": "^10.9.2",
     "tsx": "^4.20.3",
@@ -189,6 +197,10 @@
     ],
     "*.{json,md,yml,yaml}": [
       "prettier --write"
+    ],
+    "*.{css,scss,module.css}": [
+      "stylelint --fix --cache",
+      "node scripts/validate-css-variables.js"
     ]
   }
 }

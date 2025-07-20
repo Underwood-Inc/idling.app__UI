@@ -18,6 +18,89 @@
   justify-content: flex-start;
 }
 
+/* Navigation Groups */
+.nav__group {
+  position: relative;
+  display: inline-block;
+}
+
+.nav__group:hover .nav__group-dropdown {
+  display: block;
+}
+
+.nav__group .nav__group-dropdown {
+  display: none;
+}
+
+.nav__group-trigger {
+  display: flex;
+  align-items: center;
+  padding: 0.375rem 0.625rem;
+  background: transparent;
+  border: none;
+  color: inherit;
+  cursor: pointer;
+  text-decoration: none;
+  font-size: inherit;
+  font-family: inherit;
+  transition: all 0.15s ease;
+  position: relative;
+  z-index: 10000;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+.nav__group-trigger:hover {
+  background: rgba(255, 159, 67, 0.15);
+  color: var(--brand-primary);
+  text-decoration: none;
+}
+
+.nav__group-trigger.active {
+  background: rgba(255, 159, 67, 0.2);
+  color: var(--brand-primary);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.nav__group-dropdown {
+  position: absolute;
+  top: calc(100% - 2px);
+  left: 0;
+  background: rgba(26, 22, 17, 0.95);
+  backdrop-filter: var(--glass-blur-heavy);
+  border: 1px solid var(--glass-border-medium);
+  border-radius: var(--border-radius-md);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  min-width: 160px;
+  z-index: 9999;
+  padding: 0.5rem 0;
+  margin-top: 0;
+}
+
+.nav__group-item {
+  display: flex;
+  align-items: center;
+  padding: 0.5rem 0.75rem;
+  color: var(--text-primary);
+  text-decoration: none;
+  transition: var(--transition-base);
+  font-size: 0.875rem;
+}
+
+.nav__group-item:hover {
+  background: var(--glass-bg-medium);
+  color: var(--brand-primary);
+}
+
+.nav__group-item.active {
+  color: var(--brand-primary);
+  background: var(--glass-bg-light);
+}
+
 /* Center column - Brand */
 .nav__brand {
   display: flex;
@@ -54,7 +137,7 @@
 }
 
 .active {
-  color: var(--brand-primary--dark);
+  color: var(--brand-primary);
   text-decoration: underline;
 }
 
@@ -67,9 +150,7 @@
 a .nav__header:hover,
 a:hover .nav__header {
   color: inherit; /* Keep the original text color */
-  text-decoration-color: var(
-    --brand-primary--dark
-  ); /* Only change underline color */
+  text-decoration-color: var(--brand-primary); /* Only change underline color */
 }
 
 /* Profile navigation styles */
@@ -159,6 +240,10 @@ a:hover .nav__header {
     height: 2.25rem;
     font-size: var(--font-size-sm);
   }
+
+  .nav__group-dropdown {
+    min-width: 140px;
+  }
 }
 
 @media (max-width: 480px) {
@@ -206,5 +291,14 @@ a:hover .nav__header {
 
   .nav__user-profile .header__user-name {
     font-size: 0.75rem;
+  }
+
+  .nav__group-dropdown {
+    position: static;
+    box-shadow: none;
+    border: none;
+    background: rgba(26, 22, 17, 0.9);
+    margin-top: 0;
+    width: 100%;
   }
 }

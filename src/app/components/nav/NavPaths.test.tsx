@@ -57,8 +57,15 @@ describe('NavPaths', () => {
     render(<NavPaths />);
 
     Object.entries(HEADER_NAV_PATHS).forEach(([key, path]) => {
+      // Handle external links that have aria-label from icon
+      const routeKey = key as keyof typeof HEADER_NAV_PATHS;
+      const expectedName =
+        routeKey === 'GALAXY'
+          ? `${NAV_PATH_LABELS[routeKey]} External link`
+          : NAV_PATH_LABELS[routeKey];
+
       const element = screen.getByRole('link', {
-        name: NAV_PATH_LABELS[key as keyof typeof NAV_PATH_LABELS]
+        name: expectedName
       });
       expect(element).toBeInTheDocument();
       expect(element).toHaveAttribute('href', path);

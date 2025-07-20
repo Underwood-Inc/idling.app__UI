@@ -109,10 +109,7 @@
   --dark-border--primary: #4a5568;
   --dark-border--secondary: #2d3748;
 
-  /* Text colors */
-  --text-primary: #1a202c;
-  --text-secondary: #718096;
-  --text-tertiary: #a0aec0;
+  /* Text colors removed - consolidated in variables.css */
 
   /* Updated anchor colors with better contrast */
   --anchor__light-bg--primary: #6b3e0f;
@@ -477,7 +474,8 @@ main {
   flex-direction: column;
   flex: 1;
   justify-content: flex-start;
-  min-height: calc(100vh - 4.5rem);
+  /* min-height: calc(100vh - 17rem); */
+  min-height: 100%;
 }
 
 article,
