@@ -5,6 +5,7 @@
  * with exponential backoff and error recovery.
  */
 
+import { logger } from '@lib/logging';
 import { noCacheFetch } from '@lib/utils/no-cache-fetch';
 
 export interface NotificationData {
@@ -180,7 +181,7 @@ export class PollingNotificationClient {
 
   private log(...args: any[]): void {
     if (this.options.debug) {
-      logger.debug('PollingClient', undefined, { args });
+      logger.debug('PollingClient', { args });
     }
   }
 }
