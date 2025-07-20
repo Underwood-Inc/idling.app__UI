@@ -44,6 +44,7 @@
   width: 100%;
   justify-content: center;
   padding: 1rem 1.5rem;
+  color: black;
   font-size: 1rem;
   font-weight: 500;
   border-radius: var(--border-radius, 6px);
