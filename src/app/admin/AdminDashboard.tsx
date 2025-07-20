@@ -1,6 +1,5 @@
 'use client';
 
-import { useClientAdminGuard } from '@lib/security/useClientAdminGuard';
 import { useRouter, useSearchParams } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 import './AdminDashboard.css';
@@ -107,9 +106,6 @@ export default function AdminDashboard() {
   const searchParams = useSearchParams();
   const [activeTab, setActiveTab] = useState<AdminTab>(DEFAULT_TAB);
 
-  // 🔐 SECURITY CRITICAL: Real-time admin permission validation
-  const { isLoading, isAuthorized, error } = useClientAdminGuard();
-
   // Sync with URL parameters on mount and when URL changes
   useEffect(() => {
     const tabFromUrl = searchParams.get('tab') as AdminTab;
@@ -134,37 +130,6 @@ export default function AdminDashboard() {
     const Component = currentTab.component;
     return <Component />;
   };
-
-  // If security check is loading, show loading state
-  if (isLoading) {
-    return (
-      <div className="admin-dashboard">
-        <div className="admin-security-loading">
-          <div className="loading-spinner"></div>
-          <h2>🔐 Validating Admin Permissions</h2>
-          <p>Please wait while we verify your access...</p>
-        </div>
-      </div>
-    );
-  }
-
-  // If not authorized, show error (should redirect automatically)
-  if (!isAuthorized || error) {
-    return (
-      <div className="admin-dashboard">
-        <div className="admin-security-error">
-          <h2>🚫 Access Denied</h2>
-          <p>{error || 'You do not have admin permissions'}</p>
-          <button
-            onClick={() => (window.location.href = '/')}
-            className="btn btn-primary"
-          >
-            Return Home
-          </button>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="admin-dashboard">
