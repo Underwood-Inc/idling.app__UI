@@ -13,6 +13,7 @@
  * @author System Wizard 🧙‍♂️
  */
 
+import { noCacheFetch } from '@lib/utils/no-cache-fetch';
 import React, {
   useCallback,
   useEffect,
@@ -158,9 +159,7 @@ export default function CustomAlertsPanel() {
     try {
       setError(null);
 
-      const response = await fetch('/api/admin/alerts', {
-        credentials: 'include'
-      });
+      const response = await noCacheFetch('/api/admin/alerts');
 
       if (!response.ok) {
         const errorText = await response.text();
@@ -365,7 +364,7 @@ export default function CustomAlertsPanel() {
 
       forceLog('🧙‍♂️ Submitting alert:', { url, method, payload });
 
-      const response = await fetch(url, {
+      const response = await noCacheFetch(url, {
         method,
         headers: {
           'Content-Type': 'application/json'
@@ -432,7 +431,7 @@ export default function CustomAlertsPanel() {
     }
 
     try {
-      const response = await fetch(`/api/admin/alerts/${alertId}`, {
+      const response = await noCacheFetch(`/api/admin/alerts/${alertId}`, {
         method: 'DELETE',
         credentials: 'include'
       });
@@ -457,7 +456,7 @@ export default function CustomAlertsPanel() {
     field: 'is_active' | 'is_published'
   ) => {
     try {
-      const response = await fetch(`/api/admin/alerts/${alert.id}`, {
+      const response = await noCacheFetch(`/api/admin/alerts/${alert.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json'

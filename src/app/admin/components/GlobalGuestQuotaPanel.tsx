@@ -8,7 +8,9 @@
  * @author System
  */
 
-import { useCallback, useEffect, useState } from 'react';
+import { noCacheFetch } from '@lib/utils/no-cache-fetch';
+import React, { useCallback, useEffect, useState } from 'react';
+import './GlobalGuestQuotaPanel.css';
 
 // ================================
 // TYPES & INTERFACES
@@ -86,7 +88,7 @@ export default function GlobalGuestQuotaPanel(): React.JSX.Element {
       setLoading(true);
       setError(null);
 
-      const response = await fetch('/api/admin/quotas/global', {
+      const response = await noCacheFetch('/api/admin/quotas/global', {
         method: 'GET',
         credentials: 'include',
         headers: {
@@ -123,7 +125,7 @@ export default function GlobalGuestQuotaPanel(): React.JSX.Element {
 
   const handleCreateQuota = async (): Promise<void> => {
     try {
-      const response = await fetch('/api/admin/quotas/global', {
+      const response = await noCacheFetch('/api/admin/quotas/global', {
         method: 'POST',
         credentials: 'include',
         headers: {
@@ -163,14 +165,17 @@ export default function GlobalGuestQuotaPanel(): React.JSX.Element {
         is_active: editingQuota.is_active
       };
 
-      const response = await fetch(`/api/admin/quotas/global/${quotaId}`, {
-        method: 'PUT',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(updateData)
-      });
+      const response = await noCacheFetch(
+        `/api/admin/quotas/global/${quotaId}`,
+        {
+          method: 'PUT',
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(updateData)
+        }
+      );
 
       const result: ApiResponse<{ quota: GlobalGuestQuota }> =
         await response.json();
@@ -198,10 +203,13 @@ export default function GlobalGuestQuotaPanel(): React.JSX.Element {
     }
 
     try {
-      const response = await fetch(`/api/admin/quotas/global/${quotaId}`, {
-        method: 'DELETE',
-        credentials: 'include'
-      });
+      const response = await noCacheFetch(
+        `/api/admin/quotas/global/${quotaId}`,
+        {
+          method: 'DELETE',
+          credentials: 'include'
+        }
+      );
 
       const result: ApiResponse<{ deleted: boolean }> = await response.json();
 

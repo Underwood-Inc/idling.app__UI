@@ -16,6 +16,7 @@
  * @version 1.0.0
  */
 
+import { noCacheFetch } from '@lib/utils/no-cache-fetch';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import './PermissionManagementPanel.css';
 
@@ -138,7 +139,7 @@ export default function PermissionManagementPanel() {
         limit: pageSize.toString()
       });
 
-      const response = await fetch(`/api/admin/permissions?${params}`);
+      const response = await noCacheFetch(`/api/admin/permissions?${params}`);
       if (!response.ok) throw new Error('Failed to fetch permissions');
 
       const data = await response.json();
@@ -181,7 +182,9 @@ export default function PermissionManagementPanel() {
         limit: pageSize.toString()
       });
 
-      const response = await fetch(`/api/admin/permissions/roles?${params}`);
+      const response = await noCacheFetch(
+        `/api/admin/permissions/roles?${params}`
+      );
       if (!response.ok) throw new Error('Failed to fetch roles');
 
       const data = await response.json();
@@ -294,7 +297,7 @@ export default function PermissionManagementPanel() {
           ? `/api/admin/permissions/${item.id}`
           : `/api/admin/permissions/roles/${item.id}`;
 
-      const response = await fetch(endpoint, {
+      const response = await noCacheFetch(endpoint, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
