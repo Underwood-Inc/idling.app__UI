@@ -50,15 +50,27 @@ export class ServerLogger extends Logger {
     error?: Error | ErrorLike,
     data?: StructuredData
   ): void {
+    // Edge Runtime compatible server context
+    let serverContext = {};
+    try {
+      // Only include Node.js APIs if available (not in Edge Runtime)
+      if (typeof process !== 'undefined' && process.version) {
+        serverContext = {
+          nodeVersion: process.version,
+          platform: process.platform,
+          arch: process.arch,
+          uptime: process.uptime(),
+          memoryUsage: process.memoryUsage()
+        };
+      }
+    } catch {
+      // Ignore errors in Edge Runtime
+      serverContext = { runtime: 'edge' };
+    }
+
     const enhancedData = {
       ...data,
-      serverContext: {
-        nodeVersion: process.version,
-        platform: process.platform,
-        arch: process.arch,
-        uptime: process.uptime(),
-        memoryUsage: process.memoryUsage()
-      }
+      serverContext
     };
 
     super.error(message, error, enhancedData);
