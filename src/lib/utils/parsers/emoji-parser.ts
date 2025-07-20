@@ -1,7 +1,30 @@
 /**
- * Zero-dependency Emoji Parser with Custom Emoji Support
- * Scalable and secure solution for parsing standard and custom emojis
+ * Emoji Parser
+ *
+ * Comprehensive emoji parsing and replacement utility that:
+ * 1. Detects custom emoji codes (e.g., :smile:, :heart:)
+ * 2. Fetches emoji data from the API
+ * 3. Replaces codes with actual emoji characters or fallbacks
+ * 4. Handles both Unicode and custom emojis
+ * 5. Provides caching for performance
+ * 6. Gracefully handles errors and missing emojis
+ *
+ * Usage:
+ * - Call parseEmojis(text) to replace all emoji codes in a string
+ * - The parser automatically fetches emoji data when needed
+ * - Results are cached for subsequent calls
+ *
+ * Examples:
+ * - "Hello :smile: world!" → "Hello 😊 world!"
+ * - ":heart: you!" → "❤️ you!"
+ * - ":custom_emoji:" → "🎨" (or fallback if not found)
  */
+
+import { noCacheFetch } from '@lib/utils/no-cache-fetch';
+
+// ================================
+// TYPES AND INTERFACES
+// ================================
 
 import { createLogger } from '@lib/logging';
 
@@ -757,7 +780,7 @@ export class EmojiParser {
         ...(options.category && { category: options.category })
       });
 
-      const response = await fetch(`/api/emojis?${params}`);
+      const response = await noCacheFetch(`/api/emojis?${params}`);
       if (!response.ok) {
         throw new Error('Failed to load emojis from API');
       }

@@ -1,3 +1,4 @@
+import { noCacheFetch } from '@lib/utils/no-cache-fetch';
 import { useSession } from 'next-auth/react';
 import { useCallback, useEffect, useState } from 'react';
 
@@ -22,10 +23,11 @@ export interface SubscriptionStatus {
 
 export function useSubscriptionStatus() {
   const { data: session, status } = useSession();
-  const [subscriptionStatus, setSubscriptionStatus] = useState<SubscriptionStatus>({
-    hasActiveSubscription: false,
-    isPro: false
-  });
+  const [subscriptionStatus, setSubscriptionStatus] =
+    useState<SubscriptionStatus>({
+      hasActiveSubscription: false,
+      isPro: false
+    });
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -36,16 +38,9 @@ export function useSubscriptionStatus() {
 
       // Don't cache subscription status - always get fresh data
       const cacheBuster = `${Date.now()}-${Math.random().toString(36).substring(2)}`;
-      const response = await fetch(`/api/subscription/status?_t=${cacheBuster}`, {
-        method: 'GET',
-        credentials: 'include',
-        headers: {
-          'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0',
-          'Pragma': 'no-cache',
-          'Expires': '0',
-          'X-Cache-Bust': cacheBuster
-        }
-      });
+      const response = await noCacheFetch(
+        `/api/subscription/status?_t=${cacheBuster}`
+      );
 
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
@@ -55,8 +50,12 @@ export function useSubscriptionStatus() {
       setSubscriptionStatus(data);
     } catch (error) {
       console.error('Error fetching subscription status:', error);
-      setError(error instanceof Error ? error.message : 'Failed to fetch subscription status');
-      
+      setError(
+        error instanceof Error
+          ? error.message
+          : 'Failed to fetch subscription status'
+      );
+
       // Set safe defaults on error
       setSubscriptionStatus({
         hasActiveSubscription: false,
@@ -70,7 +69,7 @@ export function useSubscriptionStatus() {
   // Fetch subscription status when session is ready
   useEffect(() => {
     if (status === 'loading') return;
-    
+
     // Only fetch if user is authenticated - unauthenticated users don't have subscriptions
     if (status === 'authenticated' && session?.user?.id) {
       fetchSubscriptionStatus();
@@ -86,7 +85,11 @@ export function useSubscriptionStatus() {
 
   // Refresh subscription status when session changes
   useEffect(() => {
-    if (status !== 'loading' && status === 'authenticated' && session?.user?.id) {
+    if (
+      status !== 'loading' &&
+      status === 'authenticated' &&
+      session?.user?.id
+    ) {
       fetchSubscriptionStatus();
     }
   }, [session?.user?.id, status, fetchSubscriptionStatus]);
@@ -97,4 +100,4 @@ export function useSubscriptionStatus() {
     error,
     refetch: fetchSubscriptionStatus
   };
-} 
+}
