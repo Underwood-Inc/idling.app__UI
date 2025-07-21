@@ -2,4 +2,4 @@
 [![Documentation Coverage](https://img.shields.io/badge/Documentation%20Coverage-3.1%25-red?style=flat&logo=gitbook&logoColor=white)](./documentation-coverage-report.html)
 
 **Coverage:** 3.1% (18/573 files)  
-**Last Updated:** 2025-07-20 11:29:40 UTC
+**Last Updated:** 2025-07-21 11:31:43 UTC
