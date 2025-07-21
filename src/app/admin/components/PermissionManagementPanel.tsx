@@ -220,7 +220,9 @@ export default function PermissionManagementPanel() {
 
   // Reset pagination when filters change
   useEffect(() => {
-    setCurrentPage(1);
+    if (currentPage !== 1) {
+      setCurrentPage(1);
+    }
   }, [
     searchQuery,
     statusFilter,
@@ -228,7 +230,8 @@ export default function PermissionManagementPanel() {
     riskFilter,
     sortBy,
     sortOrder,
-    viewMode
+    viewMode,
+    currentPage
   ]);
 
   // ================================
@@ -238,6 +241,28 @@ export default function PermissionManagementPanel() {
   const categories = useMemo(() => {
     const cats = new Set(permissions.map((p) => p.category));
     return Array.from(cats).sort();
+  }, [permissions]);
+
+  const categoriesWithCounts = useMemo(() => {
+    const categoryMap = new Map<string, number>();
+    permissions.forEach((p) => {
+      categoryMap.set(p.category, (categoryMap.get(p.category) || 0) + 1);
+    });
+    return Array.from(categoryMap.entries()).map(([name, count]) => ({
+      name,
+      count
+    }));
+  }, [permissions]);
+
+  const riskLevelsWithCounts = useMemo(() => {
+    const riskMap = new Map<string, number>();
+    permissions.forEach((p) => {
+      riskMap.set(p.risk_level, (riskMap.get(p.risk_level) || 0) + 1);
+    });
+    return Array.from(riskMap.entries()).map(([level, count]) => ({
+      level,
+      count
+    }));
   }, [permissions]);
 
   const totalPages = Math.ceil(totalItems / pageSize);
@@ -406,9 +431,9 @@ export default function PermissionManagementPanel() {
             <div className="stat-icon">🗂️</div>
             <div className="stat-content">
               <h3>Categories</h3>
-              <div className="stat-number">{overview.categories.length}</div>
+              <div className="stat-number">{categoriesWithCounts.length}</div>
               <div className="stat-breakdown">
-                {overview.categories.map((cat) => (
+                {categoriesWithCounts.map((cat) => (
                   <span key={cat.name} className="stat-item">
                     {cat.name}: {cat.count}
                   </span>
@@ -421,9 +446,9 @@ export default function PermissionManagementPanel() {
             <div className="stat-icon">⚠️</div>
             <div className="stat-content">
               <h3>Risk Levels</h3>
-              <div className="stat-number">{overview.risk_levels.length}</div>
+              <div className="stat-number">{riskLevelsWithCounts.length}</div>
               <div className="stat-breakdown">
-                {overview.risk_levels.map((risk) => (
+                {riskLevelsWithCounts.map((risk) => (
                   <span key={risk.level} className="stat-item">
                     {risk.level}: {risk.count}
                   </span>
