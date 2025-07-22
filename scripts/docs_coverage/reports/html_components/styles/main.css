@@ -212,6 +212,7 @@ body {
 
 /* Header */
 .header {
+  min-height: 8rem;
   background: linear-gradient(
     135deg,
     var(--brand-primary) 0%,
