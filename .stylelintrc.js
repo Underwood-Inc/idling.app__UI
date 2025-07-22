@@ -65,5 +65,20 @@ module.exports = {
     '**/*.js',
     '**/*.ts',
     '**/*.tsx'
+  ],
+
+  // Override rules for specific files
+  overrides: [
+    {
+      files: ['**/variables.css', '**/variables.scss'],
+      rules: {
+        'color-no-hex': null,
+        'custom-property-pattern': null,
+        'alpha-value-notation': null,
+        'color-function-notation': null,
+        'color-function-alias-notation': null,
+        'value-keyword-case': null
+      }
+    }
   ]
 }; 
