@@ -57,17 +57,6 @@
   position: relative;
 }
 
-.posts-manager__filter-toggle--has-filters:not(.posts-manager__filter-toggle--active)::after {
-  position: absolute;
-  top: 4px;
-  right: 4px;
-  width: 8px;
-  height: 8px;
-  background-color: var(--brand-secondary);
-  border: 2px solid var(--light-background--secondary);
-  border-radius: 50%;
-}
-
 .posts-manager__filter-count {
   display: inline-flex;
   align-items: center;
