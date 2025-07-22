@@ -474,7 +474,7 @@ main {
   flex-direction: column;
   flex: 1;
   justify-content: flex-start;
-  min-height: calc(100vh - 181px);
+  min-height: calc(100vh - 8.8rem - 77px);
 }
 
 @media (max-width: 769px) {
