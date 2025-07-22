@@ -233,10 +233,16 @@ export function useSimpleUrlFilters(): UseSimpleUrlFiltersReturn {
         }
       });
 
-      // Keep existing page parameter if it exists
+      // Keep existing pagination parameters if they exist
       const currentPage = searchParams.get('page');
+      const currentPageSize = searchParams.get('pageSize');
+
       if (currentPage && currentPage !== '1') {
         params.set('page', currentPage);
+      }
+
+      if (currentPageSize && currentPageSize !== '10') {
+        params.set('pageSize', currentPageSize);
       }
 
       // Update URL using direct browser history

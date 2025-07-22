@@ -2,6 +2,7 @@
 
 import React, { memo } from 'react';
 import './DecorationRenderer.css';
+import { TextScramblerEffect } from './TextScramblerEffect';
 
 export type DecorationVariant =
   | 'enterprise-crown'
@@ -27,6 +28,45 @@ export interface DecorationRendererProps {
 }
 
 /**
+ * Extract text content from React children
+ * This handles both string children and nested React elements
+ */
+const extractTextFromChildren = (children: React.ReactNode): string => {
+  if (typeof children === 'string') {
+    return children;
+  }
+
+  if (typeof children === 'number') {
+    return children.toString();
+  }
+
+  if (React.isValidElement(children)) {
+    // If it's a React element, try to extract text from its children
+    if (children.props && children.props.children) {
+      return extractTextFromChildren(children.props.children);
+    }
+    // If no children, try to get text content from common props
+    if (typeof children.props?.children === 'string') {
+      return children.props.children;
+    }
+    // Fallback for span with text content
+    if (
+      children.type === 'span' &&
+      typeof children.props?.children === 'string'
+    ) {
+      return children.props.children;
+    }
+  }
+
+  if (Array.isArray(children)) {
+    return children.map((child) => extractTextFromChildren(child)).join('');
+  }
+
+  // Fallback for unknown content
+  return 'Loading...';
+};
+
+/**
  * Modern, agnostic decoration renderer component
  *
  * Renders different decoration effects around content in a flexible,
@@ -42,22 +82,26 @@ const DecorationRenderer = memo<DecorationRendererProps>(
     showError = false,
     'data-testid': testId
   }) => {
-    // No decoration or loading - render plain content
+    // No decoration or loading - render with scrambler effect if loading
     if (!decoration || isLoading) {
+      const textContent = extractTextFromChildren(children);
+
       return (
         <div
           className={`decoration-renderer ${className}`}
           data-testid={testId}
           data-loading={isLoading}
         >
-          {children}
-          {isLoading && (
-            <div
-              className="decoration-renderer__loading"
-              aria-label="Loading decoration"
-            >
-              <div className="decoration-renderer__spinner" />
-            </div>
+          {isLoading ? (
+            <TextScramblerEffect
+              originalText={textContent}
+              isActive={isLoading}
+              speed={60}
+              useSameCharacters={true}
+              respectWordBoundaries={true}
+            />
+          ) : (
+            children
           )}
         </div>
       );

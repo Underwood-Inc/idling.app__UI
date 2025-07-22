@@ -1,5 +1,6 @@
 import { useSession } from 'next-auth/react';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { SubmissionWithReplies } from '../../app/components/submissions-list/types';
 import { useSimpleSubmissions } from './submissions/useSimpleSubmissions';
 import { useSimpleUrlFilters } from './submissions/useSimpleUrlFilters';
@@ -55,19 +56,25 @@ export function useSubmissionsManager({
   infiniteScroll = false
 }: UseSubmissionsManagerProps): UseSubmissionsManagerReturn {
   const { data: session } = useSession();
-  const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const initializedRef = useRef(false);
   const initializationAttemptedRef = useRef(false);
+
+  // Read pagination from URL parameters
+  const currentPage = parseInt(searchParams.get('page') || '1');
+  const pageSize = parseInt(searchParams.get('pageSize') || '10');
 
   // Use the new URL-first filter system
   const { filters, addFilter, removeFilter, clearFilters } =
     useSimpleUrlFilters();
 
-  // Use the new simple submissions hook
+  // Use the new simple submissions hook with URL-based pagination
   const { submissions, isLoading, error, totalRecords, refresh } =
     useSimpleSubmissions({
       filters,
+      page: currentPage,
+      pageSize: pageSize,
       onlyMine,
       userId: session?.user?.id?.toString() || initialUserId,
       includeThreadReplies,
@@ -107,15 +114,29 @@ export function useSubmissionsManager({
     [currentPage, pageSize, totalRecords]
   );
 
-  // Handle pagination - memoized callbacks
-  const setPage = useCallback((page: number) => {
-    setCurrentPage(page);
-  }, []);
+  // Handle pagination - memoized callbacks that update URL
+  const setPage = useCallback(
+    (page: number) => {
+      const params = new URLSearchParams(searchParams.toString());
+      if (page === 1) {
+        params.delete('page');
+      } else {
+        params.set('page', page.toString());
+      }
+      router.push(`${window.location.pathname}?${params.toString()}`);
+    },
+    [router, searchParams]
+  );
 
-  const handleSetPageSize = useCallback((size: number) => {
-    setPageSize(size);
-    setCurrentPage(1);
-  }, []);
+  const handleSetPageSize = useCallback(
+    (size: number) => {
+      const params = new URLSearchParams(searchParams.toString());
+      params.set('pageSize', size.toString());
+      params.delete('page'); // Reset to page 1 when changing page size
+      router.push(`${window.location.pathname}?${params.toString()}`);
+    },
+    [router, searchParams]
+  );
 
   // Handle multiple filters - memoized
   const addFilters = useCallback(
@@ -146,8 +167,11 @@ export function useSubmissionsManager({
 
   // Infinite scroll handlers - memoized
   const loadMore = useCallback(() => {
-    setCurrentPage((prev) => prev + 1);
-  }, []);
+    const nextPage = currentPage + 1;
+    const params = new URLSearchParams(searchParams.toString());
+    params.set('page', nextPage.toString());
+    router.push(`${window.location.pathname}?${params.toString()}`);
+  }, [currentPage, router, searchParams]);
 
   const isLoadingMore = false;
   const hasMore = currentPage * pageSize < totalRecords;
