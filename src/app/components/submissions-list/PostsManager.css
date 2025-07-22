@@ -471,18 +471,6 @@
   position: relative;
 }
 
-.posts-manager__filter-toggle--has-filters:not(.posts-manager__filter-toggle--active)::after {
-  content: '';
-  position: absolute;
-  top: 4px;
-  right: 4px;
-  width: 8px;
-  height: 8px;
-  background-color: var(--brand-secondary);
-  border: 2px solid var(--light-background--secondary);
-  border-radius: 50%;
-}
-
 .posts-manager__filter-count {
   display: inline-flex;
   align-items: center;
@@ -963,11 +951,6 @@
   .posts-manager__filter-content {
     background-color: var(--dark-background--primary, #1f2937);
     border-color: var(--brand-primary--dark, #2563eb);
-  }
-
-  .posts-manager__filter-toggle--has-filters:not(.posts-manager__filter-toggle--active)::after {
-    background-color: var(--brand-secondary, #f59e0b);
-    border-color: var(--dark-background--secondary, #374151);
   }
 }
 

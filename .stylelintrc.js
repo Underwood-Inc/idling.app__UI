@@ -6,7 +6,7 @@ module.exports = {
   rules: {
     // Allow BEM naming convention for CSS classes
     'selector-class-pattern': [
-      '^[a-z][a-z0-9]*(__[a-z][a-z0-9]*)?(--[a-z][a-z0-9]*)?$',
+      '^[a-z][a-z0-9-]*(__[a-z][a-z0-9-]*)?(--[a-z][a-z0-9-]*)?$',
       {
         message: 'Expected class selector to be BEM-style (block__element--modifier)'
       }

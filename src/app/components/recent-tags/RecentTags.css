@@ -195,7 +195,7 @@
   );
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  color: var(--text-primary);
+  color: black;
   border: 1px solid rgba(255, 255, 255, 0.3);
   border-radius: 20px; /* Reduced from 25px */
   font-size: 0.85rem; /* Reduced from 0.9rem */
