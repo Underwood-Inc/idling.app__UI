@@ -1,0 +1,74 @@
+/* Text Scrambler Effect Styles */
+
+.text-scrambler-effect {
+  display: inline;
+  position: relative;
+}
+
+.text-scrambler-effect__text {
+  font-family: var(--font-mono);
+  font-weight: 500;
+  color: var(--brand-primary);
+  text-shadow: 0 0 4px rgb(237 174 73 / 30%);
+  letter-spacing: 0.05em;
+  animation: text-scrambler-pulse 1.5s ease-in-out infinite;
+  
+  /* Slight blur effect to enhance the digital feel */
+  filter: blur(0.5px);
+  
+  /* Prevent text selection during scrambling */
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
+
+.text-scrambler-effect__sr-only {
+  position: absolute;
+  left: -10000px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(1px, 1px, 1px, 1px);
+  white-space: nowrap;
+}
+
+/* Subtle pulsing animation to indicate activity */
+@keyframes text-scrambler-pulse {
+  0%, 100% {
+    opacity: 0.8;
+    text-shadow: 0 0 4px rgb(237 174 73 / 30%);
+  }
+  50% {
+    opacity: 1;
+    text-shadow: 0 0 8px rgb(237 174 73 / 50%);
+  }
+}
+
+/* Dark mode adjustments */
+@media (prefers-color-scheme: dark) {
+  .text-scrambler-effect__text {
+    color: var(--brand-primary);
+    text-shadow: 0 0 4px rgb(237 174 73 / 40%);
+  }
+  
+  @keyframes text-scrambler-pulse {
+    0%, 100% {
+      opacity: 0.9;
+      text-shadow: 0 0 4px rgb(237 174 73 / 40%);
+    }
+    50% {
+      opacity: 1;
+      text-shadow: 0 0 8px rgb(237 174 73 / 60%);
+    }
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .text-scrambler-effect__text {
+    animation: none;
+    filter: none;
+    text-shadow: 0 0 2px rgb(237 174 73 / 30%);
+  }
+} 

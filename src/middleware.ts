@@ -20,7 +20,9 @@ export default auth(async (req: NextRequest & { auth: any }) => {
     const publicApiRoutes = [
       '/api/health',
       '/api/status',
+      '/api/version', // Public app version info
       '/api/og-image',
+      '/api/user-subscriptions', // Public profile data for guest users
       '/api/test/', // Test and health check endpoints
       '/api/monitoring/',
       '/api/ping',

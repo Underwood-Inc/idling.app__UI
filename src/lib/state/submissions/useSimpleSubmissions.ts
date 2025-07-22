@@ -5,6 +5,8 @@ import { Filter } from './useSimpleUrlFilters';
 
 export interface UseSimpleSubmissionsProps {
   filters: Filter[];
+  page?: number;
+  pageSize?: number;
   onlyMine?: boolean;
   userId?: string;
   includeThreadReplies?: boolean;
@@ -21,10 +23,12 @@ export interface UseSimpleSubmissionsReturn {
 
 /**
  * Simple submissions data fetching using server actions
- * No complex state management, just fetch data based on filters
+ * No complex state management, just fetch data based on filters and pagination
  */
 export function useSimpleSubmissions({
   filters,
+  page = 1,
+  pageSize = 10,
   onlyMine = false,
   userId = '',
   includeThreadReplies = false,
@@ -39,25 +43,35 @@ export function useSimpleSubmissions({
   const isFetchingRef = useRef(false);
   const lastFetchKeyRef = useRef<string>('');
 
-  // Create a stable key for the fetch effect - use a more stable approach
+  // Create a stable key for the fetch effect - include pagination parameters
   const filtersKey = useMemo(() => {
     const sortedFilters = filters
       .map((f) => `${f.name}:${f.value}`)
       .sort()
       .join('|');
-    const key = `${sortedFilters}|${onlyMine}|${userId}|${includeThreadReplies}|${enabled}`;
+    const key = `${sortedFilters}|${page}|${pageSize}|${onlyMine}|${userId}|${includeThreadReplies}|${enabled}`;
 
     if (process.env.NODE_ENV === 'development') {
       // eslint-disable-next-line no-console
       console.log('🔍 useSimpleSubmissions - filtersKey updated:', {
         key: key.substring(0, 100) + (key.length > 100 ? '...' : ''),
         filtersCount: filters.length,
+        page,
+        pageSize,
         filters: filters.map((f) => ({ name: f.name, value: f.value }))
       });
     }
 
     return key;
-  }, [filters, onlyMine, userId, includeThreadReplies, enabled]);
+  }, [
+    filters,
+    page,
+    pageSize,
+    onlyMine,
+    userId,
+    includeThreadReplies,
+    enabled
+  ]);
 
   const fetchSubmissions = useCallback(
     async (force = false) => {
@@ -108,13 +122,13 @@ export function useSimpleSubmissions({
           });
         }
 
-        // Call server action directly
+        // Call server action directly with dynamic pagination
         const response = await getSubmissionsAction({
           onlyMine,
           userId,
           filters: apiFilters,
-          page: 1,
-          pageSize: 10,
+          page,
+          pageSize,
           includeThreadReplies
         });
 
@@ -151,7 +165,16 @@ export function useSimpleSubmissions({
         isFetchingRef.current = false;
       }
     },
-    [filters, onlyMine, userId, includeThreadReplies, enabled, filtersKey]
+    [
+      filters,
+      page,
+      pageSize,
+      onlyMine,
+      userId,
+      includeThreadReplies,
+      enabled,
+      filtersKey
+    ]
   );
 
   // Fetch data when filtersKey changes - use stable key

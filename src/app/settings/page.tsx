@@ -7,6 +7,7 @@ import {
 } from '@lib/context/UserPreferencesContext';
 import { useSession } from 'next-auth/react';
 import { useState } from 'react';
+import { SubscriptionFlairToggle } from '../components/subscription-badges/SubscriptionFlairToggle';
 import './settings.css';
 
 interface SettingsCategory {
@@ -925,156 +926,13 @@ export default function SettingsPage() {
                       )}
                     </div>
 
-                    {/* Flair Preference */}
-                    <div className="settings-card settings-card--wide">
-                      <div className="settings-card__header">
-                        <h3 className="settings-card__title">Username Flair</h3>
-                        <span className="settings-card__current">
-                          {(() => {
-                            switch (flairPreference) {
-                              case 'auto':
-                                return 'Auto';
-                              case 'none':
-                                return 'None';
-                              case 'enterprise-crown':
-                                return '👑 Enterprise Crown';
-                              case 'premium-galaxy':
-                                return '🌌 Premium Galaxy';
-                              case 'pro-plasma':
-                                return '⚡ Pro Plasma';
-                              case 'active-glow':
-                                return '✨ Active Glow';
-                              case 'trial-pulse':
-                                return '🔄 Trial Pulse';
-                              default:
-                                return (
-                                  (flairPreference as string)
-                                    .charAt(0)
-                                    .toUpperCase() +
-                                  (flairPreference as string)
-                                    .slice(1)
-                                    .replace('-', ' ')
-                                );
-                            }
-                          })()}
-                        </span>
-                      </div>
-                      <div className="settings-card__options settings-card__options--flair">
-                        <button
-                          className={`settings-option ${flairPreference === 'auto' ? 'settings-option--active' : ''}`}
-                          onClick={() => setFlairPreference('auto')}
-                          disabled={isUpdatingFlairPreference}
-                          aria-pressed={flairPreference === 'auto'}
-                        >
-                          <span className="settings-option__icon">✨</span>
-                          <div className="settings-option__content">
-                            <span className="settings-option__label">Auto</span>
-                            <span className="settings-option__desc">
-                              Show highest tier subscription flair
-                            </span>
-                          </div>
-                        </button>
-                        <button
-                          className={`settings-option ${flairPreference === 'enterprise-crown' ? 'settings-option--active' : ''}`}
-                          onClick={() => setFlairPreference('enterprise-crown')}
-                          disabled={isUpdatingFlairPreference}
-                          aria-pressed={flairPreference === 'enterprise-crown'}
-                        >
-                          <span className="settings-option__icon">👑</span>
-                          <div className="settings-option__content">
-                            <span className="settings-option__label">
-                              Enterprise Crown
-                            </span>
-                            <span className="settings-option__desc">
-                              Golden crown with royal glow effect
-                            </span>
-                          </div>
-                        </button>
-                        <button
-                          className={`settings-option ${flairPreference === 'premium-galaxy' ? 'settings-option--active' : ''}`}
-                          onClick={() => setFlairPreference('premium-galaxy')}
-                          disabled={isUpdatingFlairPreference}
-                          aria-pressed={flairPreference === 'premium-galaxy'}
-                        >
-                          <span className="settings-option__icon">🌌</span>
-                          <div className="settings-option__content">
-                            <span className="settings-option__label">
-                              Premium Galaxy
-                            </span>
-                            <span className="settings-option__desc">
-                              Cosmic shimmer with floating particles
-                            </span>
-                          </div>
-                        </button>
-                        <button
-                          className={`settings-option ${flairPreference === 'pro-plasma' ? 'settings-option--active' : ''}`}
-                          onClick={() => setFlairPreference('pro-plasma')}
-                          disabled={isUpdatingFlairPreference}
-                          aria-pressed={flairPreference === 'pro-plasma'}
-                        >
-                          <span className="settings-option__icon">⚡</span>
-                          <div className="settings-option__content">
-                            <span className="settings-option__label">
-                              Pro Plasma
-                            </span>
-                            <span className="settings-option__desc">
-                              Electric blue flowing energy effect
-                            </span>
-                          </div>
-                        </button>
-                        <button
-                          className={`settings-option ${flairPreference === 'active-glow' ? 'settings-option--active' : ''}`}
-                          onClick={() => setFlairPreference('active-glow')}
-                          disabled={isUpdatingFlairPreference}
-                          aria-pressed={flairPreference === 'active-glow'}
-                        >
-                          <span className="settings-option__icon">✨</span>
-                          <div className="settings-option__content">
-                            <span className="settings-option__label">
-                              Active Glow
-                            </span>
-                            <span className="settings-option__desc">
-                              Gentle green aura indicating activity
-                            </span>
-                          </div>
-                        </button>
-                        <button
-                          className={`settings-option ${flairPreference === 'trial-pulse' ? 'settings-option--active' : ''}`}
-                          onClick={() => setFlairPreference('trial-pulse')}
-                          disabled={isUpdatingFlairPreference}
-                          aria-pressed={flairPreference === 'trial-pulse'}
-                        >
-                          <span className="settings-option__icon">🔄</span>
-                          <div className="settings-option__content">
-                            <span className="settings-option__label">
-                              Trial Pulse
-                            </span>
-                            <span className="settings-option__desc">
-                              Amber pulse for trial subscriptions
-                            </span>
-                          </div>
-                        </button>
-                        <button
-                          className={`settings-option ${flairPreference === 'none' ? 'settings-option--active' : ''}`}
-                          onClick={() => setFlairPreference('none')}
-                          disabled={isUpdatingFlairPreference}
-                          aria-pressed={flairPreference === 'none'}
-                        >
-                          <span className="settings-option__icon">🚫</span>
-                          <div className="settings-option__content">
-                            <span className="settings-option__label">None</span>
-                            <span className="settings-option__desc">
-                              Hide all subscription flair
-                            </span>
-                          </div>
-                        </button>
-                      </div>
-                      {flairPreferenceError && (
-                        <div className="settings-card__error">
-                          {flairPreferenceError}
-                        </div>
-                      )}
-                    </div>
+                    {/* Username Flair - Use proper subscription-filtered component */}
+                    {session?.user?.id && (
+                      <SubscriptionFlairToggle
+                        userId={session.user.id}
+                        className="settings-card settings-card--wide"
+                      />
+                    )}
                   </div>
                 </div>
               )}
