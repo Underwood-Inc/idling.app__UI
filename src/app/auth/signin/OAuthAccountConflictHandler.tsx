@@ -2,6 +2,7 @@
 
 import { NAV_PATHS } from '@lib/routes';
 import { signOut } from 'next-auth/react';
+import { performSecureLogout } from 'src/lib/security/secure-logout';
 import { InstantLink } from '../../components/ui/InstantLink';
 
 interface OAuthAccountConflictHandlerProps {
@@ -17,7 +18,9 @@ export function OAuthAccountConflictHandler({
 
   const handleSignOutAndSignIn = async () => {
     try {
-      // Sign out current user and redirect to sign in
+      // Clear all caches/storage before sign out redirect
+      await performSecureLogout({ level: 'comprehensive' });
+
       await signOut({
         callbackUrl: NAV_PATHS.SIGNIN,
         redirect: true

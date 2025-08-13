@@ -7,7 +7,9 @@ import { SessionProvider } from 'next-auth/react';
 import React from 'react';
 import Footer from './components/footer/Footer';
 import Header from './components/header/Header';
+import PWAInstallPrompt from './components/pwa-install/PWAInstallPrompt';
 import RetroSpaceBackground from './components/retro-space-background/RetroSpaceBackground';
+import { ServiceWorkerRegistration } from './components/service-worker/ServiceWorkerRegistration';
 import { OverlayRendererWrapper } from './components/ui/ClientWrappers';
 import { NavigationLoadingBar } from './components/ui/NavigationLoadingBar';
 import './globals.css';
@@ -57,6 +59,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
+      <head>
+        <link rel="manifest" href="/manifest.json" />
+        <meta name="theme-color" content="#ff6b35" />
+      </head>
       <body>
         <SessionProvider>
           <UserPreferencesProvider>
@@ -69,6 +75,8 @@ export default function RootLayout({
                   <main>{children}</main>
                   <Footer />
                   <OverlayRendererWrapper />
+                  <ServiceWorkerRegistration />
+                  <PWAInstallPrompt />
                 </GlobalLoadingProvider>
               </NavigationLoadingProvider>
             </OverlayProvider>

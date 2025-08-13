@@ -146,9 +146,16 @@ export function SessionRefreshHandler() {
           if (dataAge < maxDataAge) {
             // Use fresh session data from atom
             if (!isValid || !timeoutInfo?.userValidated) {
-              console.log(
-                '🔒 Session data indicates invalid session, signing out...'
-              );
+              console.log('🔒 Session invalid, performing secure logout...');
+              try {
+                const { performSecureLogout } = await import(
+                  'src/lib/security/secure-logout'
+                );
+                await performSecureLogout({ level: 'comprehensive' });
+              } catch (error) {
+                // Log the error for debugging, but continue with sign out
+                console.error('Error during secure logout:', error);
+              }
               await signOut({
                 redirect: true,
                 callbackUrl: '/auth/signin?reason=session_invalid'
@@ -158,7 +165,16 @@ export function SessionRefreshHandler() {
 
             // Check if user is timed out
             if (timeoutInfo?.is_timed_out) {
-              console.log('🔒 User is timed out, signing out...');
+              console.log('🔒 User timed out, performing secure logout...');
+              try {
+                const { performSecureLogout } = await import(
+                  'src/lib/security/secure-logout'
+                );
+                await performSecureLogout({ level: 'comprehensive' });
+              } catch (error) {
+                // Log the error for debugging, but continue with sign out
+                console.error('Error during secure logout:', error);
+              }
               await signOut({
                 redirect: true,
                 callbackUrl: '/auth/signin?reason=user_timed_out'
@@ -168,7 +184,16 @@ export function SessionRefreshHandler() {
 
             // Check if user is inactive
             if (timeoutInfo?.userInfo && !timeoutInfo.userInfo.is_active) {
-              console.log('🔒 User account is inactive, signing out...');
+              console.log('🔒 User inactive, performing secure logout...');
+              try {
+                const { performSecureLogout } = await import(
+                  'src/lib/security/secure-logout'
+                );
+                await performSecureLogout({ level: 'comprehensive' });
+              } catch (error) {
+                // Log the error for debugging, but continue with sign out
+                console.error('Error during secure logout:', error);
+              }
               await signOut({
                 redirect: true,
                 callbackUrl: '/auth/signin?reason=user_inactive'

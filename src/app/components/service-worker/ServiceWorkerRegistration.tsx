@@ -16,6 +16,12 @@ const logger = createLogger({
 export function ServiceWorkerRegistration() {
   useEffect(() => {
     if ('serviceWorker' in navigator) {
+      // Skip service worker registration in development to avoid chunk loading issues
+      const isDev = process.env.NODE_ENV !== 'production';
+      if (isDev) {
+        logger.debug('Skipping service worker registration in development');
+        return;
+      }
       const registerServiceWorker = async () => {
         try {
           logger.group('serviceWorkerRegistration');

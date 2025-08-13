@@ -59,7 +59,7 @@ export function ClientSignOut({
 
       // Perform secure logout with comprehensive cache clearing
       await secureLogout({
-        level: 'comprehensive' // Clear all caches and storage
+        level: 'comprehensive'
       });
 
       // eslint-disable-next-line no-console -- Security audit logging

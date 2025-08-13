@@ -1,5 +1,6 @@
 'use client';
 
+import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Username } from '../username';
@@ -29,40 +30,86 @@ export function UserSearch({
   const [isLoading, setIsLoading] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(-1);
+  const [authError, setAuthError] = useState<string | null>(null);
 
+  const { status } = useSession();
   const searchRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
 
   // Debounced search function
-  const searchUsers = useCallback(async (searchQuery: string) => {
-    if (!searchQuery.trim() || searchQuery.length < 2) {
-      setResults([]);
-      setIsOpen(false);
-      return;
-    }
+  const searchUsers = useCallback(
+    async (searchQuery: string) => {
+      if (!searchQuery.trim() || searchQuery.length < 2) {
+        setResults([]);
+        setIsOpen(false);
+        setAuthError(null);
+        return;
+      }
 
-    setIsLoading(true);
-    try {
-      const response = await fetch(
-        `/api/users/search?q=${encodeURIComponent(searchQuery)}&limit=8`
-      );
-      if (response.ok) {
+      // Check if user is authenticated
+      if (status === 'unauthenticated') {
+        setAuthError('🔒 Please login to search for users');
+        setResults([]);
+        setIsOpen(true);
+        return;
+      }
+
+      if (status === 'loading') {
+        // Still checking auth status, wait
+        return;
+      }
+
+      setIsLoading(true);
+      setAuthError(null);
+      try {
+        const response = await fetch(
+          `/api/users/search?q=${encodeURIComponent(searchQuery)}&limit=8`
+        );
+
+        if (!response.ok) {
+          if (response.status === 401 || response.status === 403) {
+            setAuthError('🔒 Please login to search for users');
+          } else {
+            setAuthError(`Search failed (${response.status})`);
+          }
+          setResults([]);
+          setIsOpen(true);
+          return;
+        }
+
         const data = await response.json();
         setResults(data.users || []);
         setIsOpen(true);
-      } else {
+      } catch (error) {
+        console.error('Search error:', error);
+        setAuthError('Network error occurred while searching');
         setResults([]);
-        setIsOpen(false);
+        setIsOpen(true);
+      } finally {
+        setIsLoading(false);
       }
-    } catch (error) {
-      console.error('Search error:', error);
+    },
+    [status]
+  );
+
+  // Handle user selection
+  const handleUserSelect = useCallback(
+    (user: UserSearchResult) => {
+      setQuery('');
       setResults([]);
       setIsOpen(false);
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
+      setSelectedIndex(-1);
+
+      if (onUserSelect) {
+        onUserSelect(user);
+      } else {
+        // Navigate to user profile
+        router.push(`/profile/${user.id}`);
+      }
+    },
+    [onUserSelect, router]
+  );
 
   // Debounce search requests
   useEffect(() => {
@@ -102,25 +149,7 @@ export function UserSearch({
           break;
       }
     },
-    [isOpen, results, selectedIndex]
-  );
-
-  // Handle user selection
-  const handleUserSelect = useCallback(
-    (user: UserSearchResult) => {
-      setQuery('');
-      setResults([]);
-      setIsOpen(false);
-      setSelectedIndex(-1);
-
-      if (onUserSelect) {
-        onUserSelect(user);
-      } else {
-        // Navigate to user profile
-        router.push(`/profile/${user.id}`);
-      }
-    },
-    [onUserSelect, router]
+    [isOpen, results, selectedIndex, handleUserSelect]
   );
 
   // Close dropdown when clicking outside
@@ -201,16 +230,37 @@ export function UserSearch({
         </div>
       )}
 
-      {isOpen && query.length >= 2 && !isLoading && results.length === 0 && (
+      {isOpen && query.length >= 2 && !isLoading && authError && (
         <div className="user-search__dropdown">
-          <div className="user-search__no-results">
-            <span className="user-search__no-results-icon">🤷‍♂️</span>
-            <span className="user-search__no-results-text">
-              No users found for &quot;{query}&quot;
-            </span>
+          <div className="user-search__auth-error">
+            <span className="user-search__auth-error-icon">🔒</span>
+            <span className="user-search__auth-error-text">{authError}</span>
+            {status === 'unauthenticated' && (
+              <button
+                className="user-search__login-button"
+                onClick={() => router.push('/auth/signin')}
+              >
+                Sign In
+              </button>
+            )}
           </div>
         </div>
       )}
+
+      {isOpen &&
+        query.length >= 2 &&
+        !isLoading &&
+        !authError &&
+        results.length === 0 && (
+          <div className="user-search__dropdown">
+            <div className="user-search__no-results">
+              <span className="user-search__no-results-icon">🤷‍♂️</span>
+              <span className="user-search__no-results-text">
+                No users found for &quot;{query}&quot;
+              </span>
+            </div>
+          </div>
+        )}
     </div>
   );
 }
