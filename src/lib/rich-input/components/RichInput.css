@@ -59,9 +59,10 @@
 }
 
 .rich-input-mention {
-  background-color: #f3e5f5;
-  color: #7b1fa2;
-  border: 1px solid #e1bee7;
+  background-color: #e8f4f8;
+  color: #1a5490;
+  border: 1px solid #b3d9e8;
+  font-weight: 500;
 }
 
 .rich-input-url {
@@ -77,8 +78,9 @@
 }
 
 .rich-input-mention:hover {
-  background-color: #e1bee7;
-  border-color: #ce93d8;
+  background-color: #d4edda;
+  border-color: #9cc9de;
+  color: #155172;
 }
 
 .rich-input-url:hover {
@@ -96,9 +98,11 @@
 
 .rich-input-mention:focus,
 .rich-input-mention.selected {
-  background-color: #ce93d8;
-  border-color: #ba68c8;
+  background-color: #c2dff0;
+  border-color: #7bb3d9;
+  color: #0d3d5c;
   outline: none;
+  box-shadow: 0 0 0 2px rgba(123, 179, 217, 0.3);
 }
 
 .rich-input-url:focus,
