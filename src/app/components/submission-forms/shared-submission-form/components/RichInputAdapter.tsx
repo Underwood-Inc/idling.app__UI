@@ -102,6 +102,30 @@ export const RichInputAdapter = forwardRef<any, RichInputAdapterProps>(
       enableEmojis
     });
 
+    // Enhanced search result selection with cursor positioning
+    const handleSearchResultSelectWithCursor = useCallback(
+      (item: any) => {
+        const setCursorPosition = (position: number) => {
+          if (richInputRef.current?.setCursorPosition) {
+            richInputRef.current.setCursorPosition(position);
+          }
+        };
+
+        // Ensure search overlay is hidden
+        setSearchOverlayInteracting(false);
+
+        handleSearchResultSelect(item, setCursorPosition);
+
+        // Force focus back to the input after selection
+        setTimeout(() => {
+          if (richInputRef.current?.focus) {
+            richInputRef.current.focus();
+          }
+        }, 10);
+      },
+      [handleSearchResultSelect]
+    );
+
     // Handle URL auto-conversion
     const { handleValueChangeWithURLDetection } = useUrlAutoConversion({
       value,
@@ -207,7 +231,7 @@ export const RichInputAdapter = forwardRef<any, RichInputAdapterProps>(
                 e.preventDefault();
                 e.stopPropagation();
                 if (!item.disabled) {
-                  handleSearchResultSelect(item);
+                  handleSearchResultSelectWithCursor(item);
                 }
               }}
               disabled={item.disabled}
@@ -280,7 +304,7 @@ export const RichInputAdapter = forwardRef<any, RichInputAdapterProps>(
       searchOverlay,
       searchResults,
       isSearchLoading,
-      handleSearchResultSelect,
+      handleSearchResultSelectWithCursor,
       hideSearchOverlay,
       handleSearchOverlayInteractionStart,
       handleSearchOverlayInteractionEnd

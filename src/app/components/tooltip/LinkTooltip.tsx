@@ -1,5 +1,6 @@
 'use client';
 
+import { useSession } from 'next-auth/react';
 import React, { useCallback, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { useTooltipCache } from '../../hooks/useTooltipCache';
@@ -32,7 +33,9 @@ export const LinkTooltip: React.FC<LinkTooltipProps> = ({
   const tooltipRef = useRef<HTMLDivElement>(null);
   const tooltipContentRef = useRef<HTMLDivElement>(null);
   const modalContentRef = useRef<HTMLDivElement>(null);
+  const lastSessionIdRef = useRef<string | null>(null);
 
+  const { data: session } = useSession();
   const state = useTooltipState();
   const cache = useTooltipCache(url, cacheDuration);
   const { position, updatePosition } = useTooltipPosition(
@@ -60,13 +63,26 @@ export const LinkTooltip: React.FC<LinkTooltipProps> = ({
       const response = await fetch(
         `/api/link-preview?url=${encodeURIComponent(url)}`
       );
-      if (!response.ok) throw new Error('Failed to fetch preview');
+
+      if (!response.ok) {
+        // Handle auth failures differently from other errors
+        if (response.status === 401 || response.status === 403) {
+          state.setError('🔒 Login required to view this preview');
+        } else if (response.status === 404) {
+          state.setError('Preview not found for this URL');
+        } else {
+          state.setError(`Failed to fetch preview (${response.status})`);
+        }
+        return;
+      }
+
       const data = await response.json();
       state.setTooltipData(data);
       cache.setCachedData(url, data);
       cache.setIsCached(false);
       cache.setLastUpdated(new Date());
     } catch (err) {
+      // Network or parsing errors
       state.setError(
         err instanceof Error ? err.message : 'Failed to load preview'
       );
@@ -82,11 +98,24 @@ export const LinkTooltip: React.FC<LinkTooltipProps> = ({
       const response = await fetch(
         `/api/link-preview?url=${encodeURIComponent(url)}`
       );
-      if (!response.ok) throw new Error('Failed to fetch preview');
+
+      if (!response.ok) {
+        // Handle auth failures differently from other errors
+        if (response.status === 401 || response.status === 403) {
+          state.setError('🔒 Login required to view this preview');
+        } else if (response.status === 404) {
+          state.setError('Preview not found for this URL');
+        } else {
+          state.setError(`Failed to fetch preview (${response.status})`);
+        }
+        return;
+      }
+
       const data = await response.json();
       state.setTooltipData(data);
       cache.setCachedData(url, data);
     } catch (err) {
+      // Network or parsing errors
       state.setError(
         err instanceof Error ? err.message : 'Failed to load preview'
       );
@@ -115,6 +144,21 @@ export const LinkTooltip: React.FC<LinkTooltipProps> = ({
   useEffect(() => {
     state.setMounted(true);
   }, [state]);
+
+  // Clear cache when user logs out or session changes
+  useEffect(() => {
+    const currentSessionId = session?.user?.id || null;
+
+    // If we had a session before and now we don't (logout)
+    // or if the session ID changed (different user)
+    if (lastSessionIdRef.current !== currentSessionId) {
+      if (lastSessionIdRef.current !== null) {
+        // Clear cache on logout/user change
+        cache.clearAllCache();
+      }
+      lastSessionIdRef.current = currentSessionId;
+    }
+  }, [session?.user?.id, cache]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {

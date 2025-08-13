@@ -249,7 +249,14 @@ export const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
   const HashtagContent: React.FC<{ closeTooltip?: () => void }> = ({
     closeTooltip
   }) => (
-    <div className="toolbar-tooltip-panel">
+    <div
+      className="toolbar-tooltip-panel"
+      onMouseDown={(e) => {
+        e.stopPropagation();
+        onToolbarInteractionStart?.();
+      }}
+      onMouseUp={() => onToolbarInteractionEnd?.()}
+    >
       <div className="toolbar-search-header">
         <input
           type="text"
@@ -258,6 +265,19 @@ export const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
           onChange={(e) => setHashtagQuery(e.target.value)}
           className="toolbar-search-input"
           autoFocus
+          onFocus={(e) => {
+            e.stopPropagation();
+            onToolbarInteractionStart?.();
+          }}
+          onBlur={(e) => {
+            e.stopPropagation();
+            // Don't immediately end interaction - let mouse events handle it
+          }}
+          onMouseDown={(e) => {
+            e.stopPropagation();
+            e.preventDefault();
+          }}
+          onKeyDown={(e) => e.stopPropagation()}
         />
       </div>
       <div className="toolbar-search-results">
@@ -295,7 +315,14 @@ export const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
   const MentionContent: React.FC<{ closeTooltip?: () => void }> = ({
     closeTooltip
   }) => (
-    <div className="toolbar-tooltip-panel">
+    <div
+      className="toolbar-tooltip-panel"
+      onMouseDown={(e) => {
+        e.stopPropagation();
+        onToolbarInteractionStart?.();
+      }}
+      onMouseUp={() => onToolbarInteractionEnd?.()}
+    >
       <div className="toolbar-search-header">
         <input
           type="text"
@@ -304,6 +331,19 @@ export const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
           onChange={(e) => setMentionQuery(e.target.value)}
           className="toolbar-search-input"
           autoFocus
+          onFocus={(e) => {
+            e.stopPropagation();
+            onToolbarInteractionStart?.();
+          }}
+          onBlur={(e) => {
+            e.stopPropagation();
+            // Don't immediately end interaction - let mouse events handle it
+          }}
+          onMouseDown={(e) => {
+            e.stopPropagation();
+            e.preventDefault();
+          }}
+          onKeyDown={(e) => e.stopPropagation()}
         />
       </div>
       <div className="toolbar-search-results">

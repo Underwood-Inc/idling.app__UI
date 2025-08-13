@@ -25,9 +25,14 @@ const searchSchema = z.object({
 
 async function searchHandler(request: NextRequest) {
   try {
-    // Allow both authenticated and guest users
+    // Require authentication for user search
     const session = await auth();
-    const isAuthenticated = !!session?.user?.id;
+    if (!session?.user?.id) {
+      return NextResponse.json(
+        { error: 'Authentication required to search users' },
+        { status: 401 }
+      );
+    }
 
     const { searchParams } = new URL(request.url);
     const query = searchParams.get('q');
@@ -49,9 +54,7 @@ async function searchHandler(request: NextRequest) {
     // Using ILIKE for case-insensitive search (PostgreSQL)
     const searchTerm = `%${q}%`;
 
-    // Build query with privacy consideration
-    // For guest users, only show public profiles
-    // For authenticated users, show both public and private profiles
+    // Authenticated users can see all active users
     const users = await sql`
       SELECT 
         id,
@@ -77,19 +80,17 @@ async function searchHandler(request: NextRequest) {
           LOWER(email) LIKE LOWER(${searchTerm})
         )
         AND COALESCE(is_active, true) = TRUE
-        ${isAuthenticated ? sql`` : sql`AND COALESCE(profile_public, true) = TRUE`}
       ORDER BY relevance_score DESC, created_at DESC
       LIMIT ${validatedLimit}
     `;
 
     // Format results to match expected interface
-    // For guest users, limit exposed information
     const formattedUsers = users.map((user) => ({
       id: user.id.toString(),
       name: user.name,
-      // Only show email to authenticated users
-      email: isAuthenticated ? user.email : undefined,
-      image: user.image
+      email: user.email,
+      image: user.image,
+      profile_public: user.profile_public
     }));
 
     return NextResponse.json({

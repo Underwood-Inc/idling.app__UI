@@ -41,9 +41,9 @@ export function useSearchOverlay({
 
   // Use existing hooks for hashtag and mention search
   const {
-    hashtagQuery,
+    hashtagQuery: _hashtagQuery,
     setHashtagQuery,
-    mentionQuery,
+    mentionQuery: _mentionQuery,
     setMentionQuery,
     hashtagResults,
     mentionResults,
@@ -83,39 +83,7 @@ export function useSearchOverlay({
     }
   }, [searchOverlay, loadingHashtags, loadingMentions]);
 
-  // Handle search result selection
-  const handleSearchResultSelect = useCallback(
-    (item: any) => {
-      // Generate the structured text
-      let insertText = '';
-      if (searchOverlay.type === 'mention') {
-        insertText = `@[${item.displayName || item.label}|${item.value}|${mentionFilterType}] `;
-      } else if (searchOverlay.type === 'hashtag') {
-        insertText = item.value.startsWith('#')
-          ? `${item.value} `
-          : `#${item.value} `;
-      } else if (searchOverlay.type === 'emoji') {
-        insertText = item.unicode || `:${item.name}:`;
-      }
-
-      const currentValue = value || '';
-      const triggerIndex = searchOverlay.triggerIndex;
-      const queryLength = searchOverlay.query.length;
-      const replaceEndIndex = triggerIndex + 1 + queryLength; // +1 for trigger character
-
-      const beforeTrigger = currentValue.substring(0, triggerIndex);
-      const afterQuery = currentValue.substring(replaceEndIndex);
-      const newValue = beforeTrigger + insertText + afterQuery;
-
-      // Update the value
-      onChange(newValue);
-
-      hideSearchOverlay();
-    },
-    [value, searchOverlay, onChange, mentionFilterType]
-  );
-
-  // Hide search overlay
+  // Hide search overlay - defined first to avoid circular dependencies
   const hideSearchOverlay = useCallback(() => {
     setSearchOverlay({
       visible: false,
@@ -123,13 +91,26 @@ export function useSearchOverlay({
       query: '',
       triggerIndex: -1
     });
+
+    // Clear emoji results (other search states are managed by useFloatingToolbar)
+    setEmojiResults([]);
   }, []);
 
   // Detect trigger and show overlay
   const detectTriggerAndShowOverlay = useCallback(
     (text: string, cursorPosition: number) => {
+      const hideOverlay = () => {
+        setSearchOverlay({
+          visible: false,
+          type: null,
+          query: '',
+          triggerIndex: -1
+        });
+        setEmojiResults([]);
+      };
+
       if (!text || cursorPosition < 0) {
-        hideSearchOverlay();
+        hideOverlay();
         return;
       }
 
@@ -147,7 +128,7 @@ export function useSearchOverlay({
       ].filter((t) => t.index >= 0);
 
       if (triggers.length === 0) {
-        hideSearchOverlay();
+        hideOverlay();
         return;
       }
 
@@ -165,7 +146,7 @@ export function useSearchOverlay({
           (query === '' && beforeCursor.endsWith('# ')) ||
           /^[a-zA-Z0-9_-]+\s/.test(query)
         ) {
-          hideSearchOverlay();
+          hideOverlay();
           return;
         }
 
@@ -175,7 +156,7 @@ export function useSearchOverlay({
           hashtagMatch &&
           cursorPosition === lastTrigger.index + hashtagMatch[0].length
         ) {
-          hideSearchOverlay();
+          hideOverlay();
           return;
         }
       } else if (lastTrigger.type === 'mention') {
@@ -184,7 +165,7 @@ export function useSearchOverlay({
           query.includes(']') ||
           /^[a-zA-Z0-9_-]+\]\s/.test(query)
         ) {
-          hideSearchOverlay();
+          hideOverlay();
           return;
         }
 
@@ -196,12 +177,12 @@ export function useSearchOverlay({
           mentionMatch &&
           cursorPosition === lastTrigger.index + mentionMatch[0].length
         ) {
-          hideSearchOverlay();
+          hideOverlay();
           return;
         }
       } else if (lastTrigger.type === 'emoji') {
         if (query.includes(' ') || query.endsWith(':')) {
-          hideSearchOverlay();
+          hideOverlay();
           return;
         }
       }
@@ -209,7 +190,7 @@ export function useSearchOverlay({
       // Don't show overlay for very short queries (but allow 1 character for emoji)
       const minQueryLength = lastTrigger.type === 'emoji' ? 1 : 2;
       if (query.length < minQueryLength) {
-        hideSearchOverlay();
+        hideOverlay();
         return;
       }
 
@@ -242,9 +223,58 @@ export function useSearchOverlay({
       enableUserMentions,
       enableEmojis,
       setHashtagQuery,
-      setMentionQuery,
-      hideSearchOverlay
+      setMentionQuery
     ]
+  );
+
+  // Handle search result selection
+  const handleSearchResultSelect = useCallback(
+    (item: any, onCursorPosition?: (position: number) => void) => {
+      // Generate the structured text
+      let insertText = '';
+      if (searchOverlay.type === 'mention') {
+        insertText = `@[${item.displayName || item.label}|${item.value}|${mentionFilterType}] `;
+      } else if (searchOverlay.type === 'hashtag') {
+        insertText = item.value.startsWith('#')
+          ? `${item.value} `
+          : `#${item.value} `;
+      } else if (searchOverlay.type === 'emoji') {
+        insertText = item.unicode || `:${item.name}:`;
+      }
+
+      const currentValue = value || '';
+      const triggerIndex = searchOverlay.triggerIndex;
+      const queryLength = searchOverlay.query.length;
+      const replaceEndIndex = triggerIndex + 1 + queryLength; // +1 for trigger character
+
+      const beforeTrigger = currentValue.substring(0, triggerIndex);
+      const afterQuery = currentValue.substring(replaceEndIndex);
+      const newValue = beforeTrigger + insertText + afterQuery;
+
+      // Calculate cursor position after insertion (at the end of inserted text)
+      const newCursorPosition = triggerIndex + insertText.length;
+
+      // Update the value
+      onChange(newValue);
+
+      // Hide search overlay directly
+      setSearchOverlay({
+        visible: false,
+        type: null,
+        query: '',
+        triggerIndex: -1
+      });
+      setEmojiResults([]);
+
+      // Set cursor position after the inserted text
+      if (onCursorPosition) {
+        // Use setTimeout to ensure DOM has updated
+        setTimeout(() => {
+          onCursorPosition(newCursorPosition);
+        }, 0);
+      }
+    },
+    [value, searchOverlay, onChange, mentionFilterType]
   );
 
   return {

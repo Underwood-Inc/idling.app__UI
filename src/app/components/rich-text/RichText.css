@@ -305,13 +305,16 @@
 }
 
 .content-pill--mention {
-  background-color: var(--pill-mention-bg, #f3e5f5);
-  color: var(--pill-mention-text, #7b1fa2);
-  border: 1px solid var(--pill-mention-border, #ce93d8);
+  background-color: var(--pill-mention-bg, #e8f4f8);
+  color: var(--pill-mention-text, #1a5490);
+  border: 1px solid var(--pill-mention-border, #b3d9e8);
+  font-weight: 600;
 }
 
 .content-pill--mention:hover {
-  background-color: var(--pill-mention-hover, #ce93d8);
+  background-color: var(--pill-mention-hover, #d4edda);
+  color: var(--pill-mention-text-hover, #155172);
+  border-color: var(--pill-mention-border-hover, #9cc9de);
   transform: translateY(-1px);
 }
 
@@ -371,9 +374,16 @@
   }
 
   .content-pill--mention {
-    background-color: var(--pill-mention-bg-dark, #44337a);
-    color: var(--pill-mention-text-dark, #b794f6);
-    border-color: var(--pill-mention-border-dark, #553c9a);
+    background-color: var(--pill-mention-bg-dark, #1e3a4a);
+    color: var(--pill-mention-text-dark, #7bb3d9);
+    border-color: var(--pill-mention-border-dark, #2e5a6a);
+    font-weight: 500;
+  }
+
+  .content-pill--mention:hover {
+    background-color: var(--pill-mention-hover-dark, #2e5a6a);
+    color: var(--pill-mention-text-hover-dark, #a3c8e6);
+    border-color: var(--pill-mention-border-hover-dark, #4a7a8a);
   }
 
   /* ASCII emoji dark mode styles */

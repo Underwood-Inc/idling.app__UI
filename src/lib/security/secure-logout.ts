@@ -110,6 +110,38 @@ async function clearAuthCookies(): Promise<number> {
 }
 
 /**
+ * SECURITY CRITICAL: Clear tooltip cache that may contain user-specific data
+ */
+async function clearTooltipCache(): Promise<boolean> {
+  try {
+    const keys = Object.keys(localStorage);
+    const tooltipCacheKeys = keys.filter(
+      (key) =>
+        key.startsWith('link_tooltip_cache_') ||
+        key === 'link_tooltip_cache_metadata'
+    );
+
+    if (tooltipCacheKeys.length > 0) {
+      logger.info('Clearing tooltip cache on logout', {
+        items: tooltipCacheKeys.length
+      });
+
+      tooltipCacheKeys.forEach((key) => {
+        localStorage.removeItem(key);
+      });
+    }
+
+    return true;
+  } catch (error) {
+    logger.error(
+      'Failed to clear tooltip cache:',
+      error instanceof Error ? error : new Error(String(error))
+    );
+    return false;
+  }
+}
+
+/**
  * SECURITY CRITICAL: Clear all localStorage including any cached session data
  */
 async function clearSecureLocalStorage(): Promise<boolean> {
@@ -132,6 +164,9 @@ async function clearSecureLocalStorage(): Promise<boolean> {
         items: authRelatedKeys
       });
     }
+
+    // Clear tooltip cache first (specific clearing for audit)
+    await clearTooltipCache();
 
     // Complete localStorage clear - no exceptions for security
     localStorage.clear();

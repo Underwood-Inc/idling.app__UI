@@ -56,7 +56,7 @@ export class DefaultRenderer implements RichInputRenderer {
         return (
           <span
             key={`mention-${index}`}
-            className="content-pill content-pill--mention content-pill--edit-mode"
+            className="content-pill content-pill--mention"
             data-token-type="mention"
             data-token-index={index}
             data-token-start={token.start}
@@ -669,8 +669,7 @@ export class DefaultRenderer implements RichInputRenderer {
         break;
 
       case 'mention': {
-        element.className =
-          'content-pill content-pill--mention content-pill--edit-mode';
+        element.className = 'content-pill content-pill--mention';
 
         // Extract username from structured mention format @[username|userId|filterType]
         let displayText = token.metadata?.displayName || token.content;

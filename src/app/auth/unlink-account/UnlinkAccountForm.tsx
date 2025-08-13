@@ -4,6 +4,7 @@ import { NAV_PATHS } from '@lib/routes';
 import { signIn, signOut } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { performSecureLogout } from 'src/lib/security/secure-logout';
 import { InstantLink } from '../../components/ui/InstantLink';
 import './UnlinkAccountForm.css';
 
@@ -116,7 +117,8 @@ export function UnlinkAccountForm({
   const handleSignInWithProvider = async () => {
     setIsLoading(true);
     try {
-      // First sign out the current user
+      // Clear caches/storage first, then sign out without redirect
+      await performSecureLogout({ level: 'comprehensive' });
       await signOut({ redirect: false });
 
       // Then sign in with the specific provider
