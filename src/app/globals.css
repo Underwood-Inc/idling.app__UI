@@ -435,27 +435,27 @@ a {
   color: var(--brand-primary);
 }
 
-html,
-body,
-.spacing-theme-cozy {
-  height: 100vh;
-}
-
 html {
   font-size: 10px;
   /* Explicit base font size for rem calculations */
   max-width: 100vw;
+  height: 100%;
 }
 
 body {
   max-width: 100vw;
   min-height: 100vh;
   background-color: var(--dark-background--primary);
-  overflow: auto;
+  overflow-y: auto;
+  overflow-x: hidden;
   font-size: var(--font-size-base);
   font-family: var(--app-font-family);
   display: flex;
   flex-direction: column;
+}
+
+.spacing-theme-cozy {
+  min-height: 100vh;
 }
 
 article,

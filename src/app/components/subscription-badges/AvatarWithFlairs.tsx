@@ -43,7 +43,12 @@ export function AvatarWithFlairs({
       setLoading(true);
       try {
         const response = await fetch(
-          `/api/user-subscriptions?userId=${userId}`
+          `/api/user-subscriptions?userId=${userId}`,
+          {
+            headers: {
+              'X-Background-Request': 'true' // Mark as background to skip global loader
+            }
+          }
         );
         if (response.ok) {
           const data = await response.json();

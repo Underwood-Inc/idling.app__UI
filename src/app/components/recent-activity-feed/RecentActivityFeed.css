@@ -1,8 +1,7 @@
 .recent-activity-feed {
-  height: 500px;
   display: flex;
   flex-direction: column;
-  padding: 0 1rem; /* Add padding to container instead of negative margins */
+  padding: 0 1rem;
 }
 
 .recent-activity-feed__header {
@@ -48,10 +47,11 @@
 }
 
 .recent-activity-feed__content {
-  flex: 1;
-  overflow-y: auto;
-  margin: 0 -1rem; /* Negative margin to extend content to edges */
-  padding: 0 1rem; /* Restore padding inside content */
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin: 0 -1rem;
+  padding: 0 1rem;
 }
 
 .recent-activity-feed__loading,
@@ -206,7 +206,6 @@
 /* Mobile */
 @media (max-width: 768px) {
   .recent-activity-feed {
-    height: 400px;
     padding: 0 0.5rem;
   }
   

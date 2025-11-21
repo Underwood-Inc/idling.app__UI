@@ -1,53 +1,48 @@
+/* Main layout: Content + Aside side by side */
+.home__layout {
+  display: flex;
+  gap: 2rem;
+  align-items: flex-start;
+  width: 100%;
+}
+
 .home__container {
   justify-content: flex-start;
-  align-items: center;
+  align-items: stretch;
+  flex: 1;
 }
 
 .home__container_fade {
   display: flex;
-  justify-content: center;
-  flex-wrap: wrap;
-  gap: 1rem;
+  flex-direction: column;
+  gap: 1.5rem;
+  width: 100%;
 }
 
-.home__container_fade:last-child {
-  margin-inline-end: 0;
+/* All sections full width, simple stacking */
+.home__about,
+.home__livestream,
+.home__projects,
+.home__activity {
+  width: 100%;
 }
 
-/* Primary column */
-.home__container_item:nth-child(1) {
-  flex: 1 1 65%;
-  min-height: min-content;
-}
-
-/* Secondary column */
-.home__container_item:nth-child(2) {
-  flex: 1 1 34%;
-  min-height: 0;
-}
-
-
-
-/* Full-width items for stacked layout */
 .home__container_item_full {
-  flex: 1 1 100%;
-  min-height: 0;
+  width: 100%;
 }
-
-
 
 .discord_aside {
-  min-height: 80rem;
   padding: 0 !important;
   max-height: none !important;
 }
 
+/* Tablet/Mobile: Stack aside below content */
+@media (max-width: 1024px) {
+  .home__layout {
+    flex-direction: column;
+  }
 
-/* Mobile responsiveness */
-@media (max-width: 768px) {
-  .home__container_item:nth-child(1),
-  .home__container_item:nth-child(2),
-  .home__container_item:nth-child(3) {
-    flex: 1 1 100%;
+  .home__container_fade {
+    gap: 1rem;
   }
 }

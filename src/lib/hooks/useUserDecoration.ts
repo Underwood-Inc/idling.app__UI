@@ -1,7 +1,7 @@
 'use client';
 
-import { getUserDecoration } from '@lib/actions/subscription.actions';
-import { useCallback, useEffect, useState, useTransition } from 'react';
+import { useUserDataBatch } from '@lib/context/UserDataBatchContext';
+import { useCallback, useEffect, useState } from 'react';
 
 export interface UseUserDecorationOptions {
   userId?: string;
@@ -19,6 +19,7 @@ export interface UseUserDecorationReturn {
 
 /**
  * Modern, reusable hook for managing user decorations
+ * Uses batching context to reduce API calls
  *
  * @param options Configuration options
  * @returns Decoration state and controls
@@ -31,43 +32,33 @@ export function useUserDecoration({
 }: UseUserDecorationOptions): UseUserDecorationReturn {
   const [decoration, setDecoration] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [isPending, startTransition] = useTransition();
+  const [isLoading, setIsLoading] = useState(false);
+  const { getUserDecoration: getBatchedDecoration } = useUserDataBatch();
 
-  const fetchDecoration = useCallback(async () => {
+  const fetchDecoration = useCallback(() => {
     if (!enabled || !userId) {
       setDecoration(null);
       setError(null);
+      setIsLoading(false);
       return;
     }
 
     if (forceDecoration) {
       setDecoration(forceDecoration);
       setError(null);
+      setIsLoading(false);
       return;
     }
 
     setError(null);
+    setIsLoading(true);
 
-    startTransition(async () => {
-      try {
-        const result = await getUserDecoration(userId);
-
-        if (result.error) {
-          setError(result.error);
-          setDecoration(null);
-        } else {
-          setDecoration(result.decoration);
-          setError(null);
-        }
-      } catch (err) {
-        const errorMessage =
-          err instanceof Error ? err.message : 'Failed to load decoration';
-        console.error('Failed to fetch user decoration:', err);
-        setError(errorMessage);
-        setDecoration(null);
-      }
+    // Use batched request
+    getBatchedDecoration(userId, (result) => {
+      setDecoration(result);
+      setIsLoading(false);
     });
-  }, [userId, forceDecoration, enabled]);
+  }, [userId, forceDecoration, enabled, getBatchedDecoration]);
 
   // Auto-refresh when dependencies change
   useEffect(() => {
@@ -80,7 +71,7 @@ export function useUserDecoration({
 
   return {
     decoration,
-    isLoading: isPending,
+    isLoading,
     error,
     refresh
   };

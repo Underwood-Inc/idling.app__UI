@@ -1,6 +1,7 @@
 import { GlobalLoadingProvider } from '@lib/context/GlobalLoadingContext';
 import { NavigationLoadingProvider } from '@lib/context/NavigationLoadingContext';
 import { OverlayProvider } from '@lib/context/OverlayContext';
+import { UserDataBatchProvider } from '@lib/context/UserDataBatchContext';
 import { UserPreferencesProvider } from '@lib/context/UserPreferencesContext';
 import { Metadata } from 'next';
 import { SessionProvider } from 'next-auth/react';
@@ -69,14 +70,16 @@ export default function RootLayout({
             <OverlayProvider>
               <NavigationLoadingProvider>
                 <GlobalLoadingProvider>
-                  <NavigationLoadingBar />
-                  <RetroSpaceBackground />
-                  <Header />
-                  <main>{children}</main>
-                  <Footer />
-                  <OverlayRendererWrapper />
-                  <ServiceWorkerRegistration />
-                  <PWAInstallPrompt />
+                  <UserDataBatchProvider>
+                    <NavigationLoadingBar />
+                    <RetroSpaceBackground />
+                    <Header />
+                    <main>{children}</main>
+                    <Footer />
+                    <OverlayRendererWrapper />
+                    <ServiceWorkerRegistration />
+                    <PWAInstallPrompt />
+                  </UserDataBatchProvider>
                 </GlobalLoadingProvider>
               </NavigationLoadingProvider>
             </OverlayProvider>

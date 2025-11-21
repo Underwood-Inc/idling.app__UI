@@ -59,8 +59,24 @@ export function GlobalLoadingProvider({
         const method = init?.method || 'GET';
         const requestId = `${method}-${url}-${Date.now()}-${Math.random()}`;
 
-        // Skip SSE requests, polling endpoints, and specific endpoints
+        // Check for custom header to mark background requests
+        const isBackgroundRequest =
+          init?.headers &&
+          (init.headers as Record<string, string>)['X-Background-Request'] ===
+            'true';
+
+        // Check if this is a Next.js server action (POST to current origin with specific headers)
+        // Server actions have 'next-action' or 'Next-Action' header
+        const headers = init?.headers as Record<string, string> | undefined;
+        const isServerAction =
+          method === 'POST' &&
+          headers &&
+          (headers['next-action'] || headers['Next-Action']);
+
+        // Skip SSE requests, polling endpoints, specific endpoints, background requests, and server actions
         if (
+          isBackgroundRequest ||
+          isServerAction || // Skip all server actions (they're background data fetching)
           url.includes('/api/sse/') ||
           url.includes('/api/auth/session') ||
           url.includes('/_next/') ||
@@ -68,6 +84,8 @@ export function GlobalLoadingProvider({
           url.includes('/api/link-preview') || // Skip link preview requests
           url.includes('/api/test/health') || // Skip health checks
           url.includes('/api/notifications/poll') || // Skip notification polling
+          url.includes('/api/profile/') || // Skip profile data requests (per-post author data)
+          url.includes('/api/decoration') || // Skip decoration/flair requests
           url.includes('buddha-api.com') // Skip Buddha API requests
         ) {
           return originalFetch(input, init);

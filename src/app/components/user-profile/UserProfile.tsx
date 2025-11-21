@@ -54,7 +54,11 @@ export function UserProfile({
       }
 
       try {
-        const response = await fetch('/api/test/admin-check');
+        const response = await fetch('/api/test/admin-check', {
+          headers: {
+            'X-Background-Request': 'true' // Mark as background to skip global loader
+          }
+        });
         if (response.ok) {
           const data = await response.json();
           setHasAdminAccess(data.hasAdminAccess);

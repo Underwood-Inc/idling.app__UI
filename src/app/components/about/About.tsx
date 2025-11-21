@@ -4,56 +4,94 @@ import { DiscordLink } from '../discord-link/DiscordLink';
 import { GalaxyLink } from '../galaxy-link/GalaxyLink';
 import { LinkTooltip } from '../tooltip/LinkTooltip';
 import { InstantLink } from '../ui/InstantLink';
+import './About.css';
 
 export function About() {
   return (
-    <div>
-      <p>
-        <LinkTooltip url={NAV_PATHS.ROOT} isInsideParagraph>
-          {/* eslint-disable-next-line custom-rules/enforce-link-target-blank */}
-          <InstantLink
-            data-testid={ABOUT_PAGE_SELECTORS.ROOT_LINK}
-            href={NAV_PATHS.ROOT}
-          >
-            idling.app
-          </InstantLink>
-        </LinkTooltip>
-        &nbsp;serves as the central hub for my professional portfolio and
-        personal projects, showcasing my expertise in front-end web development
-        and interactive 3D applications. The platform hosts a collection of
-        innovative web applications, with&nbsp;
-        <GalaxyLink />
-        &nbsp;standing as a flagship project that demonstrates advanced 3D space
-        visualization capabilities.
-      </p>
-      <br />
-      <p>
-        <GalaxyLink />
-        &nbsp;represents a cutting-edge web application that leverages modern
-        web technologies to create immersive space environments. The application
-        features procedurally generated galaxies with dynamic star fields,
-        realistic nebula effects, and interactive space environments. Built with
-        Three.js and TypeScript, <GalaxyLink />
-        &nbsp;showcases sophisticated particle systems, advanced rendering
-        techniques, and responsive user interfaces.
-      </p>
-      <br />
-      <p>
-        All publicly available projects can be accessed through the
-        website&apos;s navigation, while active development discussions and
-        updates are hosted on the idling.app{' '}
-        <DiscordLink isInsideParagraph={true} /> server. For detailed technical
-        documentation, release notes, and contribution guidelines, please refer
-        to the project&apos;s&nbsp;
-        <a
-          href="https://gitlab.com/idling.app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          GitLab
-        </a>
-        &nbsp;repository.
-      </p>
+    <div className="about">
+      <div className="about__hero">
+        <h2 className="about__title">Hi! I&apos;m Strixun 👋</h2>
+        <p className="about__intro">
+          Software developer, livestreamer, and game development enthusiast.{' '}
+          <LinkTooltip url={NAV_PATHS.ROOT} isInsideParagraph>
+            {/* eslint-disable-next-line custom-rules/enforce-link-target-blank */}
+            <InstantLink
+              data-testid={ABOUT_PAGE_SELECTORS.ROOT_LINK}
+              href={NAV_PATHS.ROOT}
+            >
+              idling.app
+            </InstantLink>
+          </LinkTooltip>
+          &nbsp;is my digital hub for showcasing work, sharing projects, and
+          connecting with the community.
+        </p>
+      </div>
+
+      <div className="about__sections">
+        <div className="about__section">
+          <h3 className="about__section-title">🎮 Game Development</h3>
+          <p className="about__section-content">
+            Custom Minecraft datapacks including <strong>Rituals</strong> (580+
+            downloads) and <strong>Strixun Pack A</strong>. Open source on
+            Modrinth and GitHub.
+          </p>
+        </div>
+
+        <div className="about__section">
+          <h3 className="about__section-title">💻 Web Development</h3>
+          <p className="about__section-content">
+            Front-end specialist with <GalaxyLink /> showcasing Three.js work.
+            This site: Next.js, React, PostgreSQL, NextAuth.
+          </p>
+        </div>
+
+        <div className="about__section">
+          <h3 className="about__section-title">📺 Content Creation</h3>
+          <p className="about__section-content">
+            Livestream dev sessions on{' '}
+            <a
+              href="https://www.twitch.tv/strixun"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Twitch
+            </a>{' '}
+            and{' '}
+            <a
+              href="https://www.youtube.com/@strixun"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              YouTube
+            </a>
+            . Coding, gaming, and exploring new tech.
+          </p>
+        </div>
+
+        <div className="about__section">
+          <h3 className="about__section-title">🤝 Community</h3>
+          <p className="about__section-content">
+            Join <DiscordLink isInsideParagraph={true} /> for updates. Contribute
+            on{' '}
+            <a
+              href="https://gitlab.com/idling.app"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              GitLab
+            </a>{' '}
+            &amp;{' '}
+            <a
+              href="https://github.com/Underwood-Inc"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              GitHub
+            </a>
+            .
+          </p>
+        </div>
+      </div>
     </div>
   );
 }
