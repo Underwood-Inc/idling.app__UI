@@ -8,16 +8,15 @@
  * SECURITY CRITICAL: This utility prevents cache-based permission leakage
  */
 
-import { createLogger } from '@lib/logging';
-
-// Create logger for secure logout operations
-const logger = createLogger({
-  context: {
-    component: 'SecureLogout',
-    module: 'security'
-  },
-  enabled: true // Enable logging for security operations
-});
+// Simple console logger for client-side operations
+const logger = {
+  info: (...args: any[]) => console.info('[SecureLogout]', ...args),
+  warn: (...args: any[]) => console.warn('[SecureLogout]', ...args),
+  error: (...args: any[]) => console.error('[SecureLogout]', ...args),
+  debug: (...args: any[]) => console.debug('[SecureLogout]', ...args),
+  group: (label: string) => console.group(label),
+  groupEnd: () => console.groupEnd()
+};
 
 export interface SecureLogoutResult {
   success: boolean;
