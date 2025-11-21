@@ -1,7 +1,7 @@
 /* Main layout: Content + Aside side by side */
 .home__layout {
   display: flex;
-  gap: 2rem;
+  gap: 2.4rem;
   align-items: flex-start;
   width: 100%;
 }
@@ -15,7 +15,7 @@
 .home__container_fade {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 2rem;
   width: 100%;
 }
 
