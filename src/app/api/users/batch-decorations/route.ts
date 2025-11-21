@@ -1,4 +1,4 @@
-import { sql } from '@vercel/postgres';
+import sql from '@lib/db';
 import { NextResponse } from 'next/server';
 
 export interface BatchDecorationsRequest {
@@ -105,4 +105,3 @@ export async function POST(request: Request) {
     );
   }
 }
-
