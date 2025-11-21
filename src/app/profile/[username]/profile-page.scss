@@ -7,6 +7,14 @@
  * Fixed to work properly with PageContainer/PageContent/PageAside layout
  */
 
+/* Main layout: Content + Aside side by side */
+.profile-page__layout {
+  display: flex;
+  gap: 2.4rem;
+  align-items: flex-start;
+  width: 100%;
+}
+
 .profile-page {
   display: flex;
   flex-direction: column;
@@ -16,6 +24,7 @@
   overflow: visible;
   height: auto;
   /* Remove any min-height that causes scrollbar issues */
+  flex: 1;
 }
 
 /* Subtle background enhancement without layout interference */
@@ -2317,5 +2326,21 @@
       color: #888;
       border-top-color: #404040;
     }
+  }
+}
+
+/* Responsive layout for profile page */
+.profile-page__aside {
+  padding: 0 !important;
+  max-height: none !important;
+}
+
+@media (max-width: 1024px) {
+  .profile-page__layout {
+    flex-direction: column;
+  }
+
+  .profile-page__aside {
+    margin-top: 2rem;
   }
 }

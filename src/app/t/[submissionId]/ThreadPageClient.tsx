@@ -166,37 +166,39 @@ export default function ThreadPageClient({
           </div>
         </FadeIn>
       </PageHeader>
-      <PageContent>
-        <article className={styles.thread__container}>
-          <FadeIn className={styles.thread__fade}>
-            <Card width="full" className={styles.thread__item}>
+      <div className={styles.thread__layout}>
+        <PageContent>
+          <article className={styles.thread__container}>
+            <FadeIn className={styles.thread__fade}>
+              <Card width="full" className={styles.thread__item}>
+                <Suspense fallback={<Loader />}>
+                  <Thread
+                    submissionId={submissionId}
+                    userId={userId}
+                    onHashtagClick={handleHashtagClick}
+                    onMentionClick={handleMentionClick}
+                    activeFilters={activeFilters}
+                    contextId={contextId}
+                  />
+                </Suspense>
+              </Card>
+            </FadeIn>
+          </article>
+        </PageContent>
+
+        <PageAside className={styles.thread_aside} bottomMargin={0}>
+          <FadeIn>
+            <Card width="full">
               <Suspense fallback={<Loader />}>
-                <Thread
+                <ThreadTags
                   submissionId={submissionId}
-                  userId={userId}
-                  onHashtagClick={handleHashtagClick}
-                  onMentionClick={handleMentionClick}
-                  activeFilters={activeFilters}
-                  contextId={contextId}
+                  contextId={CONTEXT_IDS.THREAD.toString()}
                 />
               </Suspense>
             </Card>
           </FadeIn>
-        </article>
-      </PageContent>
-
-      <PageAside className={styles.thread_aside} bottomMargin={10}>
-        <FadeIn>
-          <Card width="full">
-            <Suspense fallback={<Loader />}>
-              <ThreadTags
-                submissionId={submissionId}
-                contextId={CONTEXT_IDS.THREAD.toString()}
-              />
-            </Suspense>
-          </Card>
-        </FadeIn>
-      </PageAside>
+        </PageAside>
+      </div>
     </PageContainer>
   );
 }

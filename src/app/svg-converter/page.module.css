@@ -1,5 +1,18 @@
 /* SVG Converter Main Page Styles */
 
+/* Main layout: Content + Aside side by side */
+.converter__layout {
+  display: flex;
+  gap: 2.4rem;
+  align-items: flex-start;
+  width: 100%;
+}
+
+.converter__aside {
+  padding: 0 !important;
+  max-height: none !important;
+}
+
 .converter {
   width: 100%;
   max-width: 1200px;
@@ -209,5 +222,12 @@
   .converter__result,
   .sidebar__section {
     padding: 0.75rem;
+  }
+}
+
+/* Tablet/Mobile: Stack aside below content */
+@media (max-width: 1024px) {
+  .converter__layout {
+    flex-direction: column;
   }
 } 

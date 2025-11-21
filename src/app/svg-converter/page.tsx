@@ -70,7 +70,8 @@ export default function SvgConverter() {
 
   return (
     <PageContainer>
-      <PageContent>
+      <div className={styles.converter__layout}>
+        <PageContent>
         <FadeIn>
           <div className={styles.converter}>
             <div className={styles.converter__header}>
@@ -124,7 +125,7 @@ export default function SvgConverter() {
         </FadeIn>
       </PageContent>
 
-      <PageAside>
+      <PageAside className={styles.converter__aside}>
         <div className={styles.sidebar}>
           <div className={styles.sidebar__section}>
             <h3 className={styles.sidebar__title}>✨ Features</h3>
@@ -193,6 +194,7 @@ export default function SvgConverter() {
           )}
         </div>
       </PageAside>
+      </div>
     </PageContainer>
   );
 }

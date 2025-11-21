@@ -1,8 +1,17 @@
+/* Main layout: Content + Aside side by side */
+.thread__layout {
+  display: flex;
+  gap: 2.4rem;
+  align-items: flex-start;
+  width: 100%;
+}
+
 .thread__container {
   display: flex;
   flex-direction: column;
   gap: 2rem;
   width: 100%;
+  flex: 1;
 }
 
 .thread__fade {
@@ -14,7 +23,8 @@
 }
 
 .thread_aside {
-  /* Let PageAside component handle its own width and positioning */
+  padding: 0 !important;
+  max-height: none !important;
 }
 
 /* Thread header and filtering */
@@ -77,6 +87,17 @@
   background-color: #c82333;
   transform: translateY(-1px);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Tablet/Mobile: Stack aside below content */
+@media (max-width: 1024px) {
+  .thread__layout {
+    flex-direction: column;
+  }
+
+  .thread__container {
+    gap: 1.5rem;
+  }
 }
 
 /* Responsive design */
