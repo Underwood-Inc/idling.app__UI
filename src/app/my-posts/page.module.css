@@ -1,14 +1,23 @@
+/* Main layout: Content + Aside side by side */
+.posts__layout {
+  display: flex;
+  gap: 2.4rem;
+  align-items: flex-start;
+  width: 100%;
+}
+
 .posts__container {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 2rem;
   width: 100%;
+  flex: 1;
 }
 
 .posts__container_fade {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 2rem;
   width: 100%;
 }
 
@@ -17,10 +26,22 @@
 }
 
 .tags_aside {
-  inset-block-start: 0;
+  padding: 0 !important;
+  max-height: none !important;
 }
 
 .submission__wrapper--is-reply {
   border-left: 3px solid var(--brand-primary);
   padding-left: 1rem;
+}
+
+/* Tablet/Mobile: Stack aside below content */
+@media (max-width: 1024px) {
+  .posts__layout {
+    flex-direction: column;
+  }
+
+  .posts__container_fade {
+    gap: 1rem;
+  }
 }

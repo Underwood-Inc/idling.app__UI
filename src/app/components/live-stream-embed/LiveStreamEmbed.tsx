@@ -28,7 +28,6 @@ export function LiveStreamEmbed({
   const [selectedPlatform, setSelectedPlatform] =
     useState<Platform>(defaultPlatform);
   const [isLoading, setIsLoading] = useState(true);
-  const [isMounted, setIsMounted] = useState(false);
   const [twitchStatus, setTwitchStatus] = useState<StreamStatus>({
     isLive: false
   });
@@ -36,15 +35,8 @@ export function LiveStreamEmbed({
     isLive: false
   });
 
-  // Set mounted state to prevent hydration mismatch
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
-
   // Check if stream is live
   useEffect(() => {
-    if (!isMounted) return;
-
     const checkLiveStatus = async () => {
       try {
         const response = await fetch(
@@ -97,11 +89,10 @@ export function LiveStreamEmbed({
     const interval = setInterval(checkLiveStatus, checkInterval);
 
     return () => clearInterval(interval);
-  }, [isMounted, twitchChannel, youtubeChannel, checkInterval, selectedPlatform]);
+  }, [twitchChannel, youtubeChannel, checkInterval, selectedPlatform]);
 
   const getTwitchEmbedUrl = () => {
-    const hostname = isMounted ? window.location.hostname : 'localhost';
-    return `https://player.twitch.tv/?channel=${twitchChannel}&parent=${hostname}&muted=false`;
+    return `https://player.twitch.tv/?channel=${twitchChannel}&parent=${window.location.hostname}&muted=false`;
   };
 
   const getYouTubeEmbedUrl = () => {
@@ -122,33 +113,10 @@ export function LiveStreamEmbed({
   // Check if ANY stream is live
   const isAnyStreamLive = twitchStatus.isLive || youtubeStatus.isLive;
 
-  // Don't render until mounted to prevent hydration mismatch
-  if (!isMounted) {
-    return (
-      <div className="live-stream-embed live-stream-embed--loading">
-        <div className="live-stream-embed__loading">
-          <div className="live-stream-embed__loading-spinner"></div>
-          <p>Checking stream status...</p>
-        </div>
-      </div>
-    );
-  }
-
-  // Don't render if no streams are live
-  if (!isLoading && !isAnyStreamLive) {
+  // Don't render if loading or no streams are live
+  // This is a client component so no hydration issues
+  if (isLoading || !isAnyStreamLive) {
     return null;
-  }
-
-  // Show loading state in a card
-  if (isLoading) {
-    return (
-      <div className="live-stream-embed live-stream-embed--loading">
-        <div className="live-stream-embed__loading">
-          <div className="live-stream-embed__loading-spinner"></div>
-          <p>Checking stream status...</p>
-        </div>
-      </div>
-    );
   }
 
   return (
