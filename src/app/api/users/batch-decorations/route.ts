@@ -14,6 +14,11 @@ export interface BatchDecorationsResponse {
   decorations: Record<string, string | null>;
 }
 
+export interface BatchDecorationRow {
+  user_id: string;
+  decoration: string | null;
+}
+
 /**
  * Batch endpoint to fetch decorations for multiple users at once
  * Reduces N+1 query problem for post lists
@@ -48,7 +53,7 @@ export async function POST(request: Request) {
     }
 
     // Batch query for all users at once
-    const result = await sql`
+    const result = await sql<BatchDecorationRow[]>`
       WITH user_subscriptions AS (
         SELECT 
           u.id as user_id,
@@ -85,11 +90,9 @@ export async function POST(request: Request) {
 
     // Build response object
     const decorations: Record<string, string | null> = {};
-    result.forEach((row: { user_id: string; decoration: string | null }) => {
+    result.forEach((row) => {
       decorations[row.user_id] = row.decoration;
     });
-
-    // Fill in null for any missing users
     userIds.forEach((userId) => {
       if (!(userId in decorations)) {
         decorations[userId] = null;
