@@ -39,7 +39,12 @@ export function useSubscriptionStatus() {
       // Don't cache subscription status - always get fresh data
       const cacheBuster = `${Date.now()}-${Math.random().toString(36).substring(2)}`;
       const response = await noCacheFetch(
-        `/api/subscription/status?_t=${cacheBuster}`
+        `/api/subscription/status?_t=${cacheBuster}`,
+        {
+          headers: {
+            'X-Background-Request': 'true' // Mark as background to skip global loader
+          }
+        }
       );
 
       if (!response.ok) {

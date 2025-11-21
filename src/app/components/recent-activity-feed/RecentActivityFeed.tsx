@@ -1,9 +1,10 @@
 'use client';
 
+import { useUserDataBatch } from '@lib/context/UserDataBatchContext';
 import { useSimpleSubmissions } from '@lib/state/submissions/useSimpleSubmissions';
 import { formatLastUpdated } from '@lib/utils/time-utils';
 import Link from 'next/link';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Author } from '../author/Author';
 import './RecentActivityFeed.css';
 
@@ -23,8 +24,22 @@ export const RecentActivityFeed: React.FC<RecentActivityFeedProps> = ({
     includeThreadReplies: false,
     enabled: true
   });
+  const { prefetchDecorations } = useUserDataBatch();
 
   const recentSubmissions = submissions?.slice(0, maxItems) || [];
+
+  // Prefetch all user decorations in one batch when submissions load
+  useEffect(() => {
+    if (recentSubmissions.length > 0) {
+      const userIds = recentSubmissions
+        .map((sub) => sub.user_id?.toString())
+        .filter(Boolean) as string[];
+      
+      if (userIds.length > 0) {
+        prefetchDecorations(userIds);
+      }
+    }
+  }, [recentSubmissions, prefetchDecorations]);
 
   return (
     <div className={`recent-activity-feed ${className}`}>

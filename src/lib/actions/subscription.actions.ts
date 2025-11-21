@@ -2,6 +2,7 @@
 
 import { SubscriptionBadgeData } from '../../app/components/subscription-badges/SubscriptionBadge';
 import sql from '../db';
+import { requestDeduplicator } from '../utils/request-deduplicator';
 
 export type DecorationTypes =
   | 'enterprise-crown'
@@ -19,10 +20,10 @@ export interface UserDecorationData {
 }
 
 /**
- * Server action to get user decoration based on their active subscriptions
- * This replaces the inline fetch in the UsernameDecoration component
+ * Internal function that does the actual decoration fetching
+ * Wrapped by getUserDecoration with deduplication
  */
-export async function getUserDecoration(
+async function _getUserDecorationInternal(
   userId: string
 ): Promise<UserDecorationData> {
   try {
@@ -260,4 +261,18 @@ export async function getUserDecoration(
       error: 'Failed to load decoration'
     };
   }
+}
+
+/**
+ * Server action to get user decoration based on their active subscriptions
+ * Wrapped with request deduplication to prevent duplicate calls
+ */
+export async function getUserDecoration(
+  userId: string
+): Promise<UserDecorationData> {
+  return requestDeduplicator.deduplicate(
+    'getUserDecoration',
+    () => _getUserDecorationInternal(userId),
+    [userId]
+  );
 }

@@ -21,6 +21,9 @@
   position: sticky;
   top: 0;
   z-index: var(--z-header);
+  
+  // Set CSS variable for height calculations elsewhere
+  --header-height: 11rem;
 }
 
 /* Mobile header improvements */

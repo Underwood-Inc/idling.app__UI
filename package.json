@@ -1,16 +1,18 @@
 {
   "name": "idling.app",
-  "version": "0.464.0",
+  "version": "0.465.0",
   "private": true,
   "engines": {
     "node": ">=20.x"
   },
   "engineStrict": true,
   "scripts": {
+    "setup:windows": "powershell -ExecutionPolicy Bypass -File ./scripts/setup-windows.ps1",
     "build": "next build",
     "prebuild": "node scripts/update-sw-version.js",
     "postbuild": "node scripts/update-sw-version.js --restore",
     "dev:docker": "./scripts/docker-dev.sh",
+    "dev:docker:win": "powershell -ExecutionPolicy Bypass -File ./scripts/docker-dev.ps1",
     "dev:docker:up": "docker-compose -f docker-compose.yml -f docker-compose.dev.yml up --build",
     "dev:docker:down": "docker-compose -f docker-compose.yml -f docker-compose.dev.yml down",
     "dev:seed": "node seed-db-faker.js",

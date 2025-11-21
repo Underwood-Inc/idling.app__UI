@@ -1,30 +1,10 @@
 .page-content__section {
   display: flex;
   flex-direction: column;
-  max-width: calc(70vw - 2rem); /* Better width for aside space */
   flex: 1;
   position: relative;
   z-index: 1;
-  /* Remove margin-right that causes layout issues */
   height: auto;
   overflow: visible;
-}
-
-@media (max-width: 1024px) {
-  /* tablet, landscape iPad, lo-res laptops ands desktops */
-  .page-content__section {
-    max-width: 100%;
-  }
-}
-
-@media (min-width: 1400px) {
-  .page-content__section {
-    max-width: calc(72vw - 2rem);
-  }
-}
-
-@media (min-width: 1600px) {
-  .page-content__section {
-    max-width: calc(75vw - 2rem);
-  }
+  min-width: 0; /* Allow flex shrinking */
 }

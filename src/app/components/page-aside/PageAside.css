@@ -1,14 +1,17 @@
-/* PageAside Component - Override global aside styles */
+/* PageAside Component - Proper sticky behavior with internal scrolling */
 .page-aside__container {
-  position: fixed;
-  top: 16rem; /* Align with main content instead of header */
-  right: 2rem;
+  position: sticky;
+  top: calc(var(--header-height, 11rem) + 1rem); /* Header height + 1rem gap */
+  right: 0;
   width: calc(26vw - 2rem);
-  max-height: 60vh; /* Reduced maximum height for better balance */
-  z-index: 50; /* Lower z-index to avoid conflicts */
-  overflow: visible;
-  /* Ensure visibility */
-  display: block;
+  max-height: calc(100vh - var(--header-height, 11rem) - 6rem); /* Viewport minus header and footer (4.5rem + gap) */
+  z-index: 5; /* Below header (header is z-index: 1000) */
+  overflow: hidden; /* Container doesn't scroll */
+  display: flex;
+  flex-direction: column;
+  margin-inline-start: auto;
+  margin-inline-end: 2rem;
+  align-self: flex-start; /* Stick to top of container */
 }
 
 /* Override the global aside positioning - CRITICAL FIX */
@@ -18,8 +21,9 @@
   top: auto !important;
   right: auto !important;
   width: 100% !important;
-  max-height: 60vh !important;
+  max-height: 100% !important;
   min-height: auto !important;
+  flex: 1 1 auto !important;
   
   /* Our custom glassmorphism styling */
   background: rgba(255, 255, 255, 0.08);
@@ -31,16 +35,16 @@
   box-shadow: 
     0 8px 24px rgba(0, 0, 0, 0.08),
     inset 0 1px 0 rgba(255, 255, 255, 0.15);
-  font-size: var(--font-size-base);
+  font-size: 1rem;
   transition: all 0.3s ease;
   
-  /* Proper scrolling */
+  /* Internal scrolling */
   overflow-y: auto;
   overflow-x: hidden;
   
   /* Ensure proper display */
-  display: block !important;
-  flex: none !important;
+  display: flex !important;
+  flex-direction: column !important;
   
   /* Remove any margin/padding that might interfere */
   margin: 0 !important;
@@ -49,7 +53,6 @@
 /* Discord aside override - target CSS module class */
 .page-aside__container aside[class*="discord_aside"] {
   padding: 0 !important;
-  max-height: none !important;
 }
 
 .page-aside__container aside:hover {
