@@ -1,29 +1,15 @@
-/* Card Component - Base Styles */
+/* Card Component - Dark Theme */
 .card {
   padding: 2rem 2.4rem;
   border-radius: var(--border-radius);
-  background: linear-gradient(
-    135deg,
-    rgba(255, 255, 255, 0.1) 0%,
-    rgba(255, 255, 255, 0.05) 50%,
-    rgba(0, 0, 0, 0.05) 100%
-  );
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  box-shadow:
-    0 8px 32px rgba(0, 0, 0, 0.1),
-    inset 0 1px 0 rgba(255, 255, 255, 0.2);
-  transition:
-    background 300ms ease,
-    border 300ms ease,
-    box-shadow 300ms ease,
-    transform 200ms ease;
+  background: var(--bg-dark);
+  border: 1px solid var(--bg-light);
+  transition: all 0.2s ease;
   overflow: auto;
   display: flex;
   flex-direction: column;
   height: 100%;
-  color: var(--dark-bg__text-color--primary);
+  color: var(--text-primary);
   position: relative;
 }
 
@@ -54,30 +40,6 @@
   width: min-content;
 }
 
-/* Base card glassmorphic shimmer effect */
-.card:not(.profile-page__main-card)::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(
-    135deg,
-    rgba(255, 255, 255, 0.1) 0%,
-    rgba(255, 255, 255, 0.02) 50%,
-    rgba(0, 0, 0, 0.05) 100%
-  );
-  pointer-events: none;
-  z-index: 1;
-  border-radius: inherit;
-}
-
-/* Ensure content is above the shimmer (except profile cards) */
-.card:not(.profile-page__main-card) > * {
-  position: relative;
-  z-index: 2;
-}
 
 /* Base card text styles */
 .card,
@@ -97,51 +59,15 @@
   color: var(--dark-bg__text-color--primary);
 }
 
-/* Dark mode support for base cards */
-@media (prefers-color-scheme: dark) {
-  .card:not(.profile-page__main-card) {
-    background: linear-gradient(
-      135deg,
-      rgba(255, 255, 255, 0.08) 0%,
-      rgba(255, 255, 255, 0.04) 50%,
-      rgba(0, 0, 0, 0.1) 100%
-    );
-    border-color: rgba(255, 255, 255, 0.15);
-  }
-
-  .card:not(.profile-page__main-card)::before {
-    background: linear-gradient(
-      135deg,
-      rgba(255, 255, 255, 0.06) 0%,
-      rgba(255, 255, 255, 0.02) 50%,
-      rgba(0, 0, 0, 0.1) 100%
-    );
-  }
-  }
-
-/* Hover effects for non-profile cards */
-.card:not(.profile-page__main-card):hover {
-  transform: translateY(-2px);
-  box-shadow:
-    0 12px 40px rgba(0, 0, 0, 0.15),
-    inset 0 1px 0 rgba(255, 255, 255, 0.25);
-  border-color: rgba(255, 255, 255, 0.3);
+/* Hover effects */
+.card:hover {
+  border-color: var(--tan-primary);
+  box-shadow: 0 0 16px rgba(229, 193, 133, 0.2);
 }
 
 /* Accessibility and reduced motion */
 @media (prefers-reduced-motion: reduce) {
   .card {
     transition: none;
-  }
-
-  .card:hover {
-    transform: none;
-  }
-}
-
-/* High contrast support */
-@media (prefers-contrast: high) {
-  .card {
-    border-width: 2px;
   }
 }

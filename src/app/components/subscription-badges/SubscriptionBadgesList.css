@@ -4,17 +4,17 @@
 }
 
 .subscription-badges-list__container {
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: #E5E5E5;
+  border: 1px solid #E5E5E5;
   border-radius: 16px;
   padding: 1.5rem;
-  backdrop-filter: blur(12px);
+  
   transition: all 0.3s ease;
 }
 
 .subscription-badges-list__container:hover {
-  background: rgba(255, 255, 255, 0.05);
-  border-color: rgba(255, 255, 255, 0.12);
+  background: #E5E5E5;
+  border-color: #E5E5E5;
   transform: translateY(-1px);
 }
 
@@ -59,9 +59,9 @@
 .subscription-badges-list__skeleton {
   height: 60px;
   background: linear-gradient(90deg, 
-    rgba(255, 255, 255, 0.05) 0%, 
-    rgba(255, 255, 255, 0.1) 50%, 
-    rgba(255, 255, 255, 0.05) 100%);
+    #E5E5E5 0%, 
+    #E5E5E5 50%, 
+    #E5E5E5 100%);
   border-radius: 12px;
   animation: skeleton-pulse 1.5s ease-in-out infinite;
   background-size: 200% 100%;
@@ -75,9 +75,9 @@
 .subscription-badges-list__empty {
   text-align: center;
   padding: 2rem 1rem;
-  color: rgba(255, 255, 255, 0.6);
+  color: #E5E5E5;
   font-style: italic;
-  border: 2px dashed rgba(255, 255, 255, 0.1);
+  border: 2px dashed #E5E5E5;
   border-radius: 12px;
   margin-top: 1rem;
 }
@@ -96,10 +96,10 @@
   text-align: center;
   margin-top: 1rem;
   padding: 0.75rem;
-  color: rgba(255, 255, 255, 0.7);
+  color: #E5E5E5;
   font-style: italic;
-  font-size: 0.9rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  font-size: 1.0rem;
+  border-top: 1px solid #E5E5E5;
 }
 
 /* Admin Controls */
@@ -113,7 +113,7 @@
 
 .subscription-badges-list__admin-title {
   color: #c084fc;
-  font-size: 0.9rem;
+  font-size: 1.0rem;
   font-weight: 600;
   margin: 0 0 0.75rem 0;
   display: flex;
@@ -133,7 +133,7 @@
   color: #e9d5ff;
   padding: 0.4rem 0.8rem;
   border-radius: 8px;
-  font-size: 0.8rem;
+  font-size: 1.0rem;
   cursor: pointer;
   transition: all 0.2s ease;
 }

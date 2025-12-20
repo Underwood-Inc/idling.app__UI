@@ -45,7 +45,7 @@
   /* Tag styling - blue theme to match page content */
   background: linear-gradient(135deg, #e3f2fd, #bbdefb);
   color: #1565c0;
-  text-shadow: 0 1px 1px rgba(255, 255, 255, 0.9);
+  text-shadow: 0 1px 1px #E5E5E5;
   /* Use inset shadow to prevent layout changes */
   box-shadow: inset 0 0 0 rgba(66, 165, 245, 0);
 }
@@ -139,7 +139,7 @@
   border: 1px solid var(--brand-secondary--dark);
   border-radius: var(--border-radius);
   cursor: pointer;
-  font-size: 0.9rem;
+  font-size: 1.0rem;
   transition: all 0.2s ease-in-out;
 }
 
@@ -180,12 +180,12 @@
   }
 
   .filter-bar__filter-label {
-    font-size: 0.8rem;
+    font-size: 1.0rem;
   }
 
   .filter-bar__clear-all-button-compact {
     padding: 0.375rem 0.5rem;
-    font-size: 0.75rem;
+    font-size: 1.0rem;
   }
 
   /* Logic button improvements for tablets */
@@ -206,7 +206,7 @@
   .filter-bar__logic-button {
     min-width: 3rem;
     padding: 0.4rem 0.7rem;
-    font-size: 0.8rem;
+    font-size: 1.0rem;
   }
 
   .filter-bar__logic-toggle-group {
@@ -216,7 +216,7 @@
   .filter-bar__logic-toggle {
     min-width: 32px;
     padding: 0.2rem 0.4rem;
-    font-size: 0.65rem;
+    font-size: 1.0rem;
   }
 }
 
@@ -264,7 +264,7 @@
   }
 
   .filter-bar__logic-label {
-    font-size: 0.8rem;
+    font-size: 1.0rem;
   }
 
   .filter-bar__logic-button-group {
@@ -274,7 +274,7 @@
   .filter-bar__logic-button {
     min-width: 2.2rem;
     padding: 0.25rem 0.4rem;
-    font-size: 0.7rem;
+    font-size: 1.0rem;
   }
 
   .filter-bar__logic-toggle-group {
@@ -284,7 +284,7 @@
   .filter-bar__logic-toggle {
     min-width: 30px;
     padding: 0.2rem 0.35rem;
-    font-size: 0.6rem;
+    font-size: 1.0rem;
     letter-spacing: 0.1px;
   }
 }
@@ -301,7 +301,7 @@
   }
 
   .filter-bar__logic-label {
-    font-size: 0.75rem;
+    font-size: 1.0rem;
   }
 
   .filter-bar__logic-button-group {
@@ -311,7 +311,7 @@
   .filter-bar__logic-button {
     min-width: 2.2rem;
     padding: 0.25rem 0.4rem;
-    font-size: 0.7rem;
+    font-size: 1.0rem;
   }
 
   .filter-bar__logic-toggle-group {
@@ -321,7 +321,7 @@
   .filter-bar__logic-toggle {
     min-width: 28px;
     padding: 0.15rem 0.3rem;
-    font-size: 0.55rem;
+    font-size: 1.0rem;
   }
 }
 
@@ -346,11 +346,11 @@
   background-color: var(--light-bg__color--secondary);
   border-radius: var(--border-radius);
   border: 1px solid var(--brand-primary--light);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 1px 3px transparent;
 }
 
 .filter-bar__logic-label {
-  font-size: 0.85rem;
+  font-size: 1.0rem;
   font-weight: 600;
   color: var(--light-bg__text-color--primary);
   white-space: nowrap;
@@ -379,7 +379,7 @@
 }
 
 .filter-bar__filter-label {
-  font-size: 0.85rem;
+  font-size: 1.0rem;
   font-weight: 600;
   white-space: nowrap;
   text-transform: uppercase;
@@ -400,7 +400,7 @@
   border: 1px solid var(--brand-secondary--dark);
   border-radius: var(--border-radius);
   cursor: pointer;
-  font-size: 0.8rem;
+  font-size: 1.0rem;
   font-weight: 600;
   transition: all 0.2s ease-in-out;
   white-space: nowrap;
@@ -535,9 +535,9 @@
   border: none !important;
   border-radius: 0 !important;
   border-left: 1px solid rgba(46, 125, 50, 0.3) !important;
-  background: rgba(255, 255, 255, 0.2) !important;
+  background: #E5E5E5 !important;
   color: #1b5e20 !important;
-  font-size: 9px !important;
+  font-size: 1.0rem !important;
   font-weight: 700 !important;
   min-width: 28px !important;
   height: 100% !important;
@@ -547,7 +547,7 @@
 }
 
 .filter-bar__filter-type-toggle--integrated:hover {
-  background: rgba(255, 255, 255, 0.4) !important;
+  background: #E5E5E5 !important;
   color: #1b5e20 !important;
   transform: none !important;
 }
@@ -601,7 +601,7 @@
   .filter-bar__filter-type-toggle {
     min-width: 26px;
     height: 22px;
-    font-size: 0.65rem;
+    font-size: 1.0rem;
     padding: 0.15rem 0.3rem;
   }
 }
@@ -614,7 +614,7 @@
   .filter-bar__filter-type-toggle {
     min-width: 24px;
     height: 20px;
-    font-size: 0.6rem;
+    font-size: 1.0rem;
     padding: 0.1rem 0.25rem;
   }
 }
@@ -627,7 +627,7 @@
   min-width: 28px;
   height: 24px;
   padding: 0.2rem 0.4rem;
-  font-size: 0.7rem;
+  font-size: 1.0rem;
   font-weight: 600;
   border: 1px solid;
   border-radius: 3px;

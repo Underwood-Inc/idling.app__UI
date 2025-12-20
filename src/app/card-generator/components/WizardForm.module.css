@@ -3,9 +3,9 @@
   width: 100%; /* Fill available width within PageContent constraints */
   max-width: 100%; /* Remove arbitrary width limit */
   margin: 0; /* Remove auto centering to use full width */
-  background: rgba(0, 0, 0, 0.85) !important;
-  backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  background: transparent !important;
+  
+  border: 1px solid #E5E5E5 !important;
   border-radius: 16px;
   overflow: hidden;
   position: relative;
@@ -59,19 +59,19 @@
 
 /* Wizard-specific collapse button */
 .wizardCollapseButton {
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: #E5E5E5;
+  border: 1px solid #E5E5E5;
   border-radius: 8px;
   padding: 0.5rem 1rem;
   cursor: pointer;
-  font-size: 0.875rem;
-  color: rgba(255, 255, 255, 0.9);
+  font-size: 1.0rem;
+  color: #E5E5E5;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   font-weight: 500;
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  backdrop-filter: blur(8px);
+  
   height: 40px;
   white-space: nowrap;
   box-sizing: border-box;
@@ -79,11 +79,11 @@
 }
 
 .wizardCollapseButton:hover {
-  background: rgba(255, 255, 255, 0.15);
-  border-color: rgba(255, 255, 255, 0.3);
+  background: #E5E5E5;
+  border-color: #E5E5E5;
   color: rgba(255, 255, 255, 1);
   transform: translateY(-1px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 4px 8px transparent;
 }
 
 .wizardCollapseButton:active {
@@ -94,7 +94,7 @@
 .wizardCollapseChevron {
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   display: inline-block;
-  font-size: 0.75rem;
+  font-size: 1.0rem;
 }
 
 .wizardCollapseChevron--collapsed {
@@ -160,9 +160,9 @@
 }
 
 .stepInactive {
-  background: rgba(255, 255, 255, 0.1);
-  color: rgba(255, 255, 255, 0.6);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: #E5E5E5;
+  color: #E5E5E5;
+  border: 1px solid #E5E5E5;
 }
 
 /* Clickable Step Styles */
@@ -181,9 +181,9 @@
 }
 
 .stepClickable.stepInactive:hover {
-  background: rgba(255, 255, 255, 0.2);
-  color: rgba(255, 255, 255, 0.8);
-  border-color: rgba(255, 255, 255, 0.4);
+  background: #E5E5E5;
+  color: #E5E5E5;
+  border-color: #E5E5E5;
 }
 
 .stepClickable:active {
@@ -202,7 +202,7 @@
 }
 
 .stepLineInactive {
-  background: rgba(255, 255, 255, 0.2);
+  background: #E5E5E5;
 }
 
 /* Body */
@@ -251,8 +251,8 @@
 }
 
 .ratioCard {
-  background: rgba(255, 255, 255, 0.05);
-  border: 2px solid rgba(255, 255, 255, 0.1);
+  background: #E5E5E5;
+  border: 2px solid #E5E5E5;
   border-radius: 12px;
   padding: 1.5rem;
   cursor: pointer;
@@ -279,8 +279,8 @@
 }
 
 .ratioCard:hover {
-  background: rgba(255, 255, 255, 0.1);
-  border-color: rgba(255, 255, 255, 0.3);
+  background: #E5E5E5;
+  border-color: #E5E5E5;
   transform: translateY(-2px);
 }
 
@@ -307,14 +307,14 @@
 
 .ratioInfo p {
   color: var(--dark-bg__text-color--secondary);
-  font-size: 0.875rem;
+  font-size: 1.0rem;
   margin: 0 0 0.75rem 0;
   line-height: 1.4;
 }
 
 .ratioDimensions {
   color: var(--dark-bg__text-color--tertiary);
-  font-size: 0.75rem;
+  font-size: 1.0rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -355,8 +355,8 @@
 
 .input,
 .textarea {
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: #E5E5E5;
+  border: 1px solid #E5E5E5;
   border-radius: 8px;
   padding: 0.875rem 1rem;
   color: var(--dark-bg__text-color--primary);
@@ -369,14 +369,14 @@
 .input:focus,
 .textarea:focus {
   outline: none;
-  background: rgba(255, 255, 255, 0.15);
+  background: #E5E5E5;
   border-color: #8b5cf6;
   box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.2);
 }
 
 .input::placeholder,
 .textarea::placeholder {
-  color: rgba(255, 255, 255, 0.5);
+  color: #E5E5E5;
 }
 
 .textarea {
@@ -387,15 +387,15 @@
 
 .fieldHint {
   color: var(--dark-bg__text-color--tertiary);
-  font-size: 0.875rem;
+  font-size: 1.0rem;
   line-height: 1.4;
   margin-top: 0.25rem;
 }
 
 /* Confirmation Step */
 .confirmationCard {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: #E5E5E5;
+  border: 1px solid #E5E5E5;
   border-radius: 12px;
   padding: 2rem;
   margin-top: 2rem;
@@ -424,7 +424,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 0.75rem 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid #E5E5E5;
 }
 
 .configItem:last-child {
@@ -489,13 +489,13 @@
 }
 
 .previousButton {
-  background: rgba(255, 255, 255, 0.1);
+  background: #E5E5E5;
   color: var(--dark-bg__text-color--secondary);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid #E5E5E5;
 }
 
 .previousButton:hover:not(:disabled) {
-  background: rgba(255, 255, 255, 0.15);
+  background: #E5E5E5;
   color: var(--dark-bg__text-color--primary);
 }
 
@@ -524,8 +524,8 @@
 }
 
 .generateButtonDisabled {
-  background: rgba(255, 255, 255, 0.1);
-  color: rgba(255, 255, 255, 0.5);
+  background: #E5E5E5;
+  color: #E5E5E5;
   cursor: not-allowed;
 }
 
@@ -600,7 +600,7 @@
 .proNotice p {
   color: var(--dark-bg__text-color--secondary);
   margin: 0;
-  font-size: 0.9rem;
+  font-size: 1.0rem;
   line-height: 1.4;
 }
 
@@ -614,7 +614,7 @@
 }
 
 .fieldHint {
-  font-size: 0.875rem;
+  font-size: 1.0rem;
   color: var(--dark-bg__text-color--secondary);
   margin-top: 0.25rem;
   display: block;
@@ -630,7 +630,7 @@
   }
 
   .wizardCollapseButton {
-    font-size: 0.8125rem;
+    font-size: 1.0rem;
     padding: 0.4375rem 0.875rem;
     height: 32px;
   }
@@ -685,7 +685,7 @@
   .stepNumber {
     width: 32px;
     height: 32px;
-    font-size: 0.875rem;
+    font-size: 1.0rem;
   }
 
   .stepLine {

@@ -1,0 +1,307 @@
+/* Modern Project Showcase */
+.showcase {
+  width: 100%;
+  padding: 4rem 0;
+}
+
+.showcase__header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.showcase__title {
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: 800;
+  margin: 0 0 1rem 0;
+  color: var(--dark-bg__text-color--primary);
+}
+
+.showcase__subtitle {
+  font-size: clamp(1rem, 2vw, 1.25rem);
+  color: var(--dark-bg__text-color--secondary);
+  margin: 0 0 2rem 0;
+  max-width: 700px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Category Filter */
+.category__filter {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.filter__button {
+  padding: 0.75rem 1.5rem;
+  background: var(--dark-background--secondary);
+  border: 2px solid var(--dark-border--primary);
+  border-radius: 8px;
+  color: var(--dark-bg__text-color--primary);
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.filter__button:hover {
+  border-color: var(--brand-primary);
+  background: var(--dark-background--tertiary);
+  transform: translateY(-2px);
+}
+
+.filter__button--active {
+  background: var(--brand-primary);
+  border-color: var(--brand-primary);
+  color: var(--bg-darker);
+  font-weight: 700;
+}
+
+/* Projects Grid */
+.projects__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 2rem;
+  margin-top: 3rem;
+}
+
+/* Project Card - Clean & Simple */
+.project {
+  background: var(--dark-background--secondary);
+  border: 1px solid var(--dark-border--primary);
+  border-radius: 12px;
+  padding: 2rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.project:hover {
+  border-color: var(--brand-primary);
+  box-shadow: 0 4px 16px rgba(229, 193, 133, 0.2);
+  transform: translateY(-2px);
+}
+
+/* Project Header */
+.project__header {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.project__icon {
+  font-size: 2.5rem;
+  flex-shrink: 0;
+  filter: drop-shadow(0 2px 4px transparent);
+}
+
+.project__meta {
+  flex: 1;
+}
+
+.project__title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0 0 0.5rem 0;
+  color: var(--dark-bg__text-color--primary);
+}
+
+.project__type {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  background: var(--dark-background--tertiary);
+  border: 1px solid var(--dark-border--primary);
+  border-radius: 6px;
+  font-size: 1.0rem;
+  font-weight: 600;
+  color: var(--brand-primary);
+}
+
+/* Downloads */
+.project__downloads {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: var(--dark-background--tertiary);
+  border: 1px solid var(--dark-border--primary);
+  border-radius: 8px;
+  font-size: 1.0rem;
+  color: var(--dark-bg__text-color--secondary);
+  margin-bottom: 1rem;
+}
+
+.project__downloads strong {
+  color: var(--brand-primary);
+  font-weight: 600;
+}
+
+/* Description */
+.project__description {
+  color: var(--dark-bg__text-color--secondary);
+  line-height: 1.6;
+  margin: 0 0 1.5rem 0;
+}
+
+/* Features */
+.project__features {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.feature__tag {
+  padding: 0.5rem 0.875rem;
+  background: var(--dark-background--primary);
+  border: 1px solid var(--dark-border--primary);
+  border-radius: 6px;
+  font-size: 1.0rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  transition: all 0.2s;
+}
+
+.feature__tag:hover {
+  background: var(--dark-background--tertiary);
+  border-color: var(--tan-primary);
+  color: var(--tan-primary);
+}
+
+/* Links */
+.project__links {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.project__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  border-radius: 8px;
+  font-size: 1.0rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  flex: 1;
+  justify-content: center;
+  min-width: fit-content;
+}
+
+.project__link--modrinth {
+  background: #1bd96a;
+  color: white;
+  border: 2px solid #1bd96a;
+}
+
+.project__link--modrinth:hover {
+  background: #16b45a;
+  border-color: #16b45a;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(27, 217, 106, 0.3);
+}
+
+.project__link--github {
+  background: var(--dark-background--primary);
+  color: var(--dark-bg__text-color--primary);
+  border: 2px solid var(--dark-border--primary);
+}
+
+.project__link--github:hover {
+  background: var(--dark-background--tertiary);
+  border-color: var(--tan-primary);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(229, 193, 133, 0.2);
+}
+
+.project__link--demo {
+  background: var(--accent-green);
+  color: white;
+  border: 2px solid var(--accent-green);
+}
+
+.project__link--demo:hover {
+  background: #4A9040;
+  border-color: #4A9040;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(95, 181, 80, 0.3);
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .projects__grid {
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .showcase {
+    padding: 3rem 0;
+  }
+
+  .projects__grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .project {
+    padding: 1.5rem;
+  }
+
+  .project__links {
+    flex-direction: column;
+  }
+
+  .project__link {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .showcase {
+    padding: 2rem 0;
+  }
+
+  .showcase__header {
+    margin-bottom: 2rem;
+  }
+
+  .category__filter {
+    gap: 0.5rem;
+  }
+
+  .filter__button {
+    padding: 0.625rem 1.25rem;
+    font-size: 1.0rem;
+  }
+
+  .project {
+    padding: 1.25rem;
+  }
+
+  .project__icon {
+    font-size: 2rem;
+  }
+
+  .project__title {
+    font-size: 1.25rem;
+  }
+}
+
+/* Performance: Reduce motion */
+@media (prefers-reduced-motion: reduce) {
+  .project,
+  .filter__button,
+  .project__link {
+    transition: none;
+    transform: none !important;
+  }
+
+  .project:hover {
+    transform: none;
+  }
+}
+

@@ -5,7 +5,7 @@
 .user-subscription-modal {
   background: var(--dark-background--primary);
   border-radius: var(--border-radius);
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 25px 50px -12px transparent;
   max-width: 800px;
   width: 100%;
   max-height: 90vh;
@@ -112,7 +112,7 @@
 }
 
 .user-subscription-modal .error-message button:hover {
-  background: rgba(255, 255, 255, 0.2);
+  background: #E5E5E5;
 }
 
 /* Section Headers */

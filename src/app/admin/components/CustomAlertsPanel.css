@@ -111,12 +111,12 @@
   border: 1px solid var(--brand-tertiary--light);
   border-radius: var(--border-radius);
   padding: var(--spacing-cozy);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 8px transparent;
   transition: all 0.2s ease;
 }
 
 .alert-card:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 4px 12px transparent;
   transform: translateY(-2px);
 }
 
@@ -212,7 +212,7 @@
   display: flex;
   align-items: center;
   gap: var(--spacing-xs);
-  font-size: 0.85rem;
+  font-size: 1.0rem;
   color: var(--light-bg__text-color--secondary);
   cursor: pointer;
 }
@@ -281,7 +281,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: transparent;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -292,7 +292,7 @@
 .modal-content {
   background: var(--light-background--primary);
   border-radius: var(--border-radius);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 10px 30px transparent;
   max-width: 800px;
   width: 100%;
   max-height: 90vh;
@@ -395,7 +395,7 @@
 }
 
 .form-group small {
-  font-size: 0.8rem;
+  font-size: 1.0rem;
   color: var(--light-bg__text-color--secondary);
 }
 
@@ -403,7 +403,7 @@
   display: flex;
   align-items: center;
   gap: var(--spacing-xs);
-  font-size: 0.85rem;
+  font-size: 1.0rem;
   color: var(--light-bg__text-color--secondary);
   cursor: pointer;
 }
@@ -483,7 +483,7 @@
 
 .btn-sm {
   padding: var(--spacing-xs-cozy) var(--spacing-xs);
-  font-size: 0.8rem;
+  font-size: 1.0rem;
 }
 
 /* ================================

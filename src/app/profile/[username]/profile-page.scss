@@ -53,35 +53,30 @@
   overflow: visible;
 }
 
-/* MAIN PROFILE CARD - The Crown Jewel (Fixed) */
+/* MAIN PROFILE CARD - Clean & Simple */
 .profile-page__main-card {
-  /* Base glassmorphism structure */
-  background: rgba(255, 255, 255, 0.12) !important;
-  backdrop-filter: blur(24px) !important;
-  -webkit-backdrop-filter: blur(24px) !important;
+  /* Solid background */
+  background: var(--color-background-secondary) !important;
   
-  /* Elegant border system - no hard edges */
-  border: 1px solid rgba(237, 174, 73, 0.25) !important;
+  /* Simple border */
+  border: 1px solid var(--color-border) !important;
   border-radius: 16px !important;
   
-  /* Advanced shadow system - softer */
-  box-shadow: 
-    0 16px 32px rgba(0, 0, 0, 0.08),
-    0 4px 12px rgba(237, 174, 73, 0.1),
-    inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
+  /* Minimal shadow */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
   
   /* Smooth transitions */
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  transition: all 0.3s ease !important;
   
-  /* Positioning and overflow - fixed */
+  /* Positioning and overflow */
   position: relative !important;
   overflow: visible !important;
   
-  /* Enhanced padding for content */
+  /* Padding */
   padding: 2.5rem 2rem !important;
   margin: 0 !important;
   
-  /* Fix height and scrollbar issues */
+  /* Height */
   height: auto !important;
   min-height: auto !important;
   max-height: none !important;
@@ -128,10 +123,8 @@
 
 /* Profile Header Enhancement */
 .profile-page__main-card .user-profile__header {
-  background: rgba(255, 255, 255, 0.06);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(237, 174, 73, 0.15);
+  background: var(--color-background-secondary);
+  border: 1px solid var(--color-border);
   border-radius: 12px;
   padding: 1.5rem;
   margin-bottom: 1.5rem;
@@ -168,10 +161,8 @@
 
 .profile-page__main-card .user-profile__location,
 .profile-page__main-card .user-profile__join-date {
-  background: rgba(255, 255, 255, 0.06);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border: 1px solid rgba(237, 174, 73, 0.15);
+  background: var(--color-background-tertiary);
+  border: 1px solid var(--color-border);
   border-radius: 10px;
   padding: 0.6rem 0.9rem;
   margin: 0.4rem 0;
@@ -193,10 +184,8 @@
 
 /* Bio Section Enhancement */
 .profile-page__main-card .user-profile__bio {
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(237, 174, 73, 0.12);
+  background: var(--color-background-secondary);
+  border: 1px solid var(--color-border);
   border-radius: 12px;
   padding: 1.5rem;
   margin: 1.5rem 0;
@@ -220,10 +209,8 @@
 }
 
 .profile-page__main-card .user-profile__stat {
-  background: rgba(255, 255, 255, 0.06);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(237, 174, 73, 0.15);
+  background: var(--color-background-tertiary);
+  border: 1px solid var(--color-border);
   border-radius: 12px;
   padding: 1.25rem;
   text-align: center;
@@ -558,8 +545,6 @@
     background: transparent !important;
     background-color: rgba(0, 0, 0, 0.2) !important;
     background-image: none !important;
-    backdrop-filter: blur(20px) !important;
-    -webkit-backdrop-filter: blur(20px) !important;
   }
 
   .profile-page__aside-title {
@@ -745,8 +730,6 @@
 
 .user-not-found-main {
   background: rgba(255, 255, 255, 0.08);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
   border: 1px solid rgba(237, 174, 73, 0.2);
   border-radius: calc(var(--border-radius) * 1.5);
   padding: 0;
@@ -787,8 +770,6 @@
 
 .user-not-found-aside {
   background: rgba(255, 255, 255, 0.06);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(249, 223, 116, 0.15);
   border-radius: calc(var(--border-radius) * 1.5);
   overflow: hidden;
@@ -940,8 +921,6 @@
   margin: 0 0 3rem 0;
   padding: 2rem;
   background: rgba(255, 255, 255, 0.06);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(237, 174, 73, 0.2);
   border-radius: calc(var(--border-radius) * 1.2);
   list-style: none;
@@ -1018,8 +997,6 @@
   justify-content: center;
   min-width: 140px;
   position: relative;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
   overflow: hidden;
 }
@@ -1100,8 +1077,6 @@
   margin-top: 3rem;
   padding: 2rem;
   background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
   border: 1px solid rgba(237, 174, 73, 0.15);
   border-radius: calc(var(--border-radius) * 1.2);
   max-width: 500px;
@@ -1159,8 +1134,6 @@
   gap: 1rem;
   padding: 1rem;
   background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
   border: 1px solid rgba(249, 223, 116, 0.15);
   border-radius: calc(var(--border-radius) * 1.1);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -1404,8 +1377,6 @@
   margin-top: 3rem;
   padding: 2.5rem 2rem;
   background: rgba(255, 255, 255, 0.06);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(237, 174, 73, 0.2);
   border-radius: calc(var(--border-radius) * 1.5);
   max-width: 500px;
@@ -1510,8 +1481,6 @@
 
   .profile-page__main-card {
     background: rgba(0, 0, 0, 0.2) !important;
-    backdrop-filter: blur(28px) !important;
-    -webkit-backdrop-filter: blur(28px) !important;
     border: 2px solid rgba(237, 174, 73, 0.4) !important;
     box-shadow: 
       0 24px 48px rgba(0, 0, 0, 0.3),
@@ -1607,8 +1576,6 @@
   gap: 1rem;
   padding: 1.5rem;
   background: rgba(255, 255, 255, 0.08);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
   border: 1px solid rgba(237, 174, 73, 0.2);
   border-radius: 16px;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -1700,8 +1667,6 @@
   text-align: center;
   padding: 4rem 3rem;
   background: rgba(255, 255, 255, 0.08);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
   border: 1px solid rgba(237, 174, 73, 0.3);
   border-radius: 20px;
   position: relative;
@@ -1782,8 +1747,6 @@
   font-weight: 600;
   transition: all 0.3s ease;
   box-shadow: 0 8px 24px rgba(237, 174, 73, 0.3);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
 }
 
 .profile-page__private-link:hover {
@@ -1945,8 +1908,6 @@
   gap: 1rem;
   padding: 1rem;
   background: rgba(255, 255, 255, 0.06);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(237, 174, 73, 0.15);
   border-radius: 12px;
   box-shadow: 

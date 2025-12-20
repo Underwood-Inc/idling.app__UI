@@ -128,7 +128,7 @@ $convergence-points: (
 .star-small {
   width: 1px;
   height: 1px;
-  box-shadow: 0 0 2px rgba(255, 255, 255, 0.8);
+  box-shadow: 0 0 2px #E5E5E5;
 }
 
 .star-medium {
@@ -294,7 +294,7 @@ $convergence-points: (
 .distant-planet {
   position: absolute;
   border-radius: 50%;
-  background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.8), transparent);
+  background: radial-gradient(circle at 30% 30%, #E5E5E5, transparent);
   animation: planetRotate 30s linear infinite;
 }
 

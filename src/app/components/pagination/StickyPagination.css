@@ -6,8 +6,8 @@
   background: var(--light-bg__color--primary);
   border: 1px solid var(--light-bg__border-color--primary);
   border-radius: var(--border-radius);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  backdrop-filter: blur(8px);
+  box-shadow: 0 4px 12px transparent;
+  
   transition: all 0.3s ease;
   max-width: 90vw;
 }
@@ -130,17 +130,17 @@
   }
 
   .sticky-pagination__label {
-    font-size: 0.8rem;
+    font-size: 1.0rem;
   }
 
   .sticky-pagination .pagination__button {
     padding: 0.25rem 0.5rem;
-    font-size: 0.8rem;
+    font-size: 1.0rem;
   }
 
   .sticky-pagination .pagination__page-select {
     min-width: 50px;
-    font-size: 0.8rem;
+    font-size: 1.0rem;
   }
 }
 

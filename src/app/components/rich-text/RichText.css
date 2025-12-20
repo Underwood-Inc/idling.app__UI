@@ -36,14 +36,14 @@
   vertical-align: middle;
   padding: 0.1em 0.2em;
   margin: 0 0.1em;
-  background: rgba(0, 0, 0, 0.05);
+  background: transparent;
   border-radius: 3px;
-  border: 1px solid rgba(0, 0, 0, 0.1);
+  border: 1px solid transparent;
   transition: all 0.2s ease;
 }
 
 .emoji--ascii:hover {
-  background: rgba(0, 0, 0, 0.1);
+  background: transparent;
   transform: scale(1.05);
 }
 
@@ -107,7 +107,7 @@
   border: 1px solid var(--border-primary, #e0e0e0);
   border-radius: 8px;
   padding: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 12px transparent;
   max-height: 300px;
   overflow-y: auto;
 }
@@ -145,7 +145,7 @@
   border-color: var(--accent-color, #007bff);
   background-color: var(--bg-hover, #f8f9fa);
   transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 8px transparent;
 }
 
 .emoji-grid--ascii .emoji-button .emoji--ascii {
@@ -200,13 +200,13 @@
   max-width: 100%;
   height: auto;
   border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 8px transparent;
   margin: 8px 0;
   display: block;
 }
 
 .embedded-image:hover {
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 4px 16px transparent;
   transition: box-shadow 0.2s ease;
 }
 
@@ -226,7 +226,6 @@
   color: var(--text-code, #d63384);
   padding: 2px 4px;
   border-radius: 4px;
-
   font-size: 0.9em;
 }
 
@@ -238,6 +237,29 @@
 .rich-text u {
   text-decoration: underline;
   text-decoration-color: var(--accent-color, #007bff);
+}
+
+/* Links in rich text content */
+.rich-text a {
+  color: var(--tan-primary);
+  text-decoration: underline;
+  text-decoration-color: var(--tan-dark);
+  transition: all 0.2s ease;
+  font-weight: 500;
+}
+
+.rich-text a:hover {
+  color: var(--tan-secondary);
+  text-decoration-color: var(--tan-secondary);
+  text-decoration-thickness: 2px;
+}
+
+.rich-text a:visited {
+  color: var(--tan-dark);
+}
+
+.rich-text a:active {
+  color: var(--brown-shadow);
 }
 
 .rich-text blockquote {
@@ -388,13 +410,13 @@
 
   /* ASCII emoji dark mode styles */
   .emoji--ascii {
-    background: rgba(255, 255, 255, 0.1);
-    border-color: rgba(255, 255, 255, 0.2);
+    background: #E5E5E5;
+    border-color: #E5E5E5;
     color: var(--dark-bg__text-color--primary);
   }
 
   .emoji--ascii:hover {
-    background: rgba(255, 255, 255, 0.15);
+    background: #E5E5E5;
   }
 
   .emoji-grid--ascii .emoji-button {

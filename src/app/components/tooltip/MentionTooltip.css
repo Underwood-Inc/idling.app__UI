@@ -7,8 +7,7 @@
   background: var(--tooltip-glass-bg) !important;
   border: 1px solid var(--tooltip-glass-border) !important;
   border-radius: var(--border-radius);
-  backdrop-filter: var(--tooltip-glass-blur) !important;
-  -webkit-backdrop-filter: var(--tooltip-glass-blur) !important;
+  
   box-shadow: var(--tooltip-glass-shadow) !important;
   opacity: 0;
   visibility: hidden;
@@ -22,8 +21,7 @@
   background: var(--tooltip-glass-bg) !important;
   border: 1px solid var(--tooltip-glass-border) !important;
   border-radius: var(--border-radius);
-  backdrop-filter: var(--tooltip-glass-blur) !important;
-  -webkit-backdrop-filter: var(--tooltip-glass-blur) !important;
+  
   box-shadow: var(--tooltip-glass-shadow) !important;
   color: white;
   max-width: 320px;
@@ -61,15 +59,15 @@
 }
 
 .mention-tooltip__option:hover {
-  background-color: rgba(255, 255, 255, 0.1);
+  background-color: #E5E5E5;
 }
 
 .mention-tooltip__option--primary {
-  background-color: rgba(255, 255, 255, 0.1);
+  background-color: #E5E5E5;
 }
 
 .mention-tooltip__option--primary:hover {
-  background-color: rgba(255, 255, 255, 0.2);
+  background-color: #E5E5E5;
 }
 
 .mention-tooltip__icon {
@@ -85,7 +83,7 @@
 
 .mention-tooltip__description {
   font-size: var(--font-size-xs);
-  color: rgba(255, 255, 255, 0.7);
+  color: #E5E5E5;
   margin-top: 2px;
   display: block;
 }
@@ -109,19 +107,19 @@
   }
 
   .mention-tooltip__option:hover {
-    background-color: rgba(255, 255, 255, 0.1);
+    background-color: #E5E5E5;
   }
 
   .mention-tooltip__option--primary {
-    background-color: rgba(255, 255, 255, 0.1);
+    background-color: #E5E5E5;
   }
 
   .mention-tooltip__option--primary:hover {
-    background-color: rgba(255, 255, 255, 0.2);
+    background-color: #E5E5E5;
   }
 
   .mention-tooltip__description {
-    color: rgba(255, 255, 255, 0.7);
+    color: #E5E5E5;
   }
 }
 
@@ -156,15 +154,15 @@
 }
 
 .mention-tooltip-content .mention-tooltip__option:hover {
-  background-color: rgba(255, 255, 255, 0.1);
+  background-color: #E5E5E5;
 }
 
 .mention-tooltip-content .mention-tooltip__option--primary {
-  background-color: rgba(255, 255, 255, 0.1);
+  background-color: #E5E5E5;
 }
 
 .mention-tooltip-content .mention-tooltip__option--primary:hover {
-  background-color: rgba(255, 255, 255, 0.2);
+  background-color: #E5E5E5;
 }
 
 .mention-tooltip-content .mention-tooltip__icon {
@@ -180,7 +178,7 @@
 
 .mention-tooltip-content .mention-tooltip__description {
   font-size: var(--font-size-xs);
-  color: rgba(255, 255, 255, 0.7);
+  color: #E5E5E5;
   margin-top: 2px;
   display: block;
 }
@@ -204,19 +202,19 @@
   }
 
   .mention-tooltip-content .mention-tooltip__option:hover {
-    background-color: rgba(255, 255, 255, 0.1);
+    background-color: #E5E5E5;
   }
 
   .mention-tooltip-content .mention-tooltip__option--primary {
-    background-color: rgba(255, 255, 255, 0.1);
+    background-color: #E5E5E5;
   }
 
   .mention-tooltip-content .mention-tooltip__option--primary:hover {
-    background-color: rgba(255, 255, 255, 0.2);
+    background-color: #E5E5E5;
   }
 
   .mention-tooltip-content .mention-tooltip__description {
-    color: rgba(255, 255, 255, 0.7);
+    color: #E5E5E5;
   }
 }
 
@@ -243,16 +241,16 @@
   }
 
   .mention-tooltip__option--primary:hover {
-    background-color: rgba(255, 255, 255, 0.1);
+    background-color: #E5E5E5;
   }
 
   /* Make sure touch feedback works */
   .mention-tooltip__option:active {
-    background-color: rgba(255, 255, 255, 0.2);
+    background-color: #E5E5E5;
     transform: scale(0.98);
   }
 
   .mention-tooltip__option--primary:active {
-    background-color: rgba(255, 255, 255, 0.25);
+    background-color: #E5E5E5;
   }
 }

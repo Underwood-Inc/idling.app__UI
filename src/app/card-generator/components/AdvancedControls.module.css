@@ -8,28 +8,28 @@
   align-items: center;
   gap: 0.5rem;
   background: none;
-  border: 1px solid var(--color-border);
-  color: var(--color-text-primary);
+  border: 1px solid var(--dark-border--primary);
+  color: var(--dark-bg__text-color--primary);
   padding: 0.75rem 1rem;
   border-radius: 6px;
   cursor: pointer;
-  font-size: 0.875rem;
+  font-size: 1.0rem;
   font-weight: 500;
   transition: all 0.2s ease;
   margin: 0 auto;
-  background-color: var(--color-background-secondary);
+  background-color: var(--dark-background--secondary);
 }
 
 .advanced__toggle:hover {
   border-color: var(--brand-primary);
-  background-color: var(--color-background-tertiary);
+  background-color: var(--dark-background--tertiary);
 }
 
 .advanced__controls {
   margin-top: 1rem;
   padding: 1.5rem;
-  background-color: var(--color-background-secondary);
-  border: 1px solid var(--color-border);
+  background-color: var(--dark-background--secondary);
+  border: 1px solid var(--dark-border--primary);
   border-radius: 8px;
 }
 
@@ -52,18 +52,18 @@
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
-  font-size: 0.875rem;
+  font-size: 1.0rem;
   font-weight: 500;
-  color: var(--color-text-secondary);
+  color: var(--dark-bg__text-color--secondary);
 }
 
 .quote__input {
   padding: 0.75rem;
-  background-color: var(--color-background-primary);
-  border: 1px solid var(--color-border);
+  background-color: var(--dark-background--primary);
+  border: 1px solid var(--dark-border--primary);
   border-radius: 6px;
-  font-size: 0.875rem;
-  color: var(--color-text-primary);
+  font-size: 1.0rem;
+  color: var(--dark-bg__text-color--primary);
   font-family: inherit;
   resize: vertical;
   min-height: 80px;
@@ -78,11 +78,11 @@
 .author__input,
 .dimension__input {
   padding: 0.5rem 0.75rem;
-  background-color: var(--color-background-primary);
-  border: 1px solid var(--color-border);
+  background-color: var(--dark-background--primary);
+  border: 1px solid var(--dark-border--primary);
   border-radius: 6px;
-  font-size: 0.875rem;
-  color: var(--color-text-primary);
+  font-size: 1.0rem;
+  color: var(--dark-bg__text-color--primary);
 }
 
 .author__input:focus,
@@ -95,15 +95,15 @@
 .control__help {
   margin-top: 1rem;
   padding: 1rem;
-  background-color: var(--color-background-tertiary);
+  background-color: var(--dark-background--tertiary);
   border-radius: 6px;
   border-left: 3px solid var(--brand-primary);
 }
 
 .control__help p {
   margin: 0 0 0.5rem 0;
-  font-size: 0.8125rem;
-  color: var(--color-text-secondary);
+  font-size: 1.0rem;
+  color: var(--dark-bg__text-color--secondary);
   line-height: 1.4;
 }
 
@@ -112,17 +112,17 @@
 }
 
 .control__help strong {
-  color: var(--color-text-primary);
+  color: var(--dark-bg__text-color--primary);
 }
 
-/* Advanced Options Toggle */
+/* Advanced Options Toggle - Second definition (overrides first) */
 .advanced__toggle {
   width: 100%;
   padding: 1rem 1.5rem;
-  background-color: var(--color-background-primary);
-  border: 2px solid var(--color-border);
+  background-color: var(--dark-background--primary);
+  border: 2px solid var(--dark-border--primary);
   border-radius: 8px;
-  color: var(--color-text-primary);
+  color: var(--dark-bg__text-color--primary);
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
@@ -135,13 +135,13 @@
 
 .advanced__toggle:hover {
   border-color: var(--brand-primary);
-  background-color: var(--color-background-secondary);
+  background-color: var(--dark-background--secondary);
 }
 
 .toggle__badge {
-  background-color: var(--color-background-tertiary);
-  color: var(--color-text-secondary);
-  font-size: 0.75rem;
+  background-color: var(--dark-background--tertiary);
+  color: var(--dark-bg__text-color--secondary);
+  font-size: 1.0rem;
   font-weight: 700;
   padding: 0.25rem 0.5rem;
   border-radius: 4px;
@@ -151,8 +151,8 @@
 
 /* Advanced Options Container */
 .advanced__options {
-  background: rgba(0, 0, 0, 0.3);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: transparent;
+  border: 1px solid #E5E5E5;
   border-radius: 12px;
   padding: 0;
   margin: 0;
@@ -191,14 +191,14 @@
   text-decoration: none;
   border-radius: 6px;
   font-weight: 700;
-  font-size: 0.9rem;
+  font-size: 1.0rem;
   transition: all 0.2s ease;
-  box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 4px -1px transparent;
 }
 
 .advanced__upgrade__link:hover {
   transform: translateY(-1px);
-  box-shadow: 0 4px 8px -2px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 4px 8px -2px transparent;
 }
 
 /* Advanced controls styling grid */
@@ -222,7 +222,7 @@
   border-radius: 12px;
   text-align: center;
   margin-top: 1.5rem;
-  backdrop-filter: blur(8px);
+  
 }
 
 .upgrade__content h4 {
@@ -252,7 +252,7 @@
   border: none;
   border-radius: 8px;
   font-weight: 600;
-  font-size: 0.9375rem;
+  font-size: 1.0rem;
   cursor: pointer;
   transition: all 0.2s ease;
   text-decoration: none;

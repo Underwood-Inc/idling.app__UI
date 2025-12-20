@@ -1,10 +1,30 @@
-/* FadeIn.css */
+/* FadeIn.css - Optimized for performance */
 .fade-in {
   opacity: 0;
-  transition: opacity 1s ease-in;
   width: inherit;
+  /* GPU acceleration for smooth performance */
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  /* Hint browser about upcoming animation */
+  will-change: opacity;
+  /* Use transform instead of just opacity for better performance */
+  transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1), transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .fade-in.visible {
   opacity: 1;
+  /* Remove will-change after animation to free resources */
+  will-change: auto;
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .fade-in {
+    transition: none;
+    will-change: auto;
+  }
+  
+  .fade-in.visible {
+    opacity: 1;
+  }
 }

@@ -70,7 +70,7 @@
   );
   background-clip: text;
   -webkit-background-clip: text;
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  text-shadow: 0 2px 8px transparent;
   position: relative;
   z-index: 10;
 }
@@ -80,9 +80,8 @@
 /* Location and Join Date Pills */
 .user-profile__location,
 .user-profile__join-date {
-  background: rgba(255, 255, 255, 0.08);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  background: #E5E5E5;
+  
   border: 1px solid rgba(237, 174, 73, 0.2);
   border-radius: 12px;
   padding: 0.75rem 1rem;
@@ -93,30 +92,29 @@
   align-items: center;
   gap: 0.5rem;
   transition: all 0.2s ease;
-  font-size: 0.95rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  font-size: 1.0rem;
+  box-shadow: 0 2px 8px transparent;
 }
 
 .user-profile__location:hover,
 .user-profile__join-date:hover {
-  background: rgba(255, 255, 255, 0.12);
+  background: #E5E5E5;
   border-color: rgba(237, 174, 73, 0.3);
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 12px transparent;
 }
 
 /* Bio Section - Enhanced Glassmorphism */
 .user-profile__bio {
-  background: rgba(255, 255, 255, 0.06);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  background: #E5E5E5;
+  
   border: 1px solid rgba(237, 174, 73, 0.15);
   border-radius: 16px;
   padding: 2rem;
   margin: 2rem 0;
   box-shadow: 
-    0 8px 24px rgba(0, 0, 0, 0.05),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    0 8px 24px transparent,
+    inset 0 1px 0 #E5E5E5;
   position: relative;
   overflow: hidden;
 }
@@ -165,9 +163,8 @@
 }
 
 .user-profile__bio-smart-input {
-  background: rgba(255, 255, 255, 0.08);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  background: #E5E5E5;
+  
   border: 1px solid rgba(237, 174, 73, 0.2);
   border-radius: 12px;
   padding: 1rem;
@@ -181,7 +178,7 @@
 .user-profile__bio-smart-input:focus {
   outline: none;
   border-color: rgba(237, 174, 73, 0.4);
-  background: rgba(255, 255, 255, 0.12);
+  background: #E5E5E5;
   box-shadow: 0 0 0 3px rgba(237, 174, 73, 0.1);
 }
 
@@ -199,7 +196,7 @@
   transition: all 0.2s ease;
   cursor: pointer;
   border: none;
-  font-size: 0.95rem;
+  font-size: 1.0rem;
 }
 
 .user-profile__bio-save {
@@ -215,18 +212,18 @@
 }
 
 .user-profile__bio-cancel {
-  background: rgba(255, 255, 255, 0.08);
+  background: #E5E5E5;
   color: var(--brand-primary--dark);
   border: 1px solid rgba(237, 174, 73, 0.2);
 }
 
 .user-profile__bio-cancel:hover {
-  background: rgba(255, 255, 255, 0.12);
+  background: #E5E5E5;
   border-color: rgba(237, 174, 73, 0.3);
 }
 
 .user-profile__bio-counter {
-  font-size: 0.85rem;
+  font-size: 1.0rem;
   color: var(--brand-primary--dark);
   opacity: 0.8;
   text-align: right;
@@ -234,13 +231,12 @@
 
 /* Edit Bio Button */
 .user-profile__edit-bio-btn {
-  background: rgba(255, 255, 255, 0.08);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  background: #E5E5E5;
+  
   border: 1px solid rgba(237, 174, 73, 0.2);
   border-radius: 10px;
   padding: 0.5rem 1rem;
-  font-size: 0.85rem;
+  font-size: 1.0rem;
   font-weight: 600;
   color: var(--brand-primary--dark);
   cursor: pointer;
@@ -249,7 +245,7 @@
 }
 
 .user-profile__edit-bio-btn:hover {
-  background: rgba(255, 255, 255, 0.12);
+  background: #E5E5E5;
   border-color: rgba(237, 174, 73, 0.3);
   transform: translateY(-1px);
 }
@@ -263,9 +259,8 @@
 }
 
 .user-profile__stat {
-  background: rgba(255, 255, 255, 0.08);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: #E5E5E5;
+  
   border: 1px solid rgba(237, 174, 73, 0.2);
   border-radius: 14px;
   padding: 1.5rem;
@@ -297,12 +292,12 @@
 }
 
 .user-profile__stat:hover {
-  background: rgba(255, 255, 255, 0.12);
+  background: #E5E5E5;
   border-color: rgba(237, 174, 73, 0.3);
   transform: translateY(-4px);
   box-shadow: 
-    0 12px 32px rgba(0, 0, 0, 0.08),
-    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+    0 12px 32px transparent,
+    inset 0 1px 0 #E5E5E5;
 }
 
 .user-profile__stat-number {
@@ -311,7 +306,7 @@
   color: var(--brand-primary);
   display: block;
   margin-bottom: 0.5rem;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  text-shadow: 0 2px 4px transparent;
 }
 
 .user-profile__stat-label {
@@ -328,16 +323,15 @@
   align-items: center;
   gap: 0.75rem;
   padding: 0.75rem;
-  background: rgba(255, 255, 255, 0.08);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  background: #E5E5E5;
+  
   border: 1px solid rgba(237, 174, 73, 0.2);
   border-radius: 12px;
   transition: all 0.2s ease;
 }
 
 .user-profile--compact:hover {
-  background: rgba(255, 255, 255, 0.12);
+  background: #E5E5E5;
   border-color: rgba(237, 174, 73, 0.3);
   transform: translateY(-1px);
 }
@@ -348,21 +342,20 @@
 }
 
 .user-profile--compact .user-profile__location {
-  font-size: 0.9rem;
+  font-size: 1.0rem;
   padding: 0.25rem 0.5rem;
   margin: 0;
 }
 
 .user-profile--tooltip {
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  background: #E5E5E5;
+  
   border: 1px solid rgba(237, 174, 73, 0.3);
   border-radius: 16px;
   padding: 1.5rem;
   box-shadow: 
-    0 8px 24px rgba(0, 0, 0, 0.15),
-    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    0 8px 24px transparent,
+    inset 0 1px 0 #E5E5E5;
   max-width: 300px;
 }
 
@@ -372,7 +365,7 @@
 }
 
 .user-profile--tooltip .user-profile__location {
-  font-size: 0.9rem;
+  font-size: 1.0rem;
   padding: 0.5rem 0.75rem;
   margin: 0.25rem 0;
 }
@@ -381,27 +374,27 @@
 @media (prefers-color-scheme: dark) {
   .user-profile__location,
   .user-profile__join-date {
-    background: rgba(0, 0, 0, 0.2);
+    background: transparent;
     border-color: rgba(237, 174, 73, 0.3);
   }
   
   .user-profile__bio {
-    background: rgba(0, 0, 0, 0.15);
+    background: transparent;
     border-color: rgba(237, 174, 73, 0.25);
 }
 
 .user-profile__stat {
-    background: rgba(0, 0, 0, 0.2);
+    background: transparent;
     border-color: rgba(237, 174, 73, 0.3);
 }
 
   .user-profile--compact {
-    background: rgba(0, 0, 0, 0.2);
+    background: transparent;
     border-color: rgba(237, 174, 73, 0.3);
 }
 
   .user-profile--tooltip {
-    background: rgba(0, 0, 0, 0.3);
+    background: transparent;
     border-color: rgba(237, 174, 73, 0.4);
   }
 }
@@ -449,6 +442,6 @@
   .user-profile__location,
   .user-profile__join-date {
     padding: 0.5rem 0.75rem;
-    font-size: 0.9rem;
+    font-size: 1.0rem;
   }
 }

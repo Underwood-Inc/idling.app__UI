@@ -833,7 +833,7 @@
   border: 1px solid var(--light-border--primary, #e0e0e0);
   border-radius: 12px;
   padding: 1.5rem;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 2px 4px transparent;
   transition: all 0.2s ease;
 }
 
@@ -841,7 +841,7 @@
   .skeleton-container--simple .skeleton-item-fallback {
     background: var(--dark-background--primary, #1a1a1a);
     border-color: var(--dark-border--primary, #333333);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 2px 4px transparent;
   }
 }
 

@@ -336,7 +336,8 @@ export default function OgImageViewer() {
   return (
     <div data-testid="card-generator">
       <PageContainer>
-        <PageContent>
+        <div className={styles.generator__layout}>
+          <PageContent>
           {/* Header moved inside PageContent for proper aside layout constraints */}
           <FadeIn>
             <div
@@ -491,15 +492,16 @@ export default function OgImageViewer() {
           )}
         </PageContent>
 
-        <PageAside>
-          <QuotaDisplay
-            remainingGenerations={quotaState.remainingGenerations}
-            quotaLimit={quotaState.quotaLimit}
-            resetDate={quotaState.resetDate}
-            hasInitializedQuota={quotaState.hasInitializedQuota}
-            isQuotaExceeded={quotaState.isQuotaExceeded}
-          />
-        </PageAside>
+          <PageAside>
+            <QuotaDisplay
+              remainingGenerations={quotaState.remainingGenerations}
+              quotaLimit={quotaState.quotaLimit}
+              resetDate={quotaState.resetDate}
+              hasInitializedQuota={quotaState.hasInitializedQuota}
+              isQuotaExceeded={quotaState.isQuotaExceeded}
+            />
+          </PageAside>
+        </div>
       </PageContainer>
     </div>
   );

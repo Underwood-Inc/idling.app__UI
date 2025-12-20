@@ -44,7 +44,7 @@
 .decoration-renderer__spinner {
   width: 0.75rem;
   height: 0.75rem;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid #E5E5E5;
   border-top-color: var(--decoration-active-color);
   border-radius: 50%;
   animation: decoration-spin 1s linear infinite;
@@ -64,7 +64,7 @@
   top: -0.25rem;
   right: -0.25rem;
   color: var(--decoration-trial-color);
-  font-size: 0.6rem;
+  font-size: 1.0rem;
   z-index: 11;
   opacity: 0.7;
   pointer-events: none;
@@ -81,7 +81,7 @@
   position: absolute;
   top: -0.5rem;
   left: -0.25rem;
-  font-size: 0.75rem;
+  font-size: 1.0rem;
   animation: decoration-crown-bounce 2s ease-in-out infinite;
   z-index: 3;
   user-select: none;
@@ -153,7 +153,7 @@
 
 .decoration-renderer__particle {
   position: absolute;
-  font-size: 0.5rem;
+  font-size: 1.0rem;
   animation: decoration-particle-float 3s ease-in-out infinite;
 }
 
@@ -363,12 +363,12 @@
 /* Responsive Design */
 @media (max-width: 768px) {
   .decoration-renderer__crown {
-    font-size: 0.625rem;
+    font-size: 1.0rem;
     top: -0.375rem;
   }
 
   .decoration-renderer__particle {
-    font-size: 0.375rem;
+    font-size: 1.0rem;
   }
 
   .decoration-renderer__particles {

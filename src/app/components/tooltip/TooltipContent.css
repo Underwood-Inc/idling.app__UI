@@ -126,13 +126,13 @@
   align-items: center;
   gap: 12px;
   padding: 8px 12px;
-  background: rgba(255, 255, 255, 0.1);
+  background: #E5E5E5;
   border-radius: var(--border-radius);
   margin-top: 8px;
   font-size: var(--font-size-xs);
   color: #e0e0e0;
   flex-wrap: wrap;
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  border: 1px solid #E5E5E5;
 }
 
 /* Ensure TimestampWithTooltip has proper contrast in tooltip cache info */
@@ -161,7 +161,7 @@
   width: 100%;
   margin-top: 4px;
   padding-top: 4px;
-  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  border-top: 1px solid #E5E5E5;
 }
 
 .tooltip-cache-stats small {
@@ -239,7 +239,7 @@
 .tooltip-mobile-link {
   margin-top: var(--spacing-md);
   padding-top: var(--spacing-md);
-  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  border-top: 1px solid #E5E5E5;
 }
 
 .tooltip-mobile-link-button {

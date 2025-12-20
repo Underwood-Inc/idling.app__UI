@@ -27,7 +27,7 @@
   filter: blur(0.5px) saturate(0.8) brightness(0.9) contrast(0.8) !important;
   transform: none !important;
   opacity: 1 !important;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+  box-shadow: 0 2px 8px transparent !important;
 }
 
 .floating-avatar .avatar img {

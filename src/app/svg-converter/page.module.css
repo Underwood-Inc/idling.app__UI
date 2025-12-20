@@ -30,7 +30,7 @@
   font-weight: 700;
   color: var(--brand-primary);
   margin-bottom: 0.5rem;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+  text-shadow: 0 2px 4px transparent;
 }
 
 .converter__description {
@@ -49,16 +49,16 @@
 
 .converter__interface {
   background: var(--glass-bg-heavy);
-  backdrop-filter: var(--glass-blur-medium);
+  
   border: 1px solid var(--glass-border-medium);
   border-radius: var(--border-radius-lg);
   padding: 2rem;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 8px 32px transparent;
 }
 
 .converter__result {
   background: var(--glass-bg-medium);
-  backdrop-filter: var(--glass-blur-medium);
+  
   border: 1px solid var(--glass-border-light);
   border-radius: var(--border-radius-lg);
   padding: 1.5rem;
@@ -95,7 +95,7 @@
   border-radius: var(--border-radius-sm);
   padding: 0.5rem 1rem;
   cursor: pointer;
-  font-size: 0.875rem;
+  font-size: 1.0rem;
   transition: var(--transition-base);
 }
 
@@ -112,11 +112,11 @@
 
 .sidebar__section {
   background: var(--glass-bg-heavy);
-  backdrop-filter: var(--glass-blur-medium);
+  
   border: 1px solid var(--glass-border-medium);
   border-radius: var(--border-radius-md);
   padding: 1.5rem;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 4px 16px transparent;
 }
 
 .sidebar__title {
@@ -142,7 +142,7 @@
 .feature__list li,
 .tips__list li {
   color: var(--text-secondary);
-  font-size: 0.875rem;
+  font-size: 1.0rem;
   line-height: 1.5;
   padding: 0.25rem 0;
 }
@@ -160,7 +160,7 @@
 }
 
 .format__label {
-  font-size: 0.75rem;
+  font-size: 1.0rem;
   color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -168,21 +168,21 @@
 }
 
 .format__value {
-  font-size: 0.875rem;
+  font-size: 1.0rem;
   color: var(--text-primary);
   font-weight: 600;
 }
 
 .user__info {
   color: var(--text-secondary);
-  font-size: 0.875rem;
+  font-size: 1.0rem;
   line-height: 1.5;
   margin: 0;
 }
 
 .user__info small {
   color: var(--text-muted);
-  font-size: 0.75rem;
+  font-size: 1.0rem;
 }
 
 /* Responsive Design */

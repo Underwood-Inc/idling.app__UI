@@ -10,7 +10,7 @@
   /* No border-radius on container - overflow: hidden handles clipping */
   border: 2px solid var(--brand-tertiary--dark);
   overflow: hidden;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 1px 3px transparent;
 }
 
 .logic-toggle__button {
@@ -19,7 +19,7 @@
   justify-content: center;
   min-width: 3rem;
   padding: 0.4rem 0.7rem;
-  font-size: 0.8rem;
+  font-size: 1.0rem;
   font-weight: 600;
   background-color: var(--brand-tertiary);
   color: var(--light-bg__text-color--secondary);
@@ -49,7 +49,7 @@
   background-color: var(--brand-primary);
   color: white;
   font-weight: 700;
-  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: inset 0 2px 4px transparent;
 }
 
 .logic-toggle__button--active:hover:not(:disabled) {

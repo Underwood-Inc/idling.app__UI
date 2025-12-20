@@ -26,7 +26,7 @@
   color: var(--text-primary);
   cursor: pointer;
   transition: var(--transition-base);
-  font-size: 0.875rem;
+  font-size: 1.0rem;
   font-weight: 500;
 }
 
@@ -95,7 +95,7 @@
 
 .loading__text {
   color: var(--text-muted);
-  font-size: 0.875rem;
+  font-size: 1.0rem;
 }
 
 .preview__image {
@@ -134,7 +134,7 @@
 }
 
 .info__label {
-  font-size: 0.75rem;
+  font-size: 1.0rem;
   color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -142,7 +142,7 @@
 }
 
 .info__value {
-  font-size: 0.875rem;
+  font-size: 1.0rem;
   color: var(--text-primary);
   font-weight: 600;
 }
@@ -198,14 +198,14 @@
 }
 
 .stat__label {
-  font-size: 0.75rem;
+  font-size: 1.0rem;
   color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
 
 .stat__value {
-  font-size: 0.875rem;
+  font-size: 1.0rem;
   font-weight: 600;
 }
 

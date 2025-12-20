@@ -1,16 +1,7 @@
-@import '../../../styles/glassmorphism.scss';
-
 .header {
-  // Apply glassmorphism with the current dark background color at 80% opacity
-  @include glassmorphism(
-    $color: #1a1611,
-    $opacity: 0.7,
-    $blur: 12px,
-    $include-border: false // We'll use custom border
-  );
-  
-  // Keep the existing custom border style
-  border-bottom: 2px solid var(--dark-background--quinary);
+  // Dark header
+  background: var(--bg-darker);
+  border-bottom: 2px solid var(--brand-primary);
   
   // Keep all existing styles
   color: var(--brand-primary);

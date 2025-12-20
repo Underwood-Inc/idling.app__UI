@@ -60,7 +60,7 @@
   left: -100%;
   width: 100%;
   height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+  background: linear-gradient(90deg, transparent, #E5E5E5, transparent);
   transition: left 0.5s ease;
 }
 
@@ -70,7 +70,7 @@
 
 .signin__container .auth-button:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 8px 25px transparent;
 }
 
 /* Responsive design */
@@ -156,7 +156,7 @@
 
 .signin__error-solution-option:hover {
   border-color: var(--brand-primary);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 8px transparent;
 }
 
 .signin__error-solution-option h3 {

@@ -2,17 +2,17 @@
 .quota__beautiful {
   background: linear-gradient(
     135deg,
-    var(--color-background-secondary),
-    var(--color-background-tertiary)
+    var(--dark-background--secondary),
+    var(--dark-background--tertiary)
   );
-  backdrop-filter: blur(20px);
-  border: 2px solid var(--color-border);
+  
+  border: 2px solid var(--dark-border--primary);
   border-radius: 20px;
   padding: 1.5rem 2rem;
   margin: 0 auto;
   box-shadow:
-    0 12px 40px rgba(0, 0, 0, 0.3),
-    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    0 12px 40px transparent,
+    inset 0 1px 0 #E5E5E5;
   position: relative;
   overflow: hidden;
   max-width: 320px;
@@ -29,15 +29,15 @@
   background: linear-gradient(
     90deg,
     transparent,
-    var(--color-border),
+    var(--dark-border--primary),
     transparent
   );
 }
 
 .quota__beautiful h3 {
-  font-size: 0.9rem;
+  font-size: 1.0rem;
   margin: 0 0 0.75rem 0;
-  color: var(--color-text-primary);
+  color: var(--dark-bg__text-color--primary);
   font-weight: 700;
   text-align: center;
   letter-spacing: 0.5px;
@@ -64,7 +64,7 @@
   max-width: none;
   width: 100%;
   height: 8px;
-  background: rgba(0, 0, 0, 0.1);
+  background: transparent;
   border-radius: 4px;
   overflow: hidden;
 }
@@ -82,15 +82,15 @@
 }
 
 .quota__beautiful .quota__text {
-  font-size: 0.875rem;
-  color: var(--color-text-primary);
+  font-size: 1.0rem;
+  color: var(--dark-bg__text-color--primary);
   font-weight: 600;
   text-align: center;
   white-space: nowrap;
 }
 
 .quota__beautiful .quota__upgrade {
-  font-size: 0.8125rem;
+  font-size: 1.0rem;
   padding: 0.5rem 1rem;
   background: linear-gradient(
     135deg,
@@ -112,17 +112,17 @@
 .quota__mobile {
   background: linear-gradient(
     135deg,
-    var(--color-background-secondary),
-    var(--color-background-tertiary)
+    var(--dark-background--secondary),
+    var(--dark-background--tertiary)
   );
-  backdrop-filter: blur(20px);
-  border: 2px solid var(--color-border);
+  
+  border: 2px solid var(--dark-border--primary);
   border-radius: 16px;
   padding: 0.875rem 1.5rem;
   margin: 0 auto;
   box-shadow:
-    0 8px 32px rgba(0, 0, 0, 0.25),
-    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    0 8px 32px transparent,
+    inset 0 1px 0 #E5E5E5;
   position: relative;
   overflow: hidden;
   max-width: 280px;
@@ -139,15 +139,15 @@
   background: linear-gradient(
     90deg,
     transparent,
-    var(--color-border),
+    var(--dark-border--primary),
     transparent
   );
 }
 
 .quota__mobile h3 {
-  font-size: 0.75rem;
+  font-size: 1.0rem;
   margin: 0 0 0.75rem 0;
-  color: var(--color-text-secondary);
+  color: var(--dark-bg__text-color--secondary);
   font-weight: 600;
   text-align: center;
   letter-spacing: 0.5px;
@@ -169,7 +169,7 @@
 .quota__mobile .quota__bar {
   width: 100%;
   height: 6px;
-  background: rgba(0, 0, 0, 0.1);
+  background: transparent;
   border-radius: 3px;
   overflow: hidden;
 }
@@ -187,8 +187,8 @@
 }
 
 .quota__mobile .quota__text {
-  font-size: 0.8125rem;
-  color: var(--color-text-secondary);
+  font-size: 1.0rem;
+  color: var(--dark-bg__text-color--secondary);
   font-weight: 500;
   text-align: center;
 }
@@ -203,7 +203,7 @@
   border: none;
   padding: 0.5rem 1rem;
   border-radius: 8px;
-  font-size: 0.75rem;
+  font-size: 1.0rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -252,8 +252,8 @@
 }
 
 .quota__text {
-  font-size: 0.875rem;
-  color: var(--color-text-secondary);
+  font-size: 1.0rem;
+  color: var(--dark-bg__text-color--secondary);
   font-weight: 500;
 }
 
@@ -266,7 +266,7 @@
   color: white;
   text-decoration: none;
   border-radius: 4px;
-  font-size: 0.8125rem;
+  font-size: 1.0rem;
   font-weight: 600;
   transition: all 0.2s ease;
 }
@@ -303,7 +303,7 @@
 .quota__bar {
   width: 100%;
   height: 8px;
-  background: rgba(255, 255, 255, 0.1);
+  background: #E5E5E5;
   border-radius: 4px;
   overflow: hidden;
   max-width: 300px;
@@ -325,7 +325,7 @@
 .quota__section h3 {
   font-size: 1.125rem;
   margin: 0 0 1rem 0;
-  color: var(--color-text-primary);
+  color: var(--dark-bg__text-color--primary);
   text-align: center;
   font-weight: 700;
   letter-spacing: 0.5px;
@@ -349,7 +349,7 @@
 .quota__section .quota__bar {
   width: 100%;
   height: 10px;
-  background: rgba(255, 255, 255, 0.1);
+  background: #E5E5E5;
   border-radius: 5px;
   overflow: hidden;
 }
@@ -363,13 +363,13 @@
 
 .quota__section .quota__text {
   font-size: 1rem;
-  color: var(--color-text-primary);
+  color: var(--dark-bg__text-color--primary);
   font-weight: 600;
   text-align: center;
 }
 
 .quota__section .quota__upgrade {
-  font-size: 0.9375rem;
+  font-size: 1.0rem;
   padding: 0.75rem 1.5rem;
   background: linear-gradient(135deg, #f59e0b, #d97706);
   border-radius: 10px;
@@ -404,7 +404,7 @@
   }
 
   .quota__mobile h3 {
-    font-size: 0.875rem;
+    font-size: 1.0rem;
     margin-bottom: 0.5rem;
   }
 
@@ -423,16 +423,15 @@
   padding: 3rem;
   background: linear-gradient(
     135deg,
-    rgba(255, 255, 255, 0.1),
-    rgba(255, 255, 255, 0.05)
+    #E5E5E5,
+    #E5E5E5
   );
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  
+  border: 1px solid #E5E5E5;
   border-radius: 20px;
   box-shadow:
-    0 8px 32px rgba(0, 0, 0, 0.1),
-    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    0 8px 32px transparent,
+    inset 0 1px 0 #E5E5E5;
   max-width: 800px;
   margin: 0 auto;
   position: relative;
@@ -451,7 +450,7 @@
   background: linear-gradient(
     90deg,
     transparent,
-    rgba(255, 255, 255, 0.3),
+    #E5E5E5,
     transparent
   );
 }
@@ -459,7 +458,7 @@
 .quota__welcome h3 {
   font-size: 2.75rem;
   margin: 0 0 1.5rem 0;
-  color: var(--color-text-primary);
+  color: var(--dark-bg__text-color--primary);
   font-weight: 700;
   letter-spacing: -0.02em;
   text-align: center;
@@ -487,10 +486,10 @@
 .quota__welcome .quota__bar {
   width: 100%;
   height: 16px;
-  background: rgba(0, 0, 0, 0.1);
+  background: transparent;
   border-radius: 8px;
   overflow: hidden;
-  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: inset 0 2px 4px transparent;
 }
 
 .quota__welcome .quota__fill {
@@ -508,7 +507,7 @@
 
 .quota__welcome .quota__text {
   font-size: 1.375rem;
-  color: var(--color-text-secondary);
+  color: var(--dark-bg__text-color--secondary);
   line-height: 1.7;
   margin: 0 auto;
   max-width: 700px;
@@ -593,7 +592,7 @@
   }
 
   .quota__welcome .quota__upgrade {
-    font-size: 0.9375rem;
+    font-size: 1.0rem;
     padding: 0.75rem 1.5rem;
   }
 }
