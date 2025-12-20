@@ -152,7 +152,7 @@
 /* Advanced Options Container */
 .advanced__options {
   background: transparent;
-  border: 1px solid #E5E5E5;
+  border: 1px solid rgba(139, 92, 246, 0.3);
   border-radius: 12px;
   padding: 0;
   margin: 0;

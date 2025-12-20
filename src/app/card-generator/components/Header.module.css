@@ -66,11 +66,11 @@
 }
 
 .header__button:last-child {
-  background-color: #10b981;
+  background-color: #f59e0b;
 }
 
 .header__button:last-child:hover {
-  background-color: #059669;
+  background-color: #d97706;
 }
 
 /* Special header styling for wizard mode */

@@ -1,0 +1,390 @@
+/**
+ * Lexical Editor Styles
+ *
+ * Base styling for the Lexical rich text editor.
+ * Uses CSS variables from the existing theme system for consistency.
+ */
+
+/* ============================================
+   ROOT EDITOR CONTAINER
+   ============================================ */
+
+.lexical-editor {
+  position: relative;
+  min-height: 40px;
+  padding: 8px 12px;
+  border: 1px solid var(--light-border--primary);
+  border-radius: var(--border-radius);
+  background-color: var(--light-background--primary);
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 1.4;
+  color: var(--light-text--primary);
+  outline: none;
+  overflow: auto;
+}
+
+.lexical-editor:focus-within {
+  border-color: var(--light-accent--primary);
+  box-shadow: 0 0 0 2px var(--light-accent--primary-transparent, rgba(0, 123, 255, 0.15));
+}
+
+.lexical-editor--disabled {
+  opacity: 0.6;
+  pointer-events: none;
+  background-color: var(--light-background--secondary);
+}
+
+.lexical-editor--multiline {
+  min-height: 60px;
+  max-height: 200px;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+.lexical-editor--single-line {
+  max-height: 40px;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+/* ============================================
+   PLACEHOLDER
+   ============================================ */
+
+.lexical-placeholder {
+  position: absolute;
+  top: 8px;
+  left: 12px;
+  right: 12px;
+  color: var(--light-text--tertiary, #999);
+  font-style: italic;
+  pointer-events: none;
+  user-select: none;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ============================================
+   PARAGRAPH & TEXT
+   ============================================ */
+
+.lexical-paragraph {
+  margin: 0;
+  padding: 0;
+}
+
+.lexical-text--bold {
+  font-weight: 700;
+}
+
+.lexical-text--italic {
+  font-style: italic;
+}
+
+.lexical-text--underline {
+  text-decoration: underline;
+}
+
+.lexical-text--strikethrough {
+  text-decoration: line-through;
+}
+
+.lexical-text--code {
+  font-family: 'Fira Code', 'Monaco', 'Consolas', monospace;
+  font-size: 0.9em;
+  padding: 2px 4px;
+  background-color: var(--light-background--secondary);
+  border-radius: 3px;
+}
+
+/* ============================================
+   LINKS
+   ============================================ */
+
+.lexical-link {
+  color: var(--light-accent--primary);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.lexical-link:hover {
+  text-decoration: underline;
+}
+
+/* ============================================
+   LISTS
+   ============================================ */
+
+.lexical-list--unordered,
+.lexical-list--ordered {
+  margin: 0.5em 0;
+  padding-left: 1.5em;
+}
+
+.lexical-list__item {
+  margin: 0.25em 0;
+}
+
+.lexical-list__item--nested {
+  margin-left: 1em;
+}
+
+/* ============================================
+   BLOCKQUOTE
+   ============================================ */
+
+.lexical-quote {
+  margin: 0.5em 0;
+  padding: 0.5em 1em;
+  border-left: 3px solid var(--light-accent--primary);
+  background-color: var(--light-background--secondary);
+  font-style: italic;
+}
+
+/* ============================================
+   CODE BLOCKS
+   ============================================ */
+
+.lexical-code {
+  display: block;
+  margin: 0.5em 0;
+  padding: 1em;
+  font-family: 'Fira Code', 'Monaco', 'Consolas', monospace;
+  font-size: 0.9em;
+  background-color: var(--light-background--secondary);
+  border-radius: var(--border-radius);
+  overflow-x: auto;
+}
+
+/* Code syntax highlighting */
+.lexical-code--comment { color: #6a737d; }
+.lexical-code--keyword { color: #d73a49; }
+.lexical-code--string { color: #032f62; }
+.lexical-code--number { color: #005cc5; }
+.lexical-code--function { color: #6f42c1; }
+.lexical-code--operator { color: #d73a49; }
+.lexical-code--punctuation { color: #24292e; }
+.lexical-code--property { color: #005cc5; }
+.lexical-code--variable { color: #e36209; }
+.lexical-code--class-name { color: #6f42c1; }
+.lexical-code--tag { color: #22863a; }
+.lexical-code--attr { color: #6f42c1; }
+.lexical-code--boolean { color: #005cc5; }
+.lexical-code--constant { color: #005cc5; }
+.lexical-code--builtin { color: #6f42c1; }
+
+/* ============================================
+   CUSTOM NODES - HASHTAG
+   ============================================ */
+
+/* Inherits from content-pill classes defined in existing CSS */
+.lexical-editor .content-pill--hashtag {
+  cursor: pointer;
+}
+
+.lexical-editor .content-pill--hashtag:hover {
+  opacity: 0.8;
+}
+
+/* ============================================
+   CUSTOM NODES - MENTION
+   ============================================ */
+
+/* Inherits from content-pill classes defined in existing CSS */
+.lexical-editor .content-pill--mention {
+  cursor: pointer;
+}
+
+.lexical-editor .content-pill--mention:hover {
+  opacity: 0.8;
+}
+
+/* ============================================
+   CUSTOM NODES - EMOJI
+   ============================================ */
+
+.lexical-editor .emoji {
+  display: inline;
+  vertical-align: middle;
+}
+
+.lexical-editor .emoji--unicode {
+  font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif;
+}
+
+.lexical-editor .emoji--custom {
+  width: 1.2em;
+  height: 1.2em;
+  object-fit: contain;
+}
+
+/* ============================================
+   CONTENT EDITABLE INNER AREA
+   ============================================ */
+
+.lexical-content-editable {
+  min-height: inherit;
+  outline: none;
+}
+
+/* ============================================
+   TYPEAHEAD / AUTOCOMPLETE MENU
+   ============================================ */
+
+.lexical-typeahead-menu {
+  position: absolute;
+  z-index: 1000;
+  min-width: 200px;
+  max-width: 300px;
+  max-height: 200px;
+  overflow-y: auto;
+  background-color: var(--light-background--primary);
+  border: 1px solid var(--light-border--primary);
+  border-radius: var(--border-radius);
+  box-shadow: 0 4px 12px var(--light-shadow--primary, rgba(0, 0, 0, 0.15));
+}
+
+.lexical-typeahead-menu__item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.lexical-typeahead-menu__item:hover,
+.lexical-typeahead-menu__item--selected {
+  background-color: var(--light-background--secondary);
+}
+
+.lexical-typeahead-menu__item--disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.lexical-typeahead-menu__avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.lexical-typeahead-menu__label {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lexical-typeahead-menu__count {
+  font-size: 0.85em;
+  color: var(--light-text--tertiary);
+}
+
+.lexical-typeahead-menu__loading {
+  padding: 12px;
+  text-align: center;
+  color: var(--light-text--tertiary);
+}
+
+.lexical-typeahead-menu__empty {
+  padding: 12px;
+  text-align: center;
+  color: var(--light-text--tertiary);
+  font-style: italic;
+}
+
+/* ============================================
+   FLOATING TOOLBAR
+   ============================================ */
+
+.lexical-floating-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.lexical-floating-toolbar__button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 1px solid var(--light-border--primary);
+  border-radius: var(--border-radius);
+  background-color: var(--light-background--primary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.lexical-floating-toolbar__button:hover {
+  background-color: var(--light-background--secondary);
+  border-color: var(--light-accent--primary);
+}
+
+.lexical-floating-toolbar__button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ============================================
+   DARK MODE SUPPORT
+   ============================================ */
+
+@media (prefers-color-scheme: dark) {
+  .lexical-editor {
+    border-color: var(--dark-border--primary, #3d3d3d);
+    background-color: var(--dark-background--primary, #1e1e1e);
+    color: var(--dark-text--primary, #e0e0e0);
+  }
+
+  .lexical-editor:focus-within {
+    border-color: var(--dark-accent--primary, #4da6ff);
+  }
+
+  .lexical-placeholder {
+    color: var(--dark-text--tertiary, #666);
+  }
+
+  .lexical-text--code,
+  .lexical-code {
+    background-color: var(--dark-background--secondary, #2d2d2d);
+  }
+
+  .lexical-quote {
+    background-color: var(--dark-background--secondary, #2d2d2d);
+    border-color: var(--dark-accent--primary, #4da6ff);
+  }
+
+  .lexical-typeahead-menu {
+    background-color: var(--dark-background--primary, #1e1e1e);
+    border-color: var(--dark-border--primary, #3d3d3d);
+  }
+
+  .lexical-typeahead-menu__item:hover,
+  .lexical-typeahead-menu__item--selected {
+    background-color: var(--dark-background--secondary, #2d2d2d);
+  }
+
+  /* Dark mode code highlighting */
+  .lexical-code--comment { color: #8b949e; }
+  .lexical-code--keyword { color: #ff7b72; }
+  .lexical-code--string { color: #a5d6ff; }
+  .lexical-code--number { color: #79c0ff; }
+  .lexical-code--function { color: #d2a8ff; }
+  .lexical-code--operator { color: #ff7b72; }
+  .lexical-code--punctuation { color: #c9d1d9; }
+  .lexical-code--property { color: #79c0ff; }
+  .lexical-code--variable { color: #ffa657; }
+  .lexical-code--class-name { color: #d2a8ff; }
+  .lexical-code--tag { color: #7ee787; }
+  .lexical-code--attr { color: #d2a8ff; }
+  .lexical-code--boolean { color: #79c0ff; }
+  .lexical-code--constant { color: #79c0ff; }
+  .lexical-code--builtin { color: #d2a8ff; }
+}
+

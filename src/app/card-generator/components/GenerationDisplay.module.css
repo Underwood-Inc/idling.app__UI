@@ -158,7 +158,7 @@
   bottom: 0;
   background: transparent;
   
-  border: 1px solid #E5E5E5;
+  border: 1px solid rgba(139, 92, 246, 0.3);
   border-radius: 16px;
   padding: 1.5rem;
   display: flex;
@@ -168,8 +168,8 @@
   gap: 1.5rem;
   box-shadow:
     0 12px 40px transparent,
-    inset 0 1px 0 #E5E5E5,
-    0 0 0 1px #E5E5E5;
+    inset 0 1px 0 rgba(255, 255, 255, 0.05),
+    0 0 0 1px rgba(139, 92, 246, 0.2);
   z-index: var(--z-content);
 }
 
@@ -190,10 +190,10 @@
 
 .generation__display__overlay .generation__button {
   color: var(--brand-primary);
-  background-color: #E5E5E5;
+  background-color: rgba(139, 92, 246, 0.15);
   padding: 0.875rem 1.5rem;
   border-radius: 8px;
-  border: 1px solid #E5E5E5;
+  border: 1px solid rgba(139, 92, 246, 0.3);
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;

@@ -6,18 +6,36 @@
   /* Constrain avatar size in navbar */
   width: 2.5rem;
   height: 2.5rem;
+  min-width: 2.5rem;
+  min-height: 2.5rem;
+  max-width: 2.5rem;
+  max-height: 2.5rem;
+  flex-shrink: 0;
+}
+
+/* Override all avatar size classes within navbar brand wrapper */
+.navbar-brand__avatar .avatar,
+.navbar-brand__avatar .avatar.sm,
+.navbar-brand__avatar .avatar.xs,
+.navbar-brand__avatar .avatar.xxs,
+.navbar-brand__avatar .avatar.md,
+.navbar-brand__avatar .avatar.lg,
+.navbar-brand__avatar .avatar.full {
+  width: 2.5rem;
+  height: 2.5rem;
+  min-width: 2.5rem;
+  min-height: 2.5rem;
   max-width: 2.5rem;
   max-height: 2.5rem;
 }
 
-.navbar-brand__avatar .avatar {
+.navbar-brand__avatar .avatar img,
+.navbar-brand__avatar .avatar__img,
+.navbar-brand__avatar .avatar .avatar__img {
   width: 100%;
   height: 100%;
-}
-
-.navbar-brand__avatar .avatar img {
-  width: 100%;
-  height: 100%;
+  max-width: 2.5rem;
+  max-height: 2.5rem;
   object-fit: cover;
 }
 
