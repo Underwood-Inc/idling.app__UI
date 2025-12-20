@@ -6,7 +6,23 @@ import { ClientLogger } from './adapters/ClientLogger';
 import { DebugLogger } from './adapters/DebugLogger';
 import { ServerLogger } from './adapters/ServerLogger';
 import { Logger } from './core/Logger';
-import type { LoggerConfig, LoggerInstance } from './types';
+import { SigNozTransport } from './transports/SigNozTransport';
+import type { LoggerConfig, LoggerInstance, LogTransport } from './types';
+
+/**
+ * Get the default transports for server-side logging
+ * Includes SigNoz transport when SIGNOZ_ENDPOINT is configured
+ */
+function getServerTransports(): LogTransport[] {
+  const transports: LogTransport[] = [];
+
+  // Only add SigNoz transport on server-side and when configured
+  if (typeof window === 'undefined' && process.env.SIGNOZ_ENDPOINT) {
+    transports.push(SigNozTransport);
+  }
+
+  return transports;
+}
 
 /**
  * Create a generic logger instance
@@ -17,11 +33,18 @@ export function createLogger(config?: Partial<LoggerConfig>): LoggerInstance {
 
 /**
  * Create a server-specific logger instance
+ * Automatically includes SigNoz transport when SIGNOZ_ENDPOINT is configured
  */
 export function createServerLogger(
   config?: Partial<LoggerConfig>
 ): ServerLogger {
-  return new ServerLogger(config);
+  const serverTransports = getServerTransports();
+  const configTransports = config?.transports || [];
+
+  return new ServerLogger({
+    ...config,
+    transports: [...serverTransports, ...configTransports]
+  });
 }
 
 /**
