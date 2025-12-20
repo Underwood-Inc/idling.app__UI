@@ -48,13 +48,13 @@
 
 .smart-filter-input .rich-input-adapter .content-pill--hashtag {
   background-color: var(--hashtag-bg, rgba(0, 123, 255, 0.1));
-  color: var(--hashtag-color, #007bff);
+  color: var(--brand-primary);
   border: 1px solid var(--hashtag-border, rgba(0, 123, 255, 0.3));
 }
 
 .smart-filter-input .rich-input-adapter .content-pill--mention {
   background-color: var(--mention-bg, rgba(40, 167, 69, 0.1));
-  color: var(--mention-color, #28a745);
+  color: var(--brand-primary);
   border: 1px solid var(--mention-border, rgba(40, 167, 69, 0.3));
 }
 

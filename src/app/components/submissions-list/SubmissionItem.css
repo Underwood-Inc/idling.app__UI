@@ -29,7 +29,7 @@
 
 /* Reply styling with visual hierarchy */
 .submission__wrapper.submission__wrapper--reply {
-  border-left: 4px solid var(--brand-primary, #007bff);
+  border-left: 4px solid var(--brand-primary);
   border-radius: 0 var(--border-radius) var(--border-radius) 0;
   margin-top: 0.75rem;
   margin-bottom: 0.75rem;
@@ -58,7 +58,7 @@
 .reply-dot-indicator {
   width: 10px;
   height: 10px;
-  background: var(--brand-primary, #007bff);
+  background: var(--brand-primary);
   border-radius: 50%;
   display: inline-block;
   box-shadow: 0 1px 4px transparent;
