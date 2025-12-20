@@ -5,19 +5,19 @@
 }
 
 .selector__label {
-  font-size: 0.875rem;
+  font-size: 1.0rem;
   font-weight: 500;
-  color: var(--color-text-secondary);
+  color: var(--dark-bg__text-color--secondary);
   white-space: nowrap;
 }
 
 .selector__dropdown {
   padding: 0.5rem 0.75rem;
-  background-color: var(--color-background-secondary);
-  border: 1px solid var(--color-border);
+  background-color: var(--dark-background--secondary);
+  border: 1px solid var(--dark-border--primary);
   border-radius: 6px;
-  font-size: 0.875rem;
-  color: var(--color-text-primary);
+  font-size: 1.0rem;
+  color: var(--dark-bg__text-color--primary);
   cursor: pointer;
   transition: all 0.2s ease;
   min-width: 200px;
@@ -45,26 +45,26 @@
   align-items: center;
   gap: 0.25rem;
   padding: 1rem 1.5rem;
-  background-color: var(--color-background-secondary);
-  border: 1px solid var(--color-border);
+  background-color: var(--dark-background--secondary);
+  border: 1px solid var(--dark-border--primary);
   border-radius: 8px;
 }
 
 .ratio__name {
   font-size: 1rem;
   font-weight: 600;
-  color: var(--color-text-primary);
+  color: var(--dark-bg__text-color--primary);
 }
 
 .ratio__dimensions {
-  font-size: 0.875rem;
+  font-size: 1.0rem;
   font-weight: 500;
   color: var(--brand-primary);
 }
 
 .ratio__description {
-  font-size: 0.8125rem;
-  color: var(--color-text-secondary);
+  font-size: 1.0rem;
+  color: var(--dark-bg__text-color--secondary);
   text-align: center;
 }
 

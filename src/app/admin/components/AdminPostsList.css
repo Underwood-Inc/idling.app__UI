@@ -18,7 +18,7 @@
 
 .admin-posts-list__header p {
   color: var(--light-bg__text-color--secondary);
-  font-size: 0.95rem;
+  font-size: 1.0rem;
   line-height: 1.5;
 }
 
@@ -37,7 +37,7 @@
   }
 
   .admin-posts-list__header p {
-    font-size: 0.9rem;
+    font-size: 1.0rem;
   }
 }
 

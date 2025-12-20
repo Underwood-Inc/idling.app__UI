@@ -42,8 +42,8 @@
   /* Card and surface colors */
   --analytics-card-background: var(--light-background--primary);
   --analytics-card-border: var(--light-border--primary);
-  --analytics-card-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  --analytics-card-hover-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  --analytics-card-shadow: 0 2px 8px transparent;
+  --analytics-card-hover-shadow: 0 4px 16px transparent;
 }
 
 /* Dark theme overrides */
@@ -59,8 +59,8 @@
     --analytics-metric-label-color: var(--dark-bg__text-color--primary);
     --analytics-card-background: var(--dark-background--secondary);
     --analytics-card-border: var(--dark-border--primary);
-    --analytics-card-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-    --analytics-card-hover-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+    --analytics-card-shadow: 0 2px 8px transparent;
+    --analytics-card-hover-shadow: 0 4px 16px transparent;
   }
 }
 

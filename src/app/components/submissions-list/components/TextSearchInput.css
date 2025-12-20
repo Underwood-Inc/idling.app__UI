@@ -104,7 +104,7 @@
   font-size: 11px;
   font-weight: 500;
   color: var(--text-muted, #6b7280);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 4px transparent;
   transition: all 0.2s ease;
   cursor: pointer;
   user-select: none;
@@ -118,7 +118,7 @@
 
 .text-search-input__replies-filter:hover {
   border-color: var(--accent-primary, #007bff);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 2px 8px transparent;
 }
 
 .text-search-input__replies-filter--active {
@@ -168,7 +168,7 @@
   background: var(--light-background--primary, #ffffff);
   border: 1px solid var(--light-background--tertiary, #e0e0e0);
   border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 4px 12px transparent;
   min-width: 200px;
   overflow: hidden;
   padding: 4px 0;
@@ -420,7 +420,7 @@
   }
 
   .text-search-input__terms-logic {
-    font-size: 9px;
+    font-size: 1.0rem;
   }
 }
 

@@ -44,15 +44,14 @@
   text-align: center;
   margin-bottom: 3rem;
   padding: 3rem 2rem;
-  background: rgba(255, 255, 255, 0.12);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
+  background: #E5E5E5;
+  
   border: 1px solid rgba(237, 174, 73, 0.25);
   border-radius: 20px;
   box-shadow: 
-    0 16px 32px rgba(0, 0, 0, 0.08),
+    0 16px 32px transparent,
     0 4px 12px rgba(237, 174, 73, 0.1),
-    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    inset 0 1px 0 #E5E5E5;
   position: relative;
   overflow: hidden;
 }
@@ -68,7 +67,7 @@
     135deg,
     rgba(237, 174, 73, 0.04) 0%,
     rgba(249, 223, 116, 0.025) 25%,
-    rgba(255, 255, 255, 0.05) 50%,
+    #E5E5E5 50%,
     rgba(235, 194, 83, 0.02) 75%,
     rgba(237, 174, 73, 0.015) 100%
   );
@@ -95,7 +94,7 @@
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  text-shadow: 0 2px 8px transparent;
   letter-spacing: -0.02em;
 }
 
@@ -116,9 +115,8 @@
   justify-content: center;
   gap: 2rem;
   min-height: 60vh;
-  background: rgba(255, 255, 255, 0.08);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  background: #E5E5E5;
+  
   border: 1px solid rgba(237, 174, 73, 0.2);
   border-radius: 20px;
   padding: 3rem;
@@ -147,18 +145,17 @@
 
 /* Category Containers - Glassmorphic Cards */
 .settings-category {
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  background: #E5E5E5;
+  
   border: 1px solid rgba(237, 174, 73, 0.2);
   border-radius: 18px;
   overflow: hidden;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   box-shadow: 
-    0 12px 24px rgba(0, 0, 0, 0.06),
+    0 12px 24px transparent,
     0 4px 12px rgba(237, 174, 73, 0.08),
-    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+    inset 0 1px 0 #E5E5E5;
 }
 
 .settings-category::before {
@@ -185,12 +182,12 @@
 
 .settings-category:hover {
   border-color: rgba(237, 174, 73, 0.35);
-  background: rgba(255, 255, 255, 0.12);
+  background: #E5E5E5;
   transform: translateY(-2px);
   box-shadow: 
-    0 16px 40px rgba(0, 0, 0, 0.1),
+    0 16px 40px transparent,
     0 8px 20px rgba(237, 174, 73, 0.15),
-    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    inset 0 1px 0 #E5E5E5;
 }
 
 /* Category Headers */
@@ -208,7 +205,7 @@
 }
 
 .settings-category__header:hover {
-  background: rgba(255, 255, 255, 0.05);
+  background: #E5E5E5;
 }
 
 .settings-category__header-content {
@@ -318,9 +315,8 @@
 
 /* Settings Cards - Enhanced Glassmorphism */
 .settings-card {
-  background: rgba(255, 255, 255, 0.08);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  background: #E5E5E5;
+  
   border: 1px solid rgba(237, 174, 73, 0.15);
   border-radius: 16px;
   padding: 2rem;
@@ -328,8 +324,8 @@
   position: relative;
   overflow: hidden;
   box-shadow: 
-    0 8px 20px rgba(0, 0, 0, 0.04),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    0 8px 20px transparent,
+    inset 0 1px 0 #E5E5E5;
 }
 
 .settings-card::before {
@@ -356,11 +352,11 @@
 
 .settings-card:hover {
   border-color: rgba(237, 174, 73, 0.25);
-  background: rgba(255, 255, 255, 0.1);
+  background: #E5E5E5;
   transform: translateY(-2px);
   box-shadow: 
-    0 12px 28px rgba(0, 0, 0, 0.06),
-    inset 0 1px 0 rgba(255, 255, 255, 0.12);
+    0 12px 28px transparent,
+    inset 0 1px 0 #E5E5E5;
 }
 
 .settings-card--wide {
@@ -393,7 +389,7 @@
 }
 
 .settings-card__current {
-  font-size: 0.9rem;
+  font-size: 1.0rem;
   color: white;
   font-weight: 600;
   background: linear-gradient(
@@ -404,8 +400,7 @@
   padding: 0.5rem 1rem;
   border-radius: 20px;
   box-shadow: 0 4px 12px rgba(237, 174, 73, 0.3);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  
 }
 
 /* Options Container */
@@ -439,9 +434,8 @@
   align-items: center;
   gap: 1rem;
   padding: 1.25rem;
-  background: rgba(255, 255, 255, 0.06);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: #E5E5E5;
+  
   border: 1px solid rgba(237, 174, 73, 0.15);
   border-radius: 12px;
   cursor: pointer;
@@ -476,9 +470,9 @@
 
 .settings-option:hover:not(:disabled) {
   border-color: rgba(237, 174, 73, 0.25);
-  background: rgba(255, 255, 255, 0.08);
+  background: #E5E5E5;
   transform: translateY(-1px);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 6px 16px transparent;
 }
 
 .settings-option:disabled {
@@ -510,7 +504,7 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  background: rgba(255, 255, 255, 0.08);
+  background: #E5E5E5;
   border: 1px solid rgba(237, 174, 73, 0.15);
   border-radius: 50%;
   transition: all 0.3s ease;
@@ -544,7 +538,7 @@
 
 .settings-option__desc {
   display: block;
-  font-size: 0.85rem;
+  font-size: 1.0rem;
   color: var(--brand-primary--dark);
   line-height: 1.4;
   opacity: 0.8;
@@ -567,9 +561,8 @@
   align-items: center;
   gap: 1rem;
   padding: 1rem 1.25rem;
-  background: rgba(255, 255, 255, 0.06);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: #E5E5E5;
+  
   border: 1px solid rgba(237, 174, 73, 0.15);
   border-radius: 12px;
   cursor: pointer;
@@ -605,9 +598,9 @@
 
 .settings-toggle__button:hover:not(:disabled) {
   border-color: rgba(237, 174, 73, 0.25);
-  background: rgba(255, 255, 255, 0.08);
+  background: #E5E5E5;
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 4px 12px transparent;
 }
 
 .settings-toggle__button--active {
@@ -640,7 +633,7 @@
 }
 
 .settings-toggle__status {
-  font-size: 0.8rem;
+  font-size: 1.0rem;
   font-weight: 500;
   color: var(--brand-primary--dark);
   opacity: 0.7;
@@ -656,29 +649,27 @@
   margin-top: 1rem;
   padding: 1rem;
   background: rgba(239, 68, 68, 0.1);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  
   border: 1px solid rgba(239, 68, 68, 0.2);
   border-radius: 12px;
   color: #dc2626;
-  font-size: 0.9rem;
+  font-size: 1.0rem;
   line-height: 1.5;
 }
 
 /* Account Status - Enhanced Glass Card */
 .settings-account-status {
   margin-top: 3rem;
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  background: #E5E5E5;
+  
   border: 1px solid rgba(237, 174, 73, 0.2);
   border-radius: 16px;
   padding: 2rem;
   position: relative;
   overflow: hidden;
   box-shadow: 
-    0 8px 20px rgba(0, 0, 0, 0.05),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    0 8px 20px transparent,
+    inset 0 1px 0 #E5E5E5;
 }
 
 .settings-account-status::before {
@@ -734,7 +725,7 @@
 }
 
 .settings-account-status__note {
-  font-size: 0.9rem;
+  font-size: 1.0rem;
   color: var(--brand-primary--dark);
   opacity: 0.8;
 }
@@ -758,31 +749,31 @@
   .settings-category,
   .settings-card,
   .settings-account-status {
-    background: rgba(0, 0, 0, 0.2);
+    background: transparent;
     border-color: rgba(237, 174, 73, 0.3);
   }
 
   .settings-page__header:hover,
   .settings-category:hover,
   .settings-card:hover {
-    background: rgba(0, 0, 0, 0.25);
+    background: transparent;
     border-color: rgba(237, 174, 73, 0.4);
   }
 
   .settings-option,
   .settings-toggle__button {
-    background: rgba(0, 0, 0, 0.15);
+    background: transparent;
     border-color: rgba(237, 174, 73, 0.2);
   }
 
   .settings-option:hover:not(:disabled),
   .settings-toggle__button:hover:not(:disabled) {
-    background: rgba(0, 0, 0, 0.2);
+    background: transparent;
     border-color: rgba(237, 174, 73, 0.3);
   }
 
   .settings-option__icon {
-    background: rgba(0, 0, 0, 0.2);
+    background: transparent;
     border-color: rgba(237, 174, 73, 0.2);
   }
 

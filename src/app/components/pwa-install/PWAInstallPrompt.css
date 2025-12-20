@@ -41,7 +41,7 @@
   align-items: center;
   gap: var(--spacing-cozy);
   box-shadow: var(--shadow-elevated);
-  backdrop-filter: blur(10px);
+  
 }
 
 .pwa-install-prompt__icon {

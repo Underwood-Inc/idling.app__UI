@@ -7,8 +7,7 @@
   padding: 0.75rem 1rem;
   background-color: var(--light-background--secondary);
   /* Apply glass border effect */
-  backdrop-filter: var(--glass-blur-light);
-  -webkit-backdrop-filter: var(--glass-blur-light);
+  
   border: 1px solid var(--glass-border-overlay-light, var(--brand-tertiary--light));
   border-radius: var(--border-radius);
   gap: 1rem;
@@ -70,10 +69,10 @@
   color: white;
   border: 2px solid white;
   border-radius: 0.625rem;
-  font-size: 0.75rem;
+  font-size: 1.0rem;
   font-weight: 700;
   line-height: 1;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 2px 4px transparent;
 }
 
 .posts-manager__filter-toggle--active .posts-manager__filter-count {
@@ -192,7 +191,7 @@
 .posts-manager__new-post-button:hover:not([aria-disabled="true"]) {
   background-color: var(--brand-primary--dark);
   transform: translateY(-1px);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 4px transparent;
 }
 
 .posts-manager__new-post-button[aria-disabled="true"] {

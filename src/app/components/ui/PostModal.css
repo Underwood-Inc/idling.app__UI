@@ -2,8 +2,7 @@
 .post-modal {
   /* Apply glass effect with dark theme */
   background: var(--glass-overlay-heavy, var(--glass-bg-heavy));
-  backdrop-filter: var(--glass-blur-heavy);
-  -webkit-backdrop-filter: var(--glass-blur-heavy);
+  
   border: 1px solid var(--glass-border-overlay-heavy, var(--glass-border-heavy));
   box-shadow: var(--glass-shadow-heavy);
   border-radius: var(--border-radius) var(--border-radius) 0 0;
@@ -23,8 +22,7 @@
   border-bottom: 1px solid var(--glass-border-overlay-medium, var(--glass-border-medium));
   /* Apply glass effect for header */
   background: var(--glass-overlay-medium, var(--glass-bg-medium));
-  backdrop-filter: var(--glass-blur-medium);
-  -webkit-backdrop-filter: var(--glass-blur-medium);
+  
   border-radius: var(--border-radius) var(--border-radius) 0 0;
 }
 
@@ -42,8 +40,7 @@
   border-radius: 50%;
   /* Apply glass interactive effect */
   background: var(--glass-overlay-light, var(--glass-bg-light));
-  backdrop-filter: var(--glass-blur-light);
-  -webkit-backdrop-filter: var(--glass-blur-light);
+  
   color: var(--dark-bg__text-color--secondary);
   border: 1px solid var(--glass-border-overlay-light, var(--glass-border-light));
   cursor: pointer;
@@ -56,8 +53,7 @@
 
 .post-modal__close:hover {
   background: var(--glass-overlay-heavy, var(--glass-bg-heavy));
-  backdrop-filter: var(--glass-blur-heavy);
-  -webkit-backdrop-filter: var(--glass-blur-heavy);
+  
   color: var(--dark-bg__text-color--primary);
   border-color: var(--brand-primary);
   transform: translateY(-1px);
@@ -113,7 +109,7 @@
   z-index: 25;
   background: rgba(239, 68, 68, 0.95);
   border: 2px solid white;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 2px 8px transparent;
 }
 
 /* Override form styles within the modal */
@@ -155,7 +151,7 @@
   color: var(--dark-bg__text-color--primary) !important;
   border: none !important;
   padding: 0.75rem !important;
-  font-size: 0.95rem !important;
+  font-size: 1.0rem !important;
 }
 
 .post-modal__content .form-pill-input__input::placeholder,

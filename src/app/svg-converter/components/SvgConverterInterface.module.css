@@ -18,7 +18,7 @@
 
 .interface__subtitle {
   color: var(--text-secondary);
-  font-size: 0.9rem;
+  font-size: 1.0rem;
 }
 
 .interface__content {
@@ -46,7 +46,7 @@
   color: var(--text-primary);
   cursor: pointer;
   transition: var(--transition-base);
-  font-size: 0.875rem;
+  font-size: 1.0rem;
   font-weight: 500;
 }
 
@@ -102,7 +102,7 @@
 
 .upload__hint {
   color: var(--text-muted);
-  font-size: 0.875rem;
+  font-size: 1.0rem;
 }
 
 .upload__preview {
@@ -112,7 +112,7 @@
   border: 1px solid var(--success-green);
   border-radius: var(--border-radius-md);
   color: var(--success-green);
-  font-size: 0.875rem;
+  font-size: 1.0rem;
 }
 
 /* Text Input */
@@ -125,7 +125,7 @@
 .text__label {
   font-weight: 500;
   color: var(--text-primary);
-  font-size: 0.875rem;
+  font-size: 1.0rem;
 }
 
 .text__area {
@@ -133,10 +133,10 @@
   padding: 1rem;
   border: 1px solid var(--glass-border-medium);
   border-radius: var(--border-radius-md);
-  background: rgba(0, 0, 0, 0.3);
+  background: transparent;
   color: var(--text-primary);
   font-family: 'Fira Code', monospace;
-  font-size: 0.875rem;
+  font-size: 1.0rem;
   line-height: 1.5;
   resize: vertical;
   min-height: 200px;
@@ -150,7 +150,7 @@
 
 .text__hint {
   color: var(--text-muted);
-  font-size: 0.75rem;
+  font-size: 1.0rem;
 }
 
 /* Conversion Options */
@@ -181,7 +181,7 @@
 }
 
 .option__label {
-  font-size: 0.875rem;
+  font-size: 1.0rem;
   font-weight: 500;
   color: var(--text-primary);
   display: flex;
@@ -193,9 +193,9 @@
   padding: 0.5rem;
   border: 1px solid var(--glass-border-medium);
   border-radius: var(--border-radius-sm);
-  background: rgba(0, 0, 0, 0.4);
+  background: transparent;
   color: var(--text-primary);
-  font-size: 0.875rem;
+  font-size: 1.0rem;
 }
 
 .option__input:focus {
@@ -207,38 +207,43 @@
 .option__slider {
   -webkit-appearance: none;
   appearance: none;
-  height: 4px;
-  background: var(--glass-border-light);
-  border-radius: 2px;
+  height: 6px;
+  background: var(--tan-dark);
+  border: 1px solid var(--brown-shadow);
+  border-radius: 3px;
   cursor: pointer;
+  opacity: 1;
 }
 
 .option__slider::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
-  width: 16px;
-  height: 16px;
-  background: var(--brand-primary);
+  width: 20px;
+  height: 20px;
+  background: var(--tan-primary);
+  border: 2px solid var(--tan-secondary);
   border-radius: 50%;
   cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
 }
 
 .option__slider::-moz-range-thumb {
-  width: 16px;
-  height: 16px;
-  background: var(--brand-primary);
+  width: 20px;
+  height: 20px;
+  background: var(--tan-primary);
+  border: 2px solid var(--tan-secondary);
   border-radius: 50%;
-  border: none;
   cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
 }
 
 .option__select {
   padding: 0.5rem;
   border: 1px solid var(--glass-border-medium);
   border-radius: var(--border-radius-sm);
-  background: rgba(0, 0, 0, 0.4);
+  background: transparent;
   color: var(--text-primary);
-  font-size: 0.875rem;
+  font-size: 1.0rem;
   cursor: pointer;
 }
 
@@ -304,7 +309,7 @@
 .progress__bar {
   width: 100%;
   height: 6px;
-  background: rgba(0, 0, 0, 0.4);
+  background: transparent;
   border-radius: 3px;
   overflow: hidden;
 }
@@ -318,7 +323,7 @@
 
 .progress__text {
   text-align: center;
-  font-size: 0.75rem;
+  font-size: 1.0rem;
   color: var(--text-muted);
 }
 

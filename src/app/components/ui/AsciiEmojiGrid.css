@@ -45,12 +45,12 @@
   background: var(--light-background--tertiary);
   border-color: var(--brand-primary);
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 4px 12px transparent;
 }
 
 .ascii-emoji-item:active {
   transform: translateY(0);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 6px transparent;
 }
 
 /* ASCII Emoji Character Display */
@@ -96,7 +96,7 @@
 
 /* ASCII Emoji Labels */
 .ascii-emoji-label {
-  font-size: 0.75rem;
+  font-size: 1.0rem;
   font-weight: 600;
   color: var(--light-bg__text-color--secondary);
   text-align: center;
@@ -131,7 +131,7 @@
 }
 
 .ascii-emoji-category-subtitle {
-  font-size: 0.875rem;
+  font-size: 1.0rem;
   color: var(--light-bg__text-color--secondary);
   margin-top: 0.25rem;
   font-style: italic;
@@ -202,7 +202,7 @@
   }
 
   .ascii-emoji-label {
-    font-size: 0.7rem;
+    font-size: 1.0rem;
   }
 
   .ascii-emoji-category-title {
@@ -235,13 +235,13 @@
   }
 
   .ascii-emoji-char--extra-large {
-    font-size: 0.9rem;
+    font-size: 1.0rem;
     min-width: 70px;
     max-width: 100px;
   }
 
   .ascii-emoji-label {
-    font-size: 0.65rem;
+    font-size: 1.0rem;
   }
 }
 

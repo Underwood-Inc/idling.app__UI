@@ -1,4 +1,3 @@
-import MessageTickerWithInterval from '../message-ticker/MessageTickerWithInterval';
 import Nav from '../nav/Nav';
 import './Header.scss';
 
@@ -8,7 +7,6 @@ export default async function Header() {
       <div className="header__nav">
         <Nav />
       </div>
-      <MessageTickerWithInterval />
     </header>
   );
 }

@@ -39,8 +39,7 @@
 /* Tooltip content styling */
 .timestamp-tooltip {
   /* Apply protected tooltip glass effect */
-  backdrop-filter: var(--tooltip-glass-blur) !important;
-  -webkit-backdrop-filter: var(--tooltip-glass-blur) !important;
+  
   background: var(--tooltip-glass-bg) !important;
   border: 1px solid var(--tooltip-glass-border) !important;
   box-shadow: var(--tooltip-glass-shadow) !important;
@@ -86,7 +85,7 @@
 
   .timestamp-tooltip {
     border-width: 2px;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 4px 16px transparent;
   }
 }
 

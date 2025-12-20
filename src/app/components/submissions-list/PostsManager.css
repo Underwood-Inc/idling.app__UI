@@ -18,8 +18,7 @@
   padding: 0.75rem 1rem;
   background-color: var(--light-background--secondary);
   /* Apply glass border effect */
-  backdrop-filter: var(--glass-blur-light);
-  -webkit-backdrop-filter: var(--glass-blur-light);
+  
   border: 1px solid var(--glass-border-overlay-light, var(--brand-tertiary--light));
   border-radius: var(--border-radius);
   gap: 1rem;
@@ -64,7 +63,7 @@
 .posts-manager__new-post-button:hover:not([aria-disabled="true"]) {
   background-color: var(--brand-primary--dark);
   transform: translateY(-1px);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 4px transparent;
 }
 
 .posts-manager__new-post-button[aria-disabled="true"] {
@@ -324,8 +323,7 @@
   padding: 0.75rem 1rem;
   background-color: var(--light-background--tertiary);
   /* Apply glass border effect */
-  backdrop-filter: var(--glass-blur-light);
-  -webkit-backdrop-filter: var(--glass-blur-light);
+  
   border: 1px solid var(--glass-border-overlay-light, var(--brand-tertiary--dark));
   border-radius: var(--border-radius);
 }
@@ -353,7 +351,7 @@
   background-color: var(--light-bg__text-color--tertiary);
   color: var(--light-background--primary);
   border-radius: 50%;
-  font-size: 0.75rem;
+  font-size: 1.0rem;
   font-weight: bold;
   cursor: help;
   margin-left: 0.25rem;
@@ -418,7 +416,7 @@
   .posts-manager__filter-count {
     min-width: 1.5rem;
     height: 1.5rem;
-    font-size: 0.7rem;
+    font-size: 1.0rem;
   }
 }
 
@@ -484,10 +482,10 @@
   color: white;
   border: 2px solid white;
   border-radius: 0.625rem;
-  font-size: 0.75rem;
+  font-size: 1.0rem;
   font-weight: 700;
   line-height: 1;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 2px 4px transparent;
 }
 
 .posts-manager__filter-toggle--active .posts-manager__filter-count {
@@ -723,7 +721,7 @@
 .posts-manager__infinite-info {
   text-align: center;
   color: var(--light-bg__text-color--secondary);
-  font-size: 0.9rem;
+  font-size: 1.0rem;
   padding: 1rem;
   background: linear-gradient(135deg,
       rgba(199, 82, 42, 0.05),
@@ -737,7 +735,7 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.75rem 1.5rem;
-  font-size: 0.9rem;
+  font-size: 1.0rem;
   font-weight: 500;
   background: var(--brand-primary);
   color: white;
@@ -751,7 +749,7 @@
 .posts-manager__load-more:hover:not(:disabled) {
   background: var(--brand-primary--dark);
   transform: translateY(-1px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 4px 8px transparent;
 }
 
 .posts-manager__load-more:disabled {

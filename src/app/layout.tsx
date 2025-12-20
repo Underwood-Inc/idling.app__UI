@@ -9,7 +9,6 @@ import React from 'react';
 import Footer from './components/footer/Footer';
 import Header from './components/header/Header';
 import PWAInstallPrompt from './components/pwa-install/PWAInstallPrompt';
-import RetroSpaceBackground from './components/retro-space-background/RetroSpaceBackground';
 import { ServiceWorkerRegistration } from './components/service-worker/ServiceWorkerRegistration';
 import { OverlayRendererWrapper } from './components/ui/ClientWrappers';
 import { NavigationLoadingBar } from './components/ui/NavigationLoadingBar';
@@ -72,7 +71,6 @@ export default function RootLayout({
                 <GlobalLoadingProvider>
                   <UserDataBatchProvider>
                     <NavigationLoadingBar />
-                    <RetroSpaceBackground />
                     <Header />
                     <main>{children}</main>
                     <Footer />

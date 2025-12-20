@@ -6,17 +6,17 @@
   --modal-glass-bg: rgba(20, 20, 20, 0.8);
   --modal-glass-border: rgba(255, 140, 0, 0.2);
   --modal-glass-backdrop: blur(16px);
-  --modal-glass-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+  --modal-glass-shadow: 0 20px 40px transparent;
   --modal-orange-primary: #ff8c00;
   --modal-orange-secondary: rgba(255, 140, 0, 0.1);
   --modal-orange-tertiary: rgba(255, 140, 0, 0.05);
   --modal-text-primary: #ffffff;
-  --modal-text-secondary: rgba(255, 255, 255, 0.8);
-  --modal-text-muted: rgba(255, 255, 255, 0.6);
+  --modal-text-secondary: #E5E5E5;
+  --modal-text-muted: #E5E5E5;
   --modal-bg-primary: rgba(30, 30, 30, 0.9);
   --modal-bg-secondary: rgba(40, 40, 40, 0.8);
   --modal-bg-tertiary: rgba(50, 50, 50, 0.7);
-  --modal-border-color: rgba(255, 255, 255, 0.1);
+  --modal-border-color: #E5E5E5;
 }
 
 .modal-overlay {
@@ -25,8 +25,8 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.8);
-  backdrop-filter: blur(8px);
+  background: transparent;
+  
   display: flex;
   align-items: center;
   justify-content: center;
@@ -38,11 +38,11 @@
 @keyframes modalOverlayIn {
   from {
     opacity: 0;
-    backdrop-filter: blur(0px);
+    
   }
   to {
     opacity: 1;
-    backdrop-filter: blur(8px);
+    
   }
 }
 
@@ -50,7 +50,7 @@
   background: var(--modal-glass-bg);
   border: 1px solid var(--modal-glass-border);
   border-radius: 16px;
-  backdrop-filter: var(--modal-glass-backdrop);
+  
   box-shadow: var(--modal-glass-shadow);
   max-width: 500px;
   width: 100%;
@@ -101,7 +101,7 @@
   padding: 1.5rem;
   border-bottom: 1px solid var(--modal-border-color);
   background: var(--modal-bg-secondary);
-  backdrop-filter: blur(8px);
+  
   position: relative;
   z-index: 2;
 }
@@ -132,7 +132,7 @@
 }
 
 .modal-close {
-  background: rgba(255, 255, 255, 0.1);
+  background: #E5E5E5;
   border: 1px solid var(--modal-border-color);
   font-size: 1.5rem;
   color: var(--modal-text-secondary);
@@ -140,7 +140,7 @@
   padding: 0.5rem;
   border-radius: 8px;
   transition: all 0.2s ease;
-  backdrop-filter: blur(4px);
+  
   position: relative;
   z-index: 1;
   width: 40px;
@@ -185,9 +185,9 @@
   border-radius: 12px;
   padding: 1.25rem;
   margin-bottom: 1.5rem;
-  backdrop-filter: blur(8px);
+  
   position: relative;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 4px 12px transparent;
 }
 
 .user-info::before {
@@ -223,7 +223,7 @@
 }
 
 .user-id {
-  font-size: 0.875rem;
+  font-size: 1.0rem;
   color: var(--modal-text-muted);
   margin: 0.25rem 0 0 0;
   font-family: 'Monaco', 'Menlo', monospace;
@@ -258,7 +258,7 @@
 
 .plans-status p {
   color: var(--modal-text-primary);
-  font-size: 0.875rem;
+  font-size: 1.0rem;
   margin: 0;
   font-weight: 500;
   position: relative;
@@ -282,7 +282,7 @@
   color: var(--modal-text-secondary);
   background: var(--modal-bg-tertiary);
   border-radius: 12px;
-  backdrop-filter: blur(8px);
+  
   border: 1px solid var(--modal-border-color);
 }
 
@@ -318,8 +318,8 @@
   margin-bottom: 1rem;
   color: #ff6b6b;
   font-weight: 500;
-  font-size: 0.875rem;
-  backdrop-filter: blur(8px);
+  font-size: 1.0rem;
+  
   position: relative;
 }
 
@@ -353,15 +353,15 @@
   margin-bottom: 0.5rem;
   font-weight: 700;
   color: #ffffff;
-  font-size: 0.875rem;
+  font-size: 1.0rem;
   position: relative;
   z-index: 1;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  text-shadow: 0 1px 2px transparent;
   /* Better contrast using solid background */
   background: rgba(30, 30, 30, 0.95);
   padding: 0.5rem 0.75rem;
   border-radius: 8px;
-  backdrop-filter: blur(2px);
+  
   border: 1px solid rgba(255, 140, 0, 0.3);
 }
 
@@ -380,9 +380,9 @@
   border-radius: 10px;
   background: var(--modal-bg-secondary);
   color: var(--modal-text-primary);
-  font-size: 0.875rem;
+  font-size: 1.0rem;
   font-family: inherit;
-  backdrop-filter: blur(4px);
+  
   transition:
     border-color 0.2s ease,
     box-shadow 0.2s ease,
@@ -432,12 +432,11 @@
   color: #ffffff !important;
   position: relative;
   z-index: 1;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5) !important;
+  text-shadow: 0 1px 2px transparent !important;
   /* Better contrast using solid background */
   background: rgba(30, 30, 30, 0.95) !important;
   padding: 0.5rem 0.75rem !important;
   border-radius: 8px !important;
-  backdrop-filter: blur(2px) !important;
   border: 1px solid rgba(255, 140, 0, 0.3) !important;
 }
 
@@ -467,7 +466,7 @@
   padding: 0.875rem 1.5rem;
   border: 1px solid var(--modal-border-color);
   border-radius: 10px;
-  font-size: 0.875rem;
+  font-size: 1.0rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -477,7 +476,7 @@
   gap: 0.5rem;
   min-width: 120px;
   justify-content: center;
-  backdrop-filter: blur(8px);
+  
   position: relative;
 }
 
@@ -590,11 +589,11 @@
 @keyframes modalOverlayOut {
   from {
     opacity: 1;
-    backdrop-filter: blur(8px);
+    
   }
   to {
     opacity: 0;
-    backdrop-filter: blur(0px);
+    
   }
 }
 

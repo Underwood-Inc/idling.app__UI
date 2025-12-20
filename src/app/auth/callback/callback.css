@@ -15,7 +15,7 @@
   border-radius: var(--border-radius-lg, 12px);
   background: var(--light-background--secondary, #1a1a1a);
   border: 1px solid var(--brand-tertiary--light, #333);
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 10px 25px transparent;
 }
 
 .callback__icon {
@@ -111,7 +111,7 @@
 }
 
 .callback__progress-text {
-  font-size: 0.875rem;
+  font-size: 1.0rem;
   color: var(--light-bg__text-color--tertiary, #999999);
   font-style: italic;
 }
@@ -180,7 +180,7 @@
   }
 
   .callback__message {
-    font-size: 0.875rem;
+    font-size: 1.0rem;
   }
 
   .callback__actions {
@@ -285,7 +285,7 @@
 
 .callback__solution-option:hover {
   border-color: var(--brand-primary);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 8px transparent;
 }
 
 .callback__solution-option h4 {
@@ -297,7 +297,7 @@
 
 .callback__solution-option p {
   margin: 0 0 1rem 0;
-  font-size: 0.9rem;
+  font-size: 1.0rem;
   color: var(--light-bg__text-color--secondary);
   line-height: 1.5;
 }

@@ -5,9 +5,9 @@
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  backdrop-filter: blur(8px);
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  
+  border: 2px solid #E5E5E5;
+  box-shadow: 0 4px 12px transparent;
   transition: all 0.3s ease;
   z-index: 10;
   cursor: pointer;
@@ -15,20 +15,20 @@
 
 .subscription-flair:hover {
   transform: scale(1.1);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 6px 20px transparent;
 }
 
 /* Size variants */
 .subscription-flair--sm {
   width: 24px;
   height: 24px;
-  font-size: 0.7rem;
+  font-size: 1.0rem;
 }
 
 .subscription-flair--md {
   width: 32px;
   height: 32px;
-  font-size: 0.8rem;
+  font-size: 1.0rem;
   gap: 2px;
 }
 
@@ -111,10 +111,10 @@
 
 @keyframes pending-glow {
   from { 
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 4px 12px transparent;
   }
   to { 
-    box-shadow: 0 4px 20px rgba(255, 255, 255, 0.4);
+    box-shadow: 0 4px 20px #E5E5E5;
   }
 }
 
@@ -132,13 +132,13 @@
   right: -4px;
   width: 14px;
   height: 14px;
-  background: rgba(0, 0, 0, 0.8);
+  background: transparent;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.5rem;
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  font-size: 1.0rem;
+  border: 1px solid #E5E5E5;
 }
 
 /* Multiple flair stacking */
@@ -167,13 +167,13 @@
   .subscription-flair--sm {
     width: 20px;
     height: 20px;
-    font-size: 0.6rem;
+    font-size: 1.0rem;
   }
   
   .subscription-flair--md {
     width: 28px;
     height: 28px;
-    font-size: 0.7rem;
+    font-size: 1.0rem;
   }
   
   .subscription-flair--top-right,

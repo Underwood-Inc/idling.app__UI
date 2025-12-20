@@ -21,7 +21,7 @@
   animation: progress-shimmer 1.5s ease-in-out infinite;
   transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   border-radius: 0 2px 2px 0;
-  box-shadow: 0 0 8px rgba(199, 82, 42, 0.3);
+  box-shadow: 0 0 12px rgba(229, 193, 133, 0.5);
   position: relative;
   overflow: hidden;
 }
@@ -35,7 +35,7 @@
   background: linear-gradient(
     90deg,
     transparent,
-    rgba(255, 255, 255, 0.3),
+    rgba(251, 242, 196, 0.8),
     transparent
   );
   animation: glow-slide 1s ease-in-out infinite;
@@ -46,19 +46,16 @@
   top: 100%;
   left: 16px;
   padding: 8px 12px;
-  /* Enhanced glass effect with dark overlay for better contrast */
-  background: linear-gradient(135deg, rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.4));
-  color: white;
+  background: rgba(26, 26, 26, 0.95);
+  color: var(--tan-primary);
   border-radius: 0 0 4px 4px;
   font-size: 12px;
   font-weight: 600;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
   opacity: 0;
   animation: info-fade-in 0.3s ease-out 0.2s forwards;
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--tan-dark);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
 }
 
 .navigation-loading-bar__text {
@@ -111,9 +108,9 @@
   }
 
   .navigation-loading-bar__info {
-    background: linear-gradient(135deg, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.5));
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
+    background: linear-gradient(135deg, transparent, transparent);
+    border: 1px solid #E5E5E5;
+    text-shadow: 0 1px 3px transparent;
   }
 }
 

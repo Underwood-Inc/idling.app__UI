@@ -27,7 +27,7 @@
 }
 
 .infinite-scroll-trigger__text {
-  font-size: 0.9rem;
+  font-size: 1.0rem;
   font-weight: 500;
   color: var(--light-bg__text-color--secondary);
 }
@@ -116,7 +116,7 @@
   }
 
   .infinite-scroll-trigger__text {
-    font-size: 0.8rem;
+    font-size: 1.0rem;
   }
 
   .infinite-scroll-trigger__spinner-icon {

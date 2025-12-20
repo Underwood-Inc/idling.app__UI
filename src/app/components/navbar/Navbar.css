@@ -7,7 +7,7 @@
 
 .navbar-brand__avatar:hover {
   transform: scale(1.05);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 4px 12px transparent;
 }
 
 .navbar-brand__avatar--default:hover {
@@ -149,7 +149,7 @@
   }
 
   .navbar__item {
-    font-size: 0.9rem;
+    font-size: 1.0rem;
   }
 
   .navbar-brand__avatar {
