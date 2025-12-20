@@ -22,9 +22,9 @@
   border-radius: 50%;
 }
 
+/* No hover transform on nav avatar - causes layout jank */
 .navbar-brand__avatar:hover {
-  transform: scale(1.05);
-  box-shadow: 0 4px 12px transparent;
+  transform: none;
 }
 
 .navbar-brand__avatar--default:hover {

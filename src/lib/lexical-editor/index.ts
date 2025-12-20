@@ -21,12 +21,19 @@
  * @module lexical-editor
  */
 
-// Core editor component
+// Core editor components
 export { LexicalRichEditor } from './components/LexicalRichEditor';
 export type {
   LexicalRichEditorProps,
   LexicalRichEditorRef
 } from './components/LexicalRichEditor';
+
+// Clean standalone editor (recommended)
+export { LexicalTextEditor } from './components/LexicalTextEditor';
+export type {
+  LexicalTextEditorProps,
+  LexicalTextEditorRef
+} from './components/LexicalTextEditor';
 
 // Custom nodes
 export {

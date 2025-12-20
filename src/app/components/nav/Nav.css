@@ -122,26 +122,26 @@
 /* Absolutely position avatar in nav brand area */
 .nav__brand .navbar-brand__avatar {
   position: absolute;
-  top: 0.25rem;
+  top: 0.125rem;
   left: 50%;
   transform: translateX(-50%);
-  width: 2rem;
-  height: 2rem;
-  min-width: 2rem;
-  min-height: 2rem;
-  max-width: 2rem;
-  max-height: 2rem;
+  width: 2.5rem;
+  height: 2.5rem;
+  min-width: 2.5rem;
+  min-height: 2.5rem;
+  max-width: 2.5rem;
+  max-height: 2.5rem;
   z-index: 2;
 }
 
 .nav__brand .navbar-brand__avatar .avatar,
 .nav__brand .avatar {
-  width: 2rem;
-  height: 2rem;
-  min-width: 2rem;
-  min-height: 2rem;
-  max-width: 2rem;
-  max-height: 2rem;
+  width: 2.5rem;
+  height: 2.5rem;
+  min-width: 2.5rem;
+  min-height: 2.5rem;
+  max-width: 2.5rem;
+  max-height: 2.5rem;
 }
 
 .nav__brand .avatar img,
@@ -153,8 +153,17 @@
   border-radius: 50%;
 }
 
+/* Disable hover transform on nav avatar - prevents jank */
+.nav__brand .navbar-brand__avatar:hover {
+  transform: translateX(-50%);
+}
+
+.nav__brand .navbar-brand__avatar .avatar:hover,
+.nav__brand .avatar:hover {
+  transform: none;
+}
+
 /* Right column - Auth and Search */
-.nav__auth,
 .nav__search,
 .nav--as-flex-end {
   display: flex;
@@ -165,32 +174,57 @@
   justify-content: flex-end;
 }
 
-/* Hide Sign Out button by default, show on hover */
-.nav__auth > form {
-  opacity: 0;
-  visibility: hidden;
-  transition: opacity 0.2s ease, visibility 0.2s ease;
-}
-
-.nav__auth:hover > form {
-  opacity: 1;
-  visibility: visible;
+/* Auth container - positioned for dropdown */
+.nav__auth {
+  position: relative;
+  display: flex;
+  align-items: center;
 }
 
 /* Username link styling - tan/gold hover, not green */
+.nav__auth .nav__auth-links {
+  position: relative;
+}
+
 .nav__auth .nav__auth-links .instant-link,
 .nav__auth .nav__auth-links a {
   color: var(--text-primary);
   text-decoration: none;
-  padding: 0.375rem 0.625rem;
+  padding: 0.5rem 0.75rem;
   border-radius: 4px;
-  transition: all 0.15s ease;
+  transition: background 0.15s ease, color 0.15s ease;
 }
 
 .nav__auth .nav__auth-links .instant-link:hover,
 .nav__auth .nav__auth-links a:hover {
   background: rgba(229, 193, 133, 0.15);
   color: var(--tan-primary);
+}
+
+/* Sign Out dropdown - hidden by default, shown on username hover */
+.nav__auth > form {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 0.25rem;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-4px);
+  transition: opacity 0.15s ease, visibility 0.15s ease, transform 0.15s ease;
+  z-index: 100;
+  background: var(--bg-darker);
+  border: 1px solid var(--grey-dark);
+  border-radius: 6px;
+  padding: 0.25rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  white-space: nowrap;
+}
+
+/* Show dropdown when hovering the auth container */
+.nav__auth:hover > form {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
 }
 
 .nav__auth .nav__font-picker {
@@ -358,28 +392,28 @@ a:hover .nav__header {
     position: relative;
   }
   
-  /* Mobile avatar - absolutely positioned */
+  /* Mobile avatar - absolutely positioned, bigger size */
   .nav__brand .navbar-brand__avatar {
     position: absolute;
-    top: 0.125rem;
+    top: 0;
     left: 50%;
     transform: translateX(-50%);
-    width: 1.5rem;
-    height: 1.5rem;
-    min-width: 1.5rem;
-    min-height: 1.5rem;
-    max-width: 1.5rem;
-    max-height: 1.5rem;
+    width: 2rem;
+    height: 2rem;
+    min-width: 2rem;
+    min-height: 2rem;
+    max-width: 2rem;
+    max-height: 2rem;
   }
 
   .nav__brand .navbar-brand__avatar .avatar,
   .nav__brand .avatar {
-    width: 1.5rem;
-    height: 1.5rem;
-    min-width: 1.5rem;
-    min-height: 1.5rem;
-    max-width: 1.5rem;
-    max-height: 1.5rem;
+    width: 2rem;
+    height: 2rem;
+    min-width: 2rem;
+    min-height: 2rem;
+    max-width: 2rem;
+    max-height: 2rem;
   }
 
   .nav__brand .avatar img,

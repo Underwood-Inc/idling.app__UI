@@ -114,13 +114,7 @@ export function SharedSubmissionForm({
               : ''
           }`}
           disabled={isSubmitting}
-          contextId={`${contextId || 'shared-form'}-title`}
           multiline={false}
-          viewMode="preview"
-          enableHashtags={true}
-          enableUserMentions={true}
-          enableEmojis={true}
-          enableImagePaste={true}
         />
         <div className="shared-submission-form__char-count">
           <span
@@ -172,24 +166,14 @@ export function SharedSubmissionForm({
           key={`content-${mode}-${contentViewMode}`}
           value={formData.content}
           onChange={(value: string) => handleInputChange('content', value)}
-          placeholder={
-            contentViewMode === 'preview'
-              ? `Write your ${isReply ? 'reply' : isEdit ? 'post' : 'post'} content... Use #hashtags, @mentions, and paste URLs!`
-              : `Write your ${isReply ? 'reply' : isEdit ? 'post' : 'post'} content... Raw text mode for easy editing of #hashtags, @mentions, and ![behavior](URLs)`
-          }
+          placeholder={`Write your ${isReply ? 'reply' : isEdit ? 'post' : 'post'} content... Use #hashtags, @mentions, and paste URLs!`}
           className={`shared-submission-form__form-input ${
             contentCharsRemaining < 0
               ? 'shared-submission-form__textarea--error'
               : ''
           }`}
           disabled={isSubmitting}
-          contextId={`${contextId || 'shared-form'}-content`}
           multiline={true}
-          viewMode={contentViewMode}
-          enableHashtags={true}
-          enableUserMentions={true}
-          enableEmojis={true}
-          enableImagePaste={true}
         />
         <div className="shared-submission-form__char-count">
           <span

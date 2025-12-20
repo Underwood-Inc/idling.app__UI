@@ -11,7 +11,8 @@ import React, {
   useRef,
   useState
 } from 'react';
-import { RichInputAdapter } from '../../submission-forms/shared-submission-form/components/RichInputAdapter';
+import { LexicalTextEditor } from '@lib/lexical-editor';
+import type { LexicalTextEditorRef } from '@lib/lexical-editor';
 import './SmartFilterInput.css';
 
 const logger = createLogger({
@@ -60,8 +61,8 @@ export const SmartFilterInput: React.FC<SmartFilterInputProps> = ({
   // Use the new URL-first filter system instead of Jotai atoms
   const { filters } = useSimpleUrlFilters();
 
-  // Ref to control RichInputAdapter cursor position
-  const richInputRef = useRef<any>(null);
+  // Ref to control editor
+  const editorRef = useRef<LexicalTextEditorRef>(null);
 
   // Local input state for user typing
   const [localInputValue, setLocalInputValue] = useState('');
@@ -287,12 +288,10 @@ export const SmartFilterInput: React.FC<SmartFilterInputProps> = ({
         applyFilters(filters);
         setIsUserTyping(false);
 
-        // Set cursor to end using RichInput API
+        // Focus editor after applying filters
         setTimeout(() => {
-          if (richInputRef.current && richInputRef.current.setCursor) {
-            const state = richInputRef.current.getState();
-            const textLength = state.rawText.length;
-            richInputRef.current.setCursor({ index: textLength });
+          if (editorRef.current) {
+            editorRef.current.focus();
           }
         }, 50);
       } else {
@@ -368,24 +367,15 @@ export const SmartFilterInput: React.FC<SmartFilterInputProps> = ({
     <div
       className={`smart-filter-input ${className}`}
       onKeyDown={handleKeyDown}
-      onBlur={handleBlur}
     >
-      <RichInputAdapter
-        ref={richInputRef}
+      <LexicalTextEditor
+        ref={editorRef}
         value={localInputValue}
         onChange={handleInputChange}
         placeholder={placeholder}
-        contextId={`${contextId}-filter`}
-        className="smart-filter-input__rich-input"
+        className="smart-filter-input__editor"
         multiline={false}
-        enableHashtags={enableHashtags}
-        enableUserMentions={enableUserMentions}
-        enableEmojis={false}
-        enableImagePaste={false}
-        mentionFilterType="mentions"
-        enableDebugLogging={false}
-        onHashtagClick={handleHashtagClick}
-        onMentionClick={handleMentionClick}
+        onBlur={handleBlur}
       />
     </div>
   );

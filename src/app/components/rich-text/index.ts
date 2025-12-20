@@ -1,8 +1,7 @@
-// Re-export RichInputAdapter as RichTextEditor for backward compatibility
-export { RichInputAdapter as RichTextEditor } from '../submission-forms/shared-submission-form/components/RichInputAdapter';
+// Export LexicalTextEditor as RichTextEditor for app-wide usage
+export { LexicalTextEditor as RichTextEditor } from '@lib/lexical-editor';
+export type { LexicalTextEditorRef as RichTextEditorRef } from '@lib/lexical-editor';
 
-// Export other rich text components
+// Export rich text renderer for read-only display
 export { RichTextRenderer } from './RichTextRenderer';
-
-// Export types
 export type { RichTextRendererProps } from './RichTextRenderer';
