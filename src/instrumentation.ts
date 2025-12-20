@@ -108,22 +108,24 @@ export async function register() {
         headers: authHeaders
       });
 
-      // Configure LoggerProvider
+      // Build log processor for batch sending
+      const logProcessor = new BatchLogRecordProcessor(logExporter, {
+        maxQueueSize: 2048,
+        maxExportBatchSize: 512,
+        scheduledDelayMillis: 5000, // Export logs every 5 seconds
+        exportTimeoutMillis: 30000
+      });
+
+      // Configure LoggerProvider (use type assertion for SDK compatibility)
       const loggerProvider = new LoggerProvider({ resource });
 
-      // Add log processor - batch logs for efficient sending
-      loggerProvider.addLogRecordProcessor(
-        new BatchLogRecordProcessor(logExporter, {
-          maxQueueSize: 2048,
-          maxExportBatchSize: 512,
-          scheduledDelayMillis: 5000, // Export logs every 5 seconds
-          exportTimeoutMillis: 30000
-        })
-      );
+      // Register processor using the provider's register method
+      // Cast to any to work around SDK type definition inconsistencies
+      (loggerProvider as any).addLogRecordProcessor(logProcessor);
 
       // Also log to console in debug mode
       if (process.env.OTEL_DEBUG === 'true') {
-        loggerProvider.addLogRecordProcessor(
+        (loggerProvider as any).addLogRecordProcessor(
           new BatchLogRecordProcessor(new ConsoleLogRecordExporter())
         );
       }
