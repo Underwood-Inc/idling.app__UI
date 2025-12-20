@@ -5,10 +5,9 @@
   align-items: center;
   margin: 1rem 0;
   padding: 0.75rem 1rem;
-  background-color: var(--light-background--secondary);
+  background-color: var(--bg-medium);
   /* Apply glass border effect */
-  
-  border: 1px solid var(--glass-border-overlay-light, var(--brand-tertiary--light));
+  border: 1px solid var(--grey-dark);
   border-radius: var(--border-radius);
   gap: 1rem;
 }
@@ -26,9 +25,9 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.5rem 0.75rem;
-  background-color: var(--light-background--secondary);
-  color: var(--light-bg__text-color--primary);
-  border: 1px solid var(--brand-tertiary--light);
+  background-color: var(--bg-dark);
+  color: var(--text-primary);
+  border: 1px solid var(--grey-dark);
   border-radius: var(--border-radius);
   cursor: pointer;
   font-size: var(--font-size-md);
@@ -37,14 +36,14 @@
 }
 
 .posts-manager__filter-toggle:hover {
-  background-color: var(--brand-tertiary);
-  border-color: var(--brand-tertiary--dark);
-  color: var(--light-bg__text-color--primary);
+  background-color: var(--bg-light);
+  border-color: var(--brand-primary);
+  color: var(--text-primary);
 }
 
 .posts-manager__filter-toggle--active {
   background-color: var(--brand-primary);
-  color: var(--font-color--primary);
+  color: var(--text-on-tan);
   border-color: var(--brand-primary--dark);
 }
 
@@ -66,8 +65,8 @@
   align-content: center;
   padding: 0 0.25rem;
   background-color: var(--brand-primary);
-  color: white;
-  border: 2px solid white;
+  color: var(--text-on-tan);
+  border: 2px solid var(--bg-dark);
   border-radius: 0.625rem;
   font-size: 1.0rem;
   font-weight: 700;
@@ -76,7 +75,7 @@
 }
 
 .posts-manager__filter-toggle--active .posts-manager__filter-count {
-  background-color: white;
+  background-color: var(--bg-dark);
   color: var(--brand-primary);
   border-color: var(--brand-primary);
 }
@@ -111,12 +110,12 @@
 .posts-manager__pagination-label {
   font-size: var(--font-size-md);
   font-weight: 500;
-  color: var(--light-bg__text-color--primary);
+  color: var(--text-primary);
 }
 
 .posts-manager__pagination-options {
   display: flex;
-  border: 1px solid var(--brand-tertiary--dark);
+  border: 1px solid var(--grey-dark);
   border-radius: 0.375rem;
   overflow: hidden;
 }
@@ -126,11 +125,11 @@
   font-size: var(--font-size-md);
   font-weight: 500;
   border: none;
-  background-color: var(--light-background--quinary);
-  color: var(--light-bg__text-color--secondary);
+  background-color: var(--bg-dark);
+  color: var(--text-secondary);
   cursor: pointer;
   transition: all 0.2s ease-in-out;
-  border-right: 1px solid var(--brand-tertiary--dark);
+  border-right: 1px solid var(--grey-dark);
 }
 
 .posts-manager__pagination-button:last-child {
@@ -138,13 +137,13 @@
 }
 
 .posts-manager__pagination-button:hover {
-  background-color: var(--brand-tertiary);
-  color: var(--light-bg__text-color--primary);
+  background-color: var(--bg-light);
+  color: var(--text-primary);
 }
 
 .posts-manager__pagination-button.active {
   background-color: var(--brand-primary);
-  color: var(--font-color--primary);
+  color: var(--text-on-tan);
   font-weight: 600;
 }
 
@@ -162,12 +161,12 @@
 .posts-manager__results-text {
   font-size: var(--font-size-md);
   font-weight: 500;
-  color: var(--light-bg__text-color--primary);
+  color: var(--text-primary);
   text-align: center;
 }
 
 .posts-manager__results-filtered {
-  color: var(--light-bg__text-color--secondary);
+  color: var(--text-secondary);
   font-weight: 400;
   font-style: italic;
 }
@@ -178,7 +177,7 @@
   gap: 0.5rem;
   padding: 0.5rem 1rem;
   background-color: var(--brand-primary);
-  color: var(--font-color--primary);
+  color: var(--text-on-tan);
   border: 1px solid var(--brand-primary--dark);
   border-radius: 0.375rem;
   font-size: var(--font-size-md);
@@ -195,8 +194,8 @@
 }
 
 .posts-manager__new-post-button[aria-disabled="true"] {
-  background-color: var(--light-bg__text-color--tertiary);
-  color: var(--light-bg__text-color--secondary);
+  background-color: var(--grey-dark);
+  color: var(--text-tertiary);
   cursor: not-allowed;
   opacity: 0.6;
   transform: none;
@@ -213,20 +212,20 @@
 /* Override InstantLink styles for button appearance */
 .posts-manager__new-post-button.instant-link--button {
   background-color: var(--brand-primary);
-  color: var(--font-color--primary);
+  color: var(--text-on-tan);
   border: 1px solid var(--brand-primary--dark);
 }
 
 .posts-manager__new-post-button.instant-link--button:hover:not([aria-disabled="true"]) {
   background-color: var(--brand-primary--dark);
-  color: var(--font-color--primary);
+  color: var(--text-on-tan);
   opacity: 1;
 }
 
 .posts-manager__new-post-button.instant-link--button[aria-disabled="true"] {
-  background-color: var(--light-bg__text-color--tertiary);
-  color: var(--light-bg__text-color--secondary);
-  border-color: var(--light-bg__text-color--tertiary);
+  background-color: var(--grey-dark);
+  color: var(--text-tertiary);
+  border-color: var(--grey-dark);
 }
 
 /* Ensure spinner aligns properly in button */
@@ -235,5 +234,5 @@
 }
 
 .posts-manager__new-post-button .instant-link__spinner {
-  color: var(--font-color--primary);
+  color: var(--text-on-tan);
 }

@@ -12,26 +12,26 @@
 }
 
 .author.clickable:hover {
-  background-color: var(--light-background--tertiary);
+  background-color: var(--bg-medium);
   /* Subtle background change with minimal visual artifacts */
-  opacity: 0.9;
+  opacity: 0.95;
 }
 
 .author__name {
   font-size: var(--font-size-base);
   font-weight: 700;
-  color: var(--light-bg__text-color--primary);
+  color: var(--text-primary);
   background: linear-gradient(
     135deg,
-    var(--light-background--primary),
-    var(--light-background--secondary)
+    var(--bg-medium),
+    var(--bg-light)
   );
   padding: 0.25rem 0.75rem;
   border-radius: 6px;
-  border: 1px solid var(--light-border--primary);
+  border: 1px solid var(--grey-dark);
   transition: all 0.2s ease;
   white-space: nowrap;
-  text-shadow: 0 1px 2px #E5E5E5;
+  text-shadow: none;
   box-shadow: 0 1px 3px transparent;
   display: inline-flex;
   align-items: center;
@@ -40,8 +40,13 @@
 }
 
 .author.clickable:hover .author__name {
-  color: var(--brand-primary--dark);
+  color: var(--brand-primary);
   border-color: var(--brand-primary);
+  background: linear-gradient(
+    135deg,
+    var(--bg-light),
+    var(--grey-dark)
+  );
   /* Remove transform and extra shadow that cause visual artifacts */
 }
 
@@ -100,51 +105,25 @@
   }
 }
 
-/* Dark mode support */
-@media (prefers-color-scheme: dark) {
-  .author.clickable:hover {
-    background-color: var(--dark-background--secondary, #4b5563);
-    opacity: 0.9;
-  }
-
-  .author__name {
-    color: var(--dark-bg__text-color--primary);
-    background: linear-gradient(
-      135deg,
-      var(--dark-background--secondary),
-      var(--dark-background--tertiary)
-    );
-    border-color: var(--dark-border--primary);
-    text-shadow: 0 1px 3px transparent;
-    box-shadow: 0 1px 4px transparent;
-  }
-
-  .author.clickable:hover .author__name {
-    color: var(--brand-primary--light);
-    border-color: var(--brand-primary);
-    /* Clean hover effect - no extra shadows or transforms */
-  }
-}
-
 /* Enhanced Tooltip Styles */
 .author-tooltip {
   /* max-width: 300px;
   min-width: 280px; */
   /* Apply protected tooltip glass effect */
   
-  background: var(--tooltip-glass-bg) !important;
-  border: 1px solid var(--tooltip-glass-border) !important;
-  box-shadow: var(--tooltip-glass-shadow) !important;
+  background: var(--tooltip-glass-bg, var(--bg-dark));
+  border: 1px solid var(--tooltip-glass-border, var(--grey-dark));
+  box-shadow: var(--tooltip-glass-shadow, 0 8px 32px rgba(0, 0, 0, 0.4));
   border-radius: var(--border-radius);
   overflow: hidden;
 }
 
 /* Override base tooltip padding for author tooltips */
 .link-tooltip.author-tooltip-wrapper {
-  padding: 0 !important;
-  background: transparent !important;
-  border: none !important;
-  box-shadow: none !important;
+  padding: 0;
+  background: transparent;
+  border: none;
+  box-shadow: none;
 }
 
 .author-tooltip__content {
@@ -159,10 +138,10 @@
 }
 
 .author-tooltip__header-info {
-  background: var(--dark-background--secondary);
+  background: var(--bg-medium);
   border-radius: var(--border-radius);
   padding: 0.5rem;
-  color: var(--light-bg__text-color--primary);
+  color: var(--text-primary);
   flex: 1;
   min-width: 0;
 }
@@ -187,8 +166,8 @@
 .author-tooltip__bio {
   margin-top: 0.75rem;
   padding: 0.75rem;
-  background: rgba(var(--brand-primary--light), 0.1);
-  border: 1px solid rgba(var(--brand-primary), 0.3);
+  background: rgba(229, 193, 133, 0.1);
+  border: 1px solid rgba(229, 193, 133, 0.3);
   border-radius: var(--border-radius);
   font-style: italic;
 }
@@ -197,7 +176,7 @@
   margin: 0;
   font-size: var(--font-size-sm);
   line-height: 1.4;
-  color: var(--light-bg__text-color--primary);
+  color: var(--text-primary);
   word-wrap: break-word;
   overflow-wrap: break-word;
   hyphens: auto;
@@ -211,14 +190,14 @@
   gap: 0.5rem;
   margin-top: 0.75rem;
   padding-top: 0.75rem;
-  border-top: 1px solid rgba(var(--brand-tertiary--dark), 0.3);
+  border-top: 1px solid var(--grey-dark);
 }
 
 .author-tooltip__stat {
   flex: 1;
   padding: 0.5rem;
-  background: rgba(var(--light-background--tertiary), 0.5);
-  border: 1px solid rgba(var(--brand-tertiary--dark), 0.3);
+  background: var(--bg-medium);
+  border: 1px solid var(--grey-dark);
   border-radius: var(--border-radius);
   text-align: center;
 }
@@ -227,13 +206,13 @@
   display: block;
   font-size: var(--font-size-base);
   font-weight: 700;
-  color: var(--light-bg__text-color--primary);
+  color: var(--brand-primary);
   margin-bottom: 0.25rem;
 }
 
 .author-tooltip__stat-label {
   font-size: var(--font-size-xs);
-  color: var(--light-bg__text-color--secondary);
+  color: var(--text-tertiary);
   text-transform: uppercase;
   letter-spacing: 0.05em;
   font-weight: 500;
@@ -243,22 +222,22 @@
 .author-tooltip__footer {
   margin-top: 0.75rem;
   padding-top: 0.75rem;
-  border-top: 1px solid rgba(var(--brand-tertiary--dark), 0.3);
+  border-top: 1px solid var(--grey-dark);
 }
 
 .author-tooltip__join-date {
   font-size: var(--font-size-sm);
-  color: var(--light-bg__text-color--tertiary);
+  color: var(--text-tertiary);
 }
 
 .author-tooltip__actions {
   margin-top: 0.75rem;
   padding-top: 0.75rem;
-  border-top: 1px solid rgba(var(--brand-tertiary--dark), 0.3);
+  border-top: 1px solid var(--grey-dark);
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
-  background: rgba(var(--light-background--secondary), 0.3);
+  background: var(--bg-medium);
   padding: 0.75rem;
   border-radius: var(--border-radius);
   /* Remove negative margins that cause spacing issues */
@@ -270,8 +249,8 @@
 .author-tooltip__action-button {
   padding: 0.5rem 0.75rem;
   border-radius: var(--border-radius);
-  border: 1px solid rgba(var(--brand-primary), 0.3);
-  background: rgba(var(--brand-primary), 0.1);
+  border: 1px solid rgba(229, 193, 133, 0.3);
+  background: rgba(229, 193, 133, 0.1);
   color: var(--brand-primary);
   font-size: var(--font-size-sm);
   font-weight: 500;
@@ -283,29 +262,29 @@
 }
 
 .author-tooltip__action-button:hover {
-  background: rgba(var(--brand-primary), 0.2);
+  background: rgba(229, 193, 133, 0.2);
   border-color: var(--brand-primary);
 }
 
 .author-tooltip__action-button.secondary {
-  background: rgba(var(--light-background--tertiary), 0.5);
-  border-color: rgba(var(--brand-tertiary--dark), 0.5);
-  color: var(--light-bg__text-color--secondary);
+  background: var(--bg-light);
+  border-color: var(--grey-dark);
+  color: var(--text-secondary);
 }
 
 .author-tooltip__action-button.secondary:hover {
-  background: rgba(var(--brand-primary), 0.1);
-  border-color: rgba(var(--brand-primary), 0.5);
+  background: rgba(229, 193, 133, 0.1);
+  border-color: rgba(229, 193, 133, 0.5);
   color: var(--brand-primary);
 }
 
 .author-tooltip__hint {
   font-size: var(--font-size-xs);
-  color: var(--light-bg__text-color--tertiary);
+  color: var(--text-tertiary);
   text-align: center;
   margin-top: 0.5rem;
   padding: 0.25rem;
-  background: rgba(var(--brand-tertiary), 0.1);
+  background: var(--bg-medium);
   border-radius: var(--border-radius);
   font-style: italic;
 }
@@ -316,18 +295,18 @@
   max-width: 500px;
   min-width: 400px;
   max-height: 90vh;
-  background: var(--light-background--primary);
+  background: var(--bg-dark);
   border-radius: var(--border-radius);
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 20px 60px transparent;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
 }
 
 .user-profile-modal__header {
   padding: 1.5rem;
-  border-bottom: 1px solid var(--light-border--secondary);
-  background: var(--light-background--secondary);
+  border-bottom: 1px solid var(--grey-dark);
+  background: var(--bg-medium);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -336,7 +315,7 @@
 .user-profile-modal__title {
   font-size: var(--font-size-xl);
   font-weight: 600;
-  color: var(--dark-bg__text-color--primary);
+  color: var(--text-primary);
   margin: 0;
 }
 
@@ -358,7 +337,7 @@
 }
 
 .user-profile-modal__close:hover {
-  background: var(--light-background--primary);
+  background: var(--bg-light);
   color: var(--text-primary);
 }
 
@@ -376,99 +355,16 @@
   padding: 0;
   box-shadow: none;
   /* Override tooltip-specific styles that break in modal context */
-  position: relative !important;
-  z-index: auto !important;
-  
-  min-width: auto !important;
-  max-width: none !important;
-  width: 100% !important;
+  position: relative;
+  z-index: auto;
+  min-width: auto;
+  max-width: none;
+  width: 100%;
 }
 
 .user-profile-modal__profile:hover {
   border: none;
   box-shadow: none;
-}
-
-/* Dark mode support for enhanced elements */
-@media (prefers-color-scheme: dark) {
-  .author-tooltip {
-    background: var(--tooltip-glass-bg) !important;
-    border: 1px solid var(--tooltip-glass-border) !important;
-    box-shadow: var(--tooltip-glass-shadow) !important;
-  }
-
-  .author-tooltip__name {
-    color: var(--dark-bg__text-color--primary);
-  }
-
-  .author-tooltip__location,
-  .author-tooltip__join-date {
-    color: var(--dark-bg__text-color--secondary);
-  }
-
-  .author-tooltip__bio {
-    background: rgba(var(--brand-primary--light), 0.15);
-    border-color: rgba(var(--brand-primary), 0.4);
-  }
-
-  .author-tooltip__bio p {
-    color: var(--dark-bg__text-color--primary);
-  }
-
-  .author-tooltip__stats {
-    border-color: rgba(var(--dark-border--secondary), 0.5);
-  }
-
-  .author-tooltip__stat {
-    background: rgba(var(--dark-background--tertiary), 0.6);
-    border-color: rgba(var(--dark-border--secondary), 0.5);
-  }
-
-  .author-tooltip__stat-number {
-    color: var(--brand-primary--light);
-  }
-
-  .author-tooltip__stat-label {
-    color: var(--dark-bg__text-color--tertiary);
-  }
-
-  .author-tooltip__footer {
-    border-color: rgba(var(--dark-border--secondary), 0.5);
-  }
-
-  .author-tooltip__actions {
-    background: rgba(var(--dark-background--secondary), 0.4);
-    border-color: rgba(var(--dark-border--secondary), 0.5);
-  }
-
-  .author-tooltip__hint {
-    color: var(--dark-bg__text-color--tertiary);
-    background: rgba(var(--brand-tertiary), 0.15);
-  }
-
-  .author-tooltip__action-button.secondary {
-    background: rgba(var(--dark-background--primary), 0.5);
-    border-color: rgba(var(--brand-primary), 0.4);
-    color: var(--brand-primary--light);
-  }
-
-  .author-tooltip__action-button.secondary:hover {
-    background: var(--brand-primary);
-    color: var(--dark-bg__text-color--primary);
-  }
-
-  .user-profile-modal {
-    background: var(--dark-background--primary);
-  }
-
-  .user-profile-modal__header {
-    background: var(--dark-background--secondary);
-    border-color: var(--dark-border--secondary);
-  }
-
-  .user-profile-modal__close:hover {
-    background: var(--dark-background--primary);
-  }
 }
 
 /* Responsive modal design */
@@ -566,20 +462,20 @@
   text-align: center;
   font-size: 1.0rem;
   min-width: 220px;
-  background: #ffebeb;
-  border: 3px solid #ff4444;
+  background: rgba(217, 82, 82, 0.15);
+  border: 3px solid var(--error);
   border-radius: var(--border-radius);
   transition: all 0.2s ease;
 }
 
 .author-tooltip__error:hover {
-  background: #ffd6d6;
-  border-color: #ff0000;
+  background: rgba(217, 82, 82, 0.25);
+  border-color: var(--error);
 }
 
 .author-tooltip__error p {
   margin: 0;
-  color: #cc0000;
+  color: var(--error);
   font-weight: 700;
   font-size: 1.0rem;
   line-height: 1.5;
@@ -591,9 +487,9 @@
 .skeleton--button {
   background: linear-gradient(
     90deg,
-    var(--light-background--secondary, #e0e0e0) 25%,
-    var(--light-background--tertiary, #f0f0f0) 50%,
-    var(--light-background--secondary, #e0e0e0) 75%
+    var(--bg-medium) 25%,
+    var(--bg-light) 50%,
+    var(--bg-medium) 75%
   );
   background-size: 200% 100%;
   /* Subtle pulse animation instead of shimmer to avoid motion sickness */
@@ -602,11 +498,11 @@
 }
 
 .skeleton--avatar {
-  border-radius: 50% !important;
+  border-radius: 50%;
 }
 
 .skeleton--button {
-  border-radius: 6px !important;
+  border-radius: 6px;
 }
 
 /* Subtle pulse animation for skeleton elements */
@@ -624,55 +520,12 @@
   }
 }
 
-/* Loading state specific styles */
-.author-tooltip__loading {
-  padding: 1rem;
-  text-align: center;
-  min-width: 200px;
-}
-
-.author-tooltip__skeleton {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-/* Dark mode skeleton styles */
-@media (prefers-color-scheme: dark) {
-  .skeleton--avatar,
-  .skeleton--text,
-  .skeleton--button {
-    background: linear-gradient(
-      90deg,
-      var(--dark-background--secondary, #2a2a2a) 25%,
-      var(--dark-background--tertiary, #3a3a3a) 50%,
-      var(--dark-background--secondary, #2a2a2a) 75%
-    );
-    background-size: 200% 100%;
-  }
-  
-  .author-tooltip__error {
-    background: #5a1a1a;
-    border-color: #ff5555;
-  }
-  
-  .author-tooltip__error:hover {
-    background: #6a2020;
-    border-color: #ff6666;
-  }
-  
-  .author-tooltip__error p {
-    color: #ffcccc;
-    font-weight: 700;
-  }
-}
-
 /* Private Profile Tooltip Styles */
 .author-tooltip__private-icon {
   width: 32px;
   height: 32px;
-  background: rgba(var(--brand-secondary), 0.2);
-  border: 2px solid rgba(var(--brand-secondary), 0.4);
+  background: rgba(212, 165, 116, 0.2);
+  border: 2px solid rgba(212, 165, 116, 0.4);
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -683,7 +536,7 @@
 
 .author-tooltip__private-status {
   font-size: var(--font-size-sm);
-  color: var(--brand-secondary);
+  color: var(--tan-secondary);
   margin: 0;
   font-weight: 500;
   display: flex;
@@ -694,44 +547,22 @@
 .author-tooltip__private-message {
   margin-top: 0.75rem;
   padding: 0.75rem;
-  background: rgba(var(--brand-secondary), 0.1);
-  border: 1px solid rgba(var(--brand-secondary), 0.3);
+  background: rgba(212, 165, 116, 0.1);
+  border: 1px solid rgba(212, 165, 116, 0.3);
   border-radius: var(--border-radius);
-  border-left: 3px solid var(--brand-secondary);
+  border-left: 3px solid var(--tan-secondary);
 }
 
 .author-tooltip__private-message p {
   margin: 0;
   font-size: var(--font-size-sm);
   line-height: 1.4;
-  color: var(--light-bg__text-color--primary);
+  color: var(--text-primary);
   word-wrap: break-word;
   overflow-wrap: break-word;
   hyphens: auto;
   white-space: normal;
   max-width: 100%;
-}
-
-/* Dark mode support for private profile tooltip */
-@media (prefers-color-scheme: dark) {
-  .author-tooltip__private-icon {
-    background: rgba(var(--brand-secondary), 0.25);
-    border-color: rgba(var(--brand-secondary), 0.5);
-  }
-
-  .author-tooltip__private-status {
-    color: var(--brand-secondary--light);
-  }
-
-  .author-tooltip__private-message {
-    background: rgba(var(--brand-secondary), 0.15);
-    border-color: rgba(var(--brand-secondary), 0.4);
-    border-left-color: var(--brand-secondary--light);
-  }
-
-  .author-tooltip__private-message p {
-    color: var(--dark-bg__text-color--primary);
-  }
 }
 
 /* Mobile Touch Support for Author Elements */
