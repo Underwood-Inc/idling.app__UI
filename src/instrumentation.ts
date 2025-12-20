@@ -117,10 +117,6 @@ export async function register() {
                 );
               }
             },
-            // Enable fetch instrumentation
-            '@opentelemetry/instrumentation-fetch': {
-              enabled: true
-            },
             // Enable pg (PostgreSQL) instrumentation
             '@opentelemetry/instrumentation-pg': {
               enabled: true,
