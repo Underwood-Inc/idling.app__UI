@@ -21,6 +21,16 @@ export interface BatchDecorationRow {
 
 /**
  * Batch endpoint to fetch decorations for multiple users at once
+ *
+ * Plan-to-flair mapping (done in SQL for performance):
+ * - enterprise → 'enterprise-crown'
+ * - creator_bundle → 'premium-galaxy'
+ * - pro → 'pro-plasma'
+ * - starter → 'active-glow'
+ * - free → no flair
+ *
+ * Flair priority order (highest first):
+ * enterprise-crown > premium-galaxy > pro-plasma > active-glow > trial-pulse
  * Reduces N+1 query problem for post lists
  */
 export async function POST(request: Request) {
@@ -52,18 +62,29 @@ export async function POST(request: Request) {
       return NextResponse.json({ decorations: {} });
     }
 
-    // Batch query for all users at once
+    // Batch query for all users at once using correct table names
+    // Tables: user_subscriptions (not subscriptions), subscription_plans (not subscription_types)
     const result = await sql<BatchDecorationRow[]>`
-      WITH user_subscriptions AS (
+      WITH active_user_subs AS (
         SELECT 
           u.id as user_id,
           u.flair_preference,
-          array_agg(DISTINCT s.flair_name) FILTER (WHERE s.flair_name IS NOT NULL) as available_flairs
+          array_agg(DISTINCT sp.name) FILTER (WHERE sp.name IS NOT NULL AND sp.name != 'free') as plan_names,
+          -- Derive flairs from plan names with priority ordering
+          array_agg(DISTINCT 
+            CASE sp.name
+              WHEN 'enterprise' THEN 'enterprise-crown'
+              WHEN 'creator_bundle' THEN 'premium-galaxy'
+              WHEN 'pro' THEN 'pro-plasma'
+              WHEN 'starter' THEN 'active-glow'
+              ELSE NULL
+            END
+          ) FILTER (WHERE sp.name IN ('enterprise', 'creator_bundle', 'pro', 'starter')) as available_flairs
         FROM users u
-        LEFT JOIN subscriptions sub ON sub.user_id = u.id 
-          AND sub.status = 'active'
-          AND (sub.end_date IS NULL OR sub.end_date > NOW())
-        LEFT JOIN subscription_types s ON s.id = sub.subscription_type_id
+        LEFT JOIN user_subscriptions sub ON sub.user_id = u.id 
+          AND sub.status IN ('active', 'trialing')
+          AND (sub.expires_at IS NULL OR sub.expires_at > NOW())
+        LEFT JOIN subscription_plans sp ON sp.id = sub.plan_id
         WHERE u.id = ANY(${userIdNumbers})
         GROUP BY u.id, u.flair_preference
       )
@@ -78,14 +99,18 @@ export async function POST(request: Request) {
             AND flair_preference != 'none'
             AND flair_preference = ANY(available_flairs) 
           THEN flair_preference
-          -- Auto mode: choose highest priority flair
+          -- Auto mode: choose highest priority flair based on priority order
           WHEN available_flairs IS NOT NULL 
             AND array_length(available_flairs, 1) > 0
-          THEN available_flairs[1]
+          THEN (
+            SELECT f FROM unnest(ARRAY['enterprise-crown', 'premium-galaxy', 'pro-plasma', 'active-glow', 'trial-pulse']) AS f
+            WHERE f = ANY(available_flairs)
+            LIMIT 1
+          )
           -- No decoration available
           ELSE NULL
         END as decoration
-      FROM user_subscriptions
+      FROM active_user_subs
     `;
 
     // Build response object
