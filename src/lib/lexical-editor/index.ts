@@ -81,7 +81,7 @@ export {
   deserializeHashtag,
   parseRawText
 } from './utils/serialization';
-export type { ParsedToken, SerializedContent } from './utils/serialization';
+export type { ParsedToken } from './utils/serialization';
 
 // Types
 export type {
@@ -95,6 +95,7 @@ export type {
   LexicalEditorEventHandlers,
   HashtagSearchResult,
   MentionSearchResult,
-  EmojiSearchResult
+  EmojiSearchResult,
+  SerializedContent
 } from './types';
 

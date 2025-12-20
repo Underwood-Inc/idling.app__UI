@@ -41,7 +41,7 @@ import { TRANSFORMERS } from '@lexical/markdown';
 import { LexicalComposer } from '@lexical/react/LexicalComposer';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { ContentEditable } from '@lexical/react/LexicalContentEditable';
-import LexicalErrorBoundary from '@lexical/react/LexicalErrorBoundary';
+import { LexicalErrorBoundary } from '@lexical/react/LexicalErrorBoundary';
 import { HistoryPlugin } from '@lexical/react/LexicalHistoryPlugin';
 import { HorizontalRuleNode } from '@lexical/react/LexicalHorizontalRuleNode';
 import { LinkPlugin } from '@lexical/react/LexicalLinkPlugin';
@@ -408,11 +408,12 @@ export const LexicalRichEditor = forwardRef<
                 aria-placeholder={placeholder}
                 aria-multiline={multiline}
                 aria-disabled={disabled}
+                placeholder={
+                  <Placeholder text={placeholder} multiline={multiline} />
+                }
               />
             }
-            placeholder={
-              <Placeholder text={placeholder} multiline={multiline} />
-            }
+            placeholder={null}
             ErrorBoundary={LexicalErrorBoundary}
           />
 
