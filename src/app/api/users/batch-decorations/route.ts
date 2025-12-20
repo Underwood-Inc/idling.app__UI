@@ -30,7 +30,7 @@ export interface BatchDecorationRow {
  * - free → no flair
  *
  * Flair priority order (highest first):
- * enterprise-crown > premium-galaxy > pro-plasma > active-glow > trial-pulse
+ * enterprise-crown > premium-galaxy > pro-plasma > active-glow
  * Reduces N+1 query problem for post lists
  */
 export async function POST(request: Request) {
@@ -103,7 +103,7 @@ export async function POST(request: Request) {
           WHEN available_flairs IS NOT NULL 
             AND array_length(available_flairs, 1) > 0
           THEN (
-            SELECT f FROM unnest(ARRAY['enterprise-crown', 'premium-galaxy', 'pro-plasma', 'active-glow', 'trial-pulse']) AS f
+            SELECT f FROM unnest(ARRAY['enterprise-crown', 'premium-galaxy', 'pro-plasma', 'active-glow']) AS f
             WHERE f = ANY(available_flairs)
             LIMIT 1
           )
