@@ -1,11 +1,15 @@
 /**
- * Adapter component for the new rich input system
+ * Adapter component for the Lexical rich text editor
  * Provides compatibility with existing form components
+ * 
+ * This replaces the previous custom rich-input system with Lexical
  */
 
 'use client';
 
-import { RichInput } from '@lib/rich-input';
+import { LexicalRichEditor } from '@lib/lexical-editor';
+import type { LexicalRichEditorRef } from '@lib/lexical-editor/components/LexicalRichEditor';
+import type { MentionData } from '@lib/lexical-editor/types';
 import React, { forwardRef, useCallback, useRef, useState } from 'react';
 import ReactDOM from 'react-dom';
 import { useFocusManagement } from '../hooks/useFocusManagement';
@@ -38,7 +42,7 @@ interface RichInputAdapterProps {
   ) => void;
 }
 
-export const RichInputAdapter = forwardRef<any, RichInputAdapterProps>(
+export const RichInputAdapter = forwardRef<LexicalRichEditorRef, RichInputAdapterProps>(
   (
     {
       value,
@@ -54,14 +58,14 @@ export const RichInputAdapter = forwardRef<any, RichInputAdapterProps>(
       enableEmojis = true,
       enableImagePaste = true,
       mentionFilterType = 'author',
-      enableDebugLogging = true,
+      enableDebugLogging = false,
       onHashtagClick,
       onMentionClick
     },
     ref
   ) => {
     const containerRef = useRef<HTMLDivElement>(null);
-    const richInputRef = useRef<any>(null);
+    const lexicalRef = useRef<LexicalRichEditorRef>(null);
     const [toolbarInteracting, setToolbarInteracting] = useState(false);
     const [searchOverlayInteracting, setSearchOverlayInteracting] =
       useState(false);
@@ -80,7 +84,7 @@ export const RichInputAdapter = forwardRef<any, RichInputAdapterProps>(
     const { insertAtCursor } = useTextInsertion({
       value,
       onChange,
-      richInputRef
+      richInputRef: lexicalRef as React.RefObject<{ insertText?: (text: string) => void; focus?: () => void }>
     });
 
     // Handle search overlay functionality
@@ -106,8 +110,10 @@ export const RichInputAdapter = forwardRef<any, RichInputAdapterProps>(
     const handleSearchResultSelectWithCursor = useCallback(
       (item: any) => {
         const setCursorPosition = (position: number) => {
-          if (richInputRef.current?.setCursorPosition) {
-            richInputRef.current.setCursorPosition(position);
+          // Lexical handles cursor positioning internally
+          // After inserting, focus the editor
+          if (lexicalRef.current?.focus) {
+            lexicalRef.current.focus();
           }
         };
 
@@ -118,8 +124,8 @@ export const RichInputAdapter = forwardRef<any, RichInputAdapterProps>(
 
         // Force focus back to the input after selection
         setTimeout(() => {
-          if (richInputRef.current?.focus) {
-            richInputRef.current.focus();
+          if (lexicalRef.current?.focus) {
+            lexicalRef.current.focus();
           }
         }, 10);
       },
@@ -130,53 +136,29 @@ export const RichInputAdapter = forwardRef<any, RichInputAdapterProps>(
     const { handleValueChangeWithURLDetection } = useUrlAutoConversion({
       value,
       onChange,
-      richInputRef
+      richInputRef: lexicalRef as React.RefObject<{ getState?: () => { cursorPosition?: { index: number } } }>
     });
 
-    // Simple value change handler - only update value and detect search triggers
+    // Handle value changes from the Lexical editor
     const handleValueChange = useCallback(
       (newValue: string) => {
-        // Always update the value first for responsive typing
+        // Update the value first
         onChange(newValue);
 
-        // Only detect search triggers for immediate feedback (hashtags, mentions, emojis)
-        if (richInputRef.current?.getState) {
-          const state = richInputRef.current.getState();
-          detectTriggerAndShowOverlay(
-            newValue,
-            state.cursorPosition?.index || 0
-          );
-        }
+        // Detect search triggers (hashtags, mentions, emojis)
+        // Get cursor position from the editor if available
+        const cursorPos = newValue.length; // Fallback to end of text
+        detectTriggerAndShowOverlay(newValue, cursorPos);
       },
       [onChange, detectTriggerAndShowOverlay]
     );
 
-    // Process URL conversion and other heavy processing on blur/enter
-    const handleProcessing = useCallback(
-      (finalValue: string) => {
-        const previousValue = value;
-
-        // Handle URL auto-conversion when user finishes typing
-        handleValueChangeWithURLDetection(finalValue, previousValue);
-      },
-      [value, handleValueChangeWithURLDetection]
-    );
-
-    // Handle pill clicks for filter removal
-    const handleTokenClick = useCallback(
-      (token: any, state: any) => {
-        // Only handle pill clicks, not other token types
-        if (token.type === 'hashtag' && onHashtagClick) {
-          onHashtagClick(token.value || token.content);
-        } else if (token.type === 'mention' && onMentionClick) {
-          onMentionClick(
-            token.value || token.content,
-            token.filterType || 'author'
-          );
-        }
-      },
-      [onHashtagClick, onMentionClick]
-    );
+    // Process URL conversion on blur
+    const handleEditorBlur = useCallback(() => {
+      // Handle URL auto-conversion when user finishes typing
+      handleValueChangeWithURLDetection(value, value);
+      handleBlur();
+    }, [value, handleValueChangeWithURLDetection, handleBlur]);
 
     // Handle interaction state changes
     const handleToolbarInteractionStart = useCallback(() => {
@@ -188,8 +170,8 @@ export const RichInputAdapter = forwardRef<any, RichInputAdapterProps>(
       setToolbarInteracting(false);
       setInteracting(false);
       // Re-focus the input after toolbar interaction
-      if (richInputRef.current?.focus) {
-        richInputRef.current.focus();
+      if (lexicalRef.current?.focus) {
+        lexicalRef.current.focus();
       }
     }, [setInteracting]);
 
@@ -287,10 +269,10 @@ export const RichInputAdapter = forwardRef<any, RichInputAdapterProps>(
         <div
           style={{
             ...tooltipStyle,
-            backgroundColor: 'white',
-            border: '1px solid #e1e5e9',
+            backgroundColor: 'var(--bg-darker)',
+            border: '1px solid var(--grey-dark)',
             borderRadius: '8px',
-            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)',
             maxHeight: '200px',
             overflowY: 'auto',
             minWidth: '200px'
@@ -310,91 +292,32 @@ export const RichInputAdapter = forwardRef<any, RichInputAdapterProps>(
       handleSearchOverlayInteractionEnd
     ]);
 
-    // Raw mode: show simple textarea/input
-    if (viewMode === 'raw') {
-      return (
-        <div className="rich-input-adapter-raw-container">
-          {React.createElement(multiline ? 'textarea' : 'input', {
-            value,
-            onChange: (
-              e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-            ) => {
-              const newValue = e.target.value;
-              const cursorPosition = e.target.selectionStart || 0;
-              onChange(newValue);
-              detectTriggerAndShowOverlay(newValue, cursorPosition);
-            },
-            placeholder,
-            className: `rich-input-adapter-raw ${className}`,
-            disabled,
-            rows: multiline ? 4 : undefined,
-            onFocus: handleFocus,
-            onBlur: () => {
-              // Process URL conversion and other heavy logic on blur
-              handleProcessing(value);
-              // Then handle focus management
-              handleBlur();
-            },
-            onKeyDown: (
-              e: React.KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>
-            ) => {
-              if (e.key === 'Enter') {
-                // Process URL conversion and other heavy logic on Enter
-                handleProcessing(value);
-              }
-            },
-            onKeyUp: (
-              e: React.KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>
-            ) => {
-              const target = e.target as HTMLInputElement | HTMLTextAreaElement;
-              detectTriggerAndShowOverlay(
-                target.value,
-                target.selectionStart || 0
-              );
-            },
-            style: {
-              width: '100%',
-              minHeight: multiline ? '60px' : '40px',
-              maxHeight: multiline ? '200px' : '40px',
-              border: '1px solid var(--light-border--primary)',
-              borderRadius: 'var(--border-radius)',
-              backgroundColor: 'var(--light-background--primary)',
-              color: 'var(--light-bg__text-color--primary)',
-              padding: '8px 12px',
-              fontSize: '14px',
-              lineHeight: '1.4',
-              fontFamily: 'inherit',
-              resize: multiline ? 'vertical' : 'none'
-            }
-          })}
+    // Handle insertion from toolbar
+    const handleInsertText = useCallback((text: string) => {
+      if (lexicalRef.current?.insertText) {
+        lexicalRef.current.insertText(text);
+      } else {
+        // Fallback: append to value
+        onChange(value + text);
+      }
+    }, [onChange, value]);
 
-          {isFocused && (
-            <FloatingToolbar
-              inputRef={{ current: null }}
-              onHashtagInsert={insertAtCursor}
-              onMentionInsert={insertAtCursor}
-              onEmojiInsert={insertAtCursor}
-              disabled={disabled}
-              onToolbarInteractionStart={handleToolbarInteractionStart}
-              onToolbarInteractionEnd={handleToolbarInteractionEnd}
-            />
-          )}
+    // Wrap onMentionClick to adapt the type signature
+    const handleMentionClick = useCallback((mention: MentionData) => {
+      if (onMentionClick) {
+        onMentionClick(mention.displayName, mention.filterType);
+      }
+    }, [onMentionClick]);
 
-          {renderSearchTooltip()}
-        </div>
-      );
-    }
-
-    // Preview mode: use rich input
     return (
       <div
         ref={containerRef}
         className="rich-input-adapter-container"
         data-rich-text-editor
       >
-        <RichInput
+        <LexicalRichEditor
           ref={(instance) => {
-            richInputRef.current = instance;
+            (lexicalRef as React.MutableRefObject<LexicalRichEditorRef | null>).current = instance;
             if (typeof ref === 'function') {
               ref(instance);
             } else if (ref) {
@@ -403,64 +326,39 @@ export const RichInputAdapter = forwardRef<any, RichInputAdapterProps>(
           }}
           value={value}
           onChange={handleValueChange}
-          multiline={multiline}
           placeholder={placeholder}
+          className={`rich-input-adapter ${className} ${multiline ? 'rich-input-adapter--multiline' : 'rich-input-adapter--single-line'}`}
+          contextId={contextId}
+          viewMode={viewMode}
+          multiline={multiline}
           disabled={disabled}
-          parsers={{
-            hashtags: enableHashtags,
-            mentions: enableUserMentions,
-            urls: true,
-            emojis: enableEmojis,
-            images: enableImagePaste,
-            markdown: false
-          }}
-          behavior={{
-            smartSelection: true,
-            autoComplete: false,
-            spellCheck: true
-          }}
-          styling={{
-            className: `rich-input-adapter ${className} ${multiline ? 'rich-input-adapter--multiline' : 'rich-input-adapter--single-line'}`,
-            style: {
-              minHeight: multiline ? '60px' : '40px',
-              maxHeight: multiline ? '200px' : '40px',
-              border: '1px solid var(--light-border--primary)',
-              borderRadius: 'var(--border-radius)',
-              backgroundColor: 'var(--light-background--primary)',
-              padding: '8px 12px',
-              fontSize: '14px',
-              lineHeight: '1.4',
-              fontFamily: 'inherit',
-              overflow: multiline ? 'auto' : 'hidden',
-              whiteSpace: multiline ? 'pre-wrap' : 'nowrap',
-              wordWrap: 'break-word'
-            }
-          }}
-          handlers={{
-            onFocus: handleFocus,
-            onBlur: () => {
-              // Process URL conversion and other heavy logic on blur
-              handleProcessing(value);
-              // Then handle focus management
-              handleBlur();
-            },
-            onTokenClick: handleTokenClick
-          }}
-          enableDebugLogging={enableDebugLogging}
-        >
-          {(isFocused || toolbarInteracting) && (
-            <FloatingToolbar
-              inputRef={richInputRef}
-              onHashtagInsert={insertAtCursor}
-              onMentionInsert={insertAtCursor}
-              onEmojiInsert={insertAtCursor}
-              disabled={disabled}
-              onToolbarInteractionStart={handleToolbarInteractionStart}
-              onToolbarInteractionEnd={handleToolbarInteractionEnd}
-            />
-          )}
-        </RichInput>
+          enableHashtags={enableHashtags}
+          enableMentions={enableUserMentions}
+          enableEmojis={enableEmojis}
+          enableUrls={true}
+          enableMarkdown={false}
+          enableImagePaste={enableImagePaste}
+          mentionFilterType={mentionFilterType}
+          onFocus={handleFocus}
+          onBlur={handleEditorBlur}
+          onHashtagClick={onHashtagClick}
+          onMentionClick={handleMentionClick}
+        />
 
+        {/* Floating toolbar */}
+        {(isFocused || toolbarInteracting) && (
+          <FloatingToolbar
+            inputRef={lexicalRef as React.RefObject<any>}
+            onHashtagInsert={handleInsertText}
+            onMentionInsert={handleInsertText}
+            onEmojiInsert={handleInsertText}
+            disabled={disabled}
+            onToolbarInteractionStart={handleToolbarInteractionStart}
+            onToolbarInteractionEnd={handleToolbarInteractionEnd}
+          />
+        )}
+
+        {/* Search overlay */}
         {renderSearchTooltip()}
       </div>
     );

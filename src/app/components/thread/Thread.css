@@ -4,7 +4,7 @@
   max-width: 100%;
   margin: 0 auto;
   padding: 1rem;
-  background: var(--light-background--primary);
+  background: var(--bg-dark);
   border-radius: var(--border-radius);
   box-shadow: 0 2px 8px transparent;
   min-height: 60vh;
@@ -23,7 +23,7 @@
   justify-content: space-between;
   margin-bottom: 1.5rem;
   padding-bottom: 1rem;
-  border-bottom: 1px solid var(--light-border--secondary);
+  border-bottom: 1px solid var(--grey-dark);
 }
 
 .thread__back-button {
@@ -51,7 +51,7 @@
 }
 
 .thread__breadcrumb {
-  color: var(--light-bg__text-color--secondary);
+  color: var(--text-secondary);
   font-size: var(--font-size-sm);
 }
 
@@ -67,8 +67,8 @@
 /* Main Post Container */
 .thread__parent {
   margin-bottom: 2rem;
-  background: #fefefe;
-  border: 1px solid #e5e5e5;
+  background: var(--bg-darker);
+  border: 1px solid var(--grey-dark);
   border-radius: var(--border-radius);
   /* padding: 1.2rem; */
 }
@@ -77,7 +77,7 @@
   font-size: var(--font-size-xl);
   font-weight: 700;
   margin: 0 0 1rem 0;
-  color: var(--light-bg__text-color--primary);
+  color: var(--text-primary);
   line-height: 1.3;
 }
 
@@ -85,8 +85,8 @@
 .thread__reply-section {
   margin: 2rem 0;
   padding: 1.5rem;
-  background: var(--light-background--secondary);
-  border: 1px solid var(--brand-tertiary--light);
+  background: var(--bg-medium);
+  border: 1px solid var(--grey-dark);
   border-radius: var(--border-radius);
 }
 
@@ -94,7 +94,7 @@
   margin: 0 0 1rem 0;
   font-size: var(--font-size-base);
   font-weight: 600;
-  color: var(--light-bg__text-color--primary);
+  color: var(--text-primary);
 }
 
 /* Replies Section */
@@ -106,9 +106,9 @@
   font-size: var(--font-size-base);
   font-weight: 600;
   margin: 0 0 1rem 0;
-  color: var(--light-bg__text-color--primary);
+  color: var(--text-primary);
   padding-bottom: 0.5rem;
-  border-bottom: 1px solid #e5e5e5;
+  border-bottom: 1px solid var(--grey-dark);
 }
 
 .thread__replies-list {
@@ -120,7 +120,7 @@
 /* Nested Replies */
 .thread__nested-replies {
   margin-top: 1rem;
-  border-left: 2px solid var(--brand-tertiary--light);
+  border-left: 2px solid var(--grey-dark);
   padding-left: 0;
 }
 
@@ -128,8 +128,8 @@
 .thread__not-found {
   text-align: center;
   padding: 2rem;
-  background: #fefefe;
-  border: 1px solid #e5e5e5;
+  background: var(--bg-darker);
+  border: 1px solid var(--grey-dark);
   border-radius: var(--border-radius);
 }
 
@@ -137,20 +137,20 @@
   font-size: var(--font-size-lg);
   font-weight: 600;
   margin: 0 0 1rem 0;
-  color: var(--light-bg__text-color--primary);
+  color: var(--text-primary);
 }
 
 .thread__not-found p {
   font-size: var(--font-size-base);
-  color: var(--light-bg__text-color--secondary);
+  color: var(--text-secondary);
   margin: 0 0 1.5rem 0;
   line-height: 1.5;
 }
 
 /* Submission styles for thread view */
 .thread__container .submission__wrapper {
-  background: #fefefe;
-  border: 1px solid #e5e5e5;
+  background: var(--bg-darker);
+  border: 1px solid var(--grey-dark);
   border-radius: var(--border-radius);
   /* margin-bottom: 1rem; */
   transition: box-shadow 0.2s ease-in-out, background-color 0.2s ease-in-out;
@@ -170,7 +170,7 @@
 }
 
 .thread__container .submission__wrapper.submission__wrapper--reply {
-  background: #f9f9f9;
+  background: var(--bg-dark);
   border-left: 3px solid var(--brand-primary);
   position: relative;
   /* Dynamic pattern based on depth - will be overridden by depth-specific styles */
@@ -324,7 +324,7 @@
   top: 0;
   bottom: 0;
   width: 2px;
-  background: var(--brand-tertiary--light);
+  background: var(--grey-dark);
 }
 
 .thread__container .submission__meta {
@@ -332,7 +332,7 @@
   align-items: center;
   margin-bottom: 0.75rem;
   font-size: var(--font-size-sm);
-  color: var(--light-bg__text-color--secondary);
+  color: var(--text-secondary);
   position: relative;
   gap: 0.5rem;
 }
@@ -434,13 +434,13 @@
 .thread__container .submission__datetime {
   white-space: nowrap;
   display: inline-block;
-  color: var(--light-bg__text-color--tertiary);
+  color: var(--text-tertiary);
   font-size: var(--font-size-md);
 }
 
 .thread__container .submission__author {
   font-weight: 500;
-  color: var(--light-bg__text-color--primary);
+  color: var(--text-primary);
 }
 
 .thread__container .submission__owner-actions {
@@ -519,12 +519,12 @@
   font-size: 1.125rem;
   font-weight: 600;
   margin: 0 0 0.5rem 0;
-  color: var(--light-bg__text-color--primary);
+  color: var(--text-primary);
   line-height: 1.4;
 }
 
 .thread__container .submission__description {
-  color: var(--light-bg__text-color--secondary);
+  color: var(--text-secondary);
   line-height: 1.5;
   margin: 0.5rem 0;
   font-size: var(--font-size-base);
@@ -540,8 +540,8 @@
 .thread__container .submission__edit-form {
   margin-top: 1rem;
   padding: 1rem;
-  background: var(--light-background--tertiary);
-  border: 1px solid var(--brand-tertiary--light);
+  background: var(--bg-medium);
+  border: 1px solid var(--grey-dark);
   border-radius: var(--border-radius);
 }
 

@@ -162,7 +162,8 @@
 }
 
 .nav__auth-links .instant-link:hover {
-  background: var(--brand-tertiary);
+  background: rgba(229, 193, 133, 0.15);
+  color: var(--tan-primary);
   opacity: 1;
 }
 
