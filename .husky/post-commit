@@ -3,9 +3,6 @@
 # Ensure we're in the correct directory
 cd "$(dirname "$0")/.."
 
-# Source common environment setup
-. "$(dirname "$0")/_/setup-env.sh"
-
 # Get the last commit hash to create a unique lock
 LAST_COMMIT_HASH=$(git log -1 --pretty=%H)
 LOCK_FILE=".git/version-bump-lock-$LAST_COMMIT_HASH"
