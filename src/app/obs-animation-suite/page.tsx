@@ -1,11 +1,11 @@
 'use client';
 
 import { useState } from 'react';
+import { Card } from '../components/card/Card';
 import FadeIn from '../components/fade-in/FadeIn';
 import { PageAside } from '../components/page-aside/PageAside';
 import { PageContainer } from '../components/page-container/PageContainer';
 import PageContent from '../components/page-content/PageContent';
-import { Card } from '../components/card/Card';
 import { ControlPanelDemo } from './components/ControlPanelDemo';
 import { FeatureShowcase } from './components/FeatureShowcase';
 // FileBrowser removed - no external dependencies
@@ -172,19 +172,19 @@ export default function ObsAnimationSuite() {
             <div className={styles.sidebar__section}>
               <h3 className={styles.sidebar__title}>🎨 Animation Types</h3>
               <div className={styles.animation__grid}>
-                <div className={styles.animation__card}>
+                <div className={`${styles.animation__card} ${styles['animation__card--fade']}`}>
                   <span className={styles.animation__icon}>✨</span>
                   <span className={styles.animation__name}>Fade</span>
                 </div>
-                <div className={styles.animation__card}>
+                <div className={`${styles.animation__card} ${styles['animation__card--slide']}`}>
                   <span className={styles.animation__icon}>➡️</span>
                   <span className={styles.animation__name}>Slide</span>
                 </div>
-                <div className={styles.animation__card}>
+                <div className={`${styles.animation__card} ${styles['animation__card--zoom']}`}>
                   <span className={styles.animation__icon}>🔍</span>
                   <span className={styles.animation__name}>Zoom</span>
                 </div>
-                <div className={styles.animation__card}>
+                <div className={`${styles.animation__card} ${styles['animation__card--pop']}`}>
                   <span className={styles.animation__icon}>💥</span>
                   <span className={styles.animation__name}>Pop</span>
                 </div>

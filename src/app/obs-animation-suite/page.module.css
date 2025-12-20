@@ -307,21 +307,96 @@
   background: var(--bg-dark);
   border: 1px solid var(--dark-border--primary);
   border-radius: 0.5rem;
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
+  cursor: pointer;
 }
 
 .animation__card:hover {
   background: var(--bg-light);
   border-color: var(--tan-primary);
-  transform: translateY(-2px);
+}
+
+/* Fade animation on hover */
+.animation__card--fade:hover {
+  animation: preview-fade 0.8s ease-in-out;
+}
+
+@keyframes preview-fade {
+  0% {
+    opacity: 0.3;
+  }
+
+  100% {
+    opacity: 1;
+  }
+}
+
+/* Slide animation on hover */
+.animation__card--slide:hover {
+  animation: preview-slide 0.5s ease-out;
+}
+
+@keyframes preview-slide {
+  0% {
+    transform: translateX(-20px);
+    opacity: 0.5;
+  }
+
+  100% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* Zoom animation on hover */
+.animation__card--zoom:hover {
+  animation: preview-zoom 0.4s ease-out;
+}
+
+@keyframes preview-zoom {
+  0% {
+    transform: scale(0.7);
+    opacity: 0.5;
+  }
+
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Pop animation on hover */
+.animation__card--pop:hover {
+  animation: preview-pop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes preview-pop {
+  0% {
+    transform: scale(0.5);
+    opacity: 0;
+  }
+
+  60% {
+    transform: scale(1.15);
+    opacity: 1;
+  }
+
+  100% {
+    transform: scale(1);
+  }
 }
 
 .animation__icon {
   font-size: 1.5rem;
+  transition: transform 0.3s ease;
+}
+
+.animation__card:hover .animation__icon {
+  transform: scale(1.2);
 }
 
 .animation__name {
-  font-size: 1.0rem;
+  font-size: 0.875rem;
   font-weight: 600;
   color: var(--text-primary);
 }

@@ -111,7 +111,37 @@ export function ControlPanelMock() {
   const [transDuration, setTransDuration] = useState(500);
   const [isRunning, setIsRunning] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(false);
-  
+
+  // Text styling state
+  const [textStyles, setTextStyles] = useState({
+    fontFamily: "'Segoe UI', system-ui, sans-serif",
+    fontSize: '48px',
+    fontWeight: '700',
+    fontStyle: 'normal',
+    color: '#ffffff',
+    letterSpacing: 'normal',
+    lineHeight: '1.2',
+    textTransform: 'none' as 'none' | 'uppercase' | 'lowercase' | 'capitalize',
+    shadow: '2px 2px 4px rgba(0,0,0,0.5)',
+    strokeWidth: '0',
+    strokeColor: '#000000',
+  });
+
+  // Source swap state
+  const [swapConfigs] = useState<SwapConfig[]>(DEFAULT_SWAP_CONFIGS);
+  const [selectedSwapConfig, setSelectedSwapConfig] = useState<string>('1');
+  const [swapEasing, setSwapEasing] = useState<EasingType>('ease_in_out');
+  const [swapDuration, setSwapDuration] = useState(400);
+  const [isSwapping, setIsSwapping] = useState(false);
+  const [swapProgress, setSwapProgress] = useState(0);
+  const [swapPositions, setSwapPositions] = useState({ aX: 0, aY: 0, bX: 200, bY: 0 });
+
+  // Source animations state
+  const [sources, setSources] = useState<SourceConfig[]>(DEFAULT_SOURCES);
+  const [selectedSource, setSelectedSource] = useState<string>('Gameplay');
+  const [animatingSource, setAnimatingSource] = useState<string | null>(null);
+  const [animationProgress, setAnimationProgress] = useState(0);
+
   const cycleIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const transitionFrameRef = useRef<number | null>(null);
   const transitionStartRef = useRef<number>(0);
@@ -312,7 +342,23 @@ export function ControlPanelMock() {
             {/* LIVE PREVIEW - The main attraction! */}
             <div className={styles.card}>
               <h3 className={styles.card__title}>🎬 Live Preview</h3>
-              <div className={`${styles.text__preview} ${isTransitioning ? styles['text__preview--animating'] : ''}`}>
+              <div
+                className={`${styles.text__preview} ${isTransitioning ? styles['text__preview--animating'] : ''}`}
+                style={{
+                  fontFamily: textStyles.fontFamily,
+                  fontSize: textStyles.fontSize,
+                  fontWeight: textStyles.fontWeight,
+                  fontStyle: textStyles.fontStyle,
+                  color: textStyles.color,
+                  letterSpacing: textStyles.letterSpacing === 'normal' ? undefined : textStyles.letterSpacing,
+                  lineHeight: textStyles.lineHeight,
+                  textTransform: textStyles.textTransform,
+                  textShadow: textStyles.shadow,
+                  WebkitTextStroke: textStyles.strokeWidth !== '0' && textStyles.strokeWidth !== '0px'
+                    ? `${textStyles.strokeWidth} ${textStyles.strokeColor}`
+                    : undefined,
+                }}
+              >
                 {displayText || 'Enter text below...'}
               </div>
               <div className={styles.preview__info}>
@@ -388,6 +434,124 @@ export function ControlPanelMock() {
               </div>
             </div>
 
+            <div className={styles.card}>
+              <h3 className={styles.card__title}>🎨 Text Styling</h3>
+
+              <div className={styles.form__group}>
+                <label className={styles.label}>Font Family</label>
+                <select
+                  className={styles.select}
+                  value={textStyles.fontFamily}
+                  onChange={(e) => setTextStyles(prev => ({ ...prev, fontFamily: e.target.value }))}
+                >
+                  <option value="'Segoe UI', system-ui, sans-serif">Segoe UI</option>
+                  <option value="Arial, sans-serif">Arial</option>
+                  <option value="Georgia, serif">Georgia</option>
+                  <option value="'Courier New', monospace">Courier New</option>
+                  <option value="Impact, sans-serif">Impact</option>
+                </select>
+              </div>
+
+              <div className={styles.row}>
+                <div className={styles.form__group}>
+                  <label className={styles.label}>Size</label>
+                  <input
+                    type="text"
+                    className={styles.input}
+                    value={textStyles.fontSize}
+                    onChange={(e) => setTextStyles(prev => ({ ...prev, fontSize: e.target.value }))}
+                  />
+                </div>
+                <div className={styles.form__group}>
+                  <label className={styles.label}>Weight</label>
+                  <select
+                    className={styles.select}
+                    value={textStyles.fontWeight}
+                    onChange={(e) => setTextStyles(prev => ({ ...prev, fontWeight: e.target.value }))}
+                  >
+                    <option value="400">Normal</option>
+                    <option value="600">Semi-Bold</option>
+                    <option value="700">Bold</option>
+                    <option value="900">Black</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className={styles.row}>
+                <div className={styles.form__group}>
+                  <label className={styles.label}>Color</label>
+                  <div className={styles.color__input}>
+                    <input
+                      type="color"
+                      value={textStyles.color}
+                      onChange={(e) => setTextStyles(prev => ({ ...prev, color: e.target.value }))}
+                      className={styles.color__picker}
+                    />
+                    <input
+                      type="text"
+                      className={styles.input}
+                      value={textStyles.color}
+                      onChange={(e) => setTextStyles(prev => ({ ...prev, color: e.target.value }))}
+                    />
+                  </div>
+                </div>
+                <div className={styles.form__group}>
+                  <label className={styles.label}>Transform</label>
+                  <select
+                    className={styles.select}
+                    value={textStyles.textTransform}
+                    onChange={(e) => setTextStyles(prev => ({ ...prev, textTransform: e.target.value as 'none' | 'uppercase' | 'lowercase' | 'capitalize' }))}
+                  >
+                    <option value="none">None</option>
+                    <option value="uppercase">UPPERCASE</option>
+                    <option value="lowercase">lowercase</option>
+                    <option value="capitalize">Capitalize</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className={styles.form__group}>
+                <label className={styles.label}>Text Shadow</label>
+                <input
+                  type="text"
+                  className={styles.input}
+                  value={textStyles.shadow}
+                  onChange={(e) => setTextStyles(prev => ({ ...prev, shadow: e.target.value }))}
+                  placeholder="2px 2px 4px rgba(0,0,0,0.5)"
+                />
+              </div>
+
+              <div className={styles.row}>
+                <div className={styles.form__group}>
+                  <label className={styles.label}>Stroke Width</label>
+                  <input
+                    type="text"
+                    className={styles.input}
+                    value={textStyles.strokeWidth}
+                    onChange={(e) => setTextStyles(prev => ({ ...prev, strokeWidth: e.target.value }))}
+                    placeholder="0, 1px, 2px"
+                  />
+                </div>
+                <div className={styles.form__group}>
+                  <label className={styles.label}>Stroke Color</label>
+                  <div className={styles.color__input}>
+                    <input
+                      type="color"
+                      value={textStyles.strokeColor}
+                      onChange={(e) => setTextStyles(prev => ({ ...prev, strokeColor: e.target.value }))}
+                      className={styles.color__picker}
+                    />
+                    <input
+                      type="text"
+                      className={styles.input}
+                      value={textStyles.strokeColor}
+                      onChange={(e) => setTextStyles(prev => ({ ...prev, strokeColor: e.target.value }))}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
             <div className={styles.controls}>
               <button
                 className={`${styles.btn} ${styles['btn--preview']}`}
@@ -457,7 +621,7 @@ export function ControlPanelMock() {
         {activeTab === 'connection' && (
           <div className={styles.page}>
             <div className={styles.card}>
-              <h3 className={styles.card__title}>OBS WebSocket Setup</h3>
+              <h3 className={styles.card__title}>🔌 OBS WebSocket Setup</h3>
               <p className={styles.info__text}>
                 The real control panel connects to OBS Studio via WebSocket for live control.
               </p>
@@ -488,6 +652,40 @@ export function ControlPanelMock() {
                 Passwords are encrypted with AES-256-GCM using a PIN you create. 
                 The PIN is stored in session only - never saved to disk.
               </p>
+              <div className={styles.security__features}>
+                <div className={styles.security__feature}>
+                  <span className={styles.security__icon}>✓</span>
+                  <span>PIN-based encryption key derivation (PBKDF2)</span>
+                </div>
+                <div className={styles.security__feature}>
+                  <span className={styles.security__icon}>✓</span>
+                  <span>AES-256-GCM authenticated encryption</span>
+                </div>
+                <div className={styles.security__feature}>
+                  <span className={styles.security__icon}>✓</span>
+                  <span>PIN never stored - session memory only</span>
+                </div>
+              </div>
+              <button
+                className={`${styles.btn} ${styles['btn--danger']} ${styles['btn--sm']}`}
+                onClick={() => addLog('Demo: Credentials cleared', 'info')}
+                style={{ marginTop: '0.75rem' }}
+              >
+                Clear Saved Credentials
+              </button>
+            </div>
+
+            <div className={styles.card}>
+              <h3 className={styles.card__title}>📊 Demo Status</h3>
+              <div className={styles.connection__status}>
+                <div className={styles.status__indicator}>
+                  <span className={styles.connection__dot} />
+                  <span>Demo Mode Active</span>
+                </div>
+                <p className={styles.info__text} style={{ margin: 0 }}>
+                  This is an interactive demo. In the real control panel, you&apos;ll connect to OBS for live control.
+                </p>
+              </div>
             </div>
           </div>
         )}
