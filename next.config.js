@@ -7,6 +7,10 @@ const nextConfig = {
     version
   },
   reactStrictMode: true,
+  // Enable OpenTelemetry instrumentation for SigNoz
+  experimental: {
+    instrumentationHook: true,
+  },
   eslint: {
     // Allow production builds to complete even if there are ESLint warnings
     ignoreDuringBuilds: true

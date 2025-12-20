@@ -9,18 +9,8 @@
   flex-direction: column;
   gap: 1.2rem;
   padding-block-end: 2rem;
-  border-block-end: 2px solid var(--dark-border--primary);
+  border-block-end: 3px solid var(--tan-primary);
   position: relative;
-}
-
-.about__hero::after {
-  content: '';
-  position: absolute;
-  bottom: -1px;
-  left: 0;
-  width: 120px;
-  height: 3px;
-  background: linear-gradient(90deg, var(--tan-primary), var(--tan-secondary), var(--tan-dark));
 }
 
 .about__title {

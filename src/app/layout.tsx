@@ -1,5 +1,6 @@
 import { GlobalLoadingProvider } from '@lib/context/GlobalLoadingContext';
 import { NavigationLoadingProvider } from '@lib/context/NavigationLoadingContext';
+import { ClarityUserIdentifier, MicrosoftClarity } from '@lib/observability';
 import { OverlayProvider } from '@lib/context/OverlayContext';
 import { UserDataBatchProvider } from '@lib/context/UserDataBatchContext';
 import { UserPreferencesProvider } from '@lib/context/UserPreferencesContext';
@@ -8,6 +9,7 @@ import { SessionProvider } from 'next-auth/react';
 import React from 'react';
 import Footer from './components/footer/Footer';
 import Header from './components/header/Header';
+import MessageTickerWithInterval from './components/message-ticker/MessageTickerWithInterval';
 import PWAInstallPrompt from './components/pwa-install/PWAInstallPrompt';
 import { ServiceWorkerRegistration } from './components/service-worker/ServiceWorkerRegistration';
 import { OverlayRendererWrapper } from './components/ui/ClientWrappers';
@@ -64,7 +66,11 @@ export default function RootLayout({
         <meta name="theme-color" content="#ff6b35" />
       </head>
       <body>
+        {/* Observability: Microsoft Clarity - Heatmaps & Session Recordings */}
+        <MicrosoftClarity />
         <SessionProvider>
+          {/* Observability: Identify logged-in users in Microsoft Clarity */}
+          <ClarityUserIdentifier />
           <UserPreferencesProvider>
             <OverlayProvider>
               <NavigationLoadingProvider>
@@ -72,6 +78,7 @@ export default function RootLayout({
                   <UserDataBatchProvider>
                     <NavigationLoadingBar />
                     <Header />
+                    <MessageTickerWithInterval />
                     <main>{children}</main>
                     <Footer />
                     <OverlayRendererWrapper />

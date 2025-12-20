@@ -9,8 +9,8 @@
   max-height: 3rem;
   display: flex;
   align-items: center;
-  border-top: groove var(--color-secondary) 0.4rem;
-  border-bottom: groove var(--color-secondary) 0.4rem;
+  /* Only bottom border - header already has bottom border that serves as top separation */
+  border-bottom: 2px solid var(--brand-primary);
 }
 
 .message-ticker__content {

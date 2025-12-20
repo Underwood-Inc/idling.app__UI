@@ -35,6 +35,7 @@ export function SignOut({
     <form action={signOutAction}>
       <button
         type="submit"
+        className="auth-button"
         data-testid={dataTestId || AUTH_BUTTON_SELECTORS.SIGN_OUT}
       >
         Sign Out

@@ -3,7 +3,7 @@
   background-color: var(--brand-primary);
   border: 1px solid currentColor;
   border-radius: var(--border-radius-sm);
-  color: #1a1a1a;
+  color: var(--dark-background--primary);
   text-decoration: none;
   cursor: pointer;
   display: inline-block;
