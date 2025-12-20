@@ -18,7 +18,7 @@ export async function register() {
   // Only run on the server (Node.js runtime)
   if (process.env.NEXT_RUNTIME === 'nodejs') {
     // Check if SigNoz is enabled
-    const signozEndpoint = process.env.SIGNOZ_ENDPOINT;
+    let signozEndpoint = process.env.SIGNOZ_ENDPOINT;
     const serviceName = process.env.OTEL_SERVICE_NAME || 'idling-app';
 
     if (!signozEndpoint) {
@@ -27,6 +27,20 @@ export async function register() {
       );
       return;
     }
+
+    // Ensure endpoint has protocol - default to https if missing
+    if (
+      !signozEndpoint.startsWith('http://') &&
+      !signozEndpoint.startsWith('https://')
+    ) {
+      signozEndpoint = `https://${signozEndpoint}`;
+      console.log(
+        `🧙‍♂️ SigNoz: Added https:// protocol to endpoint: ${signozEndpoint}`
+      );
+    }
+
+    // Remove trailing slash if present
+    signozEndpoint = signozEndpoint.replace(/\/+$/, '');
 
     try {
       // Dynamic imports to avoid bundling issues
@@ -176,15 +190,15 @@ export async function register() {
               enabled: true,
               enhancedDatabaseReporting: true
             },
-            // Enable Pino/Winston/Bunyan log instrumentation if present
+            // Disable logger library instrumentations - we use custom logging with SigNozTransport
             '@opentelemetry/instrumentation-pino': {
-              enabled: true
+              enabled: false
             },
             '@opentelemetry/instrumentation-winston': {
-              enabled: true
+              enabled: false
             },
             '@opentelemetry/instrumentation-bunyan': {
-              enabled: true
+              enabled: false
             }
           })
         ]
