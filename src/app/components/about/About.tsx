@@ -31,17 +31,18 @@ export function About() {
         <div className="about__section">
           <h3 className="about__section-title">🎮 Game Development</h3>
           <p className="about__section-content">
-            Custom Minecraft datapacks including <strong>Rituals</strong> (580+
-            downloads) and <strong>Strixun Pack A</strong>. Open source on
-            Modrinth and GitHub.
+            Custom Minecraft projects with thousands of downloads:
+            <strong> Rituals</strong> datapack and <strong>Strixun Pack A</strong> modpack.
+            Open source on Modrinth and GitHub.
           </p>
         </div>
 
         <div className="about__section">
           <h3 className="about__section-title">💻 Web Development</h3>
           <p className="about__section-content">
-            Front-end specialist with <GalaxyLink /> showcasing Three.js work.
-            This site: Next.js, React, PostgreSQL, NextAuth.
+            Full-stack developer with <GalaxyLink /> showcasing Three.js work.
+            This site: Next.js, React, PostgreSQL, NextAuth. Building tools for
+            streamers and creators.
           </p>
         </div>
 

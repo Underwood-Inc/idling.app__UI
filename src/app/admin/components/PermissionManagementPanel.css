@@ -18,9 +18,9 @@
    ================================ */
 
 .permission-management-panel {
-  --glass-bg: rgba(255, 255, 255, 0.08);
+  --glass-bg: #E5E5E5;
   --glass-border: rgba(255, 140, 0, 0.2);
-  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+  --glass-shadow: 0 8px 32px transparent;
   --glass-backdrop: blur(16px);
 
   --orange-primary: #ff8c00;
@@ -69,7 +69,7 @@
   background: var(--glass-bg);
   border: 1px solid var(--glass-border);
   border-radius: var(--border-radius-lg);
-  backdrop-filter: var(--glass-backdrop);
+  
   box-shadow: var(--glass-shadow);
   position: relative;
   overflow: hidden;
@@ -131,7 +131,7 @@
   cursor: pointer;
   transition: all var(--transition-medium);
   box-shadow: 0 4px 16px rgba(255, 140, 0, 0.3);
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  text-shadow: 0 1px 2px transparent;
 }
 
 .create-btn:hover:not(:disabled) {
@@ -166,7 +166,7 @@
   border: 1px solid var(--glass-border);
   border-radius: var(--border-radius);
   padding: var(--spacing-xs);
-  backdrop-filter: var(--glass-backdrop);
+  
 }
 
 .nav-tab {
@@ -230,7 +230,7 @@
   background: var(--glass-bg);
   border: 1px solid var(--glass-border);
   border-radius: var(--border-radius);
-  backdrop-filter: var(--glass-backdrop);
+  
   box-shadow: var(--glass-shadow);
   transition: all var(--transition-medium);
   position: relative;
@@ -250,7 +250,7 @@
 
 .stat-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 12px 40px transparent;
 }
 
 .stat-icon {
@@ -318,7 +318,7 @@
   background: var(--glass-bg);
   border: 1px solid var(--glass-border);
   border-radius: var(--border-radius);
-  backdrop-filter: var(--glass-backdrop);
+  
 }
 
 .search-bar {
@@ -332,17 +332,17 @@
     var(--spacing-md);
   border: 2px solid transparent;
   border-radius: var(--border-radius);
-  background: rgba(255, 255, 255, 0.05);
+  background: #E5E5E5;
   color: var(--text-primary);
   font-size: 1.2rem;
   transition: all var(--transition-medium);
-  backdrop-filter: blur(8px);
+  
 }
 
 .search-input:focus {
   outline: none;
   border-color: var(--orange-primary);
-  background: rgba(255, 255, 255, 0.08);
+  background: #E5E5E5;
   box-shadow: 0 0 0 3px rgba(255, 140, 0, 0.1);
 }
 
@@ -369,19 +369,19 @@
   padding: var(--spacing-sm) var(--spacing-md);
   border: 2px solid transparent;
   border-radius: var(--border-radius);
-  background: rgba(255, 255, 255, 0.05);
+  background: #E5E5E5;
   color: var(--text-primary);
   font-size: 1.1rem;
   cursor: pointer;
   transition: all var(--transition-medium);
-  backdrop-filter: blur(8px);
+  
   min-width: 150px;
 }
 
 .filter-select:focus {
   outline: none;
   border-color: var(--orange-primary);
-  background: rgba(255, 255, 255, 0.08);
+  background: #E5E5E5;
 }
 
 .filter-select option {
@@ -408,7 +408,7 @@
   background: var(--glass-bg);
   border: 1px solid var(--glass-border);
   border-radius: var(--border-radius);
-  backdrop-filter: var(--glass-backdrop);
+  
   box-shadow: var(--glass-shadow);
   transition: all var(--transition-medium);
   position: relative;
@@ -429,7 +429,7 @@
 
 .item-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 12px 40px transparent;
 }
 
 .item-card:hover::before {
@@ -510,7 +510,7 @@
 }
 
 .risk-badge {
-  border: 1px solid rgba(0, 0, 0, 0.1);
+  border: 1px solid transparent;
 }
 
 .risk-low {
@@ -608,7 +608,7 @@
 .permissions-label {
   font-weight: 500;
   color: var(--text-muted);
-  font-size: 0.9rem;
+  font-size: 1.0rem;
   display: block;
   margin-bottom: var(--spacing-sm);
 }
@@ -622,18 +622,18 @@
 
 .dependency-tag,
 .permission-tag {
-  background: rgba(255, 255, 255, 0.05);
+  background: #E5E5E5;
   color: var(--text-secondary);
   padding: var(--spacing-xs) var(--spacing-sm);
   border-radius: calc(var(--border-radius) / 2);
-  font-size: 0.8rem;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  font-size: 1.0rem;
+  border: 1px solid #E5E5E5;
 }
 
 .permissions-more {
   color: var(--text-muted);
   font-style: italic;
-  font-size: 0.85rem;
+  font-size: 1.0rem;
 }
 
 .item-actions {
@@ -653,7 +653,7 @@
   font-weight: 500;
   cursor: pointer;
   transition: all var(--transition-medium);
-  backdrop-filter: blur(8px);
+  
 }
 
 .action-btn:disabled {
@@ -719,19 +719,19 @@
   background: var(--glass-bg);
   border: 1px solid var(--glass-border);
   border-radius: var(--border-radius);
-  backdrop-filter: var(--glass-backdrop);
+  
 }
 
 .pagination-btn {
   padding: var(--spacing-sm) var(--spacing-md);
-  background: rgba(255, 255, 255, 0.05);
+  background: #E5E5E5;
   border: 1px solid var(--glass-border);
   border-radius: var(--border-radius);
   color: var(--text-primary);
   font-weight: 500;
   cursor: pointer;
   transition: all var(--transition-medium);
-  backdrop-filter: blur(8px);
+  
 }
 
 .pagination-btn:hover:not(:disabled) {
@@ -766,8 +766,8 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(8px);
+  background: #E5E5E5;
+  
   border-radius: var(--border-radius);
   z-index: 10;
 }
@@ -873,7 +873,7 @@
   background: var(--glass-bg);
   border: 1px solid var(--glass-border);
   border-radius: var(--border-radius);
-  backdrop-filter: var(--glass-backdrop);
+  
 }
 
 .audit-placeholder h3 {
@@ -1007,9 +1007,9 @@
 
 @media (prefers-color-scheme: dark) {
   .permission-management-panel {
-    --glass-bg: rgba(0, 0, 0, 0.2);
+    --glass-bg: transparent;
     --glass-border: rgba(255, 140, 0, 0.15);
-    --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    --glass-shadow: 0 8px 32px transparent;
 
     --text-primary: var(--dark-bg__text-color--primary);
     --text-secondary: var(--dark-bg__text-color--secondary);
@@ -1018,12 +1018,12 @@
 
   .search-input,
   .filter-select {
-    background: rgba(0, 0, 0, 0.2);
+    background: transparent;
   }
 
   .search-input:focus,
   .filter-select:focus {
-    background: rgba(0, 0, 0, 0.3);
+    background: transparent;
   }
 
   .filter-select option {
@@ -1033,12 +1033,12 @@
 
   .dependency-tag,
   .permission-tag {
-    background: rgba(0, 0, 0, 0.2);
-    border-color: rgba(255, 255, 255, 0.1);
+    background: transparent;
+    border-color: #E5E5E5;
   }
 
   .pagination-btn {
-    background: rgba(0, 0, 0, 0.2);
+    background: transparent;
   }
 }
 
@@ -1057,7 +1057,7 @@
 /* High contrast mode support */
 @media (prefers-contrast: high) {
   .permission-management-panel {
-    --glass-bg: rgba(255, 255, 255, 0.15);
+    --glass-bg: #E5E5E5;
     --glass-border: rgba(255, 140, 0, 0.4);
   }
 

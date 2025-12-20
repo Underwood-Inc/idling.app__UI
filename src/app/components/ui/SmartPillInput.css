@@ -86,7 +86,7 @@
   margin-top: 0.25rem;
   border-radius: var(--border-radius);
   border: 2px solid var(--brand-primary);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 8px 24px transparent;
 }
 
 /* When editing and suggestions are showing, adjust border radius */
@@ -251,7 +251,7 @@
   height: 16px;
   border: none;
   border-radius: 10px;
-  font-size: 9px;
+  font-size: 1.0rem;
   font-weight: 600;
   cursor: pointer;
   margin-left: 6px;
@@ -380,7 +380,7 @@
   .smart-pill-input:focus-within,
   .smart-pill-input--editing {
     border-color: #000;
-    box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 0 0 3px transparent;
   }
 
   .smart-pill-input__commit-btn,
@@ -478,7 +478,7 @@
   height: 18px;
   border: none;
   border-radius: 10px;
-  font-size: 9px;
+  font-size: 1.0rem;
   font-weight: 600;
   cursor: pointer;
   padding: 0 6px;
@@ -494,7 +494,7 @@
   transform: scale(1.05);
   transform-origin: center;
   /* Use inset shadow to prevent additional DOM space */
-  box-shadow: inset 0 -1px 2px rgba(0, 0, 0, 0.15);
+  box-shadow: inset 0 -1px 2px transparent;
   /* Ensure element doesn't affect surrounding layout */
   position: relative;
   z-index: 10;
@@ -531,7 +531,7 @@
   justify-content: center;
   height: 18px;
   border-radius: 10px;
-  font-size: 9px;
+  font-size: 1.0rem;
   font-weight: 600;
   padding: 0 6px;
   flex-shrink: 0;
@@ -608,9 +608,9 @@
   border: none !important;
   border-radius: 0 !important;
   border-left: 1px solid rgba(46, 125, 50, 0.3) !important;
-  background: rgba(255, 255, 255, 0.2) !important;
+  background: #E5E5E5 !important;
   color: #1b5e20 !important;
-  font-size: 9px !important;
+  font-size: 1.0rem !important;
   font-weight: 700 !important;
   min-width: 28px !important;
   height: 100% !important;
@@ -620,7 +620,7 @@
 }
 
 .smart-pill-input__filter-type-toggle--integrated:hover {
-  background: rgba(255, 255, 255, 0.4) !important;
+  background: #E5E5E5 !important;
   color: #1b5e20 !important;
   transform: none !important;
 }

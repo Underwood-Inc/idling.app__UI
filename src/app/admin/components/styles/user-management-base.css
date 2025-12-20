@@ -6,7 +6,7 @@
   padding: var(--spacing-xl-cozy);
   background: var(--dark-background--primary);
   border-radius: var(--border-radius);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 4px 12px transparent;
   max-width: 100%;
   overflow: hidden;
 }

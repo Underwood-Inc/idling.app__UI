@@ -86,12 +86,12 @@
   background: var(--brand-tertiary);
   border-color: var(--brand-tertiary--dark);
   transform: translateY(-1px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 8px transparent;
 }
 
 .loading-button--secondary:active:not(.loading-button--disabled) {
   transform: translateY(0);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 2px 4px transparent;
 }
 
 /* Danger Button */
@@ -199,7 +199,7 @@
   background: linear-gradient(
     90deg,
     transparent,
-    rgba(255, 255, 255, 0.1),
+    #E5E5E5,
     transparent
   );
   animation: loading-button-shimmer 1.5s ease-in-out infinite;

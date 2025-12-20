@@ -4,8 +4,8 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.7);
-  backdrop-filter: blur(4px);
+  background: transparent;
+  
   display: flex;
   align-items: center;
   justify-content: center;
@@ -18,7 +18,7 @@
   position: relative;
   background: var(--dark-background--primary);
   border-radius: var(--border-radius);
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 25px 50px -12px transparent;
   max-width: 90vw;
   max-height: 90vh;
   width: 100%;
@@ -27,8 +27,7 @@
   overflow: hidden;
   animation: modalSlideIn 0.2s ease-out;
   /* Apply glass border effect */
-  backdrop-filter: var(--glass-blur-light);
-  -webkit-backdrop-filter: var(--glass-blur-light);
+  
 }
 
 @keyframes modalFadeIn {
@@ -61,8 +60,7 @@
   border-bottom: 1px solid var(--brand-tertiary--dark);
   background: var(--dark-background--secondary);
   /* Apply glass border effect */
-  backdrop-filter: var(--glass-blur-light);
-  -webkit-backdrop-filter: var(--glass-blur-light);
+  
   border-bottom: 1px solid var(--glass-border-overlay-light, var(--brand-tertiary--dark));
 }
 
@@ -176,7 +174,7 @@
 /* High contrast mode support */
 @media (prefers-contrast: high) {
   .youtube-modal {
-    background-color: rgba(0, 0, 0, 0.95);
+    background-color: transparent;
   }
 
   .youtube-modal__content {

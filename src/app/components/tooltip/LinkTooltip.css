@@ -13,8 +13,7 @@
   background: var(--tooltip-glass-bg) !important;
   border: 1px solid var(--tooltip-glass-border) !important;
   border-radius: calc(var(--border-radius) * 1.5);
-  backdrop-filter: var(--tooltip-glass-blur) !important;
-  -webkit-backdrop-filter: var(--tooltip-glass-blur) !important;
+  
   box-shadow: var(--tooltip-glass-shadow) !important;
   opacity: 0;
   visibility: hidden;
@@ -100,7 +99,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.05), transparent);
+  background: linear-gradient(135deg, #E5E5E5, transparent);
   border-radius: calc(var(--border-radius) * 1.5);
   pointer-events: none;
   opacity: 0;
@@ -130,7 +129,7 @@
   background: linear-gradient(
     to bottom,
     transparent 0%,
-    rgba(0, 0, 0, 0.1) 100%
+    transparent 100%
   );
   border-radius: var(--border-radius);
 }
@@ -160,11 +159,11 @@
   line-height: 1.4;
   margin: 0;
   letter-spacing: -0.01em;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  text-shadow: 0 2px 4px transparent;
 }
 
 .link-tooltip-description {
-  font-size: 0.9375rem;
+  font-size: 1.0rem;
   color: #e8e8e8;
   line-height: 1.5;
   margin: 0;
@@ -177,7 +176,7 @@
 }
 
 .link-tooltip-url {
-  font-size: 0.8125rem;
+  font-size: 1.0rem;
   color: var(--brand-primary);
   font-weight: 500;
   white-space: nowrap;
@@ -185,9 +184,9 @@
   text-overflow: ellipsis;
   margin-top: 4px;
   padding: 8px 12px;
-  background: rgba(255, 255, 255, 0.08);
+  background: #E5E5E5;
   border-radius: calc(var(--border-radius) * 0.75);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid #E5E5E5;
   font-family: var(--font-mono);
   letter-spacing: 0.02em;
 }
@@ -199,7 +198,7 @@
   padding: 24px 20px;
   color: #f0f0f0;
   justify-content: center;
-  font-size: 0.9375rem;
+  font-size: 1.0rem;
   font-weight: 500;
 }
 
@@ -207,7 +206,7 @@
   padding: 24px 20px;
   color: #ff6b6b;
   text-align: center;
-  font-size: 0.9375rem;
+  font-size: 1.0rem;
   font-weight: 500;
   background: rgba(255, 107, 107, 0.1);
   border-radius: var(--border-radius);
@@ -215,16 +214,16 @@
 }
 
 .link-tooltip-ctrl-message {
-  font-size: 0.75rem;
+  font-size: 1.0rem;
   color: #c0c0c0;
-  background: rgba(255, 255, 255, 0.1);
+  background: #E5E5E5;
   padding: 6px 10px;
   border-radius: calc(var(--border-radius) * 0.75);
   text-align: center;
   margin-bottom: -4px;
   font-weight: 500;
   letter-spacing: 0.02em;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid #E5E5E5;
 }
 
 /* Mobile-specific styles - Professional Modern Design */
@@ -262,12 +261,12 @@
   }
 
   .link-tooltip-description {
-    font-size: 0.875rem;
+    font-size: 1.0rem;
     line-height: 1.4;
   }
 
   .link-tooltip-url {
-    font-size: 0.75rem;
+    font-size: 1.0rem;
     padding: 6px 8px;
   }
 
@@ -300,6 +299,6 @@
   .link-tooltip + * {
     -webkit-user-select: none;
     user-select: none;
-    -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);
+    -webkit-tap-highlight-color: transparent;
   }
 }

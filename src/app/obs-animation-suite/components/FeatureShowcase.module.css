@@ -1,0 +1,135 @@
+.showcase {
+  padding: 2rem;
+}
+
+.showcase__header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.showcase__title {
+  font-size: 1.75rem;
+  font-weight: 800;
+  margin-bottom: 0.5rem;
+  color: var(--text-primary);
+}
+
+.showcase__subtitle {
+  font-size: 1rem;
+  color: var(--text-secondary);
+}
+
+.feature__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 2rem;
+  margin-bottom: 3rem;
+}
+
+.feature__card {
+  padding: 2rem;
+  background: var(--bg-medium);
+  border: 1px solid var(--dark-border--primary);
+  border-radius: 1rem;
+  transition: all 0.2s ease;
+}
+
+.feature__card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(229, 193, 133, 0.4);
+  border-color: var(--tan-primary);
+  background: var(--bg-light);
+}
+
+.feature__icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.feature__title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-bottom: 0.75rem;
+  color: var(--text-primary);
+}
+
+.feature__description {
+  color: var(--text-secondary);
+  font-size: 1.0rem;
+  line-height: 1.6;
+  margin-bottom: 1rem;
+}
+
+.feature__highlights {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.feature__highlights li {
+  padding: 0.5rem 0.75rem;
+  background: var(--bg-dark);
+  border: 1px solid var(--dark-border--primary);
+  border-radius: 0.375rem;
+  font-size: 1.0rem;
+  color: var(--text-secondary);
+}
+
+.feature__highlights li::before {
+  content: '✓ ';
+  color: var(--tan-primary);
+  font-weight: 700;
+}
+
+.showcase__footer {
+  padding-top: 2rem;
+  border-top: 2px solid var(--dark-border--primary);
+}
+
+.stats {
+  display: flex;
+  justify-content: space-around;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.stat__value {
+  font-size: 2rem;
+  font-weight: 900;
+  color: var(--tan-primary);
+}
+
+.stat__label {
+  font-size: 1.0rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-secondary);
+  text-align: center;
+}
+
+@media (max-width: 768px) {
+  .showcase {
+    padding: 1.5rem;
+  }
+
+  .feature__grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .stats {
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+}
+

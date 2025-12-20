@@ -5,7 +5,7 @@
   border-radius: 50px;
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 4px 6px -1px transparent, 0 2px 4px -1px transparent;
   overflow: hidden;
   user-select: none;
   outline: none;
@@ -95,7 +95,7 @@
 .footer-badge--expanded.footer-badge--background {
   transform: translateY(-50px);
   /* Slide up to reveal full button */
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 10px 15px -3px transparent, 0 4px 6px -2px transparent;
 }
 
 .footer-badge--expanded.footer-badge--clipped {
@@ -103,7 +103,7 @@
   /* Slide up same amount */
   clip-path: inset(0 0 0 0);
   /* Show full button when expanded */
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 10px 15px -3px transparent, 0 4px 6px -2px transparent;
 }
 
 .footer-badge--expanded .footer-badge__content {
@@ -191,13 +191,13 @@
 .footer-badge--expanded:hover.footer-badge--background {
   transform: translateY(-55px);
   /* Lift slightly higher on hover */
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 20px 25px -5px transparent, 0 10px 10px -5px transparent;
 }
 
 .footer-badge--expanded:hover.footer-badge--clipped {
   transform: translateY(-55px);
   /* Lift slightly higher on hover */
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 20px 25px -5px transparent, 0 10px 10px -5px transparent;
 }
 
 /* Active state */
@@ -220,15 +220,15 @@
 /* Dark mode support */
 @media (prefers-color-scheme: dark) {
   .footer-badge {
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 4px 6px -1px transparent, 0 2px 4px -1px transparent;
   }
 
   .footer-badge--expanded {
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 10px 15px -3px transparent, 0 4px 6px -2px transparent;
   }
 
   .footer-badge--expanded:hover {
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 20px 25px -5px transparent, 0 10px 10px -5px transparent;
   }
 }
 

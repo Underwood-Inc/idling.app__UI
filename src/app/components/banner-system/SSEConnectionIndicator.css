@@ -21,14 +21,14 @@
   align-items: center;
   gap: 8px;
   padding: 8px 12px;
-  background: rgba(0, 0, 0, 0.8);
+  background: transparent;
   color: white;
   border-radius: 20px;
   font-size: 12px;
   font-weight: 500;
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  
+  border: 1px solid #E5E5E5;
+  box-shadow: 0 4px 12px transparent;
 }
 
 .status-icon {
@@ -64,7 +64,7 @@
 .sse-connection-indicator.connecting .indicator-content {
   background: rgba(251, 191, 36, 0.9);
   border-color: rgba(251, 191, 36, 0.3);
-  color: rgba(0, 0, 0, 0.8);
+  color: transparent;
 }
 
 .sse-connection-indicator.reconnecting .indicator-content {
@@ -120,7 +120,7 @@
   }
 
   .last-update {
-    font-size: 9px;
+    font-size: 1.0rem;
   }
 }
 
@@ -128,7 +128,7 @@
 @media (prefers-contrast: high) {
   .indicator-content {
     border-width: 2px;
-    background: rgba(0, 0, 0, 0.95);
+    background: transparent;
   }
 }
 

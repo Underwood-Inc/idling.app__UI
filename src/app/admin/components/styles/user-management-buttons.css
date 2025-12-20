@@ -142,7 +142,7 @@
   border-radius: var(--border-radius);
   padding: 8px 0;
   min-width: 200px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 8px 32px transparent;
 }
 
 /* Target ALL elements inside user-actions-menu with maximum specificity */

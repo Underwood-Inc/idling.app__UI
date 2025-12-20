@@ -8,13 +8,13 @@
 }
 
 .id__label {
-  font-size: 0.875rem;
+  font-size: 1.0rem;
   color: var(--dark-bg__text-color--secondary);
   font-weight: 500;
 }
 
 .id__value {
-  font-size: 0.8125rem;
+  font-size: 1.0rem;
   color: var(--brand-primary);
   background-color: var(--dark-background--secondary);
   padding: 0.375rem 0.75rem;
@@ -30,7 +30,7 @@
   border-radius: 6px;
   padding: 0.375rem 0.75rem;
   cursor: pointer;
-  font-size: 0.875rem;
+  font-size: 1.0rem;
   color: var(--dark-bg__text-color--secondary);
   transition: all 0.2s ease;
   font-weight: 500;
@@ -83,10 +83,10 @@
   display: block;
   width: 100%;
   padding: 1rem;
-  background-color: var(--color-background-secondary);
-  border: 1px solid var(--color-border);
+  background-color: var(--dark-background--secondary);
+  border: 1px solid var(--dark-border--primary);
   border-radius: 6px;
-  font-size: 0.875rem;
+  font-size: 1.0rem;
   color: var(--color-primary);
   word-break: break-all;
   overflow-wrap: break-word;
@@ -141,7 +141,7 @@
   max-height: 100%;
   object-fit: contain;
   border-radius: 12px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 8px 32px transparent;
 }
 
 .generation__display__container .no__image {
@@ -156,9 +156,9 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.85);
-  backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: transparent;
+  
+  border: 1px solid #E5E5E5;
   border-radius: 16px;
   padding: 1.5rem;
   display: flex;
@@ -167,9 +167,9 @@
   justify-content: center;
   gap: 1.5rem;
   box-shadow:
-    0 12px 40px rgba(0, 0, 0, 0.4),
-    inset 0 1px 0 rgba(255, 255, 255, 0.15),
-    0 0 0 1px rgba(255, 255, 255, 0.1);
+    0 12px 40px transparent,
+    inset 0 1px 0 #E5E5E5,
+    0 0 0 1px #E5E5E5;
   z-index: var(--z-content);
 }
 
@@ -190,10 +190,10 @@
 
 .generation__display__overlay .generation__button {
   color: var(--brand-primary);
-  background-color: rgba(255, 255, 255, 0.1);
+  background-color: #E5E5E5;
   padding: 0.875rem 1.5rem;
   border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid #E5E5E5;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -229,7 +229,7 @@
 
   .url__link {
     padding: 0.75rem;
-    font-size: 0.75rem;
+    font-size: 1.0rem;
   }
 
   .generation__header {

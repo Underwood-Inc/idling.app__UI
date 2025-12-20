@@ -55,7 +55,7 @@
   border-radius: 6px;
   border: 1px solid var(--brand-primary);
   animation: scrollHintPulse 3s ease-in-out infinite;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 2px 8px transparent;
 }
 
 @keyframes scrollHintPulse {
@@ -77,7 +77,7 @@
   background: var(--dark-background--primary);
   border-radius: 7px;
   border: 1px solid var(--dark-border--secondary);
-  box-shadow: inset 0 0 4px rgba(0, 0, 0, 0.3);
+  box-shadow: inset 0 0 4px transparent;
 }
 
 .users-table-container::-webkit-scrollbar-thumb {
@@ -85,19 +85,19 @@
   border-radius: 7px;
   border: 2px solid var(--dark-background--secondary);
   min-height: 20px;
-  box-shadow: inset 0 0 2px rgba(255, 255, 255, 0.1);
+  box-shadow: inset 0 0 2px #E5E5E5;
 }
 
 .users-table-container::-webkit-scrollbar-thumb:hover {
   background: var(--brand-primary--dark);
   border-color: var(--dark-background--primary);
-  box-shadow: inset 0 0 4px rgba(255, 255, 255, 0.2);
+  box-shadow: inset 0 0 4px #E5E5E5;
 }
 
 .users-table-container::-webkit-scrollbar-thumb:active {
   background: var(--brand-primary--light);
   border-color: var(--dark-background--primary);
-  box-shadow: inset 0 0 6px rgba(255, 255, 255, 0.3);
+  box-shadow: inset 0 0 6px #E5E5E5;
 }
 
 .users-table-container::-webkit-scrollbar-corner {
@@ -151,7 +151,7 @@
   position: sticky;
   top: 0;
   z-index: 10;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 4px transparent;
 }
 
 /* Sortable header styles */

@@ -31,8 +31,8 @@
   border: 1px solid var(--light-border--primary);
   transition: all 0.2s ease;
   white-space: nowrap;
-  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.9);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  text-shadow: 0 1px 2px #E5E5E5;
+  box-shadow: 0 1px 3px transparent;
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
@@ -115,8 +115,8 @@
       var(--dark-background--tertiary)
     );
     border-color: var(--dark-border--primary);
-    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+    text-shadow: 0 1px 3px transparent;
+    box-shadow: 0 1px 4px transparent;
   }
 
   .author.clickable:hover .author__name {
@@ -131,8 +131,7 @@
   /* max-width: 300px;
   min-width: 280px; */
   /* Apply protected tooltip glass effect */
-  backdrop-filter: var(--tooltip-glass-blur) !important;
-  -webkit-backdrop-filter: var(--tooltip-glass-blur) !important;
+  
   background: var(--tooltip-glass-bg) !important;
   border: 1px solid var(--tooltip-glass-border) !important;
   box-shadow: var(--tooltip-glass-shadow) !important;
@@ -322,7 +321,7 @@
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 20px 60px transparent;
 }
 
 .user-profile-modal__header {
@@ -379,7 +378,7 @@
   /* Override tooltip-specific styles that break in modal context */
   position: relative !important;
   z-index: auto !important;
-  backdrop-filter: none !important;
+  
   min-width: auto !important;
   max-width: none !important;
   width: 100% !important;
@@ -562,17 +561,28 @@
   gap: 0.5rem;
 }
 
-/* Author tooltip error state */
 .author-tooltip__error {
-  padding: 1rem;
+  padding: 1.5rem;
   text-align: center;
-  color: var(--text-muted);
-  font-size: 0.875rem;
-  min-width: 150px;
+  font-size: 1.0rem;
+  min-width: 220px;
+  background: #ffebeb;
+  border: 3px solid #ff4444;
+  border-radius: var(--border-radius);
+  transition: all 0.2s ease;
+}
+
+.author-tooltip__error:hover {
+  background: #ffd6d6;
+  border-color: #ff0000;
 }
 
 .author-tooltip__error p {
   margin: 0;
+  color: #cc0000;
+  font-weight: 700;
+  font-size: 1.0rem;
+  line-height: 1.5;
 }
 
 /* Enhanced skeleton loading styles for author tooltip */
@@ -640,19 +650,21 @@
     );
     background-size: 200% 100%;
   }
-}
-
-/* Author tooltip error state */
-.author-tooltip__error {
-  padding: 1rem;
-  text-align: center;
-  color: var(--text-muted);
-  font-size: 0.875rem;
-  min-width: 150px;
-}
-
-.author-tooltip__error p {
-  margin: 0;
+  
+  .author-tooltip__error {
+    background: #5a1a1a;
+    border-color: #ff5555;
+  }
+  
+  .author-tooltip__error:hover {
+    background: #6a2020;
+    border-color: #ff6666;
+  }
+  
+  .author-tooltip__error p {
+    color: #ffcccc;
+    font-weight: 700;
+  }
 }
 
 /* Private Profile Tooltip Styles */
@@ -730,7 +742,7 @@
     min-height: 44px;
     min-width: 44px;
     /* Add subtle visual feedback for touch */
-    -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);
+    -webkit-tap-highlight-color: transparent;
     /* Prevent text selection on touch */
     -webkit-user-select: none;
     user-select: none;

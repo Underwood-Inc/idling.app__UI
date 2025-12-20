@@ -2,7 +2,7 @@
 .form__title {
   font-size: 1.375rem;
   font-weight: 700;
-  color: var(--color-text-primary);
+  color: var(--dark-bg__text-color--primary);
   margin: 0;
 }
 
@@ -26,7 +26,7 @@
 .label__text {
   font-size: 1.125rem;
   font-weight: 600;
-  color: var(--color-text-primary);
+  color: var(--dark-bg__text-color--primary);
   display: flex;
   align-items: center;
   gap: 0.75rem;
@@ -37,7 +37,7 @@
   color: white;
   padding: 0.25rem 0.5rem;
   border-radius: 4px;
-  font-size: 0.6875rem;
+  font-size: 1.0rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -47,11 +47,11 @@
 .form__input,
 .form__textarea {
   padding: 1rem 1.25rem;
-  background-color: var(--color-background-primary);
-  border: 2px solid var(--color-border);
+  background-color: var(--dark-background--primary);
+  border: 2px solid var(--dark-border--primary);
   border-radius: 8px;
   font-size: 1rem;
-  color: var(--color-text-primary);
+  color: var(--dark-bg__text-color--primary);
   font-family: inherit;
   transition: all 0.2s ease;
   width: 100%;
@@ -74,13 +74,13 @@
 .form__textarea__disabled {
   opacity: 0.6;
   cursor: not-allowed;
-  background-color: var(--color-background-tertiary);
+  background-color: var(--dark-background--tertiary);
 }
 
 .form__subsection__title {
   font-size: 1.125rem;
   font-weight: 600;
-  color: var(--color-text-primary);
+  color: var(--dark-bg__text-color--primary);
   margin: 0 0 1rem 0;
   display: flex;
   align-items: center;
@@ -159,11 +159,11 @@
 .seed__display__input {
   flex: 1;
   padding: 0.875rem 1rem;
-  background-color: var(--color-background-tertiary);
-  border: 1px solid var(--color-border);
+  background-color: var(--dark-background--tertiary);
+  border: 1px solid var(--dark-border--primary);
   border-radius: 6px;
-  font-size: 0.9375rem;
-  color: var(--color-text-secondary);
+  font-size: 1.0rem;
+  color: var(--dark-bg__text-color--secondary);
   cursor: pointer;
   transition: all 0.2s ease;
   min-width: 0;
@@ -171,7 +171,7 @@
 
 .seed__display__input:hover {
   border-color: var(--brand-primary);
-  background-color: var(--color-background-secondary);
+  background-color: var(--dark-background--secondary);
 }
 
 .seed__edit__btn {
@@ -181,7 +181,7 @@
   border: none;
   border-radius: 6px;
   cursor: pointer;
-  font-size: 0.875rem;
+  font-size: 1.0rem;
   transition: all 0.2s ease;
   display: flex;
   align-items: center;
@@ -205,11 +205,11 @@
 .seed__input {
   flex: 1;
   padding: 0.875rem 1rem;
-  background-color: var(--color-background-primary);
+  background-color: var(--dark-background--primary);
   border: 2px solid var(--brand-primary);
   border-radius: 6px;
-  font-size: 0.9375rem;
-  color: var(--color-text-primary);
+  font-size: 1.0rem;
+  color: var(--dark-bg__text-color--primary);
   min-width: 0;
 }
 
@@ -224,7 +224,7 @@
   border: none;
   border-radius: 6px;
   cursor: pointer;
-  font-size: 0.875rem;
+  font-size: 1.0rem;
   font-weight: 600;
   transition: all 0.2s ease;
   min-width: 48px;
@@ -264,9 +264,9 @@
 .form__checkbox {
   width: 1.25rem;
   height: 1.25rem;
-  border: 2px solid var(--color-border);
+  border: 2px solid var(--dark-border--primary);
   border-radius: 4px;
-  background-color: var(--color-background-primary);
+  background-color: var(--dark-background--primary);
   cursor: pointer;
   transition: all 0.2s ease;
 }
@@ -288,7 +288,7 @@
   justify-content: space-between;
   margin-bottom: 0;
   padding: 2rem 2rem 1.5rem 2rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid #E5E5E5;
   position: relative;
   z-index: var(--z-content);
   min-height: 80px;
@@ -334,28 +334,28 @@
 
 /* Collapse button animations - Improved styling */
 .form__collapse__button {
-  background: rgba(255, 255, 255, 0.12);
-  border: 1px solid rgba(255, 255, 255, 0.25);
+  background: #E5E5E5;
+  border: 1px solid #E5E5E5;
   border-radius: 8px;
   padding: 0.875rem 1.25rem;
   cursor: pointer;
-  font-size: 0.9375rem;
-  color: rgba(255, 255, 255, 0.95);
+  font-size: 1.0rem;
+  color: #E5E5E5;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   font-weight: 600;
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  backdrop-filter: blur(8px);
+  
   height: 44px;
 }
 
 .form__collapse__button:hover {
-  background: rgba(255, 255, 255, 0.18);
-  border-color: rgba(255, 255, 255, 0.4);
+  background: #E5E5E5;
+  border-color: #E5E5E5;
   color: rgba(255, 255, 255, 1);
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 4px 12px transparent;
 }
 
 .form__collapse__button:active {
@@ -366,7 +366,7 @@
 .form__collapse__chevron {
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   display: inline-block;
-  font-size: 0.875rem;
+  font-size: 1.0rem;
 }
 
 .form__collapse__chevron--collapsed {
@@ -387,7 +387,7 @@
 .form__section__title {
   font-size: 1.375rem;
   font-weight: 700;
-  color: var(--color-text-primary);
+  color: var(--dark-bg__text-color--primary);
   margin: 0 0 1.5rem 0;
   display: flex;
   align-items: center;
@@ -398,7 +398,7 @@
 .form__toggle__chevron {
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   display: inline-block;
-  font-size: 0.75rem;
+  font-size: 1.0rem;
 }
 
 .form__toggle__chevron--collapsed {
@@ -413,13 +413,13 @@
 .generation__form__container {
   margin-bottom: 1.5rem;
   padding: 0;
-  background: rgba(0, 0, 0, 0.85) !important;
-  backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  background: transparent !important;
+  
+  border: 1px solid #E5E5E5 !important;
   box-shadow:
-    0 12px 40px rgba(0, 0, 0, 0.4),
-    inset 0 1px 0 rgba(255, 255, 255, 0.15),
-    0 0 0 1px rgba(255, 255, 255, 0.1) !important;
+    0 12px 40px transparent,
+    inset 0 1px 0 #E5E5E5,
+    0 0 0 1px #E5E5E5 !important;
   position: relative;
   overflow: hidden;
   color: var(--dark-bg__text-color--primary) !important;
@@ -428,8 +428,8 @@
 
 /* Override Card component styles completely for form */
 .card.generation__form__container {
-  background: rgba(0, 0, 0, 0.85) !important;
-  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  background: transparent !important;
+  border: 1px solid #E5E5E5 !important;
   color: var(--dark-bg__text-color--primary) !important;
 }
 
@@ -450,9 +450,9 @@
   bottom: 0;
   background: linear-gradient(
     135deg,
-    rgba(255, 255, 255, 0.08) 0%,
-    rgba(255, 255, 255, 0.04) 50%,
-    rgba(0, 0, 0, 0.05) 100%
+    #E5E5E5 0%,
+    #E5E5E5 50%,
+    transparent 100%
   );
   pointer-events: none;
   z-index: 1;
@@ -470,13 +470,13 @@
   z-index: var(--z-content);
   margin: 2rem 0;
   padding: 0;
-  border-top: 1px solid rgba(255, 255, 255, 0.15);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+  border-top: 1px solid #E5E5E5;
+  border-bottom: 1px solid #E5E5E5;
   background: linear-gradient(
     135deg,
     rgba(255, 165, 0, 0.08) 0%,
     rgba(255, 140, 0, 0.05) 50%,
-    rgba(0, 0, 0, 0.03) 100%
+    transparent 100%
   );
   border-radius: 12px;
   overflow: hidden;
@@ -511,7 +511,7 @@
     rgba(255, 165, 0, 0.1) 0%,
     rgba(255, 140, 0, 0.05) 100%
   );
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid #E5E5E5;
 }
 
 .form__pro__header .form__section__title {
@@ -529,18 +529,18 @@
   color: white;
   padding: 0.375rem 0.75rem;
   border-radius: 6px;
-  font-size: 0.75rem;
+  font-size: 1.0rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.5px;
   box-shadow: 0 2px 8px rgba(245, 158, 11, 0.3);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid #E5E5E5;
 }
 
 /* Pro Toggle Button - Professional styling */
 .form__toggle__button {
-  background: rgba(255, 255, 255, 0.12);
-  border: 1px solid rgba(255, 255, 255, 0.25);
+  background: #E5E5E5;
+  border: 1px solid #E5E5E5;
   border-radius: 8px;
   padding: 0.75rem 1.25rem;
   color: var(--dark-bg__text-color--secondary);
@@ -548,19 +548,19 @@
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  font-size: 0.9375rem;
+  font-size: 1.0rem;
   font-weight: 600;
   transition: all 0.2s ease;
-  backdrop-filter: blur(8px);
+  
   height: 44px;
 }
 
 .form__toggle__button:hover {
-  background: rgba(255, 255, 255, 0.18);
-  border-color: rgba(255, 255, 255, 0.35);
+  background: #E5E5E5;
+  border-color: #E5E5E5;
   color: var(--dark-bg__text-color--primary);
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 4px 12px transparent;
 }
 
 .form__toggle__button:active {
@@ -571,7 +571,7 @@
 .form__advanced__content {
   overflow: hidden;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  background: rgba(0, 0, 0, 0.2);
+  background: transparent;
 }
 
 .form__advanced__content--collapsed {
@@ -619,7 +619,7 @@
 }
 
 .readonly__text p {
-  font-size: 0.9375rem;
+  font-size: 1.0rem;
   color: var(--dark-bg__text-color--tertiary);
   margin: 0;
   line-height: 1.5;
@@ -742,7 +742,7 @@
   justify-content: center;
   margin-top: 2rem;
   padding-top: 1.5rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-top: 1px solid #E5E5E5;
   position: relative;
   z-index: var(--z-content);
 }
@@ -758,7 +758,7 @@
   font-weight: 700;
   cursor: pointer;
   transition: all 0.2s ease;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 6px 20px transparent;
   text-transform: none;
   height: 56px;
   min-height: 56px;
@@ -766,13 +766,12 @@
   align-items: center;
   justify-content: center;
   gap: 0.75rem;
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  
 }
 
 .generate__button:hover:not(:disabled) {
   transform: translateY(-3px);
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 12px 30px transparent;
   background: linear-gradient(135deg, #4f46e5, var(--brand-primary));
 }
 
@@ -780,14 +779,14 @@
   opacity: 0.6;
   cursor: not-allowed;
   transform: none;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 6px 20px transparent;
 }
 
 .generate__button__disabled {
   background: linear-gradient(
     135deg,
-    var(--color-text-tertiary),
-    var(--color-text-secondary)
+    var(--dark-bg__text-color--tertiary),
+    var(--dark-bg__text-color--secondary)
   );
 }
 
@@ -810,8 +809,7 @@
   height: 56px;
   min-height: 56px;
   box-shadow: 0 6px 20px rgba(139, 92, 246, 0.25);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  
 }
 
 .randomize__button:hover:not(:disabled) {
@@ -845,8 +843,8 @@
 .card.generation__form__container .form__input,
 .card.generation__form__container .form__textarea,
 .card.generation__form__container .form__select {
-  background: rgba(255, 255, 255, 0.1) !important;
-  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  background: #E5E5E5 !important;
+  border: 1px solid #E5E5E5 !important;
   color: var(--dark-bg__text-color--primary) !important;
   padding: 1rem 1.25rem !important;
   border-radius: 6px !important;
@@ -862,9 +860,9 @@
 .card.generation__form__container .form__input:focus,
 .card.generation__form__container .form__textarea:focus,
 .card.generation__form__container .form__select:focus {
-  background: rgba(255, 255, 255, 0.15) !important;
-  border-color: rgba(255, 255, 255, 0.4) !important;
-  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1) !important;
+  background: #E5E5E5 !important;
+  border-color: #E5E5E5 !important;
+  box-shadow: 0 0 0 2px #E5E5E5 !important;
   outline: none !important;
 }
 
@@ -872,7 +870,7 @@
 .generation__form__container .form__textarea::placeholder,
 .card.generation__form__container .form__input::placeholder,
 .card.generation__form__container .form__textarea::placeholder {
-  color: rgba(255, 255, 255, 0.5) !important;
+  color: #E5E5E5 !important;
 }
 
 .generation__form__container .form__section__title {

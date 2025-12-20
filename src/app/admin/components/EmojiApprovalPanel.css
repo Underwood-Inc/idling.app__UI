@@ -97,7 +97,7 @@
 }
 
 .emoji-card:hover {
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 8px transparent;
 }
 
 .emoji-card__image {
@@ -113,7 +113,7 @@
 }
 
 .emoji-card__placeholder {
-  font-size: 0.8rem;
+  font-size: 1.0rem;
   color: var(--light-bg__text-color--secondary);
   text-align: center;
 }
@@ -132,7 +132,7 @@
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
-  font-size: 0.85rem;
+  font-size: 1.0rem;
   color: var(--light-bg__text-color--secondary);
 }
 
@@ -144,7 +144,7 @@
   display: inline-block;
   padding: 0.25rem 0.5rem;
   border-radius: 0.25rem;
-  font-size: 0.75rem;
+  font-size: 1.0rem;
   font-weight: 600;
   text-transform: uppercase;
 }
@@ -174,7 +174,7 @@
   padding: 0.5rem 1rem;
   border: none;
   border-radius: var(--border-radius);
-  font-size: 0.85rem;
+  font-size: 1.0rem;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;

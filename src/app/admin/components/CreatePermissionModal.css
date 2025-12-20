@@ -16,8 +16,8 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(8px);
+  background: transparent;
+  
   display: flex;
   justify-content: center;
   align-items: center;
@@ -29,11 +29,11 @@
   width: 90%;
   max-width: 800px;
   max-height: 90vh;
-  background: var(--glass-bg, rgba(255, 255, 255, 0.08));
+  background: var(--glass-bg, #E5E5E5);
   border: 1px solid var(--glass-border, rgba(255, 140, 0, 0.2));
   border-radius: var(--border-radius-lg, 16px);
-  backdrop-filter: blur(16px);
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  
+  box-shadow: 0 20px 60px transparent;
   overflow: hidden;
   animation: slideIn 0.3s ease-out;
 }
@@ -95,7 +95,7 @@
   height: 40px;
   border: none;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.1);
+  background: #E5E5E5;
   color: var(--text-primary, #ffffff);
   font-size: 1.5rem;
   cursor: pointer;
@@ -160,11 +160,11 @@
 
 .toggle-button {
   padding: 0.5rem 1rem;
-  background: rgba(255, 255, 255, 0.05);
+  background: #E5E5E5;
   border: 1px solid var(--glass-border, rgba(255, 140, 0, 0.2));
   border-radius: 8px;
   color: var(--text-secondary, #cccccc);
-  font-size: 0.9rem;
+  font-size: 1.0rem;
   cursor: pointer;
   transition: all 0.2s ease;
 }
@@ -198,7 +198,7 @@
 .form-label {
   font-weight: 600;
   color: var(--text-primary, #ffffff);
-  font-size: 0.95rem;
+  font-size: 1.0rem;
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
@@ -207,7 +207,7 @@
 .field-hint {
   font-weight: 400;
   color: var(--text-muted, #999999);
-  font-size: 0.8rem;
+  font-size: 1.0rem;
   font-style: italic;
 }
 
@@ -234,11 +234,11 @@
   padding: 0.75rem;
   border: 2px solid transparent;
   border-radius: 8px;
-  background: rgba(255, 255, 255, 0.05);
+  background: #E5E5E5;
   color: var(--text-primary, #ffffff);
   font-size: 1rem;
   transition: all 0.2s ease;
-  backdrop-filter: blur(8px);
+  
 }
 
 .form-input:focus,
@@ -246,7 +246,7 @@
 .form-select:focus {
   outline: none;
   border-color: var(--orange-primary, #ff8c00);
-  background: rgba(255, 255, 255, 0.08);
+  background: #E5E5E5;
   box-shadow: 0 0 0 3px rgba(255, 140, 0, 0.1);
 }
 
@@ -284,7 +284,7 @@
 
 .form-error {
   color: var(--error-color, #ef4444);
-  font-size: 0.85rem;
+  font-size: 1.0rem;
   font-weight: 500;
   margin-top: 0.25rem;
 }
@@ -306,14 +306,14 @@
   padding: 1rem;
   border: 2px solid transparent;
   border-radius: 12px;
-  background: rgba(255, 255, 255, 0.03);
+  background: #E5E5E5;
   cursor: pointer;
   transition: all 0.2s ease;
   position: relative;
 }
 
 .risk-option:hover {
-  background: rgba(255, 255, 255, 0.06);
+  background: #E5E5E5;
   border-color: rgba(255, 140, 0, 0.3);
 }
 
@@ -349,11 +349,11 @@
 .risk-level-name {
   font-weight: 600;
   color: var(--text-primary, #ffffff);
-  font-size: 0.95rem;
+  font-size: 1.0rem;
 }
 
 .risk-description {
-  font-size: 0.8rem;
+  font-size: 1.0rem;
   color: var(--text-muted, #999999);
   line-height: 1.3;
 }
@@ -383,7 +383,7 @@
   border: 1px solid rgba(255, 140, 0, 0.2);
   border-radius: 6px;
   color: var(--text-primary, #ffffff);
-  font-size: 0.9rem;
+  font-size: 1.0rem;
 }
 
 .dependency-name {
@@ -471,13 +471,13 @@
 }
 
 .cancel-button {
-  background: rgba(255, 255, 255, 0.05);
+  background: #E5E5E5;
   color: var(--text-secondary, #cccccc);
   border: 1px solid var(--glass-border, rgba(255, 140, 0, 0.2));
 }
 
 .cancel-button:hover:not(:disabled) {
-  background: rgba(255, 255, 255, 0.1);
+  background: #E5E5E5;
   color: var(--text-primary, #ffffff);
 }
 
@@ -485,7 +485,7 @@
   background: linear-gradient(135deg, var(--orange-primary, #ff8c00), #ff7700);
   color: white;
   box-shadow: 0 4px 16px rgba(255, 140, 0, 0.3);
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  text-shadow: 0 1px 2px transparent;
 }
 
 .submit-button:hover:not(:disabled) {
@@ -511,7 +511,7 @@
 .loading-spinner {
   width: 18px;
   height: 18px;
-  border: 2px solid rgba(255, 255, 255, 0.3);
+  border: 2px solid #E5E5E5;
   border-top: 2px solid white;
   border-radius: 50%;
   animation: spin 1s linear infinite;
@@ -614,7 +614,7 @@
 
   .dependency-item {
     padding: 0.4rem 0.6rem;
-    font-size: 0.8rem;
+    font-size: 1.0rem;
   }
 }
 
@@ -624,20 +624,20 @@
 
 @media (prefers-color-scheme: dark) {
   .modal-container {
-    background: rgba(0, 0, 0, 0.4);
+    background: transparent;
     border-color: rgba(255, 140, 0, 0.15);
   }
 
   .form-input,
   .form-textarea,
   .form-select {
-    background: rgba(0, 0, 0, 0.2);
+    background: transparent;
   }
 
   .form-input:focus,
   .form-textarea:focus,
   .form-select:focus {
-    background: rgba(0, 0, 0, 0.3);
+    background: transparent;
   }
 
   .form-select option {
@@ -646,19 +646,19 @@
   }
 
   .risk-option {
-    background: rgba(0, 0, 0, 0.2);
+    background: transparent;
   }
 
   .risk-option:hover {
-    background: rgba(0, 0, 0, 0.3);
+    background: transparent;
   }
 
   .cancel-button {
-    background: rgba(0, 0, 0, 0.2);
+    background: transparent;
   }
 
   .cancel-button:hover:not(:disabled) {
-    background: rgba(0, 0, 0, 0.3);
+    background: transparent;
   }
 }
 
@@ -734,7 +734,7 @@
   .modal-overlay {
     position: static;
     background: none;
-    backdrop-filter: none;
+    
   }
 
   .modal-container {
@@ -745,7 +745,7 @@
     border: 1px solid #ccc;
     border-radius: 0;
     box-shadow: none;
-    backdrop-filter: none;
+    
   }
 
   .modal-header {

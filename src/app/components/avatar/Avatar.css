@@ -215,8 +215,8 @@
   border-radius: 50%;
   overflow: hidden;
   box-shadow:
-    0 8px 24px rgba(0, 0, 0, 0.15),
-    0 0 0 1px rgba(0, 0, 0, 0.05);
+    0 8px 24px transparent,
+    0 0 0 1px transparent;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -275,6 +275,6 @@
 /* Responsive tooltip sizing */
 @media (max-width: 768px) {
   .avatar-tooltip__container {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 4px 12px transparent;
   }
 }

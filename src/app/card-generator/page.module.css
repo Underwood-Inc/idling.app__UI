@@ -1,5 +1,13 @@
 /* === SHARED LAYOUT STYLES === */
 
+/* Main layout wrapper - ensures aside sticks properly */
+.generator__layout {
+  display: flex;
+  gap: 2.4rem;
+  align-items: flex-start; /* CRITICAL: Makes aside stick to top */
+  width: 100%;
+}
+
 /* Header content and controls */
 .header__content {
   display: flex;
@@ -59,24 +67,30 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.75rem 1rem;
-  background: var(--color-background-secondary);
-  border: 1px solid var(--color-border);
+  background: var(--dark-background--secondary);
+  border: 1px solid var(--dark-border--primary);
   border-radius: 8px;
-  color: var(--color-text-primary);
+  color: var(--dark-bg__text-color--primary);
   text-decoration: none;
-  font-size: 0.875rem;
+  font-size: 1.0rem;
   font-weight: 600;
-  transition: all 0.2s ease;
+  /* Optimized transitions - GPU accelerated */
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+              background 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+              border-color 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+              opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transform: translateZ(0);
+  backface-visibility: hidden;
   cursor: pointer;
   white-space: nowrap;
 }
 
 .header__button:hover:not(:disabled) {
-  background: var(--color-background-tertiary);
-  border-color: var(--color-border-hover);
-  transform: translateY(-1px);
+  background: var(--dark-background--tertiary);
+  border-color: var(--brand-primary);
+  transform: translateY(-1px) translateZ(0);
   text-decoration: none;
-  color: var(--color-text-primary);
+  color: var(--dark-bg__text-color--primary);
 }
 
 .header__button:disabled {
@@ -165,7 +179,7 @@
 
 .loading__message {
   font-size: 1.125rem;
-  color: var(--color-text-secondary);
+  color: var(--dark-bg__text-color--secondary);
   text-align: center;
 }
 
@@ -209,6 +223,14 @@
 .download__info p,
 .url__info p {
   font-size: var(--font-size-base);
+}
+
+/* Responsive layout - hide aside on tablets and below */
+@media (max-width: 1024px) {
+  .generator__layout {
+    flex-direction: column;
+  }
+  /* PageAside component handles hiding, but ensure layout stacks */
 }
 
 /* Responsive design for download sections */
@@ -317,13 +339,13 @@
 
 /* Enhanced Configuration Form Container */
 .configuration__form {
-  background-color: var(--color-background-secondary);
-  border: 1px solid var(--color-border);
+  background-color: var(--dark-background--secondary);
+  border: 1px solid var(--dark-border--primary);
   border-radius: 16px;
   padding: 2.5rem;
   margin: 2rem 0;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
-  backdrop-filter: blur(8px);
+  box-shadow: 0 8px 32px transparent;
+  
 }
 
 /* Enhanced Form Layout for Generation Forms */
@@ -427,7 +449,7 @@
 .features__section h3 {
   font-size: var(--font-size-xl);
   margin: 0 0 1rem 0;
-  color: var(--color-text-primary);
+  color: var(--dark-bg__text-color--primary);
   text-align: center;
   font-weight: 600;
 }
@@ -442,22 +464,26 @@
   padding: 1rem;
   text-align: left;
   border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  background: rgba(255, 255, 255, 0.05);
-  transition: all 0.2s ease;
+  border: 1px solid #E5E5E5;
+  background: #E5E5E5;
+  /* Optimized transitions - GPU accelerated */
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+              background 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+              border-color 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transform: translateZ(0);
+  backface-visibility: hidden;
   /* Enhanced glassmorphism effects */
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  
   box-shadow:
-    0 8px 32px rgba(0, 0, 0, 0.1),
-    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    0 8px 32px transparent,
+    inset 0 1px 0 #E5E5E5;
   position: relative;
 }
 
 .feature__card:hover {
-  transform: translateY(-1px);
-  background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-1px) translateZ(0);
+  background: #E5E5E5;
+  border-color: #E5E5E5;
 }
 
 .feature__icon {
@@ -470,14 +496,14 @@
 .feature__card h4 {
   font-size: var(--font-size-xl);
   margin: 0 0 0.5rem 0;
-  color: var(--color-text-primary);
+  color: var(--dark-bg__text-color--primary);
   font-weight: 600;
   display: flex;
   align-items: center;
 }
 
 .feature__card p {
-  color: var(--color-text-secondary);
+  color: var(--dark-bg__text-color--secondary);
   line-height: 1.5;
   margin: 0;
   font-size: var(--font-size-base);

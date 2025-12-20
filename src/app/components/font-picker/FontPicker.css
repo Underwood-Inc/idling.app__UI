@@ -57,7 +57,7 @@
 }
 
 .font-picker__arrow {
-  font-size: 0.75rem;
+  font-size: 1.0rem;
   transition: transform 0.2s ease-in-out;
   color: currentColor;
   opacity: 0.7;
@@ -206,7 +206,7 @@
   .font-picker__dropdown {
     background-color: var(--dark-background--secondary);
     border-color: var(--dark-border--primary);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 4px 12px transparent;
   }
 
   .font-picker__option {

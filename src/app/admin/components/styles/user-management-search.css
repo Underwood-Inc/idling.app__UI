@@ -6,8 +6,7 @@
   background: var(--tooltip-glass-bg) !important;
   border: 1px solid var(--tooltip-glass-border) !important;
   border-radius: var(--border-radius);
-  backdrop-filter: var(--tooltip-glass-blur) !important;
-  -webkit-backdrop-filter: var(--tooltip-glass-blur) !important;
+  
   box-shadow: var(--tooltip-glass-shadow) !important;
   color: white;
   min-width: 320px;
@@ -24,8 +23,8 @@
   justify-content: center;
   gap: 8px;
   padding: 16px;
-  color: rgba(255, 255, 255, 0.8);
-  font-size: 0.9rem;
+  color: #E5E5E5;
+  font-size: 1.0rem;
   text-align: center;
 }
 
@@ -41,7 +40,7 @@
   cursor: pointer;
   transition: background-color 0.2s ease;
   color: white;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid #E5E5E5;
 }
 
 .search-overlay-item:last-child {
@@ -49,7 +48,7 @@
 }
 
 .search-overlay-item:hover {
-  background-color: rgba(255, 255, 255, 0.1);
+  background-color: #E5E5E5;
 }
 
 /* Search Result Avatars */
@@ -65,7 +64,7 @@
   height: 24px;
   border-radius: 50%;
   object-fit: cover;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid #E5E5E5;
 }
 
 .search-result-info {
@@ -78,7 +77,7 @@
 
 .search-result-name {
   font-weight: 600;
-  font-size: 0.9rem;
+  font-size: 1.0rem;
   color: white;
   white-space: nowrap;
   overflow: hidden;
@@ -86,8 +85,8 @@
 }
 
 .search-result-email {
-  font-size: 0.8rem;
-  color: rgba(255, 255, 255, 0.7);
+  font-size: 1.0rem;
+  color: #E5E5E5;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -101,7 +100,7 @@
 }
 
 .role-badge--small {
-  font-size: 0.7rem;
+  font-size: 1.0rem;
   padding: 2px 6px;
   border-radius: 10px;
 }
@@ -119,16 +118,16 @@
 
   .search-overlay-loading,
   .search-overlay-no-results {
-    color: rgba(255, 255, 255, 0.8);
+    color: #E5E5E5;
   }
 
   .search-overlay-item {
     color: white;
-    border-bottom-color: rgba(255, 255, 255, 0.1);
+    border-bottom-color: #E5E5E5;
   }
 
   .search-overlay-item:hover {
-    background-color: rgba(255, 255, 255, 0.1);
+    background-color: #E5E5E5;
   }
 
   .search-result-name {
@@ -136,7 +135,7 @@
   }
 
   .search-result-email {
-    color: rgba(255, 255, 255, 0.7);
+    color: #E5E5E5;
   }
 }
 
