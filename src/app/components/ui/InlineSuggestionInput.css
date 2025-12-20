@@ -256,7 +256,7 @@
 
 .suggestion-disabled-indicator {
   margin-left: auto;
-  color: #28a745;
+  color: var(--brand-primary);
   font-weight: bold;
   font-size: 1.1em;
 }
