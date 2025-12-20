@@ -3,9 +3,9 @@
   flex-direction: column;
   height: 100%;
   max-height: 70vh;
-  background: var(--light-background--quaternary);
+  background: var(--bg-medium);
   border-radius: var(--border-radius);
-  border: 1px solid var(--brand-tertiary--dark);
+  border: 1px solid var(--grey-dark);
   width: 100%;
   overflow: hidden;
   /* Ensure clean borders */
@@ -35,8 +35,8 @@
   align-items: center;
   gap: 0.5rem;
   width: 100%;
-  background: var(--light-background--quaternary);
-  border-top: 1px solid var(--brand-tertiary--dark);
+  background: var(--bg-medium);
+  border-top: 1px solid var(--grey-dark);
   flex-shrink: 0;
   /* Prevent pagination from shrinking */
   position: sticky;
@@ -46,8 +46,8 @@
 .submission__wrapper {
   padding: 1rem;
   border-radius: var(--border-radius);
-  background-color: var(--light-background--quinary);
-  border: 1px solid var(--brand-tertiary--dark);
+  background-color: var(--bg-dark);
+  border: 1px solid var(--grey-dark);
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
@@ -60,8 +60,8 @@
     0deg,
     transparent,
     transparent 19px,
-    color-mix(in srgb, var(--brand-primary) 2%, transparent) 20px,
-    color-mix(in srgb, var(--brand-primary) 2%, transparent) 21px
+    color-mix(in srgb, var(--brand-primary) 4%, transparent) 20px,
+    color-mix(in srgb, var(--brand-primary) 4%, transparent) 21px
   );
 }
 
@@ -78,6 +78,8 @@
 }
 
 .submission__wrapper:hover {
+  border-color: var(--brand-primary);
+  background-color: var(--bg-medium);
   /* Very subtle horizontal pattern on hover */
   background-image: repeating-linear-gradient(
     0deg,
@@ -94,7 +96,7 @@
   align-items: center;
   margin-bottom: 0.5rem;
   font-size: var(--font-size-xs);
-  color: var(--light-bg__text-color--secondary);
+  color: var(--text-secondary);
 }
 
 .submission__meta-left {
@@ -112,18 +114,18 @@
 }
 
 .submission__meta-left > span[style*='display: inline-block'] {
-  display: flex !important;
+  display: flex;
   align-items: center;
   margin-left: 0.5rem;
 }
 
 .submission__author {
   font-weight: 500;
-  color: var(--light-bg__text-color--primary);
+  color: var(--text-primary);
 }
 
 .submission__datetime {
-  color: var(--light-bg__text-color--tertiary);
+  color: var(--text-tertiary);
 }
 
 .submission__tags {
@@ -138,13 +140,13 @@
   font-size: 1.125rem;
   font-weight: 600;
   line-height: 1.4;
-  color: black !important;
+  color: var(--text-primary);
 }
 
 .submission__url {
   display: inline-block;
   margin-bottom: 0.5rem;
-  color: var(--anchor__light-bg--primary);
+  color: var(--brand-primary);
   text-decoration: none;
   font-size: 1.0rem;
   word-break: break-all;
@@ -153,19 +155,19 @@
 
 .submission__url:hover {
   text-decoration: underline;
-  color: var(--anchor__light-bg--primary-hover);
+  color: var(--brand-primary--dark);
 }
 
 .submission__description {
   margin: 0;
-  color: var(--light-bg__text-color--primary);
+  color: var(--text-secondary);
   font-size: 1.0rem;
   line-height: 1.5;
 }
 
 .submission__tag {
   background-color: var(--tan-dark);
-  color: #1a1a1a;
+  color: var(--text-on-tan);
   border: 2px solid var(--brown-shadow);
   font-size: 1.0rem;
   font-weight: 600;
@@ -196,7 +198,7 @@
 .submission__expand-button {
   background: var(--tan-dark);
   border: 2px solid var(--brown-shadow);
-  color: #1a1a1a;
+  color: var(--text-on-tan);
   font-size: 1.0rem;
   font-weight: 600;
   cursor: pointer;
@@ -208,7 +210,7 @@
 .submission__reply-button:hover,
 .submission__expand-button:hover {
   background: var(--tan-primary);
-  color: #000000;
+  color: var(--text-on-tan);
   border-color: var(--tan-secondary);
   transform: translateY(-1px);
   box-shadow: 0 3px 8px rgba(229, 193, 133, 0.4);
@@ -216,7 +218,7 @@
 
 .submission__thread-link {
   background: var(--tan-dark);
-  color: #1a1a1a;
+  color: var(--text-on-tan);
   text-decoration: none;
   font-size: 1.0rem;
   font-weight: 600;
@@ -231,7 +233,7 @@
 
 .submission__thread-link:hover {
   background: var(--tan-primary);
-  color: #000000;
+  color: var(--text-on-tan);
   border-color: var(--tan-secondary);
   transform: translateY(-1px);
   box-shadow: 0 3px 8px rgba(229, 193, 133, 0.4);
@@ -239,46 +241,46 @@
 }
 
 .submission__title-link {
-  color: var(--anchor__light-bg--primary);
+  color: var(--brand-primary);
   text-decoration: none;
   transition: color 0.2s ease;
 }
 
 .submission__title-link:hover {
-  color: var(--anchor__light-bg--primary-hover);
+  color: var(--brand-primary--dark);
   text-decoration: underline;
 }
 
 .submission__reply-form {
-  border-top: 1px solid var(--brand-tertiary--dark);
+  border-top: 1px solid var(--grey-dark);
 }
 
 /* Thread Replies Styles */
 .submission__replies {
   margin-top: 1rem;
-  border-top: 1px solid var(--brand-tertiary--dark);
+  border-top: 1px solid var(--grey-dark);
   padding-top: 1rem;
 }
 
 .submission__wrapper.submission__wrapper--reply,
 .submission__reply {
-  background-color: var(--light-background--quinary);
+  background-color: var(--bg-dark);
   border-left: 3px solid var(--brand-primary);
   margin-left: 1rem;
   margin-bottom: 1rem;
   padding-left: 1rem;
   border-radius: 0 var(--border-radius) var(--border-radius) 0;
   padding: 0.75rem;
-  border: 1px solid var(--brand-tertiary--dark);
+  border: 1px solid var(--grey-dark);
   border-left: 3px solid var(--brand-primary);
   /* Reply post pattern: diagonal lines - higher specificity */
   background-image: repeating-linear-gradient(
     45deg,
     transparent,
     transparent 14px,
-    color-mix(in srgb, var(--brand-primary) 2.5%, transparent) 15px,
-    color-mix(in srgb, var(--brand-primary) 2.5%, transparent) 16px
-  ) !important;
+    color-mix(in srgb, var(--brand-primary) 4%, transparent) 15px,
+    color-mix(in srgb, var(--brand-primary) 4%, transparent) 16px
+  );
 }
 
 .submission__wrapper.submission__wrapper--reply:hover,
@@ -290,7 +292,7 @@
     transparent 18px,
     color-mix(in srgb, var(--brand-primary) 8%, transparent) 20px,
     color-mix(in srgb, var(--brand-primary) 8%, transparent) 22px
-  ) !important;
+  );
 }
 
 .submission__reply:last-child {
@@ -300,16 +302,16 @@
 .submission__reply .submission__title {
   font-size: 1rem;
   font-weight: 500;
-  color: var(--light-bg__text-color--primary);
+  color: var(--text-primary);
 }
 
 .submission__reply .submission__description {
-  color: var(--light-bg__text-color--secondary);
-  font-size: --font-size-base;
+  color: var(--text-secondary);
+  font-size: var(--font-size-base);
 }
 
 .submission__reply .submission__meta {
-  color: var(--light-bg__text-color--tertiary);
+  color: var(--text-tertiary);
   font-size: 1.0rem;
 }
 
@@ -319,7 +321,7 @@
 
 .submission__reply .submission__tag {
   background-color: var(--tan-dark);
-  color: var(--dark-background--primary);
+  color: var(--text-on-tan);
   border: 2px solid var(--brown-shadow);
 }
 
@@ -340,7 +342,7 @@
   justify-content: center;
   align-items: center;
   padding: 2rem;
-  color: var(--light-bg__text-color--secondary);
+  color: var(--text-secondary);
   font-size: 1rem;
 }
 
@@ -351,7 +353,7 @@
   padding: 2rem;
   color: var(--error);
   font-size: 1rem;
-  background-color: var(--light-background--secondary);
+  background-color: rgba(217, 82, 82, 0.1);
   border: 1px solid var(--error);
   border-radius: var(--border-radius);
   margin: 1rem;
@@ -362,7 +364,7 @@
   justify-content: center;
   align-items: center;
   padding: 2rem;
-  color: var(--light-bg__text-color--secondary);
+  color: var(--text-secondary);
   font-size: 1rem;
 }
 
@@ -387,7 +389,7 @@
   .submission__meta-left > span:has(.submission__datetime),
   .submission__meta-left > span:has(.timestamp-with-tooltip),
   .submission__meta-left > span[style*='display: inline-block'] {
-    margin-left: 0 !important;
+    margin-left: 0;
   }
 
   /* Ensure owner actions are properly positioned and accessible on mobile */
@@ -470,7 +472,7 @@
 
 .submission__edit-btn {
   background: var(--brand-primary);
-  color: var(--font-color--primary);
+  color: var(--text-on-tan);
   border: none;
   /* padding: 0.25rem 0.5rem; */
   border-radius: 0.25rem;
@@ -487,9 +489,9 @@
 .submission__edit-form {
   margin: 1rem 0;
   padding: 1rem;
-  background: var(--light-background--tertiary);
+  background: var(--bg-medium);
   border-radius: var(--border-radius);
-  border: 1px solid var(--brand-tertiary);
+  border: 1px solid var(--grey-dark);
 }
 
 /* Skeleton loading styles */
@@ -498,7 +500,7 @@
 }
 
 .skeleton-line {
-  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background: linear-gradient(90deg, var(--bg-medium) 25%, var(--bg-light) 50%, var(--bg-medium) 75%);
   background-size: 200% 100%;
   /* animation: skeleton-loading 1.5s infinite; */
   border-radius: 4px;
@@ -527,7 +529,7 @@
 }
 
 .skeleton-tag {
-  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background: linear-gradient(90deg, var(--bg-medium) 25%, var(--bg-light) 50%, var(--bg-medium) 75%);
   background-size: 200% 100%;
   /* animation: skeleton-loading 1.5s infinite; */
   border-radius: 1rem;
@@ -544,61 +546,6 @@
 
   100% {
     background-position: 0% 0;
-  }
-}
-
-/* Dark mode skeleton styles */
-@media (prefers-color-scheme: dark) {
-  .skeleton-line,
-  .skeleton-tag {
-    background: linear-gradient(90deg, #374151 25%, #4b5563 50%, #374151 75%);
-    background-size: 200% 100%;
-  }
-
-  .submission__wrapper {
-    /* Dark mode main post pattern: subtle horizontal lines */
-    background-image: repeating-linear-gradient(
-      0deg,
-      transparent,
-      transparent 19px,
-      color-mix(in srgb, var(--brand-primary) 3%, transparent) 20px,
-      color-mix(in srgb, var(--brand-primary) 3%, transparent) 21px
-    );
-  }
-
-  .submission__wrapper:hover {
-    /* Very subtle horizontal pattern on hover in dark mode */
-    background-image: repeating-linear-gradient(
-      0deg,
-      transparent,
-      transparent 22px,
-      color-mix(in srgb, var(--brand-primary) 8%, transparent) 24px,
-      color-mix(in srgb, var(--brand-primary) 8%, transparent) 26px
-    );
-  }
-
-  .submission__wrapper.submission__wrapper--reply,
-  .submission__reply {
-    /* Dark mode reply post pattern: diagonal lines - higher specificity */
-    background-image: repeating-linear-gradient(
-      45deg,
-      transparent,
-      transparent 14px,
-      color-mix(in srgb, var(--brand-primary) 3.5%, transparent) 15px,
-      color-mix(in srgb, var(--brand-primary) 3.5%, transparent) 16px
-    ) !important;
-  }
-
-  .submission__wrapper.submission__wrapper--reply:hover,
-  .submission__reply:hover {
-    /* Very subtle diagonal pattern on hover in dark mode - higher specificity */
-    background-image: repeating-linear-gradient(
-      45deg,
-      transparent,
-      transparent 18px,
-      color-mix(in srgb, var(--brand-primary) 8%, transparent) 20px,
-      color-mix(in srgb, var(--brand-primary) 8%, transparent) 22px
-    ) !important;
   }
 }
 
@@ -640,7 +587,7 @@
 }
 
 .submissions-list__empty-message {
-  color: var(--light-bg__text-color--secondary);
+  color: var(--text-secondary);
   font-size: var(--font-size-xs);
   text-align: center;
   padding: 2rem;
@@ -658,7 +605,7 @@
 
 /* Loading state improvements */
 .submissions-list__skeleton {
-  border-bottom: 1px solid var(--light-background--tertiary, #f0f0f0);
+  border-bottom: 1px solid var(--grey-dark);
 }
 
 .submissions-list__skeleton:last-child {
@@ -670,14 +617,13 @@
   position: fixed;
   top: 10px;
   right: 10px;
-  background: var(--tooltip-glass-bg);
-  color: white;
+  background: var(--tooltip-glass-bg, var(--bg-dark));
+  color: var(--text-primary);
   padding: 8px;
   border-radius: 4px;
   font-size: 12px;
   z-index: 1000;
-  
-  border: 1px solid var(--tooltip-glass-border);
+  border: 1px solid var(--tooltip-glass-border, var(--grey-dark));
   line-height: 1.4;
 }
 
@@ -724,7 +670,7 @@
 /* Reply indicator styles */
 .submission__reply-indicator {
   background-color: var(--tan-dark);
-  color: var(--dark-background--primary);
+  color: var(--text-on-tan);
   font-size: 1.0rem;
   font-weight: 600;
   padding: 0.25rem 0.5rem;

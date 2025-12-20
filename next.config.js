@@ -7,16 +7,13 @@ const nextConfig = {
     version
   },
   reactStrictMode: true,
-  // Enable OpenTelemetry instrumentation for SigNoz
-  experimental: {
-    instrumentationHook: true,
-  },
   eslint: {
     // Allow production builds to complete even if there are ESLint warnings
     ignoreDuringBuilds: true
   },
-  // Smart caching with version-based cache busting
+  // Enable OpenTelemetry instrumentation for SigNoz + Smart caching
   experimental: {
+    instrumentationHook: true,
     staleTimes: {
       dynamic: 30, // 30 seconds for dynamic content
       static: 300 // 5 minutes for static content

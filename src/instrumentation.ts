@@ -4,6 +4,11 @@
  * This file is automatically loaded by Next.js to set up server-side instrumentation.
  * It configures OpenTelemetry to send traces, metrics, and logs to SigNoz.
  *
+ * Features:
+ * - Traces: HTTP requests, database queries, custom spans
+ * - Metrics: Request counts, latencies, custom metrics
+ * - Logs: All console output and application logs
+ *
  * @see https://nextjs.org/docs/app/building-your-application/optimizing/instrumentation
  * @see https://signoz.io/docs/instrumentation/javascript/
  * @author System Wizard 🧙‍♂️
@@ -18,7 +23,7 @@ export async function register() {
 
     if (!signozEndpoint) {
       console.log(
-        '🧙‍♂️ SigNoz: No endpoint configured. Set SIGNOZ_ENDPOINT to enable tracing.'
+        '🧙‍♂️ SigNoz: No endpoint configured. Set SIGNOZ_ENDPOINT to enable observability.'
       );
       return;
     }
@@ -35,9 +40,18 @@ export async function register() {
       const { OTLPMetricExporter } = await import(
         '@opentelemetry/exporter-metrics-otlp-http'
       );
+      const { OTLPLogExporter } = await import(
+        '@opentelemetry/exporter-logs-otlp-http'
+      );
       const { PeriodicExportingMetricReader } = await import(
         '@opentelemetry/sdk-metrics'
       );
+      const {
+        LoggerProvider,
+        BatchLogRecordProcessor,
+        ConsoleLogRecordExporter
+      } = await import('@opentelemetry/sdk-logs');
+      const { logs } = await import('@opentelemetry/api-logs');
       const resources = await import('@opentelemetry/resources');
       const { diag, DiagConsoleLogger, DiagLogLevel } = await import(
         '@opentelemetry/api'
@@ -65,23 +79,63 @@ export async function register() {
         'deployment.environment': process.env.NODE_ENV || 'development'
       });
 
-      // Configure trace exporter
+      // Build headers for authentication
+      const authHeaders = process.env.SIGNOZ_ACCESS_TOKEN
+        ? { 'signoz-access-token': process.env.SIGNOZ_ACCESS_TOKEN }
+        : undefined;
+
+      // ================================
+      // TRACE EXPORTER
+      // ================================
       const traceExporter = new OTLPTraceExporter({
         url: `${signozEndpoint}/v1/traces`,
-        headers: process.env.SIGNOZ_ACCESS_TOKEN
-          ? { 'signoz-access-token': process.env.SIGNOZ_ACCESS_TOKEN }
-          : undefined
+        headers: authHeaders
       });
 
-      // Configure metric exporter
+      // ================================
+      // METRIC EXPORTER
+      // ================================
       const metricExporter = new OTLPMetricExporter({
         url: `${signozEndpoint}/v1/metrics`,
-        headers: process.env.SIGNOZ_ACCESS_TOKEN
-          ? { 'signoz-access-token': process.env.SIGNOZ_ACCESS_TOKEN }
-          : undefined
+        headers: authHeaders
       });
 
-      // Configure the SDK
+      // ================================
+      // LOG EXPORTER
+      // ================================
+      const logExporter = new OTLPLogExporter({
+        url: `${signozEndpoint}/v1/logs`,
+        headers: authHeaders
+      });
+
+      // Build log processor for batch sending
+      const logProcessor = new BatchLogRecordProcessor(logExporter, {
+        maxQueueSize: 2048,
+        maxExportBatchSize: 512,
+        scheduledDelayMillis: 5000, // Export logs every 5 seconds
+        exportTimeoutMillis: 30000
+      });
+
+      // Configure LoggerProvider (use type assertion for SDK compatibility)
+      const loggerProvider = new LoggerProvider({ resource });
+
+      // Register processor using the provider's register method
+      // Cast to any to work around SDK type definition inconsistencies
+      (loggerProvider as any).addLogRecordProcessor(logProcessor);
+
+      // Also log to console in debug mode
+      if (process.env.OTEL_DEBUG === 'true') {
+        (loggerProvider as any).addLogRecordProcessor(
+          new BatchLogRecordProcessor(new ConsoleLogRecordExporter())
+        );
+      }
+
+      // Register the LoggerProvider globally
+      logs.setGlobalLoggerProvider(loggerProvider);
+
+      // ================================
+      // CONFIGURE THE SDK
+      // ================================
       const sdk = new NodeSDK({
         resource,
         traceExporter,
@@ -121,6 +175,16 @@ export async function register() {
             '@opentelemetry/instrumentation-pg': {
               enabled: true,
               enhancedDatabaseReporting: true
+            },
+            // Enable Pino/Winston/Bunyan log instrumentation if present
+            '@opentelemetry/instrumentation-pino': {
+              enabled: true
+            },
+            '@opentelemetry/instrumentation-winston': {
+              enabled: true
+            },
+            '@opentelemetry/instrumentation-bunyan': {
+              enabled: true
             }
           })
         ]
@@ -129,26 +193,94 @@ export async function register() {
       // Start the SDK
       sdk.start();
 
-      // Graceful shutdown
-      process.on('SIGTERM', () => {
-        sdk
-          .shutdown()
-          .then(() =>
-            console.log('🧙‍♂️ SigNoz: OpenTelemetry SDK shut down successfully')
+      // ================================
+      // CONSOLE OVERRIDE FOR LOG CAPTURE
+      // ================================
+      // Override console methods to send logs to SigNoz
+      const otelLogger = logs.getLogger(serviceName, serviceVersion);
+
+      const originalConsoleLog = console.log;
+      const originalConsoleError = console.error;
+      const originalConsoleWarn = console.warn;
+      const originalConsoleInfo = console.info;
+      const originalConsoleDebug = console.debug;
+
+      // Helper to emit log record
+      const emitLogRecord = (
+        severityText: string,
+        severityNumber: number,
+        args: unknown[]
+      ) => {
+        const message = args
+          .map((arg) =>
+            typeof arg === 'object' ? JSON.stringify(arg) : String(arg)
           )
-          .catch((error) =>
-            console.error(
-              '🧙‍♂️ SigNoz: Error shutting down OpenTelemetry SDK:',
-              error
-            )
-          )
-          .finally(() => process.exit(0));
+          .join(' ');
+
+        otelLogger.emit({
+          severityText,
+          severityNumber,
+          body: message,
+          attributes: {
+            'log.type': 'console'
+          }
+        });
+      };
+
+      // Override console.log
+      console.log = (...args: unknown[]) => {
+        emitLogRecord('INFO', 9, args); // SeverityNumber.INFO = 9
+        originalConsoleLog.apply(console, args);
+      };
+
+      // Override console.error
+      console.error = (...args: unknown[]) => {
+        emitLogRecord('ERROR', 17, args); // SeverityNumber.ERROR = 17
+        originalConsoleError.apply(console, args);
+      };
+
+      // Override console.warn
+      console.warn = (...args: unknown[]) => {
+        emitLogRecord('WARN', 13, args); // SeverityNumber.WARN = 13
+        originalConsoleWarn.apply(console, args);
+      };
+
+      // Override console.info
+      console.info = (...args: unknown[]) => {
+        emitLogRecord('INFO', 9, args); // SeverityNumber.INFO = 9
+        originalConsoleInfo.apply(console, args);
+      };
+
+      // Override console.debug
+      console.debug = (...args: unknown[]) => {
+        emitLogRecord('DEBUG', 5, args); // SeverityNumber.DEBUG = 5
+        originalConsoleDebug.apply(console, args);
+      };
+
+      // ================================
+      // GRACEFUL SHUTDOWN
+      // ================================
+      process.on('SIGTERM', async () => {
+        try {
+          await loggerProvider.shutdown();
+          await sdk.shutdown();
+          console.log('🧙‍♂️ SigNoz: OpenTelemetry SDK shut down successfully');
+        } catch (error) {
+          console.error(
+            '🧙‍♂️ SigNoz: Error shutting down OpenTelemetry SDK:',
+            error
+          );
+        } finally {
+          process.exit(0);
+        }
       });
 
       console.log(
         `🧙‍♂️ SigNoz: OpenTelemetry initialized for ${serviceName} (${serviceVersion})`
       );
-      console.log(`🧙‍♂️ SigNoz: Sending traces to ${signozEndpoint}`);
+      console.log(`🧙‍♂️ SigNoz: Sending traces to ${signozEndpoint}/v1/traces`);
+      console.log(`🧙‍♂️ SigNoz: Sending metrics to ${signozEndpoint}/v1/metrics`);
+      console.log(`🧙‍♂️ SigNoz: Sending logs to ${signozEndpoint}/v1/logs`);
     } catch (error) {
       console.error('🧙‍♂️ SigNoz: Failed to initialize OpenTelemetry:', error);
       console.log('🧙‍♂️ SigNoz: Make sure to install required packages:');
@@ -157,6 +289,10 @@ export async function register() {
       );
       console.log(
         '   pnpm add @opentelemetry/exporter-trace-otlp-http @opentelemetry/exporter-metrics-otlp-http'
+      );
+      console.log('   pnpm add @opentelemetry/exporter-logs-otlp-http');
+      console.log(
+        '   pnpm add @opentelemetry/sdk-logs @opentelemetry/api-logs'
       );
       console.log(
         '   pnpm add @opentelemetry/resources @opentelemetry/semantic-conventions'

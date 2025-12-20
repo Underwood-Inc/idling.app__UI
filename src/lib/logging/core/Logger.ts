@@ -157,6 +157,21 @@ export class Logger implements LoggerInstance {
         consoleFn(formatted.message);
       }
     }
+
+    // Execute transports (e.g., SigNoz, external logging services)
+    this.executeTransports(entry, formatted);
+  }
+
+  private executeTransports(entry: LogEntry, formatted: FormattedOutput): void {
+    if (!this.config.transports || this.config.transports.length === 0) return;
+
+    for (const transport of this.config.transports) {
+      try {
+        transport.transport(entry, formatted);
+      } catch {
+        // Silently fail - don't break the app if a transport fails
+      }
+    }
   }
 
   // Public API methods

@@ -11,8 +11,8 @@
   font-size: var(--font-size-base);
   font-family: inherit;
   line-height: 1.5;
-  background: var(--light-bg__color--primary);
-  color: var(--dark-bg__text-color--secondary);
+  background: var(--bg-dark);
+  color: var(--text-primary);
   transition: all 0.2s ease;
   resize: vertical;
 }
@@ -27,7 +27,7 @@
 .inline-suggestion-input:focus {
   outline: none;
   border-color: var(--brand-primary--dark);
-  box-shadow: 0 0 0 3px rgba(237, 174, 73, 0.2);
+  box-shadow: 0 0 0 3px rgba(229, 193, 133, 0.2);
   transform: translateY(-1px);
 }
 
@@ -39,9 +39,9 @@
 }
 
 .inline-suggestion-input:disabled {
-  background-color: var(--light-bg__color--tertiary, #f5f5f5);
-  color: var(--light-bg__text-color--secondary);
-  border-color: var(--light-bg__text-color--secondary);
+  background-color: var(--bg-medium);
+  color: var(--text-tertiary);
+  border-color: var(--grey-dark);
   cursor: not-allowed;
 }
 
@@ -51,11 +51,11 @@
   left: 0;
   right: 0;
   z-index: 999999;
-  background: var(--light-background--primary);
+  background: var(--bg-dark);
   border: 2px solid var(--brand-primary);
   border-top: 1px solid var(--brand-primary);
   border-radius: 0 0 var(--border-radius) var(--border-radius);
-  box-shadow: 0 8px 24px transparent;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
   max-height: 300px;
   /* Increased for pagination */
   overflow-y: auto;
@@ -69,15 +69,15 @@
 
 /* Reset suggestion list positioning when inside portal */
 .suggestion-portal-container .suggestion-list {
-  position: static !important;
-  top: auto !important;
-  left: auto !important;
-  right: auto !important;
-  width: 100% !important;
+  position: static;
+  top: auto;
+  left: auto;
+  right: auto;
+  width: 100%;
   border-radius: var(--border-radius);
   border: 2px solid var(--brand-primary);
-  background: var(--light-background--primary);
-  box-shadow: 0 8px 32px transparent;
+  background: var(--bg-dark);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
   max-height: 300px;
   overflow-y: auto;
   overflow-x: hidden;
@@ -87,11 +87,11 @@
 .suggestion-header {
   position: sticky;
   top: 0;
-  background: var(--light-bg__color--secondary);
-  border-bottom: 1px solid var(--light-bg__color--tertiary);
+  background: var(--bg-medium);
+  border-bottom: 1px solid var(--grey-dark);
   padding: 0.5rem 1rem;
   font-size: var(--font-size-xs);
-  color: var(--light-bg__text-color--secondary);
+  color: var(--text-secondary);
   z-index: 1001;
 }
 
@@ -105,29 +105,27 @@
   padding: 0.75rem 1rem;
   cursor: pointer;
   transition: background-color 0.1s ease;
-  border-bottom: 1px solid var(--light-bg__color--secondary);
-  background-color: #ffffff;
-  background-color: var(--light-bg__color--primary);
+  border-bottom: 1px solid var(--grey-dark);
+  background-color: var(--bg-dark);
+  color: var(--text-primary);
 }
 
 .suggestion-item:first-child {
-  border-top: 1px solid var(--light-bg__color--secondary);
-  background-color: #ffffff;
-  background-color: var(--light-bg__color--primary);
+  border-top: 1px solid var(--grey-dark);
 }
 
 .suggestion-item:last-child {
   border-bottom: none;
 }
 
-.suggestion-item:hover,
-.suggestion-item.selected {
-  background-color: var(--light-bg__color--secondary);
+.suggestion-item:hover {
+  background-color: var(--bg-medium);
+  color: var(--text-primary);
 }
 
 .suggestion-item.selected {
   background-color: var(--brand-primary);
-  color: var(--font-color--primary);
+  color: var(--text-on-tan);
 }
 
 .suggestion-avatar {
@@ -136,7 +134,7 @@
   border-radius: 50%;
   margin-right: 0.75rem;
   object-fit: cover;
-  border: 1px solid var(--light-bg__color--secondary);
+  border: 1px solid var(--grey-dark);
 }
 
 .suggestion-trigger {
@@ -146,32 +144,35 @@
 }
 
 .suggestion-item.selected .suggestion-trigger {
-  color: var(--font-color--primary);
+  color: var(--text-on-tan);
 }
 
 .suggestion-label {
   flex: 1;
   font-size: var(--font-size-base);
-  color: #333333;
-  color: var(--light-bg__text-color--primary);
+  color: var(--text-primary);
+}
+
+.suggestion-item:hover .suggestion-label {
+  color: var(--text-primary);
 }
 
 .suggestion-item.selected .suggestion-label {
-  color: var(--font-color--primary);
+  color: var(--text-on-tan);
 }
 
 /* Load more button */
 .suggestion-load-more {
   padding: 0.75rem 1rem;
-  border-top: 1px solid var(--light-bg__color--secondary);
-  background: var(--light-bg__color--secondary);
+  border-top: 1px solid var(--grey-dark);
+  background: var(--bg-medium);
 }
 
 .suggestion-load-more-btn {
   width: 100%;
   padding: 0.5rem 1rem;
   background: var(--brand-primary);
-  color: var(--font-color--primary);
+  color: var(--text-on-tan);
   border: none;
   border-radius: var(--border-radius);
   font-size: var(--font-size-base);
@@ -183,7 +184,7 @@
 .suggestion-load-more-btn:hover {
   background: var(--brand-primary--dark);
   transform: translateY(-1px);
-  box-shadow: 0 4px 8px transparent;
+  box-shadow: 0 4px 8px rgba(229, 193, 133, 0.3);
 }
 
 .suggestion-load-more-btn:active {
@@ -196,16 +197,16 @@
   align-items: center;
   justify-content: center;
   padding: 1rem;
-  background: var(--light-bg__color--secondary);
-  border-top: 1px solid var(--light-bg__color--tertiary);
-  color: var(--light-bg__text-color--secondary);
+  background: var(--bg-medium);
+  border-top: 1px solid var(--grey-dark);
+  color: var(--text-secondary);
   font-size: var(--font-size-base);
 }
 
 .suggestion-loading-spinner {
   width: 16px;
   height: 16px;
-  border: 2px solid var(--light-bg__color--tertiary);
+  border: 2px solid var(--grey-dark);
   border-top: 2px solid var(--brand-primary);
   border-radius: 50%;
   animation: spin 1s linear infinite;
@@ -226,32 +227,32 @@
 .suggestion-no-results {
   padding: 1rem;
   text-align: center;
-  color: var(--light-bg__text-color--secondary);
+  color: var(--text-secondary);
   font-size: var(--font-size-base);
-  background: var(--light-bg__color--secondary);
-  border-top: 1px solid var(--light-bg__color--tertiary);
+  background: var(--bg-medium);
+  border-top: 1px solid var(--grey-dark);
 }
 
 /* Disabled suggestion styling */
 .suggestion-item.disabled {
   opacity: 0.6;
   cursor: not-allowed;
-  background: var(--light-bg__color--tertiary);
-  color: var(--light-bg__text-color--secondary);
+  background: var(--bg-medium);
+  color: var(--text-tertiary);
 }
 
 .suggestion-item.disabled:hover {
-  background: var(--light-bg__color--tertiary) !important;
-  color: var(--light-bg__text-color--secondary) !important;
-  cursor: not-allowed !important;
+  background: var(--bg-medium);
+  color: var(--text-tertiary);
+  cursor: not-allowed;
 }
 
 .suggestion-item.disabled .suggestion-trigger {
-  color: var(--light-bg__text-color--secondary);
+  color: var(--text-tertiary);
 }
 
 .suggestion-item.disabled .suggestion-label {
-  color: var(--light-bg__text-color--secondary);
+  color: var(--text-tertiary);
 }
 
 .suggestion-disabled-indicator {
@@ -264,7 +265,7 @@
 /* Responsive design */
 @media (max-width: 768px) {
   .inline-suggestion-input {
-    padding: --font-size-base;
+    padding: 0.75rem;
     font-size: var(--font-size-xs);
   }
 
@@ -273,12 +274,12 @@
   }
 
   .suggestion-header {
-    padding: 0.375rem --font-size-base;
+    padding: 0.375rem 0.75rem;
     font-size: var(--font-size-xs);
   }
 
   .suggestion-item {
-    padding: 0.625rem --font-size-base;
+    padding: 0.625rem 0.75rem;
   }
 
   .suggestion-avatar {
@@ -291,7 +292,7 @@
   }
 
   .suggestion-load-more {
-    padding: 0.625rem --font-size-base;
+    padding: 0.625rem 0.75rem;
   }
 
   .suggestion-load-more-btn {
@@ -310,22 +311,4 @@
   }
 }
 
-/* Dark mode support for disabled suggestions */
-@media (prefers-color-scheme: dark) {
-  .suggestion-item.disabled {
-    background: var(--dark-bg__color--tertiary);
-    color: var(--dark-bg__text-color--secondary);
-  }
-
-  .suggestion-item.disabled:hover {
-    background: var(--dark-bg__color--tertiary) !important;
-    color: var(--dark-bg__text-color--secondary) !important;
-  }
-
-  .suggestion-item.disabled .suggestion-trigger,
-  .suggestion-item.disabled .suggestion-label {
-    color: var(--dark-bg__text-color--secondary);
-  }
-}
-
-/* Theme integration complete - using app's light theme variables consistently */
+/* Theme integration complete - using app's dark theme variables consistently */

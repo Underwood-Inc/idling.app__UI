@@ -1,6 +1,6 @@
 /* Timestamp with Tooltip Styling */
 .timestamp-with-tooltip {
-  color: var(--light-bg__text-color--tertiary);
+  color: var(--text-secondary);
   font-size: var(--font-size-sm);
   font-weight: 400;
   transition: color 0.2s ease;
@@ -24,48 +24,52 @@
   text-decoration-color: var(--brand-primary);
 }
 
-/* Specific styling for thread pages with light backgrounds */
+/* Specific styling for thread and submission contexts */
 .thread__container .timestamp-with-tooltip,
 .submission__wrapper .timestamp-with-tooltip {
-  color: var(--light-bg__text-color--tertiary);
+  color: var(--text-secondary);
   font-weight: 500;
 }
 
 .thread__container .timestamp-with-tooltip:hover,
 .submission__wrapper .timestamp-with-tooltip:hover {
-  color: var(--brand-primary--dark);
+  color: var(--brand-primary);
 }
 
 /* Tooltip content styling */
 .timestamp-tooltip {
   /* Apply protected tooltip glass effect */
-  
-  background: var(--tooltip-glass-bg) !important;
-  border: 1px solid var(--tooltip-glass-border) !important;
-  box-shadow: var(--tooltip-glass-shadow) !important;
+
+  background: var(--tooltip-glass-bg);
+  border: 1px solid var(--tooltip-glass-border);
+  box-shadow: var(--tooltip-glass-shadow);
   border-radius: var(--border-radius);
 }
 
 .timestamp-tooltip .link-tooltip-content {
-  padding: 0 !important;
+  padding: 0;
   /* Remove default padding since we handle it internally */
 }
 
-/* Dark mode support */
-@media (prefers-color-scheme: dark) {
+/* Light mode support */
+@media (prefers-color-scheme: light) {
   .timestamp-with-tooltip {
-    color: var(--dark-bg__text-color--primary);
+    color: var(--light-bg__text-color--tertiary);
   }
 
   .timestamp-with-tooltip:hover {
-    color: var(--dark-bg__text-color--quaternary);
-    text-decoration-color: var(--brand-primary--light);
+    color: var(--brand-primary--dark);
+    text-decoration-color: var(--brand-primary--dark);
   }
 
-  .timestamp-tooltip {
-    background: var(--tooltip-glass-bg) !important;
-    border: 1px solid var(--tooltip-glass-border) !important;
-    box-shadow: var(--tooltip-glass-shadow) !important;
+  .thread__container .timestamp-with-tooltip,
+  .submission__wrapper .timestamp-with-tooltip {
+    color: var(--light-bg__text-color--tertiary);
+  }
+
+  .thread__container .timestamp-with-tooltip:hover,
+  .submission__wrapper .timestamp-with-tooltip:hover {
+    color: var(--brand-primary--dark);
   }
 }
 

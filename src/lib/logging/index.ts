@@ -18,12 +18,14 @@ export { ClientLogger } from './adapters/ClientLogger';
 export { DebugLogger } from './adapters/DebugLogger';
 export { ServerLogger } from './adapters/ServerLogger';
 export { Logger } from './core/Logger';
+export { SigNozTransport, createSigNozTransport } from './transports/SigNozTransport';
 
 export type {
   LogContext,
   LogEntry,
   LogLevel,
   LoggerConfig,
+  LogTransport,
   PerformanceMetrics,
   StructuredData
 } from './types';

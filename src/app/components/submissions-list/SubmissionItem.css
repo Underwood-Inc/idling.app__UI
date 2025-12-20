@@ -1,22 +1,23 @@
-/* SubmissionItem Component Styles */
+/* SubmissionItem Component Styles - Dark Theme */
 
 .submission__wrapper {
-  border: 1px solid var(--brand-tertiary--dark);
+  border: 1px solid var(--grey-dark);
   border-radius: var(--border-radius);
-  background-color: var(--light-background--primary);
+  background-color: var(--bg-dark);
   transition: all 0.2s ease-in-out;
   /* Main post pattern: horizontal lines */
   background-image: repeating-linear-gradient(
     0deg,
     transparent,
     transparent 19px,
-    color-mix(in srgb, var(--brand-primary) 8%, transparent) 20px,
-    color-mix(in srgb, var(--brand-primary) 8%, transparent) 21px
+    color-mix(in srgb, var(--brand-primary) 5%, transparent) 20px,
+    color-mix(in srgb, var(--brand-primary) 5%, transparent) 21px
   );
 }
 
 .submission__wrapper:hover {
   border-color: var(--brand-primary);
+  background-color: var(--bg-medium);
   /* Very subtle horizontal pattern on hover */
   background-image: repeating-linear-gradient(
     0deg,
@@ -38,9 +39,9 @@
     45deg,
     transparent,
     transparent 14px,
-    color-mix(in srgb, var(--brand-primary) 8%, transparent) 15px,
-    color-mix(in srgb, var(--brand-primary) 8%, transparent) 16px
-  ) !important;
+    color-mix(in srgb, var(--brand-primary) 4%, transparent) 15px,
+    color-mix(in srgb, var(--brand-primary) 4%, transparent) 16px
+  );
 }
 
 .submission__wrapper.submission__wrapper--reply:hover {
@@ -51,7 +52,7 @@
     transparent 18px,
     color-mix(in srgb, var(--brand-primary) 8%, transparent) 20px,
     color-mix(in srgb, var(--brand-primary) 8%, transparent) 22px
-  ) !important;
+  );
 }
 
 /* Reply dot indicator */
@@ -62,7 +63,7 @@
   border-radius: 50%;
   display: inline-block;
   box-shadow: 0 1px 4px transparent;
-  border: 2px solid #fff;
+  border: 2px solid var(--bg-dark);
 }
 
 /* Reply indicator styling - now handled by RibbonBadge */
@@ -75,7 +76,7 @@
   align-items: center;
   margin-bottom: 0.75rem;
   font-size: var(--font-size-sm);
-  color: var(--light-bg__text-color--secondary);
+  color: var(--text-secondary);
   position: relative;
   gap: 0.5rem;
 }
@@ -177,7 +178,7 @@
 
 /* Fallback for browsers that don't support :has() */
 .submission__meta-center > span[style*='display: inline-block'] {
-  display: flex !important;
+  display: flex;
   align-items: center;
 }
 
@@ -185,11 +186,12 @@
   white-space: nowrap;
   /* Ensure the timestamp text itself is properly styled */
   display: inline-block;
+  color: var(--text-secondary);
 }
 
 .submission__author {
   font-weight: 600;
-  color: var(--light-bg__text-color--primary);
+  color: var(--text-primary);
 }
 
 .submission__owner-actions {
@@ -221,7 +223,7 @@
 .submission__edit-btn:hover,
 .submission__delete-btn:hover {
   background-color: var(--brand-primary);
-  color: var(--font-color--primary);
+  color: var(--text-on-tan);
   transform: scale(1.02);
   transform-origin: center;
   box-shadow: inset 0 -2px 4px transparent;
@@ -269,7 +271,7 @@
   display: inline-block;
   font-size: var(--font-size-md);
   font-weight: 600;
-  color: var(--light-bg__text-color--tertiary);
+  color: var(--text-tertiary);
   margin-bottom: 0.25rem;
   margin-right: 0.5rem;
   text-transform: uppercase;
@@ -280,7 +282,7 @@
 .submission__title {
   font-size: 1.25rem;
   font-weight: 600;
-  color: var(--light-bg__text-color--primary);
+  color: var(--text-primary);
   margin: 0;
   line-height: 1.4;
   display: inline;
@@ -292,7 +294,7 @@
 }
 
 .submission__description {
-  color: var(--light-bg__text-color--primary);
+  color: var(--text-secondary);
   line-height: 1.6;
   margin: 0;
 }
@@ -307,7 +309,7 @@
 
 .submission__tag {
   background-color: var(--tan-dark);
-  color: var(--dark-background--primary);
+  color: var(--text-on-tan);
   border: 2px solid var(--brown-shadow);
   padding: 0.375rem 0.75rem;
   border-radius: 0.5rem;
@@ -349,25 +351,25 @@
 
 .submission__text-link,
 .submission__parent-link {
-  color: var(--brand-primary) !important;
+  color: var(--brand-primary);
   text-decoration: none;
   font-size: var(--font-size-sm);
   font-weight: 500;
   padding: 0.25rem 0;
   border-radius: 0.25rem;
   transition: all 0.2s ease;
-  background: none !important;
-  border: none !important;
-  box-shadow: none !important;
+  background: none;
+  border: none;
+  box-shadow: none;
 }
 
 .submission__text-link:hover,
 .submission__parent-link:hover {
-  color: var(--brand-primary--dark) !important;
+  color: var(--brand-primary--dark);
   text-decoration: underline;
-  background: none !important;
-  transform: none !important;
-  box-shadow: none !important;
+  background: none;
+  transform: none;
+  box-shadow: none;
 }
 
 .submission__reply-btn,
@@ -390,22 +392,22 @@
 .submission__nested-reply-btn:hover,
 .submission__refresh-btn:hover {
   color: var(--brand-primary--dark);
-  background: none !important;
-  transform: none !important;
-  box-shadow: none !important;
+  background: none;
+  transform: none;
+  box-shadow: none;
 }
 
 /* Form containers */
 .submission__edit-form,
 .submission__reply-form,
 .submission__nested-reply-form {
-  background-color: #fefefe;
+  background-color: var(--bg-medium);
   border-radius: var(--border-radius);
-  border: 1px solid #e5e5e5;
+  border: 1px solid var(--grey-dark);
 }
 
 .submission__nested-reply-form {
-  background-color: #fefefe;
+  background-color: var(--bg-light);
 }
 
 /* Replies container */
@@ -421,7 +423,7 @@
   }
 
   .submission__wrapper--reply {
-    margin-left: 0.5rem !important;
+    margin-left: 0.5rem;
   }
 
   /* Mobile: Always use stacked layout regardless of owner actions */
@@ -468,7 +470,7 @@
   .submission__datetime {
     position: static;
     transform: none;
-    margin-left: 0 !important;
+    margin-left: 0;
   }
 
   /* Ensure owner actions are properly positioned and accessible on mobile */
@@ -524,84 +526,7 @@
   }
 
   .submission__nested-reply-form {
-    margin-left: 0.25rem !important;
-  }
-}
-
-/* Dark mode support */
-@media (prefers-color-scheme: dark) {
-  .submission__wrapper {
-    background-color: var(--dark-background--primary, #1f2937);
-    border-color: var(--dark-brand-tertiary--dark, #374151);
-    /* Dark mode main post pattern: subtle horizontal lines */
-    background-image: repeating-linear-gradient(
-      0deg,
-      transparent,
-      transparent 19px,
-      color-mix(in srgb, var(--brand-primary) 3%, transparent) 20px,
-      color-mix(in srgb, var(--brand-primary) 3%, transparent) 21px
-    );
-  }
-
-  .submission__wrapper:hover {
-    /* Darken the main post pattern lines on hover in dark mode */
-    background-image: repeating-linear-gradient(
-      0deg,
-      transparent,
-      transparent 19px,
-      color-mix(in srgb, var(--brand-primary) 8%, transparent) 20px,
-      color-mix(in srgb, var(--brand-primary) 8%, transparent) 21px
-    );
-  }
-
-  .submission__wrapper.submission__wrapper--reply {
-    border-left-color: var(--brand-primary);
-    /* Dark mode reply post pattern: diagonal lines - higher specificity */
-    background-image: repeating-linear-gradient(
-      45deg,
-      transparent,
-      transparent 14px,
-      color-mix(in srgb, var(--brand-primary) 3.5%, transparent) 15px,
-      color-mix(in srgb, var(--brand-primary) 3.5%, transparent) 16px
-    ) !important;
-  }
-
-  .submission__wrapper.submission__wrapper--reply:hover {
-    /* Darken the diagonal pattern on hover in dark mode - higher specificity */
-    background-image: repeating-linear-gradient(
-      45deg,
-      transparent,
-      transparent 14px,
-      color-mix(in srgb, var(--brand-primary) 9%, transparent) 15px,
-      color-mix(in srgb, var(--brand-primary) 9%, transparent) 16px
-    ) !important;
-  }
-
-  .submission__title {
-    color: var(--dark-bg__text-color--primary);
-  }
-
-  .submission__description {
-    color: var(--dark-bg__text-color--secondary);
-  }
-
-  .submission__meta,
-  .submission__datetime {
-    color: var(--dark-bg__text-color--tertiary);
-  }
-
-  .submission__author {
-    color: var(--dark-bg__text-color--primary);
-  }
-
-  .submission__edit-form,
-  .submission__reply-form {
-    background-color: var(--dark-background--quaternary);
-    border-color: var(--dark-brand-tertiary);
-  }
-
-  .submission__nested-reply-form {
-    background-color: var(--dark-background--quinary);
+    margin-left: 0.25rem;
   }
 }
 
