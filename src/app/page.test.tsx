@@ -42,16 +42,14 @@ describe('Home Page', () => {
 
     // Check page structure
     expect(screen.getByTestId('mock-page-container')).toBeInTheDocument();
-    expect(screen.getByTestId('mock-page-header')).toBeInTheDocument();
     expect(screen.getByTestId('mock-page-content')).toBeInTheDocument();
-    expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent(
-      'About'
-    );
+    // Check for the About section heading
+    expect(screen.getByText("Hi! I'm Strixun 👋")).toBeInTheDocument();
 
     // Check layout and Discord content
     const article = container.querySelector('article');
     const cards = article?.querySelectorAll('.card');
-    expect(cards).toHaveLength(2);
+    expect(cards).toHaveLength(3); // About, Projects, and Activity cards
 
     // Discord content is now in the aside, not in the main cards
     expect(
