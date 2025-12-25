@@ -5,12 +5,12 @@ import { LinkTooltip } from '../tooltip/LinkTooltip';
 export const DocsLink: React.FC = () => {
   return (
     <LinkTooltip
-      url="https://underwood-inc.github.io/idling.app__UI/"
+      url="https://docs.idling.app"
       isInsideParagraph
     >
       <a
         data-testid={DOCS_LINK_SELECTORS.LINK}
-        href="https://underwood-inc.github.io/idling.app__UI/"
+        href="https://docs.idling.app"
         target="_blank"
       >
         Docs

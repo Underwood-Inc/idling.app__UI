@@ -82,6 +82,13 @@ jobs:
         env:
           NODE_ENV: production
 
+      - name: Deployment Notice
+        if: github.event_name == 'pull_request'
+        run: |
+          echo "::notice title=Deployment Skipped for Pull Request::The deploy job is intentionally skipped for pull requests. Deployment to GitHub Pages only occurs when changes are merged to the main or master branch. This is expected behavior and not an error. Once this PR is merged, the next workflow run will automatically deploy to production."
+          echo "📝 Note: This is a pull request build. The 'deploy' job will be skipped."
+          echo "✅ Deployment will happen automatically after this PR is merged to main/master."
+
       - name: Upload Pages artifact
         if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
         uses: actions/upload-pages-artifact@v3
@@ -89,6 +96,9 @@ jobs:
           path: ./build/
 
   # Deploy to GitHub Pages (only on main/master branch)
+  # NOTE: This job is intentionally skipped for pull requests to prevent deploying
+  # untested code to production. Deployment only occurs when changes are merged
+  # to the main or master branch.
   deploy:
     if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
     environment:
@@ -212,7 +222,7 @@ jobs:
             ✅ **Docusaurus build successful!**
 
             **Generated Pages:** ${htmlFiles.length}
-            **Preview:** Documentation will be available at: \`https://underwood-inc.github.io/idling.app__UI/\`
+            **Preview:** Documentation will be available at: \`https://docs.idling.app\`
 
             **Key Pages:**
             ${htmlFiles.slice(0, 10).map(f => `- \`${f}\``).join('\n')}
