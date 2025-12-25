@@ -212,7 +212,7 @@ jobs:
             ✅ **Docusaurus build successful!**
 
             **Generated Pages:** ${htmlFiles.length}
-            **Preview:** Documentation will be available at: \`https://underwood-inc.github.io/idling.app__UI/\`
+            **Preview:** Documentation will be available at: \`https://docs.idling.app\`
 
             **Key Pages:**
             ${htmlFiles.slice(0, 10).map(f => `- \`${f}\``).join('\n')}

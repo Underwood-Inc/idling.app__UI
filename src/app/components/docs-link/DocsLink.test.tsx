@@ -12,7 +12,7 @@ describe('Docs Link', () => {
     expect(linkElement).toBeEnabled();
     expect(linkElement).toHaveAttribute(
       'href',
-      'https://underwood-inc.github.io/idling.app__UI/'
+      'https://docs.idling.app'
     );
     expect(linkElement).toHaveAttribute('target', '_blank');
   });

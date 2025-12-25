@@ -9,10 +9,7 @@ describe('Docs Link', () => {
     expect(screen.getByTestId(DOCS_LINK_SELECTORS.LINK))
       .toBeVisible()
       .toBeEnabled()
-      .toHaveAttribute(
-        'href',
-        'https://underwood-inc.github.io/idling.app__UI/'
-      )
+      .toHaveAttribute('href', 'https://docs.idling.app')
       .toHaveAttribute('target', '_blank');
   });
 });
