@@ -1,0 +1,382 @@
+/**
+ * Product Marketing Template Styles
+ * Clean, professional, and consistent across all product pages
+ */
+
+.product-marketing {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+/* ==================== HERO SECTION ==================== */
+
+.product-marketing__hero {
+  text-align: center;
+  padding: 4rem 0;
+  margin-bottom: 4rem;
+}
+
+.product-marketing__hero-icon {
+  font-size: 5rem;
+  margin-bottom: 1.5rem;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
+}
+
+.product-marketing__title {
+  font-size: clamp(2.5rem, 5vw, 4rem);
+  font-weight: 800;
+  margin: 0 0 1rem 0;
+  color: var(--dark-bg__text-color--primary);
+  line-height: 1.2;
+}
+
+.product-marketing__tagline {
+  font-size: clamp(1.25rem, 3vw, 1.75rem);
+  font-weight: 600;
+  color: var(--brand-primary);
+  margin: 0 0 1.5rem 0;
+}
+
+.product-marketing__description {
+  font-size: clamp(1rem, 2vw, 1.25rem);
+  color: var(--dark-bg__text-color--secondary);
+  max-width: 800px;
+  margin: 0 auto 2.5rem auto;
+  line-height: 1.6;
+}
+
+/* ==================== CTAs ==================== */
+
+.product-marketing__ctas {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.product-marketing__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 2rem;
+  border-radius: 8px;
+  font-size: 1.125rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 2px solid transparent;
+}
+
+.product-marketing__cta-icon {
+  font-size: 1.25rem;
+}
+
+.product-marketing__cta--primary {
+  background: var(--brand-primary);
+  color: var(--bg-darker);
+  border-color: var(--brand-primary);
+}
+
+.product-marketing__cta--primary:hover {
+  background: var(--tan-secondary);
+  border-color: var(--tan-secondary);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(229, 193, 133, 0.4);
+}
+
+.product-marketing__cta--secondary {
+  background: var(--dark-background--secondary);
+  color: var(--dark-bg__text-color--primary);
+  border-color: var(--dark-border--primary);
+}
+
+.product-marketing__cta--secondary:hover {
+  background: var(--dark-background--tertiary);
+  border-color: var(--brand-primary);
+  transform: translateY(-2px);
+}
+
+.product-marketing__cta--github {
+  background: #24292e;
+  color: white;
+  border-color: #24292e;
+}
+
+.product-marketing__cta--github:hover {
+  background: #1b1f23;
+  border-color: #1b1f23;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(36, 41, 46, 0.4);
+}
+
+.product-marketing__cta--external {
+  background: var(--accent-green);
+  color: white;
+  border-color: var(--accent-green);
+}
+
+.product-marketing__cta--external:hover {
+  background: #4a9040;
+  border-color: #4a9040;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(95, 181, 80, 0.4);
+}
+
+/* ==================== STATS SECTION ==================== */
+
+.product-marketing__stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 2rem;
+  padding: 3rem 0;
+  margin-bottom: 4rem;
+  border-top: 1px solid var(--dark-border--primary);
+  border-bottom: 1px solid var(--dark-border--primary);
+}
+
+.product-marketing__stat {
+  text-align: center;
+}
+
+.product-marketing__stat-icon {
+  font-size: 2.5rem;
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.product-marketing__stat-value {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: var(--brand-primary);
+  margin-bottom: 0.5rem;
+}
+
+.product-marketing__stat-label {
+  font-size: 1rem;
+  color: var(--dark-bg__text-color--secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* ==================== FEATURES SECTION ==================== */
+
+.product-marketing__features {
+  margin-bottom: 4rem;
+}
+
+.product-marketing__section-title {
+  font-size: clamp(2rem, 4vw, 2.5rem);
+  font-weight: 700;
+  text-align: center;
+  margin: 0 0 3rem 0;
+  color: var(--dark-bg__text-color--primary);
+}
+
+.product-marketing__features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+}
+
+.product-marketing__feature {
+  background: var(--dark-background--secondary);
+  border: 1px solid var(--dark-border--primary);
+  border-radius: 12px;
+  padding: 2rem;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.product-marketing__feature:hover {
+  border-color: var(--brand-primary);
+  box-shadow: 0 4px 16px rgba(229, 193, 133, 0.2);
+  transform: translateY(-4px);
+}
+
+.product-marketing__feature-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.product-marketing__feature-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0 0 1rem 0;
+  color: var(--dark-bg__text-color--primary);
+}
+
+.product-marketing__feature-description {
+  font-size: 1rem;
+  color: var(--dark-bg__text-color--secondary);
+  line-height: 1.6;
+  margin: 0 0 1rem 0;
+}
+
+.product-marketing__feature-highlights {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.product-marketing__feature-highlights li {
+  padding: 0.5rem 0;
+  color: var(--dark-bg__text-color--secondary);
+  position: relative;
+  padding-left: 1.5rem;
+}
+
+.product-marketing__feature-highlights li::before {
+  content: '✓';
+  position: absolute;
+  left: 0;
+  color: var(--brand-primary);
+  font-weight: 700;
+}
+
+/* ==================== TECH STACK SECTION ==================== */
+
+.product-marketing__tech-stack {
+  margin-bottom: 4rem;
+  text-align: center;
+}
+
+.product-marketing__tech-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  justify-content: center;
+  margin-top: 2rem;
+}
+
+.product-marketing__tech-tag {
+  padding: 0.75rem 1.5rem;
+  background: var(--dark-background--secondary);
+  border: 1px solid var(--dark-border--primary);
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--dark-bg__text-color--primary);
+  transition: all 0.2s ease;
+}
+
+.product-marketing__tech-tag:hover {
+  background: var(--dark-background--tertiary);
+  border-color: var(--brand-primary);
+  color: var(--brand-primary);
+}
+
+/* ==================== TESTIMONIAL SECTION ==================== */
+
+.product-marketing__testimonial {
+  background: var(--dark-background--secondary);
+  border: 1px solid var(--dark-border--primary);
+  border-radius: 12px;
+  padding: 3rem;
+  margin-bottom: 4rem;
+  text-align: center;
+}
+
+.product-marketing__quote {
+  font-size: clamp(1.25rem, 3vw, 1.75rem);
+  font-style: italic;
+  color: var(--dark-bg__text-color--primary);
+  margin: 0 0 1.5rem 0;
+  line-height: 1.6;
+}
+
+.product-marketing__testimonial-author {
+  font-size: 1rem;
+  color: var(--dark-bg__text-color--secondary);
+}
+
+.product-marketing__testimonial-author strong {
+  color: var(--brand-primary);
+}
+
+/* ==================== CUSTOM CONTENT SECTION ==================== */
+
+.product-marketing__custom {
+  margin-bottom: 4rem;
+}
+
+/* ==================== RESPONSIVE DESIGN ==================== */
+
+@media (max-width: 768px) {
+  .product-marketing {
+    padding: 1rem;
+  }
+
+  .product-marketing__hero {
+    padding: 2rem 0;
+    margin-bottom: 2rem;
+  }
+
+  .product-marketing__hero-icon {
+    font-size: 3.5rem;
+  }
+
+  .product-marketing__ctas {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .product-marketing__cta {
+    justify-content: center;
+  }
+
+  .product-marketing__stats {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    padding: 2rem 0;
+    margin-bottom: 2rem;
+  }
+
+  .product-marketing__features-grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .product-marketing__feature {
+    padding: 1.5rem;
+  }
+
+  .product-marketing__testimonial {
+    padding: 2rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .product-marketing__hero-icon {
+    font-size: 3rem;
+  }
+
+  .product-marketing__feature-icon {
+    font-size: 2.5rem;
+  }
+
+  .product-marketing__stat-value {
+    font-size: 2rem;
+  }
+}
+
+/* ==================== ACCESSIBILITY & PERFORMANCE ==================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .product-marketing__cta,
+  .product-marketing__feature,
+  .product-marketing__tech-tag {
+    transition: none;
+    transform: none !important;
+  }
+
+  .product-marketing__feature:hover {
+    transform: none;
+  }
+}
+
+/* Focus states for keyboard navigation */
+.product-marketing__cta:focus-visible {
+  outline: 2px solid var(--brand-primary);
+  outline-offset: 4px;
+}

@@ -3,20 +3,10 @@
 -- tried a custom entrypoint to the container that exports them as well to no avail
 \echo '\033[35mrunning database init...\033[0m'
 
--- Create the dblink extension in the default database
-CREATE EXTENSION IF NOT EXISTS dblink;
-
--- Check if the 'idling' database exists and create it if it doesn't
-DO $$
-BEGIN
-  IF NOT EXISTS (SELECT 1 FROM pg_database WHERE datname = 'idling') THEN
-    CREATE DATABASE idling WITH OWNER postgres;
-  END IF;
-END
-$$;
-
-\echo '\033[35mconnecting to the idling database...\033[0m'
-\c idling;
+-- Note: Database 'idling_app' is already created by POSTGRES_DB env var
+-- We connect to it directly
+\echo '\033[35mconnecting to the idling_app database...\033[0m'
+\c idling_app;
 
 \echo '\033[35mcreating submissions table...\033[0m'
 CREATE TABLE submissions (
@@ -141,7 +131,7 @@ CREATE INDEX idx_comments_post_id ON comments(post_id);
 CREATE INDEX idx_votes_post_id ON votes(post_id);
 CREATE INDEX idx_votes_comment_id ON votes(comment_id);
 
-\echo '\033[33mfinished initializing the idling database!\033[0m'
+\echo '\033[33mfinished initializing the idling_app database!\033[0m'
 
 -- TODO -- end -
 
@@ -154,5 +144,5 @@ CREATE TABLE migrations (
   error_message TEXT
 );
 
-\echo '\033[33mfinished initializating the testing database!\033[0m'
+\echo '\033[33mfinished database initialization!\033[0m'
 \q

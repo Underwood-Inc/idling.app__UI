@@ -58,22 +58,23 @@ const PROJECTS: Project[] = [
     icon: '📦',
   },
   {
-    id: 'obs-animation-suite',
-    title: 'OBS Animation Suite',
-    description: 'Powerful Lua scripts for OBS Studio featuring smooth animations, source swapping, text cycling, and a web control panel.',
+    id: 'strixun-stream-suite',
+    title: 'Strixun Stream Suite',
+    description: 'Complete ecosystem of streaming tools and web services with Single Sign-On authentication, mod hosting, URL shortening, P2P chat, and access control. Includes OBS Studio control panel with 60 FPS animations and WebSocket remote control.',
     category: 'Streaming',
-    type: 'OBS Scripts',
+    type: 'Full-Stack Suite',
     features: [
-      'Zero external dependencies',
-      'WebSocket-powered control',
-      '60 FPS smooth animations',
-      'Lightweight & performant',
+      'OBS Animation Suite',
+      'Mods Hub Platform',
+      'OTP Auth Service',
+      'P2P Chat Hub',
+      'URL Shortener + Analytics',
     ],
     links: {
       github: 'https://github.com/Underwood-Inc/strixun-stream-suite',
-      demo: '/obs-animation-suite',
+      demo: '/strixun-stream-suite',
     },
-    icon: '📹',
+    icon: '🦊',
   },
 ];
 
@@ -191,7 +192,7 @@ export function ProjectShowcase() {
                     href={project.links.demo}
                     className={`${styles.project__link} ${styles['project__link--demo']}`}
                   >
-                    🚀 Live Demo
+                    📖 Learn More
                   </a>
                 )}
               </div>
