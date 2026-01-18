@@ -119,6 +119,12 @@ export const HEADER_NAV_PATHS: Record<
     | ROUTE_KEYS.THREAD_BASE
     | ROUTE_KEYS.ADMIN
     | ROUTE_KEYS.CALLBACK
+    | ROUTE_KEYS.STREAM_SUITE_DETAIL
+    | ROUTE_KEYS.MODS_HUB_DETAIL
+    | ROUTE_KEYS.AUTH_SERVICE_DETAIL
+    | ROUTE_KEYS.URL_SHORTENER_DETAIL
+    | ROUTE_KEYS.CHAT_HUB_DETAIL
+    | ROUTE_KEYS.ACCESS_HUB_DETAIL
   >,
   string
 > = {
@@ -161,7 +167,14 @@ export const NAV_PATH_LABELS: Record<ROUTE_KEYS, string> = {
   [ROUTE_KEYS.AUTH_SERVICE]: 'Auth Service',
   [ROUTE_KEYS.URL_SHORTENER]: 'URL Shortener',
   [ROUTE_KEYS.CHAT_HUB]: 'Chat Hub',
-  [ROUTE_KEYS.ACCESS_HUB]: 'Access Hub'
+  [ROUTE_KEYS.ACCESS_HUB]: 'Access Hub',
+  // Strixun Stream Suite Detail Page Labels
+  [ROUTE_KEYS.STREAM_SUITE_DETAIL]: 'Stream Suite Details',
+  [ROUTE_KEYS.MODS_HUB_DETAIL]: 'Mods Hub Details',
+  [ROUTE_KEYS.AUTH_SERVICE_DETAIL]: 'Auth Service Details',
+  [ROUTE_KEYS.URL_SHORTENER_DETAIL]: 'URL Shortener Details',
+  [ROUTE_KEYS.CHAT_HUB_DETAIL]: 'Chat Hub Details',
+  [ROUTE_KEYS.ACCESS_HUB_DETAIL]: 'Access Hub Details'
 };
 
 export const DISABLED_PATHS = [NAV_PATHS.GAME, NAV_PATHS.COINS];
