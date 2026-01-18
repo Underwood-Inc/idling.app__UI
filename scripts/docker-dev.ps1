@@ -25,7 +25,8 @@ do {
         "1" {
             Write-Host ""
             Write-Host "[STARTING] Starting containers..." -ForegroundColor Green
-            docker compose up
+            Write-Host "[INFO] Starting postgres and nextjs (docs excluded on Windows)" -ForegroundColor Yellow
+            docker compose up postgres nextjs --build
             exit 0
         }
         "2" {

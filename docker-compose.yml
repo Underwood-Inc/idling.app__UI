@@ -1,16 +1,17 @@
 services:
   postgres:
-    image: postgres:latest
+    image: postgres:16-alpine
     container_name: idlingapp__ui-postgres
-    env_file:
-      - ./.env.local
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-idling_app}
     ports:
       - '5432:5432'
     volumes:
       - ./docker-postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
-    user: postgres
     healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U postgres']
+      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER:-postgres}']
       interval: 10s
       timeout: 5s
       retries: 5
@@ -27,13 +28,12 @@ services:
     env_file:
       - ./.env.local
     environment:
-      # Ensure Correct Hostname: In Docker Compose, services should communicate using their service names.
-      # For example, if your PostgreSQL service is named postgres, the connection string should use postgres
-      # as the hostname.
-      # By defining this here, we override the value defined in ./.env.local
       POSTGRES_HOST: postgres
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-idling_app}
       IS_DOCKERIZED: true
-      SHELL: /usr/bin/zsh # Ensure zsh is used
+      SHELL: /usr/bin/zsh
     healthcheck:
       test: |
         nextjs_health=$$(curl -s -o /dev/null -w "%{http_code}" http://localhost:3000/api/test/health 2>/dev/null || echo "000")

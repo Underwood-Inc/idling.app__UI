@@ -1,248 +1,159 @@
-'use client';
-
-import { useState } from 'react';
 import { Card } from '../components/card/Card';
 import FadeIn from '../components/fade-in/FadeIn';
+import { ProductMarketingTemplate } from '../components/marketing/ProductMarketingTemplate';
 import { PageAside } from '../components/page-aside/PageAside';
 import { PageContainer } from '../components/page-container/PageContainer';
 import PageContent from '../components/page-content/PageContent';
-import { ControlPanelDemo } from './components/ControlPanelDemo';
-import { FeatureShowcase } from './components/FeatureShowcase';
-// FileBrowser removed - no external dependencies
 import { InstallationGuide } from './components/InstallationGuide';
 import { ScriptFeatures } from './components/ScriptFeatures';
 import styles from './page.module.css';
 
 export default function ObsAnimationSuite() {
-  const [activeTab, setActiveTab] = useState<'overview' | 'demo' | 'guide'>('overview');
-
   return (
     <PageContainer>
-      <div className={styles.obs__layout}>
+      <div className={styles.layout}>
         <PageContent>
           <FadeIn>
-            {/* Hero Section */}
-            <div className={styles.obs__hero}>
-              <div className={styles.hero__badge}>
-                <span className={styles.badge__icon}>🎬</span>
-                <span className={styles.badge__text}>OBS Studio Plugin</span>
-              </div>
-              <h1 className={styles.hero__title}>OBS Animation Suite</h1>
-              <p className={styles.hero__subtitle}>
-                Transform your OBS streams with buttery-smooth animations, powerful source swapping, 
-                and dynamic text effects. No external plugins required—pure Lua magic.
-              </p>
-              
-              <div className={styles.hero__actions}>
-                <a 
-                  href="https://github.com/Underwood-Inc/strixun-stream-suite/releases/latest" 
-                  className={`${styles.btn} ${styles['btn--primary']}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <span className={styles.btn__icon}>⬇️</span>
-                  Download Latest Release
-                </a>
-                <a 
-                  href="https://github.com/Underwood-Inc/strixun-stream-suite" 
-                  className={`${styles.btn} ${styles['btn--secondary']}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <span className={styles.btn__icon}>⭐</span>
-                  View on GitHub
-                </a>
-              </div>
-            </div>
-
-            {/* Tab Navigation */}
-            <div className={styles.tabs}>
-              <button 
-                className={`${styles.tab} ${activeTab === 'overview' ? styles['tab--active'] : ''}`}
-                onClick={() => setActiveTab('overview')}
+            <Card width="full">
+              <ProductMarketingTemplate
+                title="OBS Animation Suite"
+                tagline="Professional Streaming Tools"
+                description="Powerful Lua scripts for OBS Studio featuring smooth animations, source swapping, text cycling, and a web control panel. Zero dependencies, 60 FPS performance, and fully open source."
+                heroIcon="📹"
+                features={[
+                  {
+                    icon: '✨',
+                    title: 'Source Animations',
+                    description: 'Fade, slide, zoom, and pop effects triggered automatically when sources are shown or hidden.',
+                    highlights: ['4 animation types', 'Customizable easing', 'Per-source configuration']
+                  },
+                  {
+                    icon: '🔄',
+                    title: 'Source Swapping',
+                    description: 'Smoothly swap positions and sizes between any two sources with beautiful animated transitions.',
+                    highlights: ['7 swap styles', 'Hotkey support', 'Save configurations']
+                  },
+                  {
+                    icon: '📝',
+                    title: 'Text Cycler',
+                    description: 'Cycle through text with animated transitions like typewriter, glitch, and scramble effects.',
+                    highlights: ['6 transition types', 'Customizable timing', 'Real-time updates']
+                  },
+                  {
+                    icon: '🎮',
+                    title: 'Web Control Panel',
+                    description: 'Browser-based interface to control all features via WebSocket connection.',
+                    highlights: ['Real-time control', 'Activity logging', 'Keyboard shortcuts']
+                  }
+                ]}
+                links={[
+                  {
+                    label: 'View on GitHub',
+                    url: 'https://github.com/Underwood-Inc/strixun-stream-suite',
+                    variant: 'github',
+                    icon: '📦'
+                  },
+                  {
+                    label: 'Download Latest',
+                    url: 'https://github.com/Underwood-Inc/strixun-stream-suite/releases',
+                    variant: 'primary',
+                    icon: '📥'
+                  },
+                  {
+                    label: 'Documentation',
+                    url: 'https://github.com/Underwood-Inc/strixun-stream-suite#readme',
+                    variant: 'secondary',
+                    icon: '📖'
+                  }
+                ]}
+                techStack={['Lua', 'JavaScript', 'WebSocket', 'OBS Studio 28+']}
+                stats={[
+                  { label: 'FPS Performance', value: '60', icon: '⚡' },
+                  { label: 'Dependencies', value: '0', icon: '📦' },
+                  { label: 'Animation Types', value: '17+', icon: '✨' }
+                ]}
               >
-                <span className={styles.tab__icon}>📖</span>
-                Overview
-              </button>
-              <button 
-                className={`${styles.tab} ${activeTab === 'demo' ? styles['tab--active'] : ''}`}
-                onClick={() => setActiveTab('demo')}
-              >
-                <span className={styles.tab__icon}>🎮</span>
-                Live Demo
-              </button>
-              <button 
-                className={`${styles.tab} ${activeTab === 'guide' ? styles['tab--active'] : ''}`}
-                onClick={() => setActiveTab('guide')}
-              >
-                <span className={styles.tab__icon}>📚</span>
-                Installation
-              </button>
-            </div>
-
-            {/* Tab Content */}
-            <div className={styles.tab__content}>
-              {activeTab === 'overview' && (
-                <div className={styles.overview}>
-                  <Card width="full">
-                    <FeatureShowcase />
-                  </Card>
-                  
-                  <Card width="full">
-                    <ScriptFeatures />
-                  </Card>
-                </div>
-              )}
-
-              {activeTab === 'demo' && (
-                <>
-                  <Card width="full">
-                    <ControlPanelDemo />
-                  </Card>
-                  <Card width="full">
-                    <div className={styles.github__section}>
-                      <h2 className={styles.section__title}>📁 Source Code</h2>
-                      <p className={styles.section__subtitle}>
-                        All source files are available on GitHub for review, modification, and contribution.
-                      </p>
-                      <div className={styles.github__actions}>
-                        <a 
-                          href="https://github.com/Underwood-Inc/strixun-stream-suite" 
-                          className={`${styles.btn} ${styles['btn--primary']}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          <span className={styles.btn__icon}>🔗</span>
-                          View on GitHub
-                        </a>
-                        <a 
-                          href="https://github.com/Underwood-Inc/strixun-stream-suite/archive/refs/heads/master.zip" 
-                          className={`${styles.btn} ${styles['btn--secondary']}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          <span className={styles.btn__icon}>⬇️</span>
-                          Download ZIP
-                        </a>
-                      </div>
-                    </div>
-                  </Card>
-                </>
-              )}
-
-              {activeTab === 'guide' && (
+                {/* Installation Guide */}
                 <Card width="full">
                   <InstallationGuide />
                 </Card>
-              )}
-            </div>
 
-            {/* Version Info */}
-            <div className={styles.version__info}>
-              <div className={styles.version__item}>
-                <span className={styles.version__label}>Current Version:</span>
-                <span className={styles.version__value}>v2.7.0</span>
-              </div>
-              <div className={styles.version__item}>
-                <span className={styles.version__label}>OBS Required:</span>
-                <span className={styles.version__value}>28.0+</span>
-              </div>
-              <div className={styles.version__item}>
-                <span className={styles.version__label}>License:</span>
-                <span className={styles.version__value}>MIT</span>
-              </div>
-            </div>
+                {/* Script Features */}
+                <Card width="full">
+                  <ScriptFeatures />
+                </Card>
+              </ProductMarketingTemplate>
+            </Card>
           </FadeIn>
         </PageContent>
 
-        {/* Sidebar */}
-        <PageAside className={styles.obs__aside}>
-          <div className={styles.sidebar}>
-            <div className={styles.sidebar__section}>
-              <h3 className={styles.sidebar__title}>⚡ Quick Facts</h3>
-              <ul className={styles.fact__list}>
-                <li>✅ Zero external dependencies</li>
-                <li>✅ WebSocket-powered control panel</li>
-                <li>✅ 60 FPS smooth animations</li>
-                <li>✅ Lightweight & performant</li>
-                <li>✅ Open source & customizable</li>
+        <PageAside>
+          <Card width="full">
+            <div className={styles.quick__links}>
+              <h3 className={styles.quick__links__title}>Quick Links</h3>
+              <div className={styles.quick__links__list}>
+                <a 
+                  href="https://github.com/Underwood-Inc/strixun-stream-suite" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className={styles.quick__link}
+                >
+                  <span className={styles.quick__link__icon}>📦</span>
+                  GitHub Repository
+                </a>
+                <a 
+                  href="https://github.com/Underwood-Inc/strixun-stream-suite/releases" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className={styles.quick__link}
+                >
+                  <span className={styles.quick__link__icon}>📥</span>
+                  Download Latest
+                </a>
+                <a 
+                  href="https://github.com/Underwood-Inc/strixun-stream-suite/issues" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className={styles.quick__link}
+                >
+                  <span className={styles.quick__link__icon}>🐛</span>
+                  Report Issues
+                </a>
+                <a 
+                  href="https://github.com/Underwood-Inc/strixun-stream-suite/blob/main/CONTRIBUTING.md" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className={styles.quick__link}
+                >
+                  <span className={styles.quick__link__icon}>🤝</span>
+                  Contributing Guide
+                </a>
+              </div>
+            </div>
+          </Card>
+
+          <Card width="full">
+            <div className={styles.requirements}>
+              <h3 className={styles.requirements__title}>Requirements</h3>
+              <ul className={styles.requirements__list}>
+                <li>OBS Studio 28.0+</li>
+                <li>WebSocket plugin enabled</li>
+                <li>Modern web browser</li>
+                <li>No external dependencies</li>
               </ul>
             </div>
+          </Card>
 
-            <div className={styles.sidebar__section}>
-              <h3 className={styles.sidebar__title}>🎨 Animation Types</h3>
-              <div className={styles.animation__grid}>
-                <div className={`${styles.animation__card} ${styles['animation__card--fade']}`}>
-                  <span className={styles.animation__icon}>✨</span>
-                  <span className={styles.animation__name}>Fade</span>
-                </div>
-                <div className={`${styles.animation__card} ${styles['animation__card--slide']}`}>
-                  <span className={styles.animation__icon}>➡️</span>
-                  <span className={styles.animation__name}>Slide</span>
-                </div>
-                <div className={`${styles.animation__card} ${styles['animation__card--zoom']}`}>
-                  <span className={styles.animation__icon}>🔍</span>
-                  <span className={styles.animation__name}>Zoom</span>
-                </div>
-                <div className={`${styles.animation__card} ${styles['animation__card--pop']}`}>
-                  <span className={styles.animation__icon}>💥</span>
-                  <span className={styles.animation__name}>Pop</span>
-                </div>
-              </div>
-            </div>
-
-            <div className={styles.sidebar__section}>
-              <h3 className={styles.sidebar__title}>🔧 Requirements</h3>
-              <div className={styles.requirement__list}>
-                <div className={styles.requirement__item}>
-                  <span className={styles.requirement__icon}>📺</span>
-                  <div>
-                    <strong>OBS Studio 28+</strong>
-                    <small>Includes WebSocket support</small>
-                  </div>
-                </div>
-                <div className={styles.requirement__item}>
-                  <span className={styles.requirement__icon}>🌐</span>
-                  <div>
-                    <strong>Modern Browser</strong>
-                    <small>For control panel (optional)</small>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className={styles.sidebar__section}>
-              <h3 className={styles.sidebar__title}>💬 Community</h3>
-              <p className={styles.community__text}>
-                Join our Discord for support, share your setups, and get the latest updates!
+          <Card width="full">
+            <div className={styles.license}>
+              <h3 className={styles.license__title}>License</h3>
+              <p className={styles.license__text}>
+                MIT License - Free for personal and commercial use
               </p>
-              <a 
-                href="https://discord.gg/mpThbx67J7" 
-                className={`${styles.btn} ${styles['btn--discord']}`}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <span className={styles.btn__icon}>💬</span>
-                Join Discord
-              </a>
             </div>
-
-            <div className={styles.sidebar__section}>
-              <h3 className={styles.sidebar__title}>🐛 Found a Bug?</h3>
-              <a 
-                href="https://github.com/Underwood-Inc/strixun-stream-suite/issues" 
-                className={`${styles.btn} ${styles['btn--issue']}`}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <span className={styles.btn__icon}>🐛</span>
-                Report Issue
-              </a>
-            </div>
-          </div>
+          </Card>
         </PageAside>
       </div>
     </PageContainer>
   );
 }
-

@@ -1,0 +1,16 @@
+# Windows-specific Docker Compose override
+# This file is automatically used on Windows to skip problematic services
+# Usage: docker compose -f docker-compose.yml -f docker-compose.windows.yml up
+
+version: '3.8'
+
+services:
+  # Only include essential services for Windows development
+  postgres:
+    # All settings inherited from docker-compose.yml
+    
+  nextjs:
+    # All settings inherited from docker-compose.yml
+    
+  # Docs service is excluded to avoid canvas compilation issues on Windows/WSL2
+  # If you need docs, run them separately: pnpm docs:dev

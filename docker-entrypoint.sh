@@ -1,16 +1,20 @@
 #!/bin/bash
 set -e
 
-echo "ðŸš€ Starting development container..."
+echo "🚀 Starting development container..."
 
-# Wait for database to be ready (optional - depends on your setup)
-echo "ðŸ“Š Running database migrations..."
+# Simple wait for PostgreSQL to be ready (relies on healthcheck)
+echo "⏳ Waiting for PostgreSQL..."
+sleep 5
+
+# Run database migrations
+echo "📊 Running database migrations..."
 if echo '1' | pnpm migrations; then
-    echo "âœ… Migrations completed successfully!"
+    echo "✅ Migrations completed successfully!"
 else
-    echo "âš ï¸ Migrations failed, but continuing..."
+    echo "⚠️ Migrations failed, but continuing..."
 fi
 
 # Start the Next.js application
-echo "ðŸŒŸ Starting Next.js application..."
-exec npm run dev -- --hostname 0.0.0.0 
+echo "🌟 Starting Next.js application..."
+exec pnpm dev --hostname 0.0.0.0
