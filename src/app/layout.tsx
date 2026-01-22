@@ -1,11 +1,12 @@
 import { GlobalLoadingProvider } from '@lib/context/GlobalLoadingContext';
 import { NavigationLoadingProvider } from '@lib/context/NavigationLoadingContext';
-import { ClarityUserIdentifier, MicrosoftClarity } from '@lib/observability';
 import { OverlayProvider } from '@lib/context/OverlayContext';
 import { UserDataBatchProvider } from '@lib/context/UserDataBatchContext';
 import { UserPreferencesProvider } from '@lib/context/UserPreferencesContext';
+import { ClarityUserIdentifier, MicrosoftClarity } from '@lib/observability';
 import { Metadata } from 'next';
 import { SessionProvider } from 'next-auth/react';
+import Script from 'next/script';
 import React from 'react';
 import Footer from './components/footer/Footer';
 import Header from './components/header/Header';
@@ -51,6 +52,9 @@ export const metadata: Metadata = {
       'max-image-preview': 'large',
       'max-snippet': -1
     }
+  },
+  other: {
+    'google-adsense-account': 'ca-pub-3757286003859686'
   }
 };
 
@@ -66,6 +70,13 @@ export default function RootLayout({
         <meta name="theme-color" content="#ff6b35" />
       </head>
       <body>
+        {/* Google AdSense */}
+        <Script
+          async
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3757286003859686"
+          crossOrigin="anonymous"
+          strategy="afterInteractive"
+        />
         {/* Observability: Microsoft Clarity - Heatmaps & Session Recordings */}
         <MicrosoftClarity />
         <SessionProvider>
