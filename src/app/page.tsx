@@ -1,12 +1,12 @@
 import { About } from './components/about/About';
 import { Card } from './components/card/Card';
-import { DiscordEmbed } from './components/discord-embed/DiscordEmbed';
-import { LiveStreamEmbed } from './components/live-stream-embed/LiveStreamEmbed';
+import { EcosystemDiagram } from './components/ecosystem-diagram/EcosystemDiagram';
 import { PageAside } from './components/page-aside/PageAside';
 import { PageContainer } from './components/page-container/PageContainer';
 import PageContent from './components/page-content/PageContent';
 import { ProjectShowcase } from './components/project-showcase/ProjectShowcase';
 import { RecentActivityFeed } from './components/recent-activity-feed';
+import { StatsDashboard } from './components/stats-dashboard/StatsDashboard';
 import './globals.css';
 import styles from './page.module.css';
 
@@ -22,8 +22,8 @@ export default async function Home() {
                 <About />
               </Card>
 
-              {/* Live Streams Section - Only render card if stream is live */}
-              <LiveStreamEmbed />
+              {/* Ecosystem Architecture Diagram */}
+              <EcosystemDiagram />
 
               {/* Featured Projects Showcase */}
               <Card width="full" className={styles.home__projects}>
@@ -37,8 +37,8 @@ export default async function Home() {
             </article>
           </PageContent>
 
-          <PageAside className={styles.discord_aside} bottomMargin={0}>
-            <DiscordEmbed />
+          <PageAside className={styles.stats_aside} bottomMargin={0}>
+            <StatsDashboard />
           </PageAside>
         </div>
       </PageContainer>

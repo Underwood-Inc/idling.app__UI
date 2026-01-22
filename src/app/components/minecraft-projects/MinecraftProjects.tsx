@@ -33,11 +33,11 @@ const projects: MinecraftProject[] = [
     ]
   },
   {
-    title: 'Strixun Pack A',
+    title: 'Trials of the Wild',
     description:
-      'A carefully curated modpack designed to enhance your Minecraft experience with quality-of-life improvements, new content, and performance optimizations.',
+      'Hardcore survival modpack with ~250 exploration, magic, combat, and world-overhaul mods. Includes Rituals for totem magic and Compressy for massive block storage.',
     type: 'Modpack',
-    modrinthUrl: 'https://modrinth.com/modpack/strixun-pack-a',
+    modrinthUrl: 'https://modrinth.com/modpack/strixun-trials-of-the-wild',
     features: [
       'Performance Optimized',
       'Quality of Life Mods',
