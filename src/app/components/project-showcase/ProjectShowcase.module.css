@@ -64,6 +64,30 @@
   grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
   gap: 2rem;
   margin-top: 3rem;
+  max-height: calc(2.2 * 520px);
+  overflow: hidden auto;
+  padding-right: 0.5rem;
+  scroll-behavior: smooth;
+}
+
+/* Scrollbar styling */
+.projects__grid::-webkit-scrollbar {
+  width: 8px;
+}
+
+.projects__grid::-webkit-scrollbar-track {
+  background: var(--dark-background--primary);
+  border-radius: 4px;
+}
+
+.projects__grid::-webkit-scrollbar-thumb {
+  background: var(--dark-border--primary);
+  border-radius: 4px;
+  transition: background 0.2s ease;
+}
+
+.projects__grid::-webkit-scrollbar-thumb:hover {
+  background: var(--brand-primary);
 }
 
 /* Project Card - Clean & Simple */
@@ -104,6 +128,25 @@
   font-weight: 700;
   margin: 0 0 0.5rem 0;
   color: var(--dark-bg__text-color--primary);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.project__status__wip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--brand-primary);
+  background: rgb(237 174 73 / 20%);
+  border: 1px solid var(--brand-primary);
+  border-radius: 0.25rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .project__type {
@@ -216,6 +259,32 @@
   box-shadow: 0 4px 12px rgba(229, 193, 133, 0.2);
 }
 
+.project__link--modshub {
+  background: var(--accent-orange);
+  color: white;
+  border: 2px solid var(--accent-orange);
+}
+
+.project__link--modshub:hover {
+  background: #d88535;
+  border-color: #d88535;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(229, 152, 71, 0.3);
+}
+
+.project__link--live {
+  background: var(--accent-blue);
+  color: white;
+  border: 2px solid var(--accent-blue);
+}
+
+.project__link--live:hover {
+  background: #3a8ebc;
+  border-color: #3a8ebc;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(74, 158, 204, 0.3);
+}
+
 .project__link--demo {
   background: var(--accent-green);
   color: white;
@@ -234,6 +303,7 @@
   .projects__grid {
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
     gap: 1.5rem;
+    max-height: calc(2.2 * 480px);
   }
 }
 
@@ -245,6 +315,12 @@
   .projects__grid {
     grid-template-columns: 1fr;
     gap: 1.5rem;
+    max-height: calc(2.2 * 450px);
+    padding-right: 0.25rem;
+  }
+  
+  .projects__grid::-webkit-scrollbar {
+    width: 6px;
   }
 
   .project {
