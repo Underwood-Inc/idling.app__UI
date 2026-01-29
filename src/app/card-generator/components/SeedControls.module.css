@@ -108,8 +108,8 @@
 .generation__form__container .form__textarea,
 .generation__form__container .form__select {
   background: #E5E5E5;
-  border: 1px solid #E5E5E5;
-  color: var(--dark-bg__text-color--primary);
+  border: 1px solid #d0d0d0;
+  color: var(--light-bg__text-color--primary);
   padding: 0.75rem;
   border-radius: 6px;
 }
@@ -118,13 +118,13 @@
 .generation__form__container .form__textarea:focus,
 .generation__form__container .form__select:focus {
   background: #E5E5E5;
-  border-color: #E5E5E5;
-  box-shadow: 0 0 0 2px #E5E5E5;
+  border-color: #8b5cf6;
+  box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.2);
 }
 
 .generation__form__container .form__input::placeholder,
 .generation__form__container .form__textarea::placeholder {
-  color: #E5E5E5;
+  color: var(--light-bg__text-color--tertiary);
 }
 
 /* Responsive Design */

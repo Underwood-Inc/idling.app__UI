@@ -199,18 +199,18 @@
 /* Dark mode support */
 @media (prefers-color-scheme: dark) {
   .subscription-flair-toggle__option {
-    background: transparent;
-    border-color: #E5E5E5;
+    background: var(--dark-background--secondary);
+    border-color: var(--dark-border--primary);
   }
 
   .subscription-flair-toggle__option:hover {
-    background: transparent;
+    background: var(--dark-background--tertiary);
     border-color: rgba(237, 174, 73, 0.4);
   }
 
   .subscription-flair-toggle__option--active {
-    background: rgba(237, 174, 73, 0.15) !important;
-    border-color: rgba(237, 174, 73, 0.6) !important;
+    background: rgba(237, 174, 73, 0.15);
+    border-color: rgba(237, 174, 73, 0.6);
   }
 
   .subscription-flair-toggle__icon {
@@ -222,8 +222,8 @@
   }
 
   .subscription-flair-toggle__loading {
-    background: transparent;
-    border-color: #E5E5E5;
+    background: var(--dark-background--secondary);
+    border-color: var(--dark-border--primary);
   }
 }
 

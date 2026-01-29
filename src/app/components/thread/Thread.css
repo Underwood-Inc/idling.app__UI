@@ -67,7 +67,7 @@
 /* Main Post Container */
 .thread__parent {
   margin-bottom: 2rem;
-  background: #fefefe;
+  background: #f9f9f9;
   border: 1px solid #e5e5e5;
   border-radius: var(--border-radius);
   /* padding: 1.2rem; */
@@ -128,7 +128,7 @@
 .thread__not-found {
   text-align: center;
   padding: 2rem;
-  background: #fefefe;
+  background: #f9f9f9;
   border: 1px solid #e5e5e5;
   border-radius: var(--border-radius);
 }
@@ -149,23 +149,32 @@
 
 /* Submission styles for thread view */
 .thread__container .submission__wrapper {
-  background: #fefefe;
+  background: #f9f9f9;
   border: 1px solid #e5e5e5;
   border-radius: var(--border-radius);
   /* margin-bottom: 1rem; */
-  transition: box-shadow 0.2s ease-in-out, background-color 0.2s ease-in-out;
+  transition: box-shadow 0.2s ease-in-out, background-color 0.2s ease-in-out, background-image 0.2s ease-in-out;
   position: relative;
+  /* Subtle diagonal pattern matching reply style */
+  background-image: 
+    repeating-linear-gradient(
+      45deg,
+      transparent,
+      transparent 14px,
+      color-mix(in srgb, var(--brand-primary) 2.5%, transparent) 15px,
+      color-mix(in srgb, var(--brand-primary) 2.5%, transparent) 16px
+    );
 }
 
 .thread__container .submission__wrapper:hover {
-  /* Darken the main post pattern lines on hover */
+  /* Same diagonal pattern as replies on hover for consistency */
   background-image: 
     repeating-linear-gradient(
-      0deg,
+      45deg,
       transparent,
-      transparent 19px,
-      color-mix(in srgb, var(--brand-primary) 6%, transparent) 20px,
-      color-mix(in srgb, var(--brand-primary) 6%, transparent) 21px
+      transparent 14px,
+      color-mix(in srgb, var(--brand-primary) 7%, transparent) 15px,
+      color-mix(in srgb, var(--brand-primary) 7%, transparent) 16px
     );
 }
 
@@ -744,26 +753,26 @@
 /* Dark mode support */
 @media (prefers-color-scheme: dark) {
   .thread__container .submission__wrapper {
-    /* Dark mode main post pattern: subtle horizontal lines */
+    /* Dark mode main post pattern: diagonal lines matching reply style */
     background-image: 
       repeating-linear-gradient(
-        0deg,
+        45deg,
         transparent,
-        transparent 19px,
-        color-mix(in srgb, var(--brand-primary) 3%, transparent) 20px,
-        color-mix(in srgb, var(--brand-primary) 3%, transparent) 21px
+        transparent 14px,
+        color-mix(in srgb, var(--brand-primary) 3.5%, transparent) 15px,
+        color-mix(in srgb, var(--brand-primary) 3.5%, transparent) 16px
       );
   }
 
   .thread__container .submission__wrapper:hover {
-    /* Darken the main post pattern lines on hover in dark mode */
+    /* Dark mode hover pattern matching reply style */
     background-image: 
       repeating-linear-gradient(
-        0deg,
+        45deg,
         transparent,
-        transparent 19px,
-        color-mix(in srgb, var(--brand-primary) 8%, transparent) 20px,
-        color-mix(in srgb, var(--brand-primary) 8%, transparent) 21px
+        transparent 14px,
+        color-mix(in srgb, var(--brand-primary) 9%, transparent) 15px,
+        color-mix(in srgb, var(--brand-primary) 9%, transparent) 16px
       );
   }
 

@@ -2,6 +2,7 @@
 import { auth } from '@lib/auth';
 import { NAV_PATHS } from '@lib/routes';
 import { NAV_SELECTORS } from 'src/lib/test-selectors/components/nav.selectors';
+import { AuthAvatarServer } from '../auth-avatar/AuthAvatarServer';
 import { SignOut } from '../auth-buttons/AuthButtons';
 import { InstantLink } from '../ui/InstantLink';
 import { NavUserProfile } from './NavUserProfile';
@@ -32,6 +33,7 @@ export async function NavAuth() {
         <InstantLink href={profileUrl} data-testid={NAV_SELECTORS.PROFILE_LINK}>
           <div className="nav__user-profile">
             <NavUserProfile initialSession={session} />
+            <AuthAvatarServer size="sm" className="nav__user-avatar" />
           </div>
         </InstantLink>
       </div>

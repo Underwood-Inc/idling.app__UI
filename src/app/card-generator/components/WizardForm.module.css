@@ -60,12 +60,12 @@
 /* Wizard-specific collapse button */
 .wizardCollapseButton {
   background: #E5E5E5;
-  border: 1px solid #E5E5E5;
+  border: 1px solid #d0d0d0;
   border-radius: 8px;
   padding: 0.5rem 1rem;
   cursor: pointer;
   font-size: 1.0rem;
-  color: #E5E5E5;
+  color: var(--light-bg__text-color--primary);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   font-weight: 500;
   display: flex;
@@ -79,11 +79,11 @@
 }
 
 .wizardCollapseButton:hover {
-  background: #E5E5E5;
-  border-color: #E5E5E5;
-  color: rgba(255, 255, 255, 1);
+  background: #d0d0d0;
+  border-color: #b0b0b0;
+  color: var(--light-bg__text-color--primary);
   transform: translateY(-1px);
-  box-shadow: 0 4px 8px transparent;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .wizardCollapseButton:active {
@@ -161,8 +161,8 @@
 
 .stepInactive {
   background: #E5E5E5;
-  color: #E5E5E5;
-  border: 1px solid #E5E5E5;
+  color: var(--light-bg__text-color--primary);
+  border: 1px solid #d0d0d0;
 }
 
 /* Clickable Step Styles */
@@ -181,9 +181,9 @@
 }
 
 .stepClickable.stepInactive:hover {
-  background: #E5E5E5;
-  color: #E5E5E5;
-  border-color: #E5E5E5;
+  background: #d0d0d0;
+  color: var(--light-bg__text-color--primary);
+  border-color: #b0b0b0;
 }
 
 .stepClickable:active {
@@ -252,7 +252,7 @@
 
 .ratioCard {
   background: #E5E5E5;
-  border: 2px solid #E5E5E5;
+  border: 2px solid #d0d0d0;
   border-radius: 12px;
   padding: 1.5rem;
   cursor: pointer;
@@ -279,8 +279,8 @@
 }
 
 .ratioCard:hover {
-  background: #E5E5E5;
-  border-color: #E5E5E5;
+  background: #d8d8d8;
+  border-color: #c0c0c0;
   transform: translateY(-2px);
 }
 
@@ -299,21 +299,21 @@
 }
 
 .ratioInfo h4 {
-  color: var(--dark-bg__text-color--primary);
+  color: var(--light-bg__text-color--primary);
   font-size: 1.25rem;
   font-weight: 600;
   margin: 0 0 0.5rem 0;
 }
 
 .ratioInfo p {
-  color: var(--dark-bg__text-color--secondary);
+  color: var(--light-bg__text-color--secondary);
   font-size: 1.0rem;
   margin: 0 0 0.75rem 0;
   line-height: 1.4;
 }
 
 .ratioDimensions {
-  color: var(--dark-bg__text-color--tertiary);
+  color: var(--light-bg__text-color--tertiary);
   font-size: 1.0rem;
   font-weight: 600;
   text-transform: uppercase;
@@ -356,10 +356,10 @@
 .input,
 .textarea {
   background: #E5E5E5;
-  border: 1px solid #E5E5E5;
+  border: 1px solid #d0d0d0;
   border-radius: 8px;
   padding: 0.875rem 1rem;
-  color: var(--dark-bg__text-color--primary);
+  color: var(--light-bg__text-color--primary);
   font-size: 1rem;
   transition: all 0.2s ease;
   width: 100%;
@@ -376,7 +376,7 @@
 
 .input::placeholder,
 .textarea::placeholder {
-  color: #E5E5E5;
+  color: var(--light-bg__text-color--tertiary);
 }
 
 .textarea {
@@ -395,7 +395,7 @@
 /* Confirmation Step */
 .confirmationCard {
   background: #E5E5E5;
-  border: 1px solid #E5E5E5;
+  border: 1px solid #d0d0d0;
   border-radius: 12px;
   padding: 2rem;
   margin-top: 2rem;
@@ -410,7 +410,7 @@
 }
 
 .configSection h4 {
-  color: var(--dark-bg__text-color--primary);
+  color: var(--light-bg__text-color--primary);
   font-size: 1.125rem;
   font-weight: 600;
   margin: 0 0 1rem 0;
@@ -424,7 +424,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 0.75rem 0;
-  border-bottom: 1px solid #E5E5E5;
+  border-bottom: 1px solid #d0d0d0;
 }
 
 .configItem:last-child {
@@ -432,12 +432,12 @@
 }
 
 .configItem span:first-child {
-  color: var(--dark-bg__text-color--secondary);
+  color: var(--light-bg__text-color--secondary);
   font-weight: 500;
 }
 
 .configItem span:last-child {
-  color: var(--dark-bg__text-color--primary);
+  color: var(--light-bg__text-color--primary);
   font-weight: 600;
 }
 
@@ -490,13 +490,13 @@
 
 .previousButton {
   background: #E5E5E5;
-  color: var(--dark-bg__text-color--secondary);
-  border: 1px solid #E5E5E5;
+  color: var(--light-bg__text-color--secondary);
+  border: 1px solid #d0d0d0;
 }
 
 .previousButton:hover:not(:disabled) {
-  background: #E5E5E5;
-  color: var(--dark-bg__text-color--primary);
+  background: #d0d0d0;
+  color: var(--light-bg__text-color--primary);
 }
 
 .nextButton {
@@ -525,7 +525,7 @@
 
 .generateButtonDisabled {
   background: #E5E5E5;
-  color: #E5E5E5;
+  color: var(--light-bg__text-color--tertiary);
   cursor: not-allowed;
 }
 
@@ -608,16 +608,9 @@
 .input:disabled,
 .textarea:disabled {
   background: var(--light-background--tertiary);
-  color: var(--dark-bg__text-color--muted);
+  color: var(--light-bg__text-color--tertiary);
   cursor: not-allowed;
   opacity: 0.6;
-}
-
-.fieldHint {
-  font-size: 1.0rem;
-  color: var(--dark-bg__text-color--secondary);
-  margin-top: 0.25rem;
-  display: block;
 }
 
 /* Responsive Design */

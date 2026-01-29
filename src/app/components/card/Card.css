@@ -59,6 +59,11 @@
   color: var(--dark-bg__text-color--primary);
 }
 
+/* Exception: subscription badges list has light background, needs dark text */
+.card .subscription-badges-list__title {
+  color: #1a1a1a;
+}
+
 /* Hover effects */
 .card:hover {
   border-color: var(--tan-primary);

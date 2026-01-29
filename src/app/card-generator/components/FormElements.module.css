@@ -335,12 +335,12 @@
 /* Collapse button animations - Improved styling */
 .form__collapse__button {
   background: #E5E5E5;
-  border: 1px solid #E5E5E5;
+  border: 1px solid #d0d0d0;
   border-radius: 8px;
   padding: 0.875rem 1.25rem;
   cursor: pointer;
   font-size: 1.0rem;
-  color: #E5E5E5;
+  color: var(--light-bg__text-color--primary);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   font-weight: 600;
   display: flex;
@@ -351,11 +351,11 @@
 }
 
 .form__collapse__button:hover {
-  background: #E5E5E5;
-  border-color: #E5E5E5;
-  color: rgba(255, 255, 255, 1);
+  background: #d0d0d0;
+  border-color: #b0b0b0;
+  color: var(--light-bg__text-color--primary);
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px transparent;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .form__collapse__button:active {
@@ -540,10 +540,10 @@
 /* Pro Toggle Button - Professional styling */
 .form__toggle__button {
   background: #E5E5E5;
-  border: 1px solid #E5E5E5;
+  border: 1px solid #d0d0d0;
   border-radius: 8px;
   padding: 0.75rem 1.25rem;
-  color: var(--dark-bg__text-color--secondary);
+  color: var(--light-bg__text-color--secondary);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -556,11 +556,11 @@
 }
 
 .form__toggle__button:hover {
-  background: #E5E5E5;
-  border-color: #E5E5E5;
-  color: var(--dark-bg__text-color--primary);
+  background: #d0d0d0;
+  border-color: #b0b0b0;
+  color: var(--light-bg__text-color--primary);
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px transparent;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .form__toggle__button:active {
@@ -836,22 +836,22 @@
   font-size: 1.125rem;
 }
 
-/* Production-matching dark form inputs - Override everything */
+/* Production-matching form inputs - Override everything */
 .generation__form__container .form__input,
 .generation__form__container .form__textarea,
 .generation__form__container .form__select,
 .card.generation__form__container .form__input,
 .card.generation__form__container .form__textarea,
 .card.generation__form__container .form__select {
-  background: #E5E5E5 !important;
-  border: 1px solid #E5E5E5 !important;
-  color: var(--dark-bg__text-color--primary) !important;
-  padding: 1rem 1.25rem !important;
-  border-radius: 6px !important;
-  font-size: 1rem !important;
-  transition: all 0.2s ease !important;
-  width: 100% !important;
-  box-sizing: border-box !important;
+  background: #E5E5E5;
+  border: 1px solid #d0d0d0;
+  color: var(--light-bg__text-color--primary);
+  padding: 1rem 1.25rem;
+  border-radius: 6px;
+  font-size: 1rem;
+  transition: all 0.2s ease;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .generation__form__container .form__input:focus,
@@ -860,17 +860,17 @@
 .card.generation__form__container .form__input:focus,
 .card.generation__form__container .form__textarea:focus,
 .card.generation__form__container .form__select:focus {
-  background: #E5E5E5 !important;
-  border-color: #E5E5E5 !important;
-  box-shadow: 0 0 0 2px #E5E5E5 !important;
-  outline: none !important;
+  background: #E5E5E5;
+  border-color: #8b5cf6;
+  box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.2);
+  outline: none;
 }
 
 .generation__form__container .form__input::placeholder,
 .generation__form__container .form__textarea::placeholder,
 .card.generation__form__container .form__input::placeholder,
 .card.generation__form__container .form__textarea::placeholder {
-  color: #E5E5E5 !important;
+  color: var(--light-bg__text-color--tertiary);
 }
 
 .generation__form__container .form__section__title {
