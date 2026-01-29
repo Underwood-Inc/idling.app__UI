@@ -189,11 +189,11 @@
 }
 
 .generation__display__overlay .generation__button {
-  color: var(--brand-primary);
+  color: var(--brand-primary--dark);
   background-color: #E5E5E5;
   padding: 0.875rem 1.5rem;
   border-radius: 8px;
-  border: 1px solid #E5E5E5;
+  border: 1px solid #d0d0d0;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;

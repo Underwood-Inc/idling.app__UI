@@ -29,8 +29,6 @@ export default async function Nav() {
         </Navbar.Content>
 
         <Navbar.Content justify="center" className="nav__brand">
-          <Navbar.Brand />
-
           <InstantLink
             href={NAV_PATHS.ROOT}
             data-testid={NAV_SELECTORS.HOME_LINK}
