@@ -23,13 +23,22 @@ export default async function Home() {
                 <About />
               </Card>
 
+              {/* Advertisement */}
+              <AdUnit className="ad-unit--between-sections" testId="home-ad-1" />
+
               {/* Ecosystem Architecture Diagram */}
               <EcosystemDiagram />
+
+              {/* Advertisement */}
+              <AdUnit className="ad-unit--between-sections" testId="home-ad-2" />
 
               {/* Featured Projects Showcase */}
               <Card width="full" className={styles.home__projects}>
                 <ProjectShowcase />
               </Card>
+
+              {/* Advertisement */}
+              <AdUnit className="ad-unit--between-sections" testId="home-ad-3" />
 
               {/* Recent Activity Section */}
               <Card width="full" className={styles.home__activity}>

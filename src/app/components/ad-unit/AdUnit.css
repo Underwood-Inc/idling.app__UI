@@ -7,8 +7,13 @@
 
 .ad-unit {
   width: 100%;
-  min-height: 50px;
   overflow: hidden;
+}
+
+/* Collapse when no ad is served (adblocker or unfilled) */
+.ad-unit:has(ins:empty),
+.ad-unit:has(ins[data-ad-status="unfilled"]) {
+  display: none;
 }
 
 /* Ensure adsbygoogle container fills width */
@@ -34,14 +39,20 @@
 
 /* Footer ad styling */
 .ad-unit--footer {
-  margin-block: var(--spacing-lg-cozy);
   max-width: 728px;
-  margin-inline: auto;
+  width: 100%;
 }
 
 /* Thread page ad styling */
 .ad-unit--thread {
   margin-block: var(--spacing-lg-cozy);
+}
+
+/* Between sections ad styling - for homepage cards */
+.ad-unit--between-sections {
+  margin-block: var(--spacing-lg-cozy);
+  max-width: 728px;
+  margin-inline: auto;
 }
 
 /* Responsive adjustments */
@@ -56,8 +67,3 @@
   }
 }
 
-/* Hide empty ads gracefully */
-.ad-unit:empty,
-.ad-unit:has(ins[data-ad-status="unfilled"]) {
-  display: none;
-}
