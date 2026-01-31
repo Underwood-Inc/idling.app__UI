@@ -7,10 +7,14 @@ import React, {
   useRef,
   useState
 } from 'react';
+import { AdUnit } from '../ad-unit';
 import InfiniteScrollTrigger from '../infinite-scroll-trigger/InfiniteScrollTrigger';
 import { SubmissionItem } from './SubmissionItem';
 import './SubmissionItem.css';
 import './SubmissionsList.css';
+
+/** Show an in-feed ad every N posts */
+const AD_FREQUENCY = 5;
 
 // Virtual scrolling constants
 const BATCH_SIZE = 20; // Number of items to render in each batch
@@ -401,37 +405,50 @@ const SubmissionsList = React.memo(function SubmissionsList({
       {/* Render ALL posts directly (no virtual scrolling) */}
       <div className="submissions-list__content">
         {posts.map((post, index) => (
-          <div key={post.submission_id} className="submissions-list__item">
-            {children ? (
-              children({
-                submission: post,
-                onTagClick,
-                onHashtagClick,
-                onMentionClick,
-                onSubmissionUpdate: onRefresh,
-                contextId,
-                optimisticUpdateSubmission,
-                optimisticRemoveSubmission,
-                onRefreshSubmission,
-                currentPage,
-                currentFilters
-              })
-            ) : (
-              <SubmissionItem
-                submission={post}
-                onTagClick={onTagClick}
-                onHashtagClick={onHashtagClick}
-                onMentionClick={onMentionClick}
-                onSubmissionUpdate={onRefresh}
-                contextId={contextId}
-                optimisticUpdateSubmission={optimisticUpdateSubmission}
-                optimisticRemoveSubmission={optimisticRemoveSubmission}
-                onRefreshSubmission={onRefreshSubmission}
-                currentPage={currentPage}
-                currentFilters={currentFilters}
-              />
+          <React.Fragment key={post.submission_id}>
+            <div className="submissions-list__item">
+              {children ? (
+                children({
+                  submission: post,
+                  onTagClick,
+                  onHashtagClick,
+                  onMentionClick,
+                  onSubmissionUpdate: onRefresh,
+                  contextId,
+                  optimisticUpdateSubmission,
+                  optimisticRemoveSubmission,
+                  onRefreshSubmission,
+                  currentPage,
+                  currentFilters
+                })
+              ) : (
+                <SubmissionItem
+                  submission={post}
+                  onTagClick={onTagClick}
+                  onHashtagClick={onHashtagClick}
+                  onMentionClick={onMentionClick}
+                  onSubmissionUpdate={onRefresh}
+                  contextId={contextId}
+                  optimisticUpdateSubmission={optimisticUpdateSubmission}
+                  optimisticRemoveSubmission={optimisticRemoveSubmission}
+                  onRefreshSubmission={onRefreshSubmission}
+                  currentPage={currentPage}
+                  currentFilters={currentFilters}
+                />
+              )}
+            </div>
+
+            {/* In-feed advertisement - show every N posts */}
+            {(index + 1) % AD_FREQUENCY === 0 && (
+              <div className="submissions-list__item submissions-list__ad">
+                <AdUnit
+                  layout="in-feed-horizontal"
+                  className="ad-unit--in-feed"
+                  testId={`in-feed-ad-${index}`}
+                />
+              </div>
             )}
-          </div>
+          </React.Fragment>
         ))}
 
         {/* Infinite scroll trigger - only show when in infinite mode */}

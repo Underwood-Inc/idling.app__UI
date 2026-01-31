@@ -3,6 +3,7 @@ import { Metadata } from 'next';
 import { Suspense } from 'react';
 import { CONTEXT_IDS } from 'src/lib/context-ids';
 import { CustomSession } from '../../auth.config';
+import { AdUnit } from '../components/ad-unit';
 import { Card } from '../components/card/Card';
 import FadeIn from '../components/fade-in/FadeIn';
 import FloatingAddPost from '../components/floating-add-post/FloatingAddPost';
@@ -51,6 +52,9 @@ export default async function PostsPage() {
                 <RecentTags contextId={CONTEXT_IDS.POSTS.toString()} />
               </Suspense>
             </FadeIn>
+
+            {/* Sidebar Advertisement */}
+            <AdUnit className="ad-unit--sidebar" testId="posts-sidebar-ad" />
           </PageAside>
         </div>
       </PageContainer>

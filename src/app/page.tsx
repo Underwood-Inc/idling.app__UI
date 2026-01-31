@@ -1,4 +1,5 @@
 import { About } from './components/about/About';
+import { AdUnit } from './components/ad-unit';
 import { Card } from './components/card/Card';
 import { EcosystemDiagram } from './components/ecosystem-diagram/EcosystemDiagram';
 import { PageAside } from './components/page-aside/PageAside';
@@ -39,6 +40,9 @@ export default async function Home() {
 
           <PageAside className={styles.stats_aside} bottomMargin={0}>
             <StatsDashboard />
+
+            {/* Sidebar Advertisement */}
+            <AdUnit className="ad-unit--sidebar" testId="home-sidebar-ad" />
           </PageAside>
         </div>
       </PageContainer>
