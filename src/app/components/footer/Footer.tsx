@@ -7,16 +7,20 @@ import './Footer.scss';
 
 const Footer = (): React.JSX.Element => {
   return (
-    <footer className="footer">
-      {/* Footer Advertisement */}
-      <AdUnit className="ad-unit--footer" testId="footer-ad" />
+    <div className="footer-wrapper">
+      {/* Footer Advertisement Section */}
+      <div className="footer-ad-section">
+        <AdUnit className="ad-unit--footer" testId="footer-ad" />
+      </div>
 
-      <SmartCacheStatus />
+      <footer className="footer">
+        <SmartCacheStatus />
 
-      <AppVersion className="footer__app-version" />
+        <AppVersion className="footer__app-version" />
 
-      <FooterNav />
-    </footer>
+        <FooterNav />
+      </footer>
+    </div>
   );
 };
 
