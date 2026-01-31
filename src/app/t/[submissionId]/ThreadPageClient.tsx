@@ -6,6 +6,7 @@ import { handleMentionFilter, handleTagFilter } from '@lib/utils/filter-utils';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { Suspense, useEffect, useState } from 'react';
+import { AdUnit } from '../../components/ad-unit';
 import { Card } from '../../components/card/Card';
 import FadeIn from '../../components/fade-in/FadeIn';
 import Loader from '../../components/loader/Loader';
@@ -182,6 +183,9 @@ export default function ThreadPageClient({
                   />
                 </Suspense>
               </Card>
+
+              {/* Advertisement below thread content */}
+              <AdUnit className="ad-unit--thread" testId="thread-content-ad" />
             </FadeIn>
           </article>
         </PageContent>
@@ -197,6 +201,9 @@ export default function ThreadPageClient({
               </Suspense>
             </Card>
           </FadeIn>
+
+          {/* Sidebar Advertisement */}
+          <AdUnit className="ad-unit--sidebar" testId="thread-sidebar-ad" />
         </PageAside>
       </div>
     </PageContainer>

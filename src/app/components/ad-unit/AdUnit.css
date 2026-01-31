@@ -1,0 +1,63 @@
+/**
+ * AdUnit Component Styles
+ *
+ * Provides styling for Google AdSense ad units with responsive behavior
+ * and graceful handling of blocked/empty ads.
+ */
+
+.ad-unit {
+  width: 100%;
+  min-height: 50px;
+  overflow: hidden;
+}
+
+/* Ensure adsbygoogle container fills width */
+.ad-unit .adsbygoogle {
+  width: 100%;
+}
+
+/* Sidebar ad styling */
+.ad-unit--sidebar {
+  margin-block: var(--spacing-cozy);
+  border-radius: var(--border-radius);
+  overflow: hidden;
+}
+
+/* In-feed ad styling - appears between posts */
+.ad-unit--in-feed {
+  margin-block: var(--spacing-lg-cozy);
+  padding: var(--spacing-sm-cozy);
+  background: var(--dark-background--secondary);
+  border-radius: var(--border-radius);
+  border: 1px solid var(--dark-border--primary);
+}
+
+/* Footer ad styling */
+.ad-unit--footer {
+  margin-block: var(--spacing-lg-cozy);
+  max-width: 728px;
+  margin-inline: auto;
+}
+
+/* Thread page ad styling */
+.ad-unit--thread {
+  margin-block: var(--spacing-lg-cozy);
+}
+
+/* Responsive adjustments */
+@media (width <= 768px) {
+  .ad-unit--footer {
+    max-width: 100%;
+    padding-inline: var(--spacing-sm-cozy);
+  }
+
+  .ad-unit--sidebar {
+    margin-block: var(--spacing-sm-cozy);
+  }
+}
+
+/* Hide empty ads gracefully */
+.ad-unit:empty,
+.ad-unit:has(ins[data-ad-status="unfilled"]) {
+  display: none;
+}
