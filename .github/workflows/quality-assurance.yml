@@ -68,7 +68,7 @@ jobs:
       - uses: actions/setup-node@v4
         id: setup-node
         with:
-          node-version: lts/*
+          node-version: '22'
 
       # Enable Corepack to use packageManager from package.json
       - name: Enable Corepack
@@ -137,7 +137,7 @@ jobs:
       # Use the same Node.js version as setup job
       - uses: actions/setup-node@v4
         with:
-          node-version: lts/*
+          node-version: '22'
 
       # Enable Corepack to use packageManager from package.json
       - name: Enable Corepack
@@ -226,7 +226,7 @@ jobs:
       # Setup Node.js for highlight.js dependency
       - uses: actions/setup-node@v4
         with:
-          node-version: lts/*
+          node-version: '22'
 
       # Enable Corepack to use packageManager from package.json
       - name: Enable Corepack
@@ -654,7 +654,7 @@ jobs:
       # Use the same Node.js version as setup job
       - uses: actions/setup-node@v4
         with:
-          node-version: lts/*
+          node-version: '22'
 
       # Enable Corepack to use packageManager from package.json
       - name: Enable Corepack
