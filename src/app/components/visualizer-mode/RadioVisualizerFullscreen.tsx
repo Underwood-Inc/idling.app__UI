@@ -2,10 +2,16 @@
 
 import { useRadioPlayer } from '@lib/context/RadioPlayerContext';
 import type AudioMotionAnalyzer from 'audiomotion-analyzer';
-import { useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import type { RadioVisualizerPreset } from '@widgets/radio-player/radioVisualizerPresets';
 import { RADIO_VISUALIZER_BASE_OPTIONS } from '@widgets/radio-player/radioVisualizerPresets';
-import { resolveRadioFullscreenLinearBoost, resolveRadioFullscreenRadialRadius } from '@widgets/radio-player/radioFullscreenVisualizerDisplay';
+import {
+  resolveRadioFullscreenBarHeightMultiplier,
+  resolveRadioFullscreenLinearBoost,
+  resolveRadioFullscreenRadialRadius,
+  resolveRadioFullscreenSensitivity,
+  RADIO_FULLSCREEN_SPECTRUM_BAR_HEIGHT_RANGE,
+} from '@widgets/radio-player/radioFullscreenVisualizerDisplay';
 import styles from './VisualizerMode.module.css';
 
 export interface RadioVisualizerFullscreenProps {
@@ -39,8 +45,34 @@ export function RadioVisualizerFullscreen({
   const analyzerRef = useRef<AudioMotionAnalyzer | null>(null);
   const barHeightRef = useRef(barHeight);
   const { handle, isAvailable } = useRadioPlayer();
+  const isRadial = preset.options.radial === true;
 
   barHeightRef.current = barHeight;
+
+  const applyBarHeightSettings = useCallback(
+    (instance: AudioMotionAnalyzer, nextBarHeight: number) => {
+      const baseLinearBoost = RADIO_VISUALIZER_BASE_OPTIONS.linearBoost ?? 1.45;
+      const baseMinDecibels = RADIO_VISUALIZER_BASE_OPTIONS.minDecibels ?? -88;
+      const baseMaxDecibels = RADIO_VISUALIZER_BASE_OPTIONS.maxDecibels ?? -22;
+      const sensitivity = resolveRadioFullscreenSensitivity({
+        spectrumBarHeight: nextBarHeight,
+        baseMinDecibels,
+        baseMaxDecibels,
+      });
+
+      instance.setSensitivity(sensitivity.minDecibels, sensitivity.maxDecibels);
+      instance.linearBoost = resolveRadioFullscreenLinearBoost(baseLinearBoost, nextBarHeight);
+
+      if (isRadial) {
+        instance.radius = resolveRadioFullscreenRadialRadius({
+          presetRadius: preset.options.radius,
+          channelLayout: preset.options.channelLayout,
+          spectrumBarHeight: nextBarHeight,
+        });
+      }
+    },
+    [isRadial, preset.options.channelLayout, preset.options.radius]
+  );
 
   useEffect(() => {
     if (!isActive || !enabled || !isAvailable || !handle) {
@@ -65,8 +97,16 @@ export function RadioVisualizerFullscreen({
         return;
       }
 
-      analyser.minDecibels = RADIO_VISUALIZER_BASE_OPTIONS.minDecibels ?? -88;
-      analyser.maxDecibels = RADIO_VISUALIZER_BASE_OPTIONS.maxDecibels ?? -22;
+      const baseMinDecibels = RADIO_VISUALIZER_BASE_OPTIONS.minDecibels ?? -88;
+      const baseMaxDecibels = RADIO_VISUALIZER_BASE_OPTIONS.maxDecibels ?? -22;
+      const initialSensitivity = resolveRadioFullscreenSensitivity({
+        spectrumBarHeight: barHeightRef.current,
+        baseMinDecibels,
+        baseMaxDecibels,
+      });
+
+      analyser.minDecibels = initialSensitivity.minDecibels;
+      analyser.maxDecibels = initialSensitivity.maxDecibels;
 
       const AudioMotion = (await import('audiomotion-analyzer')).default;
       if (cancelled) {
@@ -74,7 +114,6 @@ export function RadioVisualizerFullscreen({
       }
 
       const baseLinearBoost = RADIO_VISUALIZER_BASE_OPTIONS.linearBoost ?? 1.45;
-      const isRadial = preset.options.radial === true;
       const instance = new AudioMotion(container, {
         ...RADIO_VISUALIZER_BASE_OPTIONS,
         ...preset.options,
@@ -88,6 +127,8 @@ export function RadioVisualizerFullscreen({
             }
           : {}),
         linearBoost: resolveRadioFullscreenLinearBoost(baseLinearBoost, barHeightRef.current),
+        minDecibels: initialSensitivity.minDecibels,
+        maxDecibels: initialSensitivity.maxDecibels,
         source: analyser,
         audioCtx,
         connectSpeakers: false,
@@ -99,6 +140,7 @@ export function RadioVisualizerFullscreen({
       }
 
       analyzerRef.current = instance;
+      applyBarHeightSettings(instance, barHeightRef.current);
       syncAnalyzerCanvasSize(container, instance);
 
       resizeObserver = new ResizeObserver(() => {
@@ -113,7 +155,7 @@ export function RadioVisualizerFullscreen({
       analyzerRef.current?.destroy();
       analyzerRef.current = null;
     };
-  }, [enabled, handle, isActive, isAvailable, preset]);
+  }, [applyBarHeightSettings, enabled, handle, isActive, isAvailable, isRadial, preset]);
 
   useEffect(() => {
     const instance = analyzerRef.current;
@@ -121,23 +163,14 @@ export function RadioVisualizerFullscreen({
       return;
     }
 
-    const baseLinearBoost = RADIO_VISUALIZER_BASE_OPTIONS.linearBoost ?? 1.45;
-    instance.linearBoost = resolveRadioFullscreenLinearBoost(baseLinearBoost, barHeight);
-
-    if (preset.options.radial === true) {
-      instance.radius = resolveRadioFullscreenRadialRadius({
-        presetRadius: preset.options.radius,
-        channelLayout: preset.options.channelLayout,
-        spectrumBarHeight: barHeight,
-      });
-    }
-  }, [barHeight, preset.options.channelLayout, preset.options.radial, preset.options.radius]);
+    applyBarHeightSettings(instance, barHeight);
+  }, [applyBarHeightSettings, barHeight]);
 
   if (!isActive || !enabled) {
     return null;
   }
 
-  const isRadial = preset.options.radial === true;
+  const barHeightMultiplier = resolveRadioFullscreenBarHeightMultiplier(barHeight);
 
   return (
     <div
@@ -149,6 +182,11 @@ export function RadioVisualizerFullscreen({
         ref={containerRef}
         className={styles.spectrum}
         data-testid="radio-visualizer-fullscreen"
+        style={
+          isRadial
+            ? undefined
+            : { ['--irp-spectrum-bar-height' as string]: String(barHeightMultiplier) }
+        }
         aria-hidden="true"
       />
     </div>

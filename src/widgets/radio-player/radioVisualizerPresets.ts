@@ -129,3 +129,10 @@ export const RADIO_VISUALIZER_PRESETS: RadioVisualizerPreset[] = [
     },
   },
 ];
+
+export const RADIO_FULLSCREEN_DEFAULT_PRESET_ID = 'mirror-rainbow';
+
+export function getRadioVisualizerPresetIndex(presetId: string): number {
+  const index = RADIO_VISUALIZER_PRESETS.findIndex((preset) => preset.id === presetId);
+  return index >= 0 ? index : 0;
+}

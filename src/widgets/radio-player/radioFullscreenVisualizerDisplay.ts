@@ -1,3 +1,8 @@
+import {
+  getRadioVisualizerPresetIndex,
+  RADIO_FULLSCREEN_DEFAULT_PRESET_ID,
+} from './radioVisualizerPresets';
+
 export interface RadioFullscreenSpectrumBarHeightRange {
   min: number;
   max: number;
@@ -11,9 +16,37 @@ export interface RadioFullscreenVisualizerDisplay {
 }
 
 export const RADIO_FULLSCREEN_SPECTRUM_BAR_HEIGHT_RANGE: RadioFullscreenSpectrumBarHeightRange = {
-  min: 0.5,
-  max: 2.5,
+  min: 0.35,
+  max: 1.5,
 };
+
+export interface RadioFullscreenBarHeightMultiplierRange {
+  min: number;
+  max: number;
+}
+
+/** Visual / amplitude multiplier applied from the bar-height slider. */
+export const RADIO_FULLSCREEN_BAR_HEIGHT_MULTIPLIER_RANGE: RadioFullscreenBarHeightMultiplierRange = {
+  min: 0.45,
+  max: 1.15,
+};
+
+export function resolveRadioFullscreenBarHeightMultiplier(spectrumBarHeight: number): number {
+  const height = clampRadioFullscreenSpectrumBarHeight(spectrumBarHeight);
+  const sliderMin = RADIO_FULLSCREEN_SPECTRUM_BAR_HEIGHT_RANGE.min;
+  const sliderMax = RADIO_FULLSCREEN_SPECTRUM_BAR_HEIGHT_RANGE.max;
+
+  if (height <= 1) {
+    const progress = (height - sliderMin) / (1 - sliderMin);
+    return (
+      RADIO_FULLSCREEN_BAR_HEIGHT_MULTIPLIER_RANGE.min +
+      progress * (1 - RADIO_FULLSCREEN_BAR_HEIGHT_MULTIPLIER_RANGE.min)
+    );
+  }
+
+  const progress = (height - 1) / (sliderMax - 1);
+  return 1 + progress * (RADIO_FULLSCREEN_BAR_HEIGHT_MULTIPLIER_RANGE.max - 1);
+}
 
 export const RADIO_FULLSCREEN_VISUALIZER_DISPLAY_STORAGE_KEY =
   'idling-radio-fullscreen-viz-display';
@@ -21,7 +54,7 @@ export const RADIO_FULLSCREEN_VISUALIZER_DISPLAY_STORAGE_KEY =
 export const DEFAULT_RADIO_FULLSCREEN_VISUALIZER_DISPLAY: RadioFullscreenVisualizerDisplay = {
   enabled: true,
   opacity: 1,
-  presetIndex: 0,
+  presetIndex: getRadioVisualizerPresetIndex(RADIO_FULLSCREEN_DEFAULT_PRESET_ID),
   spectrumBarHeight: 1,
 };
 
@@ -40,7 +73,35 @@ export function resolveRadioFullscreenLinearBoost(
   baseLinearBoost: number,
   spectrumBarHeight: number
 ): number {
-  return Math.max(1, baseLinearBoost * clampRadioFullscreenSpectrumBarHeight(spectrumBarHeight));
+  const multiplier = resolveRadioFullscreenBarHeightMultiplier(spectrumBarHeight);
+  return Math.max(1, baseLinearBoost * (0.85 + multiplier * 0.15));
+}
+
+export interface RadioFullscreenSensitivityRange {
+  minDecibels: number;
+  maxDecibels: number;
+}
+
+export interface ResolveRadioFullscreenSensitivityInput {
+  spectrumBarHeight: number;
+  baseMinDecibels?: number;
+  baseMaxDecibels?: number;
+}
+
+export function resolveRadioFullscreenSensitivity({
+  spectrumBarHeight,
+  baseMinDecibels = -88,
+  baseMaxDecibels = -22,
+}: ResolveRadioFullscreenSensitivityInput): RadioFullscreenSensitivityRange {
+  const multiplier = resolveRadioFullscreenBarHeightMultiplier(spectrumBarHeight);
+  const baseRange = baseMaxDecibels - baseMinDecibels;
+  const adjustedRange = Math.min(102, Math.max(30, baseRange / multiplier));
+  const mid = (baseMaxDecibels + baseMinDecibels) / 2;
+
+  return {
+    minDecibels: Math.max(-100, mid - adjustedRange / 2),
+    maxDecibels: Math.min(-6, mid + adjustedRange / 2),
+  };
 }
 
 export interface ResolveRadioFullscreenRadialRadiusInput {
@@ -54,10 +115,10 @@ export function resolveRadioFullscreenRadialRadius({
   channelLayout,
   spectrumBarHeight,
 }: ResolveRadioFullscreenRadialRadiusInput): number {
-  const barHeight = clampRadioFullscreenSpectrumBarHeight(spectrumBarHeight);
+  const multiplier = resolveRadioFullscreenBarHeightMultiplier(spectrumBarHeight);
   const baseRadius = presetRadius ?? 0.15;
   const isDualCombined = channelLayout === 'dual-combined';
-  const scaledRadius = baseRadius / barHeight;
+  const scaledRadius = baseRadius / multiplier;
   const minimumRadius = isDualCombined ? 0.035 : 0.05;
 
   return Math.max(minimumRadius, Math.min(0.18, scaledRadius));
@@ -65,7 +126,7 @@ export function resolveRadioFullscreenRadialRadius({
 
 export function normalizeRadioFullscreenVisualizerPresetIndex(value: unknown): number {
   if (typeof value !== 'number' || !Number.isFinite(value)) {
-    return DEFAULT_RADIO_FULLSCREEN_VISUALIZER_DISPLAY.presetIndex;
+    return getRadioVisualizerPresetIndex(RADIO_FULLSCREEN_DEFAULT_PRESET_ID);
   }
 
   return Math.max(0, Math.floor(value));

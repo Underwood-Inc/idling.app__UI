@@ -24,6 +24,11 @@ import {
   listRadioStationGenres,
 } from '@widgets/radio-player/radioStationBrowse';
 import { RADIO_VISUALIZER_PRESETS } from '@widgets/radio-player/radioVisualizerPresets';
+import {
+  RADIO_FULLSCREEN_BAR_HEIGHT_MULTIPLIER_RANGE,
+  RADIO_FULLSCREEN_SPECTRUM_BAR_HEIGHT_RANGE,
+  resolveRadioFullscreenBarHeightMultiplier,
+} from '@widgets/radio-player/radioFullscreenVisualizerDisplay';
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { RadioPlayerCustomSourceForm } from './RadioPlayerCustomSourceForm';
 import styles from './RadioPlayerBar.module.css';
@@ -308,7 +313,9 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
       : 'None'
     : activeBarPreset.label;
   const spectrumOpacityPct = Math.round(spectrumOpacity * 100);
-  const spectrumBarHeightPct = Math.round(spectrumBarHeight * 100);
+  const spectrumBarHeightPct = Math.round(
+    resolveRadioFullscreenBarHeightMultiplier(spectrumBarHeight) * 100
+  );
 
   const subtitle = (() => {
     if (!playback.isPlaying) {
@@ -549,14 +556,14 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
                 <input
                   type="range"
                   className={`${styles.opacityControl__slider} no-glass`}
-                  min={0.5}
-                  max={2.5}
+                  min={RADIO_FULLSCREEN_SPECTRUM_BAR_HEIGHT_RANGE.min}
+                  max={RADIO_FULLSCREEN_SPECTRUM_BAR_HEIGHT_RANGE.max}
                   step={0.05}
                   value={spectrumBarHeight}
                   disabled={!spectrumEnabled}
                   aria-label="Fullscreen spectrum bar height"
-                  aria-valuemin={50}
-                  aria-valuemax={250}
+                  aria-valuemin={Math.round(RADIO_FULLSCREEN_BAR_HEIGHT_MULTIPLIER_RANGE.min * 100)}
+                  aria-valuemax={Math.round(RADIO_FULLSCREEN_BAR_HEIGHT_MULTIPLIER_RANGE.max * 100)}
                   aria-valuenow={spectrumBarHeightPct}
                   aria-valuetext={`${spectrumBarHeightPct} percent`}
                   onChange={(event) => {

@@ -88,6 +88,8 @@
   max-width: none;
   max-height: none;
   aspect-ratio: auto;
+  transform: scaleY(var(--irp-spectrum-bar-height, 1));
+  transform-origin: center bottom;
 }
 
 .spectrum :global(canvas) {
