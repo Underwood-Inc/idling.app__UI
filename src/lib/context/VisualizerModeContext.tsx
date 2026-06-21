@@ -5,6 +5,7 @@ import {
   isDocumentFullscreen,
   requestDocumentFullscreen,
 } from '@lib/fullscreen/documentFullscreen';
+import { usePersistedRadioFullscreenDisplay } from '@lib/hooks/usePersistedRadioFullscreenDisplay';
 import {
   createContext,
   ReactNode,
@@ -14,13 +15,16 @@ import {
   useMemo,
   useState,
 } from 'react';
-import { VisualizerModeOverlay } from '../../app/components/visualizer-mode/VisualizerModeOverlay';
 
 export interface VisualizerModeContextValue {
   isActive: boolean;
   isFullscreen: boolean;
   spectrumPresetIndex: number;
   setSpectrumPresetIndex: (index: number) => void;
+  spectrumEnabled: boolean;
+  setSpectrumEnabled: (enabled: boolean) => void;
+  spectrumOpacity: number;
+  setSpectrumOpacity: (opacity: number) => void;
   enterVisualizerMode: () => Promise<void>;
   exitFullscreen: () => Promise<void>;
   exitVisualizerMode: () => Promise<void>;
@@ -35,7 +39,12 @@ export interface VisualizerModeProviderProps {
 export function VisualizerModeProvider({ children }: VisualizerModeProviderProps) {
   const [isActive, setIsActive] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const [spectrumPresetIndex, setSpectrumPresetIndex] = useState(0);
+  const {
+    display,
+    setSpectrumEnabled,
+    setSpectrumOpacity,
+    setSpectrumPresetIndex,
+  } = usePersistedRadioFullscreenDisplay();
 
   useEffect(() => {
     document.documentElement.classList.toggle('visualizer-mode', isActive);
@@ -92,27 +101,33 @@ export function VisualizerModeProvider({ children }: VisualizerModeProviderProps
     () => ({
       isActive,
       isFullscreen,
-      spectrumPresetIndex,
+      spectrumPresetIndex: display.presetIndex,
       setSpectrumPresetIndex,
+      spectrumEnabled: display.enabled,
+      setSpectrumEnabled,
+      spectrumOpacity: display.opacity,
+      setSpectrumOpacity,
       enterVisualizerMode,
       exitFullscreen,
       exitVisualizerMode,
     }),
     [
+      display.enabled,
+      display.opacity,
+      display.presetIndex,
       enterVisualizerMode,
       exitFullscreen,
       exitVisualizerMode,
       isActive,
       isFullscreen,
-      spectrumPresetIndex,
+      setSpectrumEnabled,
+      setSpectrumOpacity,
+      setSpectrumPresetIndex,
     ]
   );
 
   return (
-    <VisualizerModeContext.Provider value={value}>
-      {children}
-      {isActive ? <VisualizerModeOverlay /> : null}
-    </VisualizerModeContext.Provider>
+    <VisualizerModeContext.Provider value={value}>{children}</VisualizerModeContext.Provider>
   );
 }
 

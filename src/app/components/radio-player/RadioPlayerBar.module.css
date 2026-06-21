@@ -307,6 +307,86 @@
   color: var(--text-primary, #ece8e0);
 }
 
+.opacityControl {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  box-sizing: border-box;
+  width: 100%;
+  padding: 0.35rem 0.25rem;
+}
+
+.opacityControl__slider {
+  -webkit-appearance: none;
+  appearance: none;
+  display: block;
+  flex: 1 1 auto;
+  width: 100%;
+  min-width: 0;
+  height: 6px;
+  margin: 0;
+  border: 0;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 16%);
+  cursor: var(--mappy-cursor-pointer, pointer);
+}
+
+.opacityControl__slider:disabled {
+  opacity: 0.35;
+  cursor: var(--mappy-cursor-not-allowed, not-allowed);
+}
+
+.opacityControl__slider::-webkit-slider-runnable-track {
+  height: 6px;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 16%);
+}
+
+.opacityControl__slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 16px;
+  height: 16px;
+  margin-top: -5px;
+  border: 2px solid rgb(14 14 18);
+  border-radius: 50%;
+  background: var(--brand-primary, #e5c185);
+  cursor: var(--mappy-cursor-pointer, pointer);
+}
+
+.opacityControl__slider:disabled::-webkit-slider-thumb {
+  cursor: var(--mappy-cursor-not-allowed, not-allowed);
+}
+
+.opacityControl__slider::-moz-range-track {
+  height: 6px;
+  border: 0;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 16%);
+}
+
+.opacityControl__slider::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgb(14 14 18);
+  border-radius: 50%;
+  background: var(--brand-primary, #e5c185);
+  cursor: var(--mappy-cursor-pointer, pointer);
+}
+
+.opacityControl__slider:focus-visible {
+  outline: 2px solid rgb(229 193 133 / 55%);
+  outline-offset: 2px;
+}
+
+.opacityControl__pct {
+  min-width: 2rem;
+  font-size: 12px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  color: var(--text-secondary, #a8a096);
+}
+
 .row {
   display: flex;
   align-items: center;
@@ -325,7 +405,8 @@
   align-items: center;
   gap: 0.55rem;
   min-width: 0;
-  flex: 1 1 auto;
+  flex: 0 1 auto;
+  max-width: min(100%, 22rem);
 }
 
 .play {
@@ -357,10 +438,10 @@
 }
 
 .viz {
-  flex-shrink: 0;
-  width: 3rem;
-  height: 3rem;
-  border-radius: 6px;
+  flex: 1 1 10rem;
+  min-width: 5rem;
+  height: 3.25rem;
+  border-radius: 8px;
   overflow: hidden;
   background: rgb(0 0 0 / 35%);
 }
@@ -444,7 +525,7 @@
   display: flex;
   align-items: center;
   gap: 0.45rem;
-  flex-shrink: 0;
+  flex: 0 0 auto;
 }
 
 .volume {

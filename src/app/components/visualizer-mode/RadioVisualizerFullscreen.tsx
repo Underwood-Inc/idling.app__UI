@@ -4,23 +4,28 @@ import { useRadioPlayer } from '@lib/context/RadioPlayerContext';
 import type AudioMotionAnalyzer from 'audiomotion-analyzer';
 import { useEffect, useRef } from 'react';
 import type { RadioVisualizerPreset } from '@widgets/radio-player/radioVisualizerPresets';
-import {
-  RADIO_VISUALIZER_BASE_OPTIONS,
-} from '@widgets/radio-player/radioVisualizerPresets';
+import { RADIO_VISUALIZER_BASE_OPTIONS } from '@widgets/radio-player/radioVisualizerPresets';
 import styles from './VisualizerMode.module.css';
 
 export interface RadioVisualizerFullscreenProps {
   isActive: boolean;
+  enabled: boolean;
+  opacity: number;
   preset: RadioVisualizerPreset;
 }
 
-export function RadioVisualizerFullscreen({ isActive, preset }: RadioVisualizerFullscreenProps) {
+export function RadioVisualizerFullscreen({
+  isActive,
+  enabled,
+  opacity,
+  preset,
+}: RadioVisualizerFullscreenProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const analyzerRef = useRef<AudioMotionAnalyzer | null>(null);
   const { handle, isAvailable } = useRadioPlayer();
 
   useEffect(() => {
-    if (!isActive || !isAvailable || !handle) {
+    if (!isActive || !enabled || !isAvailable || !handle) {
       return undefined;
     }
 
@@ -70,20 +75,23 @@ export function RadioVisualizerFullscreen({ isActive, preset }: RadioVisualizerF
       analyzerRef.current?.destroy();
       analyzerRef.current = null;
     };
-  }, [handle, isActive, isAvailable, preset]);
+  }, [enabled, handle, isActive, isAvailable, preset]);
 
-  if (!isActive) {
+  if (!isActive || !enabled) {
     return null;
   }
 
   const isRadial = preset.options.radial === true;
 
   return (
-    <div className={styles.spectrumFrame}>
+    <div
+      className={styles.spectrumFrame}
+      data-radial={isRadial ? 'true' : 'false'}
+      style={{ opacity }}
+    >
       <div
         ref={containerRef}
         className={styles.spectrum}
-        data-radial={isRadial ? 'true' : 'false'}
         data-testid="radio-visualizer-fullscreen"
         aria-hidden="true"
       />

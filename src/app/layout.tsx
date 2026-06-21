@@ -4,6 +4,7 @@ import { OverlayProvider } from '@lib/context/OverlayContext';
 import { UserDataBatchProvider } from '@lib/context/UserDataBatchContext';
 import { UserPreferencesProvider } from '@lib/context/UserPreferencesContext';
 import { VisualizerModeProvider } from '@lib/context/VisualizerModeContext';
+import { VisualizerModeGate } from './components/visualizer-mode/VisualizerModeGate';
 import { RadioPlayerProvider } from '@lib/context/RadioPlayerContext';
 import { ClarityUserIdentifier, MicrosoftClarity } from '@lib/observability';
 import { Metadata } from 'next';
@@ -116,6 +117,7 @@ export default function RootLayout({
                         <PWAInstallPrompt />
                       </div>
                       <RadioPlayerMountWrapper />
+                      <VisualizerModeGate />
                       </VisualizerModeProvider>
                     </RadioPlayerProvider>
                   </UserDataBatchProvider>

@@ -77,6 +77,7 @@ export interface RadioPlayerHandle {
   getAudioContext: () => AudioContext | null;
   getBarCanvas: () => HTMLCanvasElement;
   mountBarCanvas: (container: HTMLElement) => void;
+  resizeBarCanvas: () => void;
 }
 
 export interface RadioStationProbeFailure {

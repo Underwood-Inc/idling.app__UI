@@ -929,6 +929,13 @@ export function mountRadioPlayer(mountNode, options = {}) {
     syncVisualizerLoop();
   };
 
+  const resizeBarCanvas = () => {
+    resizeCanvas();
+    if (!playing) {
+      paintIdleVisualizerFrame();
+    }
+  };
+
   const getBarCanvas = () => canvas;
 
   return {
@@ -966,6 +973,7 @@ export function mountRadioPlayer(mountNode, options = {}) {
     getAudioContext: () => audioCtx,
     getBarCanvas,
     mountBarCanvas,
+    resizeBarCanvas,
   };
 }
 

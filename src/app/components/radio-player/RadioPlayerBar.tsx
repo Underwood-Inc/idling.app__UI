@@ -2,6 +2,7 @@
 
 import { SiteIcon } from '@molecules/lucide/SiteIcon';
 import { useRadioPlayer } from '@lib/context/RadioPlayerContext';
+import { useRadioDockLayoutMetrics } from '@lib/hooks/useRadioDockLayoutMetrics';
 import { useVisualizerMode } from '@lib/context/VisualizerModeContext';
 import type { RadioPlayerHandle } from '@widgets/radio-player/radioPlayer.types';
 import type {
@@ -30,7 +31,7 @@ export interface RadioPlayerBarPlaybackState {
   visualizerPrefs: BarVisualizerPreferences;
 }
 
-export type RadioPlayerPanel = 'stations' | 'look' | 'spectrum' | null;
+export type RadioPlayerPanel = 'stations' | 'look' | null;
 
 export interface RadioPlayerBarProps {
   handle?: RadioPlayerHandle | null;
@@ -141,6 +142,10 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
     exitVisualizerMode,
     setSpectrumPresetIndex,
     spectrumPresetIndex,
+    spectrumEnabled,
+    setSpectrumEnabled,
+    spectrumOpacity,
+    setSpectrumOpacity,
   } = useVisualizerMode();
   const handle = handleProp ?? contextHandle;
   const playerRef = useRef<HTMLDivElement>(null);
@@ -183,30 +188,21 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
     }
 
     handle.mountBarCanvas(host);
-  }, [handle]);
 
-  useEffect(() => {
-    const player = playerRef.current;
-    if (!player) {
-      return undefined;
-    }
-
-    const syncHeight = () => {
-      const heightPx = Math.ceil(player.getBoundingClientRect().height + 36);
-      document.documentElement.style.setProperty('--irp-bar-height', `${heightPx}px`);
-      document.documentElement.style.setProperty('--irp-dock-height', `${heightPx}px`);
+    const onResize = () => {
+      handle.resizeBarCanvas();
     };
 
-    syncHeight();
-    const observer = new ResizeObserver(syncHeight);
-    observer.observe(player);
+    onResize();
+    const observer = new ResizeObserver(onResize);
+    observer.observe(host);
+    window.addEventListener('resize', onResize);
 
     return () => {
       observer.disconnect();
-      document.documentElement.style.removeProperty('--irp-bar-height');
-      document.documentElement.style.removeProperty('--irp-dock-height');
+      window.removeEventListener('resize', onResize);
     };
-  }, []);
+  }, [handle]);
 
   useEffect(() => {
     if (!activePanel) {
@@ -224,6 +220,11 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
       document.removeEventListener('keydown', onKeyDown);
     };
   }, [activePanel]);
+
+  useRadioDockLayoutMetrics({
+    playerRef,
+    expanded: activePanel !== null,
+  });
 
   const stationNames = handle?.getStationNames() ?? [];
 
@@ -252,6 +253,16 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
   );
   const activeSpectrumPreset =
     RADIO_VISUALIZER_PRESETS[spectrumPresetIndex] ?? RADIO_VISUALIZER_PRESETS[0];
+  const activeBarPreset =
+    BAR_VISUALIZER_PRESET_DEFINITIONS.find(
+      (preset) => preset.id === playback.visualizerPrefs.presetId
+    ) ?? BAR_VISUALIZER_PRESET_DEFINITIONS[0];
+  const activeLookLabel = isActive
+    ? spectrumEnabled
+      ? activeSpectrumPreset.label
+      : 'None'
+    : activeBarPreset.label;
+  const spectrumOpacityPct = Math.round(spectrumOpacity * 100);
 
   const subtitle = (() => {
     if (!playback.isPlaying) {
@@ -350,78 +361,113 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
       ) : null}
 
       {activePanel === 'look' ? (
-        <section className={styles.panel} aria-label="Bar visualizer look">
-          <div className={styles.panelSection}>
-            <h2 className={styles.panelSection__title}>Bar style</h2>
-            <div className={styles.optionList} role="group" aria-label="Bar visualizer styles">
-              {BAR_VISUALIZER_PRESET_DEFINITIONS.map((preset) => (
+        isActive ? (
+          <section className={styles.panel} aria-label="Fullscreen spectrum style">
+            <div className={styles.panelSection}>
+              <h2 className={styles.panelSection__title}>Spectrum style</h2>
+              <div className={styles.optionList} role="group" aria-label="Fullscreen spectrum styles">
                 <button
-                  key={preset.id}
                   type="button"
                   className={`${styles.optionRow} no-glass`}
-                  aria-pressed={preset.id === playback.visualizerPrefs.presetId}
-                  title={preset.description}
+                  aria-pressed={!spectrumEnabled}
                   onClick={() => {
-                    handle.setVisualizerPreferences({ presetId: preset.id });
-                    setPlayback((current) =>
-                      current
-                        ? { ...current, visualizerPrefs: handle.getVisualizerPreferences() }
-                        : current
-                    );
+                    setSpectrumEnabled(false);
                   }}
                 >
-                  {preset.label}
+                  None
                 </button>
-              ))}
+                {RADIO_VISUALIZER_PRESETS.map((preset, index) => (
+                  <button
+                    key={preset.id}
+                    type="button"
+                    className={`${styles.optionRow} no-glass`}
+                    aria-pressed={spectrumEnabled && index === spectrumPresetIndex}
+                    onClick={() => {
+                      setSpectrumPresetIndex(index);
+                    }}
+                  >
+                    {preset.label}
+                  </button>
+                ))}
+              </div>
             </div>
-          </div>
-          <div className={styles.panelSection}>
-            <h2 className={styles.panelSection__title}>Bar spacing</h2>
-            <div className={styles.segments} role="group" aria-label="Bar spacing">
-              {DENSITY_OPTIONS.map((density) => (
-                <button
-                  key={density}
-                  type="button"
-                  className={`${styles.segment} no-glass`}
-                  aria-pressed={density === playback.visualizerPrefs.density}
-                  onClick={() => {
-                    handle.setVisualizerPreferences({ density });
-                    setPlayback((current) =>
-                      current
-                        ? { ...current, visualizerPrefs: handle.getVisualizerPreferences() }
-                        : current
-                    );
+            <div className={styles.panelSection}>
+              <h2 className={styles.panelSection__title}>Spectrum opacity</h2>
+              <div className={styles.opacityControl}>
+                <input
+                  type="range"
+                  className={`${styles.opacityControl__slider} no-glass`}
+                  min={0}
+                  max={1}
+                  step={0.05}
+                  value={spectrumOpacity}
+                  disabled={!spectrumEnabled}
+                  aria-label="Fullscreen spectrum opacity"
+                  aria-valuemin={0}
+                  aria-valuemax={100}
+                  aria-valuenow={spectrumOpacityPct}
+                  aria-valuetext={`${spectrumOpacityPct} percent`}
+                  onChange={(event) => {
+                    setSpectrumOpacity(Number(event.target.value));
                   }}
-                >
-                  {DENSITY_LABELS[density]}
-                </button>
-              ))}
+                />
+                <span className={styles.opacityControl__pct} aria-hidden="true">
+                  {spectrumOpacityPct}
+                </span>
+              </div>
             </div>
-          </div>
-        </section>
-      ) : null}
-
-      {activePanel === 'spectrum' && isActive ? (
-        <section className={styles.panel} aria-label="Fullscreen spectrum style">
-          <div className={styles.panelSection}>
-            <h2 className={styles.panelSection__title}>Fullscreen spectrum</h2>
-            <div className={styles.optionList} role="group" aria-label="Fullscreen spectrum styles">
-              {RADIO_VISUALIZER_PRESETS.map((preset, index) => (
-                <button
-                  key={preset.id}
-                  type="button"
-                  className={`${styles.optionRow} no-glass`}
-                  aria-pressed={index === spectrumPresetIndex}
-                  onClick={() => {
-                    setSpectrumPresetIndex(index);
-                  }}
-                >
-                  {preset.label}
-                </button>
-              ))}
+          </section>
+        ) : (
+          <section className={styles.panel} aria-label="Bar visualizer look">
+            <div className={styles.panelSection}>
+              <h2 className={styles.panelSection__title}>Bar style</h2>
+              <div className={styles.optionList} role="group" aria-label="Bar visualizer styles">
+                {BAR_VISUALIZER_PRESET_DEFINITIONS.map((preset) => (
+                  <button
+                    key={preset.id}
+                    type="button"
+                    className={`${styles.optionRow} no-glass`}
+                    aria-pressed={preset.id === playback.visualizerPrefs.presetId}
+                    title={preset.description}
+                    onClick={() => {
+                      handle.setVisualizerPreferences({ presetId: preset.id });
+                      setPlayback((current) =>
+                        current
+                          ? { ...current, visualizerPrefs: handle.getVisualizerPreferences() }
+                          : current
+                      );
+                    }}
+                  >
+                    {preset.label}
+                  </button>
+                ))}
+              </div>
             </div>
-          </div>
-        </section>
+            <div className={styles.panelSection}>
+              <h2 className={styles.panelSection__title}>Bar spacing</h2>
+              <div className={styles.segments} role="group" aria-label="Bar spacing">
+                {DENSITY_OPTIONS.map((density) => (
+                  <button
+                    key={density}
+                    type="button"
+                    className={`${styles.segment} no-glass`}
+                    aria-pressed={density === playback.visualizerPrefs.density}
+                    onClick={() => {
+                      handle.setVisualizerPreferences({ density });
+                      setPlayback((current) =>
+                        current
+                          ? { ...current, visualizerPrefs: handle.getVisualizerPreferences() }
+                          : current
+                      );
+                    }}
+                  >
+                    {DENSITY_LABELS[density]}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </section>
+        )
       ) : null}
 
       <div className={styles.row}>
@@ -452,8 +498,6 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
             />
           </button>
 
-          <div ref={canvasHostRef} className={styles.viz} aria-hidden="true" />
-
           <div className={styles.meta}>
             <button
               type="button"
@@ -476,6 +520,8 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
           </div>
         </div>
 
+        <div ref={canvasHostRef} className={styles.viz} aria-hidden="true" />
+
         <div className={styles.tools}>
           <RadioPlayerVolumeStepper
             volume={playback.volume}
@@ -491,28 +537,21 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
             type="button"
             className={`${styles.textBtn} no-glass`}
             aria-pressed={activePanel === 'look'}
-            aria-label="Bar visualizer look"
+            aria-label={
+              isActive
+                ? spectrumEnabled
+                  ? `Fullscreen spectrum style: ${activeSpectrumPreset.label}`
+                  : 'Fullscreen spectrum disabled'
+                : 'Bar visualizer look'
+            }
             onClick={() => {
               togglePanel('look');
             }}
           >
             <SiteIcon id="palette" sizeRem={0.9} title="" />
             <span className={styles.textBtn__label}>Look</span>
+            <span className={styles.textBtn__value}>{activeLookLabel}</span>
           </button>
-          {isActive ? (
-            <button
-              type="button"
-              className={`${styles.textBtn} ${styles.textBtnSpectrum} no-glass`}
-              aria-pressed={activePanel === 'spectrum'}
-              aria-label={`Fullscreen spectrum style: ${activeSpectrumPreset.label}`}
-              onClick={() => {
-                togglePanel('spectrum');
-              }}
-            >
-              <span className={styles.textBtn__label}>Spectrum</span>
-              <span className={styles.textBtn__value}>{activeSpectrumPreset.label}</span>
-            </button>
-          ) : null}
           <button
             type="button"
             className={`${styles.textBtn} ${isActive ? styles.textBtnExit : ''} no-glass`}
