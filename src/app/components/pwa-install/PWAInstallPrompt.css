@@ -85,7 +85,7 @@
   padding: 4px 8px;
   font-size: var(--font-size-xs);
   font-weight: 500;
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
   transition: all 0.2s ease;
   white-space: nowrap;
 }
@@ -108,7 +108,7 @@
   padding: 4px;
   font-size: 14px;
   font-weight: 500;
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
   transition: all 0.2s ease;
   display: flex;
   align-items: center;

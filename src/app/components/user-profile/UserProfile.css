@@ -208,7 +208,7 @@
   border-radius: 10px;
   font-weight: 600;
   transition: all 0.2s ease;
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
   border: none;
   font-size: 1.0rem;
 }
@@ -254,7 +254,7 @@
   font-size: 1.0rem;
   font-weight: 600;
   color: var(--brand-primary--dark);
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
   transition: all 0.2s ease;
   white-space: nowrap;
 }

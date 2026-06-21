@@ -104,7 +104,7 @@
   box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
   color: white;
   border: none;
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
   transition: all 0.2s ease;
 }
 
@@ -205,7 +205,7 @@
   border-radius: 8px;
   font-size: 1.0rem;
   font-weight: 600;
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
   transition: all 0.2s ease;
   text-decoration: none;
   display: inline-block;
@@ -535,7 +535,7 @@
   transition: all 0.2s ease;
   box-shadow: 0 6px 20px rgba(245, 158, 11, 0.3);
   border: none;
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
   margin-top: 1rem;
 }
 

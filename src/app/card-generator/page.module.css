@@ -86,7 +86,7 @@
               opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   transform: translateZ(0);
   backface-visibility: hidden;
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
   white-space: nowrap;
 }
 
@@ -100,14 +100,14 @@
 
 .header__button:disabled {
   opacity: 0.5;
-  cursor: not-allowed;
+  cursor: var(--mappy-cursor-not-allowed, not-allowed);
   transform: none;
 }
 
 /* Explicitly disabled button state */
 .header__button--disabled {
   opacity: 0.4;
-  cursor: not-allowed;
+  cursor: var(--mappy-cursor-not-allowed, not-allowed);
   transform: none !important;
   filter: grayscale(0.3);
 }

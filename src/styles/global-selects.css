@@ -15,7 +15,7 @@ select {
   font-size: 14px;
   font-family: inherit;
   color: var(--text-primary, #1f2937);
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
   transition: all 0.2s ease;
   min-height: 40px;
   line-height: 1.4;
@@ -44,7 +44,7 @@ select:focus {
 /* Disabled state */
 select:disabled {
   opacity: 0.6;
-  cursor: not-allowed;
+  cursor: var(--mappy-cursor-not-allowed, not-allowed);
   background-color: var(--light-background--tertiary, #f3f4f6);
   border-color: var(--light-background--tertiary, #e5e7eb);
 }

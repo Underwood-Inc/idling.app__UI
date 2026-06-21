@@ -13,7 +13,7 @@
   text-decoration: none;
   border: none;
   border-radius: var(--border-radius);
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
   transition: all 0.2s ease-in-out;
   white-space: nowrap;
   overflow: hidden;
@@ -166,7 +166,7 @@
 
 .loading-button--disabled {
   opacity: 0.6;
-  cursor: not-allowed;
+  cursor: var(--mappy-cursor-not-allowed, not-allowed);
   pointer-events: none;
 }
 

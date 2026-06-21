@@ -23,7 +23,7 @@
     0 0 0 3px var(--brand-tertiary),
     inset 0 1px 2px #E5E5E5;
   z-index: 2147483647 !important;
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
   user-select: none;
   transform: none !important;
   margin: 0 !important;
@@ -264,7 +264,7 @@
   padding: 0.75rem 1.5rem !important;
   border-radius: var(--border-radius) !important;
   font-weight: 600 !important;
-  cursor: pointer !important;
+  cursor: var(--mappy-cursor-pointer, pointer) !important;
   transition: all 0.2s ease-in-out !important;
 }
 
@@ -299,7 +299,7 @@
   background-color: var(--dark-background--tertiary) !important;
   color: var(--dark-bg__text-color--secondary) !important;
   border-color: var(--brand-tertiary--dark) !important;
-  cursor: not-allowed !important;
+  cursor: var(--mappy-cursor-not-allowed, not-allowed) !important;
   transform: none !important;
   box-shadow: none !important;
 }

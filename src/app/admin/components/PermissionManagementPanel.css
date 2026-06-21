@@ -128,7 +128,7 @@
   border-radius: var(--border-radius);
   font-weight: 600;
   font-size: 1.2rem;
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
   transition: all var(--transition-medium);
   box-shadow: 0 4px 16px rgba(255, 140, 0, 0.3);
   text-shadow: 0 1px 2px transparent;
@@ -146,7 +146,7 @@
 
 .create-btn:disabled {
   opacity: 0.6;
-  cursor: not-allowed;
+  cursor: var(--mappy-cursor-not-allowed, not-allowed);
   transform: none;
 }
 
@@ -178,7 +178,7 @@
   color: var(--text-secondary);
   font-weight: 500;
   font-size: 1.2rem;
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
   transition: all var(--transition-medium);
   position: relative;
   overflow: hidden;
@@ -372,7 +372,7 @@
   background: #E5E5E5;
   color: var(--text-primary);
   font-size: 1.1rem;
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
   transition: all var(--transition-medium);
   
   min-width: 150px;
@@ -660,14 +660,14 @@
   border-radius: var(--border-radius);
   font-size: 1.1rem;
   font-weight: 500;
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
   transition: all var(--transition-medium);
   
 }
 
 .action-btn:disabled {
   opacity: 0.5;
-  cursor: not-allowed;
+  cursor: var(--mappy-cursor-not-allowed, not-allowed);
 }
 
 .action-btn--edit {
@@ -738,7 +738,7 @@
   border-radius: var(--border-radius);
   color: var(--text-primary);
   font-weight: 500;
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
   transition: all var(--transition-medium);
   
 }
@@ -752,7 +752,7 @@
 
 .pagination-btn:disabled {
   opacity: 0.5;
-  cursor: not-allowed;
+  cursor: var(--mappy-cursor-not-allowed, not-allowed);
 }
 
 .pagination-info {
@@ -833,7 +833,7 @@
   border: none;
   color: var(--error-color);
   font-size: 1.5rem;
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
   opacity: 0.7;
   transition: opacity var(--transition-fast);
 }

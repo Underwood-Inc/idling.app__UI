@@ -39,7 +39,7 @@
   background: transparent;
   border: none;
   color: inherit;
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
   text-decoration: none;
   font-size: inherit;
   font-family: inherit;
@@ -375,7 +375,7 @@ a:hover .nav__header {
 .hamburger-menu-button {
   background: transparent;
   border: none;
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
   padding: 0.5rem;
   border-radius: 4px;
   transition: background-color 0.2s ease;
@@ -514,7 +514,7 @@ a:hover .nav__header {
   background: transparent;
   border: none;
   font-size: 1.5rem;
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
   color: var(--text-secondary);
   padding: 0.25rem;
   border-radius: 4px;

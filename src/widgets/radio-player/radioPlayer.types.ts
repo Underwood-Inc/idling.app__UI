@@ -4,11 +4,41 @@ export interface RadioStationCatalog {
   [stationName: string]: string;
 }
 
+export type RadioStationGenreId =
+  | 'ambient'
+  | 'classical'
+  | 'community'
+  | 'eclectic'
+  | 'electronic'
+  | 'jazz'
+  | 'news'
+  | 'public';
+
+export interface RadioStationGenre {
+  id: RadioStationGenreId;
+  label: string;
+}
+
 export interface RadioStationDefinition {
   name: string;
   url: string;
+  genre: RadioStationGenreId;
+  /** Regional flag emoji shown beside the station name. */
+  regionFlag: string;
+  /** Short human-readable description for browse lists. */
+  blurb: string;
   /** When false, skip now-playing polls — stream does not publish ICY track titles. */
   supportsTrackMetadata?: boolean;
+}
+
+export interface RadioStationGenreGroup {
+  genre: RadioStationGenre;
+  stations: RadioStationDefinition[];
+}
+
+export interface RadioStationGenreFilter {
+  genre: RadioStationGenre;
+  count: number;
 }
 
 export interface RadioPlayerOptions {

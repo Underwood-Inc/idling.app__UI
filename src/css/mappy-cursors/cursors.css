@@ -1,33 +1,44 @@
 /*
- * Idling.app brand cursors — loaded after globals (layout.tsx).
- * Idle = compass default. Clickables = arrow. Text fields = I-beam. Tools = grab/resize/etc.
- * Never blanket inherit; never OS default/pointer/text keywords.
+ * Port of apps/mappy/site/scss/_cursor.scss — Mappy marketing site document cursors.
+ * idling.app adds shell selectors beside the site originals (harmless if unmatched).
+ * Override: data-mappy-cursor="<keyword>".
  */
 
 @media (pointer: fine) {
-  html[data-brand-cursors='on'],
-  html[data-brand-cursors='on'] body {
+  html {
     cursor: var(--mappy-cursor-default);
   }
 
-  /* Beat scattered `cursor: pointer` in component CSS — inherit compass idle, not OS hand */
-  html[data-brand-cursors='on'] * {
-    cursor: inherit !important;
-  }
-
-  /* --- Clickable controls (arrow — only here, not site-wide default) --- */
-  html[data-brand-cursors='on'] :is(
+  html :is(
     a[href],
     button,
     summary,
     label[for],
     select,
     .btn,
+    .site-nav a:not(.site-nav__cta),
     .instant-link,
     .nav__group-trigger,
     .nav__group-item,
     .mobile-nav-drawer__item,
     .mobile-nav-drawer__close,
+    .chapter-card,
+    .section-drawer__summary,
+    .catalog-highlight,
+    .catalog-highlight__jump,
+    .catalog__filter-pill,
+    .catalog__chapter-toggle,
+    .instrument__toggle,
+    .instrument__wiki-link,
+    .lightbox__close,
+    .footer-links a,
+    .filter__button,
+    .project__link,
+    .tab,
+    .wiki-sidebar__link,
+    .wiki-article__pager-link,
+    .wiki-article__toc-list a,
+    .wiki-article__breadcrumb a,
     [role='button'],
     [role='link'],
     [role='tab'],
@@ -46,173 +57,219 @@
     input[type='color'],
     input[type='file'],
     input[type='range'],
-    .cursor--pointer,
     [data-mappy-cursor='pointer']
   ):not(:disabled):not([aria-disabled='true']) {
-    cursor: var(--mappy-cursor-pointer) !important;
+    cursor: var(--mappy-cursor-pointer);
   }
 
-  html[data-brand-cursors='on']
-    :is(summary, [role='button'], [role='menuitem'], label, button, a[href])
+  html :is(summary, [role='button'], [role='menuitem'], label, button, a[href])
     :is(*:not(input):not(textarea):not(select):not([contenteditable='true'])) {
-    cursor: inherit !important;
+    cursor: inherit;
   }
 
-  html[data-brand-cursors='on'] :is(
+  html :is(
     .btn--primary,
+    .site-nav__cta,
+    a.btn--primary,
     [data-mappy-cursor='cta']
   ):not(:disabled):not([aria-disabled='true']) {
-    cursor: var(--mappy-cursor-cta) !important;
+    cursor: var(--mappy-cursor-cta);
   }
 
-  /* --- Text entry (I-beam) --- */
-  html[data-brand-cursors='on'] :is(
+  html :is(.context-menu, [data-mappy-cursor='context-menu']) {
+    cursor: var(--mappy-cursor-context-menu);
+  }
+
+  html :is(
     input:not([type='button']):not([type='submit']):not([type='reset']):not([type='checkbox']):not([type='radio']):not([type='range']):not([type='color']):not([type='file']),
     textarea,
     [contenteditable='true'],
+    .catalog__search-input,
+    .wiki-mobile-bar__search,
     .rich-input,
     .rich-input-content,
     [data-mappy-selectable-text],
+    .mappy-selectable-text,
+    p,
+    li,
+    blockquote,
+    pre,
+    figcaption,
+    dd,
+    dt,
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6,
+    td,
+    th,
+    code,
+    .wiki-article,
+    .wiki-article__hook,
+    .wiki-article__footer,
+    .tooltip__body,
+    .tooltip__lead,
     [data-mappy-cursor='text']
   ) {
     cursor: var(--mappy-cursor-text) !important;
   }
 
-  html[data-brand-cursors='on'] :is([data-mappy-cursor='vertical-text']) {
-    cursor: var(--mappy-cursor-vertical-text) !important;
+  html :is([data-mappy-cursor='vertical-text']) {
+    cursor: var(--mappy-cursor-vertical-text);
   }
 
-  /* --- Help --- */
-  html[data-brand-cursors='on'] :is(
-    [title],
+  html :is(
     .rich-help:not(.rich-help--badge),
+    .rich-help--badge,
     [data-tip-heading],
+    [title],
+    .mappy-help-underline,
     [data-mappy-cursor='help']
   ) {
-    cursor: var(--mappy-cursor-help) !important;
+    cursor: var(--mappy-cursor-help);
   }
 
-  /* --- Disabled / blocked --- */
-  html[data-brand-cursors='on'] :is(
-    :disabled,
-    input:disabled + label,
-    [aria-disabled='true'],
-    .is-disabled,
-    .instant-link--disabled
-  ) {
-    cursor: var(--mappy-cursor-disabled) !important;
-  }
-
-  html[data-brand-cursors='on'] :is([data-mappy-cursor='not-allowed']) {
-    cursor: var(--mappy-cursor-not-allowed) !important;
-  }
-
-  html[data-brand-cursors='on'] :is([data-mappy-cursor='no-drop']) {
-    cursor: var(--mappy-cursor-no-drop) !important;
-  }
-
-  /* --- Pan / drag --- */
-  html[data-brand-cursors='on'] :is(
-    .mermaid,
-    .mermaid svg,
-    .mermaid-container[data-mermaid-interactive='true'],
-    [data-site-drag-handle],
-    [data-mappy-cursor='grab']
-  ) {
-    cursor: var(--mappy-cursor-grab) !important;
-  }
-
-  html[data-brand-cursors='on'] :is(
-    .mermaid:active,
-    .mermaid svg:active,
-    [data-site-drag-handle]:active,
-    [data-mappy-cursor='grabbing']
-  ) {
-    cursor: var(--mappy-cursor-grabbing) !important;
-  }
-
-  /* --- Busy / zoom / resize / draw --- */
-  html[data-brand-cursors='on'] :is(
+  html :is(
     [data-state='waiting'],
     [aria-busy='true'],
     .is-waiting,
     [data-mappy-cursor='wait']
   ) {
-    cursor: var(--mappy-cursor-wait) !important;
+    cursor: var(--mappy-cursor-wait);
   }
 
-  html[data-brand-cursors='on'] :is([data-mappy-cursor='progress']) {
-    cursor: var(--mappy-cursor-progress) !important;
+  html :is([data-mappy-cursor='progress']) {
+    cursor: var(--mappy-cursor-progress);
   }
 
-  html[data-brand-cursors='on'] :is(
+  html :is(
+    :disabled,
+    input:disabled + label,
+    [aria-disabled='true'],
+    .is-disabled,
+    .catalog__filter-pill--disabled
+  ) {
+    cursor: var(--mappy-cursor-disabled);
+  }
+
+  html :is([data-mappy-cursor='not-allowed']) {
+    cursor: var(--mappy-cursor-not-allowed);
+  }
+
+  html :is([data-mappy-cursor='no-drop']) {
+    cursor: var(--mappy-cursor-no-drop);
+  }
+
+  html :is(
     [data-lightbox],
     [data-media-zoom],
+    .showcase__shot,
+    .hero__visual,
+    .screenshot-card__frame,
+    .landing-section__figure,
+    .lightbox__img,
     [data-mappy-cursor='zoom-in']
   ) {
-    cursor: var(--mappy-cursor-zoom-in) !important;
+    cursor: var(--mappy-cursor-zoom-in);
   }
 
-  html[data-brand-cursors='on'] :is([data-mappy-cursor='zoom-out']) {
-    cursor: var(--mappy-cursor-zoom-out) !important;
+  html :is([data-mappy-cursor='zoom-out']) {
+    cursor: var(--mappy-cursor-zoom-out);
   }
 
-  html[data-brand-cursors='on'] :is(
-    [data-mappy-cursor='col-resize'],
-    [data-mappy-cursor='ew-resize'],
-    [data-mappy-cursor='e-resize'],
-    [data-mappy-cursor='w-resize']
+  html :is(
+    [data-site-drag-handle],
+    .mermaid,
+    .mermaid svg,
+    .mermaid-container[data-mermaid-interactive='true'],
+    [data-mappy-cursor='grab']
   ) {
-    cursor: var(--mappy-cursor-col-resize) !important;
+    cursor: var(--mappy-cursor-grab);
   }
 
-  html[data-brand-cursors='on'] :is(
+  html :is(
+    [data-site-drag-handle]:active,
+    .mermaid:active,
+    .mermaid svg:active,
+    [data-mappy-cursor='grabbing']
+  ) {
+    cursor: var(--mappy-cursor-grabbing);
+  }
+
+  html :is([data-mappy-cursor='move']) {
+    cursor: var(--mappy-cursor-move);
+  }
+
+  html :is([data-mappy-cursor='all-scroll']) {
+    cursor: var(--mappy-cursor-all-scroll);
+  }
+
+  html :is([data-mappy-cursor='copy']) {
+    cursor: var(--mappy-cursor-copy);
+  }
+
+  html :is([data-mappy-cursor='alias']) {
+    cursor: var(--mappy-cursor-alias);
+  }
+
+  html :is([data-mappy-cursor='cell']) {
+    cursor: var(--mappy-cursor-cell);
+  }
+
+  html :is(
     [data-mappy-cursor='ns-resize'],
     [data-mappy-cursor='n-resize'],
     [data-mappy-cursor='s-resize'],
     [data-mappy-cursor='row-resize']
   ) {
-    cursor: var(--mappy-cursor-row-resize) !important;
+    cursor: var(--mappy-cursor-row-resize);
   }
 
-  html[data-brand-cursors='on'] :is(
+  html :is(
+    [data-mappy-cursor='col-resize'],
+    [data-mappy-cursor='ew-resize'],
+    [data-mappy-cursor='e-resize'],
+    [data-mappy-cursor='w-resize']
+  ) {
+    cursor: var(--mappy-cursor-col-resize);
+  }
+
+  html :is(
     [data-mappy-cursor='nesw-resize'],
     [data-mappy-cursor='ne-resize'],
     [data-mappy-cursor='sw-resize']
   ) {
-    cursor: var(--mappy-cursor-nesw-resize) !important;
+    cursor: var(--mappy-cursor-nesw-resize);
   }
 
-  html[data-brand-cursors='on'] :is(
+  html :is(
     [data-mappy-cursor='nwse-resize'],
     [data-mappy-cursor='nw-resize'],
     [data-mappy-cursor='se-resize']
   ) {
-    cursor: var(--mappy-cursor-nwse-resize) !important;
+    cursor: var(--mappy-cursor-nwse-resize);
   }
 
-  html[data-brand-cursors='on'] :is(
+  html :is(
     [data-map-draw-surface='true'],
     [data-mappy-cursor='draw']
   ) {
-    cursor: var(--mappy-cursor-draw) !important;
+    cursor: var(--mappy-cursor-draw);
   }
 
-  html[data-brand-cursors='on'] :is([data-mappy-cursor='crosshair']) {
-    cursor: var(--mappy-cursor-crosshair) !important;
+  html :is([data-mappy-cursor='crosshair']) {
+    cursor: var(--mappy-cursor-crosshair);
   }
 
-  html[data-brand-cursors='on'] :is([data-mappy-cursor='default']) {
-    cursor: var(--mappy-cursor-default) !important;
-  }
-
-  html[data-brand-cursors='on'] .cursor--default {
-    cursor: var(--mappy-cursor-default) !important;
+  html :is([data-mappy-cursor='default']) {
+    cursor: var(--mappy-cursor-default);
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  html[data-brand-cursors='on'] {
+  html {
     cursor: auto;
   }
 }

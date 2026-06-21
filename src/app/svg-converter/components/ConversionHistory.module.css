@@ -30,7 +30,7 @@
   border: 1px solid var(--glass-border-light);
   border-radius: var(--border-radius-sm);
   color: var(--text-muted);
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
   transition: var(--transition-base);
   font-size: 1.0rem;
 }
@@ -54,7 +54,7 @@
   background: var(--glass-bg-medium);
   border: 1px solid var(--glass-border-medium);
   border-radius: var(--border-radius-sm);
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
   transition: var(--transition-base);
 }
 
@@ -94,7 +94,7 @@
   background: transparent;
   border: none;
   color: var(--text-muted);
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
   transition: var(--transition-base);
   font-size: 1.0rem;
   border-radius: 2px;

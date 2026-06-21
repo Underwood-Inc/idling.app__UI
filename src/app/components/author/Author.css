@@ -5,7 +5,7 @@
 }
 
 .author.clickable {
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
   border-radius: var(--border-radius);
   transition: all 0.2s ease;
   /* Remove negative margins that cause alignment issues */
@@ -254,7 +254,7 @@
   color: var(--brand-primary);
   font-size: var(--font-size-sm);
   font-weight: 500;
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
   transition: all 0.2s ease;
   text-align: center;
   text-decoration: none;
@@ -324,7 +324,7 @@
   border: none;
   font-size: var(--font-size-xl);
   color: var(--text-secondary);
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
   padding: 0.5rem;
   border-radius: var(--border-radius);
   transition: all 0.2s ease;

@@ -373,7 +373,6 @@ h6 {
 /* Make elements with title attribute italic */
 [title] {
   font-style: italic;
-  cursor: var(--mappy-cursor-help);
 }
 
 /* Removed global font-size rule to prevent specificity conflicts */
@@ -651,7 +650,7 @@ section:not(:last-of-type) {
 }
 
 [aria-disabled='true'] {
-  cursor: not-allowed;
+  cursor: var(--mappy-cursor-not-allowed, not-allowed);
   pointer-events: none;
   opacity: 0.5;
 }
@@ -659,11 +658,11 @@ section:not(:last-of-type) {
 /* END LAYOUT */
 
 .cursor--pointer {
-  cursor: var(--mappy-cursor-pointer);
+  cursor: var(--mappy-cursor-pointer, pointer);
 }
 
 .cursor--default {
-  cursor: var(--mappy-cursor-default);
+  cursor: var(--mappy-cursor-default, default);
 }
 
 @media (hover: hover) {
@@ -673,7 +672,7 @@ section:not(:last-of-type) {
   }
 
   button:disabled:hover {
-    cursor: not-allowed;
+    cursor: var(--mappy-cursor-not-allowed, not-allowed);
   }
 
   :where(a:not([class]):not(.contrast-safe-surface):not(.instant-link):hover) {
@@ -684,7 +683,7 @@ section:not(:last-of-type) {
   [aria-disabled='true']:hover,
   [aria-disabled='true']:hover button,
   [aria-disabled='true']:hover a {
-    cursor: not-allowed;
+    cursor: var(--mappy-cursor-not-allowed, not-allowed);
     pointer-events: none;
     opacity: 0.5;
   }

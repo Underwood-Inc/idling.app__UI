@@ -32,7 +32,7 @@
   background: var(--light-background--secondary);
   border: 2px solid var(--brand-tertiary--dark);
   border-radius: var(--border-radius);
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
   transition: all 0.3s ease;
   min-width: 100px;
   min-height: 80px;

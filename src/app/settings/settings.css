@@ -199,7 +199,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
   transition: all 0.3s ease;
   text-align: left;
 }
@@ -437,7 +437,7 @@
   
   border: 1px solid rgba(237, 174, 73, 0.15);
   border-radius: 12px;
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   text-align: left;
   width: 100%;
@@ -476,7 +476,7 @@
 
 .settings-option:disabled {
   opacity: 0.6;
-  cursor: not-allowed;
+  cursor: var(--mappy-cursor-not-allowed, not-allowed);
 }
 
 .settings-option--active {
@@ -564,7 +564,7 @@
   
   border: 1px solid rgba(237, 174, 73, 0.15);
   border-radius: 12px;
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
   transition: all 0.3s ease;
   font-family: inherit;
   text-align: left;
@@ -665,11 +665,11 @@
 .settings-range__input {
   width: 100%;
   accent-color: var(--brand-primary, #e5c185);
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
 }
 
 .settings-range__input:disabled {
-  cursor: not-allowed;
+  cursor: var(--mappy-cursor-not-allowed, not-allowed);
   opacity: 0.6;
 }
 

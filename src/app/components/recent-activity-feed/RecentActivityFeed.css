@@ -72,7 +72,7 @@
 .recent-activity-feed__item {
   padding: 1.25rem 0;
   border-bottom: 1px solid var(--ambient-surface-border, rgb(255 255 255 / 10%));
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
   transition: all 0.2s ease;
   text-decoration: none;
   color: inherit;

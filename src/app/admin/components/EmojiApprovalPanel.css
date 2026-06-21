@@ -63,7 +63,7 @@
   color: white;
   border: none;
   border-radius: var(--border-radius);
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
   transition: background 0.2s ease;
 }
 
@@ -176,7 +176,7 @@
   border-radius: var(--border-radius);
   font-size: 1.0rem;
   font-weight: 500;
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
   transition: all 0.2s ease;
 }
 
@@ -214,7 +214,7 @@
   color: white;
   border: none;
   border-radius: var(--border-radius);
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
   transition: background 0.2s ease;
 }
 
@@ -224,7 +224,7 @@
 
 .emoji-approval-panel__pagination button:disabled {
   background: var(--light-bg__text-color--tertiary);
-  cursor: not-allowed;
+  cursor: var(--mappy-cursor-not-allowed, not-allowed);
 }
 
 .emoji-approval-panel__pagination span {

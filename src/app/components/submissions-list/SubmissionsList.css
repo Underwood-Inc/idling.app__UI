@@ -173,7 +173,7 @@
   font-weight: 600;
   padding: 0.375rem 0.75rem;
   border-radius: 0.5rem;
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
   transition: all 0.2s ease-in-out;
 }
 
@@ -201,7 +201,7 @@
   color: var(--text-on-tan);
   font-size: 1.0rem;
   font-weight: 600;
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
   padding: 0.5rem 0.875rem;
   border-radius: 0.375rem;
   transition: all 0.2s ease-in-out;
@@ -477,7 +477,7 @@
   /* padding: 0.25rem 0.5rem; */
   border-radius: 0.25rem;
   font-size: var(--font-size-md);
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
   transition: all 0.2s ease;
 }
 

@@ -73,7 +73,7 @@
 .form__input__disabled,
 .form__textarea__disabled {
   opacity: 0.6;
-  cursor: not-allowed;
+  cursor: var(--mappy-cursor-not-allowed, not-allowed);
   background-color: var(--dark-background--tertiary);
 }
 
@@ -164,7 +164,7 @@
   border-radius: 6px;
   font-size: 1.0rem;
   color: var(--dark-bg__text-color--secondary);
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
   transition: all 0.2s ease;
   min-width: 0;
 }
@@ -180,7 +180,7 @@
   color: white;
   border: none;
   border-radius: 6px;
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
   font-size: 1.0rem;
   transition: all 0.2s ease;
   display: flex;
@@ -223,7 +223,7 @@
   padding: 0.875rem 1rem;
   border: none;
   border-radius: 6px;
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
   font-size: 1.0rem;
   font-weight: 600;
   transition: all 0.2s ease;
@@ -258,7 +258,7 @@
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
 }
 
 .form__checkbox {
@@ -267,7 +267,7 @@
   border: 2px solid var(--dark-border--primary);
   border-radius: 4px;
   background-color: var(--dark-background--primary);
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
   transition: all 0.2s ease;
 }
 
@@ -278,7 +278,7 @@
 
 .form__checkbox:disabled {
   opacity: 0.5;
-  cursor: not-allowed;
+  cursor: var(--mappy-cursor-not-allowed, not-allowed);
 }
 
 /* Form Header and Collapse - Fixed alignment and spacing */
@@ -338,7 +338,7 @@
   border: 1px solid #d0d0d0;
   border-radius: 8px;
   padding: 0.875rem 1.25rem;
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
   font-size: 1.0rem;
   color: var(--light-bg__text-color--primary);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -544,7 +544,7 @@
   border-radius: 8px;
   padding: 0.75rem 1.25rem;
   color: var(--light-bg__text-color--secondary);
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
   display: flex;
   align-items: center;
   gap: 0.75rem;
@@ -756,7 +756,7 @@
   border-radius: 10px;
   font-size: 1.0625rem;
   font-weight: 700;
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
   transition: all 0.2s ease;
   box-shadow: 0 6px 20px transparent;
   text-transform: none;
@@ -777,7 +777,7 @@
 
 .generate__button:disabled {
   opacity: 0.6;
-  cursor: not-allowed;
+  cursor: var(--mappy-cursor-not-allowed, not-allowed);
   transform: none;
   box-shadow: 0 6px 20px transparent;
 }
@@ -803,7 +803,7 @@
   border-radius: 10px;
   font-size: 1rem;
   font-weight: 600;
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
   transition: all 0.2s ease;
   white-space: nowrap;
   height: 56px;
@@ -820,7 +820,7 @@
 
 .randomize__button__disabled {
   opacity: 0.6;
-  cursor: not-allowed;
+  cursor: var(--mappy-cursor-not-allowed, not-allowed);
   transform: none;
 }
 
@@ -935,7 +935,7 @@
   font-size: 1rem;
   transition: all 0.2s ease;
   border: none;
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
 }
 
 .form__upgrade__button:hover {

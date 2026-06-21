@@ -56,7 +56,7 @@
   font-size: var(--font-size-xs);
   font-weight: 600;
   color: var(--light-bg__text-color--secondary);
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
   transition: all 0.2s ease;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -83,7 +83,7 @@
 
 .shared-submission-form__toggle-btn:disabled {
   opacity: 0.5;
-  cursor: not-allowed;
+  cursor: var(--mappy-cursor-not-allowed, not-allowed);
 }
 
 .shared-submission-form__label {
@@ -123,7 +123,7 @@
 .shared-submission-form__textarea:disabled {
   background-color: var(--light-background--secondary);
   color: var(--text-tertiary);
-  cursor: not-allowed;
+  cursor: var(--mappy-cursor-not-allowed, not-allowed);
 }
 
 .shared-submission-form__input--error,
@@ -210,7 +210,7 @@
   border-radius: var(--border-radius);
   font-size: var(--font-size-base);
   font-weight: 600;
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
   transition: all 0.2s ease;
   position: relative;
   overflow: hidden;
@@ -229,7 +229,7 @@
 
 .shared-submission-form__submit:disabled {
   background: var(--text-tertiary);
-  cursor: not-allowed;
+  cursor: var(--mappy-cursor-not-allowed, not-allowed);
   transform: none;
   box-shadow: none;
   opacity: 0.6;
@@ -459,7 +459,7 @@
   font-size: var(--font-size-sm);
   font-weight: 500;
   margin: 0 2px;
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
   user-select: none;
   transition: all 0.2s ease;
 }
@@ -740,7 +740,7 @@
   font-size: 12px;
   font-weight: bold;
   color: white;
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
   transition: all 0.2s ease;
   z-index: 15;
   box-shadow: 0 2px 6px transparent;
@@ -832,7 +832,7 @@
   border-radius: 12px;
   font-size: 10px;
   font-weight: 600;
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
   margin-left: 8px;
   padding: 0 8px;
   transition: all 0.2s ease;
@@ -1101,7 +1101,7 @@
   min-height: 2.5rem;
   display: flex;
   align-items: flex-start;
-  cursor: text;
+  cursor: var(--mappy-cursor-text, text);
 }
 
 .form-pill-input__content {
@@ -1195,7 +1195,7 @@
   min-height: 2.5rem;
   display: flex;
   align-items: center;
-  cursor: text;
+  cursor: var(--mappy-cursor-text, text);
   /* Make it clickable to focus the hidden input */
   font-size: var(--font-size-base);
   line-height: 1.5;
@@ -1322,7 +1322,7 @@
 /* Portal suggestion styles */
 .suggestion-list .suggestion-item {
   padding: 0.5rem 0.75rem;
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
   display: flex;
   align-items: center;
   gap: 0.5rem;

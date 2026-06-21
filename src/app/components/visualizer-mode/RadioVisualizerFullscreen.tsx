@@ -3,8 +3,10 @@
 import { useRadioPlayer } from '@lib/context/RadioPlayerContext';
 import type AudioMotionAnalyzer from 'audiomotion-analyzer';
 import { useEffect, useRef } from 'react';
-import type { RadioVisualizerPreset } from './radioVisualizerPresets';
-import { RADIO_VISUALIZER_BASE_OPTIONS } from './radioVisualizerPresets';
+import type { RadioVisualizerPreset } from '@widgets/radio-player/radioVisualizerPresets';
+import {
+  RADIO_VISUALIZER_BASE_OPTIONS,
+} from '@widgets/radio-player/radioVisualizerPresets';
 import styles from './VisualizerMode.module.css';
 
 export interface RadioVisualizerFullscreenProps {
@@ -74,12 +76,17 @@ export function RadioVisualizerFullscreen({ isActive, preset }: RadioVisualizerF
     return null;
   }
 
+  const isRadial = preset.options.radial === true;
+
   return (
-    <div
-      ref={containerRef}
-      className={styles.spectrum}
-      data-testid="radio-visualizer-fullscreen"
-      aria-hidden="true"
-    />
+    <div className={styles.spectrumFrame}>
+      <div
+        ref={containerRef}
+        className={styles.spectrum}
+        data-radial={isRadial ? 'true' : 'false'}
+        data-testid="radio-visualizer-fullscreen"
+        aria-hidden="true"
+      />
+    </div>
   );
 }

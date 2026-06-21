@@ -58,7 +58,7 @@
   border: none;
   font-size: 1.5rem;
   color: var(--dark-bg__text-color--secondary);
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
   padding: 0.5rem;
   border-radius: var(--border-radius);
   transition: all 0.2s ease;
@@ -73,7 +73,7 @@
 
 .export-modal__close:disabled {
   opacity: 0.5;
-  cursor: not-allowed;
+  cursor: var(--mappy-cursor-not-allowed, not-allowed);
 }
 
 .export-modal__content {
@@ -120,7 +120,7 @@
   padding: 1.25rem;
   border: 2px solid var(--dark-border--primary);
   border-radius: var(--border-radius-lg);
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
   transition: all 0.2s ease;
   background: var(--dark-background--secondary);
 }
@@ -190,7 +190,7 @@
   padding: 1rem;
   border: 1px solid var(--dark-border--primary);
   border-radius: var(--border-radius);
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
   transition: all 0.2s ease;
   background: var(--dark-background--secondary);
 }
@@ -207,7 +207,7 @@
 
 .export-scope-option:has(input:disabled) {
   opacity: 0.5;
-  cursor: not-allowed;
+  cursor: var(--mappy-cursor-not-allowed, not-allowed);
 }
 
 .export-scope-option input[type='radio'] {
@@ -265,7 +265,7 @@
   color: var(--dark-bg__text-color--secondary);
   font-size: var(--font-size-xs);
   font-weight: 500;
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
   transition: all 0.2s ease;
 }
 
@@ -277,7 +277,7 @@
 
 .export-fields-action:disabled {
   opacity: 0.5;
-  cursor: not-allowed;
+  cursor: var(--mappy-cursor-not-allowed, not-allowed);
 }
 
 .export-fields-grid {
@@ -293,7 +293,7 @@
   padding: 0.75rem;
   border: 1px solid var(--dark-border--primary);
   border-radius: var(--border-radius);
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
   transition: all 0.2s ease;
   background: var(--dark-background--secondary);
 }
@@ -374,7 +374,7 @@
   border-radius: var(--border-radius);
   font-size: var(--font-size-sm);
   font-weight: 600;
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
   transition: all 0.2s ease;
   min-width: 120px;
   display: flex;
@@ -421,7 +421,7 @@
 .export-modal__preview:disabled,
 .export-modal__cancel:disabled {
   opacity: 0.6;
-  cursor: not-allowed;
+  cursor: var(--mappy-cursor-not-allowed, not-allowed);
   transform: none;
 }
 
@@ -475,7 +475,7 @@
   border: none;
   font-size: 1.25rem;
   color: var(--dark-bg__text-color--secondary);
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
   padding: 0.25rem;
   border-radius: var(--border-radius);
   transition: all 0.2s ease;

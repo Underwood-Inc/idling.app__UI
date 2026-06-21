@@ -6,7 +6,7 @@
   border-radius: 4px;
   background: rgb(255 255 255 / 4%);
   color: var(--text-primary, #e0e0e0);
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
   font: inherit;
   transition: background-color 0.12s ease, border-color 0.12s ease;
 }
@@ -51,14 +51,39 @@
   white-space: nowrap;
 }
 
-.spectrum {
+.spectrumFrame {
   position: fixed;
   inset: 0;
   z-index: 5000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   box-sizing: border-box;
-  padding-top: 4rem;
-  padding-bottom: var(--irp-bar-height, var(--irp-dock-height, 7.5rem));
+  padding: 0.75rem;
+  padding-bottom: calc(var(--irp-bar-height, var(--irp-dock-height, 7.5rem)) + 0.75rem);
   pointer-events: none;
+}
+
+.spectrum {
+  width: min(
+    calc(100vw - 1.5rem),
+    calc(100vh - var(--irp-bar-height, var(--irp-dock-height, 7.5rem)) - 1.5rem)
+  );
+  height: min(
+    calc(100vw - 1.5rem),
+    calc(100vh - var(--irp-bar-height, var(--irp-dock-height, 7.5rem)) - 1.5rem)
+  );
+  aspect-ratio: 1;
+  max-width: 100%;
+  max-height: 100%;
+}
+
+.spectrum[data-radial='false'] {
+  width: calc(100% - 1.5rem);
+  height: calc(100% - var(--irp-bar-height, var(--irp-dock-height, 7.5rem)) - 1.5rem);
+  max-width: none;
+  max-height: none;
+  aspect-ratio: auto;
 }
 
 .spectrum :global(canvas) {
@@ -140,7 +165,7 @@
   background: rgb(12 12 18 / 55%);
   backdrop-filter: blur(16px);
   color: var(--text-primary, #e0e0e0);
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
   font: inherit;
   line-height: 1;
 }

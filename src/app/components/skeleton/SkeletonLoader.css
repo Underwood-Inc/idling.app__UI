@@ -350,7 +350,7 @@
   color: white;
   border: none;
   border-radius: var(--border-radius);
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
   transition: background-color 0.2s ease;
 }
 

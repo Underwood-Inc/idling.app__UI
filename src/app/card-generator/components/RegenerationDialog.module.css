@@ -43,7 +43,7 @@
   border: 1px solid var(--dark-border--primary);
   border-radius: 6px;
   padding: 0.5rem;
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
   font-size: 1rem;
   color: var(--dark-bg__text-color--secondary);
   transition: all 0.2s ease;
@@ -88,7 +88,7 @@
   padding: 1.5rem 1rem;
   border: 2px solid var(--dark-border--primary);
   border-radius: 12px;
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
   transition: all 0.3s ease;
   text-align: center;
   background: var(--dark-background--secondary);

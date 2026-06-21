@@ -166,7 +166,7 @@
 /* Integration with existing alert components */
 .status-toggle .alert-status-tooltip-wrapper span,
 .checkbox-label .alert-status-tooltip-wrapper span {
-  cursor: help;
+  cursor: var(--mappy-cursor-help, help);
   text-decoration: underline;
   text-decoration-style: dotted;
   text-underline-offset: 2px;

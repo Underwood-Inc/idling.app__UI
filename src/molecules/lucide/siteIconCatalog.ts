@@ -69,6 +69,7 @@ import {
   Package,
   Palette,
   Pause,
+  Play,
   PenLine,
   Pencil,
   Pin,
@@ -183,6 +184,7 @@ export type SiteIconId =
   | 'package'
   | 'palette'
   | 'pause'
+  | 'play'
   | 'pen'
   | 'pencil'
   | 'pin'
@@ -299,6 +301,7 @@ export const SITE_ICON_CATALOG: Record<SiteIconId, SiteIconCatalogEntry> = {
   package: { id: 'package', icon: Package, label: 'Package' },
   palette: { id: 'palette', icon: Palette, label: 'Design' },
   pause: { id: 'pause', icon: Pause, label: 'Pause' },
+  play: { id: 'play', icon: Play, label: 'Play' },
   pen: { id: 'pen', icon: PenLine, label: 'Compose' },
   pencil: { id: 'pencil', icon: Pencil, label: 'Edit' },
   pin: { id: 'pin', icon: Pin, label: 'Pin' },

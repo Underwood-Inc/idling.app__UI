@@ -60,7 +60,7 @@
   border: none;
   font-size: 1.5rem;
   color: var(--light-bg__text-color--secondary);
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
   padding: 0.25rem;
   border-radius: 0.25rem;
   transition: all 0.2s ease;
@@ -129,7 +129,7 @@
   border-radius: var(--border-radius);
   font-size: 1.0rem;
   font-weight: 500;
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
   transition: all 0.2s ease;
 }
 

@@ -3,7 +3,7 @@
 import { useRadioPlayer } from '@lib/context/RadioPlayerContext';
 import { useVisualizerMode } from '@lib/context/VisualizerModeContext';
 import { RadioVisualizerFullscreen } from './RadioVisualizerFullscreen';
-import { RADIO_VISUALIZER_PRESETS } from './radioVisualizerPresets';
+import { RADIO_VISUALIZER_PRESETS } from '@widgets/radio-player/radioVisualizerPresets';
 import styles from './VisualizerMode.module.css';
 
 export function VisualizerModeOverlay() {

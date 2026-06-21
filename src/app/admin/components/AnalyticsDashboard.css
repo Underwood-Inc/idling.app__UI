@@ -139,7 +139,7 @@
   border: none;
   padding: var(--analytics-space-sm) var(--analytics-space-md);
   border-radius: var(--analytics-space-sm);
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
   font-size: var(--analytics-font-size-sm);
   font-weight: 600;
   transition: all 0.2s ease;
@@ -178,7 +178,7 @@
   font-size: var(--analytics-font-size-md);
   font-weight: 600;
   color: var(--analytics-text-secondary);
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
   border-bottom: 3px solid transparent;
   transition: all 0.2s ease;
   position: relative;
@@ -260,7 +260,7 @@
   border: none;
   padding: var(--analytics-space-md) var(--analytics-space-lg);
   border-radius: var(--analytics-space-sm);
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
   font-size: var(--analytics-font-size-md);
   font-weight: 600;
   transition: all 0.2s ease;

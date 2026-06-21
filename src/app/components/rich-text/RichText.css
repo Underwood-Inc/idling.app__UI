@@ -172,7 +172,7 @@
   border: none;
   padding: 8px;
   border-radius: 6px;
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -506,7 +506,7 @@
 
 .url-embed {
   /* Ensure embeds are keyboard accessible */
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
   outline: none;
 }
 

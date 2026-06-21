@@ -52,7 +52,7 @@
   background: transparent;
   border: 1px solid transparent;
   border-radius: 0.375rem;
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
   transition: all 0.2s ease;
 }
 

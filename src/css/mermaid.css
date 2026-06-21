@@ -28,11 +28,11 @@
   max-width: 100% !important;
   height: auto !important;
   background: transparent !important;
-  cursor: var(--mappy-cursor-grab);
+  cursor: var(--mappy-cursor-grab, grab);
 }
 
 .mermaid svg:active {
-  cursor: var(--mappy-cursor-grabbing);
+  cursor: var(--mappy-cursor-grabbing, grabbing);
 }
 
 /* Enhanced Mermaid diagram container with advanced viewing capabilities */
@@ -51,7 +51,7 @@
   min-height: min(70vh, 60rem);
   height: min(70vh, 60rem);
   margin: 0;
-  cursor: var(--mappy-cursor-grab);
+  cursor: var(--mappy-cursor-grab, grab);
 }
 
 .mermaid-container[data-mermaid-interactive='true'] .mermaid {
@@ -123,7 +123,7 @@
   font-size: 2rem;
   line-height: 1;
   font-weight: var(--font-weight-semibold);
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
   transition:
     background 0.2s ease,
     border-color 0.2s ease,

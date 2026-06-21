@@ -106,7 +106,7 @@
   color: var(--text-muted, #6b7280);
   box-shadow: 0 2px 4px transparent;
   transition: all 0.2s ease;
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
   user-select: none;
   min-width: 120px;
 }
@@ -180,7 +180,7 @@
   padding: 8px 12px;
   font-size: 12px;
   color: var(--text-muted, #6b7280);
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
   transition: background-color 0.2s ease;
   border-bottom: 1px solid var(--light-background--tertiary, #e0e0e0);
 }
@@ -238,7 +238,7 @@
   background: none;
   border: none;
   color: var(--text-muted, #6b7280);
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
   border-radius: 50%;
   transition: all 0.2s ease;
   z-index: 15;

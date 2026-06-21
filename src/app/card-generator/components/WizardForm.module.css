@@ -68,7 +68,7 @@
   border: 1px solid #d0d0d0;
   border-radius: 8px;
   padding: 0.5rem 1rem;
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
   font-size: 1.0rem;
   color: var(--light-bg__text-color--primary);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -263,7 +263,7 @@
   border: 2px solid #d0d0d0;
   border-radius: 12px;
   padding: 1.5rem;
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
   transition: all 0.3s ease;
   text-align: left;
   width: 100%;
@@ -476,7 +476,7 @@
   border-radius: 8px;
   font-size: 1rem;
   font-weight: 600;
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
   transition: all 0.2s ease;
   border: none;
   text-decoration: none;
@@ -534,7 +534,7 @@
 .generateButtonDisabled {
   background: #E5E5E5;
   color: var(--light-bg__text-color--tertiary);
-  cursor: not-allowed;
+  cursor: var(--mappy-cursor-not-allowed, not-allowed);
 }
 
 .cancelButton:disabled,
@@ -542,7 +542,7 @@
 .nextButton:disabled,
 .generateButton:disabled {
   opacity: 0.5;
-  cursor: not-allowed;
+  cursor: var(--mappy-cursor-not-allowed, not-allowed);
   transform: none;
 }
 
@@ -623,7 +623,7 @@
 .textarea:disabled {
   background: var(--light-background--tertiary);
   color: var(--light-bg__text-color--tertiary);
-  cursor: not-allowed;
+  cursor: var(--mappy-cursor-not-allowed, not-allowed);
   opacity: 0.6;
 }
 

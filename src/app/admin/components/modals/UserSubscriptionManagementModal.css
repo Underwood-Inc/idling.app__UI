@@ -36,7 +36,7 @@
   background: none;
   border: none;
   color: var(--dark-bg__text-color--secondary);
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
   font-size: var(--font-size-lg);
   padding: 0.5rem;
   border-radius: var(--border-radius);
@@ -104,7 +104,7 @@
   background: none;
   border: none;
   color: var(--error);
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
   font-size: 1.2rem;
   padding: 0.25rem;
   border-radius: var(--border-radius);
@@ -264,7 +264,7 @@
   padding: 0.25rem 0.5rem;
   border-radius: var(--border-radius);
   border: 1px solid transparent;
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
   font-size: var(--font-size-sm);
   font-weight: 500;
   transition: all 0.2s ease;
@@ -275,7 +275,7 @@
 
 .user-subscription-modal .subscription-actions .btn:disabled {
   opacity: 0.5;
-  cursor: not-allowed;
+  cursor: var(--mappy-cursor-not-allowed, not-allowed);
 }
 
 .user-subscription-modal .subscription-actions .btn-warning {
@@ -349,7 +349,7 @@
   background: none;
   border: none;
   color: var(--dark-bg__text-color--secondary);
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
   font-size: var(--font-size-sm);
   padding: 0.5rem;
   border-radius: var(--border-radius);
@@ -411,7 +411,7 @@
 .user-subscription-modal .form-group select:disabled,
 .user-subscription-modal .form-group textarea:disabled {
   opacity: 0.5;
-  cursor: not-allowed;
+  cursor: var(--mappy-cursor-not-allowed, not-allowed);
 }
 
 .user-subscription-modal .form-group textarea {
@@ -434,7 +434,7 @@
   padding: 0.75rem 1.5rem;
   border-radius: var(--border-radius);
   border: 1px solid transparent;
-  cursor: pointer;
+  cursor: var(--mappy-cursor-pointer, pointer);
   font-size: var(--font-size-sm);
   font-weight: 500;
   transition: all 0.2s ease;
@@ -454,7 +454,7 @@
 
 .user-subscription-modal .form-actions .btn-primary:disabled {
   opacity: 0.5;
-  cursor: not-allowed;
+  cursor: var(--mappy-cursor-not-allowed, not-allowed);
 }
 
 /* Loading State */
