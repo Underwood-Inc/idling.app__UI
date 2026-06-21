@@ -1,3 +1,4 @@
+import { IdRouteContext } from '@lib/types/next-route-context';
 /**
  * Effective Quotas API for Admin Panel
  *
@@ -79,11 +80,12 @@ async function validateUserExists(userId: string): Promise<boolean> {
  */
 async function getHandler(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: IdRouteContext
 ): Promise<
   NextResponse<ApiResponse<{ quotas: EffectiveQuotaData[] }> | ErrorResponse>
 > {
   try {
+    const { id } = await params;
     // Validate session
     const session = await auth();
     if (!session?.user?.id) {
@@ -107,7 +109,7 @@ async function getHandler(
     }
 
     // Validate user exists
-    const userExists = await validateUserExists(params.id);
+    const userExists = await validateUserExists(id);
     if (!userExists) {
       return NextResponse.json(
         { success: false, error: 'User not found' },
@@ -117,7 +119,7 @@ async function getHandler(
 
     // Get comprehensive quota info using EnhancedQuotaService
     const quotaInfo = await EnhancedQuotaService.getUserQuotaInfo(
-      parseInt(params.id)
+      parseInt(id)
     );
 
     // Get additional display information for proper names
@@ -139,7 +141,7 @@ async function getHandler(
         sp.display_name as plan_display_name
       FROM user_subscriptions us
       JOIN subscription_plans sp ON us.plan_id = sp.id
-      WHERE us.user_id = ${params.id}
+      WHERE us.user_id = ${id}
       AND us.status IN ('active', 'trialing')
       AND (us.expires_at IS NULL OR us.expires_at > NOW())
       ORDER BY sp.sort_order DESC
@@ -155,7 +157,7 @@ async function getHandler(
         is_unlimited,
         reason
       FROM user_quota_overrides
-      WHERE user_id = ${params.id}
+      WHERE user_id = ${id}
       AND is_active = true
     `;
 

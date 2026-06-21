@@ -1,3 +1,4 @@
+import { IdRouteContext } from '@lib/types/next-route-context';
 /**
  * @swagger
  * /api/profile/id/{id}:
@@ -76,10 +77,10 @@ import { NextRequest, NextResponse } from 'next/server';
 
 async function getHandler(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: IdRouteContext
 ) {
   try {
-    const { id } = params;
+    const { id } = await params;
 
     if (!id) {
       return NextResponse.json({ error: 'ID is required' }, { status: 400 });

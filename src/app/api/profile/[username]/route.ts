@@ -4,6 +4,7 @@ import { auth } from '@lib/auth';
 import { withProfilePrivacy } from '@lib/utils/privacy';
 import { getEffectiveCharacterCount } from '@lib/utils/string';
 import { NextRequest, NextResponse } from 'next/server';
+import { UsernameRouteContext } from '@lib/types/next-route-context';
 
 // This route uses dynamic features (auth/headers) and should not be pre-rendered
 export const runtime = 'nodejs';
@@ -11,10 +12,10 @@ export const dynamic = 'force-dynamic';
 
 async function getHandler(
   request: NextRequest,
-  { params }: { params: { username: string } }
+  { params }: UsernameRouteContext
 ) {
   try {
-    const { username } = params;
+    const { username } = await params;
 
     if (!username) {
       return NextResponse.json(
@@ -58,9 +59,10 @@ async function getHandler(
 
 async function patchHandler(
   request: NextRequest,
-  { params }: { params: { username: string } }
+  { params }: UsernameRouteContext
 ) {
   try {
+    const { username } = await params;
     // First, verify authentication with JWT
     const session = await auth();
 
@@ -71,7 +73,6 @@ async function patchHandler(
       );
     }
 
-    const { username } = params;
     const body = await request.json();
     const { bio } = body;
 

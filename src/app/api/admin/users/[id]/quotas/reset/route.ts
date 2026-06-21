@@ -1,3 +1,4 @@
+import { IdRouteContext } from '@lib/types/next-route-context';
 /**
  * User Quota Reset API
  *
@@ -82,13 +83,14 @@ async function logAdminAction(
  */
 async function postHandler(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: IdRouteContext
 ): Promise<
   NextResponse<
     ApiResponse<{ reset: boolean; previous_usage: number }> | ErrorResponse
   >
 > {
   try {
+    const { id } = await params;
     // Validate session
     const session = await auth();
     if (!session?.user?.id) {
@@ -99,7 +101,7 @@ async function postHandler(
     }
 
     // Validate user exists
-    const userExists = await validateUserExists(params.id);
+    const userExists = await validateUserExists(id);
     if (!userExists) {
       return NextResponse.json(
         { success: false, error: 'User not found' },
@@ -146,7 +148,7 @@ async function postHandler(
       FROM subscription_usage su
       JOIN subscription_services ss ON su.service_id = ss.id
       JOIN subscription_features sf ON su.feature_id = sf.id
-      WHERE su.user_id = ${params.id}
+      WHERE su.user_id = ${id}
       AND ss.name = ${service_name}
       AND sf.name = ${feature_name}
       AND su.usage_date >= CURRENT_DATE
@@ -157,7 +159,7 @@ async function postHandler(
     // Reset usage in subscription_usage table (for authenticated users)
     const resetResult = await sql`
       DELETE FROM subscription_usage
-      WHERE user_id = ${params.id}
+      WHERE user_id = ${id}
       AND service_id IN (
         SELECT ss.id FROM subscription_services ss WHERE ss.name = ${service_name}
       )
@@ -172,7 +174,7 @@ async function postHandler(
     // Also reset guest usage if this user has IP-based records
     // (in case they were using the system before logging in)
     const userInfo = await sql`
-      SELECT email FROM users WHERE id = ${params.id}
+      SELECT email FROM users WHERE id = ${id}
     `;
 
     if (userInfo.length > 0) {
@@ -190,7 +192,7 @@ async function postHandler(
       session.user.id,
       'user_quota_reset',
       {
-        target_user_id: params.id,
+        target_user_id: id,
         service_name,
         feature_name,
         previous_usage: previousUsage,

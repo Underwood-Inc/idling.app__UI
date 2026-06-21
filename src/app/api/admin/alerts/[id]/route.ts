@@ -2,6 +2,7 @@ import { auth } from '@lib/auth';
 import sql from '@lib/db';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
+import { IdRouteContext } from '@lib/types/next-route-context';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -76,9 +77,10 @@ async function validateAdminAccess(sessionUserId: string): Promise<boolean> {
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: IdRouteContext
 ) {
   try {
+    const { id } = await params;
     const session = await auth();
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -92,7 +94,7 @@ export async function GET(
       );
     }
 
-    const alertId = parseInt(params.id);
+    const alertId = parseInt(id);
     if (isNaN(alertId)) {
       return NextResponse.json({ error: 'Invalid alert ID' }, { status: 400 });
     }
@@ -117,9 +119,10 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: IdRouteContext
 ) {
   try {
+    const { id } = await params;
     const session = await auth();
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -133,7 +136,7 @@ export async function PUT(
       );
     }
 
-    const alertId = parseInt(params.id);
+    const alertId = parseInt(id);
     if (isNaN(alertId)) {
       return NextResponse.json({ error: 'Invalid alert ID' }, { status: 400 });
     }
@@ -216,9 +219,10 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: IdRouteContext
 ) {
   try {
+    const { id } = await params;
     const session = await auth();
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -232,7 +236,7 @@ export async function DELETE(
       );
     }
 
-    const alertId = parseInt(params.id);
+    const alertId = parseInt(id);
     if (isNaN(alertId)) {
       return NextResponse.json({ error: 'Invalid alert ID' }, { status: 400 });
     }

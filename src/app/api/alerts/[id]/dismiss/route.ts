@@ -2,6 +2,7 @@ import { withUniversalEnhancements } from '@lib/api/withUniversalEnhancements';
 import { auth } from '@lib/auth';
 import sql from '@lib/db';
 import { NextRequest, NextResponse } from 'next/server';
+import { IdRouteContext } from '@lib/types/next-route-context';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -14,15 +15,16 @@ export const dynamic = 'force-dynamic';
  */
 async function postHandler(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: IdRouteContext
 ) {
   try {
+    const { id } = await params;
     const session = await auth();
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const alertId = parseInt(params.id);
+    const alertId = parseInt(id);
     if (isNaN(alertId)) {
       return NextResponse.json({ error: 'Invalid alert ID' }, { status: 400 });
     }

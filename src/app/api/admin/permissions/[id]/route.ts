@@ -1,3 +1,4 @@
+import { IdRouteContext } from '@lib/types/next-route-context';
 /**
  * Admin Individual Permission Management API
  * Handles update, disable, archive operations for specific permissions
@@ -50,9 +51,10 @@ const PermissionArchiveSchema = z.object({
  */
 async function getHandler(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: IdRouteContext
 ) {
   try {
+    const { id: routeId } = await params;
     const session = await auth();
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -71,7 +73,7 @@ async function getHandler(
       );
     }
 
-    const { id } = PermissionIdSchema.parse({ id: params.id });
+    const { id } = PermissionIdSchema.parse({ id: routeId });
 
     // Get permission with detailed stats
     const permission = await sql`
@@ -178,9 +180,10 @@ async function getHandler(
  */
 async function patchHandler(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: IdRouteContext
 ) {
   try {
+    const { id: routeId } = await params;
     const session = await auth();
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -199,7 +202,7 @@ async function patchHandler(
       );
     }
 
-    const { id } = PermissionIdSchema.parse({ id: params.id });
+    const { id } = PermissionIdSchema.parse({ id: routeId });
     const body = await request.json();
     const data = PermissionUpdateSchema.parse(body);
 
@@ -285,9 +288,10 @@ async function patchHandler(
  */
 async function deleteHandler(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: IdRouteContext
 ) {
   try {
+    const { id: routeId } = await params;
     const session = await auth();
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -306,7 +310,7 @@ async function deleteHandler(
       );
     }
 
-    const { id } = PermissionIdSchema.parse({ id: params.id });
+    const { id } = PermissionIdSchema.parse({ id: routeId });
     const body = await request.json();
     const { reason } = PermissionArchiveSchema.parse(body);
 

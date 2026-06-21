@@ -1,3 +1,4 @@
+import { IdRouteContext } from '@lib/types/next-route-context';
 /**
  * User Quota Overrides API
  *
@@ -137,11 +138,12 @@ async function logAdminAction(
  */
 async function putHandler(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: IdRouteContext
 ): Promise<
   NextResponse<ApiResponse<{ override: UserQuotaOverride }> | ErrorResponse>
 > {
   try {
+    const { id } = await params;
     // Validate session
     const session = await auth();
     if (!session?.user?.id) {
@@ -161,7 +163,7 @@ async function putHandler(
     }
 
     // Validate user exists
-    const userExists = await validateUserExists(params.id);
+    const userExists = await validateUserExists(id);
     if (!userExists) {
       return NextResponse.json(
         { success: false, error: 'User not found' },
@@ -217,7 +219,7 @@ async function putHandler(
     // Check if override already exists
     const existingOverride = await sql`
       SELECT id FROM user_quota_overrides
-      WHERE user_id = ${params.id} 
+      WHERE user_id = ${id} 
       AND service_name = ${service_name} 
       AND feature_name = ${feature_name}
     `;
@@ -244,7 +246,7 @@ async function putHandler(
           user_id, service_name, feature_name, quota_limit, 
           is_unlimited, reset_period, reason, created_by, is_active
         ) VALUES (
-          ${params.id}, ${service_name}, ${feature_name}, ${finalQuotaLimit},
+          ${id}, ${service_name}, ${feature_name}, ${finalQuotaLimit},
           ${finalIsUnlimited}, ${finalResetPeriod}, ${reason || null}, ${parseInt(session.user.id)}, true
         )
         RETURNING *
@@ -256,7 +258,7 @@ async function putHandler(
       parseInt(session.user.id),
       'user_quota_override',
       {
-        target_user_id: params.id,
+        target_user_id: id,
         service_name,
         feature_name,
         quota_limit: finalQuotaLimit,
@@ -296,9 +298,10 @@ async function putHandler(
  */
 async function deleteHandler(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: IdRouteContext
 ): Promise<NextResponse<ApiResponse<{ deleted: boolean }> | ErrorResponse>> {
   try {
+    const { id } = await params;
     // Validate session
     const session = await auth();
     if (!session?.user?.id) {
@@ -318,7 +321,7 @@ async function deleteHandler(
     }
 
     // Validate user exists
-    const userExists = await validateUserExists(params.id);
+    const userExists = await validateUserExists(id);
     if (!userExists) {
       return NextResponse.json(
         { success: false, error: 'User not found' },
@@ -346,7 +349,7 @@ async function deleteHandler(
     // Get override details for logging
     const overrideDetails = await sql`
       SELECT * FROM user_quota_overrides
-      WHERE user_id = ${params.id} 
+      WHERE user_id = ${id} 
       AND service_name = ${service_name} 
       AND feature_name = ${feature_name}
     `;
@@ -361,7 +364,7 @@ async function deleteHandler(
     // Delete the override
     const deleteResult = await sql`
       DELETE FROM user_quota_overrides
-      WHERE user_id = ${params.id} 
+      WHERE user_id = ${id} 
       AND service_name = ${service_name} 
       AND feature_name = ${feature_name}
       RETURNING id
@@ -379,7 +382,7 @@ async function deleteHandler(
       parseInt(session.user.id),
       'user_quota_override_remove',
       {
-        target_user_id: params.id,
+        target_user_id: id,
         service_name,
         feature_name,
         removed_override: overrideDetails[0]

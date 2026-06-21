@@ -1,3 +1,4 @@
+import { IdRouteContext } from '@lib/types/next-route-context';
 /**
  * User Quota Usage Reset API
  *
@@ -101,13 +102,14 @@ async function logAdminAction(
  */
 async function postHandler(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: IdRouteContext
 ): Promise<
   NextResponse<
     ApiResponse<{ reset: boolean; previous_usage: number }> | ErrorResponse
   >
 > {
   try {
+    const { id } = await params;
     // Validate session
     const session = await auth();
     if (!session?.user?.id) {
@@ -127,7 +129,7 @@ async function postHandler(
     }
 
     // Validate user exists
-    const userExists = await validateUserExists(params.id);
+    const userExists = await validateUserExists(id);
     if (!userExists) {
       return NextResponse.json(
         { success: false, error: 'User not found' },
@@ -174,7 +176,7 @@ async function postHandler(
       FROM subscription_usage su
       JOIN subscription_services ss ON su.service_id = ss.id
       JOIN subscription_features sf ON su.feature_id = sf.id
-      WHERE su.user_id = ${parseInt(params.id)}
+      WHERE su.user_id = ${parseInt(id)}
       AND ss.name = ${service_name}
       AND sf.name = ${feature_name}
       AND su.usage_date >= CURRENT_DATE - INTERVAL '30 days'
@@ -188,7 +190,7 @@ async function postHandler(
       USING subscription_services ss, subscription_features sf
       WHERE su.service_id = ss.id
       AND su.feature_id = sf.id
-      AND su.user_id = ${parseInt(params.id)}
+      AND su.user_id = ${parseInt(id)}
       AND ss.name = ${service_name}
       AND sf.name = ${feature_name}
       AND su.usage_date >= CURRENT_DATE - INTERVAL '30 days'
@@ -199,7 +201,7 @@ async function postHandler(
       parseInt(session.user.id),
       'user_quota_usage_reset',
       {
-        target_user_id: parseInt(params.id),
+        target_user_id: parseInt(id),
         service_name,
         feature_name,
         previous_usage: previousUsage,
