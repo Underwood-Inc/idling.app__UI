@@ -564,9 +564,14 @@ export function WizardForm({
             <SiteIcon id="layout" sizeRem={1} />
             Platform
           </h4>
-          <p>
-            {selectedRatio.name} ({selectedRatio.dimensions})
-          </p>
+          <div className={wizardStyles.configItem}>
+            <span>Format:</span>
+            <span>{selectedRatio.name}</span>
+          </div>
+          <div className={wizardStyles.configItem}>
+            <span>Dimensions:</span>
+            <span>{selectedRatio.dimensions}</span>
+          </div>
         </div>
 
         <div className={wizardStyles.configSection}>
