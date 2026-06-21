@@ -1,81 +1,52 @@
-/** Stations catalogued with supportsTrackMetadata: false — keep in sync with radioStationCatalog.ts */
-/** @type {Set<string>} */
-const CATALOG_NO_TRACK_METADATA = new Set([
-  'FIP',
-  'France Inter',
-  'France Musique',
-  'France Culture',
-  'Mouv',
-  'Radio Nova Paris',
-  'RNZ National',
-]);
-
-/** @type {Map<string, boolean> | null} */
-let runtimeMetadataSupport = null;
-
+import { RADIO_STATION_DEFINITIONS } from './radioStationCatalog';
 export const RADIO_NO_TRACK_METADATA_STORAGE_KEY = 'idling-radio-no-track-metadata';
-
-/** @param {import('./radioPlayer.types').RadioStationDefinition[]} definitions */
+const catalogMetadataSupport = new Map(RADIO_STATION_DEFINITIONS.map((definition) => [
+    definition.name,
+    definition.supportsTrackMetadata !== false,
+]));
+let runtimeMetadataSupport = null;
 export function setRuntimeStationDefinitions(definitions) {
-  runtimeMetadataSupport = new Map(
-    definitions.map((definition) => [
-      definition.name,
-      definition.supportsTrackMetadata !== false,
-    ])
-  );
+    runtimeMetadataSupport = new Map(definitions.map((definition) => [
+        definition.name,
+        definition.supportsTrackMetadata !== false,
+    ]));
 }
-
 export function clearRuntimeStationDefinitions() {
-  runtimeMetadataSupport = null;
+    runtimeMetadataSupport = null;
 }
-
-/** @param {string} stationName */
 export function getCatalogTrackMetadataSupport(stationName) {
-  if (runtimeMetadataSupport?.has(stationName)) {
-    return runtimeMetadataSupport.get(stationName) ?? false;
-  }
-
-  return !CATALOG_NO_TRACK_METADATA.has(stationName);
+    if (runtimeMetadataSupport?.has(stationName)) {
+        return runtimeMetadataSupport.get(stationName) ?? false;
+    }
+    return catalogMetadataSupport.get(stationName) ?? false;
 }
-
-/** @returns {string[]} */
 export function loadTrackMetadataDenylist() {
-  try {
-    const raw = localStorage.getItem(RADIO_NO_TRACK_METADATA_STORAGE_KEY);
-    if (!raw) {
-      return [];
+    try {
+        const raw = localStorage.getItem(RADIO_NO_TRACK_METADATA_STORAGE_KEY);
+        if (!raw) {
+            return [];
+        }
+        const parsed = JSON.parse(raw);
+        if (!Array.isArray(parsed)) {
+            return [];
+        }
+        return parsed.filter((entry) => typeof entry === 'string');
     }
-
-    const parsed = JSON.parse(raw);
-    if (!Array.isArray(parsed)) {
-      return [];
+    catch {
+        return [];
     }
-
-    return parsed.filter((entry) => typeof entry === 'string');
-  } catch {
-    return [];
-  }
 }
-
-/** @param {string} stationName */
 export function rememberTrackMetadataUnsupported(stationName) {
-  const denylist = new Set(loadTrackMetadataDenylist());
-  if (denylist.has(stationName)) {
-    return;
-  }
-
-  denylist.add(stationName);
-  localStorage.setItem(
-    RADIO_NO_TRACK_METADATA_STORAGE_KEY,
-    JSON.stringify([...denylist])
-  );
+    const denylist = new Set(loadTrackMetadataDenylist());
+    if (denylist.has(stationName)) {
+        return;
+    }
+    denylist.add(stationName);
+    localStorage.setItem(RADIO_NO_TRACK_METADATA_STORAGE_KEY, JSON.stringify([...denylist]));
 }
-
-/** @param {string} stationName */
 export function stationSupportsTrackMetadata(stationName) {
-  if (!getCatalogTrackMetadataSupport(stationName)) {
-    return false;
-  }
-
-  return !loadTrackMetadataDenylist().includes(stationName);
+    if (!getCatalogTrackMetadataSupport(stationName)) {
+        return false;
+    }
+    return !loadTrackMetadataDenylist().includes(stationName);
 }

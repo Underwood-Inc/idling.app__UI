@@ -13,16 +13,12 @@
  *   </script>
  */
 
-/** @typedef {import('./radioPlayer.types').RadioStationCatalog} RadioStationCatalog */
-/** @typedef {import('./radioPlayer.types').RadioPlayerOptions} RadioPlayerOptions */
-/** @typedef {import('./radioPlayer.types').RadioPlayerHandle} RadioPlayerHandle */
-/** @typedef {import('./radioPlayer.types').RadioNowPlayingInfo} RadioNowPlayingInfo */
-/** @typedef {import('./barVisualizer.types').BarVisualizerPreferences} BarVisualizerPreferences */
-
+import type { BarVisualizerDensity, BarVisualizerPreferences } from './barVisualizer.types';
 import {
   BAR_COUNT_BY_DENSITY,
   DEFAULT_BAR_VISUALIZER_PREFERENCES,
   loadBarVisualizerPreferences,
+  resolveBarCountForCanvas,
   saveBarVisualizerPreferences,
 } from './barVisualizerPreferences';
 import {
@@ -31,17 +27,23 @@ import {
   getBarVisualizerPresetDefinition,
 } from './barVisualizerPresets';
 import { getBarVisualizerTheme } from './barVisualizerThemes';
+import type { IrpDropdownConfig, IrpDropdownHandle, RadioNowPlayingApiResponse, WindowWithWebkitAudioContext } from './radioPlayerEngine.types';
+import type {
+  RadioNowPlayingInfo,
+  RadioPlayerHandle,
+  RadioPlayerOptions,
+  RadioStationCatalog,
+} from './radioPlayer.types';
 import {
-  rememberTrackMetadataUnsupported,
-  stationSupportsTrackMetadata,
-  setRuntimeStationDefinitions,
   clearRuntimeStationDefinitions,
+  rememberTrackMetadataUnsupported,
+  setRuntimeStationDefinitions,
+  stationSupportsTrackMetadata,
 } from './radioStationMetadata';
 import { RADIO_STATIONS as CATALOG_STATIONS } from './radioStationCatalog';
 import { createSpectrumNormalizer } from './spectrumNormalization';
 
-/** @type {RadioStationCatalog} */
-export const RADIO_STATIONS = CATALOG_STATIONS;
+export const RADIO_STATIONS: RadioStationCatalog = CATALOG_STATIONS;
 
 export const RADIO_PLAYER_STORAGE_KEY = 'idling-radio-player-station';
 
@@ -54,24 +56,13 @@ const CHEVRON_ICON = `<svg viewBox="0 0 24 24" width="12" height="12" aria-hidde
 const BARS_ICON = `<svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="currentColor" d="M4 10h3v10H4V10zm6.5-4h3v14h-3V6zm7 6h3v8h-3v-8z"/></svg>`;
 const IRP_NO_GLASS_CLASS = 'no-glass';
 
-/** @type {Record<import('./barVisualizer.types').BarVisualizerDensity, string>} */
-const DENSITY_LABELS = {
+const DENSITY_LABELS: Record<BarVisualizerDensity, string> = {
   compact: 'Compact',
   normal: 'Normal',
   wide: 'Wide',
 };
 
-/**
- * @param {{
- *   shell: HTMLElement,
- *   anchor: HTMLElement,
- *   panel: HTMLElement,
- *   trigger: HTMLButtonElement,
- *   openShellClass: string,
- *   widthForTrigger: (triggerRect: DOMRect) => number,
- * }} config
- */
-function createIrpDropdown(config) {
+function createIrpDropdown(config: IrpDropdownConfig): IrpDropdownHandle {
   const portaled = { value: false };
 
   const position = () => {
@@ -89,7 +80,7 @@ function createIrpDropdown(config) {
     config.panel.style.bottom = `${bottomOffset}px`;
   };
 
-  const setOpen = (open) => {
+  const setOpen = (open: boolean) => {
     config.panel.hidden = !open;
     config.trigger.setAttribute('aria-expanded', open ? 'true' : 'false');
     config.shell.classList.toggle(config.openShellClass, open);
@@ -127,13 +118,12 @@ function createIrpDropdown(config) {
   };
 }
 
-/**
- * @param {HTMLElement} block
- * @param {HTMLInputElement} input
- * @param {() => number} getVolume
- * @param {(level: number) => void} setVolumeLevel
- */
-function attachVolumeControl(block, input, getVolume, setVolumeLevel) {
+function attachVolumeControl(
+  block: HTMLElement,
+  input: HTMLInputElement,
+  getVolume: () => number,
+  setVolumeLevel: (level: number) => void
+): () => void {
   const valueEl = block.querySelector('.irp__volume-value');
 
   const sync = () => {
@@ -167,12 +157,7 @@ function attachVolumeControl(block, input, getVolume, setVolumeLevel) {
   return sync;
 }
 
-/**
- * @param {ParentNode} mountNode
- * @param {RadioPlayerOptions} [options]
- * @returns {RadioPlayerHandle}
- */
-export function mountRadioPlayer(mountNode, options = {}) {
+export function mountRadioPlayer(mountNode: ParentNode, options: RadioPlayerOptions = {}): RadioPlayerHandle {
   const stations = options.stations ?? RADIO_STATIONS;
   const storageKey = options.storageKey ?? RADIO_PLAYER_STORAGE_KEY;
   const nowPlayingEndpoint = options.nowPlayingEndpoint ?? '/api/radio/now-playing';
@@ -188,8 +173,7 @@ export function mountRadioPlayer(mountNode, options = {}) {
   const saved = localStorage.getItem(storageKey);
   let activeName = saved && stations[saved] ? saved : stationNames[0];
 
-  /** @type {BarVisualizerPreferences} */
-  let visualizerPrefs = loadBarVisualizerPreferences();
+  let visualizerPrefs: BarVisualizerPreferences = loadBarVisualizerPreferences();
   let barCount = BAR_COUNT_BY_DENSITY[visualizerPrefs.density] ?? BAR_COUNT_BY_DENSITY.normal;
 
   const root = document.createElement('div');
@@ -275,51 +259,47 @@ export function mountRadioPlayer(mountNode, options = {}) {
     </div>`;
   mountNode.appendChild(root);
 
-  const shell = headless ? null : /** @type {HTMLElement} */ (root.querySelector('.irp__shell'));
-  const tap = /** @type {HTMLElement} */ (root.querySelector('.irp__tap'));
-  const tapBtn = /** @type {HTMLButtonElement} */ (root.querySelector('.irp__tap-btn'));
-  const canvas = /** @type {HTMLCanvasElement} */ (root.querySelector('.irp__viz'));
+  const shell = headless ? null : (root.querySelector('.irp__shell') as HTMLElement);
+  const tap = root.querySelector('.irp__tap') as HTMLElement;
+  const tapBtn = root.querySelector('.irp__tap-btn') as HTMLButtonElement;
+  const canvas = root.querySelector('.irp__viz') as HTMLCanvasElement;
   const ctx = canvas.getContext('2d');
   const stationAnchor = headless
     ? null
-    : /** @type {HTMLElement} */ (root.querySelector('.irp__picker-anchor--station'));
+    : (root.querySelector('.irp__picker-anchor--station') as HTMLElement);
   const stationTrigger = headless
     ? null
-    : /** @type {HTMLButtonElement} */ (root.querySelector('.irp__station-trigger'));
+    : (root.querySelector('.irp__station-trigger') as HTMLButtonElement);
   const stationPanel = headless
     ? null
-    : /** @type {HTMLElement} */ (root.querySelector('.irp__station-popover'));
+    : (root.querySelector('.irp__station-popover') as HTMLElement);
   const stationList = headless
     ? null
-    : /** @type {HTMLElement} */ (root.querySelector('.irp__station-list'));
+    : (root.querySelector('.irp__station-list') as HTMLElement);
   const lookAnchor = headless
     ? null
-    : /** @type {HTMLElement} */ (root.querySelector('.irp__picker-anchor--look'));
+    : (root.querySelector('.irp__picker-anchor--look') as HTMLElement);
   const lookTrigger = headless
     ? null
-    : /** @type {HTMLButtonElement} */ (root.querySelector('.irp__look-trigger'));
+    : (root.querySelector('.irp__look-trigger') as HTMLButtonElement);
   const lookPanel = headless
     ? null
-    : /** @type {HTMLElement} */ (root.querySelector('.irp__look-popover'));
+    : (root.querySelector('.irp__look-popover') as HTMLElement);
   const styleList = headless
     ? null
-    : /** @type {HTMLElement} */ (root.querySelector('.irp__look-style-list'));
+    : (root.querySelector('.irp__look-style-list') as HTMLElement);
   const densityButtons = headless
-    ? /** @type {NodeListOf<HTMLButtonElement>} */ ([])
-    : /** @type {NodeListOf<HTMLButtonElement>} */ (
-        root.querySelectorAll('.irp__look-density-btn')
-      );
+    ? ([] as unknown as NodeListOf<HTMLButtonElement>)
+    : root.querySelectorAll<HTMLButtonElement>('.irp__look-density-btn');
   const volumeBlock = headless
     ? null
-    : /** @type {HTMLElement} */ (root.querySelector('.irp__volume-block'));
-  const volume = headless
-    ? null
-    : /** @type {HTMLInputElement} */ (root.querySelector('.irp__volume'));
-  const playBtn = headless ? null : /** @type {HTMLButtonElement} */ (root.querySelector('.irp__play'));
-  const meta = headless ? null : /** @type {HTMLElement} */ (root.querySelector('.irp__identity'));
-  const track = headless ? null : /** @type {HTMLElement} */ (root.querySelector('.irp__track'));
-  const stationLine = headless ? null : /** @type {HTMLElement} */ (root.querySelector('.irp__station-line'));
-  const label = headless ? null : /** @type {HTMLElement} */ (root.querySelector('.irp__label'));
+    : (root.querySelector('.irp__volume-block') as HTMLElement);
+  const volume = headless ? null : (root.querySelector('.irp__volume') as HTMLInputElement);
+  const playBtn = headless ? null : (root.querySelector('.irp__play') as HTMLButtonElement);
+  const meta = headless ? null : (root.querySelector('.irp__identity') as HTMLElement);
+  const track = headless ? null : (root.querySelector('.irp__track') as HTMLElement);
+  const stationLine = headless ? null : (root.querySelector('.irp__station-line') as HTMLElement);
+  const label = headless ? null : (root.querySelector('.irp__label') as HTMLElement);
 
   if (!ctx) {
     throw new Error('Radio player canvas context unavailable');
@@ -329,36 +309,30 @@ export function mountRadioPlayer(mountNode, options = {}) {
   audio.crossOrigin = 'anonymous';
   audio.preload = 'none';
 
-  /** @type {(() => void) | null} */
-  let syncVolumeUi = null;
+  let syncVolumeUi: (() => void) | null = null;
 
-  const clampVolume = (level) => Math.min(1, Math.max(0, level));
+  const clampVolume = (level: number): number => Math.min(1, Math.max(0, level));
 
-  const setVolumeLevel = (level) => {
+  const setVolumeLevel = (level: number): void => {
     audio.volume = clampVolume(level);
     syncVolumeUi?.();
   };
 
   syncVolumeUi = headless
     ? null
-    : attachVolumeControl(volumeBlock, volume, () => audio.volume, setVolumeLevel);
+    : attachVolumeControl(volumeBlock!, volume!, () => audio.volume, setVolumeLevel);
 
-  /** @type {AudioContext | null} */
-  let audioCtx = null;
-  /** @type {AnalyserNode | null} */
-  let analyser = null;
-  /** @type {MediaElementAudioSourceNode | null} */
-  let source = null;
+  let audioCtx: AudioContext | null = null;
+  let analyser: AnalyserNode | null = null;
+  let source: MediaElementAudioSourceNode | null = null;
   let rafId = 0;
   let vizLoopActive = false;
   let playing = false;
   let needsTap = true;
-  /** @type {Uint8Array} */
   let rawFreq = new Uint8Array(ANALYSER_FFT_SIZE / 2);
   let spectrumNormalizer = createSpectrumNormalizer(barCount);
   let visualizerRuntime = createBarVisualizerRuntime(visualizerPrefs.presetId, barCount);
-  /** @type {RadioNowPlayingInfo} */
-  let nowPlaying = {
+  let nowPlaying: RadioNowPlayingInfo = {
     streamTitle: null,
     artist: null,
     title: null,
@@ -379,7 +353,7 @@ export function mountRadioPlayer(mountNode, options = {}) {
     stationTrigger.setAttribute('aria-label', `Change radio station. Now playing ${activeName}`);
 
     stationList.querySelectorAll('.irp__station-option').forEach((node) => {
-      const option = /** @type {HTMLButtonElement} */ (node);
+      const option = node as HTMLButtonElement;
       const selected = option.dataset.stationName === activeName;
       option.setAttribute('aria-selected', selected ? 'true' : 'false');
     });
@@ -428,10 +402,9 @@ export function mountRadioPlayer(mountNode, options = {}) {
     root.style.setProperty('--irp-glow', theme.glow);
   };
 
-  /** @type {ReturnType<typeof createIrpDropdown>[]} */
-  let dropdowns = [];
-  /** @type {(() => void) | null} */
-  let syncVisualizerControlsUi = null;
+  let dropdowns: IrpDropdownHandle[] = [];
+  let syncVisualizerControlsUi: (() => void) | null = null;
+  let uiCleanup: () => void = () => {};
 
   if (!headless && shell && stationAnchor && stationPanel && stationTrigger && lookAnchor && lookPanel && lookTrigger && styleList && stationList) {
     stationNames.forEach((name) => {
@@ -468,8 +441,8 @@ export function mountRadioPlayer(mountNode, options = {}) {
 
     dropdowns = [stationDropdown, lookDropdown];
 
-    const toggleDropdown = (dropdown) => {
-      const willOpen = dropdown.panel.hidden;
+    const toggleDropdown = (dropdown: IrpDropdownHandle) => {
+      const willOpen = dropdown.panel.hasAttribute('hidden');
       dropdowns.forEach((entry) => entry.setOpen(entry === dropdown ? willOpen : false));
     };
 
@@ -488,7 +461,7 @@ export function mountRadioPlayer(mountNode, options = {}) {
       );
 
       styleList.querySelectorAll('.irp__look-style-option').forEach((node) => {
-        const option = /** @type {HTMLButtonElement} */ (node);
+        const option = node as HTMLButtonElement;
         const selected = option.dataset.presetId === visualizerPrefs.presetId;
         option.setAttribute('aria-selected', selected ? 'true' : 'false');
       });
@@ -524,11 +497,11 @@ export function mountRadioPlayer(mountNode, options = {}) {
         });
       });
 
-      syncVisualizerControlsUi();
+      syncVisualizerControlsUi?.();
     };
 
-    const onPopoverPointerDown = (event) => {
-      const target = /** @type {Node | null} */ (event.target);
+    const onPopoverPointerDown = (event: PointerEvent) => {
+      const target = event.target as Node | null;
 
       for (const dropdown of dropdowns) {
         if (dropdown.panel.hidden) {
@@ -541,7 +514,7 @@ export function mountRadioPlayer(mountNode, options = {}) {
       }
     };
 
-    const onPopoverKeyDown = (event) => {
+    const onPopoverKeyDown = (event: KeyboardEvent) => {
       if (event.key !== 'Escape') {
         return;
       }
@@ -582,8 +555,7 @@ export function mountRadioPlayer(mountNode, options = {}) {
       setVolumeLevel(Number(volume.value));
     }
 
-    /** @type {ResizeObserver | null} */
-    let barHeightObserver = null;
+    let barHeightObserver: ResizeObserver | null = null;
 
     const syncBarHeight = () => {
       const heightPx = Math.ceil(shell.getBoundingClientRect().height);
@@ -596,7 +568,7 @@ export function mountRadioPlayer(mountNode, options = {}) {
       syncBarHeight();
     }
 
-    var uiCleanup = () => {
+    uiCleanup = () => {
       document.removeEventListener('pointerdown', onPopoverPointerDown);
       document.removeEventListener('keydown', onPopoverKeyDown);
       window.removeEventListener('resize', positionOpenPopovers);
@@ -607,11 +579,17 @@ export function mountRadioPlayer(mountNode, options = {}) {
     };
   } else {
     audio.volume = 0.85;
-    var uiCleanup = () => {};
   }
 
-  const rebuildVisualizer = () => {
-    barCount = BAR_COUNT_BY_DENSITY[visualizerPrefs.density] ?? BAR_COUNT_BY_DENSITY.normal;
+  const rebuildVisualizer = (): void => {
+    const host = canvas.parentElement;
+    const layoutWidth = host?.clientWidth ?? canvas.getBoundingClientRect().width;
+
+    barCount = resolveBarCountForCanvas({
+      density: visualizerPrefs.density,
+      canvasWidthPx: layoutWidth,
+      presetId: visualizerPrefs.presetId,
+    });
     spectrumNormalizer = createSpectrumNormalizer(barCount);
     visualizerRuntime = createBarVisualizerRuntime(visualizerPrefs.presetId, barCount);
     applyVisualizerThemeToRoot();
@@ -620,8 +598,34 @@ export function mountRadioPlayer(mountNode, options = {}) {
     syncVisualizerLoop();
   };
 
-  /** @param {Partial<BarVisualizerPreferences>} nextPrefs */
-  const setVisualizerPreferences = (nextPrefs) => {
+  const syncBarCountForCanvas = (layoutWidthPx?: number): void => {
+    const host = canvas.parentElement;
+    const measuredWidth =
+      layoutWidthPx ??
+      host?.clientWidth ??
+      canvas.getBoundingClientRect().width ??
+      canvas.clientWidth;
+
+    const nextCount = resolveBarCountForCanvas({
+      density: visualizerPrefs.density,
+      canvasWidthPx: measuredWidth,
+      presetId: visualizerPrefs.presetId,
+    });
+
+    if (nextCount === barCount) {
+      return;
+    }
+
+    barCount = nextCount;
+    spectrumNormalizer = createSpectrumNormalizer(barCount);
+    visualizerRuntime.resize(barCount);
+
+    if (!playing) {
+      paintIdleVisualizerFrame();
+    }
+  };
+
+  const setVisualizerPreferences = (nextPrefs: Partial<BarVisualizerPreferences>): void => {
     visualizerPrefs = {
       presetId: nextPrefs.presetId ?? visualizerPrefs.presetId,
       density: nextPrefs.density ?? visualizerPrefs.density,
@@ -649,8 +653,7 @@ export function mountRadioPlayer(mountNode, options = {}) {
         return;
       }
 
-      /** @type {{ station?: string; streamTitle?: string | null; artist?: string | null; title?: string | null; display?: string | null; supportsTrackMetadata?: boolean }} */
-      const data = await response.json();
+      const data = (await response.json()) as RadioNowPlayingApiResponse;
       if (data.station !== stationAtFetch || !playing) {
         return;
       }
@@ -707,15 +710,20 @@ export function mountRadioPlayer(mountNode, options = {}) {
 
   const resizeCanvas = () => {
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
-    const rect = canvas.getBoundingClientRect();
-    canvas.width = Math.max(1, Math.floor(rect.width * dpr));
-    canvas.height = Math.max(1, Math.floor(rect.height * dpr));
+    const host = canvas.parentElement;
+    const layoutWidth = Math.max(1, host?.clientWidth ?? canvas.getBoundingClientRect().width);
+    const layoutHeight = Math.max(1, host?.clientHeight ?? canvas.getBoundingClientRect().height);
+
+    canvas.width = Math.max(1, Math.floor(layoutWidth * dpr));
+    canvas.height = Math.max(1, Math.floor(layoutHeight * dpr));
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    syncBarCountForCanvas(layoutWidth);
   };
 
-  const ensureAudioGraph = async () => {
+  const ensureAudioGraph = async (): Promise<void> => {
     if (!audioCtx) {
-      const Ctx = window.AudioContext || window.webkitAudioContext;
+      const browserWindow = window as WindowWithWebkitAudioContext;
+      const Ctx = window.AudioContext ?? browserWindow.webkitAudioContext;
       if (!Ctx) {
         return;
       }
@@ -839,8 +847,7 @@ export function mountRadioPlayer(mountNode, options = {}) {
     }
   };
 
-  /** @type {MutationObserver | null} */
-  let visualizerModeObserver = null;
+  let visualizerModeObserver: MutationObserver | null = null;
 
   if (typeof MutationObserver !== 'undefined') {
     visualizerModeObserver = new MutationObserver(() => {
@@ -854,7 +861,7 @@ export function mountRadioPlayer(mountNode, options = {}) {
 
   document.addEventListener('visibilitychange', onVisibilityChange);
 
-  const setPlayingUi = (isPlaying) => {
+  const setPlayingUi = (isPlaying: boolean): void => {
     if (headless || !shell || !playBtn) {
       return;
     }
@@ -879,7 +886,7 @@ export function mountRadioPlayer(mountNode, options = {}) {
     }
   };
 
-  const loadStation = (name, shouldResume) => {
+  const loadStation = (name: string, shouldResume: boolean): void => {
     activeName = name;
     localStorage.setItem(storageKey, name);
     audio.src = stations[name];
@@ -928,7 +935,7 @@ export function mountRadioPlayer(mountNode, options = {}) {
     void play();
   }
 
-  const mountBarCanvas = (container) => {
+  const mountBarCanvas = (container: HTMLElement): void => {
     if (!container) {
       return;
     }

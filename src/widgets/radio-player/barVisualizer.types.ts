@@ -20,10 +20,13 @@ export interface BarVisualizerPreferences {
 
 export type BarVisualizerDensity = 'compact' | 'normal' | 'wide';
 
+export type BarVisualizerDockLayout = 'wide' | 'compact';
+
 export interface BarVisualizerPresetDefinition {
   id: string;
   label: string;
   description: string;
+  dockLayout: BarVisualizerDockLayout;
 }
 
 export interface BarVisualizerDrawState {
@@ -41,9 +44,12 @@ export interface BarVisualizerDrawContext {
   playing: boolean;
 }
 
-export interface BarVisualizerPresetRuntime {
-  id: string;
-  label: string;
-  draw: (drawContext: BarVisualizerDrawContext) => void;
+export type BarVisualizerPresetDrawer = (drawContext: BarVisualizerDrawContext) => void;
+
+export interface BarVisualizerRuntimeHandle {
+  presetId: string;
+  draw: BarVisualizerPresetDrawer;
   reset: () => void;
+  resize: (nextBarCount: number) => void;
+  getState: () => BarVisualizerDrawState;
 }

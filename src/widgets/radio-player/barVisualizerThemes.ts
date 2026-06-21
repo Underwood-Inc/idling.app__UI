@@ -1,7 +1,6 @@
-/** @typedef {import('./barVisualizer.types').BarVisualizerTheme} BarVisualizerTheme */
+import type { BarVisualizerTheme } from './barVisualizer.types';
 
-/** @type {BarVisualizerTheme} */
-export const IDLING_BAR_VISUALIZER_THEME = {
+export const IDLING_BAR_VISUALIZER_THEME: BarVisualizerTheme = {
   id: 'idling',
   label: 'Idling',
   primary: { r: 229, g: 193, b: 133 },
@@ -11,6 +10,6 @@ export const IDLING_BAR_VISUALIZER_THEME = {
 };
 
 /** Brand palette for bar visualizer rendering — not user-selectable. */
-export function getBarVisualizerTheme() {
+export function getBarVisualizerTheme(): BarVisualizerTheme {
   return IDLING_BAR_VISUALIZER_THEME;
 }

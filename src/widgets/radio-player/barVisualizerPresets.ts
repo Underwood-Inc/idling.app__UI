@@ -1,14 +1,13 @@
-/** @typedef {import('./barVisualizer.types').BarVisualizerDrawContext} BarVisualizerDrawContext */
-/** @typedef {import('./barVisualizer.types').BarVisualizerDrawState} BarVisualizerDrawState */
-/** @typedef {import('./barVisualizer.types').BarVisualizerPresetDefinition} BarVisualizerPresetDefinition */
-/** @typedef {import('./barVisualizer.types').BarVisualizerThemeRgb} BarVisualizerThemeRgb */
+import type {
+  BarVisualizerDrawContext,
+  BarVisualizerDockLayout,
+  BarVisualizerPresetDefinition,
+  BarVisualizerPresetDrawer,
+  BarVisualizerRuntimeHandle,
+  BarVisualizerThemeRgb,
+} from './barVisualizer.types';
 
-/**
- * @param {BarVisualizerThemeRgb} from
- * @param {BarVisualizerThemeRgb} to
- * @param {number} t
- */
-function mixRgb(from, to, t) {
+function mixRgb(from: BarVisualizerThemeRgb, to: BarVisualizerThemeRgb, t: number): BarVisualizerThemeRgb {
   const clamped = Math.max(0, Math.min(1, t));
   return {
     r: Math.round(from.r + (to.r - from.r) * clamped),
@@ -17,36 +16,25 @@ function mixRgb(from, to, t) {
   };
 }
 
-/**
- * @param {BarVisualizerThemeRgb} rgb
- * @param {number} alpha
- */
-function rgba(rgb, alpha) {
+function rgba(rgb: BarVisualizerThemeRgb, alpha: number): string {
   return `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${alpha})`;
 }
 
-/**
- * @param {BarVisualizerDrawContext} drawContext
- * @param {number} level
- * @param {number} index
- * @param {number} total
- */
-function themeColor(drawContext, level, index, total) {
+function themeColor(drawContext: BarVisualizerDrawContext, level: number, index: number, total: number): string {
   const { theme } = drawContext;
   const position = total <= 1 ? 0 : index / (total - 1);
   const blended = mixRgb(theme.primary, theme.secondary, position * 0.65 + level * 0.35);
   return rgba(blended, 0.35 + level * 0.65);
 }
 
-/**
- * @param {CanvasRenderingContext2D} ctx
- * @param {number} x
- * @param {number} y
- * @param {number} w
- * @param {number} h
- * @param {number} r
- */
-function roundRect(ctx, x, y, w, h, r) {
+function roundRect(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  w: number,
+  h: number,
+  r: number
+): void {
   const radius = Math.min(r, w / 2, h / 2);
   ctx.beginPath();
   ctx.moveTo(x + radius, y);
@@ -61,8 +49,7 @@ function roundRect(ctx, x, y, w, h, r) {
   ctx.closePath();
 }
 
-/** @param {BarVisualizerDrawContext} drawContext */
-function paintCanvasBg(drawContext) {
+function paintCanvasBg(drawContext: BarVisualizerDrawContext): void {
   const { ctx, width, height, theme } = drawContext;
   ctx.clearRect(0, 0, width, height);
   ctx.fillStyle = theme.canvasBg;
@@ -70,11 +57,10 @@ function paintCanvasBg(drawContext) {
   ctx.fill();
 }
 
-/**
- * @param {BarVisualizerDrawContext} drawContext
- * @param {(barIndex: number, level: number, x: number, barW: number) => void} drawBar
- */
-function forEachBar(drawContext, drawBar) {
+function forEachBar(
+  drawContext: BarVisualizerDrawContext,
+  drawBar: (barIndex: number, level: number, x: number, barW: number) => void
+): void {
   const { width, height, data } = drawContext;
   const count = data.length;
   const gap = count > 32 ? 2 : 3;
@@ -87,10 +73,9 @@ function forEachBar(drawContext, drawBar) {
   }
 }
 
-/** @param {BarVisualizerDrawContext} drawContext */
-function drawIdlingBars(drawContext) {
+function drawIdlingBars(drawContext: BarVisualizerDrawContext): void {
   paintCanvasBg(drawContext);
-  const { ctx, height, theme } = drawContext;
+  const { ctx, height } = drawContext;
 
   forEachBar(drawContext, (index, level, x, barW) => {
     const barH = Math.max(2, level * height * 0.88);
@@ -101,8 +86,7 @@ function drawIdlingBars(drawContext) {
   });
 }
 
-/** @param {BarVisualizerDrawContext} drawContext */
-function drawMirrorBars(drawContext) {
+function drawMirrorBars(drawContext: BarVisualizerDrawContext): void {
   paintCanvasBg(drawContext);
   const { ctx, height } = drawContext;
   const mid = height / 2;
@@ -117,8 +101,7 @@ function drawMirrorBars(drawContext) {
   });
 }
 
-/** @param {BarVisualizerDrawContext} drawContext */
-function drawWaveLine(drawContext) {
+function drawWaveLine(drawContext: BarVisualizerDrawContext): void {
   paintCanvasBg(drawContext);
   const { ctx, width, height, data, theme } = drawContext;
   const count = data.length;
@@ -151,8 +134,7 @@ function drawWaveLine(drawContext) {
   ctx.fill();
 }
 
-/** @param {BarVisualizerDrawContext} drawContext */
-function drawDots(drawContext) {
+function drawDots(drawContext: BarVisualizerDrawContext): void {
   paintCanvasBg(drawContext);
   const { ctx, height } = drawContext;
 
@@ -167,8 +149,7 @@ function drawDots(drawContext) {
   });
 }
 
-/** @param {BarVisualizerDrawContext} drawContext */
-function drawPeakBars(drawContext) {
+function drawPeakBars(drawContext: BarVisualizerDrawContext): void {
   paintCanvasBg(drawContext);
   const { ctx, height, state } = drawContext;
 
@@ -187,8 +168,7 @@ function drawPeakBars(drawContext) {
   });
 }
 
-/** @param {BarVisualizerDrawContext} drawContext */
-function drawPrism(drawContext) {
+function drawPrism(drawContext: BarVisualizerDrawContext): void {
   paintCanvasBg(drawContext);
   const { ctx, height } = drawContext;
 
@@ -202,8 +182,7 @@ function drawPrism(drawContext) {
   });
 }
 
-/** @param {BarVisualizerDrawContext} drawContext */
-function drawLedSegments(drawContext) {
+function drawLedSegments(drawContext: BarVisualizerDrawContext): void {
   paintCanvasBg(drawContext);
   const { ctx, height } = drawContext;
   const segments = 6;
@@ -225,8 +204,7 @@ function drawLedSegments(drawContext) {
   });
 }
 
-/** @param {BarVisualizerDrawContext} drawContext */
-function drawAmbientGlow(drawContext) {
+function drawAmbientGlow(drawContext: BarVisualizerDrawContext): void {
   paintCanvasBg(drawContext);
   const { ctx, width, height, theme } = drawContext;
   ctx.globalCompositeOperation = 'lighter';
@@ -245,8 +223,7 @@ function drawAmbientGlow(drawContext) {
   ctx.globalCompositeOperation = 'source-over';
 }
 
-/** @param {BarVisualizerDrawContext} drawContext */
-function drawSparkLines(drawContext) {
+function drawSparkLines(drawContext: BarVisualizerDrawContext): void {
   paintCanvasBg(drawContext);
   const { ctx, height, theme } = drawContext;
   const mid = height / 2;
@@ -270,8 +247,7 @@ function drawSparkLines(drawContext) {
   ctx.stroke();
 }
 
-/** @param {BarVisualizerDrawContext} drawContext */
-function drawOutlineBars(drawContext) {
+function drawOutlineBars(drawContext: BarVisualizerDrawContext): void {
   paintCanvasBg(drawContext);
   const { ctx, height } = drawContext;
 
@@ -285,8 +261,7 @@ function drawOutlineBars(drawContext) {
   });
 }
 
-/** @param {BarVisualizerDrawContext} drawContext */
-function drawArcSpectrum(drawContext) {
+function drawArcSpectrum(drawContext: BarVisualizerDrawContext): void {
   paintCanvasBg(drawContext);
   const { ctx, width, height, data, theme } = drawContext;
   const count = data.length;
@@ -322,8 +297,7 @@ function drawArcSpectrum(drawContext) {
   ctx.fill();
 }
 
-/** @param {BarVisualizerDrawContext} drawContext */
-function drawPulseBlob(drawContext) {
+function drawPulseBlob(drawContext: BarVisualizerDrawContext): void {
   paintCanvasBg(drawContext);
   const { ctx, width, height, data, theme, state } = drawContext;
 
@@ -356,24 +330,22 @@ function drawPulseBlob(drawContext) {
   ctx.stroke();
 }
 
-/** @type {BarVisualizerPresetDefinition[]} */
-export const BAR_VISUALIZER_PRESET_DEFINITIONS = [
-  { id: 'idling-bars', label: 'Idling bars', description: 'Default rounded bars' },
-  { id: 'mirror', label: 'Mirror', description: 'Symmetric reflection' },
-  { id: 'wave', label: 'Wave', description: 'Smooth line spectrum' },
-  { id: 'dots', label: 'Dots', description: 'Reactive dots' },
-  { id: 'peaks', label: 'Peaks', description: 'Bars with peak hold' },
-  { id: 'prism', label: 'Prism', description: 'Rainbow index colors' },
-  { id: 'led', label: 'LED', description: 'Segmented columns' },
-  { id: 'ambient', label: 'Ambient glow', description: 'Soft additive glow' },
-  { id: 'spark', label: 'Spark', description: 'Center spark lines' },
-  { id: 'outline', label: 'Outline', description: 'Wireframe bars' },
-  { id: 'arc', label: 'Arc', description: 'Radial arc spectrum' },
-  { id: 'pulse', label: 'Pulse', description: 'Energy blob' },
+export const BAR_VISUALIZER_PRESET_DEFINITIONS: BarVisualizerPresetDefinition[] = [
+  { id: 'idling-bars', label: 'Idling bars', description: 'Default rounded bars', dockLayout: 'wide' },
+  { id: 'mirror', label: 'Mirror', description: 'Symmetric reflection', dockLayout: 'wide' },
+  { id: 'wave', label: 'Wave', description: 'Smooth line spectrum', dockLayout: 'wide' },
+  { id: 'dots', label: 'Dots', description: 'Reactive dots', dockLayout: 'wide' },
+  { id: 'peaks', label: 'Peaks', description: 'Bars with peak hold', dockLayout: 'wide' },
+  { id: 'prism', label: 'Prism', description: 'Rainbow index colors', dockLayout: 'wide' },
+  { id: 'led', label: 'LED', description: 'Segmented columns', dockLayout: 'wide' },
+  { id: 'ambient', label: 'Ambient glow', description: 'Soft additive glow', dockLayout: 'wide' },
+  { id: 'spark', label: 'Spark', description: 'Center spark lines', dockLayout: 'wide' },
+  { id: 'outline', label: 'Outline', description: 'Wireframe bars', dockLayout: 'wide' },
+  { id: 'arc', label: 'Arc', description: 'Radial arc spectrum', dockLayout: 'compact' },
+  { id: 'pulse', label: 'Pulse', description: 'Energy blob', dockLayout: 'compact' },
 ];
 
-/** @type {Record<string, (drawContext: BarVisualizerDrawContext) => void>} */
-const PRESET_DRAWERS = {
+const PRESET_DRAWERS: Record<string, BarVisualizerPresetDrawer> = {
   'idling-bars': drawIdlingBars,
   mirror: drawMirrorBars,
   wave: drawWaveLine,
@@ -388,13 +360,11 @@ const PRESET_DRAWERS = {
   pulse: drawPulseBlob,
 };
 
-/**
- * @param {string} presetId
- * @param {number} barCount
- */
-export function createBarVisualizerRuntime(presetId, barCount) {
+export function createBarVisualizerRuntime(
+  presetId: string,
+  barCount: number
+): BarVisualizerRuntimeHandle {
   const drawer = PRESET_DRAWERS[presetId] ?? drawIdlingBars;
-  /** @type {BarVisualizerDrawState} */
   const state = {
     peaks: new Float32Array(barCount),
     phase: 0,
@@ -402,9 +372,6 @@ export function createBarVisualizerRuntime(presetId, barCount) {
 
   return {
     presetId: PRESET_DRAWERS[presetId] ? presetId : 'idling-bars',
-    /**
-     * @param {BarVisualizerDrawContext} drawContext
-     */
     draw(drawContext) {
       drawer(drawContext);
     },
@@ -421,10 +388,13 @@ export function createBarVisualizerRuntime(presetId, barCount) {
   };
 }
 
-/** @param {string} presetId */
-export function getBarVisualizerPresetDefinition(presetId) {
+export function getBarVisualizerPresetDefinition(presetId: string): BarVisualizerPresetDefinition {
   return (
     BAR_VISUALIZER_PRESET_DEFINITIONS.find((preset) => preset.id === presetId) ??
     BAR_VISUALIZER_PRESET_DEFINITIONS[0]
   );
+}
+
+export function getBarVisualizerDockLayout(presetId: string): BarVisualizerDockLayout {
+  return getBarVisualizerPresetDefinition(presetId).dockLayout;
 }

@@ -25,6 +25,8 @@ export interface VisualizerModeContextValue {
   setSpectrumEnabled: (enabled: boolean) => void;
   spectrumOpacity: number;
   setSpectrumOpacity: (opacity: number) => void;
+  spectrumBarHeight: number;
+  setSpectrumBarHeight: (barHeight: number) => void;
   enterVisualizerMode: () => Promise<void>;
   exitFullscreen: () => Promise<void>;
   exitVisualizerMode: () => Promise<void>;
@@ -44,6 +46,7 @@ export function VisualizerModeProvider({ children }: VisualizerModeProviderProps
     setSpectrumEnabled,
     setSpectrumOpacity,
     setSpectrumPresetIndex,
+    setSpectrumBarHeight,
   } = usePersistedRadioFullscreenDisplay();
 
   useEffect(() => {
@@ -107,6 +110,8 @@ export function VisualizerModeProvider({ children }: VisualizerModeProviderProps
       setSpectrumEnabled,
       spectrumOpacity: display.opacity,
       setSpectrumOpacity,
+      spectrumBarHeight: display.spectrumBarHeight,
+      setSpectrumBarHeight,
       enterVisualizerMode,
       exitFullscreen,
       exitVisualizerMode,
@@ -115,6 +120,7 @@ export function VisualizerModeProvider({ children }: VisualizerModeProviderProps
       display.enabled,
       display.opacity,
       display.presetIndex,
+      display.spectrumBarHeight,
       enterVisualizerMode,
       exitFullscreen,
       exitVisualizerMode,
@@ -123,6 +129,7 @@ export function VisualizerModeProvider({ children }: VisualizerModeProviderProps
       setSpectrumEnabled,
       setSpectrumOpacity,
       setSpectrumPresetIndex,
+      setSpectrumBarHeight,
     ]
   );
 

@@ -46,6 +46,7 @@
     "lint:css": "stylelint \"src/**/*.{css,scss,module.css}\" --cache",
     "lint:css:fix": "stylelint \"src/**/*.{css,scss,module.css}\" --fix --cache",
     "lint:css:vars": "node scripts/validate-css-variables.js",
+    "build:radio-widget-embed": "tsc -p src/widgets/radio-player/tsconfig.embed.json",
     "migrations": "tsx scripts/migrations.ts main",
     "migrate:og-table": "node scripts/run-migration.js",
     "test:og-tracking": "node scripts/test-og-tracking.js",

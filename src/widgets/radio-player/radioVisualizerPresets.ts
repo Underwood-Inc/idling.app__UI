@@ -122,6 +122,7 @@ export const RADIO_VISUALIZER_PRESETS: RadioVisualizerPreset[] = [
       gradientRight: 'prism',
       mode: 4,
       radial: true,
+      radius: 0.12,
       reflexRatio: 0.42,
       roundBars: true,
       splitGradient: true,

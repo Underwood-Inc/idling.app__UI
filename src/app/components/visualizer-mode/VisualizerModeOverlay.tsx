@@ -7,7 +7,8 @@ import { RADIO_VISUALIZER_PRESETS } from '@widgets/radio-player/radioVisualizerP
 import styles from './VisualizerMode.module.css';
 
 export function VisualizerModeOverlay() {
-  const { isActive, spectrumPresetIndex, spectrumEnabled, spectrumOpacity } = useVisualizerMode();
+  const { isActive, spectrumPresetIndex, spectrumEnabled, spectrumOpacity, spectrumBarHeight } =
+    useVisualizerMode();
   const { isAvailable } = useRadioPlayer();
 
   const activePreset =
@@ -23,6 +24,7 @@ export function VisualizerModeOverlay() {
         isActive={isActive}
         enabled={spectrumEnabled}
         opacity={spectrumOpacity}
+        barHeight={spectrumBarHeight}
         preset={activePreset}
       />
       {!isAvailable ? (

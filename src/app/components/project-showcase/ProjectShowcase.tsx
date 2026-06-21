@@ -2,7 +2,7 @@
 
 import { LucideIcon } from '@molecules/lucide/LucideIcon';
 import { BookOpen, Download, ExternalLink, FolderGit2, Gamepad2, Package } from 'lucide';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   PROJECT_SHOWCASE_CATEGORY_OPTIONS,
   PROJECT_SHOWCASE_TOTAL_COUNT,
@@ -29,24 +29,6 @@ export function ProjectShowcase() {
   const [stats, setStats] = useState<ModrinthStats | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<ProjectShowcaseCategoryId>('All');
   const projectsContainerRef = useRef<HTMLDivElement>(null);
-
-  const categoryCounts = useMemo(() => {
-    const counts: Record<ProjectShowcaseCategoryId, number> = {
-      All: PROJECT_SHOWCASE_PROJECTS.length,
-      Minecraft: 0,
-      Streaming: 0,
-      Infrastructure: 0,
-      Gaming: 0,
-      'Web Tools': 0,
-      Social: 0,
-    };
-
-    PROJECT_SHOWCASE_PROJECTS.forEach((project) => {
-      counts[project.category] += 1;
-    });
-
-    return counts;
-  }, []);
 
   useEffect(() => {
     // Fetch Modrinth stats directly from their PUBLIC API
@@ -140,10 +122,7 @@ export function ProjectShowcase() {
                   <span className={styles.filter__icon} aria-hidden="true">
                     <LucideIcon icon={category.icon} sizeRem={1} />
                   </span>
-                  <span className={styles.filter__copy}>
-                    <span className={styles.filter__label}>{category.label}</span>
-                    <span className={styles.filter__count}>{categoryCounts[category.id]}</span>
-                  </span>
+                  <span className={styles.filter__label}>{category.label}</span>
                 </button>
               );
             })}

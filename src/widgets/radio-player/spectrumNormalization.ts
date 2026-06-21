@@ -1,18 +1,17 @@
-/** @typedef {import('./spectrumNormalization.types').SpectrumNormalizerOptions} SpectrumNormalizerOptions */
-/** @typedef {import('./spectrumNormalization.types').SpectrumNormalizer} SpectrumNormalizer */
+import type { SpectrumNormalizer, SpectrumNormalizerOptions } from './spectrumNormalization.types';
 
 const DEFAULT_PEAK_DECAY = 0.994;
 const DEFAULT_NOISE_FLOOR = 0.03;
 const DEFAULT_MIN_PEAK = 0.06;
 const DEFAULT_TREBLE_BOOST = 1.85;
 
-/**
- * Log-spaced bin range for a bar index (music-oriented spectrum mapping).
- * @param {number} barIndex
- * @param {number} barCount
- * @param {number} binCount
- */
-function getLogBinRange(barIndex, barCount, binCount) {
+interface LogBinRange {
+  start: number;
+  end: number;
+}
+
+/** Log-spaced bin range for a bar index (music-oriented spectrum mapping). */
+function getLogBinRange(barIndex: number, barCount: number, binCount: number): LogBinRange {
   if (binCount <= 1) {
     return { start: 0, end: 1 };
   }
@@ -34,24 +33,20 @@ function getLogBinRange(barIndex, barCount, binCount) {
   return { start, end };
 }
 
-/**
- * Peak-hold auto-gain normalizer — each bar scales to its recent maximum.
- * @param {number} barCount
- * @param {SpectrumNormalizerOptions} [options]
- * @returns {SpectrumNormalizer}
- */
-export function createSpectrumNormalizer(barCount, options = {}) {
+/** Peak-hold auto-gain normalizer — each bar scales to its recent maximum. */
+export function createSpectrumNormalizer(
+  barCount: number,
+  options: SpectrumNormalizerOptions = {}
+): SpectrumNormalizer {
   const peakDecay = options.peakDecay ?? DEFAULT_PEAK_DECAY;
   const noiseFloor = options.noiseFloor ?? DEFAULT_NOISE_FLOOR;
   const minPeak = options.minPeak ?? DEFAULT_MIN_PEAK;
   const trebleBoost = options.trebleBoost ?? DEFAULT_TREBLE_BOOST;
-  /** @type {Float32Array} */
   const peaks = new Float32Array(barCount);
 
   return {
     normalize(frequencyData) {
       const binCount = frequencyData.length;
-      /** @type {Float32Array} */
       const output = new Float32Array(barCount);
 
       for (let bar = 0; bar < barCount; bar += 1) {

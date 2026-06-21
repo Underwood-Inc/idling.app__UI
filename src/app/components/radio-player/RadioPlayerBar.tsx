@@ -9,9 +9,12 @@ import type {
   BarVisualizerDensity,
   BarVisualizerPreferences,
 } from '@widgets/radio-player/barVisualizer.types';
-import { BAR_VISUALIZER_PRESET_DEFINITIONS } from '@widgets/radio-player/barVisualizerPresets';
+import { BAR_VISUALIZER_PRESET_DEFINITIONS, getBarVisualizerDockLayout } from '@widgets/radio-player/barVisualizerPresets';
 import type { RadioStationGenreId } from '@widgets/radio-player/radioPlayer.types';
-import { isCustomAudioSourceDefinition } from '@widgets/radio-player/customAudioSourceBrowse';
+import {
+  CUSTOM_AUDIO_SOURCES_UI_ENABLED,
+  isCustomAudioSourceDefinition,
+} from '@widgets/radio-player/customAudioSourceBrowse';
 import {
   findRadioStationDefinition,
   filterRadioStationsByGenre,
@@ -21,7 +24,7 @@ import {
   listRadioStationGenres,
 } from '@widgets/radio-player/radioStationBrowse';
 import { RADIO_VISUALIZER_PRESETS } from '@widgets/radio-player/radioVisualizerPresets';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { RadioPlayerCustomSourceForm } from './RadioPlayerCustomSourceForm';
 import styles from './RadioPlayerBar.module.css';
 
@@ -153,6 +156,8 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
     setSpectrumEnabled,
     spectrumOpacity,
     setSpectrumOpacity,
+    spectrumBarHeight,
+    setSpectrumBarHeight,
   } = useVisualizerMode();
   const handle = handleProp ?? contextHandle;
   const playerRef = useRef<HTMLDivElement>(null);
@@ -161,6 +166,7 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
   const [activePanel, setActivePanel] = useState<RadioPlayerPanel>(null);
   const [stationGenreFilter, setStationGenreFilter] = useState<RadioStationGenreId | null>(null);
   const [showCustomSourceForm, setShowCustomSourceForm] = useState(false);
+  const customSourcePanelRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!handle) {
@@ -185,8 +191,13 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
     };
   }, [handle]);
 
-  useEffect(() => {
-    if (!handle) {
+  const playbackReady = playback !== null;
+  const visualizerPresetId = playback?.visualizerPrefs.presetId;
+  const visualizerDensity = playback?.visualizerPrefs.density;
+  const vizDockLayout = getBarVisualizerDockLayout(visualizerPresetId ?? 'wave');
+
+  useLayoutEffect(() => {
+    if (!handle || !playbackReady || isActive) {
       return undefined;
     }
 
@@ -210,7 +221,21 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
       observer.disconnect();
       window.removeEventListener('resize', onResize);
     };
-  }, [handle]);
+  }, [handle, isActive, playbackReady]);
+
+  useLayoutEffect(() => {
+    if (!handle || !playbackReady || isActive) {
+      return undefined;
+    }
+
+    const frame = window.requestAnimationFrame(() => {
+      handle.resizeBarCanvas();
+    });
+
+    return () => {
+      window.cancelAnimationFrame(frame);
+    };
+  }, [handle, isActive, playbackReady, visualizerPresetId, visualizerDensity, vizDockLayout]);
 
   useEffect(() => {
     if (!activePanel) {
@@ -233,6 +258,20 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
     playerRef,
     expanded: activePanel !== null,
   });
+
+  useEffect(() => {
+    if (!showCustomSourceForm) {
+      return undefined;
+    }
+
+    const frame = window.requestAnimationFrame(() => {
+      customSourcePanelRef.current?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+    });
+
+    return () => {
+      window.cancelAnimationFrame(frame);
+    };
+  }, [showCustomSourceForm]);
 
   const stationNames = handle?.getStationNames() ?? [];
 
@@ -269,6 +308,7 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
       : 'None'
     : activeBarPreset.label;
   const spectrumOpacityPct = Math.round(spectrumOpacity * 100);
+  const spectrumBarHeightPct = Math.round(spectrumBarHeight * 100);
 
   const subtitle = (() => {
     if (!playback.isPlaying) {
@@ -295,12 +335,17 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
       ref={playerRef}
       className={styles.player}
       data-expanded={activePanel !== null}
+      data-visualizer-mode={isActive ? 'true' : 'false'}
       role="region"
       aria-label="Radio player"
       data-testid="radio-player-bar"
     >
       {activePanel === 'stations' ? (
-        <section className={`${styles.panel} ${styles.panelStations}`} aria-label="Choose a station">
+        <section
+          className={`${styles.panel} ${styles.panelStations}`}
+          data-custom-source-form={showCustomSourceForm ? 'true' : 'false'}
+          aria-label="Choose a station"
+        >
           <div className={styles.genreFilters} role="toolbar" aria-label="Filter by genre">
             <button
               type="button"
@@ -413,18 +458,24 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
               );
             })}
           </div>
-          <div className={styles.customSourcePanel}>
+          <div ref={customSourcePanelRef} className={styles.customSourcePanel}>
             <button
               type="button"
               className={`${styles.customSourceToggle} no-glass`}
               aria-expanded={showCustomSourceForm}
+              disabled={!CUSTOM_AUDIO_SOURCES_UI_ENABLED}
+              title={
+                CUSTOM_AUDIO_SOURCES_UI_ENABLED
+                  ? undefined
+                  : 'Custom sources are not available yet'
+              }
               onClick={() => {
                 setShowCustomSourceForm((current) => !current);
               }}
             >
               {showCustomSourceForm ? 'Hide add-source form' : 'Add your own source'}
             </button>
-            {showCustomSourceForm ? (
+            {CUSTOM_AUDIO_SOURCES_UI_ENABLED && showCustomSourceForm ? (
               <RadioPlayerCustomSourceForm
                 onAdded={(genre) => {
                   setShowCustomSourceForm(false);
@@ -489,6 +540,31 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
                 />
                 <span className={styles.opacityControl__pct} aria-hidden="true">
                   {spectrumOpacityPct}
+                </span>
+              </div>
+            </div>
+            <div className={styles.panelSection}>
+              <h2 className={styles.panelSection__title}>Bar height</h2>
+              <div className={styles.opacityControl}>
+                <input
+                  type="range"
+                  className={`${styles.opacityControl__slider} no-glass`}
+                  min={0.5}
+                  max={2.5}
+                  step={0.05}
+                  value={spectrumBarHeight}
+                  disabled={!spectrumEnabled}
+                  aria-label="Fullscreen spectrum bar height"
+                  aria-valuemin={50}
+                  aria-valuemax={250}
+                  aria-valuenow={spectrumBarHeightPct}
+                  aria-valuetext={`${spectrumBarHeightPct} percent`}
+                  onChange={(event) => {
+                    setSpectrumBarHeight(Number(event.target.value));
+                  }}
+                />
+                <span className={styles.opacityControl__pct} aria-hidden="true">
+                  {spectrumBarHeightPct}
                 </span>
               </div>
             </div>
@@ -596,9 +672,15 @@ export function RadioPlayerBar({ handle: handleProp }: RadioPlayerBarProps) {
           </div>
         </div>
 
-        <div ref={canvasHostRef} className={styles.viz} aria-hidden="true" />
-
         <div className={styles.tools}>
+          {!isActive ? (
+            <div
+              ref={canvasHostRef}
+              className={styles.viz}
+              data-layout={vizDockLayout}
+              aria-hidden="true"
+            />
+          ) : null}
           <RadioPlayerVolumeStepper
             volume={playback.volume}
             onChange={(level) => {

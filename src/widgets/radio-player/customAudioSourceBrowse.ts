@@ -13,6 +13,9 @@ import { listRadioStationGenres, RADIO_STATION_GENRES } from './radioStationBrow
 export const CUSTOM_AUDIO_SOURCE_URL_HINT =
   'HTTPS direct audio URL — MP3/AAC/Ogg Icecast or Shoutcast mount, or a static .mp3/.ogg file. HLS (.m3u8) and playlist files (.pls, .m3u) are not supported.';
 
+/** Gate the “Add your own source” UI until custom-source flow is ready for production. */
+export const CUSTOM_AUDIO_SOURCES_UI_ENABLED = false;
+
 const CUSTOM_AUDIO_SOURCE_GENRE_IDS = new Set<RadioStationGenreId>(
   Object.keys(RADIO_STATION_GENRES) as RadioStationGenreId[]
 );

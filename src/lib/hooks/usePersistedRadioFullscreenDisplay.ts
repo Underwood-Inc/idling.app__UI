@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import type { RadioFullscreenVisualizerDisplay } from '@widgets/radio-player/radioFullscreenVisualizerDisplay';
 import {
   clampRadioFullscreenVisualizerOpacity,
+  clampRadioFullscreenSpectrumBarHeight,
   DEFAULT_RADIO_FULLSCREEN_VISUALIZER_DISPLAY,
   loadRadioFullscreenVisualizerDisplay,
   saveRadioFullscreenVisualizerDisplay,
@@ -13,6 +14,7 @@ export interface UsePersistedRadioFullscreenDisplayResult {
   setSpectrumEnabled: (enabled: boolean) => void;
   setSpectrumOpacity: (opacity: number) => void;
   setSpectrumPresetIndex: (index: number) => void;
+  setSpectrumBarHeight: (barHeight: number) => void;
 }
 
 export function usePersistedRadioFullscreenDisplay(): UsePersistedRadioFullscreenDisplayResult {
@@ -53,11 +55,19 @@ export function usePersistedRadioFullscreenDisplay(): UsePersistedRadioFullscree
     }));
   }, []);
 
+  const setSpectrumBarHeight = useCallback((spectrumBarHeight: number) => {
+    setDisplay((current) => ({
+      ...current,
+      spectrumBarHeight: clampRadioFullscreenSpectrumBarHeight(spectrumBarHeight),
+    }));
+  }, []);
+
   return {
     display,
     isLoaded,
     setSpectrumEnabled,
     setSpectrumOpacity,
     setSpectrumPresetIndex,
+    setSpectrumBarHeight,
   };
 }
