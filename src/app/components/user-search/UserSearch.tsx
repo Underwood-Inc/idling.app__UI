@@ -240,14 +240,6 @@ export function UserSearch({
           <div className="user-search__auth-error">
             <SiteIcon id="lock" className="user-search__auth-error-icon" sizeRem={1} />
             <span className="user-search__auth-error-text">{authError}</span>
-            {status === 'unauthenticated' && (
-              <button
-                className="user-search__login-button"
-                onClick={() => router.push('/auth/signin')}
-              >
-                Sign In
-              </button>
-            )}
           </div>
         </div>
       )}

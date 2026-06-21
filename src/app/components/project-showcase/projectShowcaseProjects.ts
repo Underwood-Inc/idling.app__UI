@@ -1,8 +1,6 @@
 import {
   Blocks,
-  BookOpen,
   Gamepad2,
-  Github,
   Image,
   Link,
   Lock,

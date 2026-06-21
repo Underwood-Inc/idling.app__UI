@@ -41,8 +41,14 @@ Object.defineProperty(navigator, 'serviceWorker', {
   writable: true
 });
 
+interface MockLocation extends Partial<Location> {
+  reload: jest.Mock;
+  assign: jest.Mock;
+  replace: jest.Mock;
+}
+
 // Mock location reads used by CacheStatus (jsdom location is non-configurable)
-const mockLocation = {
+const mockLocation: MockLocation = {
   pathname: '/',
   href: 'https://example.com/',
   reload: jest.fn(),
@@ -57,7 +63,7 @@ const mockLocation = {
   protocol: 'https:',
   search: '',
   toString: () => 'https://example.com/',
-} as Location;
+};
 
 // Mock Response with json method
 class MockResponse {

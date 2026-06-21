@@ -492,7 +492,7 @@ export function enhanceMermaidDiagram(diagram: HTMLElement): void {
 
   diagram.setAttribute('data-enhanced', 'true');
 
-  let container = diagram.closest('.mermaid-container');
+  let container = diagram.closest('.mermaid-container') as HTMLElement | null;
   if (!container) {
     container = createContainer(diagram);
   } else {

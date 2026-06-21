@@ -23,7 +23,7 @@ interface AdminTabConfig {
   description?: string;
 }
 
-const ADMIN_TABS: AdminTabConfig[] = [
+const ADMIN_TABS = ([
   {
     id: 'analytics',
     label: 'Analytics',
@@ -88,7 +88,7 @@ const ADMIN_TABS: AdminTabConfig[] = [
     sortOrder: 8,
     description: 'Configure guest user quotas and limits',
   },
-].sort((a, b) => a.sortOrder - b.sortOrder);
+] satisfies AdminTabConfig[]).toSorted((a, b) => a.sortOrder - b.sortOrder);
 
 type AdminTab = (typeof ADMIN_TABS)[number]['id'];
 const VALID_TABS = ADMIN_TABS.map((tab) => tab.id);
