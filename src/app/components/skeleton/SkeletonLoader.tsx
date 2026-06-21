@@ -293,7 +293,7 @@ const generateSkeletonFromElement = (
 };
 
 // Smart Skeleton Hook
-export const useSmartSkeleton = (targetRef: React.RefObject<HTMLElement>) => {
+export const useSmartSkeleton = (targetRef: React.RefObject<HTMLElement | null>) => {
   const [skeletonContent, setSkeletonContent] = useState<React.ReactNode>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [capturedLayout, setCapturedLayout] = useState<ElementInfo | null>(
@@ -337,7 +337,7 @@ export const useSmartSkeleton = (targetRef: React.RefObject<HTMLElement>) => {
 
 // Main Smart Skeleton Loader Component
 interface SmartSkeletonLoaderProps {
-  targetRef: React.RefObject<HTMLElement>;
+  targetRef: React.RefObject<HTMLElement | null>;
   isLoading?: boolean;
   forceShow?: boolean;
   fallback?: React.ReactNode;
@@ -452,7 +452,7 @@ interface SkeletonLoaderProps {
   config:
     | {
         type: 'smart';
-        targetRef: React.RefObject<HTMLElement>;
+        targetRef: React.RefObject<HTMLElement | null>;
         fallback?: React.ReactNode;
       }
     | {

@@ -20,7 +20,7 @@ export const AdminEmojiSearchParamsSchema = z.object({
 export const AdminEmojiActionSchema = z.object({
   emojiId: z.number().int().min(1, 'Emoji ID is required'),
   action: z.enum(['approve', 'reject'], {
-    errorMap: () => ({ message: 'Action must be either "approve" or "reject"' }),
+    message: 'Action must be either "approve" or "reject"',
   }),
   reason: z.string().min(3, 'Reason must be at least 3 characters').optional(),
 }).refine(

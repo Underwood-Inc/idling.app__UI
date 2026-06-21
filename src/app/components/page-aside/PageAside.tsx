@@ -15,7 +15,9 @@ export function PageAside({
   return (
     <div className="page-aside__container" data-testid="page-aside-container">
       <aside className={className} data-testid={PAGE_ASIDE_SELECTORS.ASIDE}>
-        {children}
+        <div className="page-aside__panel">
+          <div className="page-aside__scroll">{children}</div>
+        </div>
       </aside>
       {bottomMargin ? (
         <div style={{ height: `${bottomMargin}rem`, display: 'block' }} />

@@ -83,6 +83,7 @@ graph TB
         Social[Social Platform]
         ModsHub[Mods Hub]
         ControlPanel[OBS Control Panel]
+        Mappy[Mappy Desktop]
     end
     
     subgraph ServerlessAPIs["☁️ Serverless APIs (Cloudflare Workers)"]
@@ -107,6 +108,8 @@ graph TB
         R2[(R2 Cloud)]
         IDB[(IndexedDB)]
     end
+    
+    Mappy --> IDB
     
     Main --> Auth
     Main --> PG
@@ -135,7 +138,7 @@ graph TB
     classDef mc fill:#d79921,stroke:#fabd2f,stroke-width:2px,color:#ebdbb2
     classDef storage fill:#cc241d,stroke:#fb4934,stroke-width:2px,color:#ebdbb2
     
-    class Main,Card,SVG,Social,ModsHub,ControlPanel web
+    class Main,Card,SVG,Social,ModsHub,ControlPanel,Mappy web
     class Auth,Access,ModsAPI,ChatSig,Customer,Game,Streamkit api
     class Compressy,Rituals,Trials mc
     class PG,KV,R2,IDB storage
@@ -146,12 +149,14 @@ graph LR
         WebUser[Web Visitors]
         MCUser[Minecraft Players]
         Streamer[Streamers]
+        Explorer[Map Explorers]
     end
     
     subgraph Apps["🌐 Applications"]
         Web[idling.app<br/>Next.js]
         Mods[Mods Hub<br/>React]
         OBS[OBS Panel<br/>Svelte]
+        Maps[Mappy<br/>Tauri Desktop]
     end
     
     subgraph APIs["☁️ APIs"]
@@ -164,16 +169,19 @@ graph LR
         SQL[(PostgreSQL)]
         KV[(KV Store)]
         R2[(R2 Files)]
+        Local[(IndexedDB)]
     end
     
     WebUser --> Web
     MCUser --> Mods
     Streamer --> OBS
+    Explorer --> Maps
     
     Web --> AuthAPI
     Web --> SQL
     Mods --> ModsAPI
     OBS --> StreamAPI
+    Maps --> Local
     
     AuthAPI --> KV
     ModsAPI --> R2
@@ -185,10 +193,10 @@ graph LR
     classDef api fill:#b16286,stroke:#d3869b,stroke-width:2px,color:#ebdbb2
     classDef data fill:#cc241d,stroke:#fb4934,stroke-width:2px,color:#ebdbb2
     
-    class WebUser,MCUser,Streamer user
-    class Web,Mods,OBS app
+    class WebUser,MCUser,Streamer,Explorer user
+    class Web,Mods,OBS,Maps app
     class AuthAPI,ModsAPI,StreamAPI api
-    class SQL,KV,R2 data
+    class SQL,KV,R2,Local data
     `,
     packages: `
 graph TB
@@ -263,7 +271,7 @@ graph TB
       <div className={styles.diagram__header}>
         <h3 className={styles.diagram__title}>🏗️ Ecosystem Architecture</h3>
         <p className={styles.diagram__subtitle}>
-          Complete view of how 40+ projects work together across 3 perspectives
+          How 41+ projects connect — pick a lens below
         </p>
       </div>
 
@@ -302,17 +310,22 @@ graph TB
       <div className={styles.diagram__footer}>
         {activeTab === 'overview' && (
           <p className={styles.footer__text}>
-            <strong>System overview:</strong> 6 web applications (idling.app, Card Generator, SVG Converter, Social Platform, Mods Hub, OBS Control Panel) connect to 7 Cloudflare Workers APIs (Auth, Access, Mods, Chat, Customer, Game, Streamkit). 3 Minecraft mods integrate via Mods API. All data stored in PostgreSQL, Cloudflare KV, R2 Cloud, and IndexedDB.
+            <strong>System overview:</strong> 7 web/desktop apps (including Mappy), 7 Cloudflare
+            Workers APIs, 3 Minecraft mods via Mods API, and storage across PostgreSQL, KV, R2, and
+            IndexedDB.
           </p>
         )}
         {activeTab === 'dataflow' && (
           <p className={styles.footer__text}>
-            <strong>Data flow:</strong> Web visitors, Minecraft players, and streamers interact with their respective applications. Apps authenticate via Auth API and store data in PostgreSQL (user data), KV Storage (serverless state), and R2 Cloud (file storage). Minecraft mods sync through Mods API to R2/KV storage.
+            <strong>Data flow:</strong> Visitors, players, streamers, and map explorers each reach
+            their app surface. Web and mods use APIs; Mappy stays offline-first with local
+            IndexedDB — no account required.
           </p>
         )}
         {activeTab === 'packages' && (
           <p className={styles.footer__text}>
-            <strong>Package ecosystem:</strong> 26 NPM packages organized by purpose: Core (api-framework, auth-store, service-client, schemas, shared-components with React/Svelte variants), UI (chat, otp-login, audio-player, idle-game-overlay, ad-carousel, tooltip, status-flair, portal-select), Utils (p2p-storage, search-parser, virtualized-table, asciimoji, dom-utils, error-utils, animation-utils), Hooks (use-3d-transform, use-cursor-tracking, use-flip-card), Testing (e2e-helpers, error-mapping). All packages work together with clear dependencies.
+            <strong>Package ecosystem:</strong> 26 NPM packages — core framework, UI, utilities,
+            hooks, and testing helpers — shared across React, Svelte, and Cloudflare surfaces.
           </p>
         )}
       </div>

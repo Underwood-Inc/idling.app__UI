@@ -113,7 +113,8 @@ export function parseZodErrors(error: ZodError): string {
   };
 
   Object.entries(flat.fieldErrors).forEach(([k, v]) => {
-    errors.push(`${getLabelByKey(k)}: ${v?.join('\n')}`);
+    const messages = Array.isArray(v) ? v.join('\n') : String(v ?? '');
+    errors.push(`${getLabelByKey(k)}: ${messages}`);
   });
 
   return errors.join('\n');

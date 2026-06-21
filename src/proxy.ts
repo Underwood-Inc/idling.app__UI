@@ -38,12 +38,12 @@ export default auth(async (req: NextRequest & { auth: any }) => {
     if (process.env.NODE_ENV === 'development') {
       // eslint-disable-next-line no-console -- Development debugging
       console.log(
-        `🔍 MIDDLEWARE: ${nextUrl.pathname} - Public: ${isPublicApiRoute}`
+        `🔍 PROXY: ${nextUrl.pathname} - Public: ${isPublicApiRoute}`
       );
     }
 
     if (!isPublicApiRoute) {
-      // For Edge Runtime compatibility, only do basic auth checks in middleware
+      // For Edge Runtime compatibility, only do basic auth checks in proxy
       // Full database validation will happen in the actual API routes
 
       if (!session) {
@@ -175,7 +175,7 @@ export const config = {
      */
     {
       source:
-        '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|txt|xml|ico)$).*)',
+        '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|txt|xml|ico|woff|woff2|ttf|otf|eot)$).*)',
       missing: [
         { type: 'header', key: 'next-router-prefetch' },
         { type: 'header', key: 'purpose', value: 'prefetch' }

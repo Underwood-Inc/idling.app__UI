@@ -19,7 +19,7 @@ export interface SearchInputContainerProps {
   onRemoveFilter?: (name: any, value?: any) => void;
   onFilterSuccess?: () => void;
   onSearch?: (searchText: string) => void;
-  inputRef?: React.RefObject<HTMLInputElement>;
+  inputRef?: React.RefObject<HTMLInputElement | null>;
   onInputChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onKeyDown?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
   onBlur?: () => void;

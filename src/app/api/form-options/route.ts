@@ -39,7 +39,7 @@ const CreateFormOptionSchema = z.object({
     .nullable()
     .optional(),
   sort_order: z.number().int().min(0).max(9999).optional().default(0),
-  configuration: z.record(z.any()).optional().nullable(),
+  configuration: z.record(z.string(), z.any()).optional().nullable(),
   is_active: z.boolean().optional().default(true)
 });
 
@@ -92,7 +92,7 @@ export async function GET(request: NextRequest) {
         {
           success: false,
           error: 'Invalid query parameters',
-          details: queryValidation.error.errors
+          details: queryValidation.error.issues
         },
         { status: 400 }
       );
@@ -229,7 +229,7 @@ export async function POST(request: NextRequest) {
         {
           success: false,
           error: 'Invalid request body',
-          details: validation.error.errors
+          details: validation.error.issues
         },
         { status: 400 }
       );
@@ -305,7 +305,7 @@ export async function DELETE(request: NextRequest) {
         {
           success: false,
           error: 'Invalid query parameters',
-          details: queryValidation.error.errors
+          details: queryValidation.error.issues
         },
         { status: 400 }
       );

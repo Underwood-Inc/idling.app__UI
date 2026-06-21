@@ -1,19 +1,10 @@
 const { version } = require('./package.json');
-const path = require('path');
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  publicRuntimeConfig: {
-    version
-  },
   reactStrictMode: true,
-  eslint: {
-    // Allow production builds to complete even if there are ESLint warnings
-    ignoreDuringBuilds: true
-  },
   // Enable OpenTelemetry instrumentation for SigNoz + Smart caching
   experimental: {
-    instrumentationHook: true,
     staleTimes: {
       dynamic: 30, // 30 seconds for dynamic content
       static: 300 // 5 minutes for static content
@@ -22,16 +13,6 @@ const nextConfig = {
   // Smart cache headers with versioning
   async headers() {
     return [
-      // Static assets with long cache + version busting
-      {
-        source: '/_next/static/:path*',
-        headers: [
-          {
-            key: 'Cache-Control',
-            value: 'public, max-age=31536000, immutable' // 1 year for static assets
-          }
-        ]
-      },
       // Favicon and common static files
       {
         source: '/favicon.ico',

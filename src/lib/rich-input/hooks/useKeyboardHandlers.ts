@@ -15,7 +15,7 @@ export function useKeyboardHandlers(
   state: RichInputState,
   config: RichInputConfig,
   handlers: RichInputEventHandlers,
-  containerRef: React.RefObject<HTMLDivElement>
+  containerRef: React.RefObject<HTMLDivElement | null>
 ) {
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {

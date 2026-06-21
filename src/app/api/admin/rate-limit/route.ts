@@ -24,7 +24,7 @@ export async function GET(request: NextRequest) {
     
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: 'Invalid request data', details: error.errors },
+        { error: 'Invalid request data', details: error.issues },
         { status: 400 }
       );
     }
@@ -54,7 +54,7 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json(
         { 
           error: 'Invalid parameters',
-          details: paramsResult.error.errors 
+          details: paramsResult.error.issues 
         },
         { status: 400 }
       );
@@ -75,7 +75,7 @@ export async function DELETE(request: NextRequest) {
     
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: 'Invalid request data', details: error.errors },
+        { error: 'Invalid request data', details: error.issues },
         { status: 400 }
       );
     }

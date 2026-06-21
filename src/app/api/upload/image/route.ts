@@ -168,7 +168,7 @@ async function postHandler(request: NextRequest) {
       return NextResponse.json(
         {
           error: 'File validation failed',
-          details: validationResult.error.errors
+          details: validationResult.error.issues
         },
         { status: 400 }
       );
@@ -232,7 +232,7 @@ async function postHandler(request: NextRequest) {
 
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: 'Invalid file data', details: error.errors },
+        { error: 'Invalid file data', details: error.issues },
         { status: 400 }
       );
     }

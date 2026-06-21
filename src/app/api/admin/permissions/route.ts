@@ -339,7 +339,7 @@ const PermissionCreateSchema = z.object({
     .optional()
     .default('low'),
   dependencies: z.array(z.string()).optional().default([]),
-  metadata: z.record(z.any()).optional().default({}),
+  metadata: z.record(z.string(), z.any()).optional().default({}),
   reason: z.string().optional()
 });
 
@@ -352,7 +352,7 @@ const PermissionUpdateSchema = z.object({
   risk_level: z.enum(['low', 'medium', 'high', 'critical']).optional(),
   sort_order: z.number().min(0).optional(),
   dependencies: z.array(z.string()).optional(),
-  metadata: z.record(z.any()).optional(),
+  metadata: z.record(z.string(), z.any()).optional(),
   reason: z.string().optional()
 });
 
@@ -515,7 +515,7 @@ async function getHandler(request: NextRequest) {
 
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: 'Invalid request parameters', details: error.errors },
+        { error: 'Invalid request parameters', details: error.issues },
         { status: 400 }
       );
     }
@@ -599,7 +599,7 @@ async function postHandler(request: NextRequest) {
 
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: 'Invalid request data', details: error.errors },
+        { error: 'Invalid request data', details: error.issues },
         { status: 400 }
       );
     }

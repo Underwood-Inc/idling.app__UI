@@ -27,6 +27,26 @@ interface Project {
 
 const PROJECTS: Project[] = [
   {
+    id: 'mappy',
+    title: 'Mappy',
+    description:
+      'Offline-first interactive map platform for open-world games, homebrew campaigns, and custom realms. MapLibre canvas, marker corpus, progress tracking, unified search, measure tools, and authoring — static files only, no application backend.',
+    category: 'Gaming',
+    type: 'Desktop App (Tauri 2)',
+    features: [
+      'Offline-First Maps',
+      'Marker Maker & Tile Studio',
+      'Official Map Packs',
+      'No Login Required',
+    ],
+    links: {
+      live: 'https://short.army/mappy',
+      demo: 'https://underwood-inc.github.io/mappy/wiki/',
+      github: 'https://github.com/Underwood-Inc/mappy',
+    },
+    icon: '🗺️',
+  },
+  {
     id: 'compressy',
     title: 'Compressy',
     description: 'Fabric mod for infinite block compression. Compress 9 blocks into 1, up to 32 tiers! Works with ALL blocks automatically. Store incomprehensible amounts with fancy tooltips and roman numerals.',
@@ -377,7 +397,7 @@ export function ProjectShowcase() {
   useEffect(() => {
     // Fetch Modrinth stats directly from their PUBLIC API
     const modrinthSlugs = ['compressy', 'totem-rituals', 'strixun-trials-of-the-wild'];
-    
+
     Promise.all(
       modrinthSlugs.map((slug) =>
         fetch(`https://api.modrinth.com/v2/project/${slug}`, {
@@ -392,7 +412,7 @@ export function ProjectShowcase() {
     )
       .then((projects) => {
         const [compressy, rituals, trialsOfTheWild] = projects;
-        
+
         setStats({
           compressy: compressy ? {
             downloads: compressy.downloads || 0,
@@ -428,7 +448,8 @@ export function ProjectShowcase() {
       <div className={styles.showcase__header}>
         <h2 className={styles.showcase__title}>Featured Projects</h2>
         <p className={styles.showcase__subtitle}>
-          Showcasing 18 of 40+ open source projects: web applications, Minecraft mods, serverless APIs, developer tools, and infrastructure packages
+          19 of 41+ open source projects — web apps, desktop maps, Minecraft mods, serverless APIs,
+          developer tools, and infrastructure packages
         </p>
 
         {/* Category Filter */}
@@ -436,9 +457,8 @@ export function ProjectShowcase() {
           {(['All', 'Minecraft', 'Web Tools', 'Social', 'Streaming', 'Gaming', 'Infrastructure'] as const).map((category) => (
             <button
               key={category}
-              className={`${styles.filter__button} ${
-                selectedCategory === category ? styles['filter__button--active'] : ''
-              }`}
+              className={`${styles.filter__button} ${selectedCategory === category ? styles['filter__button--active'] : ''
+                }`}
               onClick={() => setSelectedCategory(category)}
             >
               {category}
@@ -447,101 +467,103 @@ export function ProjectShowcase() {
         </div>
       </div>
 
-      <div className={styles.projects__grid}>
-        {filteredProjects.map((project) => {
-          const downloads = getDownloads(project.id);
+      <div className={styles.projects__container}>
+        <div className={styles.projects__grid}>
+          {filteredProjects.map((project) => {
+            const downloads = getDownloads(project.id);
 
-          return (
-            <div key={project.id} className={styles.project}>
-              <div className={styles.project__header}>
-                <span className={styles.project__icon}>{project.icon}</span>
-                <div className={styles.project__meta}>
-                  <h3 className={styles.project__title}>
-                    {project.title}
-                    {project.status === 'WIP' && (
-                      <span className={styles.project__status__wip}>WIP</span>
-                    )}
-                  </h3>
-                  <span className={styles.project__type}>{project.type}</span>
+            return (
+              <div key={project.id} className={styles.project}>
+                <div className={styles.project__header}>
+                  <span className={styles.project__icon}>{project.icon}</span>
+                  <div className={styles.project__meta}>
+                    <h3 className={styles.project__title}>
+                      {project.title}
+                      {project.status === 'WIP' && (
+                        <span className={styles.project__status__wip}>WIP</span>
+                      )}
+                    </h3>
+                    <span className={styles.project__type}>{project.type}</span>
+                  </div>
+                </div>
+
+                {downloads && (
+                  <div className={styles.project__downloads}>
+                    📥 <strong>{downloads}</strong> downloads
+                  </div>
+                )}
+
+                <p className={styles.project__description}>{project.description}</p>
+
+                <div className={styles.project__features}>
+                  {project.features.map((feature) => (
+                    <span key={feature} className={styles.feature__tag}>
+                      {feature}
+                    </span>
+                  ))}
+                </div>
+
+                <div className={styles.project__links}>
+                  {/* Priority 1: Mods Hub (our platform) */}
+                  {project.links.modsHub && (
+                    <a
+                      href={project.links.modsHub}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={`${styles.project__link} ${styles['project__link--modshub']}`}
+                    >
+                      🎮 Mods Hub
+                    </a>
+                  )}
+                  {/* Priority 2: Modrinth (secondary) */}
+                  {project.links.modrinth && (
+                    <a
+                      href={project.links.modrinth}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={`${styles.project__link} ${styles['project__link--modrinth']}`}
+                    >
+                      <SiModrinth /> Modrinth
+                    </a>
+                  )}
+                  {/* Priority 3: Live services */}
+                  {project.links.live && (
+                    <a
+                      href={project.links.live}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={`${styles.project__link} ${styles['project__link--live']}`}
+                    >
+                      🚀 Live App
+                    </a>
+                  )}
+                  {/* Priority 4: GitHub source */}
+                  {project.links.github && (
+                    <a
+                      href={project.links.github}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={`${styles.project__link} ${styles['project__link--github']}`}
+                    >
+                      <FaGithub /> GitHub
+                    </a>
+                  )}
+                  {/* Priority 5: Documentation */}
+                  {project.links.demo && (
+                    <a
+                      href={project.links.demo}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={`${styles.project__link} ${styles['project__link--demo']}`}
+                    >
+                      📖 Learn More
+                    </a>
+                  )}
                 </div>
               </div>
-
-              {downloads && (
-                <div className={styles.project__downloads}>
-                  📥 <strong>{downloads}</strong> downloads
-                </div>
-              )}
-
-              <p className={styles.project__description}>{project.description}</p>
-
-              <div className={styles.project__features}>
-                {project.features.map((feature) => (
-                  <span key={feature} className={styles.feature__tag}>
-                    {feature}
-                  </span>
-                ))}
-              </div>
-
-              <div className={styles.project__links}>
-                {/* Priority 1: Mods Hub (our platform) */}
-                {project.links.modsHub && (
-                  <a
-                    href={project.links.modsHub}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={`${styles.project__link} ${styles['project__link--modshub']}`}
-                  >
-                    🎮 Mods Hub
-                  </a>
-                )}
-                {/* Priority 2: Modrinth (secondary) */}
-                {project.links.modrinth && (
-                  <a
-                    href={project.links.modrinth}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={`${styles.project__link} ${styles['project__link--modrinth']}`}
-                  >
-                    <SiModrinth /> Modrinth
-                  </a>
-                )}
-                {/* Priority 3: Live services */}
-                {project.links.live && (
-                  <a
-                    href={project.links.live}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={`${styles.project__link} ${styles['project__link--live']}`}
-                  >
-                    🚀 Live App
-                  </a>
-                )}
-                {/* Priority 4: GitHub source */}
-                {project.links.github && (
-                  <a
-                    href={project.links.github}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={`${styles.project__link} ${styles['project__link--github']}`}
-                  >
-                    <FaGithub /> GitHub
-                  </a>
-                )}
-                {/* Priority 5: Documentation */}
-                {project.links.demo && (
-                  <a
-                    href={project.links.demo}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={`${styles.project__link} ${styles['project__link--demo']}`}
-                  >
-                    📖 Learn More
-                  </a>
-                )}
-              </div>
-            </div>
-          );
-        })}
+            );
+          })}
+        </div>
       </div>
     </div>
   );

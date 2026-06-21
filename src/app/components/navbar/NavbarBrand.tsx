@@ -1,7 +1,7 @@
 'use client';
 
 import { useSession } from 'next-auth/react';
-import { AuthAvatar } from '../auth-avatar';
+import { AuthAvatar } from '../auth-avatar/AuthAvatar';
 
 export function NavbarBrand() {
   const { data: session, status } = useSession();

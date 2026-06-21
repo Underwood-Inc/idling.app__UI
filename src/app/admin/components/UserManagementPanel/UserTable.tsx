@@ -34,7 +34,7 @@ interface UserTableProps {
   onExportData: (user: ManagementUser) => void;
   onTimeoutUser: (user: ManagementUser) => void;
   onRevokeTimeout: (user: ManagementUser) => void;
-  tableContainerRef: React.RefObject<HTMLDivElement>;
+  tableContainerRef: React.RefObject<HTMLDivElement | null>;
 }
 
 export const UserTable: React.FC<UserTableProps> = ({

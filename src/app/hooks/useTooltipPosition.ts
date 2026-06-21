@@ -1,8 +1,8 @@
 import { RefObject, useCallback, useState } from 'react';
 
 export const useTooltipPosition = (
-  tooltipRef: RefObject<HTMLElement>,
-  tooltipContentRef: RefObject<HTMLElement>
+  tooltipRef: RefObject<HTMLElement | null>,
+  tooltipContentRef: RefObject<HTMLElement | null>
 ) => {
   const [position, setPosition] = useState({ top: 0, left: 0 });
 
