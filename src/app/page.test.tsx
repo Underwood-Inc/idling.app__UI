@@ -1,5 +1,4 @@
 import React from 'react';
-import { DISCORD_LINK_SELECTORS } from 'src/lib/test-selectors/components/discord-link.selectors';
 import { PAGE_ASIDE_SELECTORS } from 'src/lib/test-selectors/components/page-aside.selectors';
 import { render, screen } from '../test-utils';
 import Page from './page';
@@ -32,6 +31,12 @@ jest.mock('./components/recent-activity-feed', () => ({
   )
 }));
 
+jest.mock('./components/stats-dashboard/StatsDashboard', () => ({
+  StatsDashboard: () => (
+    <div data-testid="mock-stats-dashboard">Stats Dashboard</div>
+  )
+}));
+
 describe('Home Page', () => {
   beforeEach(() => {
     jest.clearAllMocks();
@@ -44,29 +49,18 @@ describe('Home Page', () => {
     expect(screen.getByTestId('mock-page-container')).toBeInTheDocument();
     expect(screen.getByTestId('mock-page-content')).toBeInTheDocument();
     // Check for the About section heading
-    expect(screen.getByText("Hi! I'm Strixun 👋")).toBeInTheDocument();
+    expect(screen.getByText("Hi! I'm Strixun")).toBeInTheDocument();
 
-    // Check layout and Discord content
+    // Check layout and sidebar content
     const article = container.querySelector('article');
     const cards = article?.querySelectorAll('.card');
     expect(cards).toHaveLength(4); // About, Ecosystem, Projects, and Activity cards
 
-    // Discord content is now in the aside, not in the main cards
     expect(
       screen.getByTestId(PAGE_ASIDE_SELECTORS.CONTAINER)
     ).toBeInTheDocument();
     expect(screen.getByTestId(PAGE_ASIDE_SELECTORS.ASIDE)).toBeInTheDocument();
-
-    // Check Discord embed in aside
-    expect(screen.getByTestId('discord-embed-iframe')).toBeInTheDocument();
-
-    // Check Discord links
-    const discordLinks = screen.getAllByTestId(DISCORD_LINK_SELECTORS.LINK);
-    expect(discordLinks).toHaveLength(1);
-    expect(discordLinks[0]).toHaveAttribute(
-      'href',
-      'https://discord.gg/mpThbx67J7'
-    );
-    expect(discordLinks[0]).toHaveAttribute('target', '_blank');
+    expect(screen.getByTestId('mock-stats-dashboard')).toBeInTheDocument();
+    expect(screen.getByTestId('mock-recent-activity-feed')).toBeInTheDocument();
   });
 });
